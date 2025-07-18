@@ -1,0 +1,23 @@
+torch
+transformers
+pyttsx3
+SpeechRecognition
+pyaudio
+numpy
+# For GPU support, llama-cpp-python needs to be installed with specific flags.
+# Please see the installation instructions.
+llama-cpp-python
+# For advanced VAD and high-quality TTS
+webrtcvad-wheels
+elevenlabs
+# For screen capture
+Pillow
+# For finding the game window on Windows
+pywin32
+# For web search
+google-api-python-client
+# For advanced memory (vector database)
+chromadb
+sentence-transformers
+
+

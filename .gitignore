@@ -1,0 +1,16 @@
+# .gitignore - Files and folders to ignore for version control (like Git)
+
+# Python virtual environment
+venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Sensitive configuration files (like API keys or paths to local models)
+config.py
+.env
+
+# Downloaded LLM models (can be very large)
+models/
+*.gguf
