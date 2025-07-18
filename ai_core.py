@@ -124,32 +124,72 @@ class AI_Core:
             return "Oops, my brain just short-circuited! Can you repeat that?"
 
     async def _interruptible_playback(self, data, samplerate):
-        """Plays audio data on the default output device and allows for interruption."""
+        """Plays audio simultaneously on the default device and the virtual cable."""
+        VIRTUAL_CABLE_NAME = "CABLE Input"
+        cable_device_index = None
+        default_device_index = None
         loop = asyncio.get_running_loop()
-        
-        # Use the default output device by not specifying a device index.
-        stream = sd.OutputStream(
-            samplerate=samplerate,
-            channels=data.ndim if data.ndim > 1 else 1,
-            dtype=data.dtype
-        )
-        stream.start()
-        print("   Playing audio on default device...")
+
         try:
-            chunk_size = 1024
+            # Get the user's default output device index
+            default_device_index = sd.default.device[1]
+            default_device_info = sd.query_devices(default_device_index)
+            print(f"   User hearing on: {default_device_info['name']}")
+
+            # Find the virtual cable index for VTube Studio
+            devices = sd.query_devices()
+            for i, device in enumerate(devices):
+                if VIRTUAL_CABLE_NAME in device['name'] and device['max_output_channels'] > 0:
+                    cable_device_index = i
+                    print(f"   VTube Studio listening on: {device['name']}")
+                    break
+            if cable_device_index is None:
+                print(f"   WARNING: '{VIRTUAL_CABLE_NAME}' not found for VTube Studio.")
+
+        except Exception as e:
+            print(f"   Error querying audio devices: {e}")
+            return
+
+        stream_default = None
+        stream_cable = None
+        try:
+            # Create a stream for the user to hear
+            stream_default = sd.OutputStream(
+                device=default_device_index, samplerate=samplerate,
+                channels=data.shape[1] if data.ndim > 1 else 1, dtype=data.dtype)
+            stream_default.start()
+
+            # Create a stream for VTube Studio to listen to
+            if cable_device_index is not None:
+                stream_cable = sd.OutputStream(
+                    device=cable_device_index, samplerate=samplerate,
+                    channels=data.shape[1] if data.ndim > 1 else 1, dtype=data.dtype)
+                stream_cable.start()
+
+            # Write audio data to both streams in chunks
+            chunk_size = 2048  # A larger chunk size can be more stable
             for i in range(0, len(data), chunk_size):
                 if self.interruption_event.is_set():
                     print("   Playback interrupted by user.")
-                    stream.stop()
-                    stream.abort()
-                    return
+                    break
                 chunk = data[i:i + chunk_size]
-                await loop.run_in_executor(None, stream.write, chunk)
+                
+                # These are blocking calls, so we run them in an executor
+                # We write to the default device first, then the virtual one
+                await loop.run_in_executor(None, stream_default.write, chunk)
+                if stream_cable:
+                    await loop.run_in_executor(None, stream_cable.write, chunk)
+
+        except Exception as e:
+            print(f"   Error during dual playback: {e}")
         finally:
-            if not stream.stopped:
-                stream.stop()
-            if not stream.closed:
-                stream.close()
+            if stream_default:
+                stream_default.stop()
+                stream_default.close()
+            if stream_cable:
+                stream_cable.stop()
+                stream_cable.close()
+
 
     async def speak_text(self, text: str):
         print(f"   Speaking: '{text}'")
