@@ -196,7 +196,7 @@ class AI_Core:
             print(f"   ERROR speaking with {TTS_ENGINE}: {e}")
 
     async def _speak_elevenlabs(self, text: str):
-        audio_stream = await self.elevenlabs_client.text_to_speech.stream(text=text, voice_id=ELEVENLABS_VOICE_ID)
+        audio_stream = self.elevenlabs_client.text_to_speech.stream(text=text, voice_id=ELEVENLABS_VOICE_ID)
         buffer = io.BytesIO()
         async for chunk in audio_stream:
             if self.interruption_event.is_set(): return
