@@ -63,6 +63,11 @@ class AI_Core:
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
         self.llm = Llama(model_path=LLM_MODEL_PATH, n_ctx=N_CTX, n_gpu_layers=N_GPU_LAYERS, verbose=True)
         print("   LLM loaded.")
+        
+        print("   Warming up the LLM... (this may take a moment)")
+        warmup_prompt = "<|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nHello.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+        self.llm(warmup_prompt, max_tokens=2, stop=["<|eot_id|>"])
+        print("   LLM is warm and ready!")
 
     def _initialize_whisper(self):
         print("-> Loading Whisper STT model...")
@@ -72,11 +77,16 @@ class AI_Core:
         self.whisper_pipeline = pipeline("automatic-speech-recognition", model=model_name, device=device)
         print("   Whisper STT model loaded.")
 
+        print("   Warming up Whisper model... (this may cause a brief freeze)")
+        silent_audio = np.zeros(16000, dtype=np.float32) # 1 second of silence
+        self.whisper_pipeline(silent_audio)
+        print("   Whisper model is warm and ready!")
+
     async def _initialize_tts(self):
         print(f"-> Initializing TTS engine: {TTS_ENGINE}...")
         if TTS_ENGINE == 'elevenlabs':
             if not all([AsyncElevenLabs, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID]) or "YOUR_API_KEY" in ELEVENLABS_API_KEY:
-                raise ValueError("ElevenLabs configuration is missing, placeholder values are present, or library not installed.")
+                raise ValueError("ElevenLabs configuration is missing or uses placeholder values.")
             self.elevenlabs_client = AsyncElevenLabs(api_key=ELEVENLABS_API_KEY)
             print("   ElevenLabs client initialized.")
         elif TTS_ENGINE == 'edge':
@@ -90,8 +100,10 @@ class AI_Core:
         try:
             audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
             loop = asyncio.get_running_loop()
+            
             pipeline_input = {"array": audio_np, "sampling_rate": sample_rate}
-            whisper_call = functools.partial(self.whisper_pipeline, pipeline_input, generate_kwargs={"language": "en"})
+            whisper_call = functools.partial(self.whisper_pipeline, pipeline_input)
+
             result = await loop.run_in_executor(None, whisper_call)
             text = result.get("text", "").strip()
             print(f"   You said: '{text}'")
@@ -110,12 +122,11 @@ class AI_Core:
         prompt += "<|start_header_id|>assistant<|end_header_id|>\n\n"
         try:
             loop = asyncio.get_running_loop()
-            llm_call = functools.partial(self.llm, prompt=prompt, max_tokens=200, stop=["<|eot_id|>"], temperature=0.7, echo=False)
+            llm_call = functools.partial(self.llm, prompt=prompt, max_tokens=512, stop=["<|eot_id|>"], temperature=0.7, echo=False)
             response = await loop.run_in_executor(None, llm_call)
             cleaned_text = response['choices'][0]['text'].strip()
             if not cleaned_text:
-                print("   Warning: LLM returned an empty string.")
-                return "I... zoned out for a sec. What were we talking about?"
+                cleaned_text = "I'm not sure what to say to that!"
             print(f"   LLM Response: {cleaned_text}")
             return cleaned_text
         except Exception as e:
@@ -124,19 +135,16 @@ class AI_Core:
             return "Oops, my brain just short-circuited! Can you repeat that?"
 
     async def _interruptible_playback(self, data, samplerate):
-        """Plays audio simultaneously on the default device and the virtual cable."""
         VIRTUAL_CABLE_NAME = "CABLE Input"
         cable_device_index = None
         default_device_index = None
         loop = asyncio.get_running_loop()
 
         try:
-            # Get the user's default output device index
             default_device_index = sd.default.device[1]
             default_device_info = sd.query_devices(default_device_index)
             print(f"   User hearing on: {default_device_info['name']}")
 
-            # Find the virtual cable index for VTube Studio
             devices = sd.query_devices()
             for i, device in enumerate(devices):
                 if VIRTUAL_CABLE_NAME in device['name'] and device['max_output_channels'] > 0:
@@ -150,32 +158,21 @@ class AI_Core:
             print(f"   Error querying audio devices: {e}")
             return
 
-        stream_default = None
-        stream_cable = None
+        stream_default, stream_cable = None, None
         try:
-            # Create a stream for the user to hear
-            stream_default = sd.OutputStream(
-                device=default_device_index, samplerate=samplerate,
-                channels=data.shape[1] if data.ndim > 1 else 1, dtype=data.dtype)
+            channels = data.shape[1] if data.ndim > 1 else 1
+            stream_default = sd.OutputStream(device=default_device_index, samplerate=samplerate, channels=channels, dtype=data.dtype)
             stream_default.start()
-
-            # Create a stream for VTube Studio to listen to
             if cable_device_index is not None:
-                stream_cable = sd.OutputStream(
-                    device=cable_device_index, samplerate=samplerate,
-                    channels=data.shape[1] if data.ndim > 1 else 1, dtype=data.dtype)
+                stream_cable = sd.OutputStream(device=cable_device_index, samplerate=samplerate, channels=channels, dtype=data.dtype)
                 stream_cable.start()
 
-            # Write audio data to both streams in chunks
-            chunk_size = 2048  # A larger chunk size can be more stable
+            chunk_size = 2048
             for i in range(0, len(data), chunk_size):
                 if self.interruption_event.is_set():
                     print("   Playback interrupted by user.")
                     break
                 chunk = data[i:i + chunk_size]
-                
-                # These are blocking calls, so we run them in an executor
-                # We write to the default device first, then the virtual one
                 await loop.run_in_executor(None, stream_default.write, chunk)
                 if stream_cable:
                     await loop.run_in_executor(None, stream_cable.write, chunk)
@@ -183,13 +180,8 @@ class AI_Core:
         except Exception as e:
             print(f"   Error during dual playback: {e}")
         finally:
-            if stream_default:
-                stream_default.stop()
-                stream_default.close()
-            if stream_cable:
-                stream_cable.stop()
-                stream_cable.close()
-
+            if stream_default: stream_default.stop(); stream_default.close()
+            if stream_cable: stream_cable.stop(); stream_cable.close()
 
     async def speak_text(self, text: str):
         print(f"   Speaking: '{text}'")
