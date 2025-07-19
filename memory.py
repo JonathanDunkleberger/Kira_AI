@@ -67,7 +67,9 @@ class MemoryManager:
                     formatted_results.append(f"[{role.capitalize()}]: {doc}") # Capitalize role for readability
             
             if formatted_results:
-                return f"Here are some relevant memories:\n- " + "\n- ".join(formatted_results)
+                # This changed from "Here are some relevant memories:" to a more neutral header
+                # to prevent the AI from repeating it.
+                return f"[Memory Context]:\n- " + "\n- ".join(formatted_results)
             else:
                 return "No highly relevant memories found."
         except Exception as e:
