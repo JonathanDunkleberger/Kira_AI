@@ -100,7 +100,7 @@ class AI_Core:
                     if self.interruption_event.is_set(): return
                     audio_bytes += chunk
             else: # Default to Edge TTS
-                comm = Communicate(text, "en-US-AriaNeural", rate="+15%")
+                comm = Communicate(text, "en-US-AriaNeural", rate="+30%")
                 async for chunk in comm.stream():
                     if chunk["type"] == "audio":
                         audio_bytes += chunk["data"]
@@ -130,7 +130,7 @@ class AI_Core:
         full_prompt = system_messages + messages
         response = await asyncio.to_thread(
             self.llm.create_chat_completion,
-            messages=full_prompt, max_tokens=250, temperature=0.8, top_p=0.9,
+            messages=full_prompt, max_tokens=128, temperature=0.9, top_p=0.9,
         )
         raw_text = response['choices'][0]['message']['content']
         return self.clean_llm_response(raw_text)
