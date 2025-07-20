@@ -75,8 +75,6 @@ class AI_Core:
         elif TTS_ENGINE == "azure":
             if not speechsdk: raise ImportError("Run 'pip install azure-cognitiveservices-speech'")
             speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY, region=AZURE_SPEECH_REGION)
-            # FIX: By passing `audio_config=None`, the SDK defaults to an in-memory stream,
-            # which is what we need to get the audio bytes for Pygame.
             self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
         elif TTS_ENGINE == "edge":
             if not Communicate: raise ImportError("Run 'pip install edge-tts'")
@@ -104,6 +102,40 @@ class AI_Core:
             print(f"   ERROR during LLM inference: {e}")
             return "Oops, my brain just short-circuited. What were we talking about?"
 
+    # --- ADDED FUNCTION ---
+    async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
+        """Asks the LLM to determine the AI's next emotional state."""
+        if not self.llm: return None
+        
+        emotion_names = [e.name for e in EmotionalState]
+        prompt = (
+            f"Given the following exchange:\n"
+            f"Jonny: \"{last_user_text}\"\n"
+            f"Kira: \"{last_ai_response}\"\n\n"
+            f"Based on this, which of these emotional states is most appropriate for Kira's next turn? "
+            f"The options are: {', '.join(emotion_names)}.\n"
+            f"Respond ONLY with the single best state name (e.g., 'SASSY')."
+        )
+        
+        try:
+            # Here we use a different call signature for a simple completion
+            response = await asyncio.to_thread(
+                self.llm,
+                prompt=prompt,
+                max_tokens=10,
+                temperature=0.2,
+                stop=["\n", ".", ","]
+            )
+            text_response = response['choices'][0]['text'].strip().upper()
+            for emotion in EmotionalState:
+                if emotion.name in text_response:
+                    return emotion
+            return None
+        except Exception as e:
+            print(f"   ERROR during emotion analysis: {e}")
+            return None
+
+
     async def speak_text(self, text: str):
         if not text: return
         print(f"<<< {AI_NAME} says: {text}")
@@ -120,17 +152,13 @@ class AI_Core:
                         f'<voice name="{AZURE_SPEECH_VOICE}">'
                         f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
                         f'</voice></speak>')
-                
-                # FIX: Correctly await the async synthesis call
                 result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
-
                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                     audio_bytes = result.audio_data
                 else:
                     cancellation_details = result.cancellation_details
                     raise Exception(f"Azure TTS failed: {cancellation_details.reason} - {cancellation_details.error_details}")
             elif TTS_ENGINE == "edge":
-                # Note: Edge TTS doesn't support pitch control, only rate.
                 comm = Communicate(text, AZURE_SPEECH_VOICE, rate=AZURE_PROSODY_RATE)
                 async for chunk in comm.stream():
                     if chunk["type"] == "audio":
@@ -157,9 +185,8 @@ class AI_Core:
             if pygame.mixer.get_init(): pygame.mixer.quit()
 
     def _clean_llm_response(self, text: str) -> str:
-        # Removes role tags, empty lines, and other artifacts
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
-        text = re.sub(r'^\s*<\|.*?\|>\s*$', '', text, flags=re.MULTILINE) # Remove empty system tags
+        text = re.sub(r'^\s*<\|.*?\|>\s*$', '', text, flags=re.MULTILINE)
         text = text.replace('</s>', '').strip()
         return text
 

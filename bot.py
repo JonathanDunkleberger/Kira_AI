@@ -6,6 +6,7 @@ import collections
 import pyaudio
 import time
 import traceback
+import random # Ensure random is imported
 
 from ai_core import AI_Core
 from memory import MemoryManager
@@ -35,7 +36,7 @@ class VTubeBot:
         
         self.bg_tasks = []
         self.conversation_history = []
-        self.conversation_segment = [] # For summarization
+        self.conversation_segment = []
         self.twitch_chat_queue = asyncio.Queue()
         self.current_emotion = EmotionalState.HAPPY
 
@@ -107,9 +108,10 @@ class VTubeBot:
             await self.process_and_respond(user_text, "user")
 
     async def process_and_respond(self, text: str, role: str):
-        # Add to long-term conversation history for LLM context
+        # --- ADDED LINE ---
+        print(f"   (Kira's current emotion is: {self.current_emotion.name})")
+
         self.conversation_history.append({"role": role, "content": text})
-        # Add to short-term segment for summarization
         self.conversation_segment.append({"role": role, "content": text})
 
         mem_ctx = self.memory.search_memories(text, n_results=3)
@@ -120,27 +122,40 @@ class VTubeBot:
             self.conversation_history.append({"role": "assistant", "content": response})
             self.conversation_segment.append({"role": "assistant", "content": response})
             self.memory.add_memory(user_text=text, ai_text=response)
+            # --- ADDED LINE ---
+            await self.update_emotional_state(text, response)
+
+    # --- ADDED FUNCTION ---
+    async def update_emotional_state(self, user_text, ai_response):
+        """Analyzes the last turn and updates the AI's emotional state."""
+        new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
+        if new_emotion and new_emotion != self.current_emotion:
+            print(f"   ✨ Emotion state changing from {self.current_emotion.name} to {new_emotion.name}")
+            self.current_emotion = new_emotion
+        # Add a small chance to return to HAPPY to prevent getting stuck in a state
+        elif random.random() < 0.1:
+            if self.current_emotion != EmotionalState.HAPPY:
+                 print(f"   ✨ Emotion state resetting to HAPPY")
+            self.current_emotion = EmotionalState.HAPPY
 
     async def background_loop(self):
         while True:
-            await asyncio.sleep(10) # Check every 10 seconds
+            await asyncio.sleep(10)
             async with self.processing_lock:
-                # Summarize conversation if segment is long enough
-                if len(self.conversation_segment) >= 6: # e.g., 3 user turns, 3 AI turns
+                if len(self.conversation_segment) >= 6:
                     print("\n--- Summarizing conversation segment... ---")
                     await self.summarizer.consolidate_and_store(self.conversation_segment)
-                    self.conversation_segment.clear() # Clear segment after summarization
+                    self.conversation_segment.clear()
 
-                # Proactive thought logic
                 is_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
                 if ENABLE_PROACTIVE_THOUGHTS and is_idle and random.random() < PROACTIVE_THOUGHT_CHANCE:
                     print("\n--- Proactive thought triggered... ---")
-                    # Simplified proactive thought logic
                     prompt = "Generate a brief, interesting observation or a random thought."
                     thought = await self.ai_core.llm_inference([{"role": "user", "content": prompt}], self.current_emotion)
                     if thought:
+                        # Use process_and_respond for proactive thoughts to keep logic consistent
                         await self.process_and_respond(thought, "assistant")
-                    self.last_interaction_time = time.time() # Reset timer
+                    self.last_interaction_time = time.time()
 
 
 if __name__ == "__main__":
