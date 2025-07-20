@@ -11,12 +11,15 @@ from transformers import pipeline
 
 from config import (
     LLM_MODEL_PATH, N_CTX, N_GPU_LAYERS, WHISPER_MODEL_SIZE, TTS_ENGINE,
+    # --- IMPORT THE NEW VARIABLE ---
+    LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     VIRTUAL_AUDIO_DEVICE, AI_NAME, EmotionalState
 )
 from persona import AI_PERSONALITY_PROMPT
 
+# Graceful SDK imports
 try: from edge_tts import Communicate
 except ImportError: Communicate = None
 try: from elevenlabs.client import AsyncElevenLabs
@@ -37,11 +40,13 @@ class AI_Core:
         pygame.init()
 
     async def initialize(self):
+        """Initializes AI components sequentially to prevent resource conflicts."""
         print("-> Initializing AI Core components...")
         try:
             await asyncio.to_thread(self._init_llm)
             await asyncio.to_thread(self._init_whisper)
             await self._init_tts()
+
             self.is_initialized = True
             print("   AI Core initialized successfully!")
         except Exception as e:
@@ -84,19 +89,16 @@ class AI_Core:
         if memory_context and "No memories" not in memory_context:
             system_prompt += f"\n[Memory Context]:\n{memory_context}"
 
-        # --- UPDATED: More Precise Sliding Window Logic ---
-        # Use the model's tokenizer for an accurate token count
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
         
-        # Leave a buffer for the AI's response
-        max_response_tokens = 512
+        # We now use the variable from config for the response buffer
+        max_response_tokens = LLM_MAX_RESPONSE_TOKENS
         token_limit = N_CTX - len(system_tokens) - max_response_tokens
 
-        # Trim history until it fits within the token limit
         history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
         while history_tokens > token_limit and len(messages) > 1:
             print("   (Trimming conversation history to fit context window...)")
-            messages.pop(0) # Remove the oldest message
+            messages.pop(0)
             history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
             
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
@@ -104,7 +106,11 @@ class AI_Core:
         try:
             response = await asyncio.to_thread(
                 self.llm.create_chat_completion,
-                messages=full_prompt, max_tokens=250, temperature=0.8, top_p=0.9,
+                messages=full_prompt,
+                # --- UPDATED: Use the new variable for max_tokens ---
+                max_tokens=LLM_MAX_RESPONSE_TOKENS,
+                temperature=0.8,
+                top_p=0.9,
                 stop=["\nJonny:", "\nKira:", "</s>"]
             )
             raw_text = response['choices'][0]['message']['content']
@@ -140,7 +146,7 @@ class AI_Core:
         audio_bytes = b''
         try:
             if TTS_ENGINE == "elevenlabs":
-                # ElevenLabs logic...
+                # ... elevenlabs logic ...
                 pass
             elif TTS_ENGINE == "azure":
                 ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
@@ -151,14 +157,13 @@ class AI_Core:
                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                     audio_bytes = result.audio_data
                 else:
-                    # --- UPDATED: Better Error Logging ---
                     cancellation_details = result.cancellation_details
                     error_message = f"Azure TTS failed: {cancellation_details.reason}"
                     if cancellation_details.reason == speechsdk.CancellationReason.Error:
                         error_message += f" - Details: {cancellation_details.error_details}"
                     raise Exception(error_message)
             elif TTS_ENGINE == "edge":
-                # Edge TTS logic...
+                # ... edge logic ...
                 pass
             
             if not self.interruption_event.is_set():
@@ -182,7 +187,7 @@ class AI_Core:
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
         text = text.replace('</s>', '').strip()
-        text = text.replace('*', '') # Remove asterisks from actions
+        text = text.replace('*', '')
         return text
 
     async def transcribe_audio(self, audio_data: bytes) -> str:
