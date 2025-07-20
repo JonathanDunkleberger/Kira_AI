@@ -7,6 +7,7 @@ import pyaudio
 import time
 import traceback
 import random
+from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
 from memory import MemoryManager
@@ -34,14 +35,23 @@ class VTubeBot:
         self.stream = None
         self.frames_per_buffer = int(16000 * 30 / 1000)
         
-        self.bg_tasks = []
+        self.bg_tasks = set() # Use a set for easier task management
         self.conversation_history = []
         self.conversation_segment = []
-        # --- UPDATED: Changed from a queue to a simple list for more control ---
         self.unseen_chat_messages = []
         self.current_emotion = EmotionalState.HAPPY
 
+    def reset_idle_timer(self):
+        self.last_interaction_time = time.time()
+
     async def run(self):
+        # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
+        main_task = asyncio.create_task(self._main_loop())
+        self.bg_tasks.add(main_task)
+        await main_task
+
+    async def _main_loop(self):
+        """Contains the primary startup and listening logic."""
         try:
             await self.ai_core.initialize()
             if not self.ai_core.is_initialized: return
@@ -54,23 +64,25 @@ class VTubeBot:
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
 
             if ENABLE_TWITCH_CHAT:
-                # --- UPDATED: Pass the list instead of the queue ---
-                twitch_bot = TwitchBot(self.unseen_chat_messages)
-                self.bg_tasks.append(asyncio.create_task(twitch_bot.start()))
+                twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer)
+                twitch_task = asyncio.create_task(twitch_bot.start())
+                self.bg_tasks.add(twitch_task)
             
-            self.bg_tasks.append(asyncio.create_task(self.background_loop()))
+            background_task = asyncio.create_task(self.background_loop())
+            self.bg_tasks.add(background_task)
+
             await self.vad_loop()
-        except KeyboardInterrupt:
-            print("\nShutdown requested by user.")
+        except asyncio.CancelledError:
+            print("Main loop cancelled.")
         finally:
             print("--- Cleaning up resources... ---")
-            for task in self.bg_tasks: task.cancel()
-            await asyncio.gather(*self.bg_tasks, return_exceptions=True)
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
             print("--- Cleanup complete. ---")
 
+
     async def vad_loop(self):
+        # This function's logic remains the same
         frames = collections.deque()
         triggered = False
         silent_chunks = 0
@@ -98,7 +110,11 @@ class VTubeBot:
                         audio_data = b"".join(frames)
                         frames.clear()
                         triggered = False
-                        asyncio.create_task(self.handle_audio(audio_data))
+                        self.reset_idle_timer()
+                        task = asyncio.create_task(self.handle_audio(audio_data))
+                        self.bg_tasks.add(task)
+                        task.add_done_callback(self.bg_tasks.discard)
+
 
     async def handle_audio(self, audio_data: bytes):
         async with self.processing_lock:
@@ -107,17 +123,14 @@ class VTubeBot:
             
             print(f">>> You said: {user_text}")
 
-            # --- UPDATED: "Conversational Weaving" Logic ---
             contextual_prompt = f"Jonny says: \"{user_text}\""
             
-            # Check for unseen chat messages and weave them into the prompt
             if self.unseen_chat_messages:
                 chat_summary = "\n- ".join(self.unseen_chat_messages)
                 contextual_prompt += (
                     f"\n\nWhile you were listening, your Twitch chat said:\n- {chat_summary}\n\n"
                     f"Give a single, natural response that addresses Jonny and also acknowledges the chat if it makes sense."
                 )
-                # Clear the messages now that they've been seen
                 self.unseen_chat_messages.clear()
             
             await self.process_and_respond(user_text, contextual_prompt, "user")
@@ -129,7 +142,7 @@ class VTubeBot:
         self.conversation_segment.append({"role": role, "content": original_text})
 
         mem_ctx = self.memory.search_memories(original_text, n_results=3)
-        response = await self.ai_core.llm_inference(self.conversation_history[:-1] + [{"role": role, "content": contextual_prompt}], self.current_emotion, mem_ctx)
+        response = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx)
         
         if response:
             await self.ai_core.speak_text(response)
@@ -139,7 +152,7 @@ class VTubeBot:
                  self.memory.add_memory(user_text=original_text, ai_text=response)
             await self.update_emotional_state(original_text, response)
         
-        self.last_interaction_time = time.time()
+        self.reset_idle_timer()
 
     async def update_emotional_state(self, user_text, ai_response):
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
@@ -158,40 +171,60 @@ class VTubeBot:
             if self.processing_lock.locked():
                 continue
 
-            # --- UPDATED: This loop now handles idle activity ---
-            is_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
-            if is_idle:
+            # Task 1: Read chat during shorter lulls
+            is_chat_lull = (time.time() - self.last_interaction_time) > 5.0
+            if is_chat_lull and self.unseen_chat_messages:
                 async with self.processing_lock:
-                    # Priority 1: Respond to chat if idle
-                    if self.unseen_chat_messages:
-                        print("\n--- Responding to idle chat... ---")
-                        chat_summary = "\n- ".join(self.unseen_chat_messages)
-                        chat_prompt = (
-                            "You've been quiet for a moment. Briefly react to these recent messages from your Twitch chat:\n- " 
-                            + chat_summary
-                        )
-                        self.unseen_chat_messages.clear()
-                        await self.process_and_respond(f"[Idle Twitch Chat]: {chat_summary}", chat_prompt, "user")
+                    print("\n--- Responding to idle chat... ---")
+                    chat_summary = "\n- ".join(self.unseen_chat_messages)
+                    chat_prompt = (
+                        "You've been quiet for a moment. Briefly react to these recent messages from your Twitch chat:\n- " 
+                        + chat_summary
+                    )
+                    self.unseen_chat_messages.clear()
+                    await self.process_and_respond(f"[Idle Twitch Chat]: {chat_summary}", chat_prompt, "user")
+                    continue
 
-                    # Priority 2: Proactive thought if no chat to read
-                    elif ENABLE_PROACTIVE_THOUGHTS and random.random() < PROACTIVE_THOUGHT_CHANCE:
-                        print("\n--- Proactive thought triggered... ---")
-                        prompt = "Generate a brief, interesting observation or a random thought."
-                        thought = await self.ai_core.llm_inference([{"role": "user", "content": prompt}], self.current_emotion)
-                        if thought:
-                            await self.process_and_respond(thought, thought, "assistant")
+            # Task 2: Proactive thoughts ONLY during long periods of total silence.
+            is_truly_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
+            if ENABLE_PROACTIVE_THOUGHTS and is_truly_idle and not self.unseen_chat_messages and random.random() < PROACTIVE_THOUGHT_CHANCE:
+                async with self.processing_lock:
+                    print("\n--- Proactive thought triggered... ---")
+                    prompt = "Generate a brief, interesting observation or a random thought."
+                    thought = await self.ai_core.llm_inference([], self.current_emotion, prompt)
+                    if thought:
+                        await self.process_and_respond(thought, thought, "assistant")
+                        continue
 
-            # Low priority: Summarize conversation if needed
-            if len(self.conversation_segment) >= 6:
+            # Task 3: Summarize conversation
+            if len(self.conversation_segment) >= 8:
                 async with self.processing_lock:
                     print("\n--- Summarizing conversation segment... ---")
                     await self.summarizer.consolidate_and_store(self.conversation_segment)
                     self.conversation_segment.clear()
 
 
-if __name__ == "__main__":
+# --- UPDATED: Graceful Shutdown Logic ---
+async def main():
     bot = VTubeBot()
     try:
-        asyncio.run(bot.run())
+        await bot.run()
+    except asyncio.CancelledError:
+        print("Main task cancelled.")
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
     except KeyboardInterrupt:
-        print("\nApplication shutting down.")
+        print("\nApplication shutting down...")
+    finally:
+        # Gracefully cancel all running tasks
+        tasks = asyncio.all_tasks(loop=loop)
+        for task in tasks:
+            task.cancel()
+        
+        # Gather all cancelled tasks to let them finish
+        group = asyncio.gather(*tasks, return_exceptions=True)
+        loop.run_until_complete(group)
+        loop.close()
