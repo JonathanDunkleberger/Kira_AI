@@ -1,19 +1,21 @@
 # twitch_bot.py
+
 import asyncio
 from twitchio.ext import commands
-# Correctly import the updated variable names from config
 from config import TWITCH_OAUTH_TOKEN, TWITCH_BOT_USERNAME, TWITCH_CHANNEL_TO_JOIN
 
 class TwitchBot(commands.Bot):
-    def __init__(self, chat_queue: asyncio.Queue):
-        # Use the correct, imported variables here
+    # --- UPDATED ---
+    # We now pass the shared list directly instead of a queue
+    def __init__(self, chat_message_list: list):
         super().__init__(
             token=TWITCH_OAUTH_TOKEN,
             nick=TWITCH_BOT_USERNAME,
             prefix='!',
             initial_channels=[TWITCH_CHANNEL_TO_JOIN]
         )
-        self.chat_queue = chat_queue
+        # This is now a direct reference to the list in VTubeBot
+        self.chat_message_list = chat_message_list
 
     async def event_ready(self):
         print(f'--- Twitch bot has logged in as | {self.nick} ---')
@@ -25,5 +27,7 @@ class TwitchBot(commands.Bot):
 
         formatted_message = f"{message.author.name}: {message.content}"
         print(f"[Twitch Chat] {formatted_message}")
-        # Put the formatted message into the queue for the main bot to process
-        await self.chat_queue.put(formatted_message)
+        
+        # --- UPDATED ---
+        # Append the message to the shared list instead of putting it in a queue
+        self.chat_message_list.append(formatted_message)

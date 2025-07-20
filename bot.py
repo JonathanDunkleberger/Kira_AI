@@ -6,7 +6,7 @@ import collections
 import pyaudio
 import time
 import traceback
-import random # Ensure random is imported
+import random
 
 from ai_core import AI_Core
 from memory import MemoryManager
@@ -37,7 +37,8 @@ class VTubeBot:
         self.bg_tasks = []
         self.conversation_history = []
         self.conversation_segment = []
-        self.twitch_chat_queue = asyncio.Queue()
+        # --- UPDATED: Changed from a queue to a simple list for more control ---
+        self.unseen_chat_messages = []
         self.current_emotion = EmotionalState.HAPPY
 
     async def run(self):
@@ -53,7 +54,8 @@ class VTubeBot:
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
 
             if ENABLE_TWITCH_CHAT:
-                twitch_bot = TwitchBot(self.twitch_chat_queue)
+                # --- UPDATED: Pass the list instead of the queue ---
+                twitch_bot = TwitchBot(self.unseen_chat_messages)
                 self.bg_tasks.append(asyncio.create_task(twitch_bot.start()))
             
             self.bg_tasks.append(asyncio.create_task(self.background_loop()))
@@ -96,7 +98,6 @@ class VTubeBot:
                         audio_data = b"".join(frames)
                         frames.clear()
                         triggered = False
-                        self.last_interaction_time = time.time()
                         asyncio.create_task(self.handle_audio(audio_data))
 
     async def handle_audio(self, audio_data: bytes):
@@ -105,34 +106,46 @@ class VTubeBot:
             if not user_text or len(user_text) < 3: return
             
             print(f">>> You said: {user_text}")
-            await self.process_and_respond(user_text, "user")
 
-    async def process_and_respond(self, text: str, role: str):
-        # --- ADDED LINE ---
+            # --- UPDATED: "Conversational Weaving" Logic ---
+            contextual_prompt = f"Jonny says: \"{user_text}\""
+            
+            # Check for unseen chat messages and weave them into the prompt
+            if self.unseen_chat_messages:
+                chat_summary = "\n- ".join(self.unseen_chat_messages)
+                contextual_prompt += (
+                    f"\n\nWhile you were listening, your Twitch chat said:\n- {chat_summary}\n\n"
+                    f"Give a single, natural response that addresses Jonny and also acknowledges the chat if it makes sense."
+                )
+                # Clear the messages now that they've been seen
+                self.unseen_chat_messages.clear()
+            
+            await self.process_and_respond(user_text, contextual_prompt, "user")
+
+    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
 
-        self.conversation_history.append({"role": role, "content": text})
-        self.conversation_segment.append({"role": role, "content": text})
+        self.conversation_history.append({"role": role, "content": original_text})
+        self.conversation_segment.append({"role": role, "content": original_text})
 
-        mem_ctx = self.memory.search_memories(text, n_results=3)
-        response = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx)
+        mem_ctx = self.memory.search_memories(original_text, n_results=3)
+        response = await self.ai_core.llm_inference(self.conversation_history[:-1] + [{"role": role, "content": contextual_prompt}], self.current_emotion, mem_ctx)
         
         if response:
             await self.ai_core.speak_text(response)
             self.conversation_history.append({"role": "assistant", "content": response})
             self.conversation_segment.append({"role": "assistant", "content": response})
-            self.memory.add_memory(user_text=text, ai_text=response)
-            # --- ADDED LINE ---
-            await self.update_emotional_state(text, response)
+            if role == "user":
+                 self.memory.add_memory(user_text=original_text, ai_text=response)
+            await self.update_emotional_state(original_text, response)
+        
+        self.last_interaction_time = time.time()
 
-    # --- ADDED FUNCTION ---
     async def update_emotional_state(self, user_text, ai_response):
-        """Analyzes the last turn and updates the AI's emotional state."""
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
         if new_emotion and new_emotion != self.current_emotion:
             print(f"   ✨ Emotion state changing from {self.current_emotion.name} to {new_emotion.name}")
             self.current_emotion = new_emotion
-        # Add a small chance to return to HAPPY to prevent getting stuck in a state
         elif random.random() < 0.1:
             if self.current_emotion != EmotionalState.HAPPY:
                  print(f"   ✨ Emotion state resetting to HAPPY")
@@ -140,22 +153,40 @@ class VTubeBot:
 
     async def background_loop(self):
         while True:
-            await asyncio.sleep(10)
-            async with self.processing_lock:
-                if len(self.conversation_segment) >= 6:
+            await asyncio.sleep(5)
+            
+            if self.processing_lock.locked():
+                continue
+
+            # --- UPDATED: This loop now handles idle activity ---
+            is_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
+            if is_idle:
+                async with self.processing_lock:
+                    # Priority 1: Respond to chat if idle
+                    if self.unseen_chat_messages:
+                        print("\n--- Responding to idle chat... ---")
+                        chat_summary = "\n- ".join(self.unseen_chat_messages)
+                        chat_prompt = (
+                            "You've been quiet for a moment. Briefly react to these recent messages from your Twitch chat:\n- " 
+                            + chat_summary
+                        )
+                        self.unseen_chat_messages.clear()
+                        await self.process_and_respond(f"[Idle Twitch Chat]: {chat_summary}", chat_prompt, "user")
+
+                    # Priority 2: Proactive thought if no chat to read
+                    elif ENABLE_PROACTIVE_THOUGHTS and random.random() < PROACTIVE_THOUGHT_CHANCE:
+                        print("\n--- Proactive thought triggered... ---")
+                        prompt = "Generate a brief, interesting observation or a random thought."
+                        thought = await self.ai_core.llm_inference([{"role": "user", "content": prompt}], self.current_emotion)
+                        if thought:
+                            await self.process_and_respond(thought, thought, "assistant")
+
+            # Low priority: Summarize conversation if needed
+            if len(self.conversation_segment) >= 6:
+                async with self.processing_lock:
                     print("\n--- Summarizing conversation segment... ---")
                     await self.summarizer.consolidate_and_store(self.conversation_segment)
                     self.conversation_segment.clear()
-
-                is_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
-                if ENABLE_PROACTIVE_THOUGHTS and is_idle and random.random() < PROACTIVE_THOUGHT_CHANCE:
-                    print("\n--- Proactive thought triggered... ---")
-                    prompt = "Generate a brief, interesting observation or a random thought."
-                    thought = await self.ai_core.llm_inference([{"role": "user", "content": prompt}], self.current_emotion)
-                    if thought:
-                        # Use process_and_respond for proactive thoughts to keep logic consistent
-                        await self.process_and_respond(thought, "assistant")
-                    self.last_interaction_time = time.time()
 
 
 if __name__ == "__main__":
