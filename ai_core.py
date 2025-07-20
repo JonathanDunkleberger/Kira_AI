@@ -100,7 +100,7 @@ class AI_Core:
                     if self.interruption_event.is_set(): return
                     audio_bytes += chunk
             else: # Default to Edge TTS
-                comm = Communicate(text, "en-US-AriaNeural", rate="+30%")
+                comm = Communicate(text, "en-US-AriaNeural", rate="+15%")
                 async for chunk in comm.stream():
                     if chunk["type"] == "audio":
                         audio_bytes += chunk["data"]
