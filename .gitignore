@@ -14,3 +14,4 @@ config.py
 # Downloaded LLM models (can be very large)
 models/
 *.gguf
+*.log
