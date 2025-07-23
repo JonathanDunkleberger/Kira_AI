@@ -14,4 +14,9 @@ config.py
 # Downloaded LLM models (can be very large)
 models/
 *.gguf
+
+# Runtime log files
 *.log
+
+# Local database and generated data
+memory_db/
