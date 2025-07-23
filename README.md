@@ -1,4 +1,7 @@
 Conversational AI VTuber
+
+![Demo of AI VTuber in action](PASTE_YOUR_GIF_LINK_HERE)
+
 A fully-interactive, AI-powered VTuber that engages with a live Twitch chat in real-time, featuring a dynamic personality and realistic voice synthesis.
 
 🚀 Key Features
