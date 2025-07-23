@@ -1,6 +1,6 @@
 Conversational AI VTuber
 
-![Demo of AI VTuber in action](PASTE_YOUR_GIF_LINK_HERE)
+![Demo of AI VTuber in action](https://github.com/DuchessGhanima/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav2.gif?raw=true)
 
 A fully-interactive, AI-powered VTuber that engages with a live Twitch chat in real-time, featuring a dynamic personality and realistic voice synthesis.
 
