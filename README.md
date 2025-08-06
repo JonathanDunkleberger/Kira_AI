@@ -42,14 +42,14 @@
    ⏳ *This may take 5-10 minutes - be patient!*
 
 ### Step 4: Get Your API Keys (Required)
-Kira needs these services to work. **Don't worry - most have free tiers!**
+Kira needs these services to work. **Don't worry - all free tiers/trials!**
 
 📝 **Required Services:**
 - **Azure Speech** (for voice) - [Get free key here](https://azure.microsoft.com/en-us/services/cognitive-services/speech-services/)
 - **Twitch** (for chat) - [Create app here](https://dev.twitch.tv/console/apps)
 
 🎯 **Optional Services:**
-- **ElevenLabs** (better voice) - [Sign up here](https://elevenlabs.io/)
+- **ElevenLabs** (other voices) - [Sign up here](https://elevenlabs.io/)
 - **Google Search** (web search) - [Get API key here](https://developers.google.com/custom-search/v1/introduction)
 
 ### Step 5: Configure Kira
@@ -87,8 +87,6 @@ Kira needs these services to work. **Don't worry - most have free tiers!**
 **Kira can't hear you** → Check your microphone permissions and make sure it's not muted
 
 **No Twitch chat** → Verify your Twitch OAuth token and channel name in `.env`
-
-**Voice sounds robotic** → Try ElevenLabs for better voice quality (premium service)
 
 ---
 
