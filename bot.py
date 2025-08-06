@@ -15,10 +15,16 @@ from summarizer import SummarizationManager
 from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from config import (
-    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS,
-    ENABLE_PROACTIVE_THOUGHTS, PROACTIVE_THOUGHT_INTERVAL, PROACTIVE_THOUGHT_CHANCE,
-    ENABLE_WEB_SEARCH, ENABLE_TWITCH_CHAT, EmotionalState
+    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
 )
+from persona import EmotionalState
+
+# Define these here since they are not in config.py
+ENABLE_PROACTIVE_THOUGHTS = True
+PROACTIVE_THOUGHT_INTERVAL = 60
+PROACTIVE_THOUGHT_CHANCE = 0.2
+ENABLE_WEB_SEARCH = True
+ENABLE_TWITCH_CHAT = True
 
 
 class VTubeBot:
@@ -40,6 +46,7 @@ class VTubeBot:
         self.conversation_segment = []
         self.unseen_chat_messages = []
         self.current_emotion = EmotionalState.HAPPY
+        self.last_idle_chat = "" # Track the last idle chat summary
 
     def reset_idle_timer(self):
         self.last_interaction_time = time.time()
@@ -61,7 +68,9 @@ class VTubeBot:
                 format=pyaudio.paInt16, channels=1, rate=16000,
                 input=True, frames_per_buffer=self.frames_per_buffer
             )
+
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
+            # Do NOT trigger any speech or response at startup
 
             if ENABLE_TWITCH_CHAT:
                 twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer)
@@ -123,6 +132,10 @@ class VTubeBot:
             
             print(f">>> You said: {user_text}")
 
+            # --- NEW: Ignore duplicate inputs ---
+            if any(h["content"] == user_text for h in self.conversation_history):
+                print(f"(Duplicate input ignored: {user_text})")
+                return
             contextual_prompt = f"Jonny says: \"{user_text}\""
             
             if self.unseen_chat_messages:
@@ -177,12 +190,14 @@ class VTubeBot:
                 async with self.processing_lock:
                     print("\n--- Responding to idle chat... ---")
                     chat_summary = "\n- ".join(self.unseen_chat_messages)
-                    chat_prompt = (
-                        "You've been quiet for a moment. Briefly react to these recent messages from your Twitch chat:\n- " 
-                        + chat_summary
-                    )
-                    self.unseen_chat_messages.clear()
-                    await self.process_and_respond(f"[Idle Twitch Chat]: {chat_summary}", chat_prompt, "user")
+                    if chat_summary != self.last_idle_chat:  # Only respond to new summaries
+                        chat_prompt = (
+                            "You've been quiet for a moment. Briefly react to these recent messages from your Twitch chat:\n- " 
+                            + chat_summary
+                        )
+                        self.unseen_chat_messages.clear()
+                        await self.process_and_respond(f"[Idle Twitch Chat]: {chat_summary}", chat_prompt, "user")
+                        self.last_idle_chat = chat_summary  # Update the last idle chat summary
                     continue
 
             # Task 2: Proactive thoughts ONLY during long periods of total silence.

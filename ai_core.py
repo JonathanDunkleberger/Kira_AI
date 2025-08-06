@@ -5,19 +5,19 @@ import io
 import os
 import re
 import pygame
+import torch
 import numpy as np
 from llama_cpp import Llama
 from transformers import pipeline
 
 from config import (
     LLM_MODEL_PATH, N_CTX, N_GPU_LAYERS, WHISPER_MODEL_SIZE, TTS_ENGINE,
-    # --- IMPORT THE NEW VARIABLE ---
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
-    VIRTUAL_AUDIO_DEVICE, AI_NAME, EmotionalState
+    VIRTUAL_AUDIO_DEVICE, AI_NAME
 )
-from persona import AI_PERSONALITY_PROMPT
+from persona import AI_PERSONALITY_PROMPT, EmotionalState
 
 # Graceful SDK imports
 try: from edge_tts import Communicate
@@ -63,7 +63,7 @@ class AI_Core:
 
     def _init_whisper(self):
         print("-> Loading Whisper STT model...")
-        device = "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"   Whisper STT will use device: {device}")
         self.whisper = pipeline("automatic-speech-recognition", model=f"openai/whisper-{WHISPER_MODEL_SIZE}", device=device)
         print("   Whisper STT model loaded.")
@@ -172,9 +172,13 @@ class AI_Core:
             print(f"   ERROR during TTS generation: {e}")
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
-        if self.interruption_event.is_set() or not audio_bytes: return
+        if self.interruption_event.is_set() or not audio_bytes:
+            return
         try:
             pygame.mixer.init(devicename=VIRTUAL_AUDIO_DEVICE)
+            # Stop any currently playing audio before starting new
+            if pygame.mixer.get_busy():
+                pygame.mixer.stop()
             sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
             channel = sound.play()
             while channel.get_busy():
@@ -182,7 +186,8 @@ class AI_Core:
                     channel.stop(); break
                 await asyncio.sleep(0.1)
         finally:
-            if pygame.mixer.get_init(): pygame.mixer.quit()
+            if pygame.mixer.get_init():
+                pygame.mixer.quit()
 
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)

@@ -22,7 +22,7 @@ class SummarizationManager:
         transcript = "\n".join([f"{turn['role'].capitalize()}: {turn['content']}" for turn in conversation_history])
         prompt = self._get_summarization_prompt(transcript)
         
-        from config import EmotionalState
+        from persona import EmotionalState
         summary = await self.ai_core.llm_inference(
             messages=[{"role": "user", "content": prompt}],
             current_emotion=EmotionalState.HAPPY
