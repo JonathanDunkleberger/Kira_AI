@@ -1,6 +1,6 @@
 # 🎤 Kira AI VTuber
 
-![Demo of AI VTuber in action](https://github.com/DuchessGhanima/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav3.gif?raw=true)
+![Demo of AI VTuber in action](https://github.com/JonathanDunkleberger/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav3.gif?raw=true)
 
 **Kira** is your personal AI VTuber companion! She chats with you through voice, responds to Twitch chat in real-time, and has her own personality and emotions. Perfect for streamers, content creators, or anyone who wants an AI friend to talk to.
 
@@ -25,7 +25,7 @@
    
    *OR if you use Git:*
    ```
-   git clone https://github.com/DuchessGhanima/Kira_AI.git
+   git clone https://github.com/JonathanDunkleberger/Kira_AI.git
    ```
 
 ### Step 2: Install Python
