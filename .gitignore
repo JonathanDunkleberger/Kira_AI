@@ -1,6 +1,5 @@
 # Ignore Python cache and compiled files
-__pycache__/
-*.pyc
+/.env
 *.pyo
 *.pyd
 
@@ -49,7 +48,6 @@ __pycache__/
 *.pyc
 
 # Sensitive configuration files (like API keys or paths to local models)
-config.py
 .env
 
 # Downloaded LLM models (can be very large)
