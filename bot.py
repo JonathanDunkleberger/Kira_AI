@@ -63,6 +63,9 @@ class VTubeBot:
             await self.ai_core.initialize()
             if not self.ai_core.is_initialized: return
 
+            # Test Audio Output (Beep)
+            await self.ai_core.test_audio_output()
+
             self.pyaudio_instance = pyaudio.PyAudio()
             self.stream = self.pyaudio_instance.open(
                 format=pyaudio.paInt16, channels=1, rate=16000,

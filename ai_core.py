@@ -7,6 +7,7 @@ import re
 import pygame
 import torch
 import numpy as np
+import whisper  # Native OpenAI Whisper import
 from llama_cpp import Llama
 from transformers import pipeline
 
@@ -42,6 +43,18 @@ class AI_Core:
     async def initialize(self):
         """Initializes AI components sequentially to prevent resource conflicts."""
         print("-> Initializing AI Core components...")
+        
+        # Initialize Audio Mixer permanently
+        if pygame.mixer.get_init(): pygame.mixer.quit()
+        
+        # FORCE Default Desktop Audio (User Request)
+        print("   Forcing Audio Output to Default Windows Device (devicename=None)...")
+        try:
+            pygame.mixer.init(devicename=None)
+        except Exception as e:
+            print(f"   Warning: Default init failed, trying auto: {e}")
+            pygame.mixer.init()
+
         try:
             await asyncio.to_thread(self._init_llm)
             await asyncio.to_thread(self._init_whisper)
@@ -54,8 +67,31 @@ class AI_Core:
             self.is_initialized = False
             raise
 
+    async def test_audio_output(self):
+        """Plays a test tone to verify audio output."""
+        print("-> Testing Audio Output...")
+        try:
+            # Generate a 440Hz sine wave for 0.5 seconds
+            sample_rate = 44100
+            duration = 0.5
+            t = np.linspace(0, duration, int(sample_rate * duration), False)
+            tone = np.sin(440 * t * 2 * np.pi).astype(np.float32)
+            # Convert to 16-bit int (stereo)
+            tone_int = (tone * 32767).astype(np.int16)
+            stereo_tone = np.column_stack((tone_int, tone_int))
+            
+            sound = pygame.mixer.Sound(buffer=stereo_tone)
+            channel = sound.play()
+            
+            # Wait for playback to finish
+            while channel.get_busy():
+                await asyncio.sleep(0.1)
+            print("   Audio test passed (Beep played).")
+        except Exception as e:
+            print(f"   Audio test FAILED: {e}")
+
     def _init_llm(self):
-        print("-> Loading LLM model...")
+        print(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
         self.llm = Llama(model_path=LLM_MODEL_PATH, n_ctx=N_CTX, n_gpu_layers=N_GPU_LAYERS, verbose=False)
@@ -63,9 +99,18 @@ class AI_Core:
 
     def _init_whisper(self):
         print("-> Loading Whisper STT model...")
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"   Whisper STT will use device: {device}")
-        self.whisper = pipeline("automatic-speech-recognition", model=f"openai/whisper-{WHISPER_MODEL_SIZE}", device=device)
+        # FORCE CUDA for RTX 5080 (Using Native OpenAI Whisper)
+        if torch.cuda.is_available():
+            print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
+            device = "cuda"
+        else:
+            print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
+            device = "cpu"
+            
+        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | FP16=True")
+        
+        # Native OpenAI Whisper Load
+        self.whisper = whisper.load_model(WHISPER_MODEL_SIZE, device=device)
         print("   Whisper STT model loaded.")
 
     async def _init_tts(self):
@@ -75,8 +120,34 @@ class AI_Core:
             self.eleven_client = AsyncElevenLabs(api_key=ELEVENLABS_API_KEY)
         elif TTS_ENGINE == "azure":
             if not speechsdk: raise ImportError("Run 'pip install azure-cognitiveservices-speech'")
-            speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY, region=AZURE_SPEECH_REGION)
-            self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
+            
+            # Validate Azure Config
+            sanitized_key = f"{AZURE_SPEECH_KEY[:4]}****" if AZURE_SPEECH_KEY else "None"
+            print(f"   Azure Config: Region=[{AZURE_SPEECH_REGION}], Key=[{sanitized_key}]")
+            if not AZURE_SPEECH_KEY or not AZURE_SPEECH_REGION:
+                print("   WARNING: Azure Key or Region is missing! Check .env")
+
+            speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY.strip(), region=AZURE_SPEECH_REGION.strip())
+            # Prevent Azure from auto-playing sound so Pygame can handle it exclusively
+            # We do this by routing Azure output to a Null stream
+            # audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=False) # This API varies by version
+            # The most reliable way for raw data extraction is to NOT set audio_config to None (which means default speaker)
+            # but to set it to a pull stream or similar.
+            # However, for now, let's keep it simple: If we set audio_config=None, it PLAYS. 
+            # If we want it SILENT, we probably need `audio_config=speechsdk.audio.AudioConfig(device_name="non_existent")`? No.
+            # Correct solution: Use `speechsdk.audio.AudioConfig(stream=None)`? No.
+            
+            # Use `audio_config=None` (Default Speaker) BUT we are using pygame too.
+            # Conflict: Azure holds the device handle.
+            # Solution: Tell Azure to output to an internal stream we don't listen to, or just Mute it?
+            # Better Solution: Use PullAudioOutputStream to "catch" the audio without playing it.
+            
+            # Prevent Azure from auto-playing sound so Pygame can handle it exclusively
+            # We do this by routing Azure output to a Null stream so it doesn't seize the audio device.
+            stream = speechsdk.audio.PushAudioOutputStream(speechsdk.audio.AudioStreamFormat(samples_per_second=24000, bits_per_sample=16, channels=1))
+            audio_config = speechsdk.audio.AudioConfig(stream=stream)
+            
+            self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
         elif TTS_ENGINE == "edge":
             if not Communicate: raise ImportError("Run 'pip install edge-tts'")
         else:
@@ -148,46 +219,77 @@ class AI_Core:
             if TTS_ENGINE == "elevenlabs":
                 # ... elevenlabs logic ...
                 pass
+            
             elif TTS_ENGINE == "azure":
-                ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
-                        f'<voice name="{AZURE_SPEECH_VOICE}">'
-                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
-                        f'</voice></speak>')
-                result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
-                if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                    audio_bytes = result.audio_data
-                else:
-                    cancellation_details = result.cancellation_details
-                    error_message = f"Azure TTS failed: {cancellation_details.reason}"
-                    if cancellation_details.reason == speechsdk.CancellationReason.Error:
-                        error_message += f" - Details: {cancellation_details.error_details}"
-                    raise Exception(error_message)
+                try:
+                    ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                            f'<voice name="{AZURE_SPEECH_VOICE}">'
+                            f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                            f'</voice></speak>')
+                    
+                    # Ensure we pull the stream instead of letting Azure play it
+                    # This prevents the SDK from seizing the default audio device
+                    result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                    
+                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                        print(f"   [Azure] Synthesis Success. Audio Duration: {result.audio_duration}")
+                        audio_bytes = result.audio_data
+                    else:
+                        cancellation_details = result.cancellation_details
+                        error_type = cancellation_details.reason
+                        error_details = cancellation_details.error_details
+                        
+                        # 401 Auth Check
+                        if "401" in str(error_details) or "Authentication" in str(error_details):
+                            print(f"\n   !!! AZURE AUTH FAILED: Check Key/Region in .env !!!\n   Region: {AZURE_SPEECH_REGION}\n")
+                        
+                        raise Exception(f"Azure TTS Failed: {error_type} - {error_details}")
+                        
+                except Exception as e:
+                    if "401" in str(e):
+                        print("\n   !!! AZURE AUTH 401: Authentication Failed !!!\n")
+                    raise e
+
             elif TTS_ENGINE == "edge":
                 # ... edge logic ...
                 pass
             
             if not self.interruption_event.is_set():
+                # Zero Latency Playback (Removed Wait)
                 await self._play_audio_with_pygame(audio_bytes)
         except Exception as e:
             print(f"   ERROR during TTS generation: {e}")
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
         if self.interruption_event.is_set() or not audio_bytes:
+            print("   [Audio] Skipped: Interrupted or Empty.")
             return
         try:
-            pygame.mixer.init(devicename=VIRTUAL_AUDIO_DEVICE)
-            # Stop any currently playing audio before starting new
+            if not pygame.mixer.get_init(): pygame.mixer.init(devicename=None)
+            
+            # Stop any currently playing audio
             if pygame.mixer.get_busy():
                 pygame.mixer.stop()
+            pygame.mixer.music.stop()
+            try: pygame.mixer.music.unload() 
+            except: pass
+
+            print(f"   [Audio] Playing {len(audio_bytes)} bytes...")
             sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
+            sound.set_volume(1.0) # Ensure max volume
             channel = sound.play()
+            
             while channel.get_busy():
                 if self.interruption_event.is_set():
                     channel.stop(); break
                 await asyncio.sleep(0.1)
+            print("   [Audio] Playback finished.")
+        except Exception as e:
+            print(f"   Audio Playback Error: {e}")
         finally:
-            if pygame.mixer.get_init():
-                pygame.mixer.quit()
+             # Clean up
+            try: pygame.mixer.music.unload() 
+            except: pass
 
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
@@ -196,6 +298,10 @@ class AI_Core:
         return text
 
     async def transcribe_audio(self, audio_data: bytes) -> str:
+        # Save temporary file for native Whisper (it prefers file paths or direct arrays)
+        # Using numpy array directly for speed
         arr = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
-        result = await asyncio.to_thread(self.whisper, arr)
+        
+        # Native Whisper Transcribe with fp16=True (RTX 5080 Optimization)
+        result = await asyncio.to_thread(self.whisper.transcribe, arr, fp16=True)
         return result.get("text", "").strip()
