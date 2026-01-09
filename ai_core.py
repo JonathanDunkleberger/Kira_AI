@@ -104,19 +104,19 @@ class AI_Core:
         self.llm = Llama(
             model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf", 
             n_gpu_layers=-1,       # Force all 48 layers to GPU
-            n_ctx=2048,            # LOWER THIS from 4096 to 2048 (Saves ~2GB VRAM instantly)
-            n_batch=256,           # LOWER THIS to 256 (Clears up 'compute buffer' space for OBS)
-            n_ubatch=256,          # Must match n_batch
-            n_ctx_keep=150,        # Keeps your System Prompt/Identity forever
-            context_erase=0.5,     # When full, erase the oldest 50% of the chat
+            n_ctx=3072,            # The "Sweet Spot" - bigger than 2048, but safer than 4096
+            n_batch=128,           # LOWER THIS. This reduces the "Work Area" VRAM significantly
+            n_ubatch=128,          # Match n_batch
+            n_ctx_keep=200,        # Ensure her core identity/system prompt never gets deleted
+            context_erase=0.5,     # When she hits 3072, she'll forget the oldest 1500
             flash_attn=True,
             offload_kqv=True,      # Keep attention math on the chip
             use_mmap=True,
-            use_mlock=True,        # Forces Windows to keep this in VRAM and NOT swap to disk
+            use_mlock=True,        # Forces Windows to keep this in memory
             n_threads=8,
             verbose=True
         )
-        print(f"   LLM loaded (Gemma 3). (Ctx: 2048 | Batch: 256 | Context Shift: ON)")
+        print(f"   LLM loaded (Gemma 3). (Ctx: 3072 | Batch: 128 | Context Shift: ON | Keep: 200)")
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
