@@ -9,6 +9,7 @@ import time
 import pygame
 import torch
 import numpy as np
+import llama_cpp # Needed for Q4_0 constants
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
 from transformers import pipeline
@@ -98,22 +99,24 @@ class AI_Core:
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
         # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
-        # Updated for Gemma 3 12B (RTX 5080 Optimized)
+        # Updated for Gemma 3 12B (RTX 5080 Maximum Optimization)
         # model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf"
         self.llm = Llama(
             model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf", 
-            n_ctx=4096, 
-            n_gpu_layers=-1, 
-            n_threads=8,
-            n_batch=1024,
+            n_ctx=4096,               
+            n_gpu_layers=-1,          
+            n_threads=8,              
+            n_batch=512,              
+            offload_kqv=True,
             verbose=True, 
-            flash_attn=True 
+            flash_attn=True,          
+            type_k=None,            # DISABLE Q4_0 KV Cache (Setting to None/f16 is faster)
+            type_v=None             # DISABLE Q4_0 KV Cache
         )
-        print(f"   LLM model loaded (Gemma 3). (Batch Size: 1024 | Flash Attn: True | GPU Layers: -1)")
+        print(f"   LLM loaded (Gemma 3). (Ctx: 4096 | GPU Layers: ALL | Flash Attn: ON | KV Cache: F16 | Offload KQV: ON)")
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
-        # FORCE CUDA for RTX 5080
         if torch.cuda.is_available():
             print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
             device = "cuda"
@@ -198,24 +201,22 @@ class AI_Core:
             
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
         
-        try:
-            t_start = time.time()
-            response = await asyncio.to_thread(
-                self.llm.create_chat_completion,
-                messages=full_prompt,
-                max_tokens=LLM_MAX_RESPONSE_TOKENS,
-                temperature=0.8,
-                top_p=0.9,
-                stop=["<end_of_turn>"] # Gemma 3 stop token
-            )
-            t_end = time.time()
-            print(f"   [Performance] LLM Generation took {t_end - t_start:.2f}s")
-            
-            raw_text = response['choices'][0]['message']['content']
-            return self._clean_llm_response(raw_text)
-        except Exception as e:
-            print(f"   ERROR during LLM inference: {e}")
-            return "Oops, my brain just short-circuited. What were we talking about?"
+        # Non-streaming inference for maximum throughput on RTX 5080
+        response = self.llm.create_chat_completion(
+            messages=full_prompt,
+            max_tokens=LLM_MAX_RESPONSE_TOKENS,
+            temperature=0.7,
+            top_p=0.9,
+            stop=["<end_of_turn>", "<eos>", "User:", "Jonny:"], 
+            stream=False 
+        )
+        return response["choices"][0]["message"]["content"]
+
+    # Legacy method wrapper if needed, but we are using streaming now.
+    # The brain_worker calls llm_inference directly and expects a generator.
+    async def _legacy_inference(self):
+        # ... kept for reference ...
+        pass
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         if not self.llm: return None
@@ -238,95 +239,66 @@ class AI_Core:
             return None
 
     async def speak_text(self, text: str):
+        """Generates and plays audio for the given text (Blocking)."""
         if not text: return
-        print(f"<<< {AI_NAME} says: {text}")
-        self.interruption_event.clear()
-        audio_bytes = b''
+        
+        self.is_speaking = True # Mute ears
+        print(f"   [TTS] Speaking: {text[:50]}...")
+        audio_data = None
+        
         try:
-            if TTS_ENGINE == "elevenlabs":
-                # ... elevenlabs logic ...
-                pass
-            
-            elif TTS_ENGINE == "azure":
-                try:
-                    t_tts_start = time.time()
-                    ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
-                            f'<voice name="{AZURE_SPEECH_VOICE}">'
-                            f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
-                            f'</voice></speak>')
-                    
-                    # Ensure we pull the stream instead of letting Azure play it
-                    result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
-                    t_tts_end = time.time()
-                    
-                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                        print(f"   [Performance] Azure TTS took {t_tts_end - t_tts_start:.2f}s")
-                        audio_bytes = result.audio_data
-                    else:
-                        cancellation_details = result.cancellation_details
-                        error_type = cancellation_details.reason
-                        error_details = cancellation_details.error_details
-                        
-                        # 401 Auth Check
-                        if "401" in str(error_details) or "Authentication" in str(error_details):
-                            print(f"\n   !!! AZURE AUTH FAILED: Check Key/Region in .env !!!\n   Region: {AZURE_SPEECH_REGION}\n")
-                        
-                        raise Exception(f"Azure TTS Failed: {error_type} - {error_details}")
-                        
-                except Exception as e:
-                    if "401" in str(e):
-                        print("\n   !!! AZURE AUTH 401: Authentication Failed !!!\n")
-                    raise e
+            # --- AZURE TTS ---
+            if TTS_ENGINE == "azure" and self.azure_synthesizer:
+                 ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                        f'<voice name="{AZURE_SPEECH_VOICE}">'
+                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                        f'</voice></speak>')
+                 result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                     audio_data = result.audio_data
+                 else:
+                     print(f"   TTS Fail: {result.cancellation_details.error_details}")
 
-            elif TTS_ENGINE == "edge":
-                # ... edge logic ...
-                pass
-            
-            if not self.interruption_event.is_set():
-                # Zero Latency Playback (Removed Wait)
-                await self._play_audio_with_pygame(audio_bytes)
-                
-            # Cleanup resources after response
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            gc.collect()
-            
+            # --- EDGE TTS (Fallback) ---
+            elif TTS_ENGINE == "edge" and Communicate:
+                 communicate = Communicate(text, float(AZURE_PROSODY_PITCH) if False else "en-US-AriaNeural")
+                 buffer = b""
+                 async for chunk in communicate.stream():
+                     if chunk["type"] == "audio":
+                         buffer += chunk["data"]
+                 audio_data = buffer
+
+            # Play Audio
+            if audio_data:
+                await self._play_audio_with_pygame(audio_data)
+
         except Exception as e:
-            print(f"   ERROR during TTS generation: {e}")
+            print(f"   TTS/Playback Error: {e}")
+        finally:
+            self.is_speaking = False
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
         if self.interruption_event.is_set() or not audio_bytes:
             print("   [Audio] Skipped: Interrupted or Empty.")
             return
 
-        self.is_speaking = True # Mute ears
         try:
             if not pygame.mixer.get_init(): pygame.mixer.init(devicename=None)
             
-            # Stop any currently playing audio
-            if pygame.mixer.get_busy():
-                pygame.mixer.stop()
+            if pygame.mixer.get_busy(): pygame.mixer.stop()
             pygame.mixer.music.stop()
-            try: pygame.mixer.music.unload() 
-            except: pass
 
-            print(f"   [Audio] Playing {len(audio_bytes)} bytes...")
             sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
-            sound.set_volume(1.0) # Ensure max volume
+            sound.set_volume(1.0)
             channel = sound.play()
             
             while channel.get_busy():
                 if self.interruption_event.is_set():
                     channel.stop(); break
                 await asyncio.sleep(0.1)
-            print("   [Audio] Playback finished.")
         except Exception as e:
             print(f"   Audio Playback Error: {e}")
-        finally:
-            self.is_speaking = False # Unmute ears
-            # Clean up
-            try: pygame.mixer.music.unload() 
-            except: pass
+
 
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)

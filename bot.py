@@ -36,6 +36,9 @@ class VTubeBot:
         self.summarizer = SummarizationManager(self.ai_core, self.memory)
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
         
+        # --- NEW: Shared Input Queue ---
+        self.input_queue = asyncio.Queue()
+        
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
         self.stream = None
@@ -73,17 +76,30 @@ class VTubeBot:
             )
 
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
-            # Do NOT trigger any speech or response at startup
-
-            if ENABLE_TWITCH_CHAT:
-                twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer)
-                twitch_task = asyncio.create_task(twitch_bot.start())
-                self.bg_tasks.add(twitch_task)
             
-            background_task = asyncio.create_task(self.background_loop())
-            self.bg_tasks.add(background_task)
+            tasks = []
+            
+            # 1. Start Twitch Bot (if enabled)
+            if ENABLE_TWITCH_CHAT:
+                print("   [System] Connecting to Twitch Chat...")
+                # Pass the queue to TwitchBot
+                twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer, self.input_queue)
+                tasks.append(twitch_bot.start())
+            
+            # 2. Start Brain Worker (The new logic brain)
+            print("   [System] Starting Brain Worker...")
+            tasks.append(self.brain_worker())
+            
+            print("   [System] Starting Background Tasks...")
+            tasks.append(self.background_loop())
+            
+            # 3. Start Voice Recorder (This is the main loop effectively)
+            print("   [System] Starting Voice Recorder (VAD)...")
+            tasks.append(self.vad_loop())
 
-            await self.vad_loop()
+            # Run everything concurrently
+            await asyncio.gather(*tasks)
+
         except asyncio.CancelledError:
             print("Main loop cancelled.")
         finally:
@@ -101,41 +117,45 @@ class VTubeBot:
         max_silent_chunks = int(PAUSE_THRESHOLD * 1000 / 30)
 
         while True:
-            data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
+            try:
+                data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
 
-            # Prevent Self-Hearing: Default to silence if AI is speaking
-            if self.ai_core.is_speaking:
-                continue
+                # Prevent Self-Hearing: Default to silence if AI is speaking
+                if self.ai_core.is_speaking:
+                    continue
 
-            is_speech = self.vad.is_speech(data, 16000)
+                is_speech = self.vad.is_speech(data, 16000)
 
-            if self.processing_lock.locked() and is_speech:
-                self.interruption_event.set()
-                continue
-            
-            if not self.processing_lock.locked():
-                if is_speech:
-                    if not triggered:
-                        print("🎤 Recording...")
-                        triggered = True
-                    frames.append(data)
-                    silent_chunks = 0
-                elif triggered:
-                    frames.append(data)
-                    silent_chunks += 1
-                    if silent_chunks > max_silent_chunks:
-                        # Trim the last 0.2s of silence to avoid padding whisper
-                        keep_chunks = len(frames) - int(silent_chunks * 0.5) 
-                        audio_data = b"".join(list(frames)[:keep_chunks])
-                        
-                        frames.clear()
-                        triggered = False
-                        self.reset_idle_timer()
-                        
-                        # Process audio in background
-                        task = asyncio.create_task(self.handle_audio(audio_data))
-                        self.bg_tasks.add(task)
-                        task.add_done_callback(self.bg_tasks.discard)
+                if self.processing_lock.locked() and is_speech:
+                    self.interruption_event.set()
+                    continue
+                
+                if not self.processing_lock.locked():
+                    if is_speech:
+                        if not triggered:
+                            print("🎤 Recording...")
+                            triggered = True
+                        frames.append(data)
+                        silent_chunks = 0
+                    elif triggered:
+                        frames.append(data)
+                        silent_chunks += 1
+                        if silent_chunks > max_silent_chunks:
+                            # Trim the last 0.2s of silence to avoid padding whisper
+                            keep_chunks = len(frames) - int(silent_chunks * 0.5) 
+                            audio_data = b"".join(list(frames)[:keep_chunks])
+                            
+                            frames.clear()
+                            triggered = False
+                            self.reset_idle_timer()
+                            
+                            # Process audio in background
+                            task = asyncio.create_task(self.handle_audio(audio_data))
+                            self.bg_tasks.add(task)
+                            task.add_done_callback(self.bg_tasks.discard)
+            except Exception as e:
+                print(f"Error in VAD loop: {e}")
+                await asyncio.sleep(0.1)
 
 
     async def handle_audio(self, audio_data: bytes):
@@ -149,34 +169,90 @@ class VTubeBot:
             if any(h["content"] == user_text for h in self.conversation_history):
                 print(f"(Duplicate input ignored: {user_text})")
                 return
-            contextual_prompt = f"Jonny says: \"{user_text}\""
             
-            if self.unseen_chat_messages:
-                chat_summary = "\n- ".join(self.unseen_chat_messages)
-                contextual_prompt += (
-                    f"\n\nWhile you were listening, your Twitch chat said:\n- {chat_summary}\n\n"
-                    f"Give a single, natural response that addresses Jonny and also acknowledges the chat if it makes sense."
-                )
-                self.unseen_chat_messages.clear()
+            # --- PUSH VOICE TO QUEUE ---
+            await self.input_queue.put(("voice", user_text))
+
+
+    async def brain_worker(self):
+        """Worker that processes items from the input queue individually."""
+        print("   [System] Brain Worker started.")
+        while True:
+            # Get the next item (this blocks until an item is available)
+            source, content = await self.input_queue.get()
             
-            await self.process_and_respond(user_text, contextual_prompt, "user")
+            try:
+                print(f"   [Brain] Processing {source} input: {content[:30]}...")
+                contextual_prompt = f"Jonny says: \"{content}\""
+                
+                # If it's Twitch, mention that
+                if source == "twitch":
+                     contextual_prompt = f"Twitch Chat says: \"{content}\"\nRespond to this chat message."
+
+                # If previously unseen chat exists (and this is voice), include it
+                if source == "voice" and self.unseen_chat_messages:
+                     chat_summary = "\n- ".join(self.unseen_chat_messages)
+                     contextual_prompt += f"\n\n(While you were listening, Twitch said: {chat_summary})"
+                     self.unseen_chat_messages.clear()
+
+                await self.process_and_respond(content, contextual_prompt, "user")
+                
+            except Exception as e:
+                print(f"   [Brain] Error processing item: {e}")
+                traceback.print_exc()
+            finally:
+                self.input_queue.task_done()
+
 
     async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
 
-        self.conversation_history.append({"role": role, "content": original_text})
-        self.conversation_segment.append({"role": role, "content": original_text})
+        # --- ROLE ALTERNATION ENFORCEMENT ---
+        # 1. Merge consecutive messages from same role
+        if self.conversation_history and self.conversation_history[-1]["role"] == role:
+             print("   [Logic] Merging consecutive message.")
+             self.conversation_history[-1]["content"] += f"\n\n{original_text}"
+             if self.conversation_segment: 
+                 self.conversation_segment[-1]["content"] += f"\n\n{original_text}"
+        else:
+             # 2. Add new message if role is different
+             self.conversation_history.append({"role": role, "content": original_text})
+             self.conversation_segment.append({"role": role, "content": original_text})
+        
+        # --- SLIDING WINDOW: Limit context to last 15 turns ---
+        if len(self.conversation_history) > 15:
+            # Keep system prompt if we had one? 
+            # Current impl injects system prompt in llm_inference every time.
+            # So we just truncate the list.
+            self.conversation_history = self.conversation_history[-15:]
+
+        # --- SANITY CHECK: Ensure last message is NOT assistant ---
+        # If the last message in history is assistant, we cannot ask for completion unless we want them to continue.
+        # But here we are responding to a user trigger.
+        if self.conversation_history[-1]["role"] == "assistant":
+             print("   [Logic] Warning: Attempting to respond to myself. Aborting this turn.")
+             return
 
         mem_ctx = self.memory.search_memories(original_text, n_results=3)
-        response = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx)
         
-        if response:
-            await self.ai_core.speak_text(response)
-            self.conversation_history.append({"role": "assistant", "content": response})
-            self.conversation_segment.append({"role": "assistant", "content": response})
+        # --- NON-STREAMING LLM & TTS ---
+        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx)
+        
+        # Clean the response
+        full_response_text = self.ai_core._clean_llm_response(full_response_text)
+        
+        if full_response_text:
+            print(f">>> Kira: {full_response_text}")
+            
+            # Speak the full response
+            await self.ai_core.speak_text(full_response_text)
+            
+            # Update history
+            self.conversation_history.append({"role": "assistant", "content": full_response_text})
+            self.conversation_segment.append({"role": "assistant", "content": full_response_text})
             if role == "user":
-                 self.memory.add_memory(user_text=original_text, ai_text=response)
-            await self.update_emotional_state(original_text, response)
+                 self.memory.add_memory(user_text=original_text, ai_text=full_response_text)
+            await self.update_emotional_state(original_text, full_response_text)
         
         self.reset_idle_timer()
 
