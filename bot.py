@@ -102,6 +102,11 @@ class VTubeBot:
 
         while True:
             data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
+
+            # Prevent Self-Hearing: Default to silence if AI is speaking
+            if self.ai_core.is_speaking:
+                continue
+
             is_speech = self.vad.is_speech(data, 16000)
 
             if self.processing_lock.locked() and is_speech:

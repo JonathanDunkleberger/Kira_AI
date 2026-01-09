@@ -9,7 +9,7 @@ import time
 import pygame
 import torch
 import numpy as np
-import whisper  # Native OpenAI Whisper import
+from faster_whisper import WhisperModel
 from llama_cpp import Llama
 from transformers import pipeline
 
@@ -35,6 +35,7 @@ class AI_Core:
     def __init__(self, interruption_event):
         self.interruption_event = interruption_event
         self.is_initialized = False
+        self.is_speaking = False # Added flag for self-hearing prevention
         self.llm = None
         self.whisper = None
         self.eleven_client = None
@@ -97,33 +98,34 @@ class AI_Core:
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
         # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
-        # Updated for RTX 5080: verbose=True to verify CUDA offload
+        # Updated for Gemma 3 12B (RTX 5080 Optimized)
+        # model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf"
         self.llm = Llama(
-            model_path=LLM_MODEL_PATH, 
-            n_ctx=N_CTX, 
+            model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf", 
+            n_ctx=4096, 
             n_gpu_layers=-1, 
             n_threads=8,
             n_batch=1024,
             verbose=True, 
             flash_attn=True 
         )
-        print(f"   LLM model loaded. (Batch Size: 1024 | Flash Attn: True | GPU Layers: -1)")
+        print(f"   LLM model loaded (Gemma 3). (Batch Size: 1024 | Flash Attn: True | GPU Layers: -1)")
 
     def _init_whisper(self):
-        print("-> Loading Whisper STT model...")
-        # FORCE CUDA for RTX 5080 (Using Native OpenAI Whisper)
+        print("-> Loading Faster-Whisper STT model...")
+        # FORCE CUDA for RTX 5080
         if torch.cuda.is_available():
             print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
             device = "cuda"
         else:
             print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
             device = "cpu"
-            
-        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | FP16=True")
-        
-        # Native OpenAI Whisper Load
-        self.whisper = whisper.load_model(WHISPER_MODEL_SIZE, device=device)
-        print("   Whisper STT model loaded.")
+
+        # Upgrade to medium.en for better accuracy
+        # We use float16 because your 5080 handles it like a champ.
+        print(f"   Whisper Config: Model=medium.en | Device={device} | ComputeType=float16")
+        self.whisper = WhisperModel("medium.en", device=device, compute_type="float16")
+        print("   Faster-Whisper STT model loaded.")
 
     async def _init_tts(self):
         print(f"-> Initializing TTS engine: {TTS_ENGINE}...")
@@ -204,7 +206,7 @@ class AI_Core:
                 max_tokens=LLM_MAX_RESPONSE_TOKENS,
                 temperature=0.8,
                 top_p=0.9,
-                stop=["\nJonny:", "\nKira:", "</s>"]
+                stop=["<end_of_turn>"] # Gemma 3 stop token
             )
             t_end = time.time()
             print(f"   [Performance] LLM Generation took {t_end - t_start:.2f}s")
@@ -296,6 +298,8 @@ class AI_Core:
         if self.interruption_event.is_set() or not audio_bytes:
             print("   [Audio] Skipped: Interrupted or Empty.")
             return
+
+        self.is_speaking = True # Mute ears
         try:
             if not pygame.mixer.get_init(): pygame.mixer.init(devicename=None)
             
@@ -319,7 +323,8 @@ class AI_Core:
         except Exception as e:
             print(f"   Audio Playback Error: {e}")
         finally:
-             # Clean up
+            self.is_speaking = False # Unmute ears
+            # Clean up
             try: pygame.mixer.music.unload() 
             except: pass
 
@@ -330,17 +335,27 @@ class AI_Core:
         return text
 
     async def transcribe_audio(self, audio_data: bytes) -> str:
-        # Save temporary file for native Whisper (it prefers file paths or direct arrays)
         # Using numpy array directly for speed
         arr = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
         
-        # Native Whisper Transcribe with fp16=True (RTX 5080 Optimization)
-        # Added beam_size=1 and initial_prompt per optimization request
-        result = await asyncio.to_thread(
-            self.whisper.transcribe, 
-            arr, 
-            fp16=True, 
-            beam_size=1, 
-            initial_prompt="Kira:"
-        )
-        return result.get("text", "").strip()
+        def _run_transcribe():
+            # ADJUSTING VAD SETTINGS HERE:
+            # threshold=0.85: UP FROM 0.6: Requires 85% certainty it's a voice.
+            # min_speech_duration_ms=400: UP FROM 300: Ignores quick laughs/gasps.
+            # min_silence_duration_ms=800: DOWN FROM 1000: Responds slightly faster.
+            segments, info = self.whisper.transcribe(
+                arr, 
+                beam_size=5,
+                vad_filter=True,
+                vad_parameters=dict(
+                    threshold=0.85, 
+                    min_speech_duration_ms=400, 
+                    min_silence_duration_ms=800,
+                    speech_pad_ms=200
+                )
+            )
+            return list(segments)
+
+        segments = await asyncio.to_thread(_run_transcribe)
+        text = "".join([segment.text for segment in segments])
+        return text.strip()
