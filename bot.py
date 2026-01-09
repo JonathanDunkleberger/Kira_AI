@@ -119,10 +119,15 @@ class VTubeBot:
                     frames.append(data)
                     silent_chunks += 1
                     if silent_chunks > max_silent_chunks:
-                        audio_data = b"".join(frames)
+                        # Trim the last 0.2s of silence to avoid padding whisper
+                        keep_chunks = len(frames) - int(silent_chunks * 0.5) 
+                        audio_data = b"".join(list(frames)[:keep_chunks])
+                        
                         frames.clear()
                         triggered = False
                         self.reset_idle_timer()
+                        
+                        # Process audio in background
                         task = asyncio.create_task(self.handle_audio(audio_data))
                         self.bg_tasks.add(task)
                         task.add_done_callback(self.bg_tasks.discard)

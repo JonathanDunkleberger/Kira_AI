@@ -4,6 +4,8 @@ import asyncio
 import io
 import os
 import re
+import gc
+import time
 import pygame
 import torch
 import numpy as np
@@ -94,8 +96,18 @@ class AI_Core:
         print(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
-        self.llm = Llama(model_path=LLM_MODEL_PATH, n_ctx=N_CTX, n_gpu_layers=N_GPU_LAYERS, verbose=False)
-        print("   LLM model loaded.")
+        # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
+        # Updated for RTX 5080: verbose=True to verify CUDA offload
+        self.llm = Llama(
+            model_path=LLM_MODEL_PATH, 
+            n_ctx=N_CTX, 
+            n_gpu_layers=-1, 
+            n_threads=8,
+            n_batch=1024,
+            verbose=True, 
+            flash_attn=True 
+        )
+        print(f"   LLM model loaded. (Batch Size: 1024 | Flash Attn: True | GPU Layers: -1)")
 
     def _init_whisper(self):
         print("-> Loading Whisper STT model...")
@@ -142,9 +154,19 @@ class AI_Core:
             # Solution: Tell Azure to output to an internal stream we don't listen to, or just Mute it?
             # Better Solution: Use PullAudioOutputStream to "catch" the audio without playing it.
             
-            # Prevent Azure from auto-playing sound so Pygame can handle it exclusively
-            # We do this by routing Azure output to a Null stream so it doesn't seize the audio device.
-            stream = speechsdk.audio.PushAudioOutputStream(speechsdk.audio.AudioStreamFormat(samples_per_second=24000, bits_per_sample=16, channels=1))
+            # Prevent Azure from auto-playing sound by using a PullStream (Memory Stream)
+            # This satisfies the "No WAV File" requirement and prevents speaker conflict.
+            # We don't read from this stream, we just let Azure write to it so it doesn't block.
+            self.null_stream = speechsdk.audio.PullAudioOutputStream(
+                speechsdk.audio.PullAudioOutputStreamCallback() 
+            ) if False else None # Callback is complex to implement in one line.
+            
+            # SIMPLER TRICK: Use a PushAudioOutputStream with a dummy write callback.
+            class NullCallback(speechsdk.audio.PushAudioOutputStreamCallback):
+                def write(self, data: memoryview) -> int: return data.nbytes
+                def close(self) -> None: pass
+                
+            stream = speechsdk.audio.PushAudioOutputStream(NullCallback())
             audio_config = speechsdk.audio.AudioConfig(stream=stream)
             
             self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
@@ -175,15 +197,18 @@ class AI_Core:
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
         
         try:
+            t_start = time.time()
             response = await asyncio.to_thread(
                 self.llm.create_chat_completion,
                 messages=full_prompt,
-                # --- UPDATED: Use the new variable for max_tokens ---
                 max_tokens=LLM_MAX_RESPONSE_TOKENS,
                 temperature=0.8,
                 top_p=0.9,
                 stop=["\nJonny:", "\nKira:", "</s>"]
             )
+            t_end = time.time()
+            print(f"   [Performance] LLM Generation took {t_end - t_start:.2f}s")
+            
             raw_text = response['choices'][0]['message']['content']
             return self._clean_llm_response(raw_text)
         except Exception as e:
@@ -222,17 +247,18 @@ class AI_Core:
             
             elif TTS_ENGINE == "azure":
                 try:
+                    t_tts_start = time.time()
                     ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
                             f'<voice name="{AZURE_SPEECH_VOICE}">'
                             f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
                             f'</voice></speak>')
                     
                     # Ensure we pull the stream instead of letting Azure play it
-                    # This prevents the SDK from seizing the default audio device
                     result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                    t_tts_end = time.time()
                     
                     if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                        print(f"   [Azure] Synthesis Success. Audio Duration: {result.audio_duration}")
+                        print(f"   [Performance] Azure TTS took {t_tts_end - t_tts_start:.2f}s")
                         audio_bytes = result.audio_data
                     else:
                         cancellation_details = result.cancellation_details
@@ -257,6 +283,12 @@ class AI_Core:
             if not self.interruption_event.is_set():
                 # Zero Latency Playback (Removed Wait)
                 await self._play_audio_with_pygame(audio_bytes)
+                
+            # Cleanup resources after response
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            gc.collect()
+            
         except Exception as e:
             print(f"   ERROR during TTS generation: {e}")
 
@@ -303,5 +335,12 @@ class AI_Core:
         arr = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
         
         # Native Whisper Transcribe with fp16=True (RTX 5080 Optimization)
-        result = await asyncio.to_thread(self.whisper.transcribe, arr, fp16=True)
+        # Added beam_size=1 and initial_prompt per optimization request
+        result = await asyncio.to_thread(
+            self.whisper.transcribe, 
+            arr, 
+            fp16=True, 
+            beam_size=1, 
+            initial_prompt="Kira:"
+        )
         return result.get("text", "").strip()
