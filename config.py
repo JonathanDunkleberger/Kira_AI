@@ -17,6 +17,23 @@ PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))
 VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
 MEMORY_PATH = os.getenv("MEMORY_PATH", "memory_db/")
 
+# Memory Configuration
+MEMORY_INCLUDE_EPISODIC = os.getenv("MEMORY_INCLUDE_EPISODIC", "false").lower() == "true"
+MEMORY_MAX_AGE_DAYS = int(os.getenv("MEMORY_MAX_AGE_DAYS", 7))
+MEMORY_MAX_ITEMS = int(os.getenv("MEMORY_MAX_ITEMS", 6))
+MEMORY_MAX_TOKENS = int(os.getenv("MEMORY_MAX_TOKENS", 800))
+MEMORY_MAX_CHARS = int(os.getenv("MEMORY_MAX_CHARS", 1500))
+
+# Vision Configuration
+VISION_ENABLED = os.getenv("VISION_ENABLED", "true").lower() == "true"
+VISION_ALWAYS_ON = os.getenv("VISION_ALWAYS_ON", "false").lower() == "true"
+VISION_COOLDOWN_S = float(os.getenv("VISION_COOLDOWN_S", 3.0))
+VISION_WAIT_MS = int(os.getenv("VISION_WAIT_MS", 200))
+
+# Prompt Configuration
+PROMPT_BUDGET_TOKENS = int(os.getenv("PROMPT_BUDGET_TOKENS", 1800))
+HISTORY_TURNS = int(os.getenv("HISTORY_TURNS", 10))
+
 # Secrets and API keys (must be in .env, never commit real values)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "")

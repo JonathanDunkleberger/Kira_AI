@@ -10,18 +10,20 @@ import pygame
 import torch
 import numpy as np
 import llama_cpp # Needed for Q4_0 constants
+from llama_cpp.llama_chat_format import Llava15ChatHandler
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
 from transformers import pipeline
 
 from config import (
     LLM_MODEL_PATH, N_CTX, N_GPU_LAYERS, WHISPER_MODEL_SIZE, TTS_ENGINE,
-    LLM_MAX_RESPONSE_TOKENS,
+    LLM_MAX_RESPONSE_TOKENS, PROMPT_BUDGET_TOKENS, VISION_ENABLED, # Added Budget
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     VIRTUAL_AUDIO_DEVICE, AI_NAME
 )
 from persona import AI_PERSONALITY_PROMPT, EmotionalState
+from utils_logger import logger, sanitize_messages
 
 # Graceful SDK imports
 try: from edge_tts import Communicate
@@ -46,17 +48,17 @@ class AI_Core:
 
     async def initialize(self):
         """Initializes AI components sequentially to prevent resource conflicts."""
-        print("-> Initializing AI Core components...")
+        logger.info("-> Initializing AI Core components...")
         
         # Initialize Audio Mixer permanently
         if pygame.mixer.get_init(): pygame.mixer.quit()
         
         # FORCE Default Desktop Audio (User Request)
-        print("   Forcing Audio Output to Default Windows Device (devicename=None)...")
+        logger.info("   Forcing Audio Output to Default Windows Device (devicename=None)...")
         try:
             pygame.mixer.init(devicename=None)
         except Exception as e:
-            print(f"   Warning: Default init failed, trying auto: {e}")
+            logger.warning(f"   Warning: Default init failed, trying auto: {e}")
             pygame.mixer.init()
 
         try:
@@ -65,15 +67,15 @@ class AI_Core:
             await self._init_tts()
 
             self.is_initialized = True
-            print("   AI Core initialized successfully!")
+            logger.info("   AI Core initialized successfully!")
         except Exception as e:
-            print(f"FATAL: AI Core failed to initialize: {e}")
+            logger.critical(f"FATAL: AI Core failed to initialize: {e}")
             self.is_initialized = False
             raise
 
     async def test_audio_output(self):
         """Plays a test tone to verify audio output."""
-        print("-> Testing Audio Output...")
+        logger.info("-> Testing Audio Output...")
         try:
             # Generate a 440Hz sine wave for 0.5 seconds
             sample_rate = 44100
@@ -90,21 +92,37 @@ class AI_Core:
             # Wait for playback to finish
             while channel.get_busy():
                 await asyncio.sleep(0.1)
-            print("   Audio test passed (Beep played).")
+            logger.info("   Audio test passed (Beep played).")
         except Exception as e:
-            print(f"   Audio test FAILED: {e}")
+            logger.error(f"   Audio test FAILED: {e}")
 
     def _init_llm(self):
-        print(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
+        logger.info(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
         # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
+        # Check for Vision Projector
+        chat_handler = None
+        mmproj_path = "models/gemma-3-12b-it-mmproj-f16.gguf"
+        
+        if VISION_ENABLED and os.path.exists(mmproj_path):
+            logger.info(f"   Vision Projector found: {mmproj_path}")
+            try:
+                chat_handler = Llava15ChatHandler(clip_model_path=mmproj_path)
+            except Exception as e:
+                logger.error(f"   Failed to load Vision Projector: {e}")
+        elif not VISION_ENABLED:
+             logger.info("   Vision disabled in config. Skipping MMA Projector load.")
+        else:
+            logger.warning("   Vision Projector NOT found. Vision capabilities disabled.")
+
         # Updated for Gemma 3 12B (RTX 5080 Maximum Optimization)
         # model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf"
         self.llm = Llama(
             model_path="models/google_gemma-3-12b-it-Q5_K_M.gguf", 
+            chat_handler=chat_handler,
             n_gpu_layers=-1,       # Force all 48 layers to GPU
-            n_ctx=3072,            # The "Sweet Spot" - bigger than 2048, but safer than 4096
+            n_ctx=2048,            # The "Sweet Spot" - bigger than 2048, but safer than 4096
             n_batch=128,           # LOWER THIS. This reduces the "Work Area" VRAM significantly
             n_ubatch=128,          # Match n_batch
             n_ctx_keep=200,        # Ensure her core identity/system prompt never gets deleted
@@ -114,27 +132,28 @@ class AI_Core:
             use_mmap=True,
             use_mlock=True,        # Forces Windows to keep this in memory
             n_threads=8,
-            verbose=True
+            verbose=False,
+            logos_processor=None     # Ensure no weird logging injection
         )
-        print(f"   LLM loaded (Gemma 3). (Ctx: 3072 | Batch: 128 | Context Shift: ON | Keep: 200)")
+        logger.info(f"   LLM loaded (Gemma 3). (Ctx: 2048 | Batch: 128 | Context Shift: ON | Keep: 200)")
 
     def _init_whisper(self):
-        print("-> Loading Faster-Whisper STT model...")
+        logger.info("-> Loading Faster-Whisper STT model...")
         if torch.cuda.is_available():
-            print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
+            logger.info(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
             device = "cuda"
         else:
-            print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
+            logger.warning("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
             device = "cpu"
 
         # Upgrade to medium.en for better accuracy
         # We use float16 because your 5080 handles it like a champ.
-        print(f"   Whisper Config: Model=medium.en | Device={device} | ComputeType=float16")
+        logger.info(f"   Whisper Config: Model=medium.en | Device={device} | ComputeType=float16")
         self.whisper = WhisperModel("medium.en", device=device, compute_type="float16")
-        print("   Faster-Whisper STT model loaded.")
+        logger.info("   Faster-Whisper STT model loaded.")
 
     async def _init_tts(self):
-        print(f"-> Initializing TTS engine: {TTS_ENGINE}...")
+        logger.info(f"-> Initializing TTS engine: {TTS_ENGINE}...")
         if TTS_ENGINE == "elevenlabs":
             if not AsyncElevenLabs: raise ImportError("Run 'pip install elevenlabs'")
             self.eleven_client = AsyncElevenLabs(api_key=ELEVENLABS_API_KEY)
@@ -143,9 +162,9 @@ class AI_Core:
             
             # Validate Azure Config
             sanitized_key = f"{AZURE_SPEECH_KEY[:4]}****" if AZURE_SPEECH_KEY else "None"
-            print(f"   Azure Config: Region=[{AZURE_SPEECH_REGION}], Key=[{sanitized_key}]")
+            logger.info(f"   Azure Config: Region=[{AZURE_SPEECH_REGION}], Key=[{sanitized_key}]")
             if not AZURE_SPEECH_KEY or not AZURE_SPEECH_REGION:
-                print("   WARNING: Azure Key or Region is missing! Check .env")
+                logger.warning("   WARNING: Azure Key or Region is missing! Check .env")
 
             speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY.strip(), region=AZURE_SPEECH_REGION.strip())
             # Prevent Azure from auto-playing sound so Pygame can handle it exclusively
@@ -182,38 +201,122 @@ class AI_Core:
             if not Communicate: raise ImportError("Run 'pip install edge-tts'")
         else:
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
-        print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
+        logger.info(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "") -> str:
-        system_prompt = AI_PERSONALITY_PROMPT
-        system_prompt += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", image_buffer: str = None) -> str:
+        t_start = time.perf_counter()
+        
+        # Use a clean list for Gemma's specific format
+        formatted_messages = []
+        
+        # 1. Add System Instruction ONLY ONCE at the start
+        system_text = AI_PERSONALITY_PROMPT
+        system_text += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
+        
+        # Inject Memory Context explicitly as a SYSTEM note before the recent history
         if memory_context and "No memories" not in memory_context:
-            system_prompt += f"\n[Memory Context]:\n{memory_context}"
-
-        system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
+             system_text += f"\n\n[Context Memory about Jonny]: {memory_context}"
         
-        # We now use the variable from config for the response buffer
-        max_response_tokens = LLM_MAX_RESPONSE_TOKENS
-        token_limit = N_CTX - len(system_tokens) - max_response_tokens
+        formatted_messages.append({"role": "system", "content": system_text})
+        
+        # --- TOKEN BUDGETING ---
+        # Heuristic: 1 token ~= 3 chars. 
+        # Reserve for System + Response
+        sys_tokens = (len(system_text) // 3) + 20
+        reserve_tokens = LLM_MAX_RESPONSE_TOKENS + 50
+        image_tokens = 256 if image_buffer else 0 # Image tokens check
+        
+        available_history = PROMPT_BUDGET_TOKENS - sys_tokens - reserve_tokens - image_tokens
+        if available_history < 100: available_history = 100 # Minimum floor
+        
+        history_to_add = []
+        current_cost = 0
+        
+        # Always take the last message (User Trigger)
+        if messages:
+             last_msg = messages[-1]
+             history_to_add.append(last_msg)
+             # Add cost
+             content_str = last_msg["content"]
+             if isinstance(content_str, list):
+                  content_str = next((item["text"] for item in content_str if item["type"] == "text"), "")
+             current_cost += (len(content_str) // 3) + 5
+        
+        # Fill rest from newest to oldest
+        if len(messages) > 1:
+            for msg in reversed(messages[:-1]):
+                content_str = msg["content"]
+                if isinstance(content_str, list):
+                     content_str = next((item["text"] for item in content_str if item["type"] == "text"), "")
+                
+                cost = (len(content_str) // 3) + 5
+                if current_cost + cost <= available_history:
+                    history_to_add.insert(0, msg) # Prepend
+                    current_cost += cost
+                else:
+                    break # Budget full
+        
+        # Normalize and Add to formatted_messages
+        for msg in history_to_add:
+             if isinstance(msg["content"], list):
+                  text_only = next((item["text"] for item in msg["content"] if item["type"] == "text"), "")
+                  formatted_messages.append({"role": msg["role"], "content": text_only})
+             else:
+                  formatted_messages.append(msg)
 
-        history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
-        while history_tokens > token_limit and len(messages) > 1:
-            print("   (Trimming conversation history to fit context window...)")
-            messages.pop(0)
-            history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
+        # 3. Process image for the CURRENT turn only
+        has_image = False
+        if image_buffer:
+            if formatted_messages and formatted_messages[-1]["role"] == "user":
+                 last_content = formatted_messages[-1]["content"]
+                 if isinstance(last_content, list):
+                      last_text = next((item["text"] for item in last_content if item["type"] == "text"), "")
+                 else:
+                      last_text = last_content
+                 
+                 # Correct Vision Message Format
+                 formatted_messages[-1]["content"] = [
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_buffer}"}},
+                    {"type": "text", "text": last_text}
+                ]
+                 has_image = True
+        
+        t_build_end = time.perf_counter()
+        
+        # --- ASSERTIONS & DIAGNOSTICS ---
+        assert formatted_messages[0]["role"] == "system", "First message must be system"
+        # Validate role alternation (ignoring initial systems)
+        dialogue_msgs = [m for m in formatted_messages if m["role"] != "system"]
+        if dialogue_msgs:
+            assert dialogue_msgs[-1]["role"] == "user", "Last message must be user"
             
-        full_prompt = [{"role": "system", "content": system_prompt}] + messages
+        # Safe Log: Summary only
+        mem_count = 1 if (memory_context and "No memories" not in memory_context) else 0
+        logger.info(f"   [Prompt] Msgs={len(formatted_messages)} | EstTokens={current_cost+sys_tokens} | MemoryItems={mem_count} | HasImage={has_image}")
         
-        # Non-streaming inference for maximum throughput on RTX 5080
+        # 4. Generate with strict constraints
+        max_response_tokens = LLM_MAX_RESPONSE_TOKENS # Use config value
+        
+        t_infer_start = time.perf_counter()
         response = self.llm.create_chat_completion(
-            messages=full_prompt,
-            max_tokens=LLM_MAX_RESPONSE_TOKENS,
+            messages=formatted_messages,
             temperature=0.7,
-            top_p=0.9,
-            stop=["<end_of_turn>", "<eos>", "User:", "Jonny:"], 
-            stream=False 
+            max_tokens=max_response_tokens, 
+            stop=["USER:", "Jonny says:", "<start_of_turn>", "You are Kira"], 
+            logits_processor=None 
         )
-        return response["choices"][0]["message"]["content"]
+        t_infer_end = time.perf_counter()
+        
+        t_total = t_infer_end - t_start
+        t_build = t_build_end - t_start
+        t_infer = t_infer_end - t_infer_start
+        generated_text = response["choices"][0]["message"]["content"]
+        gen_toks = len(generated_text) // 4 # Rough estimate
+        tps = gen_toks / t_infer if t_infer > 0 else 0
+        
+        logger.info(f"   [Perf] Total={t_total:.3f}s | Build={t_build:.3f}s | Infer={t_infer:.3f}s | TPS={tps:.1f}")
+        
+        return generated_text
 
     # Legacy method wrapper if needed, but we are using streaming now.
     # The brain_worker calls llm_inference directly and expects a generator.
@@ -238,7 +341,7 @@ class AI_Core:
                     return emotion
             return None
         except Exception as e:
-            print(f"   ERROR during emotion analysis: {e}")
+            logger.error(f"   ERROR during emotion analysis: {e}")
             return None
 
     async def speak_text(self, text: str):
@@ -246,7 +349,7 @@ class AI_Core:
         if not text: return
         
         self.is_speaking = True # Mute ears
-        print(f"   [TTS] Speaking: {text[:50]}...")
+        logger.info(f"   [TTS] Speaking: {text[:50]}...")
         audio_data = None
         
         try:
@@ -260,7 +363,7 @@ class AI_Core:
                  if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                      audio_data = result.audio_data
                  else:
-                     print(f"   TTS Fail: {result.cancellation_details.error_details}")
+                     logger.error(f"   TTS Fail: {result.cancellation_details.error_details}")
 
             # --- EDGE TTS (Fallback) ---
             elif TTS_ENGINE == "edge" and Communicate:
@@ -276,13 +379,13 @@ class AI_Core:
                 await self._play_audio_with_pygame(audio_data)
 
         except Exception as e:
-            print(f"   TTS/Playback Error: {e}")
+            logger.error(f"   TTS/Playback Error: {e}")
         finally:
             self.is_speaking = False
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
         if self.interruption_event.is_set() or not audio_bytes:
-            print("   [Audio] Skipped: Interrupted or Empty.")
+            logger.info("   [Audio] Skipped: Interrupted or Empty.")
             return
 
         try:
@@ -300,7 +403,7 @@ class AI_Core:
                     channel.stop(); break
                 await asyncio.sleep(0.1)
         except Exception as e:
-            print(f"   Audio Playback Error: {e}")
+            logger.error(f"   Audio Playback Error: {e}")
 
 
     def _clean_llm_response(self, text: str) -> str:
