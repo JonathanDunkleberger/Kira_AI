@@ -11,8 +11,8 @@ import base64
 import io
 import hashlib
 import concurrent.futures
-from PIL import ImageGrab, Image, ImageOps
 from typing import List, Callable, Optional, Union, Tuple
+from PIL import ImageGrab, Image, ImageOps
 
 from ai_core import AI_Core
 from memory import MemoryManager
@@ -315,11 +315,12 @@ class VTubeBot:
                     logger.info(f"   [Brain] Processing {source} input: {content[:30]}...")
                     user_text = content
                 
-                contextual_prompt = f"Jonny says: \"{user_text}\""
+                # Default to raw user text (User is Jonny)
+                contextual_prompt = user_text
                 
                 # If it's Twitch, mention that
                 if source == "twitch":
-                     contextual_prompt = f"Twitch Chat says: \"{user_text}\"\nRespond to this chat message."
+                     contextual_prompt = f"[Twitch Chat Message]: {user_text}"
 
                 # If previously unseen chat exists (and this is voice), include it
                 if source == "voice" and self.unseen_chat_messages:
