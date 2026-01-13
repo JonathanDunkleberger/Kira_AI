@@ -57,7 +57,7 @@ def start_twitch_poll(question, options):
         elif response.status_code == 401:
              print(f"   [Twitch] Auth Error (401). Check Token Scopes (channel:manage:polls needed).")
         elif response.status_code == 403:
-             print(f"   [Twitch] Polls disabled: User is not Partner/Affiliate.")
+             print(f"   [Twitch] Polls not available for this account (Permission Denied).")
         else:
             print(f"   [Twitch] Failed to start poll: {response.text}")
     except Exception as e:

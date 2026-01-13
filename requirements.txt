@@ -10,10 +10,8 @@ llama-cpp-python
 # For advanced VAD and high-quality TTS
 webrtcvad-wheels
 elevenlabs
-# For screen capture
+# For Dashboard UI
 Pillow
-# For finding the game window on Windows
-pywin32
 # For web search
 google-api-python-client
 # For advanced memory (vector database)

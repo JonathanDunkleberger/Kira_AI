@@ -13,7 +13,6 @@ import threading
 import llama_cpp # Needed for Q4_0 constants
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
-from transformers import pipeline
 
 from config import (
     LLM_MODEL_PATH, N_CTX, N_BATCH, N_GPU_LAYERS, WHISPER_MODEL_SIZE, TTS_ENGINE,
@@ -124,13 +123,13 @@ class AI_Core:
 1. Respond ONLY with spoken words. 
 2. NEVER use parentheses (), asterisks **, or stage directions like (shrugs).
 3. If you want to convey an emotion, do it through your word choice and tone.
-4. Keep responses brief (under 3 sentences) to maintain stream pace.
+4. Keep responses natural and conversational. You can speak at length if the topic demands it, but avoid rambling.
 
 INTERACTION TOOLS: You have the power to control the stream.
 To start a poll, include this in your text: [POLL: Question | Option1 | Option2]
 To acknowledge a song request, include this: [SONG: Song Name]"""
 
-        print(f"   LLM loaded (Gemma 3). (Ctx: {N_CTX} | Batch: {N_BATCH} | Context Shift: ON | Keep: 200)")
+        print(f" LLM loaded. Path: {LLM_MODEL_PATH}")
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
@@ -198,16 +197,12 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
         print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", visual_context: str = "", game_context: str = "") -> str:
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "") -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = getattr(self, "system_prompt", AI_PERSONALITY_PROMPT)
         system_prompt += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
-        if memory_context and "No memories" not in memory_context:
-            system_prompt += f"\n[Memory Context]:\n{memory_context}"
-        if visual_context:
-             system_prompt += f"\n[CURRENT VISUALS]: {visual_context}"
-        if game_context:
-             system_prompt += f"\n[GAME STATUS]: {game_context}"
+        if memory_context and "No memories" not in memory_context and "No recent facts" not in memory_context:
+            system_prompt += f"\n[LONG-TERM MEMORY (TRUTH)]\n{memory_context}\n(If the user asks a question, check the Memory above FIRST. It is the absolute truth about Jonny.)"
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
         
@@ -273,6 +268,9 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
     async def speak_text(self, text: str):
         """Generates and plays audio for the given text (Blocking)."""
         if not text: return
+        
+        # --- FIX: CLEAR INTERRUPTION FLAG BEFORE STARTING ---
+        self.interruption_event.clear() 
         
         self.is_speaking = True # Mute ears
         print(f"   [TTS] Speaking: {text[:50]}...")

@@ -59,6 +59,36 @@ class MemoryManager:
         except Exception as e:
             print(f"   ERROR: Failed to add summarized memory: {e}")
 
+    def get_recent_memories(self, limit: int = 3) -> str:
+        """Retrieves the most recently added memories (facts/summaries only)."""
+        try:
+            # Get all summaries (we assume 'type'='summary' is what we want for facts)
+            # Actually, user just said "recent memories", but facts are better.
+            # Let's filter by type='summary' to avoid raw chat logs cluttering "Facts"
+            # But the user prompt said "get_recent_memories... fetch most recently added facts."
+            
+            # Chroma get() doesn't sort. We fetch all summaries and sort in Python.
+            results = self.collection.get(
+                where={"type": "summary"},
+                include=["documents", "metadatas"]
+            )
+            
+            if not results["documents"]:
+                return "No recent facts."
+
+            # Zip them to sort
+            zipped = list(zip(results["documents"], results["metadatas"]))
+            # Sort by timestamp descending
+            zipped.sort(key=lambda x: x[1].get("timestamp", 0), reverse=True)
+            
+            recent = zipped[:limit]
+            
+            formatted = [f"- {doc}" for doc, meta in recent]
+            return "\n".join(formatted)
+        except Exception as e:
+            print(f"   ERROR: Failed to get recent memories: {e}")
+            return "No recent facts."
+
     def search_memories(self, query_text: str, n_results: int = 5) -> str:
         """Searches for memories semantically similar to the query text."""
         if self.collection.count() == 0:

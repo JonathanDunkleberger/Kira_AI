@@ -1,4 +1,5 @@
-# summarizer.py - Handles conversation summarization.
+# summarizer.py
+from config import AI_NAME
 
 class SummarizationManager:
     def __init__(self, ai_core, memory_manager):
@@ -6,31 +7,40 @@ class SummarizationManager:
         self.memory_manager = memory_manager
 
     def _get_summarization_prompt(self, transcript: str) -> str:
-        return (f"You are a Memory Consolidation AI. Below is a conversation transcript between 'Jonny' and 'Kira'. "
-                f"Your task is to extract the single most important, lasting piece of information or memory from this exchange. "
-                f"The memory should be a concise, third-person statement about Jonny's preferences, decisions, or feelings. "
-                f"**Be strictly factual based ONLY on the provided transcript. Do not add your own commentary or notes.** "
-                f"If no significant new memory was formed, respond ONLY with the word 'NO_MEMORY'.\n\n"
-                f"Examples of good memories:\n"
-                f"- Jonny's favorite character in Baldur's Gate 3 is Karlach.\n"
-                f"- Jonny feels that story is more important than gameplay.\n\n"
-                f"Conversation Transcript:\n---\n{transcript}\n---\n\nSingle most important memory:")
+        return (f"Analyze this interaction between 'Jonny' (Creator) and '{AI_NAME}' (AI). "
+                f"Extract **PERMANENT FACTS** about Jonny to store in long-term memory.\n\n"
+                f"[RULES]\n"
+                f"1. **ATOMIC FACTS ONLY:** Format as: 'Jonny's [attribute] is [value].' (e.g., 'Jonny's favorite anime is Steins;Gate.').\n"
+                f"2. **IGNORE:** Kira's confusion, meta-commentary, or questions.\n"
+                f"3. **IGNORE:** Temporary states (e.g., 'Jonny is talking now').\n"
+                f"4. If no *new* permanent fact is found, return ONLY: 'NO_MEMORY'.\n"
+                f"5. **VERIFY NAMES:** The user is ALWAYS 'Jonny'. Do not record memories about other names unless Jonny explicitly talks about a third party.\n"
+                f"6. **CONFIDENCE CHECK:** If a fact is vague, guessing, or based on a misheard word, return 'NO_MEMORY'.\n\n"
+                f"[TRANSCRIPT]\n{transcript}\n\n"
+                f"Permanent Fact:")
 
     async def consolidate_and_store(self, conversation_history: list):
         if not conversation_history: return
 
-        transcript = "\n".join([f"{turn['role'].capitalize()}: {turn['content']}" for turn in conversation_history])
-        prompt = self._get_summarization_prompt(transcript)
-        
+        transcript = ""
+        for turn in conversation_history:
+            role = turn['role']
+            name = "Jonny" if role == "user" else AI_NAME
+            transcript += f"{name}: {turn['content']}\n"
+
         from persona import EmotionalState
         summary = await self.ai_core.llm_inference(
-            messages=[{"role": "user", "content": prompt}],
-            current_emotion=EmotionalState.HAPPY
+            messages=[{"role": "user", "content": self._get_summarization_prompt(transcript)}],
+            current_emotion=EmotionalState.NEUTRAL
         )
 
-        if summary and "NO_MEMORY" not in summary:
-            # Clean any potential notes from the summary
-            summary = summary.split('(Note:')[0].strip()
-            self.memory_manager.add_summarized_memory(summary)
+        clean_summary = summary.strip().replace("Permanent Fact:", "").strip()
+        
+        # Filter out bad summaries
+        if "NO_MEMORY" not in clean_summary and len(clean_summary) > 5 and len(clean_summary) < 200:
+             # double check it doesn't contain "not found"
+             if "not found" not in clean_summary.lower():
+                print(f"   [Memory] Consolidating: {clean_summary}")
+                self.memory_manager.add_summarized_memory(clean_summary)
         else:
-            print("   No significant memory to consolidate from segment.")
+            print("   [Memory] No new facts to store.")

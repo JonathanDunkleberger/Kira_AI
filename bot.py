@@ -18,8 +18,6 @@ from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
-from vision_agent import VisionAgent
-from undertale_bridge import UndertaleBridge
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
 )
@@ -68,10 +66,6 @@ class VTubeBot:
         self.memory = MemoryManager()
         self.summarizer = SummarizationManager(self.ai_core, self.memory)
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
-        
-        # --- NEW: Decoupled Agents (Senses) ---
-        self.vision_agent = VisionAgent()
-        self.game_agent = UndertaleBridge()
         
         # --- NEW: Shared Input Queue ---
         self.input_queue = asyncio.Queue()
@@ -127,8 +121,7 @@ class VTubeBot:
                  await self.ai_core.initialize()
             
             # Start Senses
-            self.vision_agent.start()
-            self.game_agent.start()
+            # Vision is now On-Demand, no start() needed
 
             # Test Audio Output (Beep)
             await self.ai_core.test_audio_output()
@@ -172,8 +165,6 @@ class VTubeBot:
             raise # Propagate to the self-healing wrapper
         finally:
             print("--- Cleaning up resources... ---")
-            self.vision_agent.stop()
-            self.game_agent.stop()
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
             print("--- Cleanup complete. ---")
@@ -196,8 +187,14 @@ class VTubeBot:
                     await asyncio.sleep(0.5)
                     continue
                 
+                # --- FIX: AGGRESSIVE SELF-HEARING PROTECTION ---
                 if self.ai_core.is_speaking:
+                    # Clear buffer so we don't process old audio when she stops
+                    frames.clear() 
+                    triggered = False
+                    await asyncio.sleep(0.1) 
                     continue
+                # -----------------------------------------------
 
                 is_speech = self.vad.is_speech(data, 16000)
 
@@ -250,19 +247,17 @@ class VTubeBot:
 
 
     async def brain_worker(self):
-        """Worker that processes items from the input queue individually."""
         print("   [System] Brain Worker started.")
         while True:
-            # Get the next item (this blocks until an item is available)
             source, content = await self.input_queue.get()
             
             try:
                 print(f"   [Brain] Processing {source} input: {content[:30]}...")
-                contextual_prompt = f"Jonny says: \"{content}\""
                 
-                # If it's Twitch, mention that
                 if source == "twitch":
-                     contextual_prompt = f"Twitch Chat says: \"{content}\"\nRespond to this chat message."
+                    contextual_prompt = f"Twitch Chat says: \"{content}\"\nRespond to this chat message."
+                else:
+                    contextual_prompt = f"Jonny (Your Creator) says via Voice: \"{content}\""
 
                 # If previously unseen chat exists (and this is voice), include it
                 if source == "voice" and self.unseen_chat_messages:
@@ -308,14 +303,14 @@ class VTubeBot:
              print("   [Logic] Warning: Attempting to respond to myself. Aborting this turn.")
              return
 
-        mem_ctx = self.memory.search_memories(original_text, n_results=3)
-        
-        # --- PULL SENSORY DATA ---
-        visual_desc = self.vision_agent.get_latest_description()
-        game_status = self.game_agent.get_game_state()
+        relevant_mem = self.memory.search_memories(original_text, n_results=5)
+        recent_mem = self.memory.get_recent_memories(limit=2)
+        memory_context = f"Relevant Past: {relevant_mem}\nRecent Facts: {recent_mem}"
 
         # --- NON-STREAMING LLM & TTS ---
-        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx, visual_desc, game_status)
+        # visual_context is already baked into "contextual_prompt" if triggered
+        # so we pass empty string here to avoid double injection
+        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, memory_context)
         
         # Clean the response
         full_response_text = self.ai_core._clean_llm_response(full_response_text)

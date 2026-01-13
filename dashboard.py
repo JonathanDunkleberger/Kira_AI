@@ -41,11 +41,6 @@ class DashboardApp(ctk.CTk):
         self.center_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         self.create_center_panel()
 
-        # --- RIGHT PANEL (Vision) ---
-        self.right_frame = ctk.CTkFrame(self, width=300, corner_radius=0)
-        self.right_frame.grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
-        self.create_right_panel()
-
         # Start Update Loop
         self.update_gui()
 
@@ -110,17 +105,6 @@ class DashboardApp(ctk.CTk):
         self.txt_thoughts.pack(fill="both", expand=True)
         self.txt_thoughts.configure(state="disabled")
 
-    def create_right_panel(self):
-        lbl = ctk.CTkLabel(self.right_frame, text="THE EYE", font=ctk.CTkFont(size=20, weight="bold"))
-        lbl.pack(pady=20)
-
-        # Image Label
-        self.lbl_image = ctk.CTkLabel(self.right_frame, text="[No Vision Signal]")
-        self.lbl_image.pack(pady=10, padx=10, fill="both", expand=True)
-
-        self.lbl_vision_status = ctk.CTkLabel(self.right_frame, text="Status: Initializing...", wraplength=280)
-        self.lbl_vision_status.pack(pady=10, side="bottom")
-
     # --- ACTIONS ---
     def action_skip_song(self):
         threading.Thread(target=skip_song).start()
@@ -175,25 +159,6 @@ class DashboardApp(ctk.CTk):
 
         # 3. Update Status
         self.lbl_now_playing.configure(text=f"Emotion: {self.bot.current_emotion.name}")
-
-        # 4. Update Vision
-        try:
-            frame = self.bot.vision_agent.get_latest_frame()
-            desc = self.bot.vision_agent.get_latest_description()
-            
-            if frame:
-                # Resize for UI
-                frame = frame.resize((300, 200))
-                ctk_img = ctk.CTkImage(light_image=frame, dark_image=frame, size=(300, 200))
-                self.lbl_image.configure(image=ctk_img, text="")
-            else:
-                 self.lbl_image.configure(text="[No Vision Signal]")
-            
-            self.lbl_vision_status.configure(text=f"{desc}")
-
-        except Exception as e:
-            # print(e)
-            pass
 
         self.after(500, self.update_gui)
 
