@@ -9,6 +9,7 @@ import time
 import pygame
 import torch
 import numpy as np
+import threading
 import llama_cpp # Needed for Q4_0 constants
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
@@ -41,6 +42,7 @@ class AI_Core:
         self.whisper = None
         self.eleven_client = None
         self.azure_synthesizer = None
+        self.inference_lock = threading.Lock() # Added lock for inference safety
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
 
@@ -98,6 +100,7 @@ class AI_Core:
         print(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
+
         # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
         # Updated for Gemma 3 (RTX 5080 Maximum Optimization)
         self.llm = Llama(
@@ -195,12 +198,16 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
         print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "") -> str:
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", visual_context: str = "", game_context: str = "") -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = getattr(self, "system_prompt", AI_PERSONALITY_PROMPT)
         system_prompt += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
         if memory_context and "No memories" not in memory_context:
             system_prompt += f"\n[Memory Context]:\n{memory_context}"
+        if visual_context:
+             system_prompt += f"\n[CURRENT VISUALS]: {visual_context}"
+        if game_context:
+             system_prompt += f"\n[GAME STATUS]: {game_context}"
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
         
@@ -217,16 +224,21 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
         
         # Non-streaming inference for maximum throughput on RTX 5080
-        response = self.llm.create_chat_completion(
-            messages=full_prompt,
-            max_tokens=LLM_MAX_RESPONSE_TOKENS,
-            temperature=0.7,
-            top_p=0.9,
-            min_p=0.1,
-            repeat_penalty=1.2,
-            stop=["<end_of_turn>", "<eos>", "User:", "Jonny:"], 
-            stream=False 
-        )
+        # Wrap inference in lock to prevent collisions with background agents
+        def _guarded_inference():
+            with self.inference_lock:
+                 return self.llm.create_chat_completion(
+                    messages=full_prompt,
+                    max_tokens=LLM_MAX_RESPONSE_TOKENS,
+                    temperature=0.7,
+                    top_p=0.9,
+                    min_p=0.1,
+                    repeat_penalty=1.2,
+                    stop=["<end_of_turn>", "<eos>", "User:", "Jonny:"], 
+                    stream=False 
+                 )
+                 
+        response = await asyncio.to_thread(_guarded_inference)
         raw_content = response["choices"][0]["message"]["content"]
         # Regex filter for parentheses
         clean_content = re.sub(r'\(.*?\)', '', raw_content).strip()
@@ -322,6 +334,10 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
 
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
+        # Filter unwanted system prompts or duplicate denials
+        text = re.sub(r'\(.*?System.*?\)', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'\(.*?Music request denied.*?\)', '', text, flags=re.IGNORECASE)
+        
         text = text.replace('</s>', '').strip()
         text = text.replace('*', '')
         return text

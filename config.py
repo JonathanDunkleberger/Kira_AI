@@ -18,6 +18,13 @@ PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))
 VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
 MEMORY_PATH = os.getenv("MEMORY_PATH", "memory_db/")
 
+# Vision and Gaming Capabilities
+ENABLE_VISION = True
+ENABLE_GAME_AGENT = os.getenv("ENABLE_GAME_AGENT", "False").lower() == "true"
+VISION_POLL_INTERVAL = 5
+VISION_MODEL_PATH = "models/moondream"
+VISION_ENGINE = "moondream"
+
 # Secrets and API keys (must be in .env, never commit real values)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "")

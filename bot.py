@@ -8,6 +8,7 @@ import time
 import traceback
 import random
 import re
+import gc # Added garbage collection
 from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
@@ -17,6 +18,8 @@ from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
+from vision_agent import VisionAgent
+from undertale_bridge import UndertaleBridge
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
 )
@@ -30,7 +33,7 @@ ENABLE_WEB_SEARCH = True
 ENABLE_TWITCH_CHAT = True
 
 
-def parse_kira_tools(text):
+def parse_kira_tools(text, allow_music=False):
     """
     Scans for [POLL: Question | Opt1 | Opt2] 
     or [SONG: Name]
@@ -46,9 +49,13 @@ def parse_kira_tools(text):
     # Look for Song Tag
     song_match = re.search(r'\[SONG:\s*(.*?)\]', text)
     if song_match:
-        song_name = song_match.group(1)
-        play_kira_song(song_name)
-        text = re.sub(r'\[SONG:.*?\]', '', text)
+        if allow_music:
+            song_name = song_match.group(1)
+            play_kira_song(song_name)
+            text = re.sub(r'\[SONG:.*?\]', '', text)
+        else:
+            print("   [System] Music request denied (Voice/System source).")
+            text = re.sub(r'\[SONG:.*?\]', '(Music request denied: Twitch Chat only)', text)
 
     return text.strip()
 
@@ -61,6 +68,10 @@ class VTubeBot:
         self.memory = MemoryManager()
         self.summarizer = SummarizationManager(self.ai_core, self.memory)
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
+        
+        # --- NEW: Decoupled Agents (Senses) ---
+        self.vision_agent = VisionAgent()
+        self.game_agent = UndertaleBridge()
         
         # --- NEW: Shared Input Queue ---
         self.input_queue = asyncio.Queue()
@@ -76,21 +87,48 @@ class VTubeBot:
         self.unseen_chat_messages = []
         self.current_emotion = EmotionalState.HAPPY
         self.last_idle_chat = "" # Track the last idle chat summary
+        self.turn_count = 0 
+        self.is_paused = False # Dashboard control flag
 
     def reset_idle_timer(self):
         self.last_interaction_time = time.time()
 
     async def run(self):
         # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
-        main_task = asyncio.create_task(self._main_loop())
-        self.bg_tasks.add(main_task)
-        await main_task
+        # Self-healing loop
+        while True:
+            try:
+                # Re-initialize everything cleanly if restarting
+                main_task = asyncio.create_task(self._main_loop())
+                self.bg_tasks.add(main_task)
+                await main_task
+                break # If main_loop returns normally, exit
+            except asyncio.CancelledError:
+                print("Main loop cancelled.")
+                break
+            except Exception as e:
+                print(f"CRITICAL ERROR in Main Loop: {e}")
+                traceback.print_exc()
+                print(">>> Attempting Self-Healing Restart in 5 seconds...")
+                await asyncio.sleep(5)
+                # Cleanup before restart
+                if self.stream: 
+                    try: self.stream.close()
+                    except: pass
+                if self.pyaudio_instance: 
+                    try: self.pyaudio_instance.terminate()
+                    except: pass
+
 
     async def _main_loop(self):
         """Contains the primary startup and listening logic."""
         try:
-            await self.ai_core.initialize()
-            if not self.ai_core.is_initialized: return
+            if not self.ai_core.is_initialized:
+                 await self.ai_core.initialize()
+            
+            # Start Senses
+            self.vision_agent.start()
+            self.game_agent.start()
 
             # Test Audio Output (Beep)
             await self.ai_core.test_audio_output()
@@ -128,8 +166,14 @@ class VTubeBot:
 
         except asyncio.CancelledError:
             print("Main loop cancelled.")
+            raise
+        except Exception as e:
+            print(f"Error in internal main loop: {e}")
+            raise # Propagate to the self-healing wrapper
         finally:
             print("--- Cleaning up resources... ---")
+            self.vision_agent.stop()
+            self.game_agent.stop()
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
             print("--- Cleanup complete. ---")
@@ -147,6 +191,11 @@ class VTubeBot:
                 data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
 
                 # Prevent Self-Hearing: Default to silence if AI is speaking
+                # If paused, sleep to save resources instead of spinning
+                if self.is_paused:
+                    await asyncio.sleep(0.5)
+                    continue
+                
                 if self.ai_core.is_speaking:
                     continue
 
@@ -221,7 +270,7 @@ class VTubeBot:
                      contextual_prompt += f"\n\n(While you were listening, Twitch said: {chat_summary})"
                      self.unseen_chat_messages.clear()
 
-                await self.process_and_respond(content, contextual_prompt, "user")
+                await self.process_and_respond(content, contextual_prompt, "user", source=source)
                 
             except Exception as e:
                 print(f"   [Brain] Error processing item: {e}")
@@ -230,7 +279,7 @@ class VTubeBot:
                 self.input_queue.task_done()
 
 
-    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str):
+    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice"):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
 
         # --- ROLE ALTERNATION ENFORCEMENT ---
@@ -261,15 +310,20 @@ class VTubeBot:
 
         mem_ctx = self.memory.search_memories(original_text, n_results=3)
         
+        # --- PULL SENSORY DATA ---
+        visual_desc = self.vision_agent.get_latest_description()
+        game_status = self.game_agent.get_game_state()
+
         # --- NON-STREAMING LLM & TTS ---
-        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx)
+        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, mem_ctx, visual_desc, game_status)
         
         # Clean the response
         full_response_text = self.ai_core._clean_llm_response(full_response_text)
         
         # --- TOOL INTERCEPTOR ---
         # Scan for polls/songs and strip tags before TTS
-        full_response_text = parse_kira_tools(full_response_text)
+        allow_music = (source == "twitch")
+        full_response_text = parse_kira_tools(full_response_text, allow_music=allow_music)
         
         if full_response_text:
             print(f">>> Kira: {full_response_text}")
@@ -284,6 +338,12 @@ class VTubeBot:
                  self.memory.add_memory(user_text=original_text, ai_text=full_response_text)
             await self.update_emotional_state(original_text, full_response_text)
         
+        # --- GARBAGE COLLECTION & CLEANUP ---
+        self.turn_count += 1
+        if self.turn_count % 10 == 0:
+            print("   [System] Running Garbage Collection...")
+            gc.collect()
+
         self.reset_idle_timer()
 
     async def update_emotional_state(self, user_text, ai_response):
