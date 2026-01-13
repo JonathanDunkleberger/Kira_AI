@@ -18,6 +18,7 @@ from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
+from memory_extractor import extract_memories
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
 )
@@ -265,7 +266,12 @@ class VTubeBot:
                      contextual_prompt += f"\n\n(While you were listening, Twitch said: {chat_summary})"
                      self.unseen_chat_messages.clear()
 
-                await self.process_and_respond(content, contextual_prompt, "user", source=source)
+                await self.process_and_respond(
+                    original_text=content, 
+                    contextual_prompt=contextual_prompt, 
+                    role="user", 
+                    source=source
+                )
                 
             except Exception as e:
                 print(f"   [Brain] Error processing item: {e}")
@@ -274,43 +280,49 @@ class VTubeBot:
                 self.input_queue.task_done()
 
 
-    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice"):
+    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice", skip_generation: bool = False):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
+
+        # Define what the LLM sees vs what Memory stores
+        llm_user_text = contextual_prompt
+        raw_user_text = original_text
 
         # --- ROLE ALTERNATION ENFORCEMENT ---
         # 1. Merge consecutive messages from same role
         if self.conversation_history and self.conversation_history[-1]["role"] == role:
              print("   [Logic] Merging consecutive message.")
-             self.conversation_history[-1]["content"] += f"\n\n{original_text}"
+             self.conversation_history[-1]["content"] += f"\n\n{llm_user_text}"
              if self.conversation_segment: 
-                 self.conversation_segment[-1]["content"] += f"\n\n{original_text}"
+                 self.conversation_segment[-1]["content"] += f"\n\n{llm_user_text}"
         else:
              # 2. Add new message if role is different
-             self.conversation_history.append({"role": role, "content": original_text})
-             self.conversation_segment.append({"role": role, "content": original_text})
+             self.conversation_history.append({"role": role, "content": llm_user_text})
+             self.conversation_segment.append({"role": role, "content": llm_user_text})
         
         # --- SLIDING WINDOW: Limit context to last 15 turns ---
         if len(self.conversation_history) > 15:
-            # Keep system prompt if we had one? 
-            # Current impl injects system prompt in llm_inference every time.
-            # So we just truncate the list.
             self.conversation_history = self.conversation_history[-15:]
 
         # --- SANITY CHECK: Ensure last message is NOT assistant ---
-        # If the last message in history is assistant, we cannot ask for completion unless we want them to continue.
-        # But here we are responding to a user trigger.
-        if self.conversation_history[-1]["role"] == "assistant":
+        # If we are strictly responding (skip_generation=False), we can't respond to ourselves.
+        if not skip_generation and self.conversation_history[-1]["role"] == "assistant":
              print("   [Logic] Warning: Attempting to respond to myself. Aborting this turn.")
              return
 
-        relevant_mem = self.memory.search_memories(original_text, n_results=5)
-        recent_mem = self.memory.get_recent_memories(limit=2)
-        memory_context = f"Relevant Past: {relevant_mem}\nRecent Facts: {recent_mem}"
+        # --- MEMORY RETRIEVAL (Structured) ---
+        memory_context = self.memory.get_semantic_context(raw_user_text)
 
-        # --- NON-STREAMING LLM & TTS ---
-        # visual_context is already baked into "contextual_prompt" if triggered
-        # so we pass empty string here to avoid double injection
-        full_response_text = await self.ai_core.llm_inference(self.conversation_history, self.current_emotion, memory_context)
+        # --- GENERATION OR PASS-THROUGH ---
+        if skip_generation:
+            full_response_text = original_text # The thought itself is the response
+            print(f">>> Kira (Thought): {full_response_text}")
+        else:
+            # Non-streaming LLM Generation
+            full_response_text = await self.ai_core.llm_inference(
+                messages=self.conversation_history, 
+                current_emotion=self.current_emotion, 
+                memory_context=memory_context
+            )
         
         # Clean the response
         full_response_text = self.ai_core._clean_llm_response(full_response_text)
@@ -321,17 +333,27 @@ class VTubeBot:
         full_response_text = parse_kira_tools(full_response_text, allow_music=allow_music)
         
         if full_response_text:
-            print(f">>> Kira: {full_response_text}")
+            if not skip_generation:
+                print(f">>> Kira: {full_response_text}")
             
             # Speak the full response
             await self.ai_core.speak_text(full_response_text)
             
-            # Update history
+            # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})
+            
+            # Store raw turn in "Turns" collection (for analytics)
             if role == "user":
-                 self.memory.add_memory(user_text=original_text, ai_text=full_response_text)
-            await self.update_emotional_state(original_text, full_response_text)
+                 self.memory.add_turn(user_text=raw_user_text, ai_text=full_response_text, source=source)
+
+                 # --- FACT EXTRACTION (Voice Only) ---
+                 if source == "voice":
+                     memories = await extract_memories(self.ai_core, raw_user_text)
+                     if memories:
+                         self.memory.store_extracted_memories(memories, source="voice")
+            
+            await self.update_emotional_state(raw_user_text, full_response_text)
         
         # --- GARBAGE COLLECTION & CLEANUP ---
         self.turn_count += 1
@@ -382,7 +404,8 @@ class VTubeBot:
                     prompt = "Generate a brief, interesting observation or a random thought."
                     thought = await self.ai_core.llm_inference([], self.current_emotion, prompt)
                     if thought:
-                        await self.process_and_respond(thought, thought, "assistant")
+                        # Use skip_generation=True so we just speak what we thought
+                        await self.process_and_respond(thought, thought, "assistant", skip_generation=True)
                         continue
 
             # Task 3: Summarize conversation

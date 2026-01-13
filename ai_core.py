@@ -21,7 +21,10 @@ from config import (
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     VIRTUAL_AUDIO_DEVICE, AI_NAME
 )
-from persona import AI_PERSONALITY_PROMPT, EmotionalState
+from persona import EmotionalState
+from personality_file import KIRA_PERSONALITY
+from prompt_loader import load_personality_txt
+from prompt_rules import TOOL_AND_FORMAT_RULES
 
 # Graceful SDK imports
 try: from edge_tts import Communicate
@@ -72,6 +75,19 @@ class AI_Core:
             self.is_initialized = False
             raise
 
+    def reload_personality(self):
+        """Hot-reloads personality from text file without restarting."""
+        print("-> Reloading Personality...")
+        try:
+            new_personality = load_personality_txt("personality.txt")
+            self.system_prompt = new_personality.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+            print("   ✅ Personality reloaded successfully.")
+            print("----- NEW SYSTEM PROMPT SNAPSHOT -----")
+            print(self.system_prompt[:200])
+            print("--------------------------------------")
+        except Exception as e:
+            print(f"   ❌ Failed to reload personality: {e}")
+
     async def test_audio_output(self):
         """Plays a test tone to verify audio output."""
         print("-> Testing Audio Output...")
@@ -118,16 +134,12 @@ class AI_Core:
             verbose=False
         )
         
-        self.system_prompt = """You are Kira, 19yo AI girl. 
-[STRICT RULES]
-1. Respond ONLY with spoken words. 
-2. NEVER use parentheses (), asterisks **, or stage directions like (shrugs).
-3. If you want to convey an emotion, do it through your word choice and tone.
-4. Keep responses natural and conversational. You can speak at length if the topic demands it, but avoid rambling.
-
-INTERACTION TOOLS: You have the power to control the stream.
-To start a poll, include this in your text: [POLL: Question | Option1 | Option2]
-To acknowledge a song request, include this: [SONG: Song Name]"""
+        # Combine Personality File + Tools
+        self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+        
+        print("----- SYSTEM PROMPT (FIRST 400 CHARS) -----")
+        print(self.system_prompt[:400])
+        print("------------------------------------------")
 
         print(f" LLM loaded. Path: {LLM_MODEL_PATH}")
 
@@ -199,10 +211,17 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
 
     async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "") -> str:
         # Use our updated system prompt if available, else fallback
-        system_prompt = getattr(self, "system_prompt", AI_PERSONALITY_PROMPT)
+        system_prompt = self.system_prompt
         system_prompt += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
-        if memory_context and "No memories" not in memory_context and "No recent facts" not in memory_context:
-            system_prompt += f"\n[LONG-TERM MEMORY (TRUTH)]\n{memory_context}\n(If the user asks a question, check the Memory above FIRST. It is the absolute truth about Jonny.)"
+        
+        # INJECT MEMORY AS NOTES
+        if memory_context:
+            system_prompt += (
+                f"\n\n[MEMORY NOTES - DO NOT QUOTE OR READ THESE ALOUD]\n"
+                f"{memory_context}\n"
+                f"Use these to stay consistent and personal. "
+                "Do not say 'my memory says' or list them like a database."
+            )
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
         
@@ -229,7 +248,7 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
                     top_p=0.9,
                     min_p=0.1,
                     repeat_penalty=1.2,
-                    stop=["<end_of_turn>", "<eos>", "User:", "Jonny:"], 
+                    stop=["<end_of_turn>", "<eos>"], # Removed "Jonny:" to avoid cutting output early
                     stream=False 
                  )
                  
@@ -238,6 +257,20 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
         # Regex filter for parentheses
         clean_content = re.sub(r'\(.*?\)', '', raw_content).strip()
         return clean_content
+    
+    async def tool_inference(self, system: str, user: str, max_tokens: int = 200) -> str:
+        def _guarded():
+            with self.inference_lock:
+                return self.llm.create_chat_completion(
+                    messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                    max_tokens=max_tokens,
+                    temperature=0.1,
+                    top_p=1.0,
+                    repeat_penalty=1.1,
+                    stream=False
+                )
+        resp = await asyncio.to_thread(_guarded)
+        return resp["choices"][0]["message"]["content"].strip()
 
     # Legacy method wrapper if needed, but we are using streaming now.
     # The brain_worker calls llm_inference directly and expects a generator.
@@ -253,10 +286,18 @@ To acknowledge a song request, include this: [SONG: Song Name]"""
                   f"Options: {', '.join(emotion_names)}.\n"
                   f"Respond ONLY with the single best state name (e.g., 'SASSY').")
         try:
-            response = await asyncio.to_thread(
-                self.llm, prompt=prompt, max_tokens=10, temperature=0.2, stop=["\n", ".", ","]
-            )
-            text_response = response['choices'][0]['text'].strip().upper()
+            def _guarded_emotion():
+                with self.inference_lock:
+                    return self.llm.create_chat_completion(
+                        messages=[{"role": "user", "content": prompt}],
+                        max_tokens=10,
+                        temperature=0.2,
+                        stop=["\n", ".", ","]
+                    )
+            
+            response = await asyncio.to_thread(_guarded_emotion)
+            text_response = response["choices"][0]["message"]["content"].strip().upper()
+            
             for emotion in EmotionalState:
                 if emotion.name in text_response:
                     return emotion

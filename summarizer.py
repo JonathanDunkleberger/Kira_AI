@@ -1,6 +1,8 @@
 # summarizer.py
 from config import AI_NAME
 
+import re
+
 class SummarizationManager:
     def __init__(self, ai_core, memory_manager):
         self.ai_core = ai_core
@@ -28,19 +30,24 @@ class SummarizationManager:
             name = "Jonny" if role == "user" else AI_NAME
             transcript += f"{name}: {turn['content']}\n"
 
-        from persona import EmotionalState
-        summary = await self.ai_core.llm_inference(
-            messages=[{"role": "user", "content": self._get_summarization_prompt(transcript)}],
-            current_emotion=EmotionalState.NEUTRAL
-        )
+        TOOL_SYSTEM = "You extract durable user facts. Output ONLY atomic facts or NO_MEMORY."
+        
+        # Use specialized tool inference
+        summary = await self.ai_core.tool_inference(TOOL_SYSTEM, self._get_summarization_prompt(transcript))
 
         clean_summary = summary.strip().replace("Permanent Fact:", "").strip()
         
-        # Filter out bad summaries
-        if "NO_MEMORY" not in clean_summary and len(clean_summary) > 5 and len(clean_summary) < 200:
-             # double check it doesn't contain "not found"
-             if "not found" not in clean_summary.lower():
-                print(f"   [Memory] Consolidating: {clean_summary}")
-                self.memory_manager.add_summarized_memory(clean_summary)
+        # Filter out bad summaries with Regex checks
+        is_valid = True
+        if "NO_MEMORY" in clean_summary: is_valid = False
+        if len(clean_summary) < 10 or len(clean_summary) > 200: is_valid = False
+        if not clean_summary.startswith("Jonny's"): is_valid = False
+        if " is " not in clean_summary and " are " not in clean_summary: is_valid = False
+        if "?" in clean_summary: is_valid = False
+        
+        if is_valid:
+            print(f"   [Memory] Consolidating: {clean_summary}")
+            self.memory_manager.add_fact(clean_summary)
         else:
-            print("   [Memory] No new facts to store.")
+            # print(f"   [Memory] Rejected summary: {clean_summary}") 
+            pass
