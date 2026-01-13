@@ -1,24 +1,4 @@
 # Ignore Python cache and compiled files
-/.env
-*.pyo
-*.pyd
-
-# Ignore environment and secrets
-.env
-.env.*
-
-# Ignore memory database and model weights
-memory_db/
-models/*.gguf
-llama.log
-
-# VS Code settings
-.vscode/
-
-# OS files
-.DS_Store
-Thumbs.db
-# Ignore Python cache and compiled files
 __pycache__/
 *.pyc
 *.pyo
@@ -30,7 +10,9 @@ __pycache__/
 
 # Ignore memory database and model weights
 memory_db/
-models/*.gguf
+models/
+*.log
+*.sqlite3
 
 # VS Code settings
 .vscode/
@@ -38,16 +20,15 @@ models/*.gguf
 # OS files
 .DS_Store
 Thumbs.db
-# .gitignore - Files and folders to ignore for version control (like Git)
 
 # Python virtual environment
 venv/
+.venv/
 
-# Python bytecode
-__pycache__/
-*.pyc
+# Binaries and DBs
+mpv.exe
+*.db
 
-# Sensitive configuration files (like API keys or paths to local models)
 mpv.exe
 .env
 
