@@ -2,7 +2,7 @@
 import customtkinter as ctk
 import threading
 import time
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageGrab
 import asyncio
 import sys
 import queue
@@ -43,6 +43,7 @@ class DashboardApp(ctk.CTk):
 
         # Start Update Loop
         self.update_gui()
+        self.refresh_vision_preview()
 
     def create_left_panel(self):
         # Header
@@ -81,29 +82,47 @@ class DashboardApp(ctk.CTk):
         self.emotion_menu = ctk.CTkOptionMenu(emotion_frame, values=emotions, command=self.action_set_emotion, variable=self.emotion_var)
         self.emotion_menu.pack(pady=10, padx=10)
 
+        # -- Gaming Mode --
+        game_frame = ctk.CTkFrame(self.left_frame)
+        game_frame.pack(pady=20, padx=10, fill="x")
+        ctk.CTkLabel(game_frame, text="Gaming Mode", font=ctk.CTkFont(size=14, weight="bold")).pack(pady=5)
+        
+        self.switch_game = ctk.CTkSwitch(game_frame, text="Universal Observer", command=self.action_toggle_game)
+        self.switch_game.pack(pady=10, padx=10)
+
     def create_center_panel(self):
-        # Tab View
-        self.tabview = ctk.CTkTabview(self.center_frame)
-        self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
+        # Main Container for the single-page view
+        self.main_view = ctk.CTkFrame(self.center_frame, corner_radius=0)
+        self.main_view.pack(fill="both", expand=True)
 
-        self.tab_transcript = self.tabview.add("Transcript")
-        self.tab_twitch = self.tabview.add("Twitch")
-        self.tab_thoughts = self.tabview.add("Thoughts")
+        # 1. THE EYES (TOP)
+        self.eyes_frame = ctk.CTkFrame(self.main_view)
+        self.eyes_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        self.eyes_label = ctk.CTkLabel(self.eyes_frame, text="Vision System Offline")
+        self.eyes_label.pack(fill="both", expand=True)
 
-        # Transcript Box
-        self.txt_transcript = ctk.CTkTextbox(self.tab_transcript, font=("Consolas", 14))
-        self.txt_transcript.pack(fill="both", expand=True)
-        self.txt_transcript.configure(state="disabled")
+        # Vision Quality Slider
+        self.slider_frame = ctk.CTkFrame(self.eyes_frame)
+        self.slider_frame.pack(fill="x", padx=10, pady=5)
+        
+        ctk.CTkLabel(self.slider_frame, text="Vision Quality:").pack(side="left", padx=5)
+        self.quality_var = ctk.StringVar(value="fast")
+        self.seg_quality = ctk.CTkSegmentedButton(self.slider_frame, values=["fast", "high"], command=self.action_set_quality, variable=self.quality_var)
+        self.seg_quality.pack(side="left", padx=5)
 
-        # Twitch Box
-        self.txt_twitch = ctk.CTkTextbox(self.tab_twitch, font=("Consolas", 12))
-        self.txt_twitch.pack(fill="both", expand=True)
+        # 2. TWITCH CHAT & TRANSCRIPT (BOTTOM SPLIT)
+        self.lower_split = ctk.CTkFrame(self.main_view)
+        self.lower_split.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Twitch (Left half)
+        self.txt_twitch = ctk.CTkTextbox(self.lower_split, width=400, font=("Consolas", 12))
+        self.txt_twitch.pack(side="left", fill="both", expand=True, padx=2)
         self.txt_twitch.configure(state="disabled")
-
-        # Thoughts Box
-        self.txt_thoughts = ctk.CTkTextbox(self.tab_thoughts, font=("Consolas", 12), text_color="#AAAAAA")
-        self.txt_thoughts.pack(fill="both", expand=True)
-        self.txt_thoughts.configure(state="disabled")
+        
+        # Transcript (Right half)
+        self.txt_transcript = ctk.CTkTextbox(self.lower_split, font=("Consolas", 12))
+        self.txt_transcript.pack(side="right", fill="both", expand=True, padx=2)
+        self.txt_transcript.configure(state="disabled")
 
     # --- ACTIONS ---
     def action_skip_song(self):
@@ -130,6 +149,53 @@ class DashboardApp(ctk.CTk):
     def action_set_emotion(self, choice):
         print(f"Setting emotion to {choice}")
         self.bot.current_emotion = EmotionalState[choice]
+
+    def action_toggle_game(self):
+        is_active = self.switch_game.get()
+        # Toggle Controller
+        self.bot.game_mode_controller.is_active = bool(is_active)
+        # Also toggle Media Bridge (as a supporting module)
+        self.bot.media_bridge.is_active = bool(is_active)
+        # Toggle Vision Heartbeat
+        self.bot.vision_agent.is_active = bool(is_active)
+        
+        state_str = "ENABLED" if is_active else "DISABLED"
+        print(f"   [Dashboard] Universal Gaming Mode {state_str}")
+
+    def action_set_quality(self, choice):
+        print(f"   [Vision] Setting mode to: {choice}")
+        self.bot.vision_agent.quality_mode = choice
+
+    def refresh_vision_preview(self):
+        """Asynchronous frame updates to prevent Tkinter blocking."""
+        if self.bot.game_mode_controller.is_active:
+            def update():
+                try:
+                    # Capture safely on thread
+                    full_img = ImageGrab.grab()
+                    
+                    # Agent gets the raw pixels, Dashboard gets the thumbnail
+                    if hasattr(self.bot, 'vision_agent'):
+                        self.bot.vision_agent.update_shared_frame(full_img)
+                    
+                    # Update UI on Main Thread (safe update)
+                    preview = full_img.resize((640, 360))
+                    ctk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
+                    
+                    # Tkinter updates must happen on main thread usually, 
+                    # but setting image attribute is sometimes safe or needs .after
+                    # We will schedule the UI update back on the main loop
+                    self.eyes_label.configure(image=ctk_img, text="")
+                    self.current_preview_img = preview # Prevent GC
+                except: pass
+            
+            # Run the grab in a thread so the UI stays responsive
+            threading.Thread(target=update, daemon=True).start()
+            
+        else:
+             self.eyes_label.configure(image=None, text="Vision System Offline")
+             
+        self.after(1000, self.refresh_vision_preview)
 
     # --- UPDATE LOOP ---
     def update_gui(self):

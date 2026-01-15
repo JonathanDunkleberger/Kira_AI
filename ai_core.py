@@ -136,6 +136,14 @@ class AI_Core:
         
         # Combine Personality File + Tools
         self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+
+        # --- DYNAMIC INSTRUCTION APPEND ---
+        self.system_prompt += (
+            "\n\n[UNIVERSAL COMPANION MODE]\n"
+            "You are sitting next to Jonny watching his screen. "
+            "React to what you see naturally. Do not describe images like an AI; "
+            "make observations, ask questions, or offer commentary as a friend would."
+        )
         
         print("----- SYSTEM PROMPT (FIRST 400 CHARS) -----")
         print(self.system_prompt[:400])
@@ -373,13 +381,10 @@ class AI_Core:
 
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
-        # Filter unwanted system prompts or duplicate denials
-        text = re.sub(r'\(.*?System.*?\)', '', text, flags=re.IGNORECASE)
-        text = re.sub(r'\(.*?Music request denied.*?\)', '', text, flags=re.IGNORECASE)
-        
-        text = text.replace('</s>', '').strip()
-        text = text.replace('*', '')
-        return text
+        # Prune all bracketed metadata (Visual Sparks, thoughts, etc)
+        text = re.sub(r'\[.*?\]', '', text) 
+        text = re.sub(r'\(.*?\)', '', text)
+        return text.strip()
 
     async def transcribe_audio(self, audio_data: bytes) -> str:
         # Using numpy array directly for speed

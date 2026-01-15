@@ -29,7 +29,12 @@ AZURE_PROSODY_PITCH = os.getenv("AZURE_PROSODY_PITCH", "")
 AZURE_PROSODY_RATE = os.getenv("AZURE_PROSODY_RATE", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 TWITCH_OAUTH_TOKEN = os.getenv("TWITCH_OAUTH_TOKEN", "")
 TWITCH_BOT_USERNAME = os.getenv("TWITCH_BOT_USERNAME", "")
 TWITCH_CHANNEL_TO_JOIN = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
 VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
+
+# Hytale Config
+# Default path assumes standard installation location; adjust in .env if different
+HYTALE_LOG_PATH = os.getenv("HYTALE_LOG_PATH", os.path.join(os.getenv("LOCALAPPDATA", ""), "Hytale", "logs", "hytale.log"))
