@@ -23,6 +23,9 @@ from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
 )
 from persona import EmotionalState
+from universal_media_bridge import UniversalMediaBridge
+from vision_agent import UniversalVisionAgent
+from game_mode_controller import GameModeController
 
 # Define these here since they are not in config.py
 ENABLE_PROACTIVE_THOUGHTS = True
@@ -70,6 +73,11 @@ class VTubeBot:
         
         # --- NEW: Shared Input Queue ---
         self.input_queue = asyncio.Queue()
+
+        # Gaming Mode
+        self.media_bridge = UniversalMediaBridge(self.input_queue)
+        self.vision_agent = UniversalVisionAgent()
+        self.game_mode_controller = GameModeController(self.vision_agent, self.media_bridge)
         
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
@@ -148,6 +156,17 @@ class VTubeBot:
             print("   [System] Starting Brain Worker...")
             tasks.append(self.brain_worker())
             
+            # --- NEW: Start Log Bridge (Always start, but it idles if not active) ---
+            print("   [System] Starting Universal Media Bridge...")
+            tasks.append(self.media_bridge.start())
+
+            # --- NEW: Start Vision Heartbeat ---
+            print("   [System] Starting Vision Heartbeat...")
+            tasks.append(self.vision_agent.heartbeat_loop())
+            
+            # --- NEW: Start Dynamic Observer (Visual Spark) ---
+            tasks.append(self.dynamic_observer_loop())
+
             print("   [System] Starting Background Tasks...")
             tasks.append(self.background_loop())
             
@@ -253,31 +272,105 @@ class VTubeBot:
             source, content = await self.input_queue.get()
             
             try:
-                print(f"   [Brain] Processing {source} input: {content[:30]}...")
+                # 1. Get Visual Context (INSTANT - No API call here)
+                visual_desc = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+                
+                # 2. Get Game Logs (Non-blocking)
+                log_context = self.media_bridge.get_latest_events() if self.game_mode_controller.is_active else ""
+                
+                # 3. Construct Contextual Prompt Logic
+                contextual_prompt = ""
                 
                 if source == "twitch":
-                    contextual_prompt = f"Twitch Chat says: \"{content}\"\nRespond to this chat message."
-                else:
-                    contextual_prompt = f"Jonny (Your Creator) says via Voice: \"{content}\""
+                    contextual_prompt = f"Twitch Chat says: \"{content}\""
+                elif source == "game_chat":
+                     contextual_prompt = f"[In-Game Chat] Jonny types: \"{content}\""
+                elif source == "game_event":
+                    contextual_prompt = f"[Game Event] {content}"
+                else: 
+                     contextual_prompt = f"Jonny says: \"{content}\""
+                
+                # Valid Stream-of-Consciousness Injection
+                if visual_desc or log_context:
+                    # Note: We put this AFTER the user text so it feels like "Current Context"
+                    context_block = ""
+                    if visual_desc:
+                        context_block += f"\n[Internal Perception: {visual_desc}]"
+                    if log_context:
+                        context_block += f"\n[Game Events: {log_context}]"
+                    
+                    contextual_prompt += f"\n\n{context_block}"
 
-                # If previously unseen chat exists (and this is voice), include it
-                if source == "voice" and self.unseen_chat_messages:
-                     chat_summary = "\n- ".join(self.unseen_chat_messages)
-                     contextual_prompt += f"\n\n(While you were listening, Twitch said: {chat_summary})"
-                     self.unseen_chat_messages.clear()
-
-                await self.process_and_respond(
-                    original_text=content, 
-                    contextual_prompt=contextual_prompt, 
-                    role="user", 
-                    source=source
-                )
+                # Pass to LLM
+                await self.process_and_respond(content, contextual_prompt, "user", source=source)
                 
             except Exception as e:
-                print(f"   [Brain] Error processing item: {e}")
+                print(f"   [Brain] Error: {e}")
                 traceback.print_exc()
             finally:
                 self.input_queue.task_done()
+
+
+    async def dynamic_observer_loop(self):
+        """High-intensity content creator interjection loop."""
+        print("   [System] High-Intensity Observer Active.")
+        while True:
+            # Check every 5 seconds for a chance to speak
+            await asyncio.sleep(5) 
+
+            # 1. Condition: Only speak during 5-20s of silence
+            # This fills dead air without interrupting active speech
+            silence_duration = time.time() - self.last_interaction_time
+            if silence_duration < 5 or silence_duration > 20:
+                continue
+                
+            if (self.processing_lock.locked() or 
+                self.ai_core.is_speaking or 
+                not self.game_mode_controller.is_active or
+                self.unseen_chat_messages):
+                continue
+
+            # 2. Probability: 40% chance to trigger (increases 'chattiness' 3-5x)
+            if random.random() > 0.4:
+                continue
+
+            async with self.processing_lock:
+                print("\n--- Visual Spark (High Intensity)... ---")
+                
+                # 3. Get Instant Fresh Context
+                visual_desc = self.vision_agent.get_vision_context()
+                
+                if not visual_desc or "Initializing" in visual_desc:
+                    continue
+
+                # 4. The 'Cognitive' Prompt - No hardcoding!
+                prompt_instructions = (
+                    f"Jonny is playing/watching. Current vision context: {visual_desc}. "
+                    "Pipe up with a natural, witty, or curious comment. "
+                    "Be a companion, not a narrator. Keep it short. "
+                    "If truly nothing is happening, return [SILENCE]."
+                )
+
+                # 5. Call LLM (Inference Only)
+                response = await self.ai_core.llm_inference(
+                    messages=self.conversation_history + [{"role": "system", "content": prompt_instructions}],
+                    current_emotion=self.current_emotion,
+                    memory_context="(Proactive Interaction Mode)"
+                )
+                
+                cleaned_response = self.ai_core._clean_llm_response(response)
+                
+                # 6. Act or suppress
+                if "[SILENCE]" in cleaned_response or len(cleaned_response) < 2:
+                    print("   (Kira chose silence)")
+                else:
+                    print(f"   >>> Visual Spark Triggered: {cleaned_response}")
+                    await self.process_and_respond(
+                        original_text=cleaned_response, 
+                        contextual_prompt=f"[Thought]: {visual_desc}", 
+                        role="system", 
+                        skip_generation=True
+                    )
 
 
     async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice", skip_generation: bool = False):
@@ -396,17 +489,7 @@ class VTubeBot:
                         self.last_idle_chat = chat_summary  # Update the last idle chat summary
                     continue
 
-            # Task 2: Proactive thoughts ONLY during long periods of total silence.
-            is_truly_idle = (time.time() - self.last_interaction_time) > PROACTIVE_THOUGHT_INTERVAL
-            if ENABLE_PROACTIVE_THOUGHTS and is_truly_idle and not self.unseen_chat_messages and random.random() < PROACTIVE_THOUGHT_CHANCE:
-                async with self.processing_lock:
-                    print("\n--- Proactive thought triggered... ---")
-                    prompt = "Generate a brief, interesting observation or a random thought."
-                    thought = await self.ai_core.llm_inference([], self.current_emotion, prompt)
-                    if thought:
-                        # Use skip_generation=True so we just speak what we thought
-                        await self.process_and_respond(thought, thought, "assistant", skip_generation=True)
-                        continue
+            # (Old Proactive Thoughts Task removed in favor of Dynamic Observer)
 
             # Task 3: Summarize conversation
             if len(self.conversation_segment) >= 8:

@@ -17,5 +17,6 @@ google-api-python-client
 # For advanced memory (vector database)
 chromadb
 sentence-transformers
+openai
 
 
