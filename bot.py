@@ -284,9 +284,15 @@ class VTubeBot:
                     vision_trigger = any(word in content.lower() for word in VISION_KEYWORDS)
                     
                     if vision_trigger:
-                        print("   [Vision] High-Detail Snapshot Requested (Triggered by keyword)...")
-                        # Force a high-res capture (is_heartbeat=False) because user asked
-                        visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
+                        # Check Cache Freshness
+                        time_since_last = time.time() - self.vision_agent.last_capture_time
+                        if time_since_last < 7:
+                            print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s)...")
+                            visual_desc = self.vision_agent.last_description
+                        else:
+                            print("   [Vision] High-Detail Snapshot Requested (Cache Stale > 7s)...")
+                            # Force a high-res capture
+                            visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
                     else:
                         # Default: Use the cached, low-cost heartbeat context (Instant)
                         visual_desc = self.vision_agent.get_vision_context()

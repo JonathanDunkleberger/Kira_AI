@@ -54,14 +54,13 @@ class UniversalVisionAgent:
         return f"[Seen {time_diff}s ago] {self.last_description}"
 
     async def heartbeat_loop(self):
-        """Near real-time awareness for content creation."""
+        print("   [System] Eco-Mode Vision Active (30s).")
         while True:
             if self.is_active:
-                # Catch changes every 15 seconds for streamer-like responsiveness
                 desc = await self.capture_and_describe(is_heartbeat=True)
                 if desc:
                     self.last_description = desc
-            await asyncio.sleep(15) # Optimized for perception vs cost
+            await asyncio.sleep(30)
 
     async def capture_and_describe(self, is_heartbeat=False, force_refresh=False):
         """Captures screen and calls API. Uses low-res detail for speed."""
@@ -92,16 +91,22 @@ class UniversalVisionAgent:
             base64_image = await asyncio.to_thread(process_image)
 
             if is_heartbeat:
-                # Optimized prompt for streamer observations
+                # Universal Context Prompt
                 prompt = (
-                    "Identify EXACTLY what is in the center of the screen. "
-                    "If it's a game, identify the genre and main objects. "
-                    "If it's a desktop, look for specific window titles. "
-                    "Do NOT guess or imagine objects like plants or furniture "
-                    "unless they are clearly visible. Be precise."
+                    "You are looking at Jonny's computer screen. Describe what is happening in 2 vivid sentences.\n\n"
+                    "If it is a Game: Describe the action, the environment, and the current 'vibe' (Danger, Chill, Chaos).\n"
+                    "If it is Video/Media: Describe the scene, the people, or the topic being discussed.\n"
+                    "If it is Desktop/Code: Summarize what he is working on or point out a specific funny detail (like a weird folder name or a syntax error).\n\n"
+                    "Goal: Provide enough context for Kira to ask a question or make a witty comment. Do not be generic."
                 )
             else:
-                prompt = "Focus on details: What is Jonny doing right now in this game/video?"
+                prompt = (
+                    "You are looking at Jonny's computer screen. Describe what is happening in 2 vivid sentences.\n\n"
+                    "If it is a Game: Describe the action, the environment, and the current 'vibe' (Danger, Chill, Chaos).\n"
+                    "If it is Video/Media: Describe the scene, the people, or the topic being discussed.\n"
+                    "If it is Desktop/Code: Summarize what he is working on or point out a specific funny detail (like a weird folder name or a syntax error).\n\n"
+                    "Goal: Provide enough context for Kira to ask a question or make a witty comment. Do not be generic."
+                )
             
             # Auto-detect context
             if self.context_buffer.buffer:
