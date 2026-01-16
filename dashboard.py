@@ -180,14 +180,18 @@ class DashboardApp(ctk.CTk):
                     
                     # Update UI on Main Thread (safe update)
                     preview = full_img.resize((640, 360))
-                    ctk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
                     
-                    # Tkinter updates must happen on main thread usually, 
-                    # but setting image attribute is sometimes safe or needs .after
-                    # We will schedule the UI update back on the main loop
-                    self.eyes_label.configure(image=ctk_img, text="")
-                    self.current_preview_img = preview # Prevent GC
-                except: pass
+                    def _ui_update():
+                        tk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
+                        self._current_image_ref = tk_img  # <--- CRITICAL FIX preventing GC
+                        self.eyes_label.configure(image=tk_img, text="")
+                    
+                    # Schedule UI update on main thread
+                    self.after(0, _ui_update)
+
+                except Exception as e: 
+                    # print(f"Vision Error: {e}") 
+                    pass
             
             # Run the grab in a thread so the UI stays responsive
             threading.Thread(target=update, daemon=True).start()

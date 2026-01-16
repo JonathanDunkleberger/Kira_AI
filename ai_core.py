@@ -40,6 +40,7 @@ class AI_Core:
         self.interruption_event = interruption_event
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
+        self.last_speech_finish_time = time.time() # Added for silence tracking
         self.llm = None
         self.whisper = None
         self.eleven_client = None
@@ -261,10 +262,10 @@ class AI_Core:
                  return self.llm.create_chat_completion(
                     messages=full_prompt,
                     max_tokens=LLM_MAX_RESPONSE_TOKENS,
-                    temperature=0.7,
+                    temperature=0.75, # Slight bump for creativity
                     top_p=0.9,
-                    min_p=0.1,
-                    repeat_penalty=1.2,
+                    min_p=0.05,
+                    repeat_penalty=1.1, # LOWERED from 1.2 to allow flow
                     stop=["<end_of_turn>", "<eos>"], # Removed "Jonny:" to avoid cutting output early
                     stream=False 
                  )
@@ -363,6 +364,7 @@ class AI_Core:
         except Exception as e:
             print(f"   TTS/Playback Error: {e}")
         finally:
+            self.last_speech_finish_time = time.time()
             self.is_speaking = False
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
