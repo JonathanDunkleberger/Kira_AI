@@ -92,13 +92,13 @@ class VTubeBot:
         self.last_idle_chat = "" # Track the last idle chat summary
         self.turn_count = 0 
         self.is_paused = False # Dashboard control flag
-        self.interjected_in_current_silence = False
+        self.silence_stage = 0  # Replaces the old boolean flag
+        self.is_running = True
 
     def reset_idle_timer(self, human_speech=False):
         self.last_interaction_time = time.time()
-        # Only reset the interjection flag if HUMAN speech was detected
         if human_speech:
-            self.interjected_in_current_silence = False
+            self.silence_stage = 0 # Reset boredom ONLY when you speak
 
     async def run(self):
         # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
@@ -201,9 +201,9 @@ class VTubeBot:
         silent_chunks = 0
         max_silent_chunks = int(PAUSE_THRESHOLD * 1000 / 30)
 
-        while True:
+        while self.is_running:
             try:
-                data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
+                if not self.is_running: break
 
                 # Prevent Self-Hearing: Default to silence if AI is speaking
                 # If paused, sleep to save resources instead of spinning
@@ -219,6 +219,17 @@ class VTubeBot:
                     await asyncio.sleep(0.1) 
                     continue
                 # -----------------------------------------------
+
+                # --- SAFE READ ---
+                try:
+                    data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
+                except (OSError, IOError) as e:
+                    if e.errno == -9988 or not self.is_running: 
+                        break # Stream closed, exit quietly
+                    print(f"VAD Stream Error: {e}")
+                    await asyncio.sleep(1)
+                    continue
+                # -----------------
 
                 is_speech = self.vad.is_speech(data, 16000)
 
@@ -252,7 +263,6 @@ class VTubeBot:
             except Exception as e:
                 print(f"Error in VAD loop: {e}")
                 await asyncio.sleep(0.1)
-
 
     async def handle_audio(self, audio_data: bytes):
         async with self.processing_lock:
@@ -334,66 +344,76 @@ class VTubeBot:
 
 
     async def dynamic_observer_loop(self):
-        print("   [System] Guaranteed 15s Observer Active.")
-        while True:
-            # Check every 2 seconds for high responsiveness
-            await asyncio.sleep(2) 
-
-            # 1. Condition: 15s Silence + Not already interjected + Gamer Mode Active
-            silence_duration = time.time() - self.last_interaction_time
-            if silence_duration < 15:
-                continue
+        print("   [System] Observer Loop Active (Universal Boredom Protocol).")
+        while self.is_running:
+            await asyncio.sleep(2)
             
-            # GATE: Only proceed if we haven't already sparked in this specific silence
-            if self.interjected_in_current_silence:
-                continue
-                
-            if (self.processing_lock.locked() or 
-                self.ai_core.is_speaking or 
-                not self.game_mode_controller.is_active or
-                self.unseen_chat_messages):
-                continue
+            # Calculate Silence
+            last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
+            silence = time.time() - last_activity
             
-            async with self.processing_lock:
-                print("\n--- Visual Spark (Guaranteed)... ---")
-                self.interjected_in_current_silence = True # Lock until next human speech
-                
-                # 3. Get Instant Fresh Context
-                visual_desc = self.vision_agent.get_vision_context()
-                recent_history = self.conversation_history[-3:] if self.conversation_history else []
-                
-                if not visual_desc or "Initializing" in visual_desc:
-                    continue
+            # Don't interrupt self or if paused
+            if self.processing_lock.locked() or self.ai_core.is_speaking:
+                continue
 
-                # 4. The 'Cognitive' Prompt - Locked In
-                prompt = (
-                    f"Jonny has been silent for 15s. Current Vision: {visual_desc}. "
-                    f"Recent Chat History: {recent_history}. "
-                    "Social Rule: If a previous thread was personal, follow up on it. "
-                    "Otherwise, comment on the current game state or ask Jonny a question. "
-                    "Do not narrate; be a companion. Stay locked into the present. Under 15 words."
-                )
-
-                # 5. Call LLM (Inference Only)
-                response = await self.ai_core.llm_inference(
-                    messages=self.conversation_history + [{"role": "system", "content": prompt}],
-                    current_emotion=self.current_emotion,
-                    memory_context="(Social Awareness Mode)"
-                )
-                
-                cleaned_response = self.ai_core._clean_llm_response(response)
-                
-                # 6. Act or suppress
-                if "[SILENCE]" in cleaned_response or len(cleaned_response) < 2:
-                    print("   (Kira chose silence)")
+            # --- CONTEXT SWITCHER ---
+            # Decide if she looks at the screen or just thinks
+            is_gaming = self.game_mode_controller.is_active
+            context_str = ""
+            
+            if is_gaming:
+                # Use cached vision if available to save time/cost
+                if (time.time() - self.vision_agent.last_capture_time) < 40:
+                    vis = self.vision_agent.last_description
                 else:
-                    print(f"   >>> Visual Spark Triggered: {cleaned_response}")
-                    await self.process_and_respond(
-                        original_text=cleaned_response, 
-                        contextual_prompt=f"[Thought]: {visual_desc}", 
-                        role="system", 
-                        skip_generation=True
-                    )
+                    vis = "Game screen (No recent update)"
+                context_str = f"Visuals: {vis}"
+            else:
+                context_str = "Visuals: None (Just hanging out)"
+
+            # --- STAGE 1: CASUAL CHECK-IN (20s) ---
+            if silence > 20 and self.silence_stage == 0:
+                async with self.processing_lock:
+                    print("\n--- Silence Stage 1: Casual Spark ---")
+                    self.silence_stage = 1
+                    
+                    if is_gaming:
+                        # CHANGED: Removed "Short" constraint, added "Natural"
+                        prompt = f"Jonny has been quiet for 20s. {context_str}. Make a natural observation about the game state. Be conversational."
+                    else:
+                        prompt = "Jonny has been quiet for 20s. Ask a casual question to check if he's still there."
+                        
+                    await self._execute_interjection(prompt)
+
+            # --- STAGE 2: PROVOCATION (40s) ---
+            elif silence > 40 and self.silence_stage == 1:
+                async with self.processing_lock:
+                    print("\n--- Silence Stage 2: Provocation ---")
+                    self.silence_stage = 2
+                    # CHANGED: Encouraging a roast, which requires more words
+                    prompt = f"Jonny has been quiet for 40s. {context_str}. He is being boring. Roast him for his lack of focus or ask if he fell asleep."
+                    await self._execute_interjection(prompt)
+
+            # --- STAGE 3: CHAOS (60s+) ---
+            elif silence > 60 and self.silence_stage == 2:
+                async with self.processing_lock:
+                    print("\n--- Silence Stage 3: Pure Chaos ---")
+                    self.silence_stage = 3 
+                    prompt = "The stream is dead silent. Say something unhinged, a conspiracy theory, or a random fact to wake everyone up. Be entertaining."
+                    await self._execute_interjection(prompt)
+
+    async def _execute_interjection(self, prompt):
+        """Helper to run the generation and speech"""
+        response = await self.ai_core.llm_inference(
+            messages=self.conversation_history + [{"role": "system", "content": prompt}],
+            current_emotion=self.current_emotion,
+            memory_context="(Boredom Protocol)"
+        )
+        cleaned = self.ai_core._clean_llm_response(response)
+        if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
+            print(f"   >>> Kira (Bored): {cleaned}")
+            await self.ai_core.speak_text(cleaned)
+            self.conversation_history.append({"role": "assistant", "content": cleaned})
 
 
     async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice", skip_generation: bool = False):
@@ -477,7 +497,8 @@ class VTubeBot:
             print("   [System] Running Garbage Collection...")
             gc.collect()
 
-        self.reset_idle_timer(human_speech=False)
+        # REMOVED: self.reset_idle_timer(human_speech=False) to prevents AI from resetting silence timer
+
 
     async def update_emotional_state(self, user_text, ai_response):
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)

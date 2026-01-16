@@ -43,7 +43,7 @@ class TwitchBot(commands.Bot):
                  await self.input_queue.put(("twitch", system_msg))
             
             # Don't add command itself to chat history or brain processing as user text
-            self.timer_callback()
+            self.timer_callback(human_speech=True)
             return
 
         formatted_message = f"{message.author.name}: {message.content}"
@@ -56,4 +56,4 @@ class TwitchBot(commands.Bot):
              self.chat_message_list.append(formatted_message)
         
         # --- ADDED: Reset the main bot's idle timer every time a message arrives ---
-        self.timer_callback()
+        self.timer_callback(human_speech=True)
