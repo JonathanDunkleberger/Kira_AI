@@ -92,9 +92,13 @@ class VTubeBot:
         self.last_idle_chat = "" # Track the last idle chat summary
         self.turn_count = 0 
         self.is_paused = False # Dashboard control flag
+        self.interjected_in_current_silence = False
 
-    def reset_idle_timer(self):
+    def reset_idle_timer(self, human_speech=False):
         self.last_interaction_time = time.time()
+        # Only reset the interjection flag if HUMAN speech was detected
+        if human_speech:
+            self.interjected_in_current_silence = False
 
     async def run(self):
         # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
@@ -239,7 +243,7 @@ class VTubeBot:
                             
                             frames.clear()
                             triggered = False
-                            self.reset_idle_timer()
+                            self.reset_idle_timer(human_speech=True)
                             
                             # Process audio in background
                             task = asyncio.create_task(self.handle_audio(audio_data))
@@ -272,9 +276,21 @@ class VTubeBot:
             source, content = await self.input_queue.get()
             
             try:
-                # 1. Get Visual Context (INSTANT - No API call here)
-                visual_desc = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
-                
+                # 1. Vision Gating Logic (Optimized for Cost vs Detail)
+                visual_desc = ""
+                if self.game_mode_controller.is_active:
+                    # Gate: Only trigger expensive High-Res Vision if explicitly asked
+                    VISION_KEYWORDS = ['see', 'look', 'read', 'watching', 'view', 'screen']
+                    vision_trigger = any(word in content.lower() for word in VISION_KEYWORDS)
+                    
+                    if vision_trigger:
+                        print("   [Vision] High-Detail Snapshot Requested (Triggered by keyword)...")
+                        # Force a high-res capture (is_heartbeat=False) because user asked
+                        visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
+                    else:
+                        # Default: Use the cached, low-cost heartbeat context (Instant)
+                        visual_desc = self.vision_agent.get_vision_context()
+
                 # 2. Get Game Logs (Non-blocking)
                 log_context = self.media_bridge.get_latest_events() if self.game_mode_controller.is_active else ""
                 
@@ -312,16 +328,18 @@ class VTubeBot:
 
 
     async def dynamic_observer_loop(self):
-        """High-intensity content creator interjection loop."""
-        print("   [System] High-Intensity Observer Active.")
+        print("   [System] Guaranteed 15s Observer Active.")
         while True:
-            # Check every 5 seconds for a chance to speak
-            await asyncio.sleep(5) 
+            # Check every 2 seconds for high responsiveness
+            await asyncio.sleep(2) 
 
-            # 1. Condition: Only speak during 5-20s of silence
-            # This fills dead air without interrupting active speech
+            # 1. Condition: 15s Silence + Not already interjected + Gamer Mode Active
             silence_duration = time.time() - self.last_interaction_time
-            if silence_duration < 5 or silence_duration > 20:
+            if silence_duration < 15:
+                continue
+            
+            # GATE: Only proceed if we haven't already sparked in this specific silence
+            if self.interjected_in_current_silence:
                 continue
                 
             if (self.processing_lock.locked() or 
@@ -329,33 +347,32 @@ class VTubeBot:
                 not self.game_mode_controller.is_active or
                 self.unseen_chat_messages):
                 continue
-
-            # 2. Probability: 40% chance to trigger (increases 'chattiness' 3-5x)
-            if random.random() > 0.4:
-                continue
-
+            
             async with self.processing_lock:
-                print("\n--- Visual Spark (High Intensity)... ---")
+                print("\n--- Visual Spark (Guaranteed)... ---")
+                self.interjected_in_current_silence = True # Lock until next human speech
                 
                 # 3. Get Instant Fresh Context
                 visual_desc = self.vision_agent.get_vision_context()
+                recent_history = self.conversation_history[-3:] if self.conversation_history else []
                 
                 if not visual_desc or "Initializing" in visual_desc:
                     continue
 
-                # 4. The 'Cognitive' Prompt - No hardcoding!
-                prompt_instructions = (
-                    f"Jonny is playing/watching. Current vision context: {visual_desc}. "
-                    "Pipe up with a natural, witty, or curious comment. "
-                    "Be a companion, not a narrator. Keep it short. "
-                    "If truly nothing is happening, return [SILENCE]."
+                # 4. The 'Cognitive' Prompt - Locked In
+                prompt = (
+                    f"Jonny has been silent for 15s. Current Vision: {visual_desc}. "
+                    f"Recent Chat History: {recent_history}. "
+                    "Social Rule: If a previous thread was personal, follow up on it. "
+                    "Otherwise, comment on the current game state or ask Jonny a question. "
+                    "Do not narrate; be a companion. Stay locked into the present. Under 15 words."
                 )
 
                 # 5. Call LLM (Inference Only)
                 response = await self.ai_core.llm_inference(
-                    messages=self.conversation_history + [{"role": "system", "content": prompt_instructions}],
+                    messages=self.conversation_history + [{"role": "system", "content": prompt}],
                     current_emotion=self.current_emotion,
-                    memory_context="(Proactive Interaction Mode)"
+                    memory_context="(Social Awareness Mode)"
                 )
                 
                 cleaned_response = self.ai_core._clean_llm_response(response)
@@ -454,7 +471,7 @@ class VTubeBot:
             print("   [System] Running Garbage Collection...")
             gc.collect()
 
-        self.reset_idle_timer()
+        self.reset_idle_timer(human_speech=False)
 
     async def update_emotional_state(self, user_text, ai_response):
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)

@@ -46,7 +46,12 @@ class UniversalVisionAgent:
 
     def get_vision_context(self):
         """Returns the latest vision context instantly."""
-        return self.last_description
+        if not self.last_description:
+            return "Vision Initializing..."
+        
+        # Calculate freshness
+        time_diff = int(time.time() - self.last_capture_time)
+        return f"[Seen {time_diff}s ago] {self.last_description}"
 
     async def heartbeat_loop(self):
         """Near real-time awareness for content creation."""
@@ -88,23 +93,30 @@ class UniversalVisionAgent:
 
             if is_heartbeat:
                 # Optimized prompt for streamer observations
-                prompt = ("Observe the screen as a gaming companion. What is happening? "
-                          "Provide a visceral, one-sentence context for a reaction. "
-                          "Focus on action, beauty, or weirdness.")
+                prompt = (
+                    "Identify EXACTLY what is in the center of the screen. "
+                    "If it's a game, identify the genre and main objects. "
+                    "If it's a desktop, look for specific window titles. "
+                    "Do NOT guess or imagine objects like plants or furniture "
+                    "unless they are clearly visible. Be precise."
+                )
             else:
                 prompt = "Focus on details: What is Jonny doing right now in this game/video?"
             
             # Auto-detect context
             if self.context_buffer.buffer:
                 prompt += f"\nPrevious context: {self.context_buffer.get_context_string()}"
+            
+            # Dynamic Detail: Forced 'high' for better cognition (as requested)
+            visual_detail = "high"
 
             response = await self.client.chat.completions.create(
                 model="gpt-4o-mini", # Fastest vision model
                 messages=[{"role": "user", "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": "low"}}
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": visual_detail}}
                 ]}],
-                max_tokens=150
+                max_tokens=200
             )
             
             content = response.choices[0].message.content
