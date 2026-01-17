@@ -101,44 +101,23 @@ class MemoryManager:
         """Retrieves flexible context for LLM injection."""
         context_lines = []
         
-        # 1. Top Profile Facts (Highest confidence/recent)
-        try:
-            # We can't query by metadata field easily in Chroma without fetching all first or using where
-            # "where" filter for profile_fact
-            pf = self.facts.get(where={"type": "profile_fact"}, limit=5) # Limit is seemingly for result count, but get() returns all if no limit? default is None.
-            # Actually get() with limit might refer to slicing. 
-            # safe fetch
-            
-            # Better strategy: Search semantic matches first, but ALSO get specific "favorite" style facts if relevant?
-            # User request: "Always include top 3 profile facts"
-            # It's hard to rank "top" without a definition. Closest we can do is "recent" or just "all" (if small).
-            # Let's try to get 3 random or recent profile facts.
-            pass
-        except: pass
-
-        # Implementation of "Retrieve structured notes"
-        # Strategy:
-        # A. Vector Search (Semantic) -> Get 3-5 relevant facts of ANY type
-        # B. Recent "Project" threads -> Get 1-2 most recent type="project"
-        
-        # A. Semantic Search
-        hits = self.search_facts(query_text, n_results=5)
+        # 1. FACTS: Strict "Truths" about Jonny
+        # Search specifically for high-confidence facts
+        hits = self.search_facts(query_text, n_results=3)
         if hits:
-            context_lines.append("Relevant Memories:")
-            for h in hits:
-                context_lines.append(f"- {h}")
+            # Remove duplicates and format
+            unique_hits = list(set(hits)) 
+            context_lines.append(f"[KNOWN FACTS]: {'; '.join(unique_hits)}")
         
-        # B. Recent Projects (Manual Filter)
-        try:
-             # get generic list, sort by timestamp
-             res = self.facts.get(where={"type": "project"}, include=["metadatas", "documents"])
-             if res['documents']:
-                 zipped = sorted(zip(res['documents'], res['metadatas']), key=lambda x: x[1]['timestamp'], reverse=True)
-                 top_projects = zipped[:2]
-                 context_lines.append("Current Projects:")
-                 for doc, meta in top_projects:
-                     context_lines.append(f"- {doc} (conf {meta.get('confidence',0.0)})")
-        except: pass
+        # 2. PROJECTS: What is he working on?
+        # Only fetch if the user mentions "project", "code", "work", etc.
+        if any(w in query_text.lower() for w in ["project", "code", "working", "build"]):
+            try:
+                # Optimized query for project type
+                proj_res = self.facts.get(where={"type": "project"}, limit=1)
+                if proj_res['documents']:
+                    context_lines.append(f"[CURRENT PROJECT]: {proj_res['documents'][0]}")
+            except: pass
 
         return "\n".join(context_lines)
 

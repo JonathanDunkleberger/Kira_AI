@@ -94,6 +94,13 @@ class VTubeBot:
         self.is_paused = False # Dashboard control flag
         self.silence_stage = 0  # Replaces the old boolean flag
         self.is_running = True
+        
+        # TIMING CONFIGURATION
+        self.silence_thresholds = {
+            1: 30.0,  # Stage 1: Casual Check-in (User requested 30s)
+            2: 60.0,  # Stage 2: Provocation
+            3: 120.0  # Stage 3: Chaos
+        }
 
     def reset_idle_timer(self, human_speech=False):
         self.last_interaction_time = time.time()
@@ -343,64 +350,46 @@ class VTubeBot:
                 self.input_queue.task_done()
 
 
+    async def _run_memory_extraction(self, text):
+        """Wrapper to run memory extraction without blocking the main conversation"""
+        try:
+            # Pass a snapshot of history so it knows what "it" refers to
+            memories = await extract_memories(self.ai_core, text, self.conversation_history)
+            if memories:
+                self.memory.store_extracted_memories(memories, source="voice")
+        except Exception as e:
+            print(f"   [Async Memory Error]: {e}")
+
     async def dynamic_observer_loop(self):
         print("   [System] Observer Loop Active (Universal Boredom Protocol).")
         while self.is_running:
-            await asyncio.sleep(2)
+            await asyncio.sleep(1.0) # Check every second
             
-            # Calculate Silence
-            last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
-            silence = time.time() - last_activity
-            
-            # Don't interrupt self or if paused
+            # Don't interrupt if speaking or processing
             if self.processing_lock.locked() or self.ai_core.is_speaking:
                 continue
 
-            # --- CONTEXT SWITCHER ---
-            # Decide if she looks at the screen or just thinks
-            is_gaming = self.game_mode_controller.is_active
-            context_str = ""
+            last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
+            silence_duration = time.time() - last_activity
             
-            if is_gaming:
-                # Use cached vision if available to save time/cost
-                if (time.time() - self.vision_agent.last_capture_time) < 40:
-                    vis = self.vision_agent.last_description
-                else:
-                    vis = "Game screen (No recent update)"
-                context_str = f"Visuals: {vis}"
-            else:
-                context_str = "Visuals: None (Just hanging out)"
-
-            # --- STAGE 1: CASUAL CHECK-IN (20s) ---
-            if silence > 20 and self.silence_stage == 0:
+            # STAGE 3: CHAOS (120s)
+            if silence_duration > self.silence_thresholds[3] and self.silence_stage < 3:
                 async with self.processing_lock:
-                    print("\n--- Silence Stage 1: Casual Spark ---")
-                    self.silence_stage = 1
-                    
-                    if is_gaming:
-                        # CHANGED: Removed "Short" constraint, added "Natural"
-                        prompt = f"Jonny has been quiet for 20s. {context_str}. Make a natural observation about the game state. Be conversational."
-                    else:
-                        prompt = "Jonny has been quiet for 20s. Ask a casual question to check if he's still there."
-                        
-                    await self._execute_interjection(prompt)
+                    self.silence_stage = 3
+                    # Load prompt from a central config/prompt file ideally
+                    await self._execute_interjection("The stream is dead. Say something completely unhinged to wake Jonny up.")
 
-            # --- STAGE 2: PROVOCATION (40s) ---
-            elif silence > 40 and self.silence_stage == 1:
+            # STAGE 2: ROAST (60s)
+            elif silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
                 async with self.processing_lock:
-                    print("\n--- Silence Stage 2: Provocation ---")
                     self.silence_stage = 2
-                    # CHANGED: Encouraging a roast, which requires more words
-                    prompt = f"Jonny has been quiet for 40s. {context_str}. He is being boring. Roast him for his lack of focus or ask if he fell asleep."
-                    await self._execute_interjection(prompt)
+                    await self._execute_interjection("Jonny has been quiet for a minute. Roast him for being boring.")
 
-            # --- STAGE 3: CHAOS (60s+) ---
-            elif silence > 60 and self.silence_stage == 2:
+            # STAGE 1: CHECK-IN (30s)
+            elif silence_duration > self.silence_thresholds[1] and self.silence_stage < 1:
                 async with self.processing_lock:
-                    print("\n--- Silence Stage 3: Pure Chaos ---")
-                    self.silence_stage = 3 
-                    prompt = "The stream is dead silent. Say something unhinged, a conspiracy theory, or a random fact to wake everyone up. Be entertaining."
-                    await self._execute_interjection(prompt)
+                    self.silence_stage = 1
+                    await self._execute_interjection("It's been quiet for 30 seconds. Ask Jonny a casual question about what he's thinking.")
 
     async def _execute_interjection(self, prompt):
         """Helper to run the generation and speech"""
@@ -435,9 +424,10 @@ class VTubeBot:
              self.conversation_history.append({"role": role, "content": llm_user_text})
              self.conversation_segment.append({"role": role, "content": llm_user_text})
         
-        # --- SLIDING WINDOW: Limit context to last 15 turns ---
-        if len(self.conversation_history) > 15:
-            self.conversation_history = self.conversation_history[-15:]
+        # --- SLIDING WINDOW: Tighter Context ---
+        # Reduce to 10 turns to prevent old topics (like 100 Thieves) from sticking around too long
+        if len(self.conversation_history) > 10:
+            self.conversation_history = self.conversation_history[-10:]
 
         # --- SANITY CHECK: Ensure last message is NOT assistant ---
         # If we are strictly responding (skip_generation=False), we can't respond to ourselves.
@@ -483,11 +473,11 @@ class VTubeBot:
             if role == "user":
                  self.memory.add_turn(user_text=raw_user_text, ai_text=full_response_text, source=source)
 
-                 # --- FACT EXTRACTION (Voice Only) ---
+                 # --- FACT EXTRACTION (UPDATED) ---
+                 # Only run if user spoke, and pass the HISTORY for context
                  if source == "voice":
-                     memories = await extract_memories(self.ai_core, raw_user_text)
-                     if memories:
-                         self.memory.store_extracted_memories(memories, source="voice")
+                     # Fire and forget - don't await this, let it run in background
+                     asyncio.create_task(self._run_memory_extraction(raw_user_text))
             
             await self.update_emotional_state(raw_user_text, full_response_text)
         
@@ -499,6 +489,15 @@ class VTubeBot:
 
         # REMOVED: self.reset_idle_timer(human_speech=False) to prevents AI from resetting silence timer
 
+    async def _run_memory_extraction(self, text):
+        """Wrapper to run memory extraction without blocking the main conversation"""
+        try:
+            # Pass a snapshot of history so it knows what "it" refers to
+            memories = await extract_memories(self.ai_core, text, self.conversation_history)
+            if memories:
+                self.memory.store_extracted_memories(memories, source="voice")
+        except Exception as e:
+            print(f"   [Async Memory Error]: {e}")
 
     async def update_emotional_state(self, user_text, ai_response):
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
