@@ -1,10 +1,12 @@
-# 🧠 NeuroAI_Bot
+# 🧠 Kira
+
+![Demo of AI VTuber in action](https://github.com/JonathanDunkleberger/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav3.gif?raw=true)
 
 > **A sophisticated, multimodal cognitive agent designed for real-time interaction, autonomous decision making, and content creation.**
 
-**NeuroAI_Bot** is a statement implementation of a modern local-first AI agent. Unlike standard chatbots that simply wait for a prompt and respond, NeuroAI_Bot possesses **agency**, **long-term memory**, and **multimodal sensory awareness**. It listens to voice, watches your screen, remembers facts about you, browses the web, and integrates directly with games and streaming platforms.
+**Kira** is a statement implementation of a modern local-first AI agent. Unlike standard chatbots that simply wait for a prompt and respond, Kira possesses **agency**, **long-term memory**, and **multimodal sensory awareness**. She listens to voice, watches your screen, remembers facts about you, browses the web, and integrates directly with games and streaming platforms.
 
-Designed to run primarily on local hardware (RTX-optimized), it bridges the gap between Large Language Models (LLMs) and true digital companionship.
+Designed to run primarily on local hardware (RTX-optimized), she bridges the gap between Large Language Models (LLMs) and true digital companionship.
 
 ---
 
@@ -66,8 +68,8 @@ This project moves beyond simple "User Input -> LLM -> Output" scripts into a mo
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/JonathanDunkleberger/NeuroAI_Bot.git
-   cd NeuroAI_Bot
+   git clone https://github.com/JonathanDunkleberger/Kira_AI.git
+   cd Kira_AI
    ```
 
 2. **Install Python Dependencies**
