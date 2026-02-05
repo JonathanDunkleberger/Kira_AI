@@ -41,6 +41,7 @@ class AI_Core:
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
         self.last_speech_finish_time = time.time() # Added for silence tracking
+        self.last_tts_request_time = 0 # Added for TTS rate limiting
         self.llm = None
         self.whisper = None
         self.eleven_client = None
@@ -328,6 +329,12 @@ class AI_Core:
         """Generates and plays audio for the given text (Blocking)."""
         if not text: return
         
+        # --- TTS RATE LIMITING (Prevent Azure 429) ---
+        if time.time() - self.last_tts_request_time < 2.0:
+            print(f"   [TTS] Throttled: Skipping '{text[:20]}...' (Too fast)")
+            return
+        self.last_tts_request_time = time.time()
+
         # --- FIX: CLEAR INTERRUPTION FLAG BEFORE STARTING ---
         self.interruption_event.clear() 
         

@@ -24,6 +24,7 @@ class DashboardApp(ctk.CTk):
         self.bot = bot_instance
         self.title(f"{AI_NAME} Control Dashboard")
         self.geometry("1400x800")
+        self._vision_lock = False # Add a lock flag
         
         # Configure Grid Layout (3 Columns)
         self.grid_columnconfigure(0, weight=1) # Left Panel
@@ -168,38 +169,38 @@ class DashboardApp(ctk.CTk):
 
     def refresh_vision_preview(self):
         """Asynchronous frame updates to prevent Tkinter blocking."""
-        if self.bot.game_mode_controller.is_active:
-            def update():
-                try:
-                    # Capture safely on thread
-                    full_img = ImageGrab.grab()
-                    
-                    # Agent gets the raw pixels, Dashboard gets the thumbnail
-                    if hasattr(self.bot, 'vision_agent'):
-                        self.bot.vision_agent.update_shared_frame(full_img)
-                    
-                    # Update UI on Main Thread (safe update)
-                    preview = full_img.resize((640, 360))
-                    
-                    def _ui_update():
-                        tk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
-                        self._current_image_ref = tk_img  # <--- CRITICAL FIX preventing GC
-                        self.eyes_label.configure(image=tk_img, text="")
-                    
-                    # Schedule UI update on main thread
-                    self.after(0, _ui_update)
+        # Only start a new update if the previous one finished
+        if self.bot.game_mode_controller.is_active and not self._vision_lock:
+            self._vision_lock = True
+            threading.Thread(target=self._safe_vision_update, daemon=True).start()
+        
+        # Check again in 2 seconds (slower is safer for Azure/Vision)
+        self.after(2000, self.refresh_vision_preview)
 
-                except Exception as e: 
-                    # print(f"Vision Error: {e}") 
-                    pass
+    def _safe_vision_update(self):
+        try:
+            full_img = ImageGrab.grab()
             
-            # Run the grab in a thread so the UI stays responsive
-            threading.Thread(target=update, daemon=True).start()
+            # Agent gets the raw pixels, Dashboard gets the thumbnail
+            if hasattr(self.bot, 'vision_agent'):
+                self.bot.vision_agent.update_shared_frame(full_img)
             
-        else:
-             self.eyes_label.configure(image=None, text="Vision System Offline")
-             
-        self.after(1000, self.refresh_vision_preview)
+            # Prepare preview
+            preview = full_img.resize((640, 360))
+            tk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
+            
+            # Update UI on Main Thread (safe update)
+            self.after(0, lambda: self._finalize_ui(tk_img))
+
+        except Exception as e: 
+            # print(f"Vision Error: {e}") 
+            pass
+        finally:
+            self._vision_lock = False # Release lock when done
+
+    def _finalize_ui(self, tk_img):
+        self._current_image_ref = tk_img  # <--- CRITICAL FIX preventing GC
+        self.eyes_label.configure(image=tk_img, text="")
 
     # --- UPDATE LOOP ---
     def update_gui(self):
