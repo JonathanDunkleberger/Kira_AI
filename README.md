@@ -1,110 +1,160 @@
-# 🧠 Kira
+# 🧠 Kira AI
 
-![Demo of AI VTuber in action](https://github.com/JonathanDunkleberger/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav3.gif?raw=true)
+![Demo of Kira AI in action](https://github.com/JonathanDunkleberger/Kira_AI/blob/main/VTuber%20Demo%20-%20Kirav3.gif?raw=true)
 
-> **A sophisticated, multimodal cognitive agent designed for real-time interaction, autonomous decision making, and content creation.**
+**A multimodal, memory-persistent AI agent that listens, sees, speaks, and acts — running entirely on local hardware.**
 
-**Kira** is a statement implementation of a modern local-first AI agent. Unlike standard chatbots that simply wait for a prompt and respond, Kira possesses **agency**, **long-term memory**, and **multimodal sensory awareness**. She listens to voice, watches your screen, remembers facts about you, browses the web, and integrates directly with games and streaming platforms.
+Kira is not a chatbot. She is a real-time cognitive agent with **long-term semantic memory**, **computer vision**, **voice interaction**, and **proactive autonomous behavior**. She runs a local LLM on consumer GPU hardware, remembers facts about her user across sessions, watches the screen to understand context, and integrates with live platforms like Twitch — all without sending private data to the cloud.
 
-Designed to run primarily on local hardware (RTX-optimized), she bridges the gap between Large Language Models (LLMs) and true digital companionship.
-
----
-
-## ✨ Core Capabilities
-
-### 1. ⚡ Local-First Cognitive Engine
-- **Inference**: Powered by **Llama 3 / 3.1 (8B)** running locally via `llama-cpp-python`.
-- **Latency**: Optimization with Flash Attention for real-time conversational speeds.
-- **Privacy**: Your conversations and data stay on your machine.
-
-### 2. 🧠 Long-Term Memory (Hippocampus)
-- **Vector Database**: Uses **ChromaDB** to store and retrieve memories semantically.
-- **Fact Extraction**: Automatically analyzes voice conversations to extract permanent facts (e.g., "User is working on a Python project") rather than just storing raw text.
-- **Contextual Recall**: Dynamically pulls relevant past memories into the context window based on the current conversation.
-
-### 3. 👁️ Multimodal Sensory System
-- **Vision Agent**: Uses Vision-connected LLMs to "see" the user's screen, understanding context from games, code editors, or videos.
-- **Hearing**: State-of-the-art **Faster-Whisper** implementation for accurate, real-time voice transcription.
-- **Speech**: High-fidelity TTS (Text-to-Speech) via **Azure Neural** or **ElevenLabs** for emotive vocal expression.
-
-### 4. 🎮 Gaming & Streaming Integration
-- **Universal Media Bridge**: Monitors game logs to react to in-game events in real-time. Game-agnostic — point it at any log file.
-- **Twitch Integration**: Full chat interaction, poll management, and moderation capabilities.
-- **Game Mode Controller**: Toggle observer mode to enable vision and log monitoring.
-
-### 5. 🎵 Media & Browsing
-- **DJ Mode**: Integrated `music_tools` allow the agent to search YouTube and play music directly via `mpv` based on natural language requests.
-- **Web Research**: Autonomous **Google Custom Search** capabilities to look up real-time information when it doesn't know an answer.
-
-### 6. ⚛️ Proactive Agency
-- **Thought Loop**: The agent doesn't just wait for input. It runs a background "thoughts" loop, allowing it to speak up, ask questions, or comment on recognized visual events without being prompted.
+This project demonstrates end-to-end systems design: real-time audio pipelines, vector-database memory architectures, multimodal sensor fusion, and agentic decision loops — built from scratch in Python.
 
 ---
 
-## 🏗️ Technical Architecture
+## 🏗️ Architecture
 
-This project moves beyond simple "User Input -> LLM -> Output" scripts into a modular agentic architecture:
+```mermaid
+flowchart TD
+    subgraph Inputs
+        MIC[🎤 Microphone]
+        SCREEN[🖥️ Screen Capture]
+        TWITCH[💬 Twitch Chat]
+        LOGS[📄 Game Logs]
+    end
 
-| Component | Responsibility | Tech Stack |
-|-----------|----------------|------------|
-| **Cortex** (`ai_core.py`) | Orchestrates the neurological loop. Manages LLM inference, context windowing, and tool decision making. | `llama-cpp-python`, `torch` |
-| **Hippocampus** (`memory.py`) | Semantic retrieval and consolidation. Separates episodic memory (interactions) from semantic memory (facts). | `ChromaDB`, `sqlite3` |
-| **Vision** (`vision_agent.py`) | Snapshots screen context, processes via VLM, and injects descriptions into the cognitive stream. | `Pillow`, `OpenAI Vision API` |
-| **Senses** (`bot.py`) | Real-time VAD (Voice Activity Detection), STT pipeline, and audio output mixing. | `Faster-Whisper`, `PyAudio`, `webrtcvad` |
-| **Dashboard** (`dashboard.py`) | Professional GUI for monitoring internal state, vision feed, and manual overrides. | `CustomTkinter` |
+    subgraph Brain ["🧠 Cognitive Core"]
+        STT[Faster-Whisper STT]
+        QUEUE[Input Queue]
+        BRAIN[Brain Worker]
+        LLM[Llama 3 LLM]
+        EMOTION[Emotion Analyzer]
+    end
+
+    subgraph Memory ["💾 Memory System"]
+        EXTRACT[Fact Extractor]
+        CHROMA[(ChromaDB)]
+        SUMMARY[Summarizer]
+    end
+
+    subgraph Perception ["👁️ Perception"]
+        VISION[Vision Agent]
+        GMC[Game Mode Controller]
+        BRIDGE[Media Bridge]
+    end
+
+    subgraph Outputs
+        TTS[🔊 Azure / ElevenLabs TTS]
+        TOOLS[🛠️ Polls · Music · Search]
+    end
+
+    MIC --> STT --> QUEUE
+    TWITCH --> QUEUE
+    LOGS --> BRIDGE --> QUEUE
+    SCREEN --> VISION
+
+    QUEUE --> BRAIN
+    VISION -->|context injection| BRAIN
+    CHROMA -->|relevant memories| BRAIN
+    BRAIN --> LLM --> TTS
+    LLM --> TOOLS
+    LLM --> EMOTION -->|updates state| BRAIN
+
+    BRAIN -->|voice turns| EXTRACT --> CHROMA
+    BRAIN -->|segments| SUMMARY --> CHROMA
+
+    GMC -->|toggles| VISION
+    GMC -->|toggles| BRIDGE
+```
 
 ---
 
-## 🚀 Setup & Installation
+## ✨ What Makes This Interesting
+
+### ⚡ Local-First Inference
+Runs **Llama 3.1 (8B, Q4_K_M)** entirely on-device via `llama-cpp-python` with Flash Attention enabled. No API calls for core reasoning — conversations stay private and latency stays low.
+
+### 🧠 Persistent Semantic Memory
+A **ChromaDB** vector database stores extracted facts (not raw transcripts) across sessions. The memory extractor uses the LLM itself to distill durable knowledge from conversation ("Jonny's favorite anime is Steins;Gate") and injects only relevant memories into each prompt via semantic retrieval.
+
+### 👁️ Multimodal Perception
+A **Vision Agent** captures the screen, describes it via a Vision LLM (GPT-4o-mini), and injects that context into the cognitive stream. The agent understands whether you're coding, gaming, or watching a video — and adapts accordingly.
+
+### 🗣️ Full Voice Pipeline
+Real-time **Voice Activity Detection** (WebRTC VAD) → **Faster-Whisper** transcription → LLM reasoning → **Azure Neural TTS** speech output. Includes self-hearing prevention, interruption handling, and TTS rate limiting.
+
+### 🤖 Proactive Agency
+Kira doesn't just respond — she **initiates**. A background observer loop monitors silence duration and escalates through behavioral stages (casual check-in → provocation → chaos). Vision heartbeats let her comment on what she sees without being asked.
+
+### 🎮 Platform Integration
+- **Twitch**: Reads chat, responds contextually, creates polls, handles song requests.
+- **Media Bridge**: Monitors any game's log file for deaths, achievements, and chat events.
+- **Music**: Searches YouTube and streams audio via `mpv` on natural language request.
+- **Web Search**: Autonomous Google queries when she doesn't know something.
+
+---
+
+## 📁 Project Structure
+
+| File | Role | Key Dependencies |
+|------|------|-----------------|
+| `bot.py` | **Orchestrator** — Event loop, VAD, input queue, brain worker | `pyaudio`, `webrtcvad` |
+| `ai_core.py` | **Cortex** — LLM inference, STT, TTS, prompt assembly | `llama-cpp-python`, `faster-whisper`, `azure-cognitiveservices-speech` |
+| `memory.py` | **Hippocampus** — ChromaDB interface, semantic retrieval | `chromadb`, `sentence-transformers` |
+| `memory_extractor.py` | **Fact Extraction** — Distills durable facts from conversation | LLM tool inference |
+| `summarizer.py` | **Consolidation** — Periodically summarizes conversation segments into memory | LLM tool inference |
+| `vision_agent.py` | **Eyes** — Screen capture, VLM description, context buffer | `Pillow`, `openai` |
+| `dashboard.py` | **GUI** — Real-time controls, vision preview, state monitoring | `customtkinter` |
+| `game_mode_controller.py` | **Mode Toggle** — Enables/disables vision and log monitoring | — |
+| `universal_media_bridge.py` | **Log Watcher** — Parses game logs for events and chat | `asyncio` |
+| `twitch_bot.py` | **Twitch Client** — Chat listener, song request handler | `twitchio` |
+| `twitch_tools.py` | **Twitch API** — Poll creation, broadcaster utilities | `requests` |
+| `music_tools.py` | **DJ** — YouTube search and `mpv` audio streaming | `yt-dlp` |
+| `web_search.py` | **Search** — Google Custom Search API wrapper | `google-api-python-client` |
+| `persona.py` | **Emotional State** — Enum of moods that influence response style | — |
+| `personality.txt` | **Identity** — Natural language personality prompt (source of truth) | — |
+| `prompt_rules.py` | **Formatting Rules** — Output constraints and tool tag definitions | — |
+| `config.py` | **Configuration** — All settings loaded from `.env` | `python-dotenv` |
+
+---
+
+## 🚀 Setup
 
 ### Prerequisites
-- **Python**: 3.10 or higher.
-- **GPU**: NVIDIA RTX 3060 or better (recommended for local inference).
-- **External Tools**: 
-  - `mpv` (for music playback).
-  - [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (required for compiling llama-cpp).
+- Python 3.10+
+- NVIDIA GPU (RTX 3060+ recommended) with CUDA drivers
+- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (C++ tools, required for `llama-cpp-python`)
+- `mpv` (for music playback)
 
-### Installation Steps
+### Quick Start
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/JonathanDunkleberger/Kira_AI.git
-   cd Kira_AI
-   ```
+```bash
+git clone https://github.com/JonathanDunkleberger/Kira_AI.git
+cd Kira_AI
+pip install -r requirements.txt
+```
 
-2. **Install Python Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: If you have a GPU, ensure you install the CUDA-enabled version of `llama-cpp-python`.*
+Download a GGUF model (e.g., [`Meta-Llama-3.1-8B-Instruct-Q4_K_M`](https://huggingface.co/)) and place it in `models/`.
 
-3. **Model Setup**
-   - Download a GGUF model (e.g., `Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf`) from HuggingFace.
-   - Place it in the `models/` directory.
-
-4. **Configuration**
-   - Create a `.env` file (see `.env.example`).
-   - Add your API keys (ElevenLabs, Azure, OpenAI for vision, Google Search).
-   - Update `config.py` if necessary for pathing.
-
-5. **Launch**
-   ```bash
-   python dashboard.py
-   ```
-   *Running `dashboard.py` will launch the GUI and the bot process together.*
+```bash
+cp .env.example .env   # Fill in your API keys
+python dashboard.py     # Launch the GUI + bot
+```
 
 ---
 
 ## 🛠️ Customization
 
-- **Personality**: The agent's core identity is defined in `personality.txt`. This is a natural language prompt that defines her name, backstory, and behavioral traits.
-- **Persona Styling**: Modify `persona.py` to adjust emotional weights and reaction thresholds.
-- **Rules**: `prompt_rules.py` enforces formatting constraints (e.g., "Do not use emojis", "Keep responses under 2 sentences").
+| What | Where | How |
+|------|-------|-----|
+| Personality & backstory | `personality.txt` | Edit the natural language prompt directly |
+| Emotional states | `persona.py` | Add/modify the `EmotionalState` enum |
+| Output formatting rules | `prompt_rules.py` | Adjust constraints (length, style, tool tags) |
+| All runtime settings | `.env` | API keys, model paths, TTS engine, feature flags |
 
 ---
 
-## 🔮 Future Roadmap
+## 🔮 Roadmap
 
-- **GraphRAG**: Implementing Graph-based Retrieval Augmented Generation for better relationship tracking between memories.
-- **Local Vision Model**: Replacing the API-based vision agent with a local quantized LLaVA or similar model for full offline capability.
-- **Live2D / VTube Studio Model**: Direct WebSocket integration to drive a Live2D avatar's mouth and expressions based on emotional state.
+- **GraphRAG** — Graph-based memory for richer relationship tracking between facts
+- **Local Vision** — Replace API vision with a quantized LLaVA model for full offline capability
+- **Live2D Integration** — WebSocket bridge to drive avatar expressions from emotional state
+- **Multi-agent Reasoning** — Separate planning and execution into cooperative agent threads
