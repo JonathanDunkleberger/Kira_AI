@@ -11,7 +11,7 @@ N_CTX = int(os.getenv("N_CTX", 4096))
 N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
-WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base.en")
+WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "medium.en")
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 AI_NAME = os.getenv("AI_NAME", "Kira")
 # Tuning VAD for faster response (0.4s silence triggers end-of-speech)
@@ -35,6 +35,8 @@ TWITCH_BOT_USERNAME = os.getenv("TWITCH_BOT_USERNAME", "")
 TWITCH_CHANNEL_TO_JOIN = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
 VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
 
-# Hytale Config
-# Default path assumes standard installation location; adjust in .env if different
-HYTALE_LOG_PATH = os.getenv("HYTALE_LOG_PATH", os.path.join(os.getenv("LOCALAPPDATA", ""), "Hytale", "logs", "hytale.log"))
+# Generic game log path (set in .env when needed)
+GAME_LOG_PATH = os.getenv("GAME_LOG_PATH", "")
+
+# Feature Flags
+ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"

@@ -20,19 +20,12 @@ from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
 from memory_extractor import extract_memories
 from config import (
-    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS
+    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT
 )
 from persona import EmotionalState
 from universal_media_bridge import UniversalMediaBridge
 from vision_agent import UniversalVisionAgent
 from game_mode_controller import GameModeController
-
-# Define these here since they are not in config.py
-ENABLE_PROACTIVE_THOUGHTS = True
-PROACTIVE_THOUGHT_INTERVAL = 60
-PROACTIVE_THOUGHT_CHANCE = 0.2
-ENABLE_WEB_SEARCH = True
-ENABLE_TWITCH_CHAT = True
 
 
 def parse_kira_tools(text, allow_music=False):
@@ -349,16 +342,6 @@ class VTubeBot:
             finally:
                 self.input_queue.task_done()
 
-
-    async def _run_memory_extraction(self, text):
-        """Wrapper to run memory extraction without blocking the main conversation"""
-        try:
-            # Pass a snapshot of history so it knows what "it" refers to
-            memories = await extract_memories(self.ai_core, text, self.conversation_history)
-            if memories:
-                self.memory.store_extracted_memories(memories, source="voice")
-        except Exception as e:
-            print(f"   [Async Memory Error]: {e}")
 
     async def dynamic_observer_loop(self):
         print("   [System] Observer Loop Active (Universal Boredom Protocol).")

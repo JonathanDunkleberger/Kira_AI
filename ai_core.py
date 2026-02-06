@@ -10,7 +10,6 @@ import pygame
 import torch
 import numpy as np
 import threading
-import llama_cpp # Needed for Q4_0 constants
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
 
@@ -19,7 +18,7 @@ from config import (
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
-    VIRTUAL_AUDIO_DEVICE, AI_NAME
+    AI_NAME
 )
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
@@ -139,28 +138,10 @@ class AI_Core:
         # Combine Personality File + Tools
         self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
 
-        # --- DYNAMIC INSTRUCTION APPEND ---
-        self.system_prompt += (
-            "\n\n[SITUATION: You are in Gaming Mode]\n"
-            "You are hanging out with Jonny. Be yourself. "
-            "If you see something interesting, say it. "
-            "If you want to talk about something else, do that. "
-            "Just be natural and avoid forced 'assistant' vibes."
-        )
-
-        self.system_prompt += (
-            "\n\n[CONTEXTUAL LOCK]\n"
-            "Your primary reality is the current visual input and the current conversation thread. "
-            "Prioritize facts found in the current session over older facts in your long-term memory. "
-            "If the screen shows a different world or interface than what you discussed 10 minutes ago, "
-            "assume the situation has changed and stay locked into the new scene."
-        )
-        
         print("----- SYSTEM PROMPT (FIRST 400 CHARS) -----")
         print(self.system_prompt[:400])
         print("------------------------------------------")
-
-        print(f" LLM loaded. Path: {LLM_MODEL_PATH}")
+        print(f"   LLM loaded. Path: {LLM_MODEL_PATH}")
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
@@ -171,10 +152,8 @@ class AI_Core:
             print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
             device = "cpu"
 
-        # Upgrade to medium.en for better accuracy
-        # We use float16 because your 5080 handles it like a champ.
-        print(f"   Whisper Config: Model=medium.en | Device={device} | ComputeType=float16")
-        self.whisper = WhisperModel("medium.en", device=device, compute_type="float16")
+        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType=float16")
+        self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type="float16")
         print("   Faster-Whisper STT model loaded.")
 
     async def _init_tts(self):
@@ -290,12 +269,6 @@ class AI_Core:
                 )
         resp = await asyncio.to_thread(_guarded)
         return resp["choices"][0]["message"]["content"].strip()
-
-    # Legacy method wrapper if needed, but we are using streaming now.
-    # The brain_worker calls llm_inference directly and expects a generator.
-    async def _legacy_inference(self):
-        # ... kept for reference ...
-        pass
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         if not self.llm: return None
