@@ -18,5 +18,13 @@ google-api-python-client
 chromadb
 sentence-transformers
 openai
+faster-whisper
+customtkinter
+twitchio
+yt-dlp
+python-dotenv
+pygame
+edge-tts
+azure-cognitiveservices-speech
 
 

@@ -21,6 +21,19 @@ class ContextBuffer:
         return "\n".join(self.buffer)
 
 class UniversalVisionAgent:
+    DESCRIBE_PROMPT = (
+        "You are looking at Jonny's computer screen. "
+        "Describe what is happening in 2 vivid sentences.\n\n"
+        "If it is a Game: Describe the action, the environment, "
+        "and the current 'vibe' (Danger, Chill, Chaos).\n"
+        "If it is Video/Media: Describe the scene, the people, "
+        "or the topic being discussed.\n"
+        "If it is Desktop/Code: Summarize what he is working on "
+        "or point out a specific funny detail (like a weird folder name or a syntax error).\n\n"
+        "Goal: Provide enough context for Kira to ask a question "
+        "or make a witty comment. Do not be generic."
+    )
+
     def __init__(self):
         self.client = None
         self.api_key = OPENAI_API_KEY
@@ -90,23 +103,7 @@ class UniversalVisionAgent:
             
             base64_image = await asyncio.to_thread(process_image)
 
-            if is_heartbeat:
-                # Universal Context Prompt
-                prompt = (
-                    "You are looking at Jonny's computer screen. Describe what is happening in 2 vivid sentences.\n\n"
-                    "If it is a Game: Describe the action, the environment, and the current 'vibe' (Danger, Chill, Chaos).\n"
-                    "If it is Video/Media: Describe the scene, the people, or the topic being discussed.\n"
-                    "If it is Desktop/Code: Summarize what he is working on or point out a specific funny detail (like a weird folder name or a syntax error).\n\n"
-                    "Goal: Provide enough context for Kira to ask a question or make a witty comment. Do not be generic."
-                )
-            else:
-                prompt = (
-                    "You are looking at Jonny's computer screen. Describe what is happening in 2 vivid sentences.\n\n"
-                    "If it is a Game: Describe the action, the environment, and the current 'vibe' (Danger, Chill, Chaos).\n"
-                    "If it is Video/Media: Describe the scene, the people, or the topic being discussed.\n"
-                    "If it is Desktop/Code: Summarize what he is working on or point out a specific funny detail (like a weird folder name or a syntax error).\n\n"
-                    "Goal: Provide enough context for Kira to ask a question or make a witty comment. Do not be generic."
-                )
+            prompt = self.DESCRIBE_PROMPT
             
             # Auto-detect context
             if self.context_buffer.buffer:

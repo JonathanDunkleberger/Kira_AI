@@ -7,10 +7,10 @@ class UniversalMediaBridge:
     Monitors logs only when a matching game is detected.
     Silent otherwise.
     """
-    def __init__(self, input_queue, character_name="DuchessSterling"):
+    def __init__(self, input_queue, character_name=None):
         self.log_path = None
         self.input_queue = input_queue
-        self.character_name = character_name
+        self.character_name = character_name  # Set via config/dashboard if needed
         self.is_active = False
         self._stop_event = asyncio.Event()
         self.recent_events_buffer = []
@@ -58,17 +58,15 @@ class UniversalMediaBridge:
         if len(self.recent_events_buffer) > 5:
             self.recent_events_buffer.pop(0)
 
-        # Basic Chat Detection (Universal-ish)
-        # Looks for "Name: message" pattern common in logs
-        if f"{self.character_name}:" in line:
+        # Character-specific chat detection (only if a name is configured)
+        if self.character_name and f"{self.character_name}:" in line:
             content = line.split(f"{self.character_name}:")[-1].strip()
             await self.input_queue.put(("game_chat", content))
-            self.recent_events_buffer.append(f"Jonny said: {content}")
+            self.recent_events_buffer.append(f"Player said: {content}")
 
-        # Death / Event Detection keywords
+        # Generic event detection keywords
         keywords = ["died", "was slain", "fell from", "achievement", "advancement"]
         if any(k in line.lower() for k in keywords):
-             # Cleanup timestamp if exists (simple heuristic)
              clean_line = line.strip()
              await self.input_queue.put(("game_event", clean_line))
              self.recent_events_buffer.append(f"Event: {clean_line}")

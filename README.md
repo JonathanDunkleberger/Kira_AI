@@ -28,9 +28,9 @@ Designed to run primarily on local hardware (RTX-optimized), she bridges the gap
 - **Speech**: High-fidelity TTS (Text-to-Speech) via **Azure Neural** or **ElevenLabs** for emotive vocal expression.
 
 ### 4. 🎮 Gaming & Streaming Integration
-- **Universal Media Bridge**: Monitors game logs (Minecraft, Hytale, etc.) to react to in-game events in real-time.
+- **Universal Media Bridge**: Monitors game logs to react to in-game events in real-time. Game-agnostic — point it at any log file.
 - **Twitch Integration**: Full chat interaction, poll management, and moderation capabilities.
-- **Game Mode Controller**: Automatically detects active game windows to switch context and behavior.
+- **Game Mode Controller**: Toggle observer mode to enable vision and log monitoring.
 
 ### 5. 🎵 Media & Browsing
 - **DJ Mode**: Integrated `music_tools` allow the agent to search YouTube and play music directly via `mpv` based on natural language requests.
