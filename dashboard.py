@@ -153,15 +153,10 @@ class DashboardApp(ctk.CTk):
 
     def action_toggle_game(self):
         is_active = self.switch_game.get()
-        # Toggle Controller
         self.bot.game_mode_controller.is_active = bool(is_active)
-        # Also toggle Media Bridge (as a supporting module)
-        self.bot.media_bridge.is_active = bool(is_active)
-        # Toggle Vision Heartbeat
         self.bot.vision_agent.is_active = bool(is_active)
-        
         state_str = "ENABLED" if is_active else "DISABLED"
-        print(f"   [Dashboard] Universal Gaming Mode {state_str}")
+        print(f"   [Dashboard] Observer Mode {state_str}")
 
     def action_set_quality(self, choice):
         print(f"   [Vision] Setting mode to: {choice}")

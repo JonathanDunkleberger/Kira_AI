@@ -18,7 +18,6 @@ flowchart TD
         MIC[🎤 Microphone]
         SCREEN[🖥️ Screen Capture]
         TWITCH[💬 Twitch Chat]
-        LOGS[📄 Game Logs]
     end
 
     subgraph Brain ["🧠 Cognitive Core"]
@@ -37,8 +36,7 @@ flowchart TD
 
     subgraph Perception ["👁️ Perception"]
         VISION[Vision Agent]
-        GMC[Game Mode Controller]
-        BRIDGE[Media Bridge]
+        GMC[Observer Mode]
     end
 
     subgraph Outputs
@@ -48,7 +46,6 @@ flowchart TD
 
     MIC --> STT --> QUEUE
     TWITCH --> QUEUE
-    LOGS --> BRIDGE --> QUEUE
     SCREEN --> VISION
 
     QUEUE --> BRAIN
@@ -62,7 +59,6 @@ flowchart TD
     BRAIN -->|segments| SUMMARY --> CHROMA
 
     GMC -->|toggles| VISION
-    GMC -->|toggles| BRIDGE
 ```
 
 ---
@@ -86,7 +82,6 @@ Kira doesn't just respond — she **initiates**. A background observer loop moni
 
 ### 🎮 Platform Integration
 - **Twitch**: Reads chat, responds contextually, creates polls, handles song requests.
-- **Media Bridge**: Monitors any game's log file for deaths, achievements, and chat events.
 - **Music**: Searches YouTube and streams audio via `mpv` on natural language request.
 - **Web Search**: Autonomous Google queries when she doesn't know something.
 
@@ -103,8 +98,7 @@ Kira doesn't just respond — she **initiates**. A background observer loop moni
 | `summarizer.py` | **Consolidation** — Periodically summarizes conversation segments into memory | LLM tool inference |
 | `vision_agent.py` | **Eyes** — Screen capture, VLM description, context buffer | `Pillow`, `openai` |
 | `dashboard.py` | **GUI** — Real-time controls, vision preview, state monitoring | `customtkinter` |
-| `game_mode_controller.py` | **Mode Toggle** — Enables/disables vision and log monitoring | — |
-| `universal_media_bridge.py` | **Log Watcher** — Parses game logs for events and chat | `asyncio` |
+| `game_mode_controller.py` | **Mode Toggle** — Toggles vision observer mode on/off | — |
 | `twitch_bot.py` | **Twitch Client** — Chat listener, song request handler | `twitchio` |
 | `twitch_tools.py` | **Twitch API** — Poll creation, broadcaster utilities | `requests` |
 | `music_tools.py` | **DJ** — YouTube search and `mpv` audio streaming | `yt-dlp` |

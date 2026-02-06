@@ -23,7 +23,6 @@ from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT
 )
 from persona import EmotionalState
-from universal_media_bridge import UniversalMediaBridge
 from vision_agent import UniversalVisionAgent
 from game_mode_controller import GameModeController
 
@@ -67,10 +66,9 @@ class VTubeBot:
         # --- NEW: Shared Input Queue ---
         self.input_queue = asyncio.Queue()
 
-        # Gaming Mode
-        self.media_bridge = UniversalMediaBridge(self.input_queue)
+        # Observer Mode
         self.vision_agent = UniversalVisionAgent()
-        self.game_mode_controller = GameModeController(self.vision_agent, self.media_bridge)
+        self.game_mode_controller = GameModeController(self.vision_agent)
         
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
@@ -160,11 +158,7 @@ class VTubeBot:
             print("   [System] Starting Brain Worker...")
             tasks.append(self.brain_worker())
             
-            # --- NEW: Start Log Bridge (Always start, but it idles if not active) ---
-            print("   [System] Starting Universal Media Bridge...")
-            tasks.append(self.media_bridge.start())
-
-            # --- NEW: Start Vision Heartbeat ---
+            # --- Start Vision Heartbeat ---
             print("   [System] Starting Vision Heartbeat...")
             tasks.append(self.vision_agent.heartbeat_loop())
             
@@ -307,31 +301,17 @@ class VTubeBot:
                         # Default: Use the cached, low-cost heartbeat context (Instant)
                         visual_desc = self.vision_agent.get_vision_context()
 
-                # 2. Get Game Logs (Non-blocking)
-                log_context = self.media_bridge.get_latest_events() if self.game_mode_controller.is_active else ""
-                
-                # 3. Construct Contextual Prompt Logic
+                # 2. Construct Contextual Prompt Logic
                 contextual_prompt = ""
                 
                 if source == "twitch":
                     contextual_prompt = f"Twitch Chat says: \"{content}\""
-                elif source == "game_chat":
-                     contextual_prompt = f"[In-Game Chat] Jonny types: \"{content}\""
-                elif source == "game_event":
-                    contextual_prompt = f"[Game Event] {content}"
                 else: 
-                     contextual_prompt = f"Jonny says: \"{content}\""
+                    contextual_prompt = f"Jonny says: \"{content}\""
                 
-                # Valid Stream-of-Consciousness Injection
-                if visual_desc or log_context:
-                    # Note: We put this AFTER the user text so it feels like "Current Context"
-                    context_block = ""
-                    if visual_desc:
-                        context_block += f"\n[Internal Perception: {visual_desc}]"
-                    if log_context:
-                        context_block += f"\n[Game Events: {log_context}]"
-                    
-                    contextual_prompt += f"\n\n{context_block}"
+                # Inject vision context if available
+                if visual_desc:
+                    contextual_prompt += f"\n\n[Internal Perception: {visual_desc}]"
 
                 # Pass to LLM
                 await self.process_and_respond(content, contextual_prompt, "user", source=source)
