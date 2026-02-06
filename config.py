@@ -35,8 +35,5 @@ TWITCH_BOT_USERNAME = os.getenv("TWITCH_BOT_USERNAME", "")
 TWITCH_CHANNEL_TO_JOIN = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
 VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
 
-# Generic game log path (set in .env when needed)
-GAME_LOG_PATH = os.getenv("GAME_LOG_PATH", "")
-
 # Feature Flags
 ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"

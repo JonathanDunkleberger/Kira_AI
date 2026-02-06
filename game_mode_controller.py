@@ -1,11 +1,10 @@
-# game_mode_controller.py — Manages the "Gaming/Observer" mode state.
+# game_mode_controller.py — Manages the "Observer" mode state.
 
 class GameModeController:
     """
-    Lightweight state controller for Gaming/Observer mode.
-    When active, enables vision heartbeat and media bridge monitoring.
+    Lightweight state controller for Observer mode.
+    When active, enables the vision heartbeat.
     """
-    def __init__(self, vision_agent, media_bridge=None):
+    def __init__(self, vision_agent):
         self.vision = vision_agent
-        self.media_bridge = media_bridge
         self.is_active = False
