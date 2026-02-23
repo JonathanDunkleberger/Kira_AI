@@ -1,37 +1,30 @@
-# Ignore Python cache and compiled files
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Ignore environment and secrets
+# Environment
 .env
-.env.*
 
-# Ignore memory database and model weights
+# Data & models
 memory_db/
 models/
+*.gguf
 *.log
 *.sqlite3
+*.db
 
-# VS Code settings
-.vscode/
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Python virtual environment
+# IDE
+.vscode/
+
+# Virtual environments
 venv/
 .venv/
 
-# Binaries and DBs
+# Binaries
 mpv.exe
-*.db
-
-mpv.exe
-.env
-
-# Downloaded LLM models (can be very large)
-models/
-*.gguf

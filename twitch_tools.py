@@ -1,10 +1,8 @@
 import requests
 import os
-from dotenv import load_dotenv
+from config import TWITCH_OAUTH_TOKEN, TWITCH_CHANNEL_TO_JOIN
 
-load_dotenv()
-
-TWITCH_ACCESS_TOKEN = os.getenv("TWITCH_OAUTH_TOKEN", "").replace("oauth:", "")
+TWITCH_ACCESS_TOKEN = TWITCH_OAUTH_TOKEN.replace("oauth:", "")
 CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "")
 # Note: You need to manually fetch your broadcaster ID and put it in .env as BROADCASTER_ID
 # or fetch it dynamically using the username. For now, let's assume it's in .env or we fetch it.
@@ -19,7 +17,7 @@ def start_twitch_poll(question, options):
     # For this snippet, we'll try to fetch it if missing, using the username.
     global BROADCASTER_ID
     if not BROADCASTER_ID:
-        username = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
+        username = TWITCH_CHANNEL_TO_JOIN
         if username:
              try:
                 user_url = f"https://api.twitch.tv/helix/users?login={username}"

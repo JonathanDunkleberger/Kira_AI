@@ -47,7 +47,7 @@ def _extract_json(text: str) -> dict:
         match = re.search(r"\{.*\}", text, re.DOTALL)
         if not match: return None
         return json.loads(match.group(0))
-    except:
+    except Exception:
         return None
 
 async def extract_memories(ai_core, user_text: str, conversation_history: list) -> list[dict]:

@@ -119,10 +119,10 @@ class VTubeBot:
                 # Cleanup before restart
                 if self.stream: 
                     try: self.stream.close()
-                    except: pass
+                    except Exception: pass
                 if self.pyaudio_instance: 
                     try: self.pyaudio_instance.terminate()
-                    except: pass
+                    except Exception: pass
 
 
     async def _main_loop(self):

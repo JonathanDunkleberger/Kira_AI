@@ -1,8 +1,6 @@
 # summarizer.py
 from config import AI_NAME
 
-import re
-
 class SummarizationManager:
     def __init__(self, ai_core, memory_manager):
         self.ai_core = ai_core

@@ -171,28 +171,8 @@ class AI_Core:
                 print("   WARNING: Azure Key or Region is missing! Check .env")
 
             speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY.strip(), region=AZURE_SPEECH_REGION.strip())
-            # Prevent Azure from auto-playing sound so Pygame can handle it exclusively
-            # We do this by routing Azure output to a Null stream
-            # audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=False) # This API varies by version
-            # The most reliable way for raw data extraction is to NOT set audio_config to None (which means default speaker)
-            # but to set it to a pull stream or similar.
-            # However, for now, let's keep it simple: If we set audio_config=None, it PLAYS. 
-            # If we want it SILENT, we probably need `audio_config=speechsdk.audio.AudioConfig(device_name="non_existent")`? No.
-            # Correct solution: Use `speechsdk.audio.AudioConfig(stream=None)`? No.
-            
-            # Use `audio_config=None` (Default Speaker) BUT we are using pygame too.
-            # Conflict: Azure holds the device handle.
-            # Solution: Tell Azure to output to an internal stream we don't listen to, or just Mute it?
-            # Better Solution: Use PullAudioOutputStream to "catch" the audio without playing it.
-            
-            # Prevent Azure from auto-playing sound by using a PullStream (Memory Stream)
-            # This satisfies the "No WAV File" requirement and prevents speaker conflict.
-            # We don't read from this stream, we just let Azure write to it so it doesn't block.
-            self.null_stream = speechsdk.audio.PullAudioOutputStream(
-                speechsdk.audio.PullAudioOutputStreamCallback() 
-            ) if False else None # Callback is complex to implement in one line.
-            
-            # SIMPLER TRICK: Use a PushAudioOutputStream with a dummy write callback.
+
+            # Route Azure output to a null stream so Pygame handles playback exclusively.
             class NullCallback(speechsdk.audio.PushAudioOutputStreamCallback):
                 def write(self, data: memoryview) -> int: return data.nbytes
                 def close(self) -> None: pass
