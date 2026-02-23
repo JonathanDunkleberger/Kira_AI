@@ -213,17 +213,9 @@ class DashboardApp(ctk.CTk):
              self.txt_transcript.insert("0.0", history_text)
              self.txt_transcript.see("end")
              self.txt_transcript.configure(state="disabled")
-        except: pass
+        except Exception: pass
 
-        # 2. Update Twitch
-        try:
-             # We need a way to access twitch logs. The Bot prints them.
-             # Maybe the bot can store a separate log list for the dashboard.
-             # For now, just a placeholder or read from a shared list if we added one.
-             pass 
-        except: pass
-
-        # 3. Update Status
+        # 2. Update Status
         self.lbl_now_playing.configure(text=f"Emotion: {self.bot.current_emotion.name}")
 
         self.after(500, self.update_gui)
