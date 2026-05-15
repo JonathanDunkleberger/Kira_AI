@@ -22,6 +22,16 @@ from config import (
 )
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
+
+# Maps each emotional state to a concise behavioural directive injected into the prompt.
+# Must stay in sync with EmotionalState in persona.py.
+EMOTION_DESCRIPTORS = {
+    EmotionalState.HAPPY:       "Default mode. Be cheerful, curious, and let your sassy wit flow naturally.",
+    EmotionalState.MOODY:       "You are withdrawn and angsty. Keep answers shorter and more sarcastic than usual.",
+    EmotionalState.SASSY:       "Your wit is razor-sharp right now. Tease more, soften less. Make it sting but stay fun.",
+    EmotionalState.EMOTIONAL:   "You feel open and earnest. It is okay to say something genuinely sweet or heartfelt.",
+    EmotionalState.HYPERACTIVE: "You are buzzing with excitement. Ramble a little. Everything feels more interesting than normal.",
+}
 from prompt_loader import load_personality_txt
 from prompt_rules import TOOL_AND_FORMAT_RULES
 
@@ -207,10 +217,17 @@ class AI_Core:
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
         print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "") -> str:
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "") -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = self.system_prompt
-        system_prompt += f"\n\n[Your current emotional state is: {current_emotion.name}. Let this state subtly influence your response style and word choice.]"
+        emotion_desc = EMOTION_DESCRIPTORS.get(current_emotion, "Be yourself.")
+        system_prompt += f"\n\n[EMOTIONAL STATE: {current_emotion.name} — {emotion_desc}]"
+
+        if activity_context:
+            system_prompt += (
+                f"\n\n[CURRENT CONTEXT: You and Jonny are currently {activity_context}. "
+                "Let this shape what you talk about, reference, and react to.]"
+            )
         
         # INJECT MEMORY AS NOTES
         if memory_context:
@@ -330,7 +347,8 @@ class AI_Core:
 
             # --- EDGE TTS (Fallback) ---
             elif TTS_ENGINE == "edge" and Communicate:
-                 communicate = Communicate(text, float(AZURE_PROSODY_PITCH) if False else "en-US-AriaNeural")
+                 voice = AZURE_SPEECH_VOICE if AZURE_SPEECH_VOICE else "en-US-AriaNeural"
+                 communicate = Communicate(text, voice)
                  buffer = b""
                  async for chunk in communicate.stream():
                      if chunk["type"] == "audio":
@@ -373,7 +391,8 @@ class AI_Core:
     def _clean_llm_response(self, text: str) -> str:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
         # Prune all bracketed metadata (Visual Sparks, thoughts, etc)
-        text = re.sub(r'\[.*?\]', '', text) 
+        # Preserve tool tags [POLL:...] and [SONG:...] so parse_kira_tools() can handle them
+        text = re.sub(r'\[(?!POLL:|SONG:)[^\]]*\]', '', text)
         text = re.sub(r'\(.*?\)', '', text)
         return text.strip()
 

@@ -26,5 +26,7 @@ python-dotenv
 pygame
 edge-tts
 azure-cognitiveservices-speech
+# For VN auto-play (keyboard/mouse control)
+pyautogui
 
 

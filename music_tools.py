@@ -4,21 +4,37 @@ import os
 import yt_dlp
 import threading
 
-# Global variable to track the current player process
+# Global state
 current_player_process = None
+current_song_title = "None"
+is_playing = False
 player_lock = threading.Lock()
+
+def get_now_playing() -> str:
+    """Returns the title of the currently playing song."""
+    return current_song_title if is_playing else "Nothing"
+
+def pause_song():
+    """No-op placeholder: mpv subprocess doesn't support pause via Popen. Use skip instead."""
+    pass
+
+def resume_song():
+    """No-op placeholder."""
+    pass
 
 def skip_song():
     """Immediately kills the current mpv process."""
-    global current_player_process
+    global current_player_process, current_song_title, is_playing
     with player_lock:
         if current_player_process:
             print("   [Music] Skipping song...")
             try:
-                current_player_process.terminate()  # Helper method to kill process
+                current_player_process.terminate()
             except Exception as e:
                 print(f"   [Music] Error skipping: {e}")
             current_player_process = None
+            current_song_title = "None"
+            is_playing = False
 
 def clear_queue():
     """Empties the pending song list (Stub)."""
@@ -68,21 +84,22 @@ def play_kira_song(query):
                 title = info.get('title', query)
         
         if url:
-             # Play it in a hidden background process
-             # --no-video makes it a background music player
-             # --volume=50 sets initial volume
-             # startupinfo to hide window on Windows
             startupinfo = None
             if os.name == 'nt':
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            
-            # Stop previous song if playing (Single track queue for now, or just force skip)
+
+            # Stop previous song before starting new one
             skip_song()
 
             print(f"   [Music] Kira is now playing: {title}")
             with player_lock:
-                 current_player_process = subprocess.Popen(['mpv', url, '--no-video', '--volume=50'], startupinfo=startupinfo)
+                global current_song_title, is_playing
+                current_player_process = subprocess.Popen(
+                    ['mpv', url, '--no-video', '--volume=50'], startupinfo=startupinfo
+                )
+                current_song_title = title
+                is_playing = True
         else:
              print(f"   [Music] No URL found for: {query}")
 

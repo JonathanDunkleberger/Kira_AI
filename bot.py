@@ -24,7 +24,16 @@ from config import (
 )
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
-from game_mode_controller import GameModeController
+from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
+
+# Graceful pyautogui import (required for VN auto-play only)
+try:
+    import pyautogui
+    pyautogui.FAILSAFE = True
+    PYAUTOGUI_AVAILABLE = True
+except ImportError:
+    PYAUTOGUI_AVAILABLE = False
+    print("   [Info] pyautogui not installed. VN auto-play requires: pip install pyautogui")
 
 
 def parse_kira_tools(text, allow_music=False):
@@ -82,9 +91,15 @@ class VTubeBot:
         self.current_emotion = EmotionalState.HAPPY
         self.last_idle_chat = "" # Track the last idle chat summary
         self.turn_count = 0 
-        self.is_paused = False # Dashboard control flag
-        self.silence_stage = 0  # Replaces the old boolean flag
+        self.is_paused = False
+        self.silence_stage = 0
         self.is_running = True
+
+        # Activity context — describes what Kira and Jonny are currently doing
+        self.current_activity = ""
+
+        # Dashboard feed — rolling log of Twitch messages for display
+        self.twitch_log: list[str] = []
         
         # TIMING CONFIGURATION
         self.silence_thresholds = {
@@ -96,7 +111,40 @@ class VTubeBot:
     def reset_idle_timer(self, human_speech=False):
         self.last_interaction_time = time.time()
         if human_speech:
-            self.silence_stage = 0 # Reset boredom ONLY when you speak
+            self.silence_stage = 0
+
+    # ── Activity Detection ──────────────────────────────────────────────────────
+
+    def _detect_activity_change(self, text: str) -> str | None:
+        """Parses a voice input for activity-setting phrases. Returns activity string or None."""
+        patterns = [
+            r"(?:we(?:'re| are)|let(?:'s| us)|i(?:'m| am)|gonna|going to|start)\s+"
+            r"(?:playing|watching|reading|listening to|streaming|doing)\s+(.+?)[\.\.\!\?]?$",
+            r"(?:play|watch|stream|read|put on|boot up|launch|open)\s+(.+?)[\.\.\!\?]?$",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text.strip(), re.IGNORECASE)
+            if match:
+                activity = match.group(1).strip().rstrip(' .,!?')
+                if 3 < len(activity) < 80:
+                    return activity
+        return None
+
+    def _classify_activity_type(self, activity: str) -> str:
+        """Maps a free-form activity string to a known ACTIVITY_* constant."""
+        lower = activity.lower()
+        VN_KEYWORDS = ["visual novel", " vn ", "clannad", "katawa", "fate/",
+                       "doki doki", "steins", "little busters", "kanon",
+                       "planetarian", "rewrite", "angel beats", "renpy", "ren'py"]
+        MEDIA_KEYWORDS = ["movie", "anime", "episode", "youtube", "netflix",
+                          "crunchyroll", "watching"]
+        for kw in VN_KEYWORDS:
+            if kw in lower:
+                return ACTIVITY_VN
+        for kw in MEDIA_KEYWORDS:
+            if kw in lower:
+                return ACTIVITY_MEDIA
+        return ACTIVITY_GAME  # generic fallback
 
     async def run(self):
         # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
@@ -164,6 +212,9 @@ class VTubeBot:
             
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
+
+            # --- VN Auto-Play Agent (standby until activity_type == ACTIVITY_VN) ---
+            tasks.append(self.vn_gameplay_loop())
 
             print("   [System] Starting Background Tasks...")
             tasks.append(self.background_loop())
@@ -278,8 +329,24 @@ class VTubeBot:
         print("   [System] Brain Worker started.")
         while True:
             source, content = await self.input_queue.get()
-            
+
             try:
+                # Log Twitch messages for the dashboard feed
+                if source == "twitch":
+                    self.twitch_log.append(content)
+                    if len(self.twitch_log) > 100:
+                        self.twitch_log = self.twitch_log[-100:]
+
+                # Activity auto-detection from voice (natural language sets context)
+                if source == "voice":
+                    detected = self._detect_activity_change(content)
+                    if detected and detected != self.current_activity:
+                        self.current_activity = detected
+                        new_type = self._classify_activity_type(detected)
+                        self.game_mode_controller.activity_type = new_type
+                        self.vision_agent.activity_type = new_type
+                        print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
+
                 # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                 visual_desc = ""
                 if self.game_mode_controller.is_active:
@@ -311,7 +378,10 @@ class VTubeBot:
                 
                 # Inject vision context if available
                 if visual_desc:
-                    contextual_prompt += f"\n\n[Internal Perception: {visual_desc}]"
+                    if self.game_mode_controller.activity_type == ACTIVITY_VN:
+                        contextual_prompt += f"\n\n[What you can see on screen right now: {visual_desc}]"
+                    else:
+                        contextual_prompt += f"\n\n[Internal Perception: {visual_desc}]"
 
                 # Pass to LLM
                 await self.process_and_respond(content, contextual_prompt, "user", source=source)
@@ -334,32 +404,204 @@ class VTubeBot:
 
             last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
             silence_duration = time.time() - last_activity
-            
-            # STAGE 3: CHAOS (120s)
-            if silence_duration > self.silence_thresholds[3] and self.silence_stage < 3:
-                async with self.processing_lock:
-                    self.silence_stage = 3
-                    # Load prompt from a central config/prompt file ideally
-                    await self._execute_interjection("The stream is dead. Say something completely unhinged to wake Jonny up.")
 
-            # STAGE 2: ROAST (60s)
-            elif silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
-                async with self.processing_lock:
-                    self.silence_stage = 2
-                    await self._execute_interjection("Jonny has been quiet for a minute. Roast him for being boring.")
+            in_vn_mode = (
+                self.game_mode_controller.is_active and
+                self.game_mode_controller.activity_type == ACTIVITY_VN
+            )
 
-            # STAGE 1: CHECK-IN (30s)
-            elif silence_duration > self.silence_thresholds[1] and self.silence_stage < 1:
-                async with self.processing_lock:
-                    self.silence_stage = 1
-                    await self._execute_interjection("It's been quiet for 30 seconds. Ask Jonny a casual question about what he's thinking.")
+            if in_vn_mode:
+                # ── VN OBSERVER MODE: calm couch-buddy behaviour ──────────────
+                # Stage 2 (240s): thoughtful story question
+                if silence_duration > 240.0 and self.silence_stage < 2:
+                    async with self.processing_lock:
+                        self.silence_stage = 2
+                        vn_ctx = self.vision_agent.get_vision_context()
+                        await self._execute_interjection(
+                            f"You and Jonny are watching a visual novel together. "
+                            f"Current screen: {vn_ctx}\n\n"
+                            f"Ask Jonny one thoughtful question about the story, characters, or "
+                            f"something you're both curious about. Keep it brief and natural, "
+                            f"like a friend on the couch.",
+                            memory_query=f"visual novel story {self.current_activity}",
+                        )
 
-    async def _execute_interjection(self, prompt):
-        """Helper to run the generation and speech"""
+                # Stage 1 (90s): react naturally to what's on screen
+                elif silence_duration > 90.0 and self.silence_stage < 1:
+                    async with self.processing_lock:
+                        self.silence_stage = 1
+                        vn_ctx = self.vision_agent.get_vision_context()
+                        await self._execute_interjection(
+                            f"You and Jonny are watching a visual novel together. "
+                            f"Current screen: {vn_ctx}\n\n"
+                            f"Make a short natural remark about what just happened or what you noticed "
+                            f"on screen — like a friend watching with him. One or two sentences only. "
+                            f"Do NOT ask a generic 'what are you thinking' question.",
+                            memory_query=f"visual novel {self.current_activity}",
+                        )
+                # No chaos stage during VN — silence is normal while reading
+
+            else:
+                # ── DEFAULT MODE: boredom escalation ─────────────────────────
+                # STAGE 3: CHAOS (120s)
+                if silence_duration > self.silence_thresholds[3] and self.silence_stage < 3:
+                    async with self.processing_lock:
+                        self.silence_stage = 3
+                        await self._execute_interjection(
+                            "The stream is dead. Say something completely unhinged to wake Jonny up.",
+                            memory_query="recent things Jonny mentioned",
+                        )
+
+                # STAGE 2: ROAST (60s)
+                elif silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
+                    async with self.processing_lock:
+                        self.silence_stage = 2
+                        await self._execute_interjection(
+                            "Jonny has been quiet for a minute. Roast him for being boring.",
+                            memory_query="what makes Jonny laugh or react",
+                        )
+
+                # STAGE 1: CHECK-IN (30s)
+                elif silence_duration > self.silence_thresholds[1] and self.silence_stage < 1:
+                    async with self.processing_lock:
+                        self.silence_stage = 1
+                        await self._execute_interjection(
+                            "It's been quiet for 30 seconds. Ask Jonny a casual question about what he's thinking.",
+                            memory_query="what is Jonny interested in",
+                        )
+
+    async def vn_gameplay_loop(self):
+        """
+        Autonomous Visual Novel gameplay agent.
+        Activates when game_mode_controller.activity_type == ACTIVITY_VN and observer is on.
+        Reads screen text, advances dialogue with spacebar, and picks choices via keyboard.
+
+        Requirements:
+          - Observer Mode ON (vision enabled)
+          - OPENAI_API_KEY set (vision uses GPT-4o-mini)
+          - pip install pyautogui
+          - VN window must be in focus when choices need to be made
+        """
+        print("   [System] VN Gameplay Agent on standby.")
+        VN_TICK = 8.0  # seconds between screen checks
+
+        while self.is_running:
+            await asyncio.sleep(VN_TICK)
+
+            # Only run when in VN mode with observer active
+            if (not self.game_mode_controller.is_active or
+                    self.game_mode_controller.activity_type != ACTIVITY_VN):
+                continue
+
+            # Don't interrupt active speech or input processing
+            if self.processing_lock.locked() or self.ai_core.is_speaking:
+                continue
+
+            if not PYAUTOGUI_AVAILABLE:
+                print("   [VN] pyautogui not installed. Run: pip install pyautogui")
+                await asyncio.sleep(60)
+                continue
+
+            # Ensure vision is active in VN mode
+            if not self.vision_agent.is_active:
+                self.vision_agent.is_active = True
+
+            # Capture structured VN state from screen
+            vn_state = await self.vision_agent.capture_vn_state()
+            if not vn_state:
+                continue
+
+            dialogue = vn_state.get("dialogue", "").strip()
+            choices  = vn_state.get("choices", [])
+            speaker  = vn_state.get("speaker", "Narration")
+            scene    = vn_state.get("scene", "")
+
+            if not dialogue:
+                continue
+
+            async with self.processing_lock:
+                if choices:
+                    # ── CHOICE MENU ─────────────────────────────────────────────
+                    choice_list = "\n".join(f"{i+1}. {c}" for i, c in enumerate(choices))
+                    choice_prompt = (
+                        f"You are playing a Visual Novel. A choice menu appeared.\n"
+                        f"Speaker: {speaker}\n"
+                        f"Last line: \"{dialogue}\"\n"
+                        f"Scene: {scene}\n\n"
+                        f"Your choices:\n{choice_list}\n\n"
+                        f"Pick the option that fits your personality and what you think is interesting for the story. "
+                        f"Start with ONLY the choice NUMBER, then react naturally in 1-2 sentences."
+                    )
+                    response = await self.ai_core.llm_inference(
+                        messages=self.conversation_history[-6:] + [{"role": "user", "content": choice_prompt}],
+                        current_emotion=self.current_emotion,
+                        memory_context="",
+                        activity_context=self.current_activity,
+                    )
+                    cleaned = self.ai_core._clean_llm_response(response)
+
+                    # Extract the chosen number
+                    match = re.search(r'\b([1-9])\b', cleaned)
+                    choice_num = int(match.group(1)) if match else 1
+                    choice_num = min(choice_num, len(choices))
+
+                    print(f"   [VN] Kira picks choice {choice_num}: {choices[choice_num - 1]}")
+
+                    # Navigate using keyboard (works for Ren'Py and most VN engines)
+                    try:
+                        for _ in range(choice_num - 1):
+                            pyautogui.press('down')
+                            await asyncio.sleep(0.15)
+                        await asyncio.sleep(0.3)
+                        pyautogui.press('enter')
+                    except Exception as e:
+                        print(f"   [VN] Input error: {e}")
+
+                    if cleaned and "[SILENCE]" not in cleaned and len(cleaned) > 5:
+                        print(f">>> Kira (VN Choice): {cleaned}")
+                        await self.ai_core.speak_text(cleaned)
+                        self.conversation_history.append({"role": "assistant", "content": cleaned})
+                        self.ai_core.last_speech_finish_time = time.time()
+
+                else:
+                    # ── DIALOGUE LINE: advance text, occasionally comment ─────
+                    try:
+                        pyautogui.press('space')
+                    except Exception as e:
+                        print(f"   [VN] Input error: {e}")
+                        continue
+
+                    # ~30% of the time, react to the line naturally
+                    if random.random() < 0.30:
+                        comment_prompt = (
+                            f"You are playing a Visual Novel.\n"
+                            f"Character speaking: {speaker}\n"
+                            f"Line just shown: \"{dialogue}\"\n"
+                            f"Scene: {scene}\n\n"
+                            f"React in 1-2 sentences as yourself. Be genuine — this is your real reaction to the story. "
+                            f"If it is boring, say so. If something is interesting, engage with it."
+                        )
+                        response = await self.ai_core.llm_inference(
+                            messages=self.conversation_history[-4:] + [{"role": "user", "content": comment_prompt}],
+                            current_emotion=self.current_emotion,
+                            memory_context="",
+                            activity_context=self.current_activity,
+                        )
+                        cleaned = self.ai_core._clean_llm_response(response)
+                        if cleaned and "[SILENCE]" not in cleaned and len(cleaned) > 5:
+                            print(f">>> Kira (VN): {cleaned}")
+                            await self.ai_core.speak_text(cleaned)
+                            self.conversation_history.append({"role": "assistant", "content": cleaned})
+                            self.ai_core.last_speech_finish_time = time.time()
+
+    async def _execute_interjection(self, prompt, memory_query: str = ""):
+        """Runs a proactive interjection with real memory context."""
+        memory_context = self.memory.get_semantic_context(memory_query or prompt)
         response = await self.ai_core.llm_inference(
             messages=self.conversation_history + [{"role": "system", "content": prompt}],
             current_emotion=self.current_emotion,
-            memory_context="(Boredom Protocol)"
+            memory_context=memory_context,
+            activity_context=self.current_activity,
         )
         cleaned = self.ai_core._clean_llm_response(response)
         if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
@@ -387,10 +629,9 @@ class VTubeBot:
              self.conversation_history.append({"role": role, "content": llm_user_text})
              self.conversation_segment.append({"role": role, "content": llm_user_text})
         
-        # --- SLIDING WINDOW: Tighter Context ---
-        # Reduce to 10 turns to prevent old topics (like 100 Thieves) from sticking around too long
-        if len(self.conversation_history) > 10:
-            self.conversation_history = self.conversation_history[-10:]
+        # --- SLIDING WINDOW: Keep 20 turns for better conversational memory ---
+        if len(self.conversation_history) > 20:
+            self.conversation_history = self.conversation_history[-20:]
 
         # --- SANITY CHECK: Ensure last message is NOT assistant ---
         # If we are strictly responding (skip_generation=False), we can't respond to ourselves.
@@ -410,7 +651,8 @@ class VTubeBot:
             full_response_text = await self.ai_core.llm_inference(
                 messages=self.conversation_history, 
                 current_emotion=self.current_emotion, 
-                memory_context=memory_context
+                memory_context=memory_context,
+                activity_context=self.current_activity,
             )
         
         # Clean the response
@@ -465,12 +707,8 @@ class VTubeBot:
     async def update_emotional_state(self, user_text, ai_response):
         new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
         if new_emotion and new_emotion != self.current_emotion:
-            print(f"   ✨ Emotion state changing from {self.current_emotion.name} to {new_emotion.name}")
+            print(f"   \u2728 Emotion: {self.current_emotion.name} \u2192 {new_emotion.name}")
             self.current_emotion = new_emotion
-        elif random.random() < 0.1:
-            if self.current_emotion != EmotionalState.HAPPY:
-                 print(f"   ✨ Emotion state resetting to HAPPY")
-            self.current_emotion = EmotionalState.HAPPY
 
     async def background_loop(self):
         while True:
