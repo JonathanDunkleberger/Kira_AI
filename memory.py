@@ -117,7 +117,7 @@ class MemoryManager:
                 proj_res = self.facts.get(where={"type": "project"}, limit=1)
                 if proj_res['documents']:
                     context_lines.append(f"[CURRENT PROJECT]: {proj_res['documents'][0]}")
-            except: pass
+            except Exception: pass
 
         return "\n".join(context_lines)
 
@@ -137,10 +137,10 @@ class MemoryManager:
                 metadatas=[meta]
             )
             print(f"   ✅ Fact Upserted: {fact_text}")
-        except:
+        except Exception:
             # Fallback: Delete then Add
             try: self.facts.delete(ids=[fact_id]); 
-            except: pass
+            except Exception: pass
             self.facts.add(
                 ids=[fact_id],
                 embeddings=[emb],
@@ -156,7 +156,7 @@ class MemoryManager:
             if res and res.get("documents"): 
                 return res["documents"][0]
             return None
-        except:
+        except Exception:
             return None
 
     def add_fact(self, fact_text: str):
