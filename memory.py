@@ -59,7 +59,11 @@ class MemoryManager:
                     
                     if not obj or "?" in obj: continue # Skip questions/blanks
                     
-                    text_rep = f"{subject}'s {predicate.replace('_', ' ').strip()} is {obj.replace('_', ' ').strip()}."
+                    # New extractor provides a ready-to-store natural-language fact; old extractor used subject/predicate/object
+                    if "fact" in mem and isinstance(mem["fact"], str) and mem["fact"].strip():
+                        text_rep = mem["fact"].strip()
+                    else:
+                        text_rep = f"{subject}'s {predicate.replace('_', ' ').strip()} is {obj.replace('_', ' ').strip()}."
                     
                     meta = {
                         "type": m_type,

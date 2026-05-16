@@ -20,6 +20,7 @@ from config import (
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
+    CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING,
 )
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
@@ -374,10 +375,15 @@ class AI_Core:
             if not claude_messages or claude_messages[0]["role"] != "user":
                 claude_messages.insert(0, {"role": "user", "content": "(continue)"})
 
+            if ENABLE_PROMPT_CACHING:
+                system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+            else:
+                system_param = system_prompt
+
             response = await self.anthropic_client.messages.create(
                 model=CLAUDE_DEEP_MODEL,
                 max_tokens=max_tokens,
-                system=system_prompt,
+                system=system_param,
                 messages=claude_messages,
             )
             if response.content and len(response.content) > 0:
@@ -419,6 +425,35 @@ class AI_Core:
             system_prompt=system_prompt,
             max_tokens=400,
         )
+
+    async def claude_chat_inference(self, messages: list, system_prompt: str, max_tokens: int = 400) -> str:
+        """Routes a conversational response through Claude Sonnet 4.6. Default voice/Twitch
+        response path when Claude is available. Cheaper than Opus, better than local Llama."""
+        if not self.anthropic_client or not ENABLE_CLAUDE_CHAT:
+            return ""  # Caller falls back to local
+
+        claude_messages = [m for m in messages if m.get("role") in ("user", "assistant")]
+        if not claude_messages or claude_messages[0]["role"] != "user":
+            claude_messages.insert(0, {"role": "user", "content": "(continue)"})
+
+        if ENABLE_PROMPT_CACHING:
+            system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+        else:
+            system_param = system_prompt
+
+        try:
+            response = await self.anthropic_client.messages.create(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=max_tokens,
+                system=system_param,
+                messages=claude_messages,
+            )
+            if response.content and len(response.content) > 0:
+                return response.content[0].text.strip()
+            return ""
+        except Exception as e:
+            print(f"   [Brain] Sonnet call failed: {e}. Falling back to local Llama.")
+            return ""
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         if not self.llm: return None

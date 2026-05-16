@@ -1,91 +1,109 @@
-# memory_extractor.py
+# memory_extractor.py — Claude-powered fact extraction with strict JSON schema
 import json
 import re
 
-# THE BIOGRAPHER PROTOCOL
-# Instead of hardcoding topics, we define "Significance."
-EXTRACTOR_SYSTEM = """
-You are a Memory Archivist for a user named Jonny.
-Your goal is to build a high-resolution mental model of who Jonny is.
+EXTRACTOR_SYSTEM = """You are a memory archivist for an AI companion named Kira. Your job is to extract DURABLE facts about her friend Jonny from conversation — facts that will still matter in a month.
 
-THE "FOREVER TEST":
-Before saving a memory, ask: "Will this information be relevant in 1 month?"
-- If YES -> SAVE IT.
-- If NO -> IGNORE IT.
+THE BAR IS HIGH. Most conversation turns produce NO memories. Reject:
+- Temporary states ("I'm tired", "I'm in the lab")
+- Questions Jonny asks (questions are not facts about him)
+- Trivial reactions ("that's cool", "thanks")
+- Filler ("okay", "yeah", "hmm")
+- Things Kira said about Jonny (only extract from what Jonny said about himself)
+- Vague generalizations ("Jonny is interested in things")
 
-WHAT TO SAVE (The "Long-Term Value" Criteria):
-1. **Core Identity:** Who is he? (Values, fears, deeply held beliefs, personality quirks).
-2. **Aspirations & Plans:** What does he want? (Future goals, "hopes," specific long-term plans).
-3. **Preferences:** Specific tastes that don't change often (Media, food, hobbies).
-4. **Context:** Facts that provide context to his life (Job, relationships, living situation).
-5. **Canon Events:** Major life events that just happened.
+ONLY save:
+- Concrete preferences he explicitly states ("my favorite anime is X")
+- Life facts he states ("I work in finance", "I'm applying to grad school in Dublin")
+- Strong opinions he expresses ("I think Kurisu is the best character because...")
+- Goals or plans he commits to ("I'm going to play through all of Clannad")
+- Significant emotional moments ("I cried at that scene")
 
-WHAT TO IGNORE (Ephemera):
-1. **Temporary States:** "I am tired," "I am driving," "I am coding right now."
-2. **Trivial Plans:** "I'm going to get water," "I might play a game later."
-3. **Conversational Filler:** Small talk, greetings, or reactions to the AI's jokes.
-4. **Questions vs. Facts:** If Jonny asks "What is your favorite book?", do NOT save "Jonny doesn't know books." Only save facts he explicitly states about HIMSELF.
-
-Response Format (JSON ONLY):
+Output STRICT JSON. No prose before or after. Schema:
 {
-  "reasoning": "Explain WHY this passes the 'Forever Test'",
-  "save_memory": true,
   "memories": [
     {
       "subject": "Jonny",
-      "predicate": "verb_phrase", 
-      "object": "noun_phrase",
+      "category": "preference | life_fact | opinion | plan | emotional_moment",
+      "fact": "natural sentence stating the fact in clean English, no underscores or snake_case",
       "confidence": 0.0-1.0
     }
   ]
 }
+
+If nothing meets the bar, output: {"memories": []}
+
+Use natural English in the "fact" field. Never use snake_case or underscores. Never reference "the assistant" or "the AI" — only facts about Jonny himself.
 """
 
-def _extract_json(text: str) -> dict:
+
+def _extract_json(text: str) -> dict | None:
     try:
-        # Grep for the first JSON object (handles if model yaps before JSON)
         match = re.search(r"\{.*\}", text, re.DOTALL)
-        if not match: return None
+        if not match:
+            return None
         return json.loads(match.group(0))
     except Exception:
         return None
 
+
 async def extract_memories(ai_core, user_text: str, conversation_history: list) -> list[dict]:
-    # 1. Heuristic Filter: Skip very short inputs (e.g., "Yeah", "Okay")
-    if len(user_text) < 5: return []
-    
-    # 2. Contextual Prompting
-    # We pass the last 2 turns so the AI understands pronouns (It, Him, That)
-    context_str = "\n".join([f"{m['role']}: {m['content']}" for m in conversation_history[-2:]])
-    
-    prompt = f"""
-    RECENT CONTEXT:
-    {context_str}
-    
-    USER'S LATEST INPUT:
-    "{user_text}"
-    
-    Apply the 'Forever Test'. Extract significant facts now.
-    """
+    """Extracts durable Jonny-facts from a conversation turn using Claude Sonnet.
+    Falls back to NO extraction if Claude is unavailable (better than garbage)."""
+
+    if len(user_text) < 8:
+        return []
+
+    # Skip if Claude isn't available — local extraction produces too much garbage
+    if not getattr(ai_core, "anthropic_client", None):
+        return []
+
+    context = "\n".join(
+        f"{'Jonny' if m['role'] == 'user' else 'Kira'}: {m['content'][:300]}"
+        for m in conversation_history[-3:]
+    )
+
+    user_msg = (
+        f"Recent context:\n{context}\n\n"
+        f"Jonny's latest line: \"{user_text}\"\n\n"
+        f"Extract durable facts about Jonny only. Return JSON."
+    )
 
     try:
-        # Lower temp = more consistent formatting
-        raw = await ai_core.tool_inference(EXTRACTOR_SYSTEM, prompt, max_tokens=300)
-        data = _extract_json(raw)
-        
-        if not data or not data.get("save_memory", False):
+        raw = await ai_core.claude_chat_inference(
+            messages=[{"role": "user", "content": user_msg}],
+            system_prompt=EXTRACTOR_SYSTEM,
+            max_tokens=400,
+        )
+        if not raw:
             return []
-            
-        valid_memories = []
-        for mem in data.get("memories", []):
-            # We trust the reasoning more now, so 0.75 is a good threshold
-            if mem.get("confidence", 0) > 0.75:
-                valid_memories.append(mem)
-                print(f"   [Memory] Extracted: {mem['subject']} {mem['predicate']} {mem['object']}")
-                print(f"            └─ Reason: {data.get('reasoning')}")
-                
-        return valid_memories
+        data = _extract_json(raw)
+        if not data or "memories" not in data:
+            return []
+
+        valid = []
+        for mem in data["memories"]:
+            confidence = float(mem.get("confidence", 0))
+            if confidence < 0.7:
+                continue
+            fact = mem.get("fact", "").strip()
+            if not fact or len(fact) < 10 or "_" in fact:
+                continue
+
+            valid.append({
+                "subject": mem.get("subject", "Jonny"),
+                "category": mem.get("category", "opinion"),
+                "fact": fact,
+                "confidence": confidence,
+                "memory_type": "profile_fact" if mem.get("category") in ("life_fact", "preference") else "episodic",
+                "predicate": mem.get("category", "fact"),
+                "object": fact,
+                "salience": confidence,
+            })
+            print(f"   [Memory] Extracted: {fact} (conf: {confidence})")
+
+        return valid
 
     except Exception as e:
-        print(f"   [Memory Extractor Error]: {e}")
+        print(f"   [Memory Extractor] Error: {e}")
         return []

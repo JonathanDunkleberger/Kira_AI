@@ -11,7 +11,7 @@ N_CTX = int(os.getenv("N_CTX", 8192))
 N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
-WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base.en")
+WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
 ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 AI_NAME = os.getenv("AI_NAME", "Kira")
@@ -43,3 +43,6 @@ ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_DEEP_MODEL = os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7")
 ENABLE_CLAUDE_BRAIN = os.getenv("ENABLE_CLAUDE_BRAIN", "true").lower() == "true"
+CLAUDE_CHAT_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
+ENABLE_CLAUDE_CHAT = os.getenv("ENABLE_CLAUDE_CHAT", "true").lower() == "true"
+ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "true").lower() == "true"
