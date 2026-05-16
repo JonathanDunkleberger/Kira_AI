@@ -80,14 +80,14 @@ class KiraDashboard(ctk.CTk):
         ).pack(pady=(0, 12))
 
         self.mode_label = ctk.CTkLabel(
-            frame, text="PERSONAL MODE",
+            frame, text="COMPANION MODE",
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color=C_GREEN, fg_color=C_SURFACE,
             corner_radius=6, padx=10, pady=4
         )
         self.mode_label.pack(fill="x", padx=12, pady=(0, 6))
         self.mode_btn = ctk.CTkButton(
-            frame, text="Switch to Streamer Mode",
+            frame, text="Switch to Streamer Mode",  # starts in companion
             fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
             height=28, command=self._toggle_mode, font=ctk.CTkFont(size=11)
         )
@@ -114,6 +114,21 @@ class KiraDashboard(ctk.CTk):
             text_color=C_MUTED, wraplength=220
         )
         self.activity_display.pack(padx=12, pady=(0, 8))
+
+        self.immersive_switch = ctk.CTkSwitch(
+            frame, text="Immersive Mode",
+            command=self._toggle_immersive,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.immersive_switch.pack(anchor="w", padx=14, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame,
+            text="Auto-enables for VNs / movies / anime. Kira stays quiet unless invited. Off otherwise \u2014 she's normally chatty.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 8))
 
         _divider(frame)
 
@@ -150,7 +165,7 @@ class KiraDashboard(ctk.CTk):
 
         ctk.CTkLabel(
             frame,
-            text="VN AUTO-PLAY  (requires Observer ON and VN window focused)",
+            text="VN AUTO-PLAY (experimental) \u2014 Kira reads and advances dialogue herself. Off by default. Companion mode is the main experience.",
             font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
             justify="left"
         ).pack(anchor="w", padx=14, pady=(0, 2))
@@ -185,6 +200,27 @@ class KiraDashboard(ctk.CTk):
             font=ctk.CTkFont(size=11),
             command=lambda: self.bot.ai_core.reload_personality()
         ).pack(fill="x", padx=12, pady=(0, 16))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="INVITE",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        self.btn_invite = ctk.CTkButton(
+            frame, text="\U0001f4ac  Ask Kira's Thoughts",
+            fg_color=C_GREEN, hover_color="#3D5C3D", height=40,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            command=self._invite_kira
+        )
+        self.btn_invite.pack(fill="x", padx=12, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame,
+            text="In Companion mode Kira stays quiet by default. Tap to invite her thoughts on what's happening.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left"
+        ).pack(anchor="w", padx=14, pady=(0, 12))
 
         _divider(frame)
 
@@ -291,12 +327,15 @@ class KiraDashboard(ctk.CTk):
     # ACTIONS
 
     def _toggle_mode(self):
-        if self.mode_btn.cget("text") == "Switch to Streamer Mode":
+        if self.bot.mode == "companion":
+            self.bot.mode = "streamer"
             self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
-            self.mode_btn.configure(text="Switch to Personal Mode")
+            self.mode_btn.configure(text="Switch to Companion Mode")
         else:
-            self.mode_label.configure(text="PERSONAL MODE", text_color=C_GREEN)
+            self.bot.mode = "companion"
+            self.mode_label.configure(text="COMPANION MODE", text_color=C_GREEN)
             self.mode_btn.configure(text="Switch to Streamer Mode")
+        print(f"   [Dashboard] Mode: {self.bot.mode}")
 
     def _set_activity(self):
         text = self.activity_entry.get().strip()
@@ -306,8 +345,10 @@ class KiraDashboard(ctk.CTk):
         new_type = self.bot._classify_activity_type(text)
         self.bot.game_mode_controller.activity_type = new_type
         self.bot.vision_agent.activity_type = new_type
-        self.activity_display.configure(text=text, text_color=C_TEXT)
+        self.bot.immersive = (new_type in (ACTIVITY_VN, ACTIVITY_MEDIA))
         print(f"   [Dashboard] Activity set: '{text}' (type: {new_type})")
+        print(f"   [Dashboard] Immersive: {self.bot.immersive}")
+        self.activity_display.configure(text=text, text_color=C_TEXT)
         if new_type == ACTIVITY_VN:
             self._activate_observer_and_vn()
 
@@ -318,16 +359,11 @@ class KiraDashboard(ctk.CTk):
             pass
 
     def _activate_observer_and_vn(self):
-        """Turns on Observer mode and VN auto-play together."""
+        """Turns on Observer mode and sets VN activity context. Auto-play is a separate toggle."""
         self.bot.game_mode_controller.activate(ACTIVITY_VN)
         self.bot.vision_agent.activity_type = ACTIVITY_VN
         self.obs_switch.select()
-        self.vn_switch.select()
-        self.vn_status_label.configure(
-            text="VN Agent ACTIVE - Kira will read and advance VN text. VN window must be focused.",
-            text_color=C_YELLOW
-        )
-        print("   [Dashboard] VN Auto-Play ACTIVATED - Observer forced ON.")
+        print("   [Dashboard] VN activity context ON. Auto-play remains a separate toggle.")
 
     def _toggle_observer(self):
         active = bool(self.obs_switch.get())
@@ -343,13 +379,31 @@ class KiraDashboard(ctk.CTk):
 
     def _toggle_vn(self):
         vn_on = bool(self.vn_switch.get())
+        self.bot.vn_autoplay_enabled = vn_on
         if vn_on:
-            self._activate_observer_and_vn()
+            self.vn_status_label.configure(
+                text="VN Auto-Play ACTIVE \u2014 Kira will read and advance the VN. The VN window must be focused.",
+                text_color=C_YELLOW,
+            )
         else:
-            self.bot.game_mode_controller.activity_type = ACTIVITY_GENERAL
-            self.bot.vision_agent.activity_type = ACTIVITY_GENERAL
-            self.vn_status_label.configure(text="VN: Off", text_color=C_MUTED)
-            print("   [Dashboard] VN Auto-Play OFF")
+            self.vn_status_label.configure(text="VN Auto-Play: Off", text_color=C_MUTED)
+        print(f"   [Dashboard] VN Auto-Play: {vn_on}")
+
+    def _invite_kira(self):
+        """Cross-thread call: schedule Kira's request_thoughts on the bot's event loop."""
+        import asyncio
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self.bot.request_thoughts(),
+                self.bot.event_loop,
+            )
+        else:
+            print("   [Dashboard] Bot event loop not ready yet.")
+
+    def _toggle_immersive(self):
+        is_on = bool(self.immersive_switch.get())
+        self.bot.immersive = is_on
+        print(f"   [Dashboard] Immersive Mode toggled: {is_on}")
 
     def _toggle_bot(self):
         self.bot.is_paused = not self.bot.is_paused
@@ -371,6 +425,7 @@ class KiraDashboard(ctk.CTk):
             self._refresh_emotion()
             self._refresh_activity()
             self._refresh_vn_status()
+            self._refresh_immersive()
         except Exception:
             pass
         self.after(500, self._update_loop)
@@ -447,14 +502,16 @@ class KiraDashboard(ctk.CTk):
         )
 
     def _refresh_vn_status(self):
-        is_vn = (
-            self.bot.game_mode_controller.is_active and
-            self.bot.game_mode_controller.activity_type == ACTIVITY_VN
-        )
-        if is_vn and not self.vn_switch.get():
+        if self.bot.vn_autoplay_enabled and not self.vn_switch.get():
             self.vn_switch.select()
-        elif not is_vn and self.vn_switch.get():
+        elif not self.bot.vn_autoplay_enabled and self.vn_switch.get():
             self.vn_switch.deselect()
+
+    def _refresh_immersive(self):
+        if self.bot.immersive and not self.immersive_switch.get():
+            self.immersive_switch.select()
+        elif not self.bot.immersive and self.immersive_switch.get():
+            self.immersive_switch.deselect()
 
     def _vision_loop(self):
         if self.bot.game_mode_controller.is_active and not self._vision_lock:

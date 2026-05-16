@@ -18,7 +18,8 @@ from config import (
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
-    AI_NAME
+    AI_NAME,
+    ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
 )
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
@@ -42,6 +43,12 @@ try: from elevenlabs.client import AsyncElevenLabs
 except ImportError: AsyncElevenLabs = None
 try: import azure.cognitiveservices.speech as speechsdk
 except ImportError: speechsdk = None
+try:
+    from anthropic import AsyncAnthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    AsyncAnthropic = None
+    ANTHROPIC_AVAILABLE = False
 
 
 class AI_Core:
@@ -56,6 +63,19 @@ class AI_Core:
         self.eleven_client = None
         self.azure_synthesizer = None
         self.inference_lock = threading.Lock() # Added lock for inference safety
+
+        # Hybrid brain: Claude Opus for deep moments
+        self.anthropic_client = None
+        if ENABLE_CLAUDE_BRAIN and ANTHROPIC_API_KEY and ANTHROPIC_AVAILABLE:
+            try:
+                self.anthropic_client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+                print(f"   [Brain] Hybrid mode ON \u2014 Claude {CLAUDE_DEEP_MODEL} available for deep moments.")
+            except Exception as e:
+                print(f"   [Brain] Claude init failed: {e}. Falling back to local-only.")
+                self.anthropic_client = None
+        else:
+            print(f"   [Brain] Local-only mode (Claude disabled or API key missing).")
+
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
 
@@ -197,7 +217,7 @@ class AI_Core:
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
         print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "") -> str:
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", max_tokens_override: int = None) -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = self.system_prompt
         emotion_desc = EMOTION_DESCRIPTORS.get(current_emotion, "Be yourself.")
@@ -216,6 +236,14 @@ class AI_Core:
                 f"{memory_context}\n"
                 f"Use these to stay consistent and personal. "
                 "Do not say 'my memory says' or list them like a database."
+            )
+
+        if situational_context:
+            system_prompt += (
+                f"\n\n[CURRENT PERCEPTION — what is on screen RIGHT NOW]\n"
+                f"{situational_context}\n"
+                f"This is your live awareness of the screen as of this moment. "
+                f"Do not treat it as something from the past or repeat it verbatim."
             )
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
@@ -238,7 +266,7 @@ class AI_Core:
             with self.inference_lock:
                  return self.llm.create_chat_completion(
                     messages=full_prompt,
-                    max_tokens=LLM_MAX_RESPONSE_TOKENS,
+                    max_tokens=(max_tokens_override or LLM_MAX_RESPONSE_TOKENS),
                     temperature=0.75, # Slight bump for creativity
                     top_p=0.9,
                     min_p=0.05,
@@ -266,6 +294,131 @@ class AI_Core:
                 )
         resp = await asyncio.to_thread(_guarded)
         return resp["choices"][0]["message"]["content"].strip()
+
+    async def decide_response_mode(self, recent_history: list, incoming_line: str, scene_context: str, source: str, immersive: bool = False) -> str:
+        """Fast triage: should Kira respond fully, briefly, or stay quiet?
+        Returns one of: 'RESPOND', 'BRIEF', 'STAY_QUIET'.
+
+        immersive=True  -> bias toward silence (passive media: VN, movies, anime).
+        immersive=False -> bias toward responding (default companion behavior)."""
+
+        history_lines = []
+        for turn in recent_history[-4:]:
+            speaker = "Jonny" if turn["role"] == "user" else "Kira"
+            history_lines.append(f"{speaker}: {turn['content'][:200]}")
+        history_str = "\n".join(history_lines) if history_lines else "(no recent context)"
+
+        if immersive:
+            bias_instruction = (
+                "Jonny is consuming media \u2014 a visual novel, movie, anime, or book. He is reading or watching with full attention. "
+                "Prefer BRIEF for casual remarks and observations. Reserve RESPOND for direct address by name, "
+                "questions clearly aimed at Kira, or moments that obviously invite real engagement. "
+                "STAY_QUIET for self-talk, sounds like 'hmm', talking to game characters, or muttering. "
+                "When unsure: BRIEF beats RESPOND, and silence beats forced chatter. "
+                "But do not default to silence \u2014 a friend reacts; she just keeps it short."
+            )
+        else:
+            bias_instruction = (
+                "Jonny and Kira are hanging out normally \u2014 gaming, chatting, working, whatever. "
+                "Default to RESPOND. Only choose STAY_QUIET when the input is obviously self-talk, muttering, talking to a game "
+                "character, ambient noise, or clearly not directed at Kira at all. When unsure, RESPOND."
+            )
+
+        system = (
+            "You are a fast triage filter for an AI companion named Kira. "
+            "Your job: decide whether the latest input warrants a response.\n\n"
+            "Output exactly one of: RESPOND, BRIEF, STAY_QUIET\n\n"
+            "RESPOND: Jonny directly addresses Kira, asks a question, or says something clearly meant for her.\n"
+            "BRIEF: Worth a short reaction (one short sentence) \u2014 Twitch chat hype, casual aside, throwaway remark.\n"
+            "STAY_QUIET: Self-talk, muttering, talking to the game, ambient noise, or a moment better met with silence.\n\n"
+            f"{bias_instruction}\n\n"
+            "Output only the single word. No explanation."
+        )
+
+        user = (
+            f"Recent conversation:\n{history_str}\n\n"
+            f"Current screen: {scene_context or '(no context)'}\n\n"
+            f"Source: {source}\n"
+            f"Incoming: \"{incoming_line}\"\n\n"
+            f"Decision:"
+        )
+
+        try:
+            raw = await self.tool_inference(system, user, max_tokens=8)
+            raw = raw.strip().upper()
+            if "STAY_QUIET" in raw or "STAY QUIET" in raw:
+                return "STAY_QUIET"
+            if "BRIEF" in raw:
+                return "BRIEF"
+            return "RESPOND"
+        except Exception as e:
+            print(f"   [Triage] Error: {e}; defaulting to RESPOND")
+            return "RESPOND"
+
+    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600) -> str:
+        """Routes a generation call to Claude Opus. Used for deep cognitive moments
+        where intelligence matters more than latency. Falls back to local LLM if Claude unavailable."""
+        if not self.anthropic_client:
+            print("   [Brain] Claude unavailable \u2014 falling back to local Llama.")
+            return await self.llm_inference(
+                messages=messages,
+                current_emotion=EmotionalState.HAPPY,
+                memory_context="",
+                activity_context="",
+                situational_context=system_prompt,
+                max_tokens_override=max_tokens,
+            )
+        try:
+            # Claude expects alternating user/assistant messages. Strip system messages.
+            claude_messages = [m for m in messages if m.get("role") in ("user", "assistant")]
+            if not claude_messages or claude_messages[0]["role"] != "user":
+                claude_messages.insert(0, {"role": "user", "content": "(continue)"})
+
+            response = await self.anthropic_client.messages.create(
+                model=CLAUDE_DEEP_MODEL,
+                max_tokens=max_tokens,
+                system=system_prompt,
+                messages=claude_messages,
+            )
+            if response.content and len(response.content) > 0:
+                return response.content[0].text.strip()
+            return ""
+        except Exception as e:
+            print(f"   [Brain] Claude call failed: {e}. Falling back to local.")
+            return await self.llm_inference(
+                messages=messages,
+                current_emotion=EmotionalState.HAPPY,
+                memory_context="",
+                activity_context="",
+                situational_context=system_prompt,
+                max_tokens_override=max_tokens,
+            )
+
+    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None) -> str:
+        """Generates a deep, in-character Kira response using Claude Opus.
+        Used for the invite button, reflective questions, and moments where
+        intelligence and nuance matter more than latency."""
+        recent_history = recent_history or []
+        system_prompt = (
+            self.system_prompt
+            + "\n\n[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
+        )
+        if scene_context:
+            system_prompt += f"\n\n[CURRENT SCENE]\n{scene_context}"
+        if memory_context:
+            system_prompt += f"\n\n[RELEVANT MEMORIES \u2014 use to stay consistent, do not quote]\n{memory_context}"
+
+        history_to_send = []
+        for turn in recent_history[-8:]:
+            if turn.get("role") in ("user", "assistant") and turn.get("content"):
+                history_to_send.append({"role": turn["role"], "content": turn["content"]})
+        history_to_send.append({"role": "user", "content": request})
+
+        return await self.claude_inference(
+            messages=history_to_send,
+            system_prompt=system_prompt,
+            max_tokens=400,
+        )
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         if not self.llm: return None

@@ -94,6 +94,13 @@ class VTubeBot:
         self.is_paused = False
         self.silence_stage = 0
         self.is_running = True
+        self.mode = "companion"  # 'companion' or 'streamer'
+        self.event_loop = None   # set when _main_loop starts, used by dashboard for cross-thread calls
+        self.vn_autoplay_enabled = False  # When True, Kira actively reads and advances VNs
+        self.immersive = False   # When True, Kira stays quiet unless invited. Auto-enables for VN/MEDIA.
+        self.session_scene_log: list = []  # Recent scene summaries during this session
+        self.session_highlights: list = []  # Highlights captured this session
+        self.last_highlight_check_time = 0
 
         # Activity context — describes what Kira and Jonny are currently doing
         self.current_activity = ""
@@ -103,9 +110,8 @@ class VTubeBot:
         
         # TIMING CONFIGURATION
         self.silence_thresholds = {
-            1: 30.0,  # Stage 1: Casual Check-in (User requested 30s)
-            2: 60.0,  # Stage 2: Provocation
-            3: 120.0  # Stage 3: Chaos
+            1: 45.0,   # Light casual remark (streamer mode only)
+            2: 90.0,   # Slightly bigger nudge (streamer mode only)
         }
 
     def reset_idle_timer(self, human_speech=False):
@@ -116,17 +122,37 @@ class VTubeBot:
     # ── Activity Detection ──────────────────────────────────────────────────────
 
     def _detect_activity_change(self, text: str) -> str | None:
-        """Parses a voice input for activity-setting phrases. Returns activity string or None."""
+        """Parses a voice input for activity-setting phrases. Returns activity string or None.
+        Strict: only matches clear activity declarations, NOT imperative requests like
+        'read the text' or 'look at the screen'. Those are commands to Kira, not activity changes."""
+        stripped = text.strip()
+        lower = stripped.lower()
+
+        # Hard filter: ignore imperative "do this for me" requests
+        imperative_signals = [
+            "read the", "read this", "read that", "read it", "read all",
+            "look at", "see the", "see this", "see that", "see if",
+            "tell me", "show me", "check the", "what does",
+            "can you", "could you", "will you", "would you",
+            "please ", "kira,", "kira ", "hey kira",
+        ]
+        for sig in imperative_signals:
+            if sig in lower:
+                return None
+
+        # Only match explicit activity declarations
         patterns = [
-            r"(?:we(?:'re| are)|let(?:'s| us)|i(?:'m| am)|gonna|going to|start)\s+"
-            r"(?:playing|watching|reading|listening to|streaming|doing)\s+(.+?)[\.\.\!\?]?$",
-            r"(?:play|watch|stream|read|put on|boot up|launch|open)\s+(.+?)[\.\.\!\?]?$",
+            r"^(?:let(?:'s| us))\s+(?:play|watch|read|stream|start)\s+(.+?)[\.|\!|\?]?$",
+            r"^(?:we(?:'re| are)|i(?:'m| am))\s+(?:playing|watching|reading|streaming)\s+(.+?)[\.|\!|\?]?$",
+            r"^(?:gonna|going to)\s+(?:play|watch|read|stream|start)\s+(.+?)[\.|\!|\?]?$",
+            r"^(?:start(?:ing)?|boot(?:ing)? up|launch(?:ing)?|open(?:ing)?)\s+(.+?)[\.|\!|\?]?$",
         ]
         for pattern in patterns:
-            match = re.search(pattern, text.strip(), re.IGNORECASE)
+            match = re.search(pattern, stripped, re.IGNORECASE)
             if match:
                 activity = match.group(1).strip().rstrip(' .,!?')
-                if 3 < len(activity) < 80:
+                # Reject very generic activities — must look like a title or media name
+                if 3 < len(activity) < 60 and not activity.lower().startswith(("the ", "a ", "this ", "that ", "it ", "all ")):
                     return activity
         return None
 
@@ -175,6 +201,7 @@ class VTubeBot:
 
     async def _main_loop(self):
         """Contains the primary startup and listening logic."""
+        self.event_loop = asyncio.get_running_loop()
         try:
             if not self.ai_core.is_initialized:
                  await self.ai_core.initialize()
@@ -213,6 +240,9 @@ class VTubeBot:
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
 
+            # --- Highlight Extraction Loop (long-term memory layer) ---
+            tasks.append(self.highlight_extraction_loop())
+
             # --- VN Auto-Play Agent (standby until activity_type == ACTIVITY_VN) ---
             tasks.append(self.vn_gameplay_loop())
 
@@ -233,6 +263,12 @@ class VTubeBot:
             print(f"Error in internal main loop: {e}")
             raise # Propagate to the self-healing wrapper
         finally:
+            # Save session memory before tearing down (if we were in an immersive session)
+            if self.immersive and (self.session_scene_log or self.session_highlights):
+                try:
+                    await self._generate_session_summary()
+                except Exception as e:
+                    print(f"   [Session] Final summary failed: {e}")
             print("--- Cleaning up resources... ---")
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
@@ -346,45 +382,132 @@ class VTubeBot:
                         self.game_mode_controller.activity_type = new_type
                         self.vision_agent.activity_type = new_type
                         print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
+                        # Passive media auto-enables immersive; everything else turns it off.
+                        old_immersive = self.immersive
+                        self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+                        print(f"   [Immersive] {self.immersive}")
+
+                        # Adjust vision heartbeat for the mode
+                        self.vision_agent.heartbeat_interval = 10.0 if self.immersive else 30.0
+
+                        # If switching OUT of immersive (activity changed), save a session summary
+                        if old_immersive and not self.immersive and self.session_scene_log:
+                            asyncio.create_task(self._generate_session_summary())
 
                 # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                 visual_desc = ""
                 if self.game_mode_controller.is_active:
-                    # Gate: Only trigger expensive High-Res Vision if explicitly asked
+                    lower = content.lower()
+                    # Explicit READ intent — speak the verbatim transcription directly, bypass LLM
+                    read_phrases = [
+                        'read the text', 'read this', 'read the screen', 'read all',
+                        'read it', 'read me', 'read what', 'read out',
+                        'reading this', 'reading the', 'reading what',
+                        'what does it say', 'what does that say', 'what does the screen say',
+                        'what does it read', 'transcribe',
+                    ]
+                    is_read_request = any(p in lower for p in read_phrases)
+
                     VISION_KEYWORDS = ['see', 'look', 'read', 'watching', 'view', 'screen']
-                    vision_trigger = any(word in content.lower() for word in VISION_KEYWORDS)
-                    
-                    if vision_trigger:
-                        # Check Cache Freshness
+                    vision_trigger = any(word in lower for word in VISION_KEYWORDS)
+
+                    if is_read_request:
+                        print("   [Vision] READ intent — transcribing screen verbatim...")
+                        transcribed = await self.vision_agent.capture_and_transcribe()
+
+                        # Speak the transcription DIRECTLY, no LLM paraphrasing
+                        if (transcribed
+                                and "NO TEXT VISIBLE" not in transcribed.upper()
+                                and len(transcribed.strip()) > 10):
+                            preamble = random.choice([
+                                "Okay — ",
+                                "Sure, it says: ",
+                                "Here's what's on screen: ",
+                                "It reads: ",
+                                "Alright — ",
+                            ])
+                            speak_text = preamble + transcribed.strip()
+                            print(f"   [Vision] Bypassing LLM. Speaking verbatim ({len(transcribed)} chars).")
+
+                            user_line = f"Jonny says: \"{content}\""
+                            if self.conversation_history and self.conversation_history[-1]["role"] == "user":
+                                self.conversation_history[-1]["content"] += f"\n\n{user_line}"
+                            else:
+                                self.conversation_history.append({"role": "user", "content": user_line})
+
+                            await self.ai_core.speak_text(speak_text)
+                            self.conversation_history.append({"role": "assistant", "content": speak_text})
+                            self.ai_core.last_speech_finish_time = time.time()
+                            continue  # Skip the rest of this brain_worker iteration
+                        else:
+                            # No readable text — fall through to normal LLM path with a hint
+                            visual_desc = (
+                                "I tried to read the screen but there's nothing legible right now — "
+                                "probably a transition, image-only frame, or animation. "
+                                "Acknowledge briefly that there's nothing to read at the moment."
+                            )
+                    elif vision_trigger:
                         time_since_last = time.time() - self.vision_agent.last_capture_time
                         if time_since_last < 7:
                             print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s)...")
                             visual_desc = self.vision_agent.last_description
                         else:
                             print("   [Vision] High-Detail Snapshot Requested (Cache Stale > 7s)...")
-                            # Force a high-res capture
                             visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
                     else:
-                        # Default: Use the cached, low-cost heartbeat context (Instant)
                         visual_desc = self.vision_agent.get_vision_context()
 
-                # 2. Construct Contextual Prompt Logic
-                contextual_prompt = ""
-                
+                # 2. Construct dialogue line (history-clean — no screen state)
                 if source == "twitch":
-                    contextual_prompt = f"Twitch Chat says: \"{content}\""
-                else: 
-                    contextual_prompt = f"Jonny says: \"{content}\""
-                
-                # Inject vision context if available
-                if visual_desc:
-                    if self.game_mode_controller.activity_type == ACTIVITY_VN:
-                        contextual_prompt += f"\n\n[What you can see on screen right now: {visual_desc}]"
-                    else:
-                        contextual_prompt += f"\n\n[Internal Perception: {visual_desc}]"
+                    dialogue_line = f"Twitch Chat says: \"{content}\""
+                else:
+                    dialogue_line = f"Jonny says: \"{content}\""
 
-                # Pass to LLM
-                await self.process_and_respond(content, contextual_prompt, "user", source=source)
+                # Speech triage — decide whether to respond, react briefly, or stay quiet
+                scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+                decision = await self.ai_core.decide_response_mode(
+                    recent_history=self.conversation_history,
+                    incoming_line=content,
+                    scene_context=scene_ctx,
+                    source=source,
+                    immersive=self.immersive,
+                )
+
+                if decision == "STAY_QUIET":
+                    # QUESTION OVERRIDE: direct questions always get a response, never STAY_QUIET.
+                    # A friend who ignores your questions is broken, immersive or not.
+                    content_stripped = content.strip()
+                    looks_like_question = (
+                        "?" in content_stripped
+                        or content_stripped.lower().startswith((
+                            "what", "why", "how", "when", "where", "who", "which",
+                            "is ", "are ", "was ", "were ", "do ", "does ", "did ",
+                            "can ", "could ", "will ", "would ", "should ", "kira",
+                        ))
+                    )
+                    if looks_like_question:
+                        print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (question detected)")
+                        decision = "BRIEF"
+                    else:
+                        print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
+                        continue
+
+                brief_mode = (decision == "BRIEF")
+                # In immersive mode, even RESPOND defaults to brief — Kira gets to the point
+                # during media. Direct addresses still respond, just shorter.
+                if self.immersive and decision == "RESPOND":
+                    brief_mode = True
+                print(f"   [Triage] {decision}")
+
+                # Pass to LLM (vision context injected fresh at inference, not persisted to history)
+                await self.process_and_respond(
+                    content,
+                    dialogue_line,
+                    "user",
+                    source=source,
+                    situational_context=visual_desc,
+                    brief_mode=brief_mode,
+                )
                 
             except Exception as e:
                 print(f"   [Brain] Error: {e}")
@@ -392,6 +515,37 @@ class VTubeBot:
             finally:
                 self.input_queue.task_done()
 
+
+    async def request_thoughts(self):
+        """Triggered by the dashboard 'Invite' button. Asks Kira to share her honest
+        take on whatever is happening on screen right now. Uses the deep brain (Claude Opus)
+        when available \u2014 this is the moment where intelligence matters most."""
+        if self.processing_lock.locked() or self.ai_core.is_speaking:
+            return
+        async with self.processing_lock:
+            scene = self.vision_agent.get_vision_context()
+            memory = self.memory.get_semantic_context(f"thoughts on {self.current_activity}")
+
+            request = (
+                f"Jonny just invited you to share your thoughts on what's happening right now. "
+                f"This is a moment between you two \u2014 a couch friend sharing a take, not a chatbot. "
+                f"React to a specific character, plot beat, or detail you noticed. Use their names. "
+                f"Be funny, sassy, sweet, weird, blunt, whatever fits the moment. Keep it conversational, "
+                f"2-4 sentences. Don't ask what Jonny thinks \u2014 share your own take."
+            )
+
+            response = await self.ai_core.kira_deep_response(
+                request=request,
+                scene_context=scene,
+                memory_context=memory,
+                recent_history=self.conversation_history,
+            )
+            cleaned = self.ai_core._clean_llm_response(response)
+            if cleaned and len(cleaned) > 2:
+                print(f"   >>> Kira (Invite/Deep): {cleaned}")
+                await self.ai_core.speak_text(cleaned)
+                self.conversation_history.append({"role": "assistant", "content": cleaned})
+                self.ai_core.last_speech_finish_time = time.time()
 
     async def dynamic_observer_loop(self):
         print("   [System] Observer Loop Active (Universal Boredom Protocol).")
@@ -401,6 +555,44 @@ class VTubeBot:
             # Don't interrupt if speaking or processing
             if self.processing_lock.locked() or self.ai_core.is_speaking:
                 continue
+
+            # Immersive mode: more conservative thresholds, scene-change gating,
+            # and skip if dialogue text is actively advancing on screen (Jonny is reading).
+            if self.immersive:
+                # Suppress speech while user is actively reading new dialogue
+                time_since_dialogue_change = time.time() - getattr(self.vision_agent, "last_dialogue_change_time", 0)
+                if time_since_dialogue_change < 8.0:
+                    # Text just advanced — Jonny is reading, hold off
+                    continue
+
+                # Use conservative immersive thresholds (override default streamer thresholds)
+                immersive_stage_1 = 120.0  # ~2 min before first soft remark
+                immersive_stage_2 = 300.0  # ~5 min for second-level nudge
+
+                if silence_duration > immersive_stage_2 and self.silence_stage < 2:
+                    async with self.processing_lock:
+                        self.silence_stage = 2
+                        scene = self.vision_agent.get_vision_context()
+                        await self._execute_interjection(
+                            f"You and Jonny are watching {self.current_activity or 'something'} together. "
+                            f"Current scene: {scene}\n\n"
+                            f"Drop a brief, natural observation about a character, the mood, or something on screen — "
+                            f"like a friend on the couch. One short sentence. No questions. Observational, not interrogative.",
+                            memory_query=f"reactions to {self.current_activity}",
+                        )
+                elif silence_duration > immersive_stage_1 and self.silence_stage < 1:
+                    async with self.processing_lock:
+                        self.silence_stage = 1
+                        scene = self.vision_agent.get_vision_context()
+                        await self._execute_interjection(
+                            f"You and Jonny are watching {self.current_activity or 'something'} together. "
+                            f"Current scene: {scene}\n\n"
+                            f"Make a short, natural remark about what just happened or what stands out — "
+                            f"like a friend reacting under their breath. One short sentence. "
+                            f"No questions. Observational, not interrogative.",
+                            memory_query=f"reactions to {self.current_activity}",
+                        )
+                continue  # Don't fall through to the streamer-mode logic below
 
             last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
             silence_duration = time.time() - last_activity
@@ -442,31 +634,22 @@ class VTubeBot:
                 # No chaos stage during VN — silence is normal while reading
 
             else:
-                # ── DEFAULT MODE: boredom escalation ─────────────────────────
-                # STAGE 3: CHAOS (120s)
-                if silence_duration > self.silence_thresholds[3] and self.silence_stage < 3:
-                    async with self.processing_lock:
-                        self.silence_stage = 3
-                        await self._execute_interjection(
-                            "The stream is dead. Say something completely unhinged to wake Jonny up.",
-                            memory_query="recent things Jonny mentioned",
-                        )
-
-                # STAGE 2: ROAST (60s)
-                elif silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
+                # ── STREAMER MODE: boredom escalation ────────────────────────
+                # STAGE 2: nudge (90s)
+                if silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
                     async with self.processing_lock:
                         self.silence_stage = 2
                         await self._execute_interjection(
-                            "Jonny has been quiet for a minute. Roast him for being boring.",
+                            "Jonny has been quiet for a while. Make a brief, natural observation \u2014 something on your mind, something about the scene, anything. Don't ask him what he's thinking. One short sentence.",
                             memory_query="what makes Jonny laugh or react",
                         )
 
-                # STAGE 1: CHECK-IN (30s)
+                # STAGE 1: light remark (45s)
                 elif silence_duration > self.silence_thresholds[1] and self.silence_stage < 1:
                     async with self.processing_lock:
                         self.silence_stage = 1
                         await self._execute_interjection(
-                            "It's been quiet for 30 seconds. Ask Jonny a casual question about what he's thinking.",
+                            "It's been quiet for a bit. Drop a short, natural remark \u2014 light, friendly, like something you'd say to a friend on the couch. Don't ask him what he's thinking. One short sentence.",
                             memory_query="what is Jonny interested in",
                         )
 
@@ -491,6 +674,10 @@ class VTubeBot:
             # Only run when in VN mode with observer active
             if (not self.game_mode_controller.is_active or
                     self.game_mode_controller.activity_type != ACTIVITY_VN):
+                continue
+
+            # Auto-play is a separate opt-in from VN activity context
+            if not self.vn_autoplay_enabled:
                 continue
 
             # Don't interrupt active speech or input processing
@@ -595,14 +782,49 @@ class VTubeBot:
                             self.ai_core.last_speech_finish_time = time.time()
 
     async def _execute_interjection(self, prompt, memory_query: str = ""):
-        """Runs a proactive interjection with real memory context."""
+        """Runs a proactive interjection. Routes through Claude Opus when available —
+        Claude follows the anti-fabrication instruction reliably; local Llama 8B does not."""
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
-        response = await self.ai_core.llm_inference(
-            messages=self.conversation_history + [{"role": "system", "content": prompt}],
-            current_emotion=self.current_emotion,
-            memory_context=memory_context,
-            activity_context=self.current_activity,
+
+        anti_fabrication = (
+            "\n\nCRITICAL RULES:\n"
+            "- Do NOT reference past events, games, conversations, or shared experiences "
+            "that you cannot verify from the memory notes provided.\n"
+            "- Do NOT invent shared history ('that game we played', 'remember when', etc.) "
+            "unless it is explicitly in the memory notes.\n"
+            "- React only to the current moment and what is actually present right now.\n"
+            "- If you have nothing real to react to, make a small genuine observation about the present scene "
+            "or stay closer to a simple aside. No fabricated nostalgia."
         )
+
+        full_prompt = prompt + anti_fabrication
+
+        # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
+        if self.ai_core.anthropic_client:
+            scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+            try:
+                response = await self.ai_core.kira_deep_response(
+                    request=full_prompt,
+                    scene_context=scene,
+                    memory_context=memory_context,
+                    recent_history=self.conversation_history,
+                )
+            except Exception as e:
+                print(f"   [Interjection] Claude failed, falling back to local: {e}")
+                response = await self.ai_core.llm_inference(
+                    messages=self.conversation_history + [{"role": "system", "content": full_prompt}],
+                    current_emotion=self.current_emotion,
+                    memory_context=memory_context,
+                    activity_context=self.current_activity,
+                )
+        else:
+            response = await self.ai_core.llm_inference(
+                messages=self.conversation_history + [{"role": "system", "content": full_prompt}],
+                current_emotion=self.current_emotion,
+                memory_context=memory_context,
+                activity_context=self.current_activity,
+            )
+
         cleaned = self.ai_core._clean_llm_response(response)
         if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
             print(f"   >>> Kira (Bored): {cleaned}")
@@ -610,11 +832,11 @@ class VTubeBot:
             self.conversation_history.append({"role": "assistant", "content": cleaned})
 
 
-    async def process_and_respond(self, original_text: str, contextual_prompt: str, role: str, source: str = "voice", skip_generation: bool = False):
+    async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
 
         # Define what the LLM sees vs what Memory stores
-        llm_user_text = contextual_prompt
+        llm_user_text = dialogue_line
         raw_user_text = original_text
 
         # --- ROLE ALTERNATION ENFORCEMENT ---
@@ -648,11 +870,18 @@ class VTubeBot:
             print(f">>> Kira (Thought): {full_response_text}")
         else:
             # Non-streaming LLM Generation
+            effective_situational = situational_context
+            if brief_mode:
+                brief_instruction = "[BRIEF MODE: Respond in one short, natural sentence. No elaboration, no follow-up question.]"
+                effective_situational = (situational_context + "\n\n" + brief_instruction) if situational_context else brief_instruction
+
             full_response_text = await self.ai_core.llm_inference(
-                messages=self.conversation_history, 
-                current_emotion=self.current_emotion, 
+                messages=self.conversation_history,
+                current_emotion=self.current_emotion,
                 memory_context=memory_context,
                 activity_context=self.current_activity,
+                situational_context=effective_situational,
+                max_tokens_override=(50 if brief_mode else None),
             )
         
         # Clean the response
@@ -693,6 +922,143 @@ class VTubeBot:
             gc.collect()
 
         # REMOVED: self.reset_idle_timer(human_speech=False) to prevents AI from resetting silence timer
+
+    async def highlight_extraction_loop(self):
+        """Background loop. Every 90s during immersive media, asks Claude Opus
+        if any moment in the recent scene history is worth remembering."""
+        print("   [System] Highlight Extraction Loop active.")
+        while self.is_running:
+            await asyncio.sleep(90.0)
+            if not self.is_running:
+                break
+            if not self.immersive:
+                continue
+            if self.processing_lock.locked() or self.ai_core.is_speaking:
+                continue
+
+            scene_summary = getattr(self.vision_agent, "scene_summary", "")
+            if not scene_summary or len(scene_summary) < 40:
+                continue
+
+            # Append current scene to session log for end-of-session summary
+            self.session_scene_log.append({
+                "time": time.time(),
+                "summary": scene_summary,
+            })
+            # Cap log size
+            if len(self.session_scene_log) > 100:
+                self.session_scene_log = self.session_scene_log[-100:]
+
+            try:
+                await self._extract_highlight(scene_summary)
+            except Exception as e:
+                print(f"   [Highlight] Extraction failed: {e}")
+
+    async def _extract_highlight(self, scene_summary: str):
+        """One Claude Opus call: is anything in the recent scenes memorable?"""
+        recent = self.session_scene_log[-4:]
+        context_lines = []
+        for entry in recent:
+            rel_time = int((time.time() - entry["time"]) / 60)
+            context_lines.append(f"[~{rel_time}min ago] {entry['summary']}")
+        context = "\n\n".join(context_lines)
+
+        system_prompt = (
+            "You are an emotional and narrative archivist for an AI companion named Kira "
+            "who watches media with her friend Jonny. Your job: identify any moment in the "
+            "recent scenes that is genuinely memorable \u2014 funny, emotional, shocking, beautiful, "
+            "character-defining, or otherwise worth preserving as a long-term memory.\n\n"
+            "Reference characters by name. Be specific about WHAT happened, not vague vibes. "
+            "If nothing in the recent scenes meets the bar, output exactly: NONE\n\n"
+            "Otherwise output exactly two lines:\n"
+            "HIGHLIGHT: <one specific sentence with character names and what happened>\n"
+            "KIRA_TAKE: <one short sentence \u2014 how Kira would react to this moment, in her voice>"
+        )
+
+        user = (
+            f"Activity: {self.current_activity}\n\n"
+            f"Recent scenes:\n{context}\n\n"
+            f"Identify any standout moment, or NONE."
+        )
+
+        response = await self.ai_core.claude_inference(
+            messages=[{"role": "user", "content": user}],
+            system_prompt=system_prompt,
+            max_tokens=200,
+        )
+
+        if not response or "NONE" in response.upper()[:20]:
+            return
+
+        highlight = ""
+        take = ""
+        for line in response.splitlines():
+            stripped = line.strip()
+            if stripped.upper().startswith("HIGHLIGHT:"):
+                highlight = stripped[len("HIGHLIGHT:"):].strip()
+            elif stripped.upper().startswith("KIRA_TAKE:"):
+                take = stripped[len("KIRA_TAKE:"):].strip()
+
+        if highlight:
+            self.session_highlights.append({"highlight": highlight, "take": take})
+            self.memory.add_highlight(
+                activity=self.current_activity or "unspecified",
+                highlight=highlight,
+                kira_take=take,
+            )
+
+    async def _generate_session_summary(self):
+        """When a media session ends (activity changes or bot shuts down), generate
+        a single paragraph recap and store it as long-term memory."""
+        if not self.session_scene_log and not self.session_highlights:
+            return
+
+        activity = self.current_activity or "the session"
+        scene_count = len(self.session_scene_log)
+        duration_min = 0
+        if scene_count > 1:
+            duration_min = int(
+                (self.session_scene_log[-1]["time"] - self.session_scene_log[0]["time"]) / 60
+            )
+
+        highlights_text = "\n".join(
+            f"- {h['highlight']} (Kira: {h['take']})" if h.get("take") else f"- {h['highlight']}"
+            for h in self.session_highlights[-12:]
+        ) or "(no highlights captured)"
+
+        last_scene = self.session_scene_log[-1]["summary"] if self.session_scene_log else ""
+
+        system_prompt = (
+            "You are Kira, summarizing a session you just shared with Jonny. Write a single "
+            "paragraph (4-6 sentences) recapping what you two watched/played together. "
+            "Reference characters by name, mention specific plot beats, and end with which moment "
+            "stuck with you most. This is going into long-term memory \u2014 be specific and personal, "
+            "not generic. Write in first person as Kira."
+        )
+
+        user = (
+            f"Activity: {activity}\n"
+            f"Approximate session duration: {duration_min} minutes\n"
+            f"Final scene state: {last_scene}\n\n"
+            f"Highlights captured during the session:\n{highlights_text}\n\n"
+            f"Write Kira's session recap paragraph."
+        )
+
+        try:
+            summary = await self.ai_core.claude_inference(
+                messages=[{"role": "user", "content": user}],
+                system_prompt=system_prompt,
+                max_tokens=400,
+            )
+            if summary:
+                self.memory.add_session_summary(activity=activity, summary=summary)
+                print(f"   [Session] Recap stored for: {activity}")
+        except Exception as e:
+            print(f"   [Session] Summary generation failed: {e}")
+        finally:
+            # Reset session state for the next activity
+            self.session_scene_log = []
+            self.session_highlights = []
 
     async def _run_memory_extraction(self, text):
         """Wrapper to run memory extraction without blocking the main conversation"""

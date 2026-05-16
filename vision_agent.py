@@ -53,6 +53,31 @@ class UniversalVisionAgent:
         "Be specific enough that Kira could make a relevant comment or question."
     )
 
+    SCENE_SUMMARY_PROMPT = (
+        "You maintain a brief running summary of what is happening on Jonny's screen "
+        "for an AI companion named Kira who is watching with him.\n\n"
+        "Previous summary:\n{previous}\n\n"
+        "Newest observation:\n{newest}\n\n"
+        "Write an updated summary in 2-3 sentences. Track narrative continuity \u2014 who is in the scene, "
+        "what just happened, what the emotional tone is. Treat this like notes a friend would keep if "
+        "they were watching alongside someone and wanted to remember the thread of the story. "
+        "Do not editorialize. Do not add jokes. Just the running story state."
+    )
+
+    TRANSCRIBE_PROMPT = (
+        "Your ONLY job is to transcribe text visible on the screen, character-for-character. "
+        "DO NOT describe the scene. DO NOT summarize. DO NOT add commentary. DO NOT paraphrase. "
+        "DO NOT mention what characters look like or what they are doing visually. "
+        "ONLY transcribe written text that is actually visible on screen.\n\n"
+        "Format rules:\n"
+        "- If a character is speaking (dialogue with a name label), write: SPEAKER_NAME: \"exact dialogue verbatim\"\n"
+        "- If it is narration or text-box prose with no speaker, write it on its own line\n"
+        "- If there are menu options or choices, list each on its own line\n"
+        "- If the screen has NO readable text (transition, animation, pure image), "
+        "output ONLY the literal string: NO TEXT VISIBLE\n\n"
+        "Begin transcription:"
+    )
+
     def __init__(self):
         self.client = None
         self.api_key = OPENAI_API_KEY
@@ -72,29 +97,107 @@ class UniversalVisionAgent:
         self.shared_frame = None
         self.shared_frame_time = 0
 
+        # Scene memory
+        self.scene_summary: str = ""               # Rolling narrative summary
+        self.previous_dialogue: str = ""           # For dialogue-change detection
+        self.last_dialogue_change_time: float = 0  # Timestamp of last screen text change
+        self.heartbeat_interval = 30.0  # default; bot overrides to 10.0 in immersive mode
+
     def update_shared_frame(self, frame):
         """Receives a frame from the dashboard to prevent double-capturing."""
         self.shared_frame = frame
         self.shared_frame_time = time.time()
 
     def get_vision_context(self):
-        """Returns the latest vision context instantly."""
+        """Returns the rolling scene summary if available, else the last raw description."""
+        if self.scene_summary:
+            time_diff = int(time.time() - self.last_capture_time) if self.last_capture_time else 0
+            return f"[Scene summary, last updated {time_diff}s ago] {self.scene_summary}"
         if not self.last_description:
             return "Vision Initializing..."
-        
-        # Calculate freshness
         time_diff = int(time.time() - self.last_capture_time)
         return f"[Seen {time_diff}s ago] {self.last_description}"
 
     async def heartbeat_loop(self):
-        print("   [System] Eco-Mode Vision Active (30s heartbeat).")
+        print("   [System] Eco-Mode Vision Active (dynamic heartbeat).")
         while True:
             if self.is_active:
-                # Use the appropriate prompt based on current activity
                 desc = await self.capture_and_describe(is_heartbeat=True)
                 if desc:
                     self.last_description = desc
-            await asyncio.sleep(30)
+                    await self._update_scene_summary(desc)
+                    self._check_dialogue_change(desc)
+            await asyncio.sleep(self.heartbeat_interval)
+
+    async def capture_and_transcribe(self) -> str:
+        """High-fidelity screen text extraction. Used when the user explicitly asks
+        Kira to read what's on screen."""
+        if not self.client:
+            return "Vision unavailable (Missing API Key)."
+        try:
+            def process_image():
+                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
+                    img = self.shared_frame.copy()
+                else:
+                    img = ImageGrab.grab()
+                img.thumbnail((1920, 1080))
+                buffered = BytesIO()
+                img.save(buffered, format="JPEG", quality=90)
+                return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+            base64_image = await asyncio.to_thread(process_image)
+
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": [
+                    {"type": "text", "text": self.TRANSCRIBE_PROMPT},
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "detail": "high",
+                    }},
+                ]}],
+                max_tokens=600,
+                temperature=0,
+            )
+            content = response.choices[0].message.content
+            self.last_capture_time = time.time()
+            return content.strip() if content else "NO TEXT VISIBLE"
+        except Exception as e:
+            return f"Could not transcribe screen: {e}"
+
+    async def _update_scene_summary(self, new_description: str):
+        """Roll the scene summary forward with the latest frame observation."""
+        if not self.client or not new_description:
+            return
+        try:
+            prompt = self.SCENE_SUMMARY_PROMPT.format(
+                previous=self.scene_summary or "(none yet)",
+                newest=new_description,
+            )
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=180,
+                temperature=0.3,
+            )
+            self.scene_summary = response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"   [Vision] Scene summary update failed: {e}")
+
+    def _check_dialogue_change(self, description: str):
+        """Tracks when on-screen text changes. Used downstream for VN silence-awareness."""
+        dialogue = ""
+        for line in description.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("DIALOGUE:"):
+                dialogue = stripped[len("DIALOGUE:"):].strip()
+                break
+        if not dialogue:
+            dialogue = description.strip()
+
+        if dialogue and dialogue != self.previous_dialogue:
+            self.previous_dialogue = dialogue
+            self.last_dialogue_change_time = time.time()
 
     async def capture_and_describe(self, is_heartbeat=False, force_refresh=False):
         """Captures screen and calls Vision API. Uses activity-aware prompts."""

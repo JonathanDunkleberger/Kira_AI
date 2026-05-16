@@ -59,7 +59,7 @@ class MemoryManager:
                     
                     if not obj or "?" in obj: continue # Skip questions/blanks
                     
-                    text_rep = f"{subject}'s {predicate.replace('_',' ')} is {obj}."
+                    text_rep = f"{subject}'s {predicate.replace('_', ' ').strip()} is {obj.replace('_', ' ').strip()}."
                     
                     meta = {
                         "type": m_type,
@@ -123,7 +123,7 @@ class MemoryManager:
 
     def upsert_fact(self, key: str, value: str):
         """Deterministically upserts a structured fact."""
-        fact_text = f"Jonny's {key.replace('_',' ')} is {value}."
+        fact_text = f"Jonny's {key.replace('_', ' ').strip()} is {value.replace('_', ' ').strip()}."
         fact_id = f"jonny::{key}"
         meta = {"subject": "Jonny", "key": key, "value": value, "timestamp": time.time(), "type":"fact"}
         
@@ -211,3 +211,48 @@ class MemoryManager:
         except Exception as e:
             print(f"   ERROR: Failed to search facts: {e}")
             return []
+
+    def add_highlight(self, activity: str, highlight: str, kira_take: str = ""):
+        """Stores a memorable moment from a media session. Specific, with character names
+        and plot detail — not vague vibes."""
+        try:
+            text = f"During {activity}: {highlight}"
+            if kira_take:
+                text += f" (Kira's take: {kira_take})"
+            meta = {
+                "type": "highlight",
+                "activity": activity,
+                "timestamp": time.time(),
+                "source": "scene_extractor",
+            }
+            emb = self.embedding_model.encode(text).tolist()
+            self.facts.add(
+                ids=[str(uuid.uuid4())],
+                embeddings=[emb],
+                documents=[text],
+                metadatas=[meta],
+            )
+            print(f"   [Memory] Highlight stored: {text[:80]}...")
+        except Exception as e:
+            print(f"   [Memory Error] Highlight storage failed: {e}")
+
+    def add_session_summary(self, activity: str, summary: str):
+        """Stores a session-end summary as a durable memory."""
+        try:
+            text = f"Session recap ({activity}): {summary}"
+            meta = {
+                "type": "session_summary",
+                "activity": activity,
+                "timestamp": time.time(),
+                "source": "session_summarizer",
+            }
+            emb = self.embedding_model.encode(text).tolist()
+            self.facts.add(
+                ids=[str(uuid.uuid4())],
+                embeddings=[emb],
+                documents=[text],
+                metadatas=[meta],
+            )
+            print(f"   [Memory] Session summary stored ({activity}).")
+        except Exception as e:
+            print(f"   [Memory Error] Session summary storage failed: {e}")
