@@ -875,10 +875,12 @@ class VTubeBot:
                 brief_instruction = "[BRIEF MODE: Respond in one short, natural sentence. No elaboration, no follow-up question.]"
                 effective_situational = (situational_context + "\n\n" + brief_instruction) if situational_context else brief_instruction
 
-            # Try Claude Sonnet 4.6 first — cheaper than Opus, smarter than local Llama for voice
+            # Try Claude Sonnet 4.6 first — streamed when available for low latency
             full_response_text = ""
+            streamed_already_spoken = False
             if self.ai_core.anthropic_client:
                 from ai_core import EMOTION_DESCRIPTORS
+                from config import ENABLE_CLAUDE_STREAMING
                 emotion_line = EMOTION_DESCRIPTORS.get(self.current_emotion, "Be yourself.")
                 chat_system = self.ai_core.system_prompt + f"\n\n[EMOTIONAL STATE: {self.current_emotion.name} \u2014 {emotion_line}]"
                 if self.current_activity:
@@ -896,14 +898,29 @@ class VTubeBot:
                         f"\n\n[CURRENT PERCEPTION \u2014 what is on screen RIGHT NOW]\n{effective_situational}"
                     )
                 try:
-                    full_response_text = await self.ai_core.claude_chat_inference(
-                        messages=self.conversation_history,
-                        system_prompt=chat_system,
-                        max_tokens=(50 if brief_mode else 400),
-                    )
+                    if ENABLE_CLAUDE_STREAMING:
+                        # Streaming path: speak as tokens arrive
+                        print(f">>> Kira (streaming): ", end="", flush=True)
+                        stream_gen = self.ai_core.claude_chat_inference_stream(
+                            messages=self.conversation_history,
+                            system_prompt=chat_system,
+                            max_tokens=(80 if brief_mode else 400),
+                        )
+                        full_response_text = await self.ai_core.speak_streaming(stream_gen)
+                        print()  # newline after streamed tokens
+                        if full_response_text:
+                            streamed_already_spoken = True
+                    else:
+                        # Non-streaming Sonnet path
+                        full_response_text = await self.ai_core.claude_chat_inference(
+                            messages=self.conversation_history,
+                            system_prompt=chat_system,
+                            max_tokens=(50 if brief_mode else 400),
+                        )
                 except Exception as e:
                     print(f"   [Brain] Sonnet path error: {e}")
                     full_response_text = ""
+                    streamed_already_spoken = False
 
             # Fall back to local Llama if Claude unavailable or returned empty
             if not full_response_text:
@@ -925,12 +942,13 @@ class VTubeBot:
         full_response_text = parse_kira_tools(full_response_text, allow_music=allow_music)
         
         if full_response_text:
-            if not skip_generation:
+            if not skip_generation and not streamed_already_spoken:
                 print(f">>> Kira: {full_response_text}")
-            
-            # Speak the full response
-            await self.ai_core.speak_text(full_response_text)
-            
+
+            # Skip TTS if streaming already spoke this response
+            if not streamed_already_spoken:
+                await self.ai_core.speak_text(full_response_text)
+
             # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})

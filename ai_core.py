@@ -14,13 +14,13 @@ from faster_whisper import WhisperModel
 from llama_cpp import Llama
 
 from config import (
-    LLM_MODEL_PATH, N_CTX, N_BATCH, N_GPU_LAYERS, WHISPER_MODEL_SIZE, TTS_ENGINE,
+    LLM_MODEL_PATH, N_CTX, N_BATCH, N_GPU_LAYERS, WHISPER_MODEL_SIZE, WHISPER_CACHE_DIR, TTS_ENGINE,
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
-    CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING,
+    CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
 )
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
@@ -183,8 +183,10 @@ class AI_Core:
             print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
             device = "cpu"
 
-        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType=float16")
-        self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type="float16")
+        import os as _os
+        _os.makedirs(WHISPER_CACHE_DIR, exist_ok=True)
+        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType=float16 | Cache={WHISPER_CACHE_DIR}")
+        self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type="float16", download_root=WHISPER_CACHE_DIR)
         print("   Faster-Whisper STT model loaded.")
 
     async def _init_tts(self):
@@ -455,6 +457,34 @@ class AI_Core:
             print(f"   [Brain] Sonnet call failed: {e}. Falling back to local Llama.")
             return ""
 
+    async def claude_chat_inference_stream(self, messages: list, system_prompt: str, max_tokens: int = 400):
+        """Async generator: streams Claude Sonnet 4.6 response chunk-by-chunk.
+        Yields text deltas as they arrive. Empty generator if Claude unavailable."""
+        if not self.anthropic_client or not ENABLE_CLAUDE_CHAT:
+            return
+
+        claude_messages = [m for m in messages if m.get("role") in ("user", "assistant")]
+        if not claude_messages or claude_messages[0]["role"] != "user":
+            claude_messages.insert(0, {"role": "user", "content": "(continue)"})
+
+        if ENABLE_PROMPT_CACHING:
+            system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+        else:
+            system_param = system_prompt
+
+        try:
+            async with self.anthropic_client.messages.stream(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=max_tokens,
+                system=system_param,
+                messages=claude_messages,
+            ) as stream:
+                async for text in stream.text_stream:
+                    yield text
+        except Exception as e:
+            print(f"   [Brain] Sonnet stream failed: {e}")
+            return
+
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         if not self.llm: return None
         emotion_names = [e.name for e in EmotionalState]
@@ -484,54 +514,105 @@ class AI_Core:
             return None
 
     async def speak_text(self, text: str):
-        """Generates and plays audio for the given text (Blocking)."""
-        if not text: return
-        
-        # --- TTS RATE LIMITING (Prevent Azure 429) ---
-        if time.time() - self.last_tts_request_time < 2.0:
-            print(f"   [TTS] Throttled: Skipping '{text[:20]}...' (Too fast)")
+        """Generates and plays audio for the given text (blocking). Sets is_speaking
+        around the call so VAD ignores self-hearing. Used by non-streaming callers."""
+        if not text:
             return
-        self.last_tts_request_time = time.time()
-
-        # --- FIX: CLEAR INTERRUPTION FLAG BEFORE STARTING ---
-        self.interruption_event.clear() 
-        
-        self.is_speaking = True # Mute ears
-        print(f"   [TTS] Speaking: {text[:50]}...")
-        audio_data = None
-        
+        self.interruption_event.clear()
+        self.is_speaking = True
         try:
-            # --- AZURE TTS ---
-            if TTS_ENGINE == "azure" and self.azure_synthesizer:
-                 ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
-                        f'<voice name="{AZURE_SPEECH_VOICE}">'
-                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
-                        f'</voice></speak>')
-                 result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
-                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                     audio_data = result.audio_data
-                 else:
-                     print(f"   TTS Fail: {result.cancellation_details.error_details}")
-
-            # --- EDGE TTS (Fallback) ---
-            elif TTS_ENGINE == "edge" and Communicate:
-                 voice = AZURE_SPEECH_VOICE if AZURE_SPEECH_VOICE else "en-US-AriaNeural"
-                 communicate = Communicate(text, voice)
-                 buffer = b""
-                 async for chunk in communicate.stream():
-                     if chunk["type"] == "audio":
-                         buffer += chunk["data"]
-                 audio_data = buffer
-
-            # Play Audio
-            if audio_data:
-                await self._play_audio_with_pygame(audio_data)
-
-        except Exception as e:
-            print(f"   TTS/Playback Error: {e}")
+            await self._speak_single(text)
         finally:
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
+
+    async def _speak_single(self, text: str):
+        """Pure synthesis-and-playback for a single text block. Does NOT manage
+        is_speaking or interruption_event — caller is responsible. Used by both
+        speak_text (single shot) and speak_streaming (per-sentence dispatch)."""
+        if not text:
+            return
+        if self.interruption_event.is_set():
+            return
+
+        print(f"   [TTS] Speaking: {text[:50]}...")
+        audio_data = None
+
+        try:
+            if TTS_ENGINE == "azure" and self.azure_synthesizer:
+                ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                        f'<voice name="{AZURE_SPEECH_VOICE}">'
+                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                        f'</voice></speak>')
+                result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                    audio_data = result.audio_data
+                else:
+                    print(f"   TTS Fail: {result.cancellation_details.error_details}")
+            elif TTS_ENGINE == "edge" and Communicate:
+                voice = AZURE_SPEECH_VOICE if AZURE_SPEECH_VOICE else "en-US-AriaNeural"
+                communicate = Communicate(text, voice)
+                buffer = b""
+                async for chunk in communicate.stream():
+                    if chunk["type"] == "audio":
+                        buffer += chunk["data"]
+                audio_data = buffer
+
+            if audio_data:
+                await self._play_audio_with_pygame(audio_data)
+        except Exception as e:
+            print(f"   TTS/Playback Error: {e}")
+
+    async def speak_streaming(self, stream_generator) -> str:
+        """Consumes an async generator of text chunks. Buffers into sentences,
+        dispatches each to Azure TTS sequentially. Returns the full assembled text
+        so the caller can store it in conversation history.
+
+        Sentences are split on terminal punctuation [.!?] followed by whitespace.
+        If the user interrupts (via VAD), the stream is abandoned and remaining
+        audio is not played."""
+        self.interruption_event.clear()
+        self.is_speaking = True
+
+        full_text = ""
+        buffer = ""
+
+        try:
+            async for chunk in stream_generator:
+                if self.interruption_event.is_set():
+                    break
+
+                full_text += chunk
+                buffer += chunk
+
+                # Flush every complete sentence from the buffer
+                while True:
+                    match = re.search(r'[.!?](?:\s|$)', buffer)
+                    if not match:
+                        break
+                    end = match.end()
+                    sentence = buffer[:end].strip()
+                    buffer = buffer[end:]
+
+                    if sentence:
+                        cleaned = self._clean_llm_response(sentence)
+                        if cleaned:
+                            await self._speak_single(cleaned)
+                            if self.interruption_event.is_set():
+                                return full_text
+
+            # Stream done — flush any trailing buffer
+            if buffer.strip() and not self.interruption_event.is_set():
+                cleaned = self._clean_llm_response(buffer.strip())
+                if cleaned:
+                    await self._speak_single(cleaned)
+        except Exception as e:
+            print(f"   [Streaming] Error during stream consumption: {e}")
+        finally:
+            self.last_speech_finish_time = time.time()
+            self.is_speaking = False
+
+        return full_text
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
         if self.interruption_event.is_set() or not audio_bytes:

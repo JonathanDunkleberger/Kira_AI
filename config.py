@@ -2,7 +2,7 @@
 # Kira AI - Config loads from .env for secrets and sensitive info
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 # Model and runtime config (safe to share)
 LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH", "models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf")
@@ -12,6 +12,7 @@ N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
+WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", "G:\\JonnyD\\NeuroAI_Bot\\models\\whisper")
 ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 AI_NAME = os.getenv("AI_NAME", "Kira")
@@ -46,3 +47,4 @@ ENABLE_CLAUDE_BRAIN = os.getenv("ENABLE_CLAUDE_BRAIN", "true").lower() == "true"
 CLAUDE_CHAT_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
 ENABLE_CLAUDE_CHAT = os.getenv("ENABLE_CLAUDE_CHAT", "true").lower() == "true"
 ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "true").lower() == "true"
+ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() == "true"
