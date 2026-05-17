@@ -7,6 +7,7 @@ import os
 import torch
 import time
 import uuid
+import hashlib
 from config import MEMORY_PATH
 
 class MemoryManager:
@@ -22,6 +23,7 @@ class MemoryManager:
         # Split into two collections: Turns (Raw logs) and Facts (Distilled truths)
         self.turns = self.client.get_or_create_collection(name="turns")
         self.facts = self.client.get_or_create_collection(name="facts")
+        self.chatters = self.client.get_or_create_collection(name="chatters")
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu') 
         print("   Memory Manager initialized.")
 
@@ -260,3 +262,92 @@ class MemoryManager:
             print(f"   [Memory] Session summary stored ({activity}).")
         except Exception as e:
             print(f"   [Memory Error] Session summary storage failed: {e}")
+
+    # ── Per-Chatter Memory ────────────────────────────────────────────────────
+
+    def record_chatter_message(self, username: str, platform: str, message: str):
+        """Logs a single chat message from a viewer. Lightweight — fires every message."""
+        try:
+            text = f"{username} ({platform}): {message}"
+            meta = {
+                "type": "chatter_message",
+                "username": username,
+                "platform": platform,
+                "timestamp": time.time(),
+            }
+            emb = self.embedding_model.encode(message).tolist()
+            self.chatters.add(
+                ids=[str(uuid.uuid4())],
+                embeddings=[emb],
+                documents=[text],
+                metadatas=[meta],
+            )
+        except Exception as e:
+            print(f"   [Memory] chatter message log failed: {e}")
+
+    def store_chatter_fact(self, username: str, platform: str, fact: str):
+        """Stores a durable fact about a chatter (opinions, preferences, callbacks).
+        Upserts on a deterministic ID so we don't get duplicates of similar facts."""
+        try:
+            text = f"{username}: {fact}"
+            fact_id = f"chatter::{username.lower()}::{hashlib.md5(fact.encode()).hexdigest()[:12]}"
+            meta = {
+                "type": "chatter_fact",
+                "username": username,
+                "platform": platform,
+                "timestamp": time.time(),
+            }
+            emb = self.embedding_model.encode(text).tolist()
+            self.chatters.upsert(
+                ids=[fact_id],
+                embeddings=[emb],
+                documents=[text],
+                metadatas=[meta],
+            )
+            print(f"   [ChatterMem] Stored: {username} — {fact[:60]}")
+        except Exception as e:
+            print(f"   [Memory] chatter fact storage failed: {e}")
+
+    def get_chatter_context(self, username: str, n_results: int = 5) -> str:
+        """Returns a formatted string of what Kira knows about this chatter.
+        Used when a chatter speaks — gives Kira recall."""
+        try:
+            results = self.chatters.get(
+                where={"username": username},
+                limit=50,
+                include=["documents", "metadatas"],
+            )
+            if not results or not results.get("documents"):
+                return ""
+
+            facts = []
+            recent_msgs = []
+            for doc, meta in zip(results["documents"], results["metadatas"]):
+                if meta.get("type") == "chatter_fact":
+                    facts.append(doc)
+                else:
+                    recent_msgs.append((meta.get("timestamp", 0), doc))
+
+            recent_msgs.sort(reverse=True)
+            recent_msgs = [doc for ts, doc in recent_msgs[:n_results]]
+
+            lines = []
+            if facts:
+                lines.append(f"What you know about {username}: " + " | ".join(facts[:5]))
+            if recent_msgs:
+                lines.append(f"Recent {username} messages: " + " | ".join(reversed(recent_msgs)))
+            return "\n".join(lines)
+        except Exception as e:
+            print(f"   [Memory] chatter context failed: {e}")
+            return ""
+
+    def is_first_time_chatter(self, username: str) -> bool:
+        """Returns True if this username has never been seen before."""
+        try:
+            results = self.chatters.get(
+                where={"username": username},
+                limit=1,
+            )
+            return not results or not results.get("documents")
+        except Exception:
+            return False

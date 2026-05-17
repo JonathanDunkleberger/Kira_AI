@@ -1,8 +1,16 @@
-# dashboard.py - Kira AI Control Dashboard v2
+# dashboard.py - Kira AI Control Center
 import customtkinter as ctk
 import threading
+import time
 from PIL import ImageGrab
 import asyncio
+
+try:
+    import keyboard as kb_lib
+    KEYBOARD_AVAILABLE = True
+except ImportError:
+    kb_lib = None
+    KEYBOARD_AVAILABLE = False
 
 from bot import VTubeBot
 from music_tools import skip_song, clear_queue, get_now_playing
@@ -40,6 +48,8 @@ class KiraDashboard(ctk.CTk):
         self.geometry("1600x920")
         self.minsize(1280, 720)
         self.configure(fg_color=C_BG)
+
+        self._register_global_hotkeys()
 
         self._vision_lock = False
         self._current_image_ref = None
@@ -200,6 +210,72 @@ class KiraDashboard(ctk.CTk):
             font=ctk.CTkFont(size=11),
             command=lambda: self.bot.ai_core.reload_personality()
         ).pack(fill="x", padx=12, pady=(0, 16))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="LIVE CONTROLS",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        self.btn_interrupt = ctk.CTkButton(
+            frame, text="\U0001f6d1  Interrupt  (F8)",
+            fg_color=C_RED, hover_color="#7A2E2E", height=36,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self._btn_interrupt
+        )
+        self.btn_interrupt.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.btn_mute = ctk.CTkButton(
+            frame, text="\U0001f507  Mute 30s  (F9)",
+            fg_color=C_YELLOW, hover_color="#7C5A2C", height=36,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self._btn_mute_toggle
+        )
+        self.btn_mute.pack(fill="x", padx=12, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame,
+            text="Interrupt cuts off her current sentence. Mute also keeps her quiet for 30s \u2014 useful when you\u2019re talking to chat. Hotkeys work even when this window isn\u2019t focused.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="YOUTUBE CHAT",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+
+        self.yt_entry = ctk.CTkEntry(
+            frame, placeholder_text="Paste YouTube live URL or video ID",
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=32,
+        )
+        self.yt_entry.pack(fill="x", padx=12, pady=(0, 4))
+
+        yt_row = ctk.CTkFrame(frame, fg_color="transparent")
+        yt_row.pack(fill="x", padx=12, pady=(0, 4))
+        yt_row.grid_columnconfigure((0, 1), weight=1)
+
+        self.btn_yt_start = ctk.CTkButton(
+            yt_row, text="Connect", height=30,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
+            command=self._yt_start, font=ctk.CTkFont(size=11),
+        )
+        self.btn_yt_start.grid(row=0, column=0, padx=(0, 2), sticky="ew")
+
+        self.btn_yt_stop = ctk.CTkButton(
+            yt_row, text="Disconnect", height=30,
+            fg_color=C_RED, hover_color="#7A2E2E",
+            command=self._yt_stop, font=ctk.CTkFont(size=11),
+        )
+        self.btn_yt_stop.grid(row=0, column=1, padx=(2, 0), sticky="ew")
+
+        self.yt_status_label = ctk.CTkLabel(
+            frame, text="YouTube: idle",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.yt_status_label.pack(anchor="w", padx=14, pady=(0, 12))
 
         _divider(frame)
 
@@ -414,6 +490,67 @@ class KiraDashboard(ctk.CTk):
             self.bot.interruption_event.clear()
             self.btn_toggle.configure(text="Pause Bot", fg_color=C_RED, hover_color="#7A2E2E")
 
+    def _register_global_hotkeys(self):
+        """Sets up F8 (interrupt) and F9 (mute toggle) as global hotkeys.
+        Works even when the dashboard is not in focus."""
+        if not KEYBOARD_AVAILABLE:
+            print("   [Dashboard] 'keyboard' package not installed \u2014 global hotkeys disabled.")
+            return
+        try:
+            kb_lib.add_hotkey('f8', self._hotkey_interrupt)
+            kb_lib.add_hotkey('f9', self._hotkey_mute_toggle)
+            print("   [Dashboard] Global hotkeys registered: F8 = interrupt, F9 = mute toggle (30s)")
+        except Exception as e:
+            print(f"   [Dashboard] Failed to register hotkeys: {e}")
+
+    def _hotkey_interrupt(self):
+        self.bot.interrupt()
+
+    def _hotkey_mute_toggle(self):
+        if self.bot.is_muted():
+            self.bot.unmute()
+        else:
+            self.bot.mute_for(30)
+
+    def _btn_interrupt(self):
+        self.bot.interrupt()
+
+    def _btn_mute_toggle(self):
+        if self.bot.is_muted():
+            self.bot.unmute()
+        else:
+            self.bot.mute_for(30)
+
+    def _yt_start(self):
+        if not self.bot.youtube_bot:
+            self.yt_status_label.configure(text="YouTube: not initialized", text_color=C_RED)
+            return
+        url = self.yt_entry.get().strip()
+        if not url:
+            self.yt_status_label.configure(text="YouTube: enter URL or video ID", text_color=C_YELLOW)
+            return
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._yt_do_start(url), self.bot.event_loop)
+        else:
+            self.yt_status_label.configure(text="YouTube: bot not ready", text_color=C_RED)
+
+    async def _yt_do_start(self, url: str):
+        ok = self.bot.youtube_bot.start(url)
+        vid = self.bot.youtube_bot.video_id if ok else None
+        text = f"YouTube: live ({vid})" if ok else "YouTube: connect failed"
+        color = C_GREEN if ok else C_RED
+        self.after(0, lambda: self.yt_status_label.configure(text=text, text_color=color))
+
+    def _yt_stop(self):
+        if not self.bot.youtube_bot:
+            return
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._yt_do_stop(), self.bot.event_loop)
+
+    async def _yt_do_stop(self):
+        self.bot.youtube_bot.stop()
+        self.after(0, lambda: self.yt_status_label.configure(text="YouTube: idle", text_color=C_MUTED))
+
     # UPDATE LOOPS
 
     def _update_loop(self):
@@ -426,6 +563,7 @@ class KiraDashboard(ctk.CTk):
             self._refresh_activity()
             self._refresh_vn_status()
             self._refresh_immersive()
+            self._refresh_mute_status()
         except Exception:
             pass
         self.after(500, self._update_loop)
@@ -512,6 +650,15 @@ class KiraDashboard(ctk.CTk):
             self.immersive_switch.select()
         elif not self.bot.immersive and self.immersive_switch.get():
             self.immersive_switch.deselect()
+
+    def _refresh_mute_status(self):
+        if self.bot.is_muted():
+            remaining = int(self.bot.mute_until - time.time())
+            if remaining < 0:
+                remaining = 0
+            self.btn_mute.configure(text=f"\U0001f507  Muted ({remaining}s) \u2014 Unmute", fg_color="#6B5028")
+        else:
+            self.btn_mute.configure(text="\U0001f507  Mute 30s  (F9)", fg_color=C_YELLOW)
 
     def _vision_loop(self):
         if self.bot.game_mode_controller.is_active and not self._vision_lock:

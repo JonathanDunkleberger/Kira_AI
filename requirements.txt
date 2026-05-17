@@ -30,5 +30,7 @@ azure-cognitiveservices-speech
 pyautogui
 # For deep cognitive moments (Claude Opus routing)
 anthropic
-
-
+# For global hotkeys (F8/F9 interrupt + mute)
+keyboard
+# For YouTube live chat
+pytchat

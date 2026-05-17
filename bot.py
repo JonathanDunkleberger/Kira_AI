@@ -19,8 +19,10 @@ from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
 from memory_extractor import extract_memories
+from youtube_bot import YouTubeBot
 from config import (
-    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT
+    AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
+    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY,
 )
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
@@ -40,6 +42,7 @@ def parse_kira_tools(text, allow_music=False):
     """
     Scans for [POLL: Question | Opt1 | Opt2] 
     or [SONG: Name]
+    or [PREDICT: Question | OptionA | OptionB]
     """
     # Look for Poll Tag
     poll_match = re.search(r'\[POLL:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]', text)
@@ -60,7 +63,18 @@ def parse_kira_tools(text, allow_music=False):
             print("   [System] Music request denied (Voice/System source).")
             text = re.sub(r'\[SONG:.*?\]', '(Music request denied: Twitch Chat only)', text)
 
+    # Look for Prediction Tag (chat-based, no Twitch affiliate needed)
+    pred_match = re.search(r'\[PREDICT:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]', text)
+    if pred_match:
+        question, opt_a, opt_b = pred_match.groups()
+        if _GLOBAL_BOT_REF is not None:
+            _GLOBAL_BOT_REF.start_prediction(question, opt_a, opt_b)
+        text = re.sub(r'\[PREDICT:.*?\]', '', text)
+
     return text.strip()
+
+
+_GLOBAL_BOT_REF = None  # set in VTubeBot.__init__ so parse_kira_tools can fire predictions
 
 
 class VTubeBot:
@@ -98,6 +112,8 @@ class VTubeBot:
         self.event_loop = None   # set when _main_loop starts, used by dashboard for cross-thread calls
         self.vn_autoplay_enabled = False  # When True, Kira actively reads and advances VNs
         self.immersive = False   # When True, Kira stays quiet unless invited. Auto-enables for VN/MEDIA.
+        self.mute_until: float = 0.0  # timestamp; while time.time() < mute_until, all speech is suppressed
+        self.youtube_bot: YouTubeBot | None = None
         self.session_scene_log: list = []  # Recent scene summaries during this session
         self.session_highlights: list = []  # Highlights captured this session
         self.last_highlight_check_time = 0
@@ -114,10 +130,38 @@ class VTubeBot:
             2: 90.0,   # Slightly bigger nudge (streamer mode only)
         }
 
+        # Chat batching + engagement state
+        self.chat_batch_buffer: list = []          # queued chat messages waiting to be batched
+        self.last_chat_response_time: float = 0    # for response cooldown
+        self.session_chatters_seen: set = set()    # usernames seen in this session (for welcome detection)
+        self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
+        self.active_prediction = None              # active chat prediction state (None or dict)
+
+        import bot as _self_mod
+        _self_mod._GLOBAL_BOT_REF = self
+
     def reset_idle_timer(self, human_speech=False):
         self.last_interaction_time = time.time()
         if human_speech:
             self.silence_stage = 0
+
+    def is_muted(self) -> bool:
+        return time.time() < self.mute_until
+
+    def mute_for(self, seconds: float):
+        """Mutes Kira for the given duration. Also interrupts any currently-playing speech."""
+        self.mute_until = time.time() + seconds
+        self.interruption_event.set()  # cut off current utterance immediately
+        print(f"   [Mute] Muted for {seconds:.0f}s")
+
+    def unmute(self):
+        self.mute_until = 0.0
+        print("   [Mute] Unmuted")
+
+    def interrupt(self):
+        """Cuts off the current utterance without changing mute state."""
+        self.interruption_event.set()
+        print("   [Interrupt] Speech interrupted")
 
     # ── Activity Detection ──────────────────────────────────────────────────────
 
@@ -228,11 +272,19 @@ class VTubeBot:
                 # Pass the queue to TwitchBot
                 twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer, self.input_queue)
                 tasks.append(twitch_bot.start())
-            
+
+            # 1b. Prepare YouTube Chat listener (idle until video ID is set in dashboard)
+            if ENABLE_YOUTUBE_CHAT:
+                print("   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).")
+                self.youtube_bot = YouTubeBot(self.input_queue, self.reset_idle_timer, self.twitch_log)
+
             # 2. Start Brain Worker (The new logic brain)
             print("   [System] Starting Brain Worker...")
             tasks.append(self.brain_worker())
-            
+
+            # 2b. Start Chat Batch Worker (batches chat responses every CHAT_BATCH_WINDOW seconds)
+            tasks.append(self.chat_batch_worker())
+
             # --- Start Vision Heartbeat ---
             print("   [System] Starting Vision Heartbeat...")
             tasks.append(self.vision_agent.heartbeat_loop())
@@ -365,162 +417,383 @@ class VTubeBot:
         print("   [System] Brain Worker started.")
         while True:
             source, content = await self.input_queue.get()
+            handled_by_chat = False
 
             try:
-                # Log Twitch messages for the dashboard feed
-                if source == "twitch":
+                # === CHAT INPUTS → BATCH BUFFER (immediate return, no response now) ===
+                if source in ("twitch", "youtube"):
+                    username = "viewer"
+                    message_body = content
+                    if ": " in content:
+                        username, message_body = content.split(": ", 1)
+
+                    if ENABLE_CHATTER_MEMORY:
+                        self.memory.record_chatter_message(username, source, message_body)
+
                     self.twitch_log.append(content)
                     if len(self.twitch_log) > 100:
                         self.twitch_log = self.twitch_log[-100:]
 
-                # Activity auto-detection from voice (natural language sets context)
-                if source == "voice":
-                    detected = self._detect_activity_change(content)
-                    if detected and detected != self.current_activity:
-                        self.current_activity = detected
-                        new_type = self._classify_activity_type(detected)
-                        self.game_mode_controller.activity_type = new_type
-                        self.vision_agent.activity_type = new_type
-                        print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
-                        # Passive media auto-enables immersive; everything else turns it off.
-                        old_immersive = self.immersive
-                        self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
-                        print(f"   [Immersive] {self.immersive}")
+                    self.chat_batch_buffer.append({
+                        "username": username,
+                        "platform": source,
+                        "message": message_body,
+                        "timestamp": time.time(),
+                        "is_first_time": (username not in self.session_chatters_seen),
+                    })
+                    self.session_chatters_seen.add(username)
 
-                        # Adjust vision heartbeat for the mode
-                        self.vision_agent.heartbeat_interval = 10.0 if self.immersive else 30.0
+                    if self.active_prediction is not None:
+                        self._tally_prediction_vote(username, message_body)
 
-                        # If switching OUT of immersive (activity changed), save a session summary
-                        if old_immersive and not self.immersive and self.session_scene_log:
-                            asyncio.create_task(self._generate_session_summary())
+                    self.input_queue.task_done()
+                    handled_by_chat = True
+                    continue
 
-                # 1. Vision Gating Logic (Optimized for Cost vs Detail)
-                visual_desc = ""
-                if self.game_mode_controller.is_active:
-                    lower = content.lower()
-                    # Explicit READ intent — speak the verbatim transcription directly, bypass LLM
-                    read_phrases = [
-                        'read the text', 'read this', 'read the screen', 'read all',
-                        'read it', 'read me', 'read what', 'read out',
-                        'reading this', 'reading the', 'reading what',
-                        'what does it say', 'what does that say', 'what does the screen say',
-                        'what does it read', 'transcribe',
-                    ]
-                    is_read_request = any(p in lower for p in read_phrases)
-
-                    VISION_KEYWORDS = ['see', 'look', 'read', 'watching', 'view', 'screen']
-                    vision_trigger = any(word in lower for word in VISION_KEYWORDS)
-
-                    if is_read_request:
-                        print("   [Vision] READ intent — transcribing screen verbatim...")
-                        transcribed = await self.vision_agent.capture_and_transcribe()
-
-                        # Speak the transcription DIRECTLY, no LLM paraphrasing
-                        if (transcribed
-                                and "NO TEXT VISIBLE" not in transcribed.upper()
-                                and len(transcribed.strip()) > 10):
-                            preamble = random.choice([
-                                "Okay — ",
-                                "Sure, it says: ",
-                                "Here's what's on screen: ",
-                                "It reads: ",
-                                "Alright — ",
-                            ])
-                            speak_text = preamble + transcribed.strip()
-                            print(f"   [Vision] Bypassing LLM. Speaking verbatim ({len(transcribed)} chars).")
-
-                            user_line = f"Jonny says: \"{content}\""
-                            if self.conversation_history and self.conversation_history[-1]["role"] == "user":
-                                self.conversation_history[-1]["content"] += f"\n\n{user_line}"
-                            else:
-                                self.conversation_history.append({"role": "user", "content": user_line})
-
-                            await self.ai_core.speak_text(speak_text)
-                            self.conversation_history.append({"role": "assistant", "content": speak_text})
-                            self.ai_core.last_speech_finish_time = time.time()
-                            continue  # Skip the rest of this brain_worker iteration
-                        else:
-                            # No readable text — fall through to normal LLM path with a hint
-                            visual_desc = (
-                                "I tried to read the screen but there's nothing legible right now — "
-                                "probably a transition, image-only frame, or animation. "
-                                "Acknowledge briefly that there's nothing to read at the moment."
-                            )
-                    elif vision_trigger:
-                        time_since_last = time.time() - self.vision_agent.last_capture_time
-                        if time_since_last < 7:
-                            print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s)...")
-                            visual_desc = self.vision_agent.last_description
-                        else:
-                            print("   [Vision] High-Detail Snapshot Requested (Cache Stale > 7s)...")
-                            visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
-                    else:
-                        visual_desc = self.vision_agent.get_vision_context()
-
-                # 2. Construct dialogue line (history-clean — no screen state)
-                if source == "twitch":
-                    dialogue_line = f"Twitch Chat says: \"{content}\""
+                # === VOICE INPUTS → IMMEDIATE PROCESSING ===
+                if self.is_muted():
+                    print(f"   [Mute] Dropping {source} input while muted: {content[:60]}")
                 else:
+                    # Activity auto-detection from voice (natural language sets context)
+                    if source == "voice":
+                        detected = self._detect_activity_change(content)
+                        if detected and detected != self.current_activity:
+                            self.current_activity = detected
+                            new_type = self._classify_activity_type(detected)
+                            self.game_mode_controller.activity_type = new_type
+                            self.vision_agent.activity_type = new_type
+                            print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
+                            old_immersive = self.immersive
+                            self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+                            print(f"   [Immersive] {self.immersive}")
+                            self.vision_agent.heartbeat_interval = 10.0 if self.immersive else 30.0
+                            if old_immersive and not self.immersive and self.session_scene_log:
+                                asyncio.create_task(self._generate_session_summary())
+
+                    # 1. Vision Gating Logic (Optimized for Cost vs Detail)
+                    visual_desc = ""
+                    if self.game_mode_controller.is_active:
+                        lower = content.lower()
+                        read_phrases = [
+                            'read the text', 'read this', 'read the screen', 'read all',
+                            'read it', 'read me', 'read what', 'read out',
+                            'reading this', 'reading the', 'reading what',
+                            'what does it say', 'what does that say', 'what does the screen say',
+                            'what does it read', 'transcribe',
+                        ]
+                        is_read_request = any(p in lower for p in read_phrases)
+
+                        VISION_KEYWORDS = ['see', 'look', 'read', 'watching', 'view', 'screen']
+                        vision_trigger = any(word in lower for word in VISION_KEYWORDS)
+
+                        if is_read_request:
+                            print("   [Vision] READ intent — transcribing screen verbatim...")
+                            transcribed = await self.vision_agent.capture_and_transcribe()
+
+                            if (transcribed
+                                    and "NO TEXT VISIBLE" not in transcribed.upper()
+                                    and len(transcribed.strip()) > 10):
+                                preamble = random.choice([
+                                    "Okay — ",
+                                    "Sure, it says: ",
+                                    "Here's what's on screen: ",
+                                    "It reads: ",
+                                    "Alright — ",
+                                ])
+                                speak_text = preamble + transcribed.strip()
+                                print(f"   [Vision] Bypassing LLM. Speaking verbatim ({len(transcribed)} chars).")
+
+                                user_line = f"Jonny says: \"{content}\""
+                                if self.conversation_history and self.conversation_history[-1]["role"] == "user":
+                                    self.conversation_history[-1]["content"] += f"\n\n{user_line}"
+                                else:
+                                    self.conversation_history.append({"role": "user", "content": user_line})
+
+                                await self.ai_core.speak_text(speak_text)
+                                self.conversation_history.append({"role": "assistant", "content": speak_text})
+                                self.ai_core.last_speech_finish_time = time.time()
+                                continue  # Skip the rest of this brain_worker iteration
+                            else:
+                                visual_desc = (
+                                    "I tried to read the screen but there's nothing legible right now — "
+                                    "probably a transition, image-only frame, or animation. "
+                                    "Acknowledge briefly that there's nothing to read at the moment."
+                                )
+                        elif vision_trigger:
+                            time_since_last = time.time() - self.vision_agent.last_capture_time
+                            if time_since_last < 7:
+                                print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s)...")
+                                visual_desc = self.vision_agent.last_description
+                            else:
+                                print("   [Vision] High-Detail Snapshot Requested (Cache Stale > 7s)...")
+                                visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
+                        else:
+                            visual_desc = self.vision_agent.get_vision_context()
+
+                    # 2. Construct dialogue line (history-clean — no screen state)
                     dialogue_line = f"Jonny says: \"{content}\""
 
-                # Speech triage — decide whether to respond, react briefly, or stay quiet
-                scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
-                decision = await self.ai_core.decide_response_mode(
-                    recent_history=self.conversation_history,
-                    incoming_line=content,
-                    scene_context=scene_ctx,
-                    source=source,
-                    immersive=self.immersive,
-                )
-
-                if decision == "STAY_QUIET":
-                    # QUESTION OVERRIDE: direct questions always get a response, never STAY_QUIET.
-                    # A friend who ignores your questions is broken, immersive or not.
-                    content_stripped = content.strip()
-                    looks_like_question = (
-                        "?" in content_stripped
-                        or content_stripped.lower().startswith((
-                            "what", "why", "how", "when", "where", "who", "which",
-                            "is ", "are ", "was ", "were ", "do ", "does ", "did ",
-                            "can ", "could ", "will ", "would ", "should ", "kira",
-                        ))
+                    # Speech triage — decide whether to respond, react briefly, or stay quiet
+                    scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+                    decision = await self.ai_core.decide_response_mode(
+                        recent_history=self.conversation_history,
+                        incoming_line=content,
+                        scene_context=scene_ctx,
+                        source=source,
+                        immersive=self.immersive,
                     )
-                    if looks_like_question:
-                        print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (question detected)")
-                        decision = "BRIEF"
-                    else:
-                        print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
-                        continue
 
-                brief_mode = (decision == "BRIEF")
-                # In immersive mode, even RESPOND defaults to brief — Kira gets to the point
-                # during media. Direct addresses still respond, just shorter.
-                if self.immersive and decision == "RESPOND":
-                    brief_mode = True
-                print(f"   [Triage] {decision}")
+                    if decision == "STAY_QUIET":
+                        content_stripped = content.strip()
+                        looks_like_question = (
+                            "?" in content_stripped
+                            or content_stripped.lower().startswith((
+                                "what", "why", "how", "when", "where", "who", "which",
+                                "is ", "are ", "was ", "were ", "do ", "does ", "did ",
+                                "can ", "could ", "will ", "would ", "should ", "kira",
+                            ))
+                        )
+                        if looks_like_question:
+                            print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (question detected)")
+                            decision = "BRIEF"
+                        else:
+                            print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
+                            # fall through to finally / task_done
 
-                # Pass to LLM (vision context injected fresh at inference, not persisted to history)
-                await self.process_and_respond(
-                    content,
-                    dialogue_line,
-                    "user",
-                    source=source,
-                    situational_context=visual_desc,
-                    brief_mode=brief_mode,
-                )
-                
+                    if decision != "STAY_QUIET":
+                        brief_mode = (decision == "BRIEF")
+                        if self.immersive and decision == "RESPOND":
+                            brief_mode = True
+                        print(f"   [Triage] {decision}")
+
+                        await self.process_and_respond(
+                            content,
+                            dialogue_line,
+                            "user",
+                            source=source,
+                            situational_context=visual_desc,
+                            brief_mode=brief_mode,
+                        )
+
             except Exception as e:
                 print(f"   [Brain] Error: {e}")
                 traceback.print_exc()
             finally:
-                self.input_queue.task_done()
+                if not handled_by_chat:
+                    self.input_queue.task_done()
 
+
+    async def chat_batch_worker(self):
+        """Drains the chat batch buffer every CHAT_BATCH_WINDOW seconds and emits
+        at most one response per batch. Handles multi-chatter prioritization,
+        cooldowns, and engagement mechanics."""
+        print("   [System] Chat Batch Worker started.")
+        while self.is_running:
+            await asyncio.sleep(CHAT_BATCH_WINDOW)
+
+            if not self.chat_batch_buffer:
+                continue
+
+            if self.is_muted() or self.ai_core.is_speaking or self.processing_lock.locked():
+                continue
+
+            if time.time() - self.last_chat_response_time < CHAT_RESPONSE_COOLDOWN:
+                continue
+
+            batch = self.chat_batch_buffer[:]
+            self.chat_batch_buffer.clear()
+
+            try:
+                await self._respond_to_chat_batch(batch)
+            except Exception as e:
+                print(f"   [ChatBatch] Error: {e}")
+                traceback.print_exc()
+
+    async def _respond_to_chat_batch(self, batch: list):
+        """Decides what (if anything) to say in response to a batch of chat messages."""
+        if not batch:
+            return
+
+        chatter_context_lines = []
+        first_timers = []
+        for msg in batch:
+            username = msg["username"]
+            if msg["is_first_time"]:
+                first_timers.append(username)
+            if ENABLE_CHATTER_MEMORY:
+                ctx = self.memory.get_chatter_context(username, n_results=3)
+                if ctx:
+                    chatter_context_lines.append(ctx)
+
+        chatter_context = "\n".join(chatter_context_lines) if chatter_context_lines else "(no prior context on these chatters)"
+
+        batch_lines = []
+        for msg in batch:
+            marker = " [FIRST TIME CHATTER]" if msg["is_first_time"] else ""
+            batch_lines.append(f"  - {msg['username']} ({msg['platform']}){marker}: {msg['message']}")
+        batch_str = "\n".join(batch_lines)
+
+        scene = ""
+        if self.game_mode_controller.is_active:
+            scene = self.vision_agent.get_vision_context()
+
+        request = (
+            f"You have a batch of {len(batch)} chat message(s) to respond to. "
+            f"Decide the best engagement move:\n\n"
+            f"CHAT BATCH:\n{batch_str}\n\n"
+            f"WHAT YOU KNOW ABOUT THESE CHATTERS:\n{chatter_context}\n\n"
+            f"CURRENT SCENE: {scene or 'no scene context'}\n\n"
+            f"RULES:\n"
+            f"- Address chatters BY NAME. Name recognition is your superpower.\n"
+            f"- If someone is a FIRST TIME CHATTER, give them a brief warm spotlight moment.\n"
+            f"- If you have prior context on a chatter, reference it naturally (callbacks land hard).\n"
+            f"- If multiple messages have the same vibe, consolidate.\n"
+            f"- If messages are pure spam/'hi'/no substance, output ONLY: SKIP\n"
+            f"- Keep it to 2-3 sentences max. You are a stream co-host, not a chat reader.\n"
+            f"- Stay in character \u2014 sassy, witty, warm, deadpan.\n"
+            f"- DO NOT respond if there's nothing real to say. SKIP is a valid output.\n\n"
+            f"Your response (or SKIP):"
+        )
+
+        if self.ai_core.anthropic_client:
+            response = await self.ai_core.kira_deep_response(
+                request=request,
+                scene_context=scene,
+                memory_context="",
+                recent_history=self.conversation_history,
+            )
+        else:
+            response = await self.ai_core.llm_inference(
+                messages=self.conversation_history + [{"role": "system", "content": request}],
+                current_emotion=self.current_emotion,
+                memory_context="",
+                activity_context=self.current_activity,
+            )
+
+        cleaned = self.ai_core._clean_llm_response(response).strip()
+        if not cleaned or cleaned.upper().startswith("SKIP") or len(cleaned) < 5:
+            print(f"   [ChatBatch] SKIP \u2014 {len(batch)} message(s) didn't warrant a response")
+            return
+
+        print(f"   >>> Kira (Chat Batch of {len(batch)}): {cleaned}")
+        await self.ai_core.speak_text(cleaned)
+        self.conversation_history.append({"role": "assistant", "content": cleaned})
+        self.last_chat_response_time = time.time()
+        self.ai_core.last_speech_finish_time = time.time()
+
+        for msg in batch:
+            self.chatter_last_response[msg["username"]] = time.time()
+
+        if ENABLE_CHATTER_MEMORY:
+            asyncio.create_task(self._extract_chatter_facts(batch, cleaned))
+
+    async def _extract_chatter_facts(self, batch: list, kira_response: str):
+        """Background pass: extracts durable facts about chatters from a batch."""
+        if not self.ai_core.anthropic_client:
+            return
+
+        for msg in batch:
+            username = msg["username"]
+            message = msg["message"]
+
+            if len(message) < 8:
+                continue
+
+            try:
+                system = (
+                    "You extract durable facts about a chatter for an AI VTuber's persistent memory. "
+                    "Only save things that will still matter next week \u2014 opinions, preferences, jokes "
+                    "they've made, things they're known for. Skip greetings, reactions, generic statements.\n\n"
+                    "Output ONLY the fact as one short sentence, OR the literal word: NONE\n\n"
+                    "Example fact: 'Thinks Ferris is a war criminal'\n"
+                    "Example fact: 'Death Note enjoyer'\n"
+                    "Example fact: 'Always asks about food'\n"
+                )
+                user = (
+                    f"Chatter: {username}\n"
+                    f"Message: \"{message}\"\n"
+                    f"Kira's response: \"{kira_response[:200]}\"\n\n"
+                    f"Extract a durable fact about this chatter, or output NONE."
+                )
+                raw = await self.ai_core.claude_chat_inference(
+                    messages=[{"role": "user", "content": user}],
+                    system_prompt=system,
+                    max_tokens=60,
+                )
+                fact = (raw or "").strip().rstrip(".")
+                if fact and fact.upper() != "NONE" and 5 < len(fact) < 200:
+                    self.memory.store_chatter_fact(username, msg["platform"], fact)
+            except Exception as e:
+                print(f"   [ChatterFact] extract failed for {username}: {e}")
+
+    # ── Chat Predictions ──────────────────────────────────────────────────────
+
+    def start_prediction(self, question: str, option_a: str, option_b: str, duration_seconds: int = 30):
+        """Starts a chat-based prediction. Viewers vote by typing A or B (or the option name)."""
+        self.active_prediction = {
+            "question": question,
+            "option_a": option_a,
+            "option_b": option_b,
+            "votes_a": set(),
+            "votes_b": set(),
+            "ends_at": time.time() + duration_seconds,
+        }
+        asyncio.create_task(self._prediction_announce_start())
+        asyncio.create_task(self._prediction_close_after(duration_seconds))
+
+    async def _prediction_announce_start(self):
+        if not self.active_prediction:
+            return
+        p = self.active_prediction
+        text = (
+            f"Okay chat, prediction time. {p['question']} "
+            f"Type A for {p['option_a']}, or B for {p['option_b']}. "
+            f"You have {int(p['ends_at'] - time.time())} seconds. Go."
+        )
+        await self.ai_core.speak_text(text)
+        self.conversation_history.append({"role": "assistant", "content": text})
+
+    async def _prediction_close_after(self, seconds: int):
+        await asyncio.sleep(seconds)
+        if not self.active_prediction:
+            return
+        p = self.active_prediction
+        a, b = len(p["votes_a"]), len(p["votes_b"])
+        if a == 0 and b == 0:
+            text = f"Chat is dead. Nobody voted. I am taking this personally."
+        elif a > b:
+            text = f"{p['option_a']} wins, {a} to {b}. Chat has spoken. Jonny, you know what to do."
+        elif b > a:
+            text = f"{p['option_b']} wins, {b} to {a}. The people have decided. Make it happen, Jonny."
+        else:
+            text = f"It's a tie, {a} to {b}. Chat cannot agree on anything. Embarrassing. Jonny picks."
+        self.active_prediction = None
+        await self.ai_core.speak_text(text)
+        self.conversation_history.append({"role": "assistant", "content": text})
+
+    def _tally_prediction_vote(self, username: str, message: str):
+        """Called from brain_worker when chat arrives during an active prediction."""
+        if not self.active_prediction:
+            return
+        p = self.active_prediction
+        msg = message.strip().upper()
+        voted_a = msg == "A" or p["option_a"].lower() in message.lower()
+        voted_b = msg == "B" or p["option_b"].lower() in message.lower()
+        if voted_a and not voted_b:
+            p["votes_a"].add(username)
+            p["votes_b"].discard(username)
+        elif voted_b and not voted_a:
+            p["votes_b"].add(username)
+            p["votes_a"].discard(username)
 
     async def request_thoughts(self):
         """Triggered by the dashboard 'Invite' button. Asks Kira to share her honest
         take on whatever is happening on screen right now. Uses the deep brain (Claude Opus)
         when available \u2014 this is the moment where intelligence matters most."""
         if self.processing_lock.locked() or self.ai_core.is_speaking:
+            return
+        if self.is_muted():
+            print("   [Mute] Invite ignored — Kira is muted")
             return
         async with self.processing_lock:
             scene = self.vision_agent.get_vision_context()
@@ -554,6 +827,9 @@ class VTubeBot:
             
             # Don't interrupt if speaking or processing
             if self.processing_lock.locked() or self.ai_core.is_speaking:
+                continue
+
+            if self.is_muted():
                 continue
 
             # Immersive mode: more conservative thresholds, scene-change gating,
@@ -784,6 +1060,8 @@ class VTubeBot:
     async def _execute_interjection(self, prompt, memory_query: str = ""):
         """Runs a proactive interjection. Routes through Claude Opus when available —
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not."""
+        if self.is_muted():
+            return
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
 
         anti_fabrication = (
