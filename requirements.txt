@@ -28,6 +28,8 @@ edge-tts
 azure-cognitiveservices-speech
 # For VN auto-play (keyboard/mouse control)
 pyautogui
+# For audio understanding (WASAPI loopback system audio + mic capture)
+PyAudioWPatch
 # For deep cognitive moments (Claude Opus routing)
 anthropic
 # For global hotkeys (F8/F9 interrupt + mute)

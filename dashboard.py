@@ -17,6 +17,7 @@ from music_tools import skip_song, clear_queue, get_now_playing
 from persona import EmotionalState
 from game_mode_controller import ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from config import AI_NAME
+from audio_agent import AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
@@ -50,6 +51,7 @@ class KiraDashboard(ctk.CTk):
         self.configure(fg_color=C_BG)
 
         self._register_global_hotkeys()
+        self.after(500, self._refresh_audio_devices)
 
         self._vision_lock = False
         self._current_image_ref = None
@@ -194,6 +196,61 @@ class KiraDashboard(ctk.CTk):
 
         _divider(frame)
 
+        ctk.CTkLabel(frame, text="AUDIO HEARING",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+
+        self.audio_mode_menu = ctk.CTkOptionMenu(
+            frame,
+            values=["Off", "Media (game/anime)", "Music (singing/guitar)"],
+            command=self._set_audio_mode,
+            fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=30,
+        )
+        self.audio_mode_menu.set("Off")
+        self.audio_mode_menu.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.audio_status_label = ctk.CTkLabel(
+            frame,
+            text="Audio: off",
+            font=ctk.CTkFont(size=10),
+            text_color=C_MUTED,
+            wraplength=240,
+            justify="left",
+            anchor="w",
+        )
+        self.audio_status_label.pack(fill="x", padx=14, pady=(0, 6))
+
+        ctk.CTkLabel(frame, text="Audio Source Device",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(6, 0))
+
+        self.audio_device_menu = ctk.CTkOptionMenu(
+            frame,
+            values=["Auto-detect"],
+            command=self._set_audio_device,
+            fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=10), height=26,
+        )
+        self.audio_device_menu.set("Auto-detect")
+        self.audio_device_menu.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.btn_refresh_devices = ctk.CTkButton(
+            frame, text="🔄 Refresh device list", height=24,
+            fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
+            command=self._refresh_audio_devices, font=ctk.CTkFont(size=10),
+        )
+        self.btn_refresh_devices.pack(fill="x", padx=12, pady=(0, 8))
+
+        ctk.CTkLabel(
+            frame,
+            text="Media = Kira hears game BGM/voice acting/SFX. Music = Kira hears you playing/singing live. Off = no audio capture.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
         ctk.CTkLabel(frame, text="BOT CONTROLS",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=14, pady=(10, 4))
@@ -276,6 +333,70 @@ class KiraDashboard(ctk.CTk):
             font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
         )
         self.yt_status_label.pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="STREAM CONTROL",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        stream_row = ctk.CTkFrame(frame, fg_color="transparent")
+        stream_row.pack(fill="x", padx=12, pady=(0, 6))
+        stream_row.grid_columnconfigure((0, 1), weight=1)
+
+        self.btn_opener = ctk.CTkButton(
+            stream_row, text="🎬  Start", height=36,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
+            command=self._btn_stream_opener, font=ctk.CTkFont(size=12, weight="bold"),
+        )
+        self.btn_opener.grid(row=0, column=0, padx=(0, 2), sticky="ew")
+
+        self.btn_closer = ctk.CTkButton(
+            stream_row, text="🎬  End", height=36,
+            fg_color=C_RED, hover_color="#7A2E2E",
+            command=self._btn_stream_closer, font=ctk.CTkFont(size=12, weight="bold"),
+        )
+        self.btn_closer.grid(row=0, column=1, padx=(2, 0), sticky="ew")
+
+        ctk.CTkLabel(
+            frame,
+            text="Start fires an episodic opener (recognizes regulars). End fires a closer AND writes session lore + clip candidates to disk.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="VIBE METER",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        vibe_row = ctk.CTkFrame(frame, fg_color=C_SURFACE, corner_radius=6)
+        vibe_row.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.vibe_chat_rate = ctk.CTkLabel(
+            vibe_row, text="0 msg/min",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_chat_rate.pack(pady=(6, 0))
+        ctk.CTkLabel(vibe_row, text="chat rate",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+
+        self.vibe_since_kira = ctk.CTkLabel(
+            vibe_row, text="—",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_since_kira.pack(pady=(2, 0))
+        ctk.CTkLabel(vibe_row, text="since Kira spoke",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+
+        self.vibe_chatters = ctk.CTkLabel(
+            vibe_row, text="0 chatters",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_chatters.pack(pady=(2, 0))
+        ctk.CTkLabel(vibe_row, text="session unique",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 6))
 
         _divider(frame)
 
@@ -521,6 +642,20 @@ class KiraDashboard(ctk.CTk):
         else:
             self.bot.mute_for(30)
 
+    def _btn_stream_opener(self):
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self.bot.run_stream_opener(), self.bot.event_loop)
+            print("   [Dashboard] Opener triggered.")
+        else:
+            print("   [Dashboard] Bot event loop not ready.")
+
+    def _btn_stream_closer(self):
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self.bot.run_stream_closer(), self.bot.event_loop)
+            print("   [Dashboard] Closer triggered.")
+        else:
+            print("   [Dashboard] Bot event loop not ready.")
+
     def _yt_start(self):
         if not self.bot.youtube_bot:
             self.yt_status_label.configure(text="YouTube: not initialized", text_color=C_RED)
@@ -564,6 +699,8 @@ class KiraDashboard(ctk.CTk):
             self._refresh_vn_status()
             self._refresh_immersive()
             self._refresh_mute_status()
+            self._refresh_vibe_meter()
+            self._refresh_audio_status()
         except Exception:
             pass
         self.after(500, self._update_loop)
@@ -656,9 +793,113 @@ class KiraDashboard(ctk.CTk):
             remaining = int(self.bot.mute_until - time.time())
             if remaining < 0:
                 remaining = 0
-            self.btn_mute.configure(text=f"\U0001f507  Muted ({remaining}s) \u2014 Unmute", fg_color="#6B5028")
+            self.btn_mute.configure(text=f"\U0001f507  Muted ({remaining}s) — Unmute", fg_color="#6B5028")
         else:
             self.btn_mute.configure(text="\U0001f507  Mute 30s  (F9)", fg_color=C_YELLOW)
+
+    def _refresh_vibe_meter(self):
+        try:
+            rate = self.bot.get_chat_rate_per_min()
+            if rate >= 10:
+                color = C_GREEN
+            elif rate >= 3:
+                color = C_YELLOW
+            else:
+                color = C_MUTED
+            self.vibe_chat_rate.configure(text=f"{int(rate)} msg/min", text_color=color)
+
+            last_spoke = self.bot.ai_core.last_speech_finish_time
+            if last_spoke > 0:
+                elapsed = int(time.time() - last_spoke)
+                if elapsed < 60:
+                    kira_text = f"{elapsed}s ago"
+                    kira_color = C_GREEN if elapsed < 20 else C_TEXT
+                else:
+                    kira_text = f"{elapsed // 60}m {elapsed % 60}s ago"
+                    kira_color = C_YELLOW if elapsed < 180 else C_RED
+                self.vibe_since_kira.configure(text=kira_text, text_color=kira_color)
+            else:
+                self.vibe_since_kira.configure(text="—", text_color=C_MUTED)
+
+            count = len(self.bot.session_chatters_seen)
+            self.vibe_chatters.configure(text=f"{count} chatter{'s' if count != 1 else ''}", text_color=C_TEXT)
+        except Exception:
+            pass
+
+    def _refresh_audio_devices(self):
+        """Populates the audio device dropdown with available WASAPI loopback devices."""
+        if not self.bot.audio_agent:
+            return
+        devices = self.bot.audio_agent.list_available_loopback_devices()
+        if not devices:
+            self.audio_device_menu.configure(values=["Auto-detect", "(no devices found)"])
+            return
+        labels = ["Auto-detect"]
+        for name, is_virtual in devices:
+            short = name[:40] + ("..." if len(name) > 40 else "")
+            if is_virtual:
+                short = f"⚠ {short} (virtual)"
+            labels.append(short)
+        self.audio_device_menu.configure(values=labels)
+        print(f"   [Dashboard] Found {len(devices)} loopback device(s)")
+
+    def _set_audio_device(self, label: str):
+        """User picked a device from the dropdown. Stores the preference.
+        User must toggle the mode dropdown OFF→ON to apply the change."""
+        if not self.bot.audio_agent:
+            return
+        if label == "Auto-detect":
+            self.bot.audio_agent.preferred_loopback_name = None
+            print("   [Dashboard] Audio device: auto-detect (toggle mode OFF\u2192ON to apply)")
+        else:
+            cleaned = label.replace("\u26a0 ", "").replace(" (virtual)", "").rstrip(".")
+            self.bot.audio_agent.preferred_loopback_name = cleaned
+            print(f"   [Dashboard] Audio device set: {cleaned} (toggle mode OFF\u2192ON to apply)")
+
+        if hasattr(self, "audio_status_label"):
+            self.audio_status_label.configure(
+                text="Device preference saved. Toggle Audio mode OFF then back ON to apply.",
+                text_color=C_YELLOW,
+            )
+
+    def _set_audio_mode(self, choice: str):
+        if not self.bot.audio_agent:
+            self.audio_status_label.configure(text="Audio agent disabled in config", text_color=C_RED)
+            return
+        label_to_mode = {
+            "Off": AUDIO_MODE_OFF,
+            "Media (game/anime)": AUDIO_MODE_MEDIA,
+            "Music (singing/guitar)": AUDIO_MODE_MUSIC,
+        }
+        mode = label_to_mode.get(choice, AUDIO_MODE_OFF)
+        self.bot.audio_agent.set_mode(mode)
+        if mode == AUDIO_MODE_OFF:
+            self.audio_status_label.configure(text="Audio: off", text_color=C_MUTED)
+        elif mode == AUDIO_MODE_MEDIA:
+            self.audio_status_label.configure(text="Audio: listening to system audio", text_color=C_GREEN)
+        else:
+            self.audio_status_label.configure(text="Audio: listening to mic (music mode)", text_color=C_GREEN)
+
+    def _refresh_audio_status(self):
+        if not self.bot.audio_agent:
+            return
+        agent = self.bot.audio_agent
+        if not agent.is_active():
+            return
+        if not agent.audio_summary or agent.audio_summary == "(quiet)":
+            self.audio_status_label.configure(
+                text=f"🎧 {agent.mode.upper()} \u2014 listening (quiet)",
+                text_color=C_MUTED,
+            )
+            return
+        rel = int(time.time() - agent.last_capture_time) if agent.last_capture_time else 0
+        summary = agent.audio_summary
+        if len(summary) > 300:
+            summary = summary[:297] + "..."
+        self.audio_status_label.configure(
+            text=f"🎧 {rel}s ago:\n{summary}",
+            text_color=C_GREEN,
+        )
 
     def _vision_loop(self):
         if self.bot.game_mode_controller.is_active and not self._vision_lock:

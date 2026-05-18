@@ -351,3 +351,45 @@ class MemoryManager:
             return not results or not results.get("documents")
         except Exception:
             return False
+
+    def get_recent_chatters(self, days: int = 14, limit: int = 20) -> list:
+        """Returns usernames seen in chat within the last N days, ranked by activity."""
+        try:
+            cutoff = time.time() - (days * 86400)
+            results = self.chatters.get(
+                where={"type": "chatter_message"},
+                limit=2000,
+                include=["metadatas"],
+            )
+            if not results or not results.get("metadatas"):
+                return []
+            counts = {}
+            for meta in results["metadatas"]:
+                ts = meta.get("timestamp", 0)
+                if ts < cutoff:
+                    continue
+                uname = meta.get("username")
+                if not uname:
+                    continue
+                counts[uname] = counts.get(uname, 0) + 1
+            ranked = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+            return [name for name, _ in ranked[:limit]]
+        except Exception as e:
+            print(f"   [Memory] recent chatters lookup failed: {e}")
+            return []
+
+    def get_last_session_summary(self) -> str | None:
+        """Returns the most recent session summary stored in memory."""
+        try:
+            results = self.facts.get(
+                where={"type": "session_summary"},
+                limit=50,
+                include=["documents", "metadatas"],
+            )
+            if not results or not results.get("documents"):
+                return None
+            zipped = list(zip(results["documents"], results["metadatas"]))
+            zipped.sort(key=lambda x: x[1].get("timestamp", 0), reverse=True)
+            return zipped[0][0]
+        except Exception:
+            return None

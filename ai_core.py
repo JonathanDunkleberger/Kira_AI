@@ -565,17 +565,27 @@ class AI_Core:
 
     async def speak_streaming(self, stream_generator) -> str:
         """Consumes an async generator of text chunks. Buffers into sentences,
-        dispatches each to Azure TTS sequentially. Returns the full assembled text
-        so the caller can store it in conversation history.
+        dispatches each to TTS sequentially. Tool tags ([POLL: ...], [SONG: ...],
+        [PREDICT: ...], [BIT: ...], [TAKE]) are extracted and processed separately —
+        never spoken aloud.
 
-        Sentences are split on terminal punctuation [.!?] followed by whitespace.
-        If the user interrupts (via VAD), the stream is abandoned and remaining
-        audio is not played."""
+        Sentences are split on terminal punctuation [.!?] followed by whitespace,
+        but ONLY when no unclosed bracket tag is in flight.
+
+        If the user interrupts (via VAD), the stream is abandoned."""
+
         self.interruption_event.clear()
         self.is_speaking = True
 
         full_text = ""
         buffer = ""
+
+        def has_unclosed_tag(text: str) -> bool:
+            """True if there is an unmatched '[' anywhere in the buffer."""
+            last_open = text.rfind('[')
+            if last_open == -1:
+                return False
+            return ']' not in text[last_open:]
 
         try:
             async for chunk in stream_generator:
@@ -585,8 +595,14 @@ class AI_Core:
                 full_text += chunk
                 buffer += chunk
 
+                # If a bracket tag is still being streamed, don't split on punctuation yet
+                if has_unclosed_tag(buffer):
+                    continue
+
                 # Flush every complete sentence from the buffer
                 while True:
+                    if has_unclosed_tag(buffer):
+                        break
                     match = re.search(r'[.!?](?:\s|$)', buffer)
                     if not match:
                         break
@@ -595,7 +611,10 @@ class AI_Core:
                     buffer = buffer[end:]
 
                     if sentence:
-                        cleaned = self._clean_llm_response(sentence)
+                        # Strip tool tags out of the spoken text. We don't execute them
+                        # here — parse_kira_tools runs on full_text after streaming ends.
+                        spoken = self._strip_tags_for_speech(sentence)
+                        cleaned = self._clean_llm_response(spoken)
                         if cleaned:
                             await self._speak_single(cleaned)
                             if self.interruption_event.is_set():
@@ -603,7 +622,8 @@ class AI_Core:
 
             # Stream done — flush any trailing buffer
             if buffer.strip() and not self.interruption_event.is_set():
-                cleaned = self._clean_llm_response(buffer.strip())
+                spoken = self._strip_tags_for_speech(buffer.strip())
+                cleaned = self._clean_llm_response(spoken)
                 if cleaned:
                     await self._speak_single(cleaned)
         except Exception as e:
@@ -613,6 +633,20 @@ class AI_Core:
             self.is_speaking = False
 
         return full_text
+
+    def _strip_tags_for_speech(self, text: str) -> str:
+        """Removes tool tags ([POLL: ...], [SONG: ...], [PREDICT: ...], [BIT: ...], [TAKE])
+        from text before TTS, so they are never spoken aloud. Tags will still be
+        parsed and executed by parse_kira_tools on the full assembled response."""
+        # Multi-pipe tags: POLL, PREDICT
+        text = re.sub(r'\[POLL:[^\]]*\]', '', text)
+        text = re.sub(r'\[PREDICT:[^\]]*\]', '', text)
+        # Single-value tags
+        text = re.sub(r'\[SONG:[^\]]*\]', '', text)
+        text = re.sub(r'\[BIT:[^\]]*\]', '', text)
+        # Boolean tags
+        text = re.sub(r'\[TAKE\]', '', text)
+        return text.strip()
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):
         if self.interruption_event.is_set() or not audio_bytes:
@@ -641,7 +675,7 @@ class AI_Core:
         text = re.sub(r'^\s*Kira:\s*', '', text, flags=re.MULTILINE | re.IGNORECASE)
         # Prune all bracketed metadata (Visual Sparks, thoughts, etc)
         # Preserve tool tags [POLL:...] and [SONG:...] so parse_kira_tools() can handle them
-        text = re.sub(r'\[(?!POLL:|SONG:)[^\]]*\]', '', text)
+        text = re.sub(r'\[(?!POLL:|SONG:|PREDICT:|BIT:|TAKE\])[^\]]*\]', '', text)
         text = re.sub(r'\(.*?\)', '', text)
         return text.strip()
 

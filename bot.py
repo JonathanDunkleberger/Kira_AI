@@ -8,7 +8,9 @@ import time
 import traceback
 import random
 import re
+import os
 import gc # Added garbage collection
+from datetime import datetime
 from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
@@ -22,10 +24,11 @@ from memory_extractor import extract_memories
 from youtube_bot import YouTubeBot
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
-    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY,
+    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
 )
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
+from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 
 # Graceful pyautogui import (required for VN auto-play only)
@@ -92,6 +95,7 @@ class VTubeBot:
         # Observer Mode
         self.vision_agent = UniversalVisionAgent()
         self.game_mode_controller = GameModeController(self.vision_agent)
+        self.audio_agent = AudioAgent() if ENABLE_AUDIO_AGENT else None
         
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
@@ -137,6 +141,14 @@ class VTubeBot:
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
 
+        # Vibe meter tracking
+        self.chat_msg_timestamps: list = []  # rolling window of chat msg timestamps for rate calculation
+
+        # Full session log for clip extraction (NOT windowed like conversation_history)
+        self.full_session_log: list = []  # list of {"role", "content", "timestamp", "speaker_name"}
+        self.session_started_at: float = time.time()
+        self._session_artifacts_written: bool = False
+
         import bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
 
@@ -144,6 +156,16 @@ class VTubeBot:
         self.last_interaction_time = time.time()
         if human_speech:
             self.silence_stage = 0
+
+    def _log_session_turn(self, role: str, content: str, speaker_name: str = ""):
+        """Append a turn to the unwindowed full session log used for clip extraction.
+        role: 'user' or 'assistant'. speaker_name: 'Jonny', 'chatter_X', or 'Kira'."""
+        self.full_session_log.append({
+            "role": role,
+            "content": content,
+            "timestamp": time.time(),
+            "speaker_name": speaker_name or ("Jonny" if role == "user" else "Kira"),
+        })
 
     def is_muted(self) -> bool:
         return time.time() < self.mute_until
@@ -288,6 +310,8 @@ class VTubeBot:
             # --- Start Vision Heartbeat ---
             print("   [System] Starting Vision Heartbeat...")
             tasks.append(self.vision_agent.heartbeat_loop())
+            if self.audio_agent:
+                tasks.append(self.audio_agent.heartbeat_loop())
             
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
@@ -315,12 +339,17 @@ class VTubeBot:
             print(f"Error in internal main loop: {e}")
             raise # Propagate to the self-healing wrapper
         finally:
-            # Save session memory before tearing down (if we were in an immersive session)
-            if self.immersive and (self.session_scene_log or self.session_highlights):
-                try:
+            # Save session memory and artifacts before tearing down
+            try:
+                if self.immersive and (self.session_scene_log or self.session_highlights):
                     await self._generate_session_summary()
-                except Exception as e:
-                    print(f"   [Session] Final summary failed: {e}")
+            except Exception as e:
+                print(f"   [Session] Final summary failed: {e}")
+            try:
+                if self.full_session_log and not self._session_artifacts_written:
+                    await self._write_session_artifacts()
+            except Exception as e:
+                print(f"   [Session] Final artifacts failed: {e}")
             print("--- Cleaning up resources... ---")
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
@@ -441,6 +470,9 @@ class VTubeBot:
                         "timestamp": time.time(),
                         "is_first_time": (username not in self.session_chatters_seen),
                     })
+                    self.chat_msg_timestamps.append(time.time())
+                    cutoff = time.time() - 300
+                    self.chat_msg_timestamps = [t for t in self.chat_msg_timestamps if t > cutoff]
                     self.session_chatters_seen.add(username)
 
                     if self.active_prediction is not None:
@@ -582,6 +614,12 @@ class VTubeBot:
                 if not handled_by_chat:
                     self.input_queue.task_done()
 
+    def get_chat_rate_per_min(self) -> float:
+        """Returns chat messages per minute over the last 60 seconds."""
+        cutoff = time.time() - 60
+        count = sum(1 for t in self.chat_msg_timestamps if t > cutoff)
+        return float(count)
+
 
     async def chat_batch_worker(self):
         """Drains the chat batch buffer every CHAT_BATCH_WINDOW seconds and emits
@@ -636,6 +674,10 @@ class VTubeBot:
         scene = ""
         if self.game_mode_controller.is_active:
             scene = self.vision_agent.get_vision_context()
+        if self.audio_agent and self.audio_agent.is_active():
+            audio_ctx = self.audio_agent.get_audio_context()
+            if audio_ctx:
+                scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
 
         request = (
             f"You have a batch of {len(batch)} chat message(s) to respond to. "
@@ -678,6 +720,13 @@ class VTubeBot:
         print(f"   >>> Kira (Chat Batch of {len(batch)}): {cleaned}")
         await self.ai_core.speak_text(cleaned)
         self.conversation_history.append({"role": "assistant", "content": cleaned})
+        chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
+        self._log_session_turn(
+            role="user",
+            content=f"[Chat batch from {chatter_names}]: " + " | ".join(m["message"] for m in batch),
+            speaker_name=chatter_names,
+        )
+        self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
         self.last_chat_response_time = time.time()
         self.ai_core.last_speech_finish_time = time.time()
 
@@ -786,6 +835,236 @@ class VTubeBot:
             p["votes_b"].add(username)
             p["votes_a"].discard(username)
 
+    async def run_stream_opener(self):
+        """Generates and speaks a scripted episodic opener for the stream.
+        Pulls last session's summary, recognizes returning chatters, sets the tone."""
+        if self.processing_lock.locked() or self.ai_core.is_speaking:
+            print("   [Opener] Busy — try again in a moment.")
+            return
+
+        async with self.processing_lock:
+            print("   [Opener] Preparing stream opener...")
+
+            last_session = self.memory.get_last_session_summary() or "(no prior session on record)"
+            recent_chatters = self.memory.get_recent_chatters(days=14, limit=10)
+            chatter_list = ", ".join(recent_chatters) if recent_chatters else "(no recognized regulars yet)"
+
+            scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else "(observer mode off)"
+
+            request = (
+                f"This is the opening moment of a fresh stream. Jonny just hit 'Go Live'. "
+                f"You are Kira, the co-host. Greet the audience with energy and personality. "
+                f"Make it feel like the start of an episode of a show — not a chatbot saying hi.\n\n"
+                f"What to weave in:\n"
+                f"- A line acknowledging the audience is here (don't read a list of names)\n"
+                f"- If returning regulars are likely watching, name 2-3 of them and reference what you know about them\n"
+                f"- A one-line recap or callback to last session if it exists\n"
+                f"- A brief tease of what's planned for today (the current activity or scene)\n"
+                f"- Hand it back to Jonny at the end ('alright, take it away' or similar)\n\n"
+                f"CONTEXT:\n"
+                f"- Last session's summary: {last_session}\n"
+                f"- Returning chatters (most active first): {chatter_list}\n"
+                f"- Current activity: {self.current_activity or 'no activity set yet'}\n"
+                f"- Current scene: {scene}\n\n"
+                f"Keep it under 30 seconds spoken (~80 words). Stay in character — sassy, warm, deadpan."
+            )
+
+            if self.ai_core.anthropic_client:
+                response = await self.ai_core.kira_deep_response(
+                    request=request,
+                    scene_context=scene,
+                    memory_context="",
+                    recent_history=[],
+                )
+            else:
+                response = await self.ai_core.llm_inference(
+                    messages=[{"role": "user", "content": request}],
+                    current_emotion=self.current_emotion,
+                    memory_context="",
+                    activity_context=self.current_activity,
+                )
+
+            cleaned = self.ai_core._clean_llm_response(response)
+            if cleaned and len(cleaned) > 10:
+                print(f"   >>> Kira (Opener): {cleaned}")
+                await self.ai_core.speak_text(cleaned)
+                self.conversation_history.append({"role": "assistant", "content": cleaned})
+                self._log_session_turn("assistant", cleaned, speaker_name="Kira (opener)")
+                self.ai_core.last_speech_finish_time = time.time()
+
+    async def run_stream_closer(self):
+        """Generates and speaks an episodic outro, then writes session artifacts (lore + clips)."""
+        if self.processing_lock.locked() or self.ai_core.is_speaking:
+            print("   [Closer] Busy — try again in a moment.")
+            return
+
+        async with self.processing_lock:
+            print("   [Closer] Preparing stream closer...")
+
+            highlights_text = "\n".join(
+                f"- {h['highlight']}" + (f" (Kira: {h['take']})" if h.get('take') else "")
+                for h in self.session_highlights[-10:]
+            ) or "(no highlights captured)"
+
+            seen = list(self.session_chatters_seen)
+            chatter_mentions = ", ".join(seen[:5]) if seen else "(quiet session)"
+
+            request = (
+                f"This is the closing moment of a stream. Jonny is about to hit 'End Stream'. "
+                f"You are Kira, wrapping up the episode.\n\n"
+                f"What to weave in:\n"
+                f"- A callback to one or two specific moments from today's session\n"
+                f"- A genuine shoutout to the most active chatters by name\n"
+                f"- A small tease for next time (return to a running bit, ongoing storyline, etc.)\n"
+                f"- A real goodnight — warm, not generic\n\n"
+                f"CONTEXT:\n"
+                f"- Today's session highlights: {highlights_text}\n"
+                f"- Active chatters today: {chatter_mentions}\n"
+                f"- Activity: {self.current_activity}\n\n"
+                f"Keep it under 25 seconds spoken (~70 words). End on Kira's voice. No questions back to Jonny — this is goodbye."
+            )
+
+            if self.ai_core.anthropic_client:
+                response = await self.ai_core.kira_deep_response(
+                    request=request,
+                    scene_context="",
+                    memory_context="",
+                    recent_history=self.conversation_history,
+                )
+            else:
+                response = await self.ai_core.llm_inference(
+                    messages=[{"role": "user", "content": request}],
+                    current_emotion=self.current_emotion,
+                    memory_context="",
+                    activity_context=self.current_activity,
+                )
+
+            cleaned = self.ai_core._clean_llm_response(response)
+            if cleaned and len(cleaned) > 10:
+                print(f"   >>> Kira (Closer): {cleaned}")
+                await self.ai_core.speak_text(cleaned)
+                self.conversation_history.append({"role": "assistant", "content": cleaned})
+                self._log_session_turn("assistant", cleaned, speaker_name="Kira (closer)")
+                self.ai_core.last_speech_finish_time = time.time()
+
+            try:
+                await self._write_session_artifacts()
+            except Exception as e:
+                print(f"   [Closer] Artifact generation failed: {e}")
+
+    async def _write_session_artifacts(self):
+        """At end of session, generate lore + clip candidate artifacts via Opus."""
+        if self._session_artifacts_written:
+            print("   [Artifacts] Already written for this session — skipping.")
+            return
+
+        if not self.full_session_log:
+            print("   [Artifacts] No session log to process — skipping.")
+            return
+
+        if not self.ai_core.anthropic_client:
+            print("   [Artifacts] Claude unavailable — skipping (would produce garbage on local Llama).")
+            return
+
+        activity = self.current_activity or "general"
+        activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity).strip('_').lower()[:40] or "session"
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        session_duration_min = int((time.time() - self.session_started_at) / 60)
+
+        transcript_lines = []
+        for entry in self.full_session_log:
+            rel_sec = int(entry["timestamp"] - self.session_started_at)
+            h = rel_sec // 3600
+            m = (rel_sec % 3600) // 60
+            s = rel_sec % 60
+            ts = f"{h:02d}:{m:02d}:{s:02d}"
+            speaker = entry.get("speaker_name", entry["role"])
+            content = entry["content"][:600]
+            transcript_lines.append(f"[{ts}] {speaker}: {content}")
+
+        transcript = "\n".join(transcript_lines)
+        if len(transcript) > 80000:
+            transcript = transcript[:16000] + "\n\n[... middle of session truncated for length ...]\n\n" + transcript[-40000:]
+
+        highlights_lines = [
+            f"- {h['highlight']}" + (f" — Kira's take: {h['take']}" if h.get('take') else "")
+            for h in self.session_highlights
+        ]
+        highlights_block = "\n".join(highlights_lines) if highlights_lines else "(none captured)"
+
+        artifact_request = (
+            f"You are reviewing a full stream session transcript for the AI VTuber Kira. "
+            f"Activity: {activity}. Duration: ~{session_duration_min} minutes. Date: {date_str}.\n\n"
+            f"You will produce TWO outputs, separated by the exact delimiter line `===CLIPS===`.\n\n"
+            f"OUTPUT 1 — LORE NOTES (markdown). Identify 3-7 durable canon points established or developed "
+            f"this session for this activity. Format as bullet points.\n\n"
+            f"OUTPUT 2 — CLIP CANDIDATES (markdown). Identify 8-12 of the funniest, sharpest, or most "
+            f"emotionally landing moments. For each one provide:\n"
+            f"  ### Clip N — Short title\n"
+            f"  **Timestamp:** approximate HH:MM:SS into stream\n"
+            f"  **Why it's good:** 1-2 sentences\n"
+            f"  **Suggested YouTube short title:** under 60 chars\n"
+            f"  **Key exchange:** 2-4 quoted lines\n\n"
+            f"=== TRANSCRIPT ===\n{transcript}\n\n"
+            f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
+            f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
+        )
+
+        print("   [Artifacts] Calling Opus to generate lore + clip candidates...")
+        try:
+            response = await self.ai_core.claude_inference(
+                messages=[{"role": "user", "content": artifact_request}],
+                system_prompt="You are a thoughtful editor reviewing a stream session. Output clean markdown.",
+                max_tokens=4000,
+            )
+        except Exception as e:
+            print(f"   [Artifacts] Opus call failed: {e}")
+            return
+
+        if not response:
+            print("   [Artifacts] Empty response from Opus.")
+            return
+
+        if "===CLIPS===" in response:
+            lore_section, clips_section = response.split("===CLIPS===", 1)
+        else:
+            lore_section, clips_section = "", response
+
+        lore_section = lore_section.strip()
+        clips_section = clips_section.strip()
+
+        if lore_section and len(lore_section) > 20:
+            os.makedirs("lore", exist_ok=True)
+            lore_path = os.path.join("lore", f"{activity_slug}.md")
+            header = f"\n\n## Session: {date_str} ({session_duration_min} min)\n\n"
+            try:
+                with open(lore_path, "a", encoding="utf-8") as f:
+                    if not os.path.exists(lore_path) or os.path.getsize(lore_path) == 0:
+                        f.write(f"# Lore: {activity}\n")
+                    f.write(header)
+                    f.write(lore_section)
+                    f.write("\n")
+                print(f"   [Artifacts] Lore appended → {lore_path}")
+            except Exception as e:
+                print(f"   [Artifacts] Lore write failed: {e}")
+
+        if clips_section and len(clips_section) > 50:
+            os.makedirs("clips", exist_ok=True)
+            clip_path = os.path.join("clips", f"{date_str}_{activity_slug}.md")
+            try:
+                with open(clip_path, "w", encoding="utf-8") as f:
+                    f.write(f"# Clip Candidates — {activity}\n\n")
+                    f.write(f"**Date:** {date_str}  \n")
+                    f.write(f"**Duration:** ~{session_duration_min} minutes  \n")
+                    f.write(f"**Activity:** {activity}\n\n---\n\n")
+                    f.write(clips_section)
+                    f.write("\n")
+                print(f"   [Artifacts] Clip candidates written → {clip_path}")
+            except Exception as e:
+                print(f"   [Artifacts] Clip write failed: {e}")
+
+        self._session_artifacts_written = True
+
     async def request_thoughts(self):
         """Triggered by the dashboard 'Invite' button. Asks Kira to share her honest
         take on whatever is happening on screen right now. Uses the deep brain (Claude Opus)
@@ -797,6 +1076,10 @@ class VTubeBot:
             return
         async with self.processing_lock:
             scene = self.vision_agent.get_vision_context()
+            if self.audio_agent and self.audio_agent.is_active():
+                audio_ctx = self.audio_agent.get_audio_context()
+                if audio_ctx:
+                    scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
             memory = self.memory.get_semantic_context(f"thoughts on {self.current_activity}")
 
             request = (
@@ -818,6 +1101,7 @@ class VTubeBot:
                 print(f"   >>> Kira (Invite/Deep): {cleaned}")
                 await self.ai_core.speak_text(cleaned)
                 self.conversation_history.append({"role": "assistant", "content": cleaned})
+                self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira (invited)")
                 self.ai_core.last_speech_finish_time = time.time()
 
     async def dynamic_observer_loop(self):
@@ -1080,6 +1364,10 @@ class VTubeBot:
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         if self.ai_core.anthropic_client:
             scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+            if self.audio_agent and self.audio_agent.is_active():
+                audio_ctx = self.audio_agent.get_audio_context()
+                if audio_ctx:
+                    scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
             try:
                 response = await self.ai_core.kira_deep_response(
                     request=full_prompt,
@@ -1108,6 +1396,7 @@ class VTubeBot:
             print(f"   >>> Kira (Bored): {cleaned}")
             await self.ai_core.speak_text(cleaned)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
+            self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
 
 
     async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False):
@@ -1125,9 +1414,10 @@ class VTubeBot:
              if self.conversation_segment: 
                  self.conversation_segment[-1]["content"] += f"\n\n{llm_user_text}"
         else:
-             # 2. Add new message if role is different
-             self.conversation_history.append({"role": role, "content": llm_user_text})
-             self.conversation_segment.append({"role": role, "content": llm_user_text})
+            # 2. Add new message if role is different
+            self.conversation_history.append({"role": role, "content": llm_user_text})
+            self._log_session_turn(role=role, content=original_text, speaker_name="Jonny")
+            self.conversation_segment.append({"role": role, "content": llm_user_text})
         
         # --- SLIDING WINDOW: Keep 20 turns for better conversational memory ---
         if len(self.conversation_history) > 20:
@@ -1152,6 +1442,11 @@ class VTubeBot:
             if brief_mode:
                 brief_instruction = "[BRIEF MODE: Respond in one short, natural sentence. No elaboration, no follow-up question.]"
                 effective_situational = (situational_context + "\n\n" + brief_instruction) if situational_context else brief_instruction
+            # Audio context — only present when audio agent is active and has a summary
+            if self.audio_agent and self.audio_agent.is_active():
+                audio_ctx = self.audio_agent.get_audio_context()
+                if audio_ctx:
+                    effective_situational = (effective_situational + "\n\n" + audio_ctx) if effective_situational else audio_ctx
 
             # Try Claude Sonnet 4.6 first — streamed when available for low latency
             full_response_text = ""
@@ -1171,9 +1466,22 @@ class VTubeBot:
                         f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n"
                         f"{memory_context}"
                     )
-                if effective_situational:
+                # Audio gets its own dedicated section so Kira recognizes it as a separate sense
+                audio_part = ""
+                if self.audio_agent and self.audio_agent.is_active():
+                    audio_part = self.audio_agent.get_audio_context()
+
+                # Strip audio out of effective_situational if it was concatenated there, to avoid duplication
+                visual_part = effective_situational
+                if audio_part and visual_part and audio_part in visual_part:
+                    visual_part = visual_part.replace(audio_part, "").strip()
+
+                if audio_part:
+                    chat_system += f"\n\n{audio_part}"
+
+                if visual_part:
                     chat_system += (
-                        f"\n\n[CURRENT PERCEPTION \u2014 what is on screen RIGHT NOW]\n{effective_situational}"
+                        f"\n\n[CURRENT PERCEPTION \u2014 what is on screen RIGHT NOW]\n{visual_part}"
                     )
                 try:
                     if ENABLE_CLAUDE_STREAMING:
@@ -1229,6 +1537,7 @@ class VTubeBot:
 
             # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
+            self._log_session_turn(role="assistant", content=full_response_text, speaker_name="Kira")
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})
             
             # Store raw turn in "Turns" collection (for analytics)
