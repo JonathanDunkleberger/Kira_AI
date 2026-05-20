@@ -285,9 +285,10 @@ class MemoryManager:
         except Exception as e:
             print(f"   [Memory] chatter message log failed: {e}")
 
-    def store_chatter_fact(self, username: str, platform: str, fact: str):
+    def store_chatter_fact(self, username: str, platform: str, fact: str, tone: str = ""):
         """Stores a durable fact about a chatter (opinions, preferences, callbacks).
-        Upserts on a deterministic ID so we don't get duplicates of similar facts."""
+        Upserts on a deterministic ID so we don't get duplicates of similar facts.
+        Optional tone tag describes how this chatter tends to interact."""
         try:
             text = f"{username}: {fact}"
             fact_id = f"chatter::{username.lower()}::{hashlib.md5(fact.encode()).hexdigest()[:12]}"
@@ -297,6 +298,8 @@ class MemoryManager:
                 "platform": platform,
                 "timestamp": time.time(),
             }
+            if tone:
+                meta["tone"] = tone
             emb = self.embedding_model.encode(text).tolist()
             self.chatters.upsert(
                 ids=[fact_id],
@@ -304,7 +307,8 @@ class MemoryManager:
                 documents=[text],
                 metadatas=[meta],
             )
-            print(f"   [ChatterMem] Stored: {username} — {fact[:60]}")
+            tone_str = f" [{tone}]" if tone else ""
+            print(f"   [ChatterMem] Stored: {username} — {fact[:60]}{tone_str}")
         except Exception as e:
             print(f"   [Memory] chatter fact storage failed: {e}")
 
@@ -322,9 +326,12 @@ class MemoryManager:
 
             facts = []
             recent_msgs = []
+            tones = []
             for doc, meta in zip(results["documents"], results["metadatas"]):
                 if meta.get("type") == "chatter_fact":
                     facts.append(doc)
+                    if meta.get("tone"):
+                        tones.append(meta["tone"])
                 else:
                     recent_msgs.append((meta.get("timestamp", 0), doc))
 
@@ -334,6 +341,9 @@ class MemoryManager:
             lines = []
             if facts:
                 lines.append(f"What you know about {username}: " + " | ".join(facts[:5]))
+            if tones:
+                # Most recently stored tone wins
+                lines.append(f"General vibe: {tones[-1]}")
             if recent_msgs:
                 lines.append(f"Recent {username} messages: " + " | ".join(reversed(recent_msgs)))
             return "\n".join(lines)
@@ -351,6 +361,17 @@ class MemoryManager:
             return not results or not results.get("documents")
         except Exception:
             return False
+
+    def count_chatter_messages(self, username: str) -> int:
+        """Return total historical message count for this chatter across all sessions."""
+        try:
+            results = self.chatters.get(
+                where={"username": username},
+            )
+            return len(results.get("ids", []))
+        except Exception as e:
+            print(f"   [Memory] count_chatter_messages failed: {e}")
+            return 0
 
     def get_recent_chatters(self, days: int = 14, limit: int = 20) -> list:
         """Returns usernames seen in chat within the last N days, ranked by activity."""

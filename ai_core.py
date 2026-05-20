@@ -358,10 +358,13 @@ class AI_Core:
             print(f"   [Triage] Error: {e}; defaulting to RESPOND")
             return "RESPOND"
 
-    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600) -> str:
+    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False) -> str:
         """Routes a generation call to Claude Opus. Used for deep cognitive moments
-        where intelligence matters more than latency. Falls back to local LLM if Claude unavailable."""
+        where intelligence matters more than latency. Falls back to local LLM if Claude unavailable
+        unless force_claude=True, in which case exceptions are re-raised for callers to handle."""
         if not self.anthropic_client:
+            if force_claude:
+                raise RuntimeError("Claude client not initialised and force_claude=True — no local fallback.")
             print("   [Brain] Claude unavailable \u2014 falling back to local Llama.")
             return await self.llm_inference(
                 messages=messages,
@@ -392,6 +395,8 @@ class AI_Core:
                 return response.content[0].text.strip()
             return ""
         except Exception as e:
+            if force_claude:
+                raise
             print(f"   [Brain] Claude call failed: {e}. Falling back to local.")
             return await self.llm_inference(
                 messages=messages,
@@ -402,7 +407,7 @@ class AI_Core:
                 max_tokens_override=max_tokens,
             )
 
-    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None) -> str:
+    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None, max_tokens: int = 400) -> str:
         """Generates a deep, in-character Kira response using Claude Opus.
         Used for the invite button, reflective questions, and moments where
         intelligence and nuance matter more than latency."""
@@ -425,7 +430,7 @@ class AI_Core:
         return await self.claude_inference(
             messages=history_to_send,
             system_prompt=system_prompt,
-            max_tokens=400,
+            max_tokens=max_tokens,
         )
 
     async def claude_chat_inference(self, messages: list, system_prompt: str, max_tokens: int = 400) -> str:

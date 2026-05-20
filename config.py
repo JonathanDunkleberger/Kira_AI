@@ -1,4 +1,3 @@
-
 # Kira AI - Config loads from .env for secrets and sensitive info
 import os
 from dotenv import load_dotenv
@@ -19,7 +18,7 @@ AI_NAME = os.getenv("AI_NAME", "Kira")
 # Tuning VAD for faster response (0.4s silence triggers end-of-speech)
 PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))
 VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
-MEMORY_PATH = os.getenv("MEMORY_PATH", "memory_db/")
+MEMORY_PATH = os.getenv("MEMORY_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory_db"))
 
 # Secrets and API keys (must be in .env, never commit real values)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
@@ -41,18 +40,18 @@ VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
 ENABLE_AUDIO_AGENT = os.getenv("ENABLE_AUDIO_AGENT", "true").lower() == "true"
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
-AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview")
+AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
 
 # Feature Flags
 ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"
 ENABLE_YOUTUBE_CHAT = os.getenv("ENABLE_YOUTUBE_CHAT", "true").lower() == "true"
 
 # Chat batching config
-CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))    # seconds to collect chat before responding
-CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))  # min seconds between chat responses
+CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
+CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
 ENABLE_CHATTER_MEMORY = os.getenv("ENABLE_CHATTER_MEMORY", "true").lower() == "true"
 
-# Hybrid Brain (Claude Opus for deep moments)
+# Hybrid Brain
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_DEEP_MODEL = os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7")
 ENABLE_CLAUDE_BRAIN = os.getenv("ENABLE_CLAUDE_BRAIN", "true").lower() == "true"

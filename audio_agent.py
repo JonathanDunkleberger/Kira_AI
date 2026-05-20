@@ -17,7 +17,7 @@ except ImportError:
     np = None
     PYAUDIO_AVAILABLE = False
 
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
 from config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL
 
 
@@ -375,6 +375,12 @@ class AudioAgent:
             self.consecutive_silent = 0
             self.audio_summary = content
             self.last_capture_time = time.time()
+        except OpenAINotFoundError as e:
+            # Model doesn't exist or account lacks access — disable audio agent for this session
+            print(f"   [Audio] FATAL: Audio model '{AUDIO_MODEL}' not available: {e}")
+            print(f"   [Audio] Disabling audio agent for this session. Check AUDIO_MODEL in .env.")
+            self.mode = AUDIO_MODE_OFF  # Force off so heartbeat stops trying
+            return
         except Exception as e:
             print(f"   [Audio] API call failed: {e}")
 

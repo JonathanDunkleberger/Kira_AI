@@ -196,6 +196,77 @@ class KiraDashboard(ctk.CTk):
 
         _divider(frame)
 
+        # ── Autonomous VN Mode (Phase 1) ────────────────────────────────
+        ctk.CTkLabel(
+            frame, text="AUTONOMOUS VN MODE (Experimental)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+        ).pack(anchor="w", padx=14, pady=(10, 2))
+        ctk.CTkLabel(
+            frame,
+            text="Kira reads, paces, and reacts autonomously. Pauses on choices and menus.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 4))
+        self.autopilot_switch = ctk.CTkSwitch(
+            frame, text="Autopilot",
+            command=self._toggle_autopilot,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.autopilot_switch.pack(anchor="w", padx=14, pady=(0, 6))
+
+        ctk.CTkLabel(
+            frame, text="Advance key:",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.autopilot_key_menu = ctk.CTkOptionMenu(
+            frame,
+            values=["Space", "Enter", "Left Click"],
+            command=self._set_autopilot_key,
+            fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=28,
+        )
+        self.autopilot_key_menu.set("Space")
+        self.autopilot_key_menu.pack(fill="x", padx=12, pady=(0, 6))
+
+        ctk.CTkLabel(
+            frame, text="Read delay — base (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.autopilot_base_slider = ctk.CTkSlider(
+            frame, from_=0.5, to=5.0, number_of_steps=45,
+            command=self._update_autopilot_pacing,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.autopilot_base_slider.set(2.5)
+        self.autopilot_base_slider.pack(fill="x", padx=14, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame, text="Read delay — max (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.autopilot_max_slider = ctk.CTkSlider(
+            frame, from_=3.0, to=12.0, number_of_steps=45,
+            command=self._update_autopilot_pacing,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.autopilot_max_slider.set(8.0)
+        self.autopilot_max_slider.pack(fill="x", padx=14, pady=(0, 6))
+
+        self.autopilot_status_label = ctk.CTkLabel(
+            frame, text="Autopilot: OFF",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.autopilot_status_label.pack(anchor="w", padx=14, pady=(0, 4))
+        self.autopilot_resume_btn = ctk.CTkButton(
+            frame, text="Resume after failsafe",
+            command=self._resume_autopilot,
+            fg_color=C_YELLOW, hover_color=C_ACCENT, text_color=C_BG,
+            height=28, font=ctk.CTkFont(size=11), state="disabled",
+        )
+        self.autopilot_resume_btn.pack(fill="x", padx=12, pady=(0, 10))
+
+        _divider(frame)
+
         ctk.CTkLabel(frame, text="AUDIO HEARING",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=14, pady=(10, 2))
@@ -585,7 +656,49 @@ class KiraDashboard(ctk.CTk):
         else:
             self.vn_status_label.configure(text="VN Auto-Play: Off", text_color=C_MUTED)
         print(f"   [Dashboard] VN Auto-Play: {vn_on}")
+    def _toggle_autopilot(self):
+        """Enable or disable the Autonomous VN Autopilot."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is None:
+            return
+        enabled = bool(self.autopilot_switch.get())
+        ap.enabled = enabled
+        if enabled:
+            self.bot.autopilot_paused_for_input = False
+            import asyncio
+            if self.bot.event_loop and self.bot.event_loop.is_running():
+                self.bot.event_loop.call_soon_threadsafe(ap.start)
+        else:
+            if self.bot.event_loop and self.bot.event_loop.is_running():
+                self.bot.event_loop.call_soon_threadsafe(ap.stop)
+        print(f"   [Dashboard] Autopilot: {'ON' if enabled else 'OFF'}")
 
+    def _set_autopilot_key(self, choice: str):
+        """Map dropdown choice to the VNInputController advance key."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is None:
+            return
+        key_map = {"Space": "space", "Enter": "enter", "Left Click": "click"}
+        ap.input_controller.set_advance_key(key_map.get(choice, "space"))
+
+    def _update_autopilot_pacing(self, _=None):
+        """Push slider values to the autopilot pacing config."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is None:
+            return
+        ap.pacing_base = float(self.autopilot_base_slider.get())
+        ap.pacing_max = float(self.autopilot_max_slider.get())
+
+    def _resume_autopilot(self):
+        """Resume autopilot after Jonny has handled the failsafe screen."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is None or not ap.is_paused:
+            return
+        self.bot.autopilot_paused_for_input = False
+        import asyncio
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            self.bot.event_loop.call_soon_threadsafe(ap.resume_after_failsafe)
+        print("   [Dashboard] Autopilot: resumed after failsafe.")
     def _invite_kira(self):
         """Cross-thread call: schedule Kira's request_thoughts on the bot's event loop."""
         import asyncio
@@ -701,9 +814,32 @@ class KiraDashboard(ctk.CTk):
             self._refresh_mute_status()
             self._refresh_vibe_meter()
             self._refresh_audio_status()
+            self._refresh_autopilot_status()
         except Exception:
             pass
         self.after(500, self._update_loop)
+
+    def _refresh_autopilot_status(self):
+        """Poll autopilot state every tick and update status label + resume button."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is None:
+            return
+        if ap.is_running:
+            self.autopilot_status_label.configure(
+                text="Autopilot: RUNNING", text_color=C_GREEN
+            )
+            self.autopilot_resume_btn.configure(state="disabled")
+        elif ap.is_paused:
+            reason = ap.pause_reason or "unknown"
+            self.autopilot_status_label.configure(
+                text=f"Autopilot: PAUSED — {reason}", text_color=C_YELLOW
+            )
+            self.autopilot_resume_btn.configure(state="normal")
+        else:
+            self.autopilot_status_label.configure(
+                text="Autopilot: OFF", text_color=C_MUTED
+            )
+            self.autopilot_resume_btn.configure(state="disabled")
 
     def _refresh_transcript(self):
         history = self.bot.conversation_history

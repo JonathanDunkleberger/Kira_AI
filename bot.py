@@ -10,12 +10,12 @@ import random
 import re
 import os
 import gc # Added garbage collection
+import glob
 from datetime import datetime
 from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
 from memory import MemoryManager
-from summarizer import SummarizationManager
 from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
@@ -30,6 +30,7 @@ from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
+from vn_autopilot import VNAutopilot
 
 # Graceful pyautogui import (required for VN auto-play only)
 try:
@@ -86,7 +87,6 @@ class VTubeBot:
         self.processing_lock = asyncio.Lock()
         self.ai_core = AI_Core(self.interruption_event)
         self.memory = MemoryManager()
-        self.summarizer = SummarizationManager(self.ai_core, self.memory)
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
         
         # --- NEW: Shared Input Queue ---
@@ -122,6 +122,13 @@ class VTubeBot:
         self.session_highlights: list = []  # Highlights captured this session
         self.last_highlight_check_time = 0
 
+        # Track recent observer comments to prevent repetitive structures/phrases
+        self.recent_observer_comments: list[str] = []
+
+        # Autonomous VN Mode (Phase 1) — initialized after ai_core is ready in _main_loop
+        self.vn_autopilot: VNAutopilot | None = None
+        self.autopilot_paused_for_input: bool = False  # True when failsafe is active
+
         # Activity context — describes what Kira and Jonny are currently doing
         self.current_activity = ""
 
@@ -140,6 +147,20 @@ class VTubeBot:
         self.session_chatters_seen: set = set()    # usernames seen in this session (for welcome detection)
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
+
+        # Recent activity brief — generated at startup, cached for the session
+        self.recent_activity_brief: str = ""
+        self.recent_chatters_brief: str = ""
+
+        # Per-chatter session-level message log (last 15 per chatter, this session only)
+        self.session_chatter_logs: dict[str, list[dict]] = {}
+        # Per-chatter "first seen this session" timestamps for returning-regular detection
+        self.session_chatter_first_seen: dict[str, float] = {}
+        # Per-chatter "last spoke this session" timestamps for silence detection
+        self.session_chatter_last_spoke: dict[str, float] = {}
+
+        # Running bits / callbacks that have emerged this session
+        self.session_running_bits: list[dict] = []
 
         # Vibe meter tracking
         self.chat_msg_timestamps: list = []  # rolling window of chat msg timestamps for rate calculation
@@ -179,6 +200,44 @@ class VTubeBot:
     def unmute(self):
         self.mute_until = 0.0
         print("   [Mute] Unmuted")
+
+    # ── Autonomous VN Autopilot wiring ────────────────────────────────────────
+
+    async def _autopilot_speak(self, text: str):
+        """Callback: speak a reaction or failsafe line from the autopilot via TTS."""
+        if not text or self.is_muted():
+            return
+        cleaned = self.ai_core._clean_llm_response(text)
+        if cleaned and len(cleaned) > 2:
+            print(f"   [Autopilot] Kira: {cleaned}")
+            await self.ai_core.speak_text(cleaned)
+            self.conversation_history.append({"role": "assistant", "content": cleaned})
+            self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+
+    def _autopilot_on_failsafe(self, screen_type: str):
+        """Callback: mark dashboard flag when failsafe triggers."""
+        self.autopilot_paused_for_input = True
+        print(f"   [Autopilot] Failsafe active — paused for Jonny ({screen_type}).")
+
+    async def _autopilot_watchdog(self):
+        """
+        Lightweight loop that keeps the autopilot alive while enabled.
+        Restarts the autopilot task if it completes unexpectedly while still enabled.
+        Runs forever; no-ops when autopilot is disabled or paused.
+        """
+        while self.is_running:
+            await asyncio.sleep(0.5)
+            if self.vn_autopilot is None:
+                continue
+            if not self.vn_autopilot.enabled:
+                continue
+            if self.vn_autopilot.is_paused:
+                continue
+            # If running flag is True but the internal task is gone, restart it
+            if self.vn_autopilot.is_running and (
+                self.vn_autopilot._task is None or self.vn_autopilot._task.done()
+            ):
+                self.vn_autopilot._task = asyncio.ensure_future(self.vn_autopilot._loop())
 
     def interrupt(self):
         """Cuts off the current utterance without changing mute state."""
@@ -265,6 +324,119 @@ class VTubeBot:
                     except Exception: pass
 
 
+    async def generate_startup_brief(self):
+        """At startup, build a 'what happened recently' brief from the most recent
+        lore and clips files. This gets injected into every conversation context
+        so Kira always has baseline awareness of recent stream history without
+        needing semantic retrieval to surface it.
+
+        Also builds a recent-chatters brief from chatter memory."""
+
+        if not self.ai_core.anthropic_client:
+            print("   [StartupBrief] Claude unavailable — skipping.")
+            return
+
+        print("   [StartupBrief] Building recent activity brief...")
+
+        # === Recent Activity Brief ===
+        lore_files = sorted(glob.glob("lore/*.md"), key=os.path.getmtime, reverse=True)
+        clip_files = sorted(glob.glob("clips/*.md"), key=os.path.getmtime, reverse=True)
+
+        lore_content = ""
+        clips_content = ""
+
+        if lore_files:
+            try:
+                with open(lore_files[0], "r", encoding="utf-8") as f:
+                    lore_content = f.read()[-8000:]  # Last 8KB to bound size
+            except Exception as e:
+                print(f"   [StartupBrief] Lore read failed: {e}")
+
+        if clip_files:
+            try:
+                with open(clip_files[0], "r", encoding="utf-8") as f:
+                    clips_content = f.read()[:8000]  # First 8KB
+            except Exception as e:
+                print(f"   [StartupBrief] Clips read failed: {e}")
+
+        if not lore_content and not clips_content:
+            print("   [StartupBrief] No prior session files found — first session, no brief.")
+            self.recent_activity_brief = ""
+        else:
+            brief_request = (
+                "You are summarizing the most recent stream session for the AI VTuber Kira "
+                "so she has natural awareness of what happened last time when starting a new session.\n\n"
+                "Generate a tight 150-200 word brief covering:\n"
+                "- WHAT activity/game/anime was streamed and roughly how long\n"
+                "- WHO showed up in chat (named chatters and what they were like)\n"
+                "- WHAT happened emotionally/comedically — running bits, in-jokes, key moments\n"
+                "- HOW Jonny was feeling by the end (energy level, plans for next time)\n\n"
+                "Write in first-person FROM KIRA'S PERSPECTIVE — 'we streamed', 'classiccoldfish was there', "
+                "'I made a joke about', etc. This will be injected directly into her context as memory.\n"
+                "Be specific. Names, jokes, beats. No generic summary language.\n\n"
+                f"=== LORE FILE (canonical events) ===\n{lore_content}\n\n"
+                f"=== CLIPS FILE (notable moments) ===\n{clips_content}\n\n"
+                "Output ONLY the 150-200 word brief. No preamble, no headers."
+            )
+
+            # Retry up to 3 times with exponential backoff for Anthropic overload errors
+            brief = None
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    brief = await self.ai_core.claude_inference(
+                        messages=[{"role": "user", "content": brief_request}],
+                        system_prompt="You are a memory consolidator. Output clean prose only.",
+                        max_tokens=400,
+                        force_claude=True,  # Do not fall back to local Llama
+                    )
+                    if brief and len(brief.strip()) > 200:
+                        break  # Successfully got a real brief from Claude
+                    else:
+                        print(f"   [StartupBrief] Brief too short ({len(brief or '')} chars), likely local fallback. Retrying...")
+                        brief = None
+                except Exception as e:
+                    err_str = str(e).lower()
+                    is_overload = "overloaded" in err_str or "529" in err_str or "rate" in err_str
+                    if is_overload and attempt < max_retries - 1:
+                        wait_time = 2 ** attempt  # 1s, 2s, 4s
+                        print(f"   [StartupBrief] Anthropic overloaded, retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})...")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        print(f"   [StartupBrief] Activity brief failed after {attempt + 1} attempts: {e}")
+                        break
+
+            if brief and len(brief.strip()) > 200:
+                self.recent_activity_brief = brief.strip()
+                print(f"   [StartupBrief] Generated activity brief ({len(self.recent_activity_brief)} chars)")
+            else:
+                self.recent_activity_brief = ""
+                print(f"   [StartupBrief] Skipping brief — Claude unavailable or response rejected.")
+
+        # === Recent Chatters Brief ===
+        try:
+            recent_chatters = self.memory.get_recent_chatters(days=14, limit=10)
+            if recent_chatters:
+                chatter_lines = []
+                for username in recent_chatters[:8]:
+                    ctx = self.memory.get_chatter_context(username, n_results=2)
+                    if ctx:
+                        if "What you know about" in ctx:
+                            what_line = ctx.split("What you know about")[1].split("\n")[0]
+                            chatter_lines.append(f"- {username}: {what_line.split(':', 1)[-1].strip()}")
+                        else:
+                            chatter_lines.append(f"- {username}")
+                    else:
+                        chatter_lines.append(f"- {username}")
+
+                if chatter_lines:
+                    self.recent_chatters_brief = (
+                        "Chatters you've seen in the last 14 days:\n" + "\n".join(chatter_lines)
+                    )
+                    print(f"   [StartupBrief] Recent chatters: {len(chatter_lines)} known")
+        except Exception as e:
+            print(f"   [StartupBrief] Chatters brief failed: {e}")
+
     async def _main_loop(self):
         """Contains the primary startup and listening logic."""
         self.event_loop = asyncio.get_running_loop()
@@ -285,7 +457,18 @@ class VTubeBot:
             )
 
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
-            
+
+            # Generate the recent-activity brief now, before any conversation happens
+            await self.generate_startup_brief()
+
+            # Set up Autonomous VN autopilot (disabled by default; dashboard toggles it)
+            self.vn_autopilot = VNAutopilot(
+                ai_core=self.ai_core,
+                vision_client=self.vision_agent.client,
+            )
+            self.vn_autopilot.on_speak = self._autopilot_speak
+            self.vn_autopilot.on_failsafe = self._autopilot_on_failsafe
+
             tasks = []
             
             # 1. Start Twitch Bot (if enabled)
@@ -319,8 +502,11 @@ class VTubeBot:
             # --- Highlight Extraction Loop (long-term memory layer) ---
             tasks.append(self.highlight_extraction_loop())
 
-            # --- VN Auto-Play Agent (standby until activity_type == ACTIVITY_VN) ---
+            # --- VN Auto-Play Agent (legacy standby loop) ---
             tasks.append(self.vn_gameplay_loop())
+
+            # --- Autonomous VN Autopilot watchdog (wakes up when dashboard enables it) ---
+            tasks.append(self._autopilot_watchdog())
 
             print("   [System] Starting Background Tasks...")
             tasks.append(self.background_loop())
@@ -652,18 +838,82 @@ class VTubeBot:
         if not batch:
             return
 
-        chatter_context_lines = []
+        now = time.time()
+
+        # --- Change 1: Log each chatter's message to the session rolling log ---
+        for msg in batch:
+            username = msg.get("username", "unknown")
+            content = msg.get("message", "")
+            if username not in self.session_chatter_logs:
+                self.session_chatter_logs[username] = []
+                self.session_chatter_first_seen[username] = now
+            self.session_chatter_logs[username].append({"content": content, "timestamp": now})
+            # Keep only last 15 per chatter
+            self.session_chatter_logs[username] = self.session_chatter_logs[username][-15:]
+            self.session_chatter_last_spoke[username] = now
+
+        # --- Change 2: Detect returning regulars (>10 historical msgs, first message this session) ---
+        returning_regulars = []
+        for msg in batch:
+            username = msg.get("username", "unknown")
+            is_first_this_session = abs(self.session_chatter_first_seen.get(username, 0) - now) < 0.1
+            if is_first_this_session:
+                historical_count = self.memory.count_chatter_messages(username)
+                if historical_count >= 10:
+                    returning_regulars.append((username, historical_count))
+
+        returning_regulars_block = ""
+        if returning_regulars:
+            lines = []
+            for username, count in returning_regulars:
+                lines.append(
+                    f"- {username} (has sent ~{count} messages across past sessions — a known regular)"
+                )
+            returning_regulars_block = (
+                "\n\n[RETURNING REGULARS — these chatters are showing up after a gap]\n"
+                + "\n".join(lines)
+                + "\nAcknowledge them naturally and warmly in your response — this is their first message "
+                "this session and they're regulars. Don't be cheesy about it, but make them feel seen. "
+                "Reference something specific you know about them when possible.\n"
+            )
+
+        # --- Change 5: Build per-chatter scoped context blocks to prevent attribution bleed ---
         first_timers = []
+        unique_users_in_batch = set(msg["username"] for msg in batch)
+        chatter_context_blocks = []
         for msg in batch:
             username = msg["username"]
             if msg["is_first_time"]:
                 first_timers.append(username)
+        for username in unique_users_in_batch:
             if ENABLE_CHATTER_MEMORY:
                 ctx = self.memory.get_chatter_context(username, n_results=3)
                 if ctx:
-                    chatter_context_lines.append(ctx)
+                    chatter_context_blocks.append(
+                        f"--- ABOUT {username} (these facts ONLY apply to {username}, not anyone else) ---\n{ctx}\n"
+                    )
+        chatter_context = "\n".join(chatter_context_blocks) if chatter_context_blocks else "(no prior context on these chatters)"
 
-        chatter_context = "\n".join(chatter_context_lines) if chatter_context_lines else "(no prior context on these chatters)"
+        # --- Change 1: Augment with this-session message history per chatter ---
+        session_history_block = ""
+        for username in unique_users_in_batch:
+            log = self.session_chatter_logs.get(username, [])
+            prior = [entry for entry in log if entry["timestamp"] < now - 1.0]
+            if len(prior) >= 2:
+                recent_lines = [f'  "{e["content"]}"' for e in prior[-8:]]
+                session_history_block += (
+                    f"\n[{username} earlier this session, in order]:\n" + "\n".join(recent_lines) + "\n"
+                )
+        if session_history_block:
+            chatter_context += "\n\n=== THIS SESSION'S CHAT HISTORY ===" + session_history_block
+
+        # --- Change 3: Running bits block ---
+        running_bits_block = ""
+        if self.session_running_bits:
+            bits_str = "\n".join(
+                f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-15:]
+            )
+            running_bits_block = f"\n[RUNNING BITS THIS SESSION]\n{bits_str}\n"
 
         batch_lines = []
         for msg in batch:
@@ -679,9 +929,17 @@ class VTubeBot:
             if audio_ctx:
                 scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
 
+        # Prepend recent activity brief so Kira has stream-level context for chat batches too
+        session_context_block = ""
+        if self.recent_activity_brief:
+            session_context_block = f"\n[LAST SESSION RECAP]\n{self.recent_activity_brief}\n\n"
+
         request = (
             f"You have a batch of {len(batch)} chat message(s) to respond to. "
             f"Decide the best engagement move:\n\n"
+            f"{session_context_block}"
+            f"{returning_regulars_block}"
+            f"{running_bits_block}"
             f"CHAT BATCH:\n{batch_str}\n\n"
             f"WHAT YOU KNOW ABOUT THESE CHATTERS:\n{chatter_context}\n\n"
             f"CURRENT SCENE: {scene or 'no scene context'}\n\n"
@@ -691,11 +949,24 @@ class VTubeBot:
             f"- If you have prior context on a chatter, reference it naturally (callbacks land hard).\n"
             f"- If multiple messages have the same vibe, consolidate.\n"
             f"- If messages are pure spam/'hi'/no substance, output ONLY: SKIP\n"
-            f"- Keep it to 2-3 sentences max. You are a stream co-host, not a chat reader.\n"
+            f"- Length scales with batch size: 1 chatter = 1-2 sentences (a quick aside, not a full monologue). 2-3 chatters = 2-3 sentences. 4+ chatters = up to 4 sentences max. NEVER more than 4 sentences regardless of size.\n"
+            f"- You are a stream co-host weaving chat into the conversation, not a chat reader. The shorter and punchier, the better.\n"
             f"- Stay in character \u2014 sassy, witty, warm, deadpan.\n"
             f"- DO NOT respond if there's nothing real to say. SKIP is a valid output.\n\n"
+            f"IMPORTANT: When you reference chatter facts, only attribute them to the specific chatter "
+            f"they belong to. Do not mix up facts between chatters. If you're not sure who said/did something, "
+            f"don't attribute it.\n\n"
             f"Your response (or SKIP):"
         )
+
+        # Cap response length based on batch size — solo chatter shouldn't get a monologue
+        batch_size = len(batch)
+        if batch_size == 1:
+            chat_max_tokens = 120
+        elif batch_size <= 3:
+            chat_max_tokens = 200
+        else:
+            chat_max_tokens = 280
 
         if self.ai_core.anthropic_client:
             response = await self.ai_core.kira_deep_response(
@@ -703,6 +974,7 @@ class VTubeBot:
                 scene_context=scene,
                 memory_context="",
                 recent_history=self.conversation_history,
+                max_tokens=chat_max_tokens,
             )
         else:
             response = await self.ai_core.llm_inference(
@@ -753,27 +1025,98 @@ class VTubeBot:
                     "You extract durable facts about a chatter for an AI VTuber's persistent memory. "
                     "Only save things that will still matter next week \u2014 opinions, preferences, jokes "
                     "they've made, things they're known for. Skip greetings, reactions, generic statements.\n\n"
-                    "Output ONLY the fact as one short sentence, OR the literal word: NONE\n\n"
-                    "Example fact: 'Thinks Ferris is a war criminal'\n"
-                    "Example fact: 'Death Note enjoyer'\n"
-                    "Example fact: 'Always asks about food'\n"
+                    "Output a JSON object with two fields:\n"
+                    '  {"fact": "short sentence or NONE", "tone": "one of: wholesome|chaotic|supportive|dry|sharp|earnest|playful|challenging"}\n\n'
+                    "Example: {\"fact\": \"Thinks Ferris is a war criminal\", \"tone\": \"dry\"}\n"
+                    "Example: {\"fact\": \"NONE\", \"tone\": \"wholesome\"}\n"
+                    "If no durable fact exists, use \"NONE\" for fact but still include tone.\n"
+                    "Output ONLY the JSON object, nothing else."
                 )
                 user = (
                     f"Chatter: {username}\n"
                     f"Message: \"{message}\"\n"
                     f"Kira's response: \"{kira_response[:200]}\"\n\n"
-                    f"Extract a durable fact about this chatter, or output NONE."
+                    f"Extract a durable fact and tonal tag for this chatter."
                 )
                 raw = await self.ai_core.claude_chat_inference(
                     messages=[{"role": "user", "content": user}],
                     system_prompt=system,
-                    max_tokens=60,
+                    max_tokens=80,
                 )
-                fact = (raw or "").strip().rstrip(".")
+                if not raw:
+                    continue
+                raw = raw.strip()
+                # Parse JSON response
+                import json as _json
+                fact = ""
+                tone = ""
+                try:
+                    parsed = _json.loads(raw)
+                    fact = (parsed.get("fact") or "").strip().rstrip(".")
+                    tone = (parsed.get("tone") or "").strip()
+                except Exception:
+                    # Fallback: treat entire response as fact (old format)
+                    fact = raw.rstrip(".")
                 if fact and fact.upper() != "NONE" and 5 < len(fact) < 200:
-                    self.memory.store_chatter_fact(username, msg["platform"], fact)
+                    self.memory.store_chatter_fact(username, msg["platform"], fact, tone=tone)
             except Exception as e:
                 print(f"   [ChatterFact] extract failed for {username}: {e}")
+
+    async def extract_running_bits(self, response_text: str, user_text: str = "") -> None:
+        """After each substantive exchange, check if a new running bit has emerged
+        or an existing one has been called back. Lightweight — uses Sonnet, not Opus."""
+
+        if not self.ai_core.anthropic_client or not response_text:
+            return
+
+        # Skip very short exchanges — bits don't form from one-liners
+        if len(response_text) < 80:
+            return
+
+        existing_bits_str = ""
+        if self.session_running_bits:
+            existing_bits_str = "Existing bits this session:\n" + "\n".join(
+                f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-20:]
+            )
+
+        prompt = (
+            "Analyze the following exchange and identify if a NEW recurring bit / callback / "
+            "in-joke has emerged, OR if an existing bit was called back.\n\n"
+            f"USER SAID: {user_text}\n\n"
+            f"KIRA RESPONDED: {response_text}\n\n"
+            f"{existing_bits_str}\n\n"
+            "Output ONE of these formats:\n"
+            '- NEW: {"name": "short bit name", "description": "one-line description"}\n'
+            '- CALLBACK: existing bit name\n'
+            "- NONE\n\n"
+            "Only flag NEW if it's genuinely repeatable (a phrase, character trait, recurring reference). "
+            "Don't flag one-off jokes."
+        )
+
+        try:
+            result = await self.ai_core.claude_chat_inference(
+                messages=[{"role": "user", "content": prompt}],
+                system_prompt="You are a comedy editor identifying running gags. Output exact format only.",
+                max_tokens=100,
+            )
+            if not result:
+                return
+            result = result.strip()
+            if result.startswith("NEW:"):
+                import json
+                try:
+                    bit_json = result.replace("NEW:", "").strip()
+                    bit = json.loads(bit_json)
+                    if "name" in bit and "description" in bit:
+                        if not any(b["name"].lower() == bit["name"].lower() for b in self.session_running_bits):
+                            self.session_running_bits.append(bit)
+                            print(f"   [Bits] New running bit: {bit['name']}")
+                except Exception:
+                    pass
+            elif result.startswith("CALLBACK:"):
+                pass  # Already exists — confirms it's still live
+        except Exception as e:
+            print(f"   [Bits] Extraction error: {e}")
 
     # ── Chat Predictions ──────────────────────────────────────────────────────
 
@@ -1108,7 +1451,11 @@ class VTubeBot:
         print("   [System] Observer Loop Active (Universal Boredom Protocol).")
         while self.is_running:
             await asyncio.sleep(1.0) # Check every second
-            
+
+            # Suppress observer while autopilot is actively running — avoid double-talking
+            if self.vn_autopilot and self.vn_autopilot.is_running:
+                continue
+
             # Don't interrupt if speaking or processing
             if self.processing_lock.locked() or self.ai_core.is_speaking:
                 continue
@@ -1174,7 +1521,18 @@ class VTubeBot:
                             f"Current screen: {vn_ctx}\n\n"
                             f"Ask Jonny one thoughtful question about the story, characters, or "
                             f"something you're both curious about. Keep it brief and natural, "
-                            f"like a friend on the couch.",
+                            f"like a friend on the couch.\n\n"
+                            f"Vary your observation TYPE. Rotate between these modes — pick whichever "
+                            f"you haven't done recently:\n"
+                            f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
+                            f"2. A callback to something from earlier this session or a running bit\n"
+                            f"3. A relatable aside about being an AI watching this unfold\n"
+                            f"4. A specific reaction to ONE small detail on screen right now\n"
+                            f"5. Light teasing of Jonny about his pace, silence, or choices\n"
+                            f"6. A short sincere or emotional beat about the story\n"
+                            f"7. Direct engagement with chat if anyone has spoken recently\n"
+                            f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
+                            f"structure more than once. Mix it up genuinely.",
                             memory_query=f"visual novel story {self.current_activity}",
                         )
 
@@ -1188,7 +1546,18 @@ class VTubeBot:
                             f"Current screen: {vn_ctx}\n\n"
                             f"Make a short natural remark about what just happened or what you noticed "
                             f"on screen — like a friend watching with him. One or two sentences only. "
-                            f"Do NOT ask a generic 'what are you thinking' question.",
+                            f"Do NOT ask a generic 'what are you thinking' question.\n\n"
+                            f"Vary your observation TYPE. Rotate between these modes — pick whichever "
+                            f"you haven't done recently:\n"
+                            f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
+                            f"2. A callback to something from earlier this session or a running bit\n"
+                            f"3. A relatable aside about being an AI watching this unfold\n"
+                            f"4. A specific reaction to ONE small detail on screen right now\n"
+                            f"5. Light teasing of Jonny about his pace, silence, or choices\n"
+                            f"6. A short sincere or emotional beat about the story\n"
+                            f"7. Direct engagement with chat if anyone has spoken recently\n"
+                            f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
+                            f"structure more than once. Mix it up genuinely.",
                             memory_query=f"visual novel {self.current_activity}",
                         )
                 # No chaos stage during VN — silence is normal while reading
@@ -1359,7 +1728,21 @@ class VTubeBot:
             "or stay closer to a simple aside. No fabricated nostalgia."
         )
 
-        full_prompt = prompt + anti_fabrication
+        avoid_block = ""
+        if self.recent_observer_comments:
+            recent_str = "\n".join(f"- {c}" for c in self.recent_observer_comments[-8:])
+            avoid_block = (
+                f"\n\n[AVOID REPETITION] You recently said these. Do NOT reuse their structure, "
+                f"phrasing, or comedic format. Find a genuinely different angle:\n{recent_str}\n"
+                f"BANNED PHRASES (never use these):\n"
+                f"- 'doing a lot of heavy lifting' / 'carrying hard' / 'carrying this'\n"
+                f"- 'doing more work than'\n"
+                f"- 'doing something illegal to my brain'\n"
+                f"- 'defies several laws of physics' / 'defies the laws of'\n"
+                f"These are overused. Find fresh, specific observations.\n"
+            )
+
+        full_prompt = prompt + anti_fabrication + avoid_block
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         if self.ai_core.anthropic_client:
@@ -1397,6 +1780,8 @@ class VTubeBot:
             await self.ai_core.speak_text(cleaned)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+            self.recent_observer_comments.append(cleaned)
+            self.recent_observer_comments = self.recent_observer_comments[-12:]
 
 
     async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False):
@@ -1461,6 +1846,26 @@ class VTubeBot:
                         f"\n\n[CURRENT CONTEXT: You and Jonny are currently {self.current_activity}. "
                         "Let this shape what you talk about, reference, and react to.]"
                     )
+                # Inject the recent activity brief — gives Kira baked-in awareness of last session
+                if self.recent_activity_brief:
+                    chat_system += (
+                        f"\n\n[RECENT STREAM HISTORY \u2014 this is what happened in the most recent session, "
+                        f"reference naturally when relevant, do not recite verbatim]\n{self.recent_activity_brief}"
+                    )
+                if self.recent_chatters_brief:
+                    chat_system += (
+                        f"\n\n[KNOWN RECENT CHATTERS \u2014 recognize these names if they show up]\n{self.recent_chatters_brief}"
+                    )
+
+                # Inject running bits accumulated this session
+                if self.session_running_bits:
+                    bits_str = "\n".join(
+                        f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-15:]
+                    )
+                    chat_system += (
+                        f"\n\n[RUNNING BITS THIS SESSION \u2014 callbacks worth weaving in when natural]\n{bits_str}"
+                    )
+
                 if memory_context:
                     chat_system += (
                         f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n"
@@ -1487,10 +1892,20 @@ class VTubeBot:
                     if ENABLE_CLAUDE_STREAMING:
                         # Streaming path: speak as tokens arrive
                         print(f">>> Kira (streaming): ", end="", flush=True)
+                        # Tighter caps: brief stays 80, non-brief drops from 400 to 250.
+                        # Immersive (VN/anime) mode bumps back up to 350 because deep emotional
+                        # responses to scene moments benefit from a little more room.
+                        if brief_mode:
+                            streaming_max = 80
+                        elif self.immersive:
+                            streaming_max = 350
+                        else:
+                            streaming_max = 250
+
                         stream_gen = self.ai_core.claude_chat_inference_stream(
                             messages=self.conversation_history,
                             system_prompt=chat_system,
-                            max_tokens=(80 if brief_mode else 400),
+                            max_tokens=streaming_max,
                         )
                         full_response_text = await self.ai_core.speak_streaming(stream_gen)
                         print()  # newline after streamed tokens
@@ -1498,10 +1913,16 @@ class VTubeBot:
                             streamed_already_spoken = True
                     else:
                         # Non-streaming Sonnet path
+                        if brief_mode:
+                            non_streaming_max = 50
+                        elif self.immersive:
+                            non_streaming_max = 350
+                        else:
+                            non_streaming_max = 250
                         full_response_text = await self.ai_core.claude_chat_inference(
                             messages=self.conversation_history,
                             system_prompt=chat_system,
-                            max_tokens=(50 if brief_mode else 400),
+                            max_tokens=non_streaming_max,
                         )
                 except Exception as e:
                     print(f"   [Brain] Sonnet path error: {e}")
@@ -1551,6 +1972,9 @@ class VTubeBot:
                      asyncio.create_task(self._run_memory_extraction(raw_user_text))
             
             await self.update_emotional_state(raw_user_text, full_response_text)
+
+            # Lightweight running-bits extraction (fire and forget)
+            asyncio.create_task(self.extract_running_bits(full_response_text, user_text=raw_user_text))
         
         # --- GARBAGE COLLECTION & CLEANUP ---
         self.turn_count += 1
@@ -1738,12 +2162,6 @@ class VTubeBot:
 
             # (Old Proactive Thoughts Task removed in favor of Dynamic Observer)
 
-            # Task 3: Summarize conversation
-            if len(self.conversation_segment) >= 8:
-                async with self.processing_lock:
-                    print("\n--- Summarizing conversation segment... ---")
-                    await self.summarizer.consolidate_and_store(self.conversation_segment)
-                    self.conversation_segment.clear()
 
 
 # --- UPDATED: Graceful Shutdown Logic ---
