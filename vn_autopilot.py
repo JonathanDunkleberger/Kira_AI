@@ -312,7 +312,12 @@ class VNAutopilot:
                 self.vn_window_title = detected
             else:
                 print("   [Autopilot] Could not identify a VN window \u2014 pausing.")
-                await self._trigger_failsafe("VN_WINDOW_NOT_FOUND")
+                print("   [Autopilot] Set a title in the dashboard or press Re-detect, then Resume.")
+                self.is_running = False
+                self.is_paused = True
+                self.pause_reason = "VN_WINDOW_NOT_FOUND"
+                if self.on_failsafe:
+                    self.on_failsafe("VN_WINDOW_NOT_FOUND")
                 return
 
         await self._loop()
@@ -339,13 +344,14 @@ class VNAutopilot:
         ])
 
         all_titles = self.list_open_windows()
+        print(f"   [Autopilot] All windows: {all_titles}")
         candidates = [
             t for t in all_titles
             if not any(ig in t.lower() for ig in _IGNORE_SUBSTRINGS)
             and not any(t.lower().startswith(p) for p in _IGNORE_PREFIXES)
             and t.lower().strip() not in _IGNORE_EXACT
         ]
-        print(f"   [Autopilot] Auto-detect candidates: {candidates}")
+        print(f"   [Autopilot] After filter (candidates): {candidates}")
 
         if not candidates:
             print("   [Autopilot] No candidate windows after filtering.")
@@ -407,15 +413,18 @@ class VNAutopilot:
         print("   [Autopilot] Stopped.")
 
     def resume_after_failsafe(self):
-        """Resume after Jonny has handled a non-dialogue screen manually."""
+        """Resume after Jonny has handled a non-dialogue screen manually.
+        Always routes through _async_start() so window detection is re-validated
+        before entering the loop — prevents RuntimeError spam when no title is set.
+        """
         if not self.enabled:
             return
         self.is_paused = False
         self.pause_reason = ""
         self.is_running = True
         if not self._task or self._task.done():
-            self._task = asyncio.ensure_future(self._loop())
-        print("   [Autopilot] Resumed after failsafe.")
+            self._task = asyncio.ensure_future(self._async_start())
+        print("   [Autopilot] Resumed — re-validating window and restarting loop.")
 
     # ── Phase 2: Soft-pause / chat notification (Systems 2, 6b) ───────────────
 
@@ -507,6 +516,17 @@ class VNAutopilot:
             except asyncio.CancelledError:
                 raise
             except Exception as e:
+                # Safety net: if the loop was somehow entered without a window title,
+                # stop cleanly without TTS to avoid an infinite speak-loop on resume.
+                if "No VN window title" in str(e):
+                    print(f"   [Autopilot] Safety stop (no title set): {e}")
+                    print("   [Autopilot] Set a title and press Resume or re-toggle autopilot.")
+                    self.is_running = False
+                    self.is_paused = True
+                    self.pause_reason = "VN_WINDOW_NOT_FOUND"
+                    if self.on_failsafe:
+                        self.on_failsafe("VN_WINDOW_NOT_FOUND")
+                    return
                 print(f"   [Autopilot] Unhandled error: {e}")
                 traceback.print_exc()
                 await self._trigger_failsafe("ERROR")
