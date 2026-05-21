@@ -635,6 +635,10 @@ class VNAutopilot:
         self._loop_start_time = time.time()
         self._last_heartbeat = time.time()
         self._last_progress_time = time.time()
+        # Reset silence-breaker clock so it can't fire on the very first iteration
+        # (it would have been counting since __init__, which may be much earlier).
+        self._last_spoke_time = time.time()
+        self._last_silence_breaker_time = time.time()
         self._warned_window_lost = False
         print("   [Autopilot] Loop running.")
 
