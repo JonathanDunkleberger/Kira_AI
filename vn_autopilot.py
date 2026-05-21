@@ -1113,6 +1113,10 @@ class VNAutopilot:
             stable_frame = box["stable_frame"]
             weight       = box["weight"]
             self._last_box_text = normalized
+            print(
+                f"   [Autopilot] Reading (fast-path): '{new_text[:60]}' "
+                f"({len(new_text)} chars)"
+            )
         else:
             # ── Normal path: stabilize → cloud read → diff ───────────────────
             # Hash only the text region (lower ~40%) so animated backgrounds
@@ -1133,30 +1137,82 @@ class VNAutopilot:
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
 
-            # Cloud read: full window → vision model strips UI chrome automatically
-            try:
-                text = await self._read_dialogue_cloud(stable_frame)
-            except Exception as _cloud_err:
-                print(f"   [Autopilot] Cloud read failed — skipping box: {_cloud_err}")
-                await asyncio.sleep(1.0)
-                return
+            # Cloud read with retry: classifier said DIALOGUE, so text SHOULD
+            # be there. Empty/failed reads get up to 2 retries (transient API
+            # hiccups, mid-fade frames, half-rendered text boxes).
+            text = ""
+            read_attempts = 3
+            for attempt in range(read_attempts):
+                try:
+                    raw = await self._read_dialogue_cloud(stable_frame)
+                except Exception as _cloud_err:
+                    print(
+                        f"   [Autopilot] Cloud read failed "
+                        f"(attempt {attempt + 1}/{read_attempts}): {_cloud_err}"
+                    )
+                    raw = ""
+                candidate = self._clean_text((raw or "").strip())
+                if candidate and candidate.upper() != "NO TEXT VISIBLE":
+                    text = candidate
+                    if attempt > 0:
+                        print(
+                            f"   [Autopilot] OCR recovered on retry "
+                            f"{attempt + 1}/{read_attempts}."
+                        )
+                    break
+                # Empty — log and retry with a fresh capture
+                print(
+                    f"   [Autopilot] OCR empty on DIALOGUE screen "
+                    f"(attempt {attempt + 1}/{read_attempts}) — retrying read."
+                )
+                if attempt < read_attempts - 1:
+                    await asyncio.sleep(0.4)
+                    fresh = await asyncio.get_event_loop().run_in_executor(
+                        None, self._grab_frame_sync
+                    )
+                    if fresh is not None:
+                        stable_frame = fresh
 
-            text = self._clean_text((text or "").strip())
-            if not text or text.upper() == "NO TEXT VISIBLE":
-                await asyncio.sleep(1.5)
+            if not text:
+                # Genuinely no readable text after retries — treat as transition.
+                print(
+                    f"   [Autopilot] Skipped read because: OCR returned empty "
+                    f"after {read_attempts} attempts (treating as transition)."
+                )
+                await asyncio.sleep(1.0)
                 self._safe_advance()
                 return
 
+            print(
+                f"   [Autopilot] Reading dialogue: OCR returned "
+                f"'{text[:60]}' ({len(text)} chars)"
+            )
+
             # System-UI guard: if the capture looks like taskbar/desktop, skip
             if self._is_system_ui_text(text):
-                print(f"   [Autopilot] System UI detected — wrong window? Skipping.")
+                print(
+                    f"   [Autopilot] Skipped read because: system UI detected "
+                    f"(wrong window?). Text='{text[:40]}'"
+                )
                 await asyncio.sleep(1.5)
                 return
 
             normalized = " ".join(text.split())
+            last_preview = self._last_box_text[:40] if self._last_box_text else "<empty>"
+            is_new_box = bool(normalized) and normalized != self._last_box_text
+            print(
+                f"   [Autopilot] New text? {is_new_box} "
+                f"(last was '{last_preview}')"
+            )
 
-            # Dedup: identical re-capture → skip, advance quietly
-            if normalized == self._last_box_text:
+            # Dedup: identical re-capture → skip, advance quietly.
+            # Guard against the empty==empty case (can't both be empty here
+            # since we just bailed above on empty text, but be explicit).
+            if normalized and normalized == self._last_box_text:
+                print(
+                    f"   [Autopilot] Skipped read because: duplicate of last "
+                    f"spoken box ('{normalized[:40]}')."
+                )
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
@@ -1169,6 +1225,10 @@ class VNAutopilot:
                     raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
                 new_text = raw_suffix.strip()
                 if len(new_text) < 4:
+                    print(
+                        f"   [Autopilot] Skipped read because: append-suffix "
+                        f"too short ({len(new_text)} chars) — advancing."
+                    )
                     self._last_box_text = normalized
                     await asyncio.sleep(0.5)
                     self._safe_advance()
@@ -1184,12 +1244,17 @@ class VNAutopilot:
                 new_text = new_text[2:].strip()
 
             if len(new_text) < 4:
+                print(
+                    f"   [Autopilot] Skipped read because: new_text too short "
+                    f"after bleed-guard ({len(new_text)} chars) — advancing."
+                )
                 self._last_box_text = normalized
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
 
             self._last_box_text = normalized
+            print(f"   [Autopilot] Speaking: '{new_text[:60]}'")
 
         # ── Confirmed new text — update progress timestamp + reset stuck flag ─
         # Only reaches here when we have genuinely NEW content (past dedup and
@@ -1235,9 +1300,22 @@ class VNAutopilot:
         # ── Read aloud — wait for TTS to finish before advancing ─────────────
         if self.on_speak_vn:
             ssml_inner = self._build_vn_ssml_inner(new_text, intensity)
-            await self.on_speak_vn(new_text, ssml_inner)
+            try:
+                await self.on_speak_vn(new_text, ssml_inner)
+                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
+            except Exception as _tts_err:
+                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
         elif self.on_speak:
-            await self.on_speak(new_text)
+            try:
+                await self.on_speak(new_text)
+                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
+            except Exception as _tts_err:
+                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
+        else:
+            print(
+                f"   [Autopilot] WARNING: no on_speak_vn or on_speak callback "
+                f"registered — dialogue NOT spoken!"
+            )
 
         # Scene-art awareness: background task, only acts on art hash change.
         # Wrapped so a cloud/API error never crashes the main loop.
