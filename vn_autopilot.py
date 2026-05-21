@@ -39,7 +39,9 @@
 import asyncio
 import base64
 import hashlib
+import os
 import re
+import shutil
 import time
 import traceback
 import xml.sax.saxutils
@@ -542,6 +544,9 @@ class VNAutopilot:
                     f"   [Autopilot] Alive — {self.total_boxes_read} boxes, "
                     f"~${cost_est:.3f} cloud spend, running {h}h {m}m"
                 )
+                # Disk-space warning in heartbeat so it surfaces even when no
+                # narrative summary fires (i.e. story moves slowly this stretch).
+                self._check_disk_space()
                 self._last_heartbeat = now
 
             # ── Stuck watchdog (distinct from crash supervisor) ──────────────
@@ -663,31 +668,44 @@ class VNAutopilot:
         """Returns one of: DIALOGUE / CHOICE / SAVE_PROMPT / TRANSITION / UNKNOWN."""
         if not self.vision_client:
             return "UNKNOWN"
-        try:
-            buf = BytesIO()
-            frame.save(buf, format="JPEG", quality=70)
-            b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await self.vision_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": self.SCREEN_CLASSIFIER_PROMPT},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64}",
-                            "detail": "low",
-                        }},
-                    ],
-                }],
-                max_tokens=10,
-                temperature=0.0,
-            )
-            raw = resp.choices[0].message.content.strip().upper()
-            valid = {"DIALOGUE", "CHOICE", "SAVE_PROMPT", "TRANSITION", "UNKNOWN"}
-            return raw if raw in valid else "UNKNOWN"
-        except Exception as e:
-            print(f"   [Autopilot] Classify error: {e}")
-            return "UNKNOWN"
+        valid = {"DIALOGUE", "CHOICE", "SAVE_PROMPT", "TRANSITION", "UNKNOWN"}
+        for attempt in range(3):
+            try:
+                buf = BytesIO()
+                frame.save(buf, format="JPEG", quality=70)
+                b64 = base64.b64encode(buf.getvalue()).decode()
+                resp = await self.vision_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": self.SCREEN_CLASSIFIER_PROMPT},
+                            {"type": "image_url", "image_url": {
+                                "url": f"data:image/jpeg;base64,{b64}",
+                                "detail": "low",
+                            }},
+                        ],
+                    }],
+                    max_tokens=10,
+                    temperature=0.0,
+                )
+                raw = resp.choices[0].message.content.strip().upper()
+                return raw if raw in valid else "UNKNOWN"
+            except Exception as e:
+                err_low = str(e).lower()
+                if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
+                    delay = 10.0 * (2 ** attempt)   # 10s → 20s → 40s
+                    print(
+                        f"   [Autopilot] Classify: rate-limited "
+                        f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
+                    )
+                    await asyncio.sleep(delay)
+                    continue   # retry
+                # Non-rate-limit error — log and fall through to UNKNOWN
+                print(f"   [Autopilot] Classify error: {e}")
+                return "UNKNOWN"
+        print("   [Autopilot] Classify: all retries exhausted — returning UNKNOWN.")
+        return "UNKNOWN"
 
     # ── Dialogue handling ──────────────────────────────────────────────────────
 
@@ -772,46 +790,61 @@ class VNAutopilot:
         Pipelining: called in _post_advance_prep() immediately after advance, so
         the cloud round-trip (~0.8-1.5s) overlaps with the screen settle wait and
         the main loop overhead rather than adding dead air between lines.
+
+        Rate-limit backoff: on 429/529 retries up to 3× with exponential delay
+        (15s → 30s → 60s) before returning "" so the loop skips rather than crashes.
         """
         if not self.vision_client:
             return ""
-        try:
-            buf = BytesIO()
-            frame.save(buf, format="JPEG", quality=85)
-            b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await self.vision_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": (
-                            "Read ONLY the story/dialogue text currently displayed in this "
-                            "visual novel screenshot. Ignore ALL UI elements: buttons, menus, "
-                            "save/load/auto/skip/menu labels, chapter headings, system overlays, "
-                            "copyright notices (like '\u00a9SMP', 'FINuTO', '\u00a9SHIP'), and any "
-                            "non-story text in the corners or edges of the screen. "
-                            "Return ONLY the dialogue or narration text, verbatim, exactly as shown. "
-                            "Do not add any explanation, prefix, or quotation marks around it. "
-                            "If there is no story text visible (transition, black screen, "
-                            "choice menu, save screen, etc.), return exactly: EMPTY"
-                        )},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64}",
-                            "detail": "high",
-                        }},
-                    ],
-                }],
-                max_tokens=400,
-                temperature=0.0,
-            )
-            self._cloud_read_count += 1
-            raw = resp.choices[0].message.content.strip()
-            if not raw or raw.upper() == "EMPTY":
+        for attempt in range(3):
+            try:
+                buf = BytesIO()
+                frame.save(buf, format="JPEG", quality=85)
+                b64 = base64.b64encode(buf.getvalue()).decode()
+                resp = await self.vision_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": (
+                                "Read ONLY the story/dialogue text currently displayed in this "
+                                "visual novel screenshot. Ignore ALL UI elements: buttons, menus, "
+                                "save/load/auto/skip/menu labels, chapter headings, system overlays, "
+                                "copyright notices (like '\u00a9SMP', 'FINuTO', '\u00a9SHIP'), and any "
+                                "non-story text in the corners or edges of the screen. "
+                                "Return ONLY the dialogue or narration text, verbatim, exactly as shown. "
+                                "Do not add any explanation, prefix, or quotation marks around it. "
+                                "If there is no story text visible (transition, black screen, "
+                                "choice menu, save screen, etc.), return exactly: EMPTY"
+                            )},
+                            {"type": "image_url", "image_url": {
+                                "url": f"data:image/jpeg;base64,{b64}",
+                                "detail": "high",
+                            }},
+                        ],
+                    }],
+                    max_tokens=400,
+                    temperature=0.0,
+                )
+                self._cloud_read_count += 1
+                raw = resp.choices[0].message.content.strip()
+                if not raw or raw.upper() == "EMPTY":
+                    return ""
+                return raw
+            except Exception as e:
+                err_low = str(e).lower()
+                if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
+                    delay = 15.0 * (2 ** attempt)   # 15s → 30s → 60s
+                    print(
+                        f"   [Autopilot] Cloud read: rate-limited "
+                        f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                print(f"   [Autopilot] Cloud read error: {e}")
                 return ""
-            return raw
-        except Exception as e:
-            print(f"   [Autopilot] Cloud read error: {e}")
-            return ""
+        print("   [Autopilot] Cloud read: all retries exhausted — skipping box.")
+        return ""
 
     async def _wait_for_window_recovery(self) -> bool:
         """Wait for the VN window to return after being lost.
@@ -1039,13 +1072,15 @@ class VNAutopilot:
         self.vn_boxes_since_summary += 1
 
         # Narrative summary: background task — never blocks reading.
-        # Wrapped in try/except so a ChromaDB or LLM write failure is logged
-        # once and silently skipped — never stalls or crashes the autopilot.
+        # Guarded by disk-space check: if G: is critically full, skip the write
+        # this cycle rather than risk corrupting ChromaDB.
+        # Also wrapped in try/except so a scheduling error is logged and skipped.
         if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
-            try:
-                asyncio.ensure_future(self._update_narrative_summary())
-            except Exception as _mem_err:
-                print(f"   [Autopilot] Narrative summary task error (continuing): {_mem_err}")
+            if self._check_disk_space():
+                try:
+                    asyncio.ensure_future(self._update_narrative_summary())
+                except Exception as _mem_err:
+                    print(f"   [Autopilot] Narrative summary task error (continuing): {_mem_err}")
 
         # Art-change check (before _maybe_update_scene_art overwrites the hash)
         art_changed = self._art_hash(stable_frame) != self._last_art_hash
@@ -1780,33 +1815,50 @@ class VNAutopilot:
     # ── Narrative memory ───────────────────────────────────────────────────────
 
     async def _update_narrative_summary(self):
-        """Build/update rolling ~150-word plot summary from accumulated text boxes."""
+        """Build/update rolling ~150-word plot summary from accumulated text boxes.
+
+        Disk-space check: skipped silently (already checked by the caller before
+        scheduling this task).
+        Rate-limit backoff: 429/529 from Anthropic retries up to 2× (30s → 60s)
+        before giving up — avoids losing the summary on a transient overload.
+        """
         if not self.ai_core.anthropic_client:
             return
-        try:
-            accumulated = "\n---\n".join(self.vn_recent_text_buffer[-20:])
-            prev = self.vn_narrative_summary or "No previous summary — this is the start."
-            prompt = (
-                f"You are maintaining a running ~150-word story summary for a visual novel playthrough.\n\n"
-                f"Previous summary:\n{prev}\n\n"
-                f"New dialogue/narration (most recent boxes):\n{accumulated}\n\n"
-                f"Write an updated summary in ~150 words. Track character names, events, and emotional beats. "
-                f"Be factual and concise. No commentary or editorializing."
-            )
-            resp = await self.ai_core.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
-                max_tokens=250,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            self.vn_narrative_summary = resp.content[0].text.strip()
-            # Keep a small tail for continuity overlap on next summary cycle
-            self.vn_recent_text_buffer = self.vn_recent_text_buffer[-5:]
-            self.vn_boxes_since_summary = 0
-            # System 4: update trajectory now that we have fresh narrative context
-            self._update_emotional_trajectory()
-            print(f"   [Autopilot] Narrative summary updated ({len(self.vn_narrative_summary)} chars).")
-        except Exception as e:
-            print(f"   [Autopilot] Narrative update error: {e}")
+        accumulated = "\n---\n".join(self.vn_recent_text_buffer[-20:])
+        prev = self.vn_narrative_summary or "No previous summary — this is the start."
+        prompt = (
+            f"You are maintaining a running ~150-word story summary for a visual novel playthrough.\n\n"
+            f"Previous summary:\n{prev}\n\n"
+            f"New dialogue/narration (most recent boxes):\n{accumulated}\n\n"
+            f"Write an updated summary in ~150 words. Track character names, events, and emotional beats. "
+            f"Be factual and concise. No commentary or editorializing."
+        )
+        for attempt in range(3):
+            try:
+                resp = await self.ai_core.anthropic_client.messages.create(
+                    model=CLAUDE_CHAT_MODEL,
+                    max_tokens=250,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                self.vn_narrative_summary = resp.content[0].text.strip()
+                self.vn_recent_text_buffer = self.vn_recent_text_buffer[-5:]
+                self.vn_boxes_since_summary = 0
+                self._update_emotional_trajectory()
+                print(f"   [Autopilot] Narrative summary updated ({len(self.vn_narrative_summary)} chars).")
+                return
+            except Exception as e:
+                err_low = str(e).lower()
+                if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
+                    delay = 30.0 * (2 ** attempt)   # 30s → 60s → 120s
+                    print(
+                        f"   [Autopilot] Narrative summary: rate-limited "
+                        f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                print(f"   [Autopilot] Narrative update error: {e}")
+                return
+        print("   [Autopilot] Narrative summary: all retries exhausted — skipping this cycle.")
 
     # ── Failsafe ───────────────────────────────────────────────────────────────
 
@@ -1926,6 +1978,36 @@ class VNAutopilot:
             time.sleep(0.05)   # brief settle — focus needs a frame
         except Exception:
             pass
+
+    # ── Disk-space guard ───────────────────────────────────────────────────────
+
+    # Minimum free space required before writing to ChromaDB / narrative memory.
+    # Below this threshold, writes are skipped with a log — avoids DB corruption
+    # from a full disk during long playthroughs.
+    _DISK_WARN_BYTES: int = 500 * 1024 * 1024   # 500 MB
+
+    def _check_disk_space(self) -> bool:
+        """Return True if there is enough free space on the drive for memory writes.
+
+        Uses the directory of this script file (same drive as memory_db/).
+        On any error reading disk info, returns True (non-blocking — prefer a bad
+        write that logs cleanly over silently suppressing all writes).
+        """
+        try:
+            path = os.path.dirname(os.path.abspath(__file__))
+            usage = shutil.disk_usage(path)
+            if usage.free < self._DISK_WARN_BYTES:
+                mb_free = usage.free // (1024 * 1024)
+                print(
+                    f"   [Autopilot] ⚠ LOW DISK SPACE — {mb_free} MB free "
+                    f"(threshold {self._DISK_WARN_BYTES // (1024 * 1024)} MB). "
+                    "Skipping memory write to avoid DB corruption."
+                )
+                return False
+            return True
+        except Exception as _disk_err:
+            print(f"   [Autopilot] Disk-space check failed ({_disk_err}) — allowing write.")
+            return True
 
     @staticmethod
     def _is_system_ui_text(text: str) -> bool:
