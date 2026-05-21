@@ -361,18 +361,42 @@ class VNAutopilot:
     # ── Dialogue handling ──────────────────────────────────────────────────────
 
     async def _handle_dialogue(self, frame):
-        """Transcribe text, run all Phase 2 analysis, optionally react, pace, advance."""
+        """Read VN text aloud verbatim, then optionally add a rare brief reaction.
+
+        New flow (read-aloud model):
+          1. Transcribe full screen text
+          2. Detect new content: dedup → append detection → full read
+          3. Read NEW text aloud verbatim via TTS — always the primary action
+          4. Optionally append a brief reaction when a moment genuinely earns it (rare)
+          5. Short fixed beat → advance
+
+        TTS duration provides natural pacing; no computed read-delay needed.
+        """
         text = await self._transcribe_frame(frame)
         text = (text or "").strip()
 
         if text and text.upper() != "NO TEXT VISIBLE":
-            # Deduplicate: if this box is identical to the previous capture, skip the
-            # reaction (likely a re-screenshot before the advance was processed) and advance.
             normalized = " ".join(text.split())
-            if normalized and normalized == self._last_box_text:
+
+            # ── Dedup: identical re-capture → skip, advance quietly ──────────
+            if normalized == self._last_box_text:
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
+
+            # ── Append detection: read only the NEW portion ─────────────────
+            # Some VNs accumulate text on screen (line 1 → line 1+2 → 1+2+3).
+            # If current text starts with the last text, only the suffix is new.
+            if self._last_box_text and normalized.startswith(self._last_box_text):
+                new_text = normalized[len(self._last_box_text):].strip()
+                if not new_text:
+                    # Trailing whitespace only — treat as dedup
+                    await asyncio.sleep(0.5)
+                    self._safe_advance()
+                    return
+            else:
+                new_text = normalized  # fresh screen — read everything
+
             self._last_box_text = normalized
 
             self.total_boxes_read += 1
@@ -380,47 +404,48 @@ class VNAutopilot:
             self._boxes_since_theory_check += 1
             self._boxes_since_solo_aside += 1
 
-            # Store in narrative buffer
+            # Store full text in narrative buffer for summary context
             self.vn_recent_text_buffer.append(text)
             self.vn_boxes_since_summary += 1
 
-            # Update rolling story summary every ~15 boxes
             if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
                 await self._update_narrative_summary()
 
-            # System 4: update character attachment from this box
-            self._update_character_attachment(text)
-
-            # System 5: estimate narrative weight (text-heuristic, no LLM)
-            weight = self._estimate_narrative_weight(text)
-
-            # System 1: derive scene intensity from weight; update running state
+            # Phase 2: analysis on the new text portion
+            self._update_character_attachment(new_text)
+            weight = self._estimate_narrative_weight(new_text)
             intensity = self._estimate_scene_intensity(weight)
             self.scene_intensity = intensity
 
-            # System 3: check if this box resolves an open theory (before primary reaction)
-            theory_reaction = await self._check_theory_resolutions(text)
+            # ── STEP 1: Read the VN text aloud verbatim ─────────────────────
+            if self.on_speak:
+                await self.on_speak(new_text)
+
+            # ── STEP 2: Theory resolution (fires own reaction after reading) ─
+            theory_reaction = await self._check_theory_resolutions(new_text)
+            spoke_extra = False
             if theory_reaction and self.on_speak:
+                await asyncio.sleep(0.4)
                 await self.on_speak(theory_reaction)
                 self._boxes_since_reaction = 0
-                await asyncio.sleep(0.8)
+                spoke_extra = True
 
-            # Primary reaction decision with full Phase 2 context
-            reaction = await self._decide_reaction(text, intensity=intensity, narrative_weight=weight)
+            # ── STEP 3: Optional rare reaction (seasoning, not default) ─────
+            if not spoke_extra:
+                reaction = await self._decide_reaction(
+                    new_text, intensity=intensity, narrative_weight=weight
+                )
+                if reaction and reaction.upper() != "SILENT":
+                    if self.on_speak:
+                        await asyncio.sleep(0.4)
+                        await self.on_speak(reaction)
+                    self._boxes_since_reaction = 0
+                    self._boxes_since_solo_aside = 0
+                    spoke_extra = True
 
-            spoke = bool(theory_reaction)  # already spoken above
-            if reaction and reaction.upper() != "SILENT":
-                if self.on_speak:
-                    await self.on_speak(reaction)
-                self._boxes_since_reaction = 0
-                self._boxes_since_solo_aside = 0
-                spoke = True
-                await asyncio.sleep(0.8)
-
-            # System 2 + 3: if silent and in a calm dead-chat stretch, generate
-            # an unprompted solo aside (theory, address absent chat, internal monologue)
+            # ── STEP 4: Solo aside when dead chat + calm stretch ─────────────
             if (
-                not spoke
+                not spoke_extra
                 and intensity == INTENSITY_CALM
                 and self.chat_dead_min >= 4.0
                 and self._boxes_since_solo_aside >= 7
@@ -428,15 +453,14 @@ class VNAutopilot:
             ):
                 aside = await self._maybe_form_theory()
                 if aside and self.on_speak:
+                    await asyncio.sleep(0.4)
                     await self.on_speak(aside)
                     self._boxes_since_solo_aside = 0
                     self._boxes_since_reaction = 0
 
-            # Pacing delay — longer for emotionally heavy moments
-            delay = compute_read_delay(len(text), self.pacing_base, self.pacing_per_char, self.pacing_max)
-            if intensity in (INTENSITY_CLIMACTIC, INTENSITY_INTENSE, INTENSITY_AFTERMATH):
-                delay = max(delay, 4.0)
-            await asyncio.sleep(delay)
+            # ── STEP 5: Short fixed beat then advance ────────────────────────
+            # TTS duration IS the pacing; just a small trailing buffer.
+            await asyncio.sleep(0.8)
             self._safe_advance()
         else:
             # Unreadable / no text — advance after short wait
@@ -502,16 +526,15 @@ class VNAutopilot:
             dead = self.chat_dead_min
             if dead >= 6.0:
                 solo_instruction = (
-                    f"\n\nCHAT IS DEAD — no messages for {dead:.0f} minutes. You're playing "
-                    f"completely solo right now. That's fine — comfortable on an empty stage. "
-                    f"Internal monologue, talking to absent viewers ('okay chat, if anyone's "
-                    f"lurking out there—'), self-directed tangents. Don't go silent just because "
-                    f"nobody's chatting. Carry the stream yourself."
+                    f"\n\nCHAT IS DEAD — no messages for {dead:.0f} minutes. You're narrating "
+                    f"solo. The reading carries the stream, but it's fine to occasionally slip "
+                    f"in a brief aside — address absent viewers, voice a thought, acknowledge "
+                    f"the silence. Don't over-do it; the story is still the main thing."
                 )
             elif dead >= 3.0:
                 solo_instruction = (
-                    "\n\nChat is quiet (a few minutes of silence). Lean a bit more into "
-                    "internal monologue — talking to yourself is fine."
+                    "\n\nChat is quiet. An occasional brief aside is fine, but the reading "
+                    "is still the primary content — don't react just to fill space."
                 )
             else:
                 solo_instruction = ""
@@ -557,16 +580,20 @@ class VNAutopilot:
             )
 
             prompt = (
-                f"You are Kira, autonomously playing through a visual novel on stream.\n\n"
-                f"You just read:\n\"{text}\"\n"
+                f"You are Kira, reading a visual novel aloud on stream — you ARE the narrator.\n\n"
+                f"You just read this aloud:\n\"{text}\"\n"
                 f"{narrative_block}{trajectory_note}{attachment_instruction}"
                 f"{theory_instruction}{investment_note}{solo_instruction}\n\n"
                 f"{intensity_instruction}\n\n"
-                f"If REACT: output a SHORT spoken reaction in Kira's voice. Calibrate the "
-                f"energy to the intensity guidance above — low-stakes rambles for calm, "
-                f"sharp/controlled for intense, quiet/heavy for aftermath. 1-3 sentences max.\n"
-                f"If SILENT: output exactly \"SILENT\" and nothing else.\n\n"
-                f"Just the reaction text or SILENT. No labels, no preamble."
+                f"Your PRIMARY job is narrating the story. Reactions are RARE seasoning — only "
+                f"break from narration when a moment genuinely earns it: something funny, an "
+                f"emotional gut-punch, a surprising twist, or (if chat is dead + scene is calm) "
+                f"a brief aside. DEFAULT IS SILENT. Most boxes get no reaction.\n\n"
+                f"CRITICAL: the viewer already HEARD you read that text. If you react, ADD "
+                f"something new — a feeling, a joke, a question, an observation. NEVER restate "
+                f"or paraphrase what was just read. 1 short sentence max, clearly your own voice.\n\n"
+                f"React (1 sentence max, adds something new) or SILENT?\n"
+                f"Output ONLY the reaction text or the word SILENT."
             )
             resp = await self.ai_core.anthropic_client.messages.create(
                 model=CLAUDE_CHAT_MODEL,
@@ -666,10 +693,11 @@ class VNAutopilot:
             )
         else:  # CALM
             return (
-                "SCENE INTENSITY: CALM — low-stakes connective content. This is good "
-                "space-filling time. React more freely: ramble, theorize, make an aside, "
-                "talk to absent chat. Energy should be relaxed and natural. "
-                "If nothing in this text is interesting, say something interesting yourself."
+                "SCENE INTENSITY: CALM — low-stakes connective content. Default to SILENT "
+                "(the reading itself is the content). A reaction is only worth adding if "
+                "something in the text is genuinely amusing, curious, or worth a brief "
+                "observation. Solo asides fire separately when chat is dead — don't "
+                "duplicate them here."
             )
 
     # ── Phase 2: System 3 — Theory-Building ──────────────────────────────────
