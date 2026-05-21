@@ -103,16 +103,21 @@ PAUSE_INTENSITY_BONUS   = 0.40   # added on top for INTENSE / CLIMACTIC moments
 PAUSE_AFTERMATH_BONUS   = 0.20   # extra somber pacing in AFTERMATH
 PAUSE_REACTION_GAP      = 0.15   # minimal gap before a reaction (same-breath feel)
 
-# ── Pacing helper ──────────────────────────────────────────────────────────────
+# ── Reaction grace windows (H2: tiered by intensity) ─────────────────────────
+# How long to wait for a queued reaction/theory/aside Claude call to land
+# before advancing. Calm moments stay snappy; climactic moments wait for the
+# reaction so emotional beats actually get the verbal payoff.
+REACTION_GRACE_BY_INTENSITY = {
+    INTENSITY_CALM:       0.5,
+    INTENSITY_BUILDING:   0.8,
+    INTENSITY_INTENSE:    2.5,
+    INTENSITY_CLIMACTIC:  5.0,
+    INTENSITY_AFTERMATH:  4.0,
+}
 
-def compute_read_delay(
-    text_length: int,
-    base: float = 2.5,
-    per_char: float = 0.025,
-    max_delay: float = 8.0,
-) -> float:
-    """Time (seconds) to leave a text box visible so viewers can read along."""
-    return min(base + (text_length * per_char), max_delay)
+# ── Silence-breaker (H4) ─────────────────────────────────────────────────────
+SILENCE_BREAKER_SECONDS = 22.0     # after this much dead-air, fire a low-energy aside
+SILENCE_BREAKER_MIN_GAP = 60.0     # don't fire silence-breakers more than once per minute
 
 
 # ── Input Controller ───────────────────────────────────────────────────────────
@@ -157,6 +162,25 @@ class VNInputController:
 
     def set_advance_key(self, key: str):
         self.advance_key = key
+
+    def click_at(self, x: int, y: int):
+        """Move mouse to absolute screen coords and click. Used by CHOICE auto-pick."""
+        if not PYDIRECTINPUT_AVAILABLE:
+            raise RuntimeError("pydirectinput not installed.")
+        time.sleep(self.pre_input_delay)
+        try:
+            pydirectinput.moveTo(int(x), int(y))
+            time.sleep(0.05)
+            pydirectinput.click()
+        except Exception as e:
+            print(f"   [Autopilot] click_at({x},{y}) failed: {e}")
+            raise
+
+    def press_escape(self):
+        if not PYDIRECTINPUT_AVAILABLE:
+            raise RuntimeError("pydirectinput not installed.")
+        time.sleep(self.pre_input_delay)
+        pydirectinput.press("escape")
 
 
 # ── Main Autopilot ─────────────────────────────────────────────────────────────
@@ -344,6 +368,32 @@ class VNAutopilot:
         # re-classifies the same captured-fresh frame — handles CG/animation
         # frames that resolve to DIALOGUE once the engine settles.
         self._unknown_retry_count: int = 3
+
+        # ── CHOICE auto-pick (C1) ────────────────────────────────────────────
+        # Default ON so unattended streams aren't blocked by every menu choice.
+        # For route-branching VNs (Clannad etc.), set target_route to a string
+        # like "Nagisa route — aim for After Story" and the picker will prefer
+        # the option that best serves that goal.
+        self.auto_choose: bool = True
+        self.target_route: str = ""
+        # If True, even with auto_choose on, MAJOR choices (high-confidence
+        # route-defining) still pause for Jonny. Default False (fully autonomous).
+        self.pause_on_major_choices: bool = False
+
+        # ── SAVE_PROMPT soft-dismiss (C2) ────────────────────────────────────
+        # Default ON: press Escape to dismiss menus rather than failsafe.
+        self.auto_dismiss_menus: bool = True
+
+        # ── Speaker attribution (H1) ─────────────────────────────────────────
+        self._last_speaker: str = ""           # last speaker label, for run-detection
+        # Cache of per-speaker prosody offsets so the same character sounds
+        # consistent across the session. Deterministic hash → (pitch, rate) tuple.
+        self._speaker_voice_cache: dict[str, tuple[str, str]] = {}
+
+        # ── Silence-breaker tracking (H4) ────────────────────────────────────
+        self._last_spoke_time: float = time.time()
+        self._last_silence_breaker_time: float = 0.0
+        self._silence_breaker_in_flight: bool = False
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -634,6 +684,12 @@ class VNAutopilot:
                     return
                 continue
 
+            # ── Silence-breaker (H4) ────────────────────────────────────────
+            # If we've been silent too long during active play (long CG run,
+            # transition montage, slow stretch), fire a low-energy aside so the
+            # stream doesn't sit dead. Throttled internally.
+            await self._maybe_speak_silence_breaker()
+
             try:
                 # Check for pre-prepared data from the pipeline task
                 prepared = None
@@ -690,7 +746,21 @@ class VNAutopilot:
                     # _safe_advance's own STUCK trigger.
 
                 else:
-                    # CHOICE / SAVE_PROMPT → hand off to Jonny immediately
+                    # CHOICE or SAVE_PROMPT — try to handle autonomously first;
+                    # _handle_choice / _handle_save_prompt will failsafe if they can't.
+                    if screen_type == "CHOICE":
+                        await self._handle_choice(frame)
+                        if self.is_paused:  # failsafe fired inside handler
+                            return
+                        self._consecutive_unknown = 0
+                        continue
+                    if screen_type == "SAVE_PROMPT":
+                        await self._handle_save_prompt(frame)
+                        if self.is_paused:
+                            return
+                        self._consecutive_unknown = 0
+                        continue
+                    # Unknown extra screen type (shouldn't happen) — failsafe
                     await self._trigger_failsafe(screen_type)
                     return
 
@@ -866,13 +936,24 @@ class VNAutopilot:
                         "role": "user",
                         "content": [
                             {"type": "text", "text": (
-                                "Read ONLY the story/dialogue text currently displayed in this "
-                                "visual novel screenshot. Ignore ALL UI elements: buttons, menus, "
-                                "save/load/auto/skip/menu labels, chapter headings, system overlays, "
-                                "copyright notices (like '\u00a9SMP', 'FINuTO', '\u00a9SHIP'), and any "
-                                "non-story text in the corners or edges of the screen. "
-                                "Return ONLY the dialogue or narration text, verbatim, exactly as shown. "
-                                "Do not add any explanation, prefix, or quotation marks around it. "
+                                "Read the story dialogue or narration currently displayed in this "
+                                "visual novel screenshot.\n\n"
+                                "SPEAKER ATTRIBUTION: If a speaker name label is visible (typically "
+                                "in a small separate name-plate above or beside the dialogue box, or "
+                                "as a colored name tag), prefix the line with the speaker's name "
+                                "followed by a colon and space, like this:\n"
+                                "  Tomoya: I don't know what to say.\n"
+                                "If there is NO visible speaker label (pure narration, internal "
+                                "monologue, or descriptive text), output the line as-is with NO "
+                                "prefix.\n\n"
+                                "Ignore ALL UI elements: buttons, menus, save/load/auto/skip/menu "
+                                "labels, chapter headings, system overlays, copyright notices (like "
+                                "'\u00a9SMP', 'FINuTO', '\u00a9SHIP'), and any non-story text in the "
+                                "corners or edges of the screen. Do NOT treat menu items, button "
+                                "labels, or system overlays as the speaker name.\n\n"
+                                "Return ONLY the formatted output (optionally 'Speaker: ' prefix + "
+                                "line), verbatim, exactly as shown. No quotation marks, no "
+                                "explanation, no extra prefix.\n"
                                 "If there is no story text visible (transition, black screen, "
                                 "choice menu, save screen, etc.), return exactly: EMPTY"
                             )},
@@ -1295,7 +1376,11 @@ class VNAutopilot:
         # Guarded by disk-space check: if G: is critically full, skip the write
         # this cycle rather than risk corrupting ChromaDB.
         # Also wrapped in try/except so a scheduling error is logged and skipped.
-        if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
+        # H5: cold-start — fire FIRST summary at 5 boxes (vs 15) so reactions,
+        # theories, and route-aware choices have context early in the session.
+        first_summary_threshold = 5 if not self.vn_narrative_summary else 15
+        if (self.vn_boxes_since_summary >= first_summary_threshold
+                and len(self.vn_recent_text_buffer) >= 3):
             if self._check_disk_space():
                 try:
                     asyncio.ensure_future(self._update_narrative_summary())
@@ -1305,55 +1390,27 @@ class VNAutopilot:
         # Art-change check (before _maybe_update_scene_art overwrites the hash)
         art_changed = self._art_hash(stable_frame) != self._last_art_hash
 
-        # ── Read aloud — wait for TTS to finish before advancing ─────────────
-        if self.on_speak_vn:
-            ssml_inner = self._build_vn_ssml_inner(new_text, intensity)
-            try:
-                await self.on_speak_vn(new_text, ssml_inner)
-                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
-            except Exception as _tts_err:
-                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
-        elif self.on_speak:
-            try:
-                await self.on_speak(new_text)
-                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
-            except Exception as _tts_err:
-                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
-        else:
-            print(
-                f"   [Autopilot] WARNING: no on_speak_vn or on_speak callback "
-                f"registered — dialogue NOT spoken!"
+        # ── H1: Speaker attribution ──────────────────────────────────────────
+        speaker, line_only = self._parse_speaker_line(new_text)
+        if speaker:
+            self._last_speaker = speaker
+            # Boost attachment for this speaker directly (more reliable than
+            # capitalized-word scraping in _update_character_attachment).
+            self._char_mention_counts[speaker] = self._char_mention_counts.get(speaker, 0) + 1
+            cnt = self._char_mention_counts[speaker]
+            raw = min(1.0, (cnt / 200.0) ** 0.5)
+            self.character_attachment[speaker] = min(
+                1.0, max(self.character_attachment.get(speaker, 0.0), raw)
             )
+            print(f"   [Autopilot] Speaker parsed: '{speaker}' → '{line_only[:50]}'")
 
-        # ── Parallelize side-tasks with advance + next-box prep ───────────────
-        # The reading cadence is gated by the post-advance OCR (~1-2s). Theory
-        # checks (Claude, 0-3s), reaction decisions (Claude opus, 2-5s), and
-        # solo asides (Claude opus, 2-5s) used to await IN SERIES before the
-        # advance, causing 4-25s gaps between reads. Now: fire the advance
-        # immediately, run prep + theory + reaction concurrently, and only
-        # speak reactions that finish within the prep window. Anything that
-        # doesn't finish in time is dropped — keeps the read cadence steady.
-        #
-        # Scene-art background task (fire-and-forget, never blocks)
-        try:
-            asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
-        except Exception as _art_err:
-            print(f"   [Autopilot] Scene art task error (continuing): {_art_err}")
-
-        # Short content pause before advancing — capped so it can't spike timing
-        pause_sec = self._content_pause(new_text, intensity, art_changed)
-        pause_sec = min(pause_sec, 0.6)
-        await asyncio.sleep(pause_sec)
-
-        # Fire the advance NOW so the VN starts rendering the next box while
-        # we OCR/decide reactions in parallel.
-        self._safe_advance()
-
-        # Kick off the prep + side-tasks together
-        prep_task: "asyncio.Task | None" = None
-        if self.enabled and not self.soft_paused:
-            prep_task = asyncio.ensure_future(self._post_advance_prep())
-
+        # ── H2/H3: Schedule reaction tasks BEFORE pause/advance ─────────────
+        # Tasks run in parallel with the content pause (head-start). After the
+        # speech completes we wait an intensity-tiered grace window for the
+        # highest-priority reaction to finish, speak it (so it lands while the
+        # CURRENT box is still on screen), THEN advance + prep the next box.
+        # This costs ~grace seconds on boxes with reactions but gives proper
+        # visual sync — reaction overlaps the line it's reacting to, not the next.
         theory_task: "asyncio.Task | None" = None
         try:
             theory_task = asyncio.ensure_future(
@@ -1385,26 +1442,63 @@ class VNAutopilot:
             except Exception as _as_err:
                 print(f"   [Autopilot] Solo aside scheduling error: {_as_err}")
 
-        # Await prep first — this is the mandatory wait that determines the
-        # gap before the NEXT read. Reactions get whatever time is left.
-        if prep_task is not None:
+        # ── Read aloud — wait for TTS to finish before advancing ─────────────
+        if self.on_speak_vn:
+            ssml_inner = self._build_speaker_ssml_inner(speaker, line_only, intensity)
             try:
-                result = await prep_task
+                await self.on_speak_vn(new_text, ssml_inner)
+                self._last_spoke_time = time.time()
+                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
+            except Exception as _tts_err:
+                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
+        elif self.on_speak:
+            try:
+                await self.on_speak(new_text)
+                self._last_spoke_time = time.time()
+                print(f"   [Autopilot] TTS complete ({len(new_text)} chars spoken).")
+            except Exception as _tts_err:
+                print(f"   [Autopilot] TTS error on dialogue read: {_tts_err}")
+        else:
+            print(
+                f"   [Autopilot] WARNING: no on_speak_vn or on_speak callback "
+                f"registered — dialogue NOT spoken!"
+            )
+
+        # Scene-art background task (fire-and-forget)
+        try:
+            asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
+        except Exception as _art_err:
+            print(f"   [Autopilot] Scene art task error (continuing): {_art_err}")
+
+        # Brief content pause — capped for steady cadence
+        pause_sec = min(self._content_pause(new_text, intensity, art_changed), 0.6)
+        await asyncio.sleep(pause_sec)
+
+        # H2: tiered grace by intensity — climactic moments wait longer so the
+        # reaction actually lands. Calm stays snappy.
+        grace = self._reaction_grace(intensity)
+
+        # Speak first-ready reaction WHILE current box is still on screen (H3)
+        spoke_extra = await self._speak_first_ready_reaction(
+            theory_task, reaction_task, aside_task,
+            grace_seconds=grace,
+        )
+        if spoke_extra:
+            self._last_spoke_time = time.time()
+            self._boxes_since_reaction = 0
+            self._boxes_since_solo_aside = 0
+
+        # NOW advance — next box renders after our reaction landed
+        self._safe_advance()
+
+        # Pre-prep the next box (hides OCR latency before next read)
+        if self.enabled and not self.soft_paused:
+            try:
+                result = await self._post_advance_prep()
                 if result:
                     self._prepared_next = result
             except Exception as e:
                 print(f"   [Autopilot] Post-advance prep error: {e}")
-
-        # Speak the first ready reaction (priority: theory → reaction → aside).
-        # Each task gets a short grace window so near-ready reactions still land,
-        # but the cap keeps timing consistent. Anything still pending is dropped.
-        spoke_extra = await self._speak_first_ready_reaction(
-            theory_task, reaction_task, aside_task,
-            grace_seconds=0.6,
-        )
-        if spoke_extra:
-            self._boxes_since_reaction = 0
-            self._boxes_since_solo_aside = 0
 
     async def _speak_first_ready_reaction(
         self,
@@ -1417,6 +1511,7 @@ class VNAutopilot:
         grace_seconds). Cancels the rest so they don't speak later out of order.
 
         Returns True if anything was spoken.
+        Also updates _last_spoke_time on success (for silence-breaker tracking).
         """
         # Priority order: theory resolution > reaction > solo aside
         ordered = [
@@ -1462,6 +1557,7 @@ class VNAutopilot:
                 if self.on_speak:
                     try:
                         await self.on_speak(result)
+                        self._last_spoke_time = time.time()
                         spoke = True
                     except Exception as _sp_err:
                         print(f"   [Autopilot] TTS error on {label}: {_sp_err}")
@@ -2144,7 +2240,7 @@ class VNAutopilot:
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
-                    delay = 30.0 * (2 ** attempt)   # 30s → 60s → 120s
+                    delay = 5.0 * (2 ** attempt)   # 5s → 10s → 20s (background task, keep tight)
                     print(
                         f"   [Autopilot] Narrative summary: rate-limited "
                         f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
@@ -2170,11 +2266,377 @@ class VNAutopilot:
         if line and self.on_speak:
             try:
                 await self.on_speak(line)
+                self._last_spoke_time = time.time()
             except Exception as e:
                 print(f"   [Autopilot] Could not speak failsafe line: {e}")
 
         if self.on_failsafe:
             self.on_failsafe(screen_type)
+
+    # ── Speaker attribution (H1) ──────────────────────────────────────────────
+
+    @staticmethod
+    def _parse_speaker_line(text: str) -> tuple[str, str]:
+        """Split 'Speaker: line' into (speaker, line). Returns ('', text) on no match.
+
+        Conservative: only treats a leading short token + colon as a speaker label.
+        Rejects matches where the 'speaker' contains sentence punctuation or looks
+        like a sentence fragment.
+        """
+        if not text:
+            return "", ""
+        # Must have a colon in the first 32 chars, followed by a space + content
+        m = re.match(r'^\s*([A-Za-z0-9 \'\-\.]{1,30})\s*[:\uFF1A]\s+(.+)$', text, re.DOTALL)
+        if not m:
+            return "", text.strip()
+        speaker = m.group(1).strip()
+        line = m.group(2).strip()
+        # Reject if speaker contains sentence-ending punctuation
+        if any(c in speaker for c in '.!?,;'):
+            return "", text.strip()
+        # Reject if "speaker" is multiple words longer than ~3 (likely a sentence)
+        if len(speaker.split()) > 3:
+            return "", text.strip()
+        # Reject single common words ("Why", "Look", "Hmm", "Oh", etc.) — those
+        # are sentence starters, not speaker labels.
+        bad = {"why", "look", "hmm", "oh", "ah", "huh", "wait", "no", "yes",
+               "but", "well", "but", "so", "what", "and", "or", "if", "then"}
+        if speaker.lower() in bad:
+            return "", text.strip()
+        if not line:
+            return "", text.strip()
+        return speaker, line
+
+    def _speaker_prosody(self, speaker: str) -> tuple[str, str]:
+        """Deterministic (pitch, rate) offset for a speaker name so the same
+        character sounds consistent across the session. Empty speaker → no offset.
+        Returns ('', '') for narration."""
+        if not speaker:
+            return "", ""
+        if speaker in self._speaker_voice_cache:
+            return self._speaker_voice_cache[speaker]
+        # Hash → small pitch/rate offsets. Keep modest so the base voice is still recognizable.
+        h = int(hashlib.md5(speaker.encode("utf-8")).hexdigest(), 16)
+        pitch_offsets = ["-6%", "-4%", "-2%", "0%", "+2%", "+4%", "+6%", "+8%"]
+        rate_offsets  = ["-4%", "-2%", "0%", "+2%", "+4%"]
+        pitch = pitch_offsets[h % len(pitch_offsets)]
+        rate  = rate_offsets[(h // 16) % len(rate_offsets)]
+        self._speaker_voice_cache[speaker] = (pitch, rate)
+        return pitch, rate
+
+    def _build_speaker_ssml_inner(
+        self, speaker: str, line: str, intensity: str
+    ) -> str:
+        """Build SSML inner content with optional speaker name + per-speaker prosody.
+        Speaker name is spoken with a brief break, then the line in the speaker's voice.
+        """
+        safe_line = xml.sax.saxutils.escape(line)
+        # Base intensity rate adjustment
+        if intensity in (INTENSITY_CLIMACTIC, INTENSITY_INTENSE):
+            base_rate = "-8%"
+        elif intensity == INTENSITY_AFTERMATH:
+            base_rate = "-5%"
+        else:
+            base_rate = None
+        # Question / exclaim pitch lift
+        stripped = line.strip()
+        if stripped.endswith('?'):
+            base_pitch = "+5%"
+        elif stripped.endswith('!'):
+            base_pitch = "+3%"
+        else:
+            base_pitch = None
+
+        if not speaker:
+            # Pure narration — fall back to old behavior
+            attrs = []
+            if base_rate:  attrs.append(f'rate="{base_rate}"')
+            if base_pitch: attrs.append(f'pitch="{base_pitch}"')
+            return f'<prosody {" ".join(attrs)}>{safe_line}</prosody>' if attrs else safe_line
+
+        # Speaker line — wrap line in speaker prosody, prefix with the name + tiny break
+        sp_pitch, sp_rate = self._speaker_prosody(speaker)
+        safe_speaker = xml.sax.saxutils.escape(speaker)
+        line_attrs = []
+        if sp_pitch and sp_pitch != "0%": line_attrs.append(f'pitch="{sp_pitch}"')
+        if sp_rate  and sp_rate  != "0%": line_attrs.append(f'rate="{sp_rate}"')
+        # Layer intensity adjustment on top of speaker offsets when present
+        if base_rate:  line_attrs.append(f'rate="{base_rate}"')  # later attr wins for some engines; keep both
+        line_part = (
+            f'<prosody {" ".join(line_attrs)}>{safe_line}</prosody>'
+            if line_attrs else safe_line
+        )
+        # Speaker name read flat + tiny pause
+        return f'{safe_speaker}<break time="180ms"/> {line_part}'
+
+    # ── Reaction grace (H2) ───────────────────────────────────────────────────
+
+    @staticmethod
+    def _reaction_grace(intensity: str) -> float:
+        return REACTION_GRACE_BY_INTENSITY.get(intensity, 0.6)
+
+    # ── Silence-breaker (H4) ──────────────────────────────────────────────────
+
+    async def _maybe_speak_silence_breaker(self) -> bool:
+        """If we've been silent for too long during active play, fire a low-energy
+        aside so the stream doesn't sit dead during long CG/transition stretches.
+        Throttled so it can't spam. Returns True if it spoke."""
+        if self._silence_breaker_in_flight:
+            return False
+        if self.soft_paused or self.is_paused or not self.enabled:
+            return False
+        now = time.time()
+        if (now - self._last_spoke_time) < SILENCE_BREAKER_SECONDS:
+            return False
+        if (now - self._last_silence_breaker_time) < SILENCE_BREAKER_MIN_GAP:
+            return False
+        self._silence_breaker_in_flight = True
+        try:
+            # Pick a low-energy aside locally — no LLM call needed for this; keeps
+            # silence-breaks fast and inexpensive. Cycle the line so it doesn't repeat.
+            options = [
+                "Hmm.",
+                "...okay.",
+                "What are we looking at here.",
+                "Pretty.",
+                "Mmm.",
+                "I'm just gonna sit with this for a sec.",
+                "Where are we going with this?",
+                "Okay, keep going, game.",
+            ]
+            idx = int(now) % len(options)
+            line = options[idx]
+            if self.on_speak:
+                try:
+                    await self.on_speak(line)
+                    self._last_silence_breaker_time = time.time()
+                    self._last_spoke_time = time.time()
+                    return True
+                except Exception as e:
+                    print(f"   [Autopilot] Silence-breaker TTS error: {e}")
+            return False
+        finally:
+            self._silence_breaker_in_flight = False
+
+    # ── CHOICE auto-pick (C1) ─────────────────────────────────────────────────
+
+    async def _extract_choices(self, frame) -> list[dict] | None:
+        """Use cloud vision to extract choice options with positions.
+        Returns a list of {text, x_pct, y_pct} or None on failure.
+        Positions are 0..1 fractions of frame size for click conversion.
+        """
+        if not self.vision_client:
+            return None
+        try:
+            buf = BytesIO()
+            frame.save(buf, format="JPEG", quality=85)
+            b64 = base64.b64encode(buf.getvalue()).decode()
+            resp = await self.vision_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": (
+                            "This is a visual novel CHOICE screen. List every selectable "
+                            "choice option visible (numbered or button-style). For each, "
+                            "estimate the CENTER position of the clickable button as a "
+                            "fraction of the image (x: 0=left, 1=right; y: 0=top, 1=bottom).\n\n"
+                            "Output ONE LINE PER CHOICE in this exact format:\n"
+                            "INDEX | TEXT | X | Y\n"
+                            "Example:\n"
+                            "1 | Talk to Nagisa | 0.50 | 0.42\n"
+                            "2 | Go to the rooftop | 0.50 | 0.58\n\n"
+                            "No header, no explanation, no extra text. If this is NOT a "
+                            "choice screen with selectable options, output exactly: NOCHOICE"
+                        )},
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:image/jpeg;base64,{b64}",
+                            "detail": "high",
+                        }},
+                    ],
+                }],
+                max_tokens=400,
+                temperature=0.0,
+            )
+            raw = resp.choices[0].message.content.strip()
+            if not raw or "NOCHOICE" in raw.upper():
+                return None
+            choices = []
+            for ln in raw.splitlines():
+                parts = [p.strip() for p in ln.split("|")]
+                if len(parts) != 4:
+                    continue
+                try:
+                    idx = int(parts[0])
+                    text = parts[1]
+                    x = float(parts[2])
+                    y = float(parts[3])
+                except ValueError:
+                    continue
+                if not (0.0 <= x <= 1.0 and 0.0 <= y <= 1.0) or not text:
+                    continue
+                choices.append({"index": idx, "text": text, "x_pct": x, "y_pct": y})
+            return choices if choices else None
+        except Exception as e:
+            print(f"   [Autopilot] Choice extract error: {e}")
+            return None
+
+    async def _decide_choice(self, choices: list[dict]) -> int:
+        """Ask Claude which choice to pick. Returns 0-based index. Defaults to 0 on error."""
+        if not self.ai_core.anthropic_client or not choices:
+            return 0
+        choices_str = "\n".join(f"  {c['index']}. {c['text']}" for c in choices)
+        route_block = (
+            f"\n\nROUTE GOAL: {self.target_route}\n"
+            f"Pick the option that best serves this goal."
+            if self.target_route else
+            "\n\nNo specific route goal — pick what feels most in-character and "
+            "narratively interesting for Kira."
+        )
+        narrative_block = (
+            f"\n\nSTORY SO FAR:\n{self.vn_narrative_summary}"
+            if self.vn_narrative_summary else ""
+        )
+        prompt = (
+            f"You are Kira, autonomously playing a visual novel on stream.\n"
+            f"A choice has appeared. Pick ONE option.{narrative_block}{route_block}\n\n"
+            f"Options:\n{choices_str}\n\n"
+            f"Respond with ONLY the option number, nothing else."
+        )
+        try:
+            resp = await self.ai_core.anthropic_client.messages.create(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=8,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = resp.content[0].text.strip()
+            m = re.search(r"\d+", raw)
+            if not m:
+                return 0
+            picked = int(m.group(0))
+            for i, c in enumerate(choices):
+                if c["index"] == picked:
+                    return i
+            # Fallback: maybe Claude used 0-based
+            if 0 <= picked < len(choices):
+                return picked
+            return 0
+        except Exception as e:
+            print(f"   [Autopilot] Choice decision error: {e}")
+            return 0
+
+    async def _handle_choice(self, frame):
+        """Auto-pick a CHOICE screen: extract options, ask Claude, click the pick.
+        Falls back to failsafe if auto_choose is off, options can't be parsed,
+        or pause_on_major_choices is set.
+        """
+        if not self.auto_choose:
+            await self._trigger_failsafe("CHOICE")
+            return
+
+        print("   [Autopilot] CHOICE detected — extracting options...")
+        choices = await self._extract_choices(frame)
+        if not choices:
+            print("   [Autopilot] Could not parse choices — handing off.")
+            await self._trigger_failsafe("CHOICE")
+            return
+
+        idx = await self._decide_choice(choices)
+        idx = max(0, min(idx, len(choices) - 1))
+        picked = choices[idx]
+        print(
+            f"   [Autopilot] Picked choice {idx + 1}/{len(choices)}: "
+            f"'{picked['text'][:60]}'"
+        )
+
+        # In-character framing line BEFORE clicking
+        if self.on_speak:
+            framing_options = [
+                f"Okay... let's try '{picked['text']}'.",
+                f"I'll go with '{picked['text']}'.",
+                f"Let's see what happens if I pick '{picked['text']}'.",
+                f"Alright, '{picked['text']}' it is.",
+            ]
+            framing = framing_options[hash(picked['text']) % len(framing_options)]
+            try:
+                await self.on_speak(framing)
+                self._last_spoke_time = time.time()
+            except Exception as e:
+                print(f"   [Autopilot] Choice framing TTS error: {e}")
+
+        # Convert percentage to absolute coords using the VN window rect
+        win = self._find_vn_window()
+        if win is None:
+            print("   [Autopilot] Choice click: VN window lost — handing off.")
+            await self._trigger_failsafe("CHOICE")
+            return
+        abs_x = int(win.left + win.width  * picked["x_pct"])
+        abs_y = int(win.top  + win.height * picked["y_pct"])
+        print(f"   [Autopilot] Clicking choice at ({abs_x}, {abs_y})")
+
+        # Focus, click, verify screen changed
+        self._focus_vn_window()
+        try:
+            self.input_controller.click_at(abs_x, abs_y)
+        except Exception as e:
+            print(f"   [Autopilot] Choice click failed: {e} — handing off.")
+            await self._trigger_failsafe("CHOICE")
+            return
+
+        # Wait for the engine to advance past the choice
+        await asyncio.sleep(1.2)
+
+        # Verify we're no longer on a CHOICE screen
+        verify_frame = await asyncio.get_event_loop().run_in_executor(
+            None, self._grab_frame_sync
+        )
+        if verify_frame is not None:
+            new_type = await self._classify_screen(verify_frame)
+            if new_type == "CHOICE":
+                print("   [Autopilot] Still on CHOICE after click — handing off.")
+                await self._trigger_failsafe("CHOICE")
+                return
+            print(f"   [Autopilot] Choice resolved → next screen: {new_type}")
+
+        # Reset read-state so post-choice content is fresh
+        self._last_box_text = ""
+        self._prepared_next = None
+        self._last_progress_time = time.time()
+
+    # ── SAVE_PROMPT soft-dismiss (C2) ─────────────────────────────────────────
+
+    async def _handle_save_prompt(self, frame):
+        """Try to dismiss a menu by pressing Escape. If it doesn't go away
+        after a couple tries, failsafe."""
+        if not self.auto_dismiss_menus:
+            await self._trigger_failsafe("SAVE_PROMPT")
+            return
+
+        print("   [Autopilot] SAVE_PROMPT — attempting Escape dismissal...")
+        for attempt in range(2):
+            try:
+                self._focus_vn_window()
+                self.input_controller.press_escape()
+            except Exception as e:
+                print(f"   [Autopilot] Escape press failed: {e}")
+                break
+            await asyncio.sleep(0.8)
+            verify_frame = await asyncio.get_event_loop().run_in_executor(
+                None, self._grab_frame_sync
+            )
+            if verify_frame is None:
+                continue
+            new_type = await self._classify_screen(verify_frame)
+            if new_type != "SAVE_PROMPT":
+                print(f"   [Autopilot] Menu dismissed → {new_type}")
+                self._last_box_text = ""
+                self._prepared_next = None
+                self._last_progress_time = time.time()
+                return
+            print(f"   [Autopilot] Menu still present after Escape #{attempt + 1}")
+
+        print("   [Autopilot] Could not dismiss menu — handing off.")
+        await self._trigger_failsafe("SAVE_PROMPT")
 
     # ── Input helper ───────────────────────────────────────────────────────────
 
