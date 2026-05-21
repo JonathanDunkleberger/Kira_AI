@@ -172,6 +172,10 @@ class VNAutopilot:
         ),
         "UNKNOWN": "I'm not sure what I'm looking at here. Jonny, take a look?",
         "INPUT_ERROR": "Something went wrong with my input system. Jonny, you'll need to take over.",
+        "VN_WINDOW_NOT_FOUND": (
+            "I can't find the VN window. Try typing the game title in the dashboard "
+            "and toggling me back on."
+        ),
         "ERROR": "I ran into an error. Jonny, I'm pausing — come check on me?",
     }
 
@@ -263,15 +267,30 @@ class VNAutopilot:
             return [f"(error listing windows: {e})"]
 
     def start(self):
-        """Start or restart the autopilot loop. Safe to call multiple times."""
+        """Start or restart the autopilot loop. Safe to call multiple times.
+        Schedules _async_start() which validates / auto-detects the VN window
+        before entering the main loop — full-screen capture is never used.
+        """
         if not self.enabled:
             return
         if self._task and not self._task.done():
             return  # already running
 
-        # ── Loud window-targeting diagnostics ─────────────────────────────────
+        self.is_running = True
+        self.is_paused = False
+        self.pause_reason = ""
+        self._task = asyncio.ensure_future(self._async_start())
+        print("   [Autopilot] Started.")
+
+    async def _async_start(self):
+        """Validate or auto-detect the VN window, then enter the main loop.
+        If a title is already set: verify the window is findable.
+        If no title: run a cheap LLM auto-detection call.
+        Never falls back to full-screen capture.
+        """
         if self.vn_window_title:
-            print(f"   [Autopilot] Looking for VN window matching: '{self.vn_window_title}'")
+            # Manual override — verify the window is reachable
+            print(f"   [Autopilot] Looking for VN window: '{self.vn_window_title}'")
             win = self._find_vn_window()
             if win is not None:
                 bbox = (win.left, win.top,
@@ -280,23 +299,103 @@ class VNAutopilot:
             else:
                 titles = self.list_open_windows()
                 print(f"   [Autopilot] VN window NOT FOUND for '{self.vn_window_title}'.")
-                print(f"   [Autopilot] Open windows: {titles}")
-                # Pause immediately — capturing the desktop is worse than stopping
-                self.is_running = False
-                self.is_paused = True
-                self.pause_reason = "VN_WINDOW_NOT_FOUND"
-                if self.on_failsafe:
-                    self.on_failsafe("VN_WINDOW_NOT_FOUND")
-                print("   [Autopilot] Paused — fix the window title and resume.")
+                print("   [Autopilot] Open windows (check for the correct title):")
+                for t in titles:
+                    print(f"      \u2022 {t}")
+                await self._trigger_failsafe("VN_WINDOW_NOT_FOUND")
                 return
         else:
-            print("   [Autopilot] No window title set — using full-screen capture.")
+            # Auto-detect via LLM
+            print("   [Autopilot] No window title set \u2014 attempting auto-detection...")
+            detected = await self._autodetect_vn_window()
+            if detected:
+                self.vn_window_title = detected
+            else:
+                print("   [Autopilot] Could not identify a VN window \u2014 pausing.")
+                await self._trigger_failsafe("VN_WINDOW_NOT_FOUND")
+                return
 
-        self.is_running = True
-        self.is_paused = False
-        self.pause_reason = ""
-        self._task = asyncio.ensure_future(self._loop())
-        print("   [Autopilot] Started.")
+        await self._loop()
+
+    async def _autodetect_vn_window(self) -> "str | None":
+        """Identify the active VN/game window via a cheap LLM call.
+        Filters out known system / tool windows first, then sends the remaining
+        candidates to Claude and returns the matched title string, or None.
+        """
+        _IGNORE_SUBSTRINGS = frozenset([
+            "kira - control center",
+            "nvidia geforce",
+            "visual studio code",
+            " - youtube",
+            "youtube -",
+            "google chrome",
+            "firefox",
+            "microsoft edge",
+        ])
+        _IGNORE_PREFIXES = ("obs ",)    # OBS Studio shows as "OBS 32.0.4 \u2014 ..."
+        _IGNORE_EXACT = frozenset([
+            "steam", "program manager", "task manager",
+            "settings", "windows input experience", "vtube studio",
+        ])
+
+        all_titles = self.list_open_windows()
+        candidates = [
+            t for t in all_titles
+            if not any(ig in t.lower() for ig in _IGNORE_SUBSTRINGS)
+            and not any(t.lower().startswith(p) for p in _IGNORE_PREFIXES)
+            and t.lower().strip() not in _IGNORE_EXACT
+        ]
+        print(f"   [Autopilot] Auto-detect candidates: {candidates}")
+
+        if not candidates:
+            print("   [Autopilot] No candidate windows after filtering.")
+            return None
+
+        if not getattr(self.ai_core, 'anthropic_client', None):
+            # No LLM: use the single candidate if unambiguous
+            if len(candidates) == 1:
+                print(f"   [Autopilot] Single candidate (no LLM): using '{candidates[0]}'")
+                return candidates[0]
+            print("   [Autopilot] Anthropic unavailable and multiple candidates \u2014 cannot auto-detect.")
+            return None
+
+        candidate_str = "\n".join(f"  - {t}" for t in candidates)
+        prompt = (
+            "The user is starting an autonomous visual novel / story-game play session.\n"
+            "From this list of open window titles, identify which ONE is the visual novel "
+            "or story game they want to play.\n"
+            "Prefer the running game over a launcher or store window "
+            "(e.g. prefer 'Game ver1.00S' over 'Game for Steam Launcher').\n"
+            "Respond with ONLY the exact window title string from the list, nothing else.\n"
+            "If none look like a VN or game, respond: NONE\n\n"
+            f"Open windows:\n{candidate_str}"
+        )
+
+        try:
+            resp = await self.ai_core.anthropic_client.messages.create(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=80,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            result = resp.content[0].text.strip().strip('"').strip("'")
+            if not result or result.upper() == "NONE":
+                return None
+            # Exact match first
+            for t in all_titles:
+                if t.lower() == result.lower():
+                    print(f"   [Autopilot] Auto-detected VN window: '{t}'")
+                    return t
+            # Partial match (LLM may truncate the title)
+            rl = result.lower()
+            for t in all_titles:
+                if rl in t.lower() or t.lower() in rl:
+                    print(f"   [Autopilot] Auto-detected VN window (partial match): '{t}'")
+                    return t
+            print(f"   [Autopilot] LLM returned '{result}' but no window matched.")
+            return None
+        except Exception as e:
+            print(f"   [Autopilot] Auto-detect error: {e}")
+            return None
 
     def stop(self):
         """Stop the autopilot cleanly. Does NOT speak anything."""
@@ -1413,43 +1512,34 @@ class VNAutopilot:
         return None
 
     def _grab_frame_sync(self):
-        """Capture the VN window region.
-
-        If a window title is configured and the window is found: captures only that
-        window's bounding rect.
-
-        If a window title is configured but the window is NOT found: raises RuntimeError
-        (do NOT fall back to full-screen — that captures the desktop/taskbar).
-
-        If no window title is configured: captures the full screen.
-
+        """Capture the VN window region (by bounding rect). Never uses full-screen.
+        _async_start() ensures vn_window_title is always set before _loop() runs.
+        Raises RuntimeError if anything is wrong so the loop can fail safely.
         Synchronous — safe to call from run_in_executor.
         """
         if not PIL_AVAILABLE:
             raise RuntimeError("Pillow not available for screenshot capture")
-
-        if self.vn_window_title:
-            if not PYGETWINDOW_AVAILABLE:
-                raise RuntimeError(
-                    "pygetwindow not available — install it or clear the window title field."
-                )
-            win = self._find_vn_window()
-            if win is None:
-                titles = self.list_open_windows()
-                raise RuntimeError(
-                    f"VN window not found for '{self.vn_window_title}'. "
-                    f"Open windows: {titles}"
-                )
-            if win.width <= 0 or win.height <= 0:
-                raise RuntimeError(
-                    f"VN window '{win.title}' is minimised or zero-size — restore it first."
-                )
-            bbox = (win.left, win.top,
-                    win.left + win.width, win.top + win.height)
-            return ImageGrab.grab(bbox=bbox)
-
-        # No title configured — full-screen fallback
-        return ImageGrab.grab()
+        if not PYGETWINDOW_AVAILABLE:
+            raise RuntimeError(
+                "pygetwindow not available — install it: pip install pygetwindow pywin32"
+            )
+        if not self.vn_window_title:
+            raise RuntimeError(
+                "No VN window title set — _async_start() should have detected one. "
+                "Toggle autopilot off and on again to re-detect."
+            )
+        win = self._find_vn_window()
+        if win is None:
+            raise RuntimeError(
+                f"VN window lost ('{self.vn_window_title}' not found). "
+                "Was the game closed? Toggle autopilot off/on to re-detect."
+            )
+        if win.width <= 0 or win.height <= 0:
+            raise RuntimeError(
+                f"VN window '{win.title}' is minimised or zero-size — restore it first."
+            )
+        bbox = (win.left, win.top, win.left + win.width, win.top + win.height)
+        return ImageGrab.grab(bbox=bbox)
 
     def _focus_vn_window(self):
         """Bring the VN window to the foreground before sending keystrokes.

@@ -24,8 +24,25 @@ class MemoryManager:
         self.turns = self.client.get_or_create_collection(name="turns")
         self.facts = self.client.get_or_create_collection(name="facts")
         self.chatters = self.client.get_or_create_collection(name="chatters")
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu') 
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+        self._validate_collections()
         print("   Memory Manager initialized.")
+
+    def _validate_collections(self):
+        """Startup health-check: attempt a lightweight read on each collection.
+        Logs a loud warning immediately if any index is unreadable so the user
+        knows about corruption before the first turn, not mid-stream."""
+        for name, coll in [
+            ("turns",    self.turns),
+            ("facts",    self.facts),
+            ("chatters", self.chatters),
+        ]:
+            try:
+                coll.get(limit=1)
+            except Exception as e:
+                print(f"   [Memory] WARNING: ChromaDB '{name}' index unreadable: {e}")
+                print(f"   [Memory] WARNING: Memory may be corrupted. "
+                      f"Restore from backup or delete: {MEMORY_PATH}")
 
     def add_turn(self, user_text: str, ai_text: str, source: str = "unknown"):
         """Adds a new raw conversation turn to the 'turns' collection."""
@@ -215,7 +232,8 @@ class MemoryManager:
                 return results['documents'][0]
             return []
         except Exception as e:
-            print(f"   ERROR: Failed to search facts: {e}")
+            print(f"   [Memory] ChromaDB read failed "
+                  f"(collection='facts', path='{MEMORY_PATH}'): {e}")
             return []
 
     def add_highlight(self, activity: str, highlight: str, kira_take: str = ""):
