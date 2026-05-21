@@ -47,10 +47,7 @@ from io import BytesIO
 
 try:
     import pytesseract
-    # NOTE (Windows): the Tesseract OCR *binary* must be installed separately.
-    # Download: https://github.com/UB-Mannheim/tesseract/wiki
-    # If Tesseract is not on PATH, set the path e.g.:
-    #   pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     try:
         pytesseract.get_tesseract_version()
         PYTESSERACT_AVAILABLE = True
@@ -72,6 +69,12 @@ try:
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
+
+try:
+    import pygetwindow as _pgw
+    PYGETWINDOW_AVAILABLE = True
+except ImportError:
+    PYGETWINDOW_AVAILABLE = False
 
 try:
     import pydirectinput
@@ -234,6 +237,12 @@ class VNAutopilot:
         self._last_box_text: str = ""      # dedup: skip reaction on re-capture of same box
         self._prepared_next: dict | None = None  # pre-prepared next box data from pipeline
 
+        # ── Window targeting ─────────────────────────────────────────────────────
+        # Set this to a substring of the VN window title (e.g. "Narcissu", "planetarian").
+        # When set, screenshots are cropped to that window's bounding rect and
+        # advance keystrokes are sent only after bringing that window to the foreground.
+        self.vn_window_title: str = ""
+
         # ── Scene art awareness (cloud vision, fires only on background change) ──
         self._last_art_hash: str = ""           # hash of the art region of the last frame
         self._scene_art_description: str = ""  # cached scene description from cloud vision
@@ -322,10 +331,8 @@ class VNAutopilot:
                     screen_type         = prepared["screen_type"]
                     frame               = prepared["frame"]
                 else:
-                    if not PIL_AVAILABLE:
-                        raise RuntimeError("Pillow not available for screenshot capture")
                     frame = await asyncio.get_event_loop().run_in_executor(
-                        None, ImageGrab.grab
+                        None, self._grab_frame_sync
                     )
                     screen_type = await self._classify_screen(frame)
 
@@ -346,7 +353,7 @@ class VNAutopilot:
                     if screen_type == "UNKNOWN":
                         await asyncio.sleep(1.0)
                         retry_frame = await asyncio.get_event_loop().run_in_executor(
-                            None, ImageGrab.grab
+                            None, self._grab_frame_sync
                         )
                         screen_type = await self._classify_screen(retry_frame)
                         print(f"   [Autopilot] UNKNOWN retry → {screen_type}")
@@ -493,7 +500,7 @@ class VNAutopilot:
             for _ in range(2):
                 await asyncio.sleep(0.15)
                 curr_frame = await asyncio.get_event_loop().run_in_executor(
-                    None, ImageGrab.grab
+                    None, self._grab_frame_sync
                 )
                 curr_hash = self._quick_hash(curr_frame)
                 if curr_hash == prev_hash:
@@ -511,6 +518,12 @@ class VNAutopilot:
             if not text or text.upper() == "NO TEXT VISIBLE":
                 await asyncio.sleep(1.5)
                 self._safe_advance()
+                return
+
+            # System-UI guard: if the capture looks like taskbar/desktop, skip
+            if self._is_system_ui_text(text):
+                print(f"   [Autopilot] System UI detected — wrong window? Skipping.")
+                await asyncio.sleep(1.5)
                 return
 
             normalized = " ".join(text.split())
@@ -662,10 +675,12 @@ class VNAutopilot:
             self._safe_advance()
             await asyncio.sleep(0.2)    # let VN render the next frame
 
-            if not PIL_AVAILABLE or not self.enabled:
+            if not self.enabled:
                 return None
 
-            frame = await asyncio.get_event_loop().run_in_executor(None, ImageGrab.grab)
+            frame = await asyncio.get_event_loop().run_in_executor(
+                None, self._grab_frame_sync
+            )
             screen_type = await self._classify_screen(frame)
 
             if screen_type != "DIALOGUE":
@@ -677,7 +692,7 @@ class VNAutopilot:
             for _ in range(2):
                 await asyncio.sleep(0.15)
                 curr_frame = await asyncio.get_event_loop().run_in_executor(
-                    None, ImageGrab.grab
+                    None, self._grab_frame_sync
                 )
                 curr_hash = self._quick_hash(curr_frame)
                 if curr_hash == prev_hash:
@@ -692,6 +707,11 @@ class VNAutopilot:
                 text = await self._transcribe_frame_cloud(stable_frame)
             text = self._clean_text((text or "").strip())
             if not text or text.upper() == "NO TEXT VISIBLE":
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+
+            # System-UI guard: wrong window captured → abort, don't cache
+            if self._is_system_ui_text(text):
+                print(f"   [Autopilot] Pipeline: system UI detected — wrong window?")
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
             normalized = " ".join(text.split())
@@ -1331,6 +1351,7 @@ class VNAutopilot:
         if not self.enabled:
             return
         try:
+            self._focus_vn_window()
             self.input_controller.advance()
         except Exception as e:
             print(f"   [Autopilot] Input failure — disabling: {e}")
@@ -1340,3 +1361,70 @@ class VNAutopilot:
             self.pause_reason = "INPUT_ERROR"
             if self.on_failsafe:
                 self.on_failsafe("INPUT_ERROR")
+
+    def _find_vn_window(self):
+        """Find the VN window by title substring. Returns a pygetwindow window or None."""
+        if not PYGETWINDOW_AVAILABLE or not self.vn_window_title:
+            return None
+        try:
+            title_lower = self.vn_window_title.lower()
+            all_wins = _pgw.getAllWindows()
+            for w in all_wins:
+                if title_lower in (w.title or "").lower():
+                    return w
+        except Exception:
+            pass
+        return None
+
+    def _grab_frame_sync(self):
+        """Capture the VN window region (if title configured), else full screen.
+        Synchronous — safe to call from run_in_executor."""
+        if not PIL_AVAILABLE:
+            raise RuntimeError("Pillow not available for screenshot capture")
+        if self.vn_window_title and PYGETWINDOW_AVAILABLE:
+            win = self._find_vn_window()
+            if win is not None:
+                try:
+                    bbox = (win.left, win.top,
+                            win.left + win.width, win.top + win.height)
+                    if win.width > 0 and win.height > 0:
+                        return ImageGrab.grab(bbox=bbox)
+                    # Window minimised or zero-size — fall through to full screen
+                except Exception:
+                    pass
+            else:
+                # Window title set but window not found — warn once per call
+                print(f"   [Autopilot] VN window '{self.vn_window_title}' not found — "
+                      f"is the game open?")
+        return ImageGrab.grab()
+
+    def _focus_vn_window(self):
+        """Bring the VN window to the foreground before sending keystrokes.
+        No-op when no window title is configured or pygetwindow unavailable."""
+        if not self.vn_window_title or not PYGETWINDOW_AVAILABLE:
+            return
+        win = self._find_vn_window()
+        if win is None:
+            return
+        try:
+            win.activate()
+            time.sleep(0.05)   # brief settle — focus needs a frame
+        except Exception:
+            pass
+
+    @staticmethod
+    def _is_system_ui_text(text: str) -> bool:
+        """Return True if the OCR text looks like Windows system UI rather than VN content.
+        Guards against accidentally capturing the taskbar, system tray, or other overlays."""
+        if not text:
+            return False
+        patterns = [
+            r'\d{1,2}:\d{2}\s*[AP]M',                         # clock: "9:12 PM"
+            r'\d+\s*°[CF]',                                    # temperature: "81°F"
+            r'\b(Control Center|Cortana|Action Center)\b',
+            r'\b(Clear|Partly Cloudy|Mostly Cloudy|Sunny|Overcast|Rainy)\b.*\d+°',
+        ]
+        for p in patterns:
+            if re.search(p, text, re.IGNORECASE):
+                return True
+        return False

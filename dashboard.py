@@ -176,28 +176,6 @@ class KiraDashboard(ctk.CTk):
         self.obs_switch.pack(anchor="w", padx=14, pady=(4, 6))
 
         ctk.CTkLabel(
-            frame,
-            text="VN AUTO-PLAY (experimental) \u2014 Kira reads and advances dialogue herself. Off by default. Companion mode is the main experience.",
-            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
-            justify="left"
-        ).pack(anchor="w", padx=14, pady=(0, 2))
-        self.vn_switch = ctk.CTkSwitch(
-            frame, text="VN Auto-Play",
-            command=self._toggle_vn,
-            button_color=C_YELLOW, progress_color=C_YELLOW,
-            font=ctk.CTkFont(size=12)
-        )
-        self.vn_switch.pack(anchor="w", padx=14, pady=(0, 4))
-        self.vn_status_label = ctk.CTkLabel(
-            frame, text="VN: Standby",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230
-        )
-        self.vn_status_label.pack(anchor="w", padx=14, pady=(0, 12))
-
-        _divider(frame)
-
-        # ── Autonomous VN Mode (Phase 1) ────────────────────────────────
-        ctk.CTkLabel(
             frame, text="AUTONOMOUS VN MODE (Experimental)",
             font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
         ).pack(anchor="w", padx=14, pady=(10, 2))
@@ -207,12 +185,22 @@ class KiraDashboard(ctk.CTk):
             font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left",
         ).pack(anchor="w", padx=14, pady=(0, 4))
         self.autopilot_switch = ctk.CTkSwitch(
-            frame, text="Autopilot",
+            frame, text="Autonomous VN Mode",
             command=self._toggle_autopilot,
             button_color=C_ACCENT, progress_color=C_ACCENT,
             font=ctk.CTkFont(size=12),
         )
         self.autopilot_switch.pack(anchor="w", padx=14, pady=(0, 6))
+
+        ctk.CTkLabel(
+            frame, text="VN window title (e.g. \"Narcissu\", \"planetarian\"):",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.vn_window_entry = ctk.CTkEntry(
+            frame, placeholder_text="Window title substring",
+            font=ctk.CTkFont(size=11), height=28,
+        )
+        self.vn_window_entry.pack(fill="x", padx=12, pady=(0, 6))
 
         ctk.CTkLabel(
             frame, text="Advance key:",
@@ -649,22 +637,18 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Observer mode: {active}")
 
     def _toggle_vn(self):
-        vn_on = bool(self.vn_switch.get())
-        self.bot.vn_autoplay_enabled = vn_on
-        if vn_on:
-            self.vn_status_label.configure(
-                text="VN Auto-Play ACTIVE \u2014 Kira will read and advance the VN. The VN window must be focused.",
-                text_color=C_YELLOW,
-            )
-        else:
-            self.vn_status_label.configure(text="VN Auto-Play: Off", text_color=C_MUTED)
-        print(f"   [Dashboard] VN Auto-Play: {vn_on}")
+        """Legacy no-op — VN Auto-Play consolidated into Autonomous VN Mode toggle."""
+        pass
+
     def _toggle_autopilot(self):
-        """Enable or disable the Autonomous VN Autopilot."""
+        """Enable or disable the Autonomous VN Mode (single master switch)."""
         ap = getattr(self.bot, 'vn_autopilot', None)
         if ap is None:
             return
         enabled = bool(self.autopilot_switch.get())
+        # Push window title from entry field
+        title = self.vn_window_entry.get().strip() if hasattr(self, 'vn_window_entry') else ""
+        ap.vn_window_title = title
         ap.enabled = enabled
         if enabled:
             self.bot.autopilot_paused_for_input = False
@@ -916,10 +900,9 @@ class KiraDashboard(ctk.CTk):
         )
 
     def _refresh_vn_status(self):
-        if self.bot.vn_autoplay_enabled and not self.vn_switch.get():
-            self.vn_switch.select()
-        elif not self.bot.vn_autoplay_enabled and self.vn_switch.get():
-            self.vn_switch.deselect()
+        """No-op — VN Auto-Play merged into Autonomous VN Mode."""
+        pass
+
 
     def _refresh_immersive(self):
         if self.bot.immersive and not self.immersive_switch.get():
