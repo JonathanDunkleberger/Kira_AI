@@ -129,6 +129,8 @@ class PlaythroughMemory:
         session_duration_min: int,
         narrative_summary: str = "",   # from vn_autopilot.vn_narrative_summary if autopilot ran
         recent_transcript: str = "",   # compressed session transcript excerpt
+        open_theories: list[dict] | None = None,        # autopilot active_theories (open only)
+        character_attachment: dict[str, float] | None = None,  # char name → 0.0–1.0
     ) -> bool:
         """Generate a session log entry via Claude and append it to the playthrough file.
         Also triggers rolling summary regeneration every REGEN_EVERY_N_SESSIONS sessions.
@@ -191,6 +193,26 @@ class PlaythroughMemory:
                 lines.append(line)
             chat_block = f"\n\nNOTABLE CHAT EXCHANGES THIS SESSION:\n" + "\n".join(lines)
 
+        theories_block = ""
+        if open_theories:
+            theory_lines = "\n".join(f"  - {t['theory']}" for t in open_theories[:5])
+            theories_block = (
+                f"\n\nOPEN THEORIES Kira formed this session (still unresolved — "
+                f"include in Opinion Shift if relevant):\n{theory_lines}"
+            )
+
+        attachment_block = ""
+        if character_attachment:
+            top = sorted(character_attachment.items(), key=lambda x: -x[1])[:6]
+            top = [(c, v) for c, v in top if v >= 0.2]
+            if top:
+                char_lines = "\n".join(f"  - {c}: {v:.2f}" for c, v in top)
+                attachment_block = (
+                    f"\n\nCHARACTER ATTACHMENT LEVELS this session "
+                    f"(0.0=stranger, 1.0=deeply attached; use to calibrate 'Kira's reactions' "
+                    f"section — high attachment = heavier emotional weight):\n{char_lines}"
+                )
+
         prompt = (
             f"You are writing a session log entry for Kira's autobiographical playthrough record.\n\n"
             f"Game: {activity}\n"
@@ -200,7 +222,9 @@ class PlaythroughMemory:
             f"{existing_summary_block}"
             f"{story_block}"
             f"{reactions_block}"
-            f"{chat_block}\n\n"
+            f"{chat_block}"
+            f"{theories_block}"
+            f"{attachment_block}\n\n"
             f"Write a session log entry using EXACTLY these four section headers and format:\n\n"
             f"**Story:** [What happened in the plot this session. Specific beats, character moments, "
             f"revelations, where the story stands now. 2-4 sentences. Past tense, factual. "

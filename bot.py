@@ -676,6 +676,10 @@ class VTubeBot:
                     self.chat_msg_timestamps = [t for t in self.chat_msg_timestamps if t > cutoff]
                     self.session_chatters_seen.add(username)
 
+                    # System 2: reset autopilot dead-chat timer on any chat message
+                    if self.vn_autopilot and self.vn_autopilot.is_running:
+                        self.vn_autopilot.notify_chat_activity()
+
                     if self.active_prediction is not None:
                         self._tally_prediction_vote(username, message_body)
 
@@ -687,6 +691,15 @@ class VTubeBot:
                 if self.is_muted():
                     print(f"   [Mute] Dropping {source} input while muted: {content[:60]}")
                 else:
+                    # System 6b: soft-pause autopilot while Jonny is speaking
+                    _ap_soft_paused = (
+                        self.vn_autopilot is not None
+                        and self.vn_autopilot.is_running
+                        and source == "voice"
+                    )
+                    if _ap_soft_paused:
+                        self.vn_autopilot.soft_pause()
+
                     # Activity auto-detection from voice (natural language sets context)
                     if source == "voice":
                         detected = self._detect_activity_change(content)
@@ -810,6 +823,12 @@ class VTubeBot:
                             situational_context=visual_desc,
                             brief_mode=brief_mode,
                         )
+
+                    # System 6b: release soft-pause after Jonny's exchange is fully handled
+                    if _ap_soft_paused and self.vn_autopilot:
+                        await asyncio.sleep(1.2)  # brief natural gap before resuming
+                        self.vn_autopilot.soft_resume()
+                        _ap_soft_paused = False
 
             except Exception as e:
                 print(f"   [Brain] Error: {e}")
@@ -1450,12 +1469,20 @@ class VTubeBot:
                     f"[{e.get('speaker_name', e['role'])}]: {e['content'][:300]}"
                     for e in self.full_session_log[-60:]
                 )
+                open_theories = None
+                char_attachment = None
+                if self.vn_autopilot:
+                    open_theories = [t for t in self.vn_autopilot.active_theories
+                                     if t["status"] == "open"] or None
+                    char_attachment = dict(self.vn_autopilot.character_attachment) or None
                 await self.playthrough_memory.append_session_entry(
                     activity=activity,
                     date_str=date_str,
                     session_duration_min=session_duration_min,
                     narrative_summary=narrative,
                     recent_transcript=transcript_snippet,
+                    open_theories=open_theories,
+                    character_attachment=char_attachment,
                 )
             except Exception as e:
                 print(f"   [Playthrough] Session entry generation failed: {e}")
