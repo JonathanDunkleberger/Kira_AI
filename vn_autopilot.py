@@ -745,7 +745,7 @@ class VNAutopilot:
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
-                    delay = 10.0 * (2 ** attempt)   # 10s → 20s → 40s
+                    delay = 2.0 * (2 ** attempt)    # 2s → 4s → 8s (keep reading cadence tight)
                     print(
                         f"   [Autopilot] Classify: rate-limited "
                         f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
@@ -885,7 +885,7 @@ class VNAutopilot:
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
-                    delay = 15.0 * (2 ** attempt)   # 15s → 30s → 60s
+                    delay = 3.0 * (2 ** attempt)    # 3s → 6s → 12s (keep reading cadence tight)
                     print(
                         f"   [Autopilot] Cloud read: rate-limited "
                         f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
@@ -1317,85 +1317,147 @@ class VNAutopilot:
                 f"registered — dialogue NOT spoken!"
             )
 
-        # Scene-art awareness: background task, only acts on art hash change.
-        # Wrapped so a cloud/API error never crashes the main loop.
+        # ── Parallelize side-tasks with advance + next-box prep ───────────────
+        # The reading cadence is gated by the post-advance OCR (~1-2s). Theory
+        # checks (Claude, 0-3s), reaction decisions (Claude opus, 2-5s), and
+        # solo asides (Claude opus, 2-5s) used to await IN SERIES before the
+        # advance, causing 4-25s gaps between reads. Now: fire the advance
+        # immediately, run prep + theory + reaction concurrently, and only
+        # speak reactions that finish within the prep window. Anything that
+        # doesn't finish in time is dropped — keeps the read cadence steady.
+        #
+        # Scene-art background task (fire-and-forget, never blocks)
         try:
             asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
         except Exception as _art_err:
             print(f"   [Autopilot] Scene art task error (continuing): {_art_err}")
 
-        # ── Theory resolution ─────────────────────────────────────────────────
-        theory_reaction = None
-        try:
-            theory_reaction = await self._check_theory_resolutions(new_text)
-        except Exception as _th_err:
-            print(f"   [Autopilot] Theory resolution error (continuing): {_th_err}")
-        spoke_extra = False
-        if theory_reaction and self.on_speak:
-            try:
-                await asyncio.sleep(PAUSE_REACTION_GAP)
-                await self.on_speak(theory_reaction)
-                self._boxes_since_reaction = 0
-                spoke_extra = True
-            except Exception as _sp_err:
-                print(f"   [Autopilot] TTS error on theory reaction (continuing): {_sp_err}")
+        # Short content pause before advancing — capped so it can't spike timing
+        pause_sec = self._content_pause(new_text, intensity, art_changed)
+        pause_sec = min(pause_sec, 0.6)
+        await asyncio.sleep(pause_sec)
 
-        # ── Optional rare reaction (local gate — no per-box latency) ──────────
-        if not spoke_extra and self._should_consider_reaction(weight, intensity):
-            reaction = None
+        # Fire the advance NOW so the VN starts rendering the next box while
+        # we OCR/decide reactions in parallel.
+        self._safe_advance()
+
+        # Kick off the prep + side-tasks together
+        prep_task: "asyncio.Task | None" = None
+        if self.enabled and not self.soft_paused:
+            prep_task = asyncio.ensure_future(self._post_advance_prep())
+
+        theory_task: "asyncio.Task | None" = None
+        try:
+            theory_task = asyncio.ensure_future(
+                self._check_theory_resolutions(new_text)
+            )
+        except Exception as _th_err:
+            print(f"   [Autopilot] Theory resolution scheduling error: {_th_err}")
+
+        reaction_task: "asyncio.Task | None" = None
+        if self._should_consider_reaction(weight, intensity):
             try:
-                reaction = await self._decide_reaction(
-                    new_text, intensity=intensity, narrative_weight=weight
+                reaction_task = asyncio.ensure_future(
+                    self._decide_reaction(
+                        new_text, intensity=intensity, narrative_weight=weight
+                    )
                 )
             except Exception as _re_err:
-                print(f"   [Autopilot] Reaction decision error (continuing): {_re_err}")
-            if reaction and reaction.upper() != "SILENT":
-                if self.on_speak:
-                    try:
-                        await asyncio.sleep(PAUSE_REACTION_GAP)
-                        await self.on_speak(reaction)
-                    except Exception as _sp_err:
-                        print(f"   [Autopilot] TTS error on reaction (continuing): {_sp_err}")
-                self._boxes_since_reaction = 0
-                self._boxes_since_solo_aside = 0
-                spoke_extra = True
+                print(f"   [Autopilot] Reaction decision scheduling error: {_re_err}")
 
-        # ── Solo aside when dead chat + calm stretch ──────────────────────────
+        aside_task: "asyncio.Task | None" = None
         if (
-            not spoke_extra
-            and intensity == INTENSITY_CALM
+            intensity == INTENSITY_CALM
             and self.chat_dead_min >= 4.0
             and self._boxes_since_solo_aside >= 7
             and self._boxes_since_reaction >= 4
         ):
-            aside = None
             try:
-                aside = await self._maybe_form_theory()
+                aside_task = asyncio.ensure_future(self._maybe_form_theory())
             except Exception as _as_err:
-                print(f"   [Autopilot] Solo aside error (continuing): {_as_err}")
-            if aside and self.on_speak:
-                try:
-                    await asyncio.sleep(PAUSE_REACTION_GAP)
-                    await self.on_speak(aside)
-                    self._boxes_since_solo_aside = 0
-                    self._boxes_since_reaction = 0
-                except Exception as _sp_err:
-                    print(f"   [Autopilot] TTS error on solo aside (continuing): {_sp_err}")
+                print(f"   [Autopilot] Solo aside scheduling error: {_as_err}")
 
-        # ── Content-based pause (replaces fixed 0.8s) ────────────────────────
-        await asyncio.sleep(self._content_pause(new_text, intensity, art_changed))
-
-        # ── Advance only after reading is complete ────────────────────────────
-        self._safe_advance()
-
-        # ── Pre-prep next box to hide render+OCR latency ─────────────────────
-        if self.enabled and not self.soft_paused:
+        # Await prep first — this is the mandatory wait that determines the
+        # gap before the NEXT read. Reactions get whatever time is left.
+        if prep_task is not None:
             try:
-                result = await self._post_advance_prep()
+                result = await prep_task
                 if result:
                     self._prepared_next = result
             except Exception as e:
                 print(f"   [Autopilot] Post-advance prep error: {e}")
+
+        # Speak the first ready reaction (priority: theory → reaction → aside).
+        # Each task gets a short grace window so near-ready reactions still land,
+        # but the cap keeps timing consistent. Anything still pending is dropped.
+        spoke_extra = await self._speak_first_ready_reaction(
+            theory_task, reaction_task, aside_task,
+            grace_seconds=0.6,
+        )
+        if spoke_extra:
+            self._boxes_since_reaction = 0
+            self._boxes_since_solo_aside = 0
+
+    async def _speak_first_ready_reaction(
+        self,
+        theory_task,
+        reaction_task,
+        aside_task,
+        grace_seconds: float = 0.6,
+    ) -> bool:
+        """Speak the highest-priority reaction that finished (or finishes within
+        grace_seconds). Cancels the rest so they don't speak later out of order.
+
+        Returns True if anything was spoken.
+        """
+        # Priority order: theory resolution > reaction > solo aside
+        ordered = [
+            ("theory",   theory_task),
+            ("reaction", reaction_task),
+            ("aside",    aside_task),
+        ]
+        ordered = [(lbl, t) for lbl, t in ordered if t is not None]
+        if not ordered:
+            return False
+
+        # Wait for the FIRST one to finish, up to grace_seconds
+        pending_tasks = [t for _, t in ordered if not t.done()]
+        if pending_tasks:
+            try:
+                await asyncio.wait(
+                    pending_tasks,
+                    timeout=grace_seconds,
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+            except Exception:
+                pass
+
+        spoke = False
+        for label, task in ordered:
+            if spoke:
+                # Already spoke a higher-priority one — cancel the rest
+                if not task.done():
+                    task.cancel()
+                continue
+            if not task.done():
+                # Didn't finish in grace window — drop it (cancel so it can't
+                # speak later out of order)
+                task.cancel()
+                continue
+            try:
+                result = task.result()
+            except (asyncio.CancelledError, Exception) as e:
+                if not isinstance(e, asyncio.CancelledError):
+                    print(f"   [Autopilot] {label} task error: {e}")
+                continue
+            if result and isinstance(result, str) and result.upper() != "SILENT":
+                if self.on_speak:
+                    try:
+                        await self.on_speak(result)
+                        spoke = True
+                    except Exception as _sp_err:
+                        print(f"   [Autopilot] TTS error on {label}: {_sp_err}")
+        return spoke
 
     async def _post_advance_prep(self) -> dict | None:
         """After advancing to the next box, pre-capture and OCR it to hide render latency.
