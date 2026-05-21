@@ -38,6 +38,7 @@
 
 import asyncio
 import base64
+import hashlib
 import time
 import traceback
 from io import BytesIO
@@ -360,112 +361,147 @@ class VNAutopilot:
 
     # ── Dialogue handling ──────────────────────────────────────────────────────
 
+    @staticmethod
+    def _quick_hash(frame) -> str:
+        """Cheap image hash for typewriter stability detection.
+        Resizes to a small thumbnail and MD5s the PNG bytes — no API call."""
+        thumb = frame.resize((64, 48))
+        buf = BytesIO()
+        thumb.save(buf, format="PNG")
+        return hashlib.md5(buf.getvalue()).hexdigest()
+
     async def _handle_dialogue(self, frame):
         """Read VN text aloud verbatim, then optionally add a rare brief reaction.
 
-        New flow (read-aloud model):
-          1. Transcribe full screen text
-          2. Detect new content: dedup → append detection → full read
-          3. Read NEW text aloud verbatim via TTS — always the primary action
-          4. Optionally append a brief reaction when a moment genuinely earns it (rare)
-          5. Short fixed beat → advance
-
-        TTS duration provides natural pacing; no computed read-delay needed.
+        Flow:
+          1. Stabilize: compare image hashes until screen stops changing
+             (waits out the per-sentence typewriter animation cheaply — no API)
+          2. Transcribe ONCE on the stable frame
+          3. Diff against last_box_text:
+               identical  → dedup, skip
+               starts-with → APPEND, read only the new suffix sentence
+               diverged    → SCREEN CLEAR, read new content from start
+          4. Word-boundary guard: never start a read mid-word
+          5. Read new text aloud verbatim, then optionally react (rare)
+          6. Short fixed beat → advance
         """
-        text = await self._transcribe_frame(frame)
-        text = (text or "").strip()
+        # ── Step 1: Stabilize — wait for typewriter animation ────────────────
+        # Compare image hashes (cheap, local) until the screen stops changing.
+        prev_hash = self._quick_hash(frame)
+        stable_frame = frame
+        for _ in range(5):           # cap: 5 × 0.4s = 2s max wait
+            await asyncio.sleep(0.4)
+            curr_frame = await asyncio.get_event_loop().run_in_executor(
+                None, ImageGrab.grab
+            )
+            curr_hash = self._quick_hash(curr_frame)
+            if curr_hash == prev_hash:
+                stable_frame = curr_frame
+                break
+            prev_hash = curr_hash
+            stable_frame = curr_frame   # most recent in case we hit the cap
 
-        if text and text.upper() != "NO TEXT VISIBLE":
-            normalized = " ".join(text.split())
+        # ── Step 2: Transcribe the stable frame (one API call per box) ──────
+        text = (await self._transcribe_frame(stable_frame) or "").strip()
+        if not text or text.upper() == "NO TEXT VISIBLE":
+            await asyncio.sleep(1.5)
+            self._safe_advance()
+            return
 
-            # ── Dedup: identical re-capture → skip, advance quietly ──────────
-            if normalized == self._last_box_text:
+        normalized = " ".join(text.split())
+
+        # ── Dedup: identical re-capture → skip, advance quietly ──────────────
+        if normalized == self._last_box_text:
+            await asyncio.sleep(0.5)
+            self._safe_advance()
+            return
+
+        # ── Append detection: read only the newly added sentence ─────────────
+        if self._last_box_text and normalized.startswith(self._last_box_text):
+            # APPEND — the screen accumulated one more sentence.
+            raw_suffix = normalized[len(self._last_box_text):]
+
+            # Word-boundary guard: if suffix starts mid-word, snap forward
+            # to the next space so we never read a partial token.
+            if raw_suffix and not raw_suffix[0].isspace():
+                space_idx = raw_suffix.find(' ')
+                raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
+
+            new_text = raw_suffix.strip()
+            if not new_text:
+                # No complete new content yet — skip, advance
+                self._last_box_text = normalized
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
+        else:
+            # SCREEN CLEAR or entirely new content → read from the start
+            new_text = normalized
 
-            # ── Append detection: read only the NEW portion ─────────────────
-            # Some VNs accumulate text on screen (line 1 → line 1+2 → 1+2+3).
-            # If current text starts with the last text, only the suffix is new.
-            if self._last_box_text and normalized.startswith(self._last_box_text):
-                new_text = normalized[len(self._last_box_text):].strip()
-                if not new_text:
-                    # Trailing whitespace only — treat as dedup
-                    await asyncio.sleep(0.5)
-                    self._safe_advance()
-                    return
-            else:
-                new_text = normalized  # fresh screen — read everything
+        self._last_box_text = normalized
 
-            self._last_box_text = normalized
+        # ── Phase 2 analysis ─────────────────────────────────────────────────
+        self.total_boxes_read += 1
+        self._boxes_since_reaction += 1
+        self._boxes_since_theory_check += 1
+        self._boxes_since_solo_aside += 1
 
-            self.total_boxes_read += 1
-            self._boxes_since_reaction += 1
-            self._boxes_since_theory_check += 1
-            self._boxes_since_solo_aside += 1
+        self.vn_recent_text_buffer.append(text)
+        self.vn_boxes_since_summary += 1
 
-            # Store full text in narrative buffer for summary context
-            self.vn_recent_text_buffer.append(text)
-            self.vn_boxes_since_summary += 1
+        if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
+            await self._update_narrative_summary()
 
-            if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
-                await self._update_narrative_summary()
+        self._update_character_attachment(new_text)
+        weight = self._estimate_narrative_weight(new_text)
+        intensity = self._estimate_scene_intensity(weight)
+        self.scene_intensity = intensity
 
-            # Phase 2: analysis on the new text portion
-            self._update_character_attachment(new_text)
-            weight = self._estimate_narrative_weight(new_text)
-            intensity = self._estimate_scene_intensity(weight)
-            self.scene_intensity = intensity
+        # ── STEP 3: Read the new sentence aloud verbatim ─────────────────────
+        if self.on_speak:
+            await self.on_speak(new_text)
 
-            # ── STEP 1: Read the VN text aloud verbatim ─────────────────────
-            if self.on_speak:
-                await self.on_speak(new_text)
+        # ── STEP 4: Theory resolution (fires own reaction after reading) ─────
+        theory_reaction = await self._check_theory_resolutions(new_text)
+        spoke_extra = False
+        if theory_reaction and self.on_speak:
+            await asyncio.sleep(0.4)
+            await self.on_speak(theory_reaction)
+            self._boxes_since_reaction = 0
+            spoke_extra = True
 
-            # ── STEP 2: Theory resolution (fires own reaction after reading) ─
-            theory_reaction = await self._check_theory_resolutions(new_text)
-            spoke_extra = False
-            if theory_reaction and self.on_speak:
-                await asyncio.sleep(0.4)
-                await self.on_speak(theory_reaction)
+        # ── STEP 5: Optional rare reaction (seasoning, not default) ──────────
+        if not spoke_extra:
+            reaction = await self._decide_reaction(
+                new_text, intensity=intensity, narrative_weight=weight
+            )
+            if reaction and reaction.upper() != "SILENT":
+                if self.on_speak:
+                    await asyncio.sleep(0.4)
+                    await self.on_speak(reaction)
                 self._boxes_since_reaction = 0
+                self._boxes_since_solo_aside = 0
                 spoke_extra = True
 
-            # ── STEP 3: Optional rare reaction (seasoning, not default) ─────
-            if not spoke_extra:
-                reaction = await self._decide_reaction(
-                    new_text, intensity=intensity, narrative_weight=weight
-                )
-                if reaction and reaction.upper() != "SILENT":
-                    if self.on_speak:
-                        await asyncio.sleep(0.4)
-                        await self.on_speak(reaction)
-                    self._boxes_since_reaction = 0
-                    self._boxes_since_solo_aside = 0
-                    spoke_extra = True
+        # ── STEP 6: Solo aside when dead chat + calm stretch ─────────────────
+        if (
+            not spoke_extra
+            and intensity == INTENSITY_CALM
+            and self.chat_dead_min >= 4.0
+            and self._boxes_since_solo_aside >= 7
+            and self._boxes_since_reaction >= 4
+        ):
+            aside = await self._maybe_form_theory()
+            if aside and self.on_speak:
+                await asyncio.sleep(0.4)
+                await self.on_speak(aside)
+                self._boxes_since_solo_aside = 0
+                self._boxes_since_reaction = 0
 
-            # ── STEP 4: Solo aside when dead chat + calm stretch ─────────────
-            if (
-                not spoke_extra
-                and intensity == INTENSITY_CALM
-                and self.chat_dead_min >= 4.0
-                and self._boxes_since_solo_aside >= 7
-                and self._boxes_since_reaction >= 4
-            ):
-                aside = await self._maybe_form_theory()
-                if aside and self.on_speak:
-                    await asyncio.sleep(0.4)
-                    await self.on_speak(aside)
-                    self._boxes_since_solo_aside = 0
-                    self._boxes_since_reaction = 0
-
-            # ── STEP 5: Short fixed beat then advance ────────────────────────
-            # TTS duration IS the pacing; just a small trailing buffer.
-            await asyncio.sleep(0.8)
-            self._safe_advance()
-        else:
-            # Unreadable / no text — advance after short wait
-            await asyncio.sleep(1.5)
-            self._safe_advance()
+        # ── STEP 7: Short fixed beat then advance ─────────────────────────────
+        # TTS duration IS the pacing; just a small trailing buffer.
+        await asyncio.sleep(0.8)
+        self._safe_advance()
 
     async def _transcribe_frame(self, frame) -> str:
         """Extract raw text from screen using the existing TRANSCRIBE_PROMPT."""
