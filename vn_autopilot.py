@@ -172,15 +172,21 @@ class VNAutopilot:
         "Look at this visual novel screen. Classify it into exactly ONE category "
         "and respond with ONLY the category word:\n\n"
         "DIALOGUE - normal story text/dialogue that advances by pressing a key. "
-        "Use this whenever ANY readable story text is visible on screen, even if the "
-        "art is sparse, minimalist, abstract, or mostly blank/white. DIALOGUE is the "
-        "default — always bias toward DIALOGUE when text is present.\n"
-        "CHOICE - a decision menu with multiple selectable options the player must pick from.\n"
-        "SAVE_PROMPT - a save/load menu, settings menu, or system dialog.\n"
-        "TRANSITION - a title card, chapter break, or scene fade/black screen with "
-        "NO readable text at all.\n"
-        "UNKNOWN - ONLY use this when there is genuinely no readable text AND the screen "
-        "is not clearly a transition. Never use UNKNOWN if any text is visible.\n\n"
+        "Use this WHENEVER any readable story/dialogue text is visible on screen. "
+        "This includes: busy backgrounds with text, character close-ups with text, "
+        "CG/event scenes with text, visual effects with text overlay, minimalist or "
+        "blank backgrounds with text, narration boxes — ANY frame containing readable "
+        "story text is DIALOGUE. Bias heavily toward DIALOGUE; if you can read a "
+        "dialogue/narration line, the answer is DIALOGUE.\n"
+        "CHOICE - a decision menu with multiple selectable options the player must "
+        "pick from (e.g. multiple buttons or labelled choices stacked vertically).\n"
+        "SAVE_PROMPT - a save/load menu, settings menu, or system dialog box.\n"
+        "TRANSITION - title card, chapter break, scene fade, black/white screen, "
+        "or pure CG with NO readable story text at all.\n"
+        "UNKNOWN - ONLY use this when you genuinely cannot determine what is on "
+        "screen AND there is no readable text AND it is not clearly a transition "
+        "or menu. NEVER use UNKNOWN if any story text is visible — that is "
+        "DIALOGUE. UNKNOWN should be rare; prefer DIALOGUE or TRANSITION.\n\n"
         "Respond with ONLY the single category word, nothing else."
     )
 
@@ -316,6 +322,20 @@ class VNAutopilot:
         # _post_advance_prep() so we don't waste a capture re-grabbing the same
         # confirmed-new frame.
         self._last_verified_post_advance_frame = None
+
+        # ── UNKNOWN-screen tolerance ──────────────────────────────────────────
+        # Busy VNs (Steins;Gate especially) produce many UNKNOWN frames: CG art,
+        # effects, close-ups between dialogue. We advance through them like
+        # TRANSITIONs and only failsafe after a long unbroken streak where no
+        # readable dialogue ever surfaces — actual "stuck" is caught by
+        # _safe_advance's screen-change verification, not by UNKNOWN itself.
+        self._consecutive_unknown: int = 0
+        self._max_unknown_streak: int = 10
+        # Inner-loop retries for an UNKNOWN classification before we treat it
+        # as "really UNKNOWN" and advance through. Each retry waits then
+        # re-classifies the same captured-fresh frame — handles CG/animation
+        # frames that resolve to DIALOGUE once the engine settles.
+        self._unknown_retry_count: int = 3
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -494,7 +514,7 @@ class VNAutopilot:
         self._prepared_next = None
         self._stuck_warned = False
         self._hard_failsafed = False
-        # Release soft-pause so the loop isn't held if both states were active
+        self._consecutive_unknown = 0
         self.soft_paused = False
         self.is_paused = False
         self.pause_reason = ""
@@ -634,38 +654,35 @@ class VNAutopilot:
                     await self._handle_dialogue(frame, prepared)
                     # _last_progress_time is updated inside _handle_dialogue()
                     # only when genuinely new text is confirmed+spoken.
+                    self._consecutive_unknown = 0
 
                 elif screen_type == "TRANSITION":
                     await asyncio.sleep(0.8)
                     self._safe_advance()
                     await asyncio.sleep(1.0)
                     self._last_progress_time = time.time()
+                    self._consecutive_unknown = 0
+
+                elif screen_type == "UNKNOWN":
+                    # UNKNOWN is NOT a stall condition on busy VNs — it's almost
+                    # always a CG/transition/animation frame between dialogue
+                    # lines. Try to resolve to DIALOGUE via retry + cloud read;
+                    # otherwise advance through it. Failsafe only after a long
+                    # unbroken streak of unresolvable UNKNOWNs.
+                    handled = await self._handle_unknown(frame)
+                    if not handled:
+                        print(
+                            f"   [Autopilot] UNKNOWN streak exceeded "
+                            f"({self._consecutive_unknown}) — handing off to Jonny."
+                        )
+                        await self._trigger_failsafe("UNKNOWN")
+                        return
+                    # _safe_advance() inside _handle_unknown verifies screen
+                    # changes, so genuine "frozen" stalls already failsafe via
+                    # _safe_advance's own STUCK trigger.
 
                 else:
-                    # CHOICE / SAVE_PROMPT / UNKNOWN — retry UNKNOWN once
-                    if screen_type == "UNKNOWN":
-                        await asyncio.sleep(1.0)
-                        retry_frame = await asyncio.get_event_loop().run_in_executor(
-                            None, self._grab_frame_sync
-                        )
-                        if retry_frame is None:
-                            recovered = await self._wait_for_window_recovery()
-                            if not recovered:
-                                return
-                            continue
-                        screen_type = await self._classify_screen(retry_frame)
-                        print(f"   [Autopilot] UNKNOWN retry → {screen_type}")
-                        if screen_type == "DIALOGUE":
-                            await self._handle_dialogue(retry_frame, None)
-                            # _last_progress_time updated inside _handle_dialogue()
-                            continue
-                        elif screen_type == "TRANSITION":
-                            await asyncio.sleep(0.8)
-                            self._safe_advance()
-                            await asyncio.sleep(1.0)
-                            self._last_progress_time = time.time()
-                            continue
-                    # CHOICE / SAVE_PROMPT / confirmed UNKNOWN → hand off to Jonny
+                    # CHOICE / SAVE_PROMPT → hand off to Jonny immediately
                     await self._trigger_failsafe(screen_type)
                     return
 
@@ -909,6 +926,102 @@ class VNAutopilot:
         print("   [Autopilot] Window did not return after 5 minutes — triggering failsafe.")
         await self._trigger_failsafe("VN_WINDOW_NOT_FOUND")
         return False
+
+    async def _handle_unknown(self, frame) -> bool:
+        """Resolve an UNKNOWN classification without stalling.
+
+        Strategy:
+          1. Retry classify a few times with stabilization waits — many UNKNOWNs
+             are mid-animation frames that settle into DIALOGUE within ~1-2s.
+          2. If still UNKNOWN, try a cloud read directly on the frame. If text
+             comes back, treat the frame as DIALOGUE (the classifier was wrong;
+             the read confirms there's actual story text).
+          3. If still no text, treat as TRANSITION/CG: brief wait + advance.
+             _safe_advance() verifies the screen changes; if the screen is
+             genuinely frozen, _safe_advance triggers STUCK on its own.
+          4. Track consecutive unresolved UNKNOWNs. Return False (caller will
+             failsafe) only if the streak exceeds _max_unknown_streak — i.e.
+             we've cycled through ~10 frames in a row that never produced
+             readable text. Otherwise return True (handled, keep looping).
+        """
+        # ── Step 1: Retry classify (handles animation/transition frames) ─────
+        resolved_type: str | None = None
+        resolved_frame = frame
+        for attempt in range(self._unknown_retry_count):
+            await asyncio.sleep(0.8)
+            retry_frame = await asyncio.get_event_loop().run_in_executor(
+                None, self._grab_frame_sync
+            )
+            if retry_frame is None:
+                # Window vanished mid-retry; let outer loop handle recovery
+                return True
+            retry_type = await self._classify_screen(retry_frame)
+            if retry_type != "UNKNOWN":
+                print(
+                    f"   [Autopilot] UNKNOWN resolved on retry {attempt + 1}/"
+                    f"{self._unknown_retry_count} → {retry_type}"
+                )
+                resolved_type = retry_type
+                resolved_frame = retry_frame
+                break
+
+        # ── Step 2: If a retry resolved it, route to the normal handler ──────
+        if resolved_type == "DIALOGUE":
+            await self._handle_dialogue(resolved_frame, None)
+            self._consecutive_unknown = 0
+            return True
+        if resolved_type == "TRANSITION":
+            await asyncio.sleep(0.8)
+            self._safe_advance()
+            await asyncio.sleep(1.0)
+            self._last_progress_time = time.time()
+            self._consecutive_unknown = 0
+            return True
+        if resolved_type in ("CHOICE", "SAVE_PROMPT"):
+            # Real menu under the busy frame — hand off
+            await self._trigger_failsafe(resolved_type)
+            return True   # we handled it (by failing safely)
+
+        # ── Step 3: Still UNKNOWN — try a direct cloud read ──────────────────
+        # The classifier may simply be uncertain on a busy/styled frame; if the
+        # vision model can read story text from it, it IS dialogue.
+        try:
+            text = await self._read_dialogue_cloud(resolved_frame)
+        except Exception as e:
+            print(f"   [Autopilot] UNKNOWN cloud read failed: {e}")
+            text = ""
+
+        if text and len(text.strip()) >= 4:
+            print(
+                f"   [Autopilot] UNKNOWN had readable text "
+                f"({len(text)} chars) — treating as DIALOGUE."
+            )
+            await self._handle_dialogue(resolved_frame, None)
+            self._consecutive_unknown = 0
+            return True
+
+        # ── Step 4: Truly no readable text — advance through like TRANSITION ─
+        self._consecutive_unknown += 1
+        print(
+            f"   [Autopilot] UNKNOWN (no text) #{self._consecutive_unknown}/"
+            f"{self._max_unknown_streak} — advancing through."
+        )
+
+        if self._consecutive_unknown > self._max_unknown_streak:
+            # Long unbroken streak with no readable text ever surfacing.
+            # Caller will trigger failsafe.
+            return False
+
+        await asyncio.sleep(0.8)
+        # _safe_advance() has its own STUCK detection if the screen doesn't
+        # change after cycling through all input methods — we don't need a
+        # second failsafe path here for "frozen UNKNOWN".
+        self._safe_advance()
+        await asyncio.sleep(1.0)
+        # Treat this as progress for the watchdog — we advanced through a
+        # frame, the story is moving even if it's between dialogue lines.
+        self._last_progress_time = time.time()
+        return True
 
     async def _stuck_recovery(self) -> bool:
         """Recovery sequence for the stuck watchdog.
