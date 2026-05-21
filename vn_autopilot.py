@@ -473,15 +473,17 @@ class VNAutopilot:
     async def _handle_dialogue(self, frame, prepared: dict | None = None):
         """Read VN text aloud verbatim, then optionally add a rare brief reaction.
 
-        Pipeline flow — processing latency hidden inside TTS audio time:
-          1. Fast path: pipeline pre-computed this box's data → skip stabilize/OCR/diff.
+        Correct read-then-advance order:
+          1. Fast path: _post_advance_prep pre-computed this box's data → skip stabilize/OCR.
           2. Normal path: stabilize (0.15s × 2) → local OCR → clean → diff.
           3. Phase 2 analysis: attachment + weight + intensity (side-effects here only).
           4. SSML prosody: subtle rate/pitch variation by punctuation + intensity.
-          5. Read aloud; pipeline task fires 0.3s in (advance + prep N+1 during TTS).
+          5. Read aloud — wait for TTS to complete fully.
           6. Scene-art awareness background task (only on art hash change).
-          7. Content-based pause (0.10–0.95s) + optional reactions (0.15s gap).
-          8. Collect pipeline result → _prepared_next for next iteration.
+          7. Optional theory resolution / rare reaction (0.15s gap).
+          8. Content-based pause (0.10–0.95s).
+          9. Advance to next box (only after reading + pause complete).
+         10. _post_advance_prep: capture+OCR next box to hide render latency → _prepared_next.
         """
         # ── Fast path: use pipeline-prepared data ────────────────────────────
         if prepared and prepared.get("box_data"):
@@ -587,14 +589,7 @@ class VNAutopilot:
         # Art-change check (before _maybe_update_scene_art overwrites the hash)
         art_changed = self._art_hash(stable_frame) != self._last_art_hash
 
-        # ── Read aloud + start pipeline concurrently ──────────────────────────
-        # Pipeline fires 0.3s after being scheduled, so TTS audio starts first.
-        # _safe_advance() lives inside the pipeline — no explicit advance here.
-        pipeline_task = (
-            asyncio.ensure_future(self._pipeline_advance_and_prep())
-            if self.enabled and not self.soft_paused else None
-        )
-
+        # ── Read aloud — wait for TTS to finish before advancing ─────────────
         if self.on_speak_vn:
             ssml_inner = self._build_vn_ssml_inner(new_text, intensity)
             await self.on_speak_vn(new_text, ssml_inner)
@@ -644,35 +639,30 @@ class VNAutopilot:
         # ── Content-based pause (replaces fixed 0.8s) ────────────────────────
         await asyncio.sleep(self._content_pause(new_text, intensity, art_changed))
 
-        # ── Collect pipeline result ───────────────────────────────────────────
-        # Pipeline ran during TTS + reactions; should be well done by now.
-        if pipeline_task is not None:
+        # ── Advance only after reading is complete ────────────────────────────
+        self._safe_advance()
+
+        # ── Pre-prep next box to hide render+OCR latency ─────────────────────
+        if self.enabled and not self.soft_paused:
             try:
-                result = await pipeline_task
+                result = await self._post_advance_prep()
                 if result:
                     self._prepared_next = result
             except Exception as e:
-                print(f"   [Autopilot] Pipeline collect error: {e}")
-                self._safe_advance()
-        else:
-            self._safe_advance()
+                print(f"   [Autopilot] Post-advance prep error: {e}")
 
-    async def _pipeline_advance_and_prep(self) -> dict | None:
-        """Advance the VN and pre-prepare the next dialogue box concurrently with TTS.
+    async def _post_advance_prep(self) -> dict | None:
+        """After advancing to the next box, pre-capture and OCR it to hide render latency.
 
-        Fires via asyncio.ensure_future right before on_speak, so it executes
-        during TTS synthesis/playback (asyncio.to_thread releases the event loop).
-        The 0.3s delay lets audio start before the VN advances for a natural feel.
+        Called immediately after _safe_advance() — the VN has already advanced.
+        Hides the render+stabilize+OCR gap between boxes by running it before the
+        next _loop iteration needs it.
 
         Returns dict with {screen_type, frame, box_data} or None if aborted.
-        box_data is None for dedup/empty screens; caller re-runs normal OCR path.
+        box_data is None for non-dialogue or dedup screens; _loop falls back to
+        the normal OCR path.
         """
         try:
-            await asyncio.sleep(0.3)    # let TTS audio start before advancing
-            if self.soft_paused or not self.enabled:
-                return None
-
-            self._safe_advance()
             await asyncio.sleep(0.2)    # let VN render the next frame
 
             if not self.enabled:
@@ -1347,9 +1337,18 @@ class VNAutopilot:
     # ── Input helper ───────────────────────────────────────────────────────────
 
     def _safe_advance(self):
-        """Press the advance key with full error handling. Disables autopilot on failure."""
+        """Press the advance key with full error handling. Disables autopilot on failure.
+
+        If a window title is configured but the window cannot be found, the advance
+        is skipped rather than sending a blind keystroke to whatever is focused.
+        """
         if not self.enabled:
             return
+        # Safety: if we're targeting a specific window, confirm it's findable
+        if self.vn_window_title and PYGETWINDOW_AVAILABLE:
+            if self._find_vn_window() is None:
+                print(f"   [Autopilot] VN window not found — skipping advance keystroke.")
+                return
         try:
             self._focus_vn_window()
             self.input_controller.advance()
