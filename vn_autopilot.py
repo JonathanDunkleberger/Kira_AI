@@ -176,6 +176,10 @@ class VNAutopilot:
             "I can't find the VN window. Try typing the game title in the dashboard "
             "and toggling me back on."
         ),
+        "STUCK": (
+            "I think I'm stuck — can you check the screen? "
+            "Something's not advancing the way it should."
+        ),
         "ERROR": "I ran into an error. Jonny, I'm pausing — come check on me?",
     }
 
@@ -250,6 +254,32 @@ class VNAutopilot:
         # ── Scene art awareness (cloud vision, fires only on background change) ──
         self._last_art_hash: str = ""           # hash of the art region of the last frame
         self._scene_art_description: str = ""  # cached scene description from cloud vision
+
+        # ── Text-region config (for stabilization hash — NOT a crop for reading) ──
+        # Cloud reads always use the full window. This fraction controls which part
+        # of the frame is hashed to detect typewriter completion / screen settle.
+        # Animated backgrounds in the upper portion don't affect stabilization.
+        self.text_region_top: float = 0.60     # lower 40% contains the dialogue box
+
+        # ── Cloud read metrics (for heartbeat cost log) ────────────────────────
+        self._cloud_read_count: int = 0        # total cloud vision read calls this session
+        self._loop_start_time: float = 0.0     # set when _loop() enters
+        self._last_heartbeat: float = 0.0      # epoch of last heartbeat print
+        self._last_progress_time: float = 0.0  # epoch of last successful box read
+
+        # ── Window-loss recovery ───────────────────────────────────────────────
+        self._warned_window_lost: bool = False  # suppress repeated "waiting" prints
+
+        # ── Stuck watchdog (distinct from crash supervisor) ───────────────────
+        # Fires when no new text has been read/spoken for _stuck_watchdog_threshold
+        # seconds during active (non-soft-paused, non-failsafed) play.
+        self._stuck_watchdog_threshold: float = 90.0  # seconds
+        self._stuck_warned: bool = False  # True once the STUCK log has been printed
+
+        # ── Hard-failsafe tracking ────────────────────────────────────────────
+        # True while a hard failsafe (CHOICE / SAVE_PROMPT / UNKNOWN / STUCK /
+        # ERROR) is active. Soft-pause release must NOT clear a hard failsafe.
+        self._hard_failsafed: bool = False
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -414,32 +444,55 @@ class VNAutopilot:
 
     def resume_after_failsafe(self):
         """Resume after Jonny has handled a non-dialogue screen manually.
+
+        Clears read-tracking state so post-choice/post-menu content is read fresh:
+        _last_box_text is reset so she never re-reads the last pre-choice line,
+        and _prepared_next is discarded since that pipeline data predates the choice.
         Always routes through _async_start() so window detection is re-validated
-        before entering the loop — prevents RuntimeError spam when no title is set.
+        before entering the loop.
         """
         if not self.enabled:
             return
+        # Clear read-tracking so post-choice content is read completely fresh
+        self._last_box_text = ""
+        self._prepared_next = None
+        self._stuck_warned = False
+        self._hard_failsafed = False
+        # Release soft-pause so the loop isn't held if both states were active
+        self.soft_paused = False
         self.is_paused = False
         self.pause_reason = ""
         self.is_running = True
         if not self._task or self._task.done():
             self._task = asyncio.ensure_future(self._async_start())
-        print("   [Autopilot] Resumed — re-validating window and restarting loop.")
+        print("   [Autopilot] Resumed — read state cleared for fresh post-choice/menu read.")
 
     # ── Phase 2: Soft-pause / chat notification (Systems 2, 6b) ───────────────
 
     def soft_pause(self):
         """Gentle pause while Jonny talks — does NOT require Resume button.
-        The loop stays alive; advancement is just suspended."""
+        The loop stays alive; advancement is just suspended.
+        A hard failsafe (CHOICE / STUCK / ERROR etc.) takes precedence —
+        soft-pause is subordinate and cleared on resume_after_failsafe()."""
         if not self.soft_paused:
             self.soft_paused = True
             print("   [Autopilot] Soft-paused (Jonny is talking).")
 
     def soft_resume(self):
-        """Release soft-pause after Jonny's conversation ends."""
+        """Release soft-pause after Jonny's conversation ends.
+        Hard failsafe takes priority: if is_paused is True (hard failsafe active),
+        soft_resume releases only the soft-pause flag and logs the conflict clearly —
+        it does NOT resume play. Only resume_after_failsafe() can clear a hard failsafe."""
         if self.soft_paused:
             self.soft_paused = False
-            print("   [Autopilot] Soft-pause released — resuming.")
+            if self.is_paused:
+                # Hard failsafe is still active — don't pretend we're resuming
+                print(
+                    f"   [Autopilot] Soft-pause released — but hard failsafe is active "
+                    f"({self.pause_reason}). Press Resume when ready."
+                )
+            else:
+                print("   [Autopilot] Soft-pause released — resuming.")
 
     def notify_chat_activity(self):
         """Call whenever a chat message is received. Resets the dead-chat clock
@@ -456,16 +509,63 @@ class VNAutopilot:
     async def _loop(self):
         """Event-driven main loop: screenshot → classify → handle → advance → repeat.
 
+        UNKILLABLE: every error is caught, logged, and recovered — never exits on
+        exceptions. Only explicit toggling-off or a handled failsafe (CHOICE /
+        SAVE_PROMPT) returns from this method. Missing-library errors (PIL /
+        pygetwindow) are the sole fatal exception since they cannot be recovered
+        at runtime.
+
         When a pipeline task pre-prepared the next box during TTS, that data is
-        consumed here instead of taking a fresh screenshot + classify + OCR.
+        consumed here instead of taking a fresh screenshot + classify + cloud read.
         """
+        self._loop_start_time = time.time()
+        self._last_heartbeat = time.time()
+        self._last_progress_time = time.time()
+        self._warned_window_lost = False
         print("   [Autopilot] Loop running.")
+
         while self.enabled and not self.is_paused:
             # System 6b: soft-pause while Jonny is talking — hold without exiting
             while self.soft_paused and self.enabled and not self.is_paused:
                 await asyncio.sleep(0.25)
             if not self.enabled or self.is_paused:
                 break
+
+            # ── Heartbeat (every 5 minutes) ──────────────────────────────────
+            now = time.time()
+            if now - self._last_heartbeat >= 300:
+                elapsed = now - self._loop_start_time
+                h, rem = divmod(int(elapsed), 3600)
+                m = rem // 60
+                cost_est = self._cloud_read_count * 0.000075  # gpt-4o-mini vision ≈ $0.075/1k calls
+                print(
+                    f"   [Autopilot] Alive — {self.total_boxes_read} boxes, "
+                    f"~${cost_est:.3f} cloud spend, running {h}h {m}m"
+                )
+                self._last_heartbeat = now
+
+            # ── Stuck watchdog (distinct from crash supervisor) ──────────────
+            # Fires when no NEW text has been read/spoken for _stuck_watchdog_threshold
+            # seconds during active play (not soft-paused, not already hard-failsafed).
+            # Recovery sequence: re-focus → advance → re-capture. If still stuck →
+            # failsafe to Jonny with a spoken line and resume button.
+            if (not self.soft_paused and not self.is_paused
+                    and (now - self._last_progress_time) > self._stuck_watchdog_threshold):
+                secs_stuck = now - self._last_progress_time
+                if not self._stuck_warned:
+                    print(
+                        f"   [Autopilot] STUCK \u2014 no new content in {secs_stuck:.0f}s. "
+                        "Attempting recovery."
+                    )
+                    self._stuck_warned = True
+                recovered = await self._stuck_recovery()
+                if recovered:
+                    self._last_progress_time = time.time()
+                    self._stuck_warned = False
+                else:
+                    await self._trigger_failsafe("STUCK")
+                    return
+                continue
 
             try:
                 # Check for pre-prepared data from the pipeline task
@@ -479,58 +579,80 @@ class VNAutopilot:
                     frame = await asyncio.get_event_loop().run_in_executor(
                         None, self._grab_frame_sync
                     )
+
+                    # Window lost → enter recovery wait, then retry the iteration
+                    if frame is None:
+                        recovered = await self._wait_for_window_recovery()
+                        if not recovered:
+                            return  # failsafe was triggered inside recovery
+                        continue
+
                     screen_type = await self._classify_screen(frame)
 
                 print(f"   [Autopilot] Screen: {screen_type}")
 
                 if screen_type == "DIALOGUE":
                     await self._handle_dialogue(frame, prepared)
+                    # _last_progress_time is updated inside _handle_dialogue()
+                    # only when genuinely new text is confirmed+spoken.
 
                 elif screen_type == "TRANSITION":
-                    # Pipeline may have already advanced to get here; we now advance
-                    # *through* the transition (N+1 → N+2) and wait for it to clear.
                     await asyncio.sleep(0.8)
                     self._safe_advance()
                     await asyncio.sleep(1.0)
+                    self._last_progress_time = time.time()
 
                 else:
-                    # CHOICE / SAVE_PROMPT / UNKNOWN.
+                    # CHOICE / SAVE_PROMPT / UNKNOWN — retry UNKNOWN once
                     if screen_type == "UNKNOWN":
                         await asyncio.sleep(1.0)
                         retry_frame = await asyncio.get_event_loop().run_in_executor(
                             None, self._grab_frame_sync
                         )
+                        if retry_frame is None:
+                            recovered = await self._wait_for_window_recovery()
+                            if not recovered:
+                                return
+                            continue
                         screen_type = await self._classify_screen(retry_frame)
                         print(f"   [Autopilot] UNKNOWN retry → {screen_type}")
                         if screen_type == "DIALOGUE":
                             await self._handle_dialogue(retry_frame, None)
+                            # _last_progress_time updated inside _handle_dialogue()
                             continue
                         elif screen_type == "TRANSITION":
                             await asyncio.sleep(0.8)
                             self._safe_advance()
                             await asyncio.sleep(1.0)
+                            self._last_progress_time = time.time()
                             continue
+                    # CHOICE / SAVE_PROMPT / confirmed UNKNOWN → hand off to Jonny
                     await self._trigger_failsafe(screen_type)
                     return
 
             except asyncio.CancelledError:
                 raise
-            except Exception as e:
-                # Safety net: if the loop was somehow entered without a window title,
-                # stop cleanly without TTS to avoid an infinite speak-loop on resume.
-                if "No VN window title" in str(e):
-                    print(f"   [Autopilot] Safety stop (no title set): {e}")
-                    print("   [Autopilot] Set a title and press Resume or re-toggle autopilot.")
+
+            except RuntimeError as e:
+                # Missing-library errors cannot be recovered — stop and notify
+                msg = str(e)
+                if "Pillow not available" in msg or "pygetwindow not available" in msg:
+                    print(f"   [Autopilot] Fatal config error (cannot recover): {e}")
                     self.is_running = False
-                    self.is_paused = True
-                    self.pause_reason = "VN_WINDOW_NOT_FOUND"
+                    self.is_paused  = True
+                    self.pause_reason = "ERROR"
                     if self.on_failsafe:
-                        self.on_failsafe("VN_WINDOW_NOT_FOUND")
+                        self.on_failsafe("ERROR")
                     return
-                print(f"   [Autopilot] Unhandled error: {e}")
+                # All other RuntimeErrors: log, back off, continue
+                print(f"   [Autopilot] RuntimeError (recovering in 2s): {e}")
+                await asyncio.sleep(2.0)
+
+            except Exception as e:
+                # UNKILLABLE: any other exception → log + back off + continue
+                print(f"   [Autopilot] Error (recovering in 2s): {e}")
                 traceback.print_exc()
-                await self._trigger_failsafe("ERROR")
-                return
+                await asyncio.sleep(2.0)
 
         self.is_running = False
         print("   [Autopilot] Loop exited.")
@@ -590,6 +712,19 @@ class VNAutopilot:
         return hashlib.md5(buf.getvalue()).hexdigest()
 
     @staticmethod
+    def _text_region_hash(frame, top_frac: float = 0.60) -> str:
+        """Hash the dialogue text region (default lower 40%) for typewriter stabilization.
+        Using the text region instead of the full frame means animated backgrounds
+        (e.g. Steins;Gate, Clannad) don't prevent stabilization — only the text
+        settling triggers 'stable', which is what actually matters before reading."""
+        w, h = frame.size
+        region = frame.crop((0, int(h * top_frac), w, h))
+        thumb = region.resize((64, 24))
+        buf = BytesIO()
+        thumb.save(buf, format="PNG")
+        return hashlib.md5(buf.getvalue()).hexdigest()
+
+    @staticmethod
     def _clean_text(text: str) -> str:
         """Strip markdown/OCR artifacts before TTS: code fences, backticks, stray pipes."""
         # Strip ``` code fences (possibly with language tag)
@@ -626,12 +761,159 @@ class VNAutopilot:
             print(f"   [Autopilot] OCR error: {e}")
             return ""
 
+    async def _read_dialogue_cloud(self, frame) -> str:
+        """Read dialogue text from the FULL VN window using cloud vision (gpt-4o-mini).
+
+        Sends the full window capture — the vision model handles any VN layout:
+        bottom ADV box, full-screen NVL text, side-bar narration — and ignores
+        UI chrome (save/load/auto/menu buttons, copyright overlays, chapter titles)
+        automatically. No hardcoded crop needed; works on any VN.
+
+        Pipelining: called in _post_advance_prep() immediately after advance, so
+        the cloud round-trip (~0.8-1.5s) overlaps with the screen settle wait and
+        the main loop overhead rather than adding dead air between lines.
+        """
+        if not self.vision_client:
+            return ""
+        try:
+            buf = BytesIO()
+            frame.save(buf, format="JPEG", quality=85)
+            b64 = base64.b64encode(buf.getvalue()).decode()
+            resp = await self.vision_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": (
+                            "Read ONLY the story/dialogue text currently displayed in this "
+                            "visual novel screenshot. Ignore ALL UI elements: buttons, menus, "
+                            "save/load/auto/skip/menu labels, chapter headings, system overlays, "
+                            "copyright notices (like '\u00a9SMP', 'FINuTO', '\u00a9SHIP'), and any "
+                            "non-story text in the corners or edges of the screen. "
+                            "Return ONLY the dialogue or narration text, verbatim, exactly as shown. "
+                            "Do not add any explanation, prefix, or quotation marks around it. "
+                            "If there is no story text visible (transition, black screen, "
+                            "choice menu, save screen, etc.), return exactly: EMPTY"
+                        )},
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:image/jpeg;base64,{b64}",
+                            "detail": "high",
+                        }},
+                    ],
+                }],
+                max_tokens=400,
+                temperature=0.0,
+            )
+            self._cloud_read_count += 1
+            raw = resp.choices[0].message.content.strip()
+            if not raw or raw.upper() == "EMPTY":
+                return ""
+            return raw
+        except Exception as e:
+            print(f"   [Autopilot] Cloud read error: {e}")
+            return ""
+
+    async def _wait_for_window_recovery(self) -> bool:
+        """Wait for the VN window to return after being lost.
+
+        Retries every 2s for up to ~5 minutes. Returns True when the window
+        comes back, False if it never returned (triggers failsafe and caller
+        should exit the loop). Suppresses repeated log spam after the first notice.
+        """
+        if not self._warned_window_lost:
+            print(
+                f"   [Autopilot] Window '{self.vn_window_title}' not reachable — "
+                "waiting for it to return (will resume automatically)..."
+            )
+            self._warned_window_lost = True
+
+        for _ in range(150):  # 150 × 2s = 5 minutes max
+            if not self.enabled or self.is_paused:
+                return False
+            await asyncio.sleep(2.0)
+            win = self._find_vn_window()
+            if win is not None and win.width > 0 and win.height > 0:
+                print(f"   [Autopilot] Window returned: '{win.title}' — resuming.")
+                self._warned_window_lost = False
+                self._last_progress_time = time.time()
+                return True
+
+        # 5 minutes elapsed — game probably closed; trigger failsafe
+        print("   [Autopilot] Window did not return after 5 minutes — triggering failsafe.")
+        await self._trigger_failsafe("VN_WINDOW_NOT_FOUND")
+        return False
+
+    async def _stuck_recovery(self) -> bool:
+        """Recovery sequence for the stuck watchdog.
+
+        Steps:
+          1. Re-find and re-assert focus on the VN window.
+          2. Attempt one advance keystroke.
+          3. Re-capture frame and classify — if we see DIALOGUE or TRANSITION,
+             recovery succeeded (the main loop will read the new content naturally).
+          4. If the window is gone, enter window-recovery; that counts as a failure
+             here since we can't confirm progress without a frame.
+
+        Returns True if evidence of progress was found, False if stuck persists.
+        """
+        print("   [Autopilot] Stuck recovery: re-asserting window focus...")
+
+        # Step 1: re-focus
+        win = self._find_vn_window()
+        if win is None:
+            print("   [Autopilot] Stuck recovery: VN window not reachable.")
+            return False
+        try:
+            win.activate()
+            await asyncio.sleep(0.4)
+        except Exception as e:
+            print(f"   [Autopilot] Stuck recovery: focus failed ({e}), trying advance anyway.")
+
+        # Step 2: one advance attempt
+        try:
+            self._focus_vn_window()
+            self.input_controller.advance()
+            await asyncio.sleep(0.5)
+        except Exception as e:
+            print(f"   [Autopilot] Stuck recovery: advance failed: {e}")
+
+        # Step 3: re-capture and classify
+        try:
+            new_frame = await asyncio.get_event_loop().run_in_executor(
+                None, self._grab_frame_sync
+            )
+            if new_frame is None:
+                print("   [Autopilot] Stuck recovery: frame capture returned None.")
+                return False
+
+            screen_type = await self._classify_screen(new_frame)
+            print(f"   [Autopilot] Stuck recovery: post-advance screen = {screen_type}")
+
+            if screen_type in ("DIALOGUE", "TRANSITION"):
+                print("   [Autopilot] Stuck recovery: screen shows content — resuming.")
+                return True
+
+            if screen_type in ("CHOICE", "SAVE_PROMPT"):
+                # A menu appeared — this is progress (we're no longer stuck on
+                # the same dialogue), but the failsafe logic should handle it.
+                # Return True; the main loop will classify and trigger the right failsafe.
+                print("   [Autopilot] Stuck recovery: menu screen — not stuck, routing to failsafe.")
+                return True
+
+            # UNKNOWN: may still be stuck
+            print("   [Autopilot] Stuck recovery: screen still UNKNOWN — recovery failed.")
+            return False
+
+        except Exception as e:
+            print(f"   [Autopilot] Stuck recovery capture error: {e}")
+            return False
+
     async def _handle_dialogue(self, frame, prepared: dict | None = None):
         """Read VN text aloud verbatim, then optionally add a rare brief reaction.
 
         Correct read-then-advance order:
-          1. Fast path: _post_advance_prep pre-computed this box's data → skip stabilize/OCR.
-          2. Normal path: stabilize (0.15s × 2) → local OCR → clean → diff.
+          1. Fast path: _post_advance_prep pre-computed this box's data → skip stabilize/read.
+          2. Normal path: stabilize text region (0.15s × 2) → cloud read → clean → diff.
           3. Phase 2 analysis: attachment + weight + intensity (side-effects here only).
           4. SSML prosody: subtle rate/pitch variation by punctuation + intensity.
           5. Read aloud — wait for TTS to complete fully.
@@ -639,7 +921,8 @@ class VNAutopilot:
           7. Optional theory resolution / rare reaction (0.15s gap).
           8. Content-based pause (0.10–0.95s).
           9. Advance to next box (only after reading + pause complete).
-         10. _post_advance_prep: capture+OCR next box to hide render latency → _prepared_next.
+         10. _post_advance_prep: capture + cloud read next box → _prepared_next.
+             Cloud latency (~0.8-1.5s) is hidden here, during the post-advance settle.
         """
         # ── Fast path: use pipeline-prepared data ────────────────────────────
         if prepared and prepared.get("box_data"):
@@ -651,26 +934,32 @@ class VNAutopilot:
             weight       = box["weight"]
             self._last_box_text = normalized
         else:
-            # ── Normal path: stabilize → OCR → diff ──────────────────────────
-            # CHANGE 5: 0.15s × 2 = 0.30s max (down from 0.6s)
-            prev_hash    = self._quick_hash(frame)
+            # ── Normal path: stabilize → cloud read → diff ───────────────────
+            # Hash only the text region (lower ~40%) so animated backgrounds
+            # (Steins;Gate, Clannad) don't prevent stabilization.
+            prev_hash    = self._text_region_hash(frame, self.text_region_top)
             stable_frame = frame
             for _ in range(2):
                 await asyncio.sleep(0.15)
                 curr_frame = await asyncio.get_event_loop().run_in_executor(
                     None, self._grab_frame_sync
                 )
-                curr_hash = self._quick_hash(curr_frame)
+                if curr_frame is None:
+                    break  # window lost mid-stabilize — use last good frame
+                curr_hash = self._text_region_hash(curr_frame, self.text_region_top)
                 if curr_hash == prev_hash:
                     stable_frame = curr_frame
                     break
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
 
-            # OCR: local first, cloud fallback if empty
-            text = self._ocr_text_region(stable_frame)
-            if not text or len(text.strip()) < 5:
-                text = await self._transcribe_frame_cloud(stable_frame)
+            # Cloud read: full window → vision model strips UI chrome automatically
+            try:
+                text = await self._read_dialogue_cloud(stable_frame)
+            except Exception as _cloud_err:
+                print(f"   [Autopilot] Cloud read failed — skipping box: {_cloud_err}")
+                await asyncio.sleep(1.0)
+                return
 
             text = self._clean_text((text or "").strip())
             if not text or text.upper() == "NO TEXT VISIBLE":
@@ -722,6 +1011,13 @@ class VNAutopilot:
 
             self._last_box_text = normalized
 
+        # ── Confirmed new text — update progress timestamp + reset stuck flag ─
+        # Only reaches here when we have genuinely NEW content (past dedup and
+        # append-detection). This is the authoritative progress signal for the
+        # stuck watchdog — purely mechanical de-dup loops don't count as progress.
+        self._last_progress_time = time.time()
+        self._stuck_warned = False
+
         # ── Phase 2 analysis (side-effects: always in main path, never pipeline) ─
         # Attachment update first so weight computation sees the current state.
         self._update_character_attachment(new_text)
@@ -735,12 +1031,21 @@ class VNAutopilot:
         self._boxes_since_theory_check += 1
         self._boxes_since_solo_aside += 1
 
+        # Bounded buffer: keep a rolling tail (capped at 30 entries) so the
+        # buffer never grows unboundedly across a long multi-hour playthrough.
         self.vn_recent_text_buffer.append(text)
+        if len(self.vn_recent_text_buffer) > 30:
+            self.vn_recent_text_buffer = self.vn_recent_text_buffer[-20:]
         self.vn_boxes_since_summary += 1
 
-        # Narrative summary: background task — never blocks reading
+        # Narrative summary: background task — never blocks reading.
+        # Wrapped in try/except so a ChromaDB or LLM write failure is logged
+        # once and silently skipped — never stalls or crashes the autopilot.
         if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
-            asyncio.ensure_future(self._update_narrative_summary())
+            try:
+                asyncio.ensure_future(self._update_narrative_summary())
+            except Exception as _mem_err:
+                print(f"   [Autopilot] Narrative summary task error (continuing): {_mem_err}")
 
         # Art-change check (before _maybe_update_scene_art overwrites the hash)
         art_changed = self._art_hash(stable_frame) != self._last_art_hash
@@ -752,27 +1057,45 @@ class VNAutopilot:
         elif self.on_speak:
             await self.on_speak(new_text)
 
-        # Scene-art awareness: background task, only acts on art hash change
-        asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
+        # Scene-art awareness: background task, only acts on art hash change.
+        # Wrapped so a cloud/API error never crashes the main loop.
+        try:
+            asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
+        except Exception as _art_err:
+            print(f"   [Autopilot] Scene art task error (continuing): {_art_err}")
 
         # ── Theory resolution ─────────────────────────────────────────────────
-        theory_reaction = await self._check_theory_resolutions(new_text)
+        theory_reaction = None
+        try:
+            theory_reaction = await self._check_theory_resolutions(new_text)
+        except Exception as _th_err:
+            print(f"   [Autopilot] Theory resolution error (continuing): {_th_err}")
         spoke_extra = False
         if theory_reaction and self.on_speak:
-            await asyncio.sleep(PAUSE_REACTION_GAP)
-            await self.on_speak(theory_reaction)
-            self._boxes_since_reaction = 0
-            spoke_extra = True
+            try:
+                await asyncio.sleep(PAUSE_REACTION_GAP)
+                await self.on_speak(theory_reaction)
+                self._boxes_since_reaction = 0
+                spoke_extra = True
+            except Exception as _sp_err:
+                print(f"   [Autopilot] TTS error on theory reaction (continuing): {_sp_err}")
 
         # ── Optional rare reaction (local gate — no per-box latency) ──────────
         if not spoke_extra and self._should_consider_reaction(weight, intensity):
-            reaction = await self._decide_reaction(
-                new_text, intensity=intensity, narrative_weight=weight
-            )
+            reaction = None
+            try:
+                reaction = await self._decide_reaction(
+                    new_text, intensity=intensity, narrative_weight=weight
+                )
+            except Exception as _re_err:
+                print(f"   [Autopilot] Reaction decision error (continuing): {_re_err}")
             if reaction and reaction.upper() != "SILENT":
                 if self.on_speak:
-                    await asyncio.sleep(PAUSE_REACTION_GAP)
-                    await self.on_speak(reaction)
+                    try:
+                        await asyncio.sleep(PAUSE_REACTION_GAP)
+                        await self.on_speak(reaction)
+                    except Exception as _sp_err:
+                        print(f"   [Autopilot] TTS error on reaction (continuing): {_sp_err}")
                 self._boxes_since_reaction = 0
                 self._boxes_since_solo_aside = 0
                 spoke_extra = True
@@ -785,12 +1108,19 @@ class VNAutopilot:
             and self._boxes_since_solo_aside >= 7
             and self._boxes_since_reaction >= 4
         ):
-            aside = await self._maybe_form_theory()
+            aside = None
+            try:
+                aside = await self._maybe_form_theory()
+            except Exception as _as_err:
+                print(f"   [Autopilot] Solo aside error (continuing): {_as_err}")
             if aside and self.on_speak:
-                await asyncio.sleep(PAUSE_REACTION_GAP)
-                await self.on_speak(aside)
-                self._boxes_since_solo_aside = 0
-                self._boxes_since_reaction = 0
+                try:
+                    await asyncio.sleep(PAUSE_REACTION_GAP)
+                    await self.on_speak(aside)
+                    self._boxes_since_solo_aside = 0
+                    self._boxes_since_reaction = 0
+                except Exception as _sp_err:
+                    print(f"   [Autopilot] TTS error on solo aside (continuing): {_sp_err}")
 
         # ── Content-based pause (replaces fixed 0.8s) ────────────────────────
         await asyncio.sleep(self._content_pause(new_text, intensity, art_changed))
@@ -827,30 +1157,37 @@ class VNAutopilot:
             frame = await asyncio.get_event_loop().run_in_executor(
                 None, self._grab_frame_sync
             )
+            if frame is None:
+                return None  # window temporarily gone — loop will handle recovery
+
             screen_type = await self._classify_screen(frame)
 
             if screen_type != "DIALOGUE":
                 return {"screen_type": screen_type, "frame": frame, "box_data": None}
 
-            # Stabilize: 0.15s × 2
-            prev_hash    = self._quick_hash(frame)
+            # Stabilize: hash text region only (animated backgrounds don't block settle)
+            prev_hash    = self._text_region_hash(frame, self.text_region_top)
             stable_frame = frame
             for _ in range(2):
                 await asyncio.sleep(0.15)
                 curr_frame = await asyncio.get_event_loop().run_in_executor(
                     None, self._grab_frame_sync
                 )
-                curr_hash = self._quick_hash(curr_frame)
+                if curr_frame is None:
+                    break  # window lost — use last good frame
+                curr_hash = self._text_region_hash(curr_frame, self.text_region_top)
                 if curr_hash == prev_hash:
                     stable_frame = curr_frame
                     break
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
 
-            # OCR: local first, cloud fallback
-            text = self._ocr_text_region(stable_frame)
-            if not text or len(text.strip()) < 5:
-                text = await self._transcribe_frame_cloud(stable_frame)
+            # Cloud read: full window → vision model strips UI chrome automatically
+            try:
+                text = await self._read_dialogue_cloud(stable_frame)
+            except Exception as _cloud_err:
+                print(f"   [Autopilot] Pipeline cloud read failed: {_cloud_err}")
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
             text = self._clean_text((text or "").strip())
             if not text or text.upper() == "NO TEXT VISIBLE":
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
@@ -1474,10 +1811,12 @@ class VNAutopilot:
     # ── Failsafe ───────────────────────────────────────────────────────────────
 
     async def _trigger_failsafe(self, screen_type: str):
-        """Stop the loop, speak a handoff line, notify the dashboard."""
+        """Stop the loop, speak a handoff line, notify the dashboard.
+        Sets _hard_failsafed so soft_resume() knows it must not pretend to resume."""
         self.is_running = False
         self.is_paused = True
         self.pause_reason = screen_type
+        self._hard_failsafed = True
         print(f"   [Autopilot] Failsafe: {screen_type}")
 
         line = self.FAILSAFE_LINES.get(screen_type, self.FAILSAFE_LINES["UNKNOWN"])
@@ -1493,23 +1832,32 @@ class VNAutopilot:
     # ── Input helper ───────────────────────────────────────────────────────────
 
     def _safe_advance(self):
-        """Press the advance key with full error handling. Disables autopilot on failure.
+        """Press the advance key after re-asserting VN window focus.
 
-        If a window title is configured but the window cannot be found, the advance
-        is skipped rather than sending a blind keystroke to whatever is focused.
+        Before every keystroke:
+          1. Re-finds the window (handles brief alt-tab / focus loss).
+          2. Re-asserts focus via win.activate().
+          3. Sends the key only to the confirmed foreground VN window.
+
+        If the window cannot be found, the advance is skipped with a log.
+        The caller's next _grab_frame_sync() will return None → window-recovery
+        loop takes over — no crash, no blind keystrokes.
         """
         if not self.enabled:
             return
-        # Safety: if we're targeting a specific window, confirm it's findable
         if self.vn_window_title and PYGETWINDOW_AVAILABLE:
-            if self._find_vn_window() is None:
-                print(f"   [Autopilot] VN window not found — skipping advance keystroke.")
+            win = self._find_vn_window()
+            if win is None:
+                print(
+                    f"   [Autopilot] VN window not found before advance \u2014 skipping keystroke. "
+                    "(Window recovery will handle this on next frame capture.)"
+                )
                 return
         try:
             self._focus_vn_window()
             self.input_controller.advance()
         except Exception as e:
-            print(f"   [Autopilot] Input failure — disabling: {e}")
+            print(f"   [Autopilot] Input failure \u2014 disabling: {e}")
             self.enabled = False
             self.is_running = False
             self.is_paused = True
@@ -1534,7 +1882,13 @@ class VNAutopilot:
     def _grab_frame_sync(self):
         """Capture the VN window region (by bounding rect). Never uses full-screen.
         _async_start() ensures vn_window_title is always set before _loop() runs.
-        Raises RuntimeError if anything is wrong so the loop can fail safely.
+
+        Returns a PIL Image on success.
+        Returns None if the window cannot be found or is minimised — the loop
+        treats None as a recoverable "window temporarily lost" and waits/retries
+        via _wait_for_window_recovery() rather than crashing.
+        Raises RuntimeError ONLY for missing-library errors (PIL / pygetwindow)
+        which cannot be recovered from at runtime.
         Synchronous — safe to call from run_in_executor.
         """
         if not PIL_AVAILABLE:
@@ -1544,22 +1898,20 @@ class VNAutopilot:
                 "pygetwindow not available — install it: pip install pygetwindow pywin32"
             )
         if not self.vn_window_title:
-            raise RuntimeError(
-                "No VN window title set — _async_start() should have detected one. "
-                "Toggle autopilot off and on again to re-detect."
-            )
+            # No title set — should not reach here after _async_start() validates,
+            # but return None gracefully rather than crashing.
+            return None
         win = self._find_vn_window()
         if win is None:
-            raise RuntimeError(
-                f"VN window lost ('{self.vn_window_title}' not found). "
-                "Was the game closed? Toggle autopilot off/on to re-detect."
-            )
+            return None  # window temporarily gone — caller enters recovery wait
         if win.width <= 0 or win.height <= 0:
-            raise RuntimeError(
-                f"VN window '{win.title}' is minimised or zero-size — restore it first."
-            )
+            return None  # window minimised — same recovery path
         bbox = (win.left, win.top, win.left + win.width, win.top + win.height)
-        return ImageGrab.grab(bbox=bbox)
+        try:
+            return ImageGrab.grab(bbox=bbox)
+        except Exception as e:
+            print(f"   [Autopilot] Frame capture error: {e}")
+            return None
 
     def _focus_vn_window(self):
         """Bring the VN window to the foreground before sending keystrokes.
