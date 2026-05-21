@@ -39,9 +39,27 @@
 import asyncio
 import base64
 import hashlib
+import re
 import time
 import traceback
 from io import BytesIO
+
+try:
+    import pytesseract
+    # NOTE (Windows): the Tesseract OCR *binary* must be installed separately.
+    # Download: https://github.com/UB-Mannheim/tesseract/wiki
+    # If Tesseract is not on PATH, set the path e.g.:
+    #   pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    try:
+        pytesseract.get_tesseract_version()
+        PYTESSERACT_AVAILABLE = True
+    except Exception:
+        PYTESSERACT_AVAILABLE = False
+        print("   [Autopilot] Tesseract binary not found — falling back to cloud OCR.")
+        print("   [Autopilot]   Install: https://github.com/UB-Mannheim/tesseract/wiki")
+except ImportError:
+    PYTESSERACT_AVAILABLE = False
+    print("   [Autopilot] pytesseract not installed. Run: pip install pytesseract")
 
 try:
     from config import CLAUDE_CHAT_MODEL
@@ -201,6 +219,10 @@ class VNAutopilot:
         # ── Internal ────────────────────────────────────────────────────────────
         self._task: asyncio.Task | None = None
         self._last_box_text: str = ""      # dedup: skip reaction on re-capture of same box
+
+        # ── Scene art awareness (cloud vision, fires only on background change) ──
+        self._last_art_hash: str = ""           # hash of the art region of the last frame
+        self._scene_art_description: str = ""  # cached scene description from cloud vision
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -370,27 +392,80 @@ class VNAutopilot:
         thumb.save(buf, format="PNG")
         return hashlib.md5(buf.getvalue()).hexdigest()
 
+    @staticmethod
+    def _art_hash(frame) -> str:
+        """Hash the upper ~55% of the screen (art/scene region) for scene-change detection.
+        Sensitive to background swaps; ignores text-box changes in the lower portion."""
+        w, h = frame.size
+        art = frame.crop((0, 0, w, int(h * 0.55)))
+        thumb = art.resize((80, 44))
+        buf = BytesIO()
+        thumb.save(buf, format="PNG")
+        return hashlib.md5(buf.getvalue()).hexdigest()
+
+    @staticmethod
+    def _clean_text(text: str) -> str:
+        """Strip markdown/OCR artifacts before TTS: code fences, backticks, stray pipes."""
+        # Strip ``` code fences (possibly with language tag)
+        text = re.sub(r'```[^`]*```', '', text, flags=re.DOTALL)
+        text = re.sub(r'```', '', text)
+        # Strip inline backticks
+        text = text.replace('`', '')
+        # Strip stray pipe characters (OCR table artefacts)
+        text = text.replace(' | ', ' ')
+        return ' '.join(text.split())
+
+    @staticmethod
+    def _ocr_text_region(frame) -> str:
+        """Extract dialogue text from the lower ~40% of the screen via local Tesseract OCR.
+        VN dialogue boxes typically occupy the bottom 35-45% of the screen.
+        Returns empty string if Tesseract is unavailable or the result is too short.
+
+        TIP: Set the VN's own text-speed to Instant/Max — eliminates typewriter wait
+        entirely and stabilization passes on the very first hash poll."""
+        if not PYTESSERACT_AVAILABLE:
+            return ""
+        try:
+            w, h = frame.size
+            # Crop to dialogue box region (lower ~40%)
+            text_region = frame.crop((0, int(h * 0.60), w, h))
+            # PSM 6 = uniform block of text (good for VN dialogue boxes)
+            # OEM 1 = LSTM neural net (most accurate for clean VN fonts)
+            text = pytesseract.image_to_string(
+                text_region,
+                config="--psm 6 --oem 1",
+            ).strip()
+            return text
+        except Exception as e:
+            print(f"   [Autopilot] OCR error: {e}")
+            return ""
+
     async def _handle_dialogue(self, frame):
         """Read VN text aloud verbatim, then optionally add a rare brief reaction.
 
-        Flow:
-          1. Stabilize: compare image hashes until screen stops changing
-             (waits out the per-sentence typewriter animation cheaply — no API)
-          2. Transcribe ONCE on the stable frame
-          3. Diff against last_box_text:
-               identical  → dedup, skip
-               starts-with → APPEND, read only the new suffix sentence
-               diverged    → SCREEN CLEAR, read new content from start
-          4. Word-boundary guard: never start a read mid-word
-          5. Read new text aloud verbatim, then optionally react (rare)
-          6. Short fixed beat → advance
+        Latency model (target <1s dead air per box):
+          1. Stabilize: 0.2s × 3 hash polls (0.6s cap).
+             TIP: set the VN's text speed to Instant — stabilization passes on
+             the first poll and adds zero wait.
+          2. OCR locally via Tesseract (~50ms) → cloud fallback only if empty.
+          3. Strip markdown/OCR artifacts (backticks, code fences).
+          4. Diff vs last_box_text: dedup → append detection → screen-clear.
+             Min-length guard: skip new_text < 4 chars (trailing punctuation noise).
+             Leading-char guard: trim orphan initial char (next-line bleed).
+          5. Read aloud IMMEDIATELY — TTS fires before any API call.
+          6. Scene-art awareness: background task, fires only when art region changes.
+          7. Narrative summary: background task, never blocks reading.
+          8. Local gate: call Claude for a reaction only when the moment is worth it.
+             Most boxes → no Claude call at all.
+          9. Theory resolution, optional reaction, optional solo aside.
+         10. 0.8s beat → advance.
         """
-        # ── Step 1: Stabilize — wait for typewriter animation ────────────────
-        # Compare image hashes (cheap, local) until the screen stops changing.
+        # ── Step 1: Stabilize (tightened: 0.2s × 3 = 0.6s max) ─────────────
+        # TIP: set VN text speed to Instant — passes on frame 1 with zero wait.
         prev_hash = self._quick_hash(frame)
         stable_frame = frame
-        for _ in range(5):           # cap: 5 × 0.4s = 2s max wait
-            await asyncio.sleep(0.4)
+        for _ in range(3):          # cap: 3 × 0.2s = 0.6s max wait
+            await asyncio.sleep(0.2)
             curr_frame = await asyncio.get_event_loop().run_in_executor(
                 None, ImageGrab.grab
             )
@@ -399,11 +474,23 @@ class VNAutopilot:
                 stable_frame = curr_frame
                 break
             prev_hash = curr_hash
-            stable_frame = curr_frame   # most recent in case we hit the cap
+            stable_frame = curr_frame  # most recent if we hit the cap
 
-        # ── Step 2: Transcribe the stable frame (one API call per box) ──────
-        text = (await self._transcribe_frame(stable_frame) or "").strip()
+        # ── Step 2: Transcribe — local OCR first, cloud fallback ─────────────
+        text = self._ocr_text_region(stable_frame)
+        if not text or len(text.strip()) < 5:
+            # OCR returned empty/garbage — fall back to cloud vision
+            text = await self._transcribe_frame_cloud(stable_frame)
+
+        text = (text or "").strip()
         if not text or text.upper() == "NO TEXT VISIBLE":
+            await asyncio.sleep(1.5)
+            self._safe_advance()
+            return
+
+        # ── Step 3: Clean artifacts (code fences, backticks, etc.) ──────────
+        text = self._clean_text(text)
+        if not text:
             await asyncio.sleep(1.5)
             self._safe_advance()
             return
@@ -416,20 +503,21 @@ class VNAutopilot:
             self._safe_advance()
             return
 
-        # ── Append detection: read only the newly added sentence ─────────────
+        # ── Append detection + cleanup guards ─────────────────────────────
         if self._last_box_text and normalized.startswith(self._last_box_text):
-            # APPEND — the screen accumulated one more sentence.
+            # APPEND — VN accumulated one more sentence on screen.
             raw_suffix = normalized[len(self._last_box_text):]
 
-            # Word-boundary guard: if suffix starts mid-word, snap forward
-            # to the next space so we never read a partial token.
+            # Word-boundary guard: snap to next space if mid-word slice
             if raw_suffix and not raw_suffix[0].isspace():
                 space_idx = raw_suffix.find(' ')
                 raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
 
             new_text = raw_suffix.strip()
-            if not new_text:
-                # No complete new content yet — skip, advance
+
+            # Min-length guard: skip reads shorter than 4 chars
+            # (e.g. trailing " !" appended after the sentence was already read)
+            if len(new_text) < 4:
                 self._last_box_text = normalized
                 await asyncio.sleep(0.5)
                 self._safe_advance()
@@ -437,6 +525,22 @@ class VNAutopilot:
         else:
             # SCREEN CLEAR or entirely new content → read from the start
             new_text = normalized
+
+        # Leading-char bleed guard: orphan single char at start of new_text
+        # e.g. "...my very existence." → then "I " bleeds in from the next line
+        # Pattern: single non-space char + space + capital → strip the orphan
+        if (len(new_text) >= 3
+                and not new_text[0].isspace()
+                and new_text[1] == ' '
+                and new_text[2].isupper()):
+            new_text = new_text[2:].strip()
+
+        # Post-guard safety: if text is still too short after cleanup, skip
+        if len(new_text) < 4:
+            self._last_box_text = normalized
+            await asyncio.sleep(0.5)
+            self._safe_advance()
+            return
 
         self._last_box_text = normalized
 
@@ -449,19 +553,23 @@ class VNAutopilot:
         self.vn_recent_text_buffer.append(text)
         self.vn_boxes_since_summary += 1
 
+        # Narrative summary: fire as background task — never blocks reading
         if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
-            await self._update_narrative_summary()
+            asyncio.ensure_future(self._update_narrative_summary())
 
         self._update_character_attachment(new_text)
         weight = self._estimate_narrative_weight(new_text)
         intensity = self._estimate_scene_intensity(weight)
         self.scene_intensity = intensity
 
-        # ── STEP 3: Read the new sentence aloud verbatim ─────────────────────
+        # ── STEP 5: Read aloud IMMEDIATELY — no API call gating this ────────
         if self.on_speak:
             await self.on_speak(new_text)
 
-        # ── STEP 4: Theory resolution (fires own reaction after reading) ─────
+        # ── STEP 6: Scene-art awareness (background, only on art change) ─────
+        asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
+
+        # ── STEP 7: Theory resolution (fires own reaction) ─────────────────
         theory_reaction = await self._check_theory_resolutions(new_text)
         spoke_extra = False
         if theory_reaction and self.on_speak:
@@ -470,8 +578,10 @@ class VNAutopilot:
             self._boxes_since_reaction = 0
             spoke_extra = True
 
-        # ── STEP 5: Optional rare reaction (seasoning, not default) ──────────
-        if not spoke_extra:
+        # ── STEP 8: Optional rare reaction (local gate avoids per-box latency) ─
+        # Only calls Claude when the local heuristic flags the moment as worth it.
+        # Default: most boxes get no reaction API call.
+        if not spoke_extra and self._should_consider_reaction(weight, intensity):
             reaction = await self._decide_reaction(
                 new_text, intensity=intensity, narrative_weight=weight
             )
@@ -483,7 +593,7 @@ class VNAutopilot:
                 self._boxes_since_solo_aside = 0
                 spoke_extra = True
 
-        # ── STEP 6: Solo aside when dead chat + calm stretch ─────────────────
+        # ── STEP 9: Solo aside when dead chat + calm stretch ─────────────────
         if (
             not spoke_extra
             and intensity == INTENSITY_CALM
@@ -498,13 +608,12 @@ class VNAutopilot:
                 self._boxes_since_solo_aside = 0
                 self._boxes_since_reaction = 0
 
-        # ── STEP 7: Short fixed beat then advance ─────────────────────────────
-        # TTS duration IS the pacing; just a small trailing buffer.
+        # ── STEP 10: Short fixed beat then advance ──────────────────────────
         await asyncio.sleep(0.8)
         self._safe_advance()
 
-    async def _transcribe_frame(self, frame) -> str:
-        """Extract raw text from screen using the existing TRANSCRIBE_PROMPT."""
+    async def _transcribe_frame_cloud(self, frame) -> str:
+        """Cloud vision text transcription (GPT-4o-mini) — fallback when local OCR fails."""
         if not self.vision_client:
             return ""
         try:
@@ -530,8 +639,74 @@ class VNAutopilot:
             )
             return resp.choices[0].message.content.strip()
         except Exception as e:
-            print(f"   [Autopilot] Transcribe error: {e}")
+            print(f"   [Autopilot] Cloud transcribe error: {e}")
             return ""
+
+    async def _maybe_update_scene_art(self, frame) -> None:
+        """Update the cached scene description when the art region hash changes.
+        Called as a background task after each box — never blocks reading.
+        During long dialogue stretches on the same background: zero cloud calls."""
+        new_hash = self._art_hash(frame)
+        if new_hash == self._last_art_hash:
+            return  # same background, nothing to do
+        self._last_art_hash = new_hash
+        if not self.vision_client:
+            return
+        try:
+            buf = BytesIO()
+            frame.save(buf, format="JPEG", quality=70)
+            b64 = base64.b64encode(buf.getvalue()).decode()
+            resp = await self.vision_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": (
+                            "Describe this visual novel screen in 1-2 sentences: "
+                            "setting, mood, visible characters, lighting. "
+                            "If it's mostly blank or abstract, just say so. Be brief."
+                        )},
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:image/jpeg;base64,{b64}",
+                            "detail": "low",
+                        }},
+                    ],
+                }],
+                max_tokens=80,
+                temperature=0.0,
+            )
+            self._scene_art_description = resp.choices[0].message.content.strip()
+            print(f"   [Autopilot] Scene: {self._scene_art_description[:70]}")
+        except Exception as e:
+            print(f"   [Autopilot] Scene art error: {e}")
+
+    def _should_consider_reaction(self, weight: float, intensity: str) -> bool:
+        """Local gate: should we call Claude for a reaction at all?
+
+        Default answer is NO — most calm boxes get no reaction API call.
+        This prevents per-box cloud latency from gating the reading flow.
+        Claude is only invoked when the local heuristic flags the moment."""
+        # Minimum spacing: never react on back-to-back boxes
+        if self._boxes_since_reaction < 3:
+            return False
+        # High narrative weight: always worth considering
+        if weight >= 0.45:
+            return True
+        # Intense scene with meaningful weight
+        if intensity == INTENSITY_INTENSE and weight >= 0.30:
+            return True
+        # Rising tension: occasional commentary
+        if intensity == INTENSITY_BUILDING and weight >= 0.35:
+            return True
+        # Calm/aftermath: only when chat is dead (solo mode)
+        if intensity in (INTENSITY_CALM, INTENSITY_AFTERMATH):
+            if self.chat_dead_min >= 3.0 and self._boxes_since_solo_aside >= 5:
+                return True
+            # Forced periodic check so reactions still occur in long calm stretches
+            if self._boxes_since_reaction >= 18:
+                return True
+            return False
+        return False
 
     async def _decide_reaction(
         self,
@@ -615,10 +790,16 @@ class VNAutopilot:
                 if self.emotional_trajectory else ""
             )
 
+            # Visual scene context (cached from background art-awareness task)
+            scene_art_note = (
+                f"\n\nCURRENT SCENE: {self._scene_art_description}"
+                if self._scene_art_description else ""
+            )
+
             prompt = (
                 f"You are Kira, reading a visual novel aloud on stream — you ARE the narrator.\n\n"
                 f"You just read this aloud:\n\"{text}\"\n"
-                f"{narrative_block}{trajectory_note}{attachment_instruction}"
+                f"{narrative_block}{scene_art_note}{trajectory_note}{attachment_instruction}"
                 f"{theory_instruction}{investment_note}{solo_instruction}\n\n"
                 f"{intensity_instruction}\n\n"
                 f"Your PRIMARY job is narrating the story. Reactions are RARE seasoning — only "
