@@ -531,6 +531,44 @@ class AI_Core:
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
 
+    async def speak_text_vn(self, text: str, ssml_inner: str | None = None):
+        """VN autopilot TTS: accepts pre-built SSML inner content for prosody variation.
+
+        When ssml_inner is provided and Azure TTS is active, wraps it inside the
+        standard config <prosody> envelope for natural, context-sensitive delivery.
+        Falls back to speak_text for non-Azure engines or when no SSML is provided.
+        """
+        if not text:
+            return
+        self.interruption_event.clear()
+        self.is_speaking = True
+        try:
+            if ssml_inner is not None and TTS_ENGINE == "azure" and self.azure_synthesizer:
+                ssml = (
+                    f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+                    f'xml:lang="en-US">'
+                    f'<voice name="{AZURE_SPEECH_VOICE}">'
+                    f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">'
+                    f'{ssml_inner}'
+                    f'</prosody></voice></speak>'
+                )
+                print(f"   [TTS] Speaking: {text[:50]}...")
+                try:
+                    result = await asyncio.to_thread(
+                        self.azure_synthesizer.speak_ssml, ssml
+                    )
+                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                        await self._play_audio_with_pygame(result.audio_data)
+                    else:
+                        print(f"   TTS Fail: {result.cancellation_details.error_details}")
+                except Exception as e:
+                    print(f"   TTS/Playback Error: {e}")
+            else:
+                await self._speak_single(text)
+        finally:
+            self.last_speech_finish_time = time.time()
+            self.is_speaking = False
+
     async def _speak_single(self, text: str):
         """Pure synthesis-and-playback for a single text block. Does NOT manage
         is_speaking or interruption_event — caller is responsible. Used by both

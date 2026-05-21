@@ -42,6 +42,7 @@ import hashlib
 import re
 import time
 import traceback
+import xml.sax.saxutils
 from io import BytesIO
 
 try:
@@ -86,6 +87,16 @@ INTENSITY_BUILDING  = "building"   # tension rising; lean in, anticipate
 INTENSITY_INTENSE   = "intense"    # things are happening; react sparingly and sharply
 INTENSITY_CLIMACTIC = "climactic"  # the moment; silence is usually the correct response
 INTENSITY_AFTERMATH = "aftermath"  # just after something big; process quietly
+
+# ── Inter-box pacing constants (content-based variable timing) ────────────────
+# Tune here to adjust rhythm globally. Replaces the old fixed 0.8s delay.
+PAUSE_SENTENCE_END      = 0.35   # text ends with '.'  — clear stop between thoughts
+PAUSE_QUESTION_EXCLAIM  = 0.55   # text ends with '?'/'!' — emotional beat / rising tone
+PAUSE_CLAUSE_FLOW       = 0.10   # comma or no terminal punct — flow right through
+PAUSE_SCENE_CHANGE      = 0.90   # art region just changed — let the new scene land
+PAUSE_INTENSITY_BONUS   = 0.40   # added on top for INTENSE / CLIMACTIC moments
+PAUSE_AFTERMATH_BONUS   = 0.20   # extra somber pacing in AFTERMATH
+PAUSE_REACTION_GAP      = 0.15   # minimal gap before a reaction (same-breath feel)
 
 # ── Pacing helper ──────────────────────────────────────────────────────────────
 
@@ -213,12 +224,15 @@ class VNAutopilot:
         # ── Callbacks (wired by bot.py) ─────────────────────────────────────────
         # on_speak(text: str) -> awaitable  — speak a reaction via TTS
         self.on_speak = None
+        # on_speak_vn(text, ssml_inner) -> awaitable  — VN-specific TTS with prosody hints
+        self.on_speak_vn = None
         # on_failsafe(screen_type: str) -> None  — notify dashboard of failsafe
         self.on_failsafe = None
 
         # ── Internal ────────────────────────────────────────────────────────────
         self._task: asyncio.Task | None = None
         self._last_box_text: str = ""      # dedup: skip reaction on re-capture of same box
+        self._prepared_next: dict | None = None  # pre-prepared next box data from pipeline
 
         # ── Scene art awareness (cloud vision, fires only on background change) ──
         self._last_art_hash: str = ""           # hash of the art region of the last frame
@@ -286,7 +300,11 @@ class VNAutopilot:
     # ── Main loop ──────────────────────────────────────────────────────────────
 
     async def _loop(self):
-        """Event-driven main loop: screenshot → classify → handle → advance → repeat."""
+        """Event-driven main loop: screenshot → classify → handle → advance → repeat.
+
+        When a pipeline task pre-prepared the next box during TTS, that data is
+        consumed here instead of taking a fresh screenshot + classify + OCR.
+        """
         print("   [Autopilot] Loop running.")
         while self.enabled and not self.is_paused:
             # System 6b: soft-pause while Jonny is talking — hold without exiting
@@ -296,29 +314,35 @@ class VNAutopilot:
                 break
 
             try:
-                # 1. Capture fresh screenshot
-                if not PIL_AVAILABLE:
-                    raise RuntimeError("Pillow not available for screenshot capture")
-                frame = await asyncio.get_event_loop().run_in_executor(None, ImageGrab.grab)
+                # Check for pre-prepared data from the pipeline task
+                prepared = None
+                if self._prepared_next:
+                    prepared            = self._prepared_next
+                    self._prepared_next = None
+                    screen_type         = prepared["screen_type"]
+                    frame               = prepared["frame"]
+                else:
+                    if not PIL_AVAILABLE:
+                        raise RuntimeError("Pillow not available for screenshot capture")
+                    frame = await asyncio.get_event_loop().run_in_executor(
+                        None, ImageGrab.grab
+                    )
+                    screen_type = await self._classify_screen(frame)
 
-                # 2. Classify screen type
-                screen_type = await self._classify_screen(frame)
                 print(f"   [Autopilot] Screen: {screen_type}")
 
                 if screen_type == "DIALOGUE":
-                    await self._handle_dialogue(frame)
+                    await self._handle_dialogue(frame, prepared)
 
                 elif screen_type == "TRANSITION":
-                    # Advance immediately — transitions are connective fades, not content.
-                    # Post-advance sleep gives the VN time to render before re-classifying.
+                    # Pipeline may have already advanced to get here; we now advance
+                    # *through* the transition (N+1 → N+2) and wait for it to clear.
                     await asyncio.sleep(0.8)
                     self._safe_advance()
                     await asyncio.sleep(1.0)
 
                 else:
                     # CHOICE / SAVE_PROMPT / UNKNOWN.
-                    # Retry UNKNOWN once: many are mid-fade captures that resolve to
-                    # DIALOGUE ~1s later. Only fire the failsafe if it persists.
                     if screen_type == "UNKNOWN":
                         await asyncio.sleep(1.0)
                         retry_frame = await asyncio.get_event_loop().run_in_executor(
@@ -327,14 +351,13 @@ class VNAutopilot:
                         screen_type = await self._classify_screen(retry_frame)
                         print(f"   [Autopilot] UNKNOWN retry → {screen_type}")
                         if screen_type == "DIALOGUE":
-                            await self._handle_dialogue(retry_frame)
+                            await self._handle_dialogue(retry_frame, None)
                             continue
                         elif screen_type == "TRANSITION":
                             await asyncio.sleep(0.8)
                             self._safe_advance()
                             await asyncio.sleep(1.0)
                             continue
-                        # Still not normal — fall through to failsafe
                     await self._trigger_failsafe(screen_type)
                     return
 
@@ -440,111 +463,102 @@ class VNAutopilot:
             print(f"   [Autopilot] OCR error: {e}")
             return ""
 
-    async def _handle_dialogue(self, frame):
+    async def _handle_dialogue(self, frame, prepared: dict | None = None):
         """Read VN text aloud verbatim, then optionally add a rare brief reaction.
 
-        Latency model (target <1s dead air per box):
-          1. Stabilize: 0.2s × 3 hash polls (0.6s cap).
-             TIP: set the VN's text speed to Instant — stabilization passes on
-             the first poll and adds zero wait.
-          2. OCR locally via Tesseract (~50ms) → cloud fallback only if empty.
-          3. Strip markdown/OCR artifacts (backticks, code fences).
-          4. Diff vs last_box_text: dedup → append detection → screen-clear.
-             Min-length guard: skip new_text < 4 chars (trailing punctuation noise).
-             Leading-char guard: trim orphan initial char (next-line bleed).
-          5. Read aloud IMMEDIATELY — TTS fires before any API call.
-          6. Scene-art awareness: background task, fires only when art region changes.
-          7. Narrative summary: background task, never blocks reading.
-          8. Local gate: call Claude for a reaction only when the moment is worth it.
-             Most boxes → no Claude call at all.
-          9. Theory resolution, optional reaction, optional solo aside.
-         10. 0.8s beat → advance.
+        Pipeline flow — processing latency hidden inside TTS audio time:
+          1. Fast path: pipeline pre-computed this box's data → skip stabilize/OCR/diff.
+          2. Normal path: stabilize (0.15s × 2) → local OCR → clean → diff.
+          3. Phase 2 analysis: attachment + weight + intensity (side-effects here only).
+          4. SSML prosody: subtle rate/pitch variation by punctuation + intensity.
+          5. Read aloud; pipeline task fires 0.3s in (advance + prep N+1 during TTS).
+          6. Scene-art awareness background task (only on art hash change).
+          7. Content-based pause (0.10–0.95s) + optional reactions (0.15s gap).
+          8. Collect pipeline result → _prepared_next for next iteration.
         """
-        # ── Step 1: Stabilize (tightened: 0.2s × 3 = 0.6s max) ─────────────
-        # TIP: set VN text speed to Instant — passes on frame 1 with zero wait.
-        prev_hash = self._quick_hash(frame)
-        stable_frame = frame
-        for _ in range(3):          # cap: 3 × 0.2s = 0.6s max wait
-            await asyncio.sleep(0.2)
-            curr_frame = await asyncio.get_event_loop().run_in_executor(
-                None, ImageGrab.grab
-            )
-            curr_hash = self._quick_hash(curr_frame)
-            if curr_hash == prev_hash:
+        # ── Fast path: use pipeline-prepared data ────────────────────────────
+        if prepared and prepared.get("box_data"):
+            box          = prepared["box_data"]
+            new_text     = box["new_text"]
+            normalized   = box["normalized"]
+            text         = box["text"]
+            stable_frame = box["stable_frame"]
+            weight       = box["weight"]
+            self._last_box_text = normalized
+        else:
+            # ── Normal path: stabilize → OCR → diff ──────────────────────────
+            # CHANGE 5: 0.15s × 2 = 0.30s max (down from 0.6s)
+            prev_hash    = self._quick_hash(frame)
+            stable_frame = frame
+            for _ in range(2):
+                await asyncio.sleep(0.15)
+                curr_frame = await asyncio.get_event_loop().run_in_executor(
+                    None, ImageGrab.grab
+                )
+                curr_hash = self._quick_hash(curr_frame)
+                if curr_hash == prev_hash:
+                    stable_frame = curr_frame
+                    break
+                prev_hash    = curr_hash
                 stable_frame = curr_frame
-                break
-            prev_hash = curr_hash
-            stable_frame = curr_frame  # most recent if we hit the cap
 
-        # ── Step 2: Transcribe — local OCR first, cloud fallback ─────────────
-        text = self._ocr_text_region(stable_frame)
-        if not text or len(text.strip()) < 5:
-            # OCR returned empty/garbage — fall back to cloud vision
-            text = await self._transcribe_frame_cloud(stable_frame)
+            # OCR: local first, cloud fallback if empty
+            text = self._ocr_text_region(stable_frame)
+            if not text or len(text.strip()) < 5:
+                text = await self._transcribe_frame_cloud(stable_frame)
 
-        text = (text or "").strip()
-        if not text or text.upper() == "NO TEXT VISIBLE":
-            await asyncio.sleep(1.5)
-            self._safe_advance()
-            return
+            text = self._clean_text((text or "").strip())
+            if not text or text.upper() == "NO TEXT VISIBLE":
+                await asyncio.sleep(1.5)
+                self._safe_advance()
+                return
 
-        # ── Step 3: Clean artifacts (code fences, backticks, etc.) ──────────
-        text = self._clean_text(text)
-        if not text:
-            await asyncio.sleep(1.5)
-            self._safe_advance()
-            return
+            normalized = " ".join(text.split())
 
-        normalized = " ".join(text.split())
+            # Dedup: identical re-capture → skip, advance quietly
+            if normalized == self._last_box_text:
+                await asyncio.sleep(0.5)
+                self._safe_advance()
+                return
 
-        # ── Dedup: identical re-capture → skip, advance quietly ──────────────
-        if normalized == self._last_box_text:
-            await asyncio.sleep(0.5)
-            self._safe_advance()
-            return
+            # Append detection: VN accumulated text on the same box
+            if self._last_box_text and normalized.startswith(self._last_box_text):
+                raw_suffix = normalized[len(self._last_box_text):]
+                if raw_suffix and not raw_suffix[0].isspace():
+                    space_idx = raw_suffix.find(' ')
+                    raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
+                new_text = raw_suffix.strip()
+                if len(new_text) < 4:
+                    self._last_box_text = normalized
+                    await asyncio.sleep(0.5)
+                    self._safe_advance()
+                    return
+            else:
+                new_text = normalized
 
-        # ── Append detection + cleanup guards ─────────────────────────────
-        if self._last_box_text and normalized.startswith(self._last_box_text):
-            # APPEND — VN accumulated one more sentence on screen.
-            raw_suffix = normalized[len(self._last_box_text):]
+            # Leading-char bleed guard
+            if (len(new_text) >= 3
+                    and not new_text[0].isspace()
+                    and new_text[1] == ' '
+                    and new_text[2].isupper()):
+                new_text = new_text[2:].strip()
 
-            # Word-boundary guard: snap to next space if mid-word slice
-            if raw_suffix and not raw_suffix[0].isspace():
-                space_idx = raw_suffix.find(' ')
-                raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
-
-            new_text = raw_suffix.strip()
-
-            # Min-length guard: skip reads shorter than 4 chars
-            # (e.g. trailing " !" appended after the sentence was already read)
             if len(new_text) < 4:
                 self._last_box_text = normalized
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
-        else:
-            # SCREEN CLEAR or entirely new content → read from the start
-            new_text = normalized
 
-        # Leading-char bleed guard: orphan single char at start of new_text
-        # e.g. "...my very existence." → then "I " bleeds in from the next line
-        # Pattern: single non-space char + space + capital → strip the orphan
-        if (len(new_text) >= 3
-                and not new_text[0].isspace()
-                and new_text[1] == ' '
-                and new_text[2].isupper()):
-            new_text = new_text[2:].strip()
-
-        # Post-guard safety: if text is still too short after cleanup, skip
-        if len(new_text) < 4:
             self._last_box_text = normalized
-            await asyncio.sleep(0.5)
-            self._safe_advance()
-            return
 
-        self._last_box_text = normalized
+        # ── Phase 2 analysis (side-effects: always in main path, never pipeline) ─
+        # Attachment update first so weight computation sees the current state.
+        self._update_character_attachment(new_text)
+        if not (prepared and prepared.get("box_data")):
+            weight = self._estimate_narrative_weight(new_text)
+        intensity = self._estimate_scene_intensity(weight)
+        self.scene_intensity = intensity
 
-        # ── Phase 2 analysis ─────────────────────────────────────────────────
         self.total_boxes_read += 1
         self._boxes_since_reaction += 1
         self._boxes_since_theory_check += 1
@@ -553,47 +567,53 @@ class VNAutopilot:
         self.vn_recent_text_buffer.append(text)
         self.vn_boxes_since_summary += 1
 
-        # Narrative summary: fire as background task — never blocks reading
+        # Narrative summary: background task — never blocks reading
         if self.vn_boxes_since_summary >= 15 and len(self.vn_recent_text_buffer) >= 5:
             asyncio.ensure_future(self._update_narrative_summary())
 
-        self._update_character_attachment(new_text)
-        weight = self._estimate_narrative_weight(new_text)
-        intensity = self._estimate_scene_intensity(weight)
-        self.scene_intensity = intensity
+        # Art-change check (before _maybe_update_scene_art overwrites the hash)
+        art_changed = self._art_hash(stable_frame) != self._last_art_hash
 
-        # ── STEP 5: Read aloud IMMEDIATELY — no API call gating this ────────
-        if self.on_speak:
+        # ── Read aloud + start pipeline concurrently ──────────────────────────
+        # Pipeline fires 0.3s after being scheduled, so TTS audio starts first.
+        # _safe_advance() lives inside the pipeline — no explicit advance here.
+        pipeline_task = (
+            asyncio.ensure_future(self._pipeline_advance_and_prep())
+            if self.enabled and not self.soft_paused else None
+        )
+
+        if self.on_speak_vn:
+            ssml_inner = self._build_vn_ssml_inner(new_text, intensity)
+            await self.on_speak_vn(new_text, ssml_inner)
+        elif self.on_speak:
             await self.on_speak(new_text)
 
-        # ── STEP 6: Scene-art awareness (background, only on art change) ─────
+        # Scene-art awareness: background task, only acts on art hash change
         asyncio.ensure_future(self._maybe_update_scene_art(stable_frame))
 
-        # ── STEP 7: Theory resolution (fires own reaction) ─────────────────
+        # ── Theory resolution ─────────────────────────────────────────────────
         theory_reaction = await self._check_theory_resolutions(new_text)
         spoke_extra = False
         if theory_reaction and self.on_speak:
-            await asyncio.sleep(0.4)
+            await asyncio.sleep(PAUSE_REACTION_GAP)
             await self.on_speak(theory_reaction)
             self._boxes_since_reaction = 0
             spoke_extra = True
 
-        # ── STEP 8: Optional rare reaction (local gate avoids per-box latency) ─
-        # Only calls Claude when the local heuristic flags the moment as worth it.
-        # Default: most boxes get no reaction API call.
+        # ── Optional rare reaction (local gate — no per-box latency) ──────────
         if not spoke_extra and self._should_consider_reaction(weight, intensity):
             reaction = await self._decide_reaction(
                 new_text, intensity=intensity, narrative_weight=weight
             )
             if reaction and reaction.upper() != "SILENT":
                 if self.on_speak:
-                    await asyncio.sleep(0.4)
+                    await asyncio.sleep(PAUSE_REACTION_GAP)
                     await self.on_speak(reaction)
                 self._boxes_since_reaction = 0
                 self._boxes_since_solo_aside = 0
                 spoke_extra = True
 
-        # ── STEP 9: Solo aside when dead chat + calm stretch ─────────────────
+        # ── Solo aside when dead chat + calm stretch ──────────────────────────
         if (
             not spoke_extra
             and intensity == INTENSITY_CALM
@@ -603,14 +623,183 @@ class VNAutopilot:
         ):
             aside = await self._maybe_form_theory()
             if aside and self.on_speak:
-                await asyncio.sleep(0.4)
+                await asyncio.sleep(PAUSE_REACTION_GAP)
                 await self.on_speak(aside)
                 self._boxes_since_solo_aside = 0
                 self._boxes_since_reaction = 0
 
-        # ── STEP 10: Short fixed beat then advance ──────────────────────────
-        await asyncio.sleep(0.8)
-        self._safe_advance()
+        # ── Content-based pause (replaces fixed 0.8s) ────────────────────────
+        await asyncio.sleep(self._content_pause(new_text, intensity, art_changed))
+
+        # ── Collect pipeline result ───────────────────────────────────────────
+        # Pipeline ran during TTS + reactions; should be well done by now.
+        if pipeline_task is not None:
+            try:
+                result = await pipeline_task
+                if result:
+                    self._prepared_next = result
+            except Exception as e:
+                print(f"   [Autopilot] Pipeline collect error: {e}")
+                self._safe_advance()
+        else:
+            self._safe_advance()
+
+    async def _pipeline_advance_and_prep(self) -> dict | None:
+        """Advance the VN and pre-prepare the next dialogue box concurrently with TTS.
+
+        Fires via asyncio.ensure_future right before on_speak, so it executes
+        during TTS synthesis/playback (asyncio.to_thread releases the event loop).
+        The 0.3s delay lets audio start before the VN advances for a natural feel.
+
+        Returns dict with {screen_type, frame, box_data} or None if aborted.
+        box_data is None for dedup/empty screens; caller re-runs normal OCR path.
+        """
+        try:
+            await asyncio.sleep(0.3)    # let TTS audio start before advancing
+            if self.soft_paused or not self.enabled:
+                return None
+
+            self._safe_advance()
+            await asyncio.sleep(0.2)    # let VN render the next frame
+
+            if not PIL_AVAILABLE or not self.enabled:
+                return None
+
+            frame = await asyncio.get_event_loop().run_in_executor(None, ImageGrab.grab)
+            screen_type = await self._classify_screen(frame)
+
+            if screen_type != "DIALOGUE":
+                return {"screen_type": screen_type, "frame": frame, "box_data": None}
+
+            # Stabilize: 0.15s × 2
+            prev_hash    = self._quick_hash(frame)
+            stable_frame = frame
+            for _ in range(2):
+                await asyncio.sleep(0.15)
+                curr_frame = await asyncio.get_event_loop().run_in_executor(
+                    None, ImageGrab.grab
+                )
+                curr_hash = self._quick_hash(curr_frame)
+                if curr_hash == prev_hash:
+                    stable_frame = curr_frame
+                    break
+                prev_hash    = curr_hash
+                stable_frame = curr_frame
+
+            # OCR: local first, cloud fallback
+            text = self._ocr_text_region(stable_frame)
+            if not text or len(text.strip()) < 5:
+                text = await self._transcribe_frame_cloud(stable_frame)
+            text = self._clean_text((text or "").strip())
+            if not text or text.upper() == "NO TEXT VISIBLE":
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+
+            normalized = " ".join(text.split())
+
+            # Dedup check (read-only: _last_box_text not updated in the pipeline)
+            if normalized == self._last_box_text:
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+
+            # Append detection
+            if self._last_box_text and normalized.startswith(self._last_box_text):
+                raw_suffix = normalized[len(self._last_box_text):]
+                if raw_suffix and not raw_suffix[0].isspace():
+                    space_idx = raw_suffix.find(' ')
+                    raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
+                new_text = raw_suffix.strip()
+                if len(new_text) < 4:
+                    return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+            else:
+                new_text = normalized
+
+            # Leading-char bleed guard
+            if (len(new_text) >= 3
+                    and not new_text[0].isspace()
+                    and new_text[1] == ' '
+                    and new_text[2].isupper()):
+                new_text = new_text[2:].strip()
+
+            if len(new_text) < 4:
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+
+            # Weight only — side-effect methods (_estimate_scene_intensity,
+            # _update_character_attachment) stay in _handle_dialogue
+            weight = self._estimate_narrative_weight(new_text)
+
+            return {
+                "screen_type": "DIALOGUE",
+                "frame": frame,
+                "box_data": {
+                    "new_text": new_text,
+                    "normalized": normalized,
+                    "text": text,
+                    "stable_frame": stable_frame,
+                    "weight": weight,
+                },
+            }
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            print(f"   [Autopilot] Pipeline prep error: {e}")
+            return None
+
+    def _content_pause(self, text: str, intensity: str, art_changed: bool) -> float:
+        """Inter-box pause driven by text punctuation and scene intensity.
+
+        Replaces the fixed 0.8s delay with organic, context-sensitive rhythm.
+        Tune the PAUSE_* module constants to adjust timing globally.
+        """
+        stripped = text.strip()
+        if art_changed:
+            base = PAUSE_SCENE_CHANGE
+        elif stripped.endswith(('?', '!')):
+            base = PAUSE_QUESTION_EXCLAIM
+        elif stripped.endswith('.') or stripped.endswith('\u2026') or stripped.endswith('...'):
+            base = PAUSE_SENTENCE_END
+        else:
+            base = PAUSE_CLAUSE_FLOW
+        bonus = 0.0
+        if intensity in (INTENSITY_INTENSE, INTENSITY_CLIMACTIC):
+            bonus += PAUSE_INTENSITY_BONUS
+        elif intensity == INTENSITY_AFTERMATH:
+            bonus += PAUSE_AFTERMATH_BONUS
+        return base + bonus
+
+    def _build_vn_ssml_inner(self, text: str, intensity: str) -> str:
+        """Build SSML inner content for autopilot TTS (inside <voice>...</voice>).
+
+        Applies subtle prosody variation — goal is natural delivery, not theatrical.
+        The outer <prosody> with config rate/pitch is applied by ai_core.speak_text_vn;
+        this method returns additional nested adjustments when warranted.
+        """
+        safe_text = xml.sax.saxutils.escape(text)
+        stripped  = text.strip()
+
+        # Rate: slightly slower for emotionally heavy moments
+        if intensity in (INTENSITY_CLIMACTIC, INTENSITY_INTENSE):
+            rate = "-8%"
+        elif intensity == INTENSITY_AFTERMATH:
+            rate = "-5%"
+        else:
+            rate = None     # use config default
+
+        # Pitch: slight inflection for questions / exclamations
+        if stripped.endswith('?'):
+            pitch = "+5%"
+        elif stripped.endswith('!'):
+            pitch = "+3%"
+        else:
+            pitch = None
+
+        attrs = []
+        if rate:
+            attrs.append(f'rate="{rate}"')
+        if pitch:
+            attrs.append(f'pitch="{pitch}"')
+
+        if attrs:
+            return f'<prosody {" ".join(attrs)}>{safe_text}</prosody>'
+        return safe_text
 
     async def _transcribe_frame_cloud(self, frame) -> str:
         """Cloud vision text transcription (GPT-4o-mini) — fallback when local OCR fails."""

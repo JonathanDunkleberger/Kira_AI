@@ -221,6 +221,19 @@ class VTubeBot:
             if self.playthrough_memory and self.playthrough_memory.current_slug:
                 self.playthrough_memory.tag_reaction(cleaned)
 
+    async def _autopilot_speak_vn(self, text: str, ssml_inner: str):
+        """VN-specific TTS callback: uses Azure prosody variation for natural delivery."""
+        if not text or self.is_muted():
+            return
+        cleaned = self.ai_core._clean_llm_response(text)
+        if cleaned and len(cleaned) > 2:
+            print(f"   [Autopilot] Kira: {cleaned}")
+            await self.ai_core.speak_text_vn(cleaned, ssml_inner)
+            self.conversation_history.append({"role": "assistant", "content": cleaned})
+            self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+            if self.playthrough_memory and self.playthrough_memory.current_slug:
+                self.playthrough_memory.tag_reaction(cleaned)
+
     def _autopilot_on_failsafe(self, screen_type: str):
         """Callback: mark dashboard flag when failsafe triggers."""
         self.autopilot_paused_for_input = True
@@ -474,6 +487,7 @@ class VTubeBot:
                 vision_client=self.vision_agent.client,
             )
             self.vn_autopilot.on_speak = self._autopilot_speak
+            self.vn_autopilot.on_speak_vn = self._autopilot_speak_vn
             self.vn_autopilot.on_failsafe = self._autopilot_on_failsafe
 
             # Set up Playthrough Memory (global scope — all modes read from it)
