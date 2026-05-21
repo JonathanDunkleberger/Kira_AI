@@ -118,21 +118,42 @@ def compute_read_delay(
 # ── Input Controller ───────────────────────────────────────────────────────────
 
 class VNInputController:
-    """Sends keyboard/mouse input to the focused VN window via pydirectinput."""
+    """Sends keyboard/mouse input to the focused VN window via pydirectinput.
+
+    Supports multiple advance methods so the autopilot can verify which one a
+    given VN actually accepts. Some engines ignore SendInput keystrokes from
+    pydirectinput but accept clicks (or vice-versa); the autopilot cycles
+    through methods on each unverified advance until one is observed to change
+    the screen, then sticks with the working method.
+    """
+
+    # Methods, in the order the autopilot will try them when the configured key
+    # has no observed effect. Each is a (label, callable) pair.
+    METHODS_ORDER = ("space", "enter", "click")
 
     def __init__(self, advance_key: str = "space", pre_input_delay: float = 0.1):
         self.advance_key = advance_key
         self.pre_input_delay = pre_input_delay
 
-    def advance(self):
-        """Press the configured advance key. Raises RuntimeError if pydirectinput unavailable."""
+    def advance(self, method: str | None = None):
+        """Press the configured advance key, or a specific method if provided.
+
+        method: one of 'space', 'enter', 'click', or None (use self.advance_key).
+        Raises RuntimeError if pydirectinput unavailable.
+        """
         if not PYDIRECTINPUT_AVAILABLE:
             raise RuntimeError("pydirectinput not installed. Run: pip install pydirectinput")
+        m = (method or self.advance_key).lower()
         time.sleep(self.pre_input_delay)
-        if self.advance_key == "click":
+        if m == "click":
             pydirectinput.click()
+        elif m == "enter":
+            pydirectinput.press("enter")
+        elif m == "space":
+            pydirectinput.press("space")
         else:
-            pydirectinput.press(self.advance_key)
+            # Fall back to whatever key string was configured
+            pydirectinput.press(m)
 
     def set_advance_key(self, key: str):
         self.advance_key = key
@@ -282,6 +303,19 @@ class VNAutopilot:
         # True while a hard failsafe (CHOICE / SAVE_PROMPT / UNKNOWN / STUCK /
         # ERROR) is active. Soft-pause release must NOT clear a hard failsafe.
         self._hard_failsafed: bool = False
+
+        # ── Advance verification + method discovery ───────────────────────────
+        # The autopilot captures a hash before & after each advance to verify
+        # the screen actually changed. If the configured method has no effect,
+        # it cycles through VNInputController.METHODS_ORDER (re-focusing before
+        # each) until one works, then remembers the working method.
+        self._working_advance_method: str | None = None  # discovered live; None = use default
+        self._advance_attempts: int = 0                 # total advance calls this session
+        self._advance_diag_cycles: int = 5              # log full diagnostic for first N cycles
+        # Frame hash captured immediately after a verified advance — handed to
+        # _post_advance_prep() so we don't waste a capture re-grabbing the same
+        # confirmed-new frame.
+        self._last_verified_post_advance_frame = None
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -1884,38 +1918,142 @@ class VNAutopilot:
     # ── Input helper ───────────────────────────────────────────────────────────
 
     def _safe_advance(self):
-        """Press the advance key after re-asserting VN window focus.
+        """Advance the VN, VERIFY by screen-hash change, retry with other methods if needed.
 
-        Before every keystroke:
-          1. Re-finds the window (handles brief alt-tab / focus loss).
-          2. Re-asserts focus via win.activate().
-          3. Sends the key only to the confirmed foreground VN window.
+        Per-advance flow:
+          1. Capture before-frame + hash.
+          2. Focus the VN window (log if focus failed).
+          3. Try the preferred method (working-method if known, else default).
+          4. Wait ~0.6s, re-capture, compare hashes.
+          5. If changed → log success, remember the working method, stash the
+             new frame for _post_advance_prep to reuse.
+          6. If unchanged → log "NO EFFECT", cycle through other methods
+             (re-focusing before each). First method to produce a change wins
+             and is remembered.
+          7. If NO method works after exhausting METHODS_ORDER → log + failsafe
+             with "STUCK" so Jonny knows to intervene.
 
-        If the window cannot be found, the advance is skipped with a log.
-        The caller's next _grab_frame_sync() will return None → window-recovery
-        loop takes over — no crash, no blind keystrokes.
+        Diagnostic verbosity: the first _advance_diag_cycles advances log the
+        full breakdown (focus result, method, before-hash, after-hash). After
+        that, only outcomes (OK / NO EFFECT / changed method) are logged.
         """
         if not self.enabled:
             return
-        if self.vn_window_title and PYGETWINDOW_AVAILABLE:
-            win = self._find_vn_window()
-            if win is None:
+        if not PYGETWINDOW_AVAILABLE or not self.vn_window_title:
+            # Can't verify without window targeting — fall back to blind press
+            try:
+                self.input_controller.advance()
+            except Exception as e:
+                print(f"   [Autopilot] Input failure \u2014 disabling: {e}")
+                self.enabled = False
+                self.is_running = False
+                self.is_paused = True
+                self.pause_reason = "INPUT_ERROR"
+                if self.on_failsafe:
+                    self.on_failsafe("INPUT_ERROR")
+            return
+
+        self._advance_attempts += 1
+        diag = self._advance_attempts <= self._advance_diag_cycles
+
+        # ── Step 1: Before-frame ──────────────────────────────────────────────
+        before_frame = self._grab_frame_sync()
+        if before_frame is None:
+            print(
+                "   [Autopilot] Advance: VN window not found before keystroke \u2014 "
+                "skipping (window recovery will handle on next loop iteration)."
+            )
+            return
+        before_hash = self._quick_hash(before_frame)
+
+        # ── Step 2: Decide method order ───────────────────────────────────────
+        # Try the known-working method first if we have one, otherwise the
+        # configured advance_key. Then cycle through the rest.
+        preferred = self._working_advance_method or self.input_controller.advance_key
+        method_order = [preferred] + [
+            m for m in self.input_controller.METHODS_ORDER if m != preferred
+        ]
+
+        # ── Step 3: Try each method until one produces a screen change ────────
+        for attempt_idx, method in enumerate(method_order):
+            focused = self._focus_vn_window()
+            if diag or attempt_idx > 0:
                 print(
-                    f"   [Autopilot] VN window not found before advance \u2014 skipping keystroke. "
-                    "(Window recovery will handle this on next frame capture.)"
+                    f"   [Autopilot] Advance attempt {attempt_idx + 1}/{len(method_order)}: "
+                    f"method={method}, focused={focused}"
                 )
+
+            try:
+                self.input_controller.advance(method=method)
+            except Exception as e:
+                print(f"   [Autopilot] Input failure on method={method}: {e}")
+                # Try next method
+                continue
+
+            # Wait long enough for the engine to process the input + render
+            time.sleep(0.6)
+
+            after_frame = self._grab_frame_sync()
+            if after_frame is None:
+                # Window vanished between input and verify — bail; recovery handles
+                print("   [Autopilot] Advance: window lost during verify \u2014 deferring.")
                 return
+            after_hash = self._quick_hash(after_frame)
+
+            changed = (after_hash != before_hash)
+
+            if diag:
+                print(
+                    f"   [Autopilot] Advance verify: before={before_hash[:8]} "
+                    f"after={after_hash[:8]} changed={changed}"
+                )
+
+            if changed:
+                if attempt_idx == 0 and not diag:
+                    # Quiet success on the happy path after diag cycles
+                    pass
+                else:
+                    print(
+                        f"   [Autopilot] Advance OK via {method} "
+                        f"(screen changed) [attempt {attempt_idx + 1}]"
+                    )
+
+                # Remember the working method if it's a new discovery
+                if self._working_advance_method != method:
+                    self._working_advance_method = method
+                    print(f"   [Autopilot] Working advance method: {method}")
+
+                # Stash the verified-new frame so _post_advance_prep can skip a capture
+                self._last_verified_post_advance_frame = after_frame
+                return
+
+            # No change — log and try next method
+            print(
+                f"   [Autopilot] Advance had NO EFFECT via {method} "
+                f"(screen identical, before={before_hash[:8]})"
+            )
+
+            # Update before_hash to the latest after (still the same content)
+            # so subsequent method tries compare against the most recent capture
+            before_hash = after_hash
+            before_frame = after_frame
+
+        # ── Step 4: Exhausted all methods ────────────────────────────────────
+        print(
+            "   [Autopilot] Advance: ALL methods failed to change the screen "
+            f"({', '.join(method_order)}). Triggering STUCK failsafe."
+        )
+        # Failsafe is async — schedule it on the running loop
         try:
-            self._focus_vn_window()
-            self.input_controller.advance()
-        except Exception as e:
-            print(f"   [Autopilot] Input failure \u2014 disabling: {e}")
-            self.enabled = False
+            asyncio.ensure_future(self._trigger_failsafe("STUCK"))
+        except Exception:
+            # If we can't schedule, at least flip the flags so the loop exits
             self.is_running = False
             self.is_paused = True
-            self.pause_reason = "INPUT_ERROR"
+            self.pause_reason = "STUCK"
+            self._hard_failsafed = True
             if self.on_failsafe:
-                self.on_failsafe("INPUT_ERROR")
+                self.on_failsafe("STUCK")
 
     def _find_vn_window(self):
         """Find the VN window by title substring (case-insensitive, whitespace-trimmed).
@@ -1965,19 +2103,43 @@ class VNAutopilot:
             print(f"   [Autopilot] Frame capture error: {e}")
             return None
 
-    def _focus_vn_window(self):
-        """Bring the VN window to the foreground before sending keystrokes.
-        No-op when no window title is configured or pygetwindow unavailable."""
+    def _focus_vn_window(self) -> bool:
+        """Bring the VN window truly to the FOREGROUND before sending input.
+
+        Some games (Steins;Gate among them) ignore SendInput keystrokes unless
+        the window is in the foreground — merely having focus is not enough.
+        This restores from minimised, activates, and gives the OS a frame to
+        complete the switch.
+
+        Returns True if the window was found AND we successfully called
+        activate() (or it was already foreground). Returns False if the window
+        couldn't be reached, in which case the caller should treat input as
+        unreliable.
+        """
         if not self.vn_window_title or not PYGETWINDOW_AVAILABLE:
-            return
+            return False
         win = self._find_vn_window()
         if win is None:
-            return
+            return False
         try:
+            # Restore from minimised so activate() has a window to bring forward
+            if getattr(win, "isMinimized", False):
+                try:
+                    win.restore()
+                    time.sleep(0.10)
+                except Exception:
+                    pass
             win.activate()
-            time.sleep(0.05)   # brief settle — focus needs a frame
-        except Exception:
-            pass
+            time.sleep(0.10)  # let OS complete the foreground switch
+            return True
+        except Exception as e:
+            # pygetwindow.activate() can throw on already-foreground windows on
+            # some Windows builds; that's actually success. Treat as success
+            # unless the error string suggests a real failure.
+            err = str(e).lower()
+            if "could not activate" in err or "no window" in err:
+                return False
+            return True
 
     # ── Disk-space guard ───────────────────────────────────────────────────────
 

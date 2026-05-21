@@ -638,8 +638,14 @@ class VTubeBot:
                             self.bg_tasks.add(task)
                             task.add_done_callback(self.bg_tasks.discard)
             except Exception as e:
+                err = str(e)
+                if "cannot schedule new futures after shutdown" in err or "event loop is closed" in err.lower():
+                    break  # asyncio is shutting down — exit cleanly
                 print(f"Error in VAD loop: {e}")
-                await asyncio.sleep(0.1)
+                try:
+                    await asyncio.sleep(0.1)
+                except Exception:
+                    break
 
     async def handle_audio(self, audio_data: bytes):
         async with self.processing_lock:
