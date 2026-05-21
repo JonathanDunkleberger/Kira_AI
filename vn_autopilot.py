@@ -190,26 +190,34 @@ class VNAutopilot:
         "Respond with ONLY the single category word, nothing else."
     )
 
+    # In-character handoff lines. NEVER name the operator, the dashboard, the
+    # "screen", buttons, or anything that breaks the illusion that Kira is the
+    # one playing. Console logs (which name Jonny etc.) stay where they are —
+    # those are operator-only and never reach TTS.
     FAILSAFE_LINES = {
         "CHOICE": (
-            "Okay, this is a choice. Jonny, I'm handing this one to you — "
-            "I don't want to accidentally doom us to a bad ending."
+            "Hmm — okay, a choice. I'm gonna sit with this one for a sec "
+            "before I commit."
         ),
         "SAVE_PROMPT": (
-            "Looks like a menu popped up. Jonny, you handle the buttons, "
-            "I'll just sit here looking pretty."
+            "Oh — a little menu popped up. Give me a moment to deal with it."
         ),
-        "UNKNOWN": "I'm not sure what I'm looking at here. Jonny, take a look?",
-        "INPUT_ERROR": "Something went wrong with my input system. Jonny, you'll need to take over.",
+        "UNKNOWN": (
+            "Okay, hold on — I'm not totally sure what's happening in this "
+            "scene. Let me just look at it for a moment."
+        ),
+        "INPUT_ERROR": (
+            "Hmm, something's not quite clicking on my end. One sec."
+        ),
         "VN_WINDOW_NOT_FOUND": (
-            "I can't find the VN window. Try typing the game title in the dashboard "
-            "and toggling me back on."
+            "Wait — the game just slipped away from me. Hold on, I'll be right back."
         ),
         "STUCK": (
-            "I think I'm stuck — can you check the screen? "
-            "Something's not advancing the way it should."
+            "Hmm. This scene's not budging for me. Let me poke at it for a sec."
         ),
-        "ERROR": "I ran into an error. Jonny, I'm pausing — come check on me?",
+        "ERROR": (
+            "Ugh, something hiccupped on my side. Give me a moment."
+        ),
     }
 
     def __init__(self, ai_core, vision_client=None):
