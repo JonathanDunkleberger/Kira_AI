@@ -200,7 +200,13 @@ class KiraDashboard(ctk.CTk):
             frame, placeholder_text="Window title substring",
             font=ctk.CTkFont(size=11), height=28,
         )
-        self.vn_window_entry.pack(fill="x", padx=12, pady=(0, 6))
+        self.vn_window_entry.pack(fill="x", padx=12, pady=(0, 2))
+        ctk.CTkButton(
+            frame, text="List Open Windows",
+            command=self._list_vn_windows,
+            fg_color=C_SURFACE, text_color=C_MUTED,
+            font=ctk.CTkFont(size=10), height=22,
+        ).pack(anchor="w", padx=12, pady=(0, 8))
 
         ctk.CTkLabel(
             frame, text="Advance key:",
@@ -639,6 +645,24 @@ class KiraDashboard(ctk.CTk):
     def _toggle_vn(self):
         """Legacy no-op — VN Auto-Play consolidated into Autonomous VN Mode toggle."""
         pass
+
+    def _list_vn_windows(self):
+        """Print all visible window titles to the console so Jonny can find the right one."""
+        ap = getattr(self.bot, 'vn_autopilot', None)
+        if ap is not None:
+            titles = ap.list_open_windows()
+        else:
+            try:
+                import pygetwindow as _pgw
+                titles = sorted(
+                    {w.title for w in _pgw.getAllWindows() if (w.title or "").strip()},
+                    key=str.lower,
+                )
+            except Exception as e:
+                titles = [f"(error: {e})"]
+        print("   [Dashboard] Open windows:")
+        for t in titles:
+            print(f"      • {t}")
 
     def _toggle_autopilot(self):
         """Enable or disable the Autonomous VN Mode (single master switch)."""

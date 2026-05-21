@@ -249,12 +249,49 @@ class VNAutopilot:
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def list_open_windows() -> list[str]:
+        """Return titles of all currently-visible windows (non-empty titles only)."""
+        if not PYGETWINDOW_AVAILABLE:
+            return ["(pygetwindow not available)"]
+        try:
+            return sorted(
+                {w.title for w in _pgw.getAllWindows() if (w.title or "").strip()},
+                key=str.lower,
+            )
+        except Exception as e:
+            return [f"(error listing windows: {e})"]
+
     def start(self):
         """Start or restart the autopilot loop. Safe to call multiple times."""
         if not self.enabled:
             return
         if self._task and not self._task.done():
             return  # already running
+
+        # ── Loud window-targeting diagnostics ─────────────────────────────────
+        if self.vn_window_title:
+            print(f"   [Autopilot] Looking for VN window matching: '{self.vn_window_title}'")
+            win = self._find_vn_window()
+            if win is not None:
+                bbox = (win.left, win.top,
+                        win.left + win.width, win.top + win.height)
+                print(f"   [Autopilot] VN window FOUND: '{win.title}' at {bbox}")
+            else:
+                titles = self.list_open_windows()
+                print(f"   [Autopilot] VN window NOT FOUND for '{self.vn_window_title}'.")
+                print(f"   [Autopilot] Open windows: {titles}")
+                # Pause immediately — capturing the desktop is worse than stopping
+                self.is_running = False
+                self.is_paused = True
+                self.pause_reason = "VN_WINDOW_NOT_FOUND"
+                if self.on_failsafe:
+                    self.on_failsafe("VN_WINDOW_NOT_FOUND")
+                print("   [Autopilot] Paused — fix the window title and resume.")
+                return
+        else:
+            print("   [Autopilot] No window title set — using full-screen capture.")
+
         self.is_running = True
         self.is_paused = False
         self.pause_reason = ""
@@ -1362,39 +1399,56 @@ class VNAutopilot:
                 self.on_failsafe("INPUT_ERROR")
 
     def _find_vn_window(self):
-        """Find the VN window by title substring. Returns a pygetwindow window or None."""
+        """Find the VN window by title substring (case-insensitive, whitespace-trimmed).
+        Returns a pygetwindow window or None."""
         if not PYGETWINDOW_AVAILABLE or not self.vn_window_title:
             return None
         try:
-            title_lower = self.vn_window_title.lower()
-            all_wins = _pgw.getAllWindows()
-            for w in all_wins:
-                if title_lower in (w.title or "").lower():
+            needle = self.vn_window_title.strip().lower()
+            for w in _pgw.getAllWindows():
+                if needle in (w.title or "").lower():
                     return w
         except Exception:
             pass
         return None
 
     def _grab_frame_sync(self):
-        """Capture the VN window region (if title configured), else full screen.
-        Synchronous — safe to call from run_in_executor."""
+        """Capture the VN window region.
+
+        If a window title is configured and the window is found: captures only that
+        window's bounding rect.
+
+        If a window title is configured but the window is NOT found: raises RuntimeError
+        (do NOT fall back to full-screen — that captures the desktop/taskbar).
+
+        If no window title is configured: captures the full screen.
+
+        Synchronous — safe to call from run_in_executor.
+        """
         if not PIL_AVAILABLE:
             raise RuntimeError("Pillow not available for screenshot capture")
-        if self.vn_window_title and PYGETWINDOW_AVAILABLE:
+
+        if self.vn_window_title:
+            if not PYGETWINDOW_AVAILABLE:
+                raise RuntimeError(
+                    "pygetwindow not available — install it or clear the window title field."
+                )
             win = self._find_vn_window()
-            if win is not None:
-                try:
-                    bbox = (win.left, win.top,
-                            win.left + win.width, win.top + win.height)
-                    if win.width > 0 and win.height > 0:
-                        return ImageGrab.grab(bbox=bbox)
-                    # Window minimised or zero-size — fall through to full screen
-                except Exception:
-                    pass
-            else:
-                # Window title set but window not found — warn once per call
-                print(f"   [Autopilot] VN window '{self.vn_window_title}' not found — "
-                      f"is the game open?")
+            if win is None:
+                titles = self.list_open_windows()
+                raise RuntimeError(
+                    f"VN window not found for '{self.vn_window_title}'. "
+                    f"Open windows: {titles}"
+                )
+            if win.width <= 0 or win.height <= 0:
+                raise RuntimeError(
+                    f"VN window '{win.title}' is minimised or zero-size — restore it first."
+                )
+            bbox = (win.left, win.top,
+                    win.left + win.width, win.top + win.height)
+            return ImageGrab.grab(bbox=bbox)
+
+        # No title configured — full-screen fallback
         return ImageGrab.grab()
 
     def _focus_vn_window(self):
