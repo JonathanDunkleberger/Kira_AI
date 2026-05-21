@@ -31,6 +31,7 @@ from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from vn_autopilot import VNAutopilot
+from playthrough_memory import PlaythroughMemory
 
 # Graceful pyautogui import (required for VN auto-play only)
 try:
@@ -129,6 +130,9 @@ class VTubeBot:
         self.vn_autopilot: VNAutopilot | None = None
         self.autopilot_paused_for_input: bool = False  # True when failsafe is active
 
+        # Playthrough Memory — initialized in _main_loop once ai_core is ready
+        self.playthrough_memory: PlaythroughMemory | None = None
+
         # Activity context — describes what Kira and Jonny are currently doing
         self.current_activity = ""
 
@@ -213,6 +217,9 @@ class VTubeBot:
             await self.ai_core.speak_text(cleaned)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+            # Tag this reaction in the playthrough record for the session entry
+            if self.playthrough_memory and self.playthrough_memory.current_slug:
+                self.playthrough_memory.tag_reaction(cleaned)
 
     def _autopilot_on_failsafe(self, screen_type: str):
         """Callback: mark dashboard flag when failsafe triggers."""
@@ -469,6 +476,14 @@ class VTubeBot:
             self.vn_autopilot.on_speak = self._autopilot_speak
             self.vn_autopilot.on_failsafe = self._autopilot_on_failsafe
 
+            # Set up Playthrough Memory (global scope — all modes read from it)
+            self.playthrough_memory = PlaythroughMemory(ai_core=self.ai_core)
+            if self.current_activity:
+                act_type = self._classify_activity_type(self.current_activity)
+                if act_type in (ACTIVITY_VN, ACTIVITY_GAME):
+                    self.playthrough_memory.load_for_game(self.current_activity)
+            print("   [Playthrough] Memory system initialised.")
+
             tasks = []
             
             # 1. Start Twitch Bot (if enabled)
@@ -687,6 +702,9 @@ class VTubeBot:
                             self.vision_agent.heartbeat_interval = 10.0 if self.immersive else 30.0
                             if old_immersive and not self.immersive and self.session_scene_log:
                                 asyncio.create_task(self._generate_session_summary())
+                            # Load playthrough memory for the new game/VN
+                            if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
+                                self.playthrough_memory.load_for_game(detected)
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
@@ -933,6 +951,11 @@ class VTubeBot:
         session_context_block = ""
         if self.recent_activity_brief:
             session_context_block = f"\n[LAST SESSION RECAP]\n{self.recent_activity_brief}\n\n"
+        # Append playthrough memory context (current game summary + games history manifest)
+        if self.playthrough_memory:
+            pt_ctx = self.playthrough_memory.get_context_for_prompt()
+            if pt_ctx:
+                session_context_block += f"[PLAYTHROUGH MEMORY — reference as lived experience]\n{pt_ctx}\n\n"
 
         request = (
             f"You have a batch of {len(batch)} chat message(s) to respond to. "
@@ -993,6 +1016,17 @@ class VTubeBot:
         await self.ai_core.speak_text(cleaned)
         self.conversation_history.append({"role": "assistant", "content": cleaned})
         chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
+        # Tag notable chat moments for the playthrough record when in VN/game mode
+        if self.playthrough_memory and self.playthrough_memory.current_slug:
+            in_vn_or_game = (
+                self.game_mode_controller.is_active
+                and self.game_mode_controller.activity_type in (ACTIVITY_VN, ACTIVITY_GAME)
+            )
+            if in_vn_or_game:
+                for msg in batch:
+                    self.playthrough_memory.tag_chat_moment(
+                        msg["username"], msg["message"], cleaned
+                    )
         self._log_session_turn(
             role="user",
             content=f"[Chat batch from {chatter_names}]: " + " | ".join(m["message"] for m in batch),
@@ -1406,6 +1440,26 @@ class VTubeBot:
             except Exception as e:
                 print(f"   [Artifacts] Clip write failed: {e}")
 
+        # Append autobiographical session entry to the playthrough record
+        if self.playthrough_memory and self.playthrough_memory.current_slug:
+            try:
+                narrative = ""
+                if self.vn_autopilot and self.vn_autopilot.vn_narrative_summary:
+                    narrative = self.vn_autopilot.vn_narrative_summary
+                transcript_snippet = "\n".join(
+                    f"[{e.get('speaker_name', e['role'])}]: {e['content'][:300]}"
+                    for e in self.full_session_log[-60:]
+                )
+                await self.playthrough_memory.append_session_entry(
+                    activity=activity,
+                    date_str=date_str,
+                    session_duration_min=session_duration_min,
+                    narrative_summary=narrative,
+                    recent_transcript=transcript_snippet,
+                )
+            except Exception as e:
+                print(f"   [Playthrough] Session entry generation failed: {e}")
+
         self._session_artifacts_written = True
 
     async def request_thoughts(self):
@@ -1463,6 +1517,10 @@ class VTubeBot:
             if self.is_muted():
                 continue
 
+            # Compute silence duration here so it's available in both immersive and normal paths
+            last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
+            silence_duration = time.time() - last_activity
+
             # Immersive mode: more conservative thresholds, scene-change gating,
             # and skip if dialogue text is actively advancing on screen (Jonny is reading).
             if self.immersive:
@@ -1500,9 +1558,6 @@ class VTubeBot:
                             memory_query=f"reactions to {self.current_activity}",
                         )
                 continue  # Don't fall through to the streamer-mode logic below
-
-            last_activity = max(self.last_interaction_time, self.ai_core.last_speech_finish_time)
-            silence_duration = time.time() - last_activity
 
             in_vn_mode = (
                 self.game_mode_controller.is_active and
@@ -1856,6 +1911,16 @@ class VTubeBot:
                     chat_system += (
                         f"\n\n[KNOWN RECENT CHATTERS \u2014 recognize these names if they show up]\n{self.recent_chatters_brief}"
                     )
+
+                # Playthrough memory: current game arc + full games-played manifest
+                # Injected here so it's available to Kira in all voice/chat/observer modes globally
+                if self.playthrough_memory:
+                    pt_ctx = self.playthrough_memory.get_context_for_prompt()
+                    if pt_ctx:
+                        chat_system += (
+                            f"\n\n[PLAYTHROUGH MEMORY \u2014 these are real experiences, reference as lived memory, "
+                            f"not data]\n{pt_ctx}"
+                        )
 
                 # Inject running bits accumulated this session
                 if self.session_running_bits:

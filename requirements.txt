@@ -28,6 +28,7 @@ edge-tts
 azure-cognitiveservices-speech
 # For VN auto-play (keyboard/mouse control)
 pyautogui
+pydirectinput
 # For audio understanding (WASAPI loopback system audio + mic capture)
 PyAudioWPatch
 # For deep cognitive moments (Claude Opus routing)

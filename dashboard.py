@@ -614,6 +614,9 @@ class KiraDashboard(ctk.CTk):
         self.bot.game_mode_controller.activity_type = new_type
         self.bot.vision_agent.activity_type = new_type
         self.bot.immersive = (new_type in (ACTIVITY_VN, ACTIVITY_MEDIA))
+        # Load playthrough memory for game/VN activities (or switch game mid-session)
+        if new_type in (ACTIVITY_VN, ACTIVITY_GAME) and self.bot.playthrough_memory:
+            self.bot.playthrough_memory.load_for_game(text)
         print(f"   [Dashboard] Activity set: '{text}' (type: {new_type})")
         print(f"   [Dashboard] Immersive: {self.bot.immersive}")
         self.activity_display.configure(text=text, text_color=C_TEXT)
