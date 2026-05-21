@@ -115,11 +115,16 @@ class VNAutopilot:
     SCREEN_CLASSIFIER_PROMPT = (
         "Look at this visual novel screen. Classify it into exactly ONE category "
         "and respond with ONLY the category word:\n\n"
-        "DIALOGUE - normal story text/dialogue that advances by pressing a key. The default.\n"
+        "DIALOGUE - normal story text/dialogue that advances by pressing a key. "
+        "Use this whenever ANY readable story text is visible on screen, even if the "
+        "art is sparse, minimalist, abstract, or mostly blank/white. DIALOGUE is the "
+        "default — always bias toward DIALOGUE when text is present.\n"
         "CHOICE - a decision menu with multiple selectable options the player must pick from.\n"
         "SAVE_PROMPT - a save/load menu, settings menu, or system dialog.\n"
-        "TRANSITION - a title card, chapter break, black screen, or scene transition with no text to read.\n"
-        "UNKNOWN - anything you cannot confidently classify.\n\n"
+        "TRANSITION - a title card, chapter break, or scene fade/black screen with "
+        "NO readable text at all.\n"
+        "UNKNOWN - ONLY use this when there is genuinely no readable text AND the screen "
+        "is not clearly a transition. Never use UNKNOWN if any text is visible.\n\n"
         "Respond with ONLY the single category word, nothing else."
     )
 
@@ -194,6 +199,7 @@ class VNAutopilot:
 
         # ── Internal ────────────────────────────────────────────────────────────
         self._task: asyncio.Task | None = None
+        self._last_box_text: str = ""      # dedup: skip reaction on re-capture of same box
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -280,12 +286,32 @@ class VNAutopilot:
                     await self._handle_dialogue(frame)
 
                 elif screen_type == "TRANSITION":
-                    # Silently wait through transitions, then advance
-                    await asyncio.sleep(1.5)
+                    # Advance immediately — transitions are connective fades, not content.
+                    # Post-advance sleep gives the VN time to render before re-classifying.
+                    await asyncio.sleep(0.8)
                     self._safe_advance()
+                    await asyncio.sleep(1.0)
 
                 else:
-                    # CHOICE / SAVE_PROMPT / UNKNOWN — trigger failsafe, exit loop
+                    # CHOICE / SAVE_PROMPT / UNKNOWN.
+                    # Retry UNKNOWN once: many are mid-fade captures that resolve to
+                    # DIALOGUE ~1s later. Only fire the failsafe if it persists.
+                    if screen_type == "UNKNOWN":
+                        await asyncio.sleep(1.0)
+                        retry_frame = await asyncio.get_event_loop().run_in_executor(
+                            None, ImageGrab.grab
+                        )
+                        screen_type = await self._classify_screen(retry_frame)
+                        print(f"   [Autopilot] UNKNOWN retry → {screen_type}")
+                        if screen_type == "DIALOGUE":
+                            await self._handle_dialogue(retry_frame)
+                            continue
+                        elif screen_type == "TRANSITION":
+                            await asyncio.sleep(0.8)
+                            self._safe_advance()
+                            await asyncio.sleep(1.0)
+                            continue
+                        # Still not normal — fall through to failsafe
                     await self._trigger_failsafe(screen_type)
                     return
 
@@ -340,6 +366,15 @@ class VNAutopilot:
         text = (text or "").strip()
 
         if text and text.upper() != "NO TEXT VISIBLE":
+            # Deduplicate: if this box is identical to the previous capture, skip the
+            # reaction (likely a re-screenshot before the advance was processed) and advance.
+            normalized = " ".join(text.split())
+            if normalized and normalized == self._last_box_text:
+                await asyncio.sleep(0.5)
+                self._safe_advance()
+                return
+            self._last_box_text = normalized
+
             self.total_boxes_read += 1
             self._boxes_since_reaction += 1
             self._boxes_since_theory_check += 1
