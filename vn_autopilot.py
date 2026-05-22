@@ -142,7 +142,7 @@ class VNInputController:
     # HUD/text-box visibility instead of advancing).
     METHODS_ORDER = ("enter", "click", "space")
 
-    def __init__(self, advance_key: str = "enter", pre_input_delay: float = 0.1):
+    def __init__(self, advance_key: str = "enter", pre_input_delay: float = 0.04):
         self.advance_key = advance_key
         self.pre_input_delay = pre_input_delay
 
@@ -150,6 +150,9 @@ class VNInputController:
         """Press the configured advance key, or a specific method if provided.
 
         method: one of 'space', 'enter', 'click', or None (use self.advance_key).
+        Uses keyDown/keyUp with a brief hold so engines that ignore ultra-fast
+        synthetic taps (Saya no Uta, some Ren'Py builds) still register the
+        input. Click uses mouseDown/mouseUp with the same hold pattern.
         Raises RuntimeError if pydirectinput unavailable.
         """
         if not PYDIRECTINPUT_AVAILABLE:
@@ -157,14 +160,20 @@ class VNInputController:
         m = (method or self.advance_key).lower()
         time.sleep(self.pre_input_delay)
         if m == "click":
-            pydirectinput.click()
-        elif m == "enter":
-            pydirectinput.press("enter")
-        elif m == "space":
-            pydirectinput.press("space")
-        else:
-            # Fall back to whatever key string was configured
-            pydirectinput.press(m)
+            try:
+                pydirectinput.mouseDown()
+                time.sleep(0.05)
+                pydirectinput.mouseUp()
+            except Exception:
+                pydirectinput.click()
+        elif m in ("enter", "space") or len(m) >= 1:
+            key = m if m in ("enter", "space") else m
+            try:
+                pydirectinput.keyDown(key)
+                time.sleep(0.05)
+                pydirectinput.keyUp(key)
+            except Exception:
+                pydirectinput.press(key)
 
     def set_advance_key(self, key: str):
         self.advance_key = key
@@ -1384,18 +1393,51 @@ class VNAutopilot:
                 f"(last was '{last_preview}')"
             )
 
-            # Dedup: identical re-capture → skip, advance quietly.
-            # Guard against the empty==empty case (can't both be empty here
-            # since we just bailed above on empty text, but be explicit).
+            # Dedup: identical re-capture → screen probably hasn't rendered
+            # the new box yet. Wait briefly and re-read ONCE; if still duplicate,
+            # then advance again. Avoids stalling on a transient race where we
+            # capture mid-render.
             if normalized and normalized == self._last_box_text:
                 print(
-                    f"   [Autopilot] Skipped read because: duplicate of last "
-                    f"spoken box ('{normalized[:40]}')."
+                    f"   [Autopilot] Duplicate read ('{normalized[:40]}') — "
+                    f"waiting 0.4s for new frame."
                 )
-                self._note_non_progress()
-                await asyncio.sleep(0.5)
-                self._safe_advance()
-                return
+                await asyncio.sleep(0.4)
+                fresh = await asyncio.get_event_loop().run_in_executor(
+                    None, self._grab_frame_sync
+                )
+                if fresh is not None:
+                    try:
+                        raw2 = await self._read_dialogue_cloud(fresh)
+                    except Exception:
+                        raw2 = ""
+                    cand2 = self._clean_text((raw2 or "").strip())
+                    if cand2 and cand2.upper() != "NO TEXT VISIBLE":
+                        norm2 = " ".join(cand2.split())
+                        if norm2 != self._last_box_text:
+                            # New content arrived — fall through to handle it.
+                            text = cand2
+                            normalized = norm2
+                            stable_frame = fresh
+                            print(
+                                f"   [Autopilot] Re-capture found new text — continuing."
+                            )
+                        else:
+                            print(
+                                f"   [Autopilot] Still duplicate after re-capture — advancing."
+                            )
+                            self._note_non_progress()
+                            self._safe_advance()
+                            return
+                    else:
+                        # Empty on re-read — treat as transition.
+                        self._note_non_progress()
+                        self._safe_advance()
+                        return
+                else:
+                    self._note_non_progress()
+                    self._safe_advance()
+                    return
 
             # Append detection: VN accumulated text on the same box. Uses fuzzy
             # prefix match so minor OCR drift (e.g. "Tanbo" vs "Tarbo") in the
@@ -2831,6 +2873,10 @@ class VNAutopilot:
         # A method counts as "working" only if it produces a NOVEL after-hash
         # (one not in our recent-advance history). A method that flips the
         # screen to a previously-seen state is toggling HUD/menu, not advancing.
+        #
+        # Each method gets up to 2 quick attempts before we switch — most
+        # NO-EFFECT cases are just a dropped synthetic keystroke, not a bad
+        # method, so a same-method retry recovers in ~0.4s instead of ~1s.
         for attempt_idx, method in enumerate(method_order):
             focused = self._focus_vn_window()
             if diag or attempt_idx > 0:
@@ -2839,30 +2885,64 @@ class VNAutopilot:
                     f"method={method}, focused={focused}"
                 )
 
-            try:
-                self.input_controller.advance(method=method)
-            except Exception as e:
-                print(f"   [Autopilot] Input failure on method={method}: {e}")
-                # Try next method
-                continue
+            # Per-method: try up to twice (first try, then one quick retry on no-op).
+            method_changed = False
+            method_after_frame = None
+            method_after_hash = None
+            method_oscillated = False
+            for sub_attempt in range(2):
+                try:
+                    if method == "click":
+                        # Click at window center — many engines ignore clicks
+                        # outside the content area. Falls back to wherever the
+                        # cursor sits if we can't locate the window.
+                        win = self._find_vn_window()
+                        if win is not None and win.width > 0 and win.height > 0:
+                            cx = win.left + win.width // 2
+                            cy = win.top + int(win.height * 0.5)
+                            self.input_controller.click_at(cx, cy)
+                        else:
+                            self.input_controller.advance(method="click")
+                    else:
+                        self.input_controller.advance(method=method)
+                except Exception as e:
+                    print(f"   [Autopilot] Input failure on method={method}: {e}")
+                    break  # try next method
 
-            # Wait long enough for the engine to process the input + render
-            time.sleep(0.6)
+                # Verify quickly. 0.3s is enough for most engines to render
+                # the new frame; if the engine is slower, the stabilization
+                # loop in _handle_dialogue / _post_advance_prep catches it.
+                time.sleep(0.3)
 
-            after_frame = self._grab_frame_sync()
-            if after_frame is None:
-                # Window vanished between input and verify — bail; recovery handles
-                print("   [Autopilot] Advance: window lost during verify \u2014 deferring.")
-                return
-            after_hash = self._quick_hash(after_frame)
+                after_frame = self._grab_frame_sync()
+                if after_frame is None:
+                    print("   [Autopilot] Advance: window lost during verify \u2014 deferring.")
+                    return
+                after_hash = self._quick_hash(after_frame)
 
-            changed = (after_hash != before_hash)
-            oscillating = changed and (after_hash in self._recent_advance_hashes)
+                changed = (after_hash != before_hash)
+                oscillating = changed and (after_hash in self._recent_advance_hashes)
+                method_after_frame = after_frame
+                method_after_hash = after_hash
+                method_oscillated = oscillating
+
+                if changed:
+                    method_changed = True
+                    break
+                # No change \u2014 give the input one fast retry before moving on.
+                if sub_attempt == 0:
+                    # Re-focus in case foreground was momentarily stolen.
+                    self._focus_vn_window()
+
+            after_frame = method_after_frame
+            after_hash = method_after_hash
+            changed = method_changed
+            oscillating = method_oscillated
 
             if diag:
                 print(
                     f"   [Autopilot] Advance verify: before={before_hash[:8]} "
-                    f"after={after_hash[:8]} changed={changed} "
+                    f"after={after_hash[:8] if after_hash else '????????'} changed={changed} "
                     f"oscillating={oscillating}"
                 )
 
