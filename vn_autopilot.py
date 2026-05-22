@@ -896,6 +896,25 @@ class VNAutopilot:
         return hashlib.md5(buf.getvalue()).hexdigest()
 
     @staticmethod
+    def _text_region_likely_blank(frame, top_frac: float = 0.60) -> bool:
+        """Cheap local heuristic: is the dialogue text region effectively blank?
+        Solid-color fade/transition frames have very low pixel variance; rendered
+        dialogue text pushes variance much higher. Used to short-circuit cloud OCR
+        on transitional frames the classifier mistakenly tagged as DIALOGUE
+        (saves ~1-5s of cloud latency per blank screen). Fails open on error so
+        we never falsely skip a real read."""
+        try:
+            from PIL import ImageStat
+            w, h = frame.size
+            region = frame.crop((0, int(h * top_frac), w, h)).convert("L")
+            region = region.resize((128, 48))
+            stddev = ImageStat.Stat(region).stddev[0]
+            # Empirical: rendered dialogue boxes -> stddev > 25; solid fades < 12.
+            return stddev < 12.0
+        except Exception:
+            return False
+
+    @staticmethod
     def _clean_text(text: str) -> str:
         """Strip markdown/OCR artifacts before TTS: code fences, backticks, stray pipes."""
         # Strip ``` code fences (possibly with language tag)
@@ -1276,11 +1295,23 @@ class VNAutopilot:
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
 
-            # Cloud read with retry: classifier said DIALOGUE, so text SHOULD
-            # be there. Empty/failed reads get up to 2 retries (transient API
-            # hiccups, mid-fade frames, half-rendered text boxes).
+            # Cheap local pre-check: blank/fade frames return empty from cloud OCR
+            # anyway, but each cloud call costs ~0.8-1.5s + can rate-limit. Skip
+            # them entirely — just advance and let the next frame settle.
+            if self._text_region_likely_blank(stable_frame, self.text_region_top):
+                print(
+                    "   [Autopilot] Text region looks blank (fade/transition) — "
+                    "advancing without cloud read."
+                )
+                await asyncio.sleep(0.25)
+                self._safe_advance()
+                return
+
+            # Cloud read with ONE quick retry. Classifier said DIALOGUE, so text
+            # SHOULD be there — but if a fast retry also comes back empty, it's
+            # a transition frame, not real dialogue. Hard time budget: ~2s total.
             text = ""
-            read_attempts = 3
+            read_attempts = 2
             for attempt in range(read_attempts):
                 try:
                     raw = await self._read_dialogue_cloud(stable_frame)
@@ -1299,26 +1330,35 @@ class VNAutopilot:
                             f"{attempt + 1}/{read_attempts}."
                         )
                     break
-                # Empty — log and retry with a fresh capture
+                # Empty — log and try once more (only one retry allowed).
                 print(
                     f"   [Autopilot] OCR empty on DIALOGUE screen "
-                    f"(attempt {attempt + 1}/{read_attempts}) — retrying read."
+                    f"(attempt {attempt + 1}/{read_attempts}) — quick retry."
                 )
                 if attempt < read_attempts - 1:
-                    await asyncio.sleep(0.4)
+                    await asyncio.sleep(0.25)
                     fresh = await asyncio.get_event_loop().run_in_executor(
                         None, self._grab_frame_sync
                     )
                     if fresh is not None:
+                        # Re-check blank on fresh frame — if it's now blank,
+                        # bail immediately instead of burning the retry.
+                        if self._text_region_likely_blank(fresh, self.text_region_top):
+                            print(
+                                "   [Autopilot] Fresh frame now blank — advancing."
+                            )
+                            await asyncio.sleep(0.2)
+                            self._safe_advance()
+                            return
                         stable_frame = fresh
 
             if not text:
-                # Genuinely no readable text after retries — treat as transition.
+                # Fast bail: don't stall on transition frames.
                 print(
-                    f"   [Autopilot] Skipped read because: OCR returned empty "
-                    f"after {read_attempts} attempts (treating as transition)."
+                    f"   [Autopilot] Skipped read because: OCR empty after "
+                    f"{read_attempts} attempts (treating as transition)."
                 )
-                await asyncio.sleep(1.0)
+                await asyncio.sleep(0.3)
                 self._safe_advance()
                 return
 
@@ -1665,6 +1705,10 @@ class VNAutopilot:
                     break
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
+
+            # Cheap local pre-check: skip cloud entirely on blank/fade frames.
+            if self._text_region_likely_blank(stable_frame, self.text_region_top):
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
             # Cloud read: full window → vision model strips UI chrome automatically
             try:
