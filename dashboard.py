@@ -261,6 +261,68 @@ class KiraDashboard(ctk.CTk):
 
         _divider(frame)
 
+        # ── Media Watch Mode ───────────────────────────────────────────────
+        ctk.CTkLabel(
+            frame, text="MEDIA WATCH MODE (Experimental)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+        ).pack(anchor="w", padx=14, pady=(10, 2))
+        ctk.CTkLabel(
+            frame,
+            text="Kira watches a video by buffering frames and building a real "
+                 "episode log she can reference. Separate from VN autopilot.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 4))
+        self.media_watch_switch = ctk.CTkSwitch(
+            frame, text="Media Watch Mode",
+            command=self._toggle_media_watch,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.media_watch_switch.pack(anchor="w", padx=14, pady=(0, 6))
+
+        ctk.CTkLabel(
+            frame, text="Video window title (e.g. \"VLC\", \"YouTube\", \"mpv\"):",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.media_watch_window_entry = ctk.CTkEntry(
+            frame, placeholder_text="Window title substring",
+            font=ctk.CTkFont(size=11), height=28,
+        )
+        self.media_watch_window_entry.pack(fill="x", padx=12, pady=(0, 8))
+
+        ctk.CTkLabel(
+            frame, text="Analysis interval (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.media_watch_interval_slider = ctk.CTkSlider(
+            frame, from_=10.0, to=45.0, number_of_steps=35,
+            command=self._update_media_watch_interval,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.media_watch_interval_slider.set(18.0)
+        self.media_watch_interval_slider.pack(fill="x", padx=14, pady=(0, 4))
+
+        self.media_watch_react_switch = ctk.CTkSwitch(
+            frame, text="Spontaneous reactions",
+            command=self._toggle_media_watch_react,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=11),
+        )
+        self.media_watch_react_switch.pack(anchor="w", padx=14, pady=(0, 6))
+        self.media_watch_react_switch.select()  # default ON; bot wires the handler
+
+        self.media_watch_status_label = ctk.CTkLabel(
+            frame, text="MediaWatch: OFF",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.media_watch_status_label.pack(anchor="w", padx=14, pady=(0, 10))
+            frame, text="MediaWatch: OFF",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.media_watch_status_label.pack(anchor="w", padx=14, pady=(0, 10))
+
+        _divider(frame)
+
         ctk.CTkLabel(frame, text="AUDIO HEARING",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=14, pady=(10, 2))
@@ -731,6 +793,68 @@ class KiraDashboard(ctk.CTk):
         if self.bot.event_loop and self.bot.event_loop.is_running():
             self.bot.event_loop.call_soon_threadsafe(ap.resume_after_failsafe)
         print("   [Dashboard] Autopilot: resumed after failsafe.")
+
+    # ── Media Watch Mode handlers ─────────────────────────────────────────
+    def _toggle_media_watch(self):
+        """Enable or disable Media Watch Mode (separate from VN autopilot)."""
+        mw = getattr(self.bot, 'media_watch', None)
+        if mw is None:
+            print("   [Dashboard] MediaWatch not available.")
+            return
+        enabled = bool(self.media_watch_switch.get())
+        title = (
+            self.media_watch_window_entry.get().strip()
+            if hasattr(self, 'media_watch_window_entry') else ""
+        )
+        mw.window_title = title
+        mw.enabled = enabled
+        if hasattr(self, 'media_watch_interval_slider'):
+            mw.analysis_interval_s = float(self.media_watch_interval_slider.get())
+        if enabled:
+            if not title:
+                print("   [Dashboard] MediaWatch: enter a window title first.")
+                self.media_watch_switch.deselect()
+                mw.enabled = False
+                return
+            if self.bot.event_loop and self.bot.event_loop.is_running():
+                self.bot.event_loop.call_soon_threadsafe(mw.start)
+        else:
+            if self.bot.event_loop and self.bot.event_loop.is_running():
+                self.bot.event_loop.call_soon_threadsafe(mw.stop)
+        print(f"   [Dashboard] MediaWatch: {'ON' if enabled else 'OFF'}")
+
+    def _update_media_watch_interval(self, _=None):
+        """Push slider value to MediaWatch's analysis interval."""
+        mw = getattr(self.bot, 'media_watch', None)
+        if mw is None:
+            return
+        mw.analysis_interval_s = float(self.media_watch_interval_slider.get())
+
+    def _toggle_media_watch_react(self):
+        """Enable/disable Kira's spontaneous in-character reactions to scenes."""
+        mw = getattr(self.bot, 'media_watch', None)
+        if mw is None:
+            return
+        on = bool(self.media_watch_react_switch.get())
+        # Bot wires this to its _media_watch_react method on construction.
+        # Toggling here flips it between the bot handler and None.
+        mw.on_react = self.bot._media_watch_react if on else None
+        print(f"   [Dashboard] MediaWatch reactions: {'ON' if on else 'OFF'}")
+
+    def _refresh_media_watch_status(self):
+        """Poll MediaWatch state every tick and update status label."""
+        mw = getattr(self.bot, 'media_watch', None)
+        if mw is None or not hasattr(self, 'media_watch_status_label'):
+            return
+        if mw.is_running:
+            self.media_watch_status_label.configure(
+                text=mw.get_status_str(), text_color=C_GREEN
+            )
+        else:
+            self.media_watch_status_label.configure(
+                text=mw.get_status_str(), text_color=C_MUTED
+            )
+
     def _invite_kira(self):
         """Cross-thread call: schedule Kira's request_thoughts on the bot's event loop."""
         import asyncio
@@ -847,6 +971,7 @@ class KiraDashboard(ctk.CTk):
             self._refresh_vibe_meter()
             self._refresh_audio_status()
             self._refresh_autopilot_status()
+            self._refresh_media_watch_status()
         except Exception:
             pass
         self.after(500, self._update_loop)

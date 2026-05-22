@@ -31,6 +31,7 @@ from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from vn_autopilot import VNAutopilot
+from media_watch import MediaWatch
 from playthrough_memory import PlaythroughMemory
 
 # Graceful pyautogui import (required for VN auto-play only)
@@ -129,6 +130,11 @@ class VTubeBot:
         # Autonomous VN Mode (Phase 1) — initialized after ai_core is ready in _main_loop
         self.vn_autopilot: VNAutopilot | None = None
         self.autopilot_paused_for_input: bool = False  # True when failsafe is active
+
+        # Media Watch Mode — initialized after ai_core is ready. Separate from
+        # both companion mode and VN autopilot; provides genuine sequence
+        # understanding for movies / anime via a rolling frame buffer + episode log.
+        self.media_watch: MediaWatch | None = None
 
         # Playthrough Memory — initialized in _main_loop once ai_core is ready
         self.playthrough_memory: PlaythroughMemory | None = None
@@ -238,6 +244,44 @@ class VTubeBot:
         """Callback: mark dashboard flag when failsafe triggers."""
         self.autopilot_paused_for_input = True
         print(f"   [Autopilot] Failsafe active — paused for Jonny ({screen_type}).")
+
+    # ── Media Watch wiring ────────────────────────────────────────────────────
+
+    async def _media_watch_react(self, summary: str):
+        """Optional throttled in-character reaction to a notable scene event.
+        MediaWatch already throttles this to one call per react_min_gap_s and
+        skips UNCERTAIN / STATIC summaries. Gated on companion mode + not muted +
+        not currently speaking, so it never steps on real conversation."""
+        if not summary or self.is_muted():
+            return
+        if self.mode != "companion":
+            return
+        if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
+            return
+        # Skip if user spoke very recently — don't talk over them.
+        if time.time() - self.last_interaction_time < 6.0:
+            return
+        try:
+            sys_prompt = (
+                "You are Kira, watching a movie/episode with Jonny. Give a brief, "
+                "in-character reaction to a stretch of footage you just watched. "
+                "1-2 sentences max. Casual, like you're on the couch with him. "
+                "Don't recap what happened back at him (he saw it too). React: "
+                "feeling, question, quip, or a callback. If nothing genuinely "
+                "grabs you, reply with exactly: SKIP"
+            )
+            user_prompt = f"What you just watched:\n\"{summary}\""
+            reaction = await self.ai_core.tool_inference(sys_prompt, user_prompt, max_tokens=80)
+            if not reaction or reaction.strip().upper().startswith("SKIP"):
+                return
+            cleaned = self.ai_core._clean_llm_response(reaction)
+            if cleaned and len(cleaned) > 2:
+                print(f"   [MediaWatch] Kira reacts: {cleaned}")
+                await self.ai_core.speak_text(cleaned)
+                self.conversation_history.append({"role": "assistant", "content": cleaned})
+                self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+        except Exception as e:
+            print(f"   [MediaWatch] reaction error: {e}")
 
     async def _autopilot_watchdog(self):
         """
@@ -489,6 +533,11 @@ class VTubeBot:
             self.vn_autopilot.on_speak = self._autopilot_speak
             self.vn_autopilot.on_speak_vn = self._autopilot_speak_vn
             self.vn_autopilot.on_failsafe = self._autopilot_on_failsafe
+
+            # Set up Media Watch Mode (disabled by default; dashboard toggles it).
+            # Shares only the vision client with autopilot — no other coupling.
+            self.media_watch = MediaWatch(vision_client=self.vision_agent.client)
+            self.media_watch.on_react = self._media_watch_react
 
             # Set up Playthrough Memory (global scope — all modes read from it)
             self.playthrough_memory = PlaythroughMemory(ai_core=self.ai_core)
@@ -798,6 +847,14 @@ class VTubeBot:
                                 visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
                         else:
                             visual_desc = self.vision_agent.get_vision_context()
+
+                    # Media Watch episode log injection — when active, prepend
+                    # the rolling event timeline so question-answering draws on
+                    # the sequence rather than a single stale snapshot.
+                    if self.media_watch and self.media_watch.is_running and self.media_watch.has_context():
+                        mw_ctx = self.media_watch.get_episode_context()
+                        if mw_ctx:
+                            visual_desc = (mw_ctx + "\n\n" + visual_desc) if visual_desc else mw_ctx
 
                     # 2. Construct dialogue line (history-clean — no screen state)
                     dialogue_line = f"Jonny says: \"{content}\""
