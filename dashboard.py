@@ -316,10 +316,6 @@ class KiraDashboard(ctk.CTk):
             font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
         )
         self.media_watch_status_label.pack(anchor="w", padx=14, pady=(0, 10))
-            frame, text="MediaWatch: OFF",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
-        )
-        self.media_watch_status_label.pack(anchor="w", padx=14, pady=(0, 10))
 
         _divider(frame)
 
