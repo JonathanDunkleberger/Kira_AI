@@ -801,7 +801,10 @@ class VTubeBot:
                         ]
                         is_read_request = any(p in lower for p in read_phrases)
 
-                        VISION_KEYWORDS = ['see', 'look', 'read', 'watching', 'view', 'screen']
+                        VISION_KEYWORDS = [
+                            'see', 'look', 'read', 'watching', 'view', 'screen',
+                            'watch', 'watched', 'scene', 'character', 'who', 'happen', 'happened', 'before',
+                        ]
                         vision_trigger = any(word in lower for word in VISION_KEYWORDS)
 
                         if is_read_request:
@@ -838,12 +841,19 @@ class VTubeBot:
                                     "Acknowledge briefly that there's nothing to read at the moment."
                                 )
                         elif vision_trigger:
+                            # Shrink cache window for questions — stale snapshots cause
+                            # confident-wrong answers about "who/what/which" right now.
+                            is_question_like = (
+                                content.rstrip().endswith("?")
+                                or any(w in lower for w in ("who", "what", "which"))
+                            )
+                            cache_ttl = 2 if is_question_like else 7
                             time_since_last = time.time() - self.vision_agent.last_capture_time
-                            if time_since_last < 7:
-                                print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s)...")
+                            if time_since_last < cache_ttl:
+                                print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s, ttl={cache_ttl}s)...")
                                 visual_desc = self.vision_agent.last_description
                             else:
-                                print("   [Vision] High-Detail Snapshot Requested (Cache Stale > 7s)...")
+                                print(f"   [Vision] High-Detail Snapshot Requested (Cache Stale > {cache_ttl}s)...")
                                 visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
                         else:
                             visual_desc = self.vision_agent.get_vision_context()
@@ -871,16 +881,32 @@ class VTubeBot:
 
                     if decision == "STAY_QUIET":
                         content_stripped = content.strip()
+                        lower_stripped = content_stripped.lower()
+                        # Direct name address - anywhere in the message, not just leading
+                        # ("Sorry Kira", "hey Kira can you", "Kira, what about...").
+                        addressed_to_kira = "kira" in lower_stripped
+                        # Imperative verbs that signal a request even without "?".
+                        imperative_prefixes = (
+                            "do ", "go ", "try ", "play ", "open ", "show ", "tell ",
+                            "explain", "sing ", "remember", "let's", "lets ", "let us",
+                        )
+                        # Gratitude / closing / departure - worth a brief acknowledgement.
+                        social_signal = any(s in lower_stripped for s in (
+                            "thanks", "thank ", " ty ", "brb", "back", "sorry",
+                        )) or lower_stripped in ("ty", "thanks", "thank you", "brb", "sorry")
                         looks_like_question = (
                             "?" in content_stripped
-                            or content_stripped.lower().startswith((
+                            or lower_stripped.startswith((
                                 "what", "why", "how", "when", "where", "who", "which",
                                 "is ", "are ", "was ", "were ", "do ", "does ", "did ",
-                                "can ", "could ", "will ", "would ", "should ", "kira",
+                                "can ", "could ", "will ", "would ", "should ",
                             ))
+                            or lower_stripped.startswith(imperative_prefixes)
+                            or addressed_to_kira
+                            or social_signal
                         )
                         if looks_like_question:
-                            print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (question detected)")
+                            print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (rescue: question/address/imperative/social)")
                             decision = "BRIEF"
                         else:
                             print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")

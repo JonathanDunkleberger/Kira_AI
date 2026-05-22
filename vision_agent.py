@@ -32,7 +32,11 @@ class UniversalVisionAgent:
         "or the topic being discussed.\n"
         "If it is Desktop/Code: Summarize what he is working on.\n\n"
         "Be factual and specific. Do not editorialize, add jokes, "
-        "or write commentary about what Kira might say. Just describe what you see."
+        "or write commentary about what Kira might say. Just describe what you see.\n\n"
+        "HONESTY: If the frame is mid-transition, mostly blank, blurred, or you cannot "
+        "reliably tell what is happening, START your reply with 'UNCERTAIN:' and briefly "
+        "say what you CAN see. Do not invent characters, dialogue, or actions you cannot "
+        "actually see. Better to say 'I can't quite tell' than to guess wrong."
     )
 
     # Visual Novel extraction prompt — returns structured parseable output
@@ -50,7 +54,10 @@ class UniversalVisionAgent:
     MEDIA_DESCRIBE_PROMPT = (
         "You are looking at something Jonny is watching (anime, movie, YouTube, etc.). "
         "Describe in 2 sentences: what is on screen, who is in it, and the emotional tone of the scene. "
-        "Be specific enough that Kira could make a relevant comment or question."
+        "Be specific enough that Kira could make a relevant comment or question.\n\n"
+        "HONESTY: If the frame is a transition, blur, blank, or you cannot reliably tell what is "
+        "happening, START your reply with 'UNCERTAIN:' and say only what you CAN see. Do not invent "
+        "character names, dialogue, or plot details you cannot actually see on screen."
     )
 
     SCENE_SUMMARY_PROMPT = (
