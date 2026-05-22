@@ -97,12 +97,12 @@ INTENSITY_AFTERMATH = "aftermath"  # just after something big; process quietly
 
 # ── Inter-box pacing constants (content-based variable timing) ────────────────
 # Tune here to adjust rhythm globally. Replaces the old fixed 0.8s delay.
-PAUSE_SENTENCE_END      = 0.35   # text ends with '.'  — clear stop between thoughts
-PAUSE_QUESTION_EXCLAIM  = 0.55   # text ends with '?'/'!' — emotional beat / rising tone
-PAUSE_CLAUSE_FLOW       = 0.10   # comma or no terminal punct — flow right through
-PAUSE_SCENE_CHANGE      = 0.90   # art region just changed — let the new scene land
-PAUSE_INTENSITY_BONUS   = 0.40   # added on top for INTENSE / CLIMACTIC moments
-PAUSE_AFTERMATH_BONUS   = 0.20   # extra somber pacing in AFTERMATH
+PAUSE_SENTENCE_END      = 0.20   # text ends with '.'  — clear stop between thoughts
+PAUSE_QUESTION_EXCLAIM  = 0.40   # text ends with '?'/'!' — emotional beat / rising tone
+PAUSE_CLAUSE_FLOW       = 0.05   # comma or no terminal punct — flow right through
+PAUSE_SCENE_CHANGE      = 0.60   # art region just changed — let the new scene land
+PAUSE_INTENSITY_BONUS   = 0.30   # added on top for INTENSE / CLIMACTIC moments
+PAUSE_AFTERMATH_BONUS   = 0.15   # extra somber pacing in AFTERMATH
 PAUSE_REACTION_GAP      = 0.15   # minimal gap before a reaction (same-breath feel)
 
 # ── Reaction grace windows (H2: tiered by intensity) ─────────────────────────
@@ -372,6 +372,12 @@ class VNAutopilot:
         # Track consecutive non-progress reads (same/prefix text) so we can
         # unlock the working method when it stops actually working.
         self._consecutive_non_progress_reads: int = 0
+        # Cloud-call timeout in seconds (every vision/LLM call must complete
+        # within this budget or be cancelled — hanging calls were causing
+        # 30-60s prep stalls). 3.5s is the sweet spot: longer than typical
+        # gpt-4o-mini latency (1-2.5s) but short enough that a degraded call
+        # fails fast instead of hogging an OCR slot for 6+s.
+        self._cloud_call_timeout: float = 3.5
         self._advance_attempts: int = 0                 # total advance calls this session
         self._advance_diag_cycles: int = 5              # log full diagnostic for first N cycles
         # Frame hash captured immediately after a verified advance — handed to
@@ -754,9 +760,9 @@ class VNAutopilot:
                     self._consecutive_unknown = 0
 
                 elif screen_type == "TRANSITION":
-                    await asyncio.sleep(0.8)
+                    await asyncio.sleep(0.3)
                     self._safe_advance()
-                    await asyncio.sleep(1.0)
+                    await asyncio.sleep(0.5)
                     self._last_progress_time = time.time()
                     self._consecutive_unknown = 0
 
@@ -836,7 +842,8 @@ class VNAutopilot:
                 buf = BytesIO()
                 frame.save(buf, format="JPEG", quality=70)
                 b64 = base64.b64encode(buf.getvalue()).decode()
-                resp = await self.vision_client.chat.completions.create(
+                resp = await asyncio.wait_for(
+                    self.vision_client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[{
                         "role": "user",
@@ -850,9 +857,19 @@ class VNAutopilot:
                     }],
                     max_tokens=10,
                     temperature=0.0,
+                ),
+                    timeout=self._cloud_call_timeout,
                 )
                 raw = resp.choices[0].message.content.strip().upper()
                 return raw if raw in valid else "UNKNOWN"
+            except asyncio.TimeoutError:
+                # Treat as transition so caller advances through rather than
+                # retrying 3x (which would cost up to 3 * 3.5s = 10.5s).
+                print(
+                    f"   [Autopilot] Classify: TIMEOUT after "
+                    f"{self._cloud_call_timeout:.1f}s — treating as TRANSITION (advance through)."
+                )
+                return "TRANSITION"
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
@@ -1008,7 +1025,8 @@ class VNAutopilot:
                 buf = BytesIO()
                 frame.save(buf, format="JPEG", quality=85)
                 b64 = base64.b64encode(buf.getvalue()).decode()
-                resp = await self.vision_client.chat.completions.create(
+                resp = await asyncio.wait_for(
+                    self.vision_client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[{
                         "role": "user",
@@ -1043,12 +1061,20 @@ class VNAutopilot:
                     }],
                     max_tokens=400,
                     temperature=0.0,
+                ),
+                    timeout=self._cloud_call_timeout,
                 )
                 self._cloud_read_count += 1
                 raw = resp.choices[0].message.content.strip()
                 if not raw or raw.upper() == "EMPTY":
                     return ""
                 return raw
+            except asyncio.TimeoutError:
+                print(
+                    f"   [Autopilot] Cloud read: TIMEOUT after "
+                    f"{self._cloud_call_timeout:.1f}s (attempt {attempt + 1}/3) — skipping."
+                )
+                return ""
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
@@ -1271,6 +1297,17 @@ class VNAutopilot:
          10. _post_advance_prep: capture + cloud read next box → _prepared_next.
              Cloud latency (~0.8-1.5s) is hidden here, during the post-advance settle.
         """
+        # ── Per-box timing collector (diagnostic) ────────────────────────────
+        _box_n = getattr(self, "_timing_box_counter", 0) + 1
+        self._timing_box_counter = _box_n
+        _timing = {
+            "box_n": _box_n,
+            "gap": 0.0, "stabilize": 0.0, "ocr": 0.0, "classify": 0.0,
+            "tts": 0.0, "pause": 0.0, "reaction_wait": 0.0,
+            "advance": 0.0, "prep": 0.0,
+            "retries": 0, "dup_recapture": 0.0,
+        }
+
         # ── Fast path: use pipeline-prepared data ────────────────────────────
         if prepared and prepared.get("box_data"):
             box          = prepared["box_data"]
@@ -1288,6 +1325,7 @@ class VNAutopilot:
             # ── Normal path: stabilize → cloud read → diff ───────────────────
             # Hash only the text region (lower ~40%) so animated backgrounds
             # (Steins;Gate, Clannad) don't prevent stabilization.
+            _stab_t0 = time.monotonic()
             prev_hash    = self._text_region_hash(frame, self.text_region_top)
             stable_frame = frame
             for _ in range(2):
@@ -1303,6 +1341,7 @@ class VNAutopilot:
                     break
                 prev_hash    = curr_hash
                 stable_frame = curr_frame
+            _timing["stabilize"] += time.monotonic() - _stab_t0
 
             # Cheap local pre-check: blank/fade frames return empty from cloud OCR
             # anyway, but each cloud call costs ~0.8-1.5s + can rate-limit. Skip
@@ -1321,7 +1360,9 @@ class VNAutopilot:
             # a transition frame, not real dialogue. Hard time budget: ~2s total.
             text = ""
             read_attempts = 2
+            _ocr_t0 = time.monotonic()
             for attempt in range(read_attempts):
+                _timing["retries"] = attempt  # 0 on first try; ends at total attempts-1
                 try:
                     raw = await self._read_dialogue_cloud(stable_frame)
                 except Exception as _cloud_err:
@@ -1363,6 +1404,7 @@ class VNAutopilot:
 
             if not text:
                 # Fast bail: don't stall on transition frames.
+                _timing["ocr"] += time.monotonic() - _ocr_t0
                 print(
                     f"   [Autopilot] Skipped read because: OCR empty after "
                     f"{read_attempts} attempts (treating as transition)."
@@ -1370,6 +1412,7 @@ class VNAutopilot:
                 await asyncio.sleep(0.3)
                 self._safe_advance()
                 return
+            _timing["ocr"] += time.monotonic() - _ocr_t0
 
             print(
                 f"   [Autopilot] Reading dialogue: OCR returned "
@@ -1398,6 +1441,7 @@ class VNAutopilot:
             # then advance again. Avoids stalling on a transient race where we
             # capture mid-render.
             if normalized and normalized == self._last_box_text:
+                _dup_t0 = time.monotonic()
                 print(
                     f"   [Autopilot] Duplicate read ('{normalized[:40]}') — "
                     f"waiting 0.4s for new frame."
@@ -1419,10 +1463,12 @@ class VNAutopilot:
                             text = cand2
                             normalized = norm2
                             stable_frame = fresh
+                            _timing["dup_recapture"] += time.monotonic() - _dup_t0
                             print(
                                 f"   [Autopilot] Re-capture found new text — continuing."
                             )
                         else:
+                            _timing["dup_recapture"] += time.monotonic() - _dup_t0
                             print(
                                 f"   [Autopilot] Still duplicate after re-capture — advancing."
                             )
@@ -1431,10 +1477,12 @@ class VNAutopilot:
                             return
                     else:
                         # Empty on re-read — treat as transition.
+                        _timing["dup_recapture"] += time.monotonic() - _dup_t0
                         self._note_non_progress()
                         self._safe_advance()
                         return
                 else:
+                    _timing["dup_recapture"] += time.monotonic() - _dup_t0
                     self._note_non_progress()
                     self._safe_advance()
                     return
@@ -1583,6 +1631,23 @@ class VNAutopilot:
                 print(f"   [Autopilot] Solo aside scheduling error: {_as_err}")
 
         # ── Read aloud — wait for TTS to finish before advancing ─────────────
+        # ---- TIMING: capture gap_since_last_speech right before TTS begins ----
+        # Use time.time() for the gap (since _last_spoke_time is wall-clock).
+        _gap_now = time.time()
+        _timing["gap"] = max(0.0, _gap_now - getattr(self, "_last_spoke_time", _gap_now))
+        if _timing["gap"] > 5.0:
+            prev_tail = getattr(self, "_prev_box_tail", 0.0)
+            this_pre  = _timing["stabilize"] + _timing["ocr"] + _timing["classify"] + _timing["dup_recapture"]
+            unaccounted = max(0.0, _timing["gap"] - prev_tail - this_pre)
+            print(
+                f"   [Timing] \u26a0\ufe0f LONG GAP: {_timing['gap']:.1f}s of silence "
+                f"before box {_timing['box_n']}. Breakdown: "
+                f"prev_box_tail(pause+reaction+advance+prep)={prev_tail:.1f}s "
+                f"this_box(stabilize={_timing['stabilize']:.1f}s ocr={_timing['ocr']:.1f}s "
+                f"classify={_timing['classify']:.1f}s dup_recap={_timing['dup_recapture']:.1f}s "
+                f"retries={_timing['retries']}) unaccounted={unaccounted:.1f}s"
+            )
+        _tts_t0 = time.monotonic()
         if self.on_speak_vn:
             ssml_inner = self._build_speaker_ssml_inner(speaker, line_only, intensity)
             try:
@@ -1603,6 +1668,7 @@ class VNAutopilot:
                 f"   [Autopilot] WARNING: no on_speak_vn or on_speak callback "
                 f"registered — dialogue NOT spoken!"
             )
+        _timing["tts"] = time.monotonic() - _tts_t0
 
         # Scene-art background task (fire-and-forget)
         try:
@@ -1611,34 +1677,76 @@ class VNAutopilot:
             print(f"   [Autopilot] Scene art task error (continuing): {_art_err}")
 
         # Brief content pause — capped for steady cadence
+        _pause_t0 = time.monotonic()
         pause_sec = min(self._content_pause(new_text, intensity, art_changed), 0.6)
         await asyncio.sleep(pause_sec)
+        _timing["pause"] = time.monotonic() - _pause_t0
 
         # H2: tiered grace by intensity — climactic moments wait longer so the
         # reaction actually lands. Calm stays snappy.
         grace = self._reaction_grace(intensity)
+        # Short-circuit: if only theory_task is pending (no reaction, no aside),
+        # don't burn the full grace window — theory hits matter less and most
+        # boxes land here. Drops ~0.3-0.5s on every calm line.
+        if reaction_task is None and aside_task is None:
+            grace = min(grace, 0.20)
 
         # Speak first-ready reaction WHILE current box is still on screen (H3)
+        _react_t0 = time.monotonic()
         spoke_extra = await self._speak_first_ready_reaction(
             theory_task, reaction_task, aside_task,
             grace_seconds=grace,
         )
+        _timing["reaction_wait"] = time.monotonic() - _react_t0
         if spoke_extra:
             self._last_spoke_time = time.time()
             self._boxes_since_reaction = 0
             self._boxes_since_solo_aside = 0
 
         # NOW advance — next box renders after our reaction landed
+        _adv_t0 = time.monotonic()
         self._safe_advance()
+        _timing["advance"] = time.monotonic() - _adv_t0
 
-        # Pre-prep the next box (hides OCR latency before next read)
+        # Pre-prep the next box (hides OCR latency before next read).
+        # Hard cap at 5s — if it stalls (hung cloud call, lost window), abandon
+        # and let the next loop iteration do a fresh read instead of blocking.
+        _prep_t0 = time.monotonic()
         if self.enabled and not self.soft_paused:
             try:
-                result = await self._post_advance_prep()
+                result = await asyncio.wait_for(
+                    self._post_advance_prep(), timeout=5.0
+                )
                 if result:
                     self._prepared_next = result
+            except asyncio.TimeoutError:
+                print("   [Autopilot] \u26a0\ufe0f Post-advance prep TIMED OUT after 5s \u2014 abandoning; will read fresh next loop.")
+                self._prepared_next = None
             except Exception as e:
                 print(f"   [Autopilot] Post-advance prep error: {e}")
+        _timing["prep"] = time.monotonic() - _prep_t0
+
+        # ---- TIMING: emit per-box summary line ----
+        _tail = _timing["pause"] + _timing["reaction_wait"] + _timing["advance"] + _timing["prep"]
+        self._prev_box_tail = _tail
+        _total = (
+            _timing["stabilize"] + _timing["ocr"] + _timing["classify"]
+            + _timing["dup_recapture"] + _timing["tts"] + _tail
+        )
+        _extras = ""
+        if _timing["retries"]:
+            _extras += f" [ocr_retries={_timing['retries']}]"
+        if _timing["dup_recapture"] > 0:
+            _extras += f" [dup_recap={_timing['dup_recapture']:.1f}s]"
+        print(
+            f"   [Timing] box {_timing['box_n']}: "
+            f"gap_since_last_speech={_timing['gap']:.1f}s | "
+            f"stabilize={_timing['stabilize']:.1f}s ocr={_timing['ocr']:.1f}s "
+            f"classify={_timing['classify']:.1f}s tts={_timing['tts']:.1f}s "
+            f"pause={_timing['pause']:.1f}s reaction_wait={_timing['reaction_wait']:.1f}s "
+            f"advance={_timing['advance']:.1f}s prep={_timing['prep']:.1f}s "
+            f"| total={_total:.1f}s{_extras}"
+        )
 
     async def _speak_first_ready_reaction(
         self,
@@ -1714,53 +1822,87 @@ class VNAutopilot:
         box_data is None for non-dialogue or dedup screens; _loop falls back to
         the normal OCR path.
         """
+        # Per-step prep timing (diagnostic — helps pinpoint which sub-step hangs).
+        _ps = {"capture": 0.0, "stabilize": 0.0, "ocr": 0.0, "classify": 0.0}
+        _ps_t0 = time.monotonic()
         try:
-            await asyncio.sleep(0.2)    # let VN render the next frame
+            # _safe_advance already waited 0.3s for verify — the frame is
+            # post-advance. Tiny extra wait to let text-typewriter start, then go.
+            await asyncio.sleep(0.05)
 
             if not self.enabled:
                 return None
 
+            _cap_t0 = time.monotonic()
             frame = await asyncio.get_event_loop().run_in_executor(
                 None, self._grab_frame_sync
             )
+            _ps["capture"] += time.monotonic() - _cap_t0
             if frame is None:
+                self._emit_prep_timing(_ps, _ps_t0)
                 return None  # window temporarily gone — loop will handle recovery
 
-            screen_type = await self._classify_screen(frame)
-
-            if screen_type != "DIALOGUE":
-                return {"screen_type": screen_type, "frame": frame, "box_data": None}
-
-            # Stabilize: hash text region only (animated backgrounds don't block settle)
+            # Stabilize: single short pass on the text region. Most renders are
+            # already settled by the time we get here; if not, the next loop
+            # iteration's normal-path stabilize will pick up the slack.
+            _stab_t0 = time.monotonic()
             prev_hash    = self._text_region_hash(frame, self.text_region_top)
             stable_frame = frame
-            for _ in range(2):
-                await asyncio.sleep(0.15)
-                curr_frame = await asyncio.get_event_loop().run_in_executor(
-                    None, self._grab_frame_sync
-                )
-                if curr_frame is None:
-                    break  # window lost — use last good frame
+            await asyncio.sleep(0.10)
+            _cap_t0 = time.monotonic()
+            curr_frame = await asyncio.get_event_loop().run_in_executor(
+                None, self._grab_frame_sync
+            )
+            _ps["capture"] += time.monotonic() - _cap_t0
+            if curr_frame is not None:
                 curr_hash = self._text_region_hash(curr_frame, self.text_region_top)
                 if curr_hash == prev_hash:
                     stable_frame = curr_frame
-                    break
-                prev_hash    = curr_hash
-                stable_frame = curr_frame
+                else:
+                    stable_frame = curr_frame  # take latest; full settle happens in main path
+            _ps["stabilize"] += time.monotonic() - _stab_t0
 
             # Cheap local pre-check: skip cloud entirely on blank/fade frames.
-            if self._text_region_likely_blank(stable_frame, self.text_region_top):
+            # On blank, we still need classify to know if it's a real transition
+            # vs just a fade between dialogue boxes — fall through to classify.
+            blank = self._text_region_likely_blank(stable_frame, self.text_region_top)
+
+            # HAPPY-PATH OPTIMIZATION: skip classify when OCR will succeed.
+            # If the frame looks NON-blank, we strongly expect DIALOGUE — try
+            # the OCR first; if it returns real text, we're done (no classify
+            # call needed, saves ~0.5-1.0s). Only classify if OCR comes back
+            # empty or the frame was blank to begin with.
+            if blank:
+                # Blank frame: need classify to know if real transition or
+                # just an inter-box fade
+                _cls_t0 = time.monotonic()
+                screen_type = await self._classify_screen(frame)
+                _ps["classify"] += time.monotonic() - _cls_t0
+                self._emit_prep_timing(_ps, _ps_t0)
+                if screen_type != "DIALOGUE":
+                    return {"screen_type": screen_type, "frame": frame, "box_data": None}
+                # classified DIALOGUE but blank — let main loop handle
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
-            # Cloud read: full window → vision model strips UI chrome automatically
+            # Non-blank: try OCR first (skip classify on success)
+            _ocr_t0 = time.monotonic()
             try:
                 text = await self._read_dialogue_cloud(stable_frame)
             except Exception as _cloud_err:
+                _ps["ocr"] += time.monotonic() - _ocr_t0
                 print(f"   [Autopilot] Pipeline cloud read failed: {_cloud_err}")
+                self._emit_prep_timing(_ps, _ps_t0)
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+            _ps["ocr"] += time.monotonic() - _ocr_t0
             text = self._clean_text((text or "").strip())
             if not text or text.upper() == "NO TEXT VISIBLE":
-                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+                # OCR empty on non-blank frame — could be choice/save_prompt/
+                # transition that looked dialogue-y. Classify to disambiguate.
+                _cls_t0 = time.monotonic()
+                screen_type = await self._classify_screen(frame)
+                _ps["classify"] += time.monotonic() - _cls_t0
+                self._emit_prep_timing(_ps, _ps_t0)
+                return {"screen_type": screen_type, "frame": frame, "box_data": None}
 
             # System-UI guard: wrong window captured → abort, don't cache
             if self._is_system_ui_text(text):
@@ -1782,6 +1924,7 @@ class VNAutopilot:
                     raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
                 new_text = raw_suffix.strip()
                 if len(new_text) < 4:
+                    self._emit_prep_timing(_ps, _ps_t0)
                     return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
             else:
                 new_text = normalized
@@ -1794,12 +1937,14 @@ class VNAutopilot:
                 new_text = new_text[2:].strip()
 
             if len(new_text) < 4:
+                self._emit_prep_timing(_ps, _ps_t0)
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
             # Weight only — side-effect methods (_estimate_scene_intensity,
             # _update_character_attachment) stay in _handle_dialogue
             weight = self._estimate_narrative_weight(new_text)
 
+            self._emit_prep_timing(_ps, _ps_t0)
             return {
                 "screen_type": "DIALOGUE",
                 "frame": frame,
@@ -1815,7 +1960,33 @@ class VNAutopilot:
             raise
         except Exception as e:
             print(f"   [Autopilot] Pipeline prep error: {e}")
+            self._emit_prep_timing(_ps, _ps_t0)
             return None
+
+    def _emit_prep_timing(self, ps: dict, t0: float) -> None:
+        """Log per-step prep timing. Helps pinpoint which sub-step hangs."""
+        total = time.monotonic() - t0
+        print(
+            f"   [Prep] capture={ps['capture']:.1f}s stabilize={ps['stabilize']:.1f}s "
+            f"ocr={ps['ocr']:.1f}s classify={ps['classify']:.1f}s | total={total:.1f}s"
+        )
+        if total > 5.0:
+            biggest = max(ps, key=ps.get)
+            print(
+                f"   [Prep] \u26a0\ufe0f SLOW PREP: {total:.1f}s. Biggest sub-step: "
+                f"{biggest}={ps[biggest]:.1f}s."
+            )
+
+    @staticmethod
+    def _trim_to_complete_sentences(text: str) -> tuple[str, str]:
+        """DEPRECATED — retained as a no-op for any stale callers.
+
+        The held-fragment system was removed: OCR truncates mid-word frequently,
+        so 'holding' partial fragments produced garbled output like 'Do y' and
+        'Mr.' spoken alone. Reading whatever OCR returns is more coherent than
+        any sentence-split heuristic over inherently incomplete text.
+        """
+        return text, ""
 
     def _content_pause(self, text: str, intensity: str, art_changed: bool) -> float:
         """Inter-box pause driven by text punctuation and scene intensity.
@@ -1919,7 +2090,8 @@ class VNAutopilot:
             buf = BytesIO()
             frame.save(buf, format="JPEG", quality=70)
             b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await self.vision_client.chat.completions.create(
+            resp = await asyncio.wait_for(
+                self.vision_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{
                     "role": "user",
@@ -1937,9 +2109,13 @@ class VNAutopilot:
                 }],
                 max_tokens=80,
                 temperature=0.0,
+            ),
+                timeout=self._cloud_call_timeout,
             )
             self._scene_art_description = resp.choices[0].message.content.strip()
             print(f"   [Autopilot] Scene: {self._scene_art_description[:70]}")
+        except asyncio.TimeoutError:
+            print(f"   [Autopilot] Scene art: TIMEOUT after {self._cloud_call_timeout:.1f}s — using cached.")
         except Exception as e:
             print(f"   [Autopilot] Scene art error: {e}")
 
