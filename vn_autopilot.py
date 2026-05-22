@@ -39,6 +39,7 @@
 import asyncio
 import base64
 import collections
+import difflib
 import hashlib
 import os
 import re
@@ -408,6 +409,9 @@ class VNAutopilot:
         self._last_spoke_time: float = time.time()
         self._last_silence_breaker_time: float = 0.0
         self._silence_breaker_in_flight: bool = False
+        # Track when we last saw a DIALOGUE screen — silence-breaker only fires
+        # after sustained non-dialogue time, so it can't interrupt active reads.
+        self._last_dialogue_time: float = time.time()
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -653,6 +657,7 @@ class VNAutopilot:
         # (it would have been counting since __init__, which may be much earlier).
         self._last_spoke_time = time.time()
         self._last_silence_breaker_time = time.time()
+        self._last_dialogue_time = time.time()
         self._warned_window_lost = False
         print("   [Autopilot] Loop running.")
 
@@ -733,6 +738,7 @@ class VNAutopilot:
                 print(f"   [Autopilot] Screen: {screen_type}")
 
                 if screen_type == "DIALOGUE":
+                    self._last_dialogue_time = time.time()
                     await self._handle_dialogue(frame, prepared)
                     # _last_progress_time is updated inside _handle_dialogue()
                     # only when genuinely new text is confirmed+spoken.
@@ -900,6 +906,32 @@ class VNAutopilot:
         # Strip stray pipe characters (OCR table artefacts)
         text = text.replace(' | ', ' ')
         return ' '.join(text.split())
+
+    @staticmethod
+    def _fuzzy_accumulation_split(last: str, current: str) -> str | None:
+        """If `current` appears to be an accumulated continuation of `last`
+        (even with minor OCR drift in the shared prefix), return the new-suffix
+        portion. Otherwise return None.
+
+        Strategy: find longest matching block anchored at the start of both
+        strings. If it covers >=70% of `last` and starts within the first few
+        characters of both, peel that many chars off `current` and return the
+        tail. Tolerates 1-2 character OCR slips like "Tanbo" vs "Tarbo"."""
+        if not last or not current or len(current) <= len(last):
+            return None
+        # Quick exact-prefix path
+        if current.startswith(last):
+            return current[len(last):]
+        # Fuzzy: longest common substring near start
+        sm = difflib.SequenceMatcher(None, last, current, autojunk=False)
+        match = sm.find_longest_match(0, len(last), 0, min(len(current), len(last) + 8))
+        if match.size < max(20, int(len(last) * 0.70)):
+            return None
+        # Must anchor near the start of both strings (allow a few-char drift)
+        if match.a > 4 or match.b > 4:
+            return None
+        # Peel off through end of the matched region in `current`
+        return current[match.b + match.size:]
 
     @staticmethod
     def _ocr_text_region(frame) -> str:
@@ -1325,9 +1357,12 @@ class VNAutopilot:
                 self._safe_advance()
                 return
 
-            # Append detection: VN accumulated text on the same box
-            if self._last_box_text and normalized.startswith(self._last_box_text):
-                raw_suffix = normalized[len(self._last_box_text):]
+            # Append detection: VN accumulated text on the same box. Uses fuzzy
+            # prefix match so minor OCR drift (e.g. "Tanbo" vs "Tarbo") in the
+            # shared head doesn't make us re-read the whole accumulated block.
+            _suffix = self._fuzzy_accumulation_split(self._last_box_text, normalized)
+            if _suffix is not None:
+                raw_suffix = _suffix
                 if raw_suffix and not raw_suffix[0].isspace():
                     space_idx = raw_suffix.find(' ')
                     raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
@@ -1652,9 +1687,10 @@ class VNAutopilot:
             if normalized == self._last_box_text:
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
-            # Append detection
-            if self._last_box_text and normalized.startswith(self._last_box_text):
-                raw_suffix = normalized[len(self._last_box_text):]
+            # Append detection (fuzzy — tolerates OCR drift in shared prefix)
+            _suffix = self._fuzzy_accumulation_split(self._last_box_text, normalized)
+            if _suffix is not None:
+                raw_suffix = _suffix
                 if raw_suffix and not raw_suffix[0].isspace():
                     space_idx = raw_suffix.find(' ')
                     raw_suffix = raw_suffix[space_idx:] if space_idx >= 0 else ""
@@ -2403,13 +2439,23 @@ class VNAutopilot:
     async def _maybe_speak_silence_breaker(self) -> bool:
         """If we've been silent for too long during active play, fire a low-energy
         aside so the stream doesn't sit dead during long CG/transition stretches.
-        Throttled so it can't spam. Returns True if it spoke."""
+        Throttled so it can't spam. Returns True if it spoke.
+
+        Gated on TWO conditions to avoid interrupting active dialogue:
+          • _last_spoke_time > SILENCE_BREAKER_SECONDS (general silence)
+          • _last_dialogue_time > 15s (we're stuck on non-dialogue screens)
+        Both must be true — mid-dialogue reads where TTS just happens to be
+        between calls do NOT count.
+        """
         if self._silence_breaker_in_flight:
             return False
         if self.soft_paused or self.is_paused or not self.enabled:
             return False
         now = time.time()
         if (now - self._last_spoke_time) < SILENCE_BREAKER_SECONDS:
+            return False
+        if (now - self._last_dialogue_time) < 15.0:
+            # Still in active dialogue territory — don't interrupt.
             return False
         if (now - self._last_silence_breaker_time) < SILENCE_BREAKER_MIN_GAP:
             return False
