@@ -219,7 +219,7 @@ class KiraDashboard(ctk.CTk):
             fg_color=C_SURFACE, button_color=C_ACCENT,
             dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=28,
         )
-        self.autopilot_key_menu.set("Space")
+        self.autopilot_key_menu.set("Enter")
         self.autopilot_key_menu.pack(fill="x", padx=12, pady=(0, 6))
 
         ctk.CTkLabel(
@@ -689,12 +689,29 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Autopilot: {'ON' if enabled else 'OFF'}")
 
     def _set_autopilot_key(self, choice: str):
-        """Map dropdown choice to the VNInputController advance key."""
+        """Map dropdown choice to the VNInputController advance key.
+        Also clears any auto-discovered working method so the new choice is
+        actually used next advance (otherwise a previously-locked method
+        would keep overriding the configured key).
+        """
         ap = getattr(self.bot, 'vn_autopilot', None)
         if ap is None:
             return
         key_map = {"Space": "space", "Enter": "enter", "Left Click": "click"}
-        ap.input_controller.set_advance_key(key_map.get(choice, "space"))
+        new_key = key_map.get(choice, "enter")
+        ap.input_controller.set_advance_key(new_key)
+        if getattr(ap, '_working_advance_method', None) is not None:
+            print(
+                f"   [Dashboard] Clearing locked-in working method "
+                f"('{ap._working_advance_method}') so new key '{new_key}' is used."
+            )
+            ap._working_advance_method = None
+        # Also clear the oscillation history so the new key gets a clean slate.
+        try:
+            ap._recent_advance_hashes.clear()
+        except Exception:
+            pass
+        print(f"   [Dashboard] Autopilot advance key: {new_key}")
 
     def _update_autopilot_pacing(self, _=None):
         """Push slider values to the autopilot pacing config."""

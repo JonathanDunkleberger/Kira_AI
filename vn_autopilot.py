@@ -38,6 +38,7 @@
 
 import asyncio
 import base64
+import collections
 import hashlib
 import os
 import re
@@ -134,9 +135,13 @@ class VNInputController:
 
     # Methods, in the order the autopilot will try them when the configured key
     # has no observed effect. Each is a (label, callable) pair.
-    METHODS_ORDER = ("space", "enter", "click")
+    # Order: enter first (most reliable advance in modern VN engines), then
+    # click (works when the VN ignores keystrokes), then space (last because
+    # many engines — e.g. Saya no Uta, Steins;Gate — use space to toggle the
+    # HUD/text-box visibility instead of advancing).
+    METHODS_ORDER = ("enter", "click", "space")
 
-    def __init__(self, advance_key: str = "space", pre_input_delay: float = 0.1):
+    def __init__(self, advance_key: str = "enter", pre_input_delay: float = 0.1):
         self.advance_key = advance_key
         self.pre_input_delay = pre_input_delay
 
@@ -348,6 +353,15 @@ class VNAutopilot:
         # it cycles through VNInputController.METHODS_ORDER (re-focusing before
         # each) until one works, then remembers the working method.
         self._working_advance_method: str | None = None  # discovered live; None = use default
+
+        # Oscillation detection: track the last few accepted post-advance hashes.
+        # If a new advance lands on a hash we just saw, the input is toggling
+        # something (HUD/menu) rather than advancing the story. This is the
+        # Saya-no-Uta / Steins;Gate "space toggles text-box" case.
+        self._recent_advance_hashes: collections.deque = collections.deque(maxlen=5)
+        # Track consecutive non-progress reads (same/prefix text) so we can
+        # unlock the working method when it stops actually working.
+        self._consecutive_non_progress_reads: int = 0
         self._advance_attempts: int = 0                 # total advance calls this session
         self._advance_diag_cycles: int = 5              # log full diagnostic for first N cycles
         # Frame hash captured immediately after a verified advance — handed to
@@ -1306,6 +1320,7 @@ class VNAutopilot:
                     f"   [Autopilot] Skipped read because: duplicate of last "
                     f"spoken box ('{normalized[:40]}')."
                 )
+                self._note_non_progress()
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
@@ -1323,6 +1338,7 @@ class VNAutopilot:
                         f"too short ({len(new_text)} chars) — advancing."
                     )
                     self._last_box_text = normalized
+                    self._note_non_progress()
                     await asyncio.sleep(0.5)
                     self._safe_advance()
                     return
@@ -1355,6 +1371,9 @@ class VNAutopilot:
         # stuck watchdog — purely mechanical de-dup loops don't count as progress.
         self._last_progress_time = time.time()
         self._stuck_warned = False
+        # Real progress — reset the non-progress counter so the working method
+        # stays locked in.
+        self._consecutive_non_progress_reads = 0
 
         # ── Phase 2 analysis (side-effects: always in main path, never pipeline) ─
         # Attachment update first so weight computation sees the current state.
@@ -2644,6 +2663,23 @@ class VNAutopilot:
 
     # ── Input helper ───────────────────────────────────────────────────────────
 
+    def _note_non_progress(self):
+        """Called when an advance produced an OCR result that was a duplicate /
+        prefix / accumulating text (i.e. NO real story progress). After two in a
+        row, unlock the currently-locked advance method so _safe_advance tries
+        alternatives next time. This catches the case where the locked method
+        is actually a HUD/menu toggle that happens to change the screen hash."""
+        self._consecutive_non_progress_reads += 1
+        if (self._consecutive_non_progress_reads >= 2
+                and self._working_advance_method is not None):
+            print(
+                f"   [Autopilot] {self._consecutive_non_progress_reads} consecutive "
+                f"non-progress reads via '{self._working_advance_method}' \u2014 unlocking "
+                f"working method so alternatives can be tried."
+            )
+            self._working_advance_method = None
+            self._consecutive_non_progress_reads = 0
+
     def _safe_advance(self):
         """Advance the VN, VERIFY by screen-hash change, retry with other methods if needed.
 
@@ -2702,6 +2738,9 @@ class VNAutopilot:
         ]
 
         # ── Step 3: Try each method until one produces a screen change ────────
+        # A method counts as "working" only if it produces a NOVEL after-hash
+        # (one not in our recent-advance history). A method that flips the
+        # screen to a previously-seen state is toggling HUD/menu, not advancing.
         for attempt_idx, method in enumerate(method_order):
             focused = self._focus_vn_window()
             if diag or attempt_idx > 0:
@@ -2728,40 +2767,55 @@ class VNAutopilot:
             after_hash = self._quick_hash(after_frame)
 
             changed = (after_hash != before_hash)
+            oscillating = changed and (after_hash in self._recent_advance_hashes)
 
             if diag:
                 print(
                     f"   [Autopilot] Advance verify: before={before_hash[:8]} "
-                    f"after={after_hash[:8]} changed={changed}"
+                    f"after={after_hash[:8]} changed={changed} "
+                    f"oscillating={oscillating}"
                 )
 
-            if changed:
+            if changed and not oscillating:
                 if attempt_idx == 0 and not diag:
-                    # Quiet success on the happy path after diag cycles
                     pass
                 else:
                     print(
                         f"   [Autopilot] Advance OK via {method} "
-                        f"(screen changed) [attempt {attempt_idx + 1}]"
+                        f"(novel screen) [attempt {attempt_idx + 1}]"
                     )
 
-                # Remember the working method if it's a new discovery
                 if self._working_advance_method != method:
                     self._working_advance_method = method
                     print(f"   [Autopilot] Working advance method: {method}")
 
-                # Stash the verified-new frame so _post_advance_prep can skip a capture
+                self._recent_advance_hashes.append(after_hash)
                 self._last_verified_post_advance_frame = after_frame
                 return
 
-            # No change — log and try next method
-            print(
-                f"   [Autopilot] Advance had NO EFFECT via {method} "
-                f"(screen identical, before={before_hash[:8]})"
-            )
+            # Either no change OR oscillation back to a known state.
+            if oscillating:
+                print(
+                    f"   [Autopilot] Advance via {method} OSCILLATED back to a "
+                    f"recent screen (hash={after_hash[:8]}) \u2014 looks like a HUD/menu "
+                    f"toggle. Trying next method."
+                )
+                # If our locked-in method is the one that just oscillated, unlock
+                # it so the eventual winner becomes the new working method.
+                if self._working_advance_method == method:
+                    print(
+                        f"   [Autopilot] Unlocking previous working method "
+                        f"({method}) \u2014 it no longer advances the story."
+                    )
+                    self._working_advance_method = None
+            else:
+                print(
+                    f"   [Autopilot] Advance had NO EFFECT via {method} "
+                    f"(screen identical, before={before_hash[:8]})"
+                )
 
-            # Update before_hash to the latest after (still the same content)
-            # so subsequent method tries compare against the most recent capture
+            # Update before_hash to the latest after so subsequent method tries
+            # compare against the most recent capture
             before_hash = after_hash
             before_frame = after_frame
 
