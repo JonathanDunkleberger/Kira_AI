@@ -56,13 +56,18 @@ class AudioAgent:
         "\n"
         "FORBIDDEN OUTPUTS (these will be rejected):\n"
         "- Do NOT address the reader. No 'sure', 'understood', 'I'll', 'I can', 'I cannot', 'please provide'.\n"
+        "- Do NOT ask for an upload, attachment, file, clip, link, or audio sample. The audio IS attached.\n"
+        "- Do NOT say you cannot hear, cannot process, cannot listen, or lack the ability to analyze audio.\n"
+        "- Do NOT apologize. No 'apologies', 'sorry', 'unfortunately'.\n"
         "- Do NOT explain what you are or are not able to do.\n"
         "- Do NOT ask for context or clarification.\n"
         "- Do NOT acknowledge the instructions.\n"
+        "- Do NOT write a 'retrospective note', meta-commentary, or self-reflection.\n"
         "- Do NOT use first person ('I hear', 'I notice'). Write declaratively ('Soft piano fades in...').\n"
         "- Do NOT invent lyrics, dialogue, or specific instruments you cannot clearly hear.\n"
         "\n"
         "IF AUDIO IS SILENT, AMBIENT ROOM NOISE ONLY, OR INAUDIBLE: output the single token AUDIO_SILENT and nothing else.\n"
+        "IF YOU CANNOT ANALYZE THE ATTACHED AUDIO FOR ANY REASON: output the single token AUDIO_SILENT. Never explain why.\n"
         "\n"
         "IF UNCERTAIN about details, prefix the description with 'UNCERTAIN:' and describe only the general mood, "
         "presence/absence of voice, and tempo — without guessing specifics."
@@ -79,13 +84,18 @@ class AudioAgent:
         "\n"
         "FORBIDDEN OUTPUTS (these will be rejected):\n"
         "- Do NOT address the reader. No 'sure', 'understood', 'I'll', 'I can', 'I cannot', 'please provide'.\n"
+        "- Do NOT ask for an upload, attachment, file, clip, link, or audio sample. The audio IS attached.\n"
+        "- Do NOT say you cannot hear, cannot process, cannot listen, or lack the ability to analyze audio.\n"
+        "- Do NOT apologize. No 'apologies', 'sorry', 'unfortunately'.\n"
         "- Do NOT explain what you are or are not able to do.\n"
         "- Do NOT ask for context or clarification.\n"
         "- Do NOT acknowledge the instructions.\n"
+        "- Do NOT write a 'retrospective note', meta-commentary, or self-reflection.\n"
         "- Do NOT use first person ('I hear'). Write declaratively ('Acoustic guitar, slow fingerpicking...').\n"
         "- Do NOT invent lyrics or pitch judgements you cannot clearly hear.\n"
         "\n"
         "IF AUDIO IS SILENT OR NOTHING MUSICAL IS HAPPENING: output the single token AUDIO_SILENT and nothing else.\n"
+        "IF YOU CANNOT ANALYZE THE ATTACHED AUDIO FOR ANY REASON: output the single token AUDIO_SILENT. Never explain why.\n"
         "\n"
         "IF UNCERTAIN about specifics, prefix with 'UNCERTAIN:' and describe only what is clearly audible."
     )
@@ -93,19 +103,35 @@ class AudioAgent:
     # Substring fingerprints of model meta-replies that should be treated as silence.
     # All lowercased. Match is substring-anywhere because the model often opens with one
     # of these phrases and then rambles for another sentence of self-explanation.
+    # Expanded 2026-05 after Steins;Gate session leaked variants like "please upload the
+    # audio file", "please attach", "please provide the audio clip", "I currently can't
+    # process", "Apologies, I currently cannot listen", "Got it. Please upload",
+    # "Sure! Please attach", "Retrospective note".
     _META_REPLY_FINGERPRINTS = (
         "i cannot hear", "i can't hear", "i cannot directly", "i can't directly",
+        "i cannot listen", "i can't listen", "cannot listen to", "can't listen to",
+        "i cannot process", "i can't process", "i currently can't process", "i currently cannot process",
+        "i cannot analyze", "i can't analyze", "i cannot analyse", "i can't analyse",
         "i'm unable to", "i am unable to", "unable to hear", "unable to process",
+        "unable to listen", "unable to analyze", "unable to analyse",
         "please provide", "could you provide", "can you provide",
         "please upload", "could you please upload", "please share the audio",
-        "upload the file", "upload the audio", "share the audio",
+        "please attach", "could you attach", "could you please attach",
+        "upload the file", "upload the audio", "share the audio", "attach the audio",
+        "attach the file", "attach the clip", "attach a clip", "attach an audio",
+        "provide the audio", "provide the clip", "provide an audio", "provide a clip",
         "provide a link", "proceed with the description", "audio description report",
         "i'll adhere", "i will adhere", "i'll follow", "i will follow",
-        "understood!", "understood,", "understood.", "got it!", "sure!", "sure,",
+        "understood!", "understood,", "understood.", "got it!", "got it,", "got it.",
+        "sure!", "sure,", "sure.", "of course!", "of course,",
+        "apologies", "i apologize", "i'm sorry", "i am sorry", "unfortunately, i",
         "i'm ready to", "i am ready to", "ready to focus",
         "as an ai", "i don't have the ability", "i do not have the ability",
+        "i lack the ability", "i'm not able to", "i am not able to",
         "more context", "specific scene", "describe the audio",
         "i'm here to help", "happy to help",
+        "retrospective note", "meta note", "meta-note", "side note:", "note to self",
+        "as a language model", "as a text-based",
     )
 
     @classmethod

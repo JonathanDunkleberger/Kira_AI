@@ -1,4 +1,4 @@
-# Kira AI - Config loads from .env for secrets and sensitive info
+﻿# Kira AI - Config loads from .env for secrets and sensitive info
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -38,6 +38,10 @@ VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
 
 # Audio understanding config
 ENABLE_AUDIO_AGENT = os.getenv("ENABLE_AUDIO_AGENT", "true").lower() == "true"
+# Loopback Whisper transcriber — SEPARATE opt-in flag from the audio-MOOD agent.
+# Distil-large-v3 is English-only and produces token-loop garbage on JP/VN content.
+# Default OFF: enable only for English stream-watching. When OFF, the WhisperModel is never loaded.
+ENABLE_LOOPBACK_TRANSCRIBER = os.getenv("ENABLE_LOOPBACK_TRANSCRIBER", "false").lower() == "true"
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
 AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")

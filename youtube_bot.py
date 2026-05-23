@@ -11,18 +11,73 @@ except ImportError:
     PYTCHAT_AVAILABLE = False
 
 
+# A YouTube video ID is exactly 11 chars from [A-Za-z0-9_-].
+_VIDEO_ID_RE = re.compile(r'[A-Za-z0-9_-]{11}')
+
+# Known URL patterns where a video ID can appear. Tried in order; first hit wins.
+# Studio URLs (studio.youtube.com/video/{ID}/livestreaming|edit|analytics|...) are
+# the natural copy from a streamer's dashboard — must be supported.
+_URL_PATTERNS = (
+    re.compile(r'(?:^|[?&])v=([A-Za-z0-9_-]{11})'),                    # watch?v=ID
+    re.compile(r'youtu\.be/([A-Za-z0-9_-]{11})'),                       # short
+    re.compile(r'youtube\.com/live/([A-Za-z0-9_-]{11})'),               # live
+    re.compile(r'youtube\.com/embed/([A-Za-z0-9_-]{11})'),              # embed
+    re.compile(r'youtube\.com/shorts/([A-Za-z0-9_-]{11})'),             # shorts
+    re.compile(r'studio\.youtube\.com/video/([A-Za-z0-9_-]{11})'),      # Studio (any subpage)
+)
+
+
+class InvalidYouTubeURLError(ValueError):
+    """Raised when extract_video_id cannot find a usable ID. Carries a user-facing
+    explanation in .reason so callers can surface a helpful message."""
+    def __init__(self, raw: str, reason: str):
+        super().__init__(reason)
+        self.raw = raw
+        self.reason = reason
+
+
 def extract_video_id(url_or_id: str) -> Optional[str]:
-    """Accepts a full YouTube URL or a bare 11-char video ID. Returns the ID, or None."""
+    """Accepts a full YouTube URL or a bare 11-char video ID. Returns the ID, or None.
+
+    Handles standard watch URLs, youtu.be, youtube.com/live, /embed, /shorts, AND
+    studio.youtube.com/video/{ID}/{livestreaming,edit,analytics,...} — the URL a
+    streamer naturally copies from their own Studio dashboard.
+
+    Explicitly rejects rtmp:// ingest URLs (OBS stream key, no chat there).
+    Falls back to a generic 11-char [A-Za-z0-9_-] scan if no known pattern matched,
+    so unusual URL shapes still work as long as a video ID is present somewhere.
+    """
     if not url_or_id:
         return None
     s = url_or_id.strip()
-    # Already an ID?
-    if len(s) == 11 and re.match(r'^[A-Za-z0-9_-]+$', s):
+
+    # RTMP ingest URLs are the OBS stream key, NOT a watch URL. Reject explicitly
+    # so the caller can show a helpful "that's your stream key" error instead of
+    # the generic "invalid URL".
+    if s.lower().startswith(("rtmp://", "rtmps://")):
+        raise InvalidYouTubeURLError(
+            s,
+            "That's your stream ingest URL (OBS stream key), not a watch URL. "
+            "Paste the video's watch URL or Studio URL instead.",
+        )
+
+    # Bare 11-char ID
+    if len(s) == 11 and _VIDEO_ID_RE.fullmatch(s):
         return s
-    # Common URL formats
-    m = re.search(r'(?:v=|youtu\.be/|youtube\.com/live/|youtube\.com/embed/)([A-Za-z0-9_-]{11})', s)
+
+    # Try known URL patterns first (more specific → safer than the generic scan).
+    for pat in _URL_PATTERNS:
+        m = pat.search(s)
+        if m:
+            return m.group(1)
+
+    # Fallback: scan for any 11-char ID-shaped token in the string. Catches odd URL
+    # variants (mobile, m.youtube.com paths, share links with extra prefixes, etc.)
+    # without us having to enumerate every YouTube URL shape that exists.
+    m = _VIDEO_ID_RE.search(s)
     if m:
-        return m.group(1)
+        return m.group(0)
+
     return None
 
 
@@ -41,25 +96,40 @@ class YouTubeBot:
     def start(self, video_id_or_url: str) -> bool:
         """Begins polling YouTube chat. Returns True on success, False if invalid ID
         or library missing."""
+        print(f"   [YouTube] Input received: {video_id_or_url!r}")
         if not PYTCHAT_AVAILABLE:
             print("   [YouTube] pytchat not installed. Run: pip install pytchat")
             return False
 
-        vid = extract_video_id(video_id_or_url)
-        if not vid:
-            print(f"   [YouTube] Invalid URL or video ID: {video_id_or_url}")
+        try:
+            vid = extract_video_id(video_id_or_url)
+        except InvalidYouTubeURLError as e:
+            print(f"   [YouTube] {e.reason}")
+            print(f"   [YouTube] (received: {e.raw!r})")
             return False
+        if not vid:
+            print(f"   [YouTube] Could not extract an 11-char video ID from: {video_id_or_url!r}")
+            print("   [YouTube] Expected a watch URL (youtube.com/watch?v=ID), short URL "
+                  "(youtu.be/ID), Studio URL (studio.youtube.com/video/ID/...), live URL "
+                  "(youtube.com/live/ID), or a bare 11-char video ID.")
+            return False
+        print(f"   [YouTube] Extracted video ID: {vid!r}")
 
         if self.running:
             print("   [YouTube] Already running. Stop first.")
             return False
 
         try:
-            self.chat = pytchat.create(video_id=vid)
+            print(f"   [YouTube] Connecting to live chat for {vid}...")
+            # interruptable=False — pytchat otherwise installs a SIGINT handler via
+            # signal.signal(), which raises "signal only works in main thread of the
+            # main interpreter" when start() is invoked from a Tk/dashboard background
+            # thread. Disabling it lets pytchat run from any thread.
+            self.chat = pytchat.create(video_id=vid, interruptable=False)
             self.video_id = vid
             self.running = True
             self.task = asyncio.create_task(self._poll_loop())
-            print(f"   [YouTube] Connected to live chat for video ID: {vid}")
+            print(f"   [YouTube] Connected — polling chat for video ID: {vid}")
             return True
         except Exception as e:
             print(f"   [YouTube] Failed to connect: {e}")

@@ -24,7 +24,7 @@ from memory_extractor import extract_memories
 from youtube_bot import YouTubeBot
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
-    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
+    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT, ENABLE_LOOPBACK_TRANSCRIBER,
 )
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
@@ -103,7 +103,12 @@ class VTubeBot:
         # NOT yet wired into Kira's prompt context. Started/stopped by the dashboard
         # when the audio agent enters/leaves MEDIA mode. MUSIC mode is intentionally
         # skipped (we don't want her transcribing Jonny's own guitar/singing).
-        self.loopback_transcriber = LoopbackTranscriber() if ENABLE_AUDIO_AGENT else None
+        # Loopback transcriber is gated on its OWN flag (default off). The audio-MOOD
+        # agent and the loopback ASR are independent features: mood works on any
+        # language (it's gpt-audio-mini describing vibe, not transcribing words),
+        # while the ASR is English-only and worse-than-useless on JP/VN content.
+        # See config.ENABLE_LOOPBACK_TRANSCRIBER.
+        self.loopback_transcriber = LoopbackTranscriber() if ENABLE_LOOPBACK_TRANSCRIBER else None
         
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
