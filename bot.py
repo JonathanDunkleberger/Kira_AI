@@ -29,6 +29,7 @@ from config import (
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
+from loopback_transcriber import LoopbackTranscriber
 from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from vn_autopilot import VNAutopilot
 from media_watch import MediaWatch
@@ -98,6 +99,11 @@ class VTubeBot:
         self.vision_agent = UniversalVisionAgent()
         self.game_mode_controller = GameModeController(self.vision_agent)
         self.audio_agent = AudioAgent() if ENABLE_AUDIO_AGENT else None
+        # Loopback Whisper transcriber — STAGE 1: visible on console/dashboard only,
+        # NOT yet wired into Kira's prompt context. Started/stopped by the dashboard
+        # when the audio agent enters/leaves MEDIA mode. MUSIC mode is intentionally
+        # skipped (we don't want her transcribing Jonny's own guitar/singing).
+        self.loopback_transcriber = LoopbackTranscriber() if ENABLE_AUDIO_AGENT else None
         
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
@@ -245,13 +251,183 @@ class VTubeBot:
         self.autopilot_paused_for_input = True
         print(f"   [Autopilot] Failsafe active — paused for Jonny ({screen_type}).")
 
+    # ── Shared voice guardrails / perception framing (used by every reaction path) ───
+
+    def _kira_voice_guardrails(self, include_observer_avoid: bool = False) -> str:
+        """Shared anti-fabrication + banned-phrase block. Appended to every in-character
+        reaction prompt so Kira's regressions are blocked uniformly across voice, chat
+        batch, observer interjection, invite, media-watch react, and VN autopilot react.
+
+        include_observer_avoid=True also appends the last 8 observer comments with a
+        do-not-repeat directive (used by the bored/observer interjection path)."""
+        block = (
+            "\n\nCRITICAL VOICE GUARDRAILS:\n"
+            "- Do NOT reference past events, games, conversations, or shared experiences "
+            "that you cannot verify from the memory notes provided.\n"
+            "- Do NOT invent shared history ('that game we played', 'remember when', etc.) "
+            "unless it is explicitly in the memory notes.\n"
+            "- React only to the current moment and what is actually present right now.\n"
+            "- If you have nothing real to react to, make a small genuine observation about "
+            "the present instead of fabricating nostalgia.\n"
+            "\nBANNED PHRASES (never use these \u2014 they are overused regressions):\n"
+            "- 'doing a lot of heavy lifting' / 'carrying hard' / 'carrying this'\n"
+            "- 'doing more work than'\n"
+            "- 'doing something illegal to my brain'\n"
+            "- 'defies several laws of physics' / 'defies the laws of'\n"
+            "Find fresh, specific observations instead.\n"
+        )
+        if include_observer_avoid and self.recent_observer_comments:
+            recent_str = "\n".join(f"- {c}" for c in self.recent_observer_comments[-8:])
+            block += (
+                f"\n[AVOID REPETITION] You recently said these. Do NOT reuse their structure, "
+                f"phrasing, or comedic format \u2014 find a genuinely different angle:\n{recent_str}\n"
+            )
+        return block
+
+    def _frame_visual_perception(self, scene_text: str) -> str:
+        """Wraps a raw scene/vision description as sense data, not a script. Used by
+        every consumer of the vision agent's output so the parrot/closed-captioner
+        regression is blocked uniformly."""
+        if not scene_text:
+            return ""
+        return (
+            f"\n\n[CURRENT VISUAL PERCEPTION \u2014 what is on screen RIGHT NOW]\n"
+            f"{scene_text}\n"
+            f"This is sense data \u2014 what your eyes are taking in. It is NOT a script or narration. "
+            f"Do NOT recap or paraphrase it (Jonny saw it too \u2014 he doesn't want a closed-captioner). "
+            f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence and "
+            f"do not commit to specifics. React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 "
+            f"not a description of what is on the screen."
+        )
+
+    def _frame_ambient_audio(self, transcript_text: str) -> str:
+        """Wraps the rolling loopback transcript as ambient sense data \u2014 awareness
+        of what's being said in the media Jonny is watching, NOT input directed at
+        Kira. Same architecture as the visual-perception and audio-mood frames:
+        it is CONTEXT she's aware of, not a script to recite, and never a trigger
+        to respond (her mic remains the only respond trigger; this is just so she
+        can reference what was said when SHE chooses or when Jonny asks)."""
+        if not transcript_text:
+            return ""
+        return (
+            f"\n\n[AMBIENT AUDIO \u2014 what's being said in the media Jonny is watching, NOT directed at you]\n"
+            f"{transcript_text}\n"
+            f"This is a best-effort transcript of speech happening in whatever Jonny has on the screen "
+            f"(a streamer, narrator, character dialogue, etc.). It is your AWARENESS of the content, "
+            f"NOT a script and NOT addressed to you. Jonny's mic is still the only thing you respond to. "
+            f"Do NOT quote it, recap it, or read it back verbatim \u2014 react to the GIST in your own voice, "
+            f"the way a friend on the couch would. The transcript is imperfect: ignore garbled or "
+            f"clearly-nonsense fragments rather than confidently building on them. Treat unclear bits "
+            f"as 'something's happening over there' instead of asserting them as fact."
+        )
+
+    # Trigger phrases for explicit song-ID intent. Kept conservative on purpose:
+    # the AudD call is paid, so we only fingerprint when the user clearly asks.
+    _SONG_ID_PATTERNS = (
+        "what song",
+        "which song",
+        "what's this song",
+        "whats this song",
+        "what is this song",
+        "name the song",
+        "name this song",
+        "name that song",
+        "who sings this",
+        "who's singing",
+        "whos singing",
+        "who is singing",
+        "who's playing",
+        "whos playing",
+        "who is playing",
+        "who's the artist",
+        "whos the artist",
+        "who is the artist",
+        "what's the artist",
+        "whats the artist",
+        "what artist",
+        "who are we listening to",
+        "who we listening to",
+        "who we've been listening to",
+        "who weve been listening to",
+        "who is this artist",
+        "who's this artist",
+        "whos this artist",
+        "guess the artist",
+        "guess the song",
+        "guess the band",
+        "figure out the artist",
+        "figure out the song",
+        "figure out who",
+        "shazam",
+        "identify the song",
+        "identify this song",
+        "identify the track",
+        "identify the artist",
+        "identify the band",
+        "tell me who",
+        "tell me what song",
+    )
+
+    def _wants_song_id(self, user_text: str) -> bool:
+        if not user_text:
+            return False
+        low = user_text.lower()
+        return any(p in low for p in self._SONG_ID_PATTERNS)
+
+    async def _maybe_identify_song(self, user_text: str) -> str:
+        """If the user asked a song-ID question and audio is live, fingerprint
+        the buffer via AudD and return a sense-data block for the chat system
+        prompt. Returns empty string when intent isn't present, agent is off,
+        or the lookup fails / no-match \u2014 in which case Kira just answers
+        from her vibe-based hearing as usual."""
+        if not self._wants_song_id(user_text):
+            return ""
+        if not (self.audio_agent and self.audio_agent.is_active()):
+            return ""
+        try:
+            info = await self.audio_agent.identify_song()
+        except Exception as e:
+            print(f"   [SongID] Lookup raised: {e}")
+            return ""
+        em = "\u2014"
+        if not info:
+            # Honest no-match block \u2014 do NOT let her fabricate a confident answer.
+            return (
+                f"\n\n[SONG IDENTIFICATION {em} NO MATCH]\n"
+                f"You just ran a fingerprint check against the catalog and it came back empty. "
+                f"That means this track isn't in the database (could be obscure, unreleased, a "
+                f"live performance, or just not catalogued). You can still describe the vibe "
+                f"from what you actually hear, but DO NOT confidently name an artist or title "
+                f"\u2014 admit you couldn't pin it down. Optionally say what it reminds you of, "
+                f"clearly framed as a comparison (\"giving X energy\"), not as an identification."
+            )
+        title = info.get("title") or "?"
+        artist = info.get("artist") or "?"
+        album = info.get("album")
+        album_clause = f" from the album \"{album}\"" if album else ""
+        return (
+            f"\n\n[SONG IDENTIFICATION {em} CONFIRMED CATALOG MATCH]\n"
+            f"You just ran a fingerprint check against the music catalog and the answer came back: "
+            f"\"{title}\" by {artist}{album_clause}.\n"
+            f"This is verified ground truth \u2014 your ears just told you exactly what's playing. "
+            f"You can still do your vibe-guess buildup in character (\"sounds like sad-acoustic-"
+            f"Englishman energy, I want to say...\") but you MUST land on the real answer above. "
+            f"Do not contradict it, do not pick a different artist, do not say you're unsure. "
+            f"Deliver it naturally in your voice \u2014 a small celebration, a callback, a dry "
+            f"\"called it\" \u2014 not a robotic readout."
+        )
+
     # ── Media Watch wiring ────────────────────────────────────────────────────
 
     async def _media_watch_react(self, summary: str):
         """Optional throttled in-character reaction to a notable scene event.
         MediaWatch already throttles this to one call per react_min_gap_s and
         skips UNCERTAIN / STATIC summaries. Gated on companion mode + not muted +
-        not currently speaking, so it never steps on real conversation."""
+        not currently speaking, so it never steps on real conversation.
+
+        Routed through tool_inference (local Llama) for cost, but with the full
+        KIRA_PERSONALITY system prompt prepended + semantic memory recall + the
+        shared voice guardrails so reactions sound like Kira, not a chatbot."""
         if not summary or self.is_muted():
             return
         if self.mode != "companion":
@@ -262,15 +438,33 @@ class VTubeBot:
         if time.time() - self.last_interaction_time < 6.0:
             return
         try:
-            sys_prompt = (
-                "You are Kira, watching a movie/episode with Jonny. Give a brief, "
-                "in-character reaction to a stretch of footage you just watched. "
-                "1-2 sentences max. Casual, like you're on the couch with him. "
-                "Don't recap what happened back at him (he saw it too). React: "
-                "feeling, question, quip, or a callback. If nothing genuinely "
+            # Semantic memory recall on the summary so callbacks land
+            memory_context = ""
+            try:
+                memory_context = self.memory.get_semantic_context(summary)
+            except Exception:
+                pass
+            memory_block = (
+                f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n{memory_context}"
+                if memory_context else ""
+            )
+            task_prompt = (
+                "\n\n[MODE: Media Watch Reaction]\n"
+                "You are watching a movie/episode with Jonny. The summary in the user message is your "
+                "RAW VISUAL PERCEPTION \u2014 the vision model's flat description of what crossed the "
+                "screen. It is sense data, NOT a script. Do NOT recap or paraphrase it back at him (he "
+                "saw it too, and he doesn't want a narrator). React in YOUR voice and personality: a "
+                "feeling, a quip, a roast, a question, a callback, the thing it reminded you of. Be the "
+                "friend on the couch, not the closed-captioner. 1-2 sentences max. If nothing genuinely "
                 "grabs you, reply with exactly: SKIP"
             )
-            user_prompt = f"What you just watched:\n\"{summary}\""
+            sys_prompt = (
+                self.ai_core.system_prompt
+                + task_prompt
+                + memory_block
+                + self._kira_voice_guardrails()
+            )
+            user_prompt = f"What your eyes just took in (raw perception, do NOT recite):\n\"{summary}\""
             reaction = await self.ai_core.tool_inference(sys_prompt, user_prompt, max_tokens=80)
             if not reaction or reaction.strip().upper().startswith("SKIP"):
                 return
@@ -529,6 +723,7 @@ class VTubeBot:
             self.vn_autopilot = VNAutopilot(
                 ai_core=self.ai_core,
                 vision_client=self.vision_agent.client,
+                bot=self,
             )
             self.vn_autopilot.on_speak = self._autopilot_speak
             self.vn_autopilot.on_speak_vn = self._autopilot_speak_vn
@@ -880,37 +1075,8 @@ class VTubeBot:
                     )
 
                     if decision == "STAY_QUIET":
-                        content_stripped = content.strip()
-                        lower_stripped = content_stripped.lower()
-                        # Direct name address - anywhere in the message, not just leading
-                        # ("Sorry Kira", "hey Kira can you", "Kira, what about...").
-                        addressed_to_kira = "kira" in lower_stripped
-                        # Imperative verbs that signal a request even without "?".
-                        imperative_prefixes = (
-                            "do ", "go ", "try ", "play ", "open ", "show ", "tell ",
-                            "explain", "sing ", "remember", "let's", "lets ", "let us",
-                        )
-                        # Gratitude / closing / departure - worth a brief acknowledgement.
-                        social_signal = any(s in lower_stripped for s in (
-                            "thanks", "thank ", " ty ", "brb", "back", "sorry",
-                        )) or lower_stripped in ("ty", "thanks", "thank you", "brb", "sorry")
-                        looks_like_question = (
-                            "?" in content_stripped
-                            or lower_stripped.startswith((
-                                "what", "why", "how", "when", "where", "who", "which",
-                                "is ", "are ", "was ", "were ", "do ", "does ", "did ",
-                                "can ", "could ", "will ", "would ", "should ",
-                            ))
-                            or lower_stripped.startswith(imperative_prefixes)
-                            or addressed_to_kira
-                            or social_signal
-                        )
-                        if looks_like_question:
-                            print(f"   [Triage] Upgrading STAY_QUIET \u2192 BRIEF (rescue: question/address/imperative/social)")
-                            decision = "BRIEF"
-                        else:
-                            print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
-                            # fall through to finally / task_done
+                        print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
+                        # fall through to finally / task_done
 
                     if decision != "STAY_QUIET":
                         brief_mode = (decision == "BRIEF")
@@ -1115,17 +1281,17 @@ class VTubeBot:
 
         if self.ai_core.anthropic_client:
             response = await self.ai_core.kira_deep_response(
-                request=request,
+                request=request + self._kira_voice_guardrails(),
                 scene_context=scene,
-                memory_context="",
+                memory_context=self.memory.get_semantic_context(batch_str),
                 recent_history=self.conversation_history,
                 max_tokens=chat_max_tokens,
             )
         else:
             response = await self.ai_core.llm_inference(
-                messages=self.conversation_history + [{"role": "system", "content": request}],
+                messages=self.conversation_history + [{"role": "system", "content": request + self._kira_voice_guardrails()}],
                 current_emotion=self.current_emotion,
-                memory_context="",
+                memory_context=self.memory.get_semantic_context(batch_str),
                 activity_context=self.current_activity,
             )
 
@@ -1609,12 +1775,23 @@ class VTubeBot:
                     scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
             memory = self.memory.get_semantic_context(f"thoughts on {self.current_activity}")
 
+            # Inject playthrough memory so invites can draw on the current arc / past games
+            playthrough_block = ""
+            if self.playthrough_memory:
+                pt_ctx = self.playthrough_memory.get_context_for_prompt()
+                if pt_ctx:
+                    playthrough_block = (
+                        f"\n\n[PLAYTHROUGH MEMORY \u2014 reference as lived experience, not data]\n{pt_ctx}"
+                    )
+
             request = (
                 f"Jonny just invited you to share your thoughts on what's happening right now. "
                 f"This is a moment between you two \u2014 a couch friend sharing a take, not a chatbot. "
                 f"React to a specific character, plot beat, or detail you noticed. Use their names. "
                 f"Be funny, sassy, sweet, weird, blunt, whatever fits the moment. Keep it conversational, "
                 f"2-4 sentences. Don't ask what Jonny thinks \u2014 share your own take."
+                f"{playthrough_block}"
+                f"{self._kira_voice_guardrails()}"
             )
 
             response = await self.ai_core.kira_deep_response(
@@ -1902,32 +2079,8 @@ class VTubeBot:
             return
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
 
-        anti_fabrication = (
-            "\n\nCRITICAL RULES:\n"
-            "- Do NOT reference past events, games, conversations, or shared experiences "
-            "that you cannot verify from the memory notes provided.\n"
-            "- Do NOT invent shared history ('that game we played', 'remember when', etc.) "
-            "unless it is explicitly in the memory notes.\n"
-            "- React only to the current moment and what is actually present right now.\n"
-            "- If you have nothing real to react to, make a small genuine observation about the present scene "
-            "or stay closer to a simple aside. No fabricated nostalgia."
-        )
-
-        avoid_block = ""
-        if self.recent_observer_comments:
-            recent_str = "\n".join(f"- {c}" for c in self.recent_observer_comments[-8:])
-            avoid_block = (
-                f"\n\n[AVOID REPETITION] You recently said these. Do NOT reuse their structure, "
-                f"phrasing, or comedic format. Find a genuinely different angle:\n{recent_str}\n"
-                f"BANNED PHRASES (never use these):\n"
-                f"- 'doing a lot of heavy lifting' / 'carrying hard' / 'carrying this'\n"
-                f"- 'doing more work than'\n"
-                f"- 'doing something illegal to my brain'\n"
-                f"- 'defies several laws of physics' / 'defies the laws of'\n"
-                f"These are overused. Find fresh, specific observations.\n"
-            )
-
-        full_prompt = prompt + anti_fabrication + avoid_block
+        # Shared guardrails (anti-fabrication + banned phrases + observer-avoid)
+        full_prompt = prompt + self._kira_voice_guardrails(include_observer_avoid=True)
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         if self.ai_core.anthropic_client:
@@ -2018,6 +2171,20 @@ class VTubeBot:
                 if audio_ctx:
                     effective_situational = (effective_situational + "\n\n" + audio_ctx) if effective_situational else audio_ctx
 
+            # Ambient audio transcript — what's being SAID in the media she's
+            # watching. Sourced fresh per turn from the rolling deque so she sees
+            # only the recent window (Stage 1 already caps to ~MAX_CHARS/MAX_AGE).
+            # CONTEXT not INPUT: never enters triage, never triggers a response —
+            # her mic is still the only respond trigger. This is just so she can
+            # reference what the streamer said when SHE chooses or Jonny asks.
+            ambient_transcript = ""
+            if self.loopback_transcriber is not None and self.loopback_transcriber.is_running():
+                try:
+                    ambient_transcript = self.loopback_transcriber.get_transcript_text() or ""
+                except Exception as _e_amb:
+                    print(f"   [Brain] Loopback transcript fetch failed: {_e_amb}")
+                    ambient_transcript = ""
+
             # Try Claude Sonnet 4.6 first — streamed when available for low latency
             full_response_text = ""
             streamed_already_spoken = False
@@ -2079,10 +2246,24 @@ class VTubeBot:
                 if audio_part:
                     chat_system += f"\n\n{audio_part}"
 
+                # Song-ID intent: if the user explicitly asked Kira to identify the
+                # currently-playing song, fingerprint the audio buffer via AudD and
+                # inject the real result as sense-data she lands on in character.
+                song_block = await self._maybe_identify_song(raw_user_text)
+                if song_block:
+                    chat_system += song_block
+
                 if visual_part:
-                    chat_system += (
-                        f"\n\n[CURRENT PERCEPTION \u2014 what is on screen RIGHT NOW]\n{visual_part}"
-                    )
+                    chat_system += self._frame_visual_perception(visual_part)
+
+                # Ambient audio transcript — render as a sibling sense block to
+                # visual perception. Skipped when transcriber is off or window
+                # is empty so other modes are unaffected.
+                if ambient_transcript:
+                    chat_system += self._frame_ambient_audio(ambient_transcript)
+
+                # Shared voice guardrails on every Sonnet chat turn too
+                chat_system += self._kira_voice_guardrails()
                 try:
                     if ENABLE_CLAUDE_STREAMING:
                         # Streaming path: speak as tokens arrive
@@ -2132,6 +2313,7 @@ class VTubeBot:
                     memory_context=memory_context,
                     activity_context=self.current_activity,
                     situational_context=effective_situational,
+                    ambient_audio_context=ambient_transcript,
                     max_tokens_override=(50 if brief_mode else None),
                 )
         

@@ -10,8 +10,10 @@ __pycache__/
 # Data & models
 memory_db/
 models/
+logs/
 *.gguf
 *.log
+*.wav
 *.sqlite3
 *.db
 

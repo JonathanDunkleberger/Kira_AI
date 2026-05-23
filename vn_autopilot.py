@@ -259,13 +259,18 @@ class VNAutopilot:
         ),
     }
 
-    def __init__(self, ai_core, vision_client=None):
+    def __init__(self, ai_core, vision_client=None, bot=None):
         """
         ai_core:        AI_Core instance (for Anthropic/Claude access)
         vision_client:  AsyncOpenAI instance (for screen classification + transcription)
+        bot:            Optional reference to the parent KiraBot — used to look up
+                        semantic memory, playthrough memory, and shared voice guardrails
+                        so in-character VN reactions sound like Kira instead of a
+                        memory-blind chatbot.
         """
         self.ai_core = ai_core
         self.vision_client = vision_client
+        self.bot = bot
         self.input_controller = VNInputController()
 
         # ── Public state (polled by bot / dashboard) ───────────────────────────
@@ -2235,11 +2240,42 @@ class VNAutopilot:
                 if self._scene_art_description else ""
             )
 
+            # Pull semantic memory + playthrough memory + voice guardrails via the
+            # bot reference so in-character VN reactions aren't memory-blind. Falls
+            # back gracefully when bot wasn't wired (older callers / tests).
+            memory_block = ""
+            playthrough_block = ""
+            guardrails = ""
+            persona_system = self.ai_core.system_prompt
+            if self.bot is not None:
+                try:
+                    mem = self.bot.memory.get_semantic_context(text)
+                    if mem:
+                        memory_block = (
+                            f"\n\n[MEMORY NOTES — do not quote, do not invent things not present here]\n{mem}"
+                        )
+                except Exception:
+                    pass
+                if getattr(self.bot, "playthrough_memory", None):
+                    try:
+                        pt_ctx = self.bot.playthrough_memory.get_context_for_prompt()
+                        if pt_ctx:
+                            playthrough_block = (
+                                f"\n\n[PLAYTHROUGH MEMORY — reference as lived experience, not data]\n{pt_ctx}"
+                            )
+                    except Exception:
+                        pass
+                try:
+                    guardrails = self.bot._kira_voice_guardrails()
+                except Exception:
+                    pass
+
             prompt = (
                 f"You are Kira, reading a visual novel aloud on stream — you ARE the narrator.\n\n"
                 f"You just read this aloud:\n\"{text}\"\n"
                 f"{narrative_block}{scene_art_note}{trajectory_note}{attachment_instruction}"
-                f"{theory_instruction}{investment_note}{solo_instruction}\n\n"
+                f"{theory_instruction}{investment_note}{solo_instruction}"
+                f"{playthrough_block}{memory_block}\n\n"
                 f"{intensity_instruction}\n\n"
                 f"Your PRIMARY job is narrating the story. Reactions are RARE seasoning — only "
                 f"break from narration when a moment genuinely earns it: something funny, an "
@@ -2250,10 +2286,12 @@ class VNAutopilot:
                 f"or paraphrase what was just read. 1 short sentence max, clearly your own voice.\n\n"
                 f"React (1 sentence max, adds something new) or SILENT?\n"
                 f"Output ONLY the reaction text or the word SILENT."
+                f"{guardrails}"
             )
             resp = await self.ai_core.anthropic_client.messages.create(
                 model=CLAUDE_CHAT_MODEL,
                 max_tokens=160,
+                system=persona_system,
                 messages=[{"role": "user", "content": prompt}],
             )
             return resp.content[0].text.strip()

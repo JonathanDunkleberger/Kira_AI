@@ -617,7 +617,8 @@ class KiraDashboard(ctk.CTk):
     def _build_right(self):
         frame = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
         frame.grid(row=0, column=2, sticky="nsew", padx=(4, 8), pady=8)
-        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_rowconfigure(1, weight=2)
+        frame.grid_rowconfigure(4, weight=1)
         frame.grid_columnconfigure(0, weight=1)
 
         ctk.CTkLabel(
@@ -631,6 +632,26 @@ class KiraDashboard(ctk.CTk):
         )
         self.txt_twitch.grid(row=1, column=0, sticky="nsew", padx=6, pady=(0, 8))
         self.txt_twitch.configure(state="disabled")
+
+        # ── Loopback transcript pane (Stage 1: visibility only) ──
+        ctk.CTkLabel(
+            frame, text="LOOPBACK TRANSCRIPT (system audio · Whisper)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+        ).grid(row=2, column=0, sticky="w", padx=10, pady=(4, 2))
+        self.loopback_status_label = ctk.CTkLabel(
+            frame, text="Loopback STT: idle",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED,
+            anchor="w", justify="left",
+        )
+        self.loopback_status_label.grid(row=3, column=0, sticky="ew", padx=10, pady=(0, 2))
+        self.txt_loopback = ctk.CTkTextbox(
+            frame, font=("Consolas", 11),
+            fg_color=C_SURFACE, text_color=C_TEXT, wrap="word",
+            scrollbar_button_color=C_ACCENT,
+            height=180,
+        )
+        self.txt_loopback.grid(row=4, column=0, sticky="nsew", padx=6, pady=(0, 8))
+        self.txt_loopback.configure(state="disabled")
 
     # STATUS BAR
 
@@ -966,6 +987,7 @@ class KiraDashboard(ctk.CTk):
             self._refresh_mute_status()
             self._refresh_vibe_meter()
             self._refresh_audio_status()
+            self._refresh_loopback_transcript()
             self._refresh_autopilot_status()
             self._refresh_media_watch_status()
         except Exception:
@@ -1161,6 +1183,34 @@ class KiraDashboard(ctk.CTk):
         }
         mode = label_to_mode.get(choice, AUDIO_MODE_OFF)
         self.bot.audio_agent.set_mode(mode)
+
+        # Loopback Whisper transcriber — Stage 1: MEDIA mode only. MUSIC mode is
+        # intentionally skipped (mic capture of Jonny's own voice/guitar would
+        # create a feedback loop where Kira reads her own input back as ambient
+        # "speech"). Started in a background thread so the model-load on first
+        # MEDIA toggle doesn't freeze the Tk loop.
+        lt = self.bot.loopback_transcriber
+        if lt is not None:
+            if mode == AUDIO_MODE_MEDIA:
+                if not lt.is_running():
+                    # Pass a getter for ai_core.is_speaking so the transcriber
+                    # can gate itself off while Kira's TTS is active (her voice
+                    # plays through the same speakers the loopback records).
+                    ai_core_ref = self.bot.ai_core
+                    speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                        if ai_core_ref is not None else None
+                    threading.Thread(
+                        target=lambda: lt.start(self.bot.audio_agent, speaking_fn),
+                        daemon=True,
+                        name="LoopbackSTT-bootstrap",
+                    ).start()
+            else:
+                # Always call stop() — even if the pump isn't running, stop()
+                # still releases the WhisperModel from VRAM if it was previously
+                # loaded. Gating on is_running() would leak the ~1.5GB model
+                # across MEDIA → OFF → MEDIA → OFF cycles.
+                threading.Thread(target=lt.stop, daemon=True).start()
+
         if mode == AUDIO_MODE_OFF:
             self.audio_status_label.configure(text="Audio: off", text_color=C_MUTED)
         elif mode == AUDIO_MODE_MEDIA:
@@ -1188,6 +1238,28 @@ class KiraDashboard(ctk.CTk):
             text=f"🎧 {rel}s ago:\n{summary}",
             text_color=C_GREEN,
         )
+
+    def _refresh_loopback_transcript(self):
+        """Refresh the loopback Whisper transcript pane. Stage 1: visibility only —
+        the transcript is NOT yet flowing into Kira's prompt context."""
+        lt = getattr(self.bot, "loopback_transcriber", None)
+        if lt is None or not hasattr(self, "txt_loopback"):
+            return
+        # Status line
+        if hasattr(self, "loopback_status_label"):
+            status = lt.get_status_summary()
+            color = C_GREEN if lt.is_running() else C_MUTED
+            self.loopback_status_label.configure(text=status, text_color=color)
+        # Transcript body
+        body = lt.get_transcript_text() or "(no speech transcribed yet)"
+        try:
+            self.txt_loopback.configure(state="normal")
+            self.txt_loopback.delete("1.0", "end")
+            self.txt_loopback.insert("end", body)
+            self.txt_loopback.see("end")
+            self.txt_loopback.configure(state="disabled")
+        except Exception:
+            pass
 
     def _vision_loop(self):
         if self.bot.game_mode_controller.is_active and not self._vision_lock:

@@ -220,7 +220,7 @@ class AI_Core:
             raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
         print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
-    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", max_tokens_override: int = None) -> str:
+    async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", ambient_audio_context: str = "", max_tokens_override: int = None) -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = self.system_prompt
         emotion_desc = EMOTION_DESCRIPTORS.get(current_emotion, "Be yourself.")
@@ -243,10 +243,26 @@ class AI_Core:
 
         if situational_context:
             system_prompt += (
-                f"\n\n[CURRENT PERCEPTION — what is on screen RIGHT NOW]\n"
+                f"\n\n[CURRENT VISUAL PERCEPTION — what is on screen RIGHT NOW]\n"
                 f"{situational_context}\n"
-                f"This is your live awareness of the screen as of this moment. "
-                f"Do not treat it as something from the past or repeat it verbatim."
+                f"This is sense data — what your eyes are taking in. It is NOT a script or narration. "
+                f"Do NOT recap or paraphrase it (Jonny saw it too — he doesn't want a closed-captioner). "
+                f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence "
+                f"and do not commit to specifics. React in YOUR voice — a feeling, quip, callback, take — "
+                f"not a description of what is on the screen."
+            )
+
+        if ambient_audio_context:
+            system_prompt += (
+                f"\n\n[AMBIENT AUDIO — what's being said in the media Jonny is watching, NOT directed at you]\n"
+                f"{ambient_audio_context}\n"
+                f"This is a best-effort transcript of speech happening in whatever Jonny has on the screen "
+                f"(a streamer, narrator, character dialogue, etc.). It is your AWARENESS of the content, "
+                f"NOT a script and NOT addressed to you. Jonny's mic is still the only thing you respond to. "
+                f"Do NOT quote it, recap it, or read it back verbatim — react to the GIST in your own voice, "
+                f"the way a friend on the couch would. The transcript is imperfect: ignore garbled or "
+                f"clearly-nonsense fragments rather than confidently building on them. Treat unclear bits "
+                f"as 'something's happening over there' instead of asserting them as fact."
             )
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
@@ -298,12 +314,50 @@ class AI_Core:
         resp = await asyncio.to_thread(_guarded)
         return resp["choices"][0]["message"]["content"].strip()
 
+    @staticmethod
+    def _triage_rescue(decision: str, incoming_line: str) -> str:
+        """If the fast classifier returned STAY_QUIET but the line shows clear signals
+        of direct address, imperative, question, or social cue, upgrade to BRIEF.
+        Shared safety net so every caller of decide_response_mode benefits."""
+        if decision != "STAY_QUIET":
+            return decision
+        content_stripped = (incoming_line or "").strip()
+        if not content_stripped:
+            return decision
+        lower_stripped = content_stripped.lower()
+        addressed_to_kira = "kira" in lower_stripped
+        imperative_prefixes = (
+            "do ", "go ", "try ", "play ", "open ", "show ", "tell ",
+            "explain", "sing ", "remember", "let's", "lets ", "let us",
+        )
+        social_signal = any(s in lower_stripped for s in (
+            "thanks", "thank ", " ty ", "brb", "back", "sorry",
+        )) or lower_stripped in ("ty", "thanks", "thank you", "brb", "sorry")
+        looks_like_question = (
+            "?" in content_stripped
+            or lower_stripped.startswith((
+                "what", "why", "how", "when", "where", "who", "which",
+                "is ", "are ", "was ", "were ", "do ", "does ", "did ",
+                "can ", "could ", "will ", "would ", "should ",
+            ))
+            or lower_stripped.startswith(imperative_prefixes)
+            or addressed_to_kira
+            or social_signal
+        )
+        if looks_like_question:
+            print(f"   [Triage] Upgrading STAY_QUIET → BRIEF (rescue: question/address/imperative/social)")
+            return "BRIEF"
+        return decision
+
     async def decide_response_mode(self, recent_history: list, incoming_line: str, scene_context: str, source: str, immersive: bool = False) -> str:
         """Fast triage: should Kira respond fully, briefly, or stay quiet?
         Returns one of: 'RESPOND', 'BRIEF', 'STAY_QUIET'.
 
         immersive=True  -> bias toward silence (passive media: VN, movies, anime).
-        immersive=False -> bias toward responding (default companion behavior)."""
+        immersive=False -> bias toward responding (default companion behavior).
+
+        Applies the shared rescue (STAY_QUIET -> BRIEF on direct-address / imperative /
+        question / social-signal patterns) before returning, so every call site benefits."""
 
         history_lines = []
         for turn in recent_history[-4:]:
@@ -350,13 +404,15 @@ class AI_Core:
             raw = await self.tool_inference(system, user, max_tokens=8)
             raw = raw.strip().upper()
             if "STAY_QUIET" in raw or "STAY QUIET" in raw:
-                return "STAY_QUIET"
-            if "BRIEF" in raw:
-                return "BRIEF"
-            return "RESPOND"
+                decision = "STAY_QUIET"
+            elif "BRIEF" in raw:
+                decision = "BRIEF"
+            else:
+                decision = "RESPOND"
         except Exception as e:
             print(f"   [Triage] Error: {e}; defaulting to RESPOND")
-            return "RESPOND"
+            decision = "RESPOND"
+        return self._triage_rescue(decision, incoming_line)
 
     async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False) -> str:
         """Routes a generation call to Claude Opus. Used for deep cognitive moments
@@ -417,7 +473,14 @@ class AI_Core:
             + "\n\n[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
         )
         if scene_context:
-            system_prompt += f"\n\n[CURRENT SCENE]\n{scene_context}"
+            system_prompt += (
+                f"\n\n[CURRENT SCENE — raw perception of what is on screen / playing right now]\n"
+                f"{scene_context}\n"
+                f"This is sense data — what your eyes and ears are taking in. It is NOT a script. "
+                f"Do NOT recap or paraphrase it (Jonny saw/heard it too). If any line begins with "
+                f"'UNCERTAIN:' or contains hedge language, treat it as low-confidence and do not commit "
+                f"to specifics. React in YOUR voice — a feeling, quip, callback, take — not narration."
+            )
         if memory_context:
             system_prompt += f"\n\n[RELEVANT MEMORIES \u2014 use to stay consistent, do not quote]\n{memory_context}"
 

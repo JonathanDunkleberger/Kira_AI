@@ -59,3 +59,6 @@ CLAUDE_CHAT_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
 ENABLE_CLAUDE_CHAT = os.getenv("ENABLE_CLAUDE_CHAT", "true").lower() == "true"
 ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "true").lower() == "true"
 ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() == "true"
+
+# AudD audio fingerprinting (paid API; only fires on explicit user song-ID intent).
+AUDD_API_TOKEN = os.getenv("AUDD_API_TOKEN", "")
