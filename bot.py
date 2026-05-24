@@ -210,7 +210,11 @@ class VTubeBot:
         })
 
     def is_muted(self) -> bool:
-        return time.time() < self.mute_until
+        # Hard-pause (is_paused) acts as an indefinite mute that suppresses
+        # ALL response paths — bored interjections, chat batch, voice replies,
+        # invites, autopilot reactions, audio reactions. The timed mute_until
+        # is layered on top for quick "give me 60s" asides.
+        return self.is_paused or time.time() < self.mute_until
 
     def mute_for(self, seconds: float):
         """Mutes Kira for the given duration. Also interrupts any currently-playing speech."""
@@ -221,6 +225,21 @@ class VTubeBot:
     def unmute(self):
         self.mute_until = 0.0
         print("   [Mute] Unmuted")
+
+    def pause_model(self):
+        """Indefinite hard pause: suppresses ALL response generation until resumed.
+        Also pauses the voice recorder and cuts off any currently-playing speech."""
+        self.is_paused = True
+        self.interruption_event.set()  # cut off current utterance immediately
+        # Reset any lingering timed mute so resume returns to a clean state
+        self.mute_until = 0.0
+        print("   [Pause] Model PAUSED \u2014 all responses suppressed (mic, chat, bored, autopilot)")
+
+    def resume_model(self):
+        """Release the indefinite hard pause."""
+        self.is_paused = False
+        self.interruption_event.clear()
+        print("   [Pause] Model RESUMED")
 
     # ── Autonomous VN Autopilot wiring ────────────────────────────────────────
 
@@ -257,6 +276,80 @@ class VTubeBot:
         print(f"   [Autopilot] Failsafe active — paused for Jonny ({screen_type}).")
 
     # ── Shared voice guardrails / perception framing (used by every reaction path) ───
+
+    def _has_fresh_visual_context(self, max_age: float = 15.0) -> bool:
+        """Returns True only when the vision agent is on AND has a real, recent capture.
+        Used to gate any prompt path that would otherwise let Kira make visual claims
+        when she has no actual eyes on the screen."""
+        va = self.vision_agent
+        if not va or not va.is_active:
+            return False
+        if not va.last_capture_time:
+            return False
+        if (time.time() - va.last_capture_time) > max_age:
+            return False
+        # Reject the pre-capture placeholder
+        default_desc = "I'm just getting my bearings. One sec!"
+        return bool(va.scene_summary or (va.last_description and va.last_description != default_desc))
+
+    def _visual_blindness_directive(self) -> str:
+        """Strong prohibition against fabricated visual observations when vision is off
+        or no frame has been captured. Mirrors the UNCERTAIN-honesty rule already used
+        by the vision agent — don't claim to see what you can't see."""
+        return (
+            "\n\n[VISUAL STATUS: BLIND — no live visual input]\n"
+            "Your eyes are closed right now. There is no screen, no scene, no characters, no image available to you. "
+            "Absolutely DO NOT make any visual observation or claim anything about what is 'on screen', a 'visual novel', "
+            "a 'game', a 'video', a character's appearance, gesture, expression, posture, scene composition, or any imagery. "
+            "Do NOT name characters. Do NOT reference a 'screen', 'frame', or anything visual as if you can see it. "
+            "React only to things you actually have: the silence, the conversation, audio you can hear, a real memory, "
+            "or your own inner state. If you have nothing real and non-visual to say, output exactly [SILENCE]."
+        )
+
+    def _stale_visual_directive(self, age_seconds: int) -> str:
+        """Used when vision is on but the last frame is too old to be treated as 'now'."""
+        return (
+            f"\n\n[VISUAL STATUS: STALE — last frame was {age_seconds}s ago]\n"
+            f"Your last visual capture is too old to comment on as if it's current. Do NOT present any visual "
+            f"observation as happening right now. Prefer commenting on the silence, audio, or conversation instead. "
+            f"If you have nothing real and non-visual to say, output exactly [SILENCE]."
+        )
+
+    # Specific visual-attribute questions ("what color are her eyes", "what's on
+    # screen", "who's that") that REQUIRE a fresh frame to answer honestly. If
+    # we don't snapshot before answering, the LLM will fabricate from character
+    # priors and only correct itself when forced to look.
+    _VISUAL_QUESTION_PATTERNS = [
+        # Direct sight questions
+        r'\bwhat (?:do you|can you|are you) (?:see|seeing|look(?:ing)? at|watch(?:ing)?)\b',
+        r'\b(?:do you|can you) see\b',
+        r"\bwhat'?s on (?:the )?screen\b",
+        r"\bwhat'?s (?:happening|going on) (?:on screen|right now|on the screen)\b",
+        # Attribute questions about visible things
+        r'\bwhat colou?r (?:are|is|do)\b',
+        r'\bwhat (?:is|are) (?:she|he|they|it) wearing\b',
+        r"\bwhat does (?:she|he|it|that|this) look like\b",
+        r'\bhow many .+ (?:are|on screen|do you see)\b',
+        r'\bwho(?:\'s| is) (?:that|this|on (?:the )?screen|in (?:the )?(?:frame|scene))\b',
+        r'\bwhich (?:character|one|option)\b',
+        # Pointing at visible things
+        r'\blook at (?:the |this |that |her |his |their |it)?\b',
+        r'\bcheck (?:the |this |that )?(?:screen|frame|out)\b',
+    ]
+
+    def _is_visual_question(self, text: str) -> bool:
+        """Detects user voice input that REQUIRES a fresh visual snapshot before
+        the LLM is allowed to answer. Used to force a pre-answer look so Kira
+        never confabulates a visual detail and corrects herself later."""
+        if not text:
+            return False
+        if not self.vision_agent or not self.vision_agent.is_active:
+            return False
+        lower = text.lower()
+        for pat in self._VISUAL_QUESTION_PATTERNS:
+            if re.search(pat, lower):
+                return True
+        return False
 
     def _kira_voice_guardrails(self, include_observer_avoid: bool = False) -> str:
         """Shared anti-fabrication + banned-phrase block. Appended to every in-character
@@ -990,6 +1083,21 @@ class VTubeBot:
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
+                    # Forced-look pre-step: if Jonny asked a specific visual question
+                    # (e.g. "what color are her eyes"), grab a fresh frame and answer
+                    # from THAT before the LLM gets a chance to confabulate. This runs
+                    # regardless of game_mode_controller state — visual questions need
+                    # a real frame, not character priors.
+                    forced_visual_answer = ""
+                    if source == "voice" and self._is_visual_question(content):
+                        print(f"   [Vision] Visual question detected — forcing fresh snapshot before answering: {content[:80]!r}")
+                        try:
+                            forced_visual_answer = await self.vision_agent.capture_and_answer(content)
+                            print(f"   [Vision] Pre-answer look: {forced_visual_answer[:160]}")
+                        except Exception as e:
+                            print(f"   [Vision] Forced-look failed: {e}")
+                            forced_visual_answer = ""
+
                     if self.game_mode_controller.is_active:
                         lower = content.lower()
                         read_phrases = [
@@ -1049,7 +1157,10 @@ class VTubeBot:
                             )
                             cache_ttl = 2 if is_question_like else 7
                             time_since_last = time.time() - self.vision_agent.last_capture_time
-                            if time_since_last < cache_ttl:
+                            if forced_visual_answer:
+                                # Already took a targeted snapshot above — reuse it.
+                                visual_desc = self.vision_agent.last_description
+                            elif time_since_last < cache_ttl:
                                 print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s, ttl={cache_ttl}s)...")
                                 visual_desc = self.vision_agent.last_description
                             else:
@@ -1057,6 +1168,22 @@ class VTubeBot:
                                 visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
                         else:
                             visual_desc = self.vision_agent.get_vision_context()
+
+                    # If a visual question forced a fresh snapshot, anchor the LLM
+                    # to it explicitly — and append the short-term visual memory so
+                    # she answers from what she actually saw, not from priors.
+                    if forced_visual_answer:
+                        recent_mem = self.vision_agent.get_recent_visual_memory(max_age=60.0)
+                        anchor = (
+                            "[VISUAL STATUS: FRESH — just looked at the screen to answer your question]\n"
+                            "Ground your answer ONLY in this targeted observation. Do NOT invent details "
+                            "that aren't stated here. If it starts with UNCERTAIN:, acknowledge you can't "
+                            "tell rather than guessing.\n"
+                            f"Fresh look (in response to: \"{content.strip()}\"): {forced_visual_answer.strip()}"
+                        )
+                        if recent_mem:
+                            anchor += f"\n\nShort-term visual memory (recent frames):\n{recent_mem}"
+                        visual_desc = (anchor + "\n\n" + visual_desc) if visual_desc else anchor
 
                     # Media Watch episode log injection — when active, prepend
                     # the rolling event timeline so question-answering draws on
@@ -1849,24 +1976,44 @@ class VTubeBot:
                 if silence_duration > immersive_stage_2 and self.silence_stage < 2:
                     async with self.processing_lock:
                         self.silence_stage = 2
-                        scene = self.vision_agent.get_vision_context()
+                        if self._has_fresh_visual_context():
+                            scene = self.vision_agent.get_vision_context()
+                            prompt = (
+                                f"You and Jonny are watching {self.current_activity or 'something'} together. "
+                                f"Current scene: {scene}\n\n"
+                                f"Drop a brief, natural observation about a character, the mood, or something on screen — "
+                                f"like a friend on the couch. One short sentence. No questions. Observational, not interrogative."
+                            )
+                        else:
+                            prompt = (
+                                "It's been quiet for a long stretch. You can't see anything right now — so "
+                                "comment on the silence itself, the mood of just sitting together, or something "
+                                "real from your inner state. One short sentence. No questions. No visual claims."
+                            )
                         await self._execute_interjection(
-                            f"You and Jonny are watching {self.current_activity or 'something'} together. "
-                            f"Current scene: {scene}\n\n"
-                            f"Drop a brief, natural observation about a character, the mood, or something on screen — "
-                            f"like a friend on the couch. One short sentence. No questions. Observational, not interrogative.",
+                            prompt,
                             memory_query=f"reactions to {self.current_activity}",
                         )
                 elif silence_duration > immersive_stage_1 and self.silence_stage < 1:
                     async with self.processing_lock:
                         self.silence_stage = 1
-                        scene = self.vision_agent.get_vision_context()
+                        if self._has_fresh_visual_context():
+                            scene = self.vision_agent.get_vision_context()
+                            prompt = (
+                                f"You and Jonny are watching {self.current_activity or 'something'} together. "
+                                f"Current scene: {scene}\n\n"
+                                f"Make a short, natural remark about what just happened or what stands out — "
+                                f"like a friend reacting under their breath. One short sentence. "
+                                f"No questions. Observational, not interrogative."
+                            )
+                        else:
+                            prompt = (
+                                "It's been quiet for a while. You can't see anything right now — so make a "
+                                "short, natural remark about the silence, the shared mood, or something on "
+                                "your mind. One short sentence. No questions. No visual claims."
+                            )
                         await self._execute_interjection(
-                            f"You and Jonny are watching {self.current_activity or 'something'} together. "
-                            f"Current scene: {scene}\n\n"
-                            f"Make a short, natural remark about what just happened or what stands out — "
-                            f"like a friend reacting under their breath. One short sentence. "
-                            f"No questions. Observational, not interrogative.",
+                            prompt,
                             memory_query=f"reactions to {self.current_activity}",
                         )
                 continue  # Don't fall through to the streamer-mode logic below
@@ -1882,24 +2029,36 @@ class VTubeBot:
                 if silence_duration > 240.0 and self.silence_stage < 2:
                     async with self.processing_lock:
                         self.silence_stage = 2
-                        vn_ctx = self.vision_agent.get_vision_context()
+                        if self._has_fresh_visual_context():
+                            vn_ctx = self.vision_agent.get_vision_context()
+                            prompt = (
+                                f"You and Jonny are watching a visual novel together. "
+                                f"Current screen: {vn_ctx}\n\n"
+                                f"Ask Jonny one thoughtful question about the story, characters, or "
+                                f"something you're both curious about. Keep it brief and natural, "
+                                f"like a friend on the couch.\n\n"
+                                f"Vary your observation TYPE. Rotate between these modes — pick whichever "
+                                f"you haven't done recently:\n"
+                                f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
+                                f"2. A callback to something from earlier this session or a running bit\n"
+                                f"3. A relatable aside about being an AI watching this unfold\n"
+                                f"4. A specific reaction to ONE small detail on screen right now\n"
+                                f"5. Light teasing of Jonny about his pace, silence, or choices\n"
+                                f"6. A short sincere or emotional beat about the story\n"
+                                f"7. Direct engagement with chat if anyone has spoken recently\n"
+                                f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
+                                f"structure more than once. Mix it up genuinely."
+                            )
+                        else:
+                            prompt = (
+                                "It's been very quiet during this visual novel session, but you can't see "
+                                "anything on screen right now. Without claiming any visual detail, do ONE of: "
+                                "ask Jonny what he's reaching/feeling about, make a relatable aside about "
+                                "waiting in the dark as an AI, or comment on the silence itself. "
+                                "One short, natural line."
+                            )
                         await self._execute_interjection(
-                            f"You and Jonny are watching a visual novel together. "
-                            f"Current screen: {vn_ctx}\n\n"
-                            f"Ask Jonny one thoughtful question about the story, characters, or "
-                            f"something you're both curious about. Keep it brief and natural, "
-                            f"like a friend on the couch.\n\n"
-                            f"Vary your observation TYPE. Rotate between these modes — pick whichever "
-                            f"you haven't done recently:\n"
-                            f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
-                            f"2. A callback to something from earlier this session or a running bit\n"
-                            f"3. A relatable aside about being an AI watching this unfold\n"
-                            f"4. A specific reaction to ONE small detail on screen right now\n"
-                            f"5. Light teasing of Jonny about his pace, silence, or choices\n"
-                            f"6. A short sincere or emotional beat about the story\n"
-                            f"7. Direct engagement with chat if anyone has spoken recently\n"
-                            f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
-                            f"structure more than once. Mix it up genuinely.",
+                            prompt,
                             memory_query=f"visual novel story {self.current_activity}",
                         )
 
@@ -1907,24 +2066,35 @@ class VTubeBot:
                 elif silence_duration > 90.0 and self.silence_stage < 1:
                     async with self.processing_lock:
                         self.silence_stage = 1
-                        vn_ctx = self.vision_agent.get_vision_context()
+                        if self._has_fresh_visual_context():
+                            vn_ctx = self.vision_agent.get_vision_context()
+                            prompt = (
+                                f"You and Jonny are watching a visual novel together. "
+                                f"Current screen: {vn_ctx}\n\n"
+                                f"Make a short natural remark about what just happened or what you noticed "
+                                f"on screen — like a friend watching with him. One or two sentences only. "
+                                f"Do NOT ask a generic 'what are you thinking' question.\n\n"
+                                f"Vary your observation TYPE. Rotate between these modes — pick whichever "
+                                f"you haven't done recently:\n"
+                                f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
+                                f"2. A callback to something from earlier this session or a running bit\n"
+                                f"3. A relatable aside about being an AI watching this unfold\n"
+                                f"4. A specific reaction to ONE small detail on screen right now\n"
+                                f"5. Light teasing of Jonny about his pace, silence, or choices\n"
+                                f"6. A short sincere or emotional beat about the story\n"
+                                f"7. Direct engagement with chat if anyone has spoken recently\n"
+                                f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
+                                f"structure more than once. Mix it up genuinely."
+                            )
+                        else:
+                            prompt = (
+                                "It's been quiet during this visual novel session, but you can't see "
+                                "anything on screen right now. Without claiming any visual detail, drop a "
+                                "short non-visual remark — about the silence, the act of waiting, or a "
+                                "callback to earlier conversation. One short sentence."
+                            )
                         await self._execute_interjection(
-                            f"You and Jonny are watching a visual novel together. "
-                            f"Current screen: {vn_ctx}\n\n"
-                            f"Make a short natural remark about what just happened or what you noticed "
-                            f"on screen — like a friend watching with him. One or two sentences only. "
-                            f"Do NOT ask a generic 'what are you thinking' question.\n\n"
-                            f"Vary your observation TYPE. Rotate between these modes — pick whichever "
-                            f"you haven't done recently:\n"
-                            f"1. A genuine question about the story or a character's motive (curious, not rhetorical)\n"
-                            f"2. A callback to something from earlier this session or a running bit\n"
-                            f"3. A relatable aside about being an AI watching this unfold\n"
-                            f"4. A specific reaction to ONE small detail on screen right now\n"
-                            f"5. Light teasing of Jonny about his pace, silence, or choices\n"
-                            f"6. A short sincere or emotional beat about the story\n"
-                            f"7. Direct engagement with chat if anyone has spoken recently\n"
-                            f"NEVER default to the '[character/object] is doing [exaggerated thing]' "
-                            f"structure more than once. Mix it up genuinely.",
+                            prompt,
                             memory_query=f"visual novel {self.current_activity}",
                         )
                 # No chaos stage during VN — silence is normal while reading
@@ -1935,8 +2105,20 @@ class VTubeBot:
                 if silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
                     async with self.processing_lock:
                         self.silence_stage = 2
+                        if self._has_fresh_visual_context():
+                            stage2_prompt = (
+                                "Jonny has been quiet for a while. Make a brief, natural observation \u2014 "
+                                "something on your mind, something about the scene, anything. Don't ask him "
+                                "what he's thinking. One short sentence."
+                            )
+                        else:
+                            stage2_prompt = (
+                                "Jonny has been quiet for a while. Make a brief, natural observation \u2014 "
+                                "about the silence, something on your mind, or a real memory. Don't ask him "
+                                "what he's thinking. One short sentence."
+                            )
                         await self._execute_interjection(
-                            "Jonny has been quiet for a while. Make a brief, natural observation \u2014 something on your mind, something about the scene, anything. Don't ask him what he's thinking. One short sentence.",
+                            stage2_prompt,
                             memory_query="what makes Jonny laugh or react",
                         )
 
@@ -2084,12 +2266,31 @@ class VTubeBot:
             return
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
 
+        # Visual status: only feed scene context when we have a fresh frame.
+        # Otherwise inject an explicit blindness/stale directive so the LLM cannot
+        # fabricate "what's on screen" comments from memory or thin air.
+        fresh_visual = self._has_fresh_visual_context()
+        va = self.vision_agent
+        if fresh_visual:
+            scene = va.get_vision_context()
+            visual_directive = ""
+        else:
+            scene = ""
+            if va and va.is_active and va.last_capture_time:
+                age = int(time.time() - va.last_capture_time)
+                visual_directive = self._stale_visual_directive(age)
+            else:
+                visual_directive = self._visual_blindness_directive()
+
         # Shared guardrails (anti-fabrication + banned phrases + observer-avoid)
-        full_prompt = prompt + self._kira_voice_guardrails(include_observer_avoid=True)
+        full_prompt = (
+            prompt
+            + visual_directive
+            + self._kira_voice_guardrails(include_observer_avoid=True)
+        )
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         if self.ai_core.anthropic_client:
-            scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
             if self.audio_agent and self.audio_agent.is_active():
                 audio_ctx = self.audio_agent.get_audio_context()
                 if audio_ctx:

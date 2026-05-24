@@ -378,12 +378,17 @@ class KiraDashboard(ctk.CTk):
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=14, pady=(10, 4))
         self.btn_toggle = ctk.CTkButton(
-            frame, text="Pause Bot",
+            frame, text="\u23f8  Pause Model",
             fg_color=C_RED, hover_color="#7A2E2E", height=34,
             font=ctk.CTkFont(size=12, weight="bold"),
             command=self._toggle_bot
         )
-        self.btn_toggle.pack(fill="x", padx=12, pady=(0, 6))
+        self.btn_toggle.pack(fill="x", padx=12, pady=(0, 4))
+        self.lbl_pause_state = ctk.CTkLabel(
+            frame, text="Model: ACTIVE",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_GREEN,
+        )
+        self.lbl_pause_state.pack(anchor="w", padx=14, pady=(0, 6))
         ctk.CTkButton(
             frame, text="Reload Personality",
             fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
@@ -406,7 +411,7 @@ class KiraDashboard(ctk.CTk):
         self.btn_interrupt.pack(fill="x", padx=12, pady=(0, 4))
 
         self.btn_mute = ctk.CTkButton(
-            frame, text="\U0001f507  Mute 30s  (F9)",
+            frame, text="\U0001f507  Mute 60s  (F9)",
             fg_color=C_YELLOW, hover_color="#7C5A2C", height=36,
             font=ctk.CTkFont(size=12, weight="bold"),
             command=self._btn_mute_toggle
@@ -415,7 +420,7 @@ class KiraDashboard(ctk.CTk):
 
         ctk.CTkLabel(
             frame,
-            text="Interrupt cuts off her current sentence. Mute also keeps her quiet for 30s \u2014 useful when you\u2019re talking to chat. Hotkeys work even when this window isn\u2019t focused.",
+            text="Interrupt cuts off her current sentence. Mute keeps her quiet for 60s \u2014 useful when you\u2019re fielding a question from chat. Pause Model is an indefinite hard mute (use that for longer asides). Hotkeys work even when this window isn\u2019t focused.",
             font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
             justify="left",
         ).pack(anchor="w", padx=14, pady=(0, 12))
@@ -889,13 +894,14 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Immersive Mode toggled: {is_on}")
 
     def _toggle_bot(self):
-        self.bot.is_paused = not self.bot.is_paused
         if self.bot.is_paused:
-            self.bot.interruption_event.set()
-            self.btn_toggle.configure(text="Resume Bot", fg_color=C_GREEN, hover_color="#3D5C3D")
+            self.bot.resume_model()
+            self.btn_toggle.configure(text="\u23f8  Pause Model", fg_color=C_RED, hover_color="#7A2E2E")
+            self.lbl_pause_state.configure(text="Model: ACTIVE", text_color=C_GREEN)
         else:
-            self.bot.interruption_event.clear()
-            self.btn_toggle.configure(text="Pause Bot", fg_color=C_RED, hover_color="#7A2E2E")
+            self.bot.pause_model()
+            self.btn_toggle.configure(text="\u25b6  Resume Model", fg_color=C_GREEN, hover_color="#3D5C3D")
+            self.lbl_pause_state.configure(text="Model: PAUSED \u2014 all responses suppressed", text_color=C_RED)
 
     def _register_global_hotkeys(self):
         """Sets up F8 (interrupt) and F9 (mute toggle) as global hotkeys.
@@ -906,7 +912,7 @@ class KiraDashboard(ctk.CTk):
         try:
             kb_lib.add_hotkey('f8', self._hotkey_interrupt)
             kb_lib.add_hotkey('f9', self._hotkey_mute_toggle)
-            print("   [Dashboard] Global hotkeys registered: F8 = interrupt, F9 = mute toggle (30s)")
+            print("   [Dashboard] Global hotkeys registered: F8 = interrupt, F9 = mute toggle (60s)")
         except Exception as e:
             print(f"   [Dashboard] Failed to register hotkeys: {e}")
 
@@ -914,19 +920,26 @@ class KiraDashboard(ctk.CTk):
         self.bot.interrupt()
 
     def _hotkey_mute_toggle(self):
+        # Don't let the timed mute interfere with an indefinite Pause Model state.
+        if self.bot.is_paused:
+            print("   [Mute] Ignored \u2014 Pause Model is active (use Resume Model to release).")
+            return
         if self.bot.is_muted():
             self.bot.unmute()
         else:
-            self.bot.mute_for(30)
+            self.bot.mute_for(60)
 
     def _btn_interrupt(self):
         self.bot.interrupt()
 
     def _btn_mute_toggle(self):
+        if self.bot.is_paused:
+            print("   [Mute] Ignored \u2014 Pause Model is active (use Resume Model to release).")
+            return
         if self.bot.is_muted():
             self.bot.unmute()
         else:
-            self.bot.mute_for(30)
+            self.bot.mute_for(60)
 
     def _btn_stream_opener(self):
         if self.bot.event_loop and self.bot.event_loop.is_running():

@@ -125,6 +125,88 @@ class UniversalVisionAgent:
         time_diff = int(time.time() - self.last_capture_time)
         return f"[Seen {time_diff}s ago] {self.last_description}"
 
+    def get_recent_visual_memory(self, max_age: float = 60.0) -> str:
+        """Returns the short-term rolling buffer of recent frame descriptions
+        (last few heartbeat captures), filtered to entries newer than max_age.
+        Used to give the LLM a 'short-term visual memory' so it can answer
+        from what was actually recently seen, rather than fabricating."""
+        if not self.context_buffer.buffer:
+            return ""
+        # The buffer entries are timestamped strings like "[HH:MM:SS] desc".
+        # We can't easily age-filter without a parallel timestamp store, so we
+        # rely on last_capture_time as a coarse freshness gate.
+        if not self.last_capture_time or (time.time() - self.last_capture_time) > max_age:
+            return ""
+        return self.context_buffer.get_context_string()
+
+    async def capture_and_answer(self, question: str) -> str:
+        """Forces a fresh, targeted snapshot specifically to answer a visual
+        question (e.g. 'what color are her eyes', 'who's on screen'). Returns
+        a direct answer from the image, or an UNCERTAIN: prefix if the model
+        can't see well enough. Updates last_capture_time + last_description so
+        downstream cached-context paths benefit from the new frame.
+
+        This is the anti-confabulation pre-step: never let the LLM answer a
+        visual question from priors when a fresh look is possible.
+        """
+        if not self.client:
+            return "UNCERTAIN: vision unavailable (missing API key)."
+        try:
+            def process_image():
+                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
+                    img = self.shared_frame.copy()
+                else:
+                    img = ImageGrab.grab()
+                img.thumbnail((1920, 1080))
+                buffered = BytesIO()
+                img.save(buffered, format="JPEG", quality=85)
+                return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+            base64_image = await asyncio.to_thread(process_image)
+
+            prompt = (
+                "You are looking at Jonny's computer screen. Jonny just asked Kira "
+                "(an AI watching with him) the following question and she needs a "
+                "factual answer grounded ONLY in what is actually visible right now.\n\n"
+                f"Question: \"{question.strip()}\"\n\n"
+                "Answer the question directly and specifically based on what you can see. "
+                "1-2 sentences. Be precise about colors, names visible on screen, counts, "
+                "positions, and on-screen text. Quote any visible names exactly as shown.\n\n"
+                "HONESTY RULES (critical):\n"
+                "- If the answer is not actually visible (off-screen, occluded, blurred, "
+                "transition frame, ambiguous), START your reply with 'UNCERTAIN:' and say "
+                "what you CAN see plus why you can't answer precisely.\n"
+                "- Do NOT guess. Do NOT infer from genre tropes or character archetypes. "
+                "If a character's eye color, hair color, outfit detail, etc. is not clearly "
+                "visible in this frame, say UNCERTAIN.\n"
+                "- Do NOT invent character names. Only use names that appear as on-screen "
+                "labels or UI text."
+            )
+
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}",
+                        "detail": "high",
+                    }},
+                ]}],
+                max_tokens=180,
+                temperature=0,
+            )
+            content = (response.choices[0].message.content or "").strip()
+            self.last_capture_time = time.time()
+            # Mirror into last_description so other cached paths see a real frame,
+            # but keep the description short and grounded.
+            if content:
+                self.last_description = content
+                # Also push into the rolling buffer so the short-term memory benefits.
+                self.context_buffer.add(content)
+            return content or "UNCERTAIN: empty vision response."
+        except Exception as e:
+            return f"UNCERTAIN: vision call failed ({e})."
+
     async def heartbeat_loop(self):
         print("   [System] Eco-Mode Vision Active (dynamic heartbeat).")
         while True:
