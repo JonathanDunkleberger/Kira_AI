@@ -2101,6 +2101,19 @@ class VTubeBot:
 
             else:
                 # ── STREAMER MODE: boredom escalation ────────────────────────
+                # In streamer mode, bias roughly 1/3 of bored-loop lines toward a
+                # short question directed at chat — keeps the room alive and shifts
+                # Kira off the always-declarative reflex. NEVER in companion mode
+                # (self.mode == "companion") because there is no chat — it's just Jonny.
+                ask_chat = (self.mode == "streamer") and (random.random() < 0.33)
+                chat_question_directive = (
+                    "\n\nINSTEAD of an observation this time: ask CHAT one short, genuine question. "
+                    "Address them directly ('Chat, ...'). Real curiosity, not rhetorical. "
+                    "Examples of shape (don't copy): 'Chat, what's the weirdest VN you've played?', "
+                    "'Chat, am I wrong about this?', 'Chat, who's your Steins;Gate favorite?'. "
+                    "One sentence. Keep your edge — a question can still have teeth."
+                ) if ask_chat else ""
+
                 # STAGE 2: nudge (90s)
                 if silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
                     async with self.processing_lock:
@@ -2118,7 +2131,7 @@ class VTubeBot:
                                 "what he's thinking. One short sentence."
                             )
                         await self._execute_interjection(
-                            stage2_prompt,
+                            stage2_prompt + chat_question_directive,
                             memory_query="what makes Jonny laugh or react",
                         )
 
@@ -2127,7 +2140,8 @@ class VTubeBot:
                     async with self.processing_lock:
                         self.silence_stage = 1
                         await self._execute_interjection(
-                            "It's been quiet for a bit. Drop a short, natural remark \u2014 light, friendly, like something you'd say to a friend on the couch. Don't ask him what he's thinking. One short sentence.",
+                            "It's been quiet for a bit. Drop a short, natural remark \u2014 light, friendly, like something you'd say to a friend on the couch. Don't ask him what he's thinking. One short sentence."
+                            + chat_question_directive,
                             memory_query="what is Jonny interested in",
                         )
 
