@@ -132,6 +132,22 @@ class AudioAgent:
         "i'm here to help", "happy to help",
         "retrospective note", "meta note", "meta-note", "side note:", "note to self",
         "as a language model", "as a text-based",
+        # Expanded 2026-05-24 after long Steins;Gate session: variants still leaking.
+        "upcoming audio analysis", "please wait for the audio", "waiting to receive",
+        "once received", "once the audio", "once you upload", "once you provide",
+        "once it is uploaded", "once available", "once provided", "once visible",
+        "i don't have the capability", "i do not have the capability",
+        "don't have the capability", "do not have the capability",
+        "currently unable", "currently can't", "currently cannot",
+        "can't directly listen", "cannot directly listen",
+        "the attached audio", "the attachment", "check the attachment",
+        "let me know", "feel free to", "go ahead and",
+        "i can help", "i can analyze", "i'll analyze", "i will analyze",
+        "i'll provide", "i will provide", "i'll generate", "i will generate",
+        "i'll deliver", "i will deliver", "i'll proceed", "i will proceed",
+        "based on the criteria", "based on your instructions", "as instructed",
+        "as requested", "as described above", "according to the criteria",
+        "format described", "format above", "structure above",
     )
 
     @classmethod
@@ -139,11 +155,31 @@ class AudioAgent:
         """Return True if the model's output is conversational meta-chatter rather than
         an actual description of the audio. Matched outputs are treated identically to
         AUDIO_SILENT so they don't poison downstream context with assistant boilerplate.
+
+        Two layers:
+          1. Substring fingerprint match against known meta-phrases.
+          2. Positive-shape sanity check — a real description is short, declarative,
+             and never asks questions or addresses the user. Any of these disqualify:
+               - contains a '?' (real descriptions don't ask questions)
+               - contains the word 'please' (always a request, never a description)
+               - starts with first-person 'I ' / "I'm" / "I'll" (assistant mode)
+               - contains 'upload', 'attach', 'audio file', 'audio clip' as requests
         """
         if not text:
             return False
-        low = text.lower()
-        return any(fp in low for fp in cls._META_REPLY_FINGERPRINTS)
+        low = text.lower().strip()
+        if any(fp in low for fp in cls._META_REPLY_FINGERPRINTS):
+            return True
+        # Positive-shape checks: a valid mood description never contains these.
+        if "?" in low or "please" in low:
+            return True
+        if low.startswith(("i ", "i'm ", "i'll ", "i am ", "i will ", "i can ", "i cannot ", "i can't ")):
+            return True
+        # Standalone request keywords that only appear in assistant boilerplate.
+        for kw in ("upload", "attach", "audio file", "audio clip", "the clip you", "the file you"):
+            if kw in low:
+                return True
+        return False
 
     def __init__(self):
         self.client: Optional[AsyncOpenAI] = None
@@ -468,7 +504,10 @@ class AudioAgent:
     # essentially empty WAV) AND saves API spend on genuine silence. Real music or
     # voice at any reasonable monitoring volume sits well above this (>0.01); pure
     # loopback silence from an idle output device is typically <0.0005.
-    SILENCE_RMS_THRESHOLD: float = 0.005
+    # Raised 2026-05-24 from 0.005 → 0.010 — marginal-ambient buffers (0.005-0.010)
+    # were the main source of meta-replies; the model gets confused by near-silent
+    # input and falls into assistant-mode rather than describing it.
+    SILENCE_RMS_THRESHOLD: float = 0.010
 
     async def _describe_current_buffer(self):
         # Silence-gate: don't waste an API call (or risk a meta-reply hallucination)
