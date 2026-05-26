@@ -63,6 +63,17 @@ class AI_Core:
         self.whisper = None
         self.eleven_client = None
         self.azure_synthesizer = None
+        # Per-synthesis-call word-boundary buffer. The Azure SDK fires the
+        # synthesis_word_boundary event from a worker thread; the handler
+        # appends to this list. We reset it BEFORE each speak call and read
+        # it AFTER the call completes, then ship the result to the caption
+        # overlay just before pygame playback starts.
+        # Each entry: {"word": str, "offset_ms": int}
+        self._azure_word_buffer: list[dict] = []
+        self._azure_word_handler_token = None
+        # Cached event-loop reference for caption_server thread-safe scheduling.
+        # Set lazily on first speak call.
+        self._event_loop_for_captions = None
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
         # Hybrid brain: Claude Opus for deep moments
@@ -214,6 +225,27 @@ class AI_Core:
             audio_config = speechsdk.audio.AudioConfig(stream=stream)
             
             self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+
+            # Subscribe to word-boundary events so the caption overlay can
+            # reveal each word in sync with playback. Azure provides
+            # audio_offset in 100-ns ticks (ticks // 10_000 == milliseconds
+            # from synthesis start). Captures into self._azure_word_buffer
+            # which is reset before each speak call.
+            def _on_word_boundary(evt):
+                try:
+                    # evt.text is the word; evt.audio_offset is in 100-ns ticks.
+                    word = (getattr(evt, "text", "") or "").strip()
+                    if not word:
+                        return
+                    offset_ms = int(getattr(evt, "audio_offset", 0)) // 10_000
+                    self._azure_word_buffer.append({"word": word, "offset_ms": offset_ms})
+                except Exception:
+                    # Never let a callback crash the SDK worker thread.
+                    pass
+            try:
+                self.azure_synthesizer.synthesis_word_boundary.connect(_on_word_boundary)
+            except Exception as e:
+                print(f"   [TTS] Could not subscribe to Azure word_boundary events: {e}")
         elif TTS_ENGINE == "edge":
             if not Communicate: raise ImportError("Run 'pip install edge-tts'")
         else:
@@ -617,10 +649,25 @@ class AI_Core:
                 )
                 print(f"   [TTS] Speaking: {text[:50]}...")
                 try:
+                    # Reset word-boundary buffer before kicking synth.
+                    self._azure_word_buffer = []
                     result = await asyncio.to_thread(
                         self.azure_synthesizer.speak_ssml, ssml
                     )
                     if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                        # Snapshot captured word timings + dispatch caption frame.
+                        word_timings = list(self._azure_word_buffer)
+                        if word_timings:
+                            try:
+                                from caption_server import enqueue_caption
+                                if self._event_loop_for_captions is None:
+                                    try:
+                                        self._event_loop_for_captions = asyncio.get_running_loop()
+                                    except RuntimeError:
+                                        pass
+                                enqueue_caption(self._event_loop_for_captions, text, word_timings)
+                            except Exception as e:
+                                print(f"   [Captions] dispatch suppressed: {e}")
                         await self._play_audio_with_pygame(result.audio_data)
                     else:
                         print(f"   TTS Fail: {result.cancellation_details.error_details}")
@@ -641,8 +688,17 @@ class AI_Core:
         if self.interruption_event.is_set():
             return
 
+        # Capture the running loop once — the caption server needs a stable
+        # reference for thread-safe scheduling from Azure's worker callbacks.
+        if self._event_loop_for_captions is None:
+            try:
+                self._event_loop_for_captions = asyncio.get_running_loop()
+            except RuntimeError:
+                pass
+
         print(f"   [TTS] Speaking: {text[:50]}...")
         audio_data = None
+        word_timings: list[dict] = []
 
         try:
             if TTS_ENGINE == "azure" and self.azure_synthesizer:
@@ -650,9 +706,14 @@ class AI_Core:
                         f'<voice name="{AZURE_SPEECH_VOICE}">'
                         f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
                         f'</voice></speak>')
+                # Reset the per-call word-boundary buffer before kicking synth.
+                self._azure_word_buffer = []
                 result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                     audio_data = result.audio_data
+                    # Snapshot the captured word timings BEFORE the next synth
+                    # call could overwrite the shared buffer.
+                    word_timings = list(self._azure_word_buffer)
                 else:
                     print(f"   TTS Fail: {result.cancellation_details.error_details}")
             elif TTS_ENGINE == "edge" and Communicate:
@@ -663,8 +724,19 @@ class AI_Core:
                     if chunk["type"] == "audio":
                         buffer += chunk["data"]
                 audio_data = buffer
+                # Edge TTS doesn't expose word timing here; degrade to a
+                # single-frame caption so the overlay still shows the line.
+                word_timings = [{"word": text.strip(), "offset_ms": 0}] if text.strip() else []
 
             if audio_data:
+                # Push the caption frame to the overlay just before audio starts.
+                # Fire-and-forget; never blocks playback.
+                try:
+                    from caption_server import enqueue_caption
+                    if word_timings:
+                        enqueue_caption(self._event_loop_for_captions, text, word_timings)
+                except Exception as e:
+                    print(f"   [Captions] dispatch suppressed: {e}")
                 await self._play_audio_with_pygame(audio_data)
         except Exception as e:
             print(f"   TTS/Playback Error: {e}")

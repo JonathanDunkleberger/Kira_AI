@@ -6,9 +6,11 @@ __pycache__/
 
 # Environment
 .env
+.vts_token
 
 # Data & models
 memory_db/
+memory_db.bak/
 models/
 logs/
 *.gguf

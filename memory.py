@@ -29,20 +29,48 @@ class MemoryManager:
         print("   Memory Manager initialized.")
 
     def _validate_collections(self):
-        """Startup health-check: attempt a lightweight read on each collection.
-        Logs a loud warning immediately if any index is unreadable so the user
-        knows about corruption before the first turn, not mid-stream."""
+        """Startup health-check: exercise BOTH the metadata segment (.get) AND
+        the HNSW vector segment (.query) on each non-empty collection. The
+        vector segment is what actually breaks when index files don't get
+        persisted, and a plain .get() will not catch that — so we issue a real
+        vector query with a zero-vector probe. We don't care about the hit
+        contents, only whether the query succeeds.
+        Loud warnings here so a broken-index state is caught at launch instead
+        of failing silently mid-stream."""
+        # 384 matches the all-MiniLM-L6-v2 embedding dim used elsewhere.
+        probe_dim = 384
+        try:
+            probe = self.embedding_model.encode("healthcheck").tolist()
+            probe_dim = len(probe)
+        except Exception:
+            probe = [0.0] * probe_dim
+
         for name, coll in [
             ("turns",    self.turns),
             ("facts",    self.facts),
             ("chatters", self.chatters),
         ]:
+            # 1) Metadata segment check
             try:
                 coll.get(limit=1)
             except Exception as e:
-                print(f"   [Memory] WARNING: ChromaDB '{name}' index unreadable: {e}")
+                print(f"   [Memory] WARNING: ChromaDB '{name}' metadata segment unreadable: {e}")
                 print(f"   [Memory] WARNING: Memory may be corrupted. "
                       f"Restore from backup or delete: {MEMORY_PATH}")
+                continue
+            # 2) Vector segment check (only meaningful if there's data to index)
+            try:
+                count = coll.count()
+            except Exception:
+                count = 0
+            if count == 0:
+                continue
+            try:
+                coll.query(query_embeddings=[probe], n_results=1)
+            except Exception as e:
+                print(f"   [Memory] WARNING: ChromaDB '{name}' HNSW vector index unreadable: {e}")
+                print(f"   [Memory] WARNING: '{name}' has {count} rows in sqlite but the vector "
+                      f"index is broken/missing. Run: python repair_memory_db.py")
 
     def add_turn(self, user_text: str, ai_text: str, source: str = "unknown"):
         """Adds a new raw conversation turn to the 'turns' collection."""

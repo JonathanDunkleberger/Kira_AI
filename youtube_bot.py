@@ -137,6 +137,21 @@ class YouTubeBot:
             self.video_id = None
             return False
 
+    async def post_message(self, text: str) -> bool:
+        """Stub: posting to YouTube live chat is NOT currently supported.
+
+        pytchat is a read-only library. Sending requires the YouTube Data API
+        v3 ``liveChatMessages.insert`` endpoint, which needs an OAuth2 flow
+        with the ``youtube.force-ssl`` scope and a fresh access token per
+        broadcast. Until that's wired up, this method logs once and returns
+        False so ChatPoster can fall through to Twitch cleanly.
+        """
+        if not getattr(self, "_post_unsupported_logged", False):
+            print("   [YouTube] post_message: not implemented (pytchat is read-only). "
+                  "Enable Twitch posting only, or wire YouTube Data API OAuth.")
+            self._post_unsupported_logged = True
+        return False
+
     def stop(self):
         """Stops the chat polling loop."""
         self.running = False
@@ -153,11 +168,29 @@ class YouTubeBot:
         print("   [YouTube] Disconnected.")
 
     async def _poll_loop(self):
-        """Background loop: polls chat every ~2 seconds, pushes new messages."""
+        """Background loop: polls chat every ~2 seconds, pushes new messages.
+
+        Resilience: pytchat occasionally reports is_alive() == False (or raises
+        in get()/sync_items()) on a stream that is in fact still live — usually
+        a transient network blip or a YouTube continuation-token hiccup.
+        Silently giving up there means first-time YouTube chatters get dropped,
+        which is exactly the audience we can't afford to lose. So instead of
+        breaking on the first dead signal, we attempt a bounded reconnect
+        sequence; only after that exhausts do we actually stop.
+        """
         while self.running and self.chat:
             try:
                 if not self.chat.is_alive():
-                    print("   [YouTube] Live chat ended (stream offline?).")
+                    # pytchat says the chat is gone. Could be a real end-of-stream,
+                    # could be a false positive. Try to reconnect a few times before
+                    # accepting it.
+                    print("   [YouTube] Chat connection lost \u2014 reconnecting...")
+                    if await self._attempt_reconnect():
+                        print("   [YouTube] Reconnected.")
+                        continue
+                    # All reconnect attempts failed \u2014 stream is genuinely offline
+                    # or YouTube is rejecting us. Now we can stop.
+                    print("   [YouTube] Live chat ended (stream offline?) \u2014 giving up after retries.")
                     self.running = False
                     break
 
@@ -176,8 +209,64 @@ class YouTubeBot:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                print(f"   [YouTube] Poll error: {e}")
-                await asyncio.sleep(5.0)
+                # Don't immediately give up on the next iteration \u2014 if pytchat is
+                # in a bad state (e.g. continuation token expired), reconnecting
+                # is the only way to get messages flowing again.
+                print(f"   [YouTube] Poll error: {e} \u2014 attempting reconnect...")
+                if await self._attempt_reconnect():
+                    print("   [YouTube] Reconnected.")
+                    continue
+                print("   [YouTube] Reconnect failed after retries \u2014 stopping listener.")
+                self.running = False
+                break
+
+    async def _attempt_reconnect(self, max_attempts: int = 4) -> bool:
+        """Tear down the current pytchat handle and try to re-create it for the
+        same video_id with exponential-ish backoff. Returns True if a new live
+        handle is in place, False if we should accept that the stream is gone.
+
+        Backoff: 3s, 6s, 12s, 20s (capped). Total wait \u2248 41s before giving up,
+        which is long enough to ride out typical YouTube blips without leaving
+        chatters waiting forever if the stream really did end.
+        """
+        if not self.running or not self.video_id or not PYTCHAT_AVAILABLE:
+            return False
+
+        # Drop the old handle first so a fresh continuation token is issued.
+        old = self.chat
+        self.chat = None
+        if old is not None:
+            try:
+                old.terminate()
+            except Exception:
+                pass
+
+        delays = [3.0, 6.0, 12.0, 20.0]
+        for attempt in range(1, max_attempts + 1):
+            if not self.running:
+                return False
+            delay = delays[min(attempt - 1, len(delays) - 1)]
+            try:
+                await asyncio.sleep(delay)
+                if not self.running:
+                    return False
+                print(f"   [YouTube] Reconnect attempt {attempt}/{max_attempts} for {self.video_id}...")
+                new_chat = await asyncio.to_thread(
+                    lambda: pytchat.create(video_id=self.video_id, interruptable=False)
+                )
+                # pytchat.create succeeds lazily; verify it's actually live before
+                # declaring victory.
+                if new_chat and new_chat.is_alive():
+                    self.chat = new_chat
+                    return True
+                # Not alive \u2014 dispose and loop to next attempt.
+                try:
+                    new_chat.terminate()
+                except Exception:
+                    pass
+            except Exception as e:
+                print(f"   [YouTube] Reconnect attempt {attempt} error: {e}")
+        return False
 
     def _get_items_sync(self):
         """Pulls the latest batch of chat items synchronously (called via to_thread)."""

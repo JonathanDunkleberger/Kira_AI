@@ -1,0 +1,186 @@
+/* ─── Kira caption overlay styles ────────────────────────────────────────
+   Tune these CSS variables to change the look without touching JS. */
+
+/* Google Fonts: rounded, bubbly families that suit the cute VTuber look.
+   Baloo 2 = primary (warm, slightly chubby). Fredoka = backup if you'd
+   rather try a more geometric round; just move it to the front of
+   --caption-font-family below. */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Fredoka:wght@600;700&display=swap');
+
+:root {
+    /* ── Font ───────────────────────────────────────────────────────────
+       Loaded via @import above. To try Fredoka instead, put it first. */
+    --caption-font-family: 'Baloo 2', 'Fredoka', 'Nunito', 'Quicksand', 'Comic Sans MS', sans-serif;
+    --caption-font-size: 72px;
+    --caption-font-weight: 800;
+    --caption-letter-spacing: 0.5px;
+
+    /* ── Fill ───────────────────────────────────────────────────────────
+       Solid white. Keeps the inside of the letters maximally readable;
+       all personality comes from the colored outer outline + glow. */
+    --caption-fill-color: #ffffff;
+
+    /* ── Inner outline (legibility layer) ───────────────────────────────
+       THIN + DARK, sitting flush against the white fill. This is the
+       contrast guarantee on bright VN/game backgrounds. Keep dark — do
+       not recolor this one. Typical width: 1.5–2px at 72px font size. */
+    --caption-inner-outline-color: #111111;
+    --caption-inner-outline-width: 1.5px;
+
+    /* ── Outer outline (personality layer) ──────────────────────────────
+       Pink/purple ring sitting OUTSIDE the dark line. Width should be
+       larger than the inner so the colored band is visible all around
+       the letterforms. Tweak the color freely — readability is already
+       paid for by the inner dark line. */
+    --caption-outer-outline-color: #5c2233;   /* dark warm maroon \u00e0 la Neuro; try #6b2c3e for slightly lighter, #4a1a28 for darker */
+    --caption-outer-outline-width: 4px;
+
+    /* ── Soft outer glow (bloom layer) ────────────────────────────────
+       Barely-there bloom. Neuro-style crispness: the rose outline does
+       ALL the color work. Set --caption-glow-color alpha to 0 to remove
+       the glow entirely. */
+    --caption-glow-color: rgba(255, 255, 255, 0.12);
+    --caption-glow-blur: 4px;
+
+    /* ── Drop shadow under everything (depth) ───────────────────────────
+       Independent of glow; keep dark + soft. Set alpha to 0 to disable. */
+    --caption-dropshadow-color: rgba(0, 0, 0, 0.55);
+    --caption-dropshadow-blur: 14px;
+    --caption-dropshadow-y: 4px;
+
+    /* ── Per-word reveal animation ──────────────────────────────────────
+       Each word fades + scales in from these starting values to 1/1. */
+    --caption-word-enter-ms: 180ms;
+    --caption-word-start-scale: 0.85;
+    --caption-word-start-opacity: 0;
+
+    /* ── Caption clear (fade-out) ───────────────────────────────────────*/
+    --caption-fade-ms: 350ms;
+
+    /* ── Whole-line enter pop (very subtle) ─────────────────────────────*/
+    --caption-enter-ms: 120ms;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;          /* Critical for OBS browser source. */
+    overflow: hidden;
+    pointer-events: none;             /* Don't intercept clicks on stream. */
+    font-family: var(--caption-font-family);
+}
+
+/* ── Caption container ─────────────────────────────────────────────────
+   Holds positioning, the line-level fade, and the drop shadow + outer
+   pink glow via filter (so they wrap the whole line, including the
+   gradient text fill). */
+.caption {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;                       /* Slight lift off screen edge. */
+    transform: translateX(-50%);
+    max-width: 90%;
+    text-align: center;
+    line-height: 1.15;
+    font-size: var(--caption-font-size);
+    font-weight: var(--caption-font-weight);
+    letter-spacing: var(--caption-letter-spacing);
+
+    /* Drop shadow + outer pink halo via filter so they render OUTSIDE
+       the dark text-shadow outline (text-shadow on the .word can't go
+       wider than the dark outline without muddying it). */
+    filter:
+        drop-shadow(0 0 var(--caption-glow-blur) var(--caption-glow-color))
+        drop-shadow(0 var(--caption-dropshadow-y) var(--caption-dropshadow-blur) var(--caption-dropshadow-color));
+
+    opacity: 0;
+    transition: opacity var(--caption-fade-ms) ease-out;
+    will-change: opacity, transform, filter;
+}
+
+.caption.visible {
+    opacity: 1;
+}
+
+/* ── Word: white fill + two-layer outline + enter animation ───────────
+   Each word is its own element so we can stagger the fade/scale-in
+   animation per Azure word-boundary offset. The outline is built as a
+   stacked text-shadow: eight offsets at the INNER (dark, thin) radius
+   listed first so they sit flush against the white fill, then eight
+   offsets at the OUTER (pink) radius listed after so they render as a
+   visible ring around the dark line. */
+.caption .word {
+    display: inline-block;
+    margin-right: 0.28em;
+
+    color: var(--caption-fill-color);
+
+    /* Two-layer 8-direction outline. Order matters: text-shadow paints
+       earlier entries on top, so the thin dark ring is listed first and
+       hugs the glyph, while the wider pink ring is listed last and
+       protrudes outside it. */
+    text-shadow:
+        /* inner dark legibility ring */
+        calc(-1 * var(--caption-inner-outline-width))  0                                              0 var(--caption-inner-outline-color),
+        var(--caption-inner-outline-width)             0                                              0 var(--caption-inner-outline-color),
+        0                                              calc(-1 * var(--caption-inner-outline-width)) 0 var(--caption-inner-outline-color),
+        0                                              var(--caption-inner-outline-width)            0 var(--caption-inner-outline-color),
+        calc(-1 * var(--caption-inner-outline-width))  calc(-1 * var(--caption-inner-outline-width)) 0 var(--caption-inner-outline-color),
+        var(--caption-inner-outline-width)             calc(-1 * var(--caption-inner-outline-width)) 0 var(--caption-inner-outline-color),
+        calc(-1 * var(--caption-inner-outline-width))  var(--caption-inner-outline-width)            0 var(--caption-inner-outline-color),
+        var(--caption-inner-outline-width)             var(--caption-inner-outline-width)            0 var(--caption-inner-outline-color),
+        /* outer pink personality ring */
+        calc(-1 * var(--caption-outer-outline-width))  0                                              0 var(--caption-outer-outline-color),
+        var(--caption-outer-outline-width)             0                                              0 var(--caption-outer-outline-color),
+        0                                              calc(-1 * var(--caption-outer-outline-width)) 0 var(--caption-outer-outline-color),
+        0                                              var(--caption-outer-outline-width)            0 var(--caption-outer-outline-color),
+        calc(-1 * var(--caption-outer-outline-width))  calc(-1 * var(--caption-outer-outline-width)) 0 var(--caption-outer-outline-color),
+        var(--caption-outer-outline-width)             calc(-1 * var(--caption-outer-outline-width)) 0 var(--caption-outer-outline-color),
+        calc(-1 * var(--caption-outer-outline-width))  var(--caption-outer-outline-width)            0 var(--caption-outer-outline-color),
+        var(--caption-outer-outline-width)             var(--caption-outer-outline-width)            0 var(--caption-outer-outline-color);
+
+    /* Hidden until .revealed: scaled down + transparent. The eased
+       transition gives a gentle pop-in per word as Kira speaks it. */
+    opacity: var(--caption-word-start-opacity);
+    transform: scale(var(--caption-word-start-scale));
+    transform-origin: 50% 65%;
+    transition:
+        opacity var(--caption-word-enter-ms) cubic-bezier(0.22, 1, 0.36, 1),
+        transform var(--caption-word-enter-ms) cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.caption .word.revealed {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Tiny enter pop on the whole line — adds presence without distraction. */
+.caption.entering {
+    animation: caption-pop var(--caption-enter-ms) ease-out;
+}
+
+@keyframes caption-pop {
+    from { transform: translateX(-50%) scale(0.97); }
+    to   { transform: translateX(-50%) scale(1.0);  }
+}
+
+/* ── Connection status pip ─────────────────────────────────────────────
+   Hidden by default in OBS via opacity 0. Bump to ~0.4 while configuring
+   to verify the websocket is connected. */
+.status {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #ffffff;
+    text-shadow: 0 0 4px #000;
+    opacity: 0;          /* set to ~0.4 for debugging */
+    transition: opacity 200ms;
+}
+
+.status.connected::before    { content: "● "; color: #66ff88; }
+.status.disconnected::before { content: "● "; color: #ff5555; }

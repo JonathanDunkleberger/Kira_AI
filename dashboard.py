@@ -703,9 +703,17 @@ class KiraDashboard(ctk.CTk):
 
     def _set_emotion(self, choice):
         try:
-            self.bot.current_emotion = EmotionalState[choice]
+            new_state = EmotionalState[choice]
         except KeyError:
-            pass
+            return
+        if new_state == self.bot.current_emotion:
+            return
+        self.bot.current_emotion = new_state
+        # Mirror the change into VTube Studio (safe no-op if disabled / VTS offline).
+        try:
+            self.bot.vts_expressions.fire_and_forget(new_state, loop=self.bot.event_loop)
+        except Exception as e:
+            print(f"   [Dashboard] VTS expression dispatch suppressed: {e}")
 
     def _activate_observer_and_vn(self):
         """Turns on Observer mode and sets VN activity context. Auto-play is a separate toggle."""

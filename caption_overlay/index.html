@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Kira Captions</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- OBS browser source target.
+         Recommended source size: 1920x300 (or wider). Position near the
+         bottom of the canvas. Transparent background — captions composite
+         directly over the stream.
+
+         Tune the look in style.css (font, size, outline thickness, color).
+         All synchronization is driven by Azure word-boundary timestamps
+         pushed from the bot — this page only renders. -->
+    <div id="caption" class="caption"></div>
+
+    <!-- Connection status pip (top-left, very subtle). Hidden in OBS by
+         default via CSS opacity 0; flip to 0.4 in style.css if you want a
+         quick visual "am I connected" hint while configuring. -->
+    <div id="status" class="status">offline</div>
+
+    <script src="caption.js"></script>
+</body>
+</html>

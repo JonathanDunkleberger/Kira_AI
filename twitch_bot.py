@@ -23,6 +23,26 @@ class TwitchBot(commands.Bot):
         print(f'--- Twitch bot has logged in as | {self.nick} ---')
         print(f'--- Watching channel | {TWITCH_CHANNEL_TO_JOIN} ---')
 
+    async def post_message(self, text: str) -> bool:
+        """Send ``text`` to the joined Twitch channel. Returns True on success,
+        False if no channel is connected yet or the underlying send raises.
+
+        Called by ChatPoster, which handles rate limiting and sanitization —
+        this method intentionally does NOT impose its own cooldown so that
+        rate logic stays in one place.
+        """
+        try:
+            channels = list(self.connected_channels) if self.connected_channels else []
+            if not channels:
+                # event_ready hasn't fired yet, or we got disconnected.
+                print("   [Twitch] post_message: no connected channels yet.")
+                return False
+            await channels[0].send(text)
+            return True
+        except Exception as e:
+            print(f"   [Twitch] post_message failed: {e}")
+            return False
+
     async def event_message(self, message):
         if message.echo or not message.author:
             return

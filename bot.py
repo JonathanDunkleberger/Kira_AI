@@ -34,6 +34,7 @@ from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME,
 from vn_autopilot import VNAutopilot
 from media_watch import MediaWatch
 from playthrough_memory import PlaythroughMemory
+from vts_expression_controller import VTSExpressionController
 
 # Graceful pyautogui import (required for VN auto-play only)
 try:
@@ -120,6 +121,9 @@ class VTubeBot:
         self.conversation_segment = []
         self.unseen_chat_messages = []
         self.current_emotion = EmotionalState.HAPPY
+        # VTube Studio expression bridge — drives Live2D face from emotional state.
+        # Fails silently if VTS isn't running or ENABLE_VTS_EXPRESSIONS is off.
+        self.vts_expressions = VTSExpressionController()
         self.last_idle_chat = "" # Track the last idle chat summary
         self.turn_count = 0 
         self.is_paused = False
@@ -131,6 +135,13 @@ class VTubeBot:
         self.immersive = False   # When True, Kira stays quiet unless invited. Auto-enables for VN/MEDIA.
         self.mute_until: float = 0.0  # timestamp; while time.time() < mute_until, all speech is suppressed
         self.youtube_bot: YouTubeBot | None = None
+        # Twitch handle kept on self so ChatPoster (and dashboard hooks) can
+        # reach it. Set in _main_loop after TwitchBot is constructed.
+        self.twitch_bot: TwitchBot | None = None
+        # Centralised, rate-limited outbound chat poster. Always constructed;
+        # internally gated by ENABLE_CHAT_POSTING. See chat_poster.py.
+        from chat_poster import ChatPoster
+        self.chat_poster = ChatPoster()
         self.session_scene_log: list = []  # Recent scene summaries during this session
         self.session_highlights: list = []  # Highlights captured this session
         self.last_highlight_check_time = 0
@@ -220,17 +231,29 @@ class VTubeBot:
         """Mutes Kira for the given duration. Also interrupts any currently-playing speech."""
         self.mute_until = time.time() + seconds
         self.interruption_event.set()  # cut off current utterance immediately
+        self._clear_captions_safe()
         print(f"   [Mute] Muted for {seconds:.0f}s")
 
     def unmute(self):
         self.mute_until = 0.0
         print("   [Mute] Unmuted")
 
+    def _clear_captions_safe(self) -> None:
+        """Fire-and-forget: tell the caption overlay to immediately clear any
+        active line. Used on interrupt/mute/pause so a stale caption doesn't
+        linger on screen after Kira's audio is cut off. Never raises."""
+        try:
+            from caption_server import enqueue_clear
+            enqueue_clear(self.event_loop)
+        except Exception:
+            pass
+
     def pause_model(self):
         """Indefinite hard pause: suppresses ALL response generation until resumed.
         Also pauses the voice recorder and cuts off any currently-playing speech."""
         self.is_paused = True
         self.interruption_event.set()  # cut off current utterance immediately
+        self._clear_captions_safe()
         # Reset any lingering timed mute so resume returns to a clean state
         self.mute_until = 0.0
         print("   [Pause] Model PAUSED \u2014 all responses suppressed (mic, chat, bored, autopilot)")
@@ -840,6 +863,21 @@ class VTubeBot:
                     self.playthrough_memory.load_for_game(self.current_activity)
             print("   [Playthrough] Memory system initialised.")
 
+            # Eager-connect to VTube Studio so the first emotion transition isn't
+            # lost to lazy-connect latency. Fail-graceful; logs and continues on failure.
+            if self.vts_expressions.enabled:
+                await self.vts_expressions.connect_eager()
+
+            # Start the caption WebSocket server so the OBS overlay can
+            # receive Kira's spoken lines + Azure word-timing. Fully
+            # fail-graceful: if the port is taken or websockets is missing,
+            # captions silently disable and everything else runs normally.
+            try:
+                from caption_server import caption_server
+                await caption_server.start()
+            except Exception as e:
+                print(f"   [Captions] Server start suppressed: {e}")
+
             tasks = []
             
             # 1. Start Twitch Bot (if enabled)
@@ -847,12 +885,15 @@ class VTubeBot:
                 print("   [System] Connecting to Twitch Chat...")
                 # Pass the queue to TwitchBot
                 twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer, self.input_queue)
+                self.twitch_bot = twitch_bot
+                self.chat_poster.set_twitch_bot(twitch_bot)
                 tasks.append(twitch_bot.start())
 
             # 1b. Prepare YouTube Chat listener (idle until video ID is set in dashboard)
             if ENABLE_YOUTUBE_CHAT:
                 print("   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).")
                 self.youtube_bot = YouTubeBot(self.input_queue, self.reset_idle_timer, self.twitch_log)
+                self.chat_poster.set_youtube_bot(self.youtube_bot)
 
             # 2. Start Brain Worker (The new logic brain)
             print("   [System] Starting Brain Worker...")
@@ -2101,11 +2142,14 @@ class VTubeBot:
 
             else:
                 # ── STREAMER MODE: boredom escalation ────────────────────────
-                # In streamer mode, bias roughly 1/3 of bored-loop lines toward a
+                # In streamer mode, bias a bit under half of bored-loop lines toward a
                 # short question directed at chat — keeps the room alive and shifts
-                # Kira off the always-declarative reflex. NEVER in companion mode
-                # (self.mode == "companion") because there is no chat — it's just Jonny.
-                ask_chat = (self.mode == "streamer") and (random.random() < 0.33)
+                # Kira off the always-declarative reflex. Bumped from 0.33 → 0.45 so
+                # she reaches for a fresh thread slightly more often during quiet
+                # stretches, especially in streamer mode where chat needs engagement.
+                # NEVER in companion mode (self.mode == "companion") because there is
+                # no chat — it's just Jonny.
+                ask_chat = (self.mode == "streamer") and (random.random() < 0.45)
                 chat_question_directive = (
                     "\n\nINSTEAD of an observation this time: ask CHAT one short, genuine question. "
                     "Address them directly ('Chat, ...'). Real curiosity, not rhetorical. "
@@ -2733,6 +2777,11 @@ class VTubeBot:
         if new_emotion and new_emotion != self.current_emotion:
             print(f"   \u2728 Emotion: {self.current_emotion.name} \u2192 {new_emotion.name}")
             self.current_emotion = new_emotion
+            # Drive Live2D facial expression in VTube Studio. Best-effort; never blocks.
+            try:
+                await self.vts_expressions.on_emotion_change(new_emotion)
+            except Exception as e:
+                print(f"   [VTS] expression update suppressed: {e}")
 
     async def background_loop(self):
         while True:

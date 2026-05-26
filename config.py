@@ -50,6 +50,28 @@ AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
 ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"
 ENABLE_YOUTUBE_CHAT = os.getenv("ENABLE_YOUTUBE_CHAT", "true").lower() == "true"
 
+# Chat POSTING (Kira sending messages, separate from reading). Default OFF —
+# turn it on only when you've decided you want her to be able to send. Hard
+# rate-limited via CHAT_POST_COOLDOWN_SEC to keep this flavor, not spam.
+# Twitch posting works out of the box via the existing TWITCH_OAUTH_TOKEN.
+# YouTube posting is NOT yet implemented (pytchat is read-only; sending
+# requires a separate OAuth2 flow on the YouTube Data API).
+ENABLE_CHAT_POSTING = os.getenv("ENABLE_CHAT_POSTING", "false").lower() == "true"
+CHAT_POST_COOLDOWN_SEC = float(os.getenv("CHAT_POST_COOLDOWN_SEC", "60.0"))
+CHAT_POST_MAX_LEN = int(os.getenv("CHAT_POST_MAX_LEN", "450"))  # Twitch hard cap is 500
+ENABLE_YOUTUBE_POSTING = os.getenv("ENABLE_YOUTUBE_POSTING", "false").lower() == "true"
+
+# On-screen captions (Neuro-sama style word-by-word overlay).
+# When ENABLE_CAPTIONS=true, a local WebSocket server starts on
+# CAPTION_SERVER_PORT and broadcasts Kira's spoken lines (with Azure
+# word-boundary timing) to caption_overlay/index.html — add that file as
+# an OBS browser source. Fail-graceful: TTS never blocks on caption I/O.
+# Only the Azure TTS engine supplies per-word timing; on Edge TTS the
+# captions degrade to a single-frame reveal at the line start.
+ENABLE_CAPTIONS = os.getenv("ENABLE_CAPTIONS", "false").lower() == "true"
+CAPTION_SERVER_PORT = int(os.getenv("CAPTION_SERVER_PORT", "8765"))
+CAPTION_CLEAR_DELAY_MS = int(os.getenv("CAPTION_CLEAR_DELAY_MS", "1500"))
+
 # Chat batching config
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
@@ -66,3 +88,11 @@ ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() =
 
 # AudD audio fingerprinting (paid API; only fires on explicit user song-ID intent).
 AUDD_API_TOKEN = os.getenv("AUDD_API_TOKEN", "")
+
+# VTube Studio integration — drives Live2D facial expressions from Kira's emotional state.
+# Default OFF. Token is auto-created on first approved handshake and persisted to disk.
+ENABLE_VTS_EXPRESSIONS = os.getenv("ENABLE_VTS_EXPRESSIONS", "false").lower() == "true"
+VTS_WS_URL = os.getenv("VTS_WS_URL", "ws://localhost:8001")
+VTS_PLUGIN_NAME = os.getenv("VTS_PLUGIN_NAME", "Kira AI")
+VTS_PLUGIN_DEVELOPER = os.getenv("VTS_PLUGIN_DEVELOPER", "JonnyD")
+VTS_TOKEN_PATH = os.getenv("VTS_TOKEN_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".vts_token"))
