@@ -922,6 +922,10 @@ class VTubeBot:
 
             print("   [System] Starting Background Tasks...")
             tasks.append(self.background_loop())
+
+            # Captions self-heal heartbeat: auto-recovers from Azure session
+            # drops or caption server death during long streams.
+            tasks.append(self.ai_core.captions_self_heal_loop())
             
             # 3. Start Voice Recorder (This is the main loop effectively)
             print("   [System] Starting Voice Recorder (VAD)...")

@@ -69,10 +69,11 @@ except Exception:
     CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"  # sensible fallback
 
 try:
-    from PIL import ImageGrab
+    from PIL import ImageGrab, Image
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
+    Image = None  # type: ignore[assignment]
 
 try:
     import pygetwindow as _pgw
@@ -324,6 +325,11 @@ class VNAutopilot:
         # ── Internal ────────────────────────────────────────────────────────────
         self._task: asyncio.Task | None = None
         self._last_box_text: str = ""      # dedup: skip reaction on re-capture of same box
+        # Text-region hash of the frame that produced _last_box_text. Used by
+        # the pre-OCR duplicate gate in _handle_dialogue to short-circuit
+        # iterations where the VN hasn't advanced yet — saves ~3-5s per
+        # duplicate cycle (full OCR + 0.4s sleep + re-capture OCR + advance).
+        self._last_read_text_hash: str | None = None
         self._prepared_next: dict | None = None  # pre-prepared next box data from pipeline
 
         # ── Window targeting ─────────────────────────────────────────────────────
@@ -379,10 +385,11 @@ class VNAutopilot:
         self._consecutive_non_progress_reads: int = 0
         # Cloud-call timeout in seconds (every vision/LLM call must complete
         # within this budget or be cancelled — hanging calls were causing
-        # 30-60s prep stalls). 3.5s is the sweet spot: longer than typical
-        # gpt-4o-mini latency (1-2.5s) but short enough that a degraded call
-        # fails fast instead of hogging an OCR slot for 6+s.
-        self._cloud_call_timeout: float = 3.5
+        # 30-60s prep stalls). 2.5s is the sweet spot now that we downscale
+        # frames before sending: typical gpt-4o-mini latency on a 1280px
+        # JPEG is 0.6-1.5s, so 2.5s catches genuine network stalls without
+        # killing healthy calls. Longer values just turn into dead air.
+        self._cloud_call_timeout: float = 2.5
         self._advance_attempts: int = 0                 # total advance calls this session
         self._advance_diag_cycles: int = 5              # log full diagnostic for first N cycles
         # Frame hash captured immediately after a verified advance — handed to
@@ -607,6 +614,7 @@ class VNAutopilot:
             return
         # Clear read-tracking so post-choice content is read completely fresh
         self._last_box_text = ""
+        self._last_read_text_hash = None
         self._prepared_next = None
         self._stuck_warned = False
         self._hard_failsafed = False
@@ -842,11 +850,14 @@ class VNAutopilot:
         if not self.vision_client:
             return "UNKNOWN"
         valid = {"DIALOGUE", "CHOICE", "SAVE_PROMPT", "TRANSITION", "UNKNOWN"}
+        # Classifier needs to see UI chrome (choice buttons, save dialogs) so
+        # we don't crop — just downscale aggressively. 768px is more than
+        # enough at detail="low" to distinguish the screen types.
+        b64 = self._encode_frame_for_vision(
+            frame, crop_top_frac=0.0, max_width=768, jpeg_quality=60
+        )
         for attempt in range(3):
             try:
-                buf = BytesIO()
-                frame.save(buf, format="JPEG", quality=70)
-                b64 = base64.b64encode(buf.getvalue()).decode()
                 resp = await asyncio.wait_for(
                     self.vision_client.chat.completions.create(
                     model="gpt-4o-mini",
@@ -989,14 +1000,29 @@ class VNAutopilot:
         VN dialogue boxes typically occupy the bottom 35-45% of the screen.
         Returns empty string if Tesseract is unavailable or the result is too short.
 
-        TIP: Set the VN's own text-speed to Instant/Max — eliminates typewriter wait
-        entirely and stabilization passes on the very first hash poll."""
+        Performance: at 4K (3840px wide) Tesseract on the full-width crop scans
+        ~3.3M pixels and costs 1.5-3s per call. We downscale the crop so the
+        OCR target stays at most ~1600px wide — Tesseract is fastest in this
+        range and VN fonts remain crisply legible (they're rendered at ~32-48pt
+        even at 4K, so still 16-24px after a 2× shrink).
+
+        TIP: Set the VN's own text-speed to Instant/Max — eliminates typewriter
+        wait entirely and stabilization passes on the very first hash poll."""
         if not PYTESSERACT_AVAILABLE:
             return ""
         try:
             w, h = frame.size
             # Crop to dialogue box region (lower ~40%)
             text_region = frame.crop((0, int(h * 0.60), w, h))
+            # Downscale wide frames (4K → ~1600px wide). Tesseract speed scales
+            # roughly with pixel count, so halving each dimension is ~4× faster.
+            tw, th = text_region.size
+            if tw > 1600:
+                scale = 1600.0 / tw
+                text_region = text_region.resize(
+                    (int(tw * scale), int(th * scale)),
+                    Image.BILINEAR,
+                )
             # PSM 6 = uniform block of text (good for VN dialogue boxes)
             # OEM 1 = LSTM neural net (most accurate for clean VN fonts)
             text = pytesseract.image_to_string(
@@ -1007,6 +1033,38 @@ class VNAutopilot:
         except Exception as e:
             print(f"   [Autopilot] OCR error: {e}")
             return ""
+
+    @staticmethod
+    def _encode_frame_for_vision(
+        frame,
+        crop_top_frac: float = 0.0,
+        max_width: int = 1280,
+        jpeg_quality: int = 70,
+    ) -> str:
+        """Crop + downscale + JPEG-encode a frame for vision API calls.
+
+        Returns base64 ASCII suitable for a data: URL. Centralizes the prep
+        work that was previously inlined in every cloud call (and that, at 4K,
+        was the main reason cloud OCR took 1.5-3s per box).
+
+        - crop_top_frac > 0 crops to the bottom (1 - crop_top_frac) of the
+          frame. Use ~0.55 for dialogue (text is in the bottom 45%); 0 for
+          classifier calls that need to see the whole screen.
+        - max_width caps the longer of the two sides; aspect ratio preserved.
+        - jpeg_quality 60-75 is plenty for OCR text after a sensible downscale.
+        """
+        img = frame
+        if crop_top_frac > 0.0:
+            w, h = img.size
+            img = img.crop((0, int(h * crop_top_frac), w, h))
+        w, h = img.size
+        longest = max(w, h)
+        if longest > max_width:
+            scale = max_width / longest
+            img = img.resize((int(w * scale), int(h * scale)), Image.BILINEAR)
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=jpeg_quality, optimize=False)
+        return base64.b64encode(buf.getvalue()).decode()
 
     async def _read_dialogue_cloud(self, frame) -> str:
         """Read dialogue text from the FULL VN window using cloud vision (gpt-4o-mini).
@@ -1025,11 +1083,22 @@ class VNAutopilot:
         """
         if not self.vision_client:
             return ""
+        # Crop+downscale before sending. On a 4K screen the raw frame is
+        # ~3840×2160 — sending that at detail=high cost ~1.5-3s per call.
+        #
+        # IMPORTANT: We use detail="high" (NOT "low"). At detail="low" the
+        # model collapses the whole image to a single 512×512 thumbnail,
+        # which on top of our downscaled crop drops VN text to ~4-6px tall
+        # and the model returns EMPTY on nearly every box. detail="high"
+        # tiles the image into 512px patches, preserving text resolution.
+        # The crop (bottom 45%) + downscale to 1600px wide still cuts pixels
+        # ~80% vs the raw 4K frame, so the call is much faster than pre-perf
+        # while keeping text reliably legible.
+        b64 = self._encode_frame_for_vision(
+            frame, crop_top_frac=0.55, max_width=1600, jpeg_quality=75
+        )
         for attempt in range(3):
             try:
-                buf = BytesIO()
-                frame.save(buf, format="JPEG", quality=85)
-                b64 = base64.b64encode(buf.getvalue()).decode()
                 resp = await asyncio.wait_for(
                     self.vision_client.chat.completions.create(
                     model="gpt-4o-mini",
@@ -1072,14 +1141,43 @@ class VNAutopilot:
                 self._cloud_read_count += 1
                 raw = resp.choices[0].message.content.strip()
                 if not raw or raw.upper() == "EMPTY":
+                    # Cloud said empty. This is usually a real EMPTY (transition /
+                    # choice menu / black screen), but it can also be a misread on
+                    # an unusual VN layout. Try local Tesseract as a sanity check
+                    # \u2014 if local picks up substantial text, prefer it over the
+                    # cloud's EMPTY. Cheap (~0.3-0.8s) and prevents single bad
+                    # cloud reads from stalling the autopilot.
+                    try:
+                        local = await asyncio.get_event_loop().run_in_executor(
+                            None, self._ocr_text_region, frame
+                        )
+                        local = (local or "").strip()
+                        # Require >= 8 chars to treat as a real recovery (avoids
+                        # picking up stray UI text on a real EMPTY screen).
+                        if len(local) >= 8:
+                            print(f"   [Autopilot] Cloud returned EMPTY but local OCR recovered {len(local)} chars \u2014 using local.")
+                            return local
+                    except Exception as _fb_err:
+                        print(f"   [Autopilot] Local OCR sanity check failed: {_fb_err}")
                     return ""
                 return raw
             except asyncio.TimeoutError:
+                # Fall back to local Tesseract instead of returning empty —
+                # an empty return forces the main loop to either skip the box
+                # or repeat the same expensive call. Local OCR on the cropped
+                # text region is ~0.3-0.8s and usually recovers the line.
                 print(
                     f"   [Autopilot] Cloud read: TIMEOUT after "
-                    f"{self._cloud_call_timeout:.1f}s (attempt {attempt + 1}/3) — skipping."
+                    f"{self._cloud_call_timeout:.1f}s (attempt {attempt + 1}/3) — falling back to local OCR."
                 )
-                return ""
+                try:
+                    local = await asyncio.get_event_loop().run_in_executor(
+                        None, self._ocr_text_region, frame
+                    )
+                    return (local or "").strip()
+                except Exception as _fb_err:
+                    print(f"   [Autopilot] Local OCR fallback failed: {_fb_err}")
+                    return ""
             except Exception as e:
                 err_low = str(e).lower()
                 if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
@@ -1322,11 +1420,30 @@ class VNAutopilot:
             stable_frame = box["stable_frame"]
             weight       = box["weight"]
             self._last_box_text = normalized
+            self._last_read_text_hash = self._text_region_hash(
+                stable_frame, self.text_region_top
+            )
             print(
                 f"   [Autopilot] Reading (fast-path): '{new_text[:60]}' "
                 f"({len(new_text)} chars)"
             )
         else:
+            # ── Pre-OCR duplicate gate ──────────────────────────────────────
+            # If the text region of the freshly-captured frame is byte-identical
+            # to the frame we last spoke from, the VN hasn't moved on yet. Bail
+            # in ~5ms instead of running OCR (~1.5s) + re-capture OCR (~2.5s)
+            # only to learn the same thing. This is the single biggest source
+            # of "unaccounted" wall-time in the LONG GAP breakdowns.
+            if self._last_box_text and self._last_read_text_hash is not None:
+                _cur_hash = self._text_region_hash(frame, self.text_region_top)
+                if _cur_hash == self._last_read_text_hash:
+                    print(
+                        f"   [Autopilot] Pre-OCR duplicate (text region unchanged) "
+                        f"— advancing without read."
+                    )
+                    self._note_non_progress()
+                    self._safe_advance()
+                    return
             # ── Normal path: stabilize → cloud read → diff ───────────────────
             # Hash only the text region (lower ~40%) so animated backgrounds
             # (Steins;Gate, Clannad) don't prevent stabilization.
@@ -1508,6 +1625,9 @@ class VNAutopilot:
                         f"too short ({len(new_text)} chars) — advancing."
                     )
                     self._last_box_text = normalized
+                    self._last_read_text_hash = self._text_region_hash(
+                        stable_frame, self.text_region_top
+                    )
                     self._note_non_progress()
                     await asyncio.sleep(0.5)
                     self._safe_advance()
@@ -1528,11 +1648,17 @@ class VNAutopilot:
                     f"after bleed-guard ({len(new_text)} chars) — advancing."
                 )
                 self._last_box_text = normalized
+                self._last_read_text_hash = self._text_region_hash(
+                    stable_frame, self.text_region_top
+                )
                 await asyncio.sleep(0.5)
                 self._safe_advance()
                 return
 
             self._last_box_text = normalized
+            self._last_read_text_hash = self._text_region_hash(
+                stable_frame, self.text_region_top
+            )
             print(f"   [Autopilot] Speaking: '{new_text[:60]}'")
 
         # ── Confirmed new text — update progress timestamp + reset stuck flag ─
@@ -2969,6 +3095,7 @@ class VNAutopilot:
 
         # Reset read-state so post-choice content is fresh
         self._last_box_text = ""
+        self._last_read_text_hash = None
         self._prepared_next = None
         self._last_progress_time = time.time()
 
@@ -2999,6 +3126,7 @@ class VNAutopilot:
             if new_type != "SAVE_PROMPT":
                 print(f"   [Autopilot] Menu dismissed → {new_type}")
                 self._last_box_text = ""
+                self._last_read_text_hash = None
                 self._prepared_next = None
                 self._last_progress_time = time.time()
                 return

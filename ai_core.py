@@ -71,9 +71,39 @@ class AI_Core:
         # Each entry: {"word": str, "offset_ms": int}
         self._azure_word_buffer: list[dict] = []
         self._azure_word_handler_token = None
+        # Serializes Azure synth calls so the shared _azure_word_buffer can't
+        # be reset by a second concurrent speak before the first call has
+        # snapshotted its words. Without this lock, an autopilot "interjected
+        # reaction" firing while a main read is still synthesizing can wipe
+        # the buffer and silently kill the caption frame for whichever line
+        # snapshots second. This is a likely root cause of captions "randomly
+        # going silent" mid-stream.
+        self._azure_tts_lock = asyncio.Lock()
         # Cached event-loop reference for caption_server thread-safe scheduling.
         # Set lazily on first speak call.
         self._event_loop_for_captions = None
+        # --- Azure session health tracking ---
+        # Detects dead word-boundary subscriptions over long streams. The
+        # Azure SDK's underlying WebSocket can go stale after hours of
+        # activity; speak_ssml still returns audio bytes (SDK auto-reconnects
+        # for audio), but the synthesis_word_boundary callback on the
+        # original native object stops firing — every caption frame then
+        # silently drops with "No word-boundary events captured". We count
+        # consecutive Azure speak completions that produced ZERO word events
+        # for non-trivial text, and once we hit a threshold we rebuild the
+        # synthesizer (in the background, under _azure_tts_lock) and
+        # re-subscribe the callback so captions recover without a restart.
+        self._azure_consecutive_empty_word_lines = 0
+        self._azure_last_word_event_time = time.time()
+        self._azure_total_word_events = 0
+        self._last_azure_speak_time = 0.0
+        self._azure_speech_config = None  # cached for fast reinit
+        self._azure_reinit_lock = asyncio.Lock()
+        self._azure_reinit_in_progress = False
+        self._azure_session_generation = 0  # bumps each successful reinit
+        # Threshold: this many consecutive non-trivial speaks with zero word
+        # events triggers a synthesizer rebuild.
+        self._AZURE_EMPTY_LINE_THRESHOLD = 3
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
         # Hybrid brain: Claude Opus for deep moments
@@ -214,17 +244,36 @@ class AI_Core:
             if not AZURE_SPEECH_KEY or not AZURE_SPEECH_REGION:
                 print("   WARNING: Azure Key or Region is missing! Check .env")
 
-            speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY.strip(), region=AZURE_SPEECH_REGION.strip())
+            self._azure_speech_config = speechsdk.SpeechConfig(subscription=AZURE_SPEECH_KEY.strip(), region=AZURE_SPEECH_REGION.strip())
+            self.azure_synthesizer = self._build_azure_synthesizer()
+            if not self.azure_synthesizer:
+                raise RuntimeError("Azure synthesizer initial build failed")
+        elif TTS_ENGINE == "edge":
+            if not Communicate: raise ImportError("Run 'pip install edge-tts'")
+        else:
+            raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
+        print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
 
+    # ----- Azure synthesizer build / re-init -----
+    def _build_azure_synthesizer(self):
+        """Construct a fresh Azure SpeechSynthesizer and subscribe the
+        word-boundary callback. Used by initial init and by the auto-reinit
+        path when the SDK's word_boundary subscription has gone stale.
+        Returns the new synthesizer (or None on failure).
+        """
+        if not speechsdk or not self._azure_speech_config:
+            return None
+        try:
             # Route Azure output to a null stream so Pygame handles playback exclusively.
             class NullCallback(speechsdk.audio.PushAudioOutputStreamCallback):
                 def write(self, data: memoryview) -> int: return data.nbytes
                 def close(self) -> None: pass
-                
+
             stream = speechsdk.audio.PushAudioOutputStream(NullCallback())
             audio_config = speechsdk.audio.AudioConfig(stream=stream)
-            
-            self.azure_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+            synth = speechsdk.SpeechSynthesizer(
+                speech_config=self._azure_speech_config, audio_config=audio_config
+            )
 
             # Subscribe to word-boundary events so the caption overlay can
             # reveal each word in sync with playback. Azure provides
@@ -233,24 +282,152 @@ class AI_Core:
             # which is reset before each speak call.
             def _on_word_boundary(evt):
                 try:
-                    # evt.text is the word; evt.audio_offset is in 100-ns ticks.
                     word = (getattr(evt, "text", "") or "").strip()
                     if not word:
                         return
                     offset_ms = int(getattr(evt, "audio_offset", 0)) // 10_000
                     self._azure_word_buffer.append({"word": word, "offset_ms": offset_ms})
+                    self._azure_last_word_event_time = time.time()
+                    self._azure_total_word_events += 1
                 except Exception:
                     # Never let a callback crash the SDK worker thread.
                     pass
             try:
-                self.azure_synthesizer.synthesis_word_boundary.connect(_on_word_boundary)
+                synth.synthesis_word_boundary.connect(_on_word_boundary)
             except Exception as e:
                 print(f"   [TTS] Could not subscribe to Azure word_boundary events: {e}")
-        elif TTS_ENGINE == "edge":
-            if not Communicate: raise ImportError("Run 'pip install edge-tts'")
-        else:
-            raise ValueError(f"Unsupported TTS_ENGINE: {TTS_ENGINE}")
-        print(f"   {TTS_ENGINE.capitalize()} TTS ready.")
+            return synth
+        except Exception as e:
+            print(f"   [TTS] Failed to build Azure synthesizer: {e}")
+            return None
+
+    def _is_meaningful_speak_text(self, text: str) -> bool:
+        """True if the text is substantial enough that Azure SHOULD produce
+        word-boundary events. Used to filter out tiny utterances ("Hi.",
+        "Oh.") that legitimately produce zero events and shouldn't trigger
+        a false-positive session-dead detection."""
+        if not text:
+            return False
+        stripped = text.strip()
+        # "Real" line: at least 12 chars OR contains a space (multi-word).
+        return len(stripped) >= 12 or " " in stripped
+
+    def _track_word_event_health(self, text: str, word_timings_count: int) -> None:
+        """Called after every successful Azure speak completion. Tracks
+        consecutive empty-word-event lines and schedules a synthesizer
+        rebuild when the Azure session appears dead."""
+        if not self._is_meaningful_speak_text(text):
+            return  # don't count tiny utterances
+        if word_timings_count > 0:
+            if self._azure_consecutive_empty_word_lines > 0:
+                print(f"   [Captions] Word-boundary events recovered after {self._azure_consecutive_empty_word_lines} empty line(s).")
+            self._azure_consecutive_empty_word_lines = 0
+            return
+        self._azure_consecutive_empty_word_lines += 1
+        if self._azure_consecutive_empty_word_lines >= self._AZURE_EMPTY_LINE_THRESHOLD:
+            if not self._azure_reinit_in_progress:
+                print(
+                    f"   [Captions] !!! Word-boundary events stopped for "
+                    f"{self._azure_consecutive_empty_word_lines} consecutive line(s) "
+                    f"— Azure session may have dropped, scheduling synthesizer reinit."
+                )
+                try:
+                    loop = self._event_loop_for_captions or asyncio.get_running_loop()
+                    asyncio.run_coroutine_threadsafe(
+                        self._reinit_azure_synthesizer(reason="empty-word-events threshold"),
+                        loop,
+                    )
+                except Exception as e:
+                    print(f"   [Captions] Could not schedule Azure reinit: {e}")
+
+    async def _reinit_azure_synthesizer(self, reason: str = "unknown") -> bool:
+        """Atomically rebuild the Azure synthesizer + re-subscribe the
+        word_boundary callback. Runs under both _azure_reinit_lock (to
+        prevent concurrent reinits) and _azure_tts_lock (to ensure no
+        speak call is in flight when we swap the object).
+        Returns True on success."""
+        if self._azure_reinit_in_progress:
+            return False
+        async with self._azure_reinit_lock:
+            if self._azure_reinit_in_progress:
+                return False
+            self._azure_reinit_in_progress = True
+            try:
+                print(f"   [Captions] Rebuilding Azure synthesizer (reason: {reason})...")
+                # Take the speak lock so no synth call is mid-flight.
+                async with self._azure_tts_lock:
+                    old = self.azure_synthesizer
+                    new_synth = await asyncio.to_thread(self._build_azure_synthesizer)
+                    if not new_synth:
+                        print("   [Captions] Azure synthesizer rebuild FAILED — keeping old instance.")
+                        return False
+                    self.azure_synthesizer = new_synth
+                    self._azure_session_generation += 1
+                    self._azure_consecutive_empty_word_lines = 0
+                    self._azure_last_word_event_time = time.time()
+                    # Best-effort release of the old native handle.
+                    try:
+                        del old
+                    except Exception:
+                        pass
+                print(
+                    f"   [Captions] Azure synthesizer rebuilt successfully "
+                    f"(generation #{self._azure_session_generation}). Captions should recover on next speak."
+                )
+                return True
+            except Exception as e:
+                print(f"   [Captions] Azure synthesizer reinit error: {e}")
+                return False
+            finally:
+                self._azure_reinit_in_progress = False
+
+    async def captions_self_heal_loop(self, interval_seconds: float = 60.0) -> None:
+        """Periodic heartbeat that catches the rare case where the empty-line
+        counter doesn't trip (e.g. silent stretches with no speaks) but the
+        Azure session has still gone stale. Also verifies the caption
+        WebSocket server is still alive and triggers recovery if not."""
+        # Stale threshold: word events haven't fired in this long despite
+        # a recent speak attempt.
+        STALE_WORD_EVENT_SECONDS = 180.0
+        # Speak-recency window: only consider "stale" if we actually tried
+        # to speak recently.
+        RECENT_SPEAK_WINDOW = 180.0
+        print(f"   [Captions] Self-heal heartbeat active (interval={interval_seconds:.0f}s).")
+        while True:
+            try:
+                await asyncio.sleep(interval_seconds)
+                now = time.time()
+                # 1) Azure session staleness check
+                if (
+                    TTS_ENGINE == "azure"
+                    and self.azure_synthesizer is not None
+                    and self._last_azure_speak_time > 0
+                    and (now - self._last_azure_speak_time) < RECENT_SPEAK_WINDOW
+                    and (now - self._azure_last_word_event_time) > STALE_WORD_EVENT_SECONDS
+                    and not self._azure_reinit_in_progress
+                ):
+                    print(
+                        f"   [Captions] Heartbeat: no word events in "
+                        f"{now - self._azure_last_word_event_time:.0f}s despite recent speak "
+                        f"— forcing Azure synthesizer reinit."
+                    )
+                    await self._reinit_azure_synthesizer(reason="heartbeat: stale word events")
+                # 2) Caption server liveness check
+                try:
+                    from caption_server import caption_server as _cs
+                    if not getattr(_cs, "_started", False):
+                        print("   [Captions] Heartbeat: caption server not started — attempting restart.")
+                        try:
+                            await _cs.start()
+                        except Exception as e:
+                            print(f"   [Captions] Heartbeat: caption server restart failed: {e}")
+                except Exception as e:
+                    print(f"   [Captions] Heartbeat: server check error: {e}")
+            except asyncio.CancelledError:
+                print("   [Captions] Self-heal heartbeat stopped.")
+                raise
+            except Exception as e:
+                print(f"   [Captions] Heartbeat loop error (continuing): {e}")
 
     async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", ambient_audio_context: str = "", max_tokens_override: int = None) -> str:
         # Use our updated system prompt if available, else fallback
@@ -649,14 +826,26 @@ class AI_Core:
                 )
                 print(f"   [TTS] Speaking: {text[:50]}...")
                 try:
-                    # Reset word-boundary buffer before kicking synth.
-                    self._azure_word_buffer = []
-                    result = await asyncio.to_thread(
-                        self.azure_synthesizer.speak_ssml, ssml
-                    )
+                    # Serialize with the lock so a concurrent _speak_single
+                    # from a Kira interjection can't reset the shared
+                    # word-boundary buffer mid-synth.
+                    async with self._azure_tts_lock:
+                        # Reset word-boundary buffer before kicking synth.
+                        self._azure_word_buffer = []
+                        self._last_azure_speak_time = time.time()
+                        result = await asyncio.to_thread(
+                            self.azure_synthesizer.speak_ssml, ssml
+                        )
+                        # Snapshot INSIDE the lock so the next call can't
+                        # clobber the buffer before we copy it.
+                        word_timings = list(self._azure_word_buffer) if (
+                            result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted
+                        ) else []
                     if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                        # Snapshot captured word timings + dispatch caption frame.
-                        word_timings = list(self._azure_word_buffer)
+                        # Track Azure session health BEFORE deciding whether
+                        # to push the caption frame — this is what catches a
+                        # silently-dead word_boundary subscription.
+                        self._track_word_event_health(text, len(word_timings))
                         if word_timings:
                             try:
                                 from caption_server import enqueue_caption
@@ -665,9 +854,12 @@ class AI_Core:
                                         self._event_loop_for_captions = asyncio.get_running_loop()
                                     except RuntimeError:
                                         pass
+                                print(f"   [Captions] Pushed frame (vn): '{text[:40]}' ({len(word_timings)} words)")
                                 enqueue_caption(self._event_loop_for_captions, text, word_timings)
                             except Exception as e:
                                 print(f"   [Captions] dispatch suppressed: {e}")
+                        else:
+                            print(f"   [Captions] No word-boundary events captured for '{text[:40]}' — caption skipped.")
                         await self._play_audio_with_pygame(result.audio_data)
                     else:
                         print(f"   TTS Fail: {result.cancellation_details.error_details}")
@@ -706,16 +898,25 @@ class AI_Core:
                         f'<voice name="{AZURE_SPEECH_VOICE}">'
                         f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
                         f'</voice></speak>')
-                # Reset the per-call word-boundary buffer before kicking synth.
-                self._azure_word_buffer = []
-                result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                # Serialize Azure synth so the shared word-boundary buffer
+                # can't be reset by a concurrent speak_text_vn / interjection
+                # before we snapshot. See __init__ for full rationale.
+                async with self._azure_tts_lock:
+                    # Reset the per-call word-boundary buffer before kicking synth.
+                    self._azure_word_buffer = []
+                    self._last_azure_speak_time = time.time()
+                    result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                        audio_data = result.audio_data
+                        # Snapshot INSIDE the lock before the next caller can
+                        # clear the shared buffer.
+                        word_timings = list(self._azure_word_buffer)
+                    else:
+                        print(f"   TTS Fail: {result.cancellation_details.error_details}")
+                # Track Azure session health AFTER releasing the lock so a
+                # scheduled reinit doesn't deadlock on it.
                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                    audio_data = result.audio_data
-                    # Snapshot the captured word timings BEFORE the next synth
-                    # call could overwrite the shared buffer.
-                    word_timings = list(self._azure_word_buffer)
-                else:
-                    print(f"   TTS Fail: {result.cancellation_details.error_details}")
+                    self._track_word_event_health(text, len(word_timings))
             elif TTS_ENGINE == "edge" and Communicate:
                 voice = AZURE_SPEECH_VOICE if AZURE_SPEECH_VOICE else "en-US-AriaNeural"
                 communicate = Communicate(text, voice)
@@ -734,7 +935,10 @@ class AI_Core:
                 try:
                     from caption_server import enqueue_caption
                     if word_timings:
+                        print(f"   [Captions] Pushed frame: '{text[:40]}' ({len(word_timings)} words)")
                         enqueue_caption(self._event_loop_for_captions, text, word_timings)
+                    else:
+                        print(f"   [Captions] No word-boundary events captured for '{text[:40]}' — caption skipped.")
                 except Exception as e:
                     print(f"   [Captions] dispatch suppressed: {e}")
                 await self._play_audio_with_pygame(audio_data)
