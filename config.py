@@ -6,7 +6,7 @@ load_dotenv(override=True)
 # Model and runtime config (safe to share)
 LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH", "models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf")
 N_GPU_LAYERS = int(os.getenv("N_GPU_LAYERS", -1))
-N_CTX = int(os.getenv("N_CTX", 8192))
+N_CTX = int(os.getenv("N_CTX", 16384))
 N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))

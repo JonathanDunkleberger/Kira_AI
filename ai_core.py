@@ -475,35 +475,106 @@ class AI_Core:
             )
 
         system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
-        
-        # We now use the variable from config for the response buffer
-        max_response_tokens = LLM_MAX_RESPONSE_TOKENS
-        token_limit = N_CTX - len(system_tokens) - max_response_tokens
 
-        history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
+        # We now use the variable from config for the response buffer
+        max_response_tokens = max_tokens_override or LLM_MAX_RESPONSE_TOKENS
+
+        # Use the LLM's ACTUAL context size as the source of truth, not the
+        # config constant. (The model may have been loaded with a smaller
+        # n_ctx than configured, and we never want to overrun it.) Reserve
+        # a small fudge factor (128 tokens) for chat-template overhead, BOS,
+        # role tokens, etc. that aren't reflected in raw content counts.
+        try:
+            real_ctx = int(self.llm.n_ctx())
+        except Exception:
+            real_ctx = N_CTX
+        CHAT_TEMPLATE_FUDGE = 128
+        token_limit = real_ctx - len(system_tokens) - max_response_tokens - CHAT_TEMPLATE_FUDGE
+
+        def _tok_len(s: str) -> int:
+            try:
+                return len(self.llm.tokenize(s.encode("utf-8")))
+            except Exception:
+                # Worst-case estimate: ~4 chars per token
+                return max(1, len(s) // 4)
+
+        history_tokens = sum(_tok_len(m["content"]) for m in messages)
+        if history_tokens > token_limit:
+            print(f"   (Trimming conversation history: {history_tokens} → ≤{token_limit} tokens, ctx={real_ctx})")
         while history_tokens > token_limit and len(messages) > 1:
-            print("   (Trimming conversation history to fit context window...)")
             messages.pop(0)
-            history_tokens = sum(len(self.llm.tokenize(m["content"].encode("utf-8"))) for m in messages)
-            
+            history_tokens = sum(_tok_len(m["content"]) for m in messages)
+
+        # Hard guarantee: if dropping history wasn't enough (e.g. the lone
+        # remaining user turn is itself huge, or the system prompt with
+        # injected memory/scene blocks is gigantic), shrink the system
+        # prompt and as a last resort truncate the final user message.
+        # We must NEVER hand llama_cpp a prompt that exceeds n_ctx — it
+        # raises ValueError and kills the whole worker.
+        def _total_tokens() -> int:
+            return len(self.llm.tokenize(system_prompt.encode("utf-8"))) + sum(
+                _tok_len(m["content"]) for m in messages
+            )
+
+        # Budget for system + history combined (leaves room for the response).
+        hard_budget = real_ctx - max_response_tokens - CHAT_TEMPLATE_FUDGE
+        if _total_tokens() > hard_budget:
+            # Shrink the system prompt by chopping the bracketed context
+            # blocks we appended (MEMORY NOTES, VISUAL PERCEPTION, AMBIENT
+            # AUDIO) before touching the core personality. We do this by
+            # character-truncating the system prompt from the end in halves
+            # until it fits — crude but deterministic and never deletes the
+            # personality preamble at the top.
+            while _total_tokens() > hard_budget and len(system_prompt) > 800:
+                # Halve everything past the first 800 chars (personality stub).
+                system_prompt = system_prompt[:800] + system_prompt[800:][: max(1, (len(system_prompt) - 800) // 2)]
+
+            # Still over? Truncate the most recent user message itself.
+            while _total_tokens() > hard_budget and messages:
+                last = messages[-1]
+                content = last.get("content", "")
+                if len(content) <= 200:
+                    # Can't shrink further without dropping the turn entirely.
+                    messages.pop()
+                    if not messages:
+                        # Pathological case — inject a minimal stub so we
+                        # still produce a response instead of crashing.
+                        messages = [{"role": "user", "content": "(continue)"}]
+                        break
+                else:
+                    last["content"] = content[: len(content) // 2]
+
+            print(f"   (Hard-trim engaged: final size ≈{_total_tokens()} tokens, budget {hard_budget})")
+
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
-        
+
         # Non-streaming inference for maximum throughput on RTX 5080
-        # Wrap inference in lock to prevent collisions with background agents
+        # Wrap inference in lock to prevent collisions with background agents.
+        # Also catch context-overflow ValueError so one oversized prompt can
+        # never kill chat_batch_worker — return a short fallback line instead.
         def _guarded_inference():
             with self.inference_lock:
                  return self.llm.create_chat_completion(
                     messages=full_prompt,
-                    max_tokens=(max_tokens_override or LLM_MAX_RESPONSE_TOKENS),
+                    max_tokens=max_response_tokens,
                     temperature=0.75, # Slight bump for creativity
                     top_p=0.9,
                     min_p=0.05,
                     repeat_penalty=1.1, # LOWERED from 1.2 to allow flow
                     stop=["<end_of_turn>", "<eos>"], # Removed "Jonny:" to avoid cutting output early
-                    stream=False 
+                    stream=False
                  )
-                 
-        response = await asyncio.to_thread(_guarded_inference)
+
+        try:
+            response = await asyncio.to_thread(_guarded_inference)
+        except ValueError as e:
+            # Almost always "Requested tokens (X) exceed context window".
+            # Don't crash the worker — log + graceful fallback.
+            print(f"   [LLM] Context overflow in inference ({e}). Returning fallback line.")
+            return "Brain's a little fried right now — give me a sec."
+        except Exception as e:
+            print(f"   [LLM] Local inference failed ({type(e).__name__}: {e}). Returning fallback line.")
+            return "Hmm, something tripped on my end."
         raw_content = response["choices"][0]["message"]["content"]
         # Regex filter for parentheses
         clean_content = re.sub(r'\(.*?\)', '', raw_content).strip()
@@ -650,12 +721,32 @@ class AI_Core:
             else:
                 system_param = system_prompt
 
-            response = await self.anthropic_client.messages.create(
-                model=CLAUDE_DEEP_MODEL,
-                max_tokens=max_tokens,
-                system=system_param,
-                messages=claude_messages,
-            )
+            # Single quick retry on transient 529 (Overloaded) before we give
+            # up and drop to local Llama. Anthropic 529s are usually a brief
+            # server hiccup; a 1.5s wait often clears it, and Claude is far
+            # better suited to the prompt sizes we build here than the local
+            # 4–16k window. Other errors (auth, 4xx, network) skip the retry.
+            response = None
+            last_err = None
+            for attempt in range(2):
+                try:
+                    response = await self.anthropic_client.messages.create(
+                        model=CLAUDE_DEEP_MODEL,
+                        max_tokens=max_tokens,
+                        system=system_param,
+                        messages=claude_messages,
+                    )
+                    break
+                except Exception as e:
+                    last_err = e
+                    status = getattr(e, "status_code", None)
+                    if status == 529 and attempt == 0:
+                        print("   [Brain] Claude 529 (Overloaded) — retrying once after 1.5s...")
+                        await asyncio.sleep(1.5)
+                        continue
+                    raise
+            if response is None:
+                raise last_err if last_err else RuntimeError("Claude returned no response")
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
