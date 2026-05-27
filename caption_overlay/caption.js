@@ -49,16 +49,37 @@
         const myToken = activeToken;
         clearPending();
 
-        // Build the DOM: one <span class="word"> per word, separated by spaces.
+        // Build the DOM: one <span class="word"> per word. Each span carries
+        // its own right-margin for inter-word spacing (see style.css).
+        //
+        // Azure's word_boundary events sometimes emit trailing punctuation
+        // (".", ",", "?", "!", ";", ":", ")", "]", "}", "'", '"', "…") as
+        // its own token. If we gave that its own span, the previous word's
+        // margin-right would render as a visible gap ("land ."). Instead,
+        // merge punctuation-only tokens onto the previous span. We still
+        // push an entry into wordEls (pointing at the merged span) so that
+        // its scheduled reveal timer at the punctuation's offset_ms is a
+        // harmless no-op on an already-revealed span.
         captionEl.innerHTML = "";
         const wordEls = [];
+        const PUNCT_ONLY = /^[\.,!\?;:…\)\]\}'"”’»]+$/;
+        let lastSpan = null;
         for (const w of frame.words) {
+            const token = (w.word || "");
+            if (lastSpan && PUNCT_ONLY.test(token)) {
+                lastSpan.textContent += token;
+                wordEls.push(lastSpan);
+                continue;
+            }
             const span = document.createElement("span");
             span.className = "word";
-            span.textContent = w.word;
+            span.textContent = token;
             captionEl.appendChild(span);
             wordEls.push(span);
+            lastSpan = span;
         }
+        // Trailing margin on the final span would push the line off-center.
+        if (lastSpan) lastSpan.style.marginRight = "0";
 
         // Reveal the container immediately (so the outline appears the moment
         // she starts speaking, even though words are individually hidden).
