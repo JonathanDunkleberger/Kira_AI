@@ -4,8 +4,11 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Environment
+# Environment & secrets
 .env
+.env.*
+!.env.example
+*.token
 .vts_token
 
 # Data & models
@@ -13,11 +16,30 @@ memory_db/
 memory_db.bak/
 models/
 logs/
+cache/
 *.gguf
 *.log
 *.wav
+*.mp3
 *.sqlite3
 *.db
+
+# Personal content (streams, recordings, clips, transcripts)
+clips/
+recordings/
+transcripts/
+*.mp4
+*.mkv
+*.mov
+*.webm
+*.flv
+
+# Screenshots / captures — but keep the demo gif and architecture svg
+*.jpg
+*.jpeg
+*.png
+!VTuber Demo - Kirav3.gif
+!docs/kira-architecture.svg
 
 # OS
 .DS_Store
