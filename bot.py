@@ -24,7 +24,8 @@ from memory_extractor import extract_memories
 from youtube_bot import YouTubeBot
 from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
-    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT, ENABLE_LOOPBACK_TRANSCRIBER,
+    CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
+    ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
 )
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
@@ -628,7 +629,22 @@ class VTubeBot:
     def _detect_activity_change(self, text: str) -> str | None:
         """Parses a voice input for activity-setting phrases. Returns activity string or None.
         Strict: only matches clear activity declarations, NOT imperative requests like
-        'read the text' or 'look at the screen'. Those are commands to Kira, not activity changes."""
+        'read the text' or 'look at the screen'. Those are commands to Kira, not activity changes.
+
+        Recognised trigger shapes (all route to playthrough memory load when ACTIVITY_GAME):
+          - "let's play X" / "let us play X"
+          - "we're playing X" / "I'm playing X"
+          - "playing X"
+          - "gonna play X" / "going to play X"
+          - "time to play X"
+          - "starting X" / "starting up X"
+          - "boot up X" / "booting up X"
+          - "load up X" / "loading up X"
+          - "back to X" / "back to the X playthrough"
+          - "continuing X" / "let's continue X"
+          - "launch X" / "open X"
+        Interrogative forms ('should we play X?', 'what about X?') are filtered out.
+        """
         stripped = text.strip()
         lower = stripped.lower()
 
@@ -644,12 +660,42 @@ class VTubeBot:
             if sig in lower:
                 return None
 
-        # Only match explicit activity declarations
+        # Hard filter: reject interrogative forms to prevent false positives.
+        # "should we play X", "what about X", "how about X", "wanna play X?"
+        interrogative_signals = [
+            "should we", "should i", "what about", "how about",
+            "wanna play", "want to play", "do you want", "do we",
+            "shall we", "maybe we", "maybe i",
+        ]
+        for sig in interrogative_signals:
+            if lower.startswith(sig) or f" {sig}" in lower:
+                return None
+
+        # Expanded set of explicit activity declarations.
+        # Each pattern captures the activity/title name in group 1.
         patterns = [
-            r"^(?:let(?:'s| us))\s+(?:play|watch|read|stream|start)\s+(.+?)[\.|\!|\?]?$",
-            r"^(?:we(?:'re| are)|i(?:'m| am))\s+(?:playing|watching|reading|streaming)\s+(.+?)[\.|\!|\?]?$",
-            r"^(?:gonna|going to)\s+(?:play|watch|read|stream|start)\s+(.+?)[\.|\!|\?]?$",
-            r"^(?:start(?:ing)?|boot(?:ing)? up|launch(?:ing)?|open(?:ing)?)\s+(.+?)[\.|\!|\?]?$",
+            # "let's play X" / "let us play X" / "let's watch X" / etc.
+            r"^(?:let(?:'s| us))\s+(?:play|watch|read|stream|start|continue)\s+(.+?)[.!?]?$",
+            # "we're playing X" / "I'm playing X" / "we are playing X"
+            r"^(?:we(?:'re| are)|i(?:'m| am))\s+(?:playing|watching|reading|streaming)\s+(.+?)[.!?]?$",
+            # "playing X" (bare present participle declaration)
+            r"^(?:playing|watching|reading|streaming)\s+(.+?)[.!?]?$",
+            # "gonna play X" / "going to play X"
+            r"^(?:gonna|going to)\s+(?:play|watch|read|stream|start)\s+(.+?)[.!?]?$",
+            # "time to play X"
+            r"^time to\s+(?:play|watch|read|stream|start)\s+(.+?)[.!?]?$",
+            # "starting X" / "starting up X"
+            r"^starting(?:\s+up)?\s+(.+?)[.!?]?$",
+            # "boot up X" / "booting up X"
+            r"^boot(?:ing)?\s+up\s+(.+?)[.!?]?$",
+            # "load up X" / "loading up X"
+            r"^load(?:ing)?\s+up\s+(.+?)[.!?]?$",
+            # "back to X" / "back to the X playthrough"
+            r"^back to(?:\s+the)?\s+(.+?)(?:\s+playthrough)?[.!?]?$",
+            # "continuing X" / "let's continue X"
+            r"^(?:let(?:'s| us)\s+)?continuing?\s+(.+?)[.!?]?$",
+            # "launch X" / "launching X" / "open X" / "opening X"
+            r"^(?:launch(?:ing)?|open(?:ing)?)\s+(.+?)[.!?]?$",
         ]
         for pattern in patterns:
             match = re.search(pattern, stripped, re.IGNORECASE)
@@ -675,6 +721,63 @@ class VTubeBot:
             if kw in lower:
                 return ACTIVITY_MEDIA
         return ACTIVITY_GAME  # generic fallback
+
+    def _is_likely_cutscene(self) -> bool:
+        """Lightweight heuristic: returns True when game-mode cues suggest a cinematic
+        cutscene is playing, so the observer loop and triage can suppress chatter.
+
+        SCOPE: only active during ACTIVITY_GAME with a loaded playthrough.
+        Returns False immediately in any other mode — zero impact on idle/chat/VN/MEDIA.
+
+        Detection uses OR logic (either vision OR audio is sufficient) because:
+        - False positives during gameplay are cheap (brief extra silence)
+        - False negatives during a Bond villain monologue are the real cost
+
+        Tunable via CUTSCENE_AWARE=false in .env to disable globally.
+        """
+        if not CUTSCENE_AWARE:
+            return False
+
+        # Only active in ACTIVITY_GAME mode with a playthrough loaded
+        if self.game_mode_controller.activity_type != ACTIVITY_GAME:
+            return False
+        if not (self.playthrough_memory and self.playthrough_memory.current_slug):
+            return False
+
+        # --- Vision check ---
+        CUTSCENE_VISION_KEYWORDS = (
+            "cutscene", "cinematic", "letterbox", "black bar",
+            "characters facing each other", "dialogue scene",
+            "characters talking", "dramatic confrontation",
+            "no hud", "no ui", "movie", "title card",
+            "characters speaking", "in-engine cutscene",
+        )
+        scene_summary = (
+            getattr(self.vision_agent, "scene_summary", "") or
+            getattr(self.vision_agent, "last_description", "") or ""
+        ).lower()
+        vision_hit = any(kw in scene_summary for kw in CUTSCENE_VISION_KEYWORDS)
+
+        # --- Audio check ---
+        CUTSCENE_AUDIO_KEYWORDS = (
+            "orchestral", "cinematic music", "swelling", "swells",
+            "dramatic music", "monologue", "dialogue between characters",
+            "characters speaking", "male voice speaking", "female voice speaking",
+            "voice speaking", "voices speaking",
+        )
+        audio_summary = ""
+        if self.audio_agent and self.audio_agent.is_active():
+            audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
+        audio_hit = any(kw in audio_summary for kw in CUTSCENE_AUDIO_KEYWORDS)
+
+        result = vision_hit or audio_hit
+        if result:
+            print(
+                f"   [CUTSCENE_DETECTOR] Cutscene cues detected — "
+                f"vision={'HIT' if vision_hit else 'miss'}, "
+                f"audio={'HIT' if audio_hit else 'miss'}."
+            )
+        return result
 
     async def run(self):
         # --- UPDATED: Moved main logic into a separate task for graceful shutdown ---
@@ -822,6 +925,47 @@ class VTubeBot:
         try:
             if not self.ai_core.is_initialized:
                  await self.ai_core.initialize()
+
+            # ── VRAM startup check ────────────────────────────────────────────
+            # Non-blocking: logs a warning if Kira's known VRAM allocation exceeds
+            # 11 GB (leaves ~5 GB for Bond at 4K, which is tight but workable).
+            # If you hit OOM during streaming, drop N_GPU_LAYERS from -1 to ~28
+            # to offload some Llama layers to CPU — that's the primary VRAM lever.
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    allocated_gb = torch.cuda.memory_allocated() / (1024 ** 3)
+                    reserved_gb  = torch.cuda.memory_reserved()  / (1024 ** 3)
+                    total_gb     = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+                    print(f"   [VRAM] Allocated: {allocated_gb:.1f} GB | Reserved: {reserved_gb:.1f} GB | Total: {total_gb:.0f} GB")
+                    VRAM_WARN_THRESHOLD_GB = 11.0
+                    if reserved_gb > VRAM_WARN_THRESHOLD_GB:
+                        print(
+                            f"   [VRAM] ⚠ WARNING: {reserved_gb:.1f} GB reserved by Kira — "
+                            f"leaves only {total_gb - reserved_gb:.1f} GB for the game. "
+                            f"If Bond OOMs, reduce N_GPU_LAYERS from -1 to ~28 in .env."
+                        )
+            except Exception as _vram_e:
+                print(f"   [VRAM] Check skipped: {_vram_e}")
+
+            # ── Loopback transcriber OOM-safe init ────────────────────────────
+            # The LoopbackTranscriber lazy-loads its WhisperModel on first start().
+            # If it OOM-crashes, disable it cleanly for this session rather than
+            # taking down the whole bot. Mic, Llama, and vision continue normally.
+            # Note: actual start() (wiring to audio_agent) is done by the dashboard
+            # when entering media mode. Here we just eagerly probe the model load
+            # so any OOM surfaces at startup rather than mid-stream.
+            if self.loopback_transcriber is not None:
+                try:
+                    self.loopback_transcriber._load_model()
+                    print("   [LoopbackSTT] Model pre-loaded OK.")
+                except Exception as _lt_e:
+                    print(
+                        f"   [LoopbackSTT] ⚠ Model load failed ({_lt_e}). "
+                        f"Disabling loopback transcription for this session — "
+                        f"mic, brain, and vision continue normally."
+                    )
+                    self.loopback_transcriber = None
             
             # Start Senses
             # Vision is now On-Demand, no start() needed
@@ -1119,7 +1263,14 @@ class VTubeBot:
                             old_immersive = self.immersive
                             self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
                             print(f"   [Immersive] {self.immersive}")
-                            self.vision_agent.heartbeat_interval = 10.0 if self.immersive else 30.0
+                            # Vision heartbeat cadence:
+                            #   ACTIVITY_VN / ACTIVITY_MEDIA (immersive=True) → 10s (already was)
+                            #   ACTIVITY_GAME → 10s (game scenes change fast; was 30s before)
+                            #   Everything else → 30s (chat/idle, no point hammering vision)
+                            if self.immersive or new_type == ACTIVITY_GAME:
+                                self.vision_agent.heartbeat_interval = 10.0
+                            else:
+                                self.vision_agent.heartbeat_interval = 30.0
                             if old_immersive and not self.immersive and self.session_scene_log:
                                 asyncio.create_task(self._generate_session_summary())
                             # Load playthrough memory for the new game/VN
@@ -1243,12 +1394,21 @@ class VTubeBot:
 
                     # Speech triage — decide whether to respond, react briefly, or stay quiet
                     scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+
+                    # Cutscene bias (ACTIVITY_GAME only): if a cutscene is likely playing and
+                    # Jonny has been silent for >20s, pass immersive=True to triage so it biases
+                    # toward STAY_QUIET / BRIEF instead of RESPOND. _triage_rescue still fires for
+                    # direct addresses and questions, so chat viewers can still get responses.
+                    silence_since_last = time.time() - self.last_interaction_time
+                    _cutscene_active = self._is_likely_cutscene() and silence_since_last > 20.0
+                    _triage_immersive = self.immersive or _cutscene_active
+
                     decision = await self.ai_core.decide_response_mode(
                         recent_history=self.conversation_history,
                         incoming_line=content,
                         scene_context=scene_ctx,
                         source=source,
-                        immersive=self.immersive,
+                        immersive=_triage_immersive,
                     )
 
                     if decision == "STAY_QUIET":
@@ -1257,7 +1417,7 @@ class VTubeBot:
 
                     if decision != "STAY_QUIET":
                         brief_mode = (decision == "BRIEF")
-                        if self.immersive and decision == "RESPOND":
+                        if _triage_immersive and decision == "RESPOND":
                             brief_mode = True
                         print(f"   [Triage] {decision}")
 
@@ -2146,6 +2306,13 @@ class VTubeBot:
 
             else:
                 # ── STREAMER MODE: boredom escalation ────────────────────────
+                # Cutscene gate (ACTIVITY_GAME only): if vision/audio cues suggest a
+                # cinematic cutscene is playing, skip this observer tick entirely.
+                # The check is free — no API calls. We log once per cutscene window.
+                if self._is_likely_cutscene():
+                    print("   [CUTSCENE_DETECTOR] Suppressing interjection — cutscene cues detected.")
+                    continue
+
                 # In streamer mode, bias a bit under half of bored-loop lines toward a
                 # short question directed at chat — keeps the room alive and shifts
                 # Kira off the always-declarative reflex. Bumped from 0.33 → 0.45 so
@@ -2460,20 +2627,22 @@ class VTubeBot:
                 from ai_core import EMOTION_DESCRIPTORS
                 from config import ENABLE_CLAUDE_STREAMING
                 emotion_line = EMOTION_DESCRIPTORS.get(self.current_emotion, "Be yourself.")
-                chat_system = self.ai_core.system_prompt + f"\n\n[EMOTIONAL STATE: {self.current_emotion.name} \u2014 {emotion_line}]"
+                # Block A (static, cached): self.ai_core.system_prompt — personality + tool rules.
+                # Block C (dynamic, uncached): all per-turn context assembled below.
+                dynamic_context = f"[EMOTIONAL STATE: {self.current_emotion.name} \u2014 {emotion_line}]"
                 if self.current_activity:
-                    chat_system += (
+                    dynamic_context += (
                         f"\n\n[CURRENT CONTEXT: You and Jonny are currently {self.current_activity}. "
                         "Let this shape what you talk about, reference, and react to.]"
                     )
                 # Inject the recent activity brief — gives Kira baked-in awareness of last session
                 if self.recent_activity_brief:
-                    chat_system += (
+                    dynamic_context += (
                         f"\n\n[RECENT STREAM HISTORY \u2014 this is what happened in the most recent session, "
                         f"reference naturally when relevant, do not recite verbatim]\n{self.recent_activity_brief}"
                     )
                 if self.recent_chatters_brief:
-                    chat_system += (
+                    dynamic_context += (
                         f"\n\n[KNOWN RECENT CHATTERS \u2014 recognize these names if they show up]\n{self.recent_chatters_brief}"
                     )
 
@@ -2482,7 +2651,7 @@ class VTubeBot:
                 if self.playthrough_memory:
                     pt_ctx = self.playthrough_memory.get_context_for_prompt()
                     if pt_ctx:
-                        chat_system += (
+                        dynamic_context += (
                             f"\n\n[PLAYTHROUGH MEMORY \u2014 these are real experiences, reference as lived memory, "
                             f"not data]\n{pt_ctx}"
                         )
@@ -2492,12 +2661,12 @@ class VTubeBot:
                     bits_str = "\n".join(
                         f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-15:]
                     )
-                    chat_system += (
+                    dynamic_context += (
                         f"\n\n[RUNNING BITS THIS SESSION \u2014 callbacks worth weaving in when natural]\n{bits_str}"
                     )
 
                 if memory_context:
-                    chat_system += (
+                    dynamic_context += (
                         f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n"
                         f"{memory_context}"
                     )
@@ -2512,26 +2681,26 @@ class VTubeBot:
                     visual_part = visual_part.replace(audio_part, "").strip()
 
                 if audio_part:
-                    chat_system += f"\n\n{audio_part}"
+                    dynamic_context += f"\n\n{audio_part}"
 
                 # Song-ID intent: if the user explicitly asked Kira to identify the
                 # currently-playing song, fingerprint the audio buffer via AudD and
                 # inject the real result as sense-data she lands on in character.
                 song_block = await self._maybe_identify_song(raw_user_text)
                 if song_block:
-                    chat_system += song_block
+                    dynamic_context += song_block
 
                 if visual_part:
-                    chat_system += self._frame_visual_perception(visual_part)
+                    dynamic_context += self._frame_visual_perception(visual_part)
 
                 # Ambient audio transcript — render as a sibling sense block to
                 # visual perception. Skipped when transcriber is off or window
                 # is empty so other modes are unaffected.
                 if ambient_transcript:
-                    chat_system += self._frame_ambient_audio(ambient_transcript)
+                    dynamic_context += self._frame_ambient_audio(ambient_transcript)
 
                 # Shared voice guardrails on every Sonnet chat turn too
-                chat_system += self._kira_voice_guardrails()
+                dynamic_context += self._kira_voice_guardrails()
                 try:
                     if ENABLE_CLAUDE_STREAMING:
                         # Streaming path: speak as tokens arrive
@@ -2548,7 +2717,8 @@ class VTubeBot:
 
                         stream_gen = self.ai_core.claude_chat_inference_stream(
                             messages=self.conversation_history,
-                            system_prompt=chat_system,
+                            system_prompt=self.ai_core.system_prompt,
+                            dynamic_context=dynamic_context,
                             max_tokens=streaming_max,
                         )
                         full_response_text = await self.ai_core.speak_streaming(stream_gen)
@@ -2565,7 +2735,8 @@ class VTubeBot:
                             non_streaming_max = 250
                         full_response_text = await self.ai_core.claude_chat_inference(
                             messages=self.conversation_history,
-                            system_prompt=chat_system,
+                            system_prompt=self.ai_core.system_prompt,
+                            dynamic_context=dynamic_context,
                             max_tokens=non_streaming_max,
                         )
                 except Exception as e:

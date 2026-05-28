@@ -694,10 +694,14 @@ class AI_Core:
             decision = "RESPOND"
         return self._triage_rescue(decision, incoming_line)
 
-    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False) -> str:
+    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False, dynamic_context: str = "") -> str:
         """Routes a generation call to Claude Opus. Used for deep cognitive moments
         where intelligence matters more than latency. Falls back to local LLM if Claude unavailable
-        unless force_claude=True, in which case exceptions are re-raised for callers to handle."""
+        unless force_claude=True, in which case exceptions are re-raised for callers to handle.
+
+        system_prompt  — Block A (static personality + rules). Cached with cache_control when
+                         ENABLE_PROMPT_CACHING is on. Must be byte-identical across calls.
+        dynamic_context — Block C (per-call context: scene, memories, task framing). Never cached."""
         if not self.anthropic_client:
             if force_claude:
                 raise RuntimeError("Claude client not initialised and force_claude=True — no local fallback.")
@@ -718,8 +722,11 @@ class AI_Core:
 
             if ENABLE_PROMPT_CACHING:
                 system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+                if dynamic_context:
+                    system_param.append({"type": "text", "text": dynamic_context})
             else:
-                system_param = system_prompt
+                combined = system_prompt + ("\n\n" + dynamic_context if dynamic_context else "")
+                system_param = combined
 
             # Single quick retry on transient 529 (Overloaded) before we give
             # up and drop to local Llama. Anthropic 529s are usually a brief
@@ -768,21 +775,20 @@ class AI_Core:
         Used for the invite button, reflective questions, and moments where
         intelligence and nuance matter more than latency."""
         recent_history = recent_history or []
-        system_prompt = (
-            self.system_prompt
-            + "\n\n[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
-        )
+        # Block A (static, cached): self.system_prompt — personality + tool rules, never changes.
+        # Block C (dynamic, uncached): mode framing, scene perception, retrieved memories.
+        dynamic_context = "[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
         if scene_context:
-            system_prompt += (
-                f"\n\n[CURRENT SCENE — raw perception of what is on screen / playing right now]\n"
+            dynamic_context += (
+                f"\n\n[CURRENT SCENE \u2014 raw perception of what is on screen / playing right now]\n"
                 f"{scene_context}\n"
-                f"This is sense data — what your eyes and ears are taking in. It is NOT a script. "
+                f"This is sense data \u2014 what your eyes and ears are taking in. It is NOT a script. "
                 f"Do NOT recap or paraphrase it (Jonny saw/heard it too). If any line begins with "
                 f"'UNCERTAIN:' or contains hedge language, treat it as low-confidence and do not commit "
-                f"to specifics. React in YOUR voice — a feeling, quip, callback, take — not narration."
+                f"to specifics. React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 not narration."
             )
         if memory_context:
-            system_prompt += f"\n\n[RELEVANT MEMORIES \u2014 use to stay consistent, do not quote]\n{memory_context}"
+            dynamic_context += f"\n\n[RELEVANT MEMORIES \u2014 use to stay consistent, do not quote]\n{memory_context}"
 
         history_to_send = []
         for turn in recent_history[-8:]:
@@ -792,13 +798,17 @@ class AI_Core:
 
         return await self.claude_inference(
             messages=history_to_send,
-            system_prompt=system_prompt,
+            system_prompt=self.system_prompt,
+            dynamic_context=dynamic_context,
             max_tokens=max_tokens,
         )
 
-    async def claude_chat_inference(self, messages: list, system_prompt: str, max_tokens: int = 400) -> str:
+    async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400) -> str:
         """Routes a conversational response through Claude Sonnet 4.6. Default voice/Twitch
-        response path when Claude is available. Cheaper than Opus, better than local Llama."""
+        response path when Claude is available. Cheaper than Opus, better than local Llama.
+
+        system_prompt   — Block A (static personality + rules). Cached when ENABLE_PROMPT_CACHING.
+        dynamic_context — Block C (per-turn context: emotion, memories, scene). Never cached."""
         if not self.anthropic_client or not ENABLE_CLAUDE_CHAT:
             return ""  # Caller falls back to local
 
@@ -808,8 +818,11 @@ class AI_Core:
 
         if ENABLE_PROMPT_CACHING:
             system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+            if dynamic_context:
+                system_param.append({"type": "text", "text": dynamic_context})
         else:
-            system_param = system_prompt
+            combined = system_prompt + ("\n\n" + dynamic_context if dynamic_context else "")
+            system_param = combined
 
         try:
             response = await self.anthropic_client.messages.create(
@@ -825,9 +838,12 @@ class AI_Core:
             print(f"   [Brain] Sonnet call failed: {e}. Falling back to local Llama.")
             return ""
 
-    async def claude_chat_inference_stream(self, messages: list, system_prompt: str, max_tokens: int = 400):
+    async def claude_chat_inference_stream(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400):
         """Async generator: streams Claude Sonnet 4.6 response chunk-by-chunk.
-        Yields text deltas as they arrive. Empty generator if Claude unavailable."""
+        Yields text deltas as they arrive. Empty generator if Claude unavailable.
+
+        system_prompt   — Block A (static personality + rules). Cached when ENABLE_PROMPT_CACHING.
+        dynamic_context — Block C (per-turn context: emotion, memories, scene). Never cached."""
         if not self.anthropic_client or not ENABLE_CLAUDE_CHAT:
             return
 
@@ -837,8 +853,11 @@ class AI_Core:
 
         if ENABLE_PROMPT_CACHING:
             system_param = [{"type": "text", "text": system_prompt, "cache_control": {"type": "ephemeral"}}]
+            if dynamic_context:
+                system_param.append({"type": "text", "text": dynamic_context})
         else:
-            system_param = system_prompt
+            combined = system_prompt + ("\n\n" + dynamic_context if dynamic_context else "")
+            system_param = combined
 
         try:
             async with self.anthropic_client.messages.stream(

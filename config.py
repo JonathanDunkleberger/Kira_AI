@@ -6,6 +6,10 @@ load_dotenv(override=True)
 # Model and runtime config (safe to share)
 LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH", "models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf")
 N_GPU_LAYERS = int(os.getenv("N_GPU_LAYERS", -1))
+# ↑ Primary VRAM lever. -1 = all layers on GPU (~6-7 GB for 8B Q4_K_M).
+#   If streaming a VRAM-hungry game (e.g. Bond at 4K) causes OOM, drop to ~28
+#   to offload the remainder to CPU. CPU layers add ~30-80ms latency per token
+#   but keep the bot stable. Profile with torch.cuda.memory_reserved() first.
 N_CTX = int(os.getenv("N_CTX", 16384))
 N_BATCH = int(os.getenv("N_BATCH", 512))
 
@@ -88,6 +92,12 @@ ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() =
 
 # AudD audio fingerprinting (paid API; only fires on explicit user song-ID intent).
 AUDD_API_TOKEN = os.getenv("AUDD_API_TOKEN", "")
+
+# Cutscene-aware observer suppression — only active during ACTIVITY_GAME mode.
+# When true, the observer loop and per-turn triage check for cutscene cues
+# (vision scene summary + audio mood keywords) and suppress interjections while
+# a cutscene is likely playing. Has zero effect outside ACTIVITY_GAME mode.
+CUTSCENE_AWARE = os.getenv("CUTSCENE_AWARE", "true").lower() == "true"
 
 # VTube Studio integration — drives Live2D facial expressions from Kira's emotional state.
 # Default OFF. Token is auto-created on first approved handshake and persisted to disk.

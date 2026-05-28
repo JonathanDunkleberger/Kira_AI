@@ -32,6 +32,44 @@
     let activeToken = 0;
     let pendingTimeouts = [];
 
+    // ── Auto-shrink font to fit the CSS max-height constraint ──────────────
+    // Called once per caption BEFORE the word-by-word reveal begins so the
+    // font is stable and never jumps mid-animation.
+    //
+    // Strategy: temporarily remove max-height so offsetHeight reflects the
+    // natural content height, then step font-size down 1px at a time until
+    // it fits or hits the CSS variable floor (--caption-min-font-size).
+    function autoShrinkFont(el) {
+        // Reset any inline font-size left over from the previous caption so
+        // we always start from the CSS variable default.
+        el.style.fontSize = "";
+
+        const cs = getComputedStyle(el);
+        const maxH = parseFloat(cs.maxHeight);   // px value of 40vh
+        if (!maxH || isNaN(maxH) || maxH <= 0) return;
+
+        const minSize = parseFloat(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue('--caption-min-font-size').trim()
+        ) || 20;
+
+        // Lift the max-height so offsetHeight reflects the unclamped content.
+        el.style.maxHeight = 'none';
+        let naturalH = el.offsetHeight;   // triggers synchronous layout
+        if (naturalH <= maxH) {
+            el.style.maxHeight = '';      // restore — CSS variable takes over
+            return;
+        }
+
+        let fontSize = parseFloat(cs.fontSize);
+        while (naturalH > maxH && fontSize > minSize) {
+            fontSize -= 1;
+            el.style.fontSize = fontSize + 'px';
+            naturalH = el.offsetHeight;   // each write+read forces a reflow
+        }
+        el.style.maxHeight = '';          // restore — CSS variable takes over
+    }
+
     function setStatus(state) {
         statusEl.textContent = state;
         statusEl.classList.remove("connected", "disconnected");
@@ -80,6 +118,10 @@
         }
         // Trailing margin on the final span would push the line off-center.
         if (lastSpan) lastSpan.style.marginRight = "0";
+
+        // Pre-measure and shrink font BEFORE the reveal so font-size is stable
+        // for the entire word-by-word animation — no jumping mid-reveal.
+        autoShrinkFont(captionEl);
 
         // Reveal the container immediately (so the outline appears the moment
         // she starts speaking, even though words are individually hidden).

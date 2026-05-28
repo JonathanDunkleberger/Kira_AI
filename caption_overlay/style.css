@@ -15,6 +15,17 @@
     --caption-font-weight: 800;
     --caption-letter-spacing: 0.5px;
 
+    /* ── Layout ─────────────────────────────────────────────────────────
+       --caption-width:        horizontal extent of the caption box.
+       --caption-max-height:   max upward growth from the bottom anchor.
+                               Box stays bottom-pinned; content grows up.
+       --caption-min-font-size: floor used by the JS auto-shrink loop
+                               (caption.js) — font never drops below this
+                               regardless of caption length. */
+    --caption-width: 75vw;
+    --caption-max-height: 40vh;
+    --caption-min-font-size: 20px;
+
     /* ── Fill ───────────────────────────────────────────────────────────
        Solid white. Keeps the inside of the letters maximally readable;
        all personality comes from the colored outer outline + glow. */
@@ -79,9 +90,12 @@ html, body {
 .caption {
     position: absolute;
     left: 50%;
-    bottom: 8%;                       /* Slight lift off screen edge. */
+    bottom: 8%;                       /* Bottom edge stays pinned; box grows UP. */
     transform: translateX(-50%);
-    max-width: 90%;
+    width: var(--caption-width);
+    max-width: 90vw;                  /* Safety clamp on very narrow viewports. */
+    max-height: var(--caption-max-height);
+    overflow: hidden;                 /* Hard clip if JS floor (min-font) is hit. */
     text-align: center;
     line-height: 1.15;
     font-size: var(--caption-font-size);
