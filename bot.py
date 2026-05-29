@@ -1727,7 +1727,7 @@ class VTubeBot:
             is_first_this_session = abs(self.session_chatter_first_seen.get(username, 0) - now) < 0.1
             if is_first_this_session:
                 historical_count = self.memory.count_chatter_messages(username)
-                if historical_count >= 10:
+                if historical_count >= 5:
                     returning_regulars.append((username, historical_count))
 
         returning_regulars_block = ""
@@ -1821,7 +1821,8 @@ class VTubeBot:
             f"- If someone is a FIRST TIME CHATTER, give them a brief warm spotlight moment.\n"
             f"- If you have prior context on a chatter, reference it naturally (callbacks land hard).\n"
             f"- If multiple messages have the same vibe, consolidate.\n"
-            f"- If messages are pure spam/'hi'/no substance, output ONLY: SKIP\n"
+            f"- If messages are pure spam/'hi'/no substance AND you have zero prior context on the chatter, output ONLY: SKIP\n"
+            f"- Exception: if you have ANY prior context on a chatter (even one fact), a simple greeting is NOT skip-worthy — give them a quick warm acknowledgment. Known viewers saying 'hi' should never be SKIP.\n"
             f"- Length scales with batch size: 1 chatter = 1-2 sentences (a quick aside, not a full monologue). 2-3 chatters = 2-3 sentences. 4+ chatters = up to 4 sentences max. NEVER more than 4 sentences regardless of size.\n"
             f"- You are a stream co-host weaving chat into the conversation, not a chat reader. The shorter and punchier, the better.\n"
             f"- Stay in character \u2014 sassy, witty, warm, deadpan.\n"
@@ -2554,8 +2555,18 @@ class VTubeBot:
                     "One sentence. Keep your edge — a question can still have teeth."
                 ) if ask_chat else ""
 
-                # STAGE 2: nudge (90s)
-                if silence_duration > self.silence_thresholds[2] and self.silence_stage < 2:
+                # Use tighter observer thresholds in active game mode — during game streaming
+                # Jonny narrates every 30-45s so the default 45s/90s barely fires. 20s/45s
+                # matches Neuro-sama cadence for active game commentary.
+                in_game_stream = (
+                    self.game_mode_controller.is_active and
+                    self.game_mode_controller.activity_type == ACTIVITY_GAME
+                )
+                stage1_threshold = 20.0 if in_game_stream else self.silence_thresholds[1]
+                stage2_threshold = 45.0 if in_game_stream else self.silence_thresholds[2]
+
+                # STAGE 2: nudge
+                if silence_duration > stage2_threshold and self.silence_stage < 2:
                     async with self.processing_lock:
                         self.silence_stage = 2
                         if self._has_fresh_visual_context():
@@ -2575,8 +2586,8 @@ class VTubeBot:
                             memory_query="what makes Jonny laugh or react",
                         )
 
-                # STAGE 1: light remark (45s)
-                elif silence_duration > self.silence_thresholds[1] and self.silence_stage < 1:
+                # STAGE 1: light remark
+                elif silence_duration > stage1_threshold and self.silence_stage < 1:
                     async with self.processing_lock:
                         self.silence_stage = 1
                         await self._execute_interjection(
