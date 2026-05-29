@@ -27,7 +27,7 @@ from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
-    GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, STREAM_LOGGING_ENABLED,
+    GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
     LOOPBACK_STT_DEFAULT,
 )
 from stream_logger import StreamLogger
@@ -3057,8 +3057,9 @@ class VTubeBot:
             await asyncio.sleep(60.0)
 
     async def highlight_extraction_loop(self):
-        """Background loop. Every 90s when an activity is active, asks Claude Opus
-        if any moment in the recent scene history is worth remembering.
+        """Background loop. Every HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS (default 300s)
+        when an activity is active, asks Claude Opus if any moment in the recent
+        scene history is worth remembering.
 
         Fires when immersive=True (VN/MEDIA) OR highlight_extraction_enabled=True
         (ACTIVITY_GAME). These are decoupled so GAME streams get clip extraction
@@ -3066,9 +3067,9 @@ class VTubeBot:
         if not HIGHLIGHT_EXTRACTION_ENABLED:
             print("   [System] Highlight Extraction Loop disabled (HIGHLIGHT_EXTRACTION_ENABLED=false).")
             return
-        print("   [System] Highlight Extraction Loop active.")
+        print(f"   [System] Highlight Extraction Loop active (interval={HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS}s).")
         while self.is_running:
-            await asyncio.sleep(90.0)
+            await asyncio.sleep(HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS)
             if not self.is_running:
                 break
             if not (self.immersive or self.highlight_extraction_enabled):

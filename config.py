@@ -59,9 +59,14 @@ LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "false").lower() == "tr
 GAME_MODE_AUTO_CONFIGURE = os.getenv("GAME_MODE_AUTO_CONFIGURE", "true").lower() == "true"
 
 # Highlight Extraction global kill-switch.
-# When true (default), the background Opus loop fires every 90s whenever an activity
-# is active (ACTIVITY_GAME, VN, or MEDIA). Set false to fully disable it and save Opus calls.
+# When true (default), the background Opus loop fires on the interval below whenever
+# an activity is active (ACTIVITY_GAME, VN, or MEDIA). Set false to fully disable.
 HIGHLIGHT_EXTRACTION_ENABLED = os.getenv("HIGHLIGHT_EXTRACTION_ENABLED", "true").lower() == "true"
+
+# How often (seconds) the highlight extraction loop fires.
+# Default 300s (5 min) = 12 Opus calls/hr. Old default was 90s (40 calls/hr).
+# Tune via env: HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS=180
+HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS = int(os.getenv("HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS", "300"))
 
 # Persistent stream logging (transcript.md + events.jsonl + summary.md per session).
 # Written to logs/streams/YYYY-MM-DD_HH-MM_<activity>/. All writes are async and
