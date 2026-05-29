@@ -46,6 +46,29 @@ ENABLE_AUDIO_AGENT = os.getenv("ENABLE_AUDIO_AGENT", "true").lower() == "true"
 # Distil-large-v3 is English-only and produces token-loop garbage on JP/VN content.
 # Default OFF: enable only for English stream-watching. When OFF, the WhisperModel is never loaded.
 ENABLE_LOOPBACK_TRANSCRIBER = os.getenv("ENABLE_LOOPBACK_TRANSCRIBER", "false").lower() == "true"
+# Whether the loopback STT auto-starts when MEDIA audio mode is turned on.
+# Default false (AAA-safe). Flip to true if you always want loopback running.
+# Even with false, you can start it manually via the dashboard LOOPBACK STT toggle.
+LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "false").lower() == "true"
+
+# Smart Game Mode configuration (dashboard ACTIVATE button).
+# When true (default), clicking ACTIVATE in the Game Mode panel automatically configures
+# all subsystems to stream-ready state: Vision ON, Audio=MEDIA, Immersive OFF,
+# Highlight Extraction ON, Loopback per LOOPBACK_STT_DEFAULT.
+# Set false to restore the old manual "dumb" activation behavior.
+GAME_MODE_AUTO_CONFIGURE = os.getenv("GAME_MODE_AUTO_CONFIGURE", "true").lower() == "true"
+
+# Highlight Extraction global kill-switch.
+# When true (default), the background Opus loop fires every 90s whenever an activity
+# is active (ACTIVITY_GAME, VN, or MEDIA). Set false to fully disable it and save Opus calls.
+HIGHLIGHT_EXTRACTION_ENABLED = os.getenv("HIGHLIGHT_EXTRACTION_ENABLED", "true").lower() == "true"
+
+# Persistent stream logging (transcript.md + events.jsonl + summary.md per session).
+# Written to logs/streams/YYYY-MM-DD_HH-MM_<activity>/. All writes are async and
+# non-blocking. Set false only for development / offline testing.
+# Note: "Test / Companion Mode" preset also forces logging off via the dashboard.
+STREAM_LOGGING_ENABLED = os.getenv("STREAM_LOGGING_ENABLED", "true").lower() == "true"
+
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
 AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
@@ -53,6 +76,13 @@ AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
 # Feature Flags
 ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"
 ENABLE_YOUTUBE_CHAT = os.getenv("ENABLE_YOUTUBE_CHAT", "true").lower() == "true"
+# Allow messages from the broadcaster/channel-owner account to reach Kira's brain.
+# In TwitchIO 2.x, message.echo=True whenever author==bot.nick. If the OAuth token
+# belongs to the broadcaster account, ALL broadcaster messages are silently dropped.
+# Set this true when bot-account == broadcaster-account (common in small setups).
+# Safe to leave true in production — it only passes the broadcaster's OWN messages
+# through; all other accounts are unaffected by this flag.
+ALLOW_BROADCASTER_CHAT = os.getenv("ALLOW_BROADCASTER_CHAT", "false").lower() == "true"
 
 # Chat POSTING (Kira sending messages, separate from reading). Default OFF —
 # turn it on only when you've decided you want her to be able to send. Hard
@@ -80,6 +110,22 @@ CAPTION_CLEAR_DELAY_MS = int(os.getenv("CAPTION_CLEAR_DELAY_MS", "1500"))
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
 ENABLE_CHATTER_MEMORY = os.getenv("ENABLE_CHATTER_MEMORY", "true").lower() == "true"
+
+# Inference backend for local-Llama-style calls (triage, classification,
+# emotion analysis, response generation fallback). Claude (Sonnet/Opus) is
+# routed separately and is NOT affected by this flag.
+#   "groq"  -> Groq cloud (llama-3.1-8b-instant). Saves ~6-7 GB VRAM.
+#   "local" -> local llama_cpp GGUF (legacy path).
+INFERENCE_BACKEND = os.getenv("INFERENCE_BACKEND", "groq").lower()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_TIMEOUT = float(os.getenv("GROQ_TIMEOUT", "5.0"))
+# Fallback behavior when INFERENCE_BACKEND=groq and Groq fails:
+#   "false"      -> raise; caller decides what to do (no VRAM cost, no resilience).
+#   "true"       -> local Llama is kept loaded at startup as a warm fallback.
+#   "lazy_load"  -> local Llama is loaded into VRAM only on first Groq failure,
+#                   then reused for the rest of the session. Best of both worlds.
+GROQ_FALLBACK_TO_LOCAL = os.getenv("GROQ_FALLBACK_TO_LOCAL", "lazy_load").lower()
 
 # Hybrid Brain
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")

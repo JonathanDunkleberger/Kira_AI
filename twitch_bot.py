@@ -2,7 +2,7 @@
 
 import asyncio
 from twitchio.ext import commands
-from config import TWITCH_OAUTH_TOKEN, TWITCH_BOT_USERNAME, TWITCH_CHANNEL_TO_JOIN
+from config import TWITCH_OAUTH_TOKEN, TWITCH_BOT_USERNAME, TWITCH_CHANNEL_TO_JOIN, ALLOW_BROADCASTER_CHAT
 from typing import List, Callable
 from music_tools import play_kira_song # Added music support
 
@@ -22,6 +22,40 @@ class TwitchBot(commands.Bot):
     async def event_ready(self):
         print(f'--- Twitch bot has logged in as | {self.nick} ---')
         print(f'--- Watching channel | {TWITCH_CHANNEL_TO_JOIN} ---')
+        # Diagnostic: confirm we actually have a channel object after ready.
+        try:
+            chans = list(self.connected_channels) if self.connected_channels else []
+            print(f"   [TwitchChat] connected_channels at ready: {[c.name for c in chans] or 'NONE'}")
+            if not chans:
+                print("   [TwitchChat] WARNING: event_ready fired with no connected_channels — "
+                      "JOIN likely failed. Common cause: OAuth token missing 'chat:read' scope. "
+                      "Regenerate at https://twitchtokengenerator.com (Bot Chat Token).")
+        except Exception as _e:
+            print(f"   [TwitchChat] connected_channels check failed: {_e}")
+
+    async def event_channel_joined(self, channel):
+        # Fires only when JOIN is confirmed by Twitch IRC. If you never see
+        # this line after event_ready, the bot's OAuth scope or nickname is
+        # being rejected silently — most often a missing chat:read scope.
+        print(f"   [TwitchChat] JOIN confirmed for #{channel.name}")
+
+    async def event_raw_data(self, data: str):
+        # Lightweight diagnostic: surface inbound PRIVMSG / NOTICE / JOIN /
+        # PART lines so we can see whether IRC traffic is actually arriving
+        # at all. Filtered to interesting verbs so we don't spam PING/PONG.
+        try:
+            for line in data.splitlines():
+                if not line:
+                    continue
+                # NOTICE often carries the real reason for auth failures.
+                if " NOTICE " in line:
+                    print(f"   [TwitchChat][IRC NOTICE] {line.strip()}")
+                elif " PRIVMSG " in line:
+                    print(f"   [TwitchChat][IRC PRIVMSG] {line.strip()[:200]}")
+                elif " JOIN " in line or " PART " in line:
+                    print(f"   [TwitchChat][IRC] {line.strip()}")
+        except Exception:
+            pass
 
     async def post_message(self, text: str) -> bool:
         """Send ``text`` to the joined Twitch channel. Returns True on success,
@@ -44,8 +78,27 @@ class TwitchBot(commands.Bot):
             return False
 
     async def event_message(self, message):
-        if message.echo or not message.author:
+        # Stage 1 of pipeline. If you don't see [TwitchChat] Received lines
+        # but DO see [IRC PRIVMSG] lines above, the echo/author guard is
+        # dropping everything. If you see neither, IRC isn't delivering.
+        if not message.author:
+            print(f"   [TwitchChat] FILTERED reason=no_author content={message.content[:80]!r}")
             return
+
+        # In TwitchIO 2.x, message.echo is True whenever author.name == bot.nick.
+        # If the OAuth token is for the broadcaster account, ALL broadcaster messages
+        # get echo=True and are silently dropped — this is the most common cause of
+        # "chat isn't working" when testing with your own channel account.
+        # ALLOW_BROADCASTER_CHAT=true bypasses the echo filter for the channel owner
+        # so their messages (typed in browser, not sent by the bot itself) reach Kira.
+        is_broadcaster = message.author.name.lower() == TWITCH_CHANNEL_TO_JOIN.lower()
+        if message.echo and not (ALLOW_BROADCASTER_CHAT and is_broadcaster):
+            print(f"   [TwitchChat] FILTERED reason=echo author={message.author.name!r} "
+                  f"(set ALLOW_BROADCASTER_CHAT=true in .env if this is the channel owner testing)")
+            return
+
+        author_name = message.author.name
+        print(f"   [TwitchChat] Received from {author_name}: {message.content[:160]}")
 
         # --- NEW: Check for Song Requests ---
         if message.content.lower().startswith('!sr ') or message.content.lower().startswith('!play '):
@@ -57,23 +110,25 @@ class TwitchBot(commands.Bot):
             asyncio.get_event_loop().run_in_executor(None, play_kira_song, song_name)
             
             # 2. Inform Kira via System Message
-            system_msg = f"[System: User {message.author.name} requested song: {song_name}]"
+            system_msg = f"[System: User {author_name} requested song: {song_name}]"
              # --- PUSH SYSTEM MSG TO QUEUE ---
             if self.input_queue:
                  await self.input_queue.put(("twitch", system_msg))
+                 print(f"   [TwitchChat] Forwarded song-request system msg to brain queue.")
             
             # Don't add command itself to chat history or brain processing as user text
             self.timer_callback(human_speech=True)
             return
 
-        formatted_message = f"{message.author.name}: {message.content}"
-        print(f"[Twitch Chat] {formatted_message}")
+        formatted_message = f"{author_name}: {message.content}"
         
         # --- NEW: Push directly to input queue if available ---
         if self.input_queue:
              await self.input_queue.put(("twitch", formatted_message))
+             print(f"   [TwitchChat] Forwarded to brain queue (qsize={self.input_queue.qsize()}).")
         else:
              self.chat_message_list.append(formatted_message)
+             print(f"   [TwitchChat] FILTERED reason=no_input_queue — fell back to legacy list (brain won't see this).")
         
         # --- ADDED: Reset the main bot's idle timer every time a message arrives ---
         self.timer_callback(human_speech=True)

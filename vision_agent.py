@@ -211,11 +211,18 @@ class UniversalVisionAgent:
         print("   [System] Eco-Mode Vision Active (dynamic heartbeat).")
         while True:
             if self.is_active:
-                desc = await self.capture_and_describe(is_heartbeat=True)
-                if desc:
-                    self.last_description = desc
-                    await self._update_scene_summary(desc)
-                    self._check_dialogue_change(desc)
+                # skip_next_frame is set by the VRAM auto-degrade monitor when
+                # reserved VRAM exceeds 14.5 GB. Clear the flag, then skip the
+                # API call so no additional VRAM pressure is incurred this tick.
+                if getattr(self, "skip_next_frame", False):
+                    self.skip_next_frame = False
+                    print("[VisionAgent] Skipping heartbeat frame (VRAM pressure).")
+                else:
+                    desc = await self.capture_and_describe(is_heartbeat=True)
+                    if desc:
+                        self.last_description = desc
+                        await self._update_scene_summary(desc)
+                        self._check_dialogue_change(desc)
             await asyncio.sleep(self.heartbeat_interval)
 
     async def capture_and_transcribe(self) -> str:

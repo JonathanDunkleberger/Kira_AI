@@ -9,6 +9,7 @@ import traceback
 import random
 import re
 import os
+import sys
 import gc # Added garbage collection
 import glob
 from datetime import datetime
@@ -26,7 +27,10 @@ from config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
+    GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, STREAM_LOGGING_ENABLED,
+    LOOPBACK_STT_DEFAULT,
 )
+from stream_logger import StreamLogger
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
@@ -134,6 +138,8 @@ class VTubeBot:
         self.event_loop = None   # set when _main_loop starts, used by dashboard for cross-thread calls
         self.vn_autoplay_enabled = False  # When True, Kira actively reads and advances VNs
         self.immersive = False   # When True, Kira stays quiet unless invited. Auto-enables for VN/MEDIA.
+        self.highlight_extraction_enabled = False  # When True, extraction loop runs even if immersive=False (ACTIVITY_GAME).
+        self.stream_logger = StreamLogger()  # Persistent per-session logging (transcript + events + summary).
         self.mute_until: float = 0.0  # timestamp; while time.time() < mute_until, all speech is suppressed
         self.youtube_bot: YouTubeBot | None = None
         # Twitch handle kept on self so ChatPoster (and dashboard hooks) can
@@ -220,6 +226,18 @@ class VTubeBot:
             "timestamp": time.time(),
             "speaker_name": speaker_name or ("Jonny" if role == "user" else "Kira"),
         })
+        try:
+            if role == "user":
+                self.stream_logger.log("voice_input", text=content[:400], speaker=speaker_name or "Jonny")
+            elif role == "assistant":
+                self.stream_logger.log(
+                    "kira_response",
+                    text=content[:400],
+                    emotion=getattr(self.current_emotion, "name", ""),
+                    source=speaker_name or "Kira",
+                )
+        except Exception:
+            pass
 
     def is_muted(self) -> bool:
         # Hard-pause (is_paused) acts as an indefinite mute that suppresses
@@ -623,6 +641,172 @@ class VTubeBot:
         """Cuts off the current utterance without changing mute state."""
         self.interruption_event.set()
         print("   [Interrupt] Speech interrupted")
+
+    # ── Manual Game Mode Activation (dashboard on-ramp) ───────────────────────
+
+    def activate_game_mode(self, name: str) -> str:
+        """Manual game mode activation from the dashboard.
+
+        If GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
+        stream-ready state automatically. For ACTIVITY_GAME specifically:
+          - immersive=False (full-length responses, normal observer thresholds)
+          - highlight_extraction_enabled=True (Opus clip extraction every 90s)
+          - vision heartbeat=10s, game_mode_controller activated
+          - audio agent set to MEDIA mode
+
+        For ACTIVITY_VN / ACTIVITY_MEDIA: preserves existing behavior (immersive=True).
+        If GAME_MODE_AUTO_CONFIGURE=false: legacy dumb activation (mirrors voice path).
+
+        Returns the resolved ACTIVITY_* constant for the dashboard status label.
+        Voice phrase detection still works as a parallel on-ramp."""
+        if not name:
+            return ACTIVITY_GENERAL
+
+        new_type = self._classify_activity_type(name)
+        old_immersive = self.immersive
+
+        # Reset session accumulators for the new session
+        self.session_highlights = []
+        self.session_scene_log = []
+        self._session_artifacts_written = False
+
+        self.current_activity = name
+        self.vision_agent.activity_type = new_type
+
+        if GAME_MODE_AUTO_CONFIGURE:
+            if new_type == ACTIVITY_GAME:
+                # Smart game config: full responses + extract highlights independently
+                self.immersive = False
+                self.highlight_extraction_enabled = True
+                self.vision_agent.heartbeat_interval = 10.0
+                self.game_mode_controller.activate(ACTIVITY_GAME)
+                if self.audio_agent:
+                    self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
+            else:
+                # VN/MEDIA: immersive mode as before; GENERAL: passthrough
+                self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+                self.highlight_extraction_enabled = self.immersive
+                self.vision_agent.heartbeat_interval = 10.0 if (self.immersive or new_type == ACTIVITY_GAME) else 30.0
+                self.game_mode_controller.activate(new_type)
+        else:
+            # Legacy dumb mode: mirrors the voice-path detection exactly
+            self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+            self.highlight_extraction_enabled = self.immersive
+            self.vision_agent.heartbeat_interval = 10.0 if (self.immersive or new_type == ACTIVITY_GAME) else 30.0
+            self.game_mode_controller.activity_type = new_type
+
+        # Flush old session log if transitioning out of immersive
+        if old_immersive and not self.immersive and self.session_scene_log:
+            asyncio.ensure_future(self._generate_session_summary())
+
+        # Load playthrough memory for GAME / VN
+        playthrough_note = "no playthrough file"
+        if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
+            self.playthrough_memory.load_for_game(name)
+            playthrough_note = (
+                f"loaded: {self.playthrough_memory.current_display}"
+                if self.playthrough_memory.current_slug else "new file will be created"
+            )
+
+        # Summary log
+        audio_state = "MEDIA" if (self.audio_agent and self.audio_agent.is_active()) else "unchanged"
+        loopback_state = "ON" if (self.loopback_transcriber and self.loopback_transcriber.is_running()) else f"per LOOPBACK_STT_DEFAULT={'ON' if LOOPBACK_STT_DEFAULT else 'OFF'}"
+        print(f"   [GAME MODE ACTIVATED: {name}]")
+        print(f"     Type: {new_type} | Vision: ON | Audio: {audio_state} | Immersive: {self.immersive}")
+        print(f"     Highlights: {self.highlight_extraction_enabled} | Loopback: {loopback_state}")
+        print(f"     Playthrough: {playthrough_note}")
+
+        # Start a new stream log session for this activity (non-blocking)
+        if STREAM_LOGGING_ENABLED:
+            self._schedule_stream_restart(name, new_type)
+
+        return new_type
+
+    def _schedule_stream_restart(self, activity: str, activity_type: str = "") -> None:
+        """Schedule a stream logger restart from any thread (Tk or asyncio).
+        Non-blocking: just posts a coroutine to the event loop."""
+        loop = self.event_loop
+        if loop and loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self._restart_stream_logger(activity, activity_type), loop
+            )
+        else:
+            # Event loop not available yet — just log an event if started
+            self.stream_logger.log("activity_change", activity=activity, activity_type=activity_type)
+
+    async def _restart_stream_logger(self, activity: str, activity_type: str = "") -> None:
+        """Close the current stream log session and open a new one for the given activity."""
+        if not STREAM_LOGGING_ENABLED:
+            return
+        try:
+            mode   = self.mode or "streamer"
+            preset = getattr(self, "_last_preset", "")
+            await self.stream_logger.restart(
+                activity=activity,
+                mode=mode,
+                preset=preset,
+                ai_core=self.ai_core,
+            )
+        except Exception as e:
+            print(f"   [StreamLogger] Restart error: {e}", file=sys.stderr)
+
+    async def deactivate_game_mode_async(self) -> None:
+        """Async exit handler called by the dashboard Exit button.
+
+        Writes the full session artifacts (lore + clip candidates via Opus, playthrough
+        log entry) then resets all activity state to GENERAL. Also stops loopback STT
+        if it was running so VRAM is freed without a manual toggle."""
+        activity_display = self.current_activity or "(unknown)"
+        highlight_count = len(self.session_highlights)
+
+        # Write lore + clip markdown + playthrough log entry (Opus call — may take ~30s)
+        try:
+            await self._write_session_artifacts()
+            from datetime import datetime
+            activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity_display).strip('_').lower()[:40] or "session"
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            clip_path = f"clips/{date_str}_{activity_slug}.md"
+            print(f"   [GAME MODE DEACTIVATED]")
+            print(f"     Activity: {activity_display}")
+            print(f"     Playthrough log: written")
+            print(f"     Clips markdown: {clip_path}")
+            print(f"     Highlights captured: {highlight_count}")
+        except Exception as e:
+            print(f"   [MANUAL MODE] Artifact write failed: {e}")
+
+        # Stop loopback STT if it was auto-started (model unload is blocking — run off event loop)
+        lt = self.loopback_transcriber
+        if lt is not None and lt.is_running():
+            try:
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(None, lt.stop)
+                print("   [MANUAL MODE] Loopback STT stopped and VRAM freed.")
+            except Exception as e:
+                print(f"   [MANUAL MODE] Loopback stop failed: {e}")
+
+        # Reset all activity state
+        self.game_mode_controller.deactivate()
+        self.vision_agent.activity_type = ACTIVITY_GENERAL
+        self.current_activity = ""
+        self.immersive = False
+        self.highlight_extraction_enabled = False
+        self.vision_agent.heartbeat_interval = 30.0
+        if self.playthrough_memory:
+            self.playthrough_memory.current_slug = ""
+            self.playthrough_memory.current_display = ""
+        print("   [MANUAL MODE] State reset to GENERAL.")
+
+        # Close the game session log and open a fresh "general" session
+        if STREAM_LOGGING_ENABLED:
+            try:
+                await self.stream_logger.finish(self.ai_core)
+                await self.stream_logger.start(
+                    activity="general",
+                    mode=self.mode or "streamer",
+                    preset=getattr(self, "_last_preset", ""),
+                )
+            except Exception as e:
+                print(f"   [StreamLogger] Deactivate restart error: {e}", file=sys.stderr)
 
     # ── Activity Detection ──────────────────────────────────────────────────────
 
@@ -1058,6 +1242,10 @@ class VTubeBot:
             # --- Highlight Extraction Loop (long-term memory layer) ---
             tasks.append(self.highlight_extraction_loop())
 
+            # --- Stream Logger VRAM sampler (1 sample/min for post-stream analysis) ---
+            if STREAM_LOGGING_ENABLED:
+                tasks.append(self._vram_logging_loop())
+
             # --- VN Auto-Play Agent (legacy standby loop) ---
             tasks.append(self.vn_gameplay_loop())
 
@@ -1074,6 +1262,15 @@ class VTubeBot:
             # 3. Start Voice Recorder (This is the main loop effectively)
             print("   [System] Starting Voice Recorder (VAD)...")
             tasks.append(self.vad_loop())
+
+            # Start stream session logging
+            if STREAM_LOGGING_ENABLED:
+                init_activity = self.current_activity or "general"
+                await self.stream_logger.start(
+                    activity=init_activity,
+                    mode=self.mode or "companion",
+                    preset=getattr(self, "_last_preset", ""),
+                )
 
             # Run everything concurrently
             await asyncio.gather(*tasks)
@@ -1096,6 +1293,12 @@ class VTubeBot:
                     await self._write_session_artifacts()
             except Exception as e:
                 print(f"   [Session] Final artifacts failed: {e}")
+            # Close stream logger (flushes buffer + optional Opus summary)
+            if STREAM_LOGGING_ENABLED:
+                try:
+                    await self.stream_logger.finish(self.ai_core)
+                except Exception as e:
+                    print(f"   [StreamLogger] Shutdown finish error: {e}", file=sys.stderr)
             print("--- Cleaning up resources... ---")
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
@@ -1208,6 +1411,8 @@ class VTubeBot:
                     if ": " in content:
                         username, message_body = content.split(": ", 1)
 
+                    print(f"   [BrainWorker] Got {source} msg from {username}: {message_body[:120]} → buffering for chat_batch_worker")
+
                     if ENABLE_CHATTER_MEMORY:
                         self.memory.record_chatter_message(username, source, message_body)
 
@@ -1222,6 +1427,15 @@ class VTubeBot:
                         "timestamp": time.time(),
                         "is_first_time": (username not in self.session_chatters_seen),
                     })
+                    try:
+                        self.stream_logger.log(
+                            "chat_message",
+                            platform=source,
+                            user=username,
+                            text=message_body[:300],
+                        )
+                    except Exception:
+                        pass
                     self.chat_msg_timestamps.append(time.time())
                     cutoff = time.time() - 300
                     self.chat_msg_timestamps = [t for t in self.chat_msg_timestamps if t > cutoff]
@@ -1403,6 +1617,7 @@ class VTubeBot:
                     _cutscene_active = self._is_likely_cutscene() and silence_since_last > 20.0
                     _triage_immersive = self.immersive or _cutscene_active
 
+                    _triage_t0 = time.time()
                     decision = await self.ai_core.decide_response_mode(
                         recent_history=self.conversation_history,
                         incoming_line=content,
@@ -1410,6 +1625,16 @@ class VTubeBot:
                         source=source,
                         immersive=_triage_immersive,
                     )
+                    try:
+                        self.stream_logger.log(
+                            "triage_decision",
+                            input=content[:200],
+                            result=decision,
+                            latency_ms=int((time.time() - _triage_t0) * 1000),
+                            cutscene=_cutscene_active,
+                        )
+                    except Exception:
+                        pass
 
                     if decision == "STAY_QUIET":
                         print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
@@ -2800,15 +3025,42 @@ class VTubeBot:
 
         # REMOVED: self.reset_idle_timer(human_speech=False) to prevents AI from resetting silence timer
 
+    async def _vram_logging_loop(self) -> None:
+        """Sample GPU VRAM every 60 s and write a vram_sample event to the stream log."""
+        await asyncio.sleep(60.0)   # stagger startup
+        while self.is_running:
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    allocated_gb = torch.cuda.memory_allocated() / (1024 ** 3)
+                    reserved_gb  = torch.cuda.memory_reserved()  / (1024 ** 3)
+                    total_gb     = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+                    self.stream_logger.log(
+                        "vram_sample",
+                        allocated_gb=round(allocated_gb, 2),
+                        reserved_gb=round(reserved_gb, 2),
+                        total_gb=round(total_gb, 1),
+                    )
+            except Exception:
+                pass
+            await asyncio.sleep(60.0)
+
     async def highlight_extraction_loop(self):
-        """Background loop. Every 90s during immersive media, asks Claude Opus
-        if any moment in the recent scene history is worth remembering."""
+        """Background loop. Every 90s when an activity is active, asks Claude Opus
+        if any moment in the recent scene history is worth remembering.
+
+        Fires when immersive=True (VN/MEDIA) OR highlight_extraction_enabled=True
+        (ACTIVITY_GAME). These are decoupled so GAME streams get clip extraction
+        without the immersive-mode behavior bundle (brief responses, quiet observer)."""
+        if not HIGHLIGHT_EXTRACTION_ENABLED:
+            print("   [System] Highlight Extraction Loop disabled (HIGHLIGHT_EXTRACTION_ENABLED=false).")
+            return
         print("   [System] Highlight Extraction Loop active.")
         while self.is_running:
             await asyncio.sleep(90.0)
             if not self.is_running:
                 break
-            if not self.immersive:
+            if not (self.immersive or self.highlight_extraction_enabled):
                 continue
             if self.processing_lock.locked() or self.ai_core.is_speaking:
                 continue
@@ -2883,6 +3135,7 @@ class VTubeBot:
                 highlight=highlight,
                 kira_take=take,
             )
+            self.stream_logger.log("highlight_captured", highlight=highlight[:200], kira_take=take[:200])
 
     async def _generate_session_summary(self):
         """When a media session ends (activity changes or bot shuts down), generate

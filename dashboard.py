@@ -18,6 +18,11 @@ from persona import EmotionalState
 from game_mode_controller import ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from config import AI_NAME
 from audio_agent import AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
+try:
+    from config import LOOPBACK_STT_DEFAULT, GAME_MODE_AUTO_CONFIGURE
+except ImportError:
+    LOOPBACK_STT_DEFAULT = False
+    GAME_MODE_AUTO_CONFIGURE = True
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("green")
@@ -107,6 +112,40 @@ class KiraDashboard(ctk.CTk):
 
         _divider(frame)
 
+        # ── STREAM PRESETS ────────────────────────────────────────────────────
+        ctk.CTkLabel(frame, text="STREAM PRESET",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+
+        PRESET_NAMES = [
+            "Test / Companion Mode",
+            "Action Game Stream",
+            "VN / Story Game Stream",
+            "Anime / Movie Watch Stream",
+            "Just Chatting Stream",
+        ]
+        self._active_preset: str = PRESET_NAMES[0]   # default safe state
+        self._preset_modified: bool = False
+
+        self.preset_menu = ctk.CTkOptionMenu(
+            frame, values=PRESET_NAMES,
+            command=self._apply_preset,
+            fg_color=C_ACCENT, button_color="#6B4528",
+            dropdown_fg_color=C_PANEL, text_color="#FFFFFF",
+            font=ctk.CTkFont(size=12, weight="bold"), height=34,
+        )
+        self.preset_menu.set(PRESET_NAMES[0])
+        self.preset_menu.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.preset_status_label = ctk.CTkLabel(
+            frame,
+            text="Safe default: Vision/Audio/Highlights all OFF.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left"
+        )
+        self.preset_status_label.pack(anchor="w", padx=14, pady=(0, 8))
+
+        _divider(frame)
+
         ctk.CTkLabel(frame, text="CURRENT ACTIVITY",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=14, pady=(10, 2))
@@ -128,7 +167,7 @@ class KiraDashboard(ctk.CTk):
         self.activity_display.pack(padx=12, pady=(0, 8))
 
         self.immersive_switch = ctk.CTkSwitch(
-            frame, text="Immersive Mode",
+            frame, text="Passive Watching Mode",
             command=self._toggle_immersive,
             button_color=C_ACCENT, progress_color=C_ACCENT,
             font=ctk.CTkFont(size=12),
@@ -137,10 +176,38 @@ class KiraDashboard(ctk.CTk):
 
         ctk.CTkLabel(
             frame,
-            text="Auto-enables for VNs / movies / anime. Kira stays quiet unless invited. Off otherwise \u2014 she's normally chatty.",
+            text="For VNs / movies / anime \u2014 Kira stays quiet and reacts briefly. Keep OFF for active gameplay.",
             font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
             justify="left",
         ).pack(anchor="w", padx=14, pady=(0, 8))
+
+        _divider(frame)
+
+        # ── GAME MODE manual toggle ───────────────────────────────────────────
+        ctk.CTkLabel(frame, text="GAME MODE",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+        self.game_title_entry = ctk.CTkEntry(
+            frame, placeholder_text='e.g. "007 First Light", "Steins;Gate"',
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=32
+        )
+        self.game_title_entry.pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Activate Game Mode", height=28,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
+            command=self._activate_game_mode, font=ctk.CTkFont(size=11)
+        ).pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Exit Game Mode", height=28,
+            fg_color=C_RED, hover_color="#7A2E2E",
+            command=self._exit_game_mode, font=ctk.CTkFont(size=11)
+        ).pack(fill="x", padx=12, pady=(0, 6))
+        self.game_mode_status = ctk.CTkLabel(
+            frame, text="GENERAL mode", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, wraplength=230, justify="left"
+        )
+        self.game_mode_status.pack(anchor="w", padx=14, pady=(0, 8))
 
         _divider(frame)
 
@@ -638,39 +705,338 @@ class KiraDashboard(ctk.CTk):
         self.txt_twitch.grid(row=1, column=0, sticky="nsew", padx=6, pady=(0, 8))
         self.txt_twitch.configure(state="disabled")
 
-        # ── Loopback transcript pane (Stage 1: visibility only) ──
+        # ── Loopback transcript pane ──────────────────────────────────────
+        loopback_header = ctk.CTkFrame(frame, fg_color="transparent")
+        loopback_header.grid(row=2, column=0, sticky="ew", padx=6, pady=(4, 0))
+        loopback_header.grid_columnconfigure(0, weight=1)
         ctk.CTkLabel(
-            frame, text="LOOPBACK TRANSCRIPT (system audio · Whisper)",
-            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-        ).grid(row=2, column=0, sticky="w", padx=10, pady=(4, 2))
+            loopback_header, text="LOOPBACK STT (system audio · Whisper)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+            anchor="w",
+        ).grid(row=0, column=0, sticky="w", padx=4)
+        self.loopback_switch = ctk.CTkSwitch(
+            loopback_header, text="",
+            command=self._toggle_loopback_stt,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            width=46, height=22,
+        )
+        self.loopback_switch.grid(row=0, column=1, sticky="e", padx=4)
+        ctk.CTkLabel(
+            frame,
+            text="OFF = ~1.5 GB VRAM free. Toggle ON only when you want loopback transcription.",
+            font=ctk.CTkFont(size=8), text_color=C_MUTED, wraplength=280, anchor="w", justify="left",
+        ).grid(row=3, column=0, sticky="w", padx=10, pady=(0, 1))
         self.loopback_status_label = ctk.CTkLabel(
-            frame, text="Loopback STT: idle",
+            frame, text="Loopback STT: off",
             font=ctk.CTkFont(size=9), text_color=C_MUTED,
             anchor="w", justify="left",
         )
-        self.loopback_status_label.grid(row=3, column=0, sticky="ew", padx=10, pady=(0, 2))
+        self.loopback_status_label.grid(row=4, column=0, sticky="ew", padx=10, pady=(0, 2))
         self.txt_loopback = ctk.CTkTextbox(
             frame, font=("Consolas", 11),
             fg_color=C_SURFACE, text_color=C_TEXT, wrap="word",
             scrollbar_button_color=C_ACCENT,
-            height=180,
+            height=160,
         )
-        self.txt_loopback.grid(row=4, column=0, sticky="nsew", padx=6, pady=(0, 8))
+        self.txt_loopback.grid(row=5, column=0, sticky="nsew", padx=6, pady=(0, 8))
         self.txt_loopback.configure(state="disabled")
+        frame.grid_rowconfigure(5, weight=1)
 
     # STATUS BAR
 
     def _build_statusbar(self):
         bar = ctk.CTkFrame(self, height=28, corner_radius=0, fg_color=C_BG)
         bar.grid(row=1, column=0, columnspan=3, sticky="ew")
-        bar.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+        bar.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.status_llm    = _status_pill(bar, "LLM: Loading",    column=0)
         self.status_tts    = _status_pill(bar, "TTS: -",           column=1)
         self.status_twitch = _status_pill(bar, "Twitch: Off",      column=2)
         self.status_vision = _status_pill(bar, "Vision: Off",      column=3)
         self.status_vn     = _status_pill(bar, "VN Agent: Off",    column=4)
+        self.status_vram   = _status_pill(bar, "VRAM: —",          column=5)
+        # Kick off the 5-second VRAM refresh independently of _update_loop
+        # so it doesn't block the faster 500ms UI loop.
+        self.after(5000, self._refresh_vram)
+
+    def _toggle_loopback_stt(self):
+        """Explicit ON/OFF toggle for the Loopback Whisper STT.
+        ON: loads distil-large-v3 onto CUDA (~1.5 GB), starts transcription.
+        OFF: stops transcription, unloads model, calls torch.cuda.empty_cache().
+        Independent of audio mode — you can have audio on but loopback off (AAA-safe)."""
+        lt = self.bot.loopback_transcriber
+        if lt is None:
+            self.loopback_status_label.configure(
+                text="Loopback STT: disabled in config (ENABLE_LOOPBACK_TRANSCRIBER=false)",
+                text_color=C_RED,
+            )
+            self.loopback_switch.deselect()
+            return
+
+        want_on = bool(self.loopback_switch.get())
+        if want_on:
+            if not self.bot.audio_agent or not self.bot.audio_agent.is_active():
+                self.loopback_status_label.configure(
+                    text="Loopback STT: enable Audio Hearing (Media mode) first",
+                    text_color=C_YELLOW,
+                )
+                self.loopback_switch.deselect()
+                return
+            if lt.is_running():
+                self.loopback_status_label.configure(
+                    text="Loopback STT: already running", text_color=C_GREEN,
+                )
+                return
+            ai_core_ref = self.bot.ai_core
+            speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                if ai_core_ref is not None else None
+            audio_agent = self.bot.audio_agent
+            self.loopback_status_label.configure(
+                text="Loopback STT: loading model...", text_color=C_YELLOW,
+            )
+            def _start():
+                ok = lt.start(audio_agent, speaking_fn)
+                def _ui():
+                    if ok:
+                        self.loopback_status_label.configure(
+                            text="Loopback STT: running", text_color=C_GREEN,
+                        )
+                    else:
+                        self.loopback_status_label.configure(
+                            text="Loopback STT: failed to start (check logs)", text_color=C_RED,
+                        )
+                        self.loopback_switch.deselect()
+                self.after(0, _ui)
+            threading.Thread(target=_start, daemon=True, name="LoopbackSTT-toggle-on").start()
+        else:
+            self.loopback_status_label.configure(
+                text="Loopback STT: stopping + unloading...", text_color=C_YELLOW,
+            )
+            def _stop():
+                lt.stop()
+                def _ui():
+                    self.loopback_status_label.configure(
+                        text="Loopback STT: off — ~1.5 GB VRAM freed", text_color=C_MUTED,
+                    )
+                self.after(0, _ui)
+            threading.Thread(target=_stop, daemon=True, name="LoopbackSTT-toggle-off").start()
+        self._mark_preset_modified()
+
+    def _refresh_vram(self):
+        """Poll VRAM every 5s and update the status-bar pill.
+        Colors: green < 11 GB, yellow 11-13 GB, red > 13 GB.
+        Auto-degrade at >= 14.0 GB reserved: stop loopback STT + slow vision.
+        Hard skip vision at >= 14.5 GB reserved."""
+        try:
+            import torch
+            if torch.cuda.is_available():
+                allocated_gb = torch.cuda.memory_allocated() / (1024 ** 3)
+                reserved_gb  = torch.cuda.memory_reserved()  / (1024 ** 3)
+                total_gb     = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+                text = f"VRAM: {allocated_gb:.1f} / {total_gb:.0f} GB"
+                if allocated_gb < 11:
+                    color = C_GREEN
+                elif allocated_gb < 13:
+                    color = C_YELLOW
+                else:
+                    color = C_RED
+                self.status_vram.configure(text=text, text_color=color)
+
+                # ── Auto-degrade tier 1: >= 14.0 GB reserved ─────────────────
+                if reserved_gb >= 14.0 and not getattr(self.bot, "_vram_degraded", False):
+                    self.bot._vram_degraded = True
+                    print(f"[VRAM CRITICAL] {reserved_gb:.1f} GB reserved — auto-degrading. "
+                          "Loopback STT off, vision heartbeat → 20s. Manual reset required.")
+                    lt = self.bot.loopback_transcriber
+                    if lt is not None and lt.is_running():
+                        def _stop_lt():
+                            lt.stop()
+                            def _ui():
+                                if hasattr(self, "loopback_switch"):
+                                    self.loopback_switch.deselect()
+                                if hasattr(self, "loopback_status_label"):
+                                    self.loopback_status_label.configure(
+                                        text="Loopback STT: OFF — auto-degraded (VRAM)",
+                                        text_color=C_RED,
+                                    )
+                            self.after(0, _ui)
+                        threading.Thread(target=_stop_lt, daemon=True,
+                                         name="LoopbackSTT-vram-degrade").start()
+                    try:
+                        old_hb = self.bot.vision_agent.heartbeat_interval
+                        self.bot.vision_agent.heartbeat_interval = 20.0
+                        self.bot.stream_logger.log(
+                            "auto_degrade",
+                            trigger="vram_threshold",
+                            action="vision_heartbeat_increase",
+                            **{"from": round(old_hb, 1), "to": 20.0},
+                            reserved_gb=round(reserved_gb, 2),
+                        )
+                        self.bot.stream_logger.log(
+                            "warning",
+                            message=f"VRAM {reserved_gb:.1f} GB reserved — auto-degraded (loopback off, heartbeat 20s)",
+                        )
+                    except Exception:
+                        pass
+                    torch.cuda.empty_cache()
+
+                # ── Auto-degrade tier 2: >= 14.5 GB reserved ─────────────────
+                if reserved_gb >= 14.5:
+                    try:
+                        self.bot.vision_agent.skip_next_frame = True
+                    except Exception:
+                        pass
+                    print(f"[VRAM CRITICAL] {reserved_gb:.1f} GB reserved — skipping next vision frame.")
+                    torch.cuda.empty_cache()
+            else:
+                self.status_vram.configure(text="VRAM: no CUDA", text_color=C_MUTED)
+        except Exception:
+            self.status_vram.configure(text="VRAM: —", text_color=C_MUTED)
+        self.after(5000, self._refresh_vram)
 
     # ACTIONS
+
+    # ── Stream Preset helpers ─────────────────────────────────────────────────
+
+    def _mark_preset_modified(self):
+        """Called by any individual toggle to flag that the user has deviated from the preset."""
+        if not self._preset_modified and hasattr(self, "preset_menu"):
+            self._preset_modified = True
+            current = self.preset_menu.get()
+            base = current.replace("Custom \u2014 ", "")
+            self.preset_menu.set(f"Custom \u2014 {base}")
+            self.preset_status_label.configure(
+                text="Manual override active. Preset is a starting point, not a lock.",
+                text_color=C_YELLOW,
+            )
+
+    def _apply_preset(self, choice: str):
+        """Apply a named stream preset. Configures Mode, Vision, Audio, Loopback, Highlights.
+        Individual toggles remain free to override after this returns."""
+        # Strip 'Custom — ' prefix if user re-selects from the modified state
+        name = choice.replace("Custom \u2014 ", "")
+        self._active_preset = name
+        self._preset_modified = True   # temporarily True so _mark_preset_modified no-ops during setup
+
+        lt = self.bot.loopback_transcriber
+
+        if name == "Test / Companion Mode":
+            self.bot.mode = "companion"
+            self.mode_label.configure(text="COMPANION MODE", text_color=C_GREEN)
+            self.mode_btn.configure(text="Switch to Streamer Mode")
+            self.obs_switch.deselect()
+            self.bot.game_mode_controller.deactivate()
+            self.bot.vision_agent.heartbeat_interval = 30.0
+            self.audio_mode_menu.set("Off")
+            self._set_audio_mode("Off")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = False
+            # Companion/test mode — suspend stream logging to avoid noise
+            try:
+                if self.bot.stream_logger._started and self.bot.event_loop and self.bot.event_loop.is_running():
+                    import asyncio as _asyncio
+                    _asyncio.run_coroutine_threadsafe(
+                        self.bot.stream_logger.finish(), self.bot.event_loop
+                    )
+            except Exception:
+                pass
+            detail = "Vision: OFF | Audio: OFF | Highlights: OFF | Passive Watching: OFF"
+
+        elif name == "Action Game Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_GAME)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = True
+            detail = "Vision: ON | Audio: MEDIA | Highlights: ON | Passive Watching: OFF\nType game name + click ACTIVATE to start."
+
+        elif name == "VN / Story Game Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_VN)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.select()
+            self.bot.immersive = True
+            self.bot.highlight_extraction_enabled = True
+            if lt is not None and not lt.is_running():
+                ai_core_ref = self.bot.ai_core
+                speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                    if ai_core_ref is not None else None
+                threading.Thread(
+                    target=lambda: lt.start(self.bot.audio_agent, speaking_fn),
+                    daemon=True, name="LoopbackSTT-preset-vn",
+                ).start()
+                if hasattr(self, "loopback_switch"):
+                    self.loopback_switch.select()
+            detail = "Vision: ON | Audio: MEDIA | Loopback: ON | Highlights: ON | Passive Watching: ON\nType game name + click ACTIVATE to start."
+
+        elif name == "Anime / Movie Watch Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_MEDIA)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.bot.vision_agent.activity_type = ACTIVITY_MEDIA
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.select()
+            self.bot.immersive = True
+            self.bot.highlight_extraction_enabled = True
+            if lt is not None and not lt.is_running():
+                ai_core_ref = self.bot.ai_core
+                speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                    if ai_core_ref is not None else None
+                threading.Thread(
+                    target=lambda: lt.start(self.bot.audio_agent, speaking_fn),
+                    daemon=True, name="LoopbackSTT-preset-media",
+                ).start()
+                if hasattr(self, "loopback_switch"):
+                    self.loopback_switch.select()
+            detail = "Vision: ON | Audio: MEDIA | Loopback: ON | Highlights: ON | Passive Watching: ON"
+
+        elif name == "Just Chatting Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_GENERAL)
+            self.bot.vision_agent.heartbeat_interval = 30.0
+            self.audio_mode_menu.set("Off")
+            self._set_audio_mode("Off")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = False
+            detail = "Vision: ON | Audio: OFF | Highlights: OFF | Passive Watching: OFF"
+
+        else:
+            detail = ""
+
+        self.preset_menu.set(name)
+        self._preset_modified = False   # clean — subsequent manual toggles will mark it modified
+        self.preset_status_label.configure(
+            text=detail,
+            text_color=C_GREEN,
+        )
+        print(f"   [PRESET LOADED: {name}]")
+        for line in detail.split("\n"):
+            if line.strip():
+                print(f"     {line.strip()}")
+        try:
+            self.bot._last_preset = name
+            self.bot.stream_logger.log("preset_load", preset=name, detail=detail)
+        except Exception:
+            pass
 
     def _toggle_mode(self):
         if self.bot.mode == "companion":
@@ -681,6 +1047,7 @@ class KiraDashboard(ctk.CTk):
             self.bot.mode = "companion"
             self.mode_label.configure(text="COMPANION MODE", text_color=C_GREEN)
             self.mode_btn.configure(text="Switch to Streamer Mode")
+        self._mark_preset_modified()
         print(f"   [Dashboard] Mode: {self.bot.mode}")
 
     def _set_activity(self):
@@ -732,6 +1099,7 @@ class KiraDashboard(ctk.CTk):
             if self.vn_switch.get():
                 self.vn_switch.deselect()
                 self.vn_status_label.configure(text="VN: Standby", text_color=C_MUTED)
+        self._mark_preset_modified()
         print(f"   [Dashboard] Observer mode: {active}")
 
     def _toggle_vn(self):
@@ -899,7 +1267,82 @@ class KiraDashboard(ctk.CTk):
     def _toggle_immersive(self):
         is_on = bool(self.immersive_switch.get())
         self.bot.immersive = is_on
-        print(f"   [Dashboard] Immersive Mode toggled: {is_on}")
+        self._mark_preset_modified()
+        print(f"   [Dashboard] Passive Watching Mode toggled: {is_on}")
+
+    def _activate_game_mode(self):
+        """Dashboard 'Activate Game Mode' button handler.
+        When GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
+        stream-ready state. Individual toggles still override after activation."""
+        name = self.game_title_entry.get().strip()
+        if not name:
+            self.game_mode_status.configure(text="Enter a game title first.", text_color=C_RED)
+            self.after(3000, lambda: self.game_mode_status.configure(
+                text="GENERAL mode", text_color=C_MUTED
+            ))
+            return
+        new_type = self.bot.activate_game_mode(name)
+        # Sync activity display
+        self.activity_display.configure(text=name, text_color=C_TEXT)
+        # Sync immersive switch to actual state (GAME = OFF, VN/MEDIA = ON)
+        if self.bot.immersive:
+            self.immersive_switch.select()
+        else:
+            self.immersive_switch.deselect()
+        if GAME_MODE_AUTO_CONFIGURE and new_type == "game":
+            # Sync observer switch — bot already called game_mode_controller.activate()
+            self.obs_switch.select()
+            # Sync audio mode dropdown and activate the audio agent
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            # Loopback STT: honour LOOPBACK_STT_DEFAULT preference
+            if LOOPBACK_STT_DEFAULT and hasattr(self, 'loopback_switch'):
+                self.loopback_switch.select()
+                self._toggle_loopback_stt()
+        # Build status label
+        slug = self.bot.playthrough_memory.current_slug if self.bot.playthrough_memory else ""
+        if GAME_MODE_AUTO_CONFIGURE and new_type == "game":
+            loopback_state = "ON" if LOOPBACK_STT_DEFAULT else "OFF"
+            slug_note = f"resuming: {name}" if slug else "new session"
+            status = (
+                f"GAME MODE: {name}\n"
+                f"Vision: ON | Audio: MEDIA | Immersive: OFF | Loopback: {loopback_state}\n"
+                f"Highlights: ON | {slug_note}"
+            )
+        else:
+            slug_note = f" — playthrough: {name}" if slug else ""
+            status = f"{new_type.upper()} mode{slug_note}"
+        self.game_mode_status.configure(text=status, text_color=C_GREEN)
+        # If VN, also activate observer + VN mode (same as _set_activity does)
+        if new_type == "vn":
+            self._activate_observer_and_vn()
+
+    def _exit_game_mode(self):
+        """Dashboard 'Exit Game Mode' button handler.
+        Writes session log (if applicable) then resets to GENERAL via async helper."""
+        if not (self.bot.event_loop and self.bot.event_loop.is_running()):
+            print("   [MANUAL MODE] Bot event loop not ready — cannot exit cleanly.")
+            return
+        # Fire-and-forget the async exit (writes session log, resets state)
+        asyncio.run_coroutine_threadsafe(
+            self.bot.deactivate_game_mode_async(),
+            self.bot.event_loop,
+        )
+        # Sync UI immediately — async call runs in background (Opus may take ~30s)
+        self.activity_display.configure(text="None", text_color=C_MUTED)
+        self.immersive_switch.deselect()
+        self.obs_switch.deselect()
+        self.audio_mode_menu.set("Off")
+        if hasattr(self, 'loopback_switch'):
+            self.loopback_switch.deselect()
+        self.game_mode_status.configure(
+            text="GENERAL mode — writing clips & session log… (may take ~30s)",
+            text_color=C_MUTED,
+        )
+        # Clear the notice after Opus has had time to finish
+        self.after(35000, lambda: self.game_mode_status.configure(
+            text="GENERAL mode", text_color=C_MUTED
+        ))
 
     def _toggle_bot(self):
         if self.bot.is_paused:
@@ -1175,23 +1618,29 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Found {len(devices)} loopback device(s)")
 
     def _set_audio_device(self, label: str):
-        """User picked a device from the dropdown. Stores the preference.
-        User must toggle the mode dropdown OFF→ON to apply the change."""
+        """User picked a device from the dropdown. Stores the preference AND
+        immediately re-applies the current audio mode so the new device takes
+        effect without requiring an OFF→ON toggle cycle."""
         if not self.bot.audio_agent:
             return
         if label == "Auto-detect":
             self.bot.audio_agent.preferred_loopback_name = None
-            print("   [Dashboard] Audio device: auto-detect (toggle mode OFF\u2192ON to apply)")
+            print("   [Dashboard] Audio device: auto-detect")
         else:
             cleaned = label.replace("\u26a0 ", "").replace(" (virtual)", "").rstrip(".")
             self.bot.audio_agent.preferred_loopback_name = cleaned
-            print(f"   [Dashboard] Audio device set: {cleaned} (toggle mode OFF\u2192ON to apply)")
+            print(f"   [Dashboard] Audio device set: {cleaned}")
 
-        if hasattr(self, "audio_status_label"):
+        # Auto-reapply the current mode so device change is live immediately
+        current_choice = self.audio_mode_menu.get()
+        if current_choice != "Off":
+            self._set_audio_mode(current_choice)
+        elif hasattr(self, "audio_status_label"):
             self.audio_status_label.configure(
-                text="Device preference saved. Toggle Audio mode OFF then back ON to apply.",
+                text="Device saved. Select an Audio mode above to activate.",
                 text_color=C_YELLOW,
             )
+        self._mark_preset_modified()
 
     def _set_audio_mode(self, choice: str):
         if not self.bot.audio_agent:
@@ -1205,18 +1654,13 @@ class KiraDashboard(ctk.CTk):
         mode = label_to_mode.get(choice, AUDIO_MODE_OFF)
         self.bot.audio_agent.set_mode(mode)
 
-        # Loopback Whisper transcriber — Stage 1: MEDIA mode only. MUSIC mode is
-        # intentionally skipped (mic capture of Jonny's own voice/guitar would
-        # create a feedback loop where Kira reads her own input back as ambient
-        # "speech"). Started in a background thread so the model-load on first
-        # MEDIA toggle doesn't freeze the Tk loop.
+        # Loopback Whisper transcriber — only auto-start if LOOPBACK_STT_DEFAULT is true
+        # (default: false, so AAA gaming sessions start without the ~1.5 GB model in VRAM).
+        # The explicit dashboard toggle (_toggle_loopback_stt) is the primary control.
         lt = self.bot.loopback_transcriber
         if lt is not None:
-            if mode == AUDIO_MODE_MEDIA:
+            if mode == AUDIO_MODE_MEDIA and LOOPBACK_STT_DEFAULT:
                 if not lt.is_running():
-                    # Pass a getter for ai_core.is_speaking so the transcriber
-                    # can gate itself off while Kira's TTS is active (her voice
-                    # plays through the same speakers the loopback records).
                     ai_core_ref = self.bot.ai_core
                     speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
                         if ai_core_ref is not None else None
@@ -1225,12 +1669,16 @@ class KiraDashboard(ctk.CTk):
                         daemon=True,
                         name="LoopbackSTT-bootstrap",
                     ).start()
-            else:
-                # Always call stop() — even if the pump isn't running, stop()
-                # still releases the WhisperModel from VRAM if it was previously
-                # loaded. Gating on is_running() would leak the ~1.5GB model
-                # across MEDIA → OFF → MEDIA → OFF cycles.
-                threading.Thread(target=lt.stop, daemon=True).start()
+            elif mode != AUDIO_MODE_MEDIA:
+                # Audio hearing turned off — stop and unload loopback STT too
+                if lt.is_running():
+                    threading.Thread(target=lt.stop, daemon=True).start()
+                    if hasattr(self, "loopback_switch"):
+                        self.loopback_switch.deselect()
+                    if hasattr(self, "loopback_status_label"):
+                        self.loopback_status_label.configure(
+                            text="Loopback STT: off (audio off)", text_color=C_MUTED
+                        )
 
         if mode == AUDIO_MODE_OFF:
             self.audio_status_label.configure(text="Audio: off", text_color=C_MUTED)
@@ -1238,6 +1686,7 @@ class KiraDashboard(ctk.CTk):
             self.audio_status_label.configure(text="Audio: listening to system audio", text_color=C_GREEN)
         else:
             self.audio_status_label.configure(text="Audio: listening to mic (music mode)", text_color=C_GREEN)
+        self._mark_preset_modified()
 
     def _refresh_audio_status(self):
         if not self.bot.audio_agent:

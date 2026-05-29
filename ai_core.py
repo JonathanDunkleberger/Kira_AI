@@ -21,7 +21,10 @@ from config import (
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
     CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
+    INFERENCE_BACKEND, GROQ_FALLBACK_TO_LOCAL, GROQ_MODEL,
 )
+from inference_router import route_chat_completion, get_groq_client
+from groq_client import GroqInferenceError
 from persona import EmotionalState
 from personality_file import KIRA_PERSONALITY
 
@@ -184,15 +187,41 @@ class AI_Core:
         except Exception as e:
             print(f"   Audio test FAILED: {e}")
 
-    def _init_llm(self):
+    def _init_llm(self, force: bool = False):
+        # Always build the system prompt (every backend needs it).
+        self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+
+        # Routing decision: skip loading the GGUF into VRAM unless we actually
+        # need it locally. `force=True` is used by the lazy-load fallback path
+        # in inference_router after a Groq failure.
+        backend = (INFERENCE_BACKEND or "groq").lower()
+        fallback_mode = (GROQ_FALLBACK_TO_LOCAL or "false").lower()
+        if not force and backend == "groq" and fallback_mode != "true":
+            print("----- SYSTEM PROMPT (FIRST 400 CHARS) -----")
+            print(self.system_prompt[:400])
+            print("------------------------------------------")
+            print(f"   [INFERENCE] Backend: groq ({GROQ_MODEL}) — local Llama NOT loaded (saves ~6-7 GB VRAM).")
+            if fallback_mode == "lazy_load":
+                print("   [INFERENCE] Fallback: lazy_load — local Llama will load on first Groq failure.")
+            else:
+                print("   [INFERENCE] Fallback: disabled — Groq failures will raise.")
+            # Eager-probe the Groq client so a bad key fails loudly at startup
+            # rather than on the first triage call.
+            try:
+                get_groq_client()
+                print("   [INFERENCE] Groq client initialized.")
+            except GroqInferenceError as e:
+                print(f"   [INFERENCE] WARNING: Groq client init failed at startup: {e}")
+            self.llm = None
+            return
+
         print(f"-> Loading LLM model... (GPU Layers: {N_GPU_LAYERS})")
         if not os.path.exists(LLM_MODEL_PATH):
             raise FileNotFoundError(f"LLM model not found at {LLM_MODEL_PATH}")
 
         # Optimized for RTX 5080: n_threads=8, Flash Attention enabled, Force GPU Layers=-1
-        # Updated for Gemma 3 (RTX 5080 Maximum Optimization)
         self.llm = Llama(
-            model_path=LLM_MODEL_PATH, 
+            model_path=LLM_MODEL_PATH,
             n_gpu_layers=N_GPU_LAYERS,
             n_ctx=N_CTX,
             n_batch=N_BATCH,
@@ -206,14 +235,15 @@ class AI_Core:
             n_threads=8,
             verbose=False
         )
-        
-        # Combine Personality File + Tools
-        self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
 
         print("----- SYSTEM PROMPT (FIRST 400 CHARS) -----")
         print(self.system_prompt[:400])
         print("------------------------------------------")
         print(f"   LLM loaded. Path: {LLM_MODEL_PATH}")
+        if backend == "groq":
+            print("   [INFERENCE] Backend: groq (warm local fallback loaded).")
+        else:
+            print("   [INFERENCE] Backend: local llama_cpp.")
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
@@ -474,29 +504,36 @@ class AI_Core:
                 f"as 'something's happening over there' instead of asserting them as fact."
             )
 
-        system_tokens = self.llm.tokenize(system_prompt.encode("utf-8"))
+        # Token counter that works whether or not local Llama is loaded.
+        # When self.llm is None (Groq-only mode), use a conservative char/4 estimate.
+        def _count_tokens(s: str) -> int:
+            if self.llm is not None:
+                try:
+                    return len(self.llm.tokenize(s.encode("utf-8")))
+                except Exception:
+                    pass
+            return max(1, len(s) // 4)
+
+        system_tokens_len = _count_tokens(system_prompt)
 
         # We now use the variable from config for the response buffer
         max_response_tokens = max_tokens_override or LLM_MAX_RESPONSE_TOKENS
 
-        # Use the LLM's ACTUAL context size as the source of truth, not the
-        # config constant. (The model may have been loaded with a smaller
-        # n_ctx than configured, and we never want to overrun it.) Reserve
-        # a small fudge factor (128 tokens) for chat-template overhead, BOS,
-        # role tokens, etc. that aren't reflected in raw content counts.
-        try:
-            real_ctx = int(self.llm.n_ctx())
-        except Exception:
-            real_ctx = N_CTX
+        # Context window cap. Local Llama uses its actual n_ctx; Groq's
+        # llama-3.1-8b-instant supports 128k but we keep a sane budget so
+        # behavior matches the local path.
+        if self.llm is not None:
+            try:
+                real_ctx = int(self.llm.n_ctx())
+            except Exception:
+                real_ctx = N_CTX
+        else:
+            real_ctx = max(N_CTX, 16384)
         CHAT_TEMPLATE_FUDGE = 128
-        token_limit = real_ctx - len(system_tokens) - max_response_tokens - CHAT_TEMPLATE_FUDGE
+        token_limit = real_ctx - system_tokens_len - max_response_tokens - CHAT_TEMPLATE_FUDGE
 
         def _tok_len(s: str) -> int:
-            try:
-                return len(self.llm.tokenize(s.encode("utf-8")))
-            except Exception:
-                # Worst-case estimate: ~4 chars per token
-                return max(1, len(s) // 4)
+            return _count_tokens(s)
 
         history_tokens = sum(_tok_len(m["content"]) for m in messages)
         if history_tokens > token_limit:
@@ -512,9 +549,7 @@ class AI_Core:
         # We must NEVER hand llama_cpp a prompt that exceeds n_ctx — it
         # raises ValueError and kills the whole worker.
         def _total_tokens() -> int:
-            return len(self.llm.tokenize(system_prompt.encode("utf-8"))) + sum(
-                _tok_len(m["content"]) for m in messages
-            )
+            return _count_tokens(system_prompt) + sum(_tok_len(m["content"]) for m in messages)
 
         # Budget for system + history combined (leaves room for the response).
         hard_budget = real_ctx - max_response_tokens - CHAT_TEMPLATE_FUDGE
@@ -548,22 +583,20 @@ class AI_Core:
 
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
 
-        # Non-streaming inference for maximum throughput on RTX 5080
-        # Wrap inference in lock to prevent collisions with background agents.
-        # Also catch context-overflow ValueError so one oversized prompt can
-        # never kill chat_batch_worker — return a short fallback line instead.
+        # Non-streaming inference. Routed via inference_router so Groq cloud
+        # is used by default and local Llama serves as opt-in fallback.
+        # Catch context-overflow ValueError so one oversized prompt can never
+        # kill chat_batch_worker — return a short fallback line instead.
         def _guarded_inference():
-            with self.inference_lock:
-                 return self.llm.create_chat_completion(
-                    messages=full_prompt,
-                    max_tokens=max_response_tokens,
-                    temperature=0.75, # Slight bump for creativity
-                    top_p=0.9,
-                    min_p=0.05,
-                    repeat_penalty=1.1, # LOWERED from 1.2 to allow flow
-                    stop=["<end_of_turn>", "<eos>"], # Removed "Jonny:" to avoid cutting output early
-                    stream=False
-                 )
+            return route_chat_completion(
+                self,
+                messages=full_prompt,
+                max_tokens=max_response_tokens,
+                temperature=0.75,  # Slight bump for creativity
+                top_p=0.9,
+                repeat_penalty=1.1,  # LOWERED from 1.2 to allow flow
+                stop=["<end_of_turn>", "<eos>"],  # Removed "Jonny:" to avoid cutting output early
+            )
 
         try:
             response = await asyncio.to_thread(_guarded_inference)
@@ -573,7 +606,7 @@ class AI_Core:
             print(f"   [LLM] Context overflow in inference ({e}). Returning fallback line.")
             return "Brain's a little fried right now — give me a sec."
         except Exception as e:
-            print(f"   [LLM] Local inference failed ({type(e).__name__}: {e}). Returning fallback line.")
+            print(f"   [LLM] Inference failed ({type(e).__name__}: {e}). Returning fallback line.")
             return "Hmm, something tripped on my end."
         raw_content = response["choices"][0]["message"]["content"]
         # Regex filter for parentheses
@@ -582,15 +615,14 @@ class AI_Core:
     
     async def tool_inference(self, system: str, user: str, max_tokens: int = 200) -> str:
         def _guarded():
-            with self.inference_lock:
-                return self.llm.create_chat_completion(
-                    messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-                    max_tokens=max_tokens,
-                    temperature=0.1,
-                    top_p=1.0,
-                    repeat_penalty=1.1,
-                    stream=False
-                )
+            return route_chat_completion(
+                self,
+                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                max_tokens=max_tokens,
+                temperature=0.1,
+                top_p=1.0,
+                repeat_penalty=1.1,
+            )
         resp = await asyncio.to_thread(_guarded)
         return resp["choices"][0]["message"]["content"].strip()
 
@@ -873,7 +905,10 @@ class AI_Core:
             return
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
-        if not self.llm: return None
+        # No backend check — router handles local-vs-Groq. Only bail if neither
+        # local Llama is loaded AND Groq is unconfigured/disabled.
+        if self.llm is None and (INFERENCE_BACKEND or "").lower() != "groq":
+            return None
         emotion_names = [e.name for e in EmotionalState]
         prompt = (f"Jonny: \"{last_user_text}\"\nKira: \"{last_ai_response}\"\n\n"
                   f"Based on this, which emotional state is most appropriate for Kira's next turn? "
@@ -881,17 +916,17 @@ class AI_Core:
                   f"Respond ONLY with the single best state name (e.g., 'SASSY').")
         try:
             def _guarded_emotion():
-                with self.inference_lock:
-                    return self.llm.create_chat_completion(
-                        messages=[{"role": "user", "content": prompt}],
-                        max_tokens=10,
-                        temperature=0.2,
-                        stop=["\n", ".", ","]
-                    )
-            
+                return route_chat_completion(
+                    self,
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=10,
+                    temperature=0.2,
+                    stop=["\n", ".", ","],
+                )
+
             response = await asyncio.to_thread(_guarded_emotion)
             text_response = response["choices"][0]["message"]["content"].strip().upper()
-            
+
             for emotion in EmotionalState:
                 if emotion.name in text_response:
                     return emotion
