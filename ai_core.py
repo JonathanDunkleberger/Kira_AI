@@ -39,6 +39,7 @@ EMOTION_DESCRIPTORS = {
 }
 from prompt_loader import load_personality_txt
 from prompt_rules import TOOL_AND_FORMAT_RULES
+from streamer_overlay import STREAMER_OVERLAY
 
 # Graceful SDK imports
 try: from edge_tts import Communicate
@@ -60,6 +61,9 @@ class AI_Core:
         self.interruption_event = interruption_event
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
+        # Backref set by the bot so ai_core can append the streamer overlay
+        # without baking mode into the cached system prompt. Returns 'companion' or 'streamer'.
+        self._mode_provider = None
         self.last_speech_finish_time = time.time() # Added for silence tracking
         self.last_tts_request_time = 0 # Added for TTS rate limiting
         self.llm = None
@@ -459,9 +463,22 @@ class AI_Core:
             except Exception as e:
                 print(f"   [Captions] Heartbeat loop error (continuing): {e}")
 
+    def _streamer_overlay_block(self) -> str:
+        """Returns the streamer-mode overlay text when bot.mode == 'streamer', else ''.
+        Lives outside self.system_prompt so the cached Block A stays stable across mode flips."""
+        try:
+            if callable(self._mode_provider) and (self._mode_provider() or "").lower() == "streamer":
+                return STREAMER_OVERLAY.strip()
+        except Exception:
+            pass
+        return ""
+
     async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", ambient_audio_context: str = "", max_tokens_override: int = None) -> str:
         # Use our updated system prompt if available, else fallback
         system_prompt = self.system_prompt
+        overlay = self._streamer_overlay_block()
+        if overlay:
+            system_prompt += "\n\n" + overlay
         emotion_desc = EMOTION_DESCRIPTORS.get(current_emotion, "Be yourself.")
         system_prompt += f"\n\n[EMOTIONAL STATE: {current_emotion.name} — {emotion_desc}]"
 
@@ -810,6 +827,9 @@ class AI_Core:
         # Block A (static, cached): self.system_prompt — personality + tool rules, never changes.
         # Block C (dynamic, uncached): mode framing, scene perception, retrieved memories.
         dynamic_context = "[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
+        overlay = self._streamer_overlay_block()
+        if overlay:
+            dynamic_context += "\n\n" + overlay
         if scene_context:
             dynamic_context += (
                 f"\n\n[CURRENT SCENE \u2014 raw perception of what is on screen / playing right now]\n"

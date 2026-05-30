@@ -22,6 +22,7 @@ import re
 import sys
 import threading
 import time
+import traceback
 from datetime import datetime, timezone
 from typing import Any
 
@@ -132,7 +133,16 @@ class StreamLogger:
 
     async def finish(self, ai_core=None) -> None:
         """Flush remaining events, optionally generate summary.md, stop writer task.
-        Safe to call even if start() was never called or previously failed."""
+        Safe to call even if start() was never called or previously failed.
+        Summary generation is fully bulletproofed — any failure (Claude, fallback,
+        whatever) is caught, logged with traceback, and SWALLOWED. finish() must
+        never crash the process."""
+        # Debug: log who called us, so a mis-routed mid-stream summary is instantly visible.
+        ai_core_state = "set" if ai_core is not None else "None"
+        caller_stack = "".join(traceback.format_stack()[-5:-1])
+        print(f"   [StreamLogger] finish() called: ai_core={ai_core_state}, started={self._started}\n"
+              f"     caller:\n{caller_stack}", file=sys.stderr)
+
         if not self._started:
             return
         self._is_running = False
@@ -144,6 +154,7 @@ class StreamLogger:
             await self._flush()
         except Exception as e:
             print(f"   [StreamLogger] Final flush error: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
 
         if self._writer_task and not self._writer_task.done():
             self._writer_task.cancel()
@@ -151,12 +162,19 @@ class StreamLogger:
                 await self._writer_task
             except asyncio.CancelledError:
                 pass
+            except Exception as e:
+                print(f"   [StreamLogger] Writer task cancel error: {e}", file=sys.stderr)
+                traceback.print_exc(file=sys.stderr)
 
         if ai_core is not None and not self._disk_error:
+            # Bulletproof summary: ANY failure here is caught and logged, never propagates.
             try:
                 await self._generate_summary(ai_core)
-            except Exception as e:
+            except BaseException as e:
+                # BaseException catches SystemExit / KeyboardInterrupt too — a runaway
+                # summary path must not be allowed to kill the process.
                 print(f"   [StreamLogger] Summary generation failed: {e}", file=sys.stderr)
+                traceback.print_exc(file=sys.stderr)
 
         self._started = False
         print(f"   [StreamLogger] Session closed → {self._session_dir}")

@@ -8,7 +8,7 @@ from music_tools import play_kira_song # Added music support
 
 class TwitchBot(commands.Bot):
     # --- UPDATED: __init__ now accepts input_queue ---
-    def __init__(self, chat_message_list: List[str], timer_callback: Callable[[], None], input_queue: asyncio.Queue = None):
+    def __init__(self, chat_message_list: List[str], timer_callback: Callable[[], None], input_queue: asyncio.Queue = None, cookie_jar=None):
         super().__init__(
             token=TWITCH_OAUTH_TOKEN,
             nick=TWITCH_BOT_USERNAME,
@@ -18,6 +18,7 @@ class TwitchBot(commands.Bot):
         self.chat_message_list = chat_message_list
         self.timer_callback = timer_callback
         self.input_queue = input_queue
+        self.cookie_jar = cookie_jar  # CookieJar instance (data layer for !cookies)
 
     async def event_ready(self):
         print(f'--- Twitch bot has logged in as | {self.nick} ---')
@@ -99,6 +100,26 @@ class TwitchBot(commands.Bot):
 
         author_name = message.author.name
         print(f"   [TwitchChat] Received from {author_name}: {message.content[:160]}")
+
+        # --- !cookies — personal + shared jar query ---
+        if message.content.strip().lower() == '!cookies':
+            if self.cookie_jar is not None:
+                personal = self.cookie_jar.get_chatter(author_name)
+                shared = self.cookie_jar.get_shared()
+                reply = (
+                    f"@{author_name} you have {personal} cookie"
+                    f"{'s' if personal != 1 else ''} \U0001f36a — "
+                    f"shared jar: {shared}/100"
+                )
+                try:
+                    await self.post_message(reply)
+                    print(f"   [Cookies] Replied to {author_name}: personal={personal} shared={shared}")
+                except Exception as e:
+                    print(f"   [Cookies] Reply failed: {e}")
+            else:
+                print("   [Cookies] !cookies used but no cookie_jar attached.")
+            self.timer_callback(human_speech=True)
+            return
 
         # --- NEW: Check for Song Requests ---
         if message.content.lower().startswith('!sr ') or message.content.lower().startswith('!play '):

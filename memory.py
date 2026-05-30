@@ -148,18 +148,99 @@ class MemoryManager:
             except Exception as e:
                 print(f"   [Memory Error] Failed to store memory item: {e}")
 
+    # Topic-keyword → substring probes for deterministic recall of high-signal
+    # facts (cats, family, location, etc.). When the user query contains any
+    # of these triggers, scan the facts collection for documents containing
+    # the corresponding substring(s) and surface them as [KNOWN FACTS (direct)]
+    # ABOVE the vector hits. This guarantees that name-recall queries ("what
+    # are my cats' names") never miss because of embedding similarity ranking.
+    _DIRECT_FACT_TRIGGERS = [
+        # (regex matched against lowercased query, list of substrings to scan documents for)
+        (r"\bcats?\b|\bkitt(?:y|ies|en)\b|\bpets?\b",
+            ["Cartofell", "Madoka", " cats", "two cats"]),
+        (r"\bcartofell\b",            ["Cartofell"]),
+        (r"\b(?:madoka)\b",            ["Madoka"]),
+        (r"\b(?:girlfriend|partner|wife|fianc)\b",
+            ["girlfriend", "partner", "fianc"]),
+        (r"\blondon\b|\bmov(?:e|ing)\b",
+            ["London", "move", "moving"]),
+        (r"\bfavou?rite\s+(?:anime|character|game|show|vn|visual novel)\b",
+            ["favorite"]),
+        (r"\bjob\b|\bwork(?:ing)?\b|\bcareer\b",
+            ["job", "work"]),
+        (r"\bname[sd]?\b",
+            []),  # bare "names?" alone is too noisy — leave list empty; here as a marker
+    ]
+
+    def _direct_fact_lookup(self, query_text: str, limit: int = 6) -> list:
+        """Substring-scan the facts collection for documents matching topic-keyword
+        triggers in the query. Bypasses vector similarity for deterministic recall
+        of high-confidence stored facts (Fix 2)."""
+        import re as _re
+        ql = (query_text or "").lower()
+        substrings: list[str] = []
+        for pattern, subs in self._DIRECT_FACT_TRIGGERS:
+            if subs and _re.search(pattern, ql):
+                substrings.extend(subs)
+        if not substrings:
+            return []
+        # Dedupe substrings preserving order
+        seen_sub = set()
+        substrings = [s for s in substrings if not (s.lower() in seen_sub or seen_sub.add(s.lower()))]
+        try:
+            data = self.facts.get(include=["documents"])
+        except Exception as e:
+            print(f"   [Memory] direct lookup get() failed: {e}")
+            return []
+        docs = data.get("documents") or []
+        out: list[str] = []
+        seen_docs = set()
+        for doc in docs:
+            if not doc:
+                continue
+            dl = doc.lower()
+            if any(s.lower() in dl for s in substrings):
+                if doc not in seen_docs:
+                    out.append(doc)
+                    seen_docs.add(doc)
+                    if len(out) >= limit:
+                        break
+        return out
+
     def get_semantic_context(self, query_text: str) -> str:
-        """Retrieves flexible context for LLM injection."""
+        """Retrieves flexible context for LLM injection.
+
+        Fix 1: hits are presented as individual bullets, NOT joined with '; '
+               (which mangled multi-line compound documents into run-on text and
+               obscured the fact boundaries). Order is preserved (no set()).
+        Fix 2: a direct keyword-triggered substring probe runs FIRST for
+               high-signal topics (cats, family, location, favorites) so
+               name-recall is deterministic instead of probabilistic.
+        """
         context_lines = []
-        
-        # 1. FACTS: Strict "Truths" about Jonny
-        # Search specifically for high-confidence facts
+
+        # 0. DIRECT FACTS — deterministic keyword probe (Fix 2)
+        direct = self._direct_fact_lookup(query_text)
+        if direct:
+            block = "[KNOWN FACTS (direct)]:\n" + "\n".join(f"- {d}" for d in direct)
+            context_lines.append(block)
+
+        # 1. FACTS: Strict "Truths" about Jonny (vector search)
         hits = self.search_facts(query_text, n_results=3)
         if hits:
-            # Remove duplicates and format
-            unique_hits = list(set(hits)) 
-            context_lines.append(f"[KNOWN FACTS]: {'; '.join(unique_hits)}")
-        
+            # Preserve ranking order; only drop exact dupes against direct block.
+            already = {d for d in direct}
+            ordered_unique = []
+            seen = set()
+            for h in hits:
+                if h in already or h in seen:
+                    continue
+                ordered_unique.append(h)
+                seen.add(h)
+            if ordered_unique:
+                block = "[KNOWN FACTS]:\n" + "\n".join(f"- {h}" for h in ordered_unique)
+                context_lines.append(block)
+
         # 2. PROJECTS: What is he working on?
         # Only fetch if the user mentions "project", "code", "work", etc.
         if any(w in query_text.lower() for w in ["project", "code", "working", "build"]):

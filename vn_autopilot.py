@@ -348,6 +348,11 @@ class VNAutopilot:
         # Animated backgrounds in the upper portion don't affect stabilization.
         self.text_region_top: float = 0.60     # lower 40% contains the dialogue box
 
+        # Crop off the bottom UI control strip (Save/Load/Auto/Menu buttons) so
+        # they never enter OCR. 0.13 = drop bottom 13% of the frame. VN dialogue
+        # boxes sit above this band; UI chrome (and copyright watermarks) sit in it.
+        self.bottom_ui_crop_frac: float = 0.13
+
         # ── Cloud read metrics (for heartbeat cost log) ────────────────────────
         self._cloud_read_count: int = 0        # total cloud vision read calls this session
         self._loop_start_time: float = 0.0     # set when _loop() enters
@@ -385,11 +390,11 @@ class VNAutopilot:
         self._consecutive_non_progress_reads: int = 0
         # Cloud-call timeout in seconds (every vision/LLM call must complete
         # within this budget or be cancelled — hanging calls were causing
-        # 30-60s prep stalls). 2.5s is the sweet spot now that we downscale
-        # frames before sending: typical gpt-4o-mini latency on a 1280px
-        # JPEG is 0.6-1.5s, so 2.5s catches genuine network stalls without
-        # killing healthy calls. Longer values just turn into dead air.
-        self._cloud_call_timeout: float = 2.5
+        # 30-60s prep stalls). 4.0s accommodates dialogue reads, which use
+        # detail="high" tiling on a 1600px JPEG and routinely run 1.5-3.0s
+        # on healthy networks. 2.5s was too tight and was timing out on
+        # nearly every box, forcing constant local-OCR fallback to garbage.
+        self._cloud_call_timeout: float = 4.0
         self._advance_attempts: int = 0                 # total advance calls this session
         self._advance_diag_cycles: int = 5              # log full diagnostic for first N cycles
         # Frame hash captured immediately after a verified advance — handed to
@@ -761,7 +766,7 @@ class VNAutopilot:
                             return  # failsafe was triggered inside recovery
                         continue
 
-                    screen_type = await self._classify_screen(frame)
+                    screen_type = await self._timed_iter_classify(frame)
 
                 print(f"   [Autopilot] Screen: {screen_type}")
 
@@ -785,7 +790,12 @@ class VNAutopilot:
                     # lines. Try to resolve to DIALOGUE via retry + cloud read;
                     # otherwise advance through it. Failsafe only after a long
                     # unbroken streak of unresolvable UNKNOWNs.
+                    _unk_t0 = time.monotonic()
                     handled = await self._handle_unknown(frame)
+                    self._inter_box_unknown_retries = (
+                        getattr(self, "_inter_box_unknown_retries", 0.0)
+                        + (time.monotonic() - _unk_t0)
+                    )
                     if not handled:
                         print(
                             f"   [Autopilot] UNKNOWN streak exceeded "
@@ -844,6 +854,19 @@ class VNAutopilot:
         print("   [Autopilot] Loop exited.")
 
     # ── Screen classification ──────────────────────────────────────────────────
+
+    async def _timed_iter_classify(self, frame) -> str:
+        """Wrapper around _classify_screen that accumulates time into the
+        inter-box bucket surfaced in LONG GAP breakdowns. Measurement only —
+        does NOT change classify behavior."""
+        _t0 = time.monotonic()
+        try:
+            return await self._classify_screen(frame)
+        finally:
+            self._inter_box_iter_classify = (
+                getattr(self, "_inter_box_iter_classify", 0.0)
+                + (time.monotonic() - _t0)
+            )
 
     async def _classify_screen(self, frame) -> str:
         """Returns one of: DIALOGUE / CHOICE / SAVE_PROMPT / TRANSITION / UNKNOWN."""
@@ -958,7 +981,12 @@ class VNAutopilot:
 
     @staticmethod
     def _clean_text(text: str) -> str:
-        """Strip markdown/OCR artifacts before TTS: code fences, backticks, stray pipes."""
+        """Strip markdown/OCR artifacts before TTS: code fences, backticks, stray pipes.
+        Also strips vision-model scene-description bleed ("The screen features...",
+        "The visual novel screen depicts...") that occasionally leaks into a
+        dialogue read when the model decides to describe the image instead of
+        transcribing the box. If bleed accounts for >60% of the original text,
+        returns empty string so the caller treats it as a failed read."""
         # Strip ``` code fences (possibly with language tag)
         text = re.sub(r'```[^`]*```', '', text, flags=re.DOTALL)
         text = re.sub(r'```', '', text)
@@ -966,7 +994,93 @@ class VNAutopilot:
         text = text.replace('`', '')
         # Strip stray pipe characters (OCR table artefacts)
         text = text.replace(' | ', ' ')
+        # Scene-description bleed: "The (visual novel )?screen
+        # (features|depicts|shows|displays|presents) ..." up to the next sentence
+        # boundary or end of string. Case-insensitive.
+        bleed_re = re.compile(
+            r'\b[Tt]he(?:\s+visual\s+novel)?\s+screen\s+'
+            r'(?:features|depicts|shows|displays|presents)\b[^.!?]*[.!?]?',
+        )
+        orig_len = max(1, len(text.strip()))
+        bleed_chars = sum(len(m.group(0)) for m in bleed_re.finditer(text))
+        if bleed_chars / orig_len > 0.60:
+            return ""  # caller treats as empty/failed read
+        text = bleed_re.sub('', text)
         return ' '.join(text.split())
+
+    @staticmethod
+    def _is_short_noise(text: str) -> bool:
+        """Return True if a short (<12 char) local-OCR fragment is mostly noise.
+        Catches cases like "Ln (AA FN" where local Tesseract recovered something
+        from a near-empty cloud frame but the recovery is garbled. Conservative:
+        only flags when the fragment is short AND has no real word of length >=3.
+        """
+        if not text or len(text) >= 12:
+            return False
+        # Look for any token >= 3 chars that is plausibly a word (all letters,
+        # not all-uppercase like "AA"/"FN" which Tesseract spits on textures).
+        for tok in re.findall(r"[A-Za-z]+", text):
+            if len(tok) >= 3 and not tok.isupper():
+                return False  # has at least one plausible word — keep
+            if len(tok) >= 4 and tok.isupper():
+                return False  # longer ALL-CAPS could be a legit emphasis word
+        return True
+
+    @staticmethod
+    def _looks_like_garbage_ocr(text: str) -> tuple[bool, str]:
+        """Return (is_garbage, reason). Conservative — only flags clearly broken OCR
+        so we never narrate "ror a sunker LiKe Me, a Sarcopnagus city" verbatim.
+
+        Three independent signals; ANY one trips the gate:
+          1) Symbol-to-content ratio > 25%  — catches ",] ar . —_, — 0) eee"
+          2) Mixed-case-mid-word words > 30% of tokens — catches "tney Lert Denind",
+             "LiKe", "Sarcopnagus" where lowercase has stray uppercase mid-token.
+             Real words are lower, Title, or ALL-CAPS — never inconsistent.
+          3) Short 1-2 char tokens > 60% — catches fragmented noise.
+        """
+        if not text:
+            return (False, "")
+        clean = text.strip()
+        if len(clean) < 4:
+            return (False, "")  # too short to judge; other gates handle empty
+
+        # Signal 1: symbol density. Count alnum + whitespace + sentence punct as
+        # "content". Everything else (backticks, brackets, slashes, em-dashes
+        # in bursts, underscores) counts as noise.
+        allowed = set(".,!?'\"-:;()… ")
+        content = sum(1 for c in clean if c.isalnum() or c in allowed)
+        symbol_ratio = 1.0 - (content / len(clean))
+        if symbol_ratio > 0.25:
+            return (True, f"symbol_ratio={symbol_ratio:.2f}")
+
+        # Signal 2 + 3 operate on word tokens
+        tokens = re.findall(r"[A-Za-z']{2,}", clean)
+        all_tokens = re.findall(r"\S+", clean)
+        if not tokens:
+            return (True, "no_word_tokens")
+
+        bad_case = 0
+        for tok in tokens:
+            if tok.isupper() or tok.islower():
+                continue
+            # Title case: first upper, rest lower (apostrophe allowed anywhere)
+            if tok[0].isupper() and tok[1:].replace("'", "").islower():
+                continue
+            # Anything else: mixed-case anomaly (e.g. "LiKe", "Denind", "tney"→
+            # "tney" is all-lower so passes; but "Denind" has Dn pattern → cap
+            # appears mid-word after a lower letter). Detect that explicitly:
+            bad_case += 1
+        if len(tokens) >= 3 and (bad_case / len(tokens)) > 0.30:
+            return (True, f"mixed_case={bad_case}/{len(tokens)}")
+
+        # Signal 3: short-token spam (use ALL whitespace-split tokens so we
+        # also count stray punctuation tokens like ",]" or "—_,")
+        if all_tokens and len(all_tokens) >= 5:
+            short = sum(1 for t in all_tokens if len(t) <= 2)
+            if (short / len(all_tokens)) > 0.60:
+                return (True, f"short_tokens={short}/{len(all_tokens)}")
+
+        return (False, "")
 
     @staticmethod
     def _fuzzy_accumulation_split(last: str, current: str) -> str | None:
@@ -994,8 +1108,7 @@ class VNAutopilot:
         # Peel off through end of the matched region in `current`
         return current[match.b + match.size:]
 
-    @staticmethod
-    def _ocr_text_region(frame) -> str:
+    def _ocr_text_region(self, frame) -> str:
         """Extract dialogue text from the lower ~40% of the screen via local Tesseract OCR.
         VN dialogue boxes typically occupy the bottom 35-45% of the screen.
         Returns empty string if Tesseract is unavailable or the result is too short.
@@ -1012,8 +1125,12 @@ class VNAutopilot:
             return ""
         try:
             w, h = frame.size
-            # Crop to dialogue box region (lower ~40%)
-            text_region = frame.crop((0, int(h * 0.60), w, h))
+            # Crop to dialogue box region (lower ~40%) but drop bottom UI strip
+            bottom = int(h * (1.0 - max(0.0, self.bottom_ui_crop_frac)))
+            top = int(h * 0.60)
+            if bottom <= top:
+                bottom = h  # guard against absurd config
+            text_region = frame.crop((0, top, w, bottom))
             # Downscale wide frames (4K → ~1600px wide). Tesseract speed scales
             # roughly with pixel count, so halving each dimension is ~4× faster.
             tw, th = text_region.size
@@ -1040,6 +1157,7 @@ class VNAutopilot:
         crop_top_frac: float = 0.0,
         max_width: int = 1280,
         jpeg_quality: int = 70,
+        crop_bottom_frac: float = 0.0,
     ) -> str:
         """Crop + downscale + JPEG-encode a frame for vision API calls.
 
@@ -1054,9 +1172,13 @@ class VNAutopilot:
         - jpeg_quality 60-75 is plenty for OCR text after a sensible downscale.
         """
         img = frame
-        if crop_top_frac > 0.0:
+        if crop_top_frac > 0.0 or crop_bottom_frac > 0.0:
             w, h = img.size
-            img = img.crop((0, int(h * crop_top_frac), w, h))
+            top = int(h * crop_top_frac) if crop_top_frac > 0.0 else 0
+            bot = int(h * (1.0 - crop_bottom_frac)) if crop_bottom_frac > 0.0 else h
+            if bot <= top:
+                bot = h
+            img = img.crop((0, top, w, bot))
         w, h = img.size
         longest = max(w, h)
         if longest > max_width:
@@ -1095,7 +1217,8 @@ class VNAutopilot:
         # ~80% vs the raw 4K frame, so the call is much faster than pre-perf
         # while keeping text reliably legible.
         b64 = self._encode_frame_for_vision(
-            frame, crop_top_frac=0.55, max_width=1600, jpeg_quality=75
+            frame, crop_top_frac=0.55, max_width=1600, jpeg_quality=75,
+            crop_bottom_frac=self.bottom_ui_crop_frac,
         )
         for attempt in range(3):
             try:
@@ -1174,7 +1297,13 @@ class VNAutopilot:
                     local = await asyncio.get_event_loop().run_in_executor(
                         None, self._ocr_text_region, frame
                     )
-                    return (local or "").strip()
+                    local = (local or "").strip()
+                    # Reject short noise (e.g. "Ln (AA FN") — better silent than
+                    # narrating garbled fragments.
+                    if local and len(local) < 12 and self._is_short_noise(local):
+                        print(f"   [Autopilot] Local OCR fallback returned short noise ({local!r}) — skipping.")
+                        return ""
+                    return local
                 except Exception as _fb_err:
                     print(f"   [Autopilot] Local OCR fallback failed: {_fb_err}")
                     return ""
@@ -1550,6 +1679,20 @@ class VNAutopilot:
                 await asyncio.sleep(1.5)
                 return
 
+            # Garbage-OCR gate: never narrate broken/noisy reads. Almost always
+            # triggered by the local Tesseract fallback when the cloud timed
+            # out on a busy/animated frame. Skip + advance instead of speaking.
+            _garbage, _why = self._looks_like_garbage_ocr(text)
+            if _garbage:
+                print(
+                    f"   [Autopilot] Skipped read because: OCR garbage ({_why}). "
+                    f"Text='{text[:60]}'"
+                )
+                self._note_non_progress()
+                await asyncio.sleep(0.3)
+                self._safe_advance()
+                return
+
             normalized = " ".join(text.split())
             last_preview = self._last_box_text[:40] if self._last_box_text else "<empty>"
             is_new_box = bool(normalized) and normalized != self._last_box_text
@@ -1766,17 +1909,21 @@ class VNAutopilot:
         # Use time.time() for the gap (since _last_spoke_time is wall-clock).
         _gap_now = time.time()
         _timing["gap"] = max(0.0, _gap_now - getattr(self, "_last_spoke_time", _gap_now))
+        _iter_cls = getattr(self, "_inter_box_iter_classify", 0.0)
+        _unk_ret  = getattr(self, "_inter_box_unknown_retries", 0.0)
         if _timing["gap"] > 5.0:
             prev_tail = getattr(self, "_prev_box_tail", 0.0)
             this_pre  = _timing["stabilize"] + _timing["ocr"] + _timing["classify"] + _timing["dup_recapture"]
-            unaccounted = max(0.0, _timing["gap"] - prev_tail - this_pre)
+            unaccounted = max(0.0, _timing["gap"] - prev_tail - this_pre - _iter_cls - _unk_ret)
             print(
                 f"   [Timing] \u26a0\ufe0f LONG GAP: {_timing['gap']:.1f}s of silence "
                 f"before box {_timing['box_n']}. Breakdown: "
                 f"prev_box_tail(pause+reaction+advance+prep)={prev_tail:.1f}s "
                 f"this_box(stabilize={_timing['stabilize']:.1f}s ocr={_timing['ocr']:.1f}s "
                 f"classify={_timing['classify']:.1f}s dup_recap={_timing['dup_recapture']:.1f}s "
-                f"retries={_timing['retries']}) unaccounted={unaccounted:.1f}s"
+                f"retries={_timing['retries']}) "
+                f"iter_classify={_iter_cls:.1f}s unknown_retries={_unk_ret:.1f}s "
+                f"unaccounted={unaccounted:.1f}s"
             )
         _tts_t0 = time.monotonic()
         if self.on_speak_vn:
@@ -1860,6 +2007,9 @@ class VNAutopilot:
         # ---- TIMING: emit per-box summary line ----
         _tail = _timing["pause"] + _timing["reaction_wait"] + _timing["advance"] + _timing["prep"]
         self._prev_box_tail = _tail
+        # Reset inter-box accumulators now that we've reported them for this gap.
+        self._inter_box_iter_classify = 0.0
+        self._inter_box_unknown_retries = 0.0
         _total = (
             _timing["stabilize"] + _timing["ocr"] + _timing["classify"]
             + _timing["dup_recapture"] + _timing["tts"] + _tail
@@ -2038,6 +2188,13 @@ class VNAutopilot:
             # System-UI guard: wrong window captured → abort, don't cache
             if self._is_system_ui_text(text):
                 print(f"   [Autopilot] Pipeline: system UI detected — wrong window?")
+                return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
+
+            # Garbage-OCR guard — don't cache broken reads as box_data, force
+            # the main loop's normal path (which re-reads + re-gates) to handle it.
+            _g, _why = self._looks_like_garbage_ocr(text)
+            if _g:
+                print(f"   [Autopilot] Pipeline: OCR garbage ({_why}) — deferring to main path.")
                 return {"screen_type": "DIALOGUE", "frame": frame, "box_data": None}
 
             normalized = " ".join(text.split())

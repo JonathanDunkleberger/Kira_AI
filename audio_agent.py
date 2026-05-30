@@ -450,18 +450,37 @@ class AudioAgent:
             print(f"   [Audio] Capture loop error: {e}")
 
     def _stop_capture(self):
+        # Order matters: stop_stream() FIRST to unblock any in-flight stream.read()
+        # in _capture_loop. If we close() the stream while another thread is mid-read,
+        # pyaudiowpatch dereferences freed native memory → Windows access violation
+        # → silent process exit. (Bitten by this on game-mode activation.)
         self._stop_event.set()
-        if self._capture_thread and self._capture_thread.is_alive():
-            self._capture_thread.join(timeout=2.0)
-        self._capture_thread = None
-        if self._stream:
+        stream = self._stream
+        if stream is not None:
             try:
-                self._stream.stop_stream()
+                stream.stop_stream()
+            except Exception:
+                pass
+        if self._capture_thread and self._capture_thread.is_alive():
+            self._capture_thread.join(timeout=5.0)
+            if self._capture_thread.is_alive():
+                # Thread is wedged inside a native read despite stop_stream().
+                # Closing the stream now WILL crash the process. Leak it instead.
+                print("   [Audio] WARNING: capture thread did not exit — leaking stream to avoid native crash")
+                self._capture_thread = None
+                self._stream = None
+                self._pa = None
+                self.buffer.clear()
+                self.hifi_buffer.clear()
+                return
+        self._capture_thread = None
+        if self._stream is not None:
+            try:
                 self._stream.close()
             except Exception:
                 pass
             self._stream = None
-        if self._pa:
+        if self._pa is not None:
             try:
                 self._pa.terminate()
             except Exception:

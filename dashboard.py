@@ -2,8 +2,25 @@
 import customtkinter as ctk
 import threading
 import time
+import sys
+import traceback
 from PIL import ImageGrab
 import asyncio
+import concurrent.futures
+
+# ── Global exception hooks — make ALL crashes print a full traceback ──────────
+def _excepthook(exc_type, exc_value, exc_tb):
+    print("[CRASH] Unhandled exception in main thread:", flush=True)
+    traceback.print_exception(exc_type, exc_value, exc_tb)
+    sys.__excepthook__(exc_type, exc_value, exc_tb)
+
+def _thread_excepthook(args):
+    print(f"[CRASH] Unhandled exception in thread '{args.thread.name}':", flush=True)
+    traceback.print_exception(args.exc_type, args.exc_value, args.exc_tb)
+
+sys.excepthook = _excepthook
+threading.excepthook = _thread_excepthook
+# ─────────────────────────────────────────────────────────────────────────────
 
 try:
     import keyboard as kb_lib
@@ -62,6 +79,7 @@ class KiraDashboard(ctk.CTk):
         self._current_image_ref = None
         self._last_hist_len = 0
         self._last_twitch_len = 0
+        self._closing = False
 
         self.grid_columnconfigure(0, weight=0, minsize=270)
         self.grid_columnconfigure(1, weight=3)
@@ -74,8 +92,55 @@ class KiraDashboard(ctk.CTk):
         self._build_right()
         self._build_statusbar()
 
+        # CRITICAL: the asyncio loop runs on a daemon thread. Without this
+        # handler, closing the window kills that thread mid-await and any
+        # pending Opus call (post-stream summary, lore, clips) is silently
+        # lost. This handler runs shutdown_async to completion before destroy.
+        self.protocol("WM_DELETE_WINDOW", self._on_window_close)
+
         self._update_loop()
         self._vision_loop()
+
+    def _on_window_close(self):
+        """Block window close until shutdown_async() finishes (up to 120s).
+
+        Without this, Tk mainloop returns → main thread exits → Python
+        starts shutdown → all daemon threads (including the asyncio loop
+        running our Opus calls) are killed instantly. Any awaited LLM call
+        is murdered and the resulting artifacts never reach disk."""
+        if self._closing:
+            return
+        self._closing = True
+
+        # Best-effort UI feedback before we block the main thread.
+        try:
+            if hasattr(self, "game_mode_status"):
+                self.game_mode_status.configure(
+                    text="Saving artifacts… up to 2 min, please wait",
+                    text_color=C_MUTED,
+                )
+            self.update_idletasks()
+        except Exception:
+            pass
+
+        loop = getattr(self.bot, "event_loop", None)
+        if loop and loop.is_running():
+            try:
+                fut = asyncio.run_coroutine_threadsafe(
+                    self.bot.shutdown_async(), loop
+                )
+                # Hard cap so a hung Opus call can't trap the user forever.
+                fut.result(timeout=120)
+            except concurrent.futures.TimeoutError:
+                print("[Shutdown] shutdown_async exceeded 120s — forcing close.", flush=True)
+            except Exception as e:
+                print(f"[Shutdown] shutdown_async raised: {e}", flush=True)
+                traceback.print_exc()
+
+        try:
+            self.destroy()
+        except Exception:
+            pass
 
     # LEFT PANEL
 
@@ -177,6 +242,23 @@ class KiraDashboard(ctk.CTk):
         ctk.CTkLabel(
             frame,
             text="For VNs / movies / anime \u2014 Kira stays quiet and reacts briefly. Keep OFF for active gameplay.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 8))
+
+        self.carry_mode_switch = ctk.CTkSwitch(
+            frame, text="Carry Mode (gameplay)",
+            command=self._toggle_carry_mode,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.carry_mode_switch.pack(anchor="w", padx=14, pady=(0, 4))
+        ctk.CTkLabel(
+            frame,
+            text="Live-gameplay equivalent of VN autopilot \u2014 Kira drives momentum "
+                 "so you don't have to. 30s/60s interjection gates, more chat "
+                 "engagement. Brevity rule still dominates; silence still beats "
+                 "filler. (VNs already have autopilot \u2014 leave OFF for VN sessions.)",
             font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
             justify="left",
         ).pack(anchor="w", padx=14, pady=(0, 8))
@@ -1270,10 +1352,27 @@ class KiraDashboard(ctk.CTk):
         self._mark_preset_modified()
         print(f"   [Dashboard] Passive Watching Mode toggled: {is_on}")
 
+    def _toggle_carry_mode(self):
+        is_on = bool(self.carry_mode_switch.get())
+        self.bot.carry_mode = is_on
+        self._mark_preset_modified()
+        print(f"   [Dashboard] Carry Mode toggled: {is_on} "
+              f"(thresholds {'30s/60s' if is_on else '45s/90s'}, "
+              f"ask_chat_p {'0.25' if is_on else '0.15'})")
+
     def _activate_game_mode(self):
         """Dashboard 'Activate Game Mode' button handler.
         When GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
         stream-ready state. Individual toggles still override after activation."""
+        try:
+            self._activate_game_mode_inner()
+        except Exception:
+            print("[CRASH] _activate_game_mode raised:", flush=True)
+            traceback.print_exc()
+            raise
+
+    def _activate_game_mode_inner(self):
+        """Inner body of _activate_game_mode — wrapped by the outer method for crash visibility."""
         name = self.game_title_entry.get().strip()
         if not name:
             self.game_mode_status.configure(text="Enter a game title first.", text_color=C_RED)
@@ -1775,10 +1874,24 @@ def _status_pill(parent, text: str, column: int) -> ctk.CTkLabel:
 def run_async_bot(bot: VTubeBot):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+
+    # Surface any exception that bubbles up to the loop (e.g. unawaited task
+    # crashes, callback errors). Without this, asyncio swallows them at GC time.
+    def _loop_exc_handler(_loop, ctx):
+        msg = ctx.get("message") or "asyncio loop exception"
+        exc = ctx.get("exception")
+        print(f"[ASYNCIO LOOP EXCEPTION] {msg}", file=sys.stderr, flush=True)
+        if exc is not None:
+            traceback.print_exception(type(exc), exc, exc.__traceback__)
+    loop.set_exception_handler(_loop_exc_handler)
+
     try:
         loop.run_until_complete(bot.run())
     except KeyboardInterrupt:
         pass
+    except Exception:
+        print("[CRASH] run_async_bot raised:", flush=True)
+        traceback.print_exc()
     finally:
         loop.close()
 
@@ -1787,7 +1900,11 @@ def run_dashboard():
     bot = VTubeBot()
     threading.Thread(target=run_async_bot, args=(bot,), daemon=True).start()
     app = KiraDashboard(bot)
-    app.mainloop()
+    try:
+        app.mainloop()
+    except Exception:
+        print("[CRASH] app.mainloop() raised:", flush=True)
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

@@ -235,6 +235,18 @@ class CaptionServer:
             return
         await self._broadcast({"type": "clear"})
 
+    async def send_cookie(self, shared: int, milestone: bool = False) -> None:
+        """Push a cookie-jar update to the overlay. Two shapes:
+            {"type":"cookie","shared":N,"cap":100,"milestone":false}  (normal)
+            {"type":"cookie","milestone":true}                        (fire)
+        Fire-and-forget; drops silently if no clients connected."""
+        if not self.enabled or not self._started or not self._clients:
+            return
+        if milestone:
+            await self._broadcast({"type": "cookie", "milestone": True})
+        else:
+            await self._broadcast({"type": "cookie", "shared": int(shared), "cap": 100, "milestone": False})
+
     async def _broadcast(self, frame: dict) -> None:
         payload = json.dumps(frame, ensure_ascii=False)
         dead = []

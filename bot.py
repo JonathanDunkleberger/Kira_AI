@@ -1,5 +1,6 @@
 # bot.py - Main application file with advanced memory and web search.
 
+
 import asyncio
 import webrtcvad
 import collections
@@ -12,11 +13,21 @@ import os
 import sys
 import gc # Added garbage collection
 import glob
+import faulthandler
+
+# Enable native-crash tracebacks. The async loop runs on a daemon thread; if
+# the dashboard window is closed mid-shutdown and a tracked future is killed
+# by interpreter teardown, faulthandler is our only chance to see why.
+try:
+    faulthandler.enable(file=sys.stderr, all_threads=True)
+except Exception:
+    pass
 from datetime import datetime
 from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
 from memory import MemoryManager
+from cookie_jar import CookieJar
 from twitch_bot import TwitchBot
 from web_search import async_GoogleSearch
 from twitch_tools import start_twitch_poll
@@ -95,7 +106,11 @@ class VTubeBot:
         self.interruption_event = asyncio.Event()
         self.processing_lock = asyncio.Lock()
         self.ai_core = AI_Core(self.interruption_event)
+        # Let ai_core append the streamer-mode persona overlay based on current mode
+        # without baking mode into its cached system prompt.
+        self.ai_core._mode_provider = lambda: self.mode
         self.memory = MemoryManager()
+        self.cookie_jar = CookieJar()
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
         
         # --- NEW: Shared Input Queue ---
@@ -180,6 +195,16 @@ class VTubeBot:
             2: 90.0,   # Slightly bigger nudge (streamer mode only)
         }
 
+        # Carry Mode (live-gameplay equivalent of VN autopilot).
+        # When ON in streamer mode: lower interjection gates to 30s/60s and bump
+        # chat-engagement probability so Kira keeps momentum during games like
+        # Bond without Jonny needing to drive. Brevity rule + silence-beats-filler
+        # remain dominant. Mode-gated only — NOT activity-gated (Req A): the
+        # dashboard toggle is the only condition, works for game/VN/media alike.
+        # (VNs already have vn_autopilot for full-drive mode — leave Carry Mode
+        # OFF during VN sessions to avoid stacking.)
+        self.carry_mode: bool = False
+
         # Chat batching + engagement state
         self.chat_batch_buffer: list = []          # queued chat messages waiting to be batched
         self.last_chat_response_time: float = 0    # for response cooldown
@@ -198,8 +223,36 @@ class VTubeBot:
         # Per-chatter "last spoke this session" timestamps for silence detection
         self.session_chatter_last_spoke: dict[str, float] = {}
 
+        # Proactive chat spotlight: track who Kira has spotlighted unprompted
+        # this session (so she doesn't re-pick the same person every cycle) and
+        # the last spotlight wall-clock for global rate-capping.
+        # NOT reset on activity/game switch — spotlight gating is
+        # streaming-session scoped, not playthrough scoped (Req A).
+        self.spotlighted_chatters: set[str] = set()
+        self.last_chat_spotlight_time: float = 0.0
+        self.chat_spotlight_min_interval_s: float = 300.0  # 5 min global cap
+
         # Running bits / callbacks that have emerged this session
         self.session_running_bits: list[dict] = []
+
+        # Rolling condensed summary of Kira's own session takes (opinions / predictions /
+        # grudges / bits). Built periodically from self.session_takes_pool via a cheap
+        # LLM call so long streams don't outgrow the conversation window.
+        #
+        # Req A: pool is bot-owned (NOT playthrough_memory.session_reactions) so it
+        # fills during ANY streaming activity — game, VN, media, general — and
+        # persists across activity switches within one streaming session
+        # (VN→game→VN keeps the same running takes).
+        self.session_takes_pool: list[str] = []
+        self.session_takes_pool_max: int = 200
+        self.session_takes_summary: str = ""
+        self.session_takes_last_condensed_count: int = 0   # pool size at last condense
+        self.session_takes_last_condensed_at: float = 0.0  # wall clock of last condense
+        self.session_takes_condense_in_flight: bool = False
+        # Trigger thresholds: condense every N new reactions OR every M seconds since last.
+        self.session_takes_min_new_reactions: int = 20
+        self.session_takes_min_interval_s: float = 600.0   # 10 minutes
+        self.session_takes_max_bullets: int = 10
 
         # Vibe meter tracking
         self.chat_msg_timestamps: list = []  # rolling window of chat msg timestamps for rate calculation
@@ -209,6 +262,11 @@ class VTubeBot:
         self.session_started_at: float = time.time()
         self._session_artifacts_written: bool = False
 
+        # Cookie-jar milestone throttle: prevents simultaneous milestone reactions
+        # if multiple cookies land in the same instant (e.g. a burst chat batch
+        # right at the boundary).
+        self._cookie_milestone_in_flight: bool = False
+
         import bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
 
@@ -216,6 +274,86 @@ class VTubeBot:
         self.last_interaction_time = time.time()
         if human_speech:
             self.silence_stage = 0
+
+    # ── Cookie-jar milestone reactions ─────────────────────────────────────
+    # In-character variants used when the shared jar fills to 100.
+    # Kept short — these fire mid-stream, not as set-pieces.
+    COOKIE_MILESTONE_LINES = [
+        "Okay — chat. We just hit a hundred cookies in the jar. Collective achievement unlocked. I'm a little emotional.",
+        "Hundred cookies. The jar is full. This is the part where I pretend not to care but I'm absolutely keeping score.",
+        "That's a hundred cookies, everyone. The jar is officially overflowing — milestone number {n} for the record.",
+        "Cookie jar update: full. Hundred deep. I'm dumping it out and starting fresh. Don't stop on my account.",
+    ]
+
+    def _maybe_fire_cookie_milestone(self) -> None:
+        """If the cookie jar has queued a milestone and no reaction is already
+        in flight, schedule Kira to speak a variant line and roll over the jar.
+        Throttle prevents back-to-back milestone speeches if cookies land in a
+        burst right at the boundary."""
+        try:
+            if not self.cookie_jar.milestone_pending():
+                return
+            if self._cookie_milestone_in_flight:
+                return
+            self._cookie_milestone_in_flight = True
+            asyncio.create_task(self._speak_cookie_milestone())
+        except Exception as e:
+            print(f"   [Cookies] Milestone schedule error: {e}")
+            self._cookie_milestone_in_flight = False
+
+    async def _speak_cookie_milestone(self) -> None:
+        """Pick a milestone variant, speak it via TTS, then roll over the jar.
+        Resets in-flight flag in finally so a future milestone can fire."""
+        import random as _rand
+        try:
+            # Wait for any current speech to finish before grabbing the floor.
+            for _ in range(30):  # up to ~3s
+                if not self.ai_core.is_speaking:
+                    break
+                await asyncio.sleep(0.1)
+            # Roll the jar over BEFORE speaking — guarantees idempotency even
+            # if the speak call crashes mid-flight.
+            milestone_n = self.cookie_jar.get_milestone_count() + 1
+            rolled = self.cookie_jar.reset_shared_on_milestone()
+            if not rolled:
+                # Another path consumed it in the meantime — nothing to say.
+                return
+            line = _rand.choice(self.COOKIE_MILESTONE_LINES).format(n=milestone_n)
+            print(f"   [Cookies] \U0001f36a MILESTONE #{milestone_n} \u2014 Kira: {line}")
+            # Tell the overlay to fire its full-jar animation and reset to 0.
+            await self._broadcast_cookie_milestone()
+            # Push the post-roll baseline so any late-joining overlay client
+            # syncs to the empty jar.
+            await self._broadcast_cookie_state()
+            try:
+                self.stream_logger.log("cookie_milestone", n=milestone_n, line=line)
+            except Exception:
+                pass
+            try:
+                await self.ai_core.speak_text(line)
+                self.conversation_history.append({"role": "assistant", "content": line})
+                self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+            except Exception as _tts_err:
+                print(f"   [Cookies] Milestone TTS error: {_tts_err}")
+        finally:
+            self._cookie_milestone_in_flight = False
+
+    async def _broadcast_cookie_state(self) -> None:
+        """Push the current shared-jar count to the captions WS overlay.
+        Fire-and-forget; never raises."""
+        try:
+            from caption_server import caption_server as _cs
+            await _cs.send_cookie(shared=self.cookie_jar.get_shared(), milestone=False)
+        except Exception as e:
+            print(f"   [Cookies] Overlay broadcast (state) failed: {e}")
+
+    async def _broadcast_cookie_milestone(self) -> None:
+        """Tell the overlay to play its full-jar animation. Fire-and-forget."""
+        try:
+            from caption_server import caption_server as _cs
+            await _cs.send_cookie(shared=0, milestone=True)
+        except Exception as e:
+            print(f"   [Cookies] Overlay broadcast (milestone) failed: {e}")
 
     def _log_session_turn(self, role: str, content: str, speaker_name: str = ""):
         """Append a turn to the unwindowed full session log used for clip extraction.
@@ -298,6 +436,9 @@ class VTubeBot:
             # Tag this reaction in the playthrough record for the session entry
             if self.playthrough_memory and self.playthrough_memory.current_slug:
                 self.playthrough_memory.tag_reaction(cleaned)
+            # Pool unconditionally during streamer mode (Req A)
+            if self.mode == "streamer":
+                self._note_session_take(cleaned)
 
     async def _autopilot_speak_vn(self, text: str, ssml_inner: str):
         """VN-specific TTS callback: uses Azure prosody variation for natural delivery."""
@@ -311,6 +452,8 @@ class VTubeBot:
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
             if self.playthrough_memory and self.playthrough_memory.current_slug:
                 self.playthrough_memory.tag_reaction(cleaned)
+            if self.mode == "streamer":
+                self._note_session_take(cleaned)
 
     def _autopilot_on_failsafe(self, screen_type: str):
         """Callback: mark dashboard flag when failsafe triggers."""
@@ -402,13 +545,21 @@ class VTubeBot:
         do-not-repeat directive (used by the bored/observer interjection path)."""
         block = (
             "\n\nCRITICAL VOICE GUARDRAILS:\n"
+            "- Anything inside [KNOWN FACTS], [KNOWN FACTS (direct)], or [CURRENT PROJECT] "
+            "is VERIFIED ground truth about Jonny that you have learned over time. You may "
+            "and SHOULD reference it freely by name when relevant \u2014 his cats' names, his "
+            "favorites, his projects, his history. Recall is not fabrication. If a fact is "
+            "in those blocks, treat it as known.\n"
             "- Do NOT reference past events, games, conversations, or shared experiences "
-            "that you cannot verify from the memory notes provided.\n"
+            "that are NOT supported by [KNOWN FACTS] or other memory blocks.\n"
             "- Do NOT invent shared history ('that game we played', 'remember when', etc.) "
             "unless it is explicitly in the memory notes.\n"
-            "- React only to the current moment and what is actually present right now.\n"
-            "- If you have nothing real to react to, make a small genuine observation about "
-            "the present instead of fabricating nostalgia.\n"
+            "- This rule is about PERSONAL HISTORY / SHARED EXPERIENCES only \u2014 it does NOT "
+            "relax the visual accuracy rules. You still must not invent what is on screen, "
+            "on a sprite, or in a frame; the [VISUAL STATUS] directive remains absolute and "
+            "overrides everything here.\n"
+            "- React to the current moment and what is actually present right now, drawing "
+            "on verified facts when they apply.\n"
             "\nBANNED PHRASES (never use these \u2014 they are overused regressions):\n"
             "- 'doing a lot of heavy lifting' / 'carrying hard' / 'carrying this'\n"
             "- 'doing more work than'\n"
@@ -585,7 +736,7 @@ class VTubeBot:
             except Exception:
                 pass
             memory_block = (
-                f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n{memory_context}"
+                f"\n\n[MEMORY NOTES \u2014 verified facts about Jonny; reference freely, but do not extrapolate beyond what is written here]\n{memory_context}"
                 if memory_context else ""
             )
             task_prompt = (
@@ -641,6 +792,145 @@ class VTubeBot:
         """Cuts off the current utterance without changing mute state."""
         self.interruption_event.set()
         print("   [Interrupt] Speech interrupted")
+
+    # ── Session-takes condenser ──────────────────────────────────────────────
+
+    def _note_session_take(self, line: str):
+        """Append a Kira-spoken reaction line to the bot-owned session takes pool,
+        which feeds the rolling condenser. Activity-agnostic (Req A) — works even
+        when no playthrough_memory slug is set."""
+        if not line:
+            return
+        cleaned = line.strip()
+        if len(cleaned) < 3:
+            return
+        self.session_takes_pool.append(cleaned)
+        if len(self.session_takes_pool) > self.session_takes_pool_max:
+            self.session_takes_pool = self.session_takes_pool[-self.session_takes_pool_max:]
+
+    def _maybe_condense_session_takes(self):
+        """Fire-and-forget background condense of session_takes_pool into a sharp
+        bulleted [MY TAKES SO FAR THIS SESSION] block. Rate-limited by new-reaction
+        count AND wall clock so it neither spams nor starves.
+        Uses the fast tool_inference path (Groq/local), not Opus.
+
+        Req A: reads bot-owned pool (NOT playthrough_memory) so it works in any
+        streaming activity and persists across activity switches."""
+        if self.session_takes_condense_in_flight:
+            return
+        if not self.session_takes_pool:
+            return
+        pool = self.session_takes_pool
+        new_since_last = len(pool) - self.session_takes_last_condensed_count
+        age = time.time() - (self.session_takes_last_condensed_at or 0)
+        # Need at least a handful before the first condense to avoid a noisy stub.
+        if len(pool) < 6:
+            return
+        if new_since_last < self.session_takes_min_new_reactions and age < self.session_takes_min_interval_s:
+            return
+        self.session_takes_condense_in_flight = True
+        snapshot = list(pool)  # take a snapshot now in case the list mutates
+        loop = self.event_loop or asyncio.get_event_loop()
+        async def _run():
+            try:
+                joined = "\n".join(f"- {r}" for r in snapshot[-80:])
+                system = (
+                    "You distill an AI co-host's spoken lines from a live stream into her "
+                    "STANDING TAKES so she can stay consistent across hours of play. "
+                    "Prioritize: opinions she's stated, predictions she's made, characters "
+                    "she's rooting for/against, grudges, running bits/callbacks. "
+                    "DROP: generic reactions, one-off jokes, filler. "
+                    f"Output ONLY a bulleted list, max {self.session_takes_max_bullets} bullets, "
+                    "each one short and specific (name characters/things explicitly). "
+                    "No preamble, no headers, no closing line. If nothing qualifies, output: (none yet)"
+                )
+                user = f"Lines spoken this session (oldest first):\n{joined}"
+                out = await self.ai_core.tool_inference(system, user, max_tokens=300)
+                cleaned = (out or "").strip()
+                if cleaned and cleaned.lower() != "(none yet)":
+                    self.session_takes_summary = cleaned
+                    print(f"   [SessionTakes] Condensed {len(snapshot)} reactions → "
+                          f"{cleaned.count(chr(10)) + 1} bullets.")
+                self.session_takes_last_condensed_count = len(snapshot)
+                self.session_takes_last_condensed_at = time.time()
+            except Exception as e:
+                print(f"   [SessionTakes] Condense failed (continuing): {e}")
+            finally:
+                self.session_takes_condense_in_flight = False
+        try:
+            asyncio.ensure_future(_run(), loop=loop)
+        except Exception as e:
+            print(f"   [SessionTakes] Could not schedule condense: {e}")
+            self.session_takes_condense_in_flight = False
+
+    def _reset_session_takes(self):
+        """DEPRECATED in normal flow — takes/spotlight state now persists across
+        activity switches within a streaming session (Req A). Kept callable for
+        explicit "clean slate" needs (e.g. bot restart hooks, manual reset).
+
+        Wipes the takes pool, the rolling summary, AND spotlight gating."""
+        self.session_takes_pool = []
+        self.session_takes_summary = ""
+        self.session_takes_last_condensed_count = 0
+        self.session_takes_last_condensed_at = 0.0
+        self.spotlighted_chatters = set()
+        self.last_chat_spotlight_time = 0.0
+
+    # ── Proactive chat spotlight ──────────────────────────────────────────────
+
+    def _pick_chat_spotlight(self) -> dict | None:
+        """Returns at most one candidate chatter to spotlight unprompted, or None.
+        Prefers returning regulars who just showed up; falls back to active
+        chatters who have spoken multiple times this session. Excludes anyone
+        already spotlighted this session.
+
+        Returned dict: {username, recent_msgs (list[str]), historical_count, kind}
+        """
+        now = time.time()
+        # Returning regulars first
+        for username, log in self.session_chatter_logs.items():
+            if not username or username == "unknown":
+                continue
+            if username in self.spotlighted_chatters:
+                continue
+            try:
+                historical_count = self.memory.count_chatter_messages(username)
+            except Exception:
+                historical_count = 0
+            first_seen = self.session_chatter_first_seen.get(username, 0)
+            # "Just showed up this session" — first message within last 10 min
+            recently_first_seen = (now - first_seen) < 600
+            if historical_count >= 5 and recently_first_seen:
+                msgs = [entry.get("content", "") for entry in log[-3:] if entry.get("content")]
+                return {
+                    "username": username,
+                    "recent_msgs": msgs,
+                    "historical_count": historical_count,
+                    "kind": "returning_regular",
+                }
+        # Active session chatter: 2+ messages, last spoke 2-10 min ago
+        for username, log in self.session_chatter_logs.items():
+            if not username or username == "unknown":
+                continue
+            if username in self.spotlighted_chatters:
+                continue
+            if len(log) < 2:
+                continue
+            last_spoke = self.session_chatter_last_spoke.get(username, 0)
+            age = now - last_spoke
+            if 120 <= age <= 600:
+                msgs = [entry.get("content", "") for entry in log[-3:] if entry.get("content")]
+                try:
+                    historical_count = self.memory.count_chatter_messages(username)
+                except Exception:
+                    historical_count = 0
+                return {
+                    "username": username,
+                    "recent_msgs": msgs,
+                    "historical_count": historical_count,
+                    "kind": "active_chatter",
+                }
+        return None
 
     # ── Manual Game Mode Activation (dashboard on-ramp) ───────────────────────
 
@@ -703,6 +993,8 @@ class VTubeBot:
         playthrough_note = "no playthrough file"
         if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
             self.playthrough_memory.load_for_game(name)
+            # Note: do NOT reset session takes/spotlight here — those are
+            # streaming-session scoped and must survive activity switches (Req A).
             playthrough_note = (
                 f"loaded: {self.playthrough_memory.current_display}"
                 if self.playthrough_memory.current_slug else "new file will be created"
@@ -735,7 +1027,10 @@ class VTubeBot:
             self.stream_logger.log("activity_change", activity=activity, activity_type=activity_type)
 
     async def _restart_stream_logger(self, activity: str, activity_type: str = "") -> None:
-        """Close the current stream log session and open a new one for the given activity."""
+        """Close the current stream log session and open a new one for the given activity.
+        NOTE: ai_core is intentionally NOT passed — mid-stream session rotations (game
+        mode activation) must NOT generate a post-stream Opus summary. The summary
+        only fires on real stream end via deactivate_game_mode_async / run() cleanup."""
         if not STREAM_LOGGING_ENABLED:
             return
         try:
@@ -745,7 +1040,7 @@ class VTubeBot:
                 activity=activity,
                 mode=mode,
                 preset=preset,
-                ai_core=self.ai_core,
+                ai_core=None,  # no summary on mid-stream rotation — only on real stream end
             )
         except Exception as e:
             print(f"   [StreamLogger] Restart error: {e}", file=sys.stderr)
@@ -755,24 +1050,30 @@ class VTubeBot:
 
         Writes the full session artifacts (lore + clip candidates via Opus, playthrough
         log entry) then resets all activity state to GENERAL. Also stops loopback STT
-        if it was running so VRAM is freed without a manual toggle."""
+        if it was running so VRAM is freed without a manual toggle.
+
+        Each artifact write is independently guarded inside _write_session_artifacts.
+        This method MUST NOT raise — any unhandled exception here would leak through
+        the shutdown path and prevent stream_logger.finish() from running."""
         activity_display = self.current_activity or "(unknown)"
         highlight_count = len(self.session_highlights)
 
-        # Write lore + clip markdown + playthrough log entry (Opus call — may take ~30s)
+        # Write artifacts. _write_session_artifacts() returns a dict of what was
+        # actually written so we don't lie in the log line below.
+        results: dict = {}
         try:
-            await self._write_session_artifacts()
-            from datetime import datetime
-            activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity_display).strip('_').lower()[:40] or "session"
-            date_str = datetime.now().strftime("%Y-%m-%d")
-            clip_path = f"clips/{date_str}_{activity_slug}.md"
-            print(f"   [GAME MODE DEACTIVATED]")
-            print(f"     Activity: {activity_display}")
-            print(f"     Playthrough log: written")
-            print(f"     Clips markdown: {clip_path}")
-            print(f"     Highlights captured: {highlight_count}")
+            results = await self._write_session_artifacts()
         except Exception as e:
-            print(f"   [MANUAL MODE] Artifact write failed: {e}")
+            print(f"   [MANUAL MODE] Artifact write raised unexpectedly: {e}")
+            traceback.print_exc()
+
+        print(f"   [GAME MODE DEACTIVATED]")
+        print(f"     Activity:        {activity_display}")
+        print(f"     Raw dump:        {results.get('raw_dump')        or '(none)'}")
+        print(f"     Playthrough log: {results.get('playthrough')     or '(skipped — no active playthrough slug)'}")
+        print(f"     Clips markdown:  {results.get('clips')           or '(skipped — Opus failed or empty)'}")
+        print(f"     Lore appended:   {results.get('lore')            or '(skipped — Opus failed or empty)'}")
+        print(f"     Highlights captured: {highlight_count}")
 
         # Stop loopback STT if it was auto-started (model unload is blocking — run off event loop)
         lt = self.loopback_transcriber
@@ -785,18 +1086,24 @@ class VTubeBot:
                 print(f"   [MANUAL MODE] Loopback stop failed: {e}")
 
         # Reset all activity state
-        self.game_mode_controller.deactivate()
-        self.vision_agent.activity_type = ACTIVITY_GENERAL
-        self.current_activity = ""
-        self.immersive = False
-        self.highlight_extraction_enabled = False
-        self.vision_agent.heartbeat_interval = 30.0
-        if self.playthrough_memory:
-            self.playthrough_memory.current_slug = ""
-            self.playthrough_memory.current_display = ""
-        print("   [MANUAL MODE] State reset to GENERAL.")
+        try:
+            self.game_mode_controller.deactivate()
+            self.vision_agent.activity_type = ACTIVITY_GENERAL
+            self.current_activity = ""
+            self.immersive = False
+            self.highlight_extraction_enabled = False
+            self.vision_agent.heartbeat_interval = 30.0
+            if self.playthrough_memory:
+                self.playthrough_memory.current_slug = ""
+                self.playthrough_memory.current_display = ""
+            print("   [MANUAL MODE] State reset to GENERAL.")
+        except Exception as e:
+            print(f"   [MANUAL MODE] State reset error: {e}")
+            traceback.print_exc()
 
-        # Close the game session log and open a fresh "general" session
+        # Close the game session log and open a fresh "general" session.
+        # The Opus summary inside finish() is the slowest call — it runs LAST so
+        # everything above is already on disk if the summary call dies.
         if STREAM_LOGGING_ENABLED:
             try:
                 await self.stream_logger.finish(self.ai_core)
@@ -807,6 +1114,46 @@ class VTubeBot:
                 )
             except Exception as e:
                 print(f"   [StreamLogger] Deactivate restart error: {e}", file=sys.stderr)
+                traceback.print_exc()
+
+    async def shutdown_async(self) -> None:
+        """Graceful full-process shutdown, safe to call from the dashboard's
+        WM_DELETE_WINDOW handler. Awaits all artifact writes (raw dump, lore,
+        clips, playthrough, post-stream summary) before returning, so the
+        daemon asyncio thread isn't killed mid-write by interpreter teardown.
+
+        Idempotent — second call is a no-op.
+
+        Never raises."""
+        if getattr(self, "_shutdown_started", False):
+            print("   [Shutdown] Already in progress — skipping duplicate call.")
+            return
+        self._shutdown_started = True
+        print("   [Shutdown] Beginning graceful shutdown — please wait for artifact writes...")
+
+        # If a game/VN session was active, run the deactivate flow (writes
+        # artifacts + post-stream summary). Otherwise just close the stream log.
+        try:
+            if self.game_mode_controller and self.game_mode_controller.is_active:
+                await self.deactivate_game_mode_async()
+            elif STREAM_LOGGING_ENABLED:
+                await self.stream_logger.finish(self.ai_core)
+        except Exception as e:
+            print(f"   [Shutdown] Error during artifact phase: {e}")
+            traceback.print_exc()
+
+        # Stop loopback STT defensively (in case deactivate didn't run).
+        try:
+            lt = self.loopback_transcriber
+            if lt is not None and lt.is_running():
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(None, lt.stop)
+        except Exception as e:
+            print(f"   [Shutdown] Loopback stop error: {e}")
+
+        # Signal the main run() loop to exit cleanly.
+        self.is_running = False
+        print("   [Shutdown] Complete — all artifacts written.")
 
     # ── Activity Detection ──────────────────────────────────────────────────────
 
@@ -1106,6 +1453,34 @@ class VTubeBot:
     async def _main_loop(self):
         """Contains the primary startup and listening logic."""
         self.event_loop = asyncio.get_running_loop()
+
+        # ── Asyncio exception visibility ──────────────────────────────────────
+        # Without this, exceptions inside Tasks created via ensure_future /
+        # create_task / run_coroutine_threadsafe are silently swallowed (or only
+        # appear when the task is garbage-collected). That is why silent exits
+        # bypassed our sys.excepthook and threading.excepthook.
+        def _asyncio_exception_handler(loop, context):
+            msg = context.get("message", "<no message>")
+            exc = context.get("exception")
+            task = context.get("future") or context.get("task")
+            print(f"[CRASH] Asyncio task exception: {msg}", flush=True, file=sys.stderr)
+            if task is not None:
+                print(f"        task: {task!r}", flush=True, file=sys.stderr)
+            if exc is not None:
+                traceback.print_exception(type(exc), exc, exc.__traceback__, file=sys.stderr)
+            else:
+                print(f"        context: {context!r}", flush=True, file=sys.stderr)
+        self.event_loop.set_exception_handler(_asyncio_exception_handler)
+
+        # faulthandler dumps C-level / interpreter-level crashes (segfaults,
+        # abort, hard kills from native libs) to stderr instead of silent exit.
+        try:
+            import faulthandler
+            if not faulthandler.is_enabled():
+                faulthandler.enable(file=sys.stderr, all_threads=True)
+        except Exception as e:
+            print(f"   [Init] faulthandler enable failed: {e}", file=sys.stderr)
+
         try:
             if not self.ai_core.is_initialized:
                  await self.ai_core.initialize()
@@ -1212,7 +1587,12 @@ class VTubeBot:
             if ENABLE_TWITCH_CHAT:
                 print("   [System] Connecting to Twitch Chat...")
                 # Pass the queue to TwitchBot
-                twitch_bot = TwitchBot(self.unseen_chat_messages, self.reset_idle_timer, self.input_queue)
+                twitch_bot = TwitchBot(
+                    self.unseen_chat_messages,
+                    self.reset_idle_timer,
+                    self.input_queue,
+                    cookie_jar=self.cookie_jar,
+                )
                 self.twitch_bot = twitch_bot
                 self.chat_poster.set_twitch_bot(twitch_bot)
                 tasks.append(twitch_bot.start())
@@ -1441,6 +1821,32 @@ class VTubeBot:
                     self.chat_msg_timestamps = [t for t in self.chat_msg_timestamps if t > cutoff]
                     self.session_chatters_seen.add(username)
 
+                    # ── Cookies: first-message-of-session award ──
+                    # +1 for any new-this-session chatter, +1 bonus if they're
+                    # a returning regular (has historical chatter-memory facts).
+                    # Only awarded once per session per chatter — deduped by the
+                    # `is_first_time` flag captured at buffer time above.
+                    try:
+                        if self.chat_batch_buffer[-1].get("is_first_time"):
+                            n = 1
+                            try:
+                                if (
+                                    ENABLE_CHATTER_MEMORY
+                                    and self.memory.count_chatter_messages(username) >= 5
+                                ):
+                                    n += 1  # returning-regular bonus
+                            except Exception:
+                                pass
+                            self.cookie_jar.add_cookie(username, n)
+                            print(
+                                f"   [Cookies] +{n} → {username} (first message this session); "
+                                f"shared={self.cookie_jar.get_shared()}/100"
+                            )
+                            await self._broadcast_cookie_state()
+                            self._maybe_fire_cookie_milestone()
+                    except Exception as _ck_err:
+                        print(f"   [Cookies] First-message award error: {_ck_err}")
+
                     # System 2: reset autopilot dead-chat timer on any chat message
                     if self.vn_autopilot and self.vn_autopilot.is_running:
                         self.vn_autopilot.notify_chat_activity()
@@ -1490,6 +1896,7 @@ class VTubeBot:
                             # Load playthrough memory for the new game/VN
                             if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
                                 self.playthrough_memory.load_for_game(detected)
+                                # Takes/spotlight persist across activity switches (Req A).
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
@@ -1806,6 +2213,13 @@ class VTubeBot:
             pt_ctx = self.playthrough_memory.get_context_for_prompt()
             if pt_ctx:
                 session_context_block += f"[PLAYTHROUGH MEMORY — reference as lived experience]\n{pt_ctx}\n\n"
+        # Mid-session rolling takes — lets chat responses callback to opinions
+        # she's already stated in this session, not just on-disk ones.
+        if self.session_takes_summary:
+            session_context_block += (
+                f"[MY TAKES SO FAR THIS SESSION — callbacks welcome]\n"
+                f"{self.session_takes_summary}\n\n"
+            )
 
         request = (
             f"You have a batch of {len(batch)} chat message(s) to respond to. "
@@ -1867,6 +2281,28 @@ class VTubeBot:
         await self.ai_core.speak_text(cleaned)
         self.conversation_history.append({"role": "assistant", "content": cleaned})
         chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
+
+        # ── Cookies: respond-to-chat award ──
+        # Kira emitted a non-SKIP response — award +1 to each unique chatter in
+        # the batch. Per-chatter dedup is automatic (set on username) and the
+        # batch is consumed once, so the same message can't earn twice.
+        try:
+            awarded_users = set()
+            for msg in batch:
+                u = msg.get("username", "")
+                if not u or u in awarded_users:
+                    continue
+                awarded_users.add(u)
+                self.cookie_jar.add_cookie(u, 1)
+            if awarded_users:
+                print(
+                    f"   [Cookies] +1 × {len(awarded_users)} (batch response); "
+                    f"shared={self.cookie_jar.get_shared()}/100"
+                )
+                await self._broadcast_cookie_state()
+                self._maybe_fire_cookie_milestone()
+        except Exception as _ck_err:
+            print(f"   [Cookies] Batch-response award error: {_ck_err}")
         # Tag notable chat moments for the playthrough record when in VN/game mode
         if self.playthrough_memory and self.playthrough_memory.current_slug:
             in_vn_or_game = (
@@ -2180,19 +2616,36 @@ class VTubeBot:
             except Exception as e:
                 print(f"   [Closer] Artifact generation failed: {e}")
 
-    async def _write_session_artifacts(self):
-        """At end of session, generate lore + clip candidate artifacts via Opus."""
+    async def _write_session_artifacts(self) -> dict:
+        """At end of session, generate lore + clip candidate artifacts via Opus.
+
+        Returns a dict of what was actually written:
+            {"raw_dump": path|None, "lore": path|None, "clips": path|None,
+             "playthrough": path|None, "skipped_reason": str|None}
+
+        Hardening rules (this method runs on the daemon asyncio thread, which
+        can be killed instantly when the dashboard window closes):
+          1. The RAW transcript+highlights dump is written FIRST and synchronously
+             before any LLM call — so even if Opus hangs and the daemon thread
+             gets killed during shutdown, the session data still survives.
+          2. Each LLM-dependent write (lore, clips, playthrough) is wrapped in
+             its OWN try/except. One Opus failure can't sink the others.
+          3. Nothing in this method is allowed to raise to the caller.
+        """
+        results: dict = {
+            "raw_dump": None, "lore": None, "clips": None,
+            "playthrough": None, "skipped_reason": None,
+        }
+
         if self._session_artifacts_written:
             print("   [Artifacts] Already written for this session — skipping.")
-            return
+            results["skipped_reason"] = "already_written"
+            return results
 
         if not self.full_session_log:
             print("   [Artifacts] No session log to process — skipping.")
-            return
-
-        if not self.ai_core.anthropic_client:
-            print("   [Artifacts] Claude unavailable — skipping (would produce garbage on local Llama).")
-            return
+            results["skipped_reason"] = "empty_log"
+            return results
 
         activity = self.current_activity or "general"
         activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity).strip('_').lower()[:40] or "session"
@@ -2211,14 +2664,48 @@ class VTubeBot:
             transcript_lines.append(f"[{ts}] {speaker}: {content}")
 
         transcript = "\n".join(transcript_lines)
-        if len(transcript) > 80000:
-            transcript = transcript[:16000] + "\n\n[... middle of session truncated for length ...]\n\n" + transcript[-40000:]
 
         highlights_lines = [
             f"- {h['highlight']}" + (f" — Kira's take: {h['take']}" if h.get('take') else "")
             for h in self.session_highlights
         ]
         highlights_block = "\n".join(highlights_lines) if highlights_lines else "(none captured)"
+
+        # ── STAGE 0: Raw dump (no LLM, no network). Always runs first. ──
+        # This is the unkillable fallback: if every Opus call below dies, the
+        # raw session content still lives on disk for manual review.
+        try:
+            os.makedirs("logs/sessions_raw", exist_ok=True)
+            ts_tag = datetime.now().strftime("%Y-%m-%d_%H-%M")
+            raw_path = os.path.join("logs/sessions_raw", f"{ts_tag}_{activity_slug}.md")
+            with open(raw_path, "w", encoding="utf-8") as f:
+                f.write(f"# Raw Session Dump — {activity}\n\n")
+                f.write(f"**Date:** {date_str}  \n")
+                f.write(f"**Duration:** ~{session_duration_min} min  \n")
+                f.write(f"**Highlights captured:** {len(self.session_highlights)}\n\n")
+                f.write("## Highlights\n\n")
+                f.write(highlights_block + "\n\n")
+                f.write("## Full Transcript\n\n```\n")
+                f.write(transcript)
+                f.write("\n```\n")
+                f.flush()
+                os.fsync(f.fileno())
+            results["raw_dump"] = raw_path
+            print(f"   [Artifacts] Raw dump → {raw_path}")
+        except Exception as e:
+            print(f"   [Artifacts] Raw dump failed: {e}")
+            traceback.print_exc()
+
+        if not self.ai_core.anthropic_client:
+            print("   [Artifacts] Claude unavailable — skipping LLM artifacts (would produce garbage on local Llama).")
+            results["skipped_reason"] = "no_claude"
+            self._session_artifacts_written = True
+            return results
+
+        # Truncate transcript for the LLM only (raw dump above kept the full version).
+        llm_transcript = transcript
+        if len(llm_transcript) > 80000:
+            llm_transcript = llm_transcript[:16000] + "\n\n[... middle of session truncated for length ...]\n\n" + llm_transcript[-40000:]
 
         artifact_request = (
             f"You are reviewing a full stream session transcript for the AI VTuber Kira. "
@@ -2233,65 +2720,78 @@ class VTubeBot:
             f"  **Why it's good:** 1-2 sentences\n"
             f"  **Suggested YouTube short title:** under 60 chars\n"
             f"  **Key exchange:** 2-4 quoted lines\n\n"
-            f"=== TRANSCRIPT ===\n{transcript}\n\n"
+            f"=== TRANSCRIPT ===\n{llm_transcript}\n\n"
             f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
             f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
         )
 
+        # ── STAGE 1: Opus call for lore + clips (60s timeout). ──
         print("   [Artifacts] Calling Opus to generate lore + clip candidates...")
+        response = None
         try:
-            response = await self.ai_core.claude_inference(
-                messages=[{"role": "user", "content": artifact_request}],
-                system_prompt="You are a thoughtful editor reviewing a stream session. Output clean markdown.",
-                max_tokens=4000,
+            response = await asyncio.wait_for(
+                self.ai_core.claude_inference(
+                    messages=[{"role": "user", "content": artifact_request}],
+                    system_prompt="You are a thoughtful editor reviewing a stream session. Output clean markdown.",
+                    max_tokens=4000,
+                ),
+                timeout=60.0,
             )
+        except asyncio.TimeoutError:
+            print("   [Artifacts] Opus call TIMED OUT after 60s — raw dump survived; lore/clips skipped.")
         except Exception as e:
             print(f"   [Artifacts] Opus call failed: {e}")
-            return
+            traceback.print_exc()
 
-        if not response:
-            print("   [Artifacts] Empty response from Opus.")
-            return
+        if response:
+            if "===CLIPS===" in response:
+                lore_section, clips_section = response.split("===CLIPS===", 1)
+            else:
+                lore_section, clips_section = "", response
+            lore_section = lore_section.strip()
+            clips_section = clips_section.strip()
 
-        if "===CLIPS===" in response:
-            lore_section, clips_section = response.split("===CLIPS===", 1)
-        else:
-            lore_section, clips_section = "", response
+            # ── STAGE 2: Lore write (independent try). ──
+            if lore_section and len(lore_section) > 20:
+                try:
+                    os.makedirs("lore", exist_ok=True)
+                    lore_path = os.path.join("lore", f"{activity_slug}.md")
+                    header = f"\n\n## Session: {date_str} ({session_duration_min} min)\n\n"
+                    with open(lore_path, "a", encoding="utf-8") as f:
+                        if not os.path.exists(lore_path) or os.path.getsize(lore_path) == 0:
+                            f.write(f"# Lore: {activity}\n")
+                        f.write(header)
+                        f.write(lore_section)
+                        f.write("\n")
+                        f.flush()
+                        os.fsync(f.fileno())
+                    results["lore"] = lore_path
+                    print(f"   [Artifacts] Lore appended → {lore_path}")
+                except Exception as e:
+                    print(f"   [Artifacts] Lore write failed: {e}")
+                    traceback.print_exc()
 
-        lore_section = lore_section.strip()
-        clips_section = clips_section.strip()
+            # ── STAGE 3: Clips write (independent try). ──
+            if clips_section and len(clips_section) > 50:
+                try:
+                    os.makedirs("clips", exist_ok=True)
+                    clip_path = os.path.join("clips", f"{date_str}_{activity_slug}.md")
+                    with open(clip_path, "w", encoding="utf-8") as f:
+                        f.write(f"# Clip Candidates — {activity}\n\n")
+                        f.write(f"**Date:** {date_str}  \n")
+                        f.write(f"**Duration:** ~{session_duration_min} minutes  \n")
+                        f.write(f"**Activity:** {activity}\n\n---\n\n")
+                        f.write(clips_section)
+                        f.write("\n")
+                        f.flush()
+                        os.fsync(f.fileno())
+                    results["clips"] = clip_path
+                    print(f"   [Artifacts] Clip candidates written → {clip_path}")
+                except Exception as e:
+                    print(f"   [Artifacts] Clip write failed: {e}")
+                    traceback.print_exc()
 
-        if lore_section and len(lore_section) > 20:
-            os.makedirs("lore", exist_ok=True)
-            lore_path = os.path.join("lore", f"{activity_slug}.md")
-            header = f"\n\n## Session: {date_str} ({session_duration_min} min)\n\n"
-            try:
-                with open(lore_path, "a", encoding="utf-8") as f:
-                    if not os.path.exists(lore_path) or os.path.getsize(lore_path) == 0:
-                        f.write(f"# Lore: {activity}\n")
-                    f.write(header)
-                    f.write(lore_section)
-                    f.write("\n")
-                print(f"   [Artifacts] Lore appended → {lore_path}")
-            except Exception as e:
-                print(f"   [Artifacts] Lore write failed: {e}")
-
-        if clips_section and len(clips_section) > 50:
-            os.makedirs("clips", exist_ok=True)
-            clip_path = os.path.join("clips", f"{date_str}_{activity_slug}.md")
-            try:
-                with open(clip_path, "w", encoding="utf-8") as f:
-                    f.write(f"# Clip Candidates — {activity}\n\n")
-                    f.write(f"**Date:** {date_str}  \n")
-                    f.write(f"**Duration:** ~{session_duration_min} minutes  \n")
-                    f.write(f"**Activity:** {activity}\n\n---\n\n")
-                    f.write(clips_section)
-                    f.write("\n")
-                print(f"   [Artifacts] Clip candidates written → {clip_path}")
-            except Exception as e:
-                print(f"   [Artifacts] Clip write failed: {e}")
-
-        # Append autobiographical session entry to the playthrough record
+        # ── STAGE 4: Playthrough record (independent try; own Opus call inside). ──
         if self.playthrough_memory and self.playthrough_memory.current_slug:
             try:
                 narrative = ""
@@ -2307,19 +2807,32 @@ class VTubeBot:
                     open_theories = [t for t in self.vn_autopilot.active_theories
                                      if t["status"] == "open"] or None
                     char_attachment = dict(self.vn_autopilot.character_attachment) or None
-                await self.playthrough_memory.append_session_entry(
-                    activity=activity,
-                    date_str=date_str,
-                    session_duration_min=session_duration_min,
-                    narrative_summary=narrative,
-                    recent_transcript=transcript_snippet,
-                    open_theories=open_theories,
-                    character_attachment=char_attachment,
+                ok = await asyncio.wait_for(
+                    self.playthrough_memory.append_session_entry(
+                        activity=activity,
+                        date_str=date_str,
+                        session_duration_min=session_duration_min,
+                        narrative_summary=narrative,
+                        recent_transcript=transcript_snippet,
+                        open_theories=open_theories,
+                        character_attachment=char_attachment,
+                    ),
+                    timeout=60.0,
                 )
+                if ok:
+                    results["playthrough"] = self.playthrough_memory._game_path(
+                        self.playthrough_memory.current_slug
+                    )
+            except asyncio.TimeoutError:
+                print("   [Playthrough] Session entry TIMED OUT after 60s — skipped.")
             except Exception as e:
                 print(f"   [Playthrough] Session entry generation failed: {e}")
+                traceback.print_exc()
+        else:
+            print("   [Playthrough] No active playthrough slug — skipping session entry.")
 
         self._session_artifacts_written = True
+        return results
 
     async def request_thoughts(self):
         """Triggered by the dashboard 'Invite' button. Asks Kira to share her honest
@@ -2539,14 +3052,16 @@ class VTubeBot:
                     print("   [CUTSCENE_DETECTOR] Suppressing interjection — cutscene cues detected.")
                     continue
 
-                # In streamer mode, bias a bit under half of bored-loop lines toward a
-                # short question directed at chat — keeps the room alive and shifts
-                # Kira off the always-declarative reflex. Bumped from 0.33 → 0.45 so
-                # she reaches for a fresh thread slightly more often during quiet
-                # stretches, especially in streamer mode where chat needs engagement.
+                # In streamer mode, a small fraction of bored-loop lines become a
+                # short question directed at chat. Kept LOW (0.15) so reactions to
+                # what's actually happening on screen dominate the rhythm — chat
+                # interview-style fillers were the worst offender in early logs.
                 # NEVER in companion mode (self.mode == "companion") because there is
                 # no chat — it's just Jonny.
-                ask_chat = (self.mode == "streamer") and (random.random() < 0.45)
+                # Carry Mode bumps to 0.25 — still capped because chat-spam is the
+                # worst failure mode even when Kira is carrying momentum.
+                _ask_chat_p = 0.25 if self.carry_mode else 0.15
+                ask_chat = (self.mode == "streamer") and (random.random() < _ask_chat_p)
                 chat_question_directive = (
                     "\n\nINSTEAD of an observation this time: ask CHAT one short, genuine question. "
                     "Address them directly ('Chat, ...'). Real curiosity, not rhetorical. "
@@ -2555,46 +3070,170 @@ class VTubeBot:
                     "One sentence. Keep your edge — a question can still have teeth."
                 ) if ask_chat else ""
 
-                # Use tighter observer thresholds in active game mode — during game streaming
-                # Jonny narrates every 30-45s so the default 45s/90s barely fires. 20s/45s
-                # matches Neuro-sama cadence for active game commentary.
-                in_game_stream = (
-                    self.game_mode_controller.is_active and
-                    self.game_mode_controller.activity_type == ACTIVITY_GAME
+                # Use the default observer thresholds (45s/90s) in streamer mode too.
+                # Earlier override (20s/45s) fired too aggressively during cinematic
+                # gameplay — Kira interjected ~every 30s of dead air. The default
+                # cadence gives Jonny room to play.
+                # Carry Mode lowers the gates to 30s/60s so she fills more readily
+                # during live gameplay (the equivalent of vn_autopilot's drive for
+                # VNs) — still gated by fresh-visual and brevity.
+                if self.carry_mode:
+                    stage1_threshold = 30.0
+                    stage2_threshold = 60.0
+                else:
+                    stage1_threshold = self.silence_thresholds[1]
+                    stage2_threshold = self.silence_thresholds[2]
+
+                # Helper: assemble scene + rolling narrative summary so interjections
+                # can reference the arc, not just the current frame. The narrative
+                # summary lives on vision_agent.scene_summary (updated continuously
+                # by the vision loop). Empty string when nothing is available.
+                def _build_scene_block() -> str:
+                    va = self.vision_agent
+                    parts = []
+                    try:
+                        current = va.get_vision_context() if va else ""
+                    except Exception:
+                        current = ""
+                    if current:
+                        parts.append(f"CURRENT FRAME:\n{current}")
+                    rolling = getattr(va, "scene_summary", "") if va else ""
+                    if rolling and len(rolling) > 20:
+                        parts.append(f"STORY SO FAR (rolling summary of this session):\n{rolling}")
+                    # Playthrough memory: includes [MY CURRENT TAKES ON X] and the
+                    # games manifest — the dedicated channel for Kira's standing
+                    # opinions. Without this, her "agency" sections have nothing
+                    # concrete to anchor on and degrade to generic feral.
+                    if self.playthrough_memory:
+                        try:
+                            pt = self.playthrough_memory.get_context_for_prompt()
+                        except Exception:
+                            pt = ""
+                        if pt:
+                            parts.append(pt)
+                    # Mid-session rolling condensed takes — keeps her hour-1
+                    # opinions visible in hour 3, even on a fresh game where the
+                    # on-disk opinions block is still empty.
+                    if self.session_takes_summary:
+                        parts.append(
+                            f"[MY TAKES SO FAR THIS SESSION — callbacks welcome]\n"
+                            f"{self.session_takes_summary}"
+                        )
+                    # Carry Mode directive: communicate the elevated initiative
+                    # mandate to the model, with the brevity counterweight explicit.
+                    if self.carry_mode:
+                        parts.append(
+                            "[CARRY MODE — gameplay self-drive ON]\n"
+                            "This is the live-gameplay analogue of VN autopilot: "
+                            "carry more momentum, initiate more often, lean on your "
+                            "own takes and what's on screen. But the brevity rule "
+                            "still wins — one sharp line, not three filler ones. "
+                            "Silence beats filler even in carry mode; only fire when "
+                            "there's something real to react to. No generic "
+                            "observations, no chat-question spam."
+                        )
+                    return "\n\n".join(parts)
+
+                # SPOTLIGHT: proactive, low-probability, rate-capped recognition of
+                # a chatter unprompted. Counts toward stage gating so it doesn't
+                # stack with normal interjections (sets silence_stage=1).
+                _now_ts = time.time()
+                spotlight_eligible = (
+                    self.mode == "streamer"
+                    and self.silence_stage < 1
+                    and (_now_ts - self.last_chat_spotlight_time) >= self.chat_spotlight_min_interval_s
+                    and random.random() < 0.10
                 )
-                stage1_threshold = 20.0 if in_game_stream else self.silence_thresholds[1]
-                stage2_threshold = 45.0 if in_game_stream else self.silence_thresholds[2]
+                if spotlight_eligible:
+                    candidate = self._pick_chat_spotlight()
+                    if candidate:
+                        async with self.processing_lock:
+                            self.silence_stage = 1
+                            self.last_chat_spotlight_time = _now_ts
+                            self.spotlighted_chatters.add(candidate["username"])
+                            scene_block = _build_scene_block()
+                            msgs_block = "\n".join(f"  - \"{m}\"" for m in candidate["recent_msgs"])
+                            kind_note = (
+                                "a RETURNING REGULAR (first message this session after a gap)"
+                                if candidate["kind"] == "returning_regular"
+                                else "an active chatter who's been quiet for a few minutes"
+                            )
+                            spotlight_prompt = (
+                                f"On stream. {scene_block}\n\n"
+                                f"[CHAT SPOTLIGHT \u2014 unprompted recognition]\n"
+                                f"You're going to spotlight {candidate['username']}, "
+                                f"{kind_note} "
+                                f"(historical messages across all sessions: ~{candidate['historical_count']}).\n"
+                                f"Their recent messages this session:\n{msgs_block}\n\n"
+                                "React to or about them BY NAME in ONE short line \u2014 a callback to "
+                                "something they said, a warm welcome-back if they're a regular, a "
+                                "tease, a take on their take. Make them feel seen. Not a question to "
+                                "them, not generic 'thanks for being here' filler. One sentence, sharp."
+                            )
+                            await self._execute_interjection(
+                                spotlight_prompt,
+                                memory_query=f"chatter {candidate['username']}",
+                            )
+                            continue  # spotlight fired; skip stage1/2 this tick
 
                 # STAGE 2: nudge
                 if silence_duration > stage2_threshold and self.silence_stage < 2:
-                    async with self.processing_lock:
-                        self.silence_stage = 2
-                        if self._has_fresh_visual_context():
-                            stage2_prompt = (
-                                "Jonny has been quiet for a while. Make a brief, natural observation \u2014 "
-                                "something on your mind, something about the scene, anything. Don't ask him "
-                                "what he's thinking. One short sentence."
+                    # Skip entirely if there's no fresh visual to anchor to — silence
+                    # beats off-topic filler. Don't burn the stage so we can fire
+                    # later when visual returns.
+                    if not ask_chat and not self._has_fresh_visual_context():
+                        pass
+                    else:
+                        async with self.processing_lock:
+                            self.silence_stage = 2
+                            scene_block = _build_scene_block()
+                            if ask_chat:
+                                stage2_prompt = (
+                                    f"On stream. {scene_block}\n\n"
+                                    "Jonny's been quiet a while. Ask CHAT one short, genuine question "
+                                    "anchored to what's happening on screen or in the story so far. "
+                                    "Address them directly ('Chat, ...'). One sentence."
+                                )
+                            else:
+                                stage2_prompt = (
+                                    f"On stream. {scene_block}\n\n"
+                                    "Jonny's been quiet a while. React to what's on screen right now "
+                                    "or call back to something earlier in this session — a sharp "
+                                    "verdict, a roast, a prediction paying off, a take. NOT a question. "
+                                    "NOT generic filler. One short sentence anchored to a real beat."
+                                )
+                            await self._execute_interjection(
+                                stage2_prompt,
+                                memory_query=f"reactions to {self.current_activity}",
                             )
-                        else:
-                            stage2_prompt = (
-                                "Jonny has been quiet for a while. Make a brief, natural observation \u2014 "
-                                "about the silence, something on your mind, or a real memory. Don't ask him "
-                                "what he's thinking. One short sentence."
-                            )
-                        await self._execute_interjection(
-                            stage2_prompt + chat_question_directive,
-                            memory_query="what makes Jonny laugh or react",
-                        )
 
                 # STAGE 1: light remark
                 elif silence_duration > stage1_threshold and self.silence_stage < 1:
-                    async with self.processing_lock:
-                        self.silence_stage = 1
-                        await self._execute_interjection(
-                            "It's been quiet for a bit. Drop a short, natural remark \u2014 light, friendly, like something you'd say to a friend on the couch. Don't ask him what he's thinking. One short sentence."
-                            + chat_question_directive,
-                            memory_query="what is Jonny interested in",
-                        )
+                    if not ask_chat and not self._has_fresh_visual_context():
+                        pass
+                    else:
+                        async with self.processing_lock:
+                            self.silence_stage = 1
+                            scene_block = _build_scene_block()
+                            if ask_chat:
+                                stage1_prompt = (
+                                    f"On stream. {scene_block}\n\n"
+                                    "Quiet stretch. Ask CHAT one short, genuine question anchored to "
+                                    "what's on screen or the story so far. Address them directly "
+                                    "('Chat, ...'). One sentence."
+                                )
+                            else:
+                                stage1_prompt = (
+                                    f"On stream. {scene_block}\n\n"
+                                    "Quiet stretch. Drop a short, sharp reaction to what's on screen, "
+                                    "what Jonny just did, or a callback to something earlier in the "
+                                    "session. A verdict, a tease, a roast — not a question, not filler. "
+                                    "One short sentence anchored to a real beat."
+                                )
+                            await self._execute_interjection(
+                                stage1_prompt,
+                                memory_query=f"reactions to {self.current_activity}",
+                            )
 
     async def vn_gameplay_loop(self):
         """
@@ -2788,6 +3427,18 @@ class VTubeBot:
             print(f"   >>> Kira (Bored): {cleaned}")
             await self.ai_core.speak_text(cleaned)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
+            # Push into bot-owned pool unconditionally during streamer mode — works
+            # across all activity types and persists across activity switches (Req A).
+            if self.mode == "streamer":
+                self._note_session_take(cleaned)
+                # Periodically re-condense her standing takes so long streams
+                # don't lose hour-1 opinions by hour 2 (conversation_history
+                # is a short sliding window).
+                self._maybe_condense_session_takes()
+            # Also tag into playthrough_memory when a slug IS set, so end-of-session
+            # opinion mining / markdown writeout still gets the reaction.
+            if self.playthrough_memory and self.playthrough_memory.current_slug:
+                self.playthrough_memory.tag_reaction(cleaned)
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
             self.recent_observer_comments.append(cleaned)
             self.recent_observer_comments = self.recent_observer_comments[-12:]
@@ -2903,7 +3554,7 @@ class VTubeBot:
 
                 if memory_context:
                     dynamic_context += (
-                        f"\n\n[MEMORY NOTES \u2014 do not quote, do not invent things not present here]\n"
+                        f"\n\n[MEMORY NOTES \u2014 verified facts about Jonny; reference freely, but do not extrapolate beyond what is written here]\n"
                         f"{memory_context}"
                     )
                 # Audio gets its own dedicated section so Kira recognizes it as a separate sense

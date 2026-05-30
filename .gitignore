@@ -13,7 +13,7 @@ __pycache__/
 
 # Data & models
 memory_db/
-memory_db.bak/
+memory_db.bak*/
 models/
 logs/
 cache/
@@ -23,6 +23,11 @@ cache/
 *.mp3
 *.sqlite3
 *.db
+
+# Local-only state (chatter scores, per-game playthrough notes, lore w/ real names)
+cookie_data.json
+playthroughs/
+lore/
 
 # Personal content (streams, recordings, clips, transcripts)
 clips/
