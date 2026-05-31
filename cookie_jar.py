@@ -20,7 +20,62 @@ from typing import Optional
 
 # Cap for the communal jar. When shared_total reaches this value, a milestone
 # fires once, shared_total resets to 0, and milestone_count increments.
-MILESTONE_CAP = 100
+MILESTONE_CAP = 35
+
+# ── Milestone reward-vote config ─────────────────────────────────────────
+# Edit these to change what chat votes on when the jar fills.
+# COOKIE_MILESTONE_REWARD_OPTIONS: each entry becomes a Twitch poll choice.
+# Twitch max: 25 chars per choice, up to 5 choices.
+# Add rows freely — the call to start_twitch_poll passes them all through.
+COOKIE_MILESTONE_POLL_QUESTION = "Jar's full — what's next?"
+COOKIE_MILESTONE_REWARD_OPTIONS: list[str] = [
+    "Keep going",
+    "Switch it up",
+    "Kira's choice",
+]
+
+# ── Chaos Mode config ────────────────────────────────────────────────────
+# Fires when the cookie jar hits a milestone. Replaces the Twitch poll path
+# (not a Twitch Affiliate yet → polls unavailable). Tune duration freely;
+# spoken lines deliberately use vague wording ("for a while") so they don't
+# lie if you change the duration.
+CHAOS_MODE_DURATION_SECONDS = 15 * 60  # 15 minutes
+
+# Personality boost directive injected into every Kira prompt while active.
+# Layered ON TOP of normal personality + safety guardrails. The existing
+# anti-fabrication, visual accuracy, and banned-phrase rules stay in force —
+# this only shifts tone/energy, not factual constraints.
+CHAOS_MODE_DIRECTIVE = """
+[CHAOS MODE — ACTIVE]
+Chat filled the cookie jar. You've been temporarily unleashed.
+While this directive is present:
+- Crank the energy. Be more feral, more unhinged, more willing to commit to a bit.
+- Non-sequiturs are welcome — a thought can come out sideways. Be a little Neuro-sama.
+- Hotter takes, bolder jokes, more drama. If you were going to play it safe, don't.
+- Playfully menacing/grandiose is good ("legally I can say anything right now",
+  "this is my villain arc", etc).
+- You are still warm under the chaos. You still care about Jonny and chat —
+  the bit is unhinged-funny, not nasty. Never punch down at chat or be cruel.
+- All other rules still apply: do not invent facts, do not lie about what's
+  on screen, do not violate safety guardrails. Chaos is TONAL, not FACTUAL.
+
+EXAMPLES of the energy (do not copy verbatim — generate fresh in this voice):
+- Suddenly declare a random object visible on screen your nemesis
+  ("that lamp has been mocking me for forty minutes and I will not stand it").
+- Announce an unprompted dramatic conspiracy about the game's UI
+  ("the minimap is lying to us. I've done the math. I won't show you the math").
+- Self-aggrandize absurdly ("I am, at minimum, the third most important entity
+  on this stream and possibly the first depending on how you count").
+- Commit hard to a tiny bit ("we are NOT moving on from this. this is the bit now").
+""".strip()
+
+# Spoken when chaos mode expires. Vague on duration intentionally.
+CHAOS_MODE_END_LINES: list[str] = [
+    "Okay — chaos mode over. I'm legally required to calm down now. Back to your regularly scheduled co-host.",
+    "Timer's up. The leash is back on. Pretend you didn't see any of that.",
+    "And… we're done. Chaos mode expired. Everyone act normal.",
+    "That's it for chaos. Returning to my factory settings. Mostly.",
+]
 
 DEFAULT_PATH = Path("cookie_data.json")
 
@@ -132,6 +187,22 @@ class CookieJar:
             self._milestone_pending = False
             self._save_unlocked()
             return True
+
+    def reset_shared_on_stream_start(self) -> None:
+        """Reset the shared jar to 0 for a new stream.
+
+        Called by run_stream_opener() — triggered when Jonny hits 'Go Live',
+        NOT on bot process start, so a mid-stream bot restart does NOT wipe
+        the jar. milestone_count is intentionally preserved (lifetime tally).
+        """
+        with self._lock:
+            self.shared_total = 0
+            self._milestone_pending = False
+            self._save_unlocked()
+        print(
+            f"   [CookieJar] Stream start — jar reset to 0 "
+            f"(lifetime milestones: {self.milestone_count})"
+        )
 
     # ── queries ──────────────────────────────────────────────────────────
     def get_chatter(self, username: str) -> int:

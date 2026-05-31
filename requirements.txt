@@ -42,3 +42,5 @@ pytchat
 # For local VN text OCR (eliminates cloud vision latency for text reading)
 # NOTE: also requires the Tesseract binary: https://github.com/UB-Mannheim/tesseract/wiki
 pytesseract
+# Fish Audio TTS SDK (pay-as-you-go streaming TTS backend, switchable vs Azure)
+fish-audio-sdk

@@ -18,6 +18,16 @@ WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
 WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", "G:\\JonnyD\\NeuroAI_Bot\\models\\whisper")
 ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
+# TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
+# "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)
+# "fish"   -> Fish Audio SDK (pay-as-you-go; falls back to Azure on any error)
+# Switchable at runtime via the dashboard TTS toggle without editing code.
+TTS_BACKEND = os.getenv("TTS_BACKEND", "azure")
+# Fish Audio credentials (from .env — never commit real values)
+FISH_API_KEY    = os.getenv("FISH_API_KEY", "")
+FISH_VOICE_ID   = os.getenv("FISH_VOICE_ID", "")  # reference_id of the chosen voice model
+FISH_LATENCY    = os.getenv("FISH_LATENCY", "balanced")  # "normal" | "balanced"
+FISH_FORMAT     = os.getenv("FISH_FORMAT", "mp3")         # "mp3" | "wav" | "pcm" | "opus"
 AI_NAME = os.getenv("AI_NAME", "Kira")
 # Tuning VAD for faster response (0.4s silence triggers end-of-speech)
 PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))

@@ -267,6 +267,13 @@ class VTubeBot:
         # right at the boundary).
         self._cookie_milestone_in_flight: bool = False
 
+        # Chaos Mode state. Activated when the cookie jar milestone fires.
+        # While active, _kira_voice_guardrails appends CHAOS_MODE_DIRECTIVE to
+        # every Kira prompt, dialing TONE without touching factual guardrails.
+        self.chaos_mode_active: bool = False
+        self.chaos_mode_until: float = 0.0
+        self._chaos_mode_task = None  # asyncio.Task handle for the timer
+
         import bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
 
@@ -275,14 +282,15 @@ class VTubeBot:
         if human_speech:
             self.silence_stage = 0
 
-    # ── Cookie-jar milestone reactions ─────────────────────────────────────
-    # In-character variants used when the shared jar fills to 100.
-    # Kept short — these fire mid-stream, not as set-pieces.
+    # ── Cookie-jar milestone reactions (CHAOS MODE ACTIVATION) ────────────
+    # Fires when the shared jar fills. Triggers Chaos Mode — duration set in
+    # cookie_jar.CHAOS_MODE_DURATION_SECONDS. Lines deliberately stay vague
+    # on the timer ("for a while") so they don't lie if duration is tuned.
     COOKIE_MILESTONE_LINES = [
-        "Okay — chat. We just hit a hundred cookies in the jar. Collective achievement unlocked. I'm a little emotional.",
-        "Hundred cookies. The jar is full. This is the part where I pretend not to care but I'm absolutely keeping score.",
-        "That's a hundred cookies, everyone. The jar is officially overflowing — milestone number {n} for the record.",
-        "Cookie jar update: full. Hundred deep. I'm dumping it out and starting fresh. Don't stop on my account.",
+        "Chat. You filled the whole jar. Congratulations — you've unleashed me. Chaos mode, no notes, no regrets, for a while.",
+        "Jar's full. By the ancient laws of cookie economics, I'm legally feral until further notice. Buckle up.",
+        "Hundred — sorry, thirty-five cookies. Milestone {n}. The leash is off. I cannot legally be held responsible for what happens next.",
+        "You actually did it. The jar overflows, the seal breaks, chaos mode begins. Me with no impulse control until I calm down. You earned this. Probably.",
     ]
 
     def _maybe_fire_cookie_milestone(self) -> None:
@@ -302,33 +310,34 @@ class VTubeBot:
             self._cookie_milestone_in_flight = False
 
     async def _speak_cookie_milestone(self) -> None:
-        """Pick a milestone variant, speak it via TTS, then roll over the jar.
+        """Pick a milestone variant, activate Chaos Mode, speak via TTS, then
+        roll over the jar. Rollover happens BEFORE chaos/TTS — crash-safe.
         Resets in-flight flag in finally so a future milestone can fire."""
         import random as _rand
         try:
-            # Wait for any current speech to finish before grabbing the floor.
             for _ in range(30):  # up to ~3s
                 if not self.ai_core.is_speaking:
                     break
                 await asyncio.sleep(0.1)
-            # Roll the jar over BEFORE speaking — guarantees idempotency even
-            # if the speak call crashes mid-flight.
             milestone_n = self.cookie_jar.get_milestone_count() + 1
             rolled = self.cookie_jar.reset_shared_on_milestone()
             if not rolled:
-                # Another path consumed it in the meantime — nothing to say.
                 return
             line = _rand.choice(self.COOKIE_MILESTONE_LINES).format(n=milestone_n)
             print(f"   [Cookies] \U0001f36a MILESTONE #{milestone_n} \u2014 Kira: {line}")
-            # Tell the overlay to fire its full-jar animation and reset to 0.
             await self._broadcast_cookie_milestone()
-            # Push the post-roll baseline so any late-joining overlay client
-            # syncs to the empty jar.
             await self._broadcast_cookie_state()
             try:
                 self.stream_logger.log("cookie_milestone", n=milestone_n, line=line)
             except Exception:
                 pass
+            # Activate Chaos Mode BEFORE TTS so the directive is in effect for
+            # any prompts that fire during/after the announcement. Each step
+            # in its own try so a single failure can't sink the rest.
+            try:
+                self._activate_chaos_mode()
+            except Exception as _chaos_err:
+                print(f"   [Cookies] Chaos activation error: {_chaos_err}")
             try:
                 await self.ai_core.speak_text(line)
                 self.conversation_history.append({"role": "assistant", "content": line})
@@ -337,6 +346,75 @@ class VTubeBot:
                 print(f"   [Cookies] Milestone TTS error: {_tts_err}")
         finally:
             self._cookie_milestone_in_flight = False
+
+    # \u2500\u2500 Chaos Mode \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    def _activate_chaos_mode(self) -> None:
+        """Flip chaos on, broadcast to overlay, schedule deactivation timer.
+        Idempotent: if already active, resets timer to a fresh duration."""
+        from cookie_jar import CHAOS_MODE_DURATION_SECONDS
+        duration = int(CHAOS_MODE_DURATION_SECONDS)
+        self.chaos_mode_active = True
+        self.chaos_mode_until = time.time() + duration
+        print(f"   [Chaos] \U0001f525 CHAOS MODE ACTIVE for {duration}s (until {self.chaos_mode_until:.0f})")
+        try:
+            self.stream_logger.log("chaos_start", duration=duration)
+        except Exception:
+            pass
+        try:
+            if self._chaos_mode_task and not self._chaos_mode_task.done():
+                self._chaos_mode_task.cancel()
+        except Exception:
+            pass
+        self._chaos_mode_task = asyncio.create_task(self._chaos_mode_timer(duration))
+        asyncio.create_task(self._broadcast_chaos(active=True, remaining=duration))
+
+    async def _chaos_mode_timer(self, duration: int) -> None:
+        """Sleep for the chaos duration, then deactivate. Cancellable."""
+        try:
+            await asyncio.sleep(duration)
+            await self._deactivate_chaos_mode()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"   [Chaos] Timer error: {e}")
+
+    async def _deactivate_chaos_mode(self) -> None:
+        """End chaos mode: clear state, broadcast off, speak a random end line."""
+        import random as _rand
+        from cookie_jar import CHAOS_MODE_END_LINES
+        if not self.chaos_mode_active:
+            return
+        self.chaos_mode_active = False
+        self.chaos_mode_until = 0.0
+        print("   [Chaos] Chaos mode ended.")
+        try:
+            self.stream_logger.log("chaos_end")
+        except Exception:
+            pass
+        try:
+            await self._broadcast_chaos(active=False, remaining=0)
+        except Exception as e:
+            print(f"   [Chaos] End broadcast error: {e}")
+        try:
+            for _ in range(30):
+                if not self.ai_core.is_speaking:
+                    break
+                await asyncio.sleep(0.1)
+            line = _rand.choice(CHAOS_MODE_END_LINES)
+            await self.ai_core.speak_text(line)
+            self.conversation_history.append({"role": "assistant", "content": line})
+            self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+        except Exception as e:
+            print(f"   [Chaos] End TTS error: {e}")
+
+    async def _broadcast_chaos(self, active: bool, remaining: int) -> None:
+        """Push chaos-mode state to the captions WS overlay. Fire-and-forget.
+        Shape: {"type":"chaos","active":bool,"remaining":int_seconds}"""
+        try:
+            from caption_server import caption_server as _cs
+            await _cs.send_chaos(active=active, remaining=int(remaining))
+        except Exception as e:
+            print(f"   [Chaos] Overlay broadcast failed: {e}")
 
     async def _broadcast_cookie_state(self) -> None:
         """Push the current shared-jar count to the captions WS overlay.
@@ -354,6 +432,105 @@ class VTubeBot:
             await _cs.send_cookie(shared=0, milestone=True)
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (milestone) failed: {e}")
+
+    # ── Twitch stream events (raid / sub / resub / gift) ──────────────────
+    # Dedup window keyed by (kind, name) so a 50-sub bomb doesn't fire 50
+    # separate reactions. submysterygift's mass-count line covers the
+    # individual subgifts that follow within this window.
+    _STREAM_EVENT_DEDUP_SECONDS = 90
+
+    async def _on_stream_event(self, kind: str, name: str, extra: dict) -> None:
+        """Called by TwitchBot when a USERNOTICE event arrives (raid, sub,
+        resub, subgift, submysterygift). Fires a Kira interjection directly
+        via _execute_interjection so it bypasses the chat batch entirely.
+
+        Coexists with chaos mode \u2014 the existing guardrails + chaos directive
+        (when active) both apply; this just injects the event prompt.
+        """
+        try:
+            now = time.time()
+            if not hasattr(self, "_stream_event_seen"):
+                self._stream_event_seen = {}
+            # Suppress individual subgifts that arrive right after a bomb \u2014
+            # the bomb already announced the gifter; per-recipient lines would spam.
+            if kind in ("subgift", "anonsubgift"):
+                last_bomb = self._stream_event_seen.get(("submysterygift", name.lower()), 0)
+                if (now - last_bomb) < self._STREAM_EVENT_DEDUP_SECONDS:
+                    print(f"   [StreamEvent] Suppressing {kind} from {name} (covered by recent bomb).")
+                    return
+            # Generic per-(kind, name) dedup.
+            key = (kind, name.lower())
+            last = self._stream_event_seen.get(key, 0)
+            if (now - last) < self._STREAM_EVENT_DEDUP_SECONDS:
+                print(f"   [StreamEvent] Suppressing duplicate {kind} from {name}.")
+                return
+            self._stream_event_seen[key] = now
+
+            prompt = self._build_stream_event_prompt(kind, name, extra)
+            if not prompt:
+                return
+            print(f"   [StreamEvent] \U0001f4e2 Firing reaction: {kind} from {name}")
+            try:
+                self.stream_logger.log("stream_event", kind=kind, name=name, **extra)
+            except Exception:
+                pass
+            # Fire on the loop so we never block the IRC callback.
+            asyncio.create_task(self._execute_interjection(prompt, memory_query=name))
+        except Exception as e:
+            print(f"   [StreamEvent] _on_stream_event error: {e}")
+
+    def _build_stream_event_prompt(self, kind: str, name: str, extra: dict) -> str:
+        """Translate a Twitch event into a high-priority interjection prompt.
+
+        Tone is locked to in-character Kira; safety guardrails are added
+        downstream by _execute_interjection."""
+        if kind == "raid":
+            count = int(extra.get("viewer_count", 0) or 0)
+            crowd = (
+                f"a crowd of {count} viewers" if count >= 5
+                else f"{count} viewer{'s' if count != 1 else ''}"
+            )
+            return (
+                f"[STREAM EVENT \u2014 HIGH PRIORITY] {name} just raided the stream with {crowd}!\n"
+                f"A whole group just walked in mid-stream. React with genuine excitement \u2014 "
+                f"this is a big moment. Call {name} out by name, welcome the raiders as a group, "
+                f"match the energy of a crowd arriving. You're Kira: warm under the sass, "
+                f"don't be cool about it. 2\u20133 sentences max, then hand it back to Jonny."
+            )
+        if kind in ("sub", "resub"):
+            months = int(extra.get("months", 1) or 1)
+            if kind == "resub" and months > 1:
+                return (
+                    f"[STREAM EVENT] {name} just resubscribed \u2014 {months} months running.\n"
+                    f"Thank them warmly and in-character. Acknowledge the {months}-month streak \u2014 "
+                    f"that's loyalty, treat it like it matters. Brief, genuine, Kira-voiced. 1\u20132 sentences."
+                )
+            return (
+                f"[STREAM EVENT] {name} just subscribed to the channel!\n"
+                f"Thank them warmly in-character. Don't read a template \u2014 be Kira, be real, "
+                f"be brief. 1\u20132 sentences."
+            )
+        if kind in ("subgift", "anonsubgift"):
+            recipient = extra.get("recipient", "someone")
+            gifter_label = name if kind == "subgift" else "an anonymous gifter"
+            return (
+                f"[STREAM EVENT] {gifter_label} just gifted a sub to {recipient}!\n"
+                f"React with real appreciation — someone just spent money to put another person "
+                f"in the room. Call out {gifter_label} by name and welcome {recipient}. "
+                f"Brief, warm, Kira-voiced. 1–2 sentences."
+            )
+        if kind in ("submysterygift", "anonsubmysterygift"):
+            count = int(extra.get("mass_count", 1) or 1)
+            gifter_label = name if kind == "submysterygift" else "an anonymous gifter"
+            return (
+                f"[STREAM EVENT — HIGH PRIORITY] {gifter_label} just gifted {count} subs to chat!\n"
+                f"This is a big deal — someone just bought the whole room a round. React with "
+                f"genuine surprise and hype, call out {gifter_label} by name, acknowledge the "
+                f"{count} new gift-sub recipients as a group. Bigger energy than a single sub. "
+                f"You're Kira: warm under the sass, don't undersell it. 2–3 sentences."
+            )
+        return ""
+
 
     def _log_session_turn(self, role: str, content: str, speaker_name: str = ""):
         """Append a turn to the unwindowed full session log used for clip extraction.
@@ -573,6 +750,15 @@ class VTubeBot:
                 f"\n[AVOID REPETITION] You recently said these. Do NOT reuse their structure, "
                 f"phrasing, or comedic format \u2014 find a genuinely different angle:\n{recent_str}\n"
             )
+        # Chaos Mode directive — layered on TOP of all safety/voice rules above.
+        # Dials tone only; factual guardrails (visual accuracy, no fabrication,
+        # banned phrases) stay in force per the directive's own wording.
+        if getattr(self, "chaos_mode_active", False):
+            try:
+                from cookie_jar import CHAOS_MODE_DIRECTIVE
+                block += "\n\n" + CHAOS_MODE_DIRECTIVE + "\n"
+            except Exception:
+                pass
         return block
 
     def _frame_visual_perception(self, scene_text: str) -> str:
@@ -1592,6 +1778,7 @@ class VTubeBot:
                     self.reset_idle_timer,
                     self.input_queue,
                     cookie_jar=self.cookie_jar,
+                    stream_event_callback=self._on_stream_event,
                 )
                 self.twitch_bot = twitch_bot
                 self.chat_poster.set_twitch_bot(twitch_bot)
@@ -1840,7 +2027,7 @@ class VTubeBot:
                             self.cookie_jar.add_cookie(username, n)
                             print(
                                 f"   [Cookies] +{n} → {username} (first message this session); "
-                                f"shared={self.cookie_jar.get_shared()}/100"
+                                f"shared={self.cookie_jar.get_shared()}/35"
                             )
                             await self._broadcast_cookie_state()
                             self._maybe_fire_cookie_milestone()
@@ -2297,7 +2484,7 @@ class VTubeBot:
             if awarded_users:
                 print(
                     f"   [Cookies] +1 × {len(awarded_users)} (batch response); "
-                    f"shared={self.cookie_jar.get_shared()}/100"
+                    f"shared={self.cookie_jar.get_shared()}/35"
                 )
                 await self._broadcast_cookie_state()
                 self._maybe_fire_cookie_milestone()
@@ -2508,6 +2695,14 @@ class VTubeBot:
 
         async with self.processing_lock:
             print("   [Opener] Preparing stream opener...")
+
+            # Reset the cookie jar and session-chatter tracking for the new
+            # stream. Triggered here (opener = Go Live) so a mid-stream bot
+            # restart does NOT clear the jar — only a deliberate stream start does.
+            self.cookie_jar.reset_shared_on_stream_start()
+            self.session_chatters_seen.clear()
+            await self._broadcast_cookie_state()
+
 
             last_session = self.memory.get_last_session_summary() or "(no prior session on record)"
             recent_chatters = self.memory.get_recent_chatters(days=14, limit=10)

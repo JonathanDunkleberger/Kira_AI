@@ -22,6 +22,7 @@ from config import (
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
     CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
     INFERENCE_BACKEND, GROQ_FALLBACK_TO_LOCAL, GROQ_MODEL,
+    TTS_BACKEND, FISH_API_KEY, FISH_VOICE_ID, FISH_LATENCY, FISH_FORMAT,
 )
 from inference_router import route_chat_completion, get_groq_client
 from groq_client import GroqInferenceError
@@ -48,6 +49,16 @@ try: from elevenlabs.client import AsyncElevenLabs
 except ImportError: AsyncElevenLabs = None
 try: import azure.cognitiveservices.speech as speechsdk
 except ImportError: speechsdk = None
+try:
+    from fish_audio_sdk.apis import Session as FishSession
+    from fish_audio_sdk.schemas import TTSRequest as FishTTSRequest
+    from fish_audio_sdk.exceptions import HttpCodeErr as FishHttpCodeErr
+    FISH_SDK_AVAILABLE = True
+except ImportError:
+    FishSession = None
+    FishTTSRequest = None
+    FishHttpCodeErr = None
+    FISH_SDK_AVAILABLE = False
 try:
     from anthropic import AsyncAnthropic
     ANTHROPIC_AVAILABLE = True
@@ -112,6 +123,20 @@ class AI_Core:
         # events triggers a synthesizer rebuild.
         self._AZURE_EMPTY_LINE_THRESHOLD = 3
         self.inference_lock = threading.Lock() # Added lock for inference safety
+
+        # Fish Audio TTS — single session object initialized once at startup.
+        # tts_backend and fish_voice_id are runtime-mutable (dashboard controls).
+        self.tts_backend: str = TTS_BACKEND  # "azure" | "fish"
+        self.fish_voice_id: str = FISH_VOICE_ID  # overridable live from the dashboard
+        self.fish_session = None
+        if FISH_SDK_AVAILABLE and FISH_API_KEY:
+            try:
+                self.fish_session = FishSession(FISH_API_KEY)
+                print(f"   [TTS] Fish Audio session initialized (voice={self.fish_voice_id or 'default'}).")
+            except Exception as e:
+                print(f"   [TTS] Fish Audio session init failed: {e}. Fish TTS disabled.")
+        elif TTS_BACKEND == "fish":
+            print("   [TTS] WARNING: TTS_BACKEND=fish but fish-audio-sdk is not installed or FISH_API_KEY is empty. Falling back to Azure.")
 
         # Hybrid brain: Claude Opus for deep moments
         self.anthropic_client = None
@@ -980,7 +1005,7 @@ class AI_Core:
         self.interruption_event.clear()
         self.is_speaking = True
         try:
-            if ssml_inner is not None and TTS_ENGINE == "azure" and self.azure_synthesizer:
+            if ssml_inner is not None and self.tts_backend != "fish" and TTS_ENGINE == "azure" and self.azure_synthesizer:
                 ssml = (
                     f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
                     f'xml:lang="en-US">'
@@ -1058,7 +1083,51 @@ class AI_Core:
         word_timings: list[dict] = []
 
         try:
-            if TTS_ENGINE == "azure" and self.azure_synthesizer:
+            if self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
+                # ---- Fish Audio streaming path ----
+                # Runs in a thread because the SDK's .tts() is a blocking generator.
+                # No word-boundary timing available from Fish; degrade to single-frame
+                # caption (same as edge TTS). Falls back to Azure on any error.
+                fish_ok = False
+                try:
+                    def _fish_collect() -> bytes:
+                        buf = b""
+                        for chunk in self.fish_session.tts(FishTTSRequest(
+                            text=text,
+                            reference_id=self.fish_voice_id or None,
+                            latency=FISH_LATENCY,
+                            format=FISH_FORMAT,
+                        )):
+                            buf += chunk
+                        return buf
+                    audio_data = await asyncio.to_thread(_fish_collect)
+                    word_timings = [{"word": text.strip(), "offset_ms": 0}] if text.strip() else []
+                    fish_ok = True
+                    print(f"   [TTS] backend=fish ({len(audio_data)} bytes)")
+                except Exception as fish_err:
+                    print(f"   [TTS] Fish error ({fish_err}); falling back to Azure for this utterance.")
+
+                if not fish_ok:
+                    # Azure fallback inside Fish branch
+                    if self.azure_synthesizer:
+                        ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                                f'<voice name="{AZURE_SPEECH_VOICE}">'
+                                f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                                f'</voice></speak>')
+                        async with self._azure_tts_lock:
+                            self._azure_word_buffer = []
+                            self._last_azure_speak_time = time.time()
+                            result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                            if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                                audio_data = result.audio_data
+                                word_timings = list(self._azure_word_buffer)
+                            else:
+                                print(f"   TTS Fail (Azure fallback): {result.cancellation_details.error_details}")
+                        if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                            self._track_word_event_health(text, len(word_timings))
+                            print(f"   [TTS] backend=azure-fallback")
+
+            elif TTS_ENGINE == "azure" and self.azure_synthesizer:
                 ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
                         f'<voice name="{AZURE_SPEECH_VOICE}">'
                         f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
@@ -1082,6 +1151,7 @@ class AI_Core:
                 # scheduled reinit doesn't deadlock on it.
                 if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                     self._track_word_event_health(text, len(word_timings))
+                print(f"   [TTS] backend=azure")
             elif TTS_ENGINE == "edge" and Communicate:
                 voice = AZURE_SPEECH_VOICE if AZURE_SPEECH_VOICE else "en-US-AriaNeural"
                 communicate = Communicate(text, voice)
@@ -1093,6 +1163,7 @@ class AI_Core:
                 # Edge TTS doesn't expose word timing here; degrade to a
                 # single-frame caption so the overlay still shows the line.
                 word_timings = [{"word": text.strip(), "offset_ms": 0}] if text.strip() else []
+                print(f"   [TTS] backend=edge")
 
             if audio_data:
                 # Push the caption frame to the overlay just before audio starts.

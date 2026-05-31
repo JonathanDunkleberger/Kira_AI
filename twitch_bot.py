@@ -8,7 +8,7 @@ from music_tools import play_kira_song # Added music support
 
 class TwitchBot(commands.Bot):
     # --- UPDATED: __init__ now accepts input_queue ---
-    def __init__(self, chat_message_list: List[str], timer_callback: Callable[[], None], input_queue: asyncio.Queue = None, cookie_jar=None):
+    def __init__(self, chat_message_list: List[str], timer_callback: Callable[[], None], input_queue: asyncio.Queue = None, cookie_jar=None, stream_event_callback: Callable = None):
         super().__init__(
             token=TWITCH_OAUTH_TOKEN,
             nick=TWITCH_BOT_USERNAME,
@@ -19,6 +19,10 @@ class TwitchBot(commands.Bot):
         self.timer_callback = timer_callback
         self.input_queue = input_queue
         self.cookie_jar = cookie_jar  # CookieJar instance (data layer for !cookies)
+        # Optional async callback(kind: str, name: str, extra: dict) called when
+        # a raid/sub/resub/gift event arrives via IRC USERNOTICE. See
+        # _dispatch_stream_event() below.
+        self.stream_event_callback = stream_event_callback
 
     async def event_ready(self):
         print(f'--- Twitch bot has logged in as | {self.nick} ---')
@@ -53,10 +57,85 @@ class TwitchBot(commands.Bot):
                     print(f"   [TwitchChat][IRC NOTICE] {line.strip()}")
                 elif " PRIVMSG " in line:
                     print(f"   [TwitchChat][IRC PRIVMSG] {line.strip()[:200]}")
+                elif " USERNOTICE " in line:
+                    # Raids, subs, resubs, gifts — all land here.
+                    print(f"   [TwitchChat][IRC USERNOTICE] {line.strip()[:300]}")
+                    await self._parse_usernotice(line)
                 elif " JOIN " in line or " PART " in line:
                     print(f"   [TwitchChat][IRC] {line.strip()}")
-        except Exception:
-            pass
+        except Exception as _e:
+            print(f"   [TwitchChat] event_raw_data parse error: {_e}")
+
+    async def _parse_usernotice(self, line: str) -> None:
+        """Parse a USERNOTICE IRC line and dispatch raid/sub/gift events.
+
+        IRC line format (with IRCv3 tags prefix):
+          @tag1=val1;tag2=val2 :tmi.twitch.tv USERNOTICE #channel [:message]
+
+        Relevant tags:
+          msg-id            — raid | sub | resub | subgift | submysterygift
+                              | anonsubgift | anonsubmysterygift | giftpaidupgrade
+          display-name      — the actor (raider, subscriber, gifter)
+          login             — lowercase username fallback
+          msg-param-viewerCount        — raid: how many viewers came over
+          msg-param-cumulative-months  — resub: streak length
+          msg-param-recipient-display-name — subgift: who got the sub
+          msg-param-mass-gift-count    — submysterygift: bomb size
+          msg-param-sub-plan           — Prime / 1000 / 2000 / 3000 (tier)
+        """
+        if self.stream_event_callback is None:
+            return
+        if not line.startswith("@"):
+            return
+        try:
+            tag_section, _, _rest = line.partition(" ")
+            tags = {}
+            for kv in tag_section[1:].split(";"):
+                if "=" in kv:
+                    k, v = kv.split("=", 1)
+                    tags[k] = v
+            msg_id = tags.get("msg-id", "")
+            if not msg_id:
+                return
+            display = tags.get("display-name") or tags.get("login") or "someone"
+            extra = {
+                "login": tags.get("login", ""),
+                "system_msg": tags.get("system-msg", "").replace("\\s", " "),
+            }
+            if msg_id == "raid":
+                try:
+                    extra["viewer_count"] = int(tags.get("msg-param-viewerCount", "0"))
+                except ValueError:
+                    extra["viewer_count"] = 0
+            elif msg_id in ("sub", "resub"):
+                try:
+                    extra["months"] = int(tags.get("msg-param-cumulative-months", "1"))
+                except ValueError:
+                    extra["months"] = 1
+                extra["tier"] = tags.get("msg-param-sub-plan", "")
+            elif msg_id in ("subgift", "anonsubgift"):
+                extra["recipient"] = tags.get("msg-param-recipient-display-name", "") \
+                    or tags.get("msg-param-recipient-user-name", "someone")
+                extra["tier"] = tags.get("msg-param-sub-plan", "")
+                if msg_id == "anonsubgift":
+                    display = "An anonymous gifter"
+            elif msg_id in ("submysterygift", "anonsubmysterygift"):
+                try:
+                    extra["mass_count"] = int(tags.get("msg-param-mass-gift-count", "1"))
+                except ValueError:
+                    extra["mass_count"] = 1
+                if msg_id == "anonsubmysterygift":
+                    display = "An anonymous gifter"
+            else:
+                # Not a kind we react to (bitsbadgetier, ritual, etc.)
+                return
+            print(f"   [TwitchChat] STREAM EVENT → {msg_id} from {display} extra={extra}")
+            try:
+                await self.stream_event_callback(msg_id, display, extra)
+            except Exception as _cb_err:
+                print(f"   [TwitchChat] stream_event_callback error: {_cb_err}")
+        except Exception as _e:
+            print(f"   [TwitchChat] _parse_usernotice error: {_e}")
 
     async def post_message(self, text: str) -> bool:
         """Send ``text`` to the joined Twitch channel. Returns True on success,
@@ -109,7 +188,7 @@ class TwitchBot(commands.Bot):
                 reply = (
                     f"@{author_name} you have {personal} cookie"
                     f"{'s' if personal != 1 else ''} \U0001f36a — "
-                    f"shared jar: {shared}/100"
+                    f"shared jar: {shared}/35"
                 )
                 try:
                     await self.post_message(reply)

@@ -543,6 +543,36 @@ class KiraDashboard(ctk.CTk):
             fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
             font=ctk.CTkFont(size=11),
             command=lambda: self.bot.ai_core.reload_personality()
+        ).pack(fill="x", padx=12, pady=(0, 8))
+
+        self.btn_tts_toggle = ctk.CTkButton(
+            frame, text="TTS: Azure  \u2192  Switch to Fish",
+            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
+            font=ctk.CTkFont(size=11),
+            command=self._toggle_tts_backend,
+        )
+        self.btn_tts_toggle.pack(fill="x", padx=12, pady=(0, 8))
+
+        # Fish voice audition panel
+        ctk.CTkLabel(frame, text="FISH VOICE ID",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(4, 2))
+        self.lbl_fish_voice_active = ctk.CTkLabel(
+            frame, text="Active: (loading...)",
+            font=ctk.CTkFont(size=9), text_color=C_TEXT, wraplength=220, justify="left",
+        )
+        self.lbl_fish_voice_active.pack(anchor="w", padx=14, pady=(0, 4))
+        self.fish_voice_entry = ctk.CTkEntry(
+            frame, placeholder_text="Paste voice model ID here",
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=28,
+        )
+        self.fish_voice_entry.pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Apply Voice",
+            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
+            font=ctk.CTkFont(size=11),
+            command=self._apply_fish_voice,
         ).pack(fill="x", padx=12, pady=(0, 16))
 
         _divider(frame)
@@ -1120,6 +1150,26 @@ class KiraDashboard(ctk.CTk):
         except Exception:
             pass
 
+    def _toggle_tts_backend(self):
+        current = getattr(self.bot.ai_core, "tts_backend", "azure")
+        new_backend = "fish" if current == "azure" else "azure"
+        self.bot.ai_core.tts_backend = new_backend
+        if new_backend == "fish":
+            self.btn_tts_toggle.configure(text="TTS: Fish  \u2192  Switch to Azure")
+        else:
+            self.btn_tts_toggle.configure(text="TTS: Azure  \u2192  Switch to Fish")
+        print(f"   [Dashboard] TTS backend: {new_backend}")
+
+    def _apply_fish_voice(self):
+        new_id = self.fish_voice_entry.get().strip()
+        if not new_id:
+            return
+        self.bot.ai_core.fish_voice_id = new_id
+        self.fish_voice_entry.delete(0, "end")
+        short = new_id[:24] + "..." if len(new_id) > 24 else new_id
+        self.lbl_fish_voice_active.configure(text=f"Active: {short}")
+        print(f"   [Dashboard] Fish voice ID updated: {new_id}")
+
     def _toggle_mode(self):
         if self.bot.mode == "companion":
             self.bot.mode = "streamer"
@@ -1613,7 +1663,19 @@ class KiraDashboard(ctk.CTk):
         else:
             self.status_llm.configure(text="LLM: Loading...", text_color=C_YELLOW)
         from config import TTS_ENGINE
-        self.status_tts.configure(text=f"TTS: {TTS_ENGINE.upper()}", text_color=C_TEXT)
+        backend = getattr(self.bot.ai_core, "tts_backend", TTS_ENGINE)
+        self.status_tts.configure(text=f"TTS: {backend.upper()}", text_color=C_TEXT)
+        # Keep the toggle button label in sync
+        if hasattr(self, "btn_tts_toggle"):
+            if backend == "fish":
+                self.btn_tts_toggle.configure(text="TTS: Fish  \u2192  Switch to Azure")
+            else:
+                self.btn_tts_toggle.configure(text="TTS: Azure  \u2192  Switch to Fish")
+        # Keep the active voice label in sync
+        if hasattr(self, "lbl_fish_voice_active"):
+            vid = getattr(self.bot.ai_core, "fish_voice_id", "") or ""
+            short = vid[:24] + "..." if len(vid) > 24 else (vid or "(none set)")
+            self.lbl_fish_voice_active.configure(text=f"Active: {short}")
         if self.bot.game_mode_controller.is_active:
             self.status_vision.configure(text="Vision: ON", text_color=C_GREEN)
             self.vision_desc_label.configure(text=self.bot.vision_agent.last_description)
