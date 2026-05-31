@@ -1882,7 +1882,9 @@ class VNAutopilot:
             print(f"   [Autopilot] Theory resolution scheduling error: {_th_err}")
 
         reaction_task: "asyncio.Task | None" = None
-        if self._should_consider_reaction(weight, intensity):
+        # CALM/BUILDING → summarize-and-react (no double-call: _decide_reaction not scheduled)
+        # INTENSE/CLIMACTIC/AFTERMATH → verbatim read + existing _decide_reaction path
+        if intensity not in (INTENSITY_CALM, INTENSITY_BUILDING) and self._should_consider_reaction(weight, intensity):
             try:
                 reaction_task = asyncio.ensure_future(
                     self._decide_reaction(
@@ -1926,7 +1928,23 @@ class VNAutopilot:
                 f"unaccounted={unaccounted:.1f}s"
             )
         _tts_t0 = time.monotonic()
-        if self.on_speak_vn:
+        if intensity in (INTENSITY_CALM, INTENSITY_BUILDING):
+            # Summarize-and-react: absorb text silently, speak Kira's own reaction only.
+            # Verbatim read is skipped — the reaction IS the output for filler boxes.
+            _sr_result = await self._summarize_react(new_text, intensity, speaker)
+            _sr_sentinel = _sr_result.strip().rstrip(".") if _sr_result else ""
+            if _sr_sentinel and _sr_sentinel.upper() != "SILENT" and self.on_speak:
+                try:
+                    await self.on_speak(_sr_result)
+                    self._last_spoke_time = time.time()
+                    print(f"   [Autopilot] Summarize-react spoken ({len(_sr_result)} chars).")
+                except Exception as _tts_err:
+                    print(f"   [Autopilot] TTS error on summarize-react: {_tts_err}")
+            else:
+                self._last_spoke_time = time.time()
+                print(f"   [Autopilot] SILENT (CALM/BUILDING, no speech this box).")
+        elif self.on_speak_vn:
+            # INTENSE/CLIMACTIC/AFTERMATH: key beat — read verbatim with prosody
             ssml_inner = self._build_speaker_ssml_inner(speaker, line_only, intensity)
             try:
                 await self.on_speak_vn(new_text, ssml_inner)
@@ -1980,6 +1998,9 @@ class VNAutopilot:
             self._last_spoke_time = time.time()
             self._boxes_since_reaction = 0
             self._boxes_since_solo_aside = 0
+
+        # Chat-check beat: if messages are queued, acknowledge by name before turning the page
+        await self._check_chat_beat()
 
         # NOW advance — next box renders after our reaction landed
         _adv_t0 = time.monotonic()
@@ -2434,6 +2455,119 @@ class VNAutopilot:
                 return True
             return False
         return False
+
+    async def _summarize_react(self, text: str, intensity: str, speaker: str = "") -> str:
+        """CALM/BUILDING boxes: absorb the OCR'd line silently and return a Kira-voiced
+        reaction (1 sentence). Never reads the text verbatim. Returns 'SILENT' when the
+        moment doesn't earn speech or Claude is unavailable.
+
+        Cost profile: ~400 input / ~120 output tokens (CLAUDE_CHAT_MODEL). Compact prompt
+        — no memory blocks, no guardrails. Replaces the verbatim TTS call on filler boxes
+        so net token spend per box is roughly neutral vs. the full read-aloud path.
+        """
+        if not self.ai_core.anthropic_client:
+            return "SILENT"
+        # Skip trivially short boxes — no reaction earns more than a forced one on "Okay."
+        if len(text) < 20:
+            return "SILENT"
+
+        persona_system = self.ai_core.system_prompt
+
+        narrative_block = (
+            f"Story so far: {self.vn_narrative_summary[:300]}\n\n"
+            if self.vn_narrative_summary else ""
+        )
+        scene_note = (
+            f"Scene: {self._scene_art_description}\n\n"
+            if self._scene_art_description else ""
+        )
+        speaker_prefix = f"{speaker}: " if speaker else ""
+
+        # Compact character-investment note (avoids inflating the prompt)
+        attached = [(c, v) for c, v in self.character_attachment.items() if v >= 0.4]
+        char_note = ""
+        if attached:
+            top = sorted(attached, key=lambda x: -x[1])[:3]
+            char_note = f"Characters you care about: {', '.join(c for c, _ in top)}.\n\n"
+
+        prompt = (
+            f"You're playing a visual novel live on stream. You just silently absorbed this line:\n"
+            f"\"{speaker_prefix}{text}\"\n\n"
+            f"{narrative_block}{scene_note}{char_note}"
+            f"React in 1 sentence, in your own voice — a feeling, dry observation, quip, or "
+            f"question. Don't paraphrase or repeat what was said. "
+            f"If the line is genuinely nothing, output SILENT.\n"
+            f"Output ONLY the reaction or SILENT."
+        )
+
+        try:
+            resp = await self.ai_core.anthropic_client.messages.create(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=120,
+                system=persona_system,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return resp.content[0].text.strip()
+        except Exception as e:
+            print(f"   [Autopilot] Summarize-react error: {e}")
+            return "SILENT"
+
+    async def _check_chat_beat(self) -> None:
+        """Between boxes, drain up to 3 pending chat messages and react to them by name.
+        Only fires when messages are queued. Bypasses the chat_batch_worker's is_speaking
+        guard by running from inside _handle_dialogue (the autopilot's own coroutine).
+
+        Cost profile: Claude call only when pending messages exist (~400 in / ~120 out).
+        Silent if the bot reference isn't wired or Claude is unavailable.
+        """
+        if self.bot is None:
+            return
+        buffer = getattr(self.bot, "chat_batch_buffer", None)
+        if not buffer:
+            return
+        if not self.ai_core.anthropic_client:
+            return
+
+        # Drain up to 3 (asyncio is single-threaded; no lock needed for the slice+delete)
+        pending = buffer[:3]
+        del buffer[:3]
+
+        lines = "\n".join(
+            f"  - {m.get('username', '?')}: {m.get('message', '')}" for m in pending
+        )
+        narrative_note = (
+            f"You're mid-playthrough ({self.vn_narrative_summary[:120]}...).\n\n"
+            if self.vn_narrative_summary else "You're mid-playthrough of a visual novel.\n\n"
+        )
+
+        prompt = (
+            f"{narrative_note}"
+            f"While reading, these chat messages just came in:\n{lines}\n\n"
+            f"Briefly acknowledge them by name — 1 sentence, 2 max — then let the story "
+            f"continue. Natural aside style: 'hang on, [name]'s asking — [answer] — okay, "
+            f"back to [character/story].' If the messages are pure spam or no-substance, "
+            f"output SKIP.\n"
+            f"Output ONLY the reaction or SKIP."
+        )
+
+        try:
+            resp = await self.ai_core.anthropic_client.messages.create(
+                model=CLAUDE_CHAT_MODEL,
+                max_tokens=120,
+                system=self.ai_core.system_prompt,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            result = resp.content[0].text.strip().rstrip(".")
+            if result and result.upper() != "SKIP":
+                if self.on_speak:
+                    try:
+                        await self.on_speak(result)
+                        self._last_spoke_time = time.time()
+                        print(f"   [Autopilot] Chat beat: {result[:80]}")
+                    except Exception as _sp_err:
+                        print(f"   [Autopilot] Chat beat TTS error: {_sp_err}")
+        except Exception as e:
+            print(f"   [Autopilot] Chat beat error: {e}")
 
     async def _decide_reaction(
         self,
