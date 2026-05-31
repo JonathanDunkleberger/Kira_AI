@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Kira Cookie Jar</title>
+    <style>
+        /* OBS browser source: set to whatever size fits your canvas.
+           Transparent background composites cleanly over the stream. */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            background: transparent;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        #cookie-jar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 30px;
+            border: 2px solid rgba(255, 200, 100, 0.35);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+
+        /* Cookie emoji label */
+        #cookie-icon {
+            font-size: 26px;
+            line-height: 1;
+        }
+
+        /* "N / 50" text */
+        #cookie-count {
+            letter-spacing: 0.04em;
+        }
+
+        /* Progress bar track */
+        #bar-track {
+            width: 140px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f9a825, #ff7043);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        /* Milestone flash */
+        @keyframes milestone-pulse {
+            0%   { background: rgba(255, 200, 60, 0.85); transform: scale(1.08); }
+            50%  { background: rgba(255, 120, 20, 0.90); transform: scale(1.12); }
+            100% { background: rgba(0, 0, 0, 0.55);      transform: scale(1); }
+        }
+
+        #cookie-jar.milestone {
+            animation: milestone-pulse 1.2s ease forwards;
+        }
+
+        /* Connection pip — top-left corner, very subtle.
+           Flip opacity to ~0.5 in your dev browser to see it. */
+        #status {
+            position: fixed;
+            top: 6px;
+            left: 8px;
+            font-size: 11px;
+            color: #aaa;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="cookie-jar">
+        <span id="cookie-icon">🍪</span>
+        <span id="cookie-count">0 / 50</span>
+        <div id="bar-track">
+            <div id="bar-fill"></div>
+        </div>
+    </div>
+
+    <div id="status">offline</div>
+
+    <script>
+    (function () {
+        // Same WebSocket server as the caption overlay.
+        // OBS CEF loads this via file://, so hostname is empty — hard-code localhost.
+        const WS_URL = "ws://localhost:8765";
+
+        const jarEl      = document.getElementById("cookie-jar");
+        const countEl    = document.getElementById("cookie-count");
+        const fillEl     = document.getElementById("bar-fill");
+        const statusEl   = document.getElementById("status");
+
+        // Cap fallback: matches the backend default so "0 / 50" shows correctly
+        // even before the first WebSocket message arrives.
+        let cap = 50;
+        let shared = 0;
+
+        let ws = null;
+        let reconnectDelay = 500;
+        const MAX_RECONNECT = 8000;
+        let milestoneTimer = null;
+
+        function render() {
+            const safeCap = cap > 0 ? cap : 50;
+            countEl.textContent = `${shared} / ${safeCap}`;
+            const pct = Math.min(100, (shared / safeCap) * 100);
+            fillEl.style.width = pct + "%";
+        }
+
+        function triggerMilestone() {
+            // Re-trigger animation by removing and re-adding the class.
+            jarEl.classList.remove("milestone");
+            // Flush the removal so the browser sees the class change.
+            void jarEl.offsetWidth;
+            jarEl.classList.add("milestone");
+            if (milestoneTimer) clearTimeout(milestoneTimer);
+            milestoneTimer = setTimeout(() => jarEl.classList.remove("milestone"), 1400);
+        }
+
+        function setStatus(state) {
+            statusEl.textContent = state;
+        }
+
+        function connect() {
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                reconnectDelay = 500;
+                setStatus("online");
+            };
+
+            ws.onmessage = (ev) => {
+                let msg;
+                try { msg = JSON.parse(ev.data); } catch { return; }
+                if (!msg || msg.type !== "cookie") return;
+
+                if (msg.milestone === true) {
+                    triggerMilestone();
+                    return;
+                }
+
+                // Read live cap from the message — never stale again.
+                if (typeof msg.cap === "number" && msg.cap > 0) {
+                    cap = msg.cap;
+                }
+                if (typeof msg.shared === "number") {
+                    shared = msg.shared;
+                }
+                render();
+            };
+
+            ws.onclose = () => {
+                setStatus("offline");
+                ws = null;
+                setTimeout(connect, reconnectDelay);
+                reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT);
+            };
+
+            ws.onerror = () => {
+                ws.close();
+            };
+        }
+
+        // Initial render with fallback values before first message.
+        render();
+        connect();
+    })();
+    </script>
+</body>
+</html>
