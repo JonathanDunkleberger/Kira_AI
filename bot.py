@@ -191,8 +191,15 @@ class VTubeBot:
         
         # TIMING CONFIGURATION
         self.silence_thresholds = {
-            1: 45.0,   # Light casual remark (streamer mode only)
-            2: 90.0,   # Slightly bigger nudge (streamer mode only)
+            1: 45.0,   # Stage 1 cooldown — companion mode (light casual remark)
+            2: 90.0,   # Stage 2 cooldown — companion mode (bigger nudge)
+        }
+        # Streamer-mode observer thresholds — separate so companion values above are
+        # NEVER touched when tuning stream presence. Edit only these for streamer tuning.
+        # Carry Mode has its own lower override (30s/60s) and still takes priority.
+        self.streamer_silence_thresholds = {
+            1: 25.0,   # Stage 1 — streamer: light remark
+            2: 55.0,   # Stage 2 — streamer: nudge/verdict
         }
 
         # Carry Mode (live-gameplay equivalent of VN autopilot).
@@ -1926,8 +1933,8 @@ class VTubeBot:
                         frames.append(data)
                         silent_chunks += 1
                         if silent_chunks > max_silent_chunks:
-                            # Trim the last 0.2s of silence to avoid padding whisper
-                            keep_chunks = len(frames) - int(silent_chunks * 0.5) 
+                            # Trim trailing silence — keep at most 2 silent frames (60ms) at end
+                            keep_chunks = max(len(frames) - 2, 1)
                             audio_data = b"".join(list(frames)[:keep_chunks])
                             
                             frames.clear()
@@ -1949,6 +1956,10 @@ class VTubeBot:
                     break
 
     async def handle_audio(self, audio_data: bytes):
+        # Gate: skip micro-captures < ~200ms (6400 bytes at 16kHz/16-bit).
+        # Anything this short is almost certainly a click, breath, or noise burst.
+        if len(audio_data) < 6400:
+            return
         async with self.processing_lock:
             user_text = await self.ai_core.transcribe_audio(audio_data)
             if not user_text or len(user_text) < 3: return
@@ -2218,6 +2229,7 @@ class VTubeBot:
                         scene_context=scene_ctx,
                         source=source,
                         immersive=_triage_immersive,
+                        streamer_mode=(self.mode == "streamer"),
                     )
                     try:
                         self.stream_logger.log(
@@ -2373,9 +2385,12 @@ class VTubeBot:
         running_bits_block = ""
         if self.session_running_bits:
             bits_str = "\n".join(
-                f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-15:]
+                f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-5:]
             )
-            running_bits_block = f"\n[RUNNING BITS THIS SESSION]\n{bits_str}\n"
+            running_bits_block = (
+                f"\n[RUNNING BITS THIS SESSION \u2014 if any is genuinely relevant to this batch, "
+                f"drop the callback now; don't force it, but don't sit on it either]\n{bits_str}\n"
+            )
 
         batch_lines = []
         for msg in batch:
@@ -2617,12 +2632,18 @@ class VTubeBot:
                     bit = json.loads(bit_json)
                     if "name" in bit and "description" in bit:
                         if not any(b["name"].lower() == bit["name"].lower() for b in self.session_running_bits):
+                            bit["last_called_back_at"] = 0.0
                             self.session_running_bits.append(bit)
                             print(f"   [Bits] New running bit: {bit['name']}")
                 except Exception:
                     pass
             elif result.startswith("CALLBACK:"):
-                pass  # Already exists — confirms it's still live
+                bit_name = result.replace("CALLBACK:", "").strip()
+                for b in self.session_running_bits:
+                    if b["name"].lower() == bit_name.lower():
+                        b["last_called_back_at"] = time.time()
+                        print(f"   [Bits] Callback: {b['name']}")
+                        break
         except Exception as e:
             print(f"   [Bits] Extraction error: {e}")
 
@@ -3265,16 +3286,18 @@ class VTubeBot:
                     "One sentence. Keep your edge — a question can still have teeth."
                 ) if ask_chat else ""
 
-                # Use the default observer thresholds (45s/90s) in streamer mode too.
-                # Earlier override (20s/45s) fired too aggressively during cinematic
-                # gameplay — Kira interjected ~every 30s of dead air. The default
-                # cadence gives Jonny room to play.
-                # Carry Mode lowers the gates to 30s/60s so she fills more readily
-                # during live gameplay (the equivalent of vn_autopilot's drive for
-                # VNs) — still gated by fresh-visual and brevity.
+                # Threshold priority (highest wins):
+                #   1. Carry Mode (30s/60s) — maximum drive, manually toggled
+                #   2. Streamer mode (25s/55s) — more present, still gated by fresh-visual
+                #   3. Companion mode (45s/90s) — unchanged, reserved baseline
+                # Cutscene gate above this block already skips the tick entirely,
+                # so these thresholds only fire during genuine dead air.
                 if self.carry_mode:
                     stage1_threshold = 30.0
                     stage2_threshold = 60.0
+                elif self.mode == "streamer":
+                    stage1_threshold = self.streamer_silence_thresholds[1]
+                    stage2_threshold = self.streamer_silence_thresholds[2]
                 else:
                     stage1_threshold = self.silence_thresholds[1]
                     stage2_threshold = self.silence_thresholds[2]
@@ -3741,10 +3764,11 @@ class VTubeBot:
                 # Inject running bits accumulated this session
                 if self.session_running_bits:
                     bits_str = "\n".join(
-                        f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-15:]
+                        f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-5:]
                     )
                     dynamic_context += (
-                        f"\n\n[RUNNING BITS THIS SESSION \u2014 callbacks worth weaving in when natural]\n{bits_str}"
+                        f"\n\n[RUNNING BITS THIS SESSION \u2014 if any is genuinely relevant to this moment, "
+                        f"drop the callback now; don't force it, but don't sit on it either]\n{bits_str}"
                     )
 
                 if memory_context:

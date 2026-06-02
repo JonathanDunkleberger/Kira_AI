@@ -703,12 +703,15 @@ class AI_Core:
             return "BRIEF"
         return decision
 
-    async def decide_response_mode(self, recent_history: list, incoming_line: str, scene_context: str, source: str, immersive: bool = False) -> str:
+    async def decide_response_mode(self, recent_history: list, incoming_line: str, scene_context: str, source: str, immersive: bool = False, streamer_mode: bool = False) -> str:
         """Fast triage: should Kira respond fully, briefly, or stay quiet?
         Returns one of: 'RESPOND', 'BRIEF', 'STAY_QUIET'.
 
-        immersive=True  -> bias toward silence (passive media: VN, movies, anime).
-        immersive=False -> bias toward responding (default companion behavior).
+        immersive=True     -> bias toward silence (VN, movies, anime, cutscene).
+                             Takes priority over streamer_mode — cutscene wins.
+        streamer_mode=True -> lower bar: BRIEF over STAY_QUIET on borderline lines.
+                             Only active when immersive=False.
+        both False         -> companion default: RESPOND bias.
 
         Applies the shared rescue (STAY_QUIET -> BRIEF on direct-address / imperative /
         question / social-signal patterns) before returning, so every call site benefits."""
@@ -720,6 +723,8 @@ class AI_Core:
         history_str = "\n".join(history_lines) if history_lines else "(no recent context)"
 
         if immersive:
+            # VN / MEDIA / cutscene path — silence-biased. Takes PRIORITY over streamer_mode.
+            # This branch must always win when a cutscene is detected (_triage_immersive=True).
             bias_instruction = (
                 "Jonny is consuming media \u2014 a visual novel, movie, anime, or book. He is reading or watching with full attention. "
                 "Prefer BRIEF for casual remarks and observations. Reserve RESPOND for direct address by name, "
@@ -728,7 +733,18 @@ class AI_Core:
                 "When unsure: BRIEF beats RESPOND, and silence beats forced chatter. "
                 "But do not default to silence \u2014 a friend reacts; she just keeps it short."
             )
+        elif streamer_mode:
+            # Streamer path — lower bar than companion; BRIEF beats STAY_QUIET on borderline lines.
+            # Immersive=True above still wins when a cutscene is detected, so this never fires
+            # during a cutscene.
+            bias_instruction = (
+                "Jonny is streaming gameplay live. "
+                "Default to RESPOND. Prefer BRIEF over STAY_QUIET on borderline lines. "
+                "Only STAY_QUIET for clear muttering, game-character talk, or ambient noise. "
+                "When unsure: BRIEF."
+            )
         else:
+            # Companion default — unchanged.
             bias_instruction = (
                 "Jonny and Kira are hanging out normally \u2014 gaming, chatting, working, whatever. "
                 "Default to RESPOND. Only choose STAY_QUIET when the input is obviously self-talk, muttering, talking to a game "
@@ -1306,15 +1322,22 @@ class AI_Core:
             # threshold=0.85: UP FROM 0.6: Requires 85% certainty it's a voice.
             # min_speech_duration_ms=400: UP FROM 300: Ignores quick laughs/gasps.
             # min_silence_duration_ms=800: DOWN FROM 1000: Responds slightly faster.
+            # speech_pad_ms=300: adds 300ms of context around detected speech.
+            # condition_on_previous_text=False: prevents hallucinating filler when audio is ambiguous.
+            # no_speech_threshold=0.85: rejects segments that are very likely silence/noise.
+            # language="en": skip language detection overhead, commit to English.
             segments, info = self.whisper.transcribe(
-                arr, 
+                arr,
                 beam_size=5,
+                language="en",
+                condition_on_previous_text=False,
+                no_speech_threshold=0.85,
                 vad_filter=True,
                 vad_parameters=dict(
-                    threshold=0.85, 
-                    min_speech_duration_ms=400, 
+                    threshold=0.85,
+                    min_speech_duration_ms=400,
                     min_silence_duration_ms=800,
-                    speech_pad_ms=200
+                    speech_pad_ms=300
                 )
             )
             return list(segments)
