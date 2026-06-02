@@ -198,7 +198,7 @@ class VTubeBot:
         # NEVER touched when tuning stream presence. Edit only these for streamer tuning.
         # Carry Mode has its own lower override (30s/60s) and still takes priority.
         self.streamer_silence_thresholds = {
-            1: 25.0,   # Stage 1 — streamer: light remark
+            1: 20.0,   # Stage 1 — streamer: light remark (was 25s)
             2: 55.0,   # Stage 2 — streamer: nudge/verdict
         }
 
@@ -3345,6 +3345,15 @@ class VTubeBot:
                     rolling = getattr(va, "scene_summary", "") if va else ""
                     if rolling and len(rolling) > 20:
                         parts.append(f"STORY SO FAR (rolling summary of this session):\n{rolling}")
+                    # Dialogue summary from LoopbackSTT — the condensed "what's been
+                    # said in the game/show" that persists beyond the 60s raw window.
+                    # FIX A: without this, interjections were blind to the plot beats
+                    # that FIX 5 is continuously building from game/show audio.
+                    lt = self.loopback_transcriber
+                    if lt is not None:
+                        _dlg = lt.get_dialogue_summary() if hasattr(lt, "get_dialogue_summary") else ""
+                        if _dlg:
+                            parts.append(f"GAME DIALOGUE — story so far:\n{_dlg}")
                     # Playthrough memory: includes [MY CURRENT TAKES ON X] and the
                     # games manifest — the dedicated channel for Kira's standing
                     # opinions. Without this, her "agency" sections have nothing
@@ -3435,17 +3444,20 @@ class VTubeBot:
                             if ask_chat:
                                 stage2_prompt = (
                                     f"On stream. {scene_block}\n\n"
-                                    "Jonny's been quiet a while. Ask CHAT one short, genuine question "
-                                    "anchored to what's happening on screen or in the story so far. "
-                                    "Address them directly ('Chat, ...'). One sentence."
+                                    "Jonny's been quiet a while. Ask CHAT one short question rooted in "
+                                    "a SPECIFIC story beat, character decision, or revelation from the "
+                                    "context above — not a generic poll ('who do you trust', "
+                                    "'over/under on X'). Address them directly ('Chat, ...'). "
+                                    "One sentence. Your edge stays."
                                 )
                             else:
                                 stage2_prompt = (
                                     f"On stream. {scene_block}\n\n"
-                                    "Jonny's been quiet a while. React to what's on screen right now "
-                                    "or call back to something earlier in this session — a sharp "
-                                    "verdict, a roast, a prediction paying off, a take. NOT a question. "
-                                    "NOT generic filler. One short sentence anchored to a real beat."
+                                    "Jonny's been quiet a while. React to the ACTUAL story: a specific "
+                                    "character, decision, revelation, or moment from the context above. "
+                                    "Sharp verdict, prediction paying off, callback to an earlier beat — "
+                                    "NOT a generic question, NOT filler. React to plot, not to the "
+                                    "silence. One sentence; two if the story beat earns it."
                                 )
                             await self._execute_interjection(
                                 stage2_prompt,
@@ -3463,17 +3475,19 @@ class VTubeBot:
                             if ask_chat:
                                 stage1_prompt = (
                                     f"On stream. {scene_block}\n\n"
-                                    "Quiet stretch. Ask CHAT one short, genuine question anchored to "
-                                    "what's on screen or the story so far. Address them directly "
-                                    "('Chat, ...'). One sentence."
+                                    "Quiet stretch. Ask CHAT one short question rooted in a SPECIFIC "
+                                    "story beat, character, or decision from the context above — not a "
+                                    "generic poll ('who do you trust', 'over/under on X'). Address them "
+                                    "directly ('Chat, ...'). One sentence. Your edge stays."
                                 )
                             else:
                                 stage1_prompt = (
                                     f"On stream. {scene_block}\n\n"
-                                    "Quiet stretch. Drop a short, sharp reaction to what's on screen, "
-                                    "what Jonny just did, or a callback to something earlier in the "
-                                    "session. A verdict, a tease, a roast — not a question, not filler. "
-                                    "One short sentence anchored to a real beat."
+                                    "Quiet stretch. React to the ACTUAL plot, scene, or character from "
+                                    "the context above — anchor to a SPECIFIC beat: something a "
+                                    "character said, did, or is about to do. A verdict, a tease, a "
+                                    "roast, a prediction — not a generic question, not filler. "
+                                    "One sentence; two if the story beat earns it."
                                 )
                             await self._execute_interjection(
                                 stage1_prompt,
