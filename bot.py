@@ -1453,9 +1453,12 @@ class VTubeBot:
         SCOPE: only active during ACTIVITY_GAME with a loaded playthrough.
         Returns False immediately in any other mode — zero impact on idle/chat/VN/MEDIA.
 
-        Detection uses OR logic (either vision OR audio is sufficient) because:
-        - False positives during gameplay are cheap (brief extra silence)
-        - False negatives during a Bond villain monologue are the real cost
+        Detection uses AND logic (both vision AND audio required) because:
+        - Cinematic games have orchestral OSTs and ambient NPC voices throughout
+          normal gameplay — audio alone produces false positives continuously
+        - Real cutscenes produce BOTH a visual cue (letterbox/no-HUD) AND an
+          audio cue; requiring both keeps the guard strong for genuine cutscenes
+          while ignoring music that has no visual counterpart
 
         Tunable via CUTSCENE_AWARE=false in .env to disable globally.
         """
@@ -1494,7 +1497,14 @@ class VTubeBot:
             audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
         audio_hit = any(kw in audio_summary for kw in CUTSCENE_AUDIO_KEYWORDS)
 
-        result = vision_hit or audio_hit
+        # AND logic: both vision AND audio must fire to suppress.
+        # OR (original) caused false positives in any game with a cinematic
+        # OST or ambient NPC voices — audio alone was sufficient to muzzle
+        # proactive lines during normal gameplay for the entire session.
+        # AND keeps the guard intact for genuine cutscenes (which produce
+        # both a visual cue — letterbox/no-HUD — AND an audio cue) while
+        # ignoring orchestral gameplay music that has no visual counterpart.
+        result = vision_hit and audio_hit
         if result:
             print(
                 f"   [CUTSCENE_DETECTOR] Cutscene cues detected — "
