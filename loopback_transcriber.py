@@ -246,6 +246,11 @@ class LoopbackTranscriber:
         self.total_segments_accepted: int = 0
         self.total_segments_filtered: int = 0
 
+        # FIX 5: Rolling condensed dialogue summary (persists for the whole session,
+        # unlike the 60s raw transcript window). Updated by bot.loopback_dialogue_summary_loop().
+        self.dialogue_summary: str = ""
+        self._summary_needs_update: bool = False
+
     # ── Lifecycle ────────────────────────────────────────────────────────
 
     def is_running(self) -> bool:
@@ -288,6 +293,8 @@ class LoopbackTranscriber:
         with self._lock:
             self._segments.clear()
             self._recent_normalized.clear()
+            self.dialogue_summary = ""
+            self._summary_needs_update = False
 
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._pump_loop, daemon=True, name="LoopbackSTT")
@@ -561,6 +568,7 @@ class LoopbackTranscriber:
         with self._lock:
             self._segments.append(entry)
             self._recent_normalized.append(norm)
+            self._summary_needs_update = True  # FIX 5: signal background summarizer
 
     def _prune_old_segments(self):
         cutoff = time.time() - TRANSCRIPT_MAX_AGE_SECONDS
@@ -599,6 +607,14 @@ class LoopbackTranscriber:
         # Flip back to chronological order for natural reading.
         lines = list(reversed(rendered))
         return "\n".join(lines)
+
+    def get_dialogue_summary(self) -> str:
+        """Returns the condensed rolling 'story so far' summary of game dialogue.
+        Persists for the full session lifetime, unlike the raw transcript which
+        expires at TRANSCRIPT_MAX_AGE_SECONDS (60s).
+        Updated in the background by bot.loopback_dialogue_summary_loop().
+        Returns empty string until the first summarization has run."""
+        return self.dialogue_summary
 
     def get_status_summary(self) -> str:
         """One-line status string for the dashboard."""

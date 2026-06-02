@@ -1832,7 +1832,11 @@ class VTubeBot:
             # Captions self-heal heartbeat: auto-recovers from Azure session
             # drops or caption server death during long streams.
             tasks.append(self.ai_core.captions_self_heal_loop())
-            
+
+            # FIX 5: Rolling dialogue summary condensation — persists game/show
+            # dialogue context beyond the 60s raw-transcript window.
+            tasks.append(self.loopback_dialogue_summary_loop())
+
             # 3. Start Voice Recorder (This is the main loop effectively)
             print("   [System] Starting Voice Recorder (VAD)...")
             tasks.append(self.vad_loop())
@@ -2164,23 +2168,38 @@ class VTubeBot:
                                     "Acknowledge briefly that there's nothing to read at the moment."
                                 )
                         elif vision_trigger:
-                            # Shrink cache window for questions — stale snapshots cause
-                            # confident-wrong answers about "who/what/which" right now.
-                            is_question_like = (
-                                content.rstrip().endswith("?")
-                                or any(w in lower for w in ("who", "what", "which"))
-                            )
-                            cache_ttl = 2 if is_question_like else 7
-                            time_since_last = time.time() - self.vision_agent.last_capture_time
+                            # FIX 1+2: Default to the accumulated scene_summary (rolling
+                            # "story so far") via get_vision_context(). This is almost
+                            # always better context for "what happened / who / what's going
+                            # on" than a single fresh frame, AND it removes the 800-1500ms
+                            # blocking GPT-4o-mini snapshot call from the response path.
+                            #
+                            # Exception: explicit "right now" / "on screen now" phrases
+                            # where the user wants the current frame state. Even then we
+                            # fire the refresh ASYNC and respond with cached context —
+                            # the response path NEVER waits on a vision API call.
                             if forced_visual_answer:
-                                # Already took a targeted snapshot above — reuse it.
-                                visual_desc = self.vision_agent.last_description
-                            elif time_since_last < cache_ttl:
-                                print(f"   [Vision] Using Cached Context (Fresh: {int(time_since_last)}s, ttl={cache_ttl}s)...")
-                                visual_desc = self.vision_agent.last_description
+                                # Targeted capture_and_answer already ran above — use the
+                                # rolling scene summary as additional background context.
+                                visual_desc = self.vision_agent.get_vision_context()
                             else:
-                                print(f"   [Vision] High-Detail Snapshot Requested (Cache Stale > {cache_ttl}s)...")
-                                visual_desc = await self.vision_agent.capture_and_describe(is_heartbeat=False)
+                                _NOW_PHRASES = (
+                                    "right now", "on screen now", "currently on screen",
+                                    "on the screen now", "what's on screen",
+                                )
+                                _wants_current = any(p in lower for p in _NOW_PHRASES)
+                                if _wants_current and (time.time() - self.vision_agent.last_capture_time) > 15:
+                                    # User wants current frame AND cache is very stale —
+                                    # kick off async refresh but don't wait on it.
+                                    print("   [Vision] Current-frame requested — async refresh triggered, responding with cached...")
+                                    asyncio.create_task(self.vision_agent.capture_and_describe(is_heartbeat=False))
+                                visual_desc = self.vision_agent.get_vision_context()
+                                if visual_desc:
+                                    print("   [Vision] Using accumulated scene context (story-so-far mode)...")
+                                else:
+                                    # No accumulated context yet — kick async refresh and continue.
+                                    print("   [Vision] No accumulated context — async refresh triggered...")
+                                    asyncio.create_task(self.vision_agent.capture_and_describe(is_heartbeat=False))
                         else:
                             visual_desc = self.vision_agent.get_vision_context()
 
@@ -2222,14 +2241,21 @@ class VTubeBot:
                     _cutscene_active = self._is_likely_cutscene() and silence_since_last > 20.0
                     _triage_immersive = self.immersive or _cutscene_active
 
+                    # FIX 3+4: Run triage (Groq network call) and memory retrieval
+                    # (ChromaDB vector search) CONCURRENTLY instead of sequentially.
+                    # Saves 200-400ms/turn. ChromaDB runs in a thread (to_thread) so
+                    # it no longer blocks the event loop either.
                     _triage_t0 = time.time()
-                    decision = await self.ai_core.decide_response_mode(
-                        recent_history=self.conversation_history,
-                        incoming_line=content,
-                        scene_context=scene_ctx,
-                        source=source,
-                        immersive=_triage_immersive,
-                        streamer_mode=(self.mode == "streamer"),
+                    decision, prefetched_memory = await asyncio.gather(
+                        self.ai_core.decide_response_mode(
+                            recent_history=self.conversation_history,
+                            incoming_line=content,
+                            scene_context=scene_ctx,
+                            source=source,
+                            immersive=_triage_immersive,
+                            streamer_mode=(self.mode == "streamer"),
+                        ),
+                        asyncio.to_thread(self.memory.get_semantic_context, content),
                     )
                     try:
                         self.stream_logger.log(
@@ -2259,6 +2285,7 @@ class VTubeBot:
                             source=source,
                             situational_context=visual_desc,
                             brief_mode=brief_mode,
+                            prefetched_memory=prefetched_memory,
                         )
 
                     # System 6b: release soft-pause after Jonny's exchange is fully handled
@@ -3662,7 +3689,51 @@ class VTubeBot:
             self.recent_observer_comments = self.recent_observer_comments[-12:]
 
 
-    async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False):
+    async def loopback_dialogue_summary_loop(self):
+        """FIX 5: Periodically condenses the LoopbackSTT rolling transcript into a
+        persistent 'story so far' summary. Mirrors how vision_agent builds scene_summary.
+        Runs every 15s, only fires when new segments have arrived since last run.
+        Uses Groq llama-3.1-8b-instant (cheap/fast, same model as triage).
+        Cost estimate: ~$0.04 per 4hr stream session (essentially free on the free tier)."""
+        SUMMARY_INTERVAL_S = 15.0
+        _SYSTEM = (
+            "You maintain a brief running summary of game or show dialogue for an AI companion "
+            "watching alongside a streamer. Write a 2-3 sentence update: who is speaking, what "
+            "they said or decided, and what the emotional beat is. Track narrative continuity — "
+            "note what changed since the previous summary. Grounded facts only, no speculation, "
+            "no editorializing. If the new lines add nothing meaningful, output exactly: NO_UPDATE"
+        )
+        print(f"   [LoopbackSTT] Dialogue summary loop active (interval={SUMMARY_INTERVAL_S:.0f}s).")
+        while self.is_running:
+            await asyncio.sleep(SUMMARY_INTERVAL_S)
+            lt = self.loopback_transcriber
+            if lt is None or not lt.is_running():
+                continue
+            if not lt._summary_needs_update:
+                continue
+            transcript = lt.get_transcript_text()
+            if not transcript:
+                continue
+            lt._summary_needs_update = False
+            try:
+                previous = lt.dialogue_summary or "(none yet)"
+                user_msg = (
+                    f"Previous summary:\n{previous}\n\n"
+                    f"New dialogue lines (oldest first):\n{transcript}\n\n"
+                    "Write an updated 2-3 sentence summary: who spoke, what happened, "
+                    "what's the emotional tone? Like notes for a friend who just walked "
+                    "back into the room. Only facts from the dialogue. If nothing "
+                    "meaningful has changed: NO_UPDATE"
+                )
+                result = await self.ai_core.tool_inference(_SYSTEM, user_msg, max_tokens=120)
+                if result and "NO_UPDATE" not in result.upper() and len(result.strip()) > 20:
+                    lt.dialogue_summary = result.strip()
+                    print(f"   [LoopbackSTT] Dialogue summary updated: {lt.dialogue_summary[:120]}...")
+            except Exception as e:
+                print(f"   [LoopbackSTT] Summary update error: {e}")
+
+
+    async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False, prefetched_memory: str | None = None):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
 
         # Define what the LLM sees vs what Memory stores
@@ -3693,7 +3764,14 @@ class VTubeBot:
              return
 
         # --- MEMORY RETRIEVAL (Structured) ---
-        memory_context = self.memory.get_semantic_context(raw_user_text)
+        # FIX 4: brain_worker pre-fetches this concurrently with triage via
+        # asyncio.to_thread so the ChromaDB vector search no longer blocks the
+        # event loop. For other callers (idle chat, observer) that don't prefetch,
+        # we run it here in a thread so the event loop is still unblocked.
+        if prefetched_memory is not None:
+            memory_context = prefetched_memory
+        else:
+            memory_context = await asyncio.to_thread(self.memory.get_semantic_context, raw_user_text)
 
         # --- GENERATION OR PASS-THROUGH ---
         if skip_generation:
@@ -3724,6 +3802,13 @@ class VTubeBot:
                 except Exception as _e_amb:
                     print(f"   [Brain] Loopback transcript fetch failed: {_e_amb}")
                     ambient_transcript = ""
+
+            # FIX 5: Persistent dialogue summary — condensed "story so far" that
+            # outlives the 60s raw transcript window. Empty until the first
+            # loopback_dialogue_summary_loop() run completes (~15s after stream start).
+            dialogue_summary = ""
+            if self.loopback_transcriber is not None:
+                dialogue_summary = self.loopback_transcriber.get_dialogue_summary() or ""
 
             # Try Claude Sonnet 4.6 first — streamed when available for low latency
             full_response_text = ""
@@ -3805,6 +3890,17 @@ class VTubeBot:
                 if ambient_transcript:
                     dynamic_context += self._frame_ambient_audio(ambient_transcript)
 
+                # FIX 5: Persistent dialogue summary — the condensed "story so far"
+                # that survives beyond the 60s raw transcript window. Lets Kira answer
+                # "what happened?" for dialogue from 30+ minutes ago.
+                if dialogue_summary:
+                    dynamic_context += (
+                        "\n\n[GAME/SHOW STORY SO FAR \u2014 running summary of dialogue heard this session]\n"
+                        f"{dialogue_summary}\n"
+                        "This is a condensed record of what characters have said. "
+                        "Use it to stay oriented in the story; do not recite it verbatim."
+                    )
+
                 # Shared voice guardrails on every Sonnet chat turn too
                 dynamic_context += self._kira_voice_guardrails()
                 try:
@@ -3852,13 +3948,20 @@ class VTubeBot:
 
             # Fall back to local Llama if Claude unavailable or returned empty
             if not full_response_text:
+                # FIX 5: Include dialogue summary in Llama's ambient_audio_context too.
+                _llama_ambient = ambient_transcript
+                if dialogue_summary:
+                    _llama_ambient = (
+                        (_llama_ambient + "\n\n[STORY SO FAR]\n" + dialogue_summary)
+                        if _llama_ambient else ("[STORY SO FAR]\n" + dialogue_summary)
+                    )
                 full_response_text = await self.ai_core.llm_inference(
                     messages=self.conversation_history,
                     current_emotion=self.current_emotion,
                     memory_context=memory_context,
                     activity_context=self.current_activity,
                     situational_context=effective_situational,
-                    ambient_audio_context=ambient_transcript,
+                    ambient_audio_context=_llama_ambient,
                     max_tokens_override=(50 if brief_mode else None),
                 )
         
