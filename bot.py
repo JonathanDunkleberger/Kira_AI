@@ -29,7 +29,9 @@ from ai_core import AI_Core
 from memory import MemoryManager
 from cookie_jar import CookieJar
 from twitch_bot import TwitchBot
-from web_search import async_GoogleSearch
+# web_search.async_GoogleSearch is imported below when/if a search-trigger
+# command is wired up. Module kept; import removed until the call site exists.
+# TODO: wire async_GoogleSearch to a '!search' Twitch command or LLM tool call.
 from twitch_tools import start_twitch_poll
 from music_tools import play_kira_song
 from memory_extractor import extract_memories
@@ -1666,6 +1668,32 @@ class VTubeBot:
         except Exception as e:
             print(f"   [StartupBrief] Chatters brief failed: {e}")
 
+    @staticmethod
+    def _purge_old_debug_logs(max_age_days: int = 30) -> None:
+        """Delete debug-only log files older than max_age_days.
+        Targets: logs/audio_*.log and logs/loopback_stt_*.log ONLY.
+        Never touches logs/streams/ (clipping transcripts), logs/sessions_raw/,
+        summary.md, or any other path."""
+        import glob as _glob
+        cutoff = time.time() - max_age_days * 86400
+        patterns = [
+            os.path.join("logs", "audio_*.log"),
+            os.path.join("logs", "loopback_stt_*.log"),
+        ]
+        deleted = []
+        for pattern in patterns:
+            for path in _glob.glob(pattern):
+                try:
+                    if os.path.getmtime(path) < cutoff:
+                        os.remove(path)
+                        deleted.append(path)
+                except Exception as e:
+                    print(f"   [LogPurge] Could not remove {path}: {e}", file=sys.stderr)
+        if deleted:
+            print(f"   [LogPurge] Removed {len(deleted)} debug log(s) older than {max_age_days}d: {deleted}")
+        else:
+            print(f"   [LogPurge] No debug logs older than {max_age_days}d found.")
+
     async def _main_loop(self):
         """Contains the primary startup and listening logic."""
         self.event_loop = asyncio.get_running_loop()
@@ -1755,6 +1783,11 @@ class VTubeBot:
             )
 
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
+
+            # Purge debug logs older than 30 days on startup.
+            # Only removes logs/audio_*.log and logs/loopback_stt_*.log.
+            # Never touches logs/streams/, logs/sessions_raw/, or summary.md.
+            self._purge_old_debug_logs(max_age_days=30)
 
             # Generate the recent-activity brief now, before any conversation happens
             await self.generate_startup_brief()

@@ -16,7 +16,7 @@ from llama_cpp import Llama
 from config import (
     LLM_MODEL_PATH, N_CTX, N_BATCH, N_GPU_LAYERS, WHISPER_MODEL_SIZE, WHISPER_CACHE_DIR, TTS_ENGINE,
     LLM_MAX_RESPONSE_TOKENS,
-    ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
+    ELEVENLABS_API_KEY, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
@@ -52,12 +52,10 @@ except ImportError: speechsdk = None
 try:
     from fish_audio_sdk.apis import Session as FishSession
     from fish_audio_sdk.schemas import TTSRequest as FishTTSRequest
-    from fish_audio_sdk.exceptions import HttpCodeErr as FishHttpCodeErr
     FISH_SDK_AVAILABLE = True
 except ImportError:
     FishSession = None
     FishTTSRequest = None
-    FishHttpCodeErr = None
     FISH_SDK_AVAILABLE = False
 try:
     from anthropic import AsyncAnthropic

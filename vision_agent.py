@@ -295,11 +295,10 @@ class UniversalVisionAgent:
             self.previous_dialogue = dialogue
             self.last_dialogue_change_time = time.time()
 
-    async def capture_and_describe(self, is_heartbeat=False, force_refresh=False):
+    async def capture_and_describe(self, is_heartbeat=False):
         """Captures screen and calls Vision API. Uses activity-aware prompts."""
         if not self.client:
-            return "Vision unavailable (Missing API Key)."
-            return "Vision unavailable (Missing API Key)."
+            return "Vision unavailable (Missing API Key.)."
 
         try:
             # Capture and Scale based on quality mode
