@@ -237,7 +237,7 @@ class CaptionServer:
 
     async def send_cookie(self, shared: int, milestone: bool = False) -> None:
         """Push a cookie-jar update to the overlay. Two shapes:
-            {"type":"cookie","shared":N,"cap":35,"milestone":false}  (normal)
+            {"type":"cookie","shared":N,"cap":50,"milestone":false}  (normal)
             {"type":"cookie","milestone":true}                        (fire)
         Fire-and-forget; drops silently if no clients connected."""
         if not self.enabled or not self._started or not self._clients:
@@ -245,7 +245,7 @@ class CaptionServer:
         if milestone:
             await self._broadcast({"type": "cookie", "milestone": True})
         else:
-            await self._broadcast({"type": "cookie", "shared": int(shared), "cap": 35, "milestone": False})
+            await self._broadcast({"type": "cookie", "shared": int(shared), "cap": 50, "milestone": False})
 
     async def send_chaos(self, active: bool, remaining: int = 0) -> None:
         """Push Chaos Mode state to the overlay. Shape:

@@ -738,9 +738,15 @@ class AI_Core:
             # Immersive=True above still wins when a cutscene is detected, so this never fires
             # during a cutscene.
             bias_instruction = (
-                "Jonny is streaming gameplay live. "
+                "Jonny is streaming live and Kira is his co-host. "
                 "Default to RESPOND. Prefer BRIEF over STAY_QUIET on borderline lines. "
-                "Only STAY_QUIET for clear muttering, game-character talk, or ambient noise. "
+                "BRIEF covers: casual asides, short factual statements about what's happening "
+                "(scores, viewer counts, things he's observing), throwaway remarks, anything "
+                "clearly meant to be heard even if it's not a direct question. "
+                "STAY_QUIET ONLY for: self-talk clearly not directed at anyone, talking directly "
+                "to a game character or NPC, moment-to-moment gameplay narration "
+                "(describing his own actions while playing — 'okay now I reload', 'this door', "
+                "'lower the bollards'), or pure ambient noise with no semantic content. "
                 "When unsure: BRIEF."
             )
         else:
@@ -1313,16 +1319,75 @@ class AI_Core:
         text = re.sub(r'\(.*?\)', '', text)
         return text.strip()
 
-    async def transcribe_audio(self, audio_data: bytes) -> str:
+    def _build_stt_prompt(self, activity: str = "") -> str:
+        """Build an initial_prompt for Whisper vocabulary biasing.
+
+        Returns a comma-separated list: static base names + up to MAX_LORE_NOUNS
+        proper nouns extracted from the activity's lore file (if it exists).
+        Capped to prevent over-stuffing the prompt, which degrades general accuracy.
+        Safe fallback to base list only if the lore file is absent or unreadable.
+        """
+        BASE_NOUNS = ["Jonny", "Kira", "Twitch", "StreamElements", "Streamlabs"]
+        MAX_LORE_NOUNS = 12
+
+        # Capitalised words that carry no STT-biasing value (structural/common words).
+        _SKIP = {
+            "I", "The", "A", "An", "In", "On", "At", "To", "Of", "And", "Or",
+            "But", "For", "Not", "With", "Is", "Was", "He", "She", "They",
+            "It", "This", "That", "His", "Her", "Their", "My", "Your", "We",
+            "So", "If", "As", "By", "Up", "About", "After", "Before", "When",
+            "Also", "Now", "Then", "There", "Here", "Just", "Even", "Still",
+            "Session", "Lore", "Story", "Chat", "Stream", "Mode", "Scene",
+            "Notes", "First", "Last", "Next", "New", "Old", "Good", "Bad",
+            "Stage", "One", "Two", "Three", "Four", "Five", "Jonny", "Kira",
+        }
+
+        lore_nouns: list[str] = []
+        if activity:
+            slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity).strip('_').lower()[:40]
+            lore_path = os.path.join("lore", f"{slug}.md")
+            if os.path.exists(lore_path):
+                try:
+                    with open(lore_path, "r", encoding="utf-8") as f:
+                        text = f.read()
+
+                    counts: dict[str, int] = {}
+
+                    # Priority 1: **bolded terms** — the LLM explicitly highlighted these.
+                    # Each bolded match counts as 3 to outrank low-frequency prose words.
+                    for m in re.finditer(r'\*\*([^*\n]{2,40})\*\*', text):
+                        term = m.group(1).strip()
+                        if 2 <= len(term) <= 30:
+                            counts[term] = counts.get(term, 0) + 3
+
+                    # Priority 2: capitalised word sequences (1–3 words) in prose.
+                    for m in re.finditer(
+                        r'\b([A-Z][a-z]{1,14}(?:\s[A-Z][a-z]{1,14}){0,2})\b', text
+                    ):
+                        term = m.group(1)
+                        if term.split()[0] not in _SKIP:
+                            counts[term] = counts.get(term, 0) + 1
+
+                    # Keep terms that appear at least twice overall (prose words need
+                    # 2+ hits; bolded terms already score ≥3 on first occurrence).
+                    candidates = sorted(
+                        [t for t, c in counts.items() if c >= 2 and 2 <= len(t) <= 30],
+                        key=lambda t: (-counts[t], t),
+                    )
+                    lore_nouns = candidates[:MAX_LORE_NOUNS]
+                except Exception:
+                    pass  # safe fallback: use base list only
+
+        all_nouns = BASE_NOUNS + [n for n in lore_nouns if n not in BASE_NOUNS]
+        return ", ".join(all_nouns)
+
+    async def transcribe_audio(self, audio_data: bytes, activity: str = "") -> str:
         # Using numpy array directly for speed
         arr = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
-        
+        initial_prompt = self._build_stt_prompt(activity)
+
         def _run_transcribe():
-            # ADJUSTING VAD SETTINGS HERE:
-            # threshold=0.85: UP FROM 0.6: Requires 85% certainty it's a voice.
-            # min_speech_duration_ms=400: UP FROM 300: Ignores quick laughs/gasps.
-            # min_silence_duration_ms=800: DOWN FROM 1000: Responds slightly faster.
-            # speech_pad_ms=300: adds 300ms of context around detected speech.
+            # initial_prompt seeds the decoder with known vocabulary for proper-noun biasing.
             # condition_on_previous_text=False: prevents hallucinating filler when audio is ambiguous.
             # no_speech_threshold=0.85: rejects segments that are very likely silence/noise.
             # language="en": skip language detection overhead, commit to English.
@@ -1330,6 +1395,7 @@ class AI_Core:
                 arr,
                 beam_size=5,
                 language="en",
+                initial_prompt=initial_prompt,
                 condition_on_previous_text=False,
                 no_speech_threshold=0.85,
                 vad_filter=True,

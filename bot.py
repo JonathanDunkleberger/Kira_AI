@@ -1975,7 +1975,7 @@ class VTubeBot:
         if len(audio_data) < 6400:
             return
         async with self.processing_lock:
-            user_text = await self.ai_core.transcribe_audio(audio_data)
+            user_text = await self.ai_core.transcribe_audio(audio_data, self.current_activity)
             if not user_text or len(user_text) < 3: return
             
             print(f">>> You said: {user_text}")
@@ -2280,6 +2280,16 @@ class VTubeBot:
 
                     if decision == "STAY_QUIET":
                         print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
+                        # Still record what Jonny said so the next turn can reference it.
+                        # She "heard" the line but chose not to speak — the overheard entry
+                        # lands in context so a punchline on the next turn works correctly.
+                        # Uses dialogue_line ("Jonny says: \"...\"") for uniform formatting.
+                        if self.conversation_history and self.conversation_history[-1]["role"] == "user":
+                            self.conversation_history[-1]["content"] += f"\n\n{dialogue_line}"
+                        else:
+                            self.conversation_history.append({"role": "user", "content": dialogue_line})
+                        if len(self.conversation_history) > 20:
+                            self.conversation_history = self.conversation_history[-20:]
                         # fall through to finally / task_done
 
                     if decision != "STAY_QUIET":
