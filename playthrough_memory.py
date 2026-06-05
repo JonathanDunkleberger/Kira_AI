@@ -19,17 +19,22 @@
 # Build order: Autopilot Phase 1 first, then this.
 # See "Playthrough Memory — Design Doc" for the full rationale.
 
+import json
 import os
 import re
+import time
 from datetime import datetime
 
 
 class PlaythroughMemory:
     PLAYTHROUGHS_DIR = "playthroughs"
+    CHECKPOINT_DIR = "playthroughs/.checkpoints"
     SUMMARY_MARKER = "## Rolling Summary"
     OPINIONS_MARKER = "## Opinions & Evolving Takes"
     SESSION_LOG_MARKER = "## Session Log"
+    SIGNATURE_MARKER = "## Signature Moments"
     REGEN_EVERY_N_SESSIONS = 3   # Regenerate rolling summary every N sessions (one Opus call each)
+    MAX_SIGNATURE_MOMENTS = 10   # Hard cap; oldest drop off the end when exceeded
 
     def __init__(self, ai_core):
         self.ai_core = ai_core
@@ -44,6 +49,10 @@ class PlaythroughMemory:
         # In-session accumulators — reset each time load_for_game() is called
         self.session_reactions: list[str] = []        # Kira's autopilot reactions this session
         self.session_chat_moments: list[dict] = []    # Notable chat exchanges this session
+
+        # Parsed from file at load_for_game time
+        self.recent_session_reactions: list[tuple[int, str]] = []  # [(session_num, reaction_text), ...]
+        self.signature_moments: list[str] = []        # All-time best moments, capped at MAX_SIGNATURE_MOMENTS
 
         # Global context (rebuilt from files whenever a game is loaded)
         self.games_manifest: str = ""
@@ -75,6 +84,8 @@ class PlaythroughMemory:
             self.session_count = 0
             print(f"   [Playthrough] New game '{self.current_display}' — record will be created at session end.")
 
+        # Recover any in-RAM state from a prior session that crashed before writing
+        self._try_recover_checkpoint()
         self._rebuild_manifest()
 
     def get_context_for_prompt(self) -> str:
@@ -82,9 +93,15 @@ class PlaythroughMemory:
         - Games manifest (all games ever played — always included)
         - Current game rolling summary (if a game is active and has history)
         - Current opinions block (if present)
+        - Last-2-session Kira's-reactions (experiential: "she was there")
+        - All-time signature moments (iconic callbacks across the full playthrough)
 
         Designed to be injected into every AI response path (voice, chat, observer).
-        Returns an empty string if there is nothing meaningful to inject."""
+        Returns an empty string if there is nothing meaningful to inject.
+
+        B-READY: get_recent_session_reactions() and get_signature_moments() are
+        separate methods. Swap them for a ChromaDB query result when upgrading
+        to Option B (selective retrieval) beyond ~10-12 sessions."""
         parts = []
 
         if self.games_manifest:
@@ -102,7 +119,50 @@ class PlaythroughMemory:
                 f"{self.current_opinions}"
             )
 
+        # Experiential recall: recent first-person reactions (last 2 sessions)
+        recent_rx = self.get_recent_session_reactions(n_sessions=2)
+        if recent_rx:
+            parts.append(
+                f"[WHAT I REMEMBER FROM BEING THERE — {self.current_display}]\n"
+                f"{recent_rx}"
+            )
+
+        # All-time iconic moments (persists beyond rolling-summary lag)
+        sig = self.get_signature_moments()
+        if sig:
+            parts.append(
+                f"[MOMENTS FROM THIS PLAYTHROUGH I KEEP COMING BACK TO]\n"
+                f"{sig}"
+            )
+
         return "\n\n".join(parts)
+
+    def get_recent_session_reactions(self, n_sessions: int = 2) -> str:
+        """Return the 'Kira's reactions' text from the last n_sessions entries,
+        formatted for context injection.
+
+        B-READY: this method is the direct-injection implementation (Option A).
+        When upgrading to Option B, replace the body with a ChromaDB query
+        against a 'game_moments' collection filtered by slug, returning the
+        top-k semantically relevant moments for the current query."""
+        if not self.recent_session_reactions:
+            return ""
+        # recent_session_reactions is a list of (session_num, reaction_text) tuples,
+        # sorted oldest-first. Take the last n_sessions.
+        window = self.recent_session_reactions[-n_sessions:]
+        lines = []
+        for session_num, reaction_text in window:
+            lines.append(f"Session {session_num}: {reaction_text}")
+        return "\n".join(lines)
+
+    def get_signature_moments(self) -> str:
+        """Return the all-time signature moments as a bullet list for context injection.
+
+        B-READY: same swap point as get_recent_session_reactions() — replace
+        with a ChromaDB query when selective retrieval matters."""
+        if not self.signature_moments:
+            return ""
+        return "\n".join(f"- {m}" for m in self.signature_moments)
 
     def tag_reaction(self, reaction_text: str):
         """Record a reaction Kira spoke during VN autopilot play.
@@ -277,9 +337,17 @@ class PlaythroughMemory:
 
             self.session_count = session_num
             print(f"   [Playthrough] Session #{session_num} appended → {path}")
+            # Checkpoint is no longer needed — clean session ended successfully
+            self._delete_checkpoint()
         except Exception as e:
             print(f"   [Playthrough] File write failed: {e}")
             return False
+
+        # ── Extract signature moments for this session (cheap Sonnet call) ───────────────
+        try:
+            await self._extract_and_store_signature_moments(path, entry_text, session_num)
+        except Exception as e:
+            print(f"   [Playthrough] Signature moment extraction failed: {e}")
 
         # ── Regenerate rolling summary every N sessions ────────────────────────
         if session_num % self.REGEN_EVERY_N_SESSIONS == 0:
@@ -293,6 +361,276 @@ class PlaythroughMemory:
         self._parse_file(path)
         self._rebuild_manifest()
         return True
+
+    async def backfill_signature_moments(self, slug: str = "") -> bool:
+        """One-time backfill: extract signature moments from ALL existing session entries
+        in a playthrough file. Designed to run once on files created before per-session
+        extraction was added. Safe to re-run — fully overwrites the Signature Moments section.
+
+        Spread logic: per-session cap = min(2, max(1, MAX // n_sessions)) so early iconic
+        sessions get equal representation as later ones. If total moments still exceed
+        MAX_SIGNATURE_MOMENTS after collection, excess is trimmed from the END, meaning
+        the oldest (most historically iconic) entries survive the cut."""
+        target_slug = slug or self.current_slug
+        if not target_slug:
+            print("   [Playthrough] backfill_signature_moments: no slug.")
+            return False
+
+        path = self._game_path(target_slug)
+        if not os.path.exists(path):
+            print(f"   [Playthrough] backfill_signature_moments: file not found: {path}")
+            return False
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            print(f"   [Playthrough] backfill_signature_moments: read failed: {e}")
+            return False
+
+        session_headers = list(re.finditer(r"^### Session (\d+)", content, re.MULTILINE))
+        if not session_headers:
+            print(f"   [Playthrough] backfill_signature_moments: no sessions in {path}")
+            return False
+
+        n_sessions = len(session_headers)
+        # min(2, ...) keeps the per-session ask consistent with the ongoing extraction cap.
+        # For ≤5 sessions this is 2; for 6-10 it drops to 1 so we don't overflow the cap.
+        per_session_cap = min(2, max(1, self.MAX_SIGNATURE_MOMENTS // n_sessions))
+        print(
+            f"   [Playthrough] backfill: '{target_slug}' — {n_sessions} session(s), "
+            f"up to {per_session_cap} moment(s) each."
+        )
+
+        import json as _json
+        all_moments: list[str] = []
+
+        for i, m in enumerate(session_headers):
+            session_num = int(m.group(1))
+            start = m.start()
+            end = session_headers[i + 1].start() if i + 1 < n_sessions else len(content)
+            block = content[start:end]
+
+            rx_match = re.search(
+                r"\*\*Kira'?s reactions:\*\*\s*(.+?)(?=\n\n\*\*|\n### Session|\Z)",
+                block,
+                re.DOTALL | re.IGNORECASE,
+            )
+            if not rx_match:
+                print(f"   [Playthrough] backfill: session {session_num} — no reactions block, skipping.")
+                continue
+            reactions_text = rx_match.group(1).strip()
+            if len(reactions_text) < 20:
+                continue
+
+            extraction_prompt = (
+                f"From the session reactions below, pick exactly 0 to {per_session_cap} single "
+                f"sentence(s) that are the sharpest, most specific, most memorable — the kind of "
+                f"reaction worth reading on stream 10 sessions from now. Prefer concrete images "
+                f"over general feelings. Return a JSON array of strings only, no preamble. "
+                f"If nothing qualifies, return [].\n\n"
+                f"Reactions:\n{reactions_text}"
+            )
+
+            print(f"   [Playthrough] backfill: extracting session {session_num}...")
+            try:
+                raw = await self.ai_core.claude_chat_inference(
+                    messages=[{"role": "user", "content": extraction_prompt}],
+                    system_prompt=(
+                        "You are a ruthless editor extracting only the most vivid, specific "
+                        "first-person reaction sentences. Output a JSON array of strings only."
+                    ),
+                    max_tokens=150,
+                )
+            except Exception as e:
+                print(f"   [Playthrough] backfill: session {session_num} extraction failed: {e}")
+                continue
+
+            if not raw:
+                print(f"   [Playthrough] backfill: session {session_num} — empty response.")
+                continue
+
+            try:
+                raw = raw.strip()
+                if raw.startswith("```"):
+                    raw = re.sub(r"^```[^\n]*\n?", "", raw).rstrip("`").strip()
+                moments: list[str] = _json.loads(raw)
+                if not isinstance(moments, list):
+                    continue
+                moments = [
+                    f"Session {session_num}: {s.strip()}"
+                    for s in moments[:per_session_cap]
+                    if isinstance(s, str) and len(s.strip()) > 15
+                ]
+                all_moments.extend(moments)
+            except Exception as e:
+                print(
+                    f"   [Playthrough] backfill: session {session_num} JSON parse failed: "
+                    f"{e} | raw: {raw[:80]}"
+                )
+                continue
+
+        if not all_moments:
+            print(f"   [Playthrough] backfill: no moments extracted — nothing to write.")
+            return False
+
+        # Trim to cap from the end — oldest sessions' moments are protected
+        all_moments = all_moments[: self.MAX_SIGNATURE_MOMENTS]
+
+        new_sig_block = "\n".join(f"- {m}" for m in all_moments)
+
+        # Re-read in case any async call above somehow modified the file (defensive)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            print(f"   [Playthrough] backfill: re-read failed: {e}")
+            return False
+
+        if self.SIGNATURE_MARKER in content:
+            before = content.split(self.SIGNATURE_MARKER, 1)[0]
+            after_marker = content.split(self.SIGNATURE_MARKER, 1)[1]
+            nxt = re.search(r"\n## ", after_marker)
+            rest = after_marker[nxt.start():] if nxt else ""
+            new_content = (
+                before
+                + self.SIGNATURE_MARKER + "\n\n"
+                + new_sig_block + "\n"
+                + rest
+            )
+        else:
+            if self.OPINIONS_MARKER in content:
+                new_content = content.replace(
+                    self.OPINIONS_MARKER,
+                    self.SIGNATURE_MARKER + "\n\n" + new_sig_block + "\n\n" + self.OPINIONS_MARKER,
+                    1,
+                )
+            else:
+                new_content = content + f"\n\n{self.SIGNATURE_MARKER}\n\n{new_sig_block}\n"
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            if target_slug == self.current_slug:
+                self.signature_moments = all_moments
+            print(
+                f"   [Playthrough] backfill complete: {len(all_moments)} signature moments "
+                f"from {n_sessions} session(s) → {path}"
+            )
+            return True
+        except Exception as e:
+            print(f"   [Playthrough] backfill: write failed: {e}")
+            return False
+
+    # ── Crash-recovery checkpoint ──────────────────────────────────────────────
+
+    def flush_checkpoint(self, activity: str = "", session_start_time: float = 0.0) -> bool:
+        """Write current session accumulators to a crash-recovery checkpoint file.
+        Sync and safe to call directly from an asyncio context for small payloads.
+        Returns True if something was written, False if there was nothing to save."""
+        if not self.current_slug:
+            return False
+        if not self.session_reactions and not self.session_chat_moments:
+            return False
+
+        os.makedirs(self.CHECKPOINT_DIR, exist_ok=True)
+        cp_path = os.path.join(self.CHECKPOINT_DIR, f"{self.current_slug}.json")
+        cp_data = {
+            "slug": self.current_slug,
+            "display": self.current_display,
+            "activity": activity or self.current_display,
+            # session_count is the number of COMPLETED sessions already on disk.
+            # The in-progress session would be session_count + 1.
+            "expected_session_number": self.session_count + 1,
+            "last_checkpoint_time": time.time(),
+            "session_start_time": session_start_time,
+            "closed_cleanly": False,
+            "session_reactions": list(self.session_reactions),
+            "session_chat_moments": list(self.session_chat_moments),
+        }
+        tmp = cp_path + ".tmp"
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(cp_data, f, indent=2, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, cp_path)  # atomic overwrite on NTFS
+            print(
+                f"   [Checkpoint] Flushed {len(self.session_reactions)} reactions, "
+                f"{len(self.session_chat_moments)} chat moments → {cp_path}"
+            )
+            return True
+        except Exception as e:
+            print(f"   [Checkpoint] Write failed: {e}")
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+            return False
+
+    def _load_checkpoint(self) -> dict | None:
+        """Read the checkpoint file for the current slug. Returns None if absent or unreadable."""
+        if not self.current_slug:
+            return None
+        cp_path = os.path.join(self.CHECKPOINT_DIR, f"{self.current_slug}.json")
+        if not os.path.exists(cp_path):
+            return None
+        try:
+            with open(cp_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"   [Checkpoint] Read failed: {e}")
+            return None
+
+    def _delete_checkpoint(self) -> None:
+        """Remove the checkpoint file for the current slug (after a clean session end)."""
+        if not self.current_slug:
+            return
+        cp_path = os.path.join(self.CHECKPOINT_DIR, f"{self.current_slug}.json")
+        try:
+            if os.path.exists(cp_path):
+                os.unlink(cp_path)
+        except Exception as e:
+            print(f"   [Checkpoint] Delete failed: {e}")
+
+    def _try_recover_checkpoint(self) -> None:
+        """Check for a crash checkpoint after loading a game. If the checkpoint is
+        valid (not cleanly closed, for the expected next session), restore its
+        session_reactions and session_chat_moments so they feed into this session's
+        append_session_entry as if the session continued."""
+        cp = self._load_checkpoint()
+        if cp is None:
+            return
+
+        if cp.get("closed_cleanly", True):
+            self._delete_checkpoint()
+            return
+
+        expected = cp.get("expected_session_number", -1)
+        if expected != self.session_count + 1:
+            # Checkpoint is for a different session number — stale, discard
+            print(
+                f"   [Checkpoint] Stale checkpoint for '{self.current_display}' "
+                f"(checkpoint expected session {expected}, file has {self.session_count} sessions) "
+                f"— discarding."
+            )
+            self._delete_checkpoint()
+            return
+
+        recovered_reactions = cp.get("session_reactions", [])
+        recovered_moments = cp.get("session_chat_moments", [])
+        if not recovered_reactions and not recovered_moments:
+            self._delete_checkpoint()
+            return
+
+        self.session_reactions = list(recovered_reactions)
+        self.session_chat_moments = list(recovered_moments)
+        age_min = max(0, int((time.time() - cp.get("last_checkpoint_time", time.time())) / 60))
+        print(
+            f"   [Playthrough] RECOVERED crash checkpoint for '{self.current_display}': "
+            f"{len(self.session_reactions)} reactions, {len(self.session_chat_moments)} chat "
+            f"moments (~{age_min}m old) — will be included in this session's entry."
+        )
 
     # ── Private helpers ────────────────────────────────────────────────────────
 
@@ -312,13 +650,16 @@ class PlaythroughMemory:
             f"# Playthrough: {display_name}\n\n"
             f"{self.SUMMARY_MARKER}\n\n"
             f"*(Rolling summary will be generated after {regen_n} sessions.)*\n\n"
+            f"{self.SIGNATURE_MARKER}\n\n"
+            f"*(Signature moments are extracted after each session.)*\n\n"
             f"{self.OPINIONS_MARKER}\n\n"
             f"*(Opinions develop as the playthrough continues.)*\n\n"
             f"{self.SESSION_LOG_MARKER}\n"
         )
 
     def _parse_file(self, path: str):
-        """Extract Rolling Summary, Opinions, and session count from an existing file."""
+        """Extract Rolling Summary, Opinions, Signature Moments, recent session
+        reactions, and session count from an existing file."""
         try:
             with open(path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -327,6 +668,8 @@ class PlaythroughMemory:
             self.current_summary = ""
             self.current_opinions = ""
             self.session_count = 0
+            self.recent_session_reactions = []
+            self.signature_moments = []
             return
 
         # Rolling Summary
@@ -339,8 +682,23 @@ class PlaythroughMemory:
         if self.current_opinions.startswith("*(Opinions develop"):
             self.current_opinions = ""  # Placeholder
 
+        # Signature Moments
+        sig_raw = self._extract_section(content, self.SIGNATURE_MARKER)
+        if sig_raw.startswith("*(Signature"):
+            self.signature_moments = []
+        else:
+            self.signature_moments = [
+                line.lstrip("- ").strip()
+                for line in sig_raw.splitlines()
+                if line.strip() and not line.strip().startswith("*(")  
+            ]
+
         # Session count
         self.session_count = len(re.findall(r"^### Session \d+", content, re.MULTILINE))
+
+        # Recent session reactions: parse last 2 session entries' "Kira's reactions" subsection.
+        # Stored as [(session_num, reaction_text)] oldest-first.
+        self.recent_session_reactions = self._parse_recent_reactions(content, n=2)
 
     def _extract_section(self, content: str, marker: str) -> str:
         """Extract section content between `marker` and the next ## heading."""
@@ -397,6 +755,157 @@ class PlaythroughMemory:
             print(f"   [Playthrough] Manifest build error: {e}")
 
         self.games_manifest = "\n".join(lines)
+
+    def _parse_recent_reactions(self, content: str, n: int = 2) -> list[tuple[int, str]]:
+        """Extract the 'Kira's reactions' subsection from the last n session entries.
+        Returns a list of (session_num, reaction_text) tuples, oldest-first."""
+        # Find all session blocks: ### Session N — date (~dur min)
+        session_headers = list(re.finditer(
+            r"^### Session (\d+)", content, re.MULTILINE
+        ))
+        if not session_headers:
+            return []
+        # Take last n
+        target_headers = session_headers[-n:]
+        results: list[tuple[int, str]] = []
+        for i, m in enumerate(target_headers):
+            session_num = int(m.group(1))
+            start = m.start()
+            # Block ends at start of next session header (or end of file)
+            end = target_headers[i + 1].start() if i + 1 < len(target_headers) else len(content)
+            block = content[start:end]
+            # Extract "Kira's reactions:" subsection within this block
+            rx_match = re.search(
+                r"\*\*Kira'?s reactions:\*\*\s*(.+?)(?=\n\n\*\*|\n### Session|\Z)",
+                block,
+                re.DOTALL | re.IGNORECASE,
+            )
+            if rx_match:
+                reaction_text = rx_match.group(1).strip()
+                if reaction_text:
+                    results.append((session_num, reaction_text))
+        return results
+
+    async def _extract_and_store_signature_moments(
+        self, path: str, entry_text: str, session_num: int
+    ) -> None:
+        """Extract 0-2 standout sentences from this session's 'Kira's reactions' text
+        via a cheap Claude Sonnet call, then prepend them to the Signature Moments
+        section in the playthrough file (oldest drop off the end at MAX cap).
+
+        B-READY: the extracted strings are also the natural unit to embed into a
+        game_moments ChromaDB collection. When upgrading to Option B, add an
+        .add() call here alongside (or instead of) the file write."""
+        # Extract the reactions section from the freshly-written entry
+        rx_match = re.search(
+            r"\*\*Kira'?s reactions:\*\*\s*(.+?)(?=\n\n\*\*|\Z)",
+            entry_text,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if not rx_match:
+            return
+        reactions_text = rx_match.group(1).strip()
+        if not reactions_text or len(reactions_text) < 20:
+            return
+
+        extraction_prompt = (
+            f"From the session reactions below, pick 0-2 single sentences that are "
+            f"the sharpest, most specific, most memorable — the kind of reaction worth "
+            f"reading on stream 10 sessions from now. Prefer concrete images over "
+            f"general feelings. Return a JSON array of strings only, no preamble. "
+            f"If nothing qualifies, return [].\n\n"
+            f"Reactions:\n{reactions_text}"
+        )
+
+        try:
+            raw = await self.ai_core.claude_chat_inference(
+                messages=[{"role": "user", "content": extraction_prompt}],
+                system_prompt=(
+                    "You are a ruthless editor extracting only the most vivid, specific "
+                    "first-person reaction sentences. Output a JSON array of strings only."
+                ),
+                max_tokens=150,
+            )
+        except Exception as e:
+            print(f"   [Playthrough] Signature extraction call failed: {e}")
+            return
+
+        if not raw:
+            return
+
+        # Parse JSON array
+        import json as _json
+        try:
+            raw = raw.strip()
+            # Strip markdown code fences if present
+            if raw.startswith("```"):
+                raw = re.sub(r"^```[^\n]*\n?", "", raw).rstrip("`").strip()
+            new_moments: list[str] = _json.loads(raw)
+            if not isinstance(new_moments, list):
+                return
+            new_moments = [
+                f"Session {session_num}: {s.strip()}"
+                for s in new_moments
+                if isinstance(s, str) and len(s.strip()) > 15
+            ]
+        except Exception as e:
+            print(f"   [Playthrough] Signature extraction JSON parse failed: {e} | raw: {raw[:100]}")
+            return
+
+        if not new_moments:
+            return
+
+        # Prepend new moments to the file's Signature Moments section
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            print(f"   [Playthrough] Signature read-back failed: {e}")
+            return
+
+        # Rebuild the moments list: new ones first, then existing, capped at MAX
+        existing_sig_raw = self._extract_section(content, self.SIGNATURE_MARKER)
+        existing = [
+            line.lstrip("- ").strip()
+            for line in existing_sig_raw.splitlines()
+            if line.strip() and not line.strip().startswith("*(") 
+        ]
+        combined = new_moments + existing
+        combined = combined[: self.MAX_SIGNATURE_MOMENTS]
+
+        new_sig_block = "\n".join(f"- {m}" for m in combined)
+        if self.SIGNATURE_MARKER in content:
+            before = content.split(self.SIGNATURE_MARKER, 1)[0]
+            after_marker = content.split(self.SIGNATURE_MARKER, 1)[1]
+            nxt = re.search(r"\n## ", after_marker)
+            rest = after_marker[nxt.start():] if nxt else ""
+            new_content = (
+                before
+                + self.SIGNATURE_MARKER + "\n\n"
+                + new_sig_block + "\n"
+                + rest
+            )
+        else:
+            # Section missing (old file) — inject before ## Opinions
+            if self.OPINIONS_MARKER in content:
+                new_content = content.replace(
+                    self.OPINIONS_MARKER,
+                    self.SIGNATURE_MARKER + "\n\n" + new_sig_block + "\n\n" + self.OPINIONS_MARKER,
+                    1,
+                )
+            else:
+                new_content = content + f"\n\n{self.SIGNATURE_MARKER}\n\n{new_sig_block}\n"
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            self.signature_moments = combined
+            print(
+                f"   [Playthrough] Signature moments updated: "
+                f"{len(new_moments)} new, {len(combined)} total → {path}"
+            )
+        except Exception as e:
+            print(f"   [Playthrough] Signature write-back failed: {e}")
 
     async def _regenerate_rolling_summary(self, path: str, display_name: str):
         """Read all session entries and regenerate the Rolling Summary via Claude.

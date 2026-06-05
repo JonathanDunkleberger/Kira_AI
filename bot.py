@@ -105,6 +105,11 @@ class VTubeBot:
     def __init__(self):
         self.interruption_event = asyncio.Event()
         self.processing_lock = asyncio.Lock()
+        # True while a chat-batch TTS response is playing — prevents vad_loop from
+        # setting interruption_event on voice detection so the chatter's response
+        # finishes its current audio before yielding to Jonny's voice. Hard interrupts
+        # (F8 / mute_for / pause_model) bypass this flag and always cut through.
+        self._chat_speaking = False
         self.ai_core = AI_Core(self.interruption_event)
         # Let ai_core append the streamer-mode persona overlay based on current mode
         # without baking mode into its cached system prompt.
@@ -1041,9 +1046,17 @@ class VTubeBot:
                 out = await self.ai_core.tool_inference(system, user, max_tokens=300)
                 cleaned = (out or "").strip()
                 if cleaned and cleaned.lower() != "(none yet)":
+                    # Hard-enforce bullet count and per-bullet length in code — the
+                    # model ignores "max N bullets" when the input is long. This trims
+                    # session_takes_summary (the live prompt block) only; session_takes_pool
+                    # and playthrough_memory.session_reactions are untouched.
+                    lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
+                    lines = lines[:self.session_takes_max_bullets]
+                    lines = [l[:110] for l in lines]  # ~18 words per bullet max
+                    cleaned = "\n".join(lines)
                     self.session_takes_summary = cleaned
                     print(f"   [SessionTakes] Condensed {len(snapshot)} reactions → "
-                          f"{cleaned.count(chr(10)) + 1} bullets.")
+                          f"{len(lines)} bullets (hard-capped).")
                 self.session_takes_last_condensed_count = len(snapshot)
                 self.session_takes_last_condensed_at = time.time()
             except Exception as e:
@@ -1846,6 +1859,8 @@ class VTubeBot:
             # FIX 5: Rolling dialogue summary condensation — persists game/show
             # dialogue context beyond the 60s raw-transcript window.
             tasks.append(self.loopback_dialogue_summary_loop())
+            # Periodic crash-recovery checkpoint for playthrough memory
+            tasks.append(self._checkpoint_loop())
 
             # 3. Start Voice Recorder (This is the main loop effectively)
             print("   [System] Starting Voice Recorder (VAD)...")
@@ -1932,7 +1947,7 @@ class VTubeBot:
 
                 is_speech = self.vad.is_speech(data, 16000)
 
-                if self.processing_lock.locked() and is_speech:
+                if self.processing_lock.locked() and is_speech and not self._chat_speaking:
                     self.interruption_event.set()
                     continue
                 
@@ -1974,19 +1989,24 @@ class VTubeBot:
         # Anything this short is almost certainly a click, breath, or noise burst.
         if len(audio_data) < 6400:
             return
+        # Fix #3: hold processing_lock only for the Whisper transcription call.
+        # Releasing it immediately after narrows the window during which vad_loop
+        # can fire interruption_event, reducing false-positive chat aborts.
         async with self.processing_lock:
             user_text = await self.ai_core.transcribe_audio(audio_data, self.current_activity)
-            if not user_text or len(user_text) < 3: return
-            
-            print(f">>> You said: {user_text}")
+        # Lock released — post-transcription steps don't need it.
+        if not user_text or len(user_text) < 3:
+            return
 
-            # --- NEW: Ignore duplicate inputs ---
-            if any(h["content"] == user_text for h in self.conversation_history):
-                print(f"(Duplicate input ignored: {user_text})")
-                return
-            
-            # --- PUSH VOICE TO QUEUE ---
-            await self.input_queue.put(("voice", user_text))
+        print(f">>> You said: {user_text}")
+
+        # --- NEW: Ignore duplicate inputs ---
+        if any(h["content"] == user_text for h in self.conversation_history):
+            print(f"(Duplicate input ignored: {user_text})")
+            return
+
+        # --- PUSH VOICE TO QUEUE ---
+        await self.input_queue.put(("voice", user_text))
 
 
     async def brain_worker(self):
@@ -2327,6 +2347,29 @@ class VTubeBot:
         count = sum(1 for t in self.chat_msg_timestamps if t > cutoff)
         return float(count)
 
+    async def _checkpoint_loop(self):
+        """Periodically flush in-session playthrough accumulators to a crash-recovery
+        checkpoint file. If the bot crashes before clean shutdown, the next
+        load_for_game call will detect and recover this checkpoint automatically."""
+        from config import CHECKPOINT_INTERVAL_SECONDS
+        print("   [System] Playthrough checkpoint loop started.")
+        while self.is_running:
+            await asyncio.sleep(CHECKPOINT_INTERVAL_SECONDS)
+            if not self.playthrough_memory or not self.playthrough_memory.current_slug:
+                continue
+            pm = self.playthrough_memory
+            if not pm.session_reactions and not pm.session_chat_moments:
+                continue
+            try:
+                # Sync file write is sub-millisecond for a small JSON payload;
+                # running in-thread keeps the event loop from seeing any latency.
+                await asyncio.to_thread(
+                    pm.flush_checkpoint,
+                    self.current_activity,
+                    self.session_started_at,
+                )
+            except Exception as e:
+                print(f"   [Checkpoint] Loop error: {e}")
 
     async def chat_batch_worker(self):
         """Drains the chat batch buffer every CHAT_BATCH_WINDOW seconds and emits
@@ -2348,14 +2391,47 @@ class VTubeBot:
             batch = self.chat_batch_buffer[:]
             self.chat_batch_buffer.clear()
 
+            # Fix #6: Evict messages older than 60s — answering stale chat is worse
+            # than skipping it; the stream context will have moved on by then.
+            _now = time.time()
+            _stale = [m for m in batch if _now - m.get("timestamp", _now) > 60.0]
+            batch = [m for m in batch if _now - m.get("timestamp", _now) <= 60.0]
+            if _stale:
+                print(f"   [ChatBatch] Evicted {len(_stale)} stale message(s) (>60s old)")
+            if not batch:
+                continue
+
             try:
                 await self._respond_to_chat_batch(batch)
             except Exception as e:
                 print(f"   [ChatBatch] Error: {e}")
                 traceback.print_exc()
+                # Fix #1: Restore the batch on failure so messages aren't silently lost
+                # on transient API errors. Prepend (not append) so original arrival order
+                # is preserved ahead of any new messages that arrived during the attempt.
+                self.chat_batch_buffer[:0] = batch
 
     async def _respond_to_chat_batch(self, batch: list):
         """Decides what (if anything) to say in response to a batch of chat messages."""
+        if not batch:
+            return
+
+        # Fix #5: Per-user flood cap — fold any one user's burst to their last 3 messages.
+        # Prevents a monologuing or trolling chatter from jamming the entire batch and
+        # crowding out everyone else. Keeps the most-recent messages (most relevant).
+        _PER_USER_MAX = 3
+        _user_seen: dict = {}
+        _indexed = list(enumerate(batch))
+        _keep_indices: set = set()
+        for _idx, _msg in reversed(_indexed):  # walk newest-first to keep last N
+            _u = _msg.get("username", "")
+            _user_seen[_u] = _user_seen.get(_u, 0) + 1
+            if _user_seen[_u] <= _PER_USER_MAX:
+                _keep_indices.add(_idx)
+        _dropped_flood = len(batch) - len(_keep_indices)
+        if _dropped_flood:
+            print(f"   [ChatBatch] Flood cap: folded {_dropped_flood} excess message(s) to last {_PER_USER_MAX} per user")
+        batch = [_msg for _idx, _msg in _indexed if _idx in _keep_indices]
         if not batch:
             return
 
@@ -2527,8 +2603,21 @@ class VTubeBot:
             return
 
         print(f"   >>> Kira (Chat Batch of {len(batch)}): {cleaned}")
-        await self.ai_core.speak_text(cleaned)
+        # Fix #4: Pre-record in conversation history BEFORE TTS so context isn't lost
+        # if the response is interrupted mid-playback. The thread stays coherent even
+        # when Jonny's voice cuts in and the audio never fully plays out.
         self.conversation_history.append({"role": "assistant", "content": cleaned})
+        if len(self.conversation_history) > 20:
+            self.conversation_history = self.conversation_history[-20:]
+        # Fix #2: Guard TTS against voice-interrupt abandonment — vad_loop won't fire
+        # interruption_event while _chat_speaking is True, so this response plays to
+        # completion before Jonny's queued voice input is processed. Hard interrupts
+        # (F8 / mute_for / pause_model) bypass this and still cut through immediately.
+        self._chat_speaking = True
+        try:
+            await self.ai_core.speak_text(cleaned)
+        finally:
+            self._chat_speaking = False
         chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
 
         # ── Cookies: respond-to-chat award ──

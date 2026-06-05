@@ -78,6 +78,11 @@ HIGHLIGHT_EXTRACTION_ENABLED = os.getenv("HIGHLIGHT_EXTRACTION_ENABLED", "true")
 # Tune via env: HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS=180
 HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS = int(os.getenv("HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS", "300"))
 
+# How often (seconds) the playthrough crash-recovery checkpoint is flushed to disk.
+# Default 300s (5 min): a crash loses at most 5 minutes of reactions/chat moments.
+# Lower for finer granularity; raise if the file I/O is a concern on slow storage.
+CHECKPOINT_INTERVAL_SECONDS = int(os.getenv("CHECKPOINT_INTERVAL", "300"))
+
 # Persistent stream logging (transcript.md + events.jsonl + summary.md per session).
 # Written to logs/streams/YYYY-MM-DD_HH-MM_<activity>/. All writes are async and
 # non-blocking. Set false only for development / offline testing.
