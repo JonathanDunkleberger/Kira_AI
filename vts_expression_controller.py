@@ -1,20 +1,16 @@
 # vts_expression_controller.py — bridges Kira's EmotionalState to VTube Studio hotkeys.
 #
-# All expression hotkeys in this model are type ToggleExpression: firing the same
-# hotkey twice turns the expression OFF. We deliberately do NOT use the model's
-# RemoveAllExpressions hotkey — it resets the model to its "default" state, which
-# on the Suki model includes the copyright watermark (水印) being ON. Instead, we
-# track exactly the one expression we last toggled on, and toggle just that one
-# off before toggling the new one on. The watermark and all outfit / accessory
-# toggles are therefore never touched by this controller.
+# Hiyori Momose model uses TriggerAnimation hotkeys (fire-and-forget one-shot animations).
+# Emotion → animation mapping is in EMOTION_TO_EXPRESSION below; update it after
+# checking which animation name corresponds to which visual in VTube Studio.
 #
 # Behavior:
-#   1) If a previous emotion expression is currently on → fire its hotkey again to OFF.
-#   2) If the new emotion has a mapped expression (non-None) → fire its hotkey to ON.
-#   3) HAPPY maps to None: previous gets untoggled, nothing new applied (neutral face).
-#
-# Watermark safety: the watermark toggle hotkey ID is hard-blacklisted. Even if the
-# mapping is ever misconfigured to point at it, the controller will refuse to fire it.
+#   1) Only states in SIGNIFICANT_STATES can trigger an animation. HAPPY and SASSY
+#      never animate — they're Kira's deadpan baseline and a motion there undercuts
+#      the dryness. Animations are punctuation for real emotional shifts only.
+#   2) If the incoming state is not significant, the transition is still tracked
+#      (so the next significant state fires correctly) but no hotkey is sent.
+#   3) Identical consecutive states are no-ops (new_state == last_triggered).
 
 from __future__ import annotations
 
@@ -26,22 +22,30 @@ from vts_client import VTSClient
 from config import ENABLE_VTS_EXPRESSIONS
 
 
-# Hard blacklist — these hotkey IDs will NEVER be fired by this controller, regardless
-# of what's in EMOTION_TO_EXPRESSION. Add any other "do not automate" toggles here.
-BLACKLISTED_HOTKEY_IDS: set[str] = {
-    "564fef6591ed441cb7e07a0ac7278e1f",   # 水印 (copyright watermark) — must stay manual
-}
-
-
-# Emotion → expression hotkey NAME (case-insensitive; resolved against VTS at runtime).
-# A value of None means: no expression overlay for that state (untoggle previous only).
+# Emotion → animation hotkey NAME (case-insensitive; resolved against VTS at runtime).
+# All Hiyori hotkeys are TriggerAnimation (one-shot, fire-and-forget).
+# Fill in the animation name after confirming which visual it produces in VTube Studio.
+# A value of None means: no animation for this state (model stays at idle).
+#
+# Current Hiyori hotkeys (from HotkeysInCurrentModelRequest 2026-06-05):
+#   "My Animation 1"  → hiyori_m03.motion3.json  (35e965fc477342888a9c6beb2464b12d)
+#   "My Animation 2"  → hiyori_m06.motion3.json  (135ec454ec524d8c8d7c90a20bbc915d)
+#   "My Animation 3"  → hiyori_m10.motion3.json  (f9c5528eab6a4b1cb1189356c4d6a967)
 EMOTION_TO_EXPRESSION: dict[EmotionalState, Optional[str]] = {
-    EmotionalState.HAPPY:       None,       # baseline — untoggle previous, apply nothing
-    EmotionalState.SASSY:       "星星眼",    # star eyes
-    EmotionalState.EMOTIONAL:   "脸红",      # blush
-    EmotionalState.MOODY:       "痴呆",      # dazed
-    EmotionalState.HYPERACTIVE: "爱心眼",    # heart eyes
+    EmotionalState.HAPPY:       None,               # hiyori_m03 fits, but HAPPY is her default register — fires too often
+    EmotionalState.SASSY:       None,               # deadpan IS the delivery; motion undercuts dryness
+    EmotionalState.EMOTIONAL:   None,               # no animation fits genuine warmth; baseline > wrong motion
+    EmotionalState.MOODY:       "My Animation 3",   # hiyori_m10 — "ugh, darn" reluctant/put-out face
+    EmotionalState.HYPERACTIVE: "My Animation 2",   # hiyori_m06 — hands up, leaning in, giddy "ooh this'll be good"
 }
+
+# Only real departures from her baseline get an animation beat.
+# HAPPY excluded: it's her default state — animating it = constant twitching.
+# SASSY/EMOTIONAL excluded: no animation fits; deadpan/warmth work better still.
+SIGNIFICANT_STATES: frozenset[EmotionalState] = frozenset({
+    EmotionalState.HYPERACTIVE,
+    EmotionalState.MOODY,
+})
 
 
 class VTSExpressionController:
@@ -52,16 +56,9 @@ class VTSExpressionController:
         self.enabled = ENABLE_VTS_EXPRESSIONS
         self._client: Optional[VTSClient] = VTSClient() if self.enabled else None
         self._last_triggered: Optional[EmotionalState] = None
-        # The exact hotkey name we last toggled ON (if any). Tracked separately so we
-        # can untoggle precisely the same hotkey even if the mapping later changes.
-        self._active_expression_name: Optional[str] = None
-        # Expression NAMES we've already confirmed don't exist in the currently
-        # loaded model. Kept so we log the warning ONCE per name and silently
-        # no-op on subsequent transitions instead of spamming. Cleared whenever
-        # we detect a model swap.
+        # Animation names confirmed absent in the current model — log once, skip silently.
         self._skip_expressions: set[str] = set()
-        # Last-seen VTS modelID; used to detect model swaps so we can flush
-        # _skip_expressions and re-evaluate availability against the new model.
+        # Last-seen VTS modelID; used to detect model swaps and flush the skip set.
         self._known_model_id: Optional[str] = None
 
     async def _refresh_model_id_if_changed(self) -> bool:
@@ -76,112 +73,57 @@ class VTSExpressionController:
             return False
         if current and current != self._known_model_id:
             if self._known_model_id is not None:
-                print(f"   [VTS] Model swap detected (modelID changed) \u2014 clearing missing-expression skip list.")
+                print(f"   [VTS] Model swap detected — clearing missing-animation skip list.")
             self._known_model_id = current
             self._skip_expressions.clear()
             return True
         return False
 
-    async def _safe_trigger(self, hotkey_name_or_id: str) -> bool:
-        """Wrapper around VTSClient.trigger_expression that enforces the blacklist.
-        Returns False (without firing) if the resolved target is blacklisted."""
-        if not hotkey_name_or_id:
-            return False
-        # Direct ID match against blacklist.
-        if hotkey_name_or_id in BLACKLISTED_HOTKEY_IDS:
-            print(f"   [VTS] Refusing to fire blacklisted hotkey ID {hotkey_name_or_id}")
-            return False
-        # If a NAME was passed, resolve it to an ID and check that too.
-        if not VTSClient._looks_like_id(hotkey_name_or_id):
-            resolved = await self._client._resolve_name_to_id(hotkey_name_or_id)
-            if resolved and resolved in BLACKLISTED_HOTKEY_IDS:
-                print(f"   [VTS] Refusing to fire blacklisted hotkey '{hotkey_name_or_id}' ({resolved})")
-                return False
-        return await self._client.trigger_expression(hotkey_name_or_id)
-
     async def on_emotion_change(self, new_state: EmotionalState) -> None:
         """Call when Kira's EmotionalState actually transitions. Best-effort, never raises.
 
-        Untoggles the previously-active expression (if any), then toggles the new one
-        (if mapped). Never touches outfit/accessory hotkeys, never fires the watermark.
-
-        Model-swap survival:
-          * If the previous expression name no longer exists in the current model
-            (model was swapped), we don't try to untoggle it \u2014 the swap reset
-            its state for us. We just clear our tracking and continue.
-          * If the new expression name doesn't exist in the current model, we
-            log ONCE per name and add it to a skip set, so subsequent
-            transitions to that emotion no-op silently until the model changes
-            again.
-          * Whenever VTS reports a different modelID than we last saw, the skip
-            set is flushed so newly-available expressions get re-tried."""
+        Only fires an animation for states in SIGNIFICANT_STATES (EMOTIONAL,
+        HYPERACTIVE, MOODY). HAPPY and SASSY are always silent — they're her
+        deadpan baseline register and motion there undercuts the dryness.
+        The transition is still recorded so the next significant state works."""
         if not self.enabled or self._client is None:
             return
         if new_state == self._last_triggered:
             return
 
+        # Always advance tracking so the next transition is relative to now.
+        self._last_triggered = new_state
+
+        # Gate: only significant states get an animation.
+        if new_state not in SIGNIFICANT_STATES:
+            return
+
         new_expression = EMOTION_TO_EXPRESSION.get(new_state)
-        prev_expression = self._active_expression_name
+        print(f"   [VTS] Emotion transition → {new_state.name} (mapped: '{new_expression}')")
 
         try:
-            # Step 1: untoggle the previously-active expression, if any.
-            if prev_expression:
-                # If the previous name doesn't resolve in the current model, the
-                # active model was swapped after we toggled it on. The previous
-                # expression's state is no longer ours to manage \u2014 just clear
-                # our tracking and proceed. Also reset the skip set since the
-                # model has changed.
-                prev_resolved = await self._client._resolve_name_to_id(prev_expression)
-                if prev_resolved is None:
-                    print(f"   [VTS] Previous expression '{prev_expression}' not in current model \u2014 assuming model swap; clearing tracked state.")
-                    self._active_expression_name = None
-                    await self._refresh_model_id_if_changed()
-                else:
-                    off_ok = await self._safe_trigger(prev_expression)
-                    print(f"   [VTS] Untoggled previous expression '{prev_expression}' ({'success' if off_ok else 'fail'})")
-                    if not off_ok:
-                        # If we couldn't untoggle, bail without updating state so the next
-                        # transition retries cleanly. Don't stack a second expression on top.
-                        return
-                    self._active_expression_name = None
-
-            # Step 2: toggle the new expression on (skip for baseline / None).
+            # No animation mapped for this state — no-op (model stays at idle).
             if new_expression is None:
-                print(f"   [VTS] Emotion {new_state.name} \u2192 baseline (no overlay)")
-                self._last_triggered = new_state
                 return
 
-            # Step 2a: previously-confirmed-missing in this model \u2014 silent no-op.
+            # Previously confirmed absent in this model — silent no-op.
             if new_expression in self._skip_expressions:
-                self._last_triggered = new_state
                 return
 
-            # Step 2b: pre-resolve so we can distinguish "name doesn't exist"
-            # from "trigger API error". _resolve_name_to_id already refreshes
-            # the hotkey cache on miss and logs the refresh.
+            # Check for a model swap; if so, flush the skip set before resolving.
+            await self._refresh_model_id_if_changed()
+
+            # Pre-resolve to distinguish "name doesn't exist" from a trigger error.
             resolved = await self._client._resolve_name_to_id(new_expression)
             if resolved is None:
-                # Maybe the model was swapped \u2014 re-check modelID, and if it
-                # changed, flush the skip set and try resolving once more.
-                if await self._refresh_model_id_if_changed():
-                    resolved = await self._client._resolve_name_to_id(new_expression)
-                if resolved is None:
-                    print(f"   [VTS] Current model has no expression for {new_state.name} ('{new_expression}') \u2014 skipping until model changes.")
-                    self._skip_expressions.add(new_expression)
-                    # Mark as "handled" so we don't keep re-checking on every
-                    # transition into this state. _skip_expressions guards the next ones.
-                    self._last_triggered = new_state
-                    return
+                print(f"   [VTS] Current model has no animation for {new_state.name} ('{new_expression}') — skipping until model changes.")
+                self._skip_expressions.add(new_expression)
+                return
 
-            # Step 2c: actually trigger. trigger_expression handles the 202
-            # stale-ID auto-refresh path internally for free.
-            on_ok = await self._safe_trigger(new_expression)
-            print(f"   [VTS] Emotion {new_state.name} \u2192 triggered '{new_expression}' ({'success' if on_ok else 'fail'})")
-            if on_ok:
-                self._active_expression_name = new_expression
-                self._last_triggered = new_state
+            # Fire the animation. TriggerAnimation is one-shot — no untoggle needed.
+            ok = await self._client.trigger_expression(new_expression)
+            print(f"   [VTS] Emotion {new_state.name} → triggered '{new_expression}' ({'success' if ok else 'fail'})")
         except Exception as e:
-            # Defensive: VTSClient already swallows errors, but belt + suspenders.
             print(f"   [VTS] on_emotion_change suppressed error: {e}")
 
     def fire_and_forget(self, new_state: EmotionalState, loop: asyncio.AbstractEventLoop | None = None) -> None:
@@ -208,26 +150,39 @@ class VTSExpressionController:
     async def connect_eager(self) -> bool:
         """Connect + authenticate to VTube Studio up front, so the first emotion
         transition isn't lost to lazy-connect latency. Returns True on success,
-        False on any failure. Never raises.
-
-        NOTE on the watermark (水印): the VTube Studio API does not expose current
-        ToggleExpression state in a way we can rely on without per-expression file
-        lookups, and the model's default-on state includes the watermark. If the
-        watermark is visible at stream start, press Tab once manually in VTS to
-        toggle it off. This controller will never touch it after that."""
+        False on any failure. Never raises."""
         if not self.enabled or self._client is None:
             return False
         try:
             ok = await self._client.connect()
             if ok:
-                print("   [VTS] Eager connect succeeded — ready to drive expressions.")
-                print("   [VTS] Watermark note: if 水印 is visible, press Tab once in VTS to clear it. "
-                      "This controller will never auto-toggle it.")
+                print("   [VTS] Connected & authenticated — ready to drive expressions.")
                 # Prime modelID so the first emotion transition can detect swaps.
                 try:
                     self._known_model_id = await self._client.get_current_model_id()
                 except Exception:
                     self._known_model_id = None
+
+                # Print the active mapping so mis-spellings surface immediately.
+                active = {s.name: name for s, name in EMOTION_TO_EXPRESSION.items() if name is not None}
+                if active:
+                    print("   [VTS] Emotion → hotkey mapping:")
+                    for state_name, anim_name in active.items():
+                        print(f"          {state_name} → '{anim_name}'")
+                else:
+                    print("   [VTS] Warning: no animations are mapped — all states will no-op.")
+
+                # Validate: warn for any mapped name not present in the current model.
+                try:
+                    hotkeys = await self._client.list_hotkeys()
+                    vts_names = {(hk.get("name") or "").strip().lower() for hk in hotkeys}
+                    for state_name, anim_name in active.items():
+                        if anim_name.strip().lower() not in vts_names:
+                            print(f"   [VTS] WARNING: '{anim_name}' (mapped to {state_name}) is NOT in the current model's hotkeys — will be skipped.")
+                        else:
+                            print(f"   [VTS] Confirmed: '{anim_name}' found in model hotkeys.")
+                except Exception as e:
+                    print(f"   [VTS] Startup hotkey validation failed: {e}")
             else:
                 print("   [VTS] Eager connect failed — expressions will retry lazily on next emotion change.")
             return ok

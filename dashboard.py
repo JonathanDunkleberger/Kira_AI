@@ -11,12 +11,14 @@ import concurrent.futures
 # ── Global exception hooks — make ALL crashes print a full traceback ──────────
 def _excepthook(exc_type, exc_value, exc_tb):
     print("[CRASH] Unhandled exception in main thread:", flush=True)
-    traceback.print_exception(exc_type, exc_value, exc_tb)
+    traceback.print_exception(exc_type, exc_value, exc_tb, file=sys.stderr)
+    sys.stderr.flush()
     sys.__excepthook__(exc_type, exc_value, exc_tb)
 
 def _thread_excepthook(args):
     print(f"[CRASH] Unhandled exception in thread '{args.thread.name}':", flush=True)
-    traceback.print_exception(args.exc_type, args.exc_value, args.exc_tb)
+    traceback.print_exception(args.exc_type, args.exc_value, args.exc_tb, file=sys.stderr)
+    sys.stderr.flush()
 
 sys.excepthook = _excepthook
 threading.excepthook = _thread_excepthook

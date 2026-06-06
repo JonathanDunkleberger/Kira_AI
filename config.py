@@ -166,8 +166,8 @@ AUDD_API_TOKEN = os.getenv("AUDD_API_TOKEN", "")
 CUTSCENE_AWARE = os.getenv("CUTSCENE_AWARE", "true").lower() == "true"
 
 # VTube Studio integration — drives Live2D facial expressions from Kira's emotional state.
-# Default OFF. Token is auto-created on first approved handshake and persisted to disk.
-ENABLE_VTS_EXPRESSIONS = os.getenv("ENABLE_VTS_EXPRESSIONS", "false").lower() == "true"
+# Default ON. Token is auto-created on first approved handshake and persisted to disk.
+ENABLE_VTS_EXPRESSIONS = os.getenv("ENABLE_VTS_EXPRESSIONS", "true").lower() == "true"
 VTS_WS_URL = os.getenv("VTS_WS_URL", "ws://localhost:8001")
 VTS_PLUGIN_NAME = os.getenv("VTS_PLUGIN_NAME", "Kira AI")
 VTS_PLUGIN_DEVELOPER = os.getenv("VTS_PLUGIN_DEVELOPER", "JonnyD")
