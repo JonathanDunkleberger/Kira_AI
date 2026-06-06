@@ -285,6 +285,15 @@ class StreamLogger:
                 text = event.get("text", "")[:150]
                 return f"{t} [KIRA (Chat Batch of {n})]: \"{text}\""
 
+            if etype == "activity_switch":
+                act  = event.get("activity", "")
+                atyp = event.get("activity_type", "")
+                atyp_str = f" ({atyp})" if atyp else ""
+                return (
+                    f"\n---\n\n"
+                    f"{t} [ACTIVITY SWITCHED: {act}{atyp_str}]\n"
+                )
+
             if etype == "activity_change":
                 act  = event.get("activity", "")
                 atyp = event.get("activity_type", "")

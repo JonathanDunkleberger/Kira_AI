@@ -633,11 +633,14 @@ class LoopbackTranscriber:
     # ── Logging ──────────────────────────────────────────────────────────
 
     def _write_log(self, new_segments: list):
+        # Raw Whisper dump goes to a throwaway location — kept for debugging but
+        # never in a stream session folder and not worth archiving.
         try:
-            os.makedirs(LOOPBACK_LOG_DIR, exist_ok=True)
+            log_dir = os.path.join(LOOPBACK_LOG_DIR, "_loopback_raw")
+            os.makedirs(log_dir, exist_ok=True)
             from datetime import datetime
             now = datetime.now()
-            path = os.path.join(LOOPBACK_LOG_DIR, f"loopback_stt_{now.strftime('%Y%m%d')}.log")
+            path = os.path.join(log_dir, f"loopback_{now.strftime('%Y%m%d')}.log")
             with open(path, "a", encoding="utf-8") as fh:
                 for seg in new_segments:
                     ts = datetime.fromtimestamp(seg["ts"]).strftime("%H:%M:%S")

@@ -62,10 +62,27 @@ class PlaythroughMemory:
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
-    def load_for_game(self, game_name: str):
+    def get_existing_games(self) -> list:
+        """Return (display_name, slug) pairs for all existing playthrough .md files.
+        display_name is a human-readable form built from the slug (e.g. '007 First Light').
+        Used by the dashboard autocomplete combobox."""
+        results = []
+        try:
+            for fname in sorted(os.listdir(self.PLAYTHROUGHS_DIR)):
+                if fname.endswith(".md"):
+                    slug = fname[:-3]
+                    display = " ".join(w.capitalize() for w in slug.split("_"))
+                    results.append((display, slug))
+        except OSError:
+            pass
+        return results
+
+    def load_for_game(self, game_name: str, known_slug: str = ""):
         """Load (or prepare to create) the playthrough file for a game.
-        Safe to call multiple times — no-ops if the slug is unchanged."""
-        slug = self._slugify(game_name)
+        Safe to call multiple times — no-ops if the slug is unchanged.
+        known_slug: if provided (from autocomplete selection), bypasses normalization
+        entirely and loads that exact file. Normalization only runs for freshly typed names."""
+        slug = known_slug if known_slug else self._slugify(game_name)
         if not slug or slug == self.current_slug:
             return
 
@@ -635,9 +652,32 @@ class PlaythroughMemory:
 
     # ── Private helpers ────────────────────────────────────────────────────────
 
+    # Streaming boilerplate stripped before slugifying so that
+    # "playing 007 first light" and "007 first light" produce the same slug.
+    _SLUG_PREFIXES = (
+        "now playing ", "i'm playing ", "im playing ",
+        "we're playing ", "were playing ",
+        "let's play ", "lets play ", "playing ",
+    )
+    _SLUG_SUFFIXES = (
+        " gameplay", " playthrough", " let's play", " lets play", " stream",
+    )
+
     def _slugify(self, name: str) -> str:
-        """Convert a game/activity name to a safe filename slug."""
-        slug = re.sub(r"[^\w\s-]", "", name.lower())
+        """Convert a game/activity name to a safe filename slug.
+        Strips common streaming prefixes/suffixes so that typing variants
+        like 'playing 007 first light' resolve to the same slug as '007 first light'.
+        Only strips ONE prefix and ONE suffix to avoid eating real title tokens."""
+        text = name.strip().lower()
+        for prefix in self._SLUG_PREFIXES:
+            if text.startswith(prefix):
+                text = text[len(prefix):]
+                break
+        for suffix in self._SLUG_SUFFIXES:
+            if text.endswith(suffix):
+                text = text[: -len(suffix)]
+                break
+        slug = re.sub(r"[^\w\s-]", "", text)
         slug = re.sub(r"[\s/_-]+", "_", slug).strip("_")
         return slug[:60]
 

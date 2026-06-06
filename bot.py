@@ -240,6 +240,14 @@ class VTubeBot:
         self.active_prediction = None              # active chat prediction state (None or dict)
         self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
 
+        # GPU contention load-shedding.
+        # _under_load=True when recent triage latency signals GPU saturation.
+        # Checked by _execute_interjection (skip fresh capture) and
+        # dynamic_observer_loop (lengthen inter-tick sleep).
+        # Sampled by brain_worker after each triage call.
+        self._under_load: bool = False
+        self._load_triage_latencies: list[float] = []  # rolling window (last 5)
+
         # Recent activity brief — generated at startup, cached for the session
         self.recent_activity_brief: str = ""
         self.recent_chatters_brief: str = ""
@@ -1156,8 +1164,11 @@ class VTubeBot:
 
     # ── Manual Game Mode Activation (dashboard on-ramp) ───────────────────────
 
-    def activate_game_mode(self, name: str) -> str:
+    def activate_game_mode(self, name: str, known_slug: str = "") -> str:
         """Manual game mode activation from the dashboard.
+
+        known_slug: if provided (picked from autocomplete), passed directly to
+        playthrough_memory.load_for_game(), bypassing slug normalization.
 
         If GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
         stream-ready state automatically. For ACTIVITY_GAME specifically:
@@ -1214,7 +1225,7 @@ class VTubeBot:
         # Load playthrough memory for GAME / VN
         playthrough_note = "no playthrough file"
         if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
-            self.playthrough_memory.load_for_game(name)
+            self.playthrough_memory.load_for_game(name, known_slug=known_slug)
             # Note: do NOT reset session takes/spotlight here — those are
             # streaming-session scoped and must survive activity switches (Req A).
             playthrough_note = (
@@ -1230,9 +1241,10 @@ class VTubeBot:
         print(f"     Highlights: {self.highlight_extraction_enabled} | Loopback: {loopback_state}")
         print(f"     Playthrough: {playthrough_note}")
 
-        # Start a new stream log session for this activity (non-blocking)
+        # Drop an activity marker into the EXISTING stream log — no new folder.
+        # One stream = one folder. Switching activities appends a marker line.
         if STREAM_LOGGING_ENABLED:
-            self._schedule_stream_restart(name, new_type)
+            self.stream_logger.log("activity_switch", activity=name, activity_type=new_type)
 
         return new_type
 
@@ -1323,20 +1335,9 @@ class VTubeBot:
             print(f"   [MANUAL MODE] State reset error: {e}")
             traceback.print_exc()
 
-        # Close the game session log and open a fresh "general" session.
-        # The Opus summary inside finish() is the slowest call — it runs LAST so
-        # everything above is already on disk if the summary call dies.
+        # Drop a marker into the EXISTING stream log (no close/reopen — one folder per stream).
         if STREAM_LOGGING_ENABLED:
-            try:
-                await self.stream_logger.finish(self.ai_core)
-                await self.stream_logger.start(
-                    activity="general",
-                    mode=self.mode or "streamer",
-                    preset=getattr(self, "_last_preset", ""),
-                )
-            except Exception as e:
-                print(f"   [StreamLogger] Deactivate restart error: {e}", file=sys.stderr)
-                traceback.print_exc()
+            self.stream_logger.log("activity_switch", activity="general", activity_type=ACTIVITY_GENERAL)
 
     async def shutdown_async(self) -> None:
         """Graceful full-process shutdown, safe to call from the dashboard's
@@ -2352,6 +2353,23 @@ class VTubeBot:
                         )
                     except Exception:
                         pass
+                    _triage_ms = int((time.time() - _triage_t0) * 1000)
+                    print(f"   [TIMING] triage+memory: {_triage_ms}ms")
+                    # GPU contention detector: maintain a rolling window of the last 5
+                    # triage latencies. If the median exceeds 2000ms the GPU is saturated
+                    # (Groq is network-only; high latency means VRAM contention is spilling
+                    # into OS scheduling). Flip _under_load to shed work in hot paths.
+                    _LOAD_THRESHOLD_MS = 2000
+                    _LOAD_WINDOW = 5
+                    self._load_triage_latencies.append(_triage_ms)
+                    if len(self._load_triage_latencies) > _LOAD_WINDOW:
+                        self._load_triage_latencies.pop(0)
+                    if len(self._load_triage_latencies) >= 3:
+                        _median = sorted(self._load_triage_latencies)[len(self._load_triage_latencies) // 2]
+                        _was_under = self._under_load
+                        self._under_load = (_median > _LOAD_THRESHOLD_MS)
+                        if self._under_load != _was_under:
+                            print(f"   [LoadShed] GPU load state changed: under_load={self._under_load} (median triage={_median}ms)")
 
                     if decision == "STAY_QUIET":
                         print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
@@ -3318,6 +3336,16 @@ class VTubeBot:
 
         self._session_artifacts_written = True
 
+        # ── Auto-delete raw dump if lore + clips both succeeded ──────────────
+        # Raw dump's only purpose is crash-recovery backfill. Once lore and clips
+        # are generated it's redundant. If either write failed, keep it for backfill_lore.py.
+        if results.get("raw_dump") and results.get("lore") and results.get("clips"):
+            try:
+                os.remove(results["raw_dump"])
+                print(f"   [Artifacts] Raw dump deleted (lore+clips written successfully).")
+            except Exception:
+                pass  # non-critical
+
         # ── Clean up transcript checkpoint now that artifacts are written ──
         # The PENDING file is only useful if the session crashes; on success it's noise.
         try:
@@ -3384,7 +3412,11 @@ class VTubeBot:
     async def dynamic_observer_loop(self):
         print("   [System] Observer Loop Active (Universal Boredom Protocol).")
         while self.is_running:
-            await asyncio.sleep(1.0) # Check every second
+            # Under GPU load, back off the observer tick rate so we stop hammering
+            # an already-saturated GPU every second. 5s between checks is still
+            # responsive enough for boredom gating but costs ~5x less polling overhead.
+            _tick = 5.0 if self._under_load else 1.0
+            await asyncio.sleep(_tick)
 
             # Suppress observer while autopilot is actively running — avoid double-talking
             if self.vn_autopilot and self.vn_autopilot.is_running:
@@ -3881,16 +3913,24 @@ class VTubeBot:
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not."""
         if self.is_muted():
             return
+        _t0_total = time.time()
         # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
-        # Pays for one GPT-4o-mini call here instead of reading the heartbeat cache
-        # (up to 10s stale). Drops perceived reaction lag from ~10s to ~1.5s without
-        # cranking the global heartbeat interval (which would burn vision cost all session).
+        # Skipped when _under_load=True (GPU saturated) — fall back to heartbeat
+        # cache so we stop adding API pressure exactly when the card is drowning.
+        # Also skipped if the heartbeat ran recently enough (< 5s ago) — no point
+        # in a redundant call when the cache is already fresh.
         _va = self.vision_agent
-        if _va and _va.is_active and getattr(_va, "client", None):
+        _t0_vision = time.time()
+        _cache_age = (time.time() - _va.last_capture_time) if (_va and _va.last_capture_time) else 999
+        _skip_fresh = self._under_load or (_cache_age < 5.0)
+        if _skip_fresh and _va and _va.last_capture_time:
+            print(f"   [LoadShed] Skipping fresh vision capture (under_load={self._under_load}, cache_age={_cache_age:.1f}s)")
+        if _va and _va.is_active and getattr(_va, "client", None) and not _skip_fresh:
             _fresh = await _va.capture_and_describe(is_heartbeat=False)
             if _fresh and not _fresh.startswith("My vision is a bit glitchy"):
                 _va.last_description = _fresh
                 await _va._update_scene_summary(_fresh)
+        _vision_ms = int((time.time() - _t0_vision) * 1000)
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
 
         # Visual status: only feed scene context when we have a fresh frame.
@@ -3917,6 +3957,8 @@ class VTubeBot:
         )
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
+        _t0_llm = time.time()
+        _llm_model = "local"  # updated to "sonnet" if Claude path succeeds
         if self.ai_core.anthropic_client:
             if self.audio_agent and self.audio_agent.is_active():
                 audio_ctx = self.audio_agent.get_audio_context()
@@ -3930,6 +3972,7 @@ class VTubeBot:
                     recent_history=self.conversation_history,
                     use_sonnet=True,  # E: observer interjection — Sonnet [evaluate wit on next stream]
                 )
+                _llm_model = "sonnet"
             except Exception as e:
                 print(f"   [Interjection] Claude failed, falling back to local: {e}")
                 response = await self.ai_core.llm_inference(
@@ -3945,11 +3988,16 @@ class VTubeBot:
                 memory_context=memory_context,
                 activity_context=self.current_activity,
             )
+        _llm_ms = int((time.time() - _t0_llm) * 1000)
 
         cleaned = self.ai_core._clean_llm_response(response)
         if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
             print(f"   >>> Kira (Bored): {cleaned}")
+            _t0_tts = time.time()
             await self.ai_core.speak_text(cleaned)
+            _tts_ms = int((time.time() - _t0_tts) * 1000)
+            _total_ms = int((time.time() - _t0_total) * 1000)
+            print(f"   [TIMING] interjection: vision={_vision_ms}ms llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_total_ms}ms")
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             # Push into bot-owned pool unconditionally during streamer mode — works
             # across all activity types and persists across activity switches (Req A).
@@ -4014,6 +4062,11 @@ class VTubeBot:
 
     async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False, prefetched_memory: str | None = None):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
+        _t0_voice = time.time()
+        _t0_llm = _t0_voice  # reset inside generation block for accuracy
+        _llm_ms = 0
+        _tts_ms = 0
+        _llm_model = "?"
 
         # Define what the LLM sees vs what Memory stores
         llm_user_text = dialogue_line
@@ -4060,7 +4113,10 @@ class VTubeBot:
             # Non-streaming LLM Generation
             effective_situational = situational_context
             if brief_mode:
-                brief_instruction = "[BRIEF MODE: Respond in one short, natural sentence. No elaboration, no follow-up question.]"
+                brief_instruction = (
+                    "[BRIEF MODE: ONE sentence only. Short and punchy — deadpan lands harder when it's lean. "
+                    "No second sentence, no follow-up question, no elaboration. Cut everything but the sharpest line.]"
+                )
                 effective_situational = (situational_context + "\n\n" + brief_instruction) if situational_context else brief_instruction
             # Audio context — only present when audio agent is active and has a summary
             if self.audio_agent and self.audio_agent.is_active():
@@ -4090,6 +4146,7 @@ class VTubeBot:
                 dialogue_summary = self.loopback_transcriber.get_dialogue_summary() or ""
 
             # Try Claude Sonnet 4.6 first — streamed when available for low latency
+            _t0_llm = time.time()  # reset here — excludes memory/context-build overhead
             full_response_text = ""
             streamed_already_spoken = False
             if self.ai_core.anthropic_client:
@@ -4190,7 +4247,7 @@ class VTubeBot:
                         # Immersive (VN/anime) mode bumps back up to 350 because deep emotional
                         # responses to scene moments benefit from a little more room.
                         if brief_mode:
-                            streaming_max = 80
+                            streaming_max = 60  # was 80 — one sentence needs at most ~15 tokens
                         elif self.immersive:
                             streaming_max = 350
                         else:
@@ -4206,6 +4263,7 @@ class VTubeBot:
                         print()  # newline after streamed tokens
                         if full_response_text:
                             streamed_already_spoken = True
+                            _llm_model = "sonnet-stream(llm+tts)"
                     else:
                         # Non-streaming Sonnet path
                         if brief_mode:
@@ -4220,6 +4278,8 @@ class VTubeBot:
                             dynamic_context=dynamic_context,
                             max_tokens=non_streaming_max,
                         )
+                        if full_response_text:
+                            _llm_model = "sonnet"
                 except Exception as e:
                     print(f"   [Brain] Sonnet path error: {e}")
                     full_response_text = ""
@@ -4243,6 +4303,8 @@ class VTubeBot:
                     ambient_audio_context=_llama_ambient,
                     max_tokens_override=(50 if brief_mode else None),
                 )
+                _llm_model = "local"
+            _llm_ms = int((time.time() - _t0_llm) * 1000)
         
         # Clean the response
         full_response_text = self.ai_core._clean_llm_response(full_response_text)
@@ -4258,7 +4320,12 @@ class VTubeBot:
 
             # Skip TTS if streaming already spoke this response
             if not streamed_already_spoken:
+                _t0_tts = time.time()
                 await self.ai_core.speak_text(full_response_text)
+                _tts_ms = int((time.time() - _t0_tts) * 1000)
+            if not skip_generation:
+                _voice_total_ms = int((time.time() - _t0_voice) * 1000)
+                print(f"   [TIMING] voice: llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_voice_total_ms}ms")
 
             # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})

@@ -1223,6 +1223,8 @@ class AI_Core:
 
         full_text = ""
         buffer = ""
+        _t0_stream = time.time()
+        _first_word_logged = False
 
         def has_unclosed_tag(text: str) -> bool:
             """True if there is an unmatched '[' anywhere in the buffer."""
@@ -1260,6 +1262,10 @@ class AI_Core:
                         spoken = self._strip_tags_for_speech(sentence)
                         cleaned = self._clean_llm_response(spoken)
                         if cleaned:
+                            if not _first_word_logged:
+                                _ttfw_ms = int((time.time() - _t0_stream) * 1000)
+                                print(f"   [TIMING] first-word: {_ttfw_ms}ms")
+                                _first_word_logged = True
                             await self._speak_single(cleaned)
                             if self.interruption_event.is_set():
                                 return full_text
@@ -1269,6 +1275,9 @@ class AI_Core:
                 spoken = self._strip_tags_for_speech(buffer.strip())
                 cleaned = self._clean_llm_response(spoken)
                 if cleaned:
+                    if not _first_word_logged:
+                        _ttfw_ms = int((time.time() - _t0_stream) * 1000)
+                        print(f"   [TIMING] first-word: {_ttfw_ms}ms")
                     await self._speak_single(cleaned)
         except Exception as e:
             print(f"   [Streaming] Error during stream consumption: {e}")

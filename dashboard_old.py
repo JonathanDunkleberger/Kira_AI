@@ -43,37 +43,25 @@ except ImportError:
     LOOPBACK_STT_DEFAULT = False
     GAME_MODE_AUTO_CONFIGURE = True
 
-# DPI: must be set before any Tk/CTk call so dropdowns render crisp on HiDPI.
-import ctypes as _ctypes
-try:
-    _ctypes.windll.shcore.SetProcessDpiAwareness(2)  # per-monitor DPI v2
-except Exception:
-    pass
+ctk.set_appearance_mode("Light")
+ctk.set_default_color_theme("green")
 
-ctk.set_appearance_mode("Dark")
-ctk.set_default_color_theme("dark-blue")
-ctk.deactivate_automatic_dpi_awareness()
-
-# ── Warm charcoal palette ────────────────────────────────────────────────────────────────────────────
-C_BG      = "#1A1918"   # near-black warm
-C_PANEL   = "#222120"   # column panel background
-C_SURFACE = "#2C2A27"   # widget fill
-C_BORDER  = "#3A3631"   # subtle border / divider
-C_TEXT    = "#C8BCA8"   # warm off-white
-C_MUTED   = "#6A6560"   # dim secondary labels
-C_ACCENT  = "#7A9962"   # sage green — ON states, GO, active
-C_AMBER   = "#C47B3C"   # warm amber — Streamer badge, warnings
-C_RED     = "#964848"   # interrupt / stop / exit
-C_GOLD    = "#9B8A4A"   # mute / caution
-C_GREEN   = C_ACCENT    # alias for ON states
-C_YELLOW  = C_GOLD      # alias for caution
+C_BG      = "#F5F0E8"  # warm parchment
+C_PANEL   = "#EDE6D6"  # soft beige
+C_SURFACE = "#DDD0BA"  # tan
+C_ACCENT  = "#8B5E3C"  # warm brown
+C_GREEN   = "#5C7A5C"  # muted sage green
+C_YELLOW  = "#A0783A"  # amber/honey
+C_RED     = "#9B4040"  # muted terracotta
+C_TEXT    = "#2E1F0F"  # dark espresso
+C_MUTED   = "#9E8C78"  # warm grey-brown
 
 EMOTION_COLORS = {
-    "HAPPY":       C_ACCENT,
-    "SASSY":       C_AMBER,
+    "HAPPY":       C_GREEN,
+    "SASSY":       C_ACCENT,
     "MOODY":       C_MUTED,
-    "EMOTIONAL":   "#9B7BC4",
-    "HYPERACTIVE": C_GOLD,
+    "EMOTIONAL":   "#7B5EA7",  # dusty mauve
+    "HYPERACTIVE": C_YELLOW,
 }
 
 
@@ -82,8 +70,8 @@ class KiraDashboard(ctk.CTk):
         super().__init__()
         self.bot = bot
         self.title(f"{AI_NAME} - Control Center")
-        self.geometry("1600x900")
-        self.minsize(1280, 780)
+        self.geometry("1600x920")
+        self.minsize(1280, 720)
         self.configure(fg_color=C_BG)
 
         self._register_global_hotkeys()
@@ -94,26 +82,16 @@ class KiraDashboard(ctk.CTk):
         self._last_hist_len = 0
         self._last_twitch_len = 0
         self._closing = False
-        self._selected_known_slug: str = ""  # set when user PICKS from autocomplete; cleared on freetype
-        self._preset_modified: bool = False
-        self._active_preset: str = ""
 
-        # 4-column, 4-row grid (header / main / transcript strip / statusbar)
-        self.grid_columnconfigure(0, weight=1, minsize=260)   # A: State
-        self.grid_columnconfigure(1, weight=1, minsize=295)   # B: Perception
-        self.grid_columnconfigure(2, weight=1, minsize=340)   # C: Activity
-        self.grid_columnconfigure(3, weight=2)                # D: Live Controls (gets extra)
-        self.grid_rowconfigure(0, weight=0, minsize=56)       # Header
-        self.grid_rowconfigure(1, weight=1)                   # Main columns
-        self.grid_rowconfigure(2, weight=0, minsize=52)       # Transcript strip
-        self.grid_rowconfigure(3, weight=0)                   # Status bar
+        self.grid_columnconfigure(0, weight=0, minsize=270)
+        self.grid_columnconfigure(1, weight=3)
+        self.grid_columnconfigure(2, weight=1, minsize=300)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=0)
 
-        self._build_header()
-        self._build_col_a()
-        self._build_col_b()
-        self._build_col_c()
-        self._build_col_d()
-        self._build_transcript()
+        self._build_left()
+        self._build_center()
+        self._build_right()
         self._build_statusbar()
 
         # CRITICAL: the asyncio loop runs on a daemon thread. Without this
@@ -168,830 +146,719 @@ class KiraDashboard(ctk.CTk):
 
     # LEFT PANEL
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # BUILD METHODS — 4-column layout (header · perception · activity · live)
-    # No scrolling; everything visible at once.
-    # ══════════════════════════════════════════════════════════════════════════
-
-    def _build_header(self):
-        """Persistent header: AI name, Companion/Streamer pill, perception badges."""
-        hdr = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
-        hdr.grid(row=0, column=0, columnspan=4, sticky="ew")
-        hdr.grid_columnconfigure(2, weight=1)
-        hdr.grid_propagate(False)
+    def _build_left(self):
+        frame = ctk.CTkScrollableFrame(
+            self, width=260, corner_radius=0,
+            fg_color=C_PANEL, scrollbar_button_color=C_SURFACE
+        )
+        frame.grid(row=0, column=0, sticky="nsew", padx=(8, 4), pady=8)
+        frame.grid_columnconfigure(0, weight=1)
 
         ctk.CTkLabel(
-            hdr, text=f"[ {AI_NAME.upper()} ]",
-            font=ctk.CTkFont(size=17, weight="bold"), text_color=C_ACCENT
-        ).grid(row=0, column=0, padx=(16, 8), pady=10, sticky="w")
+            frame, text=f"[ {AI_NAME.upper()} ]",
+            font=ctk.CTkFont(size=22, weight="bold"), text_color=C_ACCENT
+        ).pack(pady=(16, 4))
+        ctk.CTkLabel(
+            frame, text="Control Center",
+            font=ctk.CTkFont(size=11), text_color=C_MUTED
+        ).pack(pady=(0, 12))
 
-        self.mode_pill = ctk.CTkButton(
-            hdr, text="\u25cf  COMPANION MODE",
-            fg_color=C_SURFACE, hover_color=C_BORDER,
-            text_color=C_ACCENT,
+        self.mode_label = ctk.CTkLabel(
+            frame, text="COMPANION MODE",
             font=ctk.CTkFont(size=12, weight="bold"),
-            height=34, width=192,
-            command=self._toggle_companion_streamer,
-        )
-        self.mode_pill.grid(row=0, column=1, padx=8, pady=10, sticky="w")
-
-        self.header_perception = ctk.CTkLabel(
-            hdr, text="\U0001f441 off  \u00b7  \U0001f442 off  \u00b7  \U0001f3a4 off",
-            font=ctk.CTkFont(size=11), text_color=C_MUTED,
-        )
-        self.header_perception.grid(row=0, column=2, padx=8, pady=10, sticky="w")
-
-        self.header_activity = ctk.CTkLabel(
-            hdr, text="Activity: none",
-            font=ctk.CTkFont(size=11), text_color=C_MUTED,
-        )
-        self.header_activity.grid(row=0, column=3, padx=(8, 16), pady=10, sticky="e")
-
-    # ─── Column A: State ──────────────────────────────────────────────────────
-
-    def _build_col_a(self):
-        """Column A: Emotion badge/menu, vibe meter."""
-        col = ctk.CTkFrame(self, corner_radius=8, fg_color=C_PANEL,
-                           border_width=1, border_color=C_BORDER)
-        col.grid(row=1, column=0, sticky="nsew", padx=(6, 3), pady=6)
-        col.grid_columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(
-            col, text="STATE",
-            font=ctk.CTkFont(size=11, weight="bold"), text_color=C_TEXT
-        ).pack(anchor="w", padx=16, pady=(14, 6))
-
-        _divider(col)
-
-        ctk.CTkLabel(col, text="EMOTION",
-                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(10, 2))
-        self.emotion_badge = ctk.CTkLabel(
-            col, text="HAPPY",
-            font=ctk.CTkFont(size=15, weight="bold"),
-            text_color=C_ACCENT, fg_color=C_SURFACE,
+            text_color=C_GREEN, fg_color=C_SURFACE,
             corner_radius=6, padx=10, pady=4
         )
-        self.emotion_badge.pack(fill="x", padx=14, pady=(0, 4))
-        self.emotion_menu = ctk.CTkOptionMenu(
-            col, values=[e.name for e in EmotionalState],
-            command=self._set_emotion,
-            fg_color=C_SURFACE, button_color=C_ACCENT,
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            text_color=C_TEXT,
-            font=ctk.CTkFont(size=11), height=30
+        self.mode_label.pack(fill="x", padx=12, pady=(0, 6))
+        self.mode_btn = ctk.CTkButton(
+            frame, text="Switch to Streamer Mode",  # starts in companion
+            fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
+            height=28, command=self._toggle_mode, font=ctk.CTkFont(size=11)
         )
-        self.emotion_menu.pack(fill="x", padx=14, pady=(0, 10))
+        self.mode_btn.pack(fill="x", padx=12, pady=(0, 12))
 
-        _divider(col)
+        _divider(frame)
 
-        ctk.CTkLabel(col, text="VIBE METER",
+        # ── STREAM PRESETS ────────────────────────────────────────────────────
+        ctk.CTkLabel(frame, text="STREAM PRESET",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(10, 4))
-        vibe_card = ctk.CTkFrame(col, fg_color=C_SURFACE, corner_radius=8)
-        vibe_card.pack(fill="x", padx=14, pady=(0, 10))
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
 
-        self.vibe_chat_rate = ctk.CTkLabel(
-            vibe_card, text="0 msg/min",
-            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        PRESET_NAMES = [
+            "Test / Companion Mode",
+            "Action Game Stream",
+            "VN / Story Game Stream",
+            "Anime / Movie Watch Stream",
+            "Just Chatting Stream",
+        ]
+        self._active_preset: str = PRESET_NAMES[0]   # default safe state
+        self._preset_modified: bool = False
+
+        self.preset_menu = ctk.CTkOptionMenu(
+            frame, values=PRESET_NAMES,
+            command=self._apply_preset,
+            fg_color=C_ACCENT, button_color="#6B4528",
+            dropdown_fg_color=C_PANEL, text_color="#FFFFFF",
+            font=ctk.CTkFont(size=12, weight="bold"), height=34,
         )
-        self.vibe_chat_rate.pack(pady=(8, 0))
-        ctk.CTkLabel(vibe_card, text="chat rate",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+        self.preset_menu.set(PRESET_NAMES[0])
+        self.preset_menu.pack(fill="x", padx=12, pady=(0, 4))
 
-        self.vibe_since_kira = ctk.CTkLabel(
-            vibe_card, text="\u2014",
-            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        self.preset_status_label = ctk.CTkLabel(
+            frame,
+            text="Safe default: Vision/Audio/Highlights all OFF.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left"
         )
-        self.vibe_since_kira.pack(pady=(2, 0))
-        ctk.CTkLabel(vibe_card, text="since Kira spoke",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+        self.preset_status_label.pack(anchor="w", padx=14, pady=(0, 8))
 
-        self.vibe_chatters = ctk.CTkLabel(
-            vibe_card, text="0 chatters",
-            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        _divider(frame)
+
+        # Read-only activity status — polled from bot.current_activity every 500ms.
+        # Never typed into; slug is set only via the GAME MODE text box below.
+        self.activity_display = ctk.CTkLabel(
+            frame, text="Active: None", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, wraplength=220, justify="left"
         )
-        self.vibe_chatters.pack(pady=(2, 0))
-        ctk.CTkLabel(vibe_card, text="session unique",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 8))
+        self.activity_display.pack(anchor="w", padx=14, pady=(8, 0))
 
-    # ─── Column B: Perception ──────────────────────────────────────────────────
-
-    def _build_col_b(self):
-        """Column B: Vision, hearing, loopback, passive-watch, audio device."""
-        col = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
-        col.grid(row=1, column=1, sticky="nsew", padx=3, pady=6)
-        col.grid_columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(col, text="PERCEPTION",
-                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=14, pady=(12, 4))
-
-        # Vision Active
-        self.obs_switch = ctk.CTkSwitch(
-            col, text="Vision Active",
-            command=self._toggle_observer,
+        self.immersive_switch = ctk.CTkSwitch(
+            frame, text="Passive Watching Mode",
+            command=self._toggle_immersive,
             button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=12),
+            font=ctk.CTkFont(size=12),
+        )
+        self.immersive_switch.pack(anchor="w", padx=14, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame,
+            text="For VNs / movies / anime \u2014 Kira stays quiet and reacts briefly. Keep OFF for active gameplay.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 8))
+
+        self.carry_mode_switch = ctk.CTkSwitch(
+            frame, text="Carry Mode (gameplay)",
+            command=self._toggle_carry_mode,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.carry_mode_switch.pack(anchor="w", padx=14, pady=(0, 4))
+        ctk.CTkLabel(
+            frame,
+            text="Live-gameplay equivalent of VN autopilot \u2014 Kira drives momentum "
+                 "so you don't have to. 30s/60s interjection gates, more chat "
+                 "engagement. Brevity rule still dominates; silence still beats "
+                 "filler. (VNs already have autopilot \u2014 leave OFF for VN sessions.)",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 8))
+
+        _divider(frame)
+
+        # ── GAME MODE manual toggle ───────────────────────────────────────────
+        ctk.CTkLabel(frame, text="GAME MODE",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+        self.game_title_entry = ctk.CTkEntry(
+            frame, placeholder_text='e.g. "007 First Light", "Steins;Gate"',
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=32
+        )
+        self.game_title_entry.pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Activate Game Mode", height=28,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
+            command=self._activate_game_mode, font=ctk.CTkFont(size=11)
+        ).pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Exit Game Mode", height=28,
+            fg_color=C_RED, hover_color="#7A2E2E",
+            command=self._exit_game_mode, font=ctk.CTkFont(size=11)
+        ).pack(fill="x", padx=12, pady=(0, 6))
+        self.game_mode_status = ctk.CTkLabel(
+            frame, text="GENERAL mode", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, wraplength=230, justify="left"
+        )
+        self.game_mode_status.pack(anchor="w", padx=14, pady=(0, 8))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="EMOTION",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+        self.emotion_badge = ctk.CTkLabel(
+            frame, text="HAPPY",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=C_GREEN, fg_color=C_SURFACE,
+            corner_radius=6, padx=10, pady=4
+        )
+        self.emotion_badge.pack(fill="x", padx=12, pady=(0, 6))
+        self.emotion_menu = ctk.CTkOptionMenu(
+            frame, values=[e.name for e in EmotionalState],
+            command=self._set_emotion, fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=28
+        )
+        self.emotion_menu.pack(fill="x", padx=12, pady=(0, 10))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="OBSERVER MODE",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+        self.obs_switch = ctk.CTkSwitch(
+            frame, text="Vision Active", command=self._toggle_observer,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12)
         )
         if self.bot.game_mode_controller.is_active:
             self.obs_switch.select()
-        self.obs_switch.pack(anchor="w", padx=16, pady=(0, 6))
+        self.obs_switch.pack(anchor="w", padx=14, pady=(4, 6))
 
-        # Vision thumbnail
-        vision_frame = ctk.CTkFrame(col, fg_color=C_SURFACE, corner_radius=8, height=113)
-        vision_frame.pack(fill="x", padx=14, pady=(0, 0))
-        vision_frame.pack_propagate(False)
-        self.vision_label = ctk.CTkLabel(
-            vision_frame, text="Vision Offline",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED
+        ctk.CTkLabel(
+            frame, text="AUTONOMOUS VN MODE (Experimental)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+        ).pack(anchor="w", padx=14, pady=(10, 2))
+        ctk.CTkLabel(
+            frame,
+            text="Kira reads, paces, and reacts autonomously. Pauses on choices and menus.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 4))
+        self.autopilot_switch = ctk.CTkSwitch(
+            frame, text="Autonomous VN Mode",
+            command=self._toggle_autopilot,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
         )
-        self.vision_label.pack(fill="both", expand=True)
+        self.autopilot_switch.pack(anchor="w", padx=14, pady=(0, 6))
 
-        self.vision_desc_label = ctk.CTkLabel(
-            col, text="", wraplength=280,
-            font=ctk.CTkFont(size=9), text_color=C_MUTED, justify="left", anchor="w"
+        ctk.CTkLabel(
+            frame, text="VN window title (e.g. \"Narcissu\", \"planetarian\"):",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.vn_window_entry = ctk.CTkEntry(
+            frame, placeholder_text="Window title substring",
+            font=ctk.CTkFont(size=11), height=28,
         )
-        self.vision_desc_label.pack(anchor="w", padx=16, pady=(2, 6))
+        self.vn_window_entry.pack(fill="x", padx=12, pady=(0, 2))
+        ctk.CTkButton(
+            frame, text="Re-detect Window",
+            command=self._redetect_vn_window,
+            fg_color=C_SURFACE, text_color=C_MUTED,
+            font=ctk.CTkFont(size=10), height=22,
+        ).pack(anchor="w", padx=12, pady=(0, 8))
 
-        _divider(col)
+        ctk.CTkLabel(
+            frame, text="Advance key:",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.autopilot_key_menu = ctk.CTkOptionMenu(
+            frame,
+            values=["Space", "Enter", "Left Click"],
+            command=self._set_autopilot_key,
+            fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=28,
+        )
+        self.autopilot_key_menu.set("Enter")
+        self.autopilot_key_menu.pack(fill="x", padx=12, pady=(0, 6))
 
-        # Hearing
-        ctk.CTkLabel(col, text="Hearing",
-                     font=ctk.CTkFont(size=10), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(6, 2))
+        ctk.CTkLabel(
+            frame, text="Read delay — base (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.autopilot_base_slider = ctk.CTkSlider(
+            frame, from_=0.5, to=5.0, number_of_steps=45,
+            command=self._update_autopilot_pacing,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.autopilot_base_slider.set(2.5)
+        self.autopilot_base_slider.pack(fill="x", padx=14, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame, text="Read delay — max (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.autopilot_max_slider = ctk.CTkSlider(
+            frame, from_=3.0, to=12.0, number_of_steps=45,
+            command=self._update_autopilot_pacing,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.autopilot_max_slider.set(8.0)
+        self.autopilot_max_slider.pack(fill="x", padx=14, pady=(0, 6))
+
+        self.autopilot_status_label = ctk.CTkLabel(
+            frame, text="Autopilot: OFF",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.autopilot_status_label.pack(anchor="w", padx=14, pady=(0, 4))
+        self.autopilot_resume_btn = ctk.CTkButton(
+            frame, text="Resume after failsafe",
+            command=self._resume_autopilot,
+            fg_color=C_YELLOW, hover_color=C_ACCENT, text_color=C_BG,
+            height=28, font=ctk.CTkFont(size=11), state="disabled",
+        )
+        self.autopilot_resume_btn.pack(fill="x", padx=12, pady=(0, 10))
+
+        _divider(frame)
+
+        # ── Media Watch Mode ───────────────────────────────────────────────
+        ctk.CTkLabel(
+            frame, text="MEDIA WATCH MODE (Experimental)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+        ).pack(anchor="w", padx=14, pady=(10, 2))
+        ctk.CTkLabel(
+            frame,
+            text="Kira watches a video by buffering frames and building a real "
+                 "episode log she can reference. Separate from VN autopilot.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230, justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 4))
+        self.media_watch_switch = ctk.CTkSwitch(
+            frame, text="Media Watch Mode",
+            command=self._toggle_media_watch,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=12),
+        )
+        self.media_watch_switch.pack(anchor="w", padx=14, pady=(0, 6))
+
+        ctk.CTkLabel(
+            frame, text="Video window title (e.g. \"VLC\", \"YouTube\", \"mpv\"):",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+        self.media_watch_window_entry = ctk.CTkEntry(
+            frame, placeholder_text="Window title substring",
+            font=ctk.CTkFont(size=11), height=28,
+        )
+        self.media_watch_window_entry.pack(fill="x", padx=12, pady=(0, 8))
+
+        ctk.CTkLabel(
+            frame, text="Analysis interval (s)",
+            font=ctk.CTkFont(size=10), text_color=C_TEXT,
+        ).pack(anchor="w", padx=14, pady=(0, 0))
+        self.media_watch_interval_slider = ctk.CTkSlider(
+            frame, from_=10.0, to=45.0, number_of_steps=35,
+            command=self._update_media_watch_interval,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+        )
+        self.media_watch_interval_slider.set(18.0)
+        self.media_watch_interval_slider.pack(fill="x", padx=14, pady=(0, 4))
+
+        self.media_watch_react_switch = ctk.CTkSwitch(
+            frame, text="Spontaneous reactions",
+            command=self._toggle_media_watch_react,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            font=ctk.CTkFont(size=11),
+        )
+        self.media_watch_react_switch.pack(anchor="w", padx=14, pady=(0, 6))
+        self.media_watch_react_switch.select()  # default ON; bot wires the handler
+
+        self.media_watch_status_label = ctk.CTkLabel(
+            frame, text="MediaWatch: OFF",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.media_watch_status_label.pack(anchor="w", padx=14, pady=(0, 10))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="AUDIO HEARING",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+
         self.audio_mode_menu = ctk.CTkOptionMenu(
-            col,
+            frame,
             values=["Off", "Media (game/anime)", "Music (singing/guitar)"],
             command=self._set_audio_mode,
             fg_color=C_SURFACE, button_color=C_ACCENT,
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            text_color=C_TEXT,
-            font=ctk.CTkFont(size=11), height=30,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=11), height=30,
         )
         self.audio_mode_menu.set("Off")
-        self.audio_mode_menu.pack(fill="x", padx=14, pady=(0, 2))
+        self.audio_mode_menu.pack(fill="x", padx=12, pady=(0, 4))
+
         self.audio_status_label = ctk.CTkLabel(
-            col, text="Audio: off",
-            font=ctk.CTkFont(size=9), text_color=C_MUTED,
-            wraplength=280, justify="left", anchor="w"
+            frame,
+            text="Audio: off",
+            font=ctk.CTkFont(size=10),
+            text_color=C_MUTED,
+            wraplength=240,
+            justify="left",
+            anchor="w",
         )
-        self.audio_status_label.pack(fill="x", padx=16, pady=(0, 6))
+        self.audio_status_label.pack(fill="x", padx=14, pady=(0, 6))
 
-        _divider(col)
-
-        # Loopback STT
-        lb_row = ctk.CTkFrame(col, fg_color="transparent")
-        lb_row.pack(fill="x", padx=16, pady=(6, 2))
-        lb_row.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(
-            lb_row, text="Loopback STT",
-            font=ctk.CTkFont(size=12), text_color=C_TEXT, anchor="w"
-        ).grid(row=0, column=0, sticky="w")
-        self.loopback_switch = ctk.CTkSwitch(
-            lb_row, text="",
-            command=self._toggle_loopback_stt,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            width=46, height=22,
-        )
-        self.loopback_switch.grid(row=0, column=1, sticky="e")
-        self.loopback_status_label = ctk.CTkLabel(
-            col, text="Loopback STT: off",
-            font=ctk.CTkFont(size=9), text_color=C_MUTED,
-            anchor="w", justify="left", wraplength=280
-        )
-        self.loopback_status_label.pack(anchor="w", padx=16, pady=(0, 6))
-
-        _divider(col)
-
-        # Passive Watching
-        self.immersive_switch = ctk.CTkSwitch(
-            col, text="Passive Watching (VN/media)",
-            command=self._toggle_immersive,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-        )
-        self.immersive_switch.pack(anchor="w", padx=16, pady=(8, 8))
-
-        _divider(col)
-
-        # Audio Device
-        ctk.CTkLabel(col, text="Audio Source Device",
+        ctk.CTkLabel(frame, text="Audio Source Device",
                      font=ctk.CTkFont(size=9), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(6, 0))
+                     ).pack(anchor="w", padx=14, pady=(6, 0))
+
         self.audio_device_menu = ctk.CTkOptionMenu(
-            col, values=["Auto-detect"],
+            frame,
+            values=["Auto-detect"],
             command=self._set_audio_device,
             fg_color=C_SURFACE, button_color=C_ACCENT,
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            text_color=C_TEXT,
-            font=ctk.CTkFont(size=10), height=30,
+            dropdown_fg_color=C_PANEL, font=ctk.CTkFont(size=10), height=26,
         )
         self.audio_device_menu.set("Auto-detect")
-        self.audio_device_menu.pack(fill="x", padx=14, pady=(0, 4))
+        self.audio_device_menu.pack(fill="x", padx=12, pady=(0, 4))
+
         self.btn_refresh_devices = ctk.CTkButton(
-            col, text="\U0001f504 Refresh device list", height=24,
+            frame, text="🔄 Refresh device list", height=24,
             fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
             command=self._refresh_audio_devices, font=ctk.CTkFont(size=10),
         )
-        self.btn_refresh_devices.pack(fill="x", padx=14, pady=(0, 10))
+        self.btn_refresh_devices.pack(fill="x", padx=12, pady=(0, 8))
 
-    # ─── Column C: Activity ───────────────────────────────────────────────────
+        ctk.CTkLabel(
+            frame,
+            text="Media = Kira hears game BGM/voice acting/SFX. Music = Kira hears you playing/singing live. Off = no audio capture.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
 
-    def _build_col_c(self):
-        """Column C: Game name, GO, carry mode, VN Autopilot + Media Watch tabs."""
-        col = ctk.CTkFrame(self, corner_radius=8, fg_color=C_PANEL,
-                           border_width=1, border_color=C_BORDER)
-        col.grid(row=1, column=2, sticky="nsew", padx=3, pady=6)
-        col.grid_columnconfigure(0, weight=1)
+        _divider(frame)
 
-        ctk.CTkLabel(col, text="ACTIVITY",
-                     font=ctk.CTkFont(size=11, weight="bold"), text_color=C_TEXT
-                     ).pack(anchor="w", padx=16, pady=(14, 6))
-
-        self.game_title_entry = ctk.CTkComboBox(
-            col, values=[],
-            command=self._on_game_selected,
-            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
-            button_color=C_ACCENT, button_hover_color="#5A7A45",
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            font=ctk.CTkFont(size=12), height=34,
-        )
-        self.game_title_entry.set("")
-        self.game_title_entry.pack(fill="x", padx=14, pady=(0, 4))
-        self.game_title_entry.bind("<KeyRelease>", lambda _: self._on_game_typed())
-        self.after(200, self._refresh_game_suggestions)
-
-        self.go_btn = ctk.CTkButton(
-            col, text="\u25b6  GO",
-            fg_color=C_ACCENT, hover_color="#5A7A45", height=44,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            command=self._go,
-        )
-        self.go_btn.pack(fill="x", padx=14, pady=(0, 4))
-
-        self.activity_display = ctk.CTkLabel(
-            col, text="Active: None",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED,
-            wraplength=320, justify="left"
-        )
-        self.activity_display.pack(anchor="w", padx=16, pady=(0, 2))
-
-        self.game_mode_status = ctk.CTkLabel(
-            col, text="GENERAL mode",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED,
-            wraplength=320, justify="left"
-        )
-        self.game_mode_status.pack(anchor="w", padx=16, pady=(0, 2))
-
-        ctk.CTkButton(
-            col, text="\u2297  Exit Game Mode", height=26,
-            fg_color=C_SURFACE, hover_color=C_RED, text_color=C_MUTED,
-            command=self._exit_game_mode, font=ctk.CTkFont(size=10)
-        ).pack(fill="x", padx=14, pady=(0, 8))
-
-        _divider(col)
-
-        self.carry_mode_switch = ctk.CTkSwitch(
-            col, text="Carry Mode  (gameplay momentum)",
-            command=self._toggle_carry_mode,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-        )
-        self.carry_mode_switch.pack(anchor="w", padx=16, pady=(8, 8))
-
-        _divider(col)
-
-        # Tabview: VN Autopilot | Media Watch
-        tabs = ctk.CTkTabview(
-            col,
-            fg_color=C_SURFACE,
-            segmented_button_fg_color=C_PANEL,
-            segmented_button_selected_color=C_ACCENT,
-            segmented_button_selected_hover_color="#5A7A45",
-            segmented_button_unselected_color=C_PANEL,
-            segmented_button_unselected_hover_color=C_BORDER,
-            text_color=C_TEXT,
-            text_color_disabled=C_MUTED,
-        )
-        tabs.pack(fill="x", padx=14, pady=(4, 10))
-        tabs.add("VN Autopilot")
-        tabs.add("Media Watch")
-
-        # ── VN Autopilot tab ──────────────────────────────────────────────────
-        vn = tabs.tab("VN Autopilot")
-
-        self.autopilot_switch = ctk.CTkSwitch(
-            vn, text="Autonomous VN Mode",
-            command=self._toggle_autopilot,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=12),
-        )
-        self.autopilot_switch.pack(anchor="w", padx=4, pady=(4, 4))
-
-        ctk.CTkLabel(vn, text="VN window title:",
-                     font=ctk.CTkFont(size=10), text_color=C_TEXT,
-                     ).pack(anchor="w", padx=4, pady=(0, 2))
-        vn_entry_row = ctk.CTkFrame(vn, fg_color="transparent")
-        vn_entry_row.pack(fill="x", padx=4, pady=(0, 4))
-        vn_entry_row.grid_columnconfigure(0, weight=1)
-        self.vn_window_entry = ctk.CTkEntry(
-            vn_entry_row,
-            placeholder_text='e.g. "planetarian", "Narcissu"',
-            fg_color=C_SURFACE, border_color=C_BORDER, text_color=C_TEXT,
-            placeholder_text_color=C_MUTED,
-            font=ctk.CTkFont(size=11), height=26,
-        )
-        self.vn_window_entry.grid(row=0, column=0, sticky="ew", padx=(0, 4))
-        ctk.CTkButton(
-            vn_entry_row, text="Re-detect",
-            command=self._redetect_vn_window,
-            fg_color=C_SURFACE, text_color=C_MUTED, hover_color=C_BORDER,
-            font=ctk.CTkFont(size=10), height=26, width=72,
-        ).grid(row=0, column=1)
-
-        ctk.CTkLabel(vn, text="Advance key:",
-                     font=ctk.CTkFont(size=10), text_color=C_TEXT,
-                     ).pack(anchor="w", padx=4, pady=(0, 2))
-        self.autopilot_key_menu = ctk.CTkOptionMenu(
-            vn, values=["Space", "Enter", "Left Click"],
-            command=self._set_autopilot_key,
-            fg_color=C_SURFACE, button_color=C_ACCENT,
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            text_color=C_TEXT,
-            font=ctk.CTkFont(size=11), height=26,
-        )
-        self.autopilot_key_menu.set("Enter")
-        self.autopilot_key_menu.pack(fill="x", padx=4, pady=(0, 4))
-
-        # Compact side-by-side read-delay sliders
-        slider_pair = ctk.CTkFrame(vn, fg_color="transparent")
-        slider_pair.pack(fill="x", padx=4, pady=(0, 4))
-        slider_pair.grid_columnconfigure((0, 1), weight=1)
-
-        base_col = ctk.CTkFrame(slider_pair, fg_color="transparent")
-        base_col.grid(row=0, column=0, sticky="ew", padx=(0, 4))
-        ctk.CTkLabel(base_col, text="Base 0.5\u20135s",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(anchor="w")
-        self.autopilot_base_slider = ctk.CTkSlider(
-            base_col, from_=0.5, to=5.0, number_of_steps=45,
-            command=self._update_autopilot_pacing,
-            button_color=C_ACCENT, progress_color=C_ACCENT, height=16,
-        )
-        self.autopilot_base_slider.set(2.5)
-        self.autopilot_base_slider.pack(fill="x")
-
-        max_col = ctk.CTkFrame(slider_pair, fg_color="transparent")
-        max_col.grid(row=0, column=1, sticky="ew", padx=(4, 0))
-        ctk.CTkLabel(max_col, text="Max 3\u201312s",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(anchor="w")
-        self.autopilot_max_slider = ctk.CTkSlider(
-            max_col, from_=3.0, to=12.0, number_of_steps=45,
-            command=self._update_autopilot_pacing,
-            button_color=C_ACCENT, progress_color=C_ACCENT, height=16,
-        )
-        self.autopilot_max_slider.set(8.0)
-        self.autopilot_max_slider.pack(fill="x")
-
-        self.autopilot_status_label = ctk.CTkLabel(
-            vn, text="Autopilot: OFF",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=270,
-        )
-        self.autopilot_status_label.pack(anchor="w", padx=4, pady=(2, 2))
-        self.autopilot_resume_btn = ctk.CTkButton(
-            vn, text="Resume after failsafe",
-            command=self._resume_autopilot,
-            fg_color=C_GOLD, hover_color=C_ACCENT, text_color=C_BG,
-            height=26, font=ctk.CTkFont(size=10), state="disabled",
-        )
-        self.autopilot_resume_btn.pack(fill="x", padx=4, pady=(0, 4))
-
-        # ── Media Watch tab ───────────────────────────────────────────────────
-        mw = tabs.tab("Media Watch")
-
-        self.media_watch_switch = ctk.CTkSwitch(
-            mw, text="Media Watch Mode",
-            command=self._toggle_media_watch,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=12),
-        )
-        self.media_watch_switch.pack(anchor="w", padx=4, pady=(4, 4))
-
-        ctk.CTkLabel(mw, text="Video window title:",
-                     font=ctk.CTkFont(size=10), text_color=C_TEXT,
-                     ).pack(anchor="w", padx=4, pady=(0, 2))
-        self.media_watch_window_entry = ctk.CTkEntry(
-            mw, placeholder_text='e.g. "VLC", "mpv", "YouTube"',
-            fg_color=C_SURFACE, border_color=C_BORDER, text_color=C_TEXT,
-            placeholder_text_color=C_MUTED,
-            font=ctk.CTkFont(size=11), height=26,
-        )
-        self.media_watch_window_entry.pack(fill="x", padx=4, pady=(0, 4))
-
-        ctk.CTkLabel(mw, text="Analysis interval (s)",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED
-                     ).pack(anchor="w", padx=4)
-        self.media_watch_interval_slider = ctk.CTkSlider(
-            mw, from_=10.0, to=45.0, number_of_steps=35,
-            command=self._update_media_watch_interval,
-            button_color=C_ACCENT, progress_color=C_ACCENT, height=16,
-        )
-        self.media_watch_interval_slider.set(18.0)
-        self.media_watch_interval_slider.pack(fill="x", padx=4, pady=(0, 4))
-
-        self.media_watch_react_switch = ctk.CTkSwitch(
-            mw, text="Spontaneous reactions",
-            command=self._toggle_media_watch_react,
-            button_color=C_ACCENT, progress_color=C_ACCENT,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-        )
-        self.media_watch_react_switch.pack(anchor="w", padx=4, pady=(0, 4))
-        self.media_watch_react_switch.select()
-
-        self.media_watch_status_label = ctk.CTkLabel(
-            mw, text="MediaWatch: OFF",
-            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=270,
-        )
-        self.media_watch_status_label.pack(anchor="w", padx=4, pady=(0, 4))
-
-    # ─── Column D: Live Controls ──────────────────────────────────────────────
-
-    def _build_col_d(self):
-        """Column D: Interrupt/mute/pause, stream control, invite, TTS, music."""
-        col = ctk.CTkFrame(self, corner_radius=8, fg_color=C_PANEL,
-                           border_width=1, border_color=C_BORDER)
-        col.grid(row=1, column=3, sticky="nsew", padx=(3, 6), pady=6)
-        col.grid_columnconfigure(0, weight=1)
-
-        ctk.CTkLabel(col, text="LIVE CONTROLS",
-                     font=ctk.CTkFont(size=11, weight="bold"), text_color=C_TEXT
-                     ).pack(anchor="w", padx=16, pady=(14, 6))
-
-        # Interrupt + Mute
-        live_row = ctk.CTkFrame(col, fg_color="transparent")
-        live_row.pack(fill="x", padx=14, pady=(0, 6))
-        live_row.grid_columnconfigure((0, 1), weight=1)
-        self.btn_interrupt = ctk.CTkButton(
-            live_row, text="\U0001f6d1  Interrupt  (F8)",
-            fg_color=C_RED, hover_color="#6E3030", height=38,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            command=self._btn_interrupt
-        )
-        self.btn_interrupt.grid(row=0, column=0, padx=(0, 2), sticky="ew")
-        self.btn_mute = ctk.CTkButton(
-            live_row, text="\U0001f507  Mute 60s  (F9)",
-            fg_color=C_GOLD, hover_color="#7A6A30", height=38,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            command=self._btn_mute_toggle
-        )
-        self.btn_mute.grid(row=0, column=1, padx=(2, 0), sticky="ew")
-
-        # Pause Model
+        ctk.CTkLabel(frame, text="BOT CONTROLS",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
         self.btn_toggle = ctk.CTkButton(
-            col, text="\u23f8  Pause Model",
-            fg_color=C_SURFACE, hover_color=C_RED, height=36,
-            text_color=C_TEXT,
+            frame, text="\u23f8  Pause Model",
+            fg_color=C_RED, hover_color="#7A2E2E", height=34,
             font=ctk.CTkFont(size=12, weight="bold"),
             command=self._toggle_bot
         )
-        self.btn_toggle.pack(fill="x", padx=14, pady=(0, 2))
+        self.btn_toggle.pack(fill="x", padx=12, pady=(0, 4))
         self.lbl_pause_state = ctk.CTkLabel(
-            col, text="Model: ACTIVE",
-            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_ACCENT,
+            frame, text="Model: ACTIVE",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_GREEN,
         )
-        self.lbl_pause_state.pack(anchor="w", padx=16, pady=(0, 6))
+        self.lbl_pause_state.pack(anchor="w", padx=14, pady=(0, 6))
+        ctk.CTkButton(
+            frame, text="Reload Personality",
+            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
+            font=ctk.CTkFont(size=11),
+            command=lambda: self.bot.ai_core.reload_personality()
+        ).pack(fill="x", padx=12, pady=(0, 8))
 
-        _divider(col)
+        self.btn_tts_toggle = ctk.CTkButton(
+            frame, text="TTS: Azure  \u2192  Switch to Fish",
+            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
+            font=ctk.CTkFont(size=11),
+            command=self._toggle_tts_backend,
+        )
+        self.btn_tts_toggle.pack(fill="x", padx=12, pady=(0, 8))
 
-        # Stream Control
-        ctk.CTkLabel(col, text="STREAM CONTROL",
+        # Fish voice audition panel
+        ctk.CTkLabel(frame, text="FISH VOICE ID",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(8, 4))
-        stream_row = ctk.CTkFrame(col, fg_color="transparent")
-        stream_row.pack(fill="x", padx=14, pady=(0, 4))
+                     ).pack(anchor="w", padx=14, pady=(4, 2))
+        self.lbl_fish_voice_active = ctk.CTkLabel(
+            frame, text="Active: (loading...)",
+            font=ctk.CTkFont(size=9), text_color=C_TEXT, wraplength=220, justify="left",
+        )
+        self.lbl_fish_voice_active.pack(anchor="w", padx=14, pady=(0, 4))
+        self.fish_voice_entry = ctk.CTkEntry(
+            frame, placeholder_text="Paste voice model ID here",
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=28,
+        )
+        self.fish_voice_entry.pack(fill="x", padx=12, pady=(0, 4))
+        ctk.CTkButton(
+            frame, text="Apply Voice",
+            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
+            font=ctk.CTkFont(size=11),
+            command=self._apply_fish_voice,
+        ).pack(fill="x", padx=12, pady=(0, 16))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="LIVE CONTROLS",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        self.btn_interrupt = ctk.CTkButton(
+            frame, text="\U0001f6d1  Interrupt  (F8)",
+            fg_color=C_RED, hover_color="#7A2E2E", height=36,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self._btn_interrupt
+        )
+        self.btn_interrupt.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.btn_mute = ctk.CTkButton(
+            frame, text="\U0001f507  Mute 60s  (F9)",
+            fg_color=C_YELLOW, hover_color="#7C5A2C", height=36,
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self._btn_mute_toggle
+        )
+        self.btn_mute.pack(fill="x", padx=12, pady=(0, 4))
+
+        ctk.CTkLabel(
+            frame,
+            text="Interrupt cuts off her current sentence. Mute keeps her quiet for 60s \u2014 useful when you\u2019re fielding a question from chat. Pause Model is an indefinite hard mute (use that for longer asides). Hotkeys work even when this window isn\u2019t focused.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="YOUTUBE CHAT",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 2))
+
+        self.yt_entry = ctk.CTkEntry(
+            frame, placeholder_text="Paste YouTube live URL or video ID",
+            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
+            placeholder_text_color=C_MUTED, height=32,
+        )
+        self.yt_entry.pack(fill="x", padx=12, pady=(0, 4))
+
+        yt_row = ctk.CTkFrame(frame, fg_color="transparent")
+        yt_row.pack(fill="x", padx=12, pady=(0, 4))
+        yt_row.grid_columnconfigure((0, 1), weight=1)
+
+        self.btn_yt_start = ctk.CTkButton(
+            yt_row, text="Connect", height=30,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
+            command=self._yt_start, font=ctk.CTkFont(size=11),
+        )
+        self.btn_yt_start.grid(row=0, column=0, padx=(0, 2), sticky="ew")
+
+        self.btn_yt_stop = ctk.CTkButton(
+            yt_row, text="Disconnect", height=30,
+            fg_color=C_RED, hover_color="#7A2E2E",
+            command=self._yt_stop, font=ctk.CTkFont(size=11),
+        )
+        self.btn_yt_stop.grid(row=0, column=1, padx=(2, 0), sticky="ew")
+
+        self.yt_status_label = ctk.CTkLabel(
+            frame, text="YouTube: idle",
+            font=ctk.CTkFont(size=10), text_color=C_MUTED, wraplength=230,
+        )
+        self.yt_status_label.pack(anchor="w", padx=14, pady=(0, 12))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="STREAM CONTROL",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        stream_row = ctk.CTkFrame(frame, fg_color="transparent")
+        stream_row.pack(fill="x", padx=12, pady=(0, 6))
         stream_row.grid_columnconfigure((0, 1), weight=1)
+
         self.btn_opener = ctk.CTkButton(
-            stream_row, text="\U0001f3ac  Start", height=36,
-            fg_color=C_ACCENT, hover_color="#5A7A45",
+            stream_row, text="🎬  Start", height=36,
+            fg_color=C_GREEN, hover_color="#3D5C3D",
             command=self._btn_stream_opener, font=ctk.CTkFont(size=12, weight="bold"),
         )
         self.btn_opener.grid(row=0, column=0, padx=(0, 2), sticky="ew")
+
         self.btn_closer = ctk.CTkButton(
-            stream_row, text="\U0001f3ac  End", height=36,
-            fg_color=C_RED, hover_color="#6E3030",
+            stream_row, text="🎬  End", height=36,
+            fg_color=C_RED, hover_color="#7A2E2E",
             command=self._btn_stream_closer, font=ctk.CTkFont(size=12, weight="bold"),
         )
         self.btn_closer.grid(row=0, column=1, padx=(2, 0), sticky="ew")
 
-        _divider(col)
+        ctk.CTkLabel(
+            frame,
+            text="Start fires an episodic opener (recognizes regulars). End fires a closer AND writes session lore + clip candidates to disk.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left",
+        ).pack(anchor="w", padx=14, pady=(0, 12))
 
-        # Invite
-        ctk.CTkLabel(col, text="INVITE",
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="VIBE METER",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(8, 4))
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        vibe_row = ctk.CTkFrame(frame, fg_color=C_SURFACE, corner_radius=6)
+        vibe_row.pack(fill="x", padx=12, pady=(0, 4))
+
+        self.vibe_chat_rate = ctk.CTkLabel(
+            vibe_row, text="0 msg/min",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_chat_rate.pack(pady=(6, 0))
+        ctk.CTkLabel(vibe_row, text="chat rate",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+
+        self.vibe_since_kira = ctk.CTkLabel(
+            vibe_row, text="—",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_since_kira.pack(pady=(2, 0))
+        ctk.CTkLabel(vibe_row, text="since Kira spoke",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 4))
+
+        self.vibe_chatters = ctk.CTkLabel(
+            vibe_row, text="0 chatters",
+            font=ctk.CTkFont(size=14, weight="bold"), text_color=C_TEXT,
+        )
+        self.vibe_chatters.pack(pady=(2, 0))
+        ctk.CTkLabel(vibe_row, text="session unique",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED).pack(pady=(0, 6))
+
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="INVITE",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
+
         self.btn_invite = ctk.CTkButton(
-            col, text="\U0001f4ac  Ask Kira's Thoughts",
-            fg_color=C_ACCENT, hover_color="#5A7A45", height=40,
-            font=ctk.CTkFont(size=12, weight="bold"),
+            frame, text="\U0001f4ac  Ask Kira's Thoughts",
+            fg_color=C_GREEN, hover_color="#3D5C3D", height=40,
+            font=ctk.CTkFont(size=13, weight="bold"),
             command=self._invite_kira
         )
-        self.btn_invite.pack(fill="x", padx=14, pady=(0, 8))
+        self.btn_invite.pack(fill="x", padx=12, pady=(0, 4))
 
-        _divider(col)
+        ctk.CTkLabel(
+            frame,
+            text="In Companion mode Kira stays quiet by default. Tap to invite her thoughts on what's happening.",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED, wraplength=230,
+            justify="left"
+        ).pack(anchor="w", padx=14, pady=(0, 12))
 
-        # TTS
-        ctk.CTkLabel(col, text="TTS",
+        _divider(frame)
+
+        ctk.CTkLabel(frame, text="MUSIC PLAYER",
                      font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(8, 4))
-        self.btn_tts_toggle = ctk.CTkButton(
-            col, text="TTS: Azure  \u2192  Switch to Fish",
-            fg_color=C_SURFACE, hover_color=C_ACCENT, height=30,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-            command=self._toggle_tts_backend,
-        )
-        self.btn_tts_toggle.pack(fill="x", padx=14, pady=(0, 4))
-        ctk.CTkLabel(col, text="FISH VOICE ID",
-                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(2, 2))
-        self.lbl_fish_voice_active = ctk.CTkLabel(
-            col, text="Active: (loading...)",
-            font=ctk.CTkFont(size=9), text_color=C_TEXT, wraplength=290, justify="left",
-        )
-        self.lbl_fish_voice_active.pack(anchor="w", padx=16, pady=(0, 2))
-        self.fish_voice_entry = ctk.CTkEntry(
-            col, placeholder_text="Paste voice model ID here",
-            fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
-            placeholder_text_color=C_MUTED, height=28,
-        )
-        self.fish_voice_entry.pack(fill="x", padx=14, pady=(0, 2))
-        ctk.CTkButton(
-            col, text="Apply Voice",
-            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-            command=self._apply_fish_voice,
-        ).pack(fill="x", padx=14, pady=(0, 2))
-        ctk.CTkButton(
-            col, text="Reload Personality",
-            fg_color=C_SURFACE, hover_color=C_ACCENT, height=28,
-            text_color=C_TEXT, font=ctk.CTkFont(size=11),
-            command=lambda: self.bot.ai_core.reload_personality()
-        ).pack(fill="x", padx=14, pady=(0, 8))
-
-        _divider(col)
-
-        # Music Player
-        ctk.CTkLabel(col, text="MUSIC PLAYER",
-                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(8, 4))
+                     ).pack(anchor="w", padx=14, pady=(10, 4))
         self.music_label = ctk.CTkLabel(
-            col, text="Now Playing: Nothing",
-            font=ctk.CTkFont(size=11), wraplength=290, text_color=C_TEXT
+            frame, text="Now Playing: Nothing",
+            font=ctk.CTkFont(size=11), wraplength=220, text_color=C_TEXT
         )
-        self.music_label.pack(padx=14, pady=(0, 4))
-        music_row = ctk.CTkFrame(col, fg_color="transparent")
-        music_row.pack(fill="x", padx=14, pady=(0, 10))
+        self.music_label.pack(padx=12, pady=(0, 6))
+        music_row = ctk.CTkFrame(frame, fg_color="transparent")
+        music_row.pack(fill="x", padx=12, pady=(0, 16))
         music_row.grid_columnconfigure((0, 1), weight=1)
         ctk.CTkButton(
             music_row, text="Skip Song", height=30,
-            fg_color=C_RED, hover_color="#6E3030",
+            fg_color=C_RED, hover_color="#7A2E2E",
             command=lambda: threading.Thread(target=skip_song, daemon=True).start(),
             font=ctk.CTkFont(size=11)
         ).grid(row=0, column=0, padx=(0, 2), sticky="ew")
         ctk.CTkButton(
             music_row, text="Clear Queue", height=30,
-            fg_color=C_SURFACE, hover_color=C_BORDER, text_color=C_TEXT,
+            fg_color=C_SURFACE, hover_color=C_MUTED,
             command=lambda: threading.Thread(target=clear_queue, daemon=True).start(),
             font=ctk.CTkFont(size=11)
         ).grid(row=0, column=1, padx=(2, 0), sticky="ew")
 
-    # ─── Transcript strip ─────────────────────────────────────────────────────
+    # CENTER PANEL
 
-    def _build_transcript(self):
-        """2-line dim transcript strip — last 2 turns, read-only."""
-        strip = ctk.CTkFrame(self, height=52, corner_radius=0, fg_color=C_BG)
-        strip.grid(row=2, column=0, columnspan=4, sticky="ew")
-        strip.grid_propagate(False)
-        strip.grid_columnconfigure(0, weight=1)
-        strip.grid_rowconfigure(0, weight=1)
-        self.txt_transcript = ctk.CTkTextbox(
-            strip, font=("Consolas", 11),
-            fg_color=C_BG, text_color=C_MUTED, wrap="word",
-            scrollbar_button_color=C_SURFACE,
-            activate_scrollbars=False,
+    def _build_center(self):
+        frame = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
+        frame.grid(row=0, column=1, sticky="nsew", padx=4, pady=8)
+        frame.grid_rowconfigure(0, weight=3)
+        frame.grid_rowconfigure(1, weight=0)
+        frame.grid_rowconfigure(2, weight=2)
+        frame.grid_columnconfigure(0, weight=1)
+
+        vision_wrap = ctk.CTkFrame(frame, fg_color=C_SURFACE, corner_radius=8)
+        vision_wrap.grid(row=0, column=0, sticky="nsew", padx=8, pady=(8, 2))
+        self.vision_label = ctk.CTkLabel(
+            vision_wrap,
+            text="Vision Offline  -  Enable Observer Mode to see screen",
+            font=ctk.CTkFont(size=13), text_color=C_MUTED
         )
-        self.txt_transcript.grid(row=0, column=0, sticky="nsew", padx=6, pady=2)
+        self.vision_label.pack(fill="both", expand=True, padx=4, pady=4)
+
+        vis_desc_wrap = ctk.CTkFrame(frame, fg_color=C_BG, corner_radius=0, height=38)
+        vis_desc_wrap.grid(row=1, column=0, sticky="ew", padx=8)
+        vis_desc_wrap.grid_propagate(False)
+        self.vision_desc_label = ctk.CTkLabel(
+            vis_desc_wrap, text="", wraplength=900,
+            font=ctk.CTkFont(size=11), text_color=C_MUTED, anchor="w"
+        )
+        self.vision_desc_label.pack(side="left", padx=10, fill="y")
+
+        transcript_wrap = ctk.CTkFrame(frame, fg_color=C_SURFACE, corner_radius=8)
+        transcript_wrap.grid(row=2, column=0, sticky="nsew", padx=8, pady=(4, 8))
+        transcript_wrap.grid_rowconfigure(1, weight=1)
+        transcript_wrap.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            transcript_wrap, text="CONVERSATION",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+        ).grid(row=0, column=0, sticky="w", padx=10, pady=(6, 0))
+        self.txt_transcript = ctk.CTkTextbox(
+            transcript_wrap, font=("Consolas", 12),
+            fg_color=C_SURFACE, text_color=C_TEXT, wrap="word",
+            scrollbar_button_color=C_ACCENT
+        )
+        self.txt_transcript.grid(row=1, column=0, sticky="nsew", padx=4, pady=(2, 4))
         self.txt_transcript.configure(state="disabled")
 
-    # ─── Status bar ───────────────────────────────────────────────────────────
+    # RIGHT PANEL
+
+    def _build_right(self):
+        frame = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
+        frame.grid(row=0, column=2, sticky="nsew", padx=(4, 8), pady=8)
+        frame.grid_rowconfigure(1, weight=2)
+        frame.grid_rowconfigure(4, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            frame, text="TWITCH CHAT",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
+        ).grid(row=0, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.txt_twitch = ctk.CTkTextbox(
+            frame, font=("Consolas", 11),
+            fg_color=C_SURFACE, text_color=C_TEXT, wrap="word",
+            scrollbar_button_color=C_ACCENT
+        )
+        self.txt_twitch.grid(row=1, column=0, sticky="nsew", padx=6, pady=(0, 8))
+        self.txt_twitch.configure(state="disabled")
+
+        # ── Loopback transcript pane ──────────────────────────────────────
+        loopback_header = ctk.CTkFrame(frame, fg_color="transparent")
+        loopback_header.grid(row=2, column=0, sticky="ew", padx=6, pady=(4, 0))
+        loopback_header.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            loopback_header, text="LOOPBACK STT (system audio · Whisper)",
+            font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED,
+            anchor="w",
+        ).grid(row=0, column=0, sticky="w", padx=4)
+        self.loopback_switch = ctk.CTkSwitch(
+            loopback_header, text="",
+            command=self._toggle_loopback_stt,
+            button_color=C_ACCENT, progress_color=C_ACCENT,
+            width=46, height=22,
+        )
+        self.loopback_switch.grid(row=0, column=1, sticky="e", padx=4)
+        ctk.CTkLabel(
+            frame,
+            text="OFF = ~1.5 GB VRAM free. Toggle ON only when you want loopback transcription.",
+            font=ctk.CTkFont(size=8), text_color=C_MUTED, wraplength=280, anchor="w", justify="left",
+        ).grid(row=3, column=0, sticky="w", padx=10, pady=(0, 1))
+        self.loopback_status_label = ctk.CTkLabel(
+            frame, text="Loopback STT: off",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED,
+            anchor="w", justify="left",
+        )
+        self.loopback_status_label.grid(row=4, column=0, sticky="ew", padx=10, pady=(0, 2))
+        self.txt_loopback = ctk.CTkTextbox(
+            frame, font=("Consolas", 11),
+            fg_color=C_SURFACE, text_color=C_TEXT, wrap="word",
+            scrollbar_button_color=C_ACCENT,
+            height=160,
+        )
+        self.txt_loopback.grid(row=5, column=0, sticky="nsew", padx=6, pady=(0, 8))
+        self.txt_loopback.configure(state="disabled")
+        frame.grid_rowconfigure(5, weight=1)
+
+    # STATUS BAR
 
     def _build_statusbar(self):
         bar = ctk.CTkFrame(self, height=28, corner_radius=0, fg_color=C_BG)
-        bar.grid(row=3, column=0, columnspan=4, sticky="ew")
+        bar.grid(row=1, column=0, columnspan=3, sticky="ew")
         bar.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-        self.status_llm    = _status_pill(bar, "LLM: Loading",   column=0)
-        self.status_tts    = _status_pill(bar, "TTS: -",          column=1)
-        self.status_twitch = _status_pill(bar, "Twitch: Off",     column=2)
-        self.status_vision = _status_pill(bar, "Vision: Off",     column=3)
-        self.status_vn     = _status_pill(bar, "VN Agent: Off",   column=4)
-        self.status_vram   = _status_pill(bar, "VRAM: \u2014",    column=5)
+        self.status_llm    = _status_pill(bar, "LLM: Loading",    column=0)
+        self.status_tts    = _status_pill(bar, "TTS: -",           column=1)
+        self.status_twitch = _status_pill(bar, "Twitch: Off",      column=2)
+        self.status_vision = _status_pill(bar, "Vision: Off",      column=3)
+        self.status_vn     = _status_pill(bar, "VN Agent: Off",    column=4)
+        self.status_vram   = _status_pill(bar, "VRAM: —",          column=5)
+        # Kick off the 5-second VRAM refresh independently of _update_loop
+        # so it doesn't block the faster 500ms UI loop.
         self.after(5000, self._refresh_vram)
-
-    # ── GO button + mode defaults ─────────────────────────────────────────────
-
-    # Toggle defaults applied by GO. Written once; toggles stay live after.
-    # Activity-type defaults applied by GO (one-shot, not a lock).
-    # bot.mode (companion/streamer) is NOT here — that's the pill button's domain.
-    _MODE_DEFAULTS: dict = {
-        "Just Chatting": dict(
-            vision=True,  heartbeat=30.0, hearing="Off",
-            loopback=False, immersive=False, carry=False,
-            highlights=False,
-        ),
-        "Action Game": dict(
-            vision=True,  heartbeat=10.0, hearing="Media (game/anime)",
-            loopback=True, immersive=False, carry=False,
-            highlights=True,
-        ),
-        "VN": dict(
-            vision=True,  heartbeat=10.0, hearing="Media (game/anime)",
-            loopback=True, immersive=True, carry=False,
-            highlights=True,
-        ),
-        "Companion": dict(
-            vision=False, heartbeat=30.0, hearing="Off",
-            loopback=False, immersive=False, carry=False,
-            highlights=False,
-        ),
-    }
-
-    def _go(self):
-        """GO button: activate activity (optional), apply activity-type defaults.
-
-        Name is not required — GO with empty name switches to Just Chatting defaults.
-        Companion/Streamer pill is NOT touched here.
-        Stream logger is NOT restarted; an activity_switch marker is dropped instead."""
-        name = self.game_title_entry.get().strip()
-
-        # Step 1: activate/switch activity (or clear if no name)
-        if name:
-            _known = self._selected_known_slug
-            self._selected_known_slug = ""   # consume before any early return
-            new_type = self.bot.activate_game_mode(name, known_slug=_known)
-            print(f"   [GO] Activity: '{name}' -> type: {new_type} | slug: {_known or '(normalized)'}")
-        else:
-            new_type = ACTIVITY_GENERAL
-            self.bot.current_activity = ""
-        self._refresh_game_suggestions()
-
-        # Step 2: apply one-shot defaults based on detected activity type.
-        # bot.mode (companion/streamer) is NOT in the defaults table.
-        mode_key = {
-            ACTIVITY_GAME:  "Action Game",
-            ACTIVITY_VN:    "VN",
-            ACTIVITY_MEDIA: "Just Chatting",
-        }.get(new_type, "Just Chatting")
-        self._apply_mode_defaults(mode_key)
-
-        # Step 3: VN-specific extra (sets controller to ACTIVITY_VN)
-        if new_type == ACTIVITY_VN:
-            self._activate_observer_and_vn()
-
-        # Step 4: update status labels
-        if name:
-            self.activity_display.configure(text=f"Active: {name}", text_color=C_TEXT)
-            act_label = {
-                ACTIVITY_GAME:  "Action Game",
-                ACTIVITY_VN:    "VN Mode",
-                ACTIVITY_MEDIA: "Media Watch",
-            }.get(new_type, "Active")
-            self.game_mode_status.configure(
-                text=f"{act_label} — {name}", text_color=C_ACCENT
-            )
-        else:
-            self.activity_display.configure(text="Active: None", text_color=C_MUTED)
-            self.game_mode_status.configure(text="GENERAL mode", text_color=C_MUTED)
-
-    def _on_game_selected(self, choice: str):
-        """User picked an existing game from the autocomplete dropdown.
-        Stores the exact slug — GO uses it directly, bypassing normalization."""
-        pm = getattr(self.bot, "playthrough_memory", None)
-        if pm is None:
-            self._selected_known_slug = ""
-            return
-        self._selected_known_slug = next(
-            (slug for display, slug in pm.get_existing_games() if display == choice),
-            "",
-        )
-        print(f"   [Dashboard] Autocomplete: '{choice}' \u2192 slug '{self._selected_known_slug}'")
-
-    def _on_game_typed(self):
-        """User is typing a new name — clear the known-slug override so normalization runs."""
-        self._selected_known_slug = ""
-
-    def _refresh_game_suggestions(self):
-        """Populate the game name combobox from existing playthrough files.
-        Called on startup and after each GO (newly created games appear immediately)."""
-        pm = getattr(self.bot, "playthrough_memory", None)
-        if pm is None or not hasattr(self, "game_title_entry"):
-            return
-        values = [display for display, _ in pm.get_existing_games()]
-        self.game_title_entry.configure(values=values)
-
-    def _apply_mode_defaults(self, mode_name: str):
-        """One-shot defaults write on GO. mode_name is 'Action Game', 'VN', etc.
-        bot.mode (companion/streamer) is NOT touched — that's the pill button's domain.
-        Runs for every GO so switching VN->Action is always a full clean slate."""
-        d = self._MODE_DEFAULTS.get(mode_name, self._MODE_DEFAULTS["Just Chatting"])
-
-        # Vision
-        if d["vision"]:
-            self.obs_switch.select()
-            if not self.bot.game_mode_controller.is_active:
-                self.bot.game_mode_controller.activate(
-                    self.bot.game_mode_controller.activity_type
-                )
-            self.bot.vision_agent.heartbeat_interval = d["heartbeat"]
-        else:
-            self.obs_switch.deselect()
-            self.bot.game_mode_controller.deactivate()
-            self.bot.vision_agent.heartbeat_interval = 30.0
-
-        # Hearing (before loopback — loopback checks audio_agent.is_active())
-        self.audio_mode_menu.set(d["hearing"])
-        self._set_audio_mode(d["hearing"])
-
-        # Loopback
-        if d["loopback"]:
-            if hasattr(self, "loopback_switch"):
-                self.loopback_switch.select()
-            self._start_loopback_if_needed()
-        else:
-            if hasattr(self, "loopback_switch"):
-                self.loopback_switch.deselect()
-            self._stop_loopback_if_running()
-
-        # Passive Watching
-        self.bot.immersive = d["immersive"]
-        if d["immersive"]:
-            self.immersive_switch.select()
-        else:
-            self.immersive_switch.deselect()
-
-        # Carry Mode
-        self.bot.carry_mode = d["carry"]
-        if d["carry"]:
-            self.carry_mode_switch.select()
-        else:
-            self.carry_mode_switch.deselect()
-
-        # Highlights
-        self.bot.highlight_extraction_enabled = d["highlights"]
-
-        # VN Autopilot: deselect when switching away from VN (clean slate).
-        # The VN loop already guards on activity_type == ACTIVITY_VN, but clearing
-        # the widget and flag prevents stale visual state after a VN->Action switch.
-        if mode_name != "VN" and hasattr(self, "autopilot_switch"):
-            self.autopilot_switch.deselect()
-            self.bot.vn_autoplay_enabled = False
-
-    def _start_loopback_if_needed(self):
-        """Start loopback STT if audio is active and it's not already running."""
-        lt = self.bot.loopback_transcriber
-        if lt is None or lt.is_running():
-            return
-        if not self.bot.audio_agent or not self.bot.audio_agent.is_active():
-            return
-        ai_core_ref = self.bot.ai_core
-        speaking_fn = (
-            (lambda: bool(getattr(ai_core_ref, "is_speaking", False)))
-            if ai_core_ref is not None else None
-        )
-        def _start():
-            ok = lt.start(self.bot.audio_agent, speaking_fn)
-            def _ui():
-                if not ok and hasattr(self, "loopback_switch"):
-                    self.loopback_switch.deselect()
-                elif ok and hasattr(self, "loopback_status_label"):
-                    self.loopback_status_label.configure(
-                        text="Loopback STT: running", text_color=C_GREEN
-                    )
-            self.after(0, _ui)
-        threading.Thread(target=_start, daemon=True, name="LoopbackSTT-go").start()
-
-    def _stop_loopback_if_running(self):
-        """Stop loopback STT if running. Non-blocking."""
-        lt = self.bot.loopback_transcriber
-        if lt is None or not lt.is_running():
-            return
-        threading.Thread(target=lt.stop, daemon=True, name="LoopbackSTT-go-stop").start()
-
-    def _mark_preset_modified(self):
-        """No-op \u2014 preset system replaced by mode defaults. Toggles are always live."""
-        pass
-
-    def _apply_preset(self, choice: str = ""):
-        """No-op stub \u2014 replaced by mode dropdown + GO button."""
-        pass
 
     def _toggle_loopback_stt(self):
         """Explicit ON/OFF toggle for the Loopback Whisper STT.
@@ -1144,6 +1011,134 @@ class KiraDashboard(ctk.CTk):
                 text_color=C_YELLOW,
             )
 
+    def _apply_preset(self, choice: str):
+        """Apply a named stream preset. Configures Mode, Vision, Audio, Loopback, Highlights.
+        Individual toggles remain free to override after this returns."""
+        # Strip 'Custom — ' prefix if user re-selects from the modified state
+        name = choice.replace("Custom \u2014 ", "")
+        self._active_preset = name
+        self._preset_modified = True   # temporarily True so _mark_preset_modified no-ops during setup
+
+        lt = self.bot.loopback_transcriber
+
+        if name == "Test / Companion Mode":
+            self.bot.mode = "companion"
+            self.mode_label.configure(text="COMPANION MODE", text_color=C_GREEN)
+            self.mode_btn.configure(text="Switch to Streamer Mode")
+            self.obs_switch.deselect()
+            self.bot.game_mode_controller.deactivate()
+            self.bot.vision_agent.heartbeat_interval = 30.0
+            self.audio_mode_menu.set("Off")
+            self._set_audio_mode("Off")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = False
+            # Companion/test mode — suspend stream logging to avoid noise
+            try:
+                if self.bot.stream_logger._started and self.bot.event_loop and self.bot.event_loop.is_running():
+                    import asyncio as _asyncio
+                    _asyncio.run_coroutine_threadsafe(
+                        self.bot.stream_logger.finish(), self.bot.event_loop
+                    )
+            except Exception:
+                pass
+            detail = "Vision: OFF | Audio: OFF | Highlights: OFF | Passive Watching: OFF"
+
+        elif name == "Action Game Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_GAME)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = True
+            detail = "Vision: ON | Audio: MEDIA | Highlights: ON | Passive Watching: OFF\nType game name + click ACTIVATE to start."
+
+        elif name == "VN / Story Game Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_VN)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.select()
+            self.bot.immersive = True
+            self.bot.highlight_extraction_enabled = True
+            if lt is not None and not lt.is_running():
+                ai_core_ref = self.bot.ai_core
+                speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                    if ai_core_ref is not None else None
+                threading.Thread(
+                    target=lambda: lt.start(self.bot.audio_agent, speaking_fn),
+                    daemon=True, name="LoopbackSTT-preset-vn",
+                ).start()
+                if hasattr(self, "loopback_switch"):
+                    self.loopback_switch.select()
+            detail = "Vision: ON | Audio: MEDIA | Loopback: ON | Highlights: ON | Passive Watching: ON\nType game name + click ACTIVATE to start."
+
+        elif name == "Anime / Movie Watch Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_MEDIA)
+            self.bot.vision_agent.heartbeat_interval = 10.0
+            self.bot.vision_agent.activity_type = ACTIVITY_MEDIA
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            self.immersive_switch.select()
+            self.bot.immersive = True
+            self.bot.highlight_extraction_enabled = True
+            if lt is not None and not lt.is_running():
+                ai_core_ref = self.bot.ai_core
+                speaking_fn = (lambda: bool(getattr(ai_core_ref, "is_speaking", False))) \
+                    if ai_core_ref is not None else None
+                threading.Thread(
+                    target=lambda: lt.start(self.bot.audio_agent, speaking_fn),
+                    daemon=True, name="LoopbackSTT-preset-media",
+                ).start()
+                if hasattr(self, "loopback_switch"):
+                    self.loopback_switch.select()
+            detail = "Vision: ON | Audio: MEDIA | Loopback: ON | Highlights: ON | Passive Watching: ON"
+
+        elif name == "Just Chatting Stream":
+            self.bot.mode = "streamer"
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
+            self.obs_switch.select()
+            self.bot.game_mode_controller.activate(ACTIVITY_GENERAL)
+            self.bot.vision_agent.heartbeat_interval = 30.0
+            self.audio_mode_menu.set("Off")
+            self._set_audio_mode("Off")
+            self.immersive_switch.deselect()
+            self.bot.immersive = False
+            self.bot.highlight_extraction_enabled = False
+            detail = "Vision: ON | Audio: OFF | Highlights: OFF | Passive Watching: OFF"
+
+        else:
+            detail = ""
+
+        self.preset_menu.set(name)
+        self._preset_modified = False   # clean — subsequent manual toggles will mark it modified
+        self.preset_status_label.configure(
+            text=detail,
+            text_color=C_GREEN,
+        )
+        print(f"   [PRESET LOADED: {name}]")
+        for line in detail.split("\n"):
+            if line.strip():
+                print(f"     {line.strip()}")
+        try:
+            self.bot._last_preset = name
+            self.bot.stream_logger.log("preset_load", preset=name, detail=detail)
+        except Exception:
+            pass
 
     def _toggle_tts_backend(self):
         current = getattr(self.bot.ai_core, "tts_backend", "azure")
@@ -1166,28 +1161,16 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Fish voice ID updated: {new_id}")
 
     def _toggle_mode(self):
-        """Shim — delegates to the new pill-button handler."""
-        self._toggle_companion_streamer()
-
-    def _toggle_companion_streamer(self):
-        """Flip the audience-assumption flag.
-        Companion: Kira does NOT assume an audience (default at boot).
-        Streamer:  Kira knows she's live, engages chat as co-host.
-        This is the ONLY difference. Gates nothing. All controls available in both."""
         if self.bot.mode == "companion":
             self.bot.mode = "streamer"
-            if hasattr(self, "mode_pill"):
-                self.mode_pill.configure(
-                    text="\u25cf  LIVE STREAMER", text_color=C_AMBER
-                )
-            print("   [Dashboard] Mode: STREAMER (audience ON)")
+            self.mode_label.configure(text="LIVE STREAMER MODE", text_color=C_ACCENT)
+            self.mode_btn.configure(text="Switch to Companion Mode")
         else:
             self.bot.mode = "companion"
-            if hasattr(self, "mode_pill"):
-                self.mode_pill.configure(
-                    text="\u25cf  COMPANION MODE", text_color=C_ACCENT
-                )
-            print("   [Dashboard] Mode: COMPANION (audience OFF)")
+            self.mode_label.configure(text="COMPANION MODE", text_color=C_GREEN)
+            self.mode_btn.configure(text="Switch to Streamer Mode")
+        self._mark_preset_modified()
+        print(f"   [Dashboard] Mode: {self.bot.mode}")
 
     def _set_activity(self):
         """Removed — Field 1 (Set Activity) is gone. Slug comes only from game_title_entry."""
@@ -1221,6 +1204,9 @@ class KiraDashboard(ctk.CTk):
             self.bot.game_mode_controller.activate(act_type)
         else:
             self.bot.game_mode_controller.deactivate()
+            if self.vn_switch.get():
+                self.vn_switch.deselect()
+                self.vn_status_label.configure(text="VN: Standby", text_color=C_MUTED)
         self._mark_preset_modified()
         print(f"   [Dashboard] Observer mode: {active}")
 
@@ -1401,12 +1387,60 @@ class KiraDashboard(ctk.CTk):
               f"ask_chat_p {'0.25' if is_on else '0.15'})")
 
     def _activate_game_mode(self):
-        """Legacy stub — replaced by _go()."""
-        self._go()
+        """Dashboard 'Activate Game Mode' button handler.
+        When GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
+        stream-ready state. Individual toggles still override after activation."""
+        try:
+            self._activate_game_mode_inner()
+        except Exception:
+            print("[CRASH] _activate_game_mode raised:", flush=True)
+            traceback.print_exc()
+            raise
 
     def _activate_game_mode_inner(self):
-        """Legacy stub — replaced by _go()."""
-        self._go()
+        """Inner body of _activate_game_mode — wrapped by the outer method for crash visibility."""
+        name = self.game_title_entry.get().strip()
+        if not name:
+            self.game_mode_status.configure(text="Enter a game title first.", text_color=C_RED)
+            self.after(3000, lambda: self.game_mode_status.configure(
+                text="GENERAL mode", text_color=C_MUTED
+            ))
+            return
+        new_type = self.bot.activate_game_mode(name)
+        # Sync activity display
+        self.activity_display.configure(text=f"Active: {name}", text_color=C_TEXT)
+        # Sync immersive switch to actual state (GAME = OFF, VN/MEDIA = ON)
+        if self.bot.immersive:
+            self.immersive_switch.select()
+        else:
+            self.immersive_switch.deselect()
+        if GAME_MODE_AUTO_CONFIGURE and new_type == "game":
+            # Sync observer switch — bot already called game_mode_controller.activate()
+            self.obs_switch.select()
+            # Sync audio mode dropdown and activate the audio agent
+            self.audio_mode_menu.set("Media (game/anime)")
+            self._set_audio_mode("Media (game/anime)")
+            # Loopback STT: honour LOOPBACK_STT_DEFAULT preference
+            if LOOPBACK_STT_DEFAULT and hasattr(self, 'loopback_switch'):
+                self.loopback_switch.select()
+                self._toggle_loopback_stt()
+        # Build status label
+        slug = self.bot.playthrough_memory.current_slug if self.bot.playthrough_memory else ""
+        if GAME_MODE_AUTO_CONFIGURE and new_type == "game":
+            loopback_state = "ON" if LOOPBACK_STT_DEFAULT else "OFF"
+            slug_note = f"resuming: {name}" if slug else "new session"
+            status = (
+                f"GAME MODE: {name}\n"
+                f"Vision: ON | Audio: MEDIA | Immersive: OFF | Loopback: {loopback_state}\n"
+                f"Highlights: ON | {slug_note}"
+            )
+        else:
+            slug_note = f" — playthrough: {name}" if slug else ""
+            status = f"{new_type.upper()} mode{slug_note}"
+        self.game_mode_status.configure(text=status, text_color=C_GREEN)
+        # If VN, also activate observer + VN mode (same as _set_activity does)
+        if new_type == "vn":
+            self._activate_observer_and_vn()
 
     def _exit_game_mode(self):
         """Dashboard 'Exit Game Mode' button handler.
@@ -1498,18 +1532,34 @@ class KiraDashboard(ctk.CTk):
             print("   [Dashboard] Bot event loop not ready.")
 
     def _yt_start(self):
-        """No-op \u2014 YouTube connect button removed."""
-        pass
+        if not self.bot.youtube_bot:
+            self.yt_status_label.configure(text="YouTube: not initialized", text_color=C_RED)
+            return
+        url = self.yt_entry.get().strip()
+        if not url:
+            self.yt_status_label.configure(text="YouTube: enter URL or video ID", text_color=C_YELLOW)
+            return
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._yt_do_start(url), self.bot.event_loop)
+        else:
+            self.yt_status_label.configure(text="YouTube: bot not ready", text_color=C_RED)
 
     async def _yt_do_start(self, url: str):
-        pass
+        ok = self.bot.youtube_bot.start(url)
+        vid = self.bot.youtube_bot.video_id if ok else None
+        text = f"YouTube: live ({vid})" if ok else "YouTube: connect failed"
+        color = C_GREEN if ok else C_RED
+        self.after(0, lambda: self.yt_status_label.configure(text=text, text_color=color))
 
     def _yt_stop(self):
-        """No-op \u2014 YouTube disconnect button removed."""
-        pass
+        if not self.bot.youtube_bot:
+            return
+        if self.bot.event_loop and self.bot.event_loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._yt_do_stop(), self.bot.event_loop)
 
     async def _yt_do_stop(self):
-        pass
+        self.bot.youtube_bot.stop()
+        self.after(0, lambda: self.yt_status_label.configure(text="YouTube: idle", text_color=C_MUTED))
 
     # UPDATE LOOPS
 
@@ -1529,7 +1579,6 @@ class KiraDashboard(ctk.CTk):
             self._refresh_loopback_transcript()
             self._refresh_autopilot_status()
             self._refresh_media_watch_status()
-            self._refresh_header()
         except Exception:
             pass
         self.after(500, self._update_loop)
@@ -1557,28 +1606,32 @@ class KiraDashboard(ctk.CTk):
             self.autopilot_resume_btn.configure(state="disabled")
 
     def _refresh_transcript(self):
-        """Write last 2 turns to the dim 2-line transcript strip."""
         history = self.bot.conversation_history
         if len(history) == self._last_hist_len:
             return
         self._last_hist_len = len(history)
-        parts = []
-        for turn in history[-2:]:
+        lines = []
+        for turn in history[-20:]:
             name = "Jonny" if turn["role"] == "user" else AI_NAME
-            content = (turn["content"] or "")[:130].replace("\n", " ")
-            parts.append(f"[{name}]: {content}")
-        text = "   \u00b7   ".join(parts)
-        try:
-            self.txt_transcript.configure(state="normal")
-            self.txt_transcript.delete("0.0", "end")
-            self.txt_transcript.insert("0.0", text)
-            self.txt_transcript.configure(state="disabled")
-        except Exception:
-            pass
+            lines.append(f"[{name}]: {turn['content']}\n")
+        text = "\n".join(lines)
+        self.txt_transcript.configure(state="normal")
+        self.txt_transcript.delete("0.0", "end")
+        self.txt_transcript.insert("0.0", text)
+        self.txt_transcript.see("end")
+        self.txt_transcript.configure(state="disabled")
 
     def _refresh_twitch(self):
-        """No-op \u2014 Twitch chat panel removed; handled by Streamlabs."""
-        pass
+        log = self.bot.twitch_log
+        if len(log) == self._last_twitch_len:
+            return
+        self._last_twitch_len = len(log)
+        text = "\n".join(log[-60:])
+        self.txt_twitch.configure(state="normal")
+        self.txt_twitch.delete("0.0", "end")
+        self.txt_twitch.insert("0.0", text)
+        self.txt_twitch.see("end")
+        self.txt_twitch.configure(state="disabled")
 
     def _refresh_status(self):
         if self.bot.ai_core.is_initialized:
@@ -1651,9 +1704,9 @@ class KiraDashboard(ctk.CTk):
             remaining = int(self.bot.mute_until - time.time())
             if remaining < 0:
                 remaining = 0
-            self.btn_mute.configure(text=f"\U0001f507  Muted ({remaining}s) — Unmute", fg_color="#7A6A30")
+            self.btn_mute.configure(text=f"\U0001f507  Muted ({remaining}s) — Unmute", fg_color="#6B5028")
         else:
-            self.btn_mute.configure(text="\U0001f507  Mute 60s  (F9)", fg_color=C_GOLD)
+            self.btn_mute.configure(text="\U0001f507  Mute 30s  (F9)", fg_color=C_YELLOW)
 
     def _refresh_vibe_meter(self):
         try:
@@ -1794,45 +1847,26 @@ class KiraDashboard(ctk.CTk):
         )
 
     def _refresh_loopback_transcript(self):
-        """Update loopback status label. Transcript textbox removed in new layout."""
+        """Refresh the loopback Whisper transcript pane. Stage 1: visibility only —
+        the transcript is NOT yet flowing into Kira's prompt context."""
         lt = getattr(self.bot, "loopback_transcriber", None)
-        if lt is None or not hasattr(self, "loopback_status_label"):
+        if lt is None or not hasattr(self, "txt_loopback"):
             return
-        status = lt.get_status_summary()
-        color = C_ACCENT if lt.is_running() else C_MUTED
-        self.loopback_status_label.configure(text=status, text_color=color)
-
-    def _refresh_header(self):
-        """Sync header perception badges and mode pill with current bot state."""
-        if not hasattr(self, "header_perception"):
-            return
-        # Mode pill
-        if hasattr(self, "mode_pill"):
-            if self.bot.mode == "streamer":
-                self.mode_pill.configure(text="\u25cf  LIVE STREAMER", text_color=C_AMBER)
-            else:
-                self.mode_pill.configure(text="\u25cf  COMPANION MODE", text_color=C_ACCENT)
-        # Perception badges
-        vis = "\U0001f441 ON" if self.bot.game_mode_controller.is_active else "\U0001f441 off"
-        aud_mode = self.audio_mode_menu.get() if hasattr(self, "audio_mode_menu") else "Off"
-        if aud_mode == "Off":
-            aud = "\U0001f442 off"
-        elif "Music" in aud_mode:
-            aud = "\U0001f442 Music"
-        else:
-            aud = "\U0001f442 Media"
-        lt = getattr(self.bot, "loopback_transcriber", None)
-        loop = "\U0001f3a4 ON" if (lt and lt.is_running()) else "\U0001f3a4 off"
-        self.header_perception.configure(
-            text=f"{vis}  \u00b7  {aud}  \u00b7  {loop}",
-            text_color=C_TEXT if self.bot.game_mode_controller.is_active else C_MUTED,
-        )
-        # Activity in header
-        act = self.bot.current_activity or "none"
-        self.header_activity.configure(
-            text=f"Activity: {act}",
-            text_color=C_TEXT if self.bot.current_activity else C_MUTED,
-        )
+        # Status line
+        if hasattr(self, "loopback_status_label"):
+            status = lt.get_status_summary()
+            color = C_GREEN if lt.is_running() else C_MUTED
+            self.loopback_status_label.configure(text=status, text_color=color)
+        # Transcript body
+        body = lt.get_transcript_text() or "(no speech transcribed yet)"
+        try:
+            self.txt_loopback.configure(state="normal")
+            self.txt_loopback.delete("1.0", "end")
+            self.txt_loopback.insert("end", body)
+            self.txt_loopback.see("end")
+            self.txt_loopback.configure(state="disabled")
+        except Exception:
+            pass
 
     def _vision_loop(self):
         if self.bot.game_mode_controller.is_active and not self._vision_lock:
@@ -1845,9 +1879,8 @@ class KiraDashboard(ctk.CTk):
             full = ImageGrab.grab()
             if hasattr(self.bot, "vision_agent"):
                 self.bot.vision_agent.update_shared_frame(full)
-            # Thumbnail for the left-panel Zone A widget (240×135)
-            preview = full.resize((240, 135))
-            tk_img = ctk.CTkImage(light_image=preview, size=(240, 135))
+            preview = full.resize((640, 360))
+            tk_img = ctk.CTkImage(light_image=preview, size=(640, 360))
             self.after(0, lambda: self._apply_vision(tk_img))
         except Exception:
             pass
