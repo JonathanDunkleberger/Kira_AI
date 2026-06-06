@@ -130,6 +130,9 @@ CAPTION_CLEAR_DELAY_MS = int(os.getenv("CAPTION_CLEAR_DELAY_MS", "1500"))
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
 ENABLE_CHATTER_MEMORY = os.getenv("ENABLE_CHATTER_MEMORY", "true").lower() == "true"
+# Twitch native polls require affiliate status. Set true only if you're affiliate;
+# otherwise [POLL:] tags get stripped silently (no failed API call).
+ENABLE_TWITCH_POLLS = os.getenv("ENABLE_TWITCH_POLLS", "false").lower() == "true"
 
 # Inference backend for local-Llama-style calls (triage, classification,
 # emotion analysis, response generation fallback). Claude (Sonnet/Opus) is

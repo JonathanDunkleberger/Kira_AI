@@ -41,7 +41,7 @@ from config import (
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
     GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
-    LOOPBACK_STT_DEFAULT,
+    LOOPBACK_STT_DEFAULT, ENABLE_TWITCH_POLLS,
 )
 from stream_logger import StreamLogger
 from persona import EmotionalState
@@ -73,9 +73,10 @@ def parse_kira_tools(text, allow_music=False):
     # Look for Poll Tag
     poll_match = re.search(r'\[POLL:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]', text)
     if poll_match:
-        question, opt1, opt2 = poll_match.groups()
-        start_twitch_poll(question, [opt1, opt2])
-        # Strip the tag so Kira doesn't SAY the code out loud
+        if ENABLE_TWITCH_POLLS:
+            question, opt1, opt2 = poll_match.groups()
+            start_twitch_poll(question, [opt1, opt2])
+        # Strip the tag regardless — Kira shouldn't say the code out loud
         text = re.sub(r'\[POLL:.*?\]', '', text)
 
     # Look for Song Tag
@@ -94,7 +95,19 @@ def parse_kira_tools(text, allow_music=False):
     if pred_match:
         question, opt_a, opt_b = pred_match.groups()
         if _GLOBAL_BOT_REF is not None:
-            _GLOBAL_BOT_REF.start_prediction(question, opt_a, opt_b)
+            _PREDICT_COOLDOWN = 300.0  # 5 min between predictions
+            _since_last = time.time() - _GLOBAL_BOT_REF.last_prediction_time
+            if _since_last < _PREDICT_COOLDOWN:
+                print(f"   [Predict] Cooldown active ({_since_last:.0f}s < {_PREDICT_COOLDOWN:.0f}s) — skipping: {question!r}")
+            else:
+                _GLOBAL_BOT_REF.start_prediction(question, opt_a, opt_b)
+                _GLOBAL_BOT_REF.last_prediction_time = time.time()
+                # Inject a history signal so the model sees a prediction already ran
+                # and won't re-emit [PREDICT:] on the same beat.
+                _GLOBAL_BOT_REF.conversation_history.append({
+                    "role": "assistant",
+                    "content": f"[A prediction is now running: \"{question}\". Do not start another prediction until this one closes.]"
+                })
         text = re.sub(r'\[PREDICT:.*?\]', '', text)
 
     return text.strip()
@@ -225,6 +238,7 @@ class VTubeBot:
         self.session_chatters_seen: set = set()    # usernames seen in this session (for welcome detection)
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
+        self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
 
         # Recent activity brief — generated at startup, cached for the session
         self.recent_activity_brief: str = ""
@@ -1620,6 +1634,7 @@ class VTubeBot:
                         system_prompt="You are a memory consolidator. Output clean prose only.",
                         max_tokens=400,
                         force_claude=True,  # Do not fall back to local Llama
+                        use_sonnet=True,    # F: startup brief — Sonnet sufficient
                     )
                     if brief and len(brief.strip()) > 200:
                         break  # Successfully got a real brief from Claude
@@ -2140,28 +2155,35 @@ class VTubeBot:
                     if source == "voice":
                         detected = self._detect_activity_change(content)
                         if detected and detected != self.current_activity:
-                            self.current_activity = detected
-                            new_type = self._classify_activity_type(detected)
-                            self.game_mode_controller.activity_type = new_type
-                            self.vision_agent.activity_type = new_type
-                            print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
-                            old_immersive = self.immersive
-                            self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
-                            print(f"   [Immersive] {self.immersive}")
-                            # Vision heartbeat cadence:
-                            #   ACTIVITY_VN / ACTIVITY_MEDIA (immersive=True) → 10s (already was)
-                            #   ACTIVITY_GAME → 10s (game scenes change fast; was 30s before)
-                            #   Everything else → 30s (chat/idle, no point hammering vision)
-                            if self.immersive or new_type == ACTIVITY_GAME:
-                                self.vision_agent.heartbeat_interval = 10.0
+                            # SESSION LOCK: once the dashboard has armed a session via
+                            # activate_game_mode(), the slug is frozen. Voice can set
+                            # activity on a cold start (before Activate is pressed), but
+                            # mid-session ambient speech cannot fork the playthrough slug.
+                            if self.game_mode_controller.is_active:
+                                print(f"   [Activity] Voice detected '{detected}' — ignored: session already armed (slug locked to '{self.current_activity}').")
                             else:
-                                self.vision_agent.heartbeat_interval = 30.0
-                            if old_immersive and not self.immersive and self.session_scene_log:
-                                asyncio.create_task(self._generate_session_summary())
-                            # Load playthrough memory for the new game/VN
-                            if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
-                                self.playthrough_memory.load_for_game(detected)
-                                # Takes/spotlight persist across activity switches (Req A).
+                                self.current_activity = detected
+                                new_type = self._classify_activity_type(detected)
+                                self.game_mode_controller.activity_type = new_type
+                                self.vision_agent.activity_type = new_type
+                                print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
+                                old_immersive = self.immersive
+                                self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+                                print(f"   [Immersive] {self.immersive}")
+                                # Vision heartbeat cadence:
+                                #   ACTIVITY_VN / ACTIVITY_MEDIA (immersive=True) → 10s (already was)
+                                #   ACTIVITY_GAME → 10s (game scenes change fast; was 30s before)
+                                #   Everything else → 30s (chat/idle, no point hammering vision)
+                                if self.immersive or new_type == ACTIVITY_GAME:
+                                    self.vision_agent.heartbeat_interval = 10.0
+                                else:
+                                    self.vision_agent.heartbeat_interval = 30.0
+                                if old_immersive and not self.immersive and self.session_scene_log:
+                                    asyncio.create_task(self._generate_session_summary())
+                                # Load playthrough memory for the new game/VN
+                                if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
+                                    self.playthrough_memory.load_for_game(detected)
+                                    # Takes/spotlight persist across activity switches (Req A).
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
@@ -2383,7 +2405,11 @@ class VTubeBot:
     async def _checkpoint_loop(self):
         """Periodically flush in-session playthrough accumulators to a crash-recovery
         checkpoint file. If the bot crashes before clean shutdown, the next
-        load_for_game call will detect and recover this checkpoint automatically."""
+        load_for_game call will detect and recover this checkpoint automatically.
+
+        Also writes a lightweight transcript checkpoint (PENDING_{slug}.json) so
+        that even a hard crash (0xc000001d, power loss) doesn't lose the session
+        transcript needed for lore generation.  backfill_lore.py reads these."""
         from config import CHECKPOINT_INTERVAL_SECONDS
         print("   [System] Playthrough checkpoint loop started.")
         while self.is_running:
@@ -2403,6 +2429,65 @@ class VTubeBot:
                 )
             except Exception as e:
                 print(f"   [Checkpoint] Loop error: {e}")
+
+            # ── Transcript checkpoint (belt-and-suspenders for lore recovery) ──
+            # Write a PENDING_{slug}.json snapshot of the current transcript and
+            # highlights. Overwritten each interval; deleted by
+            # _write_session_artifacts on success. If the process hard-crashes,
+            # the file survives for backfill_lore.py to consume.
+            if self.full_session_log and not self._session_artifacts_written:
+                try:
+                    await asyncio.to_thread(self._flush_transcript_checkpoint)
+                except Exception as e:
+                    print(f"   [Checkpoint] Transcript checkpoint error: {e}")
+
+    def _flush_transcript_checkpoint(self) -> None:
+        """Synchronous helper: write logs/sessions_raw/PENDING_{slug}.json.
+
+        Called from _checkpoint_loop via asyncio.to_thread. Overwrites any previous
+        checkpoint for this slug (we only need the most recent snapshot). The file is
+        deleted by _write_session_artifacts once lore has been successfully generated,
+        so its presence on disk always means 'this session needs lore backfill'.
+        backfill_lore.py picks these up automatically."""
+        import json
+        activity = self.current_activity or "general"
+        activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity).strip('_').lower()[:40] or "session"
+
+        transcript_lines = []
+        for entry in self.full_session_log:
+            rel_sec = int(entry["timestamp"] - self.session_started_at)
+            h = rel_sec // 3600
+            m = (rel_sec % 3600) // 60
+            s = rel_sec % 60
+            ts = f"{h:02d}:{m:02d}:{s:02d}"
+            speaker = entry.get("speaker_name", entry["role"])
+            content = entry["content"][:600]
+            transcript_lines.append(f"[{ts}] {speaker}: {content}")
+
+        highlights = [
+            h["highlight"] + (f" — {h['take']}" if h.get("take") else "")
+            for h in self.session_highlights
+        ]
+
+        data = {
+            "activity": activity,
+            "activity_slug": activity_slug,
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "session_started_at": self.session_started_at,
+            "duration_min": int((time.time() - self.session_started_at) / 60),
+            "transcript": "\n".join(transcript_lines),
+            "highlights": highlights,
+            "checkpoint_ts": time.time(),
+        }
+
+        os.makedirs("logs/sessions_raw", exist_ok=True)
+        path = os.path.join("logs/sessions_raw", f"PENDING_{activity_slug}.json")
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)  # atomic rename — never leaves a partial file on disk
 
     async def chat_batch_worker(self):
         """Drains the chat batch buffer every CHAT_BATCH_WINDOW seconds and emits
@@ -2434,15 +2519,20 @@ class VTubeBot:
             if not batch:
                 continue
 
+            _attempt_time = time.time()
             try:
                 await self._respond_to_chat_batch(batch)
             except Exception as e:
                 print(f"   [ChatBatch] Error: {e}")
                 traceback.print_exc()
-                # Fix #1: Restore the batch on failure so messages aren't silently lost
-                # on transient API errors. Prepend (not append) so original arrival order
-                # is preserved ahead of any new messages that arrived during the attempt.
-                self.chat_batch_buffer[:0] = batch
+                # Restore only if the batch was NOT answered. last_chat_response_time
+                # is set inside _respond_to_chat_batch BEFORE speak_text — if it was
+                # updated during this attempt, TTS already fired and the batch is
+                # consumed; don't re-insert (would cause double-speak on post-TTS errors).
+                if self.last_chat_response_time < _attempt_time:
+                    self.chat_batch_buffer[:0] = batch
+                else:
+                    print(f"   [ChatBatch] Not restoring batch — response already spoken.")
 
     async def _respond_to_chat_batch(self, batch: list):
         """Decides what (if anything) to say in response to a batch of chat messages."""
@@ -2621,6 +2711,7 @@ class VTubeBot:
                 memory_context=self.memory.get_semantic_context(batch_str),
                 recent_history=self.conversation_history,
                 max_tokens=chat_max_tokens,
+                use_sonnet=True,  # A: chat batch — Sonnet
             )
         else:
             response = await self.ai_core.llm_inference(
@@ -2646,6 +2737,10 @@ class VTubeBot:
         # interruption_event while _chat_speaking is True, so this response plays to
         # completion before Jonny's queued voice input is processed. Hard interrupts
         # (F8 / mute_for / pause_model) bypass this and still cut through immediately.
+        # Bug2-fix: mark as answered BEFORE TTS — once history is appended the batch
+        # is consumed regardless of TTS outcome. A post-TTS exception must not cause
+        # the restore path to re-insert a batch whose response already played.
+        self.last_chat_response_time = time.time()
         self._chat_speaking = True
         try:
             await self.ai_core.speak_text(cleaned)
@@ -2691,7 +2786,6 @@ class VTubeBot:
             speaker_name=chatter_names,
         )
         self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
-        self.last_chat_response_time = time.time()
         self.ai_core.last_speech_finish_time = time.time()
 
         for msg in batch:
@@ -2820,6 +2914,9 @@ class VTubeBot:
 
     def start_prediction(self, question: str, option_a: str, option_b: str, duration_seconds: int = 30):
         """Starts a chat-based prediction. Viewers vote by typing A or B (or the option name)."""
+        if self.active_prediction:
+            print(f"   [Predict] Ignoring new prediction — one is already running: {self.active_prediction['question']!r}")
+            return
         self.active_prediction = {
             "question": question,
             "option_a": option_a,
@@ -2924,6 +3021,7 @@ class VTubeBot:
                     scene_context=scene,
                     memory_context="",
                     recent_history=[],
+                    use_sonnet=True,  # B: stream opener — Sonnet
                 )
             else:
                 response = await self.ai_core.llm_inference(
@@ -2979,6 +3077,7 @@ class VTubeBot:
                     scene_context="",
                     memory_context="",
                     recent_history=self.conversation_history,
+                    use_sonnet=True,  # C: stream closer — Sonnet
                 )
             else:
                 response = await self.ai_core.llm_inference(
@@ -3110,8 +3209,8 @@ class VTubeBot:
             f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
         )
 
-        # ── STAGE 1: Opus call for lore + clips (60s timeout). ──
-        print("   [Artifacts] Calling Opus to generate lore + clip candidates...")
+        # ── STAGE 1: Sonnet call for lore + clips (60s timeout). ──
+        print("   [Artifacts] Calling Sonnet to generate lore + clip candidates... [L: ⚡ Sonnet — evaluate one lore entry after session]")
         response = None
         try:
             response = await asyncio.wait_for(
@@ -3119,13 +3218,14 @@ class VTubeBot:
                     messages=[{"role": "user", "content": artifact_request}],
                     system_prompt="You are a thoughtful editor reviewing a stream session. Output clean markdown.",
                     max_tokens=4000,
+                    use_sonnet=True,  # L: lore + clips — Sonnet [evaluate lore quality after next session]
                 ),
                 timeout=60.0,
             )
         except asyncio.TimeoutError:
-            print("   [Artifacts] Opus call TIMED OUT after 60s — raw dump survived; lore/clips skipped.")
+            print("   [Artifacts] Sonnet call TIMED OUT after 60s — raw dump survived; lore/clips skipped.")
         except Exception as e:
-            print(f"   [Artifacts] Opus call failed: {e}")
+            print(f"   [Artifacts] Sonnet call failed: {e}")
             traceback.print_exc()
 
         if response:
@@ -3217,6 +3317,18 @@ class VTubeBot:
             print("   [Playthrough] No active playthrough slug — skipping session entry.")
 
         self._session_artifacts_written = True
+
+        # ── Clean up transcript checkpoint now that artifacts are written ──
+        # The PENDING file is only useful if the session crashes; on success it's noise.
+        try:
+            pending_path = os.path.join(
+                "logs/sessions_raw", f"PENDING_{activity_slug}.json"
+            )
+            if os.path.exists(pending_path):
+                os.remove(pending_path)
+        except Exception:
+            pass  # non-critical; stale PENDING files are harmless
+
         return results
 
     async def request_thoughts(self):
@@ -3769,6 +3881,16 @@ class VTubeBot:
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not."""
         if self.is_muted():
             return
+        # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
+        # Pays for one GPT-4o-mini call here instead of reading the heartbeat cache
+        # (up to 10s stale). Drops perceived reaction lag from ~10s to ~1.5s without
+        # cranking the global heartbeat interval (which would burn vision cost all session).
+        _va = self.vision_agent
+        if _va and _va.is_active and getattr(_va, "client", None):
+            _fresh = await _va.capture_and_describe(is_heartbeat=False)
+            if _fresh and not _fresh.startswith("My vision is a bit glitchy"):
+                _va.last_description = _fresh
+                await _va._update_scene_summary(_fresh)
         memory_context = self.memory.get_semantic_context(memory_query or prompt)
 
         # Visual status: only feed scene context when we have a fresh frame.
@@ -3806,6 +3928,7 @@ class VTubeBot:
                     scene_context=scene,
                     memory_context=memory_context,
                     recent_history=self.conversation_history,
+                    use_sonnet=True,  # E: observer interjection — Sonnet [evaluate wit on next stream]
                 )
             except Exception as e:
                 print(f"   [Interjection] Claude failed, falling back to local: {e}")
@@ -4255,6 +4378,7 @@ class VTubeBot:
             messages=[{"role": "user", "content": user}],
             system_prompt=system_prompt,
             max_tokens=200,
+            use_sonnet=True,  # G: highlight extraction — Sonnet
         )
 
         if not response or "NONE" in response.upper()[:20]:
@@ -4320,6 +4444,7 @@ class VTubeBot:
                 messages=[{"role": "user", "content": user}],
                 system_prompt=system_prompt,
                 max_tokens=400,
+                use_sonnet=True,  # H: session summary — Sonnet
             )
             if summary:
                 self.memory.add_session_summary(activity=activity, summary=summary)
@@ -4380,10 +4505,15 @@ class VTubeBot:
 
 
 # --- UPDATED: Graceful Shutdown Logic ---
+# Module-level ref so the __main__ KeyboardInterrupt handler can reach the bot
+# without tunnelling through async closures.
+_bot: "VTubeBot | None" = None
+
 async def main():
-    bot = VTubeBot()
+    global _bot
+    _bot = VTubeBot()
     try:
-        await bot.run()
+        await _bot.run()
     except asyncio.CancelledError:
         print("Main task cancelled.")
 
@@ -4392,7 +4522,19 @@ if __name__ == "__main__":
     try:
         loop.run_until_complete(main())
     except KeyboardInterrupt:
-        print("\nApplication shutting down...")
+        # Ctrl+C interrupted the loop. The main task is still alive but the loop
+        # stopped. Run shutdown_async() in a fresh run_until_complete() call so it
+        # can properly await the Opus lore/clips write before we cancel everything.
+        print("\nCtrl+C — running graceful shutdown (up to 120s)...")
+        if _bot is not None:
+            try:
+                loop.run_until_complete(
+                    asyncio.wait_for(_bot.shutdown_async(), timeout=120)
+                )
+            except asyncio.TimeoutError:
+                print("[Shutdown] Graceful shutdown exceeded 120s — forcing exit.")
+            except Exception as e:
+                print(f"[Shutdown] Shutdown error: {e}")
     finally:
         # Gracefully cancel all running tasks
         tasks = asyncio.all_tasks(loop=loop)

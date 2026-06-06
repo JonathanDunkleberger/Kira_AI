@@ -408,7 +408,7 @@ class StreamLogger:
             "Be data-driven and specific. Do not pad."
         )
 
-        print("   [StreamLogger] Generating post-stream summary via Opus...")
+        print("   [StreamLogger] Generating post-stream summary via Sonnet...")
         try:
             response = await ai_core.claude_inference(
                 messages=[{"role": "user", "content": prompt}],
@@ -417,9 +417,10 @@ class StreamLogger:
                     "Be concise, specific, and reference timestamps. Do not speculate beyond the data."
                 ),
                 max_tokens=2000,
+                use_sonnet=True,  # K: post-stream tech summary — Sonnet
             )
         except Exception as e:
-            print(f"   [StreamLogger] Opus summary call failed: {e}", file=sys.stderr)
+            print(f"   [StreamLogger] Sonnet summary call failed: {e}", file=sys.stderr)
             return
 
         if not response:

@@ -301,7 +301,7 @@ class PlaythroughMemory:
             f"If context is thin, be brief and honest — do not pad or fabricate plot details."
         )
 
-        print(f"   [Playthrough] Generating session #{session_num} entry for '{activity}'...")
+        print(f"   [Playthrough] Generating session #{session_num} entry for '{activity}'... [I: ⚡ Sonnet — evaluate in-voice quality after next session]")
         try:
             entry_text = await self.ai_core.claude_inference(
                 messages=[{"role": "user", "content": prompt}],
@@ -311,6 +311,7 @@ class PlaythroughMemory:
                     "style. Be precise and personal, not generic."
                 ),
                 max_tokens=500,
+                use_sonnet=True,  # I: playthrough session entry — Sonnet
             )
         except Exception as e:
             print(f"   [Playthrough] Session entry generation failed: {e}")
@@ -950,6 +951,7 @@ class PlaythroughMemory:
                     "playthrough. Write as Kira. Be specific, personal, and concise."
                 ),
                 max_tokens=350,
+                use_sonnet=True,  # J: rolling summary regen — Sonnet
             )
         except Exception as e:
             print(f"   [Playthrough] Summary regen call failed: {e}")

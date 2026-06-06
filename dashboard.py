@@ -1188,12 +1188,21 @@ class KiraDashboard(ctk.CTk):
         text = self.activity_entry.get().strip()
         if not text:
             return
+        # SESSION LOCK: if a session has been armed via 'Activate Game Mode', the slug
+        # is owned by that session. This field must not silently re-slug the active game
+        # or call load_for_game (which would fork the playthrough file). Limit to display
+        # context only. Use 'Activate Game Mode' to change the slug — it resets session
+        # accumulators and owns the slug cleanly.
+        if self.bot.game_mode_controller.is_active:
+            self.activity_display.configure(text=text, text_color=C_TEXT)
+            print(f"   [Dashboard] Activity display updated: '{text}' — slug locked to '{self.bot.current_activity}' (session active, use Activate Game Mode to change).")
+            return
         self.bot.current_activity = text
         new_type = self.bot._classify_activity_type(text)
         self.bot.game_mode_controller.activity_type = new_type
         self.bot.vision_agent.activity_type = new_type
         self.bot.immersive = (new_type in (ACTIVITY_VN, ACTIVITY_MEDIA))
-        # Load playthrough memory for game/VN activities (or switch game mid-session)
+        # Load playthrough memory for VN/game activities on a cold start (no active session).
         if new_type in (ACTIVITY_VN, ACTIVITY_GAME) and self.bot.playthrough_memory:
             self.bot.playthrough_memory.load_for_game(text)
         print(f"   [Dashboard] Activity set: '{text}' (type: {new_type})")
@@ -1966,6 +1975,26 @@ def run_dashboard():
     app = KiraDashboard(bot)
     try:
         app.mainloop()
+    except KeyboardInterrupt:
+        # Ctrl+C on the terminal bypasses _on_window_close entirely (the main thread
+        # is in Tkinter C code, so the WM_DELETE_WINDOW handler never fires).
+        # Mirror that handler here: call shutdown_async on the asyncio loop so
+        # lore / clips / playthrough are written before the process dies.
+        print("\n[Shutdown] Ctrl+C detected — running graceful shutdown (up to 120s)...", flush=True)
+        loop = getattr(bot, "event_loop", None)
+        if loop and loop.is_running():
+            try:
+                fut = asyncio.run_coroutine_threadsafe(bot.shutdown_async(), loop)
+                fut.result(timeout=120)
+            except concurrent.futures.TimeoutError:
+                print("[Shutdown] Graceful shutdown exceeded 120s — forcing exit.", flush=True)
+            except Exception as e:
+                print(f"[Shutdown] Shutdown error: {e}", flush=True)
+                traceback.print_exc()
+        try:
+            app.destroy()
+        except Exception:
+            pass
     except Exception:
         print("[CRASH] app.mainloop() raised:", flush=True)
         traceback.print_exc()

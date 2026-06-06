@@ -788,10 +788,13 @@ class AI_Core:
             decision = "RESPOND"
         return self._triage_rescue(decision, incoming_line)
 
-    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False, dynamic_context: str = "") -> str:
-        """Routes a generation call to Claude Opus. Used for deep cognitive moments
-        where intelligence matters more than latency. Falls back to local LLM if Claude unavailable
-        unless force_claude=True, in which case exceptions are re-raised for callers to handle.
+    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False, dynamic_context: str = "", use_sonnet: bool = False) -> str:
+        """Routes a generation call to Claude.
+
+        use_sonnet=False (default) → CLAUDE_DEEP_MODEL (Opus) — reserved for Invite/Deep only.
+        use_sonnet=True            → CLAUDE_CHAT_MODEL (Sonnet) — all background + live non-Invite.
+
+        Falls back to local LLM if Claude unavailable unless force_claude=True.
 
         system_prompt  — Block A (static personality + rules). Cached with cache_control when
                          ENABLE_PROMPT_CACHING is on. Must be byte-identical across calls.
@@ -827,12 +830,13 @@ class AI_Core:
             # server hiccup; a 1.5s wait often clears it, and Claude is far
             # better suited to the prompt sizes we build here than the local
             # 4–16k window. Other errors (auth, 4xx, network) skip the retry.
+            _model = CLAUDE_CHAT_MODEL if use_sonnet else CLAUDE_DEEP_MODEL
             response = None
             last_err = None
             for attempt in range(2):
                 try:
                     response = await self.anthropic_client.messages.create(
-                        model=CLAUDE_DEEP_MODEL,
+                        model=_model,
                         max_tokens=max_tokens,
                         system=system_param,
                         messages=claude_messages,
@@ -864,10 +868,11 @@ class AI_Core:
                 max_tokens_override=max_tokens,
             )
 
-    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None, max_tokens: int = 400) -> str:
-        """Generates a deep, in-character Kira response using Claude Opus.
-        Used for the invite button, reflective questions, and moments where
-        intelligence and nuance matter more than latency."""
+    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None, max_tokens: int = 400, use_sonnet: bool = False) -> str:
+        """Generates a deep, in-character Kira response via Claude.
+
+        use_sonnet=False (default) → Opus. Only the Invite/Deep thoughts path leaves this False.
+        use_sonnet=True            → Sonnet. All live non-Invite callers pass True."""
         recent_history = recent_history or []
         # Block A (static, cached): self.system_prompt — personality + tool rules, never changes.
         # Block C (dynamic, uncached): mode framing, scene perception, retrieved memories.
@@ -898,6 +903,7 @@ class AI_Core:
             system_prompt=self.system_prompt,
             dynamic_context=dynamic_context,
             max_tokens=max_tokens,
+            use_sonnet=use_sonnet,
         )
 
     async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400) -> str:
