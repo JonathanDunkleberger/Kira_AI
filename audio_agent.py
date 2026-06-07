@@ -53,18 +53,12 @@ class AudioAgent:
     # the model's file-upload conversational mode. Frame as a live observation task.
     MEDIA_PROMPT = (
         "Live game, anime, movie, or stream audio is playing. Describe what you hear.\n"
-        "OUTPUT: 2-3 vivid, evocative sentences capturing the mood, action, and emotional quality.\n"
-        "Write like you're briefing a live commentator — give them something to REACT to, not just raw data.\n"
+        "OUTPUT: 1-2 tight sentences. Mood + what it implies — enough for a co-host to react.\n"
         "\n"
-        "DESCRIBE with emotional colour and context:\n"
-        "- BGM: genre, energy, mood — what does it SUGGEST is happening? ('tense string stabs signal danger', not just 'strings playing')\n"
-        "- Voice tone: emotional state — desperate, triumphant, panicked, sad (never invent spoken words)\n"
-        "- Sound effects: what event do they imply? (heavy footsteps = someone approaching, alarm = crisis)\n"
-        "\n"
-        "Good: 'Ominous brass swell with rhythmic percussion — something dangerous is closing in.'\n"
+        "Good: 'Tense string stabs, no music — something is about to go wrong.'\n"
         "Bad:  'Brass and percussion instruments playing at medium tempo.'\n"
         "\n"
-        "NEVER (these outputs are rejected):\n"
+        "NEVER:\n"
         "- Use first person: no 'I hear', 'I notice', 'I can', 'I cannot'\n"
         "- Address the user: no 'sure', 'understood', 'as requested', 'here is', 'I'll'\n"
         "- Ask for anything: no questions, no requests, no 'please', no asking for files or uploads\n"
@@ -79,25 +73,18 @@ class AudioAgent:
 
     MUSIC_PROMPT = (
         "Live music is playing — Jonny is performing guitar and/or singing. Describe what you hear.\n"
-        "OUTPUT: 2-3 vivid sentences capturing the feel of the performance.\n"
-        "Write like you're describing it to someone who can't hear it but wants to know the vibe.\n"
-        "\n"
-        "DESCRIBE with feel and character:\n"
-        "- Instrumentation, genre, style, energy level\n"
-        "- Chord progression vibe: major/minor mood, emotional colour, notable transitions\n"
-        "- If singing is clearly audible: emotional delivery, vibe, intelligible lyrics only (never guess at words)\n"
+        "OUTPUT: 1-2 tight sentences capturing the feel of the performance.\n"
         "\n"
         "Good: 'Gentle fingerpicked acoustic, melancholic minor key — sounds introspective, something unresolved.'\n"
         "Bad:  'Acoustic guitar playing, minor key, slow tempo.'\n"
         "\n"
-        "NEVER (these outputs are rejected):\n"
+        "NEVER:\n"
         "- Use first person: no 'I hear', 'I notice', 'I can', 'I cannot'\n"
         "- Address the user: no 'sure', 'understood', 'as requested', 'here is', 'I'll'\n"
         "- Ask for anything: no questions, no requests, no 'please', no asking for files or uploads\n"
         "- Claim inability: no 'I cannot process', 'I cannot listen', 'I cannot access audio'\n"
         "- Apologize or self-explain: no 'unfortunately', 'I should note', 'I apologize'\n"
         "- Invent lyrics or pitch judgements you are not certain of\n"
-        "- Write meta-commentary, retrospective notes, or self-reflection\n"
         "\n"
         "IF AUDIO IS SILENT OR NOTHING MUSICAL IS HAPPENING: output exactly: AUDIO_SILENT\n"
         "IF UNCERTAIN: prefix with 'UNCERTAIN:' and describe only what is clearly audible."
@@ -194,6 +181,7 @@ class AudioAgent:
         self.mode: str = AUDIO_MODE_OFF
         self.audio_summary: str = ""
         self.last_capture_time: float = 0
+        self.capture_count: int = 0  # increments each time a non-silent audio summary lands
         self.consecutive_silent: int = 0
         # Track consecutive model_not_found responses. We require several in a row before
         # permanently disabling the agent — a single 404 can be a stale model string, a
@@ -575,7 +563,7 @@ class AudioAgent:
                         ],
                     },
                 ],
-                max_tokens=180,
+                max_tokens=80,
             )
             content = (response.choices[0].message.content or "").strip()
 
@@ -601,6 +589,7 @@ class AudioAgent:
             self.consecutive_not_found = 0  # any success clears the 404 streak
             self.audio_summary = content
             self.last_capture_time = time.time()
+            self.capture_count += 1
             self._log_summary(content)
         except OpenAINotFoundError as e:
             # Log the exact response body verbatim — had we done this the first time,

@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kira Dashboard</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   COZY COFFEE-SHOP PALETTE
+   Mirrors theme.py — espresso / mahogany / oak / caramel
+═══════════════════════════════════════════════════════════ */
+:root {
+  --app-bg:       #1C1410;   /* espresso */
+  --card-bg:      #28201A;   /* mahogany */
+  --ctrl-bg:      #382C22;   /* oak */
+  --sub-bg:       #312518;   /* teak */
+  --border:       #4A3828;
+
+  --text-primary: #F4EACC;   /* warm oat cream */
+  --text-sec:     #C4A06A;   /* caramel */
+  --text-muted:   #8A7050;   /* taupe */
+  --header:       #B8904A;   /* brass */
+
+  --accent:       #C08840;   /* caramel accent */
+  --accent-glow:  rgba(192,136,64,0.25);
+  --sakura:       #7A9E6E;   /* sage green */
+  --sakura-soft:  #6E8F62;
+
+  --success:      #7AAD68;
+  --danger:       #C0614A;   /* terracotta */
+  --warning:      #C4943A;   /* amber */
+  --off:          #5A4A38;
+
+  --font-base: 'Segoe UI', system-ui, sans-serif;
+  --r: 8px;     /* border radius */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-family: var(--font-base);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--app-bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   TOP-LEVEL LAYOUT
+   [glance-bar][live-rail + transcript + panels scrollable]
+═══════════════════════════════════════════════════════════ */
+#layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── GLANCE BAR ─────────────────────────────────────────── */
+#glance {
+  flex-shrink: 0;
+  background: var(--card-bg);
+  border-bottom: 2px solid var(--border);
+  padding: 10px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+}
+
+#emotion-badge {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 4px 14px;
+  border-radius: var(--r);
+  border: 2px solid currentColor;
+  transition: color .3s, border-color .3s;
+}
+
+.glance-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.glance-stat .label {
+  font-size: .7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.glance-stat .value {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+#conn-dots {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+.dot-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--off);
+  transition: background .4s;
+}
+.dot.green  { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.dot.amber  { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+.dot.red    { background: var(--danger);  box-shadow: 0 0 6px var(--danger);  }
+.dot-label  { font-size: .65rem; color: var(--text-muted); }
+
+#ws-indicator {
+  font-size: .72rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--danger);
+  color: #fff;
+  font-weight: 600;
+  transition: background .4s;
+}
+#ws-indicator.live { background: var(--success); }
+
+/* ── MAIN BODY (below glance) ───────────────────────────── */
+#body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── LIVE-ACTION RAIL (left strip) ─────────────────────── */
+#live-rail {
+  flex-shrink: 0;
+  width: 180px;
+  background: var(--sub-bg);
+  border-right: 2px solid var(--border);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.rail-btn {
+  width: 100%;
+  padding: 14px 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: opacity .15s, transform .1s, box-shadow .15s;
+  text-align: center;
+}
+.rail-btn:active { transform: scale(.96); }
+
+.rail-btn.interrupt { background: var(--danger); color: #fff; }
+.rail-btn.mute      { background: var(--ctrl-bg); color: var(--text-primary); border: 1.5px solid var(--border); }
+.rail-btn.muted-on  { background: var(--warning); color: #1C1410; }
+.rail-btn.pause     { background: var(--ctrl-bg); color: var(--text-primary); border: 1.5px solid var(--border); }
+.rail-btn.paused-on { background: var(--danger); color: #fff; }
+.rail-btn.thoughts  { background: var(--sakura); color: #1C1410; }
+.rail-btn.stream    { background: var(--accent); color: #1C1410; }
+
+.rail-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+.rail-section-label {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* flash feedback */
+@keyframes flash-ok  { 0%,100%{opacity:1} 30%{opacity:.3} }
+@keyframes flash-err { 0%,100%{box-shadow:none} 40%{box-shadow:0 0 0 3px var(--danger)} }
+.flash-ok  { animation: flash-ok  .35s ease; }
+.flash-err { animation: flash-err .5s ease; }
+
+/* ── TRANSCRIPT COLUMN ──────────────────────────────────── */
+#transcript-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+#transcript-header {
+  flex-shrink: 0;
+  padding: 10px 18px 6px;
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--header);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#now-playing {
+  margin-left: auto;
+  font-size: .8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+#transcript-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.turn {
+  display: flex;
+  flex-direction: column;
+  max-width: 95%;
+}
+.turn.assistant { align-self: flex-start; }
+.turn.user      { align-self: flex-end; }
+
+.turn-speaker {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 3px;
+}
+.turn.assistant .turn-speaker { color: var(--accent); }
+.turn.user      .turn-speaker { color: var(--text-muted); }
+
+.turn-bubble {
+  padding: 12px 16px;
+  border-radius: var(--r);
+  line-height: 1.5;
+}
+/* KIRA lines — big, dominant, accent-bordered */
+.turn.assistant .turn-bubble {
+  font-size: 1.25rem;
+  background: var(--card-bg);
+  border-left: 4px solid var(--accent);
+  color: var(--text-primary);
+}
+/* Jonny lines — smaller, right-aligned, muted */
+.turn.user .turn-bubble {
+  font-size: 1rem;
+  background: var(--sub-bg);
+  border-right: 3px solid var(--border);
+  color: var(--text-sec);
+}
+
+.transcript-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* ── PANELS COLUMN (right side, scrollable) ─────────────── */
+#panels-col {
+  flex-shrink: 0;
+  width: 320px;
+  border-left: 2px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+#panels-col.stream-hidden { display: none; }
+
+/* Stream Mode toggle bar */
+#stream-mode-bar {
+  flex-shrink: 0;
+  background: var(--sub-bg);
+  border-bottom: 2px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#stream-mode-btn {
+  flex: 1;
+  padding: 9px;
+  font-size: .85rem;
+  font-weight: 700;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  background: var(--ctrl-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  letter-spacing: .04em;
+  transition: background .2s, color .2s;
+}
+#stream-mode-btn.active {
+  background: var(--accent);
+  color: #1C1410;
+  border-color: var(--accent);
+}
+
+/* ── COLLAPSIBLE PANEL BLOCKS ───────────────────────────── */
+.panel {
+  border-bottom: 1px solid var(--border);
+}
+.panel-header {
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--header);
+  background: var(--card-bg);
+  transition: background .15s;
+}
+.panel-header:hover { background: var(--ctrl-bg); }
+.panel-chevron { font-size: .7rem; color: var(--text-muted); transition: transform .2s; }
+.panel.open .panel-chevron { transform: rotate(90deg); }
+
+.panel-body {
+  display: none;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  flex-direction: column;
+  gap: 10px;
+}
+.panel.open .panel-body { display: flex; }
+
+/* ── FORM ELEMENTS ──────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: .72rem; color: var(--text-muted); }
+.field input, .field select {
+  background: var(--sub-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: .9rem;
+  padding: 7px 10px;
+  width: 100%;
+  outline: none;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--ctrl-bg); }
+
+.row { display: flex; gap: 8px; align-items: flex-end; }
+.row .field { flex: 1; }
+
+.btn {
+  padding: 8px 14px;
+  font-size: .82rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--ctrl-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.btn:hover  { background: var(--accent); color: #1C1410; border-color: var(--accent); }
+.btn.active { background: var(--accent); color: #1C1410; border-color: var(--accent); }
+.btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn.success { background: var(--success); color: #1C1410; border-color: var(--success); }
+
+/* toggle switch */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .88rem;
+}
+.toggle-row .toggle-label { color: var(--text-sec); }
+.sw {
+  position: relative;
+  width: 40px; height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sw input { opacity: 0; width: 0; height: 0; }
+.sw-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background: var(--border);
+  transition: background .2s;
+}
+.sw input:checked + .sw-track { background: var(--accent); }
+.sw-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transition: left .2s;
+}
+.sw input:checked ~ .sw-knob { left: 21px; }
+
+.status-text {
+  font-size: .78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.slider-row { display: flex; flex-direction: column; gap: 4px; }
+.slider-row label { font-size: .72rem; color: var(--text-muted); }
+.slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
+.slider-val { font-size: .75rem; color: var(--text-sec); }
+
+/* thumbnail */
+#vision-thumb {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  display: block;
+}
+#vision-placeholder {
+  width: 100%;
+  height: 90px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--sub-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: .8rem;
+  font-style: italic;
+}
+
+/* vision / audio description blocks */
+.perception-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.perception-label {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--header);
+  font-style: normal;
+  font-weight: 600;
+}
+#vision-summary-text,
+#audio-summary-text {
+  font-size: .78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* pill selector */
+.pill-group { display: flex; gap: 6px; }
+.pill {
+  flex: 1;
+  padding: 7px 6px;
+  text-align: center;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--sub-bg);
+  color: var(--text-muted);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.pill.active { background: var(--accent); color: #1C1410; border-color: var(--accent); }
+
+/* emotion dropdown colour patch */
+#emotion-select { width: 100%; }
+</style>
+</head>
+<body>
+
+<div id="layout">
+
+  <!-- ═══════════ GLANCE BAR ═══════════ -->
+  <div id="glance">
+    <div id="emotion-badge">HAPPY</div>
+
+    <div class="glance-stat">
+      <span class="label">Kira spoke</span>
+      <span class="value" id="g-spoke">–</span>
+    </div>
+    <div class="glance-stat">
+      <span class="label">Chat/min</span>
+      <span class="value" id="g-rate">–</span>
+    </div>
+    <div class="glance-stat">
+      <span class="label">Chatters</span>
+      <span class="value" id="g-chatters">–</span>
+    </div>
+    <div class="glance-stat">
+      <span class="label">VRAM</span>
+      <span class="value" id="g-vram">–</span>
+    </div>
+    <div class="glance-stat">
+      <span class="label">Activity</span>
+      <span class="value" id="g-activity" style="font-size:1rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">–</span>
+    </div>
+
+    <div id="conn-dots">
+      <div class="dot-item"><div class="dot" id="dot-llm"></div><span class="dot-label">LLM</span></div>
+      <div class="dot-item"><div class="dot" id="dot-tts"></div><span class="dot-label">TTS</span></div>
+      <div class="dot-item"><div class="dot" id="dot-twitch"></div><span class="dot-label">Twitch</span></div>
+      <div class="dot-item"><div class="dot" id="dot-youtube"></div><span class="dot-label">YouTube</span></div>
+      <div class="dot-item"><div class="dot" id="dot-vision"></div><span class="dot-label">Vision</span></div>
+    </div>
+
+    <span id="ws-indicator">WS</span>
+  </div>
+
+  <!-- ═══════════ BODY ═══════════ -->
+  <div id="body">
+
+    <!-- ── LIVE-ACTION RAIL ── -->
+    <div id="live-rail">
+      <span class="rail-section-label">Live Controls</span>
+
+      <button class="rail-btn interrupt" id="btn-interrupt"
+              onclick="cmd('interrupt')">⚡ Interrupt</button>
+
+      <button class="rail-btn mute" id="btn-mute"
+              onclick="cmd('mute_toggle', null, this)">🔇 Mute</button>
+
+      <button class="rail-btn pause" id="btn-pause"
+              onclick="cmd('pause_toggle', null, this)">⏸ Pause</button>
+
+      <div class="rail-sep"></div>
+
+      <button class="rail-btn thoughts"
+              onclick="cmd('invite_kira')">💭 Kira's Thoughts</button>
+
+      <div class="rail-sep"></div>
+
+      <button class="rail-btn stream"
+              onclick="cmd('stream_start')">▶ Stream Start</button>
+      <button class="rail-btn stream" style="background:var(--ctrl-bg);color:var(--text-primary);border:1.5px solid var(--border);"
+              onclick="cmd('stream_end')">■ Stream End</button>
+    </div>
+
+    <!-- ── TRANSCRIPT ── -->
+    <div id="transcript-col">
+      <div id="transcript-header">
+        <span>Conversation</span>
+        <span id="now-playing">♪ –</span>
+      </div>
+      <div id="transcript-scroll">
+        <div class="transcript-empty" id="transcript-empty">No conversation yet…</div>
+      </div>
+    </div>
+
+    <!-- ── PANELS COL ── -->
+    <div id="panels-col">
+
+      <!-- Stream Mode bar -->
+      <div id="stream-mode-bar">
+        <button id="stream-mode-btn" onclick="toggleStreamMode()">STREAM MODE</button>
+      </div>
+
+      <!-- ─ PANEL: PERCEPTION ─ -->
+      <div class="panel" id="panel-perception">
+        <div class="panel-header" onclick="togglePanel('panel-perception')">
+          Perception <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="perception-block">
+            <span class="perception-label">👁 Seeing</span>
+            <div id="vision-placeholder">No frame</div>
+            <img id="vision-thumb" style="display:none" alt="Vision frame">
+            <div id="vision-summary-text">No description yet</div>
+          </div>
+
+          <div class="perception-block">
+            <span class="perception-label">👂 Hearing</span>
+            <div id="audio-summary-text">Not listening</div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Vision</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-vision" onchange="cmd('vision_toggle')">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label>Hearing Mode</label>
+            <select id="sel-audio-mode" onchange="cmd('audio_mode',{mode:this.value})">
+              <option value="Off">Off</option>
+              <option value="Media (game/anime)">Media (game/anime)</option>
+              <option value="Music (singing/guitar)">Music (singing/guitar)</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Audio Device</label>
+              <select id="sel-audio-device" onchange="cmd('audio_device',{label:this.value})">
+                <option>Auto-detect</option>
+              </select>
+            </div>
+            <button class="btn" onclick="refreshDevices()">↺</button>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Loopback STT</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-loopback" onchange="cmd('loopback_toggle')">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+          <div class="status-text" id="loopback-status">disabled</div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Passive Watching</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-immersive" onchange="cmd('passive_watching_toggle')">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+        </div>
+      </div><!-- /panel-perception -->
+
+      <!-- ─ PANEL: ACTIVITY ─ -->
+      <div class="panel" id="panel-activity">
+        <div class="panel-header" onclick="togglePanel('panel-activity')">
+          Activity <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="pill-group">
+            <div class="pill" id="pill-companion" onclick="setMode('companion')">Companion</div>
+            <div class="pill" id="pill-streamer"  onclick="setMode('streamer')">Streamer</div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Carry Mode</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-carry" onchange="cmd('carry_mode_toggle')">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Activity name</label>
+              <input type="text" id="inp-activity" placeholder="007: First Light">
+            </div>
+            <div class="field" style="max-width:90px;">
+              <label>Slug (opt)</label>
+              <input type="text" id="inp-slug" placeholder="007_first_light">
+            </div>
+          </div>
+          <button class="btn" onclick="goActivity()">Go</button>
+          <button class="btn danger" onclick="cmd('exit_game_mode')">Exit Game Mode</button>
+
+        </div>
+      </div><!-- /panel-activity -->
+
+      <!-- ─ PANEL: VN / MEDIA ─ -->
+      <div class="panel" id="panel-vn">
+        <div class="panel-header" onclick="togglePanel('panel-vn')">
+          VN / Media Watch <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="status-text" id="ap-status">Autopilot: OFF</div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Autopilot</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-autopilot" onchange="toggleAutopilot(this.checked)">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label>VN Window title</label>
+            <input type="text" id="inp-vn-window" placeholder="Planetarian">
+          </div>
+          <div class="row">
+            <button class="btn" onclick="applyVnWindow()">Set Window</button>
+            <button class="btn" onclick="cmd('vn_redetect')">Auto-detect</button>
+          </div>
+
+          <div class="field">
+            <label>Advance Key</label>
+            <select id="sel-advance-key" onchange="cmd('advance_key',{key:this.value})">
+              <option>Enter</option>
+              <option>Space</option>
+              <option>Left Click</option>
+            </select>
+          </div>
+
+          <div class="slider-row">
+            <label>Pacing Base: <span class="slider-val" id="val-pace-base">3.0</span>s</label>
+            <input type="range" id="sl-pace-base" min="0.5" max="12" step="0.5" value="3"
+                   oninput="document.getElementById('val-pace-base').textContent=this.value"
+                   onchange="cmd('autopilot_pacing',{base:parseFloat(this.value), max:parseFloat(document.getElementById('sl-pace-max').value)})">
+          </div>
+          <div class="slider-row">
+            <label>Pacing Max: <span class="slider-val" id="val-pace-max">8.0</span>s</label>
+            <input type="range" id="sl-pace-max" min="1" max="30" step="0.5" value="8"
+                   oninput="document.getElementById('val-pace-max').textContent=this.value"
+                   onchange="cmd('autopilot_pacing',{base:parseFloat(document.getElementById('sl-pace-base').value), max:parseFloat(this.value)})">
+          </div>
+
+          <button class="btn" id="btn-ap-resume" onclick="cmd('autopilot_resume')" disabled>Resume Autopilot</button>
+
+          <div class="rail-sep"></div>
+
+          <div class="status-text" id="mw-status">Media Watch: OFF</div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Media Watch</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-mediawatch" onchange="toggleMediaWatch(this.checked)">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label>Watch Window title</label>
+            <input type="text" id="inp-mw-window" placeholder="VLC media player">
+          </div>
+          <button class="btn" onclick="applyMwWindow()">Set Window</button>
+
+          <div class="slider-row">
+            <label>Interval: <span class="slider-val" id="val-mw-interval">15</span>s</label>
+            <input type="range" id="sl-mw-interval" min="5" max="120" step="5" value="15"
+                   oninput="document.getElementById('val-mw-interval').textContent=this.value"
+                   onchange="cmd('media_watch_interval',{seconds:parseFloat(this.value)})">
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">React to scenes</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-mw-react" onchange="cmd('media_watch_react_toggle')">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+        </div>
+      </div><!-- /panel-vn -->
+
+      <!-- ─ PANEL: VOICE ─ -->
+      <div class="panel" id="panel-voice">
+        <div class="panel-header" onclick="togglePanel('panel-voice')">
+          Voice <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="pill-group">
+            <div class="pill" id="pill-azure" onclick="setTts('azure')">Azure</div>
+            <div class="pill" id="pill-fish"  onclick="setTts('fish')">Fish</div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Fish Voice ID</label>
+              <input type="text" id="inp-fish-voice" placeholder="voice_...">
+            </div>
+            <button class="btn" onclick="applyFishVoice()">Apply</button>
+          </div>
+
+          <button class="btn" onclick="cmd('reload_personality')">Reload Personality</button>
+
+          <div class="field">
+            <label>Override Emotion</label>
+            <select id="emotion-select" onchange="cmd('emotion_set',{emotion:this.value})">
+              <option value="HAPPY">HAPPY</option>
+              <option value="SASSY">SASSY</option>
+              <option value="MOODY">MOODY</option>
+              <option value="EMOTIONAL">EMOTIONAL</option>
+              <option value="HYPERACTIVE">HYPERACTIVE</option>
+            </select>
+          </div>
+
+          <div class="rail-sep"></div>
+          <div class="row">
+            <button class="btn" onclick="cmd('skip_song')">⏭ Skip Song</button>
+            <button class="btn" onclick="cmd('clear_queue')">✕ Clear Queue</button>
+          </div>
+
+        </div>
+      </div><!-- /panel-voice -->
+
+      <!-- ─ PANEL: CONNECTIONS ─ -->
+      <div class="panel" id="panel-conn">
+        <div class="panel-header" onclick="togglePanel('panel-conn')">
+          Connections <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="toggle-row">
+            <span class="toggle-label">Twitch</span>
+            <div class="dot" id="dot-twitch-panel" style="width:10px;height:10px;"></div>
+          </div>
+
+          <div class="rail-sep"></div>
+
+          <div class="status-text" id="yt-status-label">YouTube: idle</div>
+
+          <div class="field">
+            <label>YouTube URL or Video ID</label>
+            <input type="text" id="inp-yt-url" placeholder="https://youtu.be/...">
+          </div>
+          <div class="row">
+            <button class="btn success" onclick="ytConnect()">Connect</button>
+            <button class="btn danger"  onclick="cmd('youtube_disconnect')">Disconnect</button>
+          </div>
+
+        </div>
+      </div><!-- /panel-conn -->
+
+    </div><!-- /panels-col -->
+  </div><!-- /body -->
+</div><!-- /layout -->
+
+<script>
+"use strict";
+
+// ═══════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════
+const WS_URL    = 'ws://127.0.0.1:8766/ws';
+const API       = 'http://127.0.0.1:8766';
+const THUMB_INT = 2000;  // ms between vision thumbnail polls
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let _snap = {};           // latest snapshot from WS
+let _ws = null;
+let _wsAlive = false;
+let _streamMode = false;
+
+// Panel open/close + stream mode persisted in localStorage
+const LS_PANELS = 'kira_panels_open';
+const LS_STREAM = 'kira_stream_mode';
+
+// ═══════════════════════════════════════════════════════════
+//  WebSocket — auto-reconnect with exponential backoff
+// ═══════════════════════════════════════════════════════════
+let _wsRetryMs = 1000;
+const _wsRetryMax = 16000;
+
+function wsConnect() {
+  try {
+    _ws = new WebSocket(WS_URL);
+  } catch(e) {
+    scheduleReconnect(); return;
+  }
+
+  _ws.onopen = () => {
+    _wsAlive = true;
+    _wsRetryMs = 1000;
+    setWsIndicator(true);
+  };
+
+  _ws.onmessage = (e) => {
+    try {
+      const snap = JSON.parse(e.data);
+      _snap = snap;
+      render(snap);
+    } catch(_) {}
+  };
+
+  _ws.onerror = () => {};
+  _ws.onclose = () => {
+    _wsAlive = false;
+    setWsIndicator(false);
+    scheduleReconnect();
+  };
+}
+
+function scheduleReconnect() {
+  setTimeout(() => wsConnect(), _wsRetryMs);
+  _wsRetryMs = Math.min(_wsRetryMs * 2, _wsRetryMax);
+}
+
+function setWsIndicator(live) {
+  const el = document.getElementById('ws-indicator');
+  el.textContent = live ? 'LIVE' : 'WS ✕';
+  el.className = live ? 'live' : '';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER — called every 500ms with fresh snapshot
+// ═══════════════════════════════════════════════════════════
+// Track last transcript render to avoid needless DOM thrash
+let _lastTranscriptHash = '';
+
+function render(s) {
+  safe(() => renderGlance(s));
+  safe(() => renderTranscript(s));
+  safe(() => renderRail(s));
+  safe(() => renderPanels(s));
+}
+
+function safe(fn) {
+  try { fn(); } catch(e) { console.warn('render error', e); }
+}
+
+// ── GLANCE BAR ────────────────────────────────────────────
+function renderGlance(s) {
+  // Emotion badge
+  const badge = document.getElementById('emotion-badge');
+  const em = s.emotion || 'HAPPY';
+  const col = s.emotion_color || '#C08840';
+  badge.textContent = em;
+  badge.style.color = col;
+  badge.style.borderColor = col;
+
+  // Stats
+  setText('g-spoke', s.since_kira_spoke != null ? `${s.since_kira_spoke}s ago` : '–');
+  setText('g-rate',  s.chat_rate != null ? s.chat_rate.toFixed(1) : '–');
+  setText('g-chatters', s.session_chatters ?? '–');
+
+  // VRAM
+  if (s.vram_used_gb != null && s.vram_total_gb != null) {
+    setText('g-vram', `${s.vram_used_gb}/${s.vram_total_gb} GB`);
+  } else {
+    setText('g-vram', '–');
+  }
+
+  // Activity
+  setText('g-activity', s.activity || 'General');
+
+  // Connection dots
+  dot('dot-llm',     s.llm_ready ? 'green' : 'red');
+  dot('dot-tts',     s.tts_backend ? 'green' : 'amber');
+  dot('dot-twitch',  s.twitch_on  ? 'green' : 'off');
+  dot('dot-vision',  s.vision_on  ? 'green' : (s.vision_on === false ? 'off' : 'off'));
+
+  const ytStatus = s.youtube_status || 'disabled';
+  if      (ytStatus.startsWith('live')) dot('dot-youtube', 'green');
+  else if (ytStatus === 'idle')         dot('dot-youtube', 'amber');
+  else                                  dot('dot-youtube', 'off');
+}
+
+function dot(id, cls) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'dot ' + cls;
+}
+
+// ── TRANSCRIPT ────────────────────────────────────────────
+function renderTranscript(s) {
+  const turns = s.transcript;
+  if (!Array.isArray(turns)) return;
+
+  const hash = JSON.stringify(turns);
+  if (hash === _lastTranscriptHash) return;
+  _lastTranscriptHash = hash;
+
+  const container = document.getElementById('transcript-scroll');
+  const emptyEl   = document.getElementById('transcript-empty');
+
+  if (turns.length === 0) {
+    // clear all turn bubbles, show placeholder
+    const bubbles = container.querySelectorAll('.turn');
+    bubbles.forEach(b => b.remove());
+    if (emptyEl) emptyEl.style.display = '';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  // Rebuild entire transcript — only 8 items max, cheap
+  const bubbles = container.querySelectorAll('.turn');
+  bubbles.forEach(b => b.remove());
+
+  const frag = document.createDocumentFragment();
+  turns.forEach(turn => {
+    const role = turn.role || 'user';
+    const text = turn.text || '';
+    const speaker = role === 'assistant' ? 'Kira' : 'Jonny';
+
+    const div = document.createElement('div');
+    div.className = `turn ${role}`;
+    div.innerHTML = `<div class="turn-speaker">${escHtml(speaker)}</div>
+                     <div class="turn-bubble">${escHtml(text)}</div>`;
+    frag.appendChild(div);
+  });
+  container.appendChild(frag);
+
+  // Auto-scroll to bottom
+  container.scrollTop = container.scrollHeight;
+
+  // Now playing
+  const np = s.now_playing || '';
+  setText('now-playing', np && np !== 'Nothing' ? `\u266A ${np}` : '\u266A \u2013');
+}
+
+// ── RAIL ──────────────────────────────────────────────────
+function renderRail(s) {
+  // Mute button
+  const btnMute = document.getElementById('btn-mute');
+  if (s.muted || s.model_paused) {
+    btnMute.classList.add('muted-on');
+    if (s.mute_seconds_remaining > 0) {
+      btnMute.textContent = `\uD83D\uDD07 ${s.mute_seconds_remaining}s`;
+    } else if (s.model_paused) {
+      btnMute.textContent = '\uD83D\uDD07 Muted';
+    } else {
+      btnMute.textContent = '\uD83D\uDD07 Unmute';
+    }
+  } else {
+    btnMute.classList.remove('muted-on');
+    btnMute.textContent = '\uD83D\uDD07 Mute';
+  }
+
+  // Pause button
+  const btnPause = document.getElementById('btn-pause');
+  if (s.model_paused) {
+    btnPause.classList.add('paused-on');
+    btnPause.textContent = '\u25B6 Resume';
+  } else {
+    btnPause.classList.remove('paused-on');
+    btnPause.textContent = '\u23F8 Pause';
+  }
+}
+
+// ── PANELS (sync controls to snapshot, no interaction needed) ─
+let _prevTtsBackend = null;
+let _prevMode = null;
+
+function renderPanels(s) {
+  // Vision switch
+  setCheck('sw-vision', s.vision_on);
+
+  // Vision summary
+  const vs = s.vision_summary || '';
+  const age = s.vision_last_capture_age != null ? ` (${s.vision_last_capture_age}s ago)` : '';
+  const vsEl = document.getElementById('vision-summary-text');
+  if (vsEl) vsEl.textContent = vs ? `${vs}${age}` : 'No description yet';
+
+  // Audio summary
+  const as_ = s.audio_summary || '';
+  const aAge = s.audio_last_heard_age != null ? ` (${s.audio_last_heard_age}s ago)` : '';
+  const asEl = document.getElementById('audio-summary-text');
+  if (asEl) asEl.textContent = as_ ? `${as_}${aAge}` : (s.audio_on ? 'Listening…' : 'Not listening');
+
+  // Hearing mode — only update when not focused to avoid fighting the user
+  const selAudio = document.getElementById('sel-audio-mode');
+  if (selAudio && document.activeElement !== selAudio) {
+    // Map audio_on + audio mode
+    if (!s.audio_on) {
+      selAudio.value = 'Off';
+    }
+    // We don't have the raw mode string in snapshot, so we leave it if user changed it
+  }
+
+  // Loopback
+  setCheck('sw-loopback', s.loopback_on);
+  setText('loopback-status', s.loopback_status || 'disabled');
+
+  // Passive watching
+  setCheck('sw-immersive', s.immersive);
+
+  // Carry mode
+  setCheck('sw-carry', s.carry_mode);
+
+  // Mode pills
+  const m = s.mode || 'companion';
+  if (m !== _prevMode) {
+    _prevMode = m;
+    document.getElementById('pill-companion').classList.toggle('active', m === 'companion');
+    document.getElementById('pill-streamer').classList.toggle('active',  m === 'streamer');
+  }
+
+  // TTS pills
+  const tts = s.tts_backend || 'azure';
+  if (tts !== _prevTtsBackend) {
+    _prevTtsBackend = tts;
+    document.getElementById('pill-azure').classList.toggle('active', tts === 'azure');
+    document.getElementById('pill-fish').classList.toggle('active',  tts === 'fish');
+  }
+
+  // Fish voice — only if not focused
+  const fv = document.getElementById('inp-fish-voice');
+  if (fv && document.activeElement !== fv && s.fish_voice_id) {
+    fv.placeholder = s.fish_voice_id;
+  }
+
+  // Autopilot
+  const ap = s.autopilot || {};
+  const apLabel = ap.running ? 'Autopilot: RUNNING'
+                : ap.paused  ? `Autopilot: PAUSED — ${ap.reason || ''}`
+                             : 'Autopilot: OFF';
+  setText('ap-status', apLabel);
+  setCheck('sw-autopilot', ap.running || false);
+  const btnApResume = document.getElementById('btn-ap-resume');
+  if (btnApResume) btnApResume.disabled = !ap.paused;
+
+  // Media watch
+  const mw = s.media_watch || {};
+  setText('mw-status', `Media Watch: ${mw.status || 'OFF'}`);
+  setCheck('sw-mediawatch', mw.running || false);
+
+  // YouTube
+  const ytStatus = s.youtube_status || 'idle';
+  setText('yt-status-label', `YouTube: ${ytStatus}`);
+  const dotYtPanel = document.getElementById('dot-twitch-panel');
+  if (dotYtPanel) {
+    dotYtPanel.className = 'dot ' + (s.twitch_on ? 'green' : 'off');
+  }
+
+  // Emotion select — don't interfere while user has it open
+  const emSel = document.getElementById('emotion-select');
+  if (emSel && document.activeElement !== emSel && s.emotion) {
+    emSel.value = s.emotion;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  COMMANDS
+// ═══════════════════════════════════════════════════════════
+async function cmd(action, body, btnEl) {
+  const opts = {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: body ? JSON.stringify(body) : JSON.stringify({}),
+  };
+  try {
+    const res = await fetch(`${API}/cmd/${action}`, opts);
+    const data = await res.json();
+    if (btnEl) flashBtn(btnEl, data.ok !== false);
+  } catch(e) {
+    if (btnEl) flashBtn(btnEl, false);
+    console.warn('cmd failed', action, e);
+  }
+}
+
+function flashBtn(el, ok) {
+  el.classList.remove('flash-ok', 'flash-err');
+  void el.offsetWidth; // reflow
+  el.classList.add(ok ? 'flash-ok' : 'flash-err');
+  setTimeout(() => el.classList.remove('flash-ok', 'flash-err'), 600);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SPECIFIC COMMAND HELPERS
+// ═══════════════════════════════════════════════════════════
+function goActivity() {
+  const name = document.getElementById('inp-activity').value.trim();
+  const slug = document.getElementById('inp-slug').value.trim();
+  if (!name) return;
+  cmd('activity_go', {name, slug});
+}
+
+function setMode(m) {
+  if (_snap.mode === m) return;
+  cmd('mode_toggle');
+}
+
+function setTts(backend) {
+  if (_snap.tts_backend === backend) return;
+  cmd('tts_toggle');
+}
+
+function applyFishVoice() {
+  const val = document.getElementById('inp-fish-voice').value.trim();
+  if (val) cmd('fish_voice_apply', {voice_id: val});
+}
+
+function applyVnWindow() {
+  const title = document.getElementById('inp-vn-window').value.trim();
+  cmd('vn_window', {title});
+}
+
+function toggleAutopilot(on) {
+  const title = document.getElementById('inp-vn-window').value.trim();
+  cmd('autopilot_toggle', {enabled: on, title});
+}
+
+function applyMwWindow() {
+  const title = document.getElementById('inp-mw-window').value.trim();
+  cmd('media_watch_window', {title});
+}
+
+function toggleMediaWatch(on) {
+  const title = document.getElementById('inp-mw-window').value.trim();
+  cmd('media_watch_toggle', {enabled: on, title});
+}
+
+function ytConnect() {
+  const url = document.getElementById('inp-yt-url').value.trim();
+  if (url) cmd('youtube_connect', {url});
+}
+
+async function refreshDevices() {
+  try {
+    const res = await fetch(`${API}/cmd/audio_devices_refresh`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: '{}',
+    });
+    const data = await res.json();
+    if (data.devices) {
+      const sel = document.getElementById('sel-audio-device');
+      sel.innerHTML = '';
+      data.devices.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d; opt.textContent = d;
+        sel.appendChild(opt);
+      });
+    }
+  } catch(e) { console.warn('device refresh failed', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VISION THUMBNAIL POLL (every 2s, separate from WS)
+// ═══════════════════════════════════════════════════════════
+function startThumbPoll() {
+  setInterval(pollThumb, THUMB_INT);
+}
+
+function pollThumb() {
+  if (!_snap.vision_on) return;
+  const img  = document.getElementById('vision-thumb');
+  const ph   = document.getElementById('vision-placeholder');
+  const url  = `${API}/vision/thumbnail?t=${Date.now()}`;
+  const tmp  = new Image();
+  tmp.onload = () => {
+    img.src = tmp.src;
+    img.style.display = 'block';
+    if (ph) ph.style.display = 'none';
+  };
+  tmp.onerror = () => {
+    // 204 → onerror fires; show placeholder
+    img.style.display = 'none';
+    if (ph) ph.style.display = 'flex';
+  };
+  tmp.src = url;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PANEL COLLAPSE / EXPAND
+// ═══════════════════════════════════════════════════════════
+function togglePanel(id) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  panel.classList.toggle('open');
+  savePanelState();
+}
+
+function savePanelState() {
+  const open = [];
+  document.querySelectorAll('.panel.open').forEach(p => open.push(p.id));
+  localStorage.setItem(LS_PANELS, JSON.stringify(open));
+}
+
+function restorePanelState() {
+  try {
+    const open = JSON.parse(localStorage.getItem(LS_PANELS) || '[]');
+    open.forEach(id => {
+      const p = document.getElementById(id);
+      if (p) p.classList.add('open');
+    });
+  } catch(_) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STREAM MODE
+// ═══════════════════════════════════════════════════════════
+function toggleStreamMode() {
+  _streamMode = !_streamMode;
+  applyStreamMode();
+  localStorage.setItem(LS_STREAM, _streamMode ? '1' : '0');
+}
+
+function applyStreamMode() {
+  const col = document.getElementById('panels-col');
+  const btn = document.getElementById('stream-mode-btn');
+  if (_streamMode) {
+    col.classList.add('stream-hidden');
+    btn.textContent = 'SETUP';
+    btn.classList.add('active');
+    // Move the stream-mode-bar out of panels-col so it's still accessible
+    // Actually keep the btn inside the rail instead
+  } else {
+    col.classList.remove('stream-hidden');
+    btn.textContent = 'STREAM MODE';
+    btn.classList.remove('active');
+  }
+}
+
+function restoreStreamMode() {
+  _streamMode = localStorage.getItem(LS_STREAM) === '1';
+  applyStreamMode();
+}
+
+// But when panels are hidden we still need the STREAM MODE button accessible.
+// Move the stream-mode-bar to the live-rail when in stream mode.
+// Simpler: always keep a small "expand" button at bottom of rail.
+(function patchStreamModeBtn() {
+  // Add stream-mode toggle to rail as well for accessibility
+  const rail = document.getElementById('live-rail');
+  const smBtn = document.createElement('button');
+  smBtn.id = 'rail-stream-btn';
+  smBtn.className = 'rail-btn';
+  smBtn.style.cssText = 'margin-top:auto;background:var(--sub-bg);border:1.5px solid var(--border);font-size:.75rem;padding:8px 4px;';
+  smBtn.textContent = 'STREAM MODE';
+  smBtn.onclick = toggleStreamMode;
+  rail.appendChild(smBtn);
+})();
+
+// Sync the rail button label too
+const _origApplyStreamMode = applyStreamMode;
+applyStreamMode = function() {
+  _origApplyStreamMode();
+  const rb = document.getElementById('rail-stream-btn');
+  if (rb) rb.textContent = _streamMode ? '< SETUP' : 'STREAM MODE';
+};
+
+// ═══════════════════════════════════════════════════════════
+//  UTILITY
+// ═══════════════════════════════════════════════════════════
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val ?? '–';
+}
+
+function setCheck(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.checked = !!val;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INITIAL LOAD (GET /state before WS connects)
+// ═══════════════════════════════════════════════════════════
+async function loadInitialState() {
+  try {
+    const res = await fetch(`${API}/state`);
+    const snap = await res.json();
+    _snap = snap;
+    render(snap);
+  } catch(_) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  restorePanelState();
+  restoreStreamMode();
+  loadInitialState();
+  wsConnect();
+  startThumbPoll();
+});
+</script>
+</body>
+</html>

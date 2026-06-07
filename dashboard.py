@@ -54,26 +54,28 @@ ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
 ctk.deactivate_automatic_dpi_awareness()
 
-# ── Warm charcoal palette ────────────────────────────────────────────────────────────────────────────
-C_BG      = "#1A1918"   # near-black warm
-C_PANEL   = "#222120"   # column panel background
-C_SURFACE = "#2C2A27"   # widget fill
-C_BORDER  = "#3A3631"   # subtle border / divider
-C_TEXT    = "#C8BCA8"   # warm off-white
-C_MUTED   = "#6A6560"   # dim secondary labels
-C_ACCENT  = "#7A9962"   # sage green — ON states, GO, active
-C_AMBER   = "#C47B3C"   # warm amber — Streamer badge, warnings
-C_RED     = "#964848"   # interrupt / stop / exit
-C_GOLD    = "#9B8A4A"   # mute / caution
-C_GREEN   = C_ACCENT    # alias for ON states
-C_YELLOW  = C_GOLD      # alias for caution
+# ── Dark sakura / lavender palette — sourced from theme.py ───────────────────
+import theme as T
+
+C_BG      = T.APP_BG        # darkest  — window background
+C_PANEL   = T.CARD_BG       # mid      — panel / column container
+C_SURFACE = T.CONTROL_BG    # lightest — widget fill, inputs, dropdowns
+C_BORDER  = T.BORDER        # hairline border
+C_TEXT    = T.TEXT_PRIMARY  # main text
+C_MUTED   = T.TEXT_SECONDARY  # secondary / dim labels
+C_ACCENT  = T.ACCENT        # lavender — ON states, GO, primary action
+C_AMBER   = T.WARNING       # amber — Streamer badge, caution
+C_RED     = T.DANGER        # dusty rose — interrupt / stop / exit
+C_GOLD    = T.WARNING       # same amber for mute / caution
+C_GREEN   = T.SUCCESS       # teal-green — active / healthy status dots
+C_YELLOW  = T.WARNING       # alias for caution
 
 EMOTION_COLORS = {
-    "HAPPY":       C_ACCENT,
-    "SASSY":       C_AMBER,
-    "MOODY":       C_MUTED,
-    "EMOTIONAL":   "#9B7BC4",
-    "HYPERACTIVE": C_GOLD,
+    "HAPPY":       T.ACCENT,
+    "SASSY":       T.SAKURA,
+    "MOODY":       T.TEXT_SECONDARY,
+    "EMOTIONAL":   T.SAKURA_SOFT,
+    "HYPERACTIVE": T.WARNING,
 }
 
 
@@ -98,12 +100,13 @@ class KiraDashboard(ctk.CTk):
         self._preset_modified: bool = False
         self._active_preset: str = ""
 
-        # 4-column, 4-row grid (header / main / transcript strip / statusbar)
+        # 4-column, 4-row grid (header / main / transcript / statusbar)
+        # Perception live feed is a compact 22px bar inside the header frame.
         self.grid_columnconfigure(0, weight=1, minsize=260)   # A: State
         self.grid_columnconfigure(1, weight=1, minsize=295)   # B: Perception
         self.grid_columnconfigure(2, weight=1, minsize=340)   # C: Activity
         self.grid_columnconfigure(3, weight=2)                # D: Live Controls (gets extra)
-        self.grid_rowconfigure(0, weight=0, minsize=56)       # Header
+        self.grid_rowconfigure(0, weight=0, minsize=72)       # Header (title + compact sense bar)
         self.grid_rowconfigure(1, weight=1)                   # Main columns
         self.grid_rowconfigure(2, weight=0, minsize=52)       # Transcript strip
         self.grid_rowconfigure(3, weight=0)                   # Status bar
@@ -174,7 +177,10 @@ class KiraDashboard(ctk.CTk):
     # ══════════════════════════════════════════════════════════════════════════
 
     def _build_header(self):
-        """Persistent header: AI name, Companion/Streamer pill, perception badges."""
+        """Persistent header.
+        Row 0 (inside hdr): title · mode pill · sense on/off badges · activity
+        Row 1 (inside hdr): compact 22px live perception bar — what each sense is actually seeing/hearing
+        """
         hdr = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
         hdr.grid(row=0, column=0, columnspan=4, sticky="ew")
         hdr.grid_columnconfigure(2, weight=1)
@@ -183,7 +189,7 @@ class KiraDashboard(ctk.CTk):
         ctk.CTkLabel(
             hdr, text=f"[ {AI_NAME.upper()} ]",
             font=ctk.CTkFont(size=17, weight="bold"), text_color=C_ACCENT
-        ).grid(row=0, column=0, padx=(16, 8), pady=10, sticky="w")
+        ).grid(row=0, column=0, padx=(16, 8), pady=(10, 2), sticky="w")
 
         self.mode_pill = ctk.CTkButton(
             hdr, text="\u25cf  COMPANION MODE",
@@ -193,19 +199,60 @@ class KiraDashboard(ctk.CTk):
             height=34, width=192,
             command=self._toggle_companion_streamer,
         )
-        self.mode_pill.grid(row=0, column=1, padx=8, pady=10, sticky="w")
+        self.mode_pill.grid(row=0, column=1, padx=8, pady=(10, 2), sticky="w")
 
         self.header_perception = ctk.CTkLabel(
             hdr, text="\U0001f441 off  \u00b7  \U0001f442 off  \u00b7  \U0001f3a4 off",
             font=ctk.CTkFont(size=11), text_color=C_MUTED,
         )
-        self.header_perception.grid(row=0, column=2, padx=8, pady=10, sticky="w")
+        self.header_perception.grid(row=0, column=2, padx=8, pady=(10, 2), sticky="w")
 
         self.header_activity = ctk.CTkLabel(
             hdr, text="Activity: none",
             font=ctk.CTkFont(size=11), text_color=C_MUTED,
         )
-        self.header_activity.grid(row=0, column=3, padx=(8, 16), pady=10, sticky="e")
+        self.header_activity.grid(row=0, column=3, padx=(8, 16), pady=(10, 2), sticky="e")
+
+        # ── Compact sense bar — row 1 inside header, ~22px tall ───────────────
+        # Shows live content from each sense without adding any outer grid row.
+        perc = ctk.CTkFrame(hdr, corner_radius=0, fg_color=T.SUBPANEL_BG, height=22)
+        perc.grid(row=1, column=0, columnspan=4, sticky="ew", pady=(0, 4))
+        perc.grid_columnconfigure((0, 1, 2), weight=1)
+        perc.grid_propagate(False)
+
+        v_row = ctk.CTkFrame(perc, fg_color="transparent")
+        v_row.grid(row=0, column=0, sticky="ew", padx=(12, 4))
+        ctk.CTkLabel(v_row, text="\U0001f441", font=ctk.CTkFont(size=10),
+                     text_color=T.HEADER).pack(side="left", padx=(0, 3))
+        self.strip_vision = ctk.CTkLabel(
+            v_row, text="Vision off", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, anchor="w",
+        )
+        self.strip_vision.pack(side="left")
+        ctk.CTkFrame(perc, width=1, height=14, fg_color=T.BORDER).grid(
+            row=0, column=0, sticky="nse", pady=4)
+
+        a_row = ctk.CTkFrame(perc, fg_color="transparent")
+        a_row.grid(row=0, column=1, sticky="ew", padx=4)
+        ctk.CTkLabel(a_row, text="\U0001f442", font=ctk.CTkFont(size=10),
+                     text_color=T.HEADER).pack(side="left", padx=(0, 3))
+        self.strip_audio = ctk.CTkLabel(
+            a_row, text="Audio off", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, anchor="w",
+        )
+        self.strip_audio.pack(side="left")
+        ctk.CTkFrame(perc, width=1, height=14, fg_color=T.BORDER).grid(
+            row=0, column=1, sticky="nse", pady=4)
+
+        lb_row = ctk.CTkFrame(perc, fg_color="transparent")
+        lb_row.grid(row=0, column=2, sticky="ew", padx=4)
+        ctk.CTkLabel(lb_row, text="\U0001f3a4", font=ctk.CTkFont(size=10),
+                     text_color=T.HEADER).pack(side="left", padx=(0, 3))
+        self.strip_loopback = ctk.CTkLabel(
+            lb_row, text="STT off", font=ctk.CTkFont(size=10),
+            text_color=C_MUTED, anchor="w",
+        )
+        self.strip_loopback.pack(side="left")
 
     # ─── Column A: State ──────────────────────────────────────────────────────
 
@@ -278,8 +325,11 @@ class KiraDashboard(ctk.CTk):
     # ─── Column B: Perception ──────────────────────────────────────────────────
 
     def _build_col_b(self):
-        """Column B: Vision, hearing, loopback, passive-watch, audio device."""
-        col = ctk.CTkFrame(self, corner_radius=0, fg_color=C_PANEL)
+        """Column B: Vision, hearing + device selector + live indicator, loopback, passive-watch."""
+        col = ctk.CTkScrollableFrame(
+            self, corner_radius=0, fg_color=C_PANEL,
+            scrollbar_button_color=T.BORDER, scrollbar_button_hover_color=C_ACCENT,
+        )
         col.grid(row=1, column=1, sticky="nsew", padx=3, pady=6)
         col.grid_columnconfigure(0, weight=1)
 
@@ -309,17 +359,18 @@ class KiraDashboard(ctk.CTk):
         self.vision_label.pack(fill="both", expand=True)
 
         self.vision_desc_label = ctk.CTkLabel(
-            col, text="", wraplength=280,
+            col, text="", wraplength=260,
             font=ctk.CTkFont(size=9), text_color=C_MUTED, justify="left", anchor="w"
         )
         self.vision_desc_label.pack(anchor="w", padx=16, pady=(2, 6))
 
         _divider(col)
 
-        # Hearing
-        ctk.CTkLabel(col, text="Hearing",
-                     font=ctk.CTkFont(size=10), text_color=C_MUTED
+        # ── Hearing block: mode + device selector + live indicator ────────────
+        ctk.CTkLabel(col, text="HEARING",
+                     font=ctk.CTkFont(size=10, weight="bold"), text_color=C_MUTED
                      ).pack(anchor="w", padx=16, pady=(6, 2))
+
         self.audio_mode_menu = ctk.CTkOptionMenu(
             col,
             values=["Off", "Media (game/anime)", "Music (singing/guitar)"],
@@ -331,12 +382,46 @@ class KiraDashboard(ctk.CTk):
         )
         self.audio_mode_menu.set("Off")
         self.audio_mode_menu.pack(fill="x", padx=14, pady=(0, 2))
+
+        # Audio Source Device — immediately under mode, never scrolls off
+        ctk.CTkLabel(col, text="Audio source device",
+                     font=ctk.CTkFont(size=9), text_color=C_MUTED
+                     ).pack(anchor="w", padx=16, pady=(4, 0))
+        dev_row = ctk.CTkFrame(col, fg_color="transparent")
+        dev_row.pack(fill="x", padx=14, pady=(0, 2))
+        dev_row.grid_columnconfigure(0, weight=1)
+        self.audio_device_menu = ctk.CTkOptionMenu(
+            dev_row, values=["Auto-detect"],
+            command=self._set_audio_device,
+            fg_color=C_SURFACE, button_color=C_ACCENT,
+            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
+            text_color=C_TEXT,
+            font=ctk.CTkFont(size=10), height=28,
+        )
+        self.audio_device_menu.set("Auto-detect")
+        self.audio_device_menu.grid(row=0, column=0, sticky="ew", padx=(0, 4))
+        self.btn_refresh_devices = ctk.CTkButton(
+            dev_row, text="\U0001f504", width=28, height=28,
+            fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
+            command=self._refresh_audio_devices, font=ctk.CTkFont(size=11),
+        )
+        self.btn_refresh_devices.grid(row=0, column=1)
+
+        # Live hearing indicator — summary text + "last heard Xs ago"
         self.audio_status_label = ctk.CTkLabel(
             col, text="Audio: off",
             font=ctk.CTkFont(size=9), text_color=C_MUTED,
-            wraplength=280, justify="left", anchor="w"
+            wraplength=260, justify="left", anchor="w"
         )
-        self.audio_status_label.pack(fill="x", padx=16, pady=(0, 6))
+        self.audio_status_label.pack(fill="x", padx=16, pady=(2, 2))
+
+        # Segment counter: "N segments · last Xs ago" — quick health check
+        self.audio_activity_label = ctk.CTkLabel(
+            col, text="",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED,
+            anchor="w", justify="left",
+        )
+        self.audio_activity_label.pack(anchor="w", padx=16, pady=(0, 6))
 
         _divider(col)
 
@@ -358,7 +443,7 @@ class KiraDashboard(ctk.CTk):
         self.loopback_status_label = ctk.CTkLabel(
             col, text="Loopback STT: off",
             font=ctk.CTkFont(size=9), text_color=C_MUTED,
-            anchor="w", justify="left", wraplength=280
+            anchor="w", justify="left", wraplength=260
         )
         self.loopback_status_label.pack(anchor="w", padx=16, pady=(0, 6))
 
@@ -371,30 +456,7 @@ class KiraDashboard(ctk.CTk):
             button_color=C_ACCENT, progress_color=C_ACCENT,
             text_color=C_TEXT, font=ctk.CTkFont(size=11),
         )
-        self.immersive_switch.pack(anchor="w", padx=16, pady=(8, 8))
-
-        _divider(col)
-
-        # Audio Device
-        ctk.CTkLabel(col, text="Audio Source Device",
-                     font=ctk.CTkFont(size=9), text_color=C_MUTED
-                     ).pack(anchor="w", padx=16, pady=(6, 0))
-        self.audio_device_menu = ctk.CTkOptionMenu(
-            col, values=["Auto-detect"],
-            command=self._set_audio_device,
-            fg_color=C_SURFACE, button_color=C_ACCENT,
-            dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
-            text_color=C_TEXT,
-            font=ctk.CTkFont(size=10), height=30,
-        )
-        self.audio_device_menu.set("Auto-detect")
-        self.audio_device_menu.pack(fill="x", padx=14, pady=(0, 4))
-        self.btn_refresh_devices = ctk.CTkButton(
-            col, text="\U0001f504 Refresh device list", height=24,
-            fg_color=C_SURFACE, hover_color=C_ACCENT, text_color=C_TEXT,
-            command=self._refresh_audio_devices, font=ctk.CTkFont(size=10),
-        )
-        self.btn_refresh_devices.pack(fill="x", padx=14, pady=(0, 10))
+        self.immersive_switch.pack(anchor="w", padx=16, pady=(8, 10))
 
     # ─── Column C: Activity ───────────────────────────────────────────────────
 
@@ -413,7 +475,7 @@ class KiraDashboard(ctk.CTk):
             col, values=[],
             command=self._on_game_selected,
             fg_color=C_SURFACE, border_color=C_ACCENT, text_color=C_TEXT,
-            button_color=C_ACCENT, button_hover_color="#5A7A45",
+            button_color=C_ACCENT, button_hover_color=T.ACCENT_HOVER,
             dropdown_fg_color=C_SURFACE, dropdown_text_color=C_TEXT,
             font=ctk.CTkFont(size=12), height=34,
         )
@@ -424,8 +486,9 @@ class KiraDashboard(ctk.CTk):
 
         self.go_btn = ctk.CTkButton(
             col, text="\u25b6  GO",
-            fg_color=C_ACCENT, hover_color="#5A7A45", height=44,
+            fg_color=C_ACCENT, hover_color=T.ACCENT_HOVER, height=44,
             font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=T.ON_ACCENT,
             command=self._go,
         )
         self.go_btn.pack(fill="x", padx=14, pady=(0, 4))
@@ -468,9 +531,9 @@ class KiraDashboard(ctk.CTk):
             fg_color=C_SURFACE,
             segmented_button_fg_color=C_PANEL,
             segmented_button_selected_color=C_ACCENT,
-            segmented_button_selected_hover_color="#5A7A45",
+            segmented_button_selected_hover_color=T.ACCENT_HOVER,
             segmented_button_unselected_color=C_PANEL,
-            segmented_button_unselected_hover_color=C_BORDER,
+            segmented_button_unselected_hover_color=T.BORDER,
             text_color=C_TEXT,
             text_color_disabled=C_MUTED,
         )
@@ -561,7 +624,7 @@ class KiraDashboard(ctk.CTk):
         self.autopilot_resume_btn = ctk.CTkButton(
             vn, text="Resume after failsafe",
             command=self._resume_autopilot,
-            fg_color=C_GOLD, hover_color=C_ACCENT, text_color=C_BG,
+            fg_color=T.FAILSAFE_FG, hover_color=T.WARNING_HOVER, text_color=T.ON_WARNING,
             height=26, font=ctk.CTkFont(size=10), state="disabled",
         )
         self.autopilot_resume_btn.pack(fill="x", padx=4, pady=(0, 4))
@@ -633,15 +696,15 @@ class KiraDashboard(ctk.CTk):
         live_row.grid_columnconfigure((0, 1), weight=1)
         self.btn_interrupt = ctk.CTkButton(
             live_row, text="\U0001f6d1  Interrupt  (F8)",
-            fg_color=C_RED, hover_color="#6E3030", height=38,
-            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=C_RED, hover_color=T.DANGER_HOVER, height=38,
+            font=ctk.CTkFont(size=11, weight="bold"), text_color=T.ON_DANGER,
             command=self._btn_interrupt
         )
         self.btn_interrupt.grid(row=0, column=0, padx=(0, 2), sticky="ew")
         self.btn_mute = ctk.CTkButton(
             live_row, text="\U0001f507  Mute 60s  (F9)",
-            fg_color=C_GOLD, hover_color="#7A6A30", height=38,
-            font=ctk.CTkFont(size=11, weight="bold"),
+            fg_color=C_GOLD, hover_color=T.WARNING_HOVER, height=38,
+            font=ctk.CTkFont(size=11, weight="bold"), text_color=T.ON_WARNING,
             command=self._btn_mute_toggle
         )
         self.btn_mute.grid(row=0, column=1, padx=(2, 0), sticky="ew")
@@ -649,8 +712,8 @@ class KiraDashboard(ctk.CTk):
         # Pause Model
         self.btn_toggle = ctk.CTkButton(
             col, text="\u23f8  Pause Model",
-            fg_color=C_SURFACE, hover_color=C_RED, height=36,
-            text_color=C_TEXT,
+            fg_color=T.BTN_SECONDARY_FG, hover_color=T.BTN_SECONDARY_HOVER, height=36,
+            text_color=T.BTN_SECONDARY_TEXT,
             font=ctk.CTkFont(size=12, weight="bold"),
             command=self._toggle_bot
         )
@@ -672,13 +735,13 @@ class KiraDashboard(ctk.CTk):
         stream_row.grid_columnconfigure((0, 1), weight=1)
         self.btn_opener = ctk.CTkButton(
             stream_row, text="\U0001f3ac  Start", height=36,
-            fg_color=C_ACCENT, hover_color="#5A7A45",
+            fg_color=T.BTN_START_FG, hover_color=T.BTN_START_HOVER, text_color=T.BTN_START_TEXT,
             command=self._btn_stream_opener, font=ctk.CTkFont(size=12, weight="bold"),
         )
         self.btn_opener.grid(row=0, column=0, padx=(0, 2), sticky="ew")
         self.btn_closer = ctk.CTkButton(
             stream_row, text="\U0001f3ac  End", height=36,
-            fg_color=C_RED, hover_color="#6E3030",
+            fg_color=T.BTN_END_FG, hover_color=T.BTN_END_HOVER, text_color=T.BTN_END_TEXT,
             command=self._btn_stream_closer, font=ctk.CTkFont(size=12, weight="bold"),
         )
         self.btn_closer.grid(row=0, column=1, padx=(2, 0), sticky="ew")
@@ -691,8 +754,8 @@ class KiraDashboard(ctk.CTk):
                      ).pack(anchor="w", padx=16, pady=(8, 4))
         self.btn_invite = ctk.CTkButton(
             col, text="\U0001f4ac  Ask Kira's Thoughts",
-            fg_color=C_ACCENT, hover_color="#5A7A45", height=40,
-            font=ctk.CTkFont(size=12, weight="bold"),
+            fg_color=T.BTN_PRIMARY_FG, hover_color=T.BTN_PRIMARY_HOVER, height=40,
+            font=ctk.CTkFont(size=12, weight="bold"), text_color=T.BTN_PRIMARY_TEXT,
             command=self._invite_kira
         )
         self.btn_invite.pack(fill="x", padx=14, pady=(0, 8))
@@ -753,7 +816,7 @@ class KiraDashboard(ctk.CTk):
         music_row.grid_columnconfigure((0, 1), weight=1)
         ctk.CTkButton(
             music_row, text="Skip Song", height=30,
-            fg_color=C_RED, hover_color="#6E3030",
+            fg_color=T.BTN_END_FG, hover_color=T.BTN_END_HOVER, text_color=T.BTN_END_TEXT,
             command=lambda: threading.Thread(target=skip_song, daemon=True).start(),
             font=ctk.CTkFont(size=11)
         ).grid(row=0, column=0, padx=(0, 2), sticky="ew")
@@ -1530,6 +1593,7 @@ class KiraDashboard(ctk.CTk):
             self._refresh_autopilot_status()
             self._refresh_media_watch_status()
             self._refresh_header()
+            self._refresh_perception_strip()
         except Exception:
             pass
         self.after(500, self._update_loop)
@@ -1777,21 +1841,59 @@ class KiraDashboard(ctk.CTk):
             return
         agent = self.bot.audio_agent
         if not agent.is_active():
+            # Clear activity indicator when off
+            if hasattr(self, "audio_activity_label"):
+                self.audio_activity_label.configure(text="")
             return
+
+        # ── Summary text (audio_status_label) ────────────────────────────────
         if not agent.audio_summary or agent.audio_summary == "(quiet)":
             self.audio_status_label.configure(
-                text=f"🎧 {agent.mode.upper()} \u2014 listening (quiet)",
+                text=f"\U0001f3a7 {agent.mode.upper()} \u2014 listening (quiet)",
                 text_color=C_MUTED,
             )
-            return
-        rel = int(time.time() - agent.last_capture_time) if agent.last_capture_time else 0
-        summary = agent.audio_summary
-        if len(summary) > 300:
-            summary = summary[:297] + "..."
-        self.audio_status_label.configure(
-            text=f"🎧 {rel}s ago:\n{summary}",
-            text_color=C_GREEN,
-        )
+        else:
+            summary = agent.audio_summary
+            if len(summary) > 160:
+                summary = summary[:157] + "..."
+            self.audio_status_label.configure(
+                text=f"\U0001f3a7 {summary}",
+                text_color=C_GREEN,
+            )
+
+        # ── Live activity indicator (audio_activity_label) ───────────────────
+        # Shows: "last heard Xs ago · N captures this session"
+        # This is the health check — if last_capture_time is very stale or
+        # segment count is 0 after a minute, something is wrong.
+        if hasattr(self, "audio_activity_label"):
+            last_ts = getattr(agent, "last_capture_time", 0) or 0
+            captures = getattr(agent, "capture_count", None)
+            if last_ts:
+                age = int(time.time() - last_ts)
+                if age < 5:
+                    age_str = "just now"
+                elif age < 60:
+                    age_str = f"{age}s ago"
+                elif age < 3600:
+                    age_str = f"{age // 60}m ago"
+                else:
+                    age_str = f"{age // 3600}h ago"
+                if age > 45:
+                    age_color = T.WARNING
+                elif age > 20:
+                    age_color = T.TEXT_SECONDARY
+                else:
+                    age_color = C_GREEN
+                count_str = f" \u00b7 {captures} captures" if captures is not None else ""
+                self.audio_activity_label.configure(
+                    text=f"Last heard: {age_str}{count_str}",
+                    text_color=age_color,
+                )
+            else:
+                self.audio_activity_label.configure(
+                    text="Waiting for first audio capture…",
+                    text_color=C_MUTED,
+                )
 
     def _refresh_loopback_transcript(self):
         """Update loopback status label. Transcript textbox removed in new layout."""
@@ -1801,6 +1903,68 @@ class KiraDashboard(ctk.CTk):
         status = lt.get_status_summary()
         color = C_ACCENT if lt.is_running() else C_MUTED
         self.loopback_status_label.configure(text=status, text_color=color)
+
+    def _refresh_perception_strip(self):
+        """Update the live perception strip once per 500ms tick."""
+        if not hasattr(self, "strip_vision"):
+            return
+
+        # ── Vision ────────────────────────────────────────────────────────────
+        if self.bot.game_mode_controller.is_active:
+            va = self.bot.vision_agent
+            desc = (getattr(va, "scene_summary", "") or getattr(va, "last_description", "")).strip()
+            if desc:
+                # One line, max ~80 chars
+                one_line = desc.replace("\n", " ")
+                if len(one_line) > 82:
+                    one_line = one_line[:79] + "…"
+                ts = getattr(va, "last_capture_time", 0) or 0
+                age = int(time.time() - ts) if ts else 0
+                age_str = f"  ({age}s)" if age > 0 else ""
+                self.strip_vision.configure(text=one_line + age_str, text_color=T.TEXT_PRIMARY)
+            else:
+                self.strip_vision.configure(text="Waiting for first frame…", text_color=C_MUTED)
+        else:
+            self.strip_vision.configure(text="Vision off", text_color=C_MUTED)
+
+        # ── Audio ─────────────────────────────────────────────────────────────
+        agent = self.bot.audio_agent
+        if agent and agent.is_active():
+            summary = (getattr(agent, "audio_summary", "") or "").strip()
+            last_ts = getattr(agent, "last_capture_time", 0) or 0
+            count = getattr(agent, "capture_count", 0)
+            if last_ts:
+                age = int(time.time() - last_ts)
+                age_str = "just now" if age < 5 else f"{age}s ago"
+                color = C_GREEN if age < 25 else (T.WARNING if age < 60 else T.DANGER)
+            else:
+                age_str = "waiting…"
+                color = C_MUTED
+            if summary and summary != "(quiet)":
+                one = summary.replace("\n", " ")
+                if len(one) > 72:
+                    one = one[:69] + "…"
+                self.strip_audio.configure(
+                    text=f"{one}  ·  {age_str} · {count}×", text_color=color
+                )
+            else:
+                self.strip_audio.configure(
+                    text=f"Quiet  ·  last {age_str} · {count}×", text_color=C_MUTED
+                )
+        else:
+            self.strip_audio.configure(text="Audio off", text_color=C_MUTED)
+
+        # ── Loopback STT ──────────────────────────────────────────────────────
+        lt = getattr(self.bot, "loopback_transcriber", None)
+        if lt and lt.is_running():
+            status = lt.get_status_summary()
+            # Trim the full summary to one line
+            one = status.replace("\n", "  ").strip()
+            if len(one) > 80:
+                one = one[:77] + "…"
+            self.strip_loopback.configure(text=one, text_color=C_ACCENT)
+        else:
+            self.strip_loopback.configure(text="STT off", text_color=C_MUTED)
 
     def _refresh_header(self):
         """Sync header perception badges and mode pill with current bot state."""
@@ -1862,7 +2026,7 @@ class KiraDashboard(ctk.CTk):
 # Helpers
 
 def _divider(parent):
-    ctk.CTkFrame(parent, height=1, fg_color=C_SURFACE).pack(fill="x", padx=12, pady=4)
+    ctk.CTkFrame(parent, height=1, fg_color=T.BORDER).pack(fill="x", padx=12, pady=4)
 
 
 def _status_pill(parent, text: str, column: int) -> ctk.CTkLabel:

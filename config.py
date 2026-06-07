@@ -126,6 +126,11 @@ ENABLE_CAPTIONS = os.getenv("ENABLE_CAPTIONS", "false").lower() == "true"
 CAPTION_SERVER_PORT = int(os.getenv("CAPTION_SERVER_PORT", "8765"))
 CAPTION_CLEAR_DELAY_MS = int(os.getenv("CAPTION_CLEAR_DELAY_MS", "1500"))
 
+# Web dashboard control server (FastAPI + uvicorn, 127.0.0.1 only)
+# Separate from the caption WS on 8765. Provides /state, /ws (500ms push),
+# /vision/thumbnail, and POST /cmd/{action} for all dashboard commands.
+CONTROL_SERVER_PORT = int(os.getenv("CONTROL_SERVER_PORT", "8766"))
+
 # Chat batching config
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))

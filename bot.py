@@ -44,6 +44,8 @@ from config import (
     LOOPBACK_STT_DEFAULT, ENABLE_TWITCH_POLLS,
 )
 from stream_logger import StreamLogger
+import identity_manager
+import salience_filter
 from persona import EmotionalState
 from vision_agent import UniversalVisionAgent
 from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
@@ -797,20 +799,44 @@ class VTubeBot:
                 pass
         return block
 
-    def _frame_visual_perception(self, scene_text: str) -> str:
+    def _frame_visual_perception(
+        self,
+        scene_text: str,
+        capture_ts: float = 0.0,
+        primary_eligible: bool = True,
+    ) -> str:
         """Wraps a raw scene/vision description as sense data, not a script. Used by
         every consumer of the vision agent's output so the parrot/closed-captioner
-        regression is blocked uniformly."""
+        regression is blocked uniformly.
+
+        capture_ts:       wall-clock time when the description was captured.
+                          Drives the staleness note in the header.
+        primary_eligible: False when observation is >30s old. Header is reframed
+                          so Claude knows not to treat it as live or lead with it
+                          as a current observation (backstop against stale-obs replies).
+        """
         if not scene_text:
             return ""
+        stale_note = salience_filter.staleness_note(capture_ts)
+        if not primary_eligible:
+            age_s = int(time.time() - capture_ts) if capture_ts else 0
+            header = (
+                f"\n\n[VISUAL PERCEPTION \u2014 stale observation from ~{age_s}s ago; "
+                f"may no longer reflect what is on screen. Reference if relevant, "
+                f"do NOT treat as live or open with it as a current observation]\n"
+            )
+        else:
+            header = (
+                f"\n\n[CURRENT VISUAL PERCEPTION \u2014 what is on screen RIGHT NOW{stale_note}]\n"
+            )
         return (
-            f"\n\n[CURRENT VISUAL PERCEPTION \u2014 what is on screen RIGHT NOW]\n"
-            f"{scene_text}\n"
-            f"This is sense data \u2014 what your eyes are taking in. It is NOT a script or narration. "
-            f"Do NOT recap or paraphrase it (Jonny saw it too \u2014 he doesn't want a closed-captioner). "
-            f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence and "
-            f"do not commit to specifics. React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 "
-            f"not a description of what is on the screen."
+            header
+            + f"{scene_text}\n"
+            + f"This is sense data \u2014 what your eyes are taking in. It is NOT a script or narration. "
+            + f"Do NOT recap or paraphrase it (Jonny saw it too \u2014 he doesn't want a closed-captioner). "
+            + f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence and "
+            + f"do not commit to specifics. React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 "
+            + f"not a description of what is on the screen."
         )
 
     def _frame_ambient_audio(self, transcript_text: str) -> str:
@@ -1365,6 +1391,18 @@ class VTubeBot:
             print(f"   [Shutdown] Error during artifact phase: {e}")
             traceback.print_exc()
 
+        # Record session in identity.json for temporal continuity
+        try:
+            _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
+            identity_manager.record_session(
+                start_ts=self.session_started_at,
+                end_ts=time.time(),
+                activity=self.current_activity or 'general',
+                slug=_slug,
+            )
+        except Exception as e:
+            print(f"   [Identity] Session record failed: {e}")
+
         # Stop loopback STT defensively (in case deactivate didn't run).
         try:
             lt = self.loopback_transcriber
@@ -1805,6 +1843,9 @@ class VTubeBot:
             # Never touches logs/streams/, logs/sessions_raw/, or summary.md.
             self._purge_old_debug_logs(max_age_days=30)
 
+            # Load identity anchors + temporal continuity (synchronous O(1) read)
+            identity_manager.load()
+
             # Generate the recent-activity brief now, before any conversation happens
             await self.generate_startup_brief()
 
@@ -1924,6 +1965,11 @@ class VTubeBot:
                     preset=getattr(self, "_last_preset", ""),
                 )
 
+            # Web dashboard control server (FastAPI, port 8766, 127.0.0.1 only)
+            # Runs as a background task inside this event loop — no new thread.
+            from control_server import start_control_server
+            tasks.append(start_control_server(self))
+
             # Run everything concurrently
             await asyncio.gather(*tasks)
 
@@ -1951,6 +1997,17 @@ class VTubeBot:
                     await self.stream_logger.finish(self.ai_core)
                 except Exception as e:
                     print(f"   [StreamLogger] Shutdown finish error: {e}", file=sys.stderr)
+            # Record session in identity.json for temporal continuity (second shutdown path)
+            try:
+                _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
+                identity_manager.record_session(
+                    start_ts=self.session_started_at,
+                    end_ts=time.time(),
+                    activity=self.current_activity or 'general',
+                    slug=_slug,
+                )
+            except Exception as e:
+                print(f"   [Identity] Session record failed: {e}")
             print("--- Cleaning up resources... ---")
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
@@ -2314,7 +2371,10 @@ class VTubeBot:
                             visual_desc = (mw_ctx + "\n\n" + visual_desc) if visual_desc else mw_ctx
 
                     # 2. Construct dialogue line (history-clean — no screen state)
-                    dialogue_line = f"Jonny says: \"{content}\""
+                    # Prefix with identity label so Claude always knows this is Jonny's real voice,
+                    # not a game character or NPC — critical when game dialogue is also in context.
+                    _voice_label = identity_manager.label_for_source("voice")
+                    dialogue_line = f"{_voice_label}\nJonny says: \"{content}\""
 
                     # Speech triage — decide whether to respond, react briefly, or stay quiet
                     scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
@@ -2327,49 +2387,82 @@ class VTubeBot:
                     _cutscene_active = self._is_likely_cutscene() and silence_since_last > 20.0
                     _triage_immersive = self.immersive or _cutscene_active
 
-                    # FIX 3+4: Run triage (Groq network call) and memory retrieval
-                    # (ChromaDB vector search) CONCURRENTLY instead of sequentially.
-                    # Saves 200-400ms/turn. ChromaDB runs in a thread (to_thread) so
-                    # it no longer blocks the event loop either.
+                    # Salience gate: cheap label-based score, no LLM, <1ms.
+                    # Voice base score is always 100; floor at MEDIUM (40) is a hard guarantee
+                    # that no voice input — however short, quiet, or ambiguous — can ever be
+                    # silently dropped before reaching triage or process_and_respond.
+                    _sal_score, _sal_tier, _sal_primary = salience_filter.score("voice", content)
+                    print(f"   [Salience] voice: score={_sal_score} tier={_sal_tier}")
+
+                    # LOW-salience voice (e.g. novelty-penalised repeat after <30s) biases
+                    # triage toward BRIEF — she still responds, just not at length.
+                    if _sal_tier == "LOW":
+                        _triage_immersive = True
+
+                    # FIX 3+4 + SALIENCE BYPASS: triage (Groq) runs concurrently with memory.
+                    # HIGH salience + no cutscene → skip the Groq triage call entirely,
+                    # saving 200–400ms per turn. Cutscene override is preserved: even a
+                    # HIGH-salience question during a cutscene still goes through triage
+                    # so STAY_QUIET / BRIEF discipline applies in immersive moments.
                     _triage_t0 = time.time()
-                    decision, prefetched_memory = await asyncio.gather(
-                        self.ai_core.decide_response_mode(
-                            recent_history=self.conversation_history,
-                            incoming_line=content,
-                            scene_context=scene_ctx,
-                            source=source,
-                            immersive=_triage_immersive,
-                            streamer_mode=(self.mode == "streamer"),
-                        ),
-                        asyncio.to_thread(self.memory.get_semantic_context, content),
-                    )
-                    try:
-                        self.stream_logger.log(
-                            "triage_decision",
-                            input=content[:200],
-                            result=decision,
-                            latency_ms=int((time.time() - _triage_t0) * 1000),
-                            cutscene=_cutscene_active,
+                    if _sal_tier == "HIGH" and not _cutscene_active:
+                        # Bypass path: Jonny is clearly engaging — respond, just fetch memory.
+                        decision = "RESPOND"
+                        prefetched_memory = await asyncio.to_thread(
+                            self.memory.get_semantic_context, content
                         )
-                    except Exception:
-                        pass
-                    _triage_ms = int((time.time() - _triage_t0) * 1000)
-                    print(f"   [TIMING] triage+memory: {_triage_ms}ms")
-                    # GPU contention detector: maintain a rolling window of the last 5
-                    # triage latencies. If the median exceeds 2000ms the GPU is saturated
-                    # (Groq is network-only; high latency means VRAM contention is spilling
-                    # into OS scheduling). Flip _under_load to shed work in hot paths.
-                    _LOAD_THRESHOLD_MS = 2000
-                    _LOAD_WINDOW = 5
-                    self._load_triage_latencies.append(_triage_ms)
-                    if len(self._load_triage_latencies) > _LOAD_WINDOW:
-                        self._load_triage_latencies.pop(0)
-                    if len(self._load_triage_latencies) >= 3:
-                        _median = sorted(self._load_triage_latencies)[len(self._load_triage_latencies) // 2]
-                        _was_under = self._under_load
-                        self._under_load = (_median > _LOAD_THRESHOLD_MS)
-                        if self._under_load != _was_under:
-                            print(f"   [LoadShed] GPU load state changed: under_load={self._under_load} (median triage={_median}ms)")
+                        _triage_ms = 0
+                        print(f"   [TIMING] triage bypassed (salience HIGH): memory={int((time.time() - _triage_t0) * 1000)}ms")
+                        try:
+                            self.stream_logger.log(
+                                "triage_decision",
+                                input=content[:200],
+                                result=decision,
+                                latency_ms=0,
+                                cutscene=False,
+                            )
+                        except Exception:
+                            pass
+                    else:
+                        # Normal path: triage + memory concurrently.
+                        decision, prefetched_memory = await asyncio.gather(
+                            self.ai_core.decide_response_mode(
+                                recent_history=self.conversation_history,
+                                incoming_line=content,
+                                scene_context=scene_ctx,
+                                source=source,
+                                immersive=_triage_immersive,
+                                streamer_mode=(self.mode == "streamer"),
+                            ),
+                            asyncio.to_thread(self.memory.get_semantic_context, content),
+                        )
+                        try:
+                            self.stream_logger.log(
+                                "triage_decision",
+                                input=content[:200],
+                                result=decision,
+                                latency_ms=int((time.time() - _triage_t0) * 1000),
+                                cutscene=_cutscene_active,
+                            )
+                        except Exception:
+                            pass
+                        _triage_ms = int((time.time() - _triage_t0) * 1000)
+                        print(f"   [TIMING] triage+memory: {_triage_ms}ms")
+                    # GPU contention detector: only meaningful on non-bypass turns where Groq ran.
+                    # _triage_ms == 0 on bypass turns — exclude from rolling latency window so the
+                    # bypass doesn't skew the median downward and mask real saturation events.
+                    if _triage_ms > 0:
+                        _LOAD_THRESHOLD_MS = 2000
+                        _LOAD_WINDOW = 5
+                        self._load_triage_latencies.append(_triage_ms)
+                        if len(self._load_triage_latencies) > _LOAD_WINDOW:
+                            self._load_triage_latencies.pop(0)
+                        if len(self._load_triage_latencies) >= 3:
+                            _median = sorted(self._load_triage_latencies)[len(self._load_triage_latencies) // 2]
+                            _was_under = self._under_load
+                            self._under_load = (_median > _LOAD_THRESHOLD_MS)
+                            if self._under_load != _was_under:
+                                print(f"   [LoadShed] GPU load state changed: under_load={self._under_load} (median triage={_median}ms)")
 
                     if decision == "STAY_QUIET":
                         print(f"   [Triage] STAY_QUIET \u2014 letting it pass.")
@@ -4156,6 +4249,14 @@ class VTubeBot:
                 # Block A (static, cached): self.ai_core.system_prompt — personality + tool rules.
                 # Block C (dynamic, uncached): all per-turn context assembled below.
                 dynamic_context = f"[EMOTIONAL STATE: {self.current_emotion.name} \u2014 {emotion_line}]"
+
+                # Identity anchors + temporal continuity (who is Jonny, who are game characters,
+                # when was the last session). Injected first so all downstream context is grounded.
+                _activity_slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or '').strip('_').lower()[:40] if self.current_activity else ''
+                _continuity_block = identity_manager.get_continuity_block(_activity_slug)
+                if _continuity_block:
+                    dynamic_context += f"\n\n{_continuity_block}"
+
                 if self.current_activity:
                     dynamic_context += (
                         f"\n\n[CURRENT CONTEXT: You and Jonny are currently {self.current_activity}. "
@@ -4218,7 +4319,17 @@ class VTubeBot:
                     dynamic_context += song_block
 
                 if visual_part:
-                    dynamic_context += self._frame_visual_perception(visual_part)
+                    # Pass capture timestamp so _frame_visual_perception can attach
+                    # a staleness note and flip primary_eligible when the observation
+                    # is too old to treat as live. This is the backstop against the
+                    # "comments on what she saw 15-20s ago as if it's now" regression.
+                    _vis_ts = (self.vision_agent.last_capture_time or 0.0)
+                    _, _vis_tier, _vis_primary = salience_filter.score(
+                        "vision", visual_part, capture_ts=_vis_ts
+                    )
+                    dynamic_context += self._frame_visual_perception(
+                        visual_part, capture_ts=_vis_ts, primary_eligible=_vis_primary
+                    )
 
                 # Ambient audio transcript — render as a sibling sense block to
                 # visual perception. Skipped when transcriber is off or window
