@@ -122,6 +122,15 @@ class AI_Core:
         self._AZURE_EMPTY_LINE_THRESHOLD = 3
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
+        # Per-session token counters — accumulated from response.usage on every
+        # non-streaming API call. Written to events.jsonl as "session_tokens" at
+        # session end. Streaming path is excluded (see claude_chat_inference_stream).
+        self._session_usage = {
+            "sonnet_in": 0, "sonnet_out": 0, "sonnet_cache_read": 0,
+            "opus_in":   0, "opus_out":   0,
+            "groq_in":   0, "groq_out":   0,
+        }
+
         # Fish Audio TTS — single session object initialized once at startup.
         # tts_backend and fish_voice_id are runtime-mutable (dashboard controls).
         self.tts_backend: str = TTS_BACKEND  # "azure" | "fish"
@@ -648,6 +657,10 @@ class AI_Core:
         except Exception as e:
             print(f"   [LLM] Inference failed ({type(e).__name__}: {e}). Returning fallback line.")
             return "Hmm, something tripped on my end."
+        _meta = response.get("_groq_meta", {})
+        if _meta.get("prompt_tokens"):
+            self._session_usage["groq_in"]  += _meta["prompt_tokens"]
+            self._session_usage["groq_out"] += _meta.get("completion_tokens", 0)
         raw_content = response["choices"][0]["message"]["content"]
         # Regex filter for parentheses
         clean_content = re.sub(r'\(.*?\)', '', raw_content).strip()
@@ -664,6 +677,10 @@ class AI_Core:
                 repeat_penalty=1.1,
             )
         resp = await asyncio.to_thread(_guarded)
+        _meta = resp.get("_groq_meta", {})
+        if _meta.get("prompt_tokens"):
+            self._session_usage["groq_in"]  += _meta["prompt_tokens"]
+            self._session_usage["groq_out"] += _meta.get("completion_tokens", 0)
         return resp["choices"][0]["message"]["content"].strip()
 
     @staticmethod
@@ -852,6 +869,9 @@ class AI_Core:
                     raise
             if response is None:
                 raise last_err if last_err else RuntimeError("Claude returned no response")
+            if hasattr(response, "usage"):
+                self._session_usage["opus_in"]  += response.usage.input_tokens
+                self._session_usage["opus_out"] += response.usage.output_tokens
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
@@ -934,6 +954,10 @@ class AI_Core:
                 system=system_param,
                 messages=claude_messages,
             )
+            if hasattr(response, "usage"):
+                self._session_usage["sonnet_in"]         += response.usage.input_tokens
+                self._session_usage["sonnet_out"]        += response.usage.output_tokens
+                self._session_usage["sonnet_cache_read"] += getattr(response.usage, "cache_read_input_tokens", 0)
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
@@ -982,7 +1006,9 @@ class AI_Core:
             return None
         emotion_names = [e.name for e in EmotionalState]
         prompt = (f"Jonny: \"{last_user_text}\"\nKira: \"{last_ai_response}\"\n\n"
-                  f"Based on this, which emotional state is most appropriate for Kira's next turn? "
+                  f"Based on this exchange, which emotional state should Kira be in for her NEXT response? "
+                  f"Weight Jonny's tone and the subject matter more heavily than Kira's own output — "
+                  f"her state should reflect the MOMENT and WHAT JONNY BROUGHT, not just echo her last line. "
                   f"Options: {', '.join(emotion_names)}.\n"
                   f"Respond ONLY with the single best state name (e.g., 'SASSY').")
         try:

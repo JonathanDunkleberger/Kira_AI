@@ -521,7 +521,20 @@ class KiraDashboard(ctk.CTk):
             button_color=C_ACCENT, progress_color=C_ACCENT,
             text_color=C_TEXT, font=ctk.CTkFont(size=11),
         )
-        self.carry_mode_switch.pack(anchor="w", padx=16, pady=(8, 8))
+        self.carry_mode_switch.pack(anchor="w", padx=16, pady=(8, 4))
+
+        # Drive Mode agenda — manual override text field.
+        # Leave blank to auto-seed via Groq when Carry Mode is toggled ON.
+        ctk.CTkLabel(
+            col, text="Drive agenda (optional — one intent per line; blank = auto-seed)",
+            font=ctk.CTkFont(size=9), text_color=C_MUTED,
+        ).pack(anchor="w", padx=16, pady=(0, 2))
+        self.drive_agenda_entry = ctk.CTkTextbox(
+            col, height=56, font=ctk.CTkFont(size=10),
+            fg_color=C_SURFACE, text_color=C_TEXT, border_width=1,
+            border_color=T.BORDER,
+        )
+        self.drive_agenda_entry.pack(fill="x", padx=14, pady=(0, 6))
 
         _divider(col)
 
@@ -1462,6 +1475,30 @@ class KiraDashboard(ctk.CTk):
         print(f"   [Dashboard] Carry Mode toggled: {is_on} "
               f"(thresholds {'30s/60s' if is_on else '45s/90s'}, "
               f"ask_chat_p {'0.25' if is_on else '0.15'})")
+        if is_on:
+            # Seed drive agenda via Groq — fire-and-forget on the bot's event loop.
+            # Also read any manual agenda from the text field if it's populated.
+            manual_text = ""
+            if hasattr(self, "drive_agenda_entry"):
+                try:
+                    manual_text = self.drive_agenda_entry.get("1.0", "end").strip()
+                except Exception:
+                    pass
+            if manual_text:
+                items = [ln.strip().lstrip("-•").strip() for ln in manual_text.splitlines() if ln.strip()]
+                self.bot.drive_agenda = [i for i in items if i][:5]
+                print(f"   [DriveMode] Manual agenda set ({len(self.bot.drive_agenda)} items)")
+                self.bot.stream_logger.log("drive_mode_on", source="manual",
+                                           agenda=self.bot.drive_agenda)
+            elif self.bot.event_loop and self.bot.event_loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    self.bot.seed_drive_agenda(),
+                    self.bot.event_loop,
+                )
+                self.bot.stream_logger.log("drive_mode_on", source="auto_seed")
+        else:
+            self.bot.drive_agenda = []
+            self.bot.stream_logger.log("drive_mode_off")
 
     def _activate_game_mode(self):
         """Legacy stub — replaced by _go()."""

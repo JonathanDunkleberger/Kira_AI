@@ -95,5 +95,10 @@ class GroqClient:
         elapsed_ms = int((time.time() - t0) * 1000)
         return {
             "choices": [{"message": {"role": "assistant", "content": content}}],
-            "_groq_meta": {"model": self.model, "latency_ms": elapsed_ms},
+            "_groq_meta": {
+                "model": self.model,
+                "latency_ms": elapsed_ms,
+                "prompt_tokens":     getattr(getattr(resp, "usage", None), "prompt_tokens",     0),
+                "completion_tokens": getattr(getattr(resp, "usage", None), "completion_tokens", 0),
+            },
         }

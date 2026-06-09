@@ -351,6 +351,46 @@ class StreamLogger:
             if etype == "warning":
                 return f"{t} [WARNING] {event.get('message', '')[:200]}"
 
+            if etype == "llm_fallback":
+                reason = event.get("reason", "unknown")
+                model  = event.get("model", "local")
+                return f"{t} [⚠ LLM FALLBACK → {model}] reason: {reason}"
+
+            if etype == "kira_response_model":
+                return f"{t} [LLM] model={event.get('model', '?')}"
+
+            if etype == "moment_type":
+                return f"{t} [MOMENT] → {event.get('moment', '?').upper()}"
+
+            if etype == "drive_mode_on":
+                src = event.get("source", "auto")
+                agenda = event.get("agenda", [])
+                items = "; ".join(agenda[:3]) if agenda else "(seeding...)"
+                return f"{t} [DRIVE MODE ON] source={src} | agenda: {items}"
+
+            if etype == "drive_mode_off":
+                return f"{t} [DRIVE MODE OFF]"
+
+            if etype == "drive_agenda_seeded":
+                agenda = event.get("agenda", [])
+                items = " | ".join(f"{i+1}. {a}" for i, a in enumerate(agenda))
+                return f"{t} [DRIVE AGENDA] {items}"
+
+            if etype == "session_tokens":
+                s_in  = event.get("sonnet_in",  0)
+                s_out = event.get("sonnet_out", 0)
+                s_cr  = event.get("sonnet_cache_read", 0)
+                o_in  = event.get("opus_in",  0)
+                o_out = event.get("opus_out", 0)
+                g_in  = event.get("groq_in",  0)
+                g_out = event.get("groq_out", 0)
+                return (
+                    f"{t} [SESSION TOKENS] "
+                    f"sonnet={s_in}in/{s_out}out(cache_read={s_cr}) | "
+                    f"opus={o_in}in/{o_out}out | "
+                    f"groq={g_in}in/{g_out}out"
+                )
+
             # Unknown type — still written to JSONL but skipped in transcript
             return ""
 

@@ -25,6 +25,14 @@ class MemoryManager:
         self.facts = self.client.get_or_create_collection(name="facts")
         self.chatters = self.client.get_or_create_collection(name="chatters")
         self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+        # Short-lived cache for the full facts.get() document scan used by
+        # _direct_fact_lookup(). Facts never change mid-session (writes are rare
+        # background events), so re-fetching the entire table on every voice turn
+        # is pure waste. Cache expires after 30s and is immediately invalidated
+        # whenever a new fact is written so freshness is always guaranteed.
+        self._facts_cache: list = []
+        self._facts_cache_ts: float = 0.0
+        self._FACTS_CACHE_TTL: float = 30.0
         self._validate_collections()
         print("   Memory Manager initialized.")
 
@@ -145,6 +153,7 @@ class MemoryManager:
                             documents=[text_rep],
                             metadatas=[meta]
                         )
+                    self._invalidate_facts_cache()
             except Exception as e:
                 print(f"   [Memory Error] Failed to store memory item: {e}")
 
@@ -172,10 +181,32 @@ class MemoryManager:
             []),  # bare "names?" alone is too noisy — leave list empty; here as a marker
     ]
 
+    def _invalidate_facts_cache(self):
+        """Drop the cached facts document list. Called whenever a fact is written."""
+        self._facts_cache = []
+        self._facts_cache_ts = 0.0
+
+    def _get_all_fact_docs(self) -> list:
+        """Return all documents from the facts collection, using a 30s in-memory
+        cache. The full table scan + ChromaDB/SQLite I/O happens at most once per
+        30 seconds regardless of how many concurrent voice turns fire."""
+        now = time.time()
+        if self._facts_cache and (now - self._facts_cache_ts) < self._FACTS_CACHE_TTL:
+            return self._facts_cache
+        try:
+            data = self.facts.get(include=["documents"])
+            self._facts_cache = data.get("documents") or []
+            self._facts_cache_ts = now
+        except Exception as e:
+            print(f"   [Memory] facts.get() cache refresh failed: {e}")
+            self._facts_cache = []
+        return self._facts_cache
+
     def _direct_fact_lookup(self, query_text: str, limit: int = 6) -> list:
         """Substring-scan the facts collection for documents matching topic-keyword
         triggers in the query. Bypasses vector similarity for deterministic recall
-        of high-confidence stored facts (Fix 2)."""
+        of high-confidence stored facts (Fix 2). Uses cached docs to avoid a full
+        SQLite scan on every call."""
         import re as _re
         ql = (query_text or "").lower()
         substrings: list[str] = []
@@ -187,12 +218,7 @@ class MemoryManager:
         # Dedupe substrings preserving order
         seen_sub = set()
         substrings = [s for s in substrings if not (s.lower() in seen_sub or seen_sub.add(s.lower()))]
-        try:
-            data = self.facts.get(include=["documents"])
-        except Exception as e:
-            print(f"   [Memory] direct lookup get() failed: {e}")
-            return []
-        docs = data.get("documents") or []
+        docs = self._get_all_fact_docs()
         out: list[str] = []
         seen_docs = set()
         for doc in docs:
@@ -268,6 +294,7 @@ class MemoryManager:
                 documents=[fact_text],
                 metadatas=[meta]
             )
+            self._invalidate_facts_cache()
             print(f"   ✅ Fact Upserted: {fact_text}")
         except Exception:
             # Fallback: Delete then Add
@@ -279,6 +306,7 @@ class MemoryManager:
                 documents=[fact_text],
                 metadatas=[meta]
             )
+            self._invalidate_facts_cache()
             print(f"   ✅ Fact Added (Fallback): {fact_text}")
 
     def get_fact(self, key: str) -> str | None:
@@ -300,6 +328,7 @@ class MemoryManager:
                 metadatas=[{"role": "fact", "timestamp": time.time(), "type": "fact"}],
                 ids=[str(uuid.uuid4())]
             )
+            self._invalidate_facts_cache()
             print(f"   ✅ Fact Stored: '{fact_text}'")
             
             if torch.cuda.is_available():
@@ -365,6 +394,7 @@ class MemoryManager:
                 documents=[text],
                 metadatas=[meta],
             )
+            self._invalidate_facts_cache()
             print(f"   [Memory] Highlight stored: {text[:80]}...")
         except Exception as e:
             print(f"   [Memory Error] Highlight storage failed: {e}")
@@ -386,6 +416,7 @@ class MemoryManager:
                 documents=[text],
                 metadatas=[meta],
             )
+            self._invalidate_facts_cache()
             print(f"   [Memory] Session summary stored ({activity}).")
         except Exception as e:
             print(f"   [Memory Error] Session summary storage failed: {e}")

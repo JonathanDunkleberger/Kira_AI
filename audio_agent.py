@@ -208,6 +208,11 @@ class AudioAgent:
         self._capture_sample_rate = self.sample_rate
         self._capture_channels = 1
         self.preferred_loopback_name: Optional[str] = None  # set by dashboard to override auto-pick
+        # Part 3: flag that a prior stop() has not yet fully resolved (thread may be
+        # wedged). While True, _start_capture() refuses to open a new WASAPI stream on
+        # top of the potentially-orphaned one. Cleared after _stop_capture() returns
+        # and after a successful _start_capture() (confirms clean state).
+        self._stop_pending: bool = False
 
     def is_active(self) -> bool:
         return self.mode != AUDIO_MODE_OFF and self._stream is not None
@@ -219,7 +224,20 @@ class AudioAgent:
 
         previous = self.mode
 
-        # Always stop cleanly first if a capture is active
+        # Part 2: if already in the requested mode and the capture thread is genuinely
+        # alive, skip the stop→restart cycle entirely. activate_game_mode() and the
+        # dashboard dropdown both call set_mode(MEDIA) regardless of current state —
+        # without this guard every call tears down and reopens the WASAPI stream.
+        # Guard tests THREAD LIVENESS not stream-object presence: a dead thread that
+        # left a stale self._stream ref must NOT trigger this early-exit or hearing
+        # becomes permanently deaf after any transient capture failure.
+        if (mode == previous and mode != AUDIO_MODE_OFF
+                and self._capture_thread is not None
+                and self._capture_thread.is_alive()):
+            print(f"   [Audio] Already in {mode.upper()} — skipping restart")
+            return
+
+        # Stop cleanly first if a capture is active
         if previous != AUDIO_MODE_OFF and self._stream is not None:
             self._stop_capture()
             # Give PyAudio time to release the audio device at the C layer.
@@ -327,6 +345,25 @@ class AudioAgent:
         return devices_list
 
     def _start_capture(self):
+        # Part 1: never stack a second WASAPI stream on top of an existing one.
+        # Tests THREAD LIVENESS, not stream-object presence. A dead capture thread
+        # that left a stale self._stream reference must NOT block a legitimate restart
+        # (that was the "deaf after transient exit" bug). Only a genuinely alive thread
+        # means capture is actually running.
+        if self._capture_thread is not None and self._capture_thread.is_alive():
+            print("   [Audio] capture already active — skipping duplicate open")
+            return
+        # Part 3: if a prior stop wedged, check whether the orphaned thread has since
+        # died naturally. If it's still alive, opening a second WASAPI stream would
+        # stack on top of it — block. If it has finally exited, self-clear and proceed.
+        if self._stop_pending:
+            if self._capture_thread is not None and self._capture_thread.is_alive():
+                print("   [Audio] capture blocked — orphaned thread still alive; cannot open new stream safely")
+                return
+            # Orphaned thread has since died — safe to proceed.
+            print("   [Audio] orphaned thread resolved — clearing _stop_pending and restarting capture")
+            self._stop_pending = False
+            self._capture_thread = None
         if not PYAUDIO_AVAILABLE:
             print("   [Audio] pyaudiowpatch not installed — run: pip install PyAudioWPatch")
             self.mode = AUDIO_MODE_OFF
@@ -387,6 +424,7 @@ class AudioAgent:
 
             # Start background capture thread
             self._stop_event.clear()
+            self._stop_pending = False  # Part 3: clean open — clear any stale pending flag
             self._capture_thread = threading.Thread(target=self._capture_loop, daemon=True)
             self._capture_thread.start()
             print(f"   [Audio] Mode {self.mode.upper()} — capture started")
@@ -436,6 +474,15 @@ class AudioAgent:
                 self.buffer.extend(float_samples.tolist())
         except Exception as e:
             print(f"   [Audio] Capture loop error: {e}")
+        finally:
+            # Fix 1: always clear stale references when the thread exits, regardless of
+            # how it stopped (clean stop, device error, exception). Without this,
+            # self._stream holds a dead PyAudio object forever, making the Part 1/2
+            # guards falsely believe capture is still running and blocking any restart.
+            if self._stream is not None:
+                print("   [Audio] capture thread exited — clearing stream ref")
+            self._stream = None
+            self._capture_thread = None
 
     def _stop_capture(self):
         # Order matters: stop_stream() FIRST to unblock any in-flight stream.read()
@@ -449,12 +496,17 @@ class AudioAgent:
                 stream.stop_stream()
             except Exception:
                 pass
-        if self._capture_thread and self._capture_thread.is_alive():
+        if self._capture_thread is not None and self._capture_thread.is_alive():
             self._capture_thread.join(timeout=5.0)
-            if self._capture_thread.is_alive():
+            if self._capture_thread is not None and self._capture_thread.is_alive():
                 # Thread is wedged inside a native read despite stop_stream().
                 # Closing the stream now WILL crash the process. Leak it instead.
+                # Part 3: set _stop_pending so _start_capture() refuses to open a new
+                # WASAPI stream on top of the orphaned one. This caps the live-stream
+                # count at ONE orphan regardless of how many set_mode calls follow.
                 print("   [Audio] WARNING: capture thread did not exit — leaking stream to avoid native crash")
+                print("   [Audio] _stop_pending=True — new capture blocked until bot restart")
+                self._stop_pending = True
                 self._capture_thread = None
                 self._stream = None
                 self._pa = None
@@ -462,12 +514,16 @@ class AudioAgent:
                 self.hifi_buffer.clear()
                 return
         self._capture_thread = None
-        if self._stream is not None:
+        # Fix 1b: use the local `stream` reference saved before the join — _capture_loop's
+        # finally block may have already set self._stream = None by the time we get here
+        # (the thread exited cleanly during join). Using the local ref ensures the
+        # PyAudio stream still gets .close()d even when self._stream is already None.
+        if stream is not None:
             try:
-                self._stream.close()
+                stream.close()
             except Exception:
                 pass
-            self._stream = None
+        self._stream = None
         if self._pa is not None:
             try:
                 self._pa.terminate()

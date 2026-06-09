@@ -49,6 +49,16 @@ import traceback
 import xml.sax.saxutils
 from io import BytesIO
 
+from kira_state import (
+    KiraState,
+    SessionIntensity,
+    INTENSITY_CALM,
+    INTENSITY_BUILDING,
+    INTENSITY_INTENSE,
+    INTENSITY_CLIMACTIC,
+    INTENSITY_AFTERMATH,
+)
+
 try:
     import pytesseract
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -90,11 +100,9 @@ except ImportError:
 
 
 # ── Phase 2: Scene intensity states (System 1) ────────────────────────────────
-INTENSITY_CALM      = "calm"       # low-stakes connective tissue; riff/theorize freely
-INTENSITY_BUILDING  = "building"   # tension rising; lean in, anticipate
-INTENSITY_INTENSE   = "intense"    # things are happening; react sparingly and sharply
-INTENSITY_CLIMACTIC = "climactic"  # the moment; silence is usually the correct response
-INTENSITY_AFTERMATH = "aftermath"  # just after something big; process quietly
+# These names are now aliases to SessionIntensity enum values imported from
+# kira_state.py — they are re-declared there so all comparisons still work.
+# Do not add string constants here; use the imported aliases above.
 
 # ── Inter-box pacing constants (content-based variable timing) ────────────────
 # Tune here to adjust rhythm globally. Replaces the old fixed 0.8s delay.
@@ -111,11 +119,11 @@ PAUSE_REACTION_GAP      = 0.15   # minimal gap before a reaction (same-breath fe
 # before advancing. Calm moments stay snappy; climactic moments wait for the
 # reaction so emotional beats actually get the verbal payoff.
 REACTION_GRACE_BY_INTENSITY = {
-    INTENSITY_CALM:       0.5,
-    INTENSITY_BUILDING:   0.8,
-    INTENSITY_INTENSE:    2.5,
-    INTENSITY_CLIMACTIC:  5.0,
-    INTENSITY_AFTERMATH:  4.0,
+    INTENSITY_CALM:      0.5,
+    INTENSITY_BUILDING:  0.8,
+    INTENSITY_INTENSE:   2.5,
+    INTENSITY_CLIMACTIC: 5.0,
+    INTENSITY_AFTERMATH: 4.0,
 }
 
 # ── Silence-breaker (H4) ─────────────────────────────────────────────────────
@@ -260,7 +268,7 @@ class VNAutopilot:
         ),
     }
 
-    def __init__(self, ai_core, vision_client=None, bot=None):
+    def __init__(self, ai_core, vision_client=None, bot=None, kira_state=None):
         """
         ai_core:        AI_Core instance (for Anthropic/Claude access)
         vision_client:  AsyncOpenAI instance (for screen classification + transcription)
@@ -268,11 +276,17 @@ class VNAutopilot:
                         semantic memory, playthrough memory, and shared voice guardrails
                         so in-character VN reactions sound like Kira instead of a
                         memory-blind chatbot.
+        kira_state:     Shared KiraState instance. If None, a local one is created
+                        (backward-compatible fallback for standalone use / tests).
         """
         self.ai_core = ai_core
         self.vision_client = vision_client
         self.bot = bot
         self.input_controller = VNInputController()
+
+        # Shared agency layer — theories, attachment, investment, intensity, summary.
+        # If the caller didn't wire one in (e.g. standalone test), create a local instance.
+        self.kira_state: KiraState = kira_state or KiraState(ai_core)
 
         # ── Public state (polled by bot / dashboard) ───────────────────────────
         self.enabled: bool = False          # master toggle set by dashboard
@@ -285,31 +299,32 @@ class VNAutopilot:
         self.pacing_per_char: float = 0.025
         self.pacing_max: float = 8.0
 
+        # ── Phase 2: Theory-building (System 3) ────────────────────────────────
+        # active_theories, entity_familiarity, sentiment_ledger, story_investment,
+        # emotional_trajectory, vn_narrative_summary → ALL live in self.kira_state.
+        # VN-specific counters (pacing/throttle) stay local.
+        self._boxes_since_theory_check: int = 0   # kept for VN pacing; mirrors kira_state counter
+
+        # ── Phase 2: Within-session emotional state (System 4) ─────────────────
+        # character_attachment and _char_mention_counts → self.kira_state.sentiment_ledger
+        # and self.kira_state.entity_familiarity. story_investment, emotional_trajectory
+        # → self.kira_state. All reads/writes go through the shared object.
+
         # ── Narrative memory ────────────────────────────────────────────────────
-        self.vn_narrative_summary: str = ""
-        self.vn_boxes_since_summary: int = 0
-        self.vn_recent_text_buffer: list[str] = []
+        # vn_narrative_summary → self.kira_state.session_narrative_summary
+        self.vn_boxes_since_summary: int = 0      # VN pacing counter (threshold tracking)
+        self.vn_recent_text_buffer: list[str] = [] # local alias fed into kira_state._context_buffer
 
         # ── Phase 2: Dynamic energy / pacing (System 1) ────────────────────────
-        self.scene_intensity: str = INTENSITY_CALM
-        self._aftermath_countdown: int = 0   # boxes remaining in aftermath state
-        self._boxes_since_reaction: int = 0  # for spacing solo asides
+        # scene_intensity and _aftermath_countdown → self.kira_state.current_intensity
+        # and self.kira_state._aftermath_countdown. Read via property below.
+        self._boxes_since_reaction: int = 0       # spacing solo asides
 
         # ── Phase 2: Solo / dead-chat behavior (System 2) ──────────────────────
         self._last_chat_time: float = time.time()
         self._boxes_since_solo_aside: int = 0
 
-        # ── Phase 2: Theory-building (System 3) ────────────────────────────────
-        # Each theory: {theory, formed_box, status, resolved_box (optional)}
-        self.active_theories: list[dict] = []
-        self._boxes_since_theory_check: int = 0
         self.total_boxes_read: int = 0
-
-        # ── Phase 2: Within-session emotional state (System 4) ─────────────────
-        self.character_attachment: dict[str, float] = {}   # char_name -> 0.0–1.0
-        self.story_investment: float = 0.0                 # 0.0–1.0, ramps over session
-        self.emotional_trajectory: str = ""
-        self._char_mention_counts: dict[str, int] = {}     # raw mention counts
 
         # ── Phase 2: Soft-pause for Jonny (System 6b) ──────────────────────────
         self.soft_paused: bool = False
@@ -446,6 +461,16 @@ class VNAutopilot:
         self._last_dialogue_time: float = time.time()
 
     # ── Lifecycle ──────────────────────────────────────────────────────────────
+
+    @property
+    def scene_intensity(self) -> SessionIntensity:
+        """Backward-compatible shim: VN code reads self.scene_intensity;
+        now delegates to the shared kira_state.current_intensity."""
+        return self.kira_state.current_intensity
+
+    @scene_intensity.setter
+    def scene_intensity(self, value: SessionIntensity) -> None:
+        self.kira_state.current_intensity = value
 
     @staticmethod
     def list_open_windows() -> list[str]:
@@ -1815,12 +1840,13 @@ class VNAutopilot:
         self._consecutive_non_progress_reads = 0
 
         # ── Phase 2 analysis (side-effects: always in main path, never pipeline) ─
-        # Attachment update first so weight computation sees the current state.
-        self._update_character_attachment(new_text)
+        # Delegate to shared KiraState: entity attachment, investment, intensity,
+        # narrative buffer — all backed by the cross-mode object.
+        self.kira_state.update_context_sync(new_text)   # entity + investment + buffer
         if not (prepared and prepared.get("box_data")):
-            weight = self._estimate_narrative_weight(new_text)
-        intensity = self._estimate_scene_intensity(weight)
-        self.scene_intensity = intensity
+            weight = self.kira_state.estimate_narrative_weight(new_text)
+        intensity = self.kira_state.set_intensity_from_weight(weight)
+        # scene_intensity property reads kira_state.current_intensity — no local write needed.
 
         self.total_boxes_read += 1
         self._boxes_since_reaction += 1
@@ -1834,20 +1860,17 @@ class VNAutopilot:
             self.vn_recent_text_buffer = self.vn_recent_text_buffer[-20:]
         self.vn_boxes_since_summary += 1
 
-        # Narrative summary: background task — never blocks reading.
-        # Guarded by disk-space check: if G: is critically full, skip the write
-        # this cycle rather than risk corrupting ChromaDB.
-        # Also wrapped in try/except so a scheduling error is logged and skipped.
-        # H5: cold-start — fire FIRST summary at 5 boxes (vs 15) so reactions,
-        # theories, and route-aware choices have context early in the session.
-        first_summary_threshold = 5 if not self.vn_narrative_summary else 15
+        # Narrative summary: schedule via kira_state background tasks.
+        # H5: cold-start — fire FIRST summary at 5 boxes.
+        first_summary_threshold = 5 if not self.kira_state.session_narrative_summary else 15
         if (self.vn_boxes_since_summary >= first_summary_threshold
-                and len(self.vn_recent_text_buffer) >= 3):
+                and len(self.kira_state._context_buffer) >= 3):
             if self._check_disk_space():
                 try:
-                    asyncio.ensure_future(self._update_narrative_summary())
+                    asyncio.ensure_future(self.kira_state.maybe_run_background_tasks())
+                    self.vn_boxes_since_summary = 0
                 except Exception as _mem_err:
-                    print(f"   [Autopilot] Narrative summary task error (continuing): {_mem_err}")
+                    print(f"   [Autopilot] kira_state bg task error (continuing): {_mem_err}")
 
         # Art-change check (before _maybe_update_scene_art overwrites the hash)
         art_changed = self._art_hash(stable_frame) != self._last_art_hash
@@ -1856,14 +1879,8 @@ class VNAutopilot:
         speaker, line_only = self._parse_speaker_line(new_text)
         if speaker:
             self._last_speaker = speaker
-            # Boost attachment for this speaker directly (more reliable than
-            # capitalized-word scraping in _update_character_attachment).
-            self._char_mention_counts[speaker] = self._char_mention_counts.get(speaker, 0) + 1
-            cnt = self._char_mention_counts[speaker]
-            raw = min(1.0, (cnt / 200.0) ** 0.5)
-            self.character_attachment[speaker] = min(
-                1.0, max(self.character_attachment.get(speaker, 0.0), raw)
-            )
+            # Boost attachment via shared entity tracking.
+            self.kira_state.update_entity_from_speaker(speaker)
             print(f"   [Autopilot] Speaker parsed: '{speaker}' → '{line_only[:50]}'")
 
         # ── H2/H3: Schedule reaction tasks BEFORE pause/advance ─────────────
@@ -1876,7 +1893,7 @@ class VNAutopilot:
         theory_task: "asyncio.Task | None" = None
         try:
             theory_task = asyncio.ensure_future(
-                self._check_theory_resolutions(new_text)
+                self.kira_state.check_theory_resolutions(new_text)
             )
         except Exception as _th_err:
             print(f"   [Autopilot] Theory resolution scheduling error: {_th_err}")
@@ -1902,7 +1919,7 @@ class VNAutopilot:
             and self._boxes_since_reaction >= 4
         ):
             try:
-                aside_task = asyncio.ensure_future(self._maybe_form_theory())
+                aside_task = asyncio.ensure_future(self.kira_state._maybe_form_theory())
             except Exception as _as_err:
                 print(f"   [Autopilot] Solo aside scheduling error: {_as_err}")
 
@@ -2474,8 +2491,8 @@ class VNAutopilot:
         persona_system = self.ai_core.system_prompt
 
         narrative_block = (
-            f"Story so far: {self.vn_narrative_summary[:300]}\n\n"
-            if self.vn_narrative_summary else ""
+            f"Story so far: {self.kira_state.session_narrative_summary[:300]}\n\n"
+            if self.kira_state.session_narrative_summary else ""
         )
         scene_note = (
             f"Scene: {self._scene_art_description}\n\n"
@@ -2484,7 +2501,7 @@ class VNAutopilot:
         speaker_prefix = f"{speaker}: " if speaker else ""
 
         # Compact character-investment note (avoids inflating the prompt)
-        attached = [(c, v) for c, v in self.character_attachment.items() if v >= 0.4]
+        attached = [(c, v) for c, v in self.kira_state.sentiment_ledger.items() if v >= 0.4]
         char_note = ""
         if attached:
             top = sorted(attached, key=lambda x: -x[1])[:3]
@@ -2612,7 +2629,7 @@ class VNAutopilot:
                 solo_instruction = ""
 
             # System 4: character attachment context
-            attached = [(c, v) for c, v in self.character_attachment.items() if v >= 0.3]
+            attached = [(c, v) for c, v in self.kira_state.sentiment_ledger.items() if v >= 0.3]
             attachment_instruction = ""
             if attached:
                 top = sorted(attached, key=lambda x: -x[1])[:4]
@@ -2626,7 +2643,7 @@ class VNAutopilot:
 
             # System 3: surface open theories when relevant
             theory_instruction = ""
-            open_theories = [t for t in self.active_theories if t["status"] == "open"]
+            open_theories = [t for t in self.kira_state.active_theories if t["status"] == "open"]
             if open_theories and intensity in (INTENSITY_CALM, INTENSITY_BUILDING):
                 theory_str = " | ".join(t["theory"][:80] for t in open_theories[:3])
                 theory_instruction = (
@@ -2636,19 +2653,19 @@ class VNAutopilot:
 
             # Story investment note
             investment_note = ""
-            if self.story_investment > 0.55:
+            if self.kira_state.story_investment > 0.55:
                 investment_note = "\n\nYou're deeply invested in this story now."
-            elif self.story_investment > 0.25:
+            elif self.kira_state.story_investment > 0.25:
                 investment_note = "\n\nYou've genuinely gotten into this story."
 
             # Narrative + trajectory context
             narrative_block = (
-                f"\n\nSTORY SO FAR:\n{self.vn_narrative_summary}"
-                if self.vn_narrative_summary else ""
+                f"\n\nSTORY SO FAR:\n{self.kira_state.session_narrative_summary}"
+                if self.kira_state.session_narrative_summary else ""
             )
             trajectory_note = (
-                f"\n\nYOUR EMOTIONAL ARC SO FAR: {self.emotional_trajectory}"
-                if self.emotional_trajectory else ""
+                f"\n\nYOUR EMOTIONAL ARC SO FAR: {self.kira_state.emotional_trajectory}"
+                if self.kira_state.emotional_trajectory else ""
             )
 
             # Visual scene context (cached from background art-awareness task)
@@ -2719,64 +2736,14 @@ class VNAutopilot:
     # ── Phase 2: System 1 — Dynamic Energy / Pacing ───────────────────────────
 
     def _estimate_narrative_weight(self, text: str) -> float:
-        """Heuristic text-based narrative weight 0.0–1.0.
-        No LLM call — rules only. Fast and surprisingly effective."""
-        t = text.lower()
-        score = 0.20  # baseline: most boxes have some weight
+        """Delegated to kira_state.estimate_narrative_weight().
+        Kept for any residual callers; main path calls kira_state directly."""
+        return self.kira_state.estimate_narrative_weight(text)
 
-        # Death / permanent loss (strongest signal)
-        if any(w in t for w in ("died", " dead", "death", "killed", "never come back",
-                                 "farewell", "goodbye forever", "gone forever", "is gone")):
-            score += 0.50
-
-        # Revelation / secret exposed
-        if any(w in t for w in ("truth", "secret", "real ", "lied", "wasn't",
-                                 "has always", "never told", "hidden", "discovered",
-                                 "realized", "all along", "knew it", "was lying")):
-            score += 0.35
-
-        # Emotional confession / romantic peak
-        if any(w in t for w in ("i love", "love you", "always loved", "always felt",
-                                 "feelings for", "can't hide", "wanted to tell")):
-            score += 0.30
-
-        # Climactic language / dramatic punctuation
-        if text.count("!") >= 2 or text.count("...") >= 3:
-            score += 0.15
-        if "?" in text and any(w in t for w in ("why", "how could", "what have you", "what did")):
-            score += 0.10
-
-        # Very short connective text → low weight
-        if len(text) < 35:
-            score -= 0.15
-
-        # Long monologue → likely a significant moment
-        if len(text) > 300:
-            score += 0.10
-
-        # Boost if an attached character is involved
-        for char, attachment in self.character_attachment.items():
-            if attachment >= 0.3 and char.lower() in t:
-                score += 0.15 * min(attachment, 1.0)
-
-        return max(0.0, min(1.0, score))
-
-    def _estimate_scene_intensity(self, weight: float) -> str:
-        """Convert narrative weight float to an intensity state string.
-        Preserves aftermath decay so the mood lingers after a climactic moment."""
-        if self._aftermath_countdown > 0:
-            self._aftermath_countdown -= 1
-            return INTENSITY_AFTERMATH
-
-        if weight >= 0.72:
-            self._aftermath_countdown = 4     # 4 boxes of aftermath after a climax
-            return INTENSITY_CLIMACTIC
-        elif weight >= 0.50:
-            return INTENSITY_INTENSE
-        elif weight >= 0.28:
-            return INTENSITY_BUILDING
-        else:
-            return INTENSITY_CALM
+    def _estimate_scene_intensity(self, weight: float) -> SessionIntensity:
+        """Delegated to kira_state.set_intensity_from_weight().
+        Kept for any residual callers; main path calls kira_state directly."""
+        return self.kira_state.set_intensity_from_weight(weight)
 
     def _build_intensity_instruction(self, intensity: str, weight: float) -> str:
         """Returns the intensity-specific guidance block injected into the reaction prompt."""
@@ -2813,219 +2780,34 @@ class VNAutopilot:
 
     # ── Phase 2: System 3 — Theory-Building ──────────────────────────────────
 
-    async def _maybe_form_theory(self) -> str | None:
-        """During calm stretches, periodically ask Claude to form a genuine theory
-        or prediction about the story. Returns the theory text if formed (ready to speak),
-        or None. Throttled: at most once per 25 boxes; max 5 open theories."""
-        if not self.ai_core.anthropic_client:
-            return None
-        if self._boxes_since_theory_check < 25:
-            return None
-        open_count = sum(1 for t in self.active_theories if t["status"] == "open")
-        if open_count >= 5:
-            return None
-        if not self.vn_narrative_summary:
-            return None
+    async def _maybe_form_theory(self) -> "str | None":
+        """Delegated to kira_state._maybe_form_theory().
+        Called via aside_task scheduling and kept for backward compat."""
+        return await self.kira_state._maybe_form_theory()
 
-        self._boxes_since_theory_check = 0
-
-        prior_block = ""
-        if self.active_theories:
-            all_t = "\n".join(f"  - {t['theory']}" for t in self.active_theories[-6:])
-            prior_block = f"\n\nTheories you've already formed (don't repeat these):\n{all_t}"
-
-        prompt = (
-            f"You are Kira, autonomously playing a visual novel on stream. "
-            f"Based on the story so far, do you have a GENUINE theory, prediction, or "
-            f"suspicion about where this is going?\n\n"
-            f"STORY SO FAR:\n{self.vn_narrative_summary}{prior_block}\n\n"
-            f"If you have a genuine theory (specific — about a character, plot thread, "
-            f"or foreshadowed event): output it in Kira's first-person voice, 1-2 sentences. "
-            f"Example: 'I don't trust that phone call. Something is off about the timing.'\n"
-            f"Example: 'Nagisa's health keeps getting mentioned in passing. "
-            f"I have a very bad feeling about where that's going.'\n\n"
-            f"If nothing compelling comes to mind: output exactly \"NONE\".\n\n"
-            f"Just the theory text or NONE."
-        )
-        try:
-            resp = await self.ai_core.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
-                max_tokens=100,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            result = resp.content[0].text.strip()
-            if result and result.upper() != "NONE" and len(result) > 15:
-                self.active_theories.append({
-                    "theory": result,
-                    "formed_box": self.total_boxes_read,
-                    "status": "open",
-                })
-                print(f"   [Autopilot] Theory formed: {result[:80]}")
-                return result
-        except Exception as e:
-            print(f"   [Autopilot] Theory formation error: {e}")
-        return None
-
-    async def _check_theory_resolutions(self, text: str) -> str | None:
-        """Check if the current text confirms or busts an open theory.
-        Uses a fast keyword heuristic first; only calls Claude if likely relevant.
-        Returns a spoken reaction string on resolution, or None."""
-        open_theories = [t for t in self.active_theories if t["status"] == "open"]
-        if not open_theories or not self.ai_core.anthropic_client:
-            return None
-
-        # Fast heuristic: any significant overlap between theory words and current text?
-        t_lower = text.lower()
-        likely_relevant = False
-        for theory in open_theories:
-            theory_words = {
-                w.lower().strip(".,!?\"'—…()") for w in theory["theory"].split()
-                if len(w) > 4
-            }
-            if sum(1 for w in theory_words if w in t_lower) >= 2:
-                likely_relevant = True
-                break
-
-        if not likely_relevant:
-            return None
-
-        theories_str = "\n".join(
-            f"  {i+1}. {t['theory']}" for i, t in enumerate(open_theories[:5])
-        )
-        prompt = (
-            f"You are Kira playing a visual novel. You formed theories about the story.\n\n"
-            f"Your open theories:\n{theories_str}\n\n"
-            f"You just read:\n\"{text}\"\n\n"
-            f"Does this text CONFIRM or BUST any of your theories?\n"
-            f"If yes: which theory number, outcome, and Kira's reaction (1-2 sentences "
-            f"— 'I CALLED it!' energy for confirms, 'I was completely wrong about that' "
-            f"for busts).\n"
-            f"If no clear connection: output exactly \"NONE\".\n\n"
-            f"Format if resolving: CONFIRM:1:reaction text  OR  BUST:2:reaction text\n"
-            f"Output ONLY that format or NONE."
-        )
-        try:
-            resp = await self.ai_core.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
-                max_tokens=120,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            result = resp.content[0].text.strip()
-            if not result or result.upper() == "NONE":
-                return None
-            parts = result.split(":", 2)
-            if len(parts) == 3:
-                resolution = parts[0].upper()
-                try:
-                    idx = int(parts[1]) - 1
-                except ValueError:
-                    return None
-                reaction = parts[2].strip()
-                if 0 <= idx < len(open_theories) and reaction:
-                    open_theories[idx]["status"] = "confirmed" if resolution == "CONFIRM" else "busted"
-                    open_theories[idx]["resolved_box"] = self.total_boxes_read
-                    print(f"   [Autopilot] Theory {resolution}: {open_theories[idx]['theory'][:60]}")
-                    return reaction
-        except Exception as e:
-            print(f"   [Autopilot] Theory resolution error: {e}")
-        return None
+    async def _check_theory_resolutions(self, text: str) -> "str | None":
+        """Delegated to kira_state.check_theory_resolutions().
+        Called via theory_task scheduling and kept for backward compat."""
+        return await self.kira_state.check_theory_resolutions(text)
 
     # ── Phase 2: System 4 — Within-Session Emotional State ───────────────────
 
     def _update_character_attachment(self, text: str):
-        """Track character mentions. Attachment grows with screen time.
-        Uses capitalized-word extraction — imperfect but zero-cost."""
-        common = {
-            "I", "It", "The", "A", "An", "He", "She", "They", "We", "You",
-            "But", "And", "Or", "So", "Then", "When", "If", "That", "This",
-            "Is", "Was", "Be", "Have", "Do", "Not", "No", "Yes", "What",
-            "My", "His", "Her", "Our", "Your", "Their", "Me", "Him",
-        }
-        for word in text.split():
-            cleaned = word.strip(".,!?\"'—…()[]")
-            if (cleaned and cleaned[0].isupper() and cleaned not in common
-                    and len(cleaned) > 2 and cleaned.isalpha()):
-                self._char_mention_counts[cleaned] = self._char_mention_counts.get(cleaned, 0) + 1
-                count = self._char_mention_counts[cleaned]
-                if count >= 3:
-                    # Sqrt ramp: ~50 mentions → 0.5, ~200 mentions → ~1.0
-                    raw = min(1.0, (count / 200.0) ** 0.5)
-                    self.character_attachment[cleaned] = min(
-                        1.0, max(self.character_attachment.get(cleaned, 0.0), raw)
-                    )
-        # Investment ramps slowly over the session (every box = +0.001)
-        self.story_investment = min(1.0, self.story_investment + 0.001)
+        """Delegated to kira_state.update_entity_mentions().
+        Kept for any residual callers; main path now calls kira_state directly."""
+        self.kira_state.update_entity_mentions(text)
 
     def _update_emotional_trajectory(self):
-        """Derive a concise trajectory string from session state.
-        No LLM call — purely computed from tracked values."""
-        parts = []
-        if self.total_boxes_read > 300:
-            parts.append("deep in the playthrough")
-        elif self.total_boxes_read > 100:
-            parts.append("several hours in")
-        elif self.total_boxes_read > 30:
-            parts.append("getting into it")
-
-        if self.story_investment > 0.60:
-            parts.append("deeply invested")
-        elif self.story_investment > 0.30:
-            parts.append("getting invested")
-
-        top_chars = sorted(self.character_attachment.items(), key=lambda x: -x[1])
-        attached = [(c, v) for c, v in top_chars if v >= 0.35][:3]
-        if attached:
-            parts.append("attached to " + ", ".join(c for c, _ in attached))
-
-        self.emotional_trajectory = "; ".join(parts) if parts else ""
+        """Delegated to kira_state.update_emotional_trajectory()."""
+        self.kira_state.update_emotional_trajectory()
 
     # ── Narrative memory ───────────────────────────────────────────────────────
 
     async def _update_narrative_summary(self):
-        """Build/update rolling ~150-word plot summary from accumulated text boxes.
-
-        Disk-space check: skipped silently (already checked by the caller before
-        scheduling this task).
-        Rate-limit backoff: 429/529 from Anthropic retries up to 2× (30s → 60s)
-        before giving up — avoids losing the summary on a transient overload.
-        """
-        if not self.ai_core.anthropic_client:
-            return
-        accumulated = "\n---\n".join(self.vn_recent_text_buffer[-20:])
-        prev = self.vn_narrative_summary or "No previous summary — this is the start."
-        prompt = (
-            f"You are maintaining a running ~150-word story summary for a visual novel playthrough.\n\n"
-            f"Previous summary:\n{prev}\n\n"
-            f"New dialogue/narration (most recent boxes):\n{accumulated}\n\n"
-            f"Write an updated summary in ~150 words. Track character names, events, and emotional beats. "
-            f"Be factual and concise. No commentary or editorializing."
-        )
-        for attempt in range(3):
-            try:
-                resp = await self.ai_core.anthropic_client.messages.create(
-                    model=CLAUDE_CHAT_MODEL,
-                    max_tokens=250,
-                    messages=[{"role": "user", "content": prompt}],
-                )
-                self.vn_narrative_summary = resp.content[0].text.strip()
-                self.vn_recent_text_buffer = self.vn_recent_text_buffer[-5:]
-                self.vn_boxes_since_summary = 0
-                self._update_emotional_trajectory()
-                print(f"   [Autopilot] Narrative summary updated ({len(self.vn_narrative_summary)} chars).")
-                return
-            except Exception as e:
-                err_low = str(e).lower()
-                if any(s in err_low for s in ("rate limit", "429", "529", "overloaded", "too many requests")):
-                    delay = 5.0 * (2 ** attempt)   # 5s → 10s → 20s (background task, keep tight)
-                    print(
-                        f"   [Autopilot] Narrative summary: rate-limited "
-                        f"(attempt {attempt + 1}/3) — backing off {delay:.0f}s."
-                    )
-                    await asyncio.sleep(delay)
-                    continue
-                print(f"   [Autopilot] Narrative update error: {e}")
-                return
-        print("   [Autopilot] Narrative summary: all retries exhausted — skipping this cycle.")
+        """Delegated to kira_state._update_narrative_summary().
+        Kept as a stub so any stale callers still work — background task fires
+        through maybe_run_background_tasks() in the main _handle_dialogue path."""
+        await self.kira_state._update_narrative_summary()
 
     # ── Failsafe ───────────────────────────────────────────────────────────────
 

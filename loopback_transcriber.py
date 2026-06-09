@@ -239,6 +239,14 @@ class LoopbackTranscriber:
         if not DEPS_AVAILABLE:
             print(f"   [LoopbackSTT] Disabled — dependencies missing: {_DEPS_ERR}")
 
+        # Concurrency guard — makes the check-load-spawn sequence in start() and
+        # the tear-down sequence in stop() mutually exclusive. Without this lock,
+        # concurrent callers (dashboard toggle, API endpoint, audio-mode auto-start)
+        # all pass the is_running() check during the ~20s model-load window, each
+        # load a separate WhisperModel(cuda), and each spawn their own pump thread.
+        # Three concurrent loads = ~4.5-6 GB of stolen CUDA compute that starves NVENC.
+        self._start_lock = threading.Lock()
+
         # Diagnostics
         self.last_tick_time: float = 0.0
         self.last_tick_latency_ms: float = 0.0
@@ -262,7 +270,11 @@ class LoopbackTranscriber:
         is_speaking_fn: Optional[Callable[[], bool]] = None,
     ) -> bool:
         """Begin background transcription on the given audio agent's buffer.
-        Returns True if started, False if unavailable or already running.
+        Returns True if started (or already running), False if unavailable.
+
+        Thread-safe: _start_lock ensures exactly one WhisperModel instance and
+        one pump thread exist no matter how many concurrent callers arrive. A
+        second start() during the ~20s model-load window is a no-op.
 
         ``is_speaking_fn`` is an optional zero-arg callable that returns True
         while Kira's TTS is actively playing. When provided, the transcriber
@@ -270,18 +282,26 @@ class LoopbackTranscriber:
         her own voice from leaking into the transcript via the loopback."""
         if not self._available:
             return False
-        if self.is_running():
-            print("   [LoopbackSTT] Already running.")
-            return True
 
-        self._audio_agent = audio_agent
-        self._is_speaking_fn = is_speaking_fn
-        self._speech_last_active_ts = 0.0
-        self.total_ticks_skipped_self_tts = 0
+        with self._start_lock:
+            # Re-check inside the lock — another thread may have completed the
+            # load + spawn between our availability check and lock acquisition.
+            # This is the ONLY guard needed: if the pump thread is alive, we're
+            # already running. The model-not-None guard that was here previously
+            # was redundant (the lock makes it impossible for two callers to reach
+            # this point simultaneously) and broke the startup pre-load path where
+            # bot.py calls _load_model() directly before start() is ever called.
+            if self.is_running():
+                print("   [LoopbackSTT] start() ignored — instance already active")
+                return True
 
-        # Lazy model load — only pay the VRAM cost when MEDIA mode is actually
-        # toggled on.
-        if self.model is None:
+            self._audio_agent = audio_agent
+            self._is_speaking_fn = is_speaking_fn
+            self._speech_last_active_ts = 0.0
+            self.total_ticks_skipped_self_tts = 0
+
+            # Lazy model load — only pay the VRAM cost when MEDIA mode is actually
+            # toggled on.
             try:
                 self._load_model()
             except Exception as e:
@@ -289,48 +309,53 @@ class LoopbackTranscriber:
                 self._available = False
                 return False
 
-        # Reset rolling state on each start.
-        with self._lock:
-            self._segments.clear()
-            self._recent_normalized.clear()
-            self.dialogue_summary = ""
-            self._summary_needs_update = False
+            # Reset rolling state on each start.
+            with self._lock:
+                self._segments.clear()
+                self._recent_normalized.clear()
+                self.dialogue_summary = ""
+                self._summary_needs_update = False
 
-        self._stop_event.clear()
-        self._thread = threading.Thread(target=self._pump_loop, daemon=True, name="LoopbackSTT")
-        self._thread.start()
-        # Start a high-frequency watcher so the cooldown timestamp reflects the
-        # actual moment her TTS ends, not the next 5s transcription tick.
-        if self._is_speaking_fn is not None:
-            self._speech_watcher_thread = threading.Thread(
-                target=self._speech_watcher_loop, daemon=True, name="LoopbackSTT-SpeechWatch"
-            )
-            self._speech_watcher_thread.start()
-        print(f"   [LoopbackSTT] Started — {self.MODEL_NAME} on {self.DEVICE} "
-              f"(tick={TICK_SECONDS}s, window={WINDOW_SECONDS}s)")
-        return True
+            self._stop_event.clear()
+            self._thread = threading.Thread(target=self._pump_loop, daemon=True, name="LoopbackSTT")
+            self._thread.start()
+            # Start a high-frequency watcher so the cooldown timestamp reflects the
+            # actual moment her TTS ends, not the next 5s transcription tick.
+            if self._is_speaking_fn is not None:
+                self._speech_watcher_thread = threading.Thread(
+                    target=self._speech_watcher_loop, daemon=True, name="LoopbackSTT-SpeechWatch"
+                )
+                self._speech_watcher_thread.start()
+            print(f"   [LoopbackSTT] Started — {self.MODEL_NAME} on {self.DEVICE} "
+                  f"(tick={TICK_SECONDS}s, window={WINDOW_SECONDS}s)")
+            return True
 
     def stop(self):
-        if not self.is_running():
-            # Even if the pump isn't running, the WhisperModel may still be
-            # resident in VRAM from a previous session — release it.
+        with self._start_lock:
+            # Hold the lock for the entire tear-down sequence so a concurrent
+            # start() can't slip through while we're mid-unload. The lock is
+            # released only after _thread is None and model is None, giving
+            # start() a clean slate if it runs immediately after.
+            if not self.is_running():
+                # Even if the pump isn't running, the WhisperModel may still be
+                # resident in VRAM from a previous session — release it.
+                self._unload_model()
+                return
+            self._stop_event.set()
+            self._thread.join(timeout=3.0)
+            if self._speech_watcher_thread is not None:
+                self._speech_watcher_thread.join(timeout=1.0)
+                self._speech_watcher_thread = None
+            self._thread = None
+            self._audio_agent = None
+            self._is_speaking_fn = None
+            # Release VRAM. faster-whisper / CTranslate2 holds CUDA buffers until
+            # the model object is collected, so a simple `self.model = None` is
+            # insufficient on its own — we must drop the reference AND force a gc
+            # pass AND empty the torch CUDA allocator cache, or the ~1.5GB stays
+            # resident forever and squeezes streaming / VTube / vision / audio.
             self._unload_model()
-            return
-        self._stop_event.set()
-        self._thread.join(timeout=3.0)
-        if self._speech_watcher_thread is not None:
-            self._speech_watcher_thread.join(timeout=1.0)
-            self._speech_watcher_thread = None
-        self._thread = None
-        self._audio_agent = None
-        self._is_speaking_fn = None
-        # Release VRAM. faster-whisper / CTranslate2 holds CUDA buffers until
-        # the model object is collected, so a simple `self.model = None` is
-        # insufficient on its own — we must drop the reference AND force a gc
-        # pass AND empty the torch CUDA allocator cache, or the ~1.5GB stays
-        # resident forever and squeezes streaming / VTube / vision / audio.
-        self._unload_model()
-        print("   [LoopbackSTT] Stopped.")
+            print("   [LoopbackSTT] Stopped.")
 
     def _unload_model(self):
         """Free the WhisperModel and its CUDA buffers. Safe to call when the
@@ -358,6 +383,10 @@ class LoopbackTranscriber:
         print("   [LoopbackSTT] Model unloaded — VRAM released.")
 
     def _load_model(self):
+        if self.model is not None:
+            # Model already in VRAM (e.g. from the bot's startup pre-load probe).
+            # Reuse it — no reload, no extra VRAM, no 20s wait.
+            return
         if not DEPS_AVAILABLE:
             raise RuntimeError("faster-whisper / torch / numpy not importable")
         device = self.DEVICE
@@ -422,6 +451,11 @@ class LoopbackTranscriber:
             return
         agent = self._audio_agent
         if not agent.is_active():
+            return
+        # T2-C: skip transcription during MUSIC mode (Jonny's own singing/guitar).
+        # The loopback buffer in MUSIC mode contains his voice via speakers — transcribing
+        # it would surface his own lyrics as if they were ambient speech from a game/show.
+        if agent.mode == "music":
             return
 
         # Self-TTS gate: skip while Kira is talking, AND for WINDOW_SECONDS
