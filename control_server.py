@@ -197,8 +197,10 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     # ── Chess Mode ────────────────────────────────────────────────────────────
     ca = _get(lambda: bot.chess_agent, None)
     chess_state = {
-        "running": _get(lambda: ca.is_running if ca else False, False),
-        "status":  _get(lambda: ca.get_status_str() if ca else "OFF", "OFF"),
+        "running":               _get(lambda: ca.is_running if ca else False, False),
+        "accepting_challenges":  _get(lambda: ca.accepting_challenges if ca else False, False),
+        "status":                _get(lambda: ca.get_status_str() if ca else "\u265f CLOSED", "\u265f CLOSED"),
+        "spectate_url":          _get(lambda: ca.get_spectate_url() if ca else "", ""),
     }
 
     # ── Mute / Pause ─────────────────────────────────────────────────────────
@@ -489,6 +491,7 @@ _MODE_ACTIONS = frozenset({
     "activity_go", "exit_game_mode", "vision_toggle", "loopback_toggle",
     "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
     "media_watch_toggle", "media_watch_react_toggle", "chess_toggle",
+    "chess_accept_toggle",
 })
 
 
@@ -760,6 +763,20 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             bot.event_loop.call_soon_threadsafe(ca.stop)
         return _ok(chess_enabled=enabled)
 
+    if action == "chess_accept_toggle":
+        # Master switch for challenge acceptance. Default OFF each boot.
+        # Toggling ON = "we're doing chess now"; OFF = polite declines resume.
+        ca = bot.chess_agent
+        if ca is None:
+            return _err("chess_agent not initialized yet")
+        if not ca.is_running:
+            return _err("Chess Mode is not armed — enable Chess Mode first")
+        on = body.enabled if body.enabled is not None else (not ca.accepting_challenges)
+        ca.accepting_challenges = bool(on)
+        state = "OPEN" if on else "CLOSED"
+        print(f"   [Chess] Challenge acceptance: {state}")
+        return _ok(accepting_challenges=on)
+
     if action == "chess_challenge_ai":
         ca = bot.chess_agent
         if ca is None:
@@ -767,6 +784,10 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if not ca.is_running:
             return _err("Chess Mode is not armed")
         level = int(body.level) if body.level is not None else 3
+        # challenge_ai bypasses the accepting_challenges gate intentionally —
+        # Jonny clicking this button is explicit consent. Same event path as a
+        # human challenge: gameStart arrives on the stream, voice-line fires,
+        # chip updates. Test path == real path.
         bot.event_loop.call_soon_threadsafe(
             lambda: asyncio.ensure_future(ca.challenge_ai(level))
         )

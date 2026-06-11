@@ -112,6 +112,10 @@ class ChessAgent:
         # State.
         self.enabled: bool = False
         self.is_running: bool = False
+        # Master switch: Jonny must explicitly open challenges each session.
+        # DEFAULT OFF — never persisted. A fresh boot always starts closed so
+        # Kira never silently plays games Jonny hasn't sanctioned.
+        self.accepting_challenges: bool = False
 
         # Lichess client + identity.
         self._client = None
@@ -147,6 +151,9 @@ class ChessAgent:
         self._games_played: int = 0
         self._our_blunders: int = 0
         self._their_blunders: int = 0
+
+        # Last-game result lingers on the chip until next game.
+        self._last_result_str: str = ""   # e.g. "won vs MagnusFan1942"
 
         # Reaction callback (set by bot wiring). Signature: on_react(summary, *, bypass).
         self.on_react = None
@@ -253,15 +260,37 @@ class ChessAgent:
     # ── Status (dashboard reads this) ─────────────────────────────────────────
 
     def get_status_str(self) -> str:
+        """Chip text for the dashboard status strip.
+
+        ♟ CLOSED            — running but not accepting challenges
+        ♟ OPEN              — accepting, no active game
+        ♟ vs Name (R) · M  — in game (spectate URL in get_spectate_url)
+        ♟ last: result      — post-game, until next game starts
+        """
         if not self.is_running:
-            return "Chess: OFF"
+            return "\u265f CLOSED"
         if self._game_id and self._board is not None:
-            side = "Kira" if (self._board.turn == self._kira_color) else "Opponent"
+            opp = self._opp_name or "?"
+            if self._opp_rating:
+                opp = f"{opp} ({self._opp_rating})"
+            move_n = (self._board.fullmove_number
+                      if self._board else 0)
             return (
-                f"Chess: IN GAME vs {self._opp_name or '?'} — "
-                f"{side} to move, {self._eval_plain}"
+                f"\u265f vs {opp} \u00b7 move {move_n} \u00b7 {self._eval_plain}"
             )
-        return "Chess: ON — waiting for a game"
+        if self._last_result_str and not self.accepting_challenges:
+            return f"\u265f last: {self._last_result_str}"
+        if self.accepting_challenges:
+            if self._last_result_str:
+                return f"\u265f OPEN \u2014 last: {self._last_result_str}"
+            return "\u265f OPEN \u2014 awaiting challengers"
+        return "\u265f CLOSED"
+
+    def get_spectate_url(self) -> str:
+        """Lichess spectate URL for the current game, or empty string."""
+        if self._game_id:
+            return f"https://lichess.org/{self._game_id}"
+        return ""
 
     # ── Board block (the prompt-facing context; NO engine-speak) ──────────────
 
@@ -297,6 +326,9 @@ class ChessAgent:
         return "\n".join(lines)
 
     def has_context(self) -> bool:
+        """True only while a game is active — board block must NOT be injected
+        between games. Callers gate on this; the block is a few hundred chars
+        and counts against the scene budget like any other context block."""
         return self.is_running and self._board is not None
 
     # ── Challenge Lichess's Stockfish ─────────────────────────────────────────
@@ -418,6 +450,18 @@ class ChessAgent:
         speed = ch.get("speed", "")
         rated = ch.get("rated", False)
 
+        # Master switch: default OFF each boot. While closed, decline politely
+        # and log the demand so Jonny can see it even when parked.
+        if not self.accepting_challenges:
+            print(f"   [Chess] Challenge from {challenger} DECLINED (closed) — "
+                  f"{speed} {'rated' if rated else 'casual'} {variant}.")
+            await self._decline(cid, "generic")  # berserk sends generic message
+            await self._send_chat_room(
+                cid,
+                "The Duchess is not taking challengers right now — catch the stream!"
+            )
+            return
+
         if variant != "standard":
             print(f"   [Chess] Declining {challenger}: variant '{variant}' (Phase 1 = standard only).")
             await self._decline(cid, "variant")
@@ -427,8 +471,18 @@ class ChessAgent:
             await self._decline(cid, "timeControl")
             return
 
+        # One concurrent game cap.
+        if self._game_task and not self._game_task.done():
+            print(f"   [Chess] Declining {challenger}: already in a game (one at a time).")
+            await self._decline(cid, "later")
+            await self._send_chat_room(
+                cid,
+                "Already in a game right now — one at a time! Challenge again when I'm free."
+            )
+            return
+
         print(f"   [Chess] Accepting {'rated' if rated else 'casual'} {speed} "
-              f"challenge from {challenger}.")
+              f"challenge from {challenger} — game starting!")
         try:
             await self._serialized_call(
                 self._client.bots.accept_challenge, cid,
@@ -472,12 +526,24 @@ class ChessAgent:
                 utype = upd.get("type")
                 if utype == "gameFull":
                     self._ingest_game_full(upd)
+                    # Voice-line: announce the game to stream + Jonny BEFORE
+                    # any move. Same bypass path as game-end so it always fires.
+                    _opp = self._opp_name or "someone"
+                    _rating_str = f" ({self._opp_rating})" if self._opp_rating else ""
+                    _url = self.get_spectate_url()
+                    print(
+                        f"   [Chess] GAME STARTED vs {_opp}{_rating_str} — "
+                        f"spectate: {_url}"
+                    )
+                    await self._fire_react(
+                        f"New game just started against {_opp}{_rating_str}. "
+                        f"Challenger accepted. Let\u2019s go.",
+                        bypass=True,
+                    )
                     state = upd.get("state", {})
                 elif utype == "gameState":
                     state = upd
-                elif utype == "chatLine":
-                    continue
-                elif utype == "opponentGone":
+                elif utype in ("chatLine", "opponentGone"):
                     continue
                 else:
                     continue
@@ -762,10 +828,18 @@ class ChessAgent:
 
         if winner:
             outcome = "Kira WON" if kira_won else "Kira LOST"
+            self._last_result_str = (
+                f"won vs {self._opp_name}" if kira_won
+                else f"lost to {self._opp_name}"
+            )
         else:
             outcome = f"draw ({status})"
-        print(f"   [Chess] Game {game_id} over — {outcome} (status={status}). "
-              f"Final: {self._eval_plain}.")
+            self._last_result_str = f"draw vs {self._opp_name}"
+
+        print(
+            f"   [Chess] GAME OVER — {outcome} vs {self._opp_name} "
+            f"(status={status}). Final: {self._eval_plain}."
+        )
 
         await self._send_chat(game_id, _FAREWELL)
         await self._fire_react(
@@ -782,9 +856,22 @@ class ChessAgent:
                 self._client.bots.post_message, game_id, text,
                 label="post_message",
             )
-            print(f"   [Chess] Chat → {game_id}: {text}")
+            print(f"   [Chess] Chat \u2192 game/{game_id}: {text}")
         except Exception as e:
             print(f"   [Chess] post_message failed: {e}")
+
+    async def _send_chat_room(self, challenge_id: str, text: str):
+        """Best-effort polite message on a challenge room (before game starts).
+        Failures are non-fatal — the decline already went through."""
+        # The challenge room uses the same post_message endpoint but for Phase 1
+        # we skip it if berserk doesn’t support it, rather than raising.
+        try:
+            await self._serialized_call(
+                self._client.bots.post_message, challenge_id, text,
+                label="challenge_chat",
+            )
+        except Exception:
+            pass  # Non-fatal; the decline itself already replied.
 
     # ── React throttle (mirror of MediaWatch) ─────────────────────────────────
 

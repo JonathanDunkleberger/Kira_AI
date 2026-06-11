@@ -187,6 +187,15 @@ class VTubeBot:
         # finishes its current audio before yielding to Jonny's voice. Hard interrupts
         # (F8 / mute_for / pause_model) bypass this flag and always cut through.
         self._chat_speaking = False
+        # Turn arbiter — exactly one active turn (LLM-start → TTS-done) at a time.
+        # Held by voice turns, chat_batch turns, and interjection turns so they
+        # never race against each other. Distinct from processing_lock (which remains
+        # STT-only and drives VAD interruption_event — no change to that logic).
+        self._active_turn_lock = asyncio.Lock()
+        # Buffered P1 interjections (MW/chess reactions) that arrived while a turn
+        # was active. Each entry: {prompt, memory_query, scene_override, queued_at}.
+        # Drained (one at a time) immediately after each turn completes.
+        self._pending_interjections: list = []
         self.ai_core = AI_Core(self.interruption_event)
         # Let ai_core append the streamer-mode persona overlay based on current mode
         # without baking mode into its cached system prompt.
@@ -647,7 +656,7 @@ class VTubeBot:
             except Exception:
                 pass
             # Fire on the loop so we never block the IRC callback.
-            asyncio.create_task(self._execute_interjection(prompt, memory_query=name))
+            asyncio.create_task(self._arbiter_interjection(prompt, memory_query=name))
         except Exception as e:
             print(f"   [StreamEvent] _on_stream_event error: {e}")
 
@@ -1291,10 +1300,17 @@ class VTubeBot:
                 f"(intensity gate: {self.current_moment_type.name})."
             )
             return
-        # No double-fire with a boredom interjection: if the observer loop is
-        # mid-interjection it holds this lock; we bow out for this beat.
-        if self.processing_lock.locked():
-            print("   [MediaWatch] on_react SUPPRESSED (processing lock held).")
+        # No double-fire with a boredom interjection: buffer if a turn is active
+        # rather than silently dropping the reaction.
+        if self._active_turn_lock.locked():
+            print("   [MediaWatch] on_react BUFFERED (turn active — will fire after turn ends).")
+            _ep = mw.get_episode_context() if mw.has_context() else summary
+            self._pending_interjections.append({
+                "prompt": None,  # lazy-built in _drain_pending_interjections
+                "memory_query": summary[:120],
+                "scene_override": _ep,
+                "queued_at": time.time(),
+            })
             return
 
         reason = self._media_react_reason(summary)
@@ -1316,17 +1332,19 @@ class VTubeBot:
             "If nothing genuinely grabs you, reply with exactly: [SILENCE]"
         )
 
-        async with self.processing_lock:
-            print(f"   [MediaWatch] on_react fired: {reason}")
-            await self._execute_interjection(
-                prompt,
-                memory_query=summary[:120],
-                scene_override=episode_log or summary,
-            )
-            # Boredom resets — on_react won this beat, so the staged remarks
-            # restart their countdown instead of firing right after.
-            self.silence_stage = 0
-            self.last_interaction_time = time.time()
+        async with self._active_turn_lock:
+            async with self.processing_lock:
+                print(f"   [MediaWatch] on_react fired: {reason}")
+                await self._execute_interjection(
+                    prompt,
+                    memory_query=summary[:120],
+                    scene_override=episode_log or summary,
+                )
+                # Boredom resets — on_react won this beat, so the staged remarks
+                # restart their countdown instead of firing right after.
+                self.silence_stage = 0
+                self.last_interaction_time = time.time()
+        await self._drain_pending_interjections()
 
     def _media_intensity_suppresses(self) -> bool:
         """Stronger-signal intensity gate for Media Watch reactions.
@@ -1663,7 +1681,13 @@ class VTubeBot:
         if not bypass and (time.time() - self.last_interaction_time) < 6.0:
             return
         # No double-fire with a boredom interjection.
-        if self.processing_lock.locked():
+        if self._active_turn_lock.locked():
+            self._pending_interjections.append({
+                "prompt": prompt,
+                "memory_query": "chess game",
+                "scene_override": board_block or summary,
+                "queued_at": time.time(),
+            })
             return
         ca = self.chess_agent
         if ca is None or not ca.is_running:
@@ -1682,15 +1706,17 @@ class VTubeBot:
             "reply with exactly: [SILENCE]"
         )
 
-        async with self.processing_lock:
-            print(f"   [Chess] on_react fired (bypass={bypass}): {summary[:70]}")
-            await self._execute_interjection(
-                prompt,
-                memory_query="chess game",
-                scene_override=board_block or summary,
-            )
-            self.silence_stage = 0
-            self.last_interaction_time = time.time()
+        async with self._active_turn_lock:
+            async with self.processing_lock:
+                print(f"   [Chess] on_react fired (bypass={bypass}): {summary[:70]}")
+                await self._execute_interjection(
+                    prompt,
+                    memory_query="chess game",
+                    scene_override=board_block or summary,
+                )
+                self.silence_stage = 0
+                self.last_interaction_time = time.time()
+        await self._drain_pending_interjections()
 
 
     async def _autopilot_watchdog(self):
@@ -3297,6 +3323,15 @@ class VTubeBot:
             print(f"(Duplicate input ignored: {user_text})")
             return
 
+        # Stop-word: abort current speech + flush pending P1 interjections immediately.
+        # Chat buffer is intentionally NOT cleared — it resumes after the stop.
+        _STOP_WORDS = frozenset({"shut up", "stop", "hold on", "be quiet", "quiet", "pause"})
+        if any(sw in user_text.lower() for sw in _STOP_WORDS):
+            _n_flushed = len(self._pending_interjections)
+            self._pending_interjections.clear()
+            self.interruption_event.set()
+            print(f"   [Arbiter] Stop-word — interrupted speech, flushed {_n_flushed} pending interjection(s)")
+
         # --- PUSH VOICE TO QUEUE ---
         await self.input_queue.put(("voice", user_text, _lat))
 
@@ -3700,16 +3735,19 @@ class VTubeBot:
                             brief_mode = True
                         print(f"   [Triage] {decision}")
 
-                        await self.process_and_respond(
-                            content,
-                            dialogue_line,
-                            "user",
-                            source=source,
-                            situational_context=visual_desc,
-                            brief_mode=brief_mode,
-                            prefetched_memory=prefetched_memory,
-                            lat=_lat,
-                        )
+                        async with self._active_turn_lock:
+                            await self.process_and_respond(
+                                content,
+                                dialogue_line,
+                                "user",
+                                source=source,
+                                situational_context=visual_desc,
+                                brief_mode=brief_mode,
+                                prefetched_memory=prefetched_memory,
+                                lat=_lat,
+                            )
+                        # P1 drain: fire one buffered interjection now that the voice turn ended
+                        await self._drain_pending_interjections()
 
                     # System 6b: release soft-pause after Jonny's exchange is fully handled
                     if _ap_soft_paused and self.vn_autopilot:
@@ -3828,7 +3866,7 @@ class VTubeBot:
             if not self.chat_batch_buffer:
                 continue
 
-            if self.is_muted() or self.ai_core.is_speaking or self.processing_lock.locked():
+            if self.is_muted() or self.ai_core.is_speaking or self.processing_lock.locked() or self._active_turn_lock.locked():
                 continue
 
             if time.time() - self.last_chat_response_time < CHAT_RESPONSE_COOLDOWN:
@@ -3849,7 +3887,9 @@ class VTubeBot:
 
             _attempt_time = time.time()
             try:
-                await self._respond_to_chat_batch(batch)
+                async with self._active_turn_lock:
+                    await self._respond_to_chat_batch(batch)
+                await self._drain_pending_interjections()
             except Exception as e:
                 print(f"   [ChatBatch] Error: {e}")
                 traceback.print_exc()
@@ -4829,6 +4869,11 @@ class VTubeBot:
                            SessionIntensity.CLIMACTIC, SessionIntensity.CUTSCENE):
                 continue
 
+            # Turn-arbiter gate: skip this tick if voice/chat/interjection is active.
+            # Boredom interjections self-retry on the next tick — no buffering needed.
+            if self._active_turn_lock.locked():
+                continue
+
             if self.immersive:
                 # Suppress speech while user is actively reading new dialogue
                 time_since_dialogue_change = time.time() - getattr(self.vision_agent, "last_dialogue_change_time", 0)
@@ -4841,7 +4886,7 @@ class VTubeBot:
                 immersive_stage_2 = 300.0  # ~5 min for second-level nudge
 
                 if silence_duration > immersive_stage_2 and self.silence_stage < 2:
-                    async with self.processing_lock:
+                    async with self._active_turn_lock:
                         self.silence_stage = 2
                         if self._has_fresh_visual_context():
                             scene = self.vision_agent.get_vision_context()
@@ -4862,7 +4907,7 @@ class VTubeBot:
                             memory_query=f"reactions to {self.current_activity}",
                         )
                 elif silence_duration > immersive_stage_1 and self.silence_stage < 1:
-                    async with self.processing_lock:
+                    async with self._active_turn_lock:
                         self.silence_stage = 1
                         if self._has_fresh_visual_context():
                             scene = self.vision_agent.get_vision_context()
@@ -4894,7 +4939,7 @@ class VTubeBot:
                 # ── VN OBSERVER MODE: calm couch-buddy behaviour ──────────────
                 # Stage 2 (240s): thoughtful story question
                 if silence_duration > 240.0 and self.silence_stage < 2:
-                    async with self.processing_lock:
+                    async with self._active_turn_lock:
                         self.silence_stage = 2
                         if self._has_fresh_visual_context():
                             vn_ctx = self.vision_agent.get_vision_context()
@@ -4931,7 +4976,7 @@ class VTubeBot:
 
                 # Stage 1 (90s): react naturally to what's on screen
                 elif silence_duration > 90.0 and self.silence_stage < 1:
-                    async with self.processing_lock:
+                    async with self._active_turn_lock:
                         self.silence_stage = 1
                         if self._has_fresh_visual_context():
                             vn_ctx = self.vision_agent.get_vision_context()
@@ -5225,7 +5270,7 @@ class VTubeBot:
                 if spotlight_eligible:
                     candidate = self._pick_chat_spotlight()
                     if candidate:
-                        async with self.processing_lock:
+                        async with self._active_turn_lock:
                             self.silence_stage = 1
                             self.last_chat_spotlight_time = _now_ts
                             self.spotlighted_chatters.add(candidate["username"])
@@ -5264,7 +5309,7 @@ class VTubeBot:
                     if not ask_chat and not self._has_fresh_visual_context():
                         pass
                     else:
-                        async with self.processing_lock:
+                        async with self._active_turn_lock:
                             self.silence_stage = 2
                             scene_block = _build_scene_block()
                             self.kira_state.update_context_sync(scene_block)
@@ -5297,7 +5342,7 @@ class VTubeBot:
                     if not ask_chat and not self._has_fresh_visual_context():
                         pass
                     else:
-                        async with self.processing_lock:
+                        async with self._active_turn_lock:
                             self.silence_stage = 1
                             scene_block = _build_scene_block()
                             self.kira_state.update_context_sync(scene_block)
@@ -5451,6 +5496,63 @@ class VTubeBot:
                             await self.ai_core.speak_text(cleaned)
                             self.conversation_history.append({"role": "assistant", "content": cleaned})
                             self.ai_core.last_speech_finish_time = time.time()
+
+    # ── Turn Arbiter helpers ─────────────────────────────────────────────────
+
+    async def _arbiter_interjection(self, prompt: str, memory_query: str = "",
+                                    scene_override: str = "") -> None:
+        """Fire-and-forget wrapper that respects the turn arbiter.
+
+        If a turn is already active, the interjection is buffered (with a 15s
+        TTL) and will fire after the current turn completes. Otherwise acquires
+        the turn lock and runs immediately."""
+        if self.is_muted():
+            return
+        if self._active_turn_lock.locked():
+            self._pending_interjections.append({
+                "prompt": prompt,
+                "memory_query": memory_query,
+                "scene_override": scene_override,
+                "queued_at": time.time(),
+            })
+            print(f"   [Arbiter] Interjection BUFFERED (turn active); "
+                  f"queue depth={len(self._pending_interjections)}")
+            return
+        async with self._active_turn_lock:
+            async with self.processing_lock:
+                await self._execute_interjection(
+                    prompt, memory_query=memory_query, scene_override=scene_override
+                )
+        await self._drain_pending_interjections()
+
+    async def _drain_pending_interjections(self) -> None:
+        """Fire one buffered P1 interjection after a turn completes.
+
+        Drops entries older than 15s (stale media reactions are worse than no
+        reaction). Calls itself tail-recursively via _arbiter_interjection so
+        the full queue drains one-at-a-time, each holding the turn lock."""
+        while self._pending_interjections:
+            pi = self._pending_interjections.pop(0)
+            if time.time() - pi["queued_at"] > 15.0:
+                print("   [Arbiter] Dropping stale buffered interjection (>15s old)")
+                continue
+            prompt = pi.get("prompt") or ""
+            # MW reactions store None for prompt (lazy rebuild) — reconstruct minimal
+            # scene_override prompt here so the reaction still fires meaningfully.
+            if not prompt and pi.get("scene_override"):
+                prompt = (
+                    "[BUFFERED REACTION — fire on what just happened]\n"
+                    + pi["scene_override"][:400]
+                )
+            if prompt:
+                print(f"   [Arbiter] Draining buffered interjection "
+                      f"(queued {time.time() - pi['queued_at']:.1f}s ago)")
+                await self._arbiter_interjection(
+                    prompt,
+                    memory_query=pi.get("memory_query", ""),
+                    scene_override=pi.get("scene_override", ""),
+                )
+            break  # one per drain; _arbiter_interjection calls us again if more pending
 
     async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = ""):
         """Runs a proactive interjection. Routes through Claude Opus when available —

@@ -15,6 +15,7 @@ __pycache__/
 memory_db/
 memory_db.bak*/
 models/
+tools/stockfish/
 logs/
 cache/
 *.gguf

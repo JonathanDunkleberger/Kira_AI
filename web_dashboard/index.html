@@ -906,12 +906,23 @@ html, body {
 
           <div class="rail-sep"></div>
 
-          <div class="status-text" id="chess-status">Chess: OFF</div>
+          <div class="status-text" id="chess-status">♟ CLOSED</div>
+          <div id="chess-spectate-link" style="display:none;font-size:11px;margin-bottom:4px;">
+            <a id="chess-spectate-a" href="#" target="_blank" rel="noopener">▶ Spectate on Lichess</a>
+          </div>
 
           <div class="toggle-row">
             <span class="toggle-label">Chess Mode</span>
             <label class="sw">
               <input type="checkbox" id="sw-chess" onchange="toggleChess(this.checked)">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Accept Challenges</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-chess-accept" onchange="toggleChessAccept(this.checked)">
               <span class="sw-track"></span><span class="sw-knob"></span>
             </label>
           </div>
@@ -1310,7 +1321,18 @@ function renderPanels(s) {
 
   // Chess
   const ch = s.chess || {};
-  setText('chess-status', ch.status || 'Chess: OFF');
+  setText('chess-status', ch.status || '♟ CLOSED');
+  setTri('sw-chess-accept', ch.accepting_challenges);
+  const specLink = document.getElementById('chess-spectate-link');
+  const specA    = document.getElementById('chess-spectate-a');
+  if (specLink && specA) {
+    if (ch.spectate_url) {
+      specA.href = ch.spectate_url;
+      specLink.style.display = '';
+    } else {
+      specLink.style.display = 'none';
+    }
+  }
 
   // ── Dependent-control locking: grey out children when their parent is off ──
   const tg2 = (s.effective && s.effective.toggles) || {};
@@ -1439,6 +1461,10 @@ function toggleMediaWatch(on) {
 
 function toggleChess(on) {
   cmd('chess_toggle', {enabled: on});
+}
+
+function toggleChessAccept(on) {
+  cmd('chess_accept_toggle', {enabled: on});
 }
 
 function challengeChessAi() {
