@@ -23,7 +23,26 @@ import json
 import os
 import re
 import time
+import asyncio
 from datetime import datetime
+
+
+# Shared signature-moment extraction prompts — single source of truth for both the
+# live per-session path (_extract_and_store_signature_moments) and the one-time
+# backfill path (backfill_signature_moments). {count_clause} lets each caller
+# specify its sentence-count wording without duplicating the rest of the prompt.
+_SIGNATURE_EXTRACTION_SYSTEM = (
+    "You are a ruthless editor extracting only the most vivid, specific "
+    "first-person reaction sentences. Output a JSON array of strings only."
+)
+_SIGNATURE_EXTRACTION_PROMPT = (
+    "From the session reactions below, pick {count_clause} that are "
+    "the sharpest, most specific, most memorable — the kind of reaction worth "
+    "reading on stream 10 sessions from now. Prefer concrete images over "
+    "general feelings. Return a JSON array of strings only, no preamble. "
+    "If nothing qualifies, return [].\n\n"
+    "Reactions:\n{reactions_text}"
+)
 
 
 class PlaythroughMemory:
@@ -320,18 +339,24 @@ class PlaythroughMemory:
 
         print(f"   [Playthrough] Generating session #{session_num} entry for '{activity}'... [I: ⚡ Sonnet — evaluate in-voice quality after next session]")
         try:
-            entry_text = await self.ai_core.claude_inference(
-                messages=[{"role": "user", "content": prompt}],
-                system_prompt=(
-                    "You are writing concise, specific, first-person session notes for an AI "
-                    "VTuber's autobiographical playthrough record. Write in a clean journalistic "
-                    "style. Be precise and personal, not generic."
+            entry_text = await asyncio.wait_for(
+                self.ai_core.claude_inference(
+                    messages=[{"role": "user", "content": prompt}],
+                    system_prompt=(
+                        "You are writing concise, specific, first-person session notes for an AI "
+                        "VTuber's autobiographical playthrough record. Write in a clean journalistic "
+                        "style. Be precise and personal, not generic."
+                    ),
+                    max_tokens=500,
+                    use_sonnet=True,  # I: playthrough session entry — Sonnet
                 ),
-                max_tokens=500,
-                use_sonnet=True,  # I: playthrough session entry — Sonnet
+                timeout=30,
             )
+        except asyncio.TimeoutError:
+            print("   [WARN] playthrough_memory (session entry) LLM call timed out after 30s — skipping")
+            return False
         except Exception as e:
-            print(f"   [Playthrough] Session entry generation failed: {e}")
+            print(f"   [WARN] playthrough_memory: session entry generation failed: {e}")
             return False
 
         if not entry_text or len(entry_text.strip()) < 50:
@@ -350,8 +375,12 @@ class PlaythroughMemory:
                 # First session ever for this game — create the full skeleton
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(self._build_initial_file(activity))
+                    f.flush()
+                    os.fsync(f.fileno())
             with open(path, "a", encoding="utf-8") as f:
                 f.write(new_session_block)
+                f.flush()
+                os.fsync(f.fileno())
 
             self.session_count = session_num
             print(f"   [Playthrough] Session #{session_num} appended → {path}")
@@ -387,8 +416,9 @@ class PlaythroughMemory:
 
         Spread logic: per-session cap = min(2, max(1, MAX // n_sessions)) so early iconic
         sessions get equal representation as later ones. If total moments still exceed
-        MAX_SIGNATURE_MOMENTS after collection, excess is trimmed from the END, meaning
-        the oldest (most historically iconic) entries survive the cut."""
+        MAX_SIGNATURE_MOMENTS after collection, the OLDEST entries are trimmed from the
+        front so the newest survive — matching the live extraction path and the
+        MAX_SIGNATURE_MOMENTS "oldest drop off" policy."""
         target_slug = slug or self.current_slug
         if not target_slug:
             print("   [Playthrough] backfill_signature_moments: no slug.")
@@ -441,27 +471,26 @@ class PlaythroughMemory:
             if len(reactions_text) < 20:
                 continue
 
-            extraction_prompt = (
-                f"From the session reactions below, pick exactly 0 to {per_session_cap} single "
-                f"sentence(s) that are the sharpest, most specific, most memorable — the kind of "
-                f"reaction worth reading on stream 10 sessions from now. Prefer concrete images "
-                f"over general feelings. Return a JSON array of strings only, no preamble. "
-                f"If nothing qualifies, return [].\n\n"
-                f"Reactions:\n{reactions_text}"
+            extraction_prompt = _SIGNATURE_EXTRACTION_PROMPT.format(
+                count_clause=f"exactly 0 to {per_session_cap} single sentence(s)",
+                reactions_text=reactions_text,
             )
 
             print(f"   [Playthrough] backfill: extracting session {session_num}...")
             try:
-                raw = await self.ai_core.claude_chat_inference(
-                    messages=[{"role": "user", "content": extraction_prompt}],
-                    system_prompt=(
-                        "You are a ruthless editor extracting only the most vivid, specific "
-                        "first-person reaction sentences. Output a JSON array of strings only."
+                raw = await asyncio.wait_for(
+                    self.ai_core.claude_chat_inference(
+                        messages=[{"role": "user", "content": extraction_prompt}],
+                        system_prompt=_SIGNATURE_EXTRACTION_SYSTEM,
+                        max_tokens=150,
                     ),
-                    max_tokens=150,
+                    timeout=30,
                 )
+            except asyncio.TimeoutError:
+                print(f"   [WARN] playthrough_memory (backfill session {session_num}) LLM call timed out after 30s — skipping")
+                continue
             except Exception as e:
-                print(f"   [Playthrough] backfill: session {session_num} extraction failed: {e}")
+                print(f"   [WARN] playthrough_memory: backfill session {session_num} extraction failed: {e}")
                 continue
 
             if not raw:
@@ -492,8 +521,9 @@ class PlaythroughMemory:
             print(f"   [Playthrough] backfill: no moments extracted — nothing to write.")
             return False
 
-        # Trim to cap from the end — oldest sessions' moments are protected
-        all_moments = all_moments[: self.MAX_SIGNATURE_MOMENTS]
+        # Keep the NEWEST MAX_SIGNATURE_MOMENTS — oldest drop off the front.
+        # all_moments is built oldest-first, so slice the tail to match the live path.
+        all_moments = all_moments[-self.MAX_SIGNATURE_MOMENTS:]
 
         new_sig_block = "\n".join(f"- {m}" for m in all_moments)
 
@@ -529,6 +559,8 @@ class PlaythroughMemory:
         try:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(new_content)
+                f.flush()
+                os.fsync(f.fileno())
             if target_slug == self.current_slug:
                 self.signature_moments = all_moments
             print(
@@ -849,26 +881,25 @@ class PlaythroughMemory:
         if not reactions_text or len(reactions_text) < 20:
             return
 
-        extraction_prompt = (
-            f"From the session reactions below, pick 0-2 single sentences that are "
-            f"the sharpest, most specific, most memorable — the kind of reaction worth "
-            f"reading on stream 10 sessions from now. Prefer concrete images over "
-            f"general feelings. Return a JSON array of strings only, no preamble. "
-            f"If nothing qualifies, return [].\n\n"
-            f"Reactions:\n{reactions_text}"
+        extraction_prompt = _SIGNATURE_EXTRACTION_PROMPT.format(
+            count_clause="0-2 single sentences",
+            reactions_text=reactions_text,
         )
 
         try:
-            raw = await self.ai_core.claude_chat_inference(
-                messages=[{"role": "user", "content": extraction_prompt}],
-                system_prompt=(
-                    "You are a ruthless editor extracting only the most vivid, specific "
-                    "first-person reaction sentences. Output a JSON array of strings only."
+            raw = await asyncio.wait_for(
+                self.ai_core.claude_chat_inference(
+                    messages=[{"role": "user", "content": extraction_prompt}],
+                    system_prompt=_SIGNATURE_EXTRACTION_SYSTEM,
+                    max_tokens=150,
                 ),
-                max_tokens=150,
+                timeout=30,
             )
+        except asyncio.TimeoutError:
+            print("   [WARN] playthrough_memory (signature extraction) LLM call timed out after 30s — skipping")
+            return
         except Exception as e:
-            print(f"   [Playthrough] Signature extraction call failed: {e}")
+            print(f"   [WARN] playthrough_memory: signature extraction call failed: {e}")
             return
 
         if not raw:
@@ -940,6 +971,8 @@ class PlaythroughMemory:
         try:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(new_content)
+                f.flush()
+                os.fsync(f.fileno())
             self.signature_moments = combined
             print(
                 f"   [Playthrough] Signature moments updated: "
@@ -984,17 +1017,23 @@ class PlaythroughMemory:
         )
 
         try:
-            new_summary = await self.ai_core.claude_inference(
-                messages=[{"role": "user", "content": prompt}],
-                system_prompt=(
-                    "You are writing a first-person autobiographical summary of a VTuber's "
-                    "playthrough. Write as Kira. Be specific, personal, and concise."
+            new_summary = await asyncio.wait_for(
+                self.ai_core.claude_inference(
+                    messages=[{"role": "user", "content": prompt}],
+                    system_prompt=(
+                        "You are writing a first-person autobiographical summary of a VTuber's "
+                        "playthrough. Write as Kira. Be specific, personal, and concise."
+                    ),
+                    max_tokens=350,
+                    use_sonnet=True,  # J: rolling summary regen — Sonnet
                 ),
-                max_tokens=350,
-                use_sonnet=True,  # J: rolling summary regen — Sonnet
+                timeout=30,
             )
+        except asyncio.TimeoutError:
+            print("   [WARN] playthrough_memory (summary regen) LLM call timed out after 30s — skipping")
+            return
         except Exception as e:
-            print(f"   [Playthrough] Summary regen call failed: {e}")
+            print(f"   [WARN] playthrough_memory: summary regen call failed: {e}")
             return
 
         if not new_summary or len(new_summary.strip()) < 50:
@@ -1019,6 +1058,8 @@ class PlaythroughMemory:
 
             with open(path, "w", encoding="utf-8") as f:
                 f.write(new_content)
+                f.flush()
+                os.fsync(f.fileno())
 
             self.current_summary = new_summary.strip()
             print(f"   [Playthrough] Rolling summary regenerated ({len(new_summary)} chars) → {path}")

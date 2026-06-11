@@ -15,12 +15,13 @@
 
 import asyncio
 import enum
+import re
 import time
 
 try:
-    from config import CLAUDE_CHAT_MODEL
+    from config import CLAUDE_SONNET_MODEL as CLAUDE_CHAT_MODEL
 except Exception:
-    CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"
+    CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"  # last-resort fallback if config import fails
 
 
 # ── Unified Session Intensity ──────────────────────────────────────────────────
@@ -63,6 +64,26 @@ INTENSITY_CLIMACTIC = SessionIntensity.CLIMACTIC
 INTENSITY_AFTERMATH = SessionIntensity.AFTERMATH
 
 
+# Cheap heuristic for spotting a concrete, falsifiable prediction in Kira's own
+# response — NO LLM call. Deliberately permissive on the marker, conservative on
+# length elsewhere; a false positive just means a shot that quietly expires.
+_CALLED_SHOT_MARKERS = re.compile(
+    r"\b("
+    r"calling it"
+    r"|i'?m calling it"
+    r"|i give (?:it|this|him|her|them|that)"
+    r"|i bet\b|bet you\b|bet that\b|twenty bucks says|bucks says"
+    r"|mark my words"
+    r"|watch[,:]"          # "watch, this ..." / "watch:"
+    r"|(?:is|are|he'?s|she'?s|they'?re|that'?s|this is) (?:gonna|going to)"
+    r"|\bgonna\b"
+    r"|i predict|my prediction|prediction:"
+    r"|\bwill (?:die|betray|turn|fail|win|lose|come back|show up|break|leave)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
 class KiraState:
     """
     Cross-mode shared agency layer.
@@ -94,6 +115,11 @@ class KiraState:
         # Raw mention counts driving the ledger (sqrt ramp toward 1.0).
         self.entity_familiarity: dict[str, int] = {}
 
+        # Hard cap on tracked entities — least-recently-touched evicted (LRU) so a
+        # long session can't grow these ledgers unbounded (proper-noun extraction
+        # leaks one-off names). 100 keeps every meaningful recurring entity.
+        self._LEDGER_MAX = 100
+
         # ── B. Investment ──────────────────────────────────────────────────────
         self.story_investment: float = 0.0      # 0.0–1.0; ramps per update_context()
         self.emotional_trajectory: str = ""     # computed descriptor string
@@ -112,9 +138,24 @@ class KiraState:
         # ── D. Felt-history ────────────────────────────────────────────────────
         # Archive of theories that resolved (VN previously discarded these).
         self.resolved_theories: list[dict] = []
-        # Called shots scaffold — full resolution mechanic wired in a later batch.
-        # Schema (future): {text, formed_at, context_snapshot, status}
+        # Called shots — concrete falsifiable predictions Kira makes out loud.
+        # Schema: {prediction_text: str, formed_at: float, context_snippet: str,
+        #          status: "open"|"hit"|"miss"|"expired"|"discarded",
+        #          resolution_note: str (set on hit/miss), resolved_at: float}
         self.called_shots: list[dict] = []
+        # Archive of shots that resolved hit/miss — fed to session record / lore.
+        self.resolved_called_shots: list[dict] = []
+        # At most ONE freshly-resolved shot awaiting a payoff line. dict or None.
+        self.pending_payoff: "dict | None" = None
+        # Session stat counters (surfaceable later).
+        self.called_shot_hits: int = 0
+        self.called_shot_misses: int = 0
+        # Tunables for the called-shot lifecycle.
+        self._CALLED_SHOT_MAX_OPEN: int = 5        # cap on simultaneously-open shots
+        self._CALLED_SHOT_EXPIRY: float = 45 * 60  # unresolved shots expire after 45 min
+        self._PAYOFF_MIN_INTERVAL: float = 600.0   # at most one payoff every ~10 min
+        self._last_payoff_wall: float = 0.0        # time.time() of last payoff injection
+
 
         # ── Internal counters ──────────────────────────────────────────────────
         self._total_updates: int = 0
@@ -163,6 +204,19 @@ class KiraState:
 
     # ── A. Stakes — entity tracking ────────────────────────────────────────────
 
+    def _touch_entity(self, name: str) -> None:
+        """Mark an entity most-recently-used and evict LRU entries past the cap.
+        entity_familiarity is the master key set (sentiment is a subset), so we
+        evict from its oldest end and drop the same keys from sentiment_ledger."""
+        # Move to the most-recently-used (end) position. Dicts preserve insertion
+        # order, so pop + reinsert is the move-to-end.
+        if name in self.entity_familiarity:
+            self.entity_familiarity[name] = self.entity_familiarity.pop(name)
+        while len(self.entity_familiarity) > self._LEDGER_MAX:
+            oldest = next(iter(self.entity_familiarity))
+            self.entity_familiarity.pop(oldest, None)
+            self.sentiment_ledger.pop(oldest, None)
+
     def update_entity_mentions(self, text: str) -> None:
         """Update entity familiarity from text via capitalized-word extraction.
         Identical logic to VN autopilot's _update_character_attachment; works
@@ -187,6 +241,7 @@ class KiraState:
                     self.sentiment_ledger[cleaned] = min(
                         1.0, max(self.sentiment_ledger.get(cleaned, 0.0), raw)
                     )
+                self._touch_entity(cleaned)
         # Investment ramps slowly per update
         self.story_investment = min(1.0, self.story_investment + 0.001)
 
@@ -200,6 +255,7 @@ class KiraState:
         self.sentiment_ledger[speaker] = min(
             1.0, max(self.sentiment_ledger.get(speaker, 0.0), raw)
         )
+        self._touch_entity(speaker)
 
     # ── A. Stakes — narrative weight (for VN pacing callers) ──────────────────
 
@@ -312,19 +368,23 @@ class KiraState:
                 asyncio.ensure_future(self._update_narrative_summary())
                 self._last_summary_wall = now
             except Exception as e:
-                print(f"   [KiraState] Summary task error: {e}")
+                print(f"   [WARN] kira_state: summary task scheduling error: {e}")
 
         # Theory check: every 50 updates (was 25) + wall-clock floor, max 5 open.
+        # The same background call also resolves open called shots (piggybacked),
+        # so it must still fire when theories are capped but shots are open.
         if self._updates_since_theory_check >= 50:
+            self._sweep_called_shots()
             open_count = sum(1 for t in self.active_theories if t["status"] == "open")
-            if (open_count < 5
+            open_shots = sum(1 for s in self.called_shots if s["status"] == "open")
+            if ((open_count < 5 or open_shots > 0)
                     and self.session_narrative_summary
                     and (now - self._last_theory_wall) >= self._THEORY_MIN_INTERVAL):
                 try:
                     asyncio.ensure_future(self._maybe_form_theory())
                     self._last_theory_wall = now
                 except Exception as e:
-                    print(f"   [KiraState] Theory task error: {e}")
+                    print(f"   [WARN] kira_state: theory task scheduling error: {e}")
             # Reset counter whether or not we scheduled.
             self._updates_since_theory_check = 0
             self._updates_since_theory_check = 0
@@ -372,10 +432,13 @@ class KiraState:
             f"Output ONLY that exact format or NONE."
         )
         try:
-            resp = await self.ai_core.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
-                max_tokens=120,
-                messages=[{"role": "user", "content": prompt}],
+            resp = await asyncio.wait_for(
+                self.ai_core.anthropic_client.messages.create(
+                    model=CLAUDE_CHAT_MODEL,
+                    max_tokens=120,
+                    messages=[{"role": "user", "content": prompt}],
+                ),
+                timeout=20,
             )
             result = resp.content[0].text.strip()
             if not result or result.upper() == "NONE":
@@ -399,9 +462,124 @@ class KiraState:
                         f"{theory['theory'][:60]}"
                     )
                     return reaction
+        except asyncio.TimeoutError:
+            print("   [WARN] kira_state (theory resolution) LLM call timed out after 20s — skipping")
         except Exception as e:
-            print(f"   [KiraState] Theory resolution error: {e}")
+            print(f"   [WARN] kira_state: theory resolution error: {e}")
         return None
+
+    # ── Called shots: capture → resolve → payoff ───────────────────────────────
+
+    def _sweep_called_shots(self) -> None:
+        """Expire stale/over-cap open shots. Pure bookkeeping, no LLM.
+        - Any open shot older than _CALLED_SHOT_EXPIRY becomes 'expired'.
+        - If still over _CALLED_SHOT_MAX_OPEN open, the oldest expire first."""
+        now = time.time()
+        for shot in self.called_shots:
+            if shot["status"] == "open" and (now - shot["formed_at"]) > self._CALLED_SHOT_EXPIRY:
+                shot["status"] = "expired"
+                print(f"   [CalledShot] EXPIRED: {shot['prediction_text'][:70]}")
+
+        open_shots = [s for s in self.called_shots if s["status"] == "open"]
+        if len(open_shots) > self._CALLED_SHOT_MAX_OPEN:
+            # Oldest first; expire the overflow.
+            open_shots.sort(key=lambda s: s["formed_at"])
+            for shot in open_shots[: len(open_shots) - self._CALLED_SHOT_MAX_OPEN]:
+                shot["status"] = "expired"
+                print(f"   [CalledShot] EXPIRED (over cap): {shot['prediction_text'][:70]}")
+
+    def capture_called_shot(self, response_text: str) -> bool:
+        """A) CAPTURE. If Kira's own response contains a concrete falsifiable
+        prediction (cheap heuristic — NO LLM call), record it as an open called
+        shot. Returns True if a shot was captured. Safe to call on every response."""
+        if not response_text:
+            return False
+        text = response_text.strip()
+        if len(text) < 15:
+            return False
+        if not _CALLED_SHOT_MARKERS.search(text):
+            return False
+
+        self._sweep_called_shots()
+
+        prediction_text = text[:200]
+        # Dedupe: don't re-capture an identical open prediction.
+        for shot in self.called_shots:
+            if shot["status"] == "open" and shot["prediction_text"] == prediction_text:
+                return False
+
+        # Derive a context snippet from what we know is happening right now.
+        context_snippet = (
+            self.session_narrative_summary[:200]
+            if self.session_narrative_summary
+            else (self._context_buffer[-1][:200] if self._context_buffer else "")
+        )
+        self.called_shots.append({
+            "prediction_text": prediction_text,
+            "formed_at": time.time(),
+            "context_snippet": context_snippet,
+            "status": "open",
+            "resolution_note": "",
+            "resolved_at": 0.0,
+        })
+        print(f"   [CalledShot] OPEN: {prediction_text[:70]}")
+
+        # Re-sweep so we never sit above the cap after appending.
+        self._sweep_called_shots()
+        return True
+
+    def get_payoff_directive(self) -> str:
+        """C) PAYOFF. If a freshly-resolved shot is awaiting its moment, return the
+        injection directive and CONSUME it (cleared after one injection regardless
+        of whether Kira uses it). Returns '' when there's nothing to surface, when a
+        suppress-gate moment is active (INTENSE/CLIMACTIC), or when the ~10-min
+        payoff cooldown hasn't elapsed (held for later in those two cases)."""
+        if not self.pending_payoff:
+            return ""
+        # Never surface a payoff during a cutscene / high-intensity beat.
+        if self.current_intensity in (SessionIntensity.INTENSE, SessionIntensity.CLIMACTIC):
+            return ""
+        now = time.time()
+        if (now - self._last_payoff_wall) < self._PAYOFF_MIN_INTERVAL:
+            return ""
+
+        pp = self.pending_payoff
+        self.pending_payoff = None        # consumed after ONE injection, win or skip
+        self._last_payoff_wall = now
+        outcome = "HIT" if pp["status"] == "hit" else "MISS"
+        print(f"   [CalledShot] PAYOFF injected ({outcome}): {pp['prediction_text'][:60]}")
+        directive = (
+            f"[CALLED SHOT RESOLVED] You predicted: '{pp['prediction_text']}'. "
+            f"Outcome: {outcome} — {pp['resolution_note']}. "
+            "If it fits naturally, claim the win (smug, brief) or own the miss "
+            "(begrudging, funny). If it doesn't fit the moment, skip it — never force it."
+        )
+        if outcome == "HIT":
+            # A typed "called it." in chat while she keeps talking out loud is the
+            # platonic payoff. Offered as an OPTION, never required.
+            directive += (
+                " If you want, you may instead drop the receipt in chat with "
+                "[CHAT: called it.] (or similar) while you keep talking — optional, "
+                "only if it lands."
+            )
+        return directive
+
+    def get_called_shots_record(self) -> str:
+        """D) VISIBILITY. Markdown block of resolved called shots for the session
+        record, so lore generation can immortalize great calls. Returns '' when
+        nothing resolved this session."""
+        if not self.resolved_called_shots:
+            return ""
+        lines = []
+        for s in self.resolved_called_shots:
+            tag = s["status"].upper()
+            note = f" — {s['resolution_note']}" if s.get("resolution_note") else ""
+            lines.append(f"- [{tag}] \u201c{s['prediction_text']}\u201d{note}")
+        header = (
+            f"Called shots this session — {self.called_shot_hits} hit / "
+            f"{self.called_shot_misses} miss:"
+        )
+        return header + "\n" + "\n".join(lines)
 
     # ── Prompt injection ───────────────────────────────────────────────────────
 
@@ -480,10 +658,13 @@ class KiraState:
             )
             for attempt in range(3):
                 try:
-                    resp = await self.ai_core.anthropic_client.messages.create(
-                        model=CLAUDE_CHAT_MODEL,
-                        max_tokens=250,
-                        messages=[{"role": "user", "content": prompt}],
+                    resp = await asyncio.wait_for(
+                        self.ai_core.anthropic_client.messages.create(
+                            model=CLAUDE_CHAT_MODEL,
+                            max_tokens=250,
+                            messages=[{"role": "user", "content": prompt}],
+                        ),
+                        timeout=20,
                     )
                     self.session_narrative_summary = resp.content[0].text.strip()
                     self._context_buffer = self._context_buffer[-5:]
@@ -494,6 +675,9 @@ class KiraState:
                         f"({len(self.session_narrative_summary)} chars)."
                     )
                     return
+                except asyncio.TimeoutError:
+                    print("   [WARN] kira_state (narrative summary) LLM call timed out after 20s — skipping")
+                    return
                 except Exception as e:
                     err_low = str(e).lower()
                     if any(s in err_low for s in (
@@ -502,11 +686,11 @@ class KiraState:
                         delay = 5.0 * (2 ** attempt)
                         print(
                             f"   [KiraState] Summary rate-limited "
-                            f"(attempt {attempt+1}/3) \u2014 backing off {delay:.0f}s."
+                            f"(attempt {attempt+1}/3) — backing off {delay:.0f}s."
                         )
                         await asyncio.sleep(delay)
                         continue
-                    print(f"   [KiraState] Summary error: {e}")
+                    print(f"   [WARN] kira_state: narrative summary error: {e}")
                     return
             print("   [KiraState] Summary: all retries exhausted \u2014 skipping.")
         finally:
@@ -514,11 +698,20 @@ class KiraState:
 
     async def _maybe_form_theory(self) -> None:
         """Periodically form a theory about the current situation.
-        Ported from VN autopilot's _maybe_form_theory; generalized for all modes."""
+        Ported from VN autopilot's _maybe_form_theory; generalized for all modes.
+
+        Piggybacks called-shot RESOLUTION (B): the SAME single Sonnet call also
+        examines open called shots against the latest situation and marks any that
+        reality has resolved (hit/miss). No new LLM entry point is created."""
         if not getattr(self.ai_core, "anthropic_client", None):
             return
         if not self.session_narrative_summary:
             return
+
+        # Skip forming a brand-new theory when already at the open cap, but still
+        # run the call if there are open shots to resolve.
+        open_theory_count = sum(1 for t in self.active_theories if t["status"] == "open")
+        form_new_theory = open_theory_count < 5
 
         prior_block = ""
         if self.active_theories:
@@ -537,38 +730,133 @@ class KiraState:
                 f"\n\nEntities you're tracking: {', '.join(e for e, _ in top)}."
             )
 
-        prompt = (
-            "You are Kira, live on stream \u2014 currently paying close attention to "
-            "what's unfolding (could be a game, visual novel, or media).\n\n"
+        # ── Called-shot resolution block (piggybacked) ────────────────────────
+        self._sweep_called_shots()
+        open_shots = [s for s in self.called_shots if s["status"] == "open"]
+        shots_block = ""
+        if open_shots:
+            shot_lines = "\n".join(
+                f"  {i+1}. {s['prediction_text']}" for i, s in enumerate(open_shots[:5])
+            )
+            shots_block = (
+                "\n\nPART 2 — RESOLVE CALLED SHOTS:\n"
+                "You earlier made these concrete predictions out loud. Based ONLY on "
+                "the situation so far above, has reality RESOLVED any of them yet?\n"
+                f"{shot_lines}\n"
+                "For each, decide HIT (clearly came true), MISS (clearly proven wrong), "
+                "NOT_A_PREDICTION (this line isn't actually a concrete, falsifiable "
+                "prediction — it's a scene description, a reaction, or vague musing), "
+                "or OPEN (a real prediction, just not resolved yet — when in doubt between "
+                "HIT/MISS, OPEN)."
+            )
+
+        theory_part = (
+            "PART 1 — THEORY:\n"
             "Based on what's happened so far, do you have a GENUINE theory, suspicion, "
-            "or prediction about where things are going?\n\n"
-            f"SITUATION SO FAR:\n{self.session_narrative_summary}"
-            f"{entity_note}{prior_block}\n\n"
+            "or prediction about where things are going?\n"
             "If you have a genuine, specific theory (about a character, plot thread, "
-            "or foreshadowed event): output it in Kira's first-person voice, 1-2 sentences.\n"
+            "or foreshadowed event): write it in Kira's first-person voice, 1-2 sentences.\n"
             "Examples of good theories:\n"
             "  'I don\u2019t trust Greenway. Something about how he talks about the mission.'\n"
             "  'Nagisa\u2019s health keeps getting mentioned. I have a bad feeling about this.'\n"
-            "  'That locked door keeps showing up in the background. We\u2019re going in there.'\n"
-            "  'This informant is going to turn on Jonny. He\u2019s too helpful.'\n\n"
-            "If nothing specific comes to mind: output exactly NONE.\n\n"
-            "Just the theory text or NONE."
+            "  'This informant is going to turn on Jonny. He\u2019s too helpful.'\n"
+            "If nothing specific comes to mind: write NONE."
+        ) if form_new_theory else (
+            "PART 1 — THEORY:\nWrite NONE (you already have plenty of open theories)."
+        )
+
+        out_format = (
+            "\n\nOUTPUT FORMAT — exactly these lines, nothing else:\n"
+            "THEORY: <your theory in first person, or NONE>"
+        )
+        if open_shots:
+            out_format += (
+                "\nSHOT 1: <HIT|MISS|NOT_A_PREDICTION|OPEN> | <short note on what resolved it, or 'not yet'>"
+                "\n(one SHOT line per prediction listed, in order)"
+            )
+
+        prompt = (
+            "You are Kira, live on stream \u2014 currently paying close attention to "
+            "what's unfolding (could be a game, visual novel, or media).\n\n"
+            f"SITUATION SO FAR:\n{self.session_narrative_summary}"
+            f"{entity_note}{prior_block}\n\n"
+            f"{theory_part}"
+            f"{shots_block}"
+            f"{out_format}"
         )
         try:
-            resp = await self.ai_core.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
-                max_tokens=100,
-                messages=[{"role": "user", "content": prompt}],
+            resp = await asyncio.wait_for(
+                self.ai_core.anthropic_client.messages.create(
+                    model=CLAUDE_CHAT_MODEL,
+                    max_tokens=220,
+                    messages=[{"role": "user", "content": prompt}],
+                ),
+                timeout=20,
             )
             result = resp.content[0].text.strip()
-            if result and result.upper() != "NONE" and len(result) > 15:
-                theory = {
-                    "theory": result,
-                    "formed_at": time.time(),
-                    "context_snapshot": self.session_narrative_summary[:200],
-                    "status": "open",
-                }
-                self.active_theories.append(theory)
-                print(f"   [KiraState] Theory formed: {result[:80]}")
+            self._parse_theory_and_shots(result, open_shots, form_new_theory)
+        except asyncio.TimeoutError:
+            print("   [WARN] kira_state (theory formation) LLM call timed out after 20s — skipping")
         except Exception as e:
-            print(f"   [KiraState] Theory formation error: {e}")
+            print(f"   [WARN] kira_state: theory formation error: {e}")
+
+    def _parse_theory_and_shots(
+        self, result: str, open_shots: "list[dict]", form_new_theory: bool
+    ) -> None:
+        """Parse the combined THEORY/SHOT output. Forms a new theory (B never
+        touches this) and resolves any called shots reality answered."""
+        if not result:
+            return
+
+        # PART 1 — theory.
+        m_theory = re.search(r"^THEORY:\s*(.*)$", result, re.MULTILINE | re.IGNORECASE)
+        theory_text = m_theory.group(1).strip() if m_theory else ""
+        if (form_new_theory and theory_text
+                and theory_text.upper() != "NONE" and len(theory_text) > 15):
+            self.active_theories.append({
+                "theory": theory_text,
+                "formed_at": time.time(),
+                "context_snapshot": self.session_narrative_summary[:200],
+                "status": "open",
+            })
+            print(f"   [KiraState] Theory formed: {theory_text[:80]}")
+
+        # PART 2 — called-shot resolutions.
+        if not open_shots:
+            return
+        for m in re.finditer(
+            r"^SHOT\s*(\d+):\s*(HIT|MISS|NOT_A_PREDICTION|OPEN)\s*\|\s*(.*)$",
+            result, re.MULTILINE | re.IGNORECASE,
+        ):
+            try:
+                idx = int(m.group(1)) - 1
+            except ValueError:
+                continue
+            verdict = m.group(2).strip().upper()
+            note = m.group(3).strip()
+            if not (0 <= idx < len(open_shots)):
+                continue
+            if verdict == "OPEN":
+                continue
+            shot = open_shots[idx]
+            if shot["status"] != "open":
+                continue
+            # The capture heuristic is permissive and sometimes opens a shot on a
+            # line that isn't really a falsifiable prediction. Discard those here
+            # so they never reach payoff.
+            if verdict == "NOT_A_PREDICTION":
+                shot["status"] = "discarded"
+                shot["resolved_at"] = time.time()
+                print(f"   [CalledShot] DISCARDED: {shot['prediction_text'][:70]}")
+                continue
+            shot["status"] = "hit" if verdict == "HIT" else "miss"
+            shot["resolution_note"] = note
+            shot["resolved_at"] = time.time()
+            if verdict == "HIT":
+                self.called_shot_hits += 1
+            else:
+                self.called_shot_misses += 1
+            self.resolved_called_shots.append(dict(shot))
+            # Most-recent resolution wins the single payoff slot.
+            self.pending_payoff = dict(shot)
+            print(f"   [CalledShot] {verdict}: {shot['prediction_text'][:60]} — {note[:50]}")

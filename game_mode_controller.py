@@ -27,3 +27,9 @@ class GameModeController:
         self.is_active = False
         self.activity_type = ACTIVITY_GENERAL
         self.vision.is_active = False
+        # Clear stale visual context so get_vision_context() returns the
+        # placeholder and _has_fresh_visual_context() returns False.
+        # Without this, old scene_summary / last_description bleed into prompts
+        # as ghost data even though no new captures are running.
+        self.vision.scene_summary = ""
+        self.vision.last_description = "I'm just getting my bearings. One sec!"

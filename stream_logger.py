@@ -139,7 +139,11 @@ class StreamLogger:
         never crash the process."""
         # Debug: log who called us, so a mis-routed mid-stream summary is instantly visible.
         ai_core_state = "set" if ai_core is not None else "None"
-        caller_stack = "".join(traceback.format_stack()[-5:-1])
+        # Stack capture is diagnostic-only; never let it crash teardown (e.g. on Ctrl+C).
+        try:
+            caller_stack = "".join(traceback.format_stack()[-5:-1])
+        except Exception:
+            caller_stack = "(stack unavailable)"
         print(f"   [StreamLogger] finish() called: ai_core={ai_core_state}, started={self._started}\n"
               f"     caller:\n{caller_stack}", file=sys.stderr)
 
@@ -382,12 +386,15 @@ class StreamLogger:
                 s_cr  = event.get("sonnet_cache_read", 0)
                 o_in  = event.get("opus_in",  0)
                 o_out = event.get("opus_out", 0)
+                h_in  = event.get("haiku_in",  0)
+                h_out = event.get("haiku_out", 0)
                 g_in  = event.get("groq_in",  0)
                 g_out = event.get("groq_out", 0)
                 return (
                     f"{t} [SESSION TOKENS] "
                     f"sonnet={s_in}in/{s_out}out(cache_read={s_cr}) | "
                     f"opus={o_in}in/{o_out}out | "
+                    f"haiku={h_in}in/{h_out}out | "
                     f"groq={g_in}in/{g_out}out"
                 )
 
@@ -416,6 +423,10 @@ class StreamLogger:
         except Exception as e:
             print(f"   [StreamLogger] Could not read session files for summary: {e}", file=sys.stderr)
             return
+
+        # Preserve the full transcript for the PENDING fallback (backfill_lore can
+        # regenerate the summary later from this raw material).
+        full_transcript = raw_transcript
 
         # Truncate aggressively — Opus context window is large but these files can be huge
         def _trunc(text: str, head: int = 20000, tail: int = 10000) -> str:
@@ -459,20 +470,31 @@ class StreamLogger:
 
         print("   [StreamLogger] Generating post-stream summary via Sonnet...")
         try:
-            response = await ai_core.claude_inference(
-                messages=[{"role": "user", "content": prompt}],
-                system_prompt=(
-                    "You are a technical analyst reviewing an AI companion's stream session logs. "
-                    "Be concise, specific, and reference timestamps. Do not speculate beyond the data."
+            response = await asyncio.wait_for(
+                ai_core.claude_inference(
+                    messages=[{"role": "user", "content": prompt}],
+                    system_prompt=(
+                        "You are a technical analyst reviewing an AI companion's stream session logs. "
+                        "Be concise, specific, and reference timestamps. Do not speculate beyond the data."
+                    ),
+                    max_tokens=2000,
+                    use_sonnet=True,  # K: post-stream tech summary — Sonnet
                 ),
-                max_tokens=2000,
-                use_sonnet=True,  # K: post-stream tech summary — Sonnet
+                timeout=45,
             )
+        except asyncio.TimeoutError:
+            print("   [WARN] stream_logger summary LLM call timed out after 45s — "
+                  "writing PENDING checkpoint for later backfill", file=sys.stderr)
+            self._write_pending_summary(full_transcript, duration_s)
+            return
         except Exception as e:
-            print(f"   [StreamLogger] Sonnet summary call failed: {e}", file=sys.stderr)
+            print(f"   [WARN] stream_logger: Sonnet summary call failed: {e} — "
+                  f"writing PENDING checkpoint for later backfill", file=sys.stderr)
+            self._write_pending_summary(full_transcript, duration_s)
             return
 
         if not response:
+            self._write_pending_summary(full_transcript, duration_s)
             return
 
         date_display = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -486,3 +508,30 @@ class StreamLogger:
             f.write("\n")
 
         print(f"   [StreamLogger] Summary written → {self._summary_path}")
+
+    def _write_pending_summary(self, transcript: str, duration_s: int) -> None:
+        """Persist raw session material as a PENDING_<slug>.json checkpoint when the
+        post-stream summary couldn't be generated (timeout/failure). backfill_lore.py
+        picks these up (logs/sessions_raw/PENDING_*.json) and regenerates the summary
+        later, so a hung Opus call never costs us the session's raw material."""
+        try:
+            slug = re.sub(r"[^a-zA-Z0-9]+", "_", self._activity or "general").strip("_").lower()[:30] or "general"
+            pending_dir = os.path.join("logs", "sessions_raw")
+            os.makedirs(pending_dir, exist_ok=True)
+            payload = {
+                "activity_slug": slug,
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "activity": self._activity or "general",
+                "transcript": transcript or "",
+                "highlights": [],
+                "duration_min": max(0, int(duration_s) // 60),
+            }
+            pending_path = os.path.join(pending_dir, f"PENDING_{slug}.json")
+            tmp_path = pending_path + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, pending_path)
+            print(f"   [StreamLogger] PENDING checkpoint written → {pending_path} "
+                  f"(run backfill_lore.py --pending-only to regenerate the summary)", file=sys.stderr)
+        except Exception as e:
+            print(f"   [WARN] stream_logger: could not write PENDING checkpoint: {e}", file=sys.stderr)

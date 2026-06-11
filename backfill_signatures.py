@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _API_KEY   = os.getenv("ANTHROPIC_API_KEY", "")
-_CHAT_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
+from config import CLAUDE_SONNET_MODEL as _CHAT_MODEL
 
 # Games to backfill: (display name passed to load_for_game, slug used in filename)
 GAMES = [

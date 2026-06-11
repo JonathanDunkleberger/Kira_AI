@@ -43,6 +43,8 @@ from config import (
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
     GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
     LOOPBACK_STT_DEFAULT, ENABLE_TWITCH_POLLS,
+    CHAT_POST_KIRA_INTERVAL_SEC, CHAT_POST_KIRA_MAX_PER_SESSION, CHAT_POST_KIRA_MAX_LEN,
+    LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
 )
 from stream_logger import StreamLogger
 import identity_manager
@@ -55,6 +57,7 @@ from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME,
 from vn_autopilot import VNAutopilot
 from kira_state import KiraState, SessionIntensity
 from media_watch import MediaWatch
+from chess_agent import ChessAgent
 from playthrough_memory import PlaythroughMemory
 from vts_expression_controller import VTSExpressionController
 
@@ -68,11 +71,42 @@ except ImportError:
     print("   [Info] pyautogui not installed. VN auto-play requires: pip install pyautogui")
 
 
-def parse_kira_tools(text, allow_music=False):
+_NVML_READY = False
+
+def read_gpu_memory_gb():
+    """Whole-card VRAM (used_gb, total_gb) via NVML.
+
+    Reports the ENTIRE GPU (game + Kira + everything else), which is the number
+    that matters for headroom during AAA sessions — torch's own allocator reads
+    near-zero because the game's VRAM isn't visible to it. Falls back to torch's
+    reserved memory only if NVML is unavailable. Returns (None, None) on failure."""
+    global _NVML_READY
+    try:
+        import pynvml
+        if not _NVML_READY:
+            pynvml.nvmlInit()
+            _NVML_READY = True
+        h = pynvml.nvmlDeviceGetHandleByIndex(0)
+        info = pynvml.nvmlDeviceGetMemoryInfo(h)
+        return info.used / (1024 ** 3), info.total / (1024 ** 3)
+    except Exception:
+        try:
+            import torch
+            if torch.cuda.is_available():
+                used = torch.cuda.memory_reserved() / (1024 ** 3)
+                total = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+                return used, total
+        except Exception:
+            pass
+    return None, None
+
+
+def parse_kira_tools(text, allow_music=False, source=""):
     """
     Scans for [POLL: Question | Opt1 | Opt2] 
     or [SONG: Name]
     or [PREDICT: Question | OptionA | OptionB]
+    or [CHAT: short message] (Kira typing in Twitch chat — Twitch-only)
     """
     # Look for Poll Tag
     poll_match = re.search(r'\[POLL:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]', text)
@@ -114,10 +148,34 @@ def parse_kira_tools(text, allow_music=False):
                 })
         text = re.sub(r'\[PREDICT:.*?\]', '', text)
 
+    # Look for Chat Tag — Kira typing in Twitch chat. At most ONE per response;
+    # extras are dropped. The message is stripped from the spoken/TTS text and
+    # routed to chat_poster via the bot (async: caps + guardrails enforced there).
+    chat_match = re.search(r'\[CHAT:\s*(.*?)\]', text)
+    if chat_match:
+        chat_msg = chat_match.group(1).strip()
+        if chat_msg and _GLOBAL_BOT_REF is not None:
+            try:
+                asyncio.ensure_future(_GLOBAL_BOT_REF._dispatch_kira_chat(chat_msg, source))
+            except RuntimeError:
+                # No running loop (shouldn't happen on the live path) — drop quietly.
+                print("   [ChatPoster] suppressed (no event loop to dispatch).")
+        # Strip ALL [CHAT:...] tags from speech regardless (extras dropped).
+        text = re.sub(r'\[CHAT:.*?\]', '', text)
+
     return text.strip()
 
 
 _GLOBAL_BOT_REF = None  # set in VTubeBot.__init__ so parse_kira_tools can fire predictions
+
+# Banned-phrase screen for Kira's [CHAT] posts. Mirrors the BANNED PHRASES list
+# inside _kira_voice_guardrails so her typed messages pass the SAME filter as her
+# speech before they ever hit chat. Keep these two in sync.
+_BANNED_CHAT_PHRASES = (
+    "doing a lot of heavy lifting", "carrying hard", "carrying this",
+    "doing more work than", "doing something illegal to my brain",
+    "defies several laws of physics", "defies the laws of",
+)
 
 
 class VTubeBot:
@@ -209,6 +267,11 @@ class VTubeBot:
         # understanding for movies / anime via a rolling frame buffer + episode log.
         self.media_watch: MediaWatch | None = None
 
+        # Chess Mode (Phase 1) — initialized after ai_core is ready. Kira plays
+        # real Lichess games vs Stockfish; mutually exclusive with Media Watch
+        # and VN autopilot. Disabled unless armed from the dashboard.
+        self.chess_agent: ChessAgent | None = None
+
         # Playthrough Memory — initialized in _main_loop once ai_core is ready
         self.playthrough_memory: PlaythroughMemory | None = None
 
@@ -265,6 +328,16 @@ class VTubeBot:
         # B — Drive Mode agenda (seeded when Carry Mode toggles ON).
         # Each item is a one-sentence intent string.
         self.drive_agenda: list[str] = []
+        # Activity the drive agenda was last seeded for. _reconcile_modes() uses
+        # this to re-seed a (possibly media-shaped) agenda when the activity
+        # changes while Carry Mode is already on. None ⇒ never seeded.
+        self._last_seeded_activity: str | None = None
+        # Effective (post-reconcile) state — the SINGLE source both dashboards
+        # render from, so the UI shows what is actually in effect, not what was
+        # clicked. Rebuilt at the end of every _reconcile_modes() and recomputed
+        # fresh on each status poll (live-gated values like REACT change without
+        # a toggle). See _compute_effective_state().
+        self.effective_state: dict = {}
 
         # Chat batching + engagement state
         self.chat_batch_buffer: list = []          # queued chat messages waiting to be batched
@@ -273,6 +346,11 @@ class VTubeBot:
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
         self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
+
+        # Kira's [CHAT: ...] tool — code-enforced caps on her typing in chat.
+        # Layered ON TOP of chat_poster's 60s global transport cooldown.
+        self._kira_chat_last_ts: float = 0.0       # wall-clock of her last successful post
+        self._kira_chat_count: int = 0             # posts this session (vs CHAT_POST_KIRA_MAX_PER_SESSION)
 
         # GPU contention load-shedding.
         # _under_load=True when recent triage latency signals GPU saturation.
@@ -831,6 +909,70 @@ class VTubeBot:
                 pass
         return block
 
+    # ── Kira types in chat ([CHAT: ...] tool) ──────────────────────────────────
+    def _validate_kira_chat(self, msg: str) -> tuple[bool, str, str]:
+        """Safety rails for a Kira-authored chat post. Returns (ok, cleaned, reason).
+
+        Enforces the same banned-phrase guardrail as her speech, plus chat-specific
+        rails: no links, no @-mentions of users who haven't spoken this session, and
+        a tight length cap (chat messages should be SHORT). The message was already
+        generated under the full _kira_voice_guardrails prompt; this is the code-side
+        backstop before anything reaches viewers."""
+        cleaned = " ".join((msg or "").split())
+        if not cleaned:
+            return False, cleaned, "empty"
+        # No links — strip-free rejection (viewers' chat is untrusted; she never links out).
+        if re.search(r'https?://|www\.|\b[\w-]+\.(?:com|net|org|tv|gg|io|co|xyz|live)\b', cleaned, re.IGNORECASE):
+            return False, cleaned, "contains a link"
+        # No @-mentions of users who haven't spoken this session.
+        present = {u.lower() for u in self.session_chatter_logs.keys()}
+        for mention in re.findall(r'@(\w+)', cleaned):
+            if mention.lower() not in present:
+                return False, cleaned, f"@-mention of absent user '{mention}'"
+        # Tight length cap (tighter than the transport's CHAT_POST_MAX_LEN).
+        if len(cleaned) > CHAT_POST_KIRA_MAX_LEN:
+            return False, cleaned, f"too long ({len(cleaned)} > {CHAT_POST_KIRA_MAX_LEN})"
+        # Same banned phrases her speech is screened for.
+        low = cleaned.lower()
+        for phrase in _BANNED_CHAT_PHRASES:
+            if phrase in low:
+                return False, cleaned, f"banned phrase '{phrase}'"
+        return True, cleaned, ""
+
+    async def _dispatch_kira_chat(self, message: str, source: str = "") -> None:
+        """Route a Kira-authored [CHAT: ...] message to Twitch chat, subject to
+        code-enforced caps and the safety rails. Twitch-only — YouTube is read-only.
+        All suppression paths log so we can tune cadence."""
+        msg = (message or "").strip()
+        if not msg:
+            return
+        # YouTube is read-only (posting not implemented). If this turn answered a
+        # YouTube chatter, we have no Twitch-appropriate target — suppress + log.
+        if source == "youtube":
+            print(f"   [ChatPoster] suppressed (YouTube is read-only, no Twitch target): {msg[:80]!r}")
+            return
+        # Code-enforced caps, layered on TOP of chat_poster's 60s global cooldown.
+        # Chaos mode does NOT loosen these — it loosens her voice, not the rate.
+        now = time.time()
+        if self._kira_chat_count >= CHAT_POST_KIRA_MAX_PER_SESSION:
+            print(f"   [ChatPoster] suppressed (cap: {CHAT_POST_KIRA_MAX_PER_SESSION}/session reached): {msg[:80]!r}")
+            return
+        if (now - self._kira_chat_last_ts) < CHAT_POST_KIRA_INTERVAL_SEC:
+            wait = CHAT_POST_KIRA_INTERVAL_SEC - (now - self._kira_chat_last_ts)
+            print(f"   [ChatPoster] suppressed (cap: {wait:.0f}s until next allowed): {msg[:80]!r}")
+            return
+        # Safety rails / guardrails (same banned-phrase filter as speech).
+        ok, cleaned, reason = self._validate_kira_chat(msg)
+        if not ok:
+            print(f"   [ChatPoster] suppressed (guardrail: {reason}): {msg[:80]!r}")
+            return
+        posted = await self.chat_poster.post(cleaned, platforms=("twitch",))
+        if posted:
+            self._kira_chat_last_ts = now
+            self._kira_chat_count += 1
+            print(f"   [ChatPoster] Kira typed in chat "
+                  f"({self._kira_chat_count}/{CHAT_POST_KIRA_MAX_PER_SESSION}): {cleaned!r}")
+
     def _frame_visual_perception(
         self,
         scene_text: str,
@@ -1009,63 +1151,453 @@ class VTubeBot:
 
     # ── Media Watch wiring ────────────────────────────────────────────────────
 
-    async def _media_watch_react(self, summary: str):
-        """Optional throttled in-character reaction to a notable scene event.
-        MediaWatch already throttles this to one call per react_min_gap_s and
-        skips UNCERTAIN / STATIC summaries. Gated on companion mode + not muted +
-        not currently speaking, so it never steps on real conversation.
+    @staticmethod
+    def _media_react_reason(summary: str) -> str:
+        """Cheap, no-LLM reason label for the on_react log line, derived from the
+        analysis output's OWN text (the gpt-4o-mini sequence summary). Falls back
+        to the leading beat of what happened so the log references the real event."""
+        low = summary.lower()
+        if any(k in low for k in ("cuts to", "cut to", "scene change", "new scene", "transition", "shifts to")):
+            return "scene change"
+        if any(k in low for k in ("enters", "arrives", "appears", "new character", "introduces", "joins")):
+            return "new character"
+        if any(k in low for k in ("fight", "explosion", "gun", "chase", "punch", "attack", "crash", "runs", "fires", "shoots")):
+            return "action spike"
+        first = re.split(r"(?<=[.!?])\s", summary.strip(), 1)[0]
+        return first[:80]
 
-        Routed through tool_inference (local Llama) for cost, but with the full
-        KIRA_PERSONALITY system prompt prepended + semantic memory recall + the
-        shared voice guardrails so reactions sound like Kira, not a chatbot."""
+    async def _media_watch_react(self, summary: str):
+        """Autonomous in-character reaction to a NOTEWORTHY Media Watch event.
+
+        MediaWatch fires this only for substantive (non-UNCERTAIN, non-STATIC)
+        analysis events, throttled to one per react_min_gap_s (45s). Here we apply
+        the SAME gates the boredom observer loop uses (mute / speaking / recent-user
+        / intensity-suppress / processing-lock), then route the reaction through the
+        standard interjection path so it gets the full guardrail + Sonnet stack and
+        the FILM framing. On success we reset the silence stage so a boredom
+        interjection can't double-fire on the same beat — on_react wins."""
         if not summary or self.is_muted():
             return
-        if self.mode != "companion":
+        mw = self.media_watch
+        if mw is None:
+            return
+        if not getattr(mw, "reactions_enabled", True):
+            print("   [MediaWatch] on_react SUPPRESSED (reactions disabled).")
+            return
+        if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
+            print("   [MediaWatch] on_react SUPPRESSED (speaking / llm busy).")
+            return
+        # Don't talk over the user.
+        if time.time() - self.last_interaction_time < 6.0:
+            print("   [MediaWatch] on_react SUPPRESSED (recent user speech).")
+            return
+        # Intensity / suppress gate — MEDIA mode uses a STRONGER-signal gate so a
+        # lone keyword in an audio caption can't false-block the beat. We suppress
+        # only when MediaWatch's OWN scene analysis is action-classified AND the
+        # audio agrees ("don't talk over the big moment"), instead of the broad
+        # observer gate that was blocking ~60% of calm-anime windows.
+        if self._media_intensity_suppresses():
+            print(
+                f"   [MediaWatch] on_react SUPPRESSED "
+                f"(intensity gate: {self.current_moment_type.name})."
+            )
+            return
+        # No double-fire with a boredom interjection: if the observer loop is
+        # mid-interjection it holds this lock; we bow out for this beat.
+        if self.processing_lock.locked():
+            print("   [MediaWatch] on_react SUPPRESSED (processing lock held).")
+            return
+
+        reason = self._media_react_reason(summary)
+        episode_log = mw.get_episode_context() if mw.has_context() else ""
+
+        # FILM framing (leak batch) + episode log + latest delta. She reacts to the
+        # beat that JUST happened, anchored to the timeline she actually saw.
+        prompt = (
+            "[VIEWING TOGETHER \u2014 you and Jonny are watching a film/episode, not "
+            "playing a game. React like someone on the couch watching with him: a "
+            "film-watcher's eye and instincts, not a gamer narrating inputs.]\n\n"
+            + (f"{episode_log}\n\n" if episode_log else "")
+            + "WHAT JUST HAPPENED ON SCREEN (the latest beat \u2014 your visual "
+            "perception, do NOT recite it back):\n"
+            f"\"{summary}\"\n\n"
+            "React to THAT beat in ONE short line, in your voice \u2014 a feeling, a "
+            "quip, a roast, a prediction, or a callback to an earlier scene in the "
+            "timeline above. Not a recap, not narration, not a question to him. "
+            "If nothing genuinely grabs you, reply with exactly: [SILENCE]"
+        )
+
+        async with self.processing_lock:
+            print(f"   [MediaWatch] on_react fired: {reason}")
+            await self._execute_interjection(
+                prompt,
+                memory_query=summary[:120],
+                scene_override=episode_log or summary,
+            )
+            # Boredom resets — on_react won this beat, so the staged remarks
+            # restart their countdown instead of firing right after.
+            self.silence_stage = 0
+            self.last_interaction_time = time.time()
+
+    def _media_intensity_suppresses(self) -> bool:
+        """Stronger-signal intensity gate for Media Watch reactions.
+
+        In MEDIA mode, suppress ONLY when MediaWatch's own latest scene analysis
+        is action-classified AND the audio agrees — this keeps 'don't talk over
+        the big action moment' while killing the false-blocks caused by a single
+        keyword inside an otherwise-calm audio caption. Outside media mode, fall
+        back to the broad observer suppress set."""
+        mw = self.media_watch
+        is_media = bool(mw and mw.is_running and mw.has_context())
+        if not is_media:
+            return self.current_moment_type in (
+                SessionIntensity.TENSE, SessionIntensity.INTENSE,
+                SessionIntensity.CLIMACTIC, SessionIntensity.CUTSCENE,
+            )
+        scene_text = (mw.get_latest_summary() or "").lower()
+        audio_summary = ""
+        if self.audio_agent and self.audio_agent.is_active():
+            audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
+        scene_action = self._kw_hit(scene_text, self._TENSE_SCENE_KW)
+        audio_tense = self._kw_hit(audio_summary, self._TENSE_AUDIO_KW)
+        return scene_action and audio_tense
+
+    # Negators that flip a keyword match ("no tension here", "without combat").
+    _CLASSIFIER_NEGATORS = frozenset({
+        "no", "not", "without", "never", "lack", "lacking", "free",
+        "zero", "isnt", "wasnt", "arent", "none", "absent",
+    })
+
+    @staticmethod
+    def _kw_hit(text: str, keywords) -> bool:
+        """Whole-word/phrase keyword match with simple negation awareness.
+
+        Replaces naive substring matching, which false-fired on 'tension' inside
+        'no tension here' / 'fast' inside 'breakfast' and poisoned every
+        intensity consumer downstream (suppress gates, threshold tilts, the
+        kira_state block). A keyword hit is rejected if a negator word appears in
+        the ~24 chars immediately before it."""
+        if not text:
+            return False
+        for kw in keywords:
+            for m in re.finditer(r"(?<!\w)" + re.escape(kw) + r"(?!\w)", text):
+                pre = text[max(0, m.start() - 24):m.start()]
+                pre_words = re.findall(r"[a-z']+", pre)[-3:]
+                if any(w in VTubeBot._CLASSIFIER_NEGATORS for w in pre_words):
+                    continue
+                if "n't" in pre[-6:]:  # "isn't / wasn't / doesn't ..."
+                    continue
+                return True
+        return False
+
+    def _reconcile_modes(self, *, trigger: str = "") -> None:
+        """Idempotent mode reconciler — call after ANY toggle change.
+
+        Enforces cross-mode invariants so dashboard buttons can be flipped in any
+        order and always converge to the same correct state. Keys off INTENT
+        (the `.enabled` flags, set synchronously by toggles) rather than the
+        eventually-consistent `.is_running` flags, so it's correct even when
+        start/stop is still pending on the event loop. Logs one line per reconcile
+        when something actually changed — same dict the dashboard renders."""
+        changes: list[str] = []
+        va = self.vision_agent
+        gmc = self.game_mode_controller
+        mw = self.media_watch
+        ap = self.vn_autopilot
+        ca = self.chess_agent
+
+        media_armed = bool(mw and getattr(mw, "enabled", False))
+        chess_armed = bool(ca and getattr(ca, "enabled", False))
+
+        # INV-1: Media Watch / Chess own perception → park the vision heartbeat
+        #        (WITHOUT touching gmc.is_active, so the user's Vision toggle
+        #        survives and is restored exactly when they disarm).
+        if va is not None and gmc is not None:
+            want_active = bool(gmc.is_active) and not (media_armed or chess_armed)
+            if va.is_active != want_active:
+                va.is_active = want_active
+                if not want_active:
+                    why = "MW on" if media_armed else "chess on"
+                    changes.append(f"heartbeat parked ({why})")
+                else:
+                    changes.append("heartbeat restored")
+
+        # INV-2: heartbeat cadence follows activity/immersive — recompute rather
+        #        than trust a stale value a prior toggle left behind.
+        if va is not None and gmc is not None:
+            want_interval = 10.0 if (self.immersive or gmc.activity_type == ACTIVITY_GAME) else 30.0
+            if va.heartbeat_interval != want_interval:
+                va.heartbeat_interval = want_interval
+                changes.append(f"cadence {want_interval:.0f}s")
+
+        # INV-3: reactions handler stays wired for the whole session (the
+        #        reactions_enabled bool is the real on/off). Re-wire defensively.
+        if mw is not None and mw.on_react is None:
+            mw.on_react = self._media_watch_react
+            changes.append("reactions re-wired")
+
+        # INV-4: Carry agenda must match the current activity shape; re-seed if
+        #        the activity changed since the agenda was last seeded.
+        if self.carry_mode:
+            if self.current_activity != self._last_seeded_activity:
+                if self.event_loop and self.event_loop.is_running():
+                    asyncio.ensure_future(self.seed_drive_agenda())
+                    self._last_seeded_activity = self.current_activity
+                    shape = "media" if (media_armed or gmc.activity_type == ACTIVITY_MEDIA) else "gameplay"
+                    changes.append(f"carry re-seeded ({shape})")
+        else:
+            # Disarmed → forget the seed marker so a re-arm always seeds fresh.
+            if self._last_seeded_activity is not None:
+                self._last_seeded_activity = None
+
+        if changes:
+            tag = f" [{trigger}]" if trigger else ""
+            print(f"   [Reconcile]{tag} " + " \u00b7 ".join(changes))
+
+        # Always refresh the effective-state snapshot the dashboards render from.
+        self.effective_state = self._compute_effective_state()
+
+    @staticmethod
+    def _tri_state(on: bool, overridden: bool, reason: str = "") -> dict:
+        """Three-state toggle descriptor for the dashboards.
+
+        off      — control is not engaged (render dim).
+        on       — engaged AND its effect is actually in force (render amber).
+        override — engaged but its effect is suppressed by another mode/failure
+                   (render amber-outline + a one-word rust reason chip).
+        A toggle must NEVER read fully-on while its effect is suppressed."""
+        if not on:
+            return {"state": "off", "reason": ""}
+        if overridden:
+            return {"state": "override", "reason": reason}
+        return {"state": "on", "reason": ""}
+
+    def _compute_effective_state(self) -> dict:
+        """Build the effective-state dict: what is ACTUALLY in effect right now,
+        derived from the reconciler's invariants — never from raw toggle values.
+
+        Both the Tkinter strip and the web /state endpoint render this so the two
+        UIs always agree. Cheap, no I/O — safe to call on every status poll."""
+        gmc = self.game_mode_controller
+        va = self.vision_agent
+        mw = self.media_watch
+        ap = self.vn_autopilot
+        ca = self.chess_agent
+        aa = self.audio_agent
+
+        media_armed = bool(mw and getattr(mw, "enabled", False))
+        media_running = bool(mw and getattr(mw, "is_running", False))
+        chess_armed = bool(ca and getattr(ca, "enabled", False))
+        chess_running = bool(ca and getattr(ca, "is_running", False))
+        vision_intent = bool(gmc and gmc.is_active)
+        activity_type = getattr(gmc, "activity_type", ACTIVITY_GENERAL)
+
+        heartbeat_parked = vision_intent and (media_armed or chess_armed)
+        park_reason = "media" if media_armed else ("chess" if chess_armed else "")
+
+        if media_running:
+            eyes_source = "episode log"
+        elif vision_intent and not heartbeat_parked:
+            eyes_source = "heartbeat"
+        else:
+            eyes_source = "off"
+
+        # REACT gating (live — changes without a toggle).
+        react_armed = bool(mw and getattr(mw, "reactions_enabled", True))
+        react_gated = False
+        react_gate_reason = ""
+        if react_armed and media_running:
+            try:
+                if self._media_intensity_suppresses():
+                    react_gated = True
+                    react_gate_reason = self.current_moment_type.name
+            except Exception:
+                pass
+
+        carry_on = bool(self.carry_mode)
+        carry_media = carry_on and (media_armed or activity_type == ACTIVITY_MEDIA)
+
+        # EARS.
+        hearing_mode = "off"
+        if aa and aa.is_active():
+            m = getattr(aa, "mode", "")
+            hearing_mode = {AUDIO_MODE_MEDIA: "media", AUDIO_MODE_MUSIC: "music"}.get(m, "on")
+        loopback_on = bool(self.loopback_transcriber and self.loopback_transcriber.is_running())
+
+        ap_on = bool(ap and getattr(ap, "enabled", False))
+        ap_paused = bool(ap and getattr(ap, "is_paused", False))
+        mw_fail = (getattr(mw, "last_start_error", "") if mw else "") or ""
+
+        # ── Primary-mode label for the strip's leading segment ────────────────
+        win = (getattr(mw, "window_title", "") if mw else "") or ""
+        if media_running:
+            primary = f"MEDIA WATCH (\u2018{win}\u2019)" if win else "MEDIA WATCH"
+        elif chess_running:
+            primary = "CHESS"
+        elif ap_on:
+            primary = "VN AUTOPILOT"
+        elif activity_type == ACTIVITY_GAME:
+            primary = "GAME"
+        elif activity_type == ACTIVITY_VN:
+            primary = "VISUAL NOVEL"
+        elif activity_type == ACTIVITY_MEDIA:
+            primary = "MEDIA"
+        else:
+            primary = "GENERAL"
+
+        # ── Per-segment human strings + attention flags ───────────────────────
+        if eyes_source == "episode log":
+            eyes_txt = "episode log — heartbeat parked"
+        elif eyes_source == "heartbeat":
+            cad = int(getattr(va, "heartbeat_interval", 30) or 30)
+            eyes_txt = f"heartbeat {cad}s"
+        elif heartbeat_parked:
+            eyes_txt = f"parked ({park_reason})"
+        else:
+            eyes_txt = "off"
+
+        ears_bits = []
+        if hearing_mode != "off":
+            ears_bits.append(f"audio:{hearing_mode}")
+        if loopback_on:
+            ears_bits.append("loopback+STT")
+        ears_txt = " + ".join(ears_bits) if ears_bits else "off"
+
+        if not carry_on:
+            carry_txt = "off"
+        elif carry_media:
+            carry_txt = "co-watching (media)"
+        else:
+            carry_txt = "active"
+
+        if not react_armed:
+            react_txt = "off"
+        elif react_gated:
+            react_txt = f"armed (gated: {react_gate_reason})"
+        elif media_running:
+            react_txt = "armed"
+        else:
+            react_txt = "armed (idle)"
+
+        strip = [
+            {"key": "mode",     "text": primary,                         "attn": bool(mw_fail)},
+            {"key": "eyes",     "text": f"EYES: {eyes_txt}",             "attn": heartbeat_parked},
+            {"key": "ears",     "text": f"EARS: {ears_txt}",             "attn": False},
+            {"key": "carry",    "text": f"CARRY: {carry_txt}",           "attn": carry_media},
+            {"key": "react",    "text": f"REACT: {react_txt}",           "attn": react_gated},
+            {"key": "activity", "text": f"ACTIVITY: {self.current_activity or 'none'}", "attn": False},
+        ]
+
+        def _fail_chip(err: str) -> str:
+            e = err.lower()
+            if "window not found" in e or "no window" in e:
+                return "no window"
+            if "vision client" in e:
+                return "no vision"
+            if "pillow" in e or "pygetwindow" in e:
+                return "missing dep"
+            return "failed"
+
+        toggles = {
+            "vision":      self._tri_state(vision_intent, heartbeat_parked, "parked"),
+            "media_watch": self._tri_state(
+                media_armed, media_armed and not media_running,
+                _fail_chip(mw_fail) if mw_fail else "starting"),
+            "react":       self._tri_state(
+                react_armed, react_gated, react_gate_reason.lower()[:8]),
+            "carry":       self._tri_state(carry_on, carry_media, "media"),
+            "autopilot":   self._tri_state(ap_on, ap_paused, "paused"),
+            "immersive":   self._tri_state(bool(self.immersive), False),
+            "chess":       self._tri_state(chess_armed, chess_armed and not chess_running, "starting"),
+        }
+
+        return {
+            "primary": primary,
+            "strip": strip,
+            "toggles": toggles,
+            "eyes": {
+                "vision_on": vision_intent,
+                "heartbeat_parked": heartbeat_parked,
+                "park_reason": park_reason,
+                "cadence_s": float(getattr(va, "heartbeat_interval", 0) or 0),
+                "source": eyes_source,
+            },
+            "media_watch": {
+                "armed": media_armed, "running": media_running,
+                "window": win, "reactions_armed": react_armed,
+                "react_gated": react_gated, "react_gate_reason": react_gate_reason,
+                "fail_reason": mw_fail,
+            },
+            "ears": {"hearing_mode": hearing_mode, "loopback_on": loopback_on},
+            "carry": {"on": carry_on, "media_shaped": carry_media},
+            "autopilot": {"on": ap_on, "paused": ap_paused},
+            "chess": {"armed": chess_armed, "running": chess_running},
+            "activity": self.current_activity or "",
+            "activity_type": activity_type,
+        }
+
+
+
+
+    # ── Chess Mode character rules ─────────────────────────────────────────────
+    # Injected alongside the board block whenever chess mode is live. Keeps her
+    # commentary as a confident club player, never engine-speak.
+    _CHESS_CHARACTER_RULES = (
+        "[CHESS MODE \u2014 you are actually playing this game right now]\n"
+        "You play chess and talk like a confident club player: plans, threats, "
+        "ideas, vibes, a little trash talk. The moves are YOUR moves \u2014 own them. "
+        "NEVER say eval numbers, centipawns, 'the engine', 'Stockfish', or "
+        "'analysis says' \u2014 that breaks the illusion. When you blunder (you will), "
+        "own it in character, after the fact. Wins are smug, losses are begrudging, "
+        "both are brief."
+    )
+
+    async def _chess_react(self, summary: str, *, bypass: bool = False):
+        """Autonomous in-character reaction to a NOTEWORTHY chess moment.
+
+        ChessAgent fires this for substantive moments (move, opponent move,
+        blunder, draw offer, game start/end). The agent already applied the
+        react_min_gap_s throttle (bypassed for game start/end + blunders), so
+        here we only apply the SAME live gates Media Watch uses
+        (mute / speaking / recent-user / processing-lock) and route through the
+        standard interjection path with the board block as her perception."""
+        if not summary or self.is_muted():
             return
         if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
             return
-        # Skip if user spoke very recently — don't talk over them.
-        if time.time() - self.last_interaction_time < 6.0:
+        # Don't talk over the user (skipped for bypass moments — those are THE beats).
+        if not bypass and (time.time() - self.last_interaction_time) < 6.0:
             return
-        try:
-            # Semantic memory recall on the summary so callbacks land
-            memory_context = ""
-            try:
-                memory_context = await asyncio.to_thread(self.memory.get_semantic_context, summary)
-            except Exception:
-                pass
-            memory_block = (
-                f"\n\n[MEMORY NOTES \u2014 verified facts about Jonny; reference freely, but do not extrapolate beyond what is written here]\n{memory_context}"
-                if memory_context else ""
+        # No double-fire with a boredom interjection.
+        if self.processing_lock.locked():
+            return
+        ca = self.chess_agent
+        if ca is None or not ca.is_running:
+            return
+
+        board_block = ca.get_board_block()
+        prompt = (
+            self._CHESS_CHARACTER_RULES
+            + "\n\n"
+            + (f"{board_block}\n\n" if board_block else "")
+            + "WHAT JUST HAPPENED IN YOUR GAME:\n"
+            f"\"{summary}\"\n\n"
+            "React to THAT in ONE short line, in your voice \u2014 a plan, a threat, a "
+            "read on the position, a quip, or trash talk. Not a recap, not a move "
+            "list, no numbers, no engine talk. If nothing genuinely grabs you, "
+            "reply with exactly: [SILENCE]"
+        )
+
+        async with self.processing_lock:
+            print(f"   [Chess] on_react fired (bypass={bypass}): {summary[:70]}")
+            await self._execute_interjection(
+                prompt,
+                memory_query="chess game",
+                scene_override=board_block or summary,
             )
-            task_prompt = (
-                "\n\n[MODE: Media Watch Reaction]\n"
-                "You are watching a movie/episode with Jonny. The summary in the user message is your "
-                "RAW VISUAL PERCEPTION \u2014 the vision model's flat description of what crossed the "
-                "screen. It is sense data, NOT a script. Do NOT recap or paraphrase it back at him (he "
-                "saw it too, and he doesn't want a narrator). React in YOUR voice and personality: a "
-                "feeling, a quip, a roast, a question, a callback, the thing it reminded you of. Be the "
-                "friend on the couch, not the closed-captioner. 1-2 sentences max. If nothing genuinely "
-                "grabs you, reply with exactly: SKIP"
-            )
-            sys_prompt = (
-                self.ai_core.system_prompt
-                + task_prompt
-                + memory_block
-                + self._kira_voice_guardrails()
-            )
-            user_prompt = f"What your eyes just took in (raw perception, do NOT recite):\n\"{summary}\""
-            reaction = await self.ai_core.tool_inference(sys_prompt, user_prompt, max_tokens=80)
-            if not reaction or reaction.strip().upper().startswith("SKIP"):
-                return
-            cleaned = self.ai_core._clean_llm_response(reaction)
-            if cleaned and len(cleaned) > 2:
-                print(f"   [MediaWatch] Kira reacts: {cleaned}")
-                await self.ai_core.speak_text(cleaned)
-                self.conversation_history.append({"role": "assistant", "content": cleaned})
-                self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
-        except Exception as e:
-            print(f"   [MediaWatch] reaction error: {e}")
+            self.silence_stage = 0
+            self.last_interaction_time = time.time()
+
 
     async def _autopilot_watchdog(self):
         """
@@ -1431,20 +1963,47 @@ class VTubeBot:
         self._shutdown_started = True
         print("   [Shutdown] Beginning graceful shutdown — please wait for artifact writes...")
 
+        # Stop the run() loop and any flag-polling loops as early as possible.
+        self.is_running = False
+
+        async def _bounded(coro, secs: float, label: str) -> None:
+            """Await coro with a hard ceiling. On timeout/failure: log and continue
+            so a single hung step can never trap the whole shutdown."""
+            try:
+                await asyncio.wait_for(coro, timeout=secs)
+            except asyncio.TimeoutError:
+                print(f"   [Shutdown] {label} exceeded {secs:.0f}s — moving on.")
+            except Exception as e:
+                print(f"   [Shutdown] {label} error: {e}")
+
+        # ── B3: cancel background loops BEFORE writing artifacts ────────────────
+        # Cancel the control server, autopilot watchdog, observer, heartbeats, and
+        # every other loop in the task list so they stop making LLM/network calls
+        # and don't race the artifact phase. gather(return_exceptions=True) so a
+        # CancelledError from any task can't abort the cleanup.
+        bg_tasks = [t for t in getattr(self, "_background_tasks", []) if not t.done()]
+        if bg_tasks:
+            print(f"   [Shutdown] Cancelling {len(bg_tasks)} background task(s)...")
+            for t in bg_tasks:
+                t.cancel()
+            await _bounded(
+                asyncio.gather(*bg_tasks, return_exceptions=True),
+                15, "Background task cancellation",
+            )
+
+        # ── Artifact phase (each step independently bounded) ────────────────────
         # If a game/VN session was active, run the deactivate flow (writes
         # artifacts + post-stream summary). Otherwise just close the stream log.
-        try:
-            if self.game_mode_controller and self.game_mode_controller.is_active:
-                await self.deactivate_game_mode_async()
-            elif STREAM_LOGGING_ENABLED:
-                if hasattr(self.ai_core, "_session_usage"):
-                    self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
-                await self.stream_logger.finish(self.ai_core)
-        except Exception as e:
-            print(f"   [Shutdown] Error during artifact phase: {e}")
-            traceback.print_exc()
+        if self.game_mode_controller and self.game_mode_controller.is_active:
+            await _bounded(self.deactivate_game_mode_async(), 30, "Game-mode deactivate / artifact write")
+        elif STREAM_LOGGING_ENABLED:
+            if hasattr(self.ai_core, "_session_usage"):
+                self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
+            # finish() internally bounds the Opus summary (45s) and writes a
+            # PENDING json on timeout, so give the outer await generous headroom.
+            await _bounded(self.stream_logger.finish(self.ai_core), 50, "Stream logger finish")
 
-        # Record session in identity.json for temporal continuity
+        # Record session in identity.json for temporal continuity (synchronous).
         try:
             _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
             identity_manager.record_session(
@@ -1457,16 +2016,23 @@ class VTubeBot:
             print(f"   [Identity] Session record failed: {e}")
 
         # Stop loopback STT defensively (in case deactivate didn't run).
+        # Model unload is blocking — run off the event loop, bounded.
         try:
             lt = self.loopback_transcriber
             if lt is not None and lt.is_running():
                 loop = asyncio.get_event_loop()
-                await loop.run_in_executor(None, lt.stop)
+                await _bounded(loop.run_in_executor(None, lt.stop), 15, "Loopback STT stop")
         except Exception as e:
             print(f"   [Shutdown] Loopback stop error: {e}")
 
-        # Signal the main run() loop to exit cleanly.
-        self.is_running = False
+        # Stop Chess Mode defensively — kills the Stockfish subprocess and lets
+        # the daemon Lichess stream threads die with the closed connection.
+        try:
+            if self.chess_agent is not None and self.chess_agent.is_running:
+                self.chess_agent.stop()
+        except Exception as e:
+            print(f"   [Shutdown] Chess stop error: {e}")
+
         print("   [Shutdown] Complete — all artifacts written.")
 
     # ── Activity Detection ──────────────────────────────────────────────────────
@@ -1639,15 +2205,15 @@ class VTubeBot:
                     loopback_active = True
 
             # 3. TENSE — action/combat keywords in audio OR scene.
-            if (any(kw in audio_summary for kw in self._TENSE_AUDIO_KW) or
-                    any(kw in scene_text for kw in self._TENSE_SCENE_KW)):
+            if (self._kw_hit(audio_summary, self._TENSE_AUDIO_KW) or
+                    self._kw_hit(scene_text, self._TENSE_SCENE_KW)):
                 result = SessionIntensity.TENSE
                 self.kira_state.set_intensity(result)
                 return result
 
             # 4. EMOTIONAL — sad/tender/piano keywords in audio OR scene.
-            if (any(kw in audio_summary for kw in self._EMOTIONAL_AUDIO_KW) or
-                    any(kw in scene_text for kw in self._EMOTIONAL_SCENE_KW)):
+            if (self._kw_hit(audio_summary, self._EMOTIONAL_AUDIO_KW) or
+                    self._kw_hit(scene_text, self._EMOTIONAL_SCENE_KW)):
                 result = SessionIntensity.EMOTIONAL
                 self.kira_state.set_intensity(result)
                 return result
@@ -1656,7 +2222,7 @@ class VTubeBot:
             audio_is_quiet = (
                 not audio_summary
                 or audio_summary == "(quiet)"
-                or any(kw in audio_summary for kw in self._LULL_AUDIO_KW)
+                or self._kw_hit(audio_summary, self._LULL_AUDIO_KW)
             )
             if silence_duration > 30.0 and audio_is_quiet and not loopback_active:
                 result = SessionIntensity.CALM
@@ -1776,19 +2342,41 @@ class VTubeBot:
             if not context_parts:
                 context_parts.append("This is a general streaming session.")
 
-            seed_prompt = (
-                "You are Kira, an AI VTuber. You're about to go into 'Drive Mode' — "
-                "you'll be more proactive, carry more stream momentum, and look for openings "
-                "to steer conversation and observe the game/show.\n\n"
-                "Based on the context below, generate exactly 3 short intent strings — "
-                "one sentence each — that describe what you'll actively track or nudge today. "
-                "Be specific. Use first-person. Examples of good intents:\n"
-                "  - 'Track who Stick is and needle Jonny if he keeps ignoring it'\n"
-                "  - 'Keep a running death count out loud'\n"
-                "  - 'Push back if Jonny makes a bad decision and call it'\n\n"
-                "Context:\n" + "\n\n".join(context_parts) + "\n\n"
-                "Output ONLY a JSON array of exactly 3 strings. No preamble."
+            # Media-aware shaping: a movie/anime has no inputs to narrate, so the
+            # agenda is co-watcher-shaped (react / predict / callback), not the
+            # gameplay self-drive shape.
+            is_media = (
+                (self.media_watch and self.media_watch.enabled)
+                or getattr(self.game_mode_controller, "activity_type", None) == ACTIVITY_MEDIA
             )
+            if is_media:
+                seed_prompt = (
+                    "You are Kira, an AI VTuber. You're watching a film/episode WITH Jonny "
+                    "and going into 'Carry Mode' as an active co-watcher — you'll react more, "
+                    "call shots, and lean into your own take on what's unfolding.\n\n"
+                    "Based on the context below, generate exactly 3 short intent strings — "
+                    "one sentence each — describing what you'll actively track or do as you "
+                    "watch. Be specific. Use first-person. Examples of good intents:\n"
+                    "  - 'Call the twist before it lands and gloat if I'm right'\n"
+                    "  - 'Track the green-haired girl — I'm already rooting for her'\n"
+                    "  - 'React to the art and score, not just the plot'\n\n"
+                    "Context:\n" + "\n\n".join(context_parts) + "\n\n"
+                    "Output ONLY a JSON array of exactly 3 strings. No preamble."
+                )
+            else:
+                seed_prompt = (
+                    "You are Kira, an AI VTuber. You're about to go into 'Drive Mode' — "
+                    "you'll be more proactive, carry more stream momentum, and look for openings "
+                    "to steer conversation and observe the game/show.\n\n"
+                    "Based on the context below, generate exactly 3 short intent strings — "
+                    "one sentence each — that describe what you'll actively track or nudge today. "
+                    "Be specific. Use first-person. Examples of good intents:\n"
+                    "  - 'Track who Stick is and needle Jonny if he keeps ignoring it'\n"
+                    "  - 'Keep a running death count out loud'\n"
+                    "  - 'Push back if Jonny makes a bad decision and call it'\n\n"
+                    "Context:\n" + "\n\n".join(context_parts) + "\n\n"
+                    "Output ONLY a JSON array of exactly 3 strings. No preamble."
+                )
             resp = await self.ai_core.tool_inference(
                 prompt=seed_prompt,
                 system="You output a JSON array of 3 short intent strings.",
@@ -1802,6 +2390,7 @@ class VTubeBot:
                 agenda = _json.loads(raw[start:end])
                 if isinstance(agenda, list) and agenda:
                     self.drive_agenda = [str(a).strip() for a in agenda[:5] if str(a).strip()]
+                    self._last_seeded_activity = self.current_activity
                     print(f"   [DriveMode] Agenda seeded ({len(self.drive_agenda)} items):")
                     for i, item in enumerate(self.drive_agenda, 1):
                         print(f"     {i}. {item}")
@@ -2298,6 +2887,22 @@ class VTubeBot:
             # Shares only the vision client with autopilot — no other coupling.
             self.media_watch = MediaWatch(vision_client=self.vision_agent.client)
             self.media_watch.on_react = self._media_watch_react
+            # If start() aborts after enabled was set (bad window, etc.), un-park
+            # vision immediately — never enforce an intent that failed.
+            self.media_watch.on_start_failed = (
+                lambda _reason: self._reconcile_modes(trigger="mw_start_failed")
+            )
+
+            # Set up Chess Mode (disabled by default; dashboard toggles it).
+            # No shared state with the vision stack — the board comes from
+            # Lichess, not the screen. Engine is local CPU Stockfish.
+            self.chess_agent = ChessAgent(
+                token=LICHESS_BOT_TOKEN,
+                engine_path=CHESS_ENGINE_PATH,
+                kira_elo=CHESS_KIRA_ELO,
+                movetime_ms=CHESS_MOVETIME_MS,
+            )
+            self.chess_agent.on_react = self._chess_react
 
             # Set up Playthrough Memory (global scope — all modes read from it)
             self.playthrough_memory = PlaythroughMemory(ai_core=self.ai_core)
@@ -2405,8 +3010,14 @@ class VTubeBot:
             from control_server import start_control_server
             tasks.append(start_control_server(self))
 
+            # Materialize every coroutine into a real Task and keep handles so
+            # shutdown_async() can explicitly cancel the background loops (control
+            # server, autopilot watchdog, observer, heartbeats, etc.) before the
+            # artifact phase, instead of relying on interpreter teardown.
+            self._background_tasks = [asyncio.ensure_future(t) for t in tasks]
+
             # Run everything concurrently
-            await asyncio.gather(*tasks)
+            await asyncio.gather(*self._background_tasks)
 
         except asyncio.CancelledError:
             print("Main loop cancelled.")
@@ -2415,36 +3026,40 @@ class VTubeBot:
             print(f"Error in internal main loop: {e}")
             raise # Propagate to the self-healing wrapper
         finally:
-            # Save session memory and artifacts before tearing down
-            try:
-                if self.immersive and (self.session_scene_log or self.session_highlights):
-                    await self._generate_session_summary()
-            except Exception as e:
-                print(f"   [Session] Final summary failed: {e}")
-            try:
-                if self.full_session_log and not self._session_artifacts_written:
-                    await self._write_session_artifacts()
-            except Exception as e:
-                print(f"   [Session] Final artifacts failed: {e}")
-            # Close stream logger (flushes buffer + optional Opus summary)
-            if STREAM_LOGGING_ENABLED:
+            # When shutdown_async() is driving teardown it already owns the
+            # artifact phase (and cancelled us to get here). Skip the duplicate
+            # writes; just release hardware resources below.
+            if not getattr(self, "_shutdown_started", False):
+                # Save session memory and artifacts before tearing down
                 try:
-                    if hasattr(self.ai_core, "_session_usage"):
-                        self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
-                    await self.stream_logger.finish(self.ai_core)
+                    if self.immersive and (self.session_scene_log or self.session_highlights):
+                        await self._generate_session_summary()
                 except Exception as e:
-                    print(f"   [StreamLogger] Shutdown finish error: {e}", file=sys.stderr)
-            # Record session in identity.json for temporal continuity (second shutdown path)
-            try:
-                _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
-                identity_manager.record_session(
-                    start_ts=self.session_started_at,
-                    end_ts=time.time(),
-                    activity=self.current_activity or 'general',
-                    slug=_slug,
-                )
-            except Exception as e:
-                print(f"   [Identity] Session record failed: {e}")
+                    print(f"   [Session] Final summary failed: {e}")
+                try:
+                    if self.full_session_log and not self._session_artifacts_written:
+                        await self._write_session_artifacts()
+                except Exception as e:
+                    print(f"   [Session] Final artifacts failed: {e}")
+                # Close stream logger (flushes buffer + optional Opus summary)
+                if STREAM_LOGGING_ENABLED:
+                    try:
+                        if hasattr(self.ai_core, "_session_usage"):
+                            self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
+                        await self.stream_logger.finish(self.ai_core)
+                    except Exception as e:
+                        print(f"   [StreamLogger] Shutdown finish error: {e}", file=sys.stderr)
+                # Record session in identity.json for temporal continuity (second shutdown path)
+                try:
+                    _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
+                    identity_manager.record_session(
+                        start_ts=self.session_started_at,
+                        end_ts=time.time(),
+                        activity=self.current_activity or 'general',
+                        slug=_slug,
+                    )
+                except Exception as e:
+                    print(f"   [Identity] Session record failed: {e}")
             print("--- Cleaning up resources... ---")
             if self.stream: self.stream.stop_stream(); self.stream.close()
             if self.pyaudio_instance: self.pyaudio_instance.terminate()
@@ -2535,8 +3150,16 @@ class VTubeBot:
         # Fix #3: hold processing_lock only for the Whisper transcription call.
         # Releasing it immediately after narrows the window during which vad_loop
         # can fire interruption_event, reducing false-positive chat aborts.
+        # Latency instrumentation: vad_close is the fixed trailing-silence hangover
+        # the VAD waits before declaring speech-end; stt is measured live.
+        _lat = {
+            "vad_close_ms": int(PAUSE_THRESHOLD * 1000),
+            "t_capture": time.time(),
+        }
+        _stt_t0 = time.time()
         async with self.processing_lock:
             user_text = await self.ai_core.transcribe_audio(audio_data, self.current_activity)
+        _lat["stt_ms"] = int((time.time() - _stt_t0) * 1000)
         # Lock released — post-transcription steps don't need it.
         if not user_text or len(user_text) < 3:
             return
@@ -2549,15 +3172,23 @@ class VTubeBot:
             return
 
         # --- PUSH VOICE TO QUEUE ---
-        await self.input_queue.put(("voice", user_text))
+        await self.input_queue.put(("voice", user_text, _lat))
 
 
     async def brain_worker(self):
         print("   [System] Brain Worker started.")
         while True:
-            source, content = await self.input_queue.get()
+            _item = await self.input_queue.get()
+            # Voice inputs carry a 3rd element: a latency-trace dict. Chat inputs
+            # (twitch/youtube) are 2-tuples. Unpack defensively.
+            if len(_item) == 3:
+                source, content, _lat = _item
+            else:
+                source, content = _item
+                _lat = None
             handled_by_chat = False
-
+            if _lat is not None:
+                _lat["t_dequeue"] = time.time()
             try:
                 # === CHAT INPUTS → BATCH BUFFER (immediate return, no response now) ===
                 if source in ("twitch", "youtube"):
@@ -2837,6 +3468,8 @@ class VTubeBot:
                     # silently dropped before reaching triage or process_and_respond.
                     _sal_score, _sal_tier, _sal_primary = salience_filter.score("voice", content)
                     print(f"   [Salience] voice: score={_sal_score} tier={_sal_tier}")
+                    if _lat is not None:
+                        _lat["salience_ms"] = int((time.time() - _lat["t_dequeue"]) * 1000)
 
                     # LOW-salience voice (e.g. novelty-penalised repeat after <30s) biases
                     # triage toward BRIEF — she still responds, just not at length.
@@ -2856,7 +3489,11 @@ class VTubeBot:
                             self.memory.get_semantic_context, content
                         )
                         _triage_ms = 0
-                        print(f"   [TIMING] triage bypassed (salience HIGH): memory={int((time.time() - _triage_t0) * 1000)}ms")
+                        _mem_ms = int((time.time() - _triage_t0) * 1000)
+                        if _lat is not None:
+                            _lat["triage_ms"] = 0
+                            _lat["memory_ms"] = _mem_ms
+                        print(f"   [TIMING] triage bypassed (salience HIGH): memory={_mem_ms}ms")
                         try:
                             self.stream_logger.log(
                                 "triage_decision",
@@ -2892,6 +3529,11 @@ class VTubeBot:
                             pass
                         _triage_ms = int((time.time() - _triage_t0) * 1000)
                         print(f"   [TIMING] triage+memory: {_triage_ms}ms")
+                        if _lat is not None:
+                            # Normal path: memory fetch ran concurrently with Groq
+                            # triage under asyncio.gather, so its cost is subsumed here.
+                            _lat["triage_ms"] = _triage_ms
+                            _lat["memory_ms"] = 0  # concurrent — not separately billable
                     # GPU contention detector: only meaningful on non-bypass turns where Groq ran.
                     # _triage_ms == 0 on bypass turns — exclude from rolling latency window so the
                     # bypass doesn't skew the median downward and mask real saturation events.
@@ -2940,6 +3582,7 @@ class VTubeBot:
                             situational_context=visual_desc,
                             brief_mode=brief_mode,
                             prefetched_memory=prefetched_memory,
+                            lat=_lat,
                         )
 
                     # System 6b: release soft-pause after Jonny's exchange is fully handled
@@ -3722,6 +4365,14 @@ class VTubeBot:
         ]
         highlights_block = "\n".join(highlights_lines) if highlights_lines else "(none captured)"
 
+        # Called-shot record: resolved predictions (hit/miss) so lore generation
+        # can immortalize great calls ("the night she called the Vesper betrayal").
+        called_shots_block = ""
+        try:
+            called_shots_block = self.kira_state.get_called_shots_record()
+        except Exception:
+            called_shots_block = ""
+
         # ── STAGE 0: Raw dump (no LLM, no network). Always runs first. ──
         # This is the unkillable fallback: if every Opus call below dies, the
         # raw session content still lives on disk for manual review.
@@ -3736,6 +4387,9 @@ class VTubeBot:
                 f.write(f"**Highlights captured:** {len(self.session_highlights)}\n\n")
                 f.write("## Highlights\n\n")
                 f.write(highlights_block + "\n\n")
+                if called_shots_block:
+                    f.write("## Called Shots\n\n")
+                    f.write(called_shots_block + "\n\n")
                 f.write("## Full Transcript\n\n```\n")
                 f.write(transcript)
                 f.write("\n```\n")
@@ -3773,7 +4427,8 @@ class VTubeBot:
             f"  **Key exchange:** 2-4 quoted lines\n\n"
             f"=== TRANSCRIPT ===\n{llm_transcript}\n\n"
             f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
-            f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
+            + (f"=== CALLED SHOTS (predictions she made and how they resolved) ===\n{called_shots_block}\n\n" if called_shots_block else "")
+            + f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
         )
 
         # ── STAGE 1: Sonnet call for lore + clips (60s timeout). ──
@@ -4201,66 +4856,169 @@ class VTubeBot:
                 # by the vision loop). Empty string when nothing is available.
                 def _build_scene_block() -> str:
                     va = self.vision_agent
-                    parts = []
-                    try:
-                        current = va.get_vision_context() if va else ""
-                    except Exception:
-                        current = ""
-                    if current:
-                        parts.append(f"CURRENT FRAME:\n{current}")
-                    rolling = getattr(va, "scene_summary", "") if va else ""
-                    if rolling and len(rolling) > 20:
-                        parts.append(f"STORY SO FAR (rolling summary of this session):\n{rolling}")
+                    gmc = self.game_mode_controller
+
+                    # CHESS MODE: a live game is its own self-contained scene. The
+                    # board block (plain-language eval, never centipawns) REPLACES
+                    # vision/game context so her interjections read the position,
+                    # not the screen capture. Character rules ride along.
+                    if self.chess_agent is not None and self.chess_agent.has_context():
+                        _cb = self.chess_agent.get_board_block()
+                        if _cb:
+                            return f"{self._CHESS_CHARACTER_RULES}\n\n{_cb}"
+
+                    # MEDIA MODE: Media Watch running, or the activity itself is MEDIA.
+                    # In this mode we frame everything as watching a film/episode and
+                    # suppress game-shaped context so Kira reacts like a couch
+                    # film-watcher, not a gamer squinting at a movie.
+                    mw_running = bool(
+                        self.media_watch and self.media_watch.is_running and self.media_watch.has_context()
+                    )
+                    is_media = mw_running or (getattr(gmc, "activity_type", None) == ACTIVITY_MEDIA)
+
+                    # parts: (priority, text). Higher priority = more protected from
+                    # the combined size guard below. The live scene and active
+                    # behavioral directives are the last to be trimmed; accumulated
+                    # context goes first.
+                    parts: list[tuple[int, str]] = []
+
+                    # ── SCENE SOURCE — mutually exclusive by mode (priority, not a pile) ──
+                    if mw_running:
+                        # Media Watch: the episode log REPLACES current-frame +
+                        # story-so-far. Heartbeat is suppressed while MW runs, so
+                        # those would be stale — the episode log is strictly better.
+                        mw_ctx = self.media_watch.get_episode_context()
+                        if mw_ctx:
+                            parts.append((100, f"FILM/EPISODE LOG (what's happened so far):\n{mw_ctx}"))
+                    else:
+                        # Game / general vision: current frame + story-so-far MAY
+                        # coexist — they're complementary (one is NOW, one is the arc).
+                        try:
+                            current = va.get_vision_context() if va else ""
+                        except Exception:
+                            current = ""
+                        if current:
+                            parts.append((100, f"CURRENT FRAME:\n{current}"))
+                        rolling = getattr(va, "scene_summary", "") if va else ""
+                        if rolling and len(rolling) > 20:
+                            parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
                     # Dialogue summary from LoopbackSTT — the condensed "what's been
-                    # said in the game/show" that persists beyond the 60s raw window.
-                    # FIX A: without this, interjections were blind to the plot beats
-                    # that FIX 5 is continuously building from game/show audio.
+                    # said" that persists beyond the 60s raw window. Labeled per mode
+                    # so a film's dialogue never reads as "GAME DIALOGUE".
                     lt = self.loopback_transcriber
                     if lt is not None:
                         _dlg = lt.get_dialogue_summary() if hasattr(lt, "get_dialogue_summary") else ""
                         if _dlg:
-                            parts.append(f"GAME DIALOGUE — story so far:\n{_dlg}")
-                    # Playthrough memory: includes [MY CURRENT TAKES ON X] and the
-                    # games manifest — the dedicated channel for Kira's standing
-                    # opinions. Without this, her "agency" sections have nothing
-                    # concrete to anchor on and degrade to generic feral.
-                    if self.playthrough_memory:
+                            dlg_label = "FILM/EPISODE DIALOGUE" if is_media else "GAME DIALOGUE"
+                            parts.append((70, f"{dlg_label} — story so far:\n{_dlg}"))
+                    # Playthrough memory: [MY CURRENT TAKES ON X] + games manifest —
+                    # the channel for Kira's standing opinions. This is game-shaped;
+                    # in MEDIA mode it reads as a playthrough, so we SKIP it entirely
+                    # rather than let a movie inherit gamer framing.
+                    if self.playthrough_memory and not is_media:
                         try:
                             pt = self.playthrough_memory.get_context_for_prompt()
                         except Exception:
                             pt = ""
                         if pt:
-                            parts.append(pt)
+                            parts.append((50, pt))
                     # Mid-session rolling condensed takes — keeps her hour-1
                     # opinions visible in hour 3, even on a fresh game where the
                     # on-disk opinions block is still empty.
                     if self.session_takes_summary:
-                        parts.append(
+                        parts.append((
+                            40,
                             f"[MY TAKES SO FAR THIS SESSION — callbacks welcome]\n"
                             f"{self.session_takes_summary}"
-                        )
+                        ))
                     # Carry Mode directive: communicate the elevated initiative
                     # mandate to the model, with the brevity counterweight explicit.
+                    # Media-aware: in MEDIA mode the directive is co-watcher-shaped
+                    # (react/predict/callback), NOT "gameplay self-drive" — a movie
+                    # has no inputs to narrate.
                     if self.carry_mode:
-                        parts.append(
-                            "[CARRY MODE — gameplay self-drive ON]\n"
-                            "This is the live-gameplay analogue of VN autopilot: "
-                            "carry more momentum, initiate more often, lean on your "
-                            "own takes and what's on screen. But the brevity rule "
-                            "still wins — one sharp line, not three filler ones. "
-                            "Silence beats filler even in carry mode; only fire when "
-                            "there's something real to react to. No generic "
-                            "observations, no chat-question spam."
-                        )
+                        if is_media:
+                            carry_text = (
+                                "[CARRY MODE — active co-watcher ON]\n"
+                                "You're watching this WITH Jonny and leaning in: react "
+                                "to beats, call shots before they land, callback to "
+                                "earlier scenes, and voice a real opinion on what's "
+                                "unfolding. But the brevity rule still wins — one sharp "
+                                "line, not three filler ones. Silence beats filler; only "
+                                "speak when something genuinely grabs you. No recaps, no "
+                                "narration, no generic 'what do you think' questions."
+                            )
+                        else:
+                            carry_text = (
+                                "[CARRY MODE — gameplay self-drive ON]\n"
+                                "This is the live-gameplay analogue of VN autopilot: "
+                                "carry more momentum, initiate more often, lean on your "
+                                "own takes and what's on screen. But the brevity rule "
+                                "still wins — one sharp line, not three filler ones. "
+                                "Silence beats filler even in carry mode; only fire when "
+                                "there's something real to react to. No generic "
+                                "observations, no chat-question spam."
+                            )
+                        parts.append((90, carry_text))
                         # B — Drive agenda: inject when Carry Mode is on and agenda is populated.
                         if self.drive_agenda:
                             agenda_lines = "\n".join(f"  - {item}" for item in self.drive_agenda)
-                            parts.append(
+                            parts.append((
+                                85,
                                 f"[DRIVE AGENDA — only raise one of these if the moment makes it OBVIOUS "
                                 f"and natural; otherwise ignore them completely. "
                                 f"Better to never mention them than to force one.]\n{agenda_lines}"
+                            ))
+
+                    # ── COMBINED SIZE GUARD ──────────────────────────────────────
+                    # Drop the lowest-priority (least time-sensitive) parts first
+                    # and log it. TRUE PROTECTION: parts at weight >= PROTECT_WEIGHT
+                    # (the live scene + active behavioral directives) are NEVER
+                    # dropped — the guard only considers lower-weight context for
+                    # eviction. If protected parts alone exceed budget we keep them
+                    # and log an over-budget notice rather than gutting the directive.
+                    # Mode-aware budget: media mode's episode log is inherently large
+                    # and is the whole point of the mode, so it gets more room.
+                    SCENE_BUDGET = 4000 if is_media else 2500
+                    PROTECT_WEIGHT = 90
+
+                    def _assemble(ps: "list[tuple[int, str]]") -> str:
+                        return "\n\n".join(t for _, t in ps)
+
+                    assembled = _assemble(parts)
+                    while len(assembled) > SCENE_BUDGET:
+                        droppable = [i for i in range(len(parts))
+                                     if parts[i][0] < PROTECT_WEIGHT]
+                        if not droppable:
+                            # Only protected parts remain — never evict a directive.
+                            print(
+                                f"   [WARN] SceneBlock size guard: {len(assembled)} chars "
+                                f"over budget {SCENE_BUDGET}, but only protected parts "
+                                f"(weight >= {PROTECT_WEIGHT}) remain — keeping all."
                             )
-                    return "\n\n".join(parts)
+                            break
+                        lowest_i = min(droppable, key=lambda i: parts[i][0])
+                        dropped = parts.pop(lowest_i)
+                        label = dropped[1].split("\n", 1)[0][:60]
+                        before = len(assembled)
+                        assembled = _assemble(parts)
+                        print(
+                            f"   [WARN] SceneBlock size guard: dropped '{label}' "
+                            f"({before}\u2192{len(assembled)} chars, budget {SCENE_BUDGET})"
+                        )
+
+                    # MEDIA framing header — prepended so it leads the block and is
+                    # never subject to the size guard. Reframes the whole block as a
+                    # shared film/episode viewing, not a gameplay session.
+                    if is_media:
+                        header = (
+                            "[VIEWING TOGETHER — you and Jonny are watching a film/episode, "
+                            "not playing a game. React like someone on the couch watching with "
+                            "him: a film-watcher's eye and instincts, not a gamer narrating "
+                            "inputs. Talk about scenes, shots, characters, and story beats.]"
+                        )
+                        return header + ("\n\n" + assembled if assembled else "")
+                    return assembled
 
                 # SPOTLIGHT: proactive, low-probability, rate-capped recognition of
                 # a chatter unprompted. Counts toward stage gating so it doesn't
@@ -4502,9 +5260,13 @@ class VTubeBot:
                             self.conversation_history.append({"role": "assistant", "content": cleaned})
                             self.ai_core.last_speech_finish_time = time.time()
 
-    async def _execute_interjection(self, prompt, memory_query: str = ""):
+    async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = ""):
         """Runs a proactive interjection. Routes through Claude Opus when available —
-        Claude follows the anti-fabrication instruction reliably; local Llama 8B does not."""
+        Claude follows the anti-fabrication instruction reliably; local Llama 8B does not.
+
+        scene_override: when provided (e.g. the Media Watch episode log), it is used as
+        Kira's scene perception and the vision_agent fresh-capture + blindness/stale
+        directive are skipped — the override IS her sight for this reaction."""
         if self.is_muted():
             return
         _t0_total = time.time()
@@ -4513,11 +5275,13 @@ class VTubeBot:
         # cache so we stop adding API pressure exactly when the card is drowning.
         # Also skipped if the heartbeat ran recently enough (< 5s ago) — no point
         # in a redundant call when the cache is already fresh.
+        # Also skipped entirely when a scene_override is supplied (Media Watch:
+        # vision_agent is not the sight source — the episode log is).
         _va = self.vision_agent
         _t0_vision = time.time()
         _cache_age = (time.time() - _va.last_capture_time) if (_va and _va.last_capture_time) else 999
-        _skip_fresh = self._under_load or (_cache_age < 5.0)
-        if _skip_fresh and _va and _va.last_capture_time:
+        _skip_fresh = self._under_load or (_cache_age < 5.0) or bool(scene_override)
+        if _skip_fresh and _va and _va.last_capture_time and not scene_override:
             print(f"   [LoadShed] Skipping fresh vision capture (under_load={self._under_load}, cache_age={_cache_age:.1f}s)")
         if _va and _va.is_active and getattr(_va, "client", None) and not _skip_fresh:
             _fresh = await _va.capture_and_describe(is_heartbeat=False)
@@ -4530,18 +5294,24 @@ class VTubeBot:
         # Visual status: only feed scene context when we have a fresh frame.
         # Otherwise inject an explicit blindness/stale directive so the LLM cannot
         # fabricate "what's on screen" comments from memory or thin air.
-        fresh_visual = self._has_fresh_visual_context()
-        va = self.vision_agent
-        if fresh_visual:
-            scene = va.get_vision_context()
+        # A scene_override (Media Watch episode log) IS the sight source — use it
+        # directly and suppress the blindness/stale directive.
+        if scene_override:
+            scene = scene_override
             visual_directive = ""
         else:
-            scene = ""
-            if va and va.is_active and va.last_capture_time:
-                age = int(time.time() - va.last_capture_time)
-                visual_directive = self._stale_visual_directive(age)
+            fresh_visual = self._has_fresh_visual_context()
+            va = self.vision_agent
+            if fresh_visual:
+                scene = va.get_vision_context()
+                visual_directive = ""
             else:
-                visual_directive = self._visual_blindness_directive()
+                scene = ""
+                if va and va.is_active and va.last_capture_time:
+                    age = int(time.time() - va.last_capture_time)
+                    visual_directive = self._stale_visual_directive(age)
+                else:
+                    visual_directive = self._visual_blindness_directive()
 
         # Shared guardrails (anti-fabrication + banned phrases + observer-avoid)
         full_prompt = (
@@ -4549,6 +5319,13 @@ class VTubeBot:
             + visual_directive
             + self._kira_voice_guardrails(include_observer_avoid=True)
         )
+
+        # Called-shot payoff: surface a freshly-resolved prediction if one is
+        # waiting (self-clears after one injection; self-suppresses during
+        # INTENSE/CLIMACTIC and within the ~10-min cooldown).
+        _payoff_directive = self.kira_state.get_payoff_directive()
+        if _payoff_directive:
+            full_prompt += "\n\n" + _payoff_directive
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         _t0_llm = time.time()
@@ -4593,6 +5370,8 @@ class VTubeBot:
             _total_ms = int((time.time() - _t0_total) * 1000)
             print(f"   [TIMING] interjection: vision={_vision_ms}ms llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_total_ms}ms")
             self.conversation_history.append({"role": "assistant", "content": cleaned})
+            # Called-shot CAPTURE on proactive interjections too (cheap, no LLM).
+            self.kira_state.capture_called_shot(cleaned)
             # Push into bot-owned pool unconditionally during streamer mode — works
             # across all activity types and persists across activity switches (Req A).
             if self.mode == "streamer":
@@ -4623,6 +5402,8 @@ class VTubeBot:
             "they said or decided, and what the emotional beat is. Track narrative continuity — "
             "note what changed since the previous summary. Grounded facts only, no speculation, "
             "no editorializing. "
+            "Preserve proper names verbatim — never replace a character's name with a role word "
+            "(say 'Coco', not 'the speaker'; say 'Yumemi', not 'the girl'). "
             "If lines appear to be music lyrics (rhyming, song-like structure, short repeated phrases, "
             "or clearly part of a song) rather than narrative character dialogue, note them as "
             "'possible song lyrics' rather than treating them as character speech or plot events. "
@@ -4658,7 +5439,7 @@ class VTubeBot:
                 print(f"   [LoopbackSTT] Summary update error: {e}")
 
 
-    async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False, prefetched_memory: str | None = None):
+    async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False, prefetched_memory: str | None = None, lat: dict | None = None):
         print(f"   (Kira's current emotion is: {self.current_emotion.name})")
         _t0_voice = time.time()
         _t0_llm = _t0_voice  # reset inside generation block for accuracy
@@ -4768,6 +5549,15 @@ class VTubeBot:
                         f"\n\n[CURRENT CONTEXT: You and Jonny are currently {self.current_activity}. "
                         "Let this shape what you talk about, reference, and react to.]"
                     )
+
+                # Chess Mode: live board state + character rules. Injected only
+                # while a chess game is live; the board block translates eval to
+                # plain language (never centipawns) so she can't talk engine-speak.
+                if self.chess_agent is not None and self.chess_agent.has_context():
+                    _chess_block = self.chess_agent.get_board_block()
+                    if _chess_block:
+                        dynamic_context += f"\n\n{self._CHESS_CHARACTER_RULES}\n\n{_chess_block}"
+
                 # Inject the recent activity brief — gives Kira baked-in awareness of last session
                 if self.recent_activity_brief:
                     dynamic_context += (
@@ -4787,6 +5577,13 @@ class VTubeBot:
                 _kira_state_block = self.kira_state.get_state_block()
                 if _kira_state_block:
                     dynamic_context += f"\n\n{_kira_state_block}"
+
+                # Called-shot payoff (predict → resolve → payoff). Surfaces at most
+                # one freshly-resolved prediction; self-clears after one injection and
+                # self-suppresses during INTENSE/CLIMACTIC beats + a ~10-min cooldown.
+                _payoff_directive = self.kira_state.get_payoff_directive()
+                if _payoff_directive:
+                    dynamic_context += f"\n\n{_payoff_directive}"
 
                 # Playthrough memory: current game arc + full games-played manifest
                 # Injected here so it's available to Kira in all voice/chat/observer modes globally
@@ -4885,6 +5682,10 @@ class VTubeBot:
                       f"  hist={len(self.conversation_history)}turns"
                       f"  moment={self.current_moment_type.value}")
 
+                # Latency: prompt assembly complete — mark before the LLM call.
+                if lat is not None:
+                    lat["prompt_build_ms"] = int((time.time() - _t0_llm) * 1000)
+
                 try:
                     if ENABLE_CLAUDE_STREAMING:
                         # Streaming path: speak as tokens arrive
@@ -4966,7 +5767,7 @@ class VTubeBot:
         # --- TOOL INTERCEPTOR ---
         # Scan for polls/songs and strip tags before TTS
         allow_music = (source == "twitch")
-        full_response_text = parse_kira_tools(full_response_text, allow_music=allow_music)
+        full_response_text = parse_kira_tools(full_response_text, allow_music=allow_music, source=source)
         
         if full_response_text:
             if not skip_generation and not streamed_already_spoken:
@@ -4982,10 +5783,51 @@ class VTubeBot:
                 print(f"   [TIMING] voice: llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_voice_total_ms}ms")
                 self.stream_logger.log("kira_response_model", model=_llm_model)
 
+                # --- Consolidated per-stage latency line (measure-only) ---
+                # Emitted for the streaming voice path, where ai_core stamped the
+                # token/TTS/playback sub-stages. One line per turn for offline
+                # median/p90 analysis. Stages are an additive chain from
+                # capture-complete to first audible word.
+                if (
+                    lat is not None
+                    and source == "voice"
+                    and streamed_already_spoken
+                    and self.ai_core._lat_audio_out_ms >= 0
+                ):
+                    _ttft = self.ai_core._lat_ttft_ms
+                    _tts1 = self.ai_core._lat_tts_first_chunk_ms
+                    _aout = self.ai_core._lat_audio_out_ms
+                    _stt = lat.get("stt_ms", -1)
+                    _sal = lat.get("salience_ms", -1)
+                    _mem = lat.get("memory_ms", -1)
+                    _tri = lat.get("triage_ms", -1)
+                    _pb = lat.get("prompt_build_ms", -1)
+                    # Per-stage deltas within the stream (ttft is from stream start).
+                    _tts_first_delta = (_tts1 - _ttft) if (_tts1 >= 0 and _ttft >= 0) else -1
+                    _aout_delta = (_aout - _tts1) if (_aout >= 0 and _tts1 >= 0) else -1
+                    # Triage label: bypassed turns show memory cost explicitly.
+                    if _tri == 0 and _mem > 0:
+                        _tri_str = f"triage=bypassed memory={_mem}ms"
+                    else:
+                        _tri_str = f"triage={_tri}ms memory=conc"
+                    # TOTAL processing latency from capture-complete to first sound.
+                    _total = sum(v for v in (_stt, _sal, _tri, _mem if _tri == 0 else 0, _pb, _aout) if v and v > 0)
+                    print(
+                        f"   [LATENCY] vad_close={lat.get('vad_close_ms', -1)}ms "
+                        f"stt={_stt}ms salience={_sal}ms {_tri_str} "
+                        f"prompt_build={_pb}ms ttft={_ttft}ms "
+                        f"tts_first_chunk={_tts_first_delta}ms audio_out={_aout_delta}ms "
+                        f"TOTAL={_total}ms"
+                    )
+
             # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
             self._log_session_turn(role="assistant", content=full_response_text, speaker_name="Kira")
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})
+
+            # Called-shot CAPTURE: cheap heuristic, no LLM. Records a concrete
+            # prediction as an open shot for later resolution + payoff.
+            self.kira_state.capture_called_shot(full_response_text)
             
             # Store raw turn in "Turns" collection (for analytics)
             if role == "user":

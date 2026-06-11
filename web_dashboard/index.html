@@ -19,6 +19,7 @@
   --text-primary: #F4EACC;   /* warm oat cream */
   --text-sec:     #C4A06A;   /* caramel */
   --text-muted:   #8A7050;   /* taupe */
+  --perception:   #A88A5E;   /* one step up from muted — italic perception text */
   --header:       #B8904A;   /* brass */
 
   --accent:       #C08840;   /* caramel accent */
@@ -30,6 +31,10 @@
   --danger:       #C0614A;   /* terracotta */
   --warning:      #C4943A;   /* amber */
   --off:          #5A4A38;
+
+  --attention:      #B5654A; /* desaturated rust — override / needs-attention */
+  --attention-tint: #2E1A14; /* rust-tinted fill for override chips */
+  --accent-tint:    #3A2C18; /* dimmed amber fill / strip background */
 
   --font-base: 'Segoe UI', system-ui, sans-serif;
   --r: 8px;     /* border radius */
@@ -133,6 +138,42 @@ html, body {
   transition: background .4s;
 }
 #ws-indicator.live { background: var(--success); }
+
+/* ── EFFECTIVE-STATE STRIP (truth bar under the glance) ──── */
+#eff-strip {
+  flex-shrink: 0;
+  background: var(--accent-tint);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+#eff-strip .eff-seg { color: var(--text-primary); white-space: nowrap; }
+#eff-strip .eff-seg.attn { color: var(--attention); }
+#eff-strip .eff-sep { color: var(--border); }
+
+/* ── Three-state switch override styling ────────────────── */
+.sw.override .sw-track { background: var(--accent-tint); box-shadow: inset 0 0 0 2px var(--accent); }
+.sw.override .sw-knob  { background: var(--attention); }
+.override-chip {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--attention-tint);
+  color: var(--attention);
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+.override-chip:empty { display: none; }
 
 /* ── MAIN BODY (below glance) ───────────────────────────── */
 #body {
@@ -421,10 +462,36 @@ html, body {
 
 .status-text {
   font-size: .78rem;
-  color: var(--text-muted);
+  color: var(--perception);
   font-style: italic;
 }
 
+.loopback-feed {
+  margin-top: 4px;
+  max-height: 96px;
+  overflow-y: auto;
+  background: var(--accent-tint);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: .72rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.loopback-feed:empty { display: none; }
+.loopback-feed .lf-age { color: var(--text-muted); }
+.loopback-summary {
+  margin-top: 3px;
+  font-size: .72rem;
+  font-style: italic;
+  color: var(--text-sec);
+}
+.loopback-summary:empty { display: none; }
+
+.locked { opacity: .4; pointer-events: none; }
+.toggle-row.locked { opacity: .4; pointer-events: none; }
 .slider-row { display: flex; flex-direction: column; gap: 4px; }
 .slider-row label { font-size: .72rem; color: var(--text-muted); }
 .slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
@@ -531,10 +598,16 @@ html, body {
       <div class="dot-item"><div class="dot" id="dot-twitch"></div><span class="dot-label">Twitch</span></div>
       <div class="dot-item"><div class="dot" id="dot-youtube"></div><span class="dot-label">YouTube</span></div>
       <div class="dot-item"><div class="dot" id="dot-vision"></div><span class="dot-label">Vision</span></div>
+      <div class="dot-item"><div class="dot" id="dot-mediawatch"></div><span class="dot-label">MediaWatch</span></div>
     </div>
 
     <span id="ws-indicator">WS</span>
   </div>
+
+  <!-- ═══════════ EFFECTIVE-STATE STRIP ═══════════ -->
+  <!-- Renders s.effective.strip (post-reconcile truth). Each segment goes
+       rust when its effect is overridden. Mirrors the desktop strip. -->
+  <div id="eff-strip"></div>
 
   <!-- ═══════════ BODY ═══════════ -->
   <div id="body">
@@ -587,7 +660,7 @@ html, body {
       <!-- ─ PANEL: PERCEPTION ─ -->
       <div class="panel" id="panel-perception">
         <div class="panel-header" onclick="togglePanel('panel-perception')">
-          Perception <span class="panel-chevron">▶</span>
+          👁 Eyes <span class="panel-chevron">▶</span>
         </div>
         <div class="panel-body">
 
@@ -598,17 +671,27 @@ html, body {
             <div id="vision-summary-text">No description yet</div>
           </div>
 
-          <div class="perception-block">
-            <span class="perception-label">👂 Hearing</span>
-            <div id="audio-summary-text">Not listening</div>
-          </div>
-
           <div class="toggle-row">
             <span class="toggle-label">Vision</span>
             <label class="sw">
               <input type="checkbox" id="sw-vision" onchange="cmd('vision_toggle')">
               <span class="sw-track"></span><span class="sw-knob"></span>
             </label>
+          </div>
+
+        </div>
+      </div><!-- /panel-perception (EYES) -->
+
+      <!-- ─ PANEL: EARS ─ -->
+      <div class="panel" id="panel-ears">
+        <div class="panel-header" onclick="togglePanel('panel-ears')">
+          👂 Ears <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="perception-block">
+            <span class="perception-label">👂 Hearing</span>
+            <div id="audio-summary-text">Not listening</div>
           </div>
 
           <div class="field">
@@ -638,6 +721,8 @@ html, body {
             </label>
           </div>
           <div class="status-text" id="loopback-status">disabled</div>
+          <div id="loopback-feed" class="loopback-feed"></div>
+          <div id="loopback-summary" class="loopback-summary"></div>
 
           <div class="toggle-row">
             <span class="toggle-label">Passive Watching</span>
@@ -648,12 +733,12 @@ html, body {
           </div>
 
         </div>
-      </div><!-- /panel-perception -->
+      </div><!-- /panel-ears (EARS) -->
 
       <!-- ─ PANEL: ACTIVITY ─ -->
       <div class="panel" id="panel-activity">
         <div class="panel-header" onclick="togglePanel('panel-activity')">
-          Activity <span class="panel-chevron">▶</span>
+          🎭 Behavior <span class="panel-chevron">▶</span>
         </div>
         <div class="panel-body">
 
@@ -689,7 +774,7 @@ html, body {
       <!-- ─ PANEL: VN / MEDIA ─ -->
       <div class="panel" id="panel-vn">
         <div class="panel-header" onclick="togglePanel('panel-vn')">
-          VN / Media Watch <span class="panel-chevron">▶</span>
+          🎭 Behavior · Automation <span class="panel-chevron">▶</span>
         </div>
         <div class="panel-body">
 
@@ -764,10 +849,28 @@ html, body {
           <div class="toggle-row">
             <span class="toggle-label">React to scenes</span>
             <label class="sw">
-              <input type="checkbox" id="sw-mw-react" onchange="cmd('media_watch_react_toggle')">
+              <input type="checkbox" id="sw-mw-react" onchange="cmd('media_watch_react_toggle',{enabled:this.checked})">
               <span class="sw-track"></span><span class="sw-knob"></span>
             </label>
           </div>
+
+          <div class="rail-sep"></div>
+
+          <div class="status-text" id="chess-status">Chess: OFF</div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Chess Mode</span>
+            <label class="sw">
+              <input type="checkbox" id="sw-chess" onchange="toggleChess(this.checked)">
+              <span class="sw-track"></span><span class="sw-knob"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label>Challenge Stockfish level (1–8)</label>
+            <input type="number" id="inp-chess-level" min="1" max="8" value="3">
+          </div>
+          <button class="btn" onclick="challengeChessAi()">Challenge Stockfish</button>
 
         </div>
       </div><!-- /panel-vn -->
@@ -775,13 +878,13 @@ html, body {
       <!-- ─ PANEL: VOICE ─ -->
       <div class="panel" id="panel-voice">
         <div class="panel-header" onclick="togglePanel('panel-voice')">
-          Voice <span class="panel-chevron">▶</span>
+          🗣 Voice <span class="panel-chevron">▶</span>
         </div>
         <div class="panel-body">
 
           <div class="pill-group">
-            <div class="pill" id="pill-azure" onclick="setTts('azure')">Azure</div>
-            <div class="pill" id="pill-fish"  onclick="setTts('fish')">Fish</div>
+            <div class="pill active" id="pill-azure" onclick="setTts('azure')">Azure</div>
+            <div class="pill" id="pill-fish"  onclick="setTts('fish')">Fish <span style="opacity:.6;font-size:.8em;">(alt)</span></div>
           </div>
 
           <div class="row">
@@ -817,7 +920,7 @@ html, body {
       <!-- ─ PANEL: CONNECTIONS ─ -->
       <div class="panel" id="panel-conn">
         <div class="panel-header" onclick="togglePanel('panel-conn')">
-          Connections <span class="panel-chevron">▶</span>
+          🌐 World <span class="panel-chevron">▶</span>
         </div>
         <div class="panel-body">
 
@@ -922,6 +1025,7 @@ let _lastTranscriptHash = '';
 
 function render(s) {
   safe(() => renderGlance(s));
+  safe(() => renderEffStrip(s));
   safe(() => renderTranscript(s));
   safe(() => renderRail(s));
   safe(() => renderPanels(s));
@@ -957,21 +1061,30 @@ function renderGlance(s) {
   setText('g-activity', s.activity || 'General');
 
   // Connection dots
-  dot('dot-llm',     s.llm_ready ? 'green' : 'red');
-  dot('dot-tts',     s.tts_backend ? 'green' : 'amber');
-  dot('dot-twitch',  s.twitch_on  ? 'green' : 'off');
-  dot('dot-vision',  s.vision_on  ? 'green' : (s.vision_on === false ? 'off' : 'off'));
+  dot('dot-llm',     s.llm_ready ? 'green' : 'red', s.llm_ready ? 'LLM ready' : 'LLM loading…');
+  dot('dot-tts',     s.tts_backend ? 'green' : 'amber', `TTS: ${(s.tts_backend || 'azure').toUpperCase()}`);
+  dot('dot-twitch',  s.twitch_on  ? 'green' : 'off', s.twitch_on ? 'Twitch connected' : 'Twitch offline');
+  dot('dot-vision',  s.vision_on  ? 'green' : 'off', s.vision_on ? 'Vision active' : 'Vision off');
 
   const ytStatus = s.youtube_status || 'disabled';
-  if      (ytStatus.startsWith('live')) dot('dot-youtube', 'green');
-  else if (ytStatus === 'idle')         dot('dot-youtube', 'amber');
-  else                                  dot('dot-youtube', 'off');
+  if      (ytStatus.startsWith('live')) dot('dot-youtube', 'green', 'YouTube live');
+  else if (ytStatus === 'idle')         dot('dot-youtube', 'amber', 'YouTube idle');
+  else                                  dot('dot-youtube', 'off', `YouTube ${ytStatus}`);
+
+  // Media Watch dot — running/parked + session events + cloud spend
+  const mw = s.media_watch || {};
+  const mwCls = mw.running ? 'green' : (mw.status && mw.status !== 'OFF' ? 'amber' : 'off');
+  const mwTip = mw.running
+    ? `Media Watch: running · ${mw.calls || 0} calls · $${(mw.cost_usd || 0).toFixed(3)}`
+    : (mw.status && mw.status !== 'OFF' ? `Media Watch: ${mw.status}` : 'Media Watch off');
+  dot('dot-mediawatch', mwCls, mwTip);
 }
 
-function dot(id, cls) {
+function dot(id, cls, tip) {
   const el = document.getElementById(id);
   if (!el) return;
   el.className = 'dot ' + cls;
+  if (tip != null) el.title = tip;
 }
 
 // ── TRANSCRIPT ────────────────────────────────────────────
@@ -1056,8 +1169,8 @@ let _prevTtsBackend = null;
 let _prevMode = null;
 
 function renderPanels(s) {
-  // Vision switch
-  setCheck('sw-vision', s.vision_on);
+  // Vision / mode / media-watch / carry switches render via setTri() below
+  // from s.effective.toggles — see the three-state block.
 
   // Vision summary
   const vs = s.vision_summary || '';
@@ -1084,12 +1197,17 @@ function renderPanels(s) {
   // Loopback
   setCheck('sw-loopback', s.loopback_on);
   setText('loopback-status', s.loopback_status || 'disabled');
+  renderLoopbackFeed(s);
 
-  // Passive watching
-  setCheck('sw-immersive', s.immersive);
-
-  // Carry mode
-  setCheck('sw-carry', s.carry_mode);
+  // ── Three-state toggles — render from effective state, not raw flags ──
+  const tg = (s.effective && s.effective.toggles) || {};
+  setTri('sw-vision',     tg.vision);
+  setTri('sw-immersive',  tg.immersive);
+  setTri('sw-carry',      tg.carry);
+  setTri('sw-autopilot',  tg.autopilot);
+  setTri('sw-mediawatch', tg.media_watch);
+  setTri('sw-mw-react',   tg.react);
+  setTri('sw-chess',      tg.chess);
 
   // Mode pills
   const m = s.mode || 'companion';
@@ -1119,14 +1237,26 @@ function renderPanels(s) {
                 : ap.paused  ? `Autopilot: PAUSED — ${ap.reason || ''}`
                              : 'Autopilot: OFF';
   setText('ap-status', apLabel);
-  setCheck('sw-autopilot', ap.running || false);
   const btnApResume = document.getElementById('btn-ap-resume');
   if (btnApResume) btnApResume.disabled = !ap.paused;
 
   // Media watch
   const mw = s.media_watch || {};
   setText('mw-status', `Media Watch: ${mw.status || 'OFF'}`);
-  setCheck('sw-mediawatch', mw.running || false);
+
+  // Chess
+  const ch = s.chess || {};
+  setText('chess-status', ch.status || 'Chess: OFF');
+
+  // ── Dependent-control locking: grey out children when their parent is off ──
+  const tg2 = (s.effective && s.effective.toggles) || {};
+  const mwOn = (tg2.media_watch && tg2.media_watch.state !== 'off');
+  lockGroup(!mwOn, 'inp-mw-window', 'sl-mw-interval');
+  lockRow(!mwOn, 'sw-mw-react');
+  const chessOn = (tg2.chess && tg2.chess.state !== 'off');
+  lockGroup(!chessOn, 'inp-chess-level');
+  const fishActive = (s.tts_backend === 'fish');
+  lockGroup(!fishActive, 'inp-fish-voice');
 
   // YouTube
   const ytStatus = s.youtube_status || 'idle';
@@ -1214,6 +1344,15 @@ function toggleMediaWatch(on) {
   cmd('media_watch_toggle', {enabled: on, title});
 }
 
+function toggleChess(on) {
+  cmd('chess_toggle', {enabled: on});
+}
+
+function challengeChessAi() {
+  const level = parseInt(document.getElementById('inp-chess-level').value, 10) || 3;
+  cmd('chess_challenge_ai', {level});
+}
+
 function ytConnect() {
   const url = document.getElementById('inp-yt-url').value.trim();
   if (url) cmd('youtube_connect', {url});
@@ -1273,6 +1412,25 @@ function togglePanel(id) {
   if (!panel) return;
   panel.classList.toggle('open');
   savePanelState();
+}
+
+// Disable + dim a set of inputs/buttons when their parent feature is off.
+function lockGroup(disabled, ...ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = !!disabled;
+    el.classList.toggle('locked', !!disabled);
+  });
+}
+
+// Disable + dim the .toggle-row that contains a given switch input.
+function lockRow(disabled, inputId) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.disabled = !!disabled;
+  const row = el.closest('.toggle-row');
+  if (row) row.classList.toggle('locked', !!disabled);
 }
 
 function savePanelState() {
@@ -1356,6 +1514,69 @@ function setCheck(id, val) {
   const el = document.getElementById(id);
   if (el) el.checked = !!val;
 }
+
+// Three-state toggle: OFF (unchecked) · ON (checked) · OVERRIDE (checked +
+// .override class on the .sw + a rust reason chip in the label). A toggle must
+// never read fully-on while its effect is suppressed.
+const _TRI_BASE = {};  // remembers each toggle-label's original text
+function setTri(inputId, desc) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  desc = desc || {};
+  const state = desc.state || 'off';
+  if (document.activeElement !== input) input.checked = (state !== 'off');
+
+  const sw = input.closest('.sw');
+  const row = input.closest('.toggle-row');
+  const label = row ? row.querySelector('.toggle-label') : null;
+  if (sw) sw.classList.toggle('override', state === 'override');
+  if (label) {
+    if (!(inputId in _TRI_BASE)) _TRI_BASE[inputId] = label.textContent.trim();
+    const base = _TRI_BASE[inputId];
+    if (state === 'override' && desc.reason) {
+      label.innerHTML = escHtml(base) +
+        `<span class="override-chip">${escHtml(desc.reason)}</span>`;
+    } else {
+      label.textContent = base;
+    }
+  }
+}
+
+// Effective-state strip — renders post-reconcile truth segments.
+function renderEffStrip(s) {
+  const strip = document.getElementById('eff-strip');
+  if (!strip) return;
+  const segs = (s.effective && s.effective.strip) || [];
+  if (!segs.length) { strip.innerHTML = ''; return; }
+  const parts = segs.map(seg =>
+    `<span class="eff-seg${seg.attn ? ' attn' : ''}">${escHtml(seg.text || '')}</span>`
+  );
+  strip.innerHTML = parts.join('<span class="eff-sep">&nbsp;·&nbsp;</span>');
+}
+
+
+function renderLoopbackFeed(s) {
+  const box = document.getElementById('loopback-feed');
+  if (box) {
+    const feed = s.loopback_feed || [];
+    if (!feed.length) {
+      box.innerHTML = '';
+    } else {
+      box.innerHTML = feed.map(seg => {
+        const age = seg.age < 5 ? 'now' : `-${seg.age}s`;
+        return `<div><span class="lf-age">[${age}]</span> ${escHtml(seg.text || '')}</div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+  const sumEl = document.getElementById('loopback-summary');
+  if (sumEl) {
+    let summ = (s.loopback_summary || '').trim();
+    if (summ.length > 200) summ = summ.slice(0, 197) + '…';
+    sumEl.textContent = summ ? `Story: ${summ}` : '';
+  }
+}
+
 
 function escHtml(str) {
   return String(str)

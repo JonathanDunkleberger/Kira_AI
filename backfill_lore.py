@@ -32,6 +32,8 @@ import time
 import traceback
 from datetime import datetime
 
+from config import CLAUDE_SONNET_MODEL
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -159,7 +161,7 @@ async def main(dry_run: bool, only_slug: str | None,
         pass
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
-    model = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")  # Sonnet — matches live lore path
+    model = CLAUDE_SONNET_MODEL  # Sonnet — matches live lore path
     if not api_key:
         print("ERROR: ANTHROPIC_API_KEY not set — cannot call Claude.")
         sys.exit(1)

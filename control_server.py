@@ -42,11 +42,11 @@ from game_mode_controller import ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACT
 # ── Emotion → hex color (mirrors dashboard.py EMOTION_COLORS) ─────────────────
 import theme as T
 _EMOTION_COLORS: dict[str, str] = {
-    "HAPPY":       T.ACCENT,
-    "SASSY":       T.SAKURA,
-    "MOODY":       T.TEXT_SECONDARY,
-    "EMOTIONAL":   T.SAKURA_SOFT,
-    "HYPERACTIVE": T.WARNING,
+    "HAPPY":       T.EMOTION_HAPPY,
+    "SASSY":       T.EMOTION_SASSY,
+    "MOODY":       T.EMOTION_MOODY,
+    "EMOTIONAL":   T.EMOTION_EMOTIONAL,
+    "HYPERACTIVE": T.EMOTION_HYPERACTIVE,
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -134,11 +134,28 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     loopback_on = _get(lambda: lt.is_running() if lt else False, False)
     loopback_status = _get(lambda: lt.get_status_summary() if lt else "disabled", "disabled")
 
+    def _loopback_feed():
+        if not lt or not lt.is_running():
+            return []
+        import time as _t
+        now = _t.time()
+        out = []
+        for seg in (lt.get_segments() or [])[-6:]:
+            age = int(now - seg.get("ts", now))
+            out.append({"age": age, "text": (seg.get("text", "") or "").strip()})
+        return out
+
+    loopback_feed = _get(_loopback_feed, [])
+    loopback_summary = _get(lambda: (lt.get_dialogue_summary() or "") if lt else "", "")
+
     # ── Activity + mode flags ─────────────────────────────────────────────────
     activity = _get(lambda: bot.current_activity or "", "")
     mode = _get(lambda: bot.mode, "companion")
     carry_mode = _get(lambda: bot.carry_mode, False)
     immersive = _get(lambda: bot.immersive, False)
+
+    # ── Effective (post-reconcile) state — the single truth both UIs render ───
+    effective = _get(lambda: bot._compute_effective_state(), {}) or {}
 
     # ── Autopilot ─────────────────────────────────────────────────────────────
     ap = _get(lambda: bot.vn_autopilot, None)
@@ -153,6 +170,16 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     media_watch_state = {
         "running": _get(lambda: mw.is_running if mw else False, False),
         "status":  _get(lambda: mw.get_status_str() if mw else "OFF", "OFF"),
+        "reactions": _get(lambda: getattr(mw, "reactions_enabled", True) if mw else False, False),
+        "calls": _get(lambda: getattr(mw, "_calls_count", 0) if mw else 0, 0),
+        "cost_usd": _get(lambda: round(getattr(mw, "_calls_cost_usd", 0.0), 3) if mw else 0.0, 0.0),
+    }
+
+    # ── Chess Mode ────────────────────────────────────────────────────────────
+    ca = _get(lambda: bot.chess_agent, None)
+    chess_state = {
+        "running": _get(lambda: ca.is_running if ca else False, False),
+        "status":  _get(lambda: ca.get_status_str() if ca else "OFF", "OFF"),
     }
 
     # ── Mute / Pause ─────────────────────────────────────────────────────────
@@ -178,16 +205,16 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         False
     )
 
-    # VRAM
+    # VRAM — whole-card via NVML (used/total), so headroom is visible during
+    # AAA sessions. torch's allocator reads ~0 because the game isn't on torch.
     vram_used_gb = None
     vram_total_gb = None
     try:
-        import torch
-        if torch.cuda.is_available():
-            vram_used_gb = round(torch.cuda.memory_allocated() / (1024 ** 3), 2)
-            vram_total_gb = round(
-                torch.cuda.get_device_properties(0).total_memory / (1024 ** 3), 1
-            )
+        from bot import read_gpu_memory_gb
+        u, t = read_gpu_memory_gb()
+        if u is not None and t is not None:
+            vram_used_gb = round(u, 2)
+            vram_total_gb = round(t, 1)
     except Exception:
         pass
 
@@ -237,14 +264,20 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         # Loopback STT
         "loopback_on": loopback_on,
         "loopback_status": loopback_status,
+        "loopback_feed": loopback_feed,
+        "loopback_summary": loopback_summary,
         # Activity / mode
         "activity": activity,
         "mode": mode,
         "carry_mode": carry_mode,
         "immersive": immersive,
+        # Effective state (post-reconcile) — strip + three-state toggles render
+        # from THIS, never from the raw toggle booleans above.
+        "effective": effective,
         # Subsystem states
         "autopilot": autopilot,
         "media_watch": media_watch_state,
+        "chess": chess_state,
         # Mute / pause
         "muted": muted,
         "mute_seconds_remaining": mute_remaining,
@@ -404,6 +437,8 @@ class _CmdBody(BaseModel):
     emotion: str | None = None
     # YouTube
     url: str | None = None
+    # Chess
+    level: int | None = None
 
 
 def _ok(**kwargs) -> dict:
@@ -417,6 +452,15 @@ def _err(msg: str, **kwargs) -> dict:
 # COMMAND ENDPOINTS
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Actions that change which subsystem owns perception/agenda → re-run the
+# cross-mode reconciler afterward.
+_MODE_ACTIONS = frozenset({
+    "activity_go", "exit_game_mode", "vision_toggle", "loopback_toggle",
+    "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
+    "media_watch_toggle", "media_watch_react_toggle", "chess_toggle",
+})
+
+
 @app.post("/cmd/{action}")
 async def cmd(action: str, body: _CmdBody = _CmdBody()):
     """
@@ -425,7 +469,18 @@ async def cmd(action: str, body: _CmdBody = _CmdBody()):
     """
     bot = _bot()
     try:
-        return await _dispatch(action, body, bot)
+        result = await _dispatch(action, body, bot)
+        # Re-assert cross-mode invariants after any toggle that changes which
+        # subsystem owns perception / agenda. _reconcile_modes() is idempotent
+        # and order-independent, so calling it here makes the web dashboard
+        # converge to the same state as the desktop dashboard regardless of the
+        # order toggles are flipped in.
+        if action in _MODE_ACTIONS and hasattr(bot, "_reconcile_modes"):
+            try:
+                bot._reconcile_modes(trigger=action)
+            except Exception as _re:
+                print(f"   [Reconcile] error after {action}: {_re}")
+        return result
     except Exception as exc:
         traceback.print_exc()
         return JSONResponse(
@@ -635,9 +690,46 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         mw = bot.media_watch
         if mw is None:
             return _err("media_watch not initialized yet")
-        on = mw.on_react is None  # flip: currently off → turn on
-        mw.on_react = bot._media_watch_react if on else None
-        return _ok(reactions_on=on)
+        # State-explicit: the React-to-scenes switch is mw.reactions_enabled (a
+        # real backing bool), NOT the presence/absence of the on_react handler.
+        # on_react stays wired for the whole session; reactions_enabled gates it.
+        if body.enabled is not None:
+            mw.reactions_enabled = bool(body.enabled)
+        else:
+            mw.reactions_enabled = not getattr(mw, "reactions_enabled", True)
+        return _ok(reactions_on=mw.reactions_enabled)
+
+    # ── Chess Mode ─────────────────────────────────────────────────────────────
+    if action == "chess_toggle":
+        ca = bot.chess_agent
+        if ca is None:
+            return _err("chess_agent not initialized yet")
+        enabled = body.enabled if body.enabled is not None else (not ca.enabled)
+        if enabled:
+            # Mutually exclusive with Media Watch and VN autopilot.
+            mw = bot.media_watch
+            if mw is not None and mw.is_running:
+                return _err("Media Watch is running — stop it before arming Chess Mode")
+            ap = bot.vn_autopilot
+            if ap is not None and ap.is_running:
+                return _err("VN autopilot is running — stop it before arming Chess Mode")
+            ca.enabled = True
+            bot.event_loop.call_soon_threadsafe(ca.start)
+        else:
+            bot.event_loop.call_soon_threadsafe(ca.stop)
+        return _ok(chess_enabled=enabled)
+
+    if action == "chess_challenge_ai":
+        ca = bot.chess_agent
+        if ca is None:
+            return _err("chess_agent not initialized yet")
+        if not ca.is_running:
+            return _err("Chess Mode is not armed")
+        level = int(body.level) if body.level is not None else 3
+        bot.event_loop.call_soon_threadsafe(
+            lambda: asyncio.ensure_future(ca.challenge_ai(level))
+        )
+        return _ok(challenged_level=level)
 
     # ── Interrupt / Mute / Pause ──────────────────────────────────────────────
     # NOTE: F8/F9 global hotkeys registered in dashboard.py are UNTOUCHED.

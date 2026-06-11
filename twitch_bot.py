@@ -154,6 +154,13 @@ class TwitchBot(commands.Bot):
             await channels[0].send(text)
             return True
         except Exception as e:
+            # Surface auth-shaped failures so ChatPoster can disable loudly; benign
+            # transient errors (no channel, momentary send hiccup) just return False.
+            emsg = str(e).lower()
+            if any(k in emsg for k in (
+                "auth", "login", "token", "unauthor", "401", "forbidden", "403", "scope",
+            )):
+                raise
             print(f"   [Twitch] post_message failed: {e}")
             return False
 

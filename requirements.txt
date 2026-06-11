@@ -44,3 +44,11 @@ pytchat
 pytesseract
 # Fish Audio TTS SDK (pay-as-you-go streaming TTS backend, switchable vs Azure)
 fish-audio-sdk
+# Chess Mode (Phase 1): Lichess bot client + board model / UCI engine driver.
+# Also needs a local Stockfish binary (CHESS_ENGINE_PATH) — install separately.
+berserk
+chess
+# Whole-card VRAM telemetry for the dashboard (NVML). Provides the `pynvml`
+# import; reports the entire GPU's used/total so headroom is visible during
+# AAA sessions (torch's allocator only sees Kira's own footprint).
+nvidia-ml-py

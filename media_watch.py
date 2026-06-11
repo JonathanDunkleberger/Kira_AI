@@ -123,10 +123,37 @@ class MediaWatch:
         # successful, non-static, non-uncertain analysis (throttled).
         # Set by bot wiring; left None means no spoken reactions.
         self.on_react = None
+        # Single source of truth for the "React to scenes" toggle. The handler
+        # (on_react) stays wired for the whole session; this bool decides whether
+        # it actually fires. Reported verbatim in /status so the dashboard
+        # checkbox can never desync (kills the old inverting blind-flip).
+        self.reactions_enabled: bool = True
         self._last_react_ts: float = 0.0
         self.react_min_gap_s: float = 45.0  # at most one spoken react per 45s
 
+        # Called with a short reason string when start() aborts after .enabled
+        # was already set True (window not found, missing dep, etc). The bot
+        # wires this to re-run _reconcile_modes so vision un-parks immediately —
+        # the reconciler must never enforce an intent that failed to materialize.
+        self.on_start_failed = None
+        self.last_start_error: str = ""
+
     # ── Lifecycle ────────────────────────────────────────────────────────────
+
+    def _fail_start(self, reason: str):
+        """Abort a start() that already had .enabled=True. Resets the intent flag
+        so the reconciler doesn't keep enforcing a mode that never materialized,
+        records the reason for the dashboard, and pokes the reconciler so vision
+        un-parks right away."""
+        self.enabled = False
+        self.is_running = False
+        self.last_start_error = reason
+        print(f"   [MediaWatch] start FAILED — enabled reset ({reason}).")
+        if self.on_start_failed:
+            try:
+                self.on_start_failed(reason)
+            except Exception as e:
+                print(f"   [MediaWatch] on_start_failed callback error: {e}")
 
     def start(self):
         """Start capture + analysis loops. Safe to call multiple times."""
@@ -135,25 +162,25 @@ class MediaWatch:
         if self.is_running:
             return
         if not PIL_AVAILABLE:
-            print("   [MediaWatch] Pillow not available — cannot capture frames.")
+            self._fail_start("Pillow not available — cannot capture frames")
             return
         if not PYGETWINDOW_AVAILABLE:
-            print("   [MediaWatch] pygetwindow not available — cannot target window.")
+            self._fail_start("pygetwindow not available — cannot target window")
             return
         if not self.window_title.strip():
-            print("   [MediaWatch] No window title set — refusing to start.")
+            self._fail_start("no window title set")
             return
         if self.vision_client is None:
-            print("   [MediaWatch] No vision client — refusing to start.")
+            self._fail_start("no vision client")
             return
 
         win = self._find_window()
         if win is None:
             titles = self.list_open_windows()
-            print(f"   [MediaWatch] Window NOT FOUND for '{self.window_title}'.")
             print("   [MediaWatch] Open windows:")
             for t in titles[:20]:
                 print(f"      • {t}")
+            self._fail_start(f"window not found for '{self.window_title}'")
             return
 
         self.is_running = True
@@ -164,7 +191,7 @@ class MediaWatch:
         self.episode_log.clear()
         self._last_analysis_ts = 0.0
         self._last_react_ts = 0.0
-
+        self.last_start_error = ""
         self._capture_task = asyncio.ensure_future(self._capture_loop())
         self._analysis_task = asyncio.ensure_future(self._analysis_loop())
         print(
@@ -369,6 +396,7 @@ class MediaWatch:
         # Fire optional reaction callback for substantive events only.
         if (
             self.on_react
+            and self.reactions_enabled
             and not uncertain
             and not static
             and (now - self._last_react_ts) >= self.react_min_gap_s
@@ -412,3 +440,14 @@ class MediaWatch:
 
     def has_context(self) -> bool:
         return len(self.episode_log) > 0
+
+    def get_latest_summary(self) -> str:
+        """Most recent SUBSTANTIVE analysis summary (skips UNCERTAIN/STATIC).
+
+        Used by the bot's stronger-signal media intensity gate: suppression in
+        media mode keys off MediaWatch's own scene analysis, not a keyword in an
+        audio caption."""
+        for e in reversed(self.episode_log):
+            if not e.get("uncertain") and not e.get("static"):
+                return e.get("summary", "") or ""
+        return ""

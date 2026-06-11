@@ -305,7 +305,7 @@ class LoopbackTranscriber:
             try:
                 self._load_model()
             except Exception as e:
-                print(f"   [LoopbackSTT] Model load failed: {e}")
+                print(f"   [ERROR] Loopback STT DISABLED — model load failed: {e}")
                 self._available = False
                 return False
 
@@ -575,7 +575,7 @@ class LoopbackTranscriber:
                 self._append_segment(text, norm)
                 accepted_this_tick += 1
         except Exception as e:
-            print(f"   [LoopbackSTT] Transcription failed: {e}")
+            print(f"   [WARN] loopback_transcriber: transcription failed: {e}")
             return
         finally:
             self.last_tick_time = time.time()

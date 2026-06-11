@@ -74,9 +74,9 @@ except ImportError:
     print("   [Autopilot] pytesseract not installed. Run: pip install pytesseract")
 
 try:
-    from config import CLAUDE_CHAT_MODEL
+    from config import CLAUDE_SONNET_MODEL as CLAUDE_CHAT_MODEL
 except Exception:
-    CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"  # sensible fallback
+    CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"  # last-resort fallback if config import fails
 
 try:
     from PIL import ImageGrab, Image
@@ -2303,17 +2303,6 @@ class VNAutopilot:
                 f"{biggest}={ps[biggest]:.1f}s."
             )
 
-    @staticmethod
-    def _trim_to_complete_sentences(text: str) -> tuple[str, str]:
-        """DEPRECATED — retained as a no-op for any stale callers.
-
-        The held-fragment system was removed: OCR truncates mid-word frequently,
-        so 'holding' partial fragments produced garbled output like 'Do y' and
-        'Mr.' spoken alone. Reading whatever OCR returns is more coherent than
-        any sentence-split heuristic over inherently incomplete text.
-        """
-        return text, ""
-
     def _content_pause(self, text: str, intensity: str, art_changed: bool) -> float:
         """Inter-box pause driven by text punctuation and scene intensity.
 
@@ -2371,36 +2360,6 @@ class VNAutopilot:
         if attrs:
             return f'<prosody {" ".join(attrs)}>{safe_text}</prosody>'
         return safe_text
-
-    async def _transcribe_frame_cloud(self, frame) -> str:
-        """Cloud vision text transcription (GPT-4o-mini) — fallback when local OCR fails."""
-        if not self.vision_client:
-            return ""
-        try:
-            from vision_agent import UniversalVisionAgent
-            transcribe_prompt = UniversalVisionAgent.TRANSCRIBE_PROMPT
-            buf = BytesIO()
-            frame.save(buf, format="JPEG", quality=80)
-            b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await self.vision_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": transcribe_prompt},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64}",
-                            "detail": "high",
-                        }},
-                    ],
-                }],
-                max_tokens=400,
-                temperature=0.0,
-            )
-            return resp.choices[0].message.content.strip()
-        except Exception as e:
-            print(f"   [Autopilot] Cloud transcribe error: {e}")
-            return ""
 
     async def _maybe_update_scene_art(self, frame) -> None:
         """Update the cached scene description when the art region hash changes.

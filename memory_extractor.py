@@ -1,6 +1,15 @@
 # memory_extractor.py — Claude-powered fact extraction with strict JSON schema
+import asyncio
 import json
 import re
+
+from config import CLAUDE_HAIKU_MODEL
+
+# Haiku matches Sonnet on real facts but is slightly looser on ambiguous turns
+# (it occasionally fabricates a detail, e.g. inventing "at work"). Raising the
+# confidence floor from 0.7 → 0.9 for the Haiku path trims those false positives
+# while keeping every genuine memory. False memories are worse than missed ones.
+HAIKU_CONFIDENCE_FLOOR = 0.9
 
 EXTRACTOR_SYSTEM = """You are a memory archivist for an AI companion named Kira. Your job is to extract DURABLE facts about her friend Jonny from conversation — facts that will still matter in a month.
 
@@ -48,8 +57,10 @@ def _extract_json(text: str) -> dict | None:
 
 
 async def extract_memories(ai_core, user_text: str, conversation_history: list) -> list[dict]:
-    """Extracts durable Jonny-facts from a conversation turn using Claude Sonnet.
-    Falls back to NO extraction if Claude is unavailable (better than garbage)."""
+    """Extracts durable Jonny-facts from a conversation turn using Claude Haiku
+    (cheapest tier — this is the highest-frequency Claude call). Same prompt and
+    confidence filter as before. Falls back to NO extraction if Claude is
+    unavailable (better than garbage)."""
 
     if len(user_text) < 8:
         return []
@@ -70,10 +81,14 @@ async def extract_memories(ai_core, user_text: str, conversation_history: list) 
     )
 
     try:
-        raw = await ai_core.claude_chat_inference(
-            messages=[{"role": "user", "content": user_msg}],
-            system_prompt=EXTRACTOR_SYSTEM,
-            max_tokens=400,
+        raw = await asyncio.wait_for(
+            ai_core.claude_chat_inference(
+                messages=[{"role": "user", "content": user_msg}],
+                system_prompt=EXTRACTOR_SYSTEM,
+                max_tokens=400,
+                model_override=CLAUDE_HAIKU_MODEL,
+            ),
+            timeout=15,
         )
         if not raw:
             return []
@@ -84,10 +99,12 @@ async def extract_memories(ai_core, user_text: str, conversation_history: list) 
         valid = []
         for mem in data["memories"]:
             confidence = float(mem.get("confidence", 0))
-            if confidence < 0.7:
-                continue
             fact = mem.get("fact", "").strip()
+            if confidence < HAIKU_CONFIDENCE_FLOOR:
+                print(f"   [Memory] Rejected (conf {confidence:.2f} < {HAIKU_CONFIDENCE_FLOOR}): {fact or '(empty)'}")
+                continue
             if not fact or len(fact) < 10 or "_" in fact:
+                print(f"   [Memory] Rejected (malformed fact): {fact or '(empty)'}")
                 continue
 
             valid.append({
@@ -104,6 +121,9 @@ async def extract_memories(ai_core, user_text: str, conversation_history: list) 
 
         return valid
 
+    except asyncio.TimeoutError:
+        print("   [WARN] memory_extractor LLM call timed out after 15s — skipping")
+        return []
     except Exception as e:
-        print(f"   [Memory Extractor] Error: {e}")
+        print(f"   [WARN] memory_extractor: extraction failed: {e}")
         return []

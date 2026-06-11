@@ -176,7 +176,15 @@ class ChatPoster:
         try:
             return await self._twitch_bot.post_message(text)  # type: ignore[union-attr]
         except Exception as e:
-            print(f"   [ChatPoster] Twitch send error: {e}")
+            # Auth failures must be LOUD and disable the feature — never silent.
+            emsg = str(e).lower()
+            if any(k in emsg for k in (
+                "auth", "login", "token", "unauthor", "401", "forbidden", "403", "scope",
+            )):
+                print(f"   [ERROR] ChatPoster auth failed — feature disabled: {e}")
+                self.enabled = False
+            else:
+                print(f"   [ChatPoster] Twitch send error: {e}")
             return False
 
     async def _safe_send_youtube(self, text: str) -> bool:

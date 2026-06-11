@@ -44,6 +44,7 @@ BORDER_SOFT = "#3E3025"   # quieter divider when full border is too loud
 TEXT_PRIMARY   = "#F4EACC"   # warm oat/cream — main readable text, button labels
 TEXT_SECONDARY = "#C4A06A"   # warm caramel — sub-labels, "since Kira spoke"
 TEXT_MUTED     = "#8A7050"   # warm taupe — hints, placeholders, off-state text
+PERCEPTION_TEXT = "#A88A5E"  # one step up from MUTED — italic perception/feed text
 HEADER         = "#B8904A"   # warm brass/honey — SECTION HEADERS (uppercase)
 TEXT_ON_DARK   = "#F4EACC"   # alias: text sitting on APP/CARD/CONTROL
 
@@ -167,4 +168,35 @@ TAB_ACTIVE_FG       = ACCENT_TINT
 TAB_ACTIVE_TEXT     = TEXT_PRIMARY
 TAB_INACTIVE_FG     = "transparent"
 TAB_INACTIVE_TEXT   = TEXT_SECONDARY
+
+# ----------------------------------------------------------------------------
+# 7. ATTENTION — the ONE semantic "needs attention" color (desaturated rust).
+#    Used EXCLUSIVELY for: errors, disabled-by-failure, and override-reason
+#    chips. Amber (ACCENT) = active/engaged; rust (ATTENTION) = suppressed or
+#    failed. Never mix the two meanings.
+# ----------------------------------------------------------------------------
+ATTENTION        = "#B5654A"  # desaturated rust — override / needs-attention
+ATTENTION_DIM    = "#7E4636"  # dimmer rust — outline / low-emphasis attention
+ATTENTION_TINT   = "#2E1A14"  # rust-tinted dark fill (override chip background)
+ON_ATTENTION     = "#1C0F0A"  # text on a filled rust chip
+
+# Three-state toggle rendering:
+#   OFF      → SWITCH_TRACK_OFF track, TEXT_MUTED label
+#   ON       → ACCENT track, TEXT_PRIMARY label
+#   OVERRIDE → ACCENT outline + dimmed fill, rust reason chip
+TOGGLE_OVERRIDE_FILL    = "#3A2C18"  # dimmed amber fill (ACCENT_TINT sibling)
+TOGGLE_OVERRIDE_BORDER  = ACCENT     # amber outline says "you turned it on"
+
+
+# ----------------------------------------------------------------------------
+# 8. EMOTION BADGE TINTS — five distinct hues, all in the warm coffee family.
+#    Same saturation level so no single badge screams; only the hue shifts.
+# ----------------------------------------------------------------------------
+EMOTION_HAPPY       = "#D4A24C"  # warm honey-gold
+EMOTION_SASSY       = "#C77E5A"  # clay rose
+EMOTION_MOODY       = "#9B8468"  # muted taupe (dim, withdrawn)
+EMOTION_EMOTIONAL   = "#88B07A"  # soft sage
+EMOTION_HYPERACTIVE = "#D98C3E"  # vivid amber-orange
+
+
 

@@ -183,17 +183,20 @@ class UniversalVisionAgent:
                 "labels or UI text."
             )
 
-            response = await self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                        "detail": "high",
-                    }},
-                ]}],
-                max_tokens=180,
-                temperature=0,
+            response = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}",
+                            "detail": "high",
+                        }},
+                    ]}],
+                    max_tokens=180,
+                    temperature=0,
+                ),
+                timeout=15,
             )
             content = (response.choices[0].message.content or "").strip()
             self.last_capture_time = time.time()
@@ -204,7 +207,11 @@ class UniversalVisionAgent:
                 # Also push into the rolling buffer so the short-term memory benefits.
                 self.context_buffer.add(content)
             return content or "UNCERTAIN: empty vision response."
+        except asyncio.TimeoutError:
+            print("   [WARN] vision_agent (capture_and_answer) LLM call timed out after 15s — skipping")
+            return "UNCERTAIN: vision call timed out."
         except Exception as e:
+            print(f"   [WARN] vision_agent: capture_and_answer failed: {e}")
             return f"UNCERTAIN: vision call failed ({e})."
 
     async def heartbeat_loop(self):
@@ -243,22 +250,29 @@ class UniversalVisionAgent:
 
             base64_image = await asyncio.to_thread(process_image)
 
-            response = await self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": [
-                    {"type": "text", "text": self.TRANSCRIBE_PROMPT},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}",
-                        "detail": "high",
-                    }},
-                ]}],
-                max_tokens=600,
-                temperature=0,
+            response = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": [
+                        {"type": "text", "text": self.TRANSCRIBE_PROMPT},
+                        {"type": "image_url", "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}",
+                            "detail": "high",
+                        }},
+                    ]}],
+                    max_tokens=600,
+                    temperature=0,
+                ),
+                timeout=15,
             )
             content = response.choices[0].message.content
             self.last_capture_time = time.time()
             return content.strip() if content else "NO TEXT VISIBLE"
+        except asyncio.TimeoutError:
+            print("   [WARN] vision_agent (capture_and_transcribe) LLM call timed out after 15s — skipping")
+            return "Could not transcribe screen: vision call timed out."
         except Exception as e:
+            print(f"   [WARN] vision_agent: capture_and_transcribe failed: {e}")
             return f"Could not transcribe screen: {e}"
 
     async def _update_scene_summary(self, new_description: str):
@@ -270,15 +284,20 @@ class UniversalVisionAgent:
                 previous=self.scene_summary or "(none yet)",
                 newest=new_description,
             )
-            response = await self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=180,
-                temperature=0.3,
+            response = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=180,
+                    temperature=0.3,
+                ),
+                timeout=15,
             )
             self.scene_summary = response.choices[0].message.content.strip()
+        except asyncio.TimeoutError:
+            print("   [WARN] vision_agent (_update_scene_summary) LLM call timed out after 15s — skipping")
         except Exception as e:
-            print(f"   [Vision] Scene summary update failed: {e}")
+            print(f"   [WARN] vision_agent: scene summary update failed: {e}")
 
     def _check_dialogue_change(self, description: str):
         """Tracks when on-screen text changes. Used downstream for VN silence-awareness."""
@@ -297,6 +316,8 @@ class UniversalVisionAgent:
 
     async def capture_and_describe(self, is_heartbeat=False):
         """Captures screen and calls Vision API. Uses activity-aware prompts."""
+        if not self.is_active:
+            return None
         if not self.client:
             return "Vision unavailable (Missing API Key.)."
 
@@ -335,16 +356,20 @@ class UniversalVisionAgent:
             if self.context_buffer.buffer and self.activity_type != "vn":
                 prompt += f"\nPrevious context: {self.context_buffer.get_context_string()}"
             
-            # Dynamic Detail: Forced 'high' for better cognition (as requested)
-            visual_detail = "high"
+            # Dynamic Detail: heartbeat ticks use low detail (cheap, ~constant
+            # background polling); on-demand describes keep high detail for cognition.
+            visual_detail = "low" if is_heartbeat else "high"
 
-            response = await self.client.chat.completions.create(
-                model="gpt-4o-mini", # Fastest vision model
-                messages=[{"role": "user", "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": visual_detail}}
-                ]}],
-                max_tokens=200
+            response = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model="gpt-4o-mini", # Fastest vision model
+                    messages=[{"role": "user", "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": visual_detail}}
+                    ]}],
+                    max_tokens=200
+                ),
+                timeout=15,
             )
             
             content = response.choices[0].message.content
@@ -352,7 +377,11 @@ class UniversalVisionAgent:
                 self.context_buffer.add(content)
             self.last_capture_time = time.time()
             return content
+        except asyncio.TimeoutError:
+            print("   [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping")
+            return None
         except Exception as e:
+            print(f"   [WARN] vision_agent: capture_and_describe failed: {e}")
             return f"My vision is a bit glitchy: {e}"
 
     async def capture_vn_state(self) -> dict:

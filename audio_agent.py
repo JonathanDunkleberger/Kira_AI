@@ -607,19 +607,22 @@ class AudioAgent:
         prompt = self.MEDIA_PROMPT if self.mode == AUDIO_MODE_MEDIA else self.MUSIC_PROMPT
 
         try:
-            response = await self.client.chat.completions.create(
-                model=AUDIO_MODEL,
-                modalities=["text"],
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {"type": "input_audio", "input_audio": {"data": b64_audio, "format": "wav"}},
-                        ],
-                    },
-                ],
-                max_tokens=80,
+            response = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model=AUDIO_MODEL,
+                    modalities=["text"],
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {"type": "input_audio", "input_audio": {"data": b64_audio, "format": "wav"}},
+                            ],
+                        },
+                    ],
+                    max_tokens=80,
+                ),
+                timeout=15,
             )
             content = (response.choices[0].message.content or "").strip()
 
@@ -647,6 +650,10 @@ class AudioAgent:
             self.last_capture_time = time.time()
             self.capture_count += 1
             self._log_summary(content)
+        except asyncio.TimeoutError:
+            # Heartbeat will retry on the next tick — do NOT permanently disable.
+            print("   [WARN] audio_agent LLM call timed out after 15s — skipping")
+            return
         except OpenAINotFoundError as e:
             # Log the exact response body verbatim — had we done this the first time,
             # the 2026-05 "model_not_found" would have been obvious instead of being
@@ -656,15 +663,16 @@ class AudioAgent:
             print(f"   [Audio] model_not_found for '{AUDIO_MODEL}' "
                   f"({self.consecutive_not_found}/{self.NOT_FOUND_DISABLE_THRESHOLD}): {body}")
             if self.consecutive_not_found >= self.NOT_FOUND_DISABLE_THRESHOLD:
-                print(f"   [Audio] Disabling audio agent for this session after "
-                      f"{self.consecutive_not_found} consecutive 404s. Check AUDIO_MODEL in .env "
+                print(f"   [ERROR] Audio agent DISABLED for this session after "
+                      f"{self.consecutive_not_found} consecutive 404s (model_not_found). "
+                      f"Check AUDIO_MODEL in .env "
                       f"(the rolling aliases are 'gpt-audio' and 'gpt-audio-mini').")
                 self.mode = AUDIO_MODE_OFF
             return
         except Exception as e:
             # Transient errors (429 rate limit, 529 overload, timeouts, network) land here.
             # Heartbeat will retry on the next tick — do NOT permanently disable.
-            print(f"   [Audio] API call failed (transient, will retry next heartbeat): {e}")
+            print(f"   [WARN] audio_agent: API call failed (transient, will retry next heartbeat): {e}")
 
     async def identify_song(self) -> Optional[dict]:
         """Fingerprint the current audio buffer against AudD's catalog.

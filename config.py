@@ -115,6 +115,14 @@ CHAT_POST_COOLDOWN_SEC = float(os.getenv("CHAT_POST_COOLDOWN_SEC", "60.0"))
 CHAT_POST_MAX_LEN = int(os.getenv("CHAT_POST_MAX_LEN", "450"))  # Twitch hard cap is 500
 ENABLE_YOUTUBE_POSTING = os.getenv("ENABLE_YOUTUBE_POSTING", "false").lower() == "true"
 
+# Kira's [CHAT: ...] tool — her own typing-in-chat channel. These caps layer ON
+# TOP of CHAT_POST_COOLDOWN_SEC above (the transport floor shared by all posters).
+# The bar: a viewer should occasionally see "kira just typed in chat??" — rare
+# enough to be an event, never spam. Tighter length than the transport cap too.
+CHAT_POST_KIRA_INTERVAL_SEC = float(os.getenv("CHAT_POST_KIRA_INTERVAL_SEC", "300.0"))  # min 5 min between her posts
+CHAT_POST_KIRA_MAX_PER_SESSION = int(os.getenv("CHAT_POST_KIRA_MAX_PER_SESSION", "8"))   # hard session ceiling
+CHAT_POST_KIRA_MAX_LEN = int(os.getenv("CHAT_POST_KIRA_MAX_LEN", "200"))                  # chat messages stay SHORT
+
 # On-screen captions (Neuro-sama style word-by-word overlay).
 # When ENABLE_CAPTIONS=true, a local WebSocket server starts on
 # CAPTION_SERVER_PORT and broadcasts Kira's spoken lines (with Azure
@@ -157,9 +165,18 @@ GROQ_FALLBACK_TO_LOCAL = os.getenv("GROQ_FALLBACK_TO_LOCAL", "lazy_load").lower(
 
 # Hybrid Brain
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-CLAUDE_DEEP_MODEL = os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7")
+# Canonical Claude model-name constants — single source of truth. Reference these
+# (CLAUDE_SONNET_MODEL / CLAUDE_OPUS_MODEL) instead of hard-coding model strings.
+# Env var names are unchanged (CLAUDE_DEEP_MODEL / CLAUDE_CHAT_MODEL) so .env stays valid.
+CLAUDE_OPUS_MODEL   = os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7")
+CLAUDE_SONNET_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
+# Haiku — cheapest tier, for high-frequency structured calls (per-turn memory
+# extraction) where Sonnet-grade reasoning isn't visible in the output.
+CLAUDE_HAIKU_MODEL  = os.getenv("CLAUDE_HAIKU_MODEL", "claude-haiku-4-5")
+# Legacy aliases — keep existing import sites working unchanged.
+CLAUDE_DEEP_MODEL = CLAUDE_OPUS_MODEL
+CLAUDE_CHAT_MODEL = CLAUDE_SONNET_MODEL
 ENABLE_CLAUDE_BRAIN = os.getenv("ENABLE_CLAUDE_BRAIN", "true").lower() == "true"
-CLAUDE_CHAT_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
 ENABLE_CLAUDE_CHAT = os.getenv("ENABLE_CLAUDE_CHAT", "true").lower() == "true"
 ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "true").lower() == "true"
 ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() == "true"
@@ -180,3 +197,13 @@ VTS_WS_URL = os.getenv("VTS_WS_URL", "ws://localhost:8001")
 VTS_PLUGIN_NAME = os.getenv("VTS_PLUGIN_NAME", "Kira AI")
 VTS_PLUGIN_DEVELOPER = os.getenv("VTS_PLUGIN_DEVELOPER", "JonnyD")
 VTS_TOKEN_PATH = os.getenv("VTS_TOKEN_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".vts_token"))
+
+# Chess Mode (Phase 1) — Kira plays Lichess against Stockfish, on stream.
+# Disabled unless armed from the dashboard. Requires a SEPARATE Lichess BOT
+# account + a bot:play token (see README for the one-time upgrade step). The
+# engine is a local Stockfish binary, Elo-capped so Kira plays (and blunders)
+# like a human club player. CPU only — no GPU contention with vision/STT.
+LICHESS_BOT_TOKEN = os.getenv("LICHESS_BOT_TOKEN", "")
+CHESS_ENGINE_PATH = os.getenv("CHESS_ENGINE_PATH", "stockfish.exe")
+CHESS_KIRA_ELO    = int(os.getenv("CHESS_KIRA_ELO", "1800"))
+CHESS_MOVETIME_MS = int(os.getenv("CHESS_MOVETIME_MS", "150"))

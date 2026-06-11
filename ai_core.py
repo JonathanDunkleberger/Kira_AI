@@ -20,7 +20,7 @@ from config import (
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
-    CLAUDE_CHAT_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
+    CLAUDE_CHAT_MODEL, CLAUDE_HAIKU_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
     INFERENCE_BACKEND, GROQ_FALLBACK_TO_LOCAL, GROQ_MODEL,
     TTS_BACKEND, FISH_API_KEY, FISH_VOICE_ID, FISH_LATENCY, FISH_FORMAT,
 )
@@ -120,6 +120,16 @@ class AI_Core:
         # Threshold: this many consecutive non-trivial speaks with zero word
         # events triggers a synthesizer rebuild.
         self._AZURE_EMPTY_LINE_THRESHOLD = 3
+
+        # --- Latency instrumentation slots (read by bot.process_and_respond) ---
+        # Populated per streaming-speak by speak_streaming/_speak_single so the
+        # voice path can assemble one consolidated [LATENCY] line. Measure-only;
+        # never alters behaviour.
+        self._lat_stream_t0 = 0.0          # speak_streaming start timestamp
+        self._lat_ttft_ms = -1             # stream-start -> first token chunk
+        self._lat_tts_first_chunk_ms = -1  # stream-start -> first sentence dispatched to TTS
+        self._lat_audio_out_ms = -1        # stream-start -> first pygame playback start
+
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
         # Per-session token counters — accumulated from response.usage on every
@@ -128,6 +138,7 @@ class AI_Core:
         self._session_usage = {
             "sonnet_in": 0, "sonnet_out": 0, "sonnet_cache_read": 0,
             "opus_in":   0, "opus_out":   0,
+            "haiku_in":  0, "haiku_out":  0,
             "groq_in":   0, "groq_out":   0,
         }
 
@@ -506,31 +517,41 @@ class AI_Core:
         return ""
 
     async def llm_inference(self, messages: list, current_emotion: EmotionalState, memory_context: str = "", activity_context: str = "", situational_context: str = "", ambient_audio_context: str = "", max_tokens_override: int = None) -> str:
-        # Use our updated system prompt if available, else fallback
-        system_prompt = self.system_prompt
+        # ── CORE PERSONA (Block A) — personality.txt + overlay + emotion. ──────
+        # This is NEVER truncated. Everything below is droppable context that
+        # gets sacrificed (loudly) in strict priority order if the prompt is
+        # too big for the context window.
+        base_prompt = self.system_prompt
         overlay = self._streamer_overlay_block()
         if overlay:
-            system_prompt += "\n\n" + overlay
+            base_prompt += "\n\n" + overlay
         emotion_desc = EMOTION_DESCRIPTORS.get(current_emotion, "Be yourself.")
-        system_prompt += f"\n\n[EMOTIONAL STATE: {current_emotion.name} — {emotion_desc}]"
+        base_prompt += f"\n\n[EMOTIONAL STATE: {current_emotion.name} — {emotion_desc}]"
 
+        # ── DROPPABLE CONTEXT BLOCKS — built separately so we can cut them ────
+        # individually by priority. Textual assembly order (below) preserves the
+        # original prompt layout: activity → memory → scene → ambient.
+        block_activity = ""
         if activity_context:
-            system_prompt += (
+            block_activity = (
                 f"\n\n[CURRENT CONTEXT: You and Jonny are currently {activity_context}. "
                 "Let this shape what you talk about, reference, and react to.]"
             )
-        
-        # INJECT MEMORY AS NOTES
+
+        # Identity / memory facts about the current speaker.
+        block_memory = ""
         if memory_context:
-            system_prompt += (
+            block_memory = (
                 f"\n\n[MEMORY NOTES - DO NOT QUOTE OR READ THESE ALOUD]\n"
                 f"{memory_context}\n"
                 f"Use these to stay consistent and personal. "
                 "Do not say 'my memory says' or list them like a database."
             )
 
+        # Current scene context — what is on screen right now.
+        block_scene = ""
         if situational_context:
-            system_prompt += (
+            block_scene = (
                 f"\n\n[CURRENT VISUAL PERCEPTION — what is on screen RIGHT NOW]\n"
                 f"{situational_context}\n"
                 f"This is sense data — what your eyes are taking in. It is NOT a script or narration. "
@@ -540,8 +561,10 @@ class AI_Core:
                 f"not a description of what is on the screen."
             )
 
+        # Ambient/audio flavor — least protected, first to be cut.
+        block_ambient = ""
         if ambient_audio_context:
-            system_prompt += (
+            block_ambient = (
                 f"\n\n[AMBIENT AUDIO — what's being said in the media Jonny is watching, NOT directed at you]\n"
                 f"{ambient_audio_context}\n"
                 f"This is a best-effort transcript of speech happening in whatever Jonny has on the screen "
@@ -556,14 +579,14 @@ class AI_Core:
         # Token counter that works whether or not local Llama is loaded.
         # When self.llm is None (Groq-only mode), use a conservative char/4 estimate.
         def _count_tokens(s: str) -> int:
+            if not s:
+                return 0
             if self.llm is not None:
                 try:
                     return len(self.llm.tokenize(s.encode("utf-8")))
                 except Exception:
                     pass
             return max(1, len(s) // 4)
-
-        system_tokens_len = _count_tokens(system_prompt)
 
         # We now use the variable from config for the response buffer
         max_response_tokens = max_tokens_override or LLM_MAX_RESPONSE_TOKENS
@@ -579,56 +602,100 @@ class AI_Core:
         else:
             real_ctx = max(N_CTX, 16384)
         CHAT_TEMPLATE_FUDGE = 128
-        token_limit = real_ctx - system_tokens_len - max_response_tokens - CHAT_TEMPLATE_FUDGE
-
-        def _tok_len(s: str) -> int:
-            return _count_tokens(s)
-
-        history_tokens = sum(_tok_len(m["content"]) for m in messages)
-        if history_tokens > token_limit:
-            print(f"   (Trimming conversation history: {history_tokens} → ≤{token_limit} tokens, ctx={real_ctx})")
-        while history_tokens > token_limit and len(messages) > 1:
-            messages.pop(0)
-            history_tokens = sum(_tok_len(m["content"]) for m in messages)
-
-        # Hard guarantee: if dropping history wasn't enough (e.g. the lone
-        # remaining user turn is itself huge, or the system prompt with
-        # injected memory/scene blocks is gigantic), shrink the system
-        # prompt and as a last resort truncate the final user message.
-        # We must NEVER hand llama_cpp a prompt that exceeds n_ctx — it
-        # raises ValueError and kills the whole worker.
-        def _total_tokens() -> int:
-            return _count_tokens(system_prompt) + sum(_tok_len(m["content"]) for m in messages)
 
         # Budget for system + history combined (leaves room for the response).
+        # We must NEVER hand llama_cpp a prompt that exceeds n_ctx — it raises
+        # ValueError and kills the whole worker.
         hard_budget = real_ctx - max_response_tokens - CHAT_TEMPLATE_FUDGE
-        if _total_tokens() > hard_budget:
-            # Shrink the system prompt by chopping the bracketed context
-            # blocks we appended (MEMORY NOTES, VISUAL PERCEPTION, AMBIENT
-            # AUDIO) before touching the core personality. We do this by
-            # character-truncating the system prompt from the end in halves
-            # until it fits — crude but deterministic and never deletes the
-            # personality preamble at the top.
-            while _total_tokens() > hard_budget and len(system_prompt) > 800:
-                # Halve everything past the first 800 chars (personality stub).
-                system_prompt = system_prompt[:800] + system_prompt[800:][: max(1, (len(system_prompt) - 800) // 2)]
 
-            # Still over? Truncate the most recent user message itself.
-            while _total_tokens() > hard_budget and messages:
-                last = messages[-1]
-                content = last.get("content", "")
-                if len(content) <= 200:
-                    # Can't shrink further without dropping the turn entirely.
-                    messages.pop()
-                    if not messages:
-                        # Pathological case — inject a minimal stub so we
-                        # still produce a response instead of crashing.
-                        messages = [{"role": "user", "content": "(continue)"}]
-                        break
-                else:
-                    last["content"] = content[: len(content) // 2]
+        def _sys_tokens() -> int:
+            return _count_tokens(base_prompt + block_activity + block_memory + block_scene + block_ambient)
 
-            print(f"   (Hard-trim engaged: final size ≈{_total_tokens()} tokens, budget {hard_budget})")
+        def _hist_tokens() -> int:
+            return sum(_count_tokens(m["content"]) for m in messages)
+
+        def _total_tokens() -> int:
+            return _sys_tokens() + _hist_tokens()
+
+        # ── PRIORITY-ORDERED, LOUD TRUNCATION ─────────────────────────────────
+        # Protection order (most → least):
+        #   core persona > memory/identity facts > current scene > older history
+        #   > ambient/audio flavor.
+        # We cut in the reverse order: ambient first, persona never. Silent
+        # context amputation is the #1 character-drift risk, so EVERY cut emits
+        # a [WARN] PromptTruncation line naming the block, tokens removed, and
+        # what survived.
+        kept = ["persona"]
+        if block_memory:
+            kept.append("memory")
+        if block_scene or block_activity:
+            kept.append("scene")
+        if messages:
+            kept.append("history")
+        if block_ambient:
+            kept.append("ambient")
+
+        # 1. Ambient/audio flavor — least protected, drop the whole block first.
+        if _total_tokens() > hard_budget and block_ambient:
+            n = _count_tokens(block_ambient)
+            block_ambient = ""
+            kept.remove("ambient")
+            print(f"   [WARN] PromptTruncation: dropped ambient-audio (-{n} tokens), kept {kept}")
+
+        # 2. Older history — pop oldest turns, always keep the latest turn.
+        if _total_tokens() > hard_budget and len(messages) > 1:
+            before = _hist_tokens()
+            while _total_tokens() > hard_budget and len(messages) > 1:
+                messages.pop(0)
+            dropped = before - _hist_tokens()
+            if dropped > 0:
+                print(f"   [WARN] PromptTruncation: trimmed older-history (-{dropped} tokens), kept {kept}")
+
+        # 3. Current scene context (visual perception + activity framing).
+        if _total_tokens() > hard_budget and (block_scene or block_activity):
+            n = _count_tokens(block_scene) + _count_tokens(block_activity)
+            block_scene = ""
+            block_activity = ""
+            if "scene" in kept:
+                kept.remove("scene")
+            print(f"   [WARN] PromptTruncation: dropped scene-context (-{n} tokens), kept {kept}")
+
+        # 4. Memory/identity facts — only sacrificed when nothing lower remains.
+        if _total_tokens() > hard_budget and block_memory:
+            n = _count_tokens(block_memory)
+            block_memory = ""
+            if "memory" in kept:
+                kept.remove("memory")
+            print(f"   [WARN] PromptTruncation: dropped memory-facts (-{n} tokens), kept {kept}")
+
+        # Assemble the final system prompt from whatever survived. Core persona
+        # is always intact and always first.
+        system_prompt = base_prompt + block_activity + block_memory + block_scene + block_ambient
+
+        # 5. Last resort: the lone remaining user turn is itself too big.
+        # Truncate its content (never the persona) so llama_cpp never sees an
+        # over-ctx prompt.
+        def _final_total() -> int:
+            return _count_tokens(system_prompt) + sum(_count_tokens(m["content"]) for m in messages)
+
+        truncated_last = False
+        while _final_total() > hard_budget and messages:
+            last = messages[-1]
+            content = last.get("content", "")
+            if len(content) <= 200:
+                messages.pop()
+                if not messages:
+                    # Pathological case — inject a minimal stub so we still
+                    # produce a response instead of crashing.
+                    messages = [{"role": "user", "content": "(continue)"}]
+                    break
+            else:
+                last["content"] = content[: len(content) // 2]
+                truncated_last = True
+        if truncated_last:
+            if "history" in kept:
+                kept.remove("history")
+            print(f"   [WARN] PromptTruncation: truncated latest-user-message (final ≈{_final_total()} tokens, budget {hard_budget}), kept {kept}")
 
         full_prompt = [{"role": "system", "content": system_prompt}] + messages
 
@@ -926,12 +993,14 @@ class AI_Core:
             use_sonnet=use_sonnet,
         )
 
-    async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400) -> str:
+    async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400, model_override: str = "") -> str:
         """Routes a conversational response through Claude Sonnet 4.6. Default voice/Twitch
         response path when Claude is available. Cheaper than Opus, better than local Llama.
 
         system_prompt   — Block A (static personality + rules). Cached when ENABLE_PROMPT_CACHING.
-        dynamic_context — Block C (per-turn context: emotion, memories, scene). Never cached."""
+        dynamic_context — Block C (per-turn context: emotion, memories, scene). Never cached.
+        model_override  — when set, route through a cheaper tier (e.g. CLAUDE_HAIKU_MODEL
+                          for high-frequency structured extraction). Usage tracked separately."""
         if not self.anthropic_client or not ENABLE_CLAUDE_CHAT:
             return ""  # Caller falls back to local
 
@@ -947,22 +1016,28 @@ class AI_Core:
             combined = system_prompt + ("\n\n" + dynamic_context if dynamic_context else "")
             system_param = combined
 
+        _model = model_override or CLAUDE_CHAT_MODEL
+        _is_haiku = bool(model_override) and "haiku" in model_override.lower()
         try:
             response = await self.anthropic_client.messages.create(
-                model=CLAUDE_CHAT_MODEL,
+                model=_model,
                 max_tokens=max_tokens,
                 system=system_param,
                 messages=claude_messages,
             )
             if hasattr(response, "usage"):
-                self._session_usage["sonnet_in"]         += response.usage.input_tokens
-                self._session_usage["sonnet_out"]        += response.usage.output_tokens
-                self._session_usage["sonnet_cache_read"] += getattr(response.usage, "cache_read_input_tokens", 0)
+                if _is_haiku:
+                    self._session_usage["haiku_in"]  += response.usage.input_tokens
+                    self._session_usage["haiku_out"] += response.usage.output_tokens
+                else:
+                    self._session_usage["sonnet_in"]         += response.usage.input_tokens
+                    self._session_usage["sonnet_out"]        += response.usage.output_tokens
+                    self._session_usage["sonnet_cache_read"] += getattr(response.usage, "cache_read_input_tokens", 0)
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
         except Exception as e:
-            print(f"   [Brain] Sonnet call failed: {e}. Falling back to local Llama.")
+            print(f"   [Brain] {_model} call failed: {e}. Falling back to local Llama.")
             return ""
 
     async def claude_chat_inference_stream(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400):
@@ -1122,6 +1197,15 @@ class AI_Core:
         if self.interruption_event.is_set():
             return
 
+        # Universal safety net: strip any recognized tool tags before synthesis.
+        # Every spoken line funnels through here (speak_text, speak_streaming
+        # per-sentence dispatch), so this guarantees tool syntax never reaches
+        # TTS or the caption overlay on ANY path, even if an upstream stripper
+        # was bypassed or a tag was truncated mid-stream.
+        text = self._strip_tags_for_speech(text)
+        if not text:
+            return
+
         # Capture the running loop once — the caption server needs a stable
         # reference for thread-safe scheduling from Azure's worker callbacks.
         if self._event_loop_for_captions is None:
@@ -1229,6 +1313,9 @@ class AI_Core:
                         print(f"   [Captions] No word-boundary events captured for '{text[:40]}' — caption skipped.")
                 except Exception as e:
                     print(f"   [Captions] dispatch suppressed: {e}")
+                # Latency: stamp first actual playback start (relative to stream start).
+                if self._lat_audio_out_ms < 0 and self._lat_stream_t0 > 0:
+                    self._lat_audio_out_ms = int((time.time() - self._lat_stream_t0) * 1000)
                 await self._play_audio_with_pygame(audio_data)
         except Exception as e:
             print(f"   TTS/Playback Error: {e}")
@@ -1252,6 +1339,12 @@ class AI_Core:
         _t0_stream = time.time()
         _first_word_logged = False
 
+        # Latency instrumentation: reset per-stream slots.
+        self._lat_stream_t0 = _t0_stream
+        self._lat_ttft_ms = -1
+        self._lat_tts_first_chunk_ms = -1
+        self._lat_audio_out_ms = -1
+
         def has_unclosed_tag(text: str) -> bool:
             """True if there is an unmatched '[' anywhere in the buffer."""
             last_open = text.rfind('[')
@@ -1263,6 +1356,10 @@ class AI_Core:
             async for chunk in stream_generator:
                 if self.interruption_event.is_set():
                     break
+
+                # Latency: stamp time-to-first-token on the first chunk received.
+                if self._lat_ttft_ms < 0:
+                    self._lat_ttft_ms = int((time.time() - _t0_stream) * 1000)
 
                 full_text += chunk
                 buffer += chunk
@@ -1292,6 +1389,8 @@ class AI_Core:
                                 _ttfw_ms = int((time.time() - _t0_stream) * 1000)
                                 print(f"   [TIMING] first-word: {_ttfw_ms}ms")
                                 _first_word_logged = True
+                                if self._lat_tts_first_chunk_ms < 0:
+                                    self._lat_tts_first_chunk_ms = _ttfw_ms
                             await self._speak_single(cleaned)
                             if self.interruption_event.is_set():
                                 return full_text
@@ -1304,6 +1403,8 @@ class AI_Core:
                     if not _first_word_logged:
                         _ttfw_ms = int((time.time() - _t0_stream) * 1000)
                         print(f"   [TIMING] first-word: {_ttfw_ms}ms")
+                        if self._lat_tts_first_chunk_ms < 0:
+                            self._lat_tts_first_chunk_ms = _ttfw_ms
                     await self._speak_single(cleaned)
         except Exception as e:
             print(f"   [Streaming] Error during stream consumption: {e}")
@@ -1314,17 +1415,27 @@ class AI_Core:
         return full_text
 
     def _strip_tags_for_speech(self, text: str) -> str:
-        """Removes tool tags ([POLL: ...], [SONG: ...], [PREDICT: ...], [BIT: ...], [TAKE])
-        from text before TTS, so they are never spoken aloud. Tags will still be
-        parsed and executed by parse_kira_tools on the full assembled response."""
+        """Removes ALL recognized tool tags ([POLL:], [SONG:], [PREDICT:], [BIT:],
+        [CHAT:], [TAKE]) from text before TTS/captions, so they are never spoken
+        aloud or shown on the overlay. Tags are still parsed and executed by
+        parse_kira_tools on the full assembled response.
+
+        Robust to UNCLOSED tags: when a streamed response is truncated mid-tag
+        (e.g. the max_tokens cap lands inside a [PREDICT: ...]) the trailing
+        fragment has no closing ']'. The closed-tag passes can't match that, so a
+        final pass strips any trailing unclosed recognized tag too. This is the
+        path that previously leaked tool syntax to TTS/captions."""
         # Multi-pipe tags: POLL, PREDICT
         text = re.sub(r'\[POLL:[^\]]*\]', '', text)
         text = re.sub(r'\[PREDICT:[^\]]*\]', '', text)
         # Single-value tags
         text = re.sub(r'\[SONG:[^\]]*\]', '', text)
         text = re.sub(r'\[BIT:[^\]]*\]', '', text)
+        text = re.sub(r'\[CHAT:[^\]]*\]', '', text)
         # Boolean tags
         text = re.sub(r'\[TAKE\]', '', text)
+        # Trailing UNCLOSED recognized tag (truncated mid-stream — no closing ']').
+        text = re.sub(r'\[(?:POLL|PREDICT|SONG|BIT|CHAT|TAKE)\b[^\]]*$', '', text)
         return text.strip()
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):

@@ -101,7 +101,8 @@ Kira/
 ├── caption_overlay/              # Browser-source overlay (index.html, style.css, caption.js)
 ├── vn_autopilot.py               # VN autopilot — OCR (cloud + local fallback), read-aloud, auto-advance
 ├── game_mode_controller.py       # Per-activity pacing / verbosity modes
-├── dashboard.py                  # GUI — real-time controls, vision preview, state monitoring
+├── control_server.py             # Web dashboard backend — FastAPI control server + /state
+├── web_dashboard/                # Browser control panel — real-time controls, state monitoring
 ├── twitch_bot.py                 # Twitch client — chat listener, song request handler
 ├── youtube_bot.py                # YouTube client — live chat listener
 ├── twitch_tools.py               # Twitch API — poll & prediction creation, broadcaster utilities
@@ -144,8 +145,10 @@ Download a GGUF model (e.g., `Meta-Llama-3.1-8B-Instruct-Q4_K_M`) and place it i
 
 ```bash
 cp .env.example .env    # Fill in your API keys
-python dashboard.py     # Launch the GUI + bot
+python bot.py           # Launch the bot + web dashboard
 ```
+
+The web control panel is served locally by the bot (see `CONTROL_SERVER_PORT`, default 8766) — open `http://127.0.0.1:8766/` in a browser.
 
 To enable the on-screen captions: set `ENABLE_CAPTIONS=true`, then add `caption_overlay/index.html` as a Local File browser source in OBS.
 
@@ -169,6 +172,17 @@ To enable the on-screen captions: set `ENABLE_CAPTIONS=true`, then add `caption_
 | `ENABLE_VTS_EXPRESSIONS` | Toggle mood-driven Live2D expressions |
 
 See `.env.example` for the full list.
+
+### Chess Mode (one-time setup)
+
+Kira plays real games on Lichess via a local Elo-capped Stockfish. Before any
+games, do this once: create a **fresh, dedicated** Lichess account (a bot
+account can never play as a human again), generate a personal access token with
+the **`bot:play`** scope, then upgrade the account by calling
+`POST https://lichess.org/api/bot/account/upgrade` with that token (e.g.
+`curl -d '' https://lichess.org/api/bot/account/upgrade -H "Authorization: Bearer <token>"`).
+Set `LICHESS_BOT_TOKEN` and `CHESS_ENGINE_PATH` in `.env`, then arm "Chess Mode"
+from the dashboard.
 
 ---
 

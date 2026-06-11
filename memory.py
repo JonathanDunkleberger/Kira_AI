@@ -517,7 +517,8 @@ class MemoryManager:
                 limit=1,
             )
             return not results or not results.get("documents")
-        except Exception:
+        except Exception as e:
+            print(f"   [WARN] memory: is_first_time_chatter lookup failed for {username!r}: {e}")
             return False
 
     def count_chatter_messages(self, username: str) -> int:

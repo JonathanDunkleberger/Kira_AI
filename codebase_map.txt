@@ -1,0 +1,356 @@
+================================================================================
+KIRA — CODEBASE MAP (ARCHITECTURE BRIEFING, BY SYSTEM)
+Phase 1 review.  RECON ONLY — no code was modified.  Diagnosis, not flattery.
+This describes how the machine actually works today, where the LLM/API spend is,
+which loops run, and what looks fragile.  No fixes are proposed here.
+Line numbers are approximate starting points, not exact citations.
+================================================================================
+
+The bot is an asyncio orchestrator (bot.py) with one input queue feeding a brain
+worker. Around it sit six subsystems:
+
+  1. PERCEPTION   — turns the screen + audio + chat into text the model can read.
+  2. COGNITION    — triage, response generation, shaping, intensity, theories.
+  3. MEMORY/ID    — what Kira knows long-term and who she thinks she's talking to.
+  4. EXPRESSION   — TTS, captions, VTube Studio face.
+  5. MODES/CONTROL— companion/streamer, activity machine, Carry/Drive, autopilot.
+  6. PLATFORM     — Twitch/YouTube ingest, web/desktop dashboards, cookie jar.
+
+Everything funnels through bot.brain_worker → ai_core (generation) → EXPRESSION.
+
+
+================================================================================
+1. PERCEPTION
+================================================================================
+Files: vision_agent.py, media_watch.py, audio_agent.py, loopback_transcriber.py,
+       salience_filter.py.  Consumed by: bot._build_scene_block().
+
+VISION (vision_agent.py)
+  • Heartbeat loop (~L294) fires capture_and_describe() at the heartbeat interval
+    — 30s default, 10s immersive/game. gpt-4o-mini, detail=high (~L152/204/279/353).
+  • _update_scene_summary() (~L280) keeps a rolling 1-frame narrative; on-demand
+    capture_and_answer() (~L206) and capture_and_transcribe() (~L257) answer
+    "what colour are her eyes" / "read the screen".
+  • Gated by is_active (the operator vision toggle). A guard at the top of
+    capture_and_describe (is_active → return None) was the vision-off-blindness fix.
+  • Spend: roughly 2 vision calls/min idle, ~6/min immersive.
+
+MEDIA WATCH (media_watch.py) — a SECOND, isolated vision pipeline for movies
+  • _capture_loop (~L133) grabs the target window every 2.5s into an 8-frame deque;
+    _analysis_loop (~L151) sends that batch to gpt-4o-mini every 18s (~L180,
+    260 tokens, 12s timeout) to build an episode event log. ~$0.002/call.
+  • While Media Watch runs, the regular vision heartbeat is suppressed (dashboard
+    saves/restores heartbeat_interval, parking it at 300s) and _build_scene_block
+    injects the EPISODE LOG instead of the single-frame scene summary. This was the
+    "two vision systems in parallel" consolidation fix.
+
+AUDIO (audio_agent.py)
+  • MEDIA mode = WASAPI loopback (game/show audio); MUSIC mode = mic.
+  • heartbeat_loop (~L521) → _describe_current_buffer (~L572) sends a vibe summary
+    to gpt-audio-mini (modalities=["text"], NOT transcription) every
+    AUDIO_HEARTBEAT_SECONDS, gated by an RMS floor (0.010, ~L533) to skip silence.
+  • An 80+ entry meta-reply fingerprint list (~L254–300) strips model confabulation
+    ("I can't hear anything"). Three consecutive 404s permanently set mode=OFF (~L594).
+  • AudD song-ID (~L733) is on-demand only.
+
+LOOPBACK TRANSCRIPTION (loopback_transcriber.py)
+  • A dedicated local Whisper (distil-large-v3, ~1.5GB) transcribes MEDIA audio.
+    _pump_loop (~L266) ticks every 5s over an 8s window (~L369); _speech_watcher_loop
+    (~L253) polls TTS state at 0.1s so Kira never transcribes her own voice.
+  • Output: a 60s rolling segment deque + a condensed "dialogue summary"
+    (bot.loopback_dialogue_summary_loop ~every 60s) that survives the raw window.
+  • Hallucination filtering is a fragile frozenset of YouTube-footer regexes (~L103–143).
+
+SALIENCE GATE (salience_filter.py) — pure heuristics, no LLM
+  • score(source, content) → (score, tier ∈ HIGH≥70/MEDIUM≥40/LOW≥20/DROP<20).
+    Voice base = 100. Used by the brain worker so HIGH input can BYPASS Groq triage.
+  • truncate_for_low() trims low-tier context; staleness_note() stamps stale visuals.
+  • An 8% stochastic DROP→LOW promotion (~L75) lets a fraction of junk through.
+
+PERCEPTION DATA FLOW
+  screen → vision_agent / media_watch ─┐
+  system audio → audio_agent           ├─► bot._build_scene_block() ─► system prompt
+  media audio → loopback_transcriber ──┘
+  all incoming text → salience_filter.score() ─► triage tier
+
+
+================================================================================
+2. COGNITION
+================================================================================
+Files: bot.py (brain_worker, triage, shape selector, guardrails, observer),
+       ai_core.py (generation + TTS/STT), groq_client.py, inference_router.py,
+       kira_state.py, salience_filter.py.
+
+INPUT → TRIAGE → RESPONSE PIPELINE (bot.brain_worker, ~L2853+)
+  1. salience_filter.score() tiers the input.
+  2. HIGH tier (and no active cutscene) BYPASSES Groq → decision=RESPOND, saving
+     ~200–400ms (~L2875). Otherwise:
+  3. decide_response_mode() (~L2903) calls Groq llama-3.1-8b-instant (5s timeout)
+     concurrently with the memory fetch. It sees recent history, the incoming line,
+     scene_context, immersive flag, and streamer flag → RESPOND / BRIEF / STAY_QUIET.
+  4. Triage latency is measured; sustained >2s median over 5 calls flips
+     self._under_load (~L2917), which slows the observer (1s→5s) and skips
+     background LLM tasks.
+
+SCENE ASSEMBLY (bot._build_scene_block) — priority chain
+  Media Watch episode log → vision current frame → vision story-so-far →
+  loopback dialogue summary → playthrough memory → session takes →
+  Carry-Mode directive → Drive Agenda. (Multiple sources can stack; see fragility.)
+
+RESPONSE GENERATION (ai_core.py)
+  • Live chat / narrative: claude_chat_inference / _stream (~L1046/1055) →
+    Claude Sonnet (claude-sonnet-4-6), streamed; falls back to Groq/local on failure.
+  • Deep moments / post-stream: claude_inference (~L995) → Claude Opus.
+  • Local/Groq path: route_chat_completion (~L842/968) via inference_router →
+    groq_client (cloud) or llama_cpp (local), per INFERENCE_BACKEND.
+  • The full system prompt (persona + memory + scene + audio) is rebuilt each call
+    with aggressive truncation (~L856–937) and a ~400-token reply cap (~L550).
+
+RESPONSE SHAPING (bot._pick_response_shape, ~L1649–1699)
+  Weighted-random shape (normal / one_word / tangent / terse) biased by the current
+  moment type. one_word capped at 2/session; tangent min 5 turns apart. Emotion has
+  an 8-turn decay back to HAPPY (~L1634) to stop Groq feedback loops (e.g. SASSY forever).
+
+OBSERVER / BOREDOM (bot.dynamic_observer_loop, ~L2178+)
+  Ticks every 1s (5s under load). _classify_moment() sets SessionIntensity; staged
+  silence thresholds vary by mode (streamer 20s→55s, companion 45s→90s, immersive
+  120s→300s, VN 90s→240s, Carry 30s→60s). _is_likely_cutscene() requires BOTH vision
+  AND audio keywords (~L1748) before suppressing interjections.
+
+SESSION COGNITION (kira_state.py)
+  Background Claude-Sonnet tasks via maybe_run_background_tasks (~L361, fire-and-
+  forget, skipped under_load): narrative summary (≥60s, 250 tok, ~L404) and theory
+  formation (≥90s, max 5 open, ~L447). Owns the entity attachment / sentiment ledger.
+
+GUARDRAILS (bot._kira_voice_guardrails, ~L1858+)
+  Memory-fabrication block, a banned-phrase filter, observer-repetition avoidance,
+  and the chaos-mode directive layer.
+
+
+================================================================================
+3. MEMORY / IDENTITY
+================================================================================
+Files: memory.py, memory_extractor.py, identity_manager.py, playthrough_memory.py,
+       lore/*.md, memory_db/.
+
+VECTOR MEMORY (memory.py)
+  ChromaDB with three collections — turns, facts, chatters — semantic search +
+  deterministic keyword lookups, 30s facts cache, startup HNSW/SQLite health check.
+  No LLM. Silent except on a failure path (~L531).
+
+FACT EXTRACTION (memory_extractor.py)
+  Per-turn async Claude Sonnet (~L60) extracts durable facts (conf ≥0.7), rejects
+  questions / temporary states / very short turns (<8 chars, ~L55) and facts with "_".
+
+IDENTITY (identity_manager.py)
+  Flat JSON (identity.json): Tier-1 permanent anchors + Tier-2 activity entities +
+  last-30 session log, with source-attribution labels for the prompt. No LLM.
+
+PLAYTHROUGH MEMORY (playthrough_memory.py)
+  Per-game .md: rolling summary regenerated every 3 sessions (Claude, ~L394),
+  0–2 signature moments/session (Claude, ~L529/596), capped at 10. Crash-recovery
+  checkpoints in .checkpoints/. fsync handling is weak (~L542–545).
+
+LORE (lore/*.md, written at session end by Claude via bot artifact writers)
+  general.md + per-activity lore + general_opinions.md are reloaded into the startup
+  brief and scene context, giving cross-session continuity and callbacks.
+
+
+================================================================================
+4. EXPRESSION
+================================================================================
+Files: ai_core.py (TTS/STT), caption_server.py, caption_overlay/, vts_client.py,
+       vts_expression_controller.py, music_tools.py.
+
+VOICE (ai_core.py)
+  Azure TTS default (westus3) with word-boundary events driving caption timing
+  (~L714–731), Fish Audio streaming (~L789–805), Edge fallback. Whisper STT init
+  (~L265). captions_self_heal_loop (~L653, 60s) recovers dropped Azure sessions.
+
+CAPTIONS (caption_server.py + caption_overlay/)
+  WebSocket server (127.0.0.1 + ::1, port-retry) broadcasts caption/clear/cookie/
+  chaos frames to OBS browser overlays; drops frames when no client connected.
+
+FACE (vts_client.py + vts_expression_controller.py)
+  Emotion → VTS hotkey. Only MOODY / HYPERACTIVE actually animate (~L103);
+  trigger_expression auto-retries on stale hotkey IDs after a model swap (~L173).
+  Fully fire-and-forget; never raises into the main loop.
+
+MUSIC (music_tools.py)
+  mpv + yt-dlp subprocess playback for song requests / Kira-picked tracks.
+
+
+================================================================================
+5. MODES / CONTROL
+================================================================================
+Files: dashboard.py, control_server.py, game_mode_controller.py, vn_autopilot.py,
+       streamer_overlay.py, cookie_jar.py, theme.py.
+
+ACTIVITY STATE MACHINE (game_mode_controller.py, 30 lines)
+  is_active + activity_type ∈ {GENERAL, VN, GAME, MEDIA}. deactivate() now also
+  clears vision.scene_summary and resets vision.last_description (stale-context fix).
+
+MODE OVERLAYS
+  • streamer_overlay.py: appended (uncached) to flip companion → react-first.
+  • Carry Mode + Drive Agenda: operator-set momentum directive + up to 3 intents,
+    injected at the tail of _build_scene_block.
+
+VN AUTOPILOT (vn_autopilot.py, 3232) — the largest single subsystem
+  Autonomous loop: screenshot → gpt-4o-mini classify (DIALOGUE/CHOICE/SAVE/
+  TRANSITION, ~0.5–1s) → OCR (detail=high) → Claude-Sonnet reaction/theory/aside →
+  advance. Phase-2 watchability adds pacing, dead-chat behavior, theory building,
+  character attachment, narrative-weight detection, and soft-pause. _autopilot_watchdog
+  polls at 0.5s. Logging is print-only.
+
+DESKTOP CONTROL (dashboard.py, 1928)
+  CustomTkinter panel; _update_loop (500ms) + _vision_loop (5s VRAM). Owns every
+  toggle. Note: the close handler runs a fragile ~120s blocking shutdown sequence
+  (~L138–159). Several YouTube/preset buttons are dead stubs.
+
+WEB CONTROL (control_server.py, 672)
+  FastAPI on 127.0.0.1:8766: serves web_dashboard, /state, 500ms /ws push,
+  /vision/thumbnail, POST /cmd/{action} mirroring dashboard actions. Started as an
+  asyncio task that is never explicitly shut down (relies on process teardown).
+
+COOKIE JAR (cookie_jar.py)
+  Communal jar; MILESTONE_CAP=50 → 15-minute Chaos Mode directive (~L27–48).
+  Thread-safe persistent counters. No LLM.
+
+
+================================================================================
+6. PLATFORM
+================================================================================
+Files: twitch_bot.py, twitch_tools.py, youtube_bot.py, chat_poster.py,
+       stream_logger.py, config.py, web_search.py, inference_router.py, groq_client.py.
+
+INGEST
+  • twitch_bot.py: TwitchIO chat + USERNOTICE events (raids/subs/gifts), !cookies, !sr.
+  • youtube_bot.py: pytchat polling every 2s with backoff (read-only).
+  • Both push into the single input queue consumed by brain_worker.
+
+OUTPUT
+  • chat_poster.py: rate-limited (60s global, 450 chars), Twitch-only, and currently
+    gated OFF by ENABLE_CHAT_POSTING. twitch_tools.py creates Helix polls (gated).
+
+SESSION ARTIFACTS (stream_logger.py)
+  transcript.md / events.jsonl / summary.md via a 30s flush loop; finish() may call
+  Claude Opus for the post-stream summary with NO timeout. Otherwise bulletproof.
+
+INFRA (config.py, inference_router.py, groq_client.py, web_search.py)
+  Central .env config; Groq↔local routing; Groq SDK wrapper (5s); Google CSE search.
+
+
+================================================================================
+DISTINCT LLM ENTRY POINTS  (the ~6 the operator expects, + background)
+================================================================================
+PRIMARY (per-turn / interactive)
+  1. Triage           — decide_response_mode()      [Groq llama-3.1-8b, 5s]   RESPOND/BRIEF/QUIET
+  2. Main response    — claude_chat_inference/_stream [Claude Sonnet → Groq/local fallback]
+  3. Deep / invite    — kira_deep_response / claude_inference [Claude Opus or Sonnet]
+  4. Vision           — capture_and_describe/answer/transcribe + scene summary [gpt-4o-mini]
+  5. Audio mood       — _describe_current_buffer     [gpt-audio-mini]
+  6. Fact extraction  — memory_extractor             [Claude Sonnet, per turn]
+
+BACKGROUND / PERIODIC
+  7. Narrative summary + theory formation            [Claude Sonnet]  (kira_state)
+  8. Media Watch episode analysis                    [gpt-4o-mini, 18s] (media_watch)
+  9. Loopback transcription                          [local Whisper distil-large-v3]
+ 10. Playthrough session log + signatures            [Claude Sonnet]  (playthrough_memory)
+ 11. Stream post-summary                             [Claude Opus]    (stream_logger)
+ 12. VN autopilot classify/OCR/react/theory          [gpt-4o-mini + Claude Sonnet] (vn_autopilot)
+ 13. Lore / clip generation                          [Claude Sonnet/Opus] (bot artifact writers, backfill_lore)
+NON-LLM: salience_filter, memory(Chroma), identity_manager, cookie_jar, web_search(CSE), AudD(audio_agent).
+
+
+================================================================================
+BACKGROUND LOOPS / TASKS  (interval — trigger)
+================================================================================
+  brain_worker                         event-driven (input queue)
+  chat_batch_worker                    ~12s (CHAT_BATCH_WINDOW)
+  vision heartbeat                     30s / 10s immersive
+  audio heartbeat                      ~AUDIO_HEARTBEAT_SECONDS (config)
+  dynamic_observer_loop                1s (5s under load)
+  highlight_extraction_loop            ~300s (ACTIVITY_GAME)
+  _vram_logging_loop                   ~60s
+  vn_gameplay_loop                     8s (VN, non-autopilot)
+  _autopilot_watchdog                  0.5s (autopilot on)
+  background_loop                      varies (chat memory / cookies)
+  captions_self_heal_loop              60s
+  loopback_dialogue_summary_loop       ~60s
+  _checkpoint_loop                     CHECKPOINT_INTERVAL_SECONDS (config)
+  vad_loop (voice recorder)            ~30ms/frame
+  media_watch _capture_loop            2.5s
+  media_watch _analysis_loop           18s
+  loopback _pump_loop                  5s
+  loopback _speech_watcher_loop        0.1s
+  stream_logger _writer_loop           30s
+  kira_state narrative                 ≥60s (gated)
+  kira_state theory                    ≥90s (gated)
+  control_server (uvicorn)             HTTP 8766 (continuous; never explicitly stopped)
+  dashboard _update_loop / _vision_loop 500ms / 5s (separate process/UI)
+
+
+================================================================================
+TOP 10 "THIS WORRIES ME"  (inventory of risk — NOT fixes)
+================================================================================
+
+ 1. SHUTDOWN HAS NO TIMEOUTS AND DOESN'T CANCEL TASKS — bot.shutdown_async
+    (~L3382–3479) sets is_running=False and awaits artifact writes (lore/summary).
+    If Opus/Sonnet hangs, shutdown hangs; background tasks aren't force-cancelled,
+    so interpreter teardown can kill a daemon mid-write and corrupt an artifact.
+
+ 2. NO TIMEOUTS ON MOST LLM CALLS — vision_agent (~L152/204/279), audio_agent
+    (~L572), and kira_state (~L404/447) call cloud models with no per-call timeout.
+    Any one can stall its heartbeat/background task indefinitely. (Only Groq triage
+    at 5s and media_watch at 12s are bounded.)
+
+ 3. STREAM-LOGGER OPUS SUMMARY CAN HANG — stream_logger.finish() may call Opus for
+    the post-stream summary with no timeout, and it's invoked on the shutdown path
+    (compounds #1).
+
+ 4. DASHBOARD CLOSE = ~120s BLOCKING SEQUENCE — dashboard.py (~L138–159) runs a long
+    synchronous shutdown on window-close; if any step stalls, the GUI appears hung
+    and the operator may hard-kill, bypassing clean artifact writes.
+
+ 5. AZURE CAPTION WORD-BUFFER RACE — ai_core (~L714–731) syncs captions to Azure
+    word-boundary events across threads; timing races can drop/duplicate caption
+    words. captions_self_heal_loop patches symptoms, not the race.
+
+ 6. AGGRESSIVE PROMPT TRUNCATION — ai_core (~L856–937) trims the system prompt
+    (memory + scene + audio) under a ~400-token reply cap (~L550). Under load this
+    can silently amputate the very memory/scene context the turn depended on.
+
+ 7. BARE / SILENT EXCEPTS SWALLOW FAILURES — loopback_transcriber (~L364, and silent
+    model-load fail ~L238), audio_agent (~L575/601), vision_agent (~L312/348),
+    kira_state (~L383/462), memory (~L531). Failures disappear with at most a print;
+    several disable a whole feature with no retry or escalation.
+
+ 8. REDUNDANT / STACKABLE SCENE-CONTEXT SOURCES — _build_scene_block can stack
+    vision current-frame + vision story-so-far + loopback dialogue summary +
+    playthrough memory + session takes. This is the same family that caused the
+    Media-Watch double-vision issue; it inflates tokens and can contradict itself.
+
+ 9. FRAGILE STRING-LIST FILTERS — audio_agent meta-reply fingerprints (80+, ~L254–300)
+    and loopback hallucination regexes (~L103–143) are hand-maintained magic lists;
+    new model phrasings or new YouTube footers silently slip through or over-filter.
+
+10. UNBOUNDED STATE + ORPHANED TASKS/FIELDS —
+    • kira_state sentiment/familiarity ledgers have no cap (~L88) — grow across long
+      sessions; media_watch _calls_cost_usd (~L84) never resets.
+    • control_server task (~bot L4193) and the autopilot watchdog are never explicitly
+      cancelled on shutdown.
+    • Dead/orphaned: vision_agent.quality_mode, kira_state.called_shots/
+      resolved_theories, loopback._summary_needs_update, vn_autopilot
+      ._trim_to_complete_sentences/_transcribe_frame_cloud, dashboard YouTube/preset
+      stubs — clutter that makes the real control flow harder to audit.
+
+HONORABLE MENTIONS
+  • 8% stochastic DROP→LOW in salience_filter (~L75) can surface junk on a bad roll.
+  • playthrough_memory weak fsync (~L542–545) + a backwards comment (~L640).
+  • "claude-sonnet-4-6" hard-coded in 3+ places with no shared constant/fallback.
+  • YouTube is read-only; chat_poster is Twitch-only AND gated off — "cross-platform
+    posting" is effectively Twitch-only today.
+
+================================================================================
+END — diagnosis only.  No fixes applied; no code changed.
+================================================================================
