@@ -332,6 +332,9 @@ class VTubeBot:
         # this to re-seed a (possibly media-shaped) agenda when the activity
         # changes while Carry Mode is already on. None ⇒ never seeded.
         self._last_seeded_activity: str | None = None
+        # Track whether the last agenda seed was media-shaped so the reconciler
+        # can force a re-seed when MW armed state flips while carry is on.
+        self._last_seeded_is_media: bool | None = None
         # Effective (post-reconcile) state — the SINGLE source both dashboards
         # render from, so the UI shows what is actually in effect, not what was
         # clicked. Rebuilt at the end of every _reconcile_modes() and recomputed
@@ -1337,18 +1340,25 @@ class VTubeBot:
             changes.append("reactions re-wired")
 
         # INV-4: Carry agenda must match the current activity shape; re-seed if
-        #        the activity changed since the agenda was last seeded.
+        #        the activity changed OR the media-armed state changed since the
+        #        agenda was last seeded (gameplay↔media shape flip).
         if self.carry_mode:
-            if self.current_activity != self._last_seeded_activity:
+            current_is_media = bool(media_armed or (gmc and gmc.activity_type == ACTIVITY_MEDIA))
+            activity_changed = (self.current_activity != self._last_seeded_activity)
+            shape_changed = (self._last_seeded_is_media is not None
+                             and self._last_seeded_is_media != current_is_media)
+            if activity_changed or shape_changed:
                 if self.event_loop and self.event_loop.is_running():
                     asyncio.ensure_future(self.seed_drive_agenda())
                     self._last_seeded_activity = self.current_activity
-                    shape = "media" if (media_armed or gmc.activity_type == ACTIVITY_MEDIA) else "gameplay"
+                    self._last_seeded_is_media = current_is_media
+                    shape = "media" if current_is_media else "gameplay"
                     changes.append(f"carry re-seeded ({shape})")
         else:
             # Disarmed → forget the seed marker so a re-arm always seeds fresh.
             if self._last_seeded_activity is not None:
                 self._last_seeded_activity = None
+                self._last_seeded_is_media = None
 
         if changes:
             tag = f" [{trigger}]" if trigger else ""
@@ -2378,8 +2388,9 @@ class VTubeBot:
                     "Output ONLY a JSON array of exactly 3 strings. No preamble."
                 )
             resp = await self.ai_core.tool_inference(
-                prompt=seed_prompt,
                 system="You output a JSON array of 3 short intent strings.",
+                user=seed_prompt,
+                max_tokens=500,
             )
             import json as _json
             # Extract JSON array from response
@@ -2391,7 +2402,8 @@ class VTubeBot:
                 if isinstance(agenda, list) and agenda:
                     self.drive_agenda = [str(a).strip() for a in agenda[:5] if str(a).strip()]
                     self._last_seeded_activity = self.current_activity
-                    print(f"   [DriveMode] Agenda seeded ({len(self.drive_agenda)} items):")
+                    self._last_seeded_is_media = is_media
+                    print(f"   [DriveMode] Agenda seeded ({len(self.drive_agenda)} items, {'media' if is_media else 'gameplay'} shape):")
                     for i, item in enumerate(self.drive_agenda, 1):
                         print(f"     {i}. {item}")
                     self.stream_logger.log("drive_agenda_seeded", count=len(self.drive_agenda),

@@ -352,9 +352,21 @@ def _bot() -> "VTubeBot":
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard_ui():
-    """Serve the single-page web dashboard."""
+    """Serve the single-page web dashboard.
+
+    no-store headers: the dashboard is a single inline HTML/JS/CSS document.
+    Browsers were caching it, so UI fixes appeared not to 'stick' across
+    sessions until a hard-refresh. Force a fresh fetch every load."""
+    no_cache = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
     try:
-        return HTMLResponse(content=_DASHBOARD_HTML.read_text(encoding='utf-8'))
+        return HTMLResponse(
+            content=_DASHBOARD_HTML.read_text(encoding='utf-8'),
+            headers=no_cache,
+        )
     except FileNotFoundError:
         return HTMLResponse(
             content='<h1>Dashboard not found</h1><p>web_dashboard/index.html missing</p>',
@@ -660,16 +672,26 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("media_watch not initialized yet")
         enabled = body.enabled if body.enabled is not None else (not mw.enabled)
         title = (body.title or "").strip() or getattr(mw, "window_title", "")
+        auto_targeted = False
+        if enabled and not title:
+            # C1: empty field → auto-target the current foreground window so the
+            # text field is an OVERRIDE, not a requirement. Write the chosen
+            # title back so the dashboard shows what was picked.
+            fg = mw.get_foreground_window_title()
+            if fg:
+                title = fg
+                auto_targeted = True
+                print(f"   [MediaWatch] Auto-targeted foreground window: '{title}'")
+            else:
+                mw.enabled = False
+                return _err("No window title set and no foreground window detected")
         mw.window_title = title
         mw.enabled = enabled
         if enabled:
-            if not title:
-                mw.enabled = False
-                return _err("Provide a window_title in the body")
             bot.event_loop.call_soon_threadsafe(mw.start)
         else:
             bot.event_loop.call_soon_threadsafe(mw.stop)
-        return _ok(media_watch_enabled=enabled)
+        return _ok(media_watch_enabled=enabled, window_title=title, auto_targeted=auto_targeted)
 
     if action == "media_watch_window":
         mw = bot.media_watch

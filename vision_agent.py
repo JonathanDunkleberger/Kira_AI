@@ -96,7 +96,13 @@ class UniversalVisionAgent:
         self.context_buffer = ContextBuffer(maxlen=3)
         self.last_description = "I'm just getting my bearings. One sec!"
         self.last_capture_time = 0
-        self.is_active = ENABLE_VISION   # Respect .env setting on startup
+        self.is_active = ENABLE_VISION   # heartbeat running (parked by reconciler during Media Watch)
+        # master_enabled = the user's Vision intent (the ONE master switch).
+        # Unlike is_active, this is NEVER parked by the reconciler — it only flips
+        # when the user toggles Vision on/off. EVERY on-demand capture path checks
+        # this so "Vision off = blind" holds everywhere, even while a heartbeat is
+        # parked for Media Watch (where general sight should still answer).
+        self.master_enabled = ENABLE_VISION
         self.quality_mode = "fast"       # 'fast' or 'high'
         self.activity_type = "general"   # Set by GameModeController / bot
 
@@ -117,6 +123,9 @@ class UniversalVisionAgent:
 
     def get_vision_context(self):
         """Returns the rolling scene summary if available, else the last raw description."""
+        # Master switch: Vision off = blind. Never leak stale scene cache as ghost data.
+        if not self.master_enabled:
+            return "[Vision is OFF — I can't see the screen right now.]"
         if self.scene_summary:
             time_diff = int(time.time() - self.last_capture_time) if self.last_capture_time else 0
             return f"[Scene summary, last updated {time_diff}s ago] {self.scene_summary}"
@@ -149,6 +158,9 @@ class UniversalVisionAgent:
         This is the anti-confabulation pre-step: never let the LLM answer a
         visual question from priors when a fresh look is possible.
         """
+        # Master switch: Vision off = blind. No screen grab, in character.
+        if not self.master_enabled:
+            return "I can't see your screen right now — my vision is switched off."
         if not self.client:
             return "UNCERTAIN: vision unavailable (missing API key)."
         try:
@@ -235,6 +247,9 @@ class UniversalVisionAgent:
     async def capture_and_transcribe(self) -> str:
         """High-fidelity screen text extraction. Used when the user explicitly asks
         Kira to read what's on screen."""
+        # Master switch: Vision off = blind. No screen grab, in character.
+        if not self.master_enabled:
+            return "I can't read the screen right now — my vision is switched off."
         if not self.client:
             return "Vision unavailable (Missing API Key)."
         try:

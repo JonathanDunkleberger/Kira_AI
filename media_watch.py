@@ -251,6 +251,21 @@ class MediaWatch:
         except Exception as e:
             return [f"(error listing windows: {e})"]
 
+    @staticmethod
+    def get_foreground_window_title() -> str:
+        """Return the title of the current foreground (focused) window, or "".
+
+        Used for C1 auto-target: when Media Watch is toggled on with an empty
+        window field, we pick whatever is in focus so the field becomes an
+        OVERRIDE, not a requirement."""
+        if not PYGETWINDOW_AVAILABLE:
+            return ""
+        try:
+            win = _pgw.getActiveWindow()
+            return (getattr(win, "title", "") or "").strip()
+        except Exception:
+            return ""
+
     def _find_window(self):
         if not PYGETWINDOW_AVAILABLE or not self.window_title:
             return None

@@ -22,14 +22,25 @@ class GameModeController:
         self.is_active = True
         self.activity_type = activity_type
         self.vision.is_active = True
+        self.vision.master_enabled = True
 
     def deactivate(self):
         self.is_active = False
         self.activity_type = ACTIVITY_GENERAL
         self.vision.is_active = False
+        # Master vision intent is now OFF — every on-demand capture path refuses.
+        self.vision.master_enabled = False
         # Clear stale visual context so get_vision_context() returns the
         # placeholder and _has_fresh_visual_context() returns False.
         # Without this, old scene_summary / last_description bleed into prompts
         # as ghost data even though no new captures are running.
         self.vision.scene_summary = ""
         self.vision.last_description = "I'm just getting my bearings. One sec!"
+        # Ghost-data rule applied everywhere: also wipe the rolling buffer and the
+        # last-seen dialogue so nothing stale can leak after Vision is turned off.
+        try:
+            self.vision.context_buffer.buffer.clear()
+        except Exception:
+            pass
+        self.vision.previous_dialogue = ""
+        self.vision.last_capture_time = 0

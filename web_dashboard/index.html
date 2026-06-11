@@ -492,6 +492,18 @@ html, body {
 
 .locked { opacity: .4; pointer-events: none; }
 .toggle-row.locked { opacity: .4; pointer-events: none; }
+
+.mw-fail-chip {
+  display: none;
+  margin: 4px 0 6px;
+  padding: 4px 8px;
+  background: var(--attention-tint);
+  border: 1px solid var(--attention);
+  border-radius: 6px;
+  font-size: .75rem;
+  color: var(--attention);
+  line-height: 1.3;
+}
 .slider-row { display: flex; flex-direction: column; gap: 4px; }
 .slider-row label { font-size: .72rem; color: var(--text-muted); }
 .slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
@@ -1251,10 +1263,32 @@ function renderPanels(s) {
   // ── Dependent-control locking: grey out children when their parent is off ──
   const tg2 = (s.effective && s.effective.toggles) || {};
   const mwOn = (tg2.media_watch && tg2.media_watch.state !== 'off');
-  lockGroup(!mwOn, 'inp-mw-window', 'sl-mw-interval');
+  // Window title + Set Window are PRECONDITIONS — stay editable so the user
+  // can fill them in before toggling. Only lock true dependents.
+  lockGroup(!mwOn, 'sl-mw-interval');
   lockRow(!mwOn, 'sw-mw-react');
-  const chessOn = (tg2.chess && tg2.chess.state !== 'off');
-  lockGroup(!chessOn, 'inp-chess-level');
+
+  // MW failure chip — show why the toggle silently snapped back.
+  const mwFail = (s.effective && s.effective.media_watch && s.effective.media_watch.fail_reason) || '';
+  let failChip = document.getElementById('mw-fail-chip');
+  if (!failChip) {
+    failChip = document.createElement('div');
+    failChip.id = 'mw-fail-chip';
+    failChip.className = 'mw-fail-chip';
+    const mwToggleRow = document.getElementById('sw-mediawatch');
+    if (mwToggleRow) {
+      const row = mwToggleRow.closest('.toggle-row') || mwToggleRow.parentNode;
+      row.parentNode.insertBefore(failChip, row.nextSibling);
+    }
+  }
+  if (mwFail) {
+    failChip.textContent = '\u26a0 start failed: ' + mwFail;
+    failChip.style.display = '';
+  } else {
+    failChip.style.display = 'none';
+  }
+  // Chess level is a precondition (set before enabling), so leave it editable.
+  // Only the Fish voice ID is a true dependent (useless unless fish is active).
   const fishActive = (s.tts_backend === 'fish');
   lockGroup(!fishActive, 'inp-fish-voice');
 
@@ -1286,9 +1320,11 @@ async function cmd(action, body, btnEl) {
     const res = await fetch(`${API}/cmd/${action}`, opts);
     const data = await res.json();
     if (btnEl) flashBtn(btnEl, data.ok !== false);
+    return data;
   } catch(e) {
     if (btnEl) flashBtn(btnEl, false);
     console.warn('cmd failed', action, e);
+    return null;
   }
 }
 
@@ -1341,7 +1377,12 @@ function applyMwWindow() {
 
 function toggleMediaWatch(on) {
   const title = document.getElementById('inp-mw-window').value.trim();
-  cmd('media_watch_toggle', {enabled: on, title});
+  cmd('media_watch_toggle', {enabled: on, title}).then(data => {
+    // C1: if the server auto-targeted the foreground window, show what it picked.
+    if (data && data.auto_targeted && data.window_title) {
+      document.getElementById('inp-mw-window').value = data.window_title;
+    }
+  });
 }
 
 function toggleChess(on) {
