@@ -327,10 +327,11 @@ class StreamLogger:
                 )
 
             if etype == "vram_sample":
-                alloc = event.get("allocated_gb", 0)
-                res   = event.get("reserved_gb", 0)
+                # New schema: whole-card NVML read (used_gb). Fall back to the
+                # old allocated_gb key for historical logs.
+                used  = event.get("used_gb", event.get("allocated_gb", 0))
                 total = event.get("total_gb", 0)
-                return f"{t} [VRAM] {alloc:.1f} / {total:.0f} GB allocated ({res:.1f} GB reserved)"
+                return f"{t} [VRAM] {used:.1f} / {total:.0f} GB used (whole card)"
 
             if etype == "auto_degrade":
                 action  = event.get("action", "")

@@ -41,6 +41,11 @@ COOKIE_MILESTONE_REWARD_OPTIONS: list[str] = [
 # lie if you change the duration.
 CHAOS_MODE_DURATION_SECONDS = 15 * 60  # 15 minutes
 
+# Cooldown AFTER a chaos window ends before the jar can trigger another one.
+# Prevents back-to-back chaos windows when chat keeps the jar full — only one
+# chaos window at a time, then a quiet stretch before the next can fire.
+CHAOS_MODE_COOLDOWN_SECONDS = 10 * 60  # 10 minutes
+
 # Personality boost directive injected into every Kira prompt while active.
 # Layered ON TOP of normal personality + safety guardrails. The existing
 # anti-fabrication, visual accuracy, and banned-phrase rules stay in force —

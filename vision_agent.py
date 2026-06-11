@@ -8,6 +8,13 @@ from PIL import ImageGrab
 from openai import AsyncOpenAI
 from config import OPENAI_API_KEY, ENABLE_VISION
 
+# Request-size bounds for the rolling scene summary. The summary feeds its own
+# output back in as `previous` each cycle, so without a clamp an over-long model
+# response compounds until the request exceeds the gateway's size limit (the
+# 431 "Request headers are too large" failure). These keep the request small.
+_SCENE_SUMMARY_MAX_CHARS = 800
+_SCENE_DESC_MAX_CHARS = 1500
+
 class ContextBuffer:
     def __init__(self, maxlen=3):
         self.buffer = deque(maxlen=maxlen)
@@ -295,9 +302,16 @@ class UniversalVisionAgent:
         if not self.client or not new_description:
             return
         try:
+            # Bound the request size. The rolling summary feeds its own output
+            # back in as `previous` every cycle, so an over-long model response
+            # would compound until the request blows the gateway's size limit
+            # (the 431 "Request headers are too large" we were seeing). Clamp
+            # both inputs before formatting so the request stays small.
+            _prev = (self.scene_summary or "(none yet)")[:_SCENE_SUMMARY_MAX_CHARS]
+            _newest = new_description[:_SCENE_DESC_MAX_CHARS]
             prompt = self.SCENE_SUMMARY_PROMPT.format(
-                previous=self.scene_summary or "(none yet)",
-                newest=new_description,
+                previous=_prev,
+                newest=_newest,
             )
             response = await asyncio.wait_for(
                 self.client.chat.completions.create(
@@ -308,7 +322,9 @@ class UniversalVisionAgent:
                 ),
                 timeout=15,
             )
-            self.scene_summary = response.choices[0].message.content.strip()
+            _summary = response.choices[0].message.content.strip()
+            # Clamp the stored summary too — defends the next roll's `previous`.
+            self.scene_summary = _summary[:_SCENE_SUMMARY_MAX_CHARS]
         except asyncio.TimeoutError:
             print("   [WARN] vision_agent (_update_scene_summary) LLM call timed out after 15s — skipping")
         except Exception as e:

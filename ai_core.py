@@ -135,6 +135,21 @@ class AI_Core:
         self._lat_tts_first_chunk_ms = -1  # stream-start -> first sentence dispatched to TTS
         self._lat_audio_out_ms = -1        # stream-start -> first pygame playback start
 
+        # --- TTS priority gate -------------------------------------------------
+        # All synth+playback funnels through a single priority gate so concurrent
+        # speakers never stomp each other's pygame channel or clobber the shared
+        # latency slots above. Lanes (lower number = higher priority):
+        #   P0  voice replies to Jonny  — jump the queue
+        #   P1  MW reactions / interjections / announcements
+        #   P2  chat-batch responses
+        # A line already mid-playback finishes (we never preempt active audio),
+        # but every QUEUED non-P0 item yields the moment a P0 line is waiting.
+        # This is what fixes the 19.7s chat-batch-blocks-voice stall and the
+        # negative audio_out (concurrent _speak_single clobbering _lat_* slots).
+        self._speech_gate_held = False
+        self._speech_waiters: list = []    # entries: [priority, seq, future]
+        self._speech_seq = 0
+
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
         # Per-session token counters — accumulated from response.usage on every
@@ -1112,20 +1127,51 @@ class AI_Core:
             print(f"   ERROR during emotion analysis: {e}")
             return None
 
-    async def speak_text(self, text: str):
+    async def _acquire_speech_gate(self, priority: int):
+        """Acquire the single TTS playback gate, honoring priority lanes.
+
+        If the gate is free and nobody is waiting, take it immediately. Otherwise
+        queue and await; the releaser hands ownership to the highest-priority
+        waiter (lowest number; FIFO within a lane). Single-threaded asyncio means
+        the check-and-take below is atomic (no await between)."""
+        if not self._speech_gate_held and not self._speech_waiters:
+            self._speech_gate_held = True
+            return
+        self._speech_seq += 1
+        entry = [priority, self._speech_seq, asyncio.get_running_loop().create_future()]
+        self._speech_waiters.append(entry)
+        await entry[2]
+        # Ownership was transferred to us by the releaser; gate stays held.
+
+    def _release_speech_gate(self):
+        """Release the gate. If waiters exist, transfer ownership to the
+        highest-priority one (keeping the gate held on its behalf)."""
+        if self._speech_waiters:
+            self._speech_waiters.sort(key=lambda e: (e[0], e[1]))
+            entry = self._speech_waiters.pop(0)
+            if not entry[2].done():
+                entry[2].set_result(None)
+            # Gate remains held; the woken waiter now owns it.
+        else:
+            self._speech_gate_held = False
+
+    async def speak_text(self, text: str, priority: int = 1):
         """Generates and plays audio for the given text (blocking). Sets is_speaking
-        around the call so VAD ignores self-hearing. Used by non-streaming callers."""
+        around the call so VAD ignores self-hearing. Used by non-streaming callers.
+
+        priority: TTS lane (0=voice, 1=interjection/announcement, 2=chat-batch).
+        Defaults to P1 — chat-batch callers must pass priority=2 explicitly."""
         if not text:
             return
         self.interruption_event.clear()
         self.is_speaking = True
         try:
-            await self._speak_single(text)
+            await self._speak_single(text, priority=priority)
         finally:
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
 
-    async def speak_text_vn(self, text: str, ssml_inner: str | None = None):
+    async def speak_text_vn(self, text: str, ssml_inner: str | None = None, priority: int = 1):
         """VN autopilot TTS: accepts pre-built SSML inner content for prosody variation.
 
         When ssml_inner is provided and Azure TTS is active, wraps it inside the
@@ -1147,6 +1193,7 @@ class AI_Core:
                     f'</prosody></voice></speak>'
                 )
                 print(f"   [TTS] Speaking: {text[:50]}...")
+                await self._acquire_speech_gate(priority)
                 try:
                     # Serialize with the lock so a concurrent _speak_single
                     # from a Kira interjection can't reset the shared
@@ -1187,16 +1234,27 @@ class AI_Core:
                         print(f"   TTS Fail: {result.cancellation_details.error_details}")
                 except Exception as e:
                     print(f"   TTS/Playback Error: {e}")
+                finally:
+                    self._release_speech_gate()
             else:
-                await self._speak_single(text)
+                await self._speak_single(text, priority=priority)
         finally:
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
 
-    async def _speak_single(self, text: str):
+    async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False):
         """Pure synthesis-and-playback for a single text block. Does NOT manage
         is_speaking or interruption_event — caller is responsible. Used by both
-        speak_text (single shot) and speak_streaming (per-sentence dispatch)."""
+        speak_text (single shot) and speak_streaming (per-sentence dispatch).
+
+        priority: TTS lane for the playback gate (0=voice, 1=interjection, 2=chat).
+        is_stream: True only for the streaming voice path — gates the
+            _lat_audio_out_ms stamp so a concurrent non-voice line can never
+            clobber the voice turn's latency slot (the negative-audio_out bug).
+        already_gated: True when the caller (speak_streaming) already holds the
+            speech gate for the whole logical turn. Skips per-sentence
+            acquire/release so a lower-priority line can't wedge itself BETWEEN
+            the sentences of one streamed voice reply."""
         if not text:
             return
         if self.interruption_event.is_set():
@@ -1223,7 +1281,14 @@ class AI_Core:
         audio_data = None
         word_timings: list[dict] = []
 
+        if not already_gated:
+            await self._acquire_speech_gate(priority)
         try:
+            # Re-check barge-in after the (possibly long) gate wait — if Jonny
+            # interrupted while this line was queued, abandon it immediately so
+            # the queue drains instead of synthing stale audio.
+            if self.interruption_event.is_set():
+                return
             if self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
                 # ---- Fish Audio streaming path ----
                 # Runs in a thread because the SDK's .tts() is a blocking generator.
@@ -1318,16 +1383,22 @@ class AI_Core:
                         print(f"   [Captions] No word-boundary events captured for '{text[:40]}' — caption skipped.")
                 except Exception as e:
                     print(f"   [Captions] dispatch suppressed: {e}")
-                # Latency: stamp first actual playback start (relative to stream start).
-                if self._lat_audio_out_ms < 0 and self._lat_stream_t0 > 0:
+                # Latency: stamp first actual playback start (relative to stream
+                # start). Only the streaming voice path stamps this — a concurrent
+                # non-voice line must never write the voice turn's slot (that was
+                # the negative-audio_out bug).
+                if is_stream and self._lat_audio_out_ms < 0 and self._lat_stream_t0 > 0:
                     self._lat_audio_out_ms = int((time.time() - self._lat_stream_t0) * 1000)
                 # Wall-clock playback-start stamp for the [LAG] sense->speak metric.
                 self.last_playback_start_time = time.time()
                 await self._play_audio_with_pygame(audio_data)
         except Exception as e:
             print(f"   TTS/Playback Error: {e}")
+        finally:
+            if not already_gated:
+                self._release_speech_gate()
 
-    async def speak_streaming(self, stream_generator) -> str:
+    async def speak_streaming(self, stream_generator, priority: int = 0) -> str:
         """Consumes an async generator of text chunks. Buffers into sentences,
         dispatches each to TTS sequentially. Tool tags ([POLL: ...], [SONG: ...],
         [PREDICT: ...], [BIT: ...], [TAKE]) are extracted and processed separately —
@@ -1358,6 +1429,13 @@ class AI_Core:
             if last_open == -1:
                 return False
             return ']' not in text[last_open:]
+
+        # Hold the speech gate for the WHOLE logical turn, not per sentence.
+        # Acquired lazily right before the first spoken sentence (so LLM token
+        # generation can overlap with a lower-priority line still playing), then
+        # held until the stream finishes. This is what stops a P2 chat line from
+        # wedging itself BETWEEN the sentences of one streamed voice reply.
+        _gate_held = False
 
         try:
             async for chunk in stream_generator:
@@ -1398,7 +1476,12 @@ class AI_Core:
                                 _first_word_logged = True
                                 if self._lat_tts_first_chunk_ms < 0:
                                     self._lat_tts_first_chunk_ms = _ttfw_ms
-                            await self._speak_single(cleaned)
+                            # Lazily grab the gate once, before the first audible
+                            # sentence; hold it for the rest of the turn.
+                            if not _gate_held:
+                                await self._acquire_speech_gate(priority)
+                                _gate_held = True
+                            await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
                             if self.interruption_event.is_set():
                                 return full_text
 
@@ -1412,10 +1495,15 @@ class AI_Core:
                         print(f"   [TIMING] first-word: {_ttfw_ms}ms")
                         if self._lat_tts_first_chunk_ms < 0:
                             self._lat_tts_first_chunk_ms = _ttfw_ms
-                    await self._speak_single(cleaned)
+                    if not _gate_held:
+                        await self._acquire_speech_gate(priority)
+                        _gate_held = True
+                    await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
         except Exception as e:
             print(f"   [Streaming] Error during stream consumption: {e}")
         finally:
+            if _gate_held:
+                self._release_speech_gate()
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
 

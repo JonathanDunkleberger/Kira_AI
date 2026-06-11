@@ -28,7 +28,7 @@ from typing import List, Callable # Added for type hinting
 
 from ai_core import AI_Core
 from memory import MemoryManager
-from cookie_jar import CookieJar
+from cookie_jar import CookieJar, MILESTONE_CAP
 from twitch_bot import TwitchBot
 # web_search.async_GoogleSearch is imported below when/if a search-trigger
 # command is wired up. Module kept; import removed until the call site exists.
@@ -424,6 +424,10 @@ class VTubeBot:
         self.chaos_mode_active: bool = False
         self.chaos_mode_until: float = 0.0
         self._chaos_mode_task = None  # asyncio.Task handle for the timer
+        # Earliest time the jar may trigger another chaos window. Set when a
+        # chaos window ends (now + CHAOS_MODE_COOLDOWN_SECONDS). Enforces "one
+        # chaos window at a time, with a cooldown" — see _maybe_fire_cookie_milestone.
+        self._chaos_cooldown_until: float = 0.0
 
         import bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
@@ -440,41 +444,55 @@ class VTubeBot:
     COOKIE_MILESTONE_LINES = [
         "Chat. You filled the whole jar. Congratulations — you've unleashed me. Chaos mode, no notes, no regrets, for a while.",
         "Jar's full. By the ancient laws of cookie economics, I'm legally feral until further notice. Buckle up.",
-        "Hundred — sorry, thirty-five cookies. Milestone {n}. The leash is off. I cannot legally be held responsible for what happens next.",
+        "{cap} cookies. That's milestone {n}. The leash is off — I cannot legally be held responsible for what happens next.",
         "You actually did it. The jar overflows, the seal breaks, chaos mode begins. Me with no impulse control until I calm down. You earned this. Probably.",
     ]
 
     def _maybe_fire_cookie_milestone(self) -> None:
         """If the cookie jar has queued a milestone and no reaction is already
-        in flight, schedule Kira to speak a variant line and roll over the jar.
-        Throttle prevents back-to-back milestone speeches if cookies land in a
-        burst right at the boundary."""
+        in flight, roll the jar over NOW and schedule Kira's announcement.
+
+        The rollover happens synchronously here (jar resets on trigger) so that
+        cookies landing during the ~3s TTS wait can't push the jar back to the
+        cap and fire a second milestone (the 26-AND-27 / instant-refill bug).
+        Also gated on chaos: only one chaos window at a time, plus a cooldown
+        after it ends — a still-full jar during chaos/cooldown does not fire."""
         try:
             if not self.cookie_jar.milestone_pending():
                 return
             if self._cookie_milestone_in_flight:
                 return
+            # One chaos window at a time, with a cooldown after it ends.
+            now = time.time()
+            if self.chaos_mode_active or now < self._chaos_cooldown_until:
+                return
             self._cookie_milestone_in_flight = True
-            asyncio.create_task(self._speak_cookie_milestone())
+            # Roll the jar over immediately (atomic) — consumes the pending flag
+            # and zeroes shared_total at trigger time, not after the speech wait.
+            milestone_n = self.cookie_jar.get_milestone_count() + 1
+            rolled = self.cookie_jar.reset_shared_on_milestone()
+            if not rolled:
+                self._cookie_milestone_in_flight = False
+                return
+            asyncio.create_task(self._speak_cookie_milestone(milestone_n))
         except Exception as e:
             print(f"   [Cookies] Milestone schedule error: {e}")
             self._cookie_milestone_in_flight = False
 
-    async def _speak_cookie_milestone(self) -> None:
-        """Pick a milestone variant, activate Chaos Mode, speak via TTS, then
-        roll over the jar. Rollover happens BEFORE chaos/TTS — crash-safe.
+    async def _speak_cookie_milestone(self, milestone_n: int) -> None:
+        """Activate Chaos Mode, pick a milestone variant, speak via TTS. The jar
+        rollover already happened in _maybe_fire_cookie_milestone (crash-safe).
         Resets in-flight flag in finally so a future milestone can fire."""
         import random as _rand
+        from cookie_jar import MILESTONE_CAP
         try:
             for _ in range(30):  # up to ~3s
                 if not self.ai_core.is_speaking:
                     break
                 await asyncio.sleep(0.1)
-            milestone_n = self.cookie_jar.get_milestone_count() + 1
-            rolled = self.cookie_jar.reset_shared_on_milestone()
-            if not rolled:
-                return
-            line = _rand.choice(self.COOKIE_MILESTONE_LINES).format(n=milestone_n)
+            line = _rand.choice(self.COOKIE_MILESTONE_LINES).format(
+                n=milestone_n, cap=MILESTONE_CAP
+            )
             print(f"   [Cookies] \U0001f36a MILESTONE #{milestone_n} \u2014 Kira: {line}")
             await self._broadcast_cookie_milestone()
             await self._broadcast_cookie_state()
@@ -490,7 +508,7 @@ class VTubeBot:
             except Exception as _chaos_err:
                 print(f"   [Cookies] Chaos activation error: {_chaos_err}")
             try:
-                await self.ai_core.speak_text(line)
+                await self.ai_core.speak_text(line, priority=1)
                 self.conversation_history.append({"role": "assistant", "content": line})
                 self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
             except Exception as _tts_err:
@@ -537,6 +555,9 @@ class VTubeBot:
             return
         self.chaos_mode_active = False
         self.chaos_mode_until = 0.0
+        # Start the cooldown — no new chaos window may trigger until it elapses.
+        from cookie_jar import CHAOS_MODE_COOLDOWN_SECONDS
+        self._chaos_cooldown_until = time.time() + int(CHAOS_MODE_COOLDOWN_SECONDS)
         print("   [Chaos] Chaos mode ended.")
         try:
             self.stream_logger.log("chaos_end")
@@ -552,7 +573,7 @@ class VTubeBot:
                     break
                 await asyncio.sleep(0.1)
             line = _rand.choice(CHAOS_MODE_END_LINES)
-            await self.ai_core.speak_text(line)
+            await self.ai_core.speak_text(line, priority=1)
             self.conversation_history.append({"role": "assistant", "content": line})
             self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
         except Exception as e:
@@ -936,6 +957,9 @@ class VTubeBot:
             "overrides everything here.\n"
             "- React to the current moment and what is actually present right now, drawing "
             "on verified facts when they apply.\n"
+            "- PRIVACY: Never volunteer Jonny's location or personal details from memory on "
+            "stream unless he has said them himself this session. Knowing a fact is not "
+            "permission to broadcast it \u2014 on stream, let him be the one to bring it up.\n"
             "\nBANNED PHRASES (never use these \u2014 they are overused regressions):\n"
             "- 'doing a lot of heavy lifting' / 'carrying hard' / 'carrying this'\n"
             "- 'doing more work than'\n"
@@ -3248,10 +3272,20 @@ class VTubeBot:
             "vad_close_ms": int(PAUSE_THRESHOLD * 1000),
             "t_capture": time.time(),
         }
-        _stt_t0 = time.time()
+        # Measure lock-wait SEPARATELY from transcription. stt_ms used to start
+        # before acquiring processing_lock, so any time blocked behind a deep
+        # response / interjection holding the lock (common during chat-heavy
+        # stretches) was miscounted as STT compute — that's the 2.7-4.1s "spike",
+        # not Whisper itself. Same decision-vs-completion bug class as the [LAG] fix.
+        _lock_wait_t0 = time.time()
         async with self.processing_lock:
+            _lat["stt_wait_ms"] = int((time.time() - _lock_wait_t0) * 1000)
+            _stt_t0 = time.time()
             user_text = await self.ai_core.transcribe_audio(audio_data, self.current_activity)
-        _lat["stt_ms"] = int((time.time() - _stt_t0) * 1000)
+            _lat["stt_ms"] = int((time.time() - _stt_t0) * 1000)
+        if _lat.get("stt_wait_ms", 0) > 500:
+            print(f"   [STT] lock-wait {_lat['stt_wait_ms']}ms before transcribe "
+                  f"(contention, not Whisper); transcribe={_lat['stt_ms']}ms")
         # Lock released — post-transcription steps don't need it.
         if not user_text or len(user_text) < 3:
             return
@@ -3338,7 +3372,7 @@ class VTubeBot:
                             self.cookie_jar.add_cookie(username, n)
                             print(
                                 f"   [Cookies] +{n} → {username} (first message this session); "
-                                f"shared={self.cookie_jar.get_shared()}/35"
+                                f"shared={self.cookie_jar.get_shared()}/{MILESTONE_CAP}"
                             )
                             await self._broadcast_cookie_state()
                             self._maybe_fire_cookie_milestone()
@@ -3854,6 +3888,44 @@ class VTubeBot:
 
         now = time.time()
 
+        # --- Chat dedupe: drop near-identical repeats within a short window ---
+        # A chatter sending the same line twice in ~2min (e.g. "Goodnight!" twice)
+        # used to draw two near-identical responses. Compare each message against
+        # that user's recent history (session_chatter_logs holds prior messages
+        # with timestamps); an exact normalized match inside the window is a
+        # duplicate and gets dropped — no response rather than a second echo.
+        _DEDUP_WINDOW_S = 120.0
+        def _norm_msg(s: str) -> str:
+            return " ".join((s or "").lower().split()).rstrip("!?.")
+        _kept_batch = []
+        _seen_in_batch: dict[str, set] = {}
+        _dropped_dupes = 0
+        for msg in batch:
+            _u = msg.get("username", "unknown")
+            _norm = _norm_msg(msg.get("message", ""))
+            if not _norm:
+                _kept_batch.append(msg)
+                continue
+            _is_dupe = False
+            # Duplicate of something this user said recently this session?
+            for _entry in self.session_chatter_logs.get(_u, []):
+                if (now - _entry["timestamp"]) <= _DEDUP_WINDOW_S and _norm_msg(_entry["content"]) == _norm:
+                    _is_dupe = True
+                    break
+            # Duplicate within this same batch?
+            if not _is_dupe and _norm in _seen_in_batch.get(_u, set()):
+                _is_dupe = True
+            if _is_dupe:
+                _dropped_dupes += 1
+                continue
+            _seen_in_batch.setdefault(_u, set()).add(_norm)
+            _kept_batch.append(msg)
+        if _dropped_dupes:
+            print(f"   [ChatBatch] Dedupe: dropped {_dropped_dupes} repeated message(s) within {int(_DEDUP_WINDOW_S)}s")
+        batch = _kept_batch
+        if not batch:
+            return
+
         # --- Change 1: Log each chatter's message to the session rolling log ---
         for msg in batch:
             username = msg.get("username", "unknown")
@@ -3983,6 +4055,7 @@ class VTubeBot:
             f"- Address chatters BY NAME. Name recognition is your superpower.\n"
             f"- If someone is a FIRST TIME CHATTER, give them a brief warm spotlight moment.\n"
             f"- If you have prior context on a chatter, reference it naturally (callbacks land hard).\n"
+            f"- NEVER repeat the same callback, bit, or phrasing you used in your immediately previous response — vary it or pick a different angle. Two near-identical replies in a row reads like a broken record.\n"
             f"- If multiple messages have the same vibe, consolidate.\n"
             f"- If messages are pure spam/'hi'/no substance AND you have zero prior context on the chatter, output ONLY: SKIP\n"
             f"- Exception: if you have ANY prior context on a chatter (even one fact), a simple greeting is NOT skip-worthy — give them a quick warm acknowledgment. Known viewers saying 'hi' should never be SKIP.\n"
@@ -4045,7 +4118,7 @@ class VTubeBot:
         self.last_chat_response_time = time.time()
         self._chat_speaking = True
         try:
-            await self.ai_core.speak_text(cleaned)
+            await self.ai_core.speak_text(cleaned, priority=2)
         finally:
             self._chat_speaking = False
         chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
@@ -4065,7 +4138,7 @@ class VTubeBot:
             if awarded_users:
                 print(
                     f"   [Cookies] +1 × {len(awarded_users)} (batch response); "
-                    f"shared={self.cookie_jar.get_shared()}/35"
+                    f"shared={self.cookie_jar.get_shared()}/{MILESTONE_CAP}"
                 )
                 await self._broadcast_cookie_state()
                 self._maybe_fire_cookie_milestone()
@@ -5073,9 +5146,26 @@ class VTubeBot:
                     # and is the whole point of the mode, so it gets more room.
                     SCENE_BUDGET = 4000 if is_media else 2500
                     PROTECT_WEIGHT = 90
+                    # Accumulated-context parts that should SHRINK incrementally
+                    # (drop their oldest bullet) rather than be amputated wholesale
+                    # when over budget — MY TAKES (40) and the playthrough/GAMES
+                    # manifest (50). Condense-as-you-go instead of an all-or-nothing
+                    # cut at the end, so these always survive in a trimmed form.
+                    TRIMMABLE_WEIGHTS = {40, 50}
 
                     def _assemble(ps: "list[tuple[int, str]]") -> str:
                         return "\n\n".join(t for _, t in ps)
+
+                    def _trim_one_bullet(text: str) -> "str | None":
+                        """Drop the oldest bullet (first content line after the
+                        header). Returns the trimmed text, or None if nothing left
+                        to trim (header-only / single line) so the caller evicts it."""
+                        lines = text.split("\n")
+                        if len(lines) <= 2:
+                            return None
+                        # Keep the header (line 0); drop the first body line (oldest).
+                        trimmed = [lines[0]] + lines[2:]
+                        return "\n".join(trimmed)
 
                     assembled = _assemble(parts)
                     while len(assembled) > SCENE_BUDGET:
@@ -5090,9 +5180,19 @@ class VTubeBot:
                             )
                             break
                         lowest_i = min(droppable, key=lambda i: parts[i][0])
+                        weight, text = parts[lowest_i]
+                        before = len(assembled)
+                        if weight in TRIMMABLE_WEIGHTS:
+                            # Shrink incrementally: drop the oldest bullet and keep
+                            # the rest. Only evict the whole part once it's trimmed
+                            # down to its header.
+                            trimmed = _trim_one_bullet(text)
+                            if trimmed is not None:
+                                parts[lowest_i] = (weight, trimmed)
+                                assembled = _assemble(parts)
+                                continue
                         dropped = parts.pop(lowest_i)
                         label = dropped[1].split("\n", 1)[0][:60]
-                        before = len(assembled)
                         assembled = _assemble(parts)
                         print(
                             f"   [WARN] SceneBlock size guard: dropped '{label}' "
@@ -5397,16 +5497,27 @@ class VTubeBot:
         # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
         # Skipped when _under_load=True (GPU saturated) — fall back to heartbeat
         # cache so we stop adding API pressure exactly when the card is drowning.
-        # Also skipped if the heartbeat ran recently enough (< 5s ago) — no point
-        # in a redundant call when the cache is already fresh.
+        # Skipped when a recent sense is already fresh enough (< 60s) — a fresh
+        # vision summary OR a fresh Media Watch analysis means a new capture would
+        # cost ~3s+ for no new information (the prep=3.3s [LAG] regression). Reuse
+        # the cached scene instead.
         # Also skipped entirely when a scene_override is supplied (Media Watch:
         # vision_agent is not the sight source — the episode log is).
         _va = self.vision_agent
         _t0_vision = time.time()
         _cache_age = (time.time() - _va.last_capture_time) if (_va and _va.last_capture_time) else 999
-        _skip_fresh = self._under_load or (_cache_age < 5.0) or bool(scene_override)
+        # Media Watch analysis freshness — its content midpoint doubles as a
+        # recency signal for the live scene.
+        _mw_age = 999.0
+        if _mw and getattr(_mw, "is_running", False):
+            _mw_mid = _mw.get_last_content_mid_ts() or 0.0
+            if _mw_mid:
+                _mw_age = time.time() - _mw_mid
+        _sense_fresh = (_cache_age < 60.0) or (_mw_age < 60.0)
+        _skip_fresh = self._under_load or _sense_fresh or bool(scene_override)
         if _skip_fresh and _va and _va.last_capture_time and not scene_override:
-            print(f"   [LoadShed] Skipping fresh vision capture (under_load={self._under_load}, cache_age={_cache_age:.1f}s)")
+            print(f"   [LoadShed] Skipping fresh vision capture (under_load={self._under_load}, "
+                  f"cache_age={_cache_age:.1f}s, mw_age={_mw_age:.1f}s)")
         if _va and _va.is_active and getattr(_va, "client", None) and not _skip_fresh:
             _fresh = await _va.capture_and_describe(is_heartbeat=False)
             if _fresh and not _fresh.startswith("My vision is a bit glitchy"):
@@ -5956,6 +6067,7 @@ class VTubeBot:
                     _tts1 = self.ai_core._lat_tts_first_chunk_ms
                     _aout = self.ai_core._lat_audio_out_ms
                     _stt = lat.get("stt_ms", -1)
+                    _stt_wait = lat.get("stt_wait_ms", -1)
                     _sal = lat.get("salience_ms", -1)
                     _mem = lat.get("memory_ms", -1)
                     _tri = lat.get("triage_ms", -1)
@@ -5972,7 +6084,7 @@ class VTubeBot:
                     _total = sum(v for v in (_stt, _sal, _tri, _mem if _tri == 0 else 0, _pb, _aout) if v and v > 0)
                     print(
                         f"   [LATENCY] vad_close={lat.get('vad_close_ms', -1)}ms "
-                        f"stt={_stt}ms salience={_sal}ms {_tri_str} "
+                        f"stt={_stt}ms stt_wait={_stt_wait}ms salience={_sal}ms {_tri_str} "
                         f"prompt_build={_pb}ms ttft={_ttft}ms "
                         f"tts_first_chunk={_tts_first_delta}ms audio_out={_aout_delta}ms "
                         f"TOTAL={_total}ms"
@@ -6015,15 +6127,15 @@ class VTubeBot:
         await asyncio.sleep(60.0)   # stagger startup
         while self.is_running:
             try:
-                import torch
-                if torch.cuda.is_available():
-                    allocated_gb = torch.cuda.memory_allocated() / (1024 ** 3)
-                    reserved_gb  = torch.cuda.memory_reserved()  / (1024 ** 3)
-                    total_gb     = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+                # Use the whole-card NVML read — torch's own allocator reports
+                # near-zero because the game (and the Whisper/Llama models loaded
+                # outside torch's allocator) hold VRAM invisibly to it, which is
+                # why this logged 0.0/16GB all session. NVML sees the whole card.
+                used_gb, total_gb = read_gpu_memory_gb()
+                if used_gb is not None and total_gb is not None:
                     self.stream_logger.log(
                         "vram_sample",
-                        allocated_gb=round(allocated_gb, 2),
-                        reserved_gb=round(reserved_gb, 2),
+                        used_gb=round(used_gb, 2),
                         total_gb=round(total_gb, 1),
                     )
             except Exception:
