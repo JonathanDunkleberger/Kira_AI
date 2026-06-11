@@ -167,12 +167,31 @@ def state_snapshot(bot: "VTubeBot") -> dict:
 
     # ── Media Watch ───────────────────────────────────────────────────────────
     mw = _get(lambda: bot.media_watch, None)
+
+    def _mw_latest():
+        """Latest MW analysis entry as {text, age, tag} so the EYES panel can show
+        Kira's real-time visual sync during Media Watch instead of the stale parked
+        heartbeat description."""
+        if not mw or not getattr(mw, "is_running", False):
+            return None
+        log = getattr(mw, "episode_log", None)
+        if not log:
+            return None
+        e = log[-1]
+        tag = "UNCERTAIN" if e.get("uncertain") else ("STATIC" if e.get("static") else "")
+        return {
+            "text": (e.get("summary", "") or "").strip(),
+            "age": int(now - e.get("ts", now)),
+            "tag": tag,
+        }
+
     media_watch_state = {
         "running": _get(lambda: mw.is_running if mw else False, False),
         "status":  _get(lambda: mw.get_status_str() if mw else "OFF", "OFF"),
         "reactions": _get(lambda: getattr(mw, "reactions_enabled", True) if mw else False, False),
         "calls": _get(lambda: getattr(mw, "_calls_count", 0) if mw else 0, 0),
         "cost_usd": _get(lambda: round(getattr(mw, "_calls_cost_usd", 0.0), 3) if mw else 0.0, 0.0),
+        "latest": _get(_mw_latest, None),
     }
 
     # ── Chess Mode ────────────────────────────────────────────────────────────

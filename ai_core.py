@@ -74,6 +74,11 @@ class AI_Core:
         # without baking mode into the cached system prompt. Returns 'companion' or 'streamer'.
         self._mode_provider = None
         self.last_speech_finish_time = time.time() # Added for silence tracking
+        # Wall-clock instant the most recent utterance's audio playback actually
+        # STARTED (set in _speak_single right before pygame playback). Used by the
+        # [LAG] sense->speak metric so "speak" means when she started talking, not
+        # when playback finished.
+        self.last_playback_start_time = 0.0
         self.last_tts_request_time = 0 # Added for TTS rate limiting
         self.llm = None
         self.whisper = None
@@ -1316,6 +1321,8 @@ class AI_Core:
                 # Latency: stamp first actual playback start (relative to stream start).
                 if self._lat_audio_out_ms < 0 and self._lat_stream_t0 > 0:
                     self._lat_audio_out_ms = int((time.time() - self._lat_stream_t0) * 1000)
+                # Wall-clock playback-start stamp for the [LAG] sense->speak metric.
+                self.last_playback_start_time = time.time()
                 await self._play_audio_with_pygame(audio_data)
         except Exception as e:
             print(f"   TTS/Playback Error: {e}")

@@ -114,6 +114,8 @@ class MediaWatch:
         self._calls_count: int = 0
         self._calls_cost_usd: float = 0.0
         self._last_analysis_ts: float = 0.0
+        # Wall-clock midpoint of the frames the most-recent analysis covered.
+        self._last_content_mid_ts: float = 0.0
 
         # Tasks.
         self._capture_task: asyncio.Task | None = None
@@ -191,6 +193,7 @@ class MediaWatch:
         self.episode_log.clear()
         self._last_analysis_ts = 0.0
         self._last_react_ts = 0.0
+        self._last_content_mid_ts = 0.0
         self.last_start_error = ""
         self._capture_task = asyncio.ensure_future(self._capture_loop())
         self._analysis_task = asyncio.ensure_future(self._analysis_loop())
@@ -388,15 +391,24 @@ class MediaWatch:
 
         now = time.time()
         t_rel = now - self._session_start_ts
+        # Wall-clock midpoint of the frames this analysis actually covers — the
+        # "when did this content happen" anchor for sense->speak lag metrics.
+        try:
+            _f_ts = [f["ts"] for f in frames_snapshot if "ts" in f]
+            content_mid_ts = (min(_f_ts) + max(_f_ts)) / 2.0 if _f_ts else now
+        except Exception:
+            content_mid_ts = now
         entry = {
             "ts": now,
             "t_rel_s": t_rel,
             "summary": summary,
             "uncertain": uncertain,
             "static": static,
+            "content_mid_ts": content_mid_ts,
         }
         self.episode_log.append(entry)
         self._last_analysis_ts = now
+        self._last_content_mid_ts = content_mid_ts
 
         h, rem = divmod(int(t_rel), 3600)
         m, s = divmod(rem, 60)
@@ -427,24 +439,75 @@ class MediaWatch:
 
     # ── Context for question answering ───────────────────────────────────────
 
-    def get_episode_context(self, max_entries: int = 12) -> str:
+    def get_episode_context(self, max_entries: int = 10,
+                            char_budget: int = 2600) -> str:
         """Return a formatted timeline string for prompt injection.
 
-        Most recent `max_entries` events from the episode log, in chronological
-        order, each tagged with relative timestamp. Call this when the user
-        asks 'what just happened' / 'who was in that scene' / 'what did you
-        think of that scene' — Kira draws on this instead of a stale snapshot.
+        Keeps the most recent `max_entries` events VERBATIM (the beats Kira is most
+        likely to react to), and rolls everything older into a compact "earlier in
+        the episode" digest so the block stays bounded no matter how long the movie
+        runs. This is what keeps the FILM/EPISODE LOG from growing unbounded and
+        evicting the dialogue summary from the scene-block budget.
+
+        `char_budget` is a soft cap on the verbatim section; older recent entries are
+        themselves condensed to first-sentence if the tail is still too large.
         """
         if not self.episode_log:
             return ""
-        entries = list(self.episode_log)[-max_entries:]
-        lines = ["[MEDIA WATCH — episode event timeline, oldest first]"]
-        for e in entries:
+        all_entries = list(self.episode_log)
+        recent = all_entries[-max_entries:]
+        older = all_entries[:-max_entries] if len(all_entries) > max_entries else []
+
+        def _stamp(e) -> str:
             t = int(e["t_rel_s"])
             h, rem = divmod(t, 3600)
             m, s = divmod(rem, 60)
-            stamp = f"{h:02d}:{m:02d}:{s:02d}"
-            lines.append(f"  [{stamp}] {e['summary']}")
+            return f"{h:02d}:{m:02d}:{s:02d}"
+
+        def _first_sentence(text: str) -> str:
+            text = (text or "").strip()
+            # Strip the UNCERTAIN:/STATIC: tag for the digest.
+            for tag in ("UNCERTAIN:", "STATIC:"):
+                if text.upper().startswith(tag):
+                    text = text[len(tag):].strip()
+            for sep in (". ", "! ", "? "):
+                idx = text.find(sep)
+                if 0 < idx < 160:
+                    return text[:idx + 1].strip()
+            return text[:160].strip()
+
+        lines = ["[MEDIA WATCH — episode event timeline, oldest first]"]
+
+        # Rolled "earlier in the episode" digest from older substantive entries.
+        if older:
+            substantive = [e for e in older
+                           if not e.get("uncertain") and not e.get("static")]
+            picks = substantive or older
+            # Spread the picks across the older span (start / middle / end) so the
+            # digest reflects the arc, not just the oldest few beats.
+            if len(picks) > 3:
+                picks = [picks[0], picks[len(picks) // 2], picks[-1]]
+            digest_bits = [f"{_stamp(e)} {_first_sentence(e['summary'])}" for e in picks]
+            span = f"{_stamp(older[0])}–{_stamp(older[-1])}"
+            lines.append(
+                f"  [EARLIER IN THE EPISODE, condensed | {span}]: "
+                + " ".join(digest_bits)
+            )
+
+        # Recent entries verbatim, trimmed to budget if needed.
+        verbatim = []
+        for e in recent:
+            verbatim.append(f"  [{_stamp(e)}] {e['summary']}")
+        block = "\n".join(verbatim)
+        # If the verbatim tail blows the budget, condense the oldest of the recent
+        # window to first-sentence until it fits.
+        i = 0
+        while len(block) > char_budget and i < len(recent) - 1:
+            verbatim[i] = f"  [{_stamp(recent[i])}] {_first_sentence(recent[i]['summary'])}"
+            block = "\n".join(verbatim)
+            i += 1
+        lines.append(block)
+
         lines.append(
             "[NOTE] This is Kira's actual visual record of what happened. "
             "When asked about earlier scenes, refer to this timeline. If a "
@@ -455,6 +518,11 @@ class MediaWatch:
 
     def has_context(self) -> bool:
         return len(self.episode_log) > 0
+
+    def get_last_content_mid_ts(self) -> float:
+        """Wall-clock midpoint of the frames the most-recent analysis covered.
+        0.0 if no analysis has landed yet. Used for sense->speak lag metrics."""
+        return self._last_content_mid_ts
 
     def get_latest_summary(self) -> str:
         """Most recent SUBSTANTIVE analysis summary (skips UNCERTAIN/STATIC).

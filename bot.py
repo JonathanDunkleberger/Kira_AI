@@ -790,6 +790,54 @@ class VTubeBot:
 
     # ── Shared voice guardrails / perception framing (used by every reaction path) ───
 
+    def _has_fresh_sense(self, vision_max_age: float = 60.0,
+                         mw_max_age: float = 60.0,
+                         loopback_max_age: float = 30.0):
+        """Returns (has_fresh, label). True when Kira has at least one FRESH
+        substantive sense right now: live vision, a recent substantive Media Watch
+        analysis, or recent in-scene dialogue from loopback. Used to gate proactive
+        deep interjections so she never anchors on days-old startup-brief memory as
+        if it were happening now. `label` names the sense (for logging)."""
+        # Vision <vision_max_age.
+        if self._has_fresh_visual_context(vision_max_age):
+            return True, "vision"
+        # Substantive (non-UNCERTAIN/STATIC) Media Watch analysis within window.
+        mw = self.media_watch
+        if mw is not None and getattr(mw, "is_running", False):
+            last_ts = getattr(mw, "_last_analysis_ts", 0) or 0
+            if last_ts and (time.time() - last_ts) <= mw_max_age and (mw.get_latest_summary() or ""):
+                return True, "media-watch"
+        # Recent in-scene dialogue from loopback.
+        lt = self.loopback_transcriber
+        if lt is not None and getattr(lt, "is_running", None) and lt.is_running():
+            try:
+                segs = lt.get_segments()
+            except Exception:
+                segs = None
+            if segs and (time.time() - segs[-1]["ts"]) <= loopback_max_age:
+                return True, "loopback-dialogue"
+        # A real audio EVENT (loud + confident) also counts as a fresh sense.
+        aa = self.audio_agent
+        if aa is not None and aa.is_active() and getattr(aa, "audio_summary_is_event", False):
+            cap_ts = getattr(aa, "last_capture_time", 0) or 0
+            if cap_ts and (time.time() - cap_ts) <= mw_max_age:
+                return True, "audio-event"
+        return False, "none"
+
+    def _event_audio_summary(self) -> str:
+        """Lowercased current audio summary, but ONLY when it is a real EVENT.
+
+        A NON-EVENT summary (UNCERTAIN or below the audio agent's event RMS floor)
+        returns "" so it cannot color session intensity, trip a suppress gate, or
+        otherwise behave as if the room were full of dramatic sound when it's near
+        silent. This is the bot-side half of the audio hallucination guard."""
+        aa = self.audio_agent
+        if not aa or not aa.is_active():
+            return ""
+        if not getattr(aa, "audio_summary_is_event", False):
+            return ""
+        return (getattr(aa, "audio_summary", "") or "").lower()
+
     def _has_fresh_visual_context(self, max_age: float = 15.0) -> bool:
         """Returns True only when the vision agent is on AND has a real, recent capture.
         Used to gate any prompt path that would otherwise let Kira make visual claims
@@ -895,6 +943,20 @@ class VTubeBot:
             "- 'defies several laws of physics' / 'defies the laws of'\n"
             "Find fresh, specific observations instead.\n"
         )
+        # AUDIENCE FRAMING — mode-gated. In companion mode there is no audience but
+        # Jonny; addressing "chat" / "everyone" / "you guys" is a hard break of the
+        # one-on-one frame. In streamer mode a live chat exists and may be addressed.
+        if getattr(self, "mode", "companion") == "streamer":
+            block += (
+                "\n[AUDIENCE: STREAM] You are live with Jonny AND a Twitch chat. You may "
+                "address chat directly when it fits ('chat', 'everyone'), or talk just to Jonny.\n"
+            )
+        else:
+            block += (
+                "\n[AUDIENCE: JUST JONNY] This is a private one-on-one with Jonny \u2014 there is NO "
+                "audience and NO chat. NEVER address 'chat', 'everyone', 'you guys', 'stream', or any "
+                "crowd. Speak only to Jonny (or to yourself). Second person 'you' means Jonny, no one else.\n"
+            )
         if include_observer_avoid and self.recent_observer_comments:
             recent_str = "\n".join(f"- {c}" for c in self.recent_observer_comments[-8:])
             block += (
@@ -1258,9 +1320,7 @@ class VTubeBot:
                 SessionIntensity.CLIMACTIC, SessionIntensity.CUTSCENE,
             )
         scene_text = (mw.get_latest_summary() or "").lower()
-        audio_summary = ""
-        if self.audio_agent and self.audio_agent.is_active():
-            audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
+        audio_summary = self._event_audio_summary()
         scene_action = self._kw_hit(scene_text, self._TENSE_SCENE_KW)
         audio_tense = self._kw_hit(audio_summary, self._TENSE_AUDIO_KW)
         return scene_action and audio_tense
@@ -2195,9 +2255,9 @@ class VTubeBot:
                 return result
 
             # 2. Gather cheap signals — all pre-computed, zero I/O.
-            audio_summary = ""
-            if self.audio_agent and self.audio_agent.is_active():
-                audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
+            #    NON-EVENT audio (UNCERTAIN / near-silent) is treated as no audio
+            #    so a hallucinated mood can't tilt intensity to TENSE/EMOTIONAL.
+            audio_summary = self._event_audio_summary()
 
             scene_text = ""
             if self.vision_agent:
@@ -2567,9 +2627,7 @@ class VTubeBot:
             "characters speaking", "male voice speaking", "female voice speaking",
             "voice speaking", "voices speaking",
         )
-        audio_summary = ""
-        if self.audio_agent and self.audio_agent.is_active():
-            audio_summary = (getattr(self.audio_agent, "audio_summary", "") or "").lower()
+        audio_summary = self._event_audio_summary()
         audio_hit = any(kw in audio_summary for kw in CUTSCENE_AUDIO_KEYWORDS)
 
         # AND logic: both vision AND audio must fire to suppress.
@@ -2632,6 +2690,22 @@ class VTubeBot:
         # === Recent Activity Brief ===
         lore_files = sorted(glob.glob("lore/*.md"), key=os.path.getmtime, reverse=True)
         clip_files = sorted(glob.glob("clips/*.md"), key=os.path.getmtime, reverse=True)
+
+        # Time-distance of the source material so the brief is clearly framed as
+        # PAST, not present. Anchors the "stale-memory" guard: an interjection must
+        # never treat a days-old session as what's happening right now.
+        brief_age_str = ""
+        if lore_files:
+            try:
+                age_days = (time.time() - os.path.getmtime(lore_files[0])) / 86400.0
+                if age_days < 1.0:
+                    brief_age_str = "earlier today"
+                elif age_days < 2.0:
+                    brief_age_str = "about a day ago"
+                else:
+                    brief_age_str = f"about {int(round(age_days))} days ago"
+            except Exception:
+                brief_age_str = ""
 
         lore_content = ""
         clips_content = ""
@@ -2699,7 +2773,13 @@ class VTubeBot:
                         break
 
             if brief and len(brief.strip()) > 200:
-                self.recent_activity_brief = brief.strip()
+                _hdr = (
+                    f"PAST SESSIONS \u2014 context only, NOT what is happening now "
+                    f"(last session was {brief_age_str})."
+                    if brief_age_str else
+                    "PAST SESSIONS \u2014 context only, NOT what is happening now."
+                )
+                self.recent_activity_brief = _hdr + "\n" + brief.strip()
                 print(f"   [StartupBrief] Generated activity brief ({len(self.recent_activity_brief)} chars)")
             else:
                 self.recent_activity_brief = ""
@@ -4595,7 +4675,7 @@ class VTubeBot:
         async with self.processing_lock:
             scene = self.vision_agent.get_vision_context()
             if self.audio_agent and self.audio_agent.is_active():
-                audio_ctx = self.audio_agent.get_audio_context()
+                audio_ctx = self.audio_agent.get_audio_context(require_event=True)
                 if audio_ctx:
                     scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
             memory = await asyncio.to_thread(self.memory.get_semantic_context, f"thoughts on {self.current_activity}")
@@ -5282,6 +5362,38 @@ class VTubeBot:
         if self.is_muted():
             return
         _t0_total = time.time()
+        # ── FRESH-SENSE GATE (stale-memory anchoring guard) ──────────────────
+        # A proactive deep interjection may only fire when Kira has at least one
+        # FRESH substantive sense right now. With no fresh sense she would be
+        # forced to anchor on days-old startup-brief memory as if it were current
+        # — exactly the regression this guards. A scene_override (Media Watch
+        # episode log) IS a fresh sense, so those reactions always pass.
+        if not scene_override:
+            _fresh_ok, _fresh_label = self._has_fresh_sense()
+            if not _fresh_ok:
+                print("   [FreshGate] interjection SUPPRESSED — no fresh sense "
+                      "(vision/MW/loopback/audio all stale); staying quiet.")
+                return
+        # [LAG] snapshot the DRIVING sense's content midpoint AT DECISION TIME — not
+        # after TTS, or a newer summary landing mid-synthesis would poison the metric
+        # (the cause of the earlier negative content_age readings). For a Media Watch
+        # reaction the driver is the MW analysis; otherwise the freshest of a real
+        # audio event or the live vision capture.
+        _content_mid_at_decision = 0.0
+        _mw = self.media_watch
+        if scene_override and _mw and getattr(_mw, "is_running", False):
+            _content_mid_at_decision = _mw.get_last_content_mid_ts() or 0.0
+        else:
+            _cands = []
+            _aa = self.audio_agent
+            if _aa and _aa.is_active() and getattr(_aa, "audio_summary_is_event", False):
+                _cands.append(getattr(_aa, "audio_summary_mid_ts", 0) or 0)
+            _vc = getattr(self.vision_agent, "last_capture_time", 0) or 0
+            if _vc:
+                _cands.append(_vc)
+            _cands = [c for c in _cands if c]
+            if _cands:
+                _content_mid_at_decision = max(_cands)
         # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
         # Skipped when _under_load=True (GPU saturated) — fall back to heartbeat
         # cache so we stop adding API pressure exactly when the card is drowning.
@@ -5332,6 +5444,15 @@ class VTubeBot:
             + self._kira_voice_guardrails(include_observer_avoid=True)
         )
 
+        # MEDIA reactions must be SHORT — 1-2 sentences max. Shorter lines are
+        # faster to speak and far less likely to land stale by the time TTS finishes.
+        _is_media_now = bool(scene_override) or bool(self.media_watch and getattr(self.media_watch, "is_running", False))
+        if _is_media_now:
+            full_prompt += (
+                "\n\n[LENGTH: MEDIA REACTION] Keep this to 1-2 sentences MAX — a single "
+                "sharp beat, not a paragraph. A quick reaction now beats a perfect one too late."
+            )
+
         # Called-shot payoff: surface a freshly-resolved prediction if one is
         # waiting (self-clears after one injection; self-suppresses during
         # INTENSE/CLIMACTIC and within the ~10-min cooldown).
@@ -5344,7 +5465,7 @@ class VTubeBot:
         _llm_model = "local"  # updated to "sonnet" if Claude path succeeds
         if self.ai_core.anthropic_client:
             if self.audio_agent and self.audio_agent.is_active():
-                audio_ctx = self.audio_agent.get_audio_context()
+                audio_ctx = self.audio_agent.get_audio_context(require_event=True)
                 if audio_ctx:
                     scene = (scene + "\n" + audio_ctx) if scene else audio_ctx
             try:
@@ -5381,6 +5502,31 @@ class VTubeBot:
             _tts_ms = int((time.time() - _t0_tts) * 1000)
             _total_ms = int((time.time() - _t0_total) * 1000)
             print(f"   [TIMING] interjection: vision={_vision_ms}ms llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_total_ms}ms")
+            # ── [LAG] sense->speak instrumentation ───────────────────────────
+            # _content_mid_at_decision was snapshotted BEFORE the LLM/TTS work, so
+            # it reflects the age of the sense that actually drove this reaction —
+            # immune to newer summaries landing during synthesis. "speak" is the
+            # instant audio PLAYBACK STARTED (last_playback_start_time), not when
+            # playback finished — that's what makes total ≈ age + llm + tts hold.
+            _play_start = getattr(self.ai_core, "last_playback_start_time", 0) or 0
+            # Guard: if playback didn't stamp (synth failed / no audio), fall back
+            # to now so the metric degrades gracefully instead of going negative.
+            if _play_start <= _t0_tts:
+                _play_start = time.time()
+            if _content_mid_at_decision:
+                _content_age = _t0_total - _content_mid_at_decision
+                _lag_total = _play_start - _content_mid_at_decision
+                _tts_wait_synth = _play_start - _t0_tts
+                # prep = vision capture + memory fetch between decision and LLM
+                # start; ~0 for media reactions (vision skipped). Surfaced so the
+                # sum reconciles exactly: total = age + prep + llm + tts.
+                _prep = max(0.0, (_t0_tts - _t0_total) - (_llm_ms / 1000.0))
+                print(
+                    f"   [LAG] sense\u2192speak: total={_lag_total:.1f}s "
+                    f"(content_age_at_decision={_content_age:.1f}s, "
+                    f"prep={_prep:.1f}s, llm={_llm_ms / 1000:.1f}s, "
+                    f"tts_wait+synth={_tts_wait_synth:.1f}s)"
+                )
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             # Called-shot CAPTURE on proactive interjections too (cheap, no LLM).
             self.kira_state.capture_called_shot(cleaned)

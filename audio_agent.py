@@ -68,7 +68,9 @@ class AudioAgent:
         "- Write meta-commentary, retrospective notes, or self-reflection\n"
         "\n"
         "IF SILENT / AMBIENT ONLY / INAUDIBLE: output exactly: AUDIO_SILENT\n"
-        "IF UNCERTAIN about specifics: prefix with 'UNCERTAIN:' and describe only general mood and presence/absence of voice."
+        "IF UNCERTAIN about specifics: prefix with 'UNCERTAIN:' and describe only general mood and presence/absence of voice.\n"
+        "DO NOT manufacture drama from quiet or barely-audible input. Near-silence is AUDIO_SILENT, never an ominous scene. "
+        "When in doubt between 'something faint' and 'silence', choose AUDIO_SILENT or UNCERTAIN."
     )
 
     MUSIC_PROMPT = (
@@ -183,6 +185,16 @@ class AudioAgent:
         self.last_capture_time: float = 0
         self.capture_count: int = 0  # increments each time a non-silent audio summary lands
         self.consecutive_silent: int = 0
+        # Non-event gating for the current summary. A summary is only an "event"
+        # (eligible to color intensity or be presented as live hearing to react to)
+        # when it came from a loud-enough buffer AND the model was confident
+        # (not UNCERTAIN). Low-RMS or UNCERTAIN summaries are NON-EVENTS: they may
+        # not trigger interjections and are excluded from interjection prompts.
+        self.audio_summary_rms: float = 0.0
+        self.audio_summary_is_event: bool = False
+        # Wall-clock midpoint of the buffer the current summary describes — used by
+        # the sense->speak lag instrumentation in bot.py.
+        self.audio_summary_mid_ts: float = 0.0
         # Track consecutive model_not_found responses. We require several in a row before
         # permanently disabling the agent — a single 404 can be a stale model string, a
         # momentary org/project routing glitch, or a transient gateway error. See the
@@ -575,6 +587,14 @@ class AudioAgent:
     # input and falls into assistant-mode rather than describing it.
     SILENCE_RMS_THRESHOLD: float = 0.010
 
+    # Event-level floor (above the silence gate). A buffer between the silence
+    # gate and this floor is loud enough to bother describing, but too quiet to
+    # be trusted as a real "scene" — its summary is stored for continuity but
+    # flagged as a NON-EVENT (cannot trigger interjections, excluded from
+    # interjection prompts as primary material). This is the structural guard
+    # against the model inventing "ominous synth bass" from a near-silent room.
+    EVENT_RMS_FLOOR: float = 0.020
+
     async def _describe_current_buffer(self):
         # Silence-gate: don't waste an API call (or risk a meta-reply hallucination)
         # on a buffer that contains no real signal. Computed on the same samples we
@@ -587,6 +607,8 @@ class AudioAgent:
         if rms < self.SILENCE_RMS_THRESHOLD:
             print(f"   [Audio] Buffer silent (RMS={rms:.5f} < {self.SILENCE_RMS_THRESHOLD}) — skipping model call")
             self.consecutive_silent += 1
+            self.audio_summary_is_event = False
+            self.audio_summary_rms = rms
             if self.consecutive_silent >= 3:
                 self.audio_summary = "(quiet)"
             return
@@ -637,6 +659,8 @@ class AudioAgent:
                 if is_meta:
                     print(f"   [Audio] Suppressed meta-reply: {content[:120]!r}")
                 self.consecutive_silent += 1
+                self.audio_summary_is_event = False
+                self.audio_summary_rms = rms
                 # After 3 consecutive silences, decay to a clean quiet state (no recursive nesting)
                 if self.consecutive_silent >= 3:
                     self.audio_summary = "(quiet)"
@@ -649,6 +673,23 @@ class AudioAgent:
             self.audio_summary = content
             self.last_capture_time = time.time()
             self.capture_count += 1
+            self.audio_summary_rms = rms
+            # Wall-clock midpoint of the buffer this summary describes (for lag metrics).
+            try:
+                _buf_dur = samples_snapshot.size / float(self.sample_rate)
+            except Exception:
+                _buf_dur = 0.0
+            self.audio_summary_mid_ts = time.time() - (_buf_dur / 2.0)
+            # NON-EVENT gating: an UNCERTAIN prefix (model not confident) OR a
+            # below-event-floor RMS (too quiet to trust as a real scene) means this
+            # summary may NOT trigger interjections and is excluded from interjection
+            # prompts as primary material. It's still kept for soft continuity.
+            _is_uncertain = content.upper().startswith("UNCERTAIN")
+            self.audio_summary_is_event = (rms >= self.EVENT_RMS_FLOOR) and not _is_uncertain
+            if not self.audio_summary_is_event:
+                reason = "UNCERTAIN" if _is_uncertain else f"RMS<{self.EVENT_RMS_FLOOR}"
+                print(f"   [Audio] NON-EVENT summary ({reason}, RMS={rms:.5f}) — "
+                      f"kept for continuity, excluded from interjections")
             self._log_summary(content)
         except asyncio.TimeoutError:
             # Heartbeat will retry on the next tick — do NOT permanently disable.
@@ -814,12 +855,20 @@ class AudioAgent:
             print(f"   [SongID] Failed to write log entry: {e}")
         return info
 
-    def get_audio_context(self) -> str:
+    def get_audio_context(self, require_event: bool = False) -> str:
         """Returns the current audio summary as a directive sense-injection.
         Framed as RAW PERCEPTION she should react to in character, NOT as a script
         to recite. The audio model's clinical wording is reference data for her ears,
-        not the words that should come out of her mouth."""
+        not the words that should come out of her mouth.
+
+        When `require_event=True` (interjection / proactive-speech paths), a
+        NON-EVENT summary (UNCERTAIN or below the event RMS floor) returns "" so
+        Kira never proactively reacts to invented atmosphere from a near-silent
+        room. Conversational paths leave it False — she can still answer "what do
+        you hear" honestly with a low-confidence read."""
         if not self.is_active() or not self.audio_summary or self.audio_summary == "(quiet)":
+            return ""
+        if require_event and not self.audio_summary_is_event:
             return ""
         rel = int(time.time() - self.last_capture_time) if self.last_capture_time else 0
         label = "playing/singing" if self.mode == AUDIO_MODE_MUSIC else "audio/music/video"

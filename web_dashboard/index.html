@@ -489,6 +489,40 @@ html, body {
   color: var(--text-sec);
 }
 .loopback-summary:empty { display: none; }
+/* Dialogue summary: collapsed by default (clamped), click to expand to full
+   scrollable text. The rolling loopback STT -> summarizer output that carries
+   character names like "Coco" into Kira's context. */
+.dlg-summary-wrap { margin-top: 4px; }
+.dlg-summary-wrap:empty { display: none; }
+.dlg-summary-label {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--header);
+  font-style: normal;
+  cursor: pointer;
+  user-select: none;
+}
+.dlg-summary-label .dlg-chevron { display: inline-block; transition: transform .15s; }
+.dlg-summary-wrap.expanded .dlg-summary-label .dlg-chevron { transform: rotate(90deg); }
+.dlg-summary-text {
+  font-size: .72rem;
+  font-style: italic;
+  color: var(--text-sec);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-top: 2px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.dlg-summary-wrap.expanded .dlg-summary-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  max-height: 220px;
+  overflow-y: auto;
+}
 
 .locked { opacity: .4; pointer-events: none; }
 .toggle-row.locked { opacity: .4; pointer-events: none; }
@@ -553,6 +587,7 @@ html, body {
   font-style: italic;
   line-height: 1.4;
 }
+#vision-summary-text.mw-uncertain { color: var(--text-sec); opacity: .8; }
 
 /* pill selector */
 .pill-group { display: flex; gap: 6px; }
@@ -734,7 +769,10 @@ html, body {
           </div>
           <div class="status-text" id="loopback-status">disabled</div>
           <div id="loopback-feed" class="loopback-feed"></div>
-          <div id="loopback-summary" class="loopback-summary"></div>
+          <div id="dlg-summary-wrap" class="dlg-summary-wrap" onclick="toggleDlgSummary()">
+            <div class="dlg-summary-label"><span class="dlg-chevron">▶</span> Dialogue summary</div>
+            <div id="dlg-summary-text" class="dlg-summary-text"></div>
+          </div>
 
           <div class="toggle-row">
             <span class="toggle-label">Passive Watching</span>
@@ -1185,10 +1223,24 @@ function renderPanels(s) {
   // from s.effective.toggles — see the three-state block.
 
   // Vision summary
-  const vs = s.vision_summary || '';
-  const age = s.vision_last_capture_age != null ? ` (${s.vision_last_capture_age}s ago)` : '';
+  // When Media Watch is running, the vision heartbeat is parked, so its
+  // description is stale (e.g. "1137s ago"). Show MW's LATEST analysis instead —
+  // Jonny's real-time how-out-of-sync-is-she eyeball: text, age, and UNCERTAIN/STATIC tag.
   const vsEl = document.getElementById('vision-summary-text');
-  if (vsEl) vsEl.textContent = vs ? `${vs}${age}` : 'No description yet';
+  const mwSt = s.media_watch || {};
+  const mwLatest = mwSt.running ? mwSt.latest : null;
+  if (vsEl) {
+    if (mwLatest && mwLatest.text) {
+      const tag = mwLatest.tag ? `[${mwLatest.tag}] ` : '';
+      vsEl.textContent = `${tag}${mwLatest.text} — MW analysis: ${mwLatest.age}s ago`;
+      vsEl.classList.toggle('mw-uncertain', mwLatest.tag === 'UNCERTAIN' || mwLatest.tag === 'STATIC');
+    } else {
+      const vs = s.vision_summary || '';
+      const age = s.vision_last_capture_age != null ? ` (${s.vision_last_capture_age}s ago)` : '';
+      vsEl.textContent = vs ? `${vs}${age}` : 'No description yet';
+      vsEl.classList.remove('mw-uncertain');
+    }
+  }
 
   // Audio summary
   const as_ = s.audio_summary || '';
@@ -1610,12 +1662,20 @@ function renderLoopbackFeed(s) {
       box.scrollTop = box.scrollHeight;
     }
   }
-  const sumEl = document.getElementById('loopback-summary');
-  if (sumEl) {
-    let summ = (s.loopback_summary || '').trim();
-    if (summ.length > 200) summ = summ.slice(0, 197) + '…';
-    sumEl.textContent = summ ? `Story: ${summ}` : '';
+  const sumEl = document.getElementById('dlg-summary-text');
+  const wrap = document.getElementById('dlg-summary-wrap');
+  if (sumEl && wrap) {
+    const summ = (s.loopback_summary || '').trim();
+    // Full text — no truncation; CSS clamps to 2 lines until expanded.
+    sumEl.textContent = summ;
+    wrap.style.display = summ ? 'block' : 'none';
   }
+}
+
+// Click the "Dialogue summary" header to expand/collapse the full scrollable text.
+function toggleDlgSummary() {
+  const wrap = document.getElementById('dlg-summary-wrap');
+  if (wrap) wrap.classList.toggle('expanded');
 }
 
 
