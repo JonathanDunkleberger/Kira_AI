@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--
+  Kira — KIRA CAM scene
+  OBS Browser Source: 1920 × 1080, local file URL.
+  Avatar is layered on top by OBS — this source provides background
+  ambience only (no banner card).
+
+  Drop scene_kiracam.png into this folder, then re-measure the snow
+  region and light points using the warm-bias pixel scan described in
+  the commit message.  Current values are placeholder estimates.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <title>Kira Cam — Kira</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════════
+     SCENE CONFIGURATION — edit % values here to tune regions in OBS.
+     All x / y / w / h are fractions of the 1920 × 1080 canvas (0 → 1).
+
+     ⚠  snowRegion, mirrorRegion, and lightPoints are PLACEHOLDER values.
+        Measure them from the actual scene_kiracam.png using the warm-bias
+        canvas scan (R-B < 10 = cool glass, R-B > 20 = warm wall/wood)
+        before going live.
+  ═══════════════════════════════════════════════════════════════════════ */
+  const CFG = {
+
+    /* -- Window glass region (PLACEHOLDER — re-measure from scene_kiracam.png) */
+    snowRegion:   { x: 0.327, y: 0.088, w: 0.346, h: 0.569 },
+
+    /* -- Mirror reflected-sky (PLACEHOLDER — re-measure if mirror visible) */
+    mirrorRegion:    { x: 0.800, y: 0.070, w: 0.054, h: 0.315 },
+    mirrorSnowCount: 12,
+
+    /* -- CRT monitor screen glow (PLACEHOLDER — re-measure from scene) -- */
+    crtRegion:    { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
+
+    /* -- String-light bulb positions [x, y] (PLACEHOLDER) -------------- */
+    lightPoints: [
+      [0.04, 0.09], [0.09, 0.08], [0.15, 0.09], [0.22, 0.10], [0.30, 0.12], [0.40, 0.14],
+      [0.65, 0.09], [0.73, 0.08], [0.81, 0.08], [0.89, 0.09], [0.96, 0.10], [0.97, 0.15], [0.97, 0.20],
+    ],
+
+    /* -- Snow particles ------------------------------------------------- */
+    snowCount:    55,
+    snowSpeedMin: 0.28, snowSpeedMax: 0.75,
+    snowSizeMin:  2,    snowSizeMax:  5,
+    snowOpMin:    0.28, snowOpMax:    0.82,
+    snowDrift:    0.14,
+
+    /* -- CRT screen flicker --------------------------------------------- */
+    crtBaseGlow: 0.15, crtAmp: 0.06, crtPeriod: 3200,
+
+    /* -- String-light twinkle ------------------------------------------- */
+    lightRadius: 6, lightPeriodMin: 2000, lightPeriodMax: 5000,
+
+    /* -- NO banner card on Kira Cam — avatar fills the centre ----------- */
+    /* cardSize / cardLeft / cardTop / textSafe* intentionally omitted.    */
+
+    /* -- Screen identity for live text control from dashboard ----------- */
+    screenName: 'kira_cam',
+
+  };
+  </script>
+</head>
+<body>
+  <div id="scene">
+    <img class="bg" src="scene_kiracam.png" alt="">
+    <canvas id="snow-canvas" width="1920" height="1080"></canvas>
+    <div id="crt-overlay"></div>
+    <div id="lights-layer"></div>
+    <!-- No banner card. OBS layers the avatar source on top of this. -->
+  </div>
+
+  <script src="anim.js"></script>
+  <script>initScene(CFG);</script>
+</body>
+</html>

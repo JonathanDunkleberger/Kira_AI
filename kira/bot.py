@@ -1310,6 +1310,7 @@ class VTubeBot:
                 "memory_query": summary[:120],
                 "scene_override": _ep,
                 "queued_at": time.time(),
+                "content_ts": mw.get_last_content_mid_ts() or time.time(),  # captured at queue time for accurate [LAG]
             })
             return
 
@@ -1701,6 +1702,7 @@ class VTubeBot:
                 "memory_query": "chess game",
                 "scene_override": _bb_buf or summary,
                 "queued_at": time.time(),
+                "content_ts": time.time(),  # captured at queue time for accurate [LAG]
             })
             return
         ca = self.chess_agent
@@ -1729,7 +1731,7 @@ class VTubeBot:
                     prompt,
                     memory_query="chess game",
                     scene_override=board_block or summary,
-                    chess_event_ts=time.time(),
+                    content_ts=time.time(),
                 )
                 self.silence_stage = 0
                 self.last_interaction_time = time.time()
@@ -3389,6 +3391,17 @@ class VTubeBot:
                     if len(self.twitch_log) > 100:
                         self.twitch_log = self.twitch_log[-100:]
 
+                    # ── Chat overlay relay ────────────────────────────────────────
+                    try:
+                        from kira.dashboard.control_server import push_chat_message
+                        asyncio.ensure_future(push_chat_message(source, username, message_body))
+                    except Exception:
+                        pass
+
+                    self.twitch_log.append(content)
+                    if len(self.twitch_log) > 100:
+                        self.twitch_log = self.twitch_log[-100:]
+
                     self.chat_batch_buffer.append({
                         "username": username,
                         "platform": source,
@@ -4654,9 +4667,11 @@ class VTubeBot:
             f"emotionally landing moments. For each one provide:\n"
             f"  ### Clip N — Short title\n"
             f"  **Timestamp:** approximate HH:MM:SS into stream\n"
+            f"  **Score:** X/10 (clip-worthiness: self-contained without context, has a punchline/payoff, quotable title potential, energy)\n"
             f"  **Why it's good:** 1-2 sentences\n"
             f"  **Suggested YouTube short title:** under 60 chars\n"
             f"  **Key exchange:** 2-4 quoted lines\n\n"
+            f"Sort candidates best-first (highest score first).\n\n"
             f"=== TRANSCRIPT ===\n{llm_transcript}\n\n"
             f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
             + (f"=== CALLED SHOTS (predictions she made and how they resolved) ===\n{called_shots_block}\n\n" if called_shots_block else "")
@@ -5525,7 +5540,9 @@ class VTubeBot:
     # ── Turn Arbiter helpers ─────────────────────────────────────────────────
 
     async def _arbiter_interjection(self, prompt: str, memory_query: str = "",
-                                    scene_override: str = "") -> None:
+                                    scene_override: str = "",
+                                    content_ts: float = 0.0,
+                                    queue_wait_s: float = 0.0) -> None:
         """Fire-and-forget wrapper that respects the turn arbiter.
 
         If a turn is already active, the interjection is buffered (with a 15s
@@ -5539,6 +5556,7 @@ class VTubeBot:
                 "memory_query": memory_query,
                 "scene_override": scene_override,
                 "queued_at": time.time(),
+                "content_ts": content_ts or time.time(),  # preserve caller's stamp
             })
             print(f"   [Arbiter] Interjection BUFFERED (turn active); "
                   f"queue depth={len(self._pending_interjections)}")
@@ -5546,7 +5564,8 @@ class VTubeBot:
         async with self._active_turn_lock:
             async with self.processing_lock:
                 await self._execute_interjection(
-                    prompt, memory_query=memory_query, scene_override=scene_override
+                    prompt, memory_query=memory_query, scene_override=scene_override,
+                    content_ts=content_ts, queue_wait_s=queue_wait_s,
                 )
         await self._drain_pending_interjections()
 
@@ -5561,6 +5580,8 @@ class VTubeBot:
             if time.time() - pi["queued_at"] > 15.0:
                 print("   [Arbiter] Dropping stale buffered interjection (>15s old)")
                 continue
+            queue_wait_s = time.time() - pi["queued_at"]
+            content_ts = pi.get("content_ts", 0.0)
             prompt = pi.get("prompt") or ""
             # MW reactions store None for prompt (lazy rebuild) — reconstruct minimal
             # scene_override prompt here so the reaction still fires meaningfully.
@@ -5571,24 +5592,28 @@ class VTubeBot:
                 )
             if prompt:
                 print(f"   [Arbiter] Draining buffered interjection "
-                      f"(queued {time.time() - pi['queued_at']:.1f}s ago)")
+                      f"(queued {queue_wait_s:.1f}s ago)")
                 await self._arbiter_interjection(
                     prompt,
                     memory_query=pi.get("memory_query", ""),
                     scene_override=pi.get("scene_override", ""),
+                    content_ts=content_ts,
+                    queue_wait_s=queue_wait_s,
                 )
             break  # one per drain; _arbiter_interjection calls us again if more pending
 
     async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = "",
-                                    chess_event_ts: float = 0.0):
+                                    content_ts: float = 0.0, queue_wait_s: float = 0.0):
         """Runs a proactive interjection. Routes through Claude Opus when available —
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not.
 
         scene_override: when provided (e.g. the Media Watch episode log), it is used as
         Kira's scene perception and the vision_agent fresh-capture + blindness/stale
         directive are skipped — the override IS her sight for this reaction.
-        chess_event_ts: when non-zero, overrides _content_mid_at_decision so [LAG]
-        measures event→speak rather than last-ambient-sense→speak."""
+        content_ts: when non-zero, overrides _content_mid_at_decision so [LAG] measures
+        event→speak (chess moment, MW analysis) rather than last-ambient-sense→speak.
+        queue_wait_s: time the entry spent in _pending_interjections; reported separately
+        in [LAG] so content_age and queue_wait are independently visible."""
         if self.is_muted():
             return
         _t0_total = time.time()
@@ -5624,10 +5649,11 @@ class VTubeBot:
             _cands = [c for c in _cands if c]
             if _cands:
                 _content_mid_at_decision = max(_cands)
-        # Chess events carry their own timestamp (the instant the event fired),
-        # overriding the ambient-sense heuristic so [LAG] reads event→speak.
-        if chess_event_ts:
-            _content_mid_at_decision = chess_event_ts
+        # content_ts carries the event's own wall-clock stamp (chess moment, MW
+        # analysis midpoint) captured AT QUEUE TIME — overrides the ambient-sense
+        # heuristic so [LAG] reads event→speak regardless of queue wait.
+        if content_ts:
+            _content_mid_at_decision = content_ts
         # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
         # Skipped when _under_load=True (GPU saturated) — fall back to heartbeat
         # cache so we stop adding API pressure exactly when the card is drowning.
@@ -5766,9 +5792,10 @@ class VTubeBot:
                 # start; ~0 for media reactions (vision skipped). Surfaced so the
                 # sum reconciles exactly: total = age + prep + llm + tts.
                 _prep = max(0.0, (_t0_tts - _t0_total) - (_llm_ms / 1000.0))
+                _queue_str = f", queue_wait={queue_wait_s:.1f}s" if queue_wait_s else ""
                 print(
                     f"   [LAG] sense\u2192speak: total={_lag_total:.1f}s "
-                    f"(content_age_at_decision={_content_age:.1f}s, "
+                    f"(content_age={_content_age:.1f}s{_queue_str}, "
                     f"prep={_prep:.1f}s, llm={_llm_ms / 1000:.1f}s, "
                     f"tts_wait+synth={_tts_wait_synth:.1f}s)"
                 )

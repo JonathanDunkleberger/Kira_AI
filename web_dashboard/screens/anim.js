@@ -156,6 +156,8 @@
   function initBanner() {
     const c  = cfg;
     const s  = c.cardSize;
+    /* No-op if this scene has no banner card (e.g. kira_cam.html). */
+    if (!s) return;
 
     const imgEl = document.getElementById('banner-card-img');
     if (imgEl) {

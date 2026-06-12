@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  Kira — FLOATING CHAT OVERLAY
+  OBS Browser Source: 1920 × 1080, local file URL.
+
+  Displays Twitch + YouTube chat bottom-up with no background box.
+  Receives unified messages from the control server /ws/chat endpoint.
+  Connects to Twitch directly via tmi.js as a direct fallback for
+  lower-latency delivery and offline-bot support.
+
+  Configuration is in the CFG block below.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <title>Chat Overlay — Kira</title>
+  <!-- tmi.js: anonymous Twitch chat read-only, no OAuth required -->
+  <script src="https://cdn.jsdelivr.net/npm/tmi.js@1.8.5/build/tmi.min.js"></script>
+  <style>
+  /* ── Reset / Canvas ─────────────────────────────────────────────────────── */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+    cursor: none;
+    user-select: none;
+  }
+
+  /* ── Message column ─────────────────────────────────────────────────────── */
+  #chat-col {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;   /* stack from bottom */
+    gap: 6px;
+    overflow: hidden;
+    /* left/top/width/height injected from CFG */
+  }
+
+  /* ── Single message row ─────────────────────────────────────────────────── */
+  .msg {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    /* Slide in from right 200ms ease */
+    animation: msg-in 0.20s ease forwards;
+    transition: opacity 0.5s ease;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .msg.fading { opacity: 0; }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0);    }
+  }
+
+  /* Platform glyph: small coloured dot before the name */
+  .platform-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-bottom: 1px;
+    opacity: 0.75;
+  }
+  .platform-dot.twitch  { background: #9147ff; }
+  .platform-dot.youtube { background: #ff3333; }
+
+  .author {
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #D4967A;       /* dusty rose, sampled from card_banner_wide.png strip */
+    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ♥ bullet separating name from message body */
+  .bullet {
+    font-size: 14px;
+    color: #D4967A;
+    opacity: 0.7;
+    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
+    flex-shrink: 0;
+    line-height: 1;
+    margin-bottom: 1px;
+  }
+
+  .body {
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+    font-size: 18px;
+    color: #F5EDE0;        /* warm oat cream */
+    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
+    line-height: 1.35;
+  }
+  </style>
+</head>
+<body>
+<div id="chat-col"></div>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONFIGURATION
+   All position/size values are fractions of 1920 × 1080 (0 → 1).
+   Edit these to reposition the column in OBS without touching layout code.
+═══════════════════════════════════════════════════════════════════════════ */
+const CFG = {
+  /* Column bounds as fractions of the 1920×1080 canvas */
+  colLeft:   0.660,   /* x=1267px — right third of frame */
+  colTop:    0.480,   /* y=518px  — lower half           */
+  colWidth:  0.320,   /* w=614px                         */
+  colHeight: 0.500,   /* h=540px                         */
+
+  /* Message lifetime before fade-out (seconds) */
+  fadeAfterS: 30,
+
+  /* Maximum messages visible simultaneously */
+  maxMsgs: 8,
+
+  /* Control server WebSocket URL */
+  ctrlWs: 'ws://127.0.0.1:8766/ws/chat',
+
+  /* Twitch channel for direct tmi.js connection (lower latency fallback) */
+  twitchChannel: 'militele3',
+
+  /* Bot accounts to filter out (lower-case) */
+  botNames: ['streamlabs', 'nightbot', 'streamelements', 'moobot', 'fossabot', 'kirabot', 'militelebot'],
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════════════════════════ */
+const W = 1920, H = 1080;
+
+(function applyLayout() {
+  const col = document.getElementById('chat-col');
+  col.style.left   = (CFG.colLeft   * W).toFixed(0) + 'px';
+  col.style.top    = (CFG.colTop    * H).toFixed(0) + 'px';
+  col.style.width  = (CFG.colWidth  * W).toFixed(0) + 'px';
+  col.style.height = (CFG.colHeight * H).toFixed(0) + 'px';
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MESSAGE DISPLAY
+═══════════════════════════════════════════════════════════════════════════ */
+/* Track active rows: [{el, timer}] in display order (oldest first) */
+const _rows = [];
+
+/* Deduplicate across the two sources (tmi.js + server relay). Key = platform+user+truncatedText */
+const _seen = new Set();
+const _SEEN_TTL = 5000; /* ms to remember a seen key */
+
+function _seenKey(platform, username, text) {
+  return `${platform}:${username}:${text.slice(0, 60)}`;
+}
+
+function addMessage(platform, username, text) {
+  /* Filter bots */
+  if (CFG.botNames.includes(username.toLowerCase())) return;
+
+  /* Dedup */
+  const key = _seenKey(platform, username, text);
+  if (_seen.has(key)) return;
+  _seen.add(key);
+  setTimeout(() => _seen.delete(key), _SEEN_TTL);
+
+  /* Evict oldest if at cap */
+  while (_rows.length >= CFG.maxMsgs) {
+    const oldest = _rows.shift();
+    clearTimeout(oldest.timer);
+    oldest.el.remove();
+  }
+
+  const col = document.getElementById('chat-col');
+
+  /* Build row DOM */
+  const row = document.createElement('div');
+  row.className = 'msg';
+
+  const dot = document.createElement('span');
+  dot.className = `platform-dot ${platform}`;
+
+  const author = document.createElement('span');
+  author.className = 'author';
+  author.textContent = username;
+
+  const bullet = document.createElement('span');
+  bullet.className = 'bullet';
+  bullet.textContent = '\u2665';  /* ♥ */
+
+  const body = document.createElement('span');
+  body.className = 'body';
+  body.textContent = text;
+
+  row.appendChild(dot);
+  row.appendChild(author);
+  row.appendChild(bullet);
+  row.appendChild(body);
+  col.appendChild(row);
+
+  /* Schedule fade-out + removal */
+  const fadeMs  = CFG.fadeAfterS * 1000;
+  const timer = setTimeout(() => {
+    row.classList.add('fading');
+    setTimeout(() => {
+      row.remove();
+      const idx = _rows.findIndex(r => r.el === row);
+      if (idx >= 0) _rows.splice(idx, 1);
+    }, 550);   /* matches transition duration + buffer */
+  }, fadeMs);
+
+  _rows.push({ el: row, timer });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTROL SERVER /ws/chat  (receives both Twitch + YouTube messages)
+═══════════════════════════════════════════════════════════════════════════ */
+let _ctrlWs = null;
+let _ctrlRetryMs = 1500;
+const _ctrlRetryMax = 20000;
+
+function _connectCtrl() {
+  try {
+    _ctrlWs = new WebSocket(CFG.ctrlWs);
+  } catch (e) {
+    _scheduleCtrlReconnect(); return;
+  }
+  _ctrlWs.onopen  = () => { _ctrlRetryMs = 1500; };
+  _ctrlWs.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'chat') {
+        addMessage(msg.platform || 'twitch', msg.username || '?', msg.text || '');
+      }
+    } catch (_) {}
+  };
+  _ctrlWs.onerror = () => {};
+  _ctrlWs.onclose = () => _scheduleCtrlReconnect();
+}
+
+function _scheduleCtrlReconnect() {
+  setTimeout(_connectCtrl, _ctrlRetryMs);
+  _ctrlRetryMs = Math.min(_ctrlRetryMs * 2, _ctrlRetryMax);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TMI.JS  (direct Twitch connection — lower latency, works without bot)
+   Twitch messages arriving here AND via /ws/chat are deduped automatically.
+═══════════════════════════════════════════════════════════════════════════ */
+function _connectTwitch() {
+  try {
+    const client = new tmi.Client({
+      connection: { secure: true, reconnect: true },
+      channels: [CFG.twitchChannel],
+    });
+    client.connect().catch(e => console.warn('[tmi] connect failed:', e));
+    client.on('message', (_channel, tags, message, _self) => {
+      const user = (tags['display-name'] || tags.username || '?');
+      addMessage('twitch', user, message);
+    });
+  } catch (e) {
+    console.warn('[tmi] init failed:', e);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  _connectCtrl();
+  _connectTwitch();
+});
+</script>
+</body>
+</html>

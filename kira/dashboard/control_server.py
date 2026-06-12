@@ -357,8 +357,30 @@ class _WSManager:
 
 _ws_manager = _WSManager()
 
-# bot reference is injected by start_control_server()
-_bot_ref: "VTubeBot | None" = None
+# Stream-screen overlay WS manager + in-memory override store.
+# Keys: "starting" | "brb" | "ending"  →  {line1: str, line2: str}
+_screen_ws_manager = _WSManager()
+_screen_overrides: dict[str, dict] = {}
+
+# Unified chat relay for chat_overlay browser source.
+_chat_ws_manager = _WSManager()
+
+
+async def push_chat_message(platform: str, username: str, text: str) -> None:
+    """Push a validated chat message to all connected /ws/chat clients.
+
+    Called from brain_worker after the message has been parsed and filtered.
+    Safe to call when no overlay is connected — no-ops cleanly.
+    """
+    import json as _json
+    import time as _t
+    await _chat_ws_manager.broadcast({
+        "type":     "chat",
+        "platform": platform,
+        "username": username,
+        "text":     text,
+        "ts":       round(_t.time(), 2),
+    })
 
 
 def _bot() -> "VTubeBot":
@@ -421,7 +443,43 @@ async def ws_state(ws: WebSocket):
         _ws_manager.disconnect(ws)
 
 
-@app.get("/vision/thumbnail")
+@app.websocket("/ws/screens")
+async def ws_screens(ws: WebSocket):
+    """Stream-screen overlay connection.
+
+    On connect: sends all current overrides so reconnecting screens restore
+    their override state immediately. Then keeps the connection alive.
+    """
+    import json as _json
+    await _screen_ws_manager.connect(ws)
+    try:
+        await ws.send_text(_json.dumps({
+            "type": "overrides",
+            "data": dict(_screen_overrides),
+        }))
+        while True:
+            await ws.receive_text()  # keep alive
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        _screen_ws_manager.disconnect(ws)
+
+
+@app.websocket("/ws/chat")
+async def ws_chat(ws: WebSocket):
+    """Unified chat relay for the chat_overlay browser source.
+
+    Messages are pushed by push_chat_message(); this endpoint just keeps the
+    client connected and handles clean disconnect.
+    """
+    await _chat_ws_manager.connect(ws)
+    try:
+        while True:
+            await ws.receive_text()  # keep alive; client sends nothing
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        _chat_ws_manager.disconnect(ws)
 async def vision_thumbnail():
     """
     Returns the latest vision frame as a JPEG image (Content-Type: image/jpeg).
@@ -472,6 +530,11 @@ class _CmdBody(BaseModel):
     url: str | None = None
     # Chess
     level: int | None = None
+
+    # ── Stream screen fields (for screen_text command)
+    screen: str | None = None
+    line1:  str | None = None
+    line2:  str | None = None
 
 
 def _ok(**kwargs) -> dict:
@@ -893,6 +956,35 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("youtube_bot not initialized")
         yt.stop()
         return _ok(youtube_status="idle")
+
+    # ── Stream screen text ────────────────────────────────────────────────────
+    _VALID_SCREENS = {"starting", "brb", "ending"}
+
+    if action == "screen_text":
+        screen = (body.screen or "").strip()
+        if screen not in _VALID_SCREENS:
+            return _err(f"Unknown screen '{screen}'. Valid: {sorted(_VALID_SCREENS)}")
+        line1 = (body.line1 or "").strip()
+        line2 = (body.line2 or "").strip()
+        _screen_overrides[screen] = {"line1": line1, "line2": line2}
+        await _screen_ws_manager.broadcast({
+            "type":   "screen_text",
+            "screen": screen,
+            "line1":  line1,
+            "line2":  line2,
+        })
+        return _ok(screen=screen)
+
+    if action == "screen_text_clear":
+        screen = (body.screen or "").strip()
+        if screen not in _VALID_SCREENS:
+            return _err(f"Unknown screen '{screen}'. Valid: {sorted(_VALID_SCREENS)}")
+        _screen_overrides.pop(screen, None)
+        await _screen_ws_manager.broadcast({
+            "type":   "screen_text_clear",
+            "screen": screen,
+        })
+        return _ok(screen=screen)
 
     # ── Unknown action ────────────────────────────────────────────────────────
     return JSONResponse(
