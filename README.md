@@ -16,6 +16,7 @@
   <img src="https://img.shields.io/badge/CUDA-Required-76b900?logo=nvidia&logoColor=white" alt="CUDA" />
   <img src="https://img.shields.io/badge/Twitch_+_YouTube-Integrated-9146ff?logo=twitch&logoColor=white" alt="Twitch and YouTube" />
   <img src="https://img.shields.io/badge/VTube_Studio-Live2D-ff6fb5" alt="VTube Studio" />
+  <img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3" />
 </p>
 
 ---
@@ -251,4 +252,4 @@ from the dashboard.
 
 ## License
 
-MIT
+[AGPL-3.0](LICENSE) — free for personal, educational, and open-source use. Commercial or hosted deployments that modify this software must release their derived source under AGPL-3.0. For a separate commercial license, contact the author.
