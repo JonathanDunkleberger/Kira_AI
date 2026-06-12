@@ -4628,10 +4628,15 @@ class VTubeBot:
             print(f"   [Artifacts] Raw dump failed: {e}")
             traceback.print_exc()
 
+        # Mark written HERE — after the raw dump — so any interruption (including
+        # CancelledError from Ctrl+C mid-Sonnet) does not leave the flag False and
+        # trigger a second full write in shutdown_async. The raw dump is the crash
+        # recovery fallback; the flag's job is idempotency, not "all stages ok".
+        self._session_artifacts_written = True
+
         if not self.ai_core.anthropic_client:
             print("   [Artifacts] Claude unavailable — skipping LLM artifacts (would produce garbage on local Llama).")
             results["skipped_reason"] = "no_claude"
-            self._session_artifacts_written = True
             return results
 
         # Truncate transcript for the LLM only (raw dump above kept the full version).
@@ -4772,8 +4777,6 @@ class VTubeBot:
             await self._persist_general_opinions_async()
         except Exception as e:
             print(f"   [Artifacts] General opinions persist failed: {e}")
-
-        self._session_artifacts_written = True
 
         # ── Auto-delete raw dump if lore + clips both succeeded ──────────────
         # Raw dump's only purpose is crash-recovery backfill. Once lore and clips
@@ -6523,8 +6526,14 @@ if __name__ == "__main__":
         tasks = asyncio.all_tasks(loop=loop)
         for task in tasks:
             task.cancel()
-        
-        # Gather all cancelled tasks to let them finish
-        group = asyncio.gather(*tasks, return_exceptions=True)
-        loop.run_until_complete(group)
+
+        # Gather all cancelled tasks to let them finish.
+        # Suppress KeyboardInterrupt re-raised by uvicorn's signal handler —
+        # it fires a second time here during the gather and produces a spurious
+        # traceback that is purely cosmetic but confusing.
+        try:
+            group = asyncio.gather(*tasks, return_exceptions=True)
+            loop.run_until_complete(group)
+        except (KeyboardInterrupt, Exception):
+            pass  # suppress uvicorn signal-handler cascade / task cleanup noise
         loop.close()

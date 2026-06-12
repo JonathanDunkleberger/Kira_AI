@@ -107,6 +107,38 @@ async def extract_memories(ai_core, user_text: str, conversation_history: list) 
                 print(f"   [Memory] Rejected (malformed fact): {fact or '(empty)'}")
                 continue
 
+            # ── Speaker attribution guard ─────────────────────────────────────
+            # If the fact cannot be traced to something Jonny actually said or
+            # confirmed in user_text or his context lines, cap confidence at 0.6
+            # (below the HAIKU_CONFIDENCE_FLOOR storage threshold). This prevents
+            # Kira's own improvisations from self-laundering into high-confidence
+            # facts via the extractor.
+            #
+            # Method: check whether any key word of the fact appears in Jonny's
+            # lines. "Jonny's lines" = user_text + any context lines attributed to
+            # "Jonny:" in the conversation_history context string.
+            jonny_lines_lower = user_text.lower()
+            for m in conversation_history[-3:]:
+                if m.get("role") == "user":
+                    jonny_lines_lower += " " + m.get("content", "").lower()
+            # Extract significant words from the fact (ignore stop-words)
+            _STOP = {"a", "an", "the", "is", "are", "was", "of", "and", "or",
+                     "his", "her", "their", "he", "she", "they", "it", "that",
+                     "jonny", "kira", "your", "my", "our"}
+            fact_words = [w.strip(".,!?;:'\"") for w in fact.lower().split()
+                          if len(w) > 3 and w not in _STOP]
+            if fact_words:
+                # Require at least one content word from the fact to appear in
+                # Jonny's actual speech. If none do, this fact was inferred from
+                # context / Kira's assertions only — cap it.
+                any_jonny_evidence = any(w in jonny_lines_lower for w in fact_words)
+                if not any_jonny_evidence and confidence > 0.6:
+                    print(
+                        f"   [Memory] Attribution cap: fact not traced to Jonny's words "
+                        f"(conf {confidence:.2f} → 0.6, below floor — discarding): {fact}"
+                    )
+                    continue  # don't store; confidence is below floor after cap
+
             valid.append({
                 "subject": mem.get("subject", "Jonny"),
                 "category": mem.get("category", "opinion"),

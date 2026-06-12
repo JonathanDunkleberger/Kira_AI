@@ -175,6 +175,18 @@ def get_entity_anchors(activity_slug: str = "") -> str:
     return "\n".join(lines)
 
 
+def _canonical_key(name: str) -> str:
+    """Return the canonical permanent-anchor key for a name/alias, lower-cased.
+    Returns the name itself lowercased if not found in permanent anchors."""
+    for key, entry in _identity.get("permanent", {}).items():
+        if key.lower() == name.lower():
+            return key.lower()
+        akas = entry.get("also_known_as", [])
+        if any(a.lower() == name.lower() for a in akas):
+            return key.lower()
+    return name.lower()
+
+
 def get_entity(name: str, activity_slug: str = "") -> Optional[dict]:
     """Look up a single entity by name. Checks permanent first, then activity_entities.
     Returns None if not found."""
@@ -252,9 +264,13 @@ def label_for_source(source: str, username: str = "", activity_slug: str = "") -
         entry = get_entity(username)
         if entry and entry.get("tier") == 1:
             role = entry.get("role", "viewer")
+            # If the entry resolves to Jonny (same person as the mic voice),
+            # make the label unambiguous so Kira never treats it as a stranger.
+            canonical_key = _canonical_key(username)
+            if canonical_key == "jonny":
+                return f"[JONNY (via chat as {username}) — your creator, same person as the voice]"
             return f"[CHAT — {username}, {role}]"
         return f"[CHAT — {username}, viewer in chat]"
-
     if source == "game_dialogue":
         return "[GAME DIALOGUE — character speech, not addressed to you]"
 
