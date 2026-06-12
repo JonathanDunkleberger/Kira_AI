@@ -112,4 +112,9 @@ def route_chat_completion(
             raise
 
         print(f"   [GROQ_FAIL] {e} — falling back to local Llama.")
+        try:
+            from kira.brain.cost_tracker import cost_tracker as _ct
+            _ct.record_fallback(config.GROQ_MODEL or "groq", "local", str(e)[:120])
+        except Exception:
+            pass
         return _call_local(ai_core, messages, max_tokens, temperature, top_p, repeat_penalty, stop)

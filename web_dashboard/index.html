@@ -687,6 +687,10 @@ html, body {
       <span class="label">VRAM</span>
       <span class="value" id="g-vram">–</span>
     </div>
+    <div class="glance-stat" title="Estimated API cost this session">
+      <span class="label">API Cost</span>
+      <span class="value" id="g-cost">$0.000</span>
+    </div>
     <div class="glance-stat">
       <span class="label">Activity</span>
       <span class="value" id="g-activity" style="font-size:1rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">–</span>
@@ -1274,6 +1278,9 @@ function renderGlance(s) {
   } else {
     setText('g-vram', '–');
   }
+
+  // API cost
+  setText('g-cost', s.session_cost_usd != null ? '$' + Number(s.session_cost_usd).toFixed(3) : '–');
 
   // Activity
   setText('g-activity', s.activity || 'General');

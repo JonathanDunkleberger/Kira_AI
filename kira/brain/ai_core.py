@@ -25,6 +25,7 @@ from kira.config import (
     TTS_BACKEND, FISH_API_KEY, FISH_VOICE_ID, FISH_LATENCY, FISH_FORMAT,
 )
 from kira.brain.inference_router import route_chat_completion, get_groq_client
+from kira.brain.cost_tracker import cost_tracker as _cost_tracker
 from kira.brain.groq_client import GroqInferenceError
 from kira.persona.persona import EmotionalState
 from kira.persona.personality_file import KIRA_PERSONALITY
@@ -892,7 +893,7 @@ class AI_Core:
             decision = "RESPOND"
         return self._triage_rescue(decision, incoming_line)
 
-    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False, dynamic_context: str = "", use_sonnet: bool = False) -> str:
+    async def claude_inference(self, messages: list, system_prompt: str, max_tokens: int = 600, force_claude: bool = False, dynamic_context: str = "", use_sonnet: bool = False, purpose: str = "background") -> str:
         """Routes a generation call to Claude.
 
         use_sonnet=False (default) → CLAUDE_DEEP_MODEL (Opus) — reserved for Invite/Deep only.
@@ -957,8 +958,19 @@ class AI_Core:
             if response is None:
                 raise last_err if last_err else RuntimeError("Claude returned no response")
             if hasattr(response, "usage"):
-                self._session_usage["opus_in"]  += response.usage.input_tokens
-                self._session_usage["opus_out"] += response.usage.output_tokens
+                _in  = response.usage.input_tokens
+                _out = response.usage.output_tokens
+                _cr  = getattr(response.usage, "cache_read_input_tokens", 0)
+                if use_sonnet:
+                    self._session_usage["sonnet_in"]  += _in
+                    self._session_usage["sonnet_out"] += _out
+                else:
+                    self._session_usage["opus_in"]  += _in
+                    self._session_usage["opus_out"] += _out
+                _cost_tracker.record(
+                    model=_model, input_tokens=_in, output_tokens=_out,
+                    cache_read_tokens=_cr, purpose=purpose,
+                )
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
@@ -966,6 +978,7 @@ class AI_Core:
             if force_claude:
                 raise
             print(f"   [Brain] Claude call failed: {e}. Falling back to local.")
+            _cost_tracker.record_fallback(_model, "local", str(e)[:120])
             return await self.llm_inference(
                 messages=messages,
                 current_emotion=EmotionalState.HAPPY,
@@ -1013,7 +1026,7 @@ class AI_Core:
             use_sonnet=use_sonnet,
         )
 
-    async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400, model_override: str = "") -> str:
+    async def claude_chat_inference(self, messages: list, system_prompt: str, dynamic_context: str = "", max_tokens: int = 400, model_override: str = "", purpose: str = "voice") -> str:
         """Routes a conversational response through Claude Sonnet 4.6. Default voice/Twitch
         response path when Claude is available. Cheaper than Opus, better than local Llama.
 
@@ -1046,13 +1059,20 @@ class AI_Core:
                 messages=claude_messages,
             )
             if hasattr(response, "usage"):
+                _in  = response.usage.input_tokens
+                _out = response.usage.output_tokens
+                _cr  = getattr(response.usage, "cache_read_input_tokens", 0)
                 if _is_haiku:
-                    self._session_usage["haiku_in"]  += response.usage.input_tokens
-                    self._session_usage["haiku_out"] += response.usage.output_tokens
+                    self._session_usage["haiku_in"]  += _in
+                    self._session_usage["haiku_out"] += _out
                 else:
-                    self._session_usage["sonnet_in"]         += response.usage.input_tokens
-                    self._session_usage["sonnet_out"]        += response.usage.output_tokens
-                    self._session_usage["sonnet_cache_read"] += getattr(response.usage, "cache_read_input_tokens", 0)
+                    self._session_usage["sonnet_in"]         += _in
+                    self._session_usage["sonnet_out"]        += _out
+                    self._session_usage["sonnet_cache_read"] += _cr
+                _cost_tracker.record(
+                    model=_model, input_tokens=_in, output_tokens=_out,
+                    cache_read_tokens=_cr, purpose=purpose,
+                )
             if response.content and len(response.content) > 0:
                 return response.content[0].text.strip()
             return ""
@@ -1090,9 +1110,22 @@ class AI_Core:
             ) as stream:
                 async for text in stream.text_stream:
                     yield text
-        except Exception as e:
-            print(f"   [Brain] Sonnet stream failed: {e}")
-            return
+                # Capture usage from the final accumulated message
+                try:
+                    _final = await stream.get_final_message()
+                    if _final and hasattr(_final, "usage"):
+                        _in  = _final.usage.input_tokens
+                        _out = _final.usage.output_tokens
+                        _cr  = getattr(_final.usage, "cache_read_input_tokens", 0)
+                        self._session_usage["sonnet_in"]         += _in
+                        self._session_usage["sonnet_out"]        += _out
+                        self._session_usage["sonnet_cache_read"] += _cr
+                        _cost_tracker.record(
+                            model=CLAUDE_CHAT_MODEL, input_tokens=_in, output_tokens=_out,
+                            cache_read_tokens=_cr, purpose="voice",
+                        )
+                except Exception:
+                    pass  # usage unavailable on cancelled/error stream
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         # No backend check — router handles local-vs-Groq. Only bail if neither

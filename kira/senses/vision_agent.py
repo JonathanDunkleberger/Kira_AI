@@ -15,6 +15,22 @@ from kira.config import OPENAI_API_KEY, ENABLE_VISION
 _SCENE_SUMMARY_MAX_CHARS = 800
 _SCENE_DESC_MAX_CHARS = 1500
 
+
+def _record_vision_usage(response) -> None:
+    """Record gpt-4o-mini usage to cost_tracker. Best-effort; never raises."""
+    try:
+        from kira.brain.cost_tracker import cost_tracker as _ct
+        u = getattr(response, "usage", None)
+        if u:
+            _ct.record(
+                model="gpt-4o-mini",
+                input_tokens=getattr(u, "prompt_tokens", 0),
+                output_tokens=getattr(u, "completion_tokens", 0),
+                purpose="vision",
+            )
+    except Exception:
+        pass
+
 class ContextBuffer:
     def __init__(self, maxlen=3):
         self.buffer = deque(maxlen=maxlen)
@@ -218,6 +234,7 @@ class UniversalVisionAgent:
                 timeout=15,
             )
             content = (response.choices[0].message.content or "").strip()
+            _record_vision_usage(response)
             self.last_capture_time = time.time()
             # Mirror into last_description so other cached paths see a real frame,
             # but keep the description short and grounded.
@@ -288,6 +305,7 @@ class UniversalVisionAgent:
                 timeout=15,
             )
             content = response.choices[0].message.content
+            _record_vision_usage(response)
             self.last_capture_time = time.time()
             return content.strip() if content else "NO TEXT VISIBLE"
         except asyncio.TimeoutError:
@@ -323,6 +341,7 @@ class UniversalVisionAgent:
                 timeout=15,
             )
             _summary = response.choices[0].message.content.strip()
+            _record_vision_usage(response)
             # Clamp the stored summary too — defends the next roll's `previous`.
             self.scene_summary = _summary[:_SCENE_SUMMARY_MAX_CHARS]
         except asyncio.TimeoutError:
@@ -404,6 +423,7 @@ class UniversalVisionAgent:
             )
             
             content = response.choices[0].message.content
+            _record_vision_usage(response)
             if self.activity_type != "vn":
                 self.context_buffer.add(content)
             self.last_capture_time = time.time()

@@ -93,12 +93,20 @@ class GroqClient:
             raise GroqInferenceError(f"malformed Groq response: {e}", e)
 
         elapsed_ms = int((time.time() - t0) * 1000)
+        _in  = getattr(getattr(resp, "usage", None), "prompt_tokens",     0)
+        _out = getattr(getattr(resp, "usage", None), "completion_tokens", 0)
+        # Record cost telemetry
+        try:
+            from kira.brain.cost_tracker import cost_tracker as _ct
+            _ct.record(model=self.model, input_tokens=_in, output_tokens=_out, purpose="triage")
+        except Exception:
+            pass
         return {
             "choices": [{"message": {"role": "assistant", "content": content}}],
             "_groq_meta": {
                 "model": self.model,
                 "latency_ms": elapsed_ms,
-                "prompt_tokens":     getattr(getattr(resp, "usage", None), "prompt_tokens",     0),
-                "completion_tokens": getattr(getattr(resp, "usage", None), "completion_tokens", 0),
+                "prompt_tokens":     _in,
+                "completion_tokens": _out,
             },
         }

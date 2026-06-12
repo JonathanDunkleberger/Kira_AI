@@ -330,6 +330,10 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "now_playing": now_playing,
         # Transcript
         "transcript": transcript,
+        # LLM cost telemetry
+        "session_cost_usd": _get(lambda: (
+            __import__("kira.brain.cost_tracker", fromlist=["cost_tracker"]).cost_tracker.session_cost_usd()
+        ), 0.0),
         # Server timestamp for the client
         "ts": round(now, 2),
     }

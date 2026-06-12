@@ -2334,6 +2334,13 @@ class VTubeBot:
             # PENDING json on timeout, so give the outer await generous headroom.
             await _bounded(self.stream_logger.finish(self.ai_core), 50, "Stream logger finish")
 
+        # Print LLM cost summary before tearing down
+        try:
+            from kira.brain.cost_tracker import cost_tracker as _ct
+            _ct.print_summary()
+        except Exception as e:
+            print(f"   [Shutdown] Cost summary error: {e}")
+
         # Record session in identity.json for temporal continuity (synchronous).
         try:
             _slug = re.sub(r'[^a-zA-Z0-9]+', '_', self.current_activity or 'general').strip('_').lower()[:40] or 'general'
@@ -3394,6 +3401,12 @@ class VTubeBot:
                     mode=self.mode or "companion",
                     preset=getattr(self, "_last_preset", ""),
                 )
+                # Wire cost tracker to stream logger so LLM usage events appear in JSONL
+                try:
+                    from kira.brain.cost_tracker import cost_tracker as _ct
+                    _ct.set_stream_logger(self.stream_logger)
+                except Exception:
+                    pass
 
             # Web dashboard control server (FastAPI, port 8766, 127.0.0.1 only)
             # Runs as a background task inside this event loop — no new thread.
