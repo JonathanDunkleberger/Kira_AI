@@ -32,7 +32,7 @@ import time
 import traceback
 from datetime import datetime
 
-from config import CLAUDE_SONNET_MODEL
+from config import ANTHROPIC_API_KEY, CLAUDE_SONNET_MODEL
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -153,14 +153,7 @@ def write_clips(slug: str, activity: str, date_str: str, duration_min: int,
 
 async def main(dry_run: bool, only_slug: str | None,
                after_date: str | None, pending_only: bool) -> None:
-    # Load API key
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-    except ImportError:
-        pass
-
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    api_key = ANTHROPIC_API_KEY  # loaded via config (single dotenv source)
     model = CLAUDE_SONNET_MODEL  # Sonnet — matches live lore path
     if not api_key:
         print("ERROR: ANTHROPIC_API_KEY not set — cannot call Claude.")

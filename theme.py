@@ -12,17 +12,17 @@ Accent hierarchy:
     ACCENT  = caramel/amber  — primary interactive (ON toggles, GO, focus)
     SAKURA  = warm sage      — personality/brand secondary (or swap to clay rose)
 
-USAGE (CustomTkinter):
-    import theme as T
-    app.configure(fg_color=T.APP_BG)
-    card = ctk.CTkFrame(app, fg_color=T.CARD_BG, border_color=T.BORDER,
-                        border_width=1, corner_radius=T.RADIUS_CARD)
-    btn  = ctk.CTkButton(card, fg_color=T.ACCENT, hover_color=T.ACCENT_HOVER,
-                         text_color=T.ON_ACCENT, corner_radius=T.RADIUS_CTRL)
-    ctk.CTkSwitch(card, progress_color=T.ACCENT, fg_color=T.CONTROL_BG)
+USAGE:
+    These constants originally styled a CustomTkinter desktop control panel
+    (since retired). They now serve as the single source of truth for the web
+    dashboard's palette — control_server.py imports `theme as T` and maps the
+    emotion/state colors to the hex values rendered in web_dashboard/index.html.
 
-CTk color values may be a single hex string or a ("light", "dark") tuple.
-This app is dark-only, so single strings are used throughout.
+    import theme as T
+    color = T.ACCENT          # caramel/amber primary
+    bg    = T.APP_BG          # darkest espresso plane
+
+Color values are single hex strings (the UI is dark-only).
 """
 
 # ----------------------------------------------------------------------------

@@ -1,12 +1,11 @@
-torch
+torch==2.9.1
 transformers
-pyttsx3
 SpeechRecognition
 pyaudio
 numpy
 # For GPU support, llama-cpp-python needs to be installed with specific flags.
 # Please see the installation instructions.
-llama-cpp-python
+llama-cpp-python==0.3.4
 # For advanced VAD and high-quality TTS
 webrtcvad-wheels
 elevenlabs
@@ -15,12 +14,11 @@ Pillow
 # For web search
 google-api-python-client
 # For advanced memory (vector database)
-chromadb
+chromadb==1.0.15
 sentence-transformers
 openai
 faster-whisper
-customtkinter
-twitchio
+twitchio==2.10.0
 yt-dlp
 python-dotenv
 pygame
@@ -32,9 +30,9 @@ pydirectinput
 # For audio understanding (WASAPI loopback system audio + mic capture)
 PyAudioWPatch
 # For deep cognitive moments (Claude Opus routing)
-anthropic
+anthropic==0.102.0
 # For cloud Llama-3.1-8b triage/tool inference (VRAM-free)
-groq
+groq==1.4.0
 # For global hotkeys (F8/F9 interrupt + mute)
 keyboard
 # For YouTube live chat
