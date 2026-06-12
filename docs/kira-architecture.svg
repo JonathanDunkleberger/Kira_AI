@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1200 860" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+<svg viewBox="0 0 1200 940" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0d0f14"/>
@@ -33,7 +33,7 @@
     </marker>
   </defs>
 
-  <rect width="1200" height="860" fill="url(#bg)"/>
+  <rect width="1200" height="940" fill="url(#bg)"/>
 
   <!-- subtle grid texture -->
   <g stroke="#ffffff" stroke-opacity="0.03">
@@ -44,8 +44,8 @@
 
   <!-- Title -->
   <text x="60" y="58" fill="#ffffff" font-size="30" font-weight="700" letter-spacing="3">KIRA</text>
-  <text x="60" y="82" fill="#7d8694" font-size="14" letter-spacing="0.5">Multimodal AI VTuber · System Architecture</text>
-  <text x="1140" y="70" text-anchor="end" fill="#5a6270" font-size="12">local-first · hybrid cloud routing</text>
+  <text x="60" y="82" fill="#7d8694" font-size="14" letter-spacing="0.5">Multimodal AI VTuber &#xB7; System Architecture</text>
+  <text x="1140" y="70" text-anchor="end" fill="#5a6270" font-size="12">local senses &#xB7; hybrid cloud brain</text>
 
   <!-- ============ EXPERIENCE LAYER ============ -->
   <g>
@@ -71,7 +71,7 @@
       <rect x="532" y="124" width="138" height="92" rx="9" fill="#1b1f29" stroke="#ff6fb5" stroke-opacity="0.4"/>
       <text x="601" y="158" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Live2D Avatar</text>
       <text x="601" y="178" text-anchor="middle" fill="#8a93a3" font-size="10">VTube Studio</text>
-      <text x="601" y="193" text-anchor="middle" fill="#8a93a3" font-size="10">mood → face</text>
+      <text x="601" y="193" text-anchor="middle" fill="#8a93a3" font-size="10">mood to face</text>
     </g>
     <g>
       <rect x="682" y="124" width="138" height="92" rx="9" fill="#1b1f29" stroke="#ff6fb5" stroke-opacity="0.4"/>
@@ -87,9 +87,9 @@
     </g>
     <g>
       <rect x="982" y="124" width="138" height="92" rx="9" fill="#1b1f29" stroke="#ff6fb5" stroke-opacity="0.4"/>
-      <text x="1051" y="158" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Dashboard</text>
-      <text x="1051" y="178" text-anchor="middle" fill="#8a93a3" font-size="10">controls +</text>
-      <text x="1051" y="193" text-anchor="middle" fill="#8a93a3" font-size="10">monitoring</text>
+      <text x="1051" y="152" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Dashboard</text>
+      <text x="1051" y="172" text-anchor="middle" fill="#8a93a3" font-size="10">FastAPI +</text>
+      <text x="1051" y="187" text-anchor="middle" fill="#8a93a3" font-size="10">WebSocket /state</text>
     </g>
   </g>
 
@@ -105,35 +105,42 @@
     <text x="84" y="299" fill="#8a93a3" font-size="11">how she reasons</text>
 
     <g>
-      <rect x="300" y="270" width="170" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
-      <text x="385" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Hybrid Brain</text>
-      <text x="385" y="322" text-anchor="middle" fill="#8a93a3" font-size="10">local Llama 3.1 8B</text>
-      <text x="385" y="337" text-anchor="middle" fill="#8a93a3" font-size="10">+ cloud (Claude/GPT)</text>
-      <text x="385" y="352" text-anchor="middle" fill="#8a93a3" font-size="10">for deep moments</text>
+      <rect x="232" y="270" width="185" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
+      <text x="324" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Hybrid Brain</text>
+      <text x="324" y="320" text-anchor="middle" fill="#8a93a3" font-size="9.5">Groq triage &#xB7; Sonnet live</text>
+      <text x="324" y="335" text-anchor="middle" fill="#8a93a3" font-size="9.5">Opus deep &#xB7; local fallback</text>
+      <text x="324" y="350" text-anchor="middle" fill="#8a93a3" font-size="9.5">streaming LLM + TTS</text>
     </g>
     <g>
-      <rect x="490" y="270" width="170" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
-      <text x="575" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Emotional State</text>
-      <text x="575" y="322" text-anchor="middle" fill="#8a93a3" font-size="10">mood drives tone</text>
-      <text x="575" y="337" text-anchor="middle" fill="#8a93a3" font-size="10">+ avatar expression</text>
+      <rect x="430" y="270" width="165" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
+      <text x="512" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Arbiter</text>
+      <text x="512" y="322" text-anchor="middle" fill="#8a93a3" font-size="9.5">turn lock &#xB7; P0/P1/P2</text>
+      <text x="512" y="337" text-anchor="middle" fill="#8a93a3" font-size="9.5">interjection queue + TTL</text>
+      <text x="512" y="352" text-anchor="middle" fill="#8a93a3" font-size="9.5">stop-word interrupt</text>
     </g>
     <g>
-      <rect x="680" y="270" width="170" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
-      <text x="765" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Prompt Assembly</text>
-      <text x="765" y="322" text-anchor="middle" fill="#8a93a3" font-size="10">identity + rules</text>
-      <text x="765" y="337" text-anchor="middle" fill="#8a93a3" font-size="10">+ memory context</text>
+      <rect x="608" y="270" width="165" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
+      <text x="690" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Emotional State</text>
+      <text x="690" y="322" text-anchor="middle" fill="#8a93a3" font-size="9.5">mood drives tone</text>
+      <text x="690" y="337" text-anchor="middle" fill="#8a93a3" font-size="9.5">+ avatar expression</text>
     </g>
     <g>
-      <rect x="870" y="270" width="170" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
-      <text x="955" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Proactive Agency</text>
-      <text x="955" y="322" text-anchor="middle" fill="#8a93a3" font-size="10">silence → escalate</text>
-      <text x="955" y="337" text-anchor="middle" fill="#8a93a3" font-size="10">curiosity prompts</text>
+      <rect x="786" y="270" width="165" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
+      <text x="868" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Prompt Assembly</text>
+      <text x="868" y="322" text-anchor="middle" fill="#8a93a3" font-size="9.5">identity + rules</text>
+      <text x="868" y="337" text-anchor="middle" fill="#8a93a3" font-size="9.5">+ memory context</text>
+    </g>
+    <g>
+      <rect x="964" y="270" width="156" height="100" rx="9" fill="#1b1f29" stroke="#b070e0" stroke-opacity="0.45"/>
+      <text x="1042" y="302" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Proactive Agency</text>
+      <text x="1042" y="322" text-anchor="middle" fill="#8a93a3" font-size="9.5">silence escalate</text>
+      <text x="1042" y="337" text-anchor="middle" fill="#8a93a3" font-size="9.5">curiosity prompts</text>
     </g>
   </g>
 
   <g stroke="#4a5260" stroke-width="1.5" fill="none">
-    <path d="M385 385 L385 405" marker-end="url(#arrow)"/>
-    <path d="M765 405 L765 385" marker-end="url(#arrow)"/>
+    <path d="M400 385 L400 405" marker-end="url(#arrow)"/>
+    <path d="M800 405 L800 385" marker-end="url(#arrow)"/>
   </g>
 
   <!-- ============ MEMORY ============ -->
@@ -141,25 +148,32 @@
     <rect x="60" y="410" width="525" height="120" rx="12" fill="#d4a843" fill-opacity="0.06" stroke="#d4a843" stroke-opacity="0.35"/>
     <rect x="60" y="410" width="6" height="120" rx="3" fill="url(#memory)"/>
     <text x="84" y="436" fill="#e6c25e" font-size="13" font-weight="700" letter-spacing="2">MEMORY</text>
-    <text x="84" y="454" fill="#8a93a3" font-size="11">what she remembers · ChromaDB</text>
+    <text x="84" y="454" fill="#8a93a3" font-size="11">what she remembers</text>
 
     <g>
-      <rect x="220" y="424" width="110" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
-      <text x="275" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">facts</text>
-      <text x="275" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">distilled</text>
-      <text x="275" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">knowledge</text>
+      <rect x="200" y="424" width="96" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
+      <text x="248" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">facts</text>
+      <text x="248" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">distilled</text>
+      <text x="248" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">knowledge</text>
     </g>
     <g>
-      <rect x="338" y="424" width="110" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
-      <text x="393" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">chatters</text>
-      <text x="393" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">per-viewer</text>
-      <text x="393" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">recall</text>
+      <rect x="304" y="424" width="96" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
+      <text x="352" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">chatters</text>
+      <text x="352" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">per-viewer</text>
+      <text x="352" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">recall</text>
     </g>
     <g>
-      <rect x="456" y="424" width="110" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
-      <text x="511" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">turns</text>
-      <text x="511" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">session</text>
-      <text x="511" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">history</text>
+      <rect x="408" y="424" width="96" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
+      <text x="456" y="458" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">turns</text>
+      <text x="456" y="478" text-anchor="middle" fill="#8a93a3" font-size="10">session</text>
+      <text x="456" y="492" text-anchor="middle" fill="#8a93a3" font-size="10">history</text>
+    </g>
+    <g>
+      <rect x="512" y="424" width="60" height="92" rx="9" fill="#1b1f29" stroke="#d4a843" stroke-opacity="0.45"/>
+      <text x="542" y="456" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">iden-</text>
+      <text x="542" y="471" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">tity</text>
+      <text x="542" y="489" text-anchor="middle" fill="#8a93a3" font-size="9">flat JSON</text>
+      <text x="542" y="502" text-anchor="middle" fill="#8a93a3" font-size="9">exact</text>
     </g>
   </g>
 
@@ -171,74 +185,100 @@
     <text x="639" y="454" fill="#8a93a3" font-size="11">what she can do</text>
 
     <g>
-      <rect x="775" y="424" width="84" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="817" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Music</text>
-      <text x="817" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">yt-dlp/mpv</text>
+      <rect x="740" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="780" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Music</text>
+      <text x="780" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">yt-dlp/mpv</text>
     </g>
     <g>
-      <rect x="867" y="424" width="84" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="909" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Search</text>
-      <text x="909" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">web lookup</text>
+      <rect x="828" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="868" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Search</text>
+      <text x="868" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">web lookup</text>
     </g>
     <g>
-      <rect x="959" y="424" width="84" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="1001" y="460" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">VN</text>
-      <text x="1001" y="476" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Autopilot</text>
-      <text x="1001" y="494" text-anchor="middle" fill="#8a93a3" font-size="9">OCR + read</text>
+      <rect x="916" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="956" y="460" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">VN</text>
+      <text x="956" y="475" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Autopilot</text>
+      <text x="956" y="492" text-anchor="middle" fill="#8a93a3" font-size="9">OCR + read</text>
     </g>
     <g>
-      <rect x="1051" y="424" width="76" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="1089" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Chat</text>
-      <text x="1089" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">post</text>
+      <rect x="1004" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="1044" y="458" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Chess</text>
+      <text x="1044" y="475" text-anchor="middle" fill="#8a93a3" font-size="9">Lichess bot</text>
+      <text x="1044" y="490" text-anchor="middle" fill="#8a93a3" font-size="9">Stockfish</text>
+    </g>
+    <g>
+      <rect x="1092" y="424" width="40" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="1112" y="462" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="600">Chat</text>
+      <text x="1112" y="477" text-anchor="middle" fill="#8a93a3" font-size="9">post</text>
     </g>
   </g>
 
   <g stroke="#4a5260" stroke-width="1.5" fill="none">
-    <path d="M320 530 L320 560" marker-end="url(#arrow)"/>
+    <path d="M340 530 L340 560" marker-end="url(#arrow)"/>
     <path d="M880 530 L880 560" marker-end="url(#arrow)"/>
   </g>
 
   <!-- ============ INFRASTRUCTURE ============ -->
   <g>
-    <rect x="60" y="565" width="1080" height="130" rx="12" fill="#76b900" fill-opacity="0.06" stroke="#76b900" stroke-opacity="0.35"/>
-    <rect x="60" y="565" width="6" height="130" rx="3" fill="url(#infra)"/>
+    <rect x="60" y="565" width="1080" height="210" rx="12" fill="#76b900" fill-opacity="0.06" stroke="#76b900" stroke-opacity="0.35"/>
+    <rect x="60" y="565" width="6" height="210" rx="3" fill="url(#infra)"/>
     <text x="84" y="591" fill="#9ad44a" font-size="13" font-weight="700" letter-spacing="2">INFRASTRUCTURE</text>
     <text x="84" y="611" fill="#8a93a3" font-size="10.5">what powers her</text>
 
+    <!-- Row 1 -->
     <g>
-      <rect x="232" y="580" width="160" height="100" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="312" y="616" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Llama 3.1 8B</text>
-      <text x="312" y="636" text-anchor="middle" fill="#8a93a3" font-size="10">Q4_K_M · local</text>
-      <text x="312" y="651" text-anchor="middle" fill="#8a93a3" font-size="10">llama-cpp + FA</text>
+      <rect x="200" y="580" width="154" height="90" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="277" y="612" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Groq</text>
+      <text x="277" y="630" text-anchor="middle" fill="#8a93a3" font-size="10">Llama 3.1 8B instant</text>
+      <text x="277" y="645" text-anchor="middle" fill="#8a93a3" font-size="10">triage + fast paths</text>
     </g>
     <g>
-      <rect x="404" y="580" width="160" height="100" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="484" y="616" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Faster-Whisper</text>
-      <text x="484" y="636" text-anchor="middle" fill="#8a93a3" font-size="10">large-v3 · STT</text>
-      <text x="484" y="651" text-anchor="middle" fill="#8a93a3" font-size="10">CUDA</text>
+      <rect x="364" y="580" width="154" height="90" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="441" y="612" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Claude</text>
+      <text x="441" y="630" text-anchor="middle" fill="#8a93a3" font-size="10">Sonnet live &#xB7; Opus deep</text>
+      <text x="441" y="645" text-anchor="middle" fill="#8a93a3" font-size="10">Haiku extraction</text>
     </g>
     <g>
-      <rect x="576" y="580" width="160" height="100" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="656" y="616" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Azure TTS</text>
-      <text x="656" y="636" text-anchor="middle" fill="#8a93a3" font-size="10">neural voice</text>
-      <text x="656" y="651" text-anchor="middle" fill="#8a93a3" font-size="10">Edge-TTS fallback</text>
+      <rect x="528" y="580" width="154" height="90" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="605" y="610" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Faster-Whisper</text>
+      <text x="605" y="628" text-anchor="middle" fill="#8a93a3" font-size="10">distil-large-v3 x2</text>
+      <text x="605" y="643" text-anchor="middle" fill="#8a93a3" font-size="10">mic + loopback &#xB7; CUDA</text>
     </g>
     <g>
-      <rect x="748" y="580" width="160" height="100" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="828" y="616" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Vision Model</text>
-      <text x="828" y="636" text-anchor="middle" fill="#8a93a3" font-size="10">GPT-4o-mini</text>
-      <text x="828" y="651" text-anchor="middle" fill="#8a93a3" font-size="10">screen + OCR</text>
+      <rect x="692" y="580" width="154" height="90" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="769" y="612" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Azure TTS</text>
+      <text x="769" y="630" text-anchor="middle" fill="#8a93a3" font-size="10">neural voice</text>
+      <text x="769" y="645" text-anchor="middle" fill="#8a93a3" font-size="10">Edge-TTS fallback</text>
+    </g>
+
+    <!-- Row 2 -->
+    <g>
+      <rect x="200" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="277" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Vision Model</text>
+      <text x="277" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">GPT-4o-mini</text>
+      <text x="277" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">screen + OCR</text>
     </g>
     <g>
-      <rect x="920" y="580" width="160" height="100" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="1000" y="616" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">VTS WebSocket</text>
-      <text x="1000" y="636" text-anchor="middle" fill="#8a93a3" font-size="10">avatar control</text>
-      <text x="1000" y="651" text-anchor="middle" fill="#8a93a3" font-size="10">hotkey API</text>
+      <rect x="364" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="441" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Stockfish 17</text>
+      <text x="441" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">CPU only &#xB7; Elo-capped</text>
+      <text x="441" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">chess engine</text>
+    </g>
+    <g>
+      <rect x="528" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="605" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">ChromaDB</text>
+      <text x="605" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">vector memory</text>
+      <text x="605" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">sentence-transformers</text>
+    </g>
+    <g>
+      <rect x="692" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="769" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">VTS WebSocket</text>
+      <text x="769" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">avatar control</text>
+      <text x="769" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">hotkey API</text>
     </g>
   </g>
 
-  <text x="600" y="730" text-anchor="middle" fill="#5a6270" font-size="12">
-    Real-time audio pipeline · vector-memory architecture · multimodal fusion · WebSocket avatar &amp; caption control · agentic loops
-  </text>
-  <text x="600" y="752" text-anchor="middle" fill="#454c58" font-size="11" letter-spacing="1">built from scratch in Python</text>
+
+  <text x="600" y="818" text-anchor="middle" fill="#5a6270" font-size="12">Real-time audio pipeline &#xB7; hybrid-cloud brain &#xB7; vector-memory architecture &#xB7; multimodal fusion &#xB7; WebSocket avatar &amp; caption control &#xB7; agentic loops</text>
+  <text x="600" y="840" text-anchor="middle" fill="#454c58" font-size="11" letter-spacing="1">built from scratch in Python</text>
 </svg>
