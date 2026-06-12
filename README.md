@@ -133,7 +133,9 @@ Kira/
 ├── music_tools.py                # DJ — YouTube search and mpv audio streaming
 ├── web_search.py                 # Search — Google Custom Search API wrapper
 ├── persona.py                    # Emotional state — mood enum that influences response + expression
-├── personality.txt               # Identity — natural language personality prompt
+├── persona/
+│   ├── example/personality.example.txt  # Template persona — replace with your own
+│   └── private/personality.txt          # Your real persona prompt (gitignored, not shipped)
 ├── personality_file.py           # Personality loader
 ├── prompt_rules.py               # Formatting rules — output constraints and tool tag definitions
 ├── prompt_loader.py              # Prompt builder — assembles full prompt from components
@@ -225,9 +227,11 @@ from the dashboard.
 
 ## Customization
 
+> **Persona note:** The shipped persona (`persona/example/personality.example.txt`) is a generic template with placeholder names. It is intentionally not Kira — the real personality prompt is private and gitignored (`persona/private/`). Copy the example, fill in your AI's name and voice, and place the result at `persona/private/personality.txt`.
+
 | What | Where | How |
 |---|---|---|
-| Personality and backstory | `personality.txt` | Edit the natural language prompt directly |
+| Personality and backstory | `persona/private/personality.txt` | Create this file (gitignored) with your AI's full personality prompt. Falls back to `persona/example/personality.example.txt` if absent — edit that to get started. A `[persona] Loaded from:` line on startup confirms which file was used. |
 | Emotional states | `persona.py` | Add/modify the `EmotionalState` enum |
 | Emotion → expression mapping | `vts_expression_controller.py` | Map moods to your model's VTS hotkeys |
 | Caption styling & anchoring | `caption_overlay/style.css` | Tune font, outline, colors, bottom-anchor, max-width/height, min-font-size via `:root` vars |

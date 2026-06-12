@@ -28,6 +28,9 @@ cache/
 # Local-only state (chatter scores, per-game playthrough notes, lore w/ real names)
 cookie_data.json
 playthroughs/
+
+# Private persona files — real character prompt, identity anchors, opinions
+persona/private/
 lore/
 
 # Personal content (streams, recordings, clips, transcripts)
