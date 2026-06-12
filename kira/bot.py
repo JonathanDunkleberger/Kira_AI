@@ -659,6 +659,14 @@ class VTubeBot:
             print(f"   [Cookies] \U0001f36a MILESTONE #{milestone_n} \u2014 Kira: {line}")
             await self._broadcast_cookie_milestone()
             await self._broadcast_cookie_state()
+            # Overlay banner for the cookie milestone
+            try:
+                from kira.dashboard.control_server import push_banner_show
+                asyncio.ensure_future(push_banner_show(
+                    f"\U0001f36a COOKIE JAR \u2014 MILESTONE #{milestone_n}!", 8
+                ))
+            except Exception:
+                pass
             try:
                 self.stream_logger.log("cookie_milestone", n=milestone_n, line=line)
             except Exception:
@@ -3236,6 +3244,14 @@ class VTubeBot:
                 movetime_ms=CHESS_MOVETIME_MS,
             )
             self.chess_agent.on_react = self._chess_react
+            # Wire overlay banner for chess game-start / game-end announcements
+            try:
+                from kira.dashboard.control_server import push_banner_show as _pbs
+                async def _chess_banner(text: str, dur: int = 8):
+                    await _pbs(text, dur)
+                self.chess_agent.on_banner = _chess_banner
+            except Exception:
+                pass
 
             # Set up Playthrough Memory (global scope — all modes read from it)
             self.playthrough_memory = PlaythroughMemory(ai_core=self.ai_core)
@@ -4284,6 +4300,16 @@ class VTubeBot:
                 )
                 print(f"   [ChatAge] ACK injected for {_ack_name} "
                       f"(waited {_oldest_age:.1f}s, preempted={_preemption})")
+                # Show a card for the ack'ed chatter so the audience knows they're seen
+                try:
+                    from kira.dashboard.control_server import push_card_show
+                    asyncio.ensure_future(push_card_show(
+                        _ack_name,
+                        _oldest_msg.get("message", ""),
+                        _oldest_msg.get("platform", ""),
+                    ))
+                except Exception:
+                    pass
 
         batch_lines = []
         for msg in batch:
@@ -4399,11 +4425,28 @@ class VTubeBot:
         # is consumed regardless of TTS outcome. A post-TTS exception must not cause
         # the restore path to re-insert a batch whose response already played.
         self.last_chat_response_time = time.time()
+        # ── Response card overlay ─────────────────────────────────────────────
+        # Show a card for the primary chatter (oldest message in batch) while Kira speaks.
+        _primary = batch[0]
+        try:
+            from kira.dashboard.control_server import push_card_show, push_card_hide
+            asyncio.ensure_future(push_card_show(
+                _primary.get("username", ""),
+                _primary.get("message", ""),
+                _primary.get("platform", ""),
+            ))
+        except Exception:
+            pass
         self._chat_speaking = True
         try:
             await self.ai_core.speak_text(cleaned, priority=2)
         finally:
             self._chat_speaking = False
+        # Signal card overlay that TTS is done (will hide after ≥4s min display)
+        try:
+            asyncio.ensure_future(push_card_hide())
+        except Exception:
+            pass
         chatter_names = ", ".join(sorted(set(m["username"] for m in batch)))
 
         # ── Cookies: respond-to-chat award ──

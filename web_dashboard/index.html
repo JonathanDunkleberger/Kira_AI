@@ -175,6 +175,55 @@ html, body {
 }
 .override-chip:empty { display: none; }
 
+/* ── OVERLAY VISIBILITY CHIPS ──────────────────────────── */
+#overlay-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 14px;
+}
+#overlay-chips .ov-label {
+  font-size: .65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  margin-right: 2px;
+}
+.ov-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--ctrl-bg);
+  color: var(--text-muted);
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+  user-select: none;
+}
+.ov-chip.on {
+  background: color-mix(in srgb, var(--success) 18%, var(--ctrl-bg));
+  border-color: var(--success);
+  color: var(--success);
+}
+.ov-chip.off {
+  background: var(--ctrl-bg);
+  border-color: var(--border);
+  color: var(--text-muted);
+  opacity: .65;
+}
+.ov-chip .ov-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 /* ── MAIN BODY (below glance) ───────────────────────────── */
 #body {
   flex: 1;
@@ -650,6 +699,11 @@ html, body {
       <div class="dot-item"><div class="dot" id="dot-youtube"></div><span class="dot-label">YouTube</span></div>
       <div class="dot-item"><div class="dot" id="dot-vision"></div><span class="dot-label">Vision</span></div>
       <div class="dot-item"><div class="dot" id="dot-mediawatch"></div><span class="dot-label">MediaWatch</span></div>
+    </div>
+
+    <!-- Overlay visibility toggle chips -->
+    <div id="overlay-chips">
+      <span class="ov-label">&#127916; Overlays</span>
     </div>
 
     <span id="ws-indicator">WS</span>
@@ -1161,9 +1215,37 @@ let _lastTranscriptHash = '';
 function render(s) {
   safe(() => renderGlance(s));
   safe(() => renderEffStrip(s));
+  safe(() => renderOverlayChips(s));
   safe(() => renderTranscript(s));
   safe(() => renderRail(s));
   safe(() => renderPanels(s));
+}
+
+// ── OVERLAY CHIPS ────────────────────────────────────────
+const _OV_LABELS = { chat: 'Chat', cards: 'Cards', banner: 'Banner', scoreboard: 'Board', spectate: 'Spec' };
+let _ovLast = null;
+function renderOverlayChips(s) {
+  const vis = s.overlay_vis;
+  if (!vis) return;
+  const hash = JSON.stringify(vis);
+  if (hash === _ovLast) return;
+  _ovLast = hash;
+  const el = document.getElementById('overlay-chips');
+  if (!el) return;
+  // Keep the label span, replace chips
+  const label = el.querySelector('.ov-label');
+  el.innerHTML = '';
+  if (label) el.appendChild(label);
+  for (const [key, on] of Object.entries(vis)) {
+    const chip = document.createElement('button');
+    chip.className = 'ov-chip ' + (on ? 'on' : 'off');
+    chip.title = on ? `Hide ${_OV_LABELS[key] || key}` : `Show ${_OV_LABELS[key] || key}`;
+    chip.innerHTML = `<span class="ov-dot"></span>${escHtml(_OV_LABELS[key] || key)}`;
+    chip.addEventListener('click', () => {
+      cmd('overlay_vis', { key, enabled: !on });
+    });
+    el.appendChild(chip);
+  }
 }
 
 function safe(fn) {

@@ -322,6 +322,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "youtube_status": youtube_status,
         "yt_auto_status": yt_auto_status,
         "chat_median_age_s": chat_median_age_s,
+        "overlay_vis": dict(_overlay_vis),
         # TTS
         "fish_voice_id": fish_voice_id,
         # Music
@@ -375,6 +376,60 @@ _screen_overrides: dict[str, dict] = {}
 
 # Unified chat relay for chat_overlay browser source.
 _chat_ws_manager = _WSManager()
+
+# Overlay events relay — card_show/card_hide/banner_show/banner_hide/overlay_vis
+_overlay_ws_manager = _WSManager()
+
+# Overlay visibility state (server-side authoritative copy).
+# False = hidden (fade); True = visible. Banner/spectate default AUTO (True = event-driven).
+_overlay_vis: dict = {
+    "chat":        True,
+    "cards":       True,
+    "banner":      True,
+    "scoreboard":  True,
+    "spectate":    True,
+}
+
+
+async def push_overlay_event(event: dict) -> None:
+    """Push a raw overlay event to all /ws/overlays clients."""
+    await _overlay_ws_manager.broadcast(event)
+
+
+async def push_card_show(chatter: str, message: str, platform: str) -> None:
+    """Show a response-card for *chatter* on the card overlay.
+    No-ops if overlay_vis['cards'] is False."""
+    if not _overlay_vis.get("cards", True):
+        return
+    import time as _t
+    await push_overlay_event({
+        "type":     "card_show",
+        "chatter":  chatter,
+        "message":  (message or "")[:200],
+        "platform": platform,
+        "ts":       round(_t.time(), 2),
+    })
+
+
+async def push_card_hide() -> None:
+    """Signal TTS complete — overlay will hide the card once min_display has elapsed."""
+    await push_overlay_event({"type": "card_hide"})
+
+
+async def push_banner_show(text: str, duration_s: int = 8) -> None:
+    """Display an event banner for *duration_s* seconds.
+    No-ops if overlay_vis['banner'] is False."""
+    if not _overlay_vis.get("banner", True):
+        return
+    await push_overlay_event({
+        "type":       "banner_show",
+        "text":       (text or "")[:160],
+        "duration_s": duration_s,
+    })
+
+
+async def push_banner_hide() -> None:
+    await push_overlay_event({"type": "banner_hide"})
 
 
 async def push_chat_message(platform: str, username: str, text: str) -> None:
@@ -491,6 +546,26 @@ async def ws_chat(ws: WebSocket):
         pass
     finally:
         _chat_ws_manager.disconnect(ws)
+
+
+@app.websocket("/ws/overlays")
+async def ws_overlays(ws: WebSocket):
+    """Card / banner / visibility overlay relay.
+
+    On connect: sends current overlay_vis so reconnecting overlays restore their
+    visibility state immediately.  Events (card_show, card_hide, banner_show,
+    banner_hide, overlay_vis) are pushed by the push_* helpers above.
+    """
+    import json as _j
+    await _overlay_ws_manager.connect(ws)
+    try:
+        await ws.send_text(_j.dumps({"type": "overlay_vis", **_overlay_vis}))
+        while True:
+            await ws.receive_text()  # keep alive; client sends nothing
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        _overlay_ws_manager.disconnect(ws)
 async def vision_thumbnail():
     """
     Returns the latest vision frame as a JPEG image (Content-Type: image/jpeg).
@@ -996,6 +1071,21 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             "screen": screen,
         })
         return _ok(screen=screen)
+
+    # ── Overlay visibility ────────────────────────────────────────────────────
+    if action == "overlay_vis":
+        import json as _j
+        key   = (body.key   or "").strip()
+        value = body.enabled
+        if key not in _overlay_vis:
+            return _err(f"Unknown overlay key '{key}'. Valid: {sorted(_overlay_vis)}")
+        if value is None:
+            return _err("'enabled' bool required")
+        _overlay_vis[key] = bool(value)
+        asyncio.ensure_future(_overlay_ws_manager.broadcast(
+            {"type": "overlay_vis", **_overlay_vis}
+        ))
+        return _ok(overlay_vis=dict(_overlay_vis))
 
     # ── Unknown action ────────────────────────────────────────────────────────
     return JSONResponse(

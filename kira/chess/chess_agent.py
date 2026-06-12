@@ -179,6 +179,9 @@ class ChessAgent:
 
         # Reaction callback (set by bot wiring). Signature: on_react(summary, *, bypass).
         self.on_react = None
+        # Banner callback (set by bot wiring). Signature: on_banner(text, duration_s).
+        # Called at game start/end with a human-readable announcement string.
+        self.on_banner = None
         self.react_min_gap_s: float = float(react_min_gap_s)
         self._last_react_ts: float = 0.0
 
@@ -671,6 +674,13 @@ class ChessAgent:
                             f"Challenger accepted. Let\u2019s go.",
                             bypass=True,
                         )
+                        # Banner announcement for overlays
+                        if self.on_banner:
+                            try:
+                                opp_label = f"{_opp}{_rating_str}" if _rating_str else _opp
+                                await self.on_banner(f"\u265f DUCHESS vs {opp_label}", 10)
+                            except Exception:
+                                pass
                     state = upd.get("state", {})
                 elif utype == "gameState":
                     state = upd
@@ -1089,6 +1099,19 @@ class ChessAgent:
             f"{self._eval_plain}.",
             bypass=True,
         )
+        # Banner announcement for overlays
+        if self.on_banner:
+            try:
+                if winner:
+                    if kira_won:
+                        banner_text = f"\u265f DUCHESS WINS \u2014 vs {self._opp_name}"
+                    else:
+                        banner_text = f"\u265f game over \u2014 lost to {self._opp_name}"
+                else:
+                    banner_text = f"\u265f draw \u2014 vs {self._opp_name} ({status})"
+                await self.on_banner(banner_text, 10)
+            except Exception:
+                pass
 
     async def _send_chat(self, game_id: str, text: str):
         """Phase 1 fixed in-game chat (greeting / gg). Serialized like every
