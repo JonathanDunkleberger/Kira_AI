@@ -248,6 +248,15 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         youtube_status = f"live({vid})" if vid else "live"
     else:
         youtube_status = "idle"
+    yt_auto_status = _get(lambda: bot._yt_auto_search_status, "idle")
+
+    # ── Chat queue instrumentation ────────────────────────────────────────────
+    _age_log = _get(lambda: list(bot._chat_age_log[-20:]), [])
+    if len(_age_log) >= 3:
+        import statistics as _stat
+        chat_median_age_s = round(_stat.median(_age_log), 1)
+    else:
+        chat_median_age_s = None
 
     # ── Music ─────────────────────────────────────────────────────────────────
     from kira.tools.music_tools import get_now_playing
@@ -311,6 +320,8 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "vram_used_gb": vram_used_gb,
         "vram_total_gb": vram_total_gb,
         "youtube_status": youtube_status,
+        "yt_auto_status": yt_auto_status,
+        "chat_median_age_s": chat_median_age_s,
         # TTS
         "fish_voice_id": fish_voice_id,
         # Music

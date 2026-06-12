@@ -630,6 +630,10 @@ html, body {
       <span class="label">Chatters</span>
       <span class="value" id="g-chatters">–</span>
     </div>
+    <div class="glance-stat" title="Median chat response age this session">
+      <span class="label">Chat age</span>
+      <span class="value" id="g-chat-age">–</span>
+    </div>
     <div class="glance-stat">
       <span class="label">VRAM</span>
       <span class="value" id="g-vram">–</span>
@@ -1180,6 +1184,7 @@ function renderGlance(s) {
   setText('g-spoke', s.since_kira_spoke != null ? `${s.since_kira_spoke}s ago` : '–');
   setText('g-rate',  s.chat_rate != null ? s.chat_rate.toFixed(1) : '–');
   setText('g-chatters', s.session_chatters ?? '–');
+  setText('g-chat-age', s.chat_median_age_s != null ? `${s.chat_median_age_s}s` : '–');
 
   // VRAM
   if (s.vram_used_gb != null && s.vram_total_gb != null) {
@@ -1197,10 +1202,19 @@ function renderGlance(s) {
   dot('dot-twitch',  s.twitch_on  ? 'green' : 'off', s.twitch_on ? 'Twitch connected' : 'Twitch offline');
   dot('dot-vision',  s.vision_on  ? 'green' : 'off', s.vision_on ? 'Vision active' : 'Vision off');
 
-  const ytStatus = s.youtube_status || 'disabled';
-  if      (ytStatus.startsWith('live')) dot('dot-youtube', 'green', 'YouTube live');
-  else if (ytStatus === 'idle')         dot('dot-youtube', 'amber', 'YouTube idle');
-  else                                  dot('dot-youtube', 'off', `YouTube ${ytStatus}`);
+  const ytStatus    = s.youtube_status || 'disabled';
+  const ytAutoState = s.yt_auto_status  || '';
+  if (ytStatus.startsWith('live')) {
+    dot('dot-youtube', 'green', 'YouTube live');
+  } else if (ytAutoState === 'searching') {
+    dot('dot-youtube', 'amber', 'YT: searching for broadcast…');
+  } else if (ytAutoState === 'not_found') {
+    dot('dot-youtube', 'off', 'YT: no broadcast found (connect manually)');
+  } else if (ytStatus === 'idle') {
+    dot('dot-youtube', 'amber', 'YouTube idle');
+  } else {
+    dot('dot-youtube', 'off', `YouTube ${ytStatus}`);
+  }
 
   // Media Watch dot — running/parked + session events + cloud spend
   const mw = s.media_watch || {};
@@ -1436,9 +1450,13 @@ function renderPanels(s) {
   const fishActive = (s.tts_backend === 'fish');
   lockGroup(!fishActive, 'inp-fish-voice');
 
-  // YouTube
-  const ytStatus = s.youtube_status || 'idle';
-  setText('yt-status-label', `YouTube: ${ytStatus}`);
+  // YouTube panel status — merge auto-search state into label
+  const _ytPanelStatus = s.youtube_status || 'idle';
+  const _ytAutoLabel = s.yt_auto_status === 'searching' ? 'searching…'
+    : s.yt_auto_status === 'not_found' ? 'not found — connect manually'
+    : s.yt_auto_status === 'connected' ? _ytPanelStatus
+    : _ytPanelStatus;
+  setText('yt-status-label', `YouTube: ${_ytAutoLabel}`);
   const dotYtPanel = document.getElementById('dot-twitch-panel');
   if (dotYtPanel) {
     dotYtPanel.className = 'dot ' + (s.twitch_on ? 'green' : 'off');

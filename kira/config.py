@@ -211,3 +211,36 @@ LICHESS_BOT_TOKEN = os.getenv("LICHESS_BOT_TOKEN", "")
 CHESS_ENGINE_PATH = os.getenv("CHESS_ENGINE_PATH", "stockfish.exe")
 CHESS_KIRA_ELO    = int(os.getenv("CHESS_KIRA_ELO", "1800"))
 CHESS_MOVETIME_MS = int(os.getenv("CHESS_MOVETIME_MS", "150"))
+
+# Auto-clip pipeline (offline post-session) — scripts/cut_clips.py turns Kira's
+# clip-candidate artifacts into pre-cut, pre-titled video files. Runs AFTER a
+# stream, never during. OBS_RECORDINGS_DIR is where OBS writes local recordings;
+# cut clips land in OBS_RECORDINGS_DIR/clips/YYYY-MM-DD/.
+OBS_RECORDINGS_DIR = os.getenv("OBS_RECORDINGS_DIR", "")
+# Window around the detected moment: lead-in before (setup) + payoff after.
+CLIP_PRE_SECONDS   = float(os.getenv("CLIP_PRE_SECONDS", "8"))
+CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "22"))
+# Recording container extensions to scan, comma-separated.
+CLIP_VIDEO_EXTS    = os.getenv("CLIP_VIDEO_EXTS", ".mkv,.mp4,.flv,.mov,.ts")
+
+# ── YouTube auto-connect ──────────────────────────────────────────────────────
+# Set YOUTUBE_CHANNEL_ID in .env to enable polling on boot.  Kira will poll
+# the YouTube Data API v3 search.list endpoint every YT_AUTO_CONNECT_POLL_S
+# seconds for up to YT_AUTO_CONNECT_TIMEOUT_S total (default: every 60s /
+# 15 minutes), then give up and wait for a manual connect via the dashboard.
+YOUTUBE_CHANNEL_ID        = os.getenv("YOUTUBE_CHANNEL_ID", "")
+YT_AUTO_CONNECT_TIMEOUT_S = int(os.getenv("YT_AUTO_CONNECT_TIMEOUT_S", "900"))   # 15 min
+YT_AUTO_CONNECT_POLL_S    = int(os.getenv("YT_AUTO_CONNECT_POLL_S", "60"))
+
+# ── Chat queue / instrumentation ─────────────────────────────────────────────
+# ACK_THRESHOLD_S: if the oldest pending chat message has been waiting longer
+# than this (seconds), a brief acknowledgment directive is injected into the
+# next response prompt so the chatter's name gets a quick mention while Kira
+# finishes the current turn.
+ACK_THRESHOLD_S = float(os.getenv("ACK_THRESHOLD_S", "20.0"))
+
+# Talk-budget governor — off by default until instrumentation data is collected.
+# When enabled, per-chatter response counts are used to bias batch ordering so
+# chatters with fewer responses get answered first.
+CHAT_BUDGET_ENABLED       = os.getenv("CHAT_BUDGET_ENABLED", "false").lower() == "true"
+CHAT_BUDGET_RESPOND_ALL_N = int(os.getenv("CHAT_BUDGET_RESPOND_ALL_N", "5"))

@@ -36,7 +36,7 @@ from kira.streaming.twitch_bot import TwitchBot
 from kira.streaming.twitch_tools import start_twitch_poll
 from kira.tools.music_tools import play_kira_song
 from kira.memory.memory_extractor import extract_memories
-from kira.streaming.youtube_bot import YouTubeBot
+from kira.streaming.youtube_bot import YouTubeBot, find_active_live_broadcast
 from kira.config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
@@ -45,6 +45,8 @@ from kira.config import (
     LOOPBACK_STT_DEFAULT, ENABLE_TWITCH_POLLS,
     CHAT_POST_KIRA_INTERVAL_SEC, CHAT_POST_KIRA_MAX_PER_SESSION, CHAT_POST_KIRA_MAX_LEN,
     LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
+    YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
+    GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -176,6 +178,34 @@ _BANNED_CHAT_PHRASES = (
     "doing more work than", "doing something illegal to my brain",
     "defies several laws of physics", "defies the laws of",
 )
+
+
+class _ChatBudgetGovernor:
+    """Per-chatter fairness ledger — tracks response counts and last-responded ts.
+
+    Scaffolded now; wired into batch ordering only when CHAT_BUDGET_ENABLED=true.
+    The ledger data is always populated (regardless of the flag) so historical
+    data is available once you want to act on it.
+    """
+
+    def __init__(self) -> None:
+        self._responses_given: dict[str, int] = {}
+        self._last_responded:  dict[str, float] = {}
+
+    def record_response(self, chatters: list) -> None:
+        import time as _t
+        ts = _t.time()
+        for c in chatters:
+            self._responses_given[c] = self._responses_given.get(c, 0) + 1
+            self._last_responded[c] = ts
+
+    def get_priority(self, chatter: str) -> int:
+        """Lower value = higher priority.  Chatters with fewer responses come first."""
+        return self._responses_given.get(chatter, 0)
+
+    def reset_session(self) -> None:
+        self._responses_given.clear()
+        self._last_responded.clear()
 
 
 class VTubeBot:
@@ -358,6 +388,11 @@ class VTubeBot:
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
         self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
+
+        # Chat queue instrumentation
+        self._chat_age_log: list = []              # per-message ages at response time (rolling, last 200)
+        self._yt_auto_search_status: str = "idle"  # idle | searching | connected | not_found
+        self.budget_governor = _ChatBudgetGovernor()  # always-on ledger; ordering only when CHAT_BUDGET_ENABLED
 
         # Kira's [CHAT: ...] tool — code-enforced caps on her typing in chat.
         # Layered ON TOP of chat_poster's 60s global transport cooldown.
@@ -2102,6 +2137,12 @@ class VTubeBot:
         self._shutdown_started = True
         print("   [Shutdown] Beginning graceful shutdown — please wait for artifact writes...")
 
+        # Chat age session summary (best-effort, before is_running=False)
+        try:
+            self._chat_age_session_summary()
+        except Exception:
+            pass
+
         # Stop the run() loop and any flag-polling loops as early as possible.
         self.is_running = False
 
@@ -3110,6 +3151,14 @@ class VTubeBot:
                 print("   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).")
                 self.youtube_bot = YouTubeBot(self.input_queue, self.reset_idle_timer, self.twitch_log)
                 self.chat_poster.set_youtube_bot(self.youtube_bot)
+                # Auto-connect: poll YouTube Data API for a live broadcast on boot
+                if YOUTUBE_CHANNEL_ID and GOOGLE_API_KEY:
+                    asyncio.ensure_future(self._yt_auto_connect_loop())
+                    print(f"   [YouTube] Auto-connect enabled for channel {YOUTUBE_CHANNEL_ID!r} "
+                          f"(polling every {YT_AUTO_CONNECT_POLL_S}s, up to {YT_AUTO_CONNECT_TIMEOUT_S}s)")
+                else:
+                    print("   [YouTube] Auto-connect disabled "
+                          "(set YOUTUBE_CHANNEL_ID + GOOGLE_API_KEY in .env to enable)")
 
             # 2. Start Brain Worker (The new logic brain)
             print("   [System] Starting Brain Worker...")
@@ -3921,9 +3970,14 @@ class VTubeBot:
                 continue
 
             _attempt_time = time.time()
+            # Capture preemption context for [ChatAge] logging
+            _preemption = (
+                "P0" if getattr(self.ai_core, "is_speaking", False)
+                else ("P1" if self.processing_lock.locked() else "none")
+            )
             try:
                 async with self._active_turn_lock:
-                    await self._respond_to_chat_batch(batch)
+                    await self._respond_to_chat_batch(batch, _preemption=_preemption)
                 await self._drain_pending_interjections()
             except Exception as e:
                 print(f"   [ChatBatch] Error: {e}")
@@ -3937,7 +3991,7 @@ class VTubeBot:
                 else:
                     print(f"   [ChatBatch] Not restoring batch — response already spoken.")
 
-    async def _respond_to_chat_batch(self, batch: list):
+    async def _respond_to_chat_batch(self, batch: list, _preemption: str = "none"):
         """Decides what (if anything) to say in response to a batch of chat messages."""
         if not batch:
             return
@@ -4079,6 +4133,27 @@ class VTubeBot:
                 f"drop the callback now; don't force it, but don't sit on it either]\n{bits_str}\n"
             )
 
+        # ── Chat age instrumentation + acknowledgment tier ───────────────────
+        _now_ack = time.time()
+        if batch:
+            _oldest_msg = min(batch, key=lambda m: m.get("timestamp", _now_ack))
+            _oldest_age = _now_ack - _oldest_msg.get("timestamp", _now_ack)
+        else:
+            _oldest_age = 0.0
+
+        _ack_directive = ""
+        if _oldest_age > ACK_THRESHOLD_S and batch:
+            _ack_name = _oldest_msg.get("username", "")
+            if _ack_name:
+                _ack_directive = (
+                    f"\n[ACK DIRECTIVE — do NOT skip this] {_ack_name} has been waiting"
+                    f" ~{int(_oldest_age)}s. Briefly weave their name into your reply (e.g."
+                    f" 'hold that thought, {_ack_name} —') without turning it into a full"
+                    f" response. The real answer still follows. One brief mention only.\n"
+                )
+                print(f"   [ChatAge] ACK injected for {_ack_name} "
+                      f"(waited {_oldest_age:.1f}s, preempted={_preemption})")
+
         batch_lines = []
         for msg in batch:
             marker = " [FIRST TIME CHATTER]" if msg["is_first_time"] else ""
@@ -4124,6 +4199,7 @@ class VTubeBot:
             f"{returning_regulars_block}"
             f"{running_bits_block}"
             f"CHAT BATCH:\n{batch_str}\n\n"
+            f"{_ack_directive}"
             f"WHAT YOU KNOW ABOUT THESE CHATTERS:\n{chatter_context}\n\n"
             f"CURRENT SCENE: {scene or 'no scene context'}\n\n"
             f"RULES:\n"
@@ -4240,6 +4316,30 @@ class VTubeBot:
 
         for msg in batch:
             self.chatter_last_response[msg["username"]] = time.time()
+
+        # ── Chat age logging ──────────────────────────────────────────────────
+        _resp_ts = time.time()
+        _chatters_answered = []
+        for msg in batch:
+            _age = _resp_ts - msg.get("timestamp", _resp_ts)
+            self._chat_age_log.append(_age)
+            _chatters_answered.append(msg.get("username", "?"))
+            print(f"   [ChatAge] {msg.get('username','?')} age={_age:.1f}s "
+                  f"batch={len(batch)} preempted={_preemption}")
+            try:
+                self.stream_logger.log(
+                    "chat_age",
+                    username=msg.get("username", "?"),
+                    age_s=round(_age, 1),
+                    batch_size=len(batch),
+                    preempted=_preemption,
+                )
+            except Exception:
+                pass
+        # Keep rolling window to bound memory
+        self._chat_age_log = self._chat_age_log[-200:]
+        # Budget ledger — always updated regardless of CHAT_BUDGET_ENABLED flag
+        self.budget_governor.record_response(_chatters_answered)
 
         if ENABLE_CHATTER_MEMORY:
             asyncio.create_task(self._extract_chatter_facts(batch, cleaned))
@@ -4361,6 +4461,77 @@ class VTubeBot:
             print(f"   [Bits] Extraction error: {e}")
 
     # ── Chat Predictions ──────────────────────────────────────────────────────
+
+    async def _yt_auto_connect_loop(self) -> None:
+        """Polls the YouTube Data API every YT_AUTO_CONNECT_POLL_S seconds for an
+        active live broadcast on YOUTUBE_CHANNEL_ID.  Auto-calls youtube_bot.start()
+        when one is found.  Gives up after YT_AUTO_CONNECT_TIMEOUT_S and sets status
+        to 'not_found' so the dashboard can show a manual-connect hint."""
+        if not self.youtube_bot:
+            self._yt_auto_search_status = "idle"
+            return
+
+        deadline = time.time() + YT_AUTO_CONNECT_TIMEOUT_S
+        attempt  = 0
+        self._yt_auto_search_status = "searching"
+        print(f"   [YTAutoSearch] Polling for live broadcast on channel {YOUTUBE_CHANNEL_ID!r}…")
+
+        while time.time() < deadline and self.is_running:
+            attempt += 1
+            # Already connected (e.g. manual connect from dashboard)
+            if getattr(self.youtube_bot, "running", False):
+                self._yt_auto_search_status = "connected"
+                print("   [YTAutoSearch] Already connected — stopping auto-search.")
+                return
+
+            vid = await find_active_live_broadcast(YOUTUBE_CHANNEL_ID, GOOGLE_API_KEY)
+            if vid:
+                print(f"   [YTAutoSearch] Found active broadcast: {vid!r} — connecting…")
+                ok = self.youtube_bot.start(vid)
+                if ok:
+                    self._yt_auto_search_status = "connected"
+                    print(f"   [YTAutoSearch] YouTube chat connected to {vid!r}")
+                    try:
+                        self.stream_logger.log("yt_auto_connect", video_id=vid)
+                    except Exception:
+                        pass
+                    return
+                else:
+                    print(f"   [YTAutoSearch] start() returned falsy for {vid!r} — will retry.")
+            else:
+                remaining = int(deadline - time.time())
+                print(f"   [YTAutoSearch] No live broadcast found "
+                      f"(attempt {attempt}, {remaining}s remaining)")
+
+            await asyncio.sleep(YT_AUTO_CONNECT_POLL_S)
+
+        if not getattr(self.youtube_bot, "running", False):
+            self._yt_auto_search_status = "not_found"
+            print(f"   [YTAutoSearch] No live broadcast found after {YT_AUTO_CONNECT_TIMEOUT_S}s "
+                  f"— connect manually via the dashboard.")
+
+    def _chat_age_session_summary(self) -> None:
+        """Print and log a session-end summary of chat response ages."""
+        if not self._chat_age_log:
+            return
+        import statistics as _stat
+        ages = sorted(self._chat_age_log)
+        n    = len(ages)
+        med  = _stat.median(ages)
+        p90  = ages[min(int(n * 0.9), n - 1)]
+        mx   = ages[-1]
+        print(f"   [ChatAge] Session summary: n={n} "
+              f"median={med:.1f}s p90={p90:.1f}s max={mx:.1f}s")
+        try:
+            self.stream_logger.log(
+                "chat_age_summary",
+                count=n,
+                median_s=round(med, 1),
+                p90_s=round(p90, 1),
+                max_s=round(mx, 1),
+            )
+        except Exception:
+            pass
 
     def start_prediction(self, question: str, option_a: str, option_b: str, duration_seconds: int = 30):
         """Starts a chat-based prediction. Viewers vote by typing A or B (or the option name)."""

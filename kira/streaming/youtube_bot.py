@@ -1,6 +1,9 @@
 # youtube_bot.py — YouTube live chat listener
 import asyncio
+import json
 import re
+import urllib.parse
+import urllib.request
 from typing import Callable, Optional
 
 try:
@@ -79,6 +82,44 @@ def extract_video_id(url_or_id: str) -> Optional[str]:
         return m.group(0)
 
     return None
+
+
+async def find_active_live_broadcast(channel_id: str, api_key: str) -> Optional[str]:
+    """Query YouTube Data API v3 for an active live broadcast on *channel_id*.
+
+    Returns the video ID string on success, ``None`` if nothing is live or the
+    API call fails.  Uses ``asyncio.to_thread`` + ``urllib`` so there are no
+    extra dependencies and the call does not block the event loop.
+    """
+    if not channel_id or not api_key:
+        return None
+
+    params = urllib.parse.urlencode({
+        "part":        "id",
+        "channelId":   channel_id,
+        "eventType":   "live",
+        "type":        "video",
+        "maxResults":  "1",
+        "key":         api_key,
+    })
+    url = f"https://www.googleapis.com/youtube/v3/search?{params}"
+
+    def _fetch() -> Optional[dict]:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "NeuroAI-Bot/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return json.loads(resp.read().decode())
+        except Exception as exc:
+            print(f"   [YTAutoSearch] API error: {exc}")
+            return None
+
+    data = await asyncio.to_thread(_fetch)
+    if not data:
+        return None
+    items = data.get("items", [])
+    if not items:
+        return None
+    return items[0].get("id", {}).get("videoId") or None
 
 
 class YouTubeBot:

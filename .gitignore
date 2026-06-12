@@ -44,13 +44,14 @@ transcripts/
 *.webm
 *.flv
 
-# Screenshots / captures — but keep the demo gif, architecture svg, and overlay source assets
+# Screenshots / captures — but keep the demo gif, architecture svg, overlay source assets, and generated scene PNGs
 *.jpg
 *.jpeg
 *.png
 !VTuber Demo - Kirav3.gif
 !docs/kira-architecture.svg
 !web_dashboard/assets/**
+!web_dashboard/screens/*.png
 
 # OS
 .DS_Store

@@ -33,6 +33,17 @@ html, body {
      cover crops ~7px per side horizontally, negligible. */
 }
 
+/* ── Scene foreground (desk surface — occludes snow) ─────────────────────── */
+.fg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
 /* ── Snow particle canvas ─────────────────────────────────────────────────── */
 #snow-canvas {
   position: absolute;
