@@ -4,7 +4,7 @@ to TEMP first so the running dashboard isn't disturbed."""
 import os, sqlite3, shutil, sys, tempfile, traceback
 from pathlib import Path
 
-MEM = Path(__file__).parent / "memory_db"
+MEM = Path(__file__).parent.parent / "memory_db"
 src = MEM / "chroma.sqlite3"
 dst = Path(tempfile.gettempdir()) / "chroma_inspect.sqlite3"
 shutil.copy2(src, dst)

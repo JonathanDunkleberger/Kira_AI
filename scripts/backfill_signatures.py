@@ -13,8 +13,8 @@ import asyncio
 import os
 import sys
 
-# Ensure repo root is on the path regardless of cwd
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Repo root on path so first-party imports resolve when run as scripts/backfill_signatures.py
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # config.py is the single dotenv source — importing it loads .env and exposes secrets.
 from config import ANTHROPIC_API_KEY as _API_KEY, CLAUDE_SONNET_MODEL as _CHAT_MODEL
