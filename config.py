@@ -15,7 +15,7 @@ N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
-WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", "G:\\JonnyD\\NeuroAI_Bot\\models\\whisper")
+WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "whisper"))
 ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.

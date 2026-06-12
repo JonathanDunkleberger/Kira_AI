@@ -47,7 +47,7 @@ The system is organized into five layers:
 
 **Memory** — ChromaDB stores extracted facts (not raw transcripts) as sentence-transformer embeddings across `facts`, `chatters`, and `turns` collections. A flat-JSON identity store (`memory_db/identity.json`) holds permanent anchors — exact-lookup, not similarity search — for cross-platform identity resolution (e.g. the same person as a voice caller, a chat sender, and a Lichess opponent). The fact extractor uses Claude Haiku to distill durable knowledge from conversation; a speaker-attribution guard caps facts that can't be traced to the user's actual words (confidence floor 0.9). Session artifacts (lore entries + clip candidates) are generated via Sonnet at shutdown. Per-playthrough memory tracks narrative beats for VN sessions separately.
 
-**Tools** — Music playback via yt-dlp and mpv on natural-language request; autonomous web search when knowledge gaps are detected; song identification from loopback audio (AudD fingerprinting); Twitch utilities (polls, predictions); a VN autopilot that OCRs the screen, reads visual-novel dialogue aloud in-character, and advances autonomously; a game-mode controller that adapts pacing and verbosity per activity; chess on Lichess (see below); and optional rate-limited chat posting.
+**Tools** — Music playback via yt-dlp and mpv on natural-language request; a web search module (present, not yet wired to a command); song identification from loopback audio (AudD fingerprinting); Twitch utilities (polls, predictions); a VN autopilot that OCRs the screen, reads visual-novel dialogue aloud in-character, and advances autonomously; a game-mode controller that adapts pacing and verbosity per activity; chess on Lichess (see below); and optional rate-limited chat posting.
 
 **Infrastructure** — Groq llama-3.1-8b-instant (triage / fast paths) + Claude Sonnet/Opus (live voice + deep moments); Faster-Whisper distil-large-v3 on CUDA float16 — two instances, one for mic STT and one for desktop loopback; Azure Neural TTS (word-boundary timing for captions) with Edge-TTS fallback; GPT-4o-mini for vision/screen understanding; Stockfish 17 for chess moves; VTube Studio WebSocket API for avatar control.
 
@@ -197,7 +197,7 @@ To enable the on-screen captions: set `ENABLE_CAPTIONS=true`, then add `caption_
 | `AZURE_SPEECH_KEY` | Azure Cognitive Services TTS |
 | `AZURE_SPEECH_REGION` | Azure region (e.g., `westus3`) |
 | `OPENAI_API_KEY` | GPT — vision agent and screen understanding |
-| `GOOGLE_CSE_API_KEY` | Google Custom Search for web queries |
+| `GOOGLE_API_KEY` | Google Custom Search for web queries |
 | `GOOGLE_CSE_ID` | Custom Search Engine ID |
 | `TWITCH_OAUTH_TOKEN` | Twitch bot OAuth token |
 | `TWITCH_BOT_USERNAME` | Twitch bot account username |
