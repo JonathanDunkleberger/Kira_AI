@@ -159,6 +159,7 @@
     initLights();
     initBanner();
     if (typeof window.pageInit === 'function') window.pageInit();
+    _maybeConnectScreenWs();
     requestAnimationFrame(loop);
   }
 
@@ -171,5 +172,120 @@
       run();
     }
   };
+
+  /* ── Live text control via dashboard WebSocket ─────────────────────────── */
+  /*
+   * Connects to /ws/screens on the control server (port 8766).
+   * Requires CFG.screenName to be set ("starting" | "brb" | "ending").
+   * Reconnects automatically with exponential backoff — OBS browser sources
+   * are long-lived and must survive control server restarts.
+   *
+   * Public API exposed to page scripts:
+   *   window.applyOverride(line1, line2) — called by anim.js when an override arrives
+   *   window.clearOverride()             — called by anim.js when override is cleared
+   *
+   * Hooks pages can define:
+   *   window.onOverride()    — called before the fade-out (pause timers etc.)
+   *   window.restoreDefaults() — called during fade-in after clear (resume timers etc.)
+   */
+  let _overrideActive = false;
+  let _screenWs       = null;
+  let _wsRetryMs      = 1500;
+  const _wsRetryMax   = 20000;
+  const _CTRL_WS      = 'ws://127.0.0.1:8766/ws/screens';
+
+  function _connectScreenWs() {
+    try {
+      _screenWs = new WebSocket(_CTRL_WS);
+    } catch (e) {
+      _scheduleScreenReconnect();
+      return;
+    }
+
+    _screenWs.onopen = function () {
+      _wsRetryMs = 1500; /* reset backoff on successful connect */
+    };
+
+    _screenWs.onmessage = function (e) {
+      try { _handleScreenMsg(JSON.parse(e.data)); } catch (_) {}
+    };
+
+    _screenWs.onerror = function () {};
+
+    _screenWs.onclose = function () {
+      _scheduleScreenReconnect();
+    };
+  }
+
+  function _scheduleScreenReconnect() {
+    setTimeout(_connectScreenWs, _wsRetryMs);
+    _wsRetryMs = Math.min(_wsRetryMs * 2, _wsRetryMax);
+  }
+
+  function _handleScreenMsg(msg) {
+    var myScreen = cfg && cfg.screenName;
+    if (!myScreen) return;
+
+    if (msg.type === 'overrides' && msg.data) {
+      /* Sent immediately on connect — restore previous override if any */
+      var ov = msg.data[myScreen];
+      if (ov) {
+        _applyTextOverride(ov.line1 || '', ov.line2 || '');
+      }
+      /* else: no override stored → keep default behavior running */
+      return;
+    }
+
+    if (msg.type === 'screen_text' && msg.screen === myScreen) {
+      _applyTextOverride(msg.line1 || '', msg.line2 || '');
+      return;
+    }
+
+    if (msg.type === 'screen_text_clear' && msg.screen === myScreen) {
+      _clearTextOverride();
+    }
+  }
+
+  /* Fade the banner-text container out, swap text, fade back in */
+  function _fadeSwap(fn) {
+    var el = document.getElementById('banner-text');
+    if (!el) { fn(); return; }
+    el.style.opacity = '0';
+    setTimeout(function () {
+      fn();
+      el.style.opacity = '1';
+    }, 320);
+  }
+
+  function _applyTextOverride(line1, line2) {
+    /* Signal the page to pause any timer-driven text updates */
+    if (!_overrideActive && typeof window.onOverride === 'function') {
+      window.onOverride();
+    }
+    _overrideActive = true;
+
+    _fadeSwap(function () {
+      var container = document.getElementById('banner-text');
+      if (!container) return;
+      var mainEl = container.querySelector('.banner-main');
+      var subEl  = container.querySelector('.banner-sub');
+      if (mainEl && line1 !== '') mainEl.textContent = line1;
+      if (subEl  && line2 !== '') subEl.textContent  = line2;
+    });
+  }
+
+  function _clearTextOverride() {
+    if (!_overrideActive) return;
+    _overrideActive = false;
+    _fadeSwap(function () {
+      /* Let the page restore its own default text + resume timers */
+      if (typeof window.restoreDefaults === 'function') window.restoreDefaults();
+    });
+  }
+
+  /* Start the screen WS after the scene is up (requires cfg.screenName) */
+  function _maybeConnectScreenWs() {
+    if (cfg && cfg.screenName) _connectScreenWs();
+  }
 
 }());

@@ -55,6 +55,9 @@
     textSafeBottom: 0.45,
     textSafeLeft:   0.19,
 
+    /* -- Screen identity for live text control from dashboard ---------- */
+    screenName: 'brb',
+
   };
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -76,11 +79,14 @@
   window.pageInit = function () {
     const subEl = document.getElementById('brb-sub');
     let idx = 0;
+    let _rotationPaused = false;
 
     function rotate() {
-      /* Fade out → swap text → fade in */
+      /* When override is active, skip the text swap entirely */
+      if (_rotationPaused) return;
       subEl.classList.add('fade-out');
       setTimeout(function () {
+        if (_rotationPaused) { subEl.classList.remove('fade-out'); return; }
         idx = (idx + 1) % BRB_MESSAGES.length;
         subEl.textContent = BRB_MESSAGES[idx];
         subEl.classList.remove('fade-out');
@@ -88,6 +94,17 @@
     }
 
     setInterval(rotate, ROTATE_INTERVAL_MS);
+
+    /* Called by anim.js when an override arrives — pause rotation */
+    window.onOverride = function () { _rotationPaused = true; };
+
+    /* Called by anim.js when the override is cleared — resume rotation */
+    window.restoreDefaults = function () {
+      document.querySelector('.banner-main').textContent = 'BRB';
+      subEl.classList.remove('fade-out');
+      subEl.textContent = BRB_MESSAGES[idx];
+      _rotationPaused = false;
+    };
   };
   </script>
 </head>

@@ -1006,6 +1006,76 @@ html, body {
         </div>
       </div><!-- /panel-conn -->
 
+      <!-- ─ PANEL: STREAM SCREENS ─ -->
+      <div class="panel" id="panel-screens">
+        <div class="panel-header" onclick="togglePanel('panel-screens')">
+          📺 Stream Screens <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div style="font-size:.72rem;color:var(--text-muted);line-height:1.4;margin-bottom:2px;">
+            Live text on OBS browser sources. Send overrides default behavior;
+            Clear restores it (countdown, BRB rotation, static).
+          </div>
+
+          <!-- Starting Soon -->
+          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Starting Soon</div>
+          <div class="row">
+            <div class="field">
+              <label>Line 1 (main)</label>
+              <input type="text" id="inp-screen-starting-1" placeholder="Starting Soon">
+            </div>
+            <div class="field">
+              <label>Line 2 (sub)</label>
+              <input type="text" id="inp-screen-starting-2" placeholder="05:00">
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="sendScreenText('starting')">Send</button>
+            <button class="btn" onclick="clearScreenText('starting')">Clear</button>
+          </div>
+
+          <div class="rail-sep"></div>
+
+          <!-- BRB -->
+          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">BRB</div>
+          <div class="row">
+            <div class="field">
+              <label>Line 1 (main)</label>
+              <input type="text" id="inp-screen-brb-1" placeholder="BRB">
+            </div>
+            <div class="field">
+              <label>Line 2 (sub)</label>
+              <input type="text" id="inp-screen-brb-2" placeholder="back in 5, maybe">
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="sendScreenText('brb')">Send</button>
+            <button class="btn" onclick="clearScreenText('brb')">Clear</button>
+          </div>
+
+          <div class="rail-sep"></div>
+
+          <!-- Ending -->
+          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Ending</div>
+          <div class="row">
+            <div class="field">
+              <label>Line 1 (main)</label>
+              <input type="text" id="inp-screen-ending-1" placeholder="Stream Over">
+            </div>
+            <div class="field">
+              <label>Line 2 (sub)</label>
+              <input type="text" id="inp-screen-ending-2" placeholder="clips incoming ✦">
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="sendScreenText('ending')">Send</button>
+            <button class="btn" onclick="clearScreenText('ending')">Clear</button>
+          </div>
+
+        </div>
+      </div><!-- /panel-screens -->
+
     </div><!-- /panels-col -->
   </div><!-- /body -->
 </div><!-- /layout -->
@@ -1477,6 +1547,47 @@ function ytConnect() {
   if (url) cmd('youtube_connect', {url});
 }
 
+// ── Stream screen text control ─────────────────────────────────────────────
+const _SS_STORE_KEY = 'kira_screen_texts';  // sessionStorage key
+
+function _loadScreenTexts() {
+  try { return JSON.parse(sessionStorage.getItem(_SS_STORE_KEY) || '{}'); } catch(_) { return {}; }
+}
+
+function _saveScreenTexts(data) {
+  try { sessionStorage.setItem(_SS_STORE_KEY, JSON.stringify(data)); } catch(_) {}
+}
+
+async function sendScreenText(screen) {
+  const l1 = (document.getElementById(`inp-screen-${screen}-1`) || {}).value || '';
+  const l2 = (document.getElementById(`inp-screen-${screen}-2`) || {}).value || '';
+  const line1 = l1.trim();
+  const line2 = l2.trim();
+  const data = await cmd('screen_text', {screen, line1, line2});
+  if (data && data.ok !== false) {
+    const stored = _loadScreenTexts();
+    stored[screen] = {line1, line2};
+    _saveScreenTexts(stored);
+  }
+}
+
+async function clearScreenText(screen) {
+  await cmd('screen_text_clear', {screen});
+  const stored = _loadScreenTexts();
+  delete stored[screen];
+  _saveScreenTexts(stored);
+}
+
+function _restoreScreenInputs() {
+  const stored = _loadScreenTexts();
+  for (const [screen, val] of Object.entries(stored)) {
+    const l1 = document.getElementById(`inp-screen-${screen}-1`);
+    const l2 = document.getElementById(`inp-screen-${screen}-2`);
+    if (l1 && val.line1) l1.value = val.line1;
+    if (l2 && val.line2) l2.value = val.line2;
+  }
+}
+
 async function refreshDevices() {
   try {
     const res = await fetch(`${API}/cmd/audio_devices_refresh`, {
@@ -1734,6 +1845,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadInitialState();
   wsConnect();
   startThumbPoll();
+  _restoreScreenInputs();
 });
 </script>
 </body>

@@ -60,6 +60,9 @@
     textSafeBottom: 0.45,
     textSafeLeft:   0.19,
 
+    /* -- Screen identity for live text control from dashboard ---------- */
+    screenName: 'starting',
+
   };
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -71,6 +74,7 @@
     const params  = new URLSearchParams(location.search);
     const minutes = Math.max(1, parseInt(params.get('min') || '5', 10));
     let remaining = minutes * 60;
+    let _countPaused = false;
 
     function fmt(s) {
       const m  = Math.floor(s / 60);
@@ -81,6 +85,7 @@
     const countEl = document.getElementById('countdown');
 
     function tick() {
+      if (_countPaused) return;   /* override active — suspend until restored */
       if (remaining <= 0) {
         countEl.textContent = 'live now';
         return;
@@ -88,6 +93,18 @@
       countEl.textContent = fmt(remaining--);
       setTimeout(tick, 1000);
     }
+
+    /* Called by anim.js when an override arrives — pause the ticker */
+    window.onOverride = function () { _countPaused = true; };
+
+    /* Called by anim.js when the override is cleared — resume */
+    window.restoreDefaults = function () {
+      document.querySelector('.banner-main').textContent = 'Starting Soon';
+      countEl.textContent = remaining > 0 ? fmt(remaining) : 'live now';
+      _countPaused = false;
+      if (remaining > 0) tick();
+    };
+
     tick();
   };
   </script>

@@ -98,6 +98,7 @@ html, body {
   justify-content: center;
   pointer-events: none;
   overflow: hidden;
+  transition: opacity 0.3s ease;   /* live-text override fade */
   /* left/top/width/height set by anim.js from config */
 }
 

@@ -56,6 +56,15 @@
     textSafeBottom: 0.45,
     textSafeLeft:   0.19,
 
+    /* -- Screen identity for live text control from dashboard ---------- */
+    screenName: 'ending',
+
+  };
+
+  /* Restore static defaults when a dashboard override is cleared */
+  window.restoreDefaults = function () {
+    document.querySelector('.banner-main').textContent = 'Stream Over';
+    document.querySelector('.banner-sub').textContent  = 'clips incoming \u2756';
   };
   </script>
 </head>
