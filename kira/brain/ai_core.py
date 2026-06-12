@@ -1126,6 +1126,9 @@ class AI_Core:
                         )
                 except Exception:
                     pass  # usage unavailable on cancelled/error stream
+        except Exception as _stream_err:
+            print(f"   [Brain] Claude stream error: {_stream_err}")
+            return
 
     async def analyze_emotion_of_turn(self, last_user_text: str, last_ai_response: str) -> EmotionalState | None:
         # No backend check — router handles local-vs-Groq. Only bail if neither

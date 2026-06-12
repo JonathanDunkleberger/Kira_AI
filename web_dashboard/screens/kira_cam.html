@@ -31,12 +31,16 @@
   <title>Kira Cam — Kira</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* CRT live canvas sits between bg and the glow overlay */
+    /* CRT live canvas sits between bg and the glow overlay.
+       mix-blend-mode:screen makes the dark (cleared) background transparent
+       so the green glyph ADDS onto the painted glass instead of covering it.
+       The desk_foreground.png layer (later in DOM) renders on top, so the
+       lamp and lower bezel naturally occlude the canvas. */
     #crt-live {
       position: absolute;
-      border-radius: 5px;
       pointer-events: none;
       image-rendering: pixelated;
+      mix-blend-mode: screen;
       /* left/top/width/height set by JS from CFG.crtDisplayRegion */
     }
   </style>
@@ -61,15 +65,21 @@
     // mirrorRegion:    { x: 0.938, y: 0.040, w: 0.062, h: 0.245 },
     // mirrorSnowCount: 14,
 
-    /* -- CRT monitor — right side; green heart glyph at (0.880, 0.611) --- */
-    /* Screen spans approx x=0.820-0.960, y=0.390-0.635                    */
-    crtRegion:    { x: 0.820, y: 0.390, w: 0.140, h: 0.245 },
+    /* -- CRT monitor — right side of scene --------------------------------
+     * Measured quad from scene_kiracam.jfif (1024×572) with object-fit:
+     * cover scale 1.8881×. Screen is viewed straight-on; no perspective.
+     *   TL (1589, 481)  TR (1820, 481)
+     *   BL (1589, 739)  BR (1820, 739)   ← full glass 231×258px display
+     * desk_foreground.png is transparent at source y=250-286 (display
+     * y=472-540, 68px fully clear) then fades opaque by y=586 (transition).
+     * Lamp & lower bezel are ALREADY opaque in the foreground PNG and
+     * occlude the canvas naturally (foreground is later in DOM / higher z). */
+    crtRegion:    { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.2380 },
 
-    /* -- CRT live display region — actual glass face inside the bezel ----
-     * Measured: heart at canvas (0.880, 0.611). The screen glass spans     *
-     * the full crtRegion with a small bezel inset on each side.            *
-     * Adjust if content is visually off-centre on the monitor face.        */
-    crtDisplayRegion: { x: 0.825, y: 0.400, w: 0.128, h: 0.228 },
+    /* Canvas covers transparent glass top + transition zone (104px).       *
+     * mix-blend-mode:screen on the canvas: dark areas pass through,        *
+     * glyph glow adds onto the painted glass. Foreground covers the rest.  */
+    crtDisplayRegion: { x: 0.8276, y: 0.4370, w: 0.1203, h: 0.0963 },
     crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
@@ -123,8 +133,8 @@
   <div id="scene">
     <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
-    <!-- CRT live display (between snow and glow overlay) -->
-    <canvas id="crt-live" width="246" height="246"></canvas>
+    <!-- CRT live display (screen-blend glyph sits between bg and fg) -->
+    <canvas id="crt-live" width="231" height="104"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>
     <!-- Foreground: desk surface cuts in front of snow — OBS avatar goes between these layers -->
@@ -270,7 +280,8 @@
 
     /* Draw a single pixel heart, scaled to fit the canvas width nicely */
     function _drawHeart(ctx, cw, ch, scale, pulse) {
-      const px   = Math.max(2, Math.round(cw / 18));
+      /* px driven by height so glyph fits the ~68px fully-transparent glass zone */
+      const px   = Math.max(3, Math.round(Math.min(cw / 14, ch / 9)));
       const hw   = 7 * px, hh = 6 * px;
       const ox   = Math.round((cw - hw) / 2);
       const oy   = Math.round((ch - hh) / 2 - ch * 0.05);
@@ -289,10 +300,12 @@
 
     /* Draw a sleeping cat + drifting zzz */
     function _drawCat(ctx, cw, ch, t) {
-      const px   = Math.max(2, Math.round(cw / 20));
+      /* px driven by height; cat positioned in upper half of canvas */
+      const px   = Math.max(3, Math.round(Math.min(cw / 16, ch / 10)));
       const cw_  = 10 * px, ch_ = 7 * px;
       const ox   = Math.round((cw - cw_) / 2) - px;
-      const oy   = Math.round((ch - ch_) / 2 + ch * 0.05);
+      /* Push cat up (-0.05) so it sits in the transparent glass zone */
+      const oy   = Math.round((ch - ch_) / 2 - ch * 0.05);
       ctx.shadowBlur  = 6;
       ctx.shadowColor = C.mid;
       _px(ctx, CAT,      px, ox, oy, C.bright);
@@ -419,9 +432,9 @@
       const cw  = _crtCanvas.width;
       const ch  = _crtCanvas.height;
 
-      /* Background */
-      ctx.fillStyle = C.bg;
-      ctx.fillRect(0, 0, cw, ch);
+      /* Clear to transparent — mix-blend-mode:screen makes dark areas invisible
+         so the painted glass shows through, and the glyph glow adds on top */
+      ctx.clearRect(0, 0, cw, ch);
 
       const state = _crtState();
 
