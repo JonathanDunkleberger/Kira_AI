@@ -244,3 +244,18 @@ ACK_THRESHOLD_S = float(os.getenv("ACK_THRESHOLD_S", "20.0"))
 # chatters with fewer responses get answered first.
 CHAT_BUDGET_ENABLED       = os.getenv("CHAT_BUDGET_ENABLED", "false").lower() == "true"
 CHAT_BUDGET_RESPOND_ALL_N = int(os.getenv("CHAT_BUDGET_RESPOND_ALL_N", "5"))
+
+# ── Phrase throttle ───────────────────────────────────────────────────────────
+# Prevents distinctive constructions from becoming templates by tracking per-
+# session n-grams and injecting a soft do-not-reuse constraint into every LLM
+# prompt when a phrase hits PHRASE_THROTTLE_THRESHOLD uses.
+# PHRASE_THROTTLE_WATCHLIST: comma-separated list of specific phrases to monitor
+# even if they wouldn't surface from the n-gram statistics (e.g. short idioms).
+PHRASE_THROTTLE_ENABLED   = os.getenv("PHRASE_THROTTLE_ENABLED", "true").lower() == "true"
+PHRASE_THROTTLE_THRESHOLD = int(os.getenv("PHRASE_THROTTLE_THRESHOLD", "2"))
+PHRASE_THROTTLE_WATCHLIST = [
+    p.strip() for p in os.getenv(
+        "PHRASE_THROTTLE_WATCHLIST",
+        "three words and a vibe,I respect it,I respect the commitment",
+    ).split(",") if p.strip()
+]

@@ -47,6 +47,7 @@ from kira.config import (
     LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
+    PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -178,6 +179,123 @@ _BANNED_CHAT_PHRASES = (
     "doing more work than", "doing something illegal to my brain",
     "defies several laws of physics", "defies the laws of",
 )
+
+
+class _PhraseThrottleBuffer:
+    """Session-scoped ring buffer that surfaces over-used phrases for LLM prompt injection.
+
+    Tracks Kira's last *capacity* spoken responses. Before each LLM call, callers
+    ask for a constraint block listing phrases that have appeared >= threshold times;
+    that block is appended to the prompt as a soft do-not-reuse directive.
+
+    Two detection modes run in parallel:
+    - Auto: 3–7 word n-grams extracted from all buffered responses. Any gram that
+      appears at least *threshold* times enters the constraint list.
+    - Watchlist: specific phrases (from config) that are monitored at the same
+      threshold. The watchlist catches short idioms like "I respect it" that the
+      n-gram statistics would also catch but benefits from being named explicitly.
+
+    Resets automatically each session (object is created in VTubeBot.__init__).
+    """
+
+    def __init__(self, capacity: int = 40) -> None:
+        self._responses: list = []          # normalized text, newest last
+        self._capacity  = capacity
+        self._counts:   dict = {}           # gram → total occurrences across buffer
+        self._logged:   set  = set()        # phrases already printed to console
+
+    # ── public API ─────────────────────────────────────────────────────────────
+
+    def record(self, text: str) -> None:
+        """Add a spoken response to the ring buffer and refresh n-gram counts."""
+        if not text:
+            return
+        self._responses.append(self._normalize(text))
+        if len(self._responses) > self._capacity:
+            self._responses.pop(0)
+        self._rebuild_counts()
+
+    def get_constraint_block(
+        self,
+        threshold: int,
+        watchlist: list,
+        limit: int = 8,
+    ) -> str:
+        """Return a formatted prompt block listing over-used phrases, or '' if none."""
+        phrases = self._active_phrases(threshold, watchlist, limit)
+        if not phrases:
+            return ""
+        joined = ", ".join(f'"{p}"' for p in phrases)
+        return (
+            f"\n\n[PHRASE THROTTLE] Constructions you've already used this stream — "
+            f"do NOT reuse these tonight, find genuinely fresh wording: {joined}."
+        )
+
+    # ── internals ──────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _normalize(text: str) -> str:
+        import re as _re
+        t = text.lower()
+        t = _re.sub(r"[^\w\s'-]", " ", t)   # keep apostrophes and hyphens
+        t = _re.sub(r"\s+", " ", t).strip()
+        return t
+
+    def _rebuild_counts(self) -> None:
+        from collections import Counter
+        counts: Counter = Counter()
+        for resp in self._responses:
+            words = resp.split()
+            for n in range(3, 8):            # 3- to 7-word grams
+                for i in range(len(words) - n + 1):
+                    gram = " ".join(words[i : i + n])
+                    if len(gram) >= 10:      # skip trivial filler grams
+                        counts[gram] += 1
+        self._counts = dict(counts)
+
+    def _active_phrases(
+        self,
+        threshold: int,
+        watchlist: list,
+        limit: int,
+    ) -> list:
+        """Return up to *limit* over-used phrases, logging each new entrant once."""
+        raw: dict = {}
+
+        # Watchlist — substring-match against each response, same threshold
+        for phrase in watchlist:
+            p = self._normalize(phrase)
+            cnt = sum(resp.count(p) for resp in self._responses)
+            if cnt >= threshold:
+                raw[p] = cnt
+
+        # Auto-detected n-grams
+        for gram, cnt in self._counts.items():
+            if cnt >= threshold:
+                raw[gram] = max(raw.get(gram, 0), cnt)
+
+        # Suppress sub-grams: if a phrase is a substring of a longer phrase that is
+        # already in the active set, drop the shorter one. This prevents "three words
+        # and a vibe" from also emitting "three words and", "words and a", etc.
+        longest_first = sorted(raw.keys(), key=len, reverse=True)
+        deduplicated: list = []
+        for gram in longest_first:
+            if not any(gram in accepted for accepted in deduplicated):
+                deduplicated.append(gram)
+        active = {p: raw[p] for p in deduplicated}
+
+        # Log new entrants once (after deduplication so sub-grams are silent)
+        for phrase, cnt in active.items():
+            if phrase not in self._logged:
+                n = cnt + 1   # the NEXT use this would have been
+                suffix = "th"
+                if n % 100 not in (11, 12, 13):
+                    suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+                print(f'   [Phrases] Throttling: "{phrase}" ({n}{suffix} use this session)')
+                self._logged.add(phrase)
+
+        # Sort by frequency descending, cap at limit
+        return [p for p, _ in sorted(active.items(), key=lambda x: -x[1])[:limit]]
 
 
 class _ChatBudgetGovernor:
@@ -393,6 +511,7 @@ class VTubeBot:
         self._chat_age_log: list = []              # per-message ages at response time (rolling, last 200)
         self._yt_auto_search_status: str = "idle"  # idle | searching | connected | not_found
         self.budget_governor = _ChatBudgetGovernor()  # always-on ledger; ordering only when CHAT_BUDGET_ENABLED
+        self.phrase_buffer   = _PhraseThrottleBuffer() # session-scoped catchphrase throttle
 
         # Kira's [CHAT: ...] tool — code-enforced caps on her typing in chat.
         # Layered ON TOP of chat_poster's 60s global transport cooldown.
@@ -1038,6 +1157,18 @@ class VTubeBot:
             try:
                 from kira.memory.cookie_jar import CHAOS_MODE_DIRECTIVE
                 block += "\n\n" + CHAOS_MODE_DIRECTIVE + "\n"
+            except Exception:
+                pass
+        # Phrase throttle — inject over-used constructions as a soft do-not-reuse list.
+        # Only runs when PHRASE_THROTTLE_ENABLED=true and the buffer has surfaced
+        # phrases that hit the threshold. Cost: ~0 tokens when list is empty.
+        if PHRASE_THROTTLE_ENABLED:
+            try:
+                phrase_block = self.phrase_buffer.get_constraint_block(
+                    PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST
+                )
+                if phrase_block:
+                    block += phrase_block
             except Exception:
                 pass
         return block
@@ -4257,6 +4388,7 @@ class VTubeBot:
         # if the response is interrupted mid-playback. The thread stays coherent even
         # when Jonny's voice cuts in and the audio never fully plays out.
         self.conversation_history.append({"role": "assistant", "content": cleaned})
+        self.phrase_buffer.record(cleaned)
         if len(self.conversation_history) > 20:
             self.conversation_history = self.conversation_history[-20:]
         # Fix #2: Guard TTS against voice-interrupt abandonment — vad_loop won't fire
@@ -5971,6 +6103,7 @@ class VTubeBot:
                     f"tts_wait+synth={_tts_wait_synth:.1f}s)"
                 )
             self.conversation_history.append({"role": "assistant", "content": cleaned})
+            self.phrase_buffer.record(cleaned)
             # Called-shot CAPTURE on proactive interjections too (cheap, no LLM).
             self.kira_state.capture_called_shot(cleaned)
             # Push into bot-owned pool unconditionally during streamer mode — works
@@ -6426,6 +6559,9 @@ class VTubeBot:
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
             self._log_session_turn(role="assistant", content=full_response_text, speaker_name="Kira")
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})
+            # Phrase throttle — record every spoken response so n-gram stats stay current
+            if full_response_text:
+                self.phrase_buffer.record(full_response_text)
 
             # Called-shot CAPTURE: cheap heuristic, no LLM. Records a concrete
             # prediction as an open shot for later resolution + payoff.
