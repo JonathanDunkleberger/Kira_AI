@@ -23,10 +23,10 @@
     /*   glass right x_img=688 → screen 1293px → x+w=0.673                  */
     /*   glass top   y_img=50  → y=0.088 (just inside top frame)            */
     /*   sill bottom y_img=375 → y+h=0.657 (wb turns warm at y=382, inset 7) */
-    snowRegion:  { x: 0.327, y: 0.088, w: 0.346, h: 0.569 },
+    snowRegion:  { x: 0.327, y: 0.108, w: 0.346, h: 0.549 },
 
     /* ── Mirror on right wall — reflected night sky (×0.55 opacity, inverted drift) */
-    mirrorRegion:     { x: 0.800, y: 0.070, w: 0.054, h: 0.315 },
+    mirrorRegion:     { x: 0.800, y: 0.090, w: 0.054, h: 0.295 },
     mirrorSnowCount:  15,
 
     /* ── CRT monitor screen — glow + flicker overlay ────────────────── */
@@ -44,6 +44,9 @@
     snowSizeMin:  2,    snowSizeMax:  5,
     snowOpMin:    0.30, snowOpMax:    0.85,
     snowDrift:    0.15,
+    /* ── Occlusion mask thresholds ──────────────────────────────────────── */
+    maskWbThresh: 15,   /* sky is wb<10 (cool); divider/frame is warm (wb>25+) */
+    maskLumMin:   35,   /* exclude very dark frame wood from the sky mask */
 
     /* ── CRT screen flicker ──────────────────────────────────────────── */
     crtBaseGlow: 0.15,

@@ -5,9 +5,9 @@
   Avatar is layered on top by OBS — this source provides background
   ambience only (no banner card).
 
-  Drop scene_kiracam.png into this folder, then re-measure the snow
-  region and light points using the warm-bias pixel scan described in
-  the commit message.  Current values are placeholder estimates.
+  Drop scene_kiracam.jfif is in this folder. CFG regions measured via
+  warm-bias pixel scan on the 1024×572 source image.
+  Avatar is layered on top by OBS (no banner card in this scene).
 -->
 <html lang="en">
 <head>
@@ -17,30 +17,38 @@
   <link rel="stylesheet" href="style.css">
   <script>
   /* ═══════════════════════════════════════════════════════════════════════
-     SCENE CONFIGURATION — edit % values here to tune regions in OBS.
-     All x / y / w / h are fractions of the 1920 × 1080 canvas (0 → 1).
-
-     ⚠  snowRegion, mirrorRegion, and lightPoints are PLACEHOLDER values.
-        Measure them from the actual scene_kiracam.png using the warm-bias
-        canvas scan (R-B < 10 = cool glass, R-B > 20 = warm wall/wood)
-        before going live.
+     SCENE CONFIGURATION — all x/y/w/h are fractions of 1920×1080.
+     Measured from scene_kiracam.jfif (1024×572) via warm-bias pixel scan.
   ═══════════════════════════════════════════════════════════════════════ */
   const CFG = {
 
-    /* -- Window glass region (PLACEHOLDER — re-measure from scene_kiracam.png) */
-    snowRegion:   { x: 0.327, y: 0.088, w: 0.346, h: 0.569 },
+    /* -- Window glass region — measured from scene_kiracam.jfif ---------- */
+    /* Large center window, two panes. Mullion at x≈0.499 blocked by mask.  */
+    /* Top nudged in +2% from measured frame edge (belt-and-suspenders).    */
+    snowRegion:   { x: 0.278, y: 0.070, w: 0.398, h: 0.530 },
 
-    /* -- Mirror reflected-sky (PLACEHOLDER — re-measure if mirror visible) */
-    mirrorRegion:    { x: 0.800, y: 0.070, w: 0.054, h: 0.315 },
-    mirrorSnowCount: 12,
+    /* -- No mirror in this scene (corner has hanging plant + sticky notes) */
+    mirrorRegion:    null,
+    mirrorSnowCount: 0,
 
-    /* -- CRT monitor screen glow (PLACEHOLDER — re-measure from scene) -- */
-    crtRegion:    { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
+    /* -- CRT monitor — right side; green heart glyph at (0.880, 0.611) --- */
+    /* Screen spans approx x=0.820-0.960, y=0.390-0.635                    */
+    crtRegion:    { x: 0.820, y: 0.390, w: 0.140, h: 0.245 },
 
-    /* -- String-light bulb positions [x, y] (PLACEHOLDER) -------------- */
+    /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
+    /* Left strand → center drape over window → right wall strand           */
     lightPoints: [
-      [0.04, 0.09], [0.09, 0.08], [0.15, 0.09], [0.22, 0.10], [0.30, 0.12], [0.40, 0.14],
-      [0.65, 0.09], [0.73, 0.08], [0.81, 0.08], [0.89, 0.09], [0.96, 0.10], [0.97, 0.15], [0.97, 0.20],
+      [0.008, 0.067],  /* far-left corner         */
+      [0.035, 0.113],  /* left wall               */
+      [0.112, 0.176],  /* left wall, lower        */
+      [0.265, 0.098],  /* top of left window pane */
+      [0.365, 0.080],  /* drape over window center*/
+      [0.406, 0.087],  /* center                  */
+      [0.543, 0.140],  /* center-right drape      */
+      [0.635, 0.079],  /* top right side of window*/
+      [0.796, 0.072],  /* right wall top          */
+      [0.867, 0.018],  /* top-right corner        */
+      [0.944, 0.068],  /* far right               */
     ],
 
     /* -- Snow particles ------------------------------------------------- */
@@ -49,6 +57,11 @@
     snowSizeMin:  2,    snowSizeMax:  5,
     snowOpMin:    0.28, snowOpMax:    0.82,
     snowDrift:    0.14,
+
+    /* -- Occlusion mask — warm amber scene; glass is wb~24-65, frame >80 */
+    maskWbThresh: 65,   /* R-B < 65 = glass (cooler than walls/frame) */
+    maskLumMin:   40,   /* exclude very dark frame/mullion pixels */
+    maskLumMax:  120,   /* exclude bright lights from counting as sky */
 
     /* -- CRT screen flicker --------------------------------------------- */
     crtBaseGlow: 0.15, crtAmp: 0.06, crtPeriod: 3200,
@@ -67,7 +80,7 @@
 </head>
 <body>
   <div id="scene">
-    <img class="bg" src="scene_kiracam.png" alt="">
+    <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>

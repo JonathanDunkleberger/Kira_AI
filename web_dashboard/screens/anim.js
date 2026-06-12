@@ -34,6 +34,65 @@
      They are NEVER rendered below the region bottom. */
   const FADE_TAIL = 0.09;
 
+  /* ── Occlusion masks ───────────────────────────────────────────────────── */
+  /* Built from the bg image once at init. 4× downsampled binary lookup:     */
+  /*   1 = sky/glass (draw snow), 0 = occluder (skip — flake keeps falling). */
+  let _snowMask   = null;
+  let _mirrorMask = null;
+  const _MASK_DS  = 4;   /* downsample factor */
+
+  function _buildRegionMask(bgImg, region) {
+    if (!bgImg || !bgImg.complete || !bgImg.naturalWidth || !region) return null;
+    const imgW = bgImg.naturalWidth, imgH = bgImg.naturalHeight;
+    const scale  = Math.max(W / imgW, H / imgH);   /* object-fit: cover */
+    const offX   = (W - imgW * scale) / 2;
+    const offY   = (H - imgH * scale) / 2;
+    const rx = region.x * W, ry = region.y * H;
+    const rw = region.w * W, rh = region.h * H;
+    const mw = Math.max(1, Math.ceil(rw / _MASK_DS));
+    const mh = Math.max(1, Math.ceil(rh / _MASK_DS));
+    const oc  = document.createElement('canvas');
+    oc.width  = mw; oc.height = mh;
+    const oc2 = oc.getContext('2d');
+    oc2.drawImage(bgImg,
+      Math.max(0, (rx - offX) / scale), Math.max(0, (ry - offY) / scale),
+      rw / scale, rh / scale,
+      0, 0, mw, mh);
+    const pxData = oc2.getImageData(0, 0, mw, mh).data;
+    const mask   = new Uint8Array(mw * mh);
+    const wbT    = cfg.maskWbThresh !== undefined ? cfg.maskWbThresh : 20;
+    const lumLo  = cfg.maskLumMin   !== undefined ? cfg.maskLumMin   : 35;
+    const lumHi  = cfg.maskLumMax   !== undefined ? cfg.maskLumMax   : 255;
+    for (let mi = 0; mi < mw * mh; mi++) {
+      const rr = pxData[mi*4], gg = pxData[mi*4+1], bb = pxData[mi*4+2];
+      const lum = (rr*299 + gg*587 + bb*114) / 1000;
+      const wb  = rr - bb;
+      mask[mi]  = (wb < wbT && lum > lumLo && lum < lumHi) ? 1 : 0;
+    }
+    return { data: mask, w: mw, h: mh, rx, ry };
+  }
+
+  function _maskAllows(mask, fx, fy) {
+    if (!mask) return true;
+    const mx = Math.floor((fx - mask.rx) / _MASK_DS);
+    const my = Math.floor((fy - mask.ry) / _MASK_DS);
+    if (mx < 0 || mx >= mask.w || my < 0 || my >= mask.h) return true;
+    return mask.data[my * mask.w + mx] === 1;
+  }
+
+  function _initMasks() {
+    const bgEl = document.querySelector('img.bg');
+    if (!bgEl) return;
+    function build() {
+      _snowMask   = _buildRegionMask(bgEl, cfg.snowRegion);
+      _mirrorMask = cfg.mirrorRegion
+                    ? _buildRegionMask(bgEl, cfg.mirrorRegion)
+                    : null;
+    }
+    if (bgEl.complete && bgEl.naturalWidth > 0) { build(); }
+    else { bgEl.addEventListener('load', build, { once: true }); }
+  }
+
   function _spawnInRegion(r, scatter, opScale, sizeOff) {
     const x0 = r.x * W, y0 = r.y * H, rw = r.w * W, rh = r.h * H;
     const sMin = Math.max(1, cfg.snowSizeMin + (sizeOff || 0));
@@ -66,8 +125,9 @@
     for (let i = 0; i < n; i++) mirrorFlakes.push(spawnMirrorFlake(true));
   }
 
-  /* Draw one pool of flakes. driftSign = +1 for main, -1 for mirror. */
-  function _stepFlakePool(pool, r, t, driftSign, spawnFn) {
+  /* Draw one pool of flakes. driftSign = +1 for main, -1 for mirror.
+   * mask (optional): occlusion lookup — null = no masking. */
+  function _stepFlakePool(pool, r, t, driftSign, spawnFn, mask) {
     const x0 = r.x * W, y0 = r.y * H, rw = r.w * W, rh = r.h * H;
     const fadeStart = y0 + rh * (1 - FADE_TAIL);
     for (const f of pool) {
@@ -82,6 +142,9 @@
       }
       /* Clamp horizontal drift to region */
       f.x = Math.max(x0 + f.rad, Math.min(x0 + rw - f.rad, f.x));
+      /* Occlusion mask: skip draw if this pixel is a frame / divider / plant.
+       * The flake keeps falling and reappears below the occluder naturally. */
+      if (!_maskAllows(mask, f.x, f.y)) continue;
       /* Fade opacity in the bottom tail so flakes dissolve before the sill */
       let alpha = f.op;
       if (f.y > fadeStart) {
@@ -97,9 +160,9 @@
 
   function stepSnow(t) {
     ctx.clearRect(0, 0, W, H);
-    _stepFlakePool(flakes, cfg.snowRegion, t, +1, spawnFlake);
+    _stepFlakePool(flakes, cfg.snowRegion, t, +1, spawnFlake, _snowMask);
     if (cfg.mirrorRegion && mirrorFlakes.length > 0) {
-      _stepFlakePool(mirrorFlakes, cfg.mirrorRegion, t, -1, spawnMirrorFlake);
+      _stepFlakePool(mirrorFlakes, cfg.mirrorRegion, t, -1, spawnMirrorFlake, _mirrorMask);
     }
   }
 
@@ -194,6 +257,7 @@
     initCRT();
     initLights();
     initBanner();
+    _initMasks();
     if (typeof window.pageInit === 'function') window.pageInit();
     _maybeConnectScreenWs();
     requestAnimationFrame(loop);
