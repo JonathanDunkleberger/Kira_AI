@@ -26,21 +26,30 @@
   let cfg;
 
   /* ── Snow ──────────────────────────────────────────────────────────────── */
-  const flakes = [];
+  const flakes       = [];
+  const mirrorFlakes = [];
   let snowCanvas, ctx;
 
-  function spawnFlake(scatter) {
-    const r  = cfg.snowRegion;
+  /* fadeTail: fraction of region height where flakes fade to transparent.
+     They are NEVER rendered below the region bottom. */
+  const FADE_TAIL = 0.09;
+
+  function _spawnInRegion(r, scatter, opScale, sizeOff) {
     const x0 = r.x * W, y0 = r.y * H, rw = r.w * W, rh = r.h * H;
+    const sMin = Math.max(1, cfg.snowSizeMin + (sizeOff || 0));
+    const sMax = Math.max(sMin, cfg.snowSizeMax + (sizeOff || 0));
     return {
       x:     x0 + Math.random() * rw,
-      y:     scatter ? y0 + Math.random() * rh : y0 - 8,
-      rad:   cfg.snowSizeMin + Math.random() * (cfg.snowSizeMax - cfg.snowSizeMin),
+      y:     scatter ? y0 + Math.random() * rh : y0 - 6,
+      rad:   sMin + Math.random() * (sMax - sMin),
       vy:    cfg.snowSpeedMin + Math.random() * (cfg.snowSpeedMax - cfg.snowSpeedMin),
-      op:    cfg.snowOpMin + Math.random() * (cfg.snowOpMax - cfg.snowOpMin),
+      op:    (cfg.snowOpMin + Math.random() * (cfg.snowOpMax - cfg.snowOpMin)) * (opScale || 1),
       phase: Math.random() * Math.PI * 2,
     };
   }
+
+  function spawnFlake(scatter)       { return _spawnInRegion(cfg.snowRegion,   scatter, 1,    0);   }
+  function spawnMirrorFlake(scatter) { return _spawnInRegion(cfg.mirrorRegion, scatter, 0.55, -1);  }
 
   function initSnow() {
     snowCanvas = document.getElementById('snow-canvas');
@@ -49,24 +58,48 @@
     for (let i = 0; i < cfg.snowCount; i++) flakes.push(spawnFlake(true));
   }
 
-  function stepSnow(t) {
-    const r  = cfg.snowRegion;
+  function initMirrorSnow() {
+    if (!cfg.mirrorRegion) return;
+    mirrorFlakes.length = 0;
+    const n = cfg.mirrorSnowCount != null ? cfg.mirrorSnowCount
+                                           : Math.round(cfg.snowCount * 0.22);
+    for (let i = 0; i < n; i++) mirrorFlakes.push(spawnMirrorFlake(true));
+  }
+
+  /* Draw one pool of flakes. driftSign = +1 for main, -1 for mirror. */
+  function _stepFlakePool(pool, r, t, driftSign, spawnFn) {
     const x0 = r.x * W, y0 = r.y * H, rw = r.w * W, rh = r.h * H;
-    ctx.clearRect(0, 0, W, H);
-    for (const f of flakes) {
+    const fadeStart = y0 + rh * (1 - FADE_TAIL);
+    for (const f of pool) {
       f.y += f.vy;
-      f.x += cfg.snowDrift * Math.sin(t * 0.00055 + f.phase);
-      if (f.y > y0 + rh + f.rad) {
-        const next = spawnFlake(false);
+      f.x += driftSign * cfg.snowDrift * Math.sin(t * 0.00055 + f.phase);
+      /* Hard wrap at region bottom — never render past it */
+      if (f.y >= y0 + rh) {
+        const next = spawnFn(false);
         next.x = x0 + Math.random() * rw;
         Object.assign(f, next);
+        continue;
       }
-      /* Clamp horizontal drift to window region */
+      /* Clamp horizontal drift to region */
       f.x = Math.max(x0 + f.rad, Math.min(x0 + rw - f.rad, f.x));
+      /* Fade opacity in the bottom tail so flakes dissolve before the sill */
+      let alpha = f.op;
+      if (f.y > fadeStart) {
+        alpha *= Math.max(0, (y0 + rh - f.y) / (rh * FADE_TAIL));
+      }
+      if (alpha < 0.01) continue;
       ctx.beginPath();
       ctx.arc(f.x, f.y, f.rad, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,' + f.op.toFixed(2) + ')';
+      ctx.fillStyle = 'rgba(255,255,255,' + alpha.toFixed(2) + ')';
       ctx.fill();
+    }
+  }
+
+  function stepSnow(t) {
+    ctx.clearRect(0, 0, W, H);
+    _stepFlakePool(flakes, cfg.snowRegion, t, +1, spawnFlake);
+    if (cfg.mirrorRegion && mirrorFlakes.length > 0) {
+      _stepFlakePool(mirrorFlakes, cfg.mirrorRegion, t, -1, spawnMirrorFlake);
     }
   }
 
@@ -155,6 +188,7 @@
 
   function run() {
     initSnow();
+    initMirrorSnow();
     initCRT();
     initLights();
     initBanner();

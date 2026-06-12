@@ -22,8 +22,16 @@
     /*   glass left  x_img=336 → screen 627px  → x=0.327                    */
     /*   glass right x_img=688 → screen 1293px → x+w=0.673                  */
     /*   glass top   y_img=50  → y=0.088 (just inside top frame)            */
-    /*   sill bottom y_img=430 → y+h=0.753 (above interior windowsill)       */
-    snowRegion:  { x: 0.327, y: 0.088, w: 0.346, h: 0.665 },
+    /*   sill bottom y_img=375 → y+h=0.657 (wb turns warm at y=382, inset 7) */
+    snowRegion:  { x: 0.327, y: 0.088, w: 0.346, h: 0.569 },
+
+    /* ── Mirror on right wall — reflected night sky (×0.55 opacity, inverted drift) */
+    /* Measured bright-cool bbox: x_img=816–872, y_img=40–220              */
+    /*   left  816→1920: (816×1.891-8.45)/1920=0.800                       */
+    /*   right 872→1920: (872×1.891-8.45)/1920=0.854, w=0.054             */
+    /*   top   40/571×1.891/1080=0.070  bot 220/571×1.891/1080=0.385 h=0.315 */
+    mirrorRegion:     { x: 0.800, y: 0.070, w: 0.054, h: 0.315 },
+    mirrorSnowCount:  15,   /* ~25% of main snowCount */
 
     /* ── CRT monitor screen — glow + flicker overlay ────────────────── */
     crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
