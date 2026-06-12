@@ -66,6 +66,16 @@ _PIECE_VALUES = {
 # Speeds we accept. ultraBullet is too fast for a real movetime budget.
 _ACCEPTED_SPEEDS = {"bullet", "blitz", "rapid", "classical", "correspondence"}
 
+# make_move retry: backoff seconds for attempts 1-4 after a transient failure.
+_MOVE_RETRY_BACKOFFS = (0.5, 1.0, 2.0, 4.0)
+
+# Error substrings that identify a transient network / server-side failure.
+_MOVE_TRANSIENT_KEYWORDS = (
+    "RemoteDisconnected", "ConnectionError", "ConnectionReset",
+    "ConnectionAbortedError", "TimeoutError", "timeout",
+    "Read timed out", "503", "502", "504", "500",
+)
+
 # Fixed Phase-1 in-game chat lines (no dynamic chat yet).
 _GREETING = "gl hf! heads up — I'm an AI VTuber and this game is being streamed live."
 _FAREWELL = "gg, thanks for the game!"
@@ -112,6 +122,9 @@ class ChessAgent:
         # State.
         self.enabled: bool = False
         self.is_running: bool = False
+        # Set when the engine process fails to launch — chip shows ENGINE FAILED,
+        # challenges are auto-declined, event stream is NOT opened.
+        self._engine_failed: bool = False
         # Master switch: Jonny must explicitly open challenges each session.
         # DEFAULT OFF — never persisted. A fresh boot always starts closed so
         # Kira never silently plays games Jonny hasn't sanctioned.
@@ -145,6 +158,9 @@ class ChessAgent:
         self._opp_rating = None
         self._move_count_seen: int = 0
         self._greeted: bool = False
+        # Game IDs we are resuming after a restart — suppresses re-greeting
+        # and swaps the voice-line from "game started" to "resumed".
+        self._resuming_games: set = set()
 
         # Session counters (dashboard / logging).
         self._session_start_ts: float = 0.0
@@ -154,6 +170,12 @@ class ChessAgent:
 
         # Last-game result lingers on the chip until next game.
         self._last_result_str: str = ""   # e.g. "won vs MagnusFan1942"
+
+        # Move-send state — guards against dropped HTTP calls bleeding the clock.
+        # _move_pending_uci is set when we submit a move and cleared when the
+        # game-state stream echoes it back, confirming it actually landed.
+        self._move_pending_uci: str = ""  # UCI of the sent-but-unconfirmed move
+        self._conn_lost: bool = False     # True when all send retries exhausted
 
         # Reaction callback (set by bot wiring). Signature: on_react(summary, *, bypass).
         self.on_react = None
@@ -198,6 +220,16 @@ class ChessAgent:
             return
 
         # Open the engine (Elo-capped, single thread, CPU).
+        # Clamp Elo to Stockfish's legal UCI_Elo range before configuring.
+        _SF_ELO_MIN, _SF_ELO_MAX = 1320, 3190
+        if not (_SF_ELO_MIN <= self.kira_elo <= _SF_ELO_MAX):
+            _clamped = max(_SF_ELO_MIN, min(_SF_ELO_MAX, self.kira_elo))
+            print(
+                f"   [Chess] WARNING: CHESS_KIRA_ELO={self.kira_elo} is outside "
+                f"Stockfish's legal UCI_Elo range ({_SF_ELO_MIN}–{_SF_ELO_MAX}). "
+                f"Clamping to {_clamped}."
+            )
+            self.kira_elo = _clamped
         try:
             self._engine = chess.engine.SimpleEngine.popen_uci(self.engine_path)
             self._engine.configure({
@@ -210,18 +242,28 @@ class ChessAgent:
                 f"movetime {self.movetime_ms}ms, 1 thread, CPU)."
             )
         except Exception as e:
-            print(f"   [Chess] Engine launch failed ('{self.engine_path}'): {e}")
+            print(f"   [Chess] ENGINE LAUNCH FAILED ('{self.engine_path}'): {e}")
             try:
                 if self._engine:
                     self._engine.quit()
             except Exception:
                 pass
             self._engine = None
+            self._engine_failed = True
+            self.is_running = True   # so chip + /state reflect the failure
+            self._session_start_ts = time.time()
+            # Fire a voice-line so Kira acknowledges the failure on stream.
+            asyncio.ensure_future(self._fire_react(
+                "My chess brain didn’t boot, one second.",
+                bypass=True,
+            ))
             return
 
         self.is_running = True
         self._session_start_ts = time.time()
         self._event_task = asyncio.ensure_future(self._event_loop())
+        # Rejoin any game that was in-progress when we last restarted.
+        asyncio.ensure_future(self._resume_ongoing_games())
         print("   [Chess] Started — listening for challenges and games.")
 
     def stop(self):
@@ -230,6 +272,9 @@ class ChessAgent:
         was_running = self.is_running
         self.is_running = False
         self.enabled = False
+        self._engine_failed = False   # reset so a re-arm after fix can retry
+        self._move_pending_uci = ""
+        self._conn_lost = False
         for t in (self._event_task, self._game_task):
             if t and not t.done():
                 t.cancel()
@@ -262,6 +307,7 @@ class ChessAgent:
     def get_status_str(self) -> str:
         """Chip text for the dashboard status strip.
 
+        ♟ ENGINE FAILED      — engine process failed to start
         ♟ CLOSED            — running but not accepting challenges
         ♟ OPEN              — accepting, no active game
         ♟ vs Name (R) · M  — in game (spectate URL in get_spectate_url)
@@ -269,6 +315,11 @@ class ChessAgent:
         """
         if not self.is_running:
             return "\u265f CLOSED"
+        if self._engine_failed:
+            return "\u265f ENGINE FAILED"
+        if self._conn_lost:
+            opp = self._opp_name or "?"
+            return f"\u265f CONNECTION LOST \u2014 game vs {opp}"
         if self._game_id and self._board is not None:
             opp = self._opp_name or "?"
             if self._opp_rating:
@@ -452,6 +503,16 @@ class ChessAgent:
 
         # Master switch: default OFF each boot. While closed, decline politely
         # and log the demand so Jonny can see it even when parked.
+        if self._engine_failed:
+            print(f"   [Chess] Challenge from {challenger} DECLINED (engine failed) "
+                  f"— {speed} {'rated' if rated else 'casual'} {variant}.")
+            await self._decline(cid, "generic")
+            await self._send_chat_room(
+                cid,
+                "Chess engine failed to start — I can't play right now, sorry!"
+            )
+            return
+
         if not self.accepting_challenges:
             print(f"   [Chess] Challenge from {challenger} DECLINED (closed) — "
                   f"{speed} {'rated' if rated else 'casual'} {variant}.")
@@ -502,16 +563,73 @@ class ChessAgent:
 
     # ── Game handling ──────────────────────────────────────────────────────────
 
+    async def _resume_ongoing_games(self):
+        """On boot, query Lichess for any games this account is currently playing
+        and rejoin them. Rebuilds the board from the full move list and continues
+        playing. A bot restart mid-game becomes a hiccup, not a forfeit.
+
+        Phase 1 cap: only resumes the first standard game found; additional
+        in-progress games are logged and skipped (one active game at a time)."""
+        # Short delay so the event stream is up before we open a game stream.
+        await asyncio.sleep(2.0)
+        if not self.is_running or self._client is None:
+            return
+        try:
+            ongoing = await self._serialized_call(
+                self._client.games.get_ongoing,
+                count=5,
+                label="get_ongoing",
+            )
+        except Exception as e:
+            print(f"   [Chess] Resume check failed — could not fetch ongoing games: {e}")
+            return
+
+        if not ongoing:
+            return  # Nothing to resume.
+
+        resumed = 0
+        for game in (ongoing or []):
+            gid = game.get("gameId") or (game.get("fullId") or "")[:8]
+            if not gid:
+                continue
+            variant = (game.get("variant") or {}).get("key", "standard")
+            if variant != "standard":
+                print(f"   [Chess] Skipping non-standard ongoing game {gid} ({variant}).")
+                continue
+            if resumed > 0:
+                # Phase 1: one active game at a time.
+                print(f"   [Chess] Additional in-progress game {gid} skipped (one-game Phase 1 cap).")
+                continue
+            opp_info = game.get("opponent") or {}
+            opp_name = (
+                f"Stockfish L{opp_info['aiLevel']}" if opp_info.get("aiLevel") is not None
+                else opp_info.get("username") or "?"
+            )
+            print(f"   [Chess] Found in-progress game {gid} vs {opp_name} — scheduling resume.")
+            self._resuming_games.add(gid)
+            await self._handle_game_start(gid)
+            resumed += 1
+
     async def _handle_game_start(self, game_id: str):
         """Start a game-state consumer for game_id. Phase 1 plays one game at a
         time — if one is already live, log and ignore the new start."""
         if self._game_task and not self._game_task.done():
-            print(f"   [Chess] Already in a game; ignoring gameStart {game_id}.")
+            if game_id == self._game_id:
+                # Stream duplicate for a game we already resumed — expected.
+                print(f"   [Chess] Stream duplicate for active game {game_id} "
+                      f"(normal after resume) — already running.")
+            else:
+                # A genuinely new game while one is in progress (Phase 1 cap).
+                print(f"   [Chess] Already in game {self._game_id}; ignoring "
+                      f"new gameStart {game_id} (Phase 1 one-game cap).")
             return
         self._game_id = game_id
-        self._greeted = False
+        # For resumed games skip the greeting (already sent it before restart).
+        self._greeted = game_id in self._resuming_games
         self._move_count_seen = 0
         self._last_eval_cp = None
+        self._move_pending_uci = ""
+        self._conn_lost = False
         self._game_task = asyncio.ensure_future(self._play_game(game_id))
 
     async def _play_game(self, game_id: str):
@@ -526,20 +644,33 @@ class ChessAgent:
                 utype = upd.get("type")
                 if utype == "gameFull":
                     self._ingest_game_full(upd)
-                    # Voice-line: announce the game to stream + Jonny BEFORE
-                    # any move. Same bypass path as game-end so it always fires.
                     _opp = self._opp_name or "someone"
                     _rating_str = f" ({self._opp_rating})" if self._opp_rating else ""
-                    _url = self.get_spectate_url()
-                    print(
-                        f"   [Chess] GAME STARTED vs {_opp}{_rating_str} — "
-                        f"spectate: {_url}"
-                    )
-                    await self._fire_react(
-                        f"New game just started against {_opp}{_rating_str}. "
-                        f"Challenger accepted. Let\u2019s go.",
-                        bypass=True,
-                    )
+                    _state_tmp = upd.get("state", {})
+                    _move_n = len((_state_tmp.get("moves") or "").split())
+                    if game_id in self._resuming_games:
+                        self._resuming_games.discard(game_id)
+                        print(
+                            f"   [Chess] Resumed in-progress game vs "
+                            f"{_opp}{_rating_str} (move {_move_n})."
+                        )
+                        await self._fire_react(
+                            f"Bot restarted mid-game — resuming against "
+                            f"{_opp}{_rating_str} at move {_move_n}. "
+                            f"Picking up right where we left off.",
+                            bypass=True,
+                        )
+                    else:
+                        _url = self.get_spectate_url()
+                        print(
+                            f"   [Chess] GAME STARTED vs {_opp}{_rating_str} — "
+                            f"spectate: {_url}"
+                        )
+                        await self._fire_react(
+                            f"New game just started against {_opp}{_rating_str}. "
+                            f"Challenger accepted. Let\u2019s go.",
+                            bypass=True,
+                        )
                     state = upd.get("state", {})
                 elif utype == "gameState":
                     state = upd
@@ -562,6 +693,8 @@ class ChessAgent:
         finally:
             self._game_id = ""
             self._board = None
+            self._move_pending_uci = ""
+            self._conn_lost = False
 
     def _ingest_game_full(self, full: dict):
         """Pull static game info from the gameFull frame: our color, opponent,
@@ -624,6 +757,17 @@ class ChessAgent:
         self._btime = state.get("btime")
         moves_str = state.get("moves", "")
 
+        # Stream-confirmation guard: if we have a pending move, check whether
+        # the stream has now echoed it. Check the last two entries so we catch
+        # the case where the opponent replied before this state was processed.
+        if self._move_pending_uci:
+            uci_list = moves_str.split() if moves_str else []
+            if self._move_pending_uci in uci_list[-2:]:
+                self._move_pending_uci = ""
+                if self._conn_lost:
+                    self._conn_lost = False
+                    print("   [Chess] Connection restored — move confirmed by stream.")
+
         board, last_san = self._build_board(moves_str)
         self._board = board
         self._last_move_san = last_san
@@ -654,6 +798,93 @@ class ChessAgent:
 
         return False
 
+    async def _send_move_with_retry(self, game_id: str, uci: str) -> bool:
+        """Send a move over HTTP with transient-error retry.
+        Returns True if any attempt succeeds; False when all are exhausted."""
+        _client_refreshed = False
+        for attempt, backoff in enumerate(_MOVE_RETRY_BACKOFFS):
+            is_last = (attempt == len(_MOVE_RETRY_BACKOFFS) - 1)
+            try:
+                await self._serialized_call(
+                    self._client.bots.make_move, game_id, uci,
+                    label=f"make_move({uci}) #{attempt + 1}",
+                )
+                return True
+            except Exception as e:
+                err_str = f"{type(e).__name__}: {e}"
+                is_transient = (
+                    any(kw in err_str for kw in _MOVE_TRANSIENT_KEYWORDS)
+                    or isinstance(e, (ConnectionError, TimeoutError, OSError))
+                )
+                if is_transient and not is_last:
+                    print(
+                        f"   [Chess] make_move transient error "
+                        f"(attempt {attempt + 1}/{len(_MOVE_RETRY_BACKOFFS)},"
+                        f" retry in {backoff:.1f}s): {err_str}"
+                    )
+                    # Recreate the berserk HTTP session on first disconnect.
+                    if "RemoteDisconnected" in err_str and not _client_refreshed:
+                        try:
+                            session = berserk.TokenSession(self.token)
+                            self._client = berserk.Client(session=session)
+                            _client_refreshed = True
+                            print("   [Chess] Berserk client recreated after RemoteDisconnected.")
+                        except Exception as ce:
+                            print(f"   [Chess] Client recreate failed: {ce}")
+                    await asyncio.sleep(backoff)
+                else:
+                    print(
+                        f"   [Chess] make_move failed "
+                        f"(attempt {attempt + 1}/{len(_MOVE_RETRY_BACKOFFS)}, "
+                        f"{'all exhausted' if is_last else 'non-transient'}): {err_str}"
+                    )
+                    return False
+        return False  # unreachable, satisfies type checker
+
+    async def _retry_conn_lost_move(self, game_id: str, uci: str,
+                                    san: str, why: str):
+        """Background: keep trying to resend a dropped move every 5 s until
+        the game-state stream confirms it landed, or the game ends.
+        Recreates the berserk client before each attempt."""
+        print(f"   [Chess] Conn-lost background retry started for {uci} ({san}).")
+        while self.is_running and self._game_id == game_id:
+            await asyncio.sleep(5.0)
+            if not self.is_running or self._game_id != game_id:
+                print(f"   [Chess] Conn-lost retry for {uci} aborted "
+                      f"(game ended or agent stopped).")
+                break
+            if not self._move_pending_uci:
+                # Stream confirmed the move while we slept.
+                print(f"   [Chess] Conn-lost retry: {uci} already confirmed by stream.")
+                self._conn_lost = False
+                break
+            try:
+                session = berserk.TokenSession(self.token)
+                self._client = berserk.Client(session=session)
+            except Exception as e:
+                print(f"   [Chess] Conn-lost retry: client recreate failed: {e}")
+                continue
+            try:
+                await self._serialized_call(
+                    self._client.bots.make_move, game_id, uci,
+                    label=f"conn_lost_retry({uci})",
+                )
+                print(
+                    f"   [Chess] CONNECTION RESTORED \u2014 move {uci} ({san}) resent. "
+                    f"Waiting for stream confirmation."
+                )
+                # Leave _move_pending_uci / _conn_lost for the stream to clear.
+                await self._fire_react(
+                    f"Back in it \u2014 {san} is on the board. {self._eval_plain}.",
+                    bypass=True,
+                )
+                break  # stream will echo and _process_state will clear state
+            except Exception as e:
+                print(
+                    f"   [Chess] Conn-lost retry attempt failed for {uci}: "
+                    f"{type(e).__name__}: {e}"
+                )
+
     async def _make_our_move(self, game_id: str, board):
         """Pick a move with the Elo-capped engine and submit it via the
         serialized sender. Fires a throttled react with a one-line 'why'."""
@@ -674,13 +905,24 @@ class ChessAgent:
             print(f"   [Chess] Engine move failed: {e}")
             return
 
-        try:
-            await self._serialized_call(
-                self._client.bots.make_move, game_id, move.uci(),
-                label="make_move",
+        uci = move.uci()
+        self._move_pending_uci = uci   # held until stream echoes it back
+        ok = await self._send_move_with_retry(game_id, uci)
+        if not ok:
+            opp = self._opp_name or "opponent"
+            self._conn_lost = True
+            print(
+                f"   [Chess] !! CONNECTION LOST !! All {len(_MOVE_RETRY_BACKOFFS)} "
+                f"move-send attempts failed for {uci} ({san}) vs {opp}. "
+                f"Clock is running. Starting background retry."
             )
-        except Exception as e:
-            print(f"   [Chess] make_move failed ({move.uci()}): {e}")
+            await self._fire_react(
+                "my connection to the board just dropped",
+                bypass=True,
+            )
+            asyncio.ensure_future(
+                self._retry_conn_lost_move(game_id, uci, san, why)
+            )
             return
 
         print(f"   [Chess] Kira played {san} ({why}). {self._eval_plain}.")

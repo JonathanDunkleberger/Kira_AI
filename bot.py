@@ -1682,10 +1682,24 @@ class VTubeBot:
             return
         # No double-fire with a boredom interjection.
         if self._active_turn_lock.locked():
+            # Build the prompt first so the buffer entry is complete.
+            ca_buf = self.chess_agent
+            _bb_buf = ca_buf.get_board_block() if (ca_buf and ca_buf.is_running) else ""
+            _prompt_buf = (
+                self._CHESS_CHARACTER_RULES
+                + "\n\n"
+                + (f"{_bb_buf}\n\n" if _bb_buf else "")
+                + "WHAT JUST HAPPENED IN YOUR GAME:\n"
+                f'"{summary}"\n\n'
+                "React to THAT in ONE short line, in your voice \u2014 a plan, a threat, a "
+                "read on the position, a quip, or trash talk. Not a recap, not a move "
+                "list, no numbers, no engine talk. If nothing genuinely grabs you, "
+                "reply with exactly: [SILENCE]"
+            )
             self._pending_interjections.append({
-                "prompt": prompt,
+                "prompt": _prompt_buf,
                 "memory_query": "chess game",
-                "scene_override": board_block or summary,
+                "scene_override": _bb_buf or summary,
                 "queued_at": time.time(),
             })
             return
@@ -1709,10 +1723,13 @@ class VTubeBot:
         async with self._active_turn_lock:
             async with self.processing_lock:
                 print(f"   [Chess] on_react fired (bypass={bypass}): {summary[:70]}")
+                # Chess events stamp their OWN firing time as content_mid_ts so
+                # [LAG] reads event→speak, not last-ambient-sense→speak.
                 await self._execute_interjection(
                     prompt,
                     memory_query="chess game",
                     scene_override=board_block or summary,
+                    chess_event_ts=time.time(),
                 )
                 self.silence_stage = 0
                 self.last_interaction_time = time.time()
@@ -3324,9 +3341,14 @@ class VTubeBot:
             return
 
         # Stop-word: abort current speech + flush pending P1 interjections immediately.
-        # Chat buffer is intentionally NOT cleared — it resumes after the stop.
-        _STOP_WORDS = frozenset({"shut up", "stop", "hold on", "be quiet", "quiet", "pause"})
-        if any(sw in user_text.lower() for sw in _STOP_WORDS):
+        # Narrowed to name-addressed or unambiguous multi-word forms — bare "stop" /
+        # "wait" alone don't match (excited banter like "please stop this" was triggering).
+        # Chat buffer intentionally NOT cleared; it resumes after the stop.
+        _STOP_PATTERNS = (
+            "kira stop", "kira shut up", "kira be quiet", "kira quiet",
+            "shut up", "hold on", "wait wait",
+        )
+        if any(p in user_text.lower() for p in _STOP_PATTERNS):
             _n_flushed = len(self._pending_interjections)
             self._pending_interjections.clear()
             self.interruption_event.set()
@@ -5554,13 +5576,16 @@ class VTubeBot:
                 )
             break  # one per drain; _arbiter_interjection calls us again if more pending
 
-    async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = ""):
+    async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = "",
+                                    chess_event_ts: float = 0.0):
         """Runs a proactive interjection. Routes through Claude Opus when available —
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not.
 
         scene_override: when provided (e.g. the Media Watch episode log), it is used as
         Kira's scene perception and the vision_agent fresh-capture + blindness/stale
-        directive are skipped — the override IS her sight for this reaction."""
+        directive are skipped — the override IS her sight for this reaction.
+        chess_event_ts: when non-zero, overrides _content_mid_at_decision so [LAG]
+        measures event→speak rather than last-ambient-sense→speak."""
         if self.is_muted():
             return
         _t0_total = time.time()
@@ -5596,6 +5621,10 @@ class VTubeBot:
             _cands = [c for c in _cands if c]
             if _cands:
                 _content_mid_at_decision = max(_cands)
+        # Chess events carry their own timestamp (the instant the event fired),
+        # overriding the ambient-sense heuristic so [LAG] reads event→speak.
+        if chess_event_ts:
+            _content_mid_at_decision = chess_event_ts
         # Bug1-fix: on-demand fresh capture at the moment we decide to speak.
         # Skipped when _under_load=True (GPU saturated) — fall back to heartbeat
         # cache so we stop adding API pressure exactly when the card is drowning.
