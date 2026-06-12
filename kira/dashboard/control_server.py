@@ -101,6 +101,13 @@ def state_snapshot(bot: "VTubeBot") -> dict:
 
     now = time.time()
 
+    # ── Speaking + chat recency ───────────────────────────────────────────────
+    is_speaking = _get(lambda: bool(bot.ai_core.is_speaking), False)
+    _ts_list    = _get(lambda: bot.chat_msg_timestamps, [])
+    since_last_chat_msg = _get(
+        lambda: int(now - max(_ts_list)) if _ts_list else None, None
+    )
+
     # ── Emotion ───────────────────────────────────────────────────────────────
     emotion_name = _get(lambda: bot.current_emotion.name, "HAPPY")
     emotion_color = _EMOTION_COLORS.get(emotion_name, T.TEXT_PRIMARY)
@@ -334,6 +341,11 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "session_cost_usd": _get(lambda: (
             __import__("kira.brain.cost_tracker", fromlist=["cost_tracker"]).cost_tracker.session_cost_usd()
         ), 0.0),
+        # Speaking state + chat recency (used by kira_cam CRT display)
+        "is_speaking":       is_speaking,
+        "since_last_chat_msg": since_last_chat_msg,
+        # Ambient audio state
+        "ambience":          dict(_ambience_state),
         # Server timestamp for the client
         "ts": round(now, 2),
     }
@@ -384,6 +396,10 @@ _chat_ws_manager = _WSManager()
 
 # Overlay events relay — card_show/card_hide/banner_show/banner_hide/overlay_vis
 _overlay_ws_manager = _WSManager()
+
+# Ambient audio state (server-side authoritative copy).
+# file: basename of file in web_dashboard/screens/ambience/, or "" for off.
+_ambience_state: dict = {"file": "", "volume": 0.06}
 
 # Overlay visibility state (server-side authoritative copy).
 # False = hidden (fade); True = visible. Banner/spectate default AUTO (True = event-driven).
@@ -531,6 +547,22 @@ async def dashboard_ui():
 async def get_state():
     """Full snapshot, one-shot (for initial page load)."""
     return JSONResponse(content=state_snapshot(_bot()))
+
+
+@app.get("/screens/ambience/list")
+async def list_ambience_files():
+    """List audio files available in web_dashboard/screens/ambience/.
+    Returns {files: ["name.mp3", ...]} sorted alphabetically."""
+    import pathlib
+    amb_dir = pathlib.Path("web_dashboard/screens/ambience")
+    exts    = {".mp3", ".ogg", ".wav", ".flac"}
+    if not amb_dir.is_dir():
+        return JSONResponse(content={"files": []})
+    files = sorted(
+        p.name for p in amb_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in exts
+    )
+    return JSONResponse(content={"files": files})
 
 
 @app.websocket("/ws")
@@ -1145,6 +1177,18 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             {"type": "overlay_vis", **_overlay_vis}
         ))
         return _ok(overlay_vis=dict(_overlay_vis))
+
+    # ── Ambience control ──────────────────────────────────────────────────────
+    if action == "set_ambience":
+        file   = str(getattr(body, "file",   "") or "").strip()
+        volume = getattr(body, "volume", None)
+        _ambience_state["file"] = file
+        if volume is not None:
+            try:
+                _ambience_state["volume"] = max(0.0, min(1.0, float(volume)))
+            except (TypeError, ValueError):
+                pass
+        return _ok(ambience=dict(_ambience_state))
 
     # ── Unknown action ────────────────────────────────────────────────────────
     return JSONResponse(

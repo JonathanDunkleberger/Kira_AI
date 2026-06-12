@@ -8,6 +8,21 @@
   Drop scene_kiracam.jfif is in this folder. CFG regions measured via
   warm-bias pixel scan on the 1024×572 source image.
   Avatar is layered on top by OBS (no banner card in this scene).
+
+  ── AMBIENT AUDIO ─────────────────────────────────────────────────────────
+  Drop CC0 audio loops into  web_dashboard/screens/ambience/  (see README).
+  Select the file + set volume from the dashboard Stream Screens panel.
+  OBS note: enable "Control audio via OBS" on this browser source so the
+  page audio is routed into the stream mix.
+
+  ── LIVE CRT ──────────────────────────────────────────────────────────────
+  The CRT monitor screen shows animated state-driven pixel art driven by
+  the bot state WS (ws://127.0.0.1:8766/ws). States:
+    speaking  — waveform bars animate while Kira talks
+    chess     — chess knight icon with glow pulse
+    chat      — pixel heart with beat pulse (rate ∝ chat_rate)
+    idle      — sleeping cat + drifting zzz (after 60s of no activity)
+    fallback  — static heart (WS disconnected / bot offline)
 -->
 <html lang="en">
 <head>
@@ -15,6 +30,16 @@
   <meta name="viewport" content="width=1920">
   <title>Kira Cam — Kira</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* CRT live canvas sits between bg and the glow overlay */
+    #crt-live {
+      position: absolute;
+      border-radius: 5px;
+      pointer-events: none;
+      image-rendering: pixelated;
+      /* left/top/width/height set by JS from CFG.crtDisplayRegion */
+    }
+  </style>
   <script>
   /* ═══════════════════════════════════════════════════════════════════════
      SCENE CONFIGURATION — all x/y/w/h are fractions of 1920×1080.
@@ -39,6 +64,13 @@
     /* -- CRT monitor — right side; green heart glyph at (0.880, 0.611) --- */
     /* Screen spans approx x=0.820-0.960, y=0.390-0.635                    */
     crtRegion:    { x: 0.820, y: 0.390, w: 0.140, h: 0.245 },
+
+    /* -- CRT live display region — actual glass face inside the bezel ----
+     * Measured: heart at canvas (0.880, 0.611). The screen glass spans     *
+     * the full crtRegion with a small bezel inset on each side.            *
+     * Adjust if content is visually off-centre on the monitor face.        */
+    crtDisplayRegion: { x: 0.825, y: 0.400, w: 0.128, h: 0.228 },
+    crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
     /* Left strand → center drape over window → right wall strand           */
@@ -80,6 +112,10 @@
     /* -- Screen identity for live text control from dashboard ----------- */
     screenName: 'kira_cam',
 
+    /* -- Ambient audio -------------------------------------------------- */
+    /* ambienceVolume default; overridden live from dashboard state        */
+    ambienceVolume: 0.06,
+
   };
   </script>
 </head>
@@ -87,6 +123,8 @@
   <div id="scene">
     <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
+    <!-- CRT live display (between snow and glow overlay) -->
+    <canvas id="crt-live" width="246" height="246"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>
     <!-- Foreground: desk surface cuts in front of snow — OBS avatar goes between these layers -->
@@ -95,6 +133,381 @@
   </div>
 
   <script src="anim.js"></script>
+
+  <!-- ── Kira Cam page-specific: Live CRT + Ambient Audio ──────────────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    const W = 1920, H = 1080;
+
+    /* ════════════════════════════════════════════════════════════════════
+       AMBIENT AUDIO
+       Uses Web Audio API AudioBufferSourceNode.loop = true for true
+       gapless looping (no gap between buffer end and restart).
+       OBS Browser Source: enable "Control audio via OBS" on this source
+       to route the page audio into the stream mix.
+    ════════════════════════════════════════════════════════════════════ */
+    let _audioCtx   = null;
+    let _gainNode   = null;
+    let _sourceNode = null;
+    let _curFile    = '';
+    let _curVol     = CFG.ambienceVolume;
+
+    function _ensureAudioCtx() {
+      if (!_audioCtx) {
+        _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        _gainNode = _audioCtx.createGain();
+        _gainNode.gain.value = _curVol;
+        _gainNode.connect(_audioCtx.destination);
+      }
+      if (_audioCtx.state === 'suspended') _audioCtx.resume().catch(() => {});
+    }
+
+    async function _loadAndPlay(file) {
+      if (!file || file === 'off') { _stopAmbience(); return; }
+      if (file === _curFile) return;  /* already playing */
+      try {
+        _ensureAudioCtx();
+        const resp = await fetch('ambience/' + encodeURIComponent(file));
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const arrayBuf = await resp.arrayBuffer();
+        const audioBuf = await _audioCtx.decodeAudioData(arrayBuf);
+        _startBuffer(audioBuf, file);
+      } catch (e) {
+        console.warn('[KiraCam] Ambience load failed:', e);
+      }
+    }
+
+    function _startBuffer(buf, file) {
+      _stopAmbience(/* keepFile */ true);
+      _curFile = file;
+      const src = _audioCtx.createBufferSource();
+      src.buffer  = buf;
+      src.loop    = true;   /* true gapless loop — no MP3 gap */
+      src.connect(_gainNode);
+      src.start(0);
+      _sourceNode = src;
+    }
+
+    function _stopAmbience(keepFile) {
+      if (_sourceNode) {
+        try { _sourceNode.stop(); } catch (_) {}
+        _sourceNode = null;
+      }
+      if (!keepFile) _curFile = '';
+    }
+
+    function _setVolume(v) {
+      _curVol = Math.max(0, Math.min(1, v));
+      if (_gainNode && _audioCtx) {
+        _gainNode.gain.setTargetAtTime(_curVol, _audioCtx.currentTime, 0.05);
+      }
+    }
+
+    function _applyAmbienceState(ambience) {
+      if (!ambience) return;
+      const file = ambience.file || '';
+      const vol  = typeof ambience.volume === 'number' ? ambience.volume : CFG.ambienceVolume;
+      _setVolume(vol);
+      if (!file || file === 'off') {
+        if (_curFile) _stopAmbience();
+      } else {
+        _loadAndPlay(file);
+      }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════
+       LIVE CRT DISPLAY
+       State machine driven by /ws bot state. Falls back to static heart
+       when the WS is disconnected.
+
+       States: speaking | chess | chat | idle | fallback
+       Palette: green phosphor (~#44cc44 peak, #050f05 background)
+    ════════════════════════════════════════════════════════════════════ */
+
+    /* Green phosphor palette */
+    const C = {
+      bg:     '#050f05',
+      dim:    '#1a3a1a',
+      mid:    '#2d7a2d',
+      bright: '#44cc44',
+      glow:   '#7aff7a',
+    };
+
+    /* Pixel art lookup tables — each entry is [row, col] in a grid.
+       Origin = top-left of the icon's bounding box. */
+
+    /* 7-wide × 6-tall classic pixel heart */
+    const HEART = [
+      [0,1],[0,2],[0,4],[0,5],
+      [1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],
+      [2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],
+      [3,1],[3,2],[3,3],[3,4],[3,5],
+      [4,2],[4,3],[4,4],
+      [5,3],
+    ];
+
+    /* Sleeping cat — curled body 10-wide × 7-tall */
+    const CAT = [
+      /* ears */   [0,1],[0,2],[0,4],[0,5],
+      /* head */   [1,0],[1,1],[1,2],[1,3],[1,4],[1,5],
+      /* face+body */ [2,0],[2,1],[2,2],[2,3],[2,4],[2,5],
+      /* body */   [3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],
+      [4,1],[4,2],[4,3],[4,4],[4,5],[4,6],[4,7],
+      [5,2],[5,3],[5,4],[5,5],[5,6],[5,7],[5,8],
+      /* tail */   [4,8],[3,8],[3,9],[4,9],
+    ];
+    /* Eyes on cat: dim pixels at [2,1],[2,4] */
+    const CAT_EYES = [[2,1],[2,4]];
+
+    function _px(ctx, cells, px, ox, oy, color) {
+      ctx.fillStyle = color;
+      for (const [r, c] of cells) {
+        ctx.fillRect(ox + c * px, oy + r * px, px - 1, px - 1);
+      }
+    }
+
+    /* Draw a single pixel heart, scaled to fit the canvas width nicely */
+    function _drawHeart(ctx, cw, ch, scale, pulse) {
+      const px   = Math.max(2, Math.round(cw / 18));
+      const hw   = 7 * px, hh = 6 * px;
+      const ox   = Math.round((cw - hw) / 2);
+      const oy   = Math.round((ch - hh) / 2 - ch * 0.05);
+      const s    = 1 + pulse * 0.08;
+      ctx.save();
+      ctx.translate(ox + hw / 2, oy + hh / 2);
+      ctx.scale(s, s);
+      ctx.translate(-(hw / 2), -(hh / 2));
+      /* Glow shadow */
+      ctx.shadowBlur  = 10 + pulse * 6;
+      ctx.shadowColor = C.glow;
+      _px(ctx, HEART, px, 0, 0, C.bright);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    /* Draw a sleeping cat + drifting zzz */
+    function _drawCat(ctx, cw, ch, t) {
+      const px   = Math.max(2, Math.round(cw / 20));
+      const cw_  = 10 * px, ch_ = 7 * px;
+      const ox   = Math.round((cw - cw_) / 2) - px;
+      const oy   = Math.round((ch - ch_) / 2 + ch * 0.05);
+      ctx.shadowBlur  = 6;
+      ctx.shadowColor = C.mid;
+      _px(ctx, CAT,      px, ox, oy, C.bright);
+      /* closed eyes slightly dimmer */
+      _px(ctx, CAT_EYES, px, ox, oy, C.dim);
+      ctx.shadowBlur = 0;
+
+      /* Three floating z's at staggered phases */
+      ctx.font      = (px * 2) + 'px monospace';
+      ctx.textAlign = 'left';
+      for (let i = 0; i < 3; i++) {
+        const phase = ((t * 0.0008 + i * 0.33) % 1);
+        const zx    = ox + cw_ + px * 2 + i * px * 3;
+        const zy    = oy - px * i * 1.5 - phase * px * 4;
+        const alpha = Math.max(0, 1 - phase * 1.5);
+        ctx.fillStyle = `rgba(68,204,68,${alpha.toFixed(2)})`;
+        ctx.fillText('z', zx, zy);
+      }
+    }
+
+    /* Draw waveform bars (speaking state) */
+    function _drawWaveform(ctx, cw, ch, t) {
+      const BAR_COUNT = 7;
+      const BAR_W     = Math.max(3, Math.round(cw / 18));
+      const BAR_GAP   = Math.max(2, Math.round(cw / 36));
+      const maxH      = Math.round(ch * 0.55);
+      const minH      = Math.round(ch * 0.08);
+      const totalW    = BAR_COUNT * (BAR_W + BAR_GAP) - BAR_GAP;
+      const startX    = Math.round((cw - totalW) / 2);
+      const baseY     = Math.round(ch * 0.58);
+
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = C.glow;
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const phase = t * 0.0025 + i * 0.72;
+        const h     = minH + (maxH - minH) * (0.5 + 0.5 * Math.sin(phase));
+        const bh    = Math.round(h);
+        const bx    = startX + i * (BAR_W + BAR_GAP);
+        ctx.fillStyle = C.bright;
+        ctx.fillRect(bx, baseY - bh, BAR_W, bh);
+        /* bright tip */
+        ctx.fillStyle = C.glow;
+        ctx.fillRect(bx, baseY - bh, BAR_W, Math.max(1, Math.round(BAR_W / 2)));
+      }
+      ctx.shadowBlur = 0;
+    }
+
+    /* Draw chess knight (unicode glyph, large) */
+    function _drawChess(ctx, cw, ch, t) {
+      const pulse = 0.75 + 0.25 * Math.sin(t * 0.0015);
+      const sz    = Math.round(Math.min(cw, ch) * 0.60);
+      ctx.shadowBlur  = 18;
+      ctx.shadowColor = C.glow;
+      ctx.fillStyle   = `rgba(68,204,68,${pulse.toFixed(2)})`;
+      ctx.font        = `bold ${sz}px monospace`;
+      ctx.textAlign   = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\u265e', cw / 2, ch * 0.52);
+      ctx.shadowBlur  = 0;
+      ctx.textBaseline = 'alphabetic';
+    }
+
+    /* Scanline overlay — drawn every frame on top of pixel art */
+    function _drawScanlines(ctx, cw, ch) {
+      const step = 4;
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      for (let y = 0; y < ch; y += step) {
+        ctx.fillRect(0, y, cw, 2);
+      }
+    }
+
+    /* ─── State machine ─────────────────────────────────────────────────── */
+    let _botState      = null;
+    let _wsLastMsg     = 0;
+    let _lastActivity  = Date.now();  /* tracks last chat/speaking timestamp */
+
+    function _crtState() {
+      /* Fallback: WS is silent for >15s (bot offline) */
+      if (!_botState || (Date.now() - _wsLastMsg) > 15000) return 'fallback';
+      const s = _botState;
+      if (s.is_speaking) {
+        _lastActivity = Date.now();
+        return 'speaking';
+      }
+      if (s.chess && s.chess.running) return 'chess';
+      const lastChatMsg = s.since_last_chat_msg;
+      const lastKira    = s.since_kira_spoke;
+      const chatRecent  = lastChatMsg != null && lastChatMsg < 30;
+      const kiraRecent  = lastKira    != null && lastKira    < 30;
+      if (chatRecent || kiraRecent) {
+        _lastActivity = Date.now();
+        return 'chat';
+      }
+      /* Idle after 60s of no chat + no speech */
+      if ((Date.now() - _lastActivity) > 60000) return 'idle';
+      return 'chat';  /* grace window 30–60s */
+    }
+
+    /* ─── RAF step for CRT live canvas ─────────────────────────────────── */
+    let _crtCanvas = null;
+    let _crtCtx    = null;
+
+    function _initCrtLive() {
+      const r = CFG.crtDisplayRegion;
+      if (!r || !CFG.crtDisplayEnabled) return;
+      _crtCanvas = document.getElementById('crt-live');
+      if (!_crtCanvas) return;
+
+      const cw = Math.round(r.w * W);
+      const ch = Math.round(r.h * H);
+      _crtCanvas.width  = cw;
+      _crtCanvas.height = ch;
+      _crtCanvas.style.left   = Math.round(r.x * W) + 'px';
+      _crtCanvas.style.top    = Math.round(r.y * H) + 'px';
+      _crtCanvas.style.width  = cw + 'px';
+      _crtCanvas.style.height = ch + 'px';
+
+      _crtCtx = _crtCanvas.getContext('2d');
+    }
+
+    function _stepCrtLive(t) {
+      if (!_crtCtx) return;
+      const ctx = _crtCtx;
+      const cw  = _crtCanvas.width;
+      const ch  = _crtCanvas.height;
+
+      /* Background */
+      ctx.fillStyle = C.bg;
+      ctx.fillRect(0, 0, cw, ch);
+
+      const state = _crtState();
+
+      /* Derive chat_rate for heart beat speed */
+      const chatRate = (_botState && _botState.chat_rate) || 0;
+      /* Beat period: 2000ms at rate=0, 800ms at rate=10+ msgs/min */
+      const beatPeriod = Math.max(800, 2000 - chatRate * 120);
+
+      switch (state) {
+        case 'speaking':
+          _drawWaveform(ctx, cw, ch, t);
+          break;
+        case 'chess':
+          _drawChess(ctx, cw, ch, t);
+          break;
+        case 'chat': {
+          const pulse = 0.5 + 0.5 * Math.sin((t / beatPeriod) * Math.PI * 2);
+          _drawHeart(ctx, cw, ch, 1, pulse);
+          break;
+        }
+        case 'idle':
+          _drawCat(ctx, cw, ch, t);
+          break;
+        case 'fallback':
+        default: {
+          /* Static heart — matches the original artwork glyph */
+          _drawHeart(ctx, cw, ch, 1, 0);
+          break;
+        }
+      }
+
+      _drawScanlines(ctx, cw, ch);
+
+      /* Subtle CRT phosphor flicker using same cfg params as the glow overlay */
+      const flicker = CFG.crtBaseGlow + CFG.crtAmp * Math.sin((t / CFG.crtPeriod) * Math.PI * 2);
+      ctx.globalAlpha = Math.max(0, Math.min(1, 0.85 + flicker * 0.15));
+      /* Alpha already applied via globalAlpha — reset */
+      ctx.globalAlpha = 1;
+    }
+
+    /* ─── Bot state WebSocket ────────────────────────────────────────────── */
+    let _botWs      = null;
+    let _botWsRetry = 1500;
+    const _BOT_WS   = 'ws://127.0.0.1:8766/ws';
+    const _BOT_WS_MAX = 30000;
+
+    function _connectBotWs() {
+      try { _botWs = new WebSocket(_BOT_WS); }
+      catch (_) { _scheduleBotReconnect(); return; }
+
+      _botWs.onopen = function () { _botWsRetry = 1500; };
+
+      _botWs.onmessage = function (e) {
+        try {
+          _botState  = JSON.parse(e.data);
+          _wsLastMsg = Date.now();
+          _applyAmbienceState(_botState.ambience);
+        } catch (_) {}
+      };
+
+      _botWs.onerror  = function () {};
+      _botWs.onclose  = function () { _scheduleBotReconnect(); };
+    }
+
+    function _scheduleBotReconnect() {
+      setTimeout(_connectBotWs, _botWsRetry);
+      _botWsRetry = Math.min(_botWsRetry * 2, _BOT_WS_MAX);
+    }
+
+    /* ─── Hook into anim.js lifecycle ───────────────────────────────────── */
+    window.pageInit = function () {
+      _initCrtLive();
+      _connectBotWs();
+
+      /* Patch the RAF loop: anim.js calls loop(t) each frame.
+         We intercept by overriding the global loop tick via a rAF-aligned hook.
+         anim.js exposes no step hook, so we run our own rAF. */
+      (function _tick(t) {
+        _stepCrtLive(t || 0);
+        requestAnimationFrame(_tick);
+      })();
+    };
+
+  }());
+  </script>
+
   <script>initScene(CFG);</script>
 </body>
 </html>
