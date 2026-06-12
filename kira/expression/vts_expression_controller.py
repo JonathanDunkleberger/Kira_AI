@@ -17,9 +17,9 @@ from __future__ import annotations
 import asyncio
 from typing import Optional
 
-from persona import EmotionalState
-from vts_client import VTSClient
-from config import ENABLE_VTS_EXPRESSIONS
+from kira.persona.persona import EmotionalState
+from kira.expression.vts_client import VTSClient
+from kira.config import ENABLE_VTS_EXPRESSIONS
 
 
 # Emotion → animation hotkey NAME (case-insensitive; resolved against VTS at runtime).

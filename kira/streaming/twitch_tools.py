@@ -1,6 +1,6 @@
 import requests
 import os
-from config import TWITCH_OAUTH_TOKEN, TWITCH_CHANNEL_TO_JOIN
+from kira.config import TWITCH_OAUTH_TOKEN, TWITCH_CHANNEL_TO_JOIN
 
 TWITCH_ACCESS_TOKEN = TWITCH_OAUTH_TOKEN.replace("oauth:", "")
 CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "")

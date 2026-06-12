@@ -26,15 +26,15 @@ import random
 import time
 from typing import Optional, TYPE_CHECKING
 
-from config import (
+from kira.config import (
     ENABLE_CHAT_POSTING,
     CHAT_POST_COOLDOWN_SEC,
     CHAT_POST_MAX_LEN,
 )
 
 if TYPE_CHECKING:
-    from twitch_bot import TwitchBot
-    from youtube_bot import YouTubeBot
+    from kira.streaming.twitch_bot import TwitchBot
+    from kira.streaming.youtube_bot import YouTubeBot
 
 
 # A small rotation of ASCII cats. Kept short \u2014 Twitch line height matters and

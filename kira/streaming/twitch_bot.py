@@ -2,9 +2,9 @@
 
 import asyncio
 from twitchio.ext import commands
-from config import TWITCH_OAUTH_TOKEN, TWITCH_BOT_USERNAME, TWITCH_CHANNEL_TO_JOIN, ALLOW_BROADCASTER_CHAT
+from kira.config import TWITCH_OAUTH_TOKEN, TWITCH_BOT_USERNAME, TWITCH_CHANNEL_TO_JOIN, ALLOW_BROADCASTER_CHAT
 from typing import List, Callable
-from music_tools import play_kira_song # Added music support
+from kira.tools.music_tools import play_kira_song # Added music support
 
 class TwitchBot(commands.Bot):
     # --- UPDATED: __init__ now accepts input_queue ---

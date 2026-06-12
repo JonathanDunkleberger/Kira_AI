@@ -39,7 +39,7 @@ except ImportError:
     WebSocketServerProtocol = Any  # type: ignore
     WEBSOCKETS_AVAILABLE = False
 
-from config import (
+from kira.config import (
     ENABLE_CAPTIONS,
     CAPTION_SERVER_PORT,
     CAPTION_CLEAR_DELAY_MS,
@@ -113,7 +113,9 @@ class CaptionServer:
                 )
                 self._started = True
                 print(f"   [Captions] WebSocket server listening on ws://localhost:{self.port} (127.0.0.1 + ::1)")
-                overlay_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "caption_overlay", "index.html")
+                # caption_overlay/ lives at repo root (two levels up from kira/expression/).
+                _repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                overlay_path = os.path.join(_repo_root, "caption_overlay", "index.html")
                 # OBS browser source expects forward slashes in the file:// URL.
                 print(f"   [Captions] OBS browser source URL: file:///{overlay_path.replace(os.sep, '/')}")
                 return True

@@ -13,7 +13,7 @@ import threading
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
 
-from config import (
+from kira.config import (
     LLM_MODEL_PATH, N_CTX, N_BATCH, N_GPU_LAYERS, WHISPER_MODEL_SIZE, WHISPER_CACHE_DIR, TTS_ENGINE,
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
@@ -24,10 +24,10 @@ from config import (
     INFERENCE_BACKEND, GROQ_FALLBACK_TO_LOCAL, GROQ_MODEL,
     TTS_BACKEND, FISH_API_KEY, FISH_VOICE_ID, FISH_LATENCY, FISH_FORMAT,
 )
-from inference_router import route_chat_completion, get_groq_client
-from groq_client import GroqInferenceError
-from persona import EmotionalState
-from personality_file import KIRA_PERSONALITY
+from kira.brain.inference_router import route_chat_completion, get_groq_client
+from kira.brain.groq_client import GroqInferenceError
+from kira.persona.persona import EmotionalState
+from kira.persona.personality_file import KIRA_PERSONALITY
 
 # Maps each emotional state to a concise behavioural directive injected into the prompt.
 # Must stay in sync with EmotionalState in persona.py.
@@ -38,9 +38,9 @@ EMOTION_DESCRIPTORS = {
     EmotionalState.EMOTIONAL:   "You feel open and earnest. It is okay to say something genuinely sweet or heartfelt.",
     EmotionalState.HYPERACTIVE: "You are buzzing with excitement. Ramble a little. Everything feels more interesting than normal.",
 }
-from prompt_loader import load_personality_txt
-from prompt_rules import TOOL_AND_FORMAT_RULES
-from streamer_overlay import STREAMER_OVERLAY
+from kira.persona.prompt_loader import load_personality_txt
+from kira.persona.prompt_rules import TOOL_AND_FORMAT_RULES
+from kira.persona.streamer_overlay import STREAMER_OVERLAY
 
 # Graceful SDK imports
 try: from edge_tts import Communicate
@@ -511,7 +511,7 @@ class AI_Core:
                     await self._reinit_azure_synthesizer(reason="heartbeat: stale word events")
                 # 2) Caption server liveness check
                 try:
-                    from caption_server import caption_server as _cs
+                    from kira.expression.caption_server import caption_server as _cs
                     if not getattr(_cs, "_started", False):
                         print("   [Captions] Heartbeat: caption server not started — attempting restart.")
                         try:
@@ -1217,7 +1217,7 @@ class AI_Core:
                         self._track_word_event_health(text, len(word_timings))
                         if word_timings:
                             try:
-                                from caption_server import enqueue_caption
+                                from kira.expression.caption_server import enqueue_caption
                                 if self._event_loop_for_captions is None:
                                     try:
                                         self._event_loop_for_captions = asyncio.get_running_loop()
@@ -1375,7 +1375,7 @@ class AI_Core:
                 # Push the caption frame to the overlay just before audio starts.
                 # Fire-and-forget; never blocks playback.
                 try:
-                    from caption_server import enqueue_caption
+                    from kira.expression.caption_server import enqueue_caption
                     if word_timings:
                         print(f"   [Captions] Pushed frame: '{text[:40]}' ({len(word_timings)} words)")
                         enqueue_caption(self._event_loop_for_captions, text, word_timings)

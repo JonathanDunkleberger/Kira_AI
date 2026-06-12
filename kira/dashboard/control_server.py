@@ -28,19 +28,19 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, Response, HTMLResponse
 from pydantic import BaseModel
 
-_DASHBOARD_HTML = Path(__file__).parent / 'web_dashboard' / 'index.html'
+_DASHBOARD_HTML = Path(__file__).parent.parent.parent / 'web_dashboard' / 'index.html'
 
 if TYPE_CHECKING:
-    from bot import VTubeBot
+    from kira.bot import VTubeBot
 
-from config import CONTROL_SERVER_PORT
-from audio_agent import AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
-from music_tools import skip_song, clear_queue
-from persona import EmotionalState
-from game_mode_controller import ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
+from kira.config import CONTROL_SERVER_PORT
+from kira.senses.audio_agent import AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
+from kira.tools.music_tools import skip_song, clear_queue
+from kira.persona.persona import EmotionalState
+from kira.brain.game_mode_controller import ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 
 # ── Emotion → hex color (mirrors dashboard.py EMOTION_COLORS) ─────────────────
-import theme as T
+import kira.dashboard.theme as T
 _EMOTION_COLORS: dict[str, str] = {
     "HAPPY":       T.EMOTION_HAPPY,
     "SASSY":       T.EMOTION_SASSY,
@@ -215,7 +215,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     # ── Status bar ────────────────────────────────────────────────────────────
     llm_ready = _get(lambda: bot.ai_core.is_initialized, False)
     tts_backend = _get(lambda: bot.ai_core.tts_backend, "azure")
-    from config import ENABLE_TWITCH_CHAT
+    from kira.config import ENABLE_TWITCH_CHAT
     twitch_on = _get(lambda: ENABLE_TWITCH_CHAT, False)
     fish_voice_id = _get(lambda: bot.ai_core.fish_voice_id or "", "")
 
@@ -231,7 +231,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     vram_used_gb = None
     vram_total_gb = None
     try:
-        from bot import read_gpu_memory_gb
+        from kira.bot import read_gpu_memory_gb
         u, t = read_gpu_memory_gb()
         if u is not None and t is not None:
             vram_used_gb = round(u, 2)
@@ -250,7 +250,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         youtube_status = "idle"
 
     # ── Music ─────────────────────────────────────────────────────────────────
-    from music_tools import get_now_playing
+    from kira.tools.music_tools import get_now_playing
     now_playing = _get(lambda: get_now_playing(), "Nothing")
 
     # ── Transcript (last 8 turns) ─────────────────────────────────────────────

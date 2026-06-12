@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # config.py is the single dotenv source — importing it loads .env and exposes secrets.
-from config import ANTHROPIC_API_KEY as _API_KEY, CLAUDE_SONNET_MODEL as _CHAT_MODEL
+from kira.config import ANTHROPIC_API_KEY as _API_KEY, CLAUDE_SONNET_MODEL as _CHAT_MODEL
 
 # Games to backfill: (display name passed to load_for_game, slug used in filename)
 GAMES = [
@@ -58,7 +58,7 @@ class _MinimalAI:
 
 
 async def main():
-    from playthrough_memory import PlaythroughMemory
+    from kira.memory.playthrough_memory import PlaythroughMemory
 
     ai = _MinimalAI()
     pm = PlaythroughMemory(ai_core=ai)

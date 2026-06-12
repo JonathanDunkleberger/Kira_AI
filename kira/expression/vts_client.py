@@ -29,7 +29,7 @@ try:
 except ImportError:
     _WS_AVAILABLE = False
 
-from config import (
+from kira.config import (
     VTS_WS_URL,
     VTS_PLUGIN_NAME,
     VTS_PLUGIN_DEVELOPER,

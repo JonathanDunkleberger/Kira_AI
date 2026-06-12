@@ -3,7 +3,7 @@ import asyncio
 import json
 import re
 
-from config import CLAUDE_HAIKU_MODEL
+from kira.config import CLAUDE_HAIKU_MODEL
 
 # Haiku matches Sonnet on real facts but is slightly looser on ambiguous turns
 # (it occasionally fabricates a detail, e.g. inventing "at work"). Raising the

@@ -100,51 +100,67 @@ Reads and responds to chat across Twitch and YouTube simultaneously, building pe
 
 ```
 Kira/
-├── bot.py                        # Orchestrator — event loop, VAD, input queue, turn-taking arbiter, session artifacts
-├── ai_core.py                    # Cortex — LLM inference, STT, TTS, prompt assembly, caption dispatch, Azure self-heal
-├── inference_router.py           # Inference backend selector — Groq vs local Llama, streaming, fallback
-├── groq_client.py                # Groq API wrapper (llama-3.1-8b-instant triage + fast paths)
-├── memory.py                     # Hippocampus — ChromaDB interface, semantic retrieval, startup validation
-├── memory_extractor.py           # Fact extraction — distills durable facts from conversation; speaker-attribution guard
-├── identity_manager.py           # Identity anchors — flat-JSON exact lookup, cross-platform alias resolution
-├── salience_filter.py            # Salience filtering — down-weights low-signal inputs before reasoning
-├── kira_state.py                 # Shared bot state — serializable snapshot for dashboard /state endpoint
-├── playthrough_memory.py         # Per-playthrough narrative memory for VN sessions
-├── stream_logger.py              # Session artifact writer — transcript, events, lore, clip candidates at shutdown
-├── chess_agent.py                # Chess — Lichess bot API, berserk + python-chess + Stockfish, retry lifecycle
-├── vision_agent.py               # Eyes — screen capture, VLM description, context buffer
-├── audio_agent.py                # Ears (desktop) — loopback audio transcription + reaction
-├── loopback_transcriber.py       # WASAPI loopback capture + Whisper distil-large-v3 transcription
-├── media_watch.py                # Lightweight ambient media awareness
-├── vts_client.py                 # Avatar I/O — VTube Studio WebSocket client, hotkey control
-├── vts_expression_controller.py  # Maps emotional state → Live2D expressions
-├── caption_server.py             # Caption overlay — WebSocket broadcast server, port-collision retry, self-heal
-├── caption_overlay/              # Browser-source overlay (index.html, style.css, caption.js)
-├── vn_autopilot.py               # VN autopilot — OCR (cloud + local fallback), read-aloud, auto-advance
-├── game_mode_controller.py       # Per-activity pacing / verbosity modes
-├── control_server.py             # Web dashboard backend — FastAPI control server + /state WebSocket
-├── web_dashboard/                # Browser control panel — real-time controls, status chips, state monitoring
-├── cookie_jar.py                 # Cookie jar / chaos-mode community energy meter
-├── streamer_overlay.py           # Streamer overlay helpers
-├── twitch_bot.py                 # Twitch client — chat listener, song request handler
-├── youtube_bot.py                # YouTube client — live chat listener
-├── twitch_tools.py               # Twitch API — poll & prediction creation, broadcaster utilities
-├── chat_poster.py                # Optional outbound chat posting (rate-limited, off by default)
-├── music_tools.py                # DJ — YouTube search and mpv audio streaming
-├── web_search.py                 # Search — Google Custom Search API wrapper
-├── persona.py                    # Emotional state — mood enum that influences response + expression
+├── run.py                            # Launcher — chdirs to repo root, then boots the bot (documented entrypoint)
+├── kira/                             # Application package
+│   ├── config.py                     # Configuration — all settings loaded from .env
+│   ├── bot.py                        # Orchestrator — event loop, VAD, input queue, turn-taking arbiter, session artifacts
+│   ├── brain/                        # Reasoning core
+│   │   ├── ai_core.py                # Cortex — LLM inference, STT, TTS, prompt assembly, caption dispatch, Azure self-heal
+│   │   ├── inference_router.py       # Inference backend selector — Groq vs local Llama, streaming, fallback
+│   │   ├── groq_client.py            # Groq API wrapper (llama-3.1-8b-instant triage + fast paths)
+│   │   ├── salience_filter.py        # Salience filtering — down-weights low-signal inputs before reasoning
+│   │   ├── kira_state.py             # Shared bot state — serializable snapshot for dashboard /state endpoint
+│   │   └── game_mode_controller.py   # Per-activity pacing / verbosity modes
+│   ├── persona/                      # Personality & prompt assembly
+│   │   ├── persona.py                # Emotional state — mood enum that influences response + expression
+│   │   ├── personality_file.py       # Personality loader
+│   │   ├── prompt_loader.py          # Prompt builder — assembles full prompt from components
+│   │   ├── prompt_rules.py           # Formatting rules — output constraints and tool tag definitions
+│   │   └── streamer_overlay.py       # Streamer overlay helpers
+│   ├── senses/                       # Perception
+│   │   ├── audio_agent.py            # Ears (desktop) — loopback audio transcription + reaction
+│   │   ├── vision_agent.py           # Eyes — screen capture, VLM description, context buffer
+│   │   ├── media_watch.py            # Lightweight ambient media awareness
+│   │   └── loopback_transcriber.py   # WASAPI loopback capture + Whisper distil-large-v3 transcription
+│   ├── memory/                       # Memory & logging
+│   │   ├── memory.py                 # Hippocampus — ChromaDB interface, semantic retrieval, startup validation
+│   │   ├── memory_extractor.py       # Fact extraction — distills durable facts; speaker-attribution guard
+│   │   ├── identity_manager.py       # Identity anchors — flat-JSON exact lookup, cross-platform alias resolution
+│   │   ├── playthrough_memory.py     # Per-playthrough narrative memory for VN sessions
+│   │   ├── cookie_jar.py             # Cookie jar / chaos-mode community energy meter
+│   │   └── stream_logger.py          # Session artifact writer — transcript, events, lore, clip candidates
+│   ├── chess/
+│   │   └── chess_agent.py            # Chess — Lichess bot API, berserk + python-chess + Stockfish, retry lifecycle
+│   ├── modes/
+│   │   └── vn_autopilot.py           # VN autopilot — OCR (cloud + local fallback), read-aloud, auto-advance
+│   ├── streaming/                    # Chat platform integration
+│   │   ├── twitch_bot.py             # Twitch client — chat listener, song request handler
+│   │   ├── youtube_bot.py            # YouTube client — live chat listener
+│   │   ├── twitch_tools.py           # Twitch API — poll & prediction creation, broadcaster utilities
+│   │   └── chat_poster.py            # Optional outbound chat posting (rate-limited, off by default)
+│   ├── expression/                   # Captions & avatar
+│   │   ├── caption_server.py         # Caption overlay — WebSocket broadcast server, port-collision retry, self-heal
+│   │   ├── vts_client.py             # Avatar I/O — VTube Studio WebSocket client, hotkey control
+│   │   └── vts_expression_controller.py  # Maps emotional state → Live2D expressions
+│   ├── dashboard/                    # Web control panel backend
+│   │   ├── control_server.py         # FastAPI control server + /state WebSocket
+│   │   └── theme.py                  # Palette constants shared with the web dashboard
+│   └── tools/
+│       ├── music_tools.py            # DJ — YouTube search and mpv audio streaming
+│       └── web_search.py             # Search — Google Custom Search API wrapper (present, not yet wired)
+├── scripts/                          # One-off maintenance utilities (backfill, repair, diagnostics)
+├── caption_overlay/                  # Browser-source caption overlay (index.html, style.css, caption.js)
+├── web_dashboard/                    # Browser control panel (index.html)
+├── cookie_jar_overlay/               # Browser-source cookie-jar overlay
 ├── persona/
 │   ├── example/personality.example.txt  # Template persona — replace with your own
 │   └── private/personality.txt          # Your real persona prompt (gitignored, not shipped)
-├── personality_file.py           # Personality loader
-├── prompt_rules.py               # Formatting rules — output constraints and tool tag definitions
-├── prompt_loader.py              # Prompt builder — assembles full prompt from components
-├── config.py                     # Configuration — all settings loaded from .env
-├── requirements.txt              # Python dependencies
+├── docs/                             # Design specs and architecture notes
 ├── memory_db/
-│   ├── chroma.sqlite3            # ChromaDB vector store
-│   └── identity.json            # Permanent identity anchors (flat JSON, exact lookup)
-└── .env.example                  # Environment variable template
+│   ├── chroma.sqlite3                # ChromaDB vector store
+│   └── identity.json                 # Permanent identity anchors (flat JSON, exact lookup)
+├── requirements.txt                  # Python dependencies
+└── .env.example                      # Environment variable template
 ```
 
 ---
@@ -173,7 +189,7 @@ No local model download required for the default Groq backend. If you want the l
 
 ```bash
 cp .env.example .env    # Fill in your API keys
-python bot.py           # Launch the bot + web dashboard
+python run.py           # Launch the bot + web dashboard
 ```
 
 The web control panel is served locally by the bot (see `CONTROL_SERVER_PORT`, default 8766) — open `http://127.0.0.1:8766/` in a browser.

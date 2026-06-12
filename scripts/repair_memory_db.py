@@ -43,7 +43,7 @@ from chromadb.config import Settings
 # Repo root on path so first-party imports resolve when run as scripts/repair_memory_db.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import MEMORY_PATH
+from kira.config import MEMORY_PATH
 
 
 DEFAULT_TARGETS = ("facts", "chatters")

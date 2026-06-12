@@ -6,7 +6,7 @@ from collections import deque
 from io import BytesIO
 from PIL import ImageGrab
 from openai import AsyncOpenAI
-from config import OPENAI_API_KEY, ENABLE_VISION
+from kira.config import OPENAI_API_KEY, ENABLE_VISION
 
 # Request-size bounds for the rolling scene summary. The summary feeds its own
 # output back in as `previous` each cycle, so without a clamp an over-long model

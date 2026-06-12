@@ -59,7 +59,7 @@ print("\n=== RUNTIME RETRIEVAL PATH ===")
 print("(this opens the live DB read-only — may fail if dashboard locks it)")
 try:
     # Use ":memory:"-style probe by talking to memory.py directly
-    from memory import MemoryManager
+    from kira.memory.memory import MemoryManager
     mm = MemoryManager()
     for q in [
         "what are my cats' names",

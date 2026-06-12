@@ -26,18 +26,18 @@ except Exception:
 from datetime import datetime
 from typing import List, Callable # Added for type hinting
 
-from ai_core import AI_Core
-from memory import MemoryManager
-from cookie_jar import CookieJar, MILESTONE_CAP
-from twitch_bot import TwitchBot
+from kira.brain.ai_core import AI_Core
+from kira.memory.memory import MemoryManager
+from kira.memory.cookie_jar import CookieJar, MILESTONE_CAP
+from kira.streaming.twitch_bot import TwitchBot
 # web_search.async_GoogleSearch is imported below when/if a search-trigger
 # command is wired up. Module kept; import removed until the call site exists.
 # TODO: wire async_GoogleSearch to a '!search' Twitch command or LLM tool call.
-from twitch_tools import start_twitch_poll
-from music_tools import play_kira_song
-from memory_extractor import extract_memories
-from youtube_bot import YouTubeBot
-from config import (
+from kira.streaming.twitch_tools import start_twitch_poll
+from kira.tools.music_tools import play_kira_song
+from kira.memory.memory_extractor import extract_memories
+from kira.streaming.youtube_bot import YouTubeBot
+from kira.config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
@@ -46,20 +46,20 @@ from config import (
     CHAT_POST_KIRA_INTERVAL_SEC, CHAT_POST_KIRA_MAX_PER_SESSION, CHAT_POST_KIRA_MAX_LEN,
     LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
 )
-from stream_logger import StreamLogger
-import identity_manager
-import salience_filter
-from persona import EmotionalState
-from vision_agent import UniversalVisionAgent
-from audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
-from loopback_transcriber import LoopbackTranscriber
-from game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
-from vn_autopilot import VNAutopilot
-from kira_state import KiraState, SessionIntensity
-from media_watch import MediaWatch
-from chess_agent import ChessAgent
-from playthrough_memory import PlaythroughMemory
-from vts_expression_controller import VTSExpressionController
+from kira.memory.stream_logger import StreamLogger
+from kira.memory import identity_manager
+from kira.brain import salience_filter
+from kira.persona.persona import EmotionalState
+from kira.senses.vision_agent import UniversalVisionAgent
+from kira.senses.audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
+from kira.senses.loopback_transcriber import LoopbackTranscriber
+from kira.brain.game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
+from kira.modes.vn_autopilot import VNAutopilot
+from kira.brain.kira_state import KiraState, SessionIntensity
+from kira.senses.media_watch import MediaWatch
+from kira.chess.chess_agent import ChessAgent
+from kira.memory.playthrough_memory import PlaythroughMemory
+from kira.expression.vts_expression_controller import VTSExpressionController
 
 # Graceful pyautogui import (required for VN auto-play only)
 try:
@@ -258,7 +258,7 @@ class VTubeBot:
         self.twitch_bot: TwitchBot | None = None
         # Centralised, rate-limited outbound chat poster. Always constructed;
         # internally gated by ENABLE_CHAT_POSTING. See chat_poster.py.
-        from chat_poster import ChatPoster
+        from kira.streaming.chat_poster import ChatPoster
         self.chat_poster = ChatPoster()
         self.session_scene_log: list = []  # Recent scene summaries during this session
         self.session_highlights: list = []  # Highlights captured this session
@@ -438,7 +438,7 @@ class VTubeBot:
         # chaos window at a time, with a cooldown" — see _maybe_fire_cookie_milestone.
         self._chaos_cooldown_until: float = 0.0
 
-        import bot as _self_mod
+        import kira.bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
 
     def reset_idle_timer(self, human_speech=False):
@@ -493,7 +493,7 @@ class VTubeBot:
         rollover already happened in _maybe_fire_cookie_milestone (crash-safe).
         Resets in-flight flag in finally so a future milestone can fire."""
         import random as _rand
-        from cookie_jar import MILESTONE_CAP
+        from kira.memory.cookie_jar import MILESTONE_CAP
         try:
             for _ in range(30):  # up to ~3s
                 if not self.ai_core.is_speaking:
@@ -529,7 +529,7 @@ class VTubeBot:
     def _activate_chaos_mode(self) -> None:
         """Flip chaos on, broadcast to overlay, schedule deactivation timer.
         Idempotent: if already active, resets timer to a fresh duration."""
-        from cookie_jar import CHAOS_MODE_DURATION_SECONDS
+        from kira.memory.cookie_jar import CHAOS_MODE_DURATION_SECONDS
         duration = int(CHAOS_MODE_DURATION_SECONDS)
         self.chaos_mode_active = True
         self.chaos_mode_until = time.time() + duration
@@ -559,13 +559,13 @@ class VTubeBot:
     async def _deactivate_chaos_mode(self) -> None:
         """End chaos mode: clear state, broadcast off, speak a random end line."""
         import random as _rand
-        from cookie_jar import CHAOS_MODE_END_LINES
+        from kira.memory.cookie_jar import CHAOS_MODE_END_LINES
         if not self.chaos_mode_active:
             return
         self.chaos_mode_active = False
         self.chaos_mode_until = 0.0
         # Start the cooldown — no new chaos window may trigger until it elapses.
-        from cookie_jar import CHAOS_MODE_COOLDOWN_SECONDS
+        from kira.memory.cookie_jar import CHAOS_MODE_COOLDOWN_SECONDS
         self._chaos_cooldown_until = time.time() + int(CHAOS_MODE_COOLDOWN_SECONDS)
         print("   [Chaos] Chaos mode ended.")
         try:
@@ -592,7 +592,7 @@ class VTubeBot:
         """Push chaos-mode state to the captions WS overlay. Fire-and-forget.
         Shape: {"type":"chaos","active":bool,"remaining":int_seconds}"""
         try:
-            from caption_server import caption_server as _cs
+            from kira.expression.caption_server import caption_server as _cs
             await _cs.send_chaos(active=active, remaining=int(remaining))
         except Exception as e:
             print(f"   [Chaos] Overlay broadcast failed: {e}")
@@ -601,7 +601,7 @@ class VTubeBot:
         """Push the current shared-jar count to the captions WS overlay.
         Fire-and-forget; never raises."""
         try:
-            from caption_server import caption_server as _cs
+            from kira.expression.caption_server import caption_server as _cs
             await _cs.send_cookie(shared=self.cookie_jar.get_shared(), milestone=False)
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (state) failed: {e}")
@@ -609,7 +609,7 @@ class VTubeBot:
     async def _broadcast_cookie_milestone(self) -> None:
         """Tell the overlay to play its full-jar animation. Fire-and-forget."""
         try:
-            from caption_server import caption_server as _cs
+            from kira.expression.caption_server import caption_server as _cs
             await _cs.send_cookie(shared=0, milestone=True)
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (milestone) failed: {e}")
@@ -758,7 +758,7 @@ class VTubeBot:
         active line. Used on interrupt/mute/pause so a stale caption doesn't
         linger on screen after Kira's audio is cut off. Never raises."""
         try:
-            from caption_server import enqueue_clear
+            from kira.expression.caption_server import enqueue_clear
             enqueue_clear(self.event_loop)
         except Exception:
             pass
@@ -1001,7 +1001,7 @@ class VTubeBot:
         # banned phrases) stay in force per the directive's own wording.
         if getattr(self, "chaos_mode_active", False):
             try:
-                from cookie_jar import CHAOS_MODE_DIRECTIVE
+                from kira.memory.cookie_jar import CHAOS_MODE_DIRECTIVE
                 block += "\n\n" + CHAOS_MODE_DIRECTIVE + "\n"
             except Exception:
                 pass
@@ -3081,7 +3081,7 @@ class VTubeBot:
             # fail-graceful: if the port is taken or websockets is missing,
             # captions silently disable and everything else runs normally.
             try:
-                from caption_server import caption_server
+                from kira.expression.caption_server import caption_server
                 await caption_server.start()
             except Exception as e:
                 print(f"   [Captions] Server start suppressed: {e}")
@@ -3166,7 +3166,7 @@ class VTubeBot:
 
             # Web dashboard control server (FastAPI, port 8766, 127.0.0.1 only)
             # Runs as a background task inside this event loop — no new thread.
-            from control_server import start_control_server
+            from kira.dashboard.control_server import start_control_server
             tasks.append(start_control_server(self))
 
             # Materialize every coroutine into a real Task and keep handles so
@@ -3798,7 +3798,7 @@ class VTubeBot:
         Also writes a lightweight transcript checkpoint (PENDING_{slug}.json) so
         that even a hard crash (0xc000001d, power loss) doesn't lose the session
         transcript needed for lore generation.  backfill_lore.py reads these."""
-        from config import CHECKPOINT_INTERVAL_SECONDS
+        from kira.config import CHECKPOINT_INTERVAL_SECONDS
         print("   [System] Playthrough checkpoint loop started.")
         while self.is_running:
             await asyncio.sleep(CHECKPOINT_INTERVAL_SECONDS)
@@ -5933,8 +5933,8 @@ class VTubeBot:
             full_response_text = ""
             streamed_already_spoken = False
             if self.ai_core.anthropic_client:
-                from ai_core import EMOTION_DESCRIPTORS
-                from config import ENABLE_CLAUDE_STREAMING
+                from kira.brain.ai_core import EMOTION_DESCRIPTORS
+                from kira.config import ENABLE_CLAUDE_STREAMING
                 emotion_line = EMOTION_DESCRIPTORS.get(self.current_emotion, "Be yourself.")
                 # Block A (static, cached): self.ai_core.system_prompt — personality + tool rules.
                 # Block C (dynamic, uncached): all per-turn context assembled below.
@@ -6503,7 +6503,12 @@ async def main():
     except asyncio.CancelledError:
         print("Main task cancelled.")
 
-if __name__ == "__main__":
+def launch():
+    """Boot the bot with graceful Ctrl+C shutdown.
+
+    Shared entry point used by run.py (the documented launcher) and by
+    ``python -m kira.bot``.
+    """
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(main())
@@ -6537,3 +6542,7 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, Exception):
             pass  # suppress uvicorn signal-handler cascade / task cleanup noise
         loop.close()
+
+
+if __name__ == "__main__":
+    launch()

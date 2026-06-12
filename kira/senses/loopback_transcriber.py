@@ -53,7 +53,7 @@ except Exception as _e:
     _DEPS_ERR = _e
 
 if TYPE_CHECKING:
-    from audio_agent import AudioAgent
+    from kira.senses.audio_agent import AudioAgent
 
 LOOPBACK_LOG_DIR = "logs"
 

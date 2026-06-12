@@ -49,7 +49,7 @@ import traceback
 import xml.sax.saxutils
 from io import BytesIO
 
-from kira_state import (
+from kira.brain.kira_state import (
     KiraState,
     SessionIntensity,
     INTENSITY_CALM,
@@ -74,7 +74,7 @@ except ImportError:
     print("   [Autopilot] pytesseract not installed. Run: pip install pytesseract")
 
 try:
-    from config import CLAUDE_SONNET_MODEL as CLAUDE_CHAT_MODEL
+    from kira.config import CLAUDE_SONNET_MODEL as CLAUDE_CHAT_MODEL
 except Exception:
     CLAUDE_CHAT_MODEL = "claude-sonnet-4-6"  # last-resort fallback if config import fails
 

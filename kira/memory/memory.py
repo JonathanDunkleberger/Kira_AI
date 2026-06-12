@@ -8,7 +8,7 @@ import torch
 import time
 import uuid
 import hashlib
-from config import MEMORY_PATH
+from kira.config import MEMORY_PATH
 
 class MemoryManager:
     def __init__(self):

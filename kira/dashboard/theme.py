@@ -18,7 +18,7 @@ USAGE:
     dashboard's palette — control_server.py imports `theme as T` and maps the
     emotion/state colors to the hex values rendered in web_dashboard/index.html.
 
-    import theme as T
+    import kira.dashboard.theme as T
     color = T.ACCENT          # caramel/amber primary
     bg    = T.APP_BG          # darkest espresso plane
 

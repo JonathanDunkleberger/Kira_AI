@@ -3,6 +3,10 @@ import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
+# Repo root = parent of the kira/ package dir. Used for default data/model paths
+# so they resolve at the repo root regardless of where config.py lives.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Model and runtime config (safe to share)
 LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH", "models/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf")
 N_GPU_LAYERS = int(os.getenv("N_GPU_LAYERS", -1))
@@ -15,7 +19,7 @@ N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
-WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "whisper"))
+WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(_REPO_ROOT, "models", "whisper"))
 ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
@@ -32,7 +36,7 @@ AI_NAME = os.getenv("AI_NAME", "Kira")
 # Tuning VAD for faster response (0.4s silence triggers end-of-speech)
 PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))
 VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
-MEMORY_PATH = os.getenv("MEMORY_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory_db"))
+MEMORY_PATH = os.getenv("MEMORY_PATH", os.path.join(_REPO_ROOT, "memory_db"))
 
 # Secrets and API keys (must be in .env, never commit real values)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
@@ -196,7 +200,7 @@ ENABLE_VTS_EXPRESSIONS = os.getenv("ENABLE_VTS_EXPRESSIONS", "true").lower() == 
 VTS_WS_URL = os.getenv("VTS_WS_URL", "ws://localhost:8001")
 VTS_PLUGIN_NAME = os.getenv("VTS_PLUGIN_NAME", "Kira AI")
 VTS_PLUGIN_DEVELOPER = os.getenv("VTS_PLUGIN_DEVELOPER", "JonnyD")
-VTS_TOKEN_PATH = os.getenv("VTS_TOKEN_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".vts_token"))
+VTS_TOKEN_PATH = os.getenv("VTS_TOKEN_PATH", os.path.join(_REPO_ROOT, ".vts_token"))
 
 # Chess Mode (Phase 1) — Kira plays Lichess against Stockfish, on stream.
 # Disabled unless armed from the dashboard. Requires a SEPARATE Lichess BOT

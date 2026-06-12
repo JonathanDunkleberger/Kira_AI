@@ -35,7 +35,7 @@ from datetime import datetime
 # Repo root on path so first-party imports resolve when run as scripts/backfill_lore.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import ANTHROPIC_API_KEY, CLAUDE_SONNET_MODEL
+from kira.config import ANTHROPIC_API_KEY, CLAUDE_SONNET_MODEL
 
 # ---------------------------------------------------------------------------
 # Helpers

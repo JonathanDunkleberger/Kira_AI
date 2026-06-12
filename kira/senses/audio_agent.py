@@ -22,7 +22,7 @@ except ImportError:
     PYAUDIO_AVAILABLE = False
 
 from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
-from config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN
+from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN
 
 
 AUDIO_MODE_OFF = "off"

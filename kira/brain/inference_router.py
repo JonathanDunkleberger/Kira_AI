@@ -16,8 +16,8 @@
 import os
 from typing import Any, Optional
 
-import config
-from groq_client import GroqClient, GroqInferenceError
+from kira import config
+from kira.brain.groq_client import GroqClient, GroqInferenceError
 
 
 _groq_singleton: Optional[GroqClient] = None

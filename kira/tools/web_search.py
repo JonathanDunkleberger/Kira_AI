@@ -2,7 +2,7 @@
 
 import asyncio
 from googleapiclient.discovery import build # Requires google-api-python-client
-from config import GOOGLE_API_KEY, GOOGLE_CSE_ID
+from kira.config import GOOGLE_API_KEY, GOOGLE_CSE_ID
 
 def GoogleSearch(query: str, num_results: int = 3) -> str:
     """Performs a Google search and returns formatted results."""
