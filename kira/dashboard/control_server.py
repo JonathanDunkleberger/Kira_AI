@@ -346,6 +346,13 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "since_last_chat_msg": since_last_chat_msg,
         # Ambient audio state
         "ambience":          dict(_ambience_state),
+        # Cookie jar leaderboard + IOUs
+        "cookie_top3": _get(lambda: (
+            __import__("kira.memory.cookie_jar", fromlist=["cookie_jar"]).cookie_jar.get_session_top3()
+        ), []),
+        "ious_open": _get(lambda: (
+            __import__("kira.memory.cookie_jar", fromlist=["cookie_jar"]).cookie_jar.open_iou_count()
+        ), 0),
         # Server timestamp for the client
         "ts": round(now, 2),
     }
@@ -409,12 +416,31 @@ _overlay_vis: dict = {
     "banner":      True,
     "scoreboard":  True,
     "spectate":    True,
+    "wheel":       True,
+    "cookies_jar": True,
 }
 
 
 async def push_overlay_event(event: dict) -> None:
     """Push a raw overlay event to all /ws/overlays clients."""
     await _overlay_ws_manager.broadcast(event)
+
+
+async def push_wheel_spin(slice_id: str, duration_ms: int = 3500,
+                          tipper: str = "", label: str = "") -> None:
+    """Broadcast a wheel_spin event to /ws/overlays clients."""
+    await _overlay_ws_manager.broadcast({
+        "type":        "wheel_spin",
+        "result":      slice_id,
+        "duration_ms": duration_ms,
+        "tipper":      tipper,
+        "label":       label,
+    })
+
+
+async def push_wheel_veto() -> None:
+    """Broadcast a wheel_veto event — hides wheel overlay immediately."""
+    await _overlay_ws_manager.broadcast({"type": "wheel_veto"})
 
 
 async def push_card_show(chatter: str, message: str, platform: str) -> None:
@@ -457,6 +483,7 @@ async def push_score_update(
     session_wins:    int, session_losses:  int, session_draws:  int,
     lifetime_wins:   int, lifetime_losses: int, lifetime_draws: int,
     cookies: int = 0, cookies_max: int = 50,
+    ious_open: int = 0,
 ) -> None:
     """Notify the score overlay of a change (chess game end or cookie update)."""
     await push_overlay_event({
@@ -469,6 +496,7 @@ async def push_score_update(
         "lifetime_draws":  lifetime_draws,
         "cookies":         cookies,
         "cookies_max":     cookies_max,
+        "ious_open":       ious_open,
     })
 
 
@@ -1177,6 +1205,36 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             {"type": "overlay_vis", **_overlay_vis}
         ))
         return _ok(overlay_vis=dict(_overlay_vis))
+
+    # ── Wheel veto ────────────────────────────────────────────────────────────
+    if action == "wheel_veto":
+        # Broadcast wheel_veto to overlays
+        asyncio.ensure_future(push_wheel_veto())
+        # Also set _wheel_vetoed on the running bot instance if accessible
+        try:
+            import kira.bot as _bot_mod
+            bot_ref = getattr(_bot_mod, "_GLOBAL_BOT_REF", None)
+            if bot_ref is not None:
+                bot_ref._wheel_vetoed = True
+        except Exception:
+            pass
+        return _ok(message="wheel vetoed")
+
+    # ── IOU redeem ────────────────────────────────────────────────────────────
+    if action == "redeem_iou":
+        idx = getattr(body, "idx", None)
+        if idx is None:
+            return _err("'idx' required")
+        try:
+            idx = int(idx)
+        except (TypeError, ValueError):
+            return _err("'idx' must be an integer")
+        try:
+            from kira.memory.cookie_jar import cookie_jar as _cj
+            ok = _cj.redeem_iou(idx)
+            return _ok(redeemed=ok) if ok else _err(f"IOU {idx} not found or not open")
+        except Exception as e:
+            return _err(str(e))
 
     # ── Ambience control ──────────────────────────────────────────────────────
     if action == "set_ambience":

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
   card_overlay.html — Response Cards + Event Banner overlay
-  OBS Browser Source: 1920×1080, transparent background.
+  OBS Browser Source: 1920x1080, transparent background.
   Connects to ws://localhost:8766/ws/overlays
-  Events: card_show · card_hide · banner_show · banner_hide · overlay_vis
+  Events: card_show · card_hide · banner_show · banner_hide · overlay_vis · cookie_drop
 -->
 <html lang="en">
 <head>
@@ -20,8 +20,6 @@ html, body {
 
 /* ═══════════════════════════════════════════════════════
    CARD
-   400×400 render of a 512×512 transparent-PNG canvas.
-   Positioned lower-left, above chat overlay footer.
 ═══════════════════════════════════════════════════════ */
 #card-root {
   position: absolute;
@@ -30,7 +28,7 @@ html, body {
   width: 400px;
   height: 400px;
   pointer-events: none;
-  display: none; /* shown via JS */
+  display: none;
 }
 
 #card-img {
@@ -49,7 +47,6 @@ html, body {
   overflow: hidden;
 }
 
-/* Per-variant text zones are injected inline from JS */
 .card-name {
   position: absolute;
   font-size: 11px;
@@ -72,7 +69,7 @@ html, body {
   position: relative;
   top: -1px;
 }
-.platform-twitch { background: #9146FF; }
+.platform-twitch  { background: #9146FF; }
 .platform-youtube { background: #FF0000; }
 .platform-default { background: #8A7050; }
 
@@ -88,7 +85,6 @@ html, body {
   -webkit-line-clamp: 4;
 }
 
-/* Keyframes */
 @keyframes card-in {
   from { opacity: 0; transform: translateX(-28px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -100,21 +96,36 @@ html, body {
 .card-anim-in  { animation: card-in  250ms cubic-bezier(.22,.6,.36,1) both; }
 .card-anim-out { animation: card-out 300ms ease-out both; }
 
+/* +1 cookie badge */
+#cookie-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(255,240,200,0.92);
+  border: 1.5px solid #c8a060;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #7a4000;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+#cookie-badge.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* ═══════════════════════════════════════════════════════
    BANNER
-   Shows only the banner strip of card_banner_wide.png,
-   which occupies y=215–282 inside a 512×512 canvas.
-   Rendered at 2× (1024×1024) then clipped to the strip.
-   Width = (469-41)×2 = 856px; height includes shadow pad.
 ═══════════════════════════════════════════════════════ */
 #banner-root {
   position: absolute;
   top: 30px;
   left: 50%;
   transform: translateX(-50%);
-
-  /* Clip to just the banner strip */
   width: 856px;
   height: 148px;
   overflow: hidden;
@@ -126,7 +137,6 @@ html, body {
   position: absolute;
   width: 1024px;
   height: 1024px;
-  /* Offset so only banner strip (y=215..282 @512px) is visible */
   top: -424px;
   left: -76px;
   filter: drop-shadow(0 4px 6px rgba(60,30,50,0.35));
@@ -134,10 +144,6 @@ html, body {
 
 #banner-text {
   position: absolute;
-  /* Safe area from cards.json: top=43%, bottom=45%, left=19%, right=20% */
-  /* In 1024 canvas: top=440, in container (starts at 424) = 16px          */
-  /* left: 19%×1024=195, container starts at 76 → 195-76=119px             */
-  /* right: 20%×1024=204, right edge=820, 820-76=744, 856-744=112px        */
   top: 16px;
   bottom: 9px;
   left: 119px;
@@ -157,81 +163,65 @@ html, body {
   max-width: 100%;
 }
 
-@keyframes banner-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes banner-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
+@keyframes banner-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes banner-out { from { opacity: 1; } to { opacity: 0; } }
 .banner-anim-in  { animation: banner-in  250ms ease-out both; }
 .banner-anim-out { animation: banner-out 300ms ease-out both; }
 </style>
 </head>
 <body>
 
-<!-- ── Banner ───────────────────────────────────────────────── -->
+<!-- Banner -->
 <div id="banner-root">
   <img id="banner-img" src="assets/cards/card_banner_wide.png" alt="">
   <div id="banner-text"><span id="banner-txt"></span></div>
 </div>
 
-<!-- ── Response card ────────────────────────────────────────── -->
+<!-- Response card -->
 <div id="card-root">
   <img id="card-img" src="" alt="">
   <div id="card-text-layer">
-    <div class="card-name"  id="card-name-el"></div>
+    <div class="card-name"    id="card-name-el"></div>
     <div class="card-message" id="card-msg-el"></div>
   </div>
+  <div id="cookie-badge">+1 🍪</div>
 </div>
 
 <script>
-/* ── Configuration ──────────────────────────────────────────── */
-const WS_URL        = 'ws://localhost:8766/ws/overlays';
+/* ── Configuration ─────────────────────────────────── */
+const WS_URL         = 'ws://localhost:8766/ws/overlays';
 const MIN_DISPLAY_MS = 4000;
 const RECONNECT_MS   = 3000;
 
-/* ── Variant specs (text zones in a 400×400 render) ─────────── */
 const VARIANTS = [
   { img: 'assets/cards/card_chat_v1.png',
-    // safe_text: top=43%, left=29%, right=29%, bottom=40%  →  px in 400
     zone: { top: 172, left: 116, right: 284, bottom: 240 } },
   { img: 'assets/cards/card_chat_v2.png',
-    // safe_text: top=41%, left=28%, right=27%, bottom=41%
     zone: { top: 164, left: 112, right: 292, bottom: 236 } },
   { img: 'assets/cards/card_chat_v3.png',
-    // safe_text: top=41%, left=33%, right=34%, bottom=41%
     zone: { top: 164, left: 132, right: 264, bottom: 236 } },
 ];
 
-/* ── State ──────────────────────────────────────────────────── */
-let _vis        = { chat: true, cards: true, banner: true, scoreboard: true, spectate: true };
-let _lastVariant = -1;  // index of last card variant shown
-
-// Card state
+let _vis         = { chat: true, cards: true, banner: true, scoreboard: true, spectate: true };
+let _lastVariant = -1;
 let _cardVisible   = false;
 let _cardShowTime  = 0;
 let _cardHideReady = false;
-let _cardQueue     = [];  // pending card_show events
-
-// Banner state
+let _cardQueue     = [];
 let _bannerTimer   = null;
+let _badgeTimer    = null;
 
-/* ── DOM refs ───────────────────────────────────────────────── */
-const $cardRoot  = document.getElementById('card-root');
-const $cardImg   = document.getElementById('card-img');
-const $cardName  = document.getElementById('card-name-el');
-const $cardMsg   = document.getElementById('card-msg-el');
+const $cardRoot   = document.getElementById('card-root');
+const $cardImg    = document.getElementById('card-img');
+const $cardName   = document.getElementById('card-name-el');
+const $cardMsg    = document.getElementById('card-msg-el');
+const $badge      = document.getElementById('cookie-badge');
 const $bannerRoot = document.getElementById('banner-root');
 const $bannerTxt  = document.getElementById('banner-txt');
 
-/* ═══════════════════════════════════════════════════════════════
-   CARD LOGIC
-═══════════════════════════════════════════════════════════════ */
-
+/* ── Card logic ────────────────────────────────────── */
 function _pickVariant() {
-  const opts = [0, 1, 2].filter(i => i !== _lastVariant);
+  const opts = [0,1,2].filter(i => i !== _lastVariant);
   const pick = opts[Math.floor(Math.random() * opts.length)];
   _lastVariant = pick;
   return VARIANTS[pick];
@@ -246,7 +236,7 @@ function _platformDotHtml(platform) {
 
 function _truncate(text, maxLen) {
   if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text;
+  return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '\u2026' : text;
 }
 
 function showCard(event) {
@@ -259,29 +249,19 @@ function showCard(event) {
 
   $cardImg.src = v.img;
 
-  // Name element — top of safe zone
-  $cardName.style.cssText = `
-    top: ${top}px; left: ${left}px; width: ${zoneW}px; height: ${nameH}px;
-  `;
-  const nameHtml = _truncate(event.chatter || '?', 28);
-  $cardName.innerHTML = nameHtml + _platformDotHtml((event.platform || '').toLowerCase());
+  $cardName.style.cssText = `top:${top}px;left:${left}px;width:${zoneW}px;height:${nameH}px;`;
+  $cardName.innerHTML = _truncate(event.chatter || '?', 28)
+                      + _platformDotHtml((event.platform || '').toLowerCase());
 
-  // Message element — below name
-  $cardMsg.style.cssText = `
-    top: ${top + nameH + gap}px; left: ${left}px;
-    width: ${zoneW}px; height: ${zoneH - nameH - gap}px;
-  `;
-  $cardMsg.textContent = _truncate(event.message || '', 140);
+  $cardMsg.style.cssText = `top:${top+nameH+gap}px;left:${left}px;width:${zoneW}px;height:${zoneH-nameH-gap}px;`;
+  $cardMsg.textContent   = _truncate(event.message || '', 140);
 
-  // Animate in
   $cardRoot.style.display = 'block';
-  $cardRoot.style.opacity  = '';
+  $cardRoot.style.opacity = '';
   $cardRoot.classList.remove('card-anim-out');
-  void $cardRoot.offsetWidth; // reflow
+  void $cardRoot.offsetWidth;
   $cardRoot.classList.add('card-anim-in');
-  $cardRoot.addEventListener('animationend', () => {
-    $cardRoot.classList.remove('card-anim-in');
-  }, { once: true });
+  $cardRoot.addEventListener('animationend', () => $cardRoot.classList.remove('card-anim-in'), { once: true });
 
   _cardVisible   = true;
   _cardShowTime  = Date.now();
@@ -299,41 +279,36 @@ function hideCard(callback) {
     _cardHideReady = false;
     _cardShowTime  = 0;
     if (callback) callback();
-    // If queue has next card, show it
-    if (_cardQueue.length > 0) {
-      const next = _cardQueue.shift();
-      showCard(next);
-    }
+    if (_cardQueue.length > 0) showCard(_cardQueue.shift());
   }, { once: true });
 }
 
 function maybeDismissCard() {
   if (!_cardVisible || !_cardHideReady) return;
   const age = Date.now() - _cardShowTime;
-  if (age < MIN_DISPLAY_MS) {
-    setTimeout(maybeDismissCard, MIN_DISPLAY_MS - age + 50);
-    return;
-  }
+  if (age < MIN_DISPLAY_MS) { setTimeout(maybeDismissCard, MIN_DISPLAY_MS - age + 50); return; }
   hideCard(null);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   BANNER LOGIC
-═══════════════════════════════════════════════════════════════ */
+/* ── Cookie badge ──────────────────────────────────── */
+function flashCookieBadge() {
+  if (!_cardVisible) return;
+  clearTimeout(_badgeTimer);
+  $badge.classList.add('visible');
+  _badgeTimer = setTimeout(() => $badge.classList.remove('visible'), 1500);
+}
 
+/* ── Banner logic ──────────────────────────────────── */
 function showBanner(text, durationSec) {
   clearTimeout(_bannerTimer);
   $bannerTxt.textContent = text || '';
   $bannerRoot.style.display = 'block';
-  $bannerRoot.style.opacity  = '';
+  $bannerRoot.style.opacity = '';
   $bannerRoot.classList.remove('banner-anim-out');
   void $bannerRoot.offsetWidth;
   $bannerRoot.classList.add('banner-anim-in');
-  $bannerRoot.addEventListener('animationend', () => {
-    $bannerRoot.classList.remove('banner-anim-in');
-  }, { once: true });
-
-  _bannerTimer = setTimeout(() => hideBanner(), (durationSec || 8) * 1000);
+  $bannerRoot.addEventListener('animationend', () => $bannerRoot.classList.remove('banner-anim-in'), { once: true });
+  _bannerTimer = setTimeout(hideBanner, (durationSec || 8) * 1000);
 }
 
 function hideBanner() {
@@ -348,52 +323,28 @@ function hideBanner() {
   }, { once: true });
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   VISIBILITY
-═══════════════════════════════════════════════════════════════ */
-
+/* ── Visibility ────────────────────────────────────── */
 function applyVis(vis) {
   _vis = { ..._vis, ...vis };
-
-  // cards
-  if (!_vis.cards) {
-    _cardQueue = [];
-    if (_cardVisible) hideCard(null);
-  }
-
-  // banner
+  if (!_vis.cards)  { _cardQueue = []; if (_cardVisible) hideCard(null); }
   if (!_vis.banner) hideBanner();
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   WEBSOCKET
-═══════════════════════════════════════════════════════════════ */
-
+/* ── WebSocket ─────────────────────────────────────── */
 function connect() {
   let ws;
-  try {
-    ws = new WebSocket(WS_URL);
-  } catch (e) {
-    setTimeout(connect, RECONNECT_MS);
-    return;
-  }
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
 
   ws.onmessage = function(ev) {
     let msg;
     try { msg = JSON.parse(ev.data); } catch { return; }
 
     switch (msg.type) {
-      case 'overlay_vis':
-        applyVis(msg);
-        break;
+      case 'overlay_vis':  applyVis(msg); break;
 
       case 'card_show':
         if (!_vis.cards) return;
-        if (_cardVisible) {
-          _cardQueue.push(msg);
-        } else {
-          showCard(msg);
-        }
+        if (_cardVisible) _cardQueue.push(msg); else showCard(msg);
         break;
 
       case 'card_hide':
@@ -408,6 +359,10 @@ function connect() {
 
       case 'banner_hide':
         hideBanner();
+        break;
+
+      case 'cookie_drop':
+        flashCookieBadge();
         break;
     }
   };

@@ -362,6 +362,26 @@ _ws_manager = _WSManager()
 _screen_ws_manager = _WSManager()
 _screen_overrides: dict[str, dict] = {}
 
+# Unified chat relay for the chat_overlay browser source.
+_chat_ws_manager = _WSManager()
+
+
+async def push_chat_message(platform: str, username: str, text: str) -> None:
+    """Push a chat message to all connected /ws/chat clients (overlay browser sources).
+
+    Call from anywhere in the bot after a chat message has been validated
+    (bot-account filter already applied upstream in brain_worker).
+    Safe to call whether or not any overlay is connected — no-ops cleanly.
+    """
+    import json as _json
+    await _chat_ws_manager.broadcast({
+        "type":     "chat",
+        "platform": platform,   # "twitch" | "youtube"
+        "username": username,
+        "text":     text,
+        "ts":       __import__('time').time(),
+    })
+
 # bot reference is injected by start_control_server()
 _bot_ref: "VTubeBot | None" = None
 
@@ -447,6 +467,25 @@ async def ws_screens(ws: WebSocket):
         pass
     finally:
         _screen_ws_manager.disconnect(ws)
+
+
+@app.websocket("/ws/chat")
+async def ws_chat(ws: WebSocket):
+    """Unified chat relay for the chat_overlay browser source.
+
+    Receives messages pushed by push_chat_message() and broadcasts them to
+    connected overlay clients. The connection is kept open (read loop) so the
+    server can detect client disconnects; no server→client keep-alive is
+    needed beyond the message pushes.
+    """
+    await _chat_ws_manager.connect(ws)
+    try:
+        while True:
+            await ws.receive_text()  # keep alive; client doesn't send anything
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
+        _chat_ws_manager.disconnect(ws)
 
 
 @app.get("/vision/thumbnail")

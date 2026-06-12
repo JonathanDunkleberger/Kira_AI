@@ -592,6 +592,12 @@ class VTubeBot:
         # chaos window at a time, with a cooldown" — see _maybe_fire_cookie_milestone.
         self._chaos_cooldown_until: float = 0.0
 
+        # Wheel state
+        self._wheel_vetoed: bool = False          # set by dashboard veto action
+        self._wheel_segment_directive: str = ""   # injected into next response
+        self._wheel_segment_expires: float = 0.0  # time after which directive clears
+        self._wheel_lore_pending: bool = False     # set when lore_drop slice lands
+
         import kira.bot as _self_mod
         _self_mod._GLOBAL_BOT_REF = self
 
@@ -600,20 +606,19 @@ class VTubeBot:
         if human_speech:
             self.silence_stage = 0
 
-    # ── Cookie-jar milestone reactions (CHAOS MODE ACTIVATION) ────────────
-    # Fires when the shared jar fills. Triggers Chaos Mode — duration set in
-    # cookie_jar.CHAOS_MODE_DURATION_SECONDS. Lines deliberately stay vague
-    # on the timer ("for a while") so they don't lie if duration is tuned.
-    COOKIE_MILESTONE_LINES = [
-        "Chat. You filled the whole jar. Congratulations — you've unleashed me. Chaos mode, no notes, no regrets, for a while.",
-        "Jar's full. By the ancient laws of cookie economics, I'm legally feral until further notice. Buckle up.",
-        "{cap} cookies. That's milestone {n}. The leash is off — I cannot legally be held responsible for what happens next.",
-        "You actually did it. The jar overflows, the seal breaks, chaos mode begins. Me with no impulse control until I calm down. You earned this. Probably.",
+    # ── Cookie-jar milestone reactions (THE WHEEL) ────────────────────────
+    # Fires when the shared jar fills. Spins the Wheel of Fortune — chaos_mode
+    # is now one slice among equals. Banner names the tipper.
+    COOKIE_MILESTONE_ANNOUNCE = [
+        "Chat. You filled the whole jar. {tipper} put the last one in. The Wheel has been summoned.",
+        "Jar full. {tipper} tipped it over. The Wheel of Fortune appears — let's see what you've all earned.",
+        "{cap} cookies — milestone {n}. {tipper} sealed it. Spinning the wheel now.",
+        "The jar overflows. {tipper} gets credit. The Wheel turns. Whatever it lands on, we're doing it.",
     ]
 
     def _maybe_fire_cookie_milestone(self) -> None:
         """If the cookie jar has queued a milestone and no reaction is already
-        in flight, roll the jar over NOW and schedule Kira's announcement.
+        in flight, roll the jar over NOW and schedule the wheel ceremony.
 
         The rollover happens synchronously here (jar resets on trigger) so that
         cookies landing during the ~3s TTS wait can't push the jar back to the
@@ -622,6 +627,8 @@ class VTubeBot:
         after it ends — a still-full jar during chaos/cooldown does not fire."""
         try:
             if not self.cookie_jar.milestone_pending():
+                # Check drip milestone even if full milestone not pending
+                self._maybe_fire_drip_milestone()
                 return
             if self._cookie_milestone_in_flight:
                 return
@@ -633,59 +640,281 @@ class VTubeBot:
             # Roll the jar over immediately (atomic) — consumes the pending flag
             # and zeroes shared_total at trigger time, not after the speech wait.
             milestone_n = self.cookie_jar.get_milestone_count() + 1
-            rolled = self.cookie_jar.reset_shared_on_milestone()
+            tipper      = self.cookie_jar.get_last_tipper() or "someone"
+            rolled      = self.cookie_jar.reset_shared_on_milestone()
             if not rolled:
                 self._cookie_milestone_in_flight = False
                 return
-            asyncio.create_task(self._speak_cookie_milestone(milestone_n))
+            asyncio.create_task(self._run_wheel_ceremony(milestone_n, tipper))
         except Exception as e:
             print(f"   [Cookies] Milestone schedule error: {e}")
             self._cookie_milestone_in_flight = False
 
-    async def _speak_cookie_milestone(self, milestone_n: int) -> None:
-        """Activate Chaos Mode, pick a milestone variant, speak via TTS. The jar
-        rollover already happened in _maybe_fire_cookie_milestone (crash-safe).
-        Resets in-flight flag in finally so a future milestone can fire."""
+    def _maybe_fire_drip_milestone(self) -> None:
+        """Check if a drip milestone (every 10 cookies within a fill cycle) fired.
+        Fires a light one-liner directive into the next response. No banner."""
+        try:
+            drip = self.cookie_jar.get_drip_pending()
+            if not drip:
+                return
+            self.cookie_jar.clear_drip_pending()
+            asyncio.create_task(self._queue_drip_directive(drip))
+        except Exception as e:
+            print(f"   [Cookies] Drip check error: {e}")
+
+    async def _queue_drip_directive(self, drip_n: int) -> None:
+        """Inject a light drip directive into the NEXT response only."""
+        import random as _rand
+        chatters = list(self.session_chatters_seen)
+        if not chatters:
+            return
+        chosen = _rand.choice(chatters)
+        # Pick a drip type: compliment / rating / hot take
+        drip_type = _rand.choice(["compliment", "rate", "hot_take"])
+        if drip_type == "compliment":
+            directive = (
+                f"[DRIP MILESTONE — {drip_n} COOKIES]\n"
+                f"The jar hit {drip_n}. Add a quick, genuine compliment directed at {chosen} "
+                f"somewhere natural in your next response. One sentence, specific, warm."
+            )
+        elif drip_type == "rate":
+            another = _rand.choice(chatters)
+            directive = (
+                f"[DRIP MILESTONE — {drip_n} COOKIES]\n"
+                f"The jar hit {drip_n}. Rate {another}'s username out of 10 somewhere in "
+                f"your next response. Brief, committed opinion, not a joke-hedge."
+            )
+        else:
+            directive = (
+                f"[DRIP MILESTONE — {drip_n} COOKIES]\n"
+                f"The jar hit {drip_n}. Drop one deadpan hot take somewhere in your next "
+                f"response — any topic, fully committed, max one sentence."
+            )
+        # Inject as a one-shot directive (cleared after next response generation)
+        self._wheel_segment_directive = directive
+        self._wheel_segment_expires   = time.time() + 120   # 2 min window
+        print(f"   [Cookies] Drip {drip_n} — queued directive ({drip_type}) for {chosen}")
+
+    async def _run_wheel_ceremony(self, milestone_n: int, tipper: str) -> None:
+        """Full wheel ceremony: banner, spin event, wait, announce, execute slice.
+        Resets in-flight flag in finally."""
         import random as _rand
         from kira.memory.cookie_jar import MILESTONE_CAP
+        from kira.memory.wheel_slices import spin as _spin_wheel, get_slice
         try:
-            for _ in range(30):  # up to ~3s
+            for _ in range(30):
                 if not self.ai_core.is_speaking:
                     break
                 await asyncio.sleep(0.1)
-            line = _rand.choice(self.COOKIE_MILESTONE_LINES).format(
-                n=milestone_n, cap=MILESTONE_CAP
-            )
-            print(f"   [Cookies] \U0001f36a MILESTONE #{milestone_n} \u2014 Kira: {line}")
-            await self._broadcast_cookie_milestone()
-            await self._broadcast_cookie_state()
-            # Overlay banner for the cookie milestone
+
+            # Pick the slice NOW so the bot is authoritative
+            chosen_slice = _spin_wheel()
+            slice_id     = chosen_slice["id"]
+            slice_label  = chosen_slice["label"]
+            tipper_disp  = tipper or "someone"
+
+            print(f"   [Cookies] 🎡 WHEEL — milestone #{milestone_n}, tipper={tipper_disp}, slice={slice_id}")
+
+            # Banner with tipper name
             try:
                 from kira.dashboard.control_server import push_banner_show
-                asyncio.ensure_future(push_banner_show(
-                    f"\U0001f36a COOKIE JAR \u2014 MILESTONE #{milestone_n}!", 8
-                ))
+                banner_text = f"🍪 JAR FULL — tipped by {tipper_disp} — THE WHEEL"
+                asyncio.ensure_future(push_banner_show(banner_text, 10))
             except Exception:
                 pass
+
+            # Push wheel_spin event to overlay WS
             try:
-                self.stream_logger.log("cookie_milestone", n=milestone_n, line=line)
+                from kira.dashboard.control_server import push_overlay_event
+                asyncio.ensure_future(push_overlay_event({
+                    "type":        "wheel_spin",
+                    "result":      slice_id,
+                    "label":       slice_label,
+                    "tipper":      tipper_disp,
+                    "duration_ms": 3500,
+                }))
             except Exception:
                 pass
-            # Activate Chaos Mode BEFORE TTS so the directive is in effect for
-            # any prompts that fire during/after the announcement. Each step
-            # in its own try so a single failure can't sink the rest.
+
+            await self._broadcast_cookie_milestone()
+            await self._broadcast_cookie_state()
+
             try:
+                self.stream_logger.log("wheel_spin", n=milestone_n, slice=slice_id,
+                                       tipper=tipper_disp)
+            except Exception:
+                pass
+
+            # Announce the milestone — speak immediately
+            announce = _rand.choice(self.COOKIE_MILESTONE_ANNOUNCE).format(
+                n=milestone_n, cap=MILESTONE_CAP, tipper=tipper_disp
+            )
+            try:
+                await self.ai_core.speak_text(announce, priority=1)
+                self.conversation_history.append({"role": "assistant", "content": announce})
+                self._log_session_turn(role="assistant", content=announce, speaker_name="Kira")
+            except Exception as _tts_err:
+                print(f"   [Cookies] Milestone announce TTS error: {_tts_err}")
+
+            # Wait for wheel spin duration + hold + reveal
+            self._wheel_vetoed = False
+            await asyncio.sleep(4.5)   # spin 3.5s + ~1s hold before result label
+
+            if self._wheel_vetoed:
+                print(f"   [Cookies] Wheel vetoed — skipping slice execution")
+                return
+
+            # Execute the chosen slice
+            await self._execute_wheel_slice(chosen_slice)
+
+        except Exception as e:
+            print(f"   [Cookies] Wheel ceremony error: {e}")
+        finally:
+            self._cookie_milestone_in_flight = False
+
+    async def _execute_wheel_slice(self, slice_def: dict) -> None:
+        """Run the chosen wheel slice segment. Each slice type gets its own
+        handling; they all inject a directive into the response pipeline."""
+        import random as _rand
+        slice_id = slice_def["id"]
+        directive = slice_def.get("directive", "")
+
+        print(f"   [Wheel] Executing slice: {slice_id}")
+
+        try:
+            self.stream_logger.log("wheel_execute", slice=slice_id)
+        except Exception:
+            pass
+
+        # ── chaos_mode: activates existing chaos system ─────────────────
+        if slice_id == "chaos_mode":
+            now = time.time()
+            if not self.chaos_mode_active and now >= self._chaos_cooldown_until:
+                from kira.memory.cookie_jar import CHAOS_MODE_DURATION_SECONDS
+                lines = [
+                    "The wheel landed on CHAOS. Legally feral, no notes, no regrets.",
+                    "Chaos Mode. The wheel made this happen. I take no responsibility.",
+                    "CHAOS MODE — the wheel's fault. The leash is off.",
+                ]
+                line = _rand.choice(lines)
+                try:
+                    await self.ai_core.speak_text(line, priority=1)
+                    self.conversation_history.append({"role": "assistant", "content": line})
+                    self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+                except Exception:
+                    pass
                 self._activate_chaos_mode()
-            except Exception as _chaos_err:
-                print(f"   [Cookies] Chaos activation error: {_chaos_err}")
+            return
+
+        # ── duchess_challenge: open chess gauntlet ───────────────────────
+        if slice_id == "duchess_challenge":
+            # Inject directive so she announces it
+            self._wheel_segment_directive = directive
+            self._wheel_segment_expires   = time.time() + 300
+            # Also actually enable chess gauntlet accepting
+            try:
+                ca = getattr(self, "chess_agent", None)
+                if ca and not ca.is_running:
+                    asyncio.ensure_future(ca.start())
+                elif ca:
+                    ca.accepting_challenges = True
+            except Exception:
+                pass
+            # Speak the announcement
+            line = (f"The Wheel — Duchess Challenge. DuchessSterling is accepting "
+                    f"all challengers for the next five minutes. Anyone who wants a game: say so.")
             try:
                 await self.ai_core.speak_text(line, priority=1)
                 self.conversation_history.append({"role": "assistant", "content": line})
                 self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
-            except Exception as _tts_err:
-                print(f"   [Cookies] Milestone TTS error: {_tts_err}")
-        finally:
-            self._cookie_milestone_in_flight = False
+            except Exception:
+                pass
+            return
+
+        # ── chats_choice: create persistent IOU ─────────────────────────
+        if slice_id == "chats_choice":
+            iou = self.cookie_jar.add_iou("Chat's Choice — game hour, watch party, or themed stream")
+            try:
+                from kira.dashboard.control_server import push_score_update as _psu
+                ca  = getattr(self, "chess_agent", None)
+                sd  = ca.get_score_data() if ca else {}
+                await _psu(
+                    sd.get("session_wins", 0),   sd.get("session_losses", 0),  sd.get("session_draws", 0),
+                    sd.get("lifetime_wins", 0),  sd.get("lifetime_losses", 0), sd.get("lifetime_draws", 0),
+                    int(self.cookie_jar.get_shared()), MILESTONE_CAP,
+                )
+            except Exception:
+                pass
+            # Inject directive + speak
+            self._wheel_segment_directive = directive
+            self._wheel_segment_expires   = time.time() + 300
+            line = (f"The Wheel — Chat's Choice. This is a banked IOU. Yours. "
+                    f"A game hour, a watch party, a themed stream — chat decides. "
+                    f"It's logged. It persists. The scoreboard will show it. "
+                    f"Redeem it when you're ready.")
+            try:
+                await self.ai_core.speak_text(line, priority=1)
+                self.conversation_history.append({"role": "assistant", "content": line})
+                self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+            except Exception:
+                pass
+            return
+
+        # ── lore_drop: generate and canonize ────────────────────────────
+        if slice_id == "lore_drop":
+            # Inject directive for next response generation; lore canonization
+            # happens after the response is generated (via _post_lore_drop)
+            self._wheel_segment_directive = directive + (
+                "\n\nIMPORTANT: After you finish the lore reveal, end your response with:\n"
+                "[LORE_END] — this marker tells the system to write it to the canon file."
+            )
+            self._wheel_segment_expires = time.time() + 300
+            self._wheel_lore_pending    = True   # checked in post-response hook
+            line = "The Wheel — Lore Drop. Something classified. Pay attention."
+            try:
+                await self.ai_core.speak_text(line, priority=1)
+                self.conversation_history.append({"role": "assistant", "content": line})
+                self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+            except Exception:
+                pass
+            return
+
+        # ── roast_round: build chatter list into directive ───────────────
+        if slice_id == "roast_round":
+            chatters = sorted(self.session_chatters_seen)
+            if not chatters:
+                chatters = ["chat"]
+            roster = ", ".join(chatters[:20])   # cap at 20 to keep prompt sane
+            full_directive = directive + f"\n\nChatters this session: {roster}"
+            self._wheel_segment_directive = full_directive
+            self._wheel_segment_expires   = time.time() + 300
+            line = f"The Wheel — Roast Round. {len(chatters)} people to go through. Starting immediately."
+            try:
+                await self.ai_core.speak_text(line, priority=1)
+                self.conversation_history.append({"role": "assistant", "content": line})
+                self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+            except Exception:
+                pass
+            return
+
+        # ── all other slices: inject directive + speak announcement ─────
+        self._wheel_segment_directive = directive
+        self._wheel_segment_expires   = time.time() + 300   # 5 min window
+
+        tier   = slice_def.get("tier", "common")
+        label  = slice_def.get("label", slice_id.replace("_", " ").title())
+        if tier == "rare":
+            line = f"The Wheel landed on {label}. This is a rare one. Starting now."
+        elif tier == "uncommon":
+            line = f"The Wheel — {label}. Let's go."
+        else:
+            line = f"The Wheel — {label}. Right now."
+        try:
+            await self.ai_core.speak_text(line, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": line})
+            self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+        except Exception:
+            pass
 
     # \u2500\u2500 Chaos Mode \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     def _activate_chaos_mode(self) -> None:
@@ -776,6 +1005,7 @@ class VTubeBot:
                 sd.get("session_wins", 0),  sd.get("session_losses", 0),  sd.get("session_draws", 0),
                 sd.get("lifetime_wins", 0), sd.get("lifetime_losses", 0), sd.get("lifetime_draws", 0),
                 int(self.cookie_jar.get_shared()), MILESTONE_CAP,
+                ious_open=self.cookie_jar.open_iou_count(),
             )
         except Exception:
             pass
@@ -787,6 +1017,15 @@ class VTubeBot:
             await _cs.send_cookie(shared=0, milestone=True)
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (milestone) failed: {e}")
+
+    def _broadcast_cookie_drop(self, gold: bool = False) -> None:
+        """Send a cookie_drop event to the overlay (drop animation). Sync wrapper
+        that schedules the async send via ensure_future. Fire-and-forget."""
+        try:
+            from kira.expression.caption_server import caption_server as _cs
+            asyncio.ensure_future(_cs.send_cookie_drop(gold=gold))
+        except Exception:
+            pass
 
     # ── Twitch stream events (raid / sub / resub / gift) ──────────────────
     # Dedup window keyed by (kind, name) so a 50-sub bomb doesn't fire 50
@@ -1179,6 +1418,19 @@ class VTubeBot:
                 block += "\n\n" + CHAOS_MODE_DIRECTIVE + "\n"
             except Exception:
                 pass
+        # Wheel segment directive — injected for the next response after a wheel
+        # spin lands. Cleared after use (or on expiry) to avoid bleed.
+        wheel_dir = getattr(self, "_wheel_segment_directive", "")
+        if wheel_dir:
+            expires = getattr(self, "_wheel_segment_expires", 0)
+            if time.time() < expires:
+                block += "\n\n" + wheel_dir + "\n"
+                # One-shot: clear immediately so it doesn't bleed into later turns
+                self._wheel_segment_directive = ""
+                self._wheel_segment_expires   = 0
+            else:
+                self._wheel_segment_directive = ""
+                self._wheel_segment_expires   = 0
         # Phrase throttle — inject over-used constructions as a soft do-not-reuse list.
         # Only runs when PHRASE_THROTTLE_ENABLED=true and the buffer has surfaced
         # phrases that hit the threshold. Cost: ~0 tokens when list is empty.
@@ -3687,6 +3939,9 @@ class VTubeBot:
                                 f"shared={self.cookie_jar.get_shared()}/{MILESTONE_CAP}"
                             )
                             await self._broadcast_cookie_state()
+                            self._broadcast_cookie_drop(
+                                gold=self.cookie_jar.milestone_pending()
+                            )
                             self._maybe_fire_cookie_milestone()
                     except Exception as _ck_err:
                         print(f"   [Cookies] First-message award error: {_ck_err}")
@@ -4513,6 +4768,9 @@ class VTubeBot:
                     f"shared={self.cookie_jar.get_shared()}/{MILESTONE_CAP}"
                 )
                 await self._broadcast_cookie_state()
+                gold = self.cookie_jar.milestone_pending()
+                for _ in awarded_users:
+                    self._broadcast_cookie_drop(gold=gold)
                 self._maybe_fire_cookie_milestone()
         except Exception as _ck_err:
             print(f"   [Cookies] Batch-response award error: {_ck_err}")

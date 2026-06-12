@@ -1,185 +1,299 @@
-<!doctype html>
+﻿<!doctype html>
+<!--
+  cookie_jar_overlay.html — KIRA Cookie Jar v2
+  OBS Browser Source: 1920 × 1080, transparent background.
+  Connects to ws://localhost:8765 (caption server cookie messages).
+  Also connects to ws://localhost:8766/ws/overlays for visibility toggles.
+
+  Assets (relative paths from this file):
+    ../web_dashboard/assets/cards/kira COOKIE JAR NEW 2.0_alpha.png   825×1024
+    ../web_dashboard/assets/cards/KIRA COOKIE 2.0_alpha.png           1024×1024
+    ../web_dashboard/assets/cards/KIRA COOKIE GOLD 2.0_alpha.png      1024×1024
+-->
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Kira Cookie Jar</title>
-    <style>
-        /* OBS browser source: set to whatever size fits your canvas.
-           Transparent background composites cleanly over the stream. */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body {
-            background: transparent;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: "Segoe UI", Arial, sans-serif;
-        }
-
-        #cookie-jar {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 18px;
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 30px;
-            border: 2px solid rgba(255, 200, 100, 0.35);
-            color: #fff;
-            font-size: 22px;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: background 0.3s;
-        }
-
-        /* Cookie emoji label */
-        #cookie-icon {
-            font-size: 26px;
-            line-height: 1;
-        }
-
-        /* "N / 50" text */
-        #cookie-count {
-            letter-spacing: 0.04em;
-        }
-
-        /* Progress bar track */
-        #bar-track {
-            width: 140px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        #bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #f9a825, #ff7043);
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-
-        /* Milestone flash */
-        @keyframes milestone-pulse {
-            0%   { background: rgba(255, 200, 60, 0.85); transform: scale(1.08); }
-            50%  { background: rgba(255, 120, 20, 0.90); transform: scale(1.12); }
-            100% { background: rgba(0, 0, 0, 0.55);      transform: scale(1); }
-        }
-
-        #cookie-jar.milestone {
-            animation: milestone-pulse 1.2s ease forwards;
-        }
-
-        /* Connection pip — top-left corner, very subtle.
-           Flip opacity to ~0.5 in your dev browser to see it. */
-        #status {
-            position: fixed;
-            top: 6px;
-            left: 8px;
-            font-size: 11px;
-            color: #aaa;
-            opacity: 0;
-            pointer-events: none;
-        }
-    </style>
+  <meta charset="utf-8">
+  <title>Kira Cookie Jar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px; height: 1080px;
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      user-select: none;
+    }
+    #jar-widget {
+      position: absolute;
+      pointer-events: none;
+      transition: opacity 250ms ease;
+    }
+    #jar-widget.hidden { opacity: 0; }
+    #jar-img {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 10; pointer-events: none;
+    }
+    #cookie-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 5; pointer-events: none;
+    }
+    #jar-label {
+      position: absolute; z-index: 15;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    #jar-label .jar-title {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.10em;
+      color: #4a2e30; line-height: 1;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+    }
+    #jar-label .jar-count {
+      font-size: 16px; font-weight: 800;
+      color: #4a2e30; line-height: 1;
+      letter-spacing: 0.03em;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+    }
+    @keyframes milestone-ring {
+      0%   { filter: drop-shadow(0 0 0px  rgba(255,200,60,0)); }
+      20%  { filter: drop-shadow(0 0 20px rgba(255,200,60,0.90)); }
+      100% { filter: drop-shadow(0 0 0px  rgba(255,200,60,0)); }
+    }
+    #jar-widget.milestone { animation: milestone-ring 1.2s ease forwards; }
+    #drop-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      z-index: 1000; pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-    <div id="cookie-jar">
-        <span id="cookie-icon">🍪</span>
-        <span id="cookie-count">0 / 50</span>
-        <div id="bar-track">
-            <div id="bar-fill"></div>
-        </div>
-    </div>
+<canvas id="drop-canvas" width="1920" height="1080"></canvas>
+<div id="jar-widget">
+  <canvas id="cookie-canvas"></canvas>
+  <img id="jar-img" src="../web_dashboard/assets/cards/kira COOKIE JAR NEW 2.0_alpha.png" alt="">
+  <div id="jar-label">
+    <span class="jar-title">KIRA'S COOKIE JAR</span>
+    <span class="jar-count" id="count-el">0 / 50</span>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  const CFG = {
+    JAR_LEFT: 1740, JAR_TOP: 540, JAR_W: 160,
+    FILL_X_LO: 0.22, FILL_X_HI: 0.78,
+    FILL_Y_LO: 0.36, FILL_Y_HI: 0.92,
+    LABEL_X_LO: 0.25, LABEL_X_HI: 0.75,
+    LABEL_Y_LO: 0.33, LABEL_Y_HI: 0.57,
+    COOKIE_SIZE_FRAC: 0.30,
+    DROP_ORIGIN_X: 60, DROP_ORIGIN_Y: 60,
+    JAR_MOUTH_X_FRAC: 0.50, JAR_MOUTH_Y_FRAC: 0.22,
+  };
+  const JAR_H = Math.round(CFG.JAR_W / (825 / 1024));
 
-    <div id="status">offline</div>
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
 
-    <script>
-    (function () {
-        // Same WebSocket server as the caption overlay.
-        // OBS CEF loads this via file://, so hostname is empty — hard-code localhost.
-        const WS_URL = "ws://localhost:8765";
+  const IMG_COOKIE = new Image();
+  IMG_COOKIE.src = '../web_dashboard/assets/cards/KIRA COOKIE 2.0_alpha.png';
+  const IMG_GOLD = new Image();
+  IMG_GOLD.src   = '../web_dashboard/assets/cards/KIRA COOKIE GOLD 2.0_alpha.png';
+  let _imagesReady = 0;
+  function _onImgLoad() { _imagesReady++; if (_imagesReady >= 2) _renderCookies(); }
+  IMG_COOKIE.addEventListener('load', _onImgLoad);
+  IMG_GOLD.addEventListener('load',   _onImgLoad);
 
-        const jarEl      = document.getElementById("cookie-jar");
-        const countEl    = document.getElementById("cookie-count");
-        const fillEl     = document.getElementById("bar-fill");
-        const statusEl   = document.getElementById("status");
+  const $widget = document.getElementById('jar-widget');
+  const $canvas = document.getElementById('cookie-canvas');
+  const $label  = document.getElementById('jar-label');
+  const $count  = document.getElementById('count-el');
+  const $drop   = document.getElementById('drop-canvas');
+  const dropCtx = $drop.getContext('2d');
 
-        // Cap fallback: matches the backend default so "0 / 50" shows correctly
-        // even before the first WebSocket message arrives.
-        let cap = 50;
-        let shared = 0;
+  $widget.style.left   = CFG.JAR_LEFT + 'px';
+  $widget.style.top    = CFG.JAR_TOP  + 'px';
+  $widget.style.width  = CFG.JAR_W    + 'px';
+  $widget.style.height = JAR_H        + 'px';
+  $canvas.width = CFG.JAR_W; $canvas.height = JAR_H;
+  $canvas.style.width = CFG.JAR_W + 'px'; $canvas.style.height = JAR_H + 'px';
 
-        let ws = null;
-        let reconnectDelay = 500;
-        const MAX_RECONNECT = 8000;
-        let milestoneTimer = null;
+  const lblLeft   = CFG.LABEL_X_LO * CFG.JAR_W;
+  const lblTop    = CFG.LABEL_Y_LO * JAR_H;
+  const lblWidth  = (CFG.LABEL_X_HI - CFG.LABEL_X_LO) * CFG.JAR_W;
+  const lblHeight = (CFG.LABEL_Y_HI - CFG.LABEL_Y_LO) * JAR_H;
+  $label.style.left = lblLeft + 'px'; $label.style.top = lblTop + 'px';
+  $label.style.width = lblWidth + 'px'; $label.style.height = lblHeight + 'px';
 
-        function render() {
-            const safeCap = cap > 0 ? cap : 50;
-            countEl.textContent = `${shared} / ${safeCap}`;
-            const pct = Math.min(100, (shared / safeCap) * 100);
-            fillEl.style.width = pct + "%";
-        }
+  let shared = 0, cap = 50;
+  let milestoneFlashActive = false, milestoneTimer = null, visible = true;
 
-        function triggerMilestone() {
-            // Re-trigger animation by removing and re-adding the class.
-            jarEl.classList.remove("milestone");
-            // Flush the removal so the browser sees the class change.
-            void jarEl.offsetWidth;
-            jarEl.classList.add("milestone");
-            if (milestoneTimer) clearTimeout(milestoneTimer);
-            milestoneTimer = setTimeout(() => jarEl.classList.remove("milestone"), 1400);
-        }
+  function _renderCookies() {
+    const ctx = $canvas.getContext('2d');
+    ctx.clearRect(0, 0, CFG.JAR_W, JAR_H);
+    if (shared <= 0) return;
+    const cs     = CFG.COOKIE_SIZE_FRAC * CFG.JAR_W;
+    const fillX0 = CFG.FILL_X_LO * CFG.JAR_W;
+    const fillX1 = CFG.FILL_X_HI * CFG.JAR_W;
+    const fillY0 = CFG.FILL_Y_LO * JAR_H;
+    const fillY1 = CFG.FILL_Y_HI * JAR_H;
+    const fillW  = fillX1 - fillX0;
+    const cols   = Math.max(1, Math.floor(fillW / (cs * 0.80)));
+    const rowH   = cs * 0.75;
+    for (let i = 0; i < shared; i++) {
+      const rng  = mulberry32(i * 0x9E3779B1 + 0xDEADBEEF);
+      const col  = i % cols;
+      const row  = Math.floor(i / cols);
+      const jx   = (rng() - 0.5) * (fillW / cols - cs) * 0.6;
+      const jy   = (rng() - 0.5) * rowH * 0.25;
+      const rot  = (rng() - 0.5) * 2 * (15 * Math.PI / 180);
+      const cellW = fillW / cols;
+      const cx_  = fillX0 + (col + 0.5) * cellW + jx;
+      const cy_  = fillY1 - (row + 0.5) * rowH + jy;
+      if (cy_ - cs / 2 < fillY0 || cy_ + cs / 2 > fillY1) continue;
+      const isGold = milestoneFlashActive && (i === shared - 1);
+      const img  = isGold ? IMG_GOLD : IMG_COOKIE;
+      if (!img.complete || !img.naturalWidth) continue;
+      ctx.save();
+      ctx.translate(cx_, cy_); ctx.rotate(rot);
+      ctx.drawImage(img, -cs/2, -cs/2, cs, cs);
+      ctx.restore();
+    }
+  }
 
-        function setStatus(state) {
-            statusEl.textContent = state;
-        }
+  function _updateCount() { $count.textContent = shared + ' / ' + cap; }
 
-        function connect() {
-            ws = new WebSocket(WS_URL);
+  function _triggerMilestone() {
+    milestoneFlashActive = true;
+    $widget.classList.remove('milestone');
+    void $widget.offsetWidth;
+    $widget.classList.add('milestone');
+    if (milestoneTimer) clearTimeout(milestoneTimer);
+    milestoneTimer = setTimeout(function () {
+      $widget.classList.remove('milestone');
+      milestoneFlashActive = false;
+      _renderCookies();
+    }, 1400);
+    _renderCookies();
+  }
 
-            ws.onopen = () => {
-                reconnectDelay = 500;
-                setStatus("online");
-            };
+  var _dropQueue = [], _dropRunning = false;
 
-            ws.onmessage = (ev) => {
-                let msg;
-                try { msg = JSON.parse(ev.data); } catch { return; }
-                if (!msg || msg.type !== "cookie") return;
+  function _jarMouthAbs() {
+    return {
+      x: CFG.JAR_LEFT + CFG.JAR_MOUTH_X_FRAC * CFG.JAR_W,
+      y: CFG.JAR_TOP  + CFG.JAR_MOUTH_Y_FRAC * JAR_H,
+    };
+  }
 
-                if (msg.milestone === true) {
-                    triggerMilestone();
-                    return;
-                }
+  function _enqueueDrop(gold) {
+    _dropQueue.push({ gold: gold });
+    if (!_dropRunning) _runNextDrop();
+  }
 
-                // Read live cap from the message — never stale again.
-                if (typeof msg.cap === "number" && msg.cap > 0) {
-                    cap = msg.cap;
-                }
-                if (typeof msg.shared === "number") {
-                    shared = msg.shared;
-                }
-                render();
-            };
+  function _spawnSparks(ox, oy) {
+    var sparks = [];
+    for (var i = 0; i < 12; i++) {
+      var angle = (i / 12) * Math.PI * 2;
+      var speed = 30 + Math.random() * 50;
+      sparks.push({ x: ox, y: oy, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
+                    life: 0.8 + Math.random()*0.2, size: 3 + Math.random()*4 });
+    }
+    return sparks;
+  }
 
-            ws.onclose = () => {
-                setStatus("offline");
-                ws = null;
-                setTimeout(connect, reconnectDelay);
-                reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT);
-            };
+  function _stepSparks(sparks, t) {
+    for (var s of sparks) {
+      if (t > s.life) continue;
+      var st = t / s.life;
+      var sx = s.x + s.vx * t * 0.6;
+      var sy = s.y + s.vy * t * 0.6 + 30 * t * t;
+      var alpha = Math.max(0, 1 - st * 1.5);
+      dropCtx.beginPath();
+      dropCtx.arc(sx, sy, s.size * (1 - st * 0.5), 0, Math.PI * 2);
+      dropCtx.fillStyle = 'rgba(255,' + (180 + Math.round(Math.random()*75)) + ',20,' + alpha.toFixed(2) + ')';
+      dropCtx.fill();
+    }
+  }
 
-            ws.onerror = () => {
-                ws.close();
-            };
-        }
+  function _runNextDrop() {
+    if (_dropQueue.length === 0) { _dropRunning = false; return; }
+    _dropRunning = true;
+    var item   = _dropQueue.shift();
+    var gold   = item.gold;
+    var img    = gold ? IMG_GOLD : IMG_COOKIE;
+    var mouth  = _jarMouthAbs();
+    var ox = CFG.DROP_ORIGIN_X, oy = CFG.DROP_ORIGIN_Y;
+    var cs = CFG.COOKIE_SIZE_FRAC * CFG.JAR_W * 1.6;
+    var DURATION_MS = gold ? 900 : 700;
+    var startTime = performance.now();
+    var sparks = gold ? _spawnSparks(ox, oy) : [];
 
-        // Initial render with fallback values before first message.
-        render();
-        connect();
-    })();
-    </script>
+    function frame(now) {
+      var t  = Math.min(1, (now - startTime) / DURATION_MS);
+      var et = 1 - Math.pow(1 - t, 2);
+      dropCtx.clearRect(0, 0, 1920, 1080);
+      if (gold) _stepSparks(sparks, t);
+      var px = ox + (mouth.x - ox) * et;
+      var arcH = -180 * Math.sin(Math.PI * t);
+      var py = oy + (mouth.y - oy) * et + arcH;
+      var rot = t * Math.PI * 2;
+      dropCtx.save();
+      dropCtx.translate(px, py); dropCtx.rotate(rot);
+      if (img.complete && img.naturalWidth) {
+        dropCtx.globalAlpha = t > 0.85 ? Math.max(0, 1 - (t - 0.85) / 0.15) : 1;
+        dropCtx.drawImage(img, -cs/2, -cs/2, cs, cs);
+      }
+      dropCtx.restore(); dropCtx.globalAlpha = 1;
+      if (t < 1) requestAnimationFrame(frame);
+      else { dropCtx.clearRect(0,0,1920,1080); _runNextDrop(); }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  var retry8765 = 500;
+  function connect8765() {
+    var ws = new WebSocket('ws://localhost:8765');
+    ws.onopen = function () { retry8765 = 500; };
+    ws.onmessage = function (ev) {
+      var msg; try { msg = JSON.parse(ev.data); } catch { return; }
+      if (msg.type === 'cookie_drop') { if (visible) _enqueueDrop(!!msg.gold); return; }
+      if (msg.type !== 'cookie') return;
+      if (msg.milestone === true) { _triggerMilestone(); return; }
+      if (typeof msg.cap === 'number' && msg.cap > 0) cap = msg.cap;
+      if (typeof msg.shared === 'number') shared = msg.shared;
+      _updateCount(); _renderCookies();
+    };
+    ws.onclose = function () { setTimeout(connect8765, retry8765); retry8765 = Math.min(retry8765 * 2, 8000); };
+    ws.onerror = function () { ws.close(); };
+  }
+
+  var retry8766 = 500;
+  function connect8766() {
+    var ws = new WebSocket('ws://localhost:8766/ws/overlays');
+    ws.onopen = function () { retry8766 = 500; };
+    ws.onmessage = function (ev) {
+      var msg; try { msg = JSON.parse(ev.data); } catch { return; }
+      if (msg.type === 'overlay_vis' && typeof msg.cookies_jar === 'boolean') {
+        visible = msg.cookies_jar;
+        $widget.classList.toggle('hidden', !visible);
+      }
+    };
+    ws.onclose = function () { setTimeout(connect8766, retry8766); retry8766 = Math.min(retry8766 * 2, 8000); };
+    ws.onerror = function () { ws.close(); };
+  }
+
+  _updateCount(); _renderCookies(); connect8765(); connect8766();
+})();
+</script>
 </body>
 </html>

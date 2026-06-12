@@ -137,16 +137,6 @@ class StreamLogger:
         Summary generation is fully bulletproofed — any failure (Claude, fallback,
         whatever) is caught, logged with traceback, and SWALLOWED. finish() must
         never crash the process."""
-        # Debug: log who called us, so a mis-routed mid-stream summary is instantly visible.
-        ai_core_state = "set" if ai_core is not None else "None"
-        # Stack capture is diagnostic-only; never let it crash teardown (e.g. on Ctrl+C).
-        try:
-            caller_stack = "".join(traceback.format_stack()[-5:-1])
-        except Exception:
-            caller_stack = "(stack unavailable)"
-        print(f"   [StreamLogger] finish() called: ai_core={ai_core_state}, started={self._started}\n"
-              f"     caller:\n{caller_stack}", file=sys.stderr)
-
         if not self._started:
             return
         self._is_running = False

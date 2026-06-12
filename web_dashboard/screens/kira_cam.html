@@ -52,14 +52,14 @@
     /* Top nudged in +2% from measured frame edge (belt-and-suspenders).    */
     snowRegion:   { x: 0.278, y: 0.070, w: 0.398, h: 0.530 },
 
-    /* -- Mirror region — far right edge, partially behind hanging plant ---
-     * Measured via cool+bright scan on scene_kiracam.jfif (1024×572).     *
-     * Coolest zone: x=960-1023, y=32-159 (wb +27..+43, lum 45-59).        *
-     * Left edge extended to x=960 (0.938) where wb stays <50 at y=48-79.  *
-     * Mirror: { x: 0.938, y: 0.040, w: 0.062, h: 0.245 }                  *
-     * Plant leaves overhanging are handled by the occlusion mask.          */
-    mirrorRegion:    { x: 0.938, y: 0.040, w: 0.062, h: 0.245 },
-    mirrorSnowCount: 14,   /* ~25 % of main snowCount (55)                  */
+    /* -- Mirror region — DISABLED for kira_cam. The amber-lit room scene has
+     * very little warm/cool contrast between the mirror glass and the wall,
+     * so the threshold scan catches the sticky-note wall instead of the
+     * reflected sky. Mirror snow on the wrong surface is worse than none.
+     * Re-enable only if a stricter scan confirms a usable glass area.       *
+     * mirrorRegion: { x: 0.938, y: 0.040, w: 0.062, h: 0.245 }             */
+    // mirrorRegion:    { x: 0.938, y: 0.040, w: 0.062, h: 0.245 },
+    // mirrorSnowCount: 14,
 
     /* -- CRT monitor — right side; green heart glyph at (0.880, 0.611) --- */
     /* Screen spans approx x=0.820-0.960, y=0.390-0.635                    */

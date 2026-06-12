@@ -257,6 +257,14 @@ class CaptionServer:
             return
         await self._broadcast({"type": "chaos", "active": bool(active), "remaining": int(remaining)})
 
+    async def send_cookie_drop(self, gold: bool = False) -> None:
+        """Push a cookie-drop animation trigger to the overlay. Shape:
+            {"type":"cookie_drop","gold":bool}
+        Fire-and-forget; drops silently if no clients connected."""
+        if not self.enabled or not self._started or not self._clients:
+            return
+        await self._broadcast({"type": "cookie_drop", "gold": bool(gold)})
+
     async def _broadcast(self, frame: dict) -> None:
         payload = json.dumps(frame, ensure_ascii=False)
         dead = []

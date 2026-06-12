@@ -745,6 +745,23 @@ html, body {
               onclick="cmd('stream_start')">▶ Stream Start</button>
       <button class="rail-btn stream" style="background:var(--ctrl-bg);color:var(--text-primary);border:1.5px solid var(--border);"
               onclick="cmd('stream_end')">■ Stream End</button>
+
+      <div class="rail-sep"></div>
+
+      <!-- Wheel -->
+      <span class="rail-section-label">🎡 Wheel</span>
+      <button class="rail-btn" style="background:var(--danger);color:#fff;"
+              onclick="cmd('wheel_veto')">🚫 VETO WHEEL</button>
+
+      <!-- Cookie Top-3 -->
+      <div class="rail-sep"></div>
+      <span class="rail-section-label">🍪 Session Top</span>
+      <div id="cookie-top3" style="font-size:.68rem;color:var(--text-muted);line-height:1.6;padding:0 2px;">–</div>
+
+      <!-- IOU Redeem -->
+      <div class="rail-sep"></div>
+      <span class="rail-section-label">📋 IOUs</span>
+      <div id="iou-list" style="font-size:.68rem;color:var(--text-muted);line-height:1.8;">–</div>
     </div>
 
     <!-- ── TRANSCRIPT ── -->
@@ -1255,7 +1272,11 @@ function render(s) {
 }
 
 // ── OVERLAY CHIPS ────────────────────────────────────────
-const _OV_LABELS = { chat: 'Chat', cards: 'Cards', banner: 'Banner', scoreboard: 'Board', spectate: 'Spec' };
+const _OV_LABELS = {
+  chat: 'Chat', cards: 'Cards', banner: 'Banner',
+  scoreboard: 'Board', spectate: 'Spec',
+  wheel: '🎡 Wheel', cookies_jar: '🍪 Jar',
+};
 let _ovLast = null;
 function renderOverlayChips(s) {
   const vis = s.overlay_vis;
@@ -1310,6 +1331,37 @@ function renderGlance(s) {
 
   // API cost
   setText('g-cost', s.session_cost_usd != null ? '$' + Number(s.session_cost_usd).toFixed(3) : '–');
+
+  // Cookie top-3 leaderboard
+  const $top3 = document.getElementById('cookie-top3');
+  if ($top3) {
+    const top = s.cookie_top3 || [];
+    if (top.length === 0) {
+      $top3.textContent = '–';
+    } else {
+      const medals = ['🥇','🥈','🥉'];
+      $top3.innerHTML = top.map((e, i) =>
+        `<span>${medals[i] || (i+1)+'. '} ${escHtml(e.name)} — ${e.count}</span>`
+      ).join('<br>');
+    }
+  }
+
+  // IOU list
+  const $iouList = document.getElementById('iou-list');
+  if ($iouList) {
+    const ious_open = s.ious_open || 0;
+    if (ious_open === 0) {
+      $iouList.textContent = '–';
+    } else {
+      // Show count + redeem buttons (one per open IOU — we don't have full list here,
+      // just the count, so show numbered redeem buttons)
+      let html = '';
+      for (let i = 0; i < ious_open; i++) {
+        html += `<span>IOU #${i+1} — open &nbsp;<button class="rail-btn" style="font-size:.6rem;padding:1px 6px;" onclick="cmd('redeem_iou',{idx:${i}})">Redeem</button></span><br>`;
+      }
+      $iouList.innerHTML = html;
+    }
+  }
 
   // Ambient audio UI sync
   _syncAmbienceUi(s.ambience);

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!--
+  wheel_overlay.html — The Wheel of Fortune (cookie jar payoff ceremony)
+  OBS Browser Source: 1920 × 1080, transparent background.
+  Connects to ws://localhost:8766/ws/overlays
+  Events: wheel_spin · wheel_veto · overlay_vis
+
+  Receives: {type:"wheel_spin", result:"slice_id", duration_ms:3500,
+             tipper:"username", label:"Ghost Story"}
+  Veto: {type:"wheel_veto"} — hide immediately without revealing
+  Visibility: overlay_vis.wheel
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 1920px; height: 1080px;
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+}
+
+/* ── Wheel root — centred on canvas ── */
+#wheel-root {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+#wheel-root.visible { opacity: 1; }
+
+/* Pixel heart hub (SVG) */
+#hub { position: absolute; transform: translate(-50%, -50%); }
+
+/* Slice glow on win */
+@keyframes win-pulse {
+  0%,100% { filter: brightness(1) drop-shadow(0 0 0px rgba(255,220,80,0)); }
+  50%      { filter: brightness(1.35) drop-shadow(0 0 24px rgba(255,220,80,0.85)); }
+}
+.win-glow { animation: win-pulse 0.8s ease-in-out infinite; }
+
+/* Pointer / ticker at top */
+#pointer {
+  position: absolute;
+  left: 50%; top: 0;
+  transform: translate(-50%, -8px);
+  width: 0; height: 0;
+  border-left:  14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top:   28px solid #4a2e30;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+}
+
+/* Result label below wheel */
+#result-label {
+  position: absolute;
+  left: 50%; top: calc(100% + 24px);
+  transform: translateX(-50%);
+  font-size: 22px;
+  font-weight: 800;
+  color: #4a2e30;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(255,220,80,0.7), 0 1px 0 rgba(255,255,255,0.6);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+#result-label.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="wheel-root">
+  <canvas id="wheel-canvas"></canvas>
+  <div id="pointer"></div>
+  <div id="result-label"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   WHEEL SLICE DEFINITIONS (must match kira/memory/wheel_slices.py)
+   Colors: washi-note palette — cream/rose/tan, warm-brown outlines.
+══════════════════════════════════════════════════════════════════════ */
+const SLICES = [
+  { id: 'ghost_story',        label: 'Ghost Story',       tier: 'common',   color: '#f5e6d0', textColor: '#4a2e30' },
+  { id: 'roast_round',        label: 'Roast Round',       tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
+  { id: 'hot_takes_gauntlet', label: 'Hot Takes',         tier: 'common',   color: '#e8d8c0', textColor: '#4a2e30' },
+  { id: 'chaos_mode',         label: 'CHAOS MODE',        tier: 'common',   color: '#f0c8b8', textColor: '#8b2010' },
+  { id: 'lore_drop',          label: 'Lore Drop',         tier: 'uncommon', color: '#d8e0f0', textColor: '#2030a0' },
+  { id: 'interrogation',      label: 'Interrogation',     tier: 'uncommon', color: '#d8f0e0', textColor: '#105030' },
+  { id: 'duchess_challenge',  label: '♟ Duchess',         tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
+  { id: 'confession_booth',   label: 'Confession Booth',  tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
+  { id: 'kira_sings',         label: 'Kira Sings ♪',     tier: 'rare',     color: '#fcd8e8', textColor: '#8b1060' },
+  { id: 'chats_choice',       label: "Chat's Choice ★",  tier: 'rare',     color: '#f8f0c0', textColor: '#604000' },
+];
+
+const TIER_RING = { common: '#c8a880', uncommon: '#9090d0', rare: '#d0a020' };
+
+const R       = 280;    /* wheel radius px */
+const R_INNER = 28;     /* hub radius */
+const CANVAS_SIZE = (R + 20) * 2;
+
+const $root    = document.getElementById('wheel-root');
+const $canvas  = document.getElementById('wheel-canvas');
+const $result  = document.getElementById('result-label');
+const ctx      = $canvas.getContext('2d');
+
+$canvas.width  = CANVAS_SIZE;
+$canvas.height = CANVAS_SIZE;
+$root.style.width  = CANVAS_SIZE + 'px';
+$root.style.height = CANVAS_SIZE + 'px';
+
+/* Pointer sits at top centre of the canvas */
+const ptr = document.getElementById('pointer');
+ptr.style.left = '50%';
+ptr.style.top  = '0';
+
+const CX = CANVAS_SIZE / 2;
+const CY = CANVAS_SIZE / 2;
+const N  = SLICES.length;
+const SLICE_ANGLE = (2 * Math.PI) / N;
+
+/* ── Wobbly-circle path helper ── */
+function _wobbleR(baseR, angle) {
+  /* Slight radius jitter gives a hand-drawn feel */
+  return baseR * (1 + 0.012 * Math.sin(angle * 3.7 + 0.9));
+}
+
+/* ── Draw the static wheel at rotation `rot` ── */
+function drawWheel(rot, winIdx) {
+  ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+  for (let i = 0; i < N; i++) {
+    const startA = rot + i * SLICE_ANGLE - Math.PI / 2;
+    const endA   = startA + SLICE_ANGLE;
+    const s      = SLICES[i];
+    const isWin  = (winIdx === i);
+
+    /* Fill */
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    /* Slightly wobbly arc */
+    for (let a = startA; a <= endA + 0.01; a += 0.05) {
+      const r = _wobbleR(R, a);
+      ctx.lineTo(CX + Math.cos(a) * r, CY + Math.sin(a) * r);
+    }
+    ctx.closePath();
+    ctx.fillStyle = isWin ? _lighten(s.color, 0.25) : s.color;
+    ctx.fill();
+
+    /* Rim ring color by tier */
+    ctx.strokeStyle = TIER_RING[s.tier] || '#c8a880';
+    ctx.lineWidth   = isWin ? 4 : 2;
+    ctx.stroke();
+
+    /* Label text */
+    const midA  = startA + SLICE_ANGLE / 2;
+    const tr    = R * 0.67;
+    const tx    = CX + Math.cos(midA) * tr;
+    const ty    = CY + Math.sin(midA) * tr;
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.rotate(midA + Math.PI / 2);
+    const fontSize = SLICE_ANGLE > 0.7 ? 13 : 11;
+    ctx.font        = `700 ${fontSize}px 'Segoe UI', sans-serif`;
+    ctx.textAlign   = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle   = s.textColor;
+    /* Word-wrap: split on space */
+    const words = s.label.split(' ');
+    if (words.length === 1) {
+      ctx.fillText(s.label, 0, 0);
+    } else {
+      const half = Math.ceil(words.length / 2);
+      ctx.fillText(words.slice(0, half).join(' '), 0, -fontSize * 0.6);
+      ctx.fillText(words.slice(half).join(' '),    0,  fontSize * 0.6);
+    }
+    ctx.restore();
+  }
+
+  /* Outer ring */
+  ctx.beginPath();
+  ctx.arc(CX, CY, R + 4, 0, Math.PI * 2);
+  ctx.strokeStyle = '#8b6040';
+  ctx.lineWidth   = 3;
+  ctx.stroke();
+
+  /* Hub */
+  ctx.beginPath();
+  ctx.arc(CX, CY, R_INNER, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff8f0';
+  ctx.fill();
+  ctx.strokeStyle = '#8b6040';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+
+  /* Pixel heart in hub */
+  _drawPixelHeart(ctx, CX, CY, 5, '#b87a8e');
+}
+
+function _lighten(hex, amt) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  const lr = Math.min(255, Math.round(r + (255-r)*amt));
+  const lg = Math.min(255, Math.round(g + (255-g)*amt));
+  const lb = Math.min(255, Math.round(b + (255-b)*amt));
+  return `rgb(${lr},${lg},${lb})`;
+}
+
+function _drawPixelHeart(ctx, cx, cy, px, color) {
+  const HEART = [
+    [0,1],[0,2],[0,4],[0,5],
+    [1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],
+    [2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6],
+    [3,1],[3,2],[3,3],[3,4],[3,5],
+    [4,2],[4,3],[4,4],
+    [5,3],
+  ];
+  const ox = cx - 3.5 * px;
+  const oy = cy - 3 * px;
+  ctx.fillStyle = color;
+  for (const [r, c] of HEART) {
+    ctx.fillRect(ox + c * px, oy + r * px, px - 1, px - 1);
+  }
+}
+
+/* ── Spin animation ── */
+let _spinRAF     = null;
+let _winIdx      = -1;
+let _visible     = { wheel: true };
+
+function _sliceIdxToAngle(idx) {
+  /* The slice at idx is centered at angle: idx * SLICE_ANGLE + SLICE_ANGLE/2 */
+  /* Pointer is at top (angle -π/2 before rotation). We need:
+     rot + idx * SLICE_ANGLE + SLICE_ANGLE/2 = -π/2 (mod 2π)
+     → rot = -π/2 - idx * SLICE_ANGLE - SLICE_ANGLE/2 */
+  return -Math.PI / 2 - idx * SLICE_ANGLE - SLICE_ANGLE / 2;
+}
+
+function spin(sliceId, durationMs, onFinish) {
+  if (_spinRAF) cancelAnimationFrame(_spinRAF);
+  _winIdx = SLICES.findIndex(s => s.id === sliceId);
+  if (_winIdx < 0) _winIdx = 0;
+
+  const targetRot    = _sliceIdxToAngle(_winIdx);
+  /* Add multiple full rotations for visual effect */
+  const FULL_SPINS   = 4 + Math.random() * 2;
+  const startRot     = 0;
+  const totalDelta   = FULL_SPINS * Math.PI * 2 + _normalise(targetRot - startRot);
+  const startTime    = performance.now();
+
+  function _easeOut(t) {
+    /* Quintic ease-out */
+    return 1 - Math.pow(1 - t, 5);
+  }
+
+  function frame(now) {
+    const t   = Math.min(1, (now - startTime) / durationMs);
+    const et  = _easeOut(t);
+    const rot = startRot + totalDelta * et;
+    drawWheel(rot % (Math.PI * 2), t >= 1 ? _winIdx : -1);
+    if (t < 1) {
+      _spinRAF = requestAnimationFrame(frame);
+    } else {
+      drawWheel(targetRot % (Math.PI * 2), _winIdx);
+      if (onFinish) onFinish();
+    }
+  }
+  _spinRAF = requestAnimationFrame(frame);
+}
+
+function _normalise(a) {
+  while (a < 0) a += Math.PI * 2;
+  while (a > Math.PI * 2) a -= Math.PI * 2;
+  return a;
+}
+
+/* ── Show / hide ── */
+function showWheel() {
+  $root.classList.add('visible');
+}
+function hideWheel() {
+  $root.classList.remove('visible');
+  $result.classList.remove('visible');
+  $result.textContent = '';
+  if (_spinRAF) { cancelAnimationFrame(_spinRAF); _spinRAF = null; }
+  _winIdx = -1;
+  drawWheel(0, -1);
+}
+
+/* Draw static wheel initially */
+drawWheel(0, -1);
+
+/* ══════════════════════════════════════════════════════════════════════
+   WEBSOCKET
+══════════════════════════════════════════════════════════════════════ */
+const WS_URL     = 'ws://localhost:8766/ws/overlays';
+const RECONNECT  = 3000;
+let   _holdTimer = null;
+
+function connect() {
+  let ws;
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT); return; }
+
+  ws.onmessage = function (ev) {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+
+    if (msg.type === 'overlay_vis') {
+      if (typeof msg.wheel === 'boolean') _visible.wheel = msg.wheel;
+      if (!_visible.wheel) hideWheel();
+      return;
+    }
+
+    if (!_visible.wheel) return;
+
+    if (msg.type === 'wheel_spin') {
+      if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+      $result.classList.remove('visible');
+      $result.textContent = '';
+      showWheel();
+
+      const sliceId    = msg.result || 'ghost_story';
+      const durationMs = msg.duration_ms || 3500;
+      const label      = msg.label || '';
+
+      spin(sliceId, durationMs, function () {
+        /* Hold 4s showing winning slice, then show result label */
+        _holdTimer = setTimeout(function () {
+          $result.textContent = label;
+          $result.classList.add('visible');
+          /* Fade out after another 4s */
+          _holdTimer = setTimeout(function () {
+            hideWheel();
+          }, 4000);
+        }, 1000);
+      });
+    }
+
+    if (msg.type === 'wheel_veto') {
+      if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+      hideWheel();
+    }
+  };
+
+  ws.onclose = function () { setTimeout(connect, RECONNECT); };
+  ws.onerror = function () { ws.close(); };
+}
+
+connect();
+</script>
+</body>
+</html>

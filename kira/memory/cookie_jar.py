@@ -84,6 +84,12 @@ CHAOS_MODE_END_LINES: list[str] = [
 
 DEFAULT_PATH = Path("cookie_data.json")
 
+# Multiple of shared_total at which a drip-milestone fires (10/20/30…)
+DRIP_MULTIPLE = 10
+
+# How many drip milestones per fill cycle (cap // DRIP_MULTIPLE - 1,
+# so at 50-cap that's 4: at 10, 20, 30, 40, not at 50 which is a full milestone).
+
 
 class CookieJar:
     """Persistent cookie counts. Thread-safe via an internal lock.
@@ -99,11 +105,11 @@ class CookieJar:
         self.shared_total: int = 0
         self.milestone_count: int = 0
         self.per_chatter: dict[str, int] = {}
-        # Pending milestone flag. add_cookie() sets this True when the cap is
-        # hit; reset_shared_on_milestone() consumes it. This lets the caller
-        # decide WHEN to react (announce, post, etc.) without coupling the
-        # data layer to presentation.
+        self.session_per_chatter: dict[str, int] = {}  # reset each stream start
+        self.ious: list[dict] = []  # persisted IOU list
         self._milestone_pending: bool = False
+        self._drip_pending: int = 0      # nonzero = which multiple just fired
+        self._last_tipper: str = ""     # username of cookie that hit the cap
         self._load()
         print(
             f"   [CookieJar] Loaded {self.path.name}: shared={self.shared_total}/"
@@ -121,26 +127,27 @@ class CookieJar:
             self.shared_total = int(data.get("shared_total", 0))
             self.milestone_count = int(data.get("milestone_count", 0))
             raw = data.get("per_chatter", {}) or {}
-            # Normalize keys to lowercase to keep dedup consistent — Twitch
-            # usernames are case-insensitive on the wire.
             self.per_chatter = {
                 str(k).lower(): int(v) for k, v in raw.items()
             }
+            self.ious = list(data.get("ious", []) or [])
             self._milestone_pending = bool(data.get("milestone_pending", False))
         except Exception as e:
             print(f"   [CookieJar] Load error ({e}) — starting fresh.")
             self.shared_total = 0
             self.milestone_count = 0
             self.per_chatter = {}
+            self.ious = []
             self._milestone_pending = False
 
     def _save_unlocked(self) -> None:
         """Atomic write. Caller must already hold self._lock."""
         payload = {
-            "shared_total": self.shared_total,
-            "milestone_count": self.milestone_count,
+            "shared_total":     self.shared_total,
+            "milestone_count":  self.milestone_count,
             "milestone_pending": self._milestone_pending,
-            "per_chatter": self.per_chatter,
+            "per_chatter":      self.per_chatter,
+            "ious":             self.ious,
         }
         tmp = self.path.with_suffix(self.path.suffix + ".tmp")
         try:
@@ -165,6 +172,7 @@ class CookieJar:
         If shared_total reaches MILESTONE_CAP, a milestone is queued: the
         next call to reset_shared_on_milestone() returns True and performs
         the rollover. The pending flag is persisted so it survives restarts.
+        Also checks for drip milestones (every DRIP_MULTIPLE cookies).
         """
         if n <= 0:
             return self.shared_total
@@ -172,11 +180,21 @@ class CookieJar:
         if not key:
             return self.shared_total
         with self._lock:
+            old_total = self.shared_total
             self.per_chatter[key] = self.per_chatter.get(key, 0) + n
+            self.session_per_chatter[key] = self.session_per_chatter.get(key, 0) + n
             self.shared_total += n
             if self.shared_total >= MILESTONE_CAP:
                 self.shared_total = MILESTONE_CAP  # clamp — visible UI cap
                 self._milestone_pending = True
+                self._last_tipper = key
+            # Drip milestone check — fires at each DRIP_MULTIPLE crossing
+            # within a fill cycle (e.g. 10, 20, 30, 40 for cap=50)
+            if not self._milestone_pending:
+                new_drip = (self.shared_total // DRIP_MULTIPLE)
+                old_drip = (old_total // DRIP_MULTIPLE)
+                if new_drip > old_drip and self.shared_total < MILESTONE_CAP:
+                    self._drip_pending = self.shared_total - (self.shared_total % DRIP_MULTIPLE)
             self._save_unlocked()
             return self.shared_total
 
@@ -203,6 +221,9 @@ class CookieJar:
         with self._lock:
             self.shared_total = 0
             self._milestone_pending = False
+            self.session_per_chatter = {}
+            self._last_tipper = ""
+            self._drip_pending = 0
             self._save_unlocked()
         print(
             f"   [CookieJar] Stream start — jar reset to 0 "
@@ -222,3 +243,54 @@ class CookieJar:
 
     def milestone_pending(self) -> bool:
         return self._milestone_pending
+
+    def get_last_tipper(self) -> str:
+        return self._last_tipper
+
+    def get_drip_pending(self) -> int:
+        """Returns the drip milestone number (multiple of DRIP_MULTIPLE) that
+        just fired, or 0 if none pending. Caller must clear it."""
+        return self._drip_pending
+
+    def clear_drip_pending(self) -> None:
+        with self._lock:
+            self._drip_pending = 0
+
+    def get_session_top3(self) -> list[dict]:
+        """Top 3 chatters by cookies earned this session."""
+        with self._lock:
+            ranked = sorted(self.session_per_chatter.items(), key=lambda x: -x[1])
+        return [{"name": k, "count": v} for k, v in ranked[:3]]
+
+    # ── IOU list ────────────────────────────────────────────────────────
+    def add_iou(self, description: str = "") -> dict:
+        """Append a new open IOU entry. Returns the entry."""
+        import time as _t
+        entry = {
+            "ts":          int(_t.time()),
+            "status":      "open",
+            "description": description or "Chat's Choice redeemable",
+        }
+        with self._lock:
+            self.ious.append(entry)
+            self._save_unlocked()
+        return entry
+
+    def get_ious(self) -> list[dict]:
+        with self._lock:
+            return list(self.ious)
+
+    def redeem_iou(self, idx: int) -> bool:
+        """Mark IOU at index as redeemed. Returns True if successful."""
+        with self._lock:
+            if 0 <= idx < len(self.ious) and self.ious[idx].get("status") == "open":
+                import time as _t
+                self.ious[idx]["status"]      = "redeemed"
+                self.ious[idx]["redeemed_ts"] = int(_t.time())
+                self._save_unlocked()
+                return True
+        return False
+
+    def open_iou_count(self) -> int:
+        with self._lock:
+            return sum(1 for e in self.ious if e.get("status") == "open")

@@ -127,6 +127,12 @@ html, body {
   color: #8A7050;
   letter-spacing: .04em;
 }
+.iou-line {
+  font-size: 7px;
+  color: #9060a0;
+  letter-spacing: .03em;
+  margin-top: 1px;
+}
 </style>
 </head>
 <body>
@@ -158,6 +164,7 @@ html, body {
         <div class="cookie-bar-fill" id="cookie-fill" style="width:0%"></div>
       </div>
       <div class="cookie-count" id="cookie-count">0 / 50</div>
+      <div class="iou-line" id="iou-line" style="display:none">📋 IOUs: <span id="iou-count">0</span></div>
     </div>
 
   </div>
@@ -177,6 +184,8 @@ const $session   = document.getElementById('s-session');
 const $lifetime  = document.getElementById('s-lifetime');
 const $fill      = document.getElementById('cookie-fill');
 const $cookieTxt = document.getElementById('cookie-count');
+const $iouLine   = document.getElementById('iou-line');
+const $iouCount  = document.getElementById('iou-count');
 
 function _wl(w, l, d) {
   if (w === 0 && l === 0 && d === 0) return '–';
@@ -212,8 +221,17 @@ function applyScore(msg) {
 
   $session.textContent  = sText;
   $lifetime.textContent = lText;
-  $fill.style.width     = pct + '%';
+  $fill.style.width      = pct + '%';
   $cookieTxt.textContent = `${c} / ${cm}`;
+
+  // IOU line
+  const ious = msg.ious_open || 0;
+  if (ious > 0) {
+    $iouCount.textContent  = ious;
+    $iouLine.style.display = '';
+  } else {
+    $iouLine.style.display = 'none';
+  }
 }
 
 function applyVis(msg) {
