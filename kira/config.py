@@ -218,8 +218,11 @@ CHESS_MOVETIME_MS = int(os.getenv("CHESS_MOVETIME_MS", "150"))
 # cut clips land in OBS_RECORDINGS_DIR/clips/YYYY-MM-DD/.
 OBS_RECORDINGS_DIR = os.getenv("OBS_RECORDINGS_DIR", "")
 # Window around the detected moment: lead-in before (setup) + payoff after.
-CLIP_PRE_SECONDS   = float(os.getenv("CLIP_PRE_SECONDS", "8"))
-CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "22"))
+# Tighter defaults (2026-06-12): pre=5s (down from 8), post=3s (down from 22).
+# Override via env or --pre/--post CLI flags. Min clip length is 12s (enforced
+# in clip_cutter.py regardless of these settings).
+CLIP_PRE_SECONDS   = float(os.getenv("CLIP_PRE_SECONDS", "5"))
+CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "3"))
 # Recording container extensions to scan, comma-separated.
 CLIP_VIDEO_EXTS    = os.getenv("CLIP_VIDEO_EXTS", ".mkv,.mp4,.flv,.mov,.ts")
 
