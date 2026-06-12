@@ -32,6 +32,8 @@
 #   - CPU only. No GPU contention with the vision/STT stack.
 
 import asyncio
+import json
+import os
 import threading
 import time
 
@@ -167,6 +169,21 @@ class ChessAgent:
         self._games_played: int = 0
         self._our_blunders: int = 0
         self._their_blunders: int = 0
+        # Per-session W/L/D (resets on restart; opponent id tracking for viewer games).
+        self._session_wins:   int = 0
+        self._session_losses: int = 0
+        self._session_draws:  int = 0
+        self._opp_id: str = ""           # lowercase Lichess ID of current opponent
+        self._is_viewer_game: bool = False  # True when opp is not CHESS_OWNER_LICHESS_ID
+        # Lifetime W/L/D loaded from (and saved back to) data/chess_lifetime.json.
+        self._lifetime_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "data", "chess_lifetime.json"
+        )
+        self._lifetime_wins:   int = 0
+        self._lifetime_losses: int = 0
+        self._lifetime_draws:  int = 0
+        self._load_lifetime()
 
         # Last-game result lingers on the chip until next game.
         self._last_result_str: str = ""   # e.g. "won vs MagnusFan1942"
@@ -182,10 +199,58 @@ class ChessAgent:
         # Banner callback (set by bot wiring). Signature: on_banner(text, duration_s).
         # Called at game start/end with a human-readable announcement string.
         self.on_banner = None
+        # Score update callback. Fires after every game end.
+        # Signature: on_score_update(session_wins, session_losses, session_draws,
+        #                            lifetime_wins, lifetime_losses, lifetime_draws)
+        self.on_score_update = None
+        # Spectate callbacks — fired for viewer games only (opp != CHESS_OWNER_LICHESS_ID).
+        # on_spectate_show(url, opponent), on_spectate_hide()
+        self.on_spectate_show = None
+        self.on_spectate_hide = None
         self.react_min_gap_s: float = float(react_min_gap_s)
         self._last_react_ts: float = 0.0
 
     # ── Lifecycle ────────────────────────────────────────────────────────────
+
+    def _load_lifetime(self):
+        """Read lifetime W/L/D from data/chess_lifetime.json. Silent on first run."""
+        try:
+            if os.path.exists(self._lifetime_path):
+                with open(self._lifetime_path, "r", encoding="utf-8") as _f:
+                    _d = json.load(_f)
+                self._lifetime_wins   = int(_d.get("wins",   0))
+                self._lifetime_losses = int(_d.get("losses", 0))
+                self._lifetime_draws  = int(_d.get("draws",  0))
+                print(f"   [Chess] Lifetime stats loaded: "
+                      f"W{self._lifetime_wins}-L{self._lifetime_losses}-D{self._lifetime_draws}")
+        except Exception as _e:
+            print(f"   [Chess] Could not load lifetime stats: {_e}")
+
+    def _save_lifetime(self):
+        """Atomic write of lifetime W/L/D to data/chess_lifetime.json."""
+        try:
+            os.makedirs(os.path.dirname(self._lifetime_path), exist_ok=True)
+            _tmp = self._lifetime_path + ".tmp"
+            with open(_tmp, "w", encoding="utf-8") as _f:
+                json.dump({
+                    "wins":   self._lifetime_wins,
+                    "losses": self._lifetime_losses,
+                    "draws":  self._lifetime_draws,
+                }, _f)
+            os.replace(_tmp, self._lifetime_path)
+        except Exception as _e:
+            print(f"   [Chess] Could not save lifetime stats: {_e}")
+
+    def get_score_data(self) -> dict:
+        """Snapshot of session + lifetime W/L/D for score overlay and state_snapshot."""
+        return {
+            "session_wins":    self._session_wins,
+            "session_losses":  self._session_losses,
+            "session_draws":   self._session_draws,
+            "lifetime_wins":   self._lifetime_wins,
+            "lifetime_losses": self._lifetime_losses,
+            "lifetime_draws":  self._lifetime_draws,
+        }
 
     def start(self):
         """Validate prerequisites, open the engine, and spawn the event loop.
@@ -681,6 +746,22 @@ class ChessAgent:
                                 await self.on_banner(f"\u265f DUCHESS vs {opp_label}", 10)
                             except Exception:
                                 pass
+                        # Spectate embed — only for viewer games (not Jonny's account)
+                        try:
+                            from kira.config import CHESS_OWNER_LICHESS_ID as _owner_id
+                            self._is_viewer_game = (
+                                bool(self._opp_id)
+                                and self._opp_id != _owner_id.lower()
+                            )
+                        except Exception:
+                            self._is_viewer_game = False
+                        if self._is_viewer_game and self.on_spectate_show:
+                            try:
+                                await self.on_spectate_show(
+                                    self.get_spectate_url(), self._opp_name
+                                )
+                            except Exception:
+                                pass
                     state = upd.get("state", {})
                 elif utype == "gameState":
                     state = upd
@@ -731,9 +812,11 @@ class ChessAgent:
         if opp.get("aiLevel") is not None:
             self._opp_name = f"Stockfish L{opp.get('aiLevel')}"
             self._opp_rating = None
+            self._opp_id = ""   # AI — never a viewer game
         else:
             self._opp_name = opp.get("name") or opp.get("id") or "Opponent"
             self._opp_rating = opp.get("rating")
+            self._opp_id = (opp.get("id") or "").lower()
 
         self._initial_fen = full.get("initialFen", "startpos")
         self._games_played += 1
@@ -1099,6 +1182,30 @@ class ChessAgent:
             f"{self._eval_plain}.",
             bypass=True,
         )
+
+        # \u2500\u2500 Update W/L/D counters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        if winner:
+            if kira_won:
+                self._session_wins  += 1
+                self._lifetime_wins += 1
+            else:
+                self._session_losses  += 1
+                self._lifetime_losses += 1
+        else:
+            self._session_draws  += 1
+            self._lifetime_draws += 1
+        self._save_lifetime()
+
+        # \u2500\u2500 Score overlay callback \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        if self.on_score_update:
+            try:
+                await self.on_score_update(
+                    self._session_wins, self._session_losses, self._session_draws,
+                    self._lifetime_wins, self._lifetime_losses, self._lifetime_draws,
+                )
+            except Exception:
+                pass
+
         # Banner announcement for overlays
         if self.on_banner:
             try:
@@ -1113,7 +1220,13 @@ class ChessAgent:
             except Exception:
                 pass
 
-    async def _send_chat(self, game_id: str, text: str):
+        # \u2500\u2500 Spectate hide \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+        if self._is_viewer_game and self.on_spectate_hide:
+            try:
+                await self.on_spectate_hide()
+            except Exception:
+                pass
+        self._is_viewer_game = False
         """Phase 1 fixed in-game chat (greeting / gg). Serialized like every
         other HTTP call."""
         try:

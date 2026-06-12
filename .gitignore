@@ -29,6 +29,9 @@ cache/
 cookie_data.json
 playthroughs/
 
+# Local runtime data (lifetime chess stats, etc.) — gitignored, created on first run
+data/
+
 # Private persona files — real character prompt, identity anchors, opinions
 persona/private/
 lore/

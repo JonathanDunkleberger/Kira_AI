@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!--
+  spectate_overlay.html — Lichess Spectate Embed
+  OBS Browser Source: 1920×1080, transparent background.
+  AUTO visibility: appears on spectate_show, hides on spectate_hide.
+  Dashboard 'spectate' toggle acts as a veto (prevents show).
+  Connects to ws://localhost:8766/ws/overlays
+  Events: spectate_show · spectate_hide · overlay_vis
+
+  Embed URL: https://lichess.org/embed/game/{id}?theme=auto&bg=dark
+    — the official Lichess embed endpoint. The plain game URL
+      (lichess.org/{id}) is blocked by X-Frame-Options.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px; height: 1080px;
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPECTATE PANEL
+   Left-center, ~700px wide, leave room for avatar/chat.
+═══════════════════════════════════════════════════════ */
+#spectate-root {
+  position: absolute;
+  left: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 680px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+#spectate-root.visible {
+  opacity: 1;
+}
+
+/* Opponent label above the board */
+#spec-header {
+  background: rgba(28, 20, 16, 0.82);
+  border-radius: 8px 8px 0 0;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#spec-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+#spec-opp {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F4EACC;
+  letter-spacing: .04em;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#spec-label {
+  font-size: 10px;
+  color: #8A7050;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+/* iframe board */
+#spec-iframe-wrap {
+  width: 680px;
+  height: 680px;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  position: relative;
+  background: #1C1410;
+}
+
+#spec-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+#spec-error {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(28,20,16,0.9);
+  color: #C4A06A;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+
+<div id="spectate-root">
+  <div id="spec-header">
+    <span id="spec-icon">♟</span>
+    <span id="spec-opp">challenger</span>
+    <span id="spec-label">LIVE ON LICHESS</span>
+  </div>
+  <div id="spec-iframe-wrap">
+    <iframe id="spec-iframe" src="" allow="autoplay" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="spec-error">
+      <div>⚠ Board unavailable</div>
+      <div id="spec-error-url" style="font-size:10px;color:#8A7050;word-break:break-all;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WS_URL       = 'ws://localhost:8766/ws/overlays';
+const RECONNECT_MS = 3000;
+
+let _vis           = { spectate: true };
+let _spectateActive = false;   // true while a viewer game is live
+
+const $root    = document.getElementById('spectate-root');
+const $opp     = document.getElementById('spec-opp');
+const $iframe  = document.getElementById('spec-iframe');
+const $errBox  = document.getElementById('spec-error');
+const $errUrl  = document.getElementById('spec-error-url');
+
+/* Convert the plain lichess.org URL to the embed endpoint:
+   https://lichess.org/XYZ123  →  https://lichess.org/embed/game/XYZ123?theme=auto&bg=dark */
+function toEmbedUrl(rawUrl) {
+  try {
+    const u = new URL(rawUrl);
+    const gameId = u.pathname.replace(/^\//, '').split('/')[0];
+    return `https://lichess.org/embed/game/${gameId}?theme=auto&bg=dark`;
+  } catch {
+    return rawUrl;
+  }
+}
+
+function showSpectate(url, opponent) {
+  $opp.textContent  = opponent || 'challenger';
+  $errBox.style.display = 'none';
+  const embedUrl = toEmbedUrl(url);
+  $iframe.src = embedUrl;
+  $errUrl.textContent = embedUrl;
+
+  /* Error detection: if iframe fails to load (X-Frame-Options, etc.)
+     show the error panel after a short grace period. */
+  clearTimeout($iframe._errTimer);
+  $iframe._errTimer = setTimeout(() => {
+    // Probe load status — if contentDocument is accessible but empty, it's blocked
+    try {
+      const doc = $iframe.contentDocument;
+      if (doc && !doc.body.innerHTML) throw new Error('blocked');
+    } catch {
+      $errBox.style.display = 'flex';
+    }
+  }, 4000);
+
+  _spectateActive = true;
+  $root.classList.add('visible');
+}
+
+function hideSpectate() {
+  _spectateActive = false;
+  $root.classList.remove('visible');
+  // Clear iframe after fade completes
+  setTimeout(() => {
+    if (!_spectateActive) {
+      $iframe.src = '';
+      clearTimeout($iframe._errTimer);
+    }
+  }, 300);
+}
+
+function applyVis(msg) {
+  _vis = { ..._vis, ...msg };
+  // If veto toggle turns spectate off mid-game, hide immediately
+  if (_vis.spectate === false) {
+    $root.classList.remove('visible');
+  } else if (_spectateActive) {
+    $root.classList.add('visible');
+  }
+}
+
+function connect() {
+  let ws;
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
+
+  ws.onmessage = function(ev) {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+
+    switch (msg.type) {
+      case 'overlay_vis':
+        applyVis(msg);
+        break;
+      case 'spectate_show':
+        if (!_vis.spectate) return;   // vetoed by dashboard toggle
+        showSpectate(msg.url, msg.opponent);
+        break;
+      case 'spectate_hide':
+        hideSpectate();
+        break;
+    }
+  };
+
+  ws.onclose = () => setTimeout(connect, RECONNECT_MS);
+  ws.onerror = () => ws.close();
+}
+
+connect();
+</script>
+</body>
+</html>

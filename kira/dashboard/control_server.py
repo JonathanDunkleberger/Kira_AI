@@ -201,6 +201,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "accepting_challenges":  _get(lambda: ca.accepting_challenges if ca else False, False),
         "status":                _get(lambda: ca.get_status_str() if ca else "\u265f CLOSED", "\u265f CLOSED"),
         "spectate_url":          _get(lambda: ca.get_spectate_url() if ca else "", ""),
+        "score":                 _get(lambda: ca.get_score_data() if ca else {}, {}),
     }
 
     # ── Mute / Pause ─────────────────────────────────────────────────────────
@@ -432,6 +433,41 @@ async def push_banner_hide() -> None:
     await push_overlay_event({"type": "banner_hide"})
 
 
+async def push_score_update(
+    session_wins:    int, session_losses:  int, session_draws:  int,
+    lifetime_wins:   int, lifetime_losses: int, lifetime_draws: int,
+    cookies: int = 0, cookies_max: int = 50,
+) -> None:
+    """Notify the score overlay of a change (chess game end or cookie update)."""
+    await push_overlay_event({
+        "type":           "score_update",
+        "session_wins":    session_wins,
+        "session_losses":  session_losses,
+        "session_draws":   session_draws,
+        "lifetime_wins":   lifetime_wins,
+        "lifetime_losses": lifetime_losses,
+        "lifetime_draws":  lifetime_draws,
+        "cookies":         cookies,
+        "cookies_max":     cookies_max,
+    })
+
+
+async def push_spectate_show(url: str, opponent: str) -> None:
+    """Show the spectate embed for a viewer game."""
+    if not _overlay_vis.get("spectate", True):
+        return
+    await push_overlay_event({
+        "type":     "spectate_show",
+        "url":      url,
+        "opponent": opponent,
+    })
+
+
+async def push_spectate_hide() -> None:
+    """Hide the spectate embed."""
+    await push_overlay_event({"type": "spectate_hide"})
+
+
 async def push_chat_message(platform: str, username: str, text: str) -> None:
     """Push a validated chat message to all connected /ws/chat clients.
 
@@ -552,14 +588,33 @@ async def ws_chat(ws: WebSocket):
 async def ws_overlays(ws: WebSocket):
     """Card / banner / visibility overlay relay.
 
-    On connect: sends current overlay_vis so reconnecting overlays restore their
-    visibility state immediately.  Events (card_show, card_hide, banner_show,
-    banner_hide, overlay_vis) are pushed by the push_* helpers above.
+    On connect: sends current overlay_vis + current chess score so reconnecting
+    overlays restore their state immediately.  Events (card_show, card_hide,
+    banner_show, banner_hide, spectate_show, spectate_hide, score_update,
+    overlay_vis) are pushed by the push_* helpers above.
     """
     import json as _j
     await _overlay_ws_manager.connect(ws)
     try:
         await ws.send_text(_j.dumps({"type": "overlay_vis", **_overlay_vis}))
+        # Send current chess score state so the score overlay is correct on reconnect
+        try:
+            _bot_ref = _bot()
+            _ca = getattr(_bot_ref, "chess_agent", None)
+            if _ca:
+                _sd = _ca.get_score_data()
+                _cj = getattr(_bot_ref, "cookie_jar", None)
+                _cookies     = int(_cj.get_shared()    if _cj else 0)
+                _cookies_max = int(__import__("kira.memory.cookie_jar",
+                                              fromlist=["MILESTONE_CAP"]).MILESTONE_CAP)
+                await ws.send_text(_j.dumps({
+                    "type": "score_update",
+                    **_sd,
+                    "cookies":     _cookies,
+                    "cookies_max": _cookies_max,
+                }))
+        except Exception:
+            pass
         while True:
             await ws.receive_text()  # keep alive; client sends nothing
     except (WebSocketDisconnect, Exception):

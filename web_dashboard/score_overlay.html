@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+  score_overlay.html — Duchess Scoreboard
+  OBS Browser Source: 1920×1080, transparent background.
+  Position: upper-right (~280px card, absolute on canvas).
+  Connects to ws://localhost:8766/ws/overlays
+  Events: score_update · overlay_vis
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px; height: 1080px;
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCORE CARD
+   card_score_small.png: canvas 512×512
+   safe_text: top=37%, right=32%, bottom=34%, left=31%
+   Rendered at 280px; scale = 280/512 ≈ 0.547
+═══════════════════════════════════════════════════════ */
+#score-root {
+  position: absolute;
+  top: 24px;
+  right: 36px;
+  width: 280px;
+  height: 280px;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+#score-root.hidden { opacity: 0; pointer-events: none; }
+
+#score-img {
+  position: absolute;
+  inset: 0;
+  width: 280px;
+  height: 280px;
+  filter: drop-shadow(0 4px 6px rgba(60,30,50,0.35));
+}
+
+/* Text layer */
+#score-text {
+  position: absolute;
+  /* safe_text at 280px: top=37%=103, left=31%=87, right=32%=90, bottom=34%=95 */
+  top:    103px;
+  left:    87px;
+  right:   90px;
+  bottom:  95px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.score-line {
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.score-label {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+  color: #8A7050;
+  line-height: 1;
+}
+
+.score-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a2e30;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+
+.score-value.changed {
+  animation: score-bump 200ms ease-out both;
+}
+
+@keyframes score-bump {
+  0%   { transform: scale(1.0); }
+  40%  { transform: scale(1.18); color: #b87a8e; }
+  100% { transform: scale(1.0); }
+}
+
+.score-divider {
+  width: 60%;
+  height: 1px;
+  background: rgba(74,46,48,0.18);
+  border-radius: 1px;
+}
+
+/* Cookie bar */
+.cookie-bar-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.cookie-bar-bg {
+  width: 85%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(74,46,48,0.12);
+  overflow: hidden;
+}
+.cookie-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #b87a8e;
+  transition: width 300ms ease;
+}
+.cookie-count {
+  font-size: 7.5px;
+  color: #8A7050;
+  letter-spacing: .04em;
+}
+</style>
+</head>
+<body>
+
+<div id="score-root">
+  <img id="score-img" src="assets/cards/card_score_small.png" alt="">
+  <div id="score-text">
+
+    <!-- Session W-L -->
+    <div class="score-line">
+      <div class="score-label">Session</div>
+      <div class="score-value" id="s-session">–</div>
+    </div>
+
+    <div class="score-divider"></div>
+
+    <!-- Lifetime W-L -->
+    <div class="score-line">
+      <div class="score-label">Lifetime</div>
+      <div class="score-value" id="s-lifetime">–</div>
+    </div>
+
+    <div class="score-divider"></div>
+
+    <!-- Cookie jar -->
+    <div class="cookie-bar-wrap">
+      <div class="score-label">🍪 Cookie Jar</div>
+      <div class="cookie-bar-bg">
+        <div class="cookie-bar-fill" id="cookie-fill" style="width:0%"></div>
+      </div>
+      <div class="cookie-count" id="cookie-count">0 / 50</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const WS_URL       = 'ws://localhost:8766/ws/overlays';
+const RECONNECT_MS = 3000;
+
+let _vis = { scoreboard: true };
+
+// Rendered values for change-detection (bump animation)
+let _prev = {};
+
+const $root      = document.getElementById('score-root');
+const $session   = document.getElementById('s-session');
+const $lifetime  = document.getElementById('s-lifetime');
+const $fill      = document.getElementById('cookie-fill');
+const $cookieTxt = document.getElementById('cookie-count');
+
+function _wl(w, l, d) {
+  if (w === 0 && l === 0 && d === 0) return '–';
+  return d ? `${w}W ${l}L ${d}D` : `${w}W ${l}L`;
+}
+
+function _bump(el, key, newVal) {
+  if (_prev[key] !== undefined && _prev[key] !== newVal) {
+    el.classList.remove('changed');
+    void el.offsetWidth;
+    el.classList.add('changed');
+    el.addEventListener('animationend', () => el.classList.remove('changed'), { once: true });
+  }
+  _prev[key] = newVal;
+}
+
+function applyScore(msg) {
+  const sw = msg.session_wins   || 0;
+  const sl = msg.session_losses || 0;
+  const sd = msg.session_draws  || 0;
+  const lw = msg.lifetime_wins  || 0;
+  const ll = msg.lifetime_losses || 0;
+  const ld = msg.lifetime_draws  || 0;
+  const c  = msg.cookies     || 0;
+  const cm = msg.cookies_max || 50;
+
+  const sText = _wl(sw, sl, sd);
+  const lText = _wl(lw, ll, ld);
+  const pct   = Math.min(100, (c / cm) * 100).toFixed(1);
+
+  _bump($session,  'session',  sText);
+  _bump($lifetime, 'lifetime', lText);
+
+  $session.textContent  = sText;
+  $lifetime.textContent = lText;
+  $fill.style.width     = pct + '%';
+  $cookieTxt.textContent = `${c} / ${cm}`;
+}
+
+function applyVis(msg) {
+  _vis = { ..._vis, ...msg };
+  if (_vis.scoreboard === false) {
+    $root.classList.add('hidden');
+  } else {
+    $root.classList.remove('hidden');
+  }
+}
+
+function connect() {
+  let ws;
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
+
+  ws.onmessage = function(ev) {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+
+    if (msg.type === 'overlay_vis')   applyVis(msg);
+    if (msg.type === 'score_update')  applyScore(msg);
+  };
+
+  ws.onclose = () => setTimeout(connect, RECONNECT_MS);
+  ws.onerror = () => ws.close();
+}
+
+connect();
+</script>
+</body>
+</html>

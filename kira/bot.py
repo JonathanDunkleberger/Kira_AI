@@ -767,6 +767,18 @@ class VTubeBot:
             await _cs.send_cookie(shared=self.cookie_jar.get_shared(), milestone=False)
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (state) failed: {e}")
+        # Also push to the score overlay so the cookie bar stays in sync
+        try:
+            from kira.dashboard.control_server import push_score_update as _psu
+            ca  = getattr(self, "chess_agent", None)
+            sd  = ca.get_score_data() if ca else {}
+            await _psu(
+                sd.get("session_wins", 0),  sd.get("session_losses", 0),  sd.get("session_draws", 0),
+                sd.get("lifetime_wins", 0), sd.get("lifetime_losses", 0), sd.get("lifetime_draws", 0),
+                int(self.cookie_jar.get_shared()), MILESTONE_CAP,
+            )
+        except Exception:
+            pass
 
     async def _broadcast_cookie_milestone(self) -> None:
         """Tell the overlay to play its full-jar animation. Fire-and-forget."""
@@ -3246,10 +3258,31 @@ class VTubeBot:
             self.chess_agent.on_react = self._chess_react
             # Wire overlay banner for chess game-start / game-end announcements
             try:
-                from kira.dashboard.control_server import push_banner_show as _pbs
+                from kira.dashboard.control_server import (
+                    push_banner_show as _pbs,
+                    push_score_update as _psu,
+                    push_spectate_show as _pss,
+                    push_spectate_hide as _psh,
+                )
                 async def _chess_banner(text: str, dur: int = 8):
                     await _pbs(text, dur)
                 self.chess_agent.on_banner = _chess_banner
+
+                # Score overlay: chess game end fires this; cookies add via _broadcast_cookie_state
+                _self_ref = self
+                async def _chess_score_update(sw, sl, sd, lw, ll, ld):
+                    cj = getattr(_self_ref, "cookie_jar", None)
+                    cookies = int(cj.get_shared() if cj else 0)
+                    await _psu(sw, sl, sd, lw, ll, ld, cookies, MILESTONE_CAP)
+                self.chess_agent.on_score_update = _chess_score_update
+
+                # Spectate embed: viewer games only
+                async def _chess_spectate_show(url: str, opp: str):
+                    await _pss(url, opp)
+                async def _chess_spectate_hide():
+                    await _psh()
+                self.chess_agent.on_spectate_show = _chess_spectate_show
+                self.chess_agent.on_spectate_hide = _chess_spectate_hide
             except Exception:
                 pass
 

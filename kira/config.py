@@ -259,3 +259,11 @@ PHRASE_THROTTLE_WATCHLIST = [
         "three words and a vibe,I respect it,I respect the commitment",
     ).split(",") if p.strip()
 ]
+
+# ── Chess owner / data dir ────────────────────────────────────────────────────
+# Challenges from CHESS_OWNER_LICHESS_ID (case-insensitive) are Jonny's own
+# practice games and do NOT trigger the spectate embed on stream.
+CHESS_OWNER_LICHESS_ID = os.getenv("CHESS_OWNER_LICHESS_ID", "Militele3")
+
+# Local state files (gitignored) — lifetime chess stats, etc.
+DATA_DIR = os.path.join(_REPO_ROOT, "data")
