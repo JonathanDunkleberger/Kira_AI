@@ -34,7 +34,8 @@ persona/private/
 lore/
 
 # Personal content (streams, recordings, clips, transcripts)
-clips/
+# Anchored to repo root so it does NOT match the kira/clips/ source package.
+/clips/
 recordings/
 transcripts/
 *.mp4
@@ -43,12 +44,13 @@ transcripts/
 *.webm
 *.flv
 
-# Screenshots / captures — but keep the demo gif and architecture svg
+# Screenshots / captures — but keep the demo gif, architecture svg, and overlay source assets
 *.jpg
 *.jpeg
 *.png
 !VTuber Demo - Kirav3.gif
 !docs/kira-architecture.svg
+!web_dashboard/assets/**
 
 # OS
 .DS_Store

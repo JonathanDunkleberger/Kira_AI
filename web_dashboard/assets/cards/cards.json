@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "shadow_rule": {
+    "css": "filter: drop-shadow(0 4px 6px rgba(60,30,50,0.35))",
+    "note": "Applied at render time by overlay code. Source assets have no baked shadows by design. Use this value for every card in this family."
+  },
+  "cards": [
+    {
+      "filename": "card_chat_v1.png",
+      "intended_use": "chat_card",
+      "variant": 1,
+      "description": "Landscape chat card — center tape, heart top-left, sparkle top-right, </> bottom-right",
+      "canvas_px": [512, 512],
+      "card_bbox_px": [122, 186, 390, 326],
+      "card_shape_ratio": "67:35",
+      "safe_text_area": {
+        "note": "Insets as % of canvas (512×512). Clear of border stroke, tape, and corner accent icons.",
+        "top_pct": 43,
+        "right_pct": 29,
+        "bottom_pct": 40,
+        "left_pct": 29
+      }
+    },
+    {
+      "filename": "card_chat_v2.png",
+      "intended_use": "chat_card",
+      "variant": 2,
+      "description": "Landscape chat card — double corner tape (top-left + top-right), </> top-left, heart bottom-right",
+      "canvas_px": [512, 512],
+      "card_bbox_px": [112, 186, 400, 318],
+      "card_shape_ratio": "24:11",
+      "safe_text_area": {
+        "note": "Insets as % of canvas (512×512). Clear of border stroke, tape, and corner accent icons.",
+        "top_pct": 41,
+        "right_pct": 27,
+        "bottom_pct": 41,
+        "left_pct": 28
+      }
+    },
+    {
+      "filename": "card_chat_v3.png",
+      "intended_use": "chat_card",
+      "variant": 3,
+      "description": "Landscape chat card — tape top-right corner, sparkle top-left, cookie bottom-left",
+      "canvas_px": [512, 512],
+      "card_bbox_px": [148, 187, 367, 320],
+      "card_shape_ratio": "219:133",
+      "safe_text_area": {
+        "note": "Insets as % of canvas (512×512). Clear of border stroke, tape, and corner accent icons.",
+        "top_pct": 41,
+        "right_pct": 34,
+        "bottom_pct": 41,
+        "left_pct": 33
+      }
+    },
+    {
+      "filename": "card_score_small.png",
+      "intended_use": "scoreboard",
+      "variant": null,
+      "description": "Near-square score/stat card — center tape top, crown top-right, sparkle bottom-left",
+      "canvas_px": [512, 512],
+      "card_bbox_px": [136, 146, 378, 365],
+      "card_shape_ratio": "242:219",
+      "safe_text_area": {
+        "note": "Insets as % of canvas (512×512). Clear of border stroke, tape, and crown/sparkle accent icons.",
+        "top_pct": 37,
+        "right_pct": 32,
+        "bottom_pct": 34,
+        "left_pct": 31
+      }
+    },
+    {
+      "filename": "card_banner_wide.png",
+      "intended_use": "banner",
+      "variant": null,
+      "description": "Wide announcement banner — ribbon tape left + right ends, heart left, sparkle right. Single-line text capacity.",
+      "canvas_px": [512, 512],
+      "card_bbox_px": [41, 215, 469, 282],
+      "card_shape_ratio": "428:67",
+      "safe_text_area": {
+        "note": "Insets as % of canvas (512×512). Very tight vertically — designed for a single line of text.",
+        "top_pct": 43,
+        "right_pct": 20,
+        "bottom_pct": 45,
+        "left_pct": 19
+      }
+    }
+  ]
+}
