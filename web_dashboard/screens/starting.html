@@ -18,7 +18,12 @@
   const CFG = {
 
     /* ── Window glass region — snow falls only inside this rect ─────── */
-    snowRegion:  { x: 0.205, y: 0.052, w: 0.406, h: 0.638 },
+    /* Measured from KIRA SCENES 1.jfif (1024×571 → 1920×1080 object-fit cover): */
+    /*   glass left  x_img=336 → screen 627px  → x=0.327                    */
+    /*   glass right x_img=688 → screen 1293px → x+w=0.673                  */
+    /*   glass top   y_img=50  → y=0.088 (just inside top frame)            */
+    /*   sill bottom y_img=430 → y+h=0.753 (above interior windowsill)       */
+    snowRegion:  { x: 0.327, y: 0.088, w: 0.346, h: 0.665 },
 
     /* ── CRT monitor screen — glow + flicker overlay ────────────────── */
     crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },

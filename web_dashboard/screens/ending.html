@@ -19,7 +19,9 @@
   const CFG = {
 
     /* ── Window glass region ─────────────────────────────────────────── */
-    snowRegion:  { x: 0.205, y: 0.052, w: 0.406, h: 0.638 },
+    /* Measured from KIRA SCENES 1.jfif (same room; 1024×571 → object-fit cover): */
+    /* glass x: 336→688 img → x=0.327, w=0.346  |  y: 50→430 → y=0.088, h=0.665 */
+    snowRegion:  { x: 0.327, y: 0.088, w: 0.346, h: 0.665 },
 
     /* ── CRT monitor screen ──────────────────────────────────────────── */
     crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
