@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+  Kira — ENDING / STREAM OVER screen
+  OBS Browser Source: 1920 × 1080, local file URL
+  Snow nearly stopped, everything slower — wind-down ambience.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <title>Stream Over — Kira</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════════
+     SCENE CONFIGURATION — edit % values here to tune regions in OBS.
+     All x / y / w / h are fractions of the 1920 × 1080 canvas (0 → 1).
+     Ending screen: sparse snow, slower cycles — everything winds down.
+  ═══════════════════════════════════════════════════════════════════════ */
+  const CFG = {
+
+    /* ── Window glass region ─────────────────────────────────────────── */
+    snowRegion:  { x: 0.205, y: 0.052, w: 0.406, h: 0.638 },
+
+    /* ── CRT monitor screen ──────────────────────────────────────────── */
+    crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
+
+    /* ── String-light bulb positions [x, y] ─────────────────────────── */
+    lightPoints: [
+      [0.04, 0.09], [0.09, 0.08], [0.15, 0.09], [0.22, 0.10], [0.30, 0.12], [0.40, 0.14],
+      [0.65, 0.09], [0.73, 0.08], [0.81, 0.08], [0.89, 0.09], [0.96, 0.10], [0.97, 0.15], [0.97, 0.20],
+    ],
+
+    /* ── Snow — sparse and slow for wind-down feel ───────────────────── */
+    snowCount:    8,      /* very sparse */
+    snowSpeedMin: 0.12,   snowSpeedMax: 0.30,   /* slow drift */
+    snowSizeMin:  2,      snowSizeMax:  4,
+    snowOpMin:    0.20,   snowOpMax:    0.60,
+    snowDrift:    0.08,
+
+    /* ── CRT flicker — slower, dimmer ───────────────────────────────── */
+    crtBaseGlow: 0.10,
+    crtAmp:      0.04,
+    crtPeriod:   6500,   /* nearly double the normal period */
+
+    /* ── String-light twinkle — slow and sleepy ──────────────────────── */
+    lightRadius:    5,
+    lightPeriodMin: 4000,
+    lightPeriodMax: 9000,
+
+    /* ── Banner card ─────────────────────────────────────────────────── */
+    cardSize: 1100,
+    cardLeft:  410,
+    cardTop:   388,
+    textSafeTop:    0.43,
+    textSafeRight:  0.20,
+    textSafeBottom: 0.45,
+    textSafeLeft:   0.19,
+
+  };
+  </script>
+</head>
+<body>
+  <div id="scene">
+    <img class="bg" src="scene_ending.jfif" alt="">
+    <canvas id="snow-canvas" width="1920" height="1080"></canvas>
+    <div id="crt-overlay"></div>
+    <div id="lights-layer"></div>
+
+    <img id="banner-card-img" src="../assets/cards/card_banner_wide.png" alt="">
+    <div id="banner-text">
+      <div class="banner-main">Stream Over</div>
+      <div class="banner-sub">clips incoming ✦</div>
+    </div>
+  </div>
+
+  <script src="anim.js"></script>
+  <script>initScene(CFG);</script>
+</body>
+</html>

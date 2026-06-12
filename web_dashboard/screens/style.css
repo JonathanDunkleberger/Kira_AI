@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Kira stream screens — shared stylesheet
+   1920 × 1080 fixed canvas, OBS browser-source safe (no interaction).
+═══════════════════════════════════════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #0a0810;
+  /* Disable text selection / cursor — this is a broadcast asset */
+  user-select: none;
+  cursor: none;
+}
+
+#scene {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+}
+
+/* ── Scene background ─────────────────────────────────────────────────────── */
+.bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: cover;
+  object-position: center;
+  /* Original images are 1024×572; aspect ≈ 1.790 vs 1920/1080 ≈ 1.778 —
+     cover crops ~7px per side horizontally, negligible. */
+}
+
+/* ── Snow particle canvas ─────────────────────────────────────────────────── */
+#snow-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+
+/* ── CRT monitor glow / flicker overlay ───────────────────────────────────── */
+#crt-overlay {
+  position: absolute;
+  border-radius: 6px;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgba(110, 255, 135, 0.28)  0%,
+    rgba( 70, 200, 100, 0.11) 55%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  /* left/top/width/height set by anim.js from config */
+}
+
+/* ── String-light glow dots ───────────────────────────────────────────────── */
+#lights-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+
+.light-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 220, 130, 1.00)  0%,
+    rgba(255, 195,  70, 0.55) 38%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: opacity;
+  /* left/top/width/height set by anim.js from config */
+}
+
+/* ── Banner card (card_banner_wide.png) ───────────────────────────────────── */
+#banner-card-img {
+  position: absolute;
+  /* Drop-shadow per cards.json registry standard rule */
+  filter: drop-shadow(0 4px 6px rgba(60, 30, 50, 0.35));
+  pointer-events: none;
+  /* left/top/width/height set by anim.js from config */
+}
+
+#banner-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+  /* left/top/width/height set by anim.js from config */
+}
+
+.banner-main {
+  font-family: 'Segoe UI', Georgia, 'Times New Roman', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #3c1f2e;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.banner-sub {
+  font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
+  font-size: 22px;
+  color: #5a3040;
+  margin-top: 7px;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.2;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+/* Applied by JS before swapping BRB message text */
+.banner-sub.fade-out {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+/* Countdown digit block — mono width so it doesn't jump */
+#countdown {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}

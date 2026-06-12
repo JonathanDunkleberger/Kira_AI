@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--
+  Kira — STARTING SOON screen
+  OBS Browser Source: 1920 × 1080, local file URL
+  Countdown default: 5 min.  Override via query param:  ?min=10
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <title>Starting Soon — Kira</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════════
+     SCENE CONFIGURATION — edit % values here to tune regions in OBS.
+     All x / y / w / h are fractions of the 1920 × 1080 canvas (0 → 1).
+  ═══════════════════════════════════════════════════════════════════════ */
+  const CFG = {
+
+    /* ── Window glass region — snow falls only inside this rect ─────── */
+    snowRegion:  { x: 0.205, y: 0.052, w: 0.406, h: 0.638 },
+
+    /* ── CRT monitor screen — glow + flicker overlay ────────────────── */
+    crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
+
+    /* ── String-light bulb positions [x, y] ─────────────────────────── */
+    /* Left wall strand (above/left of window) */
+    lightPoints: [
+      [0.04, 0.09], [0.09, 0.08], [0.15, 0.09], [0.22, 0.10], [0.30, 0.12], [0.40, 0.14],
+      /* Right wall strand */
+      [0.65, 0.09], [0.73, 0.08], [0.81, 0.08], [0.89, 0.09], [0.96, 0.10], [0.97, 0.15], [0.97, 0.20],
+    ],
+
+    /* ── Snow particles ──────────────────────────────────────────────── */
+    snowCount:    60,
+    snowSpeedMin: 0.30, snowSpeedMax: 0.80,
+    snowSizeMin:  2,    snowSizeMax:  5,
+    snowOpMin:    0.30, snowOpMax:    0.85,
+    snowDrift:    0.15,   /* horizontal wander amplitude (px per frame factor) */
+
+    /* ── CRT screen flicker ──────────────────────────────────────────── */
+    crtBaseGlow: 0.15,   /* base overlay opacity */
+    crtAmp:      0.06,   /* ± sine variation */
+    crtPeriod:   3200,   /* ms per full cycle */
+
+    /* ── String-light twinkle ────────────────────────────────────────── */
+    lightRadius:    6,      /* px glow radius per bulb */
+    lightPeriodMin: 2000,   /* ms — fastest twinkle */
+    lightPeriodMax: 5000,   /* ms — slowest twinkle */
+
+    /* ── Banner card (card_banner_wide.png, 512×512 source canvas) ───── */
+    /* Rendered at cardSize × cardSize; transparent areas outside strip   */
+    /* pass through. cardLeft = (1920 − cardSize) / 2 for centred.        */
+    cardSize: 1100,  /* px — scale the whole card PNG */
+    cardLeft:  410,  /* px — (1920 − 1100) / 2 = 410 */
+    cardTop:   388,  /* px — banner strip lands ≈ y 861–993 on 1080 canvas */
+    /* Safe text insets as fractions of cardSize — source: cards.json */
+    textSafeTop:    0.43,
+    textSafeRight:  0.20,
+    textSafeBottom: 0.45,
+    textSafeLeft:   0.19,
+
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     STARTING-SOON countdown logic
+     Reads ?min=N from the URL (default 5). Counts down to 0 then shows
+     "LIVE NOW".
+  ═══════════════════════════════════════════════════════════════════════ */
+  window.pageInit = function () {
+    const params  = new URLSearchParams(location.search);
+    const minutes = Math.max(1, parseInt(params.get('min') || '5', 10));
+    let remaining = minutes * 60;
+
+    function fmt(s) {
+      const m  = Math.floor(s / 60);
+      const ss = s % 60;
+      return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+    }
+
+    const countEl = document.getElementById('countdown');
+
+    function tick() {
+      if (remaining <= 0) {
+        countEl.textContent = 'live now';
+        return;
+      }
+      countEl.textContent = fmt(remaining--);
+      setTimeout(tick, 1000);
+    }
+    tick();
+  };
+  </script>
+</head>
+<body>
+  <div id="scene">
+    <img class="bg" src="KIRA SCENES 1.jfif" alt="">
+    <canvas id="snow-canvas" width="1920" height="1080"></canvas>
+    <div id="crt-overlay"></div>
+    <div id="lights-layer"></div>
+
+    <!-- Banner card: transparent PNG positioned so strip appears lower-third -->
+    <img id="banner-card-img" src="../assets/cards/card_banner_wide.png" alt="">
+    <div id="banner-text">
+      <div class="banner-main">Starting Soon</div>
+      <div class="banner-sub" id="countdown">05:00</div>
+    </div>
+  </div>
+
+  <script src="anim.js"></script>
+  <script>initScene(CFG);</script>
+</body>
+</html>

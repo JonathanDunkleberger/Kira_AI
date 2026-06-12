@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--
+  Kira — BRB screen
+  OBS Browser Source: 1920 × 1080, local file URL
+  Rotates through BRB_MESSAGES every 8 s with a fade transition.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920">
+  <title>BRB — Kira</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+  /* ═══════════════════════════════════════════════════════════════════════
+     SCENE CONFIGURATION — edit % values here to tune regions in OBS.
+     All x / y / w / h are fractions of the 1920 × 1080 canvas (0 → 1).
+  ═══════════════════════════════════════════════════════════════════════ */
+  const CFG = {
+
+    /* ── Window glass region — snow falls only inside this rect ─────── */
+    snowRegion:  { x: 0.205, y: 0.052, w: 0.406, h: 0.638 },
+
+    /* ── CRT monitor screen — glow + flicker overlay ────────────────── */
+    crtRegion:   { x: 0.758, y: 0.524, w: 0.131, h: 0.166 },
+
+    /* ── String-light bulb positions [x, y] ─────────────────────────── */
+    lightPoints: [
+      [0.04, 0.09], [0.09, 0.08], [0.15, 0.09], [0.22, 0.10], [0.30, 0.12], [0.40, 0.14],
+      [0.65, 0.09], [0.73, 0.08], [0.81, 0.08], [0.89, 0.09], [0.96, 0.10], [0.97, 0.15], [0.97, 0.20],
+    ],
+
+    /* ── Snow particles ──────────────────────────────────────────────── */
+    snowCount:    60,
+    snowSpeedMin: 0.30, snowSpeedMax: 0.80,
+    snowSizeMin:  2,    snowSizeMax:  5,
+    snowOpMin:    0.30, snowOpMax:    0.85,
+    snowDrift:    0.15,
+
+    /* ── CRT screen flicker ──────────────────────────────────────────── */
+    crtBaseGlow: 0.15,
+    crtAmp:      0.06,
+    crtPeriod:   3200,
+
+    /* ── String-light twinkle ────────────────────────────────────────── */
+    lightRadius:    6,
+    lightPeriodMin: 2000,
+    lightPeriodMax: 5000,
+
+    /* ── Banner card ─────────────────────────────────────────────────── */
+    cardSize: 1100,
+    cardLeft:  410,
+    cardTop:   388,
+    textSafeTop:    0.43,
+    textSafeRight:  0.20,
+    textSafeBottom: 0.45,
+    textSafeLeft:   0.19,
+
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     BRB MESSAGE ROTATION
+     Edit BRB_MESSAGES to customise the rotating subtitle lines.
+     Messages rotate every ROTATE_INTERVAL_MS with a 350 ms fade.
+  ═══════════════════════════════════════════════════════════════════════ */
+  const BRB_MESSAGES = [
+    'raiding the fridge',
+    'the Duchess demands snacks',
+    'tactical snack break',
+    'filing field reports',
+    'reloading',
+    'back in 5, maybe',
+  ];
+
+  const ROTATE_INTERVAL_MS = 8000;
+
+  window.pageInit = function () {
+    const subEl = document.getElementById('brb-sub');
+    let idx = 0;
+
+    function rotate() {
+      /* Fade out → swap text → fade in */
+      subEl.classList.add('fade-out');
+      setTimeout(function () {
+        idx = (idx + 1) % BRB_MESSAGES.length;
+        subEl.textContent = BRB_MESSAGES[idx];
+        subEl.classList.remove('fade-out');
+      }, 380);
+    }
+
+    setInterval(rotate, ROTATE_INTERVAL_MS);
+  };
+  </script>
+</head>
+<body>
+  <div id="scene">
+    <img class="bg" src="scene_brb.jfif" alt="">
+    <canvas id="snow-canvas" width="1920" height="1080"></canvas>
+    <div id="crt-overlay"></div>
+    <div id="lights-layer"></div>
+
+    <img id="banner-card-img" src="../assets/cards/card_banner_wide.png" alt="">
+    <div id="banner-text">
+      <div class="banner-main">BRB</div>
+      <div class="banner-sub" id="brb-sub">raiding the fridge</div>
+    </div>
+  </div>
+
+  <script src="anim.js"></script>
+  <script>initScene(CFG);</script>
+</body>
+</html>
