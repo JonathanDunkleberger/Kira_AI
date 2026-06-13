@@ -56,14 +56,18 @@
     /* Top nudged in +2% from measured frame edge (belt-and-suspenders).    */
     snowRegion:   { x: 0.278, y: 0.070, w: 0.398, h: 0.530 },
 
-    /* -- Mirror region — DISABLED for kira_cam. The amber-lit room scene has
-     * very little warm/cool contrast between the mirror glass and the wall,
-     * so the threshold scan catches the sticky-note wall instead of the
-     * reflected sky. Mirror snow on the wrong surface is worse than none.
-     * Re-enable only if a stricter scan confirms a usable glass area.       *
-     * mirrorRegion: { x: 0.938, y: 0.040, w: 0.062, h: 0.245 }             */
-    // mirrorRegion:    { x: 0.938, y: 0.040, w: 0.062, h: 0.245 },
-    // mirrorSnowCount: 14,
+    /* -- Mirror region — tall reflective panel at RIGHT edge of frame -----
+     * Constrained scan (2026-06-13): x-band x=894-1024 (src), WB<40, lum 40-180.
+     * Mirror glass found at src y=0-88 in two zones separated by hanging plant:
+     *   zone A: src y=0-20  (100% cool at x=930-960)
+     *   zone B: src y=46-88 (100% cool at x=900-960)
+     * Plant at src y=22-44 → mask handles occlusion automatically (dark pixels
+     * fail WB<65 AND lum 40-120 test → flakes skip those rows, fall behind plant).
+     * Frame boundary at src x=880-892 (col scan gap) → left edge at src x=894.
+     * Display: left=1681 top=5 right=1920 bottom=166 (161×161px).
+     * Mirror left-edge is ~385px right of snowRegion right edge (no overlap).   */
+    mirrorRegion:    { x: 0.8755, y: 0.005, w: 0.1245, h: 0.1487 },
+    mirrorSnowCount: 14,
 
     /* -- CRT monitor — right side of scene --------------------------------
      * Measured quad from scene_kiracam.jfif (1024×572) with object-fit:
