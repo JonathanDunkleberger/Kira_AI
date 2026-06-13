@@ -54,19 +54,15 @@
     /* -- Window glass region — measured from scene_kiracam.jfif ---------- */
     /* Large center window, two panes. Mullion at x≈0.499 blocked by mask.  */
     /* Top nudged in +2% from measured frame edge (belt-and-suspenders).    */
-    snowRegion:   { x: 0.278, y: 0.070, w: 0.398, h: 0.530 },
+    snowRegion:   { x: 0.278, y: 0.090, w: 0.398, h: 0.510 },
 
     /* -- Mirror region — tall reflective panel at RIGHT edge of frame -----
      * Constrained scan (2026-06-13): x-band x=894-1024 (src), WB<40, lum 40-180.
-     * Mirror glass found at src y=0-88 in two zones separated by hanging plant:
-     *   zone A: src y=0-20  (100% cool at x=930-960)
-     *   zone B: src y=46-88 (100% cool at x=900-960)
-     * Plant at src y=22-44 → mask handles occlusion automatically (dark pixels
-     * fail WB<65 AND lum 40-120 test → flakes skip those rows, fall behind plant).
-     * Frame boundary at src x=880-892 (col scan gap) → left edge at src x=894.
-     * Display: left=1681 top=5 right=1920 bottom=166 (161×161px).
-     * Mirror left-edge is ~385px right of snowRegion right edge (no overlap).   */
-    mirrorRegion:    { x: 0.8755, y: 0.005, w: 0.1245, h: 0.1487 },
+     * Flake density peaks at display x≈1730-1870 per canvas sample. Region
+     * shifted left (-0.045) and trimmed right to exclude wall at far right.
+     * Occlusion mask (maskWbThresh=65) still handles plant leaves.
+     * Visually iterated 2026-06-13: x+w=0.945 keeps right edge off wall.    */
+    mirrorRegion:    { x: 0.830, y: 0.005, w: 0.115, h: 0.1487 },
     mirrorSnowCount: 14,
 
     /* -- CRT monitor — right side of scene --------------------------------
@@ -80,16 +76,14 @@
      * occlude the canvas naturally (foreground is later in DOM / higher z). */
     crtRegion:    { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.2380 },
 
-    /* Canvas aligned to TV glass top (2026-06-12):
-     * crtRegion.y = 0.4454 → display top = 481px = top of TV glass.
-     * Foreground transparent hole at TV center col (display x≈1706):
-     *   alpha=0 through display y≈583 → 102px of clear glass at center.
-     * h=0.0963 → height=104px → canvas bottom=585px ≈ transparent limit.
-     * Canvas center y = 533px (within clear zone ✓).
-     * px=max(3,round(min(231/14,104/9)))=max(3,round(11.6))=12
-     * → heart 7×12=84px wide, 6×12=72px tall, centered y=497-569 ✓
-     * Lamp (opaque fg, right side of TV) occludes naturally per z-order. */
-    crtDisplayRegion: { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.0963 },
+    /* Canvas position iterated 2026-06-13:
+     * Foreground transparent boundary at TV glass (src x=910-920, disp x≈1712-1720):
+     *   allZero=true through disp y=568; alpha ramp 568→596; fully opaque at 596+.
+     * Visible TV glass window: y≈481–568 (87px), center≈524px.
+     * With px=8: heart offset oy=23, heart center = canvas_top+47.
+     * canvas_top=497 → heart center=544 → centered in visible glass. ✓
+     * Iterate ±0.01 in OBS if glass centre differs from painted TV art. */
+    crtDisplayRegion: { x: 0.8276, y: 0.460, w: 0.1203, h: 0.0963 },
     crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
@@ -290,8 +284,9 @@
 
     /* Draw a single pixel heart, scaled to fit the canvas width nicely */
     function _drawHeart(ctx, cw, ch, scale, pulse) {
-      /* px driven by height so glyph fits the ~68px fully-transparent glass zone */
-      const px   = Math.max(3, Math.round(Math.min(cw / 14, ch / 9)));
+      /* px=8 — compact, crisp pixel art matching the preferred visual style.
+         Divisors chosen so min(cw/22, ch/13) → 8 at cw=231, ch=104.         */
+      const px   = Math.max(3, Math.round(Math.min(cw / 22, ch / 13)));
       const hw   = 7 * px, hh = 6 * px;
       const ox   = Math.round((cw - hw) / 2);
       const oy   = Math.round((ch - hh) / 2 - ch * 0.05);
@@ -310,8 +305,8 @@
 
     /* Draw a sleeping cat + drifting zzz */
     function _drawCat(ctx, cw, ch, t) {
-      /* px driven by height; cat positioned in upper half of canvas */
-      const px   = Math.max(3, Math.round(Math.min(cw / 16, ch / 10)));
+      /* Same px=8 style as heart */
+      const px   = Math.max(3, Math.round(Math.min(cw / 22, ch / 13)));
       const cw_  = 10 * px, ch_ = 7 * px;
       const ox   = Math.round((cw - cw_) / 2) - px;
       /* Push cat up (-0.05) so it sits in the transparent glass zone */
