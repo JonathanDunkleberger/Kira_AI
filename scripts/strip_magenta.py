@@ -49,6 +49,7 @@ def strip_magenta(
     tolerance: int | None,
     erode: int,
     force: bool = False,
+    feather: int | None = None,
 ) -> dict:
     """Process one image file.  Returns a stats dict."""
 
@@ -88,9 +89,15 @@ def strip_magenta(
     # -------------------------------------------------------------------
     # For edge anti-aliasing we treat the alpha as proportional to how far
     # the pixel is from the key colour.  Full BG → alpha 0.  Art → alpha 255.
-    # The transition zone spans [0 .. 2*tol] distance from key centre.
+    # The transition (feather) zone spans [tol .. tol+feather] distance from the
+    # key centre.  `feather` defaults to `tol` (the legacy 2*tol ramp) but can
+    # be narrowed when background and art deviations are close together
+    # (e.g. JPEG-scattered magenta vs a pink lid) so neither bleeds into the
+    # other.
+    ramp = feather if feather is not None else tol
+    ramp = max(1, ramp)
     transition_half = tol          # full transparent below this
-    transition_full = tol * 2      # full opaque above this
+    transition_full = tol + ramp   # full opaque above this
 
     keyed_pixels = 0
     new_data = []
@@ -102,7 +109,7 @@ def strip_magenta(
             keyed_pixels += 1
         elif dev <= transition_full:
             # Smooth ramp: 0 at transition_half, 255 at transition_full
-            alpha = int(255 * (dev - transition_half) / transition_half)
+            alpha = int(255 * (dev - transition_half) / ramp)
             new_data.append((r, g, b, alpha))
             keyed_pixels += 1  # counts partial as "touched"
         else:
@@ -173,6 +180,13 @@ def main() -> None:
         help="Pixels to erode from alpha edge after keying (default 0)",
     )
     ap.add_argument(
+        "--feather", type=int, default=None,
+        help="Width (in colour-deviation units) of the transparent→opaque "
+             "anti-alias ramp above the tolerance threshold. Defaults to "
+             "`tolerance` (legacy 2x ramp). Narrow it (e.g. 15) when the "
+             "background colour sits close to the art colour.",
+    )
+    ap.add_argument(
         "--force", action="store_true",
         help="Overwrite existing _alpha.png outputs",
     )
@@ -188,7 +202,8 @@ def main() -> None:
     print()
 
     for src in targets:
-        result = strip_magenta(src, args.tolerance, args.erode, force=args.force)
+        result = strip_magenta(src, args.tolerance, args.erode,
+                               force=args.force, feather=args.feather)
         if result.get("skipped"):
             print(f"  SKIP  {result['file']}  — {result['reason']}")
         else:

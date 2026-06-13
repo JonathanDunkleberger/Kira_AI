@@ -93,6 +93,11 @@
      *   left = 1696-116 = 1580 → 0.8229 ; top = 659-47 = 612 → 0.5667 */
     crtDisplayRegion: { x: 0.8229, y: 0.5667, w: 0.1203, h: 0.0963 },
     crtDisplayEnabled: true,
+    /* Safe margin (fraction of canvas, each side) inside which EVERY glyph
+       state must render. Larger → smaller glyph, more clearance from the
+       bezel/lamp. The glyph fills this inset box, so ~0.10 lands the artwork
+       at roughly 80% of the glass. One number to taste-tune all five states. */
+    glyphInsetFrac: 0.10,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
     /* Left strand → center drape over window → right wall strand           */
@@ -291,14 +296,15 @@
       }
     }
 
-    /* Draw a single pixel heart, scaled to fit the canvas width nicely */
+    /* Draw a single pixel heart, sized to fill the inset box (cw×ch is the
+       safe inset box passed by _stepCrtLive, NOT the full canvas). */
     function _drawHeart(ctx, cw, ch, scale, pulse) {
-      /* px=8 — compact, crisp pixel art matching the preferred visual style.
-         Divisors chosen so min(cw/22, ch/13) → 8 at cw=231, ch=104.         */
-      const px   = Math.max(3, Math.round(Math.min(cw / 22, ch / 13)));
+      /* HEART art grid is 7 cols × 6 rows. Fill the box, leave ~8% headroom so
+         the 1.08 beat-pulse can never reach the clip edge. */
+      const px   = Math.max(2, Math.floor(Math.min(cw / 7, ch / 6) * 0.92));
       const hw   = 7 * px, hh = 6 * px;
       const ox   = Math.round((cw - hw) / 2);
-      const oy   = Math.round((ch - hh) / 2 - ch * 0.05);
+      const oy   = Math.round((ch - hh) / 2);
       const s    = 1 + pulse * 0.08;
       ctx.save();
       ctx.translate(ox + hw / 2, oy + hh / 2);
@@ -312,14 +318,17 @@
       ctx.restore();
     }
 
-    /* Draw a sleeping cat + drifting zzz */
+    /* Draw a sleeping cat + drifting zzz, sized to fill the inset box. */
     function _drawCat(ctx, cw, ch, t) {
-      /* Same px=8 style as heart */
-      const px   = Math.max(3, Math.round(Math.min(cw / 22, ch / 13)));
+      /* CAT art grid is 10 cols × 7 rows. Reserve the right ~26% of the box for
+         the drifting z's. The cat is the tallest glyph, so hold it to ~0.85 of
+         the box height — its soft glow then clears the inset ceiling too. */
+      const catBoxW = cw * 0.74;
+      const px   = Math.max(2, Math.floor(Math.min(catBoxW / 10, ch / 7) * 0.85));
       const cw_  = 10 * px, ch_ = 7 * px;
-      const ox   = Math.round((cw - cw_) / 2) - px;
-      /* Push cat up (-0.05) so it sits in the transparent glass zone */
-      const oy   = Math.round((ch - ch_) / 2 - ch * 0.05);
+      const ox   = Math.round((catBoxW - cw_) / 2);
+      /* Sit the cat in the lower-middle so the z's have headroom above it. */
+      const oy   = Math.round(ch - ch_ - ch * 0.06);
       ctx.shadowBlur  = 6;
       ctx.shadowColor = C.mid;
       _px(ctx, CAT,      px, ox, oy, C.bright);
@@ -327,29 +336,39 @@
       _px(ctx, CAT_EYES, px, ox, oy, C.dim);
       ctx.shadowBlur = 0;
 
-      /* Three floating z's at staggered phases */
+      /* Three floating z's — drift up-right but clamped to stay inside the box. */
       ctx.font      = (px * 2) + 'px monospace';
       ctx.textAlign = 'left';
+      const zBaseX  = Math.min(cw - px * 2.5, ox + cw_ + px);
+      const driftH  = ch * 0.30;        /* total upward travel, bounded */
       for (let i = 0; i < 3; i++) {
         const phase = ((t * 0.0008 + i * 0.33) % 1);
-        const zx    = ox + cw_ + px * 2 + i * px * 3;
-        const zy    = oy - px * i * 1.5 - phase * px * 4;
+        let zx = zBaseX + i * px * 1.4;
+        let zy = oy - i * px * 1.2 - phase * driftH;
+        /* Keep the whole glyph inside the box (a z is ~px*2 tall/wide).
+           The 2.6× floor leaves room for the glyph's ascent above the
+           baseline so the top tip never pokes past the inset ceiling. */
+        zx = Math.min(cw - px * 2, Math.max(0, zx));
+        zy = Math.max(px * 2.6, zy);
         const alpha = Math.max(0, 1 - phase * 1.5);
         ctx.fillStyle = `rgba(68,204,68,${alpha.toFixed(2)})`;
         ctx.fillText('z', zx, zy);
       }
     }
 
-    /* Draw waveform bars (speaking state) */
+    /* Draw waveform bars (speaking state), fit to the inset box width. */
     function _drawWaveform(ctx, cw, ch, t) {
-      const BAR_COUNT = 7;
-      const BAR_W     = Math.max(3, Math.round(cw / 18));
-      const BAR_GAP   = Math.max(2, Math.round(cw / 36));
-      const maxH      = Math.round(ch * 0.55);
-      const minH      = Math.round(ch * 0.08);
+      /* Fewer, slimmer bars: a little waveform ON the screen, ~85% of the box
+         wide. BAR_GAP ≈ 0.55·BAR_W keeps it reading as a tidy little meter. */
+      const BAR_COUNT = 5;
+      const span      = cw * 0.85;
+      const BAR_W     = Math.max(2, Math.round(span / (BAR_COUNT + 0.55 * (BAR_COUNT - 1))));
+      const BAR_GAP   = Math.max(1, Math.round(BAR_W * 0.55));
+      const maxH      = Math.round(ch * 0.78);
+      const minH      = Math.round(ch * 0.10);
       const totalW    = BAR_COUNT * (BAR_W + BAR_GAP) - BAR_GAP;
       const startX    = Math.round((cw - totalW) / 2);
-      const baseY     = Math.round(ch * 0.58);
+      const baseY     = Math.round(ch * 0.90);
 
       ctx.shadowBlur  = 8;
       ctx.shadowColor = C.glow;
@@ -367,17 +386,19 @@
       ctx.shadowBlur = 0;
     }
 
-    /* Draw chess knight (unicode glyph, large) */
+    /* Draw chess knight (unicode glyph), sized to fill the inset box. */
     function _drawChess(ctx, cw, ch, t) {
       const pulse = 0.75 + 0.25 * Math.sin(t * 0.0015);
-      const sz    = Math.round(Math.min(cw, ch) * 0.60);
+      /* 0.78 + a downward nudge (0.58) keeps the glyph's ink — which renders
+         high of the baseline-middle — fully inside the inset box top & bottom. */
+      const sz    = Math.round(Math.min(cw, ch) * 0.78);
       ctx.shadowBlur  = 18;
       ctx.shadowColor = C.glow;
       ctx.fillStyle   = `rgba(68,204,68,${pulse.toFixed(2)})`;
       ctx.font        = `bold ${sz}px monospace`;
       ctx.textAlign   = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('\u265e', cw / 2, ch * 0.52);
+      ctx.fillText('\u265e', cw / 2, ch * 0.58);
       ctx.shadowBlur  = 0;
       ctx.textBaseline = 'alphabetic';
     }
@@ -457,28 +478,47 @@
       /* Beat period: 2000ms at rate=0, 800ms at rate=10+ msgs/min */
       const beatPeriod = Math.max(800, 2000 - chatRate * 120);
 
+      /* ── Inset box ──────────────────────────────────────────────────────
+         Every glyph must render inside this margin so nothing touches the
+         bezel/lamp. We translate the origin to the box and hard-clip to it as
+         a safety net, then hand each glyph the box dims so it sizes itself to
+         fit. The scanlines/flicker below draw on the FULL canvas. */
+      const inset = CFG.glyphInsetFrac || 0;
+      const ix = Math.round(cw * inset);
+      const iy = Math.round(ch * inset);
+      const iw = cw - 2 * ix;
+      const ih = ch - 2 * iy;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(ix, iy, iw, ih);
+      ctx.clip();
+      ctx.translate(ix, iy);
+
       switch (state) {
         case 'speaking':
-          _drawWaveform(ctx, cw, ch, t);
+          _drawWaveform(ctx, iw, ih, t);
           break;
         case 'chess':
-          _drawChess(ctx, cw, ch, t);
+          _drawChess(ctx, iw, ih, t);
           break;
         case 'chat': {
           const pulse = 0.5 + 0.5 * Math.sin((t / beatPeriod) * Math.PI * 2);
-          _drawHeart(ctx, cw, ch, 1, pulse);
+          _drawHeart(ctx, iw, ih, 1, pulse);
           break;
         }
         case 'idle':
-          _drawCat(ctx, cw, ch, t);
+          _drawCat(ctx, iw, ih, t);
           break;
         case 'fallback':
         default: {
           /* Static heart — matches the original artwork glyph */
-          _drawHeart(ctx, cw, ch, 1, 0);
+          _drawHeart(ctx, iw, ih, 1, 0);
           break;
         }
       }
+
+      ctx.restore();
 
       _drawScanlines(ctx, cw, ch);
 

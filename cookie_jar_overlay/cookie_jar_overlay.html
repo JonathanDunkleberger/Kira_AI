@@ -6,9 +6,9 @@
   Also connects to ws://localhost:8766/ws/overlays for visibility toggles.
 
   Assets (relative paths from this file):
-    ../web_dashboard/assets/cards/kira COOKIE JAR NEW 2.0_alpha.png   825×1024
-    ../web_dashboard/assets/cards/KIRA COOKIE 2.0_alpha.png           1024×1024
-    ../web_dashboard/assets/cards/KIRA COOKIE GOLD 2.0_alpha.png      1024×1024
+    ../web_dashboard/assets/cards/jar_empty_alpha.png     825×1024
+    ../web_dashboard/assets/cards/cookie_alpha.png        1024×1024
+    ../web_dashboard/assets/cards/cookie_gold_alpha.png   1024×1024
 -->
 <html lang="en">
 <head>
@@ -74,7 +74,7 @@
 <canvas id="drop-canvas" width="1920" height="1080"></canvas>
 <div id="jar-widget">
   <canvas id="cookie-canvas"></canvas>
-  <img id="jar-img" src="../web_dashboard/assets/cards/kira COOKIE JAR NEW 2.0_alpha.png" alt="">
+  <img id="jar-img" src="../web_dashboard/assets/cards/jar_empty_alpha.png" alt="">
   <div id="jar-label">
     <span class="jar-title">KIRA'S COOKIE JAR</span>
     <span class="jar-count" id="count-el">0 / 50</span>
@@ -87,8 +87,9 @@
     JAR_LEFT: 1740, JAR_TOP: 540, JAR_W: 160,
     FILL_X_LO: 0.22, FILL_X_HI: 0.78,
     FILL_Y_LO: 0.36, FILL_Y_HI: 0.92,
-    LABEL_X_LO: 0.25, LABEL_X_HI: 0.75,
-    LABEL_Y_LO: 0.33, LABEL_Y_HI: 0.57,
+    // Taped paper label bounds, measured from jar_empty_alpha.png (825×1024).
+    LABEL_X_LO: 0.33, LABEL_X_HI: 0.68,
+    LABEL_Y_LO: 0.56, LABEL_Y_HI: 0.73,
     COOKIE_SIZE_FRAC: 0.30,
     DROP_ORIGIN_X: 60, DROP_ORIGIN_Y: 60,
     JAR_MOUTH_X_FRAC: 0.50, JAR_MOUTH_Y_FRAC: 0.22,
@@ -105,9 +106,9 @@
   }
 
   const IMG_COOKIE = new Image();
-  IMG_COOKIE.src = '../web_dashboard/assets/cards/KIRA COOKIE 2.0_alpha.png';
+  IMG_COOKIE.src = '../web_dashboard/assets/cards/cookie_alpha.png';
   const IMG_GOLD = new Image();
-  IMG_GOLD.src   = '../web_dashboard/assets/cards/KIRA COOKIE GOLD 2.0_alpha.png';
+  IMG_GOLD.src   = '../web_dashboard/assets/cards/cookie_gold_alpha.png';
   let _imagesReady = 0;
   function _onImgLoad() { _imagesReady++; if (_imagesReady >= 2) _renderCookies(); }
   IMG_COOKIE.addEventListener('load', _onImgLoad);

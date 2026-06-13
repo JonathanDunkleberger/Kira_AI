@@ -23,14 +23,27 @@ html, body {
    SCORE CARD
    card_score_small.png: canvas 512×512
    safe_text: top=37%, right=32%, bottom=34%, left=31%
-   Rendered at 280px; scale = 280/512 ≈ 0.547
+   All sizes are driven by the CFG block at the bottom of
+   <body> via CSS custom properties — tweak there, not here.
 ═══════════════════════════════════════════════════════ */
+:root {
+  --card-w:        420px;
+  --card-top:       24px;
+  --card-right:     36px;
+  --label-px:       13px;
+  --value-px:       26px;
+  --cookie-label-px:13px;
+  --cookie-count-px:15px;
+  --iou-px:         12px;
+  --gap-px:          5px;
+}
+
 #score-root {
   position: absolute;
-  top: 24px;
-  right: 36px;
-  width: 280px;
-  height: 280px;
+  top: var(--card-top);
+  right: var(--card-right);
+  width: var(--card-w);
+  height: var(--card-w);
   pointer-events: none;
   transition: opacity 250ms ease;
 }
@@ -40,24 +53,24 @@ html, body {
 #score-img {
   position: absolute;
   inset: 0;
-  width: 280px;
-  height: 280px;
+  width: var(--card-w);
+  height: var(--card-w);
   filter: drop-shadow(0 4px 6px rgba(60,30,50,0.35));
 }
 
-/* Text layer */
+/* Text layer — safe_text insets expressed as % of the card box so they
+   scale with --card-w automatically. */
 #score-text {
   position: absolute;
-  /* safe_text at 280px: top=37%=103, left=31%=87, right=32%=90, bottom=34%=95 */
-  top:    103px;
-  left:    87px;
-  right:   90px;
-  bottom:  95px;
+  top:    37%;
+  left:   31%;
+  right:  32%;
+  bottom: 34%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: var(--gap-px);
   overflow: hidden;
 }
 
@@ -68,7 +81,7 @@ html, body {
 }
 
 .score-label {
-  font-size: 8px;
+  font-size: var(--label-px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .10em;
@@ -77,7 +90,7 @@ html, body {
 }
 
 .score-value {
-  font-size: 16px;
+  font-size: var(--value-px);
   font-weight: 700;
   color: #4a2e30;
   line-height: 1;
@@ -123,12 +136,12 @@ html, body {
   transition: width 300ms ease;
 }
 .cookie-count {
-  font-size: 7.5px;
+  font-size: var(--cookie-count-px);
   color: #8A7050;
   letter-spacing: .04em;
 }
 .iou-line {
-  font-size: 7px;
+  font-size: var(--iou-px);
   color: #9060a0;
   letter-spacing: .03em;
   margin-top: 1px;
@@ -159,7 +172,7 @@ html, body {
 
     <!-- Cookie jar -->
     <div class="cookie-bar-wrap">
-      <div class="score-label">🍪 Cookie Jar</div>
+      <div class="score-label" style="font-size:var(--cookie-label-px)">🍪 Cookie Jar</div>
       <div class="cookie-bar-bg">
         <div class="cookie-bar-fill" id="cookie-fill" style="width:0%"></div>
       </div>
@@ -171,6 +184,34 @@ html, body {
 </div>
 
 <script>
+// ── CFG — scoreboard size & fonts (one place to tweak) ──────────────────────
+// Bumped for readability at 1080p stream-viewing distance. Each value maps to a
+// CSS custom property on :root. Text renders as native HTML (never scaled), so
+// these px values are the true on-screen sizes.
+const CFG = {
+  cardW:          550,  // card box px (square). Bigger card → room for big fonts
+  cardTop:         24,
+  cardRight:       36,
+  labelPx:         13,  // "Session" / "Lifetime" captions
+  valuePx:         26,  // W-L-D records  (was 16)
+  cookieLabelPx:   13,  // "🍪 Cookie Jar"
+  cookieCountPx:   15,  // "0 / 50"       (was 7.5)
+  iouPx:           12,  // "📋 IOUs: n"   (was 7)
+  gapPx:            4,
+};
+(function applyCfg() {
+  const r = document.documentElement.style;
+  r.setProperty('--card-w',         CFG.cardW        + 'px');
+  r.setProperty('--card-top',       CFG.cardTop      + 'px');
+  r.setProperty('--card-right',     CFG.cardRight    + 'px');
+  r.setProperty('--label-px',       CFG.labelPx      + 'px');
+  r.setProperty('--value-px',       CFG.valuePx      + 'px');
+  r.setProperty('--cookie-label-px',CFG.cookieLabelPx+ 'px');
+  r.setProperty('--cookie-count-px',CFG.cookieCountPx+ 'px');
+  r.setProperty('--iou-px',         CFG.iouPx        + 'px');
+  r.setProperty('--gap-px',         CFG.gapPx        + 'px');
+})();
+
 const WS_URL       = 'ws://localhost:8766/ws/overlays';
 const RECONNECT_MS = 3000;
 

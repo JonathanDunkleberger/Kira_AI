@@ -26,6 +26,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, Response, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 _DASHBOARD_HTML = Path(__file__).parent.parent.parent / 'web_dashboard' / 'index.html'
@@ -363,6 +364,22 @@ def state_snapshot(bot: "VTubeBot") -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 app = FastAPI(title="Kira Control Server", version="1.0")
+
+# ── Static overlay routes ────────────────────────────────────────────────────
+# Serve the OBS browser-source overlays (chat / scoreboard / cookie jar) and
+# their assets over HTTP so they can be pointed at
+#   http://127.0.0.1:8766/web_dashboard/score_overlay.html
+#   http://127.0.0.1:8766/web_dashboard/chat_overlay.html
+#   http://127.0.0.1:8766/cookie_jar_overlay/cookie_jar_overlay.html
+# instead of file://. Mounted at the directory names so every relative asset
+# path resolves unchanged — including the cookie jar's ../web_dashboard/...
+# reference. These are sub-path mounts, so they never shadow /state, /ws, etc.
+# Server is 127.0.0.1-bound and these dirs contain only front-end assets.
+_REPO_ROOT = Path(__file__).parent.parent.parent
+for _name in ("web_dashboard", "cookie_jar_overlay"):
+    _dir = _REPO_ROOT / _name
+    if _dir.is_dir():
+        app.mount(f"/{_name}", StaticFiles(directory=str(_dir)), name=_name)
 
 class _WSManager:
     """Tracks connected /ws clients and broadcasts state pushes."""
