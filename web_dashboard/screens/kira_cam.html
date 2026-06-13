@@ -56,13 +56,14 @@
     /* Top nudged in +2% from measured frame edge (belt-and-suspenders).    */
     snowRegion:   { x: 0.278, y: 0.090, w: 0.398, h: 0.510 },
 
-    /* -- Mirror region — tall reflective panel at RIGHT edge of frame -----
-     * Constrained scan (2026-06-13): x-band x=894-1024 (src), WB<40, lum 40-180.
-     * Flake density peaks at display x≈1730-1870 per canvas sample. Region
-     * shifted left (-0.045) and trimmed right to exclude wall at far right.
-     * Occlusion mask (maskWbThresh=65) still handles plant leaves.
-     * Visually iterated 2026-06-13: x+w=0.945 keeps right edge off wall.    */
-    mirrorRegion:    { x: 0.830, y: 0.005, w: 0.115, h: 0.1487 },
+    /* -- Mirror region — small reflective glass panel, top-right ----------
+     * The dark reflective glass is ONLY the left third of the top-right
+     * panel: src x≈812-880 (display 1526-1655). RIGHT of the wooden mullion
+     * (src x≈885+) is the sticky-note WALL — snow must NOT land there.
+     * Confined to the glass (2026-06-12): x=0.795, w=0.067 → right edge
+     * 0.862 (display 1655) stops at the mullion, off the wall.
+     * Occlusion mask (maskWbThresh=65) handles the hanging plant leaves. */
+    mirrorRegion:    { x: 0.795, y: 0.005, w: 0.067, h: 0.1487 },
     mirrorSnowCount: 14,
 
     /* -- CRT monitor — right side of scene --------------------------------
@@ -76,14 +77,16 @@
      * occlude the canvas naturally (foreground is later in DOM / higher z). */
     crtRegion:    { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.2380 },
 
-    /* Canvas position iterated 2026-06-13:
-     * Foreground transparent boundary at TV glass (src x=910-920, disp x≈1712-1720):
-     *   allZero=true through disp y=568; alpha ramp 568→596; fully opaque at 596+.
-     * Visible TV glass window: y≈481–568 (87px), center≈524px.
-     * With px=8: heart offset oy=23, heart center = canvas_top+47.
-     * canvas_top=497 → heart center=544 → centered in visible glass. ✓
-     * Iterate ±0.01 in OBS if glass centre differs from painted TV art. */
-    crtDisplayRegion: { x: 0.8276, y: 0.460, w: 0.1203, h: 0.0963 },
+    /* CRT live-glyph canvas — rendered ON TOP of desk_foreground.png.
+     * The TV + its painted mint heart live in the OPAQUE foreground PNG, so a
+     * canvas behind it can never show on the screen (it only pokes above the
+     * TV's top edge → broken heart on the wall). Instead the canvas sits last
+     * in the DOM with mix-blend-mode:screen: the green glyph ADDS onto the
+     * painted TV heart (reinforcing/animating it) while black areas vanish.
+     * Painted heart centroid measured at display (1696, 659), size ~57×53px.
+     * px=8 heart is 56×48px, centred in canvas at (116, 47):
+     *   left = 1696-116 = 1580 → 0.8229 ; top = 659-47 = 612 → 0.5667 */
+    crtDisplayRegion: { x: 0.8229, y: 0.5667, w: 0.1203, h: 0.0963 },
     crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
@@ -137,12 +140,13 @@
   <div id="scene">
     <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
-    <!-- CRT live display (screen-blend glyph sits between bg and fg) -->
-    <canvas id="crt-live" width="231" height="104"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>
     <!-- Foreground: desk surface cuts in front of snow — OBS avatar goes between these layers -->
     <img class="fg" src="desk_foreground.png" alt="">
+    <!-- CRT live glyph sits ON TOP of the foreground TV (screen-blend adds the
+         animated heart onto the painted TV screen; black areas stay invisible). -->
+    <canvas id="crt-live" width="231" height="104"></canvas>
     <!-- No banner card. OBS layers the avatar source on top of this. -->
   </div>
 
