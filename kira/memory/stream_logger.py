@@ -459,7 +459,7 @@ class StreamLogger:
             "Be data-driven and specific. Do not pad."
         )
 
-        print("   [StreamLogger] Generating post-stream summary via Sonnet...")
+        print("   [StreamLogger] Generating post-stream summary via Sonnet (up to 75s)...")
         try:
             response = await asyncio.wait_for(
                 ai_core.claude_inference(
@@ -471,13 +471,20 @@ class StreamLogger:
                     max_tokens=2000,
                     use_sonnet=True,  # K: post-stream tech summary — Sonnet
                 ),
-                timeout=45,
+                timeout=75,
             )
         except asyncio.TimeoutError:
-            print("   [WARN] stream_logger summary LLM call timed out after 45s — "
+            print("   [WARN] stream_logger summary LLM call timed out after 75s — "
                   "writing PENDING checkpoint for later backfill", file=sys.stderr)
             self._write_pending_summary(full_transcript, duration_s)
             return
+        except asyncio.CancelledError:
+            # Shutdown cancelled the summary mid-flight — save the raw session material
+            # so backfill_lore.py can regenerate the summary offline later.
+            print("   [WARN] stream_logger summary cancelled during shutdown — "
+                  "writing PENDING checkpoint for later backfill", file=sys.stderr)
+            self._write_pending_summary(full_transcript, duration_s)
+            raise  # re-raise so the task is properly cancelled
         except Exception as e:
             print(f"   [WARN] stream_logger: Sonnet summary call failed: {e} — "
                   f"writing PENDING checkpoint for later backfill", file=sys.stderr)

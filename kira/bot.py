@@ -2559,10 +2559,23 @@ class VTubeBot:
             except Exception as e:
                 print(f"   [Shutdown] {label} error: {e}")
 
-        # ── B3: cancel background loops BEFORE writing artifacts ────────────────
+        # ── Post-stream summary FIRST — before any background task cancellation ──
+        # The Sonnet call inside stream_logger.finish() is long-lived (up to 75s).
+        # If background tasks are cancelled first, the in-flight HTTP request can be
+        # interrupted. Run finish() while the event loop is clean, THEN cancel
+        # everything else.  Game-mode path is excluded — its own artifact writes
+        # (lore/clips) run after bg-task cancellation via deactivate_game_mode_async().
+        _game_active = bool(self.game_mode_controller and self.game_mode_controller.is_active)
+        if STREAM_LOGGING_ENABLED and not _game_active:
+            if hasattr(self.ai_core, "_session_usage"):
+                self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
+            # finish() has an inner 75s timeout on the LLM call; give the outer
+            # wrapper 90s headroom (flush + writer-task stop + LLM call).
+            await _bounded(self.stream_logger.finish(self.ai_core), 90, "Post-stream summary")
+
+        # ── Cancel background loops ───────────────────────────────────────────────
         # Cancel the control server, autopilot watchdog, observer, heartbeats, and
-        # every other loop in the task list so they stop making LLM/network calls
-        # and don't race the artifact phase. gather(return_exceptions=True) so a
+        # every other loop in the task list. gather(return_exceptions=True) so a
         # CancelledError from any task can't abort the cleanup.
         bg_tasks = [t for t in getattr(self, "_background_tasks", []) if not t.done()]
         if bg_tasks:
@@ -2574,17 +2587,10 @@ class VTubeBot:
                 15, "Background task cancellation",
             )
 
-        # ── Artifact phase (each step independently bounded) ────────────────────
-        # If a game/VN session was active, run the deactivate flow (writes
-        # artifacts + post-stream summary). Otherwise just close the stream log.
-        if self.game_mode_controller and self.game_mode_controller.is_active:
+        # ── Game-mode artifact phase ──────────────────────────────────────────────
+        # Lore, clips, and playthrough log for an active game/VN session.
+        if _game_active:
             await _bounded(self.deactivate_game_mode_async(), 30, "Game-mode deactivate / artifact write")
-        elif STREAM_LOGGING_ENABLED:
-            if hasattr(self.ai_core, "_session_usage"):
-                self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
-            # finish() internally bounds the Opus summary (45s) and writes a
-            # PENDING json on timeout, so give the outer await generous headroom.
-            await _bounded(self.stream_logger.finish(self.ai_core), 50, "Stream logger finish")
 
         # Print LLM cost summary before tearing down
         try:

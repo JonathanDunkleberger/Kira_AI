@@ -621,6 +621,8 @@ async def ws_state(ws: WebSocket):
             import json
             await ws.send_text(json.dumps(snap))
             await asyncio.sleep(0.5)
+    except asyncio.CancelledError:
+        pass  # task cancelled during shutdown — not an error
     except (WebSocketDisconnect, Exception):
         pass
     finally:
@@ -643,6 +645,8 @@ async def ws_screens(ws: WebSocket):
         }))
         while True:
             await ws.receive_text()  # keep alive
+    except asyncio.CancelledError:
+        pass  # task cancelled during shutdown — not an error
     except (WebSocketDisconnect, Exception):
         pass
     finally:
@@ -660,6 +664,8 @@ async def ws_chat(ws: WebSocket):
     try:
         while True:
             await ws.receive_text()  # keep alive; client sends nothing
+    except asyncio.CancelledError:
+        pass  # task cancelled during shutdown — not an error
     except (WebSocketDisconnect, Exception):
         pass
     finally:
@@ -699,6 +705,8 @@ async def ws_overlays(ws: WebSocket):
             pass
         while True:
             await ws.receive_text()  # keep alive; client sends nothing
+    except asyncio.CancelledError:
+        pass  # task cancelled during shutdown — not an error
     except (WebSocketDisconnect, Exception):
         pass
     finally:
