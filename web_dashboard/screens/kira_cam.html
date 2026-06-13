@@ -62,8 +62,12 @@
      * (src x≈885+) is the sticky-note WALL — snow must NOT land there.
      * Confined to the glass (2026-06-12): x=0.795, w=0.067 → right edge
      * 0.862 (display 1655) stops at the mullion, off the wall.
+     * Top edge of the glass is ANGLED in the art; a rectangle must fit
+     * INSIDE it, so y dropped to 0.046 (top sits below the angle's lowest
+     * point on the left, display y≈50) and w trimmed to 0.054 so the
+     * rightmost flakes stay off the mullion.
      * Occlusion mask (maskWbThresh=65) handles the hanging plant leaves. */
-    mirrorRegion:    { x: 0.795, y: 0.005, w: 0.067, h: 0.1487 },
+    mirrorRegion:    { x: 0.795, y: 0.046, w: 0.054, h: 0.1487 },
     mirrorSnowCount: 14,
 
     /* -- CRT monitor — right side of scene --------------------------------
