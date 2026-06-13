@@ -1242,6 +1242,19 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         ))
         return _ok(overlay_vis=dict(_overlay_vis))
 
+    # ── Wheel test spin (dashboard / debug) ────────────────────────────────────
+    if action == "wheel_spin_test":
+        from kira.memory.wheel_slices import spin as _spin_wheel
+        chosen = _spin_wheel()
+        asyncio.ensure_future(push_overlay_event({
+            "type":        "wheel_spin",
+            "result":      chosen["id"],
+            "label":       chosen["label"],
+            "tipper":      "(test)",
+            "duration_ms": 3500,
+        }))
+        return _ok(slice=chosen["id"], label=chosen["label"])
+
     # ── Wheel veto ────────────────────────────────────────────────────────────
     if action == "wheel_veto":
         # Broadcast wheel_veto to overlays

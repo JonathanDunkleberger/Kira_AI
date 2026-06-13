@@ -750,6 +750,8 @@ html, body {
 
       <!-- Wheel -->
       <span class="rail-section-label">🎡 Wheel</span>
+      <button class="rail-btn" style="background:var(--accent);color:#fff;margin-bottom:4px"
+              onclick="cmd('wheel_spin_test').then(d=>d&&d.label&&alert('Wheel test fired: '+d.label))">▶ TEST SPIN</button>
       <button class="rail-btn" style="background:var(--danger);color:#fff;"
               onclick="cmd('wheel_veto')">🚫 VETO WHEEL</button>
 
