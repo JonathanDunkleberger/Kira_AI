@@ -755,9 +755,17 @@ html, body {
       <button class="rail-btn" style="background:var(--danger);color:#fff;"
               onclick="cmd('wheel_veto')">🚫 VETO WHEEL</button>
 
-      <!-- Cookie Top-3 -->
+      <!-- Cards & Banner test -->
       <div class="rail-sep"></div>
-      <span class="rail-section-label">🍪 Session Top</span>
+      <span class="rail-section-label">🃏 Cards &amp; Banner</span>
+      <button class="rail-btn" style="background:var(--accent);color:#fff;margin-bottom:4px"
+              onclick="cmd('test_card')">▶ TEST CARD</button>
+      <input id="banner-text-input" type="text" placeholder="Banner text…"
+             style="width:100%;font-size:.72rem;padding:3px 6px;margin-bottom:3px;
+                    border:1.5px solid var(--border);border-radius:4px;
+                    background:var(--ctrl-bg);color:var(--text-primary);box-sizing:border-box;">
+      <button class="rail-btn" style="background:var(--ctrl-bg);color:var(--text-primary);border:1.5px solid var(--border);"
+              onclick="cmd('test_banner',{text:document.getElementById('banner-text-input').value||null})">▶ TEST BANNER</button>
       <div id="cookie-top3" style="font-size:.68rem;color:var(--text-muted);line-height:1.6;padding:0 2px;">–</div>
 
       <!-- IOU Redeem -->

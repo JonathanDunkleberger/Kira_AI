@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, Response, HTMLResponse, RedirectResponse
+from fastapi.responses import JSONResponse, Response, HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -378,10 +378,17 @@ app = FastAPI(title="Kira Control Server", version="1.0")
 # Server is 127.0.0.1-bound and these dirs contain only front-end assets.
 _REPO_ROOT = Path(__file__).parent.parent.parent
 
-# Short-URL alias so OBS can use /wheel instead of the full path.
+# Short-URL aliases so OBS can use compact paths instead of full web_dashboard paths.
+# FileResponse is used (not RedirectResponse) so OBS CEF never needs to follow a 302.
 @app.get("/wheel")
-async def _wheel_redirect():
-    return RedirectResponse(url="/web_dashboard/wheel_overlay.html")
+async def _wheel_handler():
+    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "wheel_overlay.html"))
+
+@app.get("/card_overlay")
+async def _card_overlay_handler():
+    # Redirect (not FileResponse) so relative asset paths (assets/cards/*.png)
+    # resolve correctly against /web_dashboard/ in the browser.
+    return RedirectResponse(url="/web_dashboard/card_overlay.html")
 
 for _name in ("web_dashboard", "cookie_jar_overlay"):
     _dir = _REPO_ROOT / _name
@@ -473,6 +480,8 @@ async def push_card_show(chatter: str, message: str, platform: str) -> None:
     if not _overlay_vis.get("cards", True):
         return
     import time as _t
+    n = len(_overlay_ws_manager._clients)
+    print(f"   [CardOverlay] card_show → {n} WS client(s) connected to /ws/overlays")
     await push_overlay_event({
         "type":     "card_show",
         "chatter":  chatter,
@@ -772,6 +781,9 @@ class _CmdBody(BaseModel):
     screen: str | None = None
     line1:  str | None = None
     line2:  str | None = None
+
+    # ── Generic text payload (test_banner, etc.)
+    text:   str | None = None
 
 
 def _ok(**kwargs) -> dict:
@@ -1290,6 +1302,26 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _ok(redeemed=ok) if ok else _err(f"IOU {idx} not found or not open")
         except Exception as e:
             return _err(str(e))
+
+    # ── Test overlay events (card / banner — debug / OBS setup verification) ───
+    if action == "test_card":
+        asyncio.ensure_future(push_card_show(
+            chatter="Test",
+            message="This is a test response card. If you can see this, card_overlay is working!",
+            platform="twitch",
+        ))
+        # Auto-hide after MIN_DISPLAY_MS
+        async def _auto_hide_card():
+            import asyncio as _aio
+            await _aio.sleep(5)
+            await push_card_hide()
+        asyncio.ensure_future(_auto_hide_card())
+        return _ok(message="test card fired")
+
+    if action == "test_banner":
+        text = (getattr(body, 'text', None) or "🎉 Test Banner — Event banner is working!")[:160]
+        asyncio.ensure_future(push_banner_show(text, duration_s=6))
+        return _ok(message="test banner fired")
 
     # ── Ambience control ──────────────────────────────────────────────────────
     if action == "set_ambience":

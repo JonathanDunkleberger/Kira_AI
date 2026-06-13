@@ -149,6 +149,12 @@
     const fillW  = fillX1 - fillX0;
     const fillH  = fillY1 - fillY0;
 
+    // Hard-clip to the fill region so no cookie can bleed outside the jar glass.
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(fillX0, fillY0, fillW, fillH);
+    ctx.clip();
+
     // Size a grid that fits the full jar capacity, roughly matching the
     // interior aspect ratio, so `cap` cookies fill the body bottom-to-top.
     const capN  = Math.max(1, cap);
@@ -184,6 +190,8 @@
       ctx.drawImage(img, -cs / 2, -cs / 2, cs, cs);
       ctx.restore();
     }
+    // Restore the fill-region clip.
+    ctx.restore();
   }
 
   /* Cookie count is shown on the scoreboard overlay, not on the jar. */

@@ -356,19 +356,21 @@
       }
     }
 
-    /* Draw waveform bars (speaking state), fit to the inset box width. */
+    /* Draw waveform bars (speaking state), fit to the inset box width.
+       Sizing mirrors the heart: uses min(cw, ch) as the reference so bars
+       stay comfortably inside the glass regardless of the box aspect ratio. */
     function _drawWaveform(ctx, cw, ch, t) {
-      /* Fewer, slimmer bars: a little waveform ON the screen, ~85% of the box
-         wide. BAR_GAP ≈ 0.55·BAR_W keeps it reading as a tidy little meter. */
-      const BAR_COUNT = 5;
-      const span      = cw * 0.85;
-      const BAR_W     = Math.max(2, Math.round(span / (BAR_COUNT + 0.55 * (BAR_COUNT - 1))));
-      const BAR_GAP   = Math.max(1, Math.round(BAR_W * 0.55));
-      const maxH      = Math.round(ch * 0.78);
-      const minH      = Math.round(ch * 0.10);
+      /* 4 bars, sized so the group fills ~70% of the smaller dimension.
+         This keeps the waveform inside the TV glass on any screen layout. */
+      const BAR_COUNT = 4;
+      const ref       = Math.min(cw, ch);          /* same reference as heart */
+      const maxH      = Math.round(ref * 0.62);
+      const minH      = Math.round(ref * 0.10);
+      const BAR_W     = Math.max(2, Math.round(ref * 0.10));
+      const BAR_GAP   = Math.max(1, Math.round(BAR_W * 0.6));
       const totalW    = BAR_COUNT * (BAR_W + BAR_GAP) - BAR_GAP;
       const startX    = Math.round((cw - totalW) / 2);
-      const baseY     = Math.round(ch * 0.90);
+      const baseY     = Math.round(ch * 0.80);
 
       ctx.shadowBlur  = 8;
       ctx.shadowColor = C.glow;

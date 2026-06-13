@@ -20,7 +20,7 @@ from typing import Optional
 
 # Cap for the communal jar. When shared_total reaches this value, a milestone
 # fires once, shared_total resets to 0, and milestone_count increments.
-MILESTONE_CAP = 5  # TESTING — change back to 50 for live
+MILESTONE_CAP = 15  # cookies before wheel fires; tune per-stream via CFG
 
 # ── Milestone reward-vote config ─────────────────────────────────────────
 # Edit these to change what chat votes on when the jar fills.

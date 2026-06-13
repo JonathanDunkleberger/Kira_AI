@@ -49,10 +49,10 @@ html, body {
 
 .card-name {
   position: absolute;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
   color: #b87a8e;
   white-space: nowrap;
   overflow: hidden;
@@ -75,14 +75,12 @@ html, body {
 
 .card-message {
   position: absolute;
-  font-size: 11px;
-  color: #4a2e30;
-  line-height: 1.35;
-  word-break: break-word;
+  font-size: 12px;
+  color: #7a5060;
+  line-height: 1.3;
+  white-space: nowrap;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  text-overflow: ellipsis;
 }
 
 @keyframes card-in {
@@ -194,12 +192,14 @@ const MIN_DISPLAY_MS = 4000;
 const RECONNECT_MS   = 3000;
 
 const VARIANTS = [
+  // zone coords are measured safe-text-area pixels on the 400×400 card PNG.
+  // Each variant adds an inset so angled/styled artwork never clips the text.
   { img: 'assets/cards/card_chat_v1.png',
-    zone: { top: 172, left: 116, right: 284, bottom: 240 } },
+    zone: { top: 178, left: 122, right: 278, bottom: 238 } },
   { img: 'assets/cards/card_chat_v2.png',
-    zone: { top: 164, left: 112, right: 292, bottom: 236 } },
+    zone: { top: 170, left: 118, right: 286, bottom: 234 } },
   { img: 'assets/cards/card_chat_v3.png',
-    zone: { top: 164, left: 132, right: 264, bottom: 236 } },
+    zone: { top: 172, left: 138, right: 258, bottom: 234 } },
 ];
 
 let _vis         = { chat: true, cards: true, banner: true, scoreboard: true, spectate: true };
@@ -208,6 +208,7 @@ let _cardVisible   = false;
 let _cardShowTime  = 0;
 let _cardHideReady = false;
 let _cardQueue     = [];
+let _lastCardTs    = 0;  // dedup: ignore card_show with same ts as previous
 let _bannerTimer   = null;
 let _badgeTimer    = null;
 
@@ -244,17 +245,22 @@ function showCard(event) {
   const { top, left, right, bottom } = v.zone;
   const zoneW = right - left;
   const zoneH = bottom - top;
-  const nameH = 14;
-  const gap   = 3;
 
   $cardImg.src = v.img;
 
+  // Username is the hero — large, never wraps.
+  const nameH = 26;  // px allocated for the 22px hero name
+  const gap   = 5;
+  const msgH  = 16;  // single-line snippet row
+
   $cardName.style.cssText = `top:${top}px;left:${left}px;width:${zoneW}px;height:${nameH}px;`;
-  $cardName.innerHTML = _truncate(event.chatter || '?', 28)
+  $cardName.innerHTML = _truncate(event.chatter || '?', 24)
                       + _platformDotHtml((event.platform || '').toLowerCase());
 
-  $cardMsg.style.cssText = `top:${top+nameH+gap}px;left:${left}px;width:${zoneW}px;height:${zoneH-nameH-gap}px;`;
-  $cardMsg.textContent   = _truncate(event.message || '', 140);
+  // Message: hard-capped at 30 visible chars so overflow is impossible.
+  const snippet = _truncate(event.message || '', 30);
+  $cardMsg.style.cssText = `top:${top+nameH+gap}px;left:${left}px;width:${zoneW}px;height:${msgH}px;`;
+  $cardMsg.textContent   = snippet;
 
   $cardRoot.style.display = 'block';
   $cardRoot.style.opacity = '';
@@ -344,6 +350,10 @@ function connect() {
 
       case 'card_show':
         if (!_vis.cards) return;
+        // Dedup: if same timestamp as last card, this is a second WS connection
+        // delivering the same broadcast — discard silently.
+        if (msg.ts && msg.ts === _lastCardTs) return;
+        _lastCardTs = msg.ts || 0;
         if (_cardVisible) _cardQueue.push(msg); else showCard(msg);
         break;
 

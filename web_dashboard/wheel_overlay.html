@@ -92,7 +92,7 @@ html, body {
   border: 2.5px solid #8b6040;
   border-radius: 12px;
   box-shadow: 0 10px 24px rgba(74,46,48,0.30), inset 0 1px 0 rgba(255,255,255,0.7);
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 900;
   color: #4a2e30;
   letter-spacing: 0.05em;
@@ -106,7 +106,7 @@ html, body {
 #result-label.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 #result-label .rl-kicker {
   display: block;
-  font-size: 12px; font-weight: 800;
+  font-size: 14px; font-weight: 800;
   letter-spacing: 0.18em;
   color: #b87a8e;
   margin-bottom: 3px;
@@ -212,13 +212,13 @@ function drawWheel(rot, winIdx) {
     const ty    = CY + Math.sin(midA) * tr;
     ctx.save();
     ctx.translate(tx, ty);
-    const fontSize  = 16;
-    ctx.font        = '800 ' + fontSize + "px 'Segoe UI', sans-serif";
+    const fontSize  = 22;
+    ctx.font        = '900 ' + fontSize + "px 'Segoe UI', sans-serif";
     ctx.textAlign   = 'center';
     ctx.textBaseline = 'middle';
-    ctx.lineWidth   = 3.5;
+    ctx.lineWidth   = 4;
     ctx.lineJoin    = 'round';
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.90)';
     ctx.fillStyle   = s.textColor;
     const words = s.label.split(' ');
     const lines = (words.length === 1)
@@ -226,7 +226,7 @@ function drawWheel(rot, winIdx) {
       : [words.slice(0, Math.ceil(words.length/2)).join(' '),
          words.slice(Math.ceil(words.length/2)).join(' ')];
     lines.forEach((ln, li) => {
-      const yy = (li - (lines.length - 1) / 2) * (fontSize + 2);
+      const yy = (li - (lines.length - 1) / 2) * (fontSize + 3);
       ctx.strokeText(ln, 0, yy);
       ctx.fillText(ln, 0, yy);
     });

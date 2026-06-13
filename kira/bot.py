@@ -4614,16 +4614,7 @@ class VTubeBot:
                 )
                 print(f"   [ChatAge] ACK injected for {_ack_name} "
                       f"(waited {_oldest_age:.1f}s, preempted={_preemption})")
-                # Show a card for the ack'ed chatter so the audience knows they're seen
-                try:
-                    from kira.dashboard.control_server import push_card_show
-                    asyncio.ensure_future(push_card_show(
-                        _ack_name,
-                        _oldest_msg.get("message", ""),
-                        _oldest_msg.get("platform", ""),
-                    ))
-                except Exception:
-                    pass
+                # Card is shown by the main response path below — no separate ACK card needed.
 
         batch_lines = []
         for msg in batch:
