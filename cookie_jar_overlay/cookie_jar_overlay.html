@@ -77,7 +77,6 @@
   <img id="jar-img" src="../web_dashboard/assets/cards/jar_empty_alpha.png" alt="">
   <div id="jar-label">
     <span class="jar-title">KIRA'S COOKIE JAR</span>
-    <span class="jar-count" id="count-el">0 / 50</span>
   </div>
 </div>
 <script>
@@ -117,7 +116,6 @@
   const $widget = document.getElementById('jar-widget');
   const $canvas = document.getElementById('cookie-canvas');
   const $label  = document.getElementById('jar-label');
-  const $count  = document.getElementById('count-el');
   const $drop   = document.getElementById('drop-canvas');
   const dropCtx = $drop.getContext('2d');
 
@@ -171,7 +169,8 @@
     }
   }
 
-  function _updateCount() { $count.textContent = shared + ' / ' + cap; }
+  /* Cookie count is shown on the scoreboard overlay, not on the jar. */
+  function _updateCount() {}
 
   function _triggerMilestone() {
     milestoneFlashActive = true;

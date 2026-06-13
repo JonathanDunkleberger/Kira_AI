@@ -35,20 +35,28 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;   /* stack from bottom */
+    align-items: flex-start;     /* left-align pills so names line up */
     gap: 6px;
     overflow: hidden;
     /* left/top/width/height injected from CFG */
   }
 
-  /* ── Single message row ─────────────────────────────────────────────────── */
+  /* ── Single message row — Streamlabs-style legible pill ───────────────── */
   .msg {
     display: flex;
-    align-items: baseline;
-    gap: 6px;
-    /* Slide in from right 200ms ease */
-    animation: msg-in 0.20s ease forwards;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px 6px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 5px 11px 6px;
+    border-radius: 10px;
+    background: rgba(12, 10, 16, 0.58);   /* dark scrim for contrast */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    /* Slide in from right 180ms ease */
+    animation: msg-in 0.18s ease forwards;
     transition: opacity 0.5s ease;
-    line-height: 1.35;
+    line-height: 1.3;
     word-break: break-word;
   }
   .msg.fading { opacity: 0; }
@@ -58,46 +66,68 @@
     to   { opacity: 1; transform: translateX(0);    }
   }
 
-  /* Platform glyph: small coloured dot before the name */
-  .platform-dot {
-    display: inline-block;
-    width: var(--dot-px, 7px);
-    height: var(--dot-px, 7px);
-    border-radius: 50%;
+  /* Platform chip: small rounded badge with T / YT */
+  .platform-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    margin-bottom: 1px;
-    opacity: 0.75;
+    height: var(--badge-px, 20px);
+    min-width: var(--badge-px, 20px);
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: calc(var(--badge-px, 20px) * 0.62);
+    font-weight: 900;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
-  .platform-dot.twitch  { background: #9147ff; }
-  .platform-dot.youtube { background: #ff3333; }
+  .platform-badge.twitch  { background: #9147ff; }
+  .platform-badge.youtube { background: #ff0000; }
+
+  /* Role badges (broadcaster / mod / vip / sub) — small coloured chips */
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: var(--badge-px, 20px);
+    min-width: var(--badge-px, 20px);
+    border-radius: 4px;
+    font-size: calc(var(--badge-px, 20px) * 0.66);
+    line-height: 1;
+    color: #fff;
+  }
 
   .author {
     font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
     font-size: var(--author-px, 18px);
     font-weight: 800;
-    color: #D4967A;       /* dusty rose, sampled from card_banner_wide.png strip */
-    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
+    /* colour set per-message (Twitch user colour or deterministic fallback) */
+    text-shadow: 0 0 3px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,0.9),
+                 -1px 1px 2px rgba(0,0,0,0.7);
     white-space: nowrap;
     flex-shrink: 0;
   }
-
-  /* ♥ bullet separating name from message body */
-  .bullet {
-    font-size: var(--bullet-px, 14px);
-    color: #D4967A;
-    opacity: 0.7;
-    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
-    flex-shrink: 0;
-    line-height: 1;
-    margin-bottom: 1px;
-  }
+  .author::after { content: ':'; color: rgba(255,255,255,0.75); }
 
   .body {
     font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
     font-size: var(--body-px, 18px);
-    color: #F5EDE0;        /* warm oat cream */
-    text-shadow: 1px 2px 4px rgba(0,0,0,0.62);
-    line-height: 1.35;
+    font-weight: 600;
+    color: #ffffff;        /* high-contrast white */
+    text-shadow: 0 0 3px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,0.9),
+                 -1px 1px 2px rgba(0,0,0,0.7);
+    line-height: 1.3;
+  }
+
+  /* Inline Twitch emotes */
+  .emote {
+    height: calc(var(--body-px, 18px) * 1.45);
+    width: auto;
+    vertical-align: middle;
+    margin: 0 1px;
   }
   </style>
 </head>
@@ -126,12 +156,11 @@ const CFG = {
   maxMsgs: 8,
 
   /* Font sizes (px). Text renders native (never scaled) — tuned for
-     readability at 1080p stream-viewing distance. Author is larger + bolder
-     than the message body. */
-  authorFontPx: 30,
+     readability at 1080p stream-viewing distance. Author is bold and tinted
+     with the chatter's own colour; body is high-contrast white. */
+  authorFontPx: 28,
   bodyFontPx:   26,
-  bulletFontPx: 22,
-  dotPx:        11,
+  badgePx:      22,   // platform + role badge chip height
 
   /* Control server WebSocket URL */
   ctrlWs: 'ws://127.0.0.1:8766/ws/chat',
@@ -159,8 +188,7 @@ const W = 1920, H = 1080;
   const r = document.documentElement.style;
   r.setProperty('--author-px', CFG.authorFontPx + 'px');
   r.setProperty('--body-px',   CFG.bodyFontPx   + 'px');
-  r.setProperty('--bullet-px', CFG.bulletFontPx + 'px');
-  r.setProperty('--dot-px',    CFG.dotPx        + 'px');
+  r.setProperty('--badge-px',  CFG.badgePx      + 'px');
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -177,7 +205,102 @@ function _seenKey(platform, username, text) {
   return `${platform}:${username}:${text.slice(0, 60)}`;
 }
 
-function addMessage(platform, username, text) {
+/* ── Username colour ──────────────────────────────────────────────────────
+   Use the chatter's own Twitch colour when present; otherwise pick a stable,
+   readable colour from a Twitch-like palette keyed on the username. Very dark
+   custom colours are brightened so they stay legible on the dark scrim. */
+const _NAME_PALETTE = [
+  '#FF4A80', '#FF7F50', '#FFC857', '#9ACD32', '#3DD6A0',
+  '#5BC0EB', '#7AA2FF', '#C792EA', '#FF6AD5', '#F5A3A3',
+  '#67E8C3', '#FFB454', '#A0E548', '#8AB4F8', '#E08CFF',
+];
+function _fallbackColor(name) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return _NAME_PALETTE[h % _NAME_PALETTE.length];
+}
+function _readableColor(hex, name) {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex || '');
+  if (!m) return _fallbackColor(name);
+  let r = parseInt(m[1].slice(0, 2), 16);
+  let g = parseInt(m[1].slice(2, 4), 16);
+  let b = parseInt(m[1].slice(4, 6), 16);
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  if (lum < 90) {                 /* too dark → brighten toward target lum */
+    const f = 90 / Math.max(lum, 1);
+    r = Math.min(255, r * f); g = Math.min(255, g * f); b = Math.min(255, b * f);
+  }
+  return `rgb(${r | 0}, ${g | 0}, ${b | 0})`;
+}
+
+/* ── Role badges (broadcaster / mod / vip / sub / prime) ──────────────────
+   Real Twitch badge art needs the Helix badge API + auth; for an
+   offline-capable overlay we approximate with small coloured chips. */
+const _ROLE_BADGES = {
+  broadcaster: { glyph: '📹', bg: '#e91916' },
+  moderator:   { glyph: '🗡',  bg: '#00ad03' },
+  vip:         { glyph: '💎', bg: '#e005b9' },
+  founder:     { glyph: '★',  bg: '#9147ff' },
+  subscriber:  { glyph: '★',  bg: '#9147ff' },
+  premium:     { glyph: '⬡', bg: '#0e9bd8' },
+};
+function _buildBadges(badges) {
+  const out = [];
+  if (!badges) return out;
+  for (const key of ['broadcaster', 'moderator', 'vip', 'founder', 'subscriber', 'premium']) {
+    if (badges[key] == null) continue;
+    const def = _ROLE_BADGES[key];
+    const el = document.createElement('span');
+    el.className = 'role-badge';
+    el.style.background = def.bg;
+    el.textContent = def.glyph;
+    out.push(el);
+    if (key === 'founder') break;   /* founder implies sub — don't double up */
+  }
+  return out;
+}
+
+/* ── Twitch emotes ────────────────────────────────────────────────────────
+   tags.emotes maps emoteId → ["start-end", ...] over code-point indices of
+   the raw message. Splice the emote images in, keeping the plain text between. */
+function _buildBody(text, emotes) {
+  const frag = document.createDocumentFragment();
+  if (!emotes || typeof emotes !== 'object' || !Object.keys(emotes).length) {
+    frag.appendChild(document.createTextNode(text));
+    return frag;
+  }
+  const chars = Array.from(text);   /* unicode-safe indexing */
+  const ranges = [];
+  for (const id in emotes) {
+    for (const span of emotes[id]) {
+      const [s, e] = span.split('-').map(Number);
+      if (Number.isInteger(s) && Number.isInteger(e)) ranges.push({ s, e, id });
+    }
+  }
+  ranges.sort((a, b) => a.s - b.s);
+  let cursor = 0;
+  for (const rg of ranges) {
+    if (rg.s > cursor) frag.appendChild(document.createTextNode(chars.slice(cursor, rg.s).join('')));
+    const img = document.createElement('img');
+    img.className = 'emote';
+    img.src = `https://static-cdn.jtvnw.net/emoticons/v2/${rg.id}/default/dark/2.0`;
+    img.alt = chars.slice(rg.s, rg.e + 1).join('');
+    img.onerror = () => img.replaceWith(document.createTextNode(img.alt));
+    frag.appendChild(img);
+    cursor = rg.e + 1;
+  }
+  if (cursor < chars.length) frag.appendChild(document.createTextNode(chars.slice(cursor).join('')));
+  return frag;
+}
+
+/**
+ * @param {string} platform 'twitch' | 'youtube'
+ * @param {string} username display name
+ * @param {string} text     raw message text
+ * @param {object} [opts]    { color, badges, emotes } from tmi.js tags
+ */
+function addMessage(platform, username, text, opts) {
+  opts = opts || {};
   /* Filter bots */
   if (CFG.botNames.includes(username.toLowerCase())) return;
 
@@ -200,25 +323,24 @@ function addMessage(platform, username, text) {
   const row = document.createElement('div');
   row.className = 'msg';
 
-  const dot = document.createElement('span');
-  dot.className = `platform-dot ${platform}`;
+  const pb = document.createElement('span');
+  pb.className = `platform-badge ${platform}`;
+  pb.textContent = platform === 'youtube' ? 'YT' : 'T';
+  row.appendChild(pb);
+
+  for (const badge of _buildBadges(opts.badges)) row.appendChild(badge);
 
   const author = document.createElement('span');
   author.className = 'author';
+  author.style.color = _readableColor(opts.color, username);
   author.textContent = username;
-
-  const bullet = document.createElement('span');
-  bullet.className = 'bullet';
-  bullet.textContent = '\u2665';  /* ♥ */
+  row.appendChild(author);
 
   const body = document.createElement('span');
   body.className = 'body';
-  body.textContent = text;
-
-  row.appendChild(dot);
-  row.appendChild(author);
-  row.appendChild(bullet);
+  body.appendChild(_buildBody(text, opts.emotes));
   row.appendChild(body);
+
   col.appendChild(row);
 
   /* Schedule fade-out + removal */
@@ -279,7 +401,11 @@ function _connectTwitch() {
     client.connect().catch(e => console.warn('[tmi] connect failed:', e));
     client.on('message', (_channel, tags, message, _self) => {
       const user = (tags['display-name'] || tags.username || '?');
-      addMessage('twitch', user, message);
+      addMessage('twitch', user, message, {
+        color:  tags.color,
+        badges: tags.badges,
+        emotes: tags.emotes,
+      });
     });
   } catch (e) {
     console.warn('[tmi] init failed:', e);
