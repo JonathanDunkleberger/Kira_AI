@@ -252,7 +252,8 @@ class CaptionServer:
         # Cache the latest count regardless of client presence so overlays
         # that connect later can be brought up to date on connect.
         if not milestone:
-            self._last_cookie = {"type": "cookie", "shared": int(shared), "cap": 50, "milestone": False}
+            from kira.memory.cookie_jar import MILESTONE_CAP as _CAP
+            self._last_cookie = {"type": "cookie", "shared": int(shared), "cap": _CAP, "milestone": False}
         if not self.enabled or not self._started or not self._clients:
             return
         if milestone:

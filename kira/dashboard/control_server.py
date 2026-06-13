@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, Response, HTMLResponse
+from fastapi.responses import JSONResponse, Response, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -377,6 +377,12 @@ app = FastAPI(title="Kira Control Server", version="1.0")
 # reference. These are sub-path mounts, so they never shadow /state, /ws, etc.
 # Server is 127.0.0.1-bound and these dirs contain only front-end assets.
 _REPO_ROOT = Path(__file__).parent.parent.parent
+
+# Short-URL alias so OBS can use /wheel instead of the full path.
+@app.get("/wheel")
+async def _wheel_redirect():
+    return RedirectResponse(url="/web_dashboard/wheel_overlay.html")
+
 for _name in ("web_dashboard", "cookie_jar_overlay"):
     _dir = _REPO_ROOT / _name
     if _dir.is_dir():
