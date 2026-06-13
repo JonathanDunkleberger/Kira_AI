@@ -76,10 +76,14 @@
      * occlude the canvas naturally (foreground is later in DOM / higher z). */
     crtRegion:    { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.2380 },
 
-    /* Canvas covers transparent glass top + transition zone (104px).       *
-     * mix-blend-mode:screen on the canvas: dark areas pass through,        *
-     * glyph glow adds onto the painted glass. Foreground covers the rest.  */
-    crtDisplayRegion: { x: 0.8276, y: 0.4370, w: 0.1203, h: 0.0963 },
+    /* Canvas aligns to the foreground's transparent glass hole (2026-06-12):
+     * Transparent zone: display y=453–528 (76px). Canvas centers in that window.
+     * Canvas top = hole_top = 453px → y=0.4194. h=0.0704 = 76px.
+     * Glyphs scale inside 231×76px: px=max(3,min(231/14,76/9))=max(3,min(16,8))=8
+     * → heart 56×48px, cat 80×56px — both fit the 76px window.
+     * mix-blend-mode:screen: transparent foreground passes glyph through;
+     * opaque desk/lamp pixels below y=528 occlude naturally.            */
+    crtDisplayRegion: { x: 0.8276, y: 0.4194, w: 0.1203, h: 0.0704 },
     crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
@@ -134,7 +138,7 @@
     <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
     <!-- CRT live display (screen-blend glyph sits between bg and fg) -->
-    <canvas id="crt-live" width="231" height="104"></canvas>
+    <canvas id="crt-live" width="231" height="76"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>
     <!-- Foreground: desk surface cuts in front of snow — OBS avatar goes between these layers -->
