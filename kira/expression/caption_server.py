@@ -67,6 +67,9 @@ class CaptionServer:
         self._server = None
         self._lock = asyncio.Lock()
         self._started = False
+        # Last cookie-jar state, replayed to overlays on connect so the jar
+        # shows the current count immediately instead of starting empty.
+        self._last_cookie: dict | None = None
 
         if not self.enabled:
             print("   [Captions] Disabled (ENABLE_CAPTIONS=false). No server will start.")
@@ -195,6 +198,10 @@ class CaptionServer:
         print(f"   [Captions] Overlay connected: {peer[0]}:{peer[1]} ({len(self._clients)} total)")
         try:
             await ws.send(json.dumps({"type": "hello"}))
+            # Bring the freshly-connected overlay up to date with the current
+            # cookie count so the jar renders the existing stack immediately.
+            if self._last_cookie is not None:
+                await ws.send(json.dumps(self._last_cookie))
             # Just hold the connection open; we don't expect inbound messages.
             async for _ in ws:
                 pass
@@ -242,12 +249,16 @@ class CaptionServer:
             {"type":"cookie","shared":N,"cap":50,"milestone":false}  (normal)
             {"type":"cookie","milestone":true}                        (fire)
         Fire-and-forget; drops silently if no clients connected."""
+        # Cache the latest count regardless of client presence so overlays
+        # that connect later can be brought up to date on connect.
+        if not milestone:
+            self._last_cookie = {"type": "cookie", "shared": int(shared), "cap": 50, "milestone": False}
         if not self.enabled or not self._started or not self._clients:
             return
         if milestone:
             await self._broadcast({"type": "cookie", "milestone": True})
         else:
-            await self._broadcast({"type": "cookie", "shared": int(shared), "cap": 50, "milestone": False})
+            await self._broadcast(dict(self._last_cookie))
 
     async def send_chaos(self, active: bool, remaining: int = 0) -> None:
         """Push Chaos Mode state to the overlay. Shape:

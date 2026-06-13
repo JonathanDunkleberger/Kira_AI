@@ -216,7 +216,7 @@ class ChessAgent:
         """Read lifetime W/L/D from data/chess_lifetime.json. Silent on first run."""
         try:
             if os.path.exists(self._lifetime_path):
-                with open(self._lifetime_path, "r", encoding="utf-8") as _f:
+                with open(self._lifetime_path, "r", encoding="utf-8-sig") as _f:
                     _d = json.load(_f)
                 self._lifetime_wins   = int(_d.get("wins",   0))
                 self._lifetime_losses = int(_d.get("losses", 0))
@@ -1227,6 +1227,8 @@ class ChessAgent:
             except Exception:
                 pass
         self._is_viewer_game = False
+
+    async def _send_chat(self, game_id: str, text: str):
         """Phase 1 fixed in-game chat (greeting / gg). Serialized like every
         other HTTP call."""
         try:

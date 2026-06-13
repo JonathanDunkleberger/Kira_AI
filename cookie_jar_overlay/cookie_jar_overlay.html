@@ -37,7 +37,7 @@
     #cookie-canvas {
       position: absolute; top: 0; left: 0;
       width: 100%; height: 100%;
-      z-index: 5; pointer-events: none;
+      z-index: 12; pointer-events: none;
     }
     #jar-label {
       position: absolute; z-index: 15;
@@ -46,9 +46,9 @@
       pointer-events: none;
     }
     #jar-label .jar-title {
-      font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.10em;
-      color: #4a2e30; line-height: 1;
+      font-size: 8px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: #4a2e30; line-height: 1.08; text-align: center;
       text-shadow: 0 1px 2px rgba(255,255,255,0.6);
     }
     #jar-label .jar-count {
@@ -87,8 +87,9 @@
     FILL_X_LO: 0.22, FILL_X_HI: 0.78,
     FILL_Y_LO: 0.36, FILL_Y_HI: 0.92,
     // Taped paper label bounds, measured from jar_empty_alpha.png (825×1024).
-    LABEL_X_LO: 0.33, LABEL_X_HI: 0.68,
-    LABEL_Y_LO: 0.56, LABEL_Y_HI: 0.73,
+    // Anchored to the cream paper note (below the washi tape), not the jar centre.
+    LABEL_X_LO: 0.22, LABEL_X_HI: 0.45,
+    LABEL_Y_LO: 0.58, LABEL_Y_HI: 0.72,
     COOKIE_SIZE_FRAC: 0.30,
     DROP_ORIGIN_X: 60, DROP_ORIGIN_Y: 60,
     JAR_MOUTH_X_FRAC: 0.50, JAR_MOUTH_Y_FRAC: 0.22,
@@ -140,31 +141,45 @@
     const ctx = $canvas.getContext('2d');
     ctx.clearRect(0, 0, CFG.JAR_W, JAR_H);
     if (shared <= 0) return;
-    const cs     = CFG.COOKIE_SIZE_FRAC * CFG.JAR_W;
+
     const fillX0 = CFG.FILL_X_LO * CFG.JAR_W;
     const fillX1 = CFG.FILL_X_HI * CFG.JAR_W;
     const fillY0 = CFG.FILL_Y_LO * JAR_H;
     const fillY1 = CFG.FILL_Y_HI * JAR_H;
     const fillW  = fillX1 - fillX0;
-    const cols   = Math.max(1, Math.floor(fillW / (cs * 0.80)));
-    const rowH   = cs * 0.75;
-    for (let i = 0; i < shared; i++) {
-      const rng  = mulberry32(i * 0x9E3779B1 + 0xDEADBEEF);
-      const col  = i % cols;
-      const row  = Math.floor(i / cols);
-      const jx   = (rng() - 0.5) * (fillW / cols - cs) * 0.6;
-      const jy   = (rng() - 0.5) * rowH * 0.25;
-      const rot  = (rng() - 0.5) * 2 * (15 * Math.PI / 180);
-      const cellW = fillW / cols;
-      const cx_  = fillX0 + (col + 0.5) * cellW + jx;
-      const cy_  = fillY1 - (row + 0.5) * rowH + jy;
-      if (cy_ - cs / 2 < fillY0 || cy_ + cs / 2 > fillY1) continue;
-      const isGold = milestoneFlashActive && (i === shared - 1);
-      const img  = isGold ? IMG_GOLD : IMG_COOKIE;
+    const fillH  = fillY1 - fillY0;
+
+    // Size a grid that fits the full jar capacity, roughly matching the
+    // interior aspect ratio, so `cap` cookies fill the body bottom-to-top.
+    const capN  = Math.max(1, cap);
+    const cols  = Math.max(1, Math.round(Math.sqrt(capN * fillW / fillH)));
+    const rows  = Math.ceil(capN / cols);
+    const cellW = fillW / cols;
+    const cellH = fillH / rows;
+    // Draw cookies noticeably larger than the cell so neighbours overlap into a
+    // dense pile (hides the jar's painted label panel and the grid seams).
+    const cs    = Math.max(cellW, cellH) * 1.38;
+
+    const drawN = Math.min(shared, capN);
+    for (let i = 0; i < drawN; i++) {
+      const rng = mulberry32(i * 0x9E3779B1 + 0xDEADBEEF);
+      const col = i % cols;
+      const row = Math.floor(i / cols);            // row 0 = bottom
+      // Brick-stagger alternate rows so the pile doesn't read as a lattice.
+      const stagger = (row % 2) ? cellW * 0.5 : 0;
+      const jx  = (rng() - 0.5) * cellW * 0.45;
+      const jy  = (rng() - 0.5) * cellH * 0.35;
+      const rot = (rng() - 0.5) * 2 * (18 * Math.PI / 180);
+      let cx_ = fillX0 + (col + 0.5) * cellW + stagger + jx;
+      let cy_ = fillY1 - (row + 0.5) * cellH + jy;
+      // Keep cookie centres inside the interior so the pile never spills out.
+      cx_ = Math.max(fillX0 + cs * 0.25, Math.min(fillX1 - cs * 0.25, cx_));
+      const isGold = milestoneFlashActive && (i === drawN - 1);
+      const img = isGold ? IMG_GOLD : IMG_COOKIE;
       if (!img.complete || !img.naturalWidth) continue;
       ctx.save();
       ctx.translate(cx_, cy_); ctx.rotate(rot);
-      ctx.drawImage(img, -cs/2, -cs/2, cs, cs);
+      ctx.drawImage(img, -cs / 2, -cs / 2, cs, cs);
       ctx.restore();
     }
   }

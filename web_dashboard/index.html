@@ -1163,7 +1163,7 @@ html, body {
           <div class="row">
             <div class="field" style="flex:2">
               <label>Loop file</label>
-              <select id="amb-file-sel" style="width:100%;background:var(--ctrl-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.8rem;">
+              <select id="amb-file-sel" onchange="_ambMarkDirty()" style="width:100%;background:var(--ctrl-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.8rem;">
                 <option value="">— off —</option>
               </select>
             </div>
@@ -1171,7 +1171,7 @@ html, body {
               <label>Vol <span id="amb-vol-label">6%</span></label>
               <input type="range" id="amb-vol" min="0" max="100" value="6" step="1"
                      style="width:100%;accent-color:var(--header);"
-                     oninput="document.getElementById('amb-vol-label').textContent=this.value+'%'">
+                     oninput="_ambMarkDirty();document.getElementById('amb-vol-label').textContent=this.value+'%'">
             </div>
           </div>
           <div class="row">
@@ -1770,6 +1770,14 @@ async function clearScreenText(screen) {
 }
 
 // ── Ambience controls ──────────────────────────────────────────────────────
+// While the user is choosing a track / dragging the volume slider, the live
+// /state poll must NOT overwrite their in-progress choice. We mark the controls
+// "dirty" on user input and only let the poll sync them again once the change
+// has been committed (Apply / Off) or cancelled.
+let _ambDirty = false;
+
+function _ambMarkDirty() { _ambDirty = true; }
+
 async function refreshAmbienceList() {
   const sel = document.getElementById('amb-file-sel');
   if (!sel) return;
@@ -1802,10 +1810,13 @@ async function applyAmbience() {
   const file   = sel.value;
   const volume = parseFloat(volEl.value) / 100;
   const data   = await cmd('set_ambience', { file, volume });
+  const ok     = !!(data && data.ok !== false);
+  // Committed (or rejected) — let the live poll resume syncing this control.
+  if (ok) _ambDirty = false;
   const status = document.getElementById('amb-status');
-  if (status) status.textContent = data && data.ok !== false
+  if (status) status.textContent = ok
     ? (file ? `Playing: ${file} @ ${Math.round(volume*100)}%` : 'Ambience off')
-    : 'Error setting ambience';
+    : ('Error setting ambience' + (data && data.error ? `: ${data.error}` : ' (no response from server)'));
 }
 
 async function stopAmbience() {
@@ -1813,6 +1824,7 @@ async function stopAmbience() {
   const data  = await cmd('set_ambience', { file: '', volume: volEl ? parseFloat(volEl.value)/100 : 0.06 });
   const sel   = document.getElementById('amb-file-sel');
   if (sel) sel.value = '';
+  _ambDirty = false;
   const status = document.getElementById('amb-status');
   if (status) status.textContent = 'Ambience off';
 }
@@ -1820,6 +1832,8 @@ async function stopAmbience() {
 // Sync ambience UI from live state snapshot
 function _syncAmbienceUi(ambience) {
   if (!ambience) return;
+  // Don't fight the user while they're mid-edit (selection / slider drag).
+  if (_ambDirty) return;
   const sel   = document.getElementById('amb-file-sel');
   const volEl = document.getElementById('amb-vol');
   const lbl   = document.getElementById('amb-vol-label');
@@ -1834,24 +1848,6 @@ function _syncAmbienceUi(ambience) {
       if (lbl) lbl.textContent = pct + '%';
     }
   }
-}
-  const l1 = (document.getElementById(`inp-screen-${screen}-1`) || {}).value || '';
-  const l2 = (document.getElementById(`inp-screen-${screen}-2`) || {}).value || '';
-  const line1 = l1.trim();
-  const line2 = l2.trim();
-  const data = await cmd('screen_text', {screen, line1, line2});
-  if (data && data.ok !== false) {
-    const stored = _loadScreenTexts();
-    stored[screen] = {line1, line2};
-    _saveScreenTexts(stored);
-  }
-}
-
-async function clearScreenText(screen) {
-  await cmd('screen_text_clear', {screen});
-  const stored = _loadScreenTexts();
-  delete stored[screen];
-  _saveScreenTexts(stored);
 }
 
 function _restoreScreenInputs() {

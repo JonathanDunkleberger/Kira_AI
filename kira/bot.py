@@ -3565,6 +3565,13 @@ class VTubeBot:
             try:
                 from kira.expression.caption_server import caption_server
                 await caption_server.start()
+                # Prime the cached cookie count so overlays connecting later
+                # render the current stack immediately instead of empty.
+                try:
+                    await caption_server.send_cookie(
+                        shared=self.cookie_jar.get_shared(), milestone=False)
+                except Exception:
+                    pass
             except Exception as e:
                 print(f"   [Captions] Server start suppressed: {e}")
 
