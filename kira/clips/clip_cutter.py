@@ -800,7 +800,13 @@ def _extract_audio_wav(video_path: str, start_s: float, duration_s: float, out_w
 
 
 def _whisper_segments(wav_path: str) -> list[dict]:
-    """Run faster-whisper on a WAV and return a list of {start, end, text} dicts."""
+    """Run faster-whisper on a WAV and return a list of {start, end, text} dicts.
+
+    Always runs on CPU (int8) for VOD alignment — CUDA is skipped entirely here
+    because the bot may hold the GPU and a CUDA fatal error during inference kills
+    the whole process before Python can catch it and fall back.  CPU int8 accuracy
+    is identical for fuzzy text anchor matching.
+    """
     try:
         from faster_whisper import WhisperModel
     except ImportError:
@@ -808,14 +814,19 @@ def _whisper_segments(wav_path: str) -> list[dict]:
             "faster-whisper is not installed. "
             "pip install faster-whisper  (required for --vod Whisper anchor matching)."
         )
-    model = WhisperModel(
-        WHISPER_MODEL_SIZE,
-        download_root=WHISPER_CACHE_DIR,
-        device="cuda",
-        compute_type="float16",
-    )
-    segs, _ = model.transcribe(wav_path, language="en", beam_size=5)
-    return [{"start": s.start, "end": s.end, "text": s.text.strip()} for s in segs]
+    print(f"   [VodAlign] Loading Whisper on CPU/int8 (GPU skipped for alignment)…")
+    try:
+        model = WhisperModel(
+            WHISPER_MODEL_SIZE,
+            download_root=WHISPER_CACHE_DIR,
+            device="cpu",
+            compute_type="int8",
+        )
+        segs, _ = model.transcribe(wav_path, language="en", beam_size=5)
+        result = [{"start": s.start, "end": s.end, "text": s.text.strip()} for s in segs]
+        return result
+    except Exception as e:
+        raise RuntimeError(f"Whisper inference failed on CPU: {e}") from e
 
 
 def estimate_vod_start_epoch(
@@ -823,6 +834,7 @@ def estimate_vod_start_epoch(
     events: list[EventLine],
     session_start_epoch: float,
     search_window_s: float = 1200.0,
+    start_offset_s: float = 0.0,
 ) -> tuple[float, float, str]:
     """Derive the UTC epoch when a VOD recording started via Whisper anchor matching.
 
@@ -843,20 +855,26 @@ def estimate_vod_start_epoch(
     from difflib import SequenceMatcher
     import tempfile
 
-    # Pick anchors: earliest events with substantial text (≥6 words), up to 3.
-    # PREFER human (Jonny) lines — TTS audio re-encoded by YouTube/Twitch
-    # transcribes poorly (observed: human lines score 0.88 vs Kira TTS 0.42-0.48).
+    # Pick anchors: earliest voice_input events from Jonny (not Kira TTS, not chat bots).
+    # ONLY voice_input lines work as Whisper anchors — they're actually spoken in the VOD.
+    # Chat messages (streamlabs, viewers, etc.) are never in the audio stream.
+    _kira_speakers = {"kira", "assistant", "ai"}
+    _bot_speakers = {"streamlabs", "nightbot", "moobot", "fossabot", "bot"}
     early = [
         e for e in events
         if e.epoch <= session_start_epoch + 900 and len(e.text.split()) >= 6
     ]
-    _kira_speakers = {"kira", "assistant", "ai"}
     jonny_pool = sorted(
-        [e for e in early if e.speaker.lower() not in _kira_speakers],
+        [e for e in early
+         if e.speaker.lower() not in _kira_speakers
+         and e.speaker.lower() not in _bot_speakers
+         and not e.text.startswith("[")],   # filter out [Chat batch from ...] lines
         key=lambda e: (e.epoch, -len(e.text)),
     )
     kira_pool = sorted(
-        [e for e in early if e.speaker.lower() in _kira_speakers],
+        [e for e in early
+         if e.speaker.lower() in _kira_speakers
+         and not e.text.startswith("[")],
         key=lambda e: (e.epoch, -len(e.text)),
     )
     # Fill up to 3: human first, Kira only as fallback.
@@ -878,8 +896,9 @@ def estimate_vod_start_epoch(
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
             wav_path = f.name
 
-        print(f"   [VodAlign] Extracting first {search_window_s:.0f}s of audio from VOD…")
-        _extract_audio_wav(vod_path, 0.0, search_window_s, wav_path)
+        _start = max(0.0, start_offset_s)
+        print(f"   [VodAlign] Extracting {search_window_s:.0f}s of audio from VOD @ offset {_start:.0f}s…")
+        _extract_audio_wav(vod_path, _start, search_window_s, wav_path)
 
         print(f"   [VodAlign] Running Whisper ({WHISPER_MODEL_SIZE}) on audio window…")
         segments = _whisper_segments(wav_path)
@@ -907,10 +926,10 @@ def estimate_vod_start_epoch(
                     best_start = seg["start"]
 
             if best_start is not None and best_ratio >= 0.52:
-                derived = anchor.epoch - best_start
+                derived = anchor.epoch - (_start + best_start)
                 derived_starts.append(derived)
                 line = (
-                    f"  '{anchor.text[:55]}…' → VOD {best_start:.1f}s "
+                    f"  '{anchor.text[:55]}…' → VOD {_start + best_start:.1f}s "
                     f"(ratio {best_ratio:.2f}) → vod_start {datetime.fromtimestamp(derived).strftime('%H:%M:%S UTC')}"
                 )
                 anchor_lines.append(line)
@@ -1228,8 +1247,18 @@ async def cut_session(date_str: str, activity: str | None = None, *,
                 vod_align_details = "[dry-run: Whisper skipped — vod_start assumed = session_start]"
                 print("   [VodAlign] Dry-run: skipping Whisper, vod_start assumed = session_start.")
             else:
+                # Smart offset: when the session spans are deep in the VOD (e.g. bot
+                # restarted mid-stream), search from ~10 min before the session start
+                # rather than from t=0. Avoids Whisper scanning an hour of unrelated audio.
+                session_span = (
+                    (events[-1].epoch - events[0].epoch) if len(events) >= 2 else 0.0
+                )
+                search_offset = max(0.0, vod_duration - session_span - 600)
+                print(f"   [VodAlign] Session span={session_span/60:.0f}min, "
+                      f"VOD={vod_duration/60:.0f}min → search offset={search_offset/60:.0f}min.")
                 vod_start_epoch, align_conf, vod_align_details = estimate_vod_start_epoch(
                     vod_path, events, session_start or 0.0,
+                    start_offset_s=search_offset,
                 )
                 if align_conf < 0.5:
                     print(f"   [VodAlign] WARNING: low confidence ({align_conf:.0%}). "
