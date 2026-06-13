@@ -46,6 +46,7 @@ from kira.config import (
     CLIP_PRE_SECONDS,
     CLIP_POST_SECONDS,
     CLIP_VIDEO_EXTS,
+    REEL_MIN_MINUTES,
     WHISPER_CACHE_DIR,
     WHISPER_MODEL_SIZE,
 )
@@ -843,12 +844,23 @@ def estimate_vod_start_epoch(
     import tempfile
 
     # Pick anchors: earliest events with substantial text (≥6 words), up to 3.
-    candidates_for_anchor = sorted(
-        [e for e in events
-         if e.epoch <= session_start_epoch + 900 and len(e.text.split()) >= 6],
+    # PREFER human (Jonny) lines — TTS audio re-encoded by YouTube/Twitch
+    # transcribes poorly (observed: human lines score 0.88 vs Kira TTS 0.42-0.48).
+    early = [
+        e for e in events
+        if e.epoch <= session_start_epoch + 900 and len(e.text.split()) >= 6
+    ]
+    _kira_speakers = {"kira", "assistant", "ai"}
+    jonny_pool = sorted(
+        [e for e in early if e.speaker.lower() not in _kira_speakers],
         key=lambda e: (e.epoch, -len(e.text)),
     )
-    anchors = candidates_for_anchor[:3]
+    kira_pool = sorted(
+        [e for e in early if e.speaker.lower() in _kira_speakers],
+        key=lambda e: (e.epoch, -len(e.text)),
+    )
+    # Fill up to 3: human first, Kira only as fallback.
+    anchors = (jonny_pool[:3] + kira_pool)[:3]
     if not anchors:
         raise RuntimeError(
             "No usable anchor quotes found in the first 15 min of the session events "
@@ -926,8 +938,14 @@ def estimate_vod_start_epoch(
             vod_start = sum(derived_starts) / len(derived_starts)
             confidence = min(0.95, 0.65 + 0.15 * len(derived_starts))
 
+        low_conf_tag = ""
+        if len(derived_starts) < 2:
+            low_conf_tag = "[LOW CONFIDENCE — single anchor matched] "
+            print(f"   [VodAlign] WARNING: only 1 of {len(anchors)} anchor(s) matched. "
+                  f"Review reel_report.md carefully before posting.")
+
         details = (
-            f"VOD start derived from {len(derived_starts)}/{len(anchors)} anchor(s), "
+            f"{low_conf_tag}VOD start derived from {len(derived_starts)}/{len(anchors)} anchor(s), "
             f"spread={spread:.1f}s, confidence={confidence:.0%}\n"
             + "\n".join(anchor_lines)
         )
@@ -1124,17 +1142,21 @@ def find_clip_artifacts(date_str: str, activity: str | None,
 async def cut_session(date_str: str, activity: str | None = None, *,
                       pre: float | None = None, post: float | None = None,
                       force_reencode: bool = False, dry_run: bool = False,
-                      top: int = 15, reel: bool = False,
+                      top: int = 15, reel: bool = True, clips: bool = True,
                       vod_path: str | None = None) -> dict:
     """Run the full pipeline for one day (optionally one activity).
 
-    reel: if True, cut ALL aligned candidates in chronological order and
-    concatenate into a REEL_<slug>.mp4.  The ``top`` cap is ignored in reel
-    mode.  ``force_reencode`` is implied (frame-accurate for clean seams).
+    Default behaviour (reel=True, clips=True): produces BOTH ranked individual
+    clips (top N by score) AND a chronological highlight reel from all aligned
+    candidates.  Reel mode implies frame-accurate re-encode (clean concat seams).
+    Use --no-reel / --no-clips CLI flags to skip either output.
 
-    vod_path: path to a VOD file (e.g. YouTube download) that lacks a reliable
-    container creation_time.  Whisper anchor-matching will derive the actual
-    stream-start epoch.  When None, OBS_RECORDINGS_DIR is scanned as normal.
+    reel=True  : cut ALL aligned candidates, concatenate into REEL_<slug>.mp4.
+                 Skipped automatically when session < REEL_MIN_MINUTES or < 3
+                 aligned candidates ("session too short for reel").
+    clips=True : title + sidecar .txt for individual clip files.
+    vod_path   : path to a VOD file lacking reliable creation_time metadata;
+                 Whisper derives the actual stream-start epoch from events quotes.
 
     Returns a summary dict. Raises only on hard configuration errors.
     """
@@ -1236,22 +1258,30 @@ async def cut_session(date_str: str, activity: str | None = None, *,
         day_dir = os.path.join(rec_dir, "clips", date_str)
 
         # ── Sort & cap ───────────────────────────────────────────────────────
-        # Reel mode: all aligned candidates, kept in chronological order.
-        # Normal mode: top N by score (score=0 for legacy artifacts → lowest tier).
+        # reel=True (default): cut ALL aligned candidates in chronological order
+        #   — reel needs them all; individual clips are a ranked subset view.
+        # reel=False, clips=True: cut top N by score; cap the rest.
         cuttable = [c for c in candidates if c.status == "pending"]
 
         if reel:
-            # Chronological — no cap
+            # All aligned candidates, chronological — no cap.
             cuttable.sort(key=lambda c: c.anchor_start_epoch or float("inf"))
-        else:
+            cut_list = cuttable
+            force_cut = True   # reel concat requires uniform frame-accurate encoding
+        elif clips:
+            # Clips-only (--no-reel): top N by score, stream-copy OK.
             cuttable.sort(key=lambda c: c.score, reverse=True)
             cap_set = set(id(c) for c in cuttable[top:])
             for c in candidates:
                 if id(c) in cap_set:
                     c.status = "capped"
+            cut_list = cuttable[:top]
+            force_cut = force_reencode
+        else:
+            cut_list = []
+            force_cut = force_reencode
 
         # ── Cut ─────────────────────────────────────────────────────────────
-        cut_list = cuttable if reel else cuttable[:top]
         rank = 1
         for c in cut_list:
             if c.status in ("missed", "error"):
@@ -1260,7 +1290,7 @@ async def cut_session(date_str: str, activity: str | None = None, *,
             out_path = os.path.join(day_dir, f"{rank:02d}_{slug}.mp4")
             if dry_run:
                 score_str = f" score={c.score}/10" if c.score else ""
-                print(f"      Clip {c.index} [{'reel' if reel else f'rank {rank:02d}'}{score_str}]: "
+                print(f"      Clip {c.index} [rank {rank:02d}{score_str}]: "
                       f"would cut → {os.path.basename(out_path)} "
                       f"(@{c.clip_start_offset:.1f}s +{c.clip_duration:.1f}s, "
                       f"via {c.matched_via})")
@@ -1268,10 +1298,10 @@ async def cut_session(date_str: str, activity: str | None = None, *,
                 c.status = "cut"
                 c.final_title = c.suggested_title or c.title
             else:
-                cut_clip(c, out_path, force_reencode or reel, nvenc_ok)
+                cut_clip(c, out_path, force_cut, nvenc_ok)
                 if c.status == "cut":
                     score_str = f" score={c.score}/10" if c.score else ""
-                    print(f"      Clip {c.index} [{'reel' if reel else f'rank {rank:02d}'}{score_str}]: "
+                    print(f"      Clip {c.index} [rank {rank:02d}{score_str}]: "
                           f"CUT ({c.cut_method}) → {os.path.basename(out_path)}")
                 else:
                     print(f"      Clip {c.index}: ERROR — {c.error}")
@@ -1285,7 +1315,7 @@ async def cut_session(date_str: str, activity: str | None = None, *,
             elif c.status == "missed":
                 print(f"      Clip {c.index}: MISSED — {c.error}")
 
-        if not dry_run:
+        if clips and not dry_run:
             await generate_titles(candidates, act_name)
             for c in candidates:
                 if c.status == "cut":
@@ -1298,16 +1328,29 @@ async def cut_session(date_str: str, activity: str | None = None, *,
         reel_path_out = None
         reel_report_out = None
         if reel and not dry_run:
-            try:
-                reel_path_out = cut_reel(candidates, day_dir, act_name, nvenc_ok)
-                reel_title, reel_desc = await generate_reel_title(candidates, act_name)
-                reel_report_out = write_reel_report(
-                    candidates, reel_path_out, reel_title, reel_desc,
-                    day_dir, date_str, act_name, vod_align_details,
-                )
-                print(f"   [Reel] Report → {reel_report_out}")
-            except RuntimeError as e:
-                print(f"   [Reel] Assembly failed: {e}")
+            # Short-session guard: skip reel if session is too brief or has
+            # too few candidates to be worth a reel.
+            aligned_count = sum(1 for c in candidates if c.anchor_start_epoch is not None)
+            session_span_min = (
+                (events[-1].epoch - events[0].epoch) / 60.0 if len(events) >= 2 else 0.0
+            )
+            if aligned_count < 3:
+                print(f"   [Reel] SKIP — only {aligned_count} aligned candidate(s) "
+                      f"(minimum 3 required). Session too short for a reel.")
+            elif session_span_min < REEL_MIN_MINUTES:
+                print(f"   [Reel] SKIP — session span {session_span_min:.0f} min "
+                      f"< REEL_MIN_MINUTES ({REEL_MIN_MINUTES} min). Session too short for a reel.")
+            else:
+                try:
+                    reel_path_out = cut_reel(candidates, day_dir, act_name, nvenc_ok)
+                    reel_title, reel_desc = await generate_reel_title(candidates, act_name)
+                    reel_report_out = write_reel_report(
+                        candidates, reel_path_out, reel_title, reel_desc,
+                        day_dir, date_str, act_name, vod_align_details,
+                    )
+                    print(f"   [Reel] Report → {reel_report_out}")
+                except RuntimeError as e:
+                    print(f"   [Reel] Assembly failed: {e}")
 
         summaries.append({
             "artifact": md_path,

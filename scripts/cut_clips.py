@@ -5,19 +5,22 @@ Run the morning after a stream — OBS recorded locally, Kira wrote her
 clip candidates at session end, this turns them into ready-to-post,
 pre-titled .mp4 files under OBS_RECORDINGS_DIR/clips/YYYY-MM-DD/.
 
+Default run produces BOTH ranked individual clips AND a highlight reel.
+Use --no-reel or --no-clips to suppress either output.
+
 Usage:
-    python scripts/cut_clips.py                 # today's clips
+    python scripts/cut_clips.py                         # today: clips + reel
     python scripts/cut_clips.py --date 2026-06-11
     python scripts/cut_clips.py --activity general
-    python scripts/cut_clips.py --reencode      # force frame-accurate NVENC cuts
-    python scripts/cut_clips.py --dry-run       # plan only, cut nothing
-    python scripts/cut_clips.py --reel          # concatenate all into a highlight reel
-    python scripts/cut_clips.py --reel --vod "path/to/download.mp4"
-        # use a specific VOD file (YouTube download etc.); Whisper anchor-matches
-        # to find actual stream-start epoch instead of relying on container metadata.
+    python scripts/cut_clips.py --reencode              # force NVENC for individual clips too
+    python scripts/cut_clips.py --dry-run               # plan only, cut nothing
+    python scripts/cut_clips.py --no-reel               # individual clips only (no reel)
+    python scripts/cut_clips.py --no-clips              # reel only (no individual clip sidecars)
+    python scripts/cut_clips.py --vod "path/to/download.mp4"
+        # use a specific VOD file; Whisper anchor-matches to find stream-start epoch.
 
 Requires OBS_RECORDINGS_DIR in .env and ffmpeg/ffprobe on PATH.
---reel + --vod additionally requires faster-whisper (pip install faster-whisper).
+--vod additionally requires faster-whisper (pip install faster-whisper).
 """
 import argparse
 import asyncio
@@ -49,12 +52,12 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--dry-run", action="store_true",
                    help="Plan and align only; do not cut, title, or write files.")
     p.add_argument("--top", type=int, default=15, metavar="N",
-                   help="Cut only the top N highest-scored candidates (default 15). "
-                        "Ignored in --reel mode (all aligned candidates are included).")
-    p.add_argument("--reel", action="store_true",
-                   help="Highlight-reel mode: cut ALL aligned candidates in chronological "
-                        "order and concatenate into a single REEL_<slug>.mp4. "
-                        "Implies --reencode (frame-accurate cuts for seamless joins).")
+                   help="Maximum individual clips to cut per activity (default 15). "
+                        "Has no effect when reel is also being built (all candidates cut).")
+    p.add_argument("--no-reel", action="store_true",
+                   help="Skip highlight-reel assembly; produce ranked individual clips only.")
+    p.add_argument("--no-clips", action="store_true",
+                   help="Skip individual clip title/sidecar generation; produce reel only.")
     p.add_argument("--vod", default=None, metavar="PATH",
                    help="Path to a VOD file (e.g. YouTube download) that lacks a reliable "
                         "container creation_time. Whisper anchor-matching will derive the "
@@ -67,8 +70,11 @@ async def _main() -> int:
     args = _parse_args()
     date_str = datetime.now().strftime("%Y-%m-%d") if args.date == "today" else args.date
 
-    # --reel implies re-encode (frame-accurate for seamless concatenation seams)
-    force_reencode = args.reencode or args.reel
+    do_reel  = not args.no_reel
+    do_clips = not args.no_clips
+    # Reel requires reencode internally; --reencode additionally forces it for
+    # individual clips in --no-reel mode.
+    force_reencode = args.reencode
 
     vod_path = None
     if args.vod:
@@ -86,7 +92,8 @@ async def _main() -> int:
             force_reencode=force_reencode,
             dry_run=args.dry_run,
             top=args.top,
-            reel=args.reel,
+            reel=do_reel,
+            clips=do_clips,
             vod_path=vod_path,
         )
     except RuntimeError as e:
@@ -111,7 +118,7 @@ async def _main() -> int:
         total_cut += s["cut"]
     if not result["sessions"]:
         print("  (no artifacts processed)")
-    if args.reel and result.get("vod_align"):
+    if do_reel and result.get("vod_align"):
         print("\n--- VOD alignment ---")
         print(result["vod_align"])
     print("=" * 60)

@@ -76,14 +76,16 @@
      * occlude the canvas naturally (foreground is later in DOM / higher z). */
     crtRegion:    { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.2380 },
 
-    /* Canvas aligns to the foreground's transparent glass hole (2026-06-12):
-     * Transparent zone: display y=453–528 (76px). Canvas centers in that window.
-     * Canvas top = hole_top = 453px → y=0.4194. h=0.0704 = 76px.
-     * Glyphs scale inside 231×76px: px=max(3,min(231/14,76/9))=max(3,min(16,8))=8
-     * → heart 56×48px, cat 80×56px — both fit the 76px window.
-     * mix-blend-mode:screen: transparent foreground passes glyph through;
-     * opaque desk/lamp pixels below y=528 occlude naturally.            */
-    crtDisplayRegion: { x: 0.8276, y: 0.4194, w: 0.1203, h: 0.0704 },
+    /* Canvas aligned to TV glass top (2026-06-12):
+     * crtRegion.y = 0.4454 → display top = 481px = top of TV glass.
+     * Foreground transparent hole at TV center col (display x≈1706):
+     *   alpha=0 through display y≈583 → 102px of clear glass at center.
+     * h=0.0963 → height=104px → canvas bottom=585px ≈ transparent limit.
+     * Canvas center y = 533px (within clear zone ✓).
+     * px=max(3,round(min(231/14,104/9)))=max(3,round(11.6))=12
+     * → heart 7×12=84px wide, 6×12=72px tall, centered y=497-569 ✓
+     * Lamp (opaque fg, right side of TV) occludes naturally per z-order. */
+    crtDisplayRegion: { x: 0.8276, y: 0.4454, w: 0.1203, h: 0.0963 },
     crtDisplayEnabled: true,
 
     /* -- String-light bulb positions — measured from scene_kiracam.jfif -- */
@@ -138,7 +140,7 @@
     <img class="bg" src="scene_kiracam.jfif" alt="">
     <canvas id="snow-canvas" width="1920" height="1080"></canvas>
     <!-- CRT live display (screen-blend glyph sits between bg and fg) -->
-    <canvas id="crt-live" width="231" height="76"></canvas>
+    <canvas id="crt-live" width="231" height="104"></canvas>
     <div id="crt-overlay"></div>
     <div id="lights-layer"></div>
     <!-- Foreground: desk surface cuts in front of snow — OBS avatar goes between these layers -->
