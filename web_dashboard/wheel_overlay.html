@@ -341,6 +341,17 @@ function _fxFrame() {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CEREMONY TIMING (all tunable — durations in ms)
+   Total on-screen ≈ entranceMs + spinMs + holdMs + resultMs
+══════════════════════════════════════════════════════════════════════ */
+const CFG = {
+  entranceMs: 1800,   // anticipation hold after appearing, before the spin
+  spinMs:     6000,   // spin duration (strong ease-out, teases past slices)
+  holdMs:     4500,   // land hold: glow pulse + confetti before the result card
+  resultMs:   5500,   // result card ("The wheel says…") on-screen time
+};
+
 let _spinRAF = null;
 let _winIdx  = -1;
 let _visible = { wheel: true };
@@ -356,16 +367,23 @@ function spin(sliceId, durationMs, onFinish) {
   if (_winIdx < 0) _winIdx = 0;
 
   const targetRot  = _sliceIdxToAngle(_winIdx);
-  const FULL_SPINS = 5 + Math.random() * 2;
+  const FULL_SPINS = 6 + Math.random() * 2;   // more revolutions for drama
   const startRot   = 0;
   const totalDelta = FULL_SPINS * Math.PI * 2 + _normalise(targetRot - startRot);
   const startTime  = performance.now();
 
-  function _easeOut(t) { return 1 - Math.pow(1 - t, 5); }
+  /* Strong ease-out — slow, teasing deceleration near the end. */
+  function _easeOut(t) { return 1 - Math.pow(1 - t, 6); }
 
   function frame(now) {
     const t   = Math.min(1, (now - startTime) / durationMs);
-    const et  = _easeOut(t);
+    let   et  = _easeOut(t);
+    /* Damped settle wobble in the final stretch — overshoots a hair past
+       the slice then rocks back, for the "is it gonna land on—" tension. */
+    if (t > 0.80 && t < 1) {
+      const k = (t - 0.80) / 0.20;            // 0→1 across the last 20%
+      et += Math.sin(k * Math.PI * 2.5) * (1 - k) * 0.010;
+    }
     const rot = startRot + totalDelta * et;
     drawWheel(rot % (Math.PI * 2), t >= 1 ? _winIdx : -1);
     if (t < 1) {
@@ -400,6 +418,7 @@ function showWheel(tipper) {
   requestAnimationFrame(() => $root.classList.add('pop'));
 }
 function hideWheel() {
+  if (typeof _clearCeremony === 'function') _clearCeremony();
   $root.classList.remove('visible', 'pop');
   $result.classList.remove('visible');
   $resultT.textContent = '';
@@ -414,7 +433,13 @@ drawWheel(0, -1);
 
 const WS_URL    = 'ws://localhost:8766/ws/overlays';
 const RECONNECT = 3000;
-let   _holdTimer = null;
+
+/* Pending ceremony timers — cleared on veto / new spin / hide. */
+let _ceremony = [];
+function _clearCeremony() {
+  for (const id of _ceremony) clearTimeout(id);
+  _ceremony = [];
+}
 
 function connect() {
   let ws;
@@ -433,28 +458,36 @@ function connect() {
     if (!_visible.wheel) return;
 
     if (msg.type === 'wheel_spin') {
-      if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+      _clearCeremony();
       $result.classList.remove('visible');
       $resultT.textContent = '';
+
+      const sliceId = msg.result || 'ghost_story';
+      const label   = msg.label || '';
+
+      /* PHASE 1 — ENTRANCE: fade/scale in, then hold for anticipation. */
       showWheel(msg.tipper || '');
 
-      const sliceId    = msg.result || 'ghost_story';
-      const durationMs = msg.duration_ms || 4200;
-      const label      = msg.label || '';
+      _ceremony.push(setTimeout(function () {
+        /* PHASE 2 — SPIN: long, dramatic, strong ease-out. */
+        spin(sliceId, CFG.spinMs, function () {
+          /* PHASE 3 — LAND: glow pulse + confetti already firing; hold so the
+             slice reads clearly and Kira can react. Re-burst confetti midway
+             so it doesn't die out during the long hold. */
+          _ceremony.push(setTimeout(burstConfetti, Math.round(CFG.holdMs * 0.45)));
 
-      setTimeout(() => {
-        spin(sliceId, durationMs, function () {
-          _holdTimer = setTimeout(function () {
+          _ceremony.push(setTimeout(function () {
+            /* PHASE 4 — RESULT CARD: "The wheel says…" holds, then fades. */
             $resultT.textContent = label;
             $result.classList.add('visible');
-            _holdTimer = setTimeout(function () { hideWheel(); }, 5000);
-          }, 900);
+            _ceremony.push(setTimeout(hideWheel, CFG.resultMs));
+          }, CFG.holdMs));
         });
-      }, 500);
+      }, CFG.entranceMs));
     }
 
     if (msg.type === 'wheel_veto') {
-      if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+      _clearCeremony();
       hideWheel();
     }
   };
