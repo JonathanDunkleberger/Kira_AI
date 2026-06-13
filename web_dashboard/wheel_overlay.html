@@ -4,11 +4,6 @@
   OBS Browser Source: 1920 × 1080, transparent background.
   Connects to ws://localhost:8766/ws/overlays
   Events: wheel_spin · wheel_veto · overlay_vis
-
-  Receives: {type:"wheel_spin", result:"slice_id", duration_ms:3500,
-             tipper:"username", label:"Ghost Story"}
-  Veto: {type:"wheel_veto"} — hide immediately without revealing
-  Visibility: overlay_vis.wheel
 -->
 <html lang="en">
 <head>
@@ -22,71 +17,121 @@ html, body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   user-select: none;
 }
-
-/* ── Wheel root — centred on canvas ── */
+#fx-canvas {
+  position: absolute; inset: 0;
+  width: 1920px; height: 1080px;
+  pointer-events: none;
+  z-index: 5;
+}
 #wheel-root {
   position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
+  left: 50%; top: 52%;
+  transform: translate(-50%, -50%) scale(0.92);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 450ms ease, transform 450ms cubic-bezier(.34,1.56,.64,1);
+  z-index: 10;
 }
 #wheel-root.visible { opacity: 1; }
-
-/* Pixel heart hub (SVG) */
-#hub { position: absolute; transform: translate(-50%, -50%); }
-
-/* Slice glow on win */
-@keyframes win-pulse {
-  0%,100% { filter: brightness(1) drop-shadow(0 0 0px rgba(255,220,80,0)); }
-  50%      { filter: brightness(1.35) drop-shadow(0 0 24px rgba(255,220,80,0.85)); }
+#wheel-root.pop     { transform: translate(-50%, -50%) scale(1); }
+#title-banner {
+  position: absolute;
+  left: 50%; top: -112px;
+  transform: translateX(-50%) rotate(-1.4deg);
+  padding: 11px 32px 13px;
+  background: linear-gradient(180deg, #fdf4e3 0%, #f6e7cd 100%);
+  border: 2.5px solid #8b6040;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(74,46,48,0.28), inset 0 1px 0 rgba(255,255,255,0.7);
+  text-align: center;
+  white-space: nowrap;
 }
-.win-glow { animation: win-pulse 0.8s ease-in-out infinite; }
-
-/* Pointer / ticker at top */
+#title-banner::before,
+#title-banner::after {
+  content: '';
+  position: absolute; top: -11px;
+  width: 60px; height: 24px;
+  background: rgba(184,122,142,0.45);
+  border: 1px solid rgba(139,96,64,0.35);
+}
+#title-banner::before { left: 16px;  transform: rotate(-8deg); }
+#title-banner::after  { right: 16px; transform: rotate( 7deg); }
+#title-banner .t-main {
+  font-size: 32px; font-weight: 900;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: #4a2e30; line-height: 1;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+}
+#title-banner .t-sub {
+  margin-top: 5px;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #8b5a4a;
+  min-height: 18px;
+}
+#title-banner .t-sub b { color: #b03a52; }
 #pointer {
   position: absolute;
   left: 50%; top: 0;
-  transform: translate(-50%, -8px);
-  width: 0; height: 0;
-  border-left:  14px solid transparent;
-  border-right: 14px solid transparent;
-  border-top:   28px solid #4a2e30;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+  transform: translate(-50%, -16px);
+  z-index: 14;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.32));
 }
-
-/* Result label below wheel */
+@keyframes win-pulse {
+  0%,100% { filter: drop-shadow(0 12px 24px rgba(74,46,48,0.30)); }
+  50%     { filter: drop-shadow(0 0 32px rgba(255,205,90,0.9)) drop-shadow(0 12px 24px rgba(74,46,48,0.30)); }
+}
+#wheel-canvas { filter: drop-shadow(0 12px 24px rgba(74,46,48,0.30)); }
+#wheel-canvas.win-glow { animation: win-pulse 0.9s ease-in-out infinite; }
 #result-label {
   position: absolute;
-  left: 50%; top: calc(100% + 24px);
-  transform: translateX(-50%);
-  font-size: 22px;
-  font-weight: 800;
+  left: 50%; top: calc(100% + 4px);
+  transform: translateX(-50%) translateY(10px);
+  padding: 11px 28px;
+  background: linear-gradient(180deg, #fff8ef 0%, #f7e8d0 100%);
+  border: 2.5px solid #8b6040;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(74,46,48,0.30), inset 0 1px 0 rgba(255,255,255,0.7);
+  font-size: 28px;
+  font-weight: 900;
   color: #4a2e30;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  text-shadow: 0 2px 8px rgba(255,220,80,0.7), 0 1px 0 rgba(255,255,255,0.6);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
   white-space: nowrap;
+  text-align: center;
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 400ms ease, transform 400ms cubic-bezier(.34,1.56,.64,1);
 }
-#result-label.visible { opacity: 1; }
+#result-label.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+#result-label .rl-kicker {
+  display: block;
+  font-size: 12px; font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #b87a8e;
+  margin-bottom: 3px;
+}
 </style>
 </head>
 <body>
 
+<canvas id="fx-canvas" width="1920" height="1080"></canvas>
+
 <div id="wheel-root">
+  <div id="title-banner">
+    <div class="t-main">The Wheel</div>
+    <div class="t-sub" id="title-sub">of Fortune</div>
+  </div>
   <canvas id="wheel-canvas"></canvas>
-  <div id="pointer"></div>
-  <div id="result-label"></div>
+  <svg id="pointer" width="44" height="56" viewBox="0 0 44 56">
+    <circle cx="22" cy="14" r="12" fill="#fff8f0" stroke="#8b6040" stroke-width="3"/>
+    <path d="M22 25 L10 28 Q22 56 34 28 Z" fill="#b03a52" stroke="#8b6040" stroke-width="2.5"/>
+    <path d="M10 28 Q22 56 34 28 L22 31 Z" fill="#8b2a40"/>
+  </svg>
+  <div id="result-label"><span class="rl-kicker">The wheel says</span><span id="result-text"></span></div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════════════════════════
-   WHEEL SLICE DEFINITIONS (must match kira/memory/wheel_slices.py)
-   Colors: washi-note palette — cream/rose/tan, warm-brown outlines.
-══════════════════════════════════════════════════════════════════════ */
 const SLICES = [
   { id: 'ghost_story',        label: 'Ghost Story',       tier: 'common',   color: '#f5e6d0', textColor: '#4a2e30' },
   { id: 'roast_round',        label: 'Roast Round',       tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
@@ -94,21 +139,24 @@ const SLICES = [
   { id: 'chaos_mode',         label: 'CHAOS MODE',        tier: 'common',   color: '#f0c8b8', textColor: '#8b2010' },
   { id: 'lore_drop',          label: 'Lore Drop',         tier: 'uncommon', color: '#d8e0f0', textColor: '#2030a0' },
   { id: 'interrogation',      label: 'Interrogation',     tier: 'uncommon', color: '#d8f0e0', textColor: '#105030' },
-  { id: 'duchess_challenge',  label: '♟ Duchess',         tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
+  { id: 'duchess_challenge',  label: 'Duchess',           tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
   { id: 'confession_booth',   label: 'Confession Booth',  tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
-  { id: 'kira_sings',         label: 'Kira Sings ♪',     tier: 'rare',     color: '#fcd8e8', textColor: '#8b1060' },
-  { id: 'chats_choice',       label: "Chat's Choice ★",  tier: 'rare',     color: '#f8f0c0', textColor: '#604000' },
+  { id: 'kira_sings',         label: 'Kira Sings',        tier: 'rare',     color: '#fcd8e8', textColor: '#8b1060' },
+  { id: 'chats_choice',       label: "Chat's Choice",     tier: 'rare',     color: '#f8f0c0', textColor: '#604000' },
 ];
 
 const TIER_RING = { common: '#c8a880', uncommon: '#9090d0', rare: '#d0a020' };
 
-const R       = 280;    /* wheel radius px */
-const R_INNER = 28;     /* hub radius */
-const CANVAS_SIZE = (R + 20) * 2;
+const R       = 320;
+const R_INNER = 38;
+const PAD     = 44;
+const CANVAS_SIZE = (R + PAD) * 2;
 
 const $root    = document.getElementById('wheel-root');
 const $canvas  = document.getElementById('wheel-canvas');
 const $result  = document.getElementById('result-label');
+const $resultT = document.getElementById('result-text');
+const $titleSub= document.getElementById('title-sub');
 const ctx      = $canvas.getContext('2d');
 
 $canvas.width  = CANVAS_SIZE;
@@ -116,25 +164,23 @@ $canvas.height = CANVAS_SIZE;
 $root.style.width  = CANVAS_SIZE + 'px';
 $root.style.height = CANVAS_SIZE + 'px';
 
-/* Pointer sits at top centre of the canvas */
-const ptr = document.getElementById('pointer');
-ptr.style.left = '50%';
-ptr.style.top  = '0';
-
 const CX = CANVAS_SIZE / 2;
 const CY = CANVAS_SIZE / 2;
 const N  = SLICES.length;
 const SLICE_ANGLE = (2 * Math.PI) / N;
 
-/* ── Wobbly-circle path helper ── */
 function _wobbleR(baseR, angle) {
-  /* Slight radius jitter gives a hand-drawn feel */
-  return baseR * (1 + 0.012 * Math.sin(angle * 3.7 + 0.9));
+  return baseR * (1 + 0.010 * Math.sin(angle * 3.7 + 0.9));
 }
 
-/* ── Draw the static wheel at rotation `rot` ── */
 function drawWheel(rot, winIdx) {
   ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+  ctx.beginPath(); ctx.arc(CX, CY, R + 24, 0, Math.PI * 2);
+  ctx.fillStyle = '#f3e3c8'; ctx.fill();
+  ctx.lineWidth = 6; ctx.strokeStyle = '#8b6040'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX, CY, R + 9, 0, Math.PI * 2);
+  ctx.lineWidth = 3; ctx.strokeStyle = '#c8a880'; ctx.stroke();
 
   for (let i = 0; i < N; i++) {
     const startA = rot + i * SLICE_ANGLE - Math.PI / 2;
@@ -142,76 +188,84 @@ function drawWheel(rot, winIdx) {
     const s      = SLICES[i];
     const isWin  = (winIdx === i);
 
-    /* Fill */
     ctx.beginPath();
     ctx.moveTo(CX, CY);
-    /* Slightly wobbly arc */
-    for (let a = startA; a <= endA + 0.01; a += 0.05) {
+    for (let a = startA; a <= endA + 0.01; a += 0.04) {
       const r = _wobbleR(R, a);
       ctx.lineTo(CX + Math.cos(a) * r, CY + Math.sin(a) * r);
     }
     ctx.closePath();
-    ctx.fillStyle = isWin ? _lighten(s.color, 0.25) : s.color;
+    const baseCol = isWin ? _lighten(s.color, 0.22) : s.color;
+    const grad = ctx.createRadialGradient(CX, CY, R_INNER, CX, CY, R);
+    grad.addColorStop(0, _lighten(baseCol, 0.30));
+    grad.addColorStop(1, baseCol);
+    ctx.fillStyle = grad;
     ctx.fill();
 
-    /* Rim ring color by tier */
-    ctx.strokeStyle = TIER_RING[s.tier] || '#c8a880';
-    ctx.lineWidth   = isWin ? 4 : 2;
+    ctx.strokeStyle = isWin ? '#ffcf5a' : (TIER_RING[s.tier] || '#c8a880');
+    ctx.lineWidth   = isWin ? 5 : 2.5;
     ctx.stroke();
 
-    /* Label text */
     const midA  = startA + SLICE_ANGLE / 2;
-    const tr    = R * 0.67;
+    const tr    = R * 0.62;
     const tx    = CX + Math.cos(midA) * tr;
     const ty    = CY + Math.sin(midA) * tr;
     ctx.save();
     ctx.translate(tx, ty);
-    ctx.rotate(midA + Math.PI / 2);
-    const fontSize = SLICE_ANGLE > 0.7 ? 13 : 11;
-    ctx.font        = `700 ${fontSize}px 'Segoe UI', sans-serif`;
+    const fontSize  = 16;
+    ctx.font        = '800 ' + fontSize + "px 'Segoe UI', sans-serif";
     ctx.textAlign   = 'center';
     ctx.textBaseline = 'middle';
+    ctx.lineWidth   = 3.5;
+    ctx.lineJoin    = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
     ctx.fillStyle   = s.textColor;
-    /* Word-wrap: split on space */
     const words = s.label.split(' ');
-    if (words.length === 1) {
-      ctx.fillText(s.label, 0, 0);
-    } else {
-      const half = Math.ceil(words.length / 2);
-      ctx.fillText(words.slice(0, half).join(' '), 0, -fontSize * 0.6);
-      ctx.fillText(words.slice(half).join(' '),    0,  fontSize * 0.6);
-    }
+    const lines = (words.length === 1)
+      ? [s.label]
+      : [words.slice(0, Math.ceil(words.length/2)).join(' '),
+         words.slice(Math.ceil(words.length/2)).join(' ')];
+    lines.forEach((ln, li) => {
+      const yy = (li - (lines.length - 1) / 2) * (fontSize + 2);
+      ctx.strokeText(ln, 0, yy);
+      ctx.fillText(ln, 0, yy);
+    });
     ctx.restore();
   }
 
-  /* Outer ring */
-  ctx.beginPath();
-  ctx.arc(CX, CY, R + 4, 0, Math.PI * 2);
-  ctx.strokeStyle = '#8b6040';
-  ctx.lineWidth   = 3;
-  ctx.stroke();
+  for (let i = 0; i < N; i++) {
+    const a = rot + i * SLICE_ANGLE - Math.PI / 2;
+    const px = CX + Math.cos(a) * (R + 1);
+    const py = CY + Math.sin(a) * (R + 1);
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff8f0'; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = '#8b6040'; ctx.stroke();
+  }
 
-  /* Hub */
-  ctx.beginPath();
-  ctx.arc(CX, CY, R_INNER, 0, Math.PI * 2);
-  ctx.fillStyle = '#fff8f0';
-  ctx.fill();
-  ctx.strokeStyle = '#8b6040';
-  ctx.lineWidth   = 2;
-  ctx.stroke();
-
-  /* Pixel heart in hub */
-  _drawPixelHeart(ctx, CX, CY, 5, '#b87a8e');
+  ctx.beginPath(); ctx.arc(CX, CY, R_INNER + 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#f3e3c8'; ctx.fill();
+  ctx.lineWidth = 3; ctx.strokeStyle = '#8b6040'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX, CY, R_INNER, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff8f0'; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = '#c8a880'; ctx.stroke();
+  _drawPixelHeart(ctx, CX, CY, 6, '#b87a8e');
 }
 
-function _lighten(hex, amt) {
-  const r = parseInt(hex.slice(1,3), 16);
-  const g = parseInt(hex.slice(3,5), 16);
-  const b = parseInt(hex.slice(5,7), 16);
+function _lighten(col, amt) {
+  let r, g, b;
+  if (col[0] === '#') {
+    r = parseInt(col.slice(1,3), 16);
+    g = parseInt(col.slice(3,5), 16);
+    b = parseInt(col.slice(5,7), 16);
+  } else {
+    const m = col.match(/(\d+)\D+(\d+)\D+(\d+)/);
+    if (!m) return col;
+    r = +m[1]; g = +m[2]; b = +m[3];
+  }
   const lr = Math.min(255, Math.round(r + (255-r)*amt));
   const lg = Math.min(255, Math.round(g + (255-g)*amt));
   const lb = Math.min(255, Math.round(b + (255-b)*amt));
-  return `rgb(${lr},${lg},${lb})`;
+  return 'rgb(' + lr + ',' + lg + ',' + lb + ')';
 }
 
 function _drawPixelHeart(ctx, cx, cy, px, color) {
@@ -231,35 +285,83 @@ function _drawPixelHeart(ctx, cx, cy, px, color) {
   }
 }
 
-/* ── Spin animation ── */
-let _spinRAF     = null;
-let _winIdx      = -1;
-let _visible     = { wheel: true };
+const $fx = document.getElementById('fx-canvas');
+const fxc = $fx.getContext('2d');
+let _confetti = [];
+let _fxRAF = null;
+const CONF_COLORS = ['#b87a8e', '#f0c8b8', '#d0a020', '#9090d0', '#f5e6d0', '#b03a52'];
+
+function burstConfetti() {
+  const cx = 1920 / 2, cy = 1080 * 0.52;
+  for (let i = 0; i < 80; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const spd = 6 + Math.random() * 12;
+    _confetti.push({
+      x: cx, y: cy,
+      vx: Math.cos(ang) * spd,
+      vy: Math.sin(ang) * spd - 7,
+      g: 0.28 + Math.random() * 0.15,
+      size: 7 + Math.random() * 8,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.3,
+      color: CONF_COLORS[(Math.random() * CONF_COLORS.length) | 0],
+      heart: Math.random() < 0.5,
+      life: 0, ttl: 95 + Math.random() * 45,
+    });
+  }
+  if (!_fxRAF) _fxRAF = requestAnimationFrame(_fxFrame);
+}
+
+function _fxFrame() {
+  fxc.clearRect(0, 0, 1920, 1080);
+  for (const p of _confetti) {
+    p.life++;
+    p.vy += p.g;
+    p.x += p.vx; p.y += p.vy;
+    p.rot += p.vr;
+    const alpha = Math.max(0, 1 - p.life / p.ttl);
+    fxc.save();
+    fxc.globalAlpha = alpha;
+    fxc.translate(p.x, p.y);
+    fxc.rotate(p.rot);
+    if (p.heart) {
+      _drawPixelHeart(fxc, 0, 0, p.size / 6, p.color);
+    } else {
+      fxc.fillStyle = p.color;
+      fxc.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    }
+    fxc.restore();
+  }
+  _confetti = _confetti.filter(p => p.life < p.ttl && p.y < 1180);
+  if (_confetti.length) {
+    _fxRAF = requestAnimationFrame(_fxFrame);
+  } else {
+    fxc.clearRect(0, 0, 1920, 1080);
+    _fxRAF = null;
+  }
+}
+
+let _spinRAF = null;
+let _winIdx  = -1;
+let _visible = { wheel: true };
 
 function _sliceIdxToAngle(idx) {
-  /* The slice at idx is centered at angle: idx * SLICE_ANGLE + SLICE_ANGLE/2 */
-  /* Pointer is at top (angle -π/2 before rotation). We need:
-     rot + idx * SLICE_ANGLE + SLICE_ANGLE/2 = -π/2 (mod 2π)
-     → rot = -π/2 - idx * SLICE_ANGLE - SLICE_ANGLE/2 */
   return -Math.PI / 2 - idx * SLICE_ANGLE - SLICE_ANGLE / 2;
 }
 
 function spin(sliceId, durationMs, onFinish) {
   if (_spinRAF) cancelAnimationFrame(_spinRAF);
+  $canvas.classList.remove('win-glow');
   _winIdx = SLICES.findIndex(s => s.id === sliceId);
   if (_winIdx < 0) _winIdx = 0;
 
-  const targetRot    = _sliceIdxToAngle(_winIdx);
-  /* Add multiple full rotations for visual effect */
-  const FULL_SPINS   = 4 + Math.random() * 2;
-  const startRot     = 0;
-  const totalDelta   = FULL_SPINS * Math.PI * 2 + _normalise(targetRot - startRot);
-  const startTime    = performance.now();
+  const targetRot  = _sliceIdxToAngle(_winIdx);
+  const FULL_SPINS = 5 + Math.random() * 2;
+  const startRot   = 0;
+  const totalDelta = FULL_SPINS * Math.PI * 2 + _normalise(targetRot - startRot);
+  const startTime  = performance.now();
 
-  function _easeOut(t) {
-    /* Quintic ease-out */
-    return 1 - Math.pow(1 - t, 5);
-  }
+  function _easeOut(t) { return 1 - Math.pow(1 - t, 5); }
 
   function frame(now) {
     const t   = Math.min(1, (now - startTime) / durationMs);
@@ -270,6 +372,8 @@ function spin(sliceId, durationMs, onFinish) {
       _spinRAF = requestAnimationFrame(frame);
     } else {
       drawWheel(targetRot % (Math.PI * 2), _winIdx);
+      $canvas.classList.add('win-glow');
+      burstConfetti();
       if (onFinish) onFinish();
     }
   }
@@ -282,27 +386,34 @@ function _normalise(a) {
   return a;
 }
 
-/* ── Show / hide ── */
-function showWheel() {
+function _esc(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function showWheel(tipper) {
+  $titleSub.innerHTML = tipper
+    ? '<b>' + _esc(tipper) + '</b> filled the jar!'
+    : 'of Fortune';
   $root.classList.add('visible');
+  requestAnimationFrame(() => $root.classList.add('pop'));
 }
 function hideWheel() {
-  $root.classList.remove('visible');
+  $root.classList.remove('visible', 'pop');
   $result.classList.remove('visible');
-  $result.textContent = '';
+  $resultT.textContent = '';
+  $canvas.classList.remove('win-glow');
   if (_spinRAF) { cancelAnimationFrame(_spinRAF); _spinRAF = null; }
+  _confetti = [];
   _winIdx = -1;
   drawWheel(0, -1);
 }
 
-/* Draw static wheel initially */
 drawWheel(0, -1);
 
-/* ══════════════════════════════════════════════════════════════════════
-   WEBSOCKET
-══════════════════════════════════════════════════════════════════════ */
-const WS_URL     = 'ws://localhost:8766/ws/overlays';
-const RECONNECT  = 3000;
+const WS_URL    = 'ws://localhost:8766/ws/overlays';
+const RECONNECT = 3000;
 let   _holdTimer = null;
 
 function connect() {
@@ -324,24 +435,22 @@ function connect() {
     if (msg.type === 'wheel_spin') {
       if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
       $result.classList.remove('visible');
-      $result.textContent = '';
-      showWheel();
+      $resultT.textContent = '';
+      showWheel(msg.tipper || '');
 
       const sliceId    = msg.result || 'ghost_story';
-      const durationMs = msg.duration_ms || 3500;
+      const durationMs = msg.duration_ms || 4200;
       const label      = msg.label || '';
 
-      spin(sliceId, durationMs, function () {
-        /* Hold 4s showing winning slice, then show result label */
-        _holdTimer = setTimeout(function () {
-          $result.textContent = label;
-          $result.classList.add('visible');
-          /* Fade out after another 4s */
+      setTimeout(() => {
+        spin(sliceId, durationMs, function () {
           _holdTimer = setTimeout(function () {
-            hideWheel();
-          }, 4000);
-        }, 1000);
-      });
+            $resultT.textContent = label;
+            $result.classList.add('visible');
+            _holdTimer = setTimeout(function () { hideWheel(); }, 5000);
+          }, 900);
+        });
+      }, 500);
     }
 
     if (msg.type === 'wheel_veto') {
