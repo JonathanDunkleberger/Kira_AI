@@ -209,7 +209,7 @@ VTS_TOKEN_PATH = os.getenv("VTS_TOKEN_PATH", os.path.join(_REPO_ROOT, ".vts_toke
 # like a human club player. CPU only — no GPU contention with vision/STT.
 LICHESS_BOT_TOKEN = os.getenv("LICHESS_BOT_TOKEN", "")
 CHESS_ENGINE_PATH = os.getenv("CHESS_ENGINE_PATH", "stockfish.exe")
-CHESS_KIRA_ELO    = int(os.getenv("CHESS_KIRA_ELO", "1800"))
+CHESS_KIRA_ELO    = int(os.getenv("CHESS_KIRA_ELO", "1400"))
 CHESS_MOVETIME_MS = int(os.getenv("CHESS_MOVETIME_MS", "150"))
 
 # Auto-clip pipeline (offline post-session) — scripts/cut_clips.py turns Kira's

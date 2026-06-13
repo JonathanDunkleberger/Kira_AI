@@ -1007,7 +1007,16 @@ html, body {
           </div>
 
           <div class="field">
-            <label>Challenge Stockfish level (1–8)</label>
+            <label>Kira's Elo (1320–3190) <span id="chess-elo-display" style="color:var(--header)"></span></label>
+            <div class="row" style="gap:6px">
+              <input type="number" id="inp-chess-elo" min="1320" max="3190" step="50" value="1400" style="flex:1">
+              <button class="btn" onclick="applyChessElo()">Set</button>
+            </div>
+            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">UCI_LimitStrength + UCI_Elo — 1320 = floor, 1400 = beatable, 1800 = strong</div>
+          </div>
+
+          <div class="field">
+            <label>Lichess AI level (1–8) — "Challenge Stockfish" button only</label>
             <input type="number" id="inp-chess-level" min="1" max="8" value="3">
           </div>
           <button class="btn" onclick="challengeChessAi()">Challenge Stockfish</button>
@@ -1580,6 +1589,13 @@ function renderPanels(s) {
   const ch = s.chess || {};
   setText('chess-status', ch.status || '♟ CLOSED');
   setTri('sw-chess-accept', ch.accepting_challenges);
+  // Sync Kira Elo from live state (only when the input isn't focused)
+  if (ch.kira_elo !== undefined) {
+    const eloInp = document.getElementById('inp-chess-elo');
+    if (eloInp && document.activeElement !== eloInp) eloInp.value = ch.kira_elo;
+    const eloDisp = document.getElementById('chess-elo-display');
+    if (eloDisp && !eloDisp.textContent) eloDisp.textContent = '';
+  }
   const specLink = document.getElementById('chess-spectate-link');
   const specA    = document.getElementById('chess-spectate-a');
   if (specLink && specA) {
@@ -1731,6 +1747,16 @@ function toggleChessAccept(on) {
 function challengeChessAi() {
   const level = parseInt(document.getElementById('inp-chess-level').value, 10) || 3;
   cmd('chess_challenge_ai', {level});
+}
+
+function applyChessElo() {
+  const elo = parseInt(document.getElementById('inp-chess-elo').value, 10) || 1400;
+  cmd('chess_set_elo', {level: elo}).then(data => {
+    if (data && data.ok !== false) {
+      const disp = document.getElementById('chess-elo-display');
+      if (disp) disp.textContent = '→ ' + (data.kira_elo ?? elo);
+    }
+  });
 }
 
 function ytConnect() {

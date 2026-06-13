@@ -210,6 +210,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "status":                _get(lambda: ca.get_status_str() if ca else "\u265f CLOSED", "\u265f CLOSED"),
         "spectate_url":          _get(lambda: ca.get_spectate_url() if ca else "", ""),
         "score":                 _get(lambda: ca.get_score_data() if ca else {}, {}),
+        "kira_elo":              _get(lambda: ca.kira_elo if ca else 1400, 1400),
     }
 
     # ── Mute / Pause ─────────────────────────────────────────────────────────
@@ -1061,6 +1062,16 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         state = "OPEN" if on else "CLOSED"
         print(f"   [Chess] Challenge acceptance: {state}")
         return _ok(accepting_challenges=on)
+
+    if action == "chess_set_elo":
+        ca = bot.chess_agent
+        if ca is None:
+            return _err("chess_agent not initialized yet")
+        new_elo = int(body.level) if body.level is not None else 1400
+        bot.event_loop.call_soon_threadsafe(
+            lambda: asyncio.ensure_future(ca.update_elo(new_elo))
+        )
+        return _ok(kira_elo=new_elo)
 
     if action == "chess_challenge_ai":
         ca = bot.chess_agent

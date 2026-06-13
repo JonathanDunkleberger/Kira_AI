@@ -1240,6 +1240,21 @@ class ChessAgent:
         except Exception as e:
             print(f"   [Chess] post_message failed: {e}")
 
+    async def update_elo(self, new_elo: int) -> None:
+        """Update Kira's Stockfish Elo cap live. Safe to call mid-session;
+        takes effect on the next move. Clamps to Stockfish's legal range."""
+        _SF_ELO_MIN, _SF_ELO_MAX = 1320, 3190
+        new_elo = max(_SF_ELO_MIN, min(_SF_ELO_MAX, int(new_elo)))
+        self.kira_elo = new_elo
+        if self._engine:
+            try:
+                self._engine.configure({"UCI_Elo": new_elo})
+                print(f"   [Chess] Elo cap updated to {new_elo}.")
+            except Exception as e:
+                print(f"   [Chess] Elo reconfigure failed: {e}")
+        else:
+            print(f"   [Chess] Elo set to {new_elo} (engine not yet open; will apply on start).")
+
     async def _send_chat_room(self, challenge_id: str, text: str):
         """Best-effort polite message on a challenge room (before game starts).
         Failures are non-fatal — the decline already went through."""

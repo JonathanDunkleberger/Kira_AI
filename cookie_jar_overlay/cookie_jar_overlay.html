@@ -172,8 +172,10 @@
       const rot = (rng() - 0.5) * 2 * (18 * Math.PI / 180);
       let cx_ = fillX0 + (col + 0.5) * cellW + stagger + jx;
       let cy_ = fillY1 - (row + 0.5) * cellH + jy;
-      // Keep cookie centres inside the interior so the pile never spills out.
-      cx_ = Math.max(fillX0 + cs * 0.25, Math.min(fillX1 - cs * 0.25, cx_));
+      // Clamp centres so the full cookie circle stays inside the fill region.
+      const half = cs * 0.5;
+      cx_ = Math.max(fillX0 + half, Math.min(fillX1 - half, cx_));
+      cy_ = Math.max(fillY0 + half, Math.min(fillY1 - half, cy_));
       const isGold = milestoneFlashActive && (i === drawN - 1);
       const img = isGold ? IMG_GOLD : IMG_COOKIE;
       if (!img.complete || !img.naturalWidth) continue;
