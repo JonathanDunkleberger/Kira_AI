@@ -146,6 +146,20 @@ CONTROL_SERVER_PORT = int(os.getenv("CONTROL_SERVER_PORT", "8766"))
 # Chat batching config
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
+
+# Presence dial — probability that a bored-loop line becomes a question to chat.
+# One value per presence level (Sleepy / Normal / Chatty). The dial maps onto
+# EXISTING mode + carry behavior; these just make the chat-question rate tunable
+# per level instead of hardcoded in the observer loop.
+ASK_CHAT_P_SLEEPY = float(os.getenv("ASK_CHAT_P_SLEEPY", "0.05"))
+ASK_CHAT_P_NORMAL = float(os.getenv("ASK_CHAT_P_NORMAL", "0.15"))
+ASK_CHAT_P_CHATTY = float(os.getenv("ASK_CHAT_P_CHATTY", "0.25"))
+# Threshold multiplier per presence level — scales the observer-loop silence
+# thresholds. >1 = waits longer before speaking unprompted (sleepier);
+# <1 = fills dead air sooner (chattier).
+PRESENCE_THRESHOLD_MULT_SLEEPY = float(os.getenv("PRESENCE_THRESHOLD_MULT_SLEEPY", "1.8"))
+PRESENCE_THRESHOLD_MULT_NORMAL = float(os.getenv("PRESENCE_THRESHOLD_MULT_NORMAL", "1.0"))
+PRESENCE_THRESHOLD_MULT_CHATTY = float(os.getenv("PRESENCE_THRESHOLD_MULT_CHATTY", "0.8"))
 ENABLE_CHATTER_MEMORY = os.getenv("ENABLE_CHATTER_MEMORY", "true").lower() == "true"
 # Twitch native polls require affiliate status. Set true only if you're affiliate;
 # otherwise [POLL:] tags get stripped silently (no failed API call).

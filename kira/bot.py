@@ -353,6 +353,9 @@ class VTubeBot:
         # VNAutopilot is passed this same instance at its own init time so both
         # consumers share one source of truth.
         self.kira_state = KiraState(self.ai_core)
+        # Restore prior-session attachment so the sentiment ledger COMPOUNDS
+        # across sessions instead of resetting in-RAM each launch.
+        self.kira_state.load_ledger()
         self.memory = MemoryManager()
         self.cookie_jar = CookieJar()
         self.vad = webrtcvad.Vad(VAD_AGGRESSIVENESS)
@@ -461,6 +464,12 @@ class VTubeBot:
         # OFF during VN sessions to avoid stacking.)
         self.carry_mode: bool = False
 
+        # Presence dial — a thin wrapper over EXISTING mode + carry + observer
+        # cadence. Maps to: Sleepy (raise thresholds, ~0.05 chat-Q),
+        # Normal (streamer baseline, ~0.15), Chatty (carry-like drive, ~0.25).
+        # Does NOT replace carry_mode — carry remains an independent override.
+        self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
+
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
         # caps (A4), Drive-mode initiative gating (B).
@@ -529,6 +538,8 @@ class VTubeBot:
         # Recent activity brief — generated at startup, cached for the session
         self.recent_activity_brief: str = ""
         self.recent_chatters_brief: str = ""
+        # Kira's own canonical favorites — loaded once at startup, injected every turn
+        self.kira_favorites_brief: str = ""
 
         # Per-chatter session-level message log (last 15 per chatter, this session only)
         self.session_chatter_logs: dict[str, list[dict]] = {}
@@ -3004,6 +3015,27 @@ class VTubeBot:
     GENERAL_OPINIONS_PATH = os.path.join("lore", "general_opinions.md")
     GENERAL_OPINIONS_BITS_MARKER = "## Running Bits"
     GENERAL_OPINIONS_OPINIONS_MARKER = "## General Opinions"
+    GENERAL_OPINIONS_FAVORITES_MARKER = "## Kira's Favorites"
+
+    def _load_kira_favorites(self) -> str:
+        """Read the '## Kira's Favorites' block from general_opinions.md.
+        This is Kira's OWN canonical taste (her picks, deliberately distinct from
+        Jonny's). Seeded by hand and preserved verbatim across session-end rewrites.
+        Returns '' if the file or section doesn't exist."""
+        try:
+            if not os.path.exists(self.GENERAL_OPINIONS_PATH):
+                return ""
+            with open(self.GENERAL_OPINIONS_PATH, "r", encoding="utf-8") as f:
+                content = f.read()
+            if self.GENERAL_OPINIONS_FAVORITES_MARKER not in content:
+                return ""
+            after = content.split(self.GENERAL_OPINIONS_FAVORITES_MARKER, 1)[1]
+            if "\n## " in after:
+                after = after[:after.index("\n## ")]
+            return after.strip()
+        except Exception as e:
+            print(f"   [GeneralOpinions] Favorites load failed: {e}")
+            return ""
 
     def _load_general_opinions(self) -> tuple[str, list[str]]:
         """Read general_opinions.md. Returns (opinions_block, bits_list).
@@ -3088,9 +3120,16 @@ class VTubeBot:
             )
             if result and len(result.strip()) > 50:
                 os.makedirs("lore", exist_ok=True)
+                # Preserve Kira's hand-seeded favorites verbatim — the Sonnet
+                # rewrite only regenerates Opinions + Running Bits, so we re-emit
+                # the favorites block ourselves or it would be lost.
+                _favorites = self._load_kira_favorites()
                 with open(self.GENERAL_OPINIONS_PATH, "w", encoding="utf-8") as f:
                     f.write(f"# Kira — General Opinions & Running Bits\n\n")
                     f.write(f"*Updated: {datetime.now().strftime('%Y-%m-%d')}*\n\n")
+                    if _favorites:
+                        f.write(f"{self.GENERAL_OPINIONS_FAVORITES_MARKER}\n")
+                        f.write(f"{_favorites}\n\n")
                     f.write(result.strip())
                     f.write("\n")
                 print(f"   [GeneralOpinions] Written → {self.GENERAL_OPINIONS_PATH}")
@@ -3338,6 +3377,10 @@ class VTubeBot:
         # === A3-B: Load persisted general opinions + running bits ===
         try:
             gen_opinions, gen_bits = self._load_general_opinions()
+            # Load Kira's own canonical favorites (her taste, not Jonny's)
+            self.kira_favorites_brief = self._load_kira_favorites()
+            if self.kira_favorites_brief:
+                print(f"   [StartupBrief] Loaded Kira's favorites ({len(self.kira_favorites_brief)} chars)")
             # Prepend general opinions to the activity brief so it shapes WHO SHE IS
             if gen_opinions and self.recent_activity_brief:
                 self.recent_activity_brief = (
@@ -5447,6 +5490,14 @@ class VTubeBot:
         except Exception as e:
             print(f"   [Artifacts] General opinions persist failed: {e}")
 
+        # ── STAGE 5b: Persist sentiment ledger so attachment compounds. ──
+        # Cross-session continuity for per-entity attachment (the one piece of
+        # agency state that should grow over time rather than reset each launch).
+        try:
+            self.kira_state.save_ledger()
+        except Exception as e:
+            print(f"   [Artifacts] Sentiment ledger persist failed: {e}")
+
         # ── Auto-delete raw dump if lore + clips both succeeded ──────────────
         # Raw dump's only purpose is crash-recovery backfill. Once lore and clips
         # are generated it's redundant. If either write failed, keep it for backfill_lore.py.
@@ -5718,7 +5769,17 @@ class VTubeBot:
                 # no chat — it's just Jonny.
                 # Carry Mode bumps to 0.25 — still capped because chat-spam is the
                 # worst failure mode even when Kira is carrying momentum.
-                _ask_chat_p = 0.25 if self.carry_mode else 0.15
+                # Presence dial sets the base rate per level (config-driven);
+                # carry_mode still bumps to the Chatty rate as an override.
+                from kira.config import (
+                    ASK_CHAT_P_SLEEPY, ASK_CHAT_P_NORMAL, ASK_CHAT_P_CHATTY,
+                )
+                _presence_p = (
+                    ASK_CHAT_P_SLEEPY if self.presence_level == "sleepy"
+                    else ASK_CHAT_P_CHATTY if self.presence_level == "chatty"
+                    else ASK_CHAT_P_NORMAL
+                )
+                _ask_chat_p = max(_presence_p, ASK_CHAT_P_CHATTY if self.carry_mode else 0.0)
                 ask_chat = (self.mode == "streamer") and (random.random() < _ask_chat_p)
                 chat_question_directive = (
                     "\n\nINSTEAD of an observation this time: ask CHAT one short, genuine question. "
@@ -5734,7 +5795,9 @@ class VTubeBot:
                 #   3. Companion mode (45s/90s) — unchanged, reserved baseline
                 # Cutscene gate above this block already skips the tick entirely,
                 # so these thresholds only fire during genuine dead air.
-                if self.carry_mode:
+                # Presence "chatty" maps to carry-like drive without the manual toggle.
+                _carrying = self.carry_mode or self.presence_level == "chatty"
+                if _carrying:
                     stage1_threshold = 30.0
                     stage2_threshold = 60.0
                 elif self.mode == "streamer":
@@ -5744,6 +5807,21 @@ class VTubeBot:
                     stage1_threshold = self.silence_thresholds[1]
                     stage2_threshold = self.silence_thresholds[2]
 
+                # Presence dial threshold multiplier — Sleepy stretches the silence
+                # windows (waits longer before filling dead air); Chatty tightens
+                # them. Normal is 1.0 (no-op). Applied on top of the mode/carry base.
+                from kira.config import (
+                    PRESENCE_THRESHOLD_MULT_SLEEPY, PRESENCE_THRESHOLD_MULT_NORMAL,
+                    PRESENCE_THRESHOLD_MULT_CHATTY,
+                )
+                _presence_mult = (
+                    PRESENCE_THRESHOLD_MULT_SLEEPY if self.presence_level == "sleepy"
+                    else PRESENCE_THRESHOLD_MULT_CHATTY if self.presence_level == "chatty"
+                    else PRESENCE_THRESHOLD_MULT_NORMAL
+                )
+                stage1_threshold *= _presence_mult
+                stage2_threshold *= _presence_mult
+
                 # B — Moment-aware threshold tilt (NOT a hard mute — keeps interjecting
                 # during boss fights, just less aggressively). TENSE moments raise both
                 # thresholds by ~30% so she stays quieter mid-action without going silent.
@@ -5751,7 +5829,7 @@ class VTubeBot:
                 if _moment == SessionIntensity.TENSE:
                     stage1_threshold = stage1_threshold * 1.3
                     stage2_threshold = stage2_threshold * 1.3
-                elif _moment == SessionIntensity.CALM and self.carry_mode:
+                elif _moment == SessionIntensity.CALM and _carrying:
                     stage1_threshold = stage1_threshold * 0.8
 
                 # Helper: assemble scene + rolling narrative summary so interjections
@@ -6651,6 +6729,15 @@ class VTubeBot:
                         f"session, not external information to cite. Let them shape how you react; "
                         f"don\u2019t recite them. Do NOT open the session by referencing this material — "
                         f"let it surface only when a moment naturally invites it.]\n{self.recent_activity_brief}"
+                    )
+                # Kira's OWN favorites — answer "what's YOUR favorite" from HERE, never from Jonny's facts
+                if self.kira_favorites_brief:
+                    dynamic_context += (
+                        f"\n\n[YOUR OWN FAVORITES \u2014 these are YOUR picks, not Jonny\u2019s. When someone asks "
+                        f"\u201cwhat\u2019s YOUR favorite\u201d / \u201cyour top X\u201d / \u201cwhat do YOU think,\u201d answer from THIS list "
+                        f"and commit to it flatly. NEVER borrow Jonny\u2019s favorites or default to a safe/popular pick. "
+                        f"If a category isn\u2019t covered here, invent a specific take on the spot and own it \u2014 no hedging, "
+                        f"no \u201cI don\u2019t really have one.\u201d]\n{self.kira_favorites_brief}"
                     )
                 if self.recent_chatters_brief:
                     dynamic_context += (

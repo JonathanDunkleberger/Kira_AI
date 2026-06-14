@@ -894,6 +894,15 @@ html, body {
             </label>
           </div>
 
+          <div class="toggle-row" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <span class="toggle-label">Presence</span>
+            <div class="pill-group">
+              <div class="pill" id="pill-presence-sleepy" onclick="setPresence('sleepy')">😴 Sleepy</div>
+              <div class="pill" id="pill-presence-normal" onclick="setPresence('normal')">🙂 Normal</div>
+              <div class="pill" id="pill-presence-chatty" onclick="setPresence('chatty')">💬 Chatty</div>
+            </div>
+          </div>
+
           <div class="row">
             <div class="field">
               <label>Activity name</label>
@@ -1504,6 +1513,7 @@ function renderRail(s) {
 // ── PANELS (sync controls to snapshot, no interaction needed) ─
 let _prevTtsBackend = null;
 let _prevMode = null;
+let _prevPresence = null;
 
 function renderPanels(s) {
   // Vision / mode / media-watch / carry switches render via setTri() below
@@ -1566,6 +1576,15 @@ function renderPanels(s) {
     _prevMode = m;
     document.getElementById('pill-companion').classList.toggle('active', m === 'companion');
     document.getElementById('pill-streamer').classList.toggle('active',  m === 'streamer');
+  }
+
+  // Presence pills
+  const pl = s.presence_level || 'normal';
+  if (pl !== _prevPresence) {
+    _prevPresence = pl;
+    document.getElementById('pill-presence-sleepy').classList.toggle('active', pl === 'sleepy');
+    document.getElementById('pill-presence-normal').classList.toggle('active', pl === 'normal');
+    document.getElementById('pill-presence-chatty').classList.toggle('active', pl === 'chatty');
   }
 
   // TTS pills
@@ -1709,6 +1728,11 @@ function goActivity() {
 function setMode(m) {
   if (_snap.mode === m) return;
   cmd('mode_toggle');
+}
+
+function setPresence(level) {
+  if (_snap.presence_level === level) return;
+  cmd('set_presence', { presence: level });
 }
 
 function setTts(backend) {

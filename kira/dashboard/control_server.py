@@ -161,6 +161,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     mode = _get(lambda: bot.mode, "companion")
     carry_mode = _get(lambda: bot.carry_mode, False)
     immersive = _get(lambda: bot.immersive, False)
+    presence_level = _get(lambda: bot.presence_level, "normal")
 
     # ── Effective (post-reconcile) state — the single truth both UIs render ───
     effective = _get(lambda: bot._compute_effective_state(), {}) or {}
@@ -311,6 +312,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "mode": mode,
         "carry_mode": carry_mode,
         "immersive": immersive,
+        "presence_level": presence_level,
         # Effective state (post-reconcile) — strip + three-state toggles render
         # from THIS, never from the raw toggle booleans above.
         "effective": effective,
@@ -785,6 +787,9 @@ class _CmdBody(BaseModel):
     # ── Generic text payload (test_banner, etc.)
     text:   str | None = None
 
+    # ── Presence dial level (sleepy | normal | chatty)
+    presence: str | None = None
+
 
 def _ok(**kwargs) -> dict:
     return {"ok": True, **kwargs}
@@ -930,6 +935,14 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "carry_mode_toggle":
         bot.carry_mode = not bot.carry_mode
         return _ok(carry_mode=bot.carry_mode)
+
+    # ── Presence dial ─────────────────────────────────────────────────────────
+    if action == "set_presence":
+        level = str(getattr(body, "presence", None) or "").strip().lower()
+        if level not in ("sleepy", "normal", "chatty"):
+            return _err("presence must be one of: sleepy, normal, chatty")
+        bot.presence_level = level
+        return _ok(presence_level=bot.presence_level)
 
     # ── VN Autopilot ──────────────────────────────────────────────────────────
     if action == "autopilot_toggle":

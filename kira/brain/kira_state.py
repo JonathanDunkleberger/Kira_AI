@@ -15,6 +15,8 @@
 
 import asyncio
 import enum
+import json
+import os
 import re
 import time
 
@@ -256,6 +258,65 @@ class KiraState:
             1.0, max(self.sentiment_ledger.get(speaker, 0.0), raw)
         )
         self._touch_entity(speaker)
+
+    # ── A. Stakes — cross-session persistence ──────────────────────────────────
+    # The sentiment ledger and familiarity counts are the ONLY agency state that
+    # should COMPOUND across sessions: attachment to a recurring character/person
+    # grows the more she's been around them. Theories, called-shots, intensity,
+    # and the narrative summary are intentionally session-scoped and NOT persisted.
+    LEDGER_PERSIST_PATH = os.path.join("memory_db", "sentiment_ledger.json")
+
+    def save_ledger(self) -> None:
+        """Persist sentiment_ledger + entity_familiarity to disk so attachment
+        compounds across sessions instead of resetting in-RAM. Called at session
+        end. Best-effort: never raises into the caller."""
+        try:
+            if not self.entity_familiarity and not self.sentiment_ledger:
+                return  # nothing earned this session — don't clobber prior file
+            os.makedirs(os.path.dirname(self.LEDGER_PERSIST_PATH), exist_ok=True)
+            payload = {
+                "saved_at": time.time(),
+                "entity_familiarity": dict(self.entity_familiarity),
+                "sentiment_ledger": {k: round(v, 4) for k, v in self.sentiment_ledger.items()},
+            }
+            with open(self.LEDGER_PERSIST_PATH, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+            print(f"   [KiraState] Sentiment ledger saved ({len(self.sentiment_ledger)} entities) → {self.LEDGER_PERSIST_PATH}")
+        except Exception as e:
+            print(f"   [KiraState] Ledger save failed: {e}")
+
+    def load_ledger(self) -> None:
+        """Restore sentiment_ledger + entity_familiarity from disk at startup so
+        prior-session attachment is the baseline this session keeps ramping from.
+        Best-effort: a missing/corrupt file leaves the in-RAM ledgers empty."""
+        try:
+            if not os.path.exists(self.LEDGER_PERSIST_PATH):
+                return
+            with open(self.LEDGER_PERSIST_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            fam = data.get("entity_familiarity", {})
+            sent = data.get("sentiment_ledger", {})
+            if isinstance(fam, dict):
+                for name, count in fam.items():
+                    try:
+                        self.entity_familiarity[name] = int(count)
+                    except (TypeError, ValueError):
+                        continue
+            if isinstance(sent, dict):
+                for name, val in sent.items():
+                    try:
+                        self.sentiment_ledger[name] = max(0.0, min(1.0, float(val)))
+                    except (TypeError, ValueError):
+                        continue
+            # Enforce the LRU cap on the restored set (oldest insertion evicted).
+            while len(self.entity_familiarity) > self._LEDGER_MAX:
+                oldest = next(iter(self.entity_familiarity))
+                self.entity_familiarity.pop(oldest, None)
+                self.sentiment_ledger.pop(oldest, None)
+            if self.sentiment_ledger:
+                print(f"   [KiraState] Sentiment ledger loaded ({len(self.sentiment_ledger)} entities) — attachment compounding from prior sessions")
+        except Exception as e:
+            print(f"   [KiraState] Ledger load failed: {e}")
 
     # ── A. Stakes — narrative weight (for VN pacing callers) ──────────────────
 
