@@ -722,6 +722,8 @@ async def ws_overlays(ws: WebSocket):
     """
     import json as _j
     await _overlay_ws_manager.connect(ws)
+    print(f"   [Overlay] connected → /ws/overlays now has "
+          f"{len(_overlay_ws_manager._clients)} client(s)")
     try:
         await ws.send_text(_j.dumps({"type": "overlay_vis", **_overlay_vis}))
         # Send current chess score state so the score overlay is correct on reconnect
@@ -1304,8 +1306,22 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             if snap.get("status") not in ("ready", "done"):
                 return _err("Nothing to perform — prepare a show first")
             speak = bot.ai_core.speak_text
+
+            # Logged push wrapper: prints how many /ws/overlays clients each scene
+            # is broadcast to, so a "nothing in OBS" can be told apart (0 clients =
+            # overlay not connected; >0 = it's receiving and the issue is rendering).
+            async def _logged_push(event: dict) -> None:
+                n = len(_overlay_ws_manager._clients)
+                etype = event.get("type", "?")
+                if etype == "scene_show":
+                    print(f"   [Storytime] scene_show beat {event.get('idx')} "
+                          f"→ {n} overlay client(s): {event.get('src')}")
+                elif etype == "scene_hide":
+                    print(f"   [Storytime] scene_hide → {n} overlay client(s)")
+                await push_overlay_event(event)
+
             bot.event_loop.call_soon_threadsafe(
-                lambda: asyncio.ensure_future(st.perform(speak, push_overlay_event))
+                lambda: asyncio.ensure_future(st.perform(speak, _logged_push))
             )
             return _ok(status="performing")
 

@@ -106,11 +106,13 @@ function connect() {
   let ws;
   try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
 
+  ws.onopen = function() { console.log('[PuppetOverlay] connected to', WS_URL); };
+
   ws.onmessage = function(ev) {
     let msg;
     try { msg = JSON.parse(ev.data); } catch { return; }
     switch (msg.type) {
-      case 'scene_show': showScene(msg.src, msg.crossfade_ms); break;
+      case 'scene_show': console.log('[PuppetOverlay] scene_show', msg.idx, msg.src); showScene(msg.src, msg.crossfade_ms); break;
       case 'scene_hide': hideScene(msg.crossfade_ms);          break;
     }
   };
