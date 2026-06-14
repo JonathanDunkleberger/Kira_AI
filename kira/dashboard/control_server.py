@@ -810,6 +810,10 @@ class _CmdBody(BaseModel):
     number: int | None = None              # clue number
     by: str | None = None                  # "me" | "opponent"
     targets: list[str] | str | None = None # intended clue targets (safety check)
+    # Storytime / Puppet Show
+    theme: str | None = None               # one-line story theme
+    beats: int | None = None               # how many scene beats to write
+    idx: int | None = None                 # beat index (regenerate one scene)
 
     # ── Stream screen fields (for screen_text command)
     screen: str | None = None
@@ -1234,6 +1238,58 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _ok(**cn.snapshot())
 
         return _err(f"Unknown codenames action '{action}'")
+
+    # ── Storytime / Puppet Show ───────────────────────────────────────────────
+    # GENERATE-THEN-PERFORM, review-gated. prepare writes a script + pre-gens all
+    # scene images; the dashboard reviews/re-rolls; perform plays it live. Long
+    # async work is scheduled onto the bot loop; the dashboard polls *_state.
+    if action.startswith("storytime_"):
+        st = getattr(bot, "storytime", None)
+        if st is None:
+            return _err("storytime not initialized")
+
+        if action == "storytime_state":
+            return _ok(**st.snapshot())
+
+        if action == "storytime_prepare":
+            if st.snapshot().get("busy"):
+                return _err("Storytime is busy — wait for the current step to finish")
+            theme = (body.theme or body.text or body.title or "").strip()
+            n_beats = int(body.beats) if body.beats is not None else 16
+            bot.event_loop.call_soon_threadsafe(
+                lambda: asyncio.ensure_future(st.prepare(theme, n_beats))
+            )
+            return _ok(status="scripting")
+
+        if action == "storytime_regenerate":
+            if body.idx is None:
+                return _err("regenerate needs 'idx'")
+            if st.snapshot().get("busy"):
+                return _err("Storytime is busy — wait for the current step to finish")
+            bot.event_loop.call_soon_threadsafe(
+                lambda: asyncio.ensure_future(st.regenerate_beat(int(body.idx)))
+            )
+            return _ok(status="generating")
+
+        if action == "storytime_perform":
+            snap = st.snapshot()
+            if snap.get("status") not in ("ready", "done"):
+                return _err("Nothing to perform — prepare a show first")
+            speak = bot.ai_core.speak_text
+            bot.event_loop.call_soon_threadsafe(
+                lambda: asyncio.ensure_future(st.perform(speak, push_overlay_event))
+            )
+            return _ok(status="performing")
+
+        if action == "storytime_stop":
+            st.stop()
+            return _ok(status="stopping")
+
+        if action == "storytime_reset":
+            st.reset()
+            return _ok(status="idle")
+
+        return _err(f"Unknown storytime action '{action}'")
 
     # ── Interrupt / Mute / Pause ──────────────────────────────────────────────
     # NOTE: F8/F9 global hotkeys registered in dashboard.py are UNTOUCHED.

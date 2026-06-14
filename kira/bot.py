@@ -63,6 +63,7 @@ from kira.brain.kira_state import KiraState, SessionIntensity
 from kira.senses.media_watch import MediaWatch
 from kira.chess.chess_agent import ChessAgent
 from kira.games import CodenamesState
+from kira.storytime import StorytimeShow
 from kira.memory.playthrough_memory import PlaythroughMemory
 from kira.expression.vts_expression_controller import VTSExpressionController
 
@@ -456,6 +457,11 @@ class VTubeBot:
         # a game is started from the dashboard; the state block is only injected
         # while active. Lightweight in-memory model, no engine — instantiate now.
         self.codenames: CodenamesState = CodenamesState()
+
+        # Storytime / Puppet Show — pre-generated shadow-puppet shows, review-gated
+        # like the diary. Fully additive: builds its image provider lazily on first
+        # prepare, so an absent SDK/key never affects startup. Idle until armed.
+        self.storytime: StorytimeShow = StorytimeShow()
 
         # Playthrough Memory — initialized in _main_loop once ai_core is ready
         self.playthrough_memory: PlaythroughMemory | None = None

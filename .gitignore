@@ -56,6 +56,10 @@ transcripts/
 !web_dashboard/assets/**
 !web_dashboard/screens/*.png
 
+# Storytime / Puppet Show: per-show generated scene art + manifests (ephemeral,
+# regenerated each show — never committed).
+/web_dashboard/storytime/
+
 # OS
 .DS_Store
 Thumbs.db

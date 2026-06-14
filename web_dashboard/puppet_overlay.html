@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!--
+  puppet_overlay.html — Storytime / Puppet Show scene overlay
+  OBS Browser Source: 1920x1080, transparent background.
+  Connects to ws://localhost:8766/ws/overlays
+  Events:
+    scene_show  { src, idx, crossfade_ms }  — fade in a new scene image
+    scene_hide  {}                          — fade out (show ended)
+  Isolated from other overlays: only reacts to scene_show / scene_hide, so it can
+  share the same /ws/overlays bus as the cards/banner without interfering.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px; height: 1080px;
+  background: transparent;
+  overflow: hidden;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  display: none;            /* shown on first scene_show */
+}
+
+/* Two stacked layers so we can crossfade A↔B without a flash. */
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: contain;       /* never crop the silhouette art */
+  opacity: 0;
+  transition: opacity 700ms ease-in-out;
+  /* warm theatre glow behind the parchment art */
+  filter: drop-shadow(0 0 60px rgba(255, 190, 120, 0.18));
+}
+.scene.visible { opacity: 1; }
+
+/* Subtle, slow Ken-Burns drift to keep a static image alive on screen. */
+@keyframes drift {
+  0%   { transform: scale(1.00) translate(0, 0); }
+  100% { transform: scale(1.06) translate(-1.2%, -0.8%); }
+}
+.scene.drift { animation: drift 22s ease-out forwards; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="scene-a" class="scene" alt="">
+  <img id="scene-b" class="scene" alt="">
+</div>
+
+<script>
+/* ── Configuration ─────────────────────────────────── */
+const WS_URL       = 'ws://localhost:8766/ws/overlays';
+const RECONNECT_MS = 3000;
+const DEFAULT_FADE = 700;
+
+const $stage = document.getElementById('stage');
+const $a     = document.getElementById('scene-a');
+const $b     = document.getElementById('scene-b');
+
+let _front = $a;   // currently-visible layer
+let _back  = $b;   // layer we load the next scene into
+
+function _setFade(ms) {
+  const dur = (ms || DEFAULT_FADE) + 'ms';
+  $a.style.transitionDuration = dur;
+  $b.style.transitionDuration = dur;
+}
+
+function showScene(src, crossfadeMs) {
+  if (!src) return;
+  _setFade(crossfadeMs);
+  $stage.style.display = 'block';
+
+  // Load into the back layer, then crossfade.
+  _back.classList.remove('visible', 'drift');
+  _back.onload = function() {
+    void _back.offsetWidth;          // reflow so the transition runs
+    _back.classList.add('visible', 'drift');
+    _front.classList.remove('visible');
+    // swap roles
+    const tmp = _front; _front = _back; _back = tmp;
+  };
+  _back.onerror = function() {
+    console.warn('[puppet] failed to load scene', src);
+  };
+  _back.src = src;
+}
+
+function hideScene(crossfadeMs) {
+  _setFade(crossfadeMs);
+  $a.classList.remove('visible', 'drift');
+  $b.classList.remove('visible', 'drift');
+  setTimeout(() => { $stage.style.display = 'none'; }, (crossfadeMs || DEFAULT_FADE) + 50);
+}
+
+/* ── WebSocket ─────────────────────────────────────── */
+function connect() {
+  let ws;
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
+
+  ws.onmessage = function(ev) {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+    switch (msg.type) {
+      case 'scene_show': showScene(msg.src, msg.crossfade_ms); break;
+      case 'scene_hide': hideScene(msg.crossfade_ms);          break;
+    }
+  };
+
+  ws.onclose = function() { setTimeout(connect, RECONNECT_MS); };
+  ws.onerror = function() { ws.close(); };
+}
+
+connect();
+</script>
+</body>
+</html>

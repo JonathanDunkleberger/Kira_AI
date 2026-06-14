@@ -210,6 +210,16 @@ ENABLE_CLAUDE_STREAMING = os.getenv("ENABLE_CLAUDE_STREAMING", "true").lower() =
 # AudD audio fingerprinting (paid API; only fires on explicit user song-ID intent).
 AUDD_API_TOKEN = os.getenv("AUDD_API_TOKEN", "")
 
+# Storytime / Puppet Show (pre-generated shadow-puppet shows).
+# Image generation uses Google Gemini 2.5 Flash Image ("Nano-Banana") for its
+# style/character consistency. The key below is a FRESH Google AI Studio key,
+# SEPARATE from GOOGLE_API_KEY (which is Custom Search). Do not conflate them.
+GEMINI_IMAGE_API_KEY = os.getenv("GEMINI_IMAGE_API_KEY", "")
+GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
+# Which image provider the Storytime pipeline uses. Swappable: the client is a
+# provider-agnostic module, so this can change without touching the orchestrator.
+STORYTIME_IMAGE_PROVIDER = os.getenv("STORYTIME_IMAGE_PROVIDER", "gemini").lower()
+
 # Cutscene-aware observer suppression — only active during ACTIVITY_GAME mode.
 # When true, the observer loop and per-turn triage check for cutscene cues
 # (vision scene summary + audio mood keywords) and suppress interjections while

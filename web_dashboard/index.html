@@ -1104,6 +1104,37 @@ html, body {
         </div>
       </div><!-- /panel-vn -->
 
+      <!-- ─ PANEL: STORYTIME ─ -->
+      <div class="panel" id="panel-storytime">
+        <div class="panel-header" onclick="togglePanel('panel-storytime')">
+          🎭 Storytime <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="status-text" id="st-status">🎭 idle</div>
+
+          <div class="field">
+            <label>Story theme</label>
+            <textarea id="st-theme" rows="2" placeholder="e.g. a lonely lighthouse keeper who befriends the fog" style="width:100%;resize:vertical"></textarea>
+            <div class="row" style="gap:6px;margin-top:4px">
+              <input type="number" id="st-beats" min="6" max="24" value="16" title="scene beats" style="width:70px">
+              <button class="btn" onclick="storytimePrepare(this)" style="flex:1">Generate Show</button>
+              <button class="btn" onclick="storytimeReset(this)">Reset</button>
+            </div>
+            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Writes the script + pre-generates every scene. Review below before performing — nothing goes live unseen.</div>
+          </div>
+
+          <div id="st-beats-grid" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
+
+          <div class="row" style="gap:6px;margin-top:8px">
+            <button class="btn" id="st-perform-btn" onclick="storytimePerform(this)" style="flex:1" disabled>▶ Perform Live</button>
+            <button class="btn" onclick="storytimeStop(this)">■ Stop</button>
+          </div>
+          <div style="font-size:.66rem;color:var(--text-muted);margin-top:4px">Overlay source: <code>/web_dashboard/puppet_overlay.html</code> (add as an OBS browser source, 1920×1080).</div>
+
+        </div>
+      </div><!-- /panel-storytime -->
+
       <!-- ─ PANEL: VOICE ─ -->
       <div class="panel" id="panel-voice">
         <div class="panel-header" onclick="togglePanel('panel-voice')">
@@ -1980,6 +2011,91 @@ function codenamesGuess(btnEl) {
     _cnRenderStatus(data);
     if (data && data.ok !== false) document.getElementById('cn-guess-word').value = '';
   });
+}
+
+// ── Storytime / Puppet Show ───────────────────────────────────────────────
+let _stPollTimer = null;
+
+function _stRender(data) {
+  if (!data || data.ok === false) return;
+  const statusEl = document.getElementById('st-status');
+  const icon = {idle:'🎭', scripting:'✍', generating:'🎨', ready:'✅',
+                performing:'▶', done:'🏁', error:'⚠'}[data.status] || '🎭';
+  let line = `${icon} ${data.status || 'idle'}`;
+  if (data.title)    line += ` · "${data.title}"`;
+  if (data.progress) line += ` · ${data.progress}`;
+  if (data.error)    line += ` · ${data.error}`;
+  if (statusEl) statusEl.textContent = line;
+
+  // Beat grid with thumbnails.
+  const grid = document.getElementById('st-beats-grid');
+  if (grid) {
+    grid.innerHTML = '';
+    (data.beats || []).forEach(b => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border,#333);border-radius:6px;padding:6px';
+      const thumb = b.url
+        ? `<img src="${b.url}" style="width:96px;height:54px;object-fit:cover;border-radius:4px;background:#000" alt="scene ${b.idx}">`
+        : `<div style="width:96px;height:54px;border-radius:4px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#888">${b.status}</div>`;
+      row.innerHTML = `
+        ${thumb}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.62rem;color:var(--text-muted)">#${b.idx} · ${b.status}${b.error ? ' · '+b.error : ''}</div>
+          <div style="font-size:.7rem;line-height:1.25;max-height:48px;overflow:hidden">${(b.narration||'').replace(/</g,'&lt;')}</div>
+        </div>`;
+      const reroll = document.createElement('button');
+      reroll.className = 'btn';
+      reroll.textContent = '↻';
+      reroll.title = 'Regenerate this scene';
+      reroll.style.cssText = 'flex:0 0 auto;padding:2px 8px';
+      reroll.onclick = () => storytimeRegenerate(b.idx, reroll);
+      row.appendChild(reroll);
+      grid.appendChild(row);
+    });
+  }
+
+  // Enable Perform only when a reviewable show exists.
+  const perform = document.getElementById('st-perform-btn');
+  if (perform) perform.disabled = !(data.status === 'ready' || data.status === 'done');
+
+  // Poll while async work is in flight.
+  const live = (data.status === 'scripting' || data.status === 'generating' || data.busy);
+  if (live && !_stPollTimer) {
+    _stPollTimer = setInterval(storytimeRefresh, 1500);
+  } else if (!live && _stPollTimer) {
+    clearInterval(_stPollTimer); _stPollTimer = null;
+  }
+}
+
+function storytimeRefresh() {
+  cmd('storytime_state', {}).then(_stRender);
+}
+
+function storytimePrepare(btnEl) {
+  const theme = document.getElementById('st-theme').value.trim();
+  const beats = parseInt(document.getElementById('st-beats').value, 10) || 16;
+  if (!theme) { flashBtn(btnEl, false); return; }
+  cmd('storytime_prepare', {theme, beats}, btnEl).then(d => {
+    _stRender({ok:true, status:'scripting'});
+    setTimeout(storytimeRefresh, 800);
+  });
+}
+
+function storytimeRegenerate(idx, btnEl) {
+  cmd('storytime_regenerate', {idx}, btnEl).then(() => setTimeout(storytimeRefresh, 800));
+}
+
+function storytimePerform(btnEl) {
+  if (!confirm('Perform this show live on stream now?')) return;
+  cmd('storytime_perform', {}, btnEl).then(storytimeRefresh);
+}
+
+function storytimeStop(btnEl) {
+  cmd('storytime_stop', {}, btnEl).then(storytimeRefresh);
+}
+
+function storytimeReset(btnEl) {
+  cmd('storytime_reset', {}, btnEl).then(() => _stRender({ok:true, status:'idle', beats:[]}));
 }
 
 function ytConnect() {

@@ -50,3 +50,6 @@ chess
 # import; reports the entire GPU's used/total so headroom is visible during
 # AAA sessions (torch's allocator only sees Kira's own footprint).
 nvidia-ml-py
+# Storytime / Puppet Show image generation (Google Gemini 2.5 Flash Image,
+# "Nano-Banana"). Provider-agnostic client; swap out without touching the show.
+google-genai
