@@ -27,7 +27,7 @@ import time
 from pathlib import Path
 
 from .image_client import ImageGenError, ImageProvider, get_image_provider
-from .script_writer import STYLE_PREAMBLE, generate_script
+from .script_writer import STYLE_PREAMBLE, generate_script, rewrite_beat
 
 # Repo root → kira/storytime/show.py is two levels under the package root.
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -94,6 +94,7 @@ class StorytimeShow:
         self.error: str = ""
         self.title: str = ""
         self.theme: str = ""
+        self.preset: str = ""
         self.show_id: str = ""
         self.beats: list[Beat] = []
         self._dir: Path | None = None
@@ -121,9 +122,10 @@ class StorytimeShow:
 
     # ── Prepare (script + batch pre-gen) ─────────────────────────────────────
 
-    async def prepare(self, theme: str, n_beats: int = 16) -> None:
+    async def prepare(self, theme: str, n_beats: int = 16, preset: str = "") -> None:
         """Write the script, then pre-generate every scene image. On completion
         status is READY (even if some beats errored — those can be regenerated).
+        `preset` steers tone/structure (see script_writer.PRESETS).
         """
         if self._busy:
             return
@@ -131,9 +133,12 @@ class StorytimeShow:
         try:
             self.reset(keep_busy=True)
             self.theme = (theme or "").strip()
+            self.preset = (preset or "").strip()
             self._set_status(SCRIPTING)
             try:
-                script = await generate_script(self.theme or "a quiet little fable", n_beats)
+                script = await generate_script(
+                    self.theme or "a quiet little fable", n_beats, self.preset or None
+                )
             except Exception as e:
                 self._set_status(ERROR_SHOW, f"script failed: {e}")
                 return
@@ -177,6 +182,49 @@ class StorytimeShow:
             return
         self._busy = True
         try:
+            if idx == 0:
+                await self._gen_one(0, reference=None)
+                if self.beats[0].status == DONE:
+                    self._anchor_bytes = self._read_scene_bytes(0)
+            else:
+                await self._gen_one(idx, reference=self._anchor_bytes)
+        finally:
+            self._busy = False
+
+    def edit_beat_narration(self, idx: int, narration: str) -> bool:
+        """Hand-edit a single beat's spoken line (review-gate text fix). Synchronous,
+        leaves the image untouched. Returns True if applied."""
+        if idx < 0 or idx >= len(self.beats):
+            return False
+        self.beats[idx].narration = (narration or "").strip()
+        return True
+
+    async def rewrite_beat_script(self, idx: int, note: str = "") -> None:
+        """AI-rewrite ONE beat's script (narration + image_prompt) in the context of
+        the surrounding story, then regenerate just that beat's image to match. The
+        rest of the show is untouched — the single-beat analogue of an image re-roll."""
+        if self._busy:
+            return
+        if idx < 0 or idx >= len(self.beats):
+            return
+        self._busy = True
+        try:
+            beats_ctx = [
+                {"narration": b.narration, "image_prompt": b.image_prompt}
+                for b in self.beats
+            ]
+            try:
+                new = await rewrite_beat(
+                    self.theme, self.title, beats_ctx, idx, self.preset or None, note
+                )
+            except Exception as e:
+                self.beats[idx].error = f"rewrite failed: {e}"
+                return
+            beat = self.beats[idx]
+            beat.narration = new.get("narration", beat.narration) or beat.narration
+            beat.image_prompt = new.get("image_prompt", beat.image_prompt) or beat.image_prompt
+            beat.error = ""
+            # The image is now stale — regenerate it to match the new prompt.
             if idx == 0:
                 await self._gen_one(0, reference=None)
                 if self.beats[0].status == DONE:
@@ -313,6 +361,7 @@ class StorytimeShow:
         self.error = ""
         self.title = ""
         self.theme = ""
+        self.preset = ""
         self.show_id = ""
         self.beats = []
         self._dir = None
@@ -328,6 +377,7 @@ class StorytimeShow:
             "error": self.error,
             "title": self.title,
             "theme": self.theme,
+            "preset": self.preset,
             "show_id": self.show_id,
             "busy": self._busy,
             "progress": f"{done}/{len(self.beats)}" if self.beats else "0/0",

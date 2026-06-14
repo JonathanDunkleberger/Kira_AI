@@ -814,6 +814,9 @@ class _CmdBody(BaseModel):
     theme: str | None = None               # one-line story theme
     beats: int | None = None               # how many scene beats to write
     idx: int | None = None                 # beat index (regenerate one scene)
+    preset: str | None = None              # structure/tone preset key
+    note: str | None = None                # operator note for a single-beat rewrite
+    narration: str | None = None           # hand-edited narration for one beat
 
     # ── Stream screen fields (for screen_text command)
     screen: str | None = None
@@ -1251,13 +1254,18 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if action == "storytime_state":
             return _ok(**st.snapshot())
 
+        if action == "storytime_presets":
+            from kira.storytime.script_writer import list_presets
+            return _ok(presets=list_presets())
+
         if action == "storytime_prepare":
             if st.snapshot().get("busy"):
                 return _err("Storytime is busy — wait for the current step to finish")
             theme = (body.theme or body.text or body.title or "").strip()
             n_beats = int(body.beats) if body.beats is not None else 16
+            preset = (body.preset or "").strip()
             bot.event_loop.call_soon_threadsafe(
-                lambda: asyncio.ensure_future(st.prepare(theme, n_beats))
+                lambda: asyncio.ensure_future(st.prepare(theme, n_beats, preset))
             )
             return _ok(status="scripting")
 
@@ -1268,6 +1276,26 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                 return _err("Storytime is busy — wait for the current step to finish")
             bot.event_loop.call_soon_threadsafe(
                 lambda: asyncio.ensure_future(st.regenerate_beat(int(body.idx)))
+            )
+            return _ok(status="generating")
+
+        if action == "storytime_edit_beat":
+            if body.idx is None:
+                return _err("edit_beat needs 'idx'")
+            ok = st.edit_beat_narration(int(body.idx), body.narration or "")
+            if not ok:
+                return _err("beat index out of range")
+            return _ok(status="edited")
+
+        if action == "storytime_rewrite_beat":
+            if body.idx is None:
+                return _err("rewrite_beat needs 'idx'")
+            if st.snapshot().get("busy"):
+                return _err("Storytime is busy — wait for the current step to finish")
+            bot.event_loop.call_soon_threadsafe(
+                lambda: asyncio.ensure_future(
+                    st.rewrite_beat_script(int(body.idx), (body.note or "").strip())
+                )
             )
             return _ok(status="generating")
 

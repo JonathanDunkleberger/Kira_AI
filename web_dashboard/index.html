@@ -1117,11 +1117,14 @@ html, body {
             <label>Story theme</label>
             <textarea id="st-theme" rows="2" placeholder="e.g. a lonely lighthouse keeper who befriends the fog" style="width:100%;resize:vertical"></textarea>
             <div class="row" style="gap:6px;margin-top:4px">
+              <select id="st-preset" title="structure / tone preset" style="flex:1"></select>
               <input type="number" id="st-beats" min="6" max="24" value="16" title="scene beats" style="width:70px">
+            </div>
+            <div class="row" style="gap:6px;margin-top:4px">
               <button class="btn" onclick="storytimePrepare(this)" style="flex:1">Generate Show</button>
               <button class="btn" onclick="storytimeReset(this)">Reset</button>
             </div>
-            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Writes the script + pre-generates every scene. Review below before performing — nothing goes live unseen.</div>
+            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Pick a structure preset (or Auto) and type a theme. Writes the script + pre-generates every scene. Review below before performing — nothing goes live unseen.</div>
           </div>
 
           <div id="st-beats-grid" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
@@ -2033,23 +2036,48 @@ function _stRender(data) {
     grid.innerHTML = '';
     (data.beats || []).forEach(b => {
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border,#333);border-radius:6px;padding:6px';
+      row.style.cssText = 'display:flex;flex-direction:column;gap:6px;border:1px solid var(--border,#333);border-radius:6px;padding:6px';
+
+      // Top: thumbnail + meta + image re-roll.
+      const top = document.createElement('div');
+      top.style.cssText = 'display:flex;gap:8px;align-items:flex-start';
       const thumb = b.url
         ? `<img src="${b.url}" style="width:96px;height:54px;object-fit:cover;border-radius:4px;background:#000" alt="scene ${b.idx}">`
         : `<div style="width:96px;height:54px;border-radius:4px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#888">${b.status}</div>`;
-      row.innerHTML = `
-        ${thumb}
+      top.innerHTML = `${thumb}
         <div style="flex:1;min-width:0">
           <div style="font-size:.62rem;color:var(--text-muted)">#${b.idx} · ${b.status}${b.error ? ' · '+b.error : ''}</div>
-          <div style="font-size:.7rem;line-height:1.25;max-height:48px;overflow:hidden">${(b.narration||'').replace(/</g,'&lt;')}</div>
         </div>`;
       const reroll = document.createElement('button');
       reroll.className = 'btn';
       reroll.textContent = '↻';
-      reroll.title = 'Regenerate this scene';
+      reroll.title = 'Re-roll this scene image (same script)';
       reroll.style.cssText = 'flex:0 0 auto;padding:2px 8px';
       reroll.onclick = () => storytimeRegenerate(b.idx, reroll);
-      row.appendChild(reroll);
+      top.appendChild(reroll);
+      row.appendChild(top);
+
+      // Editable narration line.
+      const ta = document.createElement('textarea');
+      ta.value = b.narration || '';
+      ta.rows = 2;
+      ta.title = 'Edit this beat’s spoken line — saves when you click away';
+      ta.style.cssText = 'width:100%;resize:vertical;font-size:.72rem;line-height:1.3';
+      ta.onchange = () => storytimeEditBeat(b.idx, ta.value, ta);
+      row.appendChild(ta);
+
+      // Per-beat script rewrite (AI re-writes just this beat + its image).
+      const tools = document.createElement('div');
+      tools.style.cssText = 'display:flex;gap:6px';
+      const rewrite = document.createElement('button');
+      rewrite.className = 'btn';
+      rewrite.textContent = '✍ Rewrite beat';
+      rewrite.title = 'AI rewrites just this beat’s script + image, in story context';
+      rewrite.style.cssText = 'flex:1;padding:2px 8px;font-size:.66rem';
+      rewrite.onclick = () => storytimeRewrite(b.idx, rewrite);
+      tools.appendChild(rewrite);
+      row.appendChild(tools);
+
       grid.appendChild(row);
     });
   }
@@ -2071,11 +2099,32 @@ function storytimeRefresh() {
   cmd('storytime_state', {}).then(_stRender);
 }
 
+// Populate the structure/tone preset dropdown once (keys come from the backend).
+let _stPresetsLoaded = false;
+function storytimePresetsInit() {
+  if (_stPresetsLoaded) return;
+  const sel = document.getElementById('st-preset');
+  if (!sel) return;
+  cmd('storytime_presets', {}).then(d => {
+    if (!d || !Array.isArray(d.presets)) return;
+    sel.innerHTML = '';
+    d.presets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.key;
+      opt.textContent = p.label;
+      sel.appendChild(opt);
+    });
+    _stPresetsLoaded = true;
+  });
+}
+document.addEventListener('DOMContentLoaded', storytimePresetsInit);
+
 function storytimePrepare(btnEl) {
   const theme = document.getElementById('st-theme').value.trim();
   const beats = parseInt(document.getElementById('st-beats').value, 10) || 16;
+  const preset = (document.getElementById('st-preset') || {}).value || '';
   if (!theme) { flashBtn(btnEl, false); return; }
-  cmd('storytime_prepare', {theme, beats}, btnEl).then(d => {
+  cmd('storytime_prepare', {theme, beats, preset}, btnEl).then(d => {
     _stRender({ok:true, status:'scripting'});
     setTimeout(storytimeRefresh, 800);
   });
@@ -2083,6 +2132,17 @@ function storytimePrepare(btnEl) {
 
 function storytimeRegenerate(idx, btnEl) {
   cmd('storytime_regenerate', {idx}, btnEl).then(() => setTimeout(storytimeRefresh, 800));
+}
+
+// Hand-edit one beat's narration text (saved on blur; image untouched).
+function storytimeEditBeat(idx, narration, el) {
+  cmd('storytime_edit_beat', {idx, narration}, el);
+}
+
+// AI-rewrite one beat's script (narration + image), in story context.
+function storytimeRewrite(idx, btnEl) {
+  const note = (prompt('Optional note to steer the rewrite (leave blank for a free rewrite):', '') || '').trim();
+  cmd('storytime_rewrite_beat', {idx, note}, btnEl).then(() => setTimeout(storytimeRefresh, 800));
 }
 
 function storytimePerform(btnEl) {
