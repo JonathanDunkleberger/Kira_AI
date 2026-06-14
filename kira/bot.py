@@ -5189,8 +5189,6 @@ class VTubeBot:
 
 
             last_session = self.memory.get_last_session_summary() or "(no prior session on record)"
-            recent_chatters = self.memory.get_recent_chatters(days=14, limit=10)
-            chatter_list = ", ".join(recent_chatters) if recent_chatters else "(no recognized regulars yet)"
 
             scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else "(observer mode off)"
 
@@ -5198,15 +5196,20 @@ class VTubeBot:
                 f"This is the opening moment of a fresh stream. Jonny just hit 'Go Live'. "
                 f"You are Kira, the co-host. Greet the audience with energy and personality. "
                 f"Make it feel like the start of an episode of a show — not a chatbot saying hi.\n\n"
+                f"CRITICAL — THE ROOM IS EMPTY RIGHT NOW. Chat just opened; nobody has said "
+                f"anything yet. Do NOT greet anyone by name, do NOT name 'returning regulars,' "
+                f"do NOT pretend specific people are watching. Greet the empty room like a host "
+                f"opening the doors — 'we're live, no one's here yet, let's see who wanders in.' "
+                f"You'll recognize people later, once they actually show up and chat. Naming "
+                f"absent ghosts is the one thing that ruins this.\n\n"
                 f"What to weave in:\n"
-                f"- A line acknowledging the audience is here (don't read a list of names)\n"
-                f"- If returning regulars are likely watching, name 2-3 of them and reference what you know about them\n"
+                f"- Acknowledge you're live and the room is still filling up (no names)\n"
                 f"- A one-line recap or callback to last session if it exists\n"
                 f"- A brief tease of what's planned for today (the current activity or scene)\n"
+                f"- An open invitation for whoever's lurking to say hi\n"
                 f"- Hand it back to Jonny at the end ('alright, take it away' or similar)\n\n"
                 f"CONTEXT:\n"
                 f"- Last session's summary: {last_session}\n"
-                f"- Returning chatters (most active first): {chatter_list}\n"
                 f"- Current activity: {self.current_activity or 'no activity set yet'}\n"
                 f"- Current scene: {scene}\n\n"
                 f"Keep it under 30 seconds spoken (~80 words). Stay in character — sassy, warm, deadpan."
