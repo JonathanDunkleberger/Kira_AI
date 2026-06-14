@@ -48,6 +48,7 @@ from kira.config import (
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
+    FRAGMENT_QUIP_COOLDOWN_S,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -203,6 +204,20 @@ class _PhraseThrottleBuffer:
         self._capacity  = capacity
         self._counts:   dict = {}           # gram → total occurrences across buffer
         self._logged:   set  = set()        # phrases already printed to console
+        # Deterministic cooldown for the "narrate the user's word count" tic
+        # ("three words and a vibe", "one word and a vibe", "three letters…").
+        # record() stamps this whenever the family fires; _kira_voice_guardrails
+        # reads it to hard-ban the construction for a few minutes afterward.
+        self.last_fragment_quip_ts: float = 0.0
+
+    # Family detector for the word-count narration tic — matches the SIGNATURE
+    # ("<count> word(s)/letter(s)") plus the bare "and a vibe" idiom, so variants
+    # ("three words and a threat", "one word and a fumble") are all caught.
+    _FRAGMENT_QUIP_RE = re.compile(
+        r"\b(?:one|two|three|four|five|six|\d+)\s+(?:words?|letters?)\b"
+        r"|\band a vibe\b",
+        re.IGNORECASE,
+    )
 
     # ── public API ─────────────────────────────────────────────────────────────
 
@@ -210,6 +225,9 @@ class _PhraseThrottleBuffer:
         """Add a spoken response to the ring buffer and refresh n-gram counts."""
         if not text:
             return
+        if self._FRAGMENT_QUIP_RE.search(text):
+            import time as _time
+            self.last_fragment_quip_ts = _time.time()
         self._responses.append(self._normalize(text))
         if len(self._responses) > self._capacity:
             self._responses.pop(0)
@@ -879,16 +897,8 @@ class VTubeBot:
                 pass
             return
 
-        # ── lore_drop: generate and canonize ────────────────────────────
+        # ── lore_drop: announce, then perform + canonize immediately ─────
         if slice_id == "lore_drop":
-            # Inject directive for next response generation; lore canonization
-            # happens after the response is generated (via _post_lore_drop)
-            self._wheel_segment_directive = directive + (
-                "\n\nIMPORTANT: After you finish the lore reveal, end your response with:\n"
-                "[LORE_END] — this marker tells the system to write it to the canon file."
-            )
-            self._wheel_segment_expires = time.time() + 300
-            self._wheel_lore_pending    = True   # checked in post-response hook
             line = "The Wheel — Lore Drop. Something classified. Pay attention."
             try:
                 await self.ai_core.speak_text(line, priority=1)
@@ -896,17 +906,19 @@ class VTubeBot:
                 self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
             except Exception:
                 pass
+            # Perform-by-default: go straight into the reveal now (the segment is
+            # canonized inside _perform_wheel_segment when canonize=True).
+            await self._perform_wheel_segment(directive, label="Lore Drop",
+                                              slice_id=slice_id, canonize=True)
             return
 
-        # ── roast_round: build chatter list into directive ───────────────
+        # ── roast_round: build chatter list, announce, then roast NOW ────
         if slice_id == "roast_round":
             chatters = sorted(self.session_chatters_seen)
             if not chatters:
                 chatters = ["chat"]
             roster = ", ".join(chatters[:20])   # cap at 20 to keep prompt sane
             full_directive = directive + f"\n\nChatters this session: {roster}"
-            self._wheel_segment_directive = full_directive
-            self._wheel_segment_expires   = time.time() + 300
             line = f"The Wheel — Roast Round. {len(chatters)} people to go through. Starting immediately."
             try:
                 await self.ai_core.speak_text(line, priority=1)
@@ -914,12 +926,12 @@ class VTubeBot:
                 self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
             except Exception:
                 pass
+            # Perform-by-default: launch straight into the roast.
+            await self._perform_wheel_segment(full_directive, label="Roast Round",
+                                              slice_id=slice_id)
             return
 
-        # ── all other slices: inject directive + speak announcement ─────
-        self._wheel_segment_directive = directive
-        self._wheel_segment_expires   = time.time() + 300   # 5 min window
-
+        # ── all other slices: announce, then perform the segment NOW ────
         tier   = slice_def.get("tier", "common")
         label  = slice_def.get("label", slice_id.replace("_", " ").title())
         if tier == "rare":
@@ -934,6 +946,137 @@ class VTubeBot:
             self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
         except Exception:
             pass
+        # Perform-by-default: go STRAIGHT into the segment (tell the ghost story,
+        # start the gauntlet) instead of parking a directive that waits for the
+        # next user turn — the "announced it then went silent" bug.
+        await self._perform_wheel_segment(directive, label=label, slice_id=slice_id)
+
+    async def _perform_wheel_segment(self, directive: str, label: str,
+                                     slice_id: str = "", canonize: bool = False) -> None:
+        """Perform a wheel segment IMMEDIATELY as its own spoken turn.
+
+        Perform-by-default: the instant the wheel lands she goes STRAIGHT into the
+        bit (the ghost story, the roast, the lore reveal) — no waiting to be
+        prompted. Defer-on-request: if Jonny's most recent line asked to hold it
+        ("not now", "save it"), the segment is banked as an IOU instead.
+
+        This replaces the old behaviour of parking _wheel_segment_directive and
+        hoping the NEXT user turn would consume it — which dropped the segment
+        whenever the next turn was about something else.
+        """
+        if self.is_muted():
+            return
+        # Defer-on-request: bank instead of perform if Jonny just asked to hold it.
+        if self._wheel_defer_requested():
+            self._bank_wheel_segment(directive, label)
+            return
+        try:
+            async with self._active_turn_lock:
+                async with self.processing_lock:
+                    # Let the "The Wheel — X" announce TTS finish first (≤6s).
+                    for _ in range(60):
+                        if not getattr(self.ai_core, "is_speaking", False):
+                            break
+                        await asyncio.sleep(0.1)
+                    perform_prompt = (
+                        directive
+                        + "\n\n[PERFORM NOW] This is your segment and it is happening THIS "
+                        "instant. Launch straight into it — do not ask permission, do not "
+                        "wait to be prompted, do not re-announce the wheel. Just do the bit, "
+                        "in full, start to finish."
+                        + self._kira_voice_guardrails(include_observer_avoid=False)
+                    )
+                    memory_context = await asyncio.to_thread(
+                        self.memory.get_semantic_context, label or directive[:80]
+                    )
+                    try:
+                        if self.ai_core.anthropic_client:
+                            response = await self.ai_core.kira_deep_response(
+                                request=perform_prompt,
+                                scene_context="",
+                                memory_context=memory_context,
+                                recent_history=self.conversation_history,
+                                max_tokens=700,
+                                use_sonnet=True,
+                            )
+                        else:
+                            response = await self.ai_core.llm_inference(
+                                messages=self.conversation_history
+                                + [{"role": "system", "content": perform_prompt}],
+                                current_emotion=self.current_emotion,
+                                memory_context=memory_context,
+                                activity_context=self.current_activity,
+                            )
+                    except Exception as e:
+                        print(f"   [Wheel] Perform LLM failed: {e}")
+                        return
+                    cleaned = self.ai_core._clean_llm_response(response)
+                    if canonize:
+                        cleaned = cleaned.replace("[LORE_END]", "").strip()
+                    if cleaned and len(cleaned) > 5:
+                        print(f"   >>> Kira (Wheel/{slice_id or label}): {cleaned[:80]}")
+                        await self.ai_core.speak_text(cleaned, priority=1)
+                        self.conversation_history.append({"role": "assistant", "content": cleaned})
+                        self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+                        try:
+                            self.phrase_buffer.record(cleaned)
+                        except Exception:
+                            pass
+                        self.silence_stage = 0
+                        self.last_interaction_time = time.time()
+                        if canonize:
+                            self._canonize_wheel_lore(cleaned)
+        except Exception as e:
+            print(f"   [Wheel] Perform error: {e}")
+
+    def _wheel_defer_requested(self) -> bool:
+        """True if Jonny's most recent line asked to hold/save the segment for
+        later — the defer-on-request signal. Checks the last few turns of
+        conversation history for hold phrases."""
+        try:
+            for turn in reversed(self.conversation_history[-4:]):
+                if turn.get("role") != "user":
+                    continue
+                t = (turn.get("content") or "").lower()
+                return any(p in t for p in (
+                    "not now", "save it", "save that", "not yet", "hold off",
+                    "hold that", "hold on", "maybe later", "skip it", "skip that",
+                    "do it later", "later", "wait on",
+                ))
+        except Exception:
+            pass
+        return False
+
+    def _bank_wheel_segment(self, directive: str, label: str) -> None:
+        """Defer a wheel segment: log it as a redeemable IOU and keep the directive
+        parked so a later 'okay, do it now' can still trigger it within the window."""
+        try:
+            self.cookie_jar.add_iou(f"Wheel segment (deferred): {label}")
+        except Exception:
+            pass
+        self._wheel_segment_directive = directive
+        self._wheel_segment_expires   = time.time() + 600   # 10 min redeem window
+        print(f"   [Wheel] Segment '{label}' DEFERRED → banked as IOU")
+
+    def _canonize_wheel_lore(self, text: str) -> None:
+        """Append a performed Lore Drop to the canon lore file so it persists.
+        Best-effort: writes to the active-activity lore file, falling back to
+        lore/general.md."""
+        if not text or len(text.strip()) < 10:
+            return
+        try:
+            import os, re
+            activity = self.current_activity or ""
+            slug = re.sub(r'[^a-zA-Z0-9]+', '_', activity).strip('_').lower()[:40] or "general"
+            lore_dir = "lore"
+            os.makedirs(lore_dir, exist_ok=True)
+            lore_path = os.path.join(lore_dir, f"{slug}.md")
+            stamp = time.strftime("%Y-%m-%d")
+            with open(lore_path, "a", encoding="utf-8") as f:
+                f.write(f"\n\n## Wheel Lore Drop — {stamp}\n{text.strip()}\n")
+            print(f"   [Wheel] Lore Drop canonized → {lore_path}")
+        except Exception as e:
+            print(f"   [Wheel] Lore canonize failed: {e}")
 
     # \u2500\u2500 Chaos Mode \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
     def _activate_chaos_mode(self) -> None:
@@ -1503,6 +1646,28 @@ class VTubeBot:
                     block += phrase_block
             except Exception:
                 pass
+        # Word-count-narration tic cooldown. When a very short/unclear fragment
+        # arrives (often the VAD clipping Jonny mid-thought), Kira reflexively
+        # narrates the brevity — "three words and a vibe", "one word and a vibe",
+        # "I'll wait". After it fires once the buffer stamps last_fragment_quip_ts;
+        # for the next FRAGMENT_QUIP_COOLDOWN_S we hard-ban the whole family so it
+        # can't become a per-stream verbal tic. Fix the RESPONSE, not the VAD.
+        try:
+            _fq_ts = getattr(self.phrase_buffer, "last_fragment_quip_ts", 0) or 0
+            if _fq_ts and (time.time() - _fq_ts) < FRAGMENT_QUIP_COOLDOWN_S:
+                block += (
+                    "\n\n[FRAGMENT HANDLING — COOLDOWN ACTIVE] You ALREADY did the "
+                    "'count the words / X and a vibe' bit recently. Do NOT do it again now. "
+                    "Hard-banned for this turn: counting or narrating how few words the "
+                    "input had ('three words and a vibe', 'one word and a vibe', 'three "
+                    "letters and…', 'and a vibe', 'I'll wait', 'I'll let it marinate', or "
+                    "any close variant). If the input is a short or unclear fragment, do NOT "
+                    "comment on its brevity — either give a brief genuine reaction to what "
+                    "little there is, ask one short clarifying question, or simply wait with "
+                    "a minimal non-committal beat. Find a different angle entirely.\n"
+                )
+        except Exception:
+            pass
         return block
 
     # ── Kira types in chat ([CHAT: ...] tool) ──────────────────────────────────
@@ -1924,6 +2089,16 @@ class VTubeBot:
                     why = "MW on" if media_armed else "chess on"
                     changes.append(f"heartbeat parked ({why})")
                 else:
+                    # Un-park: while parked, the heartbeat stopped updating, so
+                    # last_capture_time / scene cache are frozen at their pre-park
+                    # values. If we just flip is_active back, the next prompt path
+                    # would serve that frozen frame as if it were live until the
+                    # loop's next tick (up to a full interval later). Clear the
+                    # stale markers so get_vision_context() is honest in the gap,
+                    # and kick an immediate capture so sight returns NOW.
+                    va.last_capture_time = 0
+                    if self.event_loop and self.event_loop.is_running():
+                        asyncio.ensure_future(self._unpark_vision_refresh())
                     changes.append("heartbeat restored")
 
         # INV-2: heartbeat cadence follows activity/immersive — recompute rather
@@ -1967,6 +2142,25 @@ class VTubeBot:
 
         # Always refresh the effective-state snapshot the dashboards render from.
         self.effective_state = self._compute_effective_state()
+
+    async def _unpark_vision_refresh(self) -> None:
+        """Force one immediate vision capture right after the heartbeat un-parks
+        (Media Watch / Chess disarmed). Without it, sight resumes only on the loop's
+        next tick — up to a full heartbeat interval of frozen vision. Mirrors the
+        heartbeat body. Best-effort; the staleness guard in get_vision_context()
+        covers any failure so she stays honest in the meantime."""
+        va = self.vision_agent
+        if va is None or not va.is_active:
+            return
+        try:
+            desc = await va.capture_and_describe(is_heartbeat=True)
+            if desc:
+                va.last_description = desc
+                await va._update_scene_summary(desc)
+                va._check_dialogue_change(desc)
+                print("   [Vision] Un-parked — fresh frame captured.")
+        except Exception as e:
+            print(f"   [Vision] Un-park refresh failed: {e}")
 
     @staticmethod
     def _tri_state(on: bool, overridden: bool, reason: str = "") -> dict:
@@ -2647,10 +2841,19 @@ class VTubeBot:
                 15, "Background task cancellation",
             )
 
-        # ── Game-mode artifact phase ──────────────────────────────────────────────
-        # Lore, clips, and playthrough log for an active game/VN session.
+        # ── Session artifact phase (DIARY → lore → clips → playthrough) ───────────
+        # The artifact chain makes up to three sequential Sonnet calls (diary ≤45s,
+        # lore/clips ≤60s, playthrough ≤60s). The old 30s ceiling guillotined it
+        # right after the synchronous raw dump — the diary (and lore/clips) silently
+        # never wrote. 180s gives the full chain room; per-stage inner timeouts still
+        # cap any single hung call.
         if _game_active:
-            await _bounded(self.deactivate_game_mode_async(), 30, "Game-mode deactivate / artifact write")
+            await _bounded(self.deactivate_game_mode_async(), 180, "Game-mode deactivate / artifact write")
+        elif self.full_session_log and not self._session_artifacts_written:
+            # Non-game session (e.g. vision-off general): the game-mode path above
+            # won't run, so write artifacts (incl. the diary) directly. Idempotent
+            # via the _session_artifacts_written guard.
+            await _bounded(self._write_session_artifacts(), 180, "Session artifact write")
 
         # Print LLM cost summary before tearing down
         try:
@@ -5505,6 +5708,51 @@ class VTubeBot:
         if len(llm_transcript) > 80000:
             llm_transcript = llm_transcript[:16000] + "\n\n[... middle of session truncated for length ...]\n\n" + llm_transcript[-40000:]
 
+        # ── PRIORITY ARTIFACT: Discord daily diary (Phase 1 — REVIEW MODE). ──
+        # Generated FIRST among the LLM artifacts on purpose. It is the review-gate
+        # artifact Jonny reads before any Discord post, and unlike lore/clips it can
+        # NOT be backfilled from the raw dump (no backfill script exists for it). If
+        # shutdown axes the chain partway, the diary must already be on disk — so it
+        # leads and the backfill-able artifacts (lore/clips) trail. Own try/except.
+        try:
+            diary = await self.generate_daily_summary(
+                activity=activity,
+                date_str=date_str,
+                session_duration_min=session_duration_min,
+                highlights_block=highlights_block,
+                called_shots_block=called_shots_block,
+                transcript=transcript,
+            )
+            if diary:
+                os.makedirs("logs/diary", exist_ok=True)
+                diary_path = os.path.join("logs/diary", f"{date_str}_{activity_slug}.md")
+                with open(diary_path, "w", encoding="utf-8") as f:
+                    f.write(f"# Kira's Diary — {activity} ({date_str})\n\n")
+                    f.write(f"_~{session_duration_min} min · REVIEW MODE: not yet posted_\n\n")
+                    f.write(diary + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+                self.pending_discord_summary = diary
+                self.pending_discord_summary_path = diary_path
+                self.pending_discord_summary_posted = False
+                results["diary"] = diary_path
+                print(f"   [Diary] Saved for review → {diary_path} (NOT posted)")
+
+                from kira.config import DISCORD_AUTOPOST
+                if DISCORD_AUTOPOST:
+                    try:
+                        from kira.streaming.discord_poster import post_discord_message
+                        ok, detail = await post_discord_message(diary)
+                        self.pending_discord_summary_posted = bool(ok)
+                        print(f"   [Diary] AUTOPOST → {detail}")
+                    except Exception as e:
+                        print(f"   [Diary] Autopost failed: {e}")
+            else:
+                print("   [Diary] generate_daily_summary returned empty — no diary written.")
+        except Exception as e:
+            print(f"   [Diary] Diary stage failed: {e}")
+            traceback.print_exc()
+
         artifact_request = (
             f"You are reviewing a full stream session transcript for the AI VTuber Kira. "
             f"Activity: {activity}. Duration: ~{session_duration_min} minutes. Date: {date_str}.\n\n"
@@ -5648,46 +5896,6 @@ class VTubeBot:
             self.kira_state.save_ledger()
         except Exception as e:
             print(f"   [Artifacts] Sentiment ledger persist failed: {e}")
-
-        # ── STAGE 6: Discord daily diary (Phase 1 — REVIEW MODE, no auto-post). ──
-        # Generate Kira's in-character diary entry and SAVE it for review. Posting
-        # is a deliberate manual action from the dashboard; we never fire the
-        # webhook here unless DISCORD_AUTOPOST is explicitly turned on.
-        try:
-            diary = await self.generate_daily_summary(
-                activity=activity,
-                date_str=date_str,
-                session_duration_min=session_duration_min,
-                highlights_block=highlights_block,
-                called_shots_block=called_shots_block,
-                transcript=transcript,
-            )
-            if diary:
-                os.makedirs("logs/diary", exist_ok=True)
-                diary_path = os.path.join("logs/diary", f"{date_str}_{activity_slug}.md")
-                with open(diary_path, "w", encoding="utf-8") as f:
-                    f.write(f"# Kira's Diary — {activity} ({date_str})\n\n")
-                    f.write(f"_~{session_duration_min} min · REVIEW MODE: not yet posted_\n\n")
-                    f.write(diary + "\n")
-                    f.flush()
-                    os.fsync(f.fileno())
-                self.pending_discord_summary = diary
-                self.pending_discord_summary_path = diary_path
-                self.pending_discord_summary_posted = False
-                results["diary"] = diary_path
-                print(f"   [Diary] Saved for review → {diary_path} (NOT posted)")
-
-                from kira.config import DISCORD_AUTOPOST
-                if DISCORD_AUTOPOST:
-                    try:
-                        from kira.streaming.discord_poster import post_discord_message
-                        ok, detail = await post_discord_message(diary)
-                        self.pending_discord_summary_posted = bool(ok)
-                        print(f"   [Diary] AUTOPOST → {detail}")
-                    except Exception as e:
-                        print(f"   [Diary] Autopost failed: {e}")
-        except Exception as e:
-            print(f"   [Diary] Diary stage failed: {e}")
 
         # ── Auto-delete raw dump if lore + clips both succeeded ──────────────
         # Raw dump's only purpose is crash-recovery backfill. Once lore and clips
@@ -7479,14 +7687,14 @@ def launch():
         # Ctrl+C interrupted the loop. The main task is still alive but the loop
         # stopped. Run shutdown_async() in a fresh run_until_complete() call so it
         # can properly await the Opus lore/clips write before we cancel everything.
-        print("\nCtrl+C — running graceful shutdown (up to 120s)...")
+        print("\nCtrl+C — running graceful shutdown (up to 300s)...")
         if _bot is not None:
             try:
                 loop.run_until_complete(
-                    asyncio.wait_for(_bot.shutdown_async(), timeout=120)
+                    asyncio.wait_for(_bot.shutdown_async(), timeout=300)
                 )
             except asyncio.TimeoutError:
-                print("[Shutdown] Graceful shutdown exceeded 120s — forcing exit.")
+                print("[Shutdown] Graceful shutdown exceeded 300s — forcing exit.")
             except Exception as e:
                 print(f"[Shutdown] Shutdown error: {e}")
     finally:

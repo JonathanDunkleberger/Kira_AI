@@ -357,7 +357,12 @@ let _winIdx  = -1;
 let _visible = { wheel: true };
 
 function _sliceIdxToAngle(idx) {
-  return -Math.PI / 2 - idx * SLICE_ANGLE - SLICE_ANGLE / 2;
+  // Land slice `idx` directly under the TOP pointer (12 o'clock = canvas angle
+  // -π/2). drawWheel() places slice i's midpoint at rot + i*SLICE_ANGLE +
+  // SLICE_ANGLE/2 - π/2, so solving midpoint = -π/2 gives this rotation. The
+  // previous formula carried an extra -π/2, landing the winner at 9 o'clock
+  // while the pointer read a different slice — the "announced ≠ landed" bug.
+  return -idx * SLICE_ANGLE - SLICE_ANGLE / 2;
 }
 
 function spin(sliceId, durationMs, onFinish) {

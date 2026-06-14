@@ -145,17 +145,41 @@ class UniversalVisionAgent:
         self.shared_frame_time = time.time()
 
     def get_vision_context(self):
-        """Returns the rolling scene summary if available, else the last raw description."""
+        """Returns the rolling scene summary if available, else the last raw description.
+
+        Freshness honesty: if the last real capture has gone stale (heartbeat parked
+        for Media Watch / Chess, frozen loop, or never captured), do NOT hand back an
+        old scene summary dressed up with a soft 'Ns ago' tag — the LLM will happily
+        confabulate off it. Past the stale cutoff, return an explicit 'I can't see the
+        current screen' directive. A blunt admission beats a confident wrong guess."""
         # Master switch: Vision off = blind. Never leak stale scene cache as ghost data.
         if not self.master_enabled:
             return "[Vision is OFF — I can't see the screen right now.]"
+
+        age = (time.time() - self.last_capture_time) if self.last_capture_time else None
+        # Stale cutoff: comfortably beyond a normal heartbeat tick (10-30s) so a
+        # single slow/missed frame doesn't trip it, but tight enough to catch a real
+        # freeze. Tracks heartbeat_interval so immersive (10s) and normal (30s) modes
+        # both get a sane window.
+        stale_cutoff = max(75.0, float(getattr(self, "heartbeat_interval", 30.0)) * 3.0)
+
+        if age is None or age > stale_cutoff:
+            if self.scene_summary and age is not None:
+                mins = int(age // 60)
+                ago = f"~{mins} min" if mins >= 1 else f"~{int(age)}s"
+                return (
+                    f"[VISION FROZEN — my eyes are stale. The last frame I actually saw was {ago} ago; "
+                    f"I CANNOT see the current screen. Say plainly that you can't see right now / your "
+                    f"vision's frozen rather than guessing. The following is the LAST scene from before "
+                    f"the freeze, for reference ONLY — do not describe it as if it's live: {self.scene_summary}]"
+                )
+            return "[VISION FROZEN — I can't see the screen right now.]"
+
         if self.scene_summary:
-            time_diff = int(time.time() - self.last_capture_time) if self.last_capture_time else 0
-            return f"[Scene summary, last updated {time_diff}s ago] {self.scene_summary}"
+            return f"[Scene summary, last updated {int(age)}s ago] {self.scene_summary}"
         if not self.last_description:
             return "Vision Initializing..."
-        time_diff = int(time.time() - self.last_capture_time)
-        return f"[Seen {time_diff}s ago] {self.last_description}"
+        return f"[Seen {int(age)}s ago] {self.last_description}"
 
     def get_recent_visual_memory(self, max_age: float = 60.0) -> str:
         """Returns the short-term rolling buffer of recent frame descriptions

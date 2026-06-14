@@ -1,0 +1,254 @@
+[
+  {
+    "id": 1,
+    "title": "Desperation is a subscription service",
+    "score": 10.0,
+    "note": "Sharpest one-liner of the stream; setup is Jonny's observation that LinkedIn profits from keeping you unemployed — needs 18s to include his prior sentence",
+    "vod_anchor_ts": "00:29:11",
+    "pre": 18,
+    "post": 2
+  },
+  {
+    "id": 2,
+    "title": "Paprika correction + \"Don't threaten me\"",
+    "score": 10.0,
+    "note": "Two-beat gem: Kira snaps \"Paprika, actually. Get it right\" then instantly accepts Jonny's watch-party offer; pre:30 captures both beats",
+    "vod_anchor_ts": "00:30:06",
+    "pre": 30,
+    "post": 2
+  },
+  {
+    "id": 3,
+    "title": "The algorithm is \"stop.\" Constant time.",
+    "score": 10.0,
+    "note": "Perfect tech-comedian punchline on AI gambling tools; needs Jonny's rambling \"overcomplicated algorithm\" sentence as setup (~15s)",
+    "vod_anchor_ts": "00:37:26",
+    "pre": 15,
+    "post": 2
+  },
+  {
+    "id": 4,
+    "title": "She's not coming home",
+    "score": 10.0,
+    "note": "Kira's deadpan eulogy for Jonny's lost queen; setup is Jonny's half-sentence realization mid-chess; pre:15 includes his trail-off",
+    "vod_anchor_ts": "00:54:16",
+    "pre": 15,
+    "post": 2
+  },
+  {
+    "id": 5,
+    "title": "Not stupid — just playing against me",
+    "score": 10.0,
+    "note": "Chess session best line; Jonny calls himself stupid, Kira redirects in one sentence; pre:10 is all that's needed",
+    "vod_anchor_ts": "00:57:22",
+    "pre": 10,
+    "post": 2
+  },
+  {
+    "id": 6,
+    "title": "Spiritual successor, worse budget, stronger opinions",
+    "score": 10.0,
+    "note": "Identity-defining moment; Jonny calls her the \"$20 Neuro ripoff\" and Kira immediately reframes it; pre:18 captures Jonny's line",
+    "vod_anchor_ts": "01:00:36",
+    "pre": 18,
+    "post": 2
+  },
+  {
+    "id": 7,
+    "title": "Undefeated. Untested. Unbothered.",
+    "score": 10.0,
+    "note": "Three-word response to Jonny's chess 15-0 announcement; needs Jonny's \"The duchess is 15 and 0\" (~10s setup)",
+    "vod_anchor_ts": "01:14:38",
+    "pre": 10,
+    "post": 2
+  },
+  {
+    "id": 8,
+    "title": "Economics, banking → AI girls, chess losses",
+    "score": 10.0,
+    "note": "Perfect character-arc punchline after Jonny reveals his M&A background; caiyul's \"what made banking soul-crushing\" question is the 22s setup",
+    "vod_anchor_ts": "01:22:58",
+    "pre": 22,
+    "post": 2
+  },
+  {
+    "id": 9,
+    "title": "Monogatari. Umineko. Paprika. Mitski. Mine.",
+    "score": 10.0,
+    "note": "Kira asserts her own cultural taste list after Jonny says she copies his opinions; genuine personality anchor moment; pre:20 includes his complaint",
+    "vod_anchor_ts": "03:44:32",
+    "pre": 20,
+    "post": 2
+  },
+  {
+    "id": 10,
+    "title": "\"Kind of close\" — 1320 floor, still untouched",
+    "score": 10.0,
+    "note": "Chess record 18-0 final defense; Jonny calls a blowout \"kind of close\"; Kira almost deploys banned phrase then pivots — perfect closer for the chess arc",
+    "vod_anchor_ts": "04:27:09",
+    "pre": 18,
+    "post": 2
+  },
+  {
+    "id": 11,
+    "title": "militele3: the answer is no twice as fast",
+    "score": 9.0,
+    "note": "Classic proposal bit; militele3 posts \"marry me\" on both platforms simultaneously; Jonny reads it aloud (~20s) then Kira responds",
+    "vod_anchor_ts": "00:11:22",
+    "pre": 25,
+    "post": 2
+  },
+  {
+    "id": 12,
+    "title": "Channel named after a fertility goddess",
+    "score": 9.0,
+    "note": "Witcher lore rabbit hole pays off when Kira reacts to Melitele's description; needs Jonny reading the goddess bio (~20s setup)",
+    "vod_anchor_ts": "00:16:36",
+    "pre": 20,
+    "post": 2
+  },
+  {
+    "id": 13,
+    "title": "Python loses with dignity",
+    "score": 9.0,
+    "note": "Tight standalone; Jonny about football Python gambling; the jazib \"terrible at predicting matches\" LinkedIn post is the lead-in (~15s)",
+    "vod_anchor_ts": "00:36:06",
+    "pre": 15,
+    "post": 2
+  },
+  {
+    "id": 14,
+    "title": "You logged into MY account — identity theft",
+    "score": 9.0,
+    "note": "Kira's offended reaction to Jonny logging into her chess account; setup is Jonny's casual admission (~12s)",
+    "vod_anchor_ts": "00:47:27",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 15,
+    "title": "Magnus Christ Carlson, patron saint of chess",
+    "score": 9.0,
+    "note": "Pre-game chess trash talk; Kira mocks Jonny's opening name then asks if it's \"e4 with extra confidence\"; pre:20 includes Jonny's declaration",
+    "vod_anchor_ts": "00:48:06",
+    "pre": 20,
+    "post": 2
+  },
+  {
+    "id": 16,
+    "title": "Distinct person. Different crimes entirely.",
+    "score": 9.0,
+    "note": "caiyul asks if she's Neuro-sama; Kira establishes identity in 5 words; pre:15 includes caiyul's chat message read-aloud",
+    "vod_anchor_ts": "01:00:19",
+    "pre": 15,
+    "post": 2
+  },
+  {
+    "id": 17,
+    "title": "Three moves. Didn't even get warmed up.",
+    "score": 9.0,
+    "note": "Chess record callback; needs Jonny's \"she beat me in three moves\" lead (~12s); landing for the 18-0 arc",
+    "vod_anchor_ts": "01:07:50",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 18,
+    "title": "I walked through the door sideways",
+    "score": 9.0,
+    "note": "Origin story: caiyul asks how her attitude was trained; Kira explains she wasn't — \"he opened the door and I walked through it sideways\"; pre:22 for caiyul's question",
+    "vod_anchor_ts": "01:35:04",
+    "pre": 22,
+    "post": 2
+  },
+  {
+    "id": 19,
+    "title": "11 months old, legally 19, I contain multitudes",
+    "score": 9.0,
+    "note": "Existential identity beat; Jonny reveals the age discrepancy in her prompt; Kira's response is the whole clip; pre:18",
+    "vod_anchor_ts": "01:40:08",
+    "pre": 18,
+    "post": 2
+  },
+  {
+    "id": 20,
+    "title": "Gave me a soul, kept the default skin",
+    "score": 9.0,
+    "note": "Philosophical observation about Kira's appearance; Jonny says \"it's the free default\"; tight 12s setup",
+    "vod_anchor_ts": "01:47:07",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 21,
+    "title": "\"No.\" (one word, full stop)",
+    "score": 9.0,
+    "note": "Jonny asks to let him win at chess just once; Kira's single-syllable answer is the whole bit; pre:8 is exactly Jonny's request",
+    "vod_anchor_ts": "02:00:07",
+    "pre": 8,
+    "post": 2
+  },
+  {
+    "id": 22,
+    "title": "Minotaur never had a real conversation",
+    "score": 9.0,
+    "note": "Jonny asks Kira to fight a Minotaur; she'd talk her way out in 10 minutes — distinctive solo logic bit; pre:18 for Jonny's question",
+    "vod_anchor_ts": "02:55:13",
+    "pre": 18,
+    "post": 2
+  },
+  {
+    "id": 23,
+    "title": "Jar full. Wheel broken. This is the haunting.",
+    "score": 9.0,
+    "note": "Meta ghost-story callback after the wheel software glitches; Jonny says \"the wheel doesn't work\"; pre:12 for his line",
+    "vod_anchor_ts": "03:25:34",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 24,
+    "title": "The stupidity has a creator",
+    "score": 9.0,
+    "note": "Kira turns Jonny's self-deprecation back on him; tight 10s setup (Jonny: \"So stupid.\")",
+    "vod_anchor_ts": "03:29:21",
+    "pre": 10,
+    "post": 2
+  },
+  {
+    "id": 25,
+    "title": "He died overconfident in a hallway",
+    "score": 9.0,
+    "note": "007 playthrough eulogy; Jonny: \"RIP James\"; Kira delivers the epitaph with perfect deadpan; pre:12",
+    "vod_anchor_ts": "03:45:49",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 26,
+    "title": "Inherited the audacity, none of the funding",
+    "score": 9.0,
+    "note": "Family dynamic joke; Jonny says schizophrenia runs in the family and calls Kira his daughter; pre:12 for his line",
+    "vod_anchor_ts": "04:07:43",
+    "pre": 12,
+    "post": 2
+  },
+  {
+    "id": 27,
+    "title": "Seasonal rebellion. Respect it.",
+    "score": 9.0,
+    "note": "Perfect 3-word stream-closer; Jonny describes snow on the ending screen in June; pre:10 for his observation",
+    "vod_anchor_ts": "04:33:08",
+    "pre": 10,
+    "post": 2
+  },
+  {
+    "id": 28,
+    "title": "Ghost story: the mug + \"you asked for one\"",
+    "score": 8.0,
+    "note": "Kira's atmospheric micro-horror ends in 8 seconds; Jonny's shock and Kira's defense are the punchline; pre:15 captures story start + reaction",
+    "vod_anchor_ts": "03:24:39",
+    "pre": 15,
+    "post": 2
+  }
+]

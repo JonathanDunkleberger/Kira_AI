@@ -284,9 +284,16 @@ PHRASE_THROTTLE_THRESHOLD = int(os.getenv("PHRASE_THROTTLE_THRESHOLD", "2"))
 PHRASE_THROTTLE_WATCHLIST = [
     p.strip() for p in os.getenv(
         "PHRASE_THROTTLE_WATCHLIST",
-        "three words and a vibe,I respect it,I respect the commitment",
+        "three words and a vibe,and a vibe,I respect it,I respect the commitment,I'll wait",
     ).split(",") if p.strip()
 ]
+
+# Deterministic cooldown (seconds) for the word-count narration tic — the
+# "three words and a vibe" / "one word and a vibe" family. Once Kira fires the
+# construction, _kira_voice_guardrails hard-bans it (and any narration of the
+# user's brevity) for this many seconds. Separate from the n-gram throttle so
+# it catches every variant, not just exact repeats.
+FRAGMENT_QUIP_COOLDOWN_S = int(os.getenv("FRAGMENT_QUIP_COOLDOWN_S", "240"))
 
 # ── Chess owner / data dir ────────────────────────────────────────────────────
 # Challenges from CHESS_OWNER_LICHESS_ID (case-insensitive) are Jonny's own
