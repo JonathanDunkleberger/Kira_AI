@@ -62,6 +62,7 @@ from kira.modes.vn_autopilot import VNAutopilot
 from kira.brain.kira_state import KiraState, SessionIntensity
 from kira.senses.media_watch import MediaWatch
 from kira.chess.chess_agent import ChessAgent
+from kira.games import CodenamesState
 from kira.memory.playthrough_memory import PlaythroughMemory
 from kira.expression.vts_expression_controller import VTSExpressionController
 
@@ -449,6 +450,12 @@ class VTubeBot:
         # real Lichess games vs Stockfish; mutually exclusive with Media Watch
         # and VN autopilot. Disabled unless armed from the dashboard.
         self.chess_agent: ChessAgent | None = None
+
+        # Codenames — persistent structured board state she reasons over instead
+        # of re-reading a single (often stale) vision frame each turn. Idle until
+        # a game is started from the dashboard; the state block is only injected
+        # while active. Lightweight in-memory model, no engine — instantiate now.
+        self.codenames: CodenamesState = CodenamesState()
 
         # Playthrough Memory — initialized in _main_loop once ai_core is ready
         self.playthrough_memory: PlaythroughMemory | None = None
@@ -7136,6 +7143,15 @@ class VTubeBot:
                     _chess_block = self.chess_agent.get_board_block()
                     if _chess_block:
                         dynamic_context += f"\n\n{self._CHESS_CHARACTER_RULES}\n\n{_chess_block}"
+
+                # Codenames: live tracked board state. Injected only while a game
+                # is active. She reasons over THIS persistent model (the grid,
+                # known team/opponent/neutral/assassin words, clue + guess state),
+                # not a one-shot vision glance — vision only updates the model.
+                if self.codenames is not None and self.codenames.has_context():
+                    _cn_block = self.codenames.get_state_block()
+                    if _cn_block:
+                        dynamic_context += f"\n\n{_cn_block}"
 
                 # Inject the recent activity brief — gives Kira baked-in awareness of last session
                 if self.recent_activity_brief:

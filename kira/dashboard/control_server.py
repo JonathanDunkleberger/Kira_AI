@@ -800,6 +800,16 @@ class _CmdBody(BaseModel):
     url: str | None = None
     # Chess
     level: int | None = None
+    # Codenames
+    words: list[str] | str | None = None   # 25-word grid (list or delimited string)
+    word: str | None = None                # a single board word
+    identity: str | None = None            # team | opponent | neutral | assassin
+    role: str | None = None                # guesser | spymaster
+    team: str | None = None                # cosmetic team label (red/blue)
+    clue: str | None = None                # clue word
+    number: int | None = None              # clue number
+    by: str | None = None                  # "me" | "opponent"
+    targets: list[str] | str | None = None # intended clue targets (safety check)
 
     # ── Stream screen fields (for screen_text command)
     screen: str | None = None
@@ -1162,6 +1172,68 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             lambda: asyncio.ensure_future(ca.challenge_ai(level))
         )
         return _ok(challenged_level=level)
+
+    # ── Codenames (structured board tracker) ──────────────────────────────────
+    # Kira reasons over this persistent in-memory board instead of re-reading a
+    # single (often stale) vision frame each turn. These actions drive the model.
+    if action.startswith("codenames_"):
+        cn = getattr(bot, "codenames", None)
+        if cn is None:
+            return _err("codenames tracker not initialized")
+
+        def _as_list(val) -> list[str]:
+            if val is None:
+                return []
+            if isinstance(val, list):
+                return [str(x).strip() for x in val if str(x).strip()]
+            # Accept comma- or whitespace-delimited strings from the dashboard.
+            return [p.strip() for p in str(val).replace(",", " ").split() if p.strip()]
+
+        if action == "codenames_start":
+            cn.start(_as_list(body.words),
+                     role=(body.role or "guesser"),
+                     my_team_label=(body.team or ""))
+            return _ok(**cn.snapshot())
+
+        if action == "codenames_reset":
+            cn.reset()
+            return _ok(active=False)
+
+        if action == "codenames_set_role":
+            cn.set_role(body.role or "guesser")
+            return _ok(role=cn.role)
+
+        if action == "codenames_set_grid":
+            cn.set_grid(_as_list(body.words))
+            return _ok(**cn.snapshot())
+
+        if action == "codenames_reveal":
+            if not body.word or not body.identity:
+                return _err("reveal needs 'word' and 'identity'")
+            ok = cn.reveal(body.word, body.identity)
+            return _ok(**cn.snapshot()) if ok else _err("invalid identity")
+
+        if action == "codenames_clue":
+            if not body.clue:
+                return _err("clue needs 'clue'")
+            cn.record_clue(body.clue, body.number or 0, by=(body.by or "me"))
+            return _ok(**cn.snapshot())
+
+        if action == "codenames_guess":
+            if not body.word:
+                return _err("guess needs 'word'")
+            res = cn.record_guess(body.word, body.identity)
+            return _ok(result=res, **cn.snapshot())
+
+        if action == "codenames_check_clue":
+            if not body.clue:
+                return _err("check_clue needs 'clue'")
+            return _ok(**cn.check_clue(body.clue, _as_list(body.targets)))
+
+        if action == "codenames_state":
+            return _ok(**cn.snapshot())
+
+        return _err(f"Unknown codenames action '{action}'")
 
     # ── Interrupt / Mute / Pause ──────────────────────────────────────────────
     # NOTE: F8/F9 global hotkeys registered in dashboard.py are UNTOUCHED.
