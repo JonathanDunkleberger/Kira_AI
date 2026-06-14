@@ -20,13 +20,34 @@ from kira.config import ANTHROPIC_API_KEY, CLAUDE_CHAT_MODEL
 
 # Locked visual identity for EVERY beat. Prepended to each beat's image_prompt by
 # the orchestrator (not by the model) so the style can't drift scene-to-scene.
+#
+# Locked to the "Tale of the Three Brothers" (Deathly Hallows) shadow-puppet look,
+# REGISTER #1 — the clean side-on tableau: the workhorse register. Crisp, sparse,
+# readable silhouettes on a clear ground line. The atmospheric-depth register (#2)
+# is a sparing big-moment variant added later, not the default.
 STYLE_PREAMBLE = (
-    "Inky black paper-cut shadow-puppet silhouette theatre, in the style of the "
-    "Deathly Hallows 'Tale of the Three Brothers' animation. Flat solid-black "
-    "cut-paper figures with crisp clean edges, backlit against a warm parchment / "
-    "amber-glow background, soft vignette, subtle paper grain. High contrast, no "
-    "color inside the silhouettes, no text, no words, no letters. Single coherent "
-    "stage with a theatrical hand-shadow aesthetic. Scene: "
+    "Shadow-puppet paper-theatre tableau in the style of the 'Tale of the Three "
+    "Brothers' from Harry Potter and the Deathly Hallows. "
+    # Composition / framing
+    "Cinematic widescreen 2.39:1 aspect with solid black letterbox bars top and "
+    "bottom. Clean side-on stage tableau: figures arranged on a clear horizontal "
+    "ground line, sparse and readable, plenty of negative space. "
+    # Figures
+    "Flat solid-black silhouette figures and objects read ENTIRELY by shape, pose "
+    "and outline, with NO interior detail. Figures look like articulated hand-cut "
+    "paper marionettes — jointed paper cutouts with slightly rough hand-cut edges "
+    "and a papery quality, not smooth digital vectors. "
+    # Backlight / scrim
+    "Backlit against a warm aged-parchment scrim in sepia, amber, ochre and cream; "
+    "brightest at a central glowing sun-or-moon light source and vignetting to "
+    "dark shadowed corners. Visible paper grain and parchment texture showing "
+    "through the lit areas. "
+    # Wispy organic elements
+    "Wispy organic cut-paper elements catching the backlight where fitting — bare "
+    "branches, drifting smoke, flocks of crows, fabric, floating ash and particles. "
+    # Hard constraints
+    "High contrast. No color inside the silhouettes. No text, no words, no letters, "
+    "no signatures. One coherent backlit stage. Scene: "
 )
 
 _SYSTEM = (
