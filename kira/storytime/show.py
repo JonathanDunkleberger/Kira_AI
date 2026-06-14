@@ -128,6 +128,7 @@ class StorytimeShow:
         `preset` steers tone/structure (see script_writer.PRESETS).
         """
         if self._busy:
+            print("   [Storytime] prepare() ignored — already busy")
             return
         self._busy = True
         try:
@@ -135,11 +136,14 @@ class StorytimeShow:
             self.theme = (theme or "").strip()
             self.preset = (preset or "").strip()
             self._set_status(SCRIPTING)
+            print(f"   [Storytime] ✎ scripting — theme={self.theme!r} "
+                  f"beats={n_beats} preset={self.preset!r}")
             try:
                 script = await generate_script(
                     self.theme or "a quiet little fable", n_beats, self.preset or None
                 )
             except Exception as e:
+                print(f"   [Storytime] ✖ script failed: {e}")
                 self._set_status(ERROR_SHOW, f"script failed: {e}")
                 return
 
@@ -151,10 +155,13 @@ class StorytimeShow:
                 Beat(i, b["narration"], b["image_prompt"])
                 for i, b in enumerate(script["beats"])
             ]
+            print(f"   [Storytime] ✓ script ready — \"{self.title}\" "
+                  f"({len(self.beats)} beats) → {self.show_id}")
 
             self._set_status(GEN)
             # Anchor beat (0) first, with NO reference, to establish the style +
             # character silhouettes. It becomes the reference for all later beats.
+            print("   [Storytime] 🎨 generating anchor beat 0 …")
             await self._gen_one(0, reference=None)
             if self.beats and self.beats[0].status == DONE:
                 self._anchor_bytes = self._read_scene_bytes(0)
@@ -169,7 +176,11 @@ class StorytimeShow:
             await asyncio.gather(*(_worker(i) for i in range(1, len(self.beats))),
                                  return_exceptions=True)
 
+            done = sum(1 for b in self.beats if b.status == DONE)
+            errs = sum(1 for b in self.beats if b.status == ERROR)
             self._set_status(READY)
+            print(f"   [Storytime] ✅ show READY — {done}/{len(self.beats)} scenes "
+                  f"generated ({errs} errored)")
         finally:
             self._busy = False
 
@@ -245,10 +256,12 @@ class StorytimeShow:
         except ImageGenError as e:
             beat.status = ERROR
             beat.error = str(e)
+            print(f"   [Storytime] ✖ beat {idx} image gen failed: {e}")
             return
         except Exception as e:
             beat.status = ERROR
             beat.error = f"unexpected: {e}"
+            print(f"   [Storytime] ✖ beat {idx} unexpected error: {e}")
             return
         try:
             path = self._scene_path(idx)
@@ -256,9 +269,11 @@ class StorytimeShow:
                 f.write(png)
             beat._mtime = time.time()
             beat.status = DONE
+            print(f"   [Storytime] ✓ beat {idx} image written ({len(png)} bytes)")
         except Exception as e:
             beat.status = ERROR
             beat.error = f"write failed: {e}"
+            print(f"   [Storytime] ✖ beat {idx} write failed: {e}")
 
     # ── Perform ──────────────────────────────────────────────────────────────
 
@@ -269,14 +284,18 @@ class StorytimeShow:
         narration boundaries.
         """
         if self.status not in (READY, DONE_SHOW):
+            print(f"   [Storytime] ✖ perform() ignored — status={self.status!r} "
+                  f"(need 'ready' or 'done')")
             return
         playable = [b for b in self.beats if b.status == DONE]
         if not playable:
+            print("   [Storytime] ✖ perform() — no generated scenes to play")
             self._set_status(ERROR_SHOW, "no generated scenes to perform")
             return
 
         self._stop = False
         self._set_status(PERFORMING)
+        print(f"   [Storytime] ▶ performing \"{self.title}\" — {len(playable)} scenes")
         self._start_music()
         try:
             for beat in playable:
@@ -304,6 +323,7 @@ class StorytimeShow:
                 pass
             self._stop_music()
             self._set_status(DONE_SHOW)
+            print(f"   [Storytime] 🏁 performance finished — \"{self.title}\"")
 
     def stop(self) -> None:
         """Abort an in-progress performance after the current narration line."""

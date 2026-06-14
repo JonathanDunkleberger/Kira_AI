@@ -1250,7 +1250,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     # async work is scheduled onto the bot loop; the dashboard polls *_state.
     if action.startswith("storytime_"):
         st = getattr(bot, "storytime", None)
+        # LOUD: every storytime click prints here so the terminal proves the
+        # request reached the backend at all (silence = click never arrived).
+        print(f"   [Storytime] ▶ action='{action}' theme={body.theme!r} "
+              f"beats={body.beats} preset={body.preset!r} idx={body.idx} "
+              f"(st={'ok' if st is not None else 'MISSING'})")
         if st is None:
+            print("   [Storytime] ✖ bot.storytime is None — not initialized")
             return _err("storytime not initialized")
 
         if action == "storytime_state":
@@ -1262,10 +1268,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
 
         if action == "storytime_prepare":
             if st.snapshot().get("busy"):
+                print("   [Storytime] ✖ prepare rejected — already busy")
                 return _err("Storytime is busy — wait for the current step to finish")
             theme = (body.theme or body.text or body.title or "").strip()
             n_beats = int(body.beats) if body.beats is not None else 16
             preset = (body.preset or "").strip()
+            print(f"   [Storytime] ✎ Generate Show scheduled — theme={theme!r} "
+                  f"beats={n_beats} preset={preset!r}")
             bot.event_loop.call_soon_threadsafe(
                 lambda: asyncio.ensure_future(st.prepare(theme, n_beats, preset))
             )
@@ -1304,8 +1313,12 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if action == "storytime_perform":
             snap = st.snapshot()
             if snap.get("status") not in ("ready", "done"):
+                print(f"   [Storytime] ✖ perform rejected — status={snap.get('status')!r} "
+                      f"progress={snap.get('progress')} (need a generated show first)")
                 return _err("Nothing to perform — prepare a show first")
             speak = bot.ai_core.speak_text
+            print(f"   [Storytime] ▶ Perform Live starting — \"{snap.get('title')}\" "
+                  f"({snap.get('progress')} beats ready)")
 
             # Logged push wrapper: prints how many /ws/overlays clients each scene
             # is broadcast to, so a "nothing in OBS" can be told apart (0 clients =
