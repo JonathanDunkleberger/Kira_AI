@@ -53,6 +53,12 @@ class GeminiImageProvider(ImageProvider):
 
     name = "gemini"
 
+    # Cinematic widescreen. gemini-2.5-flash-image accepts an explicit aspect
+    # ratio via ImageConfig; the supported set is 1:1/2:3/3:2/3:4/4:3/9:16/16:9/
+    # 21:9. There's no exact 2.39:1, so 21:9 (~2.33:1) is the widest available
+    # and the closest to the intended cinematic letterbox.
+    _ASPECT_RATIO = "21:9"
+
     def __init__(self, api_key: str = "", model: str = ""):
         self._api_key = (api_key or GEMINI_IMAGE_API_KEY or "").strip()
         self._model = (model or GEMINI_IMAGE_MODEL or "gemini-2.5-flash-image").strip()
@@ -78,6 +84,18 @@ class GeminiImageProvider(ImageProvider):
             raise ImageGenError(f"Could not build Gemini client: {e}") from e
         return self._client
 
+    def _build_config(self):
+        """GenerateContentConfig forcing the cinematic 21:9 aspect ratio. Falls
+        back to None (prompt-only) if the SDK version lacks ImageConfig so a
+        version skew never hard-fails generation."""
+        try:
+            from google.genai import types
+            return types.GenerateContentConfig(
+                image_config=types.ImageConfig(aspect_ratio=self._ASPECT_RATIO),
+            )
+        except Exception:
+            return None
+
     def _generate_sync(self, prompt: str, reference_image: bytes | None) -> bytes:
         client = self._ensure_client()
         # Build the multimodal contents: text prompt, plus the reference image
@@ -96,6 +114,7 @@ class GeminiImageProvider(ImageProvider):
             resp = client.models.generate_content(
                 model=self._model,
                 contents=contents,
+                config=self._build_config(),
             )
         except Exception as e:
             raise ImageGenError(f"Gemini image request failed: {e}") from e

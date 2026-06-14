@@ -28,10 +28,15 @@ from kira.config import ANTHROPIC_API_KEY, CLAUDE_CHAT_MODEL
 STYLE_PREAMBLE = (
     "Shadow-puppet paper-theatre tableau in the style of the 'Tale of the Three "
     "Brothers' from Harry Potter and the Deathly Hallows. "
-    # Composition / framing
-    "Cinematic widescreen 2.39:1 aspect with solid black letterbox bars top and "
-    "bottom. Clean side-on stage tableau: figures arranged on a clear horizontal "
-    "ground line, sparse and readable, plenty of negative space. "
+    # Composition / framing — widescreen is REDUNDANTLY enforced (the API also
+    # sets a 21:9 aspect ratio; prose reinforces it because image models often
+    # ignore aspect requests in text alone).
+    "ULTRA-WIDE CINEMATIC 2.39:1 letterbox composition — much wider than tall, a "
+    "full widescreen frame, NOT square, NOT portrait, NOT 4:3; compose for a wide "
+    "horizontal frame with solid black letterbox bars top and bottom. Clean "
+    "side-on stage tableau: figures arranged on a clear horizontal "
+    "ground line, sparse and readable, plenty of negative space spread across the "
+    "wide frame. "
     # Figures
     "Flat solid-black silhouette figures and objects read ENTIRELY by shape, pose "
     "and outline, with NO interior detail. Figures look like articulated hand-cut "
