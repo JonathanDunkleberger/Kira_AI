@@ -274,6 +274,13 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     from kira.tools.music_tools import get_now_playing
     now_playing = _get(lambda: get_now_playing(), "Nothing")
 
+    # ── Discord diary (Phase 1, review mode) ──────────────────────────────────
+    discord_diary = {
+        "text":   _get(lambda: getattr(bot, "pending_discord_summary", "") or "", ""),
+        "path":   _get(lambda: getattr(bot, "pending_discord_summary_path", "") or "", ""),
+        "posted": _get(lambda: bool(getattr(bot, "pending_discord_summary_posted", False)), False),
+    }
+
     # ── Transcript (last 8 turns) ─────────────────────────────────────────────
     history = _get(lambda: bot.conversation_history, [])
     transcript = []
@@ -340,6 +347,8 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "fish_voice_id": fish_voice_id,
         # Music
         "now_playing": now_playing,
+        # Discord diary (Phase 1 review mode)
+        "discord_diary": discord_diary,
         # Transcript
         "transcript": transcript,
         # LLM cost telemetry
@@ -956,6 +965,19 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("presence must be one of: sleepy, normal, chatty")
         bot.presence_level = level
         return _ok(presence_level=bot.presence_level)
+
+    # ── Discord diary (Phase 1, REVIEW MODE) ──────────────────────────────────
+    # Manual post of the pending diary entry. Fires the webhook ONLY here, on a
+    # deliberate dashboard click — never automatically at session end.
+    if action == "post_discord_summary":
+        text = (getattr(body, "text", None) or getattr(bot, "pending_discord_summary", "") or "").strip()
+        if not text:
+            return _err("no diary entry to post — generate one at session end first")
+        from kira.streaming.discord_poster import post_discord_message
+        ok, detail = await post_discord_message(text)
+        if ok:
+            bot.pending_discord_summary_posted = True
+        return (_ok(detail=detail) if ok else _err(detail))
 
     # ── VN Autopilot ──────────────────────────────────────────────────────────
     if action == "autopilot_toggle":

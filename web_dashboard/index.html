@@ -1113,6 +1113,29 @@ html, body {
         </div>
       </div><!-- /panel-conn -->
 
+      <!-- ─ PANEL: DISCORD DIARY (Phase 1, review mode) ─ -->
+      <div class="panel" id="panel-discord">
+        <div class="panel-header" onclick="togglePanel('panel-discord')">
+          📓 Discord Diary <span class="panel-chevron">▶</span>
+        </div>
+        <div class="panel-body">
+          <div style="font-size:.72rem;color:var(--text-muted);line-height:1.4;margin-bottom:2px;">
+            Kira's in-character end-of-session entry. Review the tone, then post
+            it manually to the Kira Lab channel. Nothing fires automatically.
+          </div>
+          <div id="discord-diary-status" class="status-text">No diary yet — generated at session end.</div>
+          <textarea id="discord-diary-text" oninput="_diaryEdited=true"
+            style="width:100%;min-height:140px;resize:vertical;font-size:.78rem;line-height:1.5;
+                   background:var(--panel-2,#11151c);color:var(--text,#dfe6ee);
+                   border:1px solid var(--border,#2a3240);border-radius:6px;padding:8px;"
+            placeholder="(Kira's diary will appear here after a session ends.)"></textarea>
+          <div class="row">
+            <button class="btn success" id="btn-discord-post" onclick="postDiscordSummary(this)">Post to Discord</button>
+          </div>
+        </div>
+      </div><!-- /panel-discord -->
+
+
       <!-- ─ PANEL: STREAM SCREENS ─ -->
       <div class="panel" id="panel-screens">
         <div class="panel-header" onclick="togglePanel('panel-screens')">
@@ -1601,6 +1624,24 @@ function renderPanels(s) {
     fv.placeholder = s.fish_voice_id;
   }
 
+  // Discord diary — fill the textarea from the latest snapshot unless the user
+  // is editing it or has unsaved edits. Don't clobber in-progress tweaks.
+  const dd = s.discord_diary || {};
+  const dta = document.getElementById('discord-diary-text');
+  if (dta && document.activeElement !== dta && !_diaryEdited && (dd.text || '') !== dta.value) {
+    dta.value = dd.text || '';
+  }
+  const dst = document.getElementById('discord-diary-status');
+  if (dst && !_diaryEdited) {
+    if (dd.posted) {
+      dst.textContent = 'Posted to Discord ✓';
+    } else if (dd.text) {
+      dst.textContent = 'Diary ready for review — not yet posted.' + (dd.path ? ' (' + dd.path + ')' : '');
+    } else {
+      dst.textContent = 'No diary yet — generated at session end.';
+    }
+  }
+
   // Autopilot
   const ap = s.autopilot || {};
   const apLabel = ap.running ? 'Autopilot: RUNNING'
@@ -1733,6 +1774,25 @@ function setMode(m) {
 function setPresence(level) {
   if (_snap.presence_level === level) return;
   cmd('set_presence', { presence: level });
+}
+
+// Post the (possibly edited) diary text to Discord — manual, deliberate.
+let _diaryEdited = false;
+async function postDiscordSummary(btnEl) {
+  const ta = document.getElementById('discord-diary-text');
+  const text = (ta && ta.value || '').trim();
+  if (!text) { flashBtn(btnEl, false); return; }
+  if (!confirm('Post this diary entry to the Kira Lab Discord channel?')) return;
+  const data = await cmd('post_discord_summary', { text }, btnEl);
+  const status = document.getElementById('discord-diary-status');
+  if (status) {
+    if (data && data.ok !== false) {
+      status.textContent = 'Posted to Discord ✓ ' + (data.detail || '');
+      _diaryEdited = false;
+    } else {
+      status.textContent = 'Post failed: ' + ((data && (data.error || data.detail)) || 'unknown error');
+    }
+  }
 }
 
 function setTts(backend) {

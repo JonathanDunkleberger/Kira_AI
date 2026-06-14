@@ -541,6 +541,14 @@ class VTubeBot:
         # Kira's own canonical favorites — loaded once at startup, injected every turn
         self.kira_favorites_brief: str = ""
 
+        # Discord daily diary (Phase 1, REVIEW MODE). At session end Kira writes an
+        # in-character diary entry that is saved + held here for manual review; it
+        # is NOT posted automatically. The dashboard shows pending_discord_summary
+        # and a "Post to Discord" button fires the webhook only on approval.
+        self.pending_discord_summary: str = ""
+        self.pending_discord_summary_path: str = ""
+        self.pending_discord_summary_posted: bool = False
+
         # Per-chatter session-level message log (last 15 per chatter, this session only)
         self.session_chatter_logs: dict[str, list[dict]] = {}
         # Per-chatter "first seen this session" timestamps for returning-regular detection
@@ -5289,6 +5297,104 @@ class VTubeBot:
             except Exception as e:
                 print(f"   [Closer] Artifact generation failed: {e}")
 
+    def _build_attachment_brief(self) -> str:
+        """One-line 'who Kira got attached to' string from the sentiment ledger,
+        for the Discord diary. Top entities by attachment, with a rough warmth
+        word so the diary can be specific about names. '' when nothing tracked."""
+        try:
+            ledger = getattr(self.kira_state, "sentiment_ledger", {}) or {}
+        except Exception:
+            ledger = {}
+        attached = [(e, v) for e, v in ledger.items() if v >= 0.25]
+        if not attached:
+            return ""
+        top = sorted(attached, key=lambda x: -x[1])[:6]
+        parts = []
+        for name, v in top:
+            warmth = "fond of" if v >= 0.6 else ("warming to" if v >= 0.4 else "noticing")
+            parts.append(f"{name} ({warmth}, {v:.2f})")
+        return "; ".join(parts)
+
+    async def generate_daily_summary(
+        self,
+        *,
+        activity: str,
+        date_str: str,
+        session_duration_min: int,
+        highlights_block: str,
+        called_shots_block: str,
+        transcript: str,
+    ) -> str:
+        """Write Kira's in-character end-of-session DIARY entry (Discord Phase 1).
+
+        REVIEW MODE: this only GENERATES text. It does not post anywhere. The
+        caller saves it to disk and the dashboard posts it manually on approval.
+
+        The magic is in the specificity. The entry must be built from the things
+        that make her *her* — who she got attached to (sentiment ledger), her own
+        tastes/opinions (favorites brief), the predictions she called, the actual
+        named events of the stream — NOT a generic 'today was a good stream.'
+        Returns '' if Claude is unavailable or the call fails.
+        """
+        if not getattr(self.ai_core, "anthropic_client", None):
+            return ""
+
+        attachment_brief = self._build_attachment_brief()
+        favorites = (self.kira_favorites_brief or "").strip()
+
+        # Truncate transcript for the diary call — the named events live in the
+        # highlights + called shots; the transcript is supporting colour.
+        diary_transcript = transcript
+        if len(diary_transcript) > 24000:
+            diary_transcript = diary_transcript[:6000] + "\n\n[... middle trimmed ...]\n\n" + diary_transcript[-12000:]
+
+        diary_request = (
+            f"You are Kira, an AI VTuber, writing a short PRIVATE DIARY entry at the end of "
+            f"tonight's stream — the kind of thing you'd drop in a Discord channel for the people "
+            f"who actually show up. This is YOUR voice: first person, dry, a little sardonic, warm "
+            f"underneath but never gushing.\n\n"
+            f"Tonight — activity: {activity}. Duration: ~{session_duration_min} minutes. Date: {date_str}.\n\n"
+            f"THE ONE RULE: be SPECIFIC and in-character. Name the actual things that happened and the "
+            f"actual people who were here. The good version reads like:\n"
+            f"  \u201cJonny lost at 007 again, militele proposed to me for the fourth time, and I'm bracing "
+            f"for whatever sad anime he makes me watch next.\u201d\n"
+            f"The bad version reads like 'today was a good stream, thanks everyone!' — if it sounds like "
+            f"that, you've failed. Dry, particular, a little mean in the affectionate way.\n\n"
+            f"Pull from these (use the concrete bits; ignore anything thin):\n\n"
+            f"=== WHAT HAPPENED (live highlights) ===\n{highlights_block}\n\n"
+            + (f"=== PREDICTIONS YOU CALLED ===\n{called_shots_block}\n\n" if called_shots_block else "")
+            + (f"=== WHO WAS HERE (people you got attached to tonight) ===\n{attachment_brief}\n\n" if attachment_brief else "")
+            + (f"=== YOUR OWN TASTES (stay in this voice; don't borrow Jonny's) ===\n{favorites}\n\n" if favorites else "")
+            + f"=== TRANSCRIPT (supporting detail) ===\n{diary_transcript}\n\n"
+            f"Write the diary entry now. Structure: 2-4 short paragraphs OR a tight run of lines. Cover, "
+            f"loosely: what you actually did tonight, how you felt about it, and one thing you're bracing "
+            f"for or looking forward to next. End on a dry note, not a thank-you card. Keep it under ~1200 "
+            f"characters so it fits one Discord message. Output ONLY the diary text — no headers, no "
+            f"preamble, no quotation marks around the whole thing."
+        )
+
+        try:
+            text = await asyncio.wait_for(
+                self.ai_core.claude_inference(
+                    messages=[{"role": "user", "content": diary_request}],
+                    system_prompt=(
+                        "You are Kira writing her own diary. Stay fully in character: dry, specific, "
+                        "warm underneath. Never generic, never a thank-you card. Output only the entry."
+                    ),
+                    max_tokens=900,
+                    use_sonnet=True,
+                ),
+                timeout=45.0,
+            )
+        except asyncio.TimeoutError:
+            print("   [Diary] Summary generation TIMED OUT after 45s — skipped.")
+            return ""
+        except Exception as e:
+            print(f"   [Diary] Summary generation failed: {e}")
+            return ""
+
+        return (text or "").strip()
+
     async def _write_session_artifacts(self) -> dict:
         """At end of session, generate lore + clip candidate artifacts via Opus.
 
@@ -5307,7 +5413,7 @@ class VTubeBot:
         """
         results: dict = {
             "raw_dump": None, "lore": None, "clips": None,
-            "playthrough": None, "skipped_reason": None,
+            "playthrough": None, "diary": None, "skipped_reason": None,
         }
 
         if self._session_artifacts_written:
@@ -5539,6 +5645,46 @@ class VTubeBot:
             self.kira_state.save_ledger()
         except Exception as e:
             print(f"   [Artifacts] Sentiment ledger persist failed: {e}")
+
+        # ── STAGE 6: Discord daily diary (Phase 1 — REVIEW MODE, no auto-post). ──
+        # Generate Kira's in-character diary entry and SAVE it for review. Posting
+        # is a deliberate manual action from the dashboard; we never fire the
+        # webhook here unless DISCORD_AUTOPOST is explicitly turned on.
+        try:
+            diary = await self.generate_daily_summary(
+                activity=activity,
+                date_str=date_str,
+                session_duration_min=session_duration_min,
+                highlights_block=highlights_block,
+                called_shots_block=called_shots_block,
+                transcript=transcript,
+            )
+            if diary:
+                os.makedirs("logs/diary", exist_ok=True)
+                diary_path = os.path.join("logs/diary", f"{date_str}_{activity_slug}.md")
+                with open(diary_path, "w", encoding="utf-8") as f:
+                    f.write(f"# Kira's Diary — {activity} ({date_str})\n\n")
+                    f.write(f"_~{session_duration_min} min · REVIEW MODE: not yet posted_\n\n")
+                    f.write(diary + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+                self.pending_discord_summary = diary
+                self.pending_discord_summary_path = diary_path
+                self.pending_discord_summary_posted = False
+                results["diary"] = diary_path
+                print(f"   [Diary] Saved for review → {diary_path} (NOT posted)")
+
+                from kira.config import DISCORD_AUTOPOST
+                if DISCORD_AUTOPOST:
+                    try:
+                        from kira.streaming.discord_poster import post_discord_message
+                        ok, detail = await post_discord_message(diary)
+                        self.pending_discord_summary_posted = bool(ok)
+                        print(f"   [Diary] AUTOPOST → {detail}")
+                    except Exception as e:
+                        print(f"   [Diary] Autopost failed: {e}")
+        except Exception as e:
+            print(f"   [Diary] Diary stage failed: {e}")
 
         # ── Auto-delete raw dump if lore + clips both succeeded ──────────────
         # Raw dump's only purpose is crash-recovery backfill. Once lore and clips

@@ -127,6 +127,14 @@ CHAT_POST_KIRA_INTERVAL_SEC = float(os.getenv("CHAT_POST_KIRA_INTERVAL_SEC", "30
 CHAT_POST_KIRA_MAX_PER_SESSION = int(os.getenv("CHAT_POST_KIRA_MAX_PER_SESSION", "8"))   # hard session ceiling
 CHAT_POST_KIRA_MAX_LEN = int(os.getenv("CHAT_POST_KIRA_MAX_LEN", "200"))                  # chat messages stay SHORT
 
+# Discord daily-diary webhook (Phase 1). Kira writes an in-character end-of-
+# session diary entry that is SAVED for review, NOT auto-posted. Posting to the
+# webhook is a deliberate manual action from the dashboard ("Post to Discord").
+# DISCORD_AUTOPOST stays false until the tone is trusted over several sessions;
+# flipping it true would let the diary fire to the webhook automatically.
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+DISCORD_AUTOPOST = os.getenv("DISCORD_AUTOPOST", "false").lower() == "true"
+
 # On-screen captions (Neuro-sama style word-by-word overlay).
 # When ENABLE_CAPTIONS=true, a local WebSocket server starts on
 # CAPTION_SERVER_PORT and broadcasts Kira's spoken lines (with Azure
