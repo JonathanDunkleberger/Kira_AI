@@ -1040,6 +1040,67 @@ html, body {
           </div>
           <button class="btn" onclick="challengeChessAi()">Challenge Stockfish</button>
 
+          <div class="rail-sep"></div>
+
+          <!-- ── Codenames scratchpad ─────────────────────────────────── -->
+          <div class="status-text" id="cn-status">🕵 Codenames — idle</div>
+
+          <div class="field">
+            <label>25-word grid (comma or space separated)</label>
+            <textarea id="cn-words" rows="3" placeholder="apple, river, knight, ... (25 words)" style="width:100%;resize:vertical"></textarea>
+            <div class="row" style="gap:6px;margin-top:4px">
+              <select id="cn-role" style="flex:1">
+                <option value="guesser">Guesser</option>
+                <option value="spymaster">Spymaster (clue-giver)</option>
+              </select>
+              <input type="text" id="cn-team" placeholder="team (red/blue)" style="flex:1">
+            </div>
+            <div class="row" style="gap:6px;margin-top:4px">
+              <button class="btn" onclick="codenamesStart(this)" style="flex:1">Start</button>
+              <button class="btn" onclick="codenamesSetRole(this)" style="flex:1">Set Role</button>
+              <button class="btn" onclick="codenamesReset(this)">Reset</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Reveal a word's identity</label>
+            <input type="text" id="cn-reveal-word" placeholder="word">
+            <div class="row" style="gap:4px;margin-top:4px;flex-wrap:wrap">
+              <button class="btn" onclick="codenamesReveal('team',this)" style="flex:1">Team</button>
+              <button class="btn" onclick="codenamesReveal('opponent',this)" style="flex:1">Opp</button>
+              <button class="btn" onclick="codenamesReveal('neutral',this)" style="flex:1">Neutral</button>
+              <button class="btn" onclick="codenamesReveal('assassin',this)" style="flex:1">Assassin</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Clue (heard or given)</label>
+            <div class="row" style="gap:6px">
+              <input type="text" id="cn-clue-word" placeholder="clue" style="flex:2">
+              <input type="number" id="cn-clue-num" placeholder="#" min="0" value="1" style="flex:1">
+              <select id="cn-clue-by" style="flex:1">
+                <option value="me">me</option>
+                <option value="opponent">opp</option>
+              </select>
+            </div>
+            <button class="btn" onclick="codenamesClue(this)" style="margin-top:4px;width:100%">Log Clue</button>
+          </div>
+
+          <div class="field">
+            <label>Guess</label>
+            <div class="row" style="gap:6px">
+              <input type="text" id="cn-guess-word" placeholder="word" style="flex:2">
+              <select id="cn-guess-id" style="flex:1">
+                <option value="">result?</option>
+                <option value="team">team</option>
+                <option value="opponent">opp</option>
+                <option value="neutral">neutral</option>
+                <option value="assassin">assassin</option>
+              </select>
+            </div>
+            <button class="btn" onclick="codenamesGuess(this)" style="margin-top:4px;width:100%">Log Guess</button>
+          </div>
+
         </div>
       </div><!-- /panel-vn -->
 
@@ -1850,6 +1911,74 @@ function applyChessElo() {
       const disp = document.getElementById('chess-elo-display');
       if (disp) disp.textContent = '→ ' + (data.kira_elo ?? elo);
     }
+  });
+}
+
+// ── Codenames scratchpad ──────────────────────────────────────────────────
+function _cnRenderStatus(data) {
+  const el = document.getElementById('cn-status');
+  if (!el) return;
+  if (!data || data.ok === false) { el.textContent = '🕵 Codenames — error'; return; }
+  if (!data.active) { el.textContent = '🕵 Codenames — idle'; return; }
+  const grid = data.grid || [];
+  const counts = {team:0, opponent:0, neutral:0, assassin:0, unknown:0};
+  grid.forEach(g => { counts[g.identity] = (counts[g.identity]||0) + 1; });
+  const role = data.role === 'spymaster' ? 'Spymaster' : 'Guesser';
+  const team = data.my_team_label ? ` (${data.my_team_label})` : '';
+  let line = `🕵 ${role}${team} — ${counts.unknown} left · team ${counts.team} · opp ${counts.opponent} · neu ${counts.neutral} · assassin ${counts.assassin}`;
+  if (data.current_clue) {
+    line += ` · clue "${data.current_clue.clue}" ${data.guesses_left} left`;
+  }
+  el.textContent = line;
+}
+
+function codenamesStart(btnEl) {
+  const words = document.getElementById('cn-words').value.trim();
+  const role  = document.getElementById('cn-role').value;
+  const team  = document.getElementById('cn-team').value.trim();
+  cmd('codenames_start', {words, role, team}, btnEl).then(_cnRenderStatus);
+}
+
+function codenamesReset(btnEl) {
+  cmd('codenames_reset', {}, btnEl).then(_cnRenderStatus);
+}
+
+function codenamesSetRole(btnEl) {
+  const role = document.getElementById('cn-role').value;
+  cmd('codenames_set_role', {role}, btnEl).then(d => {
+    // set_role returns {role}; refresh full state for the status line.
+    cmd('codenames_state', {}).then(_cnRenderStatus);
+  });
+}
+
+function codenamesReveal(identity, btnEl) {
+  const word = document.getElementById('cn-reveal-word').value.trim();
+  if (!word) { flashBtn(btnEl, false); return; }
+  cmd('codenames_reveal', {word, identity}, btnEl).then(data => {
+    _cnRenderStatus(data);
+    if (data && data.ok !== false) document.getElementById('cn-reveal-word').value = '';
+  });
+}
+
+function codenamesClue(btnEl) {
+  const clue   = document.getElementById('cn-clue-word').value.trim();
+  const number = parseInt(document.getElementById('cn-clue-num').value, 10) || 0;
+  const by     = document.getElementById('cn-clue-by').value;
+  if (!clue) { flashBtn(btnEl, false); return; }
+  cmd('codenames_clue', {clue, number, by}, btnEl).then(data => {
+    _cnRenderStatus(data);
+    if (data && data.ok !== false) document.getElementById('cn-clue-word').value = '';
+  });
+}
+
+function codenamesGuess(btnEl) {
+  const word     = document.getElementById('cn-guess-word').value.trim();
+  const identity = document.getElementById('cn-guess-id').value;
+  if (!word) { flashBtn(btnEl, false); return; }
+  const body = identity ? {word, identity} : {word};
+  cmd('codenames_guess', body, btnEl).then(data => {
+    _cnRenderStatus(data);
+    if (data && data.ok !== false) document.getElementById('cn-guess-word').value = '';
   });
 }
 
