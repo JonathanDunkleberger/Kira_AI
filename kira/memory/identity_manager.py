@@ -207,6 +207,30 @@ def get_entity(name: str, activity_slug: str = "") -> Optional[dict]:
     return None
 
 
+def resolve_alias(name: str) -> str:
+    """Return the canonical display name for a given name or alias.
+
+    If 'name' matches any permanent anchor (by key or also_known_as), returns
+    the properly-cased canonical key so all downstream paths see a single
+    consistent name regardless of which handle was used.
+
+    Examples:
+        resolve_alias("Militele3")  → "Jonny"
+        resolve_alias("@Militele3") → "Jonny"
+        resolve_alias("classiccoldfish") → "classiccoldfish"  (no anchor match)
+
+    This is intentionally a pure lookup — no fuzzy matching, no embeddings.
+    Identity is a lookup problem, not a similarity problem.
+    """
+    for key, entry in _identity.get("permanent", {}).items():
+        if key.lower() == name.lower():
+            return key
+        akas = entry.get("also_known_as", [])
+        if any(a.lower() == name.lower() for a in akas):
+            return key
+    return name
+
+
 # ─── Continuity block (combined Piece 1 + Piece 2 injection) ──────────────────
 
 def get_continuity_block(activity_slug: str = "") -> str:

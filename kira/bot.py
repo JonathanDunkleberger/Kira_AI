@@ -4189,6 +4189,20 @@ class VTubeBot:
                     if ENABLE_CHATTER_MEMORY:
                         self.memory.record_chatter_message(username, source, message_body)
 
+                    # Resolve Twitch/YouTube handles to canonical identity.
+                    # Must happen AFTER record_chatter_message (which keys on the raw
+                    # handle for DB continuity) but BEFORE every downstream path that
+                    # builds prompts, transcripts, the diary, or the roast list.
+                    # e.g. "Militele3" / "@Militele3" → "Jonny".
+                    username = identity_manager.resolve_alias(username)
+
+                    # Tier 1 anchors (Jonny) are the streamer, not viewers.
+                    # Don't mark them as first-time chatters or award viewer cookies.
+                    _is_tier1_anchor = bool(
+                        identity_manager.get_entity(username) is not None
+                        and (identity_manager.get_entity(username) or {}).get("tier") == 1
+                    )
+
                     self.twitch_log.append(content)
                     if len(self.twitch_log) > 100:
                         self.twitch_log = self.twitch_log[-100:]
@@ -4209,7 +4223,9 @@ class VTubeBot:
                         "platform": source,
                         "message": message_body,
                         "timestamp": time.time(),
-                        "is_first_time": (username not in self.session_chatters_seen),
+                        # Never mark Tier 1 anchors (Jonny) as first-time chatters —
+                        # he's the streamer, not a new viewer arriving for a welcome.
+                        "is_first_time": (not _is_tier1_anchor and username not in self.session_chatters_seen),
                     })
                     try:
                         self.stream_logger.log(
@@ -4230,8 +4246,9 @@ class VTubeBot:
                     # a returning regular (has historical chatter-memory facts).
                     # Only awarded once per session per chatter — deduped by the
                     # `is_first_time` flag captured at buffer time above.
+                    # Skipped for Tier 1 anchors (Jonny) — he's the streamer.
                     try:
-                        if self.chat_batch_buffer[-1].get("is_first_time"):
+                        if not _is_tier1_anchor and self.chat_batch_buffer[-1].get("is_first_time"):
                             n = 1
                             try:
                                 if (
