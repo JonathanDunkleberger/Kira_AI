@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Now Watching</title>
+<!--
+  Tiny ambient "NOW WATCHING" tag for the cozy room.
+  Reads the full bot state snapshot from ws://127.0.0.1:8766/ws (pushed every
+  500ms) and surfaces media_watch.window while Media Watch is running.
+  Hides itself the moment Media Watch stops. No graphics — pure CSS pill.
+
+  OBS: add as a Browser Source, 360x80, transparent. Position to taste; the
+  pill anchors to the top-left of its own box and only takes the space it needs.
+-->
+<style>
+  :root {
+    --ink:    #f3e9d6;   /* warm parchment text */
+    --sub:    #c9a36b;   /* muted gold label    */
+    --glow:   #7fd4c4;   /* dying-CRT teal accent */
+    --panel:  rgba(20, 16, 12, 0.62);
+    --edge:   rgba(127, 212, 196, 0.28);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: transparent;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #now {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 340px;
+    padding: 8px 14px 8px 11px;
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .45s ease, transform .45s ease;
+    pointer-events: none;
+  }
+  #now.visible { opacity: 1; transform: translateY(0); }
+
+  /* Soft pulsing play glyph */
+  #now .dot {
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--glow);
+    box-shadow: 0 0 8px var(--glow);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: .45; transform: scale(0.85); }
+    50%      { opacity: 1;   transform: scale(1.05); }
+  }
+
+  #now .label {
+    flex: 0 0 auto;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--sub);
+  }
+
+  #now .title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+  <div id="now">
+    <span class="dot"></span>
+    <span class="label">Now Watching</span>
+    <span class="title" id="np-title"></span>
+  </div>
+
+<script>
+const WS_URL       = 'ws://127.0.0.1:8766/ws';
+const RECONNECT_MS = 3000;
+
+const $now   = document.getElementById('now');
+const $title = document.getElementById('np-title');
+
+let _lastTitle = '';
+
+/* Trim a noisy OS window title down to something readable.
+   Strips trailing " - App Name" suffixes (e.g. mpv, VLC, browser tabs). */
+function cleanTitle(raw) {
+  let t = (raw || '').trim();
+  if (!t) return '';
+  // Drop a trailing " - <app>" chunk if there are multiple " - " separators.
+  const parts = t.split(' - ');
+  if (parts.length >= 2) {
+    const last = parts[parts.length - 1].toLowerCase();
+    if (/(mpv|vlc|chrome|firefox|edge|brave|youtube|player|media)/.test(last)) {
+      parts.pop();
+      t = parts.join(' - ').trim();
+    }
+  }
+  if (t.length > 56) t = t.slice(0, 55).trimEnd() + '\u2026';
+  return t;
+}
+
+function render(state) {
+  const mw = (state && state.media_watch) || {};
+  const running = !!mw.running;
+  const title = cleanTitle(mw.window);
+
+  if (running && title) {
+    if (title !== _lastTitle) {
+      $title.textContent = title;
+      _lastTitle = title;
+    }
+    $now.classList.add('visible');
+  } else {
+    $now.classList.remove('visible');
+    _lastTitle = '';
+  }
+}
+
+function connect() {
+  let ws;
+  try { ws = new WebSocket(WS_URL); } catch { setTimeout(connect, RECONNECT_MS); return; }
+
+  ws.onmessage = (ev) => {
+    let state;
+    try { state = JSON.parse(ev.data); } catch { return; }
+    render(state);
+  };
+
+  ws.onclose = () => { $now.classList.remove('visible'); setTimeout(connect, RECONNECT_MS); };
+  ws.onerror = () => ws.close();
+}
+
+connect();
+</script>
+</body>
+</html>

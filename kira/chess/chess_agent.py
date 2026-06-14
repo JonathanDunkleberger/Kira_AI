@@ -173,6 +173,7 @@ class ChessAgent:
         self._session_wins:   int = 0
         self._session_losses: int = 0
         self._session_draws:  int = 0
+        self._session_win_streak: int = 0   # consecutive wins; resets on loss/draw
         self._opp_id: str = ""           # lowercase Lichess ID of current opponent
         self._is_viewer_game: bool = False  # True when opp is not CHESS_OWNER_LICHESS_ID
         # Lifetime W/L/D loaded from (and saved back to) data/chess_lifetime.json.
@@ -1188,12 +1189,15 @@ class ChessAgent:
             if kira_won:
                 self._session_wins  += 1
                 self._lifetime_wins += 1
+                self._session_win_streak += 1
             else:
                 self._session_losses  += 1
                 self._lifetime_losses += 1
+                self._session_win_streak = 0
         else:
             self._session_draws  += 1
             self._lifetime_draws += 1
+            self._session_win_streak = 0
         self._save_lifetime()
 
         # \u2500\u2500 Score overlay callback \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -1211,12 +1215,27 @@ class ChessAgent:
             try:
                 if winner:
                     if kira_won:
-                        banner_text = f"\u265f DUCHESS WINS \u2014 vs {self._opp_name}"
+                        # Record-tick milestone takes over the win banner when a
+                        # notable streak lands (3, 5, then every 5). A clean
+                        # "X-0" reads as a perfect run when she's dropped nothing.
+                        streak = self._session_win_streak
+                        is_milestone = streak == 3 or streak == 5 or (streak >= 10 and streak % 5 == 0)
+                        if is_milestone:
+                            if self._session_losses == 0 and self._session_draws == 0:
+                                banner_text = f"\u265f DUCHESS \u2014 {self._session_wins}-0 PERFECT RUN \U0001f525"
+                            else:
+                                banner_text = f"\u265f DUCHESS \u2014 {streak} WIN STREAK \U0001f525"
+                            banner_dur = 12
+                        else:
+                            banner_text = f"\u265f DUCHESS WINS \u2014 vs {self._opp_name}"
+                            banner_dur = 10
                     else:
                         banner_text = f"\u265f game over \u2014 lost to {self._opp_name}"
+                        banner_dur = 10
                 else:
                     banner_text = f"\u265f draw \u2014 vs {self._opp_name} ({status})"
-                await self.on_banner(banner_text, 10)
+                    banner_dur = 10
+                await self.on_banner(banner_text, banner_dur)
             except Exception:
                 pass
 

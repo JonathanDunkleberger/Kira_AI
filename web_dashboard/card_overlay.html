@@ -209,6 +209,7 @@ let _cardShowTime  = 0;
 let _cardHideReady = false;
 let _cardQueue     = [];
 let _lastCardTs    = 0;  // dedup: ignore card_show with same ts as previous
+let _cardChatter   = '';  // chatter on the card currently shown (for cookie attribution)
 let _bannerTimer   = null;
 let _badgeTimer    = null;
 
@@ -256,6 +257,7 @@ function showCard(event) {
   $cardName.style.cssText = `top:${top}px;left:${left}px;width:${zoneW}px;height:${nameH}px;`;
   $cardName.innerHTML = _truncate(event.chatter || '?', 24)
                       + _platformDotHtml((event.platform || '').toLowerCase());
+  _cardChatter = (event.chatter || '').toLowerCase();
 
   // Message: hard-capped at 30 visible chars so overflow is impossible.
   const snippet = _truncate(event.message || '', 30);
@@ -283,8 +285,7 @@ function hideCard(callback) {
     $cardRoot.classList.remove('card-anim-out');
     _cardVisible   = false;
     _cardHideReady = false;
-    _cardShowTime  = 0;
-    if (callback) callback();
+    _cardShowTime  = 0;    _cardChatter   = '';    if (callback) callback();
     if (_cardQueue.length > 0) showCard(_cardQueue.shift());
   }, { once: true });
 }
@@ -297,8 +298,12 @@ function maybeDismissCard() {
 }
 
 /* ── Cookie badge ──────────────────────────────────── */
-function flashCookieBadge() {
+/* Flash '+1 🍪' only when the awarded chatter matches the card currently shown,
+   so the badge always lands on the right person. */
+function flashCookieBadge(chatter) {
   if (!_cardVisible) return;
+  const who = (chatter || '').toLowerCase();
+  if (!who || who !== _cardChatter) return;
   clearTimeout(_badgeTimer);
   $badge.classList.add('visible');
   _badgeTimer = setTimeout(() => $badge.classList.remove('visible'), 1500);
@@ -372,7 +377,7 @@ function connect() {
         break;
 
       case 'cookie_drop':
-        flashCookieBadge();
+        flashCookieBadge(msg.chatter);
         break;
     }
   };

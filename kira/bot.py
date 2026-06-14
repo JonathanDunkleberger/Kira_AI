@@ -1029,12 +1029,22 @@ class VTubeBot:
         except Exception as e:
             print(f"   [Cookies] Overlay broadcast (milestone) failed: {e}")
 
-    def _broadcast_cookie_drop(self, gold: bool = False) -> None:
-        """Send a cookie_drop event to the overlay (drop animation). Sync wrapper
-        that schedules the async send via ensure_future. Fire-and-forget."""
+    def _broadcast_cookie_drop(self, gold: bool = False, chatter: str = "") -> None:
+        """Send a cookie_drop event to the overlays. Sync wrapper that schedules
+        the async sends via ensure_future. Fire-and-forget.
+
+        Two channels:
+          • caption server (8765) drives the cookie-jar drop animation.
+          • /ws/overlays (8766) carries *chatter* so the response card can flash
+            a '+1 🍪' badge attributed to the right person."""
         try:
             from kira.expression.caption_server import caption_server as _cs
             asyncio.ensure_future(_cs.send_cookie_drop(gold=gold))
+        except Exception:
+            pass
+        try:
+            from kira.dashboard.control_server import push_cookie_drop
+            asyncio.ensure_future(push_cookie_drop(chatter=chatter, gold=gold))
         except Exception:
             pass
 
@@ -1079,10 +1089,41 @@ class VTubeBot:
                 self.stream_logger.log("stream_event", kind=kind, name=name, **extra)
             except Exception:
                 pass
+            # Fire a brief celebratory banner on the overlay (reuses the existing
+            # banner element — no new graphics). Best-effort, never blocks.
+            banner = self._build_stream_event_banner(kind, name, extra)
+            if banner:
+                try:
+                    from kira.dashboard.control_server import push_banner_show
+                    asyncio.ensure_future(push_banner_show(banner, 10))
+                except Exception:
+                    pass
             # Fire on the loop so we never block the IRC callback.
             asyncio.create_task(self._arbiter_interjection(prompt, memory_query=name))
         except Exception as e:
             print(f"   [StreamEvent] _on_stream_event error: {e}")
+
+    def _build_stream_event_banner(self, kind: str, name: str, extra: dict) -> str:
+        """Short overlay banner string for a Twitch event. Brief, on-brand, ALL
+        CAPS to match the chess/jar banners. Returns '' for unhandled kinds."""
+        if kind == "raid":
+            count = int(extra.get("viewer_count", 0) or 0)
+            tail = f" \u2014 +{count}" if count >= 1 else ""
+            return f"\u2728 RAID \u2014 {name}{tail}"
+        if kind in ("sub", "resub"):
+            months = int(extra.get("months", 1) or 1)
+            if kind == "resub" and months > 1:
+                return f"\U0001f49c RESUB \u2014 {name} ({months} MONTHS)"
+            return f"\U0001f49c NEW SUB \u2014 {name}"
+        if kind in ("subgift", "anonsubgift"):
+            gifter = name if kind == "subgift" else "ANON"
+            recipient = extra.get("recipient", "someone")
+            return f"\U0001f381 GIFT SUB \u2014 {gifter} \u2192 {recipient}"
+        if kind in ("submysterygift", "anonsubmysterygift"):
+            count = int(extra.get("mass_count", 1) or 1)
+            gifter = name if kind == "submysterygift" else "ANON"
+            return f"\U0001f381 {count} GIFT SUBS \u2014 {gifter}"
+        return ""
 
     def _build_stream_event_prompt(self, kind: str, name: str, extra: dict) -> str:
         """Translate a Twitch event into a high-priority interjection prompt.
@@ -3996,7 +4037,8 @@ class VTubeBot:
                             )
                             await self._broadcast_cookie_state()
                             self._broadcast_cookie_drop(
-                                gold=self.cookie_jar.milestone_pending()
+                                gold=self.cookie_jar.milestone_pending(),
+                                chatter=username,
                             )
                             self._maybe_fire_cookie_milestone()
                     except Exception as _ck_err:
@@ -4816,8 +4858,8 @@ class VTubeBot:
                 )
                 await self._broadcast_cookie_state()
                 gold = self.cookie_jar.milestone_pending()
-                for _ in awarded_users:
-                    self._broadcast_cookie_drop(gold=gold)
+                for _u in awarded_users:
+                    self._broadcast_cookie_drop(gold=gold, chatter=_u)
                 self._maybe_fire_cookie_milestone()
         except Exception as _ck_err:
             print(f"   [Cookies] Batch-response award error: {_ck_err}")

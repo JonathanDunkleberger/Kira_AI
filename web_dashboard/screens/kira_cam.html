@@ -320,6 +320,7 @@
 
     /* Draw a sleeping cat + drifting zzz, sized to fill the inset box. */
     function _drawCat(ctx, cw, ch, t) {
+      ctx.save();
       /* CAT art grid is 10 cols × 7 rows. Reserve the right ~26% of the box for
          the drifting z's. The cat is the tallest glyph, so hold it to ~0.85 of
          the box height — its soft glow then clears the inset ceiling too. */
@@ -354,12 +355,14 @@
         ctx.fillStyle = `rgba(68,204,68,${alpha.toFixed(2)})`;
         ctx.fillText('z', zx, zy);
       }
+      ctx.restore();
     }
 
     /* Draw waveform bars (speaking state), fit to the inset box width.
        Sizing mirrors the heart: uses min(cw, ch) as the reference so bars
        stay comfortably inside the glass regardless of the box aspect ratio. */
     function _drawWaveform(ctx, cw, ch, t) {
+      ctx.save();
       /* 4 bars, sized so the group fills ~70% of the smaller dimension.
          This keeps the waveform inside the TV glass on any screen layout. */
       const BAR_COUNT = 4;
@@ -386,10 +389,12 @@
         ctx.fillRect(bx, baseY - bh, BAR_W, Math.max(1, Math.round(BAR_W / 2)));
       }
       ctx.shadowBlur = 0;
+      ctx.restore();
     }
 
     /* Draw chess knight (unicode glyph), sized to fill the inset box. */
     function _drawChess(ctx, cw, ch, t) {
+      ctx.save();
       const pulse = 0.75 + 0.25 * Math.sin(t * 0.0015);
       /* 0.78 + a downward nudge (0.58) keeps the glyph's ink — which renders
          high of the baseline-middle — fully inside the inset box top & bottom. */
@@ -402,16 +407,18 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('\u265e', cw / 2, ch * 0.58);
       ctx.shadowBlur  = 0;
-      ctx.textBaseline = 'alphabetic';
+      ctx.restore();
     }
 
     /* Scanline overlay — drawn every frame on top of pixel art */
     function _drawScanlines(ctx, cw, ch) {
+      ctx.save();
       const step = 4;
       ctx.fillStyle = 'rgba(0,0,0,0.22)';
       for (let y = 0; y < ch; y += step) {
         ctx.fillRect(0, y, cw, 2);
       }
+      ctx.restore();
     }
 
     /* ─── State machine ─────────────────────────────────────────────────── */
@@ -523,27 +530,37 @@
       ctx.restore();
 
       _drawScanlines(ctx, cw, ch);
-
-      /* Subtle CRT phosphor flicker using same cfg params as the glow overlay */
-      const flicker = CFG.crtBaseGlow + CFG.crtAmp * Math.sin((t / CFG.crtPeriod) * Math.PI * 2);
-      ctx.globalAlpha = Math.max(0, Math.min(1, 0.85 + flicker * 0.15));
-      /* Alpha already applied via globalAlpha — reset */
-      ctx.globalAlpha = 1;
     }
 
     /* ─── Bot state WebSocket ────────────────────────────────────────────── */
-    let _botWs      = null;
-    let _botWsRetry = 1500;
+    let _botWs        = null;
+    let _botWsRetry   = 1500;
+    let _botReconnectTimer = null;   /* guard: at most one pending reconnect */
     const _BOT_WS   = 'ws://127.0.0.1:8766/ws';
     const _BOT_WS_MAX = 30000;
 
     function _connectBotWs() {
-      try { _botWs = new WebSocket(_BOT_WS); }
+      _botReconnectTimer = null;   /* this attempt consumes the scheduled slot */
+
+      /* Tear down any prior socket so its handlers can't fire a second
+         reconnect chain (over a long stream that would leak sockets/GC). */
+      if (_botWs) {
+        try {
+          _botWs.onopen = _botWs.onmessage = _botWs.onerror = _botWs.onclose = null;
+          _botWs.close();
+        } catch (_) {}
+        _botWs = null;
+      }
+
+      let ws;
+      try { ws = new WebSocket(_BOT_WS); }
       catch (_) { _scheduleBotReconnect(); return; }
+      _botWs = ws;
 
-      _botWs.onopen = function () { _botWsRetry = 1500; };
+      ws.onopen = function () { _botWsRetry = 1500; };
 
-      _botWs.onmessage = function (e) {
+      ws.onmessage = function (e) {
+        if (ws !== _botWs) return;   /* ignore stragglers from a stale socket */
         try {
           _botState  = JSON.parse(e.data);
           _wsLastMsg = Date.now();
@@ -551,12 +568,16 @@
         } catch (_) {}
       };
 
-      _botWs.onerror  = function () {};
-      _botWs.onclose  = function () { _scheduleBotReconnect(); };
+      ws.onerror  = function () {};
+      ws.onclose  = function () {
+        if (ws !== _botWs) return;   /* superseded socket — its reconnect is moot */
+        _scheduleBotReconnect();
+      };
     }
 
     function _scheduleBotReconnect() {
-      setTimeout(_connectBotWs, _botWsRetry);
+      if (_botReconnectTimer) return;   /* a reconnect is already queued */
+      _botReconnectTimer = setTimeout(_connectBotWs, _botWsRetry);
       _botWsRetry = Math.min(_botWsRetry * 2, _BOT_WS_MAX);
     }
 

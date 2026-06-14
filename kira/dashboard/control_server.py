@@ -201,6 +201,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "calls": _get(lambda: getattr(mw, "_calls_count", 0) if mw else 0, 0),
         "cost_usd": _get(lambda: round(getattr(mw, "_calls_cost_usd", 0.0), 3) if mw else 0.0, 0.0),
         "latest": _get(_mw_latest, None),
+        "window": _get(lambda: (getattr(mw, "window_title", "") or "").strip() if mw else "", ""),
     }
 
     # ── Chess Mode ────────────────────────────────────────────────────────────
@@ -512,6 +513,18 @@ async def push_banner_show(text: str, duration_s: int = 8) -> None:
 
 async def push_banner_hide() -> None:
     await push_overlay_event({"type": "banner_hide"})
+
+
+async def push_cookie_drop(chatter: str = "", gold: bool = False) -> None:
+    """Broadcast a cookie_drop to /ws/overlays so the card overlay can flash a
+    '+1 🍪' badge attributed to *chatter*. The card overlay only flashes when
+    *chatter* matches the chatter currently shown on its card — keeping the
+    badge on the right person. Empty chatter means 'no attribution' (skipped)."""
+    await push_overlay_event({
+        "type":    "cookie_drop",
+        "chatter": (chatter or ""),
+        "gold":    bool(gold),
+    })
 
 
 async def push_score_update(
