@@ -1114,6 +1114,16 @@ html, body {
           <div class="status-text" id="st-status">🎭 idle</div>
 
           <div class="field">
+            <label>Saved shows (survive restarts)</label>
+            <div class="row" style="gap:6px">
+              <select id="st-library" title="previously generated shows" style="flex:1"></select>
+              <button class="btn" onclick="storytimeLoad(this)">Load</button>
+              <button class="btn" onclick="storytimeLibraryRefresh(this)" title="Rescan saved shows">⟳</button>
+            </div>
+            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Pick a pre-generated show and Load it to review or Perform — no regeneration needed.</div>
+          </div>
+
+          <div class="field">
             <label>Story theme</label>
             <textarea id="st-theme" rows="2" placeholder="e.g. a lonely lighthouse keeper who befriends the fog" style="width:100%;resize:vertical"></textarea>
             <div class="row" style="gap:6px;margin-top:4px">
@@ -2092,6 +2102,8 @@ function _stRender(data) {
     _stPollTimer = setInterval(storytimeRefresh, 1500);
   } else if (!live && _stPollTimer) {
     clearInterval(_stPollTimer); _stPollTimer = null;
+    // Just finished generating — a new show was persisted; refresh the library.
+    if (data.status === 'ready') storytimeLibraryRefresh();
   }
 }
 
@@ -2118,6 +2130,39 @@ function storytimePresetsInit() {
   });
 }
 document.addEventListener('DOMContentLoaded', storytimePresetsInit);
+
+// Populate the saved-show library dropdown (shows persisted on disk).
+function storytimeLibraryRefresh(btnEl) {
+  cmd('storytime_library', {}, btnEl).then(d => {
+    const sel = document.getElementById('st-library');
+    if (!sel || !d || !Array.isArray(d.shows)) return;
+    const prev = sel.value;
+    sel.innerHTML = '';
+    if (d.shows.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = ''; opt.textContent = '(no saved shows yet)';
+      sel.appendChild(opt);
+      return;
+    }
+    d.shows.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.show_id;
+      opt.textContent = `${s.title} · ${s.ready}/${s.beats}${s.preset ? ' · '+s.preset : ''}`;
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+  });
+}
+document.addEventListener('DOMContentLoaded', () => storytimeLibraryRefresh());
+
+function storytimeLoad(btnEl) {
+  const sel = document.getElementById('st-library');
+  const show_id = sel ? sel.value : '';
+  if (!show_id) { flashBtn(btnEl, false); return; }
+  cmd('storytime_load', {show_id}, btnEl).then(d => {
+    if (d && d.ok !== false) _stRender(d); else flashBtn(btnEl, false);
+  });
+}
 
 function storytimePrepare(btnEl) {
   const theme = document.getElementById('st-theme').value.trim();

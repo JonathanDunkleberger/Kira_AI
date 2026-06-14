@@ -819,6 +819,7 @@ class _CmdBody(BaseModel):
     preset: str | None = None              # structure/tone preset key
     note: str | None = None                # operator note for a single-beat rewrite
     narration: str | None = None           # hand-edited narration for one beat
+    show_id: str | None = None             # saved-show folder id (load from library)
 
     # ── Stream screen fields (for screen_text command)
     screen: str | None = None
@@ -1265,6 +1266,19 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if action == "storytime_presets":
             from kira.storytime.script_writer import list_presets
             return _ok(presets=list_presets())
+
+        if action == "storytime_library":
+            return _ok(shows=st.list_library())
+
+        if action == "storytime_load":
+            if not body.show_id:
+                return _err("load needs 'show_id'")
+            if st.snapshot().get("busy"):
+                return _err("Storytime is busy — wait for the current step to finish")
+            ok = st.load_show(body.show_id)
+            if not ok:
+                return _err("Could not load that saved show (missing or no scenes)")
+            return _ok(**st.snapshot())
 
         if action == "storytime_prepare":
             if st.snapshot().get("busy"):

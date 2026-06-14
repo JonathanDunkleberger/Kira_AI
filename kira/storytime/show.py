@@ -55,6 +55,10 @@ ERROR_SHOW = "error"
 # limits while still pre-generating ~16 scenes in a couple of minutes.
 _GEN_CONCURRENCY = 3
 
+# Per-show manifest filename, written alongside the scene PNGs so a generated
+# show survives a restart and can be loaded + performed later without regen.
+_MANIFEST_NAME = "manifest.json"
+
 
 class Beat:
     """One scene: narration line + its silhouette image."""
@@ -82,6 +86,28 @@ class Beat:
             "error": self.error,
             "url": url,
         }
+
+    def to_manifest(self) -> dict:
+        """Serializable record persisted to manifest.json (includes mtime + status)."""
+        return {
+            "idx": self.idx,
+            "narration": self.narration,
+            "image_prompt": self.image_prompt,
+            "status": self.status,
+            "error": self.error,
+            "mtime": self._mtime,
+        }
+
+    @classmethod
+    def from_manifest(cls, d: dict) -> "Beat":
+        b = cls(int(d.get("idx", 0)), str(d.get("narration", "")), str(d.get("image_prompt", "")))
+        b.status = str(d.get("status", PENDING))
+        b.error = str(d.get("error", ""))
+        try:
+            b._mtime = float(d.get("mtime", 0.0))
+        except (TypeError, ValueError):
+            b._mtime = 0.0
+        return b
 
 
 class StorytimeShow:
@@ -179,6 +205,7 @@ class StorytimeShow:
             done = sum(1 for b in self.beats if b.status == DONE)
             errs = sum(1 for b in self.beats if b.status == ERROR)
             self._set_status(READY)
+            self._write_manifest()
             print(f"   [Storytime] ✅ show READY — {done}/{len(self.beats)} scenes "
                   f"generated ({errs} errored)")
         finally:
@@ -199,6 +226,7 @@ class StorytimeShow:
                     self._anchor_bytes = self._read_scene_bytes(0)
             else:
                 await self._gen_one(idx, reference=self._anchor_bytes)
+            self._write_manifest()
         finally:
             self._busy = False
 
@@ -208,6 +236,7 @@ class StorytimeShow:
         if idx < 0 or idx >= len(self.beats):
             return False
         self.beats[idx].narration = (narration or "").strip()
+        self._write_manifest()
         return True
 
     async def rewrite_beat_script(self, idx: int, note: str = "") -> None:
@@ -242,6 +271,7 @@ class StorytimeShow:
                     self._anchor_bytes = self._read_scene_bytes(0)
             else:
                 await self._gen_one(idx, reference=self._anchor_bytes)
+            self._write_manifest()
         finally:
             self._busy = False
 
@@ -373,6 +403,102 @@ class StorytimeShow:
     def _make_show_id(title: str) -> str:
         slug = re.sub(r"[^a-zA-Z0-9]+", "_", title or "show").strip("_").lower()[:32] or "show"
         return f"{time.strftime('%Y-%m-%d_%H-%M')}_{slug}"
+
+    # ── Persistence (manifest on disk) ───────────────────────────────────────
+
+    def _write_manifest(self) -> None:
+        """Persist the full show manifest next to the scene PNGs so it survives a
+        restart. Best-effort: a write failure never breaks generation/perform."""
+        if not self._dir or not self.show_id:
+            return
+        manifest = {
+            "show_id": self.show_id,
+            "title": self.title,
+            "theme": self.theme,
+            "preset": self.preset,
+            "created": time.time(),
+            "beats": [b.to_manifest() for b in self.beats],
+        }
+        try:
+            import json
+            self._dir.mkdir(parents=True, exist_ok=True)
+            tmp = self._dir / (_MANIFEST_NAME + ".tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(manifest, f, ensure_ascii=False, indent=2)
+            tmp.replace(self._dir / _MANIFEST_NAME)
+        except Exception as e:
+            print(f"   [Storytime] ⚠ manifest write failed for {self.show_id}: {e}")
+
+    @staticmethod
+    def _read_manifest(show_dir: Path) -> dict | None:
+        path = show_dir / _MANIFEST_NAME
+        if not path.is_file():
+            return None
+        try:
+            import json
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+
+    def list_library(self) -> list[dict]:
+        """Scan the scenes root for saved shows (folders with a manifest). Returns
+        lightweight records for the dashboard's saved-show picker, newest first."""
+        out: list[dict] = []
+        if not _SCENES_ROOT.is_dir():
+            return out
+        for d in _SCENES_ROOT.iterdir():
+            if not d.is_dir():
+                continue
+            m = self._read_manifest(d)
+            if not m:
+                continue
+            beats = m.get("beats", []) or []
+            ready = sum(1 for b in beats if b.get("status") == DONE)
+            out.append({
+                "show_id": m.get("show_id", d.name),
+                "title": m.get("title", d.name),
+                "theme": m.get("theme", ""),
+                "preset": m.get("preset", ""),
+                "created": m.get("created", 0),
+                "beats": len(beats),
+                "ready": ready,
+            })
+        out.sort(key=lambda r: r.get("created", 0), reverse=True)
+        return out
+
+    def load_show(self, show_id: str) -> bool:
+        """Load a saved show from disk into the active slot so it can be reviewed,
+        re-rolled, or performed without regenerating. Returns True on success."""
+        if self._busy:
+            print("   [Storytime] ✖ load ignored — busy")
+            return False
+        show_id = (show_id or "").strip()
+        # Guard against path traversal — only a plain folder name is accepted.
+        if not show_id or "/" in show_id or "\\" in show_id or ".." in show_id:
+            print(f"   [Storytime] ✖ load rejected — bad show_id {show_id!r}")
+            return False
+        show_dir = _SCENES_ROOT / show_id
+        m = self._read_manifest(show_dir)
+        if not m:
+            print(f"   [Storytime] ✖ load failed — no manifest for {show_id!r}")
+            return False
+        self.reset()
+        self.show_id = m.get("show_id", show_id)
+        self.title = m.get("title", show_id)
+        self.theme = m.get("theme", "")
+        self.preset = m.get("preset", "")
+        self._dir = show_dir
+        self.beats = [Beat.from_manifest(b) for b in (m.get("beats", []) or [])]
+        # Re-establish the style anchor so re-rolls stay consistent.
+        if self.beats and self.beats[0].status == DONE:
+            self._anchor_bytes = self._read_scene_bytes(0)
+        ready = sum(1 for b in self.beats if b.status == DONE)
+        self._set_status(READY if ready else ERROR_SHOW,
+                         "" if ready else "no generated scenes in saved show")
+        print(f"   [Storytime] 📂 loaded \"{self.title}\" — {ready}/{len(self.beats)} "
+              f"scenes ready ({self.show_id})")
+        return ready > 0
 
     # ── State surface (dashboard) ────────────────────────────────────────────
 
