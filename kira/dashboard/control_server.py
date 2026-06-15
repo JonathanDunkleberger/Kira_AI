@@ -1326,9 +1326,14 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
 
         if action == "storytime_perform":
             snap = st.snapshot()
+            # INSTRUMENT: loud sentinel so "command never arrived" is distinguishable
+            # from "command arrived and was rejected". This line MUST appear in the
+            # terminal log on every Perform click that reaches the backend.
+            print(f"   [Storytime] ▶ PERFORM command received "
+                  f"(status={snap.get('status')!r}, title={snap.get('title')!r})")
             if snap.get("status") not in ("ready", "done"):
-                print(f"   [Storytime] ✖ perform rejected — status={snap.get('status')!r} "
-                      f"progress={snap.get('progress')} (need a generated show first)")
+                print(f"   [Storytime] ✖ PERFORM REJECTED — status={snap.get('status')!r} "
+                      f"(need 'ready' or 'done'; is the show fully generated?)")
                 return _err("Nothing to perform — prepare a show first")
             speak = bot.ai_core.speak_text
             print(f"   [Storytime] ▶ Perform Live starting — \"{snap.get('title')}\" "

@@ -2191,8 +2191,24 @@ function storytimeRewrite(idx, btnEl) {
 }
 
 function storytimePerform(btnEl) {
-  if (!confirm('Perform this show live on stream now?')) return;
-  cmd('storytime_perform', {}, btnEl).then(storytimeRefresh);
+  // INSTRUMENT: log that the onclick fired and the button's current disabled state.
+  // If this line never appears in the browser console, the onclick is not wired.
+  console.log('[Storytime] Perform button clicked — disabled=', btnEl ? btnEl.disabled : '?');
+  if (btnEl && btnEl.disabled) {
+    console.warn('[Storytime] Perform button is DISABLED — click silently ignored. ' +
+      'Show must have status ready or done. Refresh the panel to check current status.');
+    return;
+  }
+  if (!confirm('Perform this show live on stream now?')) {
+    console.log('[Storytime] Perform cancelled by user at confirm dialog.');
+    return;
+  }
+  // INSTRUMENT: log the exact URL + action being POSTed.
+  console.log(`[Storytime] POSTing to ${API}/cmd/storytime_perform`);
+  cmd('storytime_perform', {}, btnEl).then(d => {
+    console.log('[Storytime] storytime_perform response:', d);
+    storytimeRefresh();
+  });
 }
 
 function storytimeStop(btnEl) {

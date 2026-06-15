@@ -54,6 +54,7 @@ class StreamLogger:
         self._lock = threading.Lock()
         self._disk_error: bool = False
         self._started: bool = False
+        self._finishing: bool = False  # guard against concurrent finish() calls
         self._is_running: bool = False
         self._writer_task: asyncio.Task | None = None
         self._session_start_ts: float = 0.0
@@ -139,6 +140,10 @@ class StreamLogger:
         never crash the process."""
         if not self._started:
             return
+        if self._finishing:
+            print("   [StreamLogger] finish() already in progress — skipping duplicate call.", file=sys.stderr)
+            return
+        self._finishing = True
         self._is_running = False
 
         duration_s = int(time.time() - self._session_start_ts)
@@ -171,6 +176,7 @@ class StreamLogger:
                 traceback.print_exc(file=sys.stderr)
 
         self._started = False
+        self._finishing = False
         print(f"   [StreamLogger] Session closed → {self._session_dir}")
 
     async def restart(self, activity: str, mode: str, preset: str, ai_core=None) -> None:
