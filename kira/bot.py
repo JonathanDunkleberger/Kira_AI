@@ -1420,9 +1420,8 @@ class VTubeBot:
             await self.ai_core.speak_text(cleaned)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
-            # Tag this reaction in the playthrough record for the session entry
-            if self.playthrough_memory and self.playthrough_memory.current_slug:
-                self.playthrough_memory.tag_reaction(cleaned)
+            # Tag this reaction in the playthrough record + valence signal
+            self._tag_spoken_reaction(cleaned)
             # Pool unconditionally during streamer mode (Req A)
             if self.mode == "streamer":
                 self._note_session_take(cleaned)
@@ -1437,8 +1436,7 @@ class VTubeBot:
             await self.ai_core.speak_text_vn(cleaned, ssml_inner)
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
-            if self.playthrough_memory and self.playthrough_memory.current_slug:
-                self.playthrough_memory.tag_reaction(cleaned)
+            self._tag_spoken_reaction(cleaned)
             if self.mode == "streamer":
                 self._note_session_take(cleaned)
 
@@ -2469,6 +2467,24 @@ class VTubeBot:
         print("   [Interrupt] Speech interrupted")
 
     # ── Session-takes condenser ──────────────────────────────────────────────
+
+    def _tag_spoken_reaction(self, cleaned: str) -> None:
+        """Single funnel for one of Kira's spoken reaction lines. Routes it into:
+          1. the playthrough record's reactions accumulator (when a slug is set), and
+          2. the signed-valence signal (always — she accrues feeling toward people
+             even in general mode).
+        Mirrors the VN path so controller-game reactions (007, Hitman) feed memory
+        the SAME way instead of being dropped and reconstructed by Sonnet afterward.
+        Self-guards on length and slug, so it's a no-op where the old inline calls
+        were no-ops — behaviour for the playthrough .md is unchanged."""
+        if not cleaned or len(cleaned) <= 2:
+            return
+        if self.playthrough_memory and self.playthrough_memory.current_slug:
+            self.playthrough_memory.tag_reaction(cleaned)
+        try:
+            self.kira_state.note_reaction_for_valence(cleaned)
+        except Exception as e:
+            print(f"   [Valence] intake error (continuing): {e}")
 
     def _note_session_take(self, line: str):
         """Append a Kira-spoken reaction line to the bot-owned session takes pool,
@@ -5124,6 +5140,9 @@ class VTubeBot:
             speaker_name=chatter_names,
         )
         self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
+        # Controller-game reaction tagging: her chat-batch reply is also a real
+        # spoken reaction — feed playthrough memory + valence via the funnel.
+        self._tag_spoken_reaction(cleaned)
         self.ai_core.last_speech_finish_time = time.time()
 
         for msg in batch:
@@ -6976,9 +6995,9 @@ class VTubeBot:
                 # is a short sliding window).
                 self._maybe_condense_session_takes()
             # Also tag into playthrough_memory when a slug IS set, so end-of-session
-            # opinion mining / markdown writeout still gets the reaction.
-            if self.playthrough_memory and self.playthrough_memory.current_slug:
-                self.playthrough_memory.tag_reaction(cleaned)
+            # opinion mining / markdown writeout still gets the reaction. Also feeds
+            # the signed-valence signal (funnel helper).
+            self._tag_spoken_reaction(cleaned)
             self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
             self.recent_observer_comments.append(cleaned)
             self.recent_observer_comments = self.recent_observer_comments[-12:]
@@ -7437,6 +7456,12 @@ class VTubeBot:
             # Update history (The Assistant's Turn)
             self.conversation_history.append({"role": "assistant", "content": full_response_text})
             self._log_session_turn(role="assistant", content=full_response_text, speaker_name="Kira")
+            # Controller-game reaction tagging: her in-the-moment reply to Jonny is a
+            # real felt reaction — feed it into playthrough memory + valence the same
+            # way VN/observer reactions are, instead of dropping it for Sonnet to
+            # reconstruct later. Funnel self-guards on slug, so general mode only
+            # accrues valence.
+            self._tag_spoken_reaction(full_response_text)
             self.conversation_segment.append({"role": "assistant", "content": full_response_text})
             # Phrase throttle — record every spoken response so n-gram stats stay current
             if full_response_text:

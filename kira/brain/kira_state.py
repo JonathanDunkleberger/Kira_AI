@@ -117,6 +117,21 @@ class KiraState:
         # Raw mention counts driving the ledger (sqrt ramp toward 1.0).
         self.entity_familiarity: dict[str, int] = {}
 
+        # Signed VALENCE ledger — ORTHOGONAL to sentiment_ledger/familiarity.
+        # familiarity says HOW MUCH she's around an entity (0..1, never negative);
+        # valence says WHICH WAY she feels about them (-1 contempt .. +1 trust).
+        # "Isola betrayed us" and "Isola I trust" move this in OPPOSITE directions.
+        # Derived from the emotional tone of her tagged reactions, NOT mention count.
+        self.entity_valence: dict[str, float] = {}        # entity → -1.0..+1.0
+        self.entity_valence_prev: dict[str, float] = {}   # last value, for trend (hardening/thawing)
+        self._valence_pending: list[str] = []             # spoken reactions queued for the next derivation pass
+        self._last_valence_wall: float = 0.0              # time.time() of last valence pass
+        self._VALENCE_MIN_INTERVAL: float = 90.0          # ≥090s between passes (matches summary/theory laziness)
+        self._VALENCE_MIN_PENDING: int = 3                # need ≥3 queued reactions before a pass fires
+        self._VALENCE_ALPHA: float = 0.4                  # EMA weight — feelings evolve, never flip in one line
+        self._VALENCE_DECAY: float = 0.98                 # entities absent from a pass soften toward 0
+        self._valence_task_running: bool = False
+
         # Hard cap on tracked entities — least-recently-touched evicted (LRU) so a
         # long session can't grow these ledgers unbounded (proper-noun extraction
         # leaks one-off names). 100 keeps every meaningful recurring entity.
@@ -218,6 +233,8 @@ class KiraState:
             oldest = next(iter(self.entity_familiarity))
             self.entity_familiarity.pop(oldest, None)
             self.sentiment_ledger.pop(oldest, None)
+            self.entity_valence.pop(oldest, None)
+            self.entity_valence_prev.pop(oldest, None)
 
     def update_entity_mentions(self, text: str) -> None:
         """Update entity familiarity from text via capitalized-word extraction.
@@ -259,6 +276,134 @@ class KiraState:
         )
         self._touch_entity(speaker)
 
+    # ── A. Stakes — signed valence (feeling, not familiarity) ──────────────────
+    # Additive layer on top of the familiarity ledger. Intake is cheap and hot-path
+    # safe (just queues text); the LLM derivation runs in maybe_run_background_tasks.
+
+    def note_reaction_for_valence(self, text: str) -> None:
+        """Queue one of Kira's spoken reaction lines for the next valence pass.
+        Cheap and synchronous — safe to call from any hot path. The actual
+        tone→valence derivation happens in _update_entity_valence (background)."""
+        if not text:
+            return
+        cleaned = text.strip()
+        if len(cleaned) <= 2:
+            return
+        self._valence_pending.append(cleaned)
+        if len(self._valence_pending) > 40:
+            self._valence_pending = self._valence_pending[-40:]
+
+    async def _update_entity_valence(self) -> None:
+        """Derive signed per-entity valence from the emotional TONE of Kira's
+        recently-spoken reactions and evolve the ledger via EMA. Background
+        fire-and-forget; uses the cheap tool_inference path (Groq/local), never Opus.
+
+        Loud by design: prints a [Valence] line on every fire AND every no-op /
+        parse failure, so a silently-degrading feeling-renderer can't slip past."""
+        if self._valence_task_running:
+            return
+        if not getattr(self.ai_core, "anthropic_client", None) and not hasattr(self.ai_core, "tool_inference"):
+            return
+        # Drain the queue under the running flag.
+        pending = self._valence_pending[:]
+        self._valence_pending = []
+        if not pending:
+            return
+        self._valence_task_running = True
+        try:
+            joined = "\n".join(f"- {r}" for r in pending[-40:])
+            system = (
+                "You read an AI co-host's spoken lines and rate how SHE feels about each "
+                "named character or person mentioned, based ONLY on the emotional tone of "
+                "THESE lines. Scale: -1.0 = distrust / contempt / betrayal / hostility, "
+                "0.0 = neutral, +1.0 = trust / fondness / affection / loyalty. "
+                "Only include PROPER NAMES of characters or people she has a feeling about. "
+                "Omit anyone neutral, unnamed, or only mentioned in passing. "
+                "Return ONLY a compact JSON object mapping name to float, e.g. "
+                '{\"Isola\": -0.6, \"Coldfish\": 0.4}. If nothing qualifies, return {}.'
+            )
+            user = f"Kira's spoken lines (oldest first):\n{joined}"
+            raw = await self.ai_core.tool_inference(system, user, max_tokens=200)
+            deltas = self._parse_valence_json(raw)
+            if deltas is None:
+                print(
+                    f"   [Valence] no-op \u2014 could not parse model output "
+                    f"({len(pending)} reaction(s) dropped). Raw: {str(raw)[:120]!r}"
+                )
+                return
+            if not deltas:
+                print(f"   [Valence] no-op \u2014 model found no named feelings in {len(pending)} reaction(s).")
+                # Still decay untouched entities so feelings soften over quiet stretches.
+                self._decay_absent_valence(set())
+                return
+
+            alpha = self._VALENCE_ALPHA
+            touched: set[str] = set()
+            updated_pairs = []
+            for name, delta in deltas.items():
+                name = name.strip()
+                if not name:
+                    continue
+                try:
+                    delta = max(-1.0, min(1.0, float(delta)))
+                except (TypeError, ValueError):
+                    continue
+                old = self.entity_valence.get(name, 0.0)
+                self.entity_valence_prev[name] = old
+                new = max(-1.0, min(1.0, (1.0 - alpha) * old + alpha * delta))
+                self.entity_valence[name] = new
+                # Keep the entity in the familiarity key set so LRU + persistence
+                # track it (valence-only entities would otherwise dodge eviction).
+                self.entity_familiarity.setdefault(name, self.entity_familiarity.get(name, 1))
+                self._touch_entity(name)
+                touched.add(name)
+                updated_pairs.append(f"{name} {old:+.2f}\u2192{new:+.2f}")
+
+            self._decay_absent_valence(touched)
+            print(f"   [Valence] updated {len(updated_pairs)} entit(ies): " + "; ".join(updated_pairs))
+        except Exception as e:
+            print(f"   [Valence] pass FAILED (continuing): {e}")
+        finally:
+            self._valence_task_running = False
+            self._last_valence_wall = time.time()
+
+    def _decay_absent_valence(self, touched: set) -> None:
+        """Soften feelings toward entities that didn't appear in this pass."""
+        decay = self._VALENCE_DECAY
+        for name in list(self.entity_valence.keys()):
+            if name in touched:
+                continue
+            self.entity_valence[name] *= decay
+            if abs(self.entity_valence[name]) < 0.02:
+                # Negligible feeling — drop it so it renders as neutral again.
+                self.entity_valence.pop(name, None)
+                self.entity_valence_prev.pop(name, None)
+
+    @staticmethod
+    def _parse_valence_json(raw: str) -> "dict | None":
+        """Extract a {name: float} JSON object from the model output.
+        Returns the dict (possibly empty) on success, or None if unparseable."""
+        if not raw:
+            return {}
+        text = raw.strip()
+        # Strip code fences if the model wrapped the JSON.
+        if text.startswith("```"):
+            text = text.strip("`")
+            nl = text.find("\n")
+            if nl != -1:
+                text = text[nl + 1:]
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end < start:
+            return None
+        try:
+            obj = json.loads(text[start:end + 1])
+        except (json.JSONDecodeError, ValueError):
+            return None
+        if not isinstance(obj, dict):
+            return None
+        return obj
+
     # ── A. Stakes — cross-session persistence ──────────────────────────────────
     # The sentiment ledger and familiarity counts are the ONLY agency state that
     # should COMPOUND across sessions: attachment to a recurring character/person
@@ -278,6 +423,7 @@ class KiraState:
                 "saved_at": time.time(),
                 "entity_familiarity": dict(self.entity_familiarity),
                 "sentiment_ledger": {k: round(v, 4) for k, v in self.sentiment_ledger.items()},
+                "entity_valence": {k: round(v, 4) for k, v in self.entity_valence.items()},
             }
             with open(self.LEDGER_PERSIST_PATH, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -296,6 +442,7 @@ class KiraState:
                 data = json.load(f)
             fam = data.get("entity_familiarity", {})
             sent = data.get("sentiment_ledger", {})
+            val = data.get("entity_valence", {})
             if isinstance(fam, dict):
                 for name, count in fam.items():
                     try:
@@ -303,9 +450,18 @@ class KiraState:
                     except (TypeError, ValueError):
                         continue
             if isinstance(sent, dict):
-                for name, val in sent.items():
+                for name, v in sent.items():
                     try:
-                        self.sentiment_ledger[name] = max(0.0, min(1.0, float(val)))
+                        self.sentiment_ledger[name] = max(0.0, min(1.0, float(v)))
+                    except (TypeError, ValueError):
+                        continue
+            # Signed valence carries across sessions purely event-driven (v1: no
+            # time-based load-decay — that constant is deferred until live data
+            # shows how fast a grudge should actually soften over a day off).
+            if isinstance(val, dict):
+                for name, v in val.items():
+                    try:
+                        self.entity_valence[name] = max(-1.0, min(1.0, float(v)))
                     except (TypeError, ValueError):
                         continue
             # Enforce the LRU cap on the restored set (oldest insertion evicted).
@@ -313,8 +469,12 @@ class KiraState:
                 oldest = next(iter(self.entity_familiarity))
                 self.entity_familiarity.pop(oldest, None)
                 self.sentiment_ledger.pop(oldest, None)
+                self.entity_valence.pop(oldest, None)
+                self.entity_valence_prev.pop(oldest, None)
             if self.sentiment_ledger:
-                print(f"   [KiraState] Sentiment ledger loaded ({len(self.sentiment_ledger)} entities) — attachment compounding from prior sessions")
+                _vn = len(self.entity_valence)
+                _vnote = f", {_vn} with felt valence" if _vn else ""
+                print(f"   [KiraState] Sentiment ledger loaded ({len(self.sentiment_ledger)} entities{_vnote}) — attachment compounding from prior sessions")
         except Exception as e:
             print(f"   [KiraState] Ledger load failed: {e}")
 
@@ -448,6 +608,17 @@ class KiraState:
                     print(f"   [WARN] kira_state: theory task scheduling error: {e}")
             # Reset counter whether or not we scheduled.
             self._updates_since_theory_check = 0
+
+        # Valence derivation: tone→feeling pass over queued reactions. Lazy by the
+        # same discipline as summary/theory — ≥90s apart AND ≥3 pending reactions.
+        if (len(self._valence_pending) >= self._VALENCE_MIN_PENDING
+                and not self._valence_task_running
+                and (now - self._last_valence_wall) >= self._VALENCE_MIN_INTERVAL):
+            try:
+                asyncio.ensure_future(self._update_entity_valence())
+                self._last_valence_wall = now
+            except Exception as e:
+                print(f"   [WARN] kira_state: valence task scheduling error: {e}")
             self._updates_since_theory_check = 0
 
     # ── Theory resolution (callable from hot path) ────────────────────────────
@@ -644,6 +815,44 @@ class KiraState:
 
     # ── Prompt injection ───────────────────────────────────────────────────────
 
+    def _render_entity_feeling(self, entity: str, familiarity: float) -> str:
+        """Render one tracked entity for get_state_block. If a signed valence
+        exists (|v| ≥ 0.15), express it as a FEELING word + trend; otherwise fall
+        back to the neutral familiarity number (today's behavior). Pure renderer."""
+        v = self.entity_valence.get(entity, 0.0)
+        if abs(v) < 0.15:
+            return f"{entity} ({familiarity:.2f})"
+
+        if v >= 0.6:
+            word = "trust"
+        elif v >= 0.25:
+            word = "warming to"
+        elif v >= 0.15:
+            word = "mild warmth"
+        elif v <= -0.6:
+            word = "contempt"
+        elif v <= -0.25:
+            word = "distrust"
+        else:
+            word = "wary of"
+
+        # Trend from the last value: is the feeling deepening, softening, flipping?
+        prev = self.entity_valence_prev.get(entity, v)
+        delta = v - prev
+        trend = ""
+        if abs(delta) >= 0.08:
+            if v < 0 and delta < 0:
+                trend = "hardening"
+            elif v < 0 < delta:
+                trend = "thawing"
+            elif v > 0 and delta > 0:
+                trend = "warming"
+            elif v > 0 > delta:
+                trend = "cooling"
+            elif (v <= 0) != (prev <= 0):
+                trend = "souring" if v < 0 else "turning around"
+        return f"{entity} — {word}" + (f", {trend}" if trend else "")
+
     def get_state_block(self) -> str:
         """Return a [KIRA STATE] block for injection into dynamic context.
         Called by process_and_respond. Returns empty string when state is too
@@ -670,11 +879,15 @@ class KiraState:
             )
             parts.append(f"Recently resolved:\n{res_lines}")
 
-        # Top entity attachments (only entities above threshold)
+        # Top entity attachments (only entities above threshold). When a signed
+        # valence exists for an entity, render the FEELING (word + trend) instead
+        # of the bare familiarity number — "Isola — distrust, hardening" reads as
+        # lived feeling; "Isola (0.42)" reads as telemetry. Renderer-only: the
+        # familiarity gate and call site are unchanged.
         attached = [(e, v) for e, v in self.sentiment_ledger.items() if v >= 0.25]
         if attached:
             top = sorted(attached, key=lambda x: -x[1])[:5]
-            att_str = ", ".join(f"{e} ({v:.2f})" for e, v in top)
+            att_str = ", ".join(self._render_entity_feeling(e, v) for e, v in top)
             parts.append(f"Entities you're tracking this session: {att_str}")
 
         # Investment note (only when meaningful)
