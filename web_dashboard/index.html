@@ -515,6 +515,66 @@ html, body {
   font-style: italic;
 }
 
+/* ── Codenames manual board ─────────────────────────────────────────────── */
+.cn-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin: 6px 0;
+}
+.cn-grid:empty { display: none; }
+.cn-tile {
+  user-select: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  padding: 10px 2px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  color: #f4f4f4;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: transform .06s, filter .12s;
+}
+.cn-tile:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.cn-tile:active { transform: scale(.96); }
+/* identity colors */
+.cn-unknown  { background: #4a4a4a; color: #cfcfcf; }
+.cn-team     { background: #2e8b57; }      /* green — your team */
+.cn-opponent { background: #b23b3b; }      /* red — opponent */
+.cn-neutral  { background: #b89a5e; color: #2a2218; text-shadow: none; } /* tan */
+.cn-assassin { background: #14141a; color: #e6e6e6; border-color: #000; }
+.cn-legend {
+  font-size: .64rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.cn-legend:empty { display: none; }
+.cn-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 1px;
+  font-weight: 700;
+  font-size: .6rem;
+}
+.cn-advisor {
+  background: var(--accent-tint);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .loopback-feed {
   margin-top: 4px;
   max-height: 96px;
@@ -1042,35 +1102,33 @@ html, body {
 
           <div class="rail-sep"></div>
 
-          <!-- ── Codenames scratchpad ─────────────────────────────────── -->
+          <!-- ── Codenames advisor (manual board — known-correct) ─────── -->
           <div class="status-text" id="cn-status">🕵 Codenames — idle</div>
 
           <div class="field">
-            <label>25-word grid (comma or space separated)</label>
-            <textarea id="cn-words" rows="3" placeholder="apple, river, knight, ... (25 words)" style="width:100%;resize:vertical"></textarea>
+            <label>Paste the 25 words (comma / space / newline separated)</label>
+            <textarea id="cn-words" rows="3" placeholder="cloak bomb leaf stick easter engine ... (25 words)" style="width:100%;resize:vertical"></textarea>
             <div class="row" style="gap:6px;margin-top:4px">
-              <select id="cn-role" style="flex:1">
+              <select id="cn-role" style="flex:1" onchange="codenamesSetRole(this)">
                 <option value="guesser">Guesser</option>
                 <option value="spymaster">Spymaster (clue-giver)</option>
               </select>
               <input type="text" id="cn-team" placeholder="team (red/blue)" style="flex:1">
             </div>
             <div class="row" style="gap:6px;margin-top:4px">
-              <button class="btn" onclick="codenamesStart(this)" style="flex:1">Start</button>
-              <button class="btn" onclick="codenamesSetRole(this)" style="flex:1">Set Role</button>
+              <button class="btn" onclick="codenamesStart(this)" style="flex:2">Load board</button>
+              <button class="btn" onclick="codenamesRefresh()" title="Re-fetch board state">↻</button>
               <button class="btn" onclick="codenamesReset(this)">Reset</button>
             </div>
           </div>
 
+          <!-- Live clickable grid — click cycles a tile's color, right-click steps back -->
+          <div id="cn-grid" class="cn-grid"></div>
+          <div id="cn-legend" class="cn-legend"></div>
+
           <div class="field">
-            <label>Reveal a word's identity</label>
-            <input type="text" id="cn-reveal-word" placeholder="word">
-            <div class="row" style="gap:4px;margin-top:4px;flex-wrap:wrap">
-              <button class="btn" onclick="codenamesReveal('team',this)" style="flex:1">Team</button>
-              <button class="btn" onclick="codenamesReveal('opponent',this)" style="flex:1">Opp</button>
-              <button class="btn" onclick="codenamesReveal('neutral',this)" style="flex:1">Neutral</button>
-              <button class="btn" onclick="codenamesReveal('assassin',this)" style="flex:1">Assassin</button>
-            </div>
+            <label>Advisor readout (what Kira reasons over)</label>
+            <div id="cn-advisor" class="cn-advisor">No board loaded.</div>
           </div>
 
           <div class="field">
@@ -1084,21 +1142,6 @@ html, body {
               </select>
             </div>
             <button class="btn" onclick="codenamesClue(this)" style="margin-top:4px;width:100%">Log Clue</button>
-          </div>
-
-          <div class="field">
-            <label>Guess</label>
-            <div class="row" style="gap:6px">
-              <input type="text" id="cn-guess-word" placeholder="word" style="flex:2">
-              <select id="cn-guess-id" style="flex:1">
-                <option value="">result?</option>
-                <option value="team">team</option>
-                <option value="opponent">opp</option>
-                <option value="neutral">neutral</option>
-                <option value="assassin">assassin</option>
-              </select>
-            </div>
-            <button class="btn" onclick="codenamesGuess(this)" style="margin-top:4px;width:100%">Log Guess</button>
           </div>
 
         </div>
@@ -1958,7 +2001,31 @@ function applyChessElo() {
   });
 }
 
-// ── Codenames scratchpad ──────────────────────────────────────────────────
+// ── Codenames manual board + advisor ──────────────────────────────────────
+// The board is ENTERED BY HAND so it is known-correct. Vision is NOT trusted to
+// auto-read it (a real test showed gpt-4o-mini reads the 25 words well but gets
+// ~1-in-4 colors wrong, including labelling assassin tiles "safe"). Click a tile
+// to cycle its color forward; right-click steps back. Every change feeds the
+// existing CodenamesState tracker, which Kira reasons over live.
+const _CN_CYCLE = ['unknown', 'team', 'opponent', 'neutral', 'assassin'];
+const _CN_LABEL = {unknown:'unknown', team:'YOUR TEAM', opponent:'opponent',
+                   neutral:'neutral', assassin:'ASSASSIN'};
+let _cnState = null;   // last snapshot
+
+function _cnNextIdentity(cur, dir) {
+  let i = _CN_CYCLE.indexOf(cur);
+  if (i < 0) i = 0;
+  i = (i + (dir < 0 ? -1 : 1) + _CN_CYCLE.length) % _CN_CYCLE.length;
+  return _CN_CYCLE[i];
+}
+
+function _cnRender(data) {
+  if (data && data.ok !== false && ('grid' in data || 'active' in data)) _cnState = data;
+  _cnRenderStatus(_cnState);
+  _cnRenderGrid(_cnState);
+  _cnRenderAdvisor(_cnState);
+}
+
 function _cnRenderStatus(data) {
   const el = document.getElementById('cn-status');
   if (!el) return;
@@ -1969,39 +2036,101 @@ function _cnRenderStatus(data) {
   grid.forEach(g => { counts[g.identity] = (counts[g.identity]||0) + 1; });
   const role = data.role === 'spymaster' ? 'Spymaster' : 'Guesser';
   const team = data.my_team_label ? ` (${data.my_team_label})` : '';
-  let line = `🕵 ${role}${team} — ${counts.unknown} left · team ${counts.team} · opp ${counts.opponent} · neu ${counts.neutral} · assassin ${counts.assassin}`;
+  let line = `🕵 ${role}${team} — ${counts.unknown} unknown · team ${counts.team} · opp ${counts.opponent} · neu ${counts.neutral} · assassin ${counts.assassin}`;
   if (data.current_clue) {
     line += ` · clue "${data.current_clue.clue}" ${data.guesses_left} left`;
   }
   el.textContent = line;
 }
 
+function _cnRenderGrid(data) {
+  const grid = document.getElementById('cn-grid');
+  const legend = document.getElementById('cn-legend');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const tiles = (data && data.active && Array.isArray(data.grid)) ? data.grid : [];
+  if (!tiles.length) {
+    if (legend) legend.innerHTML = '';
+    return;
+  }
+  tiles.forEach(t => {
+    const ident = t.identity || 'unknown';
+    const tile = document.createElement('div');
+    tile.className = 'cn-tile cn-' + ident;
+    tile.textContent = t.word;
+    tile.title = `${t.word} — ${_CN_LABEL[ident] || ident}\n(click: next color · right-click: previous)`;
+    tile.onclick = () => codenamesCycleTile(t.word, +1);
+    tile.oncontextmenu = (e) => { e.preventDefault(); codenamesCycleTile(t.word, -1); };
+    grid.appendChild(tile);
+  });
+  if (legend) {
+    legend.innerHTML =
+      'Click a tile to set its color · right-click steps back · ' +
+      '<span class="cn-chip cn-unknown">unknown</span>' +
+      '<span class="cn-chip cn-team">your team</span>' +
+      '<span class="cn-chip cn-opponent">opponent</span>' +
+      '<span class="cn-chip cn-neutral">neutral</span>' +
+      '<span class="cn-chip cn-assassin">assassin</span>';
+  }
+}
+
+function _cnRenderAdvisor(data) {
+  const el = document.getElementById('cn-advisor');
+  if (!el) return;
+  if (!data || !data.active) { el.textContent = 'No board loaded.'; return; }
+  const grid = data.grid || [];
+  const by = (id) => grid.filter(g => g.identity === id).map(g => g.word);
+  const unknown = by('unknown'), team = by('team'),
+        opp = by('opponent'), neu = by('neutral'), ass = by('assassin');
+  const role = data.role === 'spymaster' ? 'SPYMASTER (clue-giver)' : 'GUESSER';
+  const lines = [`Role: ${role}${data.my_team_label ? ' · team ' + data.my_team_label : ''}`];
+  if (unknown.length) lines.push(`Still in play (${unknown.length}): ${unknown.join(', ')}`);
+  if (team.length)    lines.push(`YOUR TEAM: ${team.join(', ')}`);
+  if (ass.length)     lines.push(`☠ ASSASSIN: ${ass.join(', ')}`);
+  if (opp.length)     lines.push(`Opponent: ${opp.join(', ')}`);
+  if (neu.length)     lines.push(`Neutral: ${neu.join(', ')}`);
+  if (data.clues && data.clues.length) {
+    const recent = data.clues.slice(-3)
+      .map(c => `"${c.clue}" ${c.number} (${c.by})`).join('; ');
+    lines.push(`Clues: ${recent}`);
+  }
+  if (data.current_clue) {
+    const cc = data.current_clue;
+    const g = (data.guessed_this_turn && data.guessed_this_turn.length)
+      ? data.guessed_this_turn.join(', ') : 'none yet';
+    lines.push(`Working: "${cc.clue}" for ${cc.number} — ${data.guesses_left} guess(es) left, guessed: ${g}`);
+  }
+  el.textContent = lines.join('\n');
+}
+
 function codenamesStart(btnEl) {
   const words = document.getElementById('cn-words').value.trim();
   const role  = document.getElementById('cn-role').value;
   const team  = document.getElementById('cn-team').value.trim();
-  cmd('codenames_start', {words, role, team}, btnEl).then(_cnRenderStatus);
+  const n = words.split(/[\s,]+/).filter(Boolean).length;
+  if (n !== 25 && !confirm(`That's ${n} words, not 25. Load anyway?`)) { flashBtn(btnEl, false); return; }
+  cmd('codenames_start', {words, role, team}, btnEl).then(_cnRender);
+}
+
+function codenamesRefresh() {
+  cmd('codenames_state', {}).then(_cnRender);
 }
 
 function codenamesReset(btnEl) {
-  cmd('codenames_reset', {}, btnEl).then(_cnRenderStatus);
+  cmd('codenames_reset', {}, btnEl).then(() => { _cnState = {active:false, grid:[]}; _cnRender(_cnState); });
 }
 
-function codenamesSetRole(btnEl) {
+function codenamesSetRole(el) {
   const role = document.getElementById('cn-role').value;
-  cmd('codenames_set_role', {role}, btnEl).then(d => {
-    // set_role returns {role}; refresh full state for the status line.
-    cmd('codenames_state', {}).then(_cnRenderStatus);
-  });
+  cmd('codenames_set_role', {role}).then(() => codenamesRefresh());
 }
 
-function codenamesReveal(identity, btnEl) {
-  const word = document.getElementById('cn-reveal-word').value.trim();
-  if (!word) { flashBtn(btnEl, false); return; }
-  cmd('codenames_reveal', {word, identity}, btnEl).then(data => {
-    _cnRenderStatus(data);
-    if (data && data.ok !== false) document.getElementById('cn-reveal-word').value = '';
-  });
+function codenamesCycleTile(word, dir) {
+  const grid = (_cnState && _cnState.grid) || [];
+  const tile = grid.find(g => (g.word || '').toUpperCase() === (word || '').toUpperCase());
+  const cur = tile ? tile.identity : 'unknown';
+  const next = _cnNextIdentity(cur, dir);
+  cmd('codenames_reveal', {word, identity: next}).then(_cnRender);
 }
 
 function codenamesClue(btnEl) {
@@ -2010,19 +2139,8 @@ function codenamesClue(btnEl) {
   const by     = document.getElementById('cn-clue-by').value;
   if (!clue) { flashBtn(btnEl, false); return; }
   cmd('codenames_clue', {clue, number, by}, btnEl).then(data => {
-    _cnRenderStatus(data);
+    _cnRender(data);
     if (data && data.ok !== false) document.getElementById('cn-clue-word').value = '';
-  });
-}
-
-function codenamesGuess(btnEl) {
-  const word     = document.getElementById('cn-guess-word').value.trim();
-  const identity = document.getElementById('cn-guess-id').value;
-  if (!word) { flashBtn(btnEl, false); return; }
-  const body = identity ? {word, identity} : {word};
-  cmd('codenames_guess', body, btnEl).then(data => {
-    _cnRenderStatus(data);
-    if (data && data.ok !== false) document.getElementById('cn-guess-word').value = '';
   });
 }
 
@@ -2605,6 +2723,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startThumbPoll();
   _restoreScreenInputs();
   refreshAmbienceList();
+  codenamesRefresh();
 });
 </script>
 </body>
