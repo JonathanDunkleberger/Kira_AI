@@ -460,31 +460,47 @@ class StreamLogger:
         )
 
         print("   [StreamLogger] Generating post-stream summary via Sonnet (up to 75s)...")
-        try:
-            response = await asyncio.wait_for(
-                ai_core.claude_inference(
-                    messages=[{"role": "user", "content": prompt}],
-                    system_prompt=(
-                        "You are a technical analyst reviewing an AI companion's stream session logs. "
-                        "Be concise, specific, and reference timestamps. Do not speculate beyond the data."
-                    ),
-                    max_tokens=2000,
-                    use_sonnet=True,  # K: post-stream tech summary — Sonnet
+        # Run the Sonnet call as a SHIELDED task so it survives an external
+        # cancellation of the shutdown sequence (a second Ctrl+C, background-task
+        # teardown racing us, etc.). The shielded task keeps running even when the
+        # awaiter is cancelled — so on cancellation we give it a grace window to
+        # finish and still write summary.md, exactly like the diary now completes
+        # on its own instead of being abandoned to a PENDING checkpoint.
+        llm_task = asyncio.ensure_future(
+            ai_core.claude_inference(
+                messages=[{"role": "user", "content": prompt}],
+                system_prompt=(
+                    "You are a technical analyst reviewing an AI companion's stream session logs. "
+                    "Be concise, specific, and reference timestamps. Do not speculate beyond the data."
                 ),
-                timeout=75,
+                max_tokens=2000,
+                use_sonnet=True,  # K: post-stream tech summary — Sonnet
             )
+        )
+        try:
+            response = await asyncio.wait_for(asyncio.shield(llm_task), timeout=75)
         except asyncio.TimeoutError:
             print("   [WARN] stream_logger summary LLM call timed out after 75s — "
                   "writing PENDING checkpoint for later backfill", file=sys.stderr)
+            llm_task.cancel()
             self._write_pending_summary(full_transcript, duration_s)
             return
         except asyncio.CancelledError:
-            # Shutdown cancelled the summary mid-flight — save the raw session material
-            # so backfill_lore.py can regenerate the summary offline later.
-            print("   [WARN] stream_logger summary cancelled during shutdown — "
-                  "writing PENDING checkpoint for later backfill", file=sys.stderr)
-            self._write_pending_summary(full_transcript, duration_s)
-            raise  # re-raise so the task is properly cancelled
+            # Shutdown cancelled the awaiter, but shield() kept the Sonnet call alive.
+            # Let it finish on its own (bounded grace) and write the summary below,
+            # rather than abandoning a 60s-deep call to a PENDING checkpoint.
+            print("   [StreamLogger] Shutdown signal during summary — letting the "
+                  "shielded Sonnet call finish (grace up to 60s)...", file=sys.stderr)
+            try:
+                response = await asyncio.wait_for(asyncio.shield(llm_task), timeout=60)
+            except BaseException as ge:
+                print(f"   [WARN] stream_logger summary could not finish during shutdown "
+                      f"grace ({ge!r}) — writing PENDING checkpoint for later backfill",
+                      file=sys.stderr)
+                llm_task.cancel()
+                self._write_pending_summary(full_transcript, duration_s)
+                return
+            # The shielded call completed — fall through and write summary.md.
         except Exception as e:
             print(f"   [WARN] stream_logger: Sonnet summary call failed: {e} — "
                   f"writing PENDING checkpoint for later backfill", file=sys.stderr)

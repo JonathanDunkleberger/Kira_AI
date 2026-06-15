@@ -2836,9 +2836,12 @@ class VTubeBot:
         if STREAM_LOGGING_ENABLED and not _game_active:
             if hasattr(self.ai_core, "_session_usage"):
                 self.stream_logger.log("session_tokens", **self.ai_core._session_usage)
-            # finish() has an inner 75s timeout on the LLM call; give the outer
-            # wrapper 90s headroom (flush + writer-task stop + LLM call).
-            await _bounded(self.stream_logger.finish(self.ai_core), 90, "Post-stream summary")
+            # finish() has an inner 75s timeout on the Sonnet call plus a shielded
+            # 60s grace window if shutdown cancels it mid-flight (so the summary
+            # completes on its own rather than landing in a PENDING checkpoint).
+            # Give the outer wrapper 150s headroom to cover flush + writer-task stop
+            # + Sonnet call + grace.
+            await _bounded(self.stream_logger.finish(self.ai_core), 150, "Post-stream summary")
 
         # ── Cancel background loops ───────────────────────────────────────────────
         # Cancel the control server, autopilot watchdog, observer, heartbeats, and
