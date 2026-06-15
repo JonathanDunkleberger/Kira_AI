@@ -76,17 +76,26 @@ function _setFade(ms) {
 
 function showScene(src, crossfadeMs) {
   if (!src) return;
-  _setFade(crossfadeMs);
+  const dur = (crossfadeMs || DEFAULT_FADE);
+  _setFade(dur);
   $stage.style.display = 'block';
 
-  // Load into the back layer, then crossfade.
+  // True overlap crossfade with NO empty frame: the next scene fades IN on top
+  // of the current one (which stays fully opaque underneath), so the room is
+  // never exposed mid-transition. Only once the new scene is 100% covering do
+  // we drop the old layer.
   _back.classList.remove('visible', 'drift');
+  _back.style.zIndex  = '2';   // incoming scene sits on top
+  _front.style.zIndex = '1';   // outgoing scene holds, fully opaque, underneath
+
   _back.onload = function() {
-    void _back.offsetWidth;          // reflow so the transition runs
+    const oldFront = _front;   // capture before the role swap
+    void _back.offsetWidth;    // reflow so the fade-in transition runs
     _back.classList.add('visible', 'drift');
-    _front.classList.remove('visible');
-    // swap roles
+    // swap roles immediately; the old front keeps covering the room until the
+    // new layer has fully faded in over it.
     const tmp = _front; _front = _back; _back = tmp;
+    setTimeout(() => { oldFront.classList.remove('visible', 'drift'); }, dur + 60);
   };
   _back.onerror = function() {
     console.warn('[puppet] failed to load scene', src);
@@ -95,6 +104,8 @@ function showScene(src, crossfadeMs) {
 }
 
 function hideScene(crossfadeMs) {
+  // Only called at the very END of a show — fading back to the room here is
+  // intended. Between beats we never hide.
   _setFade(crossfadeMs);
   $a.classList.remove('visible', 'drift');
   $b.classList.remove('visible', 'drift');
