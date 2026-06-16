@@ -239,6 +239,12 @@ class LoopbackTranscriber:
         if not DEPS_AVAILABLE:
             print(f"   [LoopbackSTT] Disabled — dependencies missing: {_DEPS_ERR}")
 
+        # Cosmetic boot state — set True the moment a start is queued (before the
+        # ~20s model load completes) so the dashboard shows "starting…" instead of
+        # a false "idle/off" flash during the autostart window. Cleared once the
+        # pump thread is alive, or on a failed/aborted start.
+        self._starting = False
+
         # Concurrency guard — makes the check-load-spawn sequence in start() and
         # the tear-down sequence in stop() mutually exclusive. Without this lock,
         # concurrent callers (dashboard toggle, API endpoint, audio-mode auto-start)
@@ -263,6 +269,14 @@ class LoopbackTranscriber:
 
     def is_running(self) -> bool:
         return self._thread is not None and self._thread.is_alive()
+
+    def mark_starting(self) -> None:
+        """Flag that a start has been queued but not yet completed. Purely
+        cosmetic — lets get_status_summary() report "starting…" during the
+        model-load window so the dashboard never shows a false "idle/off" on
+        first paint. Cleared by start() once the pump is alive (or on failure)."""
+        if self._available:
+            self._starting = True
 
     def start(
         self,
@@ -293,6 +307,7 @@ class LoopbackTranscriber:
             # bot.py calls _load_model() directly before start() is ever called.
             if self.is_running():
                 print("   [LoopbackSTT] start() ignored — instance already active")
+                self._starting = False
                 return True
 
             self._audio_agent = audio_agent
@@ -307,6 +322,7 @@ class LoopbackTranscriber:
             except Exception as e:
                 print(f"   [ERROR] Loopback STT DISABLED — model load failed: {e}")
                 self._available = False
+                self._starting = False
                 return False
 
             # Reset rolling state on each start.
@@ -328,6 +344,7 @@ class LoopbackTranscriber:
                 self._speech_watcher_thread.start()
             print(f"   [LoopbackSTT] Started — {self.MODEL_NAME} on {self.DEVICE} "
                   f"(tick={TICK_SECONDS}s, window={WINDOW_SECONDS}s)")
+            self._starting = False
             return True
 
     def stop(self):
@@ -655,7 +672,7 @@ class LoopbackTranscriber:
         if not self._available:
             return "Loopback STT: unavailable (deps missing)"
         if not self.is_running():
-            return "Loopback STT: idle"
+            return "Loopback STT: starting…" if self._starting else "Loopback STT: idle"
         seg_count = len(self._segments)
         rel = int(time.time() - self.last_tick_time) if self.last_tick_time else -1
         rel_str = f"{rel}s ago" if rel >= 0 else "never"

@@ -767,6 +767,9 @@ async def ws_overlays(ws: WebSocket):
         pass
     finally:
         _overlay_ws_manager.disconnect(ws)
+
+
+@app.get("/vision/thumbnail")
 async def vision_thumbnail():
     """
     Returns the latest vision frame as a JPEG image (Content-Type: image/jpeg).

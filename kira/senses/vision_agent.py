@@ -119,6 +119,10 @@ class UniversalVisionAgent:
         self.context_buffer = ContextBuffer(maxlen=3)
         self.last_description = "I'm just getting my bearings. One sec!"
         self.last_capture_time = 0
+        # Most recent captured frame (downscaled PIL image), served by the
+        # dashboard's /vision/thumbnail endpoint. Written on every capture in
+        # capture_and_describe(); None until the first heartbeat fires.
+        self.last_frame = None
         self.is_active = ENABLE_VISION   # heartbeat running (parked by reconciler during Media Watch)
         # master_enabled = the user's Vision intent (the ONE master switch).
         # Unlike is_active, this is NEVER parked by the reconciler — it only flips
@@ -411,12 +415,24 @@ class UniversalVisionAgent:
                 else:
                     img.thumbnail((1280, 720)) # 720p for fast/heartbeat
                     quality = 60
-                    
+
+                # Stash the downscaled frame for the dashboard EYES preview
+                # (/vision/thumbnail). Done before the base64 conversion that
+                # otherwise discards the PIL image.
+                self.last_frame = img
+
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG", quality=quality)
                 return base64.b64encode(buffered.getvalue()).decode('utf-8')
             
             base64_image = await asyncio.to_thread(process_image)
+
+            # One-time confirmation that the EYES thumbnail frame is being
+            # captured (served by the dashboard's /vision/thumbnail endpoint).
+            if self.last_frame is not None and not getattr(self, "_thumb_logged", False):
+                self._thumb_logged = True
+                _w, _h = self.last_frame.size
+                print(f"   [Vision] last_frame set ({_w}x{_h}) — EYES thumbnail live.")
 
             # Select prompt based on activity type
             if self.activity_type == "vn":

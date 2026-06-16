@@ -3696,11 +3696,17 @@ class VTubeBot:
         own TTS never leaks into the transcript. Runs the blocking model-load + thread-spawn
         off the event loop. Fully fail-graceful \u2014 a failure here never blocks the bot."""
         lt = self.loopback_transcriber
-        if lt is None or lt.is_running():
+        if lt is None:
+            print("   [LoopbackSTT] Auto-start skipped \u2014 transcriber unavailable (disabled or model load failed).")
+            return
+        if lt.is_running():
+            print("   [LoopbackSTT] Auto-start skipped \u2014 already running.")
             return
         if not (self.audio_agent and self.audio_agent.is_active()):
             print("   [LoopbackSTT] Auto-start skipped \u2014 audio agent not active.")
+            lt._starting = False
             return
+        print("   [LoopbackSTT] Auto-start running \u2014 audio active, starting transcriber\u2026")
         ai_core_ref = self.ai_core
         speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
         try:
@@ -4155,7 +4161,18 @@ class VTubeBot:
                 # one-shot start actually runs at boot — a dropped fire-and-forget task
                 # was why loopback never started until the first manual toggle.
                 if LOOPBACK_STT_DEFAULT:
+                    # Flag the transcriber as "starting" synchronously, before the
+                    # event loop schedules anything, so the dashboard's first
+                    # snapshot shows "starting…" rather than a false "idle/off"
+                    # during the ~20s model-load window (the control server begins
+                    # serving snapshots before _autostart_loopback resolves).
+                    if self.loopback_transcriber is not None:
+                        self.loopback_transcriber.mark_starting()
+                    print("   [LoopbackSTT] Boot autostart ARMED (LOOPBACK_STT_DEFAULT=true) — queued.")
                     tasks.append(self._autostart_loopback())
+                else:
+                    print("   [LoopbackSTT] Boot autostart DISABLED (LOOPBACK_STT_DEFAULT=false) — "
+                          "loopback starts only via dashboard / Deep Senses.")
             
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
