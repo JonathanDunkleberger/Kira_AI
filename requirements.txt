@@ -3,9 +3,11 @@ transformers
 SpeechRecognition
 pyaudio
 numpy
-# For GPU support, llama-cpp-python needs to be installed with specific flags.
-# Please see the installation instructions.
-llama-cpp-python==0.3.4
+# NOTE: llama-cpp-python is NOT installed here. It only powers the OPTIONAL
+# local-Llama inference backend (INFERENCE_BACKEND=local), and it must compile
+# against a C++ toolchain (+ CUDA for GPU), which trips up most fresh clones.
+# The default groq backend needs none of it. If — and only if — you want the
+# local fallback, run:  pip install -r requirements-local.txt
 # For advanced VAD and high-quality TTS
 webrtcvad-wheels
 elevenlabs

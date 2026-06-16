@@ -43,6 +43,7 @@ from kira.config import (
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
     GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
     LOOPBACK_STT_DEFAULT, ENABLE_TWITCH_POLLS,
+    VISION_CALM_HEARTBEAT_SECONDS, AUDIO_MOOD_ALWAYS_ON, ENABLE_VISION,
     CHAT_POST_KIRA_INTERVAL_SEC, CHAT_POST_KIRA_MAX_PER_SESSION, CHAT_POST_KIRA_MAX_LEN,
     LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
@@ -397,7 +398,21 @@ class VTubeBot:
         # while the ASR is English-only and worse-than-useless on JP/VN content.
         # See config.ENABLE_LOOPBACK_TRANSCRIBER.
         self.loopback_transcriber = LoopbackTranscriber() if ENABLE_LOOPBACK_TRANSCRIBER else None
-        
+
+        # ── Perception escalation state ──────────────────────────────────────
+        # deep_senses: the authoritative dashboard 'Deep Senses' control. OFF = the
+        # Group-2 always-on CALM baseline (40s vision + audio-mood + dialogue, just
+        # calm). ON = turbo perception for active gaming/watching (fast 10s vision +
+        # audio + loopback). Feeds the reconciler's cadence invariant.
+        self.deep_senses = False
+        # vision_baseline_on: runtime vision intent for the always-on calm baseline,
+        # seeded from the ENABLE_VISION master kill-switch. Keeps the heartbeat alive
+        # at calm cadence even with no mode armed, and survives the reconciler (which
+        # would otherwise park vision the moment gmc.is_active is False). The EYES
+        # toggle flips this for a true runtime blind; env ENABLE_VISION=false disables
+        # it entirely.
+        self.vision_baseline_on = ENABLE_VISION
+
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
         self.stream = None
@@ -1495,6 +1510,52 @@ class VTubeBot:
             return ""
         return (getattr(aa, "audio_summary", "") or "").lower()
 
+    # Stage 1: shared audio-mood PERCEPTION + mode-aware reaction coloring.
+    # The HEARING is general (any audio-bearing mode); only the register differs.
+    def _audio_mood(self):
+        """Coarse mood of the CURRENT audio, or None when there's no usable signal.
+
+        Pure, zero-I/O. Reads the event-gated audio summary (_event_audio_summary,
+        which already applies the RMS-floor + UNCERTAIN hallucination guard) and
+        keyword-matches it the SAME way _classify_moment does. Returns None whenever
+        audio is OFF, non-event, '(quiet)', or unmatched — so every caller treats a
+        missing mood as a clean no-op. Shared by the media-watch and game reaction
+        paths; the COLORING is mode-aware but this perception is general.
+        Priority mirrors _classify_moment: tense > triumphant > sad > calm."""
+        summary = self._event_audio_summary()
+        if not summary or summary == "(quiet)":
+            return None
+        if self._kw_hit(summary, self._TENSE_AUDIO_KW):
+            return "tense"
+        if self._kw_hit(summary, self._TRIUMPHANT_AUDIO_KW):
+            return "triumphant"
+        if self._kw_hit(summary, self._EMOTIONAL_AUDIO_KW):
+            return "sad"
+        if self._kw_hit(summary, self._LULL_AUDIO_KW):
+            return "calm"
+        return None
+
+    def _frame_audio_mood(self, mood, framing: str = "game") -> str:
+        """Additive prompt block that COLORS a reaction with the current audio mood.
+
+        mood:    output of _audio_mood() (None → returns "" so it's a no-op).
+        framing: 'film' (watch-party register — composed) or 'game' (gameplay
+                 register — freer to ride the high).
+        Colors register ONLY: never overrides the vision summary or honesty guards,
+        never gates or suppresses anything. Returns "" whenever there's no usable
+        mood, so general conversation (audio off / non-event) is untouched."""
+        if not mood:
+            return ""
+        table = self._AUDIO_MOOD_DIRECTIVE.get(framing) or self._AUDIO_MOOD_DIRECTIVE["game"]
+        note = table.get(mood)
+        if not note:
+            return ""
+        return (
+            f"\n\n[THE SCORE RIGHT NOW — what you can HEAR (your ears, not your eyes): {mood}]\n"
+            f"Let it color your energy: {note}. This is your felt sense of the audio, "
+            f"NOT something to name or recite — react to the beat in your own voice."
+        )
+
     def _has_fresh_visual_context(self, max_age: float = 15.0) -> bool:
         """Returns True only when the vision agent is on AND has a real, recent capture.
         Used to gate any prompt path that would otherwise let Kira make visual claims
@@ -1985,11 +2046,16 @@ class VTubeBot:
                 "scene_override": _ep,
                 "queued_at": time.time(),
                 "content_ts": mw.get_last_content_mid_ts() or time.time(),  # captured at queue time for accurate [LAG]
+                # Stage 1: capture the audio mood AT QUEUE TIME (film framing) so the
+                # deferred reaction reflects the score at the moment, not when it drains.
+                "mood_block": self._frame_audio_mood(self._audio_mood(), framing="film"),
             })
             return
 
         reason = self._media_react_reason(summary)
         episode_log = mw.get_episode_context() if mw.has_context() else ""
+        # Stage 1: coarse audio mood colors her register (film framing). None → "".
+        _mood_block = self._frame_audio_mood(self._audio_mood(), framing="film")
 
         # FILM framing (leak batch) + episode log + latest delta. She reacts to the
         # beat that JUST happened, anchored to the timeline she actually saw.
@@ -1998,6 +2064,7 @@ class VTubeBot:
             "playing a game. React like someone on the couch watching with him: a "
             "film-watcher's eye and instincts, not a gamer narrating inputs.]\n\n"
             + (f"{episode_log}\n\n" if episode_log else "")
+            + (f"{_mood_block.strip()}\n\n" if _mood_block else "")
             + "WHAT JUST HAPPENED ON SCREEN (the latest beat \u2014 your visual "
             "perception, do NOT recite it back):\n"
             f"\"{summary}\"\n\n"
@@ -2093,7 +2160,11 @@ class VTubeBot:
         #        (WITHOUT touching gmc.is_active, so the user's Vision toggle
         #        survives and is restored exactly when they disarm).
         if va is not None and gmc is not None:
-            want_active = bool(gmc.is_active) and not (media_armed or chess_armed)
+            # Baseline vision (Group 2 always-on calm perception) keeps the heartbeat
+            # alive even with no mode armed, so she's never blind by default. Still
+            # parked when Media Watch / Chess own perception.
+            baseline_vis = bool(getattr(self, "vision_baseline_on", False))
+            want_active = (bool(gmc.is_active) or baseline_vis) and not (media_armed or chess_armed)
             if va.is_active != want_active:
                 va.is_active = want_active
                 if not want_active:
@@ -2112,13 +2183,20 @@ class VTubeBot:
                         asyncio.ensure_future(self._unpark_vision_refresh())
                     changes.append("heartbeat restored")
 
-        # INV-2: heartbeat cadence follows activity/immersive — recompute rather
-        #        than trust a stale value a prior toggle left behind.
+        # INV-2: heartbeat cadence follows activity/immersive/deep-senses — recompute
+        #        rather than trust a stale value a prior toggle left behind. Deep Senses
+        #        escalates the calm baseline to fast cadence; game/media stay fast too.
         if va is not None and gmc is not None:
-            want_interval = 10.0 if (self.immersive or gmc.activity_type == ACTIVITY_GAME) else 30.0
+            fast = self.immersive or gmc.activity_type == ACTIVITY_GAME or bool(getattr(self, "deep_senses", False))
+            want_interval = 10.0 if fast else VISION_CALM_HEARTBEAT_SECONDS
             if va.heartbeat_interval != want_interval:
                 va.heartbeat_interval = want_interval
                 changes.append(f"cadence {want_interval:.0f}s")
+
+            # Keep master_enabled aligned with the baseline so on-demand sight + the
+            # vision-context block honor 'always-on calm' (not just the heartbeat).
+            if want_active and bool(getattr(self, "vision_baseline_on", False)) and not va.master_enabled:
+                va.master_enabled = True
 
         # INV-3: reactions handler stays wired for the whole session (the
         #        reactions_enabled bool is the real on/off). Re-wire defensively.
@@ -2350,7 +2428,46 @@ class VTubeBot:
             "chess": {"armed": chess_armed, "running": chess_running},
             "activity": self.current_activity or "",
             "activity_type": activity_type,
+            # Perception escalation (Deep Senses) + at-a-glance perception summary
+            # for the dashboard indicator. mode='deep' when escalated, else 'calm'.
+            "deep_senses": bool(getattr(self, "deep_senses", False)),
+            "perception": {
+                "mode": "deep" if getattr(self, "deep_senses", False) else "calm",
+                "vision_on": eyes_source != "off",
+                "vision_parked": heartbeat_parked,
+                "vision_cadence_s": float(getattr(va, "heartbeat_interval", 0) or 0),
+                "audio_mood_on": hearing_mode != "off",
+                "loopback_on": loopback_on,
+            },
         }
+
+    def apply_deep_senses(self, on: bool) -> None:
+        """Authoritative perception-escalation control (dashboard 'Deep Senses').
+
+        ON  \u2192 turbo/active perception for gaming/watching: fast 10s vision cadence
+              (via the deep_senses flag feeding the reconciler), full vision awake,
+              audio mood active. Loopback dialogue is started by the caller (async).
+        OFF \u2192 relax to the Group-2 always-on CALM baseline: 40s vision, audio-mood,
+              loopback all keep running, just calm. Turning this OFF NEVER blinds or
+              deafens her \u2014 that's the safety net for 'forgot to toggle'.
+
+        Idempotent. Cadence + heartbeat parking are applied by the reconciler, which
+        the dispatcher runs right after this action."""
+        self.deep_senses = bool(on)
+        if on:
+            # Wake the full stack. Vision honors the master kill-switch: if vision is
+            # hard-disabled in env (ENABLE_VISION=false), Deep Senses can't override it.
+            if ENABLE_VISION:
+                self.vision_baseline_on = True
+                self.vision_agent.master_enabled = True
+                self.vision_agent.is_active = True
+            if self.audio_agent and not self.audio_agent.is_active():
+                try:
+                    self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
+                except Exception as e:
+                    print(f"   [DeepSenses] audio wake failed: {e}")
+        # OFF: deliberately leave vision/audio/loopback running (calm baseline). Only
+        # the cadence relaxes, handled by the reconciler via self.deep_senses=False.
 
 
 
@@ -2678,8 +2795,15 @@ class VTubeBot:
                 # VN/MEDIA: immersive mode as before; GENERAL: passthrough
                 self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
                 self.highlight_extraction_enabled = self.immersive
-                self.vision_agent.heartbeat_interval = 10.0 if (self.immersive or new_type == ACTIVITY_GAME) else 30.0
+                self.vision_agent.heartbeat_interval = 10.0 if (self.immersive or new_type == ACTIVITY_GAME) else VISION_CALM_HEARTBEAT_SECONDS
                 self.game_mode_controller.activate(new_type)
+                # Stage 1 (load-bearing): VN and MEDIA both need ears too, so Kira
+                # feels the score / can song-ID during a watch party OR a VN. set_mode
+                # self-guards against redundant restarts, so this is safe/idempotent.
+                # (VN's JP voice-acting works fine for the MOOD agent — the English-only
+                # loopback ASR stays separately gated and is NOT started here.)
+                if new_type in (ACTIVITY_VN, ACTIVITY_MEDIA) and self.audio_agent:
+                    self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
         else:
             # Legacy dumb mode: mirrors the voice-path detection exactly
             self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
@@ -3052,6 +3176,31 @@ class VTubeBot:
         "quiet", "ambient", "calm", "peaceful", "minimal", "gentle",
         "atmospheric", "subtle", "silence", "soft",
     )
+    # Stage 1: triumphant/uplifting bucket — the one mood the suppress-gate sets
+    # never needed but reaction-coloring does (a victory swell should land big in
+    # game, earnest-but-composed in film).
+    _TRIUMPHANT_AUDIO_KW = (
+        "triumphant", "triumph", "victorious", "victory", "uplifting",
+        "heroic", "soaring", "swelling strings", "fanfare", "hopeful",
+        "rousing", "epic", "grand", "celebratory", "jubilant",
+    )
+    # Mode-aware reaction-coloring directives keyed by coarse audio mood. Shared
+    # perception (_audio_mood); only the register differs. Triumphant in film is
+    # earnest-but-composed (never loud); game triumph can go bigger.
+    _AUDIO_MOOD_DIRECTIVE = {
+        "film": {
+            "tense": "lean quiet and anticipatory — let the tension breathe; don't talk over the swell",
+            "triumphant": "let it land — match the high earnestly, but stay composed, not loud",
+            "sad": "soft and sincere — no quips over the emotional beat",
+            "calm": "relaxed register — room to murmur or riff lightly",
+        },
+        "game": {
+            "tense": "match the stakes — hyped, locked-in, on edge with him",
+            "triumphant": "ride the win — you can go big celebrating the high with him",
+            "sad": "drop the bit — match the weight, be sincere",
+            "calm": "relaxed and conversational — room to riff",
+        },
+    }
 
     def _classify_moment(self, silence_duration: float) -> "SessionIntensity":
         """Classify the current stream moment using only pre-computed local signals.
@@ -3522,6 +3671,28 @@ class VTubeBot:
                     except Exception: pass
 
 
+    async def _autostart_loopback(self) -> None:
+        """Auto-start the loopback dialogue transcriber when LOOPBACK_STT_DEFAULT is on.
+
+        Mirrors the dashboard loopback_toggle start path: requires the audio agent to be
+        active (the transcriber reads ITS buffer) and passes an is_speaking probe so Kira's
+        own TTS never leaks into the transcript. Runs the blocking model-load + thread-spawn
+        off the event loop. Fully fail-graceful \u2014 a failure here never blocks the bot."""
+        lt = self.loopback_transcriber
+        if lt is None or lt.is_running():
+            return
+        if not (self.audio_agent and self.audio_agent.is_active()):
+            print("   [LoopbackSTT] Auto-start skipped \u2014 audio agent not active.")
+            return
+        ai_core_ref = self.ai_core
+        speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+        try:
+            ok = await asyncio.to_thread(lt.start, self.audio_agent, speaking_fn)
+            print(f"   [LoopbackSTT] Auto-start {'succeeded' if ok else 'failed'} "
+                  f"(LOOPBACK_STT_DEFAULT).")
+        except Exception as e:
+            print(f"   [LoopbackSTT] Auto-start raised: {e}")
+
     async def generate_startup_brief(self):
         """At startup, build a 'what happened recently' brief from the most recent
         lore and clips files. This gets injected into every conversation context
@@ -3951,6 +4122,20 @@ class VTubeBot:
             tasks.append(self.vision_agent.heartbeat_loop())
             if self.audio_agent:
                 tasks.append(self.audio_agent.heartbeat_loop())
+                # 2b: audio-mood always-on — boot straight into MEDIA so _audio_mood()
+                # colors general conversation, not just armed modes. set_mode opens the
+                # WASAPI loopback stream; self-guards if already active. None=no-op
+                # downstream so this can never inject false drama on silence.
+                if AUDIO_MOOD_ALWAYS_ON:
+                    try:
+                        self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
+                        print("   [Audio] Mood reading always-on (MEDIA) — AUDIO_MOOD_ALWAYS_ON.")
+                    except Exception as _am_e:
+                        print(f"   [Audio] Always-on mood start failed: {_am_e}")
+                # 2c/1b: loopback dialogue always-on — auto-start once audio is active,
+                # gated by LOOPBACK_STT_DEFAULT. Runs in a thread (model load ~20s).
+                if LOOPBACK_STT_DEFAULT:
+                    asyncio.ensure_future(self._autostart_loopback())
             
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
@@ -4354,13 +4539,20 @@ class VTubeBot:
                                 if self.immersive or new_type == ACTIVITY_GAME:
                                     self.vision_agent.heartbeat_interval = 10.0
                                 else:
-                                    self.vision_agent.heartbeat_interval = 30.0
+                                    self.vision_agent.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS
                                 if old_immersive and not self.immersive and self.session_scene_log:
                                     asyncio.create_task(self._generate_session_summary())
                                 # Load playthrough memory for the new game/VN
                                 if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
                                     self.playthrough_memory.load_for_game(detected)
                                     # Takes/spotlight persist across activity switches (Req A).
+                                # NOTE: the voice phrase sets the activity LABEL +
+                                # playthrough context ONLY. It deliberately does NOT
+                                # wake vision/audio — casual "let's play X" said to chat
+                                # would misfire (e.g. full-screen reads). Senses are
+                                # escalated by the authoritative Deep Senses toggle, not
+                                # by speech. Group 2 always-on calm perception is the
+                                # safety net when Jonny forgets to toggle.
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
@@ -6770,7 +6962,9 @@ class VTubeBot:
             # scene_override prompt here so the reaction still fires meaningfully.
             if not prompt and pi.get("scene_override"):
                 prompt = (
-                    "[BUFFERED REACTION — fire on what just happened]\n"
+                    "[BUFFERED REACTION — fire on what just happened]"
+                    + pi.get("mood_block", "")
+                    + "\n"
                     + pi["scene_override"][:400]
                 )
             if prompt:
@@ -7254,6 +7448,21 @@ class VTubeBot:
 
                 if audio_part:
                     dynamic_context += f"\n\n{audio_part}"
+
+                # Stage 1: coarse audio MOOD colors her register in audio-bearing
+                # activity modes. Shared perception (_audio_mood) with the watch-party
+                # path; framing is mode-aware (film vs game). None → no-op, so general
+                # conversation (audio off / non-event) is unaffected.
+                if self.audio_agent and self.audio_agent.is_active():
+                    _mood_framing = (
+                        "film"
+                        if (self.game_mode_controller
+                            and self.game_mode_controller.activity_type == ACTIVITY_MEDIA)
+                        else "game"
+                    )
+                    dynamic_context += self._frame_audio_mood(
+                        self._audio_mood(), framing=_mood_framing
+                    )
 
                 # Song-ID intent: if the user explicitly asked Kira to identify the
                 # currently-playing song, fingerprint the audio buffer via AudD and

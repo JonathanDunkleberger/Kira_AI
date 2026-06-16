@@ -6,7 +6,7 @@ from collections import deque
 from io import BytesIO
 from PIL import ImageGrab
 from openai import AsyncOpenAI
-from kira.config import OPENAI_API_KEY, ENABLE_VISION
+from kira.config import OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS
 
 # Request-size bounds for the rolling scene summary. The summary feeds its own
 # output back in as `previous` each cycle, so without a clamp an over-long model
@@ -137,7 +137,7 @@ class UniversalVisionAgent:
         self.scene_summary: str = ""               # Rolling narrative summary
         self.previous_dialogue: str = ""           # For dialogue-change detection
         self.last_dialogue_change_time: float = 0  # Timestamp of last screen text change
-        self.heartbeat_interval = 30.0  # default; bot overrides to 10.0 in immersive mode
+        self.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS  # calm general cadence; bot overrides to 10.0 in fast (game/media) mode
 
     def update_shared_frame(self, frame):
         """Receives a frame from the dashboard to prevent double-capturing."""

@@ -1,0 +1,15 @@
+# Optional: local-Llama inference backend (INFERENCE_BACKEND=local, or the
+# groq backend with GROQ_FALLBACK_TO_LOCAL=true/lazy_load).
+#
+# The DEFAULT groq backend does NOT need this file — `pip install -r
+# requirements.txt` is all you need to boot. Install this ONLY if you want the
+# on-device Llama 3.1 8B fallback.
+#
+# llama-cpp-python compiles a native C++ extension. For GPU (CUDA) builds you
+# need the CUDA toolkit + a C++ compiler (Visual Studio Build Tools on Windows)
+# and the appropriate build flags. See:
+#   https://github.com/abetlen/llama-cpp-python#installation
+#
+# You also need a local GGUF weight file in models/ (e.g.
+# Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf) and LLM_MODEL_PATH pointed at it.
+llama-cpp-python==0.3.4

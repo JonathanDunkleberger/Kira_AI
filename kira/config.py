@@ -20,7 +20,14 @@ N_BATCH = int(os.getenv("N_BATCH", 512))
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
 WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(_REPO_ROOT, "models", "whisper"))
-ENABLE_VISION = os.getenv("ENABLE_VISION", "false").lower() == "true"
+# Vision master kill-switch. Default ON: general perception means she can see at a
+# calm cadence WITHOUT arming a mode. Set false to make her blind everywhere
+# (the one switch that disables all vision, even on-demand visual questions).
+ENABLE_VISION = os.getenv("ENABLE_VISION", "true").lower() == "true"
+# Calm (general-conversation) vision heartbeat cadence, in seconds. The fast 10s
+# cadence stays mode-tuned (game/media); this relaxed rate keeps her aware in plain
+# conversation without hammering the vision model.
+VISION_CALM_HEARTBEAT_SECONDS = float(os.getenv("VISION_CALM_HEARTBEAT_SECONDS", 40.0))
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
 # "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)
@@ -56,14 +63,21 @@ VIRTUAL_AUDIO_DEVICE = os.getenv("VIRTUAL_AUDIO_DEVICE", "")
 
 # Audio understanding config
 ENABLE_AUDIO_AGENT = os.getenv("ENABLE_AUDIO_AGENT", "true").lower() == "true"
+# Audio-mood always-on: when true (default), the audio agent boots straight into an
+# active mood-reading state (MEDIA) so _audio_mood() colors GENERAL conversation, not
+# just armed modes. None=no-op already, so this is safe. Set false to boot OFF and only
+# hear once a mode is armed.
+AUDIO_MOOD_ALWAYS_ON = os.getenv("AUDIO_MOOD_ALWAYS_ON", "true").lower() == "true"
 # Loopback Whisper transcriber — SEPARATE opt-in flag from the audio-MOOD agent.
 # Distil-large-v3 is English-only and produces token-loop garbage on JP/VN content.
-# Default OFF: enable only for English stream-watching. When OFF, the WhisperModel is never loaded.
-ENABLE_LOOPBACK_TRANSCRIBER = os.getenv("ENABLE_LOOPBACK_TRANSCRIBER", "false").lower() == "true"
-# Whether the loopback STT auto-starts when MEDIA audio mode is turned on.
-# Default false (AAA-safe). Flip to true if you always want loopback running.
-# Even with false, you can start it manually via the dashboard LOOPBACK STT toggle.
-LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "false").lower() == "true"
+# Default ON for general perception (she hears game/show dialogue); the WhisperModel
+# is only loaded when this is true. Set false to skip the second Whisper entirely.
+ENABLE_LOOPBACK_TRANSCRIBER = os.getenv("ENABLE_LOOPBACK_TRANSCRIBER", "true").lower() == "true"
+# Whether the loopback STT AUTO-STARTS (no manual toggle) once MEDIA audio is active.
+# Default true: combined with the always-on audio above, dialogue transcription comes
+# up on boot. Set false to require the dashboard LOOPBACK STT toggle. Honored both at
+# boot and whenever MEDIA audio mode is switched on from the dashboard.
+LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "true").lower() == "true"
 
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures

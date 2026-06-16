@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="#architecture">Architecture</a> · <a href="#setup">Setup</a> · <a href="#customization">Customization</a> · <a href="#roadmap">Roadmap</a>
+  <a href="QUICKSTART.md">Quick Start</a> · <a href="#architecture">Architecture</a> · <a href="#setup">Setup</a> · <a href="#customization">Customization</a> · <a href="#roadmap">Roadmap</a>
 </p>
 
 <p align="center">
@@ -30,6 +30,8 @@
 Kira is not a chatbot. She is a real-time cognitive agent with long-term semantic memory, computer vision, full voice interaction, mood-driven Live2D expressions, on-screen synced captions, live chess on Lichess, and proactive autonomous behavior. Her senses are fully local — two CUDA Whisper instances on-device, WebRTC VAD, real-time screen capture — while reasoning is hybrid-cloud by design: Groq for triage and fast paths, Claude Sonnet streaming live during voice turns, Claude Opus for deep moments. She remembers facts about her user across sessions, watches the screen to understand context, drives a Live2D avatar from her emotional state, co-hosts live streams across Twitch and YouTube, and plays rated chess as a Lichess bot account.
 
 This project demonstrates end-to-end systems design: real-time audio pipelines, vector-database memory architectures, multimodal sensor fusion, WebSocket-driven avatar control, synced caption rendering from TTS word-timing, and agentic decision loops — built from scratch in Python.
+
+> **Fork this — make your own VTuber.** Kira is a framework, not just one character. Swap the persona, voice, and avatar and she becomes yours. New here? Start with the [15-minute QUICKSTART.md](QUICKSTART.md), then come back for the deep dives below.
 
 ---
 
@@ -171,7 +173,7 @@ Kira/
 
 - Python 3.10+
 - NVIDIA GPU (RTX 3060+ recommended) with CUDA drivers
-- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (C++ tools, required for `llama-cpp-python`)
+- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (C++ tools — only needed for the **optional** local-Llama backend, `requirements-local.txt`; the default Groq backend needs none)
 - `mpv` installed and on PATH (for music playback)
 - [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki) (local OCR fallback for the VN autopilot)
 - [VTube Studio](https://denchisoft.com/) with the API enabled (for the Live2D avatar)
@@ -179,11 +181,15 @@ Kira/
 
 ### Quick Start
 
+> **In a hurry?** [QUICKSTART.md](QUICKSTART.md) is a copy-paste 15-minute path that boots the core voice loop with just five keys. The steps below are the same thing in more detail.
+
 ```bash
 git clone https://github.com/JonathanDunkleberger/Kira.git
 cd Kira
 pip install -r requirements.txt
 ```
+
+The default Groq backend installs with **no compiler or CUDA toolkit** — `llama-cpp-python` is intentionally left out of `requirements.txt` (it only powers the optional local-Llama fallback; install it separately via `pip install -r requirements-local.txt`). On first boot, Faster-Whisper downloads ~1.5 GB of model weights to `models/whisper/` — expected, not a hang.
 
 No local model download required for the default Groq backend. If you want the local Llama fallback, download a GGUF (e.g., `Meta-Llama-3.1-8B-Instruct-Q4_K_M`) and place it in `models/`, then set `INFERENCE_BACKEND=local` (or `groq` with `GROQ_FALLBACK_TO_LOCAL=lazy_load`).
 
@@ -220,7 +226,7 @@ To enable the on-screen captions: set `ENABLE_CAPTIONS=true`, then add `caption_
 | `TWITCH_CHANNEL_TO_JOIN` | Twitch channel to join |
 | `LICHESS_BOT_TOKEN` | Lichess bot account token (`bot:play` scope) |
 | `CHESS_ENGINE_PATH` | Path to Stockfish binary |
-| `CHESS_KIRA_ELO` | Stockfish Elo cap (default: `1800`) |
+| `CHESS_KIRA_ELO` | Stockfish Elo cap (default: `1400`) |
 | `CHESS_MOVETIME_MS` | Engine think time per move in ms (default: `150`) |
 | `ENABLE_CAPTIONS` | Toggle the on-screen caption overlay |
 | `ENABLE_VTS_EXPRESSIONS` | Toggle mood-driven Live2D expressions |

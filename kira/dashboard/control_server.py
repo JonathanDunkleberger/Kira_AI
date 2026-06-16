@@ -162,6 +162,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     carry_mode = _get(lambda: bot.carry_mode, False)
     immersive = _get(lambda: bot.immersive, False)
     presence_level = _get(lambda: bot.presence_level, "normal")
+    deep_senses = _get(lambda: bool(bot.deep_senses), False)
 
     # ── Effective (post-reconcile) state — the single truth both UIs render ───
     effective = _get(lambda: bot._compute_effective_state(), {}) or {}
@@ -321,6 +322,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "carry_mode": carry_mode,
         "immersive": immersive,
         "presence_level": presence_level,
+        "deep_senses": deep_senses,
         # Effective state (post-reconcile) — strip + three-state toggles render
         # from THIS, never from the raw toggle booleans above.
         "effective": effective,
@@ -850,7 +852,7 @@ _MODE_ACTIONS = frozenset({
     "activity_go", "exit_game_mode", "vision_toggle", "loopback_toggle",
     "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
     "media_watch_toggle", "media_watch_react_toggle", "chess_toggle",
-    "chess_accept_toggle",
+    "chess_accept_toggle", "deep_senses_toggle",
 })
 
 
@@ -914,6 +916,26 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             bot.game_mode_controller.activate(bot.game_mode_controller.activity_type)
         return _ok(vision_on=bot.game_mode_controller.is_active)
 
+    # ── Deep Senses (authoritative perception escalation) ─────────────────────
+    if action == "deep_senses_toggle":
+        on = body.enabled if body.enabled is not None else (not getattr(bot, "deep_senses", False))
+        bot.apply_deep_senses(on)
+        # Escalate loopback dialogue when going DEEP. It reads the audio agent's
+        # buffer, so audio must be active first — apply_deep_senses() just ensured
+        # that. Relaxing to calm leaves loopback running (baseline), so there's
+        # nothing to stop here. Runs the model-load off the event loop.
+        if on:
+            lt = bot.loopback_transcriber
+            if (lt is not None and not lt.is_running()
+                    and bot.audio_agent and bot.audio_agent.is_active()):
+                ai_core_ref = bot.ai_core
+                speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+                try:
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn)
+                except Exception as _ds_e:
+                    print(f"   [DeepSenses] loopback start failed: {_ds_e}")
+        return _ok(deep_senses=on)
+
     # ── Audio / Hearing ───────────────────────────────────────────────────────
     if action == "audio_mode":
         if not bot.audio_agent:
@@ -926,6 +948,20 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         choice = body.mode or "Off"
         mode_val = label_to_mode.get(choice, AUDIO_MODE_OFF)
         bot.audio_agent.set_mode(mode_val)
+        # 1b: honor LOOPBACK_STT_DEFAULT — auto-start the dialogue transcriber when
+        # MEDIA audio is switched on (it reads the audio agent's buffer, so audio must
+        # be active first). MUSIC mode is intentionally excluded (don't transcribe
+        # Jonny's own guitar/singing). Fail-graceful; never blocks the toggle.
+        if mode_val == AUDIO_MODE_MEDIA:
+            from kira.config import LOOPBACK_STT_DEFAULT
+            lt = bot.loopback_transcriber
+            if LOOPBACK_STT_DEFAULT and lt is not None and not lt.is_running():
+                ai_core_ref = bot.ai_core
+                speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+                try:
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn)
+                except Exception as _lt_e:
+                    print(f"   [LoopbackSTT] Auto-start on MEDIA failed: {_lt_e}")
         return _ok(hearing=choice)
 
     if action == "audio_device":
@@ -1091,6 +1127,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         mw.enabled = enabled
         if enabled:
             bot.event_loop.call_soon_threadsafe(mw.start)
+            # Stage 1 (load-bearing): a watch party needs ears so Kira feels the
+            # score, not just sees frames. Auto-SET media audio on enable ONLY;
+            # never auto-disable on toggle-off (don't stomp a manual audio choice).
+            if bot.audio_agent:
+                bot.event_loop.call_soon_threadsafe(
+                    bot.audio_agent.set_mode, AUDIO_MODE_MEDIA
+                )
         else:
             bot.event_loop.call_soon_threadsafe(mw.stop)
         return _ok(media_watch_enabled=enabled, window_title=title, auto_targeted=auto_targeted)

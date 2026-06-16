@@ -157,6 +157,46 @@ html, body {
 #eff-strip .eff-seg.attn { color: var(--attention); }
 #eff-strip .eff-sep { color: var(--border); }
 
+/* ── PERCEPTION INDICATOR + DEEP SENSES (always-visible glance) ──── */
+#perception-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 6px 18px;
+  background: var(--ctrl-bg);
+  border-bottom: 1px solid var(--border);
+  font-size: .78rem;
+  font-weight: 600;
+}
+.perc-mode {
+  padding: 2px 11px;
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.perc-mode.deep {
+  background: color-mix(in srgb, var(--accent) 22%, var(--ctrl-bg));
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.perc-dots { display: flex; gap: 14px; flex-wrap: wrap; }
+.perc-dot { color: var(--text-muted); white-space: nowrap; transition: color .2s; }
+.perc-dot.on { color: var(--success); }
+.perc-dot.off { color: var(--text-muted); }
+.perc-deep { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.perc-deep-label {
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-size: .72rem;
+}
+
 /* ── Three-state switch override styling ────────────────── */
 .sw.override .sw-track { background: var(--accent-tint); box-shadow: inset 0 0 0 2px var(--accent); }
 .sw.override .sw-knob  { background: var(--attention); }
@@ -777,6 +817,29 @@ html, body {
   <!-- Renders s.effective.strip (post-reconcile truth). Each segment goes
        rust when its effect is overridden. Mirrors the desktop strip. -->
   <div id="eff-strip"></div>
+
+  <!-- ═══════════ PERCEPTION INDICATOR + DEEP SENSES ═══════════ -->
+  <!-- Always-visible glance at what Kira can currently perceive. The mode chip
+       shows GENERAL (calm) vs DEEP SENSES (active); the dots show live vision /
+       audio-mood / dialogue status. The Deep Senses toggle is the AUTHORITATIVE
+       escalation control (fast vision + audio + loopback). OFF = calm baseline,
+       never blind/deaf. Renders from s.effective.perception / .deep_senses. -->
+  <div id="perception-bar">
+    <span class="perc-mode" id="perc-mode">GENERAL · calm</span>
+    <span class="perc-dots">
+      <span class="perc-dot off" id="perc-vision">👁 vision —</span>
+      <span class="perc-dot off" id="perc-audio">👂 mood —</span>
+      <span class="perc-dot off" id="perc-loopback">💬 dialogue —</span>
+    </span>
+    <span class="perc-deep">
+      <span class="perc-deep-label">Deep Senses</span>
+      <label class="sw" title="Deep Senses — turbo perception for active gaming/watching (fast vision + audio + dialogue). Off = calm always-on baseline.">
+        <input type="checkbox" id="sw-deep-senses"
+               onchange="cmd('deep_senses_toggle',{enabled:this.checked})">
+        <span class="sw-track"></span><span class="sw-knob"></span>
+      </label>
+    </span>
+  </div>
 
   <!-- ═══════════ BODY ═══════════ -->
   <div id="body">
@@ -1464,6 +1527,7 @@ let _lastTranscriptHash = '';
 function render(s) {
   safe(() => renderGlance(s));
   safe(() => renderEffStrip(s));
+  safe(() => renderPerception(s));
   safe(() => renderOverlayChips(s));
   safe(() => renderTranscript(s));
   safe(() => renderRail(s));
@@ -2658,6 +2722,45 @@ function renderEffStrip(s) {
     `<span class="eff-seg${seg.attn ? ' attn' : ''}">${escHtml(seg.text || '')}</span>`
   );
   strip.innerHTML = parts.join('<span class="eff-sep">&nbsp;·&nbsp;</span>');
+}
+
+
+// ── Perception indicator + Deep Senses toggle ──────────────────────
+// Renders the always-visible glance bar: mode chip (GENERAL calm vs DEEP SENSES
+// active) + live dots for vision (on/off + cadence), audio-mood, and dialogue.
+function renderPerception(s) {
+  const eff = (s && s.effective) || {};
+  const p = eff.perception || {};
+  const deep = !!eff.deep_senses;
+
+  const modeEl = document.getElementById('perc-mode');
+  if (modeEl) {
+    modeEl.textContent = deep ? 'DEEP SENSES · active' : 'GENERAL · calm';
+    modeEl.classList.toggle('deep', deep);
+  }
+
+  const cad = p.vision_cadence_s ? `${Math.round(p.vision_cadence_s)}s` : '';
+  if (p.vision_parked) {
+    setDot('perc-vision', false, '👁 vision parked');
+  } else if (p.vision_on) {
+    setDot('perc-vision', true, `👁 vision ${cad}`.trim());
+  } else {
+    setDot('perc-vision', false, '👁 vision off');
+  }
+  setDot('perc-audio', !!p.audio_mood_on, p.audio_mood_on ? '👂 mood on' : '👂 mood off');
+  setDot('perc-loopback', !!p.loopback_on, p.loopback_on ? '💬 dialogue on' : '💬 dialogue off');
+
+  // Don't fight the user mid-click — only sync the switch when it isn't focused.
+  const sw = document.getElementById('sw-deep-senses');
+  if (sw && document.activeElement !== sw) sw.checked = deep;
+}
+
+function setDot(id, on, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('on', !!on);
+  el.classList.toggle('off', !on);
 }
 
 
