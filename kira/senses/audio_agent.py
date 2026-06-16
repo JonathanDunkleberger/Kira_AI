@@ -289,9 +289,10 @@ class AudioAgent:
 
     def _find_loopback_device(self, preferred_name: Optional[str] = None) -> Optional[dict]:
         """Finds the best WASAPI loopback device. Priority:
-        1. preferred_name match (user explicitly chose)
-        2. Default WASAPI loopback IF it's not a virtual device
-        3. First non-virtual loopback in enumeration
+        1. preferred_name match (user explicitly chose — dashboard override)
+        2. Windows DEFAULT playback loopback (this IS the program audio, even if
+           it's a virtual cable on a streaming rig)
+        3. First non-virtual loopback (only if there's no default at all)
         4. Any loopback (last resort)
         """
         devices = self._list_loopback_devices()
@@ -303,23 +304,30 @@ class AudioAgent:
         if preferred_name:
             for d in devices:
                 if preferred_name.lower() in d.get("name", "").lower():
+                    print(f"   [Audio] Using dashboard-selected device: {d.get('name')}")
                     return d
             print(f"   [Audio] Preferred device '{preferred_name}' not found, falling through to auto-pick.")
 
-        # Priority 2: default WASAPI loopback if not virtual
+        # Priority 2: the Windows DEFAULT playback device's loopback. In a cable-routed
+        # streaming rig the default is the VB-Audio Cable — which carries the ACTUAL
+        # program audio (game / media / desktop mix). The old heuristic REJECTED virtual
+        # devices here and fell through to a real monitor endpoint that carries no
+        # signal, so Kira heard silence. Capture the default: it's where the audio she
+        # needs to hear actually goes. The manual override (Priority 1) covers the rare
+        # case where the default is genuinely wrong.
         try:
             default = self._pa.get_default_wasapi_loopback()
-            if default and not self._is_virtual_device(default):
+            if default:
+                tag = " (virtual cable — program audio)" if self._is_virtual_device(default) else ""
+                print(f"   [Audio] Using default WASAPI loopback: {default.get('name')}{tag}")
                 return default
-            elif default:
-                print(f"   [Audio] Default loopback '{default.get('name')}' is virtual — looking for a real device.")
         except Exception:
             pass
 
-        # Priority 3: first non-virtual loopback
+        # Priority 3: no usable default — fall back to the first non-virtual loopback.
         for d in devices:
             if not self._is_virtual_device(d):
-                print(f"   [Audio] Auto-selected non-virtual loopback: {d.get('name')}")
+                print(f"   [Audio] No default loopback available — using non-virtual: {d.get('name')}")
                 return d
 
         # Priority 4: anything (last resort, warn user)

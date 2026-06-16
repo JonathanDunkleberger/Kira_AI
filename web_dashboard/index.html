@@ -931,12 +931,13 @@ html, body {
           </div>
 
           <div class="toggle-row">
-            <span class="toggle-label">Vision</span>
+            <span class="toggle-label">Force vision OFF</span>
             <label class="sw">
-              <input type="checkbox" id="sw-vision" onchange="cmd('vision_toggle')">
+              <input type="checkbox" id="sw-vision-off" onchange="cmd('vision_force_off_toggle',{enabled:this.checked})">
               <span class="sw-track"></span><span class="sw-knob"></span>
             </label>
           </div>
+          <div class="status-text">Vision is always-on (calm baseline); Deep Senses escalates cadence. This forces it fully dark.</div>
 
         </div>
       </div><!-- /panel-perception (EYES) -->
@@ -954,7 +955,7 @@ html, body {
           </div>
 
           <div class="field">
-            <label>Hearing Mode</label>
+            <label>Audio capture mode (manual override)</label>
             <select id="sel-audio-mode" onchange="cmd('audio_mode',{mode:this.value})">
               <option value="Off">Off</option>
               <option value="Media (game/anime)">Media (game/anime)</option>
@@ -972,13 +973,8 @@ html, body {
             <button class="btn" onclick="refreshDevices()">↺</button>
           </div>
 
-          <div class="toggle-row">
-            <span class="toggle-label">Loopback STT</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-loopback" onchange="cmd('loopback_toggle')">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
+          <!-- Loopback STT is always-on baseline (escalated by Deep Senses) —
+               read-only status + live feed below; no symmetric toggle to desync. -->
           <div class="status-text" id="loopback-status">disabled</div>
           <div id="loopback-feed" class="loopback-feed"></div>
           <div id="dlg-summary-wrap" class="dlg-summary-wrap" onclick="toggleDlgSummary()">
@@ -1780,24 +1776,24 @@ function renderPanels(s) {
   const asEl = document.getElementById('audio-summary-text');
   if (asEl) asEl.textContent = as_ ? `${as_}${aAge}` : (s.audio_on ? 'Listening…' : 'Not listening');
 
-  // Hearing mode — only update when not focused to avoid fighting the user
+  // Audio capture mode dropdown — sync FROM the real mode so it never drifts.
   const selAudio = document.getElementById('sel-audio-mode');
-  if (selAudio && document.activeElement !== selAudio) {
-    // Map audio_on + audio mode
-    if (!s.audio_on) {
-      selAudio.value = 'Off';
-    }
-    // We don't have the raw mode string in snapshot, so we leave it if user changed it
+  if (selAudio && document.activeElement !== selAudio && s.audio_mode) {
+    selAudio.value = s.audio_mode;
   }
 
-  // Loopback
-  setCheck('sw-loopback', s.loopback_on);
+  // Vision force-off override — honest sync from effective state.
+  const swVisOff = document.getElementById('sw-vision-off');
+  if (swVisOff && document.activeElement !== swVisOff) {
+    swVisOff.checked = !!(s.effective && s.effective.vision_force_off);
+  }
+
+  // Loopback status (read-only — always-on baseline, no toggle).
   setText('loopback-status', s.loopback_status || 'disabled');
   renderLoopbackFeed(s);
 
   // ── Three-state toggles — render from effective state, not raw flags ──
   const tg = (s.effective && s.effective.toggles) || {};
-  setTri('sw-vision',     tg.vision);
   setTri('sw-immersive',  tg.immersive);
   setTri('sw-carry',      tg.carry);
   setTri('sw-autopilot',  tg.autopilot);
@@ -2544,6 +2540,17 @@ async function refreshDevices() {
         opt.value = d; opt.textContent = d;
         sel.appendChild(opt);
       });
+      // Restore the persisted selection (preferred_loopback_name) so the dropdown
+      // shows the device actually in use instead of resetting to Auto-detect.
+      const pref = _snap && _snap.audio_device;
+      if (pref) {
+        for (const opt of sel.options) {
+          const clean = opt.value.replace(/^⚠ /, '').replace(/ \(virtual\)$/, '').replace(/\.+$/, '');
+          if (opt.value.includes(pref) || (clean && pref.includes(clean))) {
+            sel.value = opt.value; break;
+          }
+        }
+      }
     }
   } catch(e) { console.warn('device refresh failed', e); }
 }
@@ -2821,7 +2828,10 @@ async function loadInitialState() {
 document.addEventListener('DOMContentLoaded', () => {
   restorePanelState();
   restoreStreamMode();
-  loadInitialState();
+  // Chain the device-dropdown refresh AFTER the initial snapshot resolves so
+  // _snap.audio_device is populated and the cosmetic selection-restore wins the
+  // first paint (no boot race).
+  loadInitialState().then(refreshDevices);
   wsConnect();
   startThumbPoll();
   _restoreScreenInputs();

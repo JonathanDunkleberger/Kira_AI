@@ -408,10 +408,14 @@ class VTubeBot:
         # vision_baseline_on: runtime vision intent for the always-on calm baseline,
         # seeded from the ENABLE_VISION master kill-switch. Keeps the heartbeat alive
         # at calm cadence even with no mode armed, and survives the reconciler (which
-        # would otherwise park vision the moment gmc.is_active is False). The EYES
-        # toggle flips this for a true runtime blind; env ENABLE_VISION=false disables
-        # it entirely.
+        # would otherwise park vision the moment gmc.is_active is False).
+        # env ENABLE_VISION=false disables vision entirely.
         self.vision_baseline_on = ENABLE_VISION
+        # vision_force_off: explicit dashboard master kill-switch override. When True,
+        # vision is forced fully dark regardless of baseline / Deep Senses / armed mode.
+        # This is the EYES panel's ONLY vision control — an honest override that can't
+        # desync (it drives the reconciler directly). Default False = follow baseline.
+        self.vision_force_off = False
 
         self.last_interaction_time = time.time()
         self.pyaudio_instance = None
@@ -2162,9 +2166,11 @@ class VTubeBot:
         if va is not None and gmc is not None:
             # Baseline vision (Group 2 always-on calm perception) keeps the heartbeat
             # alive even with no mode armed, so she's never blind by default. Still
-            # parked when Media Watch / Chess own perception.
+            # parked when Media Watch / Chess own perception, and forced dark by the
+            # vision_force_off master override.
+            force_off = bool(getattr(self, "vision_force_off", False))
             baseline_vis = bool(getattr(self, "vision_baseline_on", False))
-            want_active = (bool(gmc.is_active) or baseline_vis) and not (media_armed or chess_armed)
+            want_active = (not force_off) and (bool(gmc.is_active) or baseline_vis) and not (media_armed or chess_armed)
             if va.is_active != want_active:
                 va.is_active = want_active
                 if not want_active:
@@ -2197,6 +2203,10 @@ class VTubeBot:
             # vision-context block honor 'always-on calm' (not just the heartbeat).
             if want_active and bool(getattr(self, "vision_baseline_on", False)) and not va.master_enabled:
                 va.master_enabled = True
+            # Force-off override also drops master_enabled so on-demand sight refuses.
+            if bool(getattr(self, "vision_force_off", False)) and va.master_enabled:
+                va.master_enabled = False
+                changes.append("vision forced off")
 
         # INV-3: reactions handler stays wired for the whole session (the
         #        reactions_enabled bool is the real on/off). Re-wire defensively.
@@ -2283,7 +2293,13 @@ class VTubeBot:
         media_running = bool(mw and getattr(mw, "is_running", False))
         chess_armed = bool(ca and getattr(ca, "enabled", False))
         chess_running = bool(ca and getattr(ca, "is_running", False))
-        vision_intent = bool(gmc and gmc.is_active)
+        # TRUE vision intent — includes the always-on calm BASELINE and honors the
+        # force-off override. NOT gmc.is_active (which only means 'a mode is armed').
+        # This is the root-of-truth every vision indicator now reads from, so the
+        # dashboard can never show vision off while the heartbeat is actually running.
+        vision_force_off = bool(getattr(self, "vision_force_off", False))
+        vision_baseline = bool(getattr(self, "vision_baseline_on", False))
+        vision_intent = (bool(gmc and gmc.is_active) or vision_baseline) and not vision_force_off
         activity_type = getattr(gmc, "activity_type", ACTIVITY_GENERAL)
 
         heartbeat_parked = vision_intent and (media_armed or chess_armed)
@@ -2431,6 +2447,7 @@ class VTubeBot:
             # Perception escalation (Deep Senses) + at-a-glance perception summary
             # for the dashboard indicator. mode='deep' when escalated, else 'calm'.
             "deep_senses": bool(getattr(self, "deep_senses", False)),
+            "vision_force_off": vision_force_off,
             "perception": {
                 "mode": "deep" if getattr(self, "deep_senses", False) else "calm",
                 "vision_on": eyes_source != "off",
@@ -4134,8 +4151,11 @@ class VTubeBot:
                         print(f"   [Audio] Always-on mood start failed: {_am_e}")
                 # 2c/1b: loopback dialogue always-on — auto-start once audio is active,
                 # gated by LOOPBACK_STT_DEFAULT. Runs in a thread (model load ~20s).
+                # RETAINED in the awaited tasks list (not bare ensure_future) so the
+                # one-shot start actually runs at boot — a dropped fire-and-forget task
+                # was why loopback never started until the first manual toggle.
                 if LOOPBACK_STT_DEFAULT:
-                    asyncio.ensure_future(self._autostart_loopback())
+                    tasks.append(self._autostart_loopback())
             
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())

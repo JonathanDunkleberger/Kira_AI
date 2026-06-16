@@ -120,8 +120,11 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     session_chatters = _get(lambda: len(bot.session_chatters_seen), 0)
 
     # ── Vision ────────────────────────────────────────────────────────────────
-    vision_on = _get(lambda: bot.game_mode_controller.is_active, False)
+    # TRUE vision state — the heartbeat actually running (va.is_active), NOT
+    # gmc.is_active (which only means 'a mode is armed'). This drives the thumbnail
+    # poll + summary panel, so it must reflect whether she can really see right now.
     va = _get(lambda: bot.vision_agent, None)
+    vision_on = _get(lambda: bool(va.is_active) if va else False, False)
     vision_summary = _get(
         lambda: (va.scene_summary or va.last_description or "").strip()
         if va else "", ""
@@ -132,6 +135,14 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     # ── Audio / Hearing ───────────────────────────────────────────────────────
     aa = _get(lambda: bot.audio_agent, None)
     audio_on = _get(lambda: aa.is_active() if aa else False, False)
+    # Real audio capture mode → dropdown label, so the UI syncs FROM truth and
+    # never drifts to a stale local value.
+    audio_mode_label = _get(lambda: {
+        AUDIO_MODE_OFF: "Off",
+        AUDIO_MODE_MEDIA: "Media (game/anime)",
+        AUDIO_MODE_MUSIC: "Music (singing/guitar)",
+    }.get(aa.mode if (aa and aa.is_active()) else AUDIO_MODE_OFF, "Off"), "Off")
+    audio_device_pref = _get(lambda: aa.preferred_loopback_name if aa else None, None)
     audio_summary = _get(lambda: (aa.audio_summary or "").strip() if aa else "", "")
     audio_ts = _get(lambda: aa.last_capture_time if aa else 0, 0) or 0
     audio_age_s = int(now - audio_ts) if audio_ts > 0 else None
@@ -308,6 +319,8 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "vision_last_capture_age": vision_age_s,
         # Audio / hearing
         "audio_on": audio_on,
+        "audio_mode": audio_mode_label,
+        "audio_device": audio_device_pref,
         "audio_summary": audio_summary,
         "audio_last_heard_age": audio_age_s,
         "audio_capture_count": audio_capture_count,
@@ -849,7 +862,7 @@ def _err(msg: str, **kwargs) -> dict:
 # Actions that change which subsystem owns perception/agenda → re-run the
 # cross-mode reconciler afterward.
 _MODE_ACTIONS = frozenset({
-    "activity_go", "exit_game_mode", "vision_toggle", "loopback_toggle",
+    "activity_go", "exit_game_mode", "vision_force_off_toggle",
     "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
     "media_watch_toggle", "media_watch_react_toggle", "chess_toggle",
     "chess_accept_toggle", "deep_senses_toggle",
@@ -908,13 +921,15 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         await bot.deactivate_game_mode_async()
         return _ok()
 
-    # ── Vision ────────────────────────────────────────────────────────────────
-    if action == "vision_toggle":
-        if bot.game_mode_controller.is_active:
-            bot.game_mode_controller.deactivate()
-        else:
-            bot.game_mode_controller.activate(bot.game_mode_controller.activity_type)
-        return _ok(vision_on=bot.game_mode_controller.is_active)
+    # ── Vision force-off override (master kill-switch) ────────────────────────
+    # The EYES panel's ONLY vision control. Vision otherwise follows the always-on
+    # calm baseline + Deep Senses escalation. Honest override: ON = force vision
+    # fully dark; OFF = vision resumes per baseline/Deep Senses. Can't desync — it
+    # drives the reconciler directly (which the dispatcher runs right after).
+    if action == "vision_force_off_toggle":
+        on = body.enabled if body.enabled is not None else (not getattr(bot, "vision_force_off", False))
+        bot.vision_force_off = bool(on)
+        return _ok(vision_force_off=bot.vision_force_off)
 
     # ── Deep Senses (authoritative perception escalation) ─────────────────────
     if action == "deep_senses_toggle":
@@ -986,23 +1001,6 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                 short = f"⚠ {short} (virtual)"
             labels.append(short)
         return _ok(devices=labels)
-
-    # ── Loopback STT ──────────────────────────────────────────────────────────
-    if action == "loopback_toggle":
-        lt = bot.loopback_transcriber
-        if lt is None:
-            return _err("Loopback STT disabled in config (ENABLE_LOOPBACK_TRANSCRIBER=false)")
-        if lt.is_running():
-            # Stop on a thread so we don't block the event loop during model unload
-            await asyncio.to_thread(lt.stop)
-            return _ok(loopback_on=False)
-        else:
-            if not bot.audio_agent or not bot.audio_agent.is_active():
-                return _err("Enable Audio Hearing (Media mode) first")
-            ai_core_ref = bot.ai_core
-            speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
-            ok = await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn)
-            return _ok(loopback_on=ok) if ok else _err("Loopback STT failed to start — check logs")
 
     # ── Passive Watching ──────────────────────────────────────────────────────
     if action == "passive_watching_toggle":
