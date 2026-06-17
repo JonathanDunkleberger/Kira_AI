@@ -199,6 +199,15 @@ KNOWN_BOT_USERNAMES = {
     )
 }
 
+# Famous fixed idioms that are STRUCTURALLY identical to the "that's not X, that's
+# Y" verbal tic but are legitimate sayings/memes — they must NOT trip the tic
+# cooldown. Matched punctuation/spacing-insensitively (normalized). Add collisions
+# here if others surface.
+_TIC2_IDIOM_EXCEPTIONS = {
+    "that's not a bug, that's a feature",
+    "it's not you, it's me",
+}
+
 
 class _PhraseThrottleBuffer:
     """Session-scoped ring buffer that surfaces over-used phrases for LLM prompt injection.
@@ -227,6 +236,11 @@ class _PhraseThrottleBuffer:
         # record() stamps this whenever the family fires; _kira_voice_guardrails
         # reads it to hard-ban the construction for a few minutes afterward.
         self.last_fragment_quip_ts: float = 0.0
+        # Same detect->stamp->cooldown pattern for two more verbal tics:
+        #   tic1: "...don't know if that's A or B"  (hedge crutch)
+        #   tic2: "that's not X, that's Y"          (reframe crutch; idiom-exempt)
+        self.last_tic1_hedge_ts: float = 0.0
+        self.last_tic2_notx_ts: float = 0.0
 
     # Family detector for the word-count narration tic — matches the SIGNATURE
     # ("<count> word(s)/letter(s)") plus the bare "and a vibe" idiom, so variants
@@ -237,15 +251,41 @@ class _PhraseThrottleBuffer:
         re.IGNORECASE,
     )
 
+    # Family detector — hedge tic: "...I don't know if that's A or B" (lists two
+    # reads and refuses to pick). The trailing 'or' is what makes it the tic.
+    _TIC1_HEDGE_RE = re.compile(
+        r"\b(?:don'?t|do not)\s+know\s+if\s+"
+        r"(?:that'?s|it'?s|you'?re|they'?re|he'?s|she'?s|this\s+is)\b[^.?!]*?\bor\b",
+        re.IGNORECASE,
+    )
+
+    # Family detector — reframe tic: "that's not X, that's Y" (negate-then-restate,
+    # doubled copula). Structurally identical idioms are exempted in record() via
+    # _TIC2_IDIOM_EXCEPTIONS, and this stays on the COOLDOWN path (a false match
+    # only suppresses the construction afterward — it never blocks the line).
+    _TIC2_NOTX_RE = re.compile(
+        r"\b(?:that'?s|it'?s)\s+not\s+[\w' ]{1,25}?[,;:—-]\s*(?:that'?s|it'?s)\s+\w",
+        re.IGNORECASE,
+    )
+
     # ── public API ─────────────────────────────────────────────────────────────
 
     def record(self, text: str) -> None:
         """Add a spoken response to the ring buffer and refresh n-gram counts."""
         if not text:
             return
+        import time as _time
         if self._FRAGMENT_QUIP_RE.search(text):
-            import time as _time
             self.last_fragment_quip_ts = _time.time()
+        # tic1: "...don't know if that's A or B" — stamp the cooldown when it fires.
+        if self._TIC1_HEDGE_RE.search(text):
+            self.last_tic1_hedge_ts = _time.time()
+        # tic2: "that's not X, that's Y" — stamp UNLESS the line is a known idiom
+        # (same shape, legit), checked normalized so punctuation/spacing don't matter.
+        if self._TIC2_NOTX_RE.search(text):
+            _norm = self._normalize(text)
+            if not any(self._normalize(_idiom) in _norm for _idiom in _TIC2_IDIOM_EXCEPTIONS):
+                self.last_tic2_notx_ts = _time.time()
         self._responses.append(self._normalize(text))
         if len(self._responses) > self._capacity:
             self._responses.pop(0)
@@ -1793,6 +1833,33 @@ class VTubeBot:
                     "comment on its brevity — either give a brief genuine reaction to what "
                     "little there is, ask one short clarifying question, or simply wait with "
                     "a minimal non-committal beat. Find a different angle entirely.\n"
+                )
+        except Exception:
+            pass
+        # Hedge-tic cooldown — "...I don't know if that's A or B". Same mechanism as
+        # the fragment-quip cooldown: stamped in record() when it fires, hard-banned
+        # here for FRAGMENT_QUIP_COOLDOWN_S so it can't become a per-stream tic.
+        try:
+            _h_ts = getattr(self.phrase_buffer, "last_tic1_hedge_ts", 0) or 0
+            if _h_ts and (time.time() - _h_ts) < FRAGMENT_QUIP_COOLDOWN_S:
+                block += (
+                    "\n\n[TIC COOLDOWN — HEDGE] You recently did the \"I don't know if "
+                    "that's A or B\" move (naming two reads and refusing to pick). Do NOT "
+                    "do it again now — commit to ONE read, or ask a real question. "
+                    "Hard-banned this turn: \"don't know if that's X or Y\" and close variants.\n"
+                )
+        except Exception:
+            pass
+        # Reframe-tic cooldown — "that's not X, that's Y". Idiom collisions are
+        # exempted at stamp time (record), so this only fires on the actual tic.
+        try:
+            _r_ts = getattr(self.phrase_buffer, "last_tic2_notx_ts", 0) or 0
+            if _r_ts and (time.time() - _r_ts) < FRAGMENT_QUIP_COOLDOWN_S:
+                block += (
+                    "\n\n[TIC COOLDOWN — REFRAME] You recently did the \"that's not X, "
+                    "that's Y\" negate-then-restate reframe. Do NOT use that construction "
+                    "again now — make the point directly in one move. Hard-banned this "
+                    "turn: \"that's not X, that's Y\" / \"it's not X, it's Y\" and close variants.\n"
                 )
         except Exception:
             pass
