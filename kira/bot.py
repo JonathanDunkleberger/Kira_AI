@@ -187,6 +187,18 @@ _BANNED_CHAT_PHRASES = (
     "defies several laws of physics", "defies the laws of",
 )
 
+# Known bot / automation accounts to ignore entirely — they are NOT viewers, so
+# Kira should never store them, react to them, or show them on the overlay.
+# Stored normalized (normalize_chatter_key strips a leading @, lowercases, trims)
+# so '@Streamlabs' (YouTube) and 'streamlabs' (Twitch) both match. To add a bot,
+# just drop its name in below in any form — it's normalized for you.
+KNOWN_BOT_USERNAMES = {
+    identity_manager.normalize_chatter_key(_n) for _n in (
+        "streamlabs", "streamelements", "nightbot", "moobot", "fossabot",
+        "wizebot", "sery_bot", "soundalerts", "pretzelrocks", "commanderroot",
+    )
+}
+
 
 class _PhraseThrottleBuffer:
     """Session-scoped ring buffer that surfaces over-used phrases for LLM prompt injection.
@@ -4770,6 +4782,17 @@ class VTubeBot:
                     message_body = content
                     if ": " in content:
                         username, message_body = content.split(": ", 1)
+
+                    # Bot filter: drop known automation accounts (Streamlabs/Nightbot/
+                    # etc.) here, before they are stored, reacted to, or relayed to the
+                    # overlay. Single chokepoint — everything downstream (record_chatter_
+                    # message, push_chat_message, chat_batch_buffer, cookies) is below.
+                    # Matched normalized so '@Streamlabs' and 'streamlabs' both hit.
+                    if identity_manager.normalize_chatter_key(username) in KNOWN_BOT_USERNAMES:
+                        print(f"   [BotFilter] Ignored bot account {username!r} ({source}) — not stored, not shown, not reacted to.")
+                        self.input_queue.task_done()
+                        handled_by_chat = True
+                        continue
 
                     print(f"   [BrainWorker] Got {source} msg from {username}: {message_body[:120]} → buffering for chat_batch_worker")
 
