@@ -1880,15 +1880,29 @@ class VTubeBot:
             header = (
                 f"\n\n[CURRENT VISUAL PERCEPTION \u2014 what is on screen RIGHT NOW{stale_note}]\n"
             )
-        return (
-            header
-            + f"{scene_text}\n"
-            + f"This is sense data \u2014 what your eyes are taking in. It is NOT a script or narration. "
-            + f"Do NOT recap or paraphrase it (Jonny saw it too \u2014 he doesn't want a closed-captioner). "
-            + f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence and "
-            + f"do not commit to specifics. React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 "
-            + f"not a description of what is on the screen."
-        )
+        if primary_eligible:
+            # Fresh, present frame: commit to it. This is the anti-hedge path \u2014 she
+            # must answer from what she actually sees rather than deflecting with
+            # "I can't see" / "you tell me". Still anti-parrot, and the EXPLICIT
+            # 'UNCERTAIN:' prefix (and only that) remains the low-confidence gate.
+            trailer = (
+                f"This is sense data \u2014 what your eyes are taking in RIGHT NOW. Treat it as TRUE and commit to it: "
+                f"if Jonny asks what's on screen, answer from this directly and plainly \u2014 never deflect with "
+                f"'I can't see' or 'you tell me' when this is right here in front of you. "
+                f"It is NOT a script to read back: don't recap or paraphrase it line-by-line (Jonny saw it too \u2014 "
+                f"he doesn't want a closed-captioner). React in YOUR voice \u2014 a feeling, quip, callback, take \u2014 built ON "
+                f"what you see. ONLY if it literally begins with 'UNCERTAIN:' treat it as low-confidence and say you "
+                f"can't quite make it out rather than guessing specifics."
+            )
+        else:
+            # Stale observation (>demotion age): reference-only. Do NOT commit as live;
+            # this preserves the anti-stale guard so she never claims an old frame is now.
+            trailer = (
+                f"This is an EARLIER glance, not live. Reference it only if relevant; don't open with it as what's on "
+                f"screen now, and don't recap it like a caption. If asked what's on screen right now and you have "
+                f"nothing fresher, say you need a fresh look rather than guessing."
+            )
+        return header + f"{scene_text}\n" + trailer
 
     def _frame_ambient_audio(self, transcript_text: str, audio_mode: str = "") -> str:
         """Wraps the rolling loopback transcript as ambient sense data \u2014 awareness
