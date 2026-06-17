@@ -7993,6 +7993,16 @@ def launch():
     Shared entry point used by run.py (the documented launcher) and by
     ``python -m kira.bot``.
     """
+    # Ensure verbatim console capture is active even when started via
+    # `python -m kira.bot` (run.py installs it earlier for the documented path).
+    # Idempotent — on the run.py path this only re-asserts faulthandler's file
+    # target, which this module's import-time faulthandler.enable(file=sys.stderr)
+    # would otherwise have re-pointed back at the terminal. See kira/debug_tee.py.
+    try:
+        from kira.debug_tee import install_console_tee
+        install_console_tee()
+    except Exception:
+        pass
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(main())

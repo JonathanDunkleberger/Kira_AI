@@ -17,6 +17,13 @@ os.chdir(_ROOT)
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
+# Install full verbatim console capture BEFORE importing kira.bot, so even
+# import-time output (the heavy pyaudio / torch / faster-whisper imports — a real
+# crash site) is mirrored to logs/debug/latest.log. Fail-graceful: never blocks
+# startup. See kira/debug_tee.py.
+from kira.debug_tee import install_console_tee
+install_console_tee()
+
 from kira.bot import launch
 
 if __name__ == "__main__":
