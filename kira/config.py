@@ -335,6 +335,18 @@ PHRASE_THROTTLE_WATCHLIST = [
 # it catches every variant, not just exact repeats.
 FRAGMENT_QUIP_COOLDOWN_S = int(os.getenv("FRAGMENT_QUIP_COOLDOWN_S", "240"))
 
+# Reference (running-bit) cooldown. When Kira invokes a running bit, it goes on a
+# cooldown that DOUBLES each reuse (base, 2x, 4x, …) capped at MAX, and is omitted
+# from the performance prompt while cooling so she doesn't lean on it. Resets at
+# stream end (the bits themselves are durable). BIT_REF_MATCH_MIN_RATIO is the
+# detection STRICTNESS knob: the fraction of a bit's distinctive name-words that
+# must appear in her line to count as "invoked". 1.0 = all of them (conservative,
+# under-detects on purpose — the safe direction); lower it (e.g. 0.6) to catch
+# looser references. Dial this like the react-gap from stream observation.
+BIT_REF_COOLDOWN_BASE_S = int(os.getenv("BIT_REF_COOLDOWN_BASE_S", "180"))
+BIT_REF_COOLDOWN_MAX_S = int(os.getenv("BIT_REF_COOLDOWN_MAX_S", "1800"))
+BIT_REF_MATCH_MIN_RATIO = float(os.getenv("BIT_REF_MATCH_MIN_RATIO", "1.0"))
+
 # ── Chess owner / data dir ────────────────────────────────────────────────────
 # Challenges from CHESS_OWNER_LICHESS_ID (case-insensitive) are Jonny's own
 # practice games and do NOT trigger the spectate embed on stream.

@@ -53,6 +53,7 @@ from kira.config import (
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
+    BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -207,6 +208,21 @@ _TIC2_IDIOM_EXCEPTIONS = {
     "that's not a bug, that's a feature",
     "it's not you, it's me",
 }
+
+# Filler words dropped when matching a running-bit NAME against Kira's speech, so
+# only the distinctive words count toward the reference-cooldown detection ratio.
+_BIT_NAME_STOPWORDS = {
+    "the", "a", "an", "and", "or", "of", "to", "that", "this", "is", "it",
+    "bit", "bits", "joke", "callback", "running", "thing", "about", "with",
+}
+
+
+def _bit_distinctive_words(name: str) -> set:
+    """The meaningful words of a running-bit name (stopwords/short tokens dropped).
+    Used by the reference-cooldown matcher — a bit counts as invoked when this
+    fraction (BIT_REF_MATCH_MIN_RATIO) of these words appears in Kira's line."""
+    toks = re.findall(r"[a-z0-9']+", (name or "").lower())
+    return {t for t in toks if t not in _BIT_NAME_STOPWORDS and len(t) > 2}
 
 
 class _PhraseThrottleBuffer:
@@ -695,6 +711,11 @@ class VTubeBot:
 
         # Running bits / callbacks that have emerged this session
         self.session_running_bits: list[dict] = []
+        # Reference-cooldown: normalized bit name -> {"until_ts", "count"}. A bit Kira
+        # invokes goes on a DOUBLING cooldown and is omitted from the performance
+        # prompt until it expires. Session-scoped — cleared at stream start; the bits
+        # in session_running_bits are durable (only this cooldown dict resets).
+        self._bit_cooldowns: dict[str, dict] = {}
 
         # Rolling condensed summary of Kira's own session takes (opinions / predictions /
         # grudges / bits). Built periodically from self.session_takes_pool via a cheap
@@ -1130,6 +1151,7 @@ class VTubeBot:
                         self._log_session_turn(role="assistant", content=cleaned, speaker_name="Kira")
                         try:
                             self.phrase_buffer.record(cleaned)
+                            self._stamp_bit_invocations(cleaned)
                         except Exception:
                             pass
                         self.silence_stage = 0
@@ -1864,6 +1886,47 @@ class VTubeBot:
         except Exception:
             pass
         return block
+
+    # ── Reference (running-bit) cooldown ────────────────────────────────────────
+    def _stamp_bit_invocation(self, name: str) -> None:
+        """Put a running bit on the DOUBLING cooldown (base, 2x, 4x, … capped at
+        BIT_REF_COOLDOWN_MAX_S). Each invocation grows count and extends until_ts."""
+        key = identity_manager.normalize_chatter_key(name)
+        if not key:
+            return
+        count = self._bit_cooldowns.get(key, {}).get("count", 0) + 1
+        dur = min(BIT_REF_COOLDOWN_BASE_S * (2 ** (count - 1)), BIT_REF_COOLDOWN_MAX_S)
+        self._bit_cooldowns[key] = {"until_ts": time.time() + dur, "count": count}
+        print(f"   [BitCooldown] '{name}' invoked x{count} — resting {int(dur)}s")
+
+    def _stamp_bit_invocations(self, text: str) -> None:
+        """Detect which running bits this spoken line invoked and cool them. Mirrors
+        phrase_buffer.record(). CONSERVATIVE: a bit counts as invoked only when
+        BIT_REF_MATCH_MIN_RATIO of its distinctive name-words appear in the line
+        (default 1.0 = all of them; under-detection is the safe direction). Tune
+        BIT_REF_MATCH_MIN_RATIO down to catch looser references."""
+        if not text or not self.session_running_bits:
+            return
+        words = set(re.findall(r"[a-z0-9']+", text.lower()))
+        for b in self.session_running_bits:
+            dwords = _bit_distinctive_words(b.get("name") or "")
+            if not dwords:
+                continue
+            if (len(dwords & words) / len(dwords)) >= BIT_REF_MATCH_MIN_RATIO:
+                self._stamp_bit_invocation(b.get("name") or "")
+
+    def _active_bits_for_prompt(self, limit: int) -> list:
+        """Running bits NOT currently on cooldown (most recent `limit`). Cooled bits
+        are omitted from the performance prompt so Kira doesn't lean on a reference
+        she just used. The bits stay in session_running_bits — only surfacing pauses."""
+        now = time.time()
+        fresh = [
+            b for b in self.session_running_bits
+            if now >= self._bit_cooldowns.get(
+                identity_manager.normalize_chatter_key(b.get("name") or ""), {}
+            ).get("until_ts", 0)
+        ]
+        return fresh[-limit:]
 
     # ── Kira types in chat ([CHAT: ...] tool) ──────────────────────────────────
     def _validate_kira_chat(self, msg: str) -> tuple[bool, str, str]:
@@ -5646,9 +5709,10 @@ class VTubeBot:
 
         # --- Change 3: Running bits block ---
         running_bits_block = ""
-        if self.session_running_bits:
+        _perf_bits = self._active_bits_for_prompt(5)  # omit on-cooldown bits
+        if _perf_bits:
             bits_str = "\n".join(
-                f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-5:]
+                f"- {b['name']}: {b['description']}" for b in _perf_bits
             )
             running_bits_block = (
                 f"\n[RUNNING BITS THIS SESSION \u2014 if any is genuinely relevant to this batch, "
@@ -5781,6 +5845,7 @@ class VTubeBot:
         # when Jonny's voice cuts in and the audio never fully plays out.
         self.conversation_history.append({"role": "assistant", "content": cleaned})
         self.phrase_buffer.record(cleaned)
+        self._stamp_bit_invocations(cleaned)
         if len(self.conversation_history) > 20:
             self.conversation_history = self.conversation_history[-20:]
         # Fix #2: Guard TTS against voice-interrupt abandonment — vad_loop won't fire
@@ -6217,6 +6282,7 @@ class VTubeBot:
             self.cookie_jar.reset_shared_on_stream_start()
             self.session_chatters_seen.clear()
             self._returning_regular_greeted.clear()
+            self._bit_cooldowns.clear()   # reference cooldowns reset; bits stay durable
             await self._broadcast_cookie_state()
 
 
@@ -7782,6 +7848,7 @@ class VTubeBot:
                 )
             self.conversation_history.append({"role": "assistant", "content": cleaned})
             self.phrase_buffer.record(cleaned)
+            self._stamp_bit_invocations(cleaned)
             # Called-shot CAPTURE on proactive interjections too (cheap, no LLM).
             self.kira_state.capture_called_shot(cleaned)
             # Push into bot-owned pool unconditionally during streamer mode — works
@@ -8027,10 +8094,11 @@ class VTubeBot:
                             f"not data]\n{pt_ctx}"
                         )
 
-                # Inject running bits accumulated this session
-                if self.session_running_bits:
+                # Inject running bits accumulated this session (omit on-cooldown ones)
+                _perf_bits = self._active_bits_for_prompt(5)
+                if _perf_bits:
                     bits_str = "\n".join(
-                        f"- {b['name']}: {b['description']}" for b in self.session_running_bits[-5:]
+                        f"- {b['name']}: {b['description']}" for b in _perf_bits
                     )
                     dynamic_context += (
                         f"\n\n[RUNNING BITS THIS SESSION \u2014 if any is genuinely relevant to this moment, "
@@ -8287,6 +8355,7 @@ class VTubeBot:
             # Phrase throttle — record every spoken response so n-gram stats stay current
             if full_response_text:
                 self.phrase_buffer.record(full_response_text)
+                self._stamp_bit_invocations(full_response_text)
 
             # Called-shot CAPTURE: cheap heuristic, no LLM. Records a concrete
             # prediction as an open shot for later resolution + payoff.
