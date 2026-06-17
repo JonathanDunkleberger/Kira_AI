@@ -583,6 +583,11 @@ class VTubeBot:
         self.chat_batch_buffer: list = []          # queued chat messages waiting to be batched
         self.last_chat_response_time: float = 0    # for response cooldown
         self.session_chatters_seen: set = set()    # usernames seen in this session (for welcome detection)
+        # Returning-regulars already acknowledged this session, so the prompt block
+        # fires ONCE per regular (not every batch). Replaces a fragile float-equality
+        # timing gate (abs(first_seen-now)<0.1) that almost never matched, which left
+        # the returning-regular acknowledgement effectively dead.
+        self._returning_regular_greeted: set = set()
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
         self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
@@ -5475,11 +5480,19 @@ class VTubeBot:
         returning_regulars = []
         for msg in batch:
             username = msg.get("username", "unknown")
-            is_first_this_session = abs(self.session_chatter_first_seen.get(username, 0) - now) < 0.1
-            if is_first_this_session:
-                historical_count = self.memory.count_chatter_messages(username)
-                if historical_count >= 5:
-                    returning_regulars.append((username, historical_count))
+            if not username or username == "unknown":
+                continue
+            # Fire ONCE per regular per session: the first time a >=5-history chatter
+            # appears in a processed batch, acknowledge them, then mark them so it does
+            # not repeat every batch. (Previously gated on abs(first_seen-now)<0.1 — a
+            # float-equality across two different clocks that effectively never held,
+            # so this block never fired at all.)
+            if username in self._returning_regular_greeted:
+                continue
+            historical_count = self.memory.count_chatter_messages(username)
+            if historical_count >= 5:
+                returning_regulars.append((username, historical_count))
+                self._returning_regular_greeted.add(username)
 
         returning_regulars_block = ""
         if returning_regulars:
@@ -6098,6 +6111,7 @@ class VTubeBot:
             # restart does NOT clear the jar — only a deliberate stream start does.
             self.cookie_jar.reset_shared_on_stream_start()
             self.session_chatters_seen.clear()
+            self._returning_regular_greeted.clear()
             await self._broadcast_cookie_state()
 
 
