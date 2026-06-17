@@ -132,6 +132,11 @@ class MediaWatch:
         self.reactions_enabled: bool = True
         self._last_react_ts: float = 0.0
         self.react_min_gap_s: float = 45.0  # at most one spoken react per 45s
+        # Stage 3 dynamic pacing: optional callable returning the EFFECTIVE
+        # min-gap (seconds) for the current beat, so reaction cadence can scale
+        # with scene intensity + mode. Wired by the bot to _effective_react_gap.
+        # None → fall back to the flat react_min_gap_s above (no pacing).
+        self.react_gap_fn = None
 
         # Called with a short reason string when start() aborts after .enabled
         # was already set True (window not found, missing dep, etc). The bot
@@ -421,12 +426,24 @@ class MediaWatch:
         )
 
         # Fire optional reaction callback for substantive events only.
+        # Stage 3: the min-gap is dynamic — react_gap_fn (when wired) returns an
+        # intensity/mode-scaled gap so cadence breathes in tense beats and loosens
+        # in calm ones. Falls back to the flat react_min_gap_s when unset.
+        if self.react_gap_fn is not None:
+            try:
+                effective_gap = float(self.react_gap_fn())
+            except Exception as e:
+                print(f"   [MediaWatch] react_gap_fn error ({e}); using flat gap.")
+                effective_gap = self.react_min_gap_s
+        else:
+            effective_gap = self.react_min_gap_s
+
         if (
             self.on_react
             and self.reactions_enabled
             and not uncertain
             and not static
-            and (now - self._last_react_ts) >= self.react_min_gap_s
+            and (now - self._last_react_ts) >= effective_gap
         ):
             self._last_react_ts = now
             try:

@@ -526,6 +526,9 @@ class VTubeBot:
         # NOTE: current_moment_type is now a SessionIntensity read from kira_state.
         self.current_moment_type: SessionIntensity = SessionIntensity.CALM
         self._prev_moment_type:   SessionIntensity = SessionIntensity.CALM
+        # Stage 3 dynamic pacing: last effective react-gap we logged, so the
+        # [Pacing] gap line only prints when the gap actually changes.
+        self._last_pacing_gap: float = -1.0
 
         # A4 — Response shape selector cooldown counters.
         # Reset on each session start. Prevents streaks of rare shapes.
@@ -2099,19 +2102,96 @@ class VTubeBot:
         is action-classified AND the audio agrees — this keeps 'don't talk over
         the big action moment' while killing the false-blocks caused by a single
         keyword inside an otherwise-calm audio caption. Outside media mode, fall
-        back to the broad observer suppress set."""
+        back to the broad observer suppress set.
+
+        Stage 3: tiered by mode (same gate, same call site). GAME never hard-
+        suppresses TENSE — a big play IS the reaction, so it fires (pacing has
+        already lengthened the gap). FILM/VN keep the AND-gate so she goes quiet
+        in a genuine big moment. Every suppress/allow logs a [Pacing] line."""
         mw = self.media_watch
         is_media = bool(mw and mw.is_running and mw.has_context())
+        gmc = self.game_mode_controller
+        mode = gmc.activity_type if gmc else ACTIVITY_GENERAL
+        name = self.current_moment_type.name
+
         if not is_media:
-            return self.current_moment_type in (
+            suppress = self.current_moment_type in (
                 SessionIntensity.TENSE, SessionIntensity.INTENSE,
                 SessionIntensity.CLIMACTIC, SessionIntensity.CUTSCENE,
             )
+            if suppress:
+                print(f"   [Pacing] suppressed react ({name}/non-media)")
+            return suppress
+
+        # GAME: never silence the big play — pacing already widened the gap, so
+        # the beat still fires (just less often). Returning False here is the
+        # "game = still-react-to-big-plays" half of the mode tuning.
+        if mode == ACTIVITY_GAME:
+            print(f"   [Pacing] react allowed ({name}/game — big plays fire)")
+            return False
+
+        # FILM / VN: keep the stronger-signal AND-gate. She goes quiet only when
+        # her own scene analysis is action-classified AND the audio agrees — a
+        # genuine climax-ish TENSE beat, not a lone keyword.
         scene_text = (mw.get_latest_summary() or "").lower()
         audio_summary = self._event_audio_summary()
         scene_action = self._kw_hit(scene_text, self._TENSE_SCENE_KW)
         audio_tense = self._kw_hit(audio_summary, self._TENSE_AUDIO_KW)
-        return scene_action and audio_tense
+        suppress = scene_action and audio_tense
+        mode_label = "vn" if mode == ACTIVITY_VN else "film"
+        if suppress:
+            print(f"   [Pacing] suppressed react ({name}/{mode_label} — scene+audio agree)")
+        else:
+            print(f"   [Pacing] react allowed ({name}/{mode_label})")
+        return suppress
+
+    # ── Stage 3: dynamic reaction pacing ───────────────────────────────────────
+    # Per-mode gap multipliers, keyed by activity_type then SessionIntensity name.
+    # Result = base_gap (mw.react_min_gap_s, 45s) × multiplier, then CLAMPED to
+    # [_PACING_GAP_MIN, _PACING_GAP_MAX] so cadence can never starve (dead air) or
+    # runaway. Only the 4 intensity levels the classifier actually emits appear
+    # (CUTSCENE / TENSE / EMOTIONAL / CALM); TENSE is the breathe-bucket. Unknown
+    # mode or intensity → ×1.0 (flat 45s fallback). This dict is the single tuning
+    # surface for the whole feature.
+    _PACING = {
+        # film — go quiet in tense/climax beats, riff freely in calm connective tissue
+        ACTIVITY_MEDIA:   {"CALM": 0.7, "TENSE": 2.0, "EMOTIONAL": 1.5, "CUTSCENE": 2.0},
+        # game — still react to the big play; only a gentle widening under pressure
+        ACTIVITY_GAME:    {"CALM": 0.8, "TENSE": 1.3, "EMOTIONAL": 1.3, "CUTSCENE": 1.5},
+        # VN — give emotional beats their weight; don't mute them outright
+        ACTIVITY_VN:      {"CALM": 0.7, "TENSE": 1.5, "EMOTIONAL": 1.2, "CUTSCENE": 1.5},
+        # general — no media context to pace against; leave the flat gap alone
+        ACTIVITY_GENERAL: {"CALM": 1.0, "TENSE": 1.0, "EMOTIONAL": 1.0, "CUTSCENE": 1.0},
+    }
+    _PACING_GAP_MIN: float = 20.0   # never react more often than this (anti-spam)
+    _PACING_GAP_MAX: float = 120.0  # never go silent longer than this (anti-dead-air)
+
+    def _effective_react_gap(self) -> float:
+        """Stage 3: intensity- and mode-scaled min-gap between spoken reactions.
+
+        Single source of truth — reads self.current_moment_type (the SAME value
+        that logs [Intensity]) and gmc.activity_type, scales the flat base gap by
+        the per-mode _PACING multiplier, and CLAMPS to [_PACING_GAP_MIN,
+        _PACING_GAP_MAX]. The clamp guarantees a 90s tense stretch still yields ONE
+        reaction (gap ≤ 120s), never silence. Logs a [Pacing] line whenever the
+        effective gap changes. Wired into MediaWatch as react_gap_fn."""
+        mw = self.media_watch
+        base = float(getattr(mw, "react_min_gap_s", 45.0)) if mw else 45.0
+        gmc = self.game_mode_controller
+        mode = gmc.activity_type if gmc else ACTIVITY_GENERAL
+        table = self._PACING.get(mode, self._PACING[ACTIVITY_GENERAL])
+        name = self.current_moment_type.name
+        mult = table.get(name, 1.0)
+        gap = max(self._PACING_GAP_MIN, min(self._PACING_GAP_MAX, base * mult))
+        # Observability: log only on change so a steady beat doesn't spam.
+        if abs(gap - self._last_pacing_gap) > 0.01:
+            mode_label = {
+                ACTIVITY_MEDIA: "film", ACTIVITY_GAME: "game",
+                ACTIVITY_VN: "vn", ACTIVITY_GENERAL: "general",
+            }.get(mode, "general")
+            print(f"   [Pacing] gap {base:.0f}s→{gap:.0f}s ({name}/{mode_label})")
+            self._last_pacing_gap = gap
+        return gap
 
     # Negators that flip a keyword match ("no tension here", "without combat").
     _CLASSIFIER_NEGATORS = frozenset({
@@ -2212,6 +2292,8 @@ class VTubeBot:
         #        reactions_enabled bool is the real on/off). Re-wire defensively.
         if mw is not None and mw.on_react is None:
             mw.on_react = self._media_watch_react
+            # Stage 3: re-wire the pacing callable defensively alongside on_react.
+            mw.react_gap_fn = self._effective_react_gap
             changes.append("reactions re-wired")
 
         # INV-4: Carry agenda must match the current activity shape; re-seed if
@@ -4026,6 +4108,9 @@ class VTubeBot:
             # Shares only the vision client with autopilot — no other coupling.
             self.media_watch = MediaWatch(vision_client=self.vision_agent.client)
             self.media_watch.on_react = self._media_watch_react
+            # Stage 3: dynamic pacing — MediaWatch reads the effective min-gap from
+            # this callable each beat (intensity + mode scaled). None → flat 45s.
+            self.media_watch.react_gap_fn = self._effective_react_gap
             # If start() aborts after enabled was set (bad window, etc.), un-park
             # vision immediately — never enforce an intent that failed.
             self.media_watch.on_start_failed = (
