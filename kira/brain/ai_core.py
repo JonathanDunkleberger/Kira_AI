@@ -150,6 +150,21 @@ class AI_Core:
         self._speech_gate_held = False
         self._speech_waiters: list = []    # entries: [priority, seq, future]
         self._speech_seq = 0
+        # True for the lifetime of a P0 voice turn (speak_streaming) — from the
+        # instant it starts consuming the LLM stream until playback finishes.
+        # The Bored-interjection loop reads this (has_pending_voice_turn) to yield
+        # the speech gate at the next SENTENCE boundary so a ready voice response
+        # isn't stuck behind a long autonomous interjection.
+        self._voice_turn_active = False
+        # Set TRUE the instant triage decides RESPOND for a user voice turn —
+        # BEFORE that turn blocks on _active_turn_lock (which an in-flight
+        # interjection may be holding). Bridges the window where the voice turn
+        # is waiting on the lock and hasn't yet reached speak_streaming, so it
+        # sets neither _voice_turn_active nor a P0 waiter. The interjection's
+        # between-sentence check reads this and aborts at the next sentence
+        # boundary, releasing the lock for the waiting voice turn. The bot sets
+        # and clears it (cleared in a finally on ALL exit paths).
+        self._voice_response_pending = False
 
         self.inference_lock = threading.Lock() # Added lock for inference safety
 
@@ -1447,6 +1462,9 @@ class AI_Core:
 
         self.interruption_event.clear()
         self.is_speaking = True
+        # D: mark a voice turn in flight for the whole stream so a concurrent
+        # Bored-interjection yields the speech gate at its next sentence boundary.
+        self._voice_turn_active = True
 
         full_text = ""
         buffer = ""
@@ -1542,8 +1560,23 @@ class AI_Core:
                 self._release_speech_gate()
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
+            self._voice_turn_active = False
 
         return full_text
+
+    def has_pending_voice_turn(self) -> bool:
+        """True if a P0 (voice) turn is in flight or queued for the speech gate.
+
+        Covers both states: (a) a voice turn currently generating/playing
+        (_voice_turn_active, set for the whole speak_streaming lifetime), and
+        (b) a P0 entry sitting in the gate's waiter queue. The Bored-interjection
+        loop checks this at each sentence boundary so it can stop and hand the
+        gate to a ready voice response instead of holding it for 5-11s."""
+        if self._voice_turn_active:
+            return True
+        if self._voice_response_pending:
+            return True
+        return any(w[0] == 0 for w in self._speech_waiters)
 
     def _strip_tags_for_speech(self, text: str) -> str:
         """Removes ALL recognized tool tags ([POLL:], [SONG:], [PREDICT:], [BIT:],

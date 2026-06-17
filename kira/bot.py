@@ -4854,17 +4854,28 @@ class VTubeBot:
                             brief_mode = True
                         print(f"   [Triage] {decision}")
 
-                        async with self._active_turn_lock:
-                            await self.process_and_respond(
-                                content,
-                                dialogue_line,
-                                "user",
-                                source=source,
-                                situational_context=visual_desc,
-                                brief_mode=brief_mode,
-                                prefetched_memory=prefetched_memory,
-                                lat=_lat,
-                            )
+                        # Signal any in-flight autonomous interjection to abort at
+                        # its next sentence boundary so this voice turn isn't stuck
+                        # behind it on _active_turn_lock. MUST be set BEFORE the lock
+                        # acquire below: once blocked inside the acquire this turn
+                        # runs no code until the interjection releases, so setting it
+                        # afterward would be useless (chicken-and-egg). Cleared in the
+                        # finally on every exit path so it can never stick True.
+                        self.ai_core._voice_response_pending = True
+                        try:
+                            async with self._active_turn_lock:
+                                await self.process_and_respond(
+                                    content,
+                                    dialogue_line,
+                                    "user",
+                                    source=source,
+                                    situational_context=visual_desc,
+                                    brief_mode=brief_mode,
+                                    prefetched_memory=prefetched_memory,
+                                    lat=_lat,
+                                )
+                        finally:
+                            self.ai_core._voice_response_pending = False
                         # P1 drain: fire one buffered interjection now that the voice turn ended
                         await self._drain_pending_interjections()
 
@@ -4974,6 +4985,39 @@ class VTubeBot:
             os.fsync(f.fileno())
         os.replace(tmp, path)  # atomic rename — never leaves a partial file on disk
 
+    async def _speak_yieldable(self, text: str, priority: int = 1) -> str:
+        """Speak `text` sentence-by-sentence on a NON-VOICE lane, yielding the
+        speech gate to a ready P0 voice turn at the next sentence boundary.
+
+        Mirrors the Bored-interjection delivery loop (_execute_interjection):
+        between sentences the gate is released, and if a voice turn has become
+        pending (has_pending_voice_turn) we STOP — never mid-word — dropping the
+        rest so Jonny's reply isn't stuck behind us. Returns the text actually
+        spoken (may be a prefix of `text`, or "" if nothing was said).
+
+        R1 (hard): voice (P0) replies are NEVER yieldable. This refuses any
+        voice-lane priority and must never be wired into speak_streaming or the
+        P0 path — her real reply to Jonny plays to completion, always."""
+        if priority < 1:
+            raise ValueError(
+                f"_speak_yieldable is non-voice only (R1); refusing priority={priority}. "
+                "Her reply to Jonny must never be yieldable."
+            )
+        if not text or not text.strip():
+            return ""
+        _sentences = re.findall(r'.+?(?:[.!?]+(?:\s|$)|$)', text.strip())
+        _sentences = [s.strip() for s in _sentences if s.strip()]
+        if not _sentences:
+            _sentences = [text]
+        _spoken_parts: list[str] = []
+        for _i, _sent in enumerate(_sentences):
+            if _i > 0 and self.ai_core.has_pending_voice_turn():
+                print("   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.")
+                break
+            await self.ai_core.speak_text(_sent, priority=priority)
+            _spoken_parts.append(_sent)
+        return " ".join(_spoken_parts)
+
     async def chat_batch_worker(self):
         """Drains the chat batch buffer every CHAT_BATCH_WINDOW seconds and emits
         at most one response per batch. Handles multi-chatter prioritization,
@@ -4986,6 +5030,14 @@ class VTubeBot:
                 continue
 
             if self.is_muted() or self.ai_core.is_speaking or self.processing_lock.locked() or self._active_turn_lock.locked():
+                continue
+
+            # Stage-1: don't even start a chat batch when a voice turn is pending or
+            # in flight. has_pending_voice_turn() also covers the BRIDGE window where
+            # triage has decided RESPOND but the turn hasn't yet taken the gate/lock —
+            # which the is_speaking / lock checks above miss. Keeps Jonny's reply
+            # latency clean instead of stacking a Sonnet chat-batch call in front.
+            if self.ai_core.has_pending_voice_turn():
                 continue
 
             if time.time() - self.last_chat_response_time < CHAT_RESPONSE_COOLDOWN:
@@ -5318,7 +5370,10 @@ class VTubeBot:
             pass
         self._chat_speaking = True
         try:
-            await self.ai_core.speak_text(cleaned, priority=2)
+            # Stage-1: yieldable chat-batch delivery. If Jonny's voice reply lands
+            # mid-playback, drop the remaining sentences at the next boundary so
+            # his P0 turn isn't stuck behind us (R1: chat lane only, never P0).
+            await self._speak_yieldable(cleaned, priority=2)
         finally:
             self._chat_speaking = False
         # Signal card overlay that TTS is done (will hide after ≥4s min display)
@@ -7183,7 +7238,26 @@ class VTubeBot:
         if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
             print(f"   >>> Kira (Bored): {cleaned}")
             _t0_tts = time.time()
-            await self.ai_core.speak_text(cleaned)
+            # D: deliver the interjection SENTENCE-BY-SENTENCE rather than as one
+            # gate-hogging blob. Between sentences the speech gate is released; if a
+            # P0 voice turn has become ready it takes the gate (via the waiter
+            # priority sort) and we STOP here at the sentence boundary — never
+            # mid-word — dropping the rest of the interjection so the voice reply
+            # isn't stuck waiting 5-11s behind us. We record only what was actually
+            # spoken so memory/history reflect reality.
+            _sentences = re.findall(r'.+?(?:[.!?]+(?:\s|$)|$)', cleaned.strip())
+            _sentences = [s.strip() for s in _sentences if s.strip()]
+            if not _sentences:
+                _sentences = [cleaned]
+            _spoken_parts = []
+            for _i, _sent in enumerate(_sentences):
+                if _i > 0 and self.ai_core.has_pending_voice_turn():
+                    print("   [Interjection] Voice turn ready — yielding gate at sentence boundary, dropping rest.")
+                    break
+                await self.ai_core.speak_text(_sent, priority=1)
+                _spoken_parts.append(_sent)
+            if _spoken_parts:
+                cleaned = " ".join(_spoken_parts)
             _tts_ms = int((time.time() - _t0_tts) * 1000)
             _total_ms = int((time.time() - _t0_total) * 1000)
             print(f"   [TIMING] interjection: vision={_vision_ms}ms llm={_llm_ms}ms({_llm_model}) tts={_tts_ms}ms total={_total_ms}ms")
