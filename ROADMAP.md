@@ -24,7 +24,7 @@ These are the durable challenges — the things that separate a chatbot from a p
 
 ## Features & systems I want to build
 
-- **A control surface that isn't a fighter-jet cockpit (I call her Smokescreen currently).** Operating her live should be calm and honest, not a wall of toggles.
+- **A control surface that isn't a fighter-jet cockpit (I call her Starscream currently).** Operating her live should be calm and honest, not a wall of toggles.
 - **Decoupling the core.** Her brain is too monolithic — too much in one place, so changes ripple. Pulling it into clean modules is unglamorous and it's the thing that makes everything else safer to build. (Probably the highest-leverage infra work.)
 - **Running-bit memory.** Recurring jokes and callbacks that build within and across streams, with cooldowns so a gag never gets run into the ground.
 - **Deeper interactive modes.** Storytime/puppet-shows, watch-alongs, games she can actually play with chat. Some exist; all are underexplored.
