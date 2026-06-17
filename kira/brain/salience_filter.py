@@ -63,6 +63,7 @@ def score(
     source: str,
     content: str,
     capture_ts: float = 0.0,
+    fresh_window: float = 15.0,
     kira_names: tuple = ("kira",),
 ) -> tuple:
     """Score an input or context source for salience.
@@ -94,7 +95,7 @@ def score(
     s = _base_score(source)
     s += _direct_address_bump(content, source, kira_names)
     s += _novelty_penalty_delta(source, content)
-    recency_delta, primary_eligible = _recency_decay(source, capture_ts)
+    recency_delta, primary_eligible = _recency_decay(source, capture_ts, fresh_window)
     s += recency_delta
 
     # ── JONNY VOICE FLOOR ────────────────────────────────────────────────────
@@ -126,21 +127,26 @@ def truncate_for_low(text: str) -> str:
     return text[:AMBIENT_CONTEXT_MAX_CHARS].rsplit(" ", 1)[0] + "…"
 
 
-def staleness_note(capture_ts: float = 0.0) -> str:
+def staleness_note(capture_ts: float = 0.0, fresh_window: float = 15.0) -> str:
     """Return a parenthetical note when an observation is stale, else ''.
     Injected into [VISUAL PERCEPTION] headers so Claude knows the observation's
     age without Kira having to guess — she treats it as 'may have changed'
     rather than confidently describing it as live.
 
+    Thresholds are MULTIPLES of fresh_window (1.0× fresh, 1.667× 'may have changed',
+    beyond that 'likely stale'). fresh_window defaults to 15.0 → the old fixed
+    15/25 bands. Callers pass a heartbeat-relative window (turbo 10s→15s, calm
+    40s→45s) so normal slow-cadence content isn't demoted into hedging.
+
     Returns '' when capture_ts is 0/None (freshness unknown — give benefit of doubt)
-    or when age < 15s (fresh enough to treat as current).
+    or when age < fresh_window (fresh enough to treat as current).
     """
     if not capture_ts:
         return ""
     age = time.time() - capture_ts
-    if age < 15.0:
+    if age < fresh_window:
         return ""
-    if age < 25.0:
+    if age < fresh_window * 5.0 / 3.0:
         return f" (~{int(age)}s ago — may have changed)"
     return f" (~{int(age)}s ago — likely stale, reference only)"
 
@@ -206,7 +212,7 @@ def _novelty_penalty_delta(source: str, content: str) -> int:
     return 0
 
 
-def _recency_decay(source: str, capture_ts: float) -> tuple:
+def _recency_decay(source: str, capture_ts: float, fresh_window: float = 15.0) -> tuple:
     """Escalating recency penalty for vision/ambient sources.
 
     Returns (penalty: int, primary_eligible: bool).
@@ -229,11 +235,14 @@ def _recency_decay(source: str, capture_ts: float) -> tuple:
         # No timestamp → unknown age → no penalty (benefit of the doubt)
         return 0, True
     age = time.time() - capture_ts
-    if age >= STALE_INELIGIBLE_S:
+    # Thresholds scale with fresh_window (default 15.0 → the old fixed 15/25/30
+    # bands: 1.0×/1.667×/2.0×). At ≥2× the window the observation is no longer
+    # primary_eligible (reference only, never leads).
+    if age >= fresh_window * 2.0:
         return STALE_PENALTY_25S, False
-    if age >= 25.0:
+    if age >= fresh_window * 5.0 / 3.0:
         return STALE_PENALTY_25S, True
-    if age >= 15.0:
+    if age >= fresh_window:
         return STALE_PENALTY_15S, True
     return 0, True
 

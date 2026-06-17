@@ -1855,6 +1855,7 @@ class VTubeBot:
         scene_text: str,
         capture_ts: float = 0.0,
         primary_eligible: bool = True,
+        fresh_window: float = 15.0,
     ) -> str:
         """Wraps a raw scene/vision description as sense data, not a script. Used by
         every consumer of the vision agent's output so the parrot/closed-captioner
@@ -1868,7 +1869,7 @@ class VTubeBot:
         """
         if not scene_text:
             return ""
-        stale_note = salience_filter.staleness_note(capture_ts)
+        stale_note = salience_filter.staleness_note(capture_ts, fresh_window)
         if not primary_eligible:
             age_s = int(time.time() - capture_ts) if capture_ts else 0
             header = (
@@ -7992,11 +7993,17 @@ class VTubeBot:
                     # is too old to treat as live. This is the backstop against the
                     # "comments on what she saw 15-20s ago as if it's now" regression.
                     _vis_ts = (self.vision_agent.last_capture_time or 0.0)
+                    # Cadence-relative staleness: judge "fresh" against the live vision
+                    # heartbeat, not a fixed 15s. Turbo (10s heartbeat) -> 15s window
+                    # (byte-identical to the old fixed bands); calm (40s) -> 45s, so
+                    # normal slow-cadence content isn't auto-demoted into hedging.
+                    _fresh_win = max(15.0, float(getattr(self.vision_agent, "heartbeat_interval", 40.0) or 40.0) + 5.0)
                     _, _vis_tier, _vis_primary = salience_filter.score(
-                        "vision", visual_part, capture_ts=_vis_ts
+                        "vision", visual_part, capture_ts=_vis_ts, fresh_window=_fresh_win
                     )
                     dynamic_context += self._frame_visual_perception(
-                        visual_part, capture_ts=_vis_ts, primary_eligible=_vis_primary
+                        visual_part, capture_ts=_vis_ts, primary_eligible=_vis_primary,
+                        fresh_window=_fresh_win
                     )
 
                 # Ambient audio transcript — render as a sibling sense block to
