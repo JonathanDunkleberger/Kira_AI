@@ -207,6 +207,22 @@ def get_entity(name: str, activity_slug: str = "") -> Optional[dict]:
     return None
 
 
+def normalize_chatter_key(name: str) -> str:
+    """Canonical storage/lookup key for a chat viewer's handle.
+
+    Collapses the platform-specific surface forms of the SAME handle to one key:
+    YouTube gives '@DisplayName' (leading @, original case); Twitch gives the
+    lowercase login. Stripping a leading '@' + lowercasing + trimming unifies
+    e.g. '@ClassicColdFish' (YouTube) and 'classiccoldfish' (Twitch) so exact-match
+    recall finds ONE identity instead of two. Only the DB key and where={} lookups
+    use this — display text keeps the raw handle.
+
+    Caveat: only unifies handles that are the SAME string across platforms;
+    genuinely different handles still need an explicit alias map (out of scope).
+    """
+    return (name or "").strip().lstrip("@").strip().lower()
+
+
 def resolve_alias(name: str) -> str:
     """Return the canonical display name for a given name or alias.
 

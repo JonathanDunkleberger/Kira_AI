@@ -9,6 +9,7 @@ import time
 import uuid
 import hashlib
 from kira.config import MEMORY_PATH
+from kira.memory.identity_manager import normalize_chatter_key
 
 class MemoryManager:
     def __init__(self):
@@ -34,6 +35,7 @@ class MemoryManager:
         self._facts_cache_ts: float = 0.0
         self._FACTS_CACHE_TTL: float = 30.0
         self._validate_collections()
+        self._audit_chatter_key_normalization()
         print("   Memory Manager initialized.")
 
     def _validate_collections(self):
@@ -423,13 +425,38 @@ class MemoryManager:
 
     # ── Per-Chatter Memory ────────────────────────────────────────────────────
 
+    def _audit_chatter_key_normalization(self) -> None:
+        """Constraint #3: loudly flag stored chatter keys NOT already in normalized
+        form (pre-migration rows). Read-only — never mutates. While such rows exist,
+        recall for those keys will MISS until the one-time chatter-key migration runs;
+        surfacing it at boot means that degraded state is never silent."""
+        try:
+            rows = self.chatters.get(include=["metadatas"])
+            metas = rows.get("metadatas", []) or []
+            bad = set()
+            for m in metas:
+                u = m.get("username")
+                if u is not None and u != normalize_chatter_key(u):
+                    bad.add(u)
+            if bad:
+                _sample = sorted(bad)[:8]
+                print(f"   [Memory] ⚠ chatter-key audit: {len(bad)} stored key(s) are "
+                      f"un-normalized (pre-migration) — recall will MISS these until the "
+                      f"chatter-key migration runs. Examples: {_sample}")
+            else:
+                print(f"   [Memory] chatter-key audit: all {len(metas)} chatter rows normalized.")
+        except Exception as e:
+            print(f"   [Memory] chatter-key audit skipped (non-fatal): {e}")
+
     def record_chatter_message(self, username: str, platform: str, message: str):
         """Logs a single chat message from a viewer. Lightweight — fires every message."""
         try:
             text = f"{username} ({platform}): {message}"
             meta = {
                 "type": "chatter_message",
-                "username": username,
+                # Normalized key for cross-platform recall (strip @, lowercase, trim).
+                # Raw handle stays in the `documents` text above for display.
+                "username": normalize_chatter_key(username),
                 "platform": platform,
                 "timestamp": time.time(),
             }
@@ -449,10 +476,11 @@ class MemoryManager:
         Optional tone tag describes how this chatter tends to interact."""
         try:
             text = f"{username}: {fact}"
-            fact_id = f"chatter::{username.lower()}::{hashlib.md5(fact.encode()).hexdigest()[:12]}"
+            fact_id = f"chatter::{normalize_chatter_key(username)}::{hashlib.md5(fact.encode()).hexdigest()[:12]}"
             meta = {
                 "type": "chatter_fact",
-                "username": username,
+                # Normalized key (strip @, lowercase, trim); raw handle kept in text.
+                "username": normalize_chatter_key(username),
                 "platform": platform,
                 "timestamp": time.time(),
             }
@@ -475,7 +503,7 @@ class MemoryManager:
         Used when a chatter speaks — gives Kira recall."""
         try:
             results = self.chatters.get(
-                where={"username": username},
+                where={"username": normalize_chatter_key(username)},
                 limit=50,
                 include=["documents", "metadatas"],
             )
@@ -513,7 +541,7 @@ class MemoryManager:
         """Returns True if this username has never been seen before."""
         try:
             results = self.chatters.get(
-                where={"username": username},
+                where={"username": normalize_chatter_key(username)},
                 limit=1,
             )
             return not results or not results.get("documents")
@@ -525,7 +553,7 @@ class MemoryManager:
         """Return total historical message count for this chatter across all sessions."""
         try:
             results = self.chatters.get(
-                where={"username": username},
+                where={"username": normalize_chatter_key(username)},
             )
             return len(results.get("ids", []))
         except Exception as e:
