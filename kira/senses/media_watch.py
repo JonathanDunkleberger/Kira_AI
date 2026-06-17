@@ -82,8 +82,8 @@ class MediaWatch:
     _COST_PER_CALL_USD = 0.002
 
     def __init__(self, vision_client, *,
-                 frame_interval_s: float = 2.5,
-                 analysis_interval_s: float = 18.0,
+                 frame_interval_s: float = 1.5,
+                 analysis_interval_s: float = 10.0,
                  buffer_size: int = 8,
                  episode_log_max: int = 200,
                  cloud_call_timeout: float = 12.0):
@@ -131,7 +131,7 @@ class MediaWatch:
         # checkbox can never desync (kills the old inverting blind-flip).
         self.reactions_enabled: bool = True
         self._last_react_ts: float = 0.0
-        self.react_min_gap_s: float = 45.0  # at most one spoken react per 45s
+        self.react_min_gap_s: float = 30.0  # base; pacing scales it per mode/intensity
         # Stage 3 dynamic pacing: optional callable returning the EFFECTIVE
         # min-gap (seconds) for the current beat, so reaction cadence can scale
         # with scene intensity + mode. Wired by the bot to _effective_react_gap.

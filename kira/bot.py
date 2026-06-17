@@ -2198,7 +2198,7 @@ class VTubeBot:
 
     # ── Stage 3: dynamic reaction pacing ───────────────────────────────────────
     # Per-mode gap multipliers, keyed by activity_type then SessionIntensity name.
-    # Result = base_gap (mw.react_min_gap_s, 45s) × multiplier, then CLAMPED to
+    # Result = base_gap (mw.react_min_gap_s, 30s) × multiplier, then CLAMPED to
     # [_PACING_GAP_MIN, _PACING_GAP_MAX] so cadence can never starve (dead air) or
     # runaway. Only the 4 intensity levels the classifier actually emits appear
     # (CUTSCENE / TENSE / EMOTIONAL / CALM); TENSE is the breathe-bucket. Unknown
@@ -2206,7 +2206,7 @@ class VTubeBot:
     # surface for the whole feature.
     _PACING = {
         # film — go quiet in tense/climax beats, riff freely in calm connective tissue
-        ACTIVITY_MEDIA:   {"CALM": 0.7, "TENSE": 2.0, "EMOTIONAL": 1.5, "CUTSCENE": 2.0},
+        ACTIVITY_MEDIA:   {"CALM": 0.7, "TENSE": 1.5, "EMOTIONAL": 1.3, "CUTSCENE": 1.6},
         # game — still react to the big play; only a gentle widening under pressure
         ACTIVITY_GAME:    {"CALM": 0.8, "TENSE": 1.3, "EMOTIONAL": 1.3, "CUTSCENE": 1.5},
         # VN — give emotional beats their weight; don't mute them outright
@@ -2214,8 +2214,8 @@ class VTubeBot:
         # general — no media context to pace against; leave the flat gap alone
         ACTIVITY_GENERAL: {"CALM": 1.0, "TENSE": 1.0, "EMOTIONAL": 1.0, "CUTSCENE": 1.0},
     }
-    _PACING_GAP_MIN: float = 20.0   # never react more often than this (anti-spam)
-    _PACING_GAP_MAX: float = 120.0  # never go silent longer than this (anti-dead-air)
+    _PACING_GAP_MIN: float = 15.0   # chatterbox floor — never react more often than this (do NOT go below 15)
+    _PACING_GAP_MAX: float = 75.0   # never go silent longer than this (anti-dead-air)
 
     def _effective_react_gap(self) -> float:
         """Stage 3: intensity- and mode-scaled min-gap between spoken reactions.
