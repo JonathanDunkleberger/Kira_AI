@@ -29,11 +29,16 @@ cache/
 cookie_data.json
 playthroughs/
 
+# Local audio-device selection (machine-specific; created on first dashboard pick)
+audio_device.json
+
 # Local runtime data (lifetime chess stats, etc.) — gitignored, created on first run
 data/
 
 # Private persona files — real character prompt, identity anchors, opinions
 persona/private/
+# Stray root copy of the real persona — must never be committed (lives in persona/private/).
+/personality.txt
 lore/
 
 # Personal content (streams, recordings, clips, transcripts)
@@ -59,6 +64,10 @@ transcripts/
 # Storytime / Puppet Show: per-show generated scene art + manifests (ephemeral,
 # regenerated each show — never committed).
 /web_dashboard/storytime/
+
+# Local-only scratch / editorial artifacts (not for the public repo)
+repo_tree.txt
+scripts/cuts_*.json
 
 # OS
 .DS_Store
