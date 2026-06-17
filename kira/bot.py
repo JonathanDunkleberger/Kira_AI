@@ -1563,6 +1563,20 @@ class VTubeBot:
             f"NOT something to name or recite — react to the beat in your own voice."
         )
 
+    def _can_see_now(self) -> bool:
+        """Single root-of-truth for 'is Kira actually perceiving the screen right now'.
+
+        Mirrors the reconciler's vision want_active: she sees when a mode is armed
+        (gmc.is_active) OR the always-on calm baseline is on (vision_baseline_on),
+        and is NOT force-dark (vision_force_off). This is what every prompt-build
+        vision-injection path gates on, so baseline (no mode armed) feeds her prompt
+        exactly like an armed mode does — the only difference between calm and Deep
+        Senses is heartbeat cadence, never whether she can see."""
+        if bool(getattr(self, "vision_force_off", False)):
+            return False
+        gmc = self.game_mode_controller
+        return bool((gmc and gmc.is_active) or getattr(self, "vision_baseline_on", False))
+
     def _has_fresh_visual_context(self, max_age: float = 15.0) -> bool:
         """Returns True only when the vision agent is on AND has a real, recent capture.
         Used to gate any prompt path that would otherwise let Kira make visual claims
@@ -4683,13 +4697,17 @@ class VTubeBot:
                     # from THAT before the LLM gets a chance to confabulate. This runs
                     # regardless of game_mode_controller state — visual questions need
                     # a real frame, not character priors.
-                    # A2 — Stale-skip: if the last capture is >20s old and the vision
-                    # agent hasn't refreshed, skip the expensive forced-capture and
-                    # fall back to cached context. Saves 4-12s on stale frames.
+                    # A2 — Stale-skip: if the last capture is older than the live
+                    # heartbeat cadence (+5s slack) and the vision agent hasn't
+                    # refreshed, skip the expensive forced-capture and fall back to
+                    # cached context. Tracks cadence so 40s-calm frames aren't always
+                    # counted stale (the old hardcoded 20s blinded the calm baseline
+                    # for half of every cycle).
                     forced_visual_answer = ""
                     if source == "voice" and self._is_visual_question(content):
                         _vis_age = time.time() - (self.vision_agent.last_capture_time or 0)
-                        if _vis_age <= 20.0:
+                        _stale_cutoff = float(getattr(self.vision_agent, "heartbeat_interval", 20.0) or 20.0) + 5.0
+                        if _vis_age <= _stale_cutoff:
                             print(f"   [Vision] Visual question detected — forcing fresh snapshot before answering: {content[:80]!r}")
                             try:
                                 forced_visual_answer = await self.vision_agent.capture_and_answer(content)
@@ -4698,9 +4716,9 @@ class VTubeBot:
                                 print(f"   [Vision] Forced-look failed: {e}")
                                 forced_visual_answer = ""
                         else:
-                            print(f"   [Vision] Visual question but last capture is {_vis_age:.0f}s stale — using cached context (A2 stale-skip).")
+                            print(f"   [Vision] Visual question but last capture is {_vis_age:.0f}s stale (cutoff {_stale_cutoff:.0f}s) — using cached context (A2 stale-skip).")
 
-                    if self.game_mode_controller.is_active:
+                    if self._can_see_now():
                         lower = content.lower()
                         read_phrases = [
                             'read the text', 'read this', 'read the screen', 'read all',
@@ -4817,7 +4835,7 @@ class VTubeBot:
                     dialogue_line = f"{_voice_label}\nJonny says: \"{content}\""
 
                     # Speech triage — decide whether to respond, react briefly, or stay quiet
-                    scene_ctx = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else ""
+                    scene_ctx = self.vision_agent.get_vision_context() if self._can_see_now() else ""
 
                     # Cutscene bias (ACTIVITY_GAME only): if a cutscene is likely playing and
                     # Jonny has been silent for >20s, pass immersive=True to triage so it biases
