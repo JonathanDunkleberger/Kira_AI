@@ -5684,13 +5684,24 @@ class VTubeBot:
         """Polls the YouTube Data API every YT_AUTO_CONNECT_POLL_S seconds for an
         active live broadcast on YOUTUBE_CHANNEL_ID.  Auto-calls youtube_bot.start()
         when one is found.  Gives up after YT_AUTO_CONNECT_TIMEOUT_S and sets status
-        to 'not_found' so the dashboard can show a manual-connect hint."""
+        to 'not_found' so the dashboard can show a manual-connect hint.
+
+        Task 1 (2026-06-16): added exponential back-off on HTTP 4xx errors.
+        A 403/401 (bad key, quota, permissions) backs off up to 15 min and stops
+        hammering the API + loop on every tick.  A 403 that persists after 3
+        retries is treated as a hard auth failure and the loop aborts cleanly —
+        it is never going to self-heal without a key fix, and the spam every 60s
+        was measurably taking event-loop time."""
         if not self.youtube_bot:
             self._yt_auto_search_status = "idle"
             return
 
         deadline = time.time() + YT_AUTO_CONNECT_TIMEOUT_S
         attempt  = 0
+        _backoff  = float(YT_AUTO_CONNECT_POLL_S)   # starts at config value (60s default)
+        _BACKOFF_MAX = 900.0                          # 15 min ceiling
+        _auth_fail_count = 0                          # consecutive 4xx responses
+        _AUTH_FAIL_ABORT  = 3                         # abort after this many in a row
         self._yt_auto_search_status = "searching"
         print(f"   [YTAutoSearch] Polling for live broadcast on channel {YOUTUBE_CHANNEL_ID!r}…")
 
@@ -5702,7 +5713,53 @@ class VTubeBot:
                 print("   [YTAutoSearch] Already connected — stopping auto-search.")
                 return
 
-            vid = await find_active_live_broadcast(YOUTUBE_CHANNEL_ID, GOOGLE_API_KEY)
+            vid = None
+            _api_error_code = 0
+            try:
+                vid = await find_active_live_broadcast(YOUTUBE_CHANNEL_ID, GOOGLE_API_KEY)
+            except Exception as _yt_exc:
+                # Catch HTTP errors raised by the YouTube helper so we can inspect
+                # the status code and back off / abort appropriately.
+                _exc_str = str(_yt_exc)
+                # Parse status code from urllib / httpx / requests style messages
+                import re as _re
+                _m = _re.search(r'HTTP Error (\d+)', _exc_str)
+                if _m:
+                    _api_error_code = int(_m.group(1))
+                else:
+                    _api_error_code = -1  # unknown non-HTTP error
+                print(f"   [YTAutoSearch] API error: {_yt_exc}")
+
+            if _api_error_code in (401, 403):
+                _auth_fail_count += 1
+                _backoff = min(_backoff * 2, _BACKOFF_MAX)
+                if _auth_fail_count >= _AUTH_FAIL_ABORT:
+                    self._yt_auto_search_status = "auth_error"
+                    print(
+                        f"   [YTAutoSearch] ⚠ {_api_error_code} repeated {_auth_fail_count}x — "
+                        f"aborting auto-search. Check GOOGLE_API_KEY has YouTube Data API v3 "
+                        f"access and the daily quota isn't exhausted. Connect manually via dashboard."
+                    )
+                    return
+                print(
+                    f"   [YTAutoSearch] {_api_error_code} (attempt {attempt}) — "
+                    f"backing off {_backoff:.0f}s before next try."
+                )
+                await asyncio.sleep(min(_backoff, max(0.0, deadline - time.time())))
+                continue
+            elif _api_error_code != 0:
+                # Transient / unknown error — normal backoff, don't count as auth fail
+                _backoff = min(_backoff * 1.5, _BACKOFF_MAX)
+                remaining = int(deadline - time.time())
+                print(f"   [YTAutoSearch] Transient error (attempt {attempt}, {remaining}s remaining) — "
+                      f"retrying in {_backoff:.0f}s")
+                await asyncio.sleep(min(_backoff, max(0.0, deadline - time.time())))
+                continue
+            else:
+                # Successful API call — reset backoff and auth-fail counter
+                _auth_fail_count = 0
+                _backoff = float(YT_AUTO_CONNECT_POLL_S)
+
             if vid:
                 print(f"   [YTAutoSearch] Found active broadcast: {vid!r} — connecting…")
                 ok = self.youtube_bot.start(vid)
