@@ -5,9 +5,11 @@ import os
 import time
 import wave
 import io
+import json
 import threading
 from collections import deque
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 AUDIO_LOG_DIR = "logs"
@@ -28,6 +30,40 @@ from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECO
 AUDIO_MODE_OFF = "off"
 AUDIO_MODE_MEDIA = "media"
 AUDIO_MODE_MUSIC = "music"
+
+# ── Audio device persistence ──────────────────────────────────────────────────
+# FIX 2: the user's chosen loopback device must survive a restart. Without this,
+# preferred_loopback_name reset to None every boot and _find_loopback_device fell
+# back to the Windows DEFAULT loopback — which on a streaming rig is often the
+# wrong/silent endpoint, failing SILENTLY. We persist the dashboard selection to a
+# small JSON file in the repo root (NOT .env, no secrets) and reload it at boot.
+# Anchored to the repo root (this file is kira/senses/audio_agent.py → parents[2])
+# so it resolves the same regardless of CWD.
+AUDIO_SETTINGS_PATH = Path(__file__).resolve().parents[2] / "audio_device.json"
+
+
+def _load_audio_settings() -> dict:
+    """Read the persisted audio-device settings. Returns {} if absent/unreadable —
+    a missing or corrupt file must never block boot."""
+    try:
+        if AUDIO_SETTINGS_PATH.exists():
+            with open(AUDIO_SETTINGS_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return data
+    except Exception as e:
+        print(f"   [Audio] Could not read {AUDIO_SETTINGS_PATH.name}: {e}")
+    return {}
+
+
+def _save_audio_settings(settings: dict) -> None:
+    """Persist the audio-device settings dict to the repo-root JSON file.
+    Fail-graceful: a write error logs but never raises into the dashboard handler."""
+    try:
+        with open(AUDIO_SETTINGS_PATH, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=2)
+    except Exception as e:
+        print(f"   [Audio] Could not write {AUDIO_SETTINGS_PATH.name}: {e}")
 
 # Names of common virtual audio devices to AVOID when auto-picking
 VIRTUAL_DEVICE_KEYWORDS = (
@@ -220,6 +256,21 @@ class AudioAgent:
         self._capture_sample_rate = self.sample_rate
         self._capture_channels = 1
         self.preferred_loopback_name: Optional[str] = None  # set by dashboard to override auto-pick
+        # The device name actually BOUND for capture (set in _start_capture). May
+        # differ from preferred_loopback_name when the saved device is gone and we
+        # fall back to the Windows default. Read by the loopback STT heartbeat so
+        # "wrong/silent device" is diagnosable from the log.
+        self._bound_loopback_name: Optional[str] = None
+        # FIX 2: restore the persisted dashboard device choice so boot binds the user's
+        # saved loopback (e.g. their headphones) instead of guessing the Windows default
+        # every restart. If absent, stays None and auto-pick behaves as before.
+        try:
+            _saved = _load_audio_settings().get("preferred_loopback_name")
+            if _saved:
+                self.preferred_loopback_name = _saved
+                print(f"   [Audio] Restored saved loopback device preference: {_saved!r}")
+        except Exception as _ld_e:
+            print(f"   [Audio] Device-preference restore skipped: {_ld_e}")
         # Part 3: flag that a prior stop() has not yet fully resolved (thread may be
         # wedged). While True, _start_capture() refuses to open a new WASAPI stream on
         # top of the potentially-orphaned one. Cleared after _stop_capture() returns
@@ -228,6 +279,19 @@ class AudioAgent:
 
     def is_active(self) -> bool:
         return self.mode != AUDIO_MODE_OFF and self._stream is not None
+
+    def set_preferred_loopback(self, name: Optional[str]) -> None:
+        """FIX 2: update the live loopback-device preference AND persist it to disk so
+        the choice survives a restart. Called by the dashboard 'audio_device' handler.
+        name=None clears the override (Auto-detect)."""
+        self.preferred_loopback_name = name or None
+        settings = _load_audio_settings()
+        if self.preferred_loopback_name:
+            settings["preferred_loopback_name"] = self.preferred_loopback_name
+        else:
+            settings.pop("preferred_loopback_name", None)
+        _save_audio_settings(settings)
+        print(f"   [Audio] Loopback device preference saved: {self.preferred_loopback_name!r}")
 
     def set_mode(self, mode: str):
         if mode not in (AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC):
@@ -306,7 +370,11 @@ class AudioAgent:
                 if preferred_name.lower() in d.get("name", "").lower():
                     print(f"   [Audio] Using dashboard-selected device: {d.get('name')}")
                     return d
-            print(f"   [Audio] Preferred device '{preferred_name}' not found, falling through to auto-pick.")
+            # FIX 2: do NOT fail silently. The saved/selected device is gone (unplugged,
+            # renamed, different machine) — announce it loudly, then fall back to the
+            # Windows default below so hearing still works.
+            print(f"   [Audio] ⚠ Saved device '{preferred_name}' not found — "
+                  f"falling back to default loopback. Re-select your device in the dashboard.")
 
         # Priority 2: the Windows DEFAULT playback device's loopback. In a cable-routed
         # streaming rig the default is the VB-Audio Cable — which carries the ACTUAL
@@ -410,6 +478,7 @@ class AudioAgent:
                 device_index = device["index"]
                 device_rate = int(device["defaultSampleRate"])
                 device_channels = int(device["maxInputChannels"])
+                self._bound_loopback_name = device.get("name")  # for loopback STT heartbeat
                 print(f"   [Audio] Using WASAPI loopback device: {device['name']} "
                       f"({device_rate}Hz, {device_channels}ch)")
 

@@ -995,10 +995,11 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("audio_agent disabled in config")
         label = body.label or ""
         if not label or label == "Auto-detect":
-            bot.audio_agent.preferred_loopback_name = None
+            # FIX 2: persist via the setter so the choice survives a restart.
+            bot.audio_agent.set_preferred_loopback(None)
         else:
             cleaned = label.replace("⚠ ", "").replace(" (virtual)", "").rstrip(".")
-            bot.audio_agent.preferred_loopback_name = cleaned
+            bot.audio_agent.set_preferred_loopback(cleaned)
         return _ok(device=label)
 
     if action == "audio_devices_refresh":
