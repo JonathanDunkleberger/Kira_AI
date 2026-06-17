@@ -5,6 +5,8 @@ import asyncio
 import enum
 import webrtcvad
 import collections
+import queue
+import threading
 import pyaudio
 import time
 import traceback
@@ -39,6 +41,7 @@ from kira.memory.memory_extractor import extract_memories
 from kira.streaming.youtube_bot import YouTubeBot, find_active_live_broadcast
 from kira.config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
+    ASSUME_NO_MIC_BLEED, MIC_GATE_ACTIVE_WINDOW_S,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
     GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
@@ -356,6 +359,13 @@ class VTubeBot:
         # finishes its current audio before yielding to Jonny's voice. Hard interrupts
         # (F8 / mute_for / pause_model) bypass this flag and always cut through.
         self._chat_speaking = False
+        # Task 2 (self-healing mic gate, 2026-06-16): timestamp of the most recent mic SPEECH
+        # frame. The loopback STT gate derives "mic active now" from how long ago
+        # this was stamped (see _mic_recently_active) — a TIMESTAMP can't latch,
+        # so the gate can never stick 'on' and silence loopback for a whole
+        # session the way the old sticky _vad_mic_active bool could. Stamped on
+        # every is_speech frame in vad_loop, across ALL paths.
+        self._vad_mic_last_ts: float = 0.0
         # Turn arbiter — exactly one active turn (LLM-start → TTS-done) at a time.
         # Held by voice turns, chat_batch turns, and interjection turns so they
         # never race against each other. Distinct from processing_lock (which remains
@@ -421,6 +431,14 @@ class VTubeBot:
         self.pyaudio_instance = None
         self.stream = None
         self.frames_per_buffer = int(16000 * 30 / 1000)
+        # Mic-capture ring: the PyAudio callback pushes 30ms frames here from its
+        # own OS-scheduled thread. vad_loop reads from this queue instead of calling
+        # stream.read() on the event loop, so event-loop saturation from always-on
+        # background tasks can never cause WASAPI ring overflow → no first-word clip,
+        # no mid-speech drops. Bounded at 200 frames (~6s) — overflow silently drops
+        # the oldest (fine: we only need the tail). Must be reset whenever the stream
+        # is re-opened (mic device change). Interruptibility logic is UNCHANGED.
+        self._mic_frame_queue: queue.Queue = queue.Queue(maxsize=200)
         
         self.bg_tasks = set() # Use a set for easier task management
         self.conversation_history = []
@@ -3784,6 +3802,21 @@ class VTubeBot:
                     except Exception: pass
 
 
+    def _mic_recently_active(self) -> bool:
+        """True if Jonny's mic produced a speech frame within the last
+        MIC_GATE_ACTIVE_WINDOW_S seconds. Drives the loopback STT mic gate.
+
+        Self-healing by construction: derived from a TIMESTAMP stamped on every
+        speech frame in vad_loop, so it auto-expires when he stops talking and
+        can NEVER latch 'on' — unlike the old sticky _vad_mic_active bool, whose
+        single clear site was skipped whenever an utterance ended any way other
+        than clean trailing-silence (e.g. processing_lock locking mid-utterance),
+        leaving it True for the whole session and silently killing loopback STT.
+        The transcriber layers its own ~10s post-mic cooldown on top of this, so
+        this window only needs to bridge the sub-0.4s gaps webrtcvad leaves
+        between words within one utterance."""
+        return (time.time() - self._vad_mic_last_ts) < MIC_GATE_ACTIVE_WINDOW_S
+
     async def _autostart_loopback(self) -> None:
         """Auto-start the loopback dialogue transcriber when LOOPBACK_STT_DEFAULT is on.
 
@@ -3805,8 +3838,14 @@ class VTubeBot:
         print("   [LoopbackSTT] Auto-start running \u2014 audio active, starting transcriber\u2026")
         ai_core_ref = self.ai_core
         speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+        # Task 2: mic-active gate (self-healing) — prevents Jonny's voice from
+        # showing up in the loopback transcript when the WASAPI capture device
+        # carries a mic-mixed signal. Pass the bound method directly; it derives
+        # "mic active" from the last-speech-frame timestamp and auto-expires, so
+        # it can never latch 'on' and silence loopback for a whole session.
+        user_speaking_fn = self._mic_recently_active
         try:
-            ok = await asyncio.to_thread(lt.start, self.audio_agent, speaking_fn)
+            ok = await asyncio.to_thread(lt.start, self.audio_agent, speaking_fn, user_speaking_fn)
             print(f"   [LoopbackSTT] Auto-start {'succeeded' if ok else 'failed'} "
                   f"(LOOPBACK_STT_DEFAULT).")
         except Exception as e:
@@ -4072,7 +4111,11 @@ class VTubeBot:
             # so any OOM surfaces at startup rather than mid-stream.
             if self.loopback_transcriber is not None:
                 try:
-                    self.loopback_transcriber._load_model()
+                    # FIX 1 (boot staging): run the ~20s WhisperModel load OFF the event
+                    # loop. Synchronous _load_model() here used to stall the loop during
+                    # boot while the mic-frame queue filled with no drainer yet live —
+                    # the user's opening words overflowed the bounded ring and were lost.
+                    await asyncio.to_thread(self.loopback_transcriber._load_model)
                     print("   [LoopbackSTT] Model pre-loaded OK.")
                 except Exception as _lt_e:
                     print(
@@ -4089,10 +4132,42 @@ class VTubeBot:
             await self.ai_core.test_audio_output()
 
             self.pyaudio_instance = pyaudio.PyAudio()
+            # Mic frame callback: PyAudio calls this from its own OS-level audio
+            # thread every 30ms. We push the raw PCM into the bounded queue and
+            # immediately return paContinue. The event loop is NEVER blocked by this
+            # capture path — vad_loop reads from the queue asynchronously.
+            _mfq = self._mic_frame_queue
+            def _mic_callback(in_data, frame_count, time_info, status):
+                try:
+                    _mfq.put_nowait(in_data)
+                except queue.Full:
+                    # Ring full: discard the oldest frame to keep latency bounded.
+                    try: _mfq.get_nowait()
+                    except queue.Empty: pass
+                    try: _mfq.put_nowait(in_data)
+                    except queue.Full: pass
+                return (None, pyaudio.paContinue)
+            # Clear any stale frames from a previous session before opening.
+            while not self._mic_frame_queue.empty():
+                try: self._mic_frame_queue.get_nowait()
+                except queue.Empty: break
             self.stream = self.pyaudio_instance.open(
                 format=pyaudio.paInt16, channels=1, rate=16000,
-                input=True, frames_per_buffer=self.frames_per_buffer
+                input=True, frames_per_buffer=self.frames_per_buffer,
+                stream_callback=_mic_callback,
             )
+
+            # FIX 1 (boot staging): start the mic-queue DRAINER the instant the mic
+            # stream opens — BEFORE any heavy/always-on perception (loopback model,
+            # WASAPI loopback open, vision heartbeat) arms. The PyAudio callback fills
+            # the bounded _mic_frame_queue from its own OS thread starting now; vad_loop
+            # is its only consumer. Scheduling it here (instead of appending it to the
+            # gathered task list far below) guarantees the drainer runs concurrently
+            # through the remaining inline boot work (startup brief, VTS connect, audio
+            # set_mode) so the user's opening words are never lost to ring overflow.
+            # NOTE: ordering/scheduling only — VAD capture logic is unchanged.
+            self._vad_task = asyncio.ensure_future(self.vad_loop())
+            print("   [System] VAD drainer live — mic queue draining before perception arms.")
 
             print(f"\n--- {AI_NAME} is now running. Press Ctrl+C to exit. ---\n")
 
@@ -4240,8 +4315,13 @@ class VTubeBot:
             tasks.append(self.chat_batch_worker())
 
             # --- Start Vision Heartbeat ---
+            # FIX 1 (boot staging): explicit ordering — capture stream + VAD drainer are
+            # already live (above). Arm perception in stages now: vision heartbeat →
+            # audio mood → loopback. A yield between stages lets the mic-queue drainer
+            # run so the always-on perception can't starve it during boot.
             print("   [System] Starting Vision Heartbeat...")
             tasks.append(self.vision_agent.heartbeat_loop())
+            await asyncio.sleep(0)  # let the VAD drainer breathe before audio arms
             if self.audio_agent:
                 tasks.append(self.audio_agent.heartbeat_loop())
                 # 2b: audio-mood always-on — boot straight into MEDIA so _audio_mood()
@@ -4250,10 +4330,15 @@ class VTubeBot:
                 # downstream so this can never inject false drama on silence.
                 if AUDIO_MOOD_ALWAYS_ON:
                     try:
-                        self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
+                        # FIX 1: open the WASAPI loopback stream OFF the event loop. The
+                        # synchronous device-bind (and its C-layer settle) must not stall
+                        # the loop while the mic-queue drainer is running — that stall was
+                        # part of what dropped the user's opening words at boot.
+                        await asyncio.to_thread(self.audio_agent.set_mode, AUDIO_MODE_MEDIA)
                         print("   [Audio] Mood reading always-on (MEDIA) — AUDIO_MOOD_ALWAYS_ON.")
                     except Exception as _am_e:
                         print(f"   [Audio] Always-on mood start failed: {_am_e}")
+                    await asyncio.sleep(0)  # yield before loopback (heaviest) arms last
                 # 2c/1b: loopback dialogue always-on — auto-start once audio is active,
                 # gated by LOOPBACK_STT_DEFAULT. Runs in a thread (model load ~20s).
                 # RETAINED in the awaited tasks list (not bare ensure_future) so the
@@ -4302,9 +4387,10 @@ class VTubeBot:
             # Periodic crash-recovery checkpoint for playthrough memory
             tasks.append(self._checkpoint_loop())
 
-            # 3. Start Voice Recorder (This is the main loop effectively)
-            print("   [System] Starting Voice Recorder (VAD)...")
-            tasks.append(self.vad_loop())
+            # 3. Voice Recorder (VAD) — already scheduled early (right after the mic
+            # stream opened, above) so the mic-queue drainer was live before perception
+            # armed. Its task handle lives in self._vad_task; folded into
+            # self._background_tasks below for unified shutdown cancellation.
 
             # Start stream session logging
             if STREAM_LOGGING_ENABLED:
@@ -4330,7 +4416,11 @@ class VTubeBot:
             # shutdown_async() can explicitly cancel the background loops (control
             # server, autopilot watchdog, observer, heartbeats, etc.) before the
             # artifact phase, instead of relying on interpreter teardown.
+            # FIX 1: the VAD drainer was scheduled early (self._vad_task); fold it in
+            # here so shutdown cancels it alongside everything else.
             self._background_tasks = [asyncio.ensure_future(t) for t in tasks]
+            if getattr(self, "_vad_task", None) is not None:
+                self._background_tasks.append(self._vad_task)
 
             # Run everything concurrently
             await asyncio.gather(*self._background_tasks)
@@ -4388,6 +4478,17 @@ class VTubeBot:
         triggered = False
         silent_chunks = 0
         max_silent_chunks = int(PAUSE_THRESHOLD * 1000 / 30)
+        # Pre-roll ring: ~240ms (8 x 30ms) of the most recent PRE-trigger frames.
+        # Prepended on trigger to recover soft-consonant onsets that webrtcvad
+        # scores as non-speech (otherwise the first syllable is clipped).
+        pre_roll = collections.deque(maxlen=8)
+        # ttft side-buffer: the user's opening words captured during the
+        # is_speaking-but-speakers-SILENT window (text ready / between chunks /
+        # gate-release tail are all silent). Seeded into `frames` when she stops
+        # speaking so the first 1-3 words aren't lost. ONLY ever filled while
+        # speakers_active() is False, so it can never contain her own TTS.
+        ttft_buffer = collections.deque()
+        ttft_triggered = False
 
         while self.is_running:
             try:
@@ -4399,27 +4500,125 @@ class VTubeBot:
                     await asyncio.sleep(0.5)
                     continue
                 
-                # --- FIX: AGGRESSIVE SELF-HEARING PROTECTION ---
+                # --- FIX: AGGRESSIVE SELF-HEARING PROTECTION + ttft CAPTURE ---
                 if self.ai_core.is_speaking:
-                    # Clear buffer so we don't process old audio when she stops
-                    frames.clear() 
-                    triggered = False
-                    await asyncio.sleep(0.1) 
-                    continue
+                    # `is_speaking` is True for the WHOLE turn, but the speakers are
+                    # only physically playing audio for PART of it (ttft spin-up,
+                    # between-chunk gaps, gate-release tail are all silent). Use the
+                    # finer speakers_active() signal:
+                    #   - speakers SILENT -> safely capture the user's opening words
+                    #                        into a side buffer (zero self-feedback;
+                    #                        her TTS only plays via pygame.get_busy()).
+                    #   - speakers LIVE   -> drain & discard (UNCHANGED self-hearing
+                    #                        protection; her voice is on the open mic).
+                    #
+                    # HEADPHONE OVERRIDE (ASSUME_NO_MIC_BLEED): her TTS never reaches
+                    # the mic, so the LIVE discard branch is pure liability — it eats
+                    # the FIRST WORD of his real speech whenever she's audible (most
+                    # of the turn). When the flag is set we CAPTURE continuously
+                    # through her speech: the speakers-LIVE state is treated exactly
+                    # like SILENT, so his opener lands in ttft_buffer instead of the
+                    # bin. She stays non-interruptible regardless — we still `continue`
+                    # below, so the interruption check (L~4544) is never reached while
+                    # she speaks.
+                    _capture_through = ASSUME_NO_MIC_BLEED or not self.ai_core.speakers_active()
+                    if _capture_through:
+                        try:
+                            data = self._mic_frame_queue.get_nowait()
+                        except queue.Empty:
+                            await asyncio.sleep(0.01)
+                            continue
+                        except Exception:
+                            await asyncio.sleep(0.01)
+                            continue
+                        if self.vad.is_speech(data, 16000):
+                            if not ttft_triggered:
+                                ttft_triggered = True
+                                # Preserve the 1-2 pre-onset frames (~30-60ms) so the
+                                # soft consonant isn't trimmed. On headphones these
+                                # were captured through her speech but carry no TTS
+                                # (no mic bleed); on speakers they were captured in a
+                                # verified-SILENT window, so they can NEVER be her TTS.
+                                ttft_buffer.extend(pre_roll)
+                                pre_roll.clear()
+                            ttft_buffer.append(data)
+                        elif ttft_triggered:
+                            ttft_buffer.append(data)  # keep brief gaps within speech
+                        else:
+                            # Rolling pre-onset ring of recent frames, used only to
+                            # recover the soft onset above. Bounded by maxlen.
+                            pre_roll.append(data)
+                        continue
+                    else:
+                        # Speakers LIVE on a SPEAKER setup (ASSUME_NO_MIC_BLEED=false)
+                        # — discard incoming frames (self-feedback guard) and drain the
+                        # mic queue so her own TTS (on the open mic) is never appended
+                        # or transcribed. This branch is UNREACHABLE on headphones.
+                        #
+                        # CRITICAL: do NOT clear ttft_buffer / ttft_triggered here.
+                        # In a multi-sentence reply she goes silent→live→silent
+                        # between chunks; if Jonny began talking in a SILENT gap his
+                        # opener is already in ttft_buffer. Wiping it when she merely
+                        # RESUMES the next chunk is what was eating between-sentence
+                        # openers (window b). We preserve his captured gap-speech and
+                        # only stop appending while she's audibly playing — her TTS
+                        # still never enters the buffer.
+                        #
+                        # We also do NOT clear pre_roll here: keeping the onset ring
+                        # warm across the brief speakers-live window means there are
+                        # always frames to prepend on the NEXT trigger, even right
+                        # after a short single-sentence reply (the cold-pre_roll
+                        # opener clip). We simply stop APPENDING to it while live so
+                        # her TTS never enters the ring.
+                        frames.clear()
+                        triggered = False
+                        while not self._mic_frame_queue.empty():
+                            try: self._mic_frame_queue.get_nowait()
+                            except queue.Empty: break
+                        await asyncio.sleep(0.1)
+                        continue
                 # -----------------------------------------------
 
-                # --- SAFE READ ---
+                # ttft RECOVERY: she just stopped speaking. If the user's opening
+                # words were captured during a verified-silent window, seed `frames`
+                # with them and continue capturing seamlessly so 1-3 words aren't
+                # lost. Runs once per turn (ttft_buffer is cleared immediately).
+                if ttft_buffer:
+                    if ttft_triggered and len(ttft_buffer) >= 2:
+                        frames.clear()
+                        frames.extend(ttft_buffer)
+                        triggered = True
+                        silent_chunks = 0
+                        print("🎤 Recording... (recovered opening words)")
+                    ttft_buffer.clear()
+                    ttft_triggered = False
+
+
+                # --- NON-BLOCKING READ FROM CALLBACK QUEUE ---
+                # The PyAudio callback pushes 30ms frames here from its own thread,
+                # so this get() never blocks the event loop. When the queue is empty
+                # (silence or mic not yet open) we yield for one frame period and
+                # loop — exactly the same cadence as the old blocking stream.read().
                 try:
-                    data = await asyncio.to_thread(self.stream.read, self.frames_per_buffer, exception_on_overflow=False)
-                except (OSError, IOError) as e:
-                    if e.errno == -9988 or not self.is_running: 
-                        break # Stream closed, exit quietly
-                    print(f"VAD Stream Error: {e}")
+                    data = self._mic_frame_queue.get_nowait()
+                except queue.Empty:
+                    await asyncio.sleep(0.03)  # one 30ms frame period
+                    continue
+                except Exception as e:
+                    if not self.is_running:
+                        break
+                    print(f"VAD Queue Error: {e}")
                     await asyncio.sleep(1)
                     continue
-                # -----------------
+                # ---------------------------------------------
 
                 is_speech = self.vad.is_speech(data, 16000)
+                if is_speech:
+                    # Self-healing mic gate for loopback STT: stamp on EVERY speech
+                    # frame, in EVERY path — including the processing-lock interrupt
+                    # path just below — so the gate reflects real mic activity and
+                    # auto-expires when he stops. No code path can leave it latched.
+                    self._vad_mic_last_ts = time.time()
 
                 if self.processing_lock.locked() and is_speech and not self._chat_speaking:
                     self.interruption_event.set()
@@ -4430,6 +4629,14 @@ class VTubeBot:
                         if not triggered:
                             print("🎤 Recording...")
                             triggered = True
+                            # (mic-gate timestamp is stamped on every speech frame
+                            # above — no sticky flag to set/clear here anymore.)
+                            # Prepend the pre-roll ring: webrtcvad scores soft
+                            # consonant onsets as non-speech, so the first
+                            # ~120-240ms is otherwise clipped. Seed with the recent
+                            # pre-trigger frames to recover the opening syllable.
+                            frames.extend(pre_roll)
+                            pre_roll.clear()
                         frames.append(data)
                         silent_chunks = 0
                     elif triggered:
@@ -4442,12 +4649,19 @@ class VTubeBot:
                             
                             frames.clear()
                             triggered = False
+                            # (mic-gate timestamp auto-expires; nothing to clear.)
                             self.reset_idle_timer(human_speech=True)
                             
                             # Process audio in background
                             task = asyncio.create_task(self.handle_audio(audio_data))
                             self.bg_tasks.add(task)
                             task.add_done_callback(self.bg_tasks.discard)
+                    else:
+                        # Idle, listening, not yet triggered — keep a rolling
+                        # pre-roll of the most recent (silent/non-speech) frames so
+                        # the next trigger can recover its onset.
+                        pre_roll.append(data)
+
             except Exception as e:
                 err = str(e)
                 if "cannot schedule new futures after shutdown" in err or "event loop is closed" in err.lower():

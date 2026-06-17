@@ -43,6 +43,22 @@ AI_NAME = os.getenv("AI_NAME", "Kira")
 # Tuning VAD for faster response (0.4s silence triggers end-of-speech)
 PAUSE_THRESHOLD = float(os.getenv("PAUSE_THRESHOLD", 0.4))
 VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
+# Loopback STT mic-gate (Task 2, self-healing). The loopback transcriber skips
+# ticks while Jonny's mic is genuinely active so his voice isn't transcribed as
+# desktop audio. "Active" is derived from the timestamp of the last mic speech
+# frame and auto-expires this many seconds after he stops — short, because the
+# transcriber adds its own ~10s post-mic cooldown on top. Kept well above the
+# PAUSE_THRESHOLD (0.4s) utterance gap so the gate never flickers mid-sentence.
+MIC_GATE_ACTIVE_WINDOW_S = float(os.getenv("MIC_GATE_ACTIVE_WINDOW_S", 2.0))
+# Headphone setups have ZERO mic bleed: Kira's TTS never reaches the mic, so the
+# self-hearing guard that discards mic frames while she speaks is pure liability
+# — it eats the FIRST WORD of the user's real speech whenever is_speaking is True
+# (most of every turn). When true, the mic captures continuously THROUGH her
+# speech (frames are buffered, never discarded) so his full utterance survives
+# from word one. She stays non-interruptible regardless (the VAD never reaches
+# the interruption check while she speaks). Default false keeps speaker setups
+# safe — those still need the discard guard to avoid transcribing her own voice.
+ASSUME_NO_MIC_BLEED = os.getenv("ASSUME_NO_MIC_BLEED", "false").lower() == "true"
 MEMORY_PATH = os.getenv("MEMORY_PATH", os.path.join(_REPO_ROOT, "memory_db"))
 
 # Secrets and API keys (must be in .env, never commit real values)

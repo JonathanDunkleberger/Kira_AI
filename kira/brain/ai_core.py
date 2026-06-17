@@ -247,6 +247,23 @@ class AI_Core:
         except Exception as e:
             print(f"   ❌ Failed to reload personality: {e}")
 
+    def speakers_active(self) -> bool:
+        """True only when TTS audio is ACTUALLY playing out the speakers right now.
+
+        `is_speaking` is set at the START of speak_streaming — before the first
+        TTS chunk synthesizes (ttft ~1-2s) and between sentence chunks — so it is
+        True during windows where the speakers are provably silent. The VAD's
+        ttft side-buffer uses this finer signal to safely capture the user's
+        opening words during those silent windows without any risk of
+        transcribing Kira's own voice (which only plays via pygame).
+        """
+        try:
+            return bool(pygame.mixer.get_busy())
+        except Exception:
+            # If the mixer can't be queried, fail SAFE: assume speakers are live
+            # so we never accidentally capture her own TTS.
+            return True
+
     async def test_audio_output(self):
         """Plays a test tone to verify audio output."""
         print("-> Testing Audio Output...")

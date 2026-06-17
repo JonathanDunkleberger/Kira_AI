@@ -149,6 +149,12 @@ _SHORT_BURST_MIN_MATCHES: int = 2
 # so we capture the actual moment speech ends, not the next 5s tick.
 SPEECH_POLL_INTERVAL: float = 0.1
 
+# Diagnostics cadence (Constraint #3 — a suppressing gate / dead device must
+# never be invisible). At a 5s tick these are ~60s apart: frequent enough to
+# confirm liveness in the log, infrequent enough not to flood the console.
+MIC_GATE_LOG_EVERY_N_SKIPS: int = 12   # re-log while the mic gate keeps holding
+HEARTBEAT_EVERY_N_TICKS: int = 12      # device + window-RMS liveness line
+
 
 def _normalize(text: str) -> str:
     """Lowercase, strip surrounding whitespace/punctuation, collapse internal whitespace."""
@@ -234,6 +240,14 @@ class LoopbackTranscriber:
         self._speech_last_active_ts: float = 0.0
         self._speech_watcher_thread: Optional[threading.Thread] = None
         self.total_ticks_skipped_self_tts: int = 0
+        # Task 2: mic-active gate — prevents Jonny's mic voice from being transcribed
+        # via the loopback when the WASAPI device carries a mic-mixed signal.
+        self._is_user_speaking_fn: Optional[Callable[[], bool]] = None
+        self._user_mic_last_active_ts: float = 0.0
+        # Constraint #3 diagnostics — mic-gate skip visibility + device heartbeat.
+        self._mic_gate_suppressing: bool = False   # True while the gate is holding
+        self._mic_gate_skip_streak: int = 0        # consecutive ticks skipped by it
+        self._heartbeat_tick_counter: int = 0      # ticks that reached RMS stage
 
         self._available = DEPS_AVAILABLE
         if not DEPS_AVAILABLE:
@@ -282,6 +296,7 @@ class LoopbackTranscriber:
         self,
         audio_agent: "AudioAgent",
         is_speaking_fn: Optional[Callable[[], bool]] = None,
+        is_user_speaking_fn: Optional[Callable[[], bool]] = None,
     ) -> bool:
         """Begin background transcription on the given audio agent's buffer.
         Returns True if started (or already running), False if unavailable.
@@ -293,7 +308,14 @@ class LoopbackTranscriber:
         ``is_speaking_fn`` is an optional zero-arg callable that returns True
         while Kira's TTS is actively playing. When provided, the transcriber
         skips ticks during speech and for WINDOW_SECONDS afterward, preventing
-        her own voice from leaking into the transcript via the loopback."""
+        her own voice from leaking into the transcript via the loopback.
+
+        ``is_user_speaking_fn`` is an optional zero-arg callable that returns
+        True while the VAD is actively detecting Jonny's mic voice (Task 2,
+        2026-06-16). When provided, ticks are also skipped while he speaks,
+        preventing his mic from landing in the loopback transcript when the
+        WASAPI capture device carries a mic-mixed signal (e.g. VB-Audio Cable).
+        The window is shorter (2s after mic-active vs WINDOW_SECONDS for TTS)."""
         if not self._available:
             return False
 
@@ -312,6 +334,8 @@ class LoopbackTranscriber:
 
             self._audio_agent = audio_agent
             self._is_speaking_fn = is_speaking_fn
+            self._is_user_speaking_fn = is_user_speaking_fn  # Task 2: mic-active gate
+            self._user_mic_last_active_ts: float = 0.0
             self._speech_last_active_ts = 0.0
             self.total_ticks_skipped_self_tts = 0
 
@@ -499,6 +523,44 @@ class LoopbackTranscriber:
                     self.total_ticks_skipped_self_tts += 1
                     return
 
+        # Task 2 — Mic-active gate: skip while the VAD detects Jonny's voice, AND
+        # for a short cooldown afterward. This prevents his mic from appearing in the
+        # loopback transcript when the WASAPI capture device (e.g. VB-Audio Virtual
+        # Cable) carries a mic-mixed signal. The cooldown (2 × TICK_SECONDS) is short
+        # enough to miss at most one extra tick after he stops, far less disruptive
+        # than having his words transcribed as ambient dialogue.
+        _MIC_COOLDOWN_S = TICK_SECONDS * 2  # ~10s — generous but bounded
+        if self._is_user_speaking_fn is not None:
+            try:
+                mic_active_now = bool(self._is_user_speaking_fn())
+            except Exception:
+                mic_active_now = False
+            _suppress = False
+            if mic_active_now:
+                self._user_mic_last_active_ts = time.time()
+                _suppress = True
+            elif self._user_mic_last_active_ts > 0.0:
+                if (time.time() - self._user_mic_last_active_ts) < _MIC_COOLDOWN_S:
+                    _suppress = True  # cooldown — buffer tail may still carry his voice
+            if _suppress:
+                # Constraint #3: a suppressing gate must NEVER be invisible — that
+                # exact silent skip is what killed loopback for a whole session.
+                # Log on entry to suppression and periodically while it holds.
+                self._mic_gate_skip_streak += 1
+                _since = time.time() - self._user_mic_last_active_ts
+                if (not self._mic_gate_suppressing
+                        or self._mic_gate_skip_streak % MIC_GATE_LOG_EVERY_N_SKIPS == 0):
+                    print(f"   [LoopbackSTT] tick skipped — mic gate active "
+                          f"({_since:.0f}s since mic, {self._mic_gate_skip_streak} skip(s))")
+                self._mic_gate_suppressing = True
+                return
+            # Gate released — announce recovery once so resumption is visible too.
+            if self._mic_gate_suppressing:
+                print(f"   [LoopbackSTT] mic gate released after "
+                      f"{self._mic_gate_skip_streak} skip(s) — resuming transcription.")
+                self._mic_gate_suppressing = False
+                self._mic_gate_skip_streak = 0
+
         sample_rate = agent.sample_rate
         window_samples = int(sample_rate * WINDOW_SECONDS)
 
@@ -518,6 +580,18 @@ class LoopbackTranscriber:
 
         # Silence gate — skip Whisper call entirely on near-silent windows.
         rms = float(np.sqrt(np.mean(samples * samples))) if samples.size else 0.0
+        # Change 3: device/RMS heartbeat. Emitted BEFORE the silence-gate return
+        # so a dead/wrong device still produces a periodic line — that's what
+        # distinguishes "device carries no signal" (rms≈0 here) from "gate
+        # suppressing" (logged above) and "Whisper filtered everything" (the
+        # 0-accepted line below), without needing live console access.
+        self._heartbeat_tick_counter += 1
+        if self._heartbeat_tick_counter % HEARTBEAT_EVERY_N_TICKS == 0:
+            _dev = (getattr(agent, "_bound_loopback_name", None)
+                    or getattr(agent, "preferred_loopback_name", None) or "(default)")
+            print(f"   [LoopbackSTT] heartbeat — device={_dev!r} rms={rms:.4f} "
+                  f"(silence_gate={SILENCE_RMS_THRESHOLD}, "
+                  f"{self.total_segments_accepted} accepted so far)")
         if rms < SILENCE_RMS_THRESHOLD:
             return
 

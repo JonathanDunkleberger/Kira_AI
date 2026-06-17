@@ -948,8 +948,12 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                     and bot.audio_agent and bot.audio_agent.is_active()):
                 ai_core_ref = bot.ai_core
                 speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+                # Task 2: mic-active gate (self-healing) — same guard as
+                # _autostart_loopback. Bound method derives "mic active" from the
+                # last-speech-frame timestamp, so it auto-expires and can't latch.
+                user_speaking_fn = bot._mic_recently_active
                 try:
-                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn)
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn)
                 except Exception as _ds_e:
                     print(f"   [DeepSenses] loopback start failed: {_ds_e}")
         return _ok(deep_senses=on)
@@ -976,8 +980,12 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             if LOOPBACK_STT_DEFAULT and lt is not None and not lt.is_running():
                 ai_core_ref = bot.ai_core
                 speaking_fn = lambda: bool(getattr(ai_core_ref, "is_speaking", False))
+                # Task 2: mic-active gate (self-healing) — same guard as
+                # _autostart_loopback. Bound method derives "mic active" from the
+                # last-speech-frame timestamp, so it auto-expires and can't latch.
+                user_speaking_fn = bot._mic_recently_active
                 try:
-                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn)
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn)
                 except Exception as _lt_e:
                     print(f"   [LoopbackSTT] Auto-start on MEDIA failed: {_lt_e}")
         return _ok(hearing=choice)
