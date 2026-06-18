@@ -212,6 +212,37 @@ CONTROL_SERVER_PORT = int(os.getenv("CONTROL_SERVER_PORT", "8766"))
 CHAT_BATCH_WINDOW = float(os.getenv("CHAT_BATCH_WINDOW", "5.0"))
 CHAT_RESPONSE_COOLDOWN = float(os.getenv("CHAT_RESPONSE_COOLDOWN", "8.0"))
 
+# ── Activity-aware chat governance (the "activity governor", chat half) ────────
+# In a story game, raise the bar so only worth-it chat (direct @Kira / questions)
+# interrupts gameplay; in watch-along / just-chatting, stay chat-heavy. Each chat
+# message is scored by salience_filter and kept only if its tier clears an
+# activity floor. Default OFF — flip the master switch to feel-test one variable
+# at a time. First-timers and known regulars always bypass (set in bot.py).
+CHAT_SALIENCE_GATE_ENABLED = os.getenv("CHAT_SALIENCE_GATE_ENABLED", "false").lower() == "true"
+# Per-activity tier floor a chat message must clear to earn a response.
+# Tiers (salience_filter): HIGH > MEDIUM > LOW > DROP. Plain chat scores MEDIUM;
+# only @Kira / "?" reach HIGH — so a HIGH floor is what actually gates a game.
+CHAT_FLOOR_BY_ACTIVITY = {
+    "game":    os.getenv("CHAT_FLOOR_GAME",    "HIGH").upper(),
+    "media":   os.getenv("CHAT_FLOOR_MEDIA",   "MEDIUM").upper(),
+    "vn":      os.getenv("CHAT_FLOOR_VN",      "MEDIUM").upper(),
+    "general": os.getenv("CHAT_FLOOR_GENERAL", "LOW").upper(),
+}
+# Dedicated manual override for the chat floor — kept SEPARATE from presence_level
+# (which governs ONLY the boredom/dead-air rate; the two dials must stay
+# decoupled). "none" = use the activity default; "raise" = one tier stricter;
+# "lower" = one tier looser (never below LOW, so true-spam DROP stays gated).
+CHAT_FLOOR_OVERRIDE = os.getenv("CHAT_FLOOR_OVERRIDE", "none").lower()
+
+# ── Game-engagement channel (the "activity governor", perception half) ────────
+# Opens the perception→speech path during a story game: on a throttle, Kira fires
+# a proactive interjection about what she SEES/HEARS on screen, so constant
+# vision/audio perception actually becomes presence (it surfaced ~8x all night in
+# the 06-17 review). Rides the priority=1 interjection plumbing (turn-lock +
+# sentence-boundary yield) so it can NEVER interrupt Jonny's reply. Default OFF.
+GAME_REACT_ENABLED = os.getenv("GAME_REACT_ENABLED", "false").lower() == "true"
+GAME_REACT_MIN_GAP_S = float(os.getenv("GAME_REACT_MIN_GAP_S", "60.0"))
+
 # Presence dial — probability that a bored-loop line becomes a question to chat.
 # One value per presence level (Sleepy / Normal / Chatty). The dial maps onto
 # EXISTING mode + carry behavior; these just make the chat-question rate tunable

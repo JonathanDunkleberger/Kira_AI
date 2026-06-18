@@ -51,6 +51,8 @@ from kira.config import (
     LICHESS_BOT_TOKEN, CHESS_ENGINE_PATH, CHESS_KIRA_ELO, CHESS_MOVETIME_MS,
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
+    CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
+    GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
@@ -522,6 +524,7 @@ class VTubeBot:
         self.turn_count = 0 
         self.is_paused = False
         self.silence_stage = 0
+        self._last_game_react_ts = 0.0  # throttle for the game-engagement channel
         self.is_running = True
         self.mode = "companion"  # 'companion' or 'streamer'
         self.event_loop = None   # set when _main_loop starts, used by dashboard for cross-thread calls
@@ -5969,6 +5972,54 @@ class VTubeBot:
         if not batch:
             return
 
+        # Preserve the pre-gate batch for the ACK ("you've been waiting") directive
+        # below, so the activity-aware salience gate can never silently kill the
+        # wait-acknowledgment by dropping the oldest message. (No-op when the gate
+        # is off: _pre_gate_batch == batch.)
+        _pre_gate_batch = list(batch)
+
+        # ── Activity-aware chat salience gate (community-critical path) ─────────
+        # In a story game, raise the bar so only worth-it chat (direct @Kira /
+        # questions) earns a reply mid-gameplay; in watch-along / just-chatting,
+        # stay chat-heavy. Runs BEFORE the Sonnet call, so a gated-out batch also
+        # saves the round-trip. PROTECTS relationship moments — first-timers and
+        # known regulars always pass, so continuity/community is never gated. Every
+        # drop logs loudly; default OFF for one-variable-at-a-time feel-testing.
+        if CHAT_SALIENCE_GATE_ENABLED:
+            _TIER_ORDER = ["DROP", "LOW", "MEDIUM", "HIGH"]
+            _activity = getattr(self.game_mode_controller, "activity_type", "general")
+            _floor = CHAT_FLOOR_BY_ACTIVITY.get(_activity, "LOW")
+            if _floor not in _TIER_ORDER:
+                _floor = "LOW"
+            # Dedicated chat-floor override — decoupled from presence_level on purpose.
+            _fi = _TIER_ORDER.index(_floor)
+            if CHAT_FLOOR_OVERRIDE == "raise":
+                _fi = min(_fi + 1, len(_TIER_ORDER) - 1)
+            elif CHAT_FLOOR_OVERRIDE == "lower":
+                _fi = max(_fi - 1, 1)  # never below LOW — true-spam DROP stays gated
+            _floor = _TIER_ORDER[_fi]
+
+            _gated_batch = []
+            _n_gate_dropped = 0
+            for msg in batch:
+                _uname = msg.get("username", "unknown")
+                # PROTECT: first-timers + known regulars bypass the floor entirely.
+                if msg.get("is_first_time") or self.memory.count_chatter_messages(_uname) >= 5:
+                    _gated_batch.append(msg)
+                    continue
+                _sc, _tier, _ = salience_filter.score("chat", msg.get("message", ""))
+                if _TIER_ORDER.index(_tier) >= _fi:
+                    _gated_batch.append(msg)
+                else:
+                    _n_gate_dropped += 1
+                    print(f"   [Salience] chat DROP {_tier}<{_floor} "
+                          f"({_activity}, score={_sc}): {_uname} — {msg.get('message','')[:40]}")
+            batch = _gated_batch
+            if not batch:
+                print(f"   [ChatBatch] Salience gate ({_activity}/{_floor}): "
+                      f"all {_n_gate_dropped} message(s) below floor — nothing to answer")
+                return
+
         # --- Change 1: Log each chatter's message to the session rolling log ---
         for msg in batch:
             username = msg.get("username", "unknown")
@@ -6058,8 +6109,10 @@ class VTubeBot:
 
         # ── Chat age instrumentation + acknowledgment tier ───────────────────
         _now_ack = time.time()
-        if batch:
-            _oldest_msg = min(batch, key=lambda m: m.get("timestamp", _now_ack))
+        # Computed on the PRE-gate batch so the salience gate above can't silently
+        # kill the wait-acknowledgment by dropping whoever waited longest.
+        if _pre_gate_batch:
+            _oldest_msg = min(_pre_gate_batch, key=lambda m: m.get("timestamp", _now_ack))
             _oldest_age = _now_ack - _oldest_msg.get("timestamp", _now_ack)
         else:
             _oldest_age = 0.0
@@ -7387,6 +7440,31 @@ class VTubeBot:
             # Turn-arbiter gate: skip this tick if voice/chat/interjection is active.
             # Boredom interjections self-retry on the next tick — no buffering needed.
             if self._active_turn_lock.locked():
+                continue
+
+            # ── Game-engagement channel (proactive "react to what I see/hear") ──
+            # During a story game, on a throttle, fire an interjection about the
+            # on-screen moment so the constant vision/audio perception actually
+            # surfaces as presence (the 06-17 review found it surfaced only ~8x all
+            # night). Rides the SAME priority=1 interjection plumbing as the boredom
+            # loop (_arbiter_interjection → turn-lock + sentence-boundary yield), so
+            # it can NEVER interrupt Jonny's reply. Inherits this loop's guards above
+            # (autopilot / speaking / muted / TENSE-INTENSE-CLIMACTIC-CUTSCENE /
+            # turn-lock). _execute_interjection's fresh-sense gate suppresses it when
+            # nothing is fresh to react to. Throttled + default-OFF for feel-testing.
+            if (GAME_REACT_ENABLED
+                    and getattr(self.game_mode_controller, "activity_type", None) == ACTIVITY_GAME
+                    and not self.ai_core.has_pending_voice_turn()
+                    and (time.time() - self._last_game_react_ts) >= GAME_REACT_MIN_GAP_S):
+                self._last_game_react_ts = time.time()
+                _gr_prompt = (
+                    "[GAME REACTION] You're co-hosting while Jonny plays. React to what "
+                    "you can SEE and HEAR happening in the game RIGHT NOW — a quick, "
+                    "in-character beat about THIS moment on screen, not about chat. One or "
+                    "two punchy sentences. If nothing on screen is genuinely worth a "
+                    "reaction, keep it to nothing of substance."
+                )
+                await self._arbiter_interjection(_gr_prompt)
                 continue
 
             if self.immersive:
