@@ -41,7 +41,7 @@ from kira.memory.memory_extractor import extract_memories
 from kira.streaming.youtube_bot import YouTubeBot, find_active_live_broadcast
 from kira.config import (
     AI_NAME, PAUSE_THRESHOLD, VAD_AGGRESSIVENESS, ENABLE_TWITCH_CHAT, ENABLE_YOUTUBE_CHAT,
-    ASSUME_NO_MIC_BLEED, MIC_GATE_ACTIVE_WINDOW_S,
+    ASSUME_NO_MIC_BLEED, MIC_GATE_ACTIVE_WINDOW_S, LOOPBACK_MIC_GATE_ENABLED,
     CHAT_BATCH_WINDOW, CHAT_RESPONSE_COOLDOWN, ENABLE_CHATTER_MEMORY, ENABLE_AUDIO_AGENT,
     ENABLE_LOOPBACK_TRANSCRIBER, CUTSCENE_AWARE,
     GAME_MODE_AUTO_CONFIGURE, HIGHLIGHT_EXTRACTION_ENABLED, HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS, STREAM_LOGGING_ENABLED,
@@ -4269,7 +4269,15 @@ class VTubeBot:
         leaving it True for the whole session and silently killing loopback STT.
         The transcriber layers its own ~10s post-mic cooldown on top of this, so
         this window only needs to bridge the sub-0.4s gaps webrtcvad leaves
-        between words within one utterance."""
+        between words within one utterance.
+
+        Gated by LOOPBACK_MIC_GATE_ENABLED (default false): on a headphone
+        OUTPUT-loopback rig his mic isn't in the captured signal, so the gate only
+        blacks out desktop hearing on chat-heavy streams. Returning False disables
+        the mic gate entirely (the transcriber then never suppresses on mic) while
+        leaving the self-TTS gate intact."""
+        if not LOOPBACK_MIC_GATE_ENABLED:
+            return False
         return (time.time() - self._vad_mic_last_ts) < MIC_GATE_ACTIVE_WINDOW_S
 
     async def _autostart_loopback(self) -> None:

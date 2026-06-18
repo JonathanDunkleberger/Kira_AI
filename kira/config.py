@@ -67,6 +67,16 @@ VAD_AGGRESSIVENESS = int(os.getenv("VAD_AGGRESSIVENESS", 3))
 # transcriber adds its own ~10s post-mic cooldown on top. Kept well above the
 # PAUSE_THRESHOLD (0.4s) utterance gap so the gate never flickers mid-sentence.
 MIC_GATE_ACTIVE_WINDOW_S = float(os.getenv("MIC_GATE_ACTIVE_WINDOW_S", 2.0))
+# Loopback STT mic gate: suppress desktop transcription while Jonny's mic is active
+# (+a ~10s cooldown). Its ONLY purpose is to stop his mic voice being transcribed as
+# ambient dialogue WHEN the loopback device carries a mic-mixed signal (e.g. a
+# VB-Audio virtual cable). On a headphone OUTPUT-loopback rig his mic is NOT in that
+# signal, so the gate is pure harm — on chat-heavy streams (near-constant talking)
+# it blacks out loopback ~12s after every utterance, chaining into 30-45s gaps and
+# turning her constant desktop hearing intermittent. Default FALSE for that setup;
+# set true ONLY if your loopback device mixes in the mic (virtual cable / mic
+# monitoring / sidetone). Does NOT affect the self-TTS gate (that stays on).
+LOOPBACK_MIC_GATE_ENABLED = os.getenv("LOOPBACK_MIC_GATE_ENABLED", "false").lower() == "true"
 # Headphone setups have ZERO mic bleed: Kira's TTS never reaches the mic, so the
 # self-hearing guard that discards mic frames while she speaks is pure liability
 # — it eats the FIRST WORD of the user's real speech whenever is_speaking is True
