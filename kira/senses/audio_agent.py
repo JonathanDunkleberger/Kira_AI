@@ -810,7 +810,11 @@ class AudioAgent:
     # flagged as a NON-EVENT (cannot trigger interjections, excluded from
     # interjection prompts as primary material). This is the structural guard
     # against the model inventing "ominous synth bass" from a near-silent room.
-    EVENT_RMS_FLOOR: float = 0.020
+    # Raised 2026-06-16 from 0.020 → 0.040 — paused-game ambient beds (menu hum,
+    # idle output device) sit in 0.020-0.040 and were qualifying as real EVENTS,
+    # letting confident hallucinations ("footsteps approaching") drive [Intensity]
+    # to TENSE. Real music/voice at monitoring volume clears 0.040 easily.
+    EVENT_RMS_FLOOR: float = 0.040
 
     async def _describe_current_buffer(self):
         # Silence-gate: don't waste an API call (or risk a meta-reply hallucination)
@@ -897,17 +901,32 @@ class AudioAgent:
             except Exception:
                 _buf_dur = 0.0
             self.audio_summary_mid_ts = time.time() - (_buf_dur / 2.0)
-            # NON-EVENT gating: an UNCERTAIN prefix (model not confident) OR a
-            # below-event-floor RMS (too quiet to trust as a real scene) means this
-            # summary may NOT trigger interjections and is excluded from interjection
-            # prompts as primary material. It's still kept for soft continuity.
+            # NON-EVENT gating is purely the RMS floor: a below-event-floor buffer is
+            # too quiet to trust as a real scene — it may NOT trigger interjections and
+            # is dropped to "(quiet)" below. A LOUD buffer the model merely flagged
+            # UNCERTAIN is still a real event: the RMS floor already guards
+            # confabulation-from-silence, so 'UNCERTAIN' must not drop a clearly-audible
+            # scene (that was throwing away real game-audio reactions, e.g. RMS=0.189).
             _is_uncertain = content.upper().startswith("UNCERTAIN")
-            self.audio_summary_is_event = (rms >= self.EVENT_RMS_FLOOR) and not _is_uncertain
+            self.audio_summary_is_event = rms >= self.EVENT_RMS_FLOOR
             if not self.audio_summary_is_event:
-                reason = "UNCERTAIN" if _is_uncertain else f"RMS<{self.EVENT_RMS_FLOOR}"
+                reason = f"RMS<{self.EVENT_RMS_FLOOR}" + ("/UNCERTAIN" if _is_uncertain else "")
+                # DROP the confabulation entirely — do NOT keep invented text for
+                # "continuity". An UNCERTAIN / sub-floor buffer is ambient or silence,
+                # and must read as nothing everywhere (logs, dashboard, intensity).
+                # Storing the model's guess let "footsteps approaching" linger and
+                # surface in the [Intensity] log even when correctly gated out.
+                self.audio_summary = "(quiet)"
                 print(f"   [Audio] NON-EVENT summary ({reason}, RMS={rms:.5f}) — "
-                      f"kept for continuity, excluded from interjections")
-            self._log_summary(content)
+                      f"dropped (read as quiet), excluded from interjections "
+                      f"[model said: {content[:60]!r}]")
+            else:
+                # Loud buffers are real events. If the model flagged UNCERTAIN, strip
+                # the clinical 'UNCERTAIN:' prefix so it can't leak into the [Intensity]
+                # log or her spoken reaction; the loud read is still worth surfacing.
+                if _is_uncertain:
+                    content = content[len("UNCERTAIN"):].lstrip(": ").strip()
+                self._log_summary(content)
         except asyncio.TimeoutError:
             # Heartbeat will retry on the next tick — do NOT permanently disable.
             print("   [WARN] audio_agent LLM call timed out after 15s — skipping")

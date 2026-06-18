@@ -7370,9 +7370,13 @@ class VTubeBot:
             self.current_moment_type = _moment
             if _moment != self._prev_moment_type:
                 self._prev_moment_type = _moment
+                # Log the EVENT-GATED summary — the exact value the classifier saw.
+                # NON-EVENT (UNCERTAIN / sub-floor ambient) returns "" here, so the
+                # log truthfully shows empty instead of a confabulation the
+                # classifier already ignored.
                 print(f"   [Intensity] → {_moment.name}"
                       f"  (silence={silence_duration:.0f}s"
-                      f"  audio=\"{(getattr(self.audio_agent, 'audio_summary', '') or '')[:60]}\")")  
+                      f"  audio=\"{self._event_audio_summary()[:60]}\")")
                 self.stream_logger.log("moment_type", moment=_moment.name)
 
             # Suppress interjections during TENSE / INTENSE / CLIMACTIC / CUTSCENE.
