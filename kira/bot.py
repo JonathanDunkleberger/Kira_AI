@@ -760,6 +760,7 @@ class VTubeBot:
         from kira.timed_modifier import TimedModifierRegistry
         self.timed_modifiers = TimedModifierRegistry()
         self._chaos_mode_task = None  # asyncio.Task handle for the chaos timer
+        self._speech_constraint_task = None  # asyncio.Task handle for the speech-constraint timer
 
         # Wheel state
         self._wheel_vetoed: bool = False          # set by dashboard veto action
@@ -987,6 +988,29 @@ class VTubeBot:
                 except Exception:
                     pass
                 self._activate_chaos_mode()
+            return
+
+        # ── speech_constraint: a timed speech-rule modifier (Layer 2). Param is
+        #    hardcoded here; Layer 3 replaces `constraint` with the vote winner.
+        #    Rides the same registry as chaos, so one-at-a-time is enforced. ──
+        if slice_id == "speech_constraint":
+            if self.timed_modifiers.can_activate("speech_constraint"):
+                from kira.memory.cookie_jar import SPEECH_CONSTRAINT_DEFAULT
+                constraint = SPEECH_CONSTRAINT_DEFAULT  # Layer 3: swap for vote winner
+                lines = [
+                    f"The wheel landed on a Speech Constraint — and chat's rule for me is: "
+                    f"{constraint} ...this is going to be a long few minutes.",
+                    f"Speech Constraint, straight off the wheel. The rule: {constraint} "
+                    f"Okay. Okay. I can do this. Probably.",
+                ]
+                line = _rand.choice(lines)
+                try:
+                    await self.ai_core.speak_text(line, priority=1)
+                    self.conversation_history.append({"role": "assistant", "content": line})
+                    self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+                except Exception:
+                    pass
+                self._activate_speech_constraint(constraint)
             return
 
         # ── duchess_challenge: open chess gauntlet ───────────────────────
@@ -1313,6 +1337,72 @@ class VTubeBot:
             await _cs.send_chaos(active=active, remaining=int(remaining))
         except Exception as e:
             print(f"   [Chaos] Overlay broadcast failed: {e}")
+
+    # ── Speech Constraint (timed mode #2) ────────────────────────────────
+    # Second rider on the TimedModifierRegistry spine, mirroring chaos's
+    # activate/timer/deactivate shape. The registry enforces one-at-a-time, so
+    # this and chaos can never overlap. No overlay broadcast yet (Layer 5).
+    def _activate_speech_constraint(self, constraint: str) -> None:
+        """Activate a speech constraint as a TimedModifier (one registry instance),
+        schedule its deactivation timer. The directive is built from the template +
+        the chosen constraint (hardcoded in Layer 2, chat-voted in Layer 3)."""
+        from kira.memory.cookie_jar import (
+            SPEECH_CONSTRAINT_DURATION_SECONDS, SPEECH_CONSTRAINT_COOLDOWN_SECONDS,
+            SPEECH_CONSTRAINT_DIRECTIVE_TEMPLATE,
+        )
+        from kira.timed_modifier import TimedModifier
+        duration  = int(SPEECH_CONSTRAINT_DURATION_SECONDS)
+        directive = SPEECH_CONSTRAINT_DIRECTIVE_TEMPLATE.format(constraint=constraint)
+        self.timed_modifiers.start(
+            TimedModifier("speech_constraint", directive, duration, int(SPEECH_CONSTRAINT_COOLDOWN_SECONDS))
+        )
+        print(f"   [SpeechConstraint] Active for {duration}s — rule: {constraint!r}")
+        try:
+            self.stream_logger.log("speech_constraint_start", duration=duration, constraint=constraint)
+        except Exception:
+            pass
+        try:
+            if self._speech_constraint_task and not self._speech_constraint_task.done():
+                self._speech_constraint_task.cancel()
+        except Exception:
+            pass
+        self._speech_constraint_task = asyncio.create_task(self._speech_constraint_timer(duration))
+
+    async def _speech_constraint_timer(self, duration: int) -> None:
+        """Sleep for the constraint duration, then deactivate. Cancellable."""
+        try:
+            await asyncio.sleep(duration)
+            await self._deactivate_speech_constraint()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"   [SpeechConstraint] Timer error: {e}")
+
+    async def _deactivate_speech_constraint(self) -> None:
+        """End the speech constraint: clear state (arms cooldown), speak an end line."""
+        import random as _rand
+        from kira.memory.cookie_jar import SPEECH_CONSTRAINT_END_LINES
+        if not self.timed_modifiers.is_active("speech_constraint"):
+            return
+        # Clearing the active modifier arms its cooldown (SPEECH_CONSTRAINT_COOLDOWN_SECONDS,
+        # baked into the modifier at activation) — same one-window-then-cooldown rule as chaos.
+        self.timed_modifiers.end()
+        print("   [SpeechConstraint] Ended.")
+        try:
+            self.stream_logger.log("speech_constraint_end")
+        except Exception:
+            pass
+        try:
+            for _ in range(30):
+                if not self.ai_core.is_speaking:
+                    break
+                await asyncio.sleep(0.1)
+            line = _rand.choice(SPEECH_CONSTRAINT_END_LINES)
+            await self.ai_core.speak_text(line, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": line})
+            self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+        except Exception as e:
+            print(f"   [SpeechConstraint] End TTS error: {e}")
 
     async def _broadcast_cookie_state(self) -> None:
         """Push the current shared-jar count to the captions WS overlay.

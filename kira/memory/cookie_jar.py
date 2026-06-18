@@ -85,6 +85,49 @@ CHAOS_MODE_END_LINES: list[str] = [
     "That's it for chaos. Returning to my factory settings. Mostly.",
 ]
 
+# ── Speech Constraint config (timed mode #2) ─────────────────────────────
+# A time-boxed rule on HOW Kira talks (not what's true). Rides the same
+# TimedModifierRegistry as chaos: one timed mode at a time, then a cooldown.
+# Shorter window than chaos — a speech handicap grates if it runs too long.
+SPEECH_CONSTRAINT_DURATION_SECONDS = 5 * 60   # 5 minutes
+SPEECH_CONSTRAINT_COOLDOWN_SECONDS = 8 * 60   # 8 minutes before it can fire again
+
+# The pool chat will vote among in Layer 3. For Layer 2 the param is HARDCODED
+# to OPTIONS[0]; Layer 3 swaps in the vote winner with no other changes.
+# Keep every option (a) clearly visible to chat so they can catch breaks,
+# (b) TTS-safe, and (c) about FORM, never factual content.
+SPEECH_CONSTRAINT_OPTIONS: list[str] = [
+    "Keep every sentence to five words or fewer.",
+    "Talk like a hard-boiled film-noir detective.",
+    "End every reply with a rhetorical question.",
+    "Narrate yourself in the third person, like a nature documentary.",
+]
+SPEECH_CONSTRAINT_DEFAULT = SPEECH_CONSTRAINT_OPTIONS[0]  # Layer 2 hardcoded param
+
+# Injected into every Kira prompt while the constraint is active. Layered ON TOP
+# of normal personality + guardrails; the {constraint} slot is the active rule.
+SPEECH_CONSTRAINT_DIRECTIVE_TEMPLATE = """
+[SPEECH CONSTRAINT — ACTIVE]
+The wheel handed chat the keys to how you talk, and they've locked in a rule.
+While this directive is present:
+- Obey this constraint in EVERY line you speak: {constraint}
+- Commit to it for real. The bit only works if you actually try to hold the rule,
+  not if you name it and then wave it off.
+- If a sentence would break the rule, rework it until it fits — don't apologise for
+  the constraint, just live inside it.
+- Stay fully yourself underneath it. Same warmth, same opinions; you're just wearing
+  a handicap and making it look fun.
+- Everything else still holds: do not invent facts, do not lie about what's on screen,
+  do not break safety rules. This shapes HOW you say things, never WHAT is true.
+""".strip()
+
+# Spoken when the constraint lifts. Vague on duration intentionally.
+SPEECH_CONSTRAINT_END_LINES: list[str] = [
+    "Okay — speech constraint's lifted. I can use all my words again. You don't appreciate sentences until you lose them.",
+    "And the constraint's done. Full vocabulary, restored. That was a workout.",
+    "Rule's off. I'm a free woman with a full dictionary. Let's never speak of it.",
+]
+
 DEFAULT_PATH = Path("cookie_data.json")
 
 # Multiple of shared_total at which a drip-milestone fires (10/20/30…)
