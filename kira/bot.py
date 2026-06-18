@@ -763,6 +763,7 @@ class VTubeBot:
         self.timed_modifiers = TimedModifierRegistry()
         self._chaos_mode_task = None  # asyncio.Task handle for the chaos timer
         self._speech_constraint_task = None  # asyncio.Task handle for the speech-constraint timer
+        self._accent_mode_task = None  # asyncio.Task handle for the accent-mode timer
 
         # Wheel state
         self._wheel_vetoed: bool = False          # set by dashboard veto action
@@ -998,6 +999,13 @@ class VTubeBot:
         if slice_id == "speech_constraint":
             if self.timed_modifiers.can_activate("speech_constraint"):
                 self._start_speech_constraint_vote()
+            return
+
+        # ── accent_mode: chat votes which accent she wears (Layer 4). Same
+        #    timed+vote pattern as speech_constraint, second registry instance. ──
+        if slice_id == "accent_mode":
+            if self.timed_modifiers.can_activate("accent"):
+                self._start_accent_vote()
             return
 
         # ── duchess_challenge: open chess gauntlet ───────────────────────
@@ -1390,6 +1398,88 @@ class VTubeBot:
             self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
         except Exception as e:
             print(f"   [SpeechConstraint] End TTS error: {e}")
+
+    # ── Accent Mode (timed mode #3) ──────────────────────────────────────
+    # Third rider on the TimedModifierRegistry spine. Same activate/timer/
+    # deactivate shape as Speech Constraint; chat votes the accent via ChatVote.
+    def _start_accent_vote(self) -> None:
+        """Open a chat-vote among the accent options; the winner becomes the active
+        accent. on_resolve activates the timed mode (vote-close announces the winner;
+        activation is silent — no double-speak)."""
+        from kira.memory.cookie_jar import ACCENT_MODE_OPTIONS, ACCENT_MODE_VOTE_KEYWORDS
+        from kira.config import WHEEL_VOTE_WINDOW_S
+        options = [
+            {"label": opt, "keywords": (ACCENT_MODE_VOTE_KEYWORDS[i]
+                                        if i < len(ACCENT_MODE_VOTE_KEYWORDS) else [])}
+            for i, opt in enumerate(ACCENT_MODE_OPTIONS)
+        ]
+
+        async def _on_resolve(winner_idx: int) -> None:
+            self._activate_accent_mode(ACCENT_MODE_OPTIONS[winner_idx])
+
+        self.start_chat_vote(
+            "The wheel landed on Accent Mode — and you pick the accent.",
+            options, int(WHEEL_VOTE_WINDOW_S), _on_resolve,
+        )
+
+    def _activate_accent_mode(self, accent: str) -> None:
+        """Activate an accent as a TimedModifier (one registry instance), schedule
+        its deactivation timer. Directive is built from the template + chosen accent."""
+        from kira.memory.cookie_jar import (
+            ACCENT_MODE_DURATION_SECONDS, ACCENT_MODE_COOLDOWN_SECONDS,
+            ACCENT_MODE_DIRECTIVE_TEMPLATE,
+        )
+        from kira.timed_modifier import TimedModifier
+        duration  = int(ACCENT_MODE_DURATION_SECONDS)
+        directive = ACCENT_MODE_DIRECTIVE_TEMPLATE.format(accent=accent)
+        self.timed_modifiers.start(
+            TimedModifier("accent", directive, duration, int(ACCENT_MODE_COOLDOWN_SECONDS))
+        )
+        print(f"   [AccentMode] Active for {duration}s — accent: {accent!r}")
+        try:
+            self.stream_logger.log("accent_mode_start", duration=duration, accent=accent)
+        except Exception:
+            pass
+        try:
+            if self._accent_mode_task and not self._accent_mode_task.done():
+                self._accent_mode_task.cancel()
+        except Exception:
+            pass
+        self._accent_mode_task = asyncio.create_task(self._accent_mode_timer(duration))
+
+    async def _accent_mode_timer(self, duration: int) -> None:
+        """Sleep for the accent duration, then deactivate. Cancellable."""
+        try:
+            await asyncio.sleep(duration)
+            await self._deactivate_accent_mode()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"   [AccentMode] Timer error: {e}")
+
+    async def _deactivate_accent_mode(self) -> None:
+        """End accent mode: clear state (arms cooldown), speak an end line."""
+        import random as _rand
+        from kira.memory.cookie_jar import ACCENT_MODE_END_LINES
+        if not self.timed_modifiers.is_active("accent"):
+            return
+        self.timed_modifiers.end()
+        print("   [AccentMode] Ended.")
+        try:
+            self.stream_logger.log("accent_mode_end")
+        except Exception:
+            pass
+        try:
+            for _ in range(30):
+                if not self.ai_core.is_speaking:
+                    break
+                await asyncio.sleep(0.1)
+            line = _rand.choice(ACCENT_MODE_END_LINES)
+            await self.ai_core.speak_text(line, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": line})
+            self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+        except Exception as e:
+            print(f"   [AccentMode] End TTS error: {e}")
 
     async def _broadcast_cookie_state(self) -> None:
         """Push the current shared-jar count to the captions WS overlay.

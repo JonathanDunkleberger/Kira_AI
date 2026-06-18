@@ -145,17 +145,17 @@ html, body {
 </div>
 
 <script>
+/* Wheel wedges — MUST stay id/label-synced with kira/memory/wheel_slices.py
+   (the spin animation maps the landed slice_id to its wedge). 8-slot redesign. */
 const SLICES = [
-  { id: 'ghost_story',        label: 'Ghost Story',       tier: 'common',   color: '#f5e6d0', textColor: '#4a2e30' },
-  { id: 'roast_round',        label: 'Roast Round',       tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
-  { id: 'hot_takes_gauntlet', label: 'Hot Takes',         tier: 'common',   color: '#e8d8c0', textColor: '#4a2e30' },
-  { id: 'chaos_mode',         label: 'CHAOS MODE',        tier: 'common',   color: '#f0c8b8', textColor: '#8b2010' },
-  { id: 'lore_drop',          label: 'Lore Drop',         tier: 'uncommon', color: '#d8e0f0', textColor: '#2030a0' },
-  { id: 'interrogation',      label: 'Interrogation',     tier: 'uncommon', color: '#d8f0e0', textColor: '#105030' },
-  { id: 'duchess_challenge',  label: 'Duchess',           tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
-  { id: 'confession_booth',   label: 'Confession Booth',  tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
-  { id: 'kira_sings',         label: 'Kira Sings',        tier: 'rare',     color: '#fcd8e8', textColor: '#8b1060' },
-  { id: 'chats_choice',       label: "Chat's Choice",     tier: 'rare',     color: '#f8f0c0', textColor: '#604000' },
+  { id: 'accent_mode',         label: 'Accent Mode',       tier: 'common',   color: '#e8d8c0', textColor: '#4a2e30' },
+  { id: 'speech_constraint',   label: 'Speech Constraint', tier: 'common',   color: '#f5e6d0', textColor: '#4a2e30' },
+  { id: 'targeted_roast',      label: 'Targeted Roast',    tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
+  { id: 'hype_man',            label: 'Hype-Man',          tier: 'uncommon', color: '#d8f0e0', textColor: '#105030' },
+  { id: 'chat_writes_her_line',label: 'Chat Writes My Line',tier: 'uncommon',color: '#d8e0f0', textColor: '#2030a0' },
+  { id: 'truth_or_dare',       label: 'Truth or Dare',     tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
+  { id: 'lore_drop',           label: 'Lore Drop',         tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
+  { id: 'chaos_mode',          label: 'CHAOS MODE',        tier: 'common',   color: '#f0c8b8', textColor: '#8b2010' },
 ];
 
 const TIER_RING = { common: '#c8a880', uncommon: '#9090d0', rare: '#d0a020' };

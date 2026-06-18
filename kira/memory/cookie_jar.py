@@ -138,6 +138,51 @@ SPEECH_CONSTRAINT_END_LINES: list[str] = [
     "Rule's off. I'm a free woman with a full dictionary. Let's never speak of it.",
 ]
 
+# ── Accent Mode config (timed mode #3) ───────────────────────────────────
+# Chat votes an accent/dialect; she carries it through vocabulary, slang, and
+# phonetic spelling. NOTE: the Azure TTS voice itself does not change — the
+# accent is performed via WORD CHOICE and how sounds are spelled out, not a
+# different voice. Rides the same TimedModifierRegistry as chaos/constraint.
+ACCENT_MODE_DURATION_SECONDS = 5 * 60   # 5 minutes
+ACCENT_MODE_COOLDOWN_SECONDS = 8 * 60   # 8 minutes before it can fire again
+
+# Layer 3 vote pool + index-aligned keyword aliases (chat votes 1-4 or a word).
+ACCENT_MODE_OPTIONS: list[str] = [
+    "a swashbuckling pirate",
+    "a posh Victorian aristocrat",
+    "a drawling Wild-West cowpoke",
+    "an over-the-top Australian",
+]
+ACCENT_MODE_VOTE_KEYWORDS: list[list[str]] = [
+    ["pirate", "arr", "pirates"],          # 1: pirate
+    ["posh", "aristocrat", "fancy"],       # 2: posh Victorian
+    ["cowboy", "cowgirl", "western", "cowpoke"],  # 3: Wild-West
+    ["australian", "aussie", "oz"],        # 4: Australian
+]
+ACCENT_MODE_DEFAULT = ACCENT_MODE_OPTIONS[0]  # fallback if a vote can't run
+
+ACCENT_MODE_DIRECTIVE_TEMPLATE = """
+[ACCENT MODE — ACTIVE]
+The wheel handed chat your accent, and they've locked one in.
+While this directive is present:
+- Speak as {accent}. Lean into the vocabulary, slang, idioms, and phonetic
+  spelling so it's audibly that accent — not a faint hint of it.
+- Commit. The bit lands when you stay in it across every line, even mid-answer;
+  don't slip back to neutral.
+- (Your TTS voice itself doesn't change — you carry the accent through word
+  choice, slang, and how you spell the sounds out.)
+- Stay fully yourself underneath it: same warmth, same opinions, just in costume.
+- Everything else still holds: do not invent facts, do not lie about what's on
+  screen, do not break safety rules. This is about VOICE, never truth.
+""".strip()
+
+# Spoken when the accent lifts. Vague on duration intentionally.
+ACCENT_MODE_END_LINES: list[str] = [
+    "Right — accent's off. Back to my regular voice. That was a workout for a jaw I don't technically have.",
+    "And the accent lifts. Normal speech restored. I was getting a little too into that.",
+    "Okay, dropping the accent. We never speak of this again.",
+]
+
 DEFAULT_PATH = Path("cookie_data.json")
 
 # Multiple of shared_total at which a drip-milestone fires (10/20/30…)
