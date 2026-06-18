@@ -216,12 +216,18 @@ INFERENCE_BACKEND = os.getenv("INFERENCE_BACKEND", "groq").lower()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 GROQ_TIMEOUT = float(os.getenv("GROQ_TIMEOUT", "5.0"))
-# Fallback behavior when INFERENCE_BACKEND=groq and Groq fails:
-#   "false"      -> raise; caller decides what to do (no VRAM cost, no resilience).
-#   "true"       -> local Llama is kept loaded at startup as a warm fallback.
-#   "lazy_load"  -> local Llama is loaded into VRAM only on first Groq failure,
-#                   then reused for the rest of the session. Best of both worlds.
-GROQ_FALLBACK_TO_LOCAL = os.getenv("GROQ_FALLBACK_TO_LOCAL", "lazy_load").lower()
+# Fallback behavior when INFERENCE_BACKEND=groq and Groq fails. Default "false"
+# is AAA-SAFE: a transient Groq blip degrades that ONE turn loudly + gracefully
+# (triage defaults to RESPOND; her voice reply is Claude, unaffected) and NEVER
+# parks a 6-7 GB Llama on the GPU. The non-"false" modes load that Llama — a
+# one-way ratchet that never frees, tipping a 16 GB card over mid-stream (the
+# slideshow regression). Set non-false only if you knowingly want cloud-outage
+# resilience and have the VRAM headroom.
+#   "false"      -> raise; callers degrade gracefully. No VRAM cost. (DEFAULT, AAA-safe)
+#   "true"       -> local Llama kept loaded at startup as a warm fallback (~6-7 GB, always).
+#   "lazy_load"  -> local Llama loaded into VRAM on first Groq failure and kept the
+#                   rest of the session (~6-7 GB, never freed — the VRAM trap).
+GROQ_FALLBACK_TO_LOCAL = os.getenv("GROQ_FALLBACK_TO_LOCAL", "false").lower()
 
 # Hybrid Brain
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
