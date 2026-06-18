@@ -340,6 +340,11 @@ class AI_Core:
         print(self.system_prompt[:400])
         print("------------------------------------------")
         print(f"   LLM loaded. Path: {LLM_MODEL_PATH}")
+        try:
+            from kira.gpu_telemetry import log_vram
+            log_vram(f"after local Llama load (n_gpu_layers={N_GPU_LAYERS}, n_ctx={N_CTX})")
+        except Exception:
+            pass
         if backend == "groq":
             print("   [INFERENCE] Backend: groq (warm local fallback loaded).")
         else:
@@ -347,6 +352,14 @@ class AI_Core:
 
     def _init_whisper(self):
         print("-> Loading Faster-Whisper STT model...")
+        # Baseline BEFORE any Kira model loads — the card= delta from here to each
+        # 'after ... load' line attributes per-component VRAM, which works even where
+        # NVML's per-process number doesn't (Windows WDDM reports kira_process=0).
+        try:
+            from kira.gpu_telemetry import log_vram
+            log_vram("baseline — before Kira's models load")
+        except Exception:
+            pass
         if torch.cuda.is_available():
             print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
             device = "cuda"
@@ -359,6 +372,11 @@ class AI_Core:
         print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType=float16 | Cache={WHISPER_CACHE_DIR}")
         self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type="float16", download_root=WHISPER_CACHE_DIR)
         print("   Faster-Whisper STT model loaded.")
+        try:
+            from kira.gpu_telemetry import log_vram
+            log_vram(f"after mic Whisper load ({WHISPER_MODEL_SIZE}, {device})")
+        except Exception:
+            pass
 
     async def _init_tts(self):
         print(f"-> Initializing TTS engine: {TTS_ENGINE}...")

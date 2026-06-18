@@ -54,6 +54,7 @@ from kira.config import (
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
+    VRAM_LOG_INTERVAL_S,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -4590,6 +4591,11 @@ class VTubeBot:
             # --- Highlight Extraction Loop (long-term memory layer) ---
             tasks.append(self.highlight_extraction_loop())
 
+            # --- [VRAM] telemetry: Kira's PER-PROCESS GPU footprint into the console
+            # tee, periodic + greppable, so growth over a long session is visible
+            # (the leak / 'worse on 2nd playthrough' pattern). Diagnostic only. ---
+            tasks.append(self.vram_telemetry_loop())
+
             # --- Stream Logger VRAM sampler (1 sample/min for post-stream analysis) ---
             if STREAM_LOGGING_ENABLED:
                 tasks.append(self._vram_logging_loop())
@@ -8488,6 +8494,22 @@ class VTubeBot:
             except Exception:
                 pass
             await asyncio.sleep(60.0)
+
+    async def vram_telemetry_loop(self):
+        """[VRAM] telemetry — logs Kira's PER-PROCESS GPU footprint (via NVML,
+        isolated from VTube Studio / OBS) every VRAM_LOG_INTERVAL_S so growth over a
+        long session is visible. Diagnostic instrument only; each tick is ~free.
+        Emits one baseline line immediately, then on the interval."""
+        from kira.gpu_telemetry import log_vram
+        log_vram("telemetry start (post-boot baseline)")
+        while self.is_running:
+            try:
+                await asyncio.sleep(VRAM_LOG_INTERVAL_S)
+                log_vram("periodic")
+            except asyncio.CancelledError:
+                break
+            except Exception:
+                pass
 
     async def highlight_extraction_loop(self):
         """Background loop. Every HIGHLIGHT_EXTRACTION_INTERVAL_SECONDS (default 300s)

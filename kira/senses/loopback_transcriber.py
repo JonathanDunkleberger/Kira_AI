@@ -447,6 +447,11 @@ class LoopbackTranscriber:
             download_root=self.cache_dir,
         )
         print(f"   [LoopbackSTT] Model ready ({time.time() - t0:.1f}s).")
+        try:
+            from kira.gpu_telemetry import log_vram
+            log_vram(f"after loopback Whisper load ({self.MODEL_NAME}, {device})")
+        except Exception:
+            pass
 
     # ── Pump loop ────────────────────────────────────────────────────────
 

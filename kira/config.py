@@ -19,6 +19,10 @@ N_BATCH = int(os.getenv("N_BATCH", 512))
 
 LLM_MAX_RESPONSE_TOKENS = int(os.getenv("LLM_MAX_RESPONSE_TOKENS", 512))
 WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
+
+# [VRAM] telemetry: how often (seconds) to log Kira's per-process GPU footprint.
+# Cheap (one NVML query); set high to quiet it. Diagnostic instrument, not a fix.
+VRAM_LOG_INTERVAL_S = int(os.getenv("VRAM_LOG_INTERVAL_S", "45"))
 WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(_REPO_ROOT, "models", "whisper"))
 # Vision master kill-switch. Default ON: general perception means she can see at a
 # calm cadence WITHOUT arming a mode. Set false to make her blind everywhere
