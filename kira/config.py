@@ -31,6 +31,11 @@ VRAM_LOG_INTERVAL_S = int(os.getenv("VRAM_LOG_INTERVAL_S", "45"))
 WHEEL_ENTRANCE_MS    = int(os.getenv("WHEEL_ENTRANCE_MS", "1800"))   # anticipation hold before the spin
 WHEEL_SPIN_MS        = int(os.getenv("WHEEL_SPIN_MS", "6000"))       # dramatic spin duration
 WHEEL_LAND_BUFFER_MS = int(os.getenv("WHEEL_LAND_BUFFER_MS", "600")) # let the landing read before she reacts
+# Wheel chat-vote (Layer 3): how long chat has to vote on a parameter, and
+# whether keyword votes count in addition to the option number. Window is short
+# enough to keep the show moving, long enough for live chat to type a digit.
+WHEEL_VOTE_WINDOW_S       = int(os.getenv("WHEEL_VOTE_WINDOW_S", "25"))            # seconds chat has to vote
+WHEEL_VOTE_ALLOW_KEYWORDS = os.getenv("WHEEL_VOTE_ALLOW_KEYWORDS", "true").lower() == "true"  # accept keyword votes, not just numbers
 WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(_REPO_ROOT, "models", "whisper"))
 # Vision master kill-switch. Default ON: general perception means she can see at a
 # calm cadence WITHOUT arming a mode. Set false to make her blind everywhere

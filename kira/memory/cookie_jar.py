@@ -104,6 +104,16 @@ SPEECH_CONSTRAINT_OPTIONS: list[str] = [
 ]
 SPEECH_CONSTRAINT_DEFAULT = SPEECH_CONSTRAINT_OPTIONS[0]  # Layer 2 hardcoded param
 
+# Keyword aliases for the Layer 3 chat-vote, aligned BY INDEX with OPTIONS above.
+# Chat can vote by number (1-4) OR by typing one of these words. Keep them short,
+# distinctive, and non-overlapping so a message maps to exactly one option.
+SPEECH_CONSTRAINT_VOTE_KEYWORDS: list[list[str]] = [
+    ["five", "short", "words"],            # 1: five words or fewer
+    ["noir", "detective"],                 # 2: film-noir detective
+    ["question", "rhetorical"],            # 3: end with a question
+    ["third", "narrate", "documentary"],   # 4: third-person nature doc
+]
+
 # Injected into every Kira prompt while the constraint is active. Layered ON TOP
 # of normal personality + guardrails; the {constraint} slot is the active rule.
 SPEECH_CONSTRAINT_DIRECTIVE_TEMPLATE = """

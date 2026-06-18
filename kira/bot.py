@@ -661,6 +661,8 @@ class VTubeBot:
         self.chatter_last_response: dict = {}      # username -> timestamp of last response to them
         self.active_prediction = None              # active chat prediction state (None or dict)
         self.last_prediction_time: float = 0.0     # cooldown guard — see parse_kira_tools
+        self.active_chat_vote = None               # active wheel parameter-vote (None or ChatVote)
+        self._chat_vote_task = None                # asyncio.Task handle for the vote-close timer
 
         # Chat queue instrumentation
         self._chat_age_log: list = []              # per-message ages at response time (rolling, last 200)
@@ -990,27 +992,12 @@ class VTubeBot:
                 self._activate_chaos_mode()
             return
 
-        # ── speech_constraint: a timed speech-rule modifier (Layer 2). Param is
-        #    hardcoded here; Layer 3 replaces `constraint` with the vote winner.
+        # ── speech_constraint: chat votes which constraint runs (Layer 3). The
+        #    vote winner is fed to _activate_speech_constraint via on_resolve.
         #    Rides the same registry as chaos, so one-at-a-time is enforced. ──
         if slice_id == "speech_constraint":
             if self.timed_modifiers.can_activate("speech_constraint"):
-                from kira.memory.cookie_jar import SPEECH_CONSTRAINT_DEFAULT
-                constraint = SPEECH_CONSTRAINT_DEFAULT  # Layer 3: swap for vote winner
-                lines = [
-                    f"The wheel landed on a Speech Constraint — and chat's rule for me is: "
-                    f"{constraint} ...this is going to be a long few minutes.",
-                    f"Speech Constraint, straight off the wheel. The rule: {constraint} "
-                    f"Okay. Okay. I can do this. Probably.",
-                ]
-                line = _rand.choice(lines)
-                try:
-                    await self.ai_core.speak_text(line, priority=1)
-                    self.conversation_history.append({"role": "assistant", "content": line})
-                    self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
-                except Exception:
-                    pass
-                self._activate_speech_constraint(constraint)
+                self._start_speech_constraint_vote()
             return
 
         # ── duchess_challenge: open chess gauntlet ───────────────────────
@@ -5209,6 +5196,12 @@ class VTubeBot:
                     if self.active_prediction is not None:
                         self._tally_prediction_vote(username, message_body)
 
+                    # Wheel parameter-vote (Layer 3). Bots are already dropped above
+                    # (single chokepoint), so only real chatters reach the tally.
+                    if self.active_chat_vote is not None:
+                        if self.active_chat_vote.tally(username, message_body):
+                            asyncio.ensure_future(self._broadcast_vote_update())
+
                     self.input_queue.task_done()
                     handled_by_chat = True
                     continue
@@ -6476,6 +6469,141 @@ class VTubeBot:
         elif voted_b and not voted_a:
             p["votes_b"].add(username)
             p["votes_a"].discard(username)
+
+    # ── Wheel parameter-vote (generalized ChatVote; Layer 3) ─────────────
+    # Reusable engine: chat picks one option from a fixed list by number/keyword.
+    # The ChatVote object holds the rules; the bot owns the timer, the spoken
+    # announce/result, and the overlay vote-bars. on_resolve(winner_index) is an
+    # async callback the caller supplies — it always fires with a concrete winner
+    # (tie/no-vote resolve to a random leader), so the wheel never stalls.
+    def start_chat_vote(self, prompt: str, options: list, duration_s: int, on_resolve):
+        """Open a parameter-vote. `options` is a list of {"label","keywords"} dicts.
+        Ignores the request if a vote is already running."""
+        from kira.chat_vote import ChatVote
+        from kira.config import WHEEL_VOTE_ALLOW_KEYWORDS
+        if self.active_chat_vote is not None:
+            print(f"   [Vote] Ignoring new vote — one already running: {self.active_chat_vote.prompt!r}")
+            return
+        self.active_chat_vote = ChatVote(
+            prompt, options, duration_s, allow_keywords=WHEEL_VOTE_ALLOW_KEYWORDS
+        )
+        self._chat_vote_on_resolve = on_resolve
+        print(f"   [Vote] Opened: {prompt!r} ({len(options)} options, {duration_s}s)")
+        try:
+            self.stream_logger.log("chat_vote_open", prompt=prompt, options=len(options), duration=duration_s)
+        except Exception:
+            pass
+        asyncio.create_task(self._chat_vote_announce())
+        try:
+            if self._chat_vote_task and not self._chat_vote_task.done():
+                self._chat_vote_task.cancel()
+        except Exception:
+            pass
+        self._chat_vote_task = asyncio.create_task(self._chat_vote_close_after(duration_s))
+
+    async def _chat_vote_announce(self) -> None:
+        """Speak the vote prompt + the numbered options, then push the overlay 'open'."""
+        v = self.active_chat_vote
+        if v is None:
+            return
+        numbered = " ".join(f"{i+1}: {o['label']}" for i, o in enumerate(v.options))
+        text = (
+            f"{v.prompt} Chat, vote now — type the number. "
+            f"{numbered}. You've got {int(v.duration_s)} seconds."
+        )
+        try:
+            await self.ai_core.speak_text(text, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": text})
+            self._log_session_turn(role="assistant", content=text, speaker_name="Kira")
+        except Exception:
+            pass
+        await self._broadcast_vote(
+            "open", prompt=v.prompt,
+            labels=[o["label"] for o in v.options],
+            counts=v.counts(), remaining_s=v.remaining_s(),
+        )
+
+    async def _broadcast_vote_update(self) -> None:
+        """Push the live tally to the vote-bar overlay. Fire-and-forget."""
+        v = self.active_chat_vote
+        if v is None:
+            return
+        await self._broadcast_vote("update", counts=v.counts(), remaining_s=v.remaining_s())
+
+    async def _chat_vote_close_after(self, seconds: int) -> None:
+        """Wait out the window, resolve a winner (always), announce it, then fire
+        the caller's on_resolve(winner_index). Cancellable."""
+        try:
+            await asyncio.sleep(seconds)
+        except asyncio.CancelledError:
+            return
+        v = self.active_chat_vote
+        if v is None:
+            return
+        winner = v.resolve()                       # ALWAYS returns an index
+        counts = v.counts()
+        total  = v.total_votes()
+        on_resolve = getattr(self, "_chat_vote_on_resolve", None)
+        # Clear state BEFORE side-effects so a re-trigger can't see a stale vote.
+        self.active_chat_vote = None
+        self._chat_vote_on_resolve = None
+        label = v.options[winner]["label"]
+        if total == 0:
+            text = f"Chat said nothing, so I'm choosing: {label}. Silence has consequences."
+        elif counts.count(max(counts)) > 1:
+            text = f"It's a tie — so the wheel breaks it. {label}. Locking it in."
+        else:
+            text = f"Chat has decided: {label}. {counts[winner]} votes. Done."
+        try:
+            self.stream_logger.log("chat_vote_result", winner=label, counts=counts, total=total)
+        except Exception:
+            pass
+        await self._broadcast_vote("result", counts=counts, winner=winner)
+        try:
+            await self.ai_core.speak_text(text, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": text})
+            self._log_session_turn(role="assistant", content=text, speaker_name="Kira")
+        except Exception:
+            pass
+        if on_resolve is not None:
+            try:
+                await on_resolve(winner)
+            except Exception as e:
+                print(f"   [Vote] on_resolve error: {e}")
+
+    async def _broadcast_vote(self, phase: str, prompt: str = "", labels: list | None = None,
+                              counts: list | None = None, remaining_s: int = 0,
+                              winner: int = -1) -> None:
+        """Push a wheel_vote event to the overlay WS. Fire-and-forget; never raises."""
+        try:
+            from kira.dashboard.control_server import push_wheel_vote
+            await push_wheel_vote(phase, prompt=prompt, labels=labels, counts=counts,
+                                  remaining_s=remaining_s, winner=winner)
+        except Exception as e:
+            print(f"   [Vote] Overlay broadcast ({phase}) failed: {e}")
+
+    def _start_speech_constraint_vote(self) -> None:
+        """Open a chat-vote among the Speech Constraint options; the winner becomes
+        the active constraint. The on_resolve activates the timed mode (which injects
+        the directive + runs the timer) — no double-speak: the vote-close announces
+        the winner, then activation is silent."""
+        from kira.memory.cookie_jar import (
+            SPEECH_CONSTRAINT_OPTIONS, SPEECH_CONSTRAINT_VOTE_KEYWORDS,
+        )
+        from kira.config import WHEEL_VOTE_WINDOW_S
+        options = [
+            {"label": opt, "keywords": (SPEECH_CONSTRAINT_VOTE_KEYWORDS[i]
+                                        if i < len(SPEECH_CONSTRAINT_VOTE_KEYWORDS) else [])}
+            for i, opt in enumerate(SPEECH_CONSTRAINT_OPTIONS)
+        ]
+
+        async def _on_resolve(winner_idx: int) -> None:
+            self._activate_speech_constraint(SPEECH_CONSTRAINT_OPTIONS[winner_idx])
+
+        self.start_chat_vote(
+            "The wheel landed on a Speech Constraint — and you pick the rule.",
+            options, int(WHEEL_VOTE_WINDOW_S), _on_resolve,
+        )
 
     async def run_stream_opener(self):
         """Generates and speaks a scripted episodic opener for the stream.

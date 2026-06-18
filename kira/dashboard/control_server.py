@@ -501,6 +501,27 @@ async def push_wheel_veto() -> None:
     await _overlay_ws_manager.broadcast({"type": "wheel_veto"})
 
 
+async def push_wheel_vote(phase: str, prompt: str = "", labels: list | None = None,
+                          counts: list | None = None, remaining_s: int = 0,
+                          winner: int = -1) -> None:
+    """Broadcast a wheel_vote event to /ws/overlays clients (the vote-bar UI).
+
+    Three phases share one shape so the overlay can switch on `phase`:
+      open   — labels + remaining_s set; show the bars and the countdown.
+      update — counts + remaining_s set; animate the bar lengths to the tally.
+      result — counts + winner(index) set; highlight the winning bar.
+    """
+    await _overlay_ws_manager.broadcast({
+        "type":        "wheel_vote",
+        "phase":       phase,
+        "prompt":      prompt,
+        "labels":      labels or [],
+        "counts":      counts or [],
+        "remaining_s": int(remaining_s),
+        "winner":      int(winner),
+    })
+
+
 async def push_card_show(chatter: str, message: str, platform: str) -> None:
     """Show a response-card for *chatter* on the card overlay.
     No-ops if overlay_vis['cards'] is False."""
