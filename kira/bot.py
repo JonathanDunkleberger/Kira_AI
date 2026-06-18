@@ -52,6 +52,7 @@ from kira.config import (
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
+    CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
@@ -405,6 +406,7 @@ class _ChatBudgetGovernor:
     def __init__(self) -> None:
         self._responses_given: dict[str, int] = {}
         self._last_responded:  dict[str, float] = {}
+        self._window: list = []   # timestamps of recent responses (rolling rate cap)
 
     def record_response(self, chatters: list) -> None:
         import time as _t
@@ -417,9 +419,26 @@ class _ChatBudgetGovernor:
         """Lower value = higher priority.  Chatters with fewer responses come first."""
         return self._responses_given.get(chatter, 0)
 
+    # ── Rolling rate cap (second-stage scaling governor) ───────────────────────
+    def last_responded_ts(self, chatter: str) -> float:
+        """Wall-clock of the last reply to this chatter (0.0 if never). Fairness key:
+        least-recently-answered wins when the rate budget is contended."""
+        return self._last_responded.get(chatter, 0.0)
+
+    def responses_in_window(self, now: float, window_s: float = 60.0) -> int:
+        """How many responses were spent in the last `window_s` (prunes in place)."""
+        self._window = [t for t in self._window if now - t < window_s]
+        return len(self._window)
+
+    def note_window(self, n: int, now: float) -> None:
+        """Commit `n` distinct chatter-responses to the rolling window (called after a
+        reply actually lands, so SKIPs never consume budget)."""
+        self._window.extend([now] * max(0, n))
+
     def reset_session(self) -> None:
         self._responses_given.clear()
         self._last_responded.clear()
+        self._window.clear()
 
 
 class VTubeBot:
@@ -6078,6 +6097,38 @@ class VTubeBot:
                       f"all {_n_gate_dropped} message(s) below floor — nothing to answer")
                 return
 
+        # ── Second-stage scaling governor: chat rate cap + fairness ────────────
+        # A CEILING, not a brain. Stacks AFTER the salience floor: of the messages
+        # that cleared the floor, cap how many DISTINCT chatters get a reply per
+        # rolling minute, so 10 chatters and 1000 cost the same. When the budget is
+        # contended, least-recently-answered wins (the loudest typers don't eat it).
+        # First-timers + known regulars BYPASS the cap — being seen stays sacred.
+        # Spend is committed only after the reply lands (note_window below), so a
+        # SKIP never burns budget. Every drop logs loudly; default OFF.
+        if CHAT_RATE_CAP_ENABLED:
+            _rc_now = time.time()
+            _remaining = max(0, CHAT_RATE_CAP_PER_MIN
+                             - self.budget_governor.responses_in_window(_rc_now))
+            _seen_u, _uniq = set(), []
+            for _m in batch:                      # distinct chatters, arrival order
+                _u = _m.get("username", "unknown")
+                if _u not in _seen_u:
+                    _seen_u.add(_u); _uniq.append(_u)
+            _ft_users = {m.get("username") for m in batch if m.get("is_first_time")}
+            def _rc_protected(u):                 # never capped (relationship moments)
+                return u in _ft_users or self.memory.count_chatter_messages(u) >= 5
+            _protected = [u for u in _uniq if _rc_protected(u)]
+            _normal = [u for u in _uniq if u not in _protected]
+            # Fairness: least-recently-answered first (never-answered ts=0.0 → top).
+            _normal.sort(key=lambda u: self.budget_governor.last_responded_ts(u))
+            _kept_normal = _normal[:_remaining]
+            for _u in _normal[_remaining:]:
+                print(f"   [RateCap] dropped — budget {CHAT_RATE_CAP_PER_MIN}/min spent, deferring {_u}")
+            _keep = set(_protected) | set(_kept_normal)
+            batch = [m for m in batch if m.get("username") in _keep]
+            if not batch:
+                return
+
         # --- Change 1: Log each chatter's message to the session rolling log ---
         for msg in batch:
             username = msg.get("username", "unknown")
@@ -6421,6 +6472,10 @@ class VTubeBot:
         self._chat_age_log = self._chat_age_log[-200:]
         # Budget ledger — always updated regardless of CHAT_BUDGET_ENABLED flag
         self.budget_governor.record_response(_chatters_answered)
+        # Rate-cap window: commit one unit per DISTINCT chatter actually answered
+        # (post-SKIP, so dropped/skipped batches never burn budget).
+        if CHAT_RATE_CAP_ENABLED:
+            self.budget_governor.note_window(len(set(_chatters_answered)), time.time())
 
         if ENABLE_CHATTER_MEMORY:
             asyncio.create_task(self._extract_chatter_facts(batch, cleaned))

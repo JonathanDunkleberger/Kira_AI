@@ -234,6 +234,16 @@ CHAT_FLOOR_BY_ACTIVITY = {
 # "lower" = one tier looser (never below LOW, so true-spam DROP stays gated).
 CHAT_FLOOR_OVERRIDE = os.getenv("CHAT_FLOOR_OVERRIDE", "none").lower()
 
+# ── Second-stage scaling governor: chat rate cap + fairness ────────────────────
+# Sits AFTER the salience floor (above). The floor decides WHICH messages are
+# worth-it; this caps HOW MANY distinct chatters actually get a reply per rolling
+# minute, so 10 chatters and 1000 chatters cost the same — she physically can't
+# exceed the cap. When contended, least-recently-answered wins (the loudest typers
+# don't eat the budget). First-timers + known regulars bypass the cap. A ceiling,
+# not a brain. Default OFF — feel-test as its own variable, separate from the floor.
+CHAT_RATE_CAP_ENABLED = os.getenv("CHAT_RATE_CAP_ENABLED", "false").lower() == "true"
+CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
+
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires
 # a proactive interjection about what she SEES/HEARS on screen, so constant
