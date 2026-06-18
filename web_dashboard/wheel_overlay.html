@@ -172,7 +172,25 @@ html, body {
         font-variant-numeric:tabular-nums; min-width:48px; text-align:right;"></span>
 </div>
 
+<!-- Build stamp (C): eyeball whether OBS is showing the CURRENT overlay build.
+     If this string doesn't match the latest edit, the OBS source is stale. -->
+<div id="build-stamp" style="position:fixed; right:9px; bottom:7px; z-index:99;
+     font:600 11px/1 'Segoe UI',sans-serif; color:rgba(255,248,240,.45);
+     letter-spacing:.4px; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,.65);"></div>
+
+<!-- Sync warning (B): shown LOUDLY when a backend slice id isn't in this overlay's
+     SLICES array (stale / out-of-sync overlay) — never fail silently. -->
+<div id="sync-warning" style="position:fixed; left:50%; top:13%; transform:translateX(-50%);
+     z-index:100; display:none; max-width:80vw; text-align:center;
+     font:800 20px/1.35 'Segoe UI',sans-serif; color:#fff;
+     background:linear-gradient(180deg,#b03a2e,#7a1f18); border:2px solid #ffd24a;
+     border-radius:12px; padding:12px 20px; box-shadow:0 8px 30px rgba(0,0,0,.55);"></div>
+
 <script>
+/* Build marker (C). BUMP this whenever you edit this overlay — if OBS shows an
+   older value, the browser source is cached/stale and must be refreshed. */
+const BUILD = '2026-06-18 · wheel 8-slot v2';
+
 /* Wheel wedges — MUST stay id/label-synced with kira/memory/wheel_slices.py
    (the spin animation maps the landed slice_id to its wedge). 8-slot redesign. */
 const SLICES = [
@@ -197,6 +215,27 @@ const $root    = document.getElementById('wheel-root');
 const $canvas  = document.getElementById('wheel-canvas');
 const $result  = document.getElementById('result-label');
 const $resultT = document.getElementById('result-text');
+
+/* Render the build stamp (C) on load. */
+(function () {
+  const _b = document.getElementById('build-stamp');
+  if (_b) _b.textContent = 'overlay ' + BUILD;
+})();
+
+/* Loud out-of-sync warning (B): backend sent a slice id this overlay doesn't know,
+   so the SLICES array is stale vs the backend. Surface it on-screen — never quietly
+   land on the wrong wedge. */
+function _showSyncWarning(sliceId) {
+  const _w = document.getElementById('sync-warning');
+  if (!_w) return;
+  _w.textContent = '⚠ WHEEL OVERLAY OUT OF SYNC — unknown slice "' + sliceId +
+                   '". Refresh the OBS browser source (build ' + BUILD + ').';
+  _w.style.display = 'block';
+}
+function _hideSyncWarning() {
+  const _w = document.getElementById('sync-warning');
+  if (_w) _w.style.display = 'none';
+}
 const $titleSub= document.getElementById('title-sub');
 const $votePanel = document.getElementById('vote-panel');
 const $votePrompt= document.getElementById('vote-prompt');
@@ -471,7 +510,18 @@ function spin(sliceId, durationMs, onFinish) {
   if (_spinRAF) cancelAnimationFrame(_spinRAF);
   $canvas.classList.remove('win-glow');
   _winIdx = SLICES.findIndex(s => s.id === sliceId);
-  if (_winIdx < 0) _winIdx = 0;
+  if (_winIdx < 0) {
+    // LOUD failure (no silent default-to-slice-0): an unknown slice id means this
+    // overlay's SLICES array is out of sync with the backend — almost always a
+    // STALE cached overlay in OBS. Scream it instead of quietly landing wrong.
+    console.warn('[wheel] OUT OF SYNC: backend slice id "' + sliceId +
+                 '" not in overlay SLICES [' + SLICES.map(s => s.id).join(', ') +
+                 ']. Overlay is likely stale — refresh the OBS source. build=' + BUILD);
+    _showSyncWarning(sliceId);
+    _winIdx = 0;  // still spin to *something* so the ceremony completes
+  } else {
+    _hideSyncWarning();
+  }
 
   const targetRot  = _sliceIdxToAngle(_winIdx);
   const FULL_SPINS = 6 + Math.random() * 2;   // more revolutions for drama
@@ -529,6 +579,7 @@ function hideWheel() {
   $result.classList.remove('visible');
   $resultT.textContent = '';
   $canvas.classList.remove('win-glow');
+  _hideSyncWarning();
   if (_spinRAF) { cancelAnimationFrame(_spinRAF); _spinRAF = null; }
   _confetti = [];
   _winIdx = -1;

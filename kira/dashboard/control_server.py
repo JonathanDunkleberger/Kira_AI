@@ -393,6 +393,25 @@ def state_snapshot(bot: "VTubeBot") -> dict:
 
 app = FastAPI(title="Kira Control Server", version="1.0")
 
+# ── Overlay cache-busting ─────────────────────────────────────────────────────
+# OBS's embedded Chromium (CEF) caches a browser source aggressively and won't
+# re-fetch across a session unless told to — which once left a STALE wheel overlay
+# running against a freshly-redesigned backend (new slice ids the cached overlay
+# couldn't map → wheel landed on the wrong wedge). Force no-store on every overlay
+# document/asset so OBS always loads the current build after an edit. Scoped to the
+# overlay paths only (covers the /wheel FileResponse AND the web_dashboard /
+# cookie_jar_overlay StaticFiles mounts); the dashboard API / WS are untouched.
+_OVERLAY_NOCACHE_PREFIXES = ("/wheel", "/card_overlay", "/web_dashboard", "/cookie_jar_overlay")
+
+@app.middleware("http")
+async def _no_store_overlays(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith(_OVERLAY_NOCACHE_PREFIXES):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # ── Static overlay routes ────────────────────────────────────────────────────
 # Serve the OBS browser-source overlays (chat / scoreboard / cookie jar) and
 # their assets over HTTP so they can be pointed at
