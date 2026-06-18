@@ -31,6 +31,22 @@ AUDIO_MODE_OFF = "off"
 AUDIO_MODE_MEDIA = "media"
 AUDIO_MODE_MUSIC = "music"
 
+# ── Capture-health watchdog (loopback wedge self-heal) ────────────────────────
+# WASAPI loopback can go SILENT-BUT-ALIVE: after a quiet stretch on the desktop
+# endpoint (a loading screen, a menu, a scene with no audio) the capture client
+# detaches and then returns zeros indefinitely while the read thread stays alive —
+# so every thread-liveness check is fooled and the loopback STT silence-gates
+# forever (the "stuck on quiet menus" stall). This watchdog is the missing
+# DATA-level check: it watches the buffer RMS and, after a sustained near-zero
+# stretch in MEDIA mode, re-opens the stream. Reopening during a genuinely silent
+# passage is harmless (it just re-binds the same device), so the cooldown exists
+# only to prevent thrash. All thresholds env-tunable.
+CAPTURE_WATCHDOG_ENABLED  = os.getenv("CAPTURE_WATCHDOG_ENABLED", "true").lower() == "true"
+CAPTURE_WEDGE_WINDOW_S    = float(os.getenv("CAPTURE_WEDGE_WINDOW_S", "25"))    # sustained ≈0 RMS before reopen
+CAPTURE_REOPEN_COOLDOWN_S = float(os.getenv("CAPTURE_REOPEN_COOLDOWN_S", "60")) # min gap between reopens
+CAPTURE_WEDGE_RMS         = float(os.getenv("CAPTURE_WEDGE_RMS", "0.0005"))     # ≤ this = effectively dead (idle loopback note)
+CAPTURE_WATCHDOG_POLL_S   = float(os.getenv("CAPTURE_WATCHDOG_POLL_S", "2.0"))  # how often to sample RMS
+
 # ── Audio device persistence ──────────────────────────────────────────────────
 # FIX 2: the user's chosen loopback device must survive a restart. Without this,
 # preferred_loopback_name reset to None every boot and _find_loopback_device fell
@@ -277,6 +293,22 @@ class AudioAgent:
         # and after a successful _start_capture() (confirms clean state).
         self._stop_pending: bool = False
 
+        # ── Capture-health watchdog ──────────────────────────────────────────
+        # Serialization lock: the watchdog is a SECOND caller of _start/_stop_capture
+        # (the bot is the other). This RLock guarantees the two can never run a
+        # reopen concurrently and stack WASAPI streams — the existing orphan/
+        # _stop_pending guards assume a single caller; this preserves that.
+        self._capture_lock = threading.RLock()
+        self._watchdog_stop = threading.Event()
+        self._watchdog_thread: Optional[threading.Thread] = None
+        # True between a watchdog reopen and the first healthy RMS reading — used to
+        # print a clear "recovered" line so the self-heal is visible in the console.
+        self._capture_recovering: bool = False
+        if CAPTURE_WATCHDOG_ENABLED and PYAUDIO_AVAILABLE:
+            self._watchdog_thread = threading.Thread(
+                target=self._capture_health_loop, daemon=True, name="capture-health")
+            self._watchdog_thread.start()
+
     def is_active(self) -> bool:
         return self.mode != AUDIO_MODE_OFF and self._stream is not None
 
@@ -433,6 +465,12 @@ class AudioAgent:
         return devices_list
 
     def _start_capture(self):
+        """Serialized entry to capture-start. The lock ensures the bot and the
+        capture-health watchdog can never open two WASAPI streams concurrently."""
+        with self._capture_lock:
+            self._start_capture_impl()
+
+    def _start_capture_impl(self):
         # Part 1: never stack a second WASAPI stream on top of an existing one.
         # Tests THREAD LIVENESS, not stream-object presence. A dead capture thread
         # that left a stale self._stream reference must NOT block a legitimate restart
@@ -574,6 +612,11 @@ class AudioAgent:
             self._capture_thread = None
 
     def _stop_capture(self):
+        """Serialized entry to capture-stop (pairs with _start_capture's lock)."""
+        with self._capture_lock:
+            self._stop_capture_impl()
+
+    def _stop_capture_impl(self):
         # Order matters: stop_stream() FIRST to unblock any in-flight stream.read()
         # in _capture_loop. If we close() the stream while another thread is mid-read,
         # pyaudiowpatch dereferences freed native memory → Windows access violation
@@ -621,6 +664,103 @@ class AudioAgent:
             self._pa = None
         self.buffer.clear()
         self.hifi_buffer.clear()
+
+    def _current_buffer_rms(self, seconds: float = 2.0) -> float:
+        """RMS of the most recent `seconds` of the 16kHz buffer. Read-only — never
+        consumes or clears the buffer, so it can't disturb live capture."""
+        if np is None:
+            return 0.0
+        buf = self.buffer
+        if not buf:
+            return 0.0
+        n = int(self.sample_rate * seconds)
+        snap = list(buf)
+        if len(snap) > n:
+            snap = snap[-n:]
+        if not snap:
+            return 0.0
+        arr = np.asarray(snap, dtype=np.float32)
+        return float(np.sqrt(np.mean(arr * arr))) if arr.size else 0.0
+
+    def _capture_health_loop(self):
+        """Watchdog: detect a WASAPI loopback stream that is ALIVE but delivering
+        silence (the idle-stream wedge) and re-open it. MEDIA mode only.
+
+        Why this exists: every other capture-health check tests THREAD LIVENESS, but
+        the wedged stream keeps the read thread alive (read() returns zeros, no
+        exception) — so liveness is fooled and the loopback STT silence-gates forever.
+        This is the missing DATA-level watchdog. Only fires when:
+          - mode == MEDIA (MUSIC=mic and OFF are out of scope), AND
+          - the capture thread is alive (a dead thread is the bot's restart path), AND
+          - buffer RMS has stayed ≤ CAPTURE_WEDGE_RMS for CAPTURE_WEDGE_WINDOW_S.
+        A near-zero RMS inherently means NO signal at all — so mic/self-TTS bleed
+        (which would raise RMS) can't trip it; that satisfies the not-mic-gated guard.
+        """
+        zero_since = 0.0
+        last_reopen = 0.0
+        print(f"   [Capture] Health watchdog armed — window={CAPTURE_WEDGE_WINDOW_S:.0f}s, "
+              f"cooldown={CAPTURE_REOPEN_COOLDOWN_S:.0f}s, dead_rms≤{CAPTURE_WEDGE_RMS}.")
+        while not self._watchdog_stop.is_set():
+            if self._watchdog_stop.wait(timeout=CAPTURE_WATCHDOG_POLL_S):
+                break
+            try:
+                th = self._capture_thread
+                # Out of scope: not MEDIA, or no live capture thread. Reset the timer
+                # so a later genuine wedge needs the full window again.
+                if self.mode != AUDIO_MODE_MEDIA or th is None or not th.is_alive():
+                    zero_since = 0.0
+                    continue
+
+                rms = self._current_buffer_rms()
+                now = time.time()
+
+                # Healthy signal — clear the wedge timer, and if we just reopened,
+                # announce the recovery LOUDLY so the self-heal is visibly confirmed.
+                if rms > CAPTURE_WEDGE_RMS:
+                    if self._capture_recovering:
+                        print(f"   [Capture] ✓ Reopened, RMS recovered (rms={rms:.4f}) "
+                              f"— loopback healthy again.")
+                        self._capture_recovering = False
+                    zero_since = 0.0
+                    continue
+
+                # Sub-threshold (≈0). Start/continue the wedge timer.
+                if zero_since == 0.0:
+                    zero_since = now
+                    continue
+                wedged_for = now - zero_since
+                if wedged_for < CAPTURE_WEDGE_WINDOW_S:
+                    continue
+                # Sustained zero past the window → wedged. Respect the reopen cooldown
+                # so a genuinely-silent passage can't thrash the device.
+                if (now - last_reopen) < CAPTURE_REOPEN_COOLDOWN_S:
+                    continue
+
+                print(f"   [Capture] ⚠ WATCHDOG: wedged stream detected — RMS≈0 for "
+                      f"{wedged_for:.0f}s in MEDIA mode (device={self._bound_loopback_name!r}). "
+                      f"Reopening WASAPI loopback…")
+                last_reopen = now
+                try:
+                    self._stop_capture()
+                    self._start_capture()
+                except Exception as e:
+                    print(f"   [Capture] ⚠ WATCHDOG reopen FAILED: {e}")
+                    zero_since = 0.0
+                    continue
+                # Confirm the reopen actually re-bound a stream. The orphan-thread
+                # guard refuses if the OLD thread wedged inside a native read — that
+                # genuinely needs a bot restart and must be loud (constraint #3).
+                if self.is_active() and self._capture_thread is not None and self._capture_thread.is_alive():
+                    self._capture_recovering = True
+                    print(f"   [Capture] Reopen issued — stream re-bound "
+                          f"(device={self._bound_loopback_name!r}); watching for RMS recovery…")
+                else:
+                    print(f"   [Capture] ⚠ WATCHDOG: reopen BLOCKED — stream wedged in a native "
+                          f"read (orphan guard); loopback needs a bot restart. "
+                          f"_stop_pending={self._stop_pending}")
+                zero_since = 0.0
+            except Exception as e:
+                print(f"   [Capture] health loop error: {e}")
 
     async def heartbeat_loop(self):
         print("   [System] Audio Agent heartbeat ready (idle until mode != OFF).")
