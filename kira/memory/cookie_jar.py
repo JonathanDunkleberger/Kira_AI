@@ -20,7 +20,10 @@ from typing import Optional
 
 # Cap for the communal jar. When shared_total reaches this value, a milestone
 # fires once, shared_total resets to 0, and milestone_count increments.
-MILESTONE_CAP = 15  # cookies before wheel fires; tune per-stream via CFG
+# Env-tunable (WHEEL_MILESTONE_CAP) so wheel frequency can be dialed from stream
+# observation without a rebuild. Raised 15 -> 30 default: chatter volume is up, so
+# the old 15 fired the wheel too often (bits like ghost-story going stale).
+MILESTONE_CAP = int(os.getenv("WHEEL_MILESTONE_CAP", "30"))  # cookies before wheel fires
 
 # ── Milestone reward-vote config ─────────────────────────────────────────
 # Edit these to change what chat votes on when the jar fills.
