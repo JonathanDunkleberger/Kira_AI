@@ -1481,6 +1481,37 @@ class VTubeBot:
         except Exception as e:
             print(f"   [AccentMode] End TTS error: {e}")
 
+    async def _timed_mode_hud_loop(self) -> None:
+        """Drive the overlay's active-mode HUD from the TimedModifierRegistry.
+
+        Read-only watcher: every second it reads the active modifier and pushes the
+        mode label + countdown to the wheel overlay, then one 'off' push when it
+        clears. It NEVER touches the activate/deactivate paths, so chaos/speech/
+        accent behaviour is unchanged — the HUD is a pure projection of registry
+        state. Idle cost is one wakeup/sec doing nothing while no mode is active."""
+        from kira.dashboard.control_server import push_wheel_mode
+        labels = {
+            "chaos": "CHAOS MODE",
+            "speech_constraint": "Speech Constraint",
+            "accent": "Accent Mode",
+        }
+        last_active_name = None
+        while True:
+            try:
+                reg = getattr(self, "timed_modifiers", None)
+                active = reg.active if reg is not None else None
+                if active is not None:
+                    remaining = max(0, int(round(active.until - time.time())))
+                    label = labels.get(active.name, active.name.replace("_", " ").title())
+                    await push_wheel_mode(True, name=active.name, label=label, remaining_s=remaining)
+                    last_active_name = active.name
+                elif last_active_name is not None:
+                    await push_wheel_mode(False)
+                    last_active_name = None
+            except Exception as e:
+                print(f"   [ModeHUD] loop error: {e}")
+            await asyncio.sleep(1.0)
+
     async def _broadcast_cookie_state(self) -> None:
         """Push the current shared-jar count to the captions WS overlay.
         Fire-and-forget; never raises."""
@@ -4805,6 +4836,10 @@ class VTubeBot:
 
             print("   [System] Starting Background Tasks...")
             tasks.append(self.background_loop())
+
+            # Active timed-mode HUD: read-only registry watcher that drives the
+            # overlay's mode badge + countdown (chaos / speech constraint / accent).
+            tasks.append(self._timed_mode_hud_loop())
 
             # Captions self-heal heartbeat: auto-recovers from Azure session
             # drops or caption server death during long streams.

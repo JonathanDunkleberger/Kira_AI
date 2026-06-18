@@ -131,17 +131,45 @@ html, body {
   <div id="result-label"><span class="rl-kicker">The wheel says</span><span id="result-text"></span></div>
 </div>
 
-<!-- Chat vote-bars (Layer 3). Minimal renderer; visual polish is Layer 5.
-     Inline-styled so it stays isolated from the wheel CSS. -->
+<!-- Layer 5 overlay polish: vote-bars, active-mode HUD, winner reveal. -->
+<style>
+  @keyframes votePanelIn { from { opacity:0; transform:translateX(-50%) translateY(18px); }
+                           to   { opacity:1; transform:translateX(-50%) translateY(0); } }
+  @keyframes winnerPulse { 0%,100% { box-shadow:0 0 0 0 rgba(255,210,74,.0); }
+                           50%      { box-shadow:0 0 22px 4px rgba(255,210,74,.65); } }
+  @keyframes hudIn { from { opacity:0; transform:translateX(-50%) translateY(-14px); }
+                     to   { opacity:1; transform:translateX(-50%) translateY(0); } }
+  @keyframes hudPulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+  #vote-panel.show { animation:votePanelIn .45s cubic-bezier(.2,.8,.2,1) both; }
+  .vote-row.win    { animation:winnerPulse 1.1s ease-in-out 2; }
+  #mode-hud.show   { animation:hudIn .4s cubic-bezier(.2,.8,.2,1) both; }
+  #mode-hud .dot   { animation:hudPulse 1.4s ease-in-out infinite; }
+</style>
+
+<!-- Chat vote-bars -->
 <div id="vote-panel" style="position:fixed; left:50%; bottom:7%; transform:translateX(-50%);
      width:760px; max-width:92vw; display:none; font-family:inherit; z-index:50;
-     background:rgba(28,20,16,.82); border:2px solid #8b6040; border-radius:16px;
+     background:rgba(28,20,16,.86); border:2px solid #8b6040; border-radius:16px;
      padding:18px 22px; box-shadow:0 8px 40px rgba(0,0,0,.5);">
   <div id="vote-prompt" style="color:#fff8f0; font-size:22px; font-weight:700;
-       text-align:center; margin-bottom:6px;"></div>
+       text-align:center; margin-bottom:6px; text-shadow:0 2px 6px rgba(0,0,0,.5);"></div>
   <div id="vote-timer" style="color:#f0c8a0; font-size:15px; text-align:center;
-       margin-bottom:12px;"></div>
+       letter-spacing:.3px; margin-bottom:12px;"></div>
   <div id="vote-rows" style="display:flex; flex-direction:column; gap:9px;"></div>
+</div>
+
+<!-- Active timed-mode HUD: persists for the whole window with a live countdown.
+     Driven by wheel_mode events (registry watcher). Top-center, out of the way. -->
+<div id="mode-hud" style="position:fixed; left:50%; top:4%; transform:translateX(-50%);
+     display:none; align-items:center; gap:11px; font-family:inherit; z-index:49;
+     padding:9px 18px; border-radius:999px; border:2px solid #8b6040;
+     background:rgba(28,20,16,.86); box-shadow:0 6px 26px rgba(0,0,0,.45);">
+  <span class="dot" style="width:11px; height:11px; border-radius:50%; background:#ffd24a;
+        box-shadow:0 0 10px #ffd24a;"></span>
+  <span id="mode-hud-label" style="color:#fff8f0; font-size:18px; font-weight:700;
+        letter-spacing:.4px;"></span>
+  <span id="mode-hud-time" style="color:#f0c8a0; font-size:18px; font-weight:700;
+        font-variant-numeric:tabular-nums; min-width:48px; text-align:right;"></span>
 </div>
 
 <script>
@@ -174,10 +202,34 @@ const $votePanel = document.getElementById('vote-panel');
 const $votePrompt= document.getElementById('vote-prompt');
 const $voteTimer = document.getElementById('vote-timer');
 const $voteRows  = document.getElementById('vote-rows');
+const $modeHud   = document.getElementById('mode-hud');
+const $modeHudLabel = document.getElementById('mode-hud-label');
+const $modeHudTime  = document.getElementById('mode-hud-time');
 
-/* Vote-bars (Layer 3 minimal renderer; polish = Layer 5). State held locally so
-   'update' frames (counts only) and 'result' (winner highlight) can re-render
-   without the backend resending labels every tick. */
+function _fmtClock(s) {
+  s = Math.max(0, s | 0);
+  const m = (s / 60) | 0, ss = s % 60;
+  return m + ':' + (ss < 10 ? '0' : '') + ss;
+}
+
+/* Active-mode HUD (Layer 5). Driven by wheel_mode events; chaos gets a red tint,
+   the timed bits a warm gold. Pure projection of registry state. */
+function _renderMode(active, label, remainingS, name) {
+  if (!active) { $modeHud.classList.remove('show'); $modeHud.style.display = 'none'; return; }
+  const chaos = (name === 'chaos');
+  $modeHud.style.borderColor = chaos ? '#b03a52' : '#8b6040';
+  $modeHud.querySelector('.dot').style.background = chaos ? '#ff5a72' : '#ffd24a';
+  $modeHud.querySelector('.dot').style.boxShadow  = '0 0 10px ' + (chaos ? '#ff5a72' : '#ffd24a');
+  $modeHudLabel.textContent = label || '';
+  $modeHudTime.textContent  = _fmtClock(remainingS);
+  if ($modeHud.style.display !== 'flex') {
+    $modeHud.style.display = 'flex';
+    $modeHud.classList.add('show');
+  }
+}
+
+/* Vote-bars. State held locally so 'update' frames (counts only) and 'result'
+   (winner highlight) re-render without the backend resending labels every tick. */
 let _voteLabels = [];
 function _renderVote(counts, remainingS, winner) {
   const total = counts.reduce((a, b) => a + b, 0);
@@ -188,8 +240,10 @@ function _renderVote(counts, remainingS, winner) {
     const pct = Math.round((n / max) * 100);
     const win = (winner === i);
     const row = document.createElement('div');
+    row.className = 'vote-row' + (win ? ' win' : '');
     row.style.cssText = 'position:relative; height:40px; border-radius:9px; overflow:hidden;'
-      + 'background:rgba(255,255,255,.08); border:1px solid ' + (win ? '#ffd24a' : '#6b4a30') + ';';
+      + 'background:rgba(255,255,255,.08); border:1px solid ' + (win ? '#ffd24a' : '#6b4a30') + ';'
+      + (winner >= 0 && !win ? 'opacity:.5;' : '');
     const fill = document.createElement('div');
     fill.style.cssText = 'position:absolute; inset:0 auto 0 0; width:' + pct + '%;'
       + 'background:' + (win ? 'linear-gradient(90deg,#d0a020,#ffd24a)' : 'linear-gradient(90deg,#8b3a52,#b05a72)') + ';'
@@ -556,13 +610,22 @@ function connect() {
         _renderVote(msg.counts || _voteLabels.map(function () { return 0; }),
                     msg.remaining_s || 0, -1);
         $votePanel.style.display = 'block';
+        $votePanel.classList.remove('show'); void $votePanel.offsetWidth; // restart anim
+        $votePanel.classList.add('show');
       } else if (msg.phase === 'update') {
         _renderVote(msg.counts || [], msg.remaining_s || 0, -1);
       } else if (msg.phase === 'result') {
         _renderVote(msg.counts || [], 0, (typeof msg.winner === 'number' ? msg.winner : -1));
+        burstConfetti();   // winner reveal pop
         /* Hold the winning bar a few seconds, then clear. */
-        _ceremony.push(setTimeout(function () { $votePanel.style.display = 'none'; }, 5000));
+        _ceremony.push(setTimeout(function () {
+          $votePanel.style.display = 'none'; $votePanel.classList.remove('show');
+        }, 5000));
       }
+    }
+
+    if (msg.type === 'wheel_mode') {
+      _renderMode(!!msg.active, msg.label || '', msg.remaining_s || 0, msg.name || '');
     }
   };
 

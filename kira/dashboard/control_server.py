@@ -501,6 +501,21 @@ async def push_wheel_veto() -> None:
     await _overlay_ws_manager.broadcast({"type": "wheel_veto"})
 
 
+async def push_wheel_mode(active: bool, name: str = "", label: str = "",
+                          remaining_s: int = 0) -> None:
+    """Broadcast the active timed-mode HUD state to /ws/overlays clients.
+      {"type":"wheel_mode","active":bool,"name":str,"label":str,"remaining_s":int}
+    Driven by bot._timed_mode_hud_loop (read-only registry watcher). `active:false`
+    clears the HUD. Fire-and-forget."""
+    await _overlay_ws_manager.broadcast({
+        "type":        "wheel_mode",
+        "active":      bool(active),
+        "name":        name,
+        "label":       label,
+        "remaining_s": int(remaining_s),
+    })
+
+
 async def push_wheel_vote(phase: str, prompt: str = "", labels: list | None = None,
                           counts: list | None = None, remaining_s: int = 0,
                           winner: int = -1) -> None:
