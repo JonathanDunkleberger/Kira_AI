@@ -73,6 +73,22 @@ MIN_SEGMENT_CHARS: int = 3                 # drop ultra-short fragments
 MIN_AVG_LOGPROB: float = -1.0              # drop very low-confidence segments
 SILENCE_RMS_THRESHOLD: float = 0.003       # don't even call Whisper on near-silent windows
 
+# Fuzzy substring-dedup (gate 7) only applies to segments at least this long. Short
+# distinct lines ("There", "Trees and") were being nuked as substrings of recent
+# segments, gutting continuous speech (audiobooks/dialogue). Exact-dedup (gate 6)
+# still removes the window-overlap re-emission regardless of length. Env-tunable.
+FUZZY_DEDUP_MIN_CHARS: int = int(os.getenv("LOOPBACK_FUZZY_DEDUP_MIN_CHARS", "12"))
+
+# Transcriber pump-loop watchdog (the twin of audio_agent's capture watchdog).
+# The capture watchdog watches RMS (stream health); this watches the TRANSCRIBE
+# LOOP itself. _pump_loop stamps last_loop_ts every iteration (~5s); if it goes
+# stale the loop is genuinely hung (e.g. model.transcribe wedged on CUDA) — invisible
+# to the RMS watchdog — so we restart the transcriber. Cooldown prevents thrash.
+LOOP_WATCHDOG_ENABLED   = os.getenv("LOOPBACK_LOOP_WATCHDOG_ENABLED", "true").lower() == "true"
+LOOP_HANG_THRESHOLD_S: float   = float(os.getenv("LOOPBACK_LOOP_HANG_S", "30"))         # stale-loop = hung
+LOOP_RESTART_COOLDOWN_S: float = float(os.getenv("LOOPBACK_LOOP_RESTART_COOLDOWN_S", "60"))  # min gap between restarts
+LOOP_WATCHDOG_POLL_S: float    = 5.0       # how often the watchdog samples loop liveness
+
 # Common Whisper hallucinations on music / silence / non-speech audio.
 # All lowercased, matched after normalization (strip punctuation/whitespace).
 HALLUCINATION_PHRASES = frozenset({
@@ -268,11 +284,19 @@ class LoopbackTranscriber:
         self._start_lock = threading.Lock()
 
         # Diagnostics
-        self.last_tick_time: float = 0.0
+        self.last_tick_time: float = 0.0       # last COMPLETED transcription (past the silence gate)
+        self.last_loop_ts: float = 0.0         # last pump-loop ITERATION (every ~5s, even when gated/silent)
         self.last_tick_latency_ms: float = 0.0
         self.last_segment_count: int = 0
         self.total_segments_accepted: int = 0
         self.total_segments_filtered: int = 0
+
+        # Pump-loop watchdog (long-lived; spawned once in start(), survives pump
+        # restarts so it can never tear itself down mid-restart). Restart args are
+        # saved so a hang-restart can re-wire start() exactly as the caller did.
+        self._last_start_args = None
+        self._loop_watchdog_thread: Optional[threading.Thread] = None
+        self._loop_watchdog_stop = threading.Event()
 
         # FIX 5: Rolling condensed dialogue summary (persists for the whole session,
         # unlike the 60s raw transcript window). Updated by bot.loopback_dialogue_summary_loop().
@@ -335,6 +359,8 @@ class LoopbackTranscriber:
             self._audio_agent = audio_agent
             self._is_speaking_fn = is_speaking_fn
             self._is_user_speaking_fn = is_user_speaking_fn  # Task 2: mic-active gate
+            # Saved so the pump-loop watchdog can restart with identical wiring.
+            self._last_start_args = (audio_agent, is_speaking_fn, is_user_speaking_fn)
             self._user_mic_last_active_ts: float = 0.0
             self._speech_last_active_ts = 0.0
             self.total_ticks_skipped_self_tts = 0
@@ -366,6 +392,17 @@ class LoopbackTranscriber:
                     target=self._speech_watcher_loop, daemon=True, name="LoopbackSTT-SpeechWatch"
                 )
                 self._speech_watcher_thread.start()
+            # Pump-loop watchdog — spawn ONCE and let it live across restarts. The
+            # guard prevents a duplicate when start() is re-entered (incl. by the
+            # watchdog's own restart). It self-gates on is_running(), so a deliberate
+            # stop just idles it (no false restart).
+            if LOOP_WATCHDOG_ENABLED and (
+                self._loop_watchdog_thread is None or not self._loop_watchdog_thread.is_alive()
+            ):
+                self._loop_watchdog_stop.clear()
+                self._loop_watchdog_thread = threading.Thread(
+                    target=self._loop_watchdog_loop, daemon=True, name="LoopbackSTT-Watchdog")
+                self._loop_watchdog_thread.start()
             print(f"   [LoopbackSTT] Started — {self.MODEL_NAME} on {self.DEVICE} "
                   f"(tick={TICK_SECONDS}s, window={WINDOW_SECONDS}s)")
             self._starting = False
@@ -480,7 +517,17 @@ class LoopbackTranscriber:
         # Sleep TICK_SECONDS at top of loop so the first transcription has actual audio
         # to chew on rather than firing on an empty buffer.
         next_tick = time.time() + TICK_SECONDS
-        while not self._stop_event.is_set():
+        self.last_loop_ts = time.time()   # liveness: stamped before the first wait
+        # Zombie-fence: a pump thread that gets leaked by a hang-restart (its native
+        # model.transcribe never returned, so stop()'s join timed out) keeps running.
+        # `is self._thread` makes the OLD thread exit the instant a NEW pump replaces
+        # it — so a recovered hang can't leave two pumps appending to one transcript.
+        while not self._stop_event.is_set() and threading.current_thread() is self._thread:
+            # Loop-liveness heartbeat: stamped EVERY iteration, before any gate/return,
+            # so it advances even during silence/self-TTS gating. Distinct from
+            # last_tick_time (only a completed transcription). If THIS goes stale the
+            # loop itself is hung — which the pump-loop watchdog catches.
+            self.last_loop_ts = time.time()
             now = time.time()
             sleep_for = max(0.05, next_tick - now)
             if self._stop_event.wait(timeout=sleep_for):
@@ -491,6 +538,56 @@ class LoopbackTranscriber:
             except Exception as e:
                 print(f"   [LoopbackSTT] Tick error: {e}")
             self._prune_old_segments()
+
+    def _loop_watchdog_loop(self):
+        """Twin of audio_agent's capture watchdog, but for the TRANSCRIBE LOOP.
+
+        The capture watchdog watches buffer RMS (stream health) and is blind to a
+        pump loop that hangs while the stream stays healthy (e.g. model.transcribe
+        wedged on CUDA). This watches last_loop_ts — stamped every ~5s iteration —
+        and restarts the transcriber if it goes stale. Long-lived: spawned once and
+        NOT torn down by stop() (which only joins the pump/speech-watcher), so it can
+        safely call stop()->start() without joining itself. Self-gates on is_running()
+        so a deliberate stop just idles it. Cooldown prevents restart thrash."""
+        last_restart = 0.0
+        print(f"   [LoopbackSTT] Loop watchdog armed — hang>{LOOP_HANG_THRESHOLD_S:.0f}s, "
+              f"restart cooldown {LOOP_RESTART_COOLDOWN_S:.0f}s.")
+        while not self._loop_watchdog_stop.is_set():
+            if self._loop_watchdog_stop.wait(timeout=LOOP_WATCHDOG_POLL_S):
+                break
+            try:
+                # Only police a transcriber that's supposed to be running and has
+                # stamped at least one iteration (lt>0). A deliberate stop idles here.
+                if not self.is_running():
+                    continue
+                lt = self.last_loop_ts
+                if lt <= 0.0:
+                    continue
+                stale_for = time.time() - lt
+                if stale_for < LOOP_HANG_THRESHOLD_S:
+                    continue
+                now = time.time()
+                if (now - last_restart) < LOOP_RESTART_COOLDOWN_S:
+                    continue
+                print(f"   [LoopbackSTT] ⚠ pump loop hung — no iteration in {stale_for:.0f}s "
+                      f"(threshold {LOOP_HANG_THRESHOLD_S:.0f}s). Restarting transcriber…")
+                last_restart = now
+                args = self._last_start_args
+                if not args or args[0] is None:
+                    print("   [LoopbackSTT] ⚠ cannot auto-restart — no saved start args; needs manual restart.")
+                    continue
+                agent, sfn, ufn = args
+                try:
+                    self.stop()                 # leaks a truly-wedged native thread (daemon); zombie-fenced
+                    ok = self.start(agent, sfn, ufn)
+                    if ok and self.is_running():
+                        print("   [LoopbackSTT] ✓ Restarted after hang — pump loop alive again.")
+                    else:
+                        print("   [LoopbackSTT] ⚠ Restart did NOT bring the pump back — needs manual attention.")
+                except Exception as e:
+                    print(f"   [LoopbackSTT] ⚠ hang-restart FAILED: {e}")
+            except Exception as e:
+                print(f"   [LoopbackSTT] loop-watchdog error: {e}")
 
     def _do_one_tick(self):
         if self._audio_agent is None or self.model is None or np is None:
@@ -642,10 +739,16 @@ class LoopbackTranscriber:
                 if norm in self._recent_normalized:
                     filtered_this_tick += 1
                     continue
-                # Fuzzy dedupe: skip if normalized text is a substring of any
-                # recent accepted segment (handles "anything but this" vs
-                # "Lazarus, anything but this").
-                if any(norm in prev or prev in norm for prev in self._recent_normalized if prev):
+                # Fuzzy dedupe: skip if normalized text is a substring of any recent
+                # accepted segment (handles "anything but this" vs "Lazarus, anything
+                # but this"). LENGTH-GATED: only segments >= FUZZY_DEDUP_MIN_CHARS are
+                # subject to substring-dedup — short distinct lines ("There", "Trees
+                # and") were being nuked as substrings of longer recent segments,
+                # gutting continuous speech. Exact-dedup above still kills the
+                # window-overlap re-emission regardless of length.
+                if len(norm) >= FUZZY_DEDUP_MIN_CHARS and any(
+                    norm in prev or prev in norm for prev in self._recent_normalized if prev
+                ):
                     filtered_this_tick += 1
                     continue
                 # Short-prefix burst across segments — catches the
@@ -753,10 +856,22 @@ class LoopbackTranscriber:
         if not self.is_running():
             return "Loopback STT: starting…" if self._starting else "Loopback STT: idle"
         seg_count = len(self._segments)
-        rel = int(time.time() - self.last_tick_time) if self.last_tick_time else -1
-        rel_str = f"{rel}s ago" if rel >= 0 else "never"
-        return (f"Loopback STT: running · {seg_count} seg in window · "
-                f"last tick {rel_str} ({self.last_tick_latency_ms:.0f}ms) · "
+        now = time.time()
+        # Loop health (advances every ~5s even during silence) vs last actual
+        # transcription (only when audio passes the silence gate). Separating these
+        # stops a quiet stretch reading as a "stall" — the old single "last tick Ns
+        # ago" froze whenever audio was below the silence gate (the 240s screenshot).
+        loop_rel = int(now - self.last_loop_ts) if self.last_loop_ts else -1
+        tick_rel = int(now - self.last_tick_time) if self.last_tick_time else -1
+        if loop_rel < 0:
+            health = "loop never ran"
+        elif loop_rel >= LOOP_HANG_THRESHOLD_S:
+            health = f"⚠ loop HUNG {loop_rel}s"
+        else:
+            health = f"loop ok {loop_rel}s"
+        tick_str = f"{tick_rel}s ago" if tick_rel >= 0 else "none yet"
+        return (f"Loopback STT: running · {health} · {seg_count} seg in window · "
+                f"last transcription {tick_str} ({self.last_tick_latency_ms:.0f}ms) · "
                 f"{self.total_segments_accepted} accepted / "
                 f"{self.total_segments_filtered} filtered")
 
