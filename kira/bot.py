@@ -3425,6 +3425,70 @@ class VTubeBot:
                     return activity
         return None
 
+    # ── Explicit mid-session switch detector ────────────────────────────────────
+    # Casual/interrogative forms that must NEVER count as a switch.
+    _SWITCH_CASUAL = (
+        " should we", " should i", " what about", " how about", " wanna ", " want to play",
+        " do you want", " shall we", " remember when", " remember playing", " have you played",
+        " i love ", " i like ", " is great", " is so good", " is amazing", " is the best",
+        " is hard", " was great", " miss playing", " used to play",
+    )
+    # An explicit switch REQUIRES one of these deliberate signals — a bare mention won't do.
+    _SWITCH_SIGNALS = (
+        " switch to", " switching to", " swap to", " moving to", " changing to",
+        " now playing", " now we're playing", " now we are playing", " playing now",
+        " different game", " new game", " another game", " done with", " not playing",
+        " not watching", " instead", " this is ", " put on ", " we're playing ",
+        " we are playing ", " we're watching ", " we are watching ", " now watching ",
+    )
+    # Extracted "names" that are really adverbs/fillers, not titles — reject.
+    _SWITCH_NAME_STOP = frozenset({
+        "well", "badly", "good", "bad", "great", "terrible", "terribly", "fine", "okay",
+        "rough", "solo", "blind", "online", "offline", "ranked", "again", "now", "this",
+        "that", "it", "safe",
+    })
+
+    def _detect_explicit_switch(self, text: str) -> str | None:
+        """STRICT switch detector. Returns the NEW activity name ONLY for a deliberate
+        switch declaration ("we're playing X now", "switch to X", "different game, it's
+        X", "not playing X anymore, we're playing Y"), never for a casual mention.
+        Under-triggers by design (asymmetric-safe: better to repeat than to flip the
+        session on a stray reference). Used to relax the mid-session lock AND as a
+        cold-start fallback for leading-filler / negation phrasings that the
+        ^-anchored _detect_activity_change misses."""
+        lower = re.sub(r"\s+", " ", text.strip().lower())
+        pad = " " + lower + " "
+        if any(s in pad for s in self._SWITCH_CASUAL):
+            return None
+        if not any(s in pad for s in self._SWITCH_SIGNALS):
+            return None
+        # The new game is usually named LAST (after any "not playing X" negation), so
+        # scan clauses in reverse and skip negated clauses — they name the OLD game.
+        for clause in reversed([c.strip() for c in re.split(r"[,.!?;]+", lower) if c.strip()]):
+            if re.search(r"\b(?:not|don'?t|isn'?t|aren'?t|no longer|never)\b", clause):
+                continue
+            m = re.search(
+                r"(?:switch(?:ing)?\s+to|swap\s+to|moving\s+to|changing\s+to"
+                r"|now\s+playing|now\s+we(?:'re| are)\s+playing|we(?:'re| are)\s+playing"
+                r"|i(?:'m| am)\s+playing|now\s+watching|we(?:'re| are)\s+watching"
+                r"|it'?s|this\s+is|put\s+on|playing|watching)\s+(.+)$",
+                clause,
+            )
+            if not m:
+                continue
+            name = re.sub(
+                r"\b(?:now|anymore|again|today|instead|for the first time|the first time|first time|this time)\b.*$",
+                "", m.group(1).strip(),
+            ).strip(" ,.-'")
+            name = re.sub(r"^(?:the|a|an)\s+", "", name)
+            if name.split(" ")[0] in self._SWITCH_NAME_STOP:
+                continue
+            if name.startswith(("the ", "a ", "an ", "this ", "that ", "it ", "all ")):
+                continue
+            if 3 < len(name) < 60:
+                return name
+        return None
+
     def _classify_activity_type(self, activity: str) -> str:
         """Maps a free-form activity string to a known ACTIVITY_* constant."""
         lower = activity.lower()
@@ -5038,44 +5102,65 @@ class VTubeBot:
 
                     # Activity auto-detection from voice (natural language sets context)
                     if source == "voice":
-                        detected = self._detect_activity_change(content)
-                        if detected and detected != self.current_activity:
-                            # SESSION LOCK: once the dashboard has armed a session via
-                            # activate_game_mode(), the slug is frozen. Voice can set
-                            # activity on a cold start (before Activate is pressed), but
-                            # mid-session ambient speech cannot fork the playthrough slug.
-                            if self.game_mode_controller.is_active:
-                                print(f"   [Activity] Voice detected '{detected}' — ignored: session already armed (slug locked to '{self.current_activity}').")
+                        armed = self.game_mode_controller.is_active
+                        if armed:
+                            # Mid-session: ONLY a deliberate, explicit switch updates the
+                            # armed game ("we're playing X now", "switch to X", "not playing
+                            # X anymore, we're playing Y"). A casual mention can NOT fork the
+                            # slug — that anti-misfire protection is preserved; we just stop
+                            # discarding a real switch (the game-context staleness bug).
+                            target = self._detect_explicit_switch(content)
+                            if not target:
+                                _casual = self._detect_activity_change(content)
+                                if _casual and _casual != self.current_activity:
+                                    print(f"   [Activity] Voice mention '{_casual}' — ignored: not an explicit switch, session armed (locked to '{self.current_activity}').")
+                        else:
+                            # Cold start (not armed): any clear declaration sets context; the
+                            # explicit-switch detector is a fallback for leading-filler /
+                            # negation phrasings ("Here, we're playing X" / "not X, it's Y").
+                            target = self._detect_activity_change(content) or self._detect_explicit_switch(content)
+
+                        if target and target != self.current_activity:
+                            # Preserve the OUTGOING game's progress before swapping —
+                            # load_for_game() resets the session accumulators, so flush the
+                            # old game's checkpoint first or its in-session reactions are lost
+                            # (the same continuity loss we're fixing, from another angle).
+                            if armed and self.playthrough_memory and self.playthrough_memory.current_slug:
+                                try:
+                                    self.playthrough_memory.flush_checkpoint(self.current_activity, self.session_started_at)
+                                except Exception as _fl_e:
+                                    print(f"   [Activity] Checkpoint flush before switch failed (non-fatal): {_fl_e}")
+                            self.current_activity = target
+                            new_type = self._classify_activity_type(target)
+                            self.game_mode_controller.activity_type = new_type
+                            self.vision_agent.activity_type = new_type
+                            print(f"   [Activity] {'Switched' if armed else 'Set'} to: '{target}' (type: {new_type})")
+                            old_immersive = self.immersive
+                            self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
+                            print(f"   [Immersive] {self.immersive}")
+                            # Vision heartbeat cadence:
+                            #   ACTIVITY_VN / ACTIVITY_MEDIA (immersive=True) → 10s (already was)
+                            #   ACTIVITY_GAME → 10s (game scenes change fast; was 30s before)
+                            #   Everything else → calm baseline (chat/idle, no point hammering vision)
+                            if self.immersive or new_type == ACTIVITY_GAME:
+                                self.vision_agent.heartbeat_interval = 10.0
                             else:
-                                self.current_activity = detected
-                                new_type = self._classify_activity_type(detected)
-                                self.game_mode_controller.activity_type = new_type
-                                self.vision_agent.activity_type = new_type
-                                print(f"   [Activity] Set to: '{detected}' (type: {new_type})")
-                                old_immersive = self.immersive
-                                self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)
-                                print(f"   [Immersive] {self.immersive}")
-                                # Vision heartbeat cadence:
-                                #   ACTIVITY_VN / ACTIVITY_MEDIA (immersive=True) → 10s (already was)
-                                #   ACTIVITY_GAME → 10s (game scenes change fast; was 30s before)
-                                #   Everything else → 30s (chat/idle, no point hammering vision)
-                                if self.immersive or new_type == ACTIVITY_GAME:
-                                    self.vision_agent.heartbeat_interval = 10.0
-                                else:
-                                    self.vision_agent.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS
-                                if old_immersive and not self.immersive and self.session_scene_log:
-                                    asyncio.create_task(self._generate_session_summary())
-                                # Load playthrough memory for the new game/VN
-                                if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
-                                    self.playthrough_memory.load_for_game(detected)
-                                    # Takes/spotlight persist across activity switches (Req A).
-                                # NOTE: the voice phrase sets the activity LABEL +
-                                # playthrough context ONLY. It deliberately does NOT
-                                # wake vision/audio — casual "let's play X" said to chat
-                                # would misfire (e.g. full-screen reads). Senses are
-                                # escalated by the authoritative Deep Senses toggle, not
-                                # by speech. Group 2 always-on calm perception is the
-                                # safety net when Jonny forgets to toggle.
+                                self.vision_agent.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS
+                            if old_immersive and not self.immersive and self.session_scene_log:
+                                asyncio.create_task(self._generate_session_summary())
+                            # Load the NEW game/VN playthrough context (summary/takes/opinions).
+                            # This immediately replaces what get_context_for_prompt() injects,
+                            # so the very next prompt asserts the NEW game, not the old one.
+                            if self.playthrough_memory and new_type in (ACTIVITY_VN, ACTIVITY_GAME):
+                                self.playthrough_memory.load_for_game(target)
+                                # Takes/spotlight persist across activity switches (Req A).
+                            # NOTE: the voice phrase sets the activity LABEL +
+                            # playthrough context ONLY. It deliberately does NOT
+                            # wake vision/audio — casual "let's play X" said to chat
+                            # would misfire (e.g. full-screen reads). Senses are
+                            # escalated by the authoritative Deep Senses toggle, not
+                            # by speech. Group 2 always-on calm perception is the
+                            # safety net when Jonny forgets to toggle.
 
                     # 1. Vision Gating Logic (Optimized for Cost vs Detail)
                     visual_desc = ""
