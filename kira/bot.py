@@ -754,13 +754,12 @@ class VTubeBot:
         # Chaos Mode state. Activated when the cookie jar milestone fires.
         # While active, _kira_voice_guardrails appends CHAOS_MODE_DIRECTIVE to
         # every Kira prompt, dialing TONE without touching factual guardrails.
-        self.chaos_mode_active: bool = False
-        self.chaos_mode_until: float = 0.0
-        self._chaos_mode_task = None  # asyncio.Task handle for the timer
-        # Earliest time the jar may trigger another chaos window. Set when a
-        # chaos window ends (now + CHAOS_MODE_COOLDOWN_SECONDS). Enforces "one
-        # chaos window at a time, with a cooldown" — see _maybe_fire_cookie_milestone.
-        self._chaos_cooldown_until: float = 0.0
+        # Timed modifiers (5-min modes). Chaos is ONE instance routed through this
+        # registry; chaos_mode_active / chaos_mode_until / _chaos_cooldown_until are
+        # now read-only properties backed by it, so every existing read keeps working.
+        from kira.timed_modifier import TimedModifierRegistry
+        self.timed_modifiers = TimedModifierRegistry()
+        self._chaos_mode_task = None  # asyncio.Task handle for the chaos timer
 
         # Wheel state
         self._wheel_vetoed: bool = False          # set by dashboard veto action
@@ -804,7 +803,7 @@ class VTubeBot:
                 return
             # One chaos window at a time, with a cooldown after it ends.
             now = time.time()
-            if self.chaos_mode_active or now < self._chaos_cooldown_until:
+            if not self.timed_modifiers.can_activate("chaos"):
                 return
             self._cookie_milestone_in_flight = True
             # Roll the jar over immediately (atomic) — consumes the pending flag
@@ -959,6 +958,10 @@ class VTubeBot:
         import random as _rand
         slice_id = slice_def["id"]
         directive = slice_def.get("directive", "")
+        # Layer 0 — typed-slot dispatch. Every existing slice is "segment" (the
+        # default), so the per-slice handling below runs exactly as before; the
+        # timed_mode / chat-vote types are wired in later layers.
+        slice_type = slice_def.get("type", "segment")  # noqa: F841 (used by later layers)
 
         print(f"   [Wheel] Executing slice: {slice_id}")
 
@@ -967,10 +970,9 @@ class VTubeBot:
         except Exception:
             pass
 
-        # ── chaos_mode: activates existing chaos system ─────────────────
+        # ── chaos_mode: activates the chaos timed-modifier (one registry instance) ──
         if slice_id == "chaos_mode":
-            now = time.time()
-            if not self.chaos_mode_active and now >= self._chaos_cooldown_until:
+            if self.timed_modifiers.can_activate("chaos"):
                 from kira.memory.cookie_jar import CHAOS_MODE_DURATION_SECONDS
                 lines = [
                     "The wheel landed on CHAOS. Legally feral, no notes, no regrets.",
@@ -1224,13 +1226,32 @@ class VTubeBot:
             print(f"   [Wheel] Lore canonize failed: {e}")
 
     # \u2500\u2500 Chaos Mode \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    # Back-compat: chaos state now lives in the TimedModifierRegistry as one
+    # instance. These read-only properties keep every existing read working
+    # (cooldown-block, _deactivate guard, the activation print).
+    @property
+    def chaos_mode_active(self) -> bool:
+        return self.timed_modifiers.is_active("chaos")
+
+    @property
+    def chaos_mode_until(self) -> float:
+        return self.timed_modifiers.until() if self.timed_modifiers.is_active("chaos") else 0.0
+
+    @property
+    def _chaos_cooldown_until(self) -> float:
+        return self.timed_modifiers.cooldown_until("chaos")
+
     def _activate_chaos_mode(self) -> None:
-        """Flip chaos on, broadcast to overlay, schedule deactivation timer.
-        Idempotent: if already active, resets timer to a fresh duration."""
-        from kira.memory.cookie_jar import CHAOS_MODE_DURATION_SECONDS
+        """Activate chaos as a TimedModifier (one instance in the registry), broadcast
+        to overlay, schedule the deactivation timer. Idempotent: resets the timer."""
+        from kira.memory.cookie_jar import (
+            CHAOS_MODE_DURATION_SECONDS, CHAOS_MODE_COOLDOWN_SECONDS, CHAOS_MODE_DIRECTIVE,
+        )
+        from kira.timed_modifier import TimedModifier
         duration = int(CHAOS_MODE_DURATION_SECONDS)
-        self.chaos_mode_active = True
-        self.chaos_mode_until = time.time() + duration
+        self.timed_modifiers.start(
+            TimedModifier("chaos", CHAOS_MODE_DIRECTIVE, duration, int(CHAOS_MODE_COOLDOWN_SECONDS))
+        )
         print(f"   [Chaos] \U0001f525 CHAOS MODE ACTIVE for {duration}s (until {self.chaos_mode_until:.0f})")
         try:
             self.stream_logger.log("chaos_start", duration=duration)
@@ -1260,11 +1281,9 @@ class VTubeBot:
         from kira.memory.cookie_jar import CHAOS_MODE_END_LINES
         if not self.chaos_mode_active:
             return
-        self.chaos_mode_active = False
-        self.chaos_mode_until = 0.0
-        # Start the cooldown — no new chaos window may trigger until it elapses.
-        from kira.memory.cookie_jar import CHAOS_MODE_COOLDOWN_SECONDS
-        self._chaos_cooldown_until = time.time() + int(CHAOS_MODE_COOLDOWN_SECONDS)
+        # Clearing the active modifier arms its cooldown (CHAOS_MODE_COOLDOWN_SECONDS,
+        # baked into the modifier at activation) — same one-window-then-cooldown rule.
+        self.timed_modifiers.end()
         print("   [Chaos] Chaos mode ended.")
         try:
             self.stream_logger.log("chaos_end")
@@ -1818,12 +1837,11 @@ class VTubeBot:
         # Chaos Mode directive — layered on TOP of all safety/voice rules above.
         # Dials tone only; factual guardrails (visual accuracy, no fabrication,
         # banned phrases) stay in force per the directive's own wording.
-        if getattr(self, "chaos_mode_active", False):
-            try:
-                from kira.memory.cookie_jar import CHAOS_MODE_DIRECTIVE
-                block += "\n\n" + CHAOS_MODE_DIRECTIVE + "\n"
-            except Exception:
-                pass
+        # active_directive() is the running timed-modifier's directive (== CHAOS_MODE_
+        # DIRECTIVE when chaos is active) or "" when none — one signal for all modes.
+        _mod_directive = self.timed_modifiers.active_directive() if getattr(self, "timed_modifiers", None) else ""
+        if _mod_directive:
+            block += "\n\n" + _mod_directive + "\n"
         # Wheel segment directive — injected for the next response after a wheel
         # spin lands. Cleared after use (or on expiry) to avoid bleed.
         wheel_dir = getattr(self, "_wheel_segment_directive", "")
