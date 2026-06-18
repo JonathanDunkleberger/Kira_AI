@@ -1635,6 +1635,11 @@ class AI_Core:
         text = re.sub(r'\[TAKE\]', '', text)
         # Trailing UNCLOSED recognized tag (truncated mid-stream — no closing ']').
         text = re.sub(r'\[(?:POLL|PREDICT|SONG|BIT|CHAT|TAKE)\b[^\]]*$', '', text)
+        # Speak handles naturally: never read inter-word underscores aloud as
+        # "underscore" (e.g. "the_one_over_there" → "the one over there"). Only
+        # underscores BETWEEN word chars are converted; leading/trailing left alone.
+        # Universal funnel, so it also covers handles that slip through any prompt path.
+        text = re.sub(r'(?<=\w)_(?=\w)', ' ', text)
         return text.strip()
 
     async def _play_audio_with_pygame(self, audio_bytes: bytes):

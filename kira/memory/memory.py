@@ -498,6 +498,54 @@ class MemoryManager:
         except Exception as e:
             print(f"   [Memory] chatter fact storage failed: {e}")
 
+    def store_chatter_preferred_name(self, username: str, platform: str, preferred_name: str):
+        """Persist the name a chatter wants to be called ('just call me TOOT').
+
+        Additive: a single deterministic-ID row (type='chatter_preferred_name')
+        upserted per chatter — never duplicates, never alters the normalized
+        'username' lookup key, no migration (Chroma metadata is schemaless per
+        record; this mirrors the optional 'tone' key). A later genuine declaration
+        overwrites it. Purely the DISPLAY/spoken name; storage keys stay the handle."""
+        try:
+            pname = (preferred_name or "").strip()
+            key = normalize_chatter_key(username)
+            if not key or not pname:
+                return
+            text = f"{username} prefers to be called {pname}"
+            pref_id = f"chatter::{key}::preferred_name"
+            meta = {
+                "type": "chatter_preferred_name",
+                "username": key,                 # SAME normalized key — never a new lookup field
+                "platform": platform,
+                "preferred_name": pname,
+                "timestamp": time.time(),
+            }
+            emb = self.embedding_model.encode(text).tolist()
+            self.chatters.upsert(
+                ids=[pref_id],
+                embeddings=[emb],
+                documents=[text],
+                metadatas=[meta],
+            )
+            print(f"   [ChatterMem] Preferred name set: {key} → '{pname}'")
+        except Exception as e:
+            print(f"   [Memory] chatter preferred-name storage failed: {e}")
+
+    def get_chatter_preferred_name(self, username: str):
+        """Return the chatter's stated preferred name, or None. Direct O(1) lookup
+        on the deterministic preferred-name row; never raises into the caller."""
+        try:
+            res = self.chatters.get(
+                ids=[f"chatter::{normalize_chatter_key(username)}::preferred_name"],
+                include=["metadatas"],
+            )
+            metas = res.get("metadatas") if res else None
+            if metas:
+                return (metas[0] or {}).get("preferred_name") or None
+        except Exception as e:
+            print(f"   [Memory] chatter preferred-name lookup failed: {e}")
+        return None
+
     def get_chatter_context(self, username: str, n_results: int = 5) -> str:
         """Returns a formatted string of what Kira knows about this chatter.
         Used when a chatter speaks — gives Kira recall."""
@@ -513,11 +561,15 @@ class MemoryManager:
             facts = []
             recent_msgs = []
             tones = []
+            preferred = None
             for doc, meta in zip(results["documents"], results["metadatas"]):
-                if meta.get("type") == "chatter_fact":
+                _mtype = meta.get("type")
+                if _mtype == "chatter_fact":
                     facts.append(doc)
                     if meta.get("tone"):
                         tones.append(meta["tone"])
+                elif _mtype == "chatter_preferred_name":
+                    preferred = meta.get("preferred_name") or preferred
                 else:
                     recent_msgs.append((meta.get("timestamp", 0), doc))
 
@@ -525,6 +577,8 @@ class MemoryManager:
             recent_msgs = [doc for ts, doc in recent_msgs[:n_results]]
 
             lines = []
+            if preferred:
+                lines.append(f"Prefers to be called: {preferred} (use this name, not the raw handle)")
             if facts:
                 lines.append(f"What you know about {username}: " + " | ".join(facts[:5]))
             if tones:
