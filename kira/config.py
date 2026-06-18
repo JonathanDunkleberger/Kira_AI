@@ -23,6 +23,14 @@ WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "large-v3")
 # [VRAM] telemetry: how often (seconds) to log Kira's per-process GPU footprint.
 # Cheap (one NVML query); set high to quiet it. Diagnostic instrument, not a fix.
 VRAM_LOG_INTERVAL_S = int(os.getenv("VRAM_LOG_INTERVAL_S", "45"))
+
+# Wheel ceremony timing (env-tunable to dial spin feel live). The backend SENDS
+# these to the overlay AND waits on them, so the result reaction always fires
+# after the wheel visibly lands. entrance + spin + buffer = time from spin-event
+# to the slice reaction.
+WHEEL_ENTRANCE_MS    = int(os.getenv("WHEEL_ENTRANCE_MS", "1800"))   # anticipation hold before the spin
+WHEEL_SPIN_MS        = int(os.getenv("WHEEL_SPIN_MS", "6000"))       # dramatic spin duration
+WHEEL_LAND_BUFFER_MS = int(os.getenv("WHEEL_LAND_BUFFER_MS", "600")) # let the landing read before she reacts
 WHISPER_CACHE_DIR = os.getenv("WHISPER_CACHE_DIR", os.path.join(_REPO_ROOT, "models", "whisper"))
 # Vision master kill-switch. Default ON: general perception means she can see at a
 # calm cadence WITHOUT arming a mode. Set false to make her blind everywhere

@@ -55,6 +55,7 @@ from kira.config import (
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
     VRAM_LOG_INTERVAL_S,
+    WHEEL_ENTRANCE_MS, WHEEL_SPIN_MS, WHEEL_LAND_BUFFER_MS,
 )
 from kira.memory.stream_logger import StreamLogger
 from kira.memory import identity_manager
@@ -892,7 +893,11 @@ class VTubeBot:
             except Exception:
                 pass
 
-            # Push wheel_spin event to overlay WS
+            # Push wheel_spin event to overlay WS. Send the timings so the overlay
+            # obeys them (single source of truth); stamp the event time so the wait
+            # below can land the result reaction AFTER the visual stop regardless of
+            # how long the milestone announce takes.
+            _spin_event_ts = time.time()
             try:
                 from kira.dashboard.control_server import push_overlay_event
                 asyncio.ensure_future(push_overlay_event({
@@ -900,7 +905,9 @@ class VTubeBot:
                     "result":      slice_id,
                     "label":       slice_label,
                     "tipper":      tipper_disp,
-                    "duration_ms": 3500,
+                    "entrance_ms": WHEEL_ENTRANCE_MS,
+                    "spin_ms":     WHEEL_SPIN_MS,
+                    "duration_ms": WHEEL_SPIN_MS,   # back-compat alias for older overlays
                 }))
             except Exception:
                 pass
@@ -925,9 +932,14 @@ class VTubeBot:
             except Exception as _tts_err:
                 print(f"   [Cookies] Milestone announce TTS error: {_tts_err}")
 
-            # Wait for wheel spin duration + hold + reveal
+            # Wait until the wheel has VISIBLY LANDED before executing the slice
+            # reaction, so Kira reacts to the winner AFTER it lands, never mid-spin.
+            # Measured from the spin event so the milestone announce's own TTS
+            # duration doesn't push it late: sleep the REMAINDER of
+            # entrance + spin + read-buffer.
             self._wheel_vetoed = False
-            await asyncio.sleep(4.5)   # spin 3.5s + ~1s hold before result label
+            _land_after_s = (WHEEL_ENTRANCE_MS + WHEEL_SPIN_MS + WHEEL_LAND_BUFFER_MS) / 1000.0
+            await asyncio.sleep(max(0.0, _land_after_s - (time.time() - _spin_event_ts)))
 
             if self._wheel_vetoed:
                 print(f"   [Cookies] Wheel vetoed — skipping slice execution")

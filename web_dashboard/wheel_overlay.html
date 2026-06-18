@@ -382,13 +382,12 @@ function spin(sliceId, durationMs, onFinish) {
 
   function frame(now) {
     const t   = Math.min(1, (now - startTime) / durationMs);
-    let   et  = _easeOut(t);
-    /* Damped settle wobble in the final stretch — overshoots a hair past
-       the slice then rocks back, for the "is it gonna land on—" tension. */
-    if (t > 0.80 && t < 1) {
-      const k = (t - 0.80) / 0.20;            // 0→1 across the last 20%
-      et += Math.sin(k * Math.PI * 2.5) * (1 - k) * 0.010;
-    }
+    const et  = _easeOut(t);
+    /* No settle overshoot: pure monotonic ease-out so the pointer decelerates
+       INTO the winner and STOPS. The old additive wobble pushed et past 1,
+       swinging ~0.5 slice into the neighbour and rocking back — the "lands then
+       switches" illusion. The strong ease-out already gives the slow, teasing
+       deceleration without ever crossing the winner. */
     const rot = startRot + totalDelta * et;
     drawWheel(rot % (Math.PI * 2), t >= 1 ? _winIdx : -1);
     if (t < 1) {
@@ -470,12 +469,17 @@ function connect() {
       const sliceId = msg.result || 'ghost_story';
       const label   = msg.label || '';
 
-      /* PHASE 1 — ENTRANCE: fade/scale in, then hold for anticipation. */
+      /* PHASE 1 — ENTRANCE: fade/scale in, then hold for anticipation.
+         Honor the backend-sent timings (single source of truth) so the wheel's
+         landing and Kira's reaction stay in lockstep; fall back to local CFG
+         defaults for older backends that don't send them. */
+      const spinMs     = msg.spin_ms     || CFG.spinMs;
+      const entranceMs = msg.entrance_ms || CFG.entranceMs;
       showWheel(msg.tipper || '');
 
       _ceremony.push(setTimeout(function () {
         /* PHASE 2 — SPIN: long, dramatic, strong ease-out. */
-        spin(sliceId, CFG.spinMs, function () {
+        spin(sliceId, spinMs, function () {
           /* PHASE 3 — LAND: glow pulse + confetti already firing; hold so the
              slice reads clearly and Kira can react. Re-burst confetti midway
              so it doesn't die out during the long hold. */
@@ -488,7 +492,7 @@ function connect() {
             _ceremony.push(setTimeout(hideWheel, CFG.resultMs));
           }, CFG.holdMs));
         });
-      }, CFG.entranceMs));
+      }, entranceMs));
     }
 
     if (msg.type === 'wheel_veto') {
