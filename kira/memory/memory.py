@@ -4,6 +4,7 @@ import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 import os
+import re
 import torch
 import time
 import uuid
@@ -546,6 +547,114 @@ class MemoryManager:
             print(f"   [Memory] chatter preferred-name lookup failed: {e}")
         return None
 
+    # ── Diversity-first fact surfacing (READ-PATH ONLY — zero writes) ───────────
+    # Stopwords stripped before topic-clustering facts. Includes fact-boilerplate
+    # ("known", "fact", "referred") so clustering keys on the actual subject.
+    _FACT_STOPWORDS = frozenset({
+        "the", "a", "an", "and", "or", "but", "is", "are", "was", "were", "be",
+        "been", "being", "to", "of", "in", "on", "at", "for", "with", "by", "as",
+        "that", "this", "it", "its", "they", "them", "their", "he", "she", "his",
+        "her", "you", "your", "i", "me", "my", "we", "our", "kira", "known",
+        "has", "have", "had", "who", "which", "about", "into", "from", "fact",
+        "referred", "refers", "calls", "called", "call", "said", "says", "say",
+        "like", "likes", "liked", "very", "really", "just", "also", "still",
+        "always", "often", "tends", "tend", "thing", "things", "themselves",
+        # Generic identity-category nouns — they bridge UNRELATED topics ("banana
+        # person" vs "earth crater person"), so excluding them lets clustering key
+        # on the real subject ("banana") instead of fragmenting/over-merging on them.
+        "person", "people", "guy", "guys", "dude", "dudes", "man", "men", "woman",
+        "women", "girl", "boy", "one", "ones", "someone", "somebody", "kind",
+        "type", "sort", "stuff", "name", "named",
+    })
+
+    def _fact_tokens(self, doc: str, username: str) -> set:
+        """Content tokens of a fact doc minus the 'username:' prefix and stopwords.
+        Read-only helper for topic clustering — no storage interaction."""
+        body = doc or ""
+        # Strip the leading "{handle}: " prefix robustly. The stored doc uses the
+        # RAW handle ("@RunTimeRiot: …"), NOT the normalized key, so a fixed-string
+        # strip misses and the name contaminates every fact (→ all facts collapse to
+        # one cluster). Split on the first ": " instead.
+        if ": " in body:
+            body = body.split(": ", 1)[1]
+        _key = normalize_chatter_key(username)
+        out = set()
+        for t in re.findall(r"[a-z0-9']+", body.lower()):
+            t = t.strip("'")  # drop surrounding apostrophes/quotes ('banana ≠ banana)
+            if len(t) <= 2 or t in self._FACT_STOPWORDS or t == _key:
+                continue
+            # Light singular/plural stem so morphological variants of the SAME topic
+            # cluster together (banana/bananas, joke/jokes) instead of fragmenting.
+            if len(t) > 4 and t.endswith("es"):
+                t = t[:-2]
+            elif len(t) > 4 and t.endswith("s") and not t.endswith("ss"):
+                t = t[:-1]
+            if len(t) > 2:
+                out.add(t)
+        return out
+
+    def _diverse_facts(self, fact_items: list, username: str, limit: int) -> list:
+        """Pick up to `limit` DISTINCT facts from (timestamp, doc) tuples.
+
+        Collapses near-duplicate paraphrases of one trait (chatter-local
+        dominant-token clustering) to a single representative, then ranks clusters
+        by DURABILITY (how many rows reinforce the trait) so an enduring fact
+        surfaces even if old, with RECENCY as the tiebreak. Each surviving cluster
+        contributes one line; the representative is the cluster's freshest phrasing.
+
+        ZERO WRITES — pure in-memory read-time selection. The stored rows (incl. the
+        143 'banana' variants) are untouched; only what gets SURFACED changes."""
+        if not fact_items:
+            return []
+        toks = [self._fact_tokens(doc, username) for _ts, doc in fact_items]
+        # Chatter-local token frequency: a token recurring across many of THIS
+        # chatter's facts marks a calcified topic (e.g. 'banana' in 143 rows).
+        freq: dict = {}
+        for tset in toks:
+            for t in tset:
+                freq[t] = freq.get(t, 0) + 1
+        # Topic key per fact = its most-recurring content token (ties → longer, then
+        # alphabetical, for determinism). Facts sharing a key fold into one cluster.
+        clusters: dict = {}
+        for (ts, doc), tset in zip(fact_items, toks):
+            if tset:
+                key = max(tset, key=lambda t: (freq[t], len(t), t))
+            else:
+                key = (doc or "").strip().lower()   # tokenless fact → its own bucket
+            c = clusters.setdefault(key, {"items": [], "max_ts": 0.0})
+            c["items"].append((ts, doc))
+            if (ts or 0) > c["max_ts"]:
+                c["max_ts"] = ts or 0
+        # Fold clusters whose keys are prefix-related (banana ⊂ bananas ⊂ bananana)
+        # so morphological / repetition / misspelling variants of ONE topic collapse
+        # to a single line. Requires a true prefix ≥5 chars, which keeps unrelated
+        # words apart ("modern" is not a prefix of "moderator"). Shortest key wins.
+        _keys = sorted(clusters.keys(), key=len)
+        _canon: dict = {}
+        for _k in _keys:
+            _tgt = _k
+            for _shorter in _keys:
+                if _shorter == _k:
+                    break
+                if len(_shorter) >= 5 and _k.startswith(_shorter):
+                    _tgt = _canon.get(_shorter, _shorter)
+                    break
+            _canon[_k] = _tgt
+        if any(v != k for k, v in _canon.items()):
+            _merged: dict = {}
+            for _k, _c in clusters.items():
+                _m = _merged.setdefault(_canon[_k], {"items": [], "max_ts": 0.0})
+                _m["items"].extend(_c["items"])
+                _m["max_ts"] = max(_m["max_ts"], _c["max_ts"])
+            clusters = _merged
+        # Durability first (cluster size), recency (max_ts) breaks ties. One line each.
+        ranked = sorted(
+            clusters.values(),
+            key=lambda c: (len(c["items"]), c["max_ts"]),
+            reverse=True,
+        )
+        return [max(c["items"], key=lambda it: it[0] or 0)[1] for c in ranked[:limit]]
+
     def get_chatter_context(self, username: str, n_results: int = 5) -> str:
         """Returns a formatted string of what Kira knows about this chatter.
         Used when a chatter speaks — gives Kira recall."""
@@ -558,14 +667,14 @@ class MemoryManager:
             if not results or not results.get("documents"):
                 return ""
 
-            facts = []
+            facts = []          # (timestamp, doc) for chatter_fact rows
             recent_msgs = []
             tones = []
             preferred = None
             for doc, meta in zip(results["documents"], results["metadatas"]):
                 _mtype = meta.get("type")
                 if _mtype == "chatter_fact":
-                    facts.append(doc)
+                    facts.append((meta.get("timestamp", 0), doc))
                     if meta.get("tone"):
                         tones.append(meta["tone"])
                 elif _mtype == "chatter_preferred_name":
@@ -576,11 +685,19 @@ class MemoryManager:
             recent_msgs.sort(reverse=True)
             recent_msgs = [doc for ts, doc in recent_msgs[:n_results]]
 
+            # Diversity-first fact surfacing (READ-ONLY; see _diverse_facts). A
+            # running bit calcifies into dozens of paraphrased rows that flood the
+            # recall slots and freeze a chatter's identity ("banana person"). We do
+            # NOT delete those rows — we just SELECT better at read time: collapse
+            # near-duplicates to one line each, then fill remaining slots with
+            # DISTINCT topics. Pure in-memory; no write of any kind.
+            surfaced_facts = self._diverse_facts(facts, username, 5)
+
             lines = []
             if preferred:
                 lines.append(f"Prefers to be called: {preferred} (use this name, not the raw handle)")
-            if facts:
-                lines.append(f"What you know about {username}: " + " | ".join(facts[:5]))
+            if surfaced_facts:
+                lines.append(f"What you know about {username}: " + " | ".join(surfaced_facts))
             if tones:
                 # Most recently stored tone wins
                 lines.append(f"General vibe: {tones[-1]}")
