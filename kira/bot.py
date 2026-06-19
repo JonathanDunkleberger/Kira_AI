@@ -636,6 +636,7 @@ class VTubeBot:
         self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
         self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
         self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
+        self.director_enabled: bool = ACTIVITY_DIRECTOR_ENABLED  # env = BOOT DEFAULT; dashboard flips it live
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -7810,7 +7811,7 @@ class VTubeBot:
             # proactive-speech decision this tick (replaces the boredom filler below).
             # Default OFF; every fire logged loudly. A blocked/deflected impulse still
             # consumes the gap (stamp BEFORE the await) so caught bits never burst out.
-            if ACTIVITY_DIRECTOR_ENABLED and self._director_activity_focused():
+            if self.director_enabled and self._director_activity_focused():
                 if not self.chat_lock_in and not self.ai_core.has_pending_voice_turn():
                     _dir_gap = time.time() - self._last_director_ts
                     if _dir_gap >= DIRECTOR_MIN_GAP_S:

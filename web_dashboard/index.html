@@ -796,6 +796,17 @@ html, body {
       <span class="value" id="g-activity" style="font-size:1rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">–</span>
     </div>
 
+    <!-- Behavioral-state strip: at-a-glance Activity / Director / Lock In -->
+    <div id="behavior-strip" title="Kira's current behavioral state"
+         style="display:flex;gap:7px;align-items:center;margin-left:4px;">
+      <span class="bs-pill" id="bs-activity"
+            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#2a2018;color:#d8c8b0;border:1.5px solid #4a3a2a;white-space:nowrap;">–</span>
+      <span class="bs-pill" id="bs-director"
+            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#241a14;color:#7a6a58;border:1.5px solid #3a2e22;white-space:nowrap;">DIRECTOR</span>
+      <span class="bs-pill" id="bs-lockin"
+            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#241a14;color:#7a6a58;border:1.5px solid #3a2e22;white-space:nowrap;">LOCK IN</span>
+    </div>
+
     <div id="conn-dots">
       <div class="dot-item"><div class="dot" id="dot-llm"></div><span class="dot-label">LLM</span></div>
       <div class="dot-item"><div class="dot" id="dot-tts"></div><span class="dot-label">TTS</span></div>
@@ -859,6 +870,9 @@ html, body {
 
       <button class="rail-btn lockin" id="btn-lockin"
               onclick="cmd('lock_in_toggle', null, this)">🔒 Lock In</button>
+
+      <button class="rail-btn director" id="btn-director"
+              onclick="cmd('director_toggle', null, this)">🎬 Director</button>
 
       <div class="rail-sep"></div>
 
@@ -1525,6 +1539,7 @@ let _lastTranscriptHash = '';
 
 function render(s) {
   safe(() => renderGlance(s));
+  safe(() => renderStatusStrip(s));
   safe(() => renderEffStrip(s));
   safe(() => renderPerception(s));
   safe(() => renderOverlayChips(s));
@@ -1716,6 +1731,47 @@ function renderTranscript(s) {
 }
 
 // ── RAIL ──────────────────────────────────────────────────
+// ── BEHAVIOR STATUS STRIP (at-a-glance Activity / Director / Lock In) ──────
+function renderStatusStrip(s) {
+  const _dim = (el) => { el.style.background='#241a14'; el.style.color='#7a6a58'; el.style.borderColor='#3a2e22'; };
+  // Activity
+  const a = document.getElementById('bs-activity');
+  if (a) {
+    const at = s.activity_type || 'general';
+    const name = (s.activity && s.activity.trim()) ? s.activity.trim() : '';
+    if (at && at !== 'general') {
+      a.textContent = (name || at).toUpperCase() + ' [' + at + ']';
+      a.style.background='#1e3320'; a.style.color='#9be8a8'; a.style.borderColor='#3a7d44';
+    } else {
+      a.textContent = name ? name.toUpperCase() : 'HANGOUT';
+      a.style.background='#2a2018'; a.style.color='#d8c8b0'; a.style.borderColor='#4a3a2a';
+    }
+  }
+  // Lock In
+  const li = document.getElementById('bs-lockin');
+  if (li) {
+    if (s.chat_lock_in) {
+      li.textContent = '🔒 LOCK IN';
+      li.style.background='var(--accent)'; li.style.color='#1C1410'; li.style.borderColor='var(--accent)';
+    } else { li.textContent = 'LOCK IN'; _dim(li); }
+  }
+  // Director — OFF / ON / SUPPRESSED-by-LockIn / ●FIRED pulse
+  const d = document.getElementById('bs-director');
+  if (d) {
+    if (!s.director_enabled) { d.textContent = 'DIRECTOR OFF'; _dim(d); }
+    else if (s.chat_lock_in) {
+      d.textContent = '🎬 SUPPRESSED';
+      d.style.background='#3a2e10'; d.style.color='#e8c86a'; d.style.borderColor='#9a7a20';
+    } else {
+      const fired = s.director_last_fire_ts && (Date.now()/1000 - s.director_last_fire_ts) < 4.0;
+      d.textContent = fired ? '🎬 ● FIRED' : '🎬 DIRECTOR ON';
+      d.style.background = fired ? '#5aa86a' : '#1e3320';
+      d.style.color     = fired ? '#0a1a0c' : '#9be8a8';
+      d.style.borderColor = '#3a7d44';
+    }
+  }
+}
+
 function renderRail(s) {
   // Mute button
   const btnMute = document.getElementById('btn-mute');
@@ -1755,6 +1811,20 @@ function renderRail(s) {
       btnLock.style.background = '';
       btnLock.style.color = '';
       btnLock.textContent = '\uD83D\uDD12 Lock In';
+    }
+  }
+
+  // Activity Director \u2014 live on/off (overrides ACTIVITY_DIRECTOR_ENABLED boot default)
+  const btnDir = document.getElementById('btn-director');
+  if (btnDir) {
+    if (s.director_enabled) {
+      btnDir.style.background = '#3a7d44';
+      btnDir.style.color = '#f5fff7';
+      btnDir.textContent = '\uD83C\uDFAC Director ON';
+    } else {
+      btnDir.style.background = '';
+      btnDir.style.color = '';
+      btnDir.textContent = '\uD83C\uDFAC Director';
     }
   }
 }

@@ -169,12 +169,15 @@ def state_snapshot(bot: "VTubeBot") -> dict:
 
     # ── Activity + mode flags ─────────────────────────────────────────────────
     activity = _get(lambda: bot.current_activity or "", "")
+    activity_type = _get(lambda: bot.game_mode_controller.activity_type, "general")
+    director_last_fire_ts = _get(lambda: float(bot._last_director_ts), 0.0)
     mode = _get(lambda: bot.mode, "companion")
     carry_mode = _get(lambda: bot.carry_mode, False)
     immersive = _get(lambda: bot.immersive, False)
     presence_level = _get(lambda: bot.presence_level, "normal")
     deep_senses = _get(lambda: bool(bot.deep_senses), False)
     chat_lock_in = _get(lambda: bool(bot.chat_lock_in), False)
+    director_enabled = _get(lambda: bool(bot.director_enabled), False)
 
     # ── Effective (post-reconcile) state — the single truth both UIs render ───
     effective = _get(lambda: bot._compute_effective_state(), {}) or {}
@@ -332,11 +335,14 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "loopback_summary": loopback_summary,
         # Activity / mode
         "activity": activity,
+        "activity_type": activity_type,
+        "director_last_fire_ts": director_last_fire_ts,
         "mode": mode,
         "carry_mode": carry_mode,
         "immersive": immersive,
         "presence_level": presence_level,
         "chat_lock_in": chat_lock_in,
+        "director_enabled": director_enabled,
         "deep_senses": deep_senses,
         # Effective state (post-reconcile) — strip + three-state toggles render
         # from THIS, never from the raw toggle booleans above.
@@ -1095,6 +1101,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         # to release — floor returns to the activity default. In-memory, no restart.
         bot.chat_lock_in = not getattr(bot, "chat_lock_in", False)
         return _ok(chat_lock_in=bot.chat_lock_in)
+
+    if action == "director_toggle":
+        # Activity Director on/off, LIVE (in-memory) — so the Director can be flipped
+        # mid-stream to tune cadence without a cold restart. ACTIVITY_DIRECTOR_ENABLED
+        # is only the boot default; this overrides it live, same pattern as Lock In.
+        bot.director_enabled = not getattr(bot, "director_enabled", False)
+        return _ok(director_enabled=bot.director_enabled)
 
     # ── Discord diary (Phase 1, REVIEW MODE) ──────────────────────────────────
     # Manual post of the pending diary entry. Fires the webhook ONLY here, on a
