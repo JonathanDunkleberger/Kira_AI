@@ -58,6 +58,10 @@ def _parse_args() -> argparse.Namespace:
                    help="Skip highlight-reel assembly; produce ranked individual clips only.")
     p.add_argument("--no-clips", action="store_true",
                    help="Skip individual clip title/sidecar generation; produce reel only.")
+    p.add_argument("--legacy-layout", action="store_true",
+                   help="Use the old flat layout (ranked clips + one chronological reel) "
+                        "instead of the Phase-4 four labeled outputs (clips-by-type / best-of "
+                        "reel / highlight VOD with cold-open / short candidate).")
     p.add_argument("--vod", default=None, metavar="PATH",
                    help="Path to a VOD file (e.g. YouTube download) that lacks a reliable "
                         "container creation_time. Whisper anchor-matching will derive the "
@@ -95,6 +99,7 @@ async def _main() -> int:
             reel=do_reel,
             clips=do_clips,
             vod_path=vod_path,
+            phase4=not args.legacy_layout,
         )
     except RuntimeError as e:
         print(f"\nERROR: {e}")
@@ -113,8 +118,14 @@ async def _main() -> int:
         print(f"      out: {s['out_dir']}")
         print(f"      report: {s['report']}")
         if s.get("reel_path"):
-            print(f"      REEL:   {s['reel_path']}")
-            print(f"      reel report: {s.get('reel_report', '')}")
+            label = "BEST-OF REEL" if not args.legacy_layout else "REEL"
+            print(f"      {label}: {s['reel_path']}")
+            if args.legacy_layout:
+                print(f"      reel report: {s.get('reel_report', '')}")
+        if s.get("highlight_path"):
+            print(f"      HIGHLIGHT VOD: {s['highlight_path']}")
+        if s.get("short_path"):
+            print(f"      SHORT CANDIDATE: {s['short_path']}")
         total_cut += s["cut"]
     if not result["sessions"]:
         print("  (no artifacts processed)")

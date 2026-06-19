@@ -440,6 +440,19 @@ CLIP_SETUP_BUFFER_S = float(os.getenv("CLIP_SETUP_BUFFER_S", "1.0"))   # tight l
 CLIP_PUNCH_TAIL_S   = float(os.getenv("CLIP_PUNCH_TAIL_S", "0.5"))     # hard-ish tail after the punch lands
 CLIP_MAX_EXCHANGE_S = float(os.getenv("CLIP_MAX_EXCHANGE_S", "90.0"))  # setup→punch span over this ⇒ bad match, use fixed window
 
+# ── Clip output shaping (Phase 4 — the four labeled outputs) ───────────────────
+# Minimum output clip length. Floor protects against unusable stubs; DROP IT for
+# short-form one-liners. In asymmetric mode the floor grows the FRONT (earlier
+# in-point), never the tail, so the hard out-cut on the punch is preserved.
+CLIP_MIN_SECONDS = float(os.getenv("CLIP_MIN_SECONDS", "12.0"))
+# (b) best-of reel: pick clips top-by-score until cumulative length reaches this cap.
+CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))  # ~5 min
+# (c) highlight-VOD cold-open teaser: the N punchiest clips, each trimmed to this
+# many seconds (the tail-end landing on the punch), spliced BEFORE the chronological
+# body as a rapid hook — snippets, never full-clip duplicates.
+CLIP_TEASER_COUNT = int(os.getenv("CLIP_TEASER_COUNT", "3"))
+CLIP_TEASER_SECONDS = float(os.getenv("CLIP_TEASER_SECONDS", "0.5"))
+
 # Minimum session length (minutes) below which the reel is skipped.
 # Also requires at least 3 aligned candidates. Override via env.
 REEL_MIN_MINUTES   = int(os.getenv("REEL_MIN_MINUTES", "20"))

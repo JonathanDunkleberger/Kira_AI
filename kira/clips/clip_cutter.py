@@ -48,19 +48,28 @@ from kira.config import (
     CLIP_SETUP_BUFFER_S,
     CLIP_PUNCH_TAIL_S,
     CLIP_MAX_EXCHANGE_S,
+    CLIP_MIN_SECONDS,
+    CLIP_REEL_MAX_SECONDS,
+    CLIP_TEASER_COUNT,
+    CLIP_TEASER_SECONDS,
     CLIP_VIDEO_EXTS,
     REEL_MIN_MINUTES,
     WHISPER_CACHE_DIR,
     WHISPER_MODEL_SIZE,
 )
 
-# Minimum output clip length (seconds). Applied after pre/post to protect against
-# very short anchor windows (single-line clips at tight post=3s).
-_MIN_CLIP_SECONDS = 12.0
+# Minimum output clip length (seconds) — env-tunable via CLIP_MIN_SECONDS. Floor
+# protects against unusable stubs; drop it for short-form one-liners. In asymmetric
+# mode the floor grows the FRONT, never the tail (preserving the hard punch out-cut).
+_MIN_CLIP_SECONDS = CLIP_MIN_SECONDS
 
 # Quote-match confidence threshold (difflib ratio). Below this, a quote line is
 # treated as "not found" in the event log.
 _MATCH_THRESHOLD = 0.72
+
+# Phase 4 clip-type labels (LLM-assigned in generate_titles; for foldering/labeling
+# only — NOT selection. Phase 5 upgrades the emotional/sincere category specifically).
+_CLIP_TYPES = ("funny", "sincere", "lore", "hype", "meta")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -103,6 +112,7 @@ class Candidate:
     final_title: str | None = None
     description: str | None = None
     hashtags: list[str] = field(default_factory=list)
+    clip_type: str = ""                      # Phase 4 label: funny|sincere|lore|hype|meta (LLM-assigned)
 
 
 @dataclass
@@ -688,10 +698,14 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
     prompt = (
         f"You are Kira, an AI VTuber co-host with a sharp, witty, slightly chaotic voice. "
         f"Activity: {activity}. Below are {len(cut)} clip moments from a stream. For EACH clip, "
-        f"write punchy, clip-worthy YouTube Shorts metadata IN YOUR OWN VOICE.\n\n"
+        f"write punchy, clip-worthy YouTube Shorts metadata IN YOUR OWN VOICE, and tag its type.\n\n"
         f"Return ONLY a JSON array (no prose, no markdown fences). One object per clip, in order:\n"
         f'  {{"n": <clip number>, "title": "<under 60 chars, clippy, hooky>", '
-        f'"description": "<one punchy line>", "hashtags": ["tag1","tag2","tag3"]}}\n\n'
+        f'"description": "<one punchy line>", "hashtags": ["tag1","tag2","tag3"], '
+        f'"type": "<one of: funny | sincere | lore | hype | meta>"}}\n\n'
+        f"Type guide: funny=comedic/banter punchline; sincere=warm/emotional/genuine moment; "
+        f"lore=canon or continuity established; hype=high-energy reaction/spike; "
+        f"meta=4th-wall or AI-nature joke. Pick the single best-fit type.\n"
         f"Rules: titles under 60 characters; no surrounding quotes inside the title; "
         f"hashtags without the # symbol; keep it in Kira's voice.\n\n"
         f"{joined}"
@@ -734,6 +748,8 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
                 c.description = (obj.get("description") or "").strip()
                 hh = obj.get("hashtags") or []
                 c.hashtags = [str(h).lstrip("#").strip() for h in hh if str(h).strip()][:3]
+                _ty = (obj.get("type") or "").strip().lower()
+                c.clip_type = _ty if _ty in _CLIP_TYPES else ""
         except Exception as e:
             print(f"   [Titles] JSON parse failed: {e} — using candidate titles as-is.")
 
@@ -741,6 +757,8 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
     for c in cut:
         if not c.final_title:
             c.final_title = c.suggested_title or c.title
+        if not c.clip_type:
+            c.clip_type = "funny"  # safe default label when unclassified
 
 
 def write_title_sidecar(cand: Candidate) -> None:
@@ -1215,6 +1233,232 @@ def cut_reel(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 9. Phase 4 — four labeled outputs
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# From the already-cut individual clips, package four clearly-labeled outputs into
+# subfolders of the day dir, so Jonny wakes up knowing exactly where each file is:
+#   01_clips_by_type/   — every cut clip, filename-tagged with its type
+#   02_reel_best_of/    — top-by-score concatenated, capped at CLIP_REEL_MAX_SECONDS
+#   03_highlight_vod/   — cold-open teaser (0.5s punch snippets) + chronological body
+#   04_short_candidate/ — the single highest-scored clip, labeled
+# All outputs are landscape 16:9 (cut straight from the source recording, no reframe —
+# Jonny does vertical reframing in Premiere). Selection is the current score order;
+# Phase 5 upgrades selection quality. This phase is output structure + labeling only.
+
+def _venc_args(nvenc_ok: bool) -> list[str]:
+    return (["-c:v", "h264_nvenc", "-preset", "p5", "-cq", "23"] if nvenc_ok
+            else ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20"])
+
+
+def _concat_reencode(paths: list[str], out_path: str, nvenc_ok: bool) -> bool:
+    """Concatenate clip files (uniform re-encode) into out_path. Returns success.
+    Re-encoding the concat tolerates minor per-input differences and yields one clean
+    stream (same approach as cut_reel)."""
+    paths = [p for p in paths if p and os.path.isfile(p)]
+    if not paths:
+        return False
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    listfile = out_path + ".concat.txt"
+    with open(listfile, "w", encoding="utf-8") as f:
+        for p in paths:
+            f.write(f"file '{p.replace(chr(92), '/')}'\n")
+    cmd = [
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+        "-f", "concat", "-safe", "0", "-i", listfile,
+        *_venc_args(nvenc_ok), "-c:a", "aac", "-b:a", "160k",
+        "-movflags", "+faststart", out_path,
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
+    try:
+        os.unlink(listfile)
+    except Exception:
+        pass
+    ok = r.returncode == 0 and os.path.isfile(out_path) and os.path.getsize(out_path) > 0
+    if not ok:
+        print(f"   [Phase4] concat failed for {os.path.basename(out_path)}: {r.stderr.strip()[:200]}")
+    return ok
+
+
+def _cut_segment(src: str, start: float, dur: float, out_path: str, nvenc_ok: bool) -> bool:
+    """Frame-accurate single segment (re-encoded so it concatenates cleanly with the
+    full clips). Used to build the cold-open teaser snippets."""
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    cmd = [
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+        "-ss", f"{max(0.0, start):.3f}", "-i", src, "-t", f"{dur:.3f}",
+        *_venc_args(nvenc_ok), "-c:a", "aac", "-b:a", "160k",
+        "-movflags", "+faststart", out_path,
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    return r.returncode == 0 and os.path.isfile(out_path) and os.path.getsize(out_path) > 0
+
+
+def _clip_tail_seconds(cand: Candidate) -> float:
+    """Seconds of trailing buffer after the punch in a cut clip (so a teaser can land
+    its tail on the punch). Mirrors the buffer map_to_recording applied."""
+    return CLIP_PUNCH_TAIL_S if cand.anchor_mode == "asymmetric" else CLIP_POST_SECONDS
+
+
+def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: str,
+                         activity: str, nvenc_ok: bool) -> dict:
+    """Organize already-cut clips into the four labeled outputs. Returns a summary
+    dict {clips_dir, reel_path, highlight_path, short_path, report}."""
+    cut = [c for c in candidates if c.status == "cut" and c.out_path and os.path.isfile(c.out_path)]
+    if not cut:
+        print("   [Phase4] No cut clips to package.")
+        return {}
+
+    by_score = sorted(cut, key=lambda c: (c.score, c.match_confidence), reverse=True)
+    by_time = sorted(cut, key=lambda c: c.anchor_start_epoch or 0.0)
+
+    dir_clips = os.path.join(day_dir, "01_clips_by_type")
+    dir_reel = os.path.join(day_dir, "02_reel_best_of")
+    dir_high = os.path.join(day_dir, "03_highlight_vod")
+    dir_short = os.path.join(day_dir, "04_short_candidate")
+    for d in (dir_clips, dir_reel, dir_high, dir_short):
+        os.makedirs(d, exist_ok=True)
+
+    slug = _slugify(activity)
+
+    # ── (a) clips-by-type: move each cut clip into 01_, filename-tagged with type ──
+    # Numbered by score rank so the best read first; type is in the name.
+    for rank, c in enumerate(by_score, 1):
+        ctype = c.clip_type or "funny"
+        new_name = f"{rank:02d}_{ctype}_{_slugify(c.title)}.mp4"
+        new_path = os.path.join(dir_clips, new_name)
+        try:
+            shutil.move(c.out_path, new_path)
+            # Move the title sidecar alongside, if present.
+            old_side = os.path.splitext(c.out_path)[0] + "_title.txt"
+            if os.path.isfile(old_side):
+                shutil.move(old_side, os.path.splitext(new_path)[0] + "_title.txt")
+            c.out_path = new_path
+        except Exception as e:
+            print(f"   [Phase4] could not relocate clip {c.index}: {e}")
+    print(f"   [Phase4] (a) clips-by-type → {len(cut)} clips in {dir_clips}")
+
+    # ── (b) best-of reel: top-by-score up to the cap, played chronologically ──
+    reel_path = None
+    picked, total = [], 0.0
+    for c in by_score:
+        d = c.clip_duration or 0.0
+        if picked and total + d > CLIP_REEL_MAX_SECONDS:
+            continue
+        picked.append(c); total += d
+    picked_chrono = sorted(picked, key=lambda c: c.anchor_start_epoch or 0.0)
+    if picked_chrono:
+        rp = os.path.join(dir_reel, f"REEL_best_of_{slug}.mp4")
+        if _concat_reencode([c.out_path for c in picked_chrono], rp, nvenc_ok):
+            reel_path = rp
+            print(f"   [Phase4] (b) best-of reel → {len(picked_chrono)} clips, "
+                  f"{_probe_duration(rp):.0f}s → {rp}")
+
+    # ── (c) highlight VOD: cold-open teaser + chronological body ──
+    highlight_path = None
+    teaser_paths = []
+    teaser_dir = os.path.join(dir_high, "_teasers")
+    for i, c in enumerate(by_score[:CLIP_TEASER_COUNT], 1):
+        cdur = c.clip_duration or 0.0
+        # Land the teaser's tail on the punch (which sits ~tail seconds from the end).
+        t_start = max(0.0, cdur - _clip_tail_seconds(c) - CLIP_TEASER_SECONDS)
+        tp = os.path.join(teaser_dir, f"teaser_{i:02d}.mp4")
+        if _cut_segment(c.out_path, t_start, CLIP_TEASER_SECONDS, tp, nvenc_ok):
+            teaser_paths.append(tp)
+    body = [c.out_path for c in by_time]
+    hp = os.path.join(dir_high, f"HIGHLIGHT_{slug}.mp4")
+    if _concat_reencode(teaser_paths + body, hp, nvenc_ok):
+        highlight_path = hp
+        print(f"   [Phase4] (c) highlight VOD → {len(teaser_paths)}-snippet cold-open + "
+              f"{len(body)} clips, {_probe_duration(hp):.0f}s → {hp}")
+    # Clean up teaser scratch.
+    for tp in teaser_paths:
+        try:
+            os.unlink(tp)
+        except Exception:
+            pass
+    try:
+        os.rmdir(teaser_dir)
+    except Exception:
+        pass
+
+    # ── (d) short candidate: the single best clip, copied + labeled ──
+    short_path = None
+    if by_score:
+        best = by_score[0]
+        sp = os.path.join(dir_short, f"SHORT_{slug}_{_slugify(best.title)}.mp4")
+        try:
+            shutil.copy(best.out_path, sp)
+            short_path = sp
+            side = os.path.splitext(sp)[0] + "_title.txt"
+            tags = " ".join(f"#{h}" for h in best.hashtags) if best.hashtags else ""
+            with open(side, "w", encoding="utf-8") as f:
+                f.write("\n".join([
+                    best.final_title or best.title, "",
+                    f"[type: {best.clip_type}  score: {best.score}/10  "
+                    f"duration: {best.clip_duration:.0f}s  landscape 16:9]", "",
+                    best.description or best.why,
+                ] + ([tags] if tags else [])) + "\n")
+            print(f"   [Phase4] (d) short candidate → {best.clip_duration:.0f}s "
+                  f"(score {best.score}/10) → {sp}")
+            if best.clip_duration and best.clip_duration < 30.0:
+                print(f"   [Phase4] NOTE: best clip is {best.clip_duration:.0f}s (< 30s target). "
+                      f"No padding added (would re-introduce dead air). Lower CLIP_MIN_SECONDS or "
+                      f"pick a longer moment if you want a fuller short.")
+        except Exception as e:
+            print(f"   [Phase4] short candidate failed: {e}")
+
+    report = _write_phase4_report(candidates, day_dir, date_str, activity,
+                                  reel_path, highlight_path, short_path)
+    return {"clips_dir": dir_clips, "reel_path": reel_path,
+            "highlight_path": highlight_path, "short_path": short_path, "report": report}
+
+
+def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: str,
+                         activity: str, reel_path: str | None,
+                         highlight_path: str | None, short_path: str | None) -> str:
+    cut = sorted([c for c in candidates if c.status == "cut" and c.out_path],
+                 key=lambda c: (c.score, c.match_confidence), reverse=True)
+    report_path = os.path.join(day_dir, "clips_report.md")
+    lines = [
+        f"# Clip Package — {date_str} ({activity})",
+        "",
+        "## Outputs",
+        f"- **01_clips_by_type/** — {len(cut)} individual clips (filename-tagged by type)",
+        f"- **02_reel_best_of/** — {'`' + os.path.basename(reel_path) + '`' if reel_path else '(none)'}",
+        f"- **03_highlight_vod/** — {'`' + os.path.basename(highlight_path) + '`' if highlight_path else '(none)'}",
+        f"- **04_short_candidate/** — {'`' + os.path.basename(short_path) + '`' if short_path else '(none)'}",
+        "",
+        "All outputs landscape 16:9 (reframe vertical in Premiere).",
+        "",
+        "## Clips (best-first by score)",
+    ]
+    for rank, c in enumerate(cut, 1):
+        anchor = (datetime.fromtimestamp(c.anchor_start_epoch).strftime("%H:%M:%S")
+                  if c.anchor_start_epoch else "?")
+        lines += [
+            "",
+            f"### {rank:02d}. {c.final_title or c.title}",
+            f"- Type: **{c.clip_type or '?'}**  |  Score: {c.score}/10  |  "
+            f"Duration: {c.clip_duration:.0f}s  |  Cut: {c.anchor_mode}",
+            f"- Anchor: {anchor} (conf {c.match_confidence:.2f} via {c.matched_via})",
+            f"- File: `{os.path.relpath(c.out_path, day_dir)}`",
+            f"- Why: {c.why}",
+        ]
+        if c.hashtags:
+            lines.append(f"- Hashtags: {' '.join('#' + h for h in c.hashtags)}")
+    missed = [c for c in candidates if c.status in ("missed", "error")]
+    if missed:
+        lines += ["", "## Not Cut"]
+        for c in missed:
+            lines.append(f"- {c.title} — {c.status}: {c.error or ''}")
+    os.makedirs(day_dir, exist_ok=True)
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    return report_path
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Orchestration
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -1231,7 +1475,7 @@ async def cut_session(date_str: str, activity: str | None = None, *,
                       pre: float | None = None, post: float | None = None,
                       force_reencode: bool = False, dry_run: bool = False,
                       top: int = 15, reel: bool = True, clips: bool = True,
-                      vod_path: str | None = None) -> dict:
+                      vod_path: str | None = None, phase4: bool = True) -> dict:
     """Run the full pipeline for one day (optionally one activity).
 
     Default behaviour (reel=True, clips=True): produces BOTH ranked individual
@@ -1361,7 +1605,9 @@ async def cut_session(date_str: str, activity: str | None = None, *,
         # reel=False, clips=True: cut top N by score; cap the rest.
         cuttable = [c for c in candidates if c.status == "pending"]
 
-        if reel:
+        if reel or phase4:
+            # Phase 4 / reel: cut ALL aligned candidates (the four labeled outputs
+            # and the reel both need the full set). Chronological order, frame-accurate.
             # All aligned candidates, chronological — no cap.
             cuttable.sort(key=lambda c: c.anchor_start_epoch or float("inf"))
             cut_list = cuttable
@@ -1419,36 +1665,49 @@ async def cut_session(date_str: str, activity: str | None = None, *,
                 if c.status == "cut":
                     write_title_sidecar(c)
 
-        report_path = write_report(candidates, day_dir, date_str, act_name, recordings)
-        print(f"   [Clips] Report → {report_path}")
-
-        # ── Reel assembly ────────────────────────────────────────────────────
         reel_path_out = None
         reel_report_out = None
-        if reel and not dry_run:
-            # Short-session guard: skip reel if session is too brief or has
-            # too few candidates to be worth a reel.
-            aligned_count = sum(1 for c in candidates if c.anchor_start_epoch is not None)
-            session_span_min = (
-                (events[-1].epoch - events[0].epoch) / 60.0 if len(events) >= 2 else 0.0
-            )
-            if aligned_count < 3:
-                print(f"   [Reel] SKIP — only {aligned_count} aligned candidate(s) "
-                      f"(minimum 3 required). Session too short for a reel.")
-            elif session_span_min < REEL_MIN_MINUTES:
-                print(f"   [Reel] SKIP — session span {session_span_min:.0f} min "
-                      f"< REEL_MIN_MINUTES ({REEL_MIN_MINUTES} min). Session too short for a reel.")
-            else:
-                try:
-                    reel_path_out = cut_reel(candidates, day_dir, act_name, nvenc_ok)
-                    reel_title, reel_desc = await generate_reel_title(candidates, act_name)
-                    reel_report_out = write_reel_report(
-                        candidates, reel_path_out, reel_title, reel_desc,
-                        day_dir, date_str, act_name, vod_align_details,
-                    )
-                    print(f"   [Reel] Report → {reel_report_out}")
-                except RuntimeError as e:
-                    print(f"   [Reel] Assembly failed: {e}")
+        highlight_out = None
+        short_out = None
+
+        if phase4 and not dry_run:
+            # ── Phase 4: package the four labeled outputs ─────────────────────
+            p4 = build_phase4_outputs(candidates, day_dir, date_str, act_name, nvenc_ok)
+            report_path = p4.get("report") or write_report(
+                candidates, day_dir, date_str, act_name, recordings)
+            reel_path_out = p4.get("reel_path")
+            reel_report_out = p4.get("report")
+            highlight_out = p4.get("highlight_path")
+            short_out = p4.get("short_path")
+            print(f"   [Phase4] Package report → {report_path}")
+        else:
+            # ── Legacy layout: single report + one chronological reel ─────────
+            report_path = write_report(candidates, day_dir, date_str, act_name, recordings)
+            print(f"   [Clips] Report → {report_path}")
+            if reel and not dry_run:
+                # Short-session guard: skip reel if session is too brief or has
+                # too few candidates to be worth a reel.
+                aligned_count = sum(1 for c in candidates if c.anchor_start_epoch is not None)
+                session_span_min = (
+                    (events[-1].epoch - events[0].epoch) / 60.0 if len(events) >= 2 else 0.0
+                )
+                if aligned_count < 3:
+                    print(f"   [Reel] SKIP — only {aligned_count} aligned candidate(s) "
+                          f"(minimum 3 required). Session too short for a reel.")
+                elif session_span_min < REEL_MIN_MINUTES:
+                    print(f"   [Reel] SKIP — session span {session_span_min:.0f} min "
+                          f"< REEL_MIN_MINUTES ({REEL_MIN_MINUTES} min). Session too short for a reel.")
+                else:
+                    try:
+                        reel_path_out = cut_reel(candidates, day_dir, act_name, nvenc_ok)
+                        reel_title, reel_desc = await generate_reel_title(candidates, act_name)
+                        reel_report_out = write_reel_report(
+                            candidates, reel_path_out, reel_title, reel_desc,
+                            day_dir, date_str, act_name, vod_align_details,
+                        )
+                        print(f"   [Reel] Report → {reel_report_out}")
+                    except RuntimeError as e:
+                        print(f"   [Reel] Assembly failed: {e}")
 
         summaries.append({
             "artifact": md_path,
@@ -1462,6 +1721,8 @@ async def cut_session(date_str: str, activity: str | None = None, *,
             "out_dir": day_dir,
             "reel_path": reel_path_out,
             "reel_report": reel_report_out,
+            "highlight_path": highlight_out,
+            "short_path": short_out,
             "candidates": candidates,
         })
 
