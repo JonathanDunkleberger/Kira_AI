@@ -52,7 +52,7 @@ from kira.config import (
     YOUTUBE_CHANNEL_ID, YT_AUTO_CONNECT_TIMEOUT_S, YT_AUTO_CONNECT_POLL_S,
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
-    CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN,
+    CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
@@ -6128,6 +6128,22 @@ class VTubeBot:
             batch = [m for m in batch if m.get("username") in _keep]
             if not batch:
                 return
+
+        # ── Final stale-chat guard (measured at RESPONSE time) ─────────────────
+        # The worker's 60s pre-eviction runs at drain time, before the turn-lock and
+        # the whole response pipeline — so messages can age far past it and get
+        # answered stale (HOURS after an idle nap). This drop is the guarantee: at
+        # the moment she's about to answer, anything older than CHAT_MAX_AGE_S is
+        # gone, immune to pipeline/lock/restore/idle timing. Age-based, NOT salience —
+        # it does not touch the first-timer/regular bypass (that's the floor's job).
+        _age_now = time.time()
+        _fresh_batch = [m for m in batch if _age_now - m.get("timestamp", _age_now) <= CHAT_MAX_AGE_S]
+        _n_stale = len(batch) - len(_fresh_batch)
+        if _n_stale:
+            print(f"   [ChatAge] dropped {_n_stale} stale message(s) (>{CHAT_MAX_AGE_S:.0f}s) at response time")
+        batch = _fresh_batch
+        if not batch:
+            return
 
         # --- Change 1: Log each chatter's message to the session rolling log ---
         for msg in batch:

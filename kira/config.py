@@ -244,6 +244,14 @@ CHAT_FLOOR_OVERRIDE = os.getenv("CHAT_FLOOR_OVERRIDE", "none").lower()
 CHAT_RATE_CAP_ENABLED = os.getenv("CHAT_RATE_CAP_ENABLED", "false").lower() == "true"
 CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
 
+# Final stale-chat guard: drop any message older than this at RESPONSE time (not at
+# drain time). The worker's 60s pre-eviction runs before the turn-lock + the whole
+# response pipeline, so messages can age far past it (observed up to ~137s active,
+# HOURS after an idle nap) and get answered stale. Measured right before the prompt
+# build, this is immune to pipeline/lock/restore/idle timing — she never answers
+# anything older than this. Default 180s (a few minutes); lower it to tighten.
+CHAT_MAX_AGE_S = float(os.getenv("CHAT_MAX_AGE_S", "180.0"))
+
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires
 # a proactive interjection about what she SEES/HEARS on screen, so constant
