@@ -66,9 +66,29 @@ except ImportError:
     ANTHROPIC_AVAILABLE = False
 
 
+# ── Content-safety backstop denylist (hard-stop before TTS) ───────────────────
+# Seed = the most unambiguous slurs, word-boundary matched so ordinary game/strategy
+# words ("kill the boss") are NEVER caught — the context-dependent categories
+# (atrocity/sexual/self-harm/violence-as-punchline) are handled by the persona's HARD
+# CONTENT BOUNDARY, not here. This narrow net just hard-stops the most clipboard-able,
+# irreversible failures regardless of bit/roleplay framing. Extend via KIRA_CONTENT_DENYLIST.
+_CONTENT_DENYLIST_SEED = frozenset({
+    "nigger", "nigga", "faggot", "tranny", "kike", "chink", "spic", "wetback", "retard",
+})
+
+
 class AI_Core:
     def __init__(self, interruption_event):
         self.interruption_event = interruption_event
+        # Content-safety backstop: seed + runtime KIRA_CONTENT_DENYLIST extension.
+        _extra_deny = os.getenv("KIRA_CONTENT_DENYLIST", "")
+        self._content_denylist = set(_CONTENT_DENYLIST_SEED) | {
+            t.strip().lower() for t in _extra_deny.split(",") if t.strip()
+        }
+        self._content_denylist_re = (
+            re.compile(r"\b(?:" + "|".join(re.escape(t) for t in self._content_denylist) + r")\b", re.I)
+            if self._content_denylist else None
+        )
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
         # Backref set by the bot so ai_core can append the streamer overlay
@@ -1355,6 +1375,18 @@ class AI_Core:
         if not text:
             return
 
+        # ── Hard content backstop — the last line before TTS/captions ──────────
+        # A first-mover / contrarian Kira generates takes unprompted, so this
+        # suppresses the most unambiguous, clipboard-able violations (slurs) before
+        # they ever reach the stream — regardless of bit/roleplay framing or who
+        # "permitted" it. The persona's HARD CONTENT BOUNDARY is the primary,
+        # context-aware rail; this is the non-bypassable net under it. Logged loudly
+        # so Jonny can see exactly what was caught.
+        if self._content_safety_block(text) is not None:
+            print(f"   [Guardrail] BLOCKED before TTS (hard content boundary) — "
+                  f"suppressed utterance: {text[:140]!r}")
+            return
+
         # Capture the running loop once — the caption server needs a stable
         # reference for thread-safe scheduling from Azure's worker callbacks.
         if self._event_loop_for_captions is None:
@@ -1612,6 +1644,16 @@ class AI_Core:
         if self._voice_response_pending:
             return True
         return any(w[0] == 0 for w in self._speech_waiters)
+
+    def _content_safety_block(self, text: str):
+        """Return the matched denylisted term if `text` trips the hard content
+        backstop, else None. Word-boundary matched and NARROW by design (slurs /
+        unambiguous explicit terms) — the persona's HARD CONTENT BOUNDARY handles the
+        context-dependent categories (atrocity/sexual/self-harm/violence-as-joke)."""
+        if not text or not self._content_denylist_re:
+            return None
+        m = self._content_denylist_re.search(text)
+        return m.group(0) if m else None
 
     def _strip_tags_for_speech(self, text: str) -> str:
         """Removes ALL recognized tool tags ([POLL:], [SONG:], [PREDICT:], [BIT:],
