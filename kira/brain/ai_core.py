@@ -40,7 +40,7 @@ EMOTION_DESCRIPTORS = {
     EmotionalState.HYPERACTIVE: "You are buzzing with excitement. Ramble a little. Everything feels more interesting than normal.",
 }
 from kira.persona.prompt_loader import load_personality_txt
-from kira.persona.prompt_rules import TOOL_AND_FORMAT_RULES
+from kira.persona.prompt_rules import TOOL_AND_FORMAT_RULES, IMPROV_DISPOSITION
 from kira.persona.streamer_overlay import STREAMER_OVERLAY
 
 # Graceful SDK imports
@@ -259,7 +259,9 @@ class AI_Core:
         print("-> Reloading Personality...")
         try:
             new_personality = load_personality_txt("personality.txt")
-            self.system_prompt = new_personality.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+            self.system_prompt = (new_personality.strip() + "\n\n"
+                                  + IMPROV_DISPOSITION.strip() + "\n\n"
+                                  + TOOL_AND_FORMAT_RULES.strip())
             print("   ✅ Personality reloaded successfully.")
             print("----- NEW SYSTEM PROMPT SNAPSHOT -----")
             print(self.system_prompt[:200])
@@ -308,8 +310,13 @@ class AI_Core:
             print(f"   Audio test FAILED: {e}")
 
     def _init_llm(self, force: bool = False):
-        # Always build the system prompt (every backend needs it).
-        self.system_prompt = KIRA_PERSONALITY.strip() + "\n\n" + TOOL_AND_FORMAT_RULES.strip()
+        # Always build the system prompt (every backend needs it). The improv disposition
+        # is injected between persona and tool rules at THIS single chokepoint (+ the
+        # hot-reload twin) so it's WHO SHE IS in every utterance — voice, interjection,
+        # Director, deep moments, local fallback — never a mode, and cached as Block A.
+        self.system_prompt = (KIRA_PERSONALITY.strip() + "\n\n"
+                              + IMPROV_DISPOSITION.strip() + "\n\n"
+                              + TOOL_AND_FORMAT_RULES.strip())
 
         # Routing decision: skip loading the GGUF into VRAM unless we actually
         # need it locally. `force=True` is used by the lazy-load fallback path
