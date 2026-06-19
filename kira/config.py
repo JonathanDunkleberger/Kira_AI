@@ -122,6 +122,15 @@ ENABLE_LOOPBACK_TRANSCRIBER = os.getenv("ENABLE_LOOPBACK_TRANSCRIBER", "true").l
 # boot and whenever MEDIA audio mode is switched on from the dashboard.
 LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "true").lower() == "true"
 
+# ── Loopback dialogue-summary escape hatches (the "music-freeze" fix; Batch 1) ──────
+# The rolling "story so far" summary accumulates across windows (wanted for a long story
+# game). BUG: it FREEZES on the last narrative scene when audio drops to music/quiet —
+# the summarizer keeps returning NO_UPDATE, which preserves the dead scene forever. AGE-OUT
+# is the escape hatch: if no GENUINE narrative segment has refreshed the summary for this
+# long, stop holding the frozen scene and honestly stale-mark it ("audio is music/quiet").
+# Only fires after at least one real update; every stale-mark logs loudly. ~a few minutes.
+LOOPBACK_SUMMARY_AGEOUT_S = float(os.getenv("LOOPBACK_SUMMARY_AGEOUT_S", "180.0"))
+
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures
 # all subsystems to stream-ready state: Vision ON, Audio=MEDIA, Immersive OFF,

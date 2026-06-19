@@ -311,6 +311,11 @@ class LoopbackTranscriber:
         # unlike the 60s raw transcript window). Updated by bot.loopback_dialogue_summary_loop().
         self.dialogue_summary: str = ""
         self._summary_needs_update: bool = False
+        # Batch 1 (age-out): wall-clock of the last GENUINE narrative update to the
+        # summary. The summary loop ages the summary toward "stale" when nothing
+        # narrative has refreshed it for LOOPBACK_SUMMARY_AGEOUT_S (music/quiet freeze).
+        self._summary_last_update_ts: float = 0.0
+        self._summary_is_stale: bool = False
 
     # ── Lifecycle ────────────────────────────────────────────────────────
 
@@ -390,6 +395,8 @@ class LoopbackTranscriber:
                 self._recent_normalized.clear()
                 self.dialogue_summary = ""
                 self._summary_needs_update = False
+                self._summary_last_update_ts = 0.0
+                self._summary_is_stale = False
 
             self._stop_event.clear()
             self._thread = threading.Thread(target=self._pump_loop, daemon=True, name="LoopbackSTT")

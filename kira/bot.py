@@ -61,6 +61,7 @@ from kira.config import (
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
     VRAM_LOG_INTERVAL_S,
+    LOOPBACK_SUMMARY_AGEOUT_S,
     WHEEL_ENTRANCE_MS, WHEEL_SPIN_MS, WHEEL_LAND_BUFFER_MS,
 )
 from kira.memory.stream_logger import StreamLogger
@@ -8920,34 +8921,60 @@ class VTubeBot:
             "'possible song lyrics' rather than treating them as character speech or plot events. "
             "If the new lines add nothing meaningful, output exactly: NO_UPDATE"
         )
-        print(f"   [LoopbackSTT] Dialogue summary loop active (interval={SUMMARY_INTERVAL_S:.0f}s).")
+        # Batch 1 (age-out): honest stale-mark text written when the summary freezes on a
+        # dead scene (music/quiet) — replaces the held scene rather than preserving it.
+        STALE_MARKER = "(No narrative dialogue right now — audio is music or quiet.)"
+        print(f"   [LoopbackSTT] Dialogue summary loop active (interval={SUMMARY_INTERVAL_S:.0f}s, "
+              f"age-out={LOOPBACK_SUMMARY_AGEOUT_S:.0f}s).")
         while self.is_running:
             await asyncio.sleep(SUMMARY_INTERVAL_S)
             lt = self.loopback_transcriber
             if lt is None or not lt.is_running():
                 continue
-            if not lt._summary_needs_update:
-                continue
-            transcript = lt.get_transcript_text()
-            if not transcript:
-                continue
-            lt._summary_needs_update = False
-            try:
-                previous = lt.dialogue_summary or "(none yet)"
-                user_msg = (
-                    f"Previous summary:\n{previous}\n\n"
-                    f"New dialogue lines (oldest first):\n{transcript}\n\n"
-                    "Write an updated 2-3 sentence summary: who spoke, what happened, "
-                    "what's the emotional tone? Like notes for a friend who just walked "
-                    "back into the room. Only facts from the dialogue. If nothing "
-                    "meaningful has changed: NO_UPDATE"
-                )
-                result = await self.ai_core.tool_inference(_SYSTEM, user_msg, max_tokens=120)
-                if result and "NO_UPDATE" not in result.upper() and len(result.strip()) > 20:
-                    lt.dialogue_summary = result.strip()
-                    print(f"   [LoopbackSTT] Dialogue summary updated: {lt.dialogue_summary[:120]}...")
-            except Exception as e:
-                print(f"   [LoopbackSTT] Summary update error: {e}")
+            now = time.time()
+
+            # Normal accumulating update — only when fresh segments have arrived.
+            if lt._summary_needs_update:
+                transcript = lt.get_transcript_text()
+                if transcript:
+                    lt._summary_needs_update = False
+                    try:
+                        previous = lt.dialogue_summary or "(none yet)"
+                        # A stale-marked summary carries no narrative — regenerate fresh
+                        # rather than feeding "audio is music/quiet" back into the model.
+                        if lt._summary_is_stale:
+                            previous = "(none yet)"
+                        user_msg = (
+                            f"Previous summary:\n{previous}\n\n"
+                            f"New dialogue lines (oldest first):\n{transcript}\n\n"
+                            "Write an updated 2-3 sentence summary: who spoke, what happened, "
+                            "what's the emotional tone? Like notes for a friend who just walked "
+                            "back into the room. Only facts from the dialogue. If nothing "
+                            "meaningful has changed: NO_UPDATE"
+                        )
+                        result = await self.ai_core.tool_inference(_SYSTEM, user_msg, max_tokens=120)
+                        if result and "NO_UPDATE" not in result.upper() and len(result.strip()) > 20:
+                            lt.dialogue_summary = result.strip()
+                            lt._summary_last_update_ts = now      # Batch 1: reset age-out clock
+                            lt._summary_is_stale = False
+                            print(f"   [LoopbackSTT] Dialogue summary updated: {lt.dialogue_summary[:120]}...")
+                    except Exception as e:
+                        print(f"   [LoopbackSTT] Summary update error: {e}")
+
+            # Batch 1 — AGE-OUT: when no genuine narrative update has landed for
+            # LOOPBACK_SUMMARY_AGEOUT_S (a music/quiet stretch yielding only NO_UPDATE or
+            # silence), stop holding the dead scene — stale-mark it honestly. Runs every
+            # tick regardless of pending updates, fires only after a real summary has
+            # existed, and only once per stale stretch (the _is_stale latch).
+            if (lt.dialogue_summary
+                    and not lt._summary_is_stale
+                    and lt._summary_last_update_ts > 0.0
+                    and (now - lt._summary_last_update_ts) > LOOPBACK_SUMMARY_AGEOUT_S):
+                age = now - lt._summary_last_update_ts
+                lt.dialogue_summary = STALE_MARKER
+                lt._summary_is_stale = True
+                print(f"   [LoopbackSTT] ⏳ Dialogue summary AGED OUT after {age:.0f}s with no "
+                      f"narrative update — stale-marked (music/quiet). Was holding a frozen scene.")
 
 
     async def process_and_respond(self, original_text: str, dialogue_line: str, role: str, source: str = "voice", skip_generation: bool = False, situational_context: str = "", brief_mode: bool = False, prefetched_memory: str | None = None, lat: dict | None = None):
