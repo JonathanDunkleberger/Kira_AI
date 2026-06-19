@@ -45,6 +45,9 @@ from kira.config import (
     OBS_RECORDINGS_DIR,
     CLIP_PRE_SECONDS,
     CLIP_POST_SECONDS,
+    CLIP_SETUP_BUFFER_S,
+    CLIP_PUNCH_TAIL_S,
+    CLIP_MAX_EXCHANGE_S,
     CLIP_VIDEO_EXTS,
     REEL_MIN_MINUTES,
     WHISPER_CACHE_DIR,
@@ -79,10 +82,11 @@ class Candidate:
     score: int = 0
 
     # Resolved during alignment:
-    anchor_start_epoch: float | None = None  # earliest matched quote ts (UTC epoch)
-    anchor_end_epoch: float | None = None    # latest matched quote ts
+    anchor_start_epoch: float | None = None  # IN anchor (setup line, asymmetric) / earliest matched quote (fixed)
+    anchor_end_epoch: float | None = None    # OUT anchor (punch, asymmetric) / latest matched quote (fixed)
     match_confidence: float = 0.0            # best difflib ratio achieved
     matched_via: str = "unmatched"           # "quote" | "approx_timestamp" | "unmatched"
+    anchor_mode: str = "fixed"               # "asymmetric" (setup→punch beats) | "fixed" (CLIP_PRE/POST window)
 
     # Resolved during recording mapping:
     recording_path: str | None = None
@@ -118,6 +122,7 @@ class EventLine:
     speaker: str
     text: str
     norm: str           # normalized text for matching
+    is_kira: bool = False  # True for kira_response events (her line — the punch side of an exchange)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -290,6 +295,7 @@ def load_event_index(date_str: str, base_dir: str = "logs/streams",
                         speaker=speaker,
                         text=txt,
                         norm=_norm(txt),
+                        is_kira=(etype == "kira_response"),
                     ))
     events.sort(key=lambda e: e.epoch)
     return events, earliest_start
@@ -299,16 +305,16 @@ def load_event_index(date_str: str, base_dir: str = "logs/streams",
 # 3. Align candidates → wall-clock anchors
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _best_match(quote_norm: str, events: list[EventLine]) -> tuple[float, float] | None:
-    """Return (epoch, ratio) of the best-matching event line for a normalized
+def _best_match(quote_norm: str, events: list[EventLine]) -> tuple[int, float] | None:
+    """Return (event_index, ratio) of the best-matching event line for a normalized
     quote, or None if nothing clears the threshold."""
     from difflib import SequenceMatcher
 
     if not quote_norm:
         return None
-    best_epoch = None
+    best_idx = None
     best_ratio = 0.0
-    for ev in events:
+    for i, ev in enumerate(events):
         if not ev.norm:
             continue
         # Fast path: containment in either direction is a strong signal.
@@ -318,9 +324,9 @@ def _best_match(quote_norm: str, events: list[EventLine]) -> tuple[float, float]
             ratio = SequenceMatcher(None, quote_norm, ev.norm).ratio()
         if ratio > best_ratio:
             best_ratio = ratio
-            best_epoch = ev.epoch
-    if best_epoch is not None and best_ratio >= _MATCH_THRESHOLD:
-        return best_epoch, best_ratio
+            best_idx = i
+    if best_idx is not None and best_ratio >= _MATCH_THRESHOLD:
+        return best_idx, best_ratio
     return None
 
 
@@ -329,28 +335,64 @@ def align_candidate(cand: Candidate, events: list[EventLine],
     """Resolve cand.anchor_start_epoch / anchor_end_epoch via quote matching,
     falling back to the approximate HH:MM:SS offset + session start.
 
-    Matching every key-exchange quote and taking the earliest/latest hits anchors
-    the clip to the *whole* exchange (setup line → payoff line), which is far more
-    robust than the single LLM-estimated timestamp.
+    Phase 3 — asymmetric anchoring (the watchability rule): the OUT-point is the
+    *punch* (the latest matched kira_response — her line, logged at end-of-utterance)
+    and the IN-point is the *setup* (the utterance immediately preceding the punch in
+    events.jsonl — Jonny's poke). Anchoring IN→setup / OUT→punch keeps the whole beat
+    between them (including the 2-4s response-latency tension) while letting
+    map_to_recording trim the front tight and cut the back hard. When a clean
+    setup→punch exchange can't be resolved (no matched kira_response, no preceding
+    poke, or an implausibly wide span), it degrades to the legacy fixed-window
+    behavior (earliest→latest matched quote + CLIP_PRE/CLIP_POST) and logs the fallback.
     """
-    matched_epochs: list[float] = []
+    matches: list[tuple[int, float]] = []   # (event_index, ratio)
     best_conf = 0.0
     for q in cand.quotes:
         hit = _best_match(_norm(q), events)
         if hit:
-            matched_epochs.append(hit[0])
+            matches.append((hit[0], hit[1]))
             best_conf = max(best_conf, hit[1])
 
-    if matched_epochs:
-        cand.anchor_start_epoch = min(matched_epochs)
-        cand.anchor_end_epoch = max(matched_epochs)
-        # Sanity check: if the window is unreasonably wide (>90s), one quote
-        # almost certainly matched a spurious late event. Collapse to the
-        # start anchor so the fixed `post` seconds determine the tail.
-        if cand.anchor_end_epoch - cand.anchor_start_epoch > 90.0:
-            cand.anchor_end_epoch = cand.anchor_start_epoch
+    if matches:
         cand.match_confidence = best_conf
         cand.matched_via = "quote"
+        matched_epochs = [events[i].epoch for i, _ in matches]
+
+        # ── Asymmetric: anchor IN→setup, OUT→punch ───────────────────────────
+        kira_idx = [i for i, _ in matches if events[i].is_kira]
+        if kira_idx:
+            punch_i = max(kira_idx, key=lambda i: events[i].epoch)
+            out_anchor = events[punch_i].epoch
+            # The poke: the utterance immediately preceding the punch, when it's a
+            # NON-Kira line (Jonny / a chatter). Back-to-back Kira lines (autonomous
+            # openers/interjections) have no human setup ⇒ no asymmetric anchor.
+            setup_epoch = None
+            if punch_i - 1 >= 0 and not events[punch_i - 1].is_kira:
+                setup_epoch = events[punch_i - 1].epoch
+            earliest_quote = min(matched_epochs)
+            # IN = whichever is earlier: the .md's earliest quoted line, or the poke.
+            # min() keeps a multi-line .md exchange intact AND guarantees the poke is
+            # included even when the .md only quoted Kira's payoff.
+            in_anchor = min([earliest_quote] + ([setup_epoch] if setup_epoch is not None else []))
+            span = out_anchor - in_anchor
+            has_setup = setup_epoch is not None or earliest_quote < out_anchor
+            if has_setup and 0.0 < span <= CLIP_MAX_EXCHANGE_S:
+                cand.anchor_start_epoch = in_anchor
+                cand.anchor_end_epoch = out_anchor
+                cand.anchor_mode = "asymmetric"
+                return
+
+        # ── Fallback: legacy fixed window (earliest→latest matched quote) ─────
+        cand.anchor_start_epoch = min(matched_epochs)
+        cand.anchor_end_epoch = max(matched_epochs)
+        # Sanity check: if the window is unreasonably wide (>90s), one quote almost
+        # certainly matched a spurious late event. Collapse to the start anchor so the
+        # fixed `post` seconds determine the tail.
+        if cand.anchor_end_epoch - cand.anchor_start_epoch > 90.0:
+            cand.anchor_end_epoch = cand.anchor_start_epoch
+        cand.anchor_mode = "fixed"
+        print(f"   [Align] Clip {cand.index}: no clean setup→punch exchange "
+              f"(asymmetric unavailable) — using fixed CLIP_PRE/CLIP_POST window.")
         return
 
     # Fallback: approximate timestamp into the stream + session start.
@@ -361,9 +403,11 @@ def align_candidate(cand: Candidate, events: list[EventLine],
             cand.anchor_start_epoch = anchor
             cand.anchor_end_epoch = anchor
             cand.matched_via = "approx_timestamp"
+            cand.anchor_mode = "fixed"
             return
 
     cand.matched_via = "unmatched"
+    cand.anchor_mode = "fixed"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -478,8 +522,16 @@ def map_to_recording(cand: Candidate, recordings: list[Recording],
         return
 
     anchor_end = cand.anchor_end_epoch or cand.anchor_start_epoch
-    clip_start = (cand.anchor_start_epoch - rec.start_epoch) - pre
-    clip_end = (anchor_end - rec.start_epoch) + post
+
+    # Phase 3: asymmetric buffers when a setup→punch exchange was resolved (tight front,
+    # hard out). Otherwise the legacy symmetric CLIP_PRE/CLIP_POST fixed window.
+    if cand.anchor_mode == "asymmetric":
+        front, back = CLIP_SETUP_BUFFER_S, CLIP_PUNCH_TAIL_S
+    else:
+        front, back = pre, post
+
+    clip_start = (cand.anchor_start_epoch - rec.start_epoch) - front
+    clip_end = (anchor_end - rec.start_epoch) + back
     clip_start = max(0.0, clip_start)
     clip_end = min(rec.duration, clip_end)
     if clip_end <= clip_start:
@@ -489,11 +541,22 @@ def map_to_recording(cand: Candidate, recordings: list[Recording],
 
     cand.recording_path = rec.path
     cand.clip_start_offset = clip_start
-    # Enforce minimum clip length so tight-post cuts don't produce unusable stubs.
+    # Enforce minimum clip length so tight cuts don't produce unusable stubs. In
+    # asymmetric mode, grow the FRONT (earlier in-point) — never the tail — so the hard
+    # out-cut on the punch is preserved; only spill onto the tail if we hit t=0. Fixed
+    # mode keeps the legacy behavior (grow the tail).
     actual_dur = clip_end - clip_start
     if actual_dur < _MIN_CLIP_SECONDS:
-        extra = _MIN_CLIP_SECONDS - actual_dur
-        clip_end = min(rec.duration, clip_end + extra)
+        shortfall = _MIN_CLIP_SECONDS - actual_dur
+        if cand.anchor_mode == "asymmetric":
+            grow_front = min(shortfall, clip_start)
+            clip_start -= grow_front
+            cand.clip_start_offset = clip_start
+            shortfall -= grow_front
+            if shortfall > 0:
+                clip_end = min(rec.duration, clip_end + shortfall)
+        else:
+            clip_end = min(rec.duration, clip_end + shortfall)
     cand.clip_duration = clip_end - clip_start
 
 
@@ -748,7 +811,8 @@ def write_report(candidates: list[Candidate], day_dir: str, date_str: str,
         ]
         if c.matched_via == "quote":
             anchor = datetime.fromtimestamp(c.anchor_start_epoch).strftime("%H:%M:%S")
-            out.append(f"- Anchor: {anchor} (quote match, confidence {c.match_confidence:.2f})")
+            out.append(f"- Anchor: {anchor} (quote match, confidence {c.match_confidence:.2f}; "
+                       f"cut={c.anchor_mode})")
         elif c.matched_via == "approx_timestamp":
             out.append(f"- Anchor: ~{c.approx_hms} (approx timestamp fallback — lower accuracy)")
         else:
@@ -1327,7 +1391,7 @@ async def cut_session(date_str: str, activity: str | None = None, *,
                 print(f"      Clip {c.index} [rank {rank:02d}{score_str}]: "
                       f"would cut → {os.path.basename(out_path)} "
                       f"(@{c.clip_start_offset:.1f}s +{c.clip_duration:.1f}s, "
-                      f"via {c.matched_via})")
+                      f"via {c.matched_via}, cut={c.anchor_mode})")
                 c.out_path = out_path
                 c.status = "cut"
                 c.final_title = c.suggested_title or c.title

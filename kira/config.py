@@ -423,6 +423,23 @@ CLIP_PRE_SECONDS   = float(os.getenv("CLIP_PRE_SECONDS", "6.5"))
 # 0.5 to kill that tail today; the precise punch-landing out-cut is Phase-3 per-clip
 # anchoring. Env-tunable (CLIP_POST_SECONDS).
 CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "0.5"))
+
+# ── Asymmetric cut rule (Clip Phase 3 — the watchability fix) ──────────────────
+# CLIP_PRE/CLIP_POST above are a FIXED window padded symmetrically around the matched
+# anchor. Phase 3 instead anchors each clip to the actual comedic beats: OUT hard on the
+# punch (Kira's response end — kira_response is logged at end-of-utterance) and IN just
+# before the SETUP line (the poke that preceded her response in events.jsonl), trimmed
+# tight. The 2-4s response-latency beat between setup and answer is KEPT — that "...what's
+# she gonna say?" tension is content, not dead air — because everything between in and out
+# is preserved; only the BUFFERS are asymmetric (tight front, hard-ish out). Applied only
+# when BOTH a punch (a matched kira_response) AND a setup resolve cleanly and the span is
+# plausible; otherwise the cutter degrades to the CLIP_PRE/CLIP_POST fixed window and logs
+# the fallback. The 12s min-clip floor (clip_cutter.py) grows the FRONT, never the tail, so
+# the hard out-cut on the punch survives. All three env-tunable.
+CLIP_SETUP_BUFFER_S = float(os.getenv("CLIP_SETUP_BUFFER_S", "1.0"))   # tight lead-in before the setup line
+CLIP_PUNCH_TAIL_S   = float(os.getenv("CLIP_PUNCH_TAIL_S", "0.5"))     # hard-ish tail after the punch lands
+CLIP_MAX_EXCHANGE_S = float(os.getenv("CLIP_MAX_EXCHANGE_S", "90.0"))  # setup→punch span over this ⇒ bad match, use fixed window
+
 # Minimum session length (minutes) below which the reel is skipped.
 # Also requires at least 3 aligned candidates. Override via env.
 REEL_MIN_MINUTES   = int(os.getenv("REEL_MIN_MINUTES", "20"))
