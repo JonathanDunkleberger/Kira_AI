@@ -394,7 +394,11 @@ OBS_WEBSOCKET_PASSWORD = os.getenv("OBS_WEBSOCKET_PASSWORD", "")
 # touch early on both ends). Override via env or --pre/--post CLI flags.
 # Min clip length is 12s (enforced in clip_cutter.py regardless).
 CLIP_PRE_SECONDS   = float(os.getenv("CLIP_PRE_SECONDS", "6.5"))
-CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "3.5"))
+# Tail after the punch. Was 3.5 → bolted a 3.5s dead-air tail onto every clip (the
+# anchor is logged at the END of Kira's line, so +post is pure dead air). Dropped to
+# 0.5 to kill that tail today; the precise punch-landing out-cut is Phase-3 per-clip
+# anchoring. Env-tunable (CLIP_POST_SECONDS).
+CLIP_POST_SECONDS  = float(os.getenv("CLIP_POST_SECONDS", "0.5"))
 # Minimum session length (minutes) below which the reel is skipped.
 # Also requires at least 3 aligned candidates. Override via env.
 REEL_MIN_MINUTES   = int(os.getenv("REEL_MIN_MINUTES", "20"))

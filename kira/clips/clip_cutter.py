@@ -396,8 +396,12 @@ def gather_recordings(recordings_dir: str, exts: list[str]) -> list[Recording]:
         return recordings
 
     # Collect candidate video files, then de-duplicate OBS remux twins: when a
-    # .mkv and its remuxed .mp4 share the same basename, prefer the .mp4 and
-    # skip the .mkv so the same session isn't processed twice.
+    # .mkv and its remuxed .mp4 share the same basename, prefer the .MKV and skip
+    # the .mp4. The .mkv is the ORIGINAL OBS recording — its mtime is the record-stop
+    # instant, so mtime_minus_duration recovers the true record-start to ~1s. The
+    # remuxed .mp4's mtime is the remux-FINISH time (observed ~93s later), which would
+    # throw the anchor off by that much (clips miss the moment). Until the OBS
+    # recording-start hook's consume ships, the .mkv mtime is the reliable anchor.
     by_stem: dict[str, list[str]] = {}
     for name in sorted(os.listdir(recordings_dir)):
         ext = os.path.splitext(name)[1].lower()
@@ -413,12 +417,13 @@ def gather_recordings(recordings_dir: str, exts: list[str]) -> list[Recording]:
         if len(paths) == 1:
             chosen.append(paths[0])
             continue
-        mp4 = next((p for p in paths if p.lower().endswith(".mp4")), None)
-        if mp4:
-            twins = [os.path.basename(p) for p in paths if p != mp4]
+        mkv = next((p for p in paths if p.lower().endswith(".mkv")), None)
+        if mkv:
+            twins = [os.path.basename(p) for p in paths if p != mkv]
             print(f"   [Recordings] remux twins for '{stem}': preferring "
-                  f"{os.path.basename(mp4)}, skipping {', '.join(twins)}.")
-            chosen.append(mp4)
+                  f"{os.path.basename(mkv)} (accurate record-stop mtime), skipping "
+                  f"{', '.join(twins)}.")
+            chosen.append(mkv)
         else:
             chosen.extend(paths)
 
