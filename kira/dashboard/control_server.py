@@ -160,7 +160,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         import time as _t
         now = _t.time()
         out = []
-        for seg in (lt.get_segments() or [])[-6:]:
+        for seg in (lt.get_segments() or [])[-15:]:   # taller feed shows ~15 lines
             age = int(now - seg.get("ts", now))
             out.append({"age": age, "text": (seg.get("text", "") or "").strip()})
         return out

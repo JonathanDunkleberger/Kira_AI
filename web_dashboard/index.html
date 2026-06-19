@@ -617,7 +617,7 @@ html, body {
 
 .loopback-feed {
   margin-top: 4px;
-  max-height: 96px;
+  max-height: 240px;   /* ~15 lines at once (was 96px ≈ a few); scrolls for history */
   overflow-y: auto;
   background: var(--accent-tint);
   border: 1px solid var(--border);
@@ -661,10 +661,10 @@ html, body {
   white-space: pre-wrap;
   word-break: break-word;
   margin-top: 2px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  /* Show the full dialogue summary by default (no 2-line clamp); scroll if it ever
+     overflows. The full summary should be visible without clicking to expand. */
+  max-height: 220px;
+  overflow-y: auto;
 }
 .dlg-summary-wrap.expanded .dlg-summary-text {
   display: block;
@@ -735,6 +735,11 @@ html, body {
   color: var(--text-muted);
   font-style: italic;
   line-height: 1.4;
+  min-height: 44px;          /* generous default — the typical full summary shows at once */
+  max-height: 160px;         /* scroll only if it ever overflows */
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 #vision-summary-text.mw-uncertain { color: var(--text-sec); opacity: .8; }
 
@@ -2882,11 +2887,15 @@ function renderLoopbackFeed(s) {
     if (!feed.length) {
       box.innerHTML = '';
     } else {
+      // Pin to newest ONLY when already at the bottom; if the user has scrolled up to
+      // read history, preserve their position instead of yanking them back down.
+      const atBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 28;
+      const prevTop = box.scrollTop;
       box.innerHTML = feed.map(seg => {
         const age = seg.age < 5 ? 'now' : `-${seg.age}s`;
         return `<div><span class="lf-age">[${age}]</span> ${escHtml(seg.text || '')}</div>`;
       }).join('');
-      box.scrollTop = box.scrollHeight;
+      box.scrollTop = atBottom ? box.scrollHeight : prevTop;
     }
   }
   const sumEl = document.getElementById('dlg-summary-text');
