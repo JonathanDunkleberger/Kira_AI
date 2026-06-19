@@ -380,6 +380,15 @@ CHESS_MOVETIME_MS = int(os.getenv("CHESS_MOVETIME_MS", "150"))
 # stream, never during. OBS_RECORDINGS_DIR is where OBS writes local recordings;
 # cut clips land in OBS_RECORDINGS_DIR/clips/YYYY-MM-DD/.
 OBS_RECORDINGS_DIR = os.getenv("OBS_RECORDINGS_DIR", "")
+
+# OBS recording-start anchor (clip alignment, opt-in). When enabled, Kira queries OBS
+# WebSocket at Go-Live and logs a `recording_start` event giving the clip cutter a
+# guaranteed shared clock with the video (vs the creation_time / Whisper fallback).
+# Default OFF + fully graceful: if disabled or OBS is unreachable, alignment uses
+# today's fallback unchanged. Requires OBS → Tools → WebSocket Server enabled.
+OBS_RECORD_ANCHOR_ENABLED = os.getenv("OBS_RECORD_ANCHOR_ENABLED", "false").lower() == "true"
+OBS_WEBSOCKET_URL = os.getenv("OBS_WEBSOCKET_URL", "ws://127.0.0.1:4455")
+OBS_WEBSOCKET_PASSWORD = os.getenv("OBS_WEBSOCKET_PASSWORD", "")
 # Window around the detected moment: lead-in before (setup) + payoff after.
 # Widened 2026-06-13 after reel review: pre 5→6.5s, post 3→3.5s (cuts ran a
 # touch early on both ends). Override via env or --pre/--post CLI flags.

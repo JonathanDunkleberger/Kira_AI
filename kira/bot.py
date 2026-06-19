@@ -55,6 +55,7 @@ from kira.config import (
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
+    OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
@@ -7090,6 +7091,31 @@ class VTubeBot:
             options, int(WHEEL_VOTE_WINDOW_S), _on_resolve,
         )
 
+    async def _capture_obs_record_anchor(self) -> None:
+        """Opt-in: at Go-Live, ask OBS WebSocket for the recording-start wall-clock and
+        log it as a `recording_start` event, so the clip cutter has a guaranteed shared
+        clock with the video (vs the creation_time / Whisper fallback). FULLY GRACEFUL —
+        any failure just logs and leaves today's fallback in place. The cutter-side
+        consume (prefer this event as the VOD anchor) lands with the Phase-3 cutter work."""
+        if not OBS_RECORD_ANCHOR_ENABLED:
+            return
+        try:
+            from kira.clips.obs_anchor import query_record_start
+            info = await query_record_start(OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD)
+            if info:
+                self.stream_logger.log(
+                    "recording_start",
+                    epoch=info["record_start_epoch"],
+                    obs_duration_ms=info["obs_duration_ms"],
+                )
+                print(f"   [OBSAnchor] recording_start anchored — OBS was "
+                      f"{info['obs_duration_ms'] / 1000:.1f}s into recording at Go-Live.")
+            else:
+                print("   [OBSAnchor] no anchor captured — clip alignment falls back to "
+                      "creation_time / Whisper for this stream.")
+        except Exception as e:
+            print(f"   [OBSAnchor] anchor capture failed (non-fatal): {e}")
+
     async def run_stream_opener(self):
         """Generates and speaks a scripted episodic opener for the stream.
         Pulls last session's summary, recognizes returning chatters, sets the tone."""
@@ -7099,6 +7125,10 @@ class VTubeBot:
 
         async with self.processing_lock:
             print("   [Opener] Preparing stream opener...")
+
+            # Capture OBS's recording-start wall-clock for reliable clip alignment
+            # (opt-in, graceful). Fire-and-forget so it never delays the opener.
+            asyncio.ensure_future(self._capture_obs_record_anchor())
 
             # Reset the cookie jar and session-chatter tracking for the new
             # stream. Triggered here (opener = Go Live) so a mid-stream bot
