@@ -284,16 +284,22 @@ CHAT_MAX_AGE_S = float(os.getenv("CHAT_MAX_AGE_S", "180.0"))
 OBJECTIVE_ACT_SILENCE_S = float(os.getenv("OBJECTIVE_ACT_SILENCE_S", "12.0"))
 OBJECTIVE_MAX_AGE_S = float(os.getenv("OBJECTIVE_MAX_AGE_S", "300.0"))
 
-# ── Activity Director (Pass 2 — the first-mover loop; HIGHEST risk, default OFF) ─
+# ── Activity Director (Pass 2 — the first-mover loop; now DEFAULT-ON, ASSERTIVE) ─
 # Generalizes the objective watchdog into a proactive driver: when an activity is
 # focused, on a HARD min-gap, Kira reacts to fresh perception or fills dead air with
 # her own initiative (drives/opinions/bits) instead of waiting to be addressed. Rides
 # the same P1 interjection lane (turn-lock + sentence yield; never interrupts Jonny)
-# AND the Pass-1 content guardrail. SUPPRESSED under Focus/Lock-In (locked in = drive
-# LESS). Default OFF — flip on LAST and tune cadence live, after the skeleton behaves.
-ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "false").lower() == "true"
-DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "30.0"))    # hard floor between Director utterances
-DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "45.0"))  # silence that triggers "create"
+# AND the Pass-1 content guardrail (_kira_voice_guardrails + the _speak_single denylist).
+# This is now WHO SHE IS, not a feature flag — driving is the baseline, default-ON and
+# tuned ASSERTIVE (Neuro-level presence). The dashboard Director toggle is now an
+# "ease OFF" lever (turn off → drop to reactive), NOT an on-switch. The min-gap is
+# live-tunable from the dashboard (self.director_min_gap_s) so cadence can be pulled
+# back mid-stream WITHOUT a restart — the real-time brake on assertive driving.
+# Still activity-focused only (stays out of plain hangout). Under Focus/Lock-In she
+# keeps driving the GAME but suppresses chat-directed yapping (see chat_lock_in).
+ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "true").lower() == "true"
+DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "15.0"))    # assertive floor between Director utterances (boot default; live-tunable)
+DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence that triggers "create" (assertive)
 
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires

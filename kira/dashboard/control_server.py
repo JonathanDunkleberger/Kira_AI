@@ -179,6 +179,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     deep_senses = _get(lambda: bool(bot.deep_senses), False)
     chat_lock_in = _get(lambda: bool(bot.chat_lock_in), False)
     director_enabled = _get(lambda: bool(bot.director_enabled), False)
+    director_min_gap_s = _get(lambda: float(bot.director_min_gap_s), 15.0)
 
     # ── Effective (post-reconcile) state — the single truth both UIs render ───
     effective = _get(lambda: bot._compute_effective_state(), {}) or {}
@@ -345,6 +346,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "presence_level": presence_level,
         "chat_lock_in": chat_lock_in,
         "director_enabled": director_enabled,
+        "director_min_gap_s": director_min_gap_s,
         "deep_senses": deep_senses,
         # Effective state (post-reconcile) — strip + three-state toggles render
         # from THIS, never from the raw toggle booleans above.
@@ -1111,11 +1113,23 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         return _ok(chat_lock_in=bot.chat_lock_in)
 
     if action == "director_toggle":
-        # Activity Director on/off, LIVE (in-memory) — so the Director can be flipped
-        # mid-stream to tune cadence without a cold restart. ACTIVITY_DIRECTOR_ENABLED
-        # is only the boot default; this overrides it live, same pattern as Lock In.
+        # Activity Director baseline on/off, LIVE (in-memory). The Director is now
+        # DEFAULT-ON and assertive (ACTIVITY_DIRECTOR_ENABLED boot default = true), so
+        # this toggle is the "ease OFF" lever: turn off → she drops to reactive (stops
+        # driving), turn back on → resumes assertive baseline. No cold restart.
         bot.director_enabled = not getattr(bot, "director_enabled", False)
         return _ok(director_enabled=bot.director_enabled)
+
+    if action == "director_min_gap":
+        # LIVE BRAKE on assertive driving: the hard min-gap (seconds) between Director
+        # utterances. Lower = more present/driving; raise = pull her back. Mutated in
+        # memory and read by the observer loop on its next tick — no restart. This is
+        # the real-time lever to rein in the default-ON assertive Director mid-stream.
+        if body.seconds is not None:
+            _g = float(body.seconds)
+            # Clamp to a sane band: floor 3s (never a firehose), ceiling 120s (reactive-ish).
+            bot.director_min_gap_s = max(3.0, min(120.0, _g))
+        return _ok(director_min_gap_s=getattr(bot, "director_min_gap_s", None))
 
     # ── Discord diary (Phase 1, REVIEW MODE) ──────────────────────────────────
     # Manual post of the pending diary entry. Fires the webhook ONLY here, on a

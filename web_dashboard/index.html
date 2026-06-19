@@ -879,6 +879,15 @@ html, body {
       <button class="rail-btn director" id="btn-director"
               onclick="cmd('director_toggle', null, this)">🎬 Director</button>
 
+      <!-- Live brake on assertive driving: pull the Director's cadence back mid-stream
+           without a restart. Lower = more present/driving, higher = ease off. -->
+      <div class="slider-row" style="padding:3px 8px 5px;font-size:11px;opacity:.9;">
+        <label style="display:block;">Drive gap: <span class="slider-val" id="val-dir-gap">15</span>s</label>
+        <input type="range" id="sl-dir-gap" min="3" max="120" step="1" value="15" style="width:100%;"
+               oninput="document.getElementById('val-dir-gap').textContent=this.value"
+               onchange="cmd('director_min_gap',{seconds:parseFloat(this.value)})">
+      </div>
+
       <div class="rail-sep"></div>
 
       <button class="rail-btn thoughts"
@@ -1831,6 +1840,15 @@ function renderRail(s) {
       btnDir.style.color = '';
       btnDir.textContent = '\uD83C\uDFAC Director';
     }
+  }
+
+  // Director min-gap brake \u2014 sync slider to live value, but never fight an active drag.
+  const slDirGap = document.getElementById('sl-dir-gap');
+  if (slDirGap && document.activeElement !== slDirGap) {
+    const g = (s.director_min_gap_s != null ? s.director_min_gap_s : 15);
+    slDirGap.value = g;
+    const vg = document.getElementById('val-dir-gap');
+    if (vg) vg.textContent = Math.round(g);
   }
 }
 
