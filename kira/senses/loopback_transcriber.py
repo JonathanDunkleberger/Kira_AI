@@ -89,6 +89,10 @@ LOOP_HANG_THRESHOLD_S: float   = float(os.getenv("LOOPBACK_LOOP_HANG_S", "30")) 
 LOOP_RESTART_COOLDOWN_S: float = float(os.getenv("LOOPBACK_LOOP_RESTART_COOLDOWN_S", "60"))  # min gap between restarts
 LOOP_WATCHDOG_POLL_S: float    = 5.0       # how often the watchdog samples loop liveness
 
+# "Alive but deaf": audio is present (rms ≥ gate) but nothing has transcribed for this
+# long. Drives the dashboard amber beacon (Phase 2) and the segment-rate watchdog (Phase 3).
+LOOPBACK_DEAF_S: float = float(os.getenv("LOOPBACK_DEAF_S", "90"))
+
 # Common Whisper hallucinations on music / silence / non-speech audio.
 # All lowercased, matched after normalization (strip punctuation/whitespace).
 HALLUCINATION_PHRASES = frozenset({
@@ -285,6 +289,7 @@ class LoopbackTranscriber:
 
         # Diagnostics
         self.last_tick_time: float = 0.0       # last COMPLETED transcription (past the silence gate)
+        self.last_audio_present_ts: float = 0.0  # last tick where rms >= silence gate (real audio present)
         self.last_loop_ts: float = 0.0         # last pump-loop ITERATION (every ~5s, even when gated/silent)
         self.last_tick_latency_ms: float = 0.0
         self.last_segment_count: int = 0
@@ -687,13 +692,22 @@ class LoopbackTranscriber:
         # distinguishes "device carries no signal" (rms≈0 here) from "gate
         # suppressing" (logged above) and "Whisper filtered everything" (the
         # 0-accepted line below), without needing live console access.
+        # Track "real audio present" (rms above the gate) so the dashboard/watchdog can
+        # tell "alive but deaf" (audio flowing, nothing transcribed) from plain silence.
+        if rms >= SILENCE_RMS_THRESHOLD:
+            self.last_audio_present_ts = time.time()
         self._heartbeat_tick_counter += 1
         if self._heartbeat_tick_counter % HEARTBEAT_EVERY_N_TICKS == 0:
             _dev = (getattr(agent, "_bound_loopback_name", None)
                     or getattr(agent, "preferred_loopback_name", None) or "(default)")
-            print(f"   [LoopbackSTT] heartbeat — device={_dev!r} rms={rms:.4f} "
-                  f"(silence_gate={SILENCE_RMS_THRESHOLD}, "
-                  f"{self.total_segments_accepted} accepted so far)")
+            with self._lock:
+                _last = self._segments[-1] if self._segments else None
+            if _last:
+                _ll = f'last line: "{_last["text"][:60]}" ({int(time.time() - _last["ts"])}s ago)'
+            else:
+                _ll = "last line: (none yet)"
+            print(f"   [LoopbackSTT] LIVE — {_ll} · device={_dev!r} · rms={rms:.4f} "
+                  f"· gate={SILENCE_RMS_THRESHOLD} · {self.total_segments_accepted} accepted")
         if rms < SILENCE_RMS_THRESHOLD:
             return
 
@@ -848,6 +862,30 @@ class LoopbackTranscriber:
         Updated in the background by bot.loopback_dialogue_summary_loop().
         Returns empty string until the first summarization has run."""
         return self.dialogue_summary
+
+    def is_deaf(self) -> bool:
+        """True when loopback is RUNNING and real audio has been present recently but
+        NOTHING has transcribed for LOOPBACK_DEAF_S — the 'alive but deaf' failure,
+        tied to segment-rate (not just tick freshness) so genuine silence doesn't trip
+        it. Shared by the dashboard amber beacon and the Phase-3 segment-rate watchdog."""
+        if not self.is_running():
+            return False
+        now = time.time()
+        audio_recent = bool(self.last_audio_present_ts) and (now - self.last_audio_present_ts) < LOOPBACK_DEAF_S
+        no_transcription = (not self.last_tick_time) or (now - self.last_tick_time) >= LOOPBACK_DEAF_S
+        return audio_recent and no_transcription
+
+    def get_live_signal(self) -> dict:
+        """Compact live-health for the at-a-glance dashboard beacon:
+        {last_line, age (s, -1 if none), deaf}."""
+        now = time.time()
+        with self._lock:
+            last = self._segments[-1] if self._segments else None
+        return {
+            "last_line": last["text"] if last else "",
+            "age": int(now - last["ts"]) if last else -1,
+            "deaf": self.is_deaf(),
+        }
 
     def get_status_summary(self) -> str:
         """One-line status string for the dashboard."""

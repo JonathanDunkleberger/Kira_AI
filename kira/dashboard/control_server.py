@@ -152,6 +152,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     lt = _get(lambda: bot.loopback_transcriber, None)
     loopback_on = _get(lambda: lt.is_running() if lt else False, False)
     loopback_status = _get(lambda: lt.get_status_summary() if lt else "disabled", "disabled")
+    loopback_live = _get(lambda: lt.get_live_signal() if lt else {}, {})
 
     def _loopback_feed():
         if not lt or not lt.is_running():
@@ -331,6 +332,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         # Loopback STT
         "loopback_on": loopback_on,
         "loopback_status": loopback_status,
+        "loopback_live": loopback_live,
         "loopback_feed": loopback_feed,
         "loopback_summary": loopback_summary,
         # Activity / mode

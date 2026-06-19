@@ -2843,7 +2843,23 @@ function renderPerception(s) {
     setDot('perc-vision', false, '👁 vision off');
   }
   setDot('perc-audio', !!p.audio_mood_on, p.audio_mood_on ? '👂 mood on' : '👂 mood off');
-  setDot('perc-loopback', !!p.loopback_on, p.loopback_on ? '💬 dialogue on' : '💬 dialogue off');
+  // Loopback dialogue dot — off / amber DEAF (alive-but-deaf) / live with last line heard.
+  (function () {
+    const el = document.getElementById('perc-loopback');
+    if (!el) return;
+    const lp = s.loopback_live || {};
+    if (!p.loopback_on) {
+      el.classList.remove('on'); el.classList.add('off'); el.style.color = '';
+      el.textContent = '💬 dialogue off';
+    } else if (lp.deaf) {
+      el.classList.remove('on', 'off'); el.style.color = '#e8c86a';  // amber = alive but deaf
+      el.textContent = '💬 ⚠ DEAF — audio in, no transcript';
+    } else {
+      el.classList.remove('off'); el.classList.add('on'); el.style.color = '';
+      const ll = (lp.last_line || '').slice(0, 40);
+      el.textContent = ll ? `💬 “${ll}” (${lp.age >= 0 ? lp.age + 's' : '?'})` : '💬 dialogue on';
+    }
+  })();
 
   // Don't fight the user mid-click — only sync the switch when it isn't focused.
   const sw = document.getElementById('sw-deep-senses');
