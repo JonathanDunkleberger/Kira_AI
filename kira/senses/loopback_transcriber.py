@@ -67,10 +67,14 @@ WINDOW_SECONDS: float = 8.0        # how much audio each transcription consumes
 TRANSCRIPT_MAX_AGE_SECONDS: float = 60.0   # drop segments older than this
 TRANSCRIPT_MAX_CHARS: int = 1200           # hard cap on rendered string size
 
-# Per-segment filter thresholds.
-NO_SPEECH_PROB_THRESHOLD: float = 0.6      # drop segments where Whisper itself flags "no speech"
+# Per-segment filter thresholds. Env-tunable so music-vs-speech filtering can be dialed
+# live: LOWER no_speech / RAISE min_logprob = stricter (drops more music garble, but risks
+# clipping real quiet/accented dialogue — the thing Pragmata needs, so defaults stay loose).
+# NOTE: confidently-transcribed LYRICS still pass any confidence gate (Whisper is sure about
+# sung words) — a true music gate needs a music/speech classifier (deferred; see notes).
+NO_SPEECH_PROB_THRESHOLD: float = float(os.getenv("LOOPBACK_NO_SPEECH_PROB", "0.6"))  # drop where Whisper flags "no speech"
 MIN_SEGMENT_CHARS: int = 3                 # drop ultra-short fragments
-MIN_AVG_LOGPROB: float = -1.0              # drop very low-confidence segments
+MIN_AVG_LOGPROB: float = float(os.getenv("LOOPBACK_MIN_AVG_LOGPROB", "-1.0"))         # drop very low-confidence segments
 SILENCE_RMS_THRESHOLD: float = 0.003       # don't even call Whisper on near-silent windows
 
 # Fuzzy substring-dedup (gate 7) only applies to segments at least this long. Short
