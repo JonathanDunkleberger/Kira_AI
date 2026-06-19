@@ -276,6 +276,18 @@ CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
 # anything older than this. Default 180s (a few minutes); lower it to tighten.
 CHAT_MAX_AGE_S = float(os.getenv("CHAT_MAX_AGE_S", "180.0"))
 
+# ── "Catch up on chat" — banked-chat surfacing (the heads-down humanizer) ──────
+# Even when chat is suppressed (Lock-In heads-down, or a focused game gating chat
+# down via the salience floor), the suppressed/gated-out messages are BANKED, not
+# dropped — then surfaced in deliberate catch-up beats, like a streamer who plays
+# heads-down for a stretch then comes up for air. So nothing is missed; it's batched,
+# not lost. A beat fires on this timer OR when Jonny invites it ("what's chat saying?").
+# Default ON — this is baseline presence, not a feel-test toggle. Every fire logs loudly.
+CHAT_CATCHUP_ENABLED = os.getenv("CHAT_CATCHUP_ENABLED", "true").lower() == "true"
+CHAT_CATCHUP_S = float(os.getenv("CHAT_CATCHUP_S", "720.0"))         # ~12 min between timed catch-ups
+CHAT_CATCHUP_MAX_MSGS = int(os.getenv("CHAT_CATCHUP_MAX_MSGS", "3")) # best N banked messages surfaced per beat
+CHAT_BANK_CAP = int(os.getenv("CHAT_BANK_CAP", "60"))               # max banked messages kept (newest win)
+
 # ── Progress watchdog (objective agency — the quiz-passivity fix) ──────────────
 # When Jonny assigns an explicit task ("read the page and answer", "solve the
 # quiz") and then goes quiet, Kira ACTS on it after this much silence instead of

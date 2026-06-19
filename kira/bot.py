@@ -53,6 +53,7 @@ from kira.config import (
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
+    CHAT_CATCHUP_ENABLED, CHAT_CATCHUP_S, CHAT_CATCHUP_MAX_MSGS, CHAT_BANK_CAP,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
@@ -689,6 +690,12 @@ class VTubeBot:
 
         # Chat batching + engagement state
         self.chat_batch_buffer: list = []          # queued chat messages waiting to be batched
+        # "Catch up on chat" bank — chat suppressed under heads-down/focus is BANKED
+        # here (received + understood + memory-recorded already), then surfaced in
+        # deliberate catch-up beats so nothing is missed. See _bank_chat / _maybe_fire_chat_catchup.
+        self._banked_chat: list = []               # suppressed/gated-out chat awaiting a catch-up beat
+        self._last_chat_catchup_ts: float = 0.0    # catch-up clock — stamped when banking begins/resumes
+        self._chat_catchup_requested: bool = False # set by Jonny's "what's chat saying?" voice invite
         self.last_chat_response_time: float = 0    # for response cooldown
         self.session_chatters_seen: set = set()    # usernames seen in this session (for welcome detection)
         # Returning-regulars already acknowledged this session, so the prompt block
@@ -5510,6 +5517,11 @@ class VTubeBot:
                         _new_obj = self._detect_objective(content)
                         if _new_obj:
                             self._set_objective(_new_obj)
+                        # "what's chat saying?" → fire a chat catch-up beat on the next
+                        # observer tick (surfaces the banked, heads-down chat on demand).
+                        if self._detect_chat_catchup_request(content):
+                            self._chat_catchup_requested = True
+                            print("   [CatchUp] Jonny invited a chat catch-up — will fire next tick.")
 
                     # Activity auto-detection from voice (natural language sets context)
                     if source == "voice":
@@ -6203,6 +6215,82 @@ class VTubeBot:
             f"{_goal}{_agenda}{_bits_block}"
         )
 
+    # ── "Catch up on chat" — banked-chat surfacing (heads-down / focused humanizer) ─
+    # Suppressed/gated-out chat is BANKED (not dropped) and surfaced in deliberate
+    # catch-up beats — a streamer playing heads-down then coming up for air. Fires on
+    # a timer (CHAT_CATCHUP_S) OR on Jonny's invite ("what's chat saying?"). Rides
+    # _arbiter_interjection so BOTH guardrail layers apply. Every fire logs loudly.
+    _CHAT_CATCHUP_RE = re.compile(
+        r"\b(?:what'?s|what is|how'?s|hows|anything (?:in|from)|catch (?:me |us )?up on|"
+        r"check)\s+(?:the\s+)?chat(?:\b|\s+(?:saying|sayin|up to|doing|think))"
+        r"|\bcatch up on chat\b|\bwhat'?s chat\b",
+        re.I,
+    )
+
+    @classmethod
+    def _detect_chat_catchup_request(cls, message: str) -> bool:
+        """True when Jonny asks to hear from chat ('what's chat saying?', 'catch up on
+        chat', 'anything in chat?'). Conservative — a miss just waits for the timer."""
+        return bool(message) and bool(cls._CHAT_CATCHUP_RE.search(message))
+
+    def _bank_chat(self, msgs: list) -> None:
+        """Bank suppressed/gated-out chat so a later catch-up beat can surface it —
+        nothing is missed, just deferred. Starts the catch-up clock when banking begins
+        from empty, and caps the bank (newest kept)."""
+        if not msgs:
+            return
+        if not self._banked_chat:
+            self._last_chat_catchup_ts = time.time()  # start the clock when banking resumes
+        self._banked_chat.extend(msgs)
+        if len(self._banked_chat) > CHAT_BANK_CAP:
+            _dropped = len(self._banked_chat) - CHAT_BANK_CAP
+            self._banked_chat = self._banked_chat[-CHAT_BANK_CAP:]
+            print(f"   [CatchUp] bank over cap — aged out {_dropped} oldest banked message(s)")
+
+    def _build_chat_catchup_prompt(self, picked: list) -> str:
+        """Prompt for a quick catch-up on the best banked chat — react, then drop back
+        into what she's doing. PERSONALITY only; guardrails ride via _execute_interjection."""
+        _lines = []
+        for m in picked:
+            _u = self._speakable_handle(m.get("username", "someone"))
+            _lines.append(f"- {_u}: {m.get('message','')[:160]}")
+        return (
+            "[CATCH UP ON CHAT — you've been heads-down for a stretch; come up for air for "
+            "a beat. Here's the best of what chat said while you were focused. React like a "
+            "streamer surfacing for a moment — quick, warm, in character — hit the best of it, "
+            "then drop right back into what you're doing.]\n"
+            + "\n".join(_lines) + "\n"
+            "- One or two sentences. Don't read them as a list; riff on them, then back to it."
+        )
+
+    async def _maybe_fire_chat_catchup(self) -> bool:
+        """Fire a catch-up beat if banked chat is due (timer) or Jonny invited it.
+        Returns True if it fired (caller skips other interjections this tick)."""
+        if not CHAT_CATCHUP_ENABLED or not self._banked_chat:
+            return False
+        _due = self._chat_catchup_requested or (
+            time.time() - self._last_chat_catchup_ts >= CHAT_CATCHUP_S
+        )
+        if not _due or self.ai_core.has_pending_voice_turn():
+            return False
+        # Best few banked messages by salience (direct-address / questions rise to the top).
+        _scored = sorted(
+            self._banked_chat,
+            key=lambda m: salience_filter.score("chat", m.get("message", ""))[0],
+            reverse=True,
+        )
+        _picked = _scored[:CHAT_CATCHUP_MAX_MSGS]
+        _invited = self._chat_catchup_requested
+        print(f"   [CatchUp] FIRE ({'invited' if _invited else 'timer'}) — surfacing "
+              f"{len(_picked)} of {len(self._banked_chat)} banked message(s)")
+        # Reset state BEFORE the await so a slow turn can't double-fire. Clear the whole
+        # bank — she surfaced the best, the rest is water under the bridge (no stale carryover).
+        self._banked_chat = []
+        self._chat_catchup_requested = False
+        self._last_chat_catchup_ts = time.time()
+        await self._arbiter_interjection(self._build_chat_catchup_prompt(_picked))
+        return True
+
     async def _respond_to_chat_batch(self, batch: list, _preemption: str = "none"):
         """Decides what (if anything) to say in response to a batch of chat messages."""
         if not batch:
@@ -6301,7 +6389,7 @@ class VTubeBot:
             _floor = _TIER_ORDER[_fi]
 
             _gated_batch = []
-            _n_gate_dropped = 0
+            _gate_dropped_msgs = []
             for msg in batch:
                 _uname = msg.get("username", "unknown")
                 # PROTECT: first-timers + known regulars bypass the floor entirely.
@@ -6312,13 +6400,15 @@ class VTubeBot:
                 if _TIER_ORDER.index(_tier) >= _fi:
                     _gated_batch.append(msg)
                 else:
-                    _n_gate_dropped += 1
+                    _gate_dropped_msgs.append(msg)
                     print(f"   [Salience] chat DROP {_tier}<{_floor} "
                           f"({_activity}, score={_sc}): {_uname} — {msg.get('message','')[:40]}")
+            # Don't lose the gated-out chat — BANK it so a catch-up beat can surface it.
+            self._bank_chat(_gate_dropped_msgs)
             batch = _gated_batch
             if not batch:
                 print(f"   [ChatBatch] Salience gate ({_activity}/{_floor}): "
-                      f"all {_n_gate_dropped} message(s) below floor — nothing to answer")
+                      f"all {len(_gate_dropped_msgs)} message(s) below floor — banked for catch-up")
                 return
 
         # ── Second-stage scaling governor: chat rate cap + fairness ────────────
@@ -7891,6 +7981,14 @@ class VTubeBot:
                     self._clear_objective("acted")
                     await self._arbiter_interjection(_obj_prompt)
                     continue
+
+            # ── Catch up on chat (banked-chat surfacing) ─────────────────────────
+            # Heads-down / focused chat is BANKED, never lost — surface it in deliberate
+            # beats (timer) or on Jonny's invite ("what's chat saying?"). Fires even under
+            # Lock-In; that IS the "come up for air" moment. Rides _arbiter_interjection
+            # (both guardrails + turn-lock + sentence yield). Priority over the Director.
+            if await self._maybe_fire_chat_catchup():
+                continue
 
             # ── Activity Director (Pass 2) — the first-mover driver ──────────────
             # Generalizes the objective watchdog into a proactive driver. When an
