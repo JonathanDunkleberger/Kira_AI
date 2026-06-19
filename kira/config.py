@@ -260,6 +260,17 @@ CHAT_MAX_AGE_S = float(os.getenv("CHAT_MAX_AGE_S", "180.0"))
 OBJECTIVE_ACT_SILENCE_S = float(os.getenv("OBJECTIVE_ACT_SILENCE_S", "12.0"))
 OBJECTIVE_MAX_AGE_S = float(os.getenv("OBJECTIVE_MAX_AGE_S", "300.0"))
 
+# ── Activity Director (Pass 2 — the first-mover loop; HIGHEST risk, default OFF) ─
+# Generalizes the objective watchdog into a proactive driver: when an activity is
+# focused, on a HARD min-gap, Kira reacts to fresh perception or fills dead air with
+# her own initiative (drives/opinions/bits) instead of waiting to be addressed. Rides
+# the same P1 interjection lane (turn-lock + sentence yield; never interrupts Jonny)
+# AND the Pass-1 content guardrail. SUPPRESSED under Focus/Lock-In (locked in = drive
+# LESS). Default OFF — flip on LAST and tune cadence live, after the skeleton behaves.
+ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "false").lower() == "true"
+DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "30.0"))    # hard floor between Director utterances
+DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "45.0"))  # silence that triggers "create"
+
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires
 # a proactive interjection about what she SEES/HEARS on screen, so constant

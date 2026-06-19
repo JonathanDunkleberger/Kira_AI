@@ -54,6 +54,7 @@ from kira.config import (
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
+    ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
@@ -633,6 +634,7 @@ class VTubeBot:
         self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
         self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
         self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
+        self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -6051,6 +6053,61 @@ class VTubeBot:
             print(f"   [Objective] cleared ({reason}) — was \"{self.active_objective['text'][:60]}\"")
         self.active_objective = None
 
+    # ── Activity Director (Pass 2 — the first-mover loop) ───────────────────────
+    # When she fills dead air, scene_override bypasses _execute_interjection's
+    # fresh-sense gate AND honestly grounds her ("nothing to narrate, just riff") so
+    # she can CREATE in silence without ever claiming an event she can't perceive.
+    _DIRECTOR_DEAD_AIR_SCENE = (
+        "(Nothing new is on screen or audible right now — a quiet moment to FILL, not "
+        "narrate. Riff, plant or close a small running bit, or needle Jonny toward the "
+        "goal. Do NOT claim to see or hear anything happening; you're filling silence, "
+        "not reporting on it.)"
+    )
+
+    def _director_activity_focused(self) -> bool:
+        """The Director only drives when there's an activity to drive (a focused
+        game/VN/media, or a named current_activity). In plain hangout it stays out of
+        the way — the companion register, not a performer."""
+        gmc = self.game_mode_controller
+        return bool(
+            getattr(gmc, "activity_type", "general") in (ACTIVITY_GAME, ACTIVITY_VN, ACTIVITY_MEDIA)
+            or (self.current_activity or "").strip()
+        )
+
+    def _build_director_prompt(self, mode: str) -> str:
+        """First-mover Director prompt — PERSONALITY only. The content guardrail and
+        perception grounding ride along via _execute_interjection (_kira_voice_guardrails
+        + the visual directive) + the _speak_single backstop, so this never restates the
+        boundary nor injects an event she can't perceive."""
+        _mode_line = (
+            "Something just shifted in what you can see/hear — REACT to it, lead with YOUR take."
+            if mode == "react" else
+            "It's gone quiet — and silence is your cue to DRIVE, not disappear. Invent a small "
+            "bit, make a sharp observation, or needle Jonny toward the goal."
+        )
+        _goal = f"\n[CURRENT GOAL] {self.active_objective['text']}\n" if self.active_objective else ""
+        _agenda = ""
+        if self.drive_agenda:
+            _agenda = ("\n[YOUR AGENDA THIS SESSION — pursue these on your own initiative]\n"
+                       + "\n".join(f"- {a}" for a in self.drive_agenda) + "\n")
+        _bits = self._active_bits_for_prompt(4)
+        _bits_block = ""
+        if _bits:
+            _bits_block = ("\n[OPEN THREADS — running bits you can call back to or close for a payoff]\n"
+                           + "\n".join(f"- {b.get('name','')}: {b.get('description','')}" for b in _bits) + "\n")
+        return (
+            f"[ACTIVITY DIRECTOR — you are DRIVING this, the first mover, not waiting to be "
+            f"addressed. {_mode_line}]\n"
+            f"- Commit to a take; don't hedge. You have opinions and a contrarian streak — defend "
+            f"them (hot takes on the game/strategy, food, media, or teasing Jonny). Narrate your "
+            f"intention before you act (\"I think it's the third door — let's go\").\n"
+            f"- The Jonny-and-you dynamic is the show — react to HIM reacting to this.\n"
+            f"- You can drop the bit for a real beat — a sincere question, a genuine reaction, a "
+            f"flash of something true. The playfulness earns those moments; let one land when it fits.\n"
+            f"- One or two sentences. Decisive, in character — a beat, not a monologue.\n"
+            f"{_goal}{_agenda}{_bits_block}"
+        )
+
     async def _respond_to_chat_batch(self, batch: list, _preemption: str = "none"):
         """Decides what (if anything) to say in response to a batch of chat messages."""
         if not batch:
@@ -7710,6 +7767,38 @@ class VTubeBot:
                     self._clear_objective("acted")
                     await self._arbiter_interjection(_obj_prompt)
                     continue
+
+            # ── Activity Director (Pass 2) — the first-mover driver ──────────────
+            # Generalizes the objective watchdog into a proactive driver. When an
+            # activity is focused, on a HARD min-gap, she REACTS to fresh perception
+            # or FILLS dead air with her own initiative (drives/opinions/bits) instead
+            # of waiting to be addressed. Rides _arbiter_interjection (P1: turn-lock +
+            # sentence-boundary yield, NEVER interrupts Jonny) and the Pass-1 content
+            # guardrail (_kira_voice_guardrails + the _speak_single denylist) for free —
+            # no guardrail is re-implemented here. SUPPRESSED under Focus/Lock-In
+            # (locked in = drive LESS). When enabled + focused the Director OWNS the
+            # proactive-speech decision this tick (replaces the boredom filler below).
+            # Default OFF; every fire logged loudly. A blocked/deflected impulse still
+            # consumes the gap (stamp BEFORE the await) so caught bits never burst out.
+            if ACTIVITY_DIRECTOR_ENABLED and self._director_activity_focused():
+                if not self.chat_lock_in and not self.ai_core.has_pending_voice_turn():
+                    _dir_gap = time.time() - self._last_director_ts
+                    if _dir_gap >= DIRECTOR_MIN_GAP_S:
+                        _fresh_ok, _fresh_label = self._has_fresh_sense()
+                        _dead_air = silence_duration >= DIRECTOR_DEAD_AIR_S
+                        if _fresh_ok or _dead_air:
+                            _dir_mode = "react" if _fresh_ok else "dead_air"
+                            print(f"   [Director] FIRE ({_dir_mode}) — gap={_dir_gap:.0f}s "
+                                  f"silence={silence_duration:.0f}s fresh={_fresh_label or 'none'}")
+                            self._last_director_ts = time.time()
+                            if _dir_mode == "dead_air":
+                                await self._arbiter_interjection(
+                                    self._build_director_prompt("dead_air"),
+                                    scene_override=self._DIRECTOR_DEAD_AIR_SCENE,
+                                )
+                            else:
+                                await self._arbiter_interjection(self._build_director_prompt("react"))
+                continue
 
             # ── Game-engagement channel (proactive "react to what I see/hear") ──
             # During a story game, on a throttle, fire an interjection about the
