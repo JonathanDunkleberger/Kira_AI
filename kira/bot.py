@@ -637,6 +637,7 @@ class VTubeBot:
         self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
         self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
         self.director_enabled: bool = ACTIVITY_DIRECTOR_ENABLED  # env = BOOT DEFAULT; dashboard flips it live
+        self.loopback_desired: bool = LOOPBACK_STT_DEFAULT  # "desktop hearing should be on" — drives the supervisor
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -4324,6 +4325,67 @@ class VTubeBot:
             return False
         return (time.time() - self._vad_mic_last_ts) < MIC_GATE_ACTIVE_WINDOW_S
 
+    async def _loopback_supervisor_loop(self) -> None:
+        """Idempotent loopback keep-alive (the root fix for inconsistent hearing).
+
+        While desktop hearing SHOULD be on (self.loopback_desired), periodically
+        ensure BOTH (a) the audio agent is capturing and (b) the transcriber is
+        running — re-arming whatever fell away, i.e. automatically doing what the
+        manual Deep-Senses / hearing toggle does, until it sticks. This closes the
+        cold-boot silent-bind failure (set_mode landed on OFF, single-shot autostart
+        bailed forever) AND the mid-session gaps the watchdogs miss: a capture thread
+        that cleanly died (unplug), or a pump loop that cleanly exited. (The existing
+        watchdogs only heal a LIVE-but-wedged stream / hung loop, never one that
+        dropped entirely.)
+
+        Idempotent + no-thrash: when everything is already healthy it's a cheap check
+        and a silent return (no action, no log). It only ACTS and logs when something
+        is actually down, and backs off if a device keeps failing so it never storms."""
+        _BASE, _MAX = 15.0, 60.0
+        _delay = _BASE
+        await asyncio.sleep(45.0)  # let boot autostart + the ~20s model load settle first
+        while self.is_running:
+            await asyncio.sleep(_delay)
+            try:
+                if await self._loopback_supervisor_sweep() == "down":
+                    _delay = min(_delay * 2, _MAX)
+                    print(f"   [LoopbackSupervisor] still down — backing off to {_delay:.0f}s before retry.")
+                else:
+                    _delay = _BASE
+            except Exception as e:
+                print(f"   [LoopbackSupervisor] sweep error (non-fatal): {e}")
+
+    async def _loopback_supervisor_sweep(self) -> str:
+        """One supervisor check (extracted for testability). Returns:
+        'idle' (hearing not desired / no transcriber), 'healthy' (already fine →
+        no-op, no log), 'recovered' (re-armed and now healthy), or 'down' (acted but
+        still not healthy → caller backs off). Re-arms whatever fell away."""
+        if not self.loopback_desired:
+            return "idle"
+        lt, aa = self.loopback_transcriber, self.audio_agent
+        if lt is None or aa is None:
+            return "idle"
+        if aa.is_active() and lt.is_running():
+            return "healthy"                              # the common case — silent no-op
+        if not aa.is_active():
+            print("   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…")
+            try:
+                await asyncio.to_thread(aa.set_mode, AUDIO_MODE_MEDIA)
+            except Exception as e:
+                print(f"   [LoopbackSupervisor] capture re-bind failed: {e}")
+        if aa.is_active() and not lt.is_running():
+            print("   [LoopbackSupervisor] transcriber DOWN (capture up) — re-arming…")
+            try:
+                _spk = lambda: bool(getattr(self.ai_core, "is_speaking", False))
+                ok = await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active)
+                print(f"   [LoopbackSupervisor] transcriber re-arm {'succeeded' if ok else 'failed'}.")
+            except Exception as e:
+                print(f"   [LoopbackSupervisor] transcriber re-arm raised: {e}")
+        if aa.is_active() and lt.is_running():
+            print("   [LoopbackSupervisor] ✓ loopback healthy again.")
+            return "recovered"
+        return "down"
+
     async def _autostart_loopback(self) -> None:
         """Auto-start the loopback dialogue transcriber when LOOPBACK_STT_DEFAULT is on.
 
@@ -4865,6 +4927,10 @@ class VTubeBot:
                     print("   [LoopbackSTT] Boot autostart DISABLED (LOOPBACK_STT_DEFAULT=false) — "
                           "loopback starts only via dashboard / Deep Senses.")
             
+            # Loopback keep-alive supervisor — self-heals capture/transcriber that
+            # never started or dropped (cold-boot silent-bind, unplug, clean exit).
+            tasks.append(self._loopback_supervisor_loop())
+
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())
 

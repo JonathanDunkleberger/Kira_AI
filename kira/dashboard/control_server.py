@@ -1001,6 +1001,9 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "deep_senses_toggle":
         on = body.enabled if body.enabled is not None else (not getattr(bot, "deep_senses", False))
         bot.apply_deep_senses(on)
+        if on:
+            bot.loopback_desired = True  # supervisor keeps loopback alive while deep
+
         # Escalate loopback dialogue when going DEEP. It reads the audio agent's
         # buffer, so audio must be active first — apply_deep_senses() just ensured
         # that. Relaxing to calm leaves loopback running (baseline), so there's
@@ -1033,6 +1036,9 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         choice = body.mode or "Off"
         mode_val = label_to_mode.get(choice, AUDIO_MODE_OFF)
         bot.audio_agent.set_mode(mode_val)
+        # Tell the loopback supervisor whether desktop hearing should be kept alive:
+        # MEDIA = transcribe dialogue (supervise it ON); Off/Music = don't re-arm.
+        bot.loopback_desired = (mode_val == AUDIO_MODE_MEDIA)
         # 1b: honor LOOPBACK_STT_DEFAULT — auto-start the dialogue transcriber when
         # MEDIA audio is switched on (it reads the audio agent's buffer, so audio must
         # be active first). MUSIC mode is intentionally excluded (don't transcribe
