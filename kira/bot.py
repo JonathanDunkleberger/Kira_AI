@@ -638,6 +638,7 @@ class VTubeBot:
         self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
         self.director_enabled: bool = ACTIVITY_DIRECTOR_ENABLED  # env = BOOT DEFAULT; dashboard flips it live
         self.loopback_desired: bool = LOOPBACK_STT_DEFAULT  # "desktop hearing should be on" — drives the supervisor
+        self._last_loopback_deaf_recovery: float = 0.0  # cooldown clock for the alive-but-deaf recovery
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -4366,6 +4367,26 @@ class VTubeBot:
         if lt is None or aa is None:
             return "idle"
         if aa.is_active() and lt.is_running():
+            # Alive-but-deaf watchdog (the gap the RMS/hang watchdogs miss): capture is
+            # up and the loop is iterating, but real audio has been present with NOTHING
+            # transcribed for the deaf window. Reopen capture + restart the transcriber.
+            # Cooldown-gated (a restart reloads Whisper + needs audio to re-confirm), so
+            # it can't loop on the post-restart "no transcription yet" state.
+            if lt.is_deaf() and (time.time() - self._last_loopback_deaf_recovery) > 150.0:
+                print("   [LoopbackSupervisor] ALIVE BUT DEAF (audio present, nothing transcribed "
+                      "for the deaf window) — reopening capture + restarting transcriber…")
+                self._last_loopback_deaf_recovery = time.time()
+                try:
+                    await asyncio.to_thread(aa.set_mode, AUDIO_MODE_OFF)
+                    await asyncio.to_thread(aa.set_mode, AUDIO_MODE_MEDIA)
+                    await asyncio.to_thread(lt.stop)
+                    _spk = lambda: bool(getattr(self.ai_core, "is_speaking", False))
+                    await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active)
+                    print("   [LoopbackSupervisor] deaf recovery issued (capture reopened + "
+                          "transcriber restarted).")
+                except Exception as e:
+                    print(f"   [LoopbackSupervisor] deaf recovery failed: {e}")
+                return "deaf-recovered"
             return "healthy"                              # the common case — silent no-op
         if not aa.is_active():
             print("   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…")

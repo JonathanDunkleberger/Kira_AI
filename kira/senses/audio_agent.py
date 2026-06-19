@@ -46,6 +46,11 @@ CAPTURE_WEDGE_WINDOW_S    = float(os.getenv("CAPTURE_WEDGE_WINDOW_S", "25"))    
 CAPTURE_REOPEN_COOLDOWN_S = float(os.getenv("CAPTURE_REOPEN_COOLDOWN_S", "60")) # min gap between reopens
 CAPTURE_WEDGE_RMS         = float(os.getenv("CAPTURE_WEDGE_RMS", "0.0005"))     # ≤ this = effectively dead (idle loopback note)
 CAPTURE_WATCHDOG_POLL_S   = float(os.getenv("CAPTURE_WATCHDOG_POLL_S", "2.0"))  # how often to sample RMS
+# "Recovered" must mean USABLE, not merely non-zero: a reopen that lands at rms 0.0006
+# is still below the loopback STT silence gate (0.003) → declared healthy while deaf.
+# Confirm recovery only above this (= the STT gate); below it, stay 'recovering' so the
+# segment-rate deaf watchdog takes over.
+CAPTURE_USABLE_RMS        = float(os.getenv("CAPTURE_USABLE_RMS", "0.003"))
 
 # ── Audio device persistence ──────────────────────────────────────────────────
 # FIX 2: the user's chosen loopback device must survive a restart. Without this,
@@ -698,6 +703,7 @@ class AudioAgent:
         """
         zero_since = 0.0
         last_reopen = 0.0
+        consecutive_reopens = 0   # backoff: each reopen that doesn't recover widens the cooldown
         print(f"   [Capture] Health watchdog armed — window={CAPTURE_WEDGE_WINDOW_S:.0f}s, "
               f"cooldown={CAPTURE_REOPEN_COOLDOWN_S:.0f}s, dead_rms≤{CAPTURE_WEDGE_RMS}.")
         while not self._watchdog_stop.is_set():
@@ -717,10 +723,15 @@ class AudioAgent:
                 # Healthy signal — clear the wedge timer, and if we just reopened,
                 # announce the recovery LOUDLY so the self-heal is visibly confirmed.
                 if rms > CAPTURE_WEDGE_RMS:
-                    if self._capture_recovering:
-                        print(f"   [Capture] ✓ Reopened, RMS recovered (rms={rms:.4f}) "
-                              f"— loopback healthy again.")
-                        self._capture_recovering = False
+                    # Stream is alive (not wedged) → clear the wedge timer. But only
+                    # CONFIRM recovery (and reset the reopen-backoff) once rms is actually
+                    # USABLE by the STT gate — a 0.0006 reopen is still effectively deaf.
+                    if rms >= CAPTURE_USABLE_RMS:
+                        if self._capture_recovering:
+                            print(f"   [Capture] ✓ Reopened, RMS recovered (rms={rms:.4f}, usable) "
+                                  f"— loopback healthy again.")
+                            self._capture_recovering = False
+                        consecutive_reopens = 0
                     zero_since = 0.0
                     continue
 
@@ -733,13 +744,18 @@ class AudioAgent:
                     continue
                 # Sustained zero past the window → wedged. Respect the reopen cooldown
                 # so a genuinely-silent passage can't thrash the device.
-                if (now - last_reopen) < CAPTURE_REOPEN_COOLDOWN_S:
+                # Backoff: a genuinely-silent desktop reads RMS≈0 exactly like a wedge,
+                # so each reopen that doesn't recover widens the cooldown (60→120→…→480s)
+                # to stop storming reopens during long quiet passages. Resets on recovery.
+                _eff_cooldown = CAPTURE_REOPEN_COOLDOWN_S * min(2 ** consecutive_reopens, 8)
+                if (now - last_reopen) < _eff_cooldown:
                     continue
 
                 print(f"   [Capture] ⚠ WATCHDOG: wedged stream detected — RMS≈0 for "
                       f"{wedged_for:.0f}s in MEDIA mode (device={self._bound_loopback_name!r}). "
                       f"Reopening WASAPI loopback…")
                 last_reopen = now
+                consecutive_reopens += 1
                 try:
                     self._stop_capture()
                     self._start_capture()
