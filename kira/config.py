@@ -288,6 +288,18 @@ CHAT_CATCHUP_S = float(os.getenv("CHAT_CATCHUP_S", "720.0"))         # ~12 min b
 CHAT_CATCHUP_MAX_MSGS = int(os.getenv("CHAT_CATCHUP_MAX_MSGS", "3")) # best N banked messages surfaced per beat
 CHAT_BANK_CAP = int(os.getenv("CHAT_BANK_CAP", "60"))               # max banked messages kept (newest win)
 
+# ── Lock-In heads-down clamp (the one honest situational toggle) ───────────────
+# Lock-In is the "shut up and play" nuclear option for immersive games: she goes
+# near-SILENT on chat — still RECEIVES, understands, and memory-records every message
+# (nothing missed), but does NOT speak to chat. Everything is banked for a catch-up
+# beat. The ONLY automatic break-through is a genuinely exceptional message: salience
+# score >= this floor. Chat salience tops out at 75 — base 55 + a single bump, and the
+# bumps DON'T stack: naming Kira = +20 (→75), a "?" = +15 (→70). So the default 75 means
+# only a message that DIRECTLY NAMES Kira pierces heads-down; questions/filler bank. Lower
+# it (e.g. 70) to also let bare questions through; raise it (e.g. 999) for absolute
+# silence-until-catch-up. She still drives the GAME under Lock-In (Director stays active).
+LOCK_IN_BREAKTHROUGH_SCORE = float(os.getenv("LOCK_IN_BREAKTHROUGH_SCORE", "75.0"))
+
 # ── Progress watchdog (objective agency — the quiz-passivity fix) ──────────────
 # When Jonny assigns an explicit task ("read the page and answer", "solve the
 # quiz") and then goes quiet, Kira ACTS on it after this much silence instead of

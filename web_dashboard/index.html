@@ -1761,21 +1761,24 @@ function renderStatusStrip(s) {
       a.style.background='#2a2018'; a.style.color='#d8c8b0'; a.style.borderColor='#4a3a2a';
     }
   }
-  // Lock In
+  // Lock In — heads-down clamp (near-silent on chat; chat banked for catch-up)
   const li = document.getElementById('bs-lockin');
   if (li) {
     if (s.chat_lock_in) {
-      li.textContent = '🔒 LOCK IN';
+      li.textContent = '🔒 HEADS-DOWN';
       li.style.background='var(--accent)'; li.style.color='#1C1410'; li.style.borderColor='var(--accent)';
     } else { li.textContent = 'LOCK IN'; _dim(li); }
   }
-  // Director — OFF / ON / SUPPRESSED-by-LockIn / ●FIRED pulse
+  // Director — OFF / ON / GAME-ONLY-under-LockIn / ●FIRED pulse. Under Lock-In she
+  // still DRIVES the game (Director active), she just doesn't address chat.
   const d = document.getElementById('bs-director');
   if (d) {
     if (!s.director_enabled) { d.textContent = 'DIRECTOR OFF'; _dim(d); }
     else if (s.chat_lock_in) {
-      d.textContent = '🎬 SUPPRESSED';
-      d.style.background='#3a2e10'; d.style.color='#e8c86a'; d.style.borderColor='#9a7a20';
+      const firedGo = s.director_last_fire_ts && (Date.now()/1000 - s.director_last_fire_ts) < 4.0;
+      d.textContent = firedGo ? '🎬 ● FIRED' : '🎬 GAME-ONLY';
+      d.style.background = firedGo ? '#5aa86a' : '#1e3320';
+      d.style.color = firedGo ? '#0a1a0c' : '#9be8a8'; d.style.borderColor='#3a7d44';
     } else {
       const fired = s.director_last_fire_ts && (Date.now()/1000 - s.director_last_fire_ts) < 4.0;
       d.textContent = fired ? '🎬 ● FIRED' : '🎬 DIRECTOR ON';

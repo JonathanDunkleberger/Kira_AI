@@ -1106,9 +1106,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         return _ok(presence_level=bot.presence_level)
 
     if action == "lock_in_toggle":
-        # Focus / "Lock In": force the chat salience floor to HIGH live (stop chasing
-        # filler, still answer @Kira/questions, still greet new people). Click again
-        # to release — floor returns to the activity default. In-memory, no restart.
+        # Focus / "Lock In" — the heads-down clamp ("shut up and play"). ON → she goes
+        # near-SILENT on chat: still RECEIVES + understands + memory-records every message
+        # (nothing missed), but does NOT speak to chat — it's banked for catch-up beats.
+        # Only a genuinely exceptional message (salience >= LOCK_IN_BREAKTHROUGH_SCORE)
+        # breaks through. She KEEPS driving the game (Director stays active). Click again
+        # to release. In-memory, no restart. Situational by design (right for lore-heavy
+        # games, wrong for a hangout).
         bot.chat_lock_in = not getattr(bot, "chat_lock_in", False)
         return _ok(chat_lock_in=bot.chat_lock_in)
 

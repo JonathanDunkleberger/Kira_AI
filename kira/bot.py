@@ -54,6 +54,7 @@ from kira.config import (
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
     CHAT_CATCHUP_ENABLED, CHAT_CATCHUP_S, CHAT_CATCHUP_MAX_MSGS, CHAT_BANK_CAP,
+    LOCK_IN_BREAKTHROUGH_SCORE,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
@@ -6202,6 +6203,15 @@ class VTubeBot:
         if _bits:
             _bits_block = ("\n[OPEN THREADS — running bits you can call back to or close for a payoff]\n"
                            + "\n".join(f"- {b.get('name','')}: {b.get('description','')}" for b in _bits) + "\n")
+        # Heads-down / Lock-In: drive the GAME + Jonny only; do NOT address or pull in
+        # chat (it's banked for a catch-up beat). The Director stays active under Lock-In,
+        # but its chat-directed impulse is suppressed here.
+        _heads_down = (
+            "\n[HEADS-DOWN / LOCKED IN — you're locked onto the game and Jonny right now. "
+            "Drive THAT. Do NOT address chat, read chat, or pull chat into this beat; chat "
+            "is banked and you'll catch up on it later.]\n"
+            if self.chat_lock_in else ""
+        )
         return (
             f"[ACTIVITY DIRECTOR — you are DRIVING this, the first mover, not waiting to be "
             f"addressed. {_mode_line}]\n"
@@ -6212,7 +6222,7 @@ class VTubeBot:
             f"- You can drop the bit for a real beat — a sincere question, a genuine reaction, a "
             f"flash of something true. The playfulness earns those moments; let one land when it fits.\n"
             f"- One or two sentences. Decisive, in character — a beat, not a monologue.\n"
-            f"{_goal}{_agenda}{_bits_block}"
+            f"{_goal}{_agenda}{_bits_block}{_heads_down}"
         )
 
     # ── "Catch up on chat" — banked-chat surfacing (heads-down / focused humanizer) ─
@@ -6361,6 +6371,28 @@ class VTubeBot:
         # is off: _pre_gate_batch == batch.)
         _pre_gate_batch = list(batch)
 
+        # ── Heads-down clamp (Focus / Lock-In) — the "shut up and play" option ──
+        # When locked in she goes near-SILENT on chat: every message was already
+        # RECEIVED, understood, and memory-recorded upstream (nothing missed) — here she
+        # simply does NOT speak to it, she BANKS it for a catch-up beat. The only
+        # automatic break-through is a genuinely exceptional message (salience >=
+        # LOCK_IN_BREAKTHROUGH_SCORE — by default a directly-named question to Kira).
+        # This supersedes the old "force HIGH floor" Lock-In behavior below. She still
+        # drives the GAME under Lock-In (the Director stays active); she just stops
+        # yapping at chat. Jonny can still surface chat any time via "what's chat saying?".
+        if self.chat_lock_in:
+            _kept, _banked = [], []
+            for msg in batch:
+                _sc, _, _ = salience_filter.score("chat", msg.get("message", ""))
+                (_kept if _sc >= LOCK_IN_BREAKTHROUGH_SCORE else _banked).append(msg)
+            self._bank_chat(_banked)
+            if _banked or _kept:
+                print(f"   [LockIn] heads-down — banked {len(_banked)} chat msg(s) for catch-up, "
+                      f"{len(_kept)} broke through (score >= {LOCK_IN_BREAKTHROUGH_SCORE:.0f})")
+            batch = _kept
+            if not batch:
+                return
+
         # ── Activity-aware chat salience gate (community-critical path) ─────────
         # In a story game, raise the bar so only worth-it chat (direct @Kira /
         # questions) earns a reply mid-gameplay; in watch-along / just-chatting,
@@ -6368,7 +6400,9 @@ class VTubeBot:
         # saves the round-trip. PROTECTS relationship moments — first-timers and
         # known regulars always pass, so continuity/community is never gated. Every
         # drop logs loudly; default OFF for one-variable-at-a-time feel-testing.
-        if CHAT_SALIENCE_GATE_ENABLED or self.chat_lock_in:
+        # NOTE: Lock-In no longer routes through this gate — the heads-down clamp above
+        # owns Lock-In now (near-silent + bank), so this is purely the activity floor.
+        if CHAT_SALIENCE_GATE_ENABLED:
             _TIER_ORDER = ["DROP", "LOW", "MEDIUM", "HIGH"]
             _activity = getattr(self.game_mode_controller, "activity_type", "general")
             _floor = CHAT_FLOOR_BY_ACTIVITY.get(_activity, "LOW")
@@ -6380,12 +6414,6 @@ class VTubeBot:
                 _fi = min(_fi + 1, len(_TIER_ORDER) - 1)
             elif CHAT_FLOOR_OVERRIDE == "lower":
                 _fi = max(_fi - 1, 1)  # never below LOW — true-spam DROP stays gated
-            # Focus / Lock-In: force the strict HIGH floor LIVE, regardless of activity
-            # or the env override — the manual "stop chasing filler, but STILL answer
-            # @Kira/questions and STILL greet new people" switch. No restart. The
-            # first-timer/known-regular bypass in the loop below is unaffected.
-            if self.chat_lock_in:
-                _fi = _TIER_ORDER.index("HIGH")
             _floor = _TIER_ORDER[_fi]
 
             _gated_batch = []
@@ -8003,7 +8031,10 @@ class VTubeBot:
             # Default OFF; every fire logged loudly. A blocked/deflected impulse still
             # consumes the gap (stamp BEFORE the await) so caught bits never burst out.
             if self.director_enabled and self._director_activity_focused():
-                if not self.chat_lock_in and not self.ai_core.has_pending_voice_turn():
+                # Under Lock-In she KEEPS driving the game (the Director is activity/scene-
+                # focused, never chat-directed) — _build_director_prompt adds a heads-down
+                # note so she drives the GAME + Jonny without yapping at chat.
+                if not self.ai_core.has_pending_voice_turn():
                     _dir_gap = time.time() - self._last_director_ts
                     if _dir_gap >= self.director_min_gap_s:  # live-tunable brake (dashboard), defaults to DIRECTOR_MIN_GAP_S
                         _fresh_ok, _fresh_label = self._has_fresh_sense()
