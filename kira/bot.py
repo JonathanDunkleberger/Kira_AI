@@ -62,6 +62,7 @@ from kira.config import (
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
+    LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
     WHEEL_ENTRANCE_MS, WHEEL_SPIN_MS, WHEEL_LAND_BUFFER_MS,
 )
 from kira.memory.stream_logger import StreamLogger
@@ -8924,6 +8925,34 @@ class VTubeBot:
         # Batch 1 (age-out): honest stale-mark text written when the summary freezes on a
         # dead scene (music/quiet) — replaces the held scene rather than preserving it.
         STALE_MARKER = "(No narrative dialogue right now — audio is music or quiet.)"
+
+        # Batch 2 (content-switch reset): measure how much of the current summary's
+        # vocabulary still appears in the recent transcript window. Near-zero overlap with
+        # a substantial new window ⇒ the content changed (film→game), so old characters/
+        # plot should NOT carry over. Returns (content_word_count, overlap_ratio).
+        _SWITCH_STOP = {
+            "the", "a", "an", "and", "or", "but", "if", "then", "so", "of", "to", "in", "on",
+            "at", "for", "with", "is", "are", "was", "were", "be", "been", "being", "it", "its",
+            "this", "that", "these", "those", "he", "she", "they", "them", "his", "her", "their",
+            "you", "your", "we", "our", "us", "i", "me", "my", "as", "by", "from", "not", "no",
+            "yes", "do", "does", "did", "has", "have", "had", "will", "would", "can", "could",
+            "should", "what", "who", "when", "where", "why", "how", "about", "just", "now",
+            "here", "there", "like", "get", "got", "one", "out", "all", "too", "very", "really",
+            "possible", "song", "lyrics", "summary", "previous", "none", "yet", "dialogue",
+        }
+
+        def _switch_tokens(text: str) -> list:
+            return [w for w in (t.strip("'") for t in re.findall(r"[a-z']+", text.lower()))
+                    if len(w) >= 3 and w not in _SWITCH_STOP]
+
+        def _switch_signal(summary: str, transcript: str):
+            s_words = set(_switch_tokens(summary))
+            t_list = _switch_tokens(transcript)
+            if not s_words:
+                return len(t_list), 1.0  # nothing to diverge from ⇒ never a switch
+            shared = len(s_words & set(t_list))
+            return len(t_list), shared / len(s_words)
+
         print(f"   [LoopbackSTT] Dialogue summary loop active (interval={SUMMARY_INTERVAL_S:.0f}s, "
               f"age-out={LOOPBACK_SUMMARY_AGEOUT_S:.0f}s).")
         while self.is_running:
@@ -8944,6 +8973,19 @@ class VTubeBot:
                         # rather than feeding "audio is music/quiet" back into the model.
                         if lt._summary_is_stale:
                             previous = "(none yet)"
+                        # Batch 2 — CONTENT-SWITCH RESET: only against a real prior summary.
+                        # If the recent window's vocabulary barely overlaps it AND there's
+                        # enough new dialogue that this isn't an in-scene lull, the content
+                        # changed — drop continuity so old plot/characters don't bleed in.
+                        elif previous not in ("(none yet)", ""):
+                            _nwords, _overlap = _switch_signal(previous, transcript)
+                            if (_nwords >= LOOPBACK_SUMMARY_SWITCH_MIN_WORDS
+                                    and _overlap < LOOPBACK_SUMMARY_SWITCH_OVERLAP):
+                                print(f"   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue "
+                                      f"diverged from summary (overlap={_overlap:.2f} < "
+                                      f"{LOOPBACK_SUMMARY_SWITCH_OVERLAP:.2f}, {_nwords} new content "
+                                      f"words). Dropping continuity, regenerating fresh.")
+                                previous = "(none yet)"
                         user_msg = (
                             f"Previous summary:\n{previous}\n\n"
                             f"New dialogue lines (oldest first):\n{transcript}\n\n"

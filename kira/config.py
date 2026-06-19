@@ -131,6 +131,21 @@ LOOPBACK_STT_DEFAULT = os.getenv("LOOPBACK_STT_DEFAULT", "true").lower() == "tru
 # Only fires after at least one real update; every stale-mark logs loudly. ~a few minutes.
 LOOPBACK_SUMMARY_AGEOUT_S = float(os.getenv("LOOPBACK_SUMMARY_AGEOUT_S", "180.0"))
 
+# ── Content-switch reset (the "scene-bleed" fix; Batch 2) ───────────────────────────
+# The summarizer is told to track continuity, so when content CHANGES outright (a film
+# ends and a game begins — Bond → Pragmata) the old characters/plot bleed into the new
+# scene. Content-switch reset drops `previous` and regenerates fresh when the recent
+# transcript window's vocabulary barely overlaps the current summary AND there's enough
+# new dialogue that this isn't just an in-scene lull. Conservative by design — a reset
+# needs BOTH near-zero overlap and a substantial new window — so a quiet stretch never
+# triggers it; every reset logs so sensitivity can be tuned live.
+#   OVERLAP   = fraction of the summary's content words still present in the recent
+#               window; BELOW this ⇒ candidate switch (lower = harder to trigger).
+#   MIN_WORDS = content-word floor in the recent window; guards against false-firing on
+#               a lull (few words ⇒ never resets).
+LOOPBACK_SUMMARY_SWITCH_OVERLAP = float(os.getenv("LOOPBACK_SUMMARY_SWITCH_OVERLAP", "0.08"))
+LOOPBACK_SUMMARY_SWITCH_MIN_WORDS = int(os.getenv("LOOPBACK_SUMMARY_SWITCH_MIN_WORDS", "12"))
+
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures
 # all subsystems to stream-ready state: Vision ON, Audio=MEDIA, Immersive OFF,
