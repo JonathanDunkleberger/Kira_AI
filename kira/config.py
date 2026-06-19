@@ -252,6 +252,14 @@ CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
 # anything older than this. Default 180s (a few minutes); lower it to tighten.
 CHAT_MAX_AGE_S = float(os.getenv("CHAT_MAX_AGE_S", "180.0"))
 
+# ── Progress watchdog (objective agency — the quiz-passivity fix) ──────────────
+# When Jonny assigns an explicit task ("read the page and answer", "solve the
+# quiz") and then goes quiet, Kira ACTS on it after this much silence instead of
+# waiting forever. The objective expires after MAX_AGE if never acted on.
+# Conservative + explicit-only; default-ON, every act logged loudly.
+OBJECTIVE_ACT_SILENCE_S = float(os.getenv("OBJECTIVE_ACT_SILENCE_S", "12.0"))
+OBJECTIVE_MAX_AGE_S = float(os.getenv("OBJECTIVE_MAX_AGE_S", "300.0"))
+
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires
 # a proactive interjection about what she SEES/HEARS on screen, so constant

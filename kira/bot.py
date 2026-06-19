@@ -53,6 +53,7 @@ from kira.config import (
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
+    OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
@@ -7668,6 +7669,33 @@ class VTubeBot:
             # Boredom interjections self-retry on the next tick — no buffering needed.
             if self._active_turn_lock.locked():
                 continue
+
+            # ── Progress watchdog (objective agency — the quiz-passivity fix) ────
+            # The VN-autopilot STUCK-watchdog applied to the OBJECTIVE slot, not to
+            # pixels: an owed instruction + silence + no new input → she ACTS on it
+            # instead of waiting forever ("read the page then answer" → she read it
+            # then went silent). Conservative: explicit objectives only (set in the
+            # voice path), expires after OBJECTIVE_MAX_AGE_S. P0-safe — rides
+            # _arbiter_interjection (turn-lock + sentence-boundary yield), never
+            # interrupts Jonny. Takes priority over game-react / boredom below.
+            if self.active_objective and not self.ai_core.has_pending_voice_turn():
+                _obj_age = time.time() - self.active_objective.get("set_at", 0.0)
+                if _obj_age > OBJECTIVE_MAX_AGE_S:
+                    self._clear_objective(f"expired (>{int(OBJECTIVE_MAX_AGE_S)}s, never acted)")
+                elif silence_duration >= OBJECTIVE_ACT_SILENCE_S:
+                    _obj_text = self.active_objective["text"]
+                    print(f"   [Objective] ACT — {silence_duration:.0f}s silence + owed task; "
+                          f"doing it now: \"{_obj_text[:70]}\"")
+                    _obj_prompt = (
+                        f"[ACT ON THE TASK NOW] Jonny told you: \"{_obj_text}\" — then went quiet, "
+                        f"waiting on YOU. Don't just acknowledge it or ask permission — actually DO "
+                        f"it. If it's a question, COMMIT to a real answer (pick one, no hedging). If "
+                        f"it's a step in what you're doing, take it out loud. One or two decisive "
+                        f"sentences, in character."
+                    )
+                    self._clear_objective("acted")
+                    await self._arbiter_interjection(_obj_prompt)
+                    continue
 
             # ── Game-engagement channel (proactive "react to what I see/hear") ──
             # During a story game, on a throttle, fire an interjection about the
