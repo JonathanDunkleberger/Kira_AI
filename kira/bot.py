@@ -630,6 +630,7 @@ class VTubeBot:
         # Normal (streamer baseline, ~0.15), Chatty (carry-like drive, ~0.25).
         # Does NOT replace carry_mode — carry remains an independent override.
         self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
+        self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -6062,7 +6063,7 @@ class VTubeBot:
         # saves the round-trip. PROTECTS relationship moments — first-timers and
         # known regulars always pass, so continuity/community is never gated. Every
         # drop logs loudly; default OFF for one-variable-at-a-time feel-testing.
-        if CHAT_SALIENCE_GATE_ENABLED:
+        if CHAT_SALIENCE_GATE_ENABLED or self.chat_lock_in:
             _TIER_ORDER = ["DROP", "LOW", "MEDIUM", "HIGH"]
             _activity = getattr(self.game_mode_controller, "activity_type", "general")
             _floor = CHAT_FLOOR_BY_ACTIVITY.get(_activity, "LOW")
@@ -6074,6 +6075,12 @@ class VTubeBot:
                 _fi = min(_fi + 1, len(_TIER_ORDER) - 1)
             elif CHAT_FLOOR_OVERRIDE == "lower":
                 _fi = max(_fi - 1, 1)  # never below LOW — true-spam DROP stays gated
+            # Focus / Lock-In: force the strict HIGH floor LIVE, regardless of activity
+            # or the env override — the manual "stop chasing filler, but STILL answer
+            # @Kira/questions and STILL greet new people" switch. No restart. The
+            # first-timer/known-regular bypass in the loop below is unaffected.
+            if self.chat_lock_in:
+                _fi = _TIER_ORDER.index("HIGH")
             _floor = _TIER_ORDER[_fi]
 
             _gated_batch = []

@@ -857,6 +857,9 @@ html, body {
       <button class="rail-btn pause" id="btn-pause"
               onclick="cmd('pause_toggle', null, this)">⏸ Pause</button>
 
+      <button class="rail-btn lockin" id="btn-lockin"
+              onclick="cmd('lock_in_toggle', null, this)">🔒 Lock In</button>
+
       <div class="rail-sep"></div>
 
       <button class="rail-btn thoughts"
@@ -1738,6 +1741,21 @@ function renderRail(s) {
   } else {
     btnPause.classList.remove('paused-on');
     btnPause.textContent = '\u23F8 Pause';
+  }
+
+  // Lock In (Focus) \u2014 forces the chat salience floor to HIGH live; still answers
+  // @Kira/questions and still greets new people (first-timer/regular bypass holds).
+  const btnLock = document.getElementById('btn-lockin');
+  if (btnLock) {
+    if (s.chat_lock_in) {
+      btnLock.style.background = 'var(--accent)';
+      btnLock.style.color = '#1C1410';
+      btnLock.textContent = '\uD83D\uDD12 Locked In';
+    } else {
+      btnLock.style.background = '';
+      btnLock.style.color = '';
+      btnLock.textContent = '\uD83D\uDD12 Lock In';
+    }
   }
 }
 

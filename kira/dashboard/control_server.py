@@ -174,6 +174,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     immersive = _get(lambda: bot.immersive, False)
     presence_level = _get(lambda: bot.presence_level, "normal")
     deep_senses = _get(lambda: bool(bot.deep_senses), False)
+    chat_lock_in = _get(lambda: bool(bot.chat_lock_in), False)
 
     # ── Effective (post-reconcile) state — the single truth both UIs render ───
     effective = _get(lambda: bot._compute_effective_state(), {}) or {}
@@ -335,6 +336,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "carry_mode": carry_mode,
         "immersive": immersive,
         "presence_level": presence_level,
+        "chat_lock_in": chat_lock_in,
         "deep_senses": deep_senses,
         # Effective state (post-reconcile) — strip + three-state toggles render
         # from THIS, never from the raw toggle booleans above.
@@ -1086,6 +1088,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("presence must be one of: sleepy, normal, chatty")
         bot.presence_level = level
         return _ok(presence_level=bot.presence_level)
+
+    if action == "lock_in_toggle":
+        # Focus / "Lock In": force the chat salience floor to HIGH live (stop chasing
+        # filler, still answer @Kira/questions, still greet new people). Click again
+        # to release — floor returns to the activity default. In-memory, no restart.
+        bot.chat_lock_in = not getattr(bot, "chat_lock_in", False)
+        return _ok(chat_lock_in=bot.chat_lock_in)
 
     # ── Discord diary (Phase 1, REVIEW MODE) ──────────────────────────────────
     # Manual post of the pending diary entry. Fires the webhook ONLY here, on a
