@@ -631,6 +631,7 @@ class VTubeBot:
         # Does NOT replace carry_mode — carry remains an independent override.
         self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
         self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
+        self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -5386,6 +5387,18 @@ class VTubeBot:
                     if _ap_soft_paused:
                         self.vn_autopilot.soft_pause()
 
+                    # Objective tracking: a Jonny voice turn re-engages, so clear any
+                    # owed objective first, then detect if THIS utterance assigns a new
+                    # one ("read the page and answer", "solve the quiz"). Explicit-only;
+                    # the slot lives only through the silence that follows (consumed by
+                    # the progress watchdog in the observer loop).
+                    if source == "voice":
+                        if self.active_objective:
+                            self._clear_objective("jonny spoke again")
+                        _new_obj = self._detect_objective(content)
+                        if _new_obj:
+                            self._set_objective(_new_obj)
+
                     # Activity auto-detection from voice (natural language sets context)
                     if source == "voice":
                         armed = self.game_mode_controller.is_active
@@ -5985,6 +5998,43 @@ class VTubeBot:
                 self.memory.get_chatter_preferred_name(username) if ENABLE_CHATTER_MEMORY else None
             )
         return self._preferred_name_cache[key] or self._speakable_handle(username)
+
+    # ── Objective tracking ("owed instruction" — the agency foundation) ─────────
+    # NARROW, explicit-only (no inference): high-precision cues that Jonny is
+    # assigning HER a task she should act on, even in silence. Stored as the slot
+    # the progress watchdog acts on ("read the page then answer" → she went silent
+    # and waited forever — current_activity is a routing label, has_pending_voice_turn
+    # is unprocessed INPUT, neither represents an unmet INTENT).
+    _OBJECTIVE_RE = re.compile(
+        r"\b("
+        r"answer (?:the|this|that|his|her|their|the next)?\s*(?:question|one|quiz)"
+        r"|read (?:the|this|that|it)\b.{0,40}\b(?:and|then)\b.{0,25}\b(?:answer|tell|say|pick|choose|guess)"
+        r"|solve (?:the|this|that|it|each|every)\b"
+        r"|(?:what'?s|what is|whats) (?:the|your) answer"
+        r"|your turn\b"
+        r"|you (?:go|answer|pick|choose|guess|decide|try)\b"
+        r"|(?:let'?s|we should|we gotta|we need to|go ahead and|why don'?t you) "
+        r"(?:beat|finish|solve|do|answer|figure|complete|try|tackle|pick|choose|guess)"
+        r"|(?:take|make) (?:a|your) (?:guess|pick|choice|turn)"
+        r")\b",
+        re.I,
+    )
+
+    def _detect_objective(self, text: str):
+        """Return the instruction text if Jonny explicitly assigned a task, else None.
+        High-precision on purpose — better to miss than to invent an obligation."""
+        if not text:
+            return None
+        return text.strip()[:200] if self._OBJECTIVE_RE.search(text) else None
+
+    def _set_objective(self, text: str) -> None:
+        self.active_objective = {"text": text, "set_at": time.time()}
+        print(f"   [Objective] SET — \"{text[:80]}\" (will act after silence if Jonny goes quiet)")
+
+    def _clear_objective(self, reason: str) -> None:
+        if self.active_objective:
+            print(f"   [Objective] cleared ({reason}) — was \"{self.active_objective['text'][:60]}\"")
+        self.active_objective = None
 
     async def _respond_to_chat_batch(self, batch: list, _preemption: str = "none"):
         """Decides what (if anything) to say in response to a batch of chat messages."""
