@@ -58,6 +58,7 @@ from kira.config import (
     DIARY_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
+    DIRECTOR_TAXONOMY_ENABLED, DIRECTOR_BIT_RIPE_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
@@ -6237,6 +6238,23 @@ class VTubeBot:
         "goal. Do NOT claim to see or hear anything happening; you're filling silence, "
         "not reporting on it.)"
     )
+    # Per-variant scene overrides (taxonomy). Each also bypasses _execute_interjection's
+    # fresh-sense gate for variants that legitimately fire without fresh perception, AND
+    # carries the same anti-fabrication guard so the variant never invents screen content.
+    _DIRECTOR_CALLBACK_SCENE = (
+        "(You're returning to a running bit you two have going — this is about THAT shared "
+        "thread, not what's on screen right now. Don't claim to see or hear anything new; "
+        "land the callback.)"
+    )
+    _DIRECTOR_CONTINUE_SCENE = (
+        "(You're extending your OWN previous line — continuing your thought, not reacting to "
+        "the screen. Don't claim to see or hear anything new; just carry the thread forward.)"
+    )
+    _DIRECTOR_SINCERE_SCENE = (
+        "(A sincere beat with Jonny in the middle of the action — speak to the real moment "
+        "between you two, not a play-by-play of the screen. Don't narrate events you can't "
+        "currently perceive.)"
+    )
 
     def _director_activity_focused(self) -> bool:
         """The Director only drives when there's an activity to drive (a focused
@@ -6248,11 +6266,143 @@ class VTubeBot:
             or (self.current_activity or "").strip()
         )
 
+    def _live_thread_context(self) -> str:
+        """The LIVE THREAD rail (taxonomy): her last line + Jonny's last + a cheap cached
+        scene gist, so EVERY proactive variant stays anchored to what's actually happening
+        instead of wandering into a non-sequitur. Cheap — no I/O, no fresh capture. Returns
+        "" when there's no thread material yet (rail simply absent, never crashes)."""
+        kira_last, jonny_last = "", ""
+        for turn in reversed(self.conversation_history[-8:]):
+            role = turn.get("role")
+            content = turn.get("content") or ""
+            if isinstance(content, list):  # tolerate Claude content-block form
+                content = " ".join(b.get("text", "") for b in content if isinstance(b, dict))
+            content = content.strip().replace("\n", " ")
+            if role == "assistant" and not kira_last:
+                kira_last = content[:160]
+            elif role == "user" and not jonny_last:
+                jonny_last = content[:160]
+            if kira_last and jonny_last:
+                break
+        scene_gist = ""
+        va = self.vision_agent
+        if va is not None and getattr(va, "last_description", ""):
+            scene_gist = (va.last_description or "").strip().replace("\n", " ")[:160]
+        lines = ["[LIVE THREAD — what you two were JUST on; stay anchored to THIS, don't wander off it]"]
+        if kira_last:
+            lines.append(f"- You just said: \"{kira_last}\"")
+        if jonny_last:
+            lines.append(f"- Jonny just said: \"{jonny_last}\"")
+        elif kira_last:
+            lines.append("- Jonny just said: (nothing — he went quiet)")
+        if scene_gist:
+            lines.append(f"- On screen right now: {scene_gist}")
+        return ("\n".join(lines) + "\n\n") if len(lines) > 1 else ""
+
+    def _ripe_open_bit(self):
+        """A running bit ripe for a callback payoff: off surfacing-cooldown AND aged past
+        DIRECTOR_BIT_RIPE_S since it was created or last called back. Returns the bit dict
+        or None. Reuses the bits store + cooldown machinery; does NOT mutate them (the fire
+        site stamps last_called_back_at on payoff). Persisted/legacy bits with no timestamps
+        are treated as already-ripe (they're from before — ready to call back)."""
+        if not self.session_running_bits:
+            return None
+        now = time.time()
+        for b in reversed(self._active_bits_for_prompt(8)):  # off-cooldown, most-recent first
+            ref = max(b.get("last_called_back_at", 0.0) or 0.0, b.get("created_at", 0.0) or 0.0)
+            if ref == 0.0 or (now - ref) >= DIRECTOR_BIT_RIPE_S:
+                return b
+        return None
+
+    def _select_director_variant(self, fresh_ok: bool, dead_air: bool) -> str:
+        """Pick ONE self-driven variant for this beat (cheap, no LLM). Priority: pay off a
+        ripe open bit > react to fresh perception > associative lull pivot. CONTINUATION and
+        SINCERE DROP fire on their own triggers (not this ladder)."""
+        if self._ripe_open_bit() is not None:
+            return "callback"
+        if fresh_ok:
+            return "noticing"
+        return "pivot"
+
+    def _director_scene_override(self, variant: str) -> str:
+        """Scene override per variant — also bypasses _execute_interjection's fresh-sense
+        gate for variants that legitimately fire without fresh perception. 'noticing' uses
+        live vision (no override)."""
+        return {
+            "noticing": "",
+            "pivot": self._DIRECTOR_DEAD_AIR_SCENE,
+            "callback": self._DIRECTOR_CALLBACK_SCENE,
+            "continuation": self._DIRECTOR_CONTINUE_SCENE,
+            "sincere_drop": self._DIRECTOR_SINCERE_SCENE,
+        }.get(variant, self._DIRECTOR_DEAD_AIR_SCENE)
+
+    def _build_director_variant_prompt(self, variant: str) -> str:
+        """Taxonomy prompt: the LIVE THREAD rail + a variant-specific framing, then the
+        shared drive/commit/length body. Each variant is anchored to the thread so it lands
+        connected, not as a non-sequitur. Reuses the goal/agenda/bits/heads-down blocks."""
+        thread = self._live_thread_context()
+        bit = self._ripe_open_bit() if variant == "callback" else None
+        if variant == "callback" and not bit:
+            variant = "pivot"  # ripe bit vanished between selection and build (race) — degrade
+
+        if variant == "callback":
+            _frame = (f"[ACTIVITY DIRECTOR — CALLBACK] Earlier you had this going: "
+                      f"\"{bit.get('name','')}: {bit.get('description','')}\". There's an opening — "
+                      f"RETURN to it and pay it off (or twist it for a new payoff). Don't just "
+                      f"name-drop it; land it as a callback to what you two have been building.")
+        elif variant == "noticing":
+            _frame = ("[ACTIVITY DIRECTOR — NOTICING] Something just shifted in what you can see/hear. "
+                      "React to it AND tie it to what you two were just on — a beat that connects to "
+                      "the conversation, not a standalone 'look at that'.")
+        elif variant == "continuation":
+            _frame = ("[ACTIVITY DIRECTOR — CONTINUATION] You were just talking and Jonny didn't pick "
+                      "it up. Keep YOUR thread going one beat further — extend the thought, build on "
+                      "your own last line. Do NOT start a new topic; same thread, continued.")
+        elif variant == "sincere_drop":
+            _frame = ("[ACTIVITY DIRECTOR — SINCERE DROP] Drop the bit. For one beat, be real — a "
+                      "sincere question or a flash of something true about THIS moment with Jonny, "
+                      "right in the middle of it. One genuine beat, then back to the action.")
+        else:  # pivot
+            _frame = ("[ACTIVITY DIRECTOR — PIVOT] It's quiet. Jump to a NEW thought — but one that "
+                      "ASSOCIATES off what you were just talking about (a 'that reminds me', a sideways "
+                      "take, a tangent that connects), not a random topic out of nowhere.")
+
+        _goal = f"\n[CURRENT GOAL] {self.active_objective['text']}\n" if self.active_objective else ""
+        _agenda = ""
+        if self.drive_agenda:
+            _agenda = ("\n[YOUR AGENDA THIS SESSION — pursue these on your own initiative]\n"
+                       + "\n".join(f"- {a}" for a in self.drive_agenda) + "\n")
+        _bits = self._active_bits_for_prompt(4)
+        _bits_block = ""
+        if _bits and variant != "callback":  # callback already names its bit; don't double-list
+            _bits_block = ("\n[OPEN THREADS — running bits you can call back to or close for a payoff]\n"
+                           + "\n".join(f"- {b.get('name','')}: {b.get('description','')}" for b in _bits) + "\n")
+        _heads_down = (
+            "\n[HEADS-DOWN / LOCKED IN — you're locked onto the game and Jonny right now. "
+            "Drive THAT. Do NOT address chat, read chat, or pull chat into this beat; chat "
+            "is banked and you'll catch up on it later.]\n"
+            if self.chat_lock_in else ""
+        )
+        return (
+            f"{thread}"
+            f"{_frame}\n"
+            f"- You are DRIVING this — the first mover, not waiting to be addressed. Commit to a "
+            f"take; don't hedge (hot takes on the game/strategy, food, media, or teasing Jonny).\n"
+            f"- The Jonny-and-you dynamic is the show.\n"
+            f"- One or two sentences. Decisive, in character — a beat, not a monologue. Stay anchored "
+            f"to the LIVE THREAD above; don't wander into a non-sequitur.\n"
+            f"{_goal}{_agenda}{_bits_block}{_heads_down}"
+        )
+
     def _build_director_prompt(self, mode: str) -> str:
-        """First-mover Director prompt — PERSONALITY only. The content guardrail and
-        perception grounding ride along via _execute_interjection (_kira_voice_guardrails
-        + the visual directive) + the _speak_single backstop, so this never restates the
-        boundary nor injects an event she can't perceive."""
+        """First-mover Director prompt. Legacy modes ('react'/'dead_air') are byte-for-byte
+        unchanged (used when DIRECTOR_TAXONOMY_ENABLED is off); any other value is a taxonomy
+        variant routed to _build_director_variant_prompt. The content guardrail and perception
+        grounding ride along via _execute_interjection (_kira_voice_guardrails + the visual
+        directive) + the _speak_single backstop, so this never restates the boundary nor
+        injects an event she can't perceive."""
+        if mode not in ("react", "dead_air"):
+            return self._build_director_variant_prompt(mode)
         _mode_line = (
             "Something just shifted in what you can see/hear — REACT to it, lead with YOUR take."
             if mode == "react" else
@@ -7029,6 +7179,7 @@ class VTubeBot:
                     if "name" in bit and "description" in bit:
                         if not any(b["name"].lower() == bit["name"].lower() for b in self.session_running_bits):
                             bit["last_called_back_at"] = 0.0
+                            bit["created_at"] = time.time()  # Director callback ripeness clock
                             self.session_running_bits.append(bit)
                             print(f"   [Bits] New running bit: {bit['name']}")
                 except Exception:
@@ -8106,17 +8257,33 @@ class VTubeBot:
                         _fresh_ok, _fresh_label = self._has_fresh_sense()
                         _dead_air = silence_duration >= DIRECTOR_DEAD_AIR_S
                         if _fresh_ok or _dead_air:
-                            _dir_mode = "react" if _fresh_ok else "dead_air"
-                            print(f"   [Director] FIRE ({_dir_mode}) — gap={_dir_gap:.0f}s "
-                                  f"silence={silence_duration:.0f}s fresh={_fresh_label or 'none'}")
                             self._last_director_ts = time.time()
-                            if _dir_mode == "dead_air":
+                            if DIRECTOR_TAXONOMY_ENABLED:
+                                # Taxonomy: pick a self-driven variant (CALLBACK > NOTICING >
+                                # PIVOT) and fire it thread-anchored. Same cadence/gate as
+                                # legacy — only WHICH flavor changes.
+                                _variant = self._select_director_variant(_fresh_ok, _dead_air)
+                                _bit = self._ripe_open_bit() if _variant == "callback" else None
+                                _vlabel = (f"callback: {_bit.get('name','?')}"
+                                           if (_variant == "callback" and _bit) else _variant)
+                                print(f"   [Director] FIRE ({_vlabel}) — gap={_dir_gap:.0f}s "
+                                      f"silence={silence_duration:.0f}s fresh={_fresh_label or 'none'}")
                                 await self._arbiter_interjection(
-                                    self._build_director_prompt("dead_air"),
-                                    scene_override=self._DIRECTOR_DEAD_AIR_SCENE,
+                                    self._build_director_prompt(_variant),
+                                    scene_override=self._director_scene_override(_variant),
                                 )
                             else:
-                                await self._arbiter_interjection(self._build_director_prompt("react"))
+                                # Legacy two-mode Director (taxonomy OFF) — unchanged.
+                                _dir_mode = "react" if _fresh_ok else "dead_air"
+                                print(f"   [Director] FIRE ({_dir_mode}) — gap={_dir_gap:.0f}s "
+                                      f"silence={silence_duration:.0f}s fresh={_fresh_label or 'none'}")
+                                if _dir_mode == "dead_air":
+                                    await self._arbiter_interjection(
+                                        self._build_director_prompt("dead_air"),
+                                        scene_override=self._DIRECTOR_DEAD_AIR_SCENE,
+                                    )
+                                else:
+                                    await self._arbiter_interjection(self._build_director_prompt("react"))
                 continue
 
             # ── Game-engagement channel (proactive "react to what I see/hear") ──

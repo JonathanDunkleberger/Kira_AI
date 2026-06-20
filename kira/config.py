@@ -334,6 +334,16 @@ ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "true").lower
 DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "15.0"))    # assertive floor between Director utterances (boot default; live-tunable)
 DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence that triggers "create" (assertive)
 
+# ── Director self-driven-speech taxonomy (teaching the 5 variants) ─────────────
+# Phase 1 (default ON): instead of ONE generic "say something proactive" prompt, the
+# Director picks among CALLBACK / NOTICING / PIVOT each beat (cheap priority ladder, no
+# extra LLM call), and a LIVE THREAD rail anchors EVERY variant to what you two were
+# just on — so noticing is connected, not "the music swelled," and pivot is associative,
+# not random. Rides the SAME fire plumbing + guardrails. OFF → byte-for-byte the legacy
+# react/dead_air Director. Builds ON the assertive default-on Director + the live brake.
+DIRECTOR_TAXONOMY_ENABLED = os.getenv("DIRECTOR_TAXONOMY_ENABLED", "true").lower() == "true"
+DIRECTOR_BIT_RIPE_S = float(os.getenv("DIRECTOR_BIT_RIPE_S", "90.0"))  # age before an open bit is "ripe" for a callback payoff
+
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires
 # a proactive interjection about what she SEES/HEARS on screen, so constant
