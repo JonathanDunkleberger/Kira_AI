@@ -55,6 +55,7 @@ from kira.config import (
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
     CHAT_CATCHUP_ENABLED, CHAT_CATCHUP_S, CHAT_CATCHUP_MAX_MSGS, CHAT_BANK_CAP,
     LOCK_IN_BREAKTHROUGH_SCORE,
+    DIARY_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
@@ -4455,6 +4456,59 @@ class VTubeBot:
         except Exception as e:
             print(f"   [LoopbackSTT] Auto-start raised: {e}")
 
+    # Section headers the Opus session summary always emits (stream_logger). We read
+    # back ONLY the relational one; the rest are dev telemetry that would pollute memory.
+    _SUMMARY_RELATIONAL_SECTION = "## Personality Highlights"
+    _SUMMARY_TELEMETRY_SECTIONS = ("## Stats", "## Notable Issues", "## Suggestions")
+
+    def _read_recent_summary_highlights(self, max_chars: int = 4000) -> str:
+        """Diary→recap bridge: slice the '## Personality Highlights' section out of the
+        most-recent prior session summary.md and return it (capped). Deterministic
+        markdown-header slice — NOT an LLM call. Returns "" (degrading to lore+clips)
+        on any miss or failure, logging the reason loudly. In-progress sessions have no
+        summary.md yet, so globbing summary.md auto-excludes the current session."""
+        try:
+            summaries = sorted(glob.glob("logs/streams/*/summary.md"),
+                               key=os.path.getmtime, reverse=True)
+            if not summaries:
+                print("   [DiaryBridge] no prior summary.md found — falling back to lore/clips only.")
+                return ""
+            newest = summaries[0]
+            with open(newest, "r", encoding="utf-8") as f:
+                text = f.read()
+            _dir = os.path.basename(os.path.dirname(newest))
+
+            # Deterministic slice: from the relational header to the next "## " header.
+            section = ""
+            idx = text.find(self._SUMMARY_RELATIONAL_SECTION)
+            if idx != -1:
+                rest = text[idx + len(self._SUMMARY_RELATIONAL_SECTION):]
+                nxt = rest.find("\n## ")
+                section = (rest if nxt == -1 else rest[:nxt]).strip()
+            else:
+                # Fallback: whole summary minus the dev-telemetry sections, so we never
+                # feed Stats/Issues/Suggestions but still surface SOMETHING relational.
+                kept = []
+                for block in re.split(r"(?=^## )", text, flags=re.M):
+                    if not any(block.lstrip().startswith(h) for h in self._SUMMARY_TELEMETRY_SECTIONS):
+                        kept.append(block)
+                section = "".join(kept).strip()
+                if section:
+                    print(f"   [DiaryBridge] '{self._SUMMARY_RELATIONAL_SECTION}' header not found in "
+                          f"{_dir}/summary.md — using telemetry-stripped fallback.")
+
+            if not section:
+                print(f"   [DiaryBridge] summary {_dir}/summary.md had no usable relational content "
+                      f"— falling back to lore/clips only.")
+                return ""
+            if len(section) > max_chars:
+                section = section[:max_chars]
+            print(f"   [DiaryBridge] using highlights from {_dir}/summary.md ({len(section)} chars).")
+            return section
+        except Exception as e:
+            print(f"   [DiaryBridge] summary read/parse failed: {e} — falling back to lore/clips only.")
+            return ""
+
     async def generate_startup_brief(self):
         """At startup, build a 'what happened recently' brief from the most recent
         lore and clips files. This gets injected into every conversation context
@@ -4506,10 +4560,19 @@ class VTubeBot:
             except Exception as e:
                 print(f"   [StartupBrief] Clips read failed: {e}")
 
-        if not lore_content and not clips_content:
+        # Diary→recap bridge: pull last session's relational highlights from the Opus
+        # summary as a THIRD source for the same consolidation (degrades to "" silently).
+        summary_highlights = self._read_recent_summary_highlights() if DIARY_RECAP_ENABLED else ""
+
+        if not lore_content and not clips_content and not summary_highlights:
             print("   [StartupBrief] No prior session files found — first session, no brief.")
             self.recent_activity_brief = ""
         else:
+            _summary_block = (
+                f"=== LAST SESSION — PERSONALITY / RELATIONSHIP HIGHLIGHTS (richest source) ===\n"
+                f"{summary_highlights}\n\n"
+                if summary_highlights else ""
+            )
             brief_request = (
                 "You are summarizing the most recent stream session for the AI VTuber Kira "
                 "so she has natural awareness of what happened last time when starting a new session.\n\n"
@@ -4518,9 +4581,12 @@ class VTubeBot:
                 "- WHO showed up in chat (named chatters and what they were like)\n"
                 "- WHAT happened emotionally/comedically — running bits, in-jokes, key moments\n"
                 "- HOW Jonny was feeling by the end (energy level, plans for next time)\n\n"
+                "LEAD with the emotional/relational beats and how things went with Jonny and chat — "
+                "the HIGHLIGHTS source below is the richest material for that; weight it most.\n"
                 "Write in first-person FROM KIRA'S PERSPECTIVE — 'we streamed', 'classiccoldfish was there', "
                 "'I made a joke about', etc. This will be injected directly into her context as memory.\n"
                 "Be specific. Names, jokes, beats. No generic summary language.\n\n"
+                f"{_summary_block}"
                 f"=== LORE FILE (canonical events) ===\n{lore_content}\n\n"
                 f"=== CLIPS FILE (notable moments) ===\n{clips_content}\n\n"
                 "Output ONLY the 150-200 word brief. No preamble, no headers."

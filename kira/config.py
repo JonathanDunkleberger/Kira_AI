@@ -174,6 +174,15 @@ CHECKPOINT_INTERVAL_SECONDS = int(os.getenv("CHECKPOINT_INTERVAL", "300"))
 # Note: "Test / Companion Mode" preset also forces logging off via the dashboard.
 STREAM_LOGGING_ENABLED = os.getenv("STREAM_LOGGING_ENABLED", "true").lower() == "true"
 
+# Diary→recap bridge: feed the orphaned Opus session summary's "## Personality
+# Highlights" section back into the startup-brief consolidation, so she opens every
+# session with an unconditional "previously, with you and chat" (emotional/relational
+# beats included) instead of keyword-fishing for it. Reads ONLY the relational section
+# (not the dev-telemetry Stats/Issues/Suggestions), as a third source alongside
+# lore/clips — output size unchanged. Degrades silently to lore+clips on any miss
+# (no summary yet / PENDING / parse fail); every branch logs [DiaryBridge]. Default ON.
+DIARY_RECAP_ENABLED = os.getenv("DIARY_RECAP_ENABLED", "true").lower() == "true"
+
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
 AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
