@@ -382,6 +382,18 @@ ROOM_MAX_SLEW = float(os.getenv("ROOM_MAX_SLEW", "0.03"))               # max mu
 ROOM_DEAD_AIR_MAX_S = float(os.getenv("ROOM_DEAD_AIR_MAX_S", "60.0"))   # true dead air ALWAYS filled within this
 ROOM_MIN_GAP_MAX_S = float(os.getenv("ROOM_MIN_GAP_MAX_S", "120.0"))    # effective min-gap ceiling (matches dashboard brake max)
 
+# ── Barge-in yield (turn-arbiter; default OFF) ─────────────────────────────────
+# A proactive (Director) turn holds processing_lock through generation AND TTS, but STT
+# needs that same lock — so Jonny's voice arriving mid-interjection can't be transcribed
+# until the turn ends, and the existing sentence-boundary yield (_execute_interjection)
+# is starved. ON: release processing_lock ONLY around the interjection's speak loop so
+# STT runs concurrently -> _voice_response_pending sets -> she finishes the current
+# sentence and yields, and his speech is transcribed (nothing lost). _active_turn_lock
+# stays held throughout (two full turns still can't run at once). OFF -> byte-for-byte
+# today's behavior (lock held through the whole interjection; his in-window speech dropped).
+# Her REAL reply (P0 speak_streaming) is never affected — only the proactive interjection path.
+BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "false").lower() == "true"
+
 # ── Director self-driven-speech taxonomy (teaching the 5 variants) ─────────────
 # Phase 1 (default ON): instead of ONE generic "say something proactive" prompt, the
 # Director picks among CALLBACK / NOTICING / PIVOT each beat (cheap priority ladder, no

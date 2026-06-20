@@ -72,6 +72,7 @@ from kira.config import (
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
+    BARGE_IN_YIELD_ENABLED,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
     LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
@@ -9455,12 +9456,36 @@ class VTubeBot:
             if not _sentences:
                 _sentences = [cleaned]
             _spoken_parts = []
-            for _i, _sent in enumerate(_sentences):
-                if _i > 0 and self.ai_core.has_pending_voice_turn():
-                    print("   [Interjection] Voice turn ready — yielding gate at sentence boundary, dropping rest.")
-                    break
-                await self.ai_core.speak_text(_sent, priority=1)
-                _spoken_parts.append(_sent)
+            # BARGE-IN (A2): release processing_lock AROUND THE SPEAK LOOP ONLY so concurrent
+            # STT (handle_audio needs the same lock) can transcribe Jonny's in-window speech ->
+            # _voice_response_pending sets -> the sentence-boundary yield below fires (she
+            # finishes the current sentence and stops), and nothing is lost. _active_turn_lock
+            # (the caller's) stays held throughout, so two full turns still can't run at once —
+            # only STT runs concurrently. Re-acquired in finally so the caller's
+            # `async with self.processing_lock` exit stays balanced. OFF -> lock stays held =
+            # byte-for-byte today's behavior. Scoped to THIS interjection path only; her real
+            # reply (P0 speak_streaming) is untouched and remains non-interruptible.
+            _proc_released = False
+            if BARGE_IN_YIELD_ENABLED and self.processing_lock.locked():
+                self.processing_lock.release()
+                _proc_released = True
+                print("   [BargeIn] processing_lock released around interjection TTS — "
+                      "your voice can be transcribed concurrently and yield this turn.")
+            try:
+                for _i, _sent in enumerate(_sentences):
+                    if _i > 0 and self.ai_core.has_pending_voice_turn():
+                        _tag = "BargeIn" if _proc_released else "Interjection"
+                        print(f"   [{_tag}] voice turn ready — yielding at sentence boundary "
+                              f"(finished current sentence, dropping the rest).")
+                        break
+                    await self.ai_core.speak_text(_sent, priority=1)
+                    _spoken_parts.append(_sent)
+            finally:
+                if _proc_released:
+                    # Re-acquire so the caller's `async with self.processing_lock` exit is
+                    # balanced (and post-speak steps run under the lock as before). Waits only
+                    # on a brief concurrent STT hold — never a deadlock (STT always releases).
+                    await self.processing_lock.acquire()
             if _spoken_parts:
                 cleaned = " ".join(_spoken_parts)
             _tts_ms = int((time.time() - _t0_tts) * 1000)
