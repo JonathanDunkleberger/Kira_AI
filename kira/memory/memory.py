@@ -9,7 +9,11 @@ import torch
 import time
 import uuid
 import hashlib
-from kira.config import MEMORY_PATH
+from kira.config import (
+    MEMORY_PATH,
+    MEMORY_SMART_RETRIEVAL_ENABLED, MEMORY_SIM_FLOOR, MEMORY_CANDIDATE_N,
+    MEMORY_RECENCY_WEIGHT, MEMORY_RECENCY_HALFLIFE_S, MEMORY_CONF_HIGH,
+)
 from kira.memory.identity_manager import normalize_chatter_key
 
 class MemoryManager:
@@ -245,7 +249,15 @@ class MemoryManager:
         Fix 2: a direct keyword-triggered substring probe runs FIRST for
                high-signal topics (cats, family, location, favorites) so
                name-recall is deterministic instead of probabilistic.
+
+        When MEMORY_SMART_RETRIEVAL_ENABLED, the vector path is replaced by the
+        Commit-2 smart path (floor + recency blend + confidence-tiered/laned framing).
+        OFF -> the original path below runs VERBATIM (the fallback).
         """
+        if MEMORY_SMART_RETRIEVAL_ENABLED:
+            return self._get_semantic_context_smart(query_text)
+
+        # ── LEGACY PATH (verbatim; runs when MEMORY_SMART_RETRIEVAL_ENABLED is OFF) ──
         context_lines = []
 
         # 0. DIRECT FACTS — deterministic keyword probe (Fix 2)
@@ -281,6 +293,108 @@ class MemoryManager:
             except Exception: pass
 
         return "\n".join(context_lines)
+
+    def _get_semantic_context_smart(self, query_text: str) -> str:
+        """Commit-2 smart retrieval (flag-gated by MEMORY_SMART_RETRIEVAL_ENABLED).
+
+        Piece 1a: similarity FLOOR — drop vector hits with distance > MEMORY_SIM_FLOOR
+                  (L2: larger distance = less similar). Floor is calibrated, not guessed.
+        Piece 1b: re-rank survivors by a similarity/recency BLEND (exp-decay on the
+                  stored timestamp) and emit the top 3.
+        Piece 1c: CONFIDENCE-tiered framing — high-confidence facts -> [WHAT YOU KNOW];
+                  lower-confidence -> [VAGUE RECOLLECTIONS] (confident vagueness, not
+                  confident wrongness). NOTE: tiering is on CONFIDENCE, not age — a stable
+                  high-confidence fact (his cats, his job) must NOT decay to "vague" just
+                  because it's old; recency affects RANKING (1b), not the certainty tier.
+        Piece 2:  Kira's own highlights/summaries (type highlight|session_summary) are
+                  routed into a SEPARATE lane and NEVER framed as verified facts about Jonny.
+
+        Loud [SmartMem] logging for feel-testing. Read-only."""
+        import math
+        now = time.time()
+        know_lines: list = []    # [WHAT YOU KNOW]
+        vague_lines: list = []   # [VAGUE RECOLLECTIONS]
+        stream_lines: list = []  # [YOU MIGHT REMEMBER FROM A STREAM]
+
+        # 0. Deterministic keyword recall — high-signal + reliable -> WHAT YOU KNOW.
+        direct = self._direct_fact_lookup(query_text)
+        know_lines.extend(direct)
+        direct_set = set(direct)
+
+        # 1. Vector candidates WITH distances + metadata (the unlock).
+        cands = self.search_facts_scored(query_text, MEMORY_CANDIDATE_N)
+        n_fetched = len(cands)
+
+        # 1a. Similarity floor — drop barely-related (keep distance <= floor).
+        kept = [(doc, dist, meta) for (doc, dist, meta) in cands
+                if dist is not None and dist <= MEMORY_SIM_FLOOR]
+        n_dropped = n_fetched - len(kept)
+
+        # 1b. Re-rank by similarity/recency blend; emit top 3.
+        def _blend(item):
+            _doc, dist, meta = item
+            sim_norm = max(0.0, 1.0 - (dist / MEMORY_SIM_FLOOR)) if MEMORY_SIM_FLOOR > 0 else 0.0
+            ts = (meta or {}).get("timestamp", 0.0) or 0.0
+            rec = math.exp(-max(0.0, now - ts) / MEMORY_RECENCY_HALFLIFE_S) if ts else 0.0
+            return (1.0 - MEMORY_RECENCY_WEIGHT) * sim_norm + MEMORY_RECENCY_WEIGHT * rec
+        kept.sort(key=_blend, reverse=True)
+        survivors = kept[:3]
+
+        # 1c + Piece 2: lane each survivor.
+        log_rows = []
+        for doc, dist, meta in survivors:
+            meta = meta or {}
+            if doc in direct_set:
+                log_rows.append(f"dist={dist:.3f} lane=DUP(already in direct)")
+                continue
+            mtype = meta.get("type", "")
+            if mtype in ("highlight", "session_summary"):
+                stream_lines.append(doc); lane = "STREAM"
+            else:
+                conf = meta.get("confidence", 0.0) or 0.0
+                if conf >= MEMORY_CONF_HIGH:
+                    know_lines.append(doc); lane = "KNOW"
+                else:
+                    vague_lines.append(doc); lane = "VAGUE"
+            log_rows.append(f"dist={dist:.3f} conf={meta.get('confidence', '?')} "
+                            f"type={mtype or '?'} blend={_blend((doc, dist, meta)):.3f} lane={lane}")
+
+        # Loud feel-test logging.
+        print(f"   [SmartMem] q={query_text[:60]!r} fetched={n_fetched} "
+              f"dropped_by_floor={n_dropped} kept={len(kept)} survivors={len(survivors)} "
+              f"direct={len(direct)}")
+        for r in log_rows:
+            print(f"   [SmartMem]     {r}")
+
+        # Assemble blocks (dedup within each, preserve order).
+        def _block(header: str, lines: list) -> str:
+            seen = set(); uniq = []
+            for l in lines:
+                if l and l not in seen:
+                    uniq.append(l); seen.add(l)
+            return (header + "\n" + "\n".join(f"- {x}" for x in uniq)) if uniq else ""
+
+        out = []
+        for b in (
+            _block("[WHAT YOU KNOW]:", know_lines),
+            _block("[VAGUE RECOLLECTIONS -- you half-remember this; if unsure, stay vague "
+                   "rather than invent detail]:", vague_lines),
+            _block("[YOU MIGHT REMEMBER FROM A STREAM -- impressions of moments, not verified "
+                   "facts about Jonny; may be fuzzy]:", stream_lines),
+        ):
+            if b:
+                out.append(b)
+
+        # 2. PROJECTS branch — preserved from the legacy path.
+        if any(w in query_text.lower() for w in ["project", "code", "working", "build"]):
+            try:
+                proj_res = self.facts.get(where={"type": "project"}, limit=1)
+                if proj_res['documents']:
+                    out.append(f"[CURRENT PROJECT]: {proj_res['documents'][0]}")
+            except Exception:
+                pass
+
+        return "\n".join(out)
 
     def upsert_fact(self, key: str, value: str):
         """Deterministically upserts a structured fact."""
@@ -374,6 +488,35 @@ class MemoryManager:
             return []
         except Exception as e:
             print(f"   [Memory] ChromaDB read failed "
+                  f"(collection='facts', path='{MEMORY_PATH}'): {e}")
+            return []
+
+    def search_facts_scored(self, query_text: str, n_results: int) -> list:
+        """THE UNLOCK (smart retrieval): like search_facts but fetches distances +
+        metadata (legacy search_facts fetches documents only, which is why no filtering
+        was possible). Returns [(document, distance, metadata)] for the top-n by vector
+        distance. Read-only; empty list on empty/failed collection."""
+        if self.facts.count() == 0:
+            return []
+        try:
+            results = self.facts.query(
+                query_embeddings=[self.embedding_model.encode(query_text).tolist()],
+                n_results=min(n_results, self.facts.count()),
+                include=['documents', 'metadatas', 'distances'],
+            )
+            docs = (results.get('documents') or [[]])[0]
+            dists = (results.get('distances') or [[]])[0]
+            metas = (results.get('metadatas') or [[]])[0]
+            out = []
+            for i, doc in enumerate(docs):
+                out.append((
+                    doc,
+                    dists[i] if i < len(dists) else None,
+                    metas[i] if i < len(metas) else {},
+                ))
+            return out
+        except Exception as e:
+            print(f"   [Memory] ChromaDB scored read failed "
                   f"(collection='facts', path='{MEMORY_PATH}'): {e}")
             return []
 

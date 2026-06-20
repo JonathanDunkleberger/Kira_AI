@@ -88,6 +88,25 @@ LOOPBACK_MIC_GATE_ENABLED = os.getenv("LOOPBACK_MIC_GATE_ENABLED", "false").lowe
 ASSUME_NO_MIC_BLEED = os.getenv("ASSUME_NO_MIC_BLEED", "false").lower() == "true"
 MEMORY_PATH = os.getenv("MEMORY_PATH", os.path.join(_REPO_ROOT, "memory_db"))
 
+# ── Smart memory retrieval (read-layer rework; HIGHEST blast radius -- default OFF) ─
+# Reworks get_semantic_context's vector path: fetch distances+metadata (today it's
+# documents-only), drop barely-related hits by a MEASURED similarity floor, re-rank by
+# a similarity/recency blend, and frame results by confidence ([WHAT YOU KNOW] vs
+# [VAGUE RECOLLECTIONS]) -- routing Kira's own highlights/summaries into a SEPARATE
+# "you might remember from a stream" lane instead of laundering them as verified facts.
+# Fixes within-session forgetting + the hallucinated-lore ("Stick") path. OFF -> the
+# original get_semantic_context runs VERBATIM (the fallback). Flip on to feel-test;
+# loud [SmartMem] logging shows candidates fetched / floor-drops / survivors / lanes.
+MEMORY_SMART_RETRIEVAL_ENABLED = os.getenv("MEMORY_SMART_RETRIEVAL_ENABLED", "false").lower() == "true"
+# L2 MAX distance -- keep candidates with distance <= floor. From offline calibration
+# (scripts/calibrate_memory_floor.py): true-match p90=0.95, noise min=1.40 -> floor between,
+# 100% true recall / 0 noise leak. Re-run the calibrator if the embedding model changes.
+MEMORY_SIM_FLOOR = float(os.getenv("MEMORY_SIM_FLOOR", "1.2178"))
+MEMORY_CANDIDATE_N = int(os.getenv("MEMORY_CANDIDATE_N", "10"))          # pool fetched before floor + re-rank
+MEMORY_RECENCY_WEIGHT = float(os.getenv("MEMORY_RECENCY_WEIGHT", "0.25"))  # recency vs similarity (0..1; a tiebreaker, not a dominator)
+MEMORY_RECENCY_HALFLIFE_S = float(os.getenv("MEMORY_RECENCY_HALFLIFE_S", "21600.0"))  # 6h: within-session + recent-day ramp; env-tunable
+MEMORY_CONF_HIGH = float(os.getenv("MEMORY_CONF_HIGH", "0.85"))          # >= -> [WHAT YOU KNOW]; below -> [VAGUE RECOLLECTIONS]
+
 # Secrets and API keys (must be in .env, never commit real values)
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "")
