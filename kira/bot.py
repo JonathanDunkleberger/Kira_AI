@@ -71,7 +71,7 @@ from kira.config import (
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
     FRAGMENT_QUIP_COOLDOWN_S,
-    BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO,
+    BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
     LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
@@ -791,6 +791,9 @@ class VTubeBot:
         # resurfacing instead of being "fresh" again next session. Drives the cooldown ramp
         # + _ripe_open_bit retirement. Loaded once here; write-through on each invocation.
         self._bit_fatigue: dict[str, dict] = self._load_bit_fatigue()
+        # De-dupe clock per bit: when it was last stamped, so a Director-callback fire and a
+        # following word-match don't double-stamp the same bit (BIT_STAMP_DEDUP_S window).
+        self._bit_last_stamp_ts: dict[str, float] = {}
 
         # Rolling condensed summary of Kira's own session takes (opinions / predictions /
         # grudges / bits). Built periodically from self.session_takes_pool via a cheap
@@ -2246,15 +2249,21 @@ class VTubeBot:
         key = identity_manager.normalize_chatter_key(name)
         if not key:
             return
+        _now = time.time()
+        # De-dupe: if this bit was stamped a beat ago (e.g. the Director fired a callback on
+        # it AND her spoken line then word-matched it), don't double-penalise the cooldown/fatigue.
+        if _now - self._bit_last_stamp_ts.get(key, 0.0) < BIT_STAMP_DEDUP_S:
+            return
         if DIRECTOR_BIT_FATIGUE_ENABLED:
             _rec = self._bit_fatigue.get(key) or {}
             count = int(_rec.get("lifetime", 0)) + 1          # durable lifetime, carried across sessions
-            self._bit_fatigue[key] = {"lifetime": count, "last_ts": time.time()}
+            self._bit_fatigue[key] = {"lifetime": count, "last_ts": _now}
             self._save_bit_fatigue()                          # write-through (tiny, crash-durable)
         else:
             count = self._bit_cooldowns.get(key, {}).get("count", 0) + 1  # legacy: session-scoped
         dur = min(BIT_REF_COOLDOWN_BASE_S * (2 ** (count - 1)), BIT_REF_COOLDOWN_MAX_S)
-        self._bit_cooldowns[key] = {"until_ts": time.time() + dur, "count": count}
+        self._bit_cooldowns[key] = {"until_ts": _now + dur, "count": count}
+        self._bit_last_stamp_ts[key] = _now
         _tag = f" lifetime" if DIRECTOR_BIT_FATIGUE_ENABLED else ""
         print(f"   [BitCooldown] '{name}' invoked x{count}{_tag} — resting {int(dur)}s")
 
@@ -8477,10 +8486,16 @@ class VTubeBot:
                                            if (_variant == "callback" and _bit) else _variant)
                                 print(f"   [Director] FIRE ({_vlabel}) — gap={_dir_gap:.0f}s "
                                       f"silence={silence_duration:.0f}s fresh={_fresh_label or 'none'}")
-                                await self._arbiter_interjection(
-                                    self._build_director_prompt(_variant),
-                                    scene_override=self._director_scene_override(_variant),
-                                )
+                                # Build the prompt FIRST (the callback prompt re-derives + bakes
+                                # in this bit), THEN cool the bit via the existing stamp so it
+                                # stops re-arming every cycle — the over-firing fix. After this,
+                                # _ripe_open_bit() skips it (on cooldown) so the ladder moves on
+                                # to noticing/pivot; durable fatigue finally accrues too.
+                                _dir_prompt = self._build_director_prompt(_variant)
+                                _dir_scene = self._director_scene_override(_variant)
+                                if _variant == "callback" and _bit:
+                                    self._stamp_bit_invocation(_bit.get("name", ""))
+                                await self._arbiter_interjection(_dir_prompt, scene_override=_dir_scene)
                             else:
                                 # Legacy two-mode Director (taxonomy OFF) — unchanged.
                                 _dir_mode = "react" if _fresh_ok else "dead_air"

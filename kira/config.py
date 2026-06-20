@@ -631,6 +631,10 @@ FRAGMENT_QUIP_COOLDOWN_S = int(os.getenv("FRAGMENT_QUIP_COOLDOWN_S", "240"))
 BIT_REF_COOLDOWN_BASE_S = int(os.getenv("BIT_REF_COOLDOWN_BASE_S", "180"))
 BIT_REF_COOLDOWN_MAX_S = int(os.getenv("BIT_REF_COOLDOWN_MAX_S", "1800"))
 BIT_REF_MATCH_MIN_RATIO = float(os.getenv("BIT_REF_MATCH_MIN_RATIO", "1.0"))
+# De-dupe window for _stamp_bit_invocation: a bit stamped within this many seconds is
+# NOT re-stamped. Stops double-penalising when the Director fires a callback (stamps the
+# bit) AND her resulting spoken line then word-matches the same bit a beat later.
+BIT_STAMP_DEDUP_S = float(os.getenv("BIT_STAMP_DEDUP_S", "10.0"))
 
 # ── Chess owner / data dir ────────────────────────────────────────────────────
 # Challenges from CHESS_OWNER_LICHESS_ID (case-insensitive) are Jonny's own
