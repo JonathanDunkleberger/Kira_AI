@@ -6,7 +6,8 @@ from collections import deque
 from io import BytesIO
 from PIL import ImageGrab
 from openai import AsyncOpenAI
-from kira.config import OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS
+from kira.config import (OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS,
+                         VISION_CAPTURE_DEDUP_ENABLED, VISION_CAPTURE_DEDUP_WINDOW_S)
 
 # Request-size bounds for the rolling scene summary. The summary feeds its own
 # output back in as `previous` each cycle, so without a clamp an over-long model
@@ -119,6 +120,9 @@ class UniversalVisionAgent:
         self.context_buffer = ContextBuffer(maxlen=3)
         self.last_description = "I'm just getting my bearings. One sec!"
         self.last_capture_time = 0
+        # Vision capture dedup: stamp when an ON-DEMAND capture starts so a heartbeat
+        # capture can skip if one is in flight (avoids a 2x concurrent gpt-4o-mini call).
+        self._last_ondemand_capture_ts = 0.0
         # Most recent captured frame (downscaled PIL image), served by the
         # dashboard's /vision/thumbnail endpoint. Written on every capture in
         # capture_and_describe(); None until the first heartbeat fires.
@@ -398,6 +402,16 @@ class UniversalVisionAgent:
             return None
         if not self.client:
             return "Vision unavailable (Missing API Key.)."
+
+        # Dedup: a HEARTBEAT capture skips if an on-demand capture started within the
+        # window (it's likely still in flight) — prevents a 2nd concurrent gpt-4o-mini
+        # call. On-demand always proceeds and stamps the window. OFF -> never skips.
+        if (VISION_CAPTURE_DEDUP_ENABLED and is_heartbeat
+                and (time.time() - self._last_ondemand_capture_ts) < VISION_CAPTURE_DEDUP_WINDOW_S):
+            print("   [Vision] heartbeat capture skipped — on-demand capture in flight (dedup).")
+            return None
+        if not is_heartbeat:
+            self._last_ondemand_capture_ts = time.time()
 
         try:
             # Capture and Scale based on quality mode

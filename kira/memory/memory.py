@@ -317,12 +317,17 @@ class MemoryManager:
         stream_lines: list = []  # [YOU MIGHT REMEMBER FROM A STREAM]
 
         # 0. Deterministic keyword recall — high-signal + reliable -> WHAT YOU KNOW.
+        _t_direct = time.time()
         direct = self._direct_fact_lookup(query_text)
         know_lines.extend(direct)
         direct_set = set(direct)
+        _direct_ms = (time.time() - _t_direct) * 1000.0
 
         # 1. Vector candidates WITH distances + metadata (the unlock).
+        _t_fetch = time.time()
         cands = self.search_facts_scored(query_text, MEMORY_CANDIDATE_N)
+        _fetch_ms = (time.time() - _t_fetch) * 1000.0  # embedding encode + ChromaDB query
+        _t_rank = time.time()
         n_fetched = len(cands)
 
         # 1a. Similarity floor — drop barely-related (keep distance <= floor).
@@ -359,10 +364,12 @@ class MemoryManager:
             log_rows.append(f"dist={dist:.3f} conf={meta.get('confidence', '?')} "
                             f"type={mtype or '?'} blend={_blend((doc, dist, meta)):.3f} lane={lane}")
 
-        # Loud feel-test logging.
+        # Loud feel-test logging + latency breakdown (observability — fetch = encode+chromadb).
+        _rank_ms = (time.time() - _t_rank) * 1000.0
         print(f"   [SmartMem] q={query_text[:60]!r} fetched={n_fetched} "
               f"dropped_by_floor={n_dropped} kept={len(kept)} survivors={len(survivors)} "
-              f"direct={len(direct)}")
+              f"direct={len(direct)} | timing(direct={_direct_ms:.0f}ms fetch={_fetch_ms:.0f}ms "
+              f"rank={_rank_ms:.0f}ms)")
         for r in log_rows:
             print(f"   [SmartMem]     {r}")
 

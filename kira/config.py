@@ -45,6 +45,11 @@ ENABLE_VISION = os.getenv("ENABLE_VISION", "true").lower() == "true"
 # cadence stays mode-tuned (game/media); this relaxed rate keeps her aware in plain
 # conversation without hammering the vision model.
 VISION_CALM_HEARTBEAT_SECONDS = float(os.getenv("VISION_CALM_HEARTBEAT_SECONDS", 40.0))
+# Vision capture dedup: skip a heartbeat capture if an on-demand capture started within
+# this window (likely still in flight) — avoids a 2x concurrent gpt-4o-mini call. Safe-
+# mechanical; default ON. Window ~ a capture's max duration so it covers the in-flight time.
+VISION_CAPTURE_DEDUP_ENABLED = os.getenv("VISION_CAPTURE_DEDUP_ENABLED", "true").lower() == "true"
+VISION_CAPTURE_DEDUP_WINDOW_S = float(os.getenv("VISION_CAPTURE_DEDUP_WINDOW_S", "5.0"))
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
 # "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)
