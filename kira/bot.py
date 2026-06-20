@@ -462,6 +462,10 @@ class VTubeBot:
     def __init__(self):
         self.interruption_event = asyncio.Event()
         self.processing_lock = asyncio.Lock()
+        # [DroppedInput] instrumentation: frames of Jonny's speech dropped in the current
+        # run while processing_lock is held (his voice arriving during one of her turns,
+        # never transcribed). Throttled — onset + run-length logged, not per-frame.
+        self._dropped_input_run: int = 0
         # True while a chat-batch TTS response is playing — prevents vad_loop from
         # setting interruption_event on voice detection so the chatter's response
         # finishes its current audio before yielding to Jonny's voice. Hard interrupts
@@ -5351,6 +5355,13 @@ class VTubeBot:
                         triggered = True
                         silent_chunks = 0
                         print("🎤 Recording... (recovered opening words)")
+                    else:
+                        # [DroppedInput] (observation only): speech captured during her TTS
+                        # that will NOT be recovered (no VAD trigger / too short) — about to
+                        # be cleared untranscribed. Behavior unchanged; just made visible.
+                        print(f"   [DroppedInput] TTS-window: discarding {len(ttft_buffer)} buffered "
+                              f"frame(s) (~{len(ttft_buffer)*30}ms) — not recovered "
+                              f"(ttft_triggered={ttft_triggered}, len={len(ttft_buffer)}).")
                     ttft_buffer.clear()
                     ttft_triggered = False
 
@@ -5382,10 +5393,23 @@ class VTubeBot:
                     self._vad_mic_last_ts = time.time()
 
                 if self.processing_lock.locked() and is_speech and not self._chat_speaking:
+                    # [DroppedInput] (observation only): processing_lock is held (a proactive
+                    # turn holds it through generation+TTS), so this speech frame is dropped
+                    # and never transcribed. Throttled: log the onset here, the run-length on
+                    # release below. Behavior UNCHANGED — we still set interrupt + continue.
+                    if self._dropped_input_run == 0:
+                        print("   [DroppedInput] your speech began while she holds the turn "
+                              "(processing_lock) — frames are being dropped, not transcribed.")
+                    self._dropped_input_run += 1
                     self.interruption_event.set()
                     continue
-                
+
                 if not self.processing_lock.locked():
+                    if self._dropped_input_run > 0:
+                        print(f"   [DroppedInput] LOST ~{self._dropped_input_run} frame(s) "
+                              f"(~{self._dropped_input_run * 30}ms, ~{self._dropped_input_run * 0.03:.1f}s) "
+                              f"of your speech while she held the turn.")
+                        self._dropped_input_run = 0
                     if is_speech:
                         if not triggered:
                             print("🎤 Recording...")
