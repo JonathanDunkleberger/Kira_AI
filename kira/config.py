@@ -343,6 +343,17 @@ DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence
 # react/dead_air Director. Builds ON the assertive default-on Director + the live brake.
 DIRECTOR_TAXONOMY_ENABLED = os.getenv("DIRECTOR_TAXONOMY_ENABLED", "true").lower() == "true"
 DIRECTOR_BIT_RIPE_S = float(os.getenv("DIRECTOR_BIT_RIPE_S", "90.0"))  # age before an open bit is "ripe" for a callback payoff
+# Phase 2 — trigger surgery, default OFF (cadence + intensity-gate changes; flip one at a
+# time and watch). CONTINUATION: a short-gap self-continue — she extends her OWN line a
+# beat after Jonny goes quiet, on its own fast gap (NOT the 15s Director min-gap), with a
+# hard streak cap so she never monologues (resets when Jonny speaks). SINCERE DROP: lets
+# exactly ONE sincere beat pierce the high-intensity suppression gate, on a long cooldown,
+# NEVER during a cutscene — the tonal pivot that currently can't fire mid-chaos.
+DIRECTOR_CONTINUATION_ENABLED = os.getenv("DIRECTOR_CONTINUATION_ENABLED", "false").lower() == "true"
+DIRECTOR_CONTINUE_GAP_S = float(os.getenv("DIRECTOR_CONTINUE_GAP_S", "2.5"))        # short self-continue gap (floor of the window)
+DIRECTOR_CONTINUE_MAX_STREAK = int(os.getenv("DIRECTOR_CONTINUE_MAX_STREAK", "1"))  # max consecutive self-continues before she must yield
+DIRECTOR_SINCERE_DROP_ENABLED = os.getenv("DIRECTOR_SINCERE_DROP_ENABLED", "false").lower() == "true"
+SINCERE_DROP_COOLDOWN_S = float(os.getenv("SINCERE_DROP_COOLDOWN_S", "240.0"))      # long cooldown — a rare tonal pivot, not a habit
 
 # ── Game-engagement channel (the "activity governor", perception half) ────────
 # Opens the perception→speech path during a story game: on a throttle, Kira fires

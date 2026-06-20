@@ -59,6 +59,8 @@ from kira.config import (
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     DIRECTOR_TAXONOMY_ENABLED, DIRECTOR_BIT_RIPE_S,
+    DIRECTOR_CONTINUATION_ENABLED, DIRECTOR_CONTINUE_GAP_S, DIRECTOR_CONTINUE_MAX_STREAK,
+    DIRECTOR_SINCERE_DROP_ENABLED, SINCERE_DROP_COOLDOWN_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
@@ -647,6 +649,9 @@ class VTubeBot:
         # promoted from the module constant so the dashboard can pull her back mid-stream
         # (no restart). env DIRECTOR_MIN_GAP_S is the boot default; control_server mutates this.
         self.director_min_gap_s: float = DIRECTOR_MIN_GAP_S
+        # Director taxonomy Phase 2 (default-OFF triggers):
+        self._continue_streak: int = 0          # consecutive self-continues; reset when Jonny speaks
+        self._last_sincere_drop_ts: float = 0.0  # cooldown clock for the sincere-drop-through-intensity beat
         self.loopback_desired: bool = LOOPBACK_STT_DEFAULT  # "desktop hearing should be on" — drives the supervisor
         self._last_loopback_deaf_recovery: float = 0.0  # cooldown clock for the alive-but-deaf recovery
 
@@ -5582,6 +5587,9 @@ class VTubeBot:
                     if source == "voice":
                         if self.active_objective:
                             self._clear_objective("jonny spoke again")
+                        # Jonny spoke → reset the self-continue streak so she may extend her
+                        # own thread again after THIS new exchange (one continuation per turn).
+                        self._continue_streak = 0
                         _new_obj = self._detect_objective(content)
                         if _new_obj:
                             self._set_objective(_new_obj)
@@ -8190,9 +8198,27 @@ class VTubeBot:
                       f"  audio=\"{self._event_audio_summary()[:60]}\")")
                 self.stream_logger.log("moment_type", moment=_moment.name)
 
-            # Suppress interjections during TENSE / INTENSE / CLIMACTIC / CUTSCENE.
+            # Suppress interjections during TENSE / INTENSE / CLIMACTIC / CUTSCENE — EXCEPT
+            # the sincere-drop beat (Phase 2, default-OFF): exactly ONE variant may pierce
+            # high intensity, on a long cooldown, and NEVER during a CUTSCENE (don't talk
+            # over a non-interactive moment). Everything else stays fully suppressed. Rides
+            # _arbiter_interjection (turn-lock + sentence yield) so it never interrupts Jonny.
             if _moment in (SessionIntensity.TENSE, SessionIntensity.INTENSE,
                            SessionIntensity.CLIMACTIC, SessionIntensity.CUTSCENE):
+                if (DIRECTOR_SINCERE_DROP_ENABLED and self.director_enabled
+                        and self._director_activity_focused()
+                        and _moment != SessionIntensity.CUTSCENE
+                        and not self.ai_core.has_pending_voice_turn()
+                        and not self._active_turn_lock.locked()
+                        and (time.time() - self._last_sincere_drop_ts) >= SINCERE_DROP_COOLDOWN_S):
+                    self._last_sincere_drop_ts = time.time()
+                    self._last_director_ts = time.time()  # consume the Director gap too
+                    print(f"   [Director] FIRE (sincere_drop) — moment={_moment.name} "
+                          f"silence={silence_duration:.0f}s")
+                    await self._arbiter_interjection(
+                        self._build_director_prompt("sincere_drop"),
+                        scene_override=self._director_scene_override("sincere_drop"),
+                    )
                 continue
 
             # Turn-arbiter gate: skip this tick if voice/chat/interjection is active.
@@ -8234,6 +8260,39 @@ class VTubeBot:
             # (both guardrails + turn-lock + sentence yield). Priority over the Director.
             if await self._maybe_fire_chat_catchup():
                 continue
+
+            # ── CONTINUATION (Phase 2, default-OFF) — short-gap self-continue ────
+            # She finishes a SUBSTANTIVE line, Jonny doesn't pick it up, and within a few
+            # seconds she extends her OWN thread one beat — the Neuro self-continue. Its own
+            # short gap (NOT the 15s Director min-gap), a tight window so it's "right after
+            # her line," and a HARD streak cap so she never monologues (resets when Jonny
+            # speaks, in the voice path). Rides _arbiter_interjection (turn-lock + sentence
+            # yield), so it can NEVER interrupt Jonny. Stamps the Director gap so a normal
+            # Director beat doesn't pile on immediately after.
+            if (DIRECTOR_CONTINUATION_ENABLED and self.director_enabled
+                    and self._director_activity_focused()
+                    and not self.ai_core.has_pending_voice_turn()
+                    and self._continue_streak < DIRECTOR_CONTINUE_MAX_STREAK
+                    and DIRECTOR_CONTINUE_GAP_S <= silence_duration <= (DIRECTOR_CONTINUE_GAP_S + 4.0)):
+                _last = self.conversation_history[-1] if self.conversation_history else None
+                _kira_last = bool(_last and _last.get("role") == "assistant")
+                _last_txt = ""
+                if _kira_last:
+                    _c = _last.get("content") or ""
+                    if isinstance(_c, list):
+                        _c = " ".join(b.get("text", "") for b in _c if isinstance(b, dict))
+                    _last_txt = _c.strip()
+                # Only after a substantive line (never extend a one-word reply).
+                if _kira_last and len(_last_txt) >= 40:
+                    self._continue_streak += 1
+                    self._last_director_ts = time.time()
+                    print(f"   [Director] FIRE (continuation streak={self._continue_streak}) — "
+                          f"silence={silence_duration:.0f}s")
+                    await self._arbiter_interjection(
+                        self._build_director_prompt("continuation"),
+                        scene_override=self._director_scene_override("continuation"),
+                    )
+                    continue
 
             # ── Activity Director (Pass 2) — the first-mover driver ──────────────
             # Generalizes the objective watchdog into a proactive driver. When an
