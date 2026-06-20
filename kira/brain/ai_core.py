@@ -18,6 +18,7 @@ from kira.config import (
     LLM_MAX_RESPONSE_TOKENS,
     ELEVENLABS_API_KEY, AZURE_SPEECH_KEY, AZURE_SPEECH_REGION,
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
+    VOICE_EMOTION_ENABLED, VOICE_EMOTION_BREAK_MS, VOICE_EMOTION_PROSODY,
     AI_NAME,
     ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
     CLAUDE_CHAT_MODEL, CLAUDE_HAIKU_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
@@ -81,6 +82,9 @@ _CONTENT_DENYLIST_SEED = frozenset({
 class AI_Core:
     def __init__(self, interruption_event):
         self.interruption_event = interruption_event
+        # Current emotional state mirror — the bot writes this whenever it updates emotion;
+        # _speak_single reads it to make her VOICE match her mood (VOICE_EMOTION_ENABLED).
+        self.current_emotion = EmotionalState.HAPPY
         # Content-safety backstop: seed + runtime KIRA_CONTENT_DENYLIST extension.
         _extra_deny = os.getenv("KIRA_CONTENT_DENYLIST", "")
         self._content_denylist = set(_CONTENT_DENYLIST_SEED) | {
@@ -1358,6 +1362,34 @@ class AI_Core:
             self.last_speech_finish_time = time.time()
             self.is_speaking = False
 
+    def _build_emotion_ssml(self, text: str) -> str:
+        """VOICE_EMOTION (Piece 1+2): make her voice match her mood. Nests a small
+        per-emotion <prosody> delta INSIDE the base AZURE_PROSODY_RATE/PITCH (reusing the
+        VN nested-<prosody> scaffold) + a <break> deadpan beat at "...". Built on
+        <prosody>/<break> ONLY (guaranteed on AshleyNeural) — no express-as dependency.
+        Covers every line (this is the shared _speak_single path)."""
+        import xml.sax.saxutils as _sx
+        emo_name = getattr(self, "current_emotion", None)
+        emo_name = emo_name.name if emo_name is not None else "HAPPY"
+        rate_d, pitch_d = VOICE_EMOTION_PROSODY.get(emo_name, ("+0%", "+0%"))
+        inner = _sx.escape(text)  # escape FIRST so a literal '<' or '&' can't break the SSML
+        # Piece 2 — the deadpan beat: a short pause at ellipses (comedic timing).
+        if VOICE_EMOTION_BREAK_MS > 0:
+            _brk = f'<break time="{VOICE_EMOTION_BREAK_MS}ms"/>'
+            inner = inner.replace("...", "..." + _brk).replace("…", "…" + _brk)
+        # Nested per-emotion prosody delta (only when non-neutral).
+        _attrs = []
+        if rate_d and rate_d not in ("+0%", "0%"):
+            _attrs.append(f'rate="{rate_d}"')
+        if pitch_d and pitch_d not in ("+0%", "0%"):
+            _attrs.append(f'pitch="{pitch_d}"')
+        if _attrs:
+            inner = f'<prosody {" ".join(_attrs)}>{inner}</prosody>'
+        return (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                f'<voice name="{AZURE_SPEECH_VOICE}">'
+                f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{inner}</prosody>'
+                f'</voice></speak>')
+
     async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False):
         """Pure synthesis-and-playback for a single text block. Does NOT manage
         is_speaking or interruption_event — caller is responsible. Used by both
@@ -1462,10 +1494,13 @@ class AI_Core:
                             print(f"   [TTS] backend=azure-fallback")
 
             elif TTS_ENGINE == "azure" and self.azure_synthesizer:
-                ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
-                        f'<voice name="{AZURE_SPEECH_VOICE}">'
-                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
-                        f'</voice></speak>')
+                if VOICE_EMOTION_ENABLED:
+                    ssml = self._build_emotion_ssml(text)
+                else:
+                    ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                            f'<voice name="{AZURE_SPEECH_VOICE}">'
+                            f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                            f'</voice></speak>')
                 # Serialize Azure synth so the shared word-boundary buffer
                 # can't be reset by a concurrent speak_text_vn / interjection
                 # before we snapshot. See __init__ for full rationale.

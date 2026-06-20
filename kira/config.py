@@ -50,6 +50,28 @@ VISION_CALM_HEARTBEAT_SECONDS = float(os.getenv("VISION_CALM_HEARTBEAT_SECONDS",
 # mechanical; default ON. Window ~ a capture's max duration so it covers the in-flight time.
 VISION_CAPTURE_DEDUP_ENABLED = os.getenv("VISION_CAPTURE_DEDUP_ENABLED", "true").lower() == "true"
 VISION_CAPTURE_DEDUP_WINDOW_S = float(os.getenv("VISION_CAPTURE_DEDUP_WINDOW_S", "5.0"))
+
+# ── Emotion → voice (audible mood; default OFF) ────────────────────────────────
+# Her computed emotional state currently drives her FACE + word choice but NEVER her
+# VOICE — every line plays at the same flat rate/pitch. ON: nest a small per-emotion
+# prosody delta INSIDE the base AZURE_PROSODY_RATE/PITCH (reusing the VN nested-<prosody>
+# scaffold), so HAPPY/MOODY/SASSY/EMOTIONAL/HYPERACTIVE actually SOUND different. Also a
+# <break> at "..." for the deadpan beat (Piece 2). Covers the main streaming reply AND
+# interjections (both route through _speak_single). OFF -> byte-for-byte today's flat SSML.
+# Zero added latency (string interpolation). Built on <prosody> + <break> only (guaranteed
+# on AshleyNeural) — does NOT depend on Azure express-as styles.
+VOICE_EMOTION_ENABLED = os.getenv("VOICE_EMOTION_ENABLED", "false").lower() == "true"
+VOICE_EMOTION_BREAK_MS = int(os.getenv("VOICE_EMOTION_BREAK_MS", "180"))  # deadpan beat inserted at "..." (0 = off)
+# Per-emotion prosody DELTAS (rate, pitch), nested inside the base prosody. TUNABLE TABLE —
+# edit these to dial each mood's voice. Small/tasteful = audible mood, not cartoonish.
+VOICE_EMOTION_PROSODY = {
+    "HAPPY":       ("+0%",  "+0%"),   # neutral-bright (base is already +25% pitch)
+    "MOODY":       ("-8%",  "-4%"),   # slower, lower — withdrawn
+    "SASSY":       ("+5%",  "+5%"),   # snappier, brighter
+    "EMOTIONAL":   ("-12%", "-3%"),   # slower, softer — intimate
+    "HYPERACTIVE": ("+12%", "+8%"),   # faster, higher — buzzing
+}
+
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
 # "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)

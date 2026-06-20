@@ -10339,6 +10339,8 @@ class VTubeBot:
             print(f"   \u2728 Emotion: {self.current_emotion.name} \u2192 {new_emotion.name}")
             self.current_emotion = new_emotion
             self._emotion_consecutive = 0  # reset on genuine change
+            # Mirror to ai_core so her VOICE matches her mood (VOICE_EMOTION_ENABLED).
+            self.ai_core.current_emotion = new_emotion
             # Drive Live2D facial expression in VTube Studio. Best-effort; never blocks.
             try:
                 await self.vts_expressions.on_emotion_change(new_emotion)
