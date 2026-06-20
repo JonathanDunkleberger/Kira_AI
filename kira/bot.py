@@ -73,6 +73,7 @@ from kira.config import (
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
     BARGE_IN_YIELD_ENABLED,
+    EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
     LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
@@ -696,6 +697,7 @@ class VTubeBot:
         #   force a reversion to HAPPY on the NEXT update regardless of Groq read.
         self._emotion_consecutive:       int = 0
         self._emotion_decay_threshold:   int = 8   # ~8 turns ~= 4-6 minutes at normal pace
+        self._emotion_hold_remaining:    int = 0   # EMOTION_SWING: turns a mood still lingers through neutral reads
 
         # B — Drive Mode agenda (seeded when Carry Mode toggles ON).
         # Each item is a one-sentence intent string.
@@ -10331,9 +10333,23 @@ class VTubeBot:
             print(f"   [EmotionDecay] {self.current_emotion.name} held for "
                   f"{self._emotion_consecutive} turns — reverting to HAPPY")
             self._emotion_consecutive = 0
+            self._emotion_hold_remaining = 0  # safety revert overrides any swing hold
             new_emotion = EmotionalState.HAPPY
         else:
             new_emotion = await self.ai_core.analyze_emotion_of_turn(user_text, ai_response)
+            # EMOTION_SWING: let a genuine mood LINGER instead of snapping back to HAPPY the
+            # moment a turn reads neutral — so the swing is audible. A new mood still switches
+            # immediately; the decay cap above still bounds it (she never locks).
+            if EMOTION_SWING_ENABLED and new_emotion is not None:
+                if new_emotion != EmotionalState.HAPPY and new_emotion != self.current_emotion:
+                    self._emotion_hold_remaining = EMOTION_SWING_HOLD_TURNS  # entered/switched mood
+                elif (new_emotion == EmotionalState.HAPPY
+                      and self.current_emotion != EmotionalState.HAPPY
+                      and self._emotion_hold_remaining > 0):
+                    self._emotion_hold_remaining -= 1
+                    print(f"   [EmotionSwing] holding {self.current_emotion.name} "
+                          f"({self._emotion_hold_remaining} turn(s) left) instead of reverting")
+                    new_emotion = self.current_emotion  # suppress the early revert
 
         if new_emotion and new_emotion != self.current_emotion:
             print(f"   \u2728 Emotion: {self.current_emotion.name} \u2192 {new_emotion.name}")

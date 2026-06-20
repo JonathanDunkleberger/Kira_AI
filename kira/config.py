@@ -72,6 +72,17 @@ VOICE_EMOTION_PROSODY = {
     "HYPERACTIVE": ("+12%", "+8%"),   # faster, higher — buzzing
 }
 
+# ── Emotion swing (mood persistence; default OFF) ──────────────────────────────
+# The prosody above is only as alive as her emotion SWINGS. Today emotion follows the
+# per-turn classifier, which reverts to HAPPY the moment a turn reads neutral — so a mood
+# beat doesn't linger. ON: once she enters a non-HAPPY mood, HOLD it through up to
+# EMOTION_SWING_HOLD_TURNS subsequent neutral/HAPPY readings before reverting (a genuinely
+# NEW mood still switches immediately; the existing 8-turn decay cap still bounds it, so
+# she never locks). Makes moods last long enough to be audible without being erratic.
+# OFF -> today's per-turn behavior exactly.
+EMOTION_SWING_ENABLED = os.getenv("EMOTION_SWING_ENABLED", "false").lower() == "true"
+EMOTION_SWING_HOLD_TURNS = int(os.getenv("EMOTION_SWING_HOLD_TURNS", "4"))  # extra turns a mood lingers through neutral reads
+
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
 # "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)
