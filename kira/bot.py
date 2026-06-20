@@ -74,6 +74,7 @@ from kira.config import (
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
     BARGE_IN_YIELD_ENABLED,
     EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
+    GLITCH_AWARE_ENABLED, GLITCH_AWARE_COOLDOWN_S, GLITCH_AWARE_CHANCE,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
     LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
@@ -673,6 +674,7 @@ class VTubeBot:
         self._last_sincere_drop_ts: float = 0.0  # cooldown clock for the sincere-drop-through-intensity beat
         self.loopback_desired: bool = LOOPBACK_STT_DEFAULT  # "desktop hearing should be on" — drives the supervisor
         self._last_loopback_deaf_recovery: float = 0.0  # cooldown clock for the alive-but-deaf recovery
+        self._last_glitch_beat_ts: float = 0.0  # rate-limit clock for self-aware glitch reactions
 
         # Moment classifier — updated every observer tick by _classify_moment().
         # Consumers: observer suppress gate (TENSE/CHAOTIC), response-shape token
@@ -4486,6 +4488,8 @@ class VTubeBot:
                           "transcriber restarted).")
                 except Exception as e:
                     print(f"   [LoopbackSupervisor] deaf recovery failed: {e}")
+                # Self-aware glitch beat (rare, rate-limited) — she just went deaf + recovered.
+                asyncio.ensure_future(self._maybe_glitch_beat("deaf"))
                 return "deaf-recovered"
             return "healthy"                              # the common case — silent no-op
         if not aa.is_active():
@@ -6700,6 +6704,34 @@ class VTubeBot:
         self._last_chat_catchup_ts = time.time()
         await self._arbiter_interjection(self._build_chat_catchup_prompt(_picked))
         return True
+
+    async def _maybe_glitch_beat(self, kind: str) -> None:
+        """Rare, rate-limited self-aware reaction to HER OWN glitch (loopback-deaf / mishear /
+        model fallback) — a wink, not a running complaint. Rides the low-priority interjection
+        path (so both guardrail layers apply) and pairs with the FOURTH-WALL AI JOKES disposition.
+        Aggressively rate-limited: a long cooldown AND a probability gate."""
+        if not GLITCH_AWARE_ENABLED or self.is_muted():
+            return
+        now = time.time()
+        if now - self._last_glitch_beat_ts < GLITCH_AWARE_COOLDOWN_S:
+            return  # too soon — keep it RARE
+        if random.random() > GLITCH_AWARE_CHANCE:
+            return  # only sometimes, even off cooldown
+        if self.ai_core.has_pending_voice_turn() or self._active_turn_lock.locked():
+            return  # never step on a real turn
+        self._last_glitch_beat_ts = now
+        _what = {
+            "deaf": "you just went deaf for a moment — audio was there but you caught none of it",
+            "mishear": "you're pretty sure you just misheard that",
+            "fallback": "your brain just hiccupped and rerouted mid-thought",
+        }.get(kind, "you glitched for a second")
+        print(f"   [GlitchBeat] FIRE ({kind})")
+        await self._arbiter_interjection(
+            f"[GLITCH — {_what}. React self-awarely and LIGHTLY: ONE short line, a wink at your "
+            f"own AI-ness, then move on. Don't dwell, don't apologise twice, don't explain.]",
+            scene_override="(A tiny self-aware aside about your own glitch — NOT about the screen. "
+                           "Don't claim to see or hear anything; just wink at the hiccup and move on.)",
+        )
 
     async def _respond_to_chat_batch(self, batch: list, _preemption: str = "none"):
         """Decides what (if anything) to say in response to a batch of chat messages."""

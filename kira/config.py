@@ -83,6 +83,17 @@ VOICE_EMOTION_PROSODY = {
 EMOTION_SWING_ENABLED = os.getenv("EMOTION_SWING_ENABLED", "false").lower() == "true"
 EMOTION_SWING_HOLD_TURNS = int(os.getenv("EMOTION_SWING_HOLD_TURNS", "4"))  # extra turns a mood lingers through neutral reads
 
+# ── Self-aware glitch beats (default OFF) ──────────────────────────────────────
+# Surface HER OWN glitches (loopback went deaf, model fallback, mishear) as a RARE,
+# rate-limited fourth-wall wink ("...I completely blanked, give me a sec") via a
+# low-priority interjection — pairs with the FOURTH-WALL AI JOKES disposition. HARD
+# requirement: aggressively rate-limited so it's a rare wink, not a running complaint —
+# a long cooldown AND a probability gate (only sometimes, even off cooldown). OFF -> silent
+# (glitches stay dev-log only, today's behavior).
+GLITCH_AWARE_ENABLED = os.getenv("GLITCH_AWARE_ENABLED", "false").lower() == "true"
+GLITCH_AWARE_COOLDOWN_S = float(os.getenv("GLITCH_AWARE_COOLDOWN_S", "600.0"))  # min seconds between glitch beats (10 min)
+GLITCH_AWARE_CHANCE = float(os.getenv("GLITCH_AWARE_CHANCE", "0.3"))            # only react this fraction of the time, even off cooldown
+
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge")
 # TTS backend selector — overrides TTS_ENGINE for choosing Azure vs Fish Audio.
 # "azure"  -> Azure Cognitive Speech SDK (default; full word-boundary timing for captions)
