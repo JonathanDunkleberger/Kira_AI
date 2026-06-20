@@ -13,6 +13,7 @@ import traceback
 import random
 import re
 import os
+import json
 import sys
 import gc # Added garbage collection
 import glob
@@ -59,6 +60,7 @@ from kira.config import (
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     DIRECTOR_TAXONOMY_ENABLED, DIRECTOR_BIT_RIPE_S,
+    DIRECTOR_BIT_FATIGUE_ENABLED, DIRECTOR_BIT_RETIRE_CALLBACKS,
     DIRECTOR_CONTINUATION_ENABLED, DIRECTOR_CONTINUE_GAP_S, DIRECTOR_CONTINUE_MAX_STREAK,
     DIRECTOR_SINCERE_DROP_ENABLED, SINCERE_DROP_COOLDOWN_S,
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
@@ -773,6 +775,11 @@ class VTubeBot:
         # prompt until it expires. Session-scoped — cleared at stream start; the bits
         # in session_running_bits are durable (only this cooldown dict resets).
         self._bit_cooldowns: dict[str, dict] = {}
+        # Cross-session bit FATIGUE: normalized bit name -> {"lifetime", "last_ts"}. Durable
+        # across streams (lore/bit_fatigue.json) so a bit worn into the ground stops
+        # resurfacing instead of being "fresh" again next session. Drives the cooldown ramp
+        # + _ripe_open_bit retirement. Loaded once here; write-through on each invocation.
+        self._bit_fatigue: dict[str, dict] = self._load_bit_fatigue()
 
         # Rolling condensed summary of Kira's own session takes (opinions / predictions /
         # grudges / bits). Built periodically from self.session_takes_pool via a cheap
@@ -2183,17 +2190,62 @@ class VTubeBot:
             pass
         return block
 
+    # ── Cross-session bit fatigue (durable) ─────────────────────────────────────
+    _BIT_FATIGUE_PATH = os.path.join("lore", "bit_fatigue.json")
+
+    def _load_bit_fatigue(self) -> dict:
+        """Load the durable per-bit fatigue ledger (lore/bit_fatigue.json). Returns {} on
+        any miss/failure (degrades to fresh) — loudly. Keyed by normalized bit name."""
+        try:
+            with open(self._BIT_FATIGUE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                n = sum(int(v.get("lifetime", 0)) for v in data.values() if isinstance(v, dict))
+                print(f"   [BitFatigue] Loaded {len(data)} bit(s), {n} lifetime invocation(s).")
+                return data
+            print("   [BitFatigue] bit_fatigue.json malformed (not an object) — starting fresh.")
+        except FileNotFoundError:
+            print("   [BitFatigue] no bit_fatigue.json yet — starting fresh.")
+        except Exception as e:
+            print(f"   [BitFatigue] load failed: {e} — starting fresh.")
+        return {}
+
+    def _save_bit_fatigue(self) -> None:
+        """Write-through the fatigue ledger. Best-effort + loud on failure (never raises)."""
+        try:
+            os.makedirs("lore", exist_ok=True)
+            with open(self._BIT_FATIGUE_PATH, "w", encoding="utf-8") as f:
+                json.dump(self._bit_fatigue, f, indent=2)
+        except Exception as e:
+            print(f"   [BitFatigue] save failed (fatigue not persisted this time): {e}")
+
+    def _bit_lifetime(self, name: str) -> int:
+        """Durable lifetime invocation count for a bit (0 if unknown). Normalized key."""
+        key = identity_manager.normalize_chatter_key(name)
+        if not key:
+            return 0
+        return int((self._bit_fatigue.get(key) or {}).get("lifetime", 0))
+
     # ── Reference (running-bit) cooldown ────────────────────────────────────────
     def _stamp_bit_invocation(self, name: str) -> None:
         """Put a running bit on the DOUBLING cooldown (base, 2x, 4x, … capped at
-        BIT_REF_COOLDOWN_MAX_S). Each invocation grows count and extends until_ts."""
+        BIT_REF_COOLDOWN_MAX_S). With cross-session fatigue ON, the doubling is driven by
+        the bit's DURABLE lifetime count (so a worn-out bit stays tired across sessions)
+        and the lifetime is incremented + persisted here; OFF → original session-scoped count."""
         key = identity_manager.normalize_chatter_key(name)
         if not key:
             return
-        count = self._bit_cooldowns.get(key, {}).get("count", 0) + 1
+        if DIRECTOR_BIT_FATIGUE_ENABLED:
+            _rec = self._bit_fatigue.get(key) or {}
+            count = int(_rec.get("lifetime", 0)) + 1          # durable lifetime, carried across sessions
+            self._bit_fatigue[key] = {"lifetime": count, "last_ts": time.time()}
+            self._save_bit_fatigue()                          # write-through (tiny, crash-durable)
+        else:
+            count = self._bit_cooldowns.get(key, {}).get("count", 0) + 1  # legacy: session-scoped
         dur = min(BIT_REF_COOLDOWN_BASE_S * (2 ** (count - 1)), BIT_REF_COOLDOWN_MAX_S)
         self._bit_cooldowns[key] = {"until_ts": time.time() + dur, "count": count}
-        print(f"   [BitCooldown] '{name}' invoked x{count} — resting {int(dur)}s")
+        _tag = f" lifetime" if DIRECTOR_BIT_FATIGUE_ENABLED else ""
+        print(f"   [BitCooldown] '{name}' invoked x{count}{_tag} — resting {int(dur)}s")
 
     def _stamp_bit_invocations(self, text: str) -> None:
         """Detect which running bits this spoken line invoked and cool them. Mirrors
@@ -6317,6 +6369,11 @@ class VTubeBot:
             return None
         now = time.time()
         for b in reversed(self._active_bits_for_prompt(8)):  # off-cooldown, most-recent first
+            # Cross-session fatigue: a bit run into the ground (lifetime invocations past the
+            # retire threshold) goes QUIET — the Director stops proactively resurfacing it.
+            if (DIRECTOR_BIT_FATIGUE_ENABLED
+                    and self._bit_lifetime(b.get("name") or "") >= DIRECTOR_BIT_RETIRE_CALLBACKS):
+                continue
             ref = max(b.get("last_called_back_at", 0.0) or 0.0, b.get("created_at", 0.0) or 0.0)
             if ref == 0.0 or (now - ref) >= DIRECTOR_BIT_RIPE_S:
                 return b

@@ -343,6 +343,15 @@ DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence
 # react/dead_air Director. Builds ON the assertive default-on Director + the live brake.
 DIRECTOR_TAXONOMY_ENABLED = os.getenv("DIRECTOR_TAXONOMY_ENABLED", "true").lower() == "true"
 DIRECTOR_BIT_RIPE_S = float(os.getenv("DIRECTOR_BIT_RIPE_S", "90.0"))  # age before an open bit is "ripe" for a callback payoff
+# Cross-session bit fatigue (default ON): running bits persist across streams, but the
+# reference-cooldown that stops over-calling was session-scoped — so a bit worn out
+# Tuesday was "fresh" again Friday. A small durable sidecar (lore/bit_fatigue.json) tracks
+# each bit's LIFETIME invocation count; the existing doubling cooldown is driven by that
+# lifetime (de-prioritize ramp), and _ripe_open_bit retires a bit once its lifetime hits
+# the threshold (it goes quiet instead of resurfacing). OFF → original session-scoped
+# behavior, byte-for-byte. Reuses the bits store + cooldown + _ripe_open_bit (no rebuild).
+DIRECTOR_BIT_FATIGUE_ENABLED = os.getenv("DIRECTOR_BIT_FATIGUE_ENABLED", "true").lower() == "true"
+DIRECTOR_BIT_RETIRE_CALLBACKS = int(os.getenv("DIRECTOR_BIT_RETIRE_CALLBACKS", "5"))  # lifetime invocations before a bit is retired from proactive callbacks
 # Phase 2 — trigger surgery, default OFF (cadence + intensity-gate changes; flip one at a
 # time and watch). CONTINUATION: a short-gap self-continue — she extends her OWN line a
 # beat after Jonny goes quiet, on its own fast gap (NOT the 15s Director min-gap), with a
