@@ -353,6 +353,35 @@ ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "true").lower
 DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "15.0"))    # assertive floor between Director utterances (boot default; live-tunable)
 DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence that triggers "create" (assertive)
 
+# ── Reading the room (INVISIBLE drive-cadence modifier; default OFF) ────────────
+# Silently dials HOW MUCH the Director drives based on the BEHAVIORAL texture of the
+# interaction (silence, reply terseness, turn-gap, intensity, chat heat) -- NEVER named
+# in speech. Cadence-only: the scalar lives at the Director gate + a [RoomRead] log and
+# nowhere else (zero speech-leak). Errs toward BACKING OFF (asymmetric): widens readily,
+# tightens gently, uncertain -> 1.0. OFF -> multiplier pinned 1.0 -> byte-for-byte today's
+# cadence. All feel knobs (no offline calibration -- dial live watching [RoomRead]).
+READING_THE_ROOM_ENABLED = os.getenv("READING_THE_ROOM_ENABLED", "false").lower() == "true"
+ROOM_TRACKER_N = int(os.getenv("ROOM_TRACKER_N", "6"))                  # rolling window of Jonny's last N voice turns
+ROOM_ENGAGED_CHARS = float(os.getenv("ROOM_ENGAGED_CHARS", "120.0"))    # reply length that reads as "fully engaged"
+ROOM_QUIET_GAP_S = float(os.getenv("ROOM_QUIET_GAP_S", "90.0"))         # turn-gap that reads as fully heads-down
+ROOM_SILENCE_SPAN_S = float(os.getenv("ROOM_SILENCE_SPAN_S", "60.0"))   # current-silence span mapped to silence energy
+ROOM_CHAT_BUSY_RPM = float(os.getenv("ROOM_CHAT_BUSY_RPM", "15.0"))     # chat msgs/min that reads as a busy social room
+# Combining weights (renormalized over inputs that have data this tick):
+ROOM_W_TERSE = float(os.getenv("ROOM_W_TERSE", "0.30"))
+ROOM_W_GAP = float(os.getenv("ROOM_W_GAP", "0.25"))
+ROOM_W_SILENCE = float(os.getenv("ROOM_W_SILENCE", "0.20"))
+ROOM_W_INTENSITY = float(os.getenv("ROOM_W_INTENSITY", "0.10"))
+ROOM_W_CHAT = float(os.getenv("ROOM_W_CHAT", "0.15"))
+# Asymmetric energy->multiplier map (room_energy: 0=heads-down .. 1=loose):
+ROOM_E_NEUTRAL = float(os.getenv("ROOM_E_NEUTRAL", "0.5"))              # energy mapping to multiplier 1.0
+ROOM_WIDEN_CEIL = float(os.getenv("ROOM_WIDEN_CEIL", "2.0"))            # max widen (back off) at energy 0
+ROOM_TIGHTEN_FLOOR = float(os.getenv("ROOM_TIGHTEN_FLOOR", "0.85"))     # min multiplier at energy 1 (set 1.0 = back-off-ONLY mode)
+# Smoothing (build-blocking: dial DRIFTS, never jitters) + absolute caps (dead-air floor):
+ROOM_SMOOTH_TAU_S = float(os.getenv("ROOM_SMOOTH_TAU_S", "30.0"))       # EMA time-constant (uses tick_dt; holds at 1s & 5s ticks)
+ROOM_MAX_SLEW = float(os.getenv("ROOM_MAX_SLEW", "0.03"))               # max multiplier change PER SECOND
+ROOM_DEAD_AIR_MAX_S = float(os.getenv("ROOM_DEAD_AIR_MAX_S", "60.0"))   # true dead air ALWAYS filled within this
+ROOM_MIN_GAP_MAX_S = float(os.getenv("ROOM_MIN_GAP_MAX_S", "120.0"))    # effective min-gap ceiling (matches dashboard brake max)
+
 # ── Director self-driven-speech taxonomy (teaching the 5 variants) ─────────────
 # Phase 1 (default ON): instead of ONE generic "say something proactive" prompt, the
 # Director picks among CALLBACK / NOTICING / PIVOT each beat (cheap priority ladder, no

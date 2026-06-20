@@ -59,6 +59,10 @@ from kira.config import (
     DIARY_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
+    READING_THE_ROOM_ENABLED, ROOM_TRACKER_N, ROOM_ENGAGED_CHARS, ROOM_QUIET_GAP_S,
+    ROOM_SILENCE_SPAN_S, ROOM_CHAT_BUSY_RPM, ROOM_W_TERSE, ROOM_W_GAP, ROOM_W_SILENCE,
+    ROOM_W_INTENSITY, ROOM_W_CHAT, ROOM_E_NEUTRAL, ROOM_WIDEN_CEIL, ROOM_TIGHTEN_FLOOR,
+    ROOM_SMOOTH_TAU_S, ROOM_MAX_SLEW, ROOM_DEAD_AIR_MAX_S, ROOM_MIN_GAP_MAX_S,
     DIRECTOR_TAXONOMY_ENABLED, DIRECTOR_BIT_RIPE_S,
     DIRECTOR_BIT_FATIGUE_ENABLED, DIRECTOR_BIT_RETIRE_CALLBACKS,
     DIRECTOR_CONTINUATION_ENABLED, DIRECTOR_CONTINUE_GAP_S, DIRECTOR_CONTINUE_MAX_STREAK,
@@ -651,6 +655,13 @@ class VTubeBot:
         # promoted from the module constant so the dashboard can pull her back mid-stream
         # (no restart). env DIRECTOR_MIN_GAP_S is the boot default; control_server mutates this.
         self.director_min_gap_s: float = DIRECTOR_MIN_GAP_S
+        # Reading the room (INVISIBLE cadence modifier). CADENCE-STATE ONLY — read at the
+        # Director gate + the [RoomRead] log, NEVER in any prompt string (leak invariant).
+        self.room_drive_multiplier: float = 1.0   # smoothed drive-cadence scaler; 1.0 = neutral/off
+        self._room_mult_logged: float = 1.0        # last-logged value (for [RoomRead] on-change)
+        # Rolling reply-texture of Jonny's voice turns: (reply_len_chars, ts) ONLY -- never
+        # his words, so even the raw input cannot carry content toward a prompt.
+        self._reply_texture: list = []
         # Director taxonomy Phase 2 (default-OFF triggers):
         self._continue_streak: int = 0          # consecutive self-continues; reset when Jonny speaks
         self._last_sincere_drop_ts: float = 0.0  # cooldown clock for the sincere-drop-through-intensity beat
@@ -5642,6 +5653,11 @@ class VTubeBot:
                         # Jonny spoke → reset the self-continue streak so she may extend her
                         # own thread again after THIS new exchange (one continuation per turn).
                         self._continue_streak = 0
+                        # Reading-the-room tracker: log this voice turn's LENGTH + time only
+                        # (never the words) for the reply-texture signals. Voice-only.
+                        self._reply_texture.append((len((content or "").strip()), time.time()))
+                        if len(self._reply_texture) > ROOM_TRACKER_N:
+                            self._reply_texture = self._reply_texture[-ROOM_TRACKER_N:]
                         _new_obj = self._detect_objective(content)
                         if _new_obj:
                             self._set_objective(_new_obj)
@@ -6326,7 +6342,71 @@ class VTubeBot:
             or (self.current_activity or "").strip()
         )
 
+    # Reading-the-room intensity energy — ACTIVE range only (the intensity-suppression
+    # gate already owns TENSE/INTENSE/CLIMACTIC/CUTSCENE; absent here -> excluded).
+    _ROOM_INTENSITY_ENERGY = {
+        "CALM": 0.6, "BUILDING": 0.4, "EMOTIONAL": 0.3, "AFTERMATH": 0.3,
+    }
+
+    def _update_room_multiplier(self, silence_duration: float, tick_dt: float) -> None:
+        """READING THE ROOM (invisible): infer the BEHAVIORAL texture of the interaction
+        and smooth a drive-cadence scalar onto self.room_drive_multiplier.
+
+        LEAK INVARIANT: this value and every signal it reads are CADENCE-STATE ONLY —
+        consumed at the Director gate and the [RoomRead] log, NEVER in any prompt string.
+        Pure behavioral signals (no emotion model). Errs toward BACKING OFF (asymmetric);
+        uncertain -> 1.0; EMA + per-second slew clamp so the dial DRIFTS, never jitters."""
+        if not READING_THE_ROOM_ENABLED:
+            return
+        import math
+        # ── component energies in [0,1] (higher = looser/more social) ──
+        comps = {}  # name -> (energy, weight); only inputs WITH data this tick
+        rt = self._reply_texture
+        if len(rt) >= 2:
+            mean_len = sum(n for (n, _t) in rt) / len(rt)
+            gaps = [rt[i][1] - rt[i - 1][1] for i in range(1, len(rt))]
+            mean_gap = sum(gaps) / len(gaps)
+            comps["terse"] = (max(0.0, min(1.0, mean_len / ROOM_ENGAGED_CHARS)), ROOM_W_TERSE)
+            comps["gap"] = (max(0.0, min(1.0, 1.0 - mean_gap / ROOM_QUIET_GAP_S)), ROOM_W_GAP)
+        comps["silence"] = (max(0.0, min(1.0, 1.0 - silence_duration / ROOM_SILENCE_SPAN_S)), ROOM_W_SILENCE)
+        _ie = self._ROOM_INTENSITY_ENERGY.get(self.current_moment_type.name)
+        if _ie is not None:
+            comps["intensity"] = (_ie, ROOM_W_INTENSITY)
+        # Guard 4: chat heat only counts as a SOCIAL-room signal when NOT heads-down.
+        _game_focused = getattr(self.game_mode_controller, "activity_type", "general") == ACTIVITY_GAME
+        if not self.chat_lock_in and not _game_focused:
+            comps["chat"] = (max(0.0, min(1.0, self.get_chat_rate_per_min() / ROOM_CHAT_BUSY_RPM)), ROOM_W_CHAT)
+
+        # ── combine over AVAILABLE inputs; no data -> neutral target ──
+        wsum = sum(w for (_e, w) in comps.values())
+        if wsum <= 0:
+            room_energy, target = None, 1.0
+        else:
+            room_energy = sum(e * w for (e, w) in comps.values()) / wsum
+            if room_energy <= ROOM_E_NEUTRAL:   # heads-down -> WIDEN (back off)
+                target = 1.0 + (ROOM_E_NEUTRAL - room_energy) / ROOM_E_NEUTRAL * (ROOM_WIDEN_CEIL - 1.0)
+            else:                                # loose -> tighten gently
+                target = 1.0 - (room_energy - ROOM_E_NEUTRAL) / (1.0 - ROOM_E_NEUTRAL) * (1.0 - ROOM_TIGHTEN_FLOOR)
+
+        # ── Guard 1: EMA + per-second slew clamp (drifts, never jitters) ──
+        dt = max(0.001, tick_dt)
+        step = (1.0 - math.exp(-dt / ROOM_SMOOTH_TAU_S)) * (target - self.room_drive_multiplier)
+        max_step = ROOM_MAX_SLEW * dt
+        step = max(-max_step, min(max_step, step))
+        self.room_drive_multiplier += step
+
+        # ── [RoomRead] log on meaningful change (dev-facing ONLY; never speech) ──
+        if abs(self.room_drive_multiplier - self._room_mult_logged) >= 0.02:
+            self._room_mult_logged = self.room_drive_multiplier
+            _avail = " ".join(f"{k}={e:.2f}" for k, (e, _w) in comps.items())
+            _re = f"{room_energy:.2f}" if room_energy is not None else "n/a(neutral)"
+            _eff_gap = min(self.director_min_gap_s * self.room_drive_multiplier, ROOM_MIN_GAP_MAX_S)
+            _eff_da = min(DIRECTOR_DEAD_AIR_S * self.room_drive_multiplier, ROOM_DEAD_AIR_MAX_S)
+            print(f"   [RoomRead] energy={_re} [{_avail}] target={target:.2f} "
+                  f"mult={self.room_drive_multiplier:.2f} -> min_gap={_eff_gap:.0f}s dead_air={_eff_da:.0f}s")
+
     def _live_thread_context(self) -> str:
+        # cadence-only: never inject room_* here
         """The LIVE THREAD rail (taxonomy): her last line + Jonny's last + a cheap cached
         scene gist, so EVERY proactive variant stays anchored to what's actually happening
         instead of wandering into a non-sequitur. Cheap — no I/O, no fresh capture. Returns
@@ -6393,6 +6473,7 @@ class VTubeBot:
         """Scene override per variant — also bypasses _execute_interjection's fresh-sense
         gate for variants that legitimately fire without fresh perception. 'noticing' uses
         live vision (no override)."""
+        # cadence-only: never inject room_* here
         return {
             "noticing": "",
             "pivot": self._DIRECTOR_DEAD_AIR_SCENE,
@@ -6405,6 +6486,7 @@ class VTubeBot:
         """Taxonomy prompt: the LIVE THREAD rail + a variant-specific framing, then the
         shared drive/commit/length body. Each variant is anchored to the thread so it lands
         connected, not as a non-sequitur. Reuses the goal/agenda/bits/heads-down blocks."""
+        # cadence-only: never inject room_* here
         thread = self._live_thread_context()
         bit = self._ripe_open_bit() if variant == "callback" else None
         if variant == "callback" and not bit:
@@ -6466,6 +6548,7 @@ class VTubeBot:
         grounding ride along via _execute_interjection (_kira_voice_guardrails + the visual
         directive) + the _speak_single backstop, so this never restates the boundary nor
         injects an event she can't perceive."""
+        # cadence-only: never inject room_* here
         if mode not in ("react", "dead_air"):
             return self._build_director_variant_prompt(mode)
         _mode_line = (
@@ -8244,6 +8327,10 @@ class VTubeBot:
             # what's happening without spamming on every 1s tick.
             _moment = self._classify_moment(silence_duration)
             self.current_moment_type = _moment
+            # Reading the room (invisible): refresh the smoothed drive-cadence multiplier
+            # from behavioral signals. CADENCE-STATE ONLY (consumed at the Director gate +
+            # the [RoomRead] log; never a prompt). No-op when READING_THE_ROOM_ENABLED is off.
+            self._update_room_multiplier(silence_duration, _tick)
             if _moment != self._prev_moment_type:
                 self._prev_moment_type = _moment
                 # Log the EVENT-GATED summary — the exact value the classifier saw.
@@ -8369,9 +8456,15 @@ class VTubeBot:
                 # note so she drives the GAME + Jonny without yapping at chat.
                 if not self.ai_core.has_pending_voice_turn():
                     _dir_gap = time.time() - self._last_director_ts
-                    if _dir_gap >= self.director_min_gap_s:  # live-tunable brake (dashboard), defaults to DIRECTOR_MIN_GAP_S
+                    # Reading-the-room: scale the LIVE brake so Jonny's manual pull-back
+                    # dominates (Guard 3); OFF -> 1.0 (byte-for-byte today). Absolute caps
+                    # (Guard 2) keep true dead air always filled even at max widening.
+                    _room_mult = self.room_drive_multiplier if READING_THE_ROOM_ENABLED else 1.0
+                    _eff_min_gap = min(self.director_min_gap_s * _room_mult, ROOM_MIN_GAP_MAX_S)
+                    if _dir_gap >= _eff_min_gap:  # live brake x room multiplier (capped)
                         _fresh_ok, _fresh_label = self._has_fresh_sense()
-                        _dead_air = silence_duration >= DIRECTOR_DEAD_AIR_S
+                        _eff_dead_air = min(DIRECTOR_DEAD_AIR_S * _room_mult, ROOM_DEAD_AIR_MAX_S)
+                        _dead_air = silence_duration >= _eff_dead_air
                         if _fresh_ok or _dead_air:
                             self._last_director_ts = time.time()
                             if DIRECTOR_TAXONOMY_ENABLED:
