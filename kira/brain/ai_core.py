@@ -40,7 +40,8 @@ EMOTION_DESCRIPTORS = {
     EmotionalState.HYPERACTIVE: "You are buzzing with excitement. Ramble a little. Everything feels more interesting than normal.",
 }
 from kira.persona.prompt_loader import load_personality_txt
-from kira.persona.prompt_rules import TOOL_AND_FORMAT_RULES, IMPROV_DISPOSITION
+from kira.persona.prompt_rules import TOOL_AND_FORMAT_RULES, IMPROV_DISPOSITION, build_comedic_disposition
+from kira.config import AIRINESS_LEVEL
 from kira.persona.streamer_overlay import STREAMER_OVERLAY
 
 # Graceful SDK imports
@@ -261,6 +262,7 @@ class AI_Core:
             new_personality = load_personality_txt("personality.txt")
             self.system_prompt = (new_personality.strip() + "\n\n"
                                   + IMPROV_DISPOSITION.strip() + "\n\n"
+                                  + build_comedic_disposition(AIRINESS_LEVEL)
                                   + TOOL_AND_FORMAT_RULES.strip())
             print("   ✅ Personality reloaded successfully.")
             print("----- NEW SYSTEM PROMPT SNAPSHOT -----")
@@ -316,6 +318,7 @@ class AI_Core:
         # Director, deep moments, local fallback — never a mode, and cached as Block A.
         self.system_prompt = (KIRA_PERSONALITY.strip() + "\n\n"
                               + IMPROV_DISPOSITION.strip() + "\n\n"
+                              + build_comedic_disposition(AIRINESS_LEVEL)
                               + TOOL_AND_FORMAT_RULES.strip())
 
         # Routing decision: skip loading the GGUF into VRAM unless we actually

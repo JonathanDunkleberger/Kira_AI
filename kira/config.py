@@ -394,6 +394,16 @@ ROOM_MIN_GAP_MAX_S = float(os.getenv("ROOM_MIN_GAP_MAX_S", "120.0"))    # effect
 # Her REAL reply (P0 speak_streaming) is never affected — only the proactive interjection path.
 BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "false").lower() == "true"
 
+# ── Airiness / comedic disposition (behavioral; dialable by config) ────────────
+# How airy/weird/unhinged she chooses to be, injected at the generation chokepoint
+# (between persona and tool rules) so it shapes EVERY utterance — voice, interjection,
+# Director, deep, fallback. It's a DISPOSITION (how she picks what to say), not a persona
+# rewrite: her identity/traits/lore/maturity are untouched, and the chaos always loops
+# back to her sweet/grounded core (the anchor). 0.0 = off (restrained, ~today's behavior);
+# 0.7 = bold default (noticeably airier — dial DOWN from here if it's too much). Edit this
+# in .env + restart to re-dial; no code change. Stays inside the content boundary always.
+AIRINESS_LEVEL = max(0.0, min(1.0, float(os.getenv("AIRINESS_LEVEL", "0.7"))))
+
 # ── Director self-driven-speech taxonomy (teaching the 5 variants) ─────────────
 # Phase 1 (default ON): instead of ONE generic "say something proactive" prompt, the
 # Director picks among CALLBACK / NOTICING / PIVOT each beat (cheap priority ladder, no
