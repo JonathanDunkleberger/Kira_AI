@@ -254,6 +254,23 @@ class AI_Core:
 
             self.is_initialized = True
             print("   AI Core initialized successfully!")
+            # Boot-time feel-flag summary. These are read at boot; AIRINESS especially is
+            # baked into the cached system prompt and is NOT live-tunable (only a restart
+            # changes it). Surfacing them here so a glance at boot confirms exactly what is
+            # live this session — this would have caught both the "flags were off" and the
+            # "airiness toggle did nothing mid-session" confusions.
+            from kira import config as _cfg
+            _air_pct = int(round(_cfg.AIRINESS_LEVEL * 100))
+            print(f"   [Airiness] level = {_air_pct}% "
+                  f"(set AIRINESS_LEVEL in .env + restart to change - not live-tunable)")
+            print("   [Config] feel flags live this session: "
+                  f"AIRINESS={_air_pct}% "
+                  f"VOICE_EMOTION={_cfg.VOICE_EMOTION_ENABLED} "
+                  f"EMOTION_SWING={_cfg.EMOTION_SWING_ENABLED} "
+                  f"GLITCH_AWARE={_cfg.GLITCH_AWARE_ENABLED} "
+                  f"MEMORY_SMART={_cfg.MEMORY_SMART_RETRIEVAL_ENABLED} "
+                  f"READING_THE_ROOM={_cfg.READING_THE_ROOM_ENABLED} "
+                  f"BARGE_IN={_cfg.BARGE_IN_YIELD_ENABLED}")
         except Exception as e:
             print(f"FATAL: AI Core failed to initialize: {e}")
             self.is_initialized = False

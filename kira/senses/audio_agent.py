@@ -402,16 +402,24 @@ class AudioAgent:
             return None
 
         # Priority 1: explicit preferred name match
+        pref_missing = False
         if preferred_name:
             for d in devices:
                 if preferred_name.lower() in d.get("name", "").lower():
                     print(f"   [Audio] Using dashboard-selected device: {d.get('name')}")
                     return d
-            # FIX 2: do NOT fail silently. The saved/selected device is gone (unplugged,
-            # renamed, different machine) — announce it loudly, then fall back to the
-            # Windows default below so hearing still works.
-            print(f"   [Audio] ⚠ Saved device '{preferred_name}' not found — "
-                  f"falling back to default loopback. Re-select your device in the dashboard.")
+            # Saved/selected device is gone (unplugged, renamed, different machine). Do
+            # NOT fail silently. We DEFER the loud warning until we know the ACTUAL device
+            # we land on below, so the warning can name BOTH the missing source and the
+            # one we fell back to — the silent fallback to the wrong audio source cost a
+            # whole test session (transcribed the VB-Cable instead of the saved device).
+            pref_missing = True
+
+        def _warn_wrong_source(actual_name):
+            print(f"   [LoopbackSTT] WARNING - preferred device '{preferred_name}' not found, "
+                  f"fell back to '{actual_name}'.")
+            print(f"   [LoopbackSTT]   You may be transcribing the WRONG audio source - plug in / "
+                  f"enable '{preferred_name}' before boot, or re-save your device pref.")
 
         # Priority 2: the Windows DEFAULT playback device's loopback. In a cable-routed
         # streaming rig the default is the VB-Audio Cable — which carries the ACTUAL
@@ -425,6 +433,8 @@ class AudioAgent:
             if default:
                 tag = " (virtual cable — program audio)" if self._is_virtual_device(default) else ""
                 print(f"   [Audio] Using default WASAPI loopback: {default.get('name')}{tag}")
+                if pref_missing:
+                    _warn_wrong_source(default.get('name'))
                 return default
         except Exception:
             pass
@@ -433,11 +443,15 @@ class AudioAgent:
         for d in devices:
             if not self._is_virtual_device(d):
                 print(f"   [Audio] No default loopback available — using non-virtual: {d.get('name')}")
+                if pref_missing:
+                    _warn_wrong_source(d.get('name'))
                 return d
 
         # Priority 4: anything (last resort, warn user)
         print(f"   [Audio] Only virtual loopback devices found. Using: {devices[0].get('name')}")
         print("           Configure your real speakers in Windows Sound Settings or set device manually in dashboard.")
+        if pref_missing:
+            _warn_wrong_source(devices[0].get('name'))
         return devices[0]
 
     def list_available_loopback_devices(self) -> list:
