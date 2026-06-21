@@ -1402,17 +1402,48 @@ class AI_Core:
         if VOICE_EMOTION_BREAK_MS > 0:
             _brk = f'<break time="{VOICE_EMOTION_BREAK_MS}ms"/>'
             inner = inner.replace("...", "..." + _brk).replace("…", "…" + _brk)
-        # Nested per-emotion prosody delta (only when non-neutral).
-        _attrs = []
-        if rate_d and rate_d not in ("+0%", "0%"):
-            _attrs.append(f'rate="{rate_d}"')
-        if pitch_d and pitch_d not in ("+0%", "0%"):
-            _attrs.append(f'pitch="{pitch_d}"')
-        if _attrs:
-            inner = f'<prosody {" ".join(_attrs)}>{inner}</prosody>'
+        # Per-emotion prosody delta (only when non-neutral). PREFERRED form: fold the
+        # emotion PITCH into the SINGLE base <prosody> as one ABSOLUTE value
+        # (base + delta) so it can NEVER compound. The old form nested an inner
+        # <prosody pitch=...> inside the base, and Azure compounds nested relative
+        # pitch (+25% base then +8% -> ~+35% effective = chipmunk). Combining is only
+        # safe when there's no rate delta (rate is pinned +0%) and both values are
+        # plain percentages; otherwise fall back to the legacy nested form.
+        has_rate = bool(rate_d) and rate_d not in ("+0%", "0%")
+        has_pitch = bool(pitch_d) and pitch_d not in ("+0%", "0%")
+
+        def _pct(v):
+            v = (v or "").strip()
+            if v.endswith("%"):
+                try:
+                    return int(v[:-1])
+                except ValueError:
+                    return None
+            return None
+
+        combined_pitch = None
+        if has_pitch and not has_rate:
+            _b, _d = _pct(AZURE_PROSODY_PITCH), _pct(pitch_d)
+            if _b is not None and _d is not None:
+                combined_pitch = f'{_b + _d:+d}%'
+
+        if combined_pitch is not None:
+            # One base prosody, absolute pitch — no nesting, no compounding.
+            body = f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{combined_pitch}">{inner}</prosody>'
+        else:
+            # Fallback: legacy nested deltas inside the base prosody (pitch compounds).
+            _attrs = []
+            if has_rate:
+                _attrs.append(f'rate="{rate_d}"')
+            if has_pitch:
+                _attrs.append(f'pitch="{pitch_d}"')
+            if _attrs:
+                inner = f'<prosody {" ".join(_attrs)}>{inner}</prosody>'
+            body = f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{inner}</prosody>'
+
         return (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
                 f'<voice name="{AZURE_SPEECH_VOICE}">'
-                f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{inner}</prosody>'
+                f'{body}'
                 f'</voice></speak>')
 
     async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False):

@@ -73,7 +73,7 @@ VOICE_EMOTION_PROSODY = {
     "MOODY":       ("+0%",  "-4%"),   # lower — withdrawn (same speed)
     "SASSY":       ("+0%",  "+5%"),   # brighter — snappy via pitch, not rate
     "EMOTIONAL":   ("+0%",  "-3%"),   # softer — intimate (same speed)
-    "HYPERACTIVE": ("+0%",  "+8%"),   # higher — buzzing (same speed)
+    "HYPERACTIVE": ("+0%",  "+0%"),   # base only — +8% chipmunked on the bright +25% base (was the chipmunk culprit)
 }
 
 # ── Emotion swing (mood persistence; default OFF) ──────────────────────────────
