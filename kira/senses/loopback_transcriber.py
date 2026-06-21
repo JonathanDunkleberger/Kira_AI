@@ -486,9 +486,22 @@ class LoopbackTranscriber:
         device = self.DEVICE
         compute_type = self.COMPUTE_TYPE
         if not torch.cuda.is_available():
-            print("   [LoopbackSTT] CUDA not available — falling back to CPU int8 (will be slow).")
+            # No-silent-failure (CLAUDE.md rule 3): a CPU fallback makes STT ~10x
+            # slower (11-18s per utterance — it stalls every reply). Make it LOUD and
+            # impossible to miss in the boot log.
+            print("   " + "!" * 64)
+            print("   [LoopbackSTT] *** CUDA NOT AVAILABLE — LOOPBACK STT FALLING BACK TO CPU ***")
+            print("   [LoopbackSTT] *** distil-large-v3 on CPU is ~10x slower (11-18s/utterance). ***")
+            print("   [LoopbackSTT] *** Reinstall a CUDA-enabled PyTorch build to restore GPU STT. ***")
+            print("   " + "!" * 64)
             device = "cpu"
             compute_type = "int8"
+        # Truth fix: record the ACTUAL device/compute we loaded on, so the
+        # "Started — ... on {self.DEVICE}" line (and any later status read) reports
+        # reality instead of the static "cuda" default. Previously self.DEVICE stayed
+        # "cuda" even on a CPU fallback, so the boot log LIED about GPU STT.
+        self.DEVICE = device
+        self.COMPUTE_TYPE = compute_type
         os.makedirs(self.cache_dir, exist_ok=True)
         print(f"   [LoopbackSTT] Loading {self.MODEL_NAME} ({device} / {compute_type}) "
               f"from cache_dir={self.cache_dir} ...")

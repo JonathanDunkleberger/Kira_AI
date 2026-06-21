@@ -415,13 +415,21 @@ class AI_Core:
             print(f"   CUDA Detected: {torch.cuda.get_device_name(0)}")
             device = "cuda"
         else:
-            print("   WARNING: CUDA NOT DETECTED! Whisper will run on CPU (Slow).")
+            # No-silent-failure (CLAUDE.md rule 3): mic STT on CPU is ~10x slower and
+            # silently wrecked a whole watch session (18-22s replies). Loud banner so
+            # a broken/CPU-only PyTorch install can never hide behind one grey line.
+            print("   " + "!" * 64)
+            print("   [Whisper] *** CUDA NOT DETECTED — MIC STT FALLING BACK TO CPU ***")
+            print(f"   [Whisper] *** {WHISPER_MODEL_SIZE} on CPU is ~10x slower (multi-second STT per reply). ***")
+            print("   [Whisper] *** Reinstall a CUDA-enabled PyTorch build to restore GPU STT. ***")
+            print("   " + "!" * 64)
             device = "cpu"
 
         import os as _os
         _os.makedirs(WHISPER_CACHE_DIR, exist_ok=True)
-        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType=float16 | Cache={WHISPER_CACHE_DIR}")
-        self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type="float16", download_root=WHISPER_CACHE_DIR)
+        compute_type = "float16" if device == "cuda" else "int8"
+        print(f"   Whisper Config: Model={WHISPER_MODEL_SIZE} | Device={device} | ComputeType={compute_type} | Cache={WHISPER_CACHE_DIR}")
+        self.whisper = WhisperModel(WHISPER_MODEL_SIZE, device=device, compute_type=compute_type, download_root=WHISPER_CACHE_DIR)
         print("   Faster-Whisper STT model loaded.")
         try:
             from kira.gpu_telemetry import log_vram
