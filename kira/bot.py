@@ -3880,7 +3880,16 @@ class VTubeBot:
         for kw in MEDIA_KEYWORDS:
             if kw in lower:
                 return ACTIVITY_MEDIA
-        return ACTIVITY_GAME  # generic fallback
+        # No silent misclassification (CLAUDE.md rule 3): an unrecognized title used to
+        # fall through to GAME, which mis-armed game mode for anime/media ("Legend of
+        # Korra" -> GAME, force-set audio to MEDIA + clip extraction + 10s heartbeat).
+        # Default to GENERAL instead — the SAFE register: no audio-force, no clip
+        # extraction, calm heartbeat. Say so LOUDLY so the fallback is visible and the
+        # user can re-type with a keyword (e.g. 'anime'/'movie') or pick a category.
+        print(f"   [Activity] '{activity}' matched no VN/MEDIA keyword — defaulting to "
+              f"GENERAL (not GAME). Add a keyword like 'anime'/'movie', or pick an "
+              f"explicit category, to arm game/media mode.")
+        return ACTIVITY_GENERAL
 
     # ── Moment classifier ────────────────────────────────────────────────────
 
