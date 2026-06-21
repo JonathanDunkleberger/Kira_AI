@@ -64,12 +64,16 @@ VOICE_EMOTION_ENABLED = os.getenv("VOICE_EMOTION_ENABLED", "false").lower() == "
 VOICE_EMOTION_BREAK_MS = int(os.getenv("VOICE_EMOTION_BREAK_MS", "180"))  # deadpan beat inserted at "..." (0 = off)
 # Per-emotion prosody DELTAS (rate, pitch), nested inside the base prosody. TUNABLE TABLE —
 # edit these to dial each mood's voice. Small/tasteful = audible mood, not cartoonish.
+# RATE is pinned to +0% for EVERY emotion on purpose: one constant speaking speed is
+# what makes deadpan land. Mood rides on PITCH ONLY. Speed shifts killed the comedic
+# timing (and dragged the baseline during slow moods), so rate variation is gone —
+# do not re-add it. Only the pitch column should ever be tuned here.
 VOICE_EMOTION_PROSODY = {
     "HAPPY":       ("+0%",  "+0%"),   # neutral-bright (base is already +25% pitch)
-    "MOODY":       ("-8%",  "-4%"),   # slower, lower — withdrawn
-    "SASSY":       ("+5%",  "+5%"),   # snappier, brighter
-    "EMOTIONAL":   ("-12%", "-3%"),   # slower, softer — intimate
-    "HYPERACTIVE": ("+12%", "+8%"),   # faster, higher — buzzing
+    "MOODY":       ("+0%",  "-4%"),   # lower — withdrawn (same speed)
+    "SASSY":       ("+0%",  "+5%"),   # brighter — snappy via pitch, not rate
+    "EMOTIONAL":   ("+0%",  "-3%"),   # softer — intimate (same speed)
+    "HYPERACTIVE": ("+0%",  "+8%"),   # higher — buzzing (same speed)
 }
 
 # ── Emotion swing (mood persistence; default OFF) ──────────────────────────────
