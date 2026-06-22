@@ -660,6 +660,11 @@ class VTubeBot:
         self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
         self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
         self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
+        # ② Current want — the single through-line her constant self has LATCHED onto right
+        # now (a take she's defending, someone she's rooting for, a bit she's on). Cheaply
+        # derived (no per-turn LLM) from the strongest feeling / freshest take / active bit;
+        # re-forms on activity change, but mood + grudges (valence) carry over the swap.
+        self.current_want: str = ""
         self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
         self.director_enabled: bool = ACTIVITY_DIRECTOR_ENABLED  # env = BOOT DEFAULT (now true); dashboard toggle is the "ease OFF" lever
         # Live brake on assertive driving: the hard min-gap between Director utterances,
@@ -3362,6 +3367,9 @@ class VTubeBot:
                     self.session_takes_summary = cleaned
                     print(f"   [SessionTakes] Condensed {len(snapshot)} reactions → "
                           f"{len(lines)} bullets (hard-capped).")
+                    # ② Refresh the current-want on the same cadence as take-condensing
+                    # ("every N reactions") — cheap heuristic, no extra LLM call.
+                    self._refresh_current_want()
                 self.session_takes_last_condensed_count = len(snapshot)
                 self.session_takes_last_condensed_at = time.time()
             except Exception as e:
@@ -3488,6 +3496,11 @@ class VTubeBot:
 
         self.current_activity = name
         self.vision_agent.activity_type = new_type
+        # ② Re-form the current-want around the NEW object on an activity swap (Korra →
+        # Pragmata). Her core self (mood + valence/grudges) persists; only the want
+        # latches onto something new. Clear first so a stale want can't bleed across.
+        self.current_want = ""
+        self._refresh_current_want()
 
         if GAME_MODE_AUTO_CONFIGURE:
             if new_type == ACTIVITY_GAME:
@@ -6571,6 +6584,37 @@ class VTubeBot:
             f"{_goal}{_agenda}{_bits_block}{_heads_down}"
         )
 
+    def _refresh_current_want(self) -> None:
+        """② Re-derive the single through-line her self has latched onto — cheap heuristic,
+        NO per-turn LLM. Priority: strongest current FEELING (root for / call out) >
+        freshest session TAKE > active running BIT. Called every N reactions (take-condense
+        cadence) and on activity change. Re-forms around the new object on a swap; mood +
+        grudges (valence) persist across it (the 'constant core, evolving form' model)."""
+        if not CURRENT_WANT_ENABLED:
+            return
+        want = ""
+        ks = self.kira_state
+        if ks is not None:
+            best = None
+            for e in getattr(ks, "entity_familiarity", {}):
+                v = ks.entity_valence.get(e, 0.0)
+                if abs(v) >= 0.3 and (best is None or abs(v) > abs(best[1])):
+                    best = (e, v)
+            if best:
+                e, v = best
+                want = f"rooting for {e}" if v > 0 else f"calling out {e} — you don't trust them"
+        if not want and self.session_takes_summary:
+            _first = next((l.strip(" -•\t") for l in self.session_takes_summary.splitlines() if l.strip()), "")
+            if _first:
+                want = f"pushing your take: {_first[:80]}"
+        if not want:
+            _bits = self._active_bits_for_prompt(1)
+            if _bits:
+                want = f"keeping the bit alive — {_bits[0].get('name','')}"
+        if want and want != self.current_want:
+            self.current_want = want
+            print(f"   [CurrentWant] now: {want}")
+
     def _build_self_block(self) -> str:
         """Compact "[WHO YOU ARE RIGHT NOW]" self — mood + current feelings + standing
         takes (+ current want [②] and Jonny-bond [④], added in their commits). Injected
@@ -6603,8 +6647,11 @@ class VTubeBot:
             _take_lines = [l.strip(" -•\t") for l in _takes.splitlines() if l.strip()][:2]
             if _take_lines:
                 lines.append("- Your standing takes: " + "; ".join(_take_lines))
-        # [WHAT YOU'RE ON RIGHT NOW — item ②] and [You and Jonny — item ④] are appended
-        # here in their own commits, so this block is the single coherent self.
+        # ② Current want — the through-line her reactions should ladder toward.
+        if CURRENT_WANT_ENABLED and self.current_want:
+            lines.append(f"- What you're on right now: {self.current_want}")
+        # [You and Jonny — item ④] appended here in its commit, so this block is the
+        # single coherent self.
         if not lines:
             return ""
         header = ("[WHO YOU ARE RIGHT NOW — you're not a neutral observer; react to the "
@@ -9904,6 +9951,12 @@ class VTubeBot:
                         f"session, not external information to cite. Let them shape how you react; "
                         f"don\u2019t recite them. Do NOT open the session by referencing this material — "
                         f"let it surface only when a moment naturally invites it.]\n{self.recent_activity_brief}"
+                    )
+                # ② Current want — the through-line in BOTH paths so replies ladder toward it too.
+                if CURRENT_WANT_ENABLED and self.current_want:
+                    dynamic_context += (
+                        f"\n\n[WHAT YOU'RE ON RIGHT NOW — the thread you've latched onto this stretch. "
+                        f"Let your reactions ladder toward it; don't announce it.]\n- {self.current_want}"
                     )
                 # Kira's OWN favorites — answer "what's YOUR favorite" from HERE, never from Jonny's facts
                 if self.kira_favorites_brief:
