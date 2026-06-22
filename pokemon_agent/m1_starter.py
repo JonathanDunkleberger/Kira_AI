@@ -7,13 +7,14 @@ events that route to bot._pokemon_react in the live path.
 
 TWO STEPS (honest - the lab route + ball tiles are NOT assumed):
 
-1) CAPTURE (you do this once, ~2 min):
+1) CAPTURE (you do this once, ~2 min) - PER-BALL prompt-ready savestates:
    .venv\\Scripts\\python.exe pokemon_agent\\m1_starter.py --capture
    Boots + auto-clears the intro, then YOU drive (arrows/Z/X) from the bedroom to
-   Oak's lab and up to the table. At each ball, stand on its tile and press:
-       1 = mark Bulbasaur ball   2 = Charmander ball   3 = Squirtle ball
-   Then press S to save the savestate. Writes states/starter.state +
-   states/starter_waypoints.json. This gives me the route + verifies ball positions.
+   Oak's lab and up to the table. At EACH ball: face it, press A until the
+   "Do you want this POKEMON?" YES/NO menu is OPEN, then press:
+       1 = save ball_bulbasaur.state   2 = ball_charmander.state   3 = ball_squirtle.state
+   Each save logs YESNO_menu_detected=y/n - 'n' means you grabbed the wrong box;
+   redo that ball. These three states are what the autonomous grab loads + confirms.
 
 2) RUN:
    .venv\\Scripts\\python.exe pokemon_agent\\m1_starter.py [--pick bulbasaur]
@@ -63,8 +64,12 @@ def capture(bridge, render, pygame, args):
     if not reach_overworld(bridge, render):
         log("FAIL - never reached overworld"); return
     stx.clear_dialogue(bridge, taps=8, render=render)   # clear the wake-up dialogue lock
-    log("DRIVE to Oak's lab + table. 1/2/3 = mark ball under you, S = save state.")
-    wpts = {}
+    log("PER-BALL CAPTURE: walk to a ball, FACE it, press A until the "
+        "'Do you want this POKEMON?' YES/NO menu is OPEN, THEN press:")
+    log("   1 = save ball_bulbasaur.state   2 = save ball_charmander.state   "
+        "3 = save ball_squirtle.state   (S = save states/<save_as>.state)")
+    log("Each save reports YESNO_menu_detected=y/n. If it says n you saved the "
+        "WRONG box (a text message, not the YES/NO) - redo that ball.")
     import time
     keymap = {pygame.K_UP: "UP", pygame.K_DOWN: "DOWN", pygame.K_LEFT: "LEFT",
               pygame.K_RIGHT: "RIGHT", pygame.K_z: "A", pygame.K_x: "B",
