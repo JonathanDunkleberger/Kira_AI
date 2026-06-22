@@ -615,6 +615,14 @@ class UniversalVisionAgent:
             else:
                 img = ImageGrab.grab()
             img.thumbnail((1280, 720))
+            # EYES backfill (precedence: heartbeat wins when live). When the heartbeat
+            # is PARKED (is_active False — e.g. chess), it isn't writing last_frame /
+            # last_capture_time, so the dashboard EYES freeze. The slideshow is grabbing
+            # fresh full-screen frames anyway, so surface them to the EYES WHILE PARKED.
+            # Only when is_active is False — we never clobber a live heartbeat's frame.
+            if not self.is_active:
+                self.last_frame = img
+                self.last_capture_time = time.time()
             buf = BytesIO()
             img.save(buf, format="JPEG", quality=65)
             return base64.b64encode(buf.getvalue()).decode()
@@ -701,6 +709,15 @@ class UniversalVisionAgent:
             "uncertain": uncertain, "static": static, "content_mid_ts": content_mid_ts,
         })
         self._slideshow_last_content_mid_ts = content_mid_ts
+        # EYES backfill (precedence: heartbeat wins when live). When the heartbeat is
+        # PARKED, mirror a SUBSTANTIVE slideshow summary into the scene fields the
+        # dashboard + get_vision_context read, so the EYES summary + her prompt-side
+        # sight stay live during the park. Skipped entirely when the heartbeat is
+        # running (is_active) — it owns scene_summary/last_description then.
+        if not self.is_active and not uncertain and not static:
+            self.scene_summary = summary[:_SCENE_SUMMARY_MAX_CHARS]
+            self.last_description = summary
+            self.last_capture_time = now
         h, rem = divmod(int(t_rel), 3600)
         m, s = divmod(rem, 60)
         tag = "UNCERTAIN " if uncertain else ("STATIC " if static else "")
