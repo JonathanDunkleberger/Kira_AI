@@ -10,11 +10,14 @@ HOW TO RUN (two things, in order):
      Watch the boot log: confirm there are NO  ⚠ [FALLBACK]  lines before you trust
      her pick - if she's on Llama-8B it's the 8B's choice, not HERS.
   2) .venv\\Scripts\\python.exe pokemon_agent\\m1_hybrid.py
-     Drive (arrows / Z=A / X=B) into Oak's lab, clear the intro speech, and stand
-     DIRECTLY IN FRONT of the LEFTMOST ball (Bulbasaur), facing UP. Then press P.
-     The bot asks her self; her choice drives the final confirm; she reacts.
+     Drive (arrows / Z=A / X=B) into Oak's lab, up to the table. Press P: her SELF
+     picks and ANNOUNCES it in her own voice. Then YOU grab that ball by hand - the
+     moment it lands in your party, she reacts. (Auto-grabbing blind proved
+     unreliable - camera-vs-coord offset - so the human does the final button-press;
+     her self still makes the genuine choice + every reaction. The autonomous grab
+     is a later pass on real overworld nav.)
 
-Keys: arrows=D-pad, Z=A, X=B, Enter=START, Backspace=SELECT, P=run her pick.
+Keys: arrows=D-pad, Z=A, X=B, Enter=START, Backspace=SELECT, P=she decides.
 """
 import json
 import os
@@ -27,14 +30,12 @@ if _HERE not in sys.path:
 
 from bridge import Bridge        # noqa: E402
 import navigate as nav           # noqa: E402
-import starter as stx            # noqa: E402
 import firered_ram as ram        # noqa: E402
 import pokemon_state as st       # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 SCALE = 3
 BOT = "http://127.0.0.1:8766/cmd"
-STEP_FROM_BULBA = {"bulbasaur": 0, "charmander": 1, "squirtle": 2}   # +x along the front row
 
 
 def post(action, **body):
@@ -48,72 +49,46 @@ def log(m):
     print(f"   [M1-hybrid] {m}", flush=True)
 
 
-def _save(bridge, name):
-    import os as _os
-    d = _os.path.join(_HERE, "states"); _os.makedirs(d, exist_ok=True)
-    with open(_os.path.join(d, f"{name}.state"), "wb") as f:
-        f.write(bytes(bridge.save_state()))
-    log(f"saved states/{name}.state (fresh table state - send me this if the pick fails)")
+_choice = {"value": None}   # her announced pick, awaiting the human's grab
 
 
-def _prompt_open(bridge, render):
-    """Face up + A; return (opened, diff) — did a dialogue/pick box appear?"""
-    import numpy as np
-    bridge.press("UP", 8, 8, render)
-    before = np.asarray(bridge.frame_rgb(), dtype=np.int16)[112:, :, :]
-    bridge.press("A", 4, 8, render)
-    diff = float(np.abs(np.asarray(bridge.frame_rgb(), dtype=np.int16)[112:, :, :] - before).mean())
-    return diff > 6.0, round(diff, 2)
-
-
-def run_pick(bridge, render):
-    """Anchor = player's CURRENT tile (you left them in front of Bulbasaur). Save the
-    FRESH table state first (so a failure is diagnosable offline), ask her self, step
-    to her ball, advance the dialogue to party+1. Instrumented at every step."""
-    anchor = nav.coords(bridge)
-    if anchor is None:
-        log("FAIL - no overworld coords; are you in the lab, intro cleared?"); return
-    _save(bridge, "table_live")               # <-- fresh, completable table state for diagnosis
-    log(f"anchor (Bulbasaur tile) = {anchor}; asking her self...")
+def run_choice(bridge):
+    """P = ask her SELF (the soul). She announces her pick in her own voice; YOU then
+    grab that ball by hand (Z). The bot watches party 0->1 and reacts when it lands.
+    (Auto-positioning the grab blind proved unreliable - camera-vs-coord offset - so
+    the human does the final button-press; her self still makes the genuine choice.)"""
+    if nav.coords(bridge) is None:
+        log("not in the overworld yet - clear the intro / get into the lab first"); return
     try:
         res = post("pokemon_choose_starter")
     except Exception as e:
-        log(f"FAIL - couldn't reach the bot ({e}). Is the bot running + POKEMON_AGENT_ENABLED?"); return
+        log(f"FAIL - couldn't reach the bot ({e}). Bot running + POKEMON_AGENT_ENABLED?"); return
     choice = (res.get("choice") or "bulbasaur").lower()
+    _choice["value"] = choice
     log(f"HER SELF CHOSE: {choice.upper()}")
     log(f"  reasoning: {res.get('reasoning','')!r}")
-    post("pokemon_event", name="looking at the three starter Pokemon")
+    # she SAYS it, in her voice (neutral event -> _pokemon_react -> her self)
+    post("pokemon_event", name=f"you're reaching for {choice} at the table")
+    log(f">>> now WALK to the {choice.upper()} ball and grab it by hand (Z). I'll react when it lands.")
 
-    step = STEP_FROM_BULBA.get(choice, 0)
-    target = (anchor[0] + step, anchor[1])
-    reached, final, _ = nav.walk_to(bridge, target, hold=8, render=render, log=lambda m: log(m))
-    log(f"step {step} -> target {target}: reached={reached} final={final}")
-    if not reached:
-        log(f"FAIL - couldn't reach {choice} ball tile {target} (stuck {final})"); return
 
-    before = ram.read_party_count(bridge)
-    opened, diff = _prompt_open(bridge, render)   # face up + A, did the pick box open?
-    log(f"face-up+A at {final}: prompt_opened={opened} (box diff={diff}); party={before}")
-    if not opened:
-        log(f"DIAGNOSIS: face-up+A opened nothing at {final} - the +{step} interaction tile "
-            f"is wrong/off-by-one. Send me states/table_live.state to fix the tile mapping."); return
-    got = stx.advance_dialogue(bridge, lambda: ram.read_party_count(bridge) > before,
-                               render=render, max_presses=50, log=log)
-    pc = ram.read_party_count(bridge)
-    sid = st.read_party_species(bridge, 0) if pc >= 1 else None
-    sname = st.SPECIES_NAME.get(sid, f"id{sid}") if sid is not None else "(none)"
-    match = (st.STARTER_SPECIES.get(choice) == sid)
-    print("\n" + "=" * 60 + "\n   M1 RESULT (hybrid starter pick)\n" + "=" * 60)
-    print(f"   her self chose ........... {choice}")
-    print(f"   party 0->1 ............... {'y' if pc >= 1 else 'n'}  (count={pc})")
-    print(f"   species read ............. {sname}  (match={match})")
-    print("=" * 60, flush=True)
-    if pc >= 1 and match:
-        post("pokemon_event", name=f"chose {choice}")
-        post("pokemon_event", name=f"{choice} joined the team")
-        log("PASS - she picked, the hands confirmed it, she's reacting.")
-    else:
-        log("FAIL - pick did not complete cleanly; not firing 'joined the team'.")
+def watch_pickup(bridge):
+    """Fire the completion reaction the instant party goes 0->1 (you grabbed it)."""
+    if _choice["value"] is None:
+        return
+    if ram.read_party_count(bridge) >= 1:
+        sid = st.read_party_species(bridge, 0)
+        sname = st.SPECIES_NAME.get(sid, f"id{sid}")
+        chose = _choice["value"]; _choice["value"] = None
+        match = (st.STARTER_SPECIES.get(chose) == sid)
+        print("\n" + "=" * 60 + "\n   M1 RESULT (hybrid starter pick)\n" + "=" * 60)
+        print(f"   her self chose ........... {chose}")
+        print(f"   party 0->1 ............... y  (species read = {sname})")
+        print(f"   matches her choice ....... {match}")
+        print("=" * 60, flush=True)
+        post("pokemon_event", name=f"{sname} joined the team")
+        log(f"PASS - {sname} is on the team; she's reacting." if match
+            else f"NOTE - she wanted {chose} but {sname} landed (you grabbed a different ball).")
 
 
 def main():
@@ -142,21 +117,19 @@ def main():
     while time.time() - t0 < 90 and nav.coords(bridge) is None:
         k = next(sched); bridge.set_keys(k) if k else bridge.release()
         bridge.run_frame(); blit()
-    log("intro cleared - drive to Oak's lab; stand in front of the LEFTMOST ball facing UP, then press P")
+    log("intro cleared - drive to Oak's lab table, then press P to have HER decide.")
     try:
         while True:
-            triggered = False
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT:
                     raise KeyboardInterrupt
                 if ev.type == pygame.KEYDOWN and ev.key == pygame.K_p:
-                    triggered = True
-            if triggered:
-                run_pick(bridge, blit)
+                    run_choice(bridge)
             pressed = pygame.key.get_pressed()
             keys = [v for k, v in keymap.items() if pressed[k]]
             bridge.set_keys(*keys) if keys else bridge.release()
             bridge.run_frame(); blit()
+            watch_pickup(bridge)        # fires her reaction the instant you grab her ball
     except KeyboardInterrupt:
         log("window closed")
     finally:
