@@ -32,6 +32,8 @@ import time
 from collections import Counter, deque
 from typing import Callable, Optional, TYPE_CHECKING
 
+from kira.config import LOOPBACK_POST_TTS_COOLDOWN_S  # post-TTS gate cooldown (env-tunable)
+
 # HuggingFace on Windows tries to create symlinks in its cache, which requires
 # either admin or Developer Mode and otherwise crashes with WinError 1314
 # ("A required privilege is not held by the client"). Force file copies instead
@@ -656,9 +658,9 @@ class LoopbackTranscriber:
                 _tts_reason = "Kira speaking"
             elif self._speech_last_active_ts > 0.0:
                 elapsed = time.time() - self._speech_last_active_ts
-                if elapsed < WINDOW_SECONDS:
+                if elapsed < LOOPBACK_POST_TTS_COOLDOWN_S:
                     _tts_skip = True
-                    _tts_reason = f"post-TTS cooldown ({elapsed:.0f}/{WINDOW_SECONDS:.0f}s)"
+                    _tts_reason = f"post-TTS cooldown ({elapsed:.0f}/{LOOPBACK_POST_TTS_COOLDOWN_S:.0f}s)"
             if _tts_skip:
                 # Constraint #3: this gate USED to skip SILENTLY — that exact silent
                 # skip made loopback read "loop ok · 0/0" while actually deaf for a

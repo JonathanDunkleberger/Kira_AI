@@ -270,7 +270,8 @@ class AI_Core:
                   f"GLITCH_AWARE={_cfg.GLITCH_AWARE_ENABLED} "
                   f"MEMORY_SMART={_cfg.MEMORY_SMART_RETRIEVAL_ENABLED} "
                   f"READING_THE_ROOM={_cfg.READING_THE_ROOM_ENABLED} "
-                  f"BARGE_IN={_cfg.BARGE_IN_YIELD_ENABLED}")
+                  f"BARGE_IN={_cfg.BARGE_IN_YIELD_ENABLED} "
+                  f"LOOPBACK_COOLDOWN={_cfg.LOOPBACK_POST_TTS_COOLDOWN_S:.0f}s")
         except Exception as e:
             print(f"FATAL: AI Core failed to initialize: {e}")
             self.is_initialized = False

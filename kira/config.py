@@ -249,6 +249,18 @@ LOOPBACK_SUMMARY_SWITCH_MIN_WORDS = int(os.getenv("LOOPBACK_SUMMARY_SWITCH_MIN_W
 # OFF -> today's summary prompt exactly. Does NOT touch watch-party/MediaWatch.
 LOOPBACK_NAME_DRIFT_GUARD_ENABLED = os.getenv("LOOPBACK_NAME_DRIFT_GUARD_ENABLED", "true").lower() == "true"
 
+# ── Loopback post-TTS cooldown (the "deaf during dense talking" knob) ───────────
+# After Kira's TTS ends, the loopback STT pump skips for this long so the tail of
+# her own voice (mixed into the same headphone endpoint it taps) isn't transcribed
+# as "dialogue". The old hard-coded 8s (WINDOW_SECONDS) overlapped continuously
+# when she talked densely (chat/streamer register) and starved the pump → 0
+# segments ("alive but deaf"). Default 3s decouples it from the 8s transcription
+# window. TRADEOFF: too LOW = the tail of her own sentence can leak into the
+# loopback transcript; too HIGH = she goes deaf whenever she's chatty. Feel-test
+# from 3s. Surfaced in the boot [Config] line. Does NOT touch the mic gate or the
+# transcription window (still WINDOW_SECONDS).
+LOOPBACK_POST_TTS_COOLDOWN_S = float(os.getenv("LOOPBACK_POST_TTS_COOLDOWN_S", "3.0"))
+
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures
 # all subsystems to stream-ready state: Vision ON, Audio=MEDIA, Immersive OFF,
