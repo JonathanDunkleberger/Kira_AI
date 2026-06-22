@@ -59,6 +59,7 @@ from kira.config import (
     DIARY_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
+    DIRECTOR_POST_SPEECH_HOLD_S, DIRECTOR_FRESH_MIN_SILENCE_S,
     DRIVE_GAP_CHATTY, DRIVE_GAP_NORMAL, DRIVE_GAP_SLEEPY,
     READING_THE_ROOM_ENABLED, ROOM_TRACKER_N, ROOM_ENGAGED_CHARS, ROOM_QUIET_GAP_S,
     ROOM_SILENCE_SPAN_S, ROOM_CHAT_BUSY_RPM, ROOM_W_TERSE, ROOM_W_GAP, ROOM_W_SILENCE,
@@ -8507,17 +8508,41 @@ class VTubeBot:
                         _fresh_ok, _fresh_label = self._has_fresh_sense()
                         _eff_dead_air = min(DIRECTOR_DEAD_AIR_S * _room_mult, ROOM_DEAD_AIR_MAX_S)
                         _dead_air = silence_duration >= _eff_dead_air
-                        if _fresh_ok or _dead_air:
+                        # ── Turn-taking guards (anti-talk-over, 2026-06-22) ──────────
+                        # [TurnTiming] data showed she fired 0.1-2.5s into Jonny's
+                        # between-thought PAUSES. Two empirically-tuned guards:
+                        #  (1) POST-SPEECH HOLD-OFF — never fire within
+                        #      DIRECTOR_POST_SPEECH_HOLD_S of his last mic speech frame.
+                        #      Keyed on _vad_mic_last_ts DIRECTLY — _mic_recently_active()
+                        #      returns False when LOOPBACK_MIC_GATE_ENABLED is off, which
+                        #      is exactly why the instrumentation read mic_active=False.
+                        #  (2) FRESH MIN-SILENCE — the fresh-vision path (the Turbo
+                        #      metronome) must ALSO see real quiet, not fire at silence=1s.
+                        # Dead-air keeps its own longer DIRECTOR_DEAD_AIR_S gate (genuine
+                        # 20s+ silence: _since_mic is naturally huge, so hold-off passes).
+                        _since_mic = time.time() - self._vad_mic_last_ts
+                        _post_speech_ok = _since_mic >= DIRECTOR_POST_SPEECH_HOLD_S
+                        _fresh_fire = _fresh_ok and silence_duration >= DIRECTOR_FRESH_MIN_SILENCE_S
+                        _raw_want = _fresh_ok or _dead_air     # what the OLD gate fired on
+                        _fire = _post_speech_ok and (_fresh_fire or _dead_air)
+                        if _raw_want and not _fire:
+                            # Blocked by a turn-taking guard — Jonny is mid-thought (paused,
+                            # about to continue) or the fresh metronome hasn't earned quiet.
+                            # Throttled HOLD log proves the guard works on re-test.
+                            if (time.time() - getattr(self, "_dir_hold_log_ts", 0.0)) >= 5.0:
+                                self._dir_hold_log_ts = time.time()
+                                _reason = "post-speech-hold" if not _post_speech_ok else "fresh-min-silence"
+                                print(f"   [TurnTiming] {_ts_ms()} DIRECTOR HOLD ({_reason}) — "
+                                      f"since_mic={_since_mic:.1f}s silence={silence_duration:.1f}s "
+                                      f"fresh_ok={_fresh_ok} dead_air={_dead_air}")
+                        if _fire:
                             self._last_director_ts = time.time()
-                            # [TurnTiming] DIRECTOR FIRE — one line with everything needed to
-                            # measure talk-over: wall-clock, silence since last activity, whether
-                            # Jonny's mic was active AT fire time (the guard the recon found
-                            # missing), which trigger (fresh/dead-air), and the live gap. Read
-                            # against VOICE ONSET above: "onset 08:14:22.140 -> fire 08:14:22.530".
-                            # observation-only — does NOT change the fire decision.
+                            # [TurnTiming] DIRECTOR FIRE — wall-clock + silence + the REAL
+                            # since_mic age (time since his last mic speech-frame) + trigger
+                            # + gap. Read against VOICE ONSET above to confirm no overlap.
                             print(f"   [TurnTiming] {_ts_ms()} DIRECTOR FIRE — "
                                   f"silence={silence_duration:.1f}s "
-                                  f"mic_active={self._mic_recently_active()} "
+                                  f"since_mic={_since_mic:.1f}s "
                                   f"fresh_ok={_fresh_ok} dead_air={_dead_air} "
                                   f"eff_min_gap={_eff_min_gap:.0f}s gap={_dir_gap:.0f}s")
                             if DIRECTOR_TAXONOMY_ENABLED:

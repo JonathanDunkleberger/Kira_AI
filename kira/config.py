@@ -453,6 +453,16 @@ OBJECTIVE_MAX_AGE_S = float(os.getenv("OBJECTIVE_MAX_AGE_S", "300.0"))
 ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "true").lower() == "true"
 DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "10.0"))    # Neuro-tier default floor between Director utterances (= presence 'normal'; boot default, live-tunable)
 DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence that triggers "create" (assertive)
+# Turn-taking guards (anti-talk-over, empirically tuned from [TurnTiming] data 2026-06-22).
+# POST_SPEECH_HOLD: never fire a proactive line within this many seconds of Jonny's last
+#   mic speech-frame (_vad_mic_last_ts) — bridges his 0.7-1.3s between-thought pauses so she
+#   stops firing 0.1-2.5s into his speech. Keyed on the raw timestamp, NOT _mic_recently_active
+#   (which returns False when LOOPBACK_MIC_GATE_ENABLED is off).
+# FRESH_MIN_SILENCE: the fresh-vision proactive path must ALSO see this much real silence —
+#   stops the Turbo metronome (fresh_ok permanently True) from firing at silence=1s. The
+#   dead-air path keeps its own longer DIRECTOR_DEAD_AIR_S gate.
+DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "3.0"))
+DIRECTOR_FRESH_MIN_SILENCE_S = float(os.getenv("DIRECTOR_FRESH_MIN_SILENCE_S", "3.0"))
 
 # Presence → Director drive-gap presets (C7: presence is the SINGLE cadence dial).
 # Confirmed in code (bot.py: Director fires when now - last_fire >= director_min_gap_s):
