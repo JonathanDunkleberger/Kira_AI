@@ -19,6 +19,7 @@ import json
 import os
 import re
 import time
+from collections import deque
 
 try:
     from kira.config import CLAUDE_SONNET_MODEL as CLAUDE_CHAT_MODEL
@@ -131,6 +132,23 @@ class KiraState:
         self._VALENCE_ALPHA: float = 0.4                  # EMA weight — feelings evolve, never flip in one line
         self._VALENCE_DECAY: float = 0.98                 # entities absent from a pass soften toward 0
         self._valence_task_running: bool = False
+
+        # ④ Jonny-bond — the ONE relationship valence never tracked before (the ledger
+        # tracks game characters/chatters, never Jonny himself). A single warmth EMA
+        # (-1 friction .. +1 close) that EVOLVES from how he treats her and PERSISTS
+        # across sessions (she remembers the dynamic next stream — "the Eevee evolves
+        # from experience with you"). jonny_threads holds recent charged moments so a
+        # slight carries STAKES ("he brushed you off 20m ago and you're still on it").
+        self.jonny_warmth: float = 0.0
+        self.jonny_warmth_prev: float = 0.0
+        self.jonny_threads: deque = deque(maxlen=6)       # {text, ts, sign}
+        self._JONNY_WARM_KW = ("haha", "lol", "lmao", "love it", "love that", "nice one",
+                               "good one", "good call", "exactly", "you're right", "well played",
+                               "clever", "brilliant", "fair enough", "that's funny", "i missed you")
+        self._JONNY_COOL_KW = ("shut up", "be quiet", "stop talking", "quiet now", "not now",
+                               "nobody asked", "you're wrong", "that's not", "whatever", "shush",
+                               "enough", "stop it")
+        self._JONNY_BOND_ALPHA: float = 0.25              # EMA — bond evolves, never flips on one line
 
         # Hard cap on tracked entities — least-recently-touched evicted (LRU) so a
         # long session can't grow these ledgers unbounded (proper-noun extraction
@@ -416,7 +434,8 @@ class KiraState:
         compounds across sessions instead of resetting in-RAM. Called at session
         end. Best-effort: never raises into the caller."""
         try:
-            if not self.entity_familiarity and not self.sentiment_ledger:
+            if (not self.entity_familiarity and not self.sentiment_ledger
+                    and self.jonny_warmth == 0.0):
                 return  # nothing earned this session — don't clobber prior file
             os.makedirs(os.path.dirname(self.LEDGER_PERSIST_PATH), exist_ok=True)
             payload = {
@@ -424,6 +443,9 @@ class KiraState:
                 "entity_familiarity": dict(self.entity_familiarity),
                 "sentiment_ledger": {k: round(v, 4) for k, v in self.sentiment_ledger.items()},
                 "entity_valence": {k: round(v, 4) for k, v in self.entity_valence.items()},
+                # ④ Jonny-bond persists across sessions (she remembers the dynamic).
+                "jonny_warmth": round(self.jonny_warmth, 4),
+                "jonny_threads": list(self.jonny_threads),
             }
             with open(self.LEDGER_PERSIST_PATH, "w", encoding="utf-8") as f:
                 json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -443,6 +465,16 @@ class KiraState:
             fam = data.get("entity_familiarity", {})
             sent = data.get("sentiment_ledger", {})
             val = data.get("entity_valence", {})
+            # ④ Restore the Jonny-bond so the relationship continues next stream.
+            try:
+                self.jonny_warmth = max(-1.0, min(1.0, float(data.get("jonny_warmth", 0.0))))
+            except (TypeError, ValueError):
+                self.jonny_warmth = 0.0
+            _jt = data.get("jonny_threads", [])
+            if isinstance(_jt, list):
+                for _m in _jt[-6:]:
+                    if isinstance(_m, dict):
+                        self.jonny_threads.append(_m)
             if isinstance(fam, dict):
                 for name, count in fam.items():
                     try:
@@ -852,6 +884,52 @@ class KiraState:
             elif (v <= 0) != (prev <= 0):
                 trend = "souring" if v < 0 else "turning around"
         return f"{entity} — {word}" + (f", {trend}" if trend else "")
+
+    def note_jonny_interaction(self, jonny_text: str) -> None:
+        """④ Evolve the Jonny-bond from how he just treated her — cheap heuristic, NO
+        LLM. Praise/laughter warms; dismiss/shush cools. EMA so it never flips on one
+        line. Records a charged moment as a STAKE for render_jonny_bond. Best-effort."""
+        if not jonny_text:
+            return
+        t = jonny_text.lower()
+        sign = 0.0
+        if any(k in t for k in self._JONNY_WARM_KW):
+            sign += 1.0
+        if any(k in t for k in self._JONNY_COOL_KW):
+            sign -= 1.0
+        if sign == 0.0:
+            return  # neutral exchange — leave the bond where it is
+        a = self._JONNY_BOND_ALPHA
+        self.jonny_warmth_prev = self.jonny_warmth
+        self.jonny_warmth = max(-1.0, min(1.0, (1 - a) * self.jonny_warmth + a * sign))
+        self.jonny_threads.append({"text": jonny_text[:120], "ts": time.time(), "sign": sign})
+        print(f"   [JonnyBond] {'warm' if sign > 0 else 'cool'} nudge → "
+              f"warmth {self.jonny_warmth_prev:+.2f}→{self.jonny_warmth:+.2f}")
+
+    def render_jonny_bond(self) -> str:
+        """④ One relational line for the self-block: where the bond stands + a recent
+        charged thread (the stake). Returns "" when nothing notable. Reads as lived
+        feeling, not telemetry."""
+        v = self.jonny_warmth
+        if v >= 0.5:
+            word = "close — easy and warm with him right now"
+        elif v >= 0.2:
+            word = "warm"
+        elif v <= -0.5:
+            word = "prickly — there's friction you haven't shaken"
+        elif v <= -0.2:
+            word = "a little cool with him"
+        else:
+            return ""  # neutral bond — nothing worth surfacing
+        thread = ""
+        if self.jonny_threads:
+            last = self.jonny_threads[-1]
+            mins = int((time.time() - last.get("ts", time.time())) / 60)
+            if last.get("sign", 0) < 0 and v < 0:
+                thread = f" — he brushed you off {mins}m ago and you're still a little on it"
+            elif last.get("sign", 0) > 0 and v > 0:
+                thread = " — the banter's been landing tonight"
+        return f"You and Jonny: {word}{thread}"
 
     def get_feelings_line(self, max_n: int = 3) -> str:
         """Compact one-line render of her strongest current feelings toward tracked

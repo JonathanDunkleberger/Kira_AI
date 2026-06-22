@@ -6650,8 +6650,14 @@ class VTubeBot:
         # ② Current want — the through-line her reactions should ladder toward.
         if CURRENT_WANT_ENABLED and self.current_want:
             lines.append(f"- What you're on right now: {self.current_want}")
-        # [You and Jonny — item ④] appended here in its commit, so this block is the
-        # single coherent self.
+        # ④ The bond with Jonny — colors how she reacts toward HIM specifically.
+        if JONNY_BOND_ENABLED and self.kira_state is not None:
+            try:
+                _bond = self.kira_state.render_jonny_bond()
+            except Exception:
+                _bond = ""
+            if _bond:
+                lines.append(f"- {_bond}")
         if not lines:
             return ""
         header = ("[WHO YOU ARE RIGHT NOW — you're not a neutral observer; react to the "
@@ -9828,6 +9834,14 @@ class VTubeBot:
         llm_user_text = dialogue_line
         raw_user_text = original_text
 
+        # ④ Evolve the Jonny-bond from how he just spoke to her (voice only — chat is
+        # other people). Cheap heuristic; one nudge per exchange.
+        if JONNY_BOND_ENABLED and source == "voice" and self.kira_state is not None:
+            try:
+                self.kira_state.note_jonny_interaction(original_text)
+            except Exception:
+                pass
+
         # --- ROLE ALTERNATION ENFORCEMENT ---
         # 1. Merge consecutive messages from same role
         if self.conversation_history and self.conversation_history[-1]["role"] == role:
@@ -9958,6 +9972,14 @@ class VTubeBot:
                         f"\n\n[WHAT YOU'RE ON RIGHT NOW — the thread you've latched onto this stretch. "
                         f"Let your reactions ladder toward it; don't announce it.]\n- {self.current_want}"
                     )
+                # ④ Bond with Jonny — colors how she reacts toward HIM (same source as the drive self-block).
+                if JONNY_BOND_ENABLED and self.kira_state is not None:
+                    _bond = self.kira_state.render_jonny_bond()
+                    if _bond:
+                        dynamic_context += (
+                            f"\n\n[YOU AND JONNY — your evolving read on him; let it color your warmth/"
+                            f"edge toward him, don't state it]\n- {_bond}"
+                        )
                 # Kira's OWN favorites — answer "what's YOUR favorite" from HERE, never from Jonny's facts
                 if self.kira_favorites_brief:
                     dynamic_context += (
