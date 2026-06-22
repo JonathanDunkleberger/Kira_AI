@@ -88,6 +88,28 @@ def _strip_user_wrapper(text: str) -> str:
 # STATE SNAPSHOT
 # ─────────────────────────────────────────────────────────────────────────────
 
+# VRAM read cache. The whole-card NVML read is SYNCHRONOUS and the snapshot runs
+# every 500ms on the bot's event loop — the audit flagged the per-tick NVML read as
+# a loop-stall risk. Cache it so the real read happens at most once per TTL; every
+# snapshot in between returns the cached value (cheap, non-blocking).
+_vram_cache = {"used": None, "total": None, "ts": 0.0}
+_VRAM_CACHE_TTL_S = 5.0
+
+def _cached_vram_gb():
+    now = time.time()
+    if (now - _vram_cache["ts"]) >= _VRAM_CACHE_TTL_S:
+        _vram_cache["ts"] = now
+        try:
+            from kira.bot import read_gpu_memory_gb
+            u, t = read_gpu_memory_gb()
+            if u is not None and t is not None:
+                _vram_cache["used"] = round(u, 2)
+                _vram_cache["total"] = round(t, 1)
+        except Exception:
+            pass
+    return _vram_cache["used"], _vram_cache["total"]
+
+
 def state_snapshot(bot: "VTubeBot") -> dict:
     """
     Read the same attributes the Tkinter _update_loop reads and return a
@@ -227,18 +249,10 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         False
     )
 
-    # VRAM — whole-card via NVML (used/total), so headroom is visible during
-    # AAA sessions. torch's allocator reads ~0 because the game isn't on torch.
-    vram_used_gb = None
-    vram_total_gb = None
-    try:
-        from kira.bot import read_gpu_memory_gb
-        u, t = read_gpu_memory_gb()
-        if u is not None and t is not None:
-            vram_used_gb = round(u, 2)
-            vram_total_gb = round(t, 1)
-    except Exception:
-        pass
+    # VRAM — whole-card via NVML (used/total), so headroom is visible during AAA
+    # sessions. torch's allocator reads ~0 because the game isn't on torch. CACHED
+    # (TTL ~5s) so the synchronous NVML read can't stall the 500ms snapshot loop.
+    vram_used_gb, vram_total_gb = _cached_vram_gb()
 
     # ── YouTube ───────────────────────────────────────────────────────────────
     yt = _get(lambda: bot.youtube_bot, None)
