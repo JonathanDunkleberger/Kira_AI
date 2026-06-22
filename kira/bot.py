@@ -639,15 +639,8 @@ class VTubeBot:
             2: 55.0,   # Stage 2 — streamer: nudge/verdict
         }
 
-        # Carry Mode (live-gameplay equivalent of VN autopilot).
-        # When ON in streamer mode: lower interjection gates to 30s/60s and bump
-        # chat-engagement probability so Kira keeps momentum during games like
-        # Bond without Jonny needing to drive. Brevity rule + silence-beats-filler
-        # remain dominant. Mode-gated only — NOT activity-gated (Req A): the
-        # dashboard toggle is the only condition, works for game/VN/media alike.
-        # (VNs already have vn_autopilot for full-drive mode — leave Carry Mode
-        # OFF during VN sessions to avoid stacking.)
-        self.carry_mode: bool = False
+        # Carry Mode RETIRED — vestigial. The Director + drive-gap own proactivity,
+        # and carry's chat-Q/threshold effects are duplicated by presence='chatty'.
 
         # Presence dial — a thin wrapper over EXISTING mode + carry + observer
         # cadence. Maps to: Sleepy (raise thresholds, ~0.05 chat-Q),
@@ -701,16 +694,7 @@ class VTubeBot:
         self._emotion_decay_threshold:   int = 8   # ~8 turns ~= 4-6 minutes at normal pace
         self._emotion_hold_remaining:    int = 0   # EMOTION_SWING: turns a mood still lingers through neutral reads
 
-        # B — Drive Mode agenda (seeded when Carry Mode toggles ON).
-        # Each item is a one-sentence intent string.
-        self.drive_agenda: list[str] = []
-        # Activity the drive agenda was last seeded for. _reconcile_modes() uses
-        # this to re-seed a (possibly media-shaped) agenda when the activity
-        # changes while Carry Mode is already on. None ⇒ never seeded.
-        self._last_seeded_activity: str | None = None
-        # Track whether the last agenda seed was media-shaped so the reconciler
-        # can force a re-seed when MW armed state flips while carry is on.
-        self._last_seeded_is_media: bool | None = None
+        # Drive Mode agenda RETIRED with Carry Mode.
         # Effective (post-reconcile) state — the SINGLE source both dashboards
         # render from, so the UI shows what is actually in effect, not what was
         # clicked. Rebuilt at the end of every _reconcile_modes() and recomputed
@@ -2866,26 +2850,7 @@ class VTubeBot:
         #        Vision slideshow has no spoken-reaction loop of its own.
             changes.append("reactions re-wired")
 
-        # INV-4: Carry agenda must match the current activity shape; re-seed if
-        #        the activity changed OR the media-armed state changed since the
-        #        agenda was last seeded (gameplay↔media shape flip).
-        if self.carry_mode:
-            current_is_media = bool(media_armed or (gmc and gmc.activity_type == ACTIVITY_MEDIA))
-            activity_changed = (self.current_activity != self._last_seeded_activity)
-            shape_changed = (self._last_seeded_is_media is not None
-                             and self._last_seeded_is_media != current_is_media)
-            if activity_changed or shape_changed:
-                if self.event_loop and self.event_loop.is_running():
-                    asyncio.ensure_future(self.seed_drive_agenda())
-                    self._last_seeded_activity = self.current_activity
-                    self._last_seeded_is_media = current_is_media
-                    shape = "media" if current_is_media else "gameplay"
-                    changes.append(f"carry re-seeded ({shape})")
-        else:
-            # Disarmed → forget the seed marker so a re-arm always seeds fresh.
-            if self._last_seeded_activity is not None:
-                self._last_seeded_activity = None
-                self._last_seeded_is_media = None
+        # INV-4: Carry agenda re-seed RETIRED (Carry Mode removed).
 
         if changes:
             tag = f" [{trigger}]" if trigger else ""
@@ -2978,9 +2943,6 @@ class VTubeBot:
             except Exception:
                 pass
 
-        carry_on = bool(self.carry_mode)
-        carry_media = carry_on and (media_armed or activity_type == ACTIVITY_MEDIA)
-
         # EARS.
         hearing_mode = "off"
         if aa and aa.is_active():
@@ -3027,13 +2989,6 @@ class VTubeBot:
             ears_bits.append("loopback+STT")
         ears_txt = " + ".join(ears_bits) if ears_bits else "off"
 
-        if not carry_on:
-            carry_txt = "off"
-        elif carry_media:
-            carry_txt = "co-watching (media)"
-        else:
-            carry_txt = "active"
-
         if not react_armed:
             react_txt = "off"
         elif react_gated:
@@ -3047,7 +3002,6 @@ class VTubeBot:
             {"key": "mode",     "text": primary,                         "attn": bool(mw_fail)},
             {"key": "eyes",     "text": f"EYES: {eyes_txt}",             "attn": heartbeat_parked},
             {"key": "ears",     "text": f"EARS: {ears_txt}",             "attn": False},
-            {"key": "carry",    "text": f"CARRY: {carry_txt}",           "attn": carry_media},
             {"key": "react",    "text": f"REACT: {react_txt}",           "attn": react_gated},
             {"key": "activity", "text": f"ACTIVITY: {self.current_activity or 'none'}", "attn": False},
         ]
@@ -3069,7 +3023,6 @@ class VTubeBot:
                 _fail_chip(mw_fail) if mw_fail else "starting"),
             "react":       self._tri_state(
                 react_armed, react_gated, react_gate_reason.lower()[:8]),
-            "carry":       self._tri_state(carry_on, carry_media, "media"),
             "autopilot":   self._tri_state(ap_on, ap_paused, "paused"),
             "immersive":   self._tri_state(bool(self.immersive), False),
             "chess":       self._tri_state(chess_armed, chess_armed and not chess_running, "starting"),
@@ -3093,7 +3046,6 @@ class VTubeBot:
                 "fail_reason": mw_fail,
             },
             "ears": {"hearing_mode": hearing_mode, "loopback_on": loopback_on},
-            "carry": {"on": carry_on, "media_shaped": carry_media},
             "autopilot": {"on": ap_on, "paused": ap_paused},
             "chess": {"armed": chess_armed, "running": chess_running},
             "activity": self.current_activity or "",
@@ -4138,85 +4090,6 @@ class VTubeBot:
                   f"  tangent_since={tangent_turns_ago}t"
                   f"  moment={mt.value})")
         return directive
-
-    # ── B: Drive Mode (agenda seeding + toggle) ───────────────────────────────
-
-    async def seed_drive_agenda(self) -> None:
-        """Auto-seed drive_agenda when Carry/Drive Mode is toggled ON.
-        Fires a single Groq call (cheap, ~200ms) to generate 3 one-sentence
-        intent strings appropriate for today's session. Stores on self.drive_agenda.
-        Safe to call from dashboard thread via asyncio.run_coroutine_threadsafe."""
-        try:
-            context_parts = []
-            if self.recent_activity_brief:
-                context_parts.append(f"Recent session history:\n{self.recent_activity_brief[:800]}")
-            if self.session_takes_summary:
-                context_parts.append(f"Takes so far this session:\n{self.session_takes_summary[:400]}")
-            if self.current_activity:
-                context_parts.append(f"Currently: {self.current_activity}")
-            if not context_parts:
-                context_parts.append("This is a general streaming session.")
-
-            # Media-aware shaping: a movie/anime has no inputs to narrate, so the
-            # agenda is co-watcher-shaped (react / predict / callback), not the
-            # gameplay self-drive shape.
-            is_media = (
-                (self.media_watch and self.media_watch.enabled)
-                or getattr(self.game_mode_controller, "activity_type", None) == ACTIVITY_MEDIA
-            )
-            if is_media:
-                seed_prompt = (
-                    "You are Kira, an AI VTuber. You're watching a film/episode WITH Jonny "
-                    "and going into 'Carry Mode' as an active co-watcher — you'll react more, "
-                    "call shots, and lean into your own take on what's unfolding.\n\n"
-                    "Based on the context below, generate exactly 3 short intent strings — "
-                    "one sentence each — describing what you'll actively track or do as you "
-                    "watch. Be specific. Use first-person. Examples of good intents:\n"
-                    "  - 'Call the twist before it lands and gloat if I'm right'\n"
-                    "  - 'Track the green-haired girl — I'm already rooting for her'\n"
-                    "  - 'React to the art and score, not just the plot'\n\n"
-                    "Context:\n" + "\n\n".join(context_parts) + "\n\n"
-                    "Output ONLY a JSON array of exactly 3 strings. No preamble."
-                )
-            else:
-                seed_prompt = (
-                    "You are Kira, an AI VTuber. You're about to go into 'Drive Mode' — "
-                    "you'll be more proactive, carry more stream momentum, and look for openings "
-                    "to steer conversation and observe the game/show.\n\n"
-                    "Based on the context below, generate exactly 3 short intent strings — "
-                    "one sentence each — that describe what you'll actively track or nudge today. "
-                    "Be specific. Use first-person. Examples of good intents:\n"
-                    "  - 'Track who Stick is and needle Jonny if he keeps ignoring it'\n"
-                    "  - 'Keep a running death count out loud'\n"
-                    "  - 'Push back if Jonny makes a bad decision and call it'\n\n"
-                    "Context:\n" + "\n\n".join(context_parts) + "\n\n"
-                    "Output ONLY a JSON array of exactly 3 strings. No preamble."
-                )
-            resp = await self.ai_core.tool_inference(
-                system="You output a JSON array of 3 short intent strings.",
-                user=seed_prompt,
-                max_tokens=500,
-            )
-            import json as _json
-            # Extract JSON array from response
-            raw = resp.strip()
-            start = raw.find("[")
-            end = raw.rfind("]") + 1
-            if start >= 0 and end > start:
-                agenda = _json.loads(raw[start:end])
-                if isinstance(agenda, list) and agenda:
-                    self.drive_agenda = [str(a).strip() for a in agenda[:5] if str(a).strip()]
-                    self._last_seeded_activity = self.current_activity
-                    self._last_seeded_is_media = is_media
-                    print(f"   [DriveMode] Agenda seeded ({len(self.drive_agenda)} items, {'media' if is_media else 'gameplay'} shape):")
-                    for i, item in enumerate(self.drive_agenda, 1):
-                        print(f"     {i}. {item}")
-                    self.stream_logger.log("drive_agenda_seeded", count=len(self.drive_agenda),
-                                           agenda=self.drive_agenda)
-                    return
-            print("   [DriveMode] Agenda seed: could not parse JSON — starting with empty agenda.")
-        except Exception as e:
-            print(f"   [DriveMode] Agenda seed failed: {e}")
 
     # ── A3-B: General opinions / persistent bits ──────────────────────────────
 
@@ -6587,10 +6460,7 @@ class VTubeBot:
                       "take, a tangent that connects), not a random topic out of nowhere.")
 
         _goal = f"\n[CURRENT GOAL] {self.active_objective['text']}\n" if self.active_objective else ""
-        _agenda = ""
-        if self.drive_agenda:
-            _agenda = ("\n[YOUR AGENDA THIS SESSION — pursue these on your own initiative]\n"
-                       + "\n".join(f"- {a}" for a in self.drive_agenda) + "\n")
+        _agenda = ""  # drive agenda retired with Carry Mode
         _bits = self._active_bits_for_prompt(4)
         _bits_block = ""
         if _bits and variant != "callback":  # callback already names its bit; don't double-list
@@ -6630,10 +6500,7 @@ class VTubeBot:
             "bit, make a sharp observation, or needle Jonny toward the goal."
         )
         _goal = f"\n[CURRENT GOAL] {self.active_objective['text']}\n" if self.active_objective else ""
-        _agenda = ""
-        if self.drive_agenda:
-            _agenda = ("\n[YOUR AGENDA THIS SESSION — pursue these on your own initiative]\n"
-                       + "\n".join(f"- {a}" for a in self.drive_agenda) + "\n")
+        _agenda = ""  # drive agenda retired with Carry Mode
         _bits = self._active_bits_for_prompt(4)
         _bits_block = ""
         if _bits:
@@ -8786,7 +8653,7 @@ class VTubeBot:
                     else ASK_CHAT_P_CHATTY if self.presence_level == "chatty"
                     else ASK_CHAT_P_NORMAL
                 )
-                _ask_chat_p = max(_presence_p, ASK_CHAT_P_CHATTY if self.carry_mode else 0.0)
+                _ask_chat_p = _presence_p  # carry retired — presence='chatty' covers the old bump
                 ask_chat = (self.mode == "streamer") and (random.random() < _ask_chat_p)
                 chat_question_directive = (
                     "\n\nINSTEAD of an observation this time: ask CHAT one short, genuine question. "
@@ -8803,7 +8670,7 @@ class VTubeBot:
                 # Cutscene gate above this block already skips the tick entirely,
                 # so these thresholds only fire during genuine dead air.
                 # Presence "chatty" maps to carry-like drive without the manual toggle.
-                _carrying = self.carry_mode or self.presence_level == "chatty"
+                _carrying = self.presence_level == "chatty"  # carry retired — chatty presence is the drive lever
                 if _carrying:
                     stage1_threshold = 30.0
                     stage2_threshold = 60.0
@@ -8924,44 +8791,7 @@ class VTubeBot:
                             f"[MY TAKES SO FAR THIS SESSION — callbacks welcome]\n"
                             f"{self.session_takes_summary}"
                         ))
-                    # Carry Mode directive: communicate the elevated initiative
-                    # mandate to the model, with the brevity counterweight explicit.
-                    # Media-aware: in MEDIA mode the directive is co-watcher-shaped
-                    # (react/predict/callback), NOT "gameplay self-drive" — a movie
-                    # has no inputs to narrate.
-                    if self.carry_mode:
-                        if is_media:
-                            carry_text = (
-                                "[CARRY MODE — active co-watcher ON]\n"
-                                "You're watching this WITH Jonny and leaning in: react "
-                                "to beats, call shots before they land, callback to "
-                                "earlier scenes, and voice a real opinion on what's "
-                                "unfolding. But the brevity rule still wins — one sharp "
-                                "line, not three filler ones. Silence beats filler; only "
-                                "speak when something genuinely grabs you. No recaps, no "
-                                "narration, no generic 'what do you think' questions."
-                            )
-                        else:
-                            carry_text = (
-                                "[CARRY MODE — gameplay self-drive ON]\n"
-                                "This is the live-gameplay analogue of VN autopilot: "
-                                "carry more momentum, initiate more often, lean on your "
-                                "own takes and what's on screen. But the brevity rule "
-                                "still wins — one sharp line, not three filler ones. "
-                                "Silence beats filler even in carry mode; only fire when "
-                                "there's something real to react to. No generic "
-                                "observations, no chat-question spam."
-                            )
-                        parts.append((90, carry_text))
-                        # B — Drive agenda: inject when Carry Mode is on and agenda is populated.
-                        if self.drive_agenda:
-                            agenda_lines = "\n".join(f"  - {item}" for item in self.drive_agenda)
-                            parts.append((
-                                85,
-                                f"[DRIVE AGENDA — only raise one of these if the moment makes it OBVIOUS "
-                                f"and natural; otherwise ignore them completely. "
-                                f"Better to never mention them than to force one.]\n{agenda_lines}"
-                            ))
+                    # Carry Mode directive RETIRED with Carry Mode.
 
                     # ── COMBINED SIZE GUARD ──────────────────────────────────────
                     # Drop the lowest-priority (least time-sensitive) parts first

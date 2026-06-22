@@ -173,7 +173,6 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     activity_type = _get(lambda: bot.game_mode_controller.activity_type, "general")
     director_last_fire_ts = _get(lambda: float(bot._last_director_ts), 0.0)
     mode = _get(lambda: bot.mode, "companion")
-    carry_mode = _get(lambda: bot.carry_mode, False)
     immersive = _get(lambda: bot.immersive, False)
     presence_level = _get(lambda: bot.presence_level, "normal")
     deep_senses = _get(lambda: bool(bot.deep_senses), False)
@@ -313,7 +312,6 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "activity_type": activity_type,
         "director_last_fire_ts": director_last_fire_ts,
         "mode": mode,
-        "carry_mode": carry_mode,
         "immersive": immersive,
         "presence_level": presence_level,
         "chat_lock_in": chat_lock_in,
@@ -904,7 +902,7 @@ def _err(msg: str, **kwargs) -> dict:
 # cross-mode reconciler afterward.
 _MODE_ACTIONS = frozenset({
     "activity_go", "exit_game_mode", "vision_force_off_toggle",
-    "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
+    "passive_watching_toggle", "autopilot_toggle",
     "chess_toggle",
     "chess_accept_toggle", "deep_senses_toggle",
 })
@@ -1063,10 +1061,7 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         bot.immersive = not bot.immersive
         return _ok(immersive=bot.immersive)
 
-    # ── Carry Mode ────────────────────────────────────────────────────────────
-    if action == "carry_mode_toggle":
-        bot.carry_mode = not bot.carry_mode
-        return _ok(carry_mode=bot.carry_mode)
+    # Carry Mode RETIRED — vestigial (Director + drive-gap own proactivity).
 
     # ── Presence dial ─────────────────────────────────────────────────────────
     if action == "set_presence":
