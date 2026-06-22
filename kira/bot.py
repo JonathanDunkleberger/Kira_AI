@@ -2863,12 +2863,8 @@ class VTubeBot:
                 va.master_enabled = False
                 changes.append("vision forced off")
 
-        # INV-3: reactions handler stays wired for the whole session (the
-        #        reactions_enabled bool is the real on/off). Re-wire defensively.
-        if mw is not None and mw.on_react is None:
-            mw.on_react = self._media_watch_react
-            # Stage 3: re-wire the pacing callable defensively alongside on_react.
-            mw.react_gap_fn = self._effective_react_gap
+        # INV-3: MediaWatch reaction re-wire RETIRED (MediaWatch removed). The Turbo
+        #        Vision slideshow has no spoken-reaction loop of its own.
             changes.append("reactions re-wired")
 
         # INV-4: Carry agenda must match the current activity shape; re-seed if
@@ -3162,9 +3158,7 @@ class VTubeBot:
         otherwise the always-on Turbo Vision slideshow when it has context. '' if
         neither has anything. This is the single source both injection points read so
         the watch-party removal is a one-line change there, not a rewrite."""
-        mw = self.media_watch
-        if mw and mw.is_running and mw.has_context():
-            return mw.get_episode_context()
+        # MediaWatch removed — the always-on Turbo Vision slideshow is the only source.
         va = self.vision_agent
         try:
             if va and va.slideshow_has_context():
@@ -5000,18 +4994,9 @@ class VTubeBot:
             self.vn_autopilot.on_speak_vn = self._autopilot_speak_vn
             self.vn_autopilot.on_failsafe = self._autopilot_on_failsafe
 
-            # Set up Media Watch Mode (disabled by default; dashboard toggles it).
-            # Shares only the vision client with autopilot — no other coupling.
-            self.media_watch = MediaWatch(vision_client=self.vision_agent.client)
-            self.media_watch.on_react = self._media_watch_react
-            # Stage 3: dynamic pacing — MediaWatch reads the effective min-gap from
-            # this callable each beat (intensity + mode scaled). None → flat 45s.
-            self.media_watch.react_gap_fn = self._effective_react_gap
-            # If start() aborts after enabled was set (bad window, etc.), un-park
-            # vision immediately — never enforce an intent that failed.
-            self.media_watch.on_start_failed = (
-                lambda _reason: self._reconcile_modes(trigger="mw_start_failed")
-            )
+            # MediaWatch (watch-party) RETIRED — superseded by the always-on Turbo
+            # Vision slideshow (vision_agent). self.media_watch stays None (declared in
+            # __init__), so every remaining `if mw and ...` guarded read is inert.
 
             # Set up Chess Mode (disabled by default; dashboard toggles it).
             # No shared state with the vision stack — the board comes from
@@ -8876,10 +8861,9 @@ class VTubeBot:
                     # In this mode we frame everything as watching a film/episode and
                     # suppress game-shaped context so Kira reacts like a couch
                     # film-watcher, not a gamer squinting at a movie.
-                    mw_running = bool(
-                        self.media_watch and self.media_watch.is_running and self.media_watch.has_context()
-                    )
-                    is_media = mw_running or (getattr(gmc, "activity_type", None) == ACTIVITY_MEDIA)
+                    # is_media: the activity itself is MEDIA. (MediaWatch removed — the
+                    # always-on Turbo Vision slideshow is additive, not a separate mode.)
+                    is_media = (getattr(gmc, "activity_type", None) == ACTIVITY_MEDIA)
 
                     # parts: (priority, text). Higher priority = more protected from
                     # the combined size guard below. The live scene and active
@@ -8887,41 +8871,31 @@ class VTubeBot:
                     # context goes first.
                     parts: list[tuple[int, str]] = []
 
-                    # ── SCENE SOURCE — mutually exclusive by mode (priority, not a pile) ──
-                    if mw_running:
-                        # Media Watch: the episode log REPLACES current-frame +
-                        # story-so-far. Heartbeat is suppressed while MW runs, so
-                        # those would be stale — the episode log is strictly better.
-                        mw_ctx = self.media_watch.get_episode_context()
-                        if mw_ctx:
-                            parts.append((100, f"FILM/EPISODE LOG (what's happened so far):\n{mw_ctx}"))
-                    else:
-                        # Game / general vision: current frame + story-so-far MAY
-                        # coexist — they're complementary (one is NOW, one is the arc).
-                        try:
-                            current = va.get_vision_context() if va else ""
-                        except Exception:
-                            current = ""
-                        if current:
-                            parts.append((100, f"CURRENT FRAME:\n{current}"))
-                        rolling = getattr(va, "scene_summary", "") if va else ""
-                        if rolling and len(rolling) > 20:
-                            parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
-                        # Turbo Vision slideshow — multi-frame "what just happened"
-                        # timeline, ADDITIVE to the live frame (the always-on model
-                        # keeps the heartbeat, unlike MediaWatch which parked it).
-                        try:
-                            _ss = va.get_episode_context() if (va and va.slideshow_has_context()) else ""
-                        except Exception:
-                            _ss = ""
-                        if _ss:
-                            parts.append((70, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
-                            # Observation-only: prove the episode timeline actually
-                            # reaches a prompt (the one gate criterion the log can't
-                            # otherwise show). Latched so it fires once, not per-beat.
-                            if not getattr(self, "_turbo_injection_logged", False):
-                                self._turbo_injection_logged = True
-                                print("   [TurboVision] injection landed (episode timeline → prompt)")
+                    # ── SCENE SOURCE ── current frame + story-so-far + the Turbo Vision
+                    # slideshow timeline coexist (NOW / the arc / the recent sequence).
+                    # The heartbeat stays live (C3), so none of these is stale.
+                    try:
+                        current = va.get_vision_context() if va else ""
+                    except Exception:
+                        current = ""
+                    if current:
+                        parts.append((100, f"CURRENT FRAME:\n{current}"))
+                    rolling = getattr(va, "scene_summary", "") if va else ""
+                    if rolling and len(rolling) > 20:
+                        parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
+                    # Turbo Vision slideshow — multi-frame "what just happened" timeline.
+                    try:
+                        _ss = va.get_episode_context() if (va and va.slideshow_has_context()) else ""
+                    except Exception:
+                        _ss = ""
+                    if _ss:
+                        parts.append((70, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
+                        # Observation-only: prove the episode timeline actually reaches a
+                        # prompt (the one gate criterion the log can't otherwise show).
+                        # Latched so it fires once, not per-beat.
+                        if not getattr(self, "_turbo_injection_logged", False):
+                            self._turbo_injection_logged = True
+                            print("   [TurboVision] injection landed (episode timeline → prompt)")
                     # Dialogue summary from LoopbackSTT — the condensed "what's been
                     # said" that persists beyond the 60s raw window. Labeled per mode
                     # so a film's dialogue never reads as "GAME DIALOGUE".

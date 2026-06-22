@@ -192,35 +192,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "reason":  _get(lambda: ap.pause_reason if ap else None, None),
     }
 
-    # ── Media Watch ───────────────────────────────────────────────────────────
-    mw = _get(lambda: bot.media_watch, None)
-
-    def _mw_latest():
-        """Latest MW analysis entry as {text, age, tag} so the EYES panel can show
-        Kira's real-time visual sync during Media Watch instead of the stale parked
-        heartbeat description."""
-        if not mw or not getattr(mw, "is_running", False):
-            return None
-        log = getattr(mw, "episode_log", None)
-        if not log:
-            return None
-        e = log[-1]
-        tag = "UNCERTAIN" if e.get("uncertain") else ("STATIC" if e.get("static") else "")
-        return {
-            "text": (e.get("summary", "") or "").strip(),
-            "age": int(now - e.get("ts", now)),
-            "tag": tag,
-        }
-
-    media_watch_state = {
-        "running": _get(lambda: mw.is_running if mw else False, False),
-        "status":  _get(lambda: mw.get_status_str() if mw else "OFF", "OFF"),
-        "reactions": _get(lambda: getattr(mw, "reactions_enabled", True) if mw else False, False),
-        "calls": _get(lambda: getattr(mw, "_calls_count", 0) if mw else 0, 0),
-        "cost_usd": _get(lambda: round(getattr(mw, "_calls_cost_usd", 0.0), 3) if mw else 0.0, 0.0),
-        "latest": _get(_mw_latest, None),
-        "window": _get(lambda: (getattr(mw, "window_title", "") or "").strip() if mw else "", ""),
-    }
+    # Media Watch RETIRED — superseded by the always-on Turbo Vision slideshow.
 
     # ── Chess Mode ────────────────────────────────────────────────────────────
     ca = _get(lambda: bot.chess_agent, None)
@@ -353,7 +325,6 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "effective": effective,
         # Subsystem states
         "autopilot": autopilot,
-        "media_watch": media_watch_state,
         "chess": chess_state,
         # Mute / pause
         "muted": muted,
@@ -934,7 +905,7 @@ def _err(msg: str, **kwargs) -> dict:
 _MODE_ACTIONS = frozenset({
     "activity_go", "exit_game_mode", "vision_force_off_toggle",
     "passive_watching_toggle", "carry_mode_toggle", "autopilot_toggle",
-    "media_watch_toggle", "media_watch_react_toggle", "chess_toggle",
+    "chess_toggle",
     "chess_accept_toggle", "deep_senses_toggle",
 })
 
@@ -1216,68 +1187,8 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         bot.event_loop.call_soon_threadsafe(ap.resume_after_failsafe)
         return _ok()
 
-    # ── Media Watch ───────────────────────────────────────────────────────────
-    if action == "media_watch_toggle":
-        mw = bot.media_watch
-        if mw is None:
-            return _err("media_watch not initialized yet")
-        enabled = body.enabled if body.enabled is not None else (not mw.enabled)
-        title = (body.title or "").strip() or getattr(mw, "window_title", "")
-        auto_targeted = False
-        if enabled and not title:
-            # C1: empty field → auto-target the current foreground window so the
-            # text field is an OVERRIDE, not a requirement. Write the chosen
-            # title back so the dashboard shows what was picked.
-            fg = mw.get_foreground_window_title()
-            if fg:
-                title = fg
-                auto_targeted = True
-                print(f"   [MediaWatch] Auto-targeted foreground window: '{title}'")
-            else:
-                mw.enabled = False
-                return _err("No window title set and no foreground window detected")
-        mw.window_title = title
-        mw.enabled = enabled
-        if enabled:
-            bot.event_loop.call_soon_threadsafe(mw.start)
-            # Stage 1 (load-bearing): a watch party needs ears so Kira feels the
-            # score, not just sees frames. Auto-SET media audio on enable ONLY;
-            # never auto-disable on toggle-off (don't stomp a manual audio choice).
-            if bot.audio_agent:
-                bot.event_loop.call_soon_threadsafe(
-                    bot.audio_agent.set_mode, AUDIO_MODE_MEDIA
-                )
-        else:
-            bot.event_loop.call_soon_threadsafe(mw.stop)
-        return _ok(media_watch_enabled=enabled, window_title=title, auto_targeted=auto_targeted)
-
-    if action == "media_watch_window":
-        mw = bot.media_watch
-        if mw is None:
-            return _err("media_watch not initialized yet")
-        mw.window_title = (body.title or "").strip()
-        return _ok(window_title=mw.window_title)
-
-    if action == "media_watch_interval":
-        mw = bot.media_watch
-        if mw is None:
-            return _err("media_watch not initialized yet")
-        if body.seconds is not None:
-            mw.analysis_interval_s = float(body.seconds)
-        return _ok(interval_s=mw.analysis_interval_s)
-
-    if action == "media_watch_react_toggle":
-        mw = bot.media_watch
-        if mw is None:
-            return _err("media_watch not initialized yet")
-        # State-explicit: the React-to-scenes switch is mw.reactions_enabled (a
-        # real backing bool), NOT the presence/absence of the on_react handler.
-        # on_react stays wired for the whole session; reactions_enabled gates it.
-        if body.enabled is not None:
-            mw.reactions_enabled = bool(body.enabled)
-        else:
-            mw.reactions_enabled = not getattr(mw, "reactions_enabled", True)
-        return _ok(reactions_on=mw.reactions_enabled)
+    # Media Watch handlers RETIRED — superseded by the always-on Turbo Vision
+    # slideshow (no dashboard toggle; rides the Turbo Vision lever).
 
     # ── Chess Mode ─────────────────────────────────────────────────────────────
     if action == "chess_toggle":
@@ -1286,10 +1197,7 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             return _err("chess_agent not initialized yet")
         enabled = body.enabled if body.enabled is not None else (not ca.enabled)
         if enabled:
-            # Mutually exclusive with Media Watch and VN autopilot.
-            mw = bot.media_watch
-            if mw is not None and mw.is_running:
-                return _err("Media Watch is running — stop it before arming Chess Mode")
+            # Mutually exclusive with VN autopilot.
             ap = bot.vn_autopilot
             if ap is not None and ap.is_running:
                 return _err("VN autopilot is running — stop it before arming Chess Mode")
