@@ -59,6 +59,7 @@ from kira.config import (
     DIARY_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
+    DRIVE_GAP_CHATTY, DRIVE_GAP_NORMAL, DRIVE_GAP_SLEEPY,
     READING_THE_ROOM_ENABLED, ROOM_TRACKER_N, ROOM_ENGAGED_CHARS, ROOM_QUIET_GAP_S,
     ROOM_SILENCE_SPAN_S, ROOM_CHAT_BUSY_RPM, ROOM_W_TERSE, ROOM_W_GAP, ROOM_W_SILENCE,
     ROOM_W_INTENSITY, ROOM_W_CHAT, ROOM_E_NEUTRAL, ROOM_WIDEN_CEIL, ROOM_TIGHTEN_FLOOR,
@@ -642,10 +643,10 @@ class VTubeBot:
         # Carry Mode RETIRED — vestigial. The Director + drive-gap own proactivity,
         # and carry's chat-Q/threshold effects are duplicated by presence='chatty'.
 
-        # Presence dial — a thin wrapper over EXISTING mode + carry + observer
-        # cadence. Maps to: Sleepy (raise thresholds, ~0.05 chat-Q),
-        # Normal (streamer baseline, ~0.15), Chatty (carry-like drive, ~0.25).
-        # Does NOT replace carry_mode — carry remains an independent override.
+        # Presence dial — the SINGLE cadence dial (C7). Picking a level sets the LIVE
+        # Director drive-gap via apply_presence (Sleepy=sparse / Normal=Neuro-tier /
+        # Chatty=yappy) AND scales the legacy boredom-path thresholds/chat-Q. The
+        # dashboard gap slider fine-tunes director_min_gap_s from the preset.
         self.presence_level: str = "normal"  # 'sleepy' | 'normal' | 'chatty'
         self.chat_lock_in: bool = False  # Focus/Lock-In: force chat salience floor HIGH live
         self.active_objective: dict | None = None  # {"text","set_at"} — an owed instruction from Jonny
@@ -3102,6 +3103,25 @@ class VTubeBot:
                 self.vision_agent.stop_slideshow()
         except Exception as e:
             print(f"   [TurboVision] slideshow toggle failed: {e}")
+
+    # Presence → drive-gap presets (C7: one cadence dial). Lower = yappier.
+    _PRESENCE_GAP = {
+        "chatty": DRIVE_GAP_CHATTY,
+        "normal": DRIVE_GAP_NORMAL,
+        "sleepy": DRIVE_GAP_SLEEPY,
+    }
+
+    def apply_presence(self, level: str) -> None:
+        """Presence is the single cadence dial (C7). Setting it also sets the LIVE
+        Director drive-gap (director_min_gap_s) — lower = more present/yappier — so
+        the dial actually governs proactive cadence on the path that runs (the
+        Director), not just the legacy boredom thresholds. The dashboard gap slider
+        fine-tunes director_min_gap_s from this preset afterward."""
+        level = level if level in self._PRESENCE_GAP else "normal"
+        self.presence_level = level
+        self.director_min_gap_s = self._PRESENCE_GAP[level]
+        print(f"   [Presence] {level} → Director drive-gap {self.director_min_gap_s:.0f}s "
+              f"(lower = more present).")
 
     def _episode_timeline_context(self) -> str:
         """The rolling 'what's happened' timeline for prompt injection. Prefers

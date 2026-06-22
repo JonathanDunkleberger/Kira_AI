@@ -434,8 +434,17 @@ OBJECTIVE_MAX_AGE_S = float(os.getenv("OBJECTIVE_MAX_AGE_S", "300.0"))
 # Still activity-focused only (stays out of plain hangout). Under Focus/Lock-In she
 # keeps driving the GAME but suppresses chat-directed yapping (see chat_lock_in).
 ACTIVITY_DIRECTOR_ENABLED = os.getenv("ACTIVITY_DIRECTOR_ENABLED", "true").lower() == "true"
-DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "15.0"))    # assertive floor between Director utterances (boot default; live-tunable)
+DIRECTOR_MIN_GAP_S = float(os.getenv("DIRECTOR_MIN_GAP_S", "10.0"))    # Neuro-tier default floor between Director utterances (= presence 'normal'; boot default, live-tunable)
 DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence that triggers "create" (assertive)
+
+# Presence → Director drive-gap presets (C7: presence is the SINGLE cadence dial).
+# Confirmed in code (bot.py: Director fires when now - last_fire >= director_min_gap_s):
+# LOWER gap = more frequent/yappier, HIGHER = sparser. Picking a presence sets
+# director_min_gap_s to its preset on the LIVE Director path; the dashboard gap
+# slider then fine-tunes from there (clamp 3-120s). Neuro-tier tight by default.
+DRIVE_GAP_CHATTY = float(os.getenv("DRIVE_GAP_CHATTY", "5.0"))    # yappy / max presence
+DRIVE_GAP_NORMAL = float(os.getenv("DRIVE_GAP_NORMAL", "10.0"))   # Neuro-tier default
+DRIVE_GAP_SLEEPY = float(os.getenv("DRIVE_GAP_SLEEPY", "28.0"))   # sparse / laid-back
 
 # ── Reading the room (INVISIBLE drive-cadence modifier; default OFF) ────────────
 # Silently dials HOW MUCH the Director drives based on the BEHAVIORAL texture of the

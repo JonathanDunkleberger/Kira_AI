@@ -1068,8 +1068,10 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         level = str(getattr(body, "presence", None) or "").strip().lower()
         if level not in ("sleepy", "normal", "chatty"):
             return _err("presence must be one of: sleepy, normal, chatty")
-        bot.presence_level = level
-        return _ok(presence_level=bot.presence_level)
+        # C7: presence is the single cadence dial — it also sets the live Director
+        # drive-gap. The gap slider fine-tunes director_min_gap_s from the preset.
+        bot.apply_presence(level)
+        return _ok(presence_level=bot.presence_level, director_min_gap_s=bot.director_min_gap_s)
 
     if action == "lock_in_toggle":
         # Focus / "Lock In" — the heads-down clamp ("shut up and play"). ON → she goes
