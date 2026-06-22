@@ -78,6 +78,7 @@ from kira.config import (
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
     LOOPBACK_SUMMARY_SWITCH_OVERLAP, LOOPBACK_SUMMARY_SWITCH_MIN_WORDS,
+    LOOPBACK_NAME_DRIFT_GUARD_ENABLED,
     WHEEL_ENTRANCE_MS, WHEEL_SPIN_MS, WHEEL_LAND_BUFFER_MS,
 )
 from kira.memory.stream_logger import StreamLogger
@@ -9637,6 +9638,7 @@ class VTubeBot:
 
         print(f"   [LoopbackSTT] Dialogue summary loop active (interval={SUMMARY_INTERVAL_S:.0f}s, "
               f"age-out={LOOPBACK_SUMMARY_AGEOUT_S:.0f}s).")
+        _last_anchor_logged = None  # name-drift guard: log the title-anchor once per activity, not every tick
         while self.is_running:
             await asyncio.sleep(SUMMARY_INTERVAL_S)
             lt = self.loopback_transcriber
@@ -9676,7 +9678,31 @@ class VTubeBot:
                             "back into the room. Only facts from the dialogue. If nothing "
                             "meaningful has changed: NO_UPDATE"
                         )
-                        result = await self.ai_core.tool_inference(_SYSTEM, user_msg, max_tokens=120)
+                        # Name-drift guard: when a title is known, anchor the summarizer
+                        # on it so an obvious mis-transcription is corrected toward the
+                        # canonical character name (Cora -> Korra), and an unmatched garbled
+                        # name is described by role rather than guessed wrong. No-op
+                        # (byte-identical _SYSTEM) when disabled or no activity is set.
+                        system_msg = _SYSTEM
+                        _activity = (self.current_activity or "").strip()
+                        if LOOPBACK_NAME_DRIFT_GUARD_ENABLED and _activity:
+                            system_msg = _SYSTEM + (
+                                f" The audio is from \"{_activity}\". When a name in the dialogue "
+                                f"is clearly a speech-to-text mishearing of a real character or "
+                                f"person from \"{_activity}\", use the correct canonical spelling "
+                                f"instead of the garbled one. Do NOT add any character or name that "
+                                f"was not actually spoken, and do NOT change what happened — only "
+                                f"fix the spelling of names that were spoken. If a spoken name is "
+                                f"garbled and does not clearly match a known character from "
+                                f"\"{_activity}\", refer to them by role (\"a character\", "
+                                f"\"someone\") rather than committing to a wrong name."
+                            )
+                            if _activity != _last_anchor_logged:
+                                print(f"   [LoopbackSTT] 🎯 Name-drift guard ON — anchoring dialogue "
+                                      f"summary on \"{_activity}\" (correct misheard names toward "
+                                      f"canonical, hedge unknown ones).")
+                                _last_anchor_logged = _activity
+                        result = await self.ai_core.tool_inference(system_msg, user_msg, max_tokens=120)
                         if result and "NO_UPDATE" not in result.upper() and len(result.strip()) > 20:
                             lt.dialogue_summary = result.strip()
                             lt._summary_last_update_ts = now      # Batch 1: reset age-out clock

@@ -218,6 +218,19 @@ LOOPBACK_SUMMARY_AGEOUT_S = float(os.getenv("LOOPBACK_SUMMARY_AGEOUT_S", "180.0"
 LOOPBACK_SUMMARY_SWITCH_OVERLAP = float(os.getenv("LOOPBACK_SUMMARY_SWITCH_OVERLAP", "0.08"))
 LOOPBACK_SUMMARY_SWITCH_MIN_WORDS = int(os.getenv("LOOPBACK_SUMMARY_SWITCH_MIN_WORDS", "12"))
 
+# ── Dialogue-summary name-drift guard (default ON) ──────────────────────────────
+# The dialogue summarizer is told to preserve proper names verbatim — so a MISHEARD
+# name from Whisper ("Korra" -> "Cora") gets faithfully cemented, then propagated
+# every 15s by the continuity instruction. That wrong name feeds Kira's context and
+# she references a character who doesn't exist. When an activity TITLE is set (e.g.
+# "Legend of Korra"), this guard anchors the summarizer on it: correct an obvious
+# speech-to-text mis-transcription toward the canonical character name, and if a
+# garbled name matches NO known character, refer to them by role rather than commit
+# to a wrong guess (confident vagueness over confident wrongness). Strictly a no-op
+# when no activity name is set — the prompt is then byte-identical to before.
+# OFF -> today's summary prompt exactly. Does NOT touch watch-party/MediaWatch.
+LOOPBACK_NAME_DRIFT_GUARD_ENABLED = os.getenv("LOOPBACK_NAME_DRIFT_GUARD_ENABLED", "true").lower() == "true"
+
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures
 # all subsystems to stream-ready state: Vision ON, Audio=MEDIA, Immersive OFF,
