@@ -111,4 +111,10 @@ class Bridge:
         return self.core.save_state()
 
     def load_state(self, data):
-        self.core.load_state(data)
+        # core.load_state wants a VFile, not raw bytes — wrap the saved bytes in an
+        # in-memory VFile (save_state() returns bytes; this is the inverse).
+        from mgba.vfs import VFile
+        vf = VFile.fromEmpty()
+        vf.write(data, len(data))
+        vf.seek(0, 0)
+        return self.core.load_state(vf)
