@@ -110,6 +110,16 @@ VOICE_EMOTION_PROSODY = {
 EMOTION_SWING_ENABLED = os.getenv("EMOTION_SWING_ENABLED", "false").lower() == "true"
 EMOTION_SWING_HOLD_TURNS = int(os.getenv("EMOTION_SWING_HOLD_TURNS", "4"))  # extra turns a mood lingers through neutral reads
 
+# ── Persistent self ("the Eevee": constant core, evolving form) ────────────────
+# Her self (mood + feelings + standing takes + current want + bond with Jonny) reached
+# her REPLIES but NOT her DRIVES (Director/interjections fired from perception alone).
+# These route the SAME compact self-block into the drive path so proactive lines come
+# FROM her self, add a current-want through-line, and let her feelings about Jonny evolve.
+# Flag-gated for A/B on stream. Default ON.
+DRIVE_SELF_BLOCK_ENABLED = os.getenv("DRIVE_SELF_BLOCK_ENABLED", "true").lower() == "true"   # ① self into drives
+CURRENT_WANT_ENABLED     = os.getenv("CURRENT_WANT_ENABLED", "true").lower() == "true"        # ② through-line
+JONNY_BOND_ENABLED       = os.getenv("JONNY_BOND_ENABLED", "true").lower() == "true"          # ④ relational evolution
+
 # ── Self-aware glitch beats (default OFF) ──────────────────────────────────────
 # Surface HER OWN glitches (loopback went deaf, model fallback, mishear) as a RARE,
 # rate-limited fourth-wall wink ("...I completely blanked, give me a sec") via a

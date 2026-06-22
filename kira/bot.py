@@ -76,6 +76,7 @@ from kira.config import (
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
     BARGE_IN_YIELD_ENABLED,
     EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
+    DRIVE_SELF_BLOCK_ENABLED, CURRENT_WANT_ENABLED, JONNY_BOND_ENABLED,
     GLITCH_AWARE_ENABLED, GLITCH_AWARE_COOLDOWN_S, GLITCH_AWARE_CHANCE,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
@@ -6570,6 +6571,47 @@ class VTubeBot:
             f"{_goal}{_agenda}{_bits_block}{_heads_down}"
         )
 
+    def _build_self_block(self) -> str:
+        """Compact "[WHO YOU ARE RIGHT NOW]" self — mood + current feelings + standing
+        takes (+ current want [②] and Jonny-bond [④], added in their commits). Injected
+        into the DRIVE path (kira_deep_response via _execute_interjection) so her
+        proactive lines come FROM her self, not bare perception — the spark gap the POV
+        recon found (the reply path already had this; drives didn't). Kept COMPACT: the
+        drive prompt also carries scene + memory, so this is the priority HEAD, not a
+        dump. The header frames it as 'react THROUGH this' (color-the-perception lite)."""
+        if not DRIVE_SELF_BLOCK_ENABLED:
+            return ""
+        lines = []
+        # Mood — the one self-signal that already colored REPLIES; now colors DRIVES too.
+        try:
+            from kira.brain.ai_core import EMOTION_DESCRIPTORS
+            _mood = EMOTION_DESCRIPTORS.get(self.current_emotion, "")
+            if _mood:
+                lines.append(f"- Mood: {self.current_emotion.name} — {_mood}")
+        except Exception:
+            pass
+        # Strongest current feelings toward who's around (incl. Jonny once ④ lands).
+        try:
+            _feel = self.kira_state.get_feelings_line(3) if self.kira_state else ""
+        except Exception:
+            _feel = ""
+        if _feel:
+            lines.append(f"- How you feel about who's around: {_feel}")
+        # A couple of her live session takes (compact — first 2 bullets).
+        _takes = (self.session_takes_summary or "").strip()
+        if _takes:
+            _take_lines = [l.strip(" -•\t") for l in _takes.splitlines() if l.strip()][:2]
+            if _take_lines:
+                lines.append("- Your standing takes: " + "; ".join(_take_lines))
+        # [WHAT YOU'RE ON RIGHT NOW — item ②] and [You and Jonny — item ④] are appended
+        # here in their own commits, so this block is the single coherent self.
+        if not lines:
+            return ""
+        header = ("[WHO YOU ARE RIGHT NOW — you're not a neutral observer; react to the "
+                  "scene THROUGH this self. Let it color what you notice and how you feel "
+                  "about it; don't recite it.]")
+        return header + "\n" + "\n".join(lines)
+
     def _build_director_prompt(self, mode: str) -> str:
         """First-mover Director prompt. Legacy modes ('react'/'dead_air') are byte-for-byte
         unchanged (used when DIRECTOR_TAXONOMY_ENABLED is off); any other value is a taxonomy
@@ -9463,6 +9505,7 @@ class VTubeBot:
                     memory_context=memory_context,
                     recent_history=self.conversation_history,
                     use_sonnet=True,  # E: observer interjection — Sonnet [evaluate wit on next stream]
+                    self_context=self._build_self_block(),  # ① her self frames the drive
                 )
                 _llm_model = "sonnet"
             except Exception as e:

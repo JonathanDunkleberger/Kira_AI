@@ -853,6 +853,23 @@ class KiraState:
                 trend = "souring" if v < 0 else "turning around"
         return f"{entity} — {word}" + (f", {trend}" if trend else "")
 
+    def get_feelings_line(self, max_n: int = 3) -> str:
+        """Compact one-line render of her strongest current feelings toward tracked
+        entities — for the drive-path self-block (no header, no theories). Returns
+        e.g. "Mako — distrust, hardening; Asami — warming to" or "" if nothing strong.
+        Ranks by |valence| (strongest feeling, not just attachment) so a fresh grudge
+        surfaces even before familiarity compounds."""
+        scored = []
+        for e in self.entity_familiarity:
+            v = self.entity_valence.get(e, 0.0)
+            if abs(v) >= 0.15:
+                scored.append((e, v))
+        if not scored:
+            return ""
+        scored.sort(key=lambda x: -abs(x[1]))
+        return "; ".join(self._render_entity_feeling(e, self.entity_familiarity.get(e, 0))
+                         for e, _v in scored[:max_n])
+
     def get_state_block(self) -> str:
         """Return a [KIRA STATE] block for injection into dynamic context.
         Called by process_and_respond. Returns empty string when state is too

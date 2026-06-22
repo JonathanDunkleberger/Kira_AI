@@ -1141,7 +1141,7 @@ class AI_Core:
                 max_tokens_override=max_tokens,
             )
 
-    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None, max_tokens: int = 400, use_sonnet: bool = False) -> str:
+    async def kira_deep_response(self, request: str, scene_context: str = "", memory_context: str = "", recent_history: list = None, max_tokens: int = 400, use_sonnet: bool = False, self_context: str = "") -> str:
         """Generates a deep, in-character Kira response via Claude.
 
         use_sonnet=False (default) → Opus. Only the Invite/Deep thoughts path leaves this False.
@@ -1150,6 +1150,10 @@ class AI_Core:
         # Block A (static, cached): self.system_prompt — personality + tool rules, never changes.
         # Block C (dynamic, uncached): mode framing, scene perception, retrieved memories.
         dynamic_context = "[MODE: Deep Response \u2014 take your time, think carefully, be insightful and in-character.]"
+        # Item ①: her compact self frames the perception (injected BEFORE scene), so a
+        # drive reads "Mako did X — of course he did" (from her distrust), not "Mako did X".
+        if self_context:
+            dynamic_context += "\n\n" + self_context
         overlay = self._streamer_overlay_block()
         if overlay:
             dynamic_context += "\n\n" + overlay
