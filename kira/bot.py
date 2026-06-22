@@ -1876,21 +1876,20 @@ class VTubeBot:
     def _has_fresh_sense(self, vision_max_age: float = 60.0,
                          mw_max_age: float = 60.0,
                          loopback_max_age: float = 30.0):
-        """Returns (has_fresh, label). True when Kira has at least one FRESH
-        substantive sense right now: live vision, a recent substantive Media Watch
-        analysis, or recent in-scene dialogue from loopback. Used to gate proactive
-        deep interjections so she never anchors on days-old startup-brief memory as
-        if it were happening now. `label` names the sense (for logging)."""
-        # Vision <vision_max_age.
-        if self._has_fresh_visual_context(vision_max_age):
-            return True, "vision"
-        # Substantive (non-UNCERTAIN/STATIC) Media Watch analysis within window.
-        mw = self.media_watch
-        if mw is not None and getattr(mw, "is_running", False):
-            last_ts = getattr(mw, "_last_analysis_ts", 0) or 0
-            if last_ts and (time.time() - last_ts) <= mw_max_age and (mw.get_latest_summary() or ""):
-                return True, "media-watch"
-        # Recent in-scene dialogue from loopback.
+        """Returns (has_fresh, label) for the HIGHEST-PRIORITY fresh sense right now.
+        Gates proactive deep interjections so she never anchors on days-old
+        startup-brief memory as if it were current.
+
+        Priority (2026-06-22 — sensory prioritization): in-scene DIALOGUE (loopback,
+        what's being SAID) > VISION (what's on screen) > MEDIA-WATCH analysis >
+        AUDIO mood/music/ambient (lowest). Previously first-match-wins with vision
+        checked first, which let background audio read as equal to dialogue. Now we
+        collect ALL fresh senses and return the top-ranked one, so she LEADS with
+        dialogue/scene over ambient noise. NOTE: this orders dialogue above vision
+        per the product intent ('lead with what's being said'); flip the two ranks
+        below if you'd rather match the raw salience_filter score (vision > dialogue)."""
+        fresh = []  # (priority, label); higher wins
+        # In-scene dialogue from loopback — what characters are SAYING (most groundable).
         lt = self.loopback_transcriber
         if lt is not None and getattr(lt, "is_running", None) and lt.is_running():
             try:
@@ -1898,14 +1897,26 @@ class VTubeBot:
             except Exception:
                 segs = None
             if segs and (time.time() - segs[-1]["ts"]) <= loopback_max_age:
-                return True, "loopback-dialogue"
-        # A real audio EVENT (loud + confident) also counts as a fresh sense.
+                fresh.append((40, "loopback-dialogue"))
+        # Live vision — what's on screen.
+        if self._has_fresh_visual_context(vision_max_age):
+            fresh.append((30, "vision"))
+        # Substantive (non-UNCERTAIN/STATIC) Media Watch analysis within window.
+        mw = self.media_watch
+        if mw is not None and getattr(mw, "is_running", False):
+            last_ts = getattr(mw, "_last_analysis_ts", 0) or 0
+            if last_ts and (time.time() - last_ts) <= mw_max_age and (mw.get_latest_summary() or ""):
+                fresh.append((25, "media-watch"))
+        # A real audio EVENT (loud + confident) — mood/music/ambient, LOWEST priority.
         aa = self.audio_agent
         if aa is not None and aa.is_active() and getattr(aa, "audio_summary_is_event", False):
             cap_ts = getattr(aa, "last_capture_time", 0) or 0
             if cap_ts and (time.time() - cap_ts) <= mw_max_age:
-                return True, "audio-event"
-        return False, "none"
+                fresh.append((10, "audio-event"))
+        if not fresh:
+            return False, "none"
+        fresh.sort(reverse=True)  # highest priority first
+        return True, fresh[0][1]
 
     def _event_audio_summary(self) -> str:
         """Lowercased current audio summary, but ONLY when it is a real EVENT.
@@ -9430,6 +9441,17 @@ class VTubeBot:
         _t0_llm = time.time()
         _llm_model = "local"  # updated to "sonnet" if Claude path succeeds
         if self.ai_core.anthropic_client:
+            # Sensory priority (2026-06-22): order the interjection scene by source —
+            # in-scene DIALOGUE first (what's being said), then VISION (already in
+            # `scene`), then AUDIO MOOD last (ambient/music, lowest). So she reacts to
+            # dialogue over background noise instead of treating them equally.
+            lt = self.loopback_transcriber
+            if lt is not None and getattr(lt, "is_running", None) and lt.is_running():
+                _dlg = lt.get_dialogue_summary() if hasattr(lt, "get_dialogue_summary") else ""
+                if _dlg:
+                    _dlg_block = ("IN-SCENE DIALOGUE (what's being said — react to THIS "
+                                  f"over background noise):\n{_dlg}")
+                    scene = (_dlg_block + "\n\n" + scene) if scene else _dlg_block
             if self.audio_agent and self.audio_agent.is_active():
                 audio_ctx = self.audio_agent.get_audio_context(require_event=True)
                 if audio_ctx:
