@@ -177,6 +177,7 @@ SPEECH_POLL_INTERVAL: float = 0.1
 # never be invisible). At a 5s tick these are ~60s apart: frequent enough to
 # confirm liveness in the log, infrequent enough not to flood the console.
 MIC_GATE_LOG_EVERY_N_SKIPS: int = 12   # re-log while the mic gate keeps holding
+SELF_TTS_GATE_LOG_EVERY_N_SKIPS: int = 3  # re-log while the self-TTS gate holds (~15s at 5s tick)
 HEARTBEAT_EVERY_N_TICKS: int = 12      # device + window-RMS liveness line
 
 
@@ -271,6 +272,9 @@ class LoopbackTranscriber:
         # Constraint #3 diagnostics — mic-gate skip visibility + device heartbeat.
         self._mic_gate_suppressing: bool = False   # True while the gate is holding
         self._mic_gate_skip_streak: int = 0        # consecutive ticks skipped by it
+        # Self-TTS gate visibility (the silent skip that read "loop ok · 0/0" while deaf).
+        self._tts_gate_suppressing: bool = False
+        self._tts_gate_skip_streak: int = 0
         self._heartbeat_tick_counter: int = 0      # ticks that reached RMS stage
 
         self._available = DEPS_AVAILABLE
@@ -644,15 +648,36 @@ class LoopbackTranscriber:
                 speaking_now = bool(self._is_speaking_fn())
             except Exception:
                 speaking_now = False
+            _tts_skip = False
+            _tts_reason = ""
             if speaking_now:
                 self._speech_last_active_ts = time.time()
-                self.total_ticks_skipped_self_tts += 1
-                return
-            if self._speech_last_active_ts > 0.0:
+                _tts_skip = True
+                _tts_reason = "Kira speaking"
+            elif self._speech_last_active_ts > 0.0:
                 elapsed = time.time() - self._speech_last_active_ts
                 if elapsed < WINDOW_SECONDS:
-                    self.total_ticks_skipped_self_tts += 1
-                    return
+                    _tts_skip = True
+                    _tts_reason = f"post-TTS cooldown ({elapsed:.0f}/{WINDOW_SECONDS:.0f}s)"
+            if _tts_skip:
+                # Constraint #3: this gate USED to skip SILENTLY — that exact silent
+                # skip made loopback read "loop ok · 0/0" while actually deaf for a
+                # whole session (she was just talking nonstop). Log on entry to
+                # suppression + periodically while it holds, mirroring the mic gate.
+                self.total_ticks_skipped_self_tts += 1
+                self._tts_gate_skip_streak += 1
+                if (not self._tts_gate_suppressing
+                        or self._tts_gate_skip_streak % SELF_TTS_GATE_LOG_EVERY_N_SKIPS == 0):
+                    print(f"   [LoopbackSTT] tick skipped — self-TTS gate: {_tts_reason} "
+                          f"({self._tts_gate_skip_streak} skip(s))")
+                self._tts_gate_suppressing = True
+                return
+            # Gate released — announce recovery so resumption is visible too.
+            if self._tts_gate_suppressing:
+                print(f"   [LoopbackSTT] self-TTS gate released after "
+                      f"{self._tts_gate_skip_streak} skip(s) — resuming transcription.")
+                self._tts_gate_suppressing = False
+                self._tts_gate_skip_streak = 0
 
         # Task 2 — Mic-active gate: skip while the VAD detects Jonny's voice, AND
         # for a short cooldown afterward. This prevents his mic from appearing in the
