@@ -75,6 +75,13 @@ except ImportError:
 # (atrocity/sexual/self-harm/violence-as-punchline) are handled by the persona's HARD
 # CONTENT BOUNDARY, not here. This narrow net just hard-stops the most clipboard-able,
 # irreversible failures regardless of bit/roleplay framing. Extend via KIRA_CONTENT_DENYLIST.
+def _ts_ms() -> str:
+    """Wall-clock HH:MM:SS.mmm — turn-taking / talk-over timing instrumentation
+    (observation-only). Pairs with bot.py's _ts_ms for TTS START/STOP. Tag: [TurnTiming]."""
+    _t = time.time()
+    return time.strftime("%H:%M:%S", time.localtime(_t)) + f".{int((_t % 1) * 1000):03d}"
+
+
 _CONTENT_DENYLIST_SEED = frozenset({
     "nigger", "nigga", "faggot", "tranny", "kike", "chink", "spic", "wetback", "retard",
 })
@@ -1857,11 +1864,22 @@ class AI_Core:
             sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
             sound.set_volume(1.0)
             channel = sound.play()
-            
+            # [TurnTiming] TTS START — the instant her audio actually begins playing
+            # (after synth/network latency, unlike the earlier "[TTS] Speaking:" print).
+            # observation-only — correlate against VOICE ONSET to see overlap.
+            _tts_play_t0 = time.time()
+            print(f"   [TurnTiming] {_ts_ms()} TTS START — audio playback begins")
+
+            _tts_interrupted = False
             while channel.get_busy():
                 if self.interruption_event.is_set():
-                    channel.stop(); break
+                    channel.stop(); _tts_interrupted = True; break
                 await asyncio.sleep(0.1)
+            # [TurnTiming] TTS STOP — her audio finished (or was cut). Span = how long
+            # she actually held the floor for this chunk.
+            print(f"   [TurnTiming] {_ts_ms()} TTS STOP — playback "
+                  f"{'interrupted' if _tts_interrupted else 'finished'} "
+                  f"(span ~{int((time.time() - _tts_play_t0) * 1000)}ms)")
         except Exception as e:
             print(f"   Audio Playback Error: {e}")
 

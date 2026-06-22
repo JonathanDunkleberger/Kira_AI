@@ -110,6 +110,14 @@ except ImportError:
 
 _NVML_READY = False
 
+def _ts_ms() -> str:
+    """Wall-clock HH:MM:SS.mmm — for turn-taking / talk-over timing instrumentation
+    (observation-only). Lets VOICE ONSET/CLOSE, Director FIRE, and TTS START/STOP be
+    correlated to the millisecond across the log. Tag: [TurnTiming]."""
+    _t = time.time()
+    return time.strftime("%H:%M:%S", time.localtime(_t)) + f".{int((_t % 1) * 1000):03d}"
+
+
 def read_gpu_memory_gb():
     """Whole-card VRAM (used_gb, total_gb) via NVML.
 
@@ -5381,6 +5389,10 @@ class VTubeBot:
                     if is_speech:
                         if not triggered:
                             print("🎤 Recording...")
+                            # [TurnTiming] VOICE ONSET — the instant the VAD first
+                            # detects Jonny started speaking (observation-only).
+                            print(f"   [TurnTiming] {_ts_ms()} VOICE ONSET — mic speech started")
+                            self._turn_onset_ts = time.time()
                             triggered = True
                             # (mic-gate timestamp is stamped on every speech frame
                             # above — no sticky flag to set/clear here anymore.)
@@ -5396,10 +5408,17 @@ class VTubeBot:
                         frames.append(data)
                         silent_chunks += 1
                         if silent_chunks > max_silent_chunks:
+                            # [TurnTiming] VOICE CLOSE — the VAD finalized Jonny's turn after
+                            # the trailing-silence hangover (~silent_chunks*30ms of quiet).
+                            # observation-only; this is the ~1.2s vad_close the recon flagged.
+                            _pause_ms = silent_chunks * 30
+                            _spoke_ms = int((time.time() - getattr(self, "_turn_onset_ts", time.time())) * 1000)
+                            print(f"   [TurnTiming] {_ts_ms()} VOICE CLOSE — turn finalized "
+                                  f"(trailing pause ~{_pause_ms}ms, spoken span ~{_spoke_ms}ms since onset)")
                             # Trim trailing silence — keep at most 2 silent frames (60ms) at end
                             keep_chunks = max(len(frames) - 2, 1)
                             audio_data = b"".join(list(frames)[:keep_chunks])
-                            
+
                             frames.clear()
                             triggered = False
                             # (mic-gate timestamp auto-expires; nothing to clear.)
@@ -8490,6 +8509,17 @@ class VTubeBot:
                         _dead_air = silence_duration >= _eff_dead_air
                         if _fresh_ok or _dead_air:
                             self._last_director_ts = time.time()
+                            # [TurnTiming] DIRECTOR FIRE — one line with everything needed to
+                            # measure talk-over: wall-clock, silence since last activity, whether
+                            # Jonny's mic was active AT fire time (the guard the recon found
+                            # missing), which trigger (fresh/dead-air), and the live gap. Read
+                            # against VOICE ONSET above: "onset 08:14:22.140 -> fire 08:14:22.530".
+                            # observation-only — does NOT change the fire decision.
+                            print(f"   [TurnTiming] {_ts_ms()} DIRECTOR FIRE — "
+                                  f"silence={silence_duration:.1f}s "
+                                  f"mic_active={self._mic_recently_active()} "
+                                  f"fresh_ok={_fresh_ok} dead_air={_dead_air} "
+                                  f"eff_min_gap={_eff_min_gap:.0f}s gap={_dir_gap:.0f}s")
                             if DIRECTOR_TAXONOMY_ENABLED:
                                 # Taxonomy: pick a self-driven variant (CALLBACK > NOTICING >
                                 # PIVOT) and fire it thread-anchored. Same cadence/gate as
