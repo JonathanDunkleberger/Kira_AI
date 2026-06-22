@@ -84,9 +84,19 @@ def capture(bridge, render, pygame, args):
                 raise KeyboardInterrupt
             if ev.type == pygame.KEYDOWN:
                 if ev.key in (pygame.K_1, pygame.K_2, pygame.K_3):
+                    # Per-ball prompt-ready save: stand at the ball with "Do you want
+                    # this POKEMON?" OPEN, then 1/2/3 saves states/ball_<name>.state.
+                    import numpy as np
                     name = stx.BALL_ORDER[ev.key - pygame.K_1]
-                    wpts[name] = list(nav.coords(bridge) or (0, 0))
-                    log(f"marked {name} ball @ {wpts[name]}")
+                    os.makedirs(STATES, exist_ok=True)
+                    path = os.path.join(STATES, f"ball_{name}.state")
+                    with open(path, "wb") as f:
+                        f.write(bytes(bridge.save_state()))
+                    # box-detection: an open text box makes the bottom region bright/uniform
+                    bot = np.asarray(bridge.frame_rgb())[120:, :, :]
+                    box_open = bool(bot.mean() > 170)
+                    log(f"SAVED ball_{name}.state @ {nav.coords(bridge)}  "
+                        f"prompt_box_on_screen={'y' if box_open else 'n (open the YES/NO first!)'}")
                 elif ev.key == pygame.K_s:
                     os.makedirs(STATES, exist_ok=True)
                     save_path = os.path.join(STATES, f"{args.save_as}.state")
