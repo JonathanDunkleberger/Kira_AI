@@ -650,6 +650,7 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
 const WS_URL = 'ws://127.0.0.1:8766/ws';
 const API = 'http://127.0.0.1:8766';
 const THUMB_INT = 2000;
+const EYES_STALE_S = 75;   // frame older than this = FROZEN (no live heartbeat AND no slideshow backfill)
 const LS_PANELS = 'kira_panels_open';
 let _snap = {}, _wsAlive=false, _wsRetryMs=1000; const _wsRetryMax=16000;
 
@@ -713,10 +714,14 @@ async function loadInitialState(){ try{ const r=await fetch(`${API}/state`); con
 
 function startThumbPoll(){ setInterval(pollThumb,THUMB_INT); }
 function pollThumb(){
-  const on=_snap && _snap.vision_on;
+  // Gate on FRESHNESS, not is_active: a parked heartbeat with the slideshow
+  // backfilling keeps last_capture_time fresh, so the thumbnail still shows the
+  // live (slideshow) frame; a genuine park with no backfill goes stale -> placeholder.
+  const age=_snap && _snap.vision_last_capture_age;
+  const fresh=(age!=null && age < EYES_STALE_S);
   const img=document.getElementById('vision-thumb'), ph=document.getElementById('vision-thumb-ph');
   const pimg=document.getElementById('pop-eyes-frame'), pph=document.getElementById('pop-eyes-ph');
-  if(!on){ if(img)img.style.display='none'; if(ph)ph.style.display='flex'; if(pimg)pimg.style.display='none'; if(pph)pph.style.display='flex'; return; }
+  if(!fresh){ if(img)img.style.display='none'; if(ph)ph.style.display='flex'; if(pimg)pimg.style.display='none'; if(pph)pph.style.display='flex'; return; }
   const url=`${API}/vision/thumbnail?t=${Date.now()}`;
   const probe=new Image();
   probe.onload=()=>{ if(img){img.src=url;img.style.display='block';} if(ph)ph.style.display='none';
@@ -768,13 +773,26 @@ function renderRail(s){
 }
 
 function renderEyes(s){
-  setText('eyes-summary', s.vision_summary || 'Vision initializing…');
-  setText('eyes-age', s.vision_last_capture_age!=null ? `seen ${fmtAge(s.vision_last_capture_age)}` : '');
+  const age=s.vision_last_capture_age;
   const eff=s.effective||{}, perc=eff.perception||{};
-  const h=document.getElementById('eyes-health'); const ht=document.getElementById('eyes-health-txt');
+  const forced=!!eff.vision_force_off;
+  // FROZEN = no fresh frame from EITHER the heartbeat OR the slideshow backfill.
+  const frozen=(!forced && age!=null && age>=EYES_STALE_S);
+  // Summary — honest when frozen, don't present a stale scene as current.
+  setText('eyes-summary', frozen ? 'No live frame — vision is parked/dark right now.'
+                                  : (s.vision_summary || 'Vision initializing…'));
+  setText('eyes-age', age!=null ? `seen ${fmtAge(age)}` : '');
+  // Thumbnail placeholder text (shown by pollThumb when not fresh).
+  const ph=document.getElementById('vision-thumb-ph');
+  if(ph) ph.textContent = forced ? 'vision forced OFF'
+                        : frozen ? (perc.vision_parked ? `⏸ FROZEN — parked · ${fmtAge(age)}` : `⏸ FROZEN · ${fmtAge(age)}`)
+                        : 'no signal';
+  // Health lamp.
+  const h=document.getElementById('eyes-health'), ht=document.getElementById('eyes-health-txt');
   let cls='', txt='off';
-  if(eff.vision_force_off){ cls=''; txt='forced off'; }
-  else if(perc.vision_parked){ cls=''; txt='parked'; }
+  if(forced){ txt='forced off'; }
+  else if(frozen){ txt = perc.vision_parked ? `FROZEN — parked (${fmtAge(age)})` : `FROZEN (${fmtAge(age)})`; }
+  else if(perc.vision_parked){ cls='live'; txt='live · slideshow'; }   // parked but slideshow backfilling fresh frames
   else if(perc.vision_on){ cls='live'; txt=perc.vision_cadence_s?`live · ${Math.round(perc.vision_cadence_s)}s`:'live'; }
   if(h) h.className='health '+cls; if(ht) ht.textContent=txt;
 }
