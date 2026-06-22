@@ -10,6 +10,11 @@ import navigate as nav
 # FireRed convention (VERIFY in capture): the three balls on Oak's table, left->right.
 BALL_ORDER = ["bulbasaur", "charmander", "squirtle"]
 
+# ⚠ The first capture's marked tiles (8,3)/(9,3)/(10,3) were WRONG — verified
+# empirically against starter.state: at those tiles, A opens no prompt. The real
+# interaction is the FRONT row (face UP + A) near x=11..13. Pick is UNVERIFIED
+# pending a clean "prompt-ready" capture (see m1_starter.py / the report).
+
 
 def clear_dialogue(bridge, taps=8, hold=8, render=lambda: None):
     """Mash A to advance text boxes / confirm. Movement is locked during dialogue;

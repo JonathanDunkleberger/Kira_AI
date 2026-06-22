@@ -36,6 +36,31 @@ MOVE_F_POWER  = 0x01         # u8
 MOVE_F_TYPE   = 0x02         # u8
 
 
+# ── Party species (Gen-3 encrypted substructures) ───────────────────────────
+PARTY_MON_SIZE = 100
+# substructure order by personality%24 (G=Growth, A=Attacks, E=EVs, M=Misc)
+_SUBSTRUCT_ORDER = ["GAEM", "GAME", "GEAM", "GEMA", "GMAE", "GMEA",
+                    "AGEM", "AGME", "AEGM", "AEMG", "AMGE", "AMEG",
+                    "EGAM", "EGMA", "EAGM", "EAMG", "EMGA", "EMAG",
+                    "MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"]
+# FireRed internal species == National Dex for #1-251; the three starters:
+SPECIES_NAME = {1: "bulbasaur", 4: "charmander", 7: "squirtle"}
+STARTER_SPECIES = {v: k for k, v in SPECIES_NAME.items()}
+
+
+def read_party_species(bridge, slot=0):
+    """Decrypt the species of party slot N. CANDIDATE (depends on GPLAYER_PARTY).
+    Species lives in the encrypted Growth substructure: XOR key = PID ^ OTID."""
+    base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
+    pid = bridge.rd32(base + 0)
+    otid = bridge.rd32(base + 4)
+    key = pid ^ otid
+    order = _SUBSTRUCT_ORDER[pid % 24]
+    growth_addr = base + 32 + order.index("G") * 12
+    species = (bridge.rd32(growth_addr) ^ key) & 0xFFFF
+    return species
+
+
 def in_battle(bridge) -> bool:
     return bridge.rd32(GBATTLE_TYPE_FLAGS) != 0
 
