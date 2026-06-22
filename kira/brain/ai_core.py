@@ -685,18 +685,27 @@ class AI_Core:
                 "Do not say 'my memory says' or list them like a database."
             )
 
-        # Current scene context — what is on screen right now.
-        block_scene = ""
-        if situational_context:
-            block_scene = (
+        # Current scene context — what is on screen right now. Built via a helper so
+        # the stage-3 token-truncation can rebuild it from a TRIMMED situational head
+        # (preserving visual grounding) rather than dropping it wholesale.
+        _SCENE_GUIDANCE = (
+            "This is sense data — what your eyes are taking in. It is NOT a script or narration. "
+            "Do NOT recap or paraphrase it (Jonny saw it too — he doesn't want a closed-captioner). "
+            "If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence "
+            "and do not commit to specifics. React in YOUR voice — a feeling, quip, callback, take — "
+            "not a description of what is on the screen."
+        )
+
+        def _make_scene_block(sit: str) -> str:
+            if not sit:
+                return ""
+            return (
                 f"\n\n[CURRENT VISUAL PERCEPTION — what is on screen RIGHT NOW]\n"
-                f"{situational_context}\n"
-                f"This is sense data — what your eyes are taking in. It is NOT a script or narration. "
-                f"Do NOT recap or paraphrase it (Jonny saw it too — he doesn't want a closed-captioner). "
-                f"If it begins with 'UNCERTAIN:' or contains hedge language, treat it as low-confidence "
-                f"and do not commit to specifics. React in YOUR voice — a feeling, quip, callback, take — "
-                f"not a description of what is on the screen."
+                f"{sit}\n"
+                f"{_SCENE_GUIDANCE}"
             )
+
+        block_scene = _make_scene_block(situational_context)
 
         # Ambient/audio flavor — least protected, first to be cut.
         block_ambient = ""
@@ -789,13 +798,34 @@ class AI_Core:
                 print(f"   [WARN] PromptTruncation: trimmed older-history (-{dropped} tokens), kept {kept}")
 
         # 3. Current scene context (visual perception + activity framing).
-        if _total_tokens() > hard_budget and (block_scene or block_activity):
-            n = _count_tokens(block_scene) + _count_tokens(block_activity)
-            block_scene = ""
+        # Drop the activity FRAMING first (least essential). Then, rather than nuking
+        # visual grounding wholesale (the old behavior — it amputated the whole scene
+        # block, TURBO VISION included, and she went blind in-prompt), TRIM the scene
+        # to a protected head: CURRENT FRAME + TURBO VISION are assembled first in
+        # bot.py's scene block, so a head-keep preserves on-screen grounding. Only if
+        # even the floor head won't fit do we drop scene entirely.
+        if _total_tokens() > hard_budget and block_activity:
+            n_act = _count_tokens(block_activity)
             block_activity = ""
-            if "scene" in kept:
-                kept.remove("scene")
-            print(f"   [WARN] PromptTruncation: dropped scene-context (-{n} tokens), kept {kept}")
+            print(f"   [WARN] PromptTruncation: dropped activity-context (-{n_act} tokens), kept {kept}")
+        if _total_tokens() > hard_budget and block_scene:
+            sit = situational_context or ""
+            before = _count_tokens(block_scene)
+            fixed = _total_tokens() - before   # everything except the scene block
+            SCENE_HEAD_FLOOR_CHARS = 600       # ~CURRENT FRAME + a TURBO VISION beat
+            while (fixed + _count_tokens(block_scene)) > hard_budget and len(sit) > SCENE_HEAD_FLOOR_CHARS:
+                sit = sit[: int(len(sit) * 0.8)]
+                block_scene = _make_scene_block(sit + "\n…[scene trimmed to fit budget]")
+            if (fixed + _count_tokens(block_scene)) > hard_budget:
+                n = _count_tokens(block_scene)
+                block_scene = ""
+                if "scene" in kept:
+                    kept.remove("scene")
+                print(f"   [WARN] PromptTruncation: dropped scene-context (-{n} tokens; even vision head wouldn't fit), kept {kept}")
+            else:
+                removed = before - _count_tokens(block_scene)
+                if removed > 0:
+                    print(f"   [WARN] PromptTruncation: trimmed scene to vision head (-{removed} tokens, grounding kept), kept {kept}")
 
         # 4. Memory/identity facts — only sacrificed when nothing lower remains.
         if _total_tokens() > hard_budget and block_memory:

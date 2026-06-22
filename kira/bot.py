@@ -8802,22 +8802,31 @@ class VTubeBot:
                         current = ""
                     if current:
                         parts.append((100, f"CURRENT FRAME:\n{current}"))
-                    rolling = getattr(va, "scene_summary", "") if va else ""
-                    if rolling and len(rolling) > 20:
-                        parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
                     # Turbo Vision slideshow — multi-frame "what just happened" timeline.
+                    # Appended right after CURRENT FRAME (before STORY SO FAR) so the two
+                    # visual-grounding blocks are CONTIGUOUS at the head of the assembled
+                    # scene string — this is what lets the ai_core stage-2 token-truncation
+                    # keep a protected vision head instead of dropping grounding.
                     try:
                         _ss = va.get_episode_context() if (va and va.slideshow_has_context()) else ""
                     except Exception:
                         _ss = ""
                     if _ss:
-                        parts.append((70, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
+                        # Weight 95 (> PROTECT_WEIGHT 90, < CURRENT FRAME 100): the
+                        # on-screen sequence is her PRIMARY visual grounding, so the
+                        # char-budget guard must never evict it (it was being cut
+                        # 4064->961 chars, starving game/film commentary). Stage-2
+                        # token truncation in ai_core also protects scene now.
+                        parts.append((95, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
                         # Observation-only: prove the episode timeline actually reaches a
                         # prompt (the one gate criterion the log can't otherwise show).
                         # Latched so it fires once, not per-beat.
                         if not getattr(self, "_turbo_injection_logged", False):
                             self._turbo_injection_logged = True
                             print("   [TurboVision] injection landed (episode timeline → prompt)")
+                    rolling = getattr(va, "scene_summary", "") if va else ""
+                    if rolling and len(rolling) > 20:
+                        parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
                     # Dialogue summary from LoopbackSTT — the condensed "what's been
                     # said" that persists beyond the 60s raw window. Labeled per mode
                     # so a film's dialogue never reads as "GAME DIALOGUE".
