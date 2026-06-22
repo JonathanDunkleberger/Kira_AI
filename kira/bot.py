@@ -3258,8 +3258,9 @@ class VTubeBot:
                 recent_history=self.conversation_history, max_tokens=12, use_sonnet=True)
             low = (resp or "").lower()
             choice = next((k for k in options if k in low), None)
+            self._last_starter_reasoning = (resp or "").strip()   # verbatim, for the seam/endpoint
             if choice:
-                print(f"   [Pokemon] SELF CHOSE starter: {choice.upper()} (raw: {resp!r})")
+                print(f"   [Pokemon] SELF CHOSE starter: {choice.upper()} (verbatim: {resp!r})")
                 return choice
             print(f"   [Pokemon] starter query unparsable ({resp!r}) -> fallback {fallback}")
         except Exception as e:

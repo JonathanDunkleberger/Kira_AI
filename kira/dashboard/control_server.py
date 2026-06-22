@@ -999,6 +999,19 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         await bot.deactivate_game_mode_async()
         return _ok()
 
+    # ── Pokémon hybrid seam (the emulator process talks to her self over HTTP) ──
+    # The HANDS (separate m1_hybrid.py emulator window) ask her SELF to choose, and
+    # fire NEUTRAL game-events she reacts to. Flag-gated by POKEMON_AGENT_ENABLED.
+    if action == "pokemon_choose_starter":
+        choice = await bot._pokemon_choose_starter()                 # her self picks (Sonnet)
+        return _ok(choice=choice, reasoning=getattr(bot, "_last_starter_reasoning", ""))
+
+    if action == "pokemon_event":
+        summary = (body.name or getattr(body, "text", None) or "").strip()
+        if summary:
+            asyncio.ensure_future(bot._pokemon_react(summary))       # fire-and-forget (TTS is long)
+        return _ok(fired=bool(summary))
+
     # ── Vision force-off override (master kill-switch) ────────────────────────
     # The EYES panel's ONLY vision control. Vision otherwise follows the always-on
     # calm baseline + Turbo Vision escalation. Honest override: ON = force vision

@@ -12,8 +12,8 @@ current SaveBlock1; coords are read as *(SaveBlock1Ptr) + offset.
 # ── Fixed-address candidates (EWRAM/IWRAM) ───────────────────────────────────
 GSAVEBLOCK1_PTR   = 0x03005008   # pointer -> current SaveBlock1 (DMA-shuffled target)
 GSAVEBLOCK2_PTR   = 0x0300500C   # pointer -> SaveBlock2
-GPLAYER_PARTY_CNT = 0x02024029   # u8: number of Pokémon in the player's party (0..6)
-GPLAYER_PARTY     = 0x02024284   # start of party data (100 bytes / mon)
+GPLAYER_PARTY_CNT = 0x02024029   # u8 party count. ✅ LOCKED 2026-06-22: read 1 from after_pick.state
+GPLAYER_PARTY     = 0x02024284   # party data (100 B/mon). ✅ LOCKED: species decrypted to 4=charmander
 
 # ── Offsets WITHIN SaveBlock1 (add to the dereferenced pointer) ───────────────
 SB1_OFF_POS_X     = 0x0000       # s16 player map X

@@ -89,11 +89,10 @@ def capture(bridge, render, pygame, args):
                     log(f"marked {name} ball @ {wpts[name]}")
                 elif ev.key == pygame.K_s:
                     os.makedirs(STATES, exist_ok=True)
-                    with open(STATE, "wb") as f:
+                    save_path = os.path.join(STATES, f"{args.save_as}.state")
+                    with open(save_path, "wb") as f:
                         f.write(bytes(bridge.save_state()))
-                    with open(WPTS, "w") as f:
-                        json.dump(wpts, f, indent=2)
-                    log(f"SAVED {STATE} + waypoints {wpts}")
+                    log(f"SAVED state -> {save_path}")
         pressed = pygame.key.get_pressed()
         keys = [v for k, v in keymap.items() if pressed[k]]
         bridge.set_keys(*keys) if keys else bridge.release()
@@ -146,6 +145,8 @@ def print_result(r):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--capture", action="store_true")
+    ap.add_argument("--save-as", default="starter",
+                    help="basename for S-saved state (e.g. 'after_pick' -> states/after_pick.state)")
     ap.add_argument("--pick", default=None, help="standalone stub choice")
     ap.add_argument("--headless", action="store_true")
     ap.add_argument("--seconds", type=float, default=300.0)
