@@ -3235,6 +3235,37 @@ class VTubeBot:
             self.last_interaction_time = time.time()
         await self._drain_pending_interjections()
 
+    async def _pokemon_choose_starter(self) -> str:
+        """The ONE place her SELF reaches into the hands: ask Kira which starter she
+        wants, colored by her actual self (mood/opinions/current-want via
+        _build_self_block). Returns 'bulbasaur'|'charmander'|'squirtle'. NOT hardcoded -
+        we find out live what she picks. Falls back to her standing preference ONLY if
+        the query fails/unparsable (logged loudly)."""
+        options = ("bulbasaur", "charmander", "squirtle")
+        fallback = "bulbasaur"   # her repeatedly-stated preference — used ONLY on failure
+        if not POKEMON_AGENT_ENABLED or self.ai_core is None:
+            return fallback
+        try:
+            prompt = (
+                "You're standing at Professor Oak's table. Three starter Pokemon sit "
+                "there: Bulbasaur (Grass), Charmander (Fire), Squirtle (Water). This is "
+                "YOUR choice - from who YOU actually are: your taste, your mood, what you'd "
+                "genuinely want as your partner. Answer with EXACTLY ONE word: "
+                "Bulbasaur, Charmander, or Squirtle."
+            )
+            resp = await self.ai_core.kira_deep_response(
+                request=prompt, self_context=self._build_self_block(),
+                recent_history=self.conversation_history, max_tokens=12, use_sonnet=True)
+            low = (resp or "").lower()
+            choice = next((k for k in options if k in low), None)
+            if choice:
+                print(f"   [Pokemon] SELF CHOSE starter: {choice.upper()} (raw: {resp!r})")
+                return choice
+            print(f"   [Pokemon] starter query unparsable ({resp!r}) -> fallback {fallback}")
+        except Exception as e:
+            print(f"   [Pokemon] starter query FAILED: {e} -> fallback {fallback}")
+        return fallback
+
     async def _chess_react(self, summary: str, *, bypass: bool = False):
         """Autonomous in-character reaction to a NOTEWORTHY chess moment.
 
