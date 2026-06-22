@@ -91,7 +91,6 @@ from kira.senses.loopback_transcriber import LoopbackTranscriber
 from kira.brain.game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
 from kira.modes.vn_autopilot import VNAutopilot
 from kira.brain.kira_state import KiraState, SessionIntensity
-from kira.senses.media_watch import MediaWatch
 from kira.chess.chess_agent import ChessAgent
 from kira.games import CodenamesState
 from kira.storytime import StorytimeShow
@@ -597,10 +596,10 @@ class VTubeBot:
         self.vn_autopilot: VNAutopilot | None = None
         self.autopilot_paused_for_input: bool = False  # True when failsafe is active
 
-        # Media Watch Mode — initialized after ai_core is ready. Separate from
-        # both companion mode and VN autopilot; provides genuine sequence
-        # understanding for movies / anime via a rolling frame buffer + episode log.
-        self.media_watch: MediaWatch | None = None
+        # MediaWatch RETIRED — superseded by the always-on Turbo Vision slideshow
+        # (vision_agent). Kept as a permanent None so the remaining inert `if mw and
+        # ...` guarded reads stay safe until the dead-code tidy pass.
+        self.media_watch = None
 
         # Chess Mode (Phase 1) — initialized after ai_core is ready. Kira plays
         # real Lichess games vs Stockfish; mutually exclusive with Media Watch
