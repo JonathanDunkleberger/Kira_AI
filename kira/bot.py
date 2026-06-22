@@ -3168,6 +3168,11 @@ class VTubeBot:
         va = self.vision_agent
         try:
             if va and va.slideshow_has_context():
+                # Observation-only: confirm slideshow context reaches a prompt via the
+                # reply/Q&A path too (latched so it logs once, not per-reply).
+                if not getattr(self, "_turbo_injection_logged", False):
+                    self._turbo_injection_logged = True
+                    print("   [TurboVision] injection landed (episode timeline → prompt)")
                 return va.get_episode_context()
         except Exception:
             pass
@@ -8911,6 +8916,12 @@ class VTubeBot:
                             _ss = ""
                         if _ss:
                             parts.append((70, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
+                            # Observation-only: prove the episode timeline actually
+                            # reaches a prompt (the one gate criterion the log can't
+                            # otherwise show). Latched so it fires once, not per-beat.
+                            if not getattr(self, "_turbo_injection_logged", False):
+                                self._turbo_injection_logged = True
+                                print("   [TurboVision] injection landed (episode timeline → prompt)")
                     # Dialogue summary from LoopbackSTT — the condensed "what's been
                     # said" that persists beyond the 60s raw window. Labeled per mode
                     # so a film's dialogue never reads as "GAME DIALOGUE".
