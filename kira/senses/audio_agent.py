@@ -2,6 +2,7 @@
 import asyncio
 import base64
 import os
+import re
 import time
 import wave
 import io
@@ -24,7 +25,7 @@ except ImportError:
     PYAUDIO_AVAILABLE = False
 
 from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
-from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN
+from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN, AUDIO_CONTENT_CLASSIFY_ENABLED
 
 
 AUDIO_MODE_OFF = "off"
@@ -110,9 +111,19 @@ class AudioAgent:
     # the model's file-upload conversational mode. Frame as a live observation task.
     MEDIA_PROMPT = (
         "Live game, anime, movie, or stream audio is playing. Describe what you hear.\n"
-        "OUTPUT: 1-2 tight sentences. Mood + what it implies — enough for a co-host to react.\n"
         "\n"
-        "Good: 'Tense string stabs, no music — something is about to go wrong.'\n"
+        "OUTPUT — exactly two lines:\n"
+        "CONTENT: <SPEECH|MUSIC|AMBIENT|MIXED>\n"
+        "<1-2 tight sentences: mood + what it implies — enough for a co-host to react.>\n"
+        "\n"
+        "CONTENT tag (what is in the FOREGROUND):\n"
+        "- SPEECH  = people talking / dialogue is the foreground (with or without quiet score under it)\n"
+        "- MUSIC   = score or a song dominates; NO one is talking in the foreground\n"
+        "- AMBIENT = room tone, sfx, environmental noise; no music and no talking\n"
+        "- MIXED   = talking happening OVER prominent music/noise (both foreground)\n"
+        "\n"
+        "Good: 'CONTENT: MUSIC\\nSwelling strings over a slow drum — heavy, building toward something.'\n"
+        "Good: 'CONTENT: SPEECH\\nTwo voices, clipped and urgent — an argument mid-escalation.'\n"
         "Bad:  'Brass and percussion instruments playing at medium tempo.'\n"
         "\n"
         "NEVER:\n"
@@ -124,8 +135,8 @@ class AudioAgent:
         "- Invent dialogue, lyrics, or specific instrument names you are not certain of\n"
         "- Write meta-commentary, retrospective notes, or self-reflection\n"
         "\n"
-        "IF SILENT / AMBIENT ONLY / INAUDIBLE: output exactly: AUDIO_SILENT\n"
-        "IF UNCERTAIN about specifics: prefix with 'UNCERTAIN:' and describe only general mood and presence/absence of voice.\n"
+        "IF SILENT / INAUDIBLE: output exactly: AUDIO_SILENT  (omit the CONTENT line entirely)\n"
+        "IF UNCERTAIN about specifics: keep the CONTENT line, then prefix the summary line with 'UNCERTAIN:' and describe only general mood and presence/absence of voice.\n"
         "DO NOT manufacture drama from quiet or barely-audible input. Near-silence is AUDIO_SILENT, never an ominous scene. "
         "When in doubt between 'something faint' and 'silence', choose AUDIO_SILENT or UNCERTAIN."
     )
@@ -249,6 +260,11 @@ class AudioAgent:
         # not trigger interjections and are excluded from interjection prompts.
         self.audio_summary_rms: float = 0.0
         self.audio_summary_is_event: bool = False
+        # Content classifier (2026-06-22): dominant content type the mood model
+        # reported for the current summary — SPEECH / MUSIC / AMBIENT / MIXED / None.
+        # MUSIC/AMBIENT are BACKGROUNDED (is_event forced False). Exposed for the
+        # dashboard + any downstream that wants to know "is this foreground speech".
+        self.audio_content_type: Optional[str] = None
         # Wall-clock midpoint of the buffer the current summary describes — used by
         # the sense->speak lag instrumentation in bot.py.
         self.audio_summary_mid_ts: float = 0.0
@@ -960,6 +976,21 @@ class AudioAgent:
             )
             content = (response.choices[0].message.content or "").strip()
 
+            # ── Content classifier (item ②) ─────────────────────────────────────
+            # The mood call now ALSO returns a "CONTENT: <SPEECH|MUSIC|AMBIENT|MIXED>"
+            # first line (zero extra API cost). Parse + strip it so all the existing
+            # AUDIO_SILENT / meta / UNCERTAIN / RMS logic below runs on the summary
+            # text unchanged. Routing (background music/ambient) happens at the
+            # is_event step. Only in MEDIA mode — MUSIC mode is Jonny performing, which
+            # she's MEANT to react to, so it's never backgrounded.
+            self.audio_content_type = None
+            if AUDIO_CONTENT_CLASSIFY_ENABLED and self.mode == AUDIO_MODE_MEDIA and content:
+                _m = re.match(r"^\s*CONTENT:\s*(SPEECH|MUSIC|AMBIENT|MIXED)\b[ \t]*\r?\n?",
+                              content, re.IGNORECASE)
+                if _m:
+                    self.audio_content_type = _m.group(1).upper()
+                    content = content[_m.end():].strip()
+
             # Treat AUDIO_SILENT, empty, AND model meta-chatter the same way — none of
             # them are real descriptions and all of them would pollute Kira's context
             # if forwarded. The meta-reply filter is essential because gpt-audio-mini
@@ -1000,6 +1031,28 @@ class AudioAgent:
             # scene (that was throwing away real game-audio reactions, e.g. RMS=0.189).
             _is_uncertain = content.upper().startswith("UNCERTAIN")
             self.audio_summary_is_event = rms >= self.EVENT_RMS_FLOOR
+            # ── Content routing (item ②) ────────────────────────────────────────
+            # Background MUSIC / AMBIENT: she should experience it like a human —
+            # foreground when people talk, background for the score. Force is_event
+            # False so it can NOT trigger a proactive comment (it's excluded from
+            # _has_fresh_sense, get_audio_context(require_event=True), and the
+            # [Intensity] read, all of which gate on is_event) — yet KEEP the real
+            # description (not "(quiet)") so she's still subtly AWARE of it on the
+            # reply path + dashboard. SPEECH/MIXED stay foreground (dialogue present).
+            if (self.audio_content_type in ("MUSIC", "AMBIENT")
+                    and self.audio_summary_is_event):
+                # Keep the real text (not "(quiet)") but flip the event flag off.
+                # Strip any UNCERTAIN: prefix (we return before the else branch does).
+                _bg = content[len("UNCERTAIN"):].lstrip(": ").strip() if _is_uncertain else content
+                self.audio_summary = _bg
+                self.audio_summary_is_event = False
+                self._log_summary(_bg)
+                print(f"   [Audio] content={self.audio_content_type} → backgrounded "
+                      f"(mood only, no trigger; RMS={rms:.3f}): {_bg[:60]!r}")
+                return
+            if self.audio_content_type in ("SPEECH", "MIXED") and self.audio_summary_is_event:
+                print(f"   [Audio] content={self.audio_content_type} → foreground "
+                      f"(dialogue priority; RMS={rms:.3f})")
             if not self.audio_summary_is_event:
                 reason = f"RMS<{self.EVENT_RMS_FLOOR}" + ("/UNCERTAIN" if _is_uncertain else "")
                 # DROP the confabulation entirely — do NOT keep invented text for

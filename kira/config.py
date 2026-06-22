@@ -311,6 +311,12 @@ DIARY_RECAP_ENABLED = os.getenv("DIARY_RECAP_ENABLED", "true").lower() == "true"
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
 AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
+# Audio content classifier (2026-06-22): the mood call ALSO returns a dominant
+# content tag (SPEECH/MUSIC/AMBIENT/MIXED) — zero extra API cost. MUSIC/AMBIENT are
+# BACKGROUNDED (audio_summary_is_event forced False: no proactive trigger, no
+# intensity spike — she experiences the score as background, not a story event);
+# SPEECH/MIXED stay foreground (dialogue priority). Default ON; flip to A/B on stream.
+AUDIO_CONTENT_CLASSIFY_ENABLED = os.getenv("AUDIO_CONTENT_CLASSIFY_ENABLED", "true").lower() == "true"
 
 # Feature Flags
 ENABLE_TWITCH_CHAT = os.getenv("ENABLE_TWITCH_CHAT", "true").lower() == "true"
