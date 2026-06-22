@@ -3,2975 +3,995 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kira Dashboard</title>
+<title>Kira — Cockpit</title>
 <style>
-/* ═══════════════════════════════════════════════════════════
-   COZY COFFEE-SHOP PALETTE
-   Mirrors theme.py — espresso / mahogany / oak / caramel
-═══════════════════════════════════════════════════════════ */
-:root {
-  --app-bg:       #1C1410;   /* espresso */
-  --card-bg:      #28201A;   /* mahogany */
-  --ctrl-bg:      #382C22;   /* oak */
-  --sub-bg:       #312518;   /* teak */
-  --border:       #4A3828;
+/* ════════════════ ENERGON DARK — Apple-elegant meets Transformers ════════════════ */
+:root{
+  --bg-void:#0A0D12; --bg-surface:#12161F; --bg-elevated:#1A2030; --bg-inset:#0E121A;
+  --hairline:#222B3A; --hairline-soft:#1A2230;
+  --silver-1:#E8ECF2; --silver-2:#9BA8BC; --silver-3:#5C6878; --silver-4:#3A4452;
+  --blue:#3D9BFF; --blue-glow:#6FB6FF; --blue-dim:#1E3350; --blue-deep:#16344f;
+  --red:#E5484D; --red-dim:#3a1c1f;
+  --amber:#F5C542;
+  --ok:#3D9BFF; --warn:#F5C542; --bad:#E5484D; --idle:#5C6878;
+  --chrome-1:#C9D2DE; --chrome-2:#8893A4;
+  --radius:14px; --radius-sm:9px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --shadow:0 8px 30px rgba(0,0,0,.45);
+  --font:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono','SF Mono','Cascadia Code',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(61,155,255,.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(61,155,255,.04), transparent 55%),
+    var(--bg-void);
+  color:var(--silver-1); font-family:var(--font); font-size:15px; line-height:1.45;
+  -webkit-font-smoothing:antialiased; letter-spacing:.1px;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--hairline);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--silver-4)}
 
-  --text-primary: #F4EACC;   /* warm oat cream */
-  --text-sec:     #C4A06A;   /* caramel */
-  --text-muted:   #8A7050;   /* taupe */
-  --perception:   #A88A5E;   /* one step up from muted — italic perception text */
-  --header:       #B8904A;   /* brass */
+/* ── micro-label ── */
+.mlabel{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--silver-3)}
 
-  --accent:       #C08840;   /* caramel accent */
-  --accent-glow:  rgba(192,136,64,0.25);
-  --sakura:       #7A9E6E;   /* sage green */
-  --sakura-soft:  #6E8F62;
+/* ════════════ STATUS RAIL ════════════ */
+#rail{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  padding:11px 22px;
+  background:linear-gradient(180deg, rgba(18,22,31,.92), rgba(14,18,26,.88));
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--hairline);
+  box-shadow:0 1px 0 rgba(255,255,255,.02), 0 6px 22px rgba(0,0,0,.35);
+}
+#rail .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em;font-size:16px}
+#rail .brand .mark{width:9px;height:9px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, var(--blue-glow), var(--blue));
+  box-shadow:0 0 10px rgba(61,155,255,.6)}
+.rail-sep{width:1px;height:26px;background:var(--hairline)}
+.stat{display:flex;flex-direction:column;gap:1px;min-width:46px}
+.stat .v{font-size:15px;font-weight:650;color:var(--silver-1);font-variant-numeric:tabular-nums}
+.stat .v.mono{font-family:var(--mono);font-size:13.5px}
 
-  --success:      #7AAD68;
-  --danger:       #C0614A;   /* terracotta */
-  --warning:      #C4943A;   /* amber */
-  --off:          #5A4A38;
+/* emotion pulse */
+.emo{display:flex;align-items:center;gap:9px}
+.emo .dot{width:13px;height:13px;border-radius:50%;background:var(--blue);
+  box-shadow:0 0 0 0 rgba(61,155,255,.5); animation:breathe 3.4s var(--ease) infinite}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(61,155,255,.0);transform:scale(1)}
+  50%{box-shadow:0 0 14px 3px rgba(61,155,255,.28);transform:scale(1.08)}}
+.emo .lbl{font-weight:650;font-size:14px}
 
-  --attention:      #B5654A; /* desaturated rust — override / needs-attention */
-  --attention-tint: #2E1A14; /* rust-tinted fill for override chips */
-  --accent-tint:    #3A2C18; /* dimmed amber fill / strip background */
+/* mode pills */
+.pills{display:flex;gap:7px;align-items:center}
+.pill{font-size:11px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;
+  padding:5px 11px;border-radius:999px;border:1px solid var(--hairline);
+  color:var(--silver-3);background:var(--bg-inset);transition:all .2s var(--ease)}
+.pill.lit{color:var(--blue-glow);border-color:rgba(61,155,255,.5);
+  background:rgba(61,155,255,.10);box-shadow:0 0 12px rgba(61,155,255,.12)}
 
-  --font-base: 'Segoe UI', system-ui, sans-serif;
-  --r: 8px;     /* border radius */
-}
+/* conn dots */
+.dots{display:flex;gap:9px;align-items:center}
+.cdot{width:9px;height:9px;border-radius:50%;background:var(--idle);
+  transition:background .45s var(--ease),box-shadow .45s var(--ease)}
+.cdot.on{background:var(--blue);box-shadow:0 0 8px rgba(61,155,255,.55)}
+.cdot.bad{background:var(--red);box-shadow:0 0 8px rgba(229,72,77,.5)}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+#ws-indicator{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--silver-3)}
+#ws-indicator.live{color:var(--blue-glow)}
+.spark{width:8px;height:8px;border-radius:50%;background:transparent;margin-left:6px;display:inline-block;vertical-align:middle}
+.spark.on{background:var(--amber);box-shadow:0 0 10px 2px rgba(245,197,66,.6);animation:sparkpulse 1.5s ease-in-out infinite}
+@keyframes sparkpulse{0%,100%{opacity:.55}50%{opacity:1}}
+.rail-right{margin-left:auto;display:flex;align-items:center;gap:18px}
 
-html, body {
-  height: 100%;
-  background: var(--app-bg);
-  color: var(--text-primary);
-  font-family: var(--font-base);
-  font-size: 16px;
-  line-height: 1.45;
-}
+/* ════════════ LAYOUT ════════════ */
+#main{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 22px 60px;max-width:1680px;margin:0 auto}
+@media(max-width:1100px){#main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.zone-head{display:flex;align-items:center;gap:10px;margin:2px 2px 0}
+.zone-head .mlabel{font-size:11px;letter-spacing:.14em;color:var(--silver-2)}
+.zone-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--hairline),transparent)}
 
-/* ── Scrollbars ─────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--app-bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* card */
+.card{background:linear-gradient(180deg,var(--bg-surface),var(--bg-inset));
+  border:1px solid var(--hairline);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;position:relative}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,210,222,.10),transparent)}
+.card-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--hairline-soft)}
+.card-head .ttl{font-weight:650;font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+.card-head .glyph{font-size:15px;opacity:.85}
+.card-body{padding:15px 16px}
+.card-head .right{margin-left:auto;display:flex;align-items:center;gap:9px}
 
-/* ═══════════════════════════════════════════════════════════
-   TOP-LEVEL LAYOUT
-   [glance-bar][live-rail + transcript + panels scrollable]
-═══════════════════════════════════════════════════════════ */
-#layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
+/* health light */
+.health{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--silver-3)}
+.health .lamp{width:10px;height:10px;border-radius:50%;background:var(--idle);transition:all .4s var(--ease)}
+.health.live .lamp{background:var(--blue);box-shadow:0 0 9px rgba(61,155,255,.6)}
+.health.live{color:var(--blue-glow)}
+.health.deaf .lamp{background:var(--red);box-shadow:0 0 9px rgba(229,72,77,.55);animation:sparkpulse 1.2s infinite}
+.health.deaf{color:var(--red)}
 
-/* ── GLANCE BAR ─────────────────────────────────────────── */
-#glance {
-  flex-shrink: 0;
-  background: var(--card-bg);
-  border-bottom: 2px solid var(--border);
-  padding: 10px 18px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px 28px;
-}
+/* eyes */
+.thumb-wrap{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg-inset);
+  border:1px solid var(--hairline-soft);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px}
+.thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--silver-4);font-size:12px;letter-spacing:.06em}
+.scene{position:relative;font-size:13.5px;line-height:1.5;color:var(--silver-1)}
+.scene .age{color:var(--silver-3);font-size:11px;margin-top:6px;display:block}
+/* ~0.05% Van Gogh flourish — faint drifting impasto behind the scene line only */
+.scene.interior::before{content:"";position:absolute;inset:-8px -4px;z-index:0;pointer-events:none;opacity:.04;
+  background:
+    repeating-linear-gradient(115deg, rgba(111,182,255,.9) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(60deg, rgba(201,210,222,.7) 0 1px, transparent 1px 9px);
+  filter:blur(.6px);background-size:240px 240px,180px 180px;animation:drift 26s linear infinite}
+@keyframes drift{0%{background-position:0 0,0 0}100%{background-position:240px 120px,-180px 90px}}
+.scene>*{position:relative;z-index:1}
 
-#emotion-badge {
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  padding: 4px 14px;
-  border-radius: var(--r);
-  border: 2px solid currentColor;
-  transition: color .3s, border-color .3s;
-}
+/* loopback feed */
+.feed{font-family:var(--mono);font-size:12.5px;line-height:1.55;max-height:190px;overflow-y:auto;
+  background:var(--bg-inset);border:1px solid var(--hairline-soft);border-radius:var(--radius-sm);padding:10px 12px}
+.feed .ln{padding:2px 0;color:var(--silver-1)}
+.feed .ln .age{color:var(--silver-4);font-size:10.5px;margin-left:6px}
+.feed .ln.unc{color:var(--silver-3);font-style:italic}
+.dlg{margin-top:11px;font-size:13px;line-height:1.5;color:var(--silver-2);
+  border-left:2px solid var(--blue-deep);padding:4px 0 4px 11px}
+.dlg .mlabel{display:block;margin-bottom:3px}
 
-.glance-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.glance-stat .label {
-  font-size: .7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-.glance-stat .value {
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
+/* desktop audio */
+.aud-summary{font-size:13.5px;line-height:1.5;color:var(--silver-1);min-height:20px}
+.aud-summary .age{color:var(--silver-3);font-size:11px;margin-top:6px;display:block}
 
-#conn-dots {
-  display: flex;
-  gap: 12px;
-  margin-left: auto;
-}
-.dot-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.dot {
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--off);
-  transition: background .4s;
-}
-.dot.green  { background: var(--success); box-shadow: 0 0 6px var(--success); }
-.dot.amber  { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
-.dot.red    { background: var(--danger);  box-shadow: 0 0 6px var(--danger);  }
-.dot-label  { font-size: .65rem; color: var(--text-muted); }
+/* conversation */
+.convo{font-size:13px;line-height:1.5;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.convo .turn{padding:7px 11px;border-radius:9px;background:var(--bg-inset);border:1px solid var(--hairline-soft)}
+.convo .turn.kira{border-color:rgba(61,155,255,.22);background:rgba(61,155,255,.05)}
+.convo .who{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--silver-3);margin-bottom:2px}
+.convo .turn.kira .who{color:var(--blue-glow)}
+.np{margin-top:10px;font-size:12px;color:var(--silver-3);display:flex;align-items:center;gap:7px}
 
-#ws-indicator {
-  font-size: .72rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--danger);
-  color: #fff;
-  font-weight: 600;
-  transition: background .4s;
-}
-#ws-indicator.live { background: var(--success); }
+/* ════════════ CONTROLS ════════════ */
+.ctrl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+.ctrl-row:last-child{margin-bottom:0}
+.ctrl-row .rl{min-width:96px;color:var(--silver-2);font-size:12.5px;font-weight:600}
+.seg{display:inline-flex;background:var(--bg-inset);border:1px solid var(--hairline);border-radius:999px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--silver-3);
+  font:inherit;font-size:12.5px;font-weight:650;padding:6px 15px;border-radius:999px;cursor:pointer;transition:all .18s var(--ease)}
+.seg button.active{background:rgba(61,155,255,.16);color:var(--blue-glow);box-shadow:0 0 0 1px rgba(61,155,255,.35) inset}
+.seg button:hover:not(.active){color:var(--silver-1)}
 
-/* ── EFFECTIVE-STATE STRIP (truth bar under the glance) ──── */
-#eff-strip {
-  flex-shrink: 0;
-  background: var(--accent-tint);
-  border-bottom: 1px solid var(--border);
-  padding: 5px 18px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0 6px;
-  font-size: .8rem;
-  font-weight: 600;
-  letter-spacing: .02em;
-}
-#eff-strip .eff-seg { color: var(--text-primary); white-space: nowrap; }
-#eff-strip .eff-seg.attn { color: var(--attention); }
-#eff-strip .eff-sep { color: var(--border); }
+.btn{appearance:none;border:1px solid var(--hairline);background:var(--bg-elevated);color:var(--silver-1);
+  font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:var(--radius-sm);cursor:pointer;
+  transition:all .18s var(--ease)}
+.btn:hover{border-color:var(--silver-4);background:#202840}
+.btn.blue{border-color:rgba(61,155,255,.4);color:var(--blue-glow);background:rgba(61,155,255,.08)}
+.btn.blue:hover{background:rgba(61,155,255,.16)}
+.btn.danger{border-color:rgba(229,72,77,.45);color:#ff7a7e;background:rgba(229,72,77,.08)}
+.btn.danger:hover{background:rgba(229,72,77,.18)}
+.btn.sm{padding:6px 10px;font-size:12px}
+.btn.locked,.btn:disabled{opacity:.4;pointer-events:none}
+.flash-ok{animation:fok .6s var(--ease)} .flash-err{animation:ferr .6s var(--ease)}
+@keyframes fok{0%{box-shadow:0 0 0 2px rgba(61,155,255,.6)}100%{box-shadow:none}}
+@keyframes ferr{0%{box-shadow:0 0 0 2px rgba(229,72,77,.7)}100%{box-shadow:none}}
 
-/* ── PERCEPTION INDICATOR + TURBO VISION (always-visible glance) ──── */
-#perception-bar {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  padding: 6px 18px;
-  background: var(--ctrl-bg);
-  border-bottom: 1px solid var(--border);
-  font-size: .78rem;
-  font-weight: 600;
-}
-.perc-mode {
-  padding: 2px 11px;
-  border-radius: 999px;
-  background: var(--accent-tint);
-  color: var(--text-sec);
-  border: 1px solid var(--border);
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.perc-mode.deep {
-  background: color-mix(in srgb, var(--accent) 22%, var(--ctrl-bg));
-  color: var(--accent);
-  border-color: var(--accent);
-}
-.perc-dots { display: flex; gap: 14px; flex-wrap: wrap; }
-.perc-dot { color: var(--text-muted); white-space: nowrap; transition: color .2s; }
-.perc-dot.on { color: var(--success); }
-.perc-dot.off { color: var(--text-muted); }
-.perc-deep { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.perc-deep-label {
-  color: var(--text-sec);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  font-size: .72rem;
-}
+/* switch */
+.sw{position:relative;display:inline-block;width:42px;height:23px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.sw .track{position:absolute;inset:0;background:var(--bg-inset);border:1px solid var(--hairline);
+  border-radius:999px;transition:all .2s var(--ease)}
+.sw .knob{position:absolute;left:3px;top:3px;width:15px;height:15px;border-radius:50%;
+  background:var(--silver-3);transition:all .2s var(--ease)}
+.sw input:checked + .track{background:rgba(61,155,255,.25);border-color:rgba(61,155,255,.5)}
+.sw input:checked + .track + .knob{transform:translateX(19px);background:var(--blue-glow);box-shadow:0 0 8px rgba(61,155,255,.6)}
+.sw.override .track{background:rgba(245,197,66,.22);border-color:rgba(245,197,66,.5)}
+.sw.override .knob{background:var(--amber)}
+.toggle-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline-soft)}
+.toggle-row:last-child{border-bottom:0}
+.toggle-row .toggle-label{flex:1;font-size:13.5px;font-weight:600}
+.toggle-row.locked{opacity:.45}
+.override-chip{display:inline-block;margin-left:8px;font-size:9.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--amber);background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.3);
+  padding:1px 6px;border-radius:6px;vertical-align:middle}
 
-/* ── Three-state switch override styling ────────────────── */
-.sw.override .sw-track { background: var(--accent-tint); box-shadow: inset 0 0 0 2px var(--accent); }
-.sw.override .sw-knob  { background: var(--attention); }
-.override-chip {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--attention-tint);
-  color: var(--attention);
-  font-size: .65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  vertical-align: middle;
-}
-.override-chip:empty { display: none; }
+/* slider */
+.slider{display:flex;flex-direction:column;gap:7px;width:100%}
+.slider .top{display:flex;justify-content:space-between;font-size:11px;color:var(--silver-3);font-weight:600}
+.slider .top .val{color:var(--blue-glow);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:4px;
+  background:linear-gradient(90deg,var(--blue),var(--hairline));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--silver-1);border:2px solid var(--blue);cursor:pointer;box-shadow:0 0 8px rgba(61,155,255,.4)}
+.gap-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--silver-4);margin-top:-2px}
 
-/* ── OVERLAY VISIBILITY CHIPS ──────────────────────────── */
-#overlay-chips {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 14px;
-}
-#overlay-chips .ov-label {
-  font-size: .65rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  white-space: nowrap;
-  margin-right: 2px;
-}
-.ov-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--ctrl-bg);
-  color: var(--text-muted);
-  font-size: .65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
-  user-select: none;
-}
-.ov-chip.on {
-  background: color-mix(in srgb, var(--success) 18%, var(--ctrl-bg));
-  border-color: var(--success);
-  color: var(--success);
-}
-.ov-chip.off {
-  background: var(--ctrl-bg);
-  border-color: var(--border);
-  color: var(--text-muted);
-  opacity: .65;
-}
-.ov-chip .ov-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-}
+input[type=text],select,textarea{background:var(--bg-inset);border:1px solid var(--hairline);
+  color:var(--silver-1);font:inherit;font-size:13px;padding:7px 10px;border-radius:var(--radius-sm);outline:none;width:100%}
+input[type=text]:focus,select,textarea:focus{border-color:rgba(61,155,255,.5)}
+textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.field .mlabel{margin-bottom:1px}
+.inline{display:flex;gap:8px;align-items:center}
+.inline>input[type=text]{flex:1}
 
-/* ── MAIN BODY (below glance) ───────────────────────────── */
-#body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  gap: 0;
-}
+/* expandable panel */
+.panel{background:var(--bg-surface);border:1px solid var(--hairline);border-radius:var(--radius);overflow:hidden}
+.panel>.phead{display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .18s var(--ease)}
+.panel>.phead:hover{background:var(--bg-elevated)}
+.panel>.phead .ttl{font-weight:650;font-size:13.5px;flex:1;display:flex;align-items:center;gap:9px}
+.panel>.phead .chev{color:var(--silver-3);transition:transform .2s var(--ease);font-size:12px}
+.panel.open>.phead .chev{transform:rotate(90deg)}
+.panel>.pbody{max-height:0;overflow:hidden;transition:max-height .24s var(--ease)}
+.panel.open>.pbody{max-height:1600px}
+.panel>.pbody>.inner{padding:4px 16px 16px;border-top:1px solid var(--hairline-soft)}
+.pstat{font-size:11.5px;color:var(--silver-3);margin-left:auto}
 
-/* ── LIVE-ACTION RAIL (left strip) ─────────────────────── */
-#live-rail {
-  flex-shrink: 0;
-  width: 180px;
-  background: var(--sub-bg);
-  border-right: 2px solid var(--border);
-  padding: 14px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-}
+/* status text small */
+.muted{color:var(--silver-3);font-size:12px}
+.statusline{font-size:12.5px;color:var(--silver-2);padding:6px 0}
 
-.rail-btn {
-  width: 100%;
-  padding: 14px 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  border: none;
-  border-radius: var(--r);
-  cursor: pointer;
-  transition: opacity .15s, transform .1s, box-shadow .15s;
-  text-align: center;
-}
-.rail-btn:active { transform: scale(.96); }
+/* overlay chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:11px;font-weight:600;padding:5px 11px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--hairline);background:var(--bg-inset);color:var(--silver-3);transition:all .18s var(--ease)}
+.chip.on{color:var(--blue-glow);border-color:rgba(61,155,255,.45);background:rgba(61,155,255,.10)}
 
-.rail-btn.interrupt { background: var(--danger); color: #fff; }
-.rail-btn.mute      { background: var(--ctrl-bg); color: var(--text-primary); border: 1.5px solid var(--border); }
-.rail-btn.muted-on  { background: var(--warning); color: #1C1410; }
-.rail-btn.pause     { background: var(--ctrl-bg); color: var(--text-primary); border: 1.5px solid var(--border); }
-.rail-btn.paused-on { background: var(--danger); color: #fff; }
-.rail-btn.thoughts  { background: var(--sakura); color: #1C1410; }
-.rail-btn.stream    { background: var(--accent); color: #1C1410; }
+/* ════════════ POP-OUTS (overlay sheets; WS keeps running underneath) ════════════ */
+.popout{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:34px;
+  background:rgba(6,9,14,.74);backdrop-filter:blur(6px)}
+.popout.open{display:flex;animation:fade .18s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:min(1080px,96vw);max-height:90vh;overflow:auto;background:linear-gradient(180deg,var(--bg-elevated),var(--bg-surface));
+  border:1px solid var(--hairline);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.6);position:relative}
+.sheet .shead{display:flex;align-items:center;gap:11px;padding:16px 20px;border-bottom:1px solid var(--hairline);position:sticky;top:0;
+  background:linear-gradient(180deg,var(--bg-elevated),rgba(26,32,48,.92));backdrop-filter:blur(8px)}
+.sheet .shead .ttl{font-weight:700;font-size:16px}
+.sheet .sbody{padding:20px}
+.x{margin-left:auto;cursor:pointer;color:var(--silver-3);font-size:20px;line-height:1;padding:2px 8px;border-radius:8px}
+.x:hover{color:var(--silver-1);background:var(--bg-inset)}
+.popout-trigger{cursor:pointer;color:var(--silver-3);font-size:15px;padding:2px 7px;border-radius:7px;transition:all .18s var(--ease)}
+.popout-trigger:hover{color:var(--blue-glow);background:rgba(61,155,255,.1)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:780px){.two-col{grid-template-columns:1fr}}
+.tl-event{padding:9px 11px;border-radius:9px;background:var(--bg-inset);border:1px solid var(--hairline-soft);margin-bottom:8px;font-size:13px;line-height:1.5}
+.tl-event .ts{font-family:var(--mono);font-size:10.5px;color:var(--silver-4);margin-right:8px}
+.tl-event .tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:5px;margin-left:6px}
+.tl-event .tag.UNCERTAIN{color:var(--amber);background:rgba(245,197,66,.12)}
+.tl-event .tag.STATIC{color:var(--silver-3);background:var(--bg-elevated)}
+.tl-event.dim{color:var(--silver-3);font-style:italic}
+/* level meter */
+.meter{height:8px;border-radius:5px;background:var(--bg-inset);border:1px solid var(--hairline);overflow:hidden;margin-top:8px}
+.meter .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--blue-glow));transition:width .3s var(--ease)}
+.meter.deaf .fill{background:var(--red)}
 
-.rail-sep { height: 1px; background: var(--border); margin: 4px 0; }
-
-.rail-section-label {
-  font-size: .65rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-/* flash feedback */
-@keyframes flash-ok  { 0%,100%{opacity:1} 30%{opacity:.3} }
-@keyframes flash-err { 0%,100%{box-shadow:none} 40%{box-shadow:0 0 0 3px var(--danger)} }
-.flash-ok  { animation: flash-ok  .35s ease; }
-.flash-err { animation: flash-err .5s ease; }
-
-/* ── TRANSCRIPT COLUMN ──────────────────────────────────── */
-#transcript-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0;
-}
-
-#transcript-header {
-  flex-shrink: 0;
-  padding: 10px 18px 6px;
-  font-size: .7rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--header);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#now-playing {
-  margin-left: auto;
-  font-size: .8rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 300px;
-}
-
-#transcript-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 18px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.turn {
-  display: flex;
-  flex-direction: column;
-  max-width: 95%;
-}
-.turn.assistant { align-self: flex-start; }
-.turn.user      { align-self: flex-end; }
-
-.turn-speaker {
-  font-size: .7rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: 3px;
-}
-.turn.assistant .turn-speaker { color: var(--accent); }
-.turn.user      .turn-speaker { color: var(--text-muted); }
-
-.turn-bubble {
-  padding: 12px 16px;
-  border-radius: var(--r);
-  line-height: 1.5;
-}
-/* KIRA lines — big, dominant, accent-bordered */
-.turn.assistant .turn-bubble {
-  font-size: 1.25rem;
-  background: var(--card-bg);
-  border-left: 4px solid var(--accent);
-  color: var(--text-primary);
-}
-/* Jonny lines — smaller, right-aligned, muted */
-.turn.user .turn-bubble {
-  font-size: 1rem;
-  background: var(--sub-bg);
-  border-right: 3px solid var(--border);
-  color: var(--text-sec);
-}
-
-.transcript-empty {
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 1rem;
-  text-align: center;
-  margin-top: 40px;
-}
-
-/* ── PANELS COLUMN (right side, scrollable) ─────────────── */
-#panels-col {
-  flex-shrink: 0;
-  width: 320px;
-  border-left: 2px solid var(--border);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-#panels-col.stream-hidden { display: none; }
-
-/* Stream Mode toggle bar */
-#stream-mode-bar {
-  flex-shrink: 0;
-  background: var(--sub-bg);
-  border-bottom: 2px solid var(--border);
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-#stream-mode-btn {
-  flex: 1;
-  padding: 9px;
-  font-size: .85rem;
-  font-weight: 700;
-  border: 1.5px solid var(--border);
-  border-radius: var(--r);
-  background: var(--ctrl-bg);
-  color: var(--text-primary);
-  cursor: pointer;
-  letter-spacing: .04em;
-  transition: background .2s, color .2s;
-}
-#stream-mode-btn.active {
-  background: var(--accent);
-  color: #1C1410;
-  border-color: var(--accent);
-}
-
-/* ── COLLAPSIBLE PANEL BLOCKS ───────────────────────────── */
-.panel {
-  border-bottom: 1px solid var(--border);
-}
-.panel-header {
-  padding: 12px 16px;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: .8rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--header);
-  background: var(--card-bg);
-  transition: background .15s;
-}
-.panel-header:hover { background: var(--ctrl-bg); }
-.panel-chevron { font-size: .7rem; color: var(--text-muted); transition: transform .2s; }
-.panel.open .panel-chevron { transform: rotate(90deg); }
-
-.panel-body {
-  display: none;
-  padding: 14px 16px;
-  background: var(--card-bg);
-  flex-direction: column;
-  gap: 10px;
-}
-.panel.open .panel-body { display: flex; }
-
-/* ── FORM ELEMENTS ──────────────────────────────────────── */
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field label { font-size: .72rem; color: var(--text-muted); }
-.field input, .field select {
-  background: var(--sub-bg);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  color: var(--text-primary);
-  font-size: .9rem;
-  padding: 7px 10px;
-  width: 100%;
-  outline: none;
-  transition: border-color .15s;
-}
-.field input:focus, .field select:focus { border-color: var(--accent); }
-.field select option { background: var(--ctrl-bg); }
-
-.row { display: flex; gap: 8px; align-items: flex-end; }
-.row .field { flex: 1; }
-
-.btn {
-  padding: 8px 14px;
-  font-size: .82rem;
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--ctrl-bg);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-}
-.btn:hover  { background: var(--accent); color: #1C1410; border-color: var(--accent); }
-.btn.active { background: var(--accent); color: #1C1410; border-color: var(--accent); }
-.btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
-.btn.success { background: var(--success); color: #1C1410; border-color: var(--success); }
-
-/* toggle switch */
-.toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: .88rem;
-}
-.toggle-row .toggle-label { color: var(--text-sec); }
-.sw {
-  position: relative;
-  width: 40px; height: 22px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.sw input { opacity: 0; width: 0; height: 0; }
-.sw-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 11px;
-  background: var(--border);
-  transition: background .2s;
-}
-.sw input:checked + .sw-track { background: var(--accent); }
-.sw-knob {
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--text-primary);
-  transition: left .2s;
-}
-.sw input:checked ~ .sw-knob { left: 21px; }
-
-.status-text {
-  font-size: .78rem;
-  color: var(--perception);
-  font-style: italic;
-}
-
-/* ── Codenames manual board ─────────────────────────────────────────────── */
-.cn-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  margin: 6px 0;
-}
-.cn-grid:empty { display: none; }
-.cn-tile {
-  user-select: none;
-  cursor: pointer;
-  text-align: center;
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  text-transform: uppercase;
-  padding: 10px 2px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  color: #f4f4f4;
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: transform .06s, filter .12s;
-}
-.cn-tile:hover { filter: brightness(1.15); transform: translateY(-1px); }
-.cn-tile:active { transform: scale(.96); }
-/* identity colors */
-.cn-unknown  { background: #4a4a4a; color: #cfcfcf; }
-.cn-team     { background: #2e8b57; }      /* green — your team */
-.cn-opponent { background: #b23b3b; }      /* red — opponent */
-.cn-neutral  { background: #b89a5e; color: #2a2218; text-shadow: none; } /* tan */
-.cn-assassin { background: #14141a; color: #e6e6e6; border-color: #000; }
-.cn-legend {
-  font-size: .64rem;
-  color: var(--text-muted);
-  line-height: 1.7;
-}
-.cn-legend:empty { display: none; }
-.cn-chip {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
-  margin: 0 1px;
-  font-weight: 700;
-  font-size: .6rem;
-}
-.cn-advisor {
-  background: var(--accent-tint);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: .72rem;
-  line-height: 1.5;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.loopback-feed {
-  margin-top: 4px;
-  max-height: 240px;   /* ~15 lines at once (was 96px ≈ a few); scrolls for history */
-  overflow-y: auto;
-  background: var(--accent-tint);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: .72rem;
-  line-height: 1.35;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.loopback-feed:empty { display: none; }
-.loopback-feed .lf-age { color: var(--text-muted); }
-.loopback-summary {
-  margin-top: 3px;
-  font-size: .72rem;
-  font-style: italic;
-  color: var(--text-sec);
-}
-.loopback-summary:empty { display: none; }
-/* Dialogue summary: collapsed by default (clamped), click to expand to full
-   scrollable text. The rolling loopback STT -> summarizer output that carries
-   character names like "Coco" into Kira's context. */
-.dlg-summary-wrap { margin-top: 4px; }
-.dlg-summary-wrap:empty { display: none; }
-.dlg-summary-label {
-  font-size: .68rem;
-  font-weight: 600;
-  color: var(--header);
-  font-style: normal;
-  cursor: pointer;
-  user-select: none;
-}
-.dlg-summary-label .dlg-chevron { display: inline-block; transition: transform .15s; }
-.dlg-summary-wrap.expanded .dlg-summary-label .dlg-chevron { transform: rotate(90deg); }
-.dlg-summary-text {
-  font-size: .72rem;
-  font-style: italic;
-  color: var(--text-sec);
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-top: 2px;
-  /* Show the full dialogue summary by default (no 2-line clamp); scroll if it ever
-     overflows. The full summary should be visible without clicking to expand. */
-  max-height: 220px;
-  overflow-y: auto;
-}
-.dlg-summary-wrap.expanded .dlg-summary-text {
-  display: block;
-  -webkit-line-clamp: unset;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.locked { opacity: .4; pointer-events: none; }
-.toggle-row.locked { opacity: .4; pointer-events: none; }
-
-.mw-fail-chip {
-  display: none;
-  margin: 4px 0 6px;
-  padding: 4px 8px;
-  background: var(--attention-tint);
-  border: 1px solid var(--attention);
-  border-radius: 6px;
-  font-size: .75rem;
-  color: var(--attention);
-  line-height: 1.3;
-}
-.slider-row { display: flex; flex-direction: column; gap: 4px; }
-.slider-row label { font-size: .72rem; color: var(--text-muted); }
-.slider-row input[type=range] { width: 100%; accent-color: var(--accent); }
-.slider-val { font-size: .75rem; color: var(--text-sec); }
-
-/* thumbnail */
-#vision-thumb {
-  width: 100%;
-  max-height: 160px;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  display: block;
-}
-#vision-placeholder {
-  width: 100%;
-  height: 90px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-  background: var(--sub-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: .8rem;
-  font-style: italic;
-}
-
-/* vision / audio description blocks */
-.perception-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.perception-label {
-  font-size: .65rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--header);
-  font-style: normal;
-  font-weight: 600;
-}
-#vision-summary-text,
-#audio-summary-text {
-  font-size: .78rem;
-  color: var(--text-muted);
-  font-style: italic;
-  line-height: 1.4;
-  min-height: 44px;          /* generous default — the typical full summary shows at once */
-  max-height: 160px;         /* scroll only if it ever overflows */
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-#vision-summary-text.mw-uncertain { color: var(--text-sec); opacity: .8; }
-
-/* pill selector */
-.pill-group { display: flex; gap: 6px; }
-.pill {
-  flex: 1;
-  padding: 7px 6px;
-  text-align: center;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  background: var(--sub-bg);
-  color: var(--text-muted);
-  font-size: .8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
-}
-.pill.active { background: var(--accent); color: #1C1410; border-color: var(--accent); }
-
-/* emotion dropdown colour patch */
-#emotion-select { width: 100%; }
+.spectate a{color:var(--blue-glow);text-decoration:none}
+.spectate a:hover{text-decoration:underline}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.beatgrid{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.beat{padding:9px 11px;border-radius:9px;background:var(--bg-inset);border:1px solid var(--hairline-soft);font-size:12.5px}
+.beat .bh{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.beat .bi{font-family:var(--mono);font-size:11px;color:var(--silver-4)}
+.beat .bs{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:5px;background:var(--bg-elevated);color:var(--silver-3)}
 </style>
 </head>
 <body>
 
-<div id="layout">
-
-  <!-- ═══════════ GLANCE BAR ═══════════ -->
-  <div id="glance">
-    <div id="emotion-badge">HAPPY</div>
-
-    <div class="glance-stat">
-      <span class="label">Kira spoke</span>
-      <span class="value" id="g-spoke">–</span>
-    </div>
-    <div class="glance-stat">
-      <span class="label">Chat/min</span>
-      <span class="value" id="g-rate">–</span>
-    </div>
-    <div class="glance-stat">
-      <span class="label">Chatters</span>
-      <span class="value" id="g-chatters">–</span>
-    </div>
-    <div class="glance-stat" title="Median chat response age this session">
-      <span class="label">Chat age</span>
-      <span class="value" id="g-chat-age">–</span>
-    </div>
-    <div class="glance-stat">
-      <span class="label">VRAM</span>
-      <span class="value" id="g-vram">–</span>
-    </div>
-    <div class="glance-stat" title="Estimated API cost this session">
-      <span class="label">API Cost</span>
-      <span class="value" id="g-cost">$0.000</span>
-    </div>
-    <div class="glance-stat">
-      <span class="label">Activity</span>
-      <span class="value" id="g-activity" style="font-size:1rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">–</span>
-    </div>
-
-    <!-- Behavioral-state strip: at-a-glance Activity / Director / Lock In -->
-    <div id="behavior-strip" title="Kira's current behavioral state"
-         style="display:flex;gap:7px;align-items:center;margin-left:4px;">
-      <span class="bs-pill" id="bs-activity"
-            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#2a2018;color:#d8c8b0;border:1.5px solid #4a3a2a;white-space:nowrap;">–</span>
-      <span class="bs-pill" id="bs-director"
-            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#241a14;color:#7a6a58;border:1.5px solid #3a2e22;white-space:nowrap;">DIRECTOR</span>
-      <span class="bs-pill" id="bs-lockin"
-            style="padding:3px 11px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:#241a14;color:#7a6a58;border:1.5px solid #3a2e22;white-space:nowrap;">LOCK IN</span>
-    </div>
-
-    <div id="conn-dots">
-      <div class="dot-item"><div class="dot" id="dot-llm"></div><span class="dot-label">LLM</span></div>
-      <div class="dot-item"><div class="dot" id="dot-tts"></div><span class="dot-label">TTS</span></div>
-      <div class="dot-item"><div class="dot" id="dot-twitch"></div><span class="dot-label">Twitch</span></div>
-      <div class="dot-item"><div class="dot" id="dot-youtube"></div><span class="dot-label">YouTube</span></div>
-      <div class="dot-item"><div class="dot" id="dot-vision"></div><span class="dot-label">Vision</span></div>
-      <div class="dot-item"><div class="dot" id="dot-mediawatch"></div><span class="dot-label">MediaWatch</span></div>
-    </div>
-
-    <!-- Overlay visibility toggle chips -->
-    <div id="overlay-chips">
-      <span class="ov-label">&#127916; Overlays</span>
-    </div>
-
-    <span id="ws-indicator">WS</span>
+<!-- ════════════════ STATUS RAIL ════════════════ -->
+<div id="rail">
+  <div class="brand"><span class="mark"></span>KIRA</div>
+  <div class="rail-sep"></div>
+  <div class="emo"><span class="dot" id="emotion-dot"></span><span class="lbl" id="emotion-label">—</span></div>
+  <div class="stat"><span class="mlabel">spoke</span><span class="v" id="g-spoke">–</span></div>
+  <div class="stat"><span class="mlabel">chat/min</span><span class="v" id="g-rate">–</span></div>
+  <div class="stat"><span class="mlabel">chatters</span><span class="v" id="g-chatters">–</span></div>
+  <div class="stat"><span class="mlabel">VRAM</span><span class="v mono" id="g-vram">–</span></div>
+  <div class="stat"><span class="mlabel">cost</span><span class="v mono" id="g-cost">–</span></div>
+  <div class="rail-sep"></div>
+  <div class="pills">
+    <span class="pill" id="pill-mode">COMPANION</span>
+    <span class="pill" id="pill-director">DIRECTOR</span>
+    <span class="pill" id="pill-lockin">LOCK-IN</span>
+    <span class="pill" id="pill-turbo">TURBO</span>
   </div>
-
-  <!-- ═══════════ EFFECTIVE-STATE STRIP ═══════════ -->
-  <!-- Renders s.effective.strip (post-reconcile truth). Each segment goes
-       rust when its effect is overridden. Mirrors the desktop strip. -->
-  <div id="eff-strip"></div>
-
-  <!-- ═══════════ PERCEPTION INDICATOR + TURBO VISION ═══════════ -->
-  <!-- Always-visible glance at what Kira can currently perceive. The mode chip
-       shows GENERAL (calm) vs TURBO (active); the dots show live vision /
-       audio-mood / dialogue status. The Turbo Vision toggle is the AUTHORITATIVE
-       escalation control (fast vision + multi-frame context + audio + loopback).
-       OFF = calm baseline, never blind/deaf. Renders from
-       s.effective.perception / .deep_senses (internal key kept stable). -->
-  <div id="perception-bar">
-    <span class="perc-mode" id="perc-mode">GENERAL · calm</span>
-    <span class="perc-dots">
-      <span class="perc-dot off" id="perc-vision">👁 vision —</span>
-      <span class="perc-dot off" id="perc-audio">👂 mood —</span>
-      <span class="perc-dot off" id="perc-loopback">💬 dialogue —</span>
-    </span>
-    <span class="perc-deep">
-      <span class="perc-deep-label">Turbo Vision</span>
-      <label class="sw" title="Turbo Vision — dialed-in perception for active gaming/watching (fast vision + multi-frame context + audio + dialogue). Off = calm always-on baseline.">
-        <input type="checkbox" id="sw-deep-senses"
-               onchange="cmd('deep_senses_toggle',{enabled:this.checked})">
-        <span class="sw-track"></span><span class="sw-knob"></span>
-      </label>
-    </span>
+  <div class="rail-right">
+    <div class="dots" title="LLM · TTS · Twitch · YouTube · Vision">
+      <span class="cdot" id="dot-llm"></span>
+      <span class="cdot" id="dot-tts"></span>
+      <span class="cdot" id="dot-twitch"></span>
+      <span class="cdot" id="dot-youtube"></span>
+      <span class="cdot" id="dot-vision"></span>
+    </div>
+    <div><span id="ws-indicator">WS ✕</span><span class="spark" id="live-spark"></span></div>
   </div>
+</div>
 
-  <!-- ═══════════ BODY ═══════════ -->
-  <div id="body">
+<!-- ════════════════ MAIN ════════════════ -->
+<div id="main">
 
-    <!-- ── LIVE-ACTION RAIL ── -->
-    <div id="live-rail">
-      <span class="rail-section-label">Live Controls</span>
+  <!-- ───────── LEFT: SENSES ───────── -->
+  <div class="col">
+    <div class="zone-head"><span class="mlabel">Senses</span><span class="rule"></span></div>
 
-      <button class="rail-btn interrupt" id="btn-interrupt"
-              onclick="cmd('interrupt')">⚡ Interrupt</button>
-
-      <button class="rail-btn mute" id="btn-mute"
-              onclick="cmd('mute_toggle', null, this)">🔇 Mute</button>
-
-      <button class="rail-btn pause" id="btn-pause"
-              onclick="cmd('pause_toggle', null, this)">⏸ Pause</button>
-
-      <button class="rail-btn lockin" id="btn-lockin"
-              onclick="cmd('lock_in_toggle', null, this)">🔒 Lock In</button>
-
-      <button class="rail-btn director" id="btn-director"
-              onclick="cmd('director_toggle', null, this)">🎬 Director</button>
-
-      <!-- Live brake on assertive driving: pull the Director's cadence back mid-stream
-           without a restart. Lower = more present/driving, higher = ease off. -->
-      <div class="slider-row" style="padding:3px 8px 5px;font-size:11px;opacity:.9;">
-        <label style="display:block;">Drive gap: <span class="slider-val" id="val-dir-gap">15</span>s</label>
-        <input type="range" id="sl-dir-gap" min="3" max="120" step="1" value="15" style="width:100%;"
-               oninput="document.getElementById('val-dir-gap').textContent=this.value"
-               onchange="cmd('director_min_gap',{seconds:parseFloat(this.value)})">
+    <!-- EYES -->
+    <div class="card">
+      <div class="card-head">
+        <span class="ttl"><span class="glyph">👁</span>Eyes</span>
+        <div class="right">
+          <span class="health" id="eyes-health"><span class="lamp"></span><span id="eyes-health-txt">—</span></span>
+          <span class="popout-trigger" onclick="openPop('pop-eyes')" title="Deep dive">⤢</span>
+        </div>
       </div>
-
-      <div class="rail-sep"></div>
-
-      <button class="rail-btn thoughts"
-              onclick="cmd('invite_kira')">💭 Kira's Thoughts</button>
-
-      <div class="rail-sep"></div>
-
-      <button class="rail-btn stream"
-              onclick="cmd('stream_start')">▶ Stream Start</button>
-      <button class="rail-btn stream" style="background:var(--ctrl-bg);color:var(--text-primary);border:1.5px solid var(--border);"
-              onclick="cmd('stream_end')">■ Stream End</button>
-
-      <div class="rail-sep"></div>
-
-      <!-- Wheel -->
-      <span class="rail-section-label">🎡 Wheel</span>
-      <button class="rail-btn" style="background:var(--accent);color:#fff;margin-bottom:4px"
-              onclick="cmd('wheel_spin_test').then(d=>d&&d.label&&alert('Wheel test fired: '+d.label))">▶ TEST SPIN</button>
-      <button class="rail-btn" style="background:var(--danger);color:#fff;"
-              onclick="cmd('wheel_veto')">🚫 VETO WHEEL</button>
-
-      <!-- Cards & Banner test -->
-      <div class="rail-sep"></div>
-      <span class="rail-section-label">🃏 Cards &amp; Banner</span>
-      <button class="rail-btn" style="background:var(--accent);color:#fff;margin-bottom:4px"
-              onclick="cmd('test_card')">▶ TEST CARD</button>
-      <input id="banner-text-input" type="text" placeholder="Banner text…"
-             style="width:100%;font-size:.72rem;padding:3px 6px;margin-bottom:3px;
-                    border:1.5px solid var(--border);border-radius:4px;
-                    background:var(--ctrl-bg);color:var(--text-primary);box-sizing:border-box;">
-      <button class="rail-btn" style="background:var(--ctrl-bg);color:var(--text-primary);border:1.5px solid var(--border);"
-              onclick="cmd('test_banner',{text:document.getElementById('banner-text-input').value||null})">▶ TEST BANNER</button>
-      <div id="cookie-top3" style="font-size:.68rem;color:var(--text-muted);line-height:1.6;padding:0 2px;">–</div>
-
-      <!-- IOU Redeem -->
-      <div class="rail-sep"></div>
-      <span class="rail-section-label">📋 IOUs</span>
-      <div id="iou-list" style="font-size:.68rem;color:var(--text-muted);line-height:1.8;">–</div>
-    </div>
-
-    <!-- ── TRANSCRIPT ── -->
-    <div id="transcript-col">
-      <div id="transcript-header">
-        <span>Conversation</span>
-        <span id="now-playing">♪ –</span>
-      </div>
-      <div id="transcript-scroll">
-        <div class="transcript-empty" id="transcript-empty">No conversation yet…</div>
+      <div class="card-body">
+        <div class="thumb-wrap">
+          <img id="vision-thumb" style="display:none" alt="vision">
+          <div class="thumb-ph" id="vision-thumb-ph">no signal</div>
+        </div>
+        <div class="scene interior"><div id="eyes-summary" class="muted">Vision initializing…</div><span class="age" id="eyes-age"></span></div>
       </div>
     </div>
 
-    <!-- ── PANELS COL ── -->
-    <div id="panels-col">
-
-      <!-- Stream Mode bar -->
-      <div id="stream-mode-bar">
-        <button id="stream-mode-btn" onclick="toggleStreamMode()">STREAM MODE</button>
+    <!-- DESKTOP AUDIO -->
+    <div class="card">
+      <div class="card-head">
+        <span class="ttl"><span class="glyph">🔊</span>Desktop Audio</span>
+        <div class="right"><span class="health" id="da-health"><span class="lamp"></span><span id="da-health-txt">—</span></span></div>
       </div>
-
-      <!-- ─ PANEL: PERCEPTION ─ -->
-      <div class="panel" id="panel-perception">
-        <div class="panel-header" onclick="togglePanel('panel-perception')">
-          👁 Eyes <span class="panel-chevron">▶</span>
-        </div>
-        <div class="panel-body">
-
-          <div class="perception-block">
-            <span class="perception-label">👁 Seeing</span>
-            <div id="vision-placeholder">No frame</div>
-            <img id="vision-thumb" style="display:none" alt="Vision frame">
-            <div id="vision-summary-text">No description yet</div>
-          </div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Force vision OFF</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-vision-off" onchange="cmd('vision_force_off_toggle',{enabled:this.checked})">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-          <div class="status-text">Vision is always-on (calm baseline); Turbo Vision escalates cadence. This forces it fully dark.</div>
-
-        </div>
-      </div><!-- /panel-perception (EYES) -->
-
-      <!-- ─ PANEL: EARS ─ -->
-      <div class="panel" id="panel-ears">
-        <div class="panel-header" onclick="togglePanel('panel-ears')">
-          👂 Ears <span class="panel-chevron">▶</span>
-        </div>
-        <div class="panel-body">
-
-          <div class="perception-block">
-            <span class="perception-label">👂 Hearing</span>
-            <div id="audio-summary-text">Not listening</div>
-          </div>
-
-          <div class="field">
-            <label>Audio capture mode (manual override)</label>
+      <div class="card-body">
+        <div class="aud-summary"><div id="da-summary" class="muted">—</div><span class="age" id="da-age"></span></div>
+        <div class="grid2" style="margin-top:13px">
+          <div class="field" style="margin:0">
+            <span class="mlabel">Capture mode</span>
             <select id="sel-audio-mode" onchange="cmd('audio_mode',{mode:this.value})">
-              <option value="Off">Off</option>
-              <option value="Media (game/anime)">Media (game/anime)</option>
-              <option value="Music (singing/guitar)">Music (singing/guitar)</option>
+              <option>Off</option>
+              <option>Media (game/anime)</option>
+              <option>Music (singing/guitar)</option>
             </select>
           </div>
-
-          <div class="row">
-            <div class="field">
-              <label>Audio Device</label>
-              <select id="sel-audio-device" onchange="cmd('audio_device',{label:this.value})">
-                <option>Auto-detect</option>
-              </select>
-            </div>
-            <button class="btn" onclick="refreshDevices()">↺</button>
+          <div class="field" style="margin:0">
+            <span class="mlabel">Device <span class="popout-trigger" style="font-size:12px" onclick="refreshDevices()" title="rescan">↺</span></span>
+            <select id="sel-audio-device" onchange="cmd('audio_device',{label:this.value})"><option>—</option></select>
           </div>
-
-          <!-- Loopback STT is always-on baseline (escalated by Turbo Vision) —
-               read-only status + live feed below; no symmetric toggle to desync. -->
-          <div class="status-text" id="loopback-status">disabled</div>
-          <div id="loopback-feed" class="loopback-feed"></div>
-          <div id="dlg-summary-wrap" class="dlg-summary-wrap" onclick="toggleDlgSummary()">
-            <div class="dlg-summary-label"><span class="dlg-chevron">▶</span> Dialogue summary</div>
-            <div id="dlg-summary-text" class="dlg-summary-text"></div>
-          </div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Passive Watching</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-immersive" onchange="cmd('passive_watching_toggle')">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-
         </div>
-      </div><!-- /panel-ears (EARS) -->
+      </div>
+    </div>
 
-      <!-- ─ PANEL: ACTIVITY ─ -->
-      <div class="panel" id="panel-activity">
-        <div class="panel-header" onclick="togglePanel('panel-activity')">
-          🎭 Behavior <span class="panel-chevron">▶</span>
+    <!-- LOOPBACK -->
+    <div class="card">
+      <div class="card-head">
+        <span class="ttl"><span class="glyph">💬</span>Loopback (dialogue)</span>
+        <div class="right">
+          <span class="health" id="lb-health"><span class="lamp"></span><span id="lb-health-txt">—</span></span>
+          <span class="popout-trigger" onclick="openPop('pop-lb')" title="Deep dive">⤢</span>
         </div>
-        <div class="panel-body">
+      </div>
+      <div class="card-body">
+        <div class="feed" id="lb-feed"><div class="muted">No dialogue heard yet.</div></div>
+        <div class="dlg"><span class="mlabel">Running summary</span><span id="lb-summary">—</span></div>
+      </div>
+    </div>
 
-          <div class="pill-group">
-            <div class="pill" id="pill-companion" onclick="setMode('companion')">Companion</div>
-            <div class="pill" id="pill-streamer"  onclick="setMode('streamer')">Streamer</div>
-          </div>
+    <!-- CONVERSATION -->
+    <div class="card">
+      <div class="card-head"><span class="ttl"><span class="glyph">🗨</span>Conversation</span></div>
+      <div class="card-body">
+        <div class="convo" id="convo-feed"><div class="muted">—</div></div>
+        <div class="np" id="now-playing" style="display:none"></div>
+      </div>
+    </div>
+  </div>
 
-          <div class="toggle-row">
-            <span class="toggle-label">Carry Mode</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-carry" onchange="cmd('carry_mode_toggle')">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
+  <!-- ───────── RIGHT: CONTROLS ───────── -->
+  <div class="col">
+    <div class="zone-head"><span class="mlabel">Controls</span><span class="rule"></span></div>
 
-          <div class="toggle-row" style="flex-direction:column; align-items:stretch; gap:6px;">
-            <span class="toggle-label">Presence</span>
-            <div class="pill-group">
-              <div class="pill" id="pill-presence-sleepy" onclick="setPresence('sleepy')">😴 Sleepy</div>
-              <div class="pill" id="pill-presence-normal" onclick="setPresence('normal')">🙂 Normal</div>
-              <div class="pill" id="pill-presence-chatty" onclick="setPresence('chatty')">💬 Chatty</div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label>Activity name</label>
-              <input type="text" id="inp-activity" placeholder="007: First Light">
-            </div>
-            <div class="field" style="max-width:90px;">
-              <label>Slug (opt)</label>
-              <input type="text" id="inp-slug" placeholder="007_first_light">
-            </div>
-          </div>
-          <button class="btn" onclick="goActivity()">Go</button>
-          <button class="btn danger" onclick="cmd('exit_game_mode')">Exit Game Mode</button>
-
+    <!-- LIVE -->
+    <div class="card">
+      <div class="card-head"><span class="ttl"><span class="glyph">⚡</span>Live</span></div>
+      <div class="card-body">
+        <div class="ctrl-row" style="margin:0">
+          <button class="btn danger" onclick="cmd('interrupt',null,this)">⚡ Interrupt</button>
+          <button class="btn" id="btn-mute" onclick="cmd('mute_toggle',null,this)">🔇 Mute</button>
+          <button class="btn" id="btn-pause" onclick="cmd('pause_toggle',null,this)">⏸ Pause</button>
+          <button class="btn blue" onclick="cmd('invite_kira',null,this)">💭 Thoughts</button>
+          <button class="btn" onclick="cmd('stream_start',null,this)">▶ Stream</button>
+          <button class="btn" onclick="cmd('stream_end',null,this)">■ End</button>
         </div>
-      </div><!-- /panel-activity -->
+      </div>
+    </div>
 
-      <!-- ─ PANEL: VN / MEDIA ─ -->
-      <div class="panel" id="panel-vn">
-        <div class="panel-header" onclick="togglePanel('panel-vn')">
-          🎭 Behavior · Automation <span class="panel-chevron">▶</span>
+    <!-- CORE -->
+    <div class="card">
+      <div class="card-head"><span class="ttl"><span class="glyph">🎛</span>Core</span></div>
+      <div class="card-body">
+        <div class="ctrl-row">
+          <span class="rl">Posture</span>
+          <div class="seg" id="seg-mode">
+            <button data-mode="companion" onclick="setMode('companion')">Companion</button>
+            <button data-mode="streamer" onclick="setMode('streamer')">Streamer</button>
+          </div>
         </div>
-        <div class="panel-body">
-
-          <div class="status-text" id="ap-status">Autopilot: OFF</div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Autopilot</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-autopilot" onchange="toggleAutopilot(this.checked)">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
+        <div class="ctrl-row">
+          <span class="rl">Presence</span>
+          <div class="seg" id="seg-presence">
+            <button data-p="sleepy" onclick="setPresence('sleepy')">Sleepy</button>
+            <button data-p="normal" onclick="setPresence('normal')">Normal</button>
+            <button data-p="chatty" onclick="setPresence('chatty')">Chatty</button>
           </div>
-
-          <div class="field">
-            <label>VN Window title</label>
-            <input type="text" id="inp-vn-window" placeholder="Planetarian">
+        </div>
+        <div class="ctrl-row">
+          <div class="slider">
+            <div class="top"><span>Cadence (drive-gap)</span><span class="val"><span id="val-drive-gap">–</span>s</span></div>
+            <input type="range" id="sl-drive-gap" min="3" max="120" step="1" value="10"
+                   oninput="document.getElementById('val-drive-gap').textContent=this.value"
+                   onchange="cmd('director_min_gap',{seconds:parseFloat(this.value)})">
+            <div class="gap-scale"><span>◄ Chatty (low gap)</span><span>Sparse (high gap) ►</span></div>
           </div>
-          <div class="row">
-            <button class="btn" onclick="applyVnWindow()">Set Window</button>
-            <button class="btn" onclick="cmd('vn_redetect')">Auto-detect</button>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Director <span class="muted">— proactivity engine</span></span>
+          <label class="sw"><input type="checkbox" id="sw-director" onchange="cmd('director_toggle',null,this)"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Lock-In <span class="muted">— heads-down, quiet to chat</span></span>
+          <label class="sw"><input type="checkbox" id="sw-lockin" onchange="cmd('lock_in_toggle',null,this)"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Turbo Vision <span class="muted">— fast + multi-frame</span></span>
+          <label class="sw"><input type="checkbox" id="sw-turbo" onchange="cmd('deep_senses_toggle',{enabled:this.checked})"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Passive watching <span class="muted">— immersive register</span></span>
+          <label class="sw"><input type="checkbox" id="sw-immersive" onchange="cmd('passive_watching_toggle',null,this)"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label" style="color:#ff9a9d">Force vision OFF <span class="muted">— master kill</span></span>
+          <label class="sw"><input type="checkbox" id="sw-vision-off" onchange="cmd('vision_force_off_toggle',{enabled:this.checked})"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div style="margin-top:13px">
+          <span class="mlabel">Activity</span>
+          <div class="inline" style="margin-top:5px">
+            <input type="text" id="inp-activity" placeholder="e.g. Legend of Korra">
+            <input type="text" id="inp-slug" placeholder="slug (opt)" style="max-width:120px">
+            <button class="btn blue sm" onclick="goActivity()">Go</button>
+            <button class="btn sm" onclick="cmd('exit_game_mode',null,this)">Exit</button>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="field">
-            <label>Advance Key</label>
+    <!-- VN AUTOPILOT -->
+    <div class="panel" id="panel-vn">
+      <div class="phead" onclick="togglePanel('panel-vn')"><span class="ttl"><span class="glyph">🎮</span>VN Autopilot</span><span class="pstat" id="ap-pstat">off</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="ap-status">—</div>
+        <div class="toggle-row">
+          <span class="toggle-label">Autopilot</span>
+          <label class="sw"><input type="checkbox" id="sw-autopilot" onchange="toggleAutopilot(this.checked)"><span class="track"></span><span class="knob"></span></label>
+        </div>
+        <div class="field"><span class="mlabel">VN window</span>
+          <div class="inline"><input type="text" id="inp-vn-window" placeholder="window title">
+            <button class="btn sm" onclick="applyVnWindow()">Set</button>
+            <button class="btn sm" onclick="cmd('vn_redetect',null,this)">Auto</button></div></div>
+        <div class="grid2">
+          <div class="field"><span class="mlabel">Advance key</span>
             <select id="sel-advance-key" onchange="cmd('advance_key',{key:this.value})">
-              <option>Enter</option>
-              <option>Space</option>
-              <option>Left Click</option>
-            </select>
-          </div>
-
-          <div class="slider-row">
-            <label>Pacing Base: <span class="slider-val" id="val-pace-base">3.0</span>s</label>
-            <input type="range" id="sl-pace-base" min="0.5" max="12" step="0.5" value="3"
-                   oninput="document.getElementById('val-pace-base').textContent=this.value"
-                   onchange="cmd('autopilot_pacing',{base:parseFloat(this.value), max:parseFloat(document.getElementById('sl-pace-max').value)})">
-          </div>
-          <div class="slider-row">
-            <label>Pacing Max: <span class="slider-val" id="val-pace-max">8.0</span>s</label>
-            <input type="range" id="sl-pace-max" min="1" max="30" step="0.5" value="8"
-                   oninput="document.getElementById('val-pace-max').textContent=this.value"
-                   onchange="cmd('autopilot_pacing',{base:parseFloat(document.getElementById('sl-pace-base').value), max:parseFloat(this.value)})">
-          </div>
-
-          <button class="btn" id="btn-ap-resume" onclick="cmd('autopilot_resume')" disabled>Resume Autopilot</button>
-
-          <div class="rail-sep"></div>
-
-          <div class="status-text" id="mw-status">Media Watch: OFF</div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Media Watch</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-mediawatch" onchange="toggleMediaWatch(this.checked)">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-
-          <div class="field">
-            <label>Watch Window title</label>
-            <input type="text" id="inp-mw-window" placeholder="VLC media player">
-          </div>
-          <button class="btn" onclick="applyMwWindow()">Set Window</button>
-
-          <div class="slider-row">
-            <label>Interval: <span class="slider-val" id="val-mw-interval">15</span>s</label>
-            <input type="range" id="sl-mw-interval" min="5" max="120" step="5" value="15"
-                   oninput="document.getElementById('val-mw-interval').textContent=this.value"
-                   onchange="cmd('media_watch_interval',{seconds:parseFloat(this.value)})">
-          </div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">React to scenes</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-mw-react" onchange="cmd('media_watch_react_toggle',{enabled:this.checked})">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-
-          <div class="rail-sep"></div>
-
-          <div class="status-text" id="chess-status">♟ CLOSED</div>
-          <div id="chess-spectate-link" style="display:none;font-size:11px;margin-bottom:4px;">
-            <a id="chess-spectate-a" href="#" target="_blank" rel="noopener">▶ Spectate on Lichess</a>
-          </div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Chess Mode</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-chess" onchange="toggleChess(this.checked)">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-
-          <div class="toggle-row">
-            <span class="toggle-label">Accept Challenges</span>
-            <label class="sw">
-              <input type="checkbox" id="sw-chess-accept" onchange="toggleChessAccept(this.checked)">
-              <span class="sw-track"></span><span class="sw-knob"></span>
-            </label>
-          </div>
-
-          <div class="field">
-            <label>Kira's Elo (1320–3190) <span id="chess-elo-display" style="color:var(--header)"></span></label>
-            <div class="row" style="gap:6px">
-              <input type="number" id="inp-chess-elo" min="1320" max="3190" step="50" value="1400" style="flex:1">
-              <button class="btn" onclick="applyChessElo()">Set</button>
-            </div>
-            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">UCI_LimitStrength + UCI_Elo — 1320 = floor, 1400 = beatable, 1800 = strong</div>
-          </div>
-
-          <div class="field">
-            <label>Lichess AI level (1–8) — "Challenge Stockfish" button only</label>
-            <input type="number" id="inp-chess-level" min="1" max="8" value="3">
-          </div>
-          <button class="btn" onclick="challengeChessAi()">Challenge Stockfish</button>
-
-          <div class="rail-sep"></div>
-
-          <!-- ── Codenames advisor (manual board — known-correct) ─────── -->
-          <div class="status-text" id="cn-status">🕵 Codenames — idle</div>
-
-          <div class="field">
-            <label>Paste the 25 words (comma / space / newline separated)</label>
-            <textarea id="cn-words" rows="3" placeholder="cloak bomb leaf stick easter engine ... (25 words)" style="width:100%;resize:vertical"></textarea>
-            <div class="row" style="gap:6px;margin-top:4px">
-              <select id="cn-role" style="flex:1" onchange="codenamesSetRole(this)">
-                <option value="guesser">Guesser</option>
-                <option value="spymaster">Spymaster (clue-giver)</option>
-              </select>
-              <input type="text" id="cn-team" placeholder="team (red/blue)" style="flex:1">
-            </div>
-            <div class="row" style="gap:6px;margin-top:4px">
-              <button class="btn" onclick="codenamesStart(this)" style="flex:2">Load board</button>
-              <button class="btn" onclick="codenamesRefresh()" title="Re-fetch board state">↻</button>
-              <button class="btn" onclick="codenamesReset(this)">Reset</button>
-            </div>
-          </div>
-
-          <!-- Live clickable grid — click cycles a tile's color, right-click steps back -->
-          <div id="cn-grid" class="cn-grid"></div>
-          <div id="cn-legend" class="cn-legend"></div>
-
-          <div class="field">
-            <label>Advisor readout (what Kira reasons over)</label>
-            <div id="cn-advisor" class="cn-advisor">No board loaded.</div>
-          </div>
-
-          <div class="field">
-            <label>Clue (heard or given)</label>
-            <div class="row" style="gap:6px">
-              <input type="text" id="cn-clue-word" placeholder="clue" style="flex:2">
-              <input type="number" id="cn-clue-num" placeholder="#" min="0" value="1" style="flex:1">
-              <select id="cn-clue-by" style="flex:1">
-                <option value="me">me</option>
-                <option value="opponent">opp</option>
-              </select>
-            </div>
-            <button class="btn" onclick="codenamesClue(this)" style="margin-top:4px;width:100%">Log Clue</button>
-          </div>
-
+              <option>Enter</option><option>Space</option><option>Left Click</option></select></div>
+          <div class="field"><span class="mlabel">Resume</span>
+            <button class="btn sm" id="btn-ap-resume" onclick="cmd('autopilot_resume',null,this)">Resume after failsafe</button></div>
         </div>
-      </div><!-- /panel-vn -->
+        <div class="slider" style="margin-bottom:10px"><div class="top"><span>Pacing base</span><span class="val"><span id="val-pace-base">6</span>s</span></div>
+          <input type="range" id="sl-pace-base" min="2" max="30" step="1" value="6"
+            oninput="document.getElementById('val-pace-base').textContent=this.value"
+            onchange="cmd('autopilot_pacing',{base:parseFloat(this.value),max:parseFloat(document.getElementById('sl-pace-max').value)})"></div>
+        <div class="slider"><div class="top"><span>Pacing max</span><span class="val"><span id="val-pace-max">14</span>s</span></div>
+          <input type="range" id="sl-pace-max" min="4" max="60" step="1" value="14"
+            oninput="document.getElementById('val-pace-max').textContent=this.value"
+            onchange="cmd('autopilot_pacing',{base:parseFloat(document.getElementById('sl-pace-base').value),max:parseFloat(this.value)})"></div>
+      </div></div>
+    </div>
 
-      <!-- ─ PANEL: STORYTIME ─ -->
-      <div class="panel" id="panel-storytime">
-        <div class="panel-header" onclick="togglePanel('panel-storytime')">
-          🎭 Storytime <span class="panel-chevron">▶</span>
+    <!-- CHESS -->
+    <div class="panel" id="panel-chess">
+      <div class="phead" onclick="togglePanel('panel-chess')"><span class="ttl"><span class="glyph">♟</span>Chess</span><span class="pstat" id="chess-pstat">off</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="chess-status">—</div>
+        <div class="toggle-row"><span class="toggle-label">Chess mode</span>
+          <label class="sw"><input type="checkbox" id="sw-chess" onchange="toggleChess(this.checked)"><span class="track"></span><span class="knob"></span></label></div>
+        <div class="toggle-row"><span class="toggle-label">Accept challenges</span>
+          <label class="sw"><input type="checkbox" id="sw-chess-accept" onchange="toggleChessAccept(this.checked)"><span class="track"></span><span class="knob"></span></label></div>
+        <div class="grid2">
+          <div class="field"><span class="mlabel">Kira ELO</span>
+            <div class="inline"><input type="text" id="inp-chess-elo" placeholder="1320–3190"><button class="btn sm" onclick="applyChessElo()">Set</button></div></div>
+          <div class="field"><span class="mlabel">Challenge AI (1–8)</span>
+            <div class="inline"><input type="text" id="inp-chess-level" placeholder="level"><button class="btn sm" onclick="challengeChessAi()">Go</button></div></div>
         </div>
-        <div class="panel-body">
+        <div class="spectate muted" id="chess-spectate"></div>
+      </div></div>
+    </div>
 
-          <div class="status-text" id="st-status">🎭 idle</div>
-
-          <div class="field">
-            <label>Saved shows (survive restarts)</label>
-            <div class="row" style="gap:6px">
-              <select id="st-library" title="previously generated shows" style="flex:1"></select>
-              <button class="btn" onclick="storytimeLoad(this)">Load</button>
-              <button class="btn" onclick="storytimeLibraryRefresh(this)" title="Rescan saved shows">⟳</button>
-            </div>
-            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Pick a pre-generated show and Load it to review or Perform — no regeneration needed.</div>
-          </div>
-
-          <div class="field">
-            <label>Story theme</label>
-            <textarea id="st-theme" rows="2" placeholder="e.g. a lonely lighthouse keeper who befriends the fog" style="width:100%;resize:vertical"></textarea>
-            <div class="row" style="gap:6px;margin-top:4px">
-              <select id="st-preset" title="structure / tone preset" style="flex:1"></select>
-              <input type="number" id="st-beats" min="6" max="24" value="16" title="scene beats" style="width:70px">
-            </div>
-            <div class="row" style="gap:6px;margin-top:4px">
-              <button class="btn" onclick="storytimePrepare(this)" style="flex:1">Generate Show</button>
-              <button class="btn" onclick="storytimeReset(this)">Reset</button>
-            </div>
-            <div style="font-size:.66rem;color:var(--text-muted);margin-top:2px">Pick a structure preset (or Auto) and type a theme. Writes the script + pre-generates every scene. Review below before performing — nothing goes live unseen.</div>
-          </div>
-
-          <div id="st-beats-grid" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
-
-          <div class="row" style="gap:6px;margin-top:8px">
-            <button class="btn" id="st-perform-btn" onclick="storytimePerform(this)" style="flex:1" disabled>▶ Perform Live</button>
-            <button class="btn" onclick="storytimeStop(this)">■ Stop</button>
-          </div>
-          <div style="font-size:.66rem;color:var(--text-muted);margin-top:4px">Overlay source: <code>/web_dashboard/puppet_overlay.html</code> (add as an OBS browser source, 1920×1080).</div>
-
+    <!-- STORYTIME -->
+    <div class="panel" id="panel-storytime">
+      <div class="phead" onclick="togglePanel('panel-storytime');storytimeRefresh()"><span class="ttl"><span class="glyph">📖</span>Storytime</span><span class="pstat" id="st-pstat">idle</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="st-status">—</div>
+        <div class="grid2">
+          <div class="field"><span class="mlabel">Saved show</span>
+            <div class="inline"><select id="sel-st-show"><option value="">—</option></select>
+              <button class="btn sm" onclick="storytimeLoad(this)">Load</button></div></div>
+          <div class="field"><span class="mlabel">Library</span>
+            <button class="btn sm" onclick="storytimeLibraryRefresh(this)">Rescan</button></div>
         </div>
-      </div><!-- /panel-storytime -->
-
-      <!-- ─ PANEL: VOICE ─ -->
-      <div class="panel" id="panel-voice">
-        <div class="panel-header" onclick="togglePanel('panel-voice')">
-          🗣 Voice <span class="panel-chevron">▶</span>
+        <div class="field"><span class="mlabel">New show theme</span><input type="text" id="inp-st-theme" placeholder="theme / prompt"></div>
+        <div class="grid2">
+          <div class="field"><span class="mlabel">Beats</span><input type="text" id="inp-st-beats" placeholder="e.g. 6"></div>
+          <div class="field"><span class="mlabel">Preset</span><select id="sel-st-preset"></select></div>
         </div>
-        <div class="panel-body">
-
-          <div class="pill-group">
-            <div class="pill active" id="pill-azure" onclick="setTts('azure')">Azure</div>
-            <div class="pill" id="pill-fish"  onclick="setTts('fish')">Fish <span style="opacity:.6;font-size:.8em;">(alt)</span></div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label>Fish Voice ID</label>
-              <input type="text" id="inp-fish-voice" placeholder="voice_...">
-            </div>
-            <button class="btn" onclick="applyFishVoice()">Apply</button>
-          </div>
-
-          <button class="btn" onclick="cmd('reload_personality')">Reload Personality</button>
-
-          <div class="field">
-            <label>Override Emotion</label>
-            <select id="emotion-select" onchange="cmd('emotion_set',{emotion:this.value})">
-              <option value="HAPPY">HAPPY</option>
-              <option value="SASSY">SASSY</option>
-              <option value="MOODY">MOODY</option>
-              <option value="EMOTIONAL">EMOTIONAL</option>
-              <option value="HYPERACTIVE">HYPERACTIVE</option>
-            </select>
-          </div>
-
-          <div class="rail-sep"></div>
-          <div class="row">
-            <button class="btn" onclick="cmd('skip_song')">⏭ Skip Song</button>
-            <button class="btn" onclick="cmd('clear_queue')">✕ Clear Queue</button>
-          </div>
-
+        <div class="inline" style="margin-bottom:10px">
+          <button class="btn blue sm" onclick="storytimePrepare(this)">Generate</button>
+          <button class="btn sm" onclick="storytimePerform(this)">▶ Perform</button>
+          <button class="btn sm" onclick="storytimeStop(this)">■ Stop</button>
+          <button class="btn sm" onclick="storytimeReset(this)">Reset</button>
         </div>
-      </div><!-- /panel-voice -->
+        <div class="beatgrid" id="st-beats-grid"></div>
+      </div></div>
+    </div>
 
-      <!-- ─ PANEL: CONNECTIONS ─ -->
-      <div class="panel" id="panel-conn">
-        <div class="panel-header" onclick="togglePanel('panel-conn')">
-          🌐 World <span class="panel-chevron">▶</span>
-        </div>
-        <div class="panel-body">
+    <!-- VOICE -->
+    <div class="panel" id="panel-voice">
+      <div class="phead" onclick="togglePanel('panel-voice')"><span class="ttl"><span class="glyph">🎙</span>Voice</span><span class="pstat" id="voice-pstat">azure</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="ctrl-row"><span class="rl">Backend</span>
+          <div class="seg" id="seg-tts">
+            <button data-tts="azure" onclick="setTts('azure')">Azure</button>
+            <button data-tts="fish" onclick="setTts('fish')">Fish</button></div></div>
+        <div class="field"><span class="mlabel">Fish voice ID</span>
+          <div class="inline"><input type="text" id="inp-fish-voice" placeholder="reference id"><button class="btn sm" onclick="applyFishVoice()">Apply</button></div></div>
+        <div class="field"><span class="mlabel">Override emotion</span>
+          <select id="sel-emotion" onchange="cmd('emotion_set',{emotion:this.value})">
+            <option>HAPPY</option><option>SASSY</option><option>MOODY</option><option>EMOTIONAL</option><option>HYPERACTIVE</option></select></div>
+        <div class="inline">
+          <button class="btn sm" onclick="cmd('reload_personality',null,this)">Reload persona</button>
+          <button class="btn sm" onclick="cmd('skip_song',null,this)">Skip song</button>
+          <button class="btn sm" onclick="cmd('clear_queue',null,this)">Clear queue</button></div>
+      </div></div>
+    </div>
 
-          <div class="toggle-row">
-            <span class="toggle-label">Twitch</span>
-            <div class="dot" id="dot-twitch-panel" style="width:10px;height:10px;"></div>
-          </div>
+    <!-- WORLD -->
+    <div class="panel" id="panel-world">
+      <div class="phead" onclick="togglePanel('panel-world')"><span class="ttl"><span class="glyph">🌐</span>World</span><span class="pstat" id="world-pstat">—</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline">Twitch: <span id="twitch-state">—</span> · YouTube: <span id="yt-state">—</span></div>
+        <div class="field"><span class="mlabel">YouTube live URL</span>
+          <div class="inline"><input type="text" id="inp-yt-url" placeholder="https://youtube.com/watch?v=…">
+            <button class="btn blue sm" onclick="ytConnect()">Connect</button>
+            <button class="btn sm" onclick="cmd('youtube_disconnect',null,this)">Disconnect</button></div></div>
+      </div></div>
+    </div>
 
-          <div class="rail-sep"></div>
+    <!-- DISCORD DIARY -->
+    <div class="panel" id="panel-discord">
+      <div class="phead" onclick="togglePanel('panel-discord')"><span class="ttl"><span class="glyph">📓</span>Discord Diary</span><span class="pstat" id="discord-pstat">—</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="discord-status">—</div>
+        <textarea id="discord-text" placeholder="diary entry…"></textarea>
+        <div style="margin-top:9px"><button class="btn blue sm" id="btn-discord-post" onclick="postDiscordSummary(this)">Post to Discord</button></div>
+      </div></div>
+    </div>
 
-          <div class="status-text" id="yt-status-label">YouTube: idle</div>
+    <!-- STREAM SCREENS -->
+    <div class="panel" id="panel-screens">
+      <div class="phead" onclick="togglePanel('panel-screens')"><span class="ttl"><span class="glyph">🖥</span>Stream Screens</span><span class="pstat">OBS overlays</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner" id="screens-inner">
+        <!-- screen blocks injected by buildScreens() -->
+        <div class="field" style="margin-top:8px"><span class="mlabel">Ambience loop</span>
+          <div class="inline"><select id="amb-file-sel"><option value="">—</option></select>
+            <button class="btn sm" onclick="refreshAmbienceList()">↺</button></div></div>
+        <div class="slider" style="margin-bottom:10px"><div class="top"><span>Volume</span><span class="val"><span id="amb-vol-val">50</span>%</span></div>
+          <input type="range" id="amb-vol" min="0" max="100" step="5" value="50" oninput="document.getElementById('amb-vol-val').textContent=this.value"></div>
+        <div class="inline"><button class="btn blue sm" onclick="applyAmbience()">Apply</button><button class="btn sm" onclick="stopAmbience()">Off</button></div>
+      </div></div>
+    </div>
 
-          <div class="field">
-            <label>YouTube URL or Video ID</label>
-            <input type="text" id="inp-yt-url" placeholder="https://youtu.be/...">
-          </div>
-          <div class="row">
-            <button class="btn success" onclick="ytConnect()">Connect</button>
-            <button class="btn danger"  onclick="cmd('youtube_disconnect')">Disconnect</button>
-          </div>
+    <!-- STREAM OVERLAYS -->
+    <div class="panel" id="panel-overlays">
+      <div class="phead" onclick="togglePanel('panel-overlays')"><span class="ttl"><span class="glyph">✨</span>Stream Overlays</span><span class="pstat" id="ov-pstat"></span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <span class="mlabel">Visibility</span>
+        <div class="chips" id="overlay-chips" style="margin:7px 0 14px"></div>
+        <div class="inline" style="margin-bottom:10px">
+          <button class="btn sm" onclick="cmd('wheel_spin_test',null,this).then(d=>{if(d&&d.label)alert('Wheel: '+d.label)})">▶ Test wheel</button>
+          <button class="btn danger sm" onclick="cmd('wheel_veto',null,this)">🚫 Veto</button>
+          <button class="btn sm" onclick="cmd('test_card',null,this)">Test card</button></div>
+        <div class="field"><span class="mlabel">Banner</span>
+          <div class="inline"><input type="text" id="banner-text-input" placeholder="banner text">
+            <button class="btn sm" onclick="cmd('test_banner',{text:document.getElementById('banner-text-input').value||null},this)">Show</button></div></div>
+        <div class="statusline" id="cookie-line">—</div>
+        <div id="iou-list"></div>
+      </div></div>
+    </div>
+  </div>
+</div>
 
-        </div>
-      </div><!-- /panel-conn -->
+<!-- ════════════════ POP-OUTS ════════════════ -->
+<div class="popout" id="pop-eyes">
+  <div class="sheet">
+    <div class="shead"><span class="ttl">👁 Eyes — deep dive</span><span class="x" onclick="closePop('pop-eyes')">✕</span></div>
+    <div class="sbody">
+      <div class="thumb-wrap" style="margin-bottom:16px"><img id="pop-eyes-frame" style="display:none" alt="frame"><div class="thumb-ph" id="pop-eyes-ph">no signal</div></div>
+      <span class="mlabel">Rolling scene summary</span>
+      <div class="scene interior" style="margin:6px 0 18px"><div id="pop-eyes-summary" class="muted">—</div></div>
+      <span class="mlabel">Turbo Vision — slideshow timeline (what happened on screen)</span>
+      <div id="pop-eyes-timeline" style="margin-top:8px"><div class="muted">Turbo Vision off — no slideshow timeline.</div></div>
+    </div>
+  </div>
+</div>
 
-      <!-- ─ PANEL: DISCORD DIARY (Phase 1, review mode) ─ -->
-      <div class="panel" id="panel-discord">
-        <div class="panel-header" onclick="togglePanel('panel-discord')">
-          📓 Discord Diary <span class="panel-chevron">▶</span>
-        </div>
-        <div class="panel-body">
-          <div style="font-size:.72rem;color:var(--text-muted);line-height:1.4;margin-bottom:2px;">
-            Kira's in-character end-of-session entry. Review the tone, then post
-            it manually to the Kira Lab channel. Nothing fires automatically.
-          </div>
-          <div id="discord-diary-status" class="status-text">No diary yet — generated at session end.</div>
-          <textarea id="discord-diary-text" oninput="_diaryEdited=true"
-            style="width:100%;min-height:140px;resize:vertical;font-size:.78rem;line-height:1.5;
-                   background:var(--panel-2,#11151c);color:var(--text,#dfe6ee);
-                   border:1px solid var(--border,#2a3240);border-radius:6px;padding:8px;"
-            placeholder="(Kira's diary will appear here after a session ends.)"></textarea>
-          <div class="row">
-            <button class="btn success" id="btn-discord-post" onclick="postDiscordSummary(this)">Post to Discord</button>
-          </div>
-        </div>
-      </div><!-- /panel-discord -->
-
-
-      <!-- ─ PANEL: STREAM SCREENS ─ -->
-      <div class="panel" id="panel-screens">
-        <div class="panel-header" onclick="togglePanel('panel-screens')">
-          📺 Stream Screens <span class="panel-chevron">▶</span>
-        </div>
-        <div class="panel-body">
-
-          <div style="font-size:.72rem;color:var(--text-muted);line-height:1.4;margin-bottom:2px;">
-            Live text on OBS browser sources. Send overrides default behavior;
-            Clear restores it (countdown, BRB rotation, static).
-          </div>
-
-          <!-- Starting Soon -->
-          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;">Starting Soon</div>
-          <div class="row">
-            <div class="field">
-              <label>Line 1 (main)</label>
-              <input type="text" id="inp-screen-starting-1" placeholder="Starting Soon">
-            </div>
-            <div class="field">
-              <label>Line 2 (sub)</label>
-              <input type="text" id="inp-screen-starting-2" placeholder="05:00">
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" onclick="sendScreenText('starting')">Send</button>
-            <button class="btn" onclick="clearScreenText('starting')">Clear</button>
-          </div>
-
-          <div class="rail-sep"></div>
-
-          <!-- BRB -->
-          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">BRB</div>
-          <div class="row">
-            <div class="field">
-              <label>Line 1 (main)</label>
-              <input type="text" id="inp-screen-brb-1" placeholder="BRB">
-            </div>
-            <div class="field">
-              <label>Line 2 (sub)</label>
-              <input type="text" id="inp-screen-brb-2" placeholder="back in 5, maybe">
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" onclick="sendScreenText('brb')">Send</button>
-            <button class="btn" onclick="clearScreenText('brb')">Clear</button>
-          </div>
-
-          <div class="rail-sep"></div>
-
-          <!-- Ending -->
-          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Ending</div>
-          <div class="row">
-            <div class="field">
-              <label>Line 1 (main)</label>
-              <input type="text" id="inp-screen-ending-1" placeholder="Stream Over">
-            </div>
-            <div class="field">
-              <label>Line 2 (sub)</label>
-              <input type="text" id="inp-screen-ending-2" placeholder="clips incoming ✦">
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" onclick="sendScreenText('ending')">Send</button>
-            <button class="btn" onclick="clearScreenText('ending')">Clear</button>
-          </div>
-
-          <div class="rail-sep"></div>
-
-          <!-- Kira Cam Ambience -->
-          <div style="font-size:.72rem;color:var(--header);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Kira Cam Ambience</div>
-          <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:4px;line-height:1.4;">
-            Drop CC0 audio loops in <code style="font-size:.68rem">screens/ambience/</code>.
-            OBS: enable <b>Control audio via OBS</b> on the Kira Cam browser source.
-          </div>
-          <div class="row">
-            <div class="field" style="flex:2">
-              <label>Loop file</label>
-              <select id="amb-file-sel" onchange="_ambMarkDirty()" style="width:100%;background:var(--ctrl-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:.8rem;">
-                <option value="">— off —</option>
-              </select>
-            </div>
-            <div class="field" style="flex:1">
-              <label>Vol <span id="amb-vol-label">6%</span></label>
-              <input type="range" id="amb-vol" min="0" max="100" value="6" step="1"
-                     style="width:100%;accent-color:var(--header);"
-                     oninput="_ambMarkDirty();document.getElementById('amb-vol-label').textContent=this.value+'%'">
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" onclick="applyAmbience()">Apply</button>
-            <button class="btn" onclick="stopAmbience()">Off</button>
-            <button class="btn" style="opacity:.7" onclick="refreshAmbienceList()">↺ Reload list</button>
-          </div>
-          <div id="amb-status" style="font-size:.70rem;color:var(--text-muted);min-height:14px;"></div>
-
-        </div>
-      </div><!-- /panel-screens -->
-
-    </div><!-- /panels-col -->
-  </div><!-- /body -->
-</div><!-- /layout -->
+<div class="popout" id="pop-lb">
+  <div class="sheet">
+    <div class="shead"><span class="ttl">💬 Loopback — verbatim vs interpreted</span><span class="x" onclick="closePop('pop-lb')">✕</span></div>
+    <div class="sbody">
+      <div class="health" id="pop-lb-health" style="margin-bottom:6px"><span class="lamp"></span><span id="pop-lb-health-txt">—</span></div>
+      <div class="meter" id="pop-lb-meter"><div class="fill" id="pop-lb-fill"></div></div>
+      <div class="two-col" style="margin-top:18px">
+        <div><span class="mlabel">Raw segments (verbatim)</span>
+          <div class="feed" id="pop-lb-feed" style="max-height:46vh;margin-top:7px"><div class="muted">—</div></div></div>
+        <div><span class="mlabel">Triage-interpreted narrative</span>
+          <div class="dlg" id="pop-lb-summary" style="margin-top:7px;max-height:46vh;overflow:auto">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-"use strict";
-
-// ═══════════════════════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════════════════════
-const WS_URL    = 'ws://127.0.0.1:8766/ws';
-const API       = 'http://127.0.0.1:8766';
-const THUMB_INT = 2000;  // ms between vision thumbnail polls
-
-// ═══════════════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════════════
-let _snap = {};           // latest snapshot from WS
-let _ws = null;
-let _wsAlive = false;
-let _streamMode = false;
-
-// Panel open/close + stream mode persisted in localStorage
+/* ════════════════ CONSTANTS + PLUMBING (carried forward verbatim) ════════════════ */
+const WS_URL = 'ws://127.0.0.1:8766/ws';
+const API = 'http://127.0.0.1:8766';
+const THUMB_INT = 2000;
 const LS_PANELS = 'kira_panels_open';
-const LS_STREAM = 'kira_stream_mode';
+let _snap = {}, _wsAlive=false, _wsRetryMs=1000; const _wsRetryMax=16000;
 
-// ═══════════════════════════════════════════════════════════
-//  WebSocket — auto-reconnect with exponential backoff
-// ═══════════════════════════════════════════════════════════
-let _wsRetryMs = 1000;
-const _wsRetryMax = 16000;
-
-function wsConnect() {
-  try {
-    _ws = new WebSocket(WS_URL);
-  } catch(e) {
-    scheduleReconnect(); return;
-  }
-
-  _ws.onopen = () => {
-    _wsAlive = true;
-    _wsRetryMs = 1000;
-    setWsIndicator(true);
-  };
-
-  _ws.onmessage = (e) => {
-    try {
-      const snap = JSON.parse(e.data);
-      _snap = snap;
-      render(snap);
-    } catch(_) {}
-  };
-
-  _ws.onerror = () => {};
-  _ws.onclose = () => {
-    _wsAlive = false;
-    setWsIndicator(false);
-    scheduleReconnect();
-  };
-}
-
-function scheduleReconnect() {
-  setTimeout(() => wsConnect(), _wsRetryMs);
-  _wsRetryMs = Math.min(_wsRetryMs * 2, _wsRetryMax);
-}
-
-function setWsIndicator(live) {
-  const el = document.getElementById('ws-indicator');
-  el.textContent = live ? 'LIVE' : 'WS ✕';
-  el.className = live ? 'live' : '';
-}
-
-// ═══════════════════════════════════════════════════════════
-//  RENDER — called every 500ms with fresh snapshot
-// ═══════════════════════════════════════════════════════════
-// Track last transcript render to avoid needless DOM thrash
-let _lastTranscriptHash = '';
-
-function render(s) {
-  safe(() => renderGlance(s));
-  safe(() => renderStatusStrip(s));
-  safe(() => renderEffStrip(s));
-  safe(() => renderPerception(s));
-  safe(() => renderOverlayChips(s));
-  safe(() => renderTranscript(s));
-  safe(() => renderRail(s));
-  safe(() => renderPanels(s));
-}
-
-// ── OVERLAY CHIPS ────────────────────────────────────────
-const _OV_LABELS = {
-  chat: 'Chat', cards: 'Cards', banner: 'Banner',
-  scoreboard: 'Board', spectate: 'Spec',
-  wheel: '🎡 Wheel', cookies_jar: '🍪 Jar',
-};
-let _ovLast = null;
-function renderOverlayChips(s) {
-  const vis = s.overlay_vis;
-  if (!vis) return;
-  const hash = JSON.stringify(vis);
-  if (hash === _ovLast) return;
-  _ovLast = hash;
-  const el = document.getElementById('overlay-chips');
-  if (!el) return;
-  // Keep the label span, replace chips
-  const label = el.querySelector('.ov-label');
-  el.innerHTML = '';
-  if (label) el.appendChild(label);
-  for (const [key, on] of Object.entries(vis)) {
-    const chip = document.createElement('button');
-    chip.className = 'ov-chip ' + (on ? 'on' : 'off');
-    chip.title = on ? `Hide ${_OV_LABELS[key] || key}` : `Show ${_OV_LABELS[key] || key}`;
-    chip.innerHTML = `<span class="ov-dot"></span>${escHtml(_OV_LABELS[key] || key)}`;
-    chip.addEventListener('click', () => {
-      cmd('overlay_vis', { key, enabled: !on });
-    });
-    el.appendChild(chip);
-  }
-}
-
-function safe(fn) {
-  try { fn(); } catch(e) { console.warn('render error', e); }
-}
-
-// ── GLANCE BAR ────────────────────────────────────────────
-function renderGlance(s) {
-  // Emotion badge
-  const badge = document.getElementById('emotion-badge');
-  const em = s.emotion || 'HAPPY';
-  const col = s.emotion_color || '#C08840';
-  badge.textContent = em;
-  badge.style.color = col;
-  badge.style.borderColor = col;
-
-  // Stats
-  setText('g-spoke', s.since_kira_spoke != null ? `${s.since_kira_spoke}s ago` : '–');
-  setText('g-rate',  s.chat_rate != null ? s.chat_rate.toFixed(1) : '–');
-  setText('g-chatters', s.session_chatters ?? '–');
-  setText('g-chat-age', s.chat_median_age_s != null ? `${s.chat_median_age_s}s` : '–');
-
-  // VRAM
-  if (s.vram_used_gb != null && s.vram_total_gb != null) {
-    setText('g-vram', `${s.vram_used_gb}/${s.vram_total_gb} GB`);
-  } else {
-    setText('g-vram', '–');
-  }
-
-  // API cost
-  setText('g-cost', s.session_cost_usd != null ? '$' + Number(s.session_cost_usd).toFixed(3) : '–');
-
-  // Cookie top-3 leaderboard
-  const $top3 = document.getElementById('cookie-top3');
-  if ($top3) {
-    const top = s.cookie_top3 || [];
-    if (top.length === 0) {
-      $top3.textContent = '–';
-    } else {
-      const medals = ['🥇','🥈','🥉'];
-      $top3.innerHTML = top.map((e, i) =>
-        `<span>${medals[i] || (i+1)+'. '} ${escHtml(e.name)} — ${e.count}</span>`
-      ).join('<br>');
-    }
-  }
-
-  // IOU list
-  const $iouList = document.getElementById('iou-list');
-  if ($iouList) {
-    const ious_open = s.ious_open || 0;
-    if (ious_open === 0) {
-      $iouList.textContent = '–';
-    } else {
-      // Show count + redeem buttons (one per open IOU — we don't have full list here,
-      // just the count, so show numbered redeem buttons)
-      let html = '';
-      for (let i = 0; i < ious_open; i++) {
-        html += `<span>IOU #${i+1} — open &nbsp;<button class="rail-btn" style="font-size:.6rem;padding:1px 6px;" onclick="cmd('redeem_iou',{idx:${i}})">Redeem</button></span><br>`;
-      }
-      $iouList.innerHTML = html;
-    }
-  }
-
-  // Ambient audio UI sync
-  _syncAmbienceUi(s.ambience);
-
-  // Activity
-  setText('g-activity', s.activity || 'General');
-
-  // Connection dots
-  dot('dot-llm',     s.llm_ready ? 'green' : 'red', s.llm_ready ? 'LLM ready' : 'LLM loading…');
-  dot('dot-tts',     s.tts_backend ? 'green' : 'amber', `TTS: ${(s.tts_backend || 'azure').toUpperCase()}`);
-  dot('dot-twitch',  s.twitch_on  ? 'green' : 'off', s.twitch_on ? 'Twitch connected' : 'Twitch offline');
-  dot('dot-vision',  s.vision_on  ? 'green' : 'off', s.vision_on ? 'Vision active' : 'Vision off');
-
-  const ytStatus    = s.youtube_status || 'disabled';
-  const ytAutoState = s.yt_auto_status  || '';
-  if (ytStatus.startsWith('live')) {
-    dot('dot-youtube', 'green', 'YouTube live');
-  } else if (ytAutoState === 'searching') {
-    dot('dot-youtube', 'amber', 'YT: searching for broadcast…');
-  } else if (ytAutoState === 'not_found') {
-    dot('dot-youtube', 'off', 'YT: no broadcast found (connect manually)');
-  } else if (ytStatus === 'idle') {
-    dot('dot-youtube', 'amber', 'YouTube idle');
-  } else {
-    dot('dot-youtube', 'off', `YouTube ${ytStatus}`);
-  }
-
-  // Media Watch dot — running/parked + session events + cloud spend
-  const mw = s.media_watch || {};
-  const mwCls = mw.running ? 'green' : (mw.status && mw.status !== 'OFF' ? 'amber' : 'off');
-  const mwTip = mw.running
-    ? `Media Watch: running · ${mw.calls || 0} calls · $${(mw.cost_usd || 0).toFixed(3)}`
-    : (mw.status && mw.status !== 'OFF' ? `Media Watch: ${mw.status}` : 'Media Watch off');
-  dot('dot-mediawatch', mwCls, mwTip);
-}
-
-function dot(id, cls, tip) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.className = 'dot ' + cls;
-  if (tip != null) el.title = tip;
-}
-
-// ── TRANSCRIPT ────────────────────────────────────────────
-function renderTranscript(s) {
-  const turns = s.transcript;
-  if (!Array.isArray(turns)) return;
-
-  const hash = JSON.stringify(turns);
-  if (hash === _lastTranscriptHash) return;
-  _lastTranscriptHash = hash;
-
-  const container = document.getElementById('transcript-scroll');
-  const emptyEl   = document.getElementById('transcript-empty');
-
-  if (turns.length === 0) {
-    // clear all turn bubbles, show placeholder
-    const bubbles = container.querySelectorAll('.turn');
-    bubbles.forEach(b => b.remove());
-    if (emptyEl) emptyEl.style.display = '';
-    return;
-  }
-
-  if (emptyEl) emptyEl.style.display = 'none';
-
-  // Rebuild entire transcript — only 8 items max, cheap
-  const bubbles = container.querySelectorAll('.turn');
-  bubbles.forEach(b => b.remove());
-
-  const frag = document.createDocumentFragment();
-  turns.forEach(turn => {
-    const role = turn.role || 'user';
-    const text = turn.text || '';
-    const speaker = role === 'assistant' ? 'Kira' : 'Jonny';
-
-    const div = document.createElement('div');
-    div.className = `turn ${role}`;
-    div.innerHTML = `<div class="turn-speaker">${escHtml(speaker)}</div>
-                     <div class="turn-bubble">${escHtml(text)}</div>`;
-    frag.appendChild(div);
-  });
-  container.appendChild(frag);
-
-  // Auto-scroll to bottom
-  container.scrollTop = container.scrollHeight;
-
-  // Now playing
-  const np = s.now_playing || '';
-  setText('now-playing', np && np !== 'Nothing' ? `\u266A ${np}` : '\u266A \u2013');
-}
-
-// ── RAIL ──────────────────────────────────────────────────
-// ── BEHAVIOR STATUS STRIP (at-a-glance Activity / Director / Lock In) ──────
-function renderStatusStrip(s) {
-  const _dim = (el) => { el.style.background='#241a14'; el.style.color='#7a6a58'; el.style.borderColor='#3a2e22'; };
-  // Activity
-  const a = document.getElementById('bs-activity');
-  if (a) {
-    const at = s.activity_type || 'general';
-    const name = (s.activity && s.activity.trim()) ? s.activity.trim() : '';
-    if (at && at !== 'general') {
-      a.textContent = (name || at).toUpperCase() + ' [' + at + ']';
-      a.style.background='#1e3320'; a.style.color='#9be8a8'; a.style.borderColor='#3a7d44';
-    } else {
-      a.textContent = name ? name.toUpperCase() : 'HANGOUT';
-      a.style.background='#2a2018'; a.style.color='#d8c8b0'; a.style.borderColor='#4a3a2a';
-    }
-  }
-  // Lock In — heads-down clamp (near-silent on chat; chat banked for catch-up)
-  const li = document.getElementById('bs-lockin');
-  if (li) {
-    if (s.chat_lock_in) {
-      li.textContent = '🔒 HEADS-DOWN';
-      li.style.background='var(--accent)'; li.style.color='#1C1410'; li.style.borderColor='var(--accent)';
-    } else { li.textContent = 'LOCK IN'; _dim(li); }
-  }
-  // Director — OFF / ON / GAME-ONLY-under-LockIn / ●FIRED pulse. Under Lock-In she
-  // still DRIVES the game (Director active), she just doesn't address chat.
-  const d = document.getElementById('bs-director');
-  if (d) {
-    if (!s.director_enabled) { d.textContent = 'DIRECTOR OFF'; _dim(d); }
-    else if (s.chat_lock_in) {
-      const firedGo = s.director_last_fire_ts && (Date.now()/1000 - s.director_last_fire_ts) < 4.0;
-      d.textContent = firedGo ? '🎬 ● FIRED' : '🎬 GAME-ONLY';
-      d.style.background = firedGo ? '#5aa86a' : '#1e3320';
-      d.style.color = firedGo ? '#0a1a0c' : '#9be8a8'; d.style.borderColor='#3a7d44';
-    } else {
-      const fired = s.director_last_fire_ts && (Date.now()/1000 - s.director_last_fire_ts) < 4.0;
-      d.textContent = fired ? '🎬 ● FIRED' : '🎬 DIRECTOR ON';
-      d.style.background = fired ? '#5aa86a' : '#1e3320';
-      d.style.color     = fired ? '#0a1a0c' : '#9be8a8';
-      d.style.borderColor = '#3a7d44';
-    }
-  }
-}
-
-function renderRail(s) {
-  // Mute button
-  const btnMute = document.getElementById('btn-mute');
-  if (s.muted || s.model_paused) {
-    btnMute.classList.add('muted-on');
-    if (s.mute_seconds_remaining > 0) {
-      btnMute.textContent = `\uD83D\uDD07 ${s.mute_seconds_remaining}s`;
-    } else if (s.model_paused) {
-      btnMute.textContent = '\uD83D\uDD07 Muted';
-    } else {
-      btnMute.textContent = '\uD83D\uDD07 Unmute';
-    }
-  } else {
-    btnMute.classList.remove('muted-on');
-    btnMute.textContent = '\uD83D\uDD07 Mute';
-  }
-
-  // Pause button
-  const btnPause = document.getElementById('btn-pause');
-  if (s.model_paused) {
-    btnPause.classList.add('paused-on');
-    btnPause.textContent = '\u25B6 Resume';
-  } else {
-    btnPause.classList.remove('paused-on');
-    btnPause.textContent = '\u23F8 Pause';
-  }
-
-  // Lock In (Focus) \u2014 forces the chat salience floor to HIGH live; still answers
-  // @Kira/questions and still greets new people (first-timer/regular bypass holds).
-  const btnLock = document.getElementById('btn-lockin');
-  if (btnLock) {
-    if (s.chat_lock_in) {
-      btnLock.style.background = 'var(--accent)';
-      btnLock.style.color = '#1C1410';
-      btnLock.textContent = '\uD83D\uDD12 Locked In';
-    } else {
-      btnLock.style.background = '';
-      btnLock.style.color = '';
-      btnLock.textContent = '\uD83D\uDD12 Lock In';
-    }
-  }
-
-  // Activity Director \u2014 live on/off (overrides ACTIVITY_DIRECTOR_ENABLED boot default)
-  const btnDir = document.getElementById('btn-director');
-  if (btnDir) {
-    if (s.director_enabled) {
-      btnDir.style.background = '#3a7d44';
-      btnDir.style.color = '#f5fff7';
-      btnDir.textContent = '\uD83C\uDFAC Director ON';
-    } else {
-      btnDir.style.background = '';
-      btnDir.style.color = '';
-      btnDir.textContent = '\uD83C\uDFAC Director';
-    }
-  }
-
-  // Director min-gap brake \u2014 sync slider to live value, but never fight an active drag.
-  const slDirGap = document.getElementById('sl-dir-gap');
-  if (slDirGap && document.activeElement !== slDirGap) {
-    const g = (s.director_min_gap_s != null ? s.director_min_gap_s : 15);
-    slDirGap.value = g;
-    const vg = document.getElementById('val-dir-gap');
-    if (vg) vg.textContent = Math.round(g);
-  }
-}
-
-// ── PANELS (sync controls to snapshot, no interaction needed) ─
-let _prevTtsBackend = null;
-let _prevMode = null;
-let _prevPresence = null;
-
-function renderPanels(s) {
-  // Vision / mode / media-watch / carry switches render via setTri() below
-  // from s.effective.toggles — see the three-state block.
-
-  // Vision summary
-  // When Media Watch is running, the vision heartbeat is parked, so its
-  // description is stale (e.g. "1137s ago"). Show MW's LATEST analysis instead —
-  // Jonny's real-time how-out-of-sync-is-she eyeball: text, age, and UNCERTAIN/STATIC tag.
-  const vsEl = document.getElementById('vision-summary-text');
-  const mwSt = s.media_watch || {};
-  const mwLatest = mwSt.running ? mwSt.latest : null;
-  if (vsEl) {
-    if (mwLatest && mwLatest.text) {
-      const tag = mwLatest.tag ? `[${mwLatest.tag}] ` : '';
-      vsEl.textContent = `${tag}${mwLatest.text} — MW analysis: ${mwLatest.age}s ago`;
-      vsEl.classList.toggle('mw-uncertain', mwLatest.tag === 'UNCERTAIN' || mwLatest.tag === 'STATIC');
-    } else {
-      const vs = s.vision_summary || '';
-      const age = s.vision_last_capture_age != null ? ` (${s.vision_last_capture_age}s ago)` : '';
-      vsEl.textContent = vs ? `${vs}${age}` : 'No description yet';
-      vsEl.classList.remove('mw-uncertain');
-    }
-  }
-
-  // Audio summary
-  const as_ = s.audio_summary || '';
-  const aAge = s.audio_last_heard_age != null ? ` (${s.audio_last_heard_age}s ago)` : '';
-  const asEl = document.getElementById('audio-summary-text');
-  if (asEl) asEl.textContent = as_ ? `${as_}${aAge}` : (s.audio_on ? 'Listening…' : 'Not listening');
-
-  // Audio capture mode dropdown — sync FROM the real mode so it never drifts.
-  const selAudio = document.getElementById('sel-audio-mode');
-  if (selAudio && document.activeElement !== selAudio && s.audio_mode) {
-    selAudio.value = s.audio_mode;
-  }
-
-  // Vision force-off override — honest sync from effective state.
-  const swVisOff = document.getElementById('sw-vision-off');
-  if (swVisOff && document.activeElement !== swVisOff) {
-    swVisOff.checked = !!(s.effective && s.effective.vision_force_off);
-  }
-
-  // Loopback status (read-only — always-on baseline, no toggle).
-  setText('loopback-status', s.loopback_status || 'disabled');
-  renderLoopbackFeed(s);
-
-  // ── Three-state toggles — render from effective state, not raw flags ──
-  const tg = (s.effective && s.effective.toggles) || {};
-  setTri('sw-immersive',  tg.immersive);
-  setTri('sw-carry',      tg.carry);
-  setTri('sw-autopilot',  tg.autopilot);
-  setTri('sw-mediawatch', tg.media_watch);
-  setTri('sw-mw-react',   tg.react);
-  setTri('sw-chess',      tg.chess);
-
-  // Mode pills
-  const m = s.mode || 'companion';
-  if (m !== _prevMode) {
-    _prevMode = m;
-    document.getElementById('pill-companion').classList.toggle('active', m === 'companion');
-    document.getElementById('pill-streamer').classList.toggle('active',  m === 'streamer');
-  }
-
-  // Presence pills
-  const pl = s.presence_level || 'normal';
-  if (pl !== _prevPresence) {
-    _prevPresence = pl;
-    document.getElementById('pill-presence-sleepy').classList.toggle('active', pl === 'sleepy');
-    document.getElementById('pill-presence-normal').classList.toggle('active', pl === 'normal');
-    document.getElementById('pill-presence-chatty').classList.toggle('active', pl === 'chatty');
-  }
-
-  // TTS pills
-  const tts = s.tts_backend || 'azure';
-  if (tts !== _prevTtsBackend) {
-    _prevTtsBackend = tts;
-    document.getElementById('pill-azure').classList.toggle('active', tts === 'azure');
-    document.getElementById('pill-fish').classList.toggle('active',  tts === 'fish');
-  }
-
-  // Fish voice — only if not focused
-  const fv = document.getElementById('inp-fish-voice');
-  if (fv && document.activeElement !== fv && s.fish_voice_id) {
-    fv.placeholder = s.fish_voice_id;
-  }
-
-  // Discord diary — fill the textarea from the latest snapshot unless the user
-  // is editing it or has unsaved edits. Don't clobber in-progress tweaks.
-  const dd = s.discord_diary || {};
-  const dta = document.getElementById('discord-diary-text');
-  if (dta && document.activeElement !== dta && !_diaryEdited && (dd.text || '') !== dta.value) {
-    dta.value = dd.text || '';
-  }
-  const dst = document.getElementById('discord-diary-status');
-  if (dst && !_diaryEdited) {
-    if (dd.posted) {
-      dst.textContent = 'Posted to Discord ✓';
-    } else if (dd.text) {
-      dst.textContent = 'Diary ready for review — not yet posted.' + (dd.path ? ' (' + dd.path + ')' : '');
-    } else {
-      dst.textContent = 'No diary yet — generated at session end.';
-    }
-  }
-
-  // Autopilot
-  const ap = s.autopilot || {};
-  const apLabel = ap.running ? 'Autopilot: RUNNING'
-                : ap.paused  ? `Autopilot: PAUSED — ${ap.reason || ''}`
-                             : 'Autopilot: OFF';
-  setText('ap-status', apLabel);
-  const btnApResume = document.getElementById('btn-ap-resume');
-  if (btnApResume) btnApResume.disabled = !ap.paused;
-
-  // Media watch
-  const mw = s.media_watch || {};
-  setText('mw-status', `Media Watch: ${mw.status || 'OFF'}`);
-
-  // Chess
-  const ch = s.chess || {};
-  setText('chess-status', ch.status || '♟ CLOSED');
-  setTri('sw-chess-accept', ch.accepting_challenges);
-  // Sync Kira Elo from live state (only when the input isn't focused)
-  if (ch.kira_elo !== undefined) {
-    const eloInp = document.getElementById('inp-chess-elo');
-    if (eloInp && document.activeElement !== eloInp) eloInp.value = ch.kira_elo;
-    const eloDisp = document.getElementById('chess-elo-display');
-    if (eloDisp && !eloDisp.textContent) eloDisp.textContent = '';
-  }
-  const specLink = document.getElementById('chess-spectate-link');
-  const specA    = document.getElementById('chess-spectate-a');
-  if (specLink && specA) {
-    if (ch.spectate_url) {
-      specA.href = ch.spectate_url;
-      specLink.style.display = '';
-    } else {
-      specLink.style.display = 'none';
-    }
-  }
-
-  // ── Dependent-control locking: grey out children when their parent is off ──
-  const tg2 = (s.effective && s.effective.toggles) || {};
-  const mwOn = (tg2.media_watch && tg2.media_watch.state !== 'off');
-  // Window title + Set Window are PRECONDITIONS — stay editable so the user
-  // can fill them in before toggling. Only lock true dependents.
-  lockGroup(!mwOn, 'sl-mw-interval');
-  lockRow(!mwOn, 'sw-mw-react');
-
-  // MW failure chip — show why the toggle silently snapped back.
-  const mwFail = (s.effective && s.effective.media_watch && s.effective.media_watch.fail_reason) || '';
-  let failChip = document.getElementById('mw-fail-chip');
-  if (!failChip) {
-    failChip = document.createElement('div');
-    failChip.id = 'mw-fail-chip';
-    failChip.className = 'mw-fail-chip';
-    const mwToggleRow = document.getElementById('sw-mediawatch');
-    if (mwToggleRow) {
-      const row = mwToggleRow.closest('.toggle-row') || mwToggleRow.parentNode;
-      row.parentNode.insertBefore(failChip, row.nextSibling);
-    }
-  }
-  if (mwFail) {
-    failChip.textContent = '\u26a0 start failed: ' + mwFail;
-    failChip.style.display = '';
-  } else {
-    failChip.style.display = 'none';
-  }
-  // Chess level is a precondition (set before enabling), so leave it editable.
-  // Only the Fish voice ID is a true dependent (useless unless fish is active).
-  const fishActive = (s.tts_backend === 'fish');
-  lockGroup(!fishActive, 'inp-fish-voice');
-
-  // YouTube panel status — merge auto-search state into label
-  const _ytPanelStatus = s.youtube_status || 'idle';
-  const _ytAutoLabel = s.yt_auto_status === 'searching' ? 'searching…'
-    : s.yt_auto_status === 'not_found' ? 'not found — connect manually'
-    : s.yt_auto_status === 'connected' ? _ytPanelStatus
-    : _ytPanelStatus;
-  setText('yt-status-label', `YouTube: ${_ytAutoLabel}`);
-  const dotYtPanel = document.getElementById('dot-twitch-panel');
-  if (dotYtPanel) {
-    dotYtPanel.className = 'dot ' + (s.twitch_on ? 'green' : 'off');
-  }
-
-  // Emotion select — don't interfere while user has it open
-  const emSel = document.getElementById('emotion-select');
-  if (emSel && document.activeElement !== emSel && s.emotion) {
-    emSel.value = s.emotion;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  COMMANDS
-// ═══════════════════════════════════════════════════════════
-async function cmd(action, body, btnEl) {
-  const opts = {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: body ? JSON.stringify(body) : JSON.stringify({}),
-  };
-  try {
-    const res = await fetch(`${API}/cmd/${action}`, opts);
-    const data = await res.json();
-    if (btnEl) flashBtn(btnEl, data.ok !== false);
+async function cmd(action, body, btnEl){
+  const opts={method:'POST',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):JSON.stringify({})};
+  try{
+    const res=await fetch(`${API}/cmd/${action}`,opts);
+    const data=await res.json();
+    if(btnEl) flashBtn(btnEl, data.ok!==false);
     return data;
-  } catch(e) {
-    if (btnEl) flashBtn(btnEl, false);
-    console.warn('cmd failed', action, e);
-    return null;
-  }
-}
-
-function flashBtn(el, ok) {
-  el.classList.remove('flash-ok', 'flash-err');
-  void el.offsetWidth; // reflow
-  el.classList.add(ok ? 'flash-ok' : 'flash-err');
-  setTimeout(() => el.classList.remove('flash-ok', 'flash-err'), 600);
-}
-
-// ═══════════════════════════════════════════════════════════
-//  SPECIFIC COMMAND HELPERS
-// ═══════════════════════════════════════════════════════════
-function goActivity() {
-  const name = document.getElementById('inp-activity').value.trim();
-  const slug = document.getElementById('inp-slug').value.trim();
-  if (!name) return;
-  cmd('activity_go', {name, slug});
-}
-
-function setMode(m) {
-  if (_snap.mode === m) return;
-  cmd('mode_toggle');
-}
-
-function setPresence(level) {
-  if (_snap.presence_level === level) return;
-  cmd('set_presence', { presence: level });
-}
-
-// Post the (possibly edited) diary text to Discord — manual, deliberate.
-let _diaryEdited = false;
-async function postDiscordSummary(btnEl) {
-  const ta = document.getElementById('discord-diary-text');
-  const text = (ta && ta.value || '').trim();
-  if (!text) { flashBtn(btnEl, false); return; }
-  if (!confirm('Post this diary entry to the Kira Lab Discord channel?')) return;
-  const data = await cmd('post_discord_summary', { text }, btnEl);
-  const status = document.getElementById('discord-diary-status');
-  if (status) {
-    if (data && data.ok !== false) {
-      status.textContent = 'Posted to Discord ✓ ' + (data.detail || '');
-      _diaryEdited = false;
-    } else {
-      status.textContent = 'Post failed: ' + ((data && (data.error || data.detail)) || 'unknown error');
-    }
-  }
-}
-
-function setTts(backend) {
-  if (_snap.tts_backend === backend) return;
-  cmd('tts_toggle');
-}
-
-function applyFishVoice() {
-  const val = document.getElementById('inp-fish-voice').value.trim();
-  if (val) cmd('fish_voice_apply', {voice_id: val});
-}
-
-function applyVnWindow() {
-  const title = document.getElementById('inp-vn-window').value.trim();
-  cmd('vn_window', {title});
-}
-
-function toggleAutopilot(on) {
-  const title = document.getElementById('inp-vn-window').value.trim();
-  cmd('autopilot_toggle', {enabled: on, title});
-}
-
-function applyMwWindow() {
-  const title = document.getElementById('inp-mw-window').value.trim();
-  cmd('media_watch_window', {title});
-}
-
-function toggleMediaWatch(on) {
-  const title = document.getElementById('inp-mw-window').value.trim();
-  cmd('media_watch_toggle', {enabled: on, title}).then(data => {
-    // C1: if the server auto-targeted the foreground window, show what it picked.
-    if (data && data.auto_targeted && data.window_title) {
-      document.getElementById('inp-mw-window').value = data.window_title;
-    }
-  });
-}
-
-function toggleChess(on) {
-  cmd('chess_toggle', {enabled: on});
-}
-
-function toggleChessAccept(on) {
-  cmd('chess_accept_toggle', {enabled: on});
-}
-
-function challengeChessAi() {
-  const level = parseInt(document.getElementById('inp-chess-level').value, 10) || 3;
-  cmd('chess_challenge_ai', {level});
-}
-
-function applyChessElo() {
-  const elo = parseInt(document.getElementById('inp-chess-elo').value, 10) || 1400;
-  cmd('chess_set_elo', {level: elo}).then(data => {
-    if (data && data.ok !== false) {
-      const disp = document.getElementById('chess-elo-display');
-      if (disp) disp.textContent = '→ ' + (data.kira_elo ?? elo);
-    }
-  });
-}
-
-// ── Codenames manual board + advisor ──────────────────────────────────────
-// The board is ENTERED BY HAND so it is known-correct. Vision is NOT trusted to
-// auto-read it (a real test showed gpt-4o-mini reads the 25 words well but gets
-// ~1-in-4 colors wrong, including labelling assassin tiles "safe"). Click a tile
-// to cycle its color forward; right-click steps back. Every change feeds the
-// existing CodenamesState tracker, which Kira reasons over live.
-const _CN_CYCLE = ['unknown', 'team', 'opponent', 'neutral', 'assassin'];
-const _CN_LABEL = {unknown:'unknown', team:'YOUR TEAM', opponent:'opponent',
-                   neutral:'neutral', assassin:'ASSASSIN'};
-let _cnState = null;   // last snapshot
-
-function _cnNextIdentity(cur, dir) {
-  let i = _CN_CYCLE.indexOf(cur);
-  if (i < 0) i = 0;
-  i = (i + (dir < 0 ? -1 : 1) + _CN_CYCLE.length) % _CN_CYCLE.length;
-  return _CN_CYCLE[i];
-}
-
-function _cnRender(data) {
-  if (data && data.ok !== false && ('grid' in data || 'active' in data)) _cnState = data;
-  _cnRenderStatus(_cnState);
-  _cnRenderGrid(_cnState);
-  _cnRenderAdvisor(_cnState);
-}
-
-function _cnRenderStatus(data) {
-  const el = document.getElementById('cn-status');
-  if (!el) return;
-  if (!data || data.ok === false) { el.textContent = '🕵 Codenames — error'; return; }
-  if (!data.active) { el.textContent = '🕵 Codenames — idle'; return; }
-  const grid = data.grid || [];
-  const counts = {team:0, opponent:0, neutral:0, assassin:0, unknown:0};
-  grid.forEach(g => { counts[g.identity] = (counts[g.identity]||0) + 1; });
-  const role = data.role === 'spymaster' ? 'Spymaster' : 'Guesser';
-  const team = data.my_team_label ? ` (${data.my_team_label})` : '';
-  let line = `🕵 ${role}${team} — ${counts.unknown} unknown · team ${counts.team} · opp ${counts.opponent} · neu ${counts.neutral} · assassin ${counts.assassin}`;
-  if (data.current_clue) {
-    line += ` · clue "${data.current_clue.clue}" ${data.guesses_left} left`;
-  }
-  el.textContent = line;
-}
-
-function _cnRenderGrid(data) {
-  const grid = document.getElementById('cn-grid');
-  const legend = document.getElementById('cn-legend');
-  if (!grid) return;
-  grid.innerHTML = '';
-  const tiles = (data && data.active && Array.isArray(data.grid)) ? data.grid : [];
-  if (!tiles.length) {
-    if (legend) legend.innerHTML = '';
-    return;
-  }
-  tiles.forEach(t => {
-    const ident = t.identity || 'unknown';
-    const tile = document.createElement('div');
-    tile.className = 'cn-tile cn-' + ident;
-    tile.textContent = t.word;
-    tile.title = `${t.word} — ${_CN_LABEL[ident] || ident}\n(click: next color · right-click: previous)`;
-    tile.onclick = () => codenamesCycleTile(t.word, +1);
-    tile.oncontextmenu = (e) => { e.preventDefault(); codenamesCycleTile(t.word, -1); };
-    grid.appendChild(tile);
-  });
-  if (legend) {
-    legend.innerHTML =
-      'Click a tile to set its color · right-click steps back · ' +
-      '<span class="cn-chip cn-unknown">unknown</span>' +
-      '<span class="cn-chip cn-team">your team</span>' +
-      '<span class="cn-chip cn-opponent">opponent</span>' +
-      '<span class="cn-chip cn-neutral">neutral</span>' +
-      '<span class="cn-chip cn-assassin">assassin</span>';
-  }
-}
-
-function _cnRenderAdvisor(data) {
-  const el = document.getElementById('cn-advisor');
-  if (!el) return;
-  if (!data || !data.active) { el.textContent = 'No board loaded.'; return; }
-  const grid = data.grid || [];
-  const by = (id) => grid.filter(g => g.identity === id).map(g => g.word);
-  const unknown = by('unknown'), team = by('team'),
-        opp = by('opponent'), neu = by('neutral'), ass = by('assassin');
-  const role = data.role === 'spymaster' ? 'SPYMASTER (clue-giver)' : 'GUESSER';
-  const lines = [`Role: ${role}${data.my_team_label ? ' · team ' + data.my_team_label : ''}`];
-  if (unknown.length) lines.push(`Still in play (${unknown.length}): ${unknown.join(', ')}`);
-  if (team.length)    lines.push(`YOUR TEAM: ${team.join(', ')}`);
-  if (ass.length)     lines.push(`☠ ASSASSIN: ${ass.join(', ')}`);
-  if (opp.length)     lines.push(`Opponent: ${opp.join(', ')}`);
-  if (neu.length)     lines.push(`Neutral: ${neu.join(', ')}`);
-  if (data.clues && data.clues.length) {
-    const recent = data.clues.slice(-3)
-      .map(c => `"${c.clue}" ${c.number} (${c.by})`).join('; ');
-    lines.push(`Clues: ${recent}`);
-  }
-  if (data.current_clue) {
-    const cc = data.current_clue;
-    const g = (data.guessed_this_turn && data.guessed_this_turn.length)
-      ? data.guessed_this_turn.join(', ') : 'none yet';
-    lines.push(`Working: "${cc.clue}" for ${cc.number} — ${data.guesses_left} guess(es) left, guessed: ${g}`);
-  }
-  el.textContent = lines.join('\n');
-}
-
-function codenamesStart(btnEl) {
-  const words = document.getElementById('cn-words').value.trim();
-  const role  = document.getElementById('cn-role').value;
-  const team  = document.getElementById('cn-team').value.trim();
-  const n = words.split(/[\s,]+/).filter(Boolean).length;
-  if (n !== 25 && !confirm(`That's ${n} words, not 25. Load anyway?`)) { flashBtn(btnEl, false); return; }
-  cmd('codenames_start', {words, role, team}, btnEl).then(_cnRender);
-}
-
-function codenamesRefresh() {
-  cmd('codenames_state', {}).then(_cnRender);
-}
-
-function codenamesReset(btnEl) {
-  cmd('codenames_reset', {}, btnEl).then(() => { _cnState = {active:false, grid:[]}; _cnRender(_cnState); });
-}
-
-function codenamesSetRole(el) {
-  const role = document.getElementById('cn-role').value;
-  cmd('codenames_set_role', {role}).then(() => codenamesRefresh());
-}
-
-function codenamesCycleTile(word, dir) {
-  const grid = (_cnState && _cnState.grid) || [];
-  const tile = grid.find(g => (g.word || '').toUpperCase() === (word || '').toUpperCase());
-  const cur = tile ? tile.identity : 'unknown';
-  const next = _cnNextIdentity(cur, dir);
-  cmd('codenames_reveal', {word, identity: next}).then(_cnRender);
-}
-
-function codenamesClue(btnEl) {
-  const clue   = document.getElementById('cn-clue-word').value.trim();
-  const number = parseInt(document.getElementById('cn-clue-num').value, 10) || 0;
-  const by     = document.getElementById('cn-clue-by').value;
-  if (!clue) { flashBtn(btnEl, false); return; }
-  cmd('codenames_clue', {clue, number, by}, btnEl).then(data => {
-    _cnRender(data);
-    if (data && data.ok !== false) document.getElementById('cn-clue-word').value = '';
-  });
-}
-
-// ── Storytime / Puppet Show ───────────────────────────────────────────────
-let _stPollTimer = null;
-
-function _stRender(data) {
-  if (!data || data.ok === false) return;
-  const statusEl = document.getElementById('st-status');
-  const icon = {idle:'🎭', scripting:'✍', generating:'🎨', ready:'✅',
-                performing:'▶', done:'🏁', error:'⚠'}[data.status] || '🎭';
-  let line = `${icon} ${data.status || 'idle'}`;
-  if (data.title)    line += ` · "${data.title}"`;
-  if (data.progress) line += ` · ${data.progress}`;
-  if (data.error)    line += ` · ${data.error}`;
-  if (statusEl) statusEl.textContent = line;
-
-  // Beat grid with thumbnails.
-  const grid = document.getElementById('st-beats-grid');
-  if (grid) {
-    grid.innerHTML = '';
-    (data.beats || []).forEach(b => {
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;flex-direction:column;gap:6px;border:1px solid var(--border,#333);border-radius:6px;padding:6px';
-
-      // Top: thumbnail + meta + image re-roll.
-      const top = document.createElement('div');
-      top.style.cssText = 'display:flex;gap:8px;align-items:flex-start';
-      const thumb = b.url
-        ? `<img src="${b.url}" style="width:96px;height:54px;object-fit:cover;border-radius:4px;background:#000" alt="scene ${b.idx}">`
-        : `<div style="width:96px;height:54px;border-radius:4px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#888">${b.status}</div>`;
-      top.innerHTML = `${thumb}
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.62rem;color:var(--text-muted)">#${b.idx} · ${b.status}${b.error ? ' · '+b.error : ''}</div>
-        </div>`;
-      const reroll = document.createElement('button');
-      reroll.className = 'btn';
-      reroll.textContent = '↻';
-      reroll.title = 'Re-roll this scene image (same script)';
-      reroll.style.cssText = 'flex:0 0 auto;padding:2px 8px';
-      reroll.onclick = () => storytimeRegenerate(b.idx, reroll);
-      top.appendChild(reroll);
-      row.appendChild(top);
-
-      // Editable narration line.
-      const ta = document.createElement('textarea');
-      ta.value = b.narration || '';
-      ta.rows = 2;
-      ta.title = 'Edit this beat’s spoken line — saves when you click away';
-      ta.style.cssText = 'width:100%;resize:vertical;font-size:.72rem;line-height:1.3';
-      ta.onchange = () => storytimeEditBeat(b.idx, ta.value, ta);
-      row.appendChild(ta);
-
-      // Per-beat script rewrite (AI re-writes just this beat + its image).
-      const tools = document.createElement('div');
-      tools.style.cssText = 'display:flex;gap:6px';
-      const rewrite = document.createElement('button');
-      rewrite.className = 'btn';
-      rewrite.textContent = '✍ Rewrite beat';
-      rewrite.title = 'AI rewrites just this beat’s script + image, in story context';
-      rewrite.style.cssText = 'flex:1;padding:2px 8px;font-size:.66rem';
-      rewrite.onclick = () => storytimeRewrite(b.idx, rewrite);
-      tools.appendChild(rewrite);
-      row.appendChild(tools);
-
-      grid.appendChild(row);
-    });
-  }
-
-  // Enable Perform only when a reviewable show exists.
-  const perform = document.getElementById('st-perform-btn');
-  if (perform) perform.disabled = !(data.status === 'ready' || data.status === 'done');
-
-  // Poll while async work is in flight.
-  const live = (data.status === 'scripting' || data.status === 'generating' || data.busy);
-  if (live && !_stPollTimer) {
-    _stPollTimer = setInterval(storytimeRefresh, 1500);
-  } else if (!live && _stPollTimer) {
-    clearInterval(_stPollTimer); _stPollTimer = null;
-    // Just finished generating — a new show was persisted; refresh the library.
-    if (data.status === 'ready') storytimeLibraryRefresh();
-  }
-}
-
-function storytimeRefresh() {
-  cmd('storytime_state', {}).then(_stRender);
-}
-
-// Populate the structure/tone preset dropdown once (keys come from the backend).
-let _stPresetsLoaded = false;
-function storytimePresetsInit() {
-  if (_stPresetsLoaded) return;
-  const sel = document.getElementById('st-preset');
-  if (!sel) return;
-  cmd('storytime_presets', {}).then(d => {
-    if (!d || !Array.isArray(d.presets)) return;
-    sel.innerHTML = '';
-    d.presets.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.key;
-      opt.textContent = p.label;
-      sel.appendChild(opt);
-    });
-    _stPresetsLoaded = true;
-  });
-}
-document.addEventListener('DOMContentLoaded', storytimePresetsInit);
-
-// Populate the saved-show library dropdown (shows persisted on disk).
-function storytimeLibraryRefresh(btnEl) {
-  cmd('storytime_library', {}, btnEl).then(d => {
-    const sel = document.getElementById('st-library');
-    if (!sel || !d || !Array.isArray(d.shows)) return;
-    const prev = sel.value;
-    sel.innerHTML = '';
-    if (d.shows.length === 0) {
-      const opt = document.createElement('option');
-      opt.value = ''; opt.textContent = '(no saved shows yet)';
-      sel.appendChild(opt);
-      return;
-    }
-    d.shows.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.show_id;
-      opt.textContent = `${s.title} · ${s.ready}/${s.beats}${s.preset ? ' · '+s.preset : ''}`;
-      sel.appendChild(opt);
-    });
-    if (prev) sel.value = prev;
-  });
-}
-document.addEventListener('DOMContentLoaded', () => storytimeLibraryRefresh());
-
-function storytimeLoad(btnEl) {
-  const sel = document.getElementById('st-library');
-  const show_id = sel ? sel.value : '';
-  if (!show_id) { flashBtn(btnEl, false); return; }
-  cmd('storytime_load', {show_id}, btnEl).then(d => {
-    if (d && d.ok !== false) _stRender(d); else flashBtn(btnEl, false);
-  });
-}
-
-function storytimePrepare(btnEl) {
-  const theme = document.getElementById('st-theme').value.trim();
-  const beats = parseInt(document.getElementById('st-beats').value, 10) || 16;
-  const preset = (document.getElementById('st-preset') || {}).value || '';
-  if (!theme) { flashBtn(btnEl, false); return; }
-  cmd('storytime_prepare', {theme, beats, preset}, btnEl).then(d => {
-    _stRender({ok:true, status:'scripting'});
-    setTimeout(storytimeRefresh, 800);
-  });
-}
-
-function storytimeRegenerate(idx, btnEl) {
-  cmd('storytime_regenerate', {idx}, btnEl).then(() => setTimeout(storytimeRefresh, 800));
-}
-
-// Hand-edit one beat's narration text (saved on blur; image untouched).
-function storytimeEditBeat(idx, narration, el) {
-  cmd('storytime_edit_beat', {idx, narration}, el);
-}
-
-// AI-rewrite one beat's script (narration + image), in story context.
-function storytimeRewrite(idx, btnEl) {
-  const note = (prompt('Optional note to steer the rewrite (leave blank for a free rewrite):', '') || '').trim();
-  cmd('storytime_rewrite_beat', {idx, note}, btnEl).then(() => setTimeout(storytimeRefresh, 800));
-}
-
-function storytimePerform(btnEl) {
-  // INSTRUMENT: log that the onclick fired and the button's current disabled state.
-  // If this line never appears in the browser console, the onclick is not wired.
-  console.log('[Storytime] Perform button clicked — disabled=', btnEl ? btnEl.disabled : '?');
-  if (btnEl && btnEl.disabled) {
-    console.warn('[Storytime] Perform button is DISABLED — click silently ignored. ' +
-      'Show must have status ready or done. Refresh the panel to check current status.');
-    return;
-  }
-  if (!confirm('Perform this show live on stream now?')) {
-    console.log('[Storytime] Perform cancelled by user at confirm dialog.');
-    return;
-  }
-  // INSTRUMENT: log the exact URL + action being POSTed.
-  console.log(`[Storytime] POSTing to ${API}/cmd/storytime_perform`);
-  cmd('storytime_perform', {}, btnEl).then(d => {
-    console.log('[Storytime] storytime_perform response:', d);
-    storytimeRefresh();
-  });
-}
-
-function storytimeStop(btnEl) {
-  cmd('storytime_stop', {}, btnEl).then(storytimeRefresh);
-}
-
-function storytimeReset(btnEl) {
-  cmd('storytime_reset', {}, btnEl).then(() => _stRender({ok:true, status:'idle', beats:[]}));
-}
-
-function ytConnect() {
-  const url = document.getElementById('inp-yt-url').value.trim();
-  if (url) cmd('youtube_connect', {url});
-}
-
-// ── Stream screen text control ─────────────────────────────────────────────
-const _SS_STORE_KEY = 'kira_screen_texts';  // sessionStorage key
-
-function _loadScreenTexts() {
-  try { return JSON.parse(sessionStorage.getItem(_SS_STORE_KEY) || '{}'); } catch(_) { return {}; }
-}
-
-function _saveScreenTexts(data) {
-  try { sessionStorage.setItem(_SS_STORE_KEY, JSON.stringify(data)); } catch(_) {}
-}
-
-async function sendScreenText(screen) {
-  const l1 = (document.getElementById(`inp-screen-${screen}-1`) || {}).value || '';
-  const l2 = (document.getElementById(`inp-screen-${screen}-2`) || {}).value || '';
-  const line1 = l1.trim();
-  const line2 = l2.trim();
-  const data = await cmd('screen_text', {screen, line1, line2});
-  if (data && data.ok !== false) {
-    const stored = _loadScreenTexts();
-    stored[screen] = {line1, line2};
-    _saveScreenTexts(stored);
-  }
-}
-
-async function clearScreenText(screen) {
-  await cmd('screen_text_clear', {screen});
-  const stored = _loadScreenTexts();
-  delete stored[screen];
-  _saveScreenTexts(stored);
-}
-
-// ── Ambience controls ──────────────────────────────────────────────────────
-// While the user is choosing a track / dragging the volume slider, the live
-// /state poll must NOT overwrite their in-progress choice. We mark the controls
-// "dirty" on user input and only let the poll sync them again once the change
-// has been committed (Apply / Off) or cancelled.
-let _ambDirty = false;
-
-function _ambMarkDirty() { _ambDirty = true; }
-
-async function refreshAmbienceList() {
-  const sel = document.getElementById('amb-file-sel');
-  if (!sel) return;
-  try {
-    const res  = await fetch(`${API}/screens/ambience/list`);
-    const data = await res.json();
-    const files = (data && data.files) || [];
-    const cur   = sel.value;
-    // Rebuild options keeping current selection
-    sel.innerHTML = '<option value="">— off —</option>';
-    for (const f of files) {
-      const opt = document.createElement('option');
-      opt.value = f;
-      opt.textContent = f;
-      if (f === cur) opt.selected = true;
-      sel.appendChild(opt);
-    }
-    const status = document.getElementById('amb-status');
-    if (status) status.textContent = files.length ? `${files.length} file(s) found` : 'No audio files in ambience/';
-  } catch (e) {
-    const status = document.getElementById('amb-status');
-    if (status) status.textContent = 'Could not reach server';
-  }
-}
-
-async function applyAmbience() {
-  const sel    = document.getElementById('amb-file-sel');
-  const volEl  = document.getElementById('amb-vol');
-  if (!sel || !volEl) return;
-  const file   = sel.value;
-  const volume = parseFloat(volEl.value) / 100;
-  const data   = await cmd('set_ambience', { file, volume });
-  const ok     = !!(data && data.ok !== false);
-  // Committed (or rejected) — let the live poll resume syncing this control.
-  if (ok) _ambDirty = false;
-  const status = document.getElementById('amb-status');
-  if (status) status.textContent = ok
-    ? (file ? `Playing: ${file} @ ${Math.round(volume*100)}%` : 'Ambience off')
-    : ('Error setting ambience' + (data && data.error ? `: ${data.error}` : ' (no response from server)'));
-}
-
-async function stopAmbience() {
-  const volEl = document.getElementById('amb-vol');
-  const data  = await cmd('set_ambience', { file: '', volume: volEl ? parseFloat(volEl.value)/100 : 0.06 });
-  const sel   = document.getElementById('amb-file-sel');
-  if (sel) sel.value = '';
-  _ambDirty = false;
-  const status = document.getElementById('amb-status');
-  if (status) status.textContent = 'Ambience off';
-}
-
-// Sync ambience UI from live state snapshot
-function _syncAmbienceUi(ambience) {
-  if (!ambience) return;
-  // Don't fight the user while they're mid-edit (selection / slider drag).
-  if (_ambDirty) return;
-  const sel   = document.getElementById('amb-file-sel');
-  const volEl = document.getElementById('amb-vol');
-  const lbl   = document.getElementById('amb-vol-label');
-  if (sel && ambience.file !== undefined) {
-    // Only change selection if it differs (avoid fighting user input)
-    if (sel.value !== ambience.file) sel.value = ambience.file;
-  }
-  if (volEl && ambience.volume !== undefined) {
-    const pct = Math.round(ambience.volume * 100);
-    if (parseInt(volEl.value) !== pct) {
-      volEl.value = pct;
-      if (lbl) lbl.textContent = pct + '%';
-    }
-  }
-}
-
-function _restoreScreenInputs() {
-  const stored = _loadScreenTexts();
-  for (const [screen, val] of Object.entries(stored)) {
-    const l1 = document.getElementById(`inp-screen-${screen}-1`);
-    const l2 = document.getElementById(`inp-screen-${screen}-2`);
-    if (l1 && val.line1) l1.value = val.line1;
-    if (l2 && val.line2) l2.value = val.line2;
-  }
-}
-
-async function refreshDevices() {
-  try {
-    const res = await fetch(`${API}/cmd/audio_devices_refresh`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: '{}',
-    });
-    const data = await res.json();
-    if (data.devices) {
-      const sel = document.getElementById('sel-audio-device');
-      sel.innerHTML = '';
-      data.devices.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d; opt.textContent = d;
-        sel.appendChild(opt);
-      });
-      // Restore the persisted selection (preferred_loopback_name) so the dropdown
-      // shows the device actually in use instead of resetting to Auto-detect.
-      const pref = _snap && _snap.audio_device;
-      if (pref) {
-        for (const opt of sel.options) {
-          const clean = opt.value.replace(/^⚠ /, '').replace(/ \(virtual\)$/, '').replace(/\.+$/, '');
-          if (opt.value.includes(pref) || (clean && pref.includes(clean))) {
-            sel.value = opt.value; break;
-          }
-        }
-      }
-    }
-  } catch(e) { console.warn('device refresh failed', e); }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  VISION THUMBNAIL POLL (every 2s, separate from WS)
-// ═══════════════════════════════════════════════════════════
-function startThumbPoll() {
-  setInterval(pollThumb, THUMB_INT);
-}
-
-function pollThumb() {
-  if (!_snap.vision_on) return;
-  const img  = document.getElementById('vision-thumb');
-  const ph   = document.getElementById('vision-placeholder');
-  const url  = `${API}/vision/thumbnail?t=${Date.now()}`;
-  const tmp  = new Image();
-  tmp.onload = () => {
-    img.src = tmp.src;
-    img.style.display = 'block';
-    if (ph) ph.style.display = 'none';
-  };
-  tmp.onerror = () => {
-    // 204 → onerror fires; show placeholder
-    img.style.display = 'none';
-    if (ph) ph.style.display = 'flex';
-  };
-  tmp.src = url;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  PANEL COLLAPSE / EXPAND
-// ═══════════════════════════════════════════════════════════
-function togglePanel(id) {
-  const panel = document.getElementById(id);
-  if (!panel) return;
-  panel.classList.toggle('open');
-  savePanelState();
-}
-
-// Disable + dim a set of inputs/buttons when their parent feature is off.
-function lockGroup(disabled, ...ids) {
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.disabled = !!disabled;
-    el.classList.toggle('locked', !!disabled);
-  });
-}
-
-// Disable + dim the .toggle-row that contains a given switch input.
-function lockRow(disabled, inputId) {
-  const el = document.getElementById(inputId);
-  if (!el) return;
-  el.disabled = !!disabled;
-  const row = el.closest('.toggle-row');
-  if (row) row.classList.toggle('locked', !!disabled);
-}
-
-function savePanelState() {
-  const open = [];
-  document.querySelectorAll('.panel.open').forEach(p => open.push(p.id));
-  localStorage.setItem(LS_PANELS, JSON.stringify(open));
-}
-
-function restorePanelState() {
-  try {
-    const open = JSON.parse(localStorage.getItem(LS_PANELS) || '[]');
-    open.forEach(id => {
-      const p = document.getElementById(id);
-      if (p) p.classList.add('open');
-    });
-  } catch(_) {}
-}
-
-// ═══════════════════════════════════════════════════════════
-//  STREAM MODE
-// ═══════════════════════════════════════════════════════════
-function toggleStreamMode() {
-  _streamMode = !_streamMode;
-  applyStreamMode();
-  localStorage.setItem(LS_STREAM, _streamMode ? '1' : '0');
-}
-
-function applyStreamMode() {
-  const col = document.getElementById('panels-col');
-  const btn = document.getElementById('stream-mode-btn');
-  if (_streamMode) {
-    col.classList.add('stream-hidden');
-    btn.textContent = 'SETUP';
-    btn.classList.add('active');
-    // Move the stream-mode-bar out of panels-col so it's still accessible
-    // Actually keep the btn inside the rail instead
-  } else {
-    col.classList.remove('stream-hidden');
-    btn.textContent = 'STREAM MODE';
-    btn.classList.remove('active');
-  }
-}
-
-function restoreStreamMode() {
-  _streamMode = localStorage.getItem(LS_STREAM) === '1';
-  applyStreamMode();
-}
-
-// But when panels are hidden we still need the STREAM MODE button accessible.
-// Move the stream-mode-bar to the live-rail when in stream mode.
-// Simpler: always keep a small "expand" button at bottom of rail.
-(function patchStreamModeBtn() {
-  // Add stream-mode toggle to rail as well for accessibility
-  const rail = document.getElementById('live-rail');
-  const smBtn = document.createElement('button');
-  smBtn.id = 'rail-stream-btn';
-  smBtn.className = 'rail-btn';
-  smBtn.style.cssText = 'margin-top:auto;background:var(--sub-bg);border:1.5px solid var(--border);font-size:.75rem;padding:8px 4px;';
-  smBtn.textContent = 'STREAM MODE';
-  smBtn.onclick = toggleStreamMode;
-  rail.appendChild(smBtn);
-})();
-
-// Sync the rail button label too
-const _origApplyStreamMode = applyStreamMode;
-applyStreamMode = function() {
-  _origApplyStreamMode();
-  const rb = document.getElementById('rail-stream-btn');
-  if (rb) rb.textContent = _streamMode ? '< SETUP' : 'STREAM MODE';
-};
-
-// ═══════════════════════════════════════════════════════════
-//  UTILITY
-// ═══════════════════════════════════════════════════════════
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val ?? '–';
-}
-
-function setCheck(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.checked = !!val;
-}
-
-// Three-state toggle: OFF (unchecked) · ON (checked) · OVERRIDE (checked +
-// .override class on the .sw + a rust reason chip in the label). A toggle must
-// never read fully-on while its effect is suppressed.
-const _TRI_BASE = {};  // remembers each toggle-label's original text
-function setTri(inputId, desc) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  desc = desc || {};
-  const state = desc.state || 'off';
-  if (document.activeElement !== input) input.checked = (state !== 'off');
-
-  const sw = input.closest('.sw');
-  const row = input.closest('.toggle-row');
-  const label = row ? row.querySelector('.toggle-label') : null;
-  if (sw) sw.classList.toggle('override', state === 'override');
-  if (label) {
-    if (!(inputId in _TRI_BASE)) _TRI_BASE[inputId] = label.textContent.trim();
-    const base = _TRI_BASE[inputId];
-    if (state === 'override' && desc.reason) {
-      label.innerHTML = escHtml(base) +
-        `<span class="override-chip">${escHtml(desc.reason)}</span>`;
-    } else {
-      label.textContent = base;
-    }
-  }
-}
-
-// Effective-state strip — renders post-reconcile truth segments.
-function renderEffStrip(s) {
-  const strip = document.getElementById('eff-strip');
-  if (!strip) return;
-  const segs = (s.effective && s.effective.strip) || [];
-  if (!segs.length) { strip.innerHTML = ''; return; }
-  const parts = segs.map(seg =>
-    `<span class="eff-seg${seg.attn ? ' attn' : ''}">${escHtml(seg.text || '')}</span>`
-  );
-  strip.innerHTML = parts.join('<span class="eff-sep">&nbsp;·&nbsp;</span>');
-}
-
-
-// ── Perception indicator + Turbo Vision toggle ──────────────────────
-// Renders the always-visible glance bar: mode chip (GENERAL calm vs TURBO
-// active) + live dots for vision (on/off + cadence), audio-mood, and dialogue.
-function renderPerception(s) {
-  const eff = (s && s.effective) || {};
-  const p = eff.perception || {};
-  const deep = !!eff.deep_senses;
-
-  const modeEl = document.getElementById('perc-mode');
-  if (modeEl) {
-    modeEl.textContent = deep ? 'TURBO · active' : 'GENERAL · calm';
-    modeEl.classList.toggle('deep', deep);
-  }
-
-  const cad = p.vision_cadence_s ? `${Math.round(p.vision_cadence_s)}s` : '';
-  if (p.vision_parked) {
-    setDot('perc-vision', false, '👁 vision parked');
-  } else if (p.vision_on) {
-    setDot('perc-vision', true, `👁 vision ${cad}`.trim());
-  } else {
-    setDot('perc-vision', false, '👁 vision off');
-  }
-  setDot('perc-audio', !!p.audio_mood_on, p.audio_mood_on ? '👂 mood on' : '👂 mood off');
-  // Loopback dialogue dot — off / amber DEAF (alive-but-deaf) / live with last line heard.
-  (function () {
-    const el = document.getElementById('perc-loopback');
-    if (!el) return;
-    const lp = s.loopback_live || {};
-    if (!p.loopback_on) {
-      el.classList.remove('on'); el.classList.add('off'); el.style.color = '';
-      el.textContent = '💬 dialogue off';
-    } else if (lp.deaf) {
-      el.classList.remove('on', 'off'); el.style.color = '#e8c86a';  // amber = alive but deaf
-      el.textContent = '💬 ⚠ DEAF — audio in, no transcript';
-    } else {
-      el.classList.remove('off'); el.classList.add('on'); el.style.color = '';
-      const ll = (lp.last_line || '').slice(0, 40);
-      el.textContent = ll ? `💬 “${ll}” (${lp.age >= 0 ? lp.age + 's' : '?'})` : '💬 dialogue on';
-    }
-  })();
-
-  // Don't fight the user mid-click — only sync the switch when it isn't focused.
-  const sw = document.getElementById('sw-deep-senses');
-  if (sw && document.activeElement !== sw) sw.checked = deep;
-}
-
-function setDot(id, on, text) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = text;
-  el.classList.toggle('on', !!on);
-  el.classList.toggle('off', !on);
-}
-
-
-function renderLoopbackFeed(s) {
-  const box = document.getElementById('loopback-feed');
-  if (box) {
-    const feed = s.loopback_feed || [];
-    if (!feed.length) {
-      box.innerHTML = '';
-    } else {
-      // Pin to newest ONLY when already at the bottom; if the user has scrolled up to
-      // read history, preserve their position instead of yanking them back down.
-      const atBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 28;
-      const prevTop = box.scrollTop;
-      box.innerHTML = feed.map(seg => {
-        const age = seg.age < 5 ? 'now' : `-${seg.age}s`;
-        return `<div><span class="lf-age">[${age}]</span> ${escHtml(seg.text || '')}</div>`;
-      }).join('');
-      box.scrollTop = atBottom ? box.scrollHeight : prevTop;
-    }
-  }
-  const sumEl = document.getElementById('dlg-summary-text');
-  const wrap = document.getElementById('dlg-summary-wrap');
-  if (sumEl && wrap) {
-    const summ = (s.loopback_summary || '').trim();
-    // Full text — no truncation; CSS clamps to 2 lines until expanded.
-    sumEl.textContent = summ;
-    wrap.style.display = summ ? 'block' : 'none';
-  }
-}
-
-// Click the "Dialogue summary" header to expand/collapse the full scrollable text.
-function toggleDlgSummary() {
-  const wrap = document.getElementById('dlg-summary-wrap');
-  if (wrap) wrap.classList.toggle('expanded');
-}
-
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  INITIAL LOAD (GET /state before WS connects)
-// ═══════════════════════════════════════════════════════════
-async function loadInitialState() {
-  try {
-    const res = await fetch(`${API}/state`);
-    const snap = await res.json();
-    _snap = snap;
-    render(snap);
-  } catch(_) {}
-}
-
-// ═══════════════════════════════════════════════════════════
-//  BOOT
-// ═══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+  }catch(e){ if(btnEl) flashBtn(btnEl,false); console.warn('cmd failed',action,e); return null; }
+}
+function flashBtn(el,ok){ el.classList.remove('flash-ok','flash-err'); void el.offsetWidth;
+  el.classList.add(ok?'flash-ok':'flash-err'); setTimeout(()=>el.classList.remove('flash-ok','flash-err'),600); }
+function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }
+function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = (val==null?'–':val); }
+function setCheck(id,val){ const el=document.getElementById(id); if(el && document.activeElement!==el) el.checked=!!val; }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtAge(s){ if(s==null) return ''; s=Math.round(s); if(s<60) return s+'s ago'; const m=Math.floor(s/60); return m+'m ago'; }
+
+function cdot(id,state){ const el=document.getElementById(id); if(!el) return;
+  el.className='cdot'+(state==='on'?' on':state==='bad'?' bad':''); }
+function setWsIndicator(live){ const el=document.getElementById('ws-indicator'); if(!el)return;
+  el.textContent=live?'LIVE':'WS ✕'; el.className=live?'live':''; }
+
+/* tri-state for the override-aware switches (immersive/autopilot/chess) */
+const _TRI_BASE={};
+function setTri(inputId,desc){
+  const input=document.getElementById(inputId); if(!input) return;
+  desc=desc||{}; const state=desc.state||'off';
+  if(document.activeElement!==input) input.checked=(state!=='off');
+  const sw=input.closest('.sw'); const row=input.closest('.toggle-row');
+  const label=row?row.querySelector('.toggle-label'):null;
+  if(sw) sw.classList.toggle('override',state==='override');
+  if(label){ if(!(inputId in _TRI_BASE)) _TRI_BASE[inputId]=label.textContent.trim();
+    /* keep base text; override chip is optional, skipped to preserve sub-muted spans */ }
+}
+
+/* panels */
+function togglePanel(id){ const p=document.getElementById(id); if(!p) return; p.classList.toggle('open'); savePanelState(); }
+function savePanelState(){ try{ const open=[...document.querySelectorAll('.panel.open')].map(p=>p.id);
+  localStorage.setItem(LS_PANELS,JSON.stringify(open)); }catch(_){} }
+function restorePanelState(){ try{ const open=JSON.parse(localStorage.getItem(LS_PANELS)||'[]');
+  open.forEach(id=>{const p=document.getElementById(id); if(p) p.classList.add('open');}); }catch(_){} }
+
+/* pop-outs (overlay sheets; WS keeps running underneath) */
+function openPop(id){ const p=document.getElementById(id); if(p) p.classList.add('open'); renderPops(_snap); }
+function closePop(id){ const p=document.getElementById(id); if(p) p.classList.remove('open'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.popout.open').forEach(p=>p.classList.remove('open')); });
+
+/* ════════════════ WS + POLLS ════════════════ */
+function wsConnect(){
+  let ws; try{ ws=new WebSocket(WS_URL); }catch(_){ scheduleReconnect(); return; }
+  ws.onopen=()=>{ _wsAlive=true; _wsRetryMs=1000; setWsIndicator(true); };
+  ws.onmessage=e=>{ try{ const snap=JSON.parse(e.data); _snap=snap; render(snap); }catch(_){} };
+  ws.onclose=()=>{ _wsAlive=false; setWsIndicator(false); scheduleReconnect(); };
+  ws.onerror=()=>{ try{ws.close();}catch(_){} };
+}
+function scheduleReconnect(){ setTimeout(wsConnect,_wsRetryMs); _wsRetryMs=Math.min(_wsRetryMs*2,_wsRetryMax); }
+async function loadInitialState(){ try{ const r=await fetch(`${API}/state`); const s=await r.json(); _snap=s; render(s);}catch(_){} }
+
+function startThumbPoll(){ setInterval(pollThumb,THUMB_INT); }
+function pollThumb(){
+  const on=_snap && _snap.vision_on;
+  const img=document.getElementById('vision-thumb'), ph=document.getElementById('vision-thumb-ph');
+  const pimg=document.getElementById('pop-eyes-frame'), pph=document.getElementById('pop-eyes-ph');
+  if(!on){ if(img)img.style.display='none'; if(ph)ph.style.display='flex'; if(pimg)pimg.style.display='none'; if(pph)pph.style.display='flex'; return; }
+  const url=`${API}/vision/thumbnail?t=${Date.now()}`;
+  const probe=new Image();
+  probe.onload=()=>{ if(img){img.src=url;img.style.display='block';} if(ph)ph.style.display='none';
+    if(pimg){pimg.src=url;pimg.style.display='block';} if(pph)pph.style.display='none'; };
+  probe.onerror=()=>{ if(img)img.style.display='none'; if(ph)ph.style.display='flex'; };
+  probe.src=url;
+}
+
+/* ════════════════ RENDER ════════════════ */
+function render(s){
+  safe(()=>renderRail(s));
+  safe(()=>renderEyes(s));
+  safe(()=>renderDesktopAudio(s));
+  safe(()=>renderLoopback(s));
+  safe(()=>renderConversation(s));
+  safe(()=>renderControls(s));
+  safe(()=>renderPanels(s));
+  safe(()=>renderOverlayChips(s));
+  safe(()=>renderPops(s));
+}
+
+function renderRail(s){
+  const dot=document.getElementById('emotion-dot');
+  if(dot && s.emotion_color) dot.style.background=s.emotion_color;
+  setText('emotion-label', s.emotion||'—');
+  setText('g-spoke', s.since_kira_spoke!=null ? fmtAge(s.since_kira_spoke) : '–');
+  setText('g-rate', s.chat_rate!=null ? s.chat_rate : '–');
+  setText('g-chatters', s.session_chatters!=null ? s.session_chatters : '–');
+  setText('g-vram', (s.vram_used_gb!=null && s.vram_total_gb!=null) ? `${s.vram_used_gb}/${s.vram_total_gb}` : '–');
+  setText('g-cost', s.session_cost_usd!=null ? `$${Number(s.session_cost_usd).toFixed(2)}` : '–');
+  // mode pills
+  const eff=s.effective||{};
+  const modeP=document.getElementById('pill-mode');
+  if(modeP){ modeP.textContent=(s.mode==='streamer')?'STREAMER':'COMPANION'; modeP.classList.toggle('lit', s.mode==='streamer'); }
+  document.getElementById('pill-director').classList.toggle('lit', !!s.director_enabled);
+  document.getElementById('pill-lockin').classList.toggle('lit', !!s.chat_lock_in);
+  document.getElementById('pill-turbo').classList.toggle('lit', !!(eff.deep_senses!=null?eff.deep_senses:s.deep_senses));
+  // conn dots
+  cdot('dot-llm', s.llm_ready?'on':'bad');
+  cdot('dot-tts', s.tts_backend?'on':'bad');
+  cdot('dot-twitch', s.twitch_on?'on':'');
+  const yt=(s.youtube_status||'');
+  cdot('dot-youtube', yt.startsWith('live')?'on':(yt==='disabled'?'':'') );
+  const perc=eff.perception||{};
+  cdot('dot-vision', perc.vision_on?'on':'');
+  // LIVE + amber perception spark
+  const perceiving = !!(perc.vision_on || perc.audio_mood_on || perc.loopback_on);
+  const spark=document.getElementById('live-spark'); if(spark) spark.classList.toggle('on', _wsAlive && perceiving);
+}
+
+function renderEyes(s){
+  setText('eyes-summary', s.vision_summary || 'Vision initializing…');
+  setText('eyes-age', s.vision_last_capture_age!=null ? `seen ${fmtAge(s.vision_last_capture_age)}` : '');
+  const eff=s.effective||{}, perc=eff.perception||{};
+  const h=document.getElementById('eyes-health'); const ht=document.getElementById('eyes-health-txt');
+  let cls='', txt='off';
+  if(eff.vision_force_off){ cls=''; txt='forced off'; }
+  else if(perc.vision_parked){ cls=''; txt='parked'; }
+  else if(perc.vision_on){ cls='live'; txt=perc.vision_cadence_s?`live · ${Math.round(perc.vision_cadence_s)}s`:'live'; }
+  if(h) h.className='health '+cls; if(ht) ht.textContent=txt;
+}
+
+function renderDesktopAudio(s){
+  setText('da-summary', s.audio_summary || '—');
+  setText('da-age', s.audio_last_heard_age!=null ? `heard ${fmtAge(s.audio_last_heard_age)}` : '');
+  const h=document.getElementById('da-health'), ht=document.getElementById('da-health-txt');
+  if(h) h.className='health '+(s.audio_on?'live':''); if(ht) ht.textContent=s.audio_on?(s.audio_mode||'on'):'off';
+  // selects (only when not focused)
+  const sel=document.getElementById('sel-audio-mode');
+  if(sel && document.activeElement!==sel && s.audio_mode){ for(const o of sel.options){ if(o.value===s.audio_mode){sel.value=s.audio_mode;break;} } }
+  const dev=document.getElementById('sel-audio-device');
+  if(dev && document.activeElement!==dev && s.audio_device){ for(const o of dev.options){ if(o.value===s.audio_device){dev.value=s.audio_device;break;} } }
+}
+
+function renderLoopback(s){
+  // health: alive-but-deaf is the key signal
+  const live=s.loopback_live||{};
+  const h=document.getElementById('lb-health'), ht=document.getElementById('lb-health-txt');
+  let cls='', txt='off';
+  if(s.loopback_on && live.deaf){ cls='deaf'; txt='DEAF (alive, no audio)'; }
+  else if(s.loopback_on){ cls='live'; txt = live.last_line ? 'live' : 'live · quiet'; }
+  if(h) h.className='health '+cls; if(ht) ht.textContent=txt;
+  // feed
+  const feed=document.getElementById('lb-feed');
+  if(feed){ const arr=s.loopback_feed||[];
+    if(!arr.length){ feed.innerHTML='<div class="muted">No dialogue heard yet.</div>'; }
+    else feed.innerHTML=arr.map(f=>{ const unc=/^\s*UNCERTAIN/i.test(f.text||'');
+      return `<div class="ln${unc?' unc':''}">${escHtml(f.text||'')}<span class="age">${escHtml(fmtAge(f.age))}</span></div>`; }).join(''); }
+  setText('lb-summary', s.loopback_summary || '—');
+}
+
+function renderConversation(s){
+  const box=document.getElementById('convo-feed');
+  if(box){ const t=s.transcript||[];
+    if(!t.length){ box.innerHTML='<div class="muted">—</div>'; }
+    else box.innerHTML=t.map(x=>{ const k=(x.role==='assistant'||x.role==='kira');
+      return `<div class="turn${k?' kira':''}"><div class="who">${k?'Kira':'Jonny'}</div>${escHtml(x.text||'')}</div>`; }).join('');
+    box.scrollTop=box.scrollHeight; }
+  const np=document.getElementById('now-playing');
+  if(np){ if(s.now_playing && s.now_playing!=='Nothing'){ np.style.display='flex'; np.textContent='♪ '+s.now_playing; } else np.style.display='none'; }
+}
+
+function renderControls(s){
+  // mode seg
+  document.querySelectorAll('#seg-mode button').forEach(b=>b.classList.toggle('active', b.dataset.mode===s.mode));
+  // presence seg
+  document.querySelectorAll('#seg-presence button').forEach(b=>b.classList.toggle('active', b.dataset.p===s.presence_level));
+  // drive-gap slider
+  const sl=document.getElementById('sl-drive-gap');
+  if(sl && document.activeElement!==sl && s.director_min_gap_s!=null){ sl.value=s.director_min_gap_s; setText('val-drive-gap', Math.round(s.director_min_gap_s)); }
+  // toggles
+  setCheck('sw-director', s.director_enabled);
+  setCheck('sw-lockin', s.chat_lock_in);
+  const eff=s.effective||{};
+  setCheck('sw-turbo', eff.deep_senses!=null?eff.deep_senses:s.deep_senses);
+  setCheck('sw-vision-off', eff.vision_force_off);
+  const tg=eff.toggles||{};
+  setTri('sw-immersive', tg.immersive);
+  // activity
+  const ia=document.getElementById('inp-activity');
+  if(ia && document.activeElement!==ia && s.activity!=null && !ia.value) ia.placeholder = s.activity ? s.activity : 'e.g. Legend of Korra';
+}
+
+function renderPanels(s){
+  const eff=s.effective||{}, tg=eff.toggles||{};
+  // Autopilot
+  const ap=s.autopilot||{};
+  setText('ap-status', ap.reason || (ap.running?(ap.paused?'paused':'running'):'off'));
+  setText('ap-pstat', ap.running?(ap.paused?'paused':'on'):'off');
+  setTri('sw-autopilot', tg.autopilot);
+  // Chess
+  const ch=s.chess||{};
+  setText('chess-status', ch.status || '—');
+  setText('chess-pstat', (tg.chess&&tg.chess.state&&tg.chess.state!=='off')?'on':'off');
+  setTri('sw-chess', tg.chess);
+  setCheck('sw-chess-accept', ch.accepting_challenges);
+  const elo=document.getElementById('inp-chess-elo'); if(elo && document.activeElement!==elo && ch.kira_elo) elo.placeholder=String(ch.kira_elo);
+  const spec=document.getElementById('chess-spectate');
+  if(spec){ spec.innerHTML = ch.spectate_url ? `<a href="${escHtml(ch.spectate_url)}" target="_blank">▶ spectate</a>` : ''; }
+  // Voice
+  document.querySelectorAll('#seg-tts button').forEach(b=>b.classList.toggle('active', b.dataset.tts===s.tts_backend));
+  setText('voice-pstat', s.tts_backend||'azure');
+  const fv=document.getElementById('inp-fish-voice'); if(fv && document.activeElement!==fv && s.fish_voice_id && !fv.value) fv.placeholder=s.fish_voice_id;
+  const em=document.getElementById('sel-emotion'); if(em && document.activeElement!==em && s.emotion){ for(const o of em.options){ if(o.value===s.emotion){em.value=s.emotion;break;} } }
+  // World
+  setText('twitch-state', s.twitch_on?'live':'off');
+  setText('yt-state', s.youtube_status||'—'); setText('world-pstat', (s.youtube_status||'').startsWith('live')?'YT live':'—');
+  // Discord
+  const dd=s.discord_diary||{};
+  setText('discord-status', dd.posted?'posted ✓':(dd.text?'pending':'—'));
+  setText('discord-pstat', dd.posted?'posted':(dd.text?'pending':'—'));
+  const dt=document.getElementById('discord-text'); if(dt && document.activeElement!==dt && dd.text && !dt.value) dt.value=dd.text;
+  // Cookies / IOU (overlays panel)
+  const top=s.cookie_top3||[];
+  setText('cookie-line', top.length ? ('🍪 '+top.map(c=>`${c.name||'?'}:${c.count||0}`).join('  ')) : '—');
+  const iou=document.getElementById('iou-list');
+  if(iou){ const n=s.ious_open||0;
+    iou.innerHTML = n ? Array.from({length:n}).map((_,i)=>`<button class="btn sm" style="margin:4px 4px 0 0" onclick="cmd('redeem_iou',{idx:${i}},this)">Redeem IOU #${i+1}</button>`).join('') : ''; }
+  // Storytime status from snapshot-independent poll handled separately; light status here if absent
+}
+
+function renderOverlayChips(s){
+  const box=document.getElementById('overlay-chips'); if(!box) return;
+  const ov=s.overlay_vis; if(!ov){ return; }
+  box.innerHTML=Object.keys(ov).map(k=>{ const on=!!ov[k];
+    return `<span class="chip${on?' on':''}" onclick="cmd('overlay_vis',{key:'${escHtml(k)}',enabled:${!on}})">${escHtml(k)}</span>`; }).join('');
+}
+
+function renderPops(s){
+  // eyes pop
+  setText('pop-eyes-summary', s.vision_summary || '—');
+  const tl=document.getElementById('pop-eyes-timeline');
+  const ts=s.turbo_slideshow||{on:false,events:[]};
+  if(tl){ if(!ts.on || !ts.events.length){ tl.innerHTML='<div class="muted">Turbo Vision off (or no events yet) — no slideshow timeline.</div>'; }
+    else tl.innerHTML=ts.events.slice().reverse().map(e=>{ const tag=e.tag?`<span class="tag ${e.tag}">${e.tag}</span>`:'';
+      const dim=e.tag?' dim':'';
+      return `<div class="tl-event${dim}"><span class="ts">${escHtml(fmtAge(e.age))}</span>${escHtml(e.text||'')}${tag}</div>`; }).join(''); }
+  // loopback pop
+  const live=s.loopback_live||{};
+  const ph=document.getElementById('pop-lb-health'), pht=document.getElementById('pop-lb-health-txt');
+  let cls='',txt='off'; if(s.loopback_on&&live.deaf){cls='deaf';txt='DEAF — alive but no audio reaching STT';}
+  else if(s.loopback_on){cls='live';txt=live.last_line?('live · '+escHtml(String(live.last_line).slice(0,60))):'live · quiet';}
+  if(ph) ph.className='health '+cls; if(pht) pht.textContent=txt;
+  const meter=document.getElementById('pop-lb-meter'), fill=document.getElementById('pop-lb-fill');
+  if(meter&&fill){ meter.classList.toggle('deaf', !!(s.loopback_on&&live.deaf));
+    fill.style.width = (s.loopback_on ? (live.deaf?100:(live.last_line?70:18)) : 0) + '%'; }
+  const pf=document.getElementById('pop-lb-feed');
+  if(pf){ const arr=s.loopback_feed||[]; pf.innerHTML = arr.length ? arr.map(f=>{const unc=/^\s*UNCERTAIN/i.test(f.text||'');
+    return `<div class="ln${unc?' unc':''}">${escHtml(f.text||'')}<span class="age">${escHtml(fmtAge(f.age))}</span></div>`;}).join('') : '<div class="muted">—</div>'; }
+  setText('pop-lb-summary', s.loopback_summary || '—');
+}
+
+/* ════════════════ HANDLERS ════════════════ */
+function setMode(m){ if(_snap.mode!==m) cmd('mode_toggle'); }
+function setPresence(level){ if(_snap.presence_level!==level) cmd('set_presence',{presence:level}); }
+function goActivity(){ const name=document.getElementById('inp-activity').value.trim();
+  const slug=document.getElementById('inp-slug').value.trim(); cmd('activity_go',{name,slug}); }
+function setTts(b){ if(_snap.tts_backend!==b) cmd('tts_toggle'); }
+function applyFishVoice(){ cmd('fish_voice_apply',{voice_id:document.getElementById('inp-fish-voice').value.trim()}); }
+function toggleAutopilot(on){ const title=document.getElementById('inp-vn-window').value.trim(); cmd('autopilot_toggle',{enabled:on,title}); }
+function applyVnWindow(){ cmd('vn_window',{title:document.getElementById('inp-vn-window').value.trim()}); }
+function toggleChess(on){ cmd('chess_toggle',{enabled:on}); }
+function toggleChessAccept(on){ cmd('chess_accept_toggle',{enabled:on}); }
+function challengeChessAi(){ const lv=parseInt(document.getElementById('inp-chess-level').value); if(lv) cmd('chess_challenge_ai',{level:lv}); }
+function applyChessElo(){ const e=parseInt(document.getElementById('inp-chess-elo').value); if(e) cmd('chess_set_elo',{level:e}).then(d=>{if(d&&d.kira_elo)document.getElementById('inp-chess-elo').placeholder=String(d.kira_elo);}); }
+function ytConnect(){ cmd('youtube_connect',{url:document.getElementById('inp-yt-url').value.trim()}); }
+function postDiscordSummary(btn){ cmd('post_discord_summary',{text:document.getElementById('discord-text').value},btn).then(d=>{ if(d&&d.error) alert('Discord: '+d.error); }); }
+
+/* Devices */
+async function refreshDevices(){
+  try{ const r=await fetch(`${API}/cmd/audio_devices_refresh`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    const d=await r.json(); const sel=document.getElementById('sel-audio-device');
+    if(sel && d && d.devices){ const cur=(_snap&&_snap.audio_device)||'';
+      sel.innerHTML=d.devices.map(x=>`<option ${x===cur?'selected':''}>${escHtml(x)}</option>`).join(''); } }catch(_){}
+}
+
+/* Ambience + Screens */
+async function refreshAmbienceList(){
+  try{ const r=await fetch(`${API}/screens/ambience/list`); const d=await r.json();
+    const sel=document.getElementById('amb-file-sel');
+    if(sel && d && d.files){ sel.innerHTML='<option value="">—</option>'+d.files.map(f=>`<option>${escHtml(f)}</option>`).join(''); } }catch(_){}
+}
+function applyAmbience(){ const file=document.getElementById('amb-file-sel').value; const volume=parseFloat(document.getElementById('amb-vol').value)/100; cmd('set_ambience',{file,volume}); }
+function stopAmbience(){ const volume=parseFloat(document.getElementById('amb-vol').value)/100; cmd('set_ambience',{file:'',volume}); }
+function buildScreens(){
+  const wrap=document.getElementById('screens-inner');
+  const blocks=[['starting','Starting Soon'],['brb','Be Right Back'],['ending','Ending']];
+  const html=blocks.map(([k,lbl])=>`
+    <div class="field"><span class="mlabel">${lbl}</span>
+      <input type="text" id="scr-${k}-1" placeholder="line 1" style="margin-bottom:5px">
+      <div class="inline"><input type="text" id="scr-${k}-2" placeholder="line 2">
+        <button class="btn sm" onclick="sendScreenText('${k}')">Send</button>
+        <button class="btn sm" onclick="cmd('screen_text_clear',{screen:'${k}'},this)">Clear</button></div></div>`).join('');
+  wrap.insertAdjacentHTML('afterbegin',html);
+}
+function sendScreenText(screen){ cmd('screen_text',{screen,line1:document.getElementById('scr-'+screen+'-1').value,line2:document.getElementById('scr-'+screen+'-2').value}); }
+
+/* Storytime (own poll — not in the WS snapshot) */
+function storytimeRefresh(){ cmd('storytime_state',{}).then(_stRender); }
+function storytimePresetsInit(){ cmd('storytime_presets',{}).then(d=>{ const sel=document.getElementById('sel-st-preset');
+  if(sel && d && d.presets) sel.innerHTML=d.presets.map(p=>`<option value="${escHtml(p.key)}">${escHtml(p.label)}</option>`).join(''); }); }
+function storytimeLibraryRefresh(btn){ cmd('storytime_library',{},btn).then(d=>{ const sel=document.getElementById('sel-st-show');
+  if(sel && d && d.shows) sel.innerHTML='<option value="">—</option>'+d.shows.map(x=>`<option value="${escHtml(x.show_id)}">${escHtml(x.title)}${x.ready?' ✓':''}</option>`).join(''); }); }
+function storytimeLoad(btn){ const id=document.getElementById('sel-st-show').value; if(id) cmd('storytime_load',{show_id:id},btn).then(_stRender); }
+function storytimePrepare(btn){ const theme=document.getElementById('inp-st-theme').value.trim();
+  const beats=parseInt(document.getElementById('inp-st-beats').value)||6; const preset=document.getElementById('sel-st-preset').value;
+  cmd('storytime_prepare',{theme,beats,preset},btn).then(_stRender); }
+function storytimePerform(btn){ cmd('storytime_perform',{},btn).then(_stRender); }
+function storytimeStop(btn){ cmd('storytime_stop',{},btn).then(_stRender); }
+function storytimeReset(btn){ cmd('storytime_reset',{},btn).then(_stRender); }
+function storytimeRegenerate(idx,btn){ cmd('storytime_regenerate',{idx},btn).then(_stRender); }
+function storytimeRewrite(idx){ const note=prompt('Rewrite note for beat '+idx+':'); if(note) cmd('storytime_rewrite_beat',{idx,note}).then(_stRender); }
+function _stRender(d){ if(!d) return;
+  setText('st-status', d.error? ('error: '+d.error) : (d.status||'idle') + (d.progress?` · ${d.progress}`:''));
+  setText('st-pstat', d.status||'idle');
+  const grid=document.getElementById('st-beats-grid');
+  if(grid){ const beats=d.beats||[];
+    grid.innerHTML=beats.map(b=>`<div class="beat"><div class="bh"><span class="bi">#${b.idx}</span><span class="bs">${escHtml(b.status||'')}</span>
+      <button class="btn sm" style="margin-left:auto" onclick="storytimeRegenerate(${b.idx},this)">↻</button>
+      <button class="btn sm" onclick="storytimeRewrite(${b.idx})">✎</button></div>
+      <div>${escHtml(b.narration||'')}</div>${b.error?`<div class="muted">${escHtml(b.error)}</div>`:''}</div>`).join(''); }
+}
+
+/* ════════════════ BOOT ════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  buildScreens();
   restorePanelState();
-  restoreStreamMode();
-  // Chain the device-dropdown refresh AFTER the initial snapshot resolves so
-  // _snap.audio_device is populated and the cosmetic selection-restore wins the
-  // first paint (no boot race).
   loadInitialState().then(refreshDevices);
   wsConnect();
   startThumbPoll();
-  _restoreScreenInputs();
   refreshAmbienceList();
-  codenamesRefresh();
+  storytimePresetsInit();
+  storytimeLibraryRefresh();
+  storytimeRefresh();
+  setInterval(()=>{ if(document.getElementById('panel-storytime').classList.contains('open')) storytimeRefresh(); }, 4000);
 });
 </script>
 </body>
