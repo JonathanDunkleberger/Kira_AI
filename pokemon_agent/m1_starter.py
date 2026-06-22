@@ -84,19 +84,20 @@ def capture(bridge, render, pygame, args):
                 raise KeyboardInterrupt
             if ev.type == pygame.KEYDOWN:
                 if ev.key in (pygame.K_1, pygame.K_2, pygame.K_3):
-                    # Per-ball prompt-ready save: stand at the ball with "Do you want
-                    # this POKEMON?" OPEN, then 1/2/3 saves states/ball_<name>.state.
+                    # Per-ball prompt-ready save: stand AT the ball with the "Do you
+                    # want this POKEMON?" YES/NO menu OPEN, then 1/2/3 saves it.
                     import numpy as np
                     name = stx.BALL_ORDER[ev.key - pygame.K_1]
                     os.makedirs(STATES, exist_ok=True)
                     path = os.path.join(STATES, f"ball_{name}.state")
                     with open(path, "wb") as f:
                         f.write(bytes(bridge.save_state()))
-                    # box-detection: an open text box makes the bottom region bright/uniform
-                    bot = np.asarray(bridge.frame_rgb())[120:, :, :]
-                    box_open = bool(bot.mean() > 170)
+                    # The YES/NO menu is a bright box in the TOP-RIGHT. A plain text box
+                    # ("Those are POKE BALLS") has only a bottom box and NO top-right menu.
+                    a = np.asarray(bridge.frame_rgb())
+                    yesno = bool(a[0:48, 150:240, :].mean() > 120)
                     log(f"SAVED ball_{name}.state @ {nav.coords(bridge)}  "
-                        f"prompt_box_on_screen={'y' if box_open else 'n (open the YES/NO first!)'}")
+                        f"YESNO_menu_detected={'y - GOOD' if yesno else 'n - WRONG BOX! you saved a text message, not the YES/NO. Re-do this ball.'}")
                 elif ev.key == pygame.K_s:
                     os.makedirs(STATES, exist_ok=True)
                     save_path = os.path.join(STATES, f"{args.save_as}.state")
