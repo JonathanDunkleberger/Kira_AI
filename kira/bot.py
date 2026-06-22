@@ -2812,21 +2812,24 @@ class VTubeBot:
         media_armed = bool(mw and getattr(mw, "enabled", False))
         chess_armed = bool(ca and getattr(ca, "enabled", False))
 
-        # INV-1: Media Watch / Chess own perception → park the vision heartbeat
-        #        (WITHOUT touching gmc.is_active, so the user's Vision toggle
-        #        survives and is restored exactly when they disarm).
+        # INV-1: Chess owns perception → park the vision heartbeat (WITHOUT touching
+        #        gmc.is_active, so the user's Vision toggle survives and is restored
+        #        exactly when they disarm). Media Watch NO LONGER parks vision: the
+        #        always-on Turbo Vision slideshow is ADDITIVE (it coexists with the
+        #        live heartbeat), so engaging media never blinds the EYES — this is
+        #        the fix for the "EYES froze while the scene summary kept updating" bug.
         if va is not None and gmc is not None:
             # Baseline vision (Group 2 always-on calm perception) keeps the heartbeat
             # alive even with no mode armed, so she's never blind by default. Still
-            # parked when Media Watch / Chess own perception, and forced dark by the
+            # parked only when Chess owns perception, and forced dark by the
             # vision_force_off master override.
             force_off = bool(getattr(self, "vision_force_off", False))
             baseline_vis = bool(getattr(self, "vision_baseline_on", False))
-            want_active = (not force_off) and (bool(gmc.is_active) or baseline_vis) and not (media_armed or chess_armed)
+            want_active = (not force_off) and (bool(gmc.is_active) or baseline_vis) and not chess_armed
             if va.is_active != want_active:
                 va.is_active = want_active
                 if not want_active:
-                    why = "MW on" if media_armed else "chess on"
+                    why = "chess on" if chess_armed else "no active vision intent"
                     changes.append(f"heartbeat parked ({why})")
                 else:
                     # Un-park: while parked, the heartbeat stopped updating, so
@@ -2956,8 +2959,10 @@ class VTubeBot:
         vision_intent = (bool(gmc and gmc.is_active) or vision_baseline) and not vision_force_off
         activity_type = getattr(gmc, "activity_type", ACTIVITY_GENERAL)
 
-        heartbeat_parked = vision_intent and (media_armed or chess_armed)
-        park_reason = "media" if media_armed else ("chess" if chess_armed else "")
+        # Media Watch no longer parks the heartbeat (C3) — only Chess does. So the
+        # heartbeat stays live during media/Turbo Vision, and the dashboard reflects it.
+        heartbeat_parked = vision_intent and chess_armed
+        park_reason = "chess" if chess_armed else ""
 
         if media_running:
             eyes_source = "episode log"
@@ -3011,7 +3016,7 @@ class VTubeBot:
 
         # ── Per-segment human strings + attention flags ───────────────────────
         if eyes_source == "episode log":
-            eyes_txt = "episode log — heartbeat parked"
+            eyes_txt = "episode log"
         elif eyes_source == "heartbeat":
             cad = int(getattr(va, "heartbeat_interval", 30) or 30)
             eyes_txt = f"heartbeat {cad}s"
