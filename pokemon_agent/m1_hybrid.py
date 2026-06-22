@@ -48,12 +48,32 @@ def log(m):
     print(f"   [M1-hybrid] {m}", flush=True)
 
 
+def _save(bridge, name):
+    import os as _os
+    d = _os.path.join(_HERE, "states"); _os.makedirs(d, exist_ok=True)
+    with open(_os.path.join(d, f"{name}.state"), "wb") as f:
+        f.write(bytes(bridge.save_state()))
+    log(f"saved states/{name}.state (fresh table state - send me this if the pick fails)")
+
+
+def _prompt_open(bridge, render):
+    """Face up + A; return (opened, diff) — did a dialogue/pick box appear?"""
+    import numpy as np
+    bridge.press("UP", 8, 8, render)
+    before = np.asarray(bridge.frame_rgb(), dtype=np.int16)[112:, :, :]
+    bridge.press("A", 4, 8, render)
+    diff = float(np.abs(np.asarray(bridge.frame_rgb(), dtype=np.int16)[112:, :, :] - before).mean())
+    return diff > 6.0, round(diff, 2)
+
+
 def run_pick(bridge, render):
-    """Anchor = player's CURRENT tile (you left them in front of Bulbasaur). Ask her
-    self, step right to her ball, advance the dialogue (settle cadence) to party 1."""
+    """Anchor = player's CURRENT tile (you left them in front of Bulbasaur). Save the
+    FRESH table state first (so a failure is diagnosable offline), ask her self, step
+    to her ball, advance the dialogue to party+1. Instrumented at every step."""
     anchor = nav.coords(bridge)
     if anchor is None:
         log("FAIL - no overworld coords; are you in the lab, intro cleared?"); return
+    _save(bridge, "table_live")               # <-- fresh, completable table state for diagnosis
     log(f"anchor (Bulbasaur tile) = {anchor}; asking her self...")
     try:
         res = post("pokemon_choose_starter")
@@ -61,20 +81,24 @@ def run_pick(bridge, render):
         log(f"FAIL - couldn't reach the bot ({e}). Is the bot running + POKEMON_AGENT_ENABLED?"); return
     choice = (res.get("choice") or "bulbasaur").lower()
     log(f"HER SELF CHOSE: {choice.upper()}")
-    log(f"  verbatim reasoning: {res.get('reasoning','')!r}")
+    log(f"  reasoning: {res.get('reasoning','')!r}")
     post("pokemon_event", name="looking at the three starter Pokemon")
 
     step = STEP_FROM_BULBA.get(choice, 0)
     target = (anchor[0] + step, anchor[1])
     reached, final, _ = nav.walk_to(bridge, target, hold=8, render=render, log=lambda m: log(m))
+    log(f"step {step} -> target {target}: reached={reached} final={final}")
     if not reached:
         log(f"FAIL - couldn't reach {choice} ball tile {target} (stuck {final})"); return
-    bridge.press("UP", 8, 8, render)          # face the ball
 
     before = ram.read_party_count(bridge)
-    bridge.press("A", 4, 8, render)           # open the selection dialogue
+    opened, diff = _prompt_open(bridge, render)   # face up + A, did the pick box open?
+    log(f"face-up+A at {final}: prompt_opened={opened} (box diff={diff}); party={before}")
+    if not opened:
+        log(f"DIAGNOSIS: face-up+A opened nothing at {final} - the +{step} interaction tile "
+            f"is wrong/off-by-one. Send me states/table_live.state to fix the tile mapping."); return
     got = stx.advance_dialogue(bridge, lambda: ram.read_party_count(bridge) > before,
-                               render=render, max_presses=50, log=lambda m: None)
+                               render=render, max_presses=50, log=log)
     pc = ram.read_party_count(bridge)
     sid = st.read_party_species(bridge, 0) if pc >= 1 else None
     sname = st.SPECIES_NAME.get(sid, f"id{sid}") if sid is not None else "(none)"

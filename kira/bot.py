@@ -3247,20 +3247,29 @@ class VTubeBot:
             return fallback
         try:
             prompt = (
-                "You're standing at Professor Oak's table. Three starter Pokemon sit "
-                "there: Bulbasaur (Grass), Charmander (Fire), Squirtle (Water). This is "
-                "YOUR choice - from who YOU actually are: your taste, your mood, what you'd "
-                "genuinely want as your partner. Answer with EXACTLY ONE word: "
-                "Bulbasaur, Charmander, or Squirtle."
+                "You're standing at Professor Oak's table. Three starter Pokemon: "
+                "Bulbasaur (Grass), Charmander (Fire), Squirtle (Water). This is YOUR call - "
+                "react like YOU, out of your taste/mood/what you actually want as your "
+                "partner (and you've ribbed Jonny about this before). Say a sentence or two "
+                "in YOUR voice about which one calls to you and why. THEN, on a new final "
+                "line, write exactly: PICK: <Bulbasaur or Charmander or Squirtle>."
             )
             resp = await self.ai_core.kira_deep_response(
                 request=prompt, self_context=self._build_self_block(),
-                recent_history=self.conversation_history, max_tokens=12, use_sonnet=True)
+                recent_history=self.conversation_history, max_tokens=160, use_sonnet=True)
             low = (resp or "").lower()
-            choice = next((k for k in options if k in low), None)
-            self._last_starter_reasoning = (resp or "").strip()   # verbatim, for the seam/endpoint
+            # prefer the explicit PICK: line; else the last starter she names (her commit)
+            _m = re.search(r"pick:\s*(bulbasaur|charmander|squirtle)", low)
+            if _m:
+                choice = _m.group(1)
+            else:
+                _named = [k for k in options if k in low]
+                choice = _named[-1] if _named else None
+            # reasoning = her words with the mechanical PICK line stripped
+            self._last_starter_reasoning = re.sub(r"(?im)^\s*pick:.*$", "", resp or "").strip() or (resp or "").strip()
             if choice:
-                print(f"   [Pokemon] SELF CHOSE starter: {choice.upper()} (verbatim: {resp!r})")
+                print(f"   [Pokemon] SELF CHOSE starter: {choice.upper()}")
+                print(f"   [Pokemon] her reasoning: {self._last_starter_reasoning!r}")
                 return choice
             print(f"   [Pokemon] starter query unparsable ({resp!r}) -> fallback {fallback}")
         except Exception as e:

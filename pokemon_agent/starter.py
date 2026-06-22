@@ -16,33 +16,40 @@ BALL_ORDER = ["bulbasaur", "charmander", "squirtle"]
 # pending a clean "prompt-ready" capture (see m1_starter.py / the report).
 
 
-def advance_dialogue(bridge, until_fn, render=lambda: None, max_presses=40, log=print):
-    """Press A like a HUMAN: only when the screen has SETTLED (typewriter done, the
-    box waiting). Mashing during the typewriter re-skips and hangs (the bug we hit);
-    waiting for a settled frame before each A matches hand behavior. Stops when
-    until_fn() is true (e.g. party_count==1). Returns True if until_fn fired."""
+def advance_dialogue(bridge, until_fn, render=lambda: None, max_presses=50, log=print):
+    """Press A like a HUMAN: only when the dialogue BOX has settled (typewriter done).
+    Mashing during the typewriter re-skips and hangs (the bug). We watch ONLY the
+    bottom text-box region (rows 112:160) - the rest of the screen (a static starter
+    sprite) was keeping the whole-frame diff low and firing A early. Stops when
+    until_fn() is true (e.g. party_count grew). Logs each press for diagnosis."""
     import numpy as np
 
-    def settle(maxf=90):
-        prev = np.asarray(bridge.frame_rgb(), dtype=np.int16)
-        stable = 0
+    def box():
+        return np.asarray(bridge.frame_rgb(), dtype=np.int16)[112:, :, :]
+
+    def settle(maxf=100):
+        prev = box(); stable = 0
         for _ in range(maxf):
             bridge.run_frame(); render()
-            cur = np.asarray(bridge.frame_rgb(), dtype=np.int16)
-            stable = stable + 1 if np.abs(cur - prev).mean() < 0.8 else 0
+            cur = box()
+            stable = stable + 1 if np.abs(cur - prev).mean() < 0.5 else 0
             prev = cur
-            if stable >= 8:        # ~8 settled frames = typewriter done / box ready
+            if stable >= 10:       # ~10 stable box-frames = line printed / box ready
                 return
-    for _ in range(max_presses):
+    for i in range(max_presses):
         if until_fn():
+            log(f"   [advance] done after {i} presses (until_fn true)")
             return True
         settle()
         if until_fn():
+            log(f"   [advance] done after {i} presses (settled into target)")
             return True
         bridge.set_keys("A")
         for _ in range(3):
             bridge.run_frame(); render()
         bridge.release()
+        log(f"   [advance] press {i}: box-settled then A")
+    log(f"   [advance] EXHAUSTED {max_presses} presses without until_fn")
     return until_fn()
 
 
