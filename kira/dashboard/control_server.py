@@ -254,6 +254,24 @@ def state_snapshot(bot: "VTubeBot") -> dict:
     # (TTL ~5s) so the synchronous NVML read can't stall the 500ms snapshot loop.
     vram_used_gb, vram_total_gb = _cached_vram_gb()
 
+    # Turbo Vision slideshow timeline — read-only, for the EYES pop-out (recent
+    # multi-frame "what happened" events + UNCERTAIN/STATIC tags). Empty when the
+    # slideshow isn't running. Additive; never touches the reconciler.
+    def _turbo_slideshow():
+        va = bot.vision_agent
+        if not va or not va.slideshow_has_context():
+            return {"on": False, "events": []}
+        events = []
+        for e in list(getattr(va, "episode_log", []))[-12:]:
+            tag = "UNCERTAIN" if e.get("uncertain") else ("STATIC" if e.get("static") else "")
+            events.append({
+                "text": (e.get("summary", "") or "").strip(),
+                "tag": tag,
+                "age": int(now - e.get("ts", now)),
+            })
+        return {"on": True, "events": events}
+    turbo_slideshow = _get(_turbo_slideshow, {"on": False, "events": []})
+
     # ── YouTube ───────────────────────────────────────────────────────────────
     yt = _get(lambda: bot.youtube_bot, None)
     if yt is None:
@@ -349,6 +367,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "vn_agent_on": vn_agent_on,
         "vram_used_gb": vram_used_gb,
         "vram_total_gb": vram_total_gb,
+        "turbo_slideshow": turbo_slideshow,
         "youtube_status": youtube_status,
         "yt_auto_status": yt_auto_status,
         "chat_median_age_s": chat_median_age_s,
