@@ -120,6 +120,8 @@ body{
 .thumb-wrap{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg-inset);
   border:1px solid var(--hairline-soft);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px}
 .thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+/* inline EYES thumb — glanceable, ~half size; the ⤢ pop-out keeps the full view */
+.thumb-wrap--mini{width:180px;max-width:55%;margin-bottom:10px}
 .thumb-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   color:var(--silver-4);font-size:12px;letter-spacing:.06em}
 .scene{position:relative;font-size:13.5px;line-height:1.5;color:var(--silver-1)}
@@ -325,7 +327,7 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
         </div>
       </div>
       <div class="card-body">
-        <div class="thumb-wrap">
+        <div class="thumb-wrap thumb-wrap--mini">
           <img id="vision-thumb" style="display:none" alt="vision">
           <div class="thumb-ph" id="vision-thumb-ph">no signal</div>
         </div>
