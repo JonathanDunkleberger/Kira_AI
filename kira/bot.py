@@ -89,7 +89,7 @@ from kira.persona.persona import EmotionalState
 from kira.senses.vision_agent import UniversalVisionAgent
 from kira.senses.audio_agent import AudioAgent, AUDIO_MODE_OFF, AUDIO_MODE_MEDIA, AUDIO_MODE_MUSIC
 from kira.senses.loopback_transcriber import LoopbackTranscriber
-from kira.brain.game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL
+from kira.brain.game_mode_controller import GameModeController, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_GENERAL, ACTIVITY_MUSIC, ACTIVITY_TYPES
 from kira.modes.vn_autopilot import VNAutopilot
 from kira.brain.kira_state import KiraState, SessionIntensity
 from kira.chess.chess_agent import ChessAgent
@@ -3424,11 +3424,17 @@ class VTubeBot:
 
     # ── Manual Game Mode Activation (dashboard on-ramp) ───────────────────────
 
-    def activate_game_mode(self, name: str, known_slug: str = "") -> str:
+    def activate_game_mode(self, name: str, known_slug: str = "", activity_type: str = None) -> str:
         """Manual game mode activation from the dashboard.
 
         known_slug: if provided (picked from autocomplete), passed directly to
         playthrough_memory.load_for_game(), bypassing slug normalization.
+
+        activity_type: if a valid ACTIVITY_* constant is passed (the dashboard
+        category dropdown), it is used DIRECTLY and the keyword classifier is
+        skipped — so "Pragmata" + category "Game" arms GAME even though the title
+        matches no keyword. When None/invalid, falls back to keyword classification
+        (legacy behavior).
 
         If GAME_MODE_AUTO_CONFIGURE=true (default), configures all subsystems for
         stream-ready state automatically. For ACTIVITY_GAME specifically:
@@ -3445,7 +3451,13 @@ class VTubeBot:
         if not name:
             return ACTIVITY_GENERAL
 
-        new_type = self._classify_activity_type(name)
+        # Explicit category (dropdown) wins — skip keyword guessing entirely.
+        if activity_type and activity_type in ACTIVITY_TYPES:
+            new_type = activity_type
+            print(f"   [Activity] '{name}' armed explicitly as {new_type.upper()} "
+                  f"(category dropdown — keyword classifier skipped).")
+        else:
+            new_type = self._classify_activity_type(name)
         old_immersive = self.immersive
 
         # Reset session accumulators for the new session
@@ -3465,6 +3477,19 @@ class VTubeBot:
                 self.game_mode_controller.activate(ACTIVITY_GAME)
                 if self.audio_agent:
                     self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
+            elif new_type == ACTIVITY_MUSIC:
+                # Music: she reacts to YOU playing/singing, not narrating a film.
+                # Audio is the primary sense — MUSIC mode captures the mic (guitar/
+                # vocals) and the loopback STT stays OFF (it self-skips in music mode
+                # so your lyrics aren't read back as ambient dialogue). No immersive
+                # narration, no clip extraction; vision stays calm (she can glance at
+                # you but isn't reading a screen).
+                self.immersive = False
+                self.highlight_extraction_enabled = False
+                self.vision_agent.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS
+                self.game_mode_controller.activate(ACTIVITY_MUSIC)
+                if self.audio_agent:
+                    self.audio_agent.set_mode(AUDIO_MODE_MUSIC)
             else:
                 # VN/MEDIA: immersive mode as before; GENERAL: passthrough
                 self.immersive = new_type in (ACTIVITY_VN, ACTIVITY_MEDIA)

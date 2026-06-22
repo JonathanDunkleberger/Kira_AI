@@ -871,6 +871,7 @@ class _CmdBody(BaseModel):
     # Activity
     name: str | None = None
     slug: str | None = None
+    type: str | None = None          # explicit activity category (dropdown): game/media/music/vn/general
     # Audio
     mode: str | None = None          # hearing mode label
     label: str | None = None         # audio device label
@@ -982,8 +983,13 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "activity_go":
         name = (body.name or "").strip()
         slug = (body.slug or "").strip()
+        # Optional explicit category from the dropdown — arms activity_type directly,
+        # bypassing the keyword classifier. Empty / "auto" => classify by keyword.
+        explicit_type = (body.type or "").strip().lower() or None
+        if explicit_type == "auto":
+            explicit_type = None
         if name:
-            new_type = bot.activate_game_mode(name, known_slug=slug)
+            new_type = bot.activate_game_mode(name, known_slug=slug, activity_type=explicit_type)
         else:
             bot.current_activity = ""
             new_type = ACTIVITY_GENERAL

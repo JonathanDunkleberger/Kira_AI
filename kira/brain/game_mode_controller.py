@@ -5,6 +5,11 @@ ACTIVITY_GENERAL    = "general"
 ACTIVITY_VN         = "vn"       # Visual novel — enables autonomous gameplay loop
 ACTIVITY_GAME       = "game"     # Generic game — observer only
 ACTIVITY_MEDIA      = "media"    # Movie / anime / youtube watching
+ACTIVITY_MUSIC      = "music"    # Jonny playing/singing — react to HIM, audio=MUSIC
+
+# Explicit-type set the dashboard category dropdown may arm directly (bypasses
+# the keyword classifier). Keep in sync with _classify_activity_type's outputs.
+ACTIVITY_TYPES = (ACTIVITY_GENERAL, ACTIVITY_VN, ACTIVITY_GAME, ACTIVITY_MEDIA, ACTIVITY_MUSIC)
 
 
 class GameModeController:

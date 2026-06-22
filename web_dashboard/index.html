@@ -453,7 +453,15 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
         <div style="margin-top:13px">
           <span class="mlabel">Activity</span>
           <div class="inline" style="margin-top:5px">
-            <input type="text" id="inp-activity" placeholder="e.g. Legend of Korra">
+            <select id="inp-activity-type" title="Category — arms the activity type directly (skips keyword guessing)" style="max-width:120px">
+              <option value="auto">Auto (guess)</option>
+              <option value="game">Game</option>
+              <option value="media">Media</option>
+              <option value="music">Music</option>
+              <option value="vn">Visual Novel</option>
+              <option value="general">General</option>
+            </select>
+            <input type="text" id="inp-activity" placeholder="e.g. Pragmata">
             <input type="text" id="inp-slug" placeholder="slug (opt)" style="max-width:120px">
             <button class="btn blue sm" onclick="goActivity()">Go</button>
             <button class="btn sm" onclick="cmd('exit_game_mode',null,this)">Exit</button>
@@ -931,7 +939,8 @@ function renderPops(s){
 function setMode(m){ if(_snap.mode!==m) cmd('mode_toggle'); }
 function setPresence(level){ if(_snap.presence_level!==level) cmd('set_presence',{presence:level}); }
 function goActivity(){ const name=document.getElementById('inp-activity').value.trim();
-  const slug=document.getElementById('inp-slug').value.trim(); cmd('activity_go',{name,slug}); }
+  const slug=document.getElementById('inp-slug').value.trim();
+  const type=document.getElementById('inp-activity-type').value; cmd('activity_go',{name,slug,type}); }
 function setTts(b){ if(_snap.tts_backend!==b) cmd('tts_toggle'); }
 function applyFishVoice(){ cmd('fish_voice_apply',{voice_id:document.getElementById('inp-fish-voice').value.trim()}); }
 function toggleAutopilot(on){ const title=document.getElementById('inp-vn-window').value.trim(); cmd('autopilot_toggle',{enabled:on,title}); }
