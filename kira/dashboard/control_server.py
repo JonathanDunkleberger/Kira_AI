@@ -993,15 +993,15 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
 
     # ── Vision force-off override (master kill-switch) ────────────────────────
     # The EYES panel's ONLY vision control. Vision otherwise follows the always-on
-    # calm baseline + Deep Senses escalation. Honest override: ON = force vision
-    # fully dark; OFF = vision resumes per baseline/Deep Senses. Can't desync — it
+    # calm baseline + Turbo Vision escalation. Honest override: ON = force vision
+    # fully dark; OFF = vision resumes per baseline/Turbo Vision. Can't desync — it
     # drives the reconciler directly (which the dispatcher runs right after).
     if action == "vision_force_off_toggle":
         on = body.enabled if body.enabled is not None else (not getattr(bot, "vision_force_off", False))
         bot.vision_force_off = bool(on)
         return _ok(vision_force_off=bot.vision_force_off)
 
-    # ── Deep Senses (authoritative perception escalation) ─────────────────────
+    # ── Turbo Vision (authoritative perception escalation) ─────────────────────
     if action == "deep_senses_toggle":
         on = body.enabled if body.enabled is not None else (not getattr(bot, "deep_senses", False))
         bot.apply_deep_senses(on)
@@ -1025,7 +1025,7 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                 try:
                     await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn)
                 except Exception as _ds_e:
-                    print(f"   [DeepSenses] loopback start failed: {_ds_e}")
+                    print(f"   [TurboVision] loopback start failed: {_ds_e}")
         return _ok(deep_senses=on)
 
     # ── Audio / Hearing ───────────────────────────────────────────────────────

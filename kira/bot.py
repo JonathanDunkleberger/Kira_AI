@@ -526,7 +526,7 @@ class VTubeBot:
         self.loopback_transcriber = LoopbackTranscriber() if ENABLE_LOOPBACK_TRANSCRIBER else None
 
         # ── Perception escalation state ──────────────────────────────────────
-        # deep_senses: the authoritative dashboard 'Deep Senses' control. OFF = the
+        # deep_senses: the authoritative dashboard 'Turbo Vision' control. OFF = the
         # Group-2 always-on CALM baseline (40s vision + audio-mood + dialogue, just
         # calm). ON = turbo perception for active gaming/watching (fast 10s vision +
         # audio + loopback). Feeds the reconciler's cadence invariant.
@@ -538,7 +538,7 @@ class VTubeBot:
         # env ENABLE_VISION=false disables vision entirely.
         self.vision_baseline_on = ENABLE_VISION
         # vision_force_off: explicit dashboard master kill-switch override. When True,
-        # vision is forced fully dark regardless of baseline / Deep Senses / armed mode.
+        # vision is forced fully dark regardless of baseline / Turbo Vision / armed mode.
         # This is the EYES panel's ONLY vision control — an honest override that can't
         # desync (it drives the reconciler directly). Default False = follow baseline.
         self.vision_force_off = False
@@ -2842,7 +2842,7 @@ class VTubeBot:
                     changes.append("heartbeat restored")
 
         # INV-2: heartbeat cadence follows activity/immersive/deep-senses — recompute
-        #        rather than trust a stale value a prior toggle left behind. Deep Senses
+        #        rather than trust a stale value a prior toggle left behind. Turbo Vision
         #        escalates the calm baseline to fast cadence; game/media stay fast too.
         if va is not None and gmc is not None:
             fast = self.immersive or gmc.activity_type == ACTIVITY_GAME or bool(getattr(self, "deep_senses", False))
@@ -3098,7 +3098,7 @@ class VTubeBot:
             "chess": {"armed": chess_armed, "running": chess_running},
             "activity": self.current_activity or "",
             "activity_type": activity_type,
-            # Perception escalation (Deep Senses) + at-a-glance perception summary
+            # Perception escalation (Turbo Vision) + at-a-glance perception summary
             # for the dashboard indicator. mode='deep' when escalated, else 'calm'.
             "deep_senses": bool(getattr(self, "deep_senses", False)),
             "vision_force_off": vision_force_off,
@@ -3113,7 +3113,7 @@ class VTubeBot:
         }
 
     def apply_deep_senses(self, on: bool) -> None:
-        """Authoritative perception-escalation control (dashboard 'Deep Senses').
+        """Authoritative perception-escalation control (dashboard 'Turbo Vision').
 
         ON  \u2192 turbo/active perception for gaming/watching: fast 10s vision cadence
               (via the deep_senses flag feeding the reconciler), full vision awake,
@@ -3127,7 +3127,7 @@ class VTubeBot:
         self.deep_senses = bool(on)
         if on:
             # Wake the full stack. Vision honors the master kill-switch: if vision is
-            # hard-disabled in env (ENABLE_VISION=false), Deep Senses can't override it.
+            # hard-disabled in env (ENABLE_VISION=false), Turbo Vision can't override it.
             if ENABLE_VISION:
                 self.vision_baseline_on = True
                 self.vision_agent.master_enabled = True
@@ -3136,7 +3136,7 @@ class VTubeBot:
                 try:
                     self.audio_agent.set_mode(AUDIO_MODE_MEDIA)
                 except Exception as e:
-                    print(f"   [DeepSenses] audio wake failed: {e}")
+                    print(f"   [TurboVision] audio wake failed: {e}")
         # OFF: deliberately leave vision/audio/loopback running (calm baseline). Only
         # the cadence relaxes, handled by the reconciler via self.deep_senses=False.
 
@@ -5125,7 +5125,7 @@ class VTubeBot:
                     tasks.append(self._autostart_loopback())
                 else:
                     print("   [LoopbackSTT] Boot autostart DISABLED (LOOPBACK_STT_DEFAULT=false) — "
-                          "loopback starts only via dashboard / Deep Senses.")
+                          "loopback starts only via dashboard / Turbo Vision.")
             
             # Loopback keep-alive supervisor — self-heals capture/transcriber that
             # never started or dropped (cold-boot silent-bind, unplug, clean exit).
@@ -5775,7 +5775,7 @@ class VTubeBot:
                             # playthrough context ONLY. It deliberately does NOT
                             # wake vision/audio — casual "let's play X" said to chat
                             # would misfire (e.g. full-screen reads). Senses are
-                            # escalated by the authoritative Deep Senses toggle, not
+                            # escalated by the authoritative Turbo Vision toggle, not
                             # by speech. Group 2 always-on calm perception is the
                             # safety net when Jonny forgets to toggle.
 

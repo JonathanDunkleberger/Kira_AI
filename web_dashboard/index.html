@@ -157,7 +157,7 @@ html, body {
 #eff-strip .eff-seg.attn { color: var(--attention); }
 #eff-strip .eff-sep { color: var(--border); }
 
-/* ── PERCEPTION INDICATOR + DEEP SENSES (always-visible glance) ──── */
+/* ── PERCEPTION INDICATOR + TURBO VISION (always-visible glance) ──── */
 #perception-bar {
   flex-shrink: 0;
   display: flex;
@@ -834,12 +834,13 @@ html, body {
        rust when its effect is overridden. Mirrors the desktop strip. -->
   <div id="eff-strip"></div>
 
-  <!-- ═══════════ PERCEPTION INDICATOR + DEEP SENSES ═══════════ -->
+  <!-- ═══════════ PERCEPTION INDICATOR + TURBO VISION ═══════════ -->
   <!-- Always-visible glance at what Kira can currently perceive. The mode chip
-       shows GENERAL (calm) vs DEEP SENSES (active); the dots show live vision /
-       audio-mood / dialogue status. The Deep Senses toggle is the AUTHORITATIVE
-       escalation control (fast vision + audio + loopback). OFF = calm baseline,
-       never blind/deaf. Renders from s.effective.perception / .deep_senses. -->
+       shows GENERAL (calm) vs TURBO (active); the dots show live vision /
+       audio-mood / dialogue status. The Turbo Vision toggle is the AUTHORITATIVE
+       escalation control (fast vision + multi-frame context + audio + loopback).
+       OFF = calm baseline, never blind/deaf. Renders from
+       s.effective.perception / .deep_senses (internal key kept stable). -->
   <div id="perception-bar">
     <span class="perc-mode" id="perc-mode">GENERAL · calm</span>
     <span class="perc-dots">
@@ -848,8 +849,8 @@ html, body {
       <span class="perc-dot off" id="perc-loopback">💬 dialogue —</span>
     </span>
     <span class="perc-deep">
-      <span class="perc-deep-label">Deep Senses</span>
-      <label class="sw" title="Deep Senses — turbo perception for active gaming/watching (fast vision + audio + dialogue). Off = calm always-on baseline.">
+      <span class="perc-deep-label">Turbo Vision</span>
+      <label class="sw" title="Turbo Vision — dialed-in perception for active gaming/watching (fast vision + multi-frame context + audio + dialogue). Off = calm always-on baseline.">
         <input type="checkbox" id="sw-deep-senses"
                onchange="cmd('deep_senses_toggle',{enabled:this.checked})">
         <span class="sw-track"></span><span class="sw-knob"></span>
@@ -968,7 +969,7 @@ html, body {
               <span class="sw-track"></span><span class="sw-knob"></span>
             </label>
           </div>
-          <div class="status-text">Vision is always-on (calm baseline); Deep Senses escalates cadence. This forces it fully dark.</div>
+          <div class="status-text">Vision is always-on (calm baseline); Turbo Vision escalates cadence. This forces it fully dark.</div>
 
         </div>
       </div><!-- /panel-perception (EYES) -->
@@ -1004,7 +1005,7 @@ html, body {
             <button class="btn" onclick="refreshDevices()">↺</button>
           </div>
 
-          <!-- Loopback STT is always-on baseline (escalated by Deep Senses) —
+          <!-- Loopback STT is always-on baseline (escalated by Turbo Vision) —
                read-only status + live feed below; no symmetric toggle to desync. -->
           <div class="status-text" id="loopback-status">disabled</div>
           <div id="loopback-feed" class="loopback-feed"></div>
@@ -2846,8 +2847,8 @@ function renderEffStrip(s) {
 }
 
 
-// ── Perception indicator + Deep Senses toggle ──────────────────────
-// Renders the always-visible glance bar: mode chip (GENERAL calm vs DEEP SENSES
+// ── Perception indicator + Turbo Vision toggle ──────────────────────
+// Renders the always-visible glance bar: mode chip (GENERAL calm vs TURBO
 // active) + live dots for vision (on/off + cadence), audio-mood, and dialogue.
 function renderPerception(s) {
   const eff = (s && s.effective) || {};
@@ -2856,7 +2857,7 @@ function renderPerception(s) {
 
   const modeEl = document.getElementById('perc-mode');
   if (modeEl) {
-    modeEl.textContent = deep ? 'DEEP SENSES · active' : 'GENERAL · calm';
+    modeEl.textContent = deep ? 'TURBO · active' : 'GENERAL · calm';
     modeEl.classList.toggle('deep', deep);
   }
 
