@@ -4417,7 +4417,8 @@ class VTubeBot:
                     await asyncio.to_thread(aa.set_mode, AUDIO_MODE_MEDIA)
                     await asyncio.to_thread(lt.stop)
                     _spk = lambda: bool(getattr(self.ai_core, "is_speaking", False))
-                    await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active)
+                    _rtts = lambda: list(getattr(self.ai_core, "_recent_tts_texts", []))
+                    await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active, _rtts)
                     print("   [LoopbackSupervisor] deaf recovery issued (capture reopened + "
                           "transcriber restarted).")
                 except Exception as e:
@@ -4436,7 +4437,8 @@ class VTubeBot:
             print("   [LoopbackSupervisor] transcriber DOWN (capture up) — re-arming…")
             try:
                 _spk = lambda: bool(getattr(self.ai_core, "is_speaking", False))
-                ok = await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active)
+                _rtts = lambda: list(getattr(self.ai_core, "_recent_tts_texts", []))
+                ok = await asyncio.to_thread(lt.start, aa, _spk, self._mic_recently_active, _rtts)
                 print(f"   [LoopbackSupervisor] transcriber re-arm {'succeeded' if ok else 'failed'}.")
             except Exception as e:
                 print(f"   [LoopbackSupervisor] transcriber re-arm raised: {e}")
@@ -4472,8 +4474,11 @@ class VTubeBot:
         # "mic active" from the last-speech-frame timestamp and auto-expires, so
         # it can never latch 'on' and silence loopback for a whole session.
         user_speaking_fn = self._mic_recently_active
+        # Self-echo fingerprint backstop — lets the transcriber recognize and drop
+        # Kira's own TTS if it leaks back through the headphones loopback.
+        recent_tts_fn = lambda: list(getattr(ai_core_ref, "_recent_tts_texts", []))
         try:
-            ok = await asyncio.to_thread(lt.start, self.audio_agent, speaking_fn, user_speaking_fn)
+            ok = await asyncio.to_thread(lt.start, self.audio_agent, speaking_fn, user_speaking_fn, recent_tts_fn)
             print(f"   [LoopbackSTT] Auto-start {'succeeded' if ok else 'failed'} "
                   f"(LOOPBACK_STT_DEFAULT).")
         except Exception as e:

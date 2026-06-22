@@ -24,6 +24,7 @@
 #   "speech").
 
 import asyncio
+import difflib
 import gc
 import os
 import re
@@ -84,6 +85,21 @@ SILENCE_RMS_THRESHOLD: float = 0.003       # don't even call Whisper on near-sil
 # segments, gutting continuous speech (audiobooks/dialogue). Exact-dedup (gate 6)
 # still removes the window-overlap re-emission regardless of length. Env-tunable.
 FUZZY_DEDUP_MIN_CHARS: int = int(os.getenv("LOOPBACK_FUZZY_DEDUP_MIN_CHARS", "12"))
+
+# ── Self-echo guards (2026-06-22) ────────────────────────────────────────────
+# Kira's TTS plays through the same headphones the loopback records, so her own
+# voice can be transcribed back as "dialogue" and (Stage 2) fed to her as if the
+# show/streamer said it. Two complementary guards kill this:
+#   ① Buffer high-water-mark — the transcription window is clamped so it never
+#      reaches back past the real end of her speech (+ a short acoustic-decay
+#      guard). This is what lets the post-TTS cooldown stay SHORT without the 8s
+#      window dragging her speech tail back in.
+#   ② Fingerprint backstop — any segment that fuzzy-matches something she just
+#      said is dropped, regardless of timing (covers residual echo/reverb and
+#      back-to-back chatter where timing alone can't separate her from the gaps).
+SELF_TTS_DECAY_GUARD_S: float = float(os.getenv("LOOPBACK_SELF_TTS_DECAY_GUARD_S", "0.3"))
+SELF_ECHO_RATIO_THRESHOLD: float = float(os.getenv("LOOPBACK_SELF_ECHO_RATIO", "0.80"))
+SELF_ECHO_CONTAIN_MIN_CHARS: int = 8   # min length for fragment-containment matching
 
 # Transcriber pump-loop watchdog (the twin of audio_agent's capture watchdog).
 # The capture watchdog watches RMS (stream health); this watches the TRANSCRIBE
@@ -192,6 +208,34 @@ def _normalize(text: str) -> str:
     return t
 
 
+def _match_self_echo(norm: str, recent_texts) -> Optional[str]:
+    """Return the matching recent TTS text if `norm` (a normalized loopback
+    segment) is plausibly Kira's own voice echoed back through the headphones
+    loopback, else None. Three tiers, cheapest first:
+      • exact normalized match
+      • fragment containment (Whisper caught part of a longer line, or vice versa)
+      • fuzzy ratio (minor transcription differences — punctuation, a dropped word)
+    Texts are short (<200 chars) and the recent-TTS list is tiny (~12), so the
+    O(n·m) SequenceMatcher is cheap at the 5s tick cadence."""
+    if not norm:
+        return None
+    for raw in recent_texts:
+        t = _normalize(raw)
+        if not t:
+            continue
+        if norm == t:
+            return raw
+        if len(norm) >= SELF_ECHO_CONTAIN_MIN_CHARS and (norm in t or t in norm):
+            return raw
+        # Fuzzy match only between reasonably long strings — fuzzy-matching tiny
+        # segments ("Yeah", "Huh") would over-drop short interjections the SHOW
+        # legitimately says. Exact + containment above already handle short ones.
+        if (len(norm) >= SELF_ECHO_CONTAIN_MIN_CHARS and len(t) >= SELF_ECHO_CONTAIN_MIN_CHARS
+                and difflib.SequenceMatcher(None, norm, t).ratio() >= SELF_ECHO_RATIO_THRESHOLD):
+            return raw
+    return None
+
+
 def _has_repeated_token_burst(text: str) -> bool:
     """True if a single token dominates the segment (4+ occurrences and >=40%
     of all word tokens). Catches loops like 'guys guys guys guys guys' even
@@ -267,6 +311,11 @@ class LoopbackTranscriber:
         self._speech_last_active_ts: float = 0.0
         self._speech_watcher_thread: Optional[threading.Thread] = None
         self.total_ticks_skipped_self_tts: int = 0
+        # Self-echo fingerprint backstop — zero-arg callable returning a list of
+        # Kira's recent spoken texts (set by start() from ai_core._recent_tts_texts).
+        # Any segment that fuzzy-matches one of these is dropped as self-echo.
+        self._recent_tts_fn: Optional[Callable[[], list]] = None
+        self._self_echo_drops: int = 0
         # Task 2: mic-active gate — prevents Jonny's mic voice from being transcribed
         # via the loopback when the WASAPI device carries a mic-mixed signal.
         self._is_user_speaking_fn: Optional[Callable[[], bool]] = None
@@ -341,6 +390,7 @@ class LoopbackTranscriber:
         audio_agent: "AudioAgent",
         is_speaking_fn: Optional[Callable[[], bool]] = None,
         is_user_speaking_fn: Optional[Callable[[], bool]] = None,
+        recent_tts_fn: Optional[Callable[[], list]] = None,
     ) -> bool:
         """Begin background transcription on the given audio agent's buffer.
         Returns True if started (or already running), False if unavailable.
@@ -379,8 +429,9 @@ class LoopbackTranscriber:
             self._audio_agent = audio_agent
             self._is_speaking_fn = is_speaking_fn
             self._is_user_speaking_fn = is_user_speaking_fn  # Task 2: mic-active gate
+            self._recent_tts_fn = recent_tts_fn              # self-echo fingerprint backstop
             # Saved so the pump-loop watchdog can restart with identical wiring.
-            self._last_start_args = (audio_agent, is_speaking_fn, is_user_speaking_fn)
+            self._last_start_args = (audio_agent, is_speaking_fn, is_user_speaking_fn, recent_tts_fn)
             self._user_mic_last_active_ts: float = 0.0
             self._speech_last_active_ts = 0.0
             self.total_ticks_skipped_self_tts = 0
@@ -611,10 +662,11 @@ class LoopbackTranscriber:
                 if not args or args[0] is None:
                     print("   [LoopbackSTT] ⚠ cannot auto-restart — no saved start args; needs manual restart.")
                     continue
-                agent, sfn, ufn = args
+                agent, sfn, ufn = args[0], args[1], args[2]
+                rtf = args[3] if len(args) > 3 else None
                 try:
                     self.stop()                 # leaks a truly-wedged native thread (daemon); zombie-fenced
-                    ok = self.start(agent, sfn, ufn)
+                    ok = self.start(agent, sfn, ufn, rtf)
                     if ok and self.is_running():
                         print("   [LoopbackSTT] ✓ Restarted after hang — pump loop alive again.")
                     else:
@@ -722,6 +774,27 @@ class LoopbackTranscriber:
         sample_rate = agent.sample_rate
         window_samples = int(sample_rate * WINDOW_SECONDS)
 
+        # ① Buffer high-water-mark — never let the transcription window reach back
+        # into audio captured while (or just after) Kira was speaking. WINDOW_SECONDS
+        # (8s) far exceeds the post-TTS cooldown (~1s), so without this the window
+        # would drag her own speech tail back in (the root cause of the self-echo
+        # leak). Clamp the window to only audio captured after her speech ended
+        # (+ a short acoustic-decay guard), using the 100ms-resolution speech-end
+        # timestamp the watcher maintains. This decouples leak-safety from the
+        # cooldown length, so the cooldown can stay short for responsiveness.
+        if self._speech_last_active_ts > 0.0:
+            clean_samples = int(sample_rate * (
+                time.time() - (self._speech_last_active_ts + SELF_TTS_DECAY_GUARD_S)
+            ))
+            if clean_samples < window_samples:
+                # NOTE: window_samples must never hit 0 — snapshot[-0:] is the WHOLE
+                # buffer in Python, which would re-admit everything. Below ~0.5s of
+                # clean audio there's nothing worth transcribing yet; skip this tick
+                # (it fills on the next one — cooldown already covers the first ~1s).
+                if clean_samples < int(sample_rate * 0.5):
+                    return
+                window_samples = clean_samples
+
         # Snapshot the tail of the loopback buffer. The audio_agent's buffer is a
         # deque of float32 in [-1, 1] at 16kHz mono — exactly what faster-whisper
         # expects, so no resampling / format conversion needed.
@@ -799,6 +872,26 @@ class LoopbackTranscriber:
                     continue
 
                 norm = _normalize(text)
+                # ② Self-echo fingerprint backstop — drop anything that matches
+                # something Kira just said. Her TTS plays through the same headphones
+                # the loopback records; the high-water-mark above catches the acoustic
+                # tail, but this content check kills any residual echo regardless of
+                # timing, so she NEVER ingests her own voice as 'dialogue' — even when
+                # she's talking nonstop (where timing alone can't separate her from the
+                # gaps). Small false-positive risk if she quotes the show verbatim
+                # (accepted). Logged loudly so the drop is visible.
+                if self._recent_tts_fn is not None:
+                    try:
+                        _recent_tts = self._recent_tts_fn() or []
+                    except Exception:
+                        _recent_tts = []
+                    _echo = _match_self_echo(norm, _recent_tts)
+                    if _echo is not None:
+                        self._self_echo_drops += 1
+                        filtered_this_tick += 1
+                        print(f"   [LoopbackSTT] dropped self-echo: {text[:70]!r} "
+                              f"(≈ Kira said {str(_echo)[:40]!r})")
+                        continue
                 # Dedupe vs recent accepted segments (overlap re-emission, or
                 # Whisper repeating a line across windows).
                 if norm in self._recent_normalized:

@@ -10,6 +10,7 @@ import pygame
 import torch
 import numpy as np
 import threading
+from collections import deque
 from faster_whisper import WhisperModel
 from llama_cpp import Llama
 
@@ -96,6 +97,11 @@ class AI_Core:
         )
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
+        # Self-echo fingerprint backstop: the last few things she actually spoke.
+        # The loopback transcriber reads this (via a getter passed to its start())
+        # and drops any segment that matches — so her own TTS, captured back through
+        # the headphones loopback, never gets ingested as external 'dialogue'.
+        self._recent_tts_texts: deque = deque(maxlen=12)
         # Backref set by the bot so ai_core can append the streamer overlay
         # without baking mode into the cached system prompt. Returns 'companion' or 'streamer'.
         self._mode_provider = None
@@ -1301,6 +1307,16 @@ class AI_Core:
         else:
             self._speech_gate_held = False
 
+    def _record_tts_text(self, text: str) -> None:
+        """Record a spoken utterance for the loopback self-echo backstop. Cheap,
+        fail-safe (never raises into the TTS path). See _recent_tts_texts."""
+        try:
+            t = (text or "").strip()
+            if t:
+                self._recent_tts_texts.append(t)
+        except Exception:
+            pass
+
     async def speak_text(self, text: str, priority: int = 1):
         """Generates and plays audio for the given text (blocking). Sets is_speaking
         around the call so VAD ignores self-hearing. Used by non-streaming callers.
@@ -1339,6 +1355,9 @@ class AI_Core:
                     f'</prosody></voice></speak>'
                 )
                 print(f"   [TTS] Speaking: {text[:50]}...")
+                # Self-echo fingerprint: the SSML path bypasses _speak_single, so
+                # record here too (see _recent_tts_texts).
+                self._record_tts_text(text)
                 await self._acquire_speech_gate(priority)
                 try:
                     # Serialize with the lock so a concurrent _speak_single
@@ -1485,6 +1504,14 @@ class AI_Core:
             print(f"   [Guardrail] BLOCKED before TTS (hard content boundary) — "
                   f"suppressed utterance: {text[:140]!r}")
             return
+
+        # Self-echo fingerprint: record what she's about to actually say so the
+        # loopback transcriber can recognize and drop it if it leaks back through
+        # the headphones loopback. Recorded HERE (the shared sink for speak_text,
+        # speak_streaming per-sentence, and speak_text_vn's non-SSML fallback) so
+        # every spoken line is covered. The SSML branch of speak_text_vn bypasses
+        # this method and records separately.
+        self._record_tts_text(text)
 
         # Capture the running loop once — the caption server needs a stable
         # reference for thread-safe scheduling from Azure's worker callbacks.

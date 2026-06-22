@@ -254,12 +254,17 @@ LOOPBACK_NAME_DRIFT_GUARD_ENABLED = os.getenv("LOOPBACK_NAME_DRIFT_GUARD_ENABLED
 # her own voice (mixed into the same headphone endpoint it taps) isn't transcribed
 # as "dialogue". The old hard-coded 8s (WINDOW_SECONDS) overlapped continuously
 # when she talked densely (chat/streamer register) and starved the pump → 0
-# segments ("alive but deaf"). Default 3s decouples it from the 8s transcription
-# window. TRADEOFF: too LOW = the tail of her own sentence can leak into the
-# loopback transcript; too HIGH = she goes deaf whenever she's chatty. Feel-test
-# from 3s. Surfaced in the boot [Config] line. Does NOT touch the mic gate or the
-# transcription window (still WINDOW_SECONDS).
-LOOPBACK_POST_TTS_COOLDOWN_S = float(os.getenv("LOOPBACK_POST_TTS_COOLDOWN_S", "3.0"))
+# segments ("alive but deaf").
+#
+# As of the self-echo fix (2026-06-22) the cooldown is NO LONGER the only guard
+# against her speech tail leaking. The transcription window is now clamped to a
+# buffer high-water-mark (it never reaches back past _speech_last_active_ts, the
+# real end of her TTS), so a SHORT cooldown stays leak-free. Default dropped to
+# 1.0s — just acoustic decay — because the high-water-mark, not the cooldown,
+# now does the heavy lifting. A self-echo fingerprint backstop kills any residual.
+# Lower = more responsive (she hears the show sooner in the gaps); raise only if
+# the acoustic tail still bleeds. Surfaced in the boot [Config] line.
+LOOPBACK_POST_TTS_COOLDOWN_S = float(os.getenv("LOOPBACK_POST_TTS_COOLDOWN_S", "1.0"))
 
 # Smart Game Mode configuration (dashboard ACTIVATE button).
 # When true (default), clicking ACTIVATE in the Game Mode panel automatically configures

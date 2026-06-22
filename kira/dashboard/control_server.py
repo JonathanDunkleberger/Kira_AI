@@ -1024,8 +1024,9 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                 # _autostart_loopback. Bound method derives "mic active" from the
                 # last-speech-frame timestamp, so it auto-expires and can't latch.
                 user_speaking_fn = bot._mic_recently_active
+                recent_tts_fn = lambda: list(getattr(ai_core_ref, "_recent_tts_texts", []))
                 try:
-                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn)
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn, recent_tts_fn)
                 except Exception as _ds_e:
                     print(f"   [TurboVision] loopback start failed: {_ds_e}")
         return _ok(deep_senses=on)
@@ -1059,8 +1060,9 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
                 # _autostart_loopback. Bound method derives "mic active" from the
                 # last-speech-frame timestamp, so it auto-expires and can't latch.
                 user_speaking_fn = bot._mic_recently_active
+                recent_tts_fn = lambda: list(getattr(ai_core_ref, "_recent_tts_texts", []))
                 try:
-                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn)
+                    await asyncio.to_thread(lt.start, bot.audio_agent, speaking_fn, user_speaking_fn, recent_tts_fn)
                 except Exception as _lt_e:
                     print(f"   [LoopbackSTT] Auto-start on MEDIA failed: {_lt_e}")
         return _ok(hearing=choice)
