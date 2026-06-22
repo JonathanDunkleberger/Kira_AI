@@ -5012,6 +5012,12 @@ class VTubeBot:
             tasks.append(self.vision_agent.heartbeat_loop())
             await asyncio.sleep(0)  # let the VAD drainer breathe before audio arms
             if self.audio_agent:
+                # Self-TTS gate for the mood loop — it reads the same headphones
+                # output her TTS plays through, so without this it summarizes her
+                # own voice as media mood. Same probe the loopback transcriber uses
+                # (reads self.ai_core live so init ordering can't capture a None ref).
+                self.audio_agent.set_speaking_fn(
+                    lambda: bool(getattr(self.ai_core, "is_speaking", False)))
                 tasks.append(self.audio_agent.heartbeat_loop())
                 # 2b: audio-mood always-on — boot straight into MEDIA so _audio_mood()
                 # colors general conversation, not just armed modes. set_mode opens the

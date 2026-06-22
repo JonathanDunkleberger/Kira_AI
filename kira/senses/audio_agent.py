@@ -10,7 +10,7 @@ import threading
 from collections import deque
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 AUDIO_LOG_DIR = "logs"
 
@@ -309,6 +309,15 @@ class AudioAgent:
         # True between a watchdog reopen and the first healthy RMS reading — used to
         # print a clear "recovered" line so the self-heal is visible in the console.
         self._capture_recovering: bool = False
+        # Self-TTS gate (2026-06-22): zero-arg callable returning True while Kira's
+        # TTS is playing. Set by the bot via set_speaking_fn(). The mood loop reads
+        # the SAME headphones output her TTS plays through, so without this it
+        # summarizes her own voice as media mood ("gravelly voice / tense strings").
+        # Mirrors the loopback transcriber's gate; here it's a timing gate only
+        # (this path produces a mood, not a transcript, so fingerprinting doesn't apply).
+        self._is_speaking_fn: Optional[Callable[[], bool]] = None
+        self._speech_last_active_ts: float = 0.0
+        self._mood_tts_skips: int = 0
         if CAPTURE_WATCHDOG_ENABLED and PYAUDIO_AVAILABLE:
             self._watchdog_thread = threading.Thread(
                 target=self._capture_health_loop, daemon=True, name="capture-health")
@@ -316,6 +325,12 @@ class AudioAgent:
 
     def is_active(self) -> bool:
         return self.mode != AUDIO_MODE_OFF and self._stream is not None
+
+    def set_speaking_fn(self, fn: Optional[Callable[[], bool]]) -> None:
+        """Wire the self-TTS gate: `fn` returns True while Kira's TTS is playing.
+        The mood loop skips/clamps while she speaks so it never reads her own
+        voice as media mood. Safe to call once at boot; None disables the gate."""
+        self._is_speaking_fn = fn
 
     def set_preferred_loopback(self, name: Optional[str]) -> None:
         """FIX 2: update the live loopback-device preference AND persist it to disk so
@@ -845,6 +860,9 @@ class AudioAgent:
     # letting confident hallucinations ("footsteps approaching") drive [Intensity]
     # to TENSE. Real music/voice at monitoring volume clears 0.040 easily.
     EVENT_RMS_FLOOR: float = 0.040
+    # Self-TTS gate: short acoustic-decay guard added past her speech end before
+    # any captured audio is considered "clean" (mirrors the loopback transcriber).
+    SELF_TTS_DECAY_GUARD_S: float = 0.3
 
     async def _describe_current_buffer(self):
         # Silence-gate: don't waste an API call (or risk a meta-reply hallucination)
@@ -855,6 +873,49 @@ class AudioAgent:
             rms = 0.0
         else:
             rms = float(np.sqrt(np.mean(samples_snapshot * samples_snapshot)))
+
+        # ── Self-TTS gate ──────────────────────────────────────────────────────
+        # This loop reads the SAME headphones output Kira's TTS plays through, so
+        # without a gate it summarizes her own voice as media mood ("gravelly voice
+        # whispers / tense strings"). Skip entirely while she speaks; after she
+        # stops, clamp the snapshot to only audio captured AFTER her speech ended
+        # (+ decay guard) so the mood never reflects her own voice — the same
+        # high-water-mark approach the loopback transcriber uses. Loud per
+        # Constraint #3 so the skip is never silent.
+        if self._is_speaking_fn is not None:
+            try:
+                speaking_now = bool(self._is_speaking_fn())
+            except Exception:
+                speaking_now = False
+            if speaking_now:
+                self._speech_last_active_ts = time.time()
+                self._mood_tts_skips += 1
+                if self._mood_tts_skips == 1 or self._mood_tts_skips % 6 == 0:
+                    print(f"   [Audio] mood tick skipped — self-TTS gate: Kira speaking "
+                          f"({self._mood_tts_skips} skip(s))")
+                self.audio_summary_is_event = False
+                return
+            if self._speech_last_active_ts > 0.0:
+                clean_samples = int(self.sample_rate * (
+                    time.time() - (self._speech_last_active_ts + self.SELF_TTS_DECAY_GUARD_S)
+                ))
+                if clean_samples < samples_snapshot.size:
+                    # < ~1s of clean post-speech audio — nothing worth summarizing
+                    # yet; skip (also guards the snapshot[-0:]==whole-buffer trap).
+                    if clean_samples < int(self.sample_rate * 1.0):
+                        self._mood_tts_skips += 1
+                        if self._mood_tts_skips == 1 or self._mood_tts_skips % 6 == 0:
+                            print(f"   [Audio] mood tick skipped — self-TTS cooldown "
+                                  f"({self._mood_tts_skips} skip(s))")
+                        self.audio_summary_is_event = False
+                        return
+                    samples_snapshot = samples_snapshot[-clean_samples:]
+                    rms = float(np.sqrt(np.mean(samples_snapshot * samples_snapshot)))
+            if self._mood_tts_skips:
+                print(f"   [Audio] self-TTS gate released after {self._mood_tts_skips} "
+                      f"skip(s) — resuming mood reads.")
+                self._mood_tts_skips = 0
+
         if rms < self.SILENCE_RMS_THRESHOLD:
             print(f"   [Audio] Buffer silent (RMS={rms:.5f} < {self.SILENCE_RMS_THRESHOLD}) — skipping model call")
             self.consecutive_silent += 1
