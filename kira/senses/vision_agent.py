@@ -656,7 +656,9 @@ class UniversalVisionAgent:
                         await self._run_slideshow_analysis_once()
                 except Exception as e:
                     print(f"   [TurboVision] analysis tick error: {e}")
-                await asyncio.sleep(max(5.0, TURBO_VISION_ANALYSIS_INTERVAL_S))
+                # Floor lowered 5.0 -> 2.0 (2026-06-22) so TURBO_VISION_ANALYSIS_INTERVAL_S
+                # is honored below 5s if Jonny dials it (cost scales linearly; 2s = sane min).
+                await asyncio.sleep(max(2.0, TURBO_VISION_ANALYSIS_INTERVAL_S))
         except asyncio.CancelledError:
             pass
 

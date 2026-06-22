@@ -67,7 +67,12 @@ VISION_CAPTURE_DEDUP_WINDOW_S = float(os.getenv("VISION_CAPTURE_DEDUP_WINDOW_S",
 TURBO_VISION_SLIDESHOW_ENABLED = os.getenv("TURBO_VISION_SLIDESHOW_ENABLED", "false").lower() == "true"
 TURBO_VISION_CAPTURE_INTERVAL_S = float(os.getenv("TURBO_VISION_CAPTURE_INTERVAL_S", "1.75"))
 TURBO_VISION_BUFFER_SIZE = int(os.getenv("TURBO_VISION_BUFFER_SIZE", "8"))
-TURBO_VISION_ANALYSIS_INTERVAL_S = float(os.getenv("TURBO_VISION_ANALYSIS_INTERVAL_S", "10.0"))
+# Analysis interval is the REAL freshness bottleneck for what she KNOWS (the 1.75s
+# capture only refreshes the EYES thumbnail; her reasoning uses the analysis output).
+# Lowered 10.0 -> 5.0 (2026-06-22) for ~5s-fresh vision at ~2x gpt-4o-mini cost
+# (~+$1.80/day continuous). Do NOT chase freshness via the capture interval — that's
+# wasted money (it doesn't change what she knows). Env-tunable.
+TURBO_VISION_ANALYSIS_INTERVAL_S = float(os.getenv("TURBO_VISION_ANALYSIS_INTERVAL_S", "5.0"))
 
 # ── Emotion → voice (audible mood; default OFF) ────────────────────────────────
 # Her computed emotional state currently drives her FACE + word choice but NEVER her
