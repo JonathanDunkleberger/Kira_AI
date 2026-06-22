@@ -3140,6 +3140,34 @@ class VTubeBot:
         # OFF: deliberately leave vision/audio/loopback running (calm baseline). Only
         # the cadence relaxes, handled by the reconciler via self.deep_senses=False.
 
+        # Turbo Vision slideshow: the multi-frame "what happened" timeline runs ONLY
+        # while Turbo Vision is engaged (and only when the flag is on — start_slideshow
+        # self-gates on TURBO_VISION_SLIDESHOW_ENABLED, so this is a no-op by default).
+        try:
+            if on:
+                self.vision_agent.start_slideshow()
+            else:
+                self.vision_agent.stop_slideshow()
+        except Exception as e:
+            print(f"   [TurboVision] slideshow toggle failed: {e}")
+
+    def _episode_timeline_context(self) -> str:
+        """The rolling 'what's happened' timeline for prompt injection. Prefers
+        MediaWatch while it still exists/runs (legacy, removed in a later commit);
+        otherwise the always-on Turbo Vision slideshow when it has context. '' if
+        neither has anything. This is the single source both injection points read so
+        the watch-party removal is a one-line change there, not a rewrite."""
+        mw = self.media_watch
+        if mw and mw.is_running and mw.has_context():
+            return mw.get_episode_context()
+        va = self.vision_agent
+        try:
+            if va and va.slideshow_has_context():
+                return va.get_episode_context()
+        except Exception:
+            pass
+        return ""
+
 
 
 
@@ -5909,13 +5937,13 @@ class VTubeBot:
                             anchor += f"\n\nShort-term visual memory (recent frames):\n{recent_mem}"
                         visual_desc = (anchor + "\n\n" + visual_desc) if visual_desc else anchor
 
-                    # Media Watch episode log injection — when active, prepend
-                    # the rolling event timeline so question-answering draws on
-                    # the sequence rather than a single stale snapshot.
-                    if self.media_watch and self.media_watch.is_running and self.media_watch.has_context():
-                        mw_ctx = self.media_watch.get_episode_context()
-                        if mw_ctx:
-                            visual_desc = (mw_ctx + "\n\n" + visual_desc) if visual_desc else mw_ctx
+                    # Episode-timeline injection — when active, prepend the rolling
+                    # event timeline so question-answering draws on the sequence
+                    # rather than a single stale snapshot. Source = MediaWatch (legacy)
+                    # or the always-on Turbo Vision slideshow, via one helper.
+                    _ep_ctx = self._episode_timeline_context()
+                    if _ep_ctx:
+                        visual_desc = (_ep_ctx + "\n\n" + visual_desc) if visual_desc else _ep_ctx
 
                     # 2. Construct dialogue line (history-clean — no screen state)
                     # Prefix with identity label so Claude always knows this is Jonny's real voice,
@@ -8869,6 +8897,15 @@ class VTubeBot:
                         rolling = getattr(va, "scene_summary", "") if va else ""
                         if rolling and len(rolling) > 20:
                             parts.append((60, f"STORY SO FAR (rolling summary of this session):\n{rolling}"))
+                        # Turbo Vision slideshow — multi-frame "what just happened"
+                        # timeline, ADDITIVE to the live frame (the always-on model
+                        # keeps the heartbeat, unlike MediaWatch which parked it).
+                        try:
+                            _ss = va.get_episode_context() if (va and va.slideshow_has_context()) else ""
+                        except Exception:
+                            _ss = ""
+                        if _ss:
+                            parts.append((70, f"TURBO VISION — recent sequence (what just happened on screen):\n{_ss}"))
                     # Dialogue summary from LoopbackSTT — the condensed "what's been
                     # said" that persists beyond the 60s raw window. Labeled per mode
                     # so a film's dialogue never reads as "GAME DIALOGUE".

@@ -51,6 +51,24 @@ VISION_CALM_HEARTBEAT_SECONDS = float(os.getenv("VISION_CALM_HEARTBEAT_SECONDS",
 VISION_CAPTURE_DEDUP_ENABLED = os.getenv("VISION_CAPTURE_DEDUP_ENABLED", "true").lower() == "true"
 VISION_CAPTURE_DEDUP_WINDOW_S = float(os.getenv("VISION_CAPTURE_DEDUP_WINDOW_S", "5.0"))
 
+# ── Turbo Vision slideshow (multi-frame "what happened" context; default OFF) ───
+# Ports the MediaWatch slideshow into the ALWAYS-ON Turbo Vision path: when Turbo
+# Vision is engaged (the deep_senses lever), a dedicated FULL-SCREEN capture loop
+# fills a rolling N-frame buffer, and every analysis interval the buffer is sent to
+# gpt-4o-mini as ONE multi-image "what HAPPENED across these frames" call, appended
+# to a bounded episode timeline Kira can answer from (richer than a single stale
+# snapshot). Only runs while Turbo Vision is ON, so cost is bounded to dialed-in
+# sessions (~the MediaWatch profile Jonny already accepted, ~$0.10-0.25/episode).
+# All three knobs are tunable so fidelity-vs-cost can be dialed without a code edit:
+#   CAPTURE_INTERVAL_S — capture cadence (lower = tighter action window, more cost)
+#   BUFFER_SIZE        — frames per analysis (window ≈ interval * size)
+#   ANALYSIS_INTERVAL_S— how often the buffer is analyzed into the timeline
+# OFF -> no slideshow capture/analysis at all (today's single-frame behavior exactly).
+TURBO_VISION_SLIDESHOW_ENABLED = os.getenv("TURBO_VISION_SLIDESHOW_ENABLED", "false").lower() == "true"
+TURBO_VISION_CAPTURE_INTERVAL_S = float(os.getenv("TURBO_VISION_CAPTURE_INTERVAL_S", "1.75"))
+TURBO_VISION_BUFFER_SIZE = int(os.getenv("TURBO_VISION_BUFFER_SIZE", "8"))
+TURBO_VISION_ANALYSIS_INTERVAL_S = float(os.getenv("TURBO_VISION_ANALYSIS_INTERVAL_S", "10.0"))
+
 # ── Emotion → voice (audible mood; default OFF) ────────────────────────────────
 # Her computed emotional state currently drives her FACE + word choice but NEVER her
 # VOICE — every line plays at the same flat rate/pitch. ON: nest a small per-emotion

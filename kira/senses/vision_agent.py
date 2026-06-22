@@ -7,7 +7,9 @@ from io import BytesIO
 from PIL import ImageGrab
 from openai import AsyncOpenAI
 from kira.config import (OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS,
-                         VISION_CAPTURE_DEDUP_ENABLED, VISION_CAPTURE_DEDUP_WINDOW_S)
+                         VISION_CAPTURE_DEDUP_ENABLED, VISION_CAPTURE_DEDUP_WINDOW_S,
+                         TURBO_VISION_SLIDESHOW_ENABLED, TURBO_VISION_CAPTURE_INTERVAL_S,
+                         TURBO_VISION_BUFFER_SIZE, TURBO_VISION_ANALYSIS_INTERVAL_S)
 
 # Request-size bounds for the rolling scene summary. The summary feeds its own
 # output back in as `previous` each cycle, so without a clamp an over-long model
@@ -95,6 +97,33 @@ class UniversalVisionAgent:
         "Do not editorialize. Do not add jokes. Just the running story state."
     )
 
+    # Turbo Vision slideshow — multi-frame "what HAPPENED across these frames" prompt.
+    # Ported from MediaWatch's SEQUENCE_ANALYSIS_PROMPT, reworded for FULL-SCREEN
+    # always-on capture (not a target window). Same HONESTY RULES so the timeline
+    # stays trustworthy (UNCERTAIN:/STATIC: prefixes, no invented names/dialogue).
+    SLIDESHOW_ANALYSIS_PROMPT = (
+        "You are watching Jonny's screen alongside him. The following frames are "
+        "consecutive moments captured a few seconds apart from the same screen. "
+        "Your job is to describe what HAPPENED across this sequence — focus on "
+        "ACTIONS, SEQUENCE, CHANGE, and CAUSE-AND-EFFECT. Not static description.\n\n"
+        "Tell the story of this stretch in 2-4 sentences:\n"
+        "  - Who appears and what they do (use any visible character names from "
+        "    subtitles or name labels — otherwise describe by appearance).\n"
+        "  - What changes between frames (movement, scene cuts, who arrives/leaves, "
+        "    objects appearing, expressions shifting).\n"
+        "  - Any dialogue / on-screen text you can read, attributed if possible.\n"
+        "  - The emotional beat of the moment if it's clear.\n\n"
+        "HONESTY RULES (important):\n"
+        "  - If the frames are mostly transitions, blur, or you cannot tell what is "
+        "    happening with reasonable confidence, start your reply with "
+        "    'UNCERTAIN:' and briefly say what you CAN see.\n"
+        "  - If frames look essentially identical (still scene, talking head, "
+        "    paused video, idle desktop), say 'STATIC: <brief>' instead of inventing motion.\n"
+        "  - Do not invent character names you cannot read on screen.\n"
+        "  - Do not invent dialogue. Only quote text you can actually see.\n\n"
+        "Be concrete. This summary will be Kira's memory of what happened."
+    )
+
     TRANSCRIBE_PROMPT = (
         "Your ONLY job is to transcribe text visible on the screen, character-for-character. "
         "DO NOT describe the scene. DO NOT summarize. DO NOT add commentary. DO NOT paraphrase. "
@@ -146,6 +175,21 @@ class UniversalVisionAgent:
         self.previous_dialogue: str = ""           # For dialogue-change detection
         self.last_dialogue_change_time: float = 0  # Timestamp of last screen text change
         self.heartbeat_interval = VISION_CALM_HEARTBEAT_SECONDS  # calm general cadence; bot overrides to 10.0 in fast (game/media) mode
+
+        # ── Turbo Vision slideshow (multi-frame "what happened" timeline) ──────
+        # Only active while Turbo Vision is engaged AND the flag is on. A dedicated
+        # full-screen capture loop fills _slideshow_frames; an analysis loop folds
+        # the buffer into self.episode_log (the timeline Kira answers from). All
+        # default-OFF / dormant until start_slideshow() is called by the bot.
+        self._slideshow_running: bool = False
+        self._slideshow_frames: deque = deque(maxlen=max(2, TURBO_VISION_BUFFER_SIZE))
+        self.episode_log: deque = deque(maxlen=200)
+        self._slideshow_capture_task = None
+        self._slideshow_analysis_task = None
+        self._slideshow_start_ts: float = 0.0
+        self._slideshow_calls: int = 0
+        self._slideshow_last_content_mid_ts: float = 0.0
+        self._slideshow_cloud_timeout: float = 12.0
 
     def update_shared_frame(self, frame):
         """Receives a frame from the dashboard to prevent double-capturing."""
@@ -520,3 +564,210 @@ class UniversalVisionAgent:
             return None
         except Exception:
             return None
+
+    # ── Turbo Vision slideshow (multi-frame "what happened" timeline) ──────────
+    # Ported from MediaWatch into the always-on path. Full-screen capture (no window
+    # targeting). Gated entirely by start_slideshow()/stop_slideshow(), which the bot
+    # calls from apply_deep_senses() only when TURBO_VISION_SLIDESHOW_ENABLED.
+
+    def start_slideshow(self):
+        """Start the dedicated full-screen capture + multi-frame analysis loops.
+        Idempotent. No-op if the flag is off or already running."""
+        if not TURBO_VISION_SLIDESHOW_ENABLED:
+            return
+        if self._slideshow_running:
+            return
+        if not self.client:
+            print("   [TurboVision] slideshow not started — no vision client (missing API key).")
+            return
+        self._slideshow_running = True
+        self._slideshow_frames.clear()
+        self.episode_log.clear()
+        self._slideshow_start_ts = time.time()
+        self._slideshow_calls = 0
+        self._slideshow_last_content_mid_ts = 0.0
+        self._slideshow_capture_task = asyncio.ensure_future(self._slideshow_capture_loop())
+        self._slideshow_analysis_task = asyncio.ensure_future(self._slideshow_analysis_loop())
+        print(f"   [TurboVision] Slideshow ON — full-screen capture every "
+              f"{TURBO_VISION_CAPTURE_INTERVAL_S:.2f}s, analysis every "
+              f"{TURBO_VISION_ANALYSIS_INTERVAL_S:.1f}s, buffer={self._slideshow_frames.maxlen} "
+              f"(~{TURBO_VISION_CAPTURE_INTERVAL_S * self._slideshow_frames.maxlen:.0f}s window).")
+
+    def stop_slideshow(self):
+        """Stop the slideshow loops. Keeps episode_log intact for recall until next start."""
+        if not self._slideshow_running:
+            return
+        self._slideshow_running = False
+        for t in (self._slideshow_capture_task, self._slideshow_analysis_task):
+            if t and not t.done():
+                t.cancel()
+        self._slideshow_capture_task = None
+        self._slideshow_analysis_task = None
+        print(f"   [TurboVision] Slideshow OFF — {self._slideshow_calls} analysis calls, "
+              f"{len(self.episode_log)} events.")
+
+    def _grab_fullscreen_b64(self):
+        """Sync full-screen grab → downscaled JPEG base64. Reuses a fresh shared
+        frame if the dashboard just captured one (avoids a double grab)."""
+        try:
+            if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
+                img = self.shared_frame.copy()
+            else:
+                img = ImageGrab.grab()
+            img.thumbnail((1280, 720))
+            buf = BytesIO()
+            img.save(buf, format="JPEG", quality=65)
+            return base64.b64encode(buf.getvalue()).decode()
+        except Exception as e:
+            print(f"   [TurboVision] capture error: {e}")
+            return None
+
+    async def _slideshow_capture_loop(self):
+        """Periodically grab a full-screen frame into the rolling buffer."""
+        try:
+            while self._slideshow_running:
+                try:
+                    # Honor the master Vision switch — don't grab when vision is OFF.
+                    if self.master_enabled:
+                        b64 = await asyncio.to_thread(self._grab_fullscreen_b64)
+                        if b64:
+                            self._slideshow_frames.append({"ts": time.time(), "b64": b64})
+                except Exception as e:
+                    print(f"   [TurboVision] capture tick error: {e}")
+                await asyncio.sleep(max(0.5, TURBO_VISION_CAPTURE_INTERVAL_S))
+        except asyncio.CancelledError:
+            pass
+
+    async def _slideshow_analysis_loop(self):
+        """Periodically send the frame buffer to vision and log what happened."""
+        try:
+            await asyncio.sleep(min(TURBO_VISION_ANALYSIS_INTERVAL_S, TURBO_VISION_CAPTURE_INTERVAL_S * 2))
+            while self._slideshow_running:
+                try:
+                    if len(self._slideshow_frames) >= 2:
+                        await self._run_slideshow_analysis_once()
+                except Exception as e:
+                    print(f"   [TurboVision] analysis tick error: {e}")
+                await asyncio.sleep(max(5.0, TURBO_VISION_ANALYSIS_INTERVAL_S))
+        except asyncio.CancelledError:
+            pass
+
+    async def _run_slideshow_analysis_once(self):
+        if not self.client:
+            return
+        frames_snapshot = list(self._slideshow_frames)
+        content = [{"type": "text", "text": self.SLIDESHOW_ANALYSIS_PROMPT}]
+        for f in frames_snapshot:
+            content.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{f['b64']}", "detail": "low"},
+            })
+        try:
+            resp = await asyncio.wait_for(
+                self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": content}],
+                    max_tokens=260,
+                    temperature=0.2,
+                ),
+                timeout=self._slideshow_cloud_timeout,
+            )
+        except asyncio.TimeoutError:
+            print(f"   [TurboVision] analysis TIMEOUT after {self._slideshow_cloud_timeout:.1f}s — skipping interval.")
+            return
+        except Exception as e:
+            print(f"   [TurboVision] analysis call failed: {e}")
+            return
+        _record_vision_usage(resp)
+        try:
+            summary = (resp.choices[0].message.content or "").strip()
+        except Exception:
+            summary = ""
+        if not summary:
+            return
+        self._slideshow_calls += 1
+        upper = summary.upper()
+        uncertain = upper.startswith("UNCERTAIN")
+        static = upper.startswith("STATIC")
+        now = time.time()
+        t_rel = now - self._slideshow_start_ts
+        try:
+            _f_ts = [f["ts"] for f in frames_snapshot if "ts" in f]
+            content_mid_ts = (min(_f_ts) + max(_f_ts)) / 2.0 if _f_ts else now
+        except Exception:
+            content_mid_ts = now
+        self.episode_log.append({
+            "ts": now, "t_rel_s": t_rel, "summary": summary,
+            "uncertain": uncertain, "static": static, "content_mid_ts": content_mid_ts,
+        })
+        self._slideshow_last_content_mid_ts = content_mid_ts
+        h, rem = divmod(int(t_rel), 3600)
+        m, s = divmod(rem, 60)
+        tag = "UNCERTAIN " if uncertain else ("STATIC " if static else "")
+        print(f"   [TurboVision] +{h:02d}:{m:02d}:{s:02d} {tag}"
+              f"{summary[:140]}{'…' if len(summary) > 140 else ''}")
+
+    # ── Episode-timeline accessors (parity with MediaWatch's API) ──────────────
+
+    def slideshow_has_context(self) -> bool:
+        return bool(self.episode_log)
+
+    def get_last_episode_content_mid_ts(self) -> float:
+        return self._slideshow_last_content_mid_ts
+
+    def get_latest_episode_summary(self) -> str:
+        """Most recent SUBSTANTIVE summary (skips UNCERTAIN/STATIC)."""
+        for e in reversed(self.episode_log):
+            if not e.get("uncertain") and not e.get("static"):
+                return e.get("summary", "") or ""
+        return ""
+
+    def get_episode_context(self, max_entries: int = 10, char_budget: int = 2600) -> str:
+        """Formatted timeline for prompt injection. Recent events verbatim + a rolled
+        'earlier' digest so the block stays bounded no matter how long the session runs.
+        Mirrors MediaWatch.get_episode_context (relabeled TURBO VISION)."""
+        if not self.episode_log:
+            return ""
+        all_entries = list(self.episode_log)
+        recent = all_entries[-max_entries:]
+        older = all_entries[:-max_entries] if len(all_entries) > max_entries else []
+
+        def _stamp(e) -> str:
+            t = int(e["t_rel_s"]); h, rem = divmod(t, 3600); m, s = divmod(rem, 60)
+            return f"{h:02d}:{m:02d}:{s:02d}"
+
+        def _first_sentence(text: str) -> str:
+            text = (text or "").strip()
+            for tag in ("UNCERTAIN:", "STATIC:"):
+                if text.upper().startswith(tag):
+                    text = text[len(tag):].strip()
+            for sep in (". ", "! ", "? "):
+                idx = text.find(sep)
+                if 0 < idx < 160:
+                    return text[:idx + 1].strip()
+            return text[:160].strip()
+
+        lines = ["[TURBO VISION — recent on-screen event timeline, oldest first]"]
+        if older:
+            substantive = [e for e in older if not e.get("uncertain") and not e.get("static")]
+            picks = substantive or older
+            if len(picks) > 3:
+                picks = [picks[0], picks[len(picks) // 2], picks[-1]]
+            digest_bits = [f"{_stamp(e)} {_first_sentence(e['summary'])}" for e in picks]
+            span = f"{_stamp(older[0])}–{_stamp(older[-1])}"
+            lines.append(f"  [EARLIER, condensed | {span}]: " + " ".join(digest_bits))
+
+        verbatim = [f"  [{_stamp(e)}] {e['summary']}" for e in recent]
+        block = "\n".join(verbatim)
+        i = 0
+        while len(block) > char_budget and i < len(recent) - 1:
+            verbatim[i] = f"  [{_stamp(recent[i])}] {_first_sentence(recent[i]['summary'])}"
+            block = "\n".join(verbatim)
+            i += 1
+        lines.append(block)
+        lines.append(
+            "[NOTE] This is Kira's actual visual record of what just happened on screen. "
+            "When asked about earlier moments, refer to this timeline. If a specific moment "
+            "isn't here, say so honestly — do not invent. Vision is visual-only (no audio)."
+        )
+        return "\n".join(lines)
