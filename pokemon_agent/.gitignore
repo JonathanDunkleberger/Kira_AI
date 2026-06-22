@@ -1,0 +1,8 @@
+# Vendored emulator binary (42MB) — fetch via README, don't bloat git.
+vendor/
+# Savestates (regenerable, may embed ROM-derived data).
+states/
+*.state
+# Local ROM copies (copyright — never commit).
+*.gba
+__pycache__/

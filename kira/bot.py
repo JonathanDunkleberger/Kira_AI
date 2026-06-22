@@ -77,6 +77,7 @@ from kira.config import (
     BARGE_IN_YIELD_ENABLED,
     EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
     DRIVE_SELF_BLOCK_ENABLED, CURRENT_WANT_ENABLED, JONNY_BOND_ENABLED,
+    POKEMON_AGENT_ENABLED,
     GLITCH_AWARE_ENABLED, GLITCH_AWARE_COOLDOWN_S, GLITCH_AWARE_CHANCE,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
@@ -3185,6 +3186,55 @@ class VTubeBot:
         "both are brief."
     )
 
+    def _ok_to_self_speak(self) -> bool:
+        """SHARED turn-taking gate for ALL autonomous self-speech (Director, chess,
+        Pokémon). True only when Jonny hasn't produced a mic speech-frame within
+        DIRECTOR_POST_SPEECH_HOLD_S. Keyed on _vad_mic_last_ts (LIVE frames) — the
+        signal verified at 0/54 talk-overs — NOT last_interaction_time, which only
+        updates on utterance CLOSE and misses mid-utterance speech (the old chess gate)."""
+        return (time.time() - self._vad_mic_last_ts) >= DIRECTOR_POST_SPEECH_HOLD_S
+
+    # Pokémon agent reaction rules — battle state arrives as NEUTRAL event summaries
+    # from the (separate, dumb) battle engine; she reacts in HER voice, never engine-speak.
+    _POKEMON_CHARACTER_RULES = (
+        "[POKEMON — this is YOUR battle; you're playing, Jonny's watching. React like a "
+        "competitive, cocky-but-fond trainer — trash-talk the matchup, celebrate a "
+        "super-effective hit, groan at a bad one, stay in YOUR voice. NEVER say move "
+        "indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
+    )
+
+    async def _pokemon_react(self, summary: str, *, bypass: bool = False):
+        """SEAM (M1): route a NEUTRAL Pokémon game-event summary through Kira's existing
+        self/reaction path so her DRIVES come from her self (mood/bond/want/opinions via
+        _build_self_block, injected by _execute_interjection). The battle ENGINE decides
+        moves; this only makes her REACT. Flag-gated + turn-taking-gated so it can never
+        affect a normal stream or talk over Jonny."""
+        if not POKEMON_AGENT_ENABLED or not summary or self.is_muted():
+            return
+        if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
+            return
+        # EVERY Pokémon fire respects the shared post-speech hold-off (no bypass of the
+        # turn-taking gate — an event mid-Jonny-sentence yields, same 3s rule as the Director).
+        if not self._ok_to_self_speak():
+            return
+        prompt = (
+            self._POKEMON_CHARACTER_RULES + "\n\n"
+            f"What just happened in your battle: \"{summary}\"\n\n"
+            "React in one or two sentences, in character. Don't narrate the mechanics."
+        )
+        if self._active_turn_lock.locked():
+            self._pending_interjections.append({
+                "prompt": prompt, "memory_query": "pokemon battle",
+                "scene_override": summary, "queued_at": time.time(),
+            })
+            return
+        async with self._active_turn_lock:
+            print(f"   [Pokemon] event react (bypass={bypass}): {summary[:70]}")
+            await self._execute_interjection(prompt, memory_query="pokemon battle",
+                                             scene_override=summary)
+            self.last_interaction_time = time.time()
+        await self._drain_pending_interjections()
+
     async def _chess_react(self, summary: str, *, bypass: bool = False):
         """Autonomous in-character reaction to a NOTEWORTHY chess moment.
 
@@ -3198,8 +3248,11 @@ class VTubeBot:
             return
         if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
             return
-        # Don't talk over the user (skipped for bypass moments — those are THE beats).
-        if not bypass and (time.time() - self.last_interaction_time) < 6.0:
+        # Don't talk over the user. FIXED (2026-06-22): was gating on last_interaction_time
+        # (utterance-CLOSE, blind to mid-utterance speech); now uses the shared
+        # _ok_to_self_speak() keyed on _vad_mic_last_ts — the same correct gate as the
+        # Director and Pokémon. Bypass moments (blunder/game start/end) still skip it.
+        if not bypass and not self._ok_to_self_speak():
             return
         # No double-fire with a boredom interjection.
         if self._active_turn_lock.locked():

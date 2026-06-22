@@ -116,6 +116,10 @@ EMOTION_SWING_HOLD_TURNS = int(os.getenv("EMOTION_SWING_HOLD_TURNS", "4"))  # ex
 # These route the SAME compact self-block into the drive path so proactive lines come
 # FROM her self, add a current-want through-line, and let her feelings about Jonny evolve.
 # Flag-gated for A/B on stream. Default ON.
+# Autonomous Pokémon agent (M1) — the reaction layer is OFF by default so it can
+# never affect a normal stream until explicitly armed. The HANDS (emulator/policy)
+# live fully isolated under pokemon_agent/; this only gates the Kira REACTION seam.
+POKEMON_AGENT_ENABLED = os.getenv("POKEMON_AGENT_ENABLED", "false").lower() == "true"
 DRIVE_SELF_BLOCK_ENABLED = os.getenv("DRIVE_SELF_BLOCK_ENABLED", "true").lower() == "true"   # ① self into drives
 CURRENT_WANT_ENABLED     = os.getenv("CURRENT_WANT_ENABLED", "true").lower() == "true"        # ② through-line
 JONNY_BOND_ENABLED       = os.getenv("JONNY_BOND_ENABLED", "true").lower() == "true"          # ④ relational evolution
