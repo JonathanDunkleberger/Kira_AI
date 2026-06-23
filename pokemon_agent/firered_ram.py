@@ -27,6 +27,13 @@ GBATTLE_TYPE_FLAGS = 0x02022B4C  # u32 battle type bitflags - STALE out of battl
 GBATTLE_RES_PTR    = 0x02023FE8  # ✅ battle-resources ptr: valid EWRAM addr ONLY during battle (the GATE)
 GBATTLE_MONS       = 0x02023BE4  # ✅ gBattleMons[4] base (was 0x02024084 - WRONG). 88 bytes each.
 GBATTLE_MON_SIZE   = 88
+# ✅ BATTLE PHASE REGISTER (derived 2026-06-22, validated dynamically across two live
+# action menus + a text-wait + animation): a u32 that takes a distinct value per battle
+# phase. The action menu ("What will X do?", FIGHT/BAG/POKEMON/RUN) is the one we gate
+# move-selection on; the move list confirms FIGHT opened; everything else = advance/wait.
+GBATTLE_PHASE      = 0x03002258
+PHASE_ACTION_MENU  = 0x580        # action menu up - my turn to choose an action
+PHASE_MOVE_LIST    = 0x680        # FIGHT move list up - confirms FIGHT opened
 
 EWRAM_LO, EWRAM_HI = 0x02000000, 0x02040000
 

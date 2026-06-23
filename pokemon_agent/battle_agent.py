@@ -1,17 +1,22 @@
-"""battle_agent.py - the HANDS loop for ONE battle. Mirrors ChessAgent's pattern:
-ENGINE decides (pokemon_policy, no LLM), executes via button presses, and emits
-NEUTRAL event summaries through an on_event callback. ZERO Kira imports - the bot
-binds on_event = self._pokemon_react (the seam). Pure game-events here, never dialogue.
+"""battle_agent.py - the reusable, TURN-GATED battle engine (the HANDS for any battle).
 
-UNVERIFIED until run against a real battle savestate (battle offsets are CANDIDATES).
+Reads battle state from RAM (verified offsets), decides via the type-chart policy
+(no LLM - fast deterministic hands), and presses the menu ONLY on the rising edge of
+the verified turn gate (GBATTLE_MY_TURN: 2 = waiting for my action, 0 = busy). NEVER
+blind-mashes. Emits NEUTRAL game-events through on_event; the bot binds
+on_event=_pokemon_react -> her self -> _ok_to_self_speak, so her VOICE narrates - the
+engine never speaks in character. Performance beats yield the floor (pace callback)
+so her line lands before the hands press on. Reusable for every trainer/gym -> E4.
+
+Input is owner-attributed ('agent'): the single Bridge owner. Any non-agent press is
+dropped + logged - no masher/timer can inject input mid-turn.
 """
 import time
 
+import firered_ram as ram
 import pokemon_state as st
 import pokemon_policy as pol
 
-# Battle menu cursor layout (FireRed): FIGHT(0,0) BAG(1,0) / POKEMON(0,1) RUN(1,1);
-# move list is a 2x2 of slots 0..3. Navigation timing reuses M0's reliable hold=8.
 HOLD = 8
 
 
@@ -20,80 +25,144 @@ def _hp_frac(mon):
 
 
 class BattleAgent:
-    def __init__(self, bridge, on_event=None, render=None, hold_frames=HOLD):
+    def __init__(self, bridge, on_event=None, render=None, hold_frames=HOLD,
+                 pace=None, owner="agent", log=print):
         self.b = bridge
         self.on_event = on_event or (lambda s, **k: print(f"   [EVENT] {s}"))
         self.render = render or (lambda: None)
         self.hold = hold_frames
-        self._prev = None          # last battle snapshot
-        self._announced = False
+        self.pace = pace                 # optional: called at a beat to yield to her voice
+        self.owner = owner
+        self.log = log
+        self.b.set_input_owner(owner)    # single deliberate owner; phantoms dropped+logged
+        self._prev = None
+        self._started = False
+        self._enemy_fainted = False
 
-    # ── primitive helpers ────────────────────────────────────────────────────
+    # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
-        self.b.press(key, self.hold, self.hold, self.render)
+        self.b.press(key, self.hold, self.hold, self.render, owner=self.owner)
 
     def _wait(self, frames):
         for _ in range(frames):
             self.b.run_frame(); self.render()
 
-    def emit(self, summary, **kw):
-        # NEUTRAL game-event only. Kira's self turns it into dialogue downstream.
-        self.on_event(summary, **kw)
+    # ── perception ─────────────────────────────────────────────────────────────
+    def _phase(self):
+        return self.b.rd32(ram.GBATTLE_PHASE)
 
-    # ── decide + execute one move ─────────────────────────────────────────────
-    def take_turn(self, state):
-        ours, enemy = state["ours"], state["enemy"]
-        idx, desc, low = pol.choose_move(ours["moves"],
-                                         [t for t in enemy["types"]],
-                                         _hp_frac(ours))
-        # execute: A (open FIGHT) -> navigate to move slot idx -> A (confirm)
-        self._tap("A")                     # FIGHT (top-left default)
-        self._wait(self.hold)
-        if idx in (1, 3):                  # right column
+    def _at_action_menu(self):
+        return self._phase() == ram.PHASE_ACTION_MENU
+
+    def _move_list_up(self):
+        return self._phase() == ram.PHASE_MOVE_LIST
+
+    # ── events + performance beats ─────────────────────────────────────────────
+    def emit(self, summary, beat=False):
+        """NEUTRAL game-event -> her self. beat=True is a PERFORMANCE moment: yield the
+        floor so her voice lands before the hands advance (brisk on non-beats)."""
+        self.on_event(summary)
+        if beat and self.pace:
+            self.pace(summary)
+
+    # ── execute one chosen move through the menu (2x2 grid) ────────────────────
+    # IMPORTANT (found empirically vs ground truth): after A opens the move list, a
+    # bare confirm-A is IGNORED until a DIRECTIONAL press engages the cursor. So we
+    # always issue a directional input before confirming (navigation provides it; for
+    # the default slot 0 we wiggle DOWN/UP), then confirm + VERIFY the move was
+    # accepted (my_turn 2->0), retrying if not. No blind mashing - every step checked.
+    def _nav_to(self, idx):
+        if idx == 0:
+            self._tap("DOWN"); self._tap("UP")        # net slot 0, but engages the menu
+        elif idx == 1:
             self._tap("RIGHT")
-        if idx in (2, 3):                  # bottom row
+        elif idx == 2:
             self._tap("DOWN")
-        self._tap("A")                     # confirm move
-        return desc, low
+        elif idx == 3:
+            self._tap("RIGHT"); self._tap("DOWN")
 
-    # ── main loop for one battle ──────────────────────────────────────────────
-    def run(self, max_seconds=180):
+    def _execute(self, idx, desc, eff):
+        # Proven sequence: A opens FIGHT; a directional press engages the cursor on the
+        # chosen slot (REQUIRED - a bare confirm-A is ignored); A confirms. Verify the
+        # move was accepted by the phase leaving the action menu (0x580); retry once.
+        self._tap("A"); self._wait(12)                # open FIGHT
+        self._nav_to(idx); self._wait(6)              # engage + position cursor
+        self._tap("A"); self._wait(12)                # confirm
+        if self._at_action_menu():                    # not accepted -> re-engage + retry
+            self._nav_to(idx); self._wait(4)
+            self._tap("A"); self._wait(12)
+        self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
+
+    # ── one battle, start to finish ────────────────────────────────────────────
+    def run(self, max_seconds=120):
         t0 = time.time()
+        outcome = "timeout"
+        last_key, stable, acted = None, 0, False
         while time.time() - t0 < max_seconds:
-            self._wait(2)
-            state = st.read_battle(self.b)
-            if state is None:
-                if self._announced:
-                    # battle just ended
-                    self.emit("the battle ended", bypass=False)
-                    return "ended"
+            self._wait(1)
+            if not st.in_battle(self.b):
+                if self._started:
+                    outcome = self._finish()
+                    break
                 continue
-            if not self._announced:
-                self._announced = True
-                self.emit("a battle just started", bypass=False)
+            state = st.read_battle(self.b)
+            if not self._started:
+                self._started = True
+                foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
+                self.emit(f"a battle started against {foe}", beat=True)
                 self._prev = state
                 continue
-
-            # diff vs previous snapshot -> neutral events
             self._emit_diffs(self._prev, state)
             self._prev = state
+            if self._at_action_menu():
+                if not acted:                       # rising edge: choose + execute once
+                    ours, enemy = state["ours"], state["enemy"]
+                    idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
+                    eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
+                                            enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
+                    self.log(f"   [engine] action menu: {desc} (eff x{eff:g}) vs "
+                             f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
+                    self._execute(idx, desc, eff)
+                    acted = True
+                    last_key, stable = None, 0
+            else:
+                acted = False                       # left the menu -> ready for next turn
+                key = (state["enemy"]["hp"], state["ours"]["hp"], self._phase())
+                stable = stable + 1 if key == last_key else 0
+                last_key = key
+                if stable >= 14:                    # a settled text box -> advance it
+                    self._tap("A")
+                    last_key, stable = None, 0
+        return outcome
 
-            # if it's our turn (heuristic: stable HP, menu likely up), act
-            desc, low = self.take_turn(state)
-            self.emit(f"used {desc}", bypass=False)
-            if low:
-                self.emit("your Pokemon is in the red", bypass=False)
-            self._wait(self.hold * 6)      # let the turn animate before reading again
-        return "timeout"
+    def _finish(self):
+        prev = self._prev or {}
+        ours = prev.get("ours", {})
+        if self._enemy_fainted or (prev.get("enemy", {}).get("hp", 1) == 0):
+            self.emit("you won the battle", beat=True)
+            return "win"
+        if ours.get("hp", 1) == 0:
+            self.emit("you lost - your Pokemon fainted", beat=True)
+            return "loss"
+        self.emit("the battle ended", beat=False)
+        return "ended"
 
     def _emit_diffs(self, prev, cur):
         if not prev:
             return
-        if cur["enemy"]["hp"] == 0 and prev["enemy"]["hp"] > 0:
-            self.emit("the enemy Pokemon fainted", bypass=False)
-        if cur["ours"]["hp"] == 0 and prev["ours"]["hp"] > 0:
-            self.emit("your Pokemon fainted", bypass=False)
-        # big chunk taken off us this exchange
+        pe, ce = prev["enemy"], cur["enemy"]
         po, co = prev["ours"], cur["ours"]
-        if co["maxhp"] and (po["hp"] - co["hp"]) > 0.4 * co["maxhp"]:
-            self.emit("you took a big hit", bypass=False)
+        # narrate the move from the OBSERVED hit (ground truth), not per button-press,
+        # so it fires exactly once per landed move - never spammy.
+        if ce["hp"] < pe["hp"] and ce["hp"] > 0:
+            desc = getattr(self, "_last_desc", "an attack")
+            self.emit(f"used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
+        if ce["hp"] == 0 and pe["hp"] > 0:
+            self._enemy_fainted = True
+            self.emit(f"{st.SPECIES_NAME.get(ce['species'], 'the enemy')} fainted", beat=True)
+        if co["hp"] == 0 and po["hp"] > 0:
+            self.emit("your Pokemon fainted", beat=True)
+        elif co["maxhp"] and (po["hp"] - co["hp"]) > 0.4 * co["maxhp"]:
+            self.emit("you took a big hit", beat=True)
+        elif co["maxhp"] and co["hp"] / co["maxhp"] < 0.25 and po["hp"] / max(po["maxhp"], 1) >= 0.25:
+            self.emit("low HP - this is getting tense", beat=True)
