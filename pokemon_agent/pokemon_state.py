@@ -19,15 +19,17 @@ GBATTLE_TYPE_FLAGS = ram.GBATTLE_TYPE_FLAGS   # u32 != 0 while in battle  (CANDI
 GBATTLE_MONS       = ram.GBATTLE_MONS         # gBattleMons[4] base       (CANDIDATE)
 MON_SIZE           = ram.GBATTLE_MON_SIZE     # 88                        (CANDIDATE)
 
-# BattlePokemon field offsets within an 88-byte entry (pokefirered) - CANDIDATES:
-F_SPECIES = 0x00   # u16
-F_MOVES   = 0x0C   # u16[4]
-F_PP      = 0x24   # u8[4]
-F_TYPE1   = 0x21   # u8
-F_TYPE2   = 0x22   # u8
-F_HP      = 0x28   # u16
-F_MAXHP   = 0x2A   # u16
-F_LEVEL   = 0x2C   # u8
+# BattlePokemon field offsets within an 88-byte entry - ✅ VERIFIED 2026-06-22 vs
+# battle.state (Bulbasaur L6 21/21 Tackle/Growl grass-poison vs Pidgey L3 normal-fly).
+# NOTE: level is a u8 @0x2A and maxHP a u16 @0x2C (the banked code had these swapped).
+F_SPECIES = 0x00   # u16  ✅
+F_MOVES   = 0x0C   # u16[4]  ✅ (Tackle=33, Growl=45)
+F_PP      = 0x24   # u8[4]  ✅ (35, 40)
+F_TYPE1   = 0x21   # u8  ✅ (grass=12)
+F_TYPE2   = 0x22   # u8  ✅ (poison=3)
+F_HP      = 0x28   # u16  ✅ (21)
+F_LEVEL   = 0x2A   # u8   ✅ (6)  - was 0x2C (WRONG)
+F_MAXHP   = 0x2C   # u16  ✅ (21) - was 0x2A (WRONG)
 
 # gBattleMoves table in ROM (struct = 12 bytes: effect, power, type, accuracy, pp, ...)
 GBATTLE_MOVES = 0x08250C04   # ROM addr (CANDIDATE)
@@ -62,7 +64,18 @@ def read_party_species(bridge, slot=0):
 
 
 def in_battle(bridge) -> bool:
-    return bridge.rd32(GBATTLE_TYPE_FLAGS) != 0
+    """✅ VERIFIED gate. gBattleTypeFlags is STALE out of battle (false-positive), so
+    we gate on the battle-RESOURCES pointer (valid EWRAM addr only during battle) AND
+    a sanity check on gBattleMons[0]. True for battle.state, False for every overworld
+    state tested (incl. immediately post-rival-battle)."""
+    if not ram.valid_ewram_ptr(bridge.rd32(ram.GBATTLE_RES_PTR)):
+        return False
+    base = GBATTLE_MONS
+    sp = bridge.rd16(base + F_SPECIES)
+    mhp = bridge.rd16(base + F_MAXHP)
+    lvl = bridge.rd8(base + F_LEVEL)
+    hp = bridge.rd16(base + F_HP)
+    return 1 <= sp <= 411 and 0 < mhp <= 999 and 1 <= lvl <= 100 and hp <= mhp
 
 
 def _type_name(b):
@@ -108,8 +121,8 @@ def read_battle(bridge):
 def dump_battle_state(bridge):
     """Loud verification dump - run this against a real battle savestate to confirm
     every CANDIDATE offset before trusting read_battle()."""
-    print(f"   [PkState] in_battle(flags@{hex(GBATTLE_TYPE_FLAGS)}) = {in_battle(bridge)} "
-          f"(raw={hex(bridge.rd32(GBATTLE_TYPE_FLAGS))})")
+    print(f"   [PkState] in_battle(res_ptr@{hex(ram.GBATTLE_RES_PTR)}) = {in_battle(bridge)} "
+          f"(ptr={hex(bridge.rd32(ram.GBATTLE_RES_PTR))})")
     for idx, who in ((0, "OURS"), (1, "ENEMY")):
         m = read_mon(bridge, idx)
         print(f"   [PkState] {who}: species={m['species']} lvl={m['level']} "

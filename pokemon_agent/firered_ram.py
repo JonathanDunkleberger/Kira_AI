@@ -19,11 +19,13 @@ GPLAYER_PARTY     = 0x02024284   # party data (100 B/mon). ✅ LOCKED: species d
 SB1_OFF_POS_X     = 0x0000       # s16 player map X
 SB1_OFF_POS_Y     = 0x0002       # s16 player map Y
 
-# ── Battle (CANDIDATES - confirmed in M1, not M0) ────────────────────────────
-# gBattleMainFunc != 0 while a battle is running is a common in-battle signal;
-# gBattleTypeFlags / gBattleMons hold the active battle data. Confirm in M1.
-GBATTLE_TYPE_FLAGS = 0x02022B4C  # u32 battle type bitflags (0 when not in battle) - CANDIDATE
-GBATTLE_MONS       = 0x02024084  # gBattleMons[4] (88 bytes each) - CANDIDATE
+# ── Battle (✅ VERIFIED 2026-06-22 vs battle.state: Bulbasaur L6 21/21 vs Pidgey L3) ─
+# gBattleTypeFlags is UNRELIABLE as a gate - it holds STALE values out of battle
+# (read 0x1c in the overworld after the rival fight). The reliable in-battle signal
+# is the battle-RESOURCES pointer: null out of battle, a valid EWRAM ptr in battle.
+GBATTLE_TYPE_FLAGS = 0x02022B4C  # u32 battle type bitflags - STALE out of battle, do NOT gate on it
+GBATTLE_RES_PTR    = 0x02023FE8  # ✅ battle-resources ptr: valid EWRAM addr ONLY during battle (the GATE)
+GBATTLE_MONS       = 0x02023BE4  # ✅ gBattleMons[4] base (was 0x02024084 - WRONG). 88 bytes each.
 GBATTLE_MON_SIZE   = 88
 
 EWRAM_LO, EWRAM_HI = 0x02000000, 0x02040000
