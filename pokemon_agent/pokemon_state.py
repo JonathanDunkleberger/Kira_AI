@@ -45,9 +45,29 @@ _SUBSTRUCT_ORDER = ["GAEM", "GAME", "GEAM", "GEMA", "GMAE", "GMEA",
                     "AGEM", "AGME", "AEGM", "AEMG", "AMGE", "AMEG",
                     "EGAM", "EGMA", "EAGM", "EAMG", "EMGA", "EMAG",
                     "MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"]
-# FireRed internal species == National Dex for #1-251; the three starters:
-SPECIES_NAME = {1: "bulbasaur", 4: "charmander", 7: "squirtle"}
-STARTER_SPECIES = {v: k for k, v in SPECIES_NAME.items()}
+# FireRed internal species == National Dex for #1-251. Names for what she'll meet on
+# the road to Brock (so events use real names, never an index).
+SPECIES_NAME = {
+    1: "bulbasaur", 2: "ivysaur", 3: "venusaur", 4: "charmander", 5: "charmeleon",
+    6: "charizard", 7: "squirtle", 8: "wartortle", 9: "blastoise", 10: "caterpie",
+    11: "metapod", 12: "butterfree", 13: "weedle", 14: "kakuna", 15: "beedrill",
+    16: "pidgey", 17: "pidgeotto", 18: "pidgeot", 19: "rattata", 20: "raticate",
+    21: "spearow", 22: "fearow", 23: "ekans", 24: "arbok", 25: "pikachu",
+    29: "nidoran", 32: "nidoran", 74: "geodude", 75: "graveler", 95: "onix",
+    63: "abra", 66: "machop", 92: "gastly", 41: "zubat", 39: "jigglypuff",
+}
+STARTER_SPECIES = {"bulbasaur": 1, "charmander": 4, "squirtle": 7}   # the 3 starters only
+
+# Move id -> name (so events say "Tackle", never "move#33"). Covers the starters'
+# movepools + common wild moves + Metal Claw (the Brock answer).
+MOVE_NAMES = {
+    0: "nothing", 10: "Scratch", 33: "Tackle", 45: "Growl", 39: "Tail Whip",
+    43: "Leer", 28: "Sand-Attack", 98: "Quick Attack", 64: "Peck", 16: "Gust",
+    52: "Ember", 108: "Smokescreen", 82: "Dragon Rage", 232: "Metal Claw",
+    22: "Vine Whip", 74: "Growth", 73: "Leech Seed", 77: "PoisonPowder",
+    79: "Sleep Powder", 75: "Razor Leaf", 55: "Water Gun", 145: "Bubble",
+    44: "Bite", 99: "Rage", 84: "Thunder Shock", 88: "Rock Throw", 111: "Defense Curl",
+}
 
 
 def read_party_species(bridge, slot=0):
@@ -104,8 +124,8 @@ def read_mon(bridge, index):
     for i in range(4):
         mid = bridge.rd16(base + F_MOVES + i * 2)
         mt, mp = move_info(bridge, mid)
-        moves.append({"id": mid, "name": f"move#{mid}", "type": mt or "normal",
-                      "power": mp, "pp": bridge.rd8(base + F_PP + i)})
+        moves.append({"id": mid, "name": MOVE_NAMES.get(mid, f"move#{mid}"),
+                      "type": mt or "normal", "power": mp, "pp": bridge.rd8(base + F_PP + i)})
     types = [t for t in (t1, t2) if t and t != "normal" or t == t1]
     return {"species": species, "hp": hp, "maxhp": maxhp, "level": bridge.rd8(base + F_LEVEL),
             "types": [t1, t2], "moves": moves}

@@ -38,8 +38,11 @@ KEYMAP_DEF = {"UP": "UP", "DOWN": "DOWN", "LEFT": "LEFT", "RIGHT": "RIGHT",
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--capture", action="store_true", help="drive manually; S saves battle.state")
+    ap.add_argument("--live", action="store_true",
+                    help="play the battle with the LIVE bot: engine events -> her voice")
+    ap.add_argument("--state", default="battle_menu", help="savestate basename to boot (--live/run)")
     ap.add_argument("--headless", action="store_true")
-    ap.add_argument("--seconds", type=float, default=180.0)
+    ap.add_argument("--seconds", type=float, default=300.0)
     args = ap.parse_args()
     if args.headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -69,6 +72,59 @@ def main():
         pygame.display.flip()
 
     try:
+        if args.live:
+            import json
+            import time
+            import urllib.request
+            BOT = "http://127.0.0.1:8766"
+            state_path = os.path.join(_HERE, "states", args.state + ".state")
+            if not os.path.exists(state_path):
+                print(f"   [M1-live] FAIL - no state {state_path}"); return
+            with open(state_path, "rb") as f:
+                bridge.load_state(f.read())
+            for _ in range(30):
+                bridge.run_frame(); render()
+            print(f"   [M1-live] booted {args.state}.state - REMINDER: the bot's boot log must "
+                  f"have NO  ⚠ [FALLBACK]  lines (that = weak model, not HER).")
+
+            def post(action, **body):
+                try:
+                    req = urllib.request.Request(f"{BOT}/cmd/{action}",
+                                                 data=json.dumps(body).encode(),
+                                                 headers={"Content-Type": "application/json"})
+                    with urllib.request.urlopen(req, timeout=5) as r:
+                        return json.load(r)
+                except Exception as e:
+                    print(f"   [M1-live] post {action} failed: {e}"); return None
+
+            def is_speaking():
+                try:
+                    with urllib.request.urlopen(f"{BOT}/state", timeout=3) as r:
+                        return bool(json.load(r).get("is_speaking"))
+                except Exception:
+                    return False
+
+            def on_event(summary):
+                print(f"   [EVENT->Kira] {summary!r}")
+                post("pokemon_event", name=summary)        # -> _pokemon_react -> her voice
+
+            def pace(summary):
+                # PERFORMANCE BEAT: hold the hands and let her voice LAND. Run frames (window
+                # stays live, game idles between presses) while she speaks, bounded.
+                t0 = time.time()
+                while time.time() - t0 < 3.5 and not is_speaking():
+                    bridge.run_frame(); render()
+                t1 = time.time()
+                while time.time() - t1 < 14.0 and is_speaking():
+                    bridge.run_frame(); render()
+                for _ in range(24):
+                    bridge.run_frame(); render()
+
+            agent = BattleAgent(bridge, on_event=on_event, render=render, pace=pace)
+            outcome = agent.run(max_seconds=args.seconds)
+            print(f"\n   [M1-live] battle outcome: {outcome}")
+            return
+
         if args.capture:
             # Boot from the post-pick Bulbasaur overworld (NOT a fresh intro) so you can
             # walk straight to grass / the first trainer. No masher exists here.
