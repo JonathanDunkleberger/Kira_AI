@@ -40,6 +40,8 @@ class Bridge:
         self.core.set_video_buffer(self.image)
         self.core.reset()
         self._keymask = {name: getattr(self.core, f"KEY_{name}") for name in KEY_NAMES}
+        self._owner = None        # claimed input owner (None = unattributed/setup)
+        self._trace = False       # when True, log every attributed input + its caller
         # advance one frame so the framebuffer is populated
         self.core.run_frame()
 
@@ -60,26 +62,64 @@ class Bridge:
     def run_frame(self):
         self.core.run_frame()
 
+    # ── input ownership (the anti-phantom invariant) ──────────────────────────
+    # The emulator pad has EXACTLY ONE deliberate owner at a time. Once an owner is
+    # claimed, any set_keys/release/press from a different (or unattributed) source
+    # is logged LOUDLY *with its caller* and DROPPED — phantom presses can never be
+    # silent again (Constraint #3), and we can SEE where a stray press came from.
+    # Before any claim (setup/boot), input is unattributed and allowed.
+    def set_input_owner(self, owner, trace=False):
+        prev = getattr(self, "_owner", None)
+        self._owner = owner
+        self._trace = trace
+        if prev and prev != owner:
+            print(f"   [Bridge] INPUT OWNER: {prev!r} -> {owner!r} (handoff)", flush=True)
+        else:
+            print(f"   [Bridge] INPUT OWNER = {owner!r} (sole writer; others dropped+logged)",
+                  flush=True)
+
+    def _owner_ok(self, owner, what):
+        active = getattr(self, "_owner", None)
+        if active is None:                 # nobody claimed yet → setup/boot, allow
+            return True
+        if owner == active:
+            if getattr(self, "_trace", False):
+                import traceback
+                c = traceback.extract_stack(limit=3)[0]
+                print(f"   [Bridge] input {what} by {owner!r} <- {c.filename.split(chr(92))[-1]}:{c.lineno}",
+                      flush=True)
+            return True
+        import traceback
+        c = traceback.extract_stack(limit=3)[0]
+        print(f"   [Bridge] !! PHANTOM INPUT DROPPED: {what} owner={owner!r} but active "
+              f"owner is {active!r}  <- {c.filename.split(chr(92))[-1]}:{c.lineno}", flush=True)
+        return False
+
     # ── (c) press ───────────────────────────────────────────────────────────
-    def set_keys(self, *names):
-        """Hold exactly these keys (replaces full key state). No names = release all."""
+    def set_keys(self, *names, owner=None):
+        """Hold exactly these keys (replaces full key state). No names = release all.
+        `owner` must match the claimed input owner once one is set (else dropped+logged)."""
+        if not self._owner_ok(owner, "set_keys"):
+            return
         mask = 0
         for n in names:
             mask |= self._keymask[n]
         self.core.set_keys(mask)
 
-    def release(self):
+    def release(self, owner=None):
+        if not self._owner_ok(owner, "release"):
+            return
         self.core.set_keys(0)
 
-    def press(self, name, hold_frames=8, gap_frames=8, on_frame=None):
+    def press(self, name, hold_frames=8, gap_frames=8, on_frame=None, owner=None):
         """Hold `name` for hold_frames, release for gap_frames. `on_frame(i)` is
         called after every advanced frame (for rendering)."""
-        self.set_keys(name)
+        self.set_keys(name, owner=owner)
         for _ in range(hold_frames):
             self.core.run_frame()
             if on_frame:
                 on_frame()
-        self.release()
+        self.release(owner=owner)
         for _ in range(gap_frames):
             self.core.run_frame()
             if on_frame:

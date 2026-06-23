@@ -226,6 +226,13 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "kira_elo":              _get(lambda: ca.kira_elo if ca else 1400, 1400),
     }
 
+    # ── Pokémon session subprocess (dashboard Start/Stop/Status) ──────────────
+    def _pokemon_status():
+        from kira import pokemon_proc
+        return pokemon_proc.status()
+    pokemon_state = _get(_pokemon_status,
+                         {"running": False, "pid": None, "starter": "?"})
+
     # ── Mute / Pause ─────────────────────────────────────────────────────────
     muted = _get(lambda: bot.is_muted(), False)
     mute_remaining = _get(
@@ -356,6 +363,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         # Subsystem states
         "autopilot": autopilot,
         "chess": chess_state,
+        "pokemon": pokemon_state,
         # Mute / pause
         "muted": muted,
         "mute_seconds_remaining": mute_remaining,
@@ -1011,6 +1019,17 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if summary:
             asyncio.ensure_future(bot._pokemon_react(summary))       # fire-and-forget (TTS is long)
         return _ok(fired=bool(summary))
+
+    # ── Pokémon session process control (dashboard Start/Stop/Status) ──────────
+    # The HANDS run in a separate window (pokemon_agent/session.py, skip-starter:
+    # boots from after_pick_bulbasaur.state). kira/pokemon_proc owns that subprocess
+    # so the dashboard launches it instead of a memorised terminal command.
+    if action in ("pokemon_start", "pokemon_stop", "pokemon_status"):
+        from kira import pokemon_proc
+        result = {"pokemon_start": pokemon_proc.start,
+                  "pokemon_stop": pokemon_proc.stop,
+                  "pokemon_status": pokemon_proc.status}[action]()
+        return _ok(**result)
 
     # ── Vision force-off override (master kill-switch) ────────────────────────
     # The EYES panel's ONLY vision control. Vision otherwise follows the always-on

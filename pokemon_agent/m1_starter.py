@@ -60,10 +60,18 @@ def reach_overworld(bridge, render, max_seconds=95):
 
 
 def capture(bridge, render, pygame, args):
-    log("CAPTURE: auto-clearing intro...")
+    # MASHER PHASE: the intro auto-masher owns the pad here; the human keyboard is
+    # NOT read yet. (Pressing keys now does nothing - that's the masher "fighting"
+    # you. Wait for the HANDED OFF line.)
+    log("MASHER ACTIVE - auto-clearing intro; your keyboard is IGNORED until 'HANDED OFF'.")
     if not reach_overworld(bridge, render):
         log("FAIL - never reached overworld"); return
     stx.clear_dialogue(bridge, taps=8, render=render)   # clear the wake-up dialogue lock
+    # HANDOFF: masher is done. Release any held key, then claim the human as the sole
+    # input owner. From here Bridge drops+logs any non-human press (no phantom).
+    bridge.release()
+    bridge.set_input_owner("human")
+    log("HANDED OFF - only your keyboard reaches the emulator now (phantoms dropped+logged).")
     log("PER-BALL CAPTURE: walk to a ball, FACE it, press A until the "
         "'Do you want this POKEMON?' YES/NO menu is OPEN, THEN press:")
     log("   1 = save ball_bulbasaur.state   2 = save ball_charmander.state   "
@@ -82,11 +90,22 @@ def capture(bridge, render, pygame, args):
         pygame.display.get_surface().blit(pygame.transform.scale(surf, win), (0, 0))
         pygame.display.flip()
 
+    WFL = getattr(pygame, "WINDOWFOCUSLOST", None)
+    WFG = getattr(pygame, "WINDOWFOCUSGAINED", None)
+    focused = True
     t0 = time.time()
     while time.time() - t0 < args.seconds:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 raise KeyboardInterrupt
+            if (WFL is not None and ev.type == WFL) or \
+               (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 1) == 0):
+                focused = False
+                bridge.release(owner="human")
+                log("focus lost -> keys released (stuck-key phantom prevented)")
+            elif (WFG is not None and ev.type == WFG) or \
+                 (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 0) == 1):
+                focused = True
             if ev.type == pygame.KEYDOWN:
                 if ev.key in (pygame.K_1, pygame.K_2, pygame.K_3):
                     # Per-ball prompt-ready save: stand AT the ball with the "Do you
@@ -109,9 +128,12 @@ def capture(bridge, render, pygame, args):
                     with open(save_path, "wb") as f:
                         f.write(bytes(bridge.save_state()))
                     log(f"SAVED state -> {save_path}")
-        pressed = pygame.key.get_pressed()
-        keys = [v for k, v in keymap.items() if pressed[k]]
-        bridge.set_keys(*keys) if keys else bridge.release()
+        if focused:
+            pressed = pygame.key.get_pressed()
+            keys = [v for k, v in keymap.items() if pressed[k]]
+            bridge.set_keys(*keys, owner="human") if keys else bridge.release(owner="human")
+        else:
+            bridge.release(owner="human")   # unfocused: never forward a (possibly stuck) key
         bridge.run_frame(); blit()
 
 

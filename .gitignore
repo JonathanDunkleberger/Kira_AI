@@ -82,3 +82,12 @@ venv/
 
 # Binaries
 mpv.exe
+
+# Copyright game ROMs — NEVER commit (FireRed etc.)
+roms/
+*.gba
+*.gbc
+*.gb
+
+# Scratch / diagnostic throwaway scripts
+tmp/

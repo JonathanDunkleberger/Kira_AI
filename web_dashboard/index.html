@@ -522,6 +522,19 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
       </div></div>
     </div>
 
+    <!-- POKEMON -->
+    <div class="panel" id="panel-pokemon">
+      <div class="phead" onclick="togglePanel('panel-pokemon')"><span class="ttl"><span class="glyph">🔴</span>Pokémon</span><span class="pstat" id="pokemon-pstat">off</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="pokemon-status">stopped</div>
+        <div class="inline" style="margin-bottom:8px">
+          <button class="btn blue sm" id="btn-pokemon-start" onclick="pokemonStart(this)">▶ Start</button>
+          <button class="btn sm" id="btn-pokemon-stop" onclick="pokemonStop(this)">■ Stop</button>
+        </div>
+        <div class="muted" id="pokemon-meta">starter: bulbasaur · PID —</div>
+      </div></div>
+    </div>
+
     <!-- STORYTIME -->
     <div class="panel" id="panel-storytime">
       <div class="phead" onclick="togglePanel('panel-storytime');storytimeRefresh()"><span class="ttl"><span class="glyph">📖</span>Storytime</span><span class="pstat" id="st-pstat">idle</span><span class="chev">▸</span></div>
@@ -675,6 +688,15 @@ async function cmd(action, body, btnEl){
 }
 function flashBtn(el,ok){ el.classList.remove('flash-ok','flash-err'); void el.offsetWidth;
   el.classList.add(ok?'flash-ok':'flash-err'); setTimeout(()=>el.classList.remove('flash-ok','flash-err'),600); }
+
+/* Pokémon session subprocess controls (start/stop launch the separate emulator window) */
+function _renderPokemon(pk){ pk=pk||{};
+  setText('pokemon-pstat', pk.running?'on':'off');
+  setText('pokemon-status', pk.running ? `running · ${pk.uptime_s||0}s` : 'stopped');
+  setText('pokemon-meta', `starter: ${pk.starter||'bulbasaur'} · PID ${pk.pid!=null?pk.pid:'—'}`); }
+async function pokemonRefresh(){ const r=await cmd('pokemon_status',null,null); if(r) _renderPokemon(r); }
+async function pokemonStart(btn){ setText('pokemon-status','starting…'); await cmd('pokemon_start',null,btn); setTimeout(pokemonRefresh,500); }
+async function pokemonStop(btn){ await cmd('pokemon_stop',null,btn); _renderPokemon({running:false}); setTimeout(pokemonRefresh,300); }
 function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = (val==null?'–':val); }
 function setCheck(id,val){ const el=document.getElementById(id); if(el && document.activeElement!==el) el.checked=!!val; }
@@ -884,6 +906,8 @@ function renderPanels(s){
   const elo=document.getElementById('inp-chess-elo'); if(elo && document.activeElement!==elo && ch.kira_elo) elo.placeholder=String(ch.kira_elo);
   const spec=document.getElementById('chess-spectate');
   if(spec){ spec.innerHTML = ch.spectate_url ? `<a href="${escHtml(ch.spectate_url)}" target="_blank">▶ spectate</a>` : ''; }
+  // Pokémon
+  _renderPokemon(s.pokemon);
   // Voice
   document.querySelectorAll('#seg-tts button').forEach(b=>b.classList.toggle('active', b.dataset.tts===s.tts_backend));
   setText('voice-pstat', s.tts_backend||'azure');
