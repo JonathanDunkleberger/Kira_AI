@@ -40,6 +40,10 @@ class BattleAgent:
         self._enemy_fainted = False
         self._no_progress = 0          # consecutive action-menu visits with no battle change
         self._last_progress = None
+        # menu-agnostic recovery (the live party-submenu trap): global stall watchdog
+        self._recovery_attempts = 0
+        self._last_global = None
+        self._stale = 0
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -48,6 +52,40 @@ class BattleAgent:
     def _wait(self, frames):
         for _ in range(frames):
             self.b.run_frame(); self.render()
+
+    # ── RELIABLE action-menu detection (the phase register is noise - it reads 0x580
+    # during intro text too; verified by screenshot). The action cursor RESPONDS to the
+    # D-pad only when the FIGHT/BAG/POKEMON/RUN menu is interactive, so we probe it. ──
+    def _action_menu_ready(self):
+        """True iff the action menu is up + interactive. Net-zero on the menu
+        (FIGHT->POKEMON->FIGHT); a no-op during intro/animations; in a submenu it
+        nudges that submenu's cursor harmlessly and reports False."""
+        c0 = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+        self._tap("DOWN")
+        c1 = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+        self._tap("UP")
+        return c1 != c0 and c1 in (0, 1, 2, 3)
+
+    def _settle_to_action_menu(self, timeout=80):
+        """PREVENT: advance the battle intro/text until the action menu is interactive,
+        so we never press a selection into an unsettled menu (the fresh-battle desync
+        that opened the POKEMON party submenu). Bounded; stops if the battle ends."""
+        for _ in range(timeout):
+            if not st.in_battle(self.b):
+                return False
+            if self._action_menu_ready():
+                return True
+            self._tap("A")            # advance intro / text
+        return False
+
+    def _escape_submenu(self):
+        """RECOVER: if we fumbled into a submenu (party/bag), press B to back out
+        toward the action menu, then re-settle. B never CONFIRMS a wrong selection."""
+        for _ in range(5):
+            if self._action_menu_ready():
+                return True
+            self._tap("B")
+        return self._settle_to_action_menu()
 
     # ── perception ─────────────────────────────────────────────────────────────
     def _phase(self):
@@ -135,10 +173,31 @@ class BattleAgent:
                 self._started = True
                 foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
                 self.emit(f"a battle started against {foe}", beat=True)
+                self._settle_to_action_menu()   # PREVENT: don't act on an unsettled menu
                 self._prev = state
                 continue
             self._emit_diffs(self._prev, state)
             self._prev = state
+            # RECOVER (menu-agnostic): if the battle makes NO progress for a long window
+            # we're stuck somewhere - classically the party submenu the fresh-battle
+            # desync opened, where _goto_fight can't help. Back out (B) + re-settle
+            # before the loud abort. Won't trip in a normal battle (HP keeps changing).
+            glob = (state["enemy"]["hp"], state["ours"]["hp"])
+            if glob == self._last_global:
+                self._stale += 1
+            else:
+                self._last_global, self._stale = glob, 0
+            if self._stale >= 240:
+                self._recovery_attempts += 1
+                if self._recovery_attempts > 4:
+                    self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly")
+                    self.emit("okay I'm properly stuck, the menu's glitched", beat=False)
+                    return "stuck"
+                self.log(f"   [engine] global stall (recovery {self._recovery_attempts}) - "
+                         f"B-escape any submenu + re-settle")
+                self._escape_submenu()
+                self._stale = 0
+                continue
             if self._at_action_menu():
                 if not acted:                       # rising edge: choose + execute once
                     ours, enemy = state["ours"], state["enemy"]
@@ -149,10 +208,20 @@ class BattleAgent:
                     self._no_progress = self._no_progress + 1 if prog == self._last_progress else 0
                     self._last_progress = prog
                     if self._no_progress >= 8:
-                        self.log("   [engine] !! STUCK - 8 action attempts, no battle progress; "
-                                 "aborting loudly (cursor desync / unknown sub-state).")
-                        self.emit("ugh, I'm stuck in this menu - something's glitched", beat=False)
-                        return "stuck"
+                        # don't just give up - TRY to escape (the desync may have left us
+                        # in a submenu). Back out (B) + re-settle, retry; abort only if
+                        # recovery itself keeps failing.
+                        self._recovery_attempts += 1
+                        if self._recovery_attempts > 4:
+                            self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly.")
+                            self.emit("ugh, I'm stuck in this menu - something's glitched", beat=False)
+                            return "stuck"
+                        self.log(f"   [engine] action-menu stall (recovery {self._recovery_attempts}) "
+                                 f"- B-escape any submenu + re-settle, then retry")
+                        self._escape_submenu()
+                        self._no_progress = 0
+                        acted = False
+                        continue
                     idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
                     eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                             enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
