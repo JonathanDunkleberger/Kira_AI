@@ -91,8 +91,10 @@ def capture(bridge, render, pygame, args):
         pygame.display.flip()
 
     WFL = getattr(pygame, "WINDOWFOCUSLOST", None)
-    # Event-tracked held keys (NOT get_pressed): immune to the launch-Enter stuck key.
-    held = set()
+    # EDGE-TRIGGERED: `down` = keys physically down (up->down transition detector) so a
+    # held/stuck/OS-repeated key fires the 1/2/3/S saves ONCE, never per-frame. `held` =
+    # GBA pad keys held. Both cleared on focus loss; immune to the launch-key stuck phantom.
+    down, held = set(), set()
     t0 = time.time()
     while time.time() - t0 < args.seconds:
         for ev in pygame.event.get():
@@ -100,11 +102,16 @@ def capture(bridge, render, pygame, args):
                 raise KeyboardInterrupt
             if (WFL is not None and ev.type == WFL) or \
                (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 1) == 0):
-                if held:
-                    held.clear(); log("focus lost -> held keys cleared (no stuck-key phantom)")
-            elif ev.type == pygame.KEYUP and ev.key in keymap:
-                held.discard(keymap[ev.key])
+                if down or held:
+                    down.clear(); held.clear(); log("focus lost -> keys cleared (no stuck-key phantom)")
+            elif ev.type == pygame.KEYUP:
+                down.discard(ev.key)
+                if ev.key in keymap:
+                    held.discard(keymap[ev.key])
             elif ev.type == pygame.KEYDOWN:
+                if ev.key in down:
+                    continue                       # duplicate KEYDOWN (repeat) -> ignore
+                down.add(ev.key)
                 if ev.key in keymap:
                     held.add(keymap[ev.key])
                 if ev.key in (pygame.K_1, pygame.K_2, pygame.K_3):

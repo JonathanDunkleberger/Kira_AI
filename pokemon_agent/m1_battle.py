@@ -109,10 +109,12 @@ def main():
                           pygame.K_5: "battle_enemyturn"}
             import time
             WFL = getattr(pygame, "WINDOWFOCUSLOST", None)
-            # Event-tracked held keys (NOT get_pressed): immune to the launch-Enter stuck
-            # key (its KEYDOWN predates pygame, so it never enters `held`). Cleared on
-            # focus loss so a lost KEYUP can't strand a key either.
-            held = set()
+            # EDGE-TRIGGERED input. `down` = keys physically down (up->down transition
+            # detector). Discrete actions (save/dump) fire ONCE, only on the transition,
+            # so a held/stuck/OS-repeated key cannot mash them. `held` = the GBA pad keys
+            # currently held (continuous). Both cleared on focus loss. Instrumented so the
+            # exact event stream is visible (KEYDOWN/repeat-ignored/KEYUP).
+            down, held = set(), set()
             t0 = time.time()
             while time.time() - t0 < args.seconds:
                 for ev in pygame.event.get():
@@ -120,19 +122,30 @@ def main():
                         raise KeyboardInterrupt
                     if (WFL is not None and ev.type == WFL) or \
                        (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 1) == 0):
-                        if held:
-                            held.clear(); print("   [M1] focus lost -> held keys cleared")
+                        if down or held:
+                            print(f"   [input] focus lost -> clearing down={len(down)} held={len(held)}")
+                            down.clear(); held.clear()
                     elif ev.type == pygame.KEYDOWN:
+                        kn = pygame.key.name(ev.key)
+                        if ev.key in down:                       # duplicate KEYDOWN = repeat
+                            print(f"   [input] KEYDOWN {kn} IGNORED (already down - OS repeat)")
+                            continue
+                        down.add(ev.key)
                         if ev.key in PHASE_KEYS:
+                            print(f"   [input] KEYDOWN {kn} -> save {PHASE_KEYS[ev.key]} (one-shot)")
                             save_phase(PHASE_KEYS[ev.key])
                         elif ev.key == pygame.K_s:
+                            print(f"   [input] KEYDOWN s -> save battle (one-shot)")
                             save_phase(os.path.splitext(os.path.basename(STATE))[0])
                         elif ev.key == pygame.K_d:
                             st.dump_battle_state(bridge)
                         elif ev.key in keymap:
-                            held.add(keymap[ev.key])      # only real GBA keys go to the pad
-                    elif ev.type == pygame.KEYUP and ev.key in keymap:
-                        held.discard(keymap[ev.key])
+                            held.add(keymap[ev.key]); print(f"   [input] KEYDOWN {kn} -> hold {keymap[ev.key]}")
+                    elif ev.type == pygame.KEYUP:
+                        down.discard(ev.key)
+                        if ev.key in keymap:
+                            held.discard(keymap[ev.key])
+                        print(f"   [input] KEYUP {pygame.key.name(ev.key)}")
                 bridge.set_keys(*held, owner="human") if held else bridge.release(owner="human")
                 bridge.run_frame(); blit()
             return
