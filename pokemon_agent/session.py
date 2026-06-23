@@ -140,30 +140,26 @@ def main():
     announce_pick()                    # her voice-pick commentary, once, on start
     log("you have control - drive with arrows / Z=A / X=B. (no masher: nothing fights you)")
     WFL = getattr(pygame, "WINDOWFOCUSLOST", None)
-    WFG = getattr(pygame, "WINDOWFOCUSGAINED", None)
-    focused = True
+    # Event-tracked held keys (NOT pygame.key.get_pressed): immune to the launch-Enter
+    # stuck key. When you start the session by pressing Enter in the terminal, the
+    # window grabs focus as Enter releases and the KEYUP is eaten -> get_pressed() would
+    # report Enter held forever (constant START). Here Enter's KEYDOWN predates pygame,
+    # so it never enters `held`. Cleared on focus loss so a lost KEYUP can't strand a key.
+    held = set()
     try:
         while True:
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT:
                     raise KeyboardInterrupt
-                # Stuck-key guard: if the window loses focus while a key is held the
-                # KEYUP is lost and get_pressed() reports a phantom-held key forever.
-                # On focus loss, force-release and ignore the pad until focus returns.
                 if (WFL is not None and ev.type == WFL) or \
                    (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 1) == 0):
-                    focused = False
-                    bridge.release(owner="human")
-                    log("focus lost -> keys released (stuck-key phantom prevented)")
-                elif (WFG is not None and ev.type == WFG) or \
-                     (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 0) == 1):
-                    focused = True
-            if focused:
-                pressed = pygame.key.get_pressed()
-                keys = [v for k, v in keymap.items() if pressed[k]]
-                bridge.set_keys(*keys, owner="human") if keys else bridge.release(owner="human")
-            else:
-                bridge.release(owner="human")   # unfocused: never forward a (possibly stuck) key
+                    if held:
+                        held.clear(); log("focus lost -> held keys cleared (no stuck-key phantom)")
+                elif ev.type == pygame.KEYDOWN and ev.key in keymap:
+                    held.add(keymap[ev.key])
+                elif ev.type == pygame.KEYUP and ev.key in keymap:
+                    held.discard(keymap[ev.key])
+            bridge.set_keys(*held, owner="human") if held else bridge.release(owner="human")
             bridge.run_frame(); blit()
     except KeyboardInterrupt:
         log("window closed")

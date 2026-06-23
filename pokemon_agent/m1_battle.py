@@ -24,6 +24,7 @@ if _HERE not in sys.path:
 from bridge import Bridge          # noqa: E402
 import pokemon_state as st         # noqa: E402
 import navigate as nav             # noqa: E402
+import firered_ram as ram          # noqa: E402
 from battle_agent import BattleAgent  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
@@ -82,20 +83,36 @@ def main():
             bridge.release()
             bridge.set_input_owner("human")      # single owner; phantoms dropped+logged
             print("   [M1] HANDED OFF - only your keyboard reaches the emulator. Drive "
-                  "(arrows/Z/X) into TALL GRASS for a wild battle (or to the first trainer).")
-            print("   [M1] When the FIGHT/BAG/POKEMON/RUN move menu is ON SCREEN, press S "
-                  "to save states/battle.state. (D = live raw-read peek.) Then close.")
+                  "(arrows/Z/X) into TALL GRASS for a wild battle (or the first trainer).")
+            print("   [M1] PHASE CAPTURE - save a state at each battle phase you can catch:")
+            print("        1=battle_menu (FIGHT/BAG/POKEMON/RUN up)  2=battle_movelist (4-move list)")
+            print("        3=battle_animation (mid-move)  4=battle_damagetext (text scrolling)  "
+                  "5=battle_enemyturn (enemy attacking)")
+            print("        S=battle.state   D=live raw dump.   Catch even 3 of 5 - then close.")
 
             def blit():  # capture's loop owns the event pump; this only draws
                 surf = pygame.image.fromstring(bridge.frame_rgb().tobytes(),
                                                (bridge.width, bridge.height), "RGB")
                 screen.blit(pygame.transform.scale(surf, win), (0, 0))
                 pygame.display.flip()
+
+            def save_phase(name):
+                path = os.path.join(os.path.dirname(STATE), name + ".state")
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "wb") as f:
+                    f.write(bytes(bridge.save_state()))
+                print(f"   [M1] SAVED {name}.state  in_battle={st.in_battle(bridge)}  "
+                      f"res_ptr={hex(bridge.rd32(ram.GBATTLE_RES_PTR))}")
+
+            PHASE_KEYS = {pygame.K_1: "battle_menu", pygame.K_2: "battle_movelist",
+                          pygame.K_3: "battle_animation", pygame.K_4: "battle_damagetext",
+                          pygame.K_5: "battle_enemyturn"}
             import time
             WFL = getattr(pygame, "WINDOWFOCUSLOST", None)
-            WFG = getattr(pygame, "WINDOWFOCUSGAINED", None)
-            focused = True
-            last_flag = None
+            # Event-tracked held keys (NOT get_pressed): immune to the launch-Enter stuck
+            # key (its KEYDOWN predates pygame, so it never enters `held`). Cleared on
+            # focus loss so a lost KEYUP can't strand a key either.
+            held = set()
             t0 = time.time()
             while time.time() - t0 < args.seconds:
                 for ev in pygame.event.get():
@@ -103,34 +120,20 @@ def main():
                         raise KeyboardInterrupt
                     if (WFL is not None and ev.type == WFL) or \
                        (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 1) == 0):
-                        focused = False; bridge.release(owner="human")
-                        print("   [M1] focus lost -> keys released (no stuck-key phantom)")
-                    elif (WFG is not None and ev.type == WFG) or \
-                         (ev.type == pygame.ACTIVEEVENT and getattr(ev, "gain", 0) == 1):
-                        focused = True
-                    if ev.type == pygame.KEYDOWN and ev.key == pygame.K_s:
-                        os.makedirs(os.path.dirname(STATE), exist_ok=True)
-                        with open(STATE, "wb") as f:
-                            f.write(bytes(bridge.save_state()))
-                        flag = bridge.rd32(st.GBATTLE_TYPE_FLAGS)
-                        print(f"   [M1] SAVED battle.state @ {nav.coords(bridge)}  "
-                              f"battle_flag(CANDIDATE @{hex(st.GBATTLE_TYPE_FLAGS)})={hex(flag)} "
-                              f"in_battle={'y' if flag else 'n - menu maybe not a battle? verify on screen'}")
-                    if ev.type == pygame.KEYDOWN and ev.key == pygame.K_d:
-                        st.dump_battle_state(bridge)          # live peek (D) at the raw read
-                if focused:
-                    pressed = pygame.key.get_pressed()
-                    keys = [v for k, v in keymap.items() if pressed[k]]
-                    bridge.set_keys(*keys, owner="human") if keys else bridge.release(owner="human")
-                else:
-                    bridge.release(owner="human")
-                # loud-on-change: announce the candidate battle flag flipping (first signal
-                # of whether that offset even reacts to a real battle starting)
-                flag = bridge.rd32(st.GBATTLE_TYPE_FLAGS)
-                cur = bool(flag)
-                if cur != last_flag:
-                    print(f"   [M1] battle_flag(CANDIDATE) -> {hex(flag)}  in_battle={cur}")
-                    last_flag = cur
+                        if held:
+                            held.clear(); print("   [M1] focus lost -> held keys cleared")
+                    elif ev.type == pygame.KEYDOWN:
+                        if ev.key in PHASE_KEYS:
+                            save_phase(PHASE_KEYS[ev.key])
+                        elif ev.key == pygame.K_s:
+                            save_phase(os.path.splitext(os.path.basename(STATE))[0])
+                        elif ev.key == pygame.K_d:
+                            st.dump_battle_state(bridge)
+                        elif ev.key in keymap:
+                            held.add(keymap[ev.key])      # only real GBA keys go to the pad
+                    elif ev.type == pygame.KEYUP and ev.key in keymap:
+                        held.discard(keymap[ev.key])
+                bridge.set_keys(*held, owner="human") if held else bridge.release(owner="human")
                 bridge.run_frame(); blit()
             return
 
