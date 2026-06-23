@@ -38,6 +38,8 @@ class BattleAgent:
         self._prev = None
         self._started = False
         self._enemy_fainted = False
+        self._no_progress = 0          # consecutive action-menu visits with no battle change
+        self._last_progress = None
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -81,17 +83,40 @@ class BattleAgent:
         elif idx == 3:
             self._tap("RIGHT"); self._tap("DOWN")
 
+    def _goto_fight(self):
+        """READ the action cursor (0x02023FF8) and move it to FIGHT deterministically -
+        never assume the position. FIGHT is top-left: UP from POKEMON/RUN, LEFT from BAG.
+        Returns True only when the cursor is confirmed on FIGHT (0)."""
+        for _ in range(5):
+            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            if c == ram.ACT_FIGHT:
+                return True
+            if c == ram.ACT_BAG:
+                self._tap("LEFT")
+            elif c in (ram.ACT_POKEMON, ram.ACT_RUN):
+                self._tap("UP")
+            else:
+                return False                          # not a valid action menu (garbage)
+            self._wait(4)
+        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
+
     def _execute(self, idx, desc, eff):
-        # Proven sequence: A opens FIGHT; a directional press engages the cursor on the
-        # chosen slot (REQUIRED - a bare confirm-A is ignored); A confirms. Verify the
-        # move was accepted by the phase leaving the action menu (0x580); retry once.
-        self._tap("A"); self._wait(12)                # open FIGHT
-        self._nav_to(idx); self._wait(6)              # engage + position cursor
+        # Re-center on FIGHT by READING the cursor (fixes the blind-nav POKEMON-menu
+        # oscillation), then open the move list and select. A directional press is
+        # required before the confirm-A registers (the eaten-press quirk); verify the
+        # move was accepted by the phase leaving the action menu (0x580).
+        if not self._goto_fight():
+            self.log("   [engine] could not reach FIGHT (cursor desync) - skipping press")
+            return False
+        self._tap("A"); self._wait(12)                # open FIGHT move list
+        self._nav_to(idx); self._wait(6)              # engage + position on the slot
         self._tap("A"); self._wait(12)                # confirm
-        if self._at_action_menu():                    # not accepted -> re-engage + retry
+        if self._at_action_menu() and self._goto_fight():   # not accepted -> retry once
+            self._tap("A"); self._wait(8)
             self._nav_to(idx); self._wait(4)
             self._tap("A"); self._wait(12)
         self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
+        return True
 
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
@@ -117,6 +142,17 @@ class BattleAgent:
             if self._at_action_menu():
                 if not acted:                       # rising edge: choose + execute once
                     ours, enemy = state["ours"], state["enemy"]
+                    # STUCK DETECTION: the action menu keeps returning with no change to
+                    # the battle = we're spinning (e.g. cursor desync). Fail LOUD, never
+                    # silently forever.
+                    prog = (enemy["hp"], ours["hp"])
+                    self._no_progress = self._no_progress + 1 if prog == self._last_progress else 0
+                    self._last_progress = prog
+                    if self._no_progress >= 8:
+                        self.log("   [engine] !! STUCK - 8 action attempts, no battle progress; "
+                                 "aborting loudly (cursor desync / unknown sub-state).")
+                        self.emit("ugh, I'm stuck in this menu - something's glitched", beat=False)
+                        return "stuck"
                     idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
                     eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                             enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0

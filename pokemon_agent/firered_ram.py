@@ -34,6 +34,12 @@ GBATTLE_MON_SIZE   = 88
 GBATTLE_PHASE      = 0x03002258
 PHASE_ACTION_MENU  = 0x580        # action menu up - my turn to choose an action
 PHASE_MOVE_LIST    = 0x680        # FIGHT move list up - confirms FIGHT opened
+# ✅ ACTION-SELECTION CURSOR (derived 2026-06-22 by moving the cursor from battle_menu):
+# which of the 4 action cells is highlighted. FIGHT=0 (top-left), BAG=1 (top-right),
+# POKEMON=2 (bottom-left), RUN=3 (bottom-right). The engine READS this to reach FIGHT
+# deterministically instead of assuming the position (the blind-nav desync bug).
+GBATTLE_ACTION_CURSOR = 0x02023FF8
+ACT_FIGHT, ACT_BAG, ACT_POKEMON, ACT_RUN = 0, 1, 2, 3
 
 EWRAM_LO, EWRAM_HI = 0x02000000, 0x02040000
 
