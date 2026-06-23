@@ -486,7 +486,14 @@ DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence
 # FRESH_MIN_SILENCE: the fresh-vision proactive path must ALSO see this much real silence —
 #   stops the Turbo metronome (fresh_ok permanently True) from firing at silence=1s. The
 #   dead-air path keeps its own longer DIRECTOR_DEAD_AIR_S gate.
-DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "3.0"))
+# Raised 3.0 -> 8.0 (2026-06-23, live-feel-tested): the 3s hold let her fire ~5s after
+# Jonny spoke, i.e. INTO the pauses of a live conversation (logged since_mic=4.4-4.9s
+# fires; "shut up I'm watching a show"). 8s = she holds during conversation but stays
+# alive to re-engage. She still fills genuine dead air (DIRECTOR_DEAD_AIR_S=20s, where
+# since_mic is naturally huge) but not mid-exchange pauses. Env-tunable.
+# FOLLOW-UP (queued): a STATIC hold is the stopgap; the real fix is ADAPTIVE-to-context
+# (shorter when he's clearly done, longer mid-thought) - see queued-backlog.
+DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "8.0"))
 DIRECTOR_FRESH_MIN_SILENCE_S = float(os.getenv("DIRECTOR_FRESH_MIN_SILENCE_S", "3.0"))
 
 # Presence → Director drive-gap presets (C7: presence is the SINGLE cadence dial).

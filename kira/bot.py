@@ -666,7 +666,12 @@ class VTubeBot:
         # derived (no per-turn LLM) from the strongest feeling / freshest take / active bit;
         # re-forms on activity change, but mood + grudges (valence) carry over the swap.
         self.current_want: str = ""
-        self._last_director_ts: float = 0.0  # Activity Director min-gap clock (Pass 2)
+        # Init to BOOT TIME, not 0.0: with 0.0 the first fire computed _dir_gap =
+        # time.time() - 0 = ~1.78e9s (the logged gap=1782236642s nonsense), which always
+        # beat eff_min_gap, so the very FIRST interjection bypassed the gap guard and
+        # re-answered a question she'd just answered. Seeding with now makes the first
+        # fire respect director_min_gap_s like every later one.
+        self._last_director_ts: float = time.time()  # Activity Director min-gap clock (Pass 2)
         self.director_enabled: bool = ACTIVITY_DIRECTOR_ENABLED  # env = BOOT DEFAULT (now true); dashboard toggle is the "ease OFF" lever
         # Live brake on assertive driving: the hard min-gap between Director utterances,
         # promoted from the module constant so the dashboard can pull her back mid-stream
