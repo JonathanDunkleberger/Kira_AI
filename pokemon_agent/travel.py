@@ -20,6 +20,7 @@ Offline proof:  .venv\\Scripts\\python.exe pokemon_agent\\travel.py --prove
 """
 import os
 import sys
+import time
 from collections import deque
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -158,7 +159,8 @@ def direction(frm, to):
 
 # ── the executor: walk a planned path, one VERIFIED tile at a time ───────────
 HOLD = 8
-STUCK_LIMIT = 6          # consecutive no-progress steps -> LOUD ABORT
+STUCK_LIMIT = 16         # consecutive no-progress steps -> LOUD ABORT (patient: towns
+                         # have NPC clusters that need waiting/rerouting, not a fast give-up)
 EXIT_TRIES = 5           # presses off the map edge before giving up loudly
 
 
@@ -174,23 +176,47 @@ class Traveler:
     """
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
-                 log=print, owner="agent"):
+                 log=print, owner="agent", beat=None):
         self.b = bridge
         self.battle_runner = battle_runner
         self.render = render or (lambda: None)
         self.on_event = on_event or (lambda s: None)
+        # PERFORMANCE BEAT hook: at notable moments the hands HOLD until her voice
+        # for the moment lands (same clock as the battle engine's `pace`). No-op
+        # headless. Boring connective tissue (walking) never calls this - it stays
+        # brisk; only the savor-worthy beats gate. That contrast is the streamer feel.
+        self.beat = beat or (lambda s: None)
         self.log = log
         self.owner = owner
 
     def _press(self, d):
         self.b.press(DIR_KEY[d], HOLD, HOLD, self.render, owner=self.owner)
 
+    def _npc_tiles(self):
+        """Live tiles occupied by NPCs (object events), re-read every plan so newly
+        position-activated and wandering NPCs are accounted for. We block the NPC tile
+        AND the tile it's stepping toward (movementDirection) - mid-step an NPC occupies
+        two tiles, and the coord read lags by one, so blocking the facing tile too
+        prevents walking into a wanderer the read hasn't caught up to yet."""
+        OB, SZ = 0x02036E38, 0x24
+        DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}   # down/up/left/right
+        out = set()
+        for i in range(1, 16):                  # skip obj0 (the player)
+            o = OB + i * SZ
+            if not (self.b.rd8(o) & 1):
+                continue
+            x, y = self.b.rds16(o + 0x10) - MAP_OFFSET, self.b.rds16(o + 0x12) - MAP_OFFSET
+            out.add((x, y))
+            mv = self.b.rd8(o + 0x18) & 0x0F     # current facing/movement nibble
+            dx, dy = DELTA.get(mv, (0, 0))
+            out.add((x + dx, y + dy))
+        return out
+
     def _warmup_battle(self):
-        """Advance the battle intro to a SETTLED action menu (phase==action-menu AND
-        a valid 0-3 cursor) before the engine acts. The live handoff failed because
-        the engine read the action cursor before the menu initialized (garbage ->
-        'cursor desync' -> premature stuck-abort); from a settled menu the engine wins
-        (verified on the captured wild battle). Battle engine stays untouched."""
+        """Advance the battle intro to a settled action menu before the engine acts.
+        Proven stable for the first encounter (the engine's own settle alone left the
+        first battle flaky). Runs AFTER the on-time encounter beat, so it doesn't mash
+        the intro before her surprise lands."""
         import pokemon_state as st
         for _ in range(240):
             if not st.in_battle(self.b):
@@ -201,20 +227,48 @@ class Traveler:
                 return
             self.b.press("A", 6, 6, self.render, owner=self.owner)
 
-    def travel(self, target_map=MAP_VIRIDIAN, max_steps=800):
+    def travel(self, target_map=MAP_VIRIDIAN, max_steps=800, arrive_coord=None,
+               max_seconds=300):
+        """Walk to a connected map (cross its north edge) OR, if arrive_coord is set,
+        BFS to that specific tile on the current map and stop there (for warp doors /
+        gym-interior nav). Same robust NPC-aware, grass-aware, battle-handoff stepping.
+        WALL-CLOCK budget (max_seconds): a leg that grinds far past it (e.g. a battle-
+        heavy grass maze) LOUD-ABORTS instead of silently running for hours."""
         import pokemon_state as st     # local import: engine stays bot/battle-agnostic
         self.b.set_input_owner(self.owner)
         grid = Grid(self.b)
         cur_map = map_id(self.b)
+        t0 = time.time()
         self.log(f"   [travel] start map={cur_map} coords={coords(self.b)} -> "
-                 f"target map={target_map}")
-        stuck = exit_tries = 0
+                 f"{'coord ' + str(arrive_coord) if arrive_coord else 'map ' + str(target_map)} "
+                 f"(budget {max_seconds:.0f}s)")
+        stuck = exit_tries = no_path = 0
+        blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
+        BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
+        # goal: a specific tile (coord mode) or the north exit row (edge-crossing mode)
+        goal = (lambda t: t == arrive_coord) if arrive_coord is not None else (lambda t: t[1] == 0)
         for step in range(max_steps):
-            # 1) encounter -> hand the pad to the battle engine, then resume
+            # WALL-CLOCK WATCHDOG (loud): a leg should not run for hours. If we blow the
+            # budget we're grinding (battle-heavy grass maze) or wedged - ABORT LOUD with
+            # exactly where we are, so a slow run TELLS us instead of spinning silently.
+            elapsed = time.time() - t0
+            if elapsed > max_seconds:
+                self.log(f"   [travel] !! WALL-CLOCK BUDGET BLOWN ({elapsed:.0f}s > "
+                         f"{max_seconds:.0f}s) at {coords(self.b)} map={map_id(self.b)} "
+                         f"step={step} - ABORT LOUD (grinding / wedged, not progressing fast)")
+                self.on_event("this is taking forever - I'm stuck grinding, let me regroup")
+                return "stuck"
+            if step % 40 == 0 and step:        # periodic LOUD heartbeat (always visible)
+                self.log(f"   [travel] HEARTBEAT step={step} map={map_id(self.b)} "
+                         f"coords={coords(self.b)} elapsed={elapsed:.0f}s")
+            # 1) encounter. Beat ORDER for the streamer feel: react ON-TIME to the
+            # surprise (intro "Wild X appeared!" still on screen) BEFORE we mash the
+            # intro, THEN warm up the menu (stable start) and hand to the battle engine
+            # (which names the foe + fights).
             if st.in_battle(self.b):
-                self.log("   [travel] ENCOUNTER -> warming up the menu, then handing off")
-                self.on_event("a wild Pokemon jumped out - time to fight")
-                self._warmup_battle()          # settle the menu so the engine doesn't desync
+                self.log("   [travel] ENCOUNTER -> on-time beat, warm up, hand off")
+                self.beat("a wild Pokemon leaps out at you")   # gated: her surprise lands now
+                self._warmup_battle()                           # then settle (proven stable)
                 outcome = self.battle_runner()
                 self.log(f"   [travel] battle outcome={outcome}; resuming pathfind")
                 if outcome == "loss":
@@ -232,9 +286,10 @@ class Traveler:
                 cur_map = m
                 grid = Grid(self.b)
                 stuck = exit_tries = 0
-            if m == target_map:
+            if arrive_coord is None and target_map is not None and m == target_map:
                 self.log(f"   [travel] ARRIVED at target map {m} coords={coords(self.b)}")
-                self.on_event("made it to Viridian City")
+                # NEW-AREA beat: gate so her arrival line lands as the new map comes up.
+                self.beat("made it to a new area")
                 return "arrived"
 
             cur = coords(self.b)
@@ -243,17 +298,25 @@ class Traveler:
                     self.b.run_frame(); self.render()
                 continue
 
-            # 3) plan to the north exit row (y==0). Prefer a GRASS-FREE route (no wild
-            # encounters); only if none exists fall back to crossing grass (the handoff
-            # then catches any battle). Milestone 1's Route 1 has a grass-free path.
-            path = bfs(grid, cur, lambda t: t[1] == 0, walkable=grid.walkable_safe)
+            # 3) plan to the north exit row (y==0), routing AROUND dynamic blocks. A step
+            # that fails despite the tile being collision-walkable (a wandering NPC, a
+            # movement-blocked tile) marks that tile blocked (TTL-aged so NPCs get retried)
+            # and we RE-PLAN around it - the path-exists-but-executor-stalls fix. Prefer a
+            # grass-free route; fall back to crossing grass (handoff catches the battle).
+            cutoff = step - BLOCK_TTL
+            npc = self._npc_tiles()            # live NPC tiles, re-read every plan
+            def free(sx, sy):
+                return (sx, sy) not in npc and blocked.get((sx, sy), -10 ** 9) <= cutoff
+            path = bfs(grid, cur, goal,
+                       walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
             if not path:
-                path = bfs(grid, cur, lambda t: t[1] == 0)
-                if path and len(path) >= 2:
-                    self.log(f"   [travel] no grass-free route from {cur}; crossing grass "
-                             f"(encounters possible -> battle handoff)")
+                path = bfs(grid, cur, goal,
+                           walkable=lambda sx, sy: grid.walkable(sx, sy) and free(sx, sy))
             if not path or len(path) < 2:
-                if cur[1] == 0:                     # on the exit gap -> cross north
+                if arrive_coord is not None and cur == arrive_coord:
+                    self.log(f"   [travel] reached target coord {arrive_coord}")
+                    return "arrived"
+                if arrive_coord is None and cur[1] == 0:   # on the exit gap -> cross north
                     exit_tries += 1
                     if exit_tries > EXIT_TRIES:
                         self.log(f"   [travel] !! at exit {cur} but {exit_tries} north "
@@ -262,21 +325,38 @@ class Traveler:
                         return "stuck"
                     self._press("N")
                     continue
-                self.log(f"   [travel] !! NO PATH from {cur} to the north exit - ABORT LOUD")
-                self.on_event("I can't find a way through here - I'm stuck")
-                return "no_path"
+                # no path right now - most likely an NPC is standing on the only gap.
+                # WAIT (bounded) for a wanderer to step off, re-reading NPC positions each
+                # retry, before giving up loud. ~25 x 24f ~= 10s of patience.
+                no_path += 1
+                if no_path > 25:
+                    self.log(f"   [travel] !! NO PATH from {cur} to the exit after waiting "
+                             f"~10s for NPCs to clear - ABORT LOUD")
+                    self.on_event("there's someone blocking the way and they won't move - stuck")
+                    return "no_path"
+                if no_path == 1:
+                    self.log(f"   [travel] path blocked at {cur} (NPC on the gap?) - waiting")
+                for _ in range(24):
+                    self.b.run_frame(); self.render()
+                continue
+            no_path = 0
 
             d = direction(cur, path[1])
+            nxt = path[1]
             self._press(d)
             after = coords(self.b)
             if after == cur:                        # turned-not-stepped? try once more
                 self._press(d)
                 after = coords(self.b)
             if after == cur:
+                blocked[nxt] = step                 # dynamic block -> re-plan around it
                 stuck += 1
+                if stuck % 4 == 0:                  # likely a wandering NPC: wait for it
+                    for _ in range(24):             # to step aside, then retry the reroute
+                        self.b.run_frame(); self.render()
                 if stuck >= STUCK_LIMIT:
-                    self.log(f"   [travel] !! STUCK at {cur} ({stuck} no-progress steps, "
-                             f"dir {d}) - ABORT LOUD (never silent-spin)")
+                    self.log(f"   [travel] !! STUCK at {cur} ({stuck} blocked dirs, last "
+                             f"{d}->{nxt}) - ABORT LOUD (never silent-spin)")
                     self.on_event("ugh, I'm stuck - I can't get past this")
                     return "stuck"
             else:

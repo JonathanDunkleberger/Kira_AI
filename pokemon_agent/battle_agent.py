@@ -171,9 +171,12 @@ class BattleAgent:
             state = st.read_battle(self.b)
             if not self._started:
                 self._started = True
+                self._settle_to_action_menu()      # ensure settled (no-op if already at menu)
+                # re-read AFTER settling: gBattleMons[1] holds stale data (read
+                # "charmander" on Route 1) until the intro is advanced.
+                state = st.read_battle(self.b) or state
                 foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
                 self.emit(f"a battle started against {foe}", beat=True)
-                self._settle_to_action_menu()   # PREVENT: don't act on an unsettled menu
                 self._prev = state
                 continue
             self._emit_diffs(self._prev, state)
@@ -187,7 +190,9 @@ class BattleAgent:
                 self._stale += 1
             else:
                 self._last_global, self._stale = glob, 0
-            if self._stale >= 240:
+            if self._stale >= 360:        # generous: must NOT fire on a slow legit
+                                          # animation/text (that would read as a hitch);
+                                          # only a true menu stall sits here this long
                 self._recovery_attempts += 1
                 if self._recovery_attempts > 4:
                     self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly")
@@ -200,6 +205,14 @@ class BattleAgent:
                 continue
             if self._at_action_menu():
                 if not acted:                       # rising edge: choose + execute once
+                    # ROOT-CAUSE GUARD (2026-06-23): only act when the menu is truly
+                    # INTERACTIVE (the cursor responds to the D-pad), not merely
+                    # phase==0x580 + a valid cursor. Acting on a not-yet-interactive
+                    # menu means every A-press is IGNORED, the move never lands, the
+                    # action menu re-enters with HP unchanged, and we spin into
+                    # stall->recovery->FLEE (the Forest "ended" bug). Wait for real.
+                    if not self._action_menu_ready():
+                        continue
                     ours, enemy = state["ours"], state["enemy"]
                     # STUCK DETECTION: the action menu keeps returning with no change to
                     # the battle = we're spinning (e.g. cursor desync). Fail LOUD, never
