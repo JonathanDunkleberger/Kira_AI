@@ -40,6 +40,32 @@ PHASE_MOVE_LIST    = 0x680        # FIGHT move list up - confirms FIGHT opened
 # deterministically instead of assuming the position (the blind-nav desync bug).
 GBATTLE_ACTION_CURSOR = 0x02023FF8
 ACT_FIGHT, ACT_BAG, ACT_POKEMON, ACT_RUN = 0, 1, 2, 3
+# ── MOVE LIST (FIGHT submenu) findings 2026-06-24, screenshot-verified ────────
+# It is a 2x2 GRID: TACKLE(TL,0) GROWL(TR,1) / LEECH SEED(BL,2) VINE WHIP(BR,3). Cursor opens on
+# slot 0. So the OLD _nav_to 2x2 layout (RIGHT=col, DOWN=row) is CORRECT; the bug is the eaten-
+# first-press (the engage trick is needed in the move list too).
+# OPEN SIGNAL: GBATTLE_MENU_UP (0x02023E86) = 1 at the ACTION menu, 0 at the MOVE LIST (white
+# panel up; blue panel = a text box). So: action-menu = white & menu_up==1; move-list = white &
+# menu_up==0; text = blue & menu_up==0. (This IS the reliable open signal.)
+# FIXED 2026-06-24 (the Vine-Whip/Brock wedge): this build's move list can only CONFIRM slot 0
+# (the cursor never navigates), and the move-list OPEN is timing-flaky. _select_and_verify now
+# (1) SWAP-FIRST battle-copies the chosen move into slot 0 before any press (so an early confirm
+# fires the intended move, never a dry 0-PP Tackle -> "There's no PP left for this move!"),
+# (2) RETRIES the open (engage+A up to 8x) verified by the _in_move_list() pixel-check, then
+# confirms slot 0, (3) swaps back only on ENEMY-HP-DROP (after the engine's execution slot-read).
+# The old engine pressed the open ONCE and ASSUMED it -> flaked opens hung ~30 attempts (the
+# "Weedle stuck at 2/26" wedge). mgba Memory.search wrapper returns 0 (broken in this build) -
+# can't use it to isolate the cursor byte. Fixtures: forest_4move.state, live_wedge.state.
+# NOTE: loaded mid-battle states are UNFAITHFUL (load_state desyncs the first menu interaction's
+# pixel/input path); validate menu changes on the LIVE leg, not loaded-state replays.
+# ⚠️ GBATTLE_PHASE above is NOT a phase register - it's a FREE-RUNNING per-frame counter
+# (+0x100 every frame, low byte always 0x80). It passes through 0x580/'action menu' once
+# every ~16 frames during ANIMATIONS too, so it cannot gate anything. (Diagnosed 2026-06-23
+# by advancing frames with no input: the value never plateaus even while the menu waits.)
+# The real 'action menu is up' signal, found by diffing battle-moment savestates (menu vs
+# animation/damage-text/enemy-turn) and confirmed dynamically (0 through the intro, 1 the
+# instant the cursor becomes movable):
+GBATTLE_MENU_UP = 0x02023E86      # u8: 1 = action menu (FIGHT/BAG/POKEMON/RUN) up, 0 otherwise
 
 EWRAM_LO, EWRAM_HI = 0x02000000, 0x02040000
 

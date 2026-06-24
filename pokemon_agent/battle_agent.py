@@ -113,6 +113,21 @@ class BattleAgent:
         else:
             self._tap("DOWN"); self._tap("UP")
 
+    def _swap_battle_moves(self, i, j):
+        """Swap our ACTIVE mon's move i<->j (ID + current PP) in the BATTLE COPY gBattleMons[0]
+        ONLY - never the party/save. Proven 2026-06-24 over 6 passes: this emulator's FIGHT move
+        list can ONLY confirm slot 0 (the cursor never navigates), so to use a non-slot-0 move we
+        battle-copy it into slot 0, let the menu confirm slot 0, then swap back after it fires -
+        the PP decrements on slot 0 (= the chosen move) and the swap-back returns it (with the
+        decremented PP) to its real slot, leaving the move set + PP correct for later turns and
+        the battle-end party writeback. The move executes legitimately: real PP, damage, type."""
+        base = ram.GBATTLE_MONS
+        mw, bw = self.b.core.memory.u16.raw_write, self.b.core.memory.u8.raw_write
+        mi, mj = self.b.rd16(base + st.F_MOVES + i * 2), self.b.rd16(base + st.F_MOVES + j * 2)
+        mw(base + st.F_MOVES + i * 2, mj); mw(base + st.F_MOVES + j * 2, mi)
+        pi, pj = self.b.rd8(base + st.F_PP + i), self.b.rd8(base + st.F_PP + j)
+        bw(base + st.F_PP + i, pj); bw(base + st.F_PP + j, pi)
+
     def _goto_fight(self, tries=10):
         """READ the action cursor and walk it to FIGHT (top-left). Eaten-press tolerant
         (a wasted press just costs a try; a settled menu accepts them). Returns True only
@@ -166,28 +181,63 @@ class BattleAgent:
         opens the POKEMON submenu)."""
         if not self._goto_fight():
             return "stuck"                            # cursor not on FIGHT -> don't risk a press
-        self._tap("LEFT"); self._tap("UP")            # ENGAGE (boundary presses: stay on FIGHT)
         ours, enemy = state["ours"], state["enemy"]
         idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
         self.log(f"   [engine] action menu: {desc} (eff x{eff:g}) vs "
                  f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
+        # SWAP FIRST (diagnosed 2026-06-24, the "Weedle stuck at 2/26" wedge): the move-list open
+        # is timing-flaky, so we must drive it with retries - but a confirm-A can land on slot 0
+        # at ANY point in that retry. If slot 0 still held the dry Tackle, that A fired a 0-PP move
+        # ("There's no PP left for this move!") and the turn stalled forever. So we battle-copy the
+        # chosen move into slot 0 BEFORE any press: now every confirm path fires the INTENDED move
+        # (which has PP). We swap it back only after it LANDS (the enemy-HP gate in the verify
+        # loop), so the slot still holds the chosen move when the engine reads it at execution.
+        swapped = idx if idx != 0 else None
+        if swapped is not None:
+            self._swap_battle_moves(0, swapped)
         before = self._bstate()
-        self._tap("A"); self._wait(12)                # open the FIGHT move list (A now registers)
-        self._nav_to(idx); self._wait(6)              # position on the slot (directional engages)
-        self._tap("A"); self._wait(12)                # confirm the move
+        enemy_hp0 = before[0] if before else None
+        # OPEN THE MOVE LIST ROBUSTLY (the old engine pressed ONCE and ASSUMED it opened - on a
+        # flaked open the move never fired and the enemy sat at low HP while the faster foe chipped
+        # us -> 30 dead attempts -> loud abort -> blackout). Engage (LEFT/UP absorbed at the FIGHT
+        # boundary, cursor stays on slot 0) then A, and RETRY until the list is pixel-confirmed
+        # open. Because we already swapped, slot 0 holds the chosen move, so if an engage/A here
+        # happens to confirm early it fires the INTENDED move (not a dry 0-PP Tackle).
+        opened = False
+        for _ in range(8):
+            self._tap("LEFT"); self._tap("UP"); self._wait(6)
+            if self._in_move_list():
+                opened = True; break
+            self._tap("A"); self._wait(8)             # some frames need an A to actually open it
+            if self._in_move_list():
+                opened = True; break
+        if not opened:
+            return "stuck"                            # never opened -> clean retry (re-settle)
+        self._tap("A"); self._wait(12)                # confirm slot 0 -> fires the chosen move
         self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
+        result = None
         for _ in range(200):                          # VERIFY: the turn starts -> HP moves; if
             if not st.in_battle(self.b):              # nothing moves, report stuck -> retry clean
-                return "done"
+                result = "done"; break
             cur = st.read_battle(self.b)
             if cur:
                 self._emit_diffs(self._prev, cur); self._prev = cur
-                if (cur["enemy"]["hp"], cur["ours"]["hp"]) != before:
-                    return "done"
+                # SWAP-BACK timing (critical, diagnosed on forest_wedge.state): the game decrements
+                # the chosen move's PP and THEN re-reads slot 0 to execute. Swapping back on the PP
+                # drop slots the 0-PP Tackle in before that read -> Tackle "fires" (no PP) -> enemy
+                # frozen. So restore ONLY once our move has clearly LANDED - the enemy HP dropped,
+                # which is strictly AFTER the execution read. (Foe-first hits change OUR hp first;
+                # we wait past that for the enemy-hp effect.)
+                if swapped is not None and enemy_hp0 is not None and cur["enemy"]["hp"] < enemy_hp0:
+                    self._swap_battle_moves(0, swapped); swapped = None
+                if (cur["enemy"]["hp"], cur["ours"]["hp"]) != before and swapped is None:
+                    result = "done"; break
             self.b.run_frame(); self.render()
-        return "stuck"
+        if swapped is not None:                       # safety: restore order (move never landed)
+            self._swap_battle_moves(0, swapped); swapped = None
+        return result or "stuck"
 
     def _advance_text(self, force_b=False):
         """Advance battle dialogue/animation SAFELY. Diagnosed 2026-06-23: (a) mashing A
