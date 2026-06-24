@@ -189,17 +189,21 @@ class BattleAgent:
             self.b.run_frame(); self.render()
         return "stuck"
 
-    def _advance_text(self):
+    def _advance_text(self, force_b=False):
         """Advance battle dialogue/animation SAFELY. Diagnosed 2026-06-23: (a) mashing A
         *into* an animation (the player walk-in, a faint, the EXP bar) WEDGES the input and
         the text then never advances - so we WAIT a beat for the animation to settle first;
         (b) the wild 'X appeared!' / 'X fainted!' gates advance on B, not A - so after a clean
         A tap we also tap B, but ONLY if the white action-menu panel is NOT up (so B can never
         be read as RUN/flee). Clean discrete taps (short hold, long release) - a held/too-fast
-        press reads as one input."""
+        press reads as one input.
+        force_b (2026-06-24): in the POST-FAINT drain the foe already fainted (no flee risk),
+        and the TRAINER defeat/prize screen lights the white-panel pixels as a FALSE POSITIVE
+        while actually needing B to advance - so force_b taps B regardless of _white_box, which
+        is what lets a trainer battle exit cleanly after its last mon faints."""
         self._wait(18)
         self.b.press("A", 2, 12, self.render, owner=self.owner)
-        if not self._white_box():
+        if force_b or not self._white_box():
             self.b.press("B", 2, 12, self.render, owner=self.owner)
 
     def _reach_first_menu(self, t0, max_seconds):
@@ -239,13 +243,31 @@ class BattleAgent:
             # bar -> level-up -> exit. _advance_text walks it (waits out animations, A+B taps)
             # until the battle exits to overworld (in_battle -> False -> _finish). Never selects.
             if self._enemy_fainted or self._we_fainted:
+                # POST-FAINT: drain the chain (faint anim -> "X fainted!" -> EXP -> level-up),
+                # then DECIDE. A faint does NOT always end the battle: a TRAINER whose mon
+                # faints SENDS THE NEXT ONE. So after each advance we check the enemy slot - if
+                # a FRESH LIVE mon is on the field (full HP), it's a switch-in: reset the faint
+                # flag and fall back into the normal fight loop. Otherwise keep draining toward
+                # the exit (wild win / our loss / the trainer's LAST mon) until in_battle clears
+                # -> _finish. (Before this, the engine assumed first-faint=won and never fought
+                # the second mon -> trainer battles hung until timeout.)
                 for _i in range(60):
                     if not st.in_battle(self.b):
                         break
                     cur = st.read_battle(self.b)
                     if cur:
                         self._emit_diffs(self._prev, cur); self._prev = cur
-                    self._advance_text()                  # faint -> EXP -> level-up -> exit
+                    enemy = cur["enemy"] if cur else None
+                    if (self._enemy_fainted and not self._we_fainted and enemy
+                            and enemy["hp"] > 0 and enemy["hp"] == enemy["maxhp"]
+                            and 1 <= enemy["species"] <= 411):
+                        self._enemy_fainted = False        # next mon is out -> fight it
+                        self._prev = cur
+                        self.emit(f"the trainer sent out "
+                                  f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
+                                  beat=True)
+                        break
+                    self._advance_text(force_b=True)      # faint -> EXP -> level-up -> defeat -> exit
                 continue
             self._settle()                            # advance to a wait-point (narrates diffs)
             if not st.in_battle(self.b):
