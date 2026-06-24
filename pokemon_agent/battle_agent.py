@@ -252,10 +252,14 @@ class BattleAgent:
                                             enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
                     self.log(f"   [engine] action menu: {desc} (eff x{eff:g}) vs "
                              f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
-                    self._execute(idx, desc, eff)
-                    acted = True
-                    self._acted_once = True
-                    last_key, stable = None, 0
+                    if self._execute(idx, desc, eff):
+                        acted = True            # move committed this turn -> wait for it to resolve
+                        self._acted_once = True
+                        last_key, stable = None, 0
+                    # else: _execute could not reach FIGHT in this window - leave acted=False so
+                    # we RE-PROBE the gate and retry next loop, instead of freezing here with
+                    # acted=True until the global-stall watchdog (which can't un-stick a wild
+                    # battle) loud-aborts. The no_progress counter still bounds genuine spins.
             else:
                 acted = False                       # left the menu -> ready for next turn
                 key = (state["enemy"]["hp"], state["ours"]["hp"], self._phase())
