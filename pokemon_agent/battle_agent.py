@@ -38,6 +38,7 @@ class BattleAgent:
         self._prev = None
         self._started = False
         self._enemy_fainted = False
+        self._we_fainted = False
         self._no_progress = 0          # consecutive action-menu visits with no battle change
         self._last_progress = None
         # menu-agnostic recovery (the live party-submenu trap): global stall watchdog
@@ -56,58 +57,9 @@ class BattleAgent:
         for _ in range(frames):
             self.b.run_frame(); self.render()
 
-    # ── RELIABLE action-menu detection (the phase register is noise - it reads 0x580
-    # during intro text too; verified by screenshot). The action cursor RESPONDS to the
-    # D-pad only when the FIGHT/BAG/POKEMON/RUN menu is interactive, so we probe it. ──
-    def _action_menu_ready(self):
-        """True iff the action menu is up + interactive. Net-zero on the menu
-        (FIGHT->POKEMON->FIGHT); a no-op during intro/animations; in a submenu it
-        nudges that submenu's cursor harmlessly and reports False."""
-        c0 = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
-        self._tap("DOWN")
-        c1 = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
-        self._tap("UP")
-        return c1 != c0 and c1 in (0, 1, 2, 3)
-
-    def _settle_to_action_menu(self, timeout=80):
-        """PREVENT: advance the battle intro/text until the action menu is interactive,
-        so we never press a selection into an unsettled menu (the fresh-battle desync
-        that opened the POKEMON party submenu). Bounded; stops if the battle ends."""
-        for _ in range(timeout):
-            if not st.in_battle(self.b):
-                return False
-            if self._action_menu_ready():
-                return True
-            self._tap("A")            # advance intro / text
-        return False
-
     def _is_trainer_battle(self):
         """BATTLE_TYPE_TRAINER (0x08). Valid in-battle. Wild = can flee, trainer = can't."""
         return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
-
-    def _escape_submenu(self):
-        """RECOVER, FLEE-SAFE. In a WILD battle pressing B can RUN (flee) - so we NEVER
-        press B there; we just WAIT and let the main loop's interactivity gate re-establish
-        the real action menu and act. (B = run was the Forest 'ended'/flee bug.) Only in a
-        TRAINER battle - where you CANNOT flee - is B safe to back out of a wrong submenu."""
-        if not self._is_trainer_battle():
-            self._wait(30)             # wild: settle only, no B/A that could select RUN
-            return True
-        for _ in range(5):             # trainer: B safely backs out (no flee possible)
-            if self._action_menu_ready():
-                return True
-            self._tap("B")
-        return self._settle_to_action_menu()
-
-    # ── perception ─────────────────────────────────────────────────────────────
-    def _phase(self):
-        return self.b.rd32(ram.GBATTLE_PHASE)
-
-    def _at_action_menu(self):
-        return self._phase() == ram.PHASE_ACTION_MENU
-
-    def _move_list_up(self):
-        return self._phase() == ram.PHASE_MOVE_LIST
 
     # ── events + performance beats ─────────────────────────────────────────────
     def emit(self, summary, beat=False):
@@ -117,27 +69,56 @@ class BattleAgent:
         if beat and self.pace:
             self.pace(summary)
 
-    # ── execute one chosen move through the menu (2x2 grid) ────────────────────
-    # IMPORTANT (found empirically vs ground truth): after A opens the move list, a
-    # bare confirm-A is IGNORED until a DIRECTIONAL press engages the cursor. So we
-    # always issue a directional input before confirming (navigation provides it; for
-    # the default slot 0 we wiggle DOWN/UP), then confirm + VERIFY the move was
-    # accepted (my_turn 2->0), retrying if not. No blind mashing - every step checked.
+    # ── PRESS-UNTIL-SETTLED core (rebuilt 2026-06-23) ──────────────────────────
+    # The lesson of the cursor-desync saga: GBATTLE_PHASE is a free-running FRAME COUNTER,
+    # not a phase register, and the action cursor only obeys the D-pad once the menu is
+    # genuinely SETTLED - acting mid-transition gets every press eaten. So we never race
+    # the emulator to read state at the right frame. We advance until the game is plainly
+    # WAITING for input (RAM static), THEN navigate the cursor with eaten-press tolerance
+    # and VERIFY the move actually registered (HP moved). Never a blind A/B that could open
+    # the wrong submenu or select RUN (flee).
+    def _bstate(self):
+        s = st.read_battle(self.b)
+        return (s["enemy"]["hp"], s["ours"]["hp"]) if s else None
+
+    def _settle(self, need=10, timeout=900):
+        """Advance frames (no input) until the battle is WAITING for input: enemy+our HP
+        hold steady for `need` consecutive frames. Narrates HP diffs en route so her voice
+        stays live. Returns when settled or the battle ends/timeout."""
+        last, stable = None, 0
+        for _ in range(timeout):
+            if not st.in_battle(self.b):
+                return
+            cur = st.read_battle(self.b)
+            if cur:
+                self._emit_diffs(self._prev, cur)
+                self._prev = cur
+            key = (cur["enemy"]["hp"], cur["ours"]["hp"]) if cur else None
+            stable = stable + 1 if key == last else 0
+            last = key
+            if stable >= need:
+                return
+            self.b.run_frame(); self.render()
+
     def _nav_to(self, idx):
-        if idx == 0:
-            self._tap("DOWN"); self._tap("UP")        # net slot 0, but engages the menu
-        elif idx == 1:
+        """engage + position the move-list cursor on slot idx. A directional press is
+        required before the confirm-A registers (the eaten-press quirk); for slot 0 we
+        wiggle DOWN/UP to engage while netting slot 0."""
+        if idx == 1:
             self._tap("RIGHT")
         elif idx == 2:
             self._tap("DOWN")
         elif idx == 3:
             self._tap("RIGHT"); self._tap("DOWN")
+        else:
+            self._tap("DOWN"); self._tap("UP")
 
-    def _goto_fight(self):
-        """READ the action cursor (0x02023FF8) and move it to FIGHT deterministically -
-        never assume the position. FIGHT is top-left: UP from POKEMON/RUN, LEFT from BAG.
-        Returns True only when the cursor is confirmed on FIGHT (0)."""
-        for _ in range(5):
+    def _goto_fight(self, tries=10):
+        """READ the action cursor and walk it to FIGHT (top-left). Eaten-press tolerant
+        (a wasted press just costs a try; a settled menu accepts them). Returns True only
+        when the cursor is confirmed on FIGHT (0); False if the cursor isn't a valid
+        action cell (we're not at the action menu)."""
+        for _ in range(tries):
             c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
             if c == ram.ACT_FIGHT:
                 return True
@@ -146,129 +127,148 @@ class BattleAgent:
             elif c in (ram.ACT_POKEMON, ram.ACT_RUN):
                 self._tap("UP")
             else:
-                return False                          # not a valid action menu (garbage)
-            self._wait(4)
+                return False                          # not the action menu
+            self._wait(3)
         return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
 
-    def _execute(self, idx, desc, eff):
-        # Re-center on FIGHT by READING the cursor (fixes the blind-nav POKEMON-menu
-        # oscillation), then open the move list and select. A directional press is
-        # required before the confirm-A registers (the eaten-press quirk); verify the
-        # move was accepted by the phase leaving the action menu (0x580).
-        if not self._goto_fight():
-            self.log("   [engine] could not reach FIGHT (cursor desync) - skipping press")
+    # ── SCREEN-based menu detection (the RAM has NO clean menu-state flag - every candidate
+    # is a frame counter or a one-state false positive; diagnosed 2026-06-23). The UI is
+    # battle-independent: the action menu + move list draw a WHITE panel bottom-right; a
+    # text/dialogue box is BLUE there. Pixel (160,150) is white at the action menu but DARK
+    # in the move list - so the three states are cleanly separable from the screen. ──
+    _WHITE_PTS = ((135, 138), (200, 138), (135, 150), (190, 150), (150, 150), (175, 150))
+
+    def _white_box(self):
+        """True iff the bottom-right white menu panel is up (action menu OR move list) - i.e.
+        NOT a blue text/dialogue box. The reliable 'a menu is waiting for me' signal."""
+        p = self.b.frame_rgb().load()
+        return sum(1 for x, y in self._WHITE_PTS if min(p[x, y]) > 200) >= 4
+
+    def _in_move_list(self):
+        """True iff the FIGHT move list is open (white panel up AND the action-menu marker
+        pixel (160,150) is dark - it is white at the action menu, dark over the move names)."""
+        p = self.b.frame_rgb().load()
+        if sum(1 for x, y in self._WHITE_PTS if min(p[x, y]) > 200) < 4:
             return False
-        self._tap("A"); self._wait(12)                # open FIGHT move list
-        self._nav_to(idx); self._wait(6)              # engage + position on the slot
-        self._tap("A"); self._wait(12)                # confirm
-        if self._at_action_menu() and self._goto_fight():   # not accepted -> retry once
-            self._tap("A"); self._wait(8)
-            self._nav_to(idx); self._wait(4)
-            self._tap("A"); self._wait(12)
+        return min(p[160, 150]) < 100
+
+    def _select_and_verify(self, state):
+        """Called ONLY when the white action-menu panel is up (screen-gated). Put the cursor
+        on FIGHT, then ENGAGE the menu before the committing A.
+
+        THE EATEN-FIRST-PRESS (diagnosed 2026-06-23, the last desync layer): the first input
+        after the menu draws is dropped, so an A on FIGHT was silently eaten and no move ever
+        opened (battle hung at the menu). We defeat it with a directional that CANNOT move the
+        cursor off FIGHT - FIGHT is the top-left cell, so LEFT/UP are absorbed at the boundary
+        (cursor stays 0) yet still consume the eaten press. Then A opens the move list, we pick
+        the move, confirm, and VERIFY by an HP change (the only ground truth). We never press B
+        at the action menu (that flees a wild battle) and never blind-press off FIGHT (that
+        opens the POKEMON submenu)."""
+        if not self._goto_fight():
+            return "stuck"                            # cursor not on FIGHT -> don't risk a press
+        self._tap("LEFT"); self._tap("UP")            # ENGAGE (boundary presses: stay on FIGHT)
+        ours, enemy = state["ours"], state["enemy"]
+        idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
+        eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
+                                enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
+        self.log(f"   [engine] action menu: {desc} (eff x{eff:g}) vs "
+                 f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
+        before = self._bstate()
+        self._tap("A"); self._wait(12)                # open the FIGHT move list (A now registers)
+        self._nav_to(idx); self._wait(6)              # position on the slot (directional engages)
+        self._tap("A"); self._wait(12)                # confirm the move
         self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
-        return True
+        for _ in range(200):                          # VERIFY: the turn starts -> HP moves; if
+            if not st.in_battle(self.b):              # nothing moves, report stuck -> retry clean
+                return "done"
+            cur = st.read_battle(self.b)
+            if cur:
+                self._emit_diffs(self._prev, cur); self._prev = cur
+                if (cur["enemy"]["hp"], cur["ours"]["hp"]) != before:
+                    return "done"
+            self.b.run_frame(); self.render()
+        return "stuck"
+
+    def _advance_text(self):
+        """Advance battle dialogue/animation SAFELY. Diagnosed 2026-06-23: (a) mashing A
+        *into* an animation (the player walk-in, a faint, the EXP bar) WEDGES the input and
+        the text then never advances - so we WAIT a beat for the animation to settle first;
+        (b) the wild 'X appeared!' / 'X fainted!' gates advance on B, not A - so after a clean
+        A tap we also tap B, but ONLY if the white action-menu panel is NOT up (so B can never
+        be read as RUN/flee). Clean discrete taps (short hold, long release) - a held/too-fast
+        press reads as one input."""
+        self._wait(18)
+        self.b.press("A", 2, 12, self.render, owner=self.owner)
+        if not self._white_box():
+            self.b.press("B", 2, 12, self.render, owner=self.owner)
+
+    def _reach_first_menu(self, t0, max_seconds):
+        """Advance the battle intro (walk-in + 'X appeared!' + 'Go MON!') to the first action
+        menu (white panel up), so the foe species (gBattleMons[1] is stale until the intro
+        advances) reads true."""
+        for _ in range(40):
+            if not st.in_battle(self.b) or time.time() - t0 > max_seconds:
+                return
+            if self._white_box():
+                return                                # action menu reached
+            self._advance_text()
 
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
         t0 = time.time()
-        outcome = "timeout"
-        last_key, stable, acted = None, 0, False
-        while time.time() - t0 < max_seconds:
+        while time.time() - t0 < max_seconds and not st.in_battle(self.b):
             self._wait(1)
-            if not st.in_battle(self.b):
-                if self._started:
-                    outcome = self._finish()
-                    break
-                continue
-            state = st.read_battle(self.b)
-            if not self._started:
-                self._started = True
-                self._settle_to_action_menu()      # ensure settled (no-op if already at menu)
-                # re-read AFTER settling: gBattleMons[1] holds stale data (read
-                # "charmander" on Route 1) until the intro is advanced.
-                state = st.read_battle(self.b) or state
-                foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
-                self.emit(f"a battle started against {foe}", beat=True)
-                self._prev = state
-                continue
-            self._emit_diffs(self._prev, state)
+        if not st.in_battle(self.b):
+            return "timeout"
+        self._started = True
+        self._prev = st.read_battle(self.b)
+        self._reach_first_menu(t0, max_seconds)
+        state = st.read_battle(self.b) or self._prev
+        if state:
+            foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
+            self.emit(f"a battle started against {foe}", beat=True)
             self._prev = state
-            # RECOVER (menu-agnostic): if the battle makes NO progress for a long window
-            # we're stuck somewhere - classically the party submenu the fresh-battle
-            # desync opened, where _goto_fight can't help. Back out (B) + re-settle
-            # before the loud abort. Won't trip in a normal battle (HP keeps changing).
-            glob = (state["enemy"]["hp"], state["ours"]["hp"])
-            if glob == self._last_global:
-                self._stale += 1
-            else:
-                self._last_global, self._stale = glob, 0
-            if self._acted_once and self._stale >= 360:   # NOT during the battle intro/
-                                          # settle (legit no-hp-change before the first move
-                                          # - that false-fired recovery at every battle start)
-                self._recovery_attempts += 1
-                if self._recovery_attempts > 4:
-                    self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly")
-                    self.emit("okay I'm properly stuck, the menu's glitched", beat=False)
-                    return "stuck"
-                self.log(f"   [engine] global stall (recovery {self._recovery_attempts}) - "
-                         f"B-escape any submenu + re-settle")
-                self._escape_submenu()
-                self._stale = 0
+
+        last_glob, stall = None, 0
+        while time.time() - t0 < max_seconds:
+            if not st.in_battle(self.b):
+                return self._finish()
+            # END SEQUENCE (checked FIRST, before settling): once a side has actually FAINTED
+            # (a real alive->0 transition, not a stale battle-start read), the outcome is
+            # decided; the rest is the victory/loss chain - faint anim -> "X fainted!" -> EXP
+            # bar -> level-up -> exit. _advance_text walks it (waits out animations, A+B taps)
+            # until the battle exits to overworld (in_battle -> False -> _finish). Never selects.
+            if self._enemy_fainted or self._we_fainted:
+                for _i in range(60):
+                    if not st.in_battle(self.b):
+                        break
+                    cur = st.read_battle(self.b)
+                    if cur:
+                        self._emit_diffs(self._prev, cur); self._prev = cur
+                    self._advance_text()                  # faint -> EXP -> level-up -> exit
                 continue
-            if self._at_action_menu():
-                if not acted:                       # rising edge: choose + execute once
-                    # ROOT-CAUSE GUARD (2026-06-23): only act when the menu is truly
-                    # INTERACTIVE (the cursor responds to the D-pad), not merely
-                    # phase==0x580 + a valid cursor. Acting on a not-yet-interactive
-                    # menu means every A-press is IGNORED, the move never lands, the
-                    # action menu re-enters with HP unchanged, and we spin into
-                    # stall->recovery->FLEE (the Forest "ended" bug). Wait for real.
-                    if not self._action_menu_ready():
-                        continue
-                    ours, enemy = state["ours"], state["enemy"]
-                    # STUCK DETECTION: the action menu keeps returning with no change to
-                    # the battle = we're spinning (e.g. cursor desync). Fail LOUD, never
-                    # silently forever.
-                    prog = (enemy["hp"], ours["hp"])
-                    self._no_progress = self._no_progress + 1 if prog == self._last_progress else 0
-                    self._last_progress = prog
-                    if self._no_progress >= 8:
-                        # don't just give up - TRY to escape (the desync may have left us
-                        # in a submenu). Back out (B) + re-settle, retry; abort only if
-                        # recovery itself keeps failing.
-                        self._recovery_attempts += 1
-                        if self._recovery_attempts > 4:
-                            self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly.")
-                            self.emit("ugh, I'm stuck in this menu - something's glitched", beat=False)
-                            return "stuck"
-                        self.log(f"   [engine] action-menu stall (recovery {self._recovery_attempts}) "
-                                 f"- B-escape any submenu + re-settle, then retry")
-                        self._escape_submenu()
-                        self._no_progress = 0
-                        acted = False
-                        continue
-                    idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
-                    eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
-                                            enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
-                    self.log(f"   [engine] action menu: {desc} (eff x{eff:g}) vs "
-                             f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
-                    if self._execute(idx, desc, eff):
-                        acted = True            # move committed this turn -> wait for it to resolve
-                        self._acted_once = True
-                        last_key, stable = None, 0
-                    # else: _execute could not reach FIGHT in this window - leave acted=False so
-                    # we RE-PROBE the gate and retry next loop, instead of freezing here with
-                    # acted=True until the global-stall watchdog (which can't un-stick a wild
-                    # battle) loud-aborts. The no_progress counter still bounds genuine spins.
+            self._settle()                            # advance to a wait-point (narrates diffs)
+            if not st.in_battle(self.b):
+                return self._finish()
+            glob = self._bstate()
+            if glob != last_glob:                     # real progress -> reset the wedge guard
+                last_glob, stall = glob, 0
+            if self._white_box():                     # the action menu is up (white panel) ->
+                state = st.read_battle(self.b)         # pick + commit a move, verify it lands
+                res = self._select_and_verify(state) if state else "stuck"
+                if res == "done":
+                    self._acted_once = True
+                    stall = 0
+                else:
+                    stall += 1                        # menu up but flaky -> settle re-checks, retry
             else:
-                acted = False                       # left the menu -> ready for next turn
-                key = (state["enemy"]["hp"], state["ours"]["hp"], self._phase())
-                stable = stable + 1 if key == last_key else 0
-                last_key = key
-                if stable >= 14:                    # a settled text box -> advance it
-                    self._tap("A")
-                    last_key, stable = None, 0
-        return outcome
+                self._advance_text()                  # BLUE dialogue/animation box -> advance it
+                stall += 1
+            if stall >= 30:                           # genuine wedge -> loud abort, never silent
+                self.log("   [engine] !! battle wedged - no progress over 30 attempts, aborting loudly")
+                self.emit("okay I'm properly stuck, the menu's glitched", beat=False)
+                return "stuck"
+        return "timeout"
 
     def _finish(self):
         prev = self._prev or {}
@@ -296,6 +296,7 @@ class BattleAgent:
             self._enemy_fainted = True
             self.emit(f"{st.SPECIES_NAME.get(ce['species'], 'the enemy')} fainted", beat=True)
         if co["hp"] == 0 and po["hp"] > 0:
+            self._we_fainted = True
             self.emit("your Pokemon fainted", beat=True)
         elif co["maxhp"] and (po["hp"] - co["hp"]) > 0.4 * co["maxhp"]:
             self.emit("you took a big hit", beat=True)

@@ -213,19 +213,18 @@ class Traveler:
         return out
 
     def _warmup_battle(self):
-        """Advance the battle intro to a settled action menu before the engine acts.
-        Proven stable for the first encounter (the engine's own settle alone left the
-        first battle flaky). Runs AFTER the on-time encounter beat, so it doesn't mash
-        the intro before her surprise lands."""
+        """Let the encounter solidly BEGIN, then hand to the engine - which does its own
+        intro advance (run()->_reach_first_menu). DO NOT mash A here on GBATTLE_PHASE: that
+        register is a free-running FRAME COUNTER, not a phase (it hits 0x580 once every ~16
+        frames during animations too), so the old loop mashed up to 240 A-presses on a bogus
+        condition and DESYNCED the menu before the engine started - wedging Forest battles.
+        Just settle a beat in-battle; the engine owns the intro from here."""
         import pokemon_state as st
-        for _ in range(240):
+        for _ in range(20):
             if not st.in_battle(self.b):
                 return
-            ph = self.b.rd32(ram.GBATTLE_PHASE)
-            cur = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
-            if ph == ram.PHASE_ACTION_MENU and cur in (0, 1, 2, 3):
-                return
-            self.b.press("A", 6, 6, self.render, owner=self.owner)
+            self.b.run_frame()
+            self.render()
 
     def travel(self, target_map=MAP_VIRIDIAN, max_steps=800, arrive_coord=None,
                max_seconds=300):
