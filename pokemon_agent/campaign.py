@@ -41,6 +41,11 @@ STATES = os.path.join(_HERE, "states")
 PALLET, VIRIDIAN, PEWTER = (3, 0), (3, 1), (3, 2)
 ROUTE1, ROUTE2, ROUTE22 = (3, 19), (3, 20), (3, 41)
 # Viridian Forest + gym interiors live in other groups; resolved at runtime on entry.
+# Viridian Pokemon Center (RED-roof bldg, reconned 2026-06-24): town door (26,26) -> interior
+# (5,4); nurse at (7,2), talked to from (7,4) ACROSS the counter; entrance mat at (7,8).
+VIRIDIAN_PC_DOOR, VIRIDIAN_PC_MAP, NURSE_FRONT, PC_ENTRY = (26, 26), (5, 4), (7, 4), (7, 8)
+# party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
+P_HP, P_MAXHP = 0x56, 0x58
 
 # ── THE CAMPAIGN: Pallet -> Pewter -> Brock, as an objective list ─────────────
 # Each objective: (TYPE, *args, label). The driver executes them in order, never
@@ -191,6 +196,110 @@ class Campaign:
             return self.battle_runner()
         return "gym_todo"
 
+    # ── healing (the ordinary survival loop) ──────────────────────────────────
+    def lead_hp(self):
+        return (self.b.rd16(ram.GPLAYER_PARTY + P_HP),
+                self.b.rd16(ram.GPLAYER_PARTY + P_MAXHP))
+
+    def _step_to(self, tile, steps=30):
+        """Obstacle-aware greedy stepper for tiny INTERIORS (the Traveler refuses an NPC's
+        facing tile - e.g. a nurse/counter - so interiors need a manual stepper). Tries the
+        dominant axis; if a press doesn't move us, tries the other; nudges sideways if boxed."""
+        for _ in range(steps):
+            cur = tv.coords(self.b)
+            if cur == tile:
+                return True
+            if cur is None:
+                for _ in range(8):
+                    self.b.run_frame()
+                continue
+            dx, dy = tile[0] - cur[0], tile[1] - cur[1]
+            if abs(dx) >= abs(dy):
+                order = ([("RIGHT" if dx > 0 else "LEFT")] if dx else []) + \
+                        ([("DOWN" if dy > 0 else "UP")] if dy else [])
+            else:
+                order = ([("DOWN" if dy > 0 else "UP")] if dy else []) + \
+                        ([("RIGHT" if dx > 0 else "LEFT")] if dx else [])
+            moved = False
+            for key in order:
+                self.b.press(key, 8, 8, self.render, owner="agent")
+                if tv.coords(self.b) != cur:
+                    moved = True
+                    break
+            if not moved:
+                self.b.press("RIGHT", 8, 8, self.render, owner="agent")
+        return tv.coords(self.b) == tile
+
+    def heal_at_center(self):
+        """AUTHENTIC Pokemon Center heal (no RAM poking): route to the Viridian Center door,
+        enter, walk to the nurse counter, drive the YES heal dialogue, verify HP -> max, exit.
+        Returns 'healed' or 'stuck' (LOUD)."""
+        h0 = self.lead_hp()
+        if h0[0] >= h0[1]:
+            log(f"   HEAL: already full ({h0[0]}/{h0[1]}) - skipping"); return "healed"
+        return_to = tv.coords(self.b)             # heal is TRANSPARENT: come back here after
+        log(f"   HEAL: lead at {h0[0]}/{h0[1]} -> routing to the Viridian Pokemon Center "
+            f"(will return to {return_to})")
+        # 1) to the PC door + step in
+        if self.trav.travel(target_map=None, arrive_coord=(VIRIDIAN_PC_DOOR[0],
+                            VIRIDIAN_PC_DOOR[1] + 1), max_steps=400, max_seconds=120) != "arrived":
+            log(f"   !! HEAL: couldn't reach the PC door (at {tv.coords(self.b)})"); return "stuck"
+        before = tv.map_id(self.b)
+        for _ in range(6):
+            self.b.press("UP", 8, 10, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
+            if tv.map_id(self.b) != before:
+                break
+        if tv.map_id(self.b) != VIRIDIAN_PC_MAP:
+            log(f"   !! HEAL: did not enter the Center (got {tv.map_id(self.b)})"); return "stuck"
+        for _ in range(90):                       # entrance auto-walk settle (input lock)
+            self.b.run_frame()
+        self.b.set_input_owner("agent")
+        # 2) to the nurse counter + drive the YES heal dialogue
+        self._step_to(NURSE_FRONT)
+        self.b.press("UP", 6, 8, self.render, owner="agent")     # face the nurse
+        for _ in range(26):
+            # YES/NO box eats the first press; UP engages (YES is top, can't move off), A=YES
+            self.b.press("UP", 4, 4, self.render, owner="agent")
+            self.b.press("A", 6, 10, self.render, owner="agent")
+            for _ in range(30):
+                self.b.run_frame()
+            if self.lead_hp()[0] == self.lead_hp()[1]:
+                break
+        h1 = self.lead_hp()
+        if h1[0] != h1[1] or h1[1] == 0:
+            log(f"   !! HEAL: nurse dialogue did not complete (HP {h1[0]}/{h1[1]})"); return "stuck"
+        log(f"   HEAL: restored {h0[0]}/{h0[1]} -> {h1[0]}/{h1[1]}")
+        # 3) exit: step off the entrance mat then back down onto it (being PLACED on a warp
+        # tile doesn't fire it - only STEPPING onto it does). Walk up one, then down onto the
+        # exit tile; the door/warp tiles are found via the same 0x6x behavior scan as entry.
+        warp_tiles = set(self._door_tiles())
+        log(f"   HEAL: interior warp tiles={sorted(warp_tiles)} (player {tv.coords(self.b)})")
+        self._step_to((PC_ENTRY[0], PC_ENTRY[1] - 1))     # one tile ABOVE the mat
+        inside = tv.map_id(self.b)
+        for _ in range(8):
+            if tv.map_id(self.b) != inside:
+                break
+            self.b.press("DOWN", 8, 12, self.render, owner="agent")
+            for _ in range(18):
+                self.b.run_frame()
+            log(f"      exit DOWN -> map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
+        log(f"   HEAL: exited Center -> map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
+        if tv.map_id(self.b) != VIRIDIAN:
+            return "healed_stuck_inside"
+        # walk back to the pre-heal spot so HEAL is transparent (the next objective resumes
+        # from where it expected to be, not the PC doorstep)
+        if return_to and tv.coords(self.b) != return_to:
+            self.b.set_input_owner("agent")
+            r = self.trav.travel(target_map=None, arrive_coord=return_to,
+                                 max_steps=400, max_seconds=120)
+            log(f"   HEAL: returned toward {return_to} -> {r} (now {tv.coords(self.b)})")
+        return "healed"
+
+    def grind(self, target_level):
+        log("   GRIND: handler not built yet"); return "stuck"   # TODO: build after heal verify
+
     # ── the continuous driver ────────────────────────────────────────────────
     def run(self, objectives):
         for i, obj in enumerate(objectives):
@@ -208,6 +317,10 @@ class Campaign:
                        else self.enter_warp(prefer=spec or "nearest"))
             elif kind == "LEVEL_CHECK":
                 out = self.level_check(obj[1])
+            elif kind == "HEAL":
+                out = self.heal_at_center()
+            elif kind == "GRIND":
+                out = self.grind(obj[1])
             elif kind == "BEAT_GYM":
                 out = self.beat_gym(obj[1])
             elif kind == "GATE_NEEDS_STATE":
