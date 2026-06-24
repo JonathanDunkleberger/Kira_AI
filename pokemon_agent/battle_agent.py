@@ -44,6 +44,9 @@ class BattleAgent:
         self._recovery_attempts = 0
         self._last_global = None
         self._stale = 0
+        self._acted_once = False       # have we landed/attempted a move yet? (the battle
+                                       # intro+settle legitimately makes NO hp change - the
+                                       # global-stall watchdog must not fire during it)
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -78,10 +81,19 @@ class BattleAgent:
             self._tap("A")            # advance intro / text
         return False
 
+    def _is_trainer_battle(self):
+        """BATTLE_TYPE_TRAINER (0x08). Valid in-battle. Wild = can flee, trainer = can't."""
+        return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
+
     def _escape_submenu(self):
-        """RECOVER: if we fumbled into a submenu (party/bag), press B to back out
-        toward the action menu, then re-settle. B never CONFIRMS a wrong selection."""
-        for _ in range(5):
+        """RECOVER, FLEE-SAFE. In a WILD battle pressing B can RUN (flee) - so we NEVER
+        press B there; we just WAIT and let the main loop's interactivity gate re-establish
+        the real action menu and act. (B = run was the Forest 'ended'/flee bug.) Only in a
+        TRAINER battle - where you CANNOT flee - is B safe to back out of a wrong submenu."""
+        if not self._is_trainer_battle():
+            self._wait(30)             # wild: settle only, no B/A that could select RUN
+            return True
+        for _ in range(5):             # trainer: B safely backs out (no flee possible)
             if self._action_menu_ready():
                 return True
             self._tap("B")
@@ -190,9 +202,9 @@ class BattleAgent:
                 self._stale += 1
             else:
                 self._last_global, self._stale = glob, 0
-            if self._stale >= 360:        # generous: must NOT fire on a slow legit
-                                          # animation/text (that would read as a hitch);
-                                          # only a true menu stall sits here this long
+            if self._acted_once and self._stale >= 360:   # NOT during the battle intro/
+                                          # settle (legit no-hp-change before the first move
+                                          # - that false-fired recovery at every battle start)
                 self._recovery_attempts += 1
                 if self._recovery_attempts > 4:
                     self.log("   [engine] !! STUCK after B-escape recovery - aborting loudly")
@@ -242,6 +254,7 @@ class BattleAgent:
                              f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
                     self._execute(idx, desc, eff)
                     acted = True
+                    self._acted_once = True
                     last_key, stable = None, 0
             else:
                 acted = False                       # left the menu -> ready for next turn
