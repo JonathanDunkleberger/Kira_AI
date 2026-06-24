@@ -176,9 +176,13 @@ class Traveler:
     """
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
-                 log=print, owner="agent", beat=None):
+                 log=print, owner="agent", beat=None, pause_check=None):
         self.b = bridge
         self.battle_runner = battle_runner
+        # optional callback checked AFTER each battle; if it returns truthy, travel() yields
+        # control to the caller with "need_heal" (the heal-when-low interrupt) so the campaign
+        # can route back to the Center before resuming the leg.
+        self.pause_check = pause_check or (lambda: False)
         self.render = render or (lambda: None)
         self.on_event = on_event or (lambda s: None)
         # PERFORMANCE BEAT hook: at notable moments the hands HOLD until her voice
@@ -227,8 +231,9 @@ class Traveler:
             self.render()
 
     def travel(self, target_map=MAP_VIRIDIAN, max_steps=800, arrive_coord=None,
-               max_seconds=300):
-        """Walk to a connected map (cross its north edge) OR, if arrive_coord is set,
+               max_seconds=300, edge="north"):
+        """Walk to a connected map (cross its north edge, or its south edge if edge='south'
+        - for the heal-return back to Viridian) OR, if arrive_coord is set,
         BFS to that specific tile on the current map and stop there (for warp doors /
         gym-interior nav). Same robust NPC-aware, grass-aware, battle-handoff stepping.
         WALL-CLOCK budget (max_seconds): a leg that grinds far past it (e.g. a battle-
@@ -244,8 +249,11 @@ class Traveler:
         stuck = exit_tries = no_path = 0
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
-        # goal: a specific tile (coord mode) or the north exit row (edge-crossing mode)
-        goal = (lambda t: t == arrive_coord) if arrive_coord is not None else (lambda t: t[1] == 0)
+        # goal: a specific tile (coord mode) or the chosen exit row (edge-crossing mode).
+        # north exit = row 0; south exit = the bottom playable row (grid.sy_hi).
+        exit_row = 0 if edge == "north" else grid.sy_hi
+        exit_dir = "N" if edge == "north" else "S"
+        goal = (lambda t: t == arrive_coord) if arrive_coord is not None else (lambda t: t[1] == exit_row)
         for step in range(max_steps):
             # WALL-CLOCK WATCHDOG (loud): a leg should not run for hours. If we blow the
             # budget we're grinding (battle-heavy grass maze) or wedged - ABORT LOUD with
@@ -276,6 +284,9 @@ class Traveler:
                 self.b.set_input_owner(self.owner)   # reclaim from the battle agent
                 grid = Grid(self.b)
                 stuck = 0
+                if self.pause_check():                # heal-when-low: yield to the caller
+                    self.log("   [travel] post-battle PAUSE (heal-when-low) - yielding to caller")
+                    return "need_heal"
                 continue
 
             # 2) map transition / arrival
@@ -315,14 +326,14 @@ class Traveler:
                 if arrive_coord is not None and cur == arrive_coord:
                     self.log(f"   [travel] reached target coord {arrive_coord}")
                     return "arrived"
-                if arrive_coord is None and cur[1] == 0:   # on the exit gap -> cross north
+                if arrive_coord is None and cur[1] == exit_row:   # on the exit gap -> cross
                     exit_tries += 1
                     if exit_tries > EXIT_TRIES:
-                        self.log(f"   [travel] !! at exit {cur} but {exit_tries} north "
+                        self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "
                                  f"presses didn't transition - ABORT LOUD")
                         self.on_event("I'm at the edge but I can't get through - stuck")
                         return "stuck"
-                    self._press("N")
+                    self._press(exit_dir)
                     continue
                 # no path right now - most likely an NPC is standing on the only gap.
                 # WAIT (bounded) for a wanderer to step off, re-reading NPC positions each

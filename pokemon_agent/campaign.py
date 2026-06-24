@@ -79,9 +79,13 @@ class Campaign:
         self.on_event = on_event or (lambda s: log(f"[event] {s}"))
         self.beat = beat or (lambda s: None)
         self.render = render or (lambda: None)
+        # heal-when-low: the pause fires ONLY during forward traversal, never during a SERVICE
+        # navigation (the heal-return south, the PC routing) - else it would re-trigger mid-heal.
+        self._suppress_heal = False
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
-                                on_event=self.on_event, beat=self.beat)
+                                on_event=self.on_event, beat=self.beat,
+                                pause_check=lambda: self.needs_heal() and not self._suppress_heal)
 
     def _advance_dialogue(self, taps=12):
         """Press A to advance/close any open textbox until movement is free again."""
@@ -101,9 +105,10 @@ class Campaign:
 
     def enter_warp(self, prefer="nearest", pick=None):
         """REAL warp entry: find door/warp tiles (behavior 0x6x), walk to the tile just
-        south of a chosen one (the standard approach), step UP onto it, and confirm the
-        map flips. `pick` (x,y) targets a specific door; else `prefer` = 'nearest' or
-        'north' (forward-progress gates are the northmost door)."""
+        beside a chosen one, step INTO it, and confirm the map flips. `pick` (x,y) targets a
+        specific door; else `prefer` = 'nearest' / 'north' (forward-progress gates are the
+        northmost door, approached from the south, stepped UP) / 'south' (the heal-return exit,
+        the southmost door, approached from the north, stepped DOWN)."""
         before = tv.map_id(self.b)
         doors = self._door_tiles()
         if not doors:
@@ -113,11 +118,16 @@ class Campaign:
             order = [pick]
         elif prefer == "north":
             order = sorted(doors, key=lambda t: (t[1], abs(t[0] - cur[0])))
+        elif prefer == "south":
+            order = sorted(doors, key=lambda t: (-t[1], abs(t[0] - cur[0])))
         else:
             order = sorted(doors, key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+        # approach from the side OPPOSITE the travel direction, then step INTO the door.
+        # north/nearest: stand south of the door, step UP. south: stand north, step DOWN.
+        approach_dy, step_key = (-1, "DOWN") if prefer == "south" else (1, "UP")
         log(f"   {len(doors)} door(s); candidates (chosen order): {order}")
         for door in order:
-            approach = (door[0], door[1] + 1)            # stand just south of the door
+            approach = (door[0], door[1] + approach_dy)  # stand just beside the door
             # FAST reachability pre-check (BFS only) so unreachable doors are skipped
             # instantly instead of a slow walk-then-fail. Uses grass-ALLOWED collision
             # (grid.walkable, not _safe): grass-heavy maps like Viridian Forest are
@@ -127,10 +137,13 @@ class Campaign:
                           walkable=grid.walkable):
                 continue
             log(f"   reachable door {door}: walking to approach {approach}")
-            if self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300) != "arrived":
+            r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300)
+            if r == "need_heal":
+                return "need_heal"          # heal interrupt during the approach -> let caller heal
+            if r != "arrived":
                 continue
-            for _ in range(5):                           # step UP into the doorway -> warp
-                self.b.press("UP", 8, 8, self.render, owner="agent")
+            for _ in range(5):                           # step INTO the doorway -> warp
+                self.b.press(step_key, 8, 8, self.render, owner="agent")
                 self._advance_dialogue(taps=2)           # gate buildings may print a line
                 if tv.map_id(self.b) != before:
                     log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door}")
@@ -153,7 +166,7 @@ class Campaign:
                     out.append((bx - 7, by - 7))
         return out
 
-    def advance_north(self, target_map, max_legs=20):
+    def advance_north(self, target_map, max_legs=60):
         """Generic 'head north until target_map' - auto-picks WALK (cross a route edge)
         vs WARP (step through a gate-house door) at each map, so the route->gate-house->
         route->forest chain self-discovers instead of being hardcoded leg by leg. The
@@ -167,13 +180,75 @@ class Campaign:
                 continue                       # crossed an edge (maybe more legs north)
             if out == "battle_loss":
                 return "battle_loss"
+            if out == "need_heal":             # heal-when-low: go south, heal, resume north
+                r = self.return_to_center()
+                if r in ("stuck", "battle_loss"):
+                    return r
+                continue
             if out in ("no_path", "stuck"):
                 # no walkable north edge here -> it's an interior/gate house: warp north
                 log(f"   leg {leg}: no north edge on map {m} - warping north")
-                if self.enter_warp(prefer="north") != "warped":
+                w = self.enter_warp(prefer="north")
+                if w == "need_heal":            # got low crossing toward the door -> heal, retry
+                    r = self.return_to_center()
+                    if r in ("stuck", "battle_loss"):
+                        return r
+                    continue
+                if w != "warped":
                     log(f"   !! ADVANCE stuck on map {m} (no north edge, no north warp)")
                     return "stuck"
         return "timeout"
+
+    HEAL_HP_FRAC = 0.75     # heal-return when lead HP drops below this fraction of max. The
+                            # return FLEES wild fights (see _flee_runner) so the retreat costs
+                            # ~0 HP - but forest TRAINERS can't be fled, so we keep the trigger
+                            # high enough that she meets a return-trainer near full HP and wins
+                            # (esp. the fragile first foray at L8).
+
+    def needs_heal(self):
+        """True when the lead mon is low enough to risk a blackout. HP-gated: HP depletes
+        faster than Tackle's 35 PP, so an HP heal-return tops up PP as a side effect (keeping
+        Tackle her Forest move and the Vine-Whip swap a Brock-only tool)."""
+        hp, mx = self.lead_hp()
+        return mx > 0 and hp < self.HEAL_HP_FRAC * mx
+
+    def return_to_center(self):
+        """Heal-return: travel SOUTH back to Viridian (the only Center before Pewter), then heal
+        at the PC (restores HP + PP). Mirrors advance_north but southward: cross a south edge,
+        else warp south, until we're on the Viridian map; then heal_at_center (walks to the PC,
+        heals, returns to the pre-heal spot). The traveler fights any encounter en route."""
+        log(f"   HEAL-RETURN: lead at {self.lead_hp()} - routing south to Viridian to heal")
+        saved = self._suppress_heal
+        saved_runner = self.trav.battle_runner
+        self._suppress_heal = True              # don't re-trigger heal WHILE returning to heal
+        self.trav.battle_runner = self._flee_runner   # RETREAT: flee wild fights on the way out
+        try:
+            for leg in range(20):
+                m = tv.map_id(self.b)
+                if m == VIRIDIAN:
+                    break
+                out = self.trav.travel(target_map=VIRIDIAN, edge="south", max_steps=800)
+                if out == "arrived":
+                    continue                       # crossed a south edge toward Viridian
+                if out == "battle_loss":
+                    return "battle_loss"           # blacked out en route -> auto-heals at Viridian
+                log(f"   HEAL-RETURN leg {leg}: no south edge on map {m} - warping south")
+                if self.enter_warp(prefer="south") != "warped":
+                    log(f"   !! HEAL-RETURN stuck on map {m} (no south edge, no south warp)")
+                    return "stuck"
+            if tv.map_id(self.b) != VIRIDIAN:
+                log(f"   !! HEAL-RETURN did not reach Viridian (at {tv.map_id(self.b)})")
+                return "stuck"
+            return self.heal_at_center()
+        finally:
+            self._suppress_heal = saved
+            self.trav.battle_runner = saved_runner
+
+    def _flee_runner(self):
+        """Battle handler used DURING the heal-return: flee wild fights (retreat costs ~0 HP),
+        win forced trainers. Built fresh per battle; routes events to the campaign's voice."""
+        return BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
+                           render=self.render, log=lambda m: None).flee(max_seconds=90)
 
     def level_check(self, min_level, leader="Brock"):
         """LOUD Brock-readiness check at the Forest exit / before the gym. Reads the lead

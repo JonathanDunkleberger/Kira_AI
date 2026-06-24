@@ -146,6 +146,54 @@ class BattleAgent:
             self._wait(3)
         return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
 
+    def _goto_run(self, tries=10):
+        """READ the action cursor and walk it to RUN (bottom-right). Eaten-press tolerant.
+        Returns True only when the cursor is confirmed on RUN (3); False if not at the menu."""
+        for _ in range(tries):
+            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            if c == ram.ACT_RUN:
+                return True
+            if c == ram.ACT_FIGHT:
+                self._tap("RIGHT"); self._tap("DOWN")
+            elif c == ram.ACT_BAG:
+                self._tap("DOWN")
+            elif c == ram.ACT_POKEMON:
+                self._tap("RIGHT")
+            else:
+                return False                          # not the action menu
+            self._wait(3)
+        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_RUN
+
+    def flee(self, max_seconds=90):
+        """RETREAT: flee a WILD battle (the wounded heal-return path - fighting our way back
+        through the grass is what blacks us out). Forced TRAINER battles can't be fled, so we
+        WIN those via the normal engine. Selects RUN with eaten-press tolerance and verifies the
+        battle actually ended (in_battle clears). Returns 'fled' / 'win' / 'loss' / 'stuck'."""
+        t0 = time.time()
+        while time.time() - t0 < max_seconds and not st.in_battle(self.b):
+            self._wait(1)
+        if not st.in_battle(self.b):
+            return "fled"
+        self._prev = st.read_battle(self.b)
+        self._reach_first_menu(t0, max_seconds)
+        if self._is_trainer_battle():                 # can't flee a trainer -> WIN it
+            return self.run(max_seconds=max_seconds)
+        for _ in range(40):
+            if not st.in_battle(self.b):
+                return "fled"
+            self._settle()
+            if not st.in_battle(self.b):
+                return "fled"
+            cur = st.read_battle(self.b)
+            if cur and cur["ours"]["hp"] == 0:
+                return "loss"
+            if self._white_box() and self._goto_run():
+                self._tap("RIGHT"); self._tap("DOWN") # engage (eaten-press; RUN stays at corner)
+                self._tap("A"); self._wait(20)        # confirm RUN -> "got away safely" / retry
+            else:
+                self._advance_text()                  # advance the escape/"can't escape" message
+        return "fled" if not st.in_battle(self.b) else "stuck"
+
     # ── SCREEN-based menu detection (the RAM has NO clean menu-state flag - every candidate
     # is a frame counter or a one-state false positive; diagnosed 2026-06-23). The UI is
     # battle-independent: the action menu + move list draw a WHITE panel bottom-right; a
