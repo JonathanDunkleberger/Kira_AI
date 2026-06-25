@@ -40,6 +40,13 @@ PHASE_MOVE_LIST    = 0x680        # FIGHT move list up - confirms FIGHT opened
 # deterministically instead of assuming the position (the blind-nav desync bug).
 GBATTLE_ACTION_CURSOR = 0x02023FF8
 ACT_FIGHT, ACT_BAG, ACT_POKEMON, ACT_RUN = 0, 1, 2, 3
+# ⛔ CATCH-ARC FINDING (2026-06-25): the ACTION cursor is UN-NAVIGABLE in this libmgba core (same as
+# the move list) — the first d-pad press at the action menu confirms FIGHT (menu_up->0); _goto_run
+# fails. The engine only wins because attacks use the DEFAULT FIGHT cell (cursor 0) + move-swap. So
+# BAG(1) is unreachable via menu → a Poké Ball can't be thrown by navigating. The catch path is to
+# RAM-WRITE the battle action (extend the proven move-swap pattern): write USE_ITEM + the ball to the
+# action/chosen-item RAM, bypassing the cursor. Ball inventory: gSaveBlock1 + BAG_BALLS_OFF below.
+BAG_BALLS_OFF = 0x430            # PokéBalls pocket off gSaveBlock1 ({u16 itemId, u16 qty^key}); id4=PokéBall
 # ── MOVE LIST (FIGHT submenu) findings 2026-06-24, screenshot-verified ────────
 # It is a 2x2 GRID: TACKLE(TL,0) GROWL(TR,1) / LEECH SEED(BL,2) VINE WHIP(BR,3). Cursor opens on
 # slot 0. So the OLD _nav_to 2x2 layout (RIGHT=col, DOWN=row) is CORRECT; the bug is the eaten-
