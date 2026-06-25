@@ -77,7 +77,7 @@ from kira.config import (
     BARGE_IN_YIELD_ENABLED,
     EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
     DRIVE_SELF_BLOCK_ENABLED, CURRENT_WANT_ENABLED, JONNY_BOND_ENABLED,
-    POKEMON_AGENT_ENABLED,
+    POKEMON_AGENT_ENABLED, POKEMON_HEARING_SUPPRESS_S,
     GLITCH_AWARE_ENABLED, GLITCH_AWARE_COOLDOWN_S, GLITCH_AWARE_CHANCE,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
@@ -3218,7 +3218,15 @@ class VTubeBot:
         `tier` (0..3) is a SALIENCE HINT from the game harness, threaded straight through to
         _execute_interjection's model/length pick (big beats -> Opus + room; grind -> Sonnet +
         short). It NEVER changes what she says or who she is — only which model voices it."""
-        if not POKEMON_AGENT_ENABLED or not summary or self.is_muted():
+        if not POKEMON_AGENT_ENABLED or not summary:
+            return
+        # POKÉMON MODE is active whenever game events flow → gate the desktop audio-classifier so she
+        # stops hearing/reacting to the game MUSIC (the soundtrack shares her loopback endpoint). The
+        # mic and THIS game-event seam are untouched. Refreshed BEFORE the reaction gates so a gated
+        # or muted event still keeps the (self-reverting) suppression alive.
+        if self.audio_agent is not None and POKEMON_HEARING_SUPPRESS_S > 0:
+            self.audio_agent.pokemon_suppress(seconds=POKEMON_HEARING_SUPPRESS_S)
+        if self.is_muted():
             return
         if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
             return
@@ -3232,9 +3240,17 @@ class VTubeBot:
             "React in one or two sentences, in character. Don't narrate the mechanics."
         )
         if self._active_turn_lock.locked():
+            # COALESCE (soul-flow lag fix): a fast game floods events while she voices one (~6-9s
+            # each). Draining that backlog one-by-one makes her react to 30-40s-stale beats ("a
+            # Geodude fainted" long after Brock's dead). A stale game beat is worse than silence —
+            # so keep only the FRESHEST pending Pokémon beat: drop any already-queued Pokémon ones
+            # (the fight moved on) before buffering this one. Pokémon-only — the Director/media
+            # interjection backlog (general Kira) is left exactly as-is.
+            self._pending_interjections[:] = [pi for pi in self._pending_interjections
+                                              if not pi.get("pokemon")]
             self._pending_interjections.append({
                 "prompt": prompt, "memory_query": "pokemon battle",
-                "scene_override": summary, "queued_at": time.time(),
+                "scene_override": summary, "queued_at": time.time(), "pokemon": True,
             })
             return
         async with self._active_turn_lock:
@@ -9496,8 +9512,11 @@ class VTubeBot:
                       "(yielding the floor; backlog resumes after the hold window)")
                 break
             pi = self._pending_interjections.pop(0)
-            if time.time() - pi["queued_at"] > 15.0:
-                print("   [Arbiter] Dropping stale buffered interjection (>15s old)")
+            # Pokémon game beats go stale FAST (the fight has moved on) — drop at 10s so she stays
+            # current; media/Director reactions keep the original 15s. (soul-flow lag fix)
+            _max_age = 10.0 if pi.get("pokemon") else 15.0
+            if time.time() - pi["queued_at"] > _max_age:
+                print(f"   [Arbiter] Dropping stale buffered interjection (>{_max_age:g}s old)")
                 continue
             queue_wait_s = time.time() - pi["queued_at"]
             content_ts = pi.get("content_ts", 0.0)

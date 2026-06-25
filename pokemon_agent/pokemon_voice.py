@@ -36,6 +36,11 @@ AMBIENT_GAP_S = float(os.getenv("POKEMON_AMBIENT_GAP_S", "7.0"))
 # GLOBAL SILENCE FLOOR: guarantee at least this gap between ANY two reactions (T1/T2) so there's a
 # natural window for Jonny to start talking. Big beats (T3) bypass it — never gate the badge.
 FLOOR_S = float(os.getenv("POKEMON_FLOOR_S", "1.6"))
+# IN A SAVOR/BIG FIGHT (trainer/gym/rare) the floor drops to near-dedupe-only so rapid battle beats
+# land — she shit-talks the fight like before. No firehose risk: the bot's is_speaking gate already
+# rate-limits to ~one reaction per spoken line, so this only un-floors the beats she'd otherwise
+# silently drop. The GRIND keeps the full FLOOR_S for Jonny's breathing room. (Item 3.)
+BATTLE_FLOOR_S = float(os.getenv("POKEMON_BATTLE_FLOOR_S", "0.4"))
 
 # species (by lowercased name) that are a SAVOR-worthy rare encounter for this leg
 RARE_SPECIES = {"pikachu"}
@@ -74,8 +79,15 @@ def classify(summary, tags=None, ctx=None):
         return 2
     if "TYPE" in tags:
         return 2
+    # MOVE-NARRATION (a swing) — routed BEFORE the trainer catch so a real fight stays CHATTY-BUT-
+    # QUICK: inside a battle (trainer/rare) a routine swing is a SNAPPY T1 jab (she shit-talks the
+    # fight without each swing becoming a ~10s T2 savor, so more lands per fight); outside a battle
+    # it's ambient T0 (drop/trickle). The grind has no battle context -> unchanged. Big hits
+    # (solid hit / super / critical) fall through to the T2 savor below. (Item 3.)
+    if s.startswith("used ") and not any(k in s for k in ("solid hit", "super", "critical")):
+        return 1 if (ctx.get("trainer") or ctx.get("rare")) else 0
     if ctx.get("trainer"):
-        return 2                                   # any event inside a trainer battle
+        return 2                                   # any other event inside a trainer battle
     if ctx.get("rare"):
         return 2                                   # any event inside a rare-encounter battle
     if "the trainer sent out" in s:
@@ -84,8 +96,7 @@ def classify(summary, tags=None, ctx=None):
         return 2                                   # trainer/gym-guide banter ("Tier 1.5") -> let it land
 
     # ── TIER 0 — ambient / low value (skip) ──
-    if s.startswith("used ") and not any(k in s for k in ("solid hit", "super", "critical")):
-        return 0                                   # generic "used an attack" swing-by-swing narration
+    # (generic "used X" swings are handled above — snappy T1 in a battle, T0 in the grind)
     if any(k in s for k in ("you took a big hit", "low hp", "the battle ended",
                             "blocking the way", "taking forever", "properly stuck")):
         return 0
@@ -153,10 +164,12 @@ class KiraVoice:
         # FIRE-RATE lever -------------------------------------------------------
         now = time.time()
         # GLOBAL SILENCE FLOOR: leave breathing room after any reaction so Jonny can talk into it.
-        # T3 big beats bypass (never suppress the badge / a gym-leader moment).
-        if tier < 3 and (now - self._last_fire_ts) < FLOOR_S:
+        # T3 big beats bypass (never suppress the badge / a gym-leader moment). In a savor/big fight
+        # the floor drops to BATTLE_FLOOR_S so the fight stays chatty (item 3).
+        floor = BATTLE_FLOOR_S if (self._ctx.get("trainer") or self._ctx.get("rare")) else FLOOR_S
+        if tier < 3 and (now - self._last_fire_ts) < floor:
             self.n_skipped += 1
-            self.log(f"   [kira-voice] ·floor· (<{FLOOR_S:g}s since last) T{tier} {summary!r}")
+            self.log(f"   [kira-voice] ·floor· (<{floor:g}s since last) T{tier} {summary!r}")
             return None
         if tier == 0:
             # ambient TRICKLE: voice the occasional generic swing on a long gap (riffing density)

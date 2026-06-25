@@ -36,6 +36,15 @@ ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 SCALE = 3
 LEAD_LEVEL = 0x54        # lead party-mon level byte (off GPLAYER_PARTY)
 
+# CLIMAX / scripted-cutscene markers: the post-Brock award + TM gift is a MULTI-BOX cutscene the
+# campaign's own A-drain (beat_gym) rips through. The reading-pace dialogue-hold must NOT pace these
+# — stacking a multi-second hold per box froze the badge moment ~100s (looked hung). On any of these
+# the hold yields immediately and lets the scripted drain land the climax. (Item 4.)
+CUTSCENE_MARKERS = (
+    "boulderbadge", "boulder badge", "take this", "technical machine", "tm39", "tm 39",
+    "rock tomb", "teaches", "as proof", "proof of", "received", "officially", "use it on",
+)
+
 
 def log(m):
     print(f"   [play-live] {m}", flush=True)
@@ -52,13 +61,18 @@ def main():
     ap.add_argument("--fast", action="store_true",
                     help="FAST TEST (~90s): boot at Pewter and run JUST the gym (trainer + Brock + "
                          "badge) so you can feel pacing/interrupt/dialogue/music without the Forest grind")
+    ap.add_argument("--go", action="store_true",
+                    help="CONTINUOUS RUN: play the resumable SEGMENT MANIFEST (campaign.build_segments) "
+                         "— auto-checkpoints between segments and resumes from the furthest one")
     ap.add_argument("--audio", action="store_true",
                     help="play the emulator's game audio in real time (headphones + OBS cable)")
     ap.add_argument("--list-audio", action="store_true", help="list output devices and exit")
     ap.add_argument("--phones", default=os.getenv("POKEMON_PHONES", ""),
                     help="output device name-substring for YOUR headphones (so you hear it)")
-    ap.add_argument("--cable", default=os.getenv("POKEMON_CABLE", "CABLE Input"),
-                    help="output device name-substring for OBS capture (VB-Audio cable)")
+    ap.add_argument("--cable", default=None,
+                    help="DEPRECATED/UNUSED — game music no longer routes to the virtual cable (the "
+                         "cable carries ONLY Kira's voice so VTS doesn't lip-sync the soundtrack). "
+                         "Music goes to --phones (desktop); OBS captures desktop audio directly.")
     args = ap.parse_args()
 
     if args.list_audio:
@@ -76,7 +90,7 @@ def main():
     import pokemon_state as st                 # noqa: E402
     import travel as tv                       # noqa: E402
     from battle_agent import BattleAgent      # noqa: E402
-    from campaign import Campaign, build_objectives, STATES  # noqa: E402
+    from campaign import Campaign, build_objectives, build_segments, STATES  # noqa: E402
     from dialogue_reader import DialogueReader  # noqa: E402
     import pokemon_voice as pv                  # noqa: E402
     from pokemon_voice import KiraVoice         # noqa: E402
@@ -105,6 +119,7 @@ def main():
         pygame.display.set_caption("Kira plays Pokemon - SOUL ON")
 
     _frame = [0]
+    _holding = [False]        # reentrancy guard: never stack dialogue-holds (the ~100s climax freeze)
 
     def _draw():
         if screen is None:
@@ -117,53 +132,75 @@ def main():
         screen.blit(pygame.transform.scale(surf, (b.width * SCALE, b.height * SCALE)), (0, 0))
         pygame.display.flip()
 
-    def _dialogue_hold(tier):
+    def _dialogue_hold(tier, line=""):
         """DIALOGUE-SYNC: when she reacts to a SALIENT line (T2/T3), reveal that text at READING
-        PACE so the viewer reads what she's reacting to — instead of read-ahead-and-mash. We release
-        the pad (stop the caller's fast advance), keep each page up while it's read + her voice lands,
-        then advance one page, until the message buffer clears or a page budget. Pure A-advance with
-        NO dialogue poll inside, so it can't re-enter; the caller's later A-mash hits a drained box."""
-        if args.no_pace:
+        PACE so the viewer reads what she's reacting to — instead of read-ahead-and-mash.
+
+        TUNED (items 2+4): dwell ONLY while there's MORE text to read — land the page at reading
+        pace, advance, and STOP the instant a box has no next page (no fixed multi-second freeze on
+        a line that's already drained). A reentrancy guard + a hard total cap mean a hold can never
+        STACK or run long; the scripted CLIMAX cutscene (badge/TM award) is skipped outright so the
+        campaign's own A-drain lands it (this is what froze the badge moment ~100s before)."""
+        if args.no_pace or _holding[0]:
             return
-        read_s = 2.6 if tier >= 3 else 1.8        # per-page dwell = viewer reading time
-        max_pages = 6 if tier >= 3 else 2
-        speak_cap = 8.0 if tier >= 3 else 4.5     # bound on waiting out her reaction (page 0)
+        # CLIMAX guard: never reading-pace the badge/TM award cutscene — yield to the scripted drain.
         try:
-            b.release(owner="agent")              # stop the caller mashing; we pace the reveal
+            buf_now = dialogue._read_buffer() or ""
         except Exception:
-            pass
+            buf_now = ""
+        blob = f"{line} {buf_now}".lower()
+        if any(m in blob for m in CUTSCENE_MARKERS):
+            print("   [play-live] dialogue-hold: climax cutscene — yielding to the scripted "
+                  "award/TM drain (no reading-pace hold)", flush=True)
+            return
+        _holding[0] = True
         try:
-            start_buf = dialogue._read_buffer()
-        except Exception:
-            start_buf = None
-        for page in range(max_pages):
-            t0 = time.time()                      # keep the current page visible (reading time)
-            while time.time() - t0 < read_s:
-                b.run_frame(); _draw()
-            if page == 0:                         # sync: let her one reaction beat land with the text
-                t1 = time.time()
-                while voice.is_speaking() and time.time() - t1 < speak_cap:
-                    b.run_frame(); _draw()
+            read_s = 1.6 if tier >= 3 else 1.1    # per-page dwell = viewer reading time (snappier)
+            max_pages = 4 if tier >= 3 else 2
+            cap = 5.0 if tier >= 3 else 3.0       # HARD total backstop — a hold can't run long
             try:
-                cur = dialogue._read_buffer()
+                b.release(owner="agent")          # stop the caller mashing; we pace the reveal
             except Exception:
-                cur = start_buf
-            if not cur or cur != start_buf:
-                break                             # message closed / advanced on its own -> done
-            b.press("A", 6, 8, _draw, owner="agent")   # reveal the next page at reading pace
+                pass
+            try:
+                prev = dialogue._read_buffer()
+            except Exception:
+                prev = None
+            t_start = time.time()
+            for _page in range(max_pages):
+                t0 = time.time()                  # land THIS page at reading pace (or until capped)
+                while time.time() - t0 < read_s and time.time() - t_start < cap:
+                    b.run_frame(); _draw()
+                if time.time() - t_start >= cap:
+                    break
+                b.press("A", 6, 8, _draw, owner="agent")   # advance one page
+                try:
+                    cur = dialogue._read_buffer()
+                except Exception:
+                    cur = prev
+                if not cur or cur == prev:
+                    break                         # no more text -> land it, don't freeze on it
+                prev = cur
+        finally:
+            _holding[0] = False
 
     def render():
         """Per-frame hook the engine already calls everywhere. We piggyback the overworld
         DialogueReader poll here (throttled by frame count); a T2+ line gets a short LANDING hold."""
         _frame[0] += 1
+        # CLIMAX: while beat_gym drains the scripted badge/TM award, keep the window LIVE but do NOT
+        # poll/hold dialogue — let the proven A-drain land the badge (mirror headless; item 4 fix).
+        if getattr(camp, "draining_award", False):
+            _draw()
+            return
         if _frame[0] % args.poll_every == 0:
             try:
                 fired = dialogue.poll()
             except Exception as e:
                 fired = None
                 print(f"   [play-live] dialogue poll error: {e}", flush=True)
-            if fired and (voice.last_dialogue_tier or 0) >= 2:
-                _dialogue_hold(voice.last_dialogue_tier)
+            if fired and not _holding[0] and (voice.last_dialogue_tier or 0) >= 2:
+                _dialogue_hold(voice.last_dialogue_tier, voice._last_summary or "")
         _draw()
 
     # POST-FIGHT HOLD lever - the "standing-still" fix, SCALED BY SALIENCE TIER (not the coarse
@@ -232,8 +269,11 @@ def main():
         except Exception as e:
             log(f"!! AUDIO disabled — could not start ({e}). Run will continue SILENT.")
 
-    # ── objectives: FAST gym-only test, or the full arc ──
-    if args.fast:
+    # ── objectives: continuous SEGMENT MANIFEST (--go), FAST gym-only test, or the full single arc ──
+    objectives = None
+    if args.go:
+        voice.emit("alright — continuous run. badge by badge, all the way.", kind="intro", tier=2)
+    elif args.fast:
         objectives = [("BEAT_GYM", "Brock", "FAST TEST: Pewter Gym -> Brock -> Boulder Badge")]
         voice.emit("alright, the gym's right here - Brock's Boulder Badge is mine", kind="intro", tier=2)
     else:
@@ -243,7 +283,7 @@ def main():
                    kind="intro", tier=2)
 
     try:
-        outcome = camp.run(objectives)
+        outcome = (camp.run_segments(build_segments()) if args.go else camp.run(objectives))
     except KeyboardInterrupt:
         outcome = "window-closed"
     finally:

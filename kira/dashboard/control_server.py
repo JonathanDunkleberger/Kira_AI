@@ -1032,6 +1032,15 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         result = {"pokemon_start": pokemon_proc.start,
                   "pokemon_stop": pokemon_proc.stop,
                   "pokemon_status": pokemon_proc.status}[action]()
+        # Explicit Pokémon-mode toggle: Start forces the desktop audio-classifier OFF (she ignores
+        # game music), Stop releases it. The per-event linger also self-gates a manual play_live run;
+        # this makes the dashboard control deterministic for a full session. Mic + game-event seam
+        # are never touched.
+        aa = getattr(bot, "audio_agent", None)
+        if aa is not None and action == "pokemon_start":
+            aa.pokemon_suppress(forced=True)
+        elif aa is not None and action == "pokemon_stop":
+            aa.pokemon_suppress(forced=False)
         return _ok(**result)
 
     # ── Vision force-off override (master kill-switch) ────────────────────────

@@ -23,6 +23,7 @@ import argparse
 import os
 import sys
 import time
+from collections import namedtuple
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
@@ -71,6 +72,39 @@ def build_objectives():
     ]
 
 
+# ── SEGMENT MANIFEST: the resumable spine that grows to the credits ──────────
+# A SEGMENT is a named run of objectives ending at a stable OVERWORLD checkpoint. run_segments()
+# plays them in order and AUTO-SAVES seg_<name>.state after each, so a continuous "Go" RESUMES from
+# the furthest checkpoint instead of replaying the whole game. Hand-play-only gates stay
+# GATE_NEEDS_STATE. Each future route/gym is ONE more line here. Additive — build_objectives()/run()
+# are untouched, so --fast and the proven Brock arc keep working exactly as before.
+Segment = namedtuple("Segment", ["name", "objectives", "checkpoint"])
+
+
+def build_segments():
+    """The whole-game spine as ordered, resumable segments. TODAY: the proven Pallet->Brock arc as
+    segment 1, checkpointing the post-badge Pewter overworld. Later segments append below — each its
+    OWN recon+build (east-edge travel, Mt Moon cave nav, Mart buy, catch, Misty), so we never ship
+    a leg blind. Uncomment/extend as each is built and proven."""
+    return [
+        Segment("pallet_to_brock", build_objectives(), "seg_boulder_badge.state"),
+        # ── NEXT (staged build order — each gated on its own recon; see the plan) ──────────────
+        # Segment("pewter_to_cerulean", [
+        #     ("WALK_TO_MAP", ROUTE3,   "east", "Pewter -> Route 3   (NET-NEW: east-edge travel)"),
+        #     ("WALK_TO_MAP", MT_MOON,  "east", "Route 3 -> Mt Moon entrance"),
+        #     ("CAVE_NAV",    MT_MOON_EXIT,     "Mt Moon maze -> exit (NET-NEW: cave nav + anti-loop)"),
+        #     ("WALK_TO_MAP", CERULEAN, "east", "Route 4 -> Cerulean City"),
+        # ], "seg_cerulean.state"),
+        # Segment("stock_up", [
+        #     ("MART_BUY", "pewter", [("Poke Ball", 10), ("Potion", 6)], "Pewter Mart: balls + potions"),
+        # ], "seg_stocked.state"),                          # NET-NEW: mart interior nav + buy flow
+        # Segment("beat_misty", [
+        #     ("LEVEL_CHECK", 18, "Misty-readiness (lean on Bulbasaur grass vs her water)"),
+        #     ("BEAT_GYM", "Misty", "Cerulean Gym -> Cascade Badge"),
+        # ], "seg_cascade_badge.state"),
+    ]
+
+
 def log(m):
     print(f"   [campaign] {m}", flush=True)
 
@@ -86,6 +120,11 @@ class Campaign:
         # heal-when-low: the pause fires ONLY during forward traversal, never during a SERVICE
         # navigation (the heal-return south, the PC routing) - else it would re-trigger mid-heal.
         self._suppress_heal = False
+        # CLIMAX guard: True only inside beat_gym's scripted award/TM A-drain. The soul-on render
+        # (play_live) reads it and STOPS polling/holding dialogue there, so the scripted cutscene
+        # drains exactly like the proven headless path (a reading-pace hold injected into the award
+        # was freezing the badge moment ~30-100s). Default False -> normal reactive perception.
+        self.draining_award = False
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
@@ -353,10 +392,32 @@ class Campaign:
                 self.b.run_frame()
         if st.in_battle(self.b):
             log(f"   GYM: BROCK -> {self.battle_runner()}")
-        for _ in range(50):                                    # advance the award (speech/badge/TM)
-            self.b.press("A", 8, 8, self.render, owner="agent")
-            for _ in range(16):
-                self.b.run_frame()
+        # ── ROBUST AWARD DRAIN (the climax — must NEVER freeze on 'Wait! Take this with you.') ──
+        # Mirror the proven headless path: a brisk, uninterrupted A-mash through Brock's speech +
+        # the BOULDERBADGE + the TM39 gift. draining_award tells the soul-on render (play_live) to
+        # stop polling/holding dialogue here, so a reading-pace hold can't stall the cutscene. Press
+        # UNTIL the badge flag actually sets (not a fixed count that live pacing could starve), then
+        # keep draining to clear the TM39 gift and return to the overworld.
+        self.draining_award = True
+        try:
+            got = False
+            for k in range(160):
+                self.b.press("A", 8, 8, self.render, owner="agent")
+                for _ in range(16):
+                    self.b.run_frame()
+                if self.has_boulder_badge():
+                    got = True
+                    log(f"   GYM: badge flag set at award-press {k} - draining the TM39 gift")
+                    break
+            if not got:
+                log("   !! GYM: award drain hit 160 presses with NO badge flag - STUCK (loud)")
+            else:
+                for _ in range(30):                            # clear the TM39 gift -> overworld
+                    self.b.press("A", 8, 8, self.render, owner="agent")
+                    for _ in range(16):
+                        self.b.run_frame()
+        finally:
+            self.draining_award = False
         if self.has_boulder_badge():
             log("   GYM: *** BOULDER BADGE obtained ***")
             self.on_event("I beat Brock - that's the Boulder Badge!")
@@ -514,6 +575,57 @@ class Campaign:
                 return f"stopped:{kind}:{out}"
         log("CAMPAIGN COMPLETE (all objectives done)")
         return "complete"
+
+    # ── SEGMENT MANIFEST driver (the resumable whole-game spine) ──────────────────
+    def _save_checkpoint(self, name) -> bool:
+        """Auto-save a resumable overworld checkpoint between segments. LOUD on failure
+        (Constraint #3 — a silently-missing checkpoint would replay the whole game)."""
+        if not name:
+            return False
+        path = os.path.join(STATES, name)
+        try:
+            data = self.b.save_state()
+            with open(path, "wb") as f:
+                f.write(data)
+            log(f"   CHECKPOINT saved -> {name}  (map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
+            return True
+        except Exception as e:
+            log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
+            return False
+
+    def run_segments(self, segments, resume=True):
+        """Play SEGMENTS in order, auto-checkpointing after each. With resume=True, RESUMES from the
+        furthest existing checkpoint so a continuous 'Go' never replays finished segments. Stops LOUD
+        on the first segment that doesn't complete (its objectives' own loud stop is preserved)."""
+        start, resume_cp = 0, None
+        if resume:
+            for i, seg in enumerate(segments):
+                cp = os.path.join(STATES, seg.checkpoint) if seg.checkpoint else None
+                if cp and os.path.exists(cp):
+                    start, resume_cp = i + 1, seg.checkpoint
+        if start >= len(segments):
+            log(f"RUN_SEGMENTS: all {len(segments)} segment checkpoint(s) already present — done")
+            return "all_segments_complete"
+        if resume_cp:
+            log(f"RUN_SEGMENTS: RESUME — checkpoint {resume_cp} present, skipping {start} done "
+                f"segment(s); loading past them")
+            with open(os.path.join(STATES, resume_cp), "rb") as f:
+                self.b.load_state(f.read())
+            for _ in range(40):
+                self.b.run_frame()
+            self.b.set_input_owner("agent")
+        for i in range(start, len(segments)):
+            seg = segments[i]
+            log(f"==== SEGMENT {i + 1}/{len(segments)}: {seg.name}  "
+                f"({len(seg.objectives)} objective(s)) ====")
+            result = self.run(seg.objectives)
+            if result != "complete":
+                log(f"!! RUN_SEGMENTS STOP at segment '{seg.name}': {result}")
+                return f"segment_stopped:{seg.name}:{result}"
+            self._save_checkpoint(seg.checkpoint)
+            log(f"==== SEGMENT '{seg.name}' COMPLETE ====")
+        log("RUN_SEGMENTS: ALL SEGMENTS COMPLETE")
+        return "all_segments_complete"
 
 
 def main():

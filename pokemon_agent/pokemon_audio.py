@@ -14,9 +14,14 @@ it). BONUS: once game audio is on the desktop output, Kira's existing audio clas
 
 Touches NO Kira/personality code and NO bridge.py. Pure additive output tap.
 """
+import os
 import sys
 
 import numpy as np
+
+# Single output-volume multiplier (covers BOTH sinks — headphones + OBS cable — since one _drain
+# feeds them). Jonny's live ask: ~60% of raw. Env-tunable live (restart) without a code edit.
+AUDIO_VOL = float(os.getenv("POKEMON_AUDIO_VOL", "0.25"))
 
 try:
     import sounddevice as sd
@@ -60,8 +65,8 @@ def _resolve(name_or_idx):
 class AudioPump:
     """Drains core audio per frame and plays it in real time to one or more devices."""
 
-    def __init__(self, bridge, phones=None, cable="CABLE Input", rate=48000,
-                 buffer_size=2048, log=print):
+    def __init__(self, bridge, phones=None, cable=None, rate=48000,
+                 buffer_size=2048, volume=None, log=print):
         if sd is None:
             raise RuntimeError(f"sounddevice unavailable: {_SD_ERR}")
         global _ffi
@@ -69,6 +74,7 @@ class AudioPump:
             from mgba._pylib import ffi as _ffi
         self.b = bridge
         self.rate = rate
+        self.volume = AUDIO_VOL if volume is None else float(volume)   # ~0.6 = ~60% (Jonny's ask)
         self.log = log
         self._streams = []
         self._orig_run_frame = None
@@ -80,13 +86,23 @@ class AudioPump:
         self.stereo.set_rate(rate)          # blip resamples the GBA clock -> `rate` Hz stereo
         self.stereo.clear()                 # drop the boot/settle backlog so we don't blast it
 
-        # ── resolve route targets: headphones (monitor) + cable (OBS) ──
+        # ── resolve the route target: the DESKTOP output ONLY (Jonny's monitor, e.g. Leviathan) ──
+        # DELIBERATELY NOT the virtual cable: VTube Studio opens Kira's mouth off the cable, so the
+        # cable must carry ONLY her voice — game music on the cable makes her lip-sync the soundtrack.
+        # Game music goes to the desktop where Jonny hears it (and OBS can capture desktop audio
+        # directly); her LOOPBACK hearing of that desktop music is separately handled by Pokémon-mode
+        # audio suppression. The `cable` arg is retained for signature stability but is NOT a sink.
         targets, seen = [], set()
-        for label, spec in (("headphones", phones), ("cable/OBS", cable)):
-            idx = _resolve(spec)
-            if idx is not None and idx not in seen:
-                targets.append((label, idx, spec)); seen.add(idx)
+        idx = _resolve(phones)
+        if idx is not None:
+            targets.append(("desktop", idx, phones)); seen.add(idx)
         if not targets:                     # fall back to the system default output
+            di = sd.default.device[1] if sd.default.device else None
+            dn = (sd.query_devices(di)["name"] if di is not None else "default")
+            if any(v in dn.lower() for v in ("cable", "vb-audio", "vb audio")):
+                self.log(f"   [pkmn-audio] !! WARNING: no --phones given and the system default "
+                         f"output is a VIRTUAL CABLE ({dn!r}) — VTS would flap Kira's mouth to the "
+                         f"music. Pass --phones with your DESKTOP/headphone device.")
             targets = [("default-out", None, "default")]
         for label, idx, spec in targets:
             try:
@@ -104,7 +120,7 @@ class AudioPump:
         # ── wrap b.core.run_frame so EVERY frame (b.run_frame AND b.press internals) drains ──
         self._orig_run_frame = self.b.core.run_frame
         self.b.core.run_frame = self._run_frame_with_audio
-        self.log(f"   [pkmn-audio] LIVE: {rate}Hz, {len(self._streams)} sink(s), "
+        self.log(f"   [pkmn-audio] LIVE: {rate}Hz, {len(self._streams)} sink(s), vol={self.volume:.2f}, "
                  f"real-time throttle ON (blocking write paces the emulator).")
 
     def _run_frame_with_audio(self):
@@ -122,6 +138,8 @@ class AudioPump:
         pcm = np.frombuffer(_ffi.buffer(raw), dtype="<i2").reshape(-1, 2)
         if pcm.size == 0:
             return
+        if self.volume != 1.0:                       # scale DOWN only -> overflow-safe int16
+            pcm = (pcm.astype(np.float32) * self.volume).astype("<i2")
         # first stream blocks (the real-time throttle); the rest are best-effort mirrors
         for i, (_label, st) in enumerate(self._streams):
             try:
