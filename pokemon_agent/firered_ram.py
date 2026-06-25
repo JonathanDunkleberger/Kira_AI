@@ -47,6 +47,20 @@ ACT_FIGHT, ACT_BAG, ACT_POKEMON, ACT_RUN = 0, 1, 2, 3
 # RAM-WRITE the battle action (extend the proven move-swap pattern): write USE_ITEM + the ball to the
 # action/chosen-item RAM, bypassing the cursor. Ball inventory: gSaveBlock1 + BAG_BALLS_OFF below.
 BAG_BALLS_OFF = 0x430            # PokéBalls pocket off gSaveBlock1 ({u16 itemId, u16 qty^key}); id4=PokéBall
+# ── BATTLE-ACTION INJECTION (catch arc) — addresses sourced from CFRU BPRE.ld, cross-validated vs the
+# verified anchors (gBattleMons/gBattleStruct MATCH) AND a behavioral CONTROL. The action-menu cursor
+# is un-navigable, so we inject the chosen action by RAM-write: on the controller-completion edge
+# (gBattleControllerExecFlags bit0 1->0) the engine reads the action from gBattleBufferB[battler][1];
+# swap that byte to inject. CONTROL-PROVEN 2026-06-25: inject B_ACTION_RUN(3) -> wild battle FLEES;
+# no-op USE_MOVE(0) -> fights (enemy faints). X->X/Y->Y, falsifiable. (Observational finds were
+# lookalikes off by ~0x50 — every claim MUST pass a control, never a constant.)
+GBATTLE_BUFFER_A   = 0x02022BC4   # gBattleBufferA[MAX_BATTLERS][0x200] (engine->controller)
+GBATTLE_BUFFER_B   = 0x020233C4   # gBattleBufferB[MAX_BATTLERS][0x200] (controller->engine); [b][1]=action/item
+GBATTLE_EXEC_FLAGS = 0x02023BC8   # gBattleControllerExecFlags (bit b = battler b's controller running)
+GCHOSEN_ACTION     = 0x02023D7C   # gChosenActionByBattler[MAX_BATTLERS] (copied from gBattleBufferB[b][1])
+# B_ACTION_*: USE_MOVE=0 USE_ITEM=1 SWITCH=2 RUN=3 ... WALLY_THROW=9 (tutorial-only, NOT a real capture).
+# Ball-throw via USE_ITEM still PENDING: needs the item past the un-navigable bag (gSpecialVar_ItemId
+# addr unsourced; bag-cancel buffer-swap did NOT throw — 51 attempts/0 catch). recon_inject.py = harness.
 # ── MOVE LIST (FIGHT submenu) findings 2026-06-24, screenshot-verified ────────
 # It is a 2x2 GRID: TACKLE(TL,0) GROWL(TR,1) / LEECH SEED(BL,2) VINE WHIP(BR,3). Cursor opens on
 # slot 0. So the OLD _nav_to 2x2 layout (RIGHT=col, DOWN=row) is CORRECT; the bug is the eaten-
