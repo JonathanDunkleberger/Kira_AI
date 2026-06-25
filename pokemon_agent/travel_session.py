@@ -34,6 +34,16 @@ BOOT_STATE = os.path.join(_HERE, "states", "after_pick_bulbasaur.state")
 SCALE = 3
 BOT = "http://127.0.0.1:8766"
 
+# ── PERFORMANCE-BEAT pacing knobs (the streamer feel) ────────────────────────
+# At a notable beat the hands HOLD until her voice lands; filler stays brisk (no
+# pace call). Env-tunable live (restart) so you can dial the feel without editing
+# code. The wait-to-START is generous (LLM+TTS latency to BEGIN the line) so her
+# reaction lands ON the moment; if it can't start in time we SKIP rather than
+# deliver a stale line or hitch.
+BEAT_WAIT_START = float(os.getenv("PKMN_BEAT_WAIT_START", "6.0"))   # sec to wait for line START
+BEAT_SAVOR_MAX = float(os.getenv("PKMN_BEAT_SAVOR_MAX", "12.0"))    # sec to hold while speaking
+BEAT_BREATH = int(os.getenv("PKMN_BEAT_BREATH", "18"))             # frames of breath after
+
 
 def log(m):
     print(f"   [travel-session] {m}", flush=True)
@@ -126,21 +136,29 @@ def run_live(seconds):
         post("pokemon_event", name=summary)
 
     def pace(summary):
+        # THE BEAT GATE: hold the hands until her voice for THIS moment actually
+        # STARTS (so it lands ON the beat, not trailing it), then hold while she
+        # speaks (savor) + a short breath. If she can't start within the window,
+        # proceed WITHOUT further waiting - a stale line is worse than a hitch.
         t0 = time.time()
-        while time.time() - t0 < 3.5 and not is_speaking():
+        while time.time() - t0 < BEAT_WAIT_START and not is_speaking():
             bridge.run_frame(); render()
+        if not is_speaking():
+            return                                  # never landed in time -> skip cleanly
         t1 = time.time()
-        while time.time() - t1 < 14.0 and is_speaking():
+        while time.time() - t1 < BEAT_SAVOR_MAX and is_speaking():
             bridge.run_frame(); render()
-        for _ in range(24):
+        for _ in range(BEAT_BREATH):
             bridge.run_frame(); render()
 
     def battle_runner():
         agent = BattleAgent(bridge, on_event=on_event, render=render, pace=pace)
         return agent.run(max_seconds=seconds)
 
+    # beat=pace -> the Traveler gates its OWN notable beats (new-area arrival) on her
+    # voice too, same clock as the battle engine.
     trav = tv.Traveler(bridge, battle_runner=battle_runner, render=render,
-                       on_event=on_event, log=print)
+                       on_event=on_event, log=print, beat=pace)
     try:
         outcome = trav.travel(target_map=tv.MAP_VIRIDIAN)
         log(f"travel outcome: {outcome}  final map={tv.map_id(bridge)}")

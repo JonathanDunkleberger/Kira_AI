@@ -880,6 +880,7 @@ class _CmdBody(BaseModel):
     name: str | None = None
     slug: str | None = None
     type: str | None = None          # explicit activity category (dropdown): game/media/music/vn/general
+    tier: int | None = None          # Pokémon salience hint (0..3) -> model/length pick only; never WHAT she says
     # Audio
     mode: str | None = None          # hearing mode label
     label: str | None = None         # audio device label
@@ -1017,7 +1018,9 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "pokemon_event":
         summary = (body.name or getattr(body, "text", None) or "").strip()
         if summary:
-            asyncio.ensure_future(bot._pokemon_react(summary))       # fire-and-forget (TTS is long)
+            # tier is a SALIENCE HINT only — passed through to model/length selection, never to
+            # her reaction generation. Default None preserves today's behavior exactly.
+            asyncio.ensure_future(bot._pokemon_react(summary, tier=body.tier))  # fire-and-forget
         return _ok(fired=bool(summary))
 
     # ── Pokémon session process control (dashboard Start/Stop/Status) ──────────

@@ -544,7 +544,7 @@ ROOM_MIN_GAP_MAX_S = float(os.getenv("ROOM_MIN_GAP_MAX_S", "120.0"))    # effect
 # stays held throughout (two full turns still can't run at once). OFF -> byte-for-byte
 # today's behavior (lock held through the whole interjection; his in-window speech dropped).
 # Her REAL reply (P0 speak_streaming) is never affected — only the proactive interjection path.
-BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "false").lower() == "true"
+BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "true").lower() == "true"
 
 # ── Airiness / comedic disposition (behavioral; dialable by config) ────────────
 # How airy/weird/unhinged she chooses to be, injected at the generation chokepoint

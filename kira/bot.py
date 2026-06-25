@@ -3208,12 +3208,16 @@ class VTubeBot:
         "indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
     )
 
-    async def _pokemon_react(self, summary: str, *, bypass: bool = False):
+    async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None):
         """SEAM (M1): route a NEUTRAL Pokémon game-event summary through Kira's existing
         self/reaction path so her DRIVES come from her self (mood/bond/want/opinions via
         _build_self_block, injected by _execute_interjection). The battle ENGINE decides
         moves; this only makes her REACT. Flag-gated + turn-taking-gated so it can never
-        affect a normal stream or talk over Jonny."""
+        affect a normal stream or talk over Jonny.
+
+        `tier` (0..3) is a SALIENCE HINT from the game harness, threaded straight through to
+        _execute_interjection's model/length pick (big beats -> Opus + room; grind -> Sonnet +
+        short). It NEVER changes what she says or who she is — only which model voices it."""
         if not POKEMON_AGENT_ENABLED or not summary or self.is_muted():
             return
         if self.ai_core is None or getattr(self.ai_core, "is_speaking", False):
@@ -3234,9 +3238,9 @@ class VTubeBot:
             })
             return
         async with self._active_turn_lock:
-            print(f"   [Pokemon] event react (bypass={bypass}): {summary[:70]}")
+            print(f"   [Pokemon] event react (bypass={bypass}, tier={tier}): {summary[:70]}")
             await self._execute_interjection(prompt, memory_query="pokemon battle",
-                                             scene_override=summary)
+                                             scene_override=summary, react_tier=tier)
             self.last_interaction_time = time.time()
         await self._drain_pending_interjections()
 
@@ -5621,6 +5625,16 @@ class VTubeBot:
             self._pending_interjections.clear()
             self.interruption_event.set()
             print(f"   [Arbiter] Stop-word — interrupted speech, flushed {_n_flushed} pending interjection(s)")
+        elif self._pending_interjections:
+            # USER-PREEMPTION (soul-flow tuning): a normal voice turn supersedes the proactive
+            # game/media reaction backlog. Flush the QUEUE (not-yet-fired interjections) so a stale
+            # "a Caterpie fainted" can't answer AFTER Jonny has moved on. Touches the queue ONLY —
+            # never her ACTIVE reply (Constraint #1: her reply is not interruptible by his voice),
+            # never his chat buffer. Loud per Constraint #3.
+            _n_yield = len(self._pending_interjections)
+            self._pending_interjections.clear()
+            print(f"   [Arbiter] user voice turn — flushed {_n_yield} pending interjection(s) "
+                  f"(yielding the floor to Jonny; her active reply untouched)")
 
         # --- PUSH VOICE TO QUEUE ---
         await self.input_queue.put(("voice", user_text, _lat))
@@ -9474,6 +9488,13 @@ class VTubeBot:
         reaction). Calls itself tail-recursively via _arbiter_interjection so
         the full queue drains one-at-a-time, each holding the turn lock."""
         while self._pending_interjections:
+            # USER-PREEMPTION (soul-flow tuning): if Jonny has spoken within the post-speech hold
+            # window, PAUSE draining the proactive backlog — his turn owns the floor. Resumes on the
+            # next drain trigger after the hold expires. Drops nothing here; just yields.
+            if not self._ok_to_self_speak():
+                print("   [Arbiter] pausing pending-interjection drain — user spoke recently "
+                      "(yielding the floor; backlog resumes after the hold window)")
+                break
             pi = self._pending_interjections.pop(0)
             if time.time() - pi["queued_at"] > 15.0:
                 print("   [Arbiter] Dropping stale buffered interjection (>15s old)")
@@ -9503,7 +9524,8 @@ class VTubeBot:
             break  # one per drain; _arbiter_interjection calls us again if more pending
 
     async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = "",
-                                    content_ts: float = 0.0, queue_wait_s: float = 0.0):
+                                    content_ts: float = 0.0, queue_wait_s: float = 0.0,
+                                    react_tier: int | None = None):
         """Runs a proactive interjection. Routes through Claude Opus when available —
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not.
 
@@ -9633,7 +9655,15 @@ class VTubeBot:
 
         # Route through Claude when available — local Llama 8B can't reliably follow the anti-fabrication rule
         _t0_llm = time.time()
-        _llm_model = "local"  # updated to "sonnet" if Claude path succeeds
+        _llm_model = "local"  # updated to "sonnet"/"opus" if Claude path succeeds
+        # SALIENCE MODEL-TIER (Pokémon soul-flow): a big beat (Tier 3 — gym/badge/evolution/loss)
+        # earns Opus depth + room to breathe; routine grind (Tier 1) stays on Sonnet kept SHORT so
+        # it's snappy. HINT ONLY — picks model + length, never WHAT she says. react_tier=None (every
+        # non-Pokémon caller — Director/MW/chess/boredom) -> today's exact behavior (Sonnet, 400).
+        _use_sonnet, _react_max = True, 400
+        if react_tier is not None:
+            _use_sonnet = (react_tier < 3)                  # Tier 3 -> Opus depth, else Sonnet
+            _react_max = 110 if react_tier <= 1 else (220 if react_tier == 2 else 400)
         if self.ai_core.anthropic_client:
             # Sensory priority (2026-06-22): order the interjection scene by source —
             # in-scene DIALOGUE first (what's being said), then VISION (already in
@@ -9656,10 +9686,11 @@ class VTubeBot:
                     scene_context=scene,
                     memory_context=memory_context,
                     recent_history=self.conversation_history,
-                    use_sonnet=True,  # E: observer interjection — Sonnet [evaluate wit on next stream]
+                    use_sonnet=_use_sonnet,  # salience-tiered: Sonnet default, Opus for a Tier-3 big beat
+                    max_tokens=_react_max,   # grind kept short (snappy TTS), big beats get full length
                     self_context=self._build_self_block(),  # ① her self frames the drive
                 )
-                _llm_model = "sonnet"
+                _llm_model = "sonnet" if _use_sonnet else "opus"
             except Exception as e:
                 print(f"   [Interjection] Claude failed, falling back to local: {e}")
                 response = await self.ai_core.llm_inference(
