@@ -44,9 +44,33 @@ GRASS_BEHAVIORS = {0x02}
 MAP_ROUTE1 = (3, 19)
 MAP_VIRIDIAN = (3, 1)
 MAP_PALLET = (3, 0)
+# Pewter (3,2) connections — discovered live from the map connection table (recon_map_connections.py):
+#   SOUTH offset=12 -> Route 2 (3,20);   EAST offset=10 -> Route 3 (3,21).
+# NOTE (recon): the naive "reach the east column" cross WEDGES at Pewter — the east connection only
+# transitions within its offset band; walking east outside it (e.g. row 21) is game-blocked despite
+# collision=0/elev=3/behavior=0x00. East crossing needs connection-offset-aware row targeting (TODO).
+MAP_PEWTER = (3, 2)
+MAP_ROUTE2 = (3, 20)
+MAP_ROUTE3 = (3, 21)
 
 DIR_KEY = {"N": "UP", "S": "DOWN", "W": "LEFT", "E": "RIGHT"}
 DIR_DELTA = {"N": (0, -1), "S": (0, 1), "W": (-1, 0), "E": (1, 0)}
+# edge-crossing geometry: which axis (0=x col, 1=y row) and which extreme line each map-edge uses,
+# plus the press that steps OFF that edge. East/West are the Pewter->Route 3 unlock (additive — the
+# proven north/south chain is unchanged). exit_line is resolved per-map from the live Grid.
+EDGE_DIR = {"north": "N", "south": "S", "east": "E", "west": "W"}
+EDGE_AXIS = {"north": 1, "south": 1, "east": 0, "west": 0}      # N/S cross a row (y); E/W a column (x)
+
+# TRAVEL MUSE (Pokémon-mode environmental chatter): on a long DEAD-AIR walk (no encounter/arrival to
+# react to) she'd go silent for 30-50s. This fires a NEUTRAL "taking in the surroundings" beat after
+# this many idle seconds so her self colors the journey — gap-filler only, never over a real beat.
+# Pokémon-harness layer; feeds the existing voice seam, edits no core. 0 disables.
+MUSE_GAP_S = float(os.getenv("POKEMON_TRAVEL_MUSE_GAP_S", "14.0"))
+MUSE_SEEDS = (
+    "you keep walking, taking in the area around you",
+    "you press on along the route, eyes on what's ahead",
+    "you make your way through, the place quiet around you",
+)
 
 
 # ── map / coord helpers ──────────────────────────────────────────────────────
@@ -249,12 +273,26 @@ class Traveler:
         stuck = exit_tries = no_path = 0
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
-        # goal: a specific tile (coord mode) or the chosen exit row (edge-crossing mode).
-        # north exit = row 0; south exit = the bottom playable row (grid.sy_hi).
-        exit_row = 0 if edge == "north" else grid.sy_hi
-        exit_dir = "N" if edge == "north" else "S"
-        goal = (lambda t: t == arrive_coord) if arrive_coord is not None else (lambda t: t[1] == exit_row)
+        # goal: a specific tile (coord mode) or the chosen exit edge (edge-crossing mode). N/S cross
+        # a ROW (north=row 0, south=bottom row sy_hi); E/W cross a COLUMN (east=right col sx_hi,
+        # west=left col sx_lo). exit_axis picks which coordinate the goal/cross test reads.
+        exit_dir = EDGE_DIR.get(edge, "N")
+        exit_axis = EDGE_AXIS.get(edge, 1)
+        exit_line = {"north": 0, "south": grid.sy_hi,
+                     "east": grid.sx_hi, "west": grid.sx_lo}.get(edge, 0)
+        goal = ((lambda t: t == arrive_coord) if arrive_coord is not None
+                else (lambda t: t[exit_axis] == exit_line))
+        _muse_t = [time.time()]   # last-voiced clock for the travel-muse dead-air filler
+        _muse_i = [0]
         for step in range(max_steps):
+            # TRAVEL MUSE: fill a long silent WALK (no encounter/arrival to react to) with a neutral
+            # "taking it in" beat so she isn't dead-air for 30-50s. Never during a battle; gated by
+            # the voice floor like any beat. Her self colors the neutral seed.
+            if (MUSE_GAP_S and not st.in_battle(self.b)
+                    and (time.time() - _muse_t[0]) > MUSE_GAP_S and coords(self.b) is not None):
+                self.beat(MUSE_SEEDS[_muse_i[0] % len(MUSE_SEEDS)])
+                _muse_i[0] += 1
+                _muse_t[0] = time.time()
             # WALL-CLOCK WATCHDOG (loud): a leg should not run for hours. If we blow the
             # budget we're grinding (battle-heavy grass maze) or wedged - ABORT LOUD with
             # exactly where we are, so a slow run TELLS us instead of spinning silently.
@@ -275,6 +313,7 @@ class Traveler:
             if st.in_battle(self.b):
                 self.log("   [travel] ENCOUNTER -> on-time beat, warm up, hand off")
                 self.beat("a wild Pokemon leaps out at you")   # gated: her surprise lands now
+                _muse_t[0] = time.time()                        # a real beat resets the muse clock
                 self._warmup_battle()                           # then settle (proven stable)
                 outcome = self.battle_runner()
                 self.log(f"   [travel] battle outcome={outcome}; resuming pathfind")
@@ -326,7 +365,7 @@ class Traveler:
                 if arrive_coord is not None and cur == arrive_coord:
                     self.log(f"   [travel] reached target coord {arrive_coord}")
                     return "arrived"
-                if arrive_coord is None and cur[1] == exit_row:   # on the exit gap -> cross
+                if arrive_coord is None and cur[exit_axis] == exit_line:   # on the exit gap -> cross
                     exit_tries += 1
                     if exit_tries > EXIT_TRIES:
                         self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "

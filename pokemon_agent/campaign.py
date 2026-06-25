@@ -139,12 +139,11 @@ class Campaign:
             self.b.press("A", 6, 6, self.render, owner="agent")
 
     def walk_to_map(self, target_map, direction):
-        # direction support: travel.Traveler currently crosses the NORTH edge (the whole
-        # Pallet->Pewter chain is northward). Non-north would extend the edge goal.
-        if direction != "north":
-            log(f"   (only 'north' edge crossing implemented; '{direction}' needs the "
-                f"edge-goal generalization) - attempting north")
-        return self.trav.travel(target_map=target_map)
+        # travel.Traveler now crosses N/S rows AND E/W columns (east = the Pewter->Route 3 unlock).
+        if direction not in ("north", "south", "east", "west"):
+            log(f"   (unknown edge '{direction}', defaulting 'north')")
+            direction = "north"
+        return self.trav.travel(target_map=target_map, edge=direction)
 
     def enter_warp(self, prefer="nearest", pick=None):
         """REAL warp entry: find door/warp tiles (behavior 0x6x), walk to the tile just

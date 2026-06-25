@@ -29,13 +29,14 @@ import time
 import urllib.request
 
 # ── fire-rate knobs (env-tunable live, no code edit) ──────────────────────────
-GRIND_GAP_S = float(os.getenv("POKEMON_GRIND_GAP_S", "2.5"))   # Tier-1 rolling min-gap (chatty grind)
+GRIND_GAP_S = float(os.getenv("POKEMON_GRIND_GAP_S", "1.8"))   # Tier-1 rolling min-gap (chatty grind)
 # Tier-0 ambient TRICKLE: fire generic swings on a LONG gap (occasional "ooh nice hit" riffing)
-# instead of full-drop. Set POKEMON_AMBIENT_GAP_S=0 to drop ambient entirely.
-AMBIENT_GAP_S = float(os.getenv("POKEMON_AMBIENT_GAP_S", "7.0"))
+# instead of full-drop. Set POKEMON_AMBIENT_GAP_S=0 to drop ambient entirely. Kept fairly long so
+# T0 swing-by-swing stays LIGHT (no clog) while T1/travel-muse carry the cadence.
+AMBIENT_GAP_S = float(os.getenv("POKEMON_AMBIENT_GAP_S", "5.0"))
 # GLOBAL SILENCE FLOOR: guarantee at least this gap between ANY two reactions (T1/T2) so there's a
 # natural window for Jonny to start talking. Big beats (T3) bypass it — never gate the badge.
-FLOOR_S = float(os.getenv("POKEMON_FLOOR_S", "1.6"))
+FLOOR_S = float(os.getenv("POKEMON_FLOOR_S", "1.0"))
 # IN A SAVOR/BIG FIGHT (trainer/gym/rare) the floor drops to near-dedupe-only so rapid battle beats
 # land — she shit-talks the fight like before. No firehose risk: the bot's is_speaking gate already
 # rate-limits to ~one reaction per spoken line, so this only un-floors the beats she'd otherwise
