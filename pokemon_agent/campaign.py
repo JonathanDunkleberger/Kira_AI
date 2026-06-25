@@ -88,16 +88,24 @@ def build_segments():
     a leg blind. Uncomment/extend as each is built and proven."""
     return [
         Segment("pallet_to_brock", build_objectives(), "seg_boulder_badge.state"),
+        # Pewter -> Route 3: the EAST map-edge seam is an unsolved collision PARADOX (every static
+        # source — collision/elevation/behavior/objects — reads walkable, yet real movement traps the
+        # agent in a 1-tile prison at the connection edge). Per the manifest's own design (each leg is
+        # automated OR hand-play-once-bank-skip), this seam is a GATE_NEEDS_STATE: hand-play across it
+        # once, bank seg_route3_start.state, and the run resumes on Route 3 (3,21) at (9,9). Checkpoint
+        # is a DISTINCT name so the auto-save never overwrites the hand-played gate input.
+        Segment("pewter_to_route3", [
+            ("GATE_NEEDS_STATE", "seg_route3_start.state",
+             "hand-play ONCE across the Pewter east seam onto Route 3, then F5-save: "
+             ".venv\\Scripts\\python.exe pokemon_agent\\handplay.py --boot brock_done.state "
+             "--save seg_route3_start.state  (autonomous crossing deferred — collision paradox)"),
+        ], "seg_route3_entered.state"),
         # ── NEXT (staged build order — each gated on its own recon; see the plan) ──────────────
-        # Segment("pewter_to_cerulean", [
-        #     ("WALK_TO_MAP", ROUTE3,   "east", "Pewter -> Route 3   (NET-NEW: east-edge travel)"),
-        #     ("WALK_TO_MAP", MT_MOON,  "east", "Route 3 -> Mt Moon entrance"),
-        #     ("CAVE_NAV",    MT_MOON_EXIT,     "Mt Moon maze -> exit (NET-NEW: cave nav + anti-loop)"),
-        #     ("WALK_TO_MAP", CERULEAN, "east", "Route 4 -> Cerulean City"),
+        # Segment("route3_to_cerulean", [
+        #     ("WALK_TO_MAP", ?MT_MOON?, "north", "Route 3 -> Mt Moon entrance (recon N->(3,22) first)"),
+        #     ("CAVE_NAV",    MT_MOON_EXIT,       "Mt Moon maze -> exit (NET-NEW: general cave nav)"),
+        #     ("WALK_TO_MAP", CERULEAN, "east",   "Route 4 -> Cerulean City"),
         # ], "seg_cerulean.state"),
-        # Segment("stock_up", [
-        #     ("MART_BUY", "pewter", [("Poke Ball", 10), ("Potion", 6)], "Pewter Mart: balls + potions"),
-        # ], "seg_stocked.state"),                          # NET-NEW: mart interior nav + buy flow
         # Segment("beat_misty", [
         #     ("LEVEL_CHECK", 18, "Misty-readiness (lean on Bulbasaur grass vs her water)"),
         #     ("BEAT_GYM", "Misty", "Cerulean Gym -> Cascade Badge"),
