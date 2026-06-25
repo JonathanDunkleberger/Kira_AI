@@ -44,6 +44,11 @@ ROUTE1, ROUTE2, ROUTE22 = (3, 19), (3, 20), (3, 41)
 # Viridian Pokemon Center (RED-roof bldg, reconned 2026-06-24): town door (26,26) -> interior
 # (5,4); nurse at (7,2), talked to from (7,4) ACROSS the counter; entrance mat at (7,8).
 VIRIDIAN_PC_DOOR, VIRIDIAN_PC_MAP, NURSE_FRONT, PC_ENTRY = (26, 26), (5, 4), (7, 4), (7, 8)
+# Pewter Gym (reconned 2026-06-24): town door (15,16) -> interior (6,2); climb the centre column
+# (x=6) to Brock's front tile (6,6); the lone gym trainer auto-engages off the centre path.
+PEWTER_GYM_DOOR, BROCK_FRONT = (15, 16), (6, 6)
+# FLAG_BADGE01_GET (Boulder Badge) = flag 0x820 in the SaveBlock1 flag array (base + 0x0EE0).
+FLAG_BADGE_BOULDER = 0x820
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
 
@@ -62,8 +67,7 @@ def build_objectives():
          "(Viridian Mart -> deliver to Oak in Pallet)"),
         ("ADVANCE_NORTH", PEWTER, "Viridian -> Route 2 -> Forest -> Pewter (auto walk/warp)"),
         ("LEVEL_CHECK", 13, "Brock-readiness (need ~Lv13 for Vine Whip + to survive Onix)"),
-        ("ENTER_WARP", None, "Pewter -> Brock's Gym (door)"),
-        ("BEAT_GYM", "Brock", "defeat Brock (Gym 1)"),
+        ("BEAT_GYM", "Brock", "Pewter Gym -> Brock -> Boulder Badge (beat_gym enters + fights)"),
     ]
 
 
@@ -263,13 +267,101 @@ class Campaign:
         self.on_event(f"I'm only level {lvl} - I need to train more before I take on {leader}")
         return "underleveled"
 
+    # ── move-learn handler (the empty-slot auto-learn fallback) ────────────────
+    # WHY: a mid-battle level-up with 4 moves shows "Delete a move? / Stop learning?" Y/N boxes.
+    # Those boxes are UN-ACTUATABLE in libmgba's continuous core (diagnosed 2026-06-24/25: the
+    # key reaches KEYINPUT and a FRESH core confirms 6/6, but a long-running core can't land the
+    # press at ANY timing/phase, and save+load doesn't reset the hidden core-instance state - only
+    # a brand-new core does). So instead of fighting the box, we make it NEVER appear: reserve
+    # open move slots so the level-up move AUTO-LEARNS. Bulbasaur learns TWO moves at L15
+    # (PoisonPowder + Sleep Powder), so we reserve 2. Keeps her strongest moves (Tackle + Vine
+    # Whip); the new moves fill the open slots with no prompt.
+    def _attacks_block(self):
+        base = ram.GPLAYER_PARTY
+        key = self.b.rd32(base) ^ self.b.rd32(base + 4)        # PID ^ OTID
+        a = st._SUBSTRUCT_ORDER[self.b.rd32(base) % 24].index("A")
+        return base, key, base + 32, a                         # base, key, data_addr, A-substruct idx
+
+    def _lead_moves(self):
+        base, key, data, a = self._attacks_block()
+        w0 = self.b.rd32(data + a * 12) ^ key
+        w1 = self.b.rd32(data + a * 12 + 4) ^ key
+        return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
+
+    def _delete_lead_move(self, mv):
+        """Delete move slot `mv` (0-3) from the lead, keeping the Gen-3 checksum valid (decrypt the
+        48-byte data block, zero the move + its PP, recompute the checksum, re-encrypt)."""
+        base, key, data, a = self._attacks_block()
+        words = [self.b.rd32(data + i * 4) ^ key for i in range(12)]
+        words[a * 3 + (mv // 2)] &= (0xFFFF0000 if mv % 2 == 0 else 0x0000FFFF)
+        words[a * 3 + 2] &= (~(0xFF << (mv * 8))) & 0xFFFFFFFF
+        chk = 0
+        for w in words:
+            chk = (chk + (w & 0xFFFF) + ((w >> 16) & 0xFFFF)) & 0xFFFF
+        for i in range(12):
+            self.b.core.memory.u32.raw_write(data + i * 4, words[i] ^ key)
+        self.b.core.memory.u16.raw_write(base + 0x1C, chk)
+
+    def _reserve_move_slots(self, n):
+        """Open `n` move slots on the lead by deleting its weakest (lowest-power) moves, so
+        upcoming level-up moves auto-learn with no Y/N box. Keeps >= 2 moves (the strongest)."""
+        for _ in range(n):
+            moves = self._lead_moves()
+            cands = sorted((st.move_info(self.b, m)[1], i) for i, m in enumerate(moves) if m)
+            if len(cands) <= 2:
+                break
+            self._delete_lead_move(cands[0][1])                # delete the weakest
+            for _ in range(4):
+                self.b.run_frame()
+
+    def has_boulder_badge(self):
+        sb1 = self.b.rd32(0x03005008)                          # gSaveBlock1Ptr (DMA-shuffled target)
+        fa = sb1 + 0x0EE0 + (FLAG_BADGE_BOULDER >> 3)
+        return bool(self.b.rd8(fa) & (1 << (FLAG_BADGE_BOULDER & 7)))
+
     def beat_gym(self, name):
-        # the road in + the gym trainers are battles -> the 5/5 engine. Travel handles
-        # walking to/through; encountered trainers hand off automatically.
-        log(f"   gym handler: battles route through the battle engine (5/5, untouched)")
+        """Pewter Gym -> Brock -> Boulder Badge. Reserve slots (move-learn handler), enter the gym,
+        climb to Brock (the gym trainer auto-engages -> 5/5 engine), beat Brock (Vine Whip 4x vs
+        his rock/ground), advance the award, confirm the badge flag."""
+        self._reserve_move_slots(2)
+        log(f"   GYM: reserved 2 slots for the L15 double-learn; moves now "
+            f"{[st.MOVE_NAMES.get(m, '#' + str(m)) for m in self._lead_moves()]}")
+        if tv.map_id(self.b) == PEWTER:
+            if self.enter_warp(pick=PEWTER_GYM_DOOR) != "warped":
+                log("   !! GYM: couldn't enter the Pewter Gym"); return "stuck"
+        for _ in range(45):
+            self.b.run_frame()
+        log(f"   GYM: inside {tv.map_id(self.b)} at {tv.coords(self.b)} - climbing to Brock")
+        for _ in range(30):                                    # climb x=6 to Brock's front (6,6)
+            if st.in_battle(self.b):
+                log(f"   GYM: gym trainer -> {self.battle_runner()}")
+                self.b.set_input_owner("agent"); continue
+            cur = tv.coords(self.b)
+            if cur == BROCK_FRONT:
+                break
+            self.b.press("UP", 8, 8, self.render, owner="agent")
+            if tv.coords(self.b) == cur and not st.in_battle(self.b):
+                self.b.press("A", 8, 8, self.render, owner="agent")
+                for _ in range(18):
+                    self.b.run_frame()
+        for _ in range(28):                                    # face Brock + advance to the battle
+            if st.in_battle(self.b):
+                break
+            self.b.press("UP", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 8, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
         if st.in_battle(self.b):
-            return self.battle_runner()
-        return "gym_todo"
+            log(f"   GYM: BROCK -> {self.battle_runner()}")
+        for _ in range(50):                                    # advance the award (speech/badge/TM)
+            self.b.press("A", 8, 8, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        if self.has_boulder_badge():
+            log("   GYM: *** BOULDER BADGE obtained ***")
+            self.on_event("I beat Brock - that's the Boulder Badge!")
+            return "badge"
+        log("   !! GYM: Brock not beaten / no Boulder Badge flag"); return "stuck"
 
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):
