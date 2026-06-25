@@ -100,6 +100,19 @@ def build_segments():
              ".venv\\Scripts\\python.exe pokemon_agent\\handplay.py --boot brock_done.state "
              "--save seg_route3_start.state  (autonomous crossing deferred — collision paradox)"),
         ], "seg_route3_entered.state"),
+        # CATCH = HAND-PLAY-BANK (the agent CANNOT drive this core's battle menus — confirmed by
+        # replicating Jonny's exact human input; injection is dead too). So catching follows the
+        # seam pattern: hand-catch a teammate once, bank route3_caught.state (party=2: Ivysaur +
+        # Rattata), and ROSTER_REACT makes Kira react to the new teammate IN HER VOICE on resume —
+        # acquisition hand-played, RELATIONSHIP live. The run continues with a REAL roster.
+        Segment("route3_catch", [
+            ("GATE_NEEDS_STATE", "route3_caught.state",
+             "hand-play ONCE: catch a teammate on Route 3 (open BAG -> Poke Ball -> throw by hand; "
+             "the agent can't drive the battle menu), then F5-save route3_caught.state via "
+             ".venv\\Scripts\\python.exe pokemon_agent\\handplay.py --boot seg_route3_start.state "
+             "--save route3_caught.state"),
+            ("ROSTER_REACT", "Kira reacts to her new caught teammate, in her own voice"),
+        ], "seg_route3_caught.state"),
         # ── NEXT (staged build order — each gated on its own recon; see the plan) ──────────────
         # Segment("route3_to_cerulean", [
         #     ("WALK_TO_MAP", ?MT_MOON?, "north", "Route 3 -> Mt Moon entrance (recon N->(3,22) first)"),
@@ -535,6 +548,19 @@ class Campaign:
     def grind(self, target_level):
         log("   GRIND: handler not built yet"); return "stuck"   # TODO: build after heal verify
 
+    def roster_react(self):
+        """SOUL beat after a hand-play-banked catch (the agent can't drive this core's battle menus,
+        so acquisition is hand-played — but the RELATIONSHIP is live). Emit a NEUTRAL roster-change
+        event so Kira reacts to her new teammate IN HER OWN VOICE via the existing seam (fulfilling
+        her want for a partner). Touches NO core (on_event -> _pokemon_react -> her self)."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if cnt <= 1:
+            log("   ROSTER_REACT: party size 1 — no new teammate to react to"); return "reacted"
+        name = st.SPECIES_NAME.get(st.read_party_species(self.b, cnt - 1), "a new Pokemon")
+        log(f"   ROSTER_REACT: party now {cnt} — newest teammate is {name}")
+        self.on_event(f"you've got a new teammate now — a {name} that's going to fight alongside you")
+        return "reacted"
+
     # ── the continuous driver ────────────────────────────────────────────────
     def run(self, objectives):
         for i, obj in enumerate(objectives):
@@ -558,6 +584,8 @@ class Campaign:
                 out = self.grind(obj[1])
             elif kind == "BEAT_GYM":
                 out = self.beat_gym(obj[1])
+            elif kind == "ROSTER_REACT":
+                out = self.roster_react()
             elif kind == "GATE_NEEDS_STATE":
                 state, what = obj[1], obj[2]
                 path = os.path.join(STATES, state)
