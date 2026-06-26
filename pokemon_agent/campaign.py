@@ -693,9 +693,14 @@ class Campaign:
         if st.in_battle(self.b):
             log(f"   OPENING: RIVAL battle -> {self.battle_runner()}")    # win OR lose - game goes on
             self.b.set_input_owner("agent")
-        self._drain_overworld(label="post-rival")              # clear post-battle dialogue
-        if tv.map_id(self.b) == (4, 3):
-            self.enter_warp(prefer="south")                    # walk out to Pallet
+        # walk out to Pallet - ROBUST to win OR loss (the post-battle dialogue + door differ a little
+        # by outcome): drain dialogue + retry the south exit until we're actually out of the lab.
+        for _ in range(4):
+            if tv.map_id(self.b) != (4, 3):
+                break
+            self._drain_overworld(label="post-rival")
+            self.b.set_input_owner("agent")
+            self.enter_warp(prefer="south")
         log(f"   OPENING: *** DONE -> {tv.map_id(self.b)}@{tv.coords(self.b)} "
             f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} ***")
         return tv.map_id(self.b)
