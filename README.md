@@ -35,6 +35,14 @@ This project demonstrates end-to-end systems design: real-time audio pipelines, 
 
 ---
 
+## Current Focus — Autonomous Pokémon (FireRed)
+
+Kira now **plays Pokémon FireRed on her own** — a live testbed for agentic gameplay where *she* makes the decisions, not a script. From a fresh boot she names herself and her rival, chooses her starter, then explores the world: navigating routes and caves (including **Mt&nbsp;Moon**), catching Pokémon, fighting battles, and earning Gym Badges toward the Elite Four. The engineering principle is **capability, not script** — the harness provides the *abilities* (movement, battle-menu control, catching, dialogue pacing, a general gym handler) while Kira's own reasoning provides the *choices*.
+
+**Where it actually is (honest):** a continuous, near-no-skip run drives from the bedroom through Brock and **Misty — 2 badges so far** — including fully autonomous Mt&nbsp;Moon cave navigation. Remaining skips are being converted to autonomous one by one. This is the active frontier; development lives on the [`feature/pokemon-agent`](../../tree/feature/pokemon-agent) branch.
+
+---
+
 ## Architecture
 
 <p align="center">
