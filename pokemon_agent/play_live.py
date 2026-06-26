@@ -62,8 +62,13 @@ def main():
                     help="FAST TEST (~90s): boot at Pewter and run JUST the gym (trainer + Brock + "
                          "badge) so you can feel pacing/interrupt/dialogue/music without the Forest grind")
     ap.add_argument("--go", action="store_true",
-                    help="CONTINUOUS RUN: play the resumable SEGMENT MANIFEST (campaign.build_segments) "
-                         "— auto-checkpoints between segments and resumes from the furthest one")
+                    help="CONTINUOUS RUN (WORKSHOP): play the resumable SEGMENT MANIFEST "
+                         "(campaign.build_segments) — resume-from-furthest in states/workshop/, "
+                         "bank there; never writes states/kira/")
+    ap.add_argument("--show", action="store_true",
+                    help="SHOW MODE: the canonical zero-skip spine from a FRESH boot (or resume from a "
+                         "states/kira/ save). Banks progress into states/kira/. Any GATE_NEEDS_STATE "
+                         "fallback logs a LOUD SHOW-MODE SKIP VIOLATION — a clean run has ZERO.")
     ap.add_argument("--audio", action="store_true",
                     help="play the emulator's game audio in real time (headphones + OBS cable)")
     ap.add_argument("--list-audio", action="store_true", help="list output devices and exit")
@@ -96,15 +101,24 @@ def main():
     from pokemon_voice import KiraVoice         # noqa: E402
 
     b = Bridge(ROM)
-    boot_path = os.path.join(STATES, args.boot)
-    if not os.path.exists(boot_path):
-        log(f"FAIL - boot state missing: {boot_path}"); return
-    with open(boot_path, "rb") as f:
-        b.load_state(f.read())
-    for _ in range(40):
-        b.run_frame()
-    b.set_input_owner("agent")
-    log(f"booted {args.boot}: map={tv.map_id(b)} coords={tv.coords(b)}  url={args.url}")
+    if args.show:
+        # SHOW = canonical spine. Do NOT load a sherpa boot state; start from a FRESH ROM (segment 0
+        # the_opening drives title->New Game->bedroom). run_segments(mode='show') will instead resume
+        # from a states/kira/ checkpoint if one exists. This is the no-skip, no-hand-bank path.
+        for _ in range(40):
+            b.run_frame()
+        b.set_input_owner("agent")
+        log(f"SHOW MODE: fresh ROM boot (canonical spine): map={tv.map_id(b)} url={args.url}")
+    else:
+        boot_path = os.path.join(STATES, args.boot)
+        if not os.path.exists(boot_path):
+            log(f"FAIL - boot state missing: {boot_path}"); return
+        with open(boot_path, "rb") as f:
+            b.load_state(f.read())
+        for _ in range(40):
+            b.run_frame()
+        b.set_input_owner("agent")
+        log(f"booted {args.boot}: map={tv.map_id(b)} coords={tv.coords(b)}  url={args.url}")
 
     voice = KiraVoice(url=args.url, log=print)
     dialogue = DialogueReader(b, on_dialogue=voice.on_dialogue, state={}, log=print)
@@ -271,7 +285,7 @@ def main():
 
     # ── objectives: continuous SEGMENT MANIFEST (--go), FAST gym-only test, or the full single arc ──
     objectives = None
-    if args.go:
+    if args.go or args.show:
         voice.emit("alright — continuous run. badge by badge, all the way.", kind="intro", tier=2)
     elif args.fast:
         objectives = [("BEAT_GYM", "Brock", "FAST TEST: Pewter Gym -> Brock -> Boulder Badge")]
@@ -283,7 +297,12 @@ def main():
                    kind="intro", tier=2)
 
     try:
-        outcome = (camp.run_segments(build_segments()) if args.go else camp.run(objectives))
+        if args.show:
+            outcome = camp.run_segments(build_segments(), mode="show")
+        elif args.go:
+            outcome = camp.run_segments(build_segments(), mode="workshop")
+        else:
+            outcome = camp.run(objectives)
     except KeyboardInterrupt:
         outcome = "window-closed"
     finally:

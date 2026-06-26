@@ -38,6 +38,14 @@ from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 STATES = os.path.join(_HERE, "states")
+# ── MODE-SEPARATED checkpoint dirs (Part A) ───────────────────────────────────
+# states/workshop/  = scratch / sherpa states. WORKSHOP runs resume-from-any here AND bank here.
+# states/kira/      = her CANONICAL playthrough save(s). ONLY a SHOW run may write here; a WORKSHOP
+#                     run is PHYSICALLY FORBIDDEN to write into it (see _save_checkpoint guard).
+# Banked GATE_NEEDS_STATE sherpa files are resolved from workshop/ first, then the flat states/ dir
+# (legacy location), so the existing gate states keep loading until each skip is converted to AUTO.
+STATES_WORKSHOP = os.path.join(STATES, "workshop")
+STATES_KIRA = os.path.join(STATES, "kira")
 
 # ── known FireRed map IDs (group, num) - documented, not reconned ────────────
 PALLET, VIRIDIAN, PEWTER = (3, 0), (3, 1), (3, 2)
@@ -181,6 +189,12 @@ class Campaign:
         # drains exactly like the proven headless path (a reading-pace hold injected into the award
         # was freezing the badge moment ~30-100s). Default False -> normal reactive perception.
         self.draining_award = False
+        # MODE (Part A): SHOW vs WORKSHOP. SHOW = fresh/canonical spine, banks to states/kira/, any
+        # GATE_NEEDS_STATE load is a LOUD violation (target 0). WORKSHOP = resume-from-any scratch,
+        # banks to states/workshop/, never writes states/kira/. ckpt_dir is the write/resume target.
+        self.show_mode = False
+        self._show_violations = 0
+        self.ckpt_dir = STATES_WORKSHOP
         # BATCH 2 SCAFFOLD: her Pokémon-self (wants + roster bonds + move-learn beats). Routes every
         # reaction OUT through on_event (the core-Kira seam); decisions are seams Batch 2 fills. The
         # firewall (_pokemon_react/voice/mood/bond/bridge) is NEVER touched - this is mode plumbing.
@@ -1078,8 +1092,15 @@ class Campaign:
                 out = self.roster_react()
             elif kind == "GATE_NEEDS_STATE":
                 state, what = obj[1], obj[2]
-                path = os.path.join(STATES, state)
-                if os.path.exists(path):
+                path = self._resolve_gate(state)
+                if self.show_mode:
+                    # A banked-state fallback in SHOW mode is a HARD-FAILURE we want SURFACED, not
+                    # silently skipped: log LOUD + count. The run still loads (if the file exists) so
+                    # ONE show run reveals EVERY remaining gate; violations>0 = the spine isn't AUTO.
+                    self._show_violations += 1
+                    log(f"   !!!! SHOW-MODE SKIP VIOLATION #{self._show_violations}: {label} "
+                        f"(would load banked sherpa state {state}) — this skip is NOT yet AUTO")
+                if path:
                     log(f"   gate savestate present ({state}) - loading past the gate")
                     with open(path, "rb") as f:
                         self.b.load_state(f.read())
@@ -1089,7 +1110,7 @@ class Campaign:
                 else:
                     log(f"   !! GATE NEEDS SAVESTATE: {state}")
                     log(f"      hand-play once: {what}")
-                    log(f"      then save it to states/{state} and re-run.")
+                    log(f"      then save it to states/workshop/{state} and re-run.")
                     return f"blocked_gate:{state}"
             else:
                 out = "unknown"
@@ -1102,39 +1123,67 @@ class Campaign:
         return "complete"
 
     # ── SEGMENT MANIFEST driver (the resumable whole-game spine) ──────────────────
+    def _resolve_gate(self, name):
+        """Find a banked sherpa/gate state: workshop/ first, then the flat states/ legacy dir.
+        Returns the full path or None. (Each gate converted to AUTO drops its load entirely.)"""
+        for d in (STATES_WORKSHOP, STATES):
+            p = os.path.join(d, name)
+            if os.path.exists(p):
+                return p
+        return None
+
     def _save_checkpoint(self, name) -> bool:
-        """Auto-save a resumable overworld checkpoint between segments. LOUD on failure
-        (Constraint #3 — a silently-missing checkpoint would replay the whole game)."""
+        """Auto-save a resumable overworld checkpoint between segments into self.ckpt_dir. LOUD on
+        failure (Constraint #3). HARD GUARD: a WORKSHOP run is physically forbidden to write into
+        states/kira/ (her canonical saves) — only a SHOW run banks there."""
         if not name:
             return False
-        path = os.path.join(STATES, name)
+        target_dir = self.ckpt_dir
+        kira_abs = os.path.abspath(STATES_KIRA)
+        if not self.show_mode and os.path.abspath(target_dir).startswith(kira_abs):
+            log("   !! CHECKPOINT REFUSED: WORKSHOP mode may not write into states/kira/ (canonical)")
+            return False
         try:
+            os.makedirs(target_dir, exist_ok=True)
+            path = os.path.join(target_dir, name)
             data = self.b.save_state()
             with open(path, "wb") as f:
                 f.write(data)
-            log(f"   CHECKPOINT saved -> {name}  (map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
+            where = "kira" if self.show_mode else "workshop"
+            log(f"   CHECKPOINT saved -> {where}/{name}  "
+                f"(map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
             return True
         except Exception as e:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
             return False
 
-    def run_segments(self, segments, resume=True):
-        """Play SEGMENTS in order, auto-checkpointing after each. With resume=True, RESUMES from the
-        furthest existing checkpoint so a continuous 'Go' never replays finished segments. Stops LOUD
-        on the first segment that doesn't complete (its objectives' own loud stop is preserved)."""
+    def run_segments(self, segments, resume=True, mode="workshop"):
+        """Play SEGMENTS in order, auto-checkpointing after each.
+        mode='workshop' (default): resume-from-furthest in states/workshop/, bank there, NEVER touch
+            states/kira/. Our skip-elimination scaffolding — jump anywhere, scratch freely.
+        mode='show': the canonical/recordable spine. Banks into states/kira/ and resumes from a kira
+            save if present (else fresh boot). Any GATE_NEEDS_STATE fallback logs a LOUD SHOW-MODE
+            SKIP VIOLATION and is counted — a clean SHOW run has ZERO violations + zero skips."""
+        self.show_mode = (mode == "show")
+        self.ckpt_dir = STATES_KIRA if self.show_mode else STATES_WORKSHOP
+        self._show_violations = 0
+        log(f"RUN_SEGMENTS: ** {'SHOW' if self.show_mode else 'WORKSHOP'} MODE ** "
+            f"-> banks to {os.path.basename(self.ckpt_dir)}/"
+            + ("; any GATE load = LOUD violation (target 0)" if self.show_mode
+               else "; states/kira/ is READ-ONLY here"))
         start, resume_cp = 0, None
         if resume:
             for i, seg in enumerate(segments):
-                cp = os.path.join(STATES, seg.checkpoint) if seg.checkpoint else None
+                cp = os.path.join(self.ckpt_dir, seg.checkpoint) if seg.checkpoint else None
                 if cp and os.path.exists(cp):
-                    start, resume_cp = i + 1, seg.checkpoint
+                    start, resume_cp = i + 1, cp
         if start >= len(segments):
             log(f"RUN_SEGMENTS: all {len(segments)} segment checkpoint(s) already present — done")
             return "all_segments_complete"
         if resume_cp:
-            log(f"RUN_SEGMENTS: RESUME — checkpoint {resume_cp} present, skipping {start} done "
-                f"segment(s); loading past them")
-            with open(os.path.join(STATES, resume_cp), "rb") as f:
+            log(f"RUN_SEGMENTS: RESUME — checkpoint {os.path.basename(resume_cp)} present, skipping "
+                f"{start} done segment(s); loading past them")
+            with open(resume_cp, "rb") as f:
                 self.b.load_state(f.read())
             for _ in range(40):
                 self.b.run_frame()
@@ -1149,6 +1198,10 @@ class Campaign:
                 return f"segment_stopped:{seg.name}:{result}"
             self._save_checkpoint(seg.checkpoint)
             log(f"==== SEGMENT '{seg.name}' COMPLETE ====")
+        if self.show_mode:
+            verdict = "ZERO skips — clean AUTO spine" if self._show_violations == 0 \
+                else f"{self._show_violations} SKIP VIOLATION(S) — NOT yet zero-skip"
+            log(f"RUN_SEGMENTS: SHOW MODE COMPLETE — {verdict}")
         log("RUN_SEGMENTS: ALL SEGMENTS COMPLETE")
         return "all_segments_complete"
 
