@@ -100,6 +100,14 @@ PEWTER_GYM_DOOR, BROCK_FRONT = (15, 16), (6, 6)
 # nearest heal once on Route 3 (cross WEST to Pewter) — PC interiors share ONE layout so the generic
 # heal_at_center(door) works for any city. (Pewter Mart door = (28,18), banked for later TM/shopping.)
 PEWTER_PC_DOOR, PEWTER_MART_DOOR = (17, 25), (28, 18)
+# Oak's Parcel quest (disasm: ViridianCity/PalletTown + their interiors). Viridian Mart town door
+# (36,19) -> interior; clerk at (2,3) -> talk from the front tile (2,4) facing UP. Oak's Lab town
+# door (16,13) in Pallet -> interior; Oak at (6,3) -> talk from (6,4) UP. The 5 Poke Balls are GIVEN
+# by the lab ReceiveDexScene (giveitem ITEM_POKE_BALL,5) on delivery — NO shop-buy. FLAG_SYS_POKEDEX_
+# GET=0x829 is set on delivery (the "parcel delivered" proof, alongside ball count 0->5).
+VIRIDIAN_MART_DOOR, MART_CLERK_FRONT = (36, 19), (2, 4)
+OAK_LAB_DOOR, OAK_FRONT = (16, 13), (6, 4)
+FLAG_POKEDEX_GET = 0x829
 # Cerulean Gym (reconned 2026-06-26, recon_gymscan): town door (31,21) -> interior; Misty (8,6,
 # trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
 # WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
@@ -126,13 +134,10 @@ P_HP, P_MAXHP = 0x56, 0x58
 def build_objectives():
     return [
         ("WALK_TO_MAP", VIRIDIAN, "north", "Route 1 -> Viridian City"),
-        # Oak's Parcel gate: the old man ('I absolutely forbid you from going through')
-        # blocks Route 2 until the parcel errand is done. Scripting it needs Viridian
-        # Mart interior + Oak's lab interior coords (town-interior nav). Flagged for a
-        # one-time hand-played savestate unless/until we script the interiors.
-        ("GATE_NEEDS_STATE", "viridian_parcel_done.state",
-         "Oak's Parcel quest done + the north gatekeeper cleared "
-         "(Viridian Mart -> deliver to Oak in Pallet)"),
+        # Oak's Parcel STORY BEAT (Skip 4, AUTO): Viridian Mart clerk gives OAK'S PARCEL -> carry it
+        # to Oak in Pallet -> Pokedex + 5 Poke Balls (the lab ReceiveDexScene's giveitem, NOT a shop
+        # buy). The balls are what unblock the Route 3 catch. Interior nav + dialogue only.
+        ("DELIVER_PARCEL", "Viridian Mart -> OAK'S PARCEL -> Oak's lab -> Pokedex + 5 Poke Balls"),
         ("ADVANCE_NORTH", PEWTER, "Viridian -> Route 2 -> Forest -> Pewter (auto walk/warp)"),
         ("LEVEL_CHECK", 13, "Brock-readiness (need ~Lv13 for Vine Whip + to survive Onix)"),
         ("BEAT_GYM", "Brock", "Pewter Gym -> Brock -> Boulder Badge (beat_gym enters + fights)"),
@@ -408,11 +413,14 @@ class Campaign:
             self._suppress_heal, self.trav.battle_runner = saved, saved_runner
 
     def return_to_center(self):
-        """Heal-return: travel SOUTH back to Viridian (the only Center before Pewter), then heal
-        at the PC (restores HP + PP). Mirrors advance_north but southward: cross a south edge,
-        else warp south, until we're on the Viridian map; then heal_at_center (walks to the PC,
-        heals, returns to the pre-heal spot). The traveler fights any encounter en route."""
-        log(f"   HEAL-RETURN: lead at {self.lead_hp()} - routing south to Viridian to heal")
+        """Heal-return to the Viridian Center (the only PC before Pewter), then heal (restores HP +
+        PP). DIRECTION-AWARE: Viridian is NORTH when we're on Route 1 / in Pallet (the parcel arc) and
+        SOUTH when we're up in Route 2 / the Forest (the Brock arc). The old hard-coded 'south' bounced
+        the agent toward Pallet whenever it got low on Route 1. Cross that edge (or warp it) until we're
+        on the Viridian map, then heal_at_center (walks to the PC, heals, returns to the pre-heal spot)."""
+        up = tv.map_id(self.b) in (PALLET, ROUTE1)     # Viridian is NORTH of us -> head north to heal
+        edge = "north" if up else "south"
+        log(f"   HEAL-RETURN: lead at {self.lead_hp()} - routing {edge} to Viridian to heal")
         saved = self._suppress_heal
         saved_runner = self.trav.battle_runner
         self._suppress_heal = True              # don't re-trigger heal WHILE returning to heal
@@ -422,14 +430,14 @@ class Campaign:
                 m = tv.map_id(self.b)
                 if m == VIRIDIAN:
                     break
-                out = self.trav.travel(target_map=VIRIDIAN, edge="south", max_steps=800)
+                out = self.trav.travel(target_map=VIRIDIAN, edge=edge, max_steps=800)
                 if out == "arrived":
-                    continue                       # crossed a south edge toward Viridian
+                    continue                       # crossed an edge toward Viridian
                 if out == "battle_loss":
                     return "battle_loss"           # blacked out en route -> auto-heals at Viridian
-                log(f"   HEAL-RETURN leg {leg}: no south edge on map {m} - warping south")
-                if self.enter_warp(prefer="south") != "warped":
-                    log(f"   !! HEAL-RETURN stuck on map {m} (no south edge, no south warp)")
+                log(f"   HEAL-RETURN leg {leg}: no {edge} edge on map {m} - warping {edge}")
+                if self.enter_warp(prefer=edge) != "warped":
+                    log(f"   !! HEAL-RETURN stuck on map {m} (no {edge} edge, no {edge} warp)")
                     return "stuck"
             if tv.map_id(self.b) != VIRIDIAN:
                 log(f"   !! HEAL-RETURN did not reach Viridian (at {tv.map_id(self.b)})")
@@ -913,6 +921,98 @@ class Campaign:
         log("   !! STARTER: no Pokemon obtained - pick stuck (LOUD)")
         return "stuck"
 
+    # ── Oak's Parcel quest (the story beat that yields the Pokedex + the 5 catch-enabling balls) ──
+    def _ball_count(self):
+        """Poke Balls (item id 4) in the bag's balls pocket; quantity XOR'd with the SaveBlock2 key
+        (mirrors BattleAgent._ball_count). 0 -> nothing to throw (the catch gate before this quest)."""
+        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+        for i in range(16):
+            iid = self.b.rd16(sb1 + 0x430 + i * 4)
+            if iid == 0:
+                break
+            if iid == 4:
+                return self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key
+        return 0
+
+    def _talk(self, front, face_dir, label):
+        """Interior NPC interaction: drain any cutscene already running, step to the front tile,
+        face the NPC, A, then drive the dialogue/cutscene to a clean close (the giveitem_msg lines)."""
+        self.b.set_input_owner("agent")
+        if dd_box_open(self.b):
+            self._drain_overworld(label=label + "-pre")
+        self._step_to(front)
+        for _ in range(6):
+            if dd_box_open(self.b) or st.in_battle(self.b):
+                break
+            self.b.press(face_dir, 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 10, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        self._drain_overworld(label=label)
+
+    def deliver_parcel(self):
+        """Oak's Parcel STORY BEAT (disasm-seeded), converting the viridian_parcel_done GATE -> AUTO.
+        From Viridian: enter the Mart -> the clerk gives OAK'S PARCEL; carry it south to Oak's lab in
+        Pallet -> deliver -> the ReceiveDexScene grants the Pokedex (FLAG 0x829) + 5 Poke Balls
+        (giveitem, NOT a shop buy). All dialogue + interior nav. Returns 'done'|'stuck'. The real
+        proof is the ball count going 0 -> 5 (that's what unblocks the Route 3 catch)."""
+        b0 = self._ball_count()
+        log(f"   PARCEL: starting Oak's Parcel quest (balls={b0}, map={tv.map_id(self.b)})")
+        # This is a SHORT, low-danger errand that passes through Viridian (which HAS a PC). Suppress
+        # the heal-when-low BOUNCE for the whole errand and instead heal ONCE explicitly at the
+        # Viridian PC up front — else every Route 1 wild dropping the lone starter below 75% would
+        # yield need_heal and abort each travel leg (the south-to-Pallet stall).
+        saved = self._suppress_heal
+        self._suppress_heal = True
+        try:
+            for _ in range(5):                                 # 1) reach Viridian (the Mart is here)
+                if tv.map_id(self.b) == VIRIDIAN:
+                    break
+                self.advance_north(VIRIDIAN, max_legs=3)
+            if tv.map_id(self.b) != VIRIDIAN:
+                log(f"   !! PARCEL: not at Viridian (at {tv.map_id(self.b)})"); return "stuck"
+            if self.needs_heal():                              # 1b) top up so the round trip is safe
+                self.heal_at_center(VIRIDIAN_PC_DOOR)
+            if self.enter_warp(pick=VIRIDIAN_MART_DOOR) != "warped":   # 2) Mart -> clerk -> OAK'S PARCEL
+                log("   !! PARCEL: couldn't enter the Viridian Mart"); return "stuck"
+            for _ in range(60):
+                self.b.run_frame()
+            self._talk(MART_CLERK_FRONT, "UP", "parcel-pickup")
+            log("   PARCEL: collected from the Mart counter; routing to Oak in Pallet")
+            self.enter_warp(prefer="south")                    # exit Mart -> Viridian
+            for _ in range(5):                                 # 3) south to Pallet
+                if tv.map_id(self.b) == PALLET:
+                    break
+                if self.trav.travel(target_map=PALLET, edge="south",
+                                    max_steps=600, max_seconds=200) != "arrived":
+                    break
+            if tv.map_id(self.b) != PALLET:
+                log(f"   !! PARCEL: didn't reach Pallet (at {tv.map_id(self.b)})"); return "stuck"
+            if self.enter_warp(pick=OAK_LAB_DOOR) != "warped":  # into Oak's lab
+                log("   !! PARCEL: couldn't enter Oak's lab"); return "stuck"
+            for _ in range(60):
+                self.b.run_frame()
+            self._talk(OAK_FRONT, "UP", "parcel-deliver")       # 4) deliver -> Pokedex + 5 balls
+            for _ in range(2):                                  # the ReceiveDexScene is multi-box
+                self._drain_overworld(label="dex-scene")
+            b1 = self._ball_count()
+            dex = self.has_badge(FLAG_POKEDEX_GET)
+            log(f"   PARCEL: after delivery balls {b0}->{b1}  pokedex={dex}")
+            self.enter_warp(prefer="south")                     # 5) exit lab -> Pallet -> north to Viridian
+            for _ in range(5):
+                if tv.map_id(self.b) == VIRIDIAN:
+                    break
+                if self.advance_north(VIRIDIAN, max_legs=3) == "arrived":
+                    continue
+                break
+        finally:
+            self._suppress_heal = saved
+        if b1 > b0 and dex:
+            self.on_event("delivered Oak's parcel — got the Pokedex and a handful of Poke Balls")
+            return "done"
+        log(f"   !! PARCEL: quest incomplete (balls {b0}->{b1}, pokedex={dex}) - LOUD"); return "stuck"
+
     def catch_one(self, max_seconds=300):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
@@ -1177,6 +1277,8 @@ class Campaign:
                 out = self.beat_gym(obj[1])
             elif kind == "CATCH":
                 out = self.catch_one()
+            elif kind == "DELIVER_PARCEL":
+                out = self.deliver_parcel()
             elif kind == "CLEAR_MT_MOON":
                 out = self.clear_mt_moon()
             elif kind == "ROSTER_REACT":
