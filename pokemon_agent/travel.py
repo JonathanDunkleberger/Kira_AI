@@ -39,6 +39,11 @@ NUM_PRIMARY = 640                  # metatile ids < 640 use the primary tileset
 # PREFERS grass-free tiles but falls back to crossing grass when there's no dry route
 # (north Route 1 is a grass sea) - then the encounter handoff fights the battle.
 GRASS_BEHAVIORS = {0x02}
+# LEDGE / one-way jump behaviors (Gen-3 metatileAttributes low byte). You can only cross a
+# ledge in its jump direction (hopping OVER it, landing the tile beyond); it blocks the reverse.
+# So in pathfinding a ledge is a DIRECTED edge: from the tile on the approach side, moving in the
+# jump direction, you land 2 tiles along. Confirmed on Route 3 (0x3b) + Route 4 (0x38/0x39/0x3b).
+LEDGE_DIRS = {0x38: (1, 0), 0x39: (-1, 0), 0x3A: (0, -1), 0x3B: (0, 1)}   # E / W / N / S
 
 # milestone-1 route endpoints (verified via map connections)
 MAP_ROUTE1 = (3, 19)
@@ -103,7 +108,7 @@ class Grid:
             attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
         except Exception:
             attr = None
-        self.col, self.grass = {}, set()
+        self.col, self.grass, self.ledge = {}, set(), {}
         for by in range(self.h):
             row = mp + by * self.w * 2
             for bx in range(self.w):
@@ -115,8 +120,11 @@ class Grid:
                     # FireRed metatileAttributes is a u32 array (stride 4); behavior =
                     # low byte. (u16 stride read 0x00 for the real grass and silently
                     # missed it - the grass-sea bug.)
-                    if (b.rd32(base + idx * 4) & 0xFF) in GRASS_BEHAVIORS:
+                    bh = b.rd32(base + idx * 4) & 0xFF
+                    if bh in GRASS_BEHAVIORS:
                         self.grass.add((bx, by))
+                    elif bh in LEDGE_DIRS:
+                        self.ledge[(bx, by)] = LEDGE_DIRS[bh]    # buffer-coord -> jump (dx,dy)
         # playable save-coord bounds (exclude the 7-tile border on every side)
         self.sx_lo, self.sx_hi = 0, self.w - 2 * MAP_OFFSET - 1
         self.sy_lo, self.sy_hi = 0, self.h - 2 * MAP_OFFSET - 1
@@ -131,6 +139,10 @@ class Grid:
         """walkable AND not tall grass - the encounter-free planning layer."""
         bx, by = sx + MAP_OFFSET, sy + MAP_OFFSET
         return self.walkable(sx, sy) and (bx, by) not in self.grass
+
+    def ledge_dir(self, sx, sy):
+        """If (sx,sy) is a ledge tile, the (dx,dy) you can only jump it in; else None. Save coords."""
+        return self.ledge.get((sx + MAP_OFFSET, sy + MAP_OFFSET))
 
 
 def bfs(grid, start, goal_test, bound=None, walkable=None):
@@ -157,7 +169,13 @@ def bfs(grid, start, goal_test, bound=None, walkable=None):
             return path[::-1]
         cx, cy = cur
         for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
-            nx, ny = cx + dx, cy + dy
+            # LEDGE HOP: if the adjacent tile is a ledge whose one-way jump direction matches the
+            # move, we hop OVER it and land 2 tiles along (the ledge itself is never a standing
+            # tile). Crossing the ledge the wrong way isn't offered -> the directed one-way edge.
+            if grid.ledge_dir(cx + dx, cy + dy) == (dx, dy):
+                nx, ny = cx + 2 * dx, cy + 2 * dy
+            else:
+                nx, ny = cx + dx, cy + dy
             if not (bx_lo <= nx <= bx_hi and by_lo <= ny <= by_hi):
                 continue
             nxt = (nx, ny)
@@ -169,14 +187,16 @@ def bfs(grid, start, goal_test, bound=None, walkable=None):
 
 
 def direction(frm, to):
+    # handles ±1 (normal step) AND ±2 (a ledge hop, where the BFS edge skips the ledge tile and
+    # lands 2 along): one D-pad press in this direction makes the game hop the ledge.
     dx, dy = to[0] - frm[0], to[1] - frm[1]
-    if dx == 1:
+    if dx > 0:
         return "E"
-    if dx == -1:
+    if dx < 0:
         return "W"
-    if dy == 1:
+    if dy > 0:
         return "S"
-    if dy == -1:
+    if dy < 0:
         return "N"
     return None
 
