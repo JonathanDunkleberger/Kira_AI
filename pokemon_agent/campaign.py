@@ -578,6 +578,59 @@ class Campaign:
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
+    def catch_one(self, max_seconds=300):
+        """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
+        until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
+        to throws). A trainer's line of sight en route is fought (trainer mons can't be caught), then
+        we keep wandering. Returns 'caught' | 'no_balls' | 'timeout' | 'battle_loss'."""
+        t0 = time.time()
+        cur0 = tv.coords(self.b)
+        grass = sorted(tv.Grid(self.b).grass,
+                       key=lambda g: abs(g[0] - cur0[0]) + abs(g[1] - cur0[1]))
+        if not grass:
+            log("   !! CATCH: no grass on this map - can't find a wild Pokemon here")
+            return "no_grass"
+        log(f"   CATCH: {len(grass)} grass tiles (nearest {grass[0]}) - traversing grass to catch one")
+        p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        caught = [False]
+
+        def catch_runner():
+            """Travel hands every encounter here. Wild -> CATCH (commit); trainer -> normal fight.
+            Always returns 'win' on a wild so travel keeps walking the grass for more encounters."""
+            if self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08:           # trainer: can't catch -> fight
+                log("   CATCH: a trainer engaged en route - fighting through")
+                return self.battle_runner()
+            log("   CATCH: WILD encounter - committing to the catch")
+            res = BattleAgent(self.b, on_event=self.on_event, render=self.render,
+                              log=lambda m: log(m)).catch_pokemon(max_seconds=160)
+            self.b.set_input_owner("agent")
+            log(f"   CATCH: catch_pokemon -> {res}")
+            if res == "caught":
+                caught[0] = True
+                self.on_event("I caught a new teammate!")
+            return "win"                                            # a break_free must NOT stop travel
+
+        # Reuse the BFS Traveler (pathfinds around walls AND walks through grass, handing each
+        # encounter to our catch_runner) - pace between near/far grass tiles to keep stepping in it.
+        orig = self.trav.battle_runner
+        self.trav.battle_runner = catch_runner
+        try:
+            waypoints = [grass[0], grass[-1], grass[len(grass) // 2]]
+            wi = 0
+            while time.time() - t0 < max_seconds and not caught[0]:
+                self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
+                                 max_steps=120, max_seconds=80)
+                wi += 1
+                if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+                    caught[0] = True
+        finally:
+            self.trav.battle_runner = orig
+            self.b.set_input_owner("agent")
+        if caught[0] or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+            return "caught"
+        log("   !! CATCH: no catch within budget - LOUD")
+        return "timeout"
+
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):
         return (self.b.rd16(ram.GPLAYER_PARTY + P_HP),
@@ -717,6 +770,8 @@ class Campaign:
                 out = self.grind(obj[1])
             elif kind == "BEAT_GYM":
                 out = self.beat_gym(obj[1])
+            elif kind == "CATCH":
+                out = self.catch_one()
             elif kind == "ROSTER_REACT":
                 out = self.roster_react()
             elif kind == "GATE_NEEDS_STATE":
