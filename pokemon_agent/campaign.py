@@ -129,16 +129,24 @@ def build_segments():
              "--save route3_caught.state"),
             ("ROSTER_REACT", "Kira reacts to her new caught teammate, in her own voice"),
         ], "seg_route3_caught.state"),
-        # ── NEXT (staged build order — each gated on its own recon; see the plan) ──────────────
-        # Segment("route3_to_cerulean", [
-        #     ("WALK_TO_MAP", ?MT_MOON?, "north", "Route 3 -> Mt Moon entrance (recon N->(3,22) first)"),
-        #     ("CAVE_NAV",    MT_MOON_EXIT,       "Mt Moon maze -> exit (NET-NEW: general cave nav)"),
-        #     ("WALK_TO_MAP", CERULEAN, "east",   "Route 4 -> Cerulean City"),
-        # ], "seg_cerulean.state"),
-        # Segment("beat_misty", [
-        #     ("LEVEL_CHECK", 18, "Misty-readiness (lean on Bulbasaur grass vs her water)"),
-        #     ("BEAT_GYM", "Misty", "Cerulean Gym -> Cascade Badge"),
-        # ], "seg_cascade_badge.state"),
+        # Route 3 -> Mt Moon -> Route 4: the cave clear is PROVEN (recon_mtmoon_clear: warp chain +
+        # fossil/Miguel + east exit, mtmoon_cleared/cerulean_caught banked) but lives in a recon
+        # SCRIPT, not yet a campaign objective. Porting it to a CLEAR_MT_MOON handler + the
+        # Route3->entrance seam is a real build (GATE->AUTO conversion, queued). For now this is a
+        # TEMP GATE onto cerulean_caught (Route 4, just outside Cerulean) so the manifest already
+        # sequences bedroom -> Misty continuously (with this one documented skip).
+        Segment("route3_to_cerulean", [
+            ("GATE_NEEDS_STATE", "cerulean_caught.state",
+             "TEMP SKIP (convert to AUTO): port the proven recon_mtmoon_clear into a CLEAR_MT_MOON "
+             "objective + Route3->Mt-Moon-entrance recon; until then load cerulean_caught (Route 4)"),
+        ], "seg_cerulean.state"),
+        # Misty gym: FULLY AUTO + proven (general beat_gym - clears the 2 junior trainers, beats
+        # Misty, dialogue-paced award -> Cascade flag). From cerulean_caught (Route 4) walk EAST into
+        # Cerulean, then beat the gym.
+        Segment("beat_misty", [
+            ("WALK_TO_MAP", CERULEAN, "east", "Route 4 -> Cerulean City"),
+            ("BEAT_GYM", "Misty", "Cerulean Gym -> Cascade Badge"),
+        ], "seg_cascade_badge.state"),
     ]
 
 
