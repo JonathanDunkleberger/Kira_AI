@@ -581,6 +581,61 @@ class Campaign:
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
+    # ── starter pick (Oak's lab) - CAPABILITY not DECISION ──────────────────────
+    # The three Poké Balls on Oak's table (recon_starter / starter.state): left->right.
+    STARTER_BALLS = {0: (8, 4), 1: (9, 4), 2: (10, 4)}         # ball tiles (face UP from below)
+    STARTER_SPECIES = {0: 1, 1: 4, 2: 7}                       # Bulbasaur / Charmander / Squirtle
+
+    def choose_starter(self):
+        """DECISION SEAM - which starter Kira takes. Capability-not-script: the HANDS (pick_starter)
+        work for ANY of the three; WHICH she picks is HER choice, set on self._starter_choice (Batch
+        2 routes this through her soul). NOT hardcoded into the pick mechanics. Default 0 (Bulbasaur)
+        is only a fallback when nothing set the choice - the point is the seam exists + is honoured."""
+        c = getattr(self, "_starter_choice", None)
+        return c if c in (0, 1, 2) else 0
+
+    def pick_starter(self, idx=None):
+        """HANDS: walk below the chosen ball, face it, take it + confirm YES, drive Oak's dialogue
+        until the party grows. Choice-agnostic (works for ball 0/1/2). Returns 'picked' | 'stuck'.
+
+        ⚠ WIP / UNVERIFIED (2026-06-26): the Oak-INTRO drive works (DialogueDriver clears 'Those are
+        POKé BALLS...' and control returns), and the choice SEAM (choose_starter) is wired - but the
+        exact BALL-PICK interaction is NOT cracked yet: from below a ball, face-up+A re-shows Oak's
+        generic speech instead of a 'Do you want X?' prompt, and _step_to can't reach the left ball's
+        front tile (lab front-row nav is constrained). starter.py hit the SAME wall ('real interaction
+        near x11..13, UNVERIFIED'). NEEDS a focused recon: the precise tile+facing that opens each
+        ball's pick prompt. Not wired into the manifest until that lands."""
+        if idx is None:
+            idx = self.choose_starter()
+        bx, by = self.STARTER_BALLS[idx]
+        log(f"   STARTER: ball {idx} at {(bx, by)} (her choice; hands are choice-agnostic)")
+        # 1) advance Oak's intro speech ("Those are POKé BALLS...") until control returns
+        DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label="oak-intro")
+        # 2) walk below the chosen ball + open the "Do you want X?" prompt
+        self._step_to((bx, by + 1))                            # stand directly below the ball
+        p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for _ in range(6):
+            self.b.press("UP", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 8, self.render, owner="agent")
+            for _ in range(18):
+                self.b.run_frame()
+            if dd_box_open(self.b) or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+                break
+        # 3) confirm YES (default cursor) + drive Oak's dialogue until the party grows
+        for _ in range(40):
+            if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:         # stop the instant we own it
+                break
+            self.b.press("A", 8, 8, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+            sp = st.read_party_species(self.b, 0)
+            log(f"   STARTER: *** picked {st.SPECIES_NAME.get(sp, '?')} (#{sp}) ***")
+            self.on_event(f"I'll go with {st.SPECIES_NAME.get(sp, 'this one')}")
+            return "picked"
+        log("   !! STARTER: no Pokemon obtained - pick stuck (LOUD)")
+        return "stuck"
+
     def catch_one(self, max_seconds=300):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
