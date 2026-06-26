@@ -633,6 +633,73 @@ class Campaign:
         except Exception:
             return ""
 
+    def _adv_dialogue(self, n=50):
+        """Advance overworld dialogue (A) until the box closes or n presses."""
+        for _ in range(n):
+            if not dd_box_open(self.b):
+                break
+            self.b.press("A", 4, 10, self.render, owner="agent")
+            for _ in range(12):
+                self.b.run_frame()
+
+    def drive_opening(self, player_name, rival_name, girl=True, starter_choice=0):
+        """THE AUTONOMOUS OPENING (the personality debut), assuming the boot is already at Oak's
+        intro (the caller does title->New Game). Character creation (her gender + names) -> bedroom
+        -> downstairs (FireRed stairs fire on walking INTO them from the SIDE, not step-on) -> Mom
+        -> Pallet -> walk north -> Oak intercepts to the lab -> PICK her starter -> the rival battle
+        -> walk back out to Pallet. CAPABILITY-not-script: gender/names/starter are HER choices
+        (params/seams), never hardcoded. Returns the final map id."""
+        if self.create_character(player_name, rival_name, girl) != "bedroom":
+            log("   !! OPENING: character creation didn't reach the bedroom"); return tv.map_id(self.b)
+        self._adv_dialogue()                                   # bedroom "legend unfold" + NES cutscene
+        log(f"   OPENING: in bedroom {tv.coords(self.b)} - heading downstairs")
+        self.trav.travel(target_map=None, arrive_coord=(11, 2), max_steps=60, max_seconds=40)
+        for _ in range(4):                                     # walk WEST into the stairs (side-trigger)
+            self.b.press("LEFT", 8, 8, self.render, owner="agent")
+            for _ in range(8):
+                self.b.run_frame()
+            if tv.map_id(self.b) != (4, 1):
+                break
+        self._adv_dialogue()                                   # Mom (1F)
+        if self.enter_warp(prefer="south") != "warped":
+            log("   !! OPENING: couldn't exit the house"); return tv.map_id(self.b)
+        self._adv_dialogue()
+        log(f"   OPENING: in Pallet {tv.coords(self.b)} - walking north (Oak will intercept)")
+        for _ in range(160):                                   # north -> Oak intercept -> lab (4,3)
+            if tv.map_id(self.b) == (4, 3):
+                break
+            if dd_box_open(self.b):
+                self.b.press("A", 4, 10, self.render, owner="agent")
+                for _ in range(12):
+                    self.b.run_frame()
+                continue
+            out = self.advance_north(PALLET if tv.map_id(self.b) != PALLET else ROUTE1, max_legs=2)
+            if out in ("stuck", "timeout"):
+                self.b.press("UP", 8, 8, self.render, owner="agent")
+                for _ in range(8):
+                    self.b.run_frame()
+        if tv.map_id(self.b) != (4, 3):
+            log("   !! OPENING: Oak intercept didn't reach the lab"); return tv.map_id(self.b)
+        log("   OPENING: in Oak's lab - picking her starter")
+        self._starter_choice = starter_choice
+        if self.pick_starter() != "picked":
+            log("   !! OPENING: starter pick failed"); return tv.map_id(self.b)
+        for _ in range(60):                                    # advance until the RIVAL battle starts
+            if st.in_battle(self.b):
+                break
+            self.b.press("A", 6, 10, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        if st.in_battle(self.b):
+            log(f"   OPENING: RIVAL battle -> {self.battle_runner()}")    # win OR lose - game goes on
+            self.b.set_input_owner("agent")
+        self._drain_overworld(label="post-rival")              # clear post-battle dialogue
+        if tv.map_id(self.b) == (4, 3):
+            self.enter_warp(prefer="south")                    # walk out to Pallet
+        log(f"   OPENING: *** DONE -> {tv.map_id(self.b)}@{tv.coords(self.b)} "
+            f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} ***")
+        return tv.map_id(self.b)
+
     # ── starter pick (Oak's lab) - CAPABILITY not DECISION ──────────────────────
     # The three Poké Balls on Oak's table (recon_starter / starter.state): left->right.
     STARTER_BALLS = {0: (8, 4), 1: (9, 4), 2: (10, 4)}         # ball tiles (face UP from below)
