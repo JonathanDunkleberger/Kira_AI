@@ -293,6 +293,12 @@ class Traveler:
         stuck = exit_tries = no_path = 0
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
+        # STATIC obstacles: a step that fails on a NON-NPC tile is an un-encoded boulder/rock/wall
+        # (collision-walkable in the grid but impassable in-game - e.g. Mt Moon's rock formations).
+        # Those NEVER move, so mark them PERMANENTLY impassable (not TTL-aged) - else BLOCK_TTL keeps
+        # expiring and BFS re-routes back INTO the boulder, wedging forever (the Mt Moon B2F bounce).
+        static_blocked = set()
+        fail_count = {}          # tile -> times a step into it failed (3+ on a non-NPC = static)
         # goal: a specific tile (coord mode) or the chosen exit edge (edge-crossing mode). N/S cross
         # a ROW (north=row 0, south=bottom row sy_hi); E/W cross a COLUMN (east=right col sx_hi,
         # west=left col sx_lo). exit_axis picks which coordinate the goal/cross test reads.
@@ -375,7 +381,8 @@ class Traveler:
             cutoff = step - BLOCK_TTL
             npc = self._npc_tiles()            # live NPC tiles, re-read every plan
             def free(sx, sy):
-                return (sx, sy) not in npc and blocked.get((sx, sy), -10 ** 9) <= cutoff
+                return ((sx, sy) not in npc and (sx, sy) not in static_blocked
+                        and blocked.get((sx, sy), -10 ** 9) <= cutoff)
             path = bfs(grid, cur, goal,
                        walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
             if not path:
@@ -419,6 +426,11 @@ class Traveler:
                 after = coords(self.b)
             if after == cur:
                 blocked[nxt] = step                 # dynamic block -> re-plan around it
+                fail_count[nxt] = fail_count.get(nxt, 0) + 1
+                if nxt not in npc and fail_count[nxt] >= 3:   # a NON-NPC tile that fails REPEATEDLY
+                    static_blocked.add(nxt)                   # = static obstacle (boulder/un-encoded
+                    self.log(f"   [travel] static obstacle at {nxt} (failed 3x, not an NPC) - "
+                             f"marking impassable, routing around")   # wall) -> permanent block
                 stuck += 1
                 if stuck % 4 == 0:                  # likely a wandering NPC: wait for it
                     # The failed step LEFT US FACING the blocker. A chokepoint trainer
