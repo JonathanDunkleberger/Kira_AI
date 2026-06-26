@@ -478,19 +478,21 @@ class Campaign:
                 self.b.press("RIGHT", 8, 8, self.render, owner="agent")
         return tv.coords(self.b) == tile
 
-    def heal_at_center(self):
-        """AUTHENTIC Pokemon Center heal (no RAM poking): route to the Viridian Center door,
-        enter, walk to the nurse counter, drive the YES heal dialogue, verify HP -> max, exit.
-        Returns 'healed' or 'stuck' (LOUD)."""
+    def heal_at_center(self, pc_door=VIRIDIAN_PC_DOOR):
+        """AUTHENTIC Pokemon Center heal (no RAM poking): route to a Pokemon Center door (default
+        Viridian; pass any city's PC door for NEAREST-center healing), enter, walk to the nurse
+        counter, drive the YES heal dialogue, verify HP -> max, exit back to the city. PC interiors
+        share ONE layout so only the overworld door differs. Returns 'healed' or 'stuck' (LOUD)."""
         h0 = self.lead_hp()
+        city = tv.map_id(self.b)                  # the city we heal in (generic; was Viridian-only)
         if h0[0] >= h0[1]:
             log(f"   HEAL: already full ({h0[0]}/{h0[1]}) - skipping"); return "healed"
         return_to = tv.coords(self.b)             # heal is TRANSPARENT: come back here after
         log(f"   HEAL: lead at {h0[0]}/{h0[1]} -> routing to the Viridian Pokemon Center "
             f"(will return to {return_to})")
         # 1) to the PC door + step in
-        if self.trav.travel(target_map=None, arrive_coord=(VIRIDIAN_PC_DOOR[0],
-                            VIRIDIAN_PC_DOOR[1] + 1), max_steps=400, max_seconds=120) != "arrived":
+        if self.trav.travel(target_map=None, arrive_coord=(pc_door[0],
+                            pc_door[1] + 1), max_steps=400, max_seconds=120) != "arrived":
             log(f"   !! HEAL: couldn't reach the PC door (at {tv.coords(self.b)})"); return "stuck"
         before = tv.map_id(self.b)
         for _ in range(6):
@@ -499,8 +501,8 @@ class Campaign:
                 self.b.run_frame()
             if tv.map_id(self.b) != before:
                 break
-        if tv.map_id(self.b) != VIRIDIAN_PC_MAP:
-            log(f"   !! HEAL: did not enter the Center (got {tv.map_id(self.b)})"); return "stuck"
+        if tv.map_id(self.b) == city:
+            log(f"   !! HEAL: did not enter the Center (still on {tv.map_id(self.b)})"); return "stuck"
         for _ in range(90):                       # entrance auto-walk settle (input lock)
             self.b.run_frame()
         self.b.set_input_owner("agent")
@@ -519,22 +521,19 @@ class Campaign:
         if h1[0] != h1[1] or h1[1] == 0:
             log(f"   !! HEAL: nurse dialogue did not complete (HP {h1[0]}/{h1[1]})"); return "stuck"
         log(f"   HEAL: restored {h0[0]}/{h0[1]} -> {h1[0]}/{h1[1]}")
-        # 3) exit: step off the entrance mat then back down onto it (being PLACED on a warp
-        # tile doesn't fire it - only STEPPING onto it does). Walk up one, then down onto the
-        # exit tile; the door/warp tiles are found via the same 0x6x behavior scan as entry.
-        warp_tiles = set(self._door_tiles())
-        log(f"   HEAL: interior warp tiles={sorted(warp_tiles)} (player {tv.coords(self.b)})")
-        self._step_to((PC_ENTRY[0], PC_ENTRY[1] - 1))     # one tile ABOVE the mat
-        inside = tv.map_id(self.b)
-        for _ in range(8):
-            if tv.map_id(self.b) != inside:
+        # 3) EXIT: the post-heal script holds control for a beat and the exit mat only fires when you
+        # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
+        # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
+        # single DOWN-burst was too impatient and froze at the counter (the Cerulean heal-exit bug).
+        for _ in range(40):
+            if tv.map_id(self.b) == city:
                 break
+            self.b.press("B", 3, 8, self.render, owner="agent")
             self.b.press("DOWN", 8, 12, self.render, owner="agent")
-            for _ in range(18):
+            for _ in range(10):
                 self.b.run_frame()
-            log(f"      exit DOWN -> map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
         log(f"   HEAL: exited Center -> map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
-        if tv.map_id(self.b) != VIRIDIAN:
+        if tv.map_id(self.b) != city:
             return "healed_stuck_inside"
         # walk back to the pre-heal spot so HEAL is transparent (the next objective resumes
         # from where it expected to be, not the PC doorstep)
