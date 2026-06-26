@@ -92,8 +92,10 @@ class DialogueDriver:
 
     # Default curve TUNED LIVE 2026-06-26 by Jonny at TRUE real-time (AudioPump throttle) WITH music
     # - the only valid baseline (headless free-runs ~10-15x, which made every earlier read too fast).
-    def drive(self, stop_when=None, label="", min_s=0.09, max_s=0.45, base_s=0.05,
-              per_char_s=0.0053, page_gap_s=0.043, max_steps=300):
+    # 50% FASTER pass (Jonny, after watching the opening debut at true speed): halved from the first
+    # locked curve (min 0.09/max 0.45/base 0.05/per_char 0.0053/gap 0.043) -> snappier everywhere.
+    def drive(self, stop_when=None, label="", min_s=0.045, max_s=0.22, base_s=0.025,
+              per_char_s=0.0027, page_gap_s=0.022, max_steps=300):
         """Advance an open overworld dialogue at a watchable pace until control RETURNS (or
         stop_when() fires). Returns 'stopped' | 'closed' | 'timeout'(loud).
 

@@ -718,17 +718,48 @@ class Campaign:
         c = getattr(self, "_starter_choice", None)
         return c if c in (0, 1, 2) else 0
 
+    def choose_nickname(self):
+        """DECISION SEAM - does Kira nickname her new Pokemon, and what? Returns a name str to name
+        it (via name_entry) or None to DECLINE. Capability-not-script: set self._nickname (Batch 2
+        routes this through her soul). Default None = decline cleanly (NOT A-spam)."""
+        nk = getattr(self, "_nickname", None)
+        return nk if isinstance(nk, str) and nk.strip() else None
+
+    def _handle_nickname(self):
+        """The 'Give a nickname to <X>?' Yes/No prompt after acquiring a Pokemon. Her choice: name it
+        (name_entry on the SAME keyboard as self/rival naming) or decline (No). Fixes the A-spam that
+        nicknamed the starter 'AAAA'."""
+        from naming import name_entry
+        nick = self.choose_nickname()
+        for _ in range(30):                                    # advance toward the nickname prompt
+            low = self._read_overworld_text().lower()
+            if "nickname" in low:
+                if nick:
+                    for _ in range(8):                                     # YES, then advance the
+                        if not dd_box_open(self.b):                        # Yes/No -> the keyboard
+                            break                                          # (opens after a few A's)
+                        self.b.press("A", 8, 10, self.render, owner="agent")
+                        for _ in range(16):
+                            self.b.run_frame()
+                    for _ in range(40):                                    # SETTLE: the fresh keyboard
+                        self.b.run_frame()                                 # eats the first tap otherwise
+                    name_entry(self.b, nick, render=self.render)           # type her chosen name
+                    log(f"   STARTER: nicknamed it {nick!r} (her choice)")
+                else:
+                    self.b.press("B", 8, 10, self.render, owner="agent")   # NO -> decline (no A-spam)
+                    for _ in range(20):
+                        self.b.run_frame()
+                    log("   STARTER: declined a nickname (her choice)")
+                return
+            self.b.press("A", 4, 10, self.render, owner="agent")
+            for _ in range(12):
+                self.b.run_frame()
+
     def pick_starter(self, idx=None):
         """HANDS: walk below the chosen ball, face it, take it + confirm YES, drive Oak's dialogue
-        until the party grows. Choice-agnostic (works for ball 0/1/2). Returns 'picked' | 'stuck'.
-
-        ⚠ WIP / UNVERIFIED (2026-06-26): the Oak-INTRO drive works (DialogueDriver clears 'Those are
-        POKé BALLS...' and control returns), and the choice SEAM (choose_starter) is wired - but the
-        exact BALL-PICK interaction is NOT cracked yet: from below a ball, face-up+A re-shows Oak's
-        generic speech instead of a 'Do you want X?' prompt, and _step_to can't reach the left ball's
-        front tile (lab front-row nav is constrained). starter.py hit the SAME wall ('real interaction
-        near x11..13, UNVERIFIED'). NEEDS a focused recon: the precise tile+facing that opens each
-        ball's pick prompt. Not wired into the manifest until that lands."""
+        until the party grows, then handle the nickname prompt (her choice). Choice-agnostic (ball
+        0/1/2). Returns 'picked' | 'stuck'. WORKS when the lab is reached CONTINUOUSLY (Oak's full
+        intro grants pick-permission) - the dead starter.state mid-dialogue capture was the old wall."""
         if idx is None:
             idx = self.choose_starter()
         bx, by = self.STARTER_BALLS[idx]
@@ -756,6 +787,7 @@ class Campaign:
             sp = st.read_party_species(self.b, 0)
             log(f"   STARTER: *** picked {st.SPECIES_NAME.get(sp, '?')} (#{sp}) ***")
             self.on_event(f"I'll go with {st.SPECIES_NAME.get(sp, 'this one')}")
+            self._handle_nickname()                            # the "give a nickname?" prompt - her choice
             return "picked"
         log("   !! STARTER: no Pokemon obtained - pick stuck (LOUD)")
         return "stuck"
