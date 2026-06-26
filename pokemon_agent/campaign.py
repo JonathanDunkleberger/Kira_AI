@@ -38,14 +38,30 @@ from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 STATES = os.path.join(_HERE, "states")
-# ── MODE-SEPARATED checkpoint dirs (Part A) ───────────────────────────────────
-# states/workshop/  = scratch / sherpa states. WORKSHOP runs resume-from-any here AND bank here.
-# states/kira/      = her CANONICAL playthrough save(s). ONLY a SHOW run may write here; a WORKSHOP
-#                     run is PHYSICALLY FORBIDDEN to write into it (see _save_checkpoint guard).
-# Banked GATE_NEEDS_STATE sherpa files are resolved from workshop/ first, then the flat states/ dir
-# (legacy location), so the existing gate states keep loading until each skip is converted to AUTO.
+# ── THREE SAVE LINEAGES (Part A) ──────────────────────────────────────────────
+# states/workshop/  = the SMALL set of real sherpa checkpoints WE use to jump up/down the game to
+#                     lay hooks (beginning, brock_done, mtmoon_done, misty_done) + any state a live
+#                     segment loads. WORKSHOP runs resume-from-any here AND bank here.
+# states/kira/      = her SACRED playthrough save(s). ONLY a SHOW run may write here; a WORKSHOP run
+#                     is PHYSICALLY FORBIDDEN to write into it (see _save_checkpoint guard). Old runs
+#                     are timestamp-archived under kira/archive_<ts>/ (kira_run.py), never clobbered.
+# states/archive/   = every handicapped-era TEACHING capture + orphaned scratch/recon state. Out of
+#                     the live path so nothing mistakes archaeology for current. Not deleted.
+# resolve_state() finds a named state across the live buckets (workshop -> kira -> flat -> archive),
+# so boots/gates keep loading after the archive sweep regardless of which bucket holds the file.
 STATES_WORKSHOP = os.path.join(STATES, "workshop")
 STATES_KIRA = os.path.join(STATES, "kira")
+STATES_ARCHIVE = os.path.join(STATES, "archive")
+
+
+def resolve_state(name):
+    """Find a named savestate across the live buckets, preferring the live path over archaeology:
+    workshop/ -> kira/ -> flat states/ -> archive/. Returns the full path or None."""
+    for d in (STATES_WORKSHOP, STATES_KIRA, STATES, STATES_ARCHIVE):
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            return p
+    return None
 
 # ── known FireRed map IDs (group, num) - documented, not reconned ────────────
 PALLET, VIRIDIAN, PEWTER = (3, 0), (3, 1), (3, 2)
@@ -1177,13 +1193,9 @@ class Campaign:
 
     # ── SEGMENT MANIFEST driver (the resumable whole-game spine) ──────────────────
     def _resolve_gate(self, name):
-        """Find a banked sherpa/gate state: workshop/ first, then the flat states/ legacy dir.
-        Returns the full path or None. (Each gate converted to AUTO drops its load entirely.)"""
-        for d in (STATES_WORKSHOP, STATES):
-            p = os.path.join(d, name)
-            if os.path.exists(p):
-                return p
-        return None
+        """Find a banked sherpa/gate state across the live buckets (see resolve_state). Returns the
+        full path or None. (Each gate converted to AUTO drops its load entirely.)"""
+        return resolve_state(name)
 
     def _save_checkpoint(self, name) -> bool:
         """Auto-save a resumable overworld checkpoint between segments into self.ckpt_dir. LOUD on
@@ -1267,7 +1279,8 @@ def main():
     if args.headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
     b = Bridge(ROM)
-    with open(os.path.join(STATES, args.boot), "rb") as f:
+    boot_path = resolve_state(args.boot) or os.path.join(STATES, args.boot)
+    with open(boot_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()

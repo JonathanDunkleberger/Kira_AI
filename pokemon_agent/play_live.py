@@ -110,9 +110,10 @@ def main():
         b.set_input_owner("agent")
         log(f"SHOW MODE: fresh ROM boot (canonical spine): map={tv.map_id(b)} url={args.url}")
     else:
-        boot_path = os.path.join(STATES, args.boot)
-        if not os.path.exists(boot_path):
-            log(f"FAIL - boot state missing: {boot_path}"); return
+        from campaign import resolve_state
+        boot_path = resolve_state(args.boot)
+        if not boot_path:
+            log(f"FAIL - boot state missing: {args.boot} (searched workshop/kira/states/archive)"); return
         with open(boot_path, "rb") as f:
             b.load_state(f.read())
         for _ in range(40):
