@@ -106,11 +106,21 @@ def main():
         b.run_frame()
     b.set_input_owner("agent")
 
-    # 4) navigate to Misty (BFS; Luis/Diana auto-engage via the trainer-gauntlet)
-    step("navigate to Misty + engage")
-    camp.trav.travel(target_map=None, arrive_coord=MISTY_FRONT, max_steps=300, max_seconds=180)
-    print(f"   at {tv.coords(b)} (Misty front {MISTY_FRONT})", flush=True)
-    for _ in range(24):                                  # face UP + A to trigger Misty
+    # 4) navigate to Misty, RESOLVING gym-trainer battles first (Luis/Diana engage via LoS on
+    # arrival -> we must FIGHT them out, not mistake the leftover battle for Misty), then re-nav.
+    step("navigate to Misty (resolve gym trainers en route)")
+    for attempt in range(6):
+        camp.trav.travel(target_map=None, arrive_coord=MISTY_FRONT, max_steps=300, max_seconds=150)
+        if st.in_battle(b):
+            print(f"   gym-trainer battle -> {fr()}", flush=True)
+            for _ in range(40):                          # let the post-battle dialogue settle
+                b.run_frame()
+            b.set_input_owner("agent")
+            continue
+        break
+    print(f"   at {tv.coords(b)} (Misty front {MISTY_FRONT}) in_battle={st.in_battle(b)}", flush=True)
+    # NOW engage MISTY herself (talk: face up + A) - only after all trainers are cleared
+    for _ in range(24):
         if st.in_battle(b):
             break
         b.press("UP", 8, 8, render, owner="agent")
@@ -120,8 +130,17 @@ def main():
 
     # 5) fight Misty (current team/moves)
     step("fight Misty")
+    print(f"   DIAG: in_battle={st.in_battle(b)} at {tv.coords(b)} before fight", flush=True)
     if st.in_battle(b):
+        rb = st.read_battle(b)
+        if rb:
+            print(f"   DIAG: opponent species={rb['enemy']['species']} "
+                  f"({st.SPECIES_NAME.get(rb['enemy']['species'],'?')}) hp={rb['enemy']['hp']}/{rb['enemy']['maxhp']} "
+                  f"(Staryu=120 Starmie=121 -> Misty; else a gym trainer)", flush=True)
         print(f"   MISTY battle -> {fr()}", flush=True)
+        rb2 = st.read_battle(b)
+        print(f"   DIAG: after fight in_battle={st.in_battle(b)} "
+              f"enemy={(rb2['enemy']['species'], rb2['enemy']['hp']) if rb2 and rb2.get('enemy') else 'n/a'}", flush=True)
 
     # 6) drain award until the Cascade flag sets
     step("drain award -> Cascade Badge")
