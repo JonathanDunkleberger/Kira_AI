@@ -202,10 +202,15 @@ class BattleAgent:
                 return "caught"
             if not st.in_battle(self.b):
                 return "broke_free"
-            # B-ONLY advance: the post-catch "give a nickname?" is a Yes/No box defaulting to
-            # YES — an A (as _advance_text would send) opens the naming keyboard and wedges the
-            # catch. B dismisses every catch-sequence box (and answers No), proven to reach
-            # party+1. Wait a beat first so we never mash B into an animation.
+            # The ball BROKE and we're back at the action menu (white panel) - the turn is over.
+            # Return here WITHOUT pressing anything: B at the action menu is RUN, so mashing B would
+            # FLEE (the old one-throw-then-wander bug). The caller decides whether to throw again
+            # (commit to the catch) or move on. PRE-2026-06-26 this fled after every failed throw.
+            if self._white_box():
+                return "broke_free"
+            # B-ONLY advance for the catch-sequence BLUE boxes (the "broke free!" text and the
+            # post-catch "give a nickname?" Yes/No, which defaults YES — an A would open the naming
+            # keyboard and wedge it). B dismisses them safely. Wait so we never mash into animation.
             self._wait(18)
             self.b.press("B", 2, 12, self.render, owner=self.owner)
         return "stuck"
@@ -259,9 +264,20 @@ class BattleAgent:
         wild battle); B is only used to back out of a wrongly-opened submenu."""
         ours, enemy = state["ours"], state["enemy"]
         idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
-        if not (0 <= idx < 4) or ours["moves"][idx].get("id", 0) == 0:
-            idx = next((i for i in range(4) if ours["moves"][i].get("id", 0)
-                        and ours["moves"][i].get("pp", 0) > 0), 0)   # guard: a real, PP'd move
+
+        def _usable(i):                                # a real move with PP
+            m = ours["moves"][i]
+            return m.get("id", 0) != 0 and m.get("pp", 0) > 0
+        if not (0 <= idx < 4) or not _usable(idx) or idx == self._skip_idx:
+            # policy pick is empty / 0-PP / the move that JUST failed: rotate to the best OTHER
+            # usable move by expected DAMAGE (power x effectiveness) - prefer a real attack, not status.
+            cands = [i for i in range(4) if _usable(i) and i != self._skip_idx]
+            if not cands:                              # only the skip move is left -> allow it
+                cands = [i for i in range(4) if _usable(i)]
+            if cands:
+                idx = max(cands, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
+                          * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
+                desc = ours["moves"][idx].get("name", desc)
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
         self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
@@ -287,18 +303,38 @@ class BattleAgent:
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
         self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
+        # VERIFY the move EXECUTED. The old fixed 220-frame window was TOO SHORT for a full trainer
+        # turn (when we're slower, our hit lands AFTER the foe's move + animations) -> it timed out
+        # on WORKING moves and (with benching) exiled them, losing winnable fights. Now we wait for
+        # the TURN TO RESOLVE: a PP drop or ANY HP change = it fired (damage dealt or taken means a
+        # move went off); battle ending = it fired (KO). Only if the turn settles back at the menu
+        # with NO PP drop and NO HP change is it a true non-fire (Disable / can't-act).
         result = None
-        for _ in range(220):                          # VERIFY: the chosen move EXECUTES -> its PP
-            if not st.in_battle(self.b):              # drops (works for damage AND status moves);
-                result = "done"; break                # if nothing happens, "stuck" -> retry clean
+        last_hp, stable = before, 0
+        for _ in range(900):
+            if not st.in_battle(self.b):
+                result = "done"; break                # battle ended (KO) = our move resolved
             cur = st.read_battle(self.b)
             if cur:
                 self._emit_diffs(self._prev, cur); self._prev = cur
-                if cur["ours"]["moves"][idx].get("pp", 0) < pp0:      # our chosen move fired
+                if cur["ours"]["moves"][idx].get("pp", 0) < pp0:      # our chosen move's PP dropped
                     result = "done"; break
-                if before and (cur["enemy"]["hp"], cur["ours"]["hp"]) != before:
-                    result = "done"; break            # HP moved (fallback signal)
+                hp = (cur["enemy"]["hp"], cur["ours"]["hp"])
+                if before and hp != before:           # ANY HP moved this turn -> a move executed
+                    result = "done"; break
+                stable = stable + 1 if hp == last_hp else 0
+                last_hp = hp
+                if self._white_box() and stable >= 30:   # settled back at the menu, nothing happened
+                    break                                 # = the move never fired (Disabled/blocked)
             self.b.run_frame(); self.render()
+        if result == "done":
+            self._skip_idx = None                      # it fired -> nothing to avoid next turn
+        else:
+            # didn't fire (no PP drop, no HP change) = Disabled / couldn't act: avoid this slot for
+            # the NEXT selection only (then it's eligible again - never permanently exiled).
+            self._skip_idx = idx
+            self.log(f"   [engine] move slot {idx} didn't fire (disabled / blocked) -> "
+                     f"trying a different move next turn")
         return result or "stuck"
 
     def _advance_text(self, force_b=False):
@@ -377,6 +413,11 @@ class BattleAgent:
         if not st.in_battle(self.b):
             return "timeout"
         self._started = True
+        self._skip_idx = None              # the ONE move slot to avoid for the NEXT selection only:
+        # the move that just failed to fire (Disable / slow-turn verify). A 1-turn skip rotates us
+        # off a disabled move WITHOUT permanently exiling our best attack - permanent benching caused
+        # the PoisonPowder-spam (a working Tackle got benched, forcing 11 turns of useless status).
+        # Cleared the instant any move fires.
         self._prev = st.read_battle(self.b)
         self._reach_first_menu(t0, max_seconds)
         state = st.read_battle(self.b) or self._prev
