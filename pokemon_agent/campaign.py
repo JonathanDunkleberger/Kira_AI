@@ -34,6 +34,7 @@ import firered_ram as ram        # noqa: E402
 import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 from battle_agent import BattleAgent  # noqa: E402
+from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 STATES = os.path.join(_HERE, "states")
@@ -48,8 +49,23 @@ VIRIDIAN_PC_DOOR, VIRIDIAN_PC_MAP, NURSE_FRONT, PC_ENTRY = (26, 26), (5, 4), (7,
 # Pewter Gym (reconned 2026-06-24): town door (15,16) -> interior (6,2); climb the centre column
 # (x=6) to Brock's front tile (6,6); the lone gym trainer auto-engages off the centre path.
 PEWTER_GYM_DOOR, BROCK_FRONT = (15, 16), (6, 6)
-# FLAG_BADGE01_GET (Boulder Badge) = flag 0x820 in the SaveBlock1 flag array (base + 0x0EE0).
-FLAG_BADGE_BOULDER = 0x820
+# Cerulean Gym (reconned 2026-06-26, recon_gymscan): town door (31,21) -> interior; Misty (8,6,
+# trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
+# WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
+CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT = (3, 3), (31, 21), (8, 7)
+# FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
+FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
+
+# ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
+# behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
+# expected level-up double-learn (Brock's L15); leader_dir = key that faces the leader from the
+# front tile (UP for Brock + Misty - the leader sits directly above their front tile). ──
+GymSpec = namedtuple("GymSpec", ["name", "city", "door", "leader_front", "badge_flag",
+                                 "reserve", "leader_dir"])
+GYMS = {
+    "Brock": GymSpec("Brock", PEWTER, PEWTER_GYM_DOOR, BROCK_FRONT, FLAG_BADGE_BOULDER, 2, "UP"),
+    "Misty": GymSpec("Misty", CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT, FLAG_BADGE_CASCADE, 0, "UP"),
+}
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
 
@@ -347,13 +363,21 @@ class Campaign:
         w1 = self.b.rd32(data + a * 12 + 4) ^ key
         return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
 
-    def _delete_lead_move(self, mv):
-        """Delete move slot `mv` (0-3) from the lead, keeping the Gen-3 checksum valid (decrypt the
-        48-byte data block, zero the move + its PP, recompute the checksum, re-encrypt)."""
+    def _lead_pps(self):
+        base, key, data, a = self._attacks_block()
+        w = self.b.rd32(data + a * 12 + 8) ^ key               # the 4 PP bytes (one u32)
+        return [w & 0xFF, (w >> 8) & 0xFF, (w >> 16) & 0xFF, (w >> 24) & 0xFF]
+
+    def _set_lead_moves(self, moves, pps):
+        """Write the lead's 4 move IDs + 4 PP bytes wholesale, keeping the Gen-3 checksum valid
+        (decrypt the 48-byte data block, overwrite the A-substruct's 3 words, recompute the u16-sum
+        checksum, re-encrypt). Used to COMPACT moves (no empty gaps between real moves)."""
         base, key, data, a = self._attacks_block()
         words = [self.b.rd32(data + i * 4) ^ key for i in range(12)]
-        words[a * 3 + (mv // 2)] &= (0xFFFF0000 if mv % 2 == 0 else 0x0000FFFF)
-        words[a * 3 + 2] &= (~(0xFF << (mv * 8))) & 0xFFFFFFFF
+        words[a * 3] = (moves[0] & 0xFFFF) | ((moves[1] & 0xFFFF) << 16)
+        words[a * 3 + 1] = (moves[2] & 0xFFFF) | ((moves[3] & 0xFFFF) << 16)
+        words[a * 3 + 2] = ((pps[0] & 0xFF) | ((pps[1] & 0xFF) << 8)
+                            | ((pps[2] & 0xFF) << 16) | ((pps[3] & 0xFF) << 24))
         chk = 0
         for w in words:
             chk = (chk + (w & 0xFFFF) + ((w >> 16) & 0xFFFF)) & 0xFFFF
@@ -362,87 +386,189 @@ class Campaign:
         self.b.core.memory.u16.raw_write(base + 0x1C, chk)
 
     def _reserve_move_slots(self, n):
-        """Open `n` move slots on the lead by deleting its weakest (lowest-power) moves, so
-        upcoming level-up moves auto-learn with no Y/N box. Keeps >= 2 moves (the strongest)."""
-        for _ in range(n):
-            moves = self._lead_moves()
-            cands = sorted((st.move_info(self.b, m)[1], i) for i, m in enumerate(moves) if m)
-            if len(cands) <= 2:
-                break
-            self._delete_lead_move(cands[0][1])                # delete the weakest
-            for _ in range(4):
-                self.b.run_frame()
+        """Free `n` move slots on the lead so upcoming level-up moves AUTO-LEARN with no (un-
+        actuatable) Y/N box. We COMPACT, not delete-in-place: keep the (4-n) strongest moves in the
+        TOP slots and push the empties to the END. WHY compact: the in-battle FIGHT menu displays
+        real moves CONTIGUOUSLY, but BattleAgent navigates by RAM slot index - so a gap (e.g.
+        [Tackle, _, _, VineWhip]) made it walk the cursor to grid-3 while Vine Whip showed at grid-1,
+        and the super-effective move NEVER FIRED (it could only Tackle). Compacting makes RAM order
+        == menu order, so the chosen move is actually navigable; trailing empties still feed the
+        L15 auto-learn (new moves land in the lowest empty slot, i.e. the end). Keeps >= 2 moves."""
+        moves, pps = self._lead_moves(), self._lead_pps()
+        real = [(i, m) for i, m in enumerate(moves) if m]      # (slot, moveId) of real moves
+        keep_count = max(2, len(real) - n)                     # free up to n, never drop below 2
+        ranked = sorted(real, key=lambda im: st.move_info(self.b, im[1])[1], reverse=True)
+        keep = sorted(ranked[:keep_count], key=lambda im: im[0])   # strongest kept, in slot order
+        new_moves = [m for _, m in keep] + [0] * (4 - len(keep))
+        new_pps = [pps[i] for i, _ in keep] + [0] * (4 - len(keep))
+        self._set_lead_moves(new_moves, new_pps)
+        for _ in range(4):
+            self.b.run_frame()
+
+    def has_badge(self, flag):
+        """Read any FLAG_BADGE0x_GET from the SaveBlock1 flag array (base + 0x0EE0)."""
+        sb1 = self.b.rd32(0x03005008)                          # gSaveBlock1Ptr (DMA-shuffled target)
+        fa = sb1 + 0x0EE0 + (flag >> 3)
+        return bool(self.b.rd8(fa) & (1 << (flag & 7)))
 
     def has_boulder_badge(self):
-        sb1 = self.b.rd32(0x03005008)                          # gSaveBlock1Ptr (DMA-shuffled target)
-        fa = sb1 + 0x0EE0 + (FLAG_BADGE_BOULDER >> 3)
-        return bool(self.b.rd8(fa) & (1 << (FLAG_BADGE_BOULDER & 7)))
+        return self.has_badge(FLAG_BADGE_BOULDER)
+
+    # ── GENERAL gym-trainer gauntlet (a gym LEADER is gated behind the junior trainers) ──────────
+    _OB, _SZ = 0x02036E38, 0x24
+    _DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}     # facing nibble -> look direction
+    _TOWARD = {(1, 0): "RIGHT", (-1, 0): "LEFT", (0, 1): "DOWN", (0, -1): "UP"}
+
+    def _gym_trainers(self):
+        """Every loaded TRAINER object event (trainerType 1/2): (object index, coord, facing). We
+        track 'beaten' by INDEX, not coord - a gym trainer can WANDER (Cerulean's 2nd swimmer roams
+        (4,7)->(7,7)), and a DEFEATED trainer still scans as trainerType, so coord-tracking would
+        both re-engage a wanderer and lose track of who's done. The index is stable."""
+        out = []
+        for i in range(1, 16):
+            o = self._OB + i * self._SZ
+            if (self.b.rd8(o) & 1) and self.b.rd8(o + 0x07) in (1, 2):
+                c = (self.b.rds16(o + 0x10) - 7, self.b.rds16(o + 0x12) - 7)
+                out.append((i, c, self.b.rd8(o + 0x18) & 0x0F))
+        return out
+
+    def _engage_trainer(self, T, facing):
+        """Walk to a tile adjacent to a junior trainer (its facing-front first, then any reachable
+        side), face it, A -> battle. Its line of sight may auto-fire mid-approach (caught)."""
+        order = [self._DELTA.get(facing, (0, 1)), (0, 1), (0, -1), (-1, 0), (1, 0)]
+        seen = set()
+        for adj in order:
+            if adj in seen:
+                continue
+            seen.add(adj)
+            front = (T[0] + adj[0], T[1] + adj[1])
+            self.trav.travel(target_map=None, arrive_coord=front, max_steps=200, max_seconds=90)
+            if st.in_battle(self.b):
+                return True                                    # LoS fired during the walk-in
+            if tv.coords(self.b) != front:
+                continue                                       # couldn't reach this side - try next
+            face = self._TOWARD[(-adj[0], -adj[1])]            # turn back toward the trainer body
+            for _ in range(4):
+                if st.in_battle(self.b):
+                    return True
+                self.b.press(face, 8, 8, self.render, owner="agent")
+                self.b.press("A", 6, 12, self.render, owner="agent")
+                for _ in range(20):
+                    self.b.run_frame()
+            if st.in_battle(self.b):
+                return True
+        return False
+
+    def _drain_overworld(self, label="dlg"):
+        """Drive any overworld dialogue box (a trainer's post-battle line, an NPC, the badge award)
+        to a clean close at a watchable pace via the general primitive. No box -> returns at once."""
+        self.b.set_input_owner("agent")
+        return DialogueDriver(self.b, render=self.render,
+                              log=lambda m: log(m)).drive(label=label)
+
+    def _clear_gym_trainers(self, leader_front, max_rounds=10):
+        """Beat EVERY junior trainer (re-scanning each round, since far ones are proximity-loaded
+        and one may wander), THEN return so the caller engages the gated leader. General gym
+        mechanic - reusable for Surge/Erika/etc."""
+        beaten = set()                                         # object indices already cleared
+        for rnd in range(max_rounds):
+            self.b.set_input_owner("agent")
+            trs = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
+            if trs:
+                px, py = tv.coords(self.b) or (0, 0)
+                trs.sort(key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py))
+                idx, T, facing = trs[0]
+                log(f"   GYM: engaging junior trainer obj{idx} at {T} (facing {facing})")
+                self._engage_trainer(T, facing)
+                if st.in_battle(self.b):
+                    log(f"   GYM: junior trainer -> {self.battle_runner()}")
+                    self._drain_overworld(label="trainer")
+                beaten.add(idx)                                # cleared (or unreachable) -> don't reloop
+                continue
+            # none loaded -> advance toward the leader to load/trigger far trainers (LoS may fire)
+            self.trav.travel(target_map=None, arrive_coord=leader_front,
+                             max_steps=200, max_seconds=90)
+            if st.in_battle(self.b):
+                log(f"   GYM: en-route LoS trainer -> {self.battle_runner()}")
+                self._drain_overworld(label="trainer")
+                nt = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
+                if nt:
+                    px, py = tv.coords(self.b) or (0, 0)
+                    nt.sort(key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py))
+                    beaten.add(nt[0][0])
+                continue
+            if [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]:
+                continue                                       # a far trainer just loaded -> engage it
+            log(f"   GYM: all junior trainers cleared (beaten obj {sorted(beaten)})")
+            return
+        log(f"   !! GYM: hit {max_rounds} clear-rounds with trainers still loaded - proceeding LOUD")
 
     def beat_gym(self, name):
-        """Pewter Gym -> Brock -> Boulder Badge. Reserve slots (move-learn handler), enter the gym,
-        climb to Brock (the gym trainer auto-engages -> 5/5 engine), beat Brock (Vine Whip 4x vs
-        his rock/ground), advance the award, confirm the badge flag."""
-        self._reserve_move_slots(2)
-        log(f"   GYM: reserved 2 slots for the L15 double-learn; moves now "
-            f"{[st.MOVE_NAMES.get(m, '#' + str(m)) for m in self._lead_moves()]}")
-        if tv.map_id(self.b) == PEWTER:
-            if self.enter_warp(pick=PEWTER_GYM_DOOR) != "warped":
-                log("   !! GYM: couldn't enter the Pewter Gym"); return "stuck"
+        """GENERAL gym handler (gyms gate the leader behind their junior trainers): reserve move
+        slots if this gym has a level-up double-learn, enter, BEAT EVERY JUNIOR TRAINER, then engage
+        the gated leader, beat them with the current team, drive the badge/TM award to a clean close
+        at a watchable pace, and confirm the badge flag. Data-driven via GYMS - one row per leader."""
+        gym = GYMS.get(name)
+        if gym is None:
+            log(f"   !! GYM: no spec for '{name}'"); return "stuck"
+        if gym.reserve:
+            self._reserve_move_slots(gym.reserve)
+            log(f"   GYM: reserved {gym.reserve} slot(s) for a level-up learn; moves now "
+                f"{[st.MOVE_NAMES.get(m, '#' + str(m)) for m in self._lead_moves()]}")
+        if tv.map_id(self.b) == gym.city:
+            if self.enter_warp(pick=gym.door) != "warped":
+                log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
         for _ in range(45):
             self.b.run_frame()
-        log(f"   GYM: inside {tv.map_id(self.b)} at {tv.coords(self.b)} - climbing to Brock")
-        for _ in range(30):                                    # climb x=6 to Brock's front (6,6)
-            if st.in_battle(self.b):
-                log(f"   GYM: gym trainer -> {self.battle_runner()}")
-                self.b.set_input_owner("agent"); continue
-            cur = tv.coords(self.b)
-            if cur == BROCK_FRONT:
+        log(f"   GYM: inside {tv.map_id(self.b)} at {tv.coords(self.b)} - clearing junior trainers")
+        # 1) BEAT THE JUNIOR TRAINERS FIRST (the leader is gated until they're all down)
+        self._clear_gym_trainers(gym.leader_front)
+        # 2) engage the LEADER (now ungated): walk to the front tile, face them + A to initiate,
+        # then DRIVE the pre-battle challenge speech INTO the battle (Brock's "So, you're here..."
+        # is a multi-box speech that a few A-taps don't fully clear; the primitive advances it and
+        # stops the instant the battle starts). Misty starts the battle near-immediately - same path.
+        self.b.set_input_owner("agent")
+        self.trav.travel(target_map=None, arrive_coord=gym.leader_front, max_steps=200, max_seconds=90)
+        log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name}")
+        for _ in range(6):
+            if st.in_battle(self.b) or dd_box_open(self.b):
                 break
-            self.b.press("UP", 8, 8, self.render, owner="agent")
-            if tv.coords(self.b) == cur and not st.in_battle(self.b):
-                self.b.press("A", 8, 8, self.render, owner="agent")
-                for _ in range(18):
-                    self.b.run_frame()
-        for _ in range(28):                                    # face Brock + advance to the battle
-            if st.in_battle(self.b):
-                break
-            self.b.press("UP", 8, 8, self.render, owner="agent")
+            self.b.press(gym.leader_dir, 8, 8, self.render, owner="agent")
             self.b.press("A", 8, 8, self.render, owner="agent")
-            for _ in range(20):
+            for _ in range(16):
                 self.b.run_frame()
+        if not st.in_battle(self.b):                           # advance the challenge speech -> battle
+            DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(
+                stop_when=lambda: st.in_battle(self.b), label=f"{name}-challenge")
         if st.in_battle(self.b):
-            log(f"   GYM: BROCK -> {self.battle_runner()}")
-        # ── ROBUST AWARD DRAIN (the climax — must NEVER freeze on 'Wait! Take this with you.') ──
-        # Mirror the proven headless path: a brisk, uninterrupted A-mash through Brock's speech +
-        # the BOULDERBADGE + the TM39 gift. draining_award tells the soul-on render (play_live) to
-        # stop polling/holding dialogue here, so a reading-pace hold can't stall the cutscene. Press
-        # UNTIL the badge flag actually sets (not a fixed count that live pacing could starve), then
-        # keep draining to clear the TM39 gift and return to the overworld.
+            log(f"   GYM: {name.upper()} -> {self.battle_runner()}")
+        # 3) AWARD (the climax): drive the badge + TM gift to a clean close at a WATCHABLE pace via
+        # the general dialogue primitive. draining_award tells the soul-on render (play_live) to stop
+        # polling/holding here so nothing competes with the drain. The proven brisk A-mash stays as a
+        # BACKSTOP - the climax must NEVER freeze, so if the paced drive hasn't set the badge we fall
+        # back to it immediately (preserves the regression-green reliability).
         self.draining_award = True
         try:
-            got = False
-            for k in range(160):
-                self.b.press("A", 8, 8, self.render, owner="agent")
-                for _ in range(16):
-                    self.b.run_frame()
-                if self.has_boulder_badge():
-                    got = True
-                    log(f"   GYM: badge flag set at award-press {k} - draining the TM39 gift")
-                    break
-            if not got:
-                log("   !! GYM: award drain hit 160 presses with NO badge flag - STUCK (loud)")
-            else:
-                for _ in range(30):                            # clear the TM39 gift -> overworld
+            self._drain_overworld(label=f"{name}-award")
+            if not self.has_badge(gym.badge_flag):
+                log("   !! GYM: paced award didn't set the badge - A-mash backstop")
+                for k in range(160):
+                    self.b.press("A", 8, 8, self.render, owner="agent")
+                    for _ in range(16):
+                        self.b.run_frame()
+                    if self.has_badge(gym.badge_flag):
+                        break
+                for _ in range(30):                            # clear any TM gift -> overworld
                     self.b.press("A", 8, 8, self.render, owner="agent")
                     for _ in range(16):
                         self.b.run_frame()
         finally:
             self.draining_award = False
-        if self.has_boulder_badge():
-            log("   GYM: *** BOULDER BADGE obtained ***")
-            self.on_event("I beat Brock - that's the Boulder Badge!")
+        if self.has_badge(gym.badge_flag):
+            log(f"   GYM: *** {name.upper()} BADGE obtained ***")
+            self.on_event(f"I beat {name} - that's the badge!")
             return "badge"
-        log("   !! GYM: Brock not beaten / no Boulder Badge flag"); return "stuck"
+        log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):

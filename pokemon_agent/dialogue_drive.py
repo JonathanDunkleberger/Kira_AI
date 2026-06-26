@@ -126,7 +126,7 @@ class DialogueDriver:
                 if self._control_returned():
                     return "closed"
                 self.b.press("A", 4, 10, self.render, owner=self.owner)  # still locked -> push gap
-                self._wait(page_gap)
+                self._hold_s(page_gap_s)
         self.log(f"   [dlg{(' ' + label) if label else ''}] !! max_steps={max_steps} reached, "
                  f"control not regained - LOUD (not silently giving up)")
         return "timeout"
