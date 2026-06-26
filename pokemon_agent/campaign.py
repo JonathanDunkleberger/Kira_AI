@@ -578,6 +578,9 @@ class Campaign:
         if self.has_badge(gym.badge_flag):
             log(f"   GYM: *** {name.upper()} BADGE obtained ***")
             self.on_event(f"I beat {name} - that's the badge!")
+            if tv.map_id(self.b) != gym.city:                  # LEAVE the gym -> back to the city,
+                ex = self.enter_warp(prefer="south")           # ready to free-roam / continue
+                log(f"   GYM: exit -> {ex} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
