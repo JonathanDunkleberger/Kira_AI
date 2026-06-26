@@ -401,7 +401,16 @@ class Traveler:
                 blocked[nxt] = step                 # dynamic block -> re-plan around it
                 stuck += 1
                 if stuck % 4 == 0:                  # likely a wandering NPC: wait for it
-                    for _ in range(24):             # to step aside, then retry the reroute
+                    # The failed step LEFT US FACING the blocker. A chokepoint trainer
+                    # standing on the only gap isn't in walk-past line-of-sight, so it must
+                    # be TALKED to (A) to start the battle; a path-blocking NPC's dialogue
+                    # advances harmlessly. (Until the bridge binding fix on 2026-06-25 a
+                    # phantom A was emitted on every release and did this BY ACCIDENT; with
+                    # input now clean, interacting with a blocking trainer/NPC is explicit.)
+                    self.b.press("A", HOLD, HOLD, self.render, owner=self.owner)
+                    if st.in_battle(self.b):        # trainer triggered -> let the loop hand off
+                        continue
+                    for _ in range(24):             # else wait for a wanderer to step aside
                         self.b.run_frame(); self.render()
                 if stuck >= STUCK_LIMIT:
                     self.log(f"   [travel] !! STUCK at {cur} ({stuck} blocked dirs, last "

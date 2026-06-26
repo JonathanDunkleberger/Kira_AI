@@ -96,20 +96,28 @@ class Bridge:
         return False
 
     # ── (c) press ───────────────────────────────────────────────────────────
+    # CRITICAL (root-caused 2026-06-25): self._keymask[name] is the vendored binding's
+    # KEY_<name> which is a key INDEX (A=0, B=1, RIGHT=4, DOWN=7, ...), NOT a bitmask.
+    # The binding's set_keys does `keys |= 1 << arg` per positional arg. So keys must be
+    # passed as SEPARATE positional indices, and "release all" is set_keys() with NO args.
+    # The old code OR'd indices into one int and passed it as a single arg (double-shift:
+    # RIGHT|DOWN = 4|7 = 7 -> 1<<7 = DOWN only), and release() called set_keys(0) -> 1<<0
+    # = the A BUTTON. That phantom A re-asserted on every "release" and CONFIRMED battle
+    # menus (the years-long "can't navigate the battle menu" wall + the loaded-state
+    # "desync"). Behavior-proven: corrected input navigates FIGHT->RUN and a wild battle
+    # FLEES (2/2), where the old path could not. Single-key presses worked by luck only
+    # because 1<<index happened to equal the right bit for one key.
     def set_keys(self, *names, owner=None):
         """Hold exactly these keys (replaces full key state). No names = release all.
         `owner` must match the claimed input owner once one is set (else dropped+logged)."""
         if not self._owner_ok(owner, "set_keys"):
             return
-        mask = 0
-        for n in names:
-            mask |= self._keymask[n]
-        self.core.set_keys(mask)
+        self.core.set_keys(*(self._keymask[n] for n in names))   # indices as *args; empty = 0
 
     def release(self, owner=None):
         if not self._owner_ok(owner, "release"):
             return
-        self.core.set_keys(0)
+        self.core.set_keys()    # NO args -> keys=0 -> true release (NOT 1<<0 = A)
 
     def press(self, name, hold_frames=8, gap_frames=8, on_frame=None, owner=None):
         """Hold `name` for hold_frames, release for gap_frames. `on_frame(i)` is
