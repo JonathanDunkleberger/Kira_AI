@@ -63,6 +63,28 @@ def resolve_state(name):
             return p
     return None
 
+
+def kira_checkpoints():
+    """The seg_*.state checkpoints present in states/kira/ (a Kira run is in progress iff non-empty)."""
+    if not os.path.isdir(STATES_KIRA):
+        return []
+    return sorted(f for f in os.listdir(STATES_KIRA) if f.endswith(".state"))
+
+
+def archive_kira_save(stamp):
+    """Timestamp-archive the current Kira playthrough so a FRESH show run never clobbers her save:
+    move states/kira/*.state -> states/kira/archive_<stamp>/. `stamp` is passed in (caller stamps the
+    clock). Returns the archive dir, or None if there was no save to move."""
+    import shutil
+    saves = kira_checkpoints()
+    if not saves:
+        return None
+    dst = os.path.join(STATES_KIRA, f"archive_{stamp}")
+    os.makedirs(dst, exist_ok=True)
+    for f in saves:
+        shutil.move(os.path.join(STATES_KIRA, f), os.path.join(dst, f))
+    return dst
+
 # ── known FireRed map IDs (group, num) - documented, not reconned ────────────
 PALLET, VIRIDIAN, PEWTER = (3, 0), (3, 1), (3, 2)
 ROUTE1, ROUTE2, ROUTE22 = (3, 19), (3, 20), (3, 41)

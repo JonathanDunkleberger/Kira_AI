@@ -69,6 +69,10 @@ def main():
                     help="SHOW MODE: the canonical zero-skip spine from a FRESH boot (or resume from a "
                          "states/kira/ save). Banks progress into states/kira/. Any GATE_NEEDS_STATE "
                          "fallback logs a LOUD SHOW-MODE SKIP VIOLATION — a clean run has ZERO.")
+    ap.add_argument("--fresh-kira", action="store_true",
+                    help="With --show: timestamp-archive the current states/kira/ playthrough to "
+                         "states/kira/archive_<ts>/ and START A NEW Kira run from the bedroom (never "
+                         "clobbers her save). Without it, --show RESUMES the existing Kira run.")
     ap.add_argument("--audio", action="store_true",
                     help="play the emulator's game audio in real time (headphones + OBS cable)")
     ap.add_argument("--list-audio", action="store_true", help="list output devices and exit")
@@ -102,6 +106,13 @@ def main():
 
     b = Bridge(ROM)
     if args.show:
+        from campaign import archive_kira_save, kira_checkpoints
+        if args.fresh_kira:
+            arch = archive_kira_save(time.strftime("%Y%m%d_%H%M%S"))
+            log(f"SHOW MODE: --fresh-kira -> archived previous Kira run to {arch}" if arch
+                else "SHOW MODE: --fresh-kira -> no existing Kira save to archive; starting fresh")
+        cps = kira_checkpoints()
+        log(f"SHOW MODE: {'RESUMING Kira run from ' + str(cps[-1]) if cps else 'starting a NEW Kira run (fresh bedroom)'}")
         # SHOW = canonical spine. Do NOT load a sherpa boot state; start from a FRESH ROM (segment 0
         # the_opening drives title->New Game->bedroom). run_segments(mode='show') will instead resume
         # from a states/kira/ checkpoint if one exists. This is the no-skip, no-hand-bank path.
