@@ -136,9 +136,12 @@ def build_segments():
         # TEMP GATE onto cerulean_caught (Route 4, just outside Cerulean) so the manifest already
         # sequences bedroom -> Misty continuously (with this one documented skip).
         Segment("route3_to_cerulean", [
-            ("GATE_NEEDS_STATE", "cerulean_caught.state",
-             "TEMP SKIP (convert to AUTO): port the proven recon_mtmoon_clear into a CLEAR_MT_MOON "
-             "objective + Route3->Mt-Moon-entrance recon; until then load cerulean_caught (Route 4)"),
+            ("GATE_NEEDS_STATE", "mtmoon_interior.state",
+             "seam-scaffold ONLY (Route3-east -> Mt Moon entrance, blocked by the east-seam paradox "
+             "- Task #11): hand-bank to the cave entrance until the seam is solved. The CAVE ITSELF "
+             "IS NOW AUTO (CLEAR_MT_MOON below) - she WALKS Mt Moon, never a load-past skip."),
+            ("CLEAR_MT_MOON", "walk Mt Moon entrance -> B2F (fossil/Miguel) -> Route 4 -> Cerulean "
+             "(autonomous cave-walk - the proven 12-hour foundation, called not skipped)"),
         ], "seg_cerulean.state"),
         # Misty gym: FULLY AUTO + proven (general beat_gym - clears the 2 junior trainers, beats
         # Misty, dialogue-paced award -> Cascade flag). From cerulean_caught (Route 4) walk EAST into
@@ -631,6 +634,56 @@ class Campaign:
         log("   !! CATCH: no catch within budget - LOUD")
         return "timeout"
 
+    def clear_mt_moon(self):
+        """Walk Mt Moon entrance->exit AUTONOMOUSLY - the proven recon_mtmoon_clear path, PORTED so
+        the continuous run CALLS the cave-walk (she walks it; never a load-past skip). Warp chain
+        1F->B1F->B2F, grab a fossil to clear the Miguel blocker, exit B2F->B1F->Route 4, cross east
+        to Cerulean. Battles handed to the normal (voice-wired) runner. Returns 'cleared' | 'stuck'."""
+        from cave_nav import CaveNav
+        FOSSILS = [((13, 7), (13, 8), "UP"), ((14, 7), (14, 8), "UP")]   # (fossil, stand-tile, face)
+        nav = CaveNav(self.b, self, fog_path=None, on_event=self.on_event,
+                      render=self.render, log=lambda m: log(m))
+        if tv.map_id(self.b) != (1, 3):                        # warp 1F->B1F->B2F (skip if on B2F)
+            if nav._enter((5, 6)) is None:
+                log("   !! MTMOON: (5,6) 1F->B1F unenterable"); return "stuck"
+            if nav._enter((22, 18)) is None:
+                log("   !! MTMOON: (22,18) B1F->B2F unenterable"); return "stuck"
+        log(f"   MTMOON: on {tv.map_id(self.b)}@{tv.coords(self.b)} (B2F) - grabbing a fossil (clears Miguel)")
+        grabbed = False
+        for fossil, stand, facing in FOSSILS:
+            self.trav.travel(target_map=None, arrive_coord=stand, max_steps=600, max_seconds=300)
+            if tv.coords(self.b) == stand:
+                self.b.press(facing, 8, 8, self.render, owner="agent")
+                for _ in range(10):                            # mash A: grab + advance the script
+                    self.b.press("A", 8, 8, self.render, owner="agent")
+                for _ in range(40):
+                    self.b.run_frame(); self.render()
+                grabbed = True
+                break
+        if not grabbed:
+            log("   !! MTMOON: couldn't reach a fossil to clear Miguel"); return "stuck"
+        if nav._enter((5, 10)) is None:                        # B2F->B1F (only opens once Miguel moves)
+            log("   !! MTMOON: (5,10) B2F->B1F unenterable (Miguel not cleared?)"); return "stuck"
+        log(f"   MTMOON: on {tv.map_id(self.b)}@{tv.coords(self.b)} (B1F) - heading for the (45,4) exit")
+        for attempt in range(4):                               # B1F->Route 4 (forward exit) - robust
+            if tv.map_id(self.b) != (1, 2):
+                break
+            r = nav._enter((45, 4))
+            log(f"   MTMOON: exit _enter((45,4)) try {attempt} -> {r} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
+            if tv.map_id(self.b) != (1, 2):
+                break
+            self.trav.travel(target_map=None, arrive_coord=(44, 4),  # nudge toward the exit, retry
+                             max_steps=200, max_seconds=90)
+        if tv.map_id(self.b) == (3, 22):                       # on Route 4 -> cross EAST to Cerulean
+            log("   MTMOON: emerged on Route 4 - crossing east to Cerulean")
+            self.trav.travel(target_map=(99, 99), edge="east", max_steps=400, max_seconds=200)
+        m = tv.map_id(self.b)
+        if m[0] != 1 and m != (3, 22):                         # out of the cave + off Route 4 -> done
+            log(f"   MTMOON: *** CLEARED Mt Moon -> emerged on {m} ***")
+            self.on_event("made it through Mt Moon")
+            return "cleared"
+        log(f"   !! MTMOON: not fully out (map={m})"); return "stuck"
+
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):
         return (self.b.rd16(ram.GPLAYER_PARTY + P_HP),
@@ -772,6 +825,8 @@ class Campaign:
                 out = self.beat_gym(obj[1])
             elif kind == "CATCH":
                 out = self.catch_one()
+            elif kind == "CLEAR_MT_MOON":
+                out = self.clear_mt_moon()
             elif kind == "ROSTER_REACT":
                 out = self.roster_react()
             elif kind == "GATE_NEEDS_STATE":
