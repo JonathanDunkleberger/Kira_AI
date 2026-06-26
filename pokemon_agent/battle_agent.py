@@ -243,6 +243,28 @@ class BattleAgent:
                     return i
         return None
 
+    def _weaken_hp(self, target_frac=0.40, max_hits=4):
+        """Chip the wild foe's HP into the catchable band so a HANDFUL of balls suffices (a status
+        alone leaves it near full HP -> 5 balls broke free). Fires the LOWEST-base-power damaging move
+        one hit at a time, re-reading HP, and STOPS once HP <= target_frac (faint-guard: never swing
+        at an already-low foe; one-at-a-time re-check avoids overkill). Best-effort — a stray faint
+        just means catch_pokemon returns 'fainted' and the wander finds another wild."""
+        for _ in range(max_hits):
+            state = st.read_battle(self.b)
+            if not state or not st.in_battle(self.b):
+                return
+            foe = state["enemy"]
+            if not foe.get("maxhp") or foe["hp"] <= 0:
+                return
+            if foe["hp"] / foe["maxhp"] <= target_frac:
+                return                                  # already in the catchable band
+            cand = [(i, m.get("id", 0)) for i, m in enumerate(state["ours"]["moves"])
+                    if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("id", 0) not in self._STATUS_MOVES]
+            if not cand:
+                return                                  # no damaging move with PP -> just throw
+            cand.sort(key=lambda im: st.move_info(self.b, im[1])[1] or 0)   # gentlest (lowest power)
+            self._fire_move(cand[0][0])
+
     def _fire_move(self, idx):
         """Open the move list, navigate to slot idx, fire it + verify it executed (PP drop / HP
         change / battle end). Separate from _select_and_verify (which policy-PICKS a move) so the
@@ -322,8 +344,9 @@ class BattleAgent:
                 if wi is not None:
                     self.emit("let me wear it down first", beat=True)
                     self._fire_move(wi)
-                    softened = True
-                    continue
+                self._weaken_hp()                    # chip HP into the catchable band (faint-guarded)
+                softened = True
+                continue
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))))
             if res in ("caught", "no_balls", "trainer"):
                 return res

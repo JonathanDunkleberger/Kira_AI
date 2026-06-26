@@ -177,17 +177,14 @@ def build_segments():
         Segment("pewter_to_route3", [
             ("WALK_TO_MAP", ROUTE3, "east", "Pewter -> Route 3 (cross the east connection band)"),
         ], "seg_route3_entered.state"),
-        # CATCH = HAND-PLAY-BANK (the agent CANNOT drive this core's battle menus — confirmed by
-        # replicating Jonny's exact human input; injection is dead too). So catching follows the
-        # seam pattern: hand-catch a teammate once, bank route3_caught.state (party=2: Ivysaur +
-        # Rattata), and ROSTER_REACT makes Kira react to the new teammate IN HER VOICE on resume —
-        # acquisition hand-played, RELATIONSHIP live. The run continues with a REAL roster.
+        # CATCH = AUTO (Skip 2 + Skip 4). The "agent can't drive the battle menu" wall was a stale
+        # claim (the phantom-A bug was fixed 2026-06-25; catch_pokemon is control-proven party N->N+1).
+        # catch_one wanders Route 3 grass (warp-avoiding), heals the lone starter at Pewter between
+        # gauntlet trainers, and commits Poke Balls to the wild — using the 5 balls Oak's Parcel
+        # (Skip 4) put in the bag. ROSTER_REACT then voices her new teammate. Control: from a Route 3
+        # state with balls, catch_one -> party 1->2 (caught a Pidgey).
         Segment("route3_catch", [
-            ("GATE_NEEDS_STATE", "route3_caught.state",
-             "hand-play ONCE: catch a teammate on Route 3 (open BAG -> Poke Ball -> throw by hand; "
-             "the agent can't drive the battle menu), then F5-save route3_caught.state via "
-             ".venv\\Scripts\\python.exe pokemon_agent\\handplay.py --boot seg_route3_start.state "
-             "--save route3_caught.state"),
+            ("CATCH", "wander Route 3 grass + catch a teammate (whatever appears — her journey, not a script)"),
             ("ROSTER_REACT", "Kira reacts to her new caught teammate, in her own voice"),
         ], "seg_route3_caught.state"),
         # Route 3 -> Mt Moon -> Route 4: the cave clear is PROVEN (recon_mtmoon_clear: warp chain +
@@ -1038,6 +1035,7 @@ class Campaign:
             f" - traversing grass to catch one")
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         caught = [False]
+        out_of_balls = [False]
 
         def catch_runner():
             """Travel hands every encounter here. Wild -> CATCH (commit); trainer -> normal fight.
@@ -1053,7 +1051,9 @@ class Campaign:
             if res == "caught":
                 caught[0] = True
                 self.on_event("I caught a new teammate!")
-            return "win"                                            # a break_free must NOT stop travel
+            elif res == "no_balls":
+                out_of_balls[0] = True              # STOP the wander — wandering ball-less just hits
+            return "win"                            # more wilds forever (the 8636-loop). a break_free is fine
 
         # Reuse the BFS Traveler (pathfinds around walls AND walks through grass, handing each
         # encounter to our catch_runner) - pace between near/far grass tiles to keep stepping in it.
@@ -1062,7 +1062,7 @@ class Campaign:
         try:
             waypoints = [grass[0], grass[-1], grass[len(grass) // 2]]
             wi = 0
-            while time.time() - t0 < max_seconds and not caught[0]:
+            while time.time() - t0 < max_seconds and not caught[0] and not out_of_balls[0]:
                 r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
                                      max_steps=120, max_seconds=80, avoid=doors)
                 if r == "need_heal":
@@ -1079,6 +1079,8 @@ class Campaign:
             self.b.set_input_owner("agent")
         if caught[0] or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
             return "caught"
+        if out_of_balls[0]:
+            log("   !! CATCH: ran out of Poké Balls before a catch - LOUD"); return "no_balls"
         log("   !! CATCH: no catch within budget - LOUD")
         return "timeout"
 
