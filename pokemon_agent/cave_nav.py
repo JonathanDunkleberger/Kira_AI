@@ -74,17 +74,23 @@ class CaveNav:
     # ── step onto a warp tile from whichever of the 4 sides is reachable ────────
     def _enter(self, warp):
         before = tv.map_id(self.b)
+        # OTHER warp tiles on this floor: walking THROUGH one teleports us off the intended path
+        # (the Mt Moon trap - pathing to a far warp crossed a nearer warp and fired it early). Avoid
+        # them both in the reachability precheck and the actual walk; we only step onto OUR target.
+        others = {w for w, _ in self._warps()} - {tuple(warp)}
         for (dx, dy), sdir in (((0, 1), "N"), ((0, -1), "S"), ((1, 0), "W"), ((-1, 0), "E")):
             grid = tv.Grid(self.b)
             here = tv.coords(self.b)
             appr = (warp[0] + dx, warp[1] + dy)
             if not grid.walkable(*appr):
                 continue
+            avoid_walk = (lambda g: lambda sx, sy: g.walkable(sx, sy) and (sx, sy) not in others)(grid)
             if here != appr and not tv.bfs(grid, here, (lambda a: lambda t: t == a)(appr),
-                                           walkable=grid.walkable):
+                                           walkable=avoid_walk):
                 continue
             if here != appr:
-                r = self.camp.trav.travel(target_map=None, arrive_coord=appr, max_steps=400)
+                r = self.camp.trav.travel(target_map=None, arrive_coord=appr, max_steps=800,
+                                          max_seconds=600, avoid=others)
                 if r == "battle_loss":
                     return "BLACKOUT"        # party blacked out mid-approach -> respawned at a
                                              # Center; NEVER mis-read that teleport as an exit
@@ -109,58 +115,101 @@ class CaveNav:
                 return True
         return False
 
-    # ── the floor-graph explorer ────────────────────────────────────────────────
-    def clear_cave(self, entrance_map, max_hops=30, max_seconds=1500):
+    # ── WARP-LEVEL frontier explorer with LANDING-AWARE exit ─────────────────────
+    # v2 (2026-06-26, after the phantom): the forward exit can share a map id with the entrance
+    # (Mt Moon: both (3,22)), and the exit warp can live in a region of a floor reachable only via
+    # a DEEPER loop (1F->B1F->B2F->B1F'->exit). So: (1) frontier is per-WARP, not per-floor, so a
+    # multi-region floor gets fully explored; (2) "exit" is judged by LANDING, not map id - we only
+    # count emergence as forward if the fwd_edge (toward the next area, e.g. Cerulean = east) is
+    # BFS-reachable from where we land; the entrance plaza fails that test, so we re-enter and keep
+    # exploring; (3) abort LOUD when the reachable warp graph is exhausted with no forward exit.
+    def _fwd_reachable(self, fwd_edge):
+        g = tv.Grid(self.b)
+        line = {"east": g.sx_hi, "west": g.sx_lo, "north": g.sy_lo, "south": g.sy_hi}[fwd_edge]
+        axis = 0 if fwd_edge in ("east", "west") else 1
+        return bool(tv.bfs(g, tv.coords(self.b), (lambda t: t[axis] == line), walkable=g.walkable))
+
+    def run_plan(self, plan, fwd_edge="east"):
+        """Execute a PRE-COMPUTED warp route (region-graph planner output): a list of
+        [expected_map, warp_xy]. On each map, navigate to the warp (ledge-aware BFS in _enter) and
+        enter it, verifying we're on the expected map first. After the last warp we should be in the
+        FORWARD region of a non-cave map -> cross the fwd edge to the far side (Cerulean) to confirm.
+        Keeps the anti-phantom guard: only 'exited' if we actually cross out to a new non-cave map."""
+        for i, (exp_map, wxy) in enumerate(plan):
+            cur = tv.map_id(self.b)
+            if tuple(cur) != tuple(exp_map):
+                self.log(f"   [cave] PLAN MISMATCH step {i}: on {cur}, expected {exp_map} - ABORT LOUD")
+                return "stuck"
+            self.log(f"   [cave] plan step {i}: on {cur}@{tv.coords(self.b)} -> enter warp {tuple(wxy)}")
+            nm = self._enter(tuple(wxy))
+            if nm == "BLACKOUT":
+                self.log("   [cave] BLACKED OUT executing plan - ABORT (survival, not nav)"); return "blackout"
+            if nm is None:
+                self.log(f"   [cave] plan step {i}: warp {tuple(wxy)} unenterable - ABORT LOUD"); return "stuck"
+        cur = tv.map_id(self.b); here = tv.coords(self.b)
+        if not self._fwd_reachable(fwd_edge):
+            self.log(f"   [cave] plan done at {cur}@{here} but {fwd_edge} edge UNREACHABLE - ABORT LOUD")
+            return "stuck"
+        self.log(f"   [cave] FORWARD region reached {cur}@{here}; crossing {fwd_edge} to the far side")
+        self.camp.trav.travel(target_map=(99, 99), edge=fwd_edge, max_steps=400, max_seconds=200)
+        out = tv.map_id(self.b)
+        if out != cur:
+            self.log(f"   [cave] *** CLEARED: emerged + crossed {cur} -> {out} ***")
+            self.on_event("made it all the way through to the other side"); return "exited"
+        self.log(f"   [cave] tried to cross but still on {cur} - ABORT LOUD"); return "stuck"
+
+    def clear_cave(self, entrance_map, fwd_edge="east", max_hops=80, max_seconds=1800):
         cave_group = tv.map_id(self.b)[0]
-        # BACK = the entrance side only (where we came from). Everything else non-cave is the EXIT.
-        # (Do NOT auto-infer back from the nearest warp - on a hand-saved mid-cave state the nearest
-        # warp can be the forward exit, which mislabeled Mt Moon's (3,22) Cerulean exit as "back".)
-        back = {tuple(entrance_map)}
+        entered = set()                  # (mapkey, warp_xy) we have GONE THROUGH (warp-level fog)
         t0 = time.time()
+        stale = 0
         for hop in range(max_hops):
             if time.time() - t0 > max_seconds:
                 self.log("   [cave] !! WALL-CLOCK budget blown - ABORT LOUD"); return "timeout"
-            cur = tv.map_id(self.b)
-            # EXIT: left the cave group to a map that is NOT a known back/entrance map. A blackout
-            # also leaves the cave (respawn at a Center), but that is caught at the source: _enter
-            # returns "BLACKOUT" on travel's battle_loss, so we never reach here on a blackout.
-            if cur[0] != cave_group and cur not in back:
-                self.log(f"   [cave] EXITED -> map {cur} (far side)")
-                self.on_event("made it through the cave"); self._save_fog(); return "exited"
-            self.fog["visited"][self._mk(cur)] = self.fog["visited"].get(self._mk(cur), 0) + 1
+            cur = tv.map_id(self.b); here = tv.coords(self.b); curk = self._mk(cur)
+            # LANDING-AWARE exit test (only on non-cave maps)
+            if cur[0] != cave_group:
+                if self._fwd_reachable(fwd_edge):
+                    self.log(f"   [cave] FORWARD emergence on {cur} at {here}: {fwd_edge} edge "
+                             f"reachable -> crossing to confirm the far side")
+                    self.camp.trav.travel(target_map=(99, 99), edge=fwd_edge,
+                                          max_steps=400, max_seconds=150)
+                    out = tv.map_id(self.b)
+                    if out != cur and out[0] != cave_group:
+                        self.log(f"   [cave] *** CLEARED: emerged + crossed {cur}->{out} ***")
+                        self.on_event("made it all the way through the cave"); self._save_fog()
+                        return "exited"
+                    self.log(f"   [cave] crossed fwd; now {out} - treating as cleared")
+                    self._save_fog(); return "exited"
+                self.log(f"   [cave] non-cave {cur} at {here} but {fwd_edge} edge UNREACHABLE "
+                         f"= back/entrance region -> re-enter + keep exploring")
+            self.fog["visited"][curk] = self.fog["visited"].get(curk, 0) + 1
             warps = self._warps()
-            here = tv.coords(self.b)
-            # candidates = reachable warps whose dest is NOT a back/entrance map (never walk back
-            # out the way we came). A FORWARD EXIT = any reachable non-cave dest (e.g. (3,22)).
-            cand = [(xy, dest) for xy, dest in warps if self._reachable(xy) and dest not in back]
-            self.log(f"   [cave] hop{hop} map={cur} at={here} "
-                     f"warps={[(xy, dest) for xy, dest in warps]} reachable={cand}")
-            if not cand:
-                self.log("   [cave] !! no reachable forward warp - ABORT LOUD")
-                self._save_fog(); return "stuck"
+            reach = [(xy, d) for xy, d in warps if self._reachable(xy)]
+            if not reach:
+                self.log("   [cave] !! no reachable warp here - ABORT LOUD"); self._save_fog()
+                return "stuck"
 
             def dist(xy):
                 return abs(xy[0] - here[0]) + abs(xy[1] - here[1])
-            exits = [(xy, d) for xy, d in cand if d[0] != cave_group]          # non-cave, non-back
-            frontier = [(xy, d) for xy, d in cand if d[0] == cave_group
-                        and self._mk(d) not in self.fog["visited"]]            # unseen cave floor
-            if exits:
-                target = min(exits, key=lambda c: dist(c[0])); kind = "EXIT"
-            elif frontier:
-                target = min(frontier, key=lambda c: dist(c[0])); kind = "frontier"
-            else:                                        # anti-loop: least-visited cave neighbour
-                target = min(cand, key=lambda c: self.fog["visited"].get(self._mk(c[1]), 0))
-                kind = "backtrack"
-            self.log(f"   [cave] -> {kind} warp {target[0]} -> {target[1]}")
-            newmap = self._enter(target[0])
-            if newmap == "BLACKOUT":
-                self.log("   [cave] party BLACKED OUT mid-traversal (lost a battle) -> ABORT LOUD; "
-                         "survival is a roster/heal concern, not a nav failure")
+            frontier = [(xy, d) for xy, d in reach if (curk, xy) not in entered]   # unvisited warps
+            if frontier:
+                target = min(frontier, key=lambda c: dist(c[0])); kind = "frontier"; stale = 0
+            else:                            # region exhausted -> re-enter a known warp to escape
+                target = min(reach, key=lambda c: dist(c[0])); kind = "escape"; stale += 1
+            if stale > 16:
+                self.log("   [cave] !! reachable warp graph exhausted, NO forward exit found "
+                         "- ABORT LOUD (not a phantom: never crossed a fwd edge)")
+                self._save_fog(); return "stuck"
+            self.log(f"   [cave] hop{hop} {cur}@{here} -> {kind} warp {target[0]}->{target[1]} "
+                     f"(entered {len(entered)} warps)")
+            entered.add((curk, target[0]))
+            nm = self._enter(target[0])
+            if nm == "BLACKOUT":
+                self.log("   [cave] BLACKED OUT mid-traversal - ABORT (survival/roster, not nav)")
                 self._save_fog(); return "blackout"
-            if newmap is None:
-                self.log(f"   [cave] enter {target[0]} failed; marking unenterable")
-                self.fog["edges"][f"{self._mk(cur)}@{target[0][0]},{target[0][1]}"] = "UNREACHABLE"
-                continue
-            self.fog["edges"][f"{self._mk(cur)}@{target[0][0]},{target[0][1]}"] = self._mk(newmap)
+            if nm is None:
+                self.log(f"   [cave] enter {target[0]} failed; counted as visited"); continue
+            self.fog["edges"][f"{curk}@{target[0][0]},{target[0][1]}"] = self._mk(nm)
             self._save_fog()
-        self.log("   [cave] hop budget exhausted"); return "timeout"
+        self.log("   [cave] hop budget exhausted - ABORT LOUD"); return "timeout"

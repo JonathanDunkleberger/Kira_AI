@@ -44,6 +44,19 @@ GRASS_BEHAVIORS = {0x02}
 # So in pathfinding a ledge is a DIRECTED edge: from the tile on the approach side, moving in the
 # jump direction, you land 2 tiles along. Confirmed on Route 3 (0x3b) + Route 4 (0x38/0x39/0x3b).
 LEDGE_DIRS = {0x38: (1, 0), 0x39: (-1, 0), 0x3A: (0, -1), 0x3B: (0, 1)}   # E / W / N / S
+# DIRECTIONAL IMPASSABLE behaviors (MB_IMPASSABLE_* 0x30-0x37). These are collision-0 (the grid
+# reads them as plain floor) but block movement in a direction in-game - the CAVE CLIFF the
+# collision grid is blind to (Mt Moon B2F: 0x32 MB_IMPASSABLE_NORTH bands seal levels apart, so
+# grid-BFS plans straight through a wall and the traveler wedges). Confirmed in-game (2026-06-26):
+# pressing into a 0x32 tile from the north is blocked. Two predicates per FRLG's paired collision
+# funcs: the SOURCE tile blocks LEAVING in a dir; the DEST tile blocks ENTERING from the opposite.
+IMPASS_LEAVE = {0x30: {(1, 0)}, 0x31: {(-1, 0)}, 0x32: {(0, -1)}, 0x33: {(0, 1)},
+                0x34: {(0, -1), (1, 0)}, 0x35: {(0, -1), (-1, 0)},
+                0x36: {(0, 1), (1, 0)}, 0x37: {(0, 1), (-1, 0)}}   # E/W/N/S + NE/NW/SE/SW
+IMPASS_ENTER = {0x30: {(-1, 0)}, 0x31: {(1, 0)}, 0x32: {(0, 1)}, 0x33: {(0, -1)},
+                0x34: {(0, 1), (-1, 0)}, 0x35: {(0, 1), (1, 0)},
+                0x36: {(0, -1), (-1, 0)}, 0x37: {(0, -1), (1, 0)}}
+IMPASS_BEHAVIORS = set(IMPASS_LEAVE)
 
 # milestone-1 route endpoints (verified via map connections)
 MAP_ROUTE1 = (3, 19)
@@ -108,7 +121,7 @@ class Grid:
             attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
         except Exception:
             attr = None
-        self.col, self.grass, self.ledge = {}, set(), {}
+        self.col, self.grass, self.ledge, self.impass = {}, set(), {}, {}
         for by in range(self.h):
             row = mp + by * self.w * 2
             for bx in range(self.w):
@@ -125,6 +138,8 @@ class Grid:
                         self.grass.add((bx, by))
                     elif bh in LEDGE_DIRS:
                         self.ledge[(bx, by)] = LEDGE_DIRS[bh]    # buffer-coord -> jump (dx,dy)
+                    elif bh in IMPASS_BEHAVIORS:
+                        self.impass[(bx, by)] = bh               # buffer-coord -> directional wall
         # playable save-coord bounds (exclude the 7-tile border on every side)
         self.sx_lo, self.sx_hi = 0, self.w - 2 * MAP_OFFSET - 1
         self.sy_lo, self.sy_hi = 0, self.h - 2 * MAP_OFFSET - 1
@@ -143,6 +158,18 @@ class Grid:
     def ledge_dir(self, sx, sy):
         """If (sx,sy) is a ledge tile, the (dx,dy) you can only jump it in; else None. Save coords."""
         return self.ledge.get((sx + MAP_OFFSET, sy + MAP_OFFSET))
+
+    def edge_open(self, sx, sy, dx, dy):
+        """A normal 1-tile step from (sx,sy) by (dx,dy): False if a DIRECTIONAL impassable
+        (MB_IMPASSABLE_*) on the SOURCE blocks leaving that way, or on the DEST blocks entering
+        from the opposite side - the cave-cliff edges the 2-bit collision grid can't see."""
+        a = self.impass.get((sx + MAP_OFFSET, sy + MAP_OFFSET))
+        if a is not None and (dx, dy) in IMPASS_LEAVE.get(a, ()):
+            return False
+        d = self.impass.get((sx + dx + MAP_OFFSET, sy + dy + MAP_OFFSET))
+        if d is not None and (dx, dy) in IMPASS_ENTER.get(d, ()):
+            return False
+        return True
 
 
 def bfs(grid, start, goal_test, bound=None, walkable=None):
@@ -176,6 +203,10 @@ def bfs(grid, start, goal_test, bound=None, walkable=None):
                 nx, ny = cx + 2 * dx, cy + 2 * dy
             else:
                 nx, ny = cx + dx, cy + dy
+                # DIRECTIONAL impassable (cave cliff): a normal step blocked by a one-way wall the
+                # collision grid reads as floor. Only on 1-tile steps (ledge hops are their own edge).
+                if hasattr(grid, "edge_open") and not grid.edge_open(cx, cy, dx, dy):
+                    continue
             if not (bx_lo <= nx <= bx_hi and by_lo <= ny <= by_hi):
                 continue
             nxt = (nx, ny)
@@ -240,14 +271,46 @@ class Traveler:
     def _press(self, d):
         self.b.press(DIR_KEY[d], HOLD, HOLD, self.render, owner=self.owner)
 
+    def _fight_blocker(self):
+        """A blocked path tile turned out to be a TRAINER (an A-interact started a battle). Warm up,
+        fight to completion, reclaim input. Returns the battle outcome string. General gauntlet
+        handling - the same primitive clears cave/gym chokepoint trainers (Rock Tunnel, Victory Road)."""
+        import pokemon_state as st
+        self.log("   [travel] blocker is a TRAINER - fighting through")
+        self.beat("a trainer's blocking the path - bring it on")
+        self._warmup_battle()
+        outcome = self.battle_runner()
+        self.log(f"   [travel] blocker battle outcome={outcome}; resuming pathfind")
+        self.b.set_input_owner(self.owner)
+        return outcome
+
+    def _sweep_interact(self):
+        """Face each of the 4 directions and press A, looking for an adjacent stationary blocker
+        (a trainer on the only gap that BFS routed us NEXT TO but won't step onto, since it avoids
+        NPC tiles). Returns True if a battle started (caller fights it)."""
+        import pokemon_state as st
+        if st.in_battle(self.b):
+            return True
+        for sd in ("N", "S", "E", "W"):
+            self._press(sd)                                   # turn to face that side
+            self.b.press("A", HOLD, HOLD, self.render, owner=self.owner)
+            for _ in range(16):
+                self.b.run_frame(); self.render()
+            if st.in_battle(self.b):
+                return True
+        return False
+
     def _npc_tiles(self):
-        """Live tiles occupied by NPCs (object events), re-read every plan so newly
-        position-activated and wandering NPCs are accounted for. We block the NPC tile
-        AND the tile it's stepping toward (movementDirection) - mid-step an NPC occupies
-        two tiles, and the coord read lags by one, so blocking the facing tile too
-        prevents walking into a wanderer the read hasn't caught up to yet."""
+        """Live tiles occupied by NPC BODIES (object events), re-read every plan.
+
+        We block ONLY the body tile - NOT the tile the NPC faces. A stationary LINE-OF-SIGHT
+        trainer beside a corridor faces ACROSS it; blocking its facing tile walls off the whole
+        walkable corridor the player must climb (the Mt Moon column-13 gauntlet: col-14 trainers
+        facing west made bfs see no route up col 13 and wedge). The path SHOULD route through the
+        sight line - stepping into it auto-triggers the battle, which we fight. The old facing-tile
+        block (for mid-step wanderer coord-lag) cost us the entire trainer-corridor class; an
+        occasional bump into a wanderer is cheap by comparison (the blocked-TTL reroute handles it)."""
         OB, SZ = 0x02036E38, 0x24
-        DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}   # down/up/left/right
         out = set()
         for i in range(1, 16):                  # skip obj0 (the player)
             o = OB + i * SZ
@@ -255,9 +318,6 @@ class Traveler:
                 continue
             x, y = self.b.rds16(o + 0x10) - MAP_OFFSET, self.b.rds16(o + 0x12) - MAP_OFFSET
             out.add((x, y))
-            mv = self.b.rd8(o + 0x18) & 0x0F     # current facing/movement nibble
-            dx, dy = DELTA.get(mv, (0, 0))
-            out.add((x + dx, y + dy))
         return out
 
     def _warmup_battle(self):
@@ -275,7 +335,7 @@ class Traveler:
             self.render()
 
     def travel(self, target_map=MAP_VIRIDIAN, max_steps=800, arrive_coord=None,
-               max_seconds=300, edge="north"):
+               max_seconds=300, edge="north", avoid=None):
         """Walk to a connected map (cross its north edge, or its south edge if edge='south'
         - for the heal-return back to Viridian) OR, if arrive_coord is set,
         BFS to that specific tile on the current map and stop there (for warp doors /
@@ -283,6 +343,11 @@ class Traveler:
         WALL-CLOCK budget (max_seconds): a leg that grinds far past it (e.g. a battle-
         heavy grass maze) LOUD-ABORTS instead of silently running for hours."""
         import pokemon_state as st     # local import: engine stays bot/battle-agnostic
+        # AVOID: tiles the PLAN must not step on while walking to the goal. For cave warp-to-warp
+        # nav these are the OTHER warp tiles on this floor - walking THROUGH a warp triggers it and
+        # teleports us off the intended path (the Mt Moon "(5,6) trap": pathing to a far warp crossed
+        # a nearer warp and fired it). Treated exactly like a permanent static block.
+        avoid = frozenset(avoid or ())
         self.b.set_input_owner(self.owner)
         grid = Grid(self.b)
         cur_map = map_id(self.b)
@@ -349,6 +414,12 @@ class Traveler:
                 self.b.set_input_owner(self.owner)   # reclaim from the battle agent
                 grid = Grid(self.b)
                 stuck = 0
+                # CLEAR accumulated obstacle memory: a battle disrupts position/NPC layout, and the
+                # step-failures logged mid-combat (a wild triggered as we pressed) wrongly mark good
+                # floor as permanent static walls - over a battle-heavy cave that accumulates until
+                # the path is severed (the (12,22) wedge). Real walls are modelled by collision +
+                # directional impassables now, so dropping these is safe; a true boulder re-marks.
+                blocked.clear(); fail_count.clear(); static_blocked.clear()
                 if self.pause_check():                # heal-when-low: yield to the caller
                     self.log("   [travel] post-battle PAUSE (heal-when-low) - yielding to caller")
                     return "need_heal"
@@ -382,6 +453,7 @@ class Traveler:
             npc = self._npc_tiles()            # live NPC tiles, re-read every plan
             def free(sx, sy):
                 return ((sx, sy) not in npc and (sx, sy) not in static_blocked
+                        and (sx, sy) not in avoid
                         and blocked.get((sx, sy), -10 ** 9) <= cutoff)
             path = bfs(grid, cur, goal,
                        walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
@@ -405,6 +477,48 @@ class Traveler:
                 # WAIT (bounded) for a wanderer to step off, re-reading NPC positions each
                 # retry, before giving up loud. ~25 x 24f ~= 10s of patience.
                 no_path += 1
+                # CHOKEPOINT TRAINER: BFS avoids NPC tiles, so a trainer standing on the only gap
+                # yields no clean path - and it can be 2+ tiles ahead (the adjacent sweep can't reach
+                # it). Re-plan ALLOWING npc tiles: if THAT path exists, an NPC/trainer is the sole
+                # blocker. Walk along that path toward it and, when we reach the tile before the NPC,
+                # interact (trainer -> battle, the gauntlet primitive; LoS trainers auto-trigger as we
+                # approach). This makes the run CONTINUOUS - fight, then immediately flow on.
+                if no_path == 4:
+                    npc_path = bfs(grid, cur, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
+                                   and (sx, sy) not in static_blocked and (sx, sy) not in avoid)
+                    nplist = sorted(self._npc_tiles())
+                    if npc_path and len(npc_path) >= 2:
+                        blk = next((t for t in npc_path if t in npc), None)
+                        self.log(f"   [travel] no clean path from {cur}; NPC-allowing path EXISTS "
+                                 f"(len {len(npc_path)}), blocker NPC tile={blk}, npcs nearby={nplist} "
+                                 f"-> approaching to interact/trigger")
+                        for _ in range(14):                       # walk up to the blocker
+                            cur2 = coords(self.b)
+                            ap = bfs(grid, cur2, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
+                                     and (sx, sy) not in static_blocked and (sx, sy) not in avoid)
+                            if st.in_battle(self.b) or not ap or len(ap) < 2:
+                                break
+                            nx = ap[1]; d2 = direction(cur2, nx)
+                            self._press(d2)                       # face/step toward the blocker
+                            if st.in_battle(self.b):              # LoS trainer triggered mid-approach
+                                break
+                            if coords(self.b) == cur2:            # couldn't step -> blocker adjacent: talk
+                                self.b.press("A", HOLD, HOLD, self.render, owner=self.owner)
+                                for _ in range(16):
+                                    self.b.run_frame(); self.render()
+                                if st.in_battle(self.b):
+                                    break
+                        if st.in_battle(self.b):
+                            if self._fight_blocker() == "loss":
+                                self.on_event("knocked out fighting through - I need to regroup")
+                                return "battle_loss"
+                            grid = Grid(self.b)
+                            blocked.clear(); fail_count.clear(); static_blocked.clear()
+                            no_path = stuck = 0
+                            continue
+                    else:
+                        self.log(f"   [travel] no clean path from {cur} AND no NPC-allowing path "
+                                 f"(npcs nearby={nplist}) - genuine wall/zone gap, will time out")
                 if no_path > 25:
                     self.log(f"   [travel] !! NO PATH from {cur} to the exit after waiting "
                              f"~10s for NPCs to clear - ABORT LOUD")
@@ -421,12 +535,43 @@ class Traveler:
             nxt = path[1]
             self._press(d)
             after = coords(self.b)
+            if st.in_battle(self.b):                # the step walked into a wild encounter:
+                continue                            # NOT a movement failure - loop top fights it
             if after == cur:                        # turned-not-stepped? try once more
                 self._press(d)
                 after = coords(self.b)
+            if st.in_battle(self.b):
+                continue
             if after == cur:
                 blocked[nxt] = step                 # dynamic block -> re-plan around it
                 fail_count[nxt] = fail_count.get(nxt, 0) + 1
+                # BLOCKER vs TERRAIN: a tile the grid says is walkable but we can't step onto is
+                # either un-encoded terrain (boulder) OR a stationary NPC/TRAINER the object-event
+                # read missed (Mt Moon B2F: a corridor trainer that never wanders -> we'd wait
+                # forever and false-mark it a wall). The failed press left us FACING it, so INTERACT
+                # (A): a trainer starts a battle we fight through (the cave/gym gauntlet - general
+                # for Rock Tunnel / Victory Road); a plain NPC's dialogue advances harmlessly. Only
+                # if interaction does NOT yield a battle do we fall through to terrain-marking.
+                # A wanderer would have stepped off by the 2nd failure, so a tile STILL failing is a
+                # STATIONARY blocker - a trainer (detected NPC or not) or terrain. Interact to tell
+                # them apart, regardless of npc-detection (the last Mt Moon trainers ARE detected, so
+                # gating on 'not in npc' wrongly skipped them and we waited forever).
+                if (grid.walkable(*nxt) and fail_count[nxt] == 2 and not st.in_battle(self.b)):
+                    self._press(d)                              # ensure we face the blocker
+                    self.b.press("A", HOLD, HOLD, self.render, owner=self.owner)
+                    for _ in range(20):
+                        self.b.run_frame(); self.render()
+                    if st.in_battle(self.b):
+                        if self._fight_blocker() == "loss":
+                            self.on_event("knocked out fighting through - I need to regroup")
+                            return "battle_loss"
+                        grid = Grid(self.b)
+                        blocked.clear(); fail_count.clear(); static_blocked.clear()
+                        stuck = 0
+                        if self.pause_check():
+                            self.log("   [travel] post-blocker-battle PAUSE (heal-when-low) - yielding")
+                            return "need_heal"
+                        continue
                 if nxt not in npc and fail_count[nxt] >= 3:   # a NON-NPC tile that fails REPEATEDLY
                     static_blocked.add(nxt)                   # = static obstacle (boulder/un-encoded
                     self.log(f"   [travel] static obstacle at {nxt} (failed 3x, not an NPC) - "
