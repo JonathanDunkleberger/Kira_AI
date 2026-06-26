@@ -103,6 +103,14 @@ def build_segments():
     OWN recon+build (east-edge travel, Mt Moon cave nav, Mart buy, catch, Misty), so we never ship
     a leg blind. Uncomment/extend as each is built and proven."""
     return [
+        # THE AUTONOMOUS OPENING (replaces the old after_pick_bulbasaur hand-bank): from a FRESH ROM
+        # boot, Kira names herself + rival + picks gender -> bedroom -> Pallet -> Oak's lab -> picks
+        # her starter -> rival battle -> Pallet. Run segment 0 from a FRESH boot (no --boot state);
+        # its checkpoint seg_opening.state (= a clean post-opening Pallet) feeds pallet_to_brock.
+        Segment("the_opening", [
+            ("OPENING", "KIRA", "GARY",
+             "fresh new game -> name self+rival (her choice) -> pick starter -> rival battle -> Pallet"),
+        ], "seg_opening.state"),
         Segment("pallet_to_brock", build_objectives(), "seg_boulder_badge.state"),
         # Pewter -> Route 3: the EAST map-edge seam is an unsolved collision PARADOX (every static
         # source — collision/elevation/behavior/objects — reads walkable, yet real movement traps the
@@ -642,6 +650,19 @@ class Campaign:
             for _ in range(12):
                 self.b.run_frame()
 
+    def _title_to_newgame(self):
+        """From a FRESH ROM boot: mash A/START through the title + copyright screens into a New Game,
+        stopping once Oak's intro dialogue is rolling (so drive_opening can take over)."""
+        from dialogue_reader import DialogueReader
+        dr = DialogueReader(self.b)
+        for k in range(80):
+            low = dr._read_buffer().lower()
+            if "welcome" in low or "boy" in low:
+                return
+            self.b.press("A" if k % 2 else "START", 4, 8, self.render, owner="agent")
+            for _ in range(10):
+                self.b.run_frame()
+
     def drive_opening(self, player_name, rival_name, girl=True, starter_choice=0):
         """THE AUTONOMOUS OPENING (the personality debut), assuming the boot is already at Oak's
         intro (the caller does title->New Game). Character creation (her gender + names) -> bedroom
@@ -1018,7 +1039,11 @@ class Campaign:
             _t0 = time.time()
             log(f"OBJECTIVE {i+1}/{len(objectives)}: {kind} - {label}  "
                 f"[at map={tv.map_id(self.b)} coords={tv.coords(self.b)}]")
-            if kind == "WALK_TO_MAP":
+            if kind == "OPENING":
+                self._title_to_newgame()             # fresh ROM -> title -> New Game -> Oak's intro
+                m = self.drive_opening(obj[1], obj[2])    # her char-creation + starter + rival
+                out = "complete" if m == PALLET else "stuck"
+            elif kind == "WALK_TO_MAP":
                 out = self.walk_to_map(obj[1], obj[2])
             elif kind == "ADVANCE_NORTH":
                 out = self.advance_north(obj[1])
