@@ -584,6 +584,55 @@ class Campaign:
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
+    # ── new-game CHARACTER CREATION (the autonomous opening debut) ──────────────
+    def create_character(self, player_name, rival_name, girl=True):
+        """Drive FireRed's new-game intro AUTONOMOUSLY to the bedroom: Oak's welcome -> GENDER pick
+        -> name HERSELF -> name the RIVAL. CAPABILITY-not-script: the names + gender are passed in
+        (Kira's choices / a Batch-2 seam), NEVER hardcoded. Assumes the boot is already past the
+        title into the intro (the opening driver does title->New Game). Returns 'bedroom'|'stuck'.
+        Proven: KIRA/GARY/GIRL -> bedroom, committed playerName+gender+rival all correct."""
+        from naming import name_entry
+        names = [player_name, rival_name]
+        ni = 0
+        for _ in range(700):
+            if tv.map_id(self.b) == (4, 1):                    # reached the bedroom
+                return "bedroom"
+            low = self._read_overworld_text().lower()
+            if "boy" in low and "girl" in low:                 # GENDER select (default BOY at top)
+                if girl:
+                    self.b.press("DOWN", 8, 10, self.render, owner="agent")
+                    for _ in range(10):
+                        self.b.run_frame()
+                self.b.press("A", 8, 10, self.render, owner="agent")
+                for _ in range(24):
+                    self.b.run_frame()
+                continue
+            if ("name" in low and "?" in low) and ni < 2:      # name prompt -> open kb + type
+                for _ in range(6):
+                    if not dd_box_open(self.b):
+                        break
+                    self.b.press("A", 4, 10, self.render, owner="agent")
+                    for _ in range(16):
+                        self.b.run_frame()
+                for _ in range(40):
+                    self.b.run_frame()
+                if not dd_box_open(self.b):                     # keyboard is up
+                    name_entry(self.b, names[ni], render=self.render)
+                    log(f"   OPENING: named {'self' if ni == 0 else 'rival'} = {names[ni]!r}")
+                    ni += 1
+                    continue
+            self.b.press("A", 4, 10, self.render, owner="agent")  # advance the intro dialogue
+            for _ in range(12):
+                self.b.run_frame()
+        return "stuck"
+
+    def _read_overworld_text(self):
+        from dialogue_reader import DialogueReader
+        try:
+            return DialogueReader(self.b)._read_buffer()
+        except Exception:
+            return ""
+
     # ── starter pick (Oak's lab) - CAPABILITY not DECISION ──────────────────────
     # The three Poké Balls on Oak's table (recon_starter / starter.state): left->right.
     STARTER_BALLS = {0: (8, 4), 1: (9, 4), 2: (10, 4)}         # ball tiles (face UP from below)
