@@ -194,6 +194,62 @@ class BattleAgent:
                 self._advance_text()                  # advance the escape/"can't escape" message
         return "fled" if not st.in_battle(self.b) else "stuck"
 
+    # ── autonomous CATCH (real bag nav; the phantom-A bug that made this impossible was
+    # fixed 2026-06-25 — see [[pokemon-battle-menu-nav-cracked]]). Flow, screenshot- and
+    # control-verified (party N->N+1) on forest_battle.state: action menu opens on FIGHT each
+    # turn -> RIGHT = BAG -> A opens the bag (lands on the Poké Balls pocket, cursor on the
+    # ball) -> A selects -> "POKé BALL is selected. USE/CANCEL" (cursor on USE) -> A throws.
+    # Then advance the catch sequence (B dismisses the "give a nickname?" Yes/No). We SETTLE
+    # after the bag-open fade (acting mid-transition = eaten, the same quirk as the move list).
+    def _ball_count(self):
+        """Number of Poké Balls (item id 4) in the bag's balls pocket (ids are plain; qty is
+        key-encrypted so we only assert PRESENCE). 0 -> can't throw."""
+        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        for i in range(16):
+            iid = self.b.rd16(sb1 + 0x430 + i * 4)
+            if iid == 0:
+                break
+            if iid == 4:
+                return 1
+        return 0
+
+    def throw_ball(self, max_seconds=45):
+        """Throw a Poké Ball at a WILD foe via real menu nav. Returns 'caught' (party+1),
+        'broke_free' (battle continued/ended w/o catch), 'trainer' (can't catch), 'no_balls',
+        or 'stuck'. Assumes a fresh/settled action menu (turn start). Control-proven party+1."""
+        t0 = time.time()
+        if self._is_trainer_battle():
+            return "trainer"
+        if self._ball_count() == 0:
+            self.log("   [engine] throw_ball: no Poké Balls in the bag")
+            return "no_balls"
+        if not self._white_box():
+            self._reach_first_menu(t0, max_seconds)
+        self._settle()
+        p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        self._tap("RIGHT")                            # FIGHT -> BAG
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # open bag
+        self._wait(45)                                # wait out the bag-open fade
+        self._tap("UP")                               # ensure top item (POKé BALL), not CANCEL
+        self._wait(12)
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select -> USE/CANCEL
+        self._wait(18)
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # confirm USE -> throw
+        self.emit("alright — throwing a Poké Ball", beat=True)
+        while time.time() - t0 < max_seconds:
+            if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+                self.emit("gotcha — it's caught!", beat=True)
+                return "caught"
+            if not st.in_battle(self.b):
+                return "broke_free"
+            # B-ONLY advance: the post-catch "give a nickname?" is a Yes/No box defaulting to
+            # YES — an A (as _advance_text would send) opens the naming keyboard and wedges the
+            # catch. B dismisses every catch-sequence box (and answers No), proven to reach
+            # party+1. Wait a beat first so we never mash B into an animation.
+            self._wait(18)
+            self.b.press("B", 2, 12, self.render, owner=self.owner)
+        return "stuck"
+
     # ── SCREEN-based menu detection (the RAM has NO clean menu-state flag - every candidate
     # is a frame counter or a one-state false positive; diagnosed 2026-06-23). The UI is
     # battle-independent: the action menu + move list draw a WHITE panel bottom-right; a
