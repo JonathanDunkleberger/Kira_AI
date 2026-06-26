@@ -329,6 +329,46 @@ class BattleAgent:
                 return                                # action menu reached
             self._advance_text()
 
+    # ── forced faint-switch (party>=2; the lead goes down mid-battle) ───────────
+    # Until the phantom-A fix (a463055), an incidental A confirmed the "Choose a POKéMON" menu
+    # so the switch "just happened"; with input clean it must be navigated explicitly. None of
+    # the party=1 regression fixtures exercised this, so the fix exposed it. Now buildable.
+    def _healthy_reserve_slot(self):
+        """First party slot with current-HP > 0, or None. Party current-HP is UNencrypted at
+        +0x56 in the 100-byte party struct (level is at +0x54, used elsewhere)."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) > 0:
+                return s
+        return None
+
+    def _force_switch(self):
+        """Lead fainted with a healthy reserve -> the 'Choose a POKéMON' party menu is up.
+        Navigate to the first healthy slot (cursor opens on slot 0) and confirm SEND OUT
+        (the select submenu defaults to SEND OUT). Returns True once a healthy mon is active.
+        Reconned flow on rf_leg0: DOWN*slot -> A (select) -> A (SEND OUT)."""
+        slot = self._healthy_reserve_slot()
+        if slot is None:
+            return False
+        for _attempt in range(6):
+            cur = st.read_battle(self.b)
+            if cur and cur["ours"]["hp"] > 0:
+                return True                               # a healthy mon is active -> switched
+            self._wait(18)                                # let the party menu settle
+            for _ in range(slot):                         # cursor opens on slot 0 -> down to healthy
+                self._tap("DOWN")
+            self._wait(6)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select mon
+            self._wait(12)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # -> SEND OUT
+            self._wait(20)
+            cur = st.read_battle(self.b)
+            if cur and cur["ours"]["hp"] > 0:
+                return True
+            self._advance_text()                          # menu not up yet -> drain a beat, retry
+        cur = st.read_battle(self.b)
+        return bool(cur and cur["ours"]["hp"] > 0)
+
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
         t0 = time.time()
@@ -379,6 +419,16 @@ class BattleAgent:
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
                                   beat=True)
                         break
+                    # OUR mon fainted but we have a healthy reserve -> this is a FORCED SWITCH,
+                    # not a loss: navigate the "Choose a POKéMON" menu and send the next mon, then
+                    # fall back into the normal fight loop (roster-depth survival, now explicit).
+                    if (self._we_fainted and st.in_battle(self.b) and cur
+                            and cur["ours"]["hp"] == 0 and self._healthy_reserve_slot() is not None):
+                        if self._force_switch():
+                            self._we_fainted = False
+                            self._prev = st.read_battle(self.b)
+                            self.emit("that one's down - sending out my next Pokemon", beat=True)
+                            break
                     self._advance_text(force_b=True)      # faint -> EXP -> level-up -> defeat -> exit
                 continue
             self._settle()                            # advance to a wait-point (narrates diffs)
