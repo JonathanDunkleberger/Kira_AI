@@ -181,6 +181,14 @@ class Campaign:
         # drains exactly like the proven headless path (a reading-pace hold injected into the award
         # was freezing the badge moment ~30-100s). Default False -> normal reactive perception.
         self.draining_award = False
+        # BATCH 2 SCAFFOLD: her Pokémon-self (wants + roster bonds + move-learn beats). Routes every
+        # reaction OUT through on_event (the core-Kira seam); decisions are seams Batch 2 fills. The
+        # firewall (_pokemon_react/voice/mood/bond/bridge) is NEVER touched - this is mode plumbing.
+        try:
+            from pokemon_soul import PokemonSoul
+            self.soul = PokemonSoul(emit=self.on_event, choose=getattr(self, "_soul_choose", None))
+        except Exception:
+            self.soul = None
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
@@ -415,6 +423,9 @@ class Campaign:
         L15 auto-learn (new moves land in the lowest empty slot, i.e. the end). Keeps >= 2 moves."""
         moves, pps = self._lead_moves(), self._lead_pps()
         real = [(i, m) for i, m in enumerate(moves) if m]      # (slot, moveId) of real moves
+        # MOVE-LEARN-AS-A-BEAT (Batch 2) is SCAFFOLDED in pokemon_soul.move_drop_decision but NOT wired
+        # here yet: its first cut DROPPED the super-effective move (broke Brock), so per the safety
+        # rail we keep the PROVEN keep-strongest-by-power reserve until the beat is debugged.
         keep_count = max(2, len(real) - n)                     # free up to n, never drop below 2
         ranked = sorted(real, key=lambda im: st.move_info(self.b, im[1])[1], reverse=True)
         keep = sorted(ranked[:keep_count], key=lambda im: im[0])   # strongest kept, in slot order
