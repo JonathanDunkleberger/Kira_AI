@@ -162,15 +162,18 @@ class BattleAgent:
     # Then advance the catch sequence (B dismisses the "give a nickname?" Yes/No). We SETTLE
     # after the bag-open fade (acting mid-transition = eaten, the same quirk as the move list).
     def _ball_count(self):
-        """Number of Poké Balls (item id 4) in the bag's balls pocket (ids are plain; qty is
-        key-encrypted so we only assert PRESENCE). 0 -> can't throw."""
+        """REAL number of Poké Balls (item id 4) in the bag's balls pocket. Item ids are plain;
+        the QUANTITY is XOR-encrypted with the SaveBlock2 security key (FireRed: SaveBlock2+0xF20,
+        low 16 bits). Decrypting it lets callers gate on the true count (e.g. throw-until-caught,
+        out-of-balls handling) instead of mere presence. 0 -> can't throw."""
         sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
         for i in range(16):
             iid = self.b.rd16(sb1 + 0x430 + i * 4)
             if iid == 0:
                 break
             if iid == 4:
-                return 1
+                return self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key
         return 0
 
     def throw_ball(self, max_seconds=45):
@@ -187,7 +190,9 @@ class BattleAgent:
             self._reach_first_menu(t0, max_seconds)
         self._settle()
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
-        self._tap("RIGHT")                            # FIGHT -> BAG
+        self._home_to_fight()                         # CURSOR RESET: on a re-throw (commit loop) the
+        self._tap("RIGHT")                            # cursor sits wherever it was -> RIGHT could hit
+        #                                               RUN and flee. Home to FIGHT first -> RIGHT=BAG.
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # open bag
         self._wait(45)                                # wait out the bag-open fade
         self._tap("UP")                               # ensure top item (POKé BALL), not CANCEL
@@ -201,6 +206,11 @@ class BattleAgent:
                 self.emit("gotcha — it's caught!", beat=True)
                 return "caught"
             if not st.in_battle(self.b):
+                for _ in range(40):                   # battle ended - let a CATCH's party-add settle
+                    self.b.run_frame(); self.render()  # (the "Gotcha!" can end the battle a beat
+                if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:   # before the party count ticks up)
+                    self.emit("gotcha — it's caught!", beat=True)
+                    return "caught"
                 return "broke_free"
             # The ball BROKE and we're back at the action menu (white panel) - the turn is over.
             # Return here WITHOUT pressing anything: B at the action menu is RUN, so mashing B would
@@ -213,6 +223,111 @@ class BattleAgent:
             # keyboard and wedge it). B dismisses them safely. Wait so we never mash into animation.
             self._wait(18)
             self.b.press("B", 2, 12, self.render, owner=self.owner)
+        return "stuck"
+
+    # ── autonomous CATCH FLOW (mirrors the proven live play: weaken/status, then commit to throws)
+    _SLEEP_MOVES = {79, 147, 95, 47, 142, 1}        # Sleep Powder, Spore, Hypnosis, Sing, Lovely Kiss
+    _STATUS_MOVES = _SLEEP_MOVES | {77, 78, 86}     # + PoisonPowder, StunSpore, ThunderWave
+
+    def _catch_weaken_move(self, state):
+        """Slot index of a move to SOFTEN the wild foe before throwing - prefer a SLEEP move (asleep
+        = x2 catch rate in Gen 3 AND it stops the foe attacking us), else another status. Returns
+        None if the foe is already low (just throw) or we have no usable status move."""
+        foe = state["enemy"]
+        if foe["maxhp"] and foe["hp"] <= foe["maxhp"] * 0.35:
+            return None                                  # weak enough already
+        moves = state["ours"]["moves"]
+        for pool in (self._SLEEP_MOVES, self._STATUS_MOVES):
+            for i, m in enumerate(moves):
+                if m.get("id", 0) in pool and m.get("pp", 0) > 0:
+                    return i
+        return None
+
+    def _fire_move(self, idx):
+        """Open the move list, navigate to slot idx, fire it + verify it executed (PP drop / HP
+        change / battle end). Separate from _select_and_verify (which policy-PICKS a move) so the
+        proven fight path stays untouched; used by catch_pokemon to fire a chosen weaken move."""
+        opened = False
+        self._home_to_fight()
+        for _ in range(8):
+            if self._in_move_list():
+                opened = True; break
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+            if self._in_move_list():
+                opened = True; break
+            if not self._white_box():
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+                self._home_to_fight()
+        if not opened:
+            return "stuck"
+        self._nav_move(idx)
+        state = st.read_battle(self.b)
+        pp0 = state["ours"]["moves"][idx].get("pp", 0) if state else 0
+        before = self._bstate()
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+        for _ in range(900):
+            if not st.in_battle(self.b):
+                return "done"
+            cur = st.read_battle(self.b)
+            if cur:
+                self._emit_diffs(self._prev, cur); self._prev = cur
+                if cur["ours"]["moves"][idx].get("pp", 0) < pp0:
+                    return "done"
+                if before and (cur["enemy"]["hp"], cur["ours"]["hp"]) != before:
+                    return "done"
+                if self._white_box():
+                    return "done"
+            self.b.run_frame(); self.render()
+        return "stuck"
+
+    def catch_pokemon(self, max_seconds=150, weaken=True):
+        """Catch the WILD foe (the proven live flow, automated): optionally WEAKEN/STATUS it once to
+        boost the catch rate + stop it attacking, then THROW Poké Balls until caught. COMMITS - it
+        re-throws after a break instead of abandoning after one ball (the live Ekans flow). Returns
+        'caught' | 'no_balls' | 'trainer' | 'fled' | 'fainted' | 'stuck'. Gen-3 trainer mons can't
+        be caught (returns 'trainer')."""
+        t0 = time.time()
+        if self._is_trainer_battle():
+            return "trainer"
+        self._started = True
+        self._skip_idx = None
+        self._reach_first_menu(t0, max_seconds)
+        self._prev = st.read_battle(self.b)
+        p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        softened = False
+
+        def _ended():
+            """Battle ended: settle, then a party+1 means we CAUGHT it (the 'Gotcha!' can end the
+            battle a beat before the party count ticks - don't mislabel a real catch as 'fled')."""
+            for _ in range(40):
+                self.b.run_frame(); self.render()
+            return "caught" if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0 else "fled"
+
+        while time.time() - t0 < max_seconds:
+            if not st.in_battle(self.b):
+                return _ended()
+            if self._ball_count() <= 0:
+                self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
+                return "no_balls"
+            self._settle()
+            if not st.in_battle(self.b):
+                return _ended()
+            if not self._white_box():
+                self._advance_text(); continue
+            state = st.read_battle(self.b)
+            if state and state["enemy"]["hp"] <= 0:
+                return "fainted"                         # we KO'd it - can't catch a fainted foe
+            if weaken and not softened and state is not None:
+                wi = self._catch_weaken_move(state)
+                if wi is not None:
+                    self.emit("let me wear it down first", beat=True)
+                    self._fire_move(wi)
+                    softened = True
+                    continue
+            res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))))
+            if res in ("caught", "no_balls", "trainer"):
+                return res
+            # 'broke_free' / 'stuck' -> the foe took its turn; loop and throw again (commit)
         return "stuck"
 
     # ── SCREEN-based menu detection (the RAM has NO clean menu-state flag - every candidate
