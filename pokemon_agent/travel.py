@@ -380,8 +380,23 @@ class Traveler:
         _PASS = {"north": lambda v: v <= 0, "south": lambda v: v >= grid.sy_hi,
                  "east": lambda v: v >= grid.sx_hi, "west": lambda v: v <= grid.sx_lo}
         exit_cmp = _PASS.get(edge, lambda v: v == exit_line)
-        goal = ((lambda t: t == arrive_coord) if arrive_coord is not None
-                else (lambda t: exit_cmp(t[exit_axis])))
+        # CONNECTION BAND (E/W only): an edge crosses ONLY where the neighbour's tiles overlap into
+        # the border — the rows where the tile JUST PAST the edge is walkable. BFS would otherwise
+        # route to the NEAREST edge tile, which on a partial connection (Pewter<->Route 3, offset=10)
+        # is OUTSIDE the band: the press hits a hard wall and never transitions (the west-cross at
+        # row 9 failed for exactly this). Gate the goal to band rows so we approach a crossable tile.
+        # N/S are untouched (they flip AT the edge with no overlap, so band stays None -> any edge tile).
+        perp_axis = 1 - exit_axis
+        band = None
+        if edge in ("east", "west"):
+            past = (grid.sx_hi + 1) if edge == "east" else (grid.sx_lo - 1)
+            cand = {p for p in range(grid.sy_lo, grid.sy_hi + 1) if grid.walkable(past, p)}
+            band = cand or None        # no overlap detected -> fall back to any edge tile
+            if band:
+                self.log(f"   [travel] {edge} connection band rows: {sorted(band)}")
+        def _edge_goal(t):
+            return exit_cmp(t[exit_axis]) and (band is None or t[perp_axis] in band)
+        goal = ((lambda t: t == arrive_coord) if arrive_coord is not None else _edge_goal)
         _muse_t = [time.time()]   # last-voiced clock for the travel-muse dead-air filler
         _muse_i = [0]
         for step in range(max_steps):
@@ -528,6 +543,12 @@ class Traveler:
                             grid = Grid(self.b)
                             blocked.clear(); fail_count.clear(); static_blocked.clear()
                             no_path = stuck = 0
+                            # heal-when-low after a BLOCKER (gauntlet) trainer too — mirrors the
+                            # post-encounter yield at the top. Without this a lone starter walks a
+                            # trainer gauntlet (Route 3) with no heal between fights and faints.
+                            if self.pause_check():
+                                self.log("   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller")
+                                return "need_heal"
                             continue
                     else:
                         self.log(f"   [travel] no clean path from {cur} AND no NPC-allowing path "

@@ -58,6 +58,10 @@ VIRIDIAN_PC_DOOR, VIRIDIAN_PC_MAP, NURSE_FRONT, PC_ENTRY = (26, 26), (5, 4), (7,
 # Pewter Gym (reconned 2026-06-24): town door (15,16) -> interior (6,2); climb the centre column
 # (x=6) to Brock's front tile (6,6); the lone gym trainer auto-engages off the centre path.
 PEWTER_GYM_DOOR, BROCK_FRONT = (15, 16), (6, 6)
+# Pewter Pokemon Center door (disasm PewterCity warp_events: x17 y25 -> POKEMON_CENTER_1F). The
+# nearest heal once on Route 3 (cross WEST to Pewter) — PC interiors share ONE layout so the generic
+# heal_at_center(door) works for any city. (Pewter Mart door = (28,18), banked for later TM/shopping.)
+PEWTER_PC_DOOR, PEWTER_MART_DOOR = (17, 25), (28, 18)
 # Cerulean Gym (reconned 2026-06-26, recon_gymscan): town door (31,21) -> interior; Misty (8,6,
 # trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
 # WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
@@ -329,6 +333,41 @@ class Campaign:
         Tackle her Forest move and the Vine-Whip swap a Brock-only tool)."""
         hp, mx = self.lead_hp()
         return mx > 0 and hp < self.HEAL_HP_FRAC * mx
+
+    def _heal_excursion(self, city, pc_door, out_edge, back_map, back_edge):
+        """Low HP on a ROUTE with no PC of its own: cross to an ADJACENT city, heal at its PC, cross
+        back to the route. Generic city-heal for routes (return_to_center is the Viridian-south
+        special case for the pre-Pewter arc). Flees wilds both ways so the trip costs ~0 HP. Returns
+        'ok' (back on back_map, healed) | 'stuck'."""
+        saved, saved_runner = self._suppress_heal, self.trav.battle_runner
+        self._suppress_heal = True                    # don't re-trigger heal WHILE going to heal
+        self.trav.battle_runner = self._flee_runner
+        try:
+            log(f"   HEAL-EXCURSION: lead at {self.lead_hp()} - crossing {out_edge} to {city} to heal")
+            for _ in range(6):
+                if tv.map_id(self.b) == city:
+                    break
+                if self.trav.travel(target_map=city, edge=out_edge,
+                                    max_steps=400, max_seconds=120) != "arrived":
+                    break
+            if tv.map_id(self.b) != city:
+                log(f"   !! HEAL-EXCURSION: didn't reach {city} (at {tv.map_id(self.b)})")
+                return "stuck"
+            self.heal_at_center(pc_door)
+            for _ in range(6):
+                if tv.map_id(self.b) == back_map:
+                    break
+                if self.trav.travel(target_map=back_map, edge=back_edge,
+                                    max_steps=400, max_seconds=120) != "arrived":
+                    break
+            if tv.map_id(self.b) == back_map:
+                log(f"   HEAL-EXCURSION: healed + back on {back_map} at {tv.coords(self.b)}")
+                return "ok"
+            log(f"   !! HEAL-EXCURSION: healed but didn't get back to {back_map} "
+                f"(at {tv.map_id(self.b)})")
+            return "stuck"
+        finally:
+            self._suppress_heal, self.trav.battle_runner = saved, saved_runner
 
     def return_to_center(self):
         """Heal-return: travel SOUTH back to Viridian (the only Center before Pewter), then heal
@@ -843,12 +882,22 @@ class Campaign:
         we keep wandering. Returns 'caught' | 'no_balls' | 'timeout' | 'battle_loss'."""
         t0 = time.time()
         cur0 = tv.coords(self.b)
-        grass = sorted(tv.Grid(self.b).grass,
+        # Grid.grass is in BUFFER coords (save + MAP_OFFSET); travel's arrive_coord + coords() are
+        # SAVE coords. Convert here so the nearest-grass sort AND the walk targets share one space —
+        # the old code fed buffer-coord grass straight to travel (a 7-tile miss that never stepped
+        # onto grass -> no wild encounter -> the catch looked "impossible").
+        off = tv.MAP_OFFSET
+        grass = sorted(((g[0] - off, g[1] - off) for g in tv.Grid(self.b).grass),
                        key=lambda g: abs(g[0] - cur0[0]) + abs(g[1] - cur0[1]))
         if not grass:
             log("   !! CATCH: no grass on this map - can't find a wild Pokemon here")
             return "no_grass"
-        log(f"   CATCH: {len(grass)} grass tiles (nearest {grass[0]}) - traversing grass to catch one")
+        # Warp/door tiles to keep OUT of: pathing across a door warps us into a building (the Route 3
+        # PC / Mt Moon mouth) and the catch wedges on an NPC inside (the (5,4) trap). Treat doors as
+        # permanent blocks for the whole wander — same avoid-param pattern as cave warp-to-warp nav.
+        doors = frozenset(self._door_tiles())
+        log(f"   CATCH: {len(grass)} grass tiles (nearest {grass[0]}); avoiding {len(doors)} warp tile(s)"
+            f" - traversing grass to catch one")
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         caught = [False]
 
@@ -876,8 +925,14 @@ class Campaign:
             waypoints = [grass[0], grass[-1], grass[len(grass) // 2]]
             wi = 0
             while time.time() - t0 < max_seconds and not caught[0]:
-                self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
-                                 max_steps=120, max_seconds=80)
+                r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
+                                     max_steps=120, max_seconds=80, avoid=doors)
+                if r == "need_heal":
+                    # a lone starter can't tank Route 3's trainer gauntlet — heal at Pewter (one west
+                    # cross) and resume. Beaten trainers don't re-engage, so each cycle makes progress.
+                    if self._heal_excursion(PEWTER, PEWTER_PC_DOOR, "west", ROUTE3, "east") == "stuck":
+                        log("   !! CATCH: heal excursion failed - LOUD"); break
+                    continue                                  # retry the same waypoint, now healed
                 wi += 1
                 if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                     caught[0] = True
