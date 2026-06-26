@@ -50,6 +50,7 @@ STATES_KIRA = os.path.join(STATES, "kira")
 # ── known FireRed map IDs (group, num) - documented, not reconned ────────────
 PALLET, VIRIDIAN, PEWTER = (3, 0), (3, 1), (3, 2)
 ROUTE1, ROUTE2, ROUTE22 = (3, 19), (3, 20), (3, 41)
+ROUTE3, ROUTE4 = (3, 21), (3, 22)      # Pewter->Route 3 (east), Mt Moon->Route 4 (Cerulean side)
 # Viridian Forest + gym interiors live in other groups; resolved at runtime on entry.
 # Viridian Pokemon Center (RED-roof bldg, reconned 2026-06-24): town door (26,26) -> interior
 # (5,4); nurse at (7,2), talked to from (7,4) ACROSS the counter; entrance mat at (7,8).
@@ -120,17 +121,14 @@ def build_segments():
              "fresh new game -> name self+rival (her choice) -> pick starter -> rival battle -> Pallet"),
         ], "seg_opening.state"),
         Segment("pallet_to_brock", build_objectives(), "seg_boulder_badge.state"),
-        # Pewter -> Route 3: the EAST map-edge seam is an unsolved collision PARADOX (every static
-        # source — collision/elevation/behavior/objects — reads walkable, yet real movement traps the
-        # agent in a 1-tile prison at the connection edge). Per the manifest's own design (each leg is
-        # automated OR hand-play-once-bank-skip), this seam is a GATE_NEEDS_STATE: hand-play across it
-        # once, bank seg_route3_start.state, and the run resumes on Route 3 (3,21) at (9,9). Checkpoint
-        # is a DISTINCT name so the auto-save never overwrites the hand-played gate input.
+        # Pewter -> Route 3: AUTO (Skip 1 solved). The "collision paradox" was a travel bug, not a game
+        # wall: E/W map connections load a DEEP overlap of the neighbour's tiles past the edge (Pewter
+        # east reaches x=55, past sx_hi=48; disasm offset=10 -> Route 3). The old "x==sx_hi" exit goal
+        # trapped the agent the instant it stepped into the overlap (BFS dragged it back west). travel
+        # now crosses on "x>=sx_hi" and presses east THROUGH the overlap until the map flips. Control:
+        # brock_done.state Pewter(3,2)@(15,16) -> walk east -> MAP TRANSITION -> Route 3(3,21)@(0,11).
         Segment("pewter_to_route3", [
-            ("GATE_NEEDS_STATE", "seg_route3_start.state",
-             "hand-play ONCE across the Pewter east seam onto Route 3, then F5-save: "
-             ".venv\\Scripts\\python.exe pokemon_agent\\handplay.py --boot brock_done.state "
-             "--save seg_route3_start.state  (autonomous crossing deferred — collision paradox)"),
+            ("WALK_TO_MAP", ROUTE3, "east", "Pewter -> Route 3 (cross the east connection band)"),
         ], "seg_route3_entered.state"),
         # CATCH = HAND-PLAY-BANK (the agent CANNOT drive this core's battle menus — confirmed by
         # replicating Jonny's exact human input; injection is dead too). So catching follows the

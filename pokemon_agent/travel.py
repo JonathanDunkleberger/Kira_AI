@@ -371,8 +371,17 @@ class Traveler:
         exit_axis = EDGE_AXIS.get(edge, 1)
         exit_line = {"north": 0, "south": grid.sy_hi,
                      "east": grid.sx_hi, "west": grid.sx_lo}.get(edge, 0)
+        # EDGE-CROSS PREDICATE: cross when AT OR PAST the edge, not exactly ON it. E/W map connections
+        # load a DEEP overlap of the neighbour's tiles into the border (Pewter east reaches x=55, well
+        # past the sx_hi=48 edge — disasm offset=10 -> Route 3). An exact "x==sx_hi" goal TRAPS the
+        # agent: the instant it steps into the overlap the goal unsatisfies and BFS drags it back west
+        # (the "1-tile prison" / collision paradox). ">= edge" lets it keep walking east THROUGH the
+        # overlap until the map flips. N/S keep firing the exit press at the edge exactly as before.
+        _PASS = {"north": lambda v: v <= 0, "south": lambda v: v >= grid.sy_hi,
+                 "east": lambda v: v >= grid.sx_hi, "west": lambda v: v <= grid.sx_lo}
+        exit_cmp = _PASS.get(edge, lambda v: v == exit_line)
         goal = ((lambda t: t == arrive_coord) if arrive_coord is not None
-                else (lambda t: t[exit_axis] == exit_line))
+                else (lambda t: exit_cmp(t[exit_axis])))
         _muse_t = [time.time()]   # last-voiced clock for the travel-muse dead-air filler
         _muse_i = [0]
         for step in range(max_steps):
@@ -464,14 +473,18 @@ class Traveler:
                 if arrive_coord is not None and cur == arrive_coord:
                     self.log(f"   [travel] reached target coord {arrive_coord}")
                     return "arrived"
-                if arrive_coord is None and cur[exit_axis] == exit_line:   # on the exit gap -> cross
-                    exit_tries += 1
-                    if exit_tries > EXIT_TRIES:
-                        self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "
-                                 f"presses didn't transition - ABORT LOUD")
-                        self.on_event("I'm at the edge but I can't get through - stuck")
-                        return "stuck"
+                if arrive_coord is None and exit_cmp(cur[exit_axis]):   # at/past the edge -> cross
+                    before = cur
                     self._press(exit_dir)
+                    if coords(self.b) == before:      # press didn't move us -> a genuinely wasted try
+                        exit_tries += 1
+                        if exit_tries > EXIT_TRIES:
+                            self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "
+                                     f"presses didn't transition - ABORT LOUD")
+                            self.on_event("I'm at the edge but I can't get through - stuck")
+                            return "stuck"
+                    else:
+                        exit_tries = 0                # stepped deeper into the overlap -> still progressing
                     continue
                 # no path right now - most likely an NPC is standing on the only gap.
                 # WAIT (bounded) for a wanderer to step off, re-reading NPC positions each
