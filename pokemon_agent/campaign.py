@@ -1171,10 +1171,20 @@ class Campaign:
                         log("   MTMOON: left B2F during the Miguel fight (blackout) - caller retries")
                         return "blackout"
                 r = nav._enter(tuple(wxy))
+                # NUDGE-RETRY: the exit warp (45,4) is finicky to approach from (39,4) — the proven
+                # port nudged one tile toward it (44,4) and retried up to 4x. run_plan does a single
+                # _enter, which dropped that; re-add it so the final exit isn't a one-shot stall.
+                tries = 0
+                while r is None and tries < 4 and tuple(tv.map_id(self.b)) == tuple(exp_map):
+                    tries += 1
+                    self.trav.travel(target_map=None, arrive_coord=(wxy[0] - 1, wxy[1]),
+                                     max_steps=200, max_seconds=90)
+                    r = nav._enter(tuple(wxy))
                 if r == "BLACKOUT":
                     log("   MTMOON: blacked out mid-cave (SURVIVAL) - caller retries"); return "blackout"
                 if r is None:
-                    log(f"   !! MTMOON: warp {tuple(wxy)} unenterable (map={tv.map_id(self.b)})"); return "stuck"
+                    log(f"   !! MTMOON: warp {tuple(wxy)} unenterable after {tries} nudge(s) "
+                        f"(map={tv.map_id(self.b)})"); return "stuck"
             if not nav._fwd_reachable("east"):                 # last warp done -> cross out to Cerulean
                 log(f"   !! MTMOON: warps done at {tv.map_id(self.b)} but east edge unreachable"); return "stuck"
             self.trav.travel(target_map=(99, 99), edge="east", max_steps=400, max_seconds=200)
