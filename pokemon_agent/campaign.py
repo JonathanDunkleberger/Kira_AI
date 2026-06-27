@@ -1731,6 +1731,20 @@ class Campaign:
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
             self._wait_overworld()
+            # BLACKOUT / STRANDED-IN-BUILDING RECOVERY (increment 4 PART A): a wild loss whites her out
+            # and warps her INSIDE a Pokémon Center (map group != 3 — a building interior), healed. Her
+            # overworld actions (head_to_gym routes via map CONNECTIONS) can't navigate out of a building,
+            # so she'd sit on no_gym_route forever (the live (7,4)@(5,4) dead-end). Detect the building
+            # (group != 3) and EXIT to the overworld so a real objective can re-establish from the Center
+            # (a known-good anchor) — never leave her parked where nothing can succeed. The faint itself
+            # is felt via _soul_after_objective(battle_loss); this is the explicit "I came to" beat.
+            if tv.map_id(self.b)[0] != 3:
+                log(f"   [roam] !! BLACKOUT/STRANDED: in a building interior {tv.map_id(self.b)}"
+                    f"@{tv.coords(self.b)} — exiting to the overworld to re-orient")
+                self.on_event("ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.",
+                              kind="blackout", tier=2)
+                self._exit_to_overworld()
+                self._wait_overworld()
             state = self.read_live_state()
             avail = self._available_actions(state)
             party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
