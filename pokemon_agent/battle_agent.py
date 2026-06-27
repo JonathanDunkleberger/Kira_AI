@@ -139,6 +139,11 @@ class BattleAgent:
         self._reach_first_menu(t0, max_seconds)
         if self._is_trainer_battle():                 # can't flee a trainer -> WIN it
             return self.run(max_seconds=max_seconds)
+        for _ in range(3):                            # ensure the ACTION menu, not the move list:
+            if not self._in_move_list():              # _white_box can't tell them apart, so RUN nav
+                break                                 # from an open move-list fires a move + never
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)  # escapes (flee 'stuck'
+            self._wait(10)                            # loop). Same class as the catch bag-nav bug.
         for _ in range(40):
             if not st.in_battle(self.b):
                 return "fled"
