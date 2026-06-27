@@ -33,6 +33,7 @@ from bridge import Bridge        # noqa: E402
 import firered_ram as ram        # noqa: E402
 import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
+import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from battle_agent import BattleAgent  # noqa: E402
 from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
@@ -1693,6 +1694,7 @@ class Campaign:
         tick/time budget. Oracle unwired (headless/no bot) -> she idles (logged), never scripted."""
         import time as _t
         t0 = _t.time()
+        ledger = wf.ProgressLedger()               # MACRO watchdog: cross-tick "am I getting anywhere?"
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
@@ -1701,9 +1703,16 @@ class Campaign:
             state = self.read_live_state()
             avail = self._available_actions(state)
             party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
+            # MACRO PROGRESS LEDGER (increment 3): fingerprint THIS tick + escalate if the world has
+            # sat unchanged across her last actions. GREEN=progressing / YELLOW=not getting anywhere /
+            # RED=stuck despite retries. Context-aware (box up -> static is expected, not escalated).
+            fp = wf.fingerprint(self.b)
+            macro = ledger.observe(fp)
+            self._roam_progress = macro            # surfaced for the dashboard light to read later
             log(f"-- ROAM TICK {tick}/{max_ticks} --")
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
+            log(f"   [roam] PROGRESS: {macro} (unchanged {ledger.stuck} ticks) | {wf.brief(fp)}")
             log(f"   [roam] OPTIONS OFFERED: {list(avail.keys())}")
             if not avail:
                 log("   [roam] no honest action available here — ending free roam"); break
@@ -1712,14 +1721,25 @@ class Campaign:
                 self.soul.surface_want({"place": state["place"], "map": state["map"],
                                         "badges": state["badges"], "progress": state["progress"],
                                         "party": [m["species"] for m in state["party"]]})
+            # On YELLOW+, fold STUCK-AWARENESS into the oracle ctx via the existing `place` seam (the
+            # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
+            # she's stuck; she still decides the next move HERSELF (capability-not-script).
+            where = state["place"]
+            if macro in (ledger.YELLOW, ledger.RED):
+                note = ledger.stuck_note()
+                where = f"{state['place']}. {note}"
+                log(f"   [roam] !! MACRO {macro}: no progress {ledger.stuck} ticks — feeding awareness "
+                    f"back to the oracle: {note!r}")
             pick = self._soul_choose("action", avail,
-                                     {"place": state["place"], "progress": state["progress"], "party": party_str})
+                                     {"place": where, "progress": state["progress"], "party": party_str})
             if not pick:
                 log("   [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick")
+                ledger.note_action(None, "idle")
                 continue
-            log(f"   [roam] PICK OUT: {pick}")
+            log(f"   [roam] PICK OUT: {pick}" + (f"  <- her RECOVERY move ({macro})" if macro != ledger.GREEN else ""))
             out = self._route_action(pick, state)
             log(f"   [roam] RESULT: {pick} -> {out}")
+            ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
             if pick == "wander_catch" and out == "caught" and self.soul is not None:
                 self.roster_react()                        # note_caught: bond + react to the new teammate
             if self.soul is not None:

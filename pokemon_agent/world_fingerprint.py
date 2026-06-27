@@ -183,3 +183,65 @@ class MicroWatch:
         if limit is None:
             limit = STALL_N_DIALOGUE if (fp is not None and fp.menu_or_dialogue) else STALL_N_DEFAULT
         return self.stall >= limit
+
+
+# ── MACRO ledger thresholds (cross-tick, the free_roam loop) ─────────────────────────────────
+# Consecutive free-roam TICKS whose fingerprint is identical to the prior tick's = her chosen
+# actions aren't moving the world. Distinct from MicroWatch (which counts presses inside ONE call).
+# Start conservative; tunable. The dashboard light reads GREEN/YELLOW/RED off ProgressLedger.state.
+PROGRESS_YELLOW_TICKS = 3      # escalating - she's not getting anywhere
+PROGRESS_RED_TICKS    = 6      # abandoned - stuck despite retries
+
+
+class ProgressLedger:
+    """MACRO watchdog: the free_roam loop's CROSS-TICK 'am I getting anywhere?' memory. MicroWatch
+    guards a single in-call press loop; this fingerprints ONCE PER TICK and escalates the world's
+    stuckness GREEN -> YELLOW -> RED as her chosen actions leave the world unchanged tick after tick.
+
+    CONTEXT-AWARE (increment-2's lesson): a static fingerprint while a dialogue/menu box is up is
+    EXPECTED (text scroll / read-along), so a box-up tick does NOT count toward stuck and does NOT
+    reset it - it's simply skipped, and the next clean tick compares against the last CLEAN one.
+
+    It only INFORMS (stuck_note feeds the oracle ctx so she becomes AWARE she's stuck); it NEVER
+    scripts the escape - she picks the next action herself in character (capability-not-script)."""
+    GREEN, YELLOW, RED = "GREEN", "YELLOW", "RED"
+
+    def __init__(self, yellow=PROGRESS_YELLOW_TICKS, red=PROGRESS_RED_TICKS):
+        self.yellow, self.red = yellow, red
+        self._last_fp = None
+        self.stuck = 0                 # consecutive ticks the (clean) fingerprint stayed identical
+        self.last_action = None
+        self.last_outcome = None
+
+    def observe(self, fp):
+        """Fold THIS tick's fingerprint against the last CLEAN one; return the macro state. Call at
+        tick START, before the new action runs (so it measures whether the PREVIOUS action moved the
+        world). A box-up or unreadable fp is held (neither escalates nor resets)."""
+        if fp is not None and not fp.menu_or_dialogue:
+            if self._last_fp is not None and fp == self._last_fp:
+                self.stuck += 1
+            else:
+                self.stuck = 0
+            self._last_fp = fp
+        return self.state
+
+    def note_action(self, action, outcome):
+        """Tick END: remember what she just did + how it went, so next tick's feedback can name it."""
+        self.last_action, self.last_outcome = action, outcome
+
+    @property
+    def state(self):
+        if self.stuck >= self.red:
+            return self.RED
+        if self.stuck >= self.yellow:
+            return self.YELLOW
+        return self.GREEN
+
+    def stuck_note(self):
+        """The AWARENESS line folded into the oracle ctx on YELLOW+. States the SITUATION in her
+        terms; deliberately does NOT prescribe a fix (she decides). RED sharpens the framing."""
+        sev = "you're completely stuck" if self.state == self.RED else "you don't seem to be getting anywhere"
+        tried = (f"You keep trying to {self.last_action.replace('_', ' ')}"
+                 if self.last_action else "Nothing you've tried")
+        gone = f"it went '{self.last_outcome}'" if self.last_outcome else "nothing's happened"
+        return (f"{tried} but the world hasn't changed in {self.stuck} turns - {gone}, and {sev}.")
