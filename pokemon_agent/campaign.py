@@ -983,18 +983,27 @@ class Campaign:
         (giveitem, NOT a shop buy). All dialogue + interior nav. Returns 'done'|'stuck'. The real
         proof is the ball count going 0 -> 5 (that's what unblocks the Route 3 catch)."""
         b0 = self._ball_count()
+        if b0 >= 5 and self.has_badge(FLAG_POKEDEX_GET):       # idempotent: a retry after it's DONE
+            log("   PARCEL: already delivered (Pokedex + balls present) - done"); return "done"
         log(f"   PARCEL: starting Oak's Parcel quest (balls={b0}, map={tv.map_id(self.b)})")
         # This is a SHORT, low-danger errand that passes through Viridian (which HAS a PC). Suppress
         # the heal-when-low BOUNCE for the whole errand and instead heal ONCE explicitly at the
         # Viridian PC up front — else every Route 1 wild dropping the lone starter below 75% would
         # yield need_heal and abort each travel leg (the south-to-Pallet stall).
         saved = self._suppress_heal
+        saved_runner = self.trav.battle_runner
         self._suppress_heal = True
+        # FLEE wild encounters for the whole fetch errand — Route 1/2 have no required trainers before
+        # the parcel, and a just-picked Lv5 starter can't tank the round-trip's wilds (it blacked out
+        # in Part C). Fleeing costs ~0 HP. A genuine flee-fail death PROPAGATES as battle_loss so the
+        # segment's blackout-recovery retries it (instead of being swallowed into a non-recoverable 'stuck').
+        self.trav.battle_runner = self._flee_runner
         try:
             for _ in range(5):                                 # 1) reach Viridian (the Mart is here)
                 if tv.map_id(self.b) == VIRIDIAN:
                     break
-                self.advance_north(VIRIDIAN, max_legs=3)
+                if self.advance_north(VIRIDIAN, max_legs=3) == "battle_loss":
+                    return "battle_loss"
             if tv.map_id(self.b) != VIRIDIAN:
                 log(f"   !! PARCEL: not at Viridian (at {tv.map_id(self.b)})"); return "stuck"
             if self.needs_heal():                              # 1b) top up so the round trip is safe
@@ -1009,8 +1018,10 @@ class Campaign:
             for _ in range(5):                                 # 3) south to Pallet
                 if tv.map_id(self.b) == PALLET:
                     break
-                if self.trav.travel(target_map=PALLET, edge="south",
-                                    max_steps=600, max_seconds=200) != "arrived":
+                r = self.trav.travel(target_map=PALLET, edge="south", max_steps=600, max_seconds=200)
+                if r == "battle_loss":
+                    return "battle_loss"
+                if r != "arrived":
                     break
             if tv.map_id(self.b) != PALLET:
                 log(f"   !! PARCEL: didn't reach Pallet (at {tv.map_id(self.b)})"); return "stuck"
@@ -1033,6 +1044,7 @@ class Campaign:
                 break
         finally:
             self._suppress_heal = saved
+            self.trav.battle_runner = saved_runner
         if b1 > b0 and dex:
             self.on_event("delivered Oak's parcel — got the Pokedex and a handful of Poke Balls")
             return "done"
