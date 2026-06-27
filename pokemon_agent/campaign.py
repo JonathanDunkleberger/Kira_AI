@@ -746,9 +746,9 @@ class Campaign:
         if self.has_badge(gym.badge_flag):
             log(f"   GYM: *** {name.upper()} BADGE obtained ***")
             self.on_event(f"I beat {name} - that's the badge!")
-            if tv.map_id(self.b) != gym.city:                  # LEAVE the gym -> back to the city,
-                ex = self.enter_warp(prefer="south")           # ready to free-roam / continue
-                log(f"   GYM: exit -> {ex} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
+            if tv.map_id(self.b)[0] != 3:                      # still in the gym interior -> leave to
+                self._exit_to_overworld()                      # the city via the general hardened exit
+                log(f"   GYM: exit -> now {tv.map_id(self.b)}@{tv.coords(self.b)}")
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
@@ -842,7 +842,7 @@ class Campaign:
             if tv.map_id(self.b) != (4, 1):
                 break
         self._adv_dialogue()                                   # Mom (1F)
-        if self.enter_warp(prefer="south") != "warped":
+        if not self._exit_to_overworld():                      # general hardened building-exit
             log("   !! OPENING: couldn't exit the house"); return tv.map_id(self.b)
         self._adv_dialogue()
         log(f"   OPENING: in Pallet {tv.coords(self.b)} - walking north (Oak will intercept)")
@@ -881,7 +881,7 @@ class Campaign:
                 break
             self._drain_overworld(label="post-rival")
             self.b.set_input_owner("agent")
-            self.enter_warp(prefer="south")
+            self._exit_to_overworld()
         log(f"   OPENING: *** DONE -> {tv.map_id(self.b)}@{tv.coords(self.b)} "
             f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} ***")
         return tv.map_id(self.b)
@@ -1041,7 +1041,7 @@ class Campaign:
                 self.b.run_frame()
             self._talk(MART_CLERK_FRONT, "UP", "parcel-pickup")
             log("   PARCEL: collected from the Mart counter; routing to Oak in Pallet")
-            self.enter_warp(prefer="south")                    # exit Mart -> Viridian
+            self._exit_to_overworld()                          # exit Mart -> Viridian (general exit)
             for _ in range(5):                                 # 3) south to Pallet
                 if tv.map_id(self.b) == PALLET:
                     break
@@ -1062,7 +1062,7 @@ class Campaign:
             b1 = self._ball_count()
             dex = self.has_badge(FLAG_POKEDEX_GET)
             log(f"   PARCEL: after delivery balls {b0}->{b1}  pokedex={dex}")
-            self.enter_warp(prefer="south")                     # 5) exit lab -> Pallet -> north to Viridian
+            self._exit_to_overworld()                           # 5) exit lab (general) -> north to Viridian
             for _ in range(5):
                 if tv.map_id(self.b) == VIRIDIAN:
                     break
