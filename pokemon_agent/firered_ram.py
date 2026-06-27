@@ -47,6 +47,16 @@ ACT_FIGHT, ACT_BAG, ACT_POKEMON, ACT_RUN = 0, 1, 2, 3
 # RAM-WRITE the battle action (extend the proven move-swap pattern): write USE_ITEM + the ball to the
 # action/chosen-item RAM, bypassing the cursor. Ball inventory: gSaveBlock1 + BAG_BALLS_OFF below.
 BAG_BALLS_OFF = 0x430            # PokéBalls pocket off gSaveBlock1 ({u16 itemId, u16 qty^key}); id4=PokéBall
+# ── IN-BATTLE BAG pocket navigation (root-caused 2026-06-27 — the "wrong pocket = 141 dead throws" bug).
+# The in-battle bag opens on the LAST-VIEWED pocket, NOT always Poké Balls: on Route 3 it opens on the
+# (empty) ITEMS pocket, so the old blind UP+A+A selected CANCEL and threw NOTHING (ball count never
+# decremented). These let throw_ball steer the cursor to the Poké Balls pocket. Addresses found by an
+# EWRAM diff across pocket switches; VALIDATED BY A CATCH CONTROL on the Route 3 failing state (the live
+# pocket index read 0->1->2 to the balls pocket, item id 4 selected, balls 5->1, party 1->2 = caught).
+GBAG_POCKET        = 0x0203AD02   # u8: current bag pocket index (0=Items, 1=Key Items, 2=Poké Balls, ...)
+GSPECIALVAR_ITEMID = 0x0203AD30   # u16: gSpecialVar_ItemId — the SELECTED bag item id (4 = Poké Ball)
+POCKET_POKE_BALLS  = 2            # Poké Balls pocket index (FRLG fixed layout; control-read ==2 on balls)
+BALL_ITEM_IDS = frozenset(range(1, 13))   # Master(1)..Premier(12) — any Poké Ball variant is throwable
 # ── BATTLE-ACTION INJECTION (catch arc) — addresses sourced from CFRU BPRE.ld, cross-validated vs the
 # verified anchors (gBattleMons/gBattleStruct MATCH) AND a behavioral CONTROL. The action-menu cursor
 # is un-navigable, so we inject the chosen action by RAM-write: on the controller-completion edge

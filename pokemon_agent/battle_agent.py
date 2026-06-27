@@ -196,6 +196,7 @@ class BattleAgent:
             self._reach_first_menu(t0, max_seconds)
         self._settle()
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        balls_at_start = self._ball_count()           # baseline BEFORE the bag opens (throw-verify gate)
         if os.environ.get("CATCH_RECON"):             # RECON: what menu are we actually on at throw-start?
             try:
                 _s = st.read_battle(self.b)
@@ -213,37 +214,100 @@ class BattleAgent:
             if not self._in_move_list():
                 break
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-        self._home_to_fight()                         # CURSOR RESET: on a re-throw (commit loop) the
-        self._tap("RIGHT")                            # cursor sits wherever it was -> RIGHT could hit
-        #                                               RUN and flee. Home to FIGHT first -> RIGHT=BAG.
-        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # open bag
-        self._wait(45)                                # wait out the bag-open fade
-        if os.environ.get("CATCH_RECON"):             # RECON: did the bag actually open? (bag screen
-            self.log(f"      [catch-recon] after open-bag-A: white_box={self._white_box()} "  # is NOT
-                     f"in_move_list={self._in_move_list()} (bag is open IFF white_box=False)")  # the panel
-            try:                                       # SEE the bag: which pocket/cursor is shown?
-                _n = getattr(self, "_catchshot", 0)
-                if _n < 4:
-                    _p = os.path.join(os.environ.get("CATCH_SHOT_DIR", "."), f"catchbag_{_n}.png")
-                    self.b.frame_rgb().resize((480, 320)).save(_p)
-                    self.log(f"      [catch-recon] bag screenshot -> {_p}")
-                    self._catchshot = _n + 1
-            except Exception as _e:
-                self.log(f"      [catch-recon] screenshot err {_e}")
-        self._tap("UP")                               # ensure top item (POKé BALL), not CANCEL
-        self._wait(12)
-        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select -> USE/CANCEL
-        self._wait(18)
-        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # confirm USE -> throw
+        # SETTLE ONTO THE ACTION MENU before opening the bag: after a broke-free the foe's turn / poison
+        # text can still be up, and opening the bag mid-text EATS the throw (the flaky 2nd-throw 'stuck').
+        # menu_up==1 (+ white panel) is the reliable 'action menu is waiting' signal. Advance blue text;
+        # back out of a stray move list; bounded so a genuinely wedged box still falls through (and the
+        # pocket-nav/throw-verify below aborts loudly rather than silently spinning).
+        for _ in range(30):
+            if self._white_box() and self.b.rd8(ram.GBATTLE_MENU_UP) == 1:
+                break
+            if self._white_box():                     # white panel but not the action menu -> move list
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+            else:
+                self._advance_text()                  # blue dialogue/animation box -> advance it
+        # OPEN THE BAG and NAVIGATE TO THE POKé BALLS POCKET (root-caused 2026-06-27 — the long-standing
+        # "141 dead throws / ball count never decrements" bug). The in-battle bag opens on the LAST-VIEWED
+        # pocket, NOT always Poké Balls: on Route 3 it opens on the (empty) ITEMS pocket, so the old blind
+        # UP+A+A selected CANCEL and threw NOTHING. FRLG pocket layout is FIXED (Items=0, Key Items=1,
+        # Poké Balls=2, ...), so we STEER the LIVE pocket index (ram.GBAG_POCKET) to the balls pocket
+        # WITHOUT pressing A on any other pocket (A on an empty pocket's CANCEL poisons pocket-switching).
+        # Being ON pocket 2 with the cursor at the top IS a Poké Ball (we early-returned 'no_balls' if the
+        # count were 0), so we don't trust the STALE gSpecialVar_ItemId — we press A and VERIFY a ball
+        # actually LEFT (count dropped vs throw-start / caught / battle ended), retrying an eaten select/
+        # confirm. Selecting may itself throw (no USE prompt) or need one more A; re-checking before each
+        # press never double-throws. Control-proven: Route 3 fail-state pocket 0->1->2, balls 5->1, caught.
+        def _thrown():
+            return (self._ball_count() < balls_at_start or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0
+                    or not st.in_battle(self.b))
+        # OPEN THE BAG and VERIFY it actually opened before trusting the pocket var: if the open-A is
+        # eaten (we're not fully settled) we stay at the action menu and ram.GBAG_POCKET reads STALE
+        # (e.g. 2 from a prior throw) — a false "on balls pocket" that then mashes A into the move list.
+        # The bag being open == the white action-menu panel is GONE (_white_box False); retry the open.
+        opened = False
+        for _ in range(4):
+            self._home_to_fight()                     # FIGHT is cursor home -> RIGHT = BAG (re-home each retry)
+            self._tap("RIGHT")
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # open bag
+            self._wait(50)                            # wait OUT the bag-open fade (acting on the fade = eaten)
+            if not self._white_box():                 # left the action-menu panel -> the bag is open
+                opened = True; break
+        if not opened:
+            self.log("   [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY")
+            return "stuck"
+        on_balls_pocket = False
+        for _ in range(8):                            # steer the live pocket index toward Poké Balls
+            if self.b.rd8(ram.GBAG_POCKET) == ram.POCKET_POKE_BALLS:
+                on_balls_pocket = True
+                break
+            self._tap("RIGHT" if self.b.rd8(ram.GBAG_POCKET) < ram.POCKET_POKE_BALLS else "LEFT")
+            self._wait(12)
+        if os.environ.get("CATCH_RECON"):
+            self.log(f"      [catch-recon] bag nav: pocket={self.b.rd8(ram.GBAG_POCKET)} "
+                     f"on_balls_pocket={on_balls_pocket} item={self.b.rd16(ram.GSPECIALVAR_ITEMID)}")
+        if not on_balls_pocket:
+            self.log("   [engine] !! throw_ball: couldn't reach the Poké Balls pocket — aborting LOUDLY")
+            for _ in range(4):                        # leave the menu clean for the caller
+                if self._white_box():
+                    break
+                self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(8)
+            return "stuck"
+        self._tap("UP"); self._wait(8)                # top of the balls pocket = the ball
+        # SELECT + THROW, then STOP the instant a ball leaves. Press A (select -> USE/throw); the throw
+        # removes the ball from the bag IMMEDIATELY (count drops) — so after each A we POLL for the throw
+        # to register and break the MOMENT it does. This is critical: if we kept mashing A, the extra
+        # press lands on the post-catch "give a nickname? [YES]" prompt and opens the naming KEYBOARD,
+        # wedging the next throw (the forest 2nd-throw bug). Selecting may itself throw (1 A) or need a
+        # USE confirm (2 A); the per-A poll handles both and retries an eaten press. LOUD abort, no spin.
+        for _ in range(4):
+            if _thrown():
+                break
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            for _ in range(40):                       # watch for the ball to leave BEFORE pressing again
+                if _thrown():
+                    break
+                self.b.run_frame(); self.render()
+        if not _thrown():
+            self.log("   [engine] !! throw_ball: ball selected but no throw consumed a ball — aborting LOUDLY")
+            return "stuck"
         self.emit("alright — throwing a Poké Ball", beat=True)
         while time.time() - t0 < max_seconds:
             if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                 self.emit("gotcha — it's caught!", beat=True)
                 return "caught"
             if not st.in_battle(self.b):
-                for _ in range(40):                   # battle ended - let a CATCH's party-add settle
-                    self.b.run_frame(); self.render()  # (the "Gotcha!" can end the battle a beat
-                if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:   # before the party count ticks up)
+                # Battle ended. On a CATCH the "give a nickname? [YES/NO]" prompt HOLDS the party-increment
+                # until dismissed — and its cursor defaults to YES, so an A opens the naming keyboard. The
+                # old 40 BLANK frames here neither dismissed it nor saw the party tick, so a real catch
+                # returned 'broke_free' and LEFT the prompt up -> the next throw's A typed into the keyboard
+                # (the forest 2nd-throw wedge). Press B (decline) while watching for the party to grow (the
+                # unfakeable catch signal): finalizes the catch AND never leaves a prompt dangling.
+                for _ in range(20):
+                    if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+                        break
+                    self._wait(10)
+                    self.b.press("B", 2, 12, self.render, owner=self.owner)
+                if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                     self.emit("gotcha — it's caught!", beat=True)
                     return "caught"
                 return "broke_free"
