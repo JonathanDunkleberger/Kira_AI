@@ -687,7 +687,10 @@ class Campaign:
         # stops the instant the battle starts). Misty starts the battle near-immediately - same path.
         self.b.set_input_owner("agent")
         self.trav.travel(target_map=None, arrive_coord=gym.leader_front, max_steps=200, max_seconds=90)
-        log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name}")
+        _lvl = self.b.rd8(ram.GPLAYER_PARTY + 0x54)
+        _sp = st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "?")
+        log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name} "
+            f"[lead {_sp} Lv{_lvl}, party={self.b.rd8(ram.GPLAYER_PARTY_CNT)}]")
         for _ in range(6):
             if st.in_battle(self.b) or dd_box_open(self.b):
                 break
