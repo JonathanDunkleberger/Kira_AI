@@ -1328,15 +1328,13 @@ class Campaign:
         # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
         # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
         # single DOWN-burst was too impatient and froze at the counter (the Cerulean heal-exit bug).
-        for _ in range(40):
-            if tv.map_id(self.b) == city:
-                break
+        for _ in range(6):                          # clear the nurse's closing text (B = harmless)
             self.b.press("B", 3, 8, self.render, owner="agent")
-            self.b.press("DOWN", 8, 12, self.render, owner="agent")
-            for _ in range(10):
-                self.b.run_frame()
+        self._exit_to_overworld()                   # the general, stress-tested building-exit (south
+        #                                             door / DOWN-mat fallback). The old DOWN-only loop
+        #                                             wedged inside some PCs ('stuck inside' at (5,4)).
         log(f"   HEAL: exited Center -> map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
-        if tv.map_id(self.b) != city:
+        if tv.map_id(self.b)[0] != 3:               # still not on the overworld -> genuinely stuck
             return "healed_stuck_inside"
         # walk back to the pre-heal spot so HEAL is transparent (the next objective resumes
         # from where it expected to be, not the PC doorstep)
