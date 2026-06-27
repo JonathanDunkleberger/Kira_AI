@@ -119,8 +119,18 @@ ROUTE4_PC_DOOR = (12, 5)        # Route 4 has its own Pokemon Center (disasm Rou
 # trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
 # WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
 CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT = (3, 3), (31, 21), (8, 7)
+# Cerulean Pokemon Center door: (22,19) -> MAP_CERULEAN_CITY_POKEMON_CENTER_1F. Sourced from the
+# pokefirered disasm (CeruleanCity warp_events) AND cross-checked against the live RAM warp table.
+CERULEAN_PC_DOOR = (22, 19)
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
+
+# CITY -> its own Pokemon Center door (PC interiors share ONE layout, so heal_at_center(door) heals
+# in ANY of them — only the overworld door differs). The map-keyed table replaces heal_nearest's old
+# hardcoded Forest-era default (everything-not-Route3/4 -> Viridian), which routed Cerulean cross-
+# region south. EXTEND as new cities are reached; an unmapped city heals LOUD-fallback, never silent.
+CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
+                 CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR}
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -299,16 +309,22 @@ class Campaign:
         return "stuck"
 
     def heal_nearest(self):
-        """Heal at the Pokemon Center nearest the CURRENT map (location-aware — the pre-Pewter arc
-        heals at Viridian, Route 3 at Pewter one cross west, Route 4 at its own on-map PC). Returns
-        'ok' | 'stuck'. Generalises the Viridian-only return_to_center for the wider early game."""
+        """Heal at the Pokemon Center NEAREST the CURRENT map. Returns 'ok' | 'stuck'.
+
+        FIX (was a hardcoded Forest-era table that defaulted EVERY unlisted map — including Cerulean —
+        to a cross-region Viridian return): now heals at the CURRENT map's OWN Center when it has one
+        (CITY_PC_DOORS), so Cerulean heals in Cerulean. Route 3 has no Center -> cross WEST to Pewter.
+        An UNMAPPED map falls back to the Viridian return but logs LOUD (no silent cross-region heal —
+        the sleeping-stream bar: a missing city must scream, not quietly walk her across Kanto)."""
         m = tv.map_id(self.b)
-        if m == ROUTE3:
+        if m == ROUTE3:                                   # Route 3 has no Center: nearest is Pewter (west)
             return "ok" if self._heal_excursion(PEWTER, PEWTER_PC_DOOR, "west",
                                                 ROUTE3, "east") == "ok" else "stuck"
-        if m == ROUTE4:
-            return "ok" if self.heal_at_center(ROUTE4_PC_DOOR) in ("healed", "healed_stuck_inside") else "stuck"
-        # default (Route 1/Pallet/Route 2/Forest): the direction-aware Viridian return
+        if m in CITY_PC_DOORS:                            # this map HAS its own Center -> heal here
+            return "ok" if self.heal_at_center(CITY_PC_DOORS[m]) in ("healed", "healed_stuck_inside") else "stuck"
+        # UNMAPPED map: fall back to the Viridian return, but LOUD (constraint #3 — never silent-degrade)
+        log(f"   !! HEAL: no local Center mapped for {m} — FALLBACK to a cross-region Viridian heal "
+            f"(FIX: add {m}'s PC door to CITY_PC_DOORS)")
         return "ok" if self.return_to_center() not in ("stuck", "battle_loss") else "stuck"
 
     def enter_warp(self, prefer="nearest", pick=None):
@@ -1407,8 +1423,8 @@ class Campaign:
         if h0[0] >= h0[1]:
             log(f"   HEAL: already full ({h0[0]}/{h0[1]}) - skipping"); return "healed"
         return_to = tv.coords(self.b)             # heal is TRANSPARENT: come back here after
-        log(f"   HEAL: lead at {h0[0]}/{h0[1]} -> routing to the Viridian Pokemon Center "
-            f"(will return to {return_to})")
+        log(f"   HEAL: lead at {h0[0]}/{h0[1]} -> routing to the Pokemon Center on {city} "
+            f"via door {pc_door} (will return to {return_to})")
         # 1) to the PC door + step in
         if self.trav.travel(target_map=None, arrive_coord=(pc_door[0],
                             pc_door[1] + 1), max_steps=400, max_seconds=120) != "arrived":
