@@ -430,12 +430,56 @@ class Campaign:
                             # high enough that she meets a return-trainer near full HP and wins
                             # (esp. the fragile first foray at L8).
 
+    # ── BATCH 2 PART A: PARTY-WIDE "take care of yourself" thresholds (named, tunable). needs_heal()
+    # above stays LEAD-ONLY (it gates travel's pause_check + the heal-excursions all over the spine —
+    # proven, must not change). These ADD a party-wide survival signal that free_roam surfaces to the
+    # oracle so a badly-hurt Kira reliably picks "heal" before wandering into grass — the documented
+    # 7%-HP-boot blackout class (_boot_state_sanity screams about it; PART A makes her ACT on it).
+    PARTY_HURT_FRAC = 0.50   # ANY party member below this fraction of max -> "hurt" (heal offered)
+    PARTY_CRIT_FRAC = 0.30   # ANY alive member at/under this (or any fainted) -> CRITICAL (heal surfaced HARD)
+
     def needs_heal(self):
         """True when the lead mon is low enough to risk a blackout. HP-gated: HP depletes
         faster than Tackle's 35 PP, so an HP heal-return tops up PP as a side effect (keeping
         Tackle her Forest move and the Vine-Whip swap a Brock-only tool)."""
         hp, mx = self.lead_hp()
         return mx > 0 and hp < self.HEAL_HP_FRAC * mx
+
+    def party_health(self):
+        """Per-member (slot, hp, maxhp, frac) for every party slot with maxhp>0. Same read used by
+        _boot_state_sanity / _healthy_reserve_slot (cur HP 0x56, max 0x58 in the 100-byte struct)."""
+        out = []
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            hp, mx = self.b.rd16(base + P_HP), self.b.rd16(base + P_MAXHP)
+            if mx > 0:
+                out.append((s, hp, mx, hp / mx))
+        return out
+
+    def _hurt_severity(self):
+        """PARTY-WIDE survival signal for the free-roam oracle. Returns (severity, note): severity is
+        None | 'hurt' | 'critical'. 'critical' = a member is at/under PARTY_CRIT_FRAC or fainted (the
+        blackout-risk band a real player NEVER walks into grass on); 'hurt' = a member under
+        PARTY_HURT_FRAC. The note NAMES the worst mon so her pick is grounded in her real situation
+        (capability-not-script: this only INFORMS the oracle; she still chooses)."""
+        ph = self.party_health()
+        if not ph:
+            return (None, "")
+        s, hp, mx, frac = min(ph, key=lambda t: t[3])     # the worst-off member
+        nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s), f"slot{s}").title()
+        fainted = any(h == 0 for _, h, _, _ in ph)
+        if frac <= self.PARTY_CRIT_FRAC or fainted:
+            return ("critical",
+                    f"Your team is badly hurt — {nm} is at {hp}/{mx} HP"
+                    f"{' and a teammate has fainted' if fainted else ''}. A real trainer heals at a "
+                    f"Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks "
+                    f"a blackout.")
+        if frac < self.PARTY_HURT_FRAC:
+            return ("hurt",
+                    f"{nm} is hurt ({hp}/{mx} HP) — topping up at a Pokémon Center would be smart "
+                    f"before pushing on.")
+        return (None, "")
 
     def _heal_excursion(self, city, pc_door, out_edge, back_map, back_edge):
         """Low HP on a ROUTE with no PC of its own: cross to an ADJACENT city, heal at its PC, cross
@@ -1672,10 +1716,27 @@ class Campaign:
         head_to_gym always (progress exists); heal only if hurt; wander_catch/battle only if huntable
         grass is reachable (here or an adjacent route). This is the roamable-area-honesty guard."""
         a = {}
+        sev, _note = self._hurt_severity()
+        # HEAL-WHEN-HURT (PART A) — TWO TIERS so heal-when-hurt doubles as the auto-fix for a broken
+        # low-HP boot (no hand-made healthy save needed):
+        #   CRITICAL (near-death, <=PARTY_CRIT_FRAC or a fainted member): heal must DOMINATE, not be one
+        #     option among equals. A 4/60 Kira wandering grass / grinding / marching to a gym is a
+        #     blackout PATH, not a real choice — so we PRUNE those and offer ONLY heal. She still PICKS
+        #     it and voices it in-character ("okay, I'm nearly dead — Center first"); this is honest
+        #     action-set pruning (the same principle as offering only actions that DO something here),
+        #     NOT a forced action (the step-3 RED hard-recovery is the only forced move; it backstops
+        #     a heal that can't route). This is what reliably wins against catch/wander/gym at near-death.
+        #   HURT (<PARTY_HURT_FRAC) or the existing lead convenient gate (needs_heal, lead <0.75): heal
+        #     is offered as a strong option she WEIGHS against the rest — the softer nudge (needs_heal
+        #     semantics unchanged).
+        if sev == "critical":
+            a["heal"] = ("you're about to faint — get to a Pokémon Center and heal NOW; this comes "
+                         "FIRST, before anything else")
+            return a
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
-        if self.needs_heal():
+        if self.needs_heal() or sev == "hurt":
             a["heal"] = "go to a Pokemon Center and heal the team up"
         if self._grass_target(state) is not None:
             a["wander_catch"] = "wander the grass and try to catch a new teammate"
@@ -1842,9 +1903,17 @@ class Campaign:
             # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
             # she's stuck; she still decides the next move HERSELF (capability-not-script).
             where = state["place"]
+            # SURVIVAL AWARENESS (PART A): fold the party-hurt note into the oracle ctx via the same
+            # `place` seam the stuck-note uses (the only general field her prompt renders — firewall: no
+            # core edit). A badly-hurt Kira is TOLD she's hurt + that healing comes first; she still
+            # decides. Folded BEFORE the stuck-note so survival framing leads when both are present.
+            sev, hurt_note = self._hurt_severity()
+            if hurt_note:
+                where = f"{where}. {hurt_note}"
+                log(f"   [roam] !! SURVIVAL {sev.upper()}: {hurt_note!r} — surfacing 'heal' to the oracle")
             if macro in (ledger.YELLOW, ledger.RED):
                 note = ledger.stuck_note()
-                where = f"{state['place']}. {note}"
+                where = f"{where}. {note}"
                 log(f"   [roam] !! MACRO {macro}: no progress {ledger.stuck} ticks — feeding awareness "
                     f"back to the oracle: {note!r}")
             pick = self._soul_choose("action", avail,
@@ -1857,6 +1926,9 @@ class Campaign:
             out = self._route_action(pick, state)
             log(f"   [roam] RESULT: {pick} -> {out}")
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
+            if pick == "heal" and out == "ok":
+                # SOUL BEAT (PART A): she took care of herself — voice it through the seam (firewall).
+                self.on_event("okay — patched up and ready. let's go.", kind="heal", tier=2)
             if pick == "wander_catch" and out == "caught" and self.soul is not None:
                 self.roster_react()                        # note_caught: bond + react to the new teammate
             if self.soul is not None:
