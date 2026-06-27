@@ -688,9 +688,18 @@ class Campaign:
                 log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
         for _ in range(45):
             self.b.run_frame()
-        log(f"   GYM: inside {tv.map_id(self.b)} at {tv.coords(self.b)} - clearing junior trainers")
+        gym_map = tv.map_id(self.b)                             # the gym interior we just entered
+        log(f"   GYM: inside {gym_map} at {tv.coords(self.b)} - clearing junior trainers")
         # 1) BEAT THE JUNIOR TRAINERS FIRST (the leader is gated until they're all down)
         self._clear_gym_trainers(gym.leader_front)
+        # BLACKOUT during the juniors -> she whited out + respawned in the city PC (the map left the
+        # gym interior). _clear_gym_trainers can't tell (no trainers load in the PC), so detect it here
+        # and propagate -> the segment's blackout-recovery respawns + RE-RUNS the gym (beaten juniors
+        # stay beaten in-game, so only the one that won re-fights; a fresh full-HP, on-level run wins).
+        if tv.map_id(self.b) != gym_map:
+            log(f"   GYM: no longer in the gym ({tv.map_id(self.b)} != {gym_map}) - blackout during "
+                f"the juniors; caller recovers + retries the gym")
+            return "battle_loss"
         # 2) engage the LEADER (now ungated): walk to the front tile, face them + A to initiate,
         # then DRIVE the pre-battle challenge speech INTO the battle (Brock's "So, you're here..."
         # is a multi-box speech that a few A-taps don't fully clear; the primitive advances it and
