@@ -272,6 +272,9 @@ class Campaign:
         # travel yields need_heal. Heal at the NEAREST center (location-aware) and retry, so the leg
         # actually completes instead of stopping short (the Route 3 -> Route 4 stall).
         for _ in range(8):
+            if tv.map_id(self.b)[0] != 3:           # stuck INSIDE a building (a fragile heal-excursion
+                self._exit_to_overworld()           # left her inside) -> get to the overworld first, or
+                #                                     travel can never path to a route edge from an interior
             r = self.trav.travel(target_map=target_map, edge=direction)
             if r == "need_heal":
                 if self.heal_nearest() == "stuck":
