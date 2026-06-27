@@ -1167,9 +1167,14 @@ class Campaign:
                 log("   CATCH: a trainer engaged en route - fighting through")
                 return self.battle_runner()
             log("   CATCH: WILD encounter - committing to the catch")
-            # The throw doesn't actuate in a long-running core (see _catch_in_subcore) — hand the catch
-            # battle to a FRESH sub-core by default. CATCH_SUBCORE=0 forces the legacy main-core path.
-            if os.environ.get("CATCH_SUBCORE", "1") != "0":
+            # CATCH ON THE MAIN CORE (default). The old "throw doesn't actuate in a long-running core" was
+            # MISDIAGNOSED as decay; the real bug was the in-battle bag opening on the wrong (Items) pocket
+            # so the throw selected CANCEL and never fired — root-caused + fixed 2026-06-27 (battle_agent
+            # throw_ball pocket-steering + B-only catch resolution). Control: clean wild Route 3 catch,
+            # party 1->2, no sub-core, no jump-cut. The fresh sub-core handoff is RETIRED to an opt-in
+            # LOUD fallback (CATCH_SUBCORE=1) — off by default; it causes a frozen-frame jump-cut on stream.
+            if os.environ.get("CATCH_SUBCORE", "0") == "1":
+                log("   CATCH: CATCH_SUBCORE=1 -> using the legacy fresh sub-core fallback (jump-cut on stream)")
                 res = self._catch_in_subcore(max_seconds=160)
             else:
                 res = BattleAgent(self.b, on_event=self.on_event, render=self.render,
