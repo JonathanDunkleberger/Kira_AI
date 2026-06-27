@@ -1456,6 +1456,16 @@ class Campaign:
         self._drain_overworld(label="blackout-respawn")
         for _ in range(40):
             self.b.run_frame()
+        # The respawn drops her INSIDE a building (the Pallet house / a Pokémon Center — map group
+        # != 3, the Kanto overworld). The segment re-nav (WALK_TO_MAP) can't path out of an interior,
+        # so WALK HER OUT to the overworld first (step onto the south exit door/mat).
+        for _ in range(3):
+            if tv.map_id(self.b)[0] == 3:
+                break
+            ex = self.enter_warp(prefer="south")
+            log(f"   BLACKOUT-RECOVERY: exiting building -> {ex} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
+            if ex != "warped":
+                break
         log(f"   BLACKOUT-RECOVERY: respawned at {tv.map_id(self.b)}@{tv.coords(self.b)} "
             f"HP={self.lead_hp()}")
 
