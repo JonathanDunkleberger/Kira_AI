@@ -3208,6 +3208,15 @@ class VTubeBot:
         "indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
     )
 
+    # Finding #2 (Batch-2 free-roam): the ORACLE calls her full conversational self, so she greeted
+    # "Hi Jonny!" each pick — she thought she was DMing him. This frames decision-reasoning as in-world
+    # stream-voice (to herself / the audience), not a message to Jonny. Jonny tunes the wording live.
+    _POKEMON_DECIDE_FRAMING = (
+        "[You're thinking out loud about YOUR OWN Pokemon playthrough — narrating your reasoning to "
+        "yourself and the stream, NOT messaging Jonny. No greetings, no 'hi Jonny', no addressing him "
+        "directly; just your own in-the-moment playthrough thoughts.]"
+    )
+
     async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None):
         """SEAM (M1): route a NEUTRAL Pokémon game-event summary through Kira's existing
         self/reaction path so her DRIVES come from her self (mood/bond/want/opinions via
@@ -3328,7 +3337,7 @@ class VTubeBot:
                 known = ("\n".join(f"- {k}: {v}" for k, v in detail.items()) if detail
                          else ("\n".join(f"- {o}" for o in opts) if opts else "(nothing specific in mind)"))
                 prompt = (
-                    self._POKEMON_CHARACTER_RULES + "\n\n"
+                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
                     f"You're at {where}, playing your OWN Pokemon run. Things you know are out there:\n"
                     f"{known}\n\n"
                     "Is there something you actually WANT right now — a pokemon, a goal, a place to reach? "
@@ -3341,7 +3350,7 @@ class VTubeBot:
                     return {"choice": "", "reasoning": ""}
                 menu = "\n".join(f"- {o}" + (f": {detail[o]}" if o in detail else "") for o in opts)
                 prompt = (
-                    self._POKEMON_CHARACTER_RULES + "\n\n"
+                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
                     f"You're at {where}. It's YOUR call what to do next. Your options right now:\n"
                     f"{menu}\n\n"
                     "Pick the ONE that fits what YOU actually want to do — your taste/mood, NOT the most "
