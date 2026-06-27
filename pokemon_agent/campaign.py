@@ -699,7 +699,15 @@ class Campaign:
             DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(
                 stop_when=lambda: st.in_battle(self.b), label=f"{name}-challenge")
         if st.in_battle(self.b):
-            log(f"   GYM: {name.upper()} -> {self.battle_runner()}")
+            res = self.battle_runner()
+            log(f"   GYM: {name.upper()} -> {res}")
+            # LOSING the leader is a SURVIVAL blackout (she whites out -> respawns at the city PC),
+            # not a nav stuck. Propagate it so the segment's blackout-recovery respawns + retries the
+            # whole gym (re-walk, junior trainers stay beaten, fresh full-HP leader attempt). Without
+            # this, beat_gym fell through to the award drain on a loss -> 'stuck' inside the PC.
+            if res == "loss":
+                log(f"   GYM: lost to {name} (blackout) - caller recovers + retries the gym")
+                return "battle_loss"
         # 3) AWARD (the climax): drive the badge + TM gift to a clean close at a WATCHABLE pace via
         # the general dialogue primitive. draining_award tells the soul-on render (play_live) to stop
         # polling/holding here so nothing competes with the drain. The proven brisk A-mash stays as a
