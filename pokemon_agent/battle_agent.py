@@ -218,6 +218,18 @@ class BattleAgent:
         #                                               RUN and flee. Home to FIGHT first -> RIGHT=BAG.
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # open bag
         self._wait(45)                                # wait out the bag-open fade
+        if os.environ.get("CATCH_RECON"):             # RECON: did the bag actually open? (bag screen
+            self.log(f"      [catch-recon] after open-bag-A: white_box={self._white_box()} "  # is NOT
+                     f"in_move_list={self._in_move_list()} (bag is open IFF white_box=False)")  # the panel
+            try:                                       # SEE the bag: which pocket/cursor is shown?
+                _n = getattr(self, "_catchshot", 0)
+                if _n < 4:
+                    _p = os.path.join(os.environ.get("CATCH_SHOT_DIR", "."), f"catchbag_{_n}.png")
+                    self.b.frame_rgb().resize((480, 320)).save(_p)
+                    self.log(f"      [catch-recon] bag screenshot -> {_p}")
+                    self._catchshot = _n + 1
+            except Exception as _e:
+                self.log(f"      [catch-recon] screenshot err {_e}")
         self._tap("UP")                               # ensure top item (POKé BALL), not CANCEL
         self._wait(12)
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select -> USE/CANCEL

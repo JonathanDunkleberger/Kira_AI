@@ -1093,6 +1093,46 @@ class Campaign:
             return "done"
         log(f"   !! PARCEL: quest incomplete (balls {b0}->{b1}, pokedex={dex}) - LOUD"); return "stuck"
 
+    def _catch_in_subcore(self, max_seconds=160):
+        """Run the CATCH BATTLE in a FRESH sub-core, then load the result back into the main core.
+        WHY: the in-bag ball THROW does not actuate in a long-running core — DIAGNOSED 2026-06-27: a
+        FRESH core catches on the first ball, but after a long session the bag OPENS fine (verified via
+        screenshot: cursor on POKé BALL x5) yet the select/throw never registers, so 100+ balls are
+        'thrown' with the count never decrementing and the foe never weakening. This is the documented
+        continuous-core menu-actuation wall (same class as the move-learn Y/N box) — only a NEW core
+        resets it. Overworld nav + the FIGHT menu DO still actuate on the main core, so we hand off ONLY
+        the catch battle: save the mid-battle state -> fresh Bridge (proven to actuate) -> catch_pokemon
+        -> on success load the post-catch state back (the main core inherits the new teammate at the same
+        tile). Two-core coexistence + state round-trip are control-proven (party 1->2 inherited). LOUD
+        fallback to the main core on any sub-core error. Returns catch_pokemon's verdict.
+
+        SHOW-VISIBILITY NOTE (Jonny's call): the throw happens on the HIDDEN sub-core, so a SHOW stream
+        shows the main frame frozen then jump-cuts to 'caught' (she still NARRATES via on_event). To make
+        the throw stream LIVE, point play_live's render at the sub-core during the handoff — a small
+        follow-up I left for you because it changes the SHOW/watch experience."""
+        try:
+            mid = self.b.save_state()
+            sub = Bridge(ROM)                                 # fresh core == fresh actuation
+            sub.load_state(mid)
+            for _ in range(8):
+                sub.run_frame()
+            sub.set_input_owner("agent")
+            res = BattleAgent(sub, on_event=self.on_event, render=(lambda: None),
+                              log=lambda m: log(m)).catch_pokemon(max_seconds=max_seconds)
+            log(f"   CATCH[sub-core]: catch_pokemon -> {res}")
+            if res == "caught":
+                self.b.load_state(sub.save_state())           # main core inherits the new teammate
+                for _ in range(8):
+                    self.b.run_frame()
+                self.b.set_input_owner("agent")
+            return res
+        except Exception as e:
+            log(f"   !! CATCH[sub-core] FAILED ({e}) — falling back to main-core catch (LOUD)")
+            res = BattleAgent(self.b, on_event=self.on_event, render=self.render,
+                              log=lambda m: log(m)).catch_pokemon(max_seconds=max_seconds)
+            self.b.set_input_owner("agent")
+            return res
+
     def catch_one(self, max_seconds=300):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
@@ -1127,9 +1167,14 @@ class Campaign:
                 log("   CATCH: a trainer engaged en route - fighting through")
                 return self.battle_runner()
             log("   CATCH: WILD encounter - committing to the catch")
-            res = BattleAgent(self.b, on_event=self.on_event, render=self.render,
-                              log=lambda m: log(m)).catch_pokemon(max_seconds=160)
-            self.b.set_input_owner("agent")
+            # The throw doesn't actuate in a long-running core (see _catch_in_subcore) — hand the catch
+            # battle to a FRESH sub-core by default. CATCH_SUBCORE=0 forces the legacy main-core path.
+            if os.environ.get("CATCH_SUBCORE", "1") != "0":
+                res = self._catch_in_subcore(max_seconds=160)
+            else:
+                res = BattleAgent(self.b, on_event=self.on_event, render=self.render,
+                                  log=lambda m: log(m)).catch_pokemon(max_seconds=160)
+                self.b.set_input_owner("agent")
             log(f"   CATCH: catch_pokemon -> {res}")
             if res == "caught":
                 caught[0] = True
