@@ -21,6 +21,7 @@ read-along dwell identical on stream and in any test - the same convention play_
 import time
 
 from dialogue_reader import DialogueReader
+import world_fingerprint as wf      # MICRO watchdog: stop A-mashing an exhausted/looping NPC
 
 # Bottom overworld message-box band: solid white while a box is open, dark (map) when closed.
 # Verified across misty_done (box up: 27-28/28 per row) vs cerulean/pewter/viridian (0/28).
@@ -84,6 +85,21 @@ class DialogueDriver:
         self._wait(6)
         return player_facing(self.b) != f0 or _player_coords(self.b) != c0
 
+    def _close_box(self, max_tries=12):
+        """Bounded B-mash to dismiss an EXHAUSTED/looping dialogue box once the micro-watchdog has
+        decided more A-pressing is futile: stop pushing A (which kept re-initiating the NPC), tap B
+        a few times to clear the current box, confirm control is back. Best-effort + LOUD if it
+        won't close - the caller still treats the NPC as done and re-paths AWAY (so it's not
+        re-triggered), which is the actual un-stick."""
+        for _ in range(max_tries):
+            if not box_open(self.b) and self._control_returned():
+                return True
+            self.b.press("B", 4, 10, self.render, owner=self.owner)
+            self._hold_s(0.03)
+        self.log(f"   [dlg] !! B-close did not regain control after {max_tries} tries - LOUD "
+                 f"(stopping the mash anyway; caller re-paths away)")
+        return False
+
     def _read_seconds(self, text, min_s, max_s, base_s, per_char_s):
         """Seconds to hold a freshly-shown message so a viewer can read ALONG: proportional to its
         length (short lines quick, long sentences linger), clamped to [min_s, max_s]. ~per_char_s
@@ -97,7 +113,7 @@ class DialogueDriver:
     def drive(self, stop_when=None, label="", min_s=0.045, max_s=0.22, base_s=0.025,
               per_char_s=0.0027, page_gap_s=0.022, max_steps=300):
         """Advance an open overworld dialogue at a watchable pace until control RETURNS (or
-        stop_when() fires). Returns 'stopped' | 'closed' | 'timeout'(loud).
+        stop_when() fires). Returns 'stopped' | 'closed' | 'exhausted' | 'timeout'(loud).
 
         Each NEW message is held for a WALL-CLOCK duration SCALED BY ITS LENGTH (min_s..max_s) so
         the viewer can read along - short lines breeze by, long sentences linger. page_gap_s is the
@@ -107,22 +123,46 @@ class DialogueDriver:
         Box state is read from the bottom pixel band; CONTENT from gStringVar3 (for read-along
         holds). 'Done' is decided by control returning (player can turn), NOT by the box momentarily
         clearing between pages - which is exactly the flicker that made naive close-on-empty bail
-        mid-cutscene and leave the field locked. Battle text stays the battle engine's job."""
+        mid-cutscene and leave the field locked. Battle text stays the battle engine's job.
+
+        MICRO-WATCHDOG (increment 2): the old failure mode was up to 300 BLIND A-presses into a box
+        that never closes (a stuck/looping NPC = the free-roam wedge). Recon proved dialogue has no
+        reliable per-press progress signal (a long message scrolls inside ONE constant buffer, the
+        box pixels animate every frame, the world fingerprint is static) - so we use a SAFE FROZEN
+        BACKSTOP, not a hair-trigger: only when the SAME line has sat up with NOTHING in the world
+        changing for DIALOGUE_FROZEN_LIMIT straight presses (far above the longest real message) do
+        we call it a genuinely stuck box -> stop mashing A, tap B, return 'exhausted' so the caller
+        re-paths away. A healthy long dialogue closes (box clears -> control returns) long before."""
         if not box_open(self.b) and self._control_returned():
             return "closed"                               # nothing to drive (no box, control active)
         last = None
+        frozen = 0                                        # consecutive presses: same line + frozen world
+        fp_prev = None
         for _ in range(max_steps):
             if stop_when and stop_when():
                 return "stopped"
             if box_open(self.b):
                 cur = self.dr._read_buffer()
-                if cur and cur != last:                   # a NEW message -> read-along hold by length
+                new_line = bool(cur and cur != last)
+                if new_line:                              # a NEW message -> read-along hold by length
                     last = cur
                     self.log(f"   [dlg{(' ' + label) if label else ''}] "
                              f"{cur.replace(chr(10), ' ')[:72]!r}")
                     self._hold_s(self._read_seconds(cur, min_s, max_s, base_s, per_char_s))
                 self.b.press("A", 4, 10, self.render, owner=self.owner)  # advance one page, paced
                 self._hold_s(page_gap_s)
+                fp = wf.fingerprint(self.b)               # did this press change the line OR the world?
+                advanced = new_line or (fp is None) or (fp != fp_prev)
+                frozen = 0 if advanced else frozen + 1
+                fp_prev = fp
+                if frozen and frozen % 15 == 0:           # WATCH=1 visibility: show a box sitting still
+                    self.log(f"   [dlg-uwatch{(' ' + label) if label else ''}] {wf.brief(fp)} "
+                             f"same line, frozen world x{frozen}/{wf.DIALOGUE_FROZEN_LIMIT}")
+                if frozen >= wf.DIALOGUE_FROZEN_LIMIT:
+                    self.log(f"   [dlg{(' ' + label) if label else ''}] !! BOX STUCK - same line / "
+                             f"frozen world x{frozen} (never closing) -> B, STOP mashing (micro-watchdog)")
+                    self._close_box()
+                    return "exhausted"
             else:
                 # box not showing: either DONE (control back) or a brief between-pages gap (locked).
                 if self._control_returned():

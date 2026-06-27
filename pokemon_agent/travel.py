@@ -28,6 +28,7 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
 import firered_ram as ram          # noqa: E402
+import world_fingerprint as wf      # noqa: E402  (MICRO watchdog: tell a trainer from a plain NPC)
 
 GMAPHEADER = 0x02036DFC
 BACKUP_LAYOUT = 0x03005040         # {s32 width, s32 height, u16 *map}
@@ -270,6 +271,34 @@ class Traveler:
 
     def _press(self, d):
         self.b.press(DIR_KEY[d], HOLD, HOLD, self.render, owner=self.owner)
+
+    def _blocker_npc_check(self):
+        """MICRO watchdog (increment 2): we A-interacted with a path blocker and it did NOT start a
+        battle. Is it a PLAIN NPC rather than a trainer? Signature: a dialogue box is up, and a
+        SECOND A leaves the WORLD identical (the shared world-fingerprint - coords/battle/party/...
+        unchanged), i.e. the box just re-shows, nothing is progressing. If so, tap B to close it and
+        report True so the caller marks the tile impassable and re-paths AROUND - instead of mashing
+        A into the same NPC forever (the free-roam wedge this watchdog exists to kill). Returns False
+        for 'no box / a trainer after all / the world moved' (let the normal logic continue)."""
+        import pokemon_state as st
+        fp0 = wf.fingerprint(self.b)
+        if fp0 is None or not fp0.menu_or_dialogue:
+            return False                               # no dialogue box up -> not the plain-NPC case
+        self.b.press("A", HOLD, HOLD, self.render, owner=self.owner)
+        for _ in range(16):
+            self.b.run_frame(); self.render()
+        if st.in_battle(self.b):
+            return False                               # a delayed trainer trigger -> let the caller fight
+        fp1 = wf.fingerprint(self.b)
+        same = fp1 is not None and fp1 == fp0 and fp1.menu_or_dialogue
+        self.log(f"   [travel-uwatch] {wf.brief(fp1)} blocker box re-check same={same} "
+                 f"(limit {wf.STALL_N_BLOCKER})")
+        if same:
+            self.b.press("B", HOLD, HOLD, self.render, owner=self.owner)   # close the NPC's box
+            for _ in range(12):
+                self.b.run_frame(); self.render()
+            return True
+        return False
 
     def _fight_blocker(self):
         """A blocked path tile turned out to be a TRAINER (an A-interact started a battle). Warm up,
@@ -605,6 +634,15 @@ class Traveler:
                         if self.pause_check():
                             self.log("   [travel] post-blocker-battle PAUSE (heal-when-low) - yielding")
                             return "need_heal"
+                        continue
+                    # not a trainer: is it a PLAIN NPC blocking the gap? (MICRO watchdog) close its
+                    # box + mark the tile impassable NOW so we re-path AROUND, instead of A-mashing
+                    # the same NPC across the remaining stuck loop (the free-roam wedge).
+                    if self._blocker_npc_check():
+                        static_blocked.add(nxt)
+                        self.log(f"   [travel] blocker at {nxt} is a PLAIN NPC (dialogue, no battle) - "
+                                 f"closed it + marking impassable, routing around (micro-watchdog)")
+                        stuck = 0
                         continue
                 if nxt not in npc and fail_count[nxt] >= 3:   # a NON-NPC tile that fails REPEATEDLY
                     static_blocked.add(nxt)                   # = static obstacle (boulder/un-encoded
