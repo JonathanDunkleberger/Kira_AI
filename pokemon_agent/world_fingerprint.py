@@ -197,6 +197,13 @@ class MicroWatch:
 # Start conservative; tunable. The dashboard light reads GREEN/YELLOW/RED off ProgressLedger.state.
 PROGRESS_YELLOW_TICKS = 3      # escalating - she's not getting anywhere
 PROGRESS_RED_TICKS    = 6      # abandoned - stuck despite retries
+# STEP-3 HARD RECOVERY (increment 4 PART B): awareness (the oracle feedback) is step 1, but sustained
+# RED means re-asking isn't working — the system must force a POSITION change, or stop loud. Counted in
+# consecutive RED *ticks* (after the light is already RED). First a forced heal/route-to-nearest-Center
+# (a known-reachable anchor) to break the wedge; if STILL RED past the abandon line, end the roam LOUD
+# ("ABANDONED — needs human", the red light's real meaning) instead of re-asking an impossible question.
+PROGRESS_HARD_TICKS    = 3     # RED this many ticks -> force a route-to-Center position break (once)
+PROGRESS_ABANDON_TICKS = 6     # RED this many ticks despite that -> end roam LOUD, flag for human
 
 
 class ProgressLedger:

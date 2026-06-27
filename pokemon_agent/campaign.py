@@ -1726,6 +1726,8 @@ class Campaign:
         import time as _t
         t0 = _t.time()
         ledger = wf.ProgressLedger()               # MACRO watchdog: cross-tick "am I getting anywhere?"
+        red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
+        hard_recovered = False                     # forced one position-break this RED streak already?
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
@@ -1758,6 +1760,29 @@ class Campaign:
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
             log(f"   [roam] PROGRESS: {macro} (unchanged {ledger.stuck} ticks) | {wf.brief(fp)}")
+            # STEP-3 HARD RECOVERY (increment 4 PART B): awareness (inc3 oracle feedback) is step 1, but
+            # SUSTAINED RED means re-asking isn't working — the system must guarantee a POSITION change or
+            # stop loud, never re-ask an impossible question for 20+ ticks (the live wedge). Capability-
+            # not-script: she still picks among REAL options; this only fires when the WORLD won't move.
+            red_ticks = red_ticks + 1 if macro == ledger.RED else 0
+            if macro != ledger.RED:
+                hard_recovered = False
+            if red_ticks >= wf.PROGRESS_ABANDON_TICKS:
+                log(f"   [roam] !!!! ROAM ABANDONED: RED for {red_ticks} ticks despite hard recovery — "
+                    f"the position is genuinely unrecoverable, this NEEDS A HUMAN (red light's real meaning)")
+                self._roam_progress = "ABANDONED"
+                self.on_event("I'm completely stuck — I've tried everything and I can't find a way forward "
+                              "on my own. I need a hand here.", kind="abandoned", tier=3)
+                return "abandoned"
+            if red_ticks >= wf.PROGRESS_HARD_TICKS and not hard_recovered:
+                log(f"   [roam] !! HARD RECOVERY: RED {red_ticks} ticks — FORCING a route to the nearest "
+                    f"Pokémon Center to break the position (not re-asking the oracle this tick)")
+                self.on_event("okay, this isn't working — I'm heading to the Pokémon Center to reset and "
+                              "figure out my next move.", kind="recover", tier=2)
+                hard_recovered = True
+                self.heal_nearest()                # known-reachable anchor; restores HP -> fp moves -> escape
+                ledger.note_action("hard_recovery", "forced_center")
+                continue                           # re-observe next tick from the broken position
             log(f"   [roam] OPTIONS OFFERED: {list(avail.keys())}")
             if not avail:
                 log("   [roam] no honest action available here — ending free roam"); break

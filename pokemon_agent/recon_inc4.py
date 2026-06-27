@@ -78,10 +78,42 @@ def part_a():
     return ok
 
 
+def part_b():
+    print("\n==== PART B: step-3 hard recovery on sustained RED ====")
+    import world_fingerprint as wf
+    b = _load("brock_done")                       # overworld (group 3) so PART A doesn't interfere
+    camp = Campaign(b, battle_runner=lambda: "win", on_event=lambda *a, **k: None,
+                    choose=lambda kind, opts, ctx: ("head_to_gym" if "head_to_gym" in
+                                                    (opts.keys() if isinstance(opts, dict) else opts) else ""))
+    # Freeze the world: her chosen action is a no-op -> the macro light must escalate to RED and stay.
+    camp._route_action = lambda pick, st: "noop_frozen"
+    # Spy the forced recovery; keep it a no-op so the world STAYS frozen and we reach ABANDON.
+    heal_calls = [0]
+    camp.heal_nearest = lambda: (heal_calls.__setitem__(0, heal_calls[0] + 1), "ok")[1]
+
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        outcome = camp.free_roam(max_ticks=25, max_seconds=60, want_every=99)
+    out = buf.getvalue()
+
+    hard_logged = "HARD RECOVERY" in out
+    abandon_logged = "ROAM ABANDONED" in out
+    print(f"  outcome={outcome!r} | _roam_progress={getattr(camp, '_roam_progress', None)!r} | "
+          f"heal_nearest forced={heal_calls[0]}x")
+    print(f"  HARD RECOVERY logged={hard_logged} | ROAM ABANDONED logged={abandon_logged} | "
+          f"hard@{wf.PROGRESS_HARD_TICKS} abandon@{wf.PROGRESS_ABANDON_TICKS} RED ticks")
+    ok = (outcome == "abandoned" and getattr(camp, "_roam_progress", None) == "ABANDONED"
+          and heal_calls[0] >= 1 and hard_logged and abandon_logged)
+    print("  PART B:", "PASS" if ok else "FAIL")
+    return ok
+
+
 def main():
     a = part_a()
-    print("\n==== RESULT:", "ALL CONTROLS PASS" if a else "SOME CONTROLS FAILED", "====")
-    return 0 if a else 1
+    b = part_b()
+    allok = a and b
+    print("\n==== RESULT:", "ALL CONTROLS PASS" if allok else "SOME CONTROLS FAILED", "====")
+    return 0 if allok else 1
 
 
 if __name__ == "__main__":
