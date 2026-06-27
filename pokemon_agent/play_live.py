@@ -284,7 +284,7 @@ def main():
         return out
 
     camp = Campaign(b, battle_runner=battle_runner, on_event=voice.emit,
-                    beat=voice.beat, render=render)
+                    beat=voice.beat, render=render, choose=voice.choose)
 
     # ── GAME AUDIO (Stage 2): real-time game sound -> headphones + OBS cable -> Kira hears it too ──
     audio = None

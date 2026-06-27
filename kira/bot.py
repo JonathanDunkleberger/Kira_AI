@@ -3301,6 +3301,87 @@ class VTubeBot:
             print(f"   [Pokemon] starter query FAILED: {e} -> fallback {fallback}")
         return fallback
 
+    async def _pokemon_choose(self, kind: str, options, ctx=None) -> dict:
+        """GENERIC SOUL ORACLE (Batch-2 keystone): her SELF makes a structured Pokémon decision,
+        colored by her actual self (mood/opinions/current-want/Jonny-bond via _build_self_block) —
+        the SAME path as _pokemon_choose_starter, generalized so a free-roam/want beat becomes HERS.
+        The mode HANDS offer the candidate set; her SELF picks. We NEVER author or hardcode the choice.
+
+          kind == 'want' -> OPEN-ENDED: she names a desire she actually holds (or NONE). `choice` is her
+                            want phrased in her words (free-form; capability-not-script — may exceed the list).
+          otherwise      -> CONSTRAINED: she picks exactly ONE of `options` (the caller re-validates; a
+                            hallucinated / dead option -> choice='' so the caller falls back to its default).
+
+        Returns {'choice': str, 'reasoning': str}. Never raises; every failure -> choice='' + a LOUD log
+        (constraint #3). This method only DECIDES — it never speaks; the WANT is voiced downstream via the
+        existing emit seam (surface_want -> on_event -> _pokemon_react)."""
+        ctx = ctx or {}
+        if not POKEMON_AGENT_ENABLED or self.ai_core is None:
+            print(f"   [Pokemon] ORACLE skipped (agent off / no ai_core) kind={kind}")
+            return {"choice": "", "reasoning": ""}
+        opts = [str(o) for o in (options or [])]
+        detail = ctx.get("detail") if isinstance(ctx.get("detail"), dict) else {}
+        where = ctx.get("place") or ctx.get("segment") or ctx.get("map") or "your journey"
+        try:
+            if kind == "want":
+                # world-knowledge she carries (things she KNOWS are out there) as CONTEXT, not a pick-list.
+                known = ("\n".join(f"- {k}: {v}" for k, v in detail.items()) if detail
+                         else ("\n".join(f"- {o}" for o in opts) if opts else "(nothing specific in mind)"))
+                prompt = (
+                    self._POKEMON_CHARACTER_RULES + "\n\n"
+                    f"You're at {where}, playing your OWN Pokemon run. Things you know are out there:\n"
+                    f"{known}\n\n"
+                    "Is there something you actually WANT right now — a pokemon, a goal, a place to reach? "
+                    "It's fine if there isn't. Say a sentence in YOUR voice (or that you're good for now). "
+                    "THEN on a final line write exactly:  WANT: <your want in a few words, or NONE>"
+                )
+            else:
+                if not opts:
+                    print(f"   [Pokemon] ORACLE kind={kind} has NO options -> choice=''")
+                    return {"choice": "", "reasoning": ""}
+                menu = "\n".join(f"- {o}" + (f": {detail[o]}" if o in detail else "") for o in opts)
+                prompt = (
+                    self._POKEMON_CHARACTER_RULES + "\n\n"
+                    f"You're at {where}. It's YOUR call what to do next. Your options right now:\n"
+                    f"{menu}\n\n"
+                    "Pick the ONE that fits what YOU actually want to do — your taste/mood, NOT the most "
+                    "optimal play. Say a sentence in YOUR voice about why, THEN on a final line write "
+                    "exactly:  PICK: <one of the options above, verbatim>"
+                )
+            resp = await self.ai_core.kira_deep_response(
+                request=prompt, self_context=self._build_self_block(),
+                recent_history=self.conversation_history, max_tokens=160, use_sonnet=True)
+            reasoning = re.sub(r"(?im)^\s*(pick|want):.*$", "", resp or "").strip() or (resp or "").strip()
+            low = (resp or "").lower()
+            if kind == "want":
+                _m = re.search(r"want:\s*(.+)$", resp or "", re.IGNORECASE | re.MULTILINE)
+                want = (_m.group(1).strip().strip(".") if _m else "")
+                if want.lower() in ("", "none", "nothing", "nope"):
+                    print(f"   [Pokemon] SELF WANT: (none right now)")
+                    return {"choice": "", "reasoning": reasoning}
+                print(f"   [Pokemon] SELF WANT: {want!r}")
+                return {"choice": want, "reasoning": reasoning}
+            # CONSTRAINED: take the explicit PICK line, matched against the OFFERED options only.
+            choice = ""
+            _m = re.search(r"pick:\s*(.+)$", low, re.MULTILINE)
+            if _m:
+                said = _m.group(1).strip().strip(".")
+                for o in opts:
+                    if o.lower() == said or o.lower() in said or said in o.lower():
+                        choice = o; break
+            if not choice:  # no clean PICK — last option she names anywhere; else give up (caller falls back)
+                named = [o for o in opts if o.lower() in low]
+                choice = named[-1] if named else ""
+            if choice:
+                print(f"   [Pokemon] SELF CHOSE ({kind}): {choice}")
+                print(f"   [Pokemon] her reasoning: {reasoning!r}")
+            else:
+                print(f"   [Pokemon] ORACLE kind={kind} unparsable/invalid ({resp!r}) -> choice='' (fall back)")
+            return {"choice": choice, "reasoning": reasoning}
+        except Exception as e:
+            print(f"   [Pokemon] ORACLE FAILED kind={kind}: {e} -> choice=''")
+            return {"choice": "", "reasoning": ""}
+
     async def _chess_react(self, summary: str, *, bypass: bool = False):
         """Autonomous in-character reaction to a NOTEWORTHY chess moment.
 

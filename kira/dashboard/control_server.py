@@ -881,6 +881,10 @@ class _CmdBody(BaseModel):
     slug: str | None = None
     type: str | None = None          # explicit activity category (dropdown): game/media/music/vn/general
     tier: int | None = None          # Pokémon salience hint (0..3) -> model/length pick only; never WHAT she says
+    # Pokémon SOUL ORACLE (Batch 2): the mode process asks her SELF to make a structured pick.
+    kind: str | None = None                  # decision kind: 'want' | 'action' | 'move_drop' | ...
+    options: list[str] | str | None = None   # candidate option keys (constrained kinds) — informs validation
+    ctx: dict | None = None                  # decision context (place/segment/map + option detail for the prompt)
     # Audio
     mode: str | None = None          # hearing mode label
     label: str | None = None         # audio device label
@@ -1014,6 +1018,17 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "pokemon_choose_starter":
         choice = await bot._pokemon_choose_starter()                 # her self picks (Sonnet)
         return _ok(choice=choice, reasoning=getattr(bot, "_last_starter_reasoning", ""))
+
+    if action == "pokemon_choose":
+        # SOUL ORACLE (Batch-2 keystone): her SELF makes a structured pick. Mirrors choose_starter —
+        # her self-block/mood/want color the choice; we NEVER author or hardcode it. The mode process
+        # offers the candidate set; this returns her pick (or '' so the caller falls back).
+        _kind = (body.kind or "choice").strip()
+        _opts = body.options if isinstance(body.options, list) else (
+            [o.strip() for o in (body.options or "").split(",") if o.strip()])
+        _ctx = body.ctx if isinstance(body.ctx, dict) else {}
+        _res = await bot._pokemon_choose(_kind, _opts, _ctx)
+        return _ok(choice=(_res or {}).get("choice", ""), reasoning=(_res or {}).get("reasoning", ""))
 
     if action == "pokemon_event":
         summary = (body.name or getattr(body, "text", None) or "").strip()

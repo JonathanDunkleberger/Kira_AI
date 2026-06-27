@@ -106,6 +106,15 @@ def classify(summary, tags=None, ctx=None):
     return 1
 
 
+def _json_safe(o):
+    """json.dumps `default`: coerce sets/frozensets (e.g. GAME_KNOWLEDGE['rare']/['legendaries'])
+    to a sorted list so the ORACLE body serializes. Sets are the RIGHT structure upstream (membership
+    fact-table) — we coerce only here, at the JSON boundary, never at the source."""
+    if isinstance(o, (set, frozenset)):
+        return sorted(o)
+    raise TypeError(f"not JSON serializable: {type(o).__name__}")
+
+
 class KiraVoice:
     """The single chokepoint from the dumb game harness up to Kira's reaction seam, with the
     salience spine. Fire-rate lever lives here; post-hold + model-tier read the same classify()."""
@@ -203,6 +212,32 @@ class KiraVoice:
             self.n_failed += 1
             self.log(f"   [kira-voice] !! POST FAILED (bot down?) T{tier} ({kind}) {summary!r}: {e}")
         return tier
+
+    # ── the SOUL ORACLE client (Batch-2 keystone: a choice becomes HERS) ──────────
+    def choose(self, kind, options, ctx=None, timeout=30):
+        """Ask her SELF (over the seam) to make a STRUCTURED pick — the decision counterpart to
+        emit's fire-and-forget reaction. BLOCKING request/response (it waits on her LLM, so a longer
+        timeout than _post's 6s). `options` is a list OR a dict {key: description}; a dict's
+        descriptions ride along in ctx['detail'] to inform her WITHOUT constraining a 'want'.
+        Returns her pick (str) or None — no pick / bot down / unparsable, LOGGED loud, never raises.
+        The CALLER (campaign._soul_choose) re-validates a constrained pick against the offered set."""
+        if isinstance(options, dict):
+            opt_keys, detail = list(options.keys()), dict(options)
+        else:
+            opt_keys, detail = [str(o) for o in (options or [])], {}
+        body = {"kind": kind, "options": opt_keys, "ctx": {**(ctx or {}), "detail": detail}}
+        try:
+            req = urllib.request.Request(f"{self.url}/cmd/pokemon_choose",
+                                         data=json.dumps(body, default=_json_safe).encode(),
+                                         headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                res = json.load(r)
+            choice = (res.get("choice") if isinstance(res, dict) else None) or None
+            self.log(f"   [kira-voice] ORACLE kind={kind} options={opt_keys} -> pick={choice!r}")
+            return choice
+        except Exception as e:
+            self.log(f"   [kira-voice] !! ORACLE POST FAILED (bot down?) kind={kind}: {e} -> None")
+            return None
 
     def beat(self, summary):
         """Traveler 'savor' beat (wild encounter / new area) -> classified like any event."""

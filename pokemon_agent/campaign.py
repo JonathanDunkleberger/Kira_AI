@@ -225,12 +225,15 @@ def log(m):
 
 # ── reusable objective handlers ──────────────────────────────────────────────
 class Campaign:
-    def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None):
+    def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None):
         self.b = bridge
         self.battle_runner = battle_runner
         self.on_event = on_event or (lambda s: log(f"[event] {s}"))
         self.beat = beat or (lambda s: None)
         self.render = render or (lambda: None)
+        # BATCH-2 SOUL ORACLE: injected HTTP oracle (play_live -> voice.choose -> her self/LLM). None in
+        # headless/no-bot runs -> _soul_choose returns None (no want surfaces; constrained kinds fall back).
+        self._oracle_choose = choose
         # heal-when-low: the pause fires ONLY during forward traversal, never during a SERVICE
         # navigation (the heal-return south, the PC routing) - else it would re-trigger mid-heal.
         self._suppress_heal = False
@@ -1473,14 +1476,24 @@ class Campaign:
 
     # ── SOUL hook router (MODE-layer; reads RAM + calls soul hooks; never touches core mood/bond) ──
     def _soul_choose(self, kind, options, ctx):
-        """Batch-2 DECISION ORACLE seam — where a choice becomes HERS (run through her self-block -> a
-        structured pick). NOT YET WIRED to the LLM: that authors voice/content, which is Jonny's live
-        tuning, not safe unsupervised. For now it LOGS the decision point + options and returns None
-        (invents no choice), so the plumbing is PROVEN to reach the oracle without us authoring her."""
-        opts = list(options.keys()) if isinstance(options, dict) else options
-        log(f"   [soul] ORACLE reached: kind={kind} ctx={ctx} options={opts} "
-            f"-> (LLM oracle unwired; Jonny tunes content) returning None")
-        return None
+        """Batch-2 SOUL ORACLE seam — where a choice becomes HERS. Delegates to the injected oracle
+        (HTTP -> her self/LLM via bot._pokemon_choose), so the PICK is hers, NEVER authored here.
+
+        BEHAVIORAL CONTROL: prints the decision point, the candidate options offered, and the pick
+        returned — proof she's CHOOSING, not being scripted. Headless / no-bot -> returns None (no want
+        surfaces; constrained callers fall back to their safe default). CONSTRAINED kinds are re-validated
+        against `options` so a hallucinated or DEAD action (shop/fish this round) can NEVER be picked."""
+        opts = list(options.keys()) if isinstance(options, dict) else list(options or [])
+        log(f"   [soul] ORACLE decision: kind={kind} ctx={ctx} options={opts}")
+        if self._oracle_choose is None:
+            log("   [soul] ORACLE unwired (headless/no bot) -> None")
+            return None
+        pick = self._oracle_choose(kind, options, ctx)
+        if pick and kind != "want" and opts and pick not in opts:
+            log(f"   [soul] ORACLE pick {pick!r} NOT in offered options {opts} -> REJECTED (fall back)")
+            return None
+        log(f"   [soul] ORACLE pick -> {pick!r}")
+        return pick
 
     def _soul_after_objective(self, kind, out):
         """Route post-objective SOUL beats through the seam: (a) note_evolve when the lead's species
