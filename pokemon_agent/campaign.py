@@ -228,7 +228,9 @@ class Campaign:
     def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None):
         self.b = bridge
         self.battle_runner = battle_runner
-        self.on_event = on_event or (lambda s: log(f"[event] {s}"))
+        # default sink must accept emit's kwargs (PokemonSoul.emit calls on_event(text, kind=, tier=));
+        # a 1-arg default crashed headless soul fires (live passes voice.emit which already accepts them).
+        self.on_event = on_event or (lambda s, **_k: log(f"[event] {s}"))
         self.beat = beat or (lambda s: None)
         self.render = render or (lambda: None)
         # BATCH-2 SOUL ORACLE: injected HTTP oracle (play_live -> voice.choose -> her self/LLM). None in
@@ -1563,6 +1565,151 @@ class Campaign:
         elif kind == "BEAT_GYM" and out not in ("stuck", "no_path", "no_warp", "underleveled"):
             log("   [soul] note_outcome FIRE -> won=True (gym cleared)")
             self.soul.note_outcome(True, "a badge")
+
+    # ════ BATCH-2 FREE ROAM — she decides her own next move, unscripted ═══════════════════════════
+    _EDGE = {"N": "north", "S": "south", "W": "west", "E": "east"}
+
+    def _map_connections(self):
+        """Live map edge connections [(dir, (grp,num))] read from the map header — REAL ids, not guessed.
+        FRLG MapHeader@0x02036DFC +0x0C -> {s32 count, MapConnection[]}; conn +0x00 dir +0x08 grp +0x09 num."""
+        b = self.b
+        try:
+            ch = b.rd32(0x02036DFC + 0x0C)
+            if ch < 0x02000000:
+                return []
+            cnt, arr = b.rd32(ch), b.rd32(ch + 0x04)
+            if not (0 < cnt < 16) or arr < 0x02000000:
+                return []
+            dirn = {1: "S", 2: "N", 3: "W", 4: "E"}
+            return [(dirn[d], (b.rd8(c + 0x08), b.rd8(c + 0x09)))
+                    for i in range(cnt) for c in (arr + i * 0xC,) for d in (b.rd8(c),) if d in dirn]
+        except Exception as e:
+            log(f"   [roam] connection read failed: {e}")
+            return []
+
+    def _reachable_grass(self):
+        """Confirmed huntable grass on the CURRENT map: a grass tile INSIDE playable bounds that BFS can
+        reach from the player. Returns the reached grass save-coord, else None. Excludes connection-bleed
+        grass (e.g. Route 5 grass in Cerulean's layout buffer, ~24 tiles outside the playable y-range)."""
+        co = tv.coords(self.b)
+        if co is None:
+            return None
+        try:
+            g = tv.Grid(self.b)
+        except Exception:
+            return None
+        playable = {(bx - tv.MAP_OFFSET, by - tv.MAP_OFFSET) for (bx, by) in g.grass}
+        playable = {(sx, sy) for (sx, sy) in playable
+                    if g.sx_lo <= sx <= g.sx_hi and g.sy_lo <= sy <= g.sy_hi}
+        if not playable:
+            return None
+        path = tv.bfs(g, co, lambda t: t in playable)
+        return path[-1] if path else None
+
+    def _grass_target(self, state):
+        """Where she can HONESTLY hunt: ('here', tile) if reachable on this map, else ('route', (g,n),
+        edge) for an adjacent group-3 ROUTE (cities are num 0..~12; routes >=19 carry wild grass), else
+        None. catch_one re-verifies grass on arrival (no_grass backstop) so a phantom hunt is never
+        silently offered."""
+        tile = self._reachable_grass()
+        if tile is not None:
+            return ("here", tile)
+        for d, (grp, num) in self._map_connections():
+            if grp == 3 and num >= 19:
+                return ("route", (grp, num), self._EDGE[d])
+        return None
+
+    def _available_actions(self, state):
+        """HONEST per-tick action set — only actions that actually DO something here (no phantom/no-op).
+        head_to_gym always (progress exists); heal only if hurt; wander_catch/battle only if huntable
+        grass is reachable (here or an adjacent route). This is the roamable-area-honesty guard."""
+        a = {}
+        ng = state.get("next_gym")
+        if ng:
+            a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
+        if self.needs_heal():
+            a["heal"] = "go to a Pokemon Center and heal the team up"
+        if self._grass_target(state) is not None:
+            a["wander_catch"] = "wander the grass and try to catch a new teammate"
+            a["battle"] = "train in the grass - fight wild pokemon to level the team up"
+        return a
+
+    def _wait_overworld(self, max_frames=900):
+        """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
+        from dialogue_drive import box_open
+        for _ in range(max_frames):
+            if not st.in_battle(self.b) and not box_open(self.b):
+                return True
+            self.b.run_frame(); self.render()
+        log("   [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)")
+        return False
+
+    def _route_action(self, pick, state):
+        """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
+        if pick == "heal":
+            return self.heal_nearest()
+        if pick == "head_to_gym":
+            # v1 (Cerulean->Vermilion leg): step toward the next gym via the SOUTH connection. Re-decided
+            # each tick, so she advances one map at a time and can still change her mind (true free roam).
+            south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
+            if south is None:
+                return "no_gym_route"
+            return self.trav.travel(target_map=south, edge="south")
+        if pick in ("wander_catch", "battle"):
+            gt = self._grass_target(state)
+            if gt is not None and gt[0] == "route":
+                _, tgt, edge = gt
+                log(f"   [roam] no grass underfoot -> routing to grass route {tgt} ({edge}) first")
+                r = self.trav.travel(target_map=tgt, edge=edge)
+                if r != "arrived":
+                    return f"to_grass:{r}"
+            if pick == "wander_catch":
+                return self.catch_one()
+            lead = state["party"][0]["level"] if state["party"] else 5
+            return self.grind(lead + 2)
+        return "unknown_action"
+
+    def free_roam(self, max_ticks=12, max_seconds=900, want_every=3):
+        """She's loose. Each tick: settle to idle -> read LIVE state -> compute HONEST available actions
+        -> the soul ORACLE picks (HER choice via _soul_choose; validated in-set, dead/no-op unpickable)
+        -> route to the wired handler -> soul outcome. surface_want fires on a cadence (state-aware now).
+        BEHAVIORAL CONTROL printed every tick: STATE IN -> OPTIONS -> PICK -> RESULT -> want. Loops to a
+        tick/time budget. Oracle unwired (headless/no bot) -> she idles (logged), never scripted."""
+        import time as _t
+        t0 = _t.time()
+        log("==== FREE ROAM: she's loose — every move from here is HER call ====")
+        for tick in range(1, max_ticks + 1):
+            if _t.time() - t0 > max_seconds:
+                log(f"   [roam] time budget {max_seconds}s reached — ending"); break
+            self._wait_overworld()
+            state = self.read_live_state()
+            avail = self._available_actions(state)
+            party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
+            log(f"-- ROAM TICK {tick}/{max_ticks} --")
+            log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
+                f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
+            log(f"   [roam] OPTIONS OFFERED: {list(avail.keys())}")
+            if not avail:
+                log("   [roam] no honest action available here — ending free roam"); break
+            if self.soul is not None and (tick == 1 or tick % want_every == 1):
+                log(f"   [soul] surface_want FIRE -> {state['place']}")
+                self.soul.surface_want({"place": state["place"], "map": state["map"],
+                                        "badges": state["badges"], "progress": state["progress"],
+                                        "party": [m["species"] for m in state["party"]]})
+            pick = self._soul_choose("action", avail,
+                                     {"place": state["place"], "progress": state["progress"], "party": party_str})
+            if not pick:
+                log("   [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick")
+                continue
+            log(f"   [roam] PICK OUT: {pick}")
+            out = self._route_action(pick, state)
+            log(f"   [roam] RESULT: {pick} -> {out}")
+            if pick == "wander_catch" and out == "caught" and self.soul is not None:
+                self.roster_react()                        # note_caught: bond + react to the new teammate
+            if self.soul is not None:
+                self._soul_after_objective("FREE_ROAM", out)   # note_evolve / note_faint+outcome(loss)
+        log("==== FREE ROAM complete ====")
+        return "roam_done"
 
     # ── the continuous driver ────────────────────────────────────────────────
     def run(self, objectives):

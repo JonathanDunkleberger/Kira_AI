@@ -69,6 +69,11 @@ def main():
                     help="SHOW MODE: the canonical zero-skip spine from a FRESH boot (or resume from a "
                          "states/kira/ save). Banks progress into states/kira/. Any GATE_NEEDS_STATE "
                          "fallback logs a LOUD SHOW-MODE SKIP VIOLATION — a clean run has ZERO.")
+    ap.add_argument("--free-roam", action="store_true",
+                    help="FREE ROAM (Batch-2 soul): boot the --boot state and RELEASE control — she "
+                         "decides her own next move each tick via the soul oracle (wander_catch / battle "
+                         "/ heal / head_to_gym), state-aware, unscripted. Use with --boot misty_done.state.")
+    ap.add_argument("--roam-ticks", type=int, default=12, help="free-roam: max decision ticks")
     ap.add_argument("--fresh-kira", action="store_true",
                     help="With --show: timestamp-archive the current states/kira/ playthrough to "
                          "states/kira/archive_<ts>/ and START A NEW Kira run from the bedroom (never "
@@ -302,6 +307,9 @@ def main():
     elif args.fast:
         objectives = [("BEAT_GYM", "Brock", "FAST TEST: Pewter Gym -> Brock -> Boulder Badge")]
         voice.emit("alright, the gym's right here - Brock's Boulder Badge is mine", kind="intro", tier=2)
+    elif args.free_roam:
+        # FREE ROAM: no scripted intro — her FIRST surface_want is her opening beat (soul-true).
+        pass
     else:
         objectives = build_objectives()
         # neutral framing opener (a game moment, not a script); tier=2 so "Boulder Badge" doesn't false-T3.
@@ -313,6 +321,8 @@ def main():
             outcome = camp.run_segments(build_segments(), mode="show")
         elif args.go:
             outcome = camp.run_segments(build_segments(), mode="workshop")
+        elif args.free_roam:
+            outcome = camp.free_roam(max_ticks=args.roam_ticks)
         else:
             outcome = camp.run(objectives)
     except KeyboardInterrupt:
