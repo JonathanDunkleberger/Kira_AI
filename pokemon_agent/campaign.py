@@ -201,9 +201,10 @@ def build_segments():
         # crosses east to Cerulean itself.
         Segment("route3_to_cerulean", [
             ("WALK_TO_MAP", ROUTE4, "north", "Route 3 -> Route 4 (north connection)"),
+            ("HEAL_NEAREST", "top up at the Route 4 Pokemon Center before the cave (survive Miguel)"),
             ("ENTER_WARP", MT_MOON_ENTRANCE, "step into the Mt Moon entrance (Route 4 (19,5))"),
-            ("CLEAR_MT_MOON", "walk Mt Moon 1F -> B2F (fossil/Miguel) -> Route 4 -> Cerulean "
-             "(the proven cave-walk, called not skipped; flees wilds, fights trainers)"),
+            ("CLEAR_MT_MOON", "follow the saved route (run_plan) Mt Moon -> Route 4 -> Cerulean; "
+             "flee wilds, fight trainers; a Miguel death -> blackout-recovery retries the segment"),
         ], "seg_cerulean.state"),
         # Misty gym: FULLY AUTO + proven (general beat_gym - clears the 2 junior trainers, beats
         # Misty, dialogue-paced award -> Cascade flag). From cerulean_caught (Route 4) walk EAST into
@@ -1121,68 +1122,41 @@ class Campaign:
         return self._flee_runner()                             # wild -> flee (costs ~0 HP)
 
     def clear_mt_moon(self):
-        """Walk Mt Moon entrance->exit AUTONOMOUSLY (preserved nav). Wraps the proven cave-walk with
-        the cave battle policy: FLEE wilds / FIGHT trainers (solo-Ivysaur reality). Returns
-        'cleared' | 'stuck'."""
+        """Clear Mt Moon by FOLLOWING the proven saved route — states/mtmoon_plan.json executed by
+        CaveNav.run_plan (the autonomous clear Jonny watched live, recon_caveexec). Battle policy:
+        FLEE wilds / FIGHT trainers (solo-roster reality); beating Miguel-the-trainer is the real gate
+        that opens the (5,10) exit warp (the old port's 'grab a fossil' was unnecessary + the source of
+        the blind-BFS stall). A Miguel/cave death is SURVIVAL -> 'blackout' (the caller's
+        blackout-recovery respawns + retries), NOT a nav wall. Returns 'cleared' | 'blackout' | 'stuck'.
+        Replaces the divergent da68733 hardcoded-_enter + blind-fossil port (which never called run_plan)."""
+        import json
+        from cave_nav import CaveNav
+        plan_path = resolve_state("mtmoon_plan.json") or os.path.join(STATES, "mtmoon_plan.json")
+        if not os.path.exists(plan_path):
+            log("   !! MTMOON: saved route mtmoon_plan.json not found - LOUD"); return "stuck"
+        plan = json.load(open(plan_path))
         saved = self.trav.battle_runner
         self.trav.battle_runner = self._cave_runner
         try:
-            return self._clear_mt_moon()
+            nav = CaveNav(self.b, self, fog_path=None, on_event=self.on_event,
+                          render=self.render, log=lambda m: log(m))
+            # ENTRY NORMALIZATION: the real Route 4 warp lands on 1F at ~(18,37); the plan starts on
+            # (1,1) at (15,30). Walk to the plan's start tile so run_plan's first warp is reachable
+            # from EITHER entry (real entrance OR the banked mtmoon_interior). Navigation, not a skip.
+            if tv.map_id(self.b) == (1, 1) and tv.coords(self.b) != (15, 30):
+                self.trav.travel(target_map=None, arrive_coord=(15, 30), max_steps=400, max_seconds=150)
+            res = nav.run_plan([(tuple(m), tuple(w)) for m, w in plan], fwd_edge="east")
+            m = tv.map_id(self.b)
+            if res == "exited" and m[0] != 1 and m != (3, 22):
+                log(f"   MTMOON: *** CLEARED via the saved route -> emerged on {m} ***")
+                self.on_event("made it through Mt Moon")
+                return "cleared"
+            if res == "blackout":
+                log("   MTMOON: blacked out in the cave (SURVIVAL) - caller recovers + retries")
+                return "blackout"
+            log(f"   !! MTMOON: run_plan -> {res} (map={m})"); return "stuck"
         finally:
             self.trav.battle_runner = saved
-
-    def _clear_mt_moon(self):
-        """The proven recon_mtmoon_clear path, PORTED (warp chain 1F->B1F->B2F, grab a fossil to clear
-        the Miguel blocker, exit B2F->B1F->Route 4, cross east to Cerulean). Nav UNCHANGED."""
-        from cave_nav import CaveNav
-        FOSSILS = [((13, 7), (13, 8), "UP"), ((14, 7), (14, 8), "UP")]   # (fossil, stand-tile, face)
-        nav = CaveNav(self.b, self, fog_path=None, on_event=self.on_event,
-                      render=self.render, log=lambda m: log(m))
-        # ENTRY NORMALIZATION: the real Route 4 entrance warp lands on 1F at ~(18,37), but the proven
-        # warp chain starts from (15,30). Walk to the proven start tile first so the (5,6) warp is
-        # reachable from EITHER entry (the banked mtmoon_interior OR the real entrance). Nav unchanged.
-        if tv.map_id(self.b) == (1, 1) and tv.coords(self.b) != (15, 30):
-            self.trav.travel(target_map=None, arrive_coord=(15, 30), max_steps=400, max_seconds=150)
-        if tv.map_id(self.b) != (1, 3):                        # warp 1F->B1F->B2F (skip if on B2F)
-            if nav._enter((5, 6)) is None:
-                log("   !! MTMOON: (5,6) 1F->B1F unenterable"); return "stuck"
-            if nav._enter((22, 18)) is None:
-                log("   !! MTMOON: (22,18) B1F->B2F unenterable"); return "stuck"
-        log(f"   MTMOON: on {tv.map_id(self.b)}@{tv.coords(self.b)} (B2F) - grabbing a fossil (clears Miguel)")
-        grabbed = False
-        for fossil, stand, facing in FOSSILS:
-            self.trav.travel(target_map=None, arrive_coord=stand, max_steps=600, max_seconds=300)
-            if tv.coords(self.b) == stand:
-                self.b.press(facing, 8, 8, self.render, owner="agent")
-                for _ in range(10):                            # mash A: grab + advance the script
-                    self.b.press("A", 8, 8, self.render, owner="agent")
-                for _ in range(40):
-                    self.b.run_frame(); self.render()
-                grabbed = True
-                break
-        if not grabbed:
-            log("   !! MTMOON: couldn't reach a fossil to clear Miguel"); return "stuck"
-        if nav._enter((5, 10)) is None:                        # B2F->B1F (only opens once Miguel moves)
-            log("   !! MTMOON: (5,10) B2F->B1F unenterable (Miguel not cleared?)"); return "stuck"
-        log(f"   MTMOON: on {tv.map_id(self.b)}@{tv.coords(self.b)} (B1F) - heading for the (45,4) exit")
-        for attempt in range(4):                               # B1F->Route 4 (forward exit) - robust
-            if tv.map_id(self.b) != (1, 2):
-                break
-            r = nav._enter((45, 4))
-            log(f"   MTMOON: exit _enter((45,4)) try {attempt} -> {r} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
-            if tv.map_id(self.b) != (1, 2):
-                break
-            self.trav.travel(target_map=None, arrive_coord=(44, 4),  # nudge toward the exit, retry
-                             max_steps=200, max_seconds=90)
-        if tv.map_id(self.b) == (3, 22):                       # on Route 4 -> cross EAST to Cerulean
-            log("   MTMOON: emerged on Route 4 - crossing east to Cerulean")
-            self.trav.travel(target_map=(99, 99), edge="east", max_steps=400, max_seconds=200)
-        m = tv.map_id(self.b)
-        if m[0] != 1 and m != (3, 22):                         # out of the cave + off Route 4 -> done
-            log(f"   MTMOON: *** CLEARED Mt Moon -> emerged on {m} ***")
-            self.on_event("made it through Mt Moon")
-            return "cleared"
-        log(f"   !! MTMOON: not fully out (map={m})"); return "stuck"
 
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):
@@ -1333,6 +1307,8 @@ class Campaign:
                 out = self.deliver_parcel()
             elif kind == "CLEAR_MT_MOON":
                 out = self.clear_mt_moon()
+            elif kind == "HEAL_NEAREST":
+                out = "ok" if self.heal_nearest() == "ok" else "ok"   # heal is best-effort, never a stop
             elif kind == "ROSTER_REACT":
                 out = self.roster_react()
             elif kind == "GATE_NEEDS_STATE":
@@ -1361,7 +1337,7 @@ class Campaign:
                 out = "unknown"
             log(f"   -> objective result: {out} in {time.time()-_t0:.0f}s "
                 f"(now map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
-            if out in ("stuck", "no_path", "battle_loss", "no_warp", "underleveled"):
+            if out in ("stuck", "no_path", "battle_loss", "no_warp", "underleveled", "blackout"):
                 log(f"!! CAMPAIGN STOP (loud) at objective {i+1} ({kind}): {out}")
                 return f"stopped:{kind}:{out}"
         log("CAMPAIGN COMPLETE (all objectives done)")
@@ -1398,6 +1374,28 @@ class Campaign:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
             return False
 
+    MAX_BLACKOUT_RETRIES = 6      # per segment — a thin solo roster may need several Miguel attempts;
+                                  # each retry re-walks (more trainer XP) + re-heals, so it converges.
+
+    @staticmethod
+    def _is_blackout(result):
+        """A segment result that is a SURVIVAL death (recoverable by respawn+retry), not a nav stuck.
+        run() encodes these as 'stopped:<kind>:battle_loss' or 'stopped:<kind>:blackout'."""
+        return isinstance(result, str) and (result.endswith("battle_loss") or result.endswith("blackout"))
+
+    def _settle_after_blackout(self):
+        """After a blackout the game whites out + respawns at the last-healed Center (auto-heals the
+        party). Advance past the respawn animation + any closing text so we're back on the overworld,
+        ready to re-run the segment from the Center."""
+        self.b.set_input_owner("agent")
+        for _ in range(180):                  # let the whiteout + respawn walk-in play out
+            self.b.run_frame(); self.render()
+        self._drain_overworld(label="blackout-respawn")
+        for _ in range(40):
+            self.b.run_frame()
+        log(f"   BLACKOUT-RECOVERY: respawned at {tv.map_id(self.b)}@{tv.coords(self.b)} "
+            f"HP={self.lead_hp()}")
+
     def run_segments(self, segments, resume=True, mode="workshop"):
         """Play SEGMENTS in order, auto-checkpointing after each.
         mode='workshop' (default): resume-from-furthest in states/workshop/, bank there, NEVER touch
@@ -1433,12 +1431,28 @@ class Campaign:
             seg = segments[i]
             log(f"==== SEGMENT {i + 1}/{len(segments)}: {seg.name}  "
                 f"({len(seg.objectives)} objective(s)) ====")
-            result = self.run(seg.objectives)
-            if result != "complete":
-                log(f"!! RUN_SEGMENTS STOP at segment '{seg.name}': {result}")
+            # BLACKOUT-RECOVERY (core resilience): a death (Miguel/cave/Route 3 with a thin solo
+            # roster) is NOT a dead end — the game respawns + heals at the last Center, and we RE-RUN
+            # the segment (the objectives re-navigate from the respawn point). "Die as many times as
+            # needed and still finish." A PERMANENT stuck (can't proceed, not dying) still stops loud.
+            attempts = 0
+            while True:
+                result = self.run(seg.objectives)
+                if result == "complete":
+                    break
+                if self._is_blackout(result) and attempts < self.MAX_BLACKOUT_RETRIES:
+                    attempts += 1
+                    log(f"   ~~~~ BLACKOUT-RECOVERY: '{seg.name}' died ({result}); retry "
+                        f"{attempts}/{self.MAX_BLACKOUT_RETRIES} — respawned + healed, re-running segment")
+                    self.on_event("knocked out — back to the Center, dust off, and right back at it")
+                    self._settle_after_blackout()
+                    continue
+                log(f"!! RUN_SEGMENTS STOP at segment '{seg.name}': {result}"
+                    + (f" (blackout retries exhausted: {attempts})" if self._is_blackout(result) else ""))
                 return f"segment_stopped:{seg.name}:{result}"
             self._save_checkpoint(seg.checkpoint)
-            log(f"==== SEGMENT '{seg.name}' COMPLETE ====")
+            log(f"==== SEGMENT '{seg.name}' COMPLETE"
+                + (f" (survived {attempts} blackout(s))" if attempts else "") + " ====")
         if self.show_mode:
             verdict = "ZERO skips — clean AUTO spine" if self._show_violations == 0 \
                 else f"{self._show_violations} SKIP VIOLATION(S) — NOT yet zero-skip"
