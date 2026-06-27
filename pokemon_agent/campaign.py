@@ -277,6 +277,12 @@ class Campaign:
                 if self.heal_nearest() == "stuck":
                     log("   !! WALK: heal failed mid-leg - LOUD"); return "stuck"
                 continue
+            if r in ("no_path", "stuck"):
+                # transient NPC-wedge (often a PC door after a heal) — retry; the traveler waits for
+                # NPCs each attempt and a fresh plan usually clears once they step off. Bounded by the
+                # loop, so a genuine wall still stops loud.
+                log(f"   WALK: {r} - retrying (transient NPC-wedge?)")
+                continue
             return r
         return "stuck"
 
@@ -422,6 +428,7 @@ class Campaign:
                 log(f"   !! HEAL-EXCURSION: didn't reach {city} (at {tv.map_id(self.b)})")
                 return "stuck"
             self.heal_at_center(pc_door)
+            healed = self.lead_hp()[0] >= self.lead_hp()[1]    # HP topped up = the heal succeeded
             for _ in range(6):
                 if tv.map_id(self.b) == back_map:
                     break
@@ -431,9 +438,12 @@ class Campaign:
             if tv.map_id(self.b) == back_map:
                 log(f"   HEAL-EXCURSION: healed + back on {back_map} at {tv.coords(self.b)}")
                 return "ok"
-            log(f"   !! HEAL-EXCURSION: healed but didn't get back to {back_map} "
-                f"(at {tv.map_id(self.b)})")
-            return "stuck"
+            # The HEAL succeeded; the cross-back wedged (typically an NPC parked at the PC door). That
+            # is NOT a hard stall — return ok so the caller re-navs toward the real goal FROM HERE
+            # (moving away from the door), retrying as the NPC steps off. Heal is best-effort transport.
+            log(f"   HEAL-EXCURSION: healed (HP {self.lead_hp()}) but still on {tv.map_id(self.b)} - "
+                f"non-fatal, caller re-navs")
+            return "ok" if healed else "stuck"
         finally:
             self._suppress_heal, self.trav.battle_runner = saved, saved_runner
 
