@@ -1456,18 +1456,37 @@ class Campaign:
         self._drain_overworld(label="blackout-respawn")
         for _ in range(40):
             self.b.run_frame()
-        # The respawn drops her INSIDE a building (the Pallet house / a Pokémon Center — map group
-        # != 3, the Kanto overworld). The segment re-nav (WALK_TO_MAP) can't path out of an interior,
-        # so WALK HER OUT to the overworld first (step onto the south exit door/mat).
-        for _ in range(3):
-            if tv.map_id(self.b)[0] == 3:
-                break
-            ex = self.enter_warp(prefer="south")
-            log(f"   BLACKOUT-RECOVERY: exiting building -> {ex} now {tv.map_id(self.b)}@{tv.coords(self.b)}")
-            if ex != "warped":
-                break
+        # The respawn drops her INSIDE a building (the Pallet house / any Pokémon Center). Get her
+        # back to the walkable overworld before the segment re-nav (which can't path out of an
+        # interior). General capability — works for EVERY PC/town (game-wide for the 24/7 vision).
+        self._exit_to_overworld()
         log(f"   BLACKOUT-RECOVERY: respawned at {tv.map_id(self.b)}@{tv.coords(self.b)} "
             f"HP={self.lead_hp()}")
+
+    def _exit_to_overworld(self, max_tries=5):
+        """From INSIDE any building (PC / house / Mart / lab — map group != 3, the Kanto overworld),
+        return to the walkable overworld. The general recovery primitive every blackout respawn needs.
+        Tries the south exit door; falls back to walking DOWN onto the entrance mat (PC/house mats fire
+        on a step-on from the north). Returns True once on the overworld (group 3)."""
+        self.b.set_input_owner("agent")
+        for _ in range(max_tries):
+            if tv.map_id(self.b)[0] == 3:
+                return True
+            before = tv.map_id(self.b)
+            if self.enter_warp(prefer="south") == "warped" and tv.map_id(self.b) != before:
+                log(f"   EXIT-BUILDING: warped {before} -> {tv.map_id(self.b)}@{tv.coords(self.b)}")
+                continue
+            for _ in range(10):                       # fallback: walk DOWN onto the exit mat
+                self.b.press("DOWN", 8, 8, self.render, owner="agent")
+                for _ in range(8):
+                    self.b.run_frame()
+                if tv.map_id(self.b) != before:
+                    break
+            if tv.map_id(self.b) != before:
+                log(f"   EXIT-BUILDING: walked out {before} -> {tv.map_id(self.b)}@{tv.coords(self.b)}")
+        if tv.map_id(self.b)[0] != 3:
+            log(f"   !! EXIT-BUILDING: still inside {tv.map_id(self.b)}@{tv.coords(self.b)} - LOUD")
+        return tv.map_id(self.b)[0] == 3
 
     def run_segments(self, segments, resume=True, mode="workshop"):
         """Play SEGMENTS in order, auto-checkpointing after each.
