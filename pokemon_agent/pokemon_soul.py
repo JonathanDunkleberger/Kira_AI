@@ -47,6 +47,44 @@ class PokemonSoul:
         self.wants = []               # active wants (strings); EMERGE from her, not hardcoded here
         self.bonds = {}               # nickname/species -> {species, nickname, caught, note} (family)
 
+    # ── CONTINUITY: persist the Pokémon-SELF (roster bonds + wants) across SHOW sessions ──────────
+    # The GAME state (roster/names/badges/location) is the savestate's job; THIS is the subjective
+    # layer — how she FEELS about each teammate + what she wants — so a new stream resumes with her
+    # relationships intact, not a blank slate. Scoped to the kira lineage by the caller (campaign).
+    def save(self, path):
+        """Write {bonds, wants} to `path` (JSON). Best-effort; never raises. Returns True on success."""
+        import json
+        import os
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"bonds": self.bonds, "wants": self.wants}, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            print(f"   [soul] continuity save failed: {e}", flush=True)
+            return False
+
+    def load(self, path):
+        """Restore {bonds, wants} written by save(). Missing/corrupt -> blank (fresh run). Returns
+        True iff continuity was loaded."""
+        import json
+        import os
+        if not os.path.exists(path):
+            return False
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data.get("bonds"), dict):
+                self.bonds = data["bonds"]
+            if isinstance(data.get("wants"), list):
+                self.wants = data["wants"]
+            print(f"   [soul] continuity loaded: {len(self.bonds)} roster bond(s), "
+                  f"{len(self.wants)} want(s)", flush=True)
+            return True
+        except Exception as e:
+            print(f"   [soul] continuity load failed: {e}", flush=True)
+            return False
+
     # ── lever 1: WANTS ───────────────────────────────────────────────────────────────────────────
     def surface_want(self, context):
         """A beat where a want could surface (entering a town, seeing a rare foe, a roster gap). The

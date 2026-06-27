@@ -83,6 +83,9 @@ def archive_kira_save(stamp):
     os.makedirs(dst, exist_ok=True)
     for f in saves:
         shutil.move(os.path.join(STATES_KIRA, f), os.path.join(dst, f))
+    soul = os.path.join(STATES_KIRA, "pokemon_soul.json")    # archive her soul-continuity too, so a
+    if os.path.exists(soul):                                 # FRESH run starts with a blank roster/wants
+        shutil.move(soul, os.path.join(dst, "pokemon_soul.json"))
     return dst
 
 # ── known FireRed map IDs (group, num) - documented, not reconned ────────────
@@ -1592,6 +1595,11 @@ class Campaign:
             for _ in range(40):
                 self.b.run_frame()
             self.b.set_input_owner("agent")
+        # CONTINUITY: a SHOW run restores her Pokémon-self (roster bonds + wants) so the stream
+        # resumes with her relationships intact. SHOW-ONLY -> workshop/scratch runs never read or
+        # write the kira-lineage continuity (same firewall as the save lineages).
+        if self.show_mode and self.soul is not None:
+            self.soul.load(os.path.join(STATES_KIRA, "pokemon_soul.json"))
         for i in range(start, len(segments)):
             seg = segments[i]
             log(f"==== SEGMENT {i + 1}/{len(segments)}: {seg.name}  "
@@ -1616,6 +1624,8 @@ class Campaign:
                     + (f" (blackout retries exhausted: {attempts})" if self._is_blackout(result) else ""))
                 return f"segment_stopped:{seg.name}:{result}"
             self._save_checkpoint(seg.checkpoint)
+            if self.show_mode and self.soul is not None:    # bank her Pokémon-self continuity (kira lineage)
+                self.soul.save(os.path.join(STATES_KIRA, "pokemon_soul.json"))
             log(f"==== SEGMENT '{seg.name}' COMPLETE"
                 + (f" (survived {attempts} blackout(s))" if attempts else "") + " ====")
         if self.show_mode:
