@@ -108,10 +108,38 @@ def part_b():
     return ok
 
 
+def part_c():
+    print("\n==== PART C: boot state sanity guard ====")
+    ok = True
+    # (1) the LOW-HP post-Misty save (Ivysaur 4/60 — the state Jonny would have booted) must be flagged.
+    b = _load("misty_done")
+    camp = Campaign(b, battle_runner=lambda: "win", on_event=lambda *a, **k: None)
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        susp = camp._boot_state_sanity()
+    low_flagged = any("low HP" in s for s in susp)
+    loud = "BOOT STATE SUSPECT" in buf.getvalue()
+    print(f"  misty_done (Ivysaur 4/60): warnings={susp} | LOUD logged={loud}")
+    ok &= low_flagged and loud
+
+    # (2) a HEALTHY state (brock_done: Bulbasaur 27/40 on Pewter, real route) must read SANE — no warning.
+    b2 = _load("brock_done")
+    camp2 = Campaign(b2, battle_runner=lambda: "win", on_event=lambda *a, **k: None)
+    buf2 = io.StringIO()
+    with redirect_stdout(buf2):
+        susp2 = camp2._boot_state_sanity()
+    print(f"  brock_done (Bulbasaur 27/40): warnings={susp2} (want none)")
+    ok &= (len(susp2) == 0)
+
+    print("  PART C:", "PASS" if ok else "FAIL")
+    return ok
+
+
 def main():
     a = part_a()
     b = part_b()
-    allok = a and b
+    c = part_c()
+    allok = a and b and c
     print("\n==== RESULT:", "ALL CONTROLS PASS" if allok else "SOME CONTROLS FAILED", "====")
     return 0 if allok else 1
 

@@ -1717,6 +1717,52 @@ class Campaign:
             return self.grind(lead + 2)
         return "unknown_action"
 
+    def _boot_state_sanity(self):
+        """DIAGNOSTIC (increment 4 PART C): at boot, SCREAM if the loaded SAVE is suspect, so a bad test
+        state can't silently doom a run (the live viridian_parcel_done / seg_cascade_badge 4/60-HP case —
+        she boots low, loses the first wild, blacks out, dead-ends). Two checks: (1) party critically low
+        / fully fainted; (2) spawn has no overworld route to a real objective. Logs LOUD and changes
+        NOTHING — it tells Jonny the SAVE is the problem, not the agent. Returns the warnings (empty=sane)."""
+        susp = []
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        lows, alive = [], 0
+        for s in range(min(cnt, 6)):
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            hp, mx = self.b.rd16(base + P_HP), self.b.rd16(base + P_MAXHP)
+            if mx <= 0:
+                continue
+            if hp > 0:
+                alive += 1
+            if hp == 0:
+                lows.append(f"slot{s} FAINTED (0/{mx})")
+            elif hp < 0.25 * mx:
+                lows.append(f"slot{s} {hp}/{mx} ({100 * hp // mx}%)")
+        if cnt > 0 and alive == 0:
+            susp.append("WHOLE PARTY FAINTED — she'd black out on the first encounter")
+        elif lows:
+            susp.append("party critically low HP: " + ", ".join(lows) + " — likely to blackout soon")
+        m = tv.map_id(self.b)
+        if m[0] != 3:                                  # overworld is group 3; a building has no route out
+            susp.append(f"spawn is INSIDE a building {m}@{tv.coords(self.b)} (map group != 3) — no "
+                        f"overworld route; head_to_gym would dead-end")
+        else:
+            south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
+            try:
+                grass = self._reachable_grass()
+            except Exception:
+                grass = None
+            if south is None and grass is None:
+                susp.append(f"from {m}@{tv.coords(self.b)} there is NO south gym-route connection AND no "
+                            f"reachable grass — head_to_gym would return no_gym_route (a dead-end spawn)")
+        if susp:
+            log("   [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:")
+            for s in susp:
+                log(f"   [roam] !!     - {s}")
+            log("   [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)")
+        else:
+            log("   [roam] boot state sane: party has usable HP and a real objective route exists")
+        return susp
+
     def free_roam(self, max_ticks=12, max_seconds=900, want_every=3):
         """She's loose. Each tick: settle to idle -> read LIVE state -> compute HONEST available actions
         -> the soul ORACLE picks (HER choice via _soul_choose; validated in-set, dead/no-op unpickable)
@@ -1729,6 +1775,7 @@ class Campaign:
         red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
         hard_recovered = False                     # forced one position-break this RED streak already?
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
+        self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
