@@ -294,6 +294,13 @@ class BattleAgent:
         while time.time() - t0 < max_seconds:
             if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                 self.emit("gotcha — it's caught!", beat=True)
+                # The party grew (catch banked) BUT the "give a nickname? [YES/NO]" prompt is still up
+                # (FRLG adds the mon, then asks). Decline with B (never leave it for the next op to A into
+                # -> naming keyboard) and let the battle EXIT to the overworld before returning.
+                for _ in range(20):
+                    if not st.in_battle(self.b):
+                        break
+                    self._wait(10); self.b.press("B", 2, 12, self.render, owner=self.owner)
                 return "caught"
             if not st.in_battle(self.b):
                 # Battle ended. On a CATCH the "give a nickname? [YES/NO]" prompt HOLDS the party-increment
@@ -311,11 +318,13 @@ class BattleAgent:
                     self.emit("gotcha — it's caught!", beat=True)
                     return "caught"
                 return "broke_free"
-            # The ball BROKE and we're back at the action menu (white panel) - the turn is over.
-            # Return here WITHOUT pressing anything: B at the action menu is RUN, so mashing B would
-            # FLEE (the old one-throw-then-wander bug). The caller decides whether to throw again
-            # (commit to the catch) or move on. PRE-2026-06-26 this fled after every failed throw.
-            if self._white_box():
+            # The ball BROKE and we're back at the ACTION MENU - the turn is over. Gate this on the
+            # TRUE action menu (white panel AND menu_up==1), NOT white_box alone: a white frame flashes
+            # DURING the catch sequence, and returning then leaves the "give a nickname?" prompt up for
+            # the caller to A into (-> naming keyboard wedge). menu_up==1 only holds at the real action
+            # menu, which a CATCH never reaches (the battle ends), so this returns broke_free only on a
+            # genuine break. Return WITHOUT pressing: B here = RUN (would flee). The caller re-throws.
+            if self._white_box() and self.b.rd8(ram.GBATTLE_MENU_UP) == 1:
                 return "broke_free"
             # B-ONLY advance for the catch-sequence BLUE boxes (the "broke free!" text and the
             # post-catch "give a nickname?" Yes/No, which defaults YES — an A would open the naming
@@ -434,7 +443,12 @@ class BattleAgent:
             if not st.in_battle(self.b):
                 return _ended()
             if not self._white_box():
-                self._advance_text(); continue
+                # B-ONLY advance in the catch loop: a blue box here is catch-sequence text OR the
+                # post-catch "give a nickname? [YES/NO]" prompt. _advance_text presses A first, which on
+                # that prompt selects YES and opens the naming keyboard (spins forever). B safely advances
+                # the text AND declines the nickname. (B is unsafe only at the action menu = RUN, which is
+                # white_box and excluded here.)
+                self._wait(18); self.b.press("B", 2, 12, self.render, owner=self.owner); continue
             state = st.read_battle(self.b)
             if state and state["enemy"]["hp"] <= 0:
                 return "fainted"                         # we KO'd it - can't catch a fainted foe
