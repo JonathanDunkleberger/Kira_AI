@@ -592,6 +592,51 @@ class Campaign:
     def has_boulder_badge(self):
         return self.has_badge(FLAG_BADGE_BOULDER)
 
+    # ── BATCH-2 free-roam: LIVE STATE read (finding #1 — the oracle was state-BLIND, so she wanted
+    # already-finished things, e.g. the Mt Moon fossil while standing in Cerulean). PURE RAM reads, no
+    # bot. The free-roam loop injects this into the oracle ctx EVERY tick so her wants/picks are
+    # grounded in WHERE SHE ACTUALLY IS. Names/gym-order are real game knowledge (verified ids only,
+    # unknown map -> honest "an unfamiliar area"); progress flags are read from the save (badge array). ──
+    _PLACE_NAMES = {
+        (3, 0): "Pallet Town", (3, 1): "Viridian City", (3, 2): "Pewter City",
+        (3, 3): "Cerulean City", (3, 19): "Route 1", (3, 20): "Route 2",
+        (3, 21): "Route 3", (3, 22): "Route 4",
+    }
+    _BADGE_NAMES = ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"]
+    _GYM_ORDER = [("Pewter City", "Brock"), ("Cerulean City", "Misty"),
+                  ("Vermilion City", "Lt. Surge"), ("Celadon City", "Erika"),
+                  ("Fuchsia City", "Koga"), ("Saffron City", "Sabrina"),
+                  ("Cinnabar Island", "Blaine"), ("Viridian City", "Giovanni")]
+    _PARTY_LEVEL_OFF = 0x54        # level byte within a 100-byte party-mon struct (== play_live LEAD_LEVEL)
+
+    def read_live_state(self):
+        """LIVE game-state snapshot for the soul oracle. PURE RAM reads (no bot). Returns a dict the
+        free-roam loop feeds the oracle each tick so her reasoning is grounded in her real situation."""
+        b = self.b
+        mp = tv.map_id(b)
+        co = tv.coords(b)
+        badges = [nm for i, nm in enumerate(self._BADGE_NAMES) if self.has_badge(0x820 + i)]
+        cnt = b.rd8(ram.GPLAYER_PARTY_CNT)
+        party = []
+        for s in range(min(cnt, 6)):
+            sp = st.read_party_species(b, s)
+            lvl = b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + self._PARTY_LEVEL_OFF)
+            party.append({"species": st.SPECIES_NAME.get(sp, f"species#{sp}"), "level": lvl})
+        try:                                      # current-map grass: does catch work HERE (vs needing to travel)?
+            on_grass_map = bool(tv.Grid(b).grass)
+        except Exception:
+            on_grass_map = False
+        ng = self._GYM_ORDER[len(badges)] if len(badges) < len(self._GYM_ORDER) else None
+        place = self._PLACE_NAMES.get(mp, "an unfamiliar area")
+        progress = (f"{len(badges)} badge(s) earned ({', '.join(badges) or 'none'}). "
+                    + (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned."))
+        return {"map": mp, "place": place, "coords": co,
+                "badges": badges, "badge_count": len(badges),
+                "party": party, "party_count": cnt,
+                "on_grass_map": on_grass_map,
+                "next_gym": ({"city": ng[0], "leader": ng[1]} if ng else None),
+                "progress": progress}
+
     # ── GENERAL gym-trainer gauntlet (a gym LEADER is gated behind the junior trainers) ──────────
     _OB, _SZ = 0x02036E38, 0x24
     _DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}     # facing nibble -> look direction
