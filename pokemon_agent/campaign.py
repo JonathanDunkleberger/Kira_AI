@@ -1121,42 +1121,82 @@ class Campaign:
             return self.battle_runner()
         return self._flee_runner()                             # wild -> flee (costs ~0 HP)
 
+    # Mt Moon fossil stand-tiles (face UP): touching a fossil triggers the Super Nerd (Miguel), who
+    # battles you for it; beating him + the pick MOVES him, opening the gated B2F->B1F warp (5,10).
+    MTMOON_FOSSILS = [((13, 8), "UP"), ((14, 8), "UP")]
+
     def clear_mt_moon(self):
-        """Clear Mt Moon by FOLLOWING the proven saved route — states/mtmoon_plan.json executed by
-        CaveNav.run_plan (the autonomous clear Jonny watched live, recon_caveexec). Battle policy:
-        FLEE wilds / FIGHT trainers (solo-roster reality); beating Miguel-the-trainer is the real gate
-        that opens the (5,10) exit warp (the old port's 'grab a fossil' was unnecessary + the source of
-        the blind-BFS stall). A Miguel/cave death is SURVIVAL -> 'blackout' (the caller's
-        blackout-recovery respawns + retries), NOT a nav wall. Returns 'cleared' | 'blackout' | 'stuck'.
-        Replaces the divergent da68733 hardcoded-_enter + blind-fossil port (which never called run_plan)."""
+        """Clear Mt Moon by FOLLOWING the saved warp route (states/mtmoon_plan.json) via the proven
+        warp navigator (CaveNav._enter, the same primitive run_plan uses) — PLUS the one step the plan
+        omits: the B2F FOSSIL/MIGUEL event, which moves Miguel to open the gated (5,10) exit (confirmed
+        by nav-isolation: even win+heal can't enter (5,10) until the fossil event fires). Battle policy:
+        FLEE wilds / FIGHT trainers; heal suppressed (no PC in a cave). A death -> 'blackout' (caller's
+        blackout-recovery respawns + retries). Returns 'cleared' | 'blackout' | 'stuck'."""
         import json
         from cave_nav import CaveNav
         plan_path = resolve_state("mtmoon_plan.json") or os.path.join(STATES, "mtmoon_plan.json")
         if not os.path.exists(plan_path):
             log("   !! MTMOON: saved route mtmoon_plan.json not found - LOUD"); return "stuck"
         plan = json.load(open(plan_path))
-        saved = self.trav.battle_runner
+        saved, saved_heal = self.trav.battle_runner, self._suppress_heal
         self.trav.battle_runner = self._cave_runner
+        self._suppress_heal = True       # no PC in a cave -> survive-or-blackout, never excursion out
         try:
             nav = CaveNav(self.b, self, fog_path=None, on_event=self.on_event,
                           render=self.render, log=lambda m: log(m))
-            # ENTRY NORMALIZATION: the real Route 4 warp lands on 1F at ~(18,37); the plan starts on
-            # (1,1) at (15,30). Walk to the plan's start tile so run_plan's first warp is reachable
-            # from EITHER entry (real entrance OR the banked mtmoon_interior). Navigation, not a skip.
+            # ENTRY NORMALIZATION: the real Route 4 warp lands on 1F at ~(18,37); the plan starts at
+            # (15,30). Walk there so the first warp is reachable from EITHER entry. Navigation, not a skip.
             if tv.map_id(self.b) == (1, 1) and tv.coords(self.b) != (15, 30):
                 self.trav.travel(target_map=None, arrive_coord=(15, 30), max_steps=400, max_seconds=150)
-            res = nav.run_plan([(tuple(m), tuple(w)) for m, w in plan], fwd_edge="east")
+            for exp_map, wxy in plan:                          # follow the saved warp sequence
+                cur = tv.map_id(self.b)
+                if tuple(cur) != tuple(exp_map):
+                    log(f"   !! MTMOON: PLAN MISMATCH on {cur}, expected {exp_map}"); return "stuck"
+                if tuple(cur) == (1, 3):                        # B2F: clear Miguel BEFORE the gated (5,10)
+                    if self._mtmoon_fossil_event() == "blackout":
+                        log("   MTMOON: blacked out at the fossil/Miguel (SURVIVAL)"); return "blackout"
+                    if tv.map_id(self.b)[0] != 1:               # left the cave (PC respawn) = a blackout
+                        log("   MTMOON: left B2F during the Miguel fight (blackout) - caller retries")
+                        return "blackout"
+                r = nav._enter(tuple(wxy))
+                if r == "BLACKOUT":
+                    log("   MTMOON: blacked out mid-cave (SURVIVAL) - caller retries"); return "blackout"
+                if r is None:
+                    log(f"   !! MTMOON: warp {tuple(wxy)} unenterable (map={tv.map_id(self.b)})"); return "stuck"
+            if not nav._fwd_reachable("east"):                 # last warp done -> cross out to Cerulean
+                log(f"   !! MTMOON: warps done at {tv.map_id(self.b)} but east edge unreachable"); return "stuck"
+            self.trav.travel(target_map=(99, 99), edge="east", max_steps=400, max_seconds=200)
             m = tv.map_id(self.b)
-            if res == "exited" and m[0] != 1 and m != (3, 22):
+            if m[0] != 1 and m != (3, 22):
                 log(f"   MTMOON: *** CLEARED via the saved route -> emerged on {m} ***")
                 self.on_event("made it through Mt Moon")
                 return "cleared"
-            if res == "blackout":
-                log("   MTMOON: blacked out in the cave (SURVIVAL) - caller recovers + retries")
-                return "blackout"
-            log(f"   !! MTMOON: run_plan -> {res} (map={m})"); return "stuck"
+            log(f"   !! MTMOON: not fully out (map={m})"); return "stuck"
         finally:
-            self.trav.battle_runner = saved
+            self.trav.battle_runner, self._suppress_heal = saved, saved_heal
+
+    def _mtmoon_fossil_event(self):
+        """Touch a B2F fossil -> the Super Nerd (Miguel) battles you for it; win + the pick MOVES him,
+        opening the gated (5,10) exit warp. _cave_runner FIGHTS him (trainer). Returns 'ok'|'blackout'."""
+        for stand, facing in self.MTMOON_FOSSILS:
+            self.trav.travel(target_map=None, arrive_coord=stand, max_steps=600, max_seconds=300)
+            if tv.coords(self.b) == stand:
+                log(f"   MTMOON: at fossil stand {stand} - triggering the Miguel event")
+                self.b.press(facing, 8, 8, self.render, owner="agent")   # FACE the fossil ONCE
+                for _ in range(16):
+                    # A-ONLY from here — never re-press the d-pad, or grabbing the fossil lets the
+                    # next UP walk off the stand-tile into the warp above it (the map=(16,0) bug).
+                    self.b.press("A", 8, 8, self.render, owner="agent")
+                    for _ in range(8):
+                        self.b.run_frame(); self.render()
+                    if st.in_battle(self.b):                              # Miguel challenges for it
+                        r = self._cave_runner()
+                        if r == "loss" or tv.map_id(self.b) != (1, 3):    # lost -> whited out off B2F
+                            return "blackout"
+                self._drain_overworld(label="fossil-pick")
+                return "ok"
+        log("   !! MTMOON: couldn't reach a fossil stand-tile (Miguel uncleared) - (5,10) will gate")
+        return "ok"
 
     # ── healing (the ordinary survival loop) ──────────────────────────────────
     def lead_hp(self):
@@ -1374,8 +1414,9 @@ class Campaign:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
             return False
 
-    MAX_BLACKOUT_RETRIES = 6      # per segment — a thin solo roster may need several Miguel attempts;
+    MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
                                   # each retry re-walks (more trainer XP) + re-heals, so it converges.
+                                  # "die as many times as needed and still finish" — survival variance.
 
     @staticmethod
     def _is_blackout(result):
