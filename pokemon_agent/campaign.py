@@ -253,6 +253,7 @@ class Campaign:
             self.soul = PokemonSoul(emit=self.on_event, choose=getattr(self, "_soul_choose", None))
         except Exception:
             self.soul = None
+        self._last_lead_species = None        # for the note_evolve soul hook (lead species-change watch)
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
@@ -1409,8 +1410,51 @@ class Campaign:
             log("   ROSTER_REACT: party size 1 — no new teammate to react to"); return "reacted"
         name = st.SPECIES_NAME.get(st.read_party_species(self.b, cnt - 1), "a new Pokemon")
         log(f"   ROSTER_REACT: party now {cnt} — newest teammate is {name}")
-        self.on_event(f"you've got a new teammate now — a {name} that's going to fight alongside you")
+        # SOUL HOOK (note_caught): route the roster beat THROUGH the soul so the bond is recorded
+        # (and PERSISTS via Phase-1 continuity) and the reaction emits via the same seam. The emitted
+        # WORDING is the scaffold's placeholder — Jonny tunes voice/content live; here we only wire+log.
+        if self.soul is not None:
+            where = {(3, 21): "on Route 3"}.get(tv.map_id(self.b))
+            log(f"   [soul] note_caught FIRE -> species={name} nickname={name} where={where}")
+            self.soul.note_caught(name, name, where)        # records bond + emits via on_event (seam)
+        else:
+            self.on_event(f"you've got a new teammate now — a {name} that's going to fight alongside you")
         return "reacted"
+
+    # ── SOUL hook router (MODE-layer; reads RAM + calls soul hooks; never touches core mood/bond) ──
+    def _soul_choose(self, kind, options, ctx):
+        """Batch-2 DECISION ORACLE seam — where a choice becomes HERS (run through her self-block -> a
+        structured pick). NOT YET WIRED to the LLM: that authors voice/content, which is Jonny's live
+        tuning, not safe unsupervised. For now it LOGS the decision point + options and returns None
+        (invents no choice), so the plumbing is PROVEN to reach the oracle without us authoring her."""
+        opts = list(options.keys()) if isinstance(options, dict) else options
+        log(f"   [soul] ORACLE reached: kind={kind} ctx={ctx} options={opts} "
+            f"-> (LLM oracle unwired; Jonny tunes content) returning None")
+        return None
+
+    def _soul_after_objective(self, kind, out):
+        """Route post-objective SOUL beats through the seam: (a) note_evolve when the lead's species
+        changed, (b) note_faint + note_outcome(won=False) on a blackout/loss, (c) note_outcome(won=True)
+        on a gym clear. Signal + wiring + LOG only — mood/bond math is core's (firewall)."""
+        try:
+            sp = st.read_party_species(self.b, 0)
+            if self._last_lead_species and sp and sp != self._last_lead_species:
+                before = st.SPECIES_NAME.get(self._last_lead_species, "?")
+                after = st.SPECIES_NAME.get(sp, "?")
+                log(f"   [soul] note_evolve FIRE -> {before} -> {after}")
+                self.soul.note_evolve(before, after)
+            if sp:
+                self._last_lead_species = sp
+        except Exception as _e:
+            log(f"   [soul] evolve-check err {_e}")
+        if out in ("battle_loss", "blackout"):
+            lead = st.SPECIES_NAME.get(self._last_lead_species or 0, "the lead")
+            log(f"   [soul] note_faint FIRE -> {lead}; note_outcome FIRE -> won=False")
+            self.soul.note_faint(lead)
+            self.soul.note_outcome(False)
+        elif kind == "BEAT_GYM" and out not in ("stuck", "no_path", "no_warp", "underleveled"):
+            log("   [soul] note_outcome FIRE -> won=True (gym cleared)")
+            self.soul.note_outcome(True, "a badge")
 
     # ── the continuous driver ────────────────────────────────────────────────
     def run(self, objectives):
@@ -1475,6 +1519,8 @@ class Campaign:
                 out = "unknown"
             log(f"   -> objective result: {out} in {time.time()-_t0:.0f}s "
                 f"(now map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
+            if self.soul is not None:
+                self._soul_after_objective(kind, out)     # evolve + faint + battle->mood, via the seam
             if out in ("stuck", "no_path", "battle_loss", "no_warp", "underleveled", "blackout"):
                 log(f"!! CAMPAIGN STOP (loud) at objective {i+1} ({kind}): {out}")
                 return f"stopped:{kind}:{out}"
@@ -1604,6 +1650,9 @@ class Campaign:
             seg = segments[i]
             log(f"==== SEGMENT {i + 1}/{len(segments)}: {seg.name}  "
                 f"({len(seg.objectives)} objective(s)) ====")
+            if self.soul is not None:                       # SOUL HOOK (surface_want): a new beat is a
+                log(f"   [soul] surface_want FIRE -> context={seg.name}")  # moment a want could surface;
+                self.soul.surface_want({"segment": seg.name, "map": tv.map_id(self.b)})  # oracle decides
             # BLACKOUT-RECOVERY (core resilience): a death (Miguel/cave/Route 3 with a thin solo
             # roster) is NOT a dead end — the game respawns + heals at the last Center, and we RE-RUN
             # the segment (the objectives re-navigate from the respawn point). "Die as many times as

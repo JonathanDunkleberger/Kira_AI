@@ -113,6 +113,16 @@ class PokemonSoul:
     def note_evolve(self, before, after, who=None):
         self.emit(f"{who or before} evolved into {after}", kind="evolve", tier=3)
 
+    def note_outcome(self, won, what=None):
+        """Battle->mood SIGNAL (the inverse loop): a win lifts her, a blackout sours her. Mood itself
+        lives in core-Kira and we NEVER set it — we only EMIT a tagged hint (kind=mood_up/mood_down)
+        through the same seam, which the bot MAY let color her mood. Wiring + signal only; the mood
+        math is core's, not ours (firewall)."""
+        if won:
+            self.emit(f"that felt good — {what}" if what else "that went well", kind="mood_up", tier=1)
+        else:
+            self.emit(f"that one stung — {what}" if what else "we went down", kind="mood_down", tier=1)
+
     def roster_opinion(self, who):
         return self.bonds.get((who or "").lower())
 
