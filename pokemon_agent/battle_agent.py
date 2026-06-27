@@ -11,6 +11,7 @@ so her line lands before the hands press on. Reusable for every trainer/gym -> E
 Input is owner-attributed ('agent'): the single Bridge owner. Any non-agent press is
 dropped + logged - no masher/timer can inject input mid-turn.
 """
+import os
 import time
 
 import firered_ram as ram
@@ -190,6 +191,23 @@ class BattleAgent:
             self._reach_first_menu(t0, max_seconds)
         self._settle()
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if os.environ.get("CATCH_RECON"):             # RECON: what menu are we actually on at throw-start?
+            try:
+                _s = st.read_battle(self.b)
+                self.log(f"      [catch-recon] throw-start: white_box={self._white_box()} "
+                         f"in_move_list={self._in_move_list()} balls={self._ball_count()} "
+                         f"in_battle={st.in_battle(self.b)} enemy_hp="
+                         f"{_s['enemy']['hp'] if _s else '?'}/{_s['enemy']['maxhp'] if _s else '?'}")
+            except Exception as _e:
+                self.log(f"      [catch-recon] read err {_e}")
+        # ENSURE THE ACTION MENU (not the move list): a prior weaken move (_fire_move/_weaken_hp) can
+        # leave the FIGHT move-list open, and _white_box() can't tell action-menu from move-list — so
+        # navigating to BAG from the move list fires a MOVE instead of opening the bag (no ball thrown
+        # -> the catch spins, never consuming a ball). Back out to the action menu first.
+        for _ in range(3):
+            if not self._in_move_list():
+                break
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
         self._home_to_fight()                         # CURSOR RESET: on a re-throw (commit loop) the
         self._tap("RIGHT")                            # cursor sits wherever it was -> RIGHT could hit
         #                                               RUN and flee. Home to FIGHT first -> RIGHT=BAG.
