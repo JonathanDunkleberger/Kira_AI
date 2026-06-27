@@ -37,7 +37,8 @@ MIGUEL = (13, 11)
 def main():
     start = os.getenv("START", "mtmoon_interior")   # boot near the end (e.g. mtmoon_endgame) to
     b = Bridge(ROM)                                  # iterate the fossil+exit WITHOUT re-running the cave
-    with open(os.path.join(STATES, start + ".state"), "rb") as f:
+    from campaign import resolve_state               # states moved into lineage buckets (archive sweep)
+    with open(resolve_state(start + ".state") or os.path.join(STATES, start + ".state"), "rb") as f:
         b.load_state(f.read())
     for _ in range(20):
         b.run_frame()

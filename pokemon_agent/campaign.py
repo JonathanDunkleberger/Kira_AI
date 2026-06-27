@@ -108,6 +108,10 @@ PEWTER_PC_DOOR, PEWTER_MART_DOOR = (17, 25), (28, 18)
 VIRIDIAN_MART_DOOR, MART_CLERK_FRONT = (36, 19), (2, 4)
 OAK_LAB_DOOR, OAK_FRONT = (16, 13), (6, 4)
 FLAG_POKEDEX_GET = 0x829
+# Mt Moon entrance (disasm Route4 warp_events): the 1F mouth is a warp at (19,5) ON ROUTE 4 — Route 3
+# has NO Mt Moon warp; it connects UP to Route 4 (offset 60), and the cave is entered from Route 4.
+MT_MOON_ENTRANCE = (19, 5)
+ROUTE4_PC_DOOR = (12, 5)        # Route 4 has its own Pokemon Center (disasm Route4 warp_events)
 # Cerulean Gym (reconned 2026-06-26, recon_gymscan): town door (31,21) -> interior; Misty (8,6,
 # trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
 # WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
@@ -189,17 +193,17 @@ def build_segments():
         ], "seg_route3_caught.state"),
         # Route 3 -> Mt Moon -> Route 4: the cave clear is PROVEN (recon_mtmoon_clear: warp chain +
         # fossil/Miguel + east exit, mtmoon_cleared/cerulean_caught banked) but lives in a recon
-        # SCRIPT, not yet a campaign objective. Porting it to a CLEAR_MT_MOON handler + the
-        # Route3->entrance seam is a real build (GATE->AUTO conversion, queued). For now this is a
-        # TEMP GATE onto cerulean_caught (Route 4, just outside Cerulean) so the manifest already
-        # sequences bedroom -> Misty continuously (with this one documented skip).
+        # Route 3 -> Mt Moon -> Route 4 -> Cerulean: FULLY AUTO now (Skip 3). The "entrance seam" was
+        # a geography misread — Route 3 has NO Mt Moon warp; it connects UP to Route 4, and the cave
+        # mouth is a warp at (19,5) ON ROUTE 4 (disasm). So: cross north to Route 4, step into the Mt
+        # Moon entrance, then hand to the PROVEN clear_mt_moon (untouched nav; now flees wilds / fights
+        # only trainers in the cave, per the solo-Ivysaur reality). Cave-clear emerges on Route 4 and
+        # crosses east to Cerulean itself.
         Segment("route3_to_cerulean", [
-            ("GATE_NEEDS_STATE", "mtmoon_interior.state",
-             "seam-scaffold ONLY (Route3-east -> Mt Moon entrance, blocked by the east-seam paradox "
-             "- Task #11): hand-bank to the cave entrance until the seam is solved. The CAVE ITSELF "
-             "IS NOW AUTO (CLEAR_MT_MOON below) - she WALKS Mt Moon, never a load-past skip."),
-            ("CLEAR_MT_MOON", "walk Mt Moon entrance -> B2F (fossil/Miguel) -> Route 4 -> Cerulean "
-             "(autonomous cave-walk - the proven 12-hour foundation, called not skipped)"),
+            ("WALK_TO_MAP", ROUTE4, "north", "Route 3 -> Route 4 (north connection)"),
+            ("ENTER_WARP", MT_MOON_ENTRANCE, "step into the Mt Moon entrance (Route 4 (19,5))"),
+            ("CLEAR_MT_MOON", "walk Mt Moon 1F -> B2F (fossil/Miguel) -> Route 4 -> Cerulean "
+             "(the proven cave-walk, called not skipped; flees wilds, fights trainers)"),
         ], "seg_cerulean.state"),
         # Misty gym: FULLY AUTO + proven (general beat_gym - clears the 2 junior trainers, beats
         # Misty, dialogue-paced award -> Cascade flag). From cerulean_caught (Route 4) walk EAST into
@@ -263,7 +267,30 @@ class Campaign:
         if direction not in ("north", "south", "east", "west"):
             log(f"   (unknown edge '{direction}', defaulting 'north')")
             direction = "north"
-        return self.trav.travel(target_map=target_map, edge=direction)
+        # HEAL-AND-RETRY: a lone starter crossing a gauntlet route drops below the heal line mid-leg;
+        # travel yields need_heal. Heal at the NEAREST center (location-aware) and retry, so the leg
+        # actually completes instead of stopping short (the Route 3 -> Route 4 stall).
+        for _ in range(8):
+            r = self.trav.travel(target_map=target_map, edge=direction)
+            if r == "need_heal":
+                if self.heal_nearest() == "stuck":
+                    log("   !! WALK: heal failed mid-leg - LOUD"); return "stuck"
+                continue
+            return r
+        return "stuck"
+
+    def heal_nearest(self):
+        """Heal at the Pokemon Center nearest the CURRENT map (location-aware — the pre-Pewter arc
+        heals at Viridian, Route 3 at Pewter one cross west, Route 4 at its own on-map PC). Returns
+        'ok' | 'stuck'. Generalises the Viridian-only return_to_center for the wider early game."""
+        m = tv.map_id(self.b)
+        if m == ROUTE3:
+            return "ok" if self._heal_excursion(PEWTER, PEWTER_PC_DOOR, "west",
+                                                ROUTE3, "east") == "ok" else "stuck"
+        if m == ROUTE4:
+            return "ok" if self.heal_at_center(ROUTE4_PC_DOOR) in ("healed", "healed_stuck_inside") else "stuck"
+        # default (Route 1/Pallet/Route 2/Forest): the direction-aware Viridian return
+        return "ok" if self.return_to_center() not in ("stuck", "battle_loss") else "stuck"
 
     def enter_warp(self, prefer="nearest", pick=None):
         """REAL warp entry: find door/warp tiles (behavior 0x6x), walk to the tile just
@@ -1084,15 +1111,38 @@ class Campaign:
         log("   !! CATCH: no catch within budget - LOUD")
         return "timeout"
 
+    def _cave_runner(self):
+        """Cave battle policy (CLARIFICATION 1): FLEE wild encounters — a solo Ivysaur can't grind
+        every Zubat/Geodude through Mt Moon and survive — but FIGHT forced trainers (can't flee them).
+        This is how the cave was cleared autonomously; the default fight-everything runner would
+        attrition the lone starter to a blackout."""
+        if self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08:         # trainer battle -> must fight
+            return self.battle_runner()
+        return self._flee_runner()                             # wild -> flee (costs ~0 HP)
+
     def clear_mt_moon(self):
-        """Walk Mt Moon entrance->exit AUTONOMOUSLY - the proven recon_mtmoon_clear path, PORTED so
-        the continuous run CALLS the cave-walk (she walks it; never a load-past skip). Warp chain
-        1F->B1F->B2F, grab a fossil to clear the Miguel blocker, exit B2F->B1F->Route 4, cross east
-        to Cerulean. Battles handed to the normal (voice-wired) runner. Returns 'cleared' | 'stuck'."""
+        """Walk Mt Moon entrance->exit AUTONOMOUSLY (preserved nav). Wraps the proven cave-walk with
+        the cave battle policy: FLEE wilds / FIGHT trainers (solo-Ivysaur reality). Returns
+        'cleared' | 'stuck'."""
+        saved = self.trav.battle_runner
+        self.trav.battle_runner = self._cave_runner
+        try:
+            return self._clear_mt_moon()
+        finally:
+            self.trav.battle_runner = saved
+
+    def _clear_mt_moon(self):
+        """The proven recon_mtmoon_clear path, PORTED (warp chain 1F->B1F->B2F, grab a fossil to clear
+        the Miguel blocker, exit B2F->B1F->Route 4, cross east to Cerulean). Nav UNCHANGED."""
         from cave_nav import CaveNav
         FOSSILS = [((13, 7), (13, 8), "UP"), ((14, 7), (14, 8), "UP")]   # (fossil, stand-tile, face)
         nav = CaveNav(self.b, self, fog_path=None, on_event=self.on_event,
                       render=self.render, log=lambda m: log(m))
+        # ENTRY NORMALIZATION: the real Route 4 entrance warp lands on 1F at ~(18,37), but the proven
+        # warp chain starts from (15,30). Walk to the proven start tile first so the (5,6) warp is
+        # reachable from EITHER entry (the banked mtmoon_interior OR the real entrance). Nav unchanged.
+        if tv.map_id(self.b) == (1, 1) and tv.coords(self.b) != (15, 30):
+            self.trav.travel(target_map=None, arrive_coord=(15, 30), max_steps=400, max_seconds=150)
         if tv.map_id(self.b) != (1, 3):                        # warp 1F->B1F->B2F (skip if on B2F)
             if nav._enter((5, 6)) is None:
                 log("   !! MTMOON: (5,6) 1F->B1F unenterable"); return "stuck"
