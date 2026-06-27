@@ -61,6 +61,12 @@ _POCKETS = ((0x0310, 42), (0x03B8, 30), (0x0430, 13), (0x0464, 58), (0x054C, 43)
 STALL_N_DEFAULT  = 3            # generic repeated-press contexts (overworld, no box up)
 STALL_N_DIALOGUE = 8            # a box is up + the fingerprint still moves (e.g. a menu cursor)
 STALL_N_BLOCKER  = 2            # travel blocker-A: a SECOND identical box = plain NPC, not a trainer
+# TRAVEL retry-loop guard (increment 3.5): identical-fingerprint RETRIES of travel's no-path branch
+# before travel STOPS spinning and returns a loud structured failure UP to the roam loop (where the
+# macro ledger + oracle feedback live). The live wedge spun a single travel call's inner loop ~tens
+# of times with the player never moving; this surfaces it in ~2s instead. Fires AFTER the no_path==4
+# chokepoint-gauntlet attempt, so a real trainer-on-the-gap still triggers a battle first.
+TRAVEL_STALL_RETRIES = 4
 # DIALOGUE is the EXCEPTION the recon forced (recon_microwatch.py, 2026-06-27): a long overworld
 # message scrolls inside ONE constant gStringVar3 string (the Viridian parcel NPC = 36 presses, the
 # buffer never changing), the box pixels animate every frame (the blinking continue-arrow), and the

@@ -1212,7 +1212,8 @@ class Campaign:
         # the old code fed buffer-coord grass straight to travel (a 7-tile miss that never stepped
         # onto grass -> no wild encounter -> the catch looked "impossible").
         off = tv.MAP_OFFSET
-        grass = sorted(((g[0] - off, g[1] - off) for g in tv.Grid(self.b).grass),
+        g_now = tv.Grid(self.b)
+        grass = sorted(((g[0] - off, g[1] - off) for g in g_now.grass),
                        key=lambda g: abs(g[0] - cur0[0]) + abs(g[1] - cur0[1]))
         if not grass:
             log("   !! CATCH: no grass on this map - can't find a wild Pokemon here")
@@ -1221,8 +1222,22 @@ class Campaign:
         # PC / Mt Moon mouth) and the catch wedges on an NPC inside (the (5,4) trap). Treat doors as
         # permanent blocks for the whole wander — same avoid-param pattern as cave warp-to-warp nav.
         doors = frozenset(self._door_tiles())
-        log(f"   CATCH: {len(grass)} grass tiles (nearest {grass[0]}); avoiding {len(doors)} warp tile(s)"
-            f" - traversing grass to catch one")
+        # REACHABILITY SANITY (increment 3.5): never hand travel a grass tile it can't path to. BFS
+        # from here (permissive — allow NPC tiles, those clear on their own) and drop the unreachable.
+        # If NONE is reachable (walled off, or a bad early-spawn target — the live (9,60)->(2,2) wedge),
+        # return UP to roam so the oracle picks a different action, instead of travel spinning a dead
+        # target for minutes (capability-not-script: she decides, we don't script the escape).
+        def _reach(tile):
+            return bool(tv.bfs(g_now, cur0, lambda t: t == tile,
+                               walkable=lambda sx, sy: g_now.walkable(sx, sy) and (sx, sy) not in doors))
+        reachable = [t for t in grass if _reach(t)]
+        if not reachable:
+            log(f"   !! CATCH: {len(grass)} grass tile(s) here but NONE reachable from {cur0} "
+                f"(walled off / bad target) - returning to roam, the oracle decides (LOUD)")
+            return "no_reachable_target"
+        grass = reachable
+        log(f"   CATCH: {len(grass)} reachable grass tile(s) (nearest {grass[0]}); avoiding "
+            f"{len(doors)} warp tile(s) - traversing grass to catch one")
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         caught = [False]
         out_of_balls = [False]
@@ -1262,7 +1277,10 @@ class Campaign:
         try:
             waypoints = [grass[0], grass[-1], grass[len(grass) // 2]]
             wi = 0
+            fails = 0
+            FAIL_BUDGET = len(waypoints) + 2     # ~each waypoint once, then surface to roam
             while time.time() - t0 < max_seconds and not caught[0] and not out_of_balls[0]:
+                before = tv.coords(self.b)
                 r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
                                      max_steps=120, max_seconds=80, avoid=doors)
                 if r == "need_heal":
@@ -1273,7 +1291,20 @@ class Campaign:
                     continue                                  # retry the same waypoint, now healed
                 wi += 1
                 if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
-                    caught[0] = True
+                    caught[0] = True; break
+                # BOUND THE SPIN (increment 3.5): a travel that REACHED the grass ('arrived') or moved
+                # us is progress (keep wandering for encounters). A travel that pathed nowhere is a dead
+                # waypoint right now (NPC won't clear / unreachable). Tally those and, after FAIL_BUDGET,
+                # surface to roam so the oracle changes action — NEVER re-cycle the dead set for minutes.
+                progressed = (r == "arrived") or (tv.coords(self.b) != before)
+                fails = 0 if progressed else fails + 1
+                if not progressed:
+                    log(f"   CATCH: travel -> {r} (reason={getattr(self.trav, 'last_fail_reason', '')!r}, "
+                        f"no progress) fails={fails}/{FAIL_BUDGET}")
+                if fails >= FAIL_BUDGET:
+                    log(f"   !! CATCH: {fails} no-progress travels — grass not productively reachable, "
+                        f"returning to roam so the oracle picks a different action (LOUD)")
+                    return "no_reachable_target"
         finally:
             self.trav.battle_runner = orig
             self.b.set_input_owner("agent")

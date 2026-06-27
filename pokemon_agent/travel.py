@@ -385,6 +385,15 @@ class Traveler:
                  f"{'coord ' + str(arrive_coord) if arrive_coord else 'map ' + str(target_map)} "
                  f"(budget {max_seconds:.0f}s)")
         stuck = exit_tries = no_path = 0
+        # TRAVEL-LAYER PROGRESS GUARD (increment 3.5): fingerprint the world across no-path RETRIES.
+        # If it stays identical (player can't move, world unchanged) for TRAVEL_STALL_RETRIES, STOP
+        # spinning and surface a loud STRUCTURED failure UP to the roam loop (where the watchdog is) —
+        # instead of re-trying an impossible target for minutes. last_fail_reason tags WHY (npc_block
+        # / no_route) for the oracle + logs; it's additive, the return strings stay backward-compatible.
+        fp_stall = 0
+        last_fp = None
+        npc_block_seen = False     # set at the no_path==4 probe: did an NPC-allowing path exist?
+        self.last_fail_reason = ""
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
         # STATIC obstacles: a step that fails on a NON-NPC tile is an un-encoded boulder/rock/wall
@@ -446,6 +455,7 @@ class Traveler:
                          f"{max_seconds:.0f}s) at {coords(self.b)} map={map_id(self.b)} "
                          f"step={step} - ABORT LOUD (grinding / wedged, not progressing fast)")
                 self.on_event("this is taking forever - I'm stuck grinding, let me regroup")
+                self.last_fail_reason = "budget"
                 return "stuck"
             if step % 40 == 0 and step:        # periodic LOUD heartbeat (always visible)
                 self.log(f"   [travel] HEARTBEAT step={step} map={map_id(self.b)} "
@@ -526,6 +536,7 @@ class Traveler:
                             self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "
                                      f"presses didn't transition - ABORT LOUD")
                             self.on_event("I'm at the edge but I can't get through - stuck")
+                            self.last_fail_reason = "exit_blocked"
                             return "stuck"
                     else:
                         exit_tries = 0                # stepped deeper into the overlap -> still progressing
@@ -534,6 +545,12 @@ class Traveler:
                 # WAIT (bounded) for a wanderer to step off, re-reading NPC positions each
                 # retry, before giving up loud. ~25 x 24f ~= 10s of patience.
                 no_path += 1
+                # PROGRESS GUARD: has the WORLD changed at all across these no-path retries? (The
+                # player is stuck, so coords/party/etc sit still; this counts CONSECUTIVE frozen
+                # retries.) Checked below, AFTER the no_path==4 gauntlet probe has had its shot.
+                _fp = wf.fingerprint(self.b)
+                fp_stall = (fp_stall + 1) if (last_fp is not None and _fp == last_fp) else 0
+                last_fp = _fp
                 # CHOKEPOINT TRAINER: BFS avoids NPC tiles, so a trainer standing on the only gap
                 # yields no clean path - and it can be 2+ tiles ahead (the adjacent sweep can't reach
                 # it). Re-plan ALLOWING npc tiles: if THAT path exists, an NPC/trainer is the sole
@@ -544,6 +561,7 @@ class Traveler:
                     npc_path = bfs(grid, cur, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
                                    and (sx, sy) not in static_blocked and (sx, sy) not in avoid)
                     nplist = sorted(self._npc_tiles())
+                    npc_block_seen = bool(npc_path and len(npc_path) >= 2)   # NPC on the gap vs real wall
                     if npc_path and len(npc_path) >= 2:
                         blk = next((t for t in npc_path if t in npc), None)
                         self.log(f"   [travel] no clean path from {cur}; NPC-allowing path EXISTS "
@@ -571,7 +589,7 @@ class Traveler:
                                 return "battle_loss"
                             grid = Grid(self.b)
                             blocked.clear(); fail_count.clear(); static_blocked.clear()
-                            no_path = stuck = 0
+                            no_path = stuck = fp_stall = 0; last_fp = None
                             # heal-when-low after a BLOCKER (gauntlet) trainer too — mirrors the
                             # post-encounter yield at the top. Without this a lone starter walks a
                             # trainer gauntlet (Route 3) with no heal between fights and faints.
@@ -582,17 +600,31 @@ class Traveler:
                     else:
                         self.log(f"   [travel] no clean path from {cur} AND no NPC-allowing path "
                                  f"(npcs nearby={nplist}) - genuine wall/zone gap, will time out")
+                # TRAVEL WEDGE GUARD: world frozen across TRAVEL_STALL_RETRIES no-path retries -> this
+                # target is impossible from here (unreachable coord / a plain NPC that won't move /
+                # a real wall). STOP spinning and surface UP to roam with a REASON, so the macro ledger
+                # + oracle pick a different action — instead of re-trying the same dead target for
+                # minutes. Fires AFTER the no_path==4 gauntlet probe, so a real trainer-on-the-gap has
+                # already started a battle (which moves the fingerprint and resets this).
+                if fp_stall >= wf.TRAVEL_STALL_RETRIES:
+                    self.last_fail_reason = "npc_block" if npc_block_seen else "no_route"
+                    self.log(f"   [travel] !! TRAVEL WEDGE: identical fp x{fp_stall} retries at {cur} "
+                             f"map={map_id(self.b)} (reason={self.last_fail_reason}) -> returning to roam "
+                             f"LOUD (no inner spin)")
+                    self.on_event("I can't find a way through here — let me rethink this")
+                    return "no_path"
                 if no_path > 25:
                     self.log(f"   [travel] !! NO PATH from {cur} to the exit after waiting "
                              f"~10s for NPCs to clear - ABORT LOUD")
                     self.on_event("there's someone blocking the way and they won't move - stuck")
+                    self.last_fail_reason = self.last_fail_reason or "no_route"
                     return "no_path"
                 if no_path == 1:
                     self.log(f"   [travel] path blocked at {cur} (NPC on the gap?) - waiting")
                 for _ in range(24):
                     self.b.run_frame(); self.render()
                 continue
-            no_path = 0
+            no_path = fp_stall = 0; last_fp = None     # a path exists -> progressing; clear the guard
 
             d = direction(cur, path[1])
             nxt = path[1]
