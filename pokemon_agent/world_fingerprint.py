@@ -36,6 +36,7 @@ DEFERRED, on purpose, NOT guessed (see the recon note in the increment-2 summary
 
 PURE READS - no input, no frames, no writes (safe to call inside a press loop)."""
 from collections import namedtuple
+import os
 import zlib
 
 import firered_ram as ram
@@ -258,3 +259,82 @@ class ProgressLedger:
                  if self.last_action else "Nothing you've tried")
         gone = f"it went '{self.last_outcome}'" if self.last_outcome else "nothing's happened"
         return (f"{tried} but the world hasn't changed in {self.stuck} turns - {gone}, and {sev}.")
+
+
+# ── UNIVERSAL WALL-CLOCK WATCHDOG (LAYER B) ──────────────────────────────────────────────────
+# The headline gap the live Slowbro watch exposed: the per-tick MACRO ProgressLedger SKIPS any tick
+# whose fingerprint shows a dialogue/menu box up (`observe`: `not fp.menu_or_dialogue`) — it can't
+# tell a legit read from a wedged box on the fingerprint alone — so a FROZEN dialogue box (the exact
+# Slowbro signature: travel bumps an NPC, its line re-shows, the world never moves) NEVER escalated.
+# StuckWatch is the fix: a WALL-CLOCK detector that does NOT skip boxes, sitting ABOVE every sub-layer.
+#   KEY = the world fingerprint with menu_or_dialogue EXCLUDED (a box toggling up/down during a bump-
+#         loop is not progress) + the on-screen dialogue TEXT (a real conversation ADVANCING is the one
+#         signal that tells a long legit read from a stuck box — a page-turn is a new key = progress).
+#   TRIP = she's been confined to a SMALL set of these keys for `stuck_s` of WALL-CLOCK time. Like
+#          travel's position-loop guard, it tolerates a bounded cycle (the box-toggle, the 4-way facing
+#          sweep, a <=3-tile loop): every genuinely-NEW key restarts the clock; once no new key appears
+#          for stuck_s, it trips — catching SUB-TICK spins a per-tick ledger can't see, whatever's wedged.
+# Battle is battle_agent's domain (the flee floor owns it) -> a battle_active fp auto-resets (never
+# trips mid-fight). TIME IS INJECTED (`now`) so the module stays a pure read and the class unit-tests
+# headless with a fake clock.
+WATCHDOG_STUCK_S   = float(os.getenv("POKEMON_WATCHDOG_STUCK_S", "30"))  # frozen this long (s) -> trip
+WATCHDOG_SEEN_CAP  = 64        # distinct keys retained; only grows under sustained PROGRESS, never a wedge
+
+
+class StuckWatch:
+    """LAYER B universal backstop. Feed it (fp, now, text) every live frame (throttled); it trips when
+    the world (menu-excluded) + on-screen text have sat in a small set of states for `stuck_s` seconds,
+    regardless of which sub-layer is wedged. The caller owns the response (mark + disengage at the
+    highest altitude). Pure/time-injected -> deterministically unit-testable headless."""
+
+    def __init__(self, stuck_s=WATCHDOG_STUCK_S, label="watchdog"):
+        self.stuck_s = stuck_s
+        self.label = label
+        self._seen = set()          # distinct keys seen since the last GENUINE advance
+        self._t0 = None             # wall-clock of the last genuine advance (clock origin)
+        self._tripped = False
+        self.reason = ""
+
+    @staticmethod
+    def _key(fp, text):
+        # menu_or_dialogue EXCLUDED (box toggle != progress); TEXT included (page-turn == progress).
+        if fp is None:
+            return None
+        return (fp.map_id, fp.x, fp.y, fp.facing, fp.battle_active,
+                fp.party, fp.badges, fp.money, fp.bag, text or "")
+
+    def feed(self, fp, now, text="", progressed=False):
+        """Record one sample at wall-clock `now`. Returns True once tripped. A None fp (unreadable),
+        an in-battle fp, or an explicit `progressed` flag RESET the watch (no judgement / not our
+        domain / a caller-known advance)."""
+        if fp is None or fp.battle_active or progressed:
+            self.reset()
+            return False
+        k = self._key(fp, text)
+        if self._t0 is None:
+            self._t0 = now
+        if k not in self._seen:                 # a NEW world/text state -> genuine advance -> restart
+            if len(self._seen) >= WATCHDOG_SEEN_CAP:   # sustained PROGRESS only ever reaches here
+                self._seen = set()
+            self._seen.add(k)
+            self._t0 = now
+            self._tripped = False
+            return False
+        # a REPEAT of a state already seen in this frozen window -> the clock keeps running
+        if (now - self._t0) >= self.stuck_s:
+            self._tripped = True
+            self.reason = "frozen_box" if fp.menu_or_dialogue else "frozen_world"
+        return self._tripped
+
+    def reset(self):
+        self._seen = set()
+        self._t0 = None
+        self._tripped = False
+        self.reason = ""
+
+    @property
+    def tripped(self):
+        return self._tripped
+
+    def seconds_stuck(self, now):
+        return 0.0 if self._t0 is None else max(0.0, now - self._t0)

@@ -406,6 +406,20 @@ class Campaign:
         # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
         # the same looping NPC / re-trigger a beaten trainer's restarting lines.
         self._looped_spots = set()
+        # LAYER A — UNIFIED "NPCs that block me" memory: {(map_id, body_tile)} of plain (non-trainer)
+        # NPCs sitting on a path tile. ONE set shared by BOTH the travel path (routes AROUND these
+        # body tiles — the live Slowbro-near-Cerulean-Mart wedge) AND the talk path (`_npc_is_resolved`
+        # skips them). Persists across roam ticks (the per-travel-call `static_blocked` reset every tick,
+        # so a blocker was re-discovered + re-bumped forever). Fed from travel's chokepoint gauntlet,
+        # the B-2 dialogue-loop disengage, and the Layer-B watchdog wedge-spot mark — one source of truth.
+        self._blocked_npcs = set()
+        # LAYER B — UNIVERSAL WALL-CLOCK WATCHDOG: created at free_roam start. `_stuck_request` is the
+        # latched disengage the live render hook sets when StuckWatch trips (honored at the top of the
+        # roam loop AND cooperatively by travel via stuck_check); `_watchdog_trips` counts trips this
+        # wedge-episode so a re-trip escalates to the escape-hatch. Reset on real (GREEN) progress.
+        self._stuckwatch = None
+        self._stuck_request = None
+        self._watchdog_trips = 0
         # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
         # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
@@ -473,9 +487,13 @@ class Campaign:
         # Escalates the "this ends the same way" framing so the blind re-walk stops being her default.
         self._wall_gated_streak = 0
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
+        # stuck_check (LAYER B): travel polls this each step; when the universal watchdog has latched a
+        # disengage, travel bails its leg LOUD ("stuck") so the wedge unwinds to the roam loop's
+        # top-level recovery — instead of spinning a sub-tick loop the per-tick ledger can't see.
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
-                                pause_check=lambda: self.needs_heal() and not self._suppress_heal)
+                                pause_check=lambda: self.needs_heal() and not self._suppress_heal,
+                                stuck_check=lambda: self._stuck_request is not None)
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:
@@ -3015,6 +3033,54 @@ class Campaign:
             pass
         return None
 
+    # facing nibble (FRLG object-event facingDirection) -> the (dx,dy) of the tile she's FACING =
+    # the blocker she's bumping. 1=south/down 2=north/up 3=west/left 4=east/right.
+    _FACE_DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}
+
+    def feed_watchdog(self, text="", now=None):
+        """LAYER B — fed every live frame (throttled) from play_live's render hook. Reads the world
+        fingerprint + the on-screen dialogue text and feeds the wall-clock StuckWatch; on a TRIP it
+        latches `_stuck_request` (honored at the top of the roam loop + cooperatively by travel's
+        stuck_check). No-op headless (no watchdog created) or before free_roam. Pure backstop — it
+        never drives a normal decision, only catches a wedge no sub-layer surfaced."""
+        if self._stuckwatch is None or now is None:
+            return
+        try:
+            fp = wf.fingerprint(self.b)
+        except Exception:
+            return
+        if self._stuckwatch.feed(fp, now, text=text or "") and self._stuck_request is None:
+            self._stuck_request = {
+                "reason": self._stuckwatch.reason,
+                "map": tuple(tv.map_id(self.b)),
+                "coords": tv.coords(self.b),
+                "facing": (fp.facing if fp else None),
+                "secs": round(self._stuckwatch.seconds_stuck(now), 1),
+            }
+            log(f"   [roam] !!!! WATCHDOG TRIPPED ({self._stuck_request['reason']}): nothing on screen "
+                f"has meaningfully changed for {self._stuck_request['secs']}s at "
+                f"{self._stuck_request['map']}@{self._stuck_request['coords']} — latching a top-level "
+                f"disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD")
+
+    def _mark_wedge_spot(self, req):
+        """LAYER A+B bridge: when the watchdog trips, the tile she's FACING is whatever she's been
+        bumping (a blocking NPC / a closed door she keeps walking into). Record it in the UNIFIED
+        block memory so travel routes AROUND it and the talk path won't re-engage it next time."""
+        try:
+            mp, cur, f = req.get("map"), req.get("coords"), req.get("facing")
+            if not mp or cur is None:
+                return
+            d = self._FACE_DELTA.get(f)
+            if d is None:
+                return
+            body = (cur[0] + d[0], cur[1] + d[1])
+            self._blocked_npcs.add((mp, body))
+            self._looped_spots.add((mp, cur))   # talk guard: don't re-initiate from this stand tile
+            log(f"   [roam] wedge spot: blocking {body} on {mp} (route around it) + marking {cur} a "
+                f"resolved talk-spot — unified block memory now {len(self._blocked_npcs)} tile(s)")
+        except Exception as _e:
+            log(f"   [roam] mark wedge spot skipped: {_e}")
+
     def _wait_overworld(self, max_frames=900):
         """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
         from dialogue_drive import box_open
@@ -3206,6 +3272,17 @@ class Campaign:
         import time as _t
         t0 = _t.time()
         ledger = wf.ProgressLedger()               # MACRO watchdog: cross-tick "am I getting anywhere?"
+        # LAYER B — UNIVERSAL WALL-CLOCK WATCHDOG: the backstop ABOVE every sub-layer. Fed live from
+        # play_live's per-frame render hook (so it catches SUB-TICK spins), it does NOT skip dialogue
+        # boxes — it trips when the screen (world fp + on-screen text) sits frozen for WATCHDOG_STUCK_S
+        # wall-clock seconds, the exact hole that let the Slowbro frozen-box wedge defeat the per-tick
+        # ledger. Env POKEMON_WATCHDOG=0 disables (RAM ledger still runs).
+        if os.getenv("POKEMON_WATCHDOG", "1") != "0":
+            self._stuckwatch = wf.StuckWatch()
+            log(f"   [roam] universal watchdog ARMED (trips after {self._stuckwatch.stuck_s:.0f}s "
+                f"frozen-screen, sub-layer-agnostic)")
+        self._stuck_request = None
+        self._watchdog_trips = 0
         red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
         hard_recovered = False                     # forced one position-break this RED streak already?
         escape_reloads = 0                         # ADDENDUM A: escape-hatch reloads this wedge-episode
@@ -3325,6 +3402,37 @@ class Campaign:
                 last_badge_ts = time.time()
                 _prev_badges = state["badge_count"]
             self._publish_health(macro, state, last_badge_ts, run_start_ts)
+            # LAYER B — UNIVERSAL WATCHDOG DISENGAGE (highest altitude, runs BEFORE the RED ladder): the
+            # wall-clock backstop latched a wedge the per-tick ledger couldn't see (a frozen dialogue box,
+            # a sub-tick spin — whatever sub-layer was stuck). Honor it: clear+reset the watch FIRST (so
+            # the recovery's own travel/heal isn't instantly re-cancelled by the stale request), mark the
+            # wedge spot blocked (travel routes around it next time), then force a real POSITION break and
+            # tell her plainly to do something different. A 2nd trip this episode escalates to the
+            # escape-hatch reload. Reset the trip counter on GREEN (real progress) below.
+            if self._stuck_request is not None:
+                req, self._stuck_request = self._stuck_request, None
+                if self._stuckwatch is not None:
+                    self._stuckwatch.reset()
+                self._watchdog_trips += 1
+                log(f"   [roam] !!!! WATCHDOG DISENGAGE #{self._watchdog_trips} at "
+                    f"{req['map']}@{req['coords']} (reason={req['reason']}, frozen {req.get('secs')}s) "
+                    f"— top-level recovery, sub-layer-agnostic")
+                self._mark_wedge_spot(req)
+                self.on_event("okay — I've been stuck on the same spot going nowhere for a while. I'm "
+                              "backing off this completely and trying something different.",
+                              kind="recover", tier=2)
+                if self._watchdog_trips >= 2 and self._last_good_state:
+                    log("   [roam] !! WATCHDOG re-trip this episode — escalating to the escape-hatch reload")
+                    self._escape_hatch_reload()
+                elif tv.map_id(self.b)[0] != 3:        # stuck inside a building -> get to the overworld
+                    self._exit_to_overworld()
+                else:                                   # break the position via a known-reachable anchor
+                    self.heal_nearest()
+                ledger.note_action("watchdog_disengage", req["reason"])
+                self._wait_overworld()
+                continue
+            if macro == ledger.GREEN:                   # real progress -> new episode, reset trip budget
+                self._watchdog_trips = 0
             # STEP-3 HARD RECOVERY (increment 4 PART B): awareness (inc3 oracle feedback) is step 1, but
             # SUSTAINED RED means re-asking isn't working — the system must guarantee a POSITION change or
             # stop loud, never re-ask an impossible question for 20+ ticks (the live wedge). Capability-

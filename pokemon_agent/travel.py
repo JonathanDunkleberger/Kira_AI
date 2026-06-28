@@ -300,13 +300,18 @@ class Traveler:
     """
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
-                 log=print, owner="agent", beat=None, pause_check=None):
+                 log=print, owner="agent", beat=None, pause_check=None, stuck_check=None):
         self.b = bridge
         self.battle_runner = battle_runner
         # optional callback checked AFTER each battle; if it returns truthy, travel() yields
         # control to the caller with "need_heal" (the heal-when-low interrupt) so the campaign
         # can route back to the Center before resuming the leg.
         self.pause_check = pause_check or (lambda: False)
+        # LAYER B cooperative cancel: polled at the top of every step. When the UNIVERSAL wall-clock
+        # watchdog (fed from the live render hook) has latched a disengage, this returns truthy and
+        # travel bails the leg LOUD ("stuck", reason=watchdog) so the wedge unwinds to the roam loop's
+        # top-level recovery — no sub-tick loop keeps spinning below the per-tick ledger's sight.
+        self.stuck_check = stuck_check or (lambda: False)
         self.render = render or (lambda: None)
         self.on_event = on_event or (lambda s: None)
         # PERFORMANCE BEAT hook: at notable moments the hands HOLD until her voice
@@ -516,6 +521,12 @@ class Traveler:
         # this is the can't-loop-forever floor, the overworld sibling of the battle flee / dialogue cycle floors.
         _pos_window = deque(maxlen=POS_LOOP_WINDOW)
         for step in range(max_steps):
+            # LAYER B cooperative cancel: the universal watchdog latched a disengage -> bail this leg
+            # LOUD so the roam loop runs its top-level recovery (don't keep spinning a sub-tick loop).
+            if self.stuck_check():
+                self.log("   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD")
+                self.last_fail_reason = "watchdog"
+                return "stuck"
             _pc = coords(self.b)
             if _pc is not None and not st.in_battle(self.b):
                 _pos_window.append(tuple(_pc))

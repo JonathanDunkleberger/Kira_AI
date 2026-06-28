@@ -252,6 +252,14 @@ def main():
             except Exception as e:
                 fired = None
                 print(f"   [play-live] dialogue poll error: {e}", flush=True)
+            # LAYER B — feed the universal wall-clock watchdog every poll (sub-tick cadence). Pass the
+            # CURRENT on-screen dialogue text so a real page-turn reads as progress but a frozen/re-shown
+            # box (the Slowbro wedge) does not. No-op until free_roam arms the watch; skipped above during
+            # the scripted award drain (render returns early there).
+            try:
+                camp.feed_watchdog(text=dialogue._read_buffer(), now=time.time())
+            except Exception as e:
+                print(f"   [play-live] watchdog feed error: {e}", flush=True)
             if fired and not _holding[0] and (voice.last_dialogue_tier or 0) >= 2:
                 _dialogue_hold(voice.last_dialogue_tier, voice._last_summary or "")
         _draw()
