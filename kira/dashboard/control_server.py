@@ -477,6 +477,9 @@ async def _pokemon_hud_json():
             # objective / want. All game-side + viewer-appropriate (still NO token spend / reasoning).
             "now_state": g.get("now_state"), "objective": g.get("objective"),
             "want": g.get("want"), "playthrough_s": g.get("playthrough_s"),
+            # PHASE 1 — 3-tier goal (short/medium/long) + flat one-liner so Jonny reads
+            # "stuck vs strategizing" at a glance. Game-side, viewer-appropriate.
+            "goals": g.get("goals"), "plan": g.get("plan"),
             "party_count": g.get("party_count"), "dex_caught": g.get("dex_caught")}
 
 for _name in ("web_dashboard", "cookie_jar_overlay"):

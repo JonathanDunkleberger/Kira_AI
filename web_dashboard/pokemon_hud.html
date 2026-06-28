@@ -44,6 +44,13 @@
   .obj svg{flex:none;}
   .want{margin-top:5px;font-size:10.5px;font-style:italic;color:var(--cream-dim);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* ── 3-tier goal (short / medium / long) — read "stuck vs strategizing" at a glance ── */
+  .goals{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
+  .goal{font-size:10.5px;color:var(--cream);display:flex;gap:6px;align-items:baseline;line-height:1.25;}
+  .goal b{flex:none;font-size:8.5px;font-weight:700;letter-spacing:.5px;width:34px;color:var(--amber);
+    opacity:.85;text-transform:uppercase;}
+  .goal.med b{color:var(--rose,#e08aa8);} .goal.long b{color:var(--cream-dim);}
+  .goal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
   /* ── badges ── */
   .badges{display:flex;gap:4px;padding:11px 12px 9px;margin-bottom:9px;}
@@ -92,6 +99,11 @@
       stroke="#f0c265" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#f0c265"/></svg>
       <span id="obj"></span></div>
     <div class="want" id="want"></div>
+    <div class="goals" id="goals">
+      <div class="goal now"><b>Now</b><span id="gShort"></span></div>
+      <div class="goal med"><b>Next</b><span id="gMed"></span></div>
+      <div class="goal long"><b>Goal</b><span id="gLong"></span></div>
+    </div>
   </div>
   <div class="panel badges" id="badges"></div>
   <div class="panel party"><div class="ttl">the team</div><div id="party"></div></div>
@@ -130,6 +142,12 @@ function render(d){
   el('objWrap').style.display = d.objective ? '' : 'none';
   el('want').textContent = d.want ? `“${d.want}”` : '';
   el('want').style.display = d.want ? '' : 'none';
+  // 3-tier goal (short/medium/long): what she's doing now, the obstacle she's prepping for, the milestone
+  const g = d.goals || {};
+  el('gShort').textContent = g.short || '';
+  el('gMed').textContent   = g.medium || '';
+  el('gLong').textContent  = g.long || '';
+  el('goals').style.display = (g.short || g.medium || g.long) ? '' : 'none';
 
   // badge row — lit by count (canonical order), real badge graphics
   const n = d.badge_count||0;

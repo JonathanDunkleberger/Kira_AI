@@ -2837,6 +2837,26 @@ class Campaign:
                             f"strengthen options only: {strengthen}")
             except Exception as _ss:
                 log(f"   [roam] strategic-stuck pruning skipped: {_ss}")
+            # PHASE 2 — READINESS → GO: once she's crossed the readiness bar, make the RETURN the
+            # ATTRACTIVE option (not merely un-pruned). Reframing head_to_gym's description IS the weight
+            # in this oracle architecture — so the return reads as a strong positive pull, not a bland
+            # equal. She still chooses; this just stops "keep grinding" from being the path of least
+            # resistance after she's already prepared.
+            try:
+                wr = self.strat.ready_to_retry(state.get("party_count"),
+                                               state["party"][0]["level"] if state.get("party") else None)
+                if wr and "head_to_gym" in a:
+                    if wr.get("is_trainer"):
+                        who = wr.get("name") or (f"{wr.get('lead')}" if wr.get("lead") else "that rival")
+                    else:
+                        who = f"the wild {wr.get('lead')}" if wr.get("lead") else "that wall"
+                    place = wr.get("place") or "the route that walled you"
+                    a["head_to_gym"] = (f"GO BACK AND TAKE THE WALL — you've trained up for exactly this; "
+                                        f"head back to {place} and beat {who}. You're ready now; this is "
+                                        f"the move, not more grinding.")
+                    log(f"   [roam] !! READINESS → GO: reframed head_to_gym as the active 'go take {who}' pull")
+            except Exception as _rr:
+                log(f"   [roam] readiness reframe skipped: {_rr}")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
         # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
         # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
@@ -3271,7 +3291,8 @@ class Campaign:
                 log(f"   [soul] surface_want FIRE -> {state['place']}")
                 self.soul.surface_want({"place": state["place"], "map": state["map"],
                                         "badges": state["badges"], "progress": state["progress"],
-                                        "party": [m["species"] for m in state["party"]]})
+                                        "party": self._party_brief(state),     # PHASE 1: team by NAME
+                                        "goal": self._goal_layers(state)})      # PHASE 1: 3-tier goal
             # On YELLOW+, fold STUCK-AWARENESS into the oracle ctx via the existing `place` seam (the
             # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
             # she's stuck; she still decides the next move HERSELF (capability-not-script).
@@ -3346,17 +3367,30 @@ class Campaign:
             # STRATEGIC-STUCK FLOOR — the DOMINANT note (leads, ahead of the softer loss_awareness). When
             # she's truly stuck (≥N identical losses, no change), this names the loop and that strengthening
             # comes FIRST. Paired with the option-pruning in _available_actions, this is the floor with teeth.
-            if STRATEGIC_STUCK_ENABLED and self.strat.strategically_stuck(
-                    state.get("party_count"), state["party"][0]["level"] if state.get("party") else None):
+            _pc = state.get("party_count")
+            _pl = state["party"][0]["level"] if state.get("party") else None
+            # PHASE 2 — READINESS → GO (the grind's EXIT). Once she's crossed the readiness bar since the
+            # wall, the move is to RETURN — so fold the DOMINANT 'go back now' pull AND suppress the now-
+            # stale 'come back stronger' loss-awareness (which otherwise keeps telling her NOT to go back
+            # even after she's grown — the inertia that made her grind forever tonight).
+            _ready = self.strat.ready_to_retry(_pc, _pl) if STRATEGIC_STUCK_ENABLED else None
+            if _ready:
+                rgn = self.strat.ready_to_retry_note(_pc, _pl)
+                if rgn:
+                    where = f"{where}. {rgn}"
+                    log(f"   [roam] !!!! READINESS → GO vs {self.strat.active_wall}: prep bar crossed — "
+                        f"surfacing the 'go back and take the wall' pull (the grind now has an exit)")
+            if STRATEGIC_STUCK_ENABLED and not _ready and self.strat.strategically_stuck(_pc, _pl):
                 ssn = self.strat.strategic_stuck_note()
                 if ssn:
                     where = f"{where}. {ssn}"
                     log(f"   [roam] !!!! STRATEGIC-STUCK FLOOR vs {self.strat.active_wall}: dominant "
                         f"'strengthen-first' directive folded — breaking the die→re-charge→die loop")
-            la = self.strat.loss_awareness()
-            if la:
-                where = f"{where}. {la}"
-                log(f"   [roam] !! STRATEGY wall vs {self.strat.active_wall}: feeding loss-awareness to the oracle")
+            if not _ready:                                    # don't nag 'come back stronger' once she IS
+                la = self.strat.loss_awareness()
+                if la:
+                    where = f"{where}. {la}"
+                    log(f"   [roam] !! STRATEGY wall vs {self.strat.active_wall}: feeding loss-awareness to the oracle")
             # BATCH-4 PHASE 2 (persistent SPATIAL wall): while a wall gates a route and she hasn't grown,
             # keep telling her the way forward is blocked — so she stops blindly choosing to re-cross it
             # (the routing also hard-blocks it; this is the awareness half so the CHOICE is informed).
@@ -3381,8 +3415,19 @@ class Campaign:
             if ra:
                 where = f"{where}. {ra}"
                 log(f"   [roam] STRATEGY roster: feeding team-shape awareness to the oracle")
+            # PHASE 1 — fold her 3-tier PLAN + team-by-name into the rendered `place` seam so she works
+            # toward a stated objective AND narrates it to chat (and never asks who's on her team / what
+            # she's doing — the immersion bug). She's the one PLAYING; first-person framing is explicit.
+            _goals = self._goal_layers(state)
+            _brief = self._party_brief(state)
+            where = (f"{where}. YOUR PLAN — right now: {_goals['short']}. Next: {_goals['medium']}. "
+                     f"Bigger picture: {_goals['long']}. Your team right now: {_brief}. Remember YOU are "
+                     f"the one playing this — narrate your plan to chat in your own voice (first person: "
+                     f"\"I'm grinding\", \"my team\"), and never ask anyone what you're doing or who's on "
+                     f"your team — you know.")
             pick = self._soul_choose("action", avail,
-                                     {"place": where, "progress": state["progress"], "party": party_str})
+                                     {"place": where, "progress": state["progress"], "party": _brief,
+                                      "goal": _goals})
             if not pick:
                 log("   [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick")
                 ledger.note_action(None, "idle")
@@ -3574,6 +3619,95 @@ class Campaign:
             log(f"   [hud] playthrough timer read skipped: {e}")
             return None
 
+    def _party_brief(self, state):
+        """Her team, by NAME — '<nickname> the <species> (Lxx)' when she's named one (soul.bonds), else
+        '<species> (Lxx)'. So her context always carries WHO is on her team — she states them instead of
+        asking Jonny 'who's in my party?' (the immersion bug). Plain string; '(no team yet)' if empty."""
+        out = []
+        bonds = {}
+        try:
+            bonds = self.soul.bonds or {} if self.soul is not None else {}
+        except Exception:
+            bonds = {}
+        for m in state.get("party", []):
+            sp = m.get("species")
+            nick = None
+            try:
+                for _k, v in bonds.items():
+                    if isinstance(v, dict) and v.get("species") == sp and v.get("nickname"):
+                        nick = v["nickname"]; break
+            except Exception:
+                nick = None
+            label = f"{nick} the {sp}" if nick and nick != sp else (sp or "a Pokémon")
+            out.append(f"{label} (L{m.get('level')})")
+        return ", ".join(out) or "(no team yet)"
+
+    def _goal_layers(self, state):
+        """THREE-HORIZON goal read (short / medium / long), DERIVED from her real live state — never a
+        hardcoded script. Extends the existing self-want + next_gym (not a parallel system):
+          SHORT  = what she's doing right now (the active strengthen task w/ END CONDITION when walled,
+                   else her current soul want),
+          MEDIUM = the obstacle she's preparing for (the active wall — 'beat <who> at <place>'), or the
+                   road to the next gym,
+          LONG   = the next badge milestone (next gym), or the Elite Four.
+        Best-effort; returns {'short','medium','long'} of plain strings (may be '')."""
+        try:
+            pc = state.get("party_count")
+            party = state.get("party") or []
+            pl = party[0]["level"] if party else None
+            team_n = len(party)
+            ng = state.get("next_gym")
+            # LONG — the next badge milestone
+            if ng:
+                try:
+                    badge = self._BADGE_NAMES[state.get("badge_count", 0)]
+                    long = f"Reach {ng['city']}, beat {ng['leader']} for the {badge} Badge"
+                except Exception:
+                    long = f"Reach {ng['city']} and beat {ng['leader']}"
+            else:
+                long = "Take on the Elite Four"
+            wr = self.strat.active_wall_rec()
+            rdy = self.strat.ready_to_retry(pc, pl) if STRATEGIC_STUCK_ENABLED else None
+            # MEDIUM — the wall she's prepping for (if any), else the road ahead
+            if wr:
+                if wr.get("is_trainer"):
+                    who = wr.get("name") or (f"{wr.get('lead')}" if wr.get("lead") else "that rival")
+                else:
+                    who = f"the wild {wr.get('lead')}" if wr.get("lead") else "that wall"
+                place = wr.get("place") or "that route"
+                onward = f", then push on toward {ng['city']}" if ng else ""
+                medium = (f"Go back to {place} and beat {who} — ready now" if rdy
+                          else f"Build a team strong enough to beat {who} at {place}{onward}")
+            elif ng:
+                medium = f"Make your way to {ng['city']}"
+            else:
+                medium = "Press on through the league"
+            # SHORT — current want, or the concrete strengthen task with an END CONDITION when walled
+            want = ""
+            try:
+                if self.soul is not None and self.soul.wants:
+                    want = str(self.soul.wants[-1])
+            except Exception:
+                want = ""
+            if wr and not rdy:
+                target = wr.get("lead_level") or 0
+                if target and pl is not None:
+                    short = f"Train the team toward ~L{target} (or catch one more teammate), THEN retry"
+                elif team_n < 2:
+                    short = "Catch a teammate so you're not going in solo, then retry"
+                else:
+                    short = "Grind the team up a couple levels, then go back and retry"
+            elif rdy:
+                short = "Head back and take the rematch — you're ready"
+            elif want:
+                short = want
+            else:
+                short = "Explore and keep the team battle-ready"
+            return {"short": short, "medium": medium, "long": long}
+        except Exception as e:
+            log(f"   [goals] layer build skipped: {e}")
+            return {"short": "", "medium": "", "long": ""}
+
     def _publish_health(self, macro, state, last_badge_ts, run_start_ts):
         """BATCH 6 PHASE 7 — write the cockpit health snapshot (atomic JSON) the dashboard polls. Game-side
         only; the dashboard merges API spend from the bot's cost-tracker. Best-effort, never blocks the run."""
@@ -3594,6 +3728,13 @@ class Campaign:
                     want = str(self.soul.wants[-1])
             except Exception:
                 pass
+            # PHASE 1 — 3-tier goal (short/medium/long), derived from her real state so Jonny can read
+            # "stuck vs strategizing" at a glance + a flat one-liner for compact HUD surfaces.
+            goals = self._goal_layers(state)
+            plan = " → ".join(p for p in (
+                f"Now: {goals['short']}" if goals.get("short") else "",
+                f"Next: {goals['medium']}" if goals.get("medium") else "",
+                f"Goal: {goals['long']}" if goals.get("long") else "") if p)
             health = {
                 "ts": time.time(),
                 "progress": macro,                       # GREEN / YELLOW / RED / ABANDONED — the watchdog light
@@ -3608,6 +3749,7 @@ class Campaign:
                 "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
                 "next_gym": state.get("next_gym"),
                 "now_state": now_state, "objective": objective, "want": want,
+                "goals": goals, "plan": plan,            # PHASE 1 — 3-tier goal (short/medium/long) + flat line
                 "playthrough_s": self._playthrough_elapsed(),
                 "last_badge_ts": last_badge_ts,
                 "since_last_badge_s": (time.time() - last_badge_ts) if last_badge_ts else None,

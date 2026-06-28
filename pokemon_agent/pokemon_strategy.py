@@ -43,6 +43,13 @@ WALL_REPEAT = 2
 # roster/level change between attempts, the loop is run-existential and the floor escalates hard: her
 # APPROACH is wrong, not her execution. 2 = catch it on the 2nd identical loss, to prevent the 3rd.
 STRATEGIC_STUCK_LOSSES = int(os.getenv("POKEMON_STRATEGIC_STUCK_LOSSES", "2"))
+# READINESS → GO bar (the EXIT from strengthen-mode). stronger_since_wall() releases the PRUNE on ANY
+# +1 level / +1 teammate (low bar: "stop blocking"). ready_to_retry() is the HIGHER bar that turns the
+# return into an ACTIVE pull ("you've prepared — GO BACK now"): she's added a teammate OR gained this
+# many levels since the wall last beat her. Two tiers on purpose — between them she's free to keep
+# strengthening with no block AND no nag; crossing the high bar makes "go take the wall" the attractive
+# move. Without this she un-blocks but never returns (grinds forever by inertia — the live symptom).
+READY_RETRY_LEVELS = int(os.getenv("POKEMON_READY_RETRY_LEVELS", "2"))
 
 
 def _species_at(b, base):
@@ -347,6 +354,47 @@ class StrategicMemory:
         if self.stronger_since_wall(party_count, lead_level):
             return None                                   # she changed something -> a legit retry, not the loop
         return r
+
+    def ready_to_retry(self, party_count, lead_level):
+        """The EXIT from strengthen-mode (the 'am I ready? → GO' sense). HIGHER bar than stronger_since_
+        wall: she's prepared ENOUGH that going back to the wall is now the move to ACTIVELY surface, not
+        just un-block. True when, since the wall last beat her, she's added ≥1 teammate OR gained
+        ≥READY_RETRY_LEVELS levels. Returns the wall rec (so the caller can name who/where) or None.
+        Without this she un-blocks on the low bar but never RETURNS — grinds forever by inertia (the
+        live symptom: caught a teammate + leveled, kept circling the grass)."""
+        r = self.active_wall_rec()
+        if not r:
+            return None
+        wp, wl = r.get("my_party"), r.get("my_level")
+        if wp is None or wl is None or party_count is None or lead_level is None:
+            return None
+        grew_team = party_count >= wp + 1
+        grew_levels = lead_level >= wl + READY_RETRY_LEVELS
+        return r if (grew_team or grew_levels) else None
+
+    def ready_to_retry_note(self, party_count=None, lead_level=None):
+        """The DOMINANT 'go back NOW' directive — the positive pull that makes RETURNING attractive (not
+        just the absence of a block). Names what she built + points her back at the wall. Capability-not-
+        script: still her call, but the moment is surfaced. '' if she hasn't crossed the readiness bar."""
+        r = self.ready_to_retry(party_count, lead_level)
+        if not r:
+            return ""
+        if r.get("is_trainer"):
+            sz = f"{r['size']} Pokémon" if r.get("size") else "a full team"
+            who = f"{r['name']} ({r['lead']} lead, {sz})" if r.get("name") else f"that trainer ({r['lead']} lead, {sz})"
+        else:
+            who = f"the wild {r['lead']}"
+        place = r.get("place") or "that route"
+        grew = []
+        if party_count is not None and r.get("my_party") is not None and party_count > r["my_party"]:
+            grew.append(f"you've got backup now ({party_count} on the team, up from {r['my_party']})")
+        if lead_level is not None and r.get("my_level") is not None and lead_level > r["my_level"]:
+            grew.append(f"you're up to L{lead_level} (from L{r['my_level']} when they beat you)")
+        grew_str = "; ".join(grew) or "you've trained up since"
+        return (f"THIS IS THE MOMENT — you're ready now: {grew_str}. You strengthened up exactly so you "
+                f"could take {who} at {place} — so stop circling the grass and GO. Head back and take "
+                f"that wall; this time you've got what you didn't before. (Still your call — but the prep "
+                f"is done, the move now is to go finish it.)")
 
     def strategic_stuck_note(self):
         """The DOMINANT directive (stronger than loss_awareness): name the loop and the fix. Capability-
