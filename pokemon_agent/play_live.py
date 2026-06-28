@@ -86,8 +86,10 @@ def main():
     ap.add_argument("--audio", action="store_true",
                     help="play the emulator's game audio in real time (headphones + OBS cable)")
     ap.add_argument("--list-audio", action="store_true", help="list output devices and exit")
-    ap.add_argument("--phones", default=os.getenv("POKEMON_PHONES", ""),
-                    help="output device name-substring for YOUR headphones (so you hear it)")
+    ap.add_argument("--phones", default=os.getenv("POKEMON_PHONES", "Leviathan"),
+                    help="output device name-substring for YOUR desktop headphones (so you hear game "
+                         "audio AND it never lands on the VTS cable). Defaults to Leviathan; AudioPump "
+                         "refuses any cable regardless.")
     ap.add_argument("--cable", default=None,
                     help="DEPRECATED/UNUSED — game music no longer routes to the virtual cable (the "
                          "cable carries ONLY Kira's voice so VTS doesn't lip-sync the soundtrack). "

@@ -69,14 +69,18 @@ def start() -> dict:
 
 
 def _audio_args() -> list:
-    """Shared audio flags for a play_live launch: route game audio to Jonny's DESKTOP/headphones (NEVER
-    the VTS cable — Phase 1 firewall enforces that downstream). POKEMON_PHONES picks the device."""
+    """Shared audio flags for a play_live launch: route game audio to Jonny's DESKTOP/headphones, NEVER
+    the VTS cable. REGRESSION-PROOFING (2026-06-28): always pass an EXPLICIT --phones device so the
+    launch can never fall back to play_live's empty default -> AudioPump's auto-pick (the path the live
+    log showed routing game audio onto 'default', which on Jonny's rig IS the VB-Audio cable VTS lip-
+    syncs from). POKEMON_PHONES overrides; the default is Jonny's desktop headphones ('Leviathan'). If
+    that name isn't present at runtime, AudioPump's firewall still refuses any cable and substitutes a
+    real output — so it degrades to a non-cable device, never the cable. Jonny needn't remember a flag."""
     args = []
     if os.getenv("POKEMON_AUDIO", "1") == "1":
         args.append("--audio")
-        phones = os.getenv("POKEMON_PHONES", "")
-        if phones:
-            args += ["--phones", phones]
+        phones = os.getenv("POKEMON_PHONES", "Leviathan")   # NEVER empty -> never auto-picks 'default'
+        args += ["--phones", phones]
     return args
 
 

@@ -128,6 +128,10 @@ class AudioPump:
         # the cable on Jonny's rig). Now a cable can never become a sink, period.
         targets = []
         idx = _resolve(phones)
+        if phones and idx is None:
+            self.log(f"   [pkmn-audio] !! requested --phones {phones!r} not found among output devices "
+                     f"— falling back to auto-pick of a REAL (non-cable) output so game audio still "
+                     f"can't reach the VTS cable (LOUD). Check the device name with --list.")
         if idx is not None and _is_cable(_dev_name(idx)):
             self.log(f"   [pkmn-audio] !! REFUSED: --phones {phones!r} resolves to a VIRTUAL CABLE "
                      f"({_dev_name(idx)!r}) — that would flap Kira's mouth to the music. Ignoring it.")
