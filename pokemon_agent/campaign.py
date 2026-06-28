@@ -2287,8 +2287,25 @@ class Campaign:
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
         if pick == "head_to_gym":
-            # v1 (Cerulean->Vermilion leg): step toward the next gym via the SOUTH connection. Re-decided
-            # each tick, so she advances one map at a time and can still change her mind (true free roam).
+            # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
+            # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
+            # earn the badge, advance to the next base camp. beat_gym is the general, data-driven handler
+            # (reserve -> enter -> juniors -> leader -> award -> badge); a loss propagates as battle_loss
+            # (free_roam's blackout-recovery retries), a nav fail as 'stuck' (surfaces to the oracle —
+            # never a freeze). She still CHOSE head_to_gym this tick (capability-not-script).
+            ng = state.get("next_gym")
+            gym = GYMS.get(ng["leader"]) if ng else None
+            if gym is not None and state["map"] == gym.city:
+                log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
+                self.on_event(f"okay — {ng['leader']}'s gym. time to climb. let's take this badge.",
+                              kind="gym", tier=2)
+                out = self.beat_gym(ng["leader"])
+                if out == "badge":
+                    self.on_event(f"that's {ng['leader']} down and the badge in hand — onward and upward.",
+                                  kind="gym", tier=3)
+                return out
+            # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
+            # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
             if south is None:
                 return "no_gym_route"
