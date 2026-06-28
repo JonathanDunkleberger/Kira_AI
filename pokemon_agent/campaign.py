@@ -3073,6 +3073,47 @@ class Campaign:
                 f"{self._stuck_request['map']}@{self._stuck_request['coords']} — latching a top-level "
                 f"disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD")
 
+    # opposite of facing -> the press that WALKS AWAY from the NPC she's facing (1=down..4=right).
+    _FACE_AWAY = {1: "UP", 2: "DOWN", 3: "RIGHT", 4: "LEFT"}
+
+    def _disengage_overworld_npc(self, req):
+        """LAYER B recovery EXECUTION (the real escape, not narration). She's wedged mashing A in a
+        LOOPING overworld NPC's dialogue — and A only RE-LOOPS it, it can never end. The human escape
+        is: press B to DISMISS the box, then STEP AWAY. This performs exactly that, then marks the NPC
+        sticky-blocked so travel/oracle don't route her straight back into talking to it.
+        Returns True once the box is closed."""
+        from dialogue_drive import box_open
+        self.b.set_input_owner("agent")
+        # 1) CLOSE the box with B (NEVER A — A re-triggers the loop). Tap + settle until it's gone.
+        closed = not box_open(self.b)
+        for _ in range(6):
+            if not box_open(self.b):
+                closed = True
+                break
+            self.b.press("B", 6, 10, self.render, owner="agent")
+            for _ in range(10):
+                self.b.run_frame(); self.render()
+        closed = closed or not box_open(self.b)
+        log(f"   [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed={closed}")
+        # 2) mark the NPC body sticky-blocked FIRST (so even if the step fails, we won't re-route in)
+        self._mark_wedge_spot(req)
+        # 3) STEP AWAY: walk OPPOSITE the way she's facing the NPC; fall back to any open direction.
+        cur0 = tv.coords(self.b)
+        away = self._FACE_AWAY.get(req.get("facing"))
+        order = ([away] if away else []) + ["DOWN", "UP", "LEFT", "RIGHT"]
+        for d in order:
+            for _ in range(2):
+                self.b.press(d, 8, 8, self.render, owner="agent")
+                for _ in range(6):
+                    self.b.run_frame(); self.render()
+            if tv.coords(self.b) != cur0:
+                log(f"   [roam] disengage: stepped {d} AWAY from the NPC -> {tv.coords(self.b)} "
+                    f"(closed box + walked off — the real escape)")
+                return closed
+        log("   [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick "
+            "(NPC is sticky-blocked so it won't path back in)")
+        return closed
+
     def _mark_wedge_spot(self, req):
         """LAYER A+B bridge: when the watchdog trips, the tile she's FACING is whatever she's been
         bumping (a blocking NPC / a closed door she keeps walking into). Record it in the UNIFIED
@@ -3428,17 +3469,27 @@ class Campaign:
                 log(f"   [roam] !!!! WATCHDOG DISENGAGE #{self._watchdog_trips} at "
                     f"{req['map']}@{req['coords']} (reason={req['reason']}, frozen {req.get('secs')}s) "
                     f"— top-level recovery, sub-layer-agnostic")
-                self._mark_wedge_spot(req)
-                self.on_event("okay — I've been stuck on the same spot going nowhere for a while. I'm "
-                              "backing off this completely and trying something different.",
-                              kind="recover", tier=2)
-                if self._watchdog_trips >= 2 and self._last_good_state:
-                    log("   [roam] !! WATCHDOG re-trip this episode — escalating to the escape-hatch reload")
-                    self._escape_hatch_reload()
-                elif tv.map_id(self.b)[0] != 3:        # stuck inside a building -> get to the overworld
-                    self._exit_to_overworld()
-                else:                                   # break the position via a known-reachable anchor
-                    self.heal_nearest()
+                # THE REAL ESCAPE (not narration): if a dialogue box is up she's been mashing A into a
+                # looping NPC — A can NEVER end that loop. Press B to DISMISS it, then STEP AWAY, and
+                # mark the NPC sticky-blocked. Do this FIRST — heal/travel can't move while a box is open.
+                from dialogue_drive import box_open as _bx
+                if req["reason"] == "frozen_box" or _bx(self.b):
+                    self.on_event("this NPC's just looping the same lines and going nowhere — I'm closing "
+                                  "it and walking away.", kind="recover", tier=2)
+                    self._disengage_overworld_npc(req)          # B-to-close + step away + sticky mark
+                else:
+                    self._mark_wedge_spot(req)
+                    self.on_event("I've been stuck on the same spot going nowhere — backing off and "
+                                  "trying something different.", kind="recover", tier=2)
+                # ESCALATE only if she's STILL re-wedging this episode (the B+step-away didn't take):
+                if self._watchdog_trips >= 2:
+                    log("   [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away")
+                    if self._last_good_state:
+                        self._escape_hatch_reload()
+                    elif tv.map_id(self.b)[0] != 3:    # stranded in a building -> get to the overworld
+                        self._exit_to_overworld()
+                    else:
+                        self.heal_nearest()            # last-resort known-reachable position break
                 ledger.note_action("watchdog_disengage", req["reason"])
                 self._wait_overworld()
                 continue
