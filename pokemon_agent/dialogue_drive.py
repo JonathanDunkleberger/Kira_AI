@@ -110,8 +110,12 @@ class DialogueDriver:
     # - the only valid baseline (headless free-runs ~10-15x, which made every earlier read too fast).
     # 50% FASTER pass (Jonny, after watching the opening debut at true speed): halved from the first
     # locked curve (min 0.09/max 0.45/base 0.05/per_char 0.0053/gap 0.043) -> snappier everywhere.
-    def drive(self, stop_when=None, label="", min_s=0.045, max_s=0.22, base_s=0.025,
-              per_char_s=0.0027, page_gap_s=0.022, max_steps=300):
+    # 2nd 50% FASTER pass (Jonny 2026-06-27, watchability — FireRed has a LOT of text): halved again
+    # (min 0.022/max 0.11/base 0.012/per_char 0.0014/gap 0.011). This only shortens the read-along
+    # HOLD + the A-tap cadence; the frozen-backstop is PRESS-COUNT based (DIALOGUE_FROZEN_LIMIT) and
+    # box_open/_control_returned are pixel/press based, so detection + the stuck-box guard are untouched.
+    def drive(self, stop_when=None, label="", min_s=0.022, max_s=0.11, base_s=0.012,
+              per_char_s=0.0014, page_gap_s=0.011, max_steps=300):
         """Advance an open overworld dialogue at a watchable pace until control RETURNS (or
         stop_when() fires). Returns 'stopped' | 'closed' | 'exhausted' | 'timeout'(loud).
 
