@@ -402,6 +402,11 @@ class Campaign:
         # multi-tick action (walking to a Center to heal) is never nagged.
         self._last_action_pick = None
         self._repeat_pick_n = 0
+        # PROBLEM 3 — SILENT-NO-MOVE guard: a movement action (head_to_gym/travel/wander_catch) that
+        # returns WITHOUT changing her RAM position is silently failing. Track the offending pick + a
+        # consecutive count so the loop stops re-choosing a dead route and forces a different action.
+        self._nomove_pick = None
+        self._nomove_n = 0
         # B-2 — RESOLVED/LOOPING-NPC guard: (map_id, coords) spots where a dialogue loop was disengaged
         # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
         # the same looping NPC / re-trigger a beaten trainer's restarting lines.
@@ -2992,6 +2997,14 @@ class Campaign:
                     a["grab_item"] = "grab that item over there — a free pickup, looks safe to reach"
             except Exception:
                 pass
+        # PROBLEM 3 — SILENT-NO-MOVE PRUNE: if her last movement pick fired ≥2x in a row WITHOUT moving
+        # her (head_to_gym/travel/wander_catch that isn't actually moving her body), REMOVE it from this
+        # tick's set so she can't keep standing frozen re-choosing it — she MUST take a different action.
+        # Only prune when something else remains (never dead-end her). Reset by any real movement.
+        if self._nomove_n >= 2 and self._nomove_pick in a and len(a) > 1:
+            a.pop(self._nomove_pick, None)
+            log(f"   [roam] !! NO-MOVE PRUNE: '{self._nomove_pick}' hasn't moved her in {self._nomove_n} "
+                f"tries — removing it this tick so she picks something that actually does something")
         return a
 
     def _item_target(self, state):
@@ -3472,24 +3485,31 @@ class Campaign:
                 # THE REAL ESCAPE (not narration): if a dialogue box is up she's been mashing A into a
                 # looping NPC — A can NEVER end that loop. Press B to DISMISS it, then STEP AWAY, and
                 # mark the NPC sticky-blocked. Do this FIRST — heal/travel can't move while a box is open.
-                from dialogue_drive import box_open as _bx
-                if req["reason"] == "frozen_box" or _bx(self.b):
-                    self.on_event("this NPC's just looping the same lines and going nowhere — I'm closing "
-                                  "it and walking away.", kind="recover", tier=2)
-                    self._disengage_overworld_npc(req)          # B-to-close + step away + sticky mark
-                else:
-                    self._mark_wedge_spot(req)
-                    self.on_event("I've been stuck on the same spot going nowhere — backing off and "
-                                  "trying something different.", kind="recover", tier=2)
-                # ESCALATE only if she's STILL re-wedging this episode (the B+step-away didn't take):
-                if self._watchdog_trips >= 2:
-                    log("   [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away")
-                    if self._last_good_state:
-                        self._escape_hatch_reload()
-                    elif tv.map_id(self.b)[0] != 3:    # stranded in a building -> get to the overworld
-                        self._exit_to_overworld()
+                # PROBLEM 2 crash-hardening: the whole recovery is guarded LOUD so a disengage fault can't
+                # kill an unattended run (never swallow — full traceback logged).
+                try:
+                    from dialogue_drive import box_open as _bx
+                    if req["reason"] == "frozen_box" or _bx(self.b):
+                        self.on_event("this NPC's just looping the same lines and going nowhere — I'm "
+                                      "closing it and walking away.", kind="recover", tier=2)
+                        self._disengage_overworld_npc(req)      # B-to-close + step away + sticky mark
                     else:
-                        self.heal_nearest()            # last-resort known-reachable position break
+                        self._mark_wedge_spot(req)
+                        self.on_event("I've been stuck on the same spot going nowhere — backing off and "
+                                      "trying something different.", kind="recover", tier=2)
+                    # ESCALATE only if she's STILL re-wedging this episode (the B+step-away didn't take):
+                    if self._watchdog_trips >= 2:
+                        log("   [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away")
+                        if self._last_good_state:
+                            self._escape_hatch_reload()
+                        elif tv.map_id(self.b)[0] != 3:   # stranded in a building -> get to the overworld
+                            self._exit_to_overworld()
+                        else:
+                            self.heal_nearest()           # last-resort known-reachable position break
+                except Exception as _de:
+                    import traceback as _tb
+                    log(f"   [roam] !!!! WATCHDOG DISENGAGE CRASHED: {_de!r} — caught LOUD, continuing "
+                        f"the run. Traceback:\n{_tb.format_exc()}")
                 ledger.note_action("watchdog_disengage", req["reason"])
                 self._wait_overworld()
                 continue
@@ -3701,9 +3721,18 @@ class Campaign:
                          f"Pick a DIFFERENT action this time and break the loop.")
                 log(f"   [roam] !! REPEAT-NO-PROGRESS: '{self._last_action_pick}' repeated with a stuck "
                     f"fingerprint — nudging a different action")
+            # PROBLEM 1 (lag) TRACE: _soul_choose -> voice.choose is a SYNCHRONOUS blocking HTTP/LLM
+            # call on this (main) thread — while it runs, game render + music are frozen. Time it so a
+            # slow decision (the periodic stutter, worst when ticks fire fast on a stuck loop) is VISIBLE.
+            _t_choose = _t.time()
             pick = self._soul_choose("action", avail,
                                      {"place": where, "progress": state["progress"], "party": _brief,
                                       "goal": _goals})
+            _choose_ms = (_t.time() - _t_choose) * 1000
+            if _choose_ms > 500:
+                log(f"   [roam] !! DECISION LATENCY: _soul_choose blocked the main thread {_choose_ms:.0f}ms "
+                    f"(game+music stutter while it waits on the LLM over HTTP) — the periodic lag source "
+                    f"when ticks fire rapidly")
             if not pick:
                 log("   [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick")
                 ledger.note_action(None, "idle")
@@ -3717,9 +3746,40 @@ class Campaign:
             # overwrite it, so the thread survives them. Cleared when its action completes (below).
             if pick == "head_to_gym" or pick == "wander_catch" or pick.startswith("travel:"):
                 self._active_objective = {"action": pick, "label": avail.get(pick, pick), "tick": tick}
-            out = self._route_action(pick, state)
-            log(f"   [roam] RESULT: {pick} -> {out}")
+            # PROBLEM 3 TRACE — capture her RAM position around the action so a SILENT travel failure
+            # (head_to_gym fires but she never moves) is logged, not theorized.
+            _pos0 = (tv.map_id(self.b), tv.coords(self.b))
+            try:
+                out = self._route_action(pick, state)
+            except Exception as _re:
+                # PROBLEM 2 crash-hardening: one bad handler must NOT kill a 30-hr unattended run. Log
+                # LOUD with the full traceback (never swallow — CLAUDE.md rule 3) and treat as a stuck
+                # outcome so the recovery ladder engages next tick instead of the process dying.
+                import traceback as _tb
+                log(f"   [roam] !!!! ACTION CRASHED: '{pick}' raised {_re!r} — caught LOUD, continuing "
+                    f"the run (not dying). Traceback:\n{_tb.format_exc()}")
+                out = "action_error"
+            _pos1 = (tv.map_id(self.b), tv.coords(self.b))
+            _moved = _pos0 != _pos1
+            log(f"   [roam] RESULT: {pick} -> {out} | pos {_pos0[0]}{_pos0[1]} -> {_pos1[0]}{_pos1[1]} "
+                f"({'MOVED' if _moved else 'NO MOVEMENT'})")
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
+            # PROBLEM 3 — SILENT-NO-MOVE GUARD: a movement pick that returned WITHOUT moving her and
+            # WITHOUT arriving is silently failing (the live "head_to_gym isn't moving me" loop). Drop the
+            # standing objective so recalibration stops re-pushing a dead route, and count it; the prune in
+            # _available_actions removes the pick after the 2nd consecutive no-move so she MUST do something
+            # else (capability-not-script — the action genuinely isn't doing anything here). Reset on a move.
+            _is_move_pick = (pick == "head_to_gym" or pick == "wander_catch" or pick.startswith("travel:"))
+            if _is_move_pick and not _moved and out not in ("arrived", "badge", "caught"):
+                self._nomove_n = self._nomove_n + 1 if pick == self._nomove_pick else 1
+                self._nomove_pick = pick
+                log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
+                    f"(x{self._nomove_n}) — it is NOT moving her; will force a different action if it repeats")
+                if self._active_objective and pick == self._active_objective.get("action"):
+                    self._active_objective = None
+            elif _moved:
+                self._nomove_n = 0
+                self._nomove_pick = None
             # RECALIBRATION — clear the standing objective once it's actually achieved (badge won, teammate
             # caught, destination reached) so the recalibrate nudge stops pushing a finished goal; the next
             # purposeful pick sets the new one.
