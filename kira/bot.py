@@ -3276,9 +3276,14 @@ class VTubeBot:
         if not self._ok_to_self_speak():
             return
         _state_block = self._pokemon_state_block_for_voice()    # FIX 2 — ground her voice in real run-state
+        # B-4 — on SAVOR beats (tier>=2: level-ups, trainers, the Gary rival, badges) give her in-game
+        # reaction her SAGA too (the grudge + arc), so she can call it back live — not just in idle chat.
+        # Grind ticks (tier 0/1) stay lean (no saga) to keep them snappy.
+        _saga_block = self._pokemon_journey_block() if (tier or 0) >= 2 else ""
         prompt = (
             self._POKEMON_CHARACTER_RULES + "\n\n"
             + (_state_block + "\n" if _state_block else "")
+            + (_saga_block + "\n" if _saga_block else "")
             + f"What just happened in your battle: \"{summary}\"\n\n"
             "React in one or two sentences, in character. Don't narrate the mechanics. "
             "Stay consistent with your REAL run-state above — don't claim something you haven't done."

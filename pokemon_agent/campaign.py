@@ -213,6 +213,11 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
 # front tile (UP for Brock + Misty - the leader sits directly above their front tile). ──
 GymSpec = namedtuple("GymSpec", ["name", "city", "door", "leader_front", "badge_flag",
                                  "reserve", "leader_dir"])
+# B-4 — the three Kanto starter EVOLUTION families. No vanilla Kanto trainer EXCEPT the rival (Gary)
+# fields a starter-line Pokémon, so a trainer battle containing one of these = a Gary encounter, at ANY
+# fight (he leads with Pidgey-line later, so we scan his whole party, not just the active lead).
+_STARTER_LINES = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9})
+
 GYMS = {
     "Brock": GymSpec("Brock", PEWTER, PEWTER_GYM_DOOR, BROCK_FRONT, FLAG_BADGE_BOULDER, 2, "UP"),
     "Misty": GymSpec("Misty", CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT, FLAG_BADGE_CASCADE, 0, "UP"),
@@ -497,6 +502,17 @@ class Campaign:
                                             party_count=self.b.rd8(ram.GPLAYER_PARTY_CNT), lead_level=pre_lvl)
         except Exception as _e:
             log(f"   [strat] start-observe skipped: {_e}")
+        # B-4 — GARY DETECTION (at the start, while the enemy party is loaded): a trainer fight whose
+        # party contains a starter-line ace IS the rival. Capture his active lead name for the beat.
+        _is_rival, _riv_lead_nm = False, ""
+        try:
+            if self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08:        # trainer battle
+                _is_rival = any(st.read_enemy_species(self.b, s) in _STARTER_LINES for s in range(6))
+                if _is_rival:
+                    _rb0 = st.read_battle(self.b)
+                    _riv_lead_nm = st.SPECIES_NAME.get(_rb0["enemy"]["species"], "") if _rb0 else ""
+        except Exception as _re:
+            _is_rival = False
         out = self._raw_battle_runner()
         # ROBUST WALL-RECORD (strategic-stuck keystone — the swallow guard). _finish() returns "loss"
         # ONLY if it captures ours.hp==0 at the battle-transition boundary; a flaky read there falls
@@ -522,6 +538,20 @@ class Campaign:
             self.strat.observe_battle_end(self.b, record_out)   # record_out = swallow-guarded outcome
         except Exception as _e:
             log(f"   [strat] end-observe skipped: {_e}")
+        # B-4 — GARY NEMESIS ARC: record the rival encounter at EVERY fight (not just the opening) so the
+        # persisted grudge actually ESCALATES across the run, and voice the escalating-grudge beat.
+        if _is_rival:
+            try:
+                self.strat.note_rival_encounter(
+                    won=(str(record_out).lower() == "win"), place=place, lead=_riv_lead_nm,
+                    my_party=self.b.rd8(ram.GPLAYER_PARTY_CNT), my_level=pre_lvl)
+                gn = self.strat.rival_grudge_note()
+                if gn:
+                    self.on_event(gn, kind="rival", tier=3)
+                log(f"   [strat] GARY encounter #{len(self.strat.rival['encounters'])} recorded "
+                    f"({record_out}) at {place} — grudge escalates")
+            except Exception as _re:
+                log(f"   [strat] rival-encounter record skipped: {_re}")
         # Did the in-battle path record this as a loss? The free_roam whiteout-backstop reads this so it
         # only force-records when the in-battle read SWALLOWED the loss (no double-count).
         self._loss_recorded_this_battle = str(record_out).lower() in ("loss", "battle_loss", "blackout", "whiteout")
@@ -1580,15 +1610,9 @@ class Campaign:
                 pass
             _riv_out = self.battle_runner()
             log(f"   OPENING: RIVAL battle -> {_riv_out}")                 # win OR lose - game goes on
-            # GARY NEMESIS ARC (Phase 4): record the very first showdown — the grudge starts HERE.
-            try:
-                self.strat.note_rival_encounter(
-                    won=(str(_riv_out).lower() == "win"), place="Oak's Lab", lead=_riv_lead,
-                    my_party=self.b.rd8(ram.GPLAYER_PARTY_CNT), my_level=self.b.rd8(ram.GPLAYER_PARTY + 0x54))
-                self.on_event(self.strat.rival_grudge_note() or "you and your rival just had your first battle.",
-                              kind="rival", tier=2)
-            except Exception as _re:
-                log(f"   [strat] !! opening rival-encounter record failed: {_re}")
+            # GARY NEMESIS ARC: the encounter is recorded by the CENTRAL hook (_observed_battle_runner
+            # detects the rival by his starter-line ace at EVERY fight, opening included) — no separate
+            # opening record here, so the grudge is wired uniformly across the whole run (B-4).
             self.b.set_input_owner("agent")
         # walk out to Pallet - ROBUST to win OR loss (the post-battle dialogue + door differ a little
         # by outcome): drain dialogue + retry the south exit until we're actually out of the lab.

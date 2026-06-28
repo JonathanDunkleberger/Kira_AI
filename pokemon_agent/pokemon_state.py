@@ -126,6 +126,24 @@ def read_party_species(bridge, slot=0):
     return species
 
 
+def read_enemy_species(bridge, slot=0):
+    """Decrypt the species of ENEMY party slot N (gEnemyParty). Same struct/encryption as the player
+    party — used to recognize a rival/Gary fight (his starter-line ace) at ANY encounter, not just by
+    the active lead. Returns 0 on any read error (never raises)."""
+    try:
+        base = ram.GENEMY_PARTY + slot * PARTY_MON_SIZE
+        pid = bridge.rd32(base + 0)
+        otid = bridge.rd32(base + 4)
+        if pid == 0 and otid == 0:
+            return 0
+        key = pid ^ otid
+        order = _SUBSTRUCT_ORDER[pid % 24]
+        growth_addr = base + 32 + order.index("G") * 12
+        return (bridge.rd32(growth_addr) ^ key) & 0xFFFF
+    except Exception:
+        return 0
+
+
 def read_party_moves(bridge, slot=0):
     """Decrypt the 4 move IDs of party slot N. Sibling of read_party_species, but reads the
     ATTACKS substructure instead of Growth (same XOR key = PID ^ OTID, same personality%24 order).
