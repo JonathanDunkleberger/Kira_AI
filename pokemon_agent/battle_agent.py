@@ -49,6 +49,12 @@ _FULL_HEAL = 23
 # not-script: she still picks her move every turn; this only catches the dead-end where NO move resolves.
 BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
 UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
+# B-1 — IN-BATTLE MATCHUP SWITCHING (E4-critical). The matchup MATH is offline-verified, but the
+# party-menu ACTUATION (cursor nav on a long-running libmgba core) is UNVERIFIED — the standing
+# menu-nav lesson. So it's GATED OFF by default until a live control passes (arm POKEMON_BATTLE_SWITCH=1
+# with Jonny watching). FAIL-SAFE regardless: if a switch doesn't confirm, she backs out and fights —
+# never wedges. When off, she still AVOIDS ineffective moves (that path is on + verified).
+BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
 # party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
 _P_STATUS = 0x50
 _ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -787,6 +793,30 @@ class BattleAgent:
                 return "no_usable_move"
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
+        # B-1 — INEFFECTIVE-MOVE AVERSION: never swing a DAMAGING move that does NOTHING (type-immune,
+        # eff==0 — e.g. a Normal move into a Ghost). That's the "keeps using a move that does nothing"
+        # failure. Re-pick a move that can actually connect (resisted/0.5 moves are still useful and the
+        # policy already deprioritizes them; status moves at power 0 are never excluded). If she has NO
+        # move that can connect, signal 'no_effective_move' — the turn loop offers a SWITCH (better
+        # matchup) / else flees. Capability-not-script: she still chooses among the moves that work.
+        def _useful(i):
+            m = ours["moves"][i]
+            if m.get("id", 0) == 0 or m.get("pp", 0) <= 0 or i in self._skip_streak:
+                return False
+            return not (m.get("power", 0) > 0
+                        and pol.effectiveness(m.get("type", "normal"), enemy["types"]) == 0)
+        if 0 <= idx < 4 and ours["moves"][idx].get("power", 0) > 0 and eff == 0:
+            _uc = [i for i in range(4) if _useful(i)]
+            if _uc:
+                idx = max(_uc, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
+                          * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
+                desc = ours["moves"][idx].get("name", desc)
+                eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"), enemy["types"])
+                self.log(f"   [engine] avoided a type-immune move -> {desc} (eff x{eff:g}) instead")
+            else:
+                self.log("   [engine] !! NO EFFECTIVE MOVE — every usable move is type-immune here "
+                         "(need a better matchup: switch / flee)")
+                return "no_effective_move"
         self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                  f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
         # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, pixel-confirm the list opened; retry the
@@ -914,6 +944,110 @@ class BattleAgent:
         cur = st.read_battle(self.b)
         return bool(cur and cur["ours"]["hp"] > 0)
 
+    # ── B-1: TYPE-MATCHUP AWARENESS + VOLUNTARY SWITCH (the E4-critical verb) ────
+    def _goto_pokemon(self, tries=10):
+        """Walk the action cursor to POKEMON (bottom-left, ACT_POKEMON=2). Mirror of _goto_run; grid is
+        FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR). Returns True only when confirmed on POKEMON."""
+        for _ in range(tries):
+            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            if c == ram.ACT_POKEMON:
+                return True
+            if c == ram.ACT_FIGHT:
+                self._tap("DOWN")
+            elif c == ram.ACT_BAG:
+                self._tap("DOWN"); self._tap("LEFT")
+            elif c == ram.ACT_RUN:
+                self._tap("LEFT")
+            else:
+                return False                              # not the action menu
+            self._wait(3)
+        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_POKEMON
+
+    @staticmethod
+    def _matchup_def(my_types, enemy_types):
+        """How hard the enemy's STAB hits `my_types` (max eff of any enemy type vs mine). >=2 = enemy
+        super-effective on me (bad); <=0.5 = I resist (good). Enemy moves are unknown, so its own types
+        are the STAB proxy."""
+        worst = 0.0
+        for et in enemy_types:
+            if et:
+                worst = max(worst, pol.effectiveness(et, my_types))
+        return worst or 1.0
+
+    @staticmethod
+    def _matchup_off(my_types, enemy_types):
+        """Best eff of MY types vs the enemy (STAB proxy) — can I hit it hard?"""
+        best = 0.0
+        for t in my_types:
+            if t:
+                best = max(best, pol.effectiveness(t, enemy_types))
+        return best
+
+    def _best_switch_slot(self, state):
+        """A CLEARLY-better healthy reserve to switch into, or None. Conservative (never churn): only
+        when the ACTIVE mon is at a real disadvantage — enemy hits it super-effectively OR it can't
+        damage the enemy at all — AND a healthy reserve exists that the enemy does NOT hit
+        super-effectively. Ranks candidates by (resists-most, hits-hardest). Pure type math (offline-
+        testable); reads non-lead species from RAM."""
+        enemy_types = [t for t in (state.get("enemy", {}).get("types") or []) if t]
+        if not enemy_types:
+            return None
+        active_types = [t for t in (state.get("ours", {}).get("types") or []) if t]
+        active_bad = self._matchup_def(active_types, enemy_types) >= 2 \
+            or self._matchup_off(active_types, enemy_types) == 0
+        if not active_bad:
+            return None
+        active_sp = state.get("ours", {}).get("species")
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        best, best_key = None, None
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue                                  # fainted
+            sp = st.read_party_species(self.b, s)
+            if sp == active_sp:
+                continue                                  # (probably) the one already out
+            types = st.species_types(sp)
+            if not types:
+                continue
+            cdef = self._matchup_def(types, enemy_types)
+            if cdef >= 2:
+                continue                                  # also weak — not an improvement
+            key = (-cdef, self._matchup_off(types, enemy_types))   # resists most, then hits hardest
+            if best_key is None or key > best_key:
+                best, best_key = s, key
+        return best
+
+    def _voluntary_switch(self, state):
+        """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE: if the menu nav doesn't
+        confirm a NEW active mon, B back to the action menu and return False so the caller just fights —
+        NEVER wedges. Returns 'switched' or False. Reuses the proven faint-switch party-menu confirm."""
+        slot = self._best_switch_slot(state)
+        if slot is None:
+            return False
+        before_sp = state.get("ours", {}).get("species")
+        self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
+        if not self._goto_pokemon():
+            return False
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)  # open party list
+        for _attempt in range(4):
+            for _ in range(slot):                         # party cursor opens on slot 0 -> down to N
+                self._tap("DOWN")
+            self._wait(6)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)  # select
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(20)  # SEND OUT
+            cur = st.read_battle(self.b)
+            if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") != before_sp:
+                self.emit("switching it up — this is a better matchup", beat=True, tier=2)
+                self._skip_streak.clear()
+                return "switched"
+            self._advance_text()
+        for _ in range(3):                                # didn't confirm -> back to the action menu, FIGHT
+            if self._white_box():
+                break
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+        self.log("   [engine] matchup switch did not confirm -> fighting instead (fail-safe, no wedge)")
+        return False
+
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
         t0 = time.time()
@@ -1029,6 +1163,15 @@ class BattleAgent:
                 if state and not (self._enemy_fainted or self._we_fainted) and self._maybe_use_item(state):
                     self._acted_once = True
                     stall = 0
+                    continue
+                # B-1 — MATCHUP SWITCH (gated POKEMON_BATTLE_SWITCH, fail-safe): before swinging, if the
+                # active mon is badly out-typed AND a better reserve exists, switch instead. Off by
+                # default until the actuation is live-verified; a failed switch backs out and fights.
+                if (BATTLE_SWITCH_ENABLED and state and not (self._enemy_fainted or self._we_fainted)
+                        and self._voluntary_switch(state) == "switched"):
+                    self._acted_once = True
+                    stall = 0
+                    self._unresolved_turns = 0
                     continue
                 res = self._select_and_verify(state) if state else "stuck"
                 if res == "done":
