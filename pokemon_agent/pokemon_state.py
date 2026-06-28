@@ -83,6 +83,36 @@ def read_party_species(bridge, slot=0):
     return species
 
 
+def read_party_moves(bridge, slot=0):
+    """Decrypt the 4 move IDs of party slot N. Sibling of read_party_species, but reads the
+    ATTACKS substructure instead of Growth (same XOR key = PID ^ OTID, same personality%24 order).
+    Moves are stored ONLY here (encrypted) — there is no plaintext move cache in the party struct
+    (sourced: pret/pokefirered struct PokemonSubstruct1 { u16 moves[4]; u8 pp[4]; }). Returns a
+    4-int list (0 = empty slot). This is the read that answers 'does this mon know an HM?'."""
+    base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
+    pid = bridge.rd32(base + 0)
+    otid = bridge.rd32(base + 4)
+    key = pid ^ otid
+    order = _SUBSTRUCT_ORDER[pid % 24]
+    a = base + 32 + order.index("A") * 12     # Attacks substructure (12 bytes = 3 u32 words)
+    w0 = bridge.rd32(a + 0) ^ key             # moves[0] (low u16), moves[1] (high u16)
+    w1 = bridge.rd32(a + 4) ^ key             # moves[2] (low u16), moves[3] (high u16)
+    return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
+
+
+def party_knows_move(bridge, move_id, count=6):
+    """Which party slot (0-based) knows move_id, or None. Scans up to `count` members.
+    Defensive: a decrypt/read error on one slot is skipped, never raised (a bad read must
+    not crash the field-move check). count should be the live party count when known."""
+    for s in range(min(count, 6)):
+        try:
+            if move_id in read_party_moves(bridge, s):
+                return s
+        except Exception:
+            continue
+    return None
+
+
 def is_shiny(pid, otid):
     """Gen-3 shininess: shiny iff (TID ^ SID ^ pidHi ^ pidLo) < 8, where otId packs SID<<16 | TID.
     Pure function (testable without a bridge)."""

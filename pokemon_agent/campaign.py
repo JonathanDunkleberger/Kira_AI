@@ -83,6 +83,13 @@ MAX_ESCAPE_RELOADS    = int(os.getenv("POKEMON_MAX_ESCAPE_RELOADS", "2"))  # per
 # below this is safe to drop to free a slot; if EVERY droppable move is at/above it, KEEP them all rather
 # than gut a good set (a gutted moveset fails invisibly at the E4). Tunable.
 MOVE_JUNK_FLOOR = int(os.getenv("POKEMON_MOVE_JUNK_FLOOR", "50"))
+# PHASE 2 (HM field moves) — surface "use Cut/Strength/Surf to clear the obstacle in front"
+# as an oracle CHOICE when she has the HM + badge and an adjacent clearable obstacle is
+# detected (pure RAM reads). DEFAULT-OFF: the obstacle DETECTION is source-solid, but the
+# in-game ACTUATION (the use-HM prompt) is UNVERIFIED on a long-running libmgba core (the
+# move-list-wedge lesson) — so it's behind a flag for a one-variable live control before it
+# rides the canonical climb. Flip POKEMON_FIELD_MOVES=1 to arm it for the verification run.
+FIELD_MOVES_ENABLED = os.getenv("POKEMON_FIELD_MOVES", "0") == "1"
 
 
 def resolve_state(name):
@@ -394,6 +401,13 @@ class Campaign:
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal)
+        # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
+        # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
+        try:
+            from field_moves import FieldMoveActuator
+            self.field = FieldMoveActuator(self)
+        except Exception:
+            self.field = None
 
     def _observed_battle_runner(self):
         """Phase-2 wrapper around the injected battle-runner: snapshot the foe at battle start, run the
@@ -2504,7 +2518,40 @@ class Campaign:
                 a["talk_npc"] = "go say hi to someone nearby — talk to the locals, see what they know"
         except Exception:
             pass
+        # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
+        # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
+        # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
+        # character. Gated by FIELD_MOVES_ENABLED until the actuation passes a live control.
+        if FIELD_MOVES_ENABLED:
+            try:
+                fo = self._field_block(state)
+                if fo:
+                    a[fo["action"]] = fo["prompt"]
+            except Exception:
+                pass
         return a
+
+    def _field_block(self, state):
+        """Detect an adjacent obstacle the player could clear with an HM she actually has. Returns
+        {'action','prompt','hm','face'} or None. Pure RAM reads (field_moves). PHASE 2."""
+        import field_moves as fm
+        co = state.get("coords") or tv.coords(self.b)
+        pc = state.get("party_count") or self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for ob in fm.obstacles_adjacent(self.b, co):
+            if fm.can_use(self.b, ob["hm"], pc):
+                name = fm.HM[ob["hm"]][2]
+                return {"action": f"use_{ob['hm']}", "hm": ob["hm"], "face": ob["face"],
+                        "prompt": f"use {name} to clear the {ob['kind']} blocking the way forward"}
+        # Surf: an adjacent surfable-water edge + Surf + badge → offer to cross.
+        try:
+            grid = tv.Grid(self.b)
+            face = fm.surf_edge_adjacent(self.b, grid, co)
+            if face and fm.can_use(self.b, "surf", pc):
+                return {"action": "use_surf", "hm": "surf", "face": face,
+                        "prompt": "use Surf to cross the water ahead"}
+        except Exception:
+            pass
+        return None
 
     def _wait_overworld(self, max_frames=900):
         """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
@@ -2520,6 +2567,22 @@ class Campaign:
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         if pick == "heal":
             return self.heal_nearest()
+        # USE AN HM (PHASE 2): she chose to clear the obstacle in front. Re-detect (state may have
+        # shifted), then actuate via the field-move actuator. Returns 'used'/'no_prompt'/'cant'/'stuck'
+        # → all non-fatal: a flake surfaces to the oracle next tick, never a freeze.
+        if pick.startswith("use_") and FIELD_MOVES_ENABLED:
+            hm = pick[4:]
+            if self.field is None:
+                return "cant"
+            fo = self._field_block(state)
+            face = fo["face"] if fo else None
+            if face is None:
+                return "no_prompt"
+            nm = __import__("field_moves").HM.get(hm, (None, None, hm))[2]
+            self.on_event(f"there's something blocking the way — let me use {nm}.", kind="field", tier=2)
+            res = self.field.clear_obstacle(hm, face)
+            log(f"   [roam] field-move use_{hm} (face {face}) -> {res}")
+            return res
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
         if pick == "head_to_gym":

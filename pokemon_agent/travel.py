@@ -40,6 +40,10 @@ NUM_PRIMARY = 640                  # metatile ids < 640 use the primary tileset
 # PREFERS grass-free tiles but falls back to crossing grass when there's no dry route
 # (north Route 1 is a grass sea) - then the encounter handoff fights the battle.
 GRASS_BEHAVIORS = {0x02}
+# Surfable-water metatile behaviors (MB_POND_WATER 0x10 / MB_DEEP_WATER 0x12 /
+# MB_OCEAN_WATER 0x15 — source: include/constants/metatile_behaviors.h). Classified
+# into Grid.water for the Phase-2 field-move layer; does NOT affect walkability.
+SURFABLE_WATER = {0x10, 0x12, 0x15}
 # LEDGE / one-way jump behaviors (Gen-3 metatileAttributes low byte). You can only cross a
 # ledge in its jump direction (hopping OVER it, landing the tile beyond); it blocks the reverse.
 # So in pathfinding a ledge is a DIRECTED edge: from the tile on the approach side, moving in the
@@ -124,7 +128,10 @@ class Grid:
             attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
         except Exception:
             attr = None
-        self.col, self.grass, self.ledge, self.impass = {}, set(), {}, {}
+        # `water` is ADDITIVE (Phase 2 field-moves): buffer-coords whose behavior is a
+        # surfable-water tile. It does NOT change walkability/BFS — water stays collision-
+        # blocked; field_moves.surf_edge_adjacent reads this set to know Surf is offerable.
+        self.col, self.grass, self.ledge, self.impass, self.water = {}, set(), {}, {}, set()
         for by in range(self.h):
             row = mp + by * self.w * 2
             for bx in range(self.w):
@@ -143,6 +150,8 @@ class Grid:
                         self.ledge[(bx, by)] = LEDGE_DIRS[bh]    # buffer-coord -> jump (dx,dy)
                     elif bh in IMPASS_BEHAVIORS:
                         self.impass[(bx, by)] = bh               # buffer-coord -> directional wall
+                    elif bh in SURFABLE_WATER:
+                        self.water.add((bx, by))                 # buffer-coord -> surfable water
         # playable save-coord bounds (exclude the 7-tile border on every side)
         self.sx_lo, self.sx_hi = 0, self.w - 2 * MAP_OFFSET - 1
         self.sy_lo, self.sy_hi = 0, self.h - 2 * MAP_OFFSET - 1
