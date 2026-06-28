@@ -118,6 +118,21 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
 
 ---
 
+## 7. QUEUED — post-watch (do not lose)
+
+1. **In-battle switch — dedicated actuation verify → then arm.** The verb is built/wired/gated
+   (`POKEMON_BATTLE_SWITCH=0`). Run a controlled live check (savestate: active mon out-typed + a stronger
+   reserve) with Jonny watching that the party-menu nav lands the switch and the battle continues. Only
+   then set `POKEMON_BATTLE_SWITCH=1`. (E4-blocking until done.)
+2. **Gym-3 GymSpec build (Lt. Surge / Vermilion).** Needs live coord-recon (gym door tile + Surge front
+   tile + junior count, same method as Brock/Misty) AND Jonny's decision on the trash-can switch puzzle
+   (he vetoed hardcoded presses → capability-not-script preferred). Until built, `head_to_gym` grace-wanders
+   at Vermilion (no freeze). See `pokemon_agent/FORWARD_CLIMB_STAGING.md`.
+3. **Persona-only emotional arcs (dread→struggle→catharsis, vendetta, naivety).** Currently live-local in
+   the GITIGNORED `persona/private/personality.txt` (reach the prompt as persona text, but not tracked in
+   code or committed). Jonny to decide: promote to tracked `kira_state` arc-tracking (like called-shots),
+   or accept as persona-deep. Either way, record the decision here.
+
 ## 6. BOTTOM LINE
 Core Kira's decision-wiring is healthy (the major features reach the brain). The Pokémon harness had two
 half-wires (Gary arc, saga-in-reactions) — both fixed today. The remaining honest gaps are all either
