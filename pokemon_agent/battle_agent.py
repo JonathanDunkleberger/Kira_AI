@@ -36,6 +36,19 @@ _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures l
 _HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
 _STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
 _FULL_HEAL = 23
+
+# ── ANTI-WEDGE BATTLE FLOOR (run-existential) ─────────────────────────────────────────────────────
+# A turn that never RESOLVES — no PP drop, no HP change, no faint — livelocks the fight. The trigger we
+# hit live: every move depleted (Sleep Powder at 0 PP). The game refuses a 0-PP move ("There's no PP
+# left for this move!"), that text flicker keeps changing the screen so the cosmetic `stall` guard
+# resets forever, and the enemy never gets a turn either. This floor counts UNRESOLVED turns (ONLY a
+# real resolution clears it, so the flicker can't hide the wedge) and, past the threshold, ESCAPES:
+# a WILD battle is FLED (self-preservation — a watchable, in-character retreat; the sibling to the
+# overworld deep-wedge floor, but inside combat); a TRAINER battle (un-fleeable) is aborted LOUD. On by
+# default — a frozen session is strictly worse than a flee — but disable-able / tunable. Capability-
+# not-script: she still picks her move every turn; this only catches the dead-end where NO move resolves.
+BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
+UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
 # party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
 _P_STATUS = 0x50
 _ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -87,6 +100,9 @@ class BattleAgent:
         self._acted_once = False       # have we landed/attempted a move yet? (the battle
                                        # intro+settle legitimately makes NO hp change - the
                                        # global-stall watchdog must not fire during it)
+        self._unresolved_turns = 0     # ANTI-WEDGE FLOOR: turns that never RESOLVED (no PP drop/
+                                       # HP change/faint). Cleared only by a real resolution, so the
+                                       # 0-PP "no PP left!" flicker can't reset it like `stall` does.
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -733,6 +749,12 @@ class BattleAgent:
                 idx = max(cands, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
                           * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
                 desc = ours["moves"][idx].get("name", desc)
+            elif not _usable(idx):
+                # NOTHING can execute — every slot is empty/0-PP/blocked (the live Mankey freeze:
+                # Sleep Powder at 0 PP with no usable alternative). Don't navigate a dead move (that's
+                # the livelock) — signal the run loop to escalate to the anti-wedge floor (flee/abort).
+                self.log("   [engine] !! NO USABLE MOVE — every slot empty/0-PP/blocked (the 0-PP wedge)")
+                return "no_usable_move"
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
         self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
@@ -980,8 +1002,28 @@ class BattleAgent:
                 if res == "done":
                     self._acted_once = True
                     stall = 0
+                    self._unresolved_turns = 0        # a real resolution clears the anti-wedge floor
                 else:
                     stall += 1                        # menu up but flaky -> settle re-checks, retry
+                    # ANTI-WEDGE FLOOR — the run-existential one. `stall` resets on ANY screen change,
+                    # so the 0-PP "no PP left!" flicker hides the wedge from it forever. This counter
+                    # only clears on a real resolution above, so a depleted/blocked turn can't hide:
+                    # past the threshold we ESCAPE rather than livelock (flee a wild fight = watchable
+                    # self-preservation; a trainer can't be fled -> loud abort). 'no_usable_move' rides
+                    # the same counter (so a one-frame PP misread can't trip a spurious flee).
+                    self._unresolved_turns += 1
+                    if BATTLE_FLEE_FLOOR and self._unresolved_turns >= UNRESOLVED_FLEE_AT:
+                        if not self._is_trainer_battle():
+                            self.log(f"   [engine] !! ANTI-WEDGE FLOOR: {self._unresolved_turns} "
+                                     f"unresolved turns (last={res}) in a WILD battle -> FLEEING "
+                                     f"(self-preservation, never a frozen session)")
+                            self.emit("nothing's landing and I'm out of good moves — I'm backing out "
+                                      "of this one.", beat=True, tier=2)
+                            return self.flee(max_seconds=60)
+                        self.log(f"   [engine] !! ANTI-WEDGE FLOOR: {self._unresolved_turns} unresolved "
+                                 f"turns (last={res}) in a TRAINER battle -> can't flee; LOUD abort")
+                        self.emit("I'm jammed up in here — can't get a move to land.", beat=False)
+                        return "stuck"
             else:
                 self._advance_text()                  # BLUE dialogue/animation box -> advance it
                 stall += 1
