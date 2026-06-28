@@ -145,7 +145,16 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
    this run ("get Lapras"). Source = the play-mode oracle prompt `_POKEMON_DECIDE_FRAMING` (`bot.py:3233`)
    has no "only reference what you've actually encountered this run" grounding. Fix = one line there, but
    it's CORE-KIRA voice + overlaps the gitignored naivety arc → needs Jonny's sign-off before touching.
-6. **Vision confirming-vote + Gemini swap (recon delivered, NOT built).** Layer B is wired for a pixel-vote
+7. **Warp-routing: Cerulean→Vermilion spine chain (next increment).** The warp-routing MACHINERY is built
+   + verified offline (travel.read_warps; world-model warp edges; route()/next_step warp-aware; head_to_gym
+   edge/warp execution). REMAINING for autonomous gym-3 traversal: (a) SEED the Underground Path warp CHAIN
+   from disasm (Route 5 → UndergroundPath_NorthEntrance → UndergroundPath → SouthEntrance → Route 6; interior
+   maps are group 1, not live-cross-checkable without states there — `seed_warps()` is the hook, live read
+   auto-corrects on arrival), (b) a LIVE trace of the multi-warp execution (enter_warp on the dungeon chain),
+   (c) then the Vermilion GymSpec coord-recon, (d) then the FireRed inter-gym questline (Bill → S.S. Ticket →
+   HM Cut) which gates leaving the Vermilion area. One at a time; (a)+(b) first. NO watch until forward
+   traversal actually works (standing rule).
+8. **Vision confirming-vote + Gemini swap (recon delivered, NOT built).** Layer B is wired for a pixel-vote
    to plug in later; core-Kira vision OpenAI→Gemini swap recon done (valid key = `GEMINI_IMAGE_API_KEY`;
    `google-genai` installed; recommend `gemini-3.1-flash-lite` heartbeat → `gemini-3-flash-preview` escalate).
    Separate step; firewall (all modes). Needs a real-frame test before commit.
