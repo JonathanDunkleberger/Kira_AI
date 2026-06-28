@@ -35,6 +35,7 @@ import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from pokemon_strategy import StrategicMemory  # noqa: E402  (Batch 3 Phase 2: loss/roster/opponent awareness)
+from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from battle_agent import BattleAgent  # noqa: E402
 from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
@@ -318,6 +319,7 @@ class Campaign:
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
         # battle_agent / play_live surgery, and the wrapper is pure-additive (real runner unchanged).
         self.strat = StrategicMemory(log=log)
+        self.guide = GuideSearch(log=log)     # BATCH 6 PHASE 5: silent guide (no-op until dep is live)
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
         battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
@@ -2148,6 +2150,27 @@ class Campaign:
         pl = st_["party"][0]["level"] if st_.get("party") else None
         return not self.strat.stronger_since_wall(pc, pl)
 
+    def _guide_lookup(self, state):
+        """BATCH 6 PHASE 5 — form a templated guide query from the LIVE situation (mode forming a tool
+        query from game facts — NOT scripting her personality) and return a characterful ctx line folding
+        the result in as HER OWN piecing-together (never 'I googled'). None if nothing usable comes back.
+        Scarce + silent: GuideSearch enforces the budget/cooldown; this only shapes the query + framing."""
+        place = state.get("place") or "around here"
+        wall = self.strat.active_wall_rec()
+        if wall and wall.get("lead"):
+            who = wall["lead"]
+            query = f"Pokemon FireRed how to beat {who} {place} best counter"
+            reason = "wall"
+        else:
+            query = f"Pokemon FireRed {place} where to go next walkthrough"
+            reason = "stuck"
+        res = self.guide.search(query, reason=reason)
+        if not res:
+            return None
+        snippet = res.splitlines()[0][:200]
+        # framed as recollection/working-it-out, so the viewer sees the RESULT in her voice, not a search.
+        return (f"(Something you can half-remember about this: {snippet}) Use it if it helps — your call.")
+
     def _thin_team(self):
         """BATCH 6 PHASE 3 — is she running a thin bench (≤ SHOP_THIN_PARTY)? Drives Poké Ball foresight:
         a thin team is the one that most needs to come home from the grass with a new member."""
@@ -2713,6 +2736,14 @@ class Campaign:
                 where = f"{where}. {note}"
                 log(f"   [roam] !! MACRO {macro}: no progress {ledger.stuck} ticks — feeding awareness "
                     f"back to the oracle: {note!r}")
+            # BATCH 6 PHASE 5 — SILENT GUIDE: a genuine gap (truly stuck, or a wall she can't crack) is
+            # exactly when a real player reaches for the strategy guide. She quietly checks and the RESULT
+            # folds into her reasoning IN CHARACTER (firewall: same `place` seam; she still decides). No-op
+            # unless POKEMON_GUIDE_SEARCH=1 AND the Custom Search API is enabled — enrichment, never a dep.
+            if self.guide.available() and (macro == ledger.RED or self.strat.active_wall):
+                hint = self._guide_lookup(state)
+                if hint:
+                    where = f"{where}. {hint}"
             # STRATEGIC AWARENESS (Batch 3 Phase 2): fold LOSS-LEARNING (she's hit a wall — same fight
             # lost ≥2x = brute-forcing isn't working) + ROSTER-SHAPE (one Pokémon isn't a team) into the
             # SAME `place` seam. FACTS + the menu of options (level / teammate / counter / come back),
