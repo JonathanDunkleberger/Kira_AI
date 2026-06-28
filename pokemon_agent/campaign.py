@@ -344,12 +344,19 @@ class Campaign:
         behavior + return value are unchanged (battle suites stay green); any strat error is swallowed
         LOUD and never affects the fight. Called only when a battle is live (in_battle); a stray
         non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
+        pre_sp = pre_lvl = None
         try:
             place = self._PLACE_NAMES.get(tv.map_id(self.b), "an unfamiliar area")
             self.strat.observe_battle_start(self.b, place)
+            pre_sp = st.read_party_species(self.b, 0)          # Phase 3A: lead species + level before battle
+            pre_lvl = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
         except Exception as _e:
             log(f"   [strat] start-observe skipped: {_e}")
         out = self._raw_battle_runner()
+        try:
+            self._drive_evolution(pre_sp, pre_lvl)             # Phase 3A: drive a post-battle evolution (gated on level-up)
+        except Exception as _e:
+            log(f"   [evolve] drive skipped: {_e}")
         try:
             self.strat.observe_battle_end(self.b, out)
         except Exception as _e:
@@ -726,6 +733,115 @@ class Campaign:
         self._set_lead_moves(new_moves, new_pps)
         for _ in range(4):
             self.b.run_frame()
+
+    def _ensure_move_room(self):
+        """PHASE 3B — kill the free-roam move-learn FREEZE by PREVENTION (the 'Delete a move?' Y/N box
+        is un-actuatable in the continuous core, so we make it never appear). Called before a free-roam
+        leveling action: if the lead has 4 FULL moves, free ONE slot now so any move learned this battle
+        AUTO-LEARNS with no box. WHICH move to drop is HER call — the soul oracle picks among the SAFE-
+        to-drop set (never the single strongest, never a high-value status move while filler exists);
+        headless / no engagement -> the proven keep-strongest default. Returns the dropped move name or
+        None. A teammate that already has room is left untouched (no needless sacrifice)."""
+        moves, pps = self._lead_moves(), self._lead_pps()
+        real = [(i, m) for i, m in enumerate(moves) if m]
+        if len(real) < 4:
+            return None                                       # already has an open slot — nothing to do
+        try:
+            from pokemon_soul import HIGH_VALUE_LOW_POWER
+        except Exception:
+            HIGH_VALUE_LOW_POWER = set()
+        best_slot = max(real, key=lambda im: st.move_info(self.b, im[1])[1])[0]   # never drop the best
+        # SAFE-to-drop set: not the best attacker, and not a high-value status move while plain filler
+        # still exists (protect Sleep Powder/Leech Seed/etc.). Offer these to her by clean NAME.
+        cand = [(i, m) for i, m in real if i != best_slot]
+        plain = [(i, m) for i, m in cand if m not in HIGH_VALUE_LOW_POWER]
+        safe = plain or cand                                  # fall back to status moves only if all are
+        options = {st.MOVE_NAMES.get(m, f"move#{m}"): f"drop your {st.MOVE_NAMES.get(m, 'move')} "
+                   f"({st.move_info(self.b, m)[1] or 0} power) to make room" for i, m in safe}
+        ctx = {"place": "your moveset is full (4 moves) and you're about to keep leveling — to learn "
+               "anything new you have to let one go. Pick the one you'd part with (keep your best/most "
+               "useful)."}
+        pick = self._soul_choose("move_drop", options, ctx)
+        drop_slot = None
+        if pick:
+            for i, m in safe:
+                if st.MOVE_NAMES.get(m, f"move#{m}") == pick:
+                    drop_slot = i
+                    break
+        if drop_slot is None:                                 # headless / unparsable -> weakest safe move
+            drop_slot = sorted(safe, key=lambda im: st.move_info(self.b, im[1])[1])[0][0]
+        dropped = st.MOVE_NAMES.get(moves[drop_slot], f"move#{moves[drop_slot]}")
+        kept = [(i, m) for i, m in real if i != drop_slot]    # compact: kept in slot order, empty at end
+        new_moves = [m for _, m in kept] + [0] * (4 - len(kept))
+        new_pps = [pps[i] for i, _ in kept] + [0] * (4 - len(kept))
+        self._set_lead_moves(new_moves, new_pps)
+        for _ in range(4):
+            self.b.run_frame()
+        log(f"   [movelearn] PHASE 3B reserved a slot — dropped {dropped} (her pick; kept the rest) so a "
+            f"new move auto-learns with no un-actuatable box")
+        self.on_event(f"my moveset's full — I'll let {dropped} go to make room for something new",
+                      kind="move", tier=2)
+        return dropped
+
+    def _drive_evolution(self, pre_species, pre_level):
+        """PHASE 3A — drive the post-battle EVOLUTION cutscene so it NEVER freezes. After a battle the
+        evolution scene plays on the overworld (a full-screen animation box_open can't see), and the old
+        code's _wait_overworld returned 'idle' while input was still locked -> the next action wedged.
+
+        GATE: evolution only happens on a LEVEL-UP, so if the lead didn't level this battle we return
+        immediately with ZERO presses (no spurious steps on the common no-evolution case). On a level-up
+        we settle (plain frames), check ONCE whether control is locked (a cutscene playing); if it's free
+        there's nothing to drive (just a normal level-up) -> no-op. If LOCKED, we A-advance (B-free: A
+        proceeds an evolution, B would CANCEL it — we never press B) until control returns / timeout.
+        Default-proceed = evolving is almost always wanted (a 30s oracle call can't fit the few-second
+        cancel window, so cancel isn't wired — proceed is the honest default). On a real species change
+        we fire the NAMING soul beat (a new family member)."""
+        cur_level = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
+        if not pre_level or cur_level <= pre_level:
+            return                                            # no level-up -> no evolution possible
+        from dialogue_drive import DialogueDriver
+        dd = DialogueDriver(self.b, render=self.render, log=log)
+        import time as _t
+        t0 = _t.time()
+        drove = False
+        # settle (plain frames, no probing) so an evolution cutscene has a moment to START
+        for _ in range(45):
+            if st.in_battle(self.b):
+                return
+            self.b.run_frame(); self.render()
+        # ONE control check: if control is already back, no cutscene is playing -> nothing to drive
+        if dd._control_returned():
+            return
+        log("   [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)")
+        # A-advance (B-free) until control returns or we time out (evolution anim can run ~20-30s)
+        while _t.time() - t0 < 35:
+            if st.in_battle(self.b):
+                return
+            if dd._control_returned():
+                break
+            drove = True
+            self.b.press("A", 6, 10, self.render, owner="agent")
+            self.render()
+        post = st.read_party_species(self.b, 0)
+        if pre_species and post and post != pre_species:
+            before = st.SPECIES_NAME.get(pre_species, "my Pokemon")
+            after = st.SPECIES_NAME.get(post, "something new")
+            log(f"   [evolve] PHASE 3A drove the evolution cutscene: {before} -> {after} — naming beat")
+            self.soul.note_evolve(before, after) if self.soul else None
+            # NAME the new family member (continuity bond layer — NOT the un-navigable in-game keyboard).
+            try:
+                nm = self._soul_choose("name", {}, {"place": f"your {before} just evolved into a {after}! "
+                                                    f"this is a new chapter for a teammate you love — give "
+                                                    f"this {after} a name, just the name."})
+                if nm and self.soul is not None:
+                    self.soul.bonds[nm.lower()] = {"species": after, "nickname": nm,
+                                                   "caught": "evolved", "note": "evolved"}
+                    self.on_event(f"you're not just {after} to me — you're {nm} now. always.",
+                                  kind="roster", tier=3)
+            except Exception as _e:
+                log(f"   [evolve] naming beat skipped: {_e}")
+        elif drove:
+            log("   [evolve] drove a post-battle cutscene (no species change — not an evolution)")
 
     def has_badge(self, flag):
         """Read any FLAG_BADGE0x_GET from the SaveBlock1 flag array (base + 0x0EE0)."""
@@ -2039,6 +2155,10 @@ class Campaign:
                 return "no_gym_route"
             return self.trav.travel(target_map=south, edge="south")
         if pick in ("wander_catch", "battle"):
+            # PHASE 3B: before any free-roam leveling, make sure the lead has a free move slot so a
+            # level-up move auto-learns (the un-actuatable 'Delete a move?' box never appears). Her call
+            # which move goes (soul oracle, safe-set only); no-op if she already has room.
+            self._ensure_move_room()
             gt = self._grass_target(state)
             if gt is not None and gt[0] == "route":
                 _, tgt, edge = gt
