@@ -61,6 +61,10 @@ STATES_ARCHIVE = os.path.join(STATES, "archive")
 STATES_CAMPAIGN = os.path.join(STATES, "campaign")
 CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestate filename
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
+# Move "junk floor" (Batch 6 no-gut guarantee): a move whose value (power + coverage/utility bonuses) is
+# below this is safe to drop to free a slot; if EVERY droppable move is at/above it, KEEP them all rather
+# than gut a good set (a gutted moveset fails invisibly at the E4). Tunable.
+MOVE_JUNK_FLOOR = int(os.getenv("POKEMON_MOVE_JUNK_FLOOR", "50"))
 
 
 def resolve_state(name):
@@ -761,26 +765,71 @@ class Campaign:
             from pokemon_soul import HIGH_VALUE_LOW_POWER
         except Exception:
             HIGH_VALUE_LOW_POWER = set()
-        best_slot = max(real, key=lambda im: st.move_info(self.b, im[1])[1])[0]   # never drop the best
-        # SAFE-to-drop set: not the best attacker, and not a high-value status move while plain filler
-        # still exists (protect Sleep Powder/Leech Seed/etc.). Offer these to her by clean NAME.
-        cand = [(i, m) for i, m in real if i != best_slot]
-        plain = [(i, m) for i, m in cand if m not in HIGH_VALUE_LOW_POWER]
-        safe = plain or cand                                  # fall back to status moves only if all are
-        options = {st.MOVE_NAMES.get(m, f"move#{m}"): f"drop your {st.MOVE_NAMES.get(m, 'move')} "
-                   f"({st.move_info(self.b, m)[1] or 0} power) to make room" for i, m in safe}
-        ctx = {"place": "your moveset is full (4 moves) and you're about to keep leveling — to learn "
-               "anything new you have to let one go. Pick the one you'd part with (keep your best/most "
-               "useful)."}
+        # BATCH 6 ADDENDUM (MENU MASTERY): moves are PRECIOUS — she leveled for Vine Whip, one-shot Brock
+        # with it, then MASHED it away. The box is un-actuatable in the continuous core, so the deliberate
+        # choice happens HERE (proactively) instead of at the un-navigable menu. Build the full picture —
+        # name, TYPE, power, and coverage flags — so she (and the safe default) protect the hard-hitter
+        # AND type coverage. A super-effective / unique-type move is never tossed for raw power again.
+        from collections import Counter
+        info = [(i, m, st.MOVE_NAMES.get(m, f"move#{m}"), *st.move_info(self.b, m)) for i, m in real]
+        # info rows: (slot, id, name, type, power)
+        dmg_types = Counter(t for _i, _m, _n, t, p in info if p and p > 0)
+        best_slot = max(info, key=lambda x: x[4] or 0)[0]     # the hard-hitter (highest power) — NEVER drop
+
+        def _value(x):                                        # higher = more precious = keep
+            _slot, mid, _n, t, power = x
+            v = (power or 0)
+            if mid in HIGH_VALUE_LOW_POWER:
+                v += 100                                      # Sleep Powder / Leech Seed / etc.
+            if (power or 0) > 0 and dmg_types.get(t, 0) == 1:
+                v += 60                                       # UNIQUE-type coverage (Vine Whip!) — precious
+            return v
+
+        def _desc(x):
+            _slot, mid, n, t, power = x
+            tags = []
+            if (power or 0) > 0 and dmg_types.get(t, 0) == 1:
+                tags.append(f"your ONLY {t}-type move")
+            if mid in HIGH_VALUE_LOW_POWER:
+                tags.append("a key status move")
+            if not power:
+                tags.append("non-damaging")
+            return f"{n} ({t}, {power or 0} pwr{'; ' + ', '.join(tags) if tags else ''})"
+
+        # droppable = everything EXCEPT the hard-hitter; least-precious first (the coverage-safe default)
+        droppable = sorted([x for x in info if x[0] != best_slot], key=_value)
+        # TM/move-learn NO-GUT GUARANTEE (Batch 6 addendum): if NOTHING here is clearly junk (every move
+        # is a hard-hitter / coverage / utility), the SAFE DEFAULT is KEEP THEM ALL — never gut a good set
+        # to slot a new move. A quietly-gutted moveset doesn't fail until the E4 (Gen-3: no move relearner,
+        # TMs are one-use), so integrity beats a possible box-freeze here. Junk = value below MOVE_JUNK_FLOOR
+        # (a non-damaging non-utility filler, or a weak redundant attacker).
+        least_value = _value(droppable[0]) if droppable else 999
+        all_precious = least_value >= MOVE_JUNK_FLOOR
+        options = {x[2]: f"let go of {_desc(x)}" for x in droppable}
+        options["keep them all"] = ("keep your current four and skip the new move — if nothing's worth "
+                                    "losing, you lose nothing")
+        ctx = {"place": "your moveset is full and you're leveling, so to learn anything new you'd have to "
+               "part with ONE move. Your current moves: " + "; ".join(_desc(x) for x in info) + ". Think "
+               "like a real trainer: your hard-hitter and your type COVERAGE are PRECIOUS — a "
+               "super-effective or only-of-its-type move must NEVER be tossed for raw power, and a good "
+               "move can't be re-learned. If one move is clearly redundant or junk, drop THAT; if nothing "
+               "is worth losing, KEEP THEM ALL. Which do you do?"}
         pick = self._soul_choose("move_drop", options, ctx)
+        # KEEP path: she chose to, OR (headless/unparsable) everything is precious -> don't gut the set.
+        if pick == "keep them all" or (not pick and all_precious):
+            log(f"   [movelearn] KEEP-ALL (no-gut guarantee): nothing junk to drop (least_value={least_value}) "
+                f"— holding the set; a new move is declined rather than gutting a good one")
+            self.on_event("nah — all four of these are pulling weight. I'm keeping my set.",
+                          kind="move", tier=1)
+            return None
         drop_slot = None
-        if pick:
-            for i, m in safe:
-                if st.MOVE_NAMES.get(m, f"move#{m}") == pick:
-                    drop_slot = i
+        if pick and pick != "keep them all":
+            for x in droppable:
+                if x[2] == pick:
+                    drop_slot = x[0]
                     break
-        if drop_slot is None:                                 # headless / unparsable -> weakest safe move
-            drop_slot = sorted(safe, key=lambda im: st.move_info(self.b, im[1])[1])[0][0]
+        if drop_slot is None:                                 # headless with clear junk -> drop the junkiest
+            drop_slot = droppable[0][0]
         dropped = st.MOVE_NAMES.get(moves[drop_slot], f"move#{moves[drop_slot]}")
         kept = [(i, m) for i, m in real if i != drop_slot]    # compact: kept in slot order, empty at end
         new_moves = [m for _, m in kept] + [0] * (4 - len(kept))
@@ -1086,6 +1135,12 @@ class Campaign:
             self._reserve_move_slots(gym.reserve)
             log(f"   GYM: reserved {gym.reserve} slot(s) for a level-up learn; moves now "
                 f"{[st.MOVE_NAMES.get(m, '#' + str(m)) for m in self._lead_moves()]}")
+        # BATCH 6 PHASE 2 — freeze-prevention for the CLIMB: a gym is a dense run of level-ups, and a
+        # FULL moveset hitting a learn shows the un-actuatable "Delete a move?" box (a ~3-min battle hang
+        # in the continuous core). gym.reserve only covers gyms with a KNOWN double-learn (Brock); this
+        # makes it UNIVERSAL — if the lead is still at 4 moves, free ONE slot so any learn auto-fills
+        # (her pick via the soul, never the best/super-effective move). No-op if she already has room.
+        self._ensure_move_room()
         if tv.map_id(self.b) == gym.city:
             if self.enter_warp(pick=gym.door) != "warped":
                 log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
