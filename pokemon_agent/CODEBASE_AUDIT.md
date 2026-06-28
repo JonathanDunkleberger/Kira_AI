@@ -71,13 +71,21 @@ because *wired-to-display ≠ wired-to-brain* (the goals-not-wired bug was exact
 | Depleted / 0-PP move re-pick (Mankey) | `battle_agent._select_and_verify` | ✓ COVERED — `_skip_streak` rotates the whole moveset, flees when exhausted |
 | Can't-flee trainer wedge | `battle_agent` run loop | ✓ COVERED — flee floor aborts LOUD |
 | **No-effect (type-immune) move** | battle policy | ⚠ PARTIAL — a 0-effect move that still consumes PP "resolves", so `_skip_streak` won't catch it; policy can re-pick it if all score low. NEEDS: exclude effectiveness==0 in the picker |
-| Looping NPC (multi-line cycle, Slowbro) | `dialogue_drive` / `pokemon_voice` | ✓ COVERED — cycle-detect (disengage) + recent-window dedup (stop re-commentary) |
+| Looping NPC — she CHOSE to talk (multi-line cycle) | `dialogue_drive` / `pokemon_voice` | ✓ COVERED — cycle-detect (disengage) + recent-window dedup (stop re-commentary) |
+| Looping NPC — TRAVEL bumps a plain blocker on the only gap (live Slowbro-near-Cerulean-Mart wedge) | `travel` chokepoint gauntlet | ✓ FIXED **LAYER A** (mark body tile in the unified `_blocked_npcs` set, route around, `no_route_npc_blocked` if none) — was the FALSE-"covered" here (B-2 is the talk altitude; this is the travel altitude). **Live-verify pending** |
 | **Re-talking a beaten gym leader / trainer** (restarts lines) | overworld | ⚠ PARTIAL — cycle-detect catches it once she re-talks; better fix = don't re-initiate talk with a beaten NPC |
 | Warp / spinner / boulder loops | overworld | ⚠ PARTIAL — repeat-pick nudge (non-GREEN) + ProgressLedger RED→hard-recovery backstop; not a dedicated handler |
-| Catch throw-verify / waypoint-wander sub-tick stalls | `battle_agent.throw_ball`, `campaign.catch_one` | ✗ NOT — bounded by budget but spins 5–40s BELOW the watchdog (the "wrong altitude" class) |
-| Heal-at-center sub-tick stalls | `campaign.heal_at_center` | ✗ NOT — bounded; repeat-pick nudge won't fire (fp changes mid-walk) |
-| ProgressLedger tick-granularity | `world_fingerprint` | ✗ ARCHITECTURAL — sub-tick hangs invisible until the next tick; accept or add a per-action micro-watchdog |
+| Catch throw-verify / waypoint-wander sub-tick stalls | `battle_agent.throw_ball`, `campaign.catch_one` | ⚠ NOW BACKSTOPPED **LAYER B** — the universal wall-clock watchdog trips on any frozen-screen sub-tick spin (catch/heal/travel) regardless of layer. Still no DEDICATED handler (backstop, not a precise fix). Live-verify pending |
+| Heal-at-center sub-tick stalls | `campaign.heal_at_center` | ⚠ NOW BACKSTOPPED **LAYER B** (same wall-clock watchdog). No dedicated handler |
+| ProgressLedger tick-granularity (incl. the FROZEN-dialogue-box tick-SKIP that defeated the net live) | `world_fingerprint` | ✓ ADDRESSED **LAYER B** — `StuckWatch`: wall-clock, sub-tick, does NOT skip boxes (an unchanging box across the window IS the signal). Unit-VERIFIED 8/8; live-verify pending |
 
-**Next anti-stuck targets** (not yet built): (a) exclude type-immune moves in the picker; (b) "don't
-re-talk a beaten NPC" memory; (c) a per-long-action micro-watchdog (sample the fingerprint every ~5s
-INSIDE catch/heal so a sub-tick stall surfaces, per the standing "no inner loop spins silently" rule).
+**Next anti-stuck targets** (not yet built): (a) exclude type-immune moves in the picker; (b) per-action
+DEDICATED micro-watchdogs inside catch/heal (Layer B now backstops these via wall-clock, but a dedicated
+fast surface is still cleaner). DONE since last audit: travel plain-NPC route-around (**Layer A**),
+universal frozen-screen watchdog (**Layer B**), "don't re-talk a resolved NPC" now unified across the
+travel + talk paths (`_blocked_npcs`).
+
+**FUTURE (recon delivered, NOT built):** a VISION confirming-vote can plug into Layer B's signal (a
+region-masked frame-diff as a second vote), and core-Kira's vision model is slated for an OpenAI→Gemini
+swap — see the recon report. Layer B is deliberately wired so the pixel-vote layers on later; the model
+swap is a SEPARATE step (don't bundle).
