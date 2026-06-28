@@ -47,6 +47,34 @@ def list_devices():
             print(f"      [{i:>2}] {d['name']}  ({d['max_output_channels']}ch){mark}")
 
 
+# ── VTS FIREWALL: substrings that mark a device as a virtual cable. Game audio routed to ANY of
+# these makes VTube Studio lip-sync Kira's mouth to the soundtrack (Phase-1 regression, fixed before).
+# The cable must carry ONLY her TTS. This list is the single source of truth for "is this a cable?".
+_CABLE_MARKERS = ("cable", "vb-audio", "vb audio", "voicemeeter", "vac ", "virtual audio",
+                  "virtual cable")
+
+
+def _is_cable(name):
+    """True if a device name looks like a virtual cable VTS would lip-sync from."""
+    low = (name or "").lower()
+    return any(m in low for m in _CABLE_MARKERS)
+
+
+def _dev_name(idx):
+    try:
+        return sd.query_devices(idx)["name"] if idx is not None else "default"
+    except Exception:
+        return "default"
+
+
+def _first_real_output():
+    """First non-cable output device index, or None if every output is a virtual cable."""
+    for i, d in enumerate(sd.query_devices()):
+        if d["max_output_channels"] > 0 and not _is_cable(d["name"]):
+            return i
+    return None
+
+
 def _resolve(name_or_idx):
     """Resolve a device name-substring or index to an output device index, or None."""
     if name_or_idx is None or name_or_idx == "":
@@ -92,19 +120,42 @@ class AudioPump:
         # Game music goes to the desktop where Jonny hears it (and OBS can capture desktop audio
         # directly); her LOOPBACK hearing of that desktop music is separately handled by Pokémon-mode
         # audio suppression. The `cable` arg is retained for signature stability but is NOT a sink.
-        targets, seen = [], set()
+        # ── route target: the DESKTOP output ONLY (Jonny's monitor/headphones, e.g. Leviathan) ──
+        # HARD FIREWALL: game audio must NEVER reach a virtual cable (VTS lip-syncs Kira's mouth from
+        # the cable). Every candidate sink below is run through _is_cable() and REFUSED if it's a cable —
+        # we substitute the first real output device instead of silently flapping. This is the Phase-1
+        # regression guard: the old code only WARNED, then routed to the default output anyway (which is
+        # the cable on Jonny's rig). Now a cable can never become a sink, period.
+        targets = []
         idx = _resolve(phones)
+        if idx is not None and _is_cable(_dev_name(idx)):
+            self.log(f"   [pkmn-audio] !! REFUSED: --phones {phones!r} resolves to a VIRTUAL CABLE "
+                     f"({_dev_name(idx)!r}) — that would flap Kira's mouth to the music. Ignoring it.")
+            idx = None
         if idx is not None:
-            targets.append(("desktop", idx, phones)); seen.add(idx)
-        if not targets:                     # fall back to the system default output
+            targets.append(("desktop", idx, phones))
+        if not targets:                     # no usable --phones: pick a REAL (non-cable) output
             di = sd.default.device[1] if sd.default.device else None
-            dn = (sd.query_devices(di)["name"] if di is not None else "default")
-            if any(v in dn.lower() for v in ("cable", "vb-audio", "vb audio")):
-                self.log(f"   [pkmn-audio] !! WARNING: no --phones given and the system default "
-                         f"output is a VIRTUAL CABLE ({dn!r}) — VTS would flap Kira's mouth to the "
-                         f"music. Pass --phones with your DESKTOP/headphone device.")
-            targets = [("default-out", None, "default")]
+            dn = _dev_name(di)
+            if di is not None and not _is_cable(dn):
+                targets = [("default-out", di, dn)]   # system default is real -> safe to use
+            else:
+                real = _first_real_output()
+                if real is not None:
+                    self.log(f"   [pkmn-audio] !! no usable --phones and the system default is a "
+                             f"VIRTUAL CABLE ({dn!r}). Auto-routing game audio to the first REAL output "
+                             f"{_dev_name(real)!r} so VTS can't lip-sync the soundtrack. Pass --phones "
+                             f"to pick your headphones explicitly.")
+                    targets = [("desktop-auto", real, _dev_name(real))]
+                else:
+                    raise RuntimeError(
+                        "pkmn-audio FIREWALL: every output device is a virtual cable — refusing to "
+                        "route game audio anywhere (it would flap Kira's mouth). Plug in / enable a real "
+                        "output device or pass --phones with a non-cable device.")
         for label, idx, spec in targets:
+            if idx is not None and _is_cable(_dev_name(idx)):   # belt-and-suspenders before opening
+                self.log(f"   [pkmn-audio] !! SKIP cable sink {label} ({_dev_name(idx)!r})")
+                continue
             try:
                 st = sd.OutputStream(samplerate=rate, channels=2, dtype="int16",
                                      device=idx, blocksize=0, latency="low")
