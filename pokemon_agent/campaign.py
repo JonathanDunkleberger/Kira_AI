@@ -466,14 +466,33 @@ class Campaign:
         except Exception as _e:
             log(f"   [strat] start-observe skipped: {_e}")
         out = self._raw_battle_runner()
+        # ROBUST WALL-RECORD (strategic-stuck keystone — the swallow guard). _finish() returns "loss"
+        # ONLY if it captures ours.hp==0 at the battle-transition boundary; a flaky read there falls
+        # through to "ended" and SWALLOWS the loss, so active_wall never sets and the strategic-stuck
+        # floor is silently starved (the death-loop never breaks). A TRAINER battle is un-fleeable and
+        # only ends by WIN (enemy_fainted -> "win") or LOSS — so an ambiguous "ended" from a trainer
+        # fight is almost certainly a swallowed loss. Coerce the RECORDED outcome to "loss" (loud), but
+        # return the ORIGINAL `out` so no downstream control-flow changes. Wilds untouched ("ended" on a
+        # wild is normal). strat.cur is still set here (observe_battle_end clears it).
+        record_out = out
+        try:
+            if out == "ended" and self.strat.cur and self.strat.cur.get("is_trainer"):
+                log("   [strat] !! trainer battle returned ambiguous 'ended' (likely a loss swallowed at "
+                    "the whiteout boundary) -> RECORDING as LOSS so the strategic-stuck floor isn't starved")
+                record_out = "loss"
+        except Exception as _ce:
+            log(f"   [strat] outcome-coercion skipped: {_ce}")
         try:
             self._drive_evolution(pre_sp, pre_lvl)             # Phase 3A: drive a post-battle evolution (gated on level-up)
         except Exception as _e:
             log(f"   [evolve] drive skipped: {_e}")
         try:
-            self.strat.observe_battle_end(self.b, out)
+            self.strat.observe_battle_end(self.b, record_out)   # record_out = swallow-guarded outcome
         except Exception as _e:
             log(f"   [strat] end-observe skipped: {_e}")
+        # Did the in-battle path record this as a loss? The free_roam whiteout-backstop reads this so it
+        # only force-records when the in-battle read SWALLOWED the loss (no double-count).
+        self._loss_recorded_this_battle = str(record_out).lower() in ("loss", "battle_loss", "blackout", "whiteout")
         # PHASE 6 — STRUGGLE: the middle of the dread→struggle→catharsis arc. If the fight left her down
         # to her LAST conscious Pokémon (others fainted), name it — "down to my last one, this is bad" —
         # so a later win is EARNED relief, not a flat "we won". Read-only; throttled to fire ONCE per
@@ -2944,6 +2963,18 @@ class Campaign:
             if tv.map_id(self.b)[0] != 3:
                 log(f"   [roam] !! BLACKOUT/STRANDED: in a building interior {tv.map_id(self.b)}"
                     f"@{tv.coords(self.b)} — exiting to the overworld to re-orient")
+                # WHITEOUT-BACKSTOP (swallow-proof wall record): the whiteout is irrefutable proof she
+                # LOST — but the live strat_memory showed losses={}/active_wall=null after a 3× loop, i.e.
+                # the battle-end read SWALLOWED the outcome and the wall never recorded (starving the
+                # spatial gate AND the strategic-stuck floor). If the in-battle path didn't already record
+                # this loss, force-record it now from the whiteout so active_wall is set and the floor can
+                # finally key on it. Guarded by _loss_recorded_this_battle so a caught loss isn't doubled.
+                if not getattr(self, "_loss_recorded_this_battle", False):
+                    try:
+                        self.strat.note_blackout()
+                    except Exception as _bk:
+                        log(f"   [strat] whiteout-backstop record skipped: {_bk}")
+                self._loss_recorded_this_battle = True   # consumed — don't re-record across interior ticks
                 self.on_event("ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.",
                               kind="blackout", tier=2)
                 self._exit_to_overworld()

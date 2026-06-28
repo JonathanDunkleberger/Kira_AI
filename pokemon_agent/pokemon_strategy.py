@@ -68,6 +68,7 @@ class StrategicMemory:
         self.log = log
         self._roster_ok = None          # tri-state: None=unchecked, True/False=gEnemyParty self-check result
         self.cur = None                 # opponent snapshot for the battle in progress (set at battle start)
+        self.last_foe = None            # persists past observe_battle_end: who she last fought (whiteout-backstop)
         self.losses = {}                # foe_key -> {count, name, lead, types, size, place, is_trainer}
         self.recent = []                # chronological [foe_key] of recent losses (tail = most recent)
         self.active_wall = None         # the foe_key of the wall she's currently up against (cleared on a win)
@@ -145,6 +146,7 @@ class StrategicMemory:
                 "map_id": tuple(map_id) if map_id else None, "coords": coords,
                 "my_party": party_count, "my_level": lead_level,
             }
+            self.last_foe = self.cur          # persists past observe_battle_end (the whiteout-backstop reads it)
         except Exception as e:
             self.log(f"   [strat] observe_battle_start err {e}")
             self.cur = None
@@ -185,6 +187,23 @@ class StrategicMemory:
                 self.active_wall = None
             if key in self.losses and str(outcome).lower() in ("win",):
                 self.losses.pop(key, None)
+
+    def note_blackout(self):
+        """WHITEOUT-BACKSTOP (the swallow-proof loss record). The live strat_memory showed losses={}/
+        active_wall=null DESPITE a 3× death-loop — the battle-end HP read swallowed the outcome, so the
+        wall never recorded and the strategic-stuck floor + spatial gate were both STARVED. The whiteout
+        itself (map group != 3, the keystone the codebase trusts) is irrefutable proof she lost, whatever
+        the battle returned. The free_roam blackout handler calls this so the loss records regardless.
+        Records `last_foe` as a loss via the normal path (reuses observe_battle_end's loss branch).
+        Caller guards against double-recording a battle the in-battle path already caught."""
+        if not self.last_foe:
+            self.log("   [strat] blackout detected but no last-foe snapshot — can't attribute the loss (LOUD)")
+            return False
+        self.cur = dict(self.last_foe)
+        self.observe_battle_end(None, "blackout")   # -> lost=True -> records the loss + sets active_wall
+        self.log(f"   [strat] WHITEOUT-BACKSTOP: recorded the loss vs {self.last_foe.get('key')} from the "
+                 f"whiteout (the battle-end read had swallowed it) — active_wall now set")
+        return True
 
     # ── awareness notes (folded into the oracle ctx by free_roam, same `place` seam as survival) ──
     def loss_awareness(self):
