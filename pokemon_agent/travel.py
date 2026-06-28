@@ -73,6 +73,8 @@ MAP_ROUTE2 = (3, 20)
 MAP_ROUTE3 = (3, 21)
 
 DIR_KEY = {"N": "UP", "S": "DOWN", "W": "LEFT", "E": "RIGHT"}
+RUN_STEP_CAP = 16   # max frames to hold a running step before giving up (a run tile is ~8f; cap covers
+#                     a turn-only / blocked press whose coord never changes — caller retries those)
 DIR_DELTA = {"N": (0, -1), "S": (0, 1), "W": (-1, 0), "E": (1, 0)}
 # edge-crossing geometry: which axis (0=x col, 1=y row) and which extreme line each map-edge uses,
 # plus the press that steps OFF that edge. East/West are the Pewter->Route 3 unlock (additive — the
@@ -279,14 +281,21 @@ class Traveler:
         if not self.run:
             self.b.press(key, HOLD, HOLD, self.render, owner=self.owner)
             return
-        # co-hold B (RUN). Mirrors Bridge.press timing exactly, but holds direction + B together. Safe
-        # whether or not she owns the shoes yet (B during a movement step is otherwise inert).
+        # RUN, SMOOTH (Batch 4 Phase 1 fix). The old fixed 8-hold + 8-release STUTTERED: a run tile
+        # finishes in ~8 frames (vs ~16 walking), so the 8-frame release became dead standing time ->
+        # move-freeze-move-freeze. Instead, co-hold dir+B and hold ONLY until this tile actually
+        # completes (coord changes), then release with a single settle frame so consecutive presses
+        # GLIDE continuously like a held key (verified ~8 f/tile, no dead gap). Tile-atomic -> exactly
+        # one tile per call so the BFS path-follow stays in sync; the cap covers a blocked/turn-only
+        # press (no coord change), which the caller's `after == cur` retry already handles.
+        c0 = coords(self.b)
         self.b.set_keys(key, "B", owner=self.owner)
-        for _ in range(HOLD):
+        for _ in range(RUN_STEP_CAP):
             self.b.run_frame(); self.render()
+            if coords(self.b) != c0:
+                break
         self.b.release(owner=self.owner)
-        for _ in range(HOLD):
-            self.b.run_frame(); self.render()
+        self.b.run_frame(); self.render()       # 1-frame settle: clean coord read, no dead gap
 
     def _blocker_npc_check(self):
         """MICRO watchdog (increment 2): we A-interacted with a path blocker and it did NOT start a
