@@ -177,16 +177,15 @@ class StrategicMemory:
     # ── awareness notes (folded into the oracle ctx by free_roam, same `place` seam as survival) ──
     def loss_awareness(self):
         """The 2A + 2C note: if she's up against an active wall, hand the oracle the FACTS (who beat
-        her, how they're built, how many times) + the menu of strategic options — framed as HER call,
-        never a command. Returns '' when there's nothing to surface."""
+        her, how they're built) + a CONCRETE read on WHY she lost + the menu of options — framed as HER
+        call, never a command. Batch-4 Phase 3: the rethink is STRONG after the FIRST loss to a
+        meaningful wall (don't make the audience sit through loss #2); loss #2+ is harder still."""
         key = self.active_wall
         if not key or key not in self.losses:
             return ""
         r = self.losses[key]
         n = r["count"]
         # opponent reading (2C): describe how the foe is built so she can reason about counters herself
-        who = r["name"]
-        desc = who
         if r["is_trainer"]:
             sz = f"{r['size']} Pokémon" if r.get("size") else "a full team"
             lead_t = ("/".join(r["types"]) + "-type ") if r.get("types") else ""
@@ -195,15 +194,34 @@ class StrategicMemory:
             lead_t = ("/".join(r["types"]) + "-type ") if r.get("types") else ""
             desc = f"the wild {r['lead']} ({lead_t}around here)"
         where = f" at {r['place']}" if r.get("place") else ""
+        # CONCRETE "why you lost" from the data she actually has — so the rethink is specific, not vague.
+        reasons = []
+        if r.get("my_party") == 1:
+            reasons.append("you're running solo, so one bad matchup and there's nothing to switch to")
+        if r.get("my_level") and r.get("lead_level") and r["my_level"] < r["lead_level"]:
+            reasons.append(f"you were under-levelled (you ~L{r['my_level']} vs their L{r['lead_level']})")
+        if r.get("is_trainer") and (r.get("size") or 1) >= 3:
+            reasons.append(f"they out-number you {r['size']}-to-{r.get('my_party') or 1}")
+        if r.get("types"):
+            reasons.append(f"their {'/'.join(r['types'])} lead may have the type edge on you")
+        why = "; and ".join(reasons) if reasons else "you were simply out-matched"
+        meaningful = bool(r["is_trainer"] or (r.get("size") or 1) >= 2)
         if n >= WALL_REPEAT:
-            return (f"Reality check: you've now lost to {desc}{where} {n} times. Brute-forcing the same "
-                    f"fight with the same team clearly isn't working — this is a real wall. Stepping "
-                    f"back to level up, catch a teammate or two for backup, or line up a type that "
-                    f"counters them are all on the table. Or try again if you've got a new idea — your "
-                    f"call, but going in unchanged just blacks you out again.")
-        return (f"You just lost to {desc}{where}. One loss isn't the end — but think about WHY before "
-                f"charging back in: are you under-levelled, out-numbered, or type-disadvantaged? "
-                f"Leveling up, grabbing a teammate, or a better matchup are options. Your call.")
+            return (f"Reality check: you've now lost to {desc}{where} {n} times. Same team, same result "
+                    f"— this is a real wall and brute-forcing it isn't working. WHY: {why}. The move is "
+                    f"to come back STRONGER, not angrier: level up, grab a teammate for backup/coverage, "
+                    f"or line up a type that counters them. (Still your call — but unchanged just blacks "
+                    f"you out again.)")
+        if meaningful:
+            # FIRST loss to a REAL wall — already a strong, concrete rethink (Phase 3: don't defer it).
+            return (f"That one stung — {desc}{where} just put you down. Be honest about WHY before you "
+                    f"charge back in: {why}. The fix here isn't trying again harder, it's coming back "
+                    f"stronger — leveling up or grabbing a teammate for backup and type coverage is the "
+                    f"real play. You CAN retry once if you're feeling it, but going in unchanged ends the "
+                    f"same way. (Your call.)")
+        # minor one-off (a single wild mon got a lucky KO) — keep it light, no big rethink.
+        return (f"You just went down to {desc}{where} — bit of bad luck. Shake it off; maybe heal up or "
+                f"pick your fights a little better. Your call.")
 
     # ── SPATIAL WALL (Batch 4 Phase 2): persist the wall as a place + judge "still gated vs grown" ──
     def active_wall_rec(self):
