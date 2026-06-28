@@ -2527,7 +2527,8 @@ class Campaign:
         """Derive (or re-derive against LIVE RAM) a Questline for a Gate. Central so every call uses the
         same party-count reader + KB."""
         return ql.derive_questline(gate, self._questline_kb, self.b,
-                                   party_count_fn=lambda: self.b.rd8(ram.GPLAYER_PARTY_CNT), log=log)
+                                   party_count_fn=lambda: self.b.rd8(ram.GPLAYER_PARTY_CNT),
+                                   log=log, guide=self.guide)   # GuideSearch = the human-walkthrough fallback
 
     def _open_questline(self, gate, state):
         """Spawn a gate-unlock questline from a recognised Gate. Returns True if there's a real ACTIONABLE

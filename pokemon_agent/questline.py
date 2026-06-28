@@ -291,11 +291,32 @@ def _step_from_cap(key, cap):
                 success=success, resolved=True, human=cap.get("human") or f"get {cap.get('name', key)}")
 
 
-def derive_questline(gate, kb, bridge, party_count_fn=None, log=print):
+def _search_fallback(gate, key, guide, log):
+    """SECONDARY derivation: when the curated KB doesn't know how to obtain `key`, reach for the guide
+    (the human-walkthrough layer) — silent, in-character. Returns a hint string or None. No-op (returns
+    None) until the Custom Search dependency is live (guide.available() is False on the 403). The hint is
+    attached to the unresolved step so the oracle still gets a lead; full search→questline parsing +
+    dashboard land with the GuideSearch build once the 403 clears."""
+    if guide is None or not getattr(guide, "available", lambda: False)():
+        return None
+    if str(key).startswith("FLAG_"):
+        q = f"Pokemon FireRed {gate.human}"
+    else:
+        q = f"Pokemon FireRed how do I get {key}"
+    try:
+        res = guide.search(q, reason="gate")
+    except Exception as e:
+        log(f"   [questline] guide fallback errored: {e}")
+        return None
+    return res.splitlines()[0][:180] if res else None
+
+
+def derive_questline(gate, kb, bridge, party_count_fn=None, log=print, guide=None):
     """Stage 2: Gate.missing -> an ordered Questline (prereqs first), every step LIVE-CROSS-CHECKED.
-    Walks the KB capability chain via obtain.prereq. An unknown capability yields an UNRESOLVED step
-    (handed to the GuideSearch fallback in Phase 4). Returns a Questline (possibly with .actionable=None
-    if everything's already satisfied — meaning the gate should now be passable)."""
+    Walks the KB capability chain via obtain.prereq (the PRIMARY, deterministic source). An unknown
+    capability yields an UNRESOLVED step; the SECONDARY GuideSearch fallback attaches a human-walkthrough
+    hint to it when the search dependency is live (no-op until the 403 clears). Returns a Questline
+    (.actionable=None if everything is already satisfied -> the gate should now be passable)."""
     caps = kb.get("capabilities") or {}
     pcf = party_count_fn or (lambda: 6)
     chain, key, seen = [], gate.missing, set()
@@ -303,9 +324,14 @@ def derive_questline(gate, kb, bridge, party_count_fn=None, log=print):
         seen.add(key)
         cap = caps.get(key)
         if not cap:
-            # KB doesn't know how to obtain this -> unresolved; Phase 4 GuideSearch fills it in.
-            chain.append(Step(missing=key, resolved=False,
-                              human=f"figure out how to get past {gate.human}"))
+            # KB doesn't know how to obtain this -> unresolved. Try the guide (human-walkthrough layer).
+            step = Step(missing=key, resolved=False,
+                        human=f"figure out how to get past {gate.human}")
+            hint = _search_fallback(gate, key, guide, log)
+            if hint:
+                step.human = f"from what I can piece together, {hint}"
+                log(f"   [questline] guide-fallback hint for {key!r}: {hint!r}")
+            chain.append(step)
             break
         chain.append(_step_from_cap(key, cap))
         key = (cap.get("obtain") or {}).get("prereq")
