@@ -145,6 +145,58 @@ GYMS = {
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
+# party-mon non-volatile STATUS condition (unencrypted u32 @ +0x50 in the 100-byte struct — the same
+# party-only block as level/HP at 0x54/0x56/0x58, so reliable). Gen-3 STATUS1 bitfield (PART B/C):
+P_STATUS = 0x50
+STATUS_SLEEP_MASK, STATUS_POISON, STATUS_BURN = 0x07, 0x08, 0x10
+STATUS_FREEZE, STATUS_PARALYSIS, STATUS_BAD_POISON = 0x20, 0x40, 0x80
+
+
+def decode_status(s):
+    """STATUS1 u32 -> a status NAME ('sleep'/'poison'/'burn'/'freeze'/'paralysis') or None. Toxic
+    (bad poison) folds to 'poison' (Antidote cures both). Sleep is the low 3 bits = turns remaining."""
+    if s & STATUS_SLEEP_MASK:
+        return "sleep"
+    if s & (STATUS_POISON | STATUS_BAD_POISON):
+        return "poison"
+    if s & STATUS_BURN:
+        return "burn"
+    if s & STATUS_FREEZE:
+        return "freeze"
+    if s & STATUS_PARALYSIS:
+        return "paralysis"
+    return None
+
+
+# ── BATCH 2 PART C: ITEM SEMANTICS (Gen-3 item ids). CANDIDATES sourced from the disasm AND control-
+# verified at runtime by the buy bag-delta (a wrong id -> the target count won't rise -> LOUD abort, so
+# nothing is trusted blind). Pewter BUY list control-verified 2026-06-27 (recon_mart): Potion id 13. ──
+ITEM_POTION = 13
+# weakest -> strongest healing potions (what "stock up on potions" buys, cheapest first)
+HEAL_ITEMS = {13: "Potion", 22: "Super Potion", 21: "Hyper Potion", 20: "Max Potion", 19: "Full Restore"}
+# status NAME -> (cure item id, cure name). Awakening(17) cures sleep; Parlyz Heal(18) paralysis; etc.
+STATUS_CURE = {"poison": (14, "Antidote"), "burn": (15, "Burn Heal"), "freeze": (16, "Ice Heal"),
+               "sleep": (17, "Awakening"), "paralysis": (18, "Parlyz Heal")}
+ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 23: "Full Heal",
+              **{cid: cn for cid, cn in STATUS_CURE.values()}}
+
+# CITY -> Mart town door (extend as towns are reached; an unmapped city = no stock-up offered, LOUD).
+CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR}
+# CITY -> the BUY list's item ids IN ROW ORDER (cursor row = stock.index(id)). The mart item list is in
+# ROM (no EWRAM array), so the row order is data here — control-verified per town by the buy bag-delta;
+# an unverified/wrong row simply fails the per-purchase verify and aborts LOUD (never silent mis-buy).
+# Pewter row order CONTROL-VERIFIED (recon_mart, brock_done): PokéBall,Potion,Antidote,ParlyzHeal,
+# Awakening,BurnHeal. Viridian early stock is the same family (verify on first visit; bag-delta guards).
+MART_STOCK = {
+    PEWTER:   [4, 13, 14, 18, 17, 15],
+    VIRIDIAN: [4, 13, 14, 18, 17, 15],
+}
+MART_CURSOR = 0x02039940   # u8 highlighted-row index in the BUY list (CONTROL-found 2026-06-27 recon_mart)
+# Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
+# much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
+SHOP_POTION_TARGET = 6
+SHOP_CURE_QTY = 2
+SHOP_MONEY_FLOOR = 500
 
 # ── THE CAMPAIGN: Pallet -> Pewter -> Brock, as an objective list ─────────────
 # Each objective: (TYPE, *args, label). The driver executes them in order, never
@@ -270,6 +322,9 @@ class Campaign:
         except Exception:
             self.soul = None
         self._last_lead_species = None        # for the note_evolve soul hook (lead species-change watch)
+        # BATCH 2 PART C: statuses that have afflicted the party recently (sampled each free-roam tick),
+        # so "shop with intent" buys the SPECIFIC cures for what actually hurt her, not a generic kit.
+        self._afflict_seen = set()
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
@@ -1592,6 +1647,193 @@ class Campaign:
             self.walk_to_map(PEWTER, "west")
         return "ok"
 
+    # ── BATCH 2 PART C: SHOP WITH INTENT (bag/money reads + the verified Mart buy primitive) ───────
+    def money(self):
+        """Player money (SaveBlock1+0x290 XOR SaveBlock2.encryptionKey+0xF20). Same decode as the
+        fingerprint; the ground-truth 'did a purchase go through?' signal the buy loop gates on."""
+        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20)
+        return (self.b.rd32(sb1 + 0x0290) ^ key) & 0xFFFFFFFF
+
+    def bag_count(self, item_id):
+        """Count of item_id in the Items pocket (SaveBlock1+0x310, 42 slots). qty XOR'd with the
+        low-16 key; itemId plain. The buy verify reads this before/after each unit (ground truth)."""
+        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+        for s in range(42):
+            slot = sb1 + 0x0310 + s * 4
+            if self.b.rd16(slot) == item_id:
+                return self.b.rd16(slot + 2) ^ key
+        return 0
+
+    def party_statuses(self):
+        """Set of status NAMES currently afflicting any party member (decode_status of each STATUS1 @
+        +0x50). Drives PART C's 'buy the cure for what hurt me' (sampled each free-roam tick) and is
+        the read PART B's in-battle cure offer will reuse."""
+        out = set()
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            if self.b.rd16(base + P_HP) <= 0:        # a fainted mon's status byte is meaningless
+                continue
+            nm = decode_status(self.b.rd32(base + P_STATUS))
+            if nm:
+                out.add(nm)
+        return out
+
+    def _mart_goto_row(self, row, tries=12):
+        """Move the BUY-list cursor to `row`, VERIFYING via the cursor-index readback (MART_CURSOR)
+        each press so an eaten d-pad press can't leave us buying the wrong item. Returns True on arrival."""
+        for _ in range(tries):
+            cur = self.b.rd8(MART_CURSOR)
+            if cur == row:
+                return True
+            self.b.press("DOWN" if cur < row else "UP", 8, 10, self.render, owner="agent")
+            for _ in range(12):
+                self.b.run_frame()
+        return self.b.rd8(MART_CURSOR) == row
+
+    def _mart_buy_one(self, max_a=26):
+        """Buy ONE of the highlighted item: press A (advancing the slow clerk text + confirming the
+        qty default 1 + the 'OK?' default YES) and STOP THE INSTANT money drops — the ground-truth
+        'bought one' signal (control-proven recon_mart). Breaking on the first drop is critical: a
+        further A would re-open the item and buy a second. Returns the price paid, or 0 (nothing
+        bought — can't afford / wrong menu -> caller aborts LOUD)."""
+        m0 = self.money()
+        for _ in range(max_a):
+            self.b.press("A", 6, 10, self.render, owner="agent")
+            for _ in range(12):
+                self.b.run_frame()
+            d = m0 - self.money()
+            if d > 0:
+                # bought — DRAIN the "Here you are! Thank you!" message back to the list (A only WHILE a
+                # box is up; the A that closes the message returns to the list WITHOUT selecting an item,
+                # so the next nav reads a live cursor). Without this, the open box freezes _mart_goto_row.
+                for _ in range(8):
+                    if not dd_box_open(self.b):
+                        break
+                    self.b.press("A", 6, 10, self.render, owner="agent")
+                    for _ in range(12):
+                        self.b.run_frame()
+                return d
+        return 0
+
+    def _mart_enter_buylist(self):
+        """Talk to the clerk, DRAIN the greeting (A while the message box is up), pick BUY (one A on the
+        BUY/SELL menu, default top), then POSITIVELY CONFIRM the item list via the cursor: a DOWN press
+        moves MART_CURSOR (0->1) only in the list. Critical: we stop A-pressing the moment the greeting
+        box closes — pressing extra A's once the list is up would SELECT + buy the top item (the runaway
+        that drained the wallet). A money-drop during entry = an accidental purchase -> abort LOUD.
+        Returns True once the list is confirmed; LOUD False otherwise (never blind-buys)."""
+        self.b.set_input_owner("agent")
+        guard = self.money()
+        self._step_to(MART_CLERK_FRONT)
+        for _ in range(6):                                # engage: face the clerk until the box opens
+            if dd_box_open(self.b):
+                break
+            self.b.press("UP", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 10, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        for _ in range(12):                               # DRAIN greeting: A only WHILE a box is up
+            if not dd_box_open(self.b):
+                break                                     # box closed -> BUY/SELL menu is up
+            self.b.press("A", 8, 12, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        self.b.press("A", 8, 10, self.render, owner="agent")   # pick BUY (default top of BUY/SELL)
+        for _ in range(120):                              # let the fade settle into the item list
+            self.b.run_frame()
+        if self.money() < guard:                          # an A accidentally bought something -> bail LOUD
+            log(f"   !! MART: money dropped during entry ({guard}->{self.money()}) — accidental buy, abort")
+            return False
+        c0 = self.b.rd8(MART_CURSOR)                       # CONFIRM the list: DOWN must move the cursor
+        self.b.press("DOWN", 8, 10, self.render, owner="agent")
+        for _ in range(12):
+            self.b.run_frame()
+        if self.b.rd8(MART_CURSOR) != c0:
+            self._mart_goto_row(0)                         # back to the top, ready to shop
+            return True
+        log("   !! MART: could not confirm the BUY list (cursor didn't respond) — aborting LOUD")
+        return False
+
+    def buy_at_mart(self, mart_door, shopping_list):
+        """SHOP WITH INTENT (PART C): enter the city's Mart, BUY each (item_id, qty) one unit at a time,
+        VERIFYING every purchase against the real bag + money (a wrong row/id or eaten press -> the
+        target count won't rise -> abort that item LOUD, never silent mis-buy). Bounded by SHOP_MONEY_
+        FLOOR (never drains the wallet). Returns a {item_id: bought} dict. Reuses enter_warp / _step_to /
+        _exit_to_overworld; the cursor-readback + bag-delta make it robust on the long-running core."""
+        city = tv.map_id(self.b)
+        stock = MART_STOCK.get(city)
+        if stock is None:
+            log(f"   !! MART: no stock row-order mapped for {city} — can't shop here (add it to "
+                f"MART_STOCK). Skipping."); return {}
+        if self.enter_warp(pick=mart_door) != "warped":
+            log("   !! MART: couldn't enter the Mart"); return {}
+        for _ in range(60):
+            self.b.run_frame()
+        if not self._mart_enter_buylist():
+            self._exit_to_overworld(); return {}
+        bought = {}
+        for item_id, qty in shopping_list:
+            nm = ITEM_NAMES.get(item_id, f"item#{item_id}")
+            if item_id not in stock:
+                log(f"   MART: {nm} not sold here — skipping"); continue
+            row = stock.index(item_id)
+            for _ in range(qty):
+                if self.money() < SHOP_MONEY_FLOOR:
+                    log(f"   MART: at money floor ({self.money()}<{SHOP_MONEY_FLOOR}) — stopping shopping"); break
+                before = self.bag_count(item_id)
+                if not self._mart_goto_row(row):
+                    log(f"   !! MART: couldn't reach {nm}'s row {row} (cursor stuck) — abort {nm} LOUD"); break
+                price = self._mart_buy_one()
+                if price == 0 or self.bag_count(item_id) != before + 1:
+                    log(f"   !! MART: buy-verify FAILED for {nm} (price={price}, "
+                        f"x{before}->x{self.bag_count(item_id)}) — abort {nm} LOUD"); break
+                bought[item_id] = bought.get(item_id, 0) + 1
+            if bought.get(item_id):
+                log(f"   MART: bought {bought[item_id]}x {nm}")
+        for _ in range(8):                                # B out of the list + clerk menu
+            self.b.press("B", 6, 12, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        self._exit_to_overworld()
+        log(f"   MART: shopping done — {bought} (money now {self.money()})")
+        return bought
+
+    def _shopping_list(self):
+        """What a sensible player would BUY here, given the bag + what's hurt her: top Potions up to
+        SHOP_POTION_TARGET, and SHOP_CURE_QTY of the cure for each status seen recently (_afflict_seen).
+        Bounded quantities (survival, not hoarding); returns [(item_id, qty), ...] (empty = well-stocked)."""
+        sl = []
+        pot_need = SHOP_POTION_TARGET - self.bag_count(ITEM_POTION)
+        if pot_need > 0:
+            sl.append((ITEM_POTION, pot_need))
+        for status in sorted(self._afflict_seen):
+            cure = STATUS_CURE.get(status)
+            if not cure:
+                continue
+            need = SHOP_CURE_QTY - self.bag_count(cure[0])
+            if need > 0:
+                sl.append((cure[0], need))
+        return sl
+
+    def _shop_note(self):
+        """Characterful ctx line for the stock-up offer: names what hurt her + the restock need, so her
+        pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals')."""
+        cures = [STATUS_CURE[s][1] for s in sorted(self._afflict_seen) if s in STATUS_CURE
+                 and self.bag_count(STATUS_CURE[s][0]) < SHOP_CURE_QTY]
+        bits = []
+        if self.bag_count(ITEM_POTION) < SHOP_POTION_TARGET:
+            bits.append("you're low on Potions")
+        if cures:
+            afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
+            bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
+        if not bits:
+            return ""
+        return ("There's a Mart right here. " + "; ".join(bits)
+                + " — a real trainer stocks up before pushing on.")
+
     def roster_react(self):
         """SOUL beat after a hand-play-banked catch (the agent can't drive this core's battle menus,
         so acquisition is hand-played — but the RELATIONSHIP is live). Emit a NEUTRAL roster-change
@@ -1741,6 +1983,12 @@ class Campaign:
         if self._grass_target(state) is not None:
             a["wander_catch"] = "wander the grass and try to catch a new teammate"
             a["battle"] = "train in the grass - fight wild pokemon to level the team up"
+        # SHOP WITH INTENT (PART C): offer "stock up" only when it actually DOES something — at a town
+        # with a mapped Mart, with money above the floor, and a real shopping need (low on potions /
+        # missing a cure for what's hurt her). Naturally surfaces AFTER a heal (she's then in the town).
+        if (state["map"] in CITY_MART_DOORS and self.money() > SHOP_MONEY_FLOOR
+                and self._shopping_list()):
+            a["stock_up"] = "stock up at the Mart — buy potions and the cures for what's been hurting you"
         return a
 
     def _wait_overworld(self, max_frames=900):
@@ -1776,6 +2024,13 @@ class Campaign:
                 return self.catch_one()
             lead = state["party"][0]["level"] if state["party"] else 5
             return self.grind(lead + 2)
+        if pick == "stock_up":
+            door = CITY_MART_DOORS.get(state["map"])
+            sl = self._shopping_list()
+            if door is None or not sl:
+                return "nothing_to_buy"
+            bought = self.buy_at_mart(door, sl)
+            return "stocked" if bought else "shop_failed"
         return "unknown_action"
 
     def _boot_state_sanity(self):
@@ -1856,6 +2111,12 @@ class Campaign:
                 self._exit_to_overworld()
                 self._wait_overworld()
             state = self.read_live_state()
+            # SHOP-WITH-INTENT memory (PART C): sample what's afflicting the party THIS tick so a later
+            # stock-up buys the cure for what actually hurt her (persists even after it's healed off).
+            newly = self.party_statuses()
+            if newly - self._afflict_seen:
+                log(f"   [roam] afflicted by {sorted(newly - self._afflict_seen)} — remembering for a cure run")
+            self._afflict_seen |= newly
             avail = self._available_actions(state)
             party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
             # MACRO PROGRESS LEDGER (increment 3): fingerprint THIS tick + escalate if the world has
@@ -1911,6 +2172,13 @@ class Campaign:
             if hurt_note:
                 where = f"{where}. {hurt_note}"
                 log(f"   [roam] !! SURVIVAL {sev.upper()}: {hurt_note!r} — surfacing 'heal' to the oracle")
+            # SHOP-WITH-INTENT awareness (PART C): when stock_up is on offer, fold the characterful
+            # restock/affliction note into the same ctx seam so her pick reads as learning from the road.
+            if "stock_up" in avail:
+                snote = self._shop_note()
+                if snote:
+                    where = f"{where}. {snote}"
+                    log(f"   [roam] SHOP: {snote!r} — surfacing 'stock_up' to the oracle")
             if macro in (ledger.YELLOW, ledger.RED):
                 note = ledger.stuck_note()
                 where = f"{where}. {note}"
@@ -1929,6 +2197,12 @@ class Campaign:
             if pick == "heal" and out == "ok":
                 # SOUL BEAT (PART A): she took care of herself — voice it through the seam (firewall).
                 self.on_event("okay — patched up and ready. let's go.", kind="heal", tier=2)
+            if pick == "stock_up" and out == "stocked":
+                # SOUL BEAT (PART C): characterful restock — name what she learned to carry (firewall).
+                cured = ", ".join(STATUS_CURE[s][1] for s in sorted(self._afflict_seen) if s in STATUS_CURE)
+                self.on_event(("stocked up — and grabbed " + cured + " so that doesn't cost me again")
+                              if cured else "stocked up on potions — better to have them and not need them",
+                              kind="shop", tier=2)
             if pick == "wander_catch" and out == "caught" and self.soul is not None:
                 self.roster_react()                        # note_caught: bond + react to the new teammate
             if self.soul is not None:

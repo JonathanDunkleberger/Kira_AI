@@ -21,6 +21,7 @@ if _HERE not in sys.path:
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 from bridge import Bridge                            # noqa: E402
+import travel as tv                                  # noqa: E402
 from campaign import Campaign, resolve_state         # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
@@ -113,8 +114,84 @@ def part_a():
     return ok
 
 
+def part_c():
+    print("\n==== PART C: shop with intent ====")
+    import campaign as C
+    ok = True
+
+    # ---- C1: buy_at_mart end-to-end on brock_done (Pewter) — verify bag + money deltas ----
+    b = _load("brock_done")
+    camp, _ev = _camp(b, lambda *a, **k: None)
+    money0 = camp.money()
+    pot0, anti0 = camp.bag_count(C.ITEM_POTION), camp.bag_count(14)
+    print(f"   C1 before: money={money0} Potion x{pot0} Antidote x{anti0}")
+    bought = camp.buy_at_mart(C.PEWTER_MART_DOOR, [(C.ITEM_POTION, 2), (14, 1)])  # 2 Potions + 1 Antidote
+    pot1, anti1 = camp.bag_count(C.ITEM_POTION), camp.bag_count(14)
+    money1 = camp.money()
+    print(f"   C1 after:  money={money1} Potion x{pot1} Antidote x{anti1} bought={bought}")
+    c1_pot = (pot1 == pot0 + 2)
+    c1_anti = (anti1 == anti0 + 1)
+    c1_money = (money1 == money0 - (2 * 300 + 1 * 100))   # Potion 300, Antidote 100 (Pewter prices)
+    c1_back = (tv.map_id(b)[0] == 3)                       # exited the Mart back to the overworld
+    for name, val in [("bought 2 Potions (bag delta)", c1_pot),
+                      ("bought 1 Antidote (bag delta)", c1_anti),
+                      ("money delta exact (-700)", c1_money),
+                      ("exited Mart to overworld", c1_back)]:
+        print(f"   C1 [{'PASS' if val else 'FAIL'}] {name}")
+        ok = ok and val
+
+    # ---- C2: status decode + party_statuses read (the 'what hurt me' signal) ----
+    for raw, exp in [(0x00, None), (0x05, "sleep"), (0x08, "poison"), (0x88, "poison"),
+                     (0x10, "burn"), (0x20, "freeze"), (0x40, "paralysis")]:
+        got = C.decode_status(raw)
+        good = (got == exp)
+        print(f"   C2 [{'PASS' if good else 'FAIL'}] decode_status({raw:#04x}) -> {got!r} (exp {exp!r})")
+        ok = ok and good
+    print(f"   C2 party_statuses on brock_done = {camp.party_statuses()} (healthy -> empty expected)")
+
+    # ---- C3: free_roam SURFACES stock_up with intent (spy oracle + buy_at_mart) ----
+    b3 = _load("brock_done")
+    seen = {"ctx": None}
+
+    def shop_oracle(kind, options, ctx):
+        if kind == "action":
+            seen["ctx"] = ctx
+            return "stock_up" if "stock_up" in options else None
+        return None
+    camp3, events3 = _camp(b3, shop_oracle)
+    camp3._afflict_seen = {"paralysis"}              # simulate: paralysis cost her a fight earlier
+    spy = {"called": None}
+
+    def buy_spy(door, shopping_list):
+        spy["called"] = (door, shopping_list)
+        return {18: 2}                               # pretend it bought 2 Parlyz Heals
+    camp3.buy_at_mart = buy_spy
+    avail3 = camp3._available_actions(camp3.read_live_state())
+    sl = camp3._shopping_list()
+    print(f"   C3 actions={list(avail3.keys())} shopping_list={sl}")
+    buf3 = io.StringIO()
+    with redirect_stdout(buf3):
+        camp3.free_roam(max_ticks=1, max_seconds=60, want_every=99)
+
+    c3_offered = ("stock_up" in avail3)
+    c3_list = ((C.ITEM_POTION, 6) in sl and (18, 2) in sl)     # potions topped + parlyz cure
+    c3_ctx = bool(seen["ctx"]) and ("Parlyz Heal" in (seen["ctx"] or {}).get("place", ""))
+    c3_called = (spy["called"] is not None and spy["called"][0] == C.PEWTER_MART_DOOR
+                 and (18, 2) in spy["called"][1])
+    c3_beat = any(k == "shop" and "Parlyz Heal" in s for k, s in events3)
+    for name, val in [("stock_up offered at a Mart town with a need", c3_offered),
+                      ("shopping list = potions + the specific cure", c3_list),
+                      ("characterful shop note (names Parlyz Heal) in ctx", c3_ctx),
+                      ("buy_at_mart called w/ Pewter door + cure", c3_called),
+                      ("characterful 'so that doesn't cost me again' shop beat", c3_beat)]:
+        print(f"   C3 [{'PASS' if val else 'FAIL'}] {name}")
+        ok = ok and val
+
+    return ok
+
+
 def main():
-    results = {"PART A": part_a()}
+    results = {"PART A": part_a(), "PART C": part_c()}
     print("\n" + "=" * 56)
     for k, v in results.items():
         print(f"   {k}: {'PASS' if v else 'FAIL'}")
