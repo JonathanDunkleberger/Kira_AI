@@ -337,7 +337,8 @@ def main():
 
     camp = Campaign(b, battle_runner=battle_runner, on_event=voice.emit,
                     beat=voice.beat, render=render, choose=voice.choose,
-                    journey=voice.journey)   # PHASE 4: continuity-into-core (grudge + arc in idle chat)
+                    journey=voice.journey,   # PHASE 4: continuity-into-core (grudge + arc in idle chat)
+                    alert=voice.alert)       # B7 PHASE 2: dead-man's switch (ping Jonny if recovery fails)
 
     # ── GAME AUDIO (Stage 2): real-time game sound -> headphones + OBS cable -> Kira hears it too ──
     audio = None

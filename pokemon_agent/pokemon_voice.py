@@ -228,6 +228,18 @@ class KiraVoice:
         except Exception as e:
             self.log(f"   [kira-voice] ·journey skip· (bot down?) {e}")
 
+    # ── DEAD-MAN'S SWITCH seam (Phase 2): alert Jonny when recovery itself failed ──
+    def alert(self, message):
+        """Fire a critical out-of-band alert to the human (POST /cmd/pokemon_alert -> Discord webhook +
+        loud log). Used by the dead-man's switch when deep-wedge recovery is exhausted. Never raises —
+        a failed alert must not crash the (already-abandoned) run; it just logs."""
+        if not message:
+            return
+        try:
+            self._post("pokemon_alert", name=message)
+        except Exception as e:
+            self.log(f"   [kira-voice] !! ALERT POST FAILED (bot down?): {e}")
+
     # ── the SOUL ORACLE client (Batch-2 keystone: a choice becomes HERS) ──────────
     def choose(self, kind, options, ctx=None, timeout=30):
         """Ask her SELF (over the seam) to make a STRUCTURED pick — the decision counterpart to

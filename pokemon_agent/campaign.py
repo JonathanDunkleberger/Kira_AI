@@ -79,6 +79,15 @@ CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # hea
 # re-wedging position still reaches ABANDON instead of reload-looping forever.
 PROGRESS_ESCAPE_TICKS = int(os.getenv("POKEMON_ESCAPE_TICKS", "5"))   # RED this many ticks -> try a reload
 MAX_ESCAPE_RELOADS    = int(os.getenv("POKEMON_MAX_ESCAPE_RELOADS", "2"))  # per wedge-episode, then abandon
+# BATCH 7 PHASE 1 — DEEP-WEDGE RECOVERY (the floor beneath the escape-hatch, so Jonny can sleep). The
+# escape-hatch reloads the most-recent GREEN snapshot — but a STRUCTURAL wedge re-wedges from there
+# (the recent-good is at the wedge lip). The deep-wedge floor keeps a ROLLING RING of checkpoints
+# banked at definitely-safe GAIN SEAMS (a badge / a new teammate / a fresh catch) and, once the
+# escape-hatch is exhausted AND the world is still frozen, reverts PROGRESSIVELY FURTHER BACK through
+# that ring to a seam that is guaranteed clear — surfaced in-character ("ugh, something glitched, let
+# me back up a sec"), never a silent blink. Only when the whole ring is spent does it ABANDON. N kept.
+SAFE_RING_N        = int(os.getenv("POKEMON_SAFE_RING_N", "4"))        # last N gain-seam checkpoints kept
+DEEPWEDGE_TICKS    = int(os.getenv("POKEMON_DEEPWEDGE_TICKS", "8"))    # RED ticks (post escape-exhaust) -> deep revert
 # Move "junk floor" (Batch 6 no-gut guarantee): a move whose value (power + coverage/utility bonuses) is
 # below this is safe to drop to free a slot; if EVERY droppable move is at/above it, KEEP them all rather
 # than gut a good set (a gutted moveset fails invisibly at the E4). Tunable.
@@ -346,11 +355,13 @@ def log(m):
 # ── reusable objective handlers ──────────────────────────────────────────────
 class Campaign:
     def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None,
-                 journey=None):
+                 journey=None, alert=None):
         self.b = bridge
         # PHASE 4 — continuity-into-core seam: push her journey narrative to core Kira at anchors, so
         # she resumes KNOWING her story across launch methods + in idle chat. Headless/no-bot -> no-op.
         self._journey_post = journey or (lambda _s: None)
+        # PHASE 2 (Batch 7) — dead-man's-switch alert seam: ping the human if recovery is exhausted.
+        self._alert_post = alert or (lambda _m: None)
         # STRATEGIC AWARENESS (Batch 3 Phase 2): road-memory of who she's fought + who's walled her.
         # Always present (pure reads, headless-safe). The injected battle-runner is WRAPPED so EVERY
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
@@ -407,6 +418,14 @@ class Campaign:
         # that moment (badges, party size, dex caught) so a reload can NEVER rewind past a real gain.
         self._last_good_state = None
         self._last_good_gain = None
+        # PHASE 1 (deep-wedge floor) — rolling ring of checkpoints banked at GAIN SEAMS (badge/teammate/
+        # catch): the progressively-older fallbacks the deep-wedge revert walks back through when the
+        # escape-hatch (recent-good) keeps re-wedging. Each entry: {state, gain, label}. In-memory (the
+        # disk anchor already covers crash-resume); newest at the right, oldest auto-dropped at SAFE_RING_N.
+        from collections import deque as _deque
+        self._safe_ring = _deque(maxlen=SAFE_RING_N)
+        self._ring_last_gain = None        # last gain-sig banked into the ring (de-dupe; bank only on a real gain)
+        self._deepwedge_reverts = 0        # ring entries consumed this wedge-episode (reset on real progress)
         # Deterrence (Phase 2c): consecutive ticks the routing hard-refused to cross the active wall.
         # Escalates the "this ends the same way" framing so the blind re-walk stops being her default.
         self._wall_gated_streak = 0
@@ -2883,6 +2902,21 @@ class Campaign:
                     self._last_good_gain = self._gain_sig()
                 except Exception as _e:
                     log(f"   [roam] last-good snapshot skipped: {_e}")
+                # PHASE 1 — bank a deep-wedge fallback into the ring at a GAIN SEAM (a badge / a new
+                # teammate / a fresh catch since the last ring entry). Gain seams are guaranteed-clear
+                # states well clear of any wedge lip, so reverting to one ALWAYS escapes a structural
+                # wedge (unlike the recent-good, which can sit right at it). De-duped on the gain-sig.
+                try:
+                    g = self._last_good_gain
+                    if g is not None and g != self._ring_last_gain and (
+                            self._ring_last_gain is None or any(c > p for c, p in zip(g, self._ring_last_gain))):
+                        self._safe_ring.append({"state": self._last_good_state, "gain": g,
+                                                "label": f"gain{g}@{state['place']}"})
+                        self._ring_last_gain = g
+                        log(f"   [roam] deep-wedge ring: banked safe checkpoint {g} @ {state['place']} "
+                            f"(ring={len(self._safe_ring)}/{SAFE_RING_N})")
+                except Exception as _re:
+                    log(f"   [roam] deep-wedge ring bank skipped: {_re}")
             log(f"-- ROAM TICK {tick}/{max_ticks} --")
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
@@ -2900,6 +2934,7 @@ class Campaign:
             if macro != ledger.RED:
                 hard_recovered = False
                 escape_reloads = 0                 # new episode — reset the escape budget
+                self._deepwedge_reverts = 0        # real progress — reset the deep-wedge ring budget too
             # ADDENDUM A — LAST-RESORT ESCAPE-HATCH: after the forced-heal hard-recovery has been tried and
             # RED *still* persists (a genuine fingerprint-frozen wedge, not idle), bank-current then reload
             # the last known-good state and continue — BEFORE giving up. Bounded (MAX_ESCAPE_RELOADS) so a
@@ -2912,12 +2947,21 @@ class Campaign:
                     escape_reloads += 1
                     red_ticks = 0                  # the reload broke the position — give it a fresh streak
                     continue
-            if red_ticks >= wf.PROGRESS_ABANDON_TICKS:
-                log(f"   [roam] !!!! ROAM ABANDONED: RED for {red_ticks} ticks despite hard recovery — "
-                    f"the position is genuinely unrecoverable, this NEEDS A HUMAN (red light's real meaning)")
+            if red_ticks >= max(wf.PROGRESS_ABANDON_TICKS, DEEPWEDGE_TICKS):
+                # PHASE 1 — DEEP-WEDGE FLOOR: the escape-hatch (recent-good) is exhausted and the world is
+                # STILL frozen — a structural wedge. Before abandoning, revert PROGRESSIVELY FURTHER BACK
+                # through the gain-seam ring to a guaranteed-clear checkpoint. Each revert is surfaced
+                # in-character (watchable, not a silent blink). Only when the ring is spent do we abandon.
+                if self._deep_wedge_revert():
+                    red_ticks = 0
+                    continue
+                log(f"   [roam] !!!! ROAM ABANDONED: RED for {red_ticks} ticks; escape-hatch AND the "
+                    f"deep-wedge ring ({self._deepwedge_reverts} reverts) both exhausted — genuinely "
+                    f"unrecoverable, this NEEDS A HUMAN (red light's real meaning)")
                 self._roam_progress = "ABANDONED"
                 self.on_event("I'm completely stuck — I've tried everything and I can't find a way forward "
                               "on my own. I need a hand here.", kind="abandoned", tier=3)
+                self._fire_deadman_alert(state)    # PHASE 2 — dead-man's switch: ping Jonny, recovery failed
                 return "abandoned"
             if red_ticks >= wf.PROGRESS_HARD_TICKS and not hard_recovered:
                 log(f"   [roam] !! HARD RECOVERY: RED {red_ticks} ticks — FORCING a route to the nearest "
@@ -3302,6 +3346,59 @@ class Campaign:
         party = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         dex = ram.pokedex_owned_count(self.b) or 0
         return (badges, party, dex)
+
+    def _deep_wedge_revert(self):
+        """PHASE 1 — the floor beneath the escape-hatch. The recent-good reload is exhausted and the
+        world is STILL frozen (a structural wedge that re-wedges from the recent-good). Revert
+        PROGRESSIVELY FURTHER BACK through the gain-seam ring: newest gain-seam first (most progress
+        kept), then older on each repeat, until a checkpoint actually clears the wedge. Banks the
+        current (even-wedged) state first so nothing is truly lost, then surfaces the revert
+        in-character. Returns True if it reverted, False if the ring is exhausted (-> ABANDON)."""
+        idx = len(self._safe_ring) - 1 - self._deepwedge_reverts
+        if idx < 0:
+            log(f"   [roam] deep-wedge ring EXHAUSTED ({self._deepwedge_reverts} reverts, "
+                f"{len(self._safe_ring)} banked) — no clean checkpoint left to fall back to")
+            return False
+        entry = self._safe_ring[idx]
+        try:
+            # bank the current (wedged) state first — never blind-overwrite (an unbanked shiny survives a misfire)
+            try:
+                os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+                bpath = os.path.join(STATES_CAMPAIGN, f"pre_deepwedge_{int(time.time())}.state")
+                with open(bpath, "wb") as f:
+                    f.write(self.b.save_state())
+            except Exception as _be:
+                log(f"   [roam] deep-wedge pre-revert backup skipped: {_be}")
+            self.b.load_state(entry["state"])
+            self._deepwedge_reverts += 1
+            log(f"   [roam] !!!! DEEP-WEDGE REVERT #{self._deepwedge_reverts}: escape-hatch spent + still "
+                f"frozen -> reverted to safe checkpoint {entry['label']} (gain {entry['gain']})")
+            # IN-CHARACTER COVER — watchable, never a silent blink (Constraint: announce, don't illusion-break)
+            self.on_event("ugh — something properly glitched out on me there. let me just back up to where "
+                          "things were working and pick it up again.", kind="recover", tier=2)
+            self._wait_overworld()
+            self._save_campaign("post_deepwedge_revert")
+            return True
+        except Exception as e:
+            log(f"   [roam] !! DEEP-WEDGE REVERT FAILED ({e}) — falling through to ABANDON (LOUD)")
+            return False
+
+    def _fire_deadman_alert(self, state):
+        """PHASE 2 — DEAD-MAN'S SWITCH. Deep-wedge recovery itself failed (escape-hatch AND the whole
+        ring exhausted, still frozen): the run is genuinely abandoned and needs a human. Ping Jonny
+        through the bot's alert seam (POST /cmd/pokemon_alert -> Discord webhook + loud log) so
+        'autonomous overnight' never silently becomes 'abandoned at 3am'. Cheap insurance; never raises."""
+        place = (state or {}).get("place", "an unknown area")
+        coords = (state or {}).get("coords")
+        badges = (state or {}).get("badge_count", "?")
+        msg = (f"Kira's Pokémon run is ABANDONED and needs a hand — wedged at {place} {coords}, "
+               f"{badges} badges. Escape-hatch + the deep-wedge ring are both exhausted; she's stopped "
+               f"and is waiting. Last clean backups are in states/campaign/ (pre_deepwedge_*.state).")
+        log(f"   [roam] !!!! DEAD-MAN'S SWITCH FIRING: {msg}")
+        try:
+            self._alert_post(msg)
+        except Exception as e:
+            log(f"   [roam] !! dead-man's-switch alert POST failed (non-fatal, logged loud above): {e}")
 
     def _escape_hatch_reload(self):
         """ADDENDUM A — LAST-RESORT wedge escape for a long run. Caller has already confirmed a GENUINE
