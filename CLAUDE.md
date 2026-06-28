@@ -1,5 +1,46 @@
 # CLAUDE.md — Kira Project Brief
 
+## PROJECT NORTH STAR (read first — the metric for every decision)
+
+Kira is an autonomous AI VTuber with real personality, on a **Neuro-sama → Samantha** trajectory.
+The success metric is **"would a lonely person watch this for 2 hours because they love *her*"** — NOT
+mechanical task completion. **Suboptimal-but-characterful beats optimal-but-soulless**, always.
+
+**ONE-KIRA FIREWALL (non-negotiable):** her personality is the always-on CORE — the same entity in every
+mode. Autonomous *playing* (e.g. driving Pokémon FireRed) is a capability **gated to play-mode**; it must
+never leak into or alter the core cohost/companion model when play-mode is off. Modes are clothing, not
+different beings.
+
+## STANDING OPERATING RULES (mandatory every session — survive context resets)
+
+These are load-bearing. A pattern has repeatedly hurt the project: features built to ~50% (computed +
+shown on the DISPLAY) but never wired into Kira's DECISION/voice context, then reported "done." That lies
+to Jonny and wastes his watches. Never again.
+
+1. **THREE-STATE HONESTY.** Label every feature **COMPILES** (runs, no crash) / **WIRED** (its data/effect
+   actually reaches the system meant to use it — esp. Kira's DECISION/voice context, with a pointer to
+   WHERE it's consumed) / **VERIFIED** (proven to work via test/trace, or explicitly "needs live eyes").
+   These are not interchangeable. Never report "done" without stating which state. A display-only feature
+   must be labeled **"display-only, NOT wired to decision."**
+2. **LOAD-BEARING RULE.** For any feature whose POINT is that Kira ACTS on it (goals, PP, run-state,
+   loss-history, matchups), the DECISION-context wiring IS the feature; the display is secondary. Build and
+   verify the brain-wiring FIRST. Never ship the cosmetic half and call it done.
+3. **RECON BEFORE BUILD — no duplicates.** Before building anything, report what already exists that does
+   this (or something adjacent), where it lives, and whether to EXTEND it. No parallel v1/v2/v3 doing the
+   same job. Flag deprecated/dead/superseded code for pruning.
+4. **PROACTIVE, NOT REACTIVE.** Surface bugs, half-wired features, WIP, and stuck-vectors UNPROMPTED. If
+   one instance of a bug class exists, find them all. Don't let Jonny discover failures by watching them.
+5. **NEVER FAKE DONE.** If load-bearing wiring isn't complete, say so unprompted — what's missing, WIP,
+   broken, deprecated, prunable. Honesty about incompleteness is required, not optional.
+6. **EVERY REPORT INCLUDES:** what landed (three-state labels), what's WIP, what's half-wired/cosmetic-only,
+   what's broken/dead/prunable, and per-feature whether it reaches DECISION context or only display.
+7. **DEEP LOG REVIEW before proposing fixes** (when a watch happened): read the actual decision trace in
+   `logs/debug/latest.log` (the console capture) + `logs/sessions_raw`, find the root cause AND the
+   pattern, before coding.
+
+The living reality map of what's actually wired vs ghost vs dead is `pokemon_agent/STATE_OF_PROJECT.md`
+(+ `CODEBASE_AUDIT.md`). Keep it honest and current.
+
 ## The vision (read this first — it governs every decision below)
 
 Kira's north star is a genuine *presence*, not a product. The touchstones:
