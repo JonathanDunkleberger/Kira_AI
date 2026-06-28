@@ -219,6 +219,17 @@ class WorldModel:
         node = self.nodes.get(_k(map_id))
         return (node and node.get("name")) or "an unfamiliar area"
 
+    def node(self, map_id):
+        return self.nodes.get(_k(map_id))
+
+    def is_town(self, map_id):
+        node = self.nodes.get(_k(map_id))
+        return bool(node and node["traits"].get("is_town"))
+
+    def visited(self, map_id):
+        node = self.nodes.get(_k(map_id))
+        return bool(node and node.get("visited"))
+
     # ── the spatial brief folded into the oracle ctx (Phase 2) ─────────────────────────────
     def _trait_tag(self, node):
         tr = node["traits"]

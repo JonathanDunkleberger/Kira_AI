@@ -2634,12 +2634,30 @@ class Campaign:
         tile = self._reachable_grass()
         if tile is not None:
             return ("here", tile)
+        pcount = state.get("party_count")
+        plevel = state["party"][0]["level"] if state.get("party") else None
+        # Batch-WORLD (Phase 4b) — prefer grass she KNOWS: the nearest VISITED grass she can reach
+        # WITHOUT crossing a wall (adjacent or several hops BEHIND her). This is the missing verb — she
+        # walks back to Route 4 / Mt Moon that she's already cleared, instead of blindly routing onto
+        # the unvisited route across Gary's bridge (which the old live-connection scan below would pick).
+        try:
+            cur = tuple(state["map"])
+            avoid = self._wall_avoid(state)
+            known = self.world.reachable_with_trait(cur, "has_grass", avoid)
+            if known:
+                dst = known[0][0]
+                hop = self.world.next_hop(cur, dst, avoid)
+                if hop:
+                    nxt, edge = hop
+                    log(f"   [roam] grass she KNOWS: routing {edge} -> {nxt} toward {self.world.name(dst)} "
+                        f"(visited grass, avoiding any wall)")
+                    return ("route", nxt, edge)
+        except Exception as _gt:
+            log(f"   [roam] world grass-target skipped: {_gt}")
         routes = [(d, (grp, num)) for d, (grp, num) in self._map_connections()
                   if grp == 3 and num >= 19]
         # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
         # wall. Adjacent ungated route wins (this already includes grass directly behind her).
-        pcount = state.get("party_count")
-        plevel = state["party"][0]["level"] if state.get("party") else None
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)]
         if non_gated:
             d, m = non_gated[0]
@@ -2657,6 +2675,50 @@ class Campaign:
             d, m = routes[0]
             return ("route", m, self._EDGE[d])
         return None
+
+    def _travel_to_known(self, pick, state):
+        """Batch-WORLD (Phase 4b/c) — actuate 'travel to a place you've been', BACKWARD or forward, via
+        the learned warp graph. One adjacent hop per tick (re-evaluated each tick like head_to_gym), and
+        NEVER across an active gated wall map (Phase 4c — _wall_avoid). Fly is used when she owns it and
+        the destination is a visited town (Jonny wants to SEE her fly, not walk the whole map); it
+        degrades to walking if the fly actuation isn't live yet. On arrival at grass she starts hunting
+        so 'go to Route 4' visibly becomes catching. Returns a status string the loop logs + feeds soul."""
+        try:
+            g, n = pick.split(":", 1)[1].split(",")
+            dst = (int(g), int(n))
+        except Exception:
+            return "bad_travel_target"
+        cur = tuple(state["map"])
+        if cur == dst:
+            return "arrived"
+        # FLY (capability-gated, Phase 3): fast-travel to a visited town when she actually owns Fly.
+        if self.world.has_cap("fly") and self.world.is_town(dst):
+            try:
+                fr = self.fly_to(self.world.name(dst))
+                if fr not in ("not_owned", "stuck", None, False):
+                    log(f"   [roam] ✈️  FLEW to {self.world.name(dst)} -> {fr}")
+                    return "flew"
+                log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
+            except Exception as _fe:
+                log(f"   [roam] fly attempt errored ({_fe}) — walking instead")
+        avoid = self._wall_avoid(state)
+        hop = self.world.next_hop(cur, dst, avoid=avoid)
+        if hop is None:
+            log(f"   [roam] travel to {self.world.name(dst)}: no wall-free route from {self.world.name(cur)}")
+            return "no_route"
+        nxt, edge = hop
+        log(f"   [roam] TRAVEL: {self.world.name(cur)} -> {self.world.name(dst)} "
+            f"(next hop {edge} -> {self.world.name(nxt)})")
+        r = self.trav.travel(target_map=nxt, edge=edge)
+        if r != "arrived":
+            return f"travel:{r}"
+        if tuple(tv.map_id(self.b)) == dst:
+            node = self.world.node(dst)
+            if node and node["traits"].get("has_grass"):
+                log(f"   [roam] arrived at {self.world.name(dst)} (grass) — starting to hunt")
+                return self.catch_one()
+            return "arrived"
+        return "hop_ok"
 
     def _available_actions(self, state):
         """HONEST per-tick action set — only actions that actually DO something here (no phantom/no-op).
@@ -2705,6 +2767,20 @@ class Campaign:
                 a["talk_npc"] = "go say hi to someone nearby — talk to the locals, see what they know"
         except Exception:
             pass
+        # ── EXPLORING IS A MOVE (Batch-WORLD Phase 4a) — going to a PLACE she knows is a first-class
+        # option, not just "advance toward the gym". When she's blocked or needs something (a team,
+        # levels, balls) the obvious move is to travel to a place that HAS it. These are REACHABLE
+        # visited places only (routed AROUND walls — never across the gated bridge); she still chooses.
+        # WALK today; once she earns Fly, towns become a faster fly-to (capability-gated, Phase 3). ──
+        try:
+            cur = tuple(state["map"])
+            tavoid = self._wall_avoid(state)
+            can_fly = self.world.has_cap("fly")
+            for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid)[:4]:
+                verb = "fly to" if (can_fly and self.world.is_town(mid)) else "head back to"
+                a[f"travel:{mid[0]},{mid[1]}"] = f"{verb} {nm} — {why}"
+        except Exception as _ta:
+            log(f"   [roam] travel-options skipped: {_ta}")
         # ── STRATEGIC-STUCK FLOOR (the Gary death-loop killer) — the TEETH ─────────────────────────
         # loss_awareness already TELLS her "come back stronger", but advice without teeth lost 3× live.
         # When she's strategically stuck (≥N identical losses, no roster/level change) AND a real
@@ -2852,6 +2928,8 @@ class Campaign:
             return res
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
+        if pick.startswith("travel:"):
+            return self._travel_to_known(pick, state)
         if pick == "head_to_gym":
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
