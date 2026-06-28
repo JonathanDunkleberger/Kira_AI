@@ -785,6 +785,10 @@ CHAT_BUDGET_RESPOND_ALL_N = int(os.getenv("CHAT_BUDGET_RESPOND_ALL_N", "5"))
 # even if they wouldn't surface from the n-gram statistics (e.g. short idioms).
 PHRASE_THROTTLE_ENABLED   = os.getenv("PHRASE_THROTTLE_ENABLED", "true").lower() == "true"
 PHRASE_THROTTLE_THRESHOLD = int(os.getenv("PHRASE_THROTTLE_THRESHOLD", "2"))
+# How many recent responses the catchphrase throttle remembers. The old 40 ≈ ~7 min of reactions, so a
+# bit reused every ~10 min fell out of the window between uses and never tripped — fine for short chats,
+# too short for a multi-HOUR Pokémon playthrough. 120 ≈ ~20 min window (n-gram rebuild stays trivial).
+PHRASE_THROTTLE_CAPACITY  = int(os.getenv("PHRASE_THROTTLE_CAPACITY", "120"))
 PHRASE_THROTTLE_WATCHLIST = [
     p.strip() for p in os.getenv(
         "PHRASE_THROTTLE_WATCHLIST",

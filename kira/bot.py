@@ -72,6 +72,7 @@ from kira.config import (
     OBS_RECORD_ANCHOR_ENABLED, OBS_WEBSOCKET_URL, OBS_WEBSOCKET_PASSWORD,
     GAME_REACT_ENABLED, GAME_REACT_MIN_GAP_S,
     PHRASE_THROTTLE_ENABLED, PHRASE_THROTTLE_THRESHOLD, PHRASE_THROTTLE_WATCHLIST,
+    PHRASE_THROTTLE_CAPACITY,
     FRAGMENT_QUIP_COOLDOWN_S,
     BIT_REF_COOLDOWN_BASE_S, BIT_REF_COOLDOWN_MAX_S, BIT_REF_MATCH_MIN_RATIO, BIT_STAMP_DEDUP_S,
     BARGE_IN_YIELD_ENABLED,
@@ -749,7 +750,7 @@ class VTubeBot:
         self._chat_age_log: list = []              # per-message ages at response time (rolling, last 200)
         self._yt_auto_search_status: str = "idle"  # idle | searching | connected | not_found
         self.budget_governor = _ChatBudgetGovernor()  # always-on ledger; ordering only when CHAT_BUDGET_ENABLED
-        self.phrase_buffer   = _PhraseThrottleBuffer() # session-scoped catchphrase throttle
+        self.phrase_buffer   = _PhraseThrottleBuffer(capacity=PHRASE_THROTTLE_CAPACITY) # session catchphrase throttle (wider window for long playthroughs)
 
         # Kira's [CHAT: ...] tool — code-enforced caps on her typing in chat.
         # Layered ON TOP of chat_poster's 60s global transport cooldown.

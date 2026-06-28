@@ -976,6 +976,60 @@ class Campaign:
                 return True
         return False
 
+    def _talkable_npcs(self):
+        """Active NON-trainer object events (trainerType==0): the plain townsfolk she can chat to —
+        same object table as _gym_trainers but the talkable folk. (Signs read as trainerType 0 too; a
+        press just reads them, harmless.) Returns [(index, coord, facing)]."""
+        out = []
+        for i in range(1, 16):
+            o = self._OB + i * self._SZ
+            if (self.b.rd8(o) & 1) and self.b.rd8(o + 0x07) == 0:
+                c = (self.b.rds16(o + 0x10) - 7, self.b.rds16(o + 0x12) - 7)
+                out.append((i, c, self.b.rd8(o + 0x18) & 0x0F))
+        return out
+
+    def _untalked_npc_here(self):
+        """True iff there's at least one not-yet-talked-to townsperson on this map (cheap scan, no BFS) —
+        the _available_actions gate so 'talk_npc' is only offered when it could DO something."""
+        talked = getattr(self, "_talked_npcs", {}).get(tv.map_id(self.b), set())
+        return any(idx not in talked for idx, _c, _f in self._talkable_npcs())
+
+    def talk_npc(self):
+        """BATCH 5 PHASE 4 — her earliest want ('talk to the locals'). Pick a reachable townsperson she
+        hasn't talked to here yet, walk to them, face + A, and let the READ+REACT seam fire (the live
+        DialogueReader poll already voices what they say in HER words). Tracks talked NPCs per-map so she
+        works the room instead of mashing one person. Returns 'talked' | 'no_npc'."""
+        mp = tv.map_id(self.b)
+        if not hasattr(self, "_talked_npcs"):
+            self._talked_npcs = {}
+        talked = self._talked_npcs.setdefault(mp, set())
+        for idx, body, _facing in self._talkable_npcs():
+            if idx in talked:
+                continue
+            grid = tv.Grid(self.b)
+            cur = tv.coords(self.b)
+            for adj in ((0, 1), (0, -1), (-1, 0), (1, 0)):
+                front = (body[0] + adj[0], body[1] + adj[1])
+                if not tv.bfs(grid, cur, lambda t: t == front, walkable=grid.walkable):
+                    continue
+                log(f"   TALK: approaching NPC obj#{idx} at {body} via {front}")
+                self.trav.travel(target_map=None, arrive_coord=front, max_steps=200, max_seconds=60)
+                if st.in_battle(self.b):
+                    return "talked"                            # an interaction started a battle — loop fights it
+                if tv.coords(self.b) != front:
+                    break                                      # couldn't reach this side — try the next NPC
+                face = self._TOWARD[(-adj[0], -adj[1])]        # turn toward them
+                self.b.press(face, 8, 8, self.render, owner="agent")
+                self.b.press("A", 6, 12, self.render, owner="agent")
+                for _ in range(20):
+                    self.b.run_frame(); self.render()
+                self._drain_overworld(label="npc-talk")        # read + advance their line (her reaction fires)
+                talked.add(idx)
+                log(f"   TALK: chatted with NPC obj#{idx}")
+                return "talked"
+        log("   TALK: no reachable un-talked NPC here")
+        return "no_npc"
+
     def _drain_overworld(self, label="dlg"):
         """Drive any overworld dialogue box (a trainer's post-battle line, an NPC, the badge award)
         to a clean close at a watchable pace via the general primitive. No box -> returns at once."""
@@ -2040,13 +2094,26 @@ class Campaign:
             log("   ROSTER_REACT: party size 1 — no new teammate to react to"); return "reacted"
         name = st.SPECIES_NAME.get(st.read_party_species(self.b, cnt - 1), "a new Pokemon")
         log(f"   ROSTER_REACT: party now {cnt} — newest teammate is {name}")
-        # SOUL HOOK (note_caught): route the roster beat THROUGH the soul so the bond is recorded
-        # (and PERSISTS via Phase-1 continuity) and the reaction emits via the same seam. The emitted
-        # WORDING is the scaffold's placeholder — Jonny tunes voice/content live; here we only wire+log.
+        # BATCH 5 PHASE 4 — ROSTER AS FAMILY: a catch is a real moment, not a stat line. She NAMES the
+        # new teammate IN CHARACTER (the soul oracle, same pattern as the evolution naming), and it's
+        # recorded as a family member whose name + her opinion PERSIST (soul.bonds -> continuity, and the
+        # whole campaign anchors via Phase-1 save). Naming is hers; headless/no-oracle -> species name.
+        nick = name
+        place = self._PLACE_NAMES.get(tv.map_id(self.b))
+        where = f"on {place}" if place else None
         if self.soul is not None:
-            where = {(3, 21): "on Route 3"}.get(tv.map_id(self.b))
-            log(f"   [soul] note_caught FIRE -> species={name} nickname={name} where={where}")
-            self.soul.note_caught(name, name, where)        # records bond + emits via on_event (seam)
+            try:
+                nm = self._soul_choose("name", {}, {"place":
+                    f"you just caught a {name}" + (f" {where}" if where else "") + "! a brand-new member "
+                    f"of your team — a teammate, family. give this {name} a name, just the name."})
+                if nm:
+                    nick = nm.strip().split("\n")[0][:12] or name
+            except Exception as _e:
+                log(f"   [soul] catch-naming skipped: {_e}")
+            log(f"   [soul] note_caught FIRE -> species={name} nickname={nick} where={where}")
+            self.soul.note_caught(name, nick, where)        # records bond (name + opinion) + emits via seam
+            if nick.lower() != name.lower():
+                self.on_event(f"welcome to the family, {nick}. you're one of us now.", kind="roster", tier=3)
         else:
             self.on_event(f"you've got a new teammate now — a {name} that's going to fight alongside you")
         return "reacted"
@@ -2194,6 +2261,13 @@ class Campaign:
         if (state["map"] in CITY_MART_DOORS and self.money() > SHOP_MONEY_FLOOR
                 and self._shopping_list()):
             a["stock_up"] = "stock up at the Mart — buy potions and the cures for what's been hurting you"
+        # TALK TO THE LOCALS (Batch 5 P4): offer only when there's actually a not-yet-talked-to
+        # townsperson reachable-ish here (honest action set). Her earliest want — let her work the room.
+        try:
+            if self._untalked_npc_here():
+                a["talk_npc"] = "go say hi to someone nearby — talk to the locals, see what they know"
+        except Exception:
+            pass
         return a
 
     def _wait_overworld(self, max_frames=900):
@@ -2258,6 +2332,8 @@ class Campaign:
                 return "nothing_to_buy"
             bought = self.buy_at_mart(door, sl)
             return "stocked" if bought else "shop_failed"
+        if pick == "talk_npc":
+            return self.talk_npc()
         return "unknown_action"
 
     def _boot_state_sanity(self):
