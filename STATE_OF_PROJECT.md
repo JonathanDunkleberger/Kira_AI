@@ -134,6 +134,21 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
    the GITIGNORED `persona/private/personality.txt` (reach the prompt as persona text, but not tracked in
    code or committed). Jonny to decide: promote to tracked `kira_state` arc-tracking (like called-shots),
    or accept as persona-deep. Either way, record the decision here.
+4. **Off-thread decision/event HTTP (the DEEPER lag fix).** `_soul_choose`→`voice.choose` and
+   `voice.emit`/`on_dialogue` are SYNCHRONOUS blocking `urllib` calls on the MAIN render thread
+   (`pokemon_voice.py:271-287`) — every LLM decision freezes game render + music for its duration. The
+   post-watch throttle (silent-no-move guard) stops the *rapid* stutter by ending the stuck re-pick loop,
+   but a single blocking decision still micro-stutters even during normal play. DEEPER FIX (queued, NOT
+   mid-firefight): run these HTTP calls off the render thread (worker thread / async) so LLM latency never
+   touches the frame loop. Risky surgery on the live path — schedule a dedicated pass with Jonny.
+5. **Lapras/foreknowledge confabulation (HELD for Jonny).** She invents game knowledge she hasn't seen
+   this run ("get Lapras"). Source = the play-mode oracle prompt `_POKEMON_DECIDE_FRAMING` (`bot.py:3233`)
+   has no "only reference what you've actually encountered this run" grounding. Fix = one line there, but
+   it's CORE-KIRA voice + overlaps the gitignored naivety arc → needs Jonny's sign-off before touching.
+6. **Vision confirming-vote + Gemini swap (recon delivered, NOT built).** Layer B is wired for a pixel-vote
+   to plug in later; core-Kira vision OpenAI→Gemini swap recon done (valid key = `GEMINI_IMAGE_API_KEY`;
+   `google-genai` installed; recommend `gemini-3.1-flash-lite` heartbeat → `gemini-3-flash-preview` escalate).
+   Separate step; firewall (all modes). Needs a real-frame test before commit.
 
 ## 6. BOTTOM LINE
 Core Kira's decision-wiring is healthy (the major features reach the brain). The Pokémon harness had two

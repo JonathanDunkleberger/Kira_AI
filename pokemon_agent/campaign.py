@@ -403,10 +403,12 @@ class Campaign:
         self._last_action_pick = None
         self._repeat_pick_n = 0
         # PROBLEM 3 — SILENT-NO-MOVE guard: a movement action (head_to_gym/travel/wander_catch) that
-        # returns WITHOUT changing her RAM position is silently failing. Track the offending pick + a
-        # consecutive count so the loop stops re-choosing a dead route and forces a different action.
-        self._nomove_pick = None
-        self._nomove_n = 0
+        # returns WITHOUT changing her RAM position is silently failing. Track a STREAK of no-move ticks
+        # plus the SET of move-picks that came back dead during it — so even if she ALTERNATES dead routes
+        # (head_to_gym <-> travel:X), ALL of them get pruned together once the streak hits the floor,
+        # forcing her onto an action that actually does something. Both reset on any real movement.
+        self._dead_moves = set()
+        self._nomove_streak = 0
         # B-2 — RESOLVED/LOOPING-NPC guard: (map_id, coords) spots where a dialogue loop was disengaged
         # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
         # the same looping NPC / re-trigger a beaten trainer's restarting lines.
@@ -2997,14 +2999,22 @@ class Campaign:
                     a["grab_item"] = "grab that item over there — a free pickup, looks safe to reach"
             except Exception:
                 pass
-        # PROBLEM 3 — SILENT-NO-MOVE PRUNE: if her last movement pick fired ≥2x in a row WITHOUT moving
-        # her (head_to_gym/travel/wander_catch that isn't actually moving her body), REMOVE it from this
-        # tick's set so she can't keep standing frozen re-choosing it — she MUST take a different action.
-        # Only prune when something else remains (never dead-end her). Reset by any real movement.
-        if self._nomove_n >= 2 and self._nomove_pick in a and len(a) > 1:
-            a.pop(self._nomove_pick, None)
-            log(f"   [roam] !! NO-MOVE PRUNE: '{self._nomove_pick}' hasn't moved her in {self._nomove_n} "
-                f"tries — removing it this tick so she picks something that actually does something")
+        # PROBLEM 3 — SILENT-NO-MOVE PRUNE: once she's had a no-move streak >=2 (a movement pick that
+        # didn't move her, even ALTERNATING between several), remove EVERY dead route from this tick's
+        # set so she can't thrash among them — she MUST take an action that actually does something
+        # (grind in reachable grass, a different known destination, heal/talk). Never dead-end her:
+        # only prune while at least one non-dead option remains. Reset by any real movement.
+        if self._nomove_streak >= 2:
+            removable = [k for k in self._dead_moves if k in a]
+            if removable and (len(a) - len(removable)) >= 1:
+                for k in removable:
+                    a.pop(k, None)
+                log(f"   [roam] !! NO-MOVE PRUNE: dead routes {sorted(removable)} haven't moved her "
+                    f"(streak {self._nomove_streak}) — removed this tick so she picks something that "
+                    f"works; remaining: {sorted(a)}")
+            else:
+                log(f"   [roam] !! NO-MOVE: dead routes {sorted(removable)} but they're the only options "
+                    f"left — NOT pruning (won't dead-end her); strategic-stuck/macro recovery will carry it")
         return a
 
     def _item_target(self, state):
@@ -3771,15 +3781,16 @@ class Campaign:
             # else (capability-not-script — the action genuinely isn't doing anything here). Reset on a move.
             _is_move_pick = (pick == "head_to_gym" or pick == "wander_catch" or pick.startswith("travel:"))
             if _is_move_pick and not _moved and out not in ("arrived", "badge", "caught"):
-                self._nomove_n = self._nomove_n + 1 if pick == self._nomove_pick else 1
-                self._nomove_pick = pick
+                self._nomove_streak += 1
+                self._dead_moves.add(pick)
                 log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
-                    f"(x{self._nomove_n}) — it is NOT moving her; will force a different action if it repeats")
+                    f"(streak {self._nomove_streak}, dead routes {sorted(self._dead_moves)}) — not moving "
+                    f"her; ALL dead routes get pruned next tick so she must do something that works")
                 if self._active_objective and pick == self._active_objective.get("action"):
                     self._active_objective = None
             elif _moved:
-                self._nomove_n = 0
-                self._nomove_pick = None
+                self._nomove_streak = 0
+                self._dead_moves.clear()
             # RECALIBRATION — clear the standing objective once it's actually achieved (badge won, teammate
             # caught, destination reached) so the recalibrate nudge stops pushing a finished goal; the next
             # purposeful pick sets the new one.
