@@ -277,7 +277,10 @@ class ProgressLedger:
 # Battle is battle_agent's domain (the flee floor owns it) -> a battle_active fp auto-resets (never
 # trips mid-fight). TIME IS INJECTED (`now`) so the module stays a pure read and the class unit-tests
 # headless with a fake clock.
-WATCHDOG_STUCK_S   = float(os.getenv("POKEMON_WATCHDOG_STUCK_S", "30"))  # frozen this long (s) -> trip
+WATCHDOG_STUCK_S   = float(os.getenv("POKEMON_WATCHDOG_STUCK_S", "15"))  # frozen this long (s) -> trip
+# ^ 15s (was 30): 30s of frozen screen reads as dead air to a viewer; 15s bails ~2x faster while still
+#   sitting well above the longest legit hold (a T3 badge savor ~17s changes the fp anyway, and a real
+#   conversation advances its text each page). Env POKEMON_WATCHDOG_STUCK_S overrides for live tuning.
 WATCHDOG_SEEN_CAP  = 64        # distinct keys retained; only grows under sustained PROGRESS, never a wedge
 
 
