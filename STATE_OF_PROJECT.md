@@ -161,35 +161,76 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
      runs the REAL recovery machinery (Layer-A route-around + watchdog + no-move guard + off-spine), reads
      each map's warps LIVE, no-ops canonical saves, heal-patches HP each tick. `--fight` forces real
      battles; default flees wilds for speed. Confirmed it learns warps live (read Cerulean's 14 warps).
-   - **CONFIRMED VERDICT (headless trace, utf-8-fixed harness, misty_done, 2026-06-28):** she does NOT
-     traverse. **HOP 1 FAILS at the Cerulean SOUTH EXIT to Route 5:** two PLAIN NPCs at **(26,31)+(27,31)**
-     sit on the ONLY gap to the south edge. Layer A correctly IDs them as plain NPCs + marks them, finds
-     **no route around** → `no_route_npc_blocked`. The recovery then works CLEANLY (no freeze/crash):
-     no-move guard prunes head_to_gym → she diverts → but tick 4 she goes WEST to Route 4 to grind. So she
-     never reaches Route 5; **no forward progress to Vermilion.** Recovery is healthy; the EXIT is walled.
-   - **THE BUG TO FIX (hop 1, gates everything):** Layer A sticky-blocks plain NPCs assuming they're
-     STATIONARY (the Slowbro case) and routes AROUND — but at a SOLE exit gap there IS no around, and these
-     Cerulean NPCs may be WANDERERS (sticky-blocking them PERMANENTLY walls the exit even after they step
-     off). NEEDED: for an EDGE-CROSSING exit blocked by plain NPCs, do NOT permanently sticky-block —
-     instead WAIT/TTL for wanderers to clear and re-attempt the crossing (the FRLG Cerulean south exit IS
-     passable once the NPCs shift), and only sticky-block a confirmed-stationary NPC that actually has a
-     route around. CONFIRM first whether (26,31)/(27,31) are wanderers (watch their tiles over ~10s in a
-     trace) vs a scripted wall. Fix lives in `travel.py` (the no_path/gauntlet branch + `_blocked_npcs` TTL
-     for edge-exit NPCs) and/or campaign's no_route handling. This is the SAME family as Slowbro but the
-     sole-exit variant the current fix doesn't cover.
-   - ⚠️ POSSIBLE LATENT LIVE BUG (separate): the harness crash was `UnicodeEncodeError` ('→' in a logged
-     decision-ctx on a cp1252 console). If play_live's console is cp1252, a real run could hit the same —
-     verify play_live forces utf-8 stdout (or strip '→' from logged ctx). Harness itself is now utf-8-safe.
-   - **EXACT NEXT STEPS for a fresh context:** (a) run `recon_warptrace.py` as a BACKGROUND/long job (it
-     progresses, just slowly) OR speed it for tracing — TEMPORARILY shorten the per-tick stall windows
-     (`POKEMON_WATCHDOG_STUCK_S` low, travel `TRAVEL_STALL_RETRIES` / no_path waits) so ticks finish fast;
-     (b) read tick-1 RESULT + `pos MOVED/NO MOVEMENT` + whether `chokepoint blocker … PLAIN NPC` / OFF-SPINE
-     / WATCHDOG fired → does she reach Route 5 (3,23)? (c) IF NOT → real bug: extend the Slowbro/Layer-A
-     NPC-gap solution to the south-EDGE-crossing case (the gauntlet's plain-NPC mark+reroute currently
-     lives in the no_path branch but the edge-cross path may bypass it). (d) Once on Route 5, let _learn_map
-     read its warps live → the UGP warp appears → continue the chain Route5→UGP→Route6→Vermilion, each hop
-     cross-checked live (NOT disasm-blind). (e) THEN Vermilion GymSpec coords + the Bill→S.S.Ticket→HM Cut
-     questline (separate). NO watch until the headless trace reaches Vermilion (3,5).
+   - **BUILT + VERIFIED (offline) 2026-06-28 — GENERAL gate-unlock questline capability (Phases 1-4,
+     commits 5b1100c→ac7f2e0).** New `pokemon_agent/questline.py` + `gamedata/frlg_gates.json` (curated
+     disasm KB) + `campaign` wiring: **recognise** a typed Gate (HM_OBSTACLE / STORY_NPC / ITEM_GATE /
+     BADGE_GATE) → **derive** an ordered questline from the KB capability chain (live-cross-checked, prereqs
+     first) → **execute** it via `head_to_gym` (routes the unlock ERRAND instead of the gated wall, reusing
+     travel). VERIFIED headless on the live Cerulean save: she recognises the Slowbro story-gate, OPENS the
+     S.S.-Ticket questline, narrates it in character ("I need the S.S. Ticket — a guy named Bill, north…"),
+     and drives NORTH to Cerulean's Nugget-Bridge edge (reverses off the south wall), persisting across
+     ticks + a blackout, reaching her DECISION ctx via the place seam + health.json (dashboard). Self-clears
+     when `FLAG_GOT_SS_TICKET` reads set. Generalises to Surf/Strength/Fly/Flash/item-gates by the SAME
+     pipeline (proven via synthetic-KB test). GuideSearch is wired as the secondary deriver fallback
+     (no-op until the Custom Search 403 clears). `POKEMON_QUESTLINE=0` disables. **NOT yet live-verified:**
+     the Nugget-Bridge gauntlet → Bill's cottage → ticket COMPLETION needs a healthy live run (heal between
+     the un-fleeable trainers); the shipped KB is Cerulean/Bill/Cut only (other gates added disasm-checked
+     as she nears them).
+   - **GROUND TRUTH RESOLVED 2026-06-28 (pret/pokefirered disasm + live RAM): the immediate gate is a
+     STORY-GATE, not Cut. `kira_campaign.state` is NOT mis-positioned — it's a valid post-Misty/pre-Bill
+     state.** `CeruleanCity_MapScripts → CeruleanCity_OnTransition` calls `CeruleanCity_EventScript_BlockExits`
+     **on every map entry while `FLAG_GOT_SS_TICKET` (0x234) is UNSET**, which does
+     `setobjectxyperm SLOWBRO 26,31` + `LASS 27,31` + `POLICEMAN 30,12` — deliberately parking the Slowbro
+     (gfx 0x81) on the sole south gap to WALL the exit until you fetch the S.S. Ticket. So the correct
+     canonical next step from here is **NORTH** (Route 24 Nugget Bridge → Route 25 → Bill's house →
+     S.S. Ticket); the game FORCES north-first. Cut (HM01) comes LATER, from the S.S. Anne captain in
+     Vermilion. The cut tree at (26,32) (gfx 95, flag `FLAG_TEMP_13`) is a SECONDARY/adjacent obstacle
+     (the LittleBoy hint "if Slowbro wasn't there, could cut tree"); whether the post-ticket south road
+     also needs Cut for it is a residual nuance (geometry leans yes; the canonical walkthrough walks south
+     freely post-ticket) — does NOT change the immediate action (go north). So this hop is a STORY/QUESTLINE
+     gate she must learn to follow, not a nav bug and not (yet) a Cut gate. See the gate-unlock design.
+   - **RE-DIAGNOSED 2026-06-28 (the handoff's "two wanderer NPCs" call was WRONG — STOP-and-report):**
+     the Cerulean south exit is **gated by a CUTTABLE TREE**, not blockable NPCs. Source-confirmed via
+     live RAM + the rendered frame: the sole gap in the south fence is tile **(26,32)**, occupied by an
+     object event with **graphicsId 95 = `GFX_CUT_TREE`** (`field_moves.GFX_CUT_TREE`, source-cited from
+     pokefirered). It is flanked by two real NPCs at (26,31) gfx 129 (a pink Pokémon) + (27,31) gfx 22 (a
+     person). Reachability proof (live `kira_campaign.state`, player wedged at (27,30)): her 528-tile
+     reachable area reaches **ZERO** south-edge tiles without the tree; with the tree cut, all Route-5
+     exits (cols 15-18, 29-32) open. So the tree is **THE SOLE south gate.**
+   - **WHY THE HANDOFF MISDIAGNOSED IT:** the prior trace booted `workshop/misty_done` (player far at
+     (31,22)). At that distance the cut-tree object isn't spawned (FRLG object-spawn radius) — only the two
+     flanking NPC objects load — so the trace saw "two NPCs on the gap" and guessed "wanderers." The live
+     campaign save (player adjacent at (27,30)) spawns the tree and reveals the truth. Confirmed the NPCs
+     are STATIONARY (0 movement over 90s), same elevation (no z-mismatch), and talking/pushing does nothing.
+   - **THE PRESCRIBED "wait/TTL for wanderers" FIX MUST NOT BE BUILT** — a tree never moves; waiting would
+     spin forever. The Layer-A sticky-block isn't the bug either; it's just mislabelling a Cut obstacle as
+     a "plain NPC."
+   - **WHAT'S ACTUALLY NEEDED (two parts, both bigger than a travel.py tweak):**
+     1. *Recognition (small, correct, do-able now):* in `travel._npc_tiles`/Layer-A, treat object-event
+        gfx **95/97/92** (cut-tree / boulder / item-ball) as HM/field obstacles — NOT plain NPCs to
+        permanent-block. `field_moves.scan_field_objects` already detects them (source-cited). Surface
+        "there's a Cut tree here; I need Cut" to the oracle instead of sticky-blocking. This makes the
+        diagnosis HONEST in-game but does **not** unblock the chain by itself.
+     2. *Progression (the real gate — WIP, currently OFF):* she does **NOT** know HM01 Cut (party moves
+        carry no move-id 15; she DOES have the Cascade badge, so the badge gate is satisfied — she just
+        lacks the move). Passing the tree needs the **Cut questline** (Bill on Route 25 → S.S. Ticket →
+        S.S. Anne in Vermilion → HM01 Cut) AND Cut **actuation** (`field_moves`, `POKEMON_FIELD_MOVES=0`,
+        actuation unverified on a long-running core). NOTE the apparent chicken-and-egg (Cut comes from
+        Vermilion, which is south past the tree) — needs a ground-truth pass on the intended FRLG route
+        (is there an alternate early path, or is this save mis-positioned?). **This is a real progression
+        wall, not a nav bug — Cerulean→Vermilion CANNOT traverse headless until Cut + actuation exist.**
+   - **LATENT LIVE CRASH — FIXED 2026-06-28:** `play_live.py` did NOT force utf-8 stdout, and `campaign.py`
+     logs `→` in goal/plan ctx lines (2994/3747/4262). On a cp1252 console that raises `UnicodeEncodeError`
+     and kills the run on that tick (the same crash that hit the trace harness). Added the utf-8
+     `sys.stdout/stderr.reconfigure` guard at the top of `play_live.py` (isolated, additive; syntax-checked).
+   - **EXACT NEXT STEPS for a fresh context:** (a) DECISION for Jonny/PM: build the Cut questline +
+     field-move actuation (the real unblock), or re-confirm the intended FRLG Cerulean→Vermilion route
+     first (recon whether an alternate early path exists / whether `kira_campaign.state` is mis-positioned
+     in a Mart pocket). (b) Land the small "recognise gfx 95/97/92 as field obstacles, don't plain-block"
+     change in travel/Layer-A so the in-game state is honest. (c) Only after Cut works: continue the chain
+     Route5→UGP→Route6→Vermilion, each hop cross-checked live. NO watch until the headless trace reaches
+     Vermilion (3,5). Recon scripts for this live in `pokemon_agent/recon_cerulean_*.py` +
+     `recon_choke_verdict.py` (read-only).
 8. **Vision confirming-vote + Gemini swap (recon delivered, NOT built).** Layer B is wired for a pixel-vote
    to plug in later; core-Kira vision OpenAI→Gemini swap recon done (valid key = `GEMINI_IMAGE_API_KEY`;
    `google-genai` installed; recommend `gemini-3.1-flash-lite` heartbeat → `gemini-3-flash-preview` escalate).

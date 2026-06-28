@@ -32,6 +32,16 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
+# LATENT-CRASH GUARD: decision-ctx logs carry Unicode (e.g. '→' in the goal/plan lines logged from
+# campaign.py). On a cp1252 Windows console an un-encodable char raises UnicodeEncodeError and kills the
+# live run on the tick that logs it (the same crash that hit the warp-trace harness on tick 1). Force
+# utf-8 with replacement so logging can never abort a run. Isolated, additive, no behavior change.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 SCALE = 3
 LEAD_LEVEL = 0x54        # lead party-mon level byte (off GPLAYER_PARTY)
