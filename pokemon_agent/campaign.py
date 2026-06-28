@@ -493,7 +493,8 @@ class Campaign:
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal,
-                                stuck_check=lambda: self._stuck_request is not None)
+                                stuck_check=lambda: self._stuck_request is not None,
+                                blocked_npcs=self._blocked_npcs)   # LAYER A: shared route-around memory
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:
@@ -1299,9 +1300,12 @@ class Campaign:
         return out
 
     def _npc_is_resolved(self, body):
-        """B-2: has a dialogue loop already been disengaged in front of this NPC? (any tile she'd stand
-        on to talk is a recorded looped spot.) If so, don't re-initiate — she's resolved/looping it."""
+        """B-2 + LAYER A: has a dialogue loop already been disengaged in front of this NPC, OR has travel
+        flagged its body tile as a plain blocker? Either way don't re-initiate — it's resolved/looping.
+        Reads the UNIFIED block memory so the talk path and the travel path agree on one set of NPCs."""
         mp = tuple(tv.map_id(self.b))
+        if (mp, tuple(body)) in self._blocked_npcs:        # travel marked this body tile a plain blocker
+            return True
         return any((mp, (body[0] + ax, body[1] + ay)) in self._looped_spots
                    for ax, ay in ((0, 1), (0, -1), (-1, 0), (1, 0)))
 
@@ -1359,10 +1363,17 @@ class Campaign:
         res = DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label=label)
         if res == "exhausted":
             try:
-                spot = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b)))
-                self._looped_spots.add(spot)
-                log(f"   [roam] !! LOOPING/RESOLVED NPC disengaged at {spot} — won't re-initiate talk "
-                    f"there (B-2 resolved-NPC guard)")
+                mp = tuple(tv.map_id(self.b))
+                cur = tuple(tv.coords(self.b))
+                self._looped_spots.add((mp, cur))
+                # LAYER A — feed the UNIFIED block memory too: the tile she's FACING is the looping NPC's
+                # body, so travel (not just the talk path) routes AROUND it next time. One shared set.
+                d = self._FACE_DELTA.get(wf._facing(self.b))
+                if d is not None:
+                    body = (cur[0] + d[0], cur[1] + d[1])
+                    self._blocked_npcs.add((mp, body))
+                log(f"   [roam] !! LOOPING/RESOLVED NPC disengaged at {(mp, cur)} — won't re-initiate "
+                    f"talk there + travel routes around its body (B-2 + LAYER A unified guard)")
             except Exception:
                 pass
         return res
@@ -3665,6 +3676,19 @@ class Campaign:
                     and (out in ("badge", "caught") or "arrived" in str(out)):
                 log(f"   [roam] standing objective complete ({pick} -> {out}) — clearing it")
                 self._active_objective = None
+            # LAYER A — DISTINCT 'NPC blocks the only route' outcome: travel already added the blocker to
+            # the shared memory and confirmed there's no way around it from here. DROP the standing
+            # objective so RECALIBRATE stops pushing this same now-blocked route every tick, and name it
+            # in-character so the next pick is a genuinely different objective (capability-not-script —
+            # she still chooses; we just stop re-issuing into the same door).
+            if out == "no_route_npc_blocked":
+                log(f"   [roam] !! {pick} -> no_route_npc_blocked: route blocked by a stuck NPC with no "
+                    f"way around — clearing the standing objective so the oracle picks differently")
+                if self._active_objective and pick == self._active_objective.get("action"):
+                    self._active_objective = None
+                self.on_event("huh — the only way that direction is blocked by someone who won't move. "
+                              "no point pushing it; I'll do something else and come back to it.",
+                              kind="recover", tier=2)
             # BATCH-6 PHASE 2c — DETER the blind re-walk: when the routing HARD-REFUSED to cross the wall
             # (wall_gated), count it. A rising streak means she keeps trying the one path that's blocked —
             # the next-tick oracle ctx escalates "this ends the same way; go build/stock on THIS side"

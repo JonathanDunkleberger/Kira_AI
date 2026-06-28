@@ -300,7 +300,8 @@ class Traveler:
     """
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
-                 log=print, owner="agent", beat=None, pause_check=None, stuck_check=None):
+                 log=print, owner="agent", beat=None, pause_check=None, stuck_check=None,
+                 blocked_npcs=None):
         self.b = bridge
         self.battle_runner = battle_runner
         # optional callback checked AFTER each battle; if it returns truthy, travel() yields
@@ -312,6 +313,12 @@ class Traveler:
         # travel bails the leg LOUD ("stuck", reason=watchdog) so the wedge unwinds to the roam loop's
         # top-level recovery — no sub-tick loop keeps spinning below the per-tick ledger's sight.
         self.stuck_check = stuck_check or (lambda: False)
+        # LAYER A — UNIFIED "NPCs that block me" memory, a {(map_id, body_tile)} set OWNED by the
+        # campaign and shared by reference (so a plain NPC blocked once is routed AROUND on every later
+        # leg — the per-call static_blocked was thrown away each tick, so the Slowbro chokepoint was
+        # re-discovered + re-bumped forever). travel READS it to exclude those tiles from planning and
+        # WRITES to it when its chokepoint gauntlet confirms a plain (non-trainer) NPC on the only gap.
+        self.blocked_npcs = blocked_npcs if blocked_npcs is not None else set()
         self.render = render or (lambda: None)
         self.on_event = on_event or (lambda s: None)
         # PERFORMANCE BEAT hook: at notable moments the hands HOLD until her voice
@@ -613,9 +620,12 @@ class Traveler:
             # grass-free route; fall back to crossing grass (handoff catches the battle).
             cutoff = step - BLOCK_TTL
             npc = self._npc_tiles()            # live NPC tiles, re-read every plan
+            # LAYER A: tiles on THIS map held by a plain NPC we've already confirmed blocks the only gap
+            # (persists across legs/ticks via the shared set) -> plan AROUND them, never back into them.
+            blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
             def free(sx, sy):
                 return ((sx, sy) not in npc and (sx, sy) not in static_blocked
-                        and (sx, sy) not in avoid
+                        and (sx, sy) not in avoid and (sx, sy) not in blocked_here
                         and blocked.get((sx, sy), -10 ** 9) <= cutoff)
             path = bfs(grid, cur, goal,
                        walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
@@ -658,7 +668,8 @@ class Traveler:
                 # approach). This makes the run CONTINUOUS - fight, then immediately flow on.
                 if no_path == 4:
                     npc_path = bfs(grid, cur, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
-                                   and (sx, sy) not in static_blocked and (sx, sy) not in avoid)
+                                   and (sx, sy) not in static_blocked and (sx, sy) not in avoid
+                                   and (sx, sy) not in blocked_here)   # LAYER A: skip known plain blockers
                     nplist = sorted(self._npc_tiles())
                     npc_block_seen = bool(npc_path and len(npc_path) >= 2)   # NPC on the gap vs real wall
                     if npc_path and len(npc_path) >= 2:
@@ -669,7 +680,8 @@ class Traveler:
                         for _ in range(14):                       # walk up to the blocker
                             cur2 = coords(self.b)
                             ap = bfs(grid, cur2, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
-                                     and (sx, sy) not in static_blocked and (sx, sy) not in avoid)
+                                     and (sx, sy) not in static_blocked and (sx, sy) not in avoid
+                                     and (sx, sy) not in blocked_here)
                             if st.in_battle(self.b) or not ap or len(ap) < 2:
                                 break
                             nx = ap[1]; d2 = direction(cur2, nx)
@@ -695,6 +707,31 @@ class Traveler:
                             if self.pause_check():
                                 self.log("   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller")
                                 return "need_heal"
+                            continue
+                        # LAYER A — PLAIN NPC on the only gap (we approached, NO battle started). This is
+                        # the live Slowbro wedge: re-bumping its dialogue forever. Confirm it's a re-showing
+                        # box (not a delayed trainer) and ADD it to the SHARED block memory so this leg AND
+                        # every later one route AROUND it — instead of the per-call static_blocked that was
+                        # thrown away each tick. If the goal is then unreachable, surface a DISTINCT failure
+                        # so the oracle picks a different objective rather than re-issuing into the same door.
+                        if blk is not None and self._blocker_npc_check():
+                            self.blocked_npcs.add((cur_map, blk))
+                            blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
+                            self.log(f"   [travel] chokepoint blocker {blk} on {cur_map} is a PLAIN NPC "
+                                     f"(dialogue, no battle) -> added to shared block memory "
+                                     f"({len(self.blocked_npcs)} total) + routing around (LAYER A)")
+                            reroute = bfs(grid, coords(self.b), goal,
+                                          walkable=lambda sx, sy: grid.walkable(sx, sy)
+                                          and (sx, sy) not in static_blocked and (sx, sy) not in avoid
+                                          and (sx, sy) not in blocked_here)
+                            if not (reroute and len(reroute) >= 2):
+                                self.last_fail_reason = "npc_blocked"
+                                self.on_event("the only way through is blocked by someone who won't budge "
+                                              "— I'll have to find another way or do something else.")
+                                self.log(f"   [travel] !! NO ROUTE around plain-NPC blocker {blk} on "
+                                         f"{cur_map} -> no_route_npc_blocked (oracle should pick differently)")
+                                return "no_route_npc_blocked"
+                            no_path = stuck = fp_stall = 0; last_fp = None
                             continue
                     else:
                         self.log(f"   [travel] no clean path from {cur} AND no NPC-allowing path "
