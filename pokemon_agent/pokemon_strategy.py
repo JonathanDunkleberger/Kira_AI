@@ -59,6 +59,22 @@ def _species_at(b, base):
         return 0
 
 
+def _foe_key(kind, place, lead, is_trainer, roster):
+    """STABLE foe identity for loss-tracking. ROOT-CAUSE FIX (2026-06-28): the old key was
+    f'{kind}:{place}:{lead}' where `lead` = the foe's ACTIVE mon at snapshot time — so the
+    SAME trainer (Gary: pidgeotto/abra/rattata/charmander) recorded as THREE separate walls
+    (…:pidgeotto / …:charmander / …:rattata), each count=1, and the strategic-stuck floor
+    (needs count≥STRATEGIC_STUCK_LOSSES on ONE key) NEVER fired — the live strat_memory proved
+    it. A trainer's identity is their full ROSTER, not whichever mon happened to be out, so key
+    trainers on the sorted roster signature (stable across attempts). Wilds stay keyed on the
+    species (that IS their identity). Degrades to the lead only if the roster read didn't
+    confirm (the caller logs the unconfirmed-roster case)."""
+    if is_trainer and roster:
+        sig = "+".join(sorted(str(s) for s in roster))
+        return f"trainer:{place}:{sig}"
+    return f"{kind}:{place}:{lead}"
+
+
 class StrategicMemory:
     """Her road-memory: what she's fought, who's walled her, how her team stacks up. Emits NOTHING on
     its own (no on_event coupling) — it only RETURNS awareness strings the free-roam loop folds into the
@@ -138,7 +154,7 @@ class StrategicMemory:
             size, roster = (self._enemy_roster_size(b) if is_trainer else (1, [lead]))
             kind = "trainer" if is_trainer else "wild"
             self.cur = {
-                "key": f"{kind}:{place}:{lead}",
+                "key": _foe_key(kind, place, lead, is_trainer, roster),
                 "is_trainer": is_trainer,
                 "name": ("a trainer" if is_trainer else f"a wild {lead}"),
                 "lead": lead, "lead_level": e.get("level"), "types": types,
@@ -396,6 +412,48 @@ class StrategicMemory:
         r = d.get("rival")
         if isinstance(r, dict):
             self.rival = {"name": r.get("name") or "Gary", "encounters": r.get("encounters") or []}
+        self._consolidate_trainer_losses()   # heal old active-mon-keyed fragmentation on load
+
+    def _consolidate_trainer_losses(self):
+        """MIGRATION (2026-06-28): old saves recorded ONE trainer as several active-mon-keyed
+        walls (see _foe_key — the live Gary save had 3 count-1 keys). Merge any trainer losses
+        that share (place, roster) into a single stable-keyed wall with the SUMMED count, so a
+        wall that beat her N times finally reads as N and the strategic-stuck floor can fire on
+        resume. Idempotent (re-keys to the same canonical key → running twice is a no-op)."""
+        if not self.losses:
+            return
+        merged, remap = {}, {}
+        for old_key, rec in self.losses.items():
+            if rec.get("is_trainer") and rec.get("roster"):
+                new_key = _foe_key("trainer", rec.get("place"), rec.get("lead"),
+                                   True, rec.get("roster"))
+            else:
+                new_key = old_key
+            remap[old_key] = new_key
+            if new_key in merged:
+                m = merged[new_key]
+                m["count"] = m.get("count", 0) + rec.get("count", 0)
+                if (rec.get("my_level") or 0) >= (m.get("my_level") or 0):   # latest attempt's snapshot
+                    for f in ("map_id", "coords", "my_party", "my_level", "lead",
+                              "lead_level", "types", "size"):
+                        if rec.get(f) is not None:
+                            m[f] = rec[f]
+            else:
+                nr = dict(rec); nr["key"] = new_key
+                merged[new_key] = nr
+        if len(merged) < len(self.losses):
+            n_before = len(self.losses)
+            self.losses = merged
+            self.recent = [remap.get(k, k) for k in self.recent]
+            if self.active_wall:
+                self.active_wall = remap.get(self.active_wall, self.active_wall)
+            wall = self.losses.get(self.active_wall) if self.active_wall else None
+            self.log(f"   [strat] CONSOLIDATED fragmented trainer losses {n_before}->{len(merged)} "
+                     f"keys (active-mon-keyed walls merged on stable roster id)"
+                     + (f"; active wall vs {wall.get('lead')} now {wall.get('count')}x "
+                        f"— strategic-stuck floor can now fire" if wall else ""))
+        else:
+            self.losses = merged   # re-key in place (no count change) so future records unify
 
     def save(self, path):
         try:
