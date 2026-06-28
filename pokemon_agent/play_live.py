@@ -290,11 +290,37 @@ def main():
         voice.set_context(trainer=trainer, rare=rare)
         if trainer or rare:
             log(f"battle context: trainer={trainer} foe={foe or '?'} rare={rare} -> Tier 2 savor")
+        # HIGHLIGHT (Phase 4 — the clip engine): a SHINY foe is the single most clippable thing the
+        # game can produce. Detected off the verified gEnemyParty (enemy_is_shiny is defensive — never
+        # a false freak-out). Emit tier-3 so her CORE deep-reaction layer rises to it (Opus, full room);
+        # detection is mode-side, the RISING is core Kira. Crit/super-effective have no clean RAM signal
+        # this pass -> DEFERRED (recon-flag), but shiny + clutch (below) are the big two.
+        try:
+            if _rb and st.enemy_is_shiny(b, 0):
+                _shf = foe or "this wild Pokémon"
+                voice.emit(f"wait — wait, this {_shf} is SHINY. an actual shiny. this never happens.",
+                           kind="shiny", tier=3)
+                pace("shiny")
+        except Exception as _she:
+            log(f"!! shiny-check skipped ({_she})")
         out = BattleAgent(b, on_event=voice.emit, render=render,
                           pace=(None if args.no_pace else pace),
                           choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
                           log=lambda m: None).run(max_seconds=180)
         voice.clear_context()
+        # HIGHLIGHT (Phase 4): a CLUTCH win — she pulled it out at a sliver of HP. Post-battle the lead
+        # survived (hp>0) at near-death after a WIN = the run-saving moment. Tier-3 so she RISES to it
+        # (relief/triumph), not "oh great, moving on". Bounded read; never crashes the battle path.
+        try:
+            if out == "win":
+                _hp = b.rd16(ram.GPLAYER_PARTY + 0x56)      # lead current HP
+                _mx = b.rd16(ram.GPLAYER_PARTY + 0x58)      # lead max HP
+                if 0 < _hp <= max(2, _mx // 12):            # ~1-HP / <=8% sliver
+                    voice.emit(f"oh my god — {_hp} HP. {_hp} health left and we WON. that was so close.",
+                               kind="clutch", tier=3)
+                    pace("clutch")
+        except Exception as _cle:
+            log(f"!! clutch-check skipped ({_cle})")
         # EVOLUTION (a species change on the lead) -> Tier 3 big beat
         sp1 = st.read_party_species(b, 0)
         if sp1 and sp1 != sp0:

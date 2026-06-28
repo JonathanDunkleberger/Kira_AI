@@ -96,6 +96,39 @@ MUSE_SEEDS = (
     "you press on along the route, eyes on what's ahead",
     "you make your way through, the place quiet around you",
 )
+# PHASE 4 — DEAD-AIR FILLER that reacts to the PLACE (Lavender-Town-dread style): on a long silent
+# walk she muses ABOUT WHERE SHE IS, not just generic "still walking". Keyed by map; a cave/interior
+# (map group != 3) gets enclosed/gloom seeds, the open road gets road seeds. Her self colors the
+# neutral seed (the voice floor still gates it). Extensible — add map ids as she reaches new places.
+PLACE_MUSE = {
+    (3, 21): ("the trees thin out along Route 3, trainers everywhere looking for a fight",
+              "you take in Route 3 — your first real road east, the world opening up"),
+    (3, 22): ("Route 4 stretches toward the mountains, the air drier here",),
+}
+CAVE_MUSE = (
+    "the cave presses in close around you, every sound echoing off the rock",
+    "it's dim and quiet down here, the path winding deeper into the dark",
+    "you pick your way through the cavern, watching the ground in the gloom",
+)
+ROAD_MUSE = (
+    "the route opens up ahead, grass swaying at the edges of the path",
+    "you walk on under open sky, the next town somewhere past the horizon",
+)
+
+
+def _muse_seed(b, i):
+    """A place-flavored dead-air seed for the current map (falls back to the generic road muses)."""
+    try:
+        mp = map_id(b)
+        if mp in PLACE_MUSE:
+            seeds = PLACE_MUSE[mp]
+        elif mp[0] != 3:                 # not the overworld surface -> a cave/interior
+            seeds = CAVE_MUSE
+        else:
+            seeds = ROAD_MUSE
+        return seeds[i % len(seeds)]
+    except Exception:
+        return MUSE_SEEDS[i % len(MUSE_SEEDS)]
 
 
 # ── map / coord helpers ──────────────────────────────────────────────────────
@@ -477,7 +510,7 @@ class Traveler:
             # the voice floor like any beat. Her self colors the neutral seed.
             if (MUSE_GAP_S and not st.in_battle(self.b)
                     and (time.time() - _muse_t[0]) > MUSE_GAP_S and coords(self.b) is not None):
-                self.beat(MUSE_SEEDS[_muse_i[0] % len(MUSE_SEEDS)])
+                self.beat(_muse_seed(self.b, _muse_i[0]))   # PHASE 4: place-flavored dead-air filler
                 _muse_i[0] += 1
                 _muse_t[0] = time.time()
             # WALL-CLOCK WATCHDOG (loud): a leg should not run for hours. If we blow the

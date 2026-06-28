@@ -1044,15 +1044,35 @@ class Campaign:
         ng = self._GYM_ORDER[len(badges)] if len(badges) < len(self._GYM_ORDER) else None
         place = self._PLACE_NAMES.get(mp, "an unfamiliar area")
         dex = ram.pokedex_owned_count(b)          # BATCH 6 PHASE 4: caught-count from RAM (no menu)
+        arc = self._arc_note(len(badges))         # PHASE 4: where she is in the WHOLE journey (momentum)
         progress = (f"{len(badges)} badge(s) earned ({', '.join(badges) or 'none'}). "
                     + (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned.")
-                    + (f" Pokédex: {dex} caught." if dex is not None else ""))
+                    + (f" Pokédex: {dex} caught." if dex is not None else "")
+                    + f" {arc}")
         return {"map": mp, "place": place, "coords": co,
                 "badges": badges, "badge_count": len(badges),
                 "party": party, "party_count": cnt,
                 "on_grass_map": on_grass_map, "dex_caught": dex,
                 "next_gym": ({"city": ng[0], "leader": ng[1]} if ng else None),
-                "progress": progress}
+                "arc": arc, "progress": progress}
+
+    # PHASE 4 — MILESTONE / ARC AWARENESS: she knows where she is in the OVERALL story (8 badges ->
+    # Elite Four), so she can narrate progress with MOMENTUM ("third badge — a third of the way, credits
+    # in sight") instead of treating each gym as an isolated errand. Pure framing off the badge count;
+    # injected into the oracle ctx every tick. CORE-style narrative awareness, fed by the live HUD.
+    def _arc_note(self, n):
+        if n <= 0:
+            return "The journey's just begun — no badges yet, the whole road to the Pokémon League ahead."
+        if n >= 8:
+            return "All 8 badges — Victory Road and the Elite Four are next. This is the endgame."
+        frac = {1: "one badge in — the adventure's really starting",
+                2: "two badges down, a quarter of the way",
+                3: "three badges — over a third of the way there",
+                4: "four badges — halfway to the League now",
+                5: "five badges, well past halfway — the Elite Four's coming into view",
+                6: "six badges down, only two to go",
+                7: "seven badges — one gym from Victory Road, the League almost in reach"}[n]
+        return f"She's {frac} (of 8 badges, then the Elite Four)."
 
     def pokedex_count(self):
         """BATCH 6 PHASE 4 — public accessor for 'how many have I caught?' (clean RAM popcount, no menu).
