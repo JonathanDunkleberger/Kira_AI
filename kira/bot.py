@@ -7434,6 +7434,14 @@ class VTubeBot:
 
         # --- Change 2: Detect returning regulars (>10 historical msgs, first message this session) ---
         returning_regulars = []
+        # PHASE 10 — confirm LIVE presence: only greet a regular who is ACTUALLY in chat right now
+        # (in the Chat Director's live window), never a month-old regular surfaced from a stale list.
+        # They're in this batch so they'll be present; this makes the live-presence dependency explicit
+        # and robust to any future caller that isn't batch-gated.
+        try:
+            _present_now = set(self.chat_director.regulars_present())
+        except Exception:
+            _present_now = None
         for msg in batch:
             username = msg.get("username", "unknown")
             if not username or username == "unknown":
@@ -7445,6 +7453,8 @@ class VTubeBot:
             # so this block never fired at all.)
             if username in self._returning_regular_greeted:
                 continue
+            if _present_now is not None and username not in _present_now:
+                continue                       # not actually in the live window — don't greet a ghost
             historical_count = self.memory.count_chatter_messages(username)
             if historical_count >= 5:
                 returning_regulars.append((username, historical_count))
@@ -8317,6 +8327,23 @@ class VTubeBot:
 
             last_session = self.memory.get_last_session_summary() or "(no prior session on record)"
 
+            # PHASE 10 — a light "previously on" from the CONSOLIDATED saga (Phase 3 beats), so a resume
+            # onboards mid-journey viewers with the REAL story ("last time, Gary humiliated me, I caught a
+            # Pikachu, heading to Vermilion"), not just a generic summary. Pulls the promoted milestone
+            # beats she actually remembers; empty -> omitted (no forced recap).
+            recap_block = ""
+            try:
+                _saga = (getattr(self, "_pokemon_journey_state", None) or self._load_pokemon_journey() or {})
+                _beats = _saga.get("saga") or []
+                if _beats:
+                    _top = sorted(_beats, key=lambda b: (b.get("weight", 0.0), b.get("ts", 0.0)),
+                                  reverse=True)[:4]
+                    recap_block = ("\n- A 'previously on' recap you CAN draw from (your real journey beats — "
+                                   "weave a quick natural callback, don't list them):\n"
+                                   + "\n".join(f"    • {b.get('text','')}" for b in _top) + "\n")
+            except Exception:
+                pass
+
             scene = self.vision_agent.get_vision_context() if self.game_mode_controller.is_active else "(observer mode off)"
 
             request = (
@@ -8337,6 +8364,7 @@ class VTubeBot:
                 f"- Hand it back to Jonny at the end ('alright, take it away' or similar)\n\n"
                 f"CONTEXT:\n"
                 f"- Last session's summary: {last_session}\n"
+                f"{recap_block}"
                 f"- Current activity: {self.current_activity or 'no activity set yet'}\n"
                 f"- Current scene: {scene}\n\n"
                 f"Keep it under 30 seconds spoken (~80 words). Stay in character — sassy, warm, deadpan."

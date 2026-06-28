@@ -219,6 +219,13 @@ class ChatDirector:
                     break
         return out
 
+    def regulars_present(self, now: float = None, limit: int = 8):
+        """PUBLIC: distinct regulars whose messages are ACTUALLY in the live window right now — the
+        live-presence signal the stream bookend needs so it greets who's HERE, never a month-old
+        regular who isn't in chat (Phase 10). Returns a list of usernames."""
+        now = now or time.time()
+        return self._regulars_present(self._live(now), limit=limit)
+
     def _notable(self, live: list, limit: int = NOTABLE_MAX):
         """A few verbatim GOOD-FAITH messages worth her eye — names her, or high-energy. Phase 11:
         bait/hostility/jailbreak is NEVER surfaced here (it's exactly what 'names Kira + all-caps'
