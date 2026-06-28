@@ -395,6 +395,18 @@ class BattleAgent:
     # ── autonomous CATCH FLOW (mirrors the proven live play: weaken/status, then commit to throws)
     _SLEEP_MOVES = {79, 147, 95, 47, 142, 1}        # Sleep Powder, Spore, Hypnosis, Sing, Lovely Kiss
     _STATUS_MOVES = _SLEEP_MOVES | {77, 78, 86}     # + PoisonPowder, StunSpore, ThunderWave
+    CATCH_WEAKEN_CEIL = 0.85   # if she CAN'T weaken (depleted PP) AND the foe is still above this HP
+    #                            fraction, don't dump balls into a low-odds full-HP catch — flee + heal.
+
+    def _can_weaken(self, state):
+        """True iff she has a move that can actually SOFTEN the foe — a usable status move OR a usable
+        damaging move (PP>0). False = fully depleted: can't sleep it, can't chip it. The catch flow uses
+        this to refuse ball-dumping a near-full-HP foe she has no way to weaken (the live ball-burn)."""
+        moves = state["ours"]["moves"]
+        has_status = any(m.get("id", 0) in self._STATUS_MOVES and m.get("pp", 0) > 0 for m in moves)
+        has_damage = any(m.get("id", 0) and m.get("pp", 0) > 0 and m.get("id", 0) not in self._STATUS_MOVES
+                         for m in moves)
+        return has_status or has_damage
 
     def _catch_weaken_move(self, state):
         """Slot index of a move to SOFTEN the wild foe before throwing - prefer a SLEEP move (asleep
@@ -512,6 +524,19 @@ class BattleAgent:
             if state and state["enemy"]["hp"] <= 0:
                 return "fainted"                         # we KO'd it - can't catch a fainted foe
             if weaken and not softened and state is not None:
+                # PHASE 4 GUARD: if she can't weaken AT ALL (no status + no damaging move with PP —
+                # depleted) and the foe is still near full HP, DON'T throw — a full-HP catch is low-odds
+                # and that's exactly how she burned her whole ball supply tonight. Flee (preserve the
+                # balls) and surface that she needs to restore PP (a Center tops up PP). Roam then heals.
+                if not self._can_weaken(state) and state["enemy"].get("maxhp") \
+                        and state["enemy"]["hp"] > state["enemy"]["maxhp"] * self.CATCH_WEAKEN_CEIL:
+                    self.emit("I can't even dent it — I'm out of PP to weaken it, and I'm not burning my "
+                              "Poké Balls on a full-health throw. Backing out to restore my moves first.",
+                              beat=True, tier=2)
+                    self.log("   [engine] catch: CAN'T WEAKEN (depleted PP) + foe near full HP -> fleeing "
+                             "to preserve balls (not ball-dumping)")
+                    self.flee(max_seconds=45)
+                    return "cant_weaken"
                 wi = self._catch_weaken_move(state)
                 if wi is not None:
                     self.emit("let me wear it down first", beat=True)

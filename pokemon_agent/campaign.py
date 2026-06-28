@@ -863,6 +863,19 @@ class Campaign:
         w = self.b.rd32(data + a * 12 + 8) ^ key               # the 4 PP bytes (one u32)
         return [w & 0xFF, (w >> 8) & 0xFF, (w >> 16) & 0xFF, (w >> 24) & 0xFF]
 
+    def _lead_pp_low(self):
+        """True when the lead is critically low on PP — only ≤1 real move can still fire. A Pokémon
+        Center restores PP (not just HP), so this lets _available_actions offer heal even at FULL HP,
+        breaking the depleted-PP spiral that froze her vs Mankey and made her ball-dump full-HP foes.
+        Best-effort RAM read; any failure -> False (never a spurious heal)."""
+        try:
+            moves, pps = self._lead_moves(), self._lead_pps()
+            usable = sum(1 for mid, p in zip(moves, pps) if mid and p > 0)
+            return usable <= 1
+        except Exception as e:
+            log(f"   [roam] lead-PP read skipped: {e}")
+            return False
+
     def _set_lead_moves(self, moves, pps):
         """Write the lead's 4 move IDs + 4 PP bytes wholesale, keeping the Gen-3 checksum valid
         (decrypt the 48-byte data block, overwrite the A-substruct's 3 words, recompute the u16-sum
@@ -1838,6 +1851,8 @@ class Campaign:
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         caught = [False]
         out_of_balls = [False]
+        cant_weaken = [False]     # PHASE 4: depleted PP -> can't weaken a full-HP foe -> stop the wander
+        #                           (don't burn balls); roam then heals (a Center restores PP) and retries
         healed_out = [False]      # BATCH 5 P2: healed mid-catch -> end cleanly, free_roam re-decides
         trainer_secs = [0.0]      # BATCH 5 P2: wall-clock spent in FORCED trainer fights en route — does
         #                           NOT count against the catch budget (those are mandatory, not failure)
@@ -1874,6 +1889,8 @@ class Campaign:
                 self.on_event("I caught a new teammate!")
             elif res == "no_balls":
                 out_of_balls[0] = True              # STOP the wander — wandering ball-less just hits
+            elif res == "cant_weaken":
+                cant_weaken[0] = True               # depleted PP -> STOP; roam heals (restores PP) + retries
             return "win"                            # more wilds forever (the 8636-loop). a break_free is fine
 
         # Reuse the BFS Traveler (pathfinds around walls AND walks through grass, handing each
@@ -1888,7 +1905,8 @@ class Campaign:
             # BUDGET (Batch 5 P2): measure only GENUINE catch-wandering time — credit back the forced
             # trainer-fight wall-clock so a trainer gauntlet between her and the grass can't time the
             # catch out before she gets a single throw.
-            while (time.time() - t0 - trainer_secs[0]) < max_seconds and not caught[0] and not out_of_balls[0]:
+            while (time.time() - t0 - trainer_secs[0]) < max_seconds and not caught[0] \
+                    and not out_of_balls[0] and not cant_weaken[0]:
                 before = tv.coords(self.b)
                 r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
                                      max_steps=120, max_seconds=80, avoid=doors)
@@ -1927,6 +1945,10 @@ class Campaign:
             return "caught"
         if out_of_balls[0]:
             log("   !! CATCH: ran out of Poké Balls before a catch - LOUD"); return "no_balls"
+        if cant_weaken[0]:
+            log("   !! CATCH: depleted PP — couldn't weaken a full-HP foe; stopped before burning balls. "
+                "Roam will heal (restore PP) and retry (LOUD)")
+            return "need_pp"           # not a failure: roam offers heal (Center restores PP), then retries
         if healed_out[0]:
             return "healed_retry"      # not a failure: she topped up mid-catch; free_roam re-decides
         log("   !! CATCH: no catch within budget (genuine wander time, trainer fights excluded) - LOUD")
@@ -2763,6 +2785,12 @@ class Campaign:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
         if self.needs_heal() or sev == "hurt":
             a["heal"] = "go to a Pokemon Center and heal the team up"
+        # PP DEPLETION (Phase 4) — a Center restores PP, not just HP. When the lead can barely act
+        # (≤1 move with PP left) she can neither weaken-to-catch nor fight safely — the depleted spiral
+        # that froze her vs Mankey + burned her balls. Offer heal even at full HP so she tops up first.
+        elif self._lead_pp_low():
+            a["heal"] = ("you're nearly out of PP — swing by a Pokémon Center to restore your moves "
+                         "(on empty you can't weaken-to-catch or fight safely)")
         if self._grass_target(state) is not None:
             a["battle"] = "train in the grass - fight wild pokemon to level the team up"
             # Phase 5 BALL PRE-CHECK: only offer catching when she actually HAS a ball — wandering
