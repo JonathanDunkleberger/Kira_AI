@@ -1651,6 +1651,18 @@ class Campaign:
                 return self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key
         return 0
 
+    def _ball_note(self, state=None):
+        """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO Poké Balls, catching is
+        impossible no matter how much grass she reaches, so the oracle should KNOW a Mart run comes
+        first. Empty unless she's out of balls. Live RAM read (verified on Jonny's watch)."""
+        try:
+            if self._ball_count() == 0:
+                return ("Heads up: you have ZERO Poké Balls — you literally can't catch a teammate until "
+                        "you buy some at a Mart, so a Mart run has to come before any catching.")
+        except Exception as e:
+            log(f"   [roam] ball-note read skipped: {e}")
+        return ""
+
     def _talk(self, front, face_dir, label):
         """Interior NPC interaction: drain any cutscene already running, step to the front tile,
         face the NPC, A, then drive the dialogue/cutscene to a clean close (the giveitem_msg lines)."""
@@ -2748,8 +2760,16 @@ class Campaign:
         if self.needs_heal() or sev == "hurt":
             a["heal"] = "go to a Pokemon Center and heal the team up"
         if self._grass_target(state) is not None:
-            a["wander_catch"] = "wander the grass and try to catch a new teammate"
             a["battle"] = "train in the grass - fight wild pokemon to level the team up"
+            # Phase 5 BALL PRE-CHECK: only offer catching when she actually HAS a ball — wandering
+            # grass with zero balls can't catch anything (honest action set). With no balls, the
+            # ball-note + a 'travel to a Mart' option steer her to buy some first.
+            try:
+                has_balls = self._ball_count() > 0
+            except Exception:
+                has_balls = True
+            if has_balls:
+                a["wander_catch"] = "wander the grass and try to catch a new teammate"
         # SHOP WITH INTENT (PART C) + BATCH-6 PHASE-2 FORESIGHT: offer "stock up" when it DOES something —
         # at a town with a mapped Mart and money above the floor, with EITHER a real restock need (low on
         # potions / missing a cure) OR she's walled and could prepare deeper before a push (foresight,
@@ -2794,7 +2814,11 @@ class Campaign:
                 pc = state.get("party_count")
                 pl = state["party"][0]["level"] if state.get("party") else None
                 if self.strat.strategically_stuck(pc, pl):
-                    strengthen = [k for k in ("wander_catch", "battle", "stock_up") if k in a]
+                    # travel:* (go BACK to known grass/a Mart to build up) IS a strengthen path — so
+                    # when the only way to get stronger is to travel backward, the wall re-approach
+                    # still gets pruned (Batch-WORLD: backtracking is now a real, counted option).
+                    strengthen = [k for k in a if k in ("wander_catch", "battle", "stock_up")
+                                  or k.startswith("travel:")]
                     if strengthen:
                         a.pop("head_to_gym", None)        # may NOT march back into the wall unchanged
                         if "battle" in a:
@@ -3254,9 +3278,30 @@ class Campaign:
             try:
                 avoid = self._wall_avoid(state)
                 bdirs = self._wall_blocked_dirs(state)
-                brief = self.world.spatial_brief(tuple(state["map"]), avoid=avoid, blocked_dirs=bdirs)
+                cur_map = tuple(state["map"])
+                brief = self.world.spatial_brief(cur_map, avoid=avoid, blocked_dirs=bdirs)
                 if brief:
                     where = f"{where}. {brief}"
+                # Phase 5 — BALL PRE-CHECK: zero Poké Balls makes wander_catch impossible no matter how
+                # much grass she finds, so tell her plainly (info she lacks). Live read; confirmed on the
+                # watch. The capability to act on it already exists (travel to a Mart / stock_up).
+                bn = self._ball_note(state)
+                if bn:
+                    where = f"{where} {bn}"
+                # Phase 5 — the ONE allowed explicit nudge (info she lacks, NOT a forced action): when she's
+                # strategically stuck at a wall she can't pass, name plainly the KNOWN places back the way
+                # she came that have what she needs. Right now she doesn't know that option exists — so we
+                # tell her it does. She still DECIDES.
+                if STRATEGIC_STUCK_ENABLED and self.strat.strategically_stuck(
+                        state.get("party_count"),
+                        state["party"][0]["level"] if state.get("party") else None):
+                    backs = self.world.travel_targets(cur_map, avoid=avoid)
+                    if backs:
+                        names = ", ".join(nm for _m, nm, _w in backs[:3])
+                        where = (f"{where} You can't pass this wall as you are — and the places you've "
+                                 f"already been that have what you need (wild Pokémon to train on, a Mart "
+                                 f"for Poké Balls) are back the way you came: {names}. Going back to build "
+                                 f"up and then returning is the real move here.")
             except Exception as _wb:
                 log(f"   [world] spatial brief skipped: {_wb}")
             # SURVIVAL AWARENESS (PART A): fold the party-hurt note into the oracle ctx via the same
