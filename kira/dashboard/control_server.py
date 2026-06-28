@@ -1103,6 +1103,20 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             asyncio.ensure_future(bot._pokemon_react(summary, tier=body.tier))  # fire-and-forget
         return _ok(fired=bool(summary))
 
+    if action == "pokemon_alert":
+        # DEAD-MAN'S SWITCH (Batch 7 Phase 2): harness pings Jonny when deep-wedge recovery is
+        # exhausted. Routes to Discord webhook + loud log. Operator alert, never Kira's voice.
+        _msg = (body.name or getattr(body, "text", None) or "").strip()
+        _res = await bot._pokemon_alert(_msg)
+        return _ok(**(_res or {}))
+
+    if action == "pokemon_journey":
+        # CONTINUITY-INTO-CORE (Phase 4): the harness pushes her journey saga (grudge + team + arc);
+        # core persists it so she resumes KNOWING her story and can speak it in idle chat / any game.
+        _state = body.ctx if isinstance(getattr(body, "ctx", None), dict) else {}
+        _res = await bot._pokemon_journey(_state)
+        return _ok(**(_res or {}))
+
     # ── Pokémon session process control (dashboard Start/Stop/Status) ──────────
     # The HANDS run in a separate window (pokemon_agent/session.py, skip-starter:
     # boots from after_pick_bulbasaur.state). kira/pokemon_proc owns that subprocess
