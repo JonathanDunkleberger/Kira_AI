@@ -268,9 +268,25 @@ class Traveler:
         self.beat = beat or (lambda s: None)
         self.log = log
         self.owner = owner
+        # PHASE 4 RUNNING SHOES: run by default (act like a player who has the shoes). Co-holds B with
+        # the direction in _press. The GAME self-gates running (outdoors+shoes -> ~1.85x faster; cave /
+        # building / no shoes -> B is inert, she just walks), and B-cohold lands EXACTLY one tile per
+        # press (verified) so the BFS path-follow stays in sync. POKEMON_RUN=0 forces walking.
+        self.run = os.getenv("POKEMON_RUN", "1") != "0"
 
     def _press(self, d):
-        self.b.press(DIR_KEY[d], HOLD, HOLD, self.render, owner=self.owner)
+        key = DIR_KEY[d]
+        if not self.run:
+            self.b.press(key, HOLD, HOLD, self.render, owner=self.owner)
+            return
+        # co-hold B (RUN). Mirrors Bridge.press timing exactly, but holds direction + B together. Safe
+        # whether or not she owns the shoes yet (B during a movement step is otherwise inert).
+        self.b.set_keys(key, "B", owner=self.owner)
+        for _ in range(HOLD):
+            self.b.run_frame(); self.render()
+        self.b.release(owner=self.owner)
+        for _ in range(HOLD):
+            self.b.run_frame(); self.render()
 
     def _blocker_npc_check(self):
         """MICRO watchdog (increment 2): we A-interacted with a path blocker and it did NOT start a

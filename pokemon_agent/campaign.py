@@ -843,6 +843,29 @@ class Campaign:
         elif drove:
             log("   [evolve] drove a post-battle cutscene (no species change — not an evolution)")
 
+    # ── PHASE 4 traversal tools she can't have YET — honest stubs (never fake; log LOUD) ──────────────
+    # RUNNING SHOES are LIVE (travel.py _press co-holds B -> ~1.85x outdoors, game-gated, verified). BIKE
+    # and FLY are NOT owned this early (bike = the Cerulean voucher/Bike-Shop quest; Fly = HM02 from
+    # Celadon + a compatible teammate + the badge to use it — both far ahead). There is also no overworld
+    # key-item / HM / FLAG reader yet, so possession can't be confirmed. Rather than fake a capability she
+    # doesn't have, these scream if ever called and return "not_owned" (they're NOT wired into the action
+    # set, so they can't surface as a dead choice). Banked designs below for when she earns them.
+    def use_bike(self):
+        """STUB: the bicycle (Cerulean voucher -> Bike Shop). Not owned this early; no key-item reader
+        exists to confirm. When built: register/use the Bike key item; ~2x bike speed, gated on terrain."""
+        log("   [traversal] !! use_bike() called but the BIKE is not owned yet (no voucher/Bike-Shop "
+            "done) and there's no key-item reader to confirm — DEFERRED, returning not_owned (LOUD).")
+        return "not_owned"
+
+    def fly_to(self, city):
+        """STUB: Fly / fast-travel. Needs HM02 (Celadon), a teammate that can learn it, and the badge to
+        use it — none yet. BANKED NAV DESIGN (so it's not lost): open the menu -> Pokémon that knows Fly
+        -> Fly -> the Town Map opens; navigate the DESTINATION list with UP/DOWN + a SINGLE A to pick
+        (NEVER an a_until_end_of_dialog mash — that overshoots the list). Only flyable to visited cities."""
+        log(f"   [traversal] !! fly_to({city!r}) called but FLY is not owned yet (no HM02 / flyer / badge) "
+            f"and there's no HM-flag reader to confirm — DEFERRED, returning not_owned (LOUD).")
+        return "not_owned"
+
     def has_badge(self, flag):
         """Read any FLAG_BADGE0x_GET from the SaveBlock1 flag array (base + 0x0EE0)."""
         sb1 = self.b.rd32(0x03005008)                          # gSaveBlock1Ptr (DMA-shuffled target)
