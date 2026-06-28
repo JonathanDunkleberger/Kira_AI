@@ -25,8 +25,22 @@ down) is ANNOUNCED, not swallowed.
 """
 import json
 import os
+import re
 import time
 import urllib.request
+from collections import deque
+
+# FIX 1 (dialogue half) — REPETITION-AVERSE commentary: looping game/NPC text (e.g. a wild Slowbro that
+# keeps "turning away" / "loafing around") was re-commentated as new for minutes. The exact back-to-back
+# dedup missed it because the lines ALTERNATE. This keeps a small window of recently-voiced lines
+# (normalized) and drops a LOW-tier (grind/dialogue) line that repeats one already in the window — so
+# she stops narrating the same loop. Big beats (T2/T3: badges, level-ups, gym leaders) are NEVER deduped.
+DEDUP_WINDOW = int(os.getenv("POKEMON_DEDUP_WINDOW", "8"))
+
+
+def _norm(s: str) -> str:
+    """Normalize for repeat-detection: lowercase, punctuation/whitespace collapsed to single spaces."""
+    return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
 
 # ── fire-rate knobs (env-tunable live, no code edit) ──────────────────────────
 GRIND_GAP_S = float(os.getenv("POKEMON_GRIND_GAP_S", "1.8"))   # Tier-1 rolling min-gap (chatty grind)
@@ -126,6 +140,8 @@ class KiraVoice:
         self.log = log
         self.timeout = timeout
         self._last_summary = None          # de-dupe identical back-to-back fires
+        self._recent_norm = deque(maxlen=DEDUP_WINDOW)   # FIX 1: recently-voiced lines (normalized) to
+        #                                                  drop LOW-tier repeats (the looping-NPC loop)
         self._last_fire_ts = 0.0           # GLOBAL silence-floor clock (any fired reaction)
         self._last_grind_ts = 0.0          # Tier-1 rolling-gap clock
         self._last_ambient_ts = 0.0        # Tier-0 ambient-trickle clock
@@ -173,6 +189,15 @@ class KiraVoice:
         if tier is None:
             tier = classify(summary, tags, self._ctx)
 
+        # FIX 1 — REPETITION-AVERSE: drop a LOW-tier (grind/dialogue) line that repeats one she's voiced
+        # in the recent window. Kills the re-commentary of looping game/NPC text (the 3.5-min Slowbro
+        # loop). Big beats (T2/T3 — badges/level-ups/gym leaders) are never deduped (always land).
+        _n = _norm(summary)
+        if tier < 2 and _n and _n in self._recent_norm:
+            self.n_skipped += 1
+            self.log(f"   [kira-voice] ·dedup· (repeat text, T{tier}, looping?) {summary!r}")
+            return None
+
         # FIRE-RATE lever -------------------------------------------------------
         now = time.time()
         # GLOBAL SILENCE FLOOR: leave breathing room after any reaction so Jonny can talk into it.
@@ -204,6 +229,8 @@ class KiraVoice:
 
         self._last_fire_ts = now                       # arm the global silence floor
         self._last_summary = summary
+        if _n:
+            self._recent_norm.append(_n)               # FIX 1: remember it so a repeat is dropped
         self.stream.append((tier, kind, summary))
         try:
             res = self._post("pokemon_event", name=summary, tier=tier)

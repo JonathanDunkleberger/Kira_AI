@@ -18,10 +18,18 @@ and is throttled to real-time only on the live stream (AudioPump's blocking writ
 hold would therefore mean a totally different real duration in each context. Seconds make the
 read-along dwell identical on stream and in any test - the same convention play_live already uses.
 """
+import os
 import time
 
 from dialogue_reader import DialogueReader
 import world_fingerprint as wf      # MICRO watchdog: stop A-mashing an exhausted/looping NPC
+
+# FIX 1 (dialogue half) — a CYCLING NPC (it rotates through several distinct lines forever, e.g. the
+# wild Slowbro "turned away.." / "loafing around..") defeats the consecutive-same-line `frozen` counter
+# because `new_line` keeps firing. So we ALSO count how many times each distinct line reappears within
+# one drive() call: once any line has been shown DIALOGUE_LOOP_REPEAT times, it's looping, not
+# progressing -> disengage (B, walk away). Tolerance is low (a real speech never repeats a line 3x).
+DIALOGUE_LOOP_REPEAT = int(os.getenv("POKEMON_DIALOGUE_LOOP_REPEAT", "3"))
 
 # Bottom overworld message-box band: solid white while a box is open, dark (map) when closed.
 # Verified across misty_done (box up: 27-28/28 per row) vs cerulean/pewter/viridian (0/28).
@@ -142,6 +150,7 @@ class DialogueDriver:
         last = None
         frozen = 0                                        # consecutive presses: same line + frozen world
         fp_prev = None
+        seen = {}                                         # FIX 1: normalized line -> times shown (cycle detect)
         for _ in range(max_steps):
             if stop_when and stop_when():
                 return "stopped"
@@ -150,6 +159,17 @@ class DialogueDriver:
                 new_line = bool(cur and cur != last)
                 if new_line:                              # a NEW message -> snap to FULL, then read-along
                     last = cur
+                    # FIX 1 — CYCLE DETECT: a looping NPC rotates distinct lines forever (frozen-world
+                    # counter never trips). If any one line has now reappeared DIALOGUE_LOOP_REPEAT
+                    # times this call, it's a loop, not progress -> disengage (don't read it again).
+                    _k = " ".join(cur.lower().split())
+                    seen[_k] = seen.get(_k, 0) + 1
+                    if seen[_k] >= DIALOGUE_LOOP_REPEAT:
+                        self.log(f"   [dlg{(' ' + label) if label else ''}] !! LOOPING DIALOGUE — "
+                                 f"line seen x{seen[_k]} ({cur.replace(chr(10), ' ')[:48]!r}) -> B, "
+                                 f"walking away (cycle-watchdog)")
+                        self._close_box()
+                        return "exhausted"
                     self.log(f"   [dlg{(' ' + label) if label else ''}] "
                              f"{cur.replace(chr(10), ' ')[:72]!r}")
                     # CLEAN RENDER FIX (2026-06-27, watchability): the box used to be advanced by a single

@@ -103,6 +103,9 @@ class BattleAgent:
         self._unresolved_turns = 0     # ANTI-WEDGE FLOOR: turns that never RESOLVED (no PP drop/
                                        # HP change/faint). Cleared only by a real resolution, so the
                                        # 0-PP "no PP left!" flicker can't reset it like `stall` does.
+        self._skip_streak = set()      # FIX 1: every move slot that failed to fire THIS streak — so she
+                                       # rotates through her WHOLE moveset (never re-spams a dead/0-PP
+                                       # move) and only flees once all are exhausted. Clears on any fire.
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -491,7 +494,7 @@ class BattleAgent:
         if self._is_trainer_battle():
             return "trainer"
         self._started = True
-        self._skip_idx = None
+        self._skip_streak = set()
         self._reach_first_menu(t0, max_seconds)
         self._prev = st.read_battle(self.b)
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
@@ -764,21 +767,23 @@ class BattleAgent:
         def _usable(i):                                # a real move with PP
             m = ours["moves"][i]
             return m.get("id", 0) != 0 and m.get("pp", 0) > 0
-        if not (0 <= idx < 4) or not _usable(idx) or idx == self._skip_idx:
-            # policy pick is empty / 0-PP / the move that JUST failed: rotate to the best OTHER
-            # usable move by expected DAMAGE (power x effectiveness) - prefer a real attack, not status.
-            cands = [i for i in range(4) if _usable(i) and i != self._skip_idx]
-            if not cands:                              # only the skip move is left -> allow it
-                cands = [i for i in range(4) if _usable(i)]
+        if not (0 <= idx < 4) or not _usable(idx) or idx in self._skip_streak:
+            # FIX 1 — REPETITION-AVERSE move pick: exclude EVERY move that already failed to fire this
+            # streak (not just the last one), so she pivots through her whole moveset and NEVER re-spams
+            # a dead/0-PP/blocked move (the Mankey case: she had 3 unused moves). Pick the best one she
+            # HASN'T tried yet by expected damage. The streak clears the instant any move fires (below),
+            # so a working move is never permanently benched (the PoisonPowder-spam lesson).
+            cands = [i for i in range(4) if _usable(i) and i not in self._skip_streak]
             if cands:
                 idx = max(cands, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
                           * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
                 desc = ours["moves"][idx].get("name", desc)
-            elif not _usable(idx):
-                # NOTHING can execute — every slot is empty/0-PP/blocked (the live Mankey freeze:
-                # Sleep Powder at 0 PP with no usable alternative). Don't navigate a dead move (that's
-                # the livelock) — signal the run loop to escalate to the anti-wedge floor (flee/abort).
-                self.log("   [engine] !! NO USABLE MOVE — every slot empty/0-PP/blocked (the 0-PP wedge)")
+            else:
+                # Every usable move has already failed to fire this streak (or none are usable at all —
+                # the 0-PP Mankey wedge). Do NOT re-fire a known-dead move; surface so the run-loop
+                # anti-wedge floor flees (wild) / aborts (trainer) instead of livelocking.
+                self.log("   [engine] !! MOVES EXHAUSTED — every usable move tried with no effect this "
+                         "streak (or none usable); not re-spamming a dead move")
                 return "no_usable_move"
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
@@ -830,13 +835,15 @@ class BattleAgent:
                     break                                 # = the move never fired (Disabled/blocked)
             self.b.run_frame(); self.render()
         if result == "done":
-            self._skip_idx = None                      # it fired -> nothing to avoid next turn
+            self._skip_streak.clear()                  # a move FIRED -> whole moveset eligible again
+            #                                            (resets the streak; never permanently benches)
         else:
-            # didn't fire (no PP drop, no HP change) = Disabled / couldn't act: avoid this slot for
-            # the NEXT selection only (then it's eligible again - never permanently exiled).
-            self._skip_idx = idx
-            self.log(f"   [engine] move slot {idx} didn't fire (disabled / blocked) -> "
-                     f"trying a different move next turn")
+            # didn't fire (no PP drop, no HP change) = 0-PP / Disabled / couldn't act: add to the streak
+            # so the NEXT pick rotates to a move she hasn't tried — and once all are tried, she flees
+            # rather than re-spamming. The streak is per-no-progress-run, cleared on any successful fire.
+            self._skip_streak.add(idx)
+            self.log(f"   [engine] move slot {idx} didn't fire (0-PP / disabled / blocked) -> rotating "
+                     f"to an untried move (streak now {sorted(self._skip_streak)})")
         return result or "stuck"
 
     def _advance_text(self, force_b=False):
@@ -916,10 +923,10 @@ class BattleAgent:
             return "timeout"
         self._started = True
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
-        self._skip_idx = None              # the ONE move slot to avoid for the NEXT selection only:
-        # the move that just failed to fire (Disable / slow-turn verify). A 1-turn skip rotates us
-        # off a disabled move WITHOUT permanently exiling our best attack - permanent benching caused
-        # the PoisonPowder-spam (a working Tackle got benched, forcing 11 turns of useless status).
+        self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
+        # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
+        # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
+        # (the PoisonPowder-spam lesson: don't permanently bench a move, just rotate off it this streak).
         # Cleared the instant any move fires.
         self._prev = st.read_battle(self.b)
         self._reach_first_menu(t0, max_seconds)

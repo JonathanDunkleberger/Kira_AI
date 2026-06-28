@@ -391,6 +391,12 @@ class Campaign:
         # detour actions (heal/talk/grind) so she resumes "I was heading to X" instead of re-deciding
         # from scratch + wandering. {action, label, tick} or None. Surfaced to her ctx + the dashboard.
         self._active_objective = None
+        # FIX 1 (overworld half) — repeat-pick awareness: the action she chose last tick + how many
+        # ticks in a row she's chosen it. Used to nudge "you keep doing X and nothing's changed — try
+        # something else" ONLY when the world fingerprint is ALSO stuck (non-GREEN), so a legit
+        # multi-tick action (walking to a Center to heal) is never nagged.
+        self._last_action_pick = None
+        self._repeat_pick_n = 0
         # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
         # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
@@ -3466,6 +3472,17 @@ class Campaign:
                          f"\"{self._active_objective['label']}\". That's still available. Unless something "
                          f"fundamental has actually changed, pick it back up and continue — don't lose the "
                          f"thread to aimless wandering.")
+            # FIX 1 (overworld half) — REPETITION-AVERSE: if she repeated the same action last tick AND
+            # the world fingerprint is STUCK (non-GREEN = nothing changed), that action isn't working —
+            # tell her to STOP repeating it and do something different. Gated on non-GREEN so a legit
+            # multi-tick action (walking to a Center) — where the fingerprint keeps changing — is never
+            # nagged. One repeat is the ceiling a viewer accepts; this fires at the first stuck repeat.
+            if self._repeat_pick_n >= 1 and macro != ledger.GREEN and self._last_action_pick in avail:
+                where = (f"{where}. HEADS UP — you just chose '{self._last_action_pick}' and NOTHING "
+                         f"changed (same spot, no progress). Repeating it again will do the same nothing. "
+                         f"Pick a DIFFERENT action this time and break the loop.")
+                log(f"   [roam] !! REPEAT-NO-PROGRESS: '{self._last_action_pick}' repeated with a stuck "
+                    f"fingerprint — nudging a different action")
             pick = self._soul_choose("action", avail,
                                      {"place": where, "progress": state["progress"], "party": _brief,
                                       "goal": _goals})
@@ -3474,6 +3491,9 @@ class Campaign:
                 ledger.note_action(None, "idle")
                 continue
             log(f"   [roam] PICK OUT: {pick}" + (f"  <- her RECOVERY move ({macro})" if macro != ledger.GREEN else ""))
+            # FIX 1 — track consecutive identical picks (for the repeat-no-progress nudge above).
+            self._repeat_pick_n = self._repeat_pick_n + 1 if pick == self._last_action_pick else 0
+            self._last_action_pick = pick
             # RECALIBRATION — record a PURPOSEFUL, going-somewhere pick as the standing objective she
             # returns to. Detour actions (heal / talk_npc / stock_up / grind / idle) deliberately do NOT
             # overwrite it, so the thread survives them. Cleared when its action completes (below).
