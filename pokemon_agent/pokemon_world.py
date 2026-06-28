@@ -50,7 +50,33 @@ SEED_NODES = {
     (3, 20): ("Route 2",       {"is_route": True, "has_grass": True, "has_wild": True}),
     (3, 21): ("Route 3",       {"is_route": True, "has_grass": True, "has_wild": True}),
     (3, 22): ("Route 4",       {"is_route": True, "has_grass": True, "has_wild": True}),
+    # ── FORWARD SPINE (the rest of the main quest), map IDs from the pret/pokefirered disassembly
+    # (data/maps/map_groups.json, group 3 = TownsAndRoutes) AND cross-checked against LIVE RAM
+    # (2026-06-28: Route 3/4 read (3,21)/(3,22) live — the disasm export miscounted routes by one, so
+    # the CITY block 0-10 is used verbatim and ROUTE nums follow the live-verified contiguous pattern
+    # Route_N=(3,18+N)). These are KNOWN-AHEAD priors (NOT marked visited): they give her an accurate
+    # sense that the gym cities exist forward, so "head to the next gym" has a real destination. CONNECTIVITY
+    # is still learned LIVE (no fabricated edges — the Cerulean→Vermilion path runs through the Underground
+    # Path warp, which the live read models truthfully). Source-first: live reads upgrade/confirm. ──
+    (3, 4):  ("Lavender Town",   {"is_town": True, "has_pokecenter": True}),
+    (3, 5):  ("Vermilion City",  {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 3 (Surge)
+    (3, 6):  ("Celadon City",    {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 4 (Erika)
+    (3, 7):  ("Fuchsia City",    {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 5 (Koga)
+    (3, 10): ("Saffron City",    {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 6 (Sabrina)
+    (3, 8):  ("Cinnabar Island", {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 7 (Blaine)
+    (3, 23): ("Route 5",         {"is_route": True}),   # Cerulean → (Underground Path) → Route 6 → Vermilion
+    (3, 24): ("Route 6",         {"is_route": True}),
 }
+
+# THE FIXED MAIN-QUEST SPINE (ordered): the gym cities she must reach in sequence, each as a real
+# map id (verified above). The harness already derives `next_gym` from badge count via _GYM_ORDER;
+# this maps each gym city to its map id so her world-model + heading point at a CONCRETE place, not a
+# vibe. The Elite Four / credits follow gym 8. (Viridian gym 8 = (3,1), reused post-Giovanni.)
+GYM_SPINE = [
+    ("Pewter City", (3, 2)), ("Cerulean City", (3, 3)), ("Vermilion City", (3, 5)),
+    ("Celadon City", (3, 6)), ("Fuchsia City", (3, 7)), ("Saffron City", (3, 10)),
+    ("Cinnabar Island", (3, 8)), ("Viridian City", (3, 1)),
+]
 
 # badge_count -> the maps her progress PROVES she's traversed (so a --resume marks them visited
 # honestly, by badge proof, not by guess). Boulder => she crossed Pallet..Pewter; Cascade =>
