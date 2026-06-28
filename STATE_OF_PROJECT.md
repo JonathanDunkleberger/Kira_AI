@@ -176,6 +176,47 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
      the Nugget-Bridge gauntlet → Bill's cottage → ticket COMPLETION needs a healthy live run (heal between
      the un-fleeable trainers); the shipped KB is Cerulean/Bill/Cut only (other gates added disasm-checked
      as she nears them).
+   - **FIXED 2026-06-28 — PROACTIVE FORWARD DRIVE (the backward-grind root fix). REACHES: BRAIN.** The live
+     bug: post-Misty she WANTED 'grind on the way' → chose `travel:3,22` (Route 4, a cleared dead-end BEHIND
+     her); she walked backward to grind, never bonked the Slowbro south gate, so the questline never opened.
+     ROOT CAUSE (recon, not symptom): the gate/questline was recognised **only REACTIVELY** inside the
+     `head_to_gym` execution branch, so at DECISION time `_available_actions` offered the backward grind
+     (`travel:*`/`battle`/`wander_catch`) on EQUAL footing with `head_to_gym`, and a grind-want picked
+     backward. Worse, the canonical save sits ON Route 4 (a side-branch WEST of base camp) and `head_to_gym`'s
+     own routing would walk the local 'south' edge to Route 3 — **further backward**. THREE-PART FIX (all
+     mode-side `campaign.py`, firewall intact, flag `POKEMON_FORWARD_DRIVE=1`):
+       (1) `_ensure_forward_questline(state)` — recognises the forward (south) gate and OPENS the questline
+           PROACTIVELY each tick BEFORE the action set is built (no longer waits for a wall-bonk).
+       (2) `_available_actions` forward-drive — when a forward-unlock questline is open OR she's drifted
+           off-branch (graph can't route to the gym yet AND she's off the base-camp city), `head_to_gym` is
+           reframed as the DOMINANT forward pull and the backward-grind options are PRUNED (travel targets
+           no closer to base camp + standalone grind; grind now happens ON THE WAY via the forward march).
+           Stands down for survival (critical-heal) + the strategic-stuck floor (which owns the lost-
+           repeatedly case). Strictly conditional/reversible (feature OFF restores the full set).
+       (3) `head_to_gym` FORWARD-SPINE recovery + `_base_camp(state)` — when the graph can't route to the gym
+           city yet, route toward the base-camp city (GYM_SPINE predecessor, e.g. Cerulean for Vermilion)
+           instead of blindly walking 'south' into a further-backward branch; the proactive questline takes
+           over once she's there. VERIFIED headless from the ACTUAL live Route-4 save (`recon_forward_drive.py`
+           end-to-end: Route 4 → EAST to Cerulean → questline OPENS → heads NORTH toward Bill, never backward
+           to Route 3; `recon_forward_drive2.py` action-set: backward pruned, forward kept, reframed,
+           reversible). Reaches her DECISION ctx (the reframed `head_to_gym` description + questline narration
+           via the place seam) AND the dashboard (health.json `questline`/`rationale`). Fixed a latent `→`
+           UnicodeEncodeError in the new log line (now ASCII `->`). NOTE: she ends short of Bill in 8 ticks
+           because her L8/L10 teammates lose the un-fleeable Nugget-Bridge gauntlet (real game difficulty —
+           team is underlevelled, not a fix bug); the heal floor correctly interrupts + RECALIBRATE resumes
+           the questline objective after.
+   - **FIX (BUG 2) 2026-06-28 — dashboard RATIONALE freshness. REACHES: DISPLAY (already WIRED; lag fixed).**
+     RECON FINDING (contra the handoff's "not wired" premise): the live "why I'm doing this" rationale was
+     ALREADY fully wired end-to-end and committed (081dfd7): `campaign._rationale_line` → `self._rationale` →
+     `health.json` (`_publish_health`, line ~4385) → `pokemon_proc.health()` `game` → control-server
+     `pokemon_health` → `web_dashboard/index.html` renders `g.rationale` (line 768); the `/` dashboard is
+     served `no-store` (not browser-cached). The one real defect was a 1-tick LAG: `_publish_health` runs at
+     the TOP of the tick (for the watchdog light) BEFORE the pick/rationale exist, so the dashboard showed the
+     PREVIOUS tick's 'why' during the (visible) action execution. FIX: re-publish health right after the
+     rationale is computed (before the action runs) so the dashboard reflects the CURRENT decision live.
+     VERIFIED: `health.json` carries a fresh non-empty `rationale` after a run (+ the `questline` field so
+     Jonny reads WHY she's off the direct path). Dashboard pixel-render is code-traced (no-cache + `g.rationale`
+     bound) — only literal live-eyes pending.
    - **GROUND TRUTH RESOLVED 2026-06-28 (pret/pokefirered disasm + live RAM): the immediate gate is a
      STORY-GATE, not Cut. `kira_campaign.state` is NOT mis-positioned — it's a valid post-Misty/pre-Bill
      state.** `CeruleanCity_MapScripts → CeruleanCity_OnTransition` calls `CeruleanCity_EventScript_BlockExits`

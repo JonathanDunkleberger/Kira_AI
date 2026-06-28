@@ -42,6 +42,7 @@ import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a ga
 # Tightly scoped (only KB-defined gates with the flag UNSET, live-read) + self-clearing; default ON since
 # it's the approved forward-progress feature. POKEMON_QUESTLINE=0 disables.
 QUESTLINE_ENABLED = os.getenv("POKEMON_QUESTLINE", "1") != "0"
+FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forward objective dominates the grind impulse
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -2590,6 +2591,43 @@ class Campaign:
             return "wall_gated"
         return self.trav.travel(target_map=nbr, edge=d)
 
+    def _ensure_forward_questline(self, state):
+        """PROACTIVE forward drive (ROOT FIX for the backward-grind). Recognise the gate on the FORWARD
+        road to the next gym and OPEN/refresh the unlock questline at DECISION time — BEFORE the action set
+        is built — so the errand pulls her FORWARD every tick, not only when she physically bonks the wall.
+        This is what makes the forward objective DOMINATE the grind impulse (she heads NORTH to Bill for the
+        S.S. Ticket instead of west to Route 4 to grind). Mirrors the reactive recognition the head_to_gym
+        branch does, run a beat earlier. Self-clears the instant the gate's success flag reads satisfied
+        LIVE. No-op when QUESTLINE is off, on an interior/cave map, or there's no forward gate here.
+
+        FORWARD = south on the current spine (Cerulean→Vermilion), matching the reactive recognition in
+        _route_action(head_to_gym) and the curated KB exit_gates. The recogniser no-ops on any map/dir the
+        KB has no gate for, so this is safe to call every tick everywhere — it only opens where a real
+        story/HM gate sits on the road ahead. Firewall: harness routing; her DERIVED plan reaches the
+        decision ctx via the existing `place` seam (she narrates + still chooses)."""
+        if not QUESTLINE_ENABLED:
+            return
+        try:
+            cur_map = tuple(state["map"])
+            # Already on an errand → re-derive against LIVE RAM so a just-completed step advances or the
+            # whole questline self-clears (the gate opened). Keeps the ctx + action-set honest WITHOUT
+            # walking a step here (the executor walks it when she picks head_to_gym).
+            if self._active_questline is not None:
+                q = self._derive_questline(self._active_questline.gate)
+                if q.complete:
+                    self._clear_questline("flag satisfied (proactive refresh)")
+                else:
+                    self._active_questline = q
+                return
+            # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
+            # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
+            # head_to_gym drives THAT and the action-set reframes around it.
+            gate = self._gate_recognizer.recognize(cur_map, blocked_dir="south")
+            if gate:
+                self._open_questline(gate, state)
+        except Exception as _q:
+            log(f"   [roam] proactive questline check skipped: {_q}")
+
     def _thin_team(self):
         """BATCH 6 PHASE 3 — is she running a thin bench (≤ SHOP_THIN_PARTY)? Drives Poké Ball foresight:
         a thin team is the one that most needs to come home from the grass with a new member."""
@@ -3077,6 +3115,88 @@ class Campaign:
                         f"FORWARD to {ng2['city']}, pruned grind {pruned}; the move is to travel to the gym")
             except Exception as _rr:
                 log(f"   [roam] readiness reframe skipped: {_rr}")
+        # ── PROACTIVE FORWARD DRIVE (the backward-grind killer — the ROOT fix) ───────────────────────
+        # The live bug: post-Misty she WANTED 'grind on the way' and it resolved to travel BACKWARD into a
+        # cleared dead-end (Route 4) — because at decision time head_to_gym (the forward objective) competed
+        # on EQUAL footing with the backward grind, so a grind-want picked backward and she never reached
+        # the gate. Fix: when there's a forward objective she's drifting from, make head_to_gym the DOMINANT
+        # pull and PRUNE the options that lead AWAY from it. Two forward signals, one response:
+        #   (1) a forward-unlock QUESTLINE is open (she's AT the gate — north to Bill before Vermilion), OR
+        #   (2) she's DRIFTED off the road: the learned graph can't yet route to the next-gym city (the gate
+        #       isn't crossed, so those maps are unlearned) AND she's not at the base-camp city it launches
+        #       from — so 'forward' means get back to base camp (then the questline takes over there).
+        # Grinding stays characterful — it happens ON THE WAY (head_to_gym walks her forward through the
+        # trainers/grass). Never dead-ends her (head_to_gym kept), leaves heal/stock_up/talk alone, and
+        # stands down for survival (critical-heal returned early) + the strategic-stuck floor (it OWNS the
+        # lost-repeatedly case and prunes head_to_gym itself). Play-gated (free_roam only).
+        if FORWARD_DRIVE_ENABLED and "head_to_gym" in a and state.get("next_gym"):
+            stuck = False
+            if STRATEGIC_STUCK_ENABLED:
+                try:
+                    stuck = self.strat.strategically_stuck(
+                        state.get("party_count"),
+                        state["party"][0]["level"] if state.get("party") else None)
+                except Exception:
+                    stuck = False
+            if not stuck:
+                try:
+                    cur = tuple(state["map"])
+                    avoid = self._wall_avoid(state)
+                    gym_city = self._next_gym_city_map(state.get("next_gym"))
+                    route_exists = bool(gym_city and self.world.route(cur, gym_city, avoid))
+                    ql_open = (QUESTLINE_ENABLED and self._active_questline is not None
+                               and self._active_questline.actionable is not None
+                               and self._active_questline.derivable)
+                    # base camp matters only PRE-gate (no graph route to the gym yet); on-spine progress
+                    # (route exists) is left untouched — head_to_gym already routes correctly there.
+                    anchor = None if route_exists else self._base_camp(state)
+                    off_branch = anchor is not None and anchor != cur
+                    if ql_open or off_branch:
+                        if ql_open:
+                            q = self._active_questline
+                            a["head_to_gym"] = (
+                                f"PUSH FORWARD — the way ahead is blocked ({q.gate.human}), and the move "
+                                f"that opens it is to {q.actionable.human}. Go DO that now: it's the road "
+                                f"FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if "
+                                f"you want, but keep heading to the objective — never backward into "
+                                f"somewhere you've already cleared.")
+                        else:
+                            aname = self.world.name(anchor)
+                            a["head_to_gym"] = (
+                                f"PUSH FORWARD — you've drifted off the road to "
+                                f"{state['next_gym']['city']}. Head back toward {aname} to pick the way "
+                                f"forward up again — that's where the next-gym road continues. Grind ON THE "
+                                f"WAY if you want, but stop doubling back into places you've already cleared.")
+                        # prune backward: standalone grind (it happens en route) + travel targets that
+                        # don't get her CLOSER to base camp (lateral/backward). On the questline branch she's
+                        # already at base camp, so every travel:* is a detour off the forward errand → prune.
+                        cur_d = None
+                        if off_branch:
+                            p = self.world.route(cur, anchor, avoid)
+                            cur_d = (len(p) - 1) if p else None
+                        pruned = []
+                        for k in list(a):
+                            if not k.startswith("travel:"):
+                                continue
+                            keep = False
+                            if off_branch and cur_d is not None:
+                                try:
+                                    tx = tuple(int(v) for v in k.split(":", 1)[1].split(","))
+                                    tp = self.world.route(tx, anchor, avoid)
+                                    keep = bool(tp) and (len(tp) - 1) < cur_d   # strictly closer = forward
+                                except Exception:
+                                    keep = False
+                            if not keep:
+                                a.pop(k, None); pruned.append(k)
+                        for g in ("battle", "wander_catch"):
+                            if a.pop(g, None) is not None:
+                                pruned.append(g)
+                        if pruned:
+                            why = "questline" if ql_open else f"off-branch->{self.world.name(anchor)}"
+                            log(f"   [roam] !! FORWARD-DRIVE ({why}): head_to_gym reframed as the dominant "
+                                f"forward pull, pruned backward-grind {sorted(pruned)}")
+                except Exception as _fd:
+                    log(f"   [roam] forward-drive skipped: {_fd}")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
         # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
         # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
@@ -3277,6 +3397,21 @@ class Campaign:
             pass
         return None
 
+    def _base_camp(self, state):
+        """The spine CITY the next-gym push launches from — the GYM_SPINE predecessor of the next gym (e.g.
+        Cerulean for the Vermilion push). This is what 'forward' means when the learned graph can't yet
+        route to the next-gym city (she hasn't crossed the gate, so those maps are unlearned): get back to
+        base camp, then the gate-unlock questline takes over there. Map id (g,n) or None."""
+        ng = state.get("next_gym")
+        try:
+            from pokemon_world import GYM_SPINE
+            idx = next((i for i, (c, _m) in enumerate(GYM_SPINE) if c == (ng or {}).get("city")), None)
+            if idx is not None and idx > 0:
+                return tuple(GYM_SPINE[idx - 1][1])
+        except Exception:
+            pass
+        return None
+
     def _route_action(self, pick, state):
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
@@ -3391,6 +3526,27 @@ class Campaign:
                         return "warped" if tv.map_id(self.b) != before else "warp_failed"
                     log(f"   [roam] EDGE-ROUTE toward {ng['city']}: {cur_map} -> {nxt_map} (edge {detail})")
                     return self.trav.travel(target_map=nxt_map, edge=detail)
+            # FORWARD-SPINE RECOVERY (off-branch): we're here because the learned graph can't yet route to
+            # the gym CITY (she hasn't crossed the gate, so those maps are unlearned). Do NOT blindly walk
+            # the local 'south' edge below — on a side-branch (e.g. Route 4, whose 'south' is Route 3, even
+            # FURTHER from the spine) that walks her BACKWARD. Instead route toward the base-camp city the
+            # next-gym push launches from (Cerulean for Vermilion); once she's there the proactive questline
+            # takes over (north to Bill). Only when she's actually off it — at base camp this no-ops and the
+            # south block runs (south from Cerulean = the Slowbro gate → questline). Edges only (no coords).
+            base = self._base_camp(state)
+            if base is not None and base != cur_map:
+                try:
+                    hop = self.world.next_hop(cur_map, base, avoid=self._wall_avoid(state))
+                except Exception:
+                    hop = None
+                if hop:
+                    back_map, edge_dir = hop
+                    bname = self.world.name(base)
+                    log(f"   [roam] FORWARD-SPINE: no graph route to {ng['city']} yet — heading toward base "
+                        f"camp {bname} via {edge_dir} to {back_map} (then the gate questline takes over)")
+                    self.on_event(f"I've drifted off the road — heading back toward {bname} to pick the way "
+                                  f"forward back up.", kind="route", tier=1)
+                    return self.trav.travel(target_map=back_map, edge=edge_dir)
             # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
             # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
@@ -3611,6 +3767,12 @@ class Campaign:
             if newly - self._afflict_seen:
                 log(f"   [roam] afflicted by {sorted(newly - self._afflict_seen)} — remembering for a cure run")
             self._afflict_seen |= newly
+            # GATE-UNLOCK (PROACTIVE forward drive — ROOT FIX for the backward-grind): recognise the gate
+            # on the FORWARD road to the next gym and OPEN/refresh the unlock questline BEFORE the action
+            # set is built, so the errand is a dominant forward pull THIS tick instead of only firing
+            # reactively when she physically bonks the wall. Without it she could grind backward forever
+            # (west to Route 4) and never trigger the gate. Self-clears the instant the flag reads satisfied.
+            self._ensure_forward_questline(state)
             avail = self._available_actions(state)
             party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
             # MACRO PROGRESS LEDGER (increment 3): fingerprint THIS tick + escalate if the world has
@@ -3944,6 +4106,12 @@ class Campaign:
             # current plan + pick. Published in the next health snapshot so Jonny reads purposeful-vs-lost.
             self._rationale = self._rationale_line(state, pick, _goals)
             log(f"   [roam] RATIONALE: {self._rationale}")
+            # FIX 3 (freshness) — re-publish so the dashboard shows THIS decision's rationale DURING the
+            # (visible) action execution below, not a tick late. The top-of-tick publish (which the
+            # watchdog light needs) ran before the pick existed, so it carried the PREVIOUS tick's 'why';
+            # this second best-effort write lands her live reasoning while she's actually doing the thing.
+            # Cheap atomic JSON write; never blocks the run.
+            self._publish_health(macro, state, last_badge_ts, run_start_ts)
             # RECALIBRATION — record a PURPOSEFUL, going-somewhere pick as the standing objective she
             # returns to. Detour actions (heal / talk_npc / stock_up / grind / idle) deliberately do NOT
             # overwrite it, so the thread survives them. Cleared when its action completes (below).
