@@ -3275,10 +3275,13 @@ class VTubeBot:
         # turn-taking gate — an event mid-Jonny-sentence yields, same 3s rule as the Director).
         if not self._ok_to_self_speak():
             return
+        _state_block = self._pokemon_state_block_for_voice()    # FIX 2 — ground her voice in real run-state
         prompt = (
             self._POKEMON_CHARACTER_RULES + "\n\n"
-            f"What just happened in your battle: \"{summary}\"\n\n"
-            "React in one or two sentences, in character. Don't narrate the mechanics."
+            + (_state_block + "\n" if _state_block else "")
+            + f"What just happened in your battle: \"{summary}\"\n\n"
+            "React in one or two sentences, in character. Don't narrate the mechanics. "
+            "Stay consistent with your REAL run-state above — don't claim something you haven't done."
         )
         if self._active_turn_lock.locked():
             # COALESCE (soul-flow lag fix): a fast game floods events while she voices one (~6-9s
@@ -3428,6 +3431,53 @@ class VTubeBot:
             out += "\n".join(f"  - {b.get('text','')}" for b in top) + "\n"
         return out + "\n"
 
+    # FireRed badge -> the gym leader who gives it (so "did you beat Misty?" answers from real state).
+    _BADGE_LEADER = {"Boulder": "Brock", "Cascade": "Misty", "Thunder": "Lt. Surge", "Rainbow": "Erika",
+                     "Soul": "Koga", "Marsh": "Sabrina", "Volcano": "Blaine", "Earth": "Giovanni"}
+
+    def _pokemon_state_block_for_voice(self) -> str:
+        """FIX 2 — her REAL live run-state (the SAME health.json the dashboard reads), formatted for her
+        DECISION + VOICE so she stops flying blind: confabulating ('Dome fossil secured' with none),
+        not knowing she beat Misty, asking Jonny her own goal. Single source of truth shared with the
+        cockpit — 'wired to the display' is NOT enough; this is the wired-to-the-brain half. Returns ''
+        when there's no fresh snapshot (no run / stale / crashed) so she never asserts stale facts.
+        Best-effort; never raises."""
+        try:
+            from kira import pokemon_proc
+            h = pokemon_proc.health() or {}
+            g = h.get("game") or {}
+            if not g:
+                return ""
+            age = h.get("health_age_s")
+            if age is not None and age > 45:      # stale (paused/crashed) — don't assert it as current
+                return ""
+            badges = g.get("badges") or []
+            bc = g.get("badge_count", len(badges))
+            beaten = [self._BADGE_LEADER.get(b, b) for b in badges]
+            team = ", ".join(g.get("party") or []) or "(no team yet)"
+            goals = g.get("goals") or {}
+            now = goals.get("short") or ""
+            objective = g.get("active_objective") or goals.get("medium") or g.get("objective") or ""
+            longg = goals.get("long") or ""
+            place = g.get("place") or "?"
+            lines = ["[YOUR POKÉMON RUN — your REAL state right now. Answer from THIS; never ask anyone "
+                     "what you're doing or which badges/items you have, and never narrate a goal as if "
+                     "it's already done. Don't recite it robotically — just KNOW it.]"]
+            lines.append(f"Badges: {bc}/8" + (f" — you've beaten {', '.join(beaten)}" if beaten
+                                              else " — no gym beaten yet") + ".")
+            lines.append(f"Your team: {team}.")
+            lines.append(f"Where you are: {place}.")
+            if now:
+                lines.append(f"Right now you're: {now}")
+            if objective:
+                lines.append(f"The thing you're working toward: {objective}")
+            if longg:
+                lines.append(f"Next milestone: {longg}")
+            return "\n".join(lines) + "\n"
+        except Exception as e:
+            print(f"   [Pokemon] state-block skipped: {e}")
+            return ""
+
     async def _pokemon_alert(self, message: str):
         """DEAD-MAN'S SWITCH (Batch 7 Phase 2): a critical out-of-band alert from the Pokémon harness
         when deep-wedge recovery is exhausted and the run is abandoned. Routes to Discord webhook +
@@ -3509,6 +3559,11 @@ class VTubeBot:
         opts = [str(o) for o in (options or [])]
         detail = ctx.get("detail") if isinstance(ctx.get("detail"), dict) else {}
         where = ctx.get("place") or ctx.get("segment") or ctx.get("map") or "your journey"
+        # FIX 2 — the DECISION oracle also gets her real run-state (badges/team/items/objective), so her
+        # picks consume it (she already gets badges via `progress` + goals via the place-seam; this adds
+        # the consistent grounding incl. items/fossil). This is the reaches-the-BRAIN half.
+        _sb = self._pokemon_state_block_for_voice()
+        _sb = (_sb + "\n") if _sb else ""
         try:
             if kind == "want":
                 # world-knowledge she carries (things she KNOWS are out there) as CONTEXT, not a pick-list.
@@ -3516,7 +3571,8 @@ class VTubeBot:
                          else ("\n".join(f"- {o}" for o in opts) if opts else "(nothing specific in mind)"))
                 prompt = (
                     self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
-                    f"You're at {where}, playing your OWN Pokemon run. Things you know are out there:\n"
+                    + _sb
+                    + f"You're at {where}, playing your OWN Pokemon run. Things you know are out there:\n"
                     f"{known}\n\n"
                     "Is there something you actually WANT right now — a pokemon, a goal, a place to reach? "
                     "It's fine if there isn't. Say a sentence in YOUR voice (or that you're good for now). "
@@ -3529,7 +3585,8 @@ class VTubeBot:
                 menu = "\n".join(f"- {o}" + (f": {detail[o]}" if o in detail else "") for o in opts)
                 prompt = (
                     self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
-                    f"You're at {where}. It's YOUR call what to do next. Your options right now:\n"
+                    + _sb
+                    + f"You're at {where}. It's YOUR call what to do next. Your options right now:\n"
                     f"{menu}\n\n"
                     "Pick the ONE that fits what YOU actually want to do — your taste/mood, NOT the most "
                     "optimal play. Say a sentence in YOUR voice about why, THEN on a final line write "
@@ -10532,6 +10589,15 @@ class VTubeBot:
                             f"\n\n[PLAYTHROUGH MEMORY \u2014 these are real experiences, reference as lived memory, "
                             f"not data]\n{pt_ctx}"
                         )
+
+                # FIX 2 — during Pokémon play, inject her LIVE run-state so mic questions ("did you beat
+                # Misty? what's your goal? which fossil?") are answered from her OWN state, never asked
+                # back at Jonny or confabulated. Same health.json the dashboard reads (reaches-brain, not
+                # just display). Gated on pokemon_mode so it's absent in every non-Pokémon context.
+                if getattr(self, "pokemon_mode", False):
+                    _pkmn_state = self._pokemon_state_block_for_voice()
+                    if _pkmn_state:
+                        dynamic_context += f"\n\n{_pkmn_state}"
 
                 # Inject running bits accumulated this session (omit on-cooldown ones)
                 _perf_bits = self._active_bits_for_prompt(5)
