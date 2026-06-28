@@ -7068,9 +7068,22 @@ class VTubeBot:
                 lines.append(f"- {_bond}")
         if not lines:
             return ""
-        header = ("[WHO YOU ARE RIGHT NOW — you're not a neutral observer; react to the "
-                  "scene THROUGH this self. Let it color what you notice and how you feel "
-                  "about it; don't recite it.]")
+        if getattr(self, "pokemon_mode", False):
+            # PLAY-MODE IDENTITY FLIP — when the Pokémon engine is running (pokemon_mode is auto-set
+            # True the moment Jonny hits GO; no manual toggle), she is the PLAYER driving the run, not a
+            # co-watching observer. This single header is the shared self-frame every interjection uses,
+            # so flipping it here flips her identity everywhere at once, and it composes with
+            # _POKEMON_CHARACTER_RULES already in the prompt. CRITICAL: the ELSE branch is the ORIGINAL
+            # cohost frame, byte-for-byte — when play-mode is OFF (watching Jonny play / movies / idle)
+            # she frames herself exactly as before. The core cohost model is untouched (firewall).
+            header = ("[WHO YOU ARE RIGHT NOW — this is YOUR run and YOU are the one playing it. You have "
+                      "full agency and make the final calls (Jonny and chat can advise, but YOU drive). "
+                      "React from your OWN play — what YOU notice, decide, and do, in the first person — "
+                      "not as someone watching. Let your mood/feelings/takes color it; don't recite it.]")
+        else:
+            header = ("[WHO YOU ARE RIGHT NOW — you're not a neutral observer; react to the "
+                      "scene THROUGH this self. Let it color what you notice and how you feel "
+                      "about it; don't recite it.]")
         out = header + "\n" + "\n".join(lines)
         # PHASE 4 (repetition-awareness, CORE): append a proactive avoidance directive over her own
         # recent spoken lines, so a Director/interjection drive varies BEFORE it's produced (the
