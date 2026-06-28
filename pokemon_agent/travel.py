@@ -35,6 +35,10 @@ BACKUP_LAYOUT = 0x03005040         # {s32 width, s32 height, u16 *map}
 MAP_OFFSET = 7                     # save-coord + 7 = buffer index
 SB1_MAP_GROUP, SB1_MAP_NUM = 0x04, 0x05
 NUM_PRIMARY = 640                  # metatile ids < 640 use the primary tileset
+# B-3 POSITION-LOOP ESCAPE: if she's confined to <=POS_LOOP_DISTINCT tiles over the last
+# POS_LOOP_WINDOW steps without arriving, she's spinning (warp/spinner) -> bail. Env-tunable.
+POS_LOOP_WINDOW = int(os.getenv("POKEMON_POS_LOOP_WINDOW", "18"))
+POS_LOOP_DISTINCT = int(os.getenv("POKEMON_POS_LOOP_DISTINCT", "3"))
 # tall-grass / encounter behavior. 0x02 = MB_TALL_GRASS (the walkable grass that
 # spawns wild battles), read from the u32 metatileAttributes low byte. Planning
 # PREFERS grass-free tiles but falls back to crossing grass when there's no dry route
@@ -504,7 +508,24 @@ class Traveler:
         goal = ((lambda t: t == arrive_coord) if arrive_coord is not None else _edge_goal)
         _muse_t = [time.time()]   # last-voiced clock for the travel-muse dead-air filler
         _muse_i = [0]
+        # B-3 — POSITION-LOOP ESCAPE: a warp/spinner reads as normal floor to the collision grid and can
+        # cycle her between a few tiles forever (coords keep CHANGING, so the no-path/wall-clock guards
+        # are slow to catch it). Track a sliding window of recent tiles; if she's been confined to <=3
+        # distinct tiles over the whole window without arriving, she's looping -> bail LOUD fast (~5s)
+        # so free_roam re-routes. NOT a puzzle solver (deterministic warps are a separate scoped item) —
+        # this is the can't-loop-forever floor, the overworld sibling of the battle flee / dialogue cycle floors.
+        _pos_window = deque(maxlen=POS_LOOP_WINDOW)
         for step in range(max_steps):
+            _pc = coords(self.b)
+            if _pc is not None and not st.in_battle(self.b):
+                _pos_window.append(tuple(_pc))
+                if len(_pos_window) == _pos_window.maxlen and len(set(_pos_window)) <= POS_LOOP_DISTINCT:
+                    self.log(f"   [travel] !! POSITION-LOOP — confined to {len(set(_pos_window))} tile(s) "
+                             f"over {_pos_window.maxlen} steps at {_pc} map={map_id(self.b)} "
+                             f"(warp/spinner?) -> ABORT LOUD so free_roam re-routes")
+                    self.on_event("I keep getting moved in circles here — let me find another way around.")
+                    self.last_fail_reason = "position_loop"
+                    return "stuck"
             # TRAVEL MUSE: fill a long silent WALK (no encounter/arrival to react to) with a neutral
             # "taking it in" beat so she isn't dead-air for 30-50s. Never during a battle; gated by
             # the voice floor like any beat. Her self colors the neutral seed.

@@ -397,6 +397,10 @@ class Campaign:
         # multi-tick action (walking to a Center to heal) is never nagged.
         self._last_action_pick = None
         self._repeat_pick_n = 0
+        # B-2 — RESOLVED/LOOPING-NPC guard: (map_id, coords) spots where a dialogue loop was disengaged
+        # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
+        # the same looping NPC / re-trigger a beaten trainer's restarting lines.
+        self._looped_spots = set()
         # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
         # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
@@ -1246,11 +1250,20 @@ class Campaign:
                 out.append((i, c, self.b.rd8(o + 0x18) & 0x0F))
         return out
 
+    def _npc_is_resolved(self, body):
+        """B-2: has a dialogue loop already been disengaged in front of this NPC? (any tile she'd stand
+        on to talk is a recorded looped spot.) If so, don't re-initiate — she's resolved/looping it."""
+        mp = tuple(tv.map_id(self.b))
+        return any((mp, (body[0] + ax, body[1] + ay)) in self._looped_spots
+                   for ax, ay in ((0, 1), (0, -1), (-1, 0), (1, 0)))
+
     def _untalked_npc_here(self):
         """True iff there's at least one not-yet-talked-to townsperson on this map (cheap scan, no BFS) —
-        the _available_actions gate so 'talk_npc' is only offered when it could DO something."""
+        the _available_actions gate so 'talk_npc' is only offered when it could DO something. Skips NPCs
+        she's already resolved/looped on (B-2)."""
         talked = getattr(self, "_talked_npcs", {}).get(tv.map_id(self.b), set())
-        return any(idx not in talked for idx, _c, _f in self._talkable_npcs())
+        return any(idx not in talked and not self._npc_is_resolved(c)
+                   for idx, c, _f in self._talkable_npcs())
 
     def talk_npc(self):
         """BATCH 5 PHASE 4 — her earliest want ('talk to the locals'). Pick a reachable townsperson she
@@ -1262,7 +1275,7 @@ class Campaign:
             self._talked_npcs = {}
         talked = self._talked_npcs.setdefault(mp, set())
         for idx, body, _facing in self._talkable_npcs():
-            if idx in talked:
+            if idx in talked or self._npc_is_resolved(body):    # B-2: skip talked + looped/resolved NPCs
                 continue
             grid = tv.Grid(self.b)
             cur = tv.coords(self.b)
@@ -1290,10 +1303,21 @@ class Campaign:
 
     def _drain_overworld(self, label="dlg"):
         """Drive any overworld dialogue box (a trainer's post-battle line, an NPC, the badge award)
-        to a clean close at a watchable pace via the general primitive. No box -> returns at once."""
+        to a clean close at a watchable pace via the general primitive. No box -> returns at once.
+        Returns the drive result. B-2: on 'exhausted' (the cycle-watchdog bailed on a LOOPING NPC),
+        records this spot so she won't re-engage it (the full re-talking-beaten-NPC class, not just
+        the literal Slowbro instance)."""
         self.b.set_input_owner("agent")
-        return DialogueDriver(self.b, render=self.render,
-                              log=lambda m: log(m)).drive(label=label)
+        res = DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label=label)
+        if res == "exhausted":
+            try:
+                spot = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b)))
+                self._looped_spots.add(spot)
+                log(f"   [roam] !! LOOPING/RESOLVED NPC disengaged at {spot} — won't re-initiate talk "
+                    f"there (B-2 resolved-NPC guard)")
+            except Exception:
+                pass
+        return res
 
     def _clear_gym_trainers(self, leader_front, max_rounds=10):
         """Beat EVERY junior trainer (re-scanning each round, since far ones are proximity-loaded
