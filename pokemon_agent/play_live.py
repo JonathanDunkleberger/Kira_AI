@@ -272,6 +272,7 @@ def main():
             log(f"battle context: trainer={trainer} foe={foe or '?'} rare={rare} -> Tier 2 savor")
         out = BattleAgent(b, on_event=voice.emit, render=render,
                           pace=(None if args.no_pace else pace),
+                          choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
                           log=lambda m: None).run(max_seconds=180)
         voice.clear_context()
         # EVOLUTION (a species change on the lead) -> Tier 3 big beat

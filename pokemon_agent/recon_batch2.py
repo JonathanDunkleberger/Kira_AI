@@ -190,8 +190,77 @@ def part_c():
     return ok
 
 
+def part_b():
+    print("\n==== PART B: in-battle use-your-items instinct ====")
+    from battle_agent import BattleAgent, BATTLE_CRIT_FRAC
+    ok = True
+    b = _load("brock_done")
+
+    def mk(hp_frac, status, bag, oracle):
+        ba = BattleAgent(b, on_event=lambda *a, **k: None, render=lambda: None,
+                         log=lambda m: None, choose=oracle)
+        ba._items_count = lambda iid: bag.get(iid, 0)
+        ba._lead_status = lambda: status
+        used = {"item": None}
+        ba.use_item_in_battle = lambda iid, **k: (used.__setitem__("item", iid) or "used")
+        st_ = {"ours": {"hp": int(42 * hp_frac), "maxhp": 42}, "enemy": {"species": 16}}
+        return ba, st_, used
+
+    # B1 (live primitive) is proven by recon_itemuse.py (asserts use_item_in_battle -> 'used', HP rose,
+    # potion consumed on a LIVE wild battle). Here: the ORACLE OFFER logic + fail-safe (fast, deterministic).
+    print("   B1 live primitive: see recon_itemuse.py (use_item_in_battle -> 'used' on a live battle)")
+
+    # B2a: crit-low + a potion in the bag -> offers use_potion; she picks it -> the item is used
+    seen = {}
+    ba, s, used = mk(0.2, None, {13: 2}, lambda k, o, c: (seen.update(o) or "use_potion"))
+    r = ba._maybe_use_item(s)
+    b2a = (r is True and used["item"] == 13 and "use_potion" in seen and "keep_fighting" in seen)
+    print(f"   B2a [{'PASS' if b2a else 'FAIL'}] crit-low+potion -> offered+used (r={r}, item={used['item']})")
+    ok = ok and b2a
+
+    # B2b: healthy + no status -> NO offer at all (oracle never consulted), returns False
+    called = {"n": 0}
+    ba, s, used = mk(0.9, None, {13: 2}, lambda *a, **k: called.__setitem__("n", called["n"] + 1) or "use_potion")
+    r = ba._maybe_use_item(s)
+    b2b = (r is False and called["n"] == 0 and used["item"] is None)
+    print(f"   B2b [{'PASS' if b2b else 'FAIL'}] healthy -> no offer, no oracle call (r={r}, calls={called['n']})")
+    ok = ok and b2b
+
+    # B2c: crit-low but she picks keep_fighting -> returns False (falls through to a normal move)
+    ba, s, used = mk(0.2, None, {13: 2}, lambda *a, **k: "keep_fighting")
+    r = ba._maybe_use_item(s)
+    b2c = (r is False and used["item"] is None)
+    print(f"   B2c [{'PASS' if b2c else 'FAIL'}] crit-low + 'keep_fighting' -> no item used (r={r})")
+    ok = ok and b2c
+
+    # B2d: afflicted (paralysis) + cure in bag -> offers use_cure; picks it -> Parlyz Heal(18) used
+    seen = {}
+    ba, s, used = mk(0.9, "paralysis", {18: 1}, lambda k, o, c: (seen.update(o) or "use_cure"))
+    r = ba._maybe_use_item(s)
+    b2d = (r is True and used["item"] == 18 and "use_cure" in seen)
+    print(f"   B2d [{'PASS' if b2d else 'FAIL'}] paralysis+cure -> offered+used (r={r}, item={used['item']})")
+    ok = ok and b2d
+
+    # B2e: crit-low but NO heal item in the bag -> no potion offer (the instinct can't lie about the bag)
+    ba, s, used = mk(0.2, None, {}, lambda k, o, c: "use_potion" if "use_potion" in o else "keep_fighting")
+    r = ba._maybe_use_item(s)
+    b2e = (r is False and used["item"] is None)
+    print(f"   B2e [{'PASS' if b2e else 'FAIL'}] crit-low + empty bag -> no offer (r={r})")
+    ok = ok and b2e
+
+    # B2f: FAIL-SAFE — use_item flakes ('failed') -> _maybe_use_item returns False (keep fighting, no wedge)
+    ba, s, used = mk(0.2, None, {13: 1}, lambda *a, **k: "use_potion")
+    ba.use_item_in_battle = lambda iid, **k: "failed"
+    r = ba._maybe_use_item(s)
+    b2f = (r is False)
+    print(f"   B2f [{'PASS' if b2f else 'FAIL'}] use flakes ('failed') -> keep fighting, never wedge (r={r})")
+    ok = ok and b2f
+
+    return ok
+
+
 def main():
-    results = {"PART A": part_a(), "PART C": part_c()}
+    results = {"PART A": part_a(), "PART C": part_c(), "PART B": part_b()}
     print("\n" + "=" * 56)
     for k, v in results.items():
         print(f"   {k}: {'PASS' if v else 'FAIL'}")

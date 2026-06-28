@@ -20,6 +20,37 @@ import pokemon_policy as pol
 
 HOLD = 8
 
+# ── BATCH 2 PART B: in-battle "use your items" instinct ───────────────────────────────────────────
+# An active mon at/under this HP fraction WITH a heal item in the bag -> the oracle is OFFERED "use a
+# potion" (capability-not-script: she chooses, but she never faints with unused heals because the option
+# was never surfaced). Named/tunable.
+BATTLE_CRIT_FRAC = 0.30
+BAG_CURSOR = 0x0203AD04      # u8 in-battle bag LIST row cursor (recon_itemuse triangulation 2026-06-27,
+#                             adjacent to GBAG_POCKET 0x0203AD02; verified to step 0->1 down the list)
+_ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures live here), 42 slots
+# Gen-3 item ids for the in-battle instinct (CANDIDATES; the use is self-verified by the item count
+# dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
+_HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
+_STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
+_FULL_HEAL = 23
+# party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
+_P_STATUS = 0x50
+_ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
+
+
+def _decode_status(s):
+    if s & _ST_SLEEP:
+        return "sleep"
+    if s & (_ST_PSN | _ST_TOX):
+        return "poison"
+    if s & _ST_BRN:
+        return "burn"
+    if s & _ST_FRZ:
+        return "freeze"
+    if s & _ST_PAR:
+        return "paralysis"
+    return None
+
 
 def _hp_frac(mon):
     return (mon["hp"] / mon["maxhp"]) if mon and mon["maxhp"] else 1.0
@@ -27,7 +58,7 @@ def _hp_frac(mon):
 
 class BattleAgent:
     def __init__(self, bridge, on_event=None, render=None, hold_frames=HOLD,
-                 pace=None, owner="agent", log=print):
+                 pace=None, owner="agent", log=print, choose=None):
         self.b = bridge
         self.on_event = on_event or (lambda s, **k: print(f"   [EVENT] {s}"))
         self.render = render or (lambda: None)
@@ -35,6 +66,10 @@ class BattleAgent:
         self.pace = pace                 # optional: called at a beat to yield to her voice
         self.owner = owner
         self.log = log
+        # BATCH 2 PART B: optional SOUL ORACLE (choose(kind, options, ctx)->pick). When a mon is crit-low
+        # or afflicted AND a matching item is in the bag, the in-battle loop OFFERS "use a potion/cure" to
+        # her; she decides (capability-not-script). None -> the instinct is silent (pure policy battle).
+        self.choose = choose
         self.b.set_input_owner(owner)    # single deliberate owner; phantoms dropped+logged
         self._prev = None
         self._started = False
@@ -466,6 +501,167 @@ class BattleAgent:
             # 'broke_free' / 'stuck' -> the foe took its turn; loop and throw again (commit)
         return "stuck"
 
+    # ── BATCH 2 PART B: USE A HEAL / CURE IN BATTLE (live-reconned recon_itemuse.py 2026-06-27) ────────
+    # Flow proven on a live wild battle: settle to the ACTION menu (pixel-gated) -> FIGHT home -> RIGHT
+    # (=BAG) -> A opens the bag -> steer GBAG_POCKET to the Items pocket (0) -> DOWN to the item's row
+    # (the pocket list shows the bag array IN ORDER; nav by the BAG_CURSOR readback) -> A walks
+    # select->USE->target(default lead)->apply. GROUND-TRUTH success = the item COUNT drops (HP rise is
+    # incidental). FAIL-SAFE (Jonny's mandate): every step is bounded + readback-gated; on ANY failure we
+    # B-out to a clean menu and return 'failed' so the battle loop just KEEPS FIGHTING — never a wedge,
+    # never a wrong action (the apply A-loop only runs once we've CONFIRMED pocket==0 AND cursor==row).
+    def _items_pocket(self):
+        """[(item_id, qty), ...] in the Items pocket in display order (qty XOR'd with the low-16 key)."""
+        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+        out = []
+        for s in range(42):
+            slot = sb1 + _ITEMS_POCKET_OFF + s * 4
+            iid = self.b.rd16(slot)
+            if iid == 0:
+                break
+            out.append((iid, self.b.rd16(slot + 2) ^ key))
+        return out
+
+    def _items_count(self, item_id):
+        return next((q for i, q in self._items_pocket() if i == item_id), 0)
+
+    def _lead_status(self):
+        """Status NAME of party slot 0 (STATUS1 @ +0x50, the reliable party-only block) or None. In
+        singles the active mon is the lead unless a mid-battle switch happened (then the cure offer just
+        won't fire — fail-safe, never a wrong cure)."""
+        return _decode_status(self.b.rd32(ram.GPLAYER_PARTY + _P_STATUS))
+
+    def _settle_action_menu(self, tries=30):
+        """Reach the real ACTION menu using the PIXEL signals (menu_up RAM is stale on this core): action
+        menu = white panel AND NOT the move-list pixel. Back out of the move list with B; advance text."""
+        self._settle()
+        for _ in range(tries):
+            if self._white_box() and not self._in_move_list():
+                return True
+            if self._in_move_list():
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+            elif not self._white_box():
+                self._advance_text()
+            else:
+                return True
+        return self._white_box() and not self._in_move_list()
+
+    def _open_bag(self, tries=4):
+        """From the ACTION menu: FIGHT home -> RIGHT(=BAG) -> A. The bag is open iff the white action
+        panel is GONE (a blue description box). An eaten RIGHT lands A on FIGHT -> the MOVE LIST opens
+        (white panel STAYS) -> not opened -> B out + retry. So 'not white_box' after one A cleanly
+        distinguishes bag (opened) from move-list (eaten RIGHT) — no move is ever fired (that needs a
+        second A in the move list)."""
+        for _ in range(tries):
+            self._home_to_fight()
+            self._tap("RIGHT")
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(50)
+            if not self._white_box():
+                return True
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+            self._settle_action_menu()
+        return False
+
+    def _exit_bag(self):
+        """Best-effort B back to a clean menu/battle so a FAILED item-use never leaves a menu dangling
+        for the battle loop to A into (which could fire a stray move). Bounded."""
+        for _ in range(6):
+            if self._white_box() or not st.in_battle(self.b):
+                return
+            self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(10)
+
+    def use_item_in_battle(self, item_id, max_seconds=30):
+        """Use one `item_id` from the Items pocket on the active (lead) mon. Returns 'used' (count
+        dropped) | 'no_item' | 'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable."""
+        ids = [i for i, _ in self._items_pocket()]
+        if item_id not in ids:
+            return "no_item"
+        row = ids.index(item_id)
+        cnt0 = self._items_count(item_id)
+        if not self._settle_action_menu():
+            self.log("   [engine] use_item: couldn't reach the action menu — keep fighting (LOUD)")
+            return "failed"
+        if not self._open_bag():
+            self.log("   [engine] use_item: bag wouldn't open (eaten RIGHT?) — keep fighting (LOUD)")
+            self._exit_bag(); return "failed"
+        for _ in range(8):                                   # steer GBAG_POCKET to the Items pocket (0)
+            if self.b.rd8(ram.GBAG_POCKET) == 0:
+                break
+            self._tap("LEFT"); self._wait(12)
+        if self.b.rd8(ram.GBAG_POCKET) != 0:
+            self.log("   [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)")
+            self._exit_bag(); return "failed"
+        for _ in range(12):                                  # nav to the item's row via cursor readback
+            if self.b.rd8(BAG_CURSOR) == row:
+                break
+            self._tap("DOWN" if self.b.rd8(BAG_CURSOR) < row else "UP"); self._wait(10)
+        if self.b.rd8(BAG_CURSOR) != row:
+            self.log(f"   [engine] use_item: couldn't reach row {row} (cursor stuck) — keep fighting (LOUD)")
+            self._exit_bag(); return "failed"
+        # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target(lead)->apply.
+        # Break THE INSTANT the count drops (the use registered): a further A could re-open the bag.
+        for _ in range(8):
+            if self._items_count(item_id) < cnt0:
+                break
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
+            if not st.in_battle(self.b):
+                break
+        if self._items_count(item_id) < cnt0:
+            self.emit("used an item — that's better", beat=True)
+            for _ in range(6):                               # drain the "X recovered!" text back to battle
+                if self._white_box() or not st.in_battle(self.b):
+                    break
+                self._advance_text()
+            return "used"
+        self.log("   [engine] use_item: selected but nothing was consumed — keep fighting (LOUD)")
+        self._exit_bag(); return "failed"
+
+    def _maybe_use_item(self, state):
+        """OFFER the in-battle item instinct to the oracle when it's a REAL option: the active mon is
+        crit-low AND a heal item is in the bag, or it's afflicted AND a matching cure is in the bag. She
+        DECIDES (capability-not-script). Returns True iff an item was actually used (the turn is spent),
+        so run() skips move selection this turn. Any non-'used' outcome -> fall through to a normal move
+        (fail-safe — she never wedges, and never faints with unused heals because the option was surfaced)."""
+        if not self.choose:
+            return False
+        ours = state["ours"]
+        frac = _hp_frac(ours)
+        offers, plan = {}, {}
+        if frac <= BATTLE_CRIT_FRAC:
+            heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
+            if heal is not None:
+                plan["use_potion"] = heal
+                offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
+                                        f"about to faint, and you HAVE one in the bag")
+        status = self._lead_status()
+        if status:
+            cure = self._STATUS_CURE_for(status)
+            if cure is not None:
+                plan["use_cure"] = cure
+                offers["use_cure"] = f"use the cure for {status} — it's hurting you and you have the item"
+        if not offers:
+            return False
+        offers["keep_fighting"] = "keep attacking — push through it"
+        ctx = {"hp": f"{ours['hp']}/{ours['maxhp']}", "status": status or "none",
+               "foe": st.SPECIES_NAME.get(state["enemy"]["species"], "the foe")}
+        self.log(f"   [engine] ITEM-INSTINCT offer: {list(offers)} ctx={ctx}")
+        pick = self.choose("battle_item", offers, ctx)
+        if pick and pick in plan:
+            self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {plan[pick]})")
+            return self.use_item_in_battle(plan[pick]) == "used"
+        self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
+        return False
+
+    def _STATUS_CURE_for(self, status):
+        """The cure item id for a status that's actually in the bag (specific cure, else Full Heal)."""
+        spec = _STATUS_CURE_ITEM.get(status)
+        if spec is not None and self._items_count(spec) > 0:
+            return spec
+        if self._items_count(_FULL_HEAL) > 0:
+            return _FULL_HEAL
+        return None
+
     # ── SCREEN-based menu detection (the RAM has NO clean menu-state flag - every candidate
     # is a frame counter or a one-state false positive; diagnosed 2026-06-23). The UI is
     # battle-independent: the action menu + move list draw a WHITE panel bottom-right; a
@@ -731,6 +927,13 @@ class BattleAgent:
                 last_glob, stall = glob, 0
             if self._white_box():                     # the action menu is up (white panel) ->
                 state = st.read_battle(self.b)         # pick + commit a move, verify it lands
+                # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
+                # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
+                # Any non-use falls through to the proven move path (fail-safe; never wedges).
+                if state and not (self._enemy_fainted or self._we_fainted) and self._maybe_use_item(state):
+                    self._acted_once = True
+                    stall = 0
+                    continue
                 res = self._select_and_verify(state) if state else "stuck"
                 if res == "done":
                     self._acted_once = True
