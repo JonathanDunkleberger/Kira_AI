@@ -458,6 +458,22 @@ async def _card_overlay_handler():
     # resolve correctly against /web_dashboard/ in the browser.
     return RedirectResponse(url="/web_dashboard/card_overlay.html")
 
+# BATCH 6 PHASE 8 — STREAM HUD (viewer-facing, minimal): badge row + party-as-family. Re-skins the
+# health.json the campaign already publishes (no token/runtime counters, no reasoning transcript).
+@app.get("/pokemon_hud")
+async def _pokemon_hud_handler():
+    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_hud.html"))
+
+@app.get("/pokemon_hud.json")
+async def _pokemon_hud_json():
+    # Public read for the OBS browser source: ONLY the game-side fields the HUD shows (badges + party).
+    # Deliberately excludes spend/uptime/reasoning — those live in Jonny's cockpit, never on stream.
+    from kira import pokemon_proc
+    g = (pokemon_proc.health() or {}).get("game") or {}
+    return {"running": pokemon_proc.is_running(),
+            "badges": g.get("badges") or [], "badge_count": g.get("badge_count") or 0,
+            "party": g.get("party_hud") or [], "place": g.get("place")}
+
 for _name in ("web_dashboard", "cookie_jar_overlay"):
     _dir = _REPO_ROOT / _name
     if _dir.is_dir():

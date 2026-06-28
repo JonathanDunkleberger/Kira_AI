@@ -1009,8 +1009,11 @@ class Campaign:
         party = []
         for s in range(min(cnt, 6)):
             sp = st.read_party_species(b, s)
-            lvl = b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + self._PARTY_LEVEL_OFF)
-            party.append({"species": st.SPECIES_NAME.get(sp, f"species#{sp}"), "level": lvl})
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            lvl = b.rd8(base + self._PARTY_LEVEL_OFF)
+            hp, mx = b.rd16(base + P_HP), b.rd16(base + P_MAXHP)   # PHASE 8 HUD: party-as-family HP bars
+            party.append({"species": st.SPECIES_NAME.get(sp, f"species#{sp}"), "level": lvl,
+                          "hp": hp, "maxhp": mx, "species_id": sp})
         try:                                      # current-map grass: does catch work HERE (vs needing to travel)?
             on_grass_map = bool(tv.Grid(b).grass)
         except Exception:
@@ -3017,6 +3020,10 @@ class Campaign:
                 "place": state.get("place"), "coords": state.get("coords"),
                 "badge_count": state.get("badge_count"), "badges": state.get("badges"),
                 "party": [f"{m['species']} L{m['level']}" for m in state.get("party", [])],
+                # PHASE 8 HUD — party-as-family with HP for the viewer overlay (sprites approximated by name)
+                "party_hud": [{"species": m["species"], "level": m["level"],
+                               "hp": m.get("hp"), "maxhp": m.get("maxhp"),
+                               "species_id": m.get("species_id")} for m in state.get("party", [])],
                 "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
                 "next_gym": state.get("next_gym"),
                 "last_badge_ts": last_badge_ts,

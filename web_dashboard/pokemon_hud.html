@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!-- BATCH 6 PHASE 8 — Kira's Pokémon STREAM HUD (OBS browser source).
+     Minimal + curious-branded: a badge row (lit/dim) so newcomers see "where is she" at a glance, and
+     her party-as-family with HP bars. NO token/runtime counters, NO reasoning transcript — that lives in
+     Jonny's cockpit, never on stream. Re-skins /pokemon_hud.json (the health snapshot the campaign already
+     publishes). Transparent background; drop it in OBS at 1920x1080 and it pins bottom-left. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kira · Pokémon HUD</title>
+<style>
+  :root{
+    --ink:#f4f3ff; --dim:#6b6880; --card:rgba(18,16,28,.72); --edge:rgba(150,130,255,.22);
+    --accent:#b69bff; --hp-hi:#56d98a; --hp-mid:#e6c24a; --hp-lo:#e0564a; --glow:rgba(150,120,255,.5);
+  }
+  html,body{margin:0;background:transparent;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  #hud{position:fixed;left:26px;bottom:26px;width:330px;opacity:0;transition:opacity .6s ease;}
+  #hud.on{opacity:1;}
+  .brand{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow);}
+  .brand .name{font-weight:700;letter-spacing:.10em;font-size:13px;color:var(--ink);text-transform:uppercase;}
+  .brand .where{margin-left:auto;font-size:11px;color:var(--dim);max-width:150px;text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .badges{display:flex;gap:7px;padding:10px 12px;background:var(--card);border:1px solid var(--edge);
+    border-radius:13px;backdrop-filter:blur(7px);margin-bottom:9px;}
+  .badge{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .badge .gem{width:20px;height:20px;border-radius:6px;transform:rotate(45deg);
+    background:#2a2740;border:1px solid #3a3658;transition:all .5s ease;}
+  .badge.lit .gem{border-color:transparent;box-shadow:0 0 9px var(--glow);}
+  .badge .lbl{font-size:8.5px;color:var(--dim);letter-spacing:.02em;}
+  .badge.lit .lbl{color:var(--ink);}
+
+  .party{display:flex;flex-direction:column;gap:6px;padding:11px 12px;background:var(--card);
+    border:1px solid var(--edge);border-radius:13px;backdrop-filter:blur(7px);}
+  .party .ttl{font-size:10px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-bottom:2px;}
+  .mon{display:flex;align-items:center;gap:9px;}
+  .mon .chip{width:26px;height:26px;border-radius:8px;flex:none;display:flex;align-items:center;
+    justify-content:center;font-size:12px;font-weight:700;color:#0d0b16;}
+  .mon .info{flex:1;min-width:0;}
+  .mon .top{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink);}
+  .mon .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mon .lv{color:var(--dim);font-size:10px;}
+  .mon .bar{height:5px;border-radius:3px;background:#26233a;margin-top:3px;overflow:hidden;}
+  .mon .fill{height:100%;border-radius:3px;transition:width .5s ease,background .5s ease;}
+  .mon.fainted{opacity:.45;}
+  .empty{color:var(--dim);font-size:11px;padding:2px 0;}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="brand"><span class="dot"></span><span class="name">Kira · the climb</span><span class="where" id="where"></span></div>
+  <div class="badges" id="badges"></div>
+  <div class="party"><div class="ttl">the team</div><div id="party"></div></div>
+</div>
+<script>
+const BADGES = ["Boulder","Cascade","Thunder","Rainbow","Soul","Marsh","Volcano","Earth"];
+// badge gem colours, in Kanto order — lit badges glow these.
+const GEM = ["#8a8a8a","#5bb6e6","#e6c24a","#e69a4a","#e06ab0","#6ac0e0","#e0564a","#8a6ae0"];
+// a soft per-type-ish chip colour seeded from the species name (sprite art is an asset-pack polish).
+function chipColor(name){ let h=0; for(const c of (name||'?')) h=(h*31+c.charCodeAt(0))%360; return `hsl(${h} 55% 62%)`; }
+function hpColor(f){ return f>0.5?'var(--hp-hi)':f>0.2?'var(--hp-mid)':'var(--hp-lo)'; }
+function el(id){ return document.getElementById(id); }
+
+function render(d){
+  el('hud').classList.toggle('on', !!d.running);
+  el('where').textContent = d.place || '';
+  // badge row — lit by count (order is canonical) so it's right even if names drift.
+  const n = d.badge_count||0;
+  el('badges').innerHTML = BADGES.map((b,i)=>{
+    const lit = i < n;
+    const gem = lit ? `background:${GEM[i]}` : '';
+    return `<div class="badge ${lit?'lit':''}"><div class="gem" style="${gem}"></div><div class="lbl">${b}</div></div>`;
+  }).join('');
+  // party-as-family
+  const party = d.party||[];
+  el('party').innerHTML = party.length ? party.map(m=>{
+    const hp = m.hp!=null?m.hp:0, mx = m.maxhp||1, f = Math.max(0, Math.min(1, hp/mx));
+    const fainted = hp<=0;
+    const nm = (m.species||'?');
+    return `<div class="mon ${fainted?'fainted':''}">
+      <div class="chip" style="background:${chipColor(nm)}">${nm[0]||'?'}</div>
+      <div class="info">
+        <div class="top"><span class="nm">${nm}</span><span class="lv">Lv${m.level||'?'} · ${hp}/${mx}</span></div>
+        <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>
+      </div></div>`;
+  }).join('') : `<div class="empty">just getting started…</div>`;
+}
+
+async function poll(){
+  try{ const r = await fetch('/pokemon_hud.json',{cache:'no-store'}); if(r.ok) render(await r.json()); }
+  catch(e){ /* overlay stays as-is on a blip */ }
+}
+poll(); setInterval(poll, 2000);
+</script>
+</body>
+</html>
