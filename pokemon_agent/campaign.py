@@ -62,6 +62,12 @@ STATES_ARCHIVE = os.path.join(STATES, "archive")
 STATES_CAMPAIGN = os.path.join(STATES, "campaign")
 CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestate filename
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
+# BATCH 6 PHASE 6 + ADDENDUM A — LAST-RESORT wedge escape-hatch (the 30-hr-run insurance). Fires only
+# AFTER the forced-heal hard-recovery has already been tried and RED persists (a GENUINE fingerprint-
+# frozen wedge, not idle) — between PROGRESS_HARD_TICKS and PROGRESS_ABANDON_TICKS. Bounded so a self-
+# re-wedging position still reaches ABANDON instead of reload-looping forever.
+PROGRESS_ESCAPE_TICKS = int(os.getenv("POKEMON_ESCAPE_TICKS", "5"))   # RED this many ticks -> try a reload
+MAX_ESCAPE_RELOADS    = int(os.getenv("POKEMON_MAX_ESCAPE_RELOADS", "2"))  # per wedge-episode, then abandon
 # Move "junk floor" (Batch 6 no-gut guarantee): a move whose value (power + coverage/utility bonuses) is
 # below this is safe to drop to free a slot; if EVERY droppable move is at/above it, KEEP them all rather
 # than gut a good set (a gutted moveset fails invisibly at the E4). Tunable.
@@ -365,6 +371,11 @@ class Campaign:
         # maps where reachable huntable grass was confirmed underfoot at least once.
         self._conn_graph = {}
         self._grass_maps = set()
+        # ADDENDUM A — escape-hatch memory: the last KNOWN-GOOD live savestate (captured on a progressing
+        # tick, so it's from BEFORE any wedge and already includes prior gains) + the gain-fingerprint at
+        # that moment (badges, party size, dex caught) so a reload can NEVER rewind past a real gain.
+        self._last_good_state = None
+        self._last_good_gain = None
         # Deterrence (Phase 2c): consecutive ticks the routing hard-refused to cross the active wall.
         # Escalates the "this ends the same way" framing so the blind re-walk stops being her default.
         self._wall_gated_streak = 0
@@ -2621,6 +2632,7 @@ class Campaign:
         ledger = wf.ProgressLedger()               # MACRO watchdog: cross-tick "am I getting anywhere?"
         red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
         hard_recovered = False                     # forced one position-break this RED streak already?
+        escape_reloads = 0                         # ADDENDUM A: escape-hatch reloads this wedge-episode
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
@@ -2677,6 +2689,15 @@ class Campaign:
             fp = wf.fingerprint(self.b)
             macro = ledger.observe(fp)
             self._roam_progress = macro            # surfaced for the dashboard light to read later
+            # ADDENDUM A — capture a KNOWN-GOOD snapshot on every PROGRESSING tick: this is the state the
+            # escape-hatch rewinds to, so by construction it's from BEFORE any wedge and already carries
+            # the latest gains. Cheap (one savestate held in memory); overwritten as she progresses.
+            if macro == ledger.GREEN:
+                try:
+                    self._last_good_state = self.b.save_state()
+                    self._last_good_gain = self._gain_sig()
+                except Exception as _e:
+                    log(f"   [roam] last-good snapshot skipped: {_e}")
             log(f"-- ROAM TICK {tick}/{max_ticks} --")
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
@@ -2688,6 +2709,19 @@ class Campaign:
             red_ticks = red_ticks + 1 if macro == ledger.RED else 0
             if macro != ledger.RED:
                 hard_recovered = False
+                escape_reloads = 0                 # new episode — reset the escape budget
+            # ADDENDUM A — LAST-RESORT ESCAPE-HATCH: after the forced-heal hard-recovery has been tried and
+            # RED *still* persists (a genuine fingerprint-frozen wedge, not idle), bank-current then reload
+            # the last known-good state and continue — BEFORE giving up. Bounded (MAX_ESCAPE_RELOADS) so a
+            # self-re-wedging spot still reaches ABANDON. Anti-misfire safety lives in _escape_hatch_reload.
+            if (red_ticks >= PROGRESS_ESCAPE_TICKS and hard_recovered
+                    and escape_reloads < MAX_ESCAPE_RELOADS):
+                log(f"   [roam] !! ESCAPE-HATCH considering reload: RED {red_ticks} ticks, hard-recovery "
+                    f"already tried, reload {escape_reloads + 1}/{MAX_ESCAPE_RELOADS}")
+                if self._escape_hatch_reload():
+                    escape_reloads += 1
+                    red_ticks = 0                  # the reload broke the position — give it a fresh streak
+                    continue
             if red_ticks >= wf.PROGRESS_ABANDON_TICKS:
                 log(f"   [roam] !!!! ROAM ABANDONED: RED for {red_ticks} ticks despite hard recovery — "
                     f"the position is genuinely unrecoverable, this NEEDS A HUMAN (red light's real meaning)")
@@ -2944,6 +2978,67 @@ class Campaign:
             return True
         except Exception as e:
             log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
+            return False
+
+    def _gain_sig(self):
+        """ADDENDUM A — the IRREVERSIBLE-progress fingerprint: (badges, party size, dex caught). Used to
+        guarantee the escape-hatch never reloads PAST a real gain (a badge, a new teammate, a fresh catch
+        like a shiny). Pure reads."""
+        badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+        party = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        dex = ram.pokedex_owned_count(self.b) or 0
+        return (badges, party, dex)
+
+    def _escape_hatch_reload(self):
+        """ADDENDUM A — LAST-RESORT wedge escape for a long run. Caller has already confirmed a GENUINE
+        fingerprint-frozen wedge (sustained RED despite the forced-heal recovery — NOT idle). Steps, in
+        the exact order Jonny's anti-misfire worry demands:
+          1. BANK current live state to a timestamped pre-reload backup FIRST (never blind-overwrite — an
+             unbanked shiny must survive even a misfire).
+          2. GAIN GUARD: if the live gain-fingerprint shows MORE than the last-good snapshot (a badge /
+             teammate / catch since), do NOT reload (it would rewind past a real gain) — re-anchor current
+             as the new good state and decline (let ABANDON handle it loudly).
+          3. Otherwise reload the last KNOWN-GOOD state, LOUD, and continue.
+        Returns True if it reloaded (caller breaks the RED streak), False if it declined."""
+        if not self._last_good_state:
+            log("   [roam] !! ESCAPE-HATCH: no known-good snapshot captured yet — cannot reload safely (declining)")
+            return False
+        # 1) bank current FIRST — never lose what's live (the unbanked-shiny nightmare)
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        backup = os.path.join(STATES_CAMPAIGN, f"pre_reload_{ts}.state")
+        try:
+            os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+            tmp = backup + ".tmp"
+            with open(tmp, "wb") as f:
+                f.write(self.b.save_state()); f.flush(); os.fsync(f.fileno())
+            os.replace(tmp, backup)
+            log(f"   [roam] !! ESCAPE-HATCH: banked CURRENT state -> {backup} (nothing live is lost, even on a misfire)")
+        except Exception as e:
+            log(f"   [roam] !! ESCAPE-HATCH: could not bank current state ({e}) — ABORTING reload (safety: "
+                f"never reload if we couldn't back up first)")
+            return False
+        # 2) GAIN GUARD — never rewind past a real gain (badge / teammate / fresh catch)
+        cur_gain, good_gain = self._gain_sig(), (self._last_good_gain or (0, 0, 0))
+        if any(c > g for c, g in zip(cur_gain, good_gain)):
+            log(f"   [roam] !! ESCAPE-HATCH: current gain {cur_gain} EXCEEDS last-good {good_gain} — a real "
+                f"gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current "
+                f"as the new known-good and declining (ABANDON will surface for a human instead).")
+            self._last_good_state = self.b.save_state()
+            self._last_good_gain = cur_gain
+            self._save_campaign("escape_reanchor")
+            return False
+        # 3) reload the last known-good state — the actual escape
+        try:
+            self.b.load_state(self._last_good_state)
+            log(f"   [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state "
+                f"(gain {good_gain}); current backed up to pre_reload_{ts}.state. Continuing the climb. (LOUD)")
+            self.on_event("something got me properly stuck back there — I'm backing up to where I knew what "
+                          "I was doing and picking it up from there.", kind="recover", tier=2)
+            self._wait_overworld()
+            self._save_campaign("post_escape_reload")
+            return True
+        except Exception as e:
+            log(f"   [roam] !! ESCAPE-HATCH: reload FAILED ({e}) — staying on current state (already backed up)")
             return False
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
