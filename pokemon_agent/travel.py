@@ -148,6 +148,41 @@ def coords(b):
     return co
 
 
+# ── WARP TABLE (live map-header events) — the keystone of warp-routing ────────────────────────
+# Reads the CURRENT map's warp events from gMapHeader.events.warps (ROM-pointed). VERIFIED 2026-06-28
+# against the disasm: Route 4 live = (19,5)->MtMoon / (12,5)->PokéCenter / (32,5)->MtMoon, matching the
+# disasm-sourced campaign constants exactly; coords are SAVE coords (no border offset); Route 3 has a
+# null events ptr (0 warps). dest = (mapGroup, mapNum). This is what lets the world-model route THROUGH
+# warps/dungeons, not just map edges (the Cerulean->Underground Path->Vermilion class).
+_WARP_STRIDE = 8       # WarpEvent: x s16@0, y s16@2, elevation u8@4, warpId u8@5, mapNum u8@6, mapGroup u8@7
+
+
+def _valid_ptr(p):
+    return (0x02000000 <= p < 0x02400000) or (0x08000000 <= p < 0x0A000000)
+
+
+def read_warps(b):
+    """[(x, y), dest_map=(grp,num), warp_id] for every warp on the current map. [] if none / unreadable.
+    Pure read (safe in a loop). (x,y) are SAVE coords — directly comparable to coords()/door tiles."""
+    try:
+        ev = b.rd32(GMAPHEADER + 0x04)            # MapHeader.events (ROM)
+        if not _valid_ptr(ev):
+            return []
+        n = b.rd8(ev + 0x01)                      # warpCount
+        arr = b.rd32(ev + 0x08)                   # WarpEvent* (ROM)
+        if not _valid_ptr(arr) or not (0 < n <= 64):
+            return []
+        out = []
+        for i in range(n):
+            w = arr + i * _WARP_STRIDE
+            out.append(((b.rds16(w), b.rds16(w + 2)),
+                        (b.rd8(w + 7), b.rd8(w + 6)),       # dest (group, num)
+                        b.rd8(w + 5)))                      # warp id
+        return out
+    except Exception:
+        return []
+
+
 # ── collision grid (cached per map load) ─────────────────────────────────────
 class Grid:
     """Snapshot of the current map's collision, indexed in SAVE coordinates.

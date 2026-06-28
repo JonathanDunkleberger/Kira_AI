@@ -2706,7 +2706,12 @@ class Campaign:
                            "has_mart": cur in CITY_MART_DOORS,
                            "has_pokecenter": cur in CITY_PC_DOORS,
                            "is_town": cur in CITY_MART_DOORS or cur in CITY_PC_DOORS}
-            self.world.note_visit(cur, name=self._PLACE_NAMES.get(cur), live_traits=live_traits, edges=conns)
+            warps = tv.read_warps(self.b)      # WARP-ROUTING: learn this map's warp tiles + destinations live
+            self.world.note_visit(cur, name=self._PLACE_NAMES.get(cur), live_traits=live_traits,
+                                  edges=conns, warps=warps)
+            if warps:
+                log(f"   [world] learned {len(warps)} warp(s) on {cur}: "
+                    + ", ".join(f"{xy}->{dst}" for xy, dst, _w in warps[:6]))
         except Exception as _w:
             log(f"   [world] note_visit skipped: {_w}")
         return cur
@@ -3176,6 +3181,20 @@ class Campaign:
         log("   [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)")
         return False
 
+    def _next_gym_city_map(self, ng):
+        """Map id (g,n) of the next gym's CITY (from the fixed spine), or None. Lets head_to_gym route
+        toward a CONCRETE destination through the warp-aware graph, not just a blind south edge."""
+        if not ng:
+            return None
+        try:
+            from pokemon_world import GYM_SPINE
+            for city, mid in GYM_SPINE:
+                if city == ng.get("city"):
+                    return tuple(mid)
+        except Exception:
+            pass
+        return None
+
     def _route_action(self, pick, state):
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
@@ -3253,6 +3272,37 @@ class Campaign:
                     self.on_event(f"no — no, we lost it. {ng['leader']} got me. okay… that one hurts. "
                                   f"I need to come back stronger.", kind="gym", tier=2)
                 return out
+            # WARP-AWARE forward routing toward the next gym CITY: route THROUGH warps/dungeons (the
+            # Underground-Path class), not just map edges. Uses the world-model graph (live-learned warps
+            # + the seeded spine). Returns None when the graph doesn't yet reach the gym -> fall through to
+            # live south-edge DISCOVERY below (she explores forward, learning each map's warps, which fills
+            # the graph). One hop per tick — she can still divert (true free roam, discovery preserved).
+            cur_map = tuple(state["map"])
+            target_city = self._next_gym_city_map(ng)
+            if target_city and target_city != cur_map:
+                try:
+                    step = self.world.next_step(cur_map, target_city, avoid=self._wall_avoid(state))
+                except Exception as _ws:
+                    step = None
+                    log(f"   [roam] warp-route step skipped: {_ws}")
+                if step:
+                    nxt_map, kind, detail = step
+                    if self.strat.is_gated(nxt_map, pcount, plevel):
+                        self.on_event(self.strat.wall_gate_note("reach the next gym"), kind="wall", tier=2)
+                        log(f"   [roam] !! WALL-GATED: warp-route next hop {nxt_map} is the wall map")
+                        return "wall_gated"
+                    if kind == "warp":
+                        log(f"   [roam] WARP-ROUTE toward {ng['city']}: {cur_map} -> {nxt_map} via warp tile {detail}")
+                        self.on_event("there's a passage here heading the right way — taking it.",
+                                      kind="route", tier=1)
+                        before = tv.map_id(self.b)
+                        self.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
+                        if tv.map_id(self.b) != before:
+                            return "warped"                       # step-on warp fired on arrival
+                        self.enter_warp(pick=detail)              # door warp: stand beside + step in
+                        return "warped" if tv.map_id(self.b) != before else "warp_failed"
+                    log(f"   [roam] EDGE-ROUTE toward {ng['city']}: {cur_map} -> {nxt_map} (edge {detail})")
+                    return self.trav.travel(target_map=nxt_map, edge=detail)
             # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
             # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)

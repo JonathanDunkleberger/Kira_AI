@@ -114,8 +114,12 @@ class WorldModel:
         node = self.nodes.get(key)
         if node is None:
             base = {t: False for t in _ALL_TRAITS}
-            node = {"name": name, "traits": base, "edges": {}, "visited": False}
+            # `warps` = {"x,y": "g,n"} — the map-header warp tiles on THIS map and where they go. This is
+            # what makes the graph traversable THROUGH warps/dungeons (the Underground-Path class), not
+            # just map edges. Learned LIVE (travel.read_warps) and seeded for the spine; live confirms.
+            node = {"name": name, "traits": base, "edges": {}, "warps": {}, "visited": False}
             self.nodes[key] = node
+        node.setdefault("warps", {})       # back-compat for graphs persisted before warps existed
         if name and not node.get("name"):
             node["name"] = name
         if traits:
@@ -126,11 +130,12 @@ class WorldModel:
             node["visited"] = True
         return node
 
-    def note_visit(self, map_id, name=None, live_traits=None, edges=None):
+    def note_visit(self, map_id, name=None, live_traits=None, edges=None, warps=None):
         """Record (or enrich) the map she's standing on RIGHT NOW: mark visited, fold in the
-        live map-header connections, and let live signals correct traits. `edges` is
-        {direction: (grp,num)} from the real header; `live_traits` is what the live read knows
-        (e.g. grass confirmed underfoot, interior => is_cave). Called every free-roam tick."""
+        live map-header connections + WARPS, and let live signals correct traits. `edges` is
+        {direction: (grp,num)}; `warps` is [((x,y), (grp,num), warp_id), ...] from travel.read_warps;
+        `live_traits` is what the live read knows. Called every free-roam tick — so warps are LEARNED
+        the instant she stands on a map (and a seeded warp is CONFIRMED/corrected by the live read)."""
         node = self._ensure(map_id, name=name, visited=True)
         # interior maps (group != 3 = building/cave); only label a CAVE if a route-like interior
         if map_id[0] != 3 and not node["traits"]["is_town"]:
@@ -144,7 +149,21 @@ class WorldModel:
                 if d and m:
                     node["edges"][d] = _k(m)
                     self._ensure(m)                # the neighbour exists in the graph (maybe not visited)
+        if warps:
+            for xy, dest, _wid in warps:
+                if xy and dest:
+                    node["warps"][f"{int(xy[0])},{int(xy[1])}"] = _k(dest)   # live = truth, overwrites seed
+                    self._ensure(dest)
         return node
+
+    def seed_warps(self, map_id, warp_map):
+        """Seed KNOWN warp tiles for a (possibly unvisited) map as a PRIOR — {(x,y): (grp,num)}. Used to
+        give her the forward spine's warp path (Underground-Path class) before she's walked it; the live
+        read on arrival overwrites these with truth (source-first). Does NOT mark the map visited."""
+        node = self._ensure(map_id)
+        for xy, dest in (warp_map or {}).items():
+            node["warps"][f"{int(xy[0])},{int(xy[1])}"] = _k(dest)
+            self._ensure(dest)
 
     def seed_known(self, badge_count):
         """Mark the maps her badge progress PROVES she's traversed as visited (honest by-proof
@@ -206,7 +225,10 @@ class WorldModel:
         q = deque([(sk, [sk])])
         while q:
             cur, path = q.popleft()
-            for d, nbr in self.nodes.get(cur, {}).get("edges", {}).items():
+            cn = self.nodes.get(cur, {})
+            # adjacency = map EDGES (walk across a border) UNION WARPS (step through a door/cave mouth)
+            # -> she can route THROUGH the Underground Path etc., not just along map edges.
+            for nbr in list(cn.get("edges", {}).values()) + list(cn.get("warps", {}).values()):
                 if nbr in seen or nbr in avoid:
                     continue
                 if nbr == dk:
@@ -216,8 +238,8 @@ class WorldModel:
         return None
 
     def next_hop(self, src, dst, avoid=None):
-        """The FIRST step toward dst: (next_map_id, direction) or None. The loop travels one
-        adjacent map per tick (re-evaluating each tick — true free roam), like head_to_gym."""
+        """The FIRST step toward dst: (next_map_id, direction) or None — EDGE hops only (legacy
+        callers that only walk map borders). Warp-aware callers use next_step()."""
         path = self.route(src, dst, avoid)
         if not path or len(path) < 2:
             return None
@@ -225,6 +247,25 @@ class WorldModel:
         for d, nbr in self.nodes.get(_k(src), {}).get("edges", {}).items():
             if nbr == _k(nxt):
                 return (nxt, d)
+        return None
+
+    def next_step(self, src, dst, avoid=None):
+        """The FIRST hop toward dst, WARP-AWARE: (next_map_id, kind, detail) where kind='edge' ->
+        detail=direction ('north'..), or kind='warp' -> detail=(x,y) warp tile to step onto. None if
+        no route. Re-evaluated each tick (one hop at a time — true free roam, she can still divert)."""
+        path = self.route(src, dst, avoid)
+        if not path or len(path) < 2:
+            return None
+        nxt = path[1]
+        nk = _k(nxt)
+        node = self.nodes.get(_k(src), {})
+        for d, nbr in node.get("edges", {}).items():
+            if nbr == nk:
+                return (nxt, "edge", d)
+        for xy, nbr in node.get("warps", {}).items():
+            if nbr == nk:
+                g = xy.split(",")
+                return (nxt, "warp", (int(g[0]), int(g[1])))
         return None
 
     def reachable_with_trait(self, src, trait, avoid=None):
@@ -337,6 +378,7 @@ class WorldModel:
             self.nodes[key] = {"name": node.get("name"),
                                "traits": {**self.nodes.get(key, {}).get("traits", traits), **traits},
                                "edges": dict(node.get("edges") or {}),
+                               "warps": dict(node.get("warps") or {}),
                                "visited": bool(node.get("visited"))}
         caps = d.get("caps") or {}
         for c, v in caps.items():
