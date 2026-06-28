@@ -468,6 +468,26 @@ class Campaign:
             self.strat.observe_battle_end(self.b, out)
         except Exception as _e:
             log(f"   [strat] end-observe skipped: {_e}")
+        # PHASE 6 — STRUGGLE: the middle of the dread→struggle→catharsis arc. If the fight left her down
+        # to her LAST conscious Pokémon (others fainted), name it — "down to my last one, this is bad" —
+        # so a later win is EARNED relief, not a flat "we won". Read-only; throttled to fire ONCE per
+        # down-to-last episode (re-arms when she recovers a healthy bench), so it lands instead of nagging.
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            conscious = 0
+            for s in range(min(cnt, 6)):
+                base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+                if self.b.rd16(base + P_HP) > 0:
+                    conscious += 1
+            if conscious == 1 and cnt >= 2 and out not in ("battle_loss", "loss", "blackout"):
+                if not getattr(self, "_struggle_flagged", False):
+                    self._struggle_flagged = True
+                    self.on_event("okay this is bad — I'm down to my last one. everyone else is out. "
+                                  "if this one drops, we're done. come on…", kind="struggle", tier=2)
+            elif conscious >= 2:
+                self._struggle_flagged = False             # bench recovered — re-arm for the next scare
+        except Exception as _e:
+            log(f"   [struggle] check skipped: {_e}")
         return out
 
     def _advance_dialogue(self, taps=12):
@@ -2716,12 +2736,29 @@ class Campaign:
             gym = GYMS.get(ng["leader"]) if ng else None
             if gym is not None and state["map"] == gym.city:
                 log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
-                self.on_event(f"okay — {ng['leader']}'s gym. time to climb. let's take this badge.",
-                              kind="gym", tier=2)
+                # PHASE 6 — DREAD: a gym is a hard challenge; name the nerves BEFORE the fight so the
+                # payoff has something to land against (earned relief requires prior worry). Tier-2
+                # anticipation; her core voice colors the actual nerves. Sharper if she's walled here.
+                walled = self._walled(state)
+                if walled:
+                    self.on_event(f"okay. {ng['leader']}'s gym — and this is the wall that's been beating me. "
+                                  f"deep breath. this is the one. here we go.", kind="gym", tier=2)
+                else:
+                    self.on_event(f"alright, {ng['leader']}'s gym. this is it — I'm actually a little nervous. "
+                                  f"okay. let's climb.", kind="gym", tier=2)
                 out = self.beat_gym(ng["leader"])
                 if out == "badge":
-                    self.on_event(f"that's {ng['leader']} down and the badge in hand — onward and upward.",
+                    # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
+                    # moving on". Tier-3 big beat → her core deep-reaction path RISES; the saga promotes it.
+                    nb = state.get("badge_count", 0) + 1
+                    self.on_event(f"YES — we DID it! {ng['leader']} is DOWN. I was genuinely nervous about that "
+                                  f"one and we pulled it off — badge number {nb}. okay. okay! onward.",
                                   kind="gym", tier=3)
+                elif out in ("battle_loss", "loss", "blackout"):
+                    # PHASE 6 — the down-beat of the arc: a gym loss STINGS (and feeds the wall the next
+                    # dread references). Tier-2 so it's felt, not swallowed.
+                    self.on_event(f"no — no, we lost it. {ng['leader']} got me. okay… that one hurts. "
+                                  f"I need to come back stronger.", kind="gym", tier=2)
                 return out
             # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
             # still change her mind next tick — true free roam).
