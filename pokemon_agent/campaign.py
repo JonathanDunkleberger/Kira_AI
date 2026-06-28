@@ -386,6 +386,11 @@ class Campaign:
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
         # battle_agent / play_live surgery, and the wrapper is pure-additive (real runner unchanged).
         self.strat = StrategicMemory(log=log)
+        # RECALIBRATION — the STANDING objective she returns to after a detour (a 25-min trainer
+        # gauntlet, a heal run). Set when she commits to a going-somewhere action; preserved through
+        # detour actions (heal/talk/grind) so she resumes "I was heading to X" instead of re-deciding
+        # from scratch + wandering. {action, label, tick} or None. Surfaced to her ctx + the dashboard.
+        self._active_objective = None
         # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
         # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
@@ -3453,6 +3458,14 @@ class Campaign:
                      f"the one playing this — narrate your plan to chat in your own voice (first person: "
                      f"\"I'm grinding\", \"my team\"), and never ask anyone what you're doing or who's on "
                      f"your team — you know.")
+            # RECALIBRATION — if she had a standing objective before the last detour, remind her of it so
+            # she picks the thread back up (battles/healing are interruptions, not a change of plan).
+            if self._active_objective and self._active_objective.get("label") \
+                    and self._active_objective.get("action") in avail:
+                where = (f"{where}. RECALIBRATE — before the last detour you'd set out to: "
+                         f"\"{self._active_objective['label']}\". That's still available. Unless something "
+                         f"fundamental has actually changed, pick it back up and continue — don't lose the "
+                         f"thread to aimless wandering.")
             pick = self._soul_choose("action", avail,
                                      {"place": where, "progress": state["progress"], "party": _brief,
                                       "goal": _goals})
@@ -3461,9 +3474,21 @@ class Campaign:
                 ledger.note_action(None, "idle")
                 continue
             log(f"   [roam] PICK OUT: {pick}" + (f"  <- her RECOVERY move ({macro})" if macro != ledger.GREEN else ""))
+            # RECALIBRATION — record a PURPOSEFUL, going-somewhere pick as the standing objective she
+            # returns to. Detour actions (heal / talk_npc / stock_up / grind / idle) deliberately do NOT
+            # overwrite it, so the thread survives them. Cleared when its action completes (below).
+            if pick == "head_to_gym" or pick == "wander_catch" or pick.startswith("travel:"):
+                self._active_objective = {"action": pick, "label": avail.get(pick, pick), "tick": tick}
             out = self._route_action(pick, state)
             log(f"   [roam] RESULT: {pick} -> {out}")
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
+            # RECALIBRATION — clear the standing objective once it's actually achieved (badge won, teammate
+            # caught, destination reached) so the recalibrate nudge stops pushing a finished goal; the next
+            # purposeful pick sets the new one.
+            if self._active_objective and pick == self._active_objective.get("action") \
+                    and (out in ("badge", "caught") or "arrived" in str(out)):
+                log(f"   [roam] standing objective complete ({pick} -> {out}) — clearing it")
+                self._active_objective = None
             # BATCH-6 PHASE 2c — DETER the blind re-walk: when the routing HARD-REFUSED to cross the wall
             # (wall_gated), count it. A rising streak means she keeps trying the one path that's blocked —
             # the next-tick oracle ctx escalates "this ends the same way; go build/stock on THIS side"
@@ -3778,6 +3803,8 @@ class Campaign:
                 "next_gym": state.get("next_gym"),
                 "now_state": now_state, "objective": objective, "want": want,
                 "goals": goals, "plan": plan,            # PHASE 1 — 3-tier goal (short/medium/long) + flat line
+                "active_objective": (self._active_objective or {}).get("label"),   # the thread she returns to after detours
+
                 "playthrough_s": self._playthrough_elapsed(),
                 "last_badge_ts": last_badge_ts,
                 "since_last_badge_s": (time.time() - last_badge_ts) if last_badge_ts else None,

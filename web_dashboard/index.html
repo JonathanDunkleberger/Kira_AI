@@ -556,7 +556,17 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
           <span id="pokemon-health-line" class="muted">health: (no run)</span>
         </div>
         <div class="muted" id="pokemon-health-detail" style="font-size:11px;line-height:1.5">—</div>
-        <div class="muted" id="pokemon-meta" style="font-size:11px">PID —</div>
+        <!-- 3-TIER GOAL (Now/Next/Goal) — Jonny's SOURCE OF TRUTH: purposeful progress vs aimless
+             wandering at a glance (they look identical from outside otherwise). Survives detours. -->
+        <div id="pokemon-goals-wrap" style="margin-top:10px;border-top:1px solid #2a2a3a;padding-top:8px;display:none">
+          <span class="mlabel" style="display:block;margin-bottom:5px">current plan</span>
+          <div style="font-size:12px;line-height:1.7">
+            <div><b style="display:inline-block;width:42px;color:#3ad07a;font-weight:700">NOW</b><span id="pokemon-goal-now" style="color:#E8ECF2">—</span></div>
+            <div><b style="display:inline-block;width:42px;color:#e3c84a;font-weight:700">NEXT</b><span id="pokemon-goal-next" style="color:#cdd5e2">—</span></div>
+            <div><b style="display:inline-block;width:42px;color:#9BA8BC;font-weight:700">GOAL</b><span id="pokemon-goal-long" style="color:#9BA8BC">—</span></div>
+          </div>
+        </div>
+        <div class="muted" id="pokemon-meta" style="font-size:11px;margin-top:8px">PID —</div>
       </div></div>
     </div>
 
@@ -733,7 +743,8 @@ function _renderHealth(h){ h=h||{};
   const prog = g && g.progress ? g.progress : (h.running?'…':'—');
   if(light){ light.textContent=prog; light.style.background=_HLIGHT[prog]||'#555'; light.style.color='#111'; }
   const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=h.pokemon_mode?'ON':'off';
-  if(!h.running && !g){ setText('pokemon-health-line','health: (no run)'); setText('pokemon-health-detail','—'); return; }
+  const _gw=document.getElementById('pokemon-goals-wrap');
+  if(!h.running && !g){ setText('pokemon-health-line','health: (no run)'); setText('pokemon-health-detail','—'); if(_gw) _gw.style.display='none'; return; }
   const spend = h.api_spend_usd!=null ? `$${h.api_spend_usd.toFixed(2)}` : '—';
   setText('pokemon-health-line', g ? `${g.place||'?'} · ${g.badge_count||0} badges · dex ${g.dex_caught!=null?g.dex_caught:'—'} · API ${spend}` : `(running, no snapshot yet) · API ${spend}`);
   if(g){
@@ -742,7 +753,16 @@ function _renderHealth(h){ h=h||{};
     const ckpt=g.since_checkpoint_s!=null?fmtAge(g.since_checkpoint_s):'—';
     const stale=h.health_age_s!=null&&h.health_age_s>30?` · ⚠ snapshot ${fmtAge(h.health_age_s)}`:'';
     setText('pokemon-health-detail', `team: ${party} · last badge: ${sinceBadge} · checkpoint: ${ckpt} · uptime ${fmtAge(g.run_uptime_s)}${stale}`);
-  }
+    // 3-tier goal (Now/Next/Goal) — Jonny's source of truth. NOW prefers the standing objective she
+    // returns to after detours (active_objective) so a 25-min trainer gauntlet doesn't read as "lost".
+    const gl=g.goals||{};
+    const now = g.active_objective || gl.short || '';
+    const anyGoal = now||gl.medium||gl.long;
+    if(_gw) _gw.style.display = anyGoal ? '' : 'none';
+    setText('pokemon-goal-now', now || '—');
+    setText('pokemon-goal-next', gl.medium || '—');
+    setText('pokemon-goal-long', gl.long || '—');
+  } else if(_gw){ _gw.style.display='none'; }
 }
 function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = (val==null?'–':val); }
