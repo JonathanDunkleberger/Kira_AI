@@ -941,6 +941,55 @@ def _err(msg: str, **kwargs) -> dict:
     return {"ok": False, "error": msg, **kwargs}
 
 
+def _apply_pokemon_mode(bot, on: bool) -> dict:
+    """BATCH 6 PHASE 7 / ADDENDUM B — Pokémon MODE as a real, standalone switch, independent of how the
+    bot or the game was launched (NOT tied to the pokemon_start process). When ON:
+      • VISION -> game window only (she never narrates Jonny's desktop/code — the live immersion break).
+      • Desktop AUDIO classifier suppressed (she ignores the game MUSIC; mic + game events untouched).
+      • LOOPBACK STT off (no voice-acting transcription during autonomous play; she still HEARS music
+        and still takes Jonny's mic + chat).
+    ONE-KIRA FIREWALL: this gates HARNESS perception plumbing only — it never touches her soul. Returns a
+    dict of what was applied. Each step is fail-graceful + LOUD so a missing subsystem can't half-toggle."""
+    import os as _os
+    applied = {}
+    setattr(bot, "pokemon_mode", on)
+    # vision -> game window
+    va = getattr(bot, "vision_agent", None)
+    if va is not None:
+        if on:
+            va.capture_window_title = _os.getenv("POKEMON_VISION_WINDOW_TITLE", "Kira plays Pokemon")
+            print(f"   [control] POKÉMON MODE: vision locked to {va.capture_window_title!r}", flush=True)
+        else:
+            va.capture_window_title = ""
+            print("   [control] POKÉMON MODE: vision released to full-screen", flush=True)
+        applied["vision_lock"] = on
+    # desktop audio classifier suppress (she ignores game music)
+    aa = getattr(bot, "audio_agent", None)
+    if aa is not None and hasattr(aa, "pokemon_suppress"):
+        aa.pokemon_suppress(forced=on)
+        applied["audio_suppress"] = on
+    # loopback STT off during autonomous play; restore to the configured default when leaving
+    try:
+        from kira.config import LOOPBACK_STT_DEFAULT
+        bot.loopback_desired = (False if on else LOOPBACK_STT_DEFAULT)
+        lt = getattr(bot, "loopback_transcriber", None)
+        if on and lt is not None and lt.is_running():
+            try:
+                lt.stop()
+            except Exception as e:
+                print(f"   [control] POKÉMON MODE: loopback stop best-effort: {e}", flush=True)
+        applied["loopback_off"] = on
+        print(f"   [control] POKÉMON MODE: loopback STT {'OFF' if on else 'restored to default'}", flush=True)
+    except Exception as e:
+        print(f"   [control] POKÉMON MODE: loopback toggle skipped: {e}", flush=True)
+    if hasattr(bot, "_reconcile_modes"):
+        try:
+            bot._reconcile_modes(trigger="pokemon_mode")
+        except Exception as e:
+            print(f"   [control] POKÉMON MODE reconcile skipped: {e}", flush=True)
+    return applied
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # COMMAND ENDPOINTS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1047,31 +1096,44 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         result = {"pokemon_start": pokemon_proc.start,
                   "pokemon_stop": pokemon_proc.stop,
                   "pokemon_status": pokemon_proc.status}[action]()
-        # Explicit Pokémon-mode toggle: Start forces the desktop audio-classifier OFF (she ignores
-        # game music), Stop releases it. The per-event linger also self-gates a manual play_live run;
-        # this makes the dashboard control deterministic for a full session. Mic + game-event seam
-        # are never touched.
-        aa = getattr(bot, "audio_agent", None)
-        if aa is not None and action == "pokemon_start":
-            aa.pokemon_suppress(forced=True)
-        elif aa is not None and action == "pokemon_stop":
-            aa.pokemon_suppress(forced=False)
-        # POKÉMON VISION-LOCK (Phase 1A): Start restricts her EYES to the game window only (she
-        # stops seeing Jonny's desktop/code — the immersion-break she hit live); Stop releases back
-        # to full-screen. Same explicit-toggle pattern as the audio suppress above. The matched
-        # window-title substring is env-overridable (default = the play_live.py caption); logged LOUD.
-        import os as _os
-        va = getattr(bot, "vision_agent", None)
-        if va is not None and action in ("pokemon_start", "pokemon_stop"):
-            if action == "pokemon_start":
-                title = _os.getenv("POKEMON_VISION_WINDOW_TITLE", "Kira plays Pokemon")
-                va.capture_window_title = title
-                print(f"   [control] POKÉMON VISION-LOCK ON — eyes restricted to window "
-                      f"matching {title!r} (no desktop leak)", flush=True)
-            else:
-                va.capture_window_title = ""
-                print("   [control] POKÉMON VISION-LOCK OFF — eyes back to full-screen", flush=True)
+        # Start/Stop ALSO flip Pokémon perception mode (vision-lock + audio-suppress + loopback-off) via
+        # the shared helper — but the mode is no longer ONLY bound to this endpoint (see pokemon_mode_*).
+        if action == "pokemon_start":
+            result["mode"] = _apply_pokemon_mode(bot, True)
+        elif action == "pokemon_stop":
+            result["mode"] = _apply_pokemon_mode(bot, False)
         return _ok(**result)
+
+    # ── BATCH 6 PHASE 7 / ADDENDUM B: standalone Pokémon MODE toggle (independent of process launch) ──
+    if action in ("pokemon_mode_on", "pokemon_mode_off"):
+        applied = _apply_pokemon_mode(bot, action == "pokemon_mode_on")
+        return _ok(pokemon_mode=(action == "pokemon_mode_on"), applied=applied)
+
+    # ── BATCH 6 PHASE 7: ONE-CLICK LAUNCHERS (kill the terminal-command dependency) ──
+    if action in ("pokemon_sherpa", "pokemon_showtime", "pokemon_showtime_fresh"):
+        from kira import pokemon_proc
+        if action == "pokemon_sherpa":
+            result = pokemon_proc.start_sherpa()              # everyday: resume the real campaign + climb
+        elif action == "pokemon_showtime":
+            result = pokemon_proc.start_showtime(fresh=False)  # stream-day: resume the canonical spine
+        else:
+            result = pokemon_proc.start_showtime(fresh=True)   # stream-day: archive + fresh run
+        if result.get("running"):
+            result["mode"] = _apply_pokemon_mode(bot, True)    # entering play -> Pokémon mode ON
+        return _ok(**result)
+
+    # ── BATCH 6 PHASE 7: cockpit HEALTH readout (game-side snapshot + bot-side API spend) ──
+    if action == "pokemon_health":
+        from kira import pokemon_proc
+        h = pokemon_proc.health()
+        try:
+            ct = __import__("kira.brain.cost_tracker", fromlist=["cost_tracker"]).cost_tracker
+            h["api_spend_usd"] = round(ct.session_cost_usd(), 4)
+        except Exception as e:
+            h["api_spend_usd"] = None
+            h["api_spend_error"] = str(e)
+        h["pokemon_mode"] = bool(getattr(bot, "pokemon_mode", False))
+        return _ok(**h)
 
     # ── Vision force-off override (master kill-switch) ────────────────────────
     # The EYES panel's ONLY vision control. Vision otherwise follows the always-on

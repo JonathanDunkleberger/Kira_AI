@@ -67,6 +67,11 @@ CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestat
 # --resume climb resumes KNOWING her story. Launch-independent (file-based, not tied to any endpoint).
 SOUL_JSON = os.path.join(STATES_KIRA, "pokemon_soul.json")
 STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
+# BATCH 6 PHASE 7 — HEALTH READOUT (for JONNY's cockpit, distinct from the viewer HUD): the free-roam
+# loop publishes a tiny JSON the dashboard reads cross-process, so a glance at hour 6 says "she's fine"
+# or "she's been wedged an hour". Game-side fields only (progress/where/badges/last-checkpoint); the
+# dashboard merges in API spend from the bot's own cost-tracker.
+HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
 # BATCH 6 PHASE 6 + ADDENDUM A — LAST-RESORT wedge escape-hatch (the 30-hr-run insurance). Fires only
 # AFTER the forced-heal hard-recovery has already been tried and RED persists (a GENUINE fingerprint-
@@ -2639,6 +2644,9 @@ class Campaign:
         red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
         hard_recovered = False                     # forced one position-break this RED streak already?
         escape_reloads = 0                         # ADDENDUM A: escape-hatch reloads this wedge-episode
+        run_start_ts = t0                          # PHASE 7: cockpit uptime
+        last_badge_ts = None                       # PHASE 7: time-since-last-badge (None until one lands this run)
+        _prev_badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         self._continuity_load()                    # ADDENDUM D: resume KNOWING her saga (bonds/wants/grudge)
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
@@ -2712,6 +2720,11 @@ class Campaign:
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
             log(f"   [roam] PROGRESS: {macro} (unchanged {ledger.stuck} ticks) | {wf.brief(fp)}")
+            # PHASE 7 cockpit: stamp the time a badge lands, then publish the health snapshot this tick.
+            if state.get("badge_count", 0) > _prev_badges:
+                last_badge_ts = time.time()
+                _prev_badges = state["badge_count"]
+            self._publish_health(macro, state, last_badge_ts, run_start_ts)
             # STEP-3 HARD RECOVERY (increment 4 PART B): awareness (inc3 oracle feedback) is step 1, but
             # SUSTAINED RED means re-asking isn't working — the system must guarantee a POSITION change or
             # stop loud, never re-ask an impossible question for 20+ ticks (the live wedge). Capability-
@@ -2990,6 +3003,36 @@ class Campaign:
         except Exception as e:
             log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
             return False
+
+    def _publish_health(self, macro, state, last_badge_ts, run_start_ts):
+        """BATCH 6 PHASE 7 — write the cockpit health snapshot (atomic JSON) the dashboard polls. Game-side
+        only; the dashboard merges API spend from the bot's cost-tracker. Best-effort, never blocks the run."""
+        import json as _json
+        try:
+            cp = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
+            cp_mtime = os.path.getmtime(cp) if os.path.exists(cp) else None
+            health = {
+                "ts": time.time(),
+                "progress": macro,                       # GREEN / YELLOW / RED / ABANDONED — the watchdog light
+                "place": state.get("place"), "coords": state.get("coords"),
+                "badge_count": state.get("badge_count"), "badges": state.get("badges"),
+                "party": [f"{m['species']} L{m['level']}" for m in state.get("party", [])],
+                "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
+                "next_gym": state.get("next_gym"),
+                "last_badge_ts": last_badge_ts,
+                "since_last_badge_s": (time.time() - last_badge_ts) if last_badge_ts else None,
+                "last_checkpoint_ts": cp_mtime,
+                "since_checkpoint_s": (time.time() - cp_mtime) if cp_mtime else None,
+                "run_uptime_s": time.time() - run_start_ts,
+                "guide_searches": len(getattr(self.guide, "history", []) or []),
+            }
+            os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+            tmp = HEALTH_JSON + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                _json.dump(health, f)
+            os.replace(tmp, HEALTH_JSON)
+        except Exception as e:
+            log(f"   [health] publish skipped: {e}")
 
     def _continuity_load(self):
         """ADDENDUM D — load her NARRATIVE continuity at the start of a --resume climb: team bonds + wants

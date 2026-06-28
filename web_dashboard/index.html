@@ -527,11 +527,36 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
       <div class="phead" onclick="togglePanel('panel-pokemon')"><span class="ttl"><span class="glyph">🔴</span>Pokémon</span><span class="pstat" id="pokemon-pstat">off</span><span class="chev">▸</span></div>
       <div class="pbody"><div class="inner">
         <div class="statusline" id="pokemon-status">stopped</div>
+
+        <!-- SHERPA: the everyday 90% button — resume her real persistent campaign and climb -->
+        <div class="muted" style="margin:6px 0 2px">SHERPA — her real climb (states/campaign/)</div>
         <div class="inline" style="margin-bottom:8px">
-          <button class="btn blue sm" id="btn-pokemon-start" onclick="pokemonStart(this)">▶ Start</button>
+          <button class="btn blue" id="btn-pokemon-sherpa" onclick="pokemonSherpa(this)" style="flex:1">⛰️ RESUME the climb</button>
+        </div>
+
+        <!-- SHOWTIME: stream-day timeline (canonical spine, states/kira/) -->
+        <div class="muted" style="margin:6px 0 2px">SHOWTIME — stream-day spine (states/kira/)</div>
+        <div class="inline" style="margin-bottom:8px">
+          <button class="btn sm" id="btn-pokemon-show-go" onclick="pokemonShowtime(this,true)" title="archive current + fresh run">⭐ GO (fresh)</button>
+          <button class="btn sm" id="btn-pokemon-show-resume" onclick="pokemonShowtime(this,false)">▶ Resume</button>
           <button class="btn sm" id="btn-pokemon-stop" onclick="pokemonStop(this)">■ Stop</button>
         </div>
-        <div class="muted" id="pokemon-meta">starter: bulbasaur · PID —</div>
+
+        <!-- Pokémon MODE: standalone perception switch, independent of how the bot/game was launched -->
+        <div class="inline" style="margin:8px 0">
+          <span class="muted" style="flex:1">Pokémon mode <span id="pokemon-mode-pill" class="pill">off</span><br>
+            <span class="muted" style="font-size:11px">vision→game · loopback off · ignores music</span></span>
+          <button class="btn sm" id="btn-pokemon-mode-on" onclick="pokemonMode(this,true)">ON</button>
+          <button class="btn sm" id="btn-pokemon-mode-off" onclick="pokemonMode(this,false)">OFF</button>
+        </div>
+
+        <!-- HEALTH READOUT (for Jonny) — glance at hour 6 = "she's fine" or "wedged an hour" -->
+        <div class="statusline" style="margin-top:8px;border-top:1px solid #2a2a3a;padding-top:6px">
+          <span id="pokemon-health-light" class="pill">—</span>
+          <span id="pokemon-health-line" class="muted">health: (no run)</span>
+        </div>
+        <div class="muted" id="pokemon-health-detail" style="font-size:11px;line-height:1.5">—</div>
+        <div class="muted" id="pokemon-meta" style="font-size:11px">PID —</div>
       </div></div>
     </div>
 
@@ -689,14 +714,36 @@ async function cmd(action, body, btnEl){
 function flashBtn(el,ok){ el.classList.remove('flash-ok','flash-err'); void el.offsetWidth;
   el.classList.add(ok?'flash-ok':'flash-err'); setTimeout(()=>el.classList.remove('flash-ok','flash-err'),600); }
 
-/* Pokémon session subprocess controls (start/stop launch the separate emulator window) */
+/* Pokémon: ONE-CLICK launchers (Sherpa / Showtime) + standalone mode toggle + cockpit health readout.
+   No terminal command needed — these spawn play_live.py against the right timeline save. */
 function _renderPokemon(pk){ pk=pk||{};
   setText('pokemon-pstat', pk.running?'on':'off');
-  setText('pokemon-status', pk.running ? `running · ${pk.uptime_s||0}s` : 'stopped');
-  setText('pokemon-meta', `starter: ${pk.starter||'bulbasaur'} · PID ${pk.pid!=null?pk.pid:'—'}`); }
+  const tl = pk.timeline ? ` · ${pk.timeline}` : '';
+  setText('pokemon-status', pk.running ? `running${tl} · ${Math.round(pk.uptime_s||0)}s` : 'stopped');
+  setText('pokemon-meta', `PID ${pk.pid!=null?pk.pid:'—'}`); }
 async function pokemonRefresh(){ const r=await cmd('pokemon_status',null,null); if(r) _renderPokemon(r); }
-async function pokemonStart(btn){ setText('pokemon-status','starting…'); await cmd('pokemon_start',null,btn); setTimeout(pokemonRefresh,500); }
+async function pokemonSherpa(btn){ setText('pokemon-status','launching SHERPA…'); await cmd('pokemon_sherpa',null,btn); setTimeout(pokemonRefresh,800); setTimeout(pokemonHealth,1500); }
+async function pokemonShowtime(btn,fresh){ setText('pokemon-status','launching SHOWTIME…'); await cmd(fresh?'pokemon_showtime_fresh':'pokemon_showtime',null,btn); setTimeout(pokemonRefresh,800); }
 async function pokemonStop(btn){ await cmd('pokemon_stop',null,btn); _renderPokemon({running:false}); setTimeout(pokemonRefresh,300); }
+async function pokemonMode(btn,on){ const r=await cmd(on?'pokemon_mode_on':'pokemon_mode_off',null,btn); if(r){ const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=on?'ON':'off'; } }
+const _HLIGHT={GREEN:'#3ad07a',YELLOW:'#e3c84a',RED:'#e0564a',ABANDONED:'#e0564a'};
+async function pokemonHealth(){ const r=await cmd('pokemon_health',null,null); if(r) _renderHealth(r); }
+function _renderHealth(h){ h=h||{};
+  const g=h.game; const light=document.getElementById('pokemon-health-light');
+  const prog = g && g.progress ? g.progress : (h.running?'…':'—');
+  if(light){ light.textContent=prog; light.style.background=_HLIGHT[prog]||'#555'; light.style.color='#111'; }
+  const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=h.pokemon_mode?'ON':'off';
+  if(!h.running && !g){ setText('pokemon-health-line','health: (no run)'); setText('pokemon-health-detail','—'); return; }
+  const spend = h.api_spend_usd!=null ? `$${h.api_spend_usd.toFixed(2)}` : '—';
+  setText('pokemon-health-line', g ? `${g.place||'?'} · ${g.badge_count||0} badges · dex ${g.dex_caught!=null?g.dex_caught:'—'} · API ${spend}` : `(running, no snapshot yet) · API ${spend}`);
+  if(g){
+    const party=(g.party||[]).join(', ')||'(none)';
+    const sinceBadge=g.since_last_badge_s!=null?fmtAge(g.since_last_badge_s):'no badge this run';
+    const ckpt=g.since_checkpoint_s!=null?fmtAge(g.since_checkpoint_s):'—';
+    const stale=h.health_age_s!=null&&h.health_age_s>30?` · ⚠ snapshot ${fmtAge(h.health_age_s)}`:'';
+    setText('pokemon-health-detail', `team: ${party} · last badge: ${sinceBadge} · checkpoint: ${ckpt} · uptime ${fmtAge(g.run_uptime_s)}${stale}`);
+  }
+}
 function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = (val==null?'–':val); }
 function setCheck(id,val){ const el=document.getElementById(id); if(el && document.activeElement!==el) el.checked=!!val; }
@@ -1045,6 +1092,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   storytimeLibraryRefresh();
   storytimeRefresh();
   setInterval(()=>{ if(document.getElementById('panel-storytime').classList.contains('open')) storytimeRefresh(); }, 4000);
+  // Pokémon cockpit health: poll while the panel is open so a glance shows progress/wedge + API spend.
+  pokemonHealth();
+  setInterval(()=>{ if(document.getElementById('panel-pokemon').classList.contains('open')) pokemonHealth(); }, 5000);
 });
 </script>
 </body>
