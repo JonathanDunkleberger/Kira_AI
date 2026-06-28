@@ -24,6 +24,9 @@ Source-first discipline: 2A rests only on ALREADY-VERIFIED reads (read_battle + 
 map id). The enemy-ROSTER-SIZE read (2C enrichment) is a CANDIDATE (gEnemyParty); it's gated by a live
 self-check and degrades to "unknown size" + a LOUD log if it doesn't confirm — never a silent guess.
 """
+import json
+import os
+
 import pokemon_state as st
 import firered_ram as ram
 
@@ -266,6 +269,49 @@ class StrategicMemory:
                 f"— that route is GATED until you're stronger. Don't just walk back into them. Level up "
                 f"or grab a teammate on THIS side first, then come back and take that bridge. (Still your "
                 f"call — but you can't pass them yet.)")
+
+    # ── ADDENDUM D: PERSIST the loss/wall history (the FACTUAL basis of her grudge) ────────────────
+    # Recon found StrategicMemory was IN-MEMORY ONLY — so 'Gary killed me 4x at the bridge' died on every
+    # restart, and a --resume climb forgot who'd walled her. This makes that survive (sidecar JSON next to
+    # the campaign save), so she resumes KNOWING where she got stuck and who beat her. This is the
+    # game-mechanic FACT layer (who walls her where -> routing + the grudge's basis). The EMOTIONAL grudge
+    # itself is core-Kira continuity (One-Kira firewall: she should carry grudges in ANY game) — that
+    # seam (a meaningful loss writing into core memory) is decided + flagged for the batch-two build.
+    def to_dict(self):
+        return {"losses": self.losses, "recent": self.recent, "active_wall": self.active_wall}
+
+    def from_dict(self, d):
+        self.losses = d.get("losses") or {}
+        self.recent = d.get("recent") or []
+        self.active_wall = d.get("active_wall")
+
+    def save(self, path):
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(self.to_dict(), f)
+            os.replace(tmp, path)                     # atomic — never a half-written history
+            return True
+        except Exception as e:
+            self.log(f"   [strat] !! loss-history save failed: {e} (LOUD)")
+            return False
+
+    def load(self, path):
+        try:
+            if not os.path.exists(path):
+                self.log("   [strat] no loss-history sidecar yet — fresh strategic memory")
+                return False
+            with open(path, encoding="utf-8") as f:
+                self.from_dict(json.load(f))
+            wall = self.losses.get(self.active_wall) if self.active_wall else None
+            self.log(f"   [strat] continuity loaded: {len(self.losses)} remembered wall(s)"
+                     + (f"; active grudge vs {wall.get('name')} at {wall.get('place')} "
+                        f"({wall.get('count')}x)" if wall else ""))
+            return True
+        except Exception as e:
+            self.log(f"   [strat] !! loss-history load failed: {e} — starting fresh (LOUD)")
+            return False
 
     def roster_awareness(self, party):
         """The 2B note: notice the team's shape. A solo run is a valid CHOICE, not a bug — so this only

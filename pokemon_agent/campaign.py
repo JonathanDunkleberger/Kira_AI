@@ -61,6 +61,12 @@ STATES_ARCHIVE = os.path.join(STATES, "archive")
 # (those stay as fallbacks) and PHYSICALLY separate from the canonical states/kira/ spine.
 STATES_CAMPAIGN = os.path.join(STATES, "campaign")
 CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestate filename
+# ADDENDUM D — NARRATIVE continuity sidecars (persist her SAGA, not just game RAM): her team bonds/wants
+# live in the canonical soul JSON; the loss/wall history (the factual basis of her Gary grudge) lives next
+# to the campaign save. Both are loaded at free-roam (Sherpa) start + saved at every campaign anchor, so a
+# --resume climb resumes KNOWING her story. Launch-independent (file-based, not tied to any endpoint).
+SOUL_JSON = os.path.join(STATES_KIRA, "pokemon_soul.json")
+STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
 # BATCH 6 PHASE 6 + ADDENDUM A — LAST-RESORT wedge escape-hatch (the 30-hr-run insurance). Fires only
 # AFTER the forced-heal hard-recovery has already been tried and RED persists (a GENUINE fingerprint-
@@ -2634,6 +2640,7 @@ class Campaign:
         hard_recovered = False                     # forced one position-break this RED streak already?
         escape_reloads = 0                         # ADDENDUM A: escape-hatch reloads this wedge-episode
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
+        self._continuity_load()                    # ADDENDUM D: resume KNOWING her saga (bonds/wants/grudge)
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
@@ -2643,6 +2650,7 @@ class Campaign:
                     tv.map_id(self.b), self.b.rd8(ram.GPLAYER_PARTY_CNT))
         last_camp_sig = _camp_sig()
         self._save_campaign("roam_start")          # anchor the moment she's loose (resume point exists immediately)
+        self._continuity_save()                    # ADDENDUM D: bank her saga next to the position anchor
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
@@ -2656,8 +2664,10 @@ class Campaign:
                           "new_area" if sig[1] != last_camp_sig[1] else "catch")
                 last_camp_sig = sig
                 self._save_campaign(reason)
+                self._continuity_save()            # ADDENDUM D: a real gain -> bank her saga too
             elif tick > 1 and (tick - 1) % CAMPAIGN_SAVE_EVERY == 0:
                 self._save_campaign(f"tick{tick - 1}")
+                self._continuity_save()
             self._wait_overworld()
             # BLACKOUT / STRANDED-IN-BUILDING RECOVERY (increment 4 PART A): a wild loss whites her out
             # and warps her INSIDE a Pokémon Center (map group != 3 — a building interior), healed. Her
@@ -2849,6 +2859,7 @@ class Campaign:
         # budget / ticks — is NOT a reset; she stays anchored where she climbed to). One last sig-check
         # so a catch/area-change on the FINAL tick is reflected in the reason.
         self._save_campaign("roam_end")
+        self._continuity_save()                    # ADDENDUM D: persist her saga at the clean exit too
         log("==== FREE ROAM complete ====")
         return "roam_done"
 
@@ -2979,6 +2990,35 @@ class Campaign:
         except Exception as e:
             log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
             return False
+
+    def _continuity_load(self):
+        """ADDENDUM D — load her NARRATIVE continuity at the start of a --resume climb: team bonds + wants
+        (soul JSON) and the loss/wall history (who's walled her, her grudge's basis). So free-roam resumes
+        KNOWING her saga, not just the game RAM. Scoped to the Sherpa free-roam path (the canonical living
+        climb) — workshop/scratch runs keep their own soul handling untouched. Launch-independent."""
+        if self.soul is not None:
+            try:
+                self.soul.load(SOUL_JSON)
+            except Exception as e:
+                log(f"   [soul] !! continuity load failed: {e} (LOUD)")
+        try:
+            self.strat.load(STRAT_JSON)
+        except Exception as e:
+            log(f"   [strat] !! continuity load failed: {e} (LOUD)")
+
+    def _continuity_save(self):
+        """ADDENDUM D — persist her saga alongside a campaign anchor (bonds/wants + loss/wall history),
+        so the next GO resumes her relationships AND her grudges, not just her position. Best-effort +
+        LOUD on failure (Constraint #3). Scoped to the free-roam (Sherpa) save points."""
+        if self.soul is not None:
+            try:
+                self.soul.save(SOUL_JSON)
+            except Exception as e:
+                log(f"   [soul] !! continuity save failed: {e} (LOUD)")
+        try:
+            self.strat.save(STRAT_JSON)
+        except Exception as e:
+            log(f"   [strat] !! continuity save failed: {e} (LOUD)")
 
     def _gain_sig(self):
         """ADDENDUM A — the IRREVERSIBLE-progress fingerprint: (badges, party size, dex caught). Used to
