@@ -37,6 +37,11 @@ import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerpri
 from pokemon_strategy import StrategicMemory  # noqa: E402  (Batch 3 Phase 2: loss/roster/opponent awareness)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
+import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a gate -> derive a questline -> execute)
+# GATE-UNLOCK questline driving (recognise a story/HM gate -> route the unlock errand instead of the wall).
+# Tightly scoped (only KB-defined gates with the flag UNSET, live-read) + self-clearing; default ON since
+# it's the approved forward-progress feature. POKEMON_QUESTLINE=0 disables.
+QUESTLINE_ENABLED = os.getenv("POKEMON_QUESTLINE", "1") != "0"
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -432,6 +437,15 @@ class Campaign:
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
         self.world = WorldModel(log=log)
         self.guide = GuideSearch(log=log)     # BATCH 6 PHASE 5: silent guide (no-op until dep is live)
+        # GATE-UNLOCK questline (recognise → derive → execute). KB + recogniser built once; the active
+        # questline is an `_active_objective` sibling that survives detours and self-clears when its
+        # success flag/cap reads satisfied LIVE. Pure harness routing; the derived PLAN reaches her
+        # DECISION ctx via the `place` seam (firewall — she narrates + still chooses).
+        self._questline_kb = ql.load_kb(log=log)
+        self._gate_recognizer = ql.GateRecognizer(
+            self.b, self.world, kb=self._questline_kb,
+            party_count_fn=lambda: self.b.rd8(ram.GPLAYER_PARTY_CNT), log=log)
+        self._active_questline = None
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
         battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
@@ -2508,6 +2522,73 @@ class Campaign:
         # framed as recollection/working-it-out, so the viewer sees the RESULT in her voice, not a search.
         return (f"(Something you can half-remember about this: {snippet}) Use it if it helps — your call.")
 
+    # ── GATE-UNLOCK questline executor (recognise → derive → execute) ────────────────────────
+    def _derive_questline(self, gate):
+        """Derive (or re-derive against LIVE RAM) a Questline for a Gate. Central so every call uses the
+        same party-count reader + KB."""
+        return ql.derive_questline(gate, self._questline_kb, self.b,
+                                   party_count_fn=lambda: self.b.rd8(ram.GPLAYER_PARTY_CNT), log=log)
+
+    def _open_questline(self, gate, state):
+        """Spawn a gate-unlock questline from a recognised Gate. Returns True if there's a real ACTIONABLE
+        plan to pursue (so head_to_gym redirects the hands to the unlock errand). Surfaces her DERIVED plan
+        once, in character (firewall: `place`/event seam — she narrates, she still chooses)."""
+        if not QUESTLINE_ENABLED:
+            return False
+        q = self._derive_questline(gate)
+        if q.actionable is None:
+            return False                       # every step already satisfied → the gate is open, no errand
+        self._active_questline = q
+        log(f"   [roam] 🎯 QUESTLINE OPENED: gate={gate.kind}/{gate.missing} → "
+            f"steps={[s.missing for s in q.steps]} actionable={q.actionable.missing} "
+            f"(resolved={q.derivable})")
+        narr = q.narration()
+        if narr:
+            self.on_event(narr, kind="route", tier=2)
+        return True
+
+    def _clear_questline(self, reason):
+        if self._active_questline is not None:
+            log(f"   [roam] questline cleared ({reason})")
+        self._active_questline = None
+
+    def _run_questline_step(self, state):
+        """EXECUTOR: advance the active questline by routing toward its current actionable step (reusing
+        travel), re-deriving against LIVE RAM each tick so a just-completed step advances/clears. Returns
+        a travel-style outcome string. Never spins silently — an un-routable step surfaces and releases."""
+        if self._active_questline is None:
+            return "no_questline"
+        q = self._derive_questline(self._active_questline.gate)
+        self._active_questline = q
+        if q.complete:
+            self.on_event("there — that's sorted. now I can actually get where I was trying to go.",
+                          kind="route", tier=2)
+            self._clear_questline("complete")
+            return "questline_done"
+        step = q.actionable
+        if step is None or not step.resolved:
+            # KB can't resolve this gate → the GuideSearch fallback (Phase 4) fills it in; until then surface
+            # + release to normal roam so she never spins on an underivable gate.
+            log(f"   [roam] !! QUESTLINE unresolved ({self._active_questline.gate.missing}) — needs the "
+                f"guide (Phase 4)/a hand; releasing to normal roam")
+            return "questline_unresolved"
+        cur_map = tuple(state["map"])
+        d = step.dir or "north"
+        letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
+        nbr = next(((g, n) for dd, (g, n) in self._map_connections() if dd == letter), None)
+        log(f"   [roam] 🧭 QUESTLINE STEP: '{step.human}' — heading {d.upper()} toward "
+            f"{step.place_name or 'the destination'} (success={step.success})")
+        if nbr is None:
+            # no edge that way from here (she's off the breadcrumb, or the destination is a warp not an
+            # edge — e.g. into Bill's cottage). Defer to normal routing this tick; never a silent spin.
+            log(f"   [roam] questline: no {d} connection from {cur_map} — deferring to normal routing")
+            return "questline_no_edge"
+        if self.strat.is_gated(nbr, state.get("party_count"),
+                               state["party"][0]["level"] if state.get("party") else None):
+            log(f"   [roam] questline: {d} hop {nbr} is wall-gated — surfacing")
+            return "wall_gated"
+        return self.trav.travel(target_map=nbr, edge=d)
+
     def _thin_team(self):
         """BATCH 6 PHASE 3 — is she running a thin bench (≤ SHOP_THIN_PARTY)? Drives Poké Ball foresight:
         a thin team is the one that most needs to come home from the grass with a new member."""
@@ -3238,6 +3319,12 @@ class Campaign:
         if pick.startswith("travel:"):
             return self._travel_to_known(pick, state)
         if pick == "head_to_gym":
+            # GATE-UNLOCK: if a story/HM gate is walling the way forward, advancing the quest MEANS doing
+            # the unlock errand — so while a questline is active, head_to_gym drives THAT (e.g. north to
+            # Bill for the S.S. Ticket) instead of the gated wall. Self-clears the instant the success flag
+            # reads satisfied LIVE, then normal gym-routing resumes.
+            if QUESTLINE_ENABLED and self._active_questline is not None:
+                return self._run_questline_step(state)
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
             # earn the badge, advance to the next base camp. beat_gym is the general, data-driven handler
@@ -3335,6 +3422,14 @@ class Campaign:
                 log(f"   [roam] !! WALL-GATED: head_to_gym would route through {south} (the wall map) — "
                     f"NOT feeding her back into the wall; surfacing to the oracle")
                 return "wall_gated"
+            # GATE-UNLOCK (proactive): is the forward (south) exit a STORY/HM gate she can't pass yet —
+            # the Cerulean Slowbro / S.S.-Ticket story-block (read LIVE; a satisfied flag = open road)? If
+            # so, recognise it, derive the unlock questline, and pursue THAT (the errand) instead of
+            # walking into the wall. She learns where to go (capability-not-script), narrates it, executes.
+            if QUESTLINE_ENABLED:
+                gate = self._gate_recognizer.recognize(cur_map, blocked_dir="south")
+                if gate and self._open_questline(gate, state):
+                    return self._run_questline_step(state)
             return self.trav.travel(target_map=south, edge="south")
         if pick in ("wander_catch", "battle"):
             # PHASE 3B: before any free-roam leveling, make sure the lead has a free move slot so a
@@ -3675,6 +3770,14 @@ class Campaign:
                 brief = self.world.spatial_brief(cur_map, avoid=avoid, blocked_dirs=bdirs)
                 if brief:
                     where = f"{where}. {brief}"
+                # GATE-UNLOCK: when she's mid-errand to unlock a gate, fold her DERIVED plan into the ctx
+                # so she KNOWS why she's heading where she is (reaches the DECISION context — load-bearing;
+                # she narrates + still chooses). Self-clears when the success flag reads satisfied LIVE.
+                if (QUESTLINE_ENABLED and self._active_questline is not None
+                        and not self._active_questline.complete):
+                    qn = self._active_questline.narration()
+                    if qn:
+                        where = f"{where}. {qn}"
                 # Phase 5 — BALL PRE-CHECK: zero Poké Balls makes wander_catch impossible no matter how
                 # much grass she finds, so tell her plainly (info she lacks). Live read; confirmed on the
                 # watch. The capability to act on it already exists (travel to a Mart / stock_up).
@@ -4280,6 +4383,13 @@ class Campaign:
                 "goals": goals, "plan": plan,            # PHASE 1 — 3-tier goal (short/medium/long) + flat line
                 "rationale": getattr(self, "_rationale", ""),   # FIX 3 — live "why I'm doing this right now"
                 "active_objective": (self._active_objective or {}).get("label"),   # the thread she returns to after detours
+                # GATE-UNLOCK: the questline she's mid-errand on (e.g. "get the S.S. Ticket") — Jonny reads
+                # WHY she's off the direct path. None when not gated.
+                "questline": ({"missing": self._active_questline.gate.missing,
+                               "doing": (self._active_questline.actionable.human
+                                         if self._active_questline.actionable else None),
+                               "steps": [s.missing for s in self._active_questline.steps]}
+                              if self._active_questline is not None else None),
 
                 "playthrough_s": self._playthrough_elapsed(),
                 "last_badge_ts": last_badge_ts,
