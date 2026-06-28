@@ -90,6 +90,45 @@ def _resolve(name_or_idx):
     return None
 
 
+# SINGLE SOURCE OF TRUTH for the emulator's output device (every launch path: run.py, the dashboard
+# launcher, any standalone). POKEMON_PHONES overrides; the default is Jonny's desktop headphones.
+DESKTOP_DEVICE = os.getenv("POKEMON_PHONES", "Leviathan")
+
+
+def resolve_desktop_sink(phones=None, log=print):
+    """The ONE place the emulator's output device is decided. Forces a CONCRETE desktop/headphone device
+    and NEVER the virtual cable, and NEVER the bare system 'default' (which on Jonny's rig IS the cable —
+    that's the bug: emulator music on the cable both flaps Kira's mouth AND doubles into his headphones).
+    Order: explicit `phones` arg -> POKEMON_PHONES (default 'Leviathan') -> the system default ONLY if
+    it's a real non-cable device -> the first real (non-cable) output. Returns a concrete output index,
+    or None only if EVERY output is a cable (caller hard-fails). Loud at each step (Constraint #3).
+    Launch-path-independent: works even when no --phones is passed (e.g. python run.py)."""
+    for label, spec in (("--phones", phones), ("POKEMON_PHONES", DESKTOP_DEVICE)):
+        if not spec:
+            continue
+        idx = _resolve(spec)
+        if idx is None:
+            log(f"   [pkmn-audio] {label}={spec!r} not found among outputs — trying next")
+            continue
+        if _is_cable(_dev_name(idx)):
+            log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's a VIRTUAL CABLE "
+                f"({_dev_name(idx)!r}) — emulator audio must NEVER touch the cable. Trying next.")
+            continue
+        return idx
+    # named desktop device unavailable -> system default, but ONLY if it's a real (non-cable) device
+    di = sd.default.device[1] if sd.default.device else None
+    if di is not None and not _is_cable(_dev_name(di)):
+        log(f"   [pkmn-audio] using system default output {_dev_name(di)!r} (real, non-cable)")
+        return di
+    if di is not None:
+        log(f"   [pkmn-audio] !! system default output is a VIRTUAL CABLE ({_dev_name(di)!r}) — "
+            f"REFUSING it (it would flap her mouth + double the audio); picking a real output instead.")
+    real = _first_real_output()
+    if real is not None:
+        log(f"   [pkmn-audio] routing emulator audio to first REAL output {_dev_name(real)!r}")
+    return real
+
+
 class AudioPump:
     """Drains core audio per frame and plays it in real time to one or more devices."""
 
@@ -114,61 +153,28 @@ class AudioPump:
         self.stereo.set_rate(rate)          # blip resamples the GBA clock -> `rate` Hz stereo
         self.stereo.clear()                 # drop the boot/settle backlog so we don't blast it
 
-        # ── resolve the route target: the DESKTOP output ONLY (Jonny's monitor, e.g. Leviathan) ──
-        # DELIBERATELY NOT the virtual cable: VTube Studio opens Kira's mouth off the cable, so the
-        # cable must carry ONLY her voice — game music on the cable makes her lip-sync the soundtrack.
-        # Game music goes to the desktop where Jonny hears it (and OBS can capture desktop audio
-        # directly); her LOOPBACK hearing of that desktop music is separately handled by Pokémon-mode
-        # audio suppression. The `cable` arg is retained for signature stability but is NOT a sink.
         # ── route target: the DESKTOP output ONLY (Jonny's monitor/headphones, e.g. Leviathan) ──
-        # HARD FIREWALL: game audio must NEVER reach a virtual cable (VTS lip-syncs Kira's mouth from
-        # the cable). Every candidate sink below is run through _is_cable() and REFUSED if it's a cable —
-        # we substitute the first real output device instead of silently flapping. This is the Phase-1
-        # regression guard: the old code only WARNED, then routed to the default output anyway (which is
-        # the cable on Jonny's rig). Now a cable can never become a sink, period.
-        targets = []
-        idx = _resolve(phones)
-        if phones and idx is None:
-            self.log(f"   [pkmn-audio] !! requested --phones {phones!r} not found among output devices "
-                     f"— falling back to auto-pick of a REAL (non-cable) output so game audio still "
-                     f"can't reach the VTS cable (LOUD). Check the device name with --list.")
-        if idx is not None and _is_cable(_dev_name(idx)):
-            self.log(f"   [pkmn-audio] !! REFUSED: --phones {phones!r} resolves to a VIRTUAL CABLE "
-                     f"({_dev_name(idx)!r}) — that would flap Kira's mouth to the music. Ignoring it.")
-            idx = None
-        if idx is not None:
-            targets.append(("desktop", idx, phones))
-        if not targets:                     # no usable --phones: pick a REAL (non-cable) output
-            di = sd.default.device[1] if sd.default.device else None
-            dn = _dev_name(di)
-            if di is not None and not _is_cable(dn):
-                targets = [("default-out", di, dn)]   # system default is real -> safe to use
-            else:
-                real = _first_real_output()
-                if real is not None:
-                    self.log(f"   [pkmn-audio] !! no usable --phones and the system default is a "
-                             f"VIRTUAL CABLE ({dn!r}). Auto-routing game audio to the first REAL output "
-                             f"{_dev_name(real)!r} so VTS can't lip-sync the soundtrack. Pass --phones "
-                             f"to pick your headphones explicitly.")
-                    targets = [("desktop-auto", real, _dev_name(real))]
-                else:
-                    raise RuntimeError(
-                        "pkmn-audio FIREWALL: every output device is a virtual cable — refusing to "
-                        "route game audio anywhere (it would flap Kira's mouth). Plug in / enable a real "
-                        "output device or pass --phones with a non-cable device.")
-        for label, idx, spec in targets:
-            if idx is not None and _is_cable(_dev_name(idx)):   # belt-and-suspenders before opening
-                self.log(f"   [pkmn-audio] !! SKIP cable sink {label} ({_dev_name(idx)!r})")
-                continue
-            try:
-                st = sd.OutputStream(samplerate=rate, channels=2, dtype="int16",
-                                     device=idx, blocksize=0, latency="low")
-                st.start()
-                self._streams.append((label, st))
-                dev = sd.query_devices(idx)["name"] if idx is not None else "default"
-                self.log(f"   [pkmn-audio] routing -> {label}: {dev!r}")
-            except Exception as e:
-                self.log(f"   [pkmn-audio] !! could not open {label} ({spec!r}): {e}")
+        # The virtual cable carries Kira's TTS ONLY (VTS lip-syncs her mouth off the cable). Emulator
+        # music/SFX must go to the DESKTOP device and NEVER the cable — emulator audio on the cable both
+        # flaps her mouth to the soundtrack AND doubles into Jonny's headphones (the bug). resolve_
+        # desktop_sink is the SINGLE SOURCE OF TRUTH used on EVERY launch path (run.py / dashboard /
+        # standalone): it forces a CONCRETE non-cable device, never the bare 'default'. Exactly ONE sink
+        # is opened — no duplicate output. (The `cable` arg is retained for signature stability, NOT a sink.)
+        idx = resolve_desktop_sink(phones, self.log)
+        if idx is None:
+            raise RuntimeError(
+                "pkmn-audio FIREWALL: every output device is a virtual cable — refusing to route "
+                "emulator audio anywhere (it would flap Kira's mouth + double her audio). Enable a real "
+                "output device or set POKEMON_PHONES to your headphones.")
+        try:
+            st = sd.OutputStream(samplerate=rate, channels=2, dtype="int16",
+                                 device=idx, blocksize=0, latency="low")
+            st.start()
+            self._streams.append(("desktop", st))
+            self.log(f"   [pkmn-audio] routing -> desktop ONLY: {_dev_name(idx)!r} "
+                     f"(exactly one sink; the cable carries ONLY Kira's TTS)")
+        except Exception as e:
+            self.log(f"   [pkmn-audio] !! could not open desktop sink {_dev_name(idx)!r}: {e}")
         if not self._streams:
             raise RuntimeError("no audio output stream could be opened")
 
