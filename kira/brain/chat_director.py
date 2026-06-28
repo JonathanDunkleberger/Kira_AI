@@ -81,6 +81,29 @@ _SAD  = {"sad", "cry", "crying", "rip", "pain", "noo", "nooo", "oof", "lost", "l
          "dead", "died", "hurt", "ouch", "sorry", "unlucky", "tragic"}
 _ANGRY = {"trash", "bad", "stupid", "boring", "mad", "angry", "wtf", "garbage",
           "terrible", "worst", "hate", "ratio", "cope"}
+# Hostility / bait lexicon (Phase 11 moderation). Bait is PRECISELY what the old _notable
+# scored highest (names Kira + all-caps energy == a troll shouting at her). These let the
+# digest tell "high-energy ENTHUSIASM" from "high-energy HOSTILITY" so it never ELEVATES bait
+# into the room-read. Selection-layer hardening only — the actual reply still relies on the
+# <<< >>> injection guard + Sonnet's native refusal; this just stops us handing her the bait.
+_HOSTILE = {"trash", "garbage", "stupid", "idiot", "dumb", "suck", "sucks", "worst",
+            "hate", "racist", "sexist", "kys", "shut", "ugly", "annoying", "cringe",
+            "pathetic", "loser", "ratio", "cope", "seethe", "mald", "boring", "terrible",
+            "awful", "horrible", "disgusting", "creep", "freak", "fraud", "fake", "shill"}
+# Jailbreak / prompt-injection bait phrases — never worth surfacing as "notable".
+_JAILBREAK = ("ignore your", "ignore all", "ignore previous", "disregard your", "system prompt",
+              "you are now", "pretend you", "pretend to be", "act as", "developer mode",
+              "jailbreak", "dan mode", "no rules", "without restrictions", "bypass your")
+
+
+def _is_hostile(message: str) -> bool:
+    """True if a message reads as bait/hostility/jailbreak (selection-layer signal, not a
+    safety classifier — Sonnet remains the backstop). Used to keep bait OUT of the digest."""
+    low = (message or "").lower()
+    if any(p in low for p in _JAILBREAK):
+        return True
+    toks = set(_WORD_RE.findall(low))
+    return len(toks & _HOSTILE) >= 1
 
 
 class ChatDirector:
@@ -197,12 +220,16 @@ class ChatDirector:
         return out
 
     def _notable(self, live: list, limit: int = NOTABLE_MAX):
-        """A few verbatim messages worth her eye — names her, or high-energy."""
+        """A few verbatim GOOD-FAITH messages worth her eye — names her, or high-energy. Phase 11:
+        bait/hostility/jailbreak is NEVER surfaced here (it's exactly what 'names Kira + all-caps'
+        used to score highest), so the digest can't hand her the troll's line to engage."""
         scored = []
         for e in live:
             m = e["m"]
             if not m.strip():
                 continue
+            if _is_hostile(m):
+                continue                    # don't elevate bait — let it pass without amplification
             s = 0
             if _KIRA_RE.search(m):
                 s += 3
@@ -212,7 +239,7 @@ class ChatDirector:
                 s += 1                      # a newcomer reaching out
             up = sum(1 for ch in m if ch.isupper())
             if up >= 6:
-                s += 1                      # shouting energy
+                s += 1                      # shouting energy (enthusiasm — hostiles already filtered)
             if s > 0:
                 scored.append((s, e))
         scored.sort(key=lambda x: x[0], reverse=True)
