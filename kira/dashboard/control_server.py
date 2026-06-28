@@ -472,7 +472,12 @@ async def _pokemon_hud_json():
     g = (pokemon_proc.health() or {}).get("game") or {}
     return {"running": pokemon_proc.is_running(),
             "badges": g.get("badges") or [], "badge_count": g.get("badge_count") or 0,
-            "party": g.get("party_hud") or [], "place": g.get("place")}
+            "party": g.get("party_hud") or [], "place": g.get("place"),
+            # HUD overhaul — per-mon cards carry types/sprite-id; plus journey timer / now-state /
+            # objective / want. All game-side + viewer-appropriate (still NO token spend / reasoning).
+            "now_state": g.get("now_state"), "objective": g.get("objective"),
+            "want": g.get("want"), "playthrough_s": g.get("playthrough_s"),
+            "party_count": g.get("party_count"), "dex_caught": g.get("dex_caught")}
 
 for _name in ("web_dashboard", "cookie_jar_overlay"):
     _dir = _REPO_ROOT / _name

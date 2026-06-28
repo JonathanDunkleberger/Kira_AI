@@ -76,6 +76,10 @@ STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
 # next to the campaign save, so a --resume climb wakes up KNOWING where she's been (no more
 # spatial amnesia that left the only place in her head to go = into the wall).
 WORLD_JSON = os.path.join(STATES_CAMPAIGN, "world_model.json")
+# HUD — the WHOLE-PLAYTHROUGH timer (persists across sessions, unlike per-session run_uptime). Stamped
+# once at the first free-roam and read forever after, so the stream HUD shows "how long this journey
+# has taken" not "how long since this launch".
+PLAYTHROUGH_JSON = os.path.join(STATES_CAMPAIGN, "playthrough.json")
 # BATCH 6 PHASE 7 — HEALTH READOUT (for JONNY's cockpit, distinct from the viewer HUD): the free-roam
 # loop publishes a tiny JSON the dashboard reads cross-process, so a glance at hour 6 says "she's fine"
 # or "she's been wedged an hour". Game-side fields only (progress/where/badges/last-checkpoint); the
@@ -2916,6 +2920,8 @@ class Campaign:
 
     def _route_action(self, pick, state):
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
+        # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
+        self._now_state = {"heal": "HEALING", "stock_up": "SHOPPING"}.get(pick, "EXPLORING")
         if pick == "heal":
             return self.heal_nearest()
         # USE AN HM (PHASE 2): she chose to clear the obstacle in front. Re-detect (state may have
@@ -3545,6 +3551,29 @@ class Campaign:
             log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
             return False
 
+    def _playthrough_elapsed(self):
+        """HUD — seconds since this PLAYTHROUGH began (persists across sessions). Stamps the start once
+        (first ever free-roam) into playthrough.json, then reports elapsed forever after. Best-effort:
+        returns None if it can't read/write (the HUD just hides the timer rather than lying)."""
+        import json as _json
+        try:
+            start = None
+            if os.path.exists(PLAYTHROUGH_JSON):
+                with open(PLAYTHROUGH_JSON, encoding="utf-8") as f:
+                    start = _json.load(f).get("start_ts")
+            if not start:
+                start = time.time()
+                os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+                tmp = PLAYTHROUGH_JSON + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    _json.dump({"start_ts": start}, f)
+                os.replace(tmp, PLAYTHROUGH_JSON)
+                log(f"   [hud] playthrough timer started (stamped {PLAYTHROUGH_JSON})")
+            return max(0.0, time.time() - start)
+        except Exception as e:
+            log(f"   [hud] playthrough timer read skipped: {e}")
+            return None
+
     def _publish_health(self, macro, state, last_badge_ts, run_start_ts):
         """BATCH 6 PHASE 7 — write the cockpit health snapshot (atomic JSON) the dashboard polls. Game-side
         only; the dashboard merges API spend from the bot's cost-tracker. Best-effort, never blocks the run."""
@@ -3552,18 +3581,34 @@ class Campaign:
         try:
             cp = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
             cp_mtime = os.path.getmtime(cp) if os.path.exists(cp) else None
+            # HUD enrichment: now-state, one-line objective, her current want, whole-playthrough timer.
+            try:
+                now_state = "BATTLE" if st.in_battle(self.b) else getattr(self, "_now_state", "EXPLORING")
+            except Exception:
+                now_state = getattr(self, "_now_state", "EXPLORING")
+            ng = state.get("next_gym")
+            objective = (f"Beat {ng['leader']} of {ng['city']}" if ng else "Challenge the Elite Four")
+            want = ""
+            try:
+                if self.soul is not None and self.soul.wants:
+                    want = str(self.soul.wants[-1])
+            except Exception:
+                pass
             health = {
                 "ts": time.time(),
                 "progress": macro,                       # GREEN / YELLOW / RED / ABANDONED — the watchdog light
                 "place": state.get("place"), "coords": state.get("coords"),
                 "badge_count": state.get("badge_count"), "badges": state.get("badges"),
                 "party": [f"{m['species']} L{m['level']}" for m in state.get("party", [])],
-                # PHASE 8 HUD — party-as-family with HP for the viewer overlay (sprites approximated by name)
+                # HUD — per-mon card data: sprite (by species_id), name, level, HP, and Gen-3 type badges.
                 "party_hud": [{"species": m["species"], "level": m["level"],
                                "hp": m.get("hp"), "maxhp": m.get("maxhp"),
-                               "species_id": m.get("species_id")} for m in state.get("party", [])],
+                               "species_id": m.get("species_id"),
+                               "types": st.species_types(m.get("species_id"))} for m in state.get("party", [])],
                 "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
                 "next_gym": state.get("next_gym"),
+                "now_state": now_state, "objective": objective, "want": want,
+                "playthrough_s": self._playthrough_elapsed(),
                 "last_badge_ts": last_badge_ts,
                 "since_last_badge_s": (time.time() - last_badge_ts) if last_badge_ts else None,
                 "last_checkpoint_ts": cp_mtime,
