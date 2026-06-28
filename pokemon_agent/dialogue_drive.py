@@ -148,11 +148,21 @@ class DialogueDriver:
             if box_open(self.b):
                 cur = self.dr._read_buffer()
                 new_line = bool(cur and cur != last)
-                if new_line:                              # a NEW message -> read-along hold by length
+                if new_line:                              # a NEW message -> snap to FULL, then read-along
                     last = cur
                     self.log(f"   [dlg{(' ' + label) if label else ''}] "
                              f"{cur.replace(chr(10), ' ')[:72]!r}")
-                    self._hold_s(self._read_seconds(cur, min_s, max_s, base_s, per_char_s))
+                    # CLEAN RENDER FIX (2026-06-27, watchability): the box used to be advanced by a single
+                    # A WHILE the text was still typing — A speeds the in-progress print, so each page
+                    # rendered as normal-typing -> faster-while-A-held -> snap = the chunky/zippy/uneven
+                    # look (and short lines that finished first looked clean = the inconsistency tell). So
+                    # FIRST complete the print at once (one A finishes an in-progress page WITHOUT moving
+                    # on), so the whole line shows cleanly+instantly; THEN read-along HOLD on the full
+                    # text; THEN the advance below moves to the next page. Only the RENDER is made clean —
+                    # the fast advance cadence (the halved curve) is UNCHANGED.
+                    self.b.press("A", 4, 6, self.render, owner=self.owner)
+                    last = self.dr._read_buffer() or last  # adopt what's shown now (snapped-full text)
+                    self._hold_s(self._read_seconds(last, min_s, max_s, base_s, per_char_s))
                 self.b.press("A", 4, 10, self.render, owner=self.owner)  # advance one page, paced
                 self._hold_s(page_gap_s)
                 fp = wf.fingerprint(self.b)               # did this press change the line OR the world?
