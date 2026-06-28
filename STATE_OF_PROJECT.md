@@ -145,15 +145,51 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
    this run ("get Lapras"). Source = the play-mode oracle prompt `_POKEMON_DECIDE_FRAMING` (`bot.py:3233`)
    has no "only reference what you've actually encountered this run" grounding. Fix = one line there, but
    it's CORE-KIRA voice + overlaps the gitignored naivety arc → needs Jonny's sign-off before touching.
-7. **Warp-routing: Cerulean→Vermilion spine chain (next increment).** The warp-routing MACHINERY is built
-   + verified offline (travel.read_warps; world-model warp edges; route()/next_step warp-aware; head_to_gym
-   edge/warp execution). REMAINING for autonomous gym-3 traversal: (a) SEED the Underground Path warp CHAIN
-   from disasm (Route 5 → UndergroundPath_NorthEntrance → UndergroundPath → SouthEntrance → Route 6; interior
-   maps are group 1, not live-cross-checkable without states there — `seed_warps()` is the hook, live read
-   auto-corrects on arrival), (b) a LIVE trace of the multi-warp execution (enter_warp on the dungeon chain),
-   (c) then the Vermilion GymSpec coord-recon, (d) then the FireRed inter-gym questline (Bill → S.S. Ticket →
-   HM Cut) which gates leaving the Vermilion area. One at a time; (a)+(b) first. NO watch until forward
-   traversal actually works (standing rule).
+7. **Warp-routing: Cerulean→Vermilion forward chain — IN PROGRESS, NOT yet traversing (HANDOFF DETAIL).**
+   STATUS by part (three-state):
+   - **Warp ENGINE — DONE + VERIFIED (offline).** `travel.read_warps(b)` reads the live map-header warp
+     table (verified vs disasm: Route 4 = (19,5)→MtMoon/(12,5)→PC/(32,5)→MtMoon, save-coords, null=0).
+     World-model has warp edges; `route()`/`next_step()` traverse EDGES∪WARPS; `head_to_gym` executes an
+     edge hop OR a warp hop (travel-to-tile + `enter_warp(pick=tile)`); warps learned live + persisted.
+     Verified offline: route(Route4→MtMoon(1,1)), next_step→('warp',(19,5)) vs ('edge','north'), save/load.
+   - **Live geography cross-checked (DONE):** Cerulean (3,3) connections live = N→Route24 (3,43, Nugget
+     Bridge), **S→Route5 (3,23)**, W→Route4 (3,22), E→Route9 (3,27). So **Cerulean→Route5 is a plain south
+     EDGE** (head_to_gym already walks it). The Underground Path warp is ON Route 5 (past hop 1). NOTE: the
+     disasm route-number export is unreliable (Route24 is (3,43), not the contiguous pattern) → ALWAYS
+     cross-check route IDs live. City block (0-10) is reliable (Vermilion=(3,5) etc.).
+   - **HARNESS — BUILT:** `pokemon_agent/recon_warptrace.py` — stub oracle picks head_to_gym each tick,
+     runs the REAL recovery machinery (Layer-A route-around + watchdog + no-move guard + off-spine), reads
+     each map's warps LIVE, no-ops canonical saves, heal-patches HP each tick. `--fight` forces real
+     battles; default flees wilds for speed. Confirmed it learns warps live (read Cerulean's 14 warps).
+   - **CONFIRMED VERDICT (headless trace, utf-8-fixed harness, misty_done, 2026-06-28):** she does NOT
+     traverse. **HOP 1 FAILS at the Cerulean SOUTH EXIT to Route 5:** two PLAIN NPCs at **(26,31)+(27,31)**
+     sit on the ONLY gap to the south edge. Layer A correctly IDs them as plain NPCs + marks them, finds
+     **no route around** → `no_route_npc_blocked`. The recovery then works CLEANLY (no freeze/crash):
+     no-move guard prunes head_to_gym → she diverts → but tick 4 she goes WEST to Route 4 to grind. So she
+     never reaches Route 5; **no forward progress to Vermilion.** Recovery is healthy; the EXIT is walled.
+   - **THE BUG TO FIX (hop 1, gates everything):** Layer A sticky-blocks plain NPCs assuming they're
+     STATIONARY (the Slowbro case) and routes AROUND — but at a SOLE exit gap there IS no around, and these
+     Cerulean NPCs may be WANDERERS (sticky-blocking them PERMANENTLY walls the exit even after they step
+     off). NEEDED: for an EDGE-CROSSING exit blocked by plain NPCs, do NOT permanently sticky-block —
+     instead WAIT/TTL for wanderers to clear and re-attempt the crossing (the FRLG Cerulean south exit IS
+     passable once the NPCs shift), and only sticky-block a confirmed-stationary NPC that actually has a
+     route around. CONFIRM first whether (26,31)/(27,31) are wanderers (watch their tiles over ~10s in a
+     trace) vs a scripted wall. Fix lives in `travel.py` (the no_path/gauntlet branch + `_blocked_npcs` TTL
+     for edge-exit NPCs) and/or campaign's no_route handling. This is the SAME family as Slowbro but the
+     sole-exit variant the current fix doesn't cover.
+   - ⚠️ POSSIBLE LATENT LIVE BUG (separate): the harness crash was `UnicodeEncodeError` ('→' in a logged
+     decision-ctx on a cp1252 console). If play_live's console is cp1252, a real run could hit the same —
+     verify play_live forces utf-8 stdout (or strip '→' from logged ctx). Harness itself is now utf-8-safe.
+   - **EXACT NEXT STEPS for a fresh context:** (a) run `recon_warptrace.py` as a BACKGROUND/long job (it
+     progresses, just slowly) OR speed it for tracing — TEMPORARILY shorten the per-tick stall windows
+     (`POKEMON_WATCHDOG_STUCK_S` low, travel `TRAVEL_STALL_RETRIES` / no_path waits) so ticks finish fast;
+     (b) read tick-1 RESULT + `pos MOVED/NO MOVEMENT` + whether `chokepoint blocker … PLAIN NPC` / OFF-SPINE
+     / WATCHDOG fired → does she reach Route 5 (3,23)? (c) IF NOT → real bug: extend the Slowbro/Layer-A
+     NPC-gap solution to the south-EDGE-crossing case (the gauntlet's plain-NPC mark+reroute currently
+     lives in the no_path branch but the edge-cross path may bypass it). (d) Once on Route 5, let _learn_map
+     read its warps live → the UGP warp appears → continue the chain Route5→UGP→Route6→Vermilion, each hop
+     cross-checked live (NOT disasm-blind). (e) THEN Vermilion GymSpec coords + the Bill→S.S.Ticket→HM Cut
+     questline (separate). NO watch until the headless trace reaches Vermilion (3,5).
 8. **Vision confirming-vote + Gemini swap (recon delivered, NOT built).** Layer B is wired for a pixel-vote
    to plug in later; core-Kira vision OpenAI→Gemini swap recon done (valid key = `GEMINI_IMAGE_API_KEY`;
    `google-genai` installed; recommend `gemini-3.1-flash-lite` heartbeat → `gemini-3-flash-preview` escalate).
