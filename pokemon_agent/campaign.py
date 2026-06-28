@@ -90,6 +90,15 @@ MOVE_JUNK_FLOOR = int(os.getenv("POKEMON_MOVE_JUNK_FLOOR", "50"))
 # move-list-wedge lesson) — so it's behind a flag for a one-variable live control before it
 # rides the canonical climb. Flip POKEMON_FIELD_MOVES=1 to arm it for the verification run.
 FIELD_MOVES_ENABLED = os.getenv("POKEMON_FIELD_MOVES", "0") == "1"
+# PHASE 3 (overworld item pickups) — offer "grab the item over there" as an oracle choice when a
+# ground item ball (gfx 92) is BFS-reachable AND it's SAFE: only on the OVERWORLD surface (map group
+# 3 = routes/towns), never inside a cave/interior, so a roadside potion-grab can NEVER disrupt a
+# hard-won fragile traversal like Mt Moon (cave/building item balls are DEFERRED, recon-flagged).
+# Bounded detour distance so she never wanders far off-route into danger for an item. DEFAULT-OFF:
+# the pickup actuation (grab_item) reuses the proven _talk face→A→drain mechanic but the bag-delta
+# confirmation is unverified here (the catch-path lesson) — arm POKEMON_ITEM_PICKUP=1 for the control.
+ITEM_PICKUP_ENABLED = os.getenv("POKEMON_ITEM_PICKUP", "0") == "1"
+ITEM_GRAB_MAX_DIST  = int(os.getenv("POKEMON_ITEM_GRAB_MAX_DIST", "18"))   # max grass-free steps to detour
 
 
 def resolve_state(name):
@@ -2529,7 +2538,43 @@ class Campaign:
                     a[fo["action"]] = fo["prompt"]
             except Exception:
                 pass
+        # GRAB AN ITEM (PHASE 3): offer when a ground item ball is reachable + SAFE (overworld
+        # surface, bounded detour). She chooses to grab it in character. Gated until verified.
+        if ITEM_PICKUP_ENABLED:
+            try:
+                if self._item_target(state):
+                    a["grab_item"] = "grab that item over there — a free pickup, looks safe to reach"
+            except Exception:
+                pass
         return a
+
+    def _item_target(self, state):
+        """Nearest SAFE, reachable ground item ball: {'coord','stand','face','dist'} or None. SAFE =
+        overworld surface (map group 3 — never a cave/interior, so a grab can't disrupt a fragile
+        traversal like Mt Moon) + grass-free-BFS reachable within ITEM_GRAB_MAX_DIST. PHASE 3."""
+        import field_moves as fm
+        if tv.map_id(self.b)[0] != 3:                 # overworld surface only (skips caves/buildings)
+            return None
+        co = state.get("coords") or tv.coords(self.b)
+        if not co:
+            return None
+        balls = fm.item_balls(self.b)
+        if not balls:
+            return None
+        grid = tv.Grid(self.b)
+        best = None
+        for ball in balls:
+            ix, iy = ball["coord"]
+            for d, key in fm._DELTA_KEY.items():
+                sx, sy = ix - d[0], iy - d[1]         # tile to stand on so facing `key` looks at the item
+                if not grid.walkable_safe(sx, sy):
+                    continue
+                p = tv.bfs(grid, co, lambda c, t=(sx, sy): c == t, walkable=grid.walkable_safe)
+                if p and (len(p) - 1) <= ITEM_GRAB_MAX_DIST:
+                    dist = len(p) - 1
+                    if best is None or dist < best["dist"]:
+                        best = {"coord": ball["coord"], "stand": (sx, sy), "face": key, "dist": dist}
+        return best
 
     def _field_block(self, state):
         """Detect an adjacent obstacle the player could clear with an HM she actually has. Returns
@@ -2582,6 +2627,22 @@ class Campaign:
             self.on_event(f"there's something blocking the way — let me use {nm}.", kind="field", tier=2)
             res = self.field.clear_obstacle(hm, face)
             log(f"   [roam] field-move use_{hm} (face {face}) -> {res}")
+            return res
+        # GRAB AN ITEM (PHASE 3): walk to the stand-tile beside the item, face it, A, drain the
+        # 'found ITEM!' line. Non-fatal on miss (surfaces to the oracle next tick).
+        if pick == "grab_item" and ITEM_PICKUP_ENABLED:
+            if self.field is None:
+                return "cant"
+            it = self._item_target(state)
+            if not it:
+                return "no_item"
+            self.on_event("ooh, there's something over there — let me grab it.", kind="item", tier=1)
+            self.trav.travel(target_map=None, arrive_coord=it["stand"], max_steps=200, max_seconds=90)
+            if tv.coords(self.b) != it["stand"]:
+                log(f"   [roam] grab_item: couldn't reach stand tile {it['stand']} -> stuck")
+                return "stuck"
+            res = self.field.grab_item(it["coord"], it["face"])
+            log(f"   [roam] grab_item at {it['coord']} (face {it['face']}) -> {res}")
             return res
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
