@@ -1516,13 +1516,22 @@ class Campaign:
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         caught = [False]
         out_of_balls = [False]
+        healed_out = [False]      # BATCH 5 P2: healed mid-catch -> end cleanly, free_roam re-decides
+        trainer_secs = [0.0]      # BATCH 5 P2: wall-clock spent in FORCED trainer fights en route — does
+        #                           NOT count against the catch budget (those are mandatory, not failure)
 
         def catch_runner():
             """Travel hands every encounter here. Wild -> CATCH (commit); trainer -> normal fight.
             Always returns 'win' on a wild so travel keeps walking the grass for more encounters."""
             if self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08:           # trainer: can't catch -> fight
-                log("   CATCH: a trainer engaged en route - fighting through")
-                return self.battle_runner()
+                # BATCH 5 P2: a Nugget-Bridge-style gauntlet en route to grass is MANDATORY, not wasted
+                # time — punching through it IS progress. Time it and credit it back to the budget so the
+                # catch isn't aborted before she ever reaches wild grass (the 164s/177s blow-out bug).
+                log("   CATCH: a trainer engaged en route - fighting through (time NOT counted vs catch budget)")
+                _tb = time.time()
+                out = self.battle_runner()
+                trainer_secs[0] += time.time() - _tb
+                return out
             log("   CATCH: WILD encounter - committing to the catch")
             # CATCH ON THE MAIN CORE (default). The old "throw doesn't actuate in a long-running core" was
             # MISDIAGNOSED as decay; the real bug was the in-battle bag opening on the wrong (Items) pocket
@@ -1554,16 +1563,25 @@ class Campaign:
             wi = 0
             fails = 0
             FAIL_BUDGET = len(waypoints) + 2     # ~each waypoint once, then surface to roam
-            while time.time() - t0 < max_seconds and not caught[0] and not out_of_balls[0]:
+            # BUDGET (Batch 5 P2): measure only GENUINE catch-wandering time — credit back the forced
+            # trainer-fight wall-clock so a trainer gauntlet between her and the grass can't time the
+            # catch out before she gets a single throw.
+            while (time.time() - t0 - trainer_secs[0]) < max_seconds and not caught[0] and not out_of_balls[0]:
                 before = tv.coords(self.b)
                 r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
                                      max_steps=120, max_seconds=80, avoid=doors)
                 if r == "need_heal":
-                    # a lone starter can't tank Route 3's trainer gauntlet — heal at Pewter (one west
-                    # cross) and resume. Beaten trainers don't re-engage, so each cycle makes progress.
-                    if self._heal_excursion(PEWTER, PEWTER_PC_DOOR, "west", ROUTE3, "east") == "stuck":
-                        log("   !! CATCH: heal excursion failed - LOUD"); break
-                    continue                                  # retry the same waypoint, now healed
+                    # BATCH 5 P2: heal at the NEAREST Center (location-aware) — NOT a hardcoded Pewter
+                    # cross (the old Route-3-era line dead-ended post-Misty: "didn't reach (3,2)"). Then
+                    # END this catch cleanly: heal_nearest may leave her at a Center on a DIFFERENT map,
+                    # so chasing the old grass waypoints would be stale — instead let free_roam re-decide
+                    # from her healed position (she re-picks wander_catch and re-acquires grass HERE, now
+                    # healthy; no heal-loop since she's topped up). Can't route -> still break (LOUD).
+                    hr = self.heal_nearest()
+                    healed_out[0] = (hr != "stuck")
+                    log("   CATCH: healed mid-catch — returning to roam to re-acquire grass healthy"
+                        if healed_out[0] else "   !! CATCH: heal could not route from here - back to roam (LOUD)")
+                    break
                 wi += 1
                 if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                     caught[0] = True; break
@@ -1587,7 +1605,9 @@ class Campaign:
             return "caught"
         if out_of_balls[0]:
             log("   !! CATCH: ran out of Poké Balls before a catch - LOUD"); return "no_balls"
-        log("   !! CATCH: no catch within budget - LOUD")
+        if healed_out[0]:
+            return "healed_retry"      # not a failure: she topped up mid-catch; free_roam re-decides
+        log("   !! CATCH: no catch within budget (genuine wander time, trainer fights excluded) - LOUD")
         return "timeout"
 
     def _cave_runner(self):
