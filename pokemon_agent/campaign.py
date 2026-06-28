@@ -207,6 +207,10 @@ MART_CURSOR = 0x02039940   # u8 highlighted-row index in the BUY list (CONTROL-f
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
 # much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
 SHOP_POTION_TARGET = 6
+# BATCH 6 PHASE 2 — FORESIGHT target: when she's up against a wall she can't beat yet, a real player
+# stocks up DEEPER before pushing on (she has $7-9k here). Bumps the buy-to target so "stock up before
+# I take that bridge" is a live, characterful option — not only a restock when she's already empty.
+SHOP_POTION_FORESIGHT = 10
 SHOP_CURE_QTY = 2
 SHOP_MONEY_FLOOR = 500
 
@@ -344,6 +348,17 @@ class Campaign:
         # BATCH 2 PART C: statuses that have afflicted the party recently (sampled each free-roam tick),
         # so "shop with intent" buys the SPECIFIC cures for what actually hurt her, not a generic kit.
         self._afflict_seen = set()
+        # BATCH 6 PHASE 2 (the Gary death-loop killer) — a LEARNED map-connection graph + grass memory,
+        # accumulated from REAL header reads as she travels (never guessed). Lets _grass_target route to
+        # the nearest NON-gated grass even when it's BEHIND her, several hops back on already-cleared
+        # routes (the live gap: the only grass she'd consider was across the gated Nugget bridge, so she
+        # died, healed, re-crossed, died — 4x). _conn_graph: {(grp,num): {edge: (grp,num)}}; _grass_maps:
+        # maps where reachable huntable grass was confirmed underfoot at least once.
+        self._conn_graph = {}
+        self._grass_maps = set()
+        # Deterrence (Phase 2c): consecutive ticks the routing hard-refused to cross the active wall.
+        # Escalates the "this ends the same way" framing so the blind re-walk stops being her default.
+        self._wall_gated_streak = 0
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
@@ -2106,12 +2121,26 @@ class Campaign:
         log(f"   MART: shopping done — {bought} (money now {self.money()})")
         return bought
 
-    def _shopping_list(self):
-        """What a sensible player would BUY here, given the bag + what's hurt her: top Potions up to
-        SHOP_POTION_TARGET, and SHOP_CURE_QTY of the cure for each status seen recently (_afflict_seen).
+    def _walled(self, state=None):
+        """BATCH 6 PHASE 2 — is she up against a SPATIAL wall she's not yet strong enough to pass? Drives
+        the foresight stock-up + the deterrence escalation. Conservative: unknown strength -> treat as
+        walled (so she prepares rather than charging)."""
+        r = self.strat.active_wall_rec()
+        if not r or not r.get("map_id"):
+            return False
+        st_ = state or {}
+        pc = st_.get("party_count")
+        pl = st_["party"][0]["level"] if st_.get("party") else None
+        return not self.strat.stronger_since_wall(pc, pl)
+
+    def _shopping_list(self, foresight=False):
+        """What a sensible player would BUY here, given the bag + what's hurt her: top Potions up to the
+        target (SHOP_POTION_FORESIGHT when she's walled and stocking up before a push, else
+        SHOP_POTION_TARGET), and SHOP_CURE_QTY of the cure for each status seen recently (_afflict_seen).
         Bounded quantities (survival, not hoarding); returns [(item_id, qty), ...] (empty = well-stocked)."""
         sl = []
-        pot_need = SHOP_POTION_TARGET - self.bag_count(ITEM_POTION)
+        target = SHOP_POTION_FORESIGHT if foresight else SHOP_POTION_TARGET
+        pot_need = target - self.bag_count(ITEM_POTION)
         if pot_need > 0:
             sl.append((ITEM_POTION, pot_need))
         for status in sorted(self._afflict_seen):
@@ -2123,21 +2152,28 @@ class Campaign:
                 sl.append((cure[0], need))
         return sl
 
-    def _shop_note(self):
+    def _shop_note(self, foresight=False):
         """Characterful ctx line for the stock-up offer: names what hurt her + the restock need, so her
-        pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals')."""
+        pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals').
+        FORESIGHT (Phase 2): when she's walled, lead with 'stock up BEFORE you push that wall'."""
+        target = SHOP_POTION_FORESIGHT if foresight else SHOP_POTION_TARGET
         cures = [STATUS_CURE[s][1] for s in sorted(self._afflict_seen) if s in STATUS_CURE
                  and self.bag_count(STATUS_CURE[s][0]) < SHOP_CURE_QTY]
         bits = []
-        if self.bag_count(ITEM_POTION) < SHOP_POTION_TARGET:
-            bits.append("you're low on Potions")
+        if self.bag_count(ITEM_POTION) < target:
+            bits.append("you're low on Potions" if not foresight
+                        else "you could carry a lot more Potions before that next push")
         if cures:
             afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
             bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
         if not bits:
             return ""
-        return ("There's a Mart right here. " + "; ".join(bits)
-                + " — a real trainer stocks up before pushing on.")
+        head = ("There's a Mart right here, and you've got the money. " if foresight
+                else "There's a Mart right here. ")
+        tail = (" — stocking up on healing BEFORE you walk back into that wall is the smart play, not "
+                "charging in empty-handed." if foresight
+                else " — a real trainer stocks up before pushing on.")
+        return head + "; ".join(bits) + tail
 
     def roster_react(self):
         """SOUL beat after a hand-play-banked catch (the agent can't drive this core's battle menus,
@@ -2258,25 +2294,89 @@ class Campaign:
         path = tv.bfs(g, co, lambda t: t in playable)
         return path[-1] if path else None
 
+    def _learn_map(self, state=None):
+        """BATCH 6 PHASE 2 — fold the CURRENT map's real connections + grass into the learned graph
+        (pure reads, cached). Called once per free-roam tick so the multi-hop grass finder can later
+        route her BACK to grass on already-cleared routes. Never guesses — only records what the live
+        map header + a real BFS confirm."""
+        cur = tuple(tv.map_id(self.b))
+        conns = {self._EDGE[d]: tuple(m) for d, m in self._map_connections()}
+        if conns:
+            self._conn_graph.setdefault(cur, {}).update(conns)
+        try:
+            if self._reachable_grass() is not None:
+                self._grass_maps.add(cur)
+        except Exception:
+            pass
+        return cur
+
+    @staticmethod
+    def _is_route_map(m):
+        """A group-3 ROUTE (cities are num 0..~12; routes >=19 carry wild grass) — a grass CANDIDATE."""
+        return bool(m) and m[0] == 3 and m[1] >= 19
+
+    def _grass_via_graph(self, state):
+        """BFS the LEARNED connection graph (seeded with the current map's LIVE connections) for the
+        nearest map with huntable grass — confirmed (_grass_maps) OR a group-3 route candidate — reachable
+        WITHOUT stepping onto a gated wall map. Returns (next_hop_map, edge) for the FIRST step toward it
+        (she travels one hop/tick, re-evaluating), else None. THIS is what lets her turn AROUND to grass
+        behind her instead of dying on the gated bridge forever (the live Gary death-loop)."""
+        from collections import deque
+        cur = self._learn_map(state)
+        pcount = state.get("party_count")
+        plevel = state["party"][0]["level"] if state.get("party") else None
+        def gated(m):
+            return self.strat.is_gated(m, pcount, plevel)
+        def has_grass(m):
+            return (m in self._grass_maps or self._is_route_map(m)) and m != cur
+        seen = {cur}
+        q = deque()
+        for edge, nbr in self._conn_graph.get(cur, {}).items():
+            if nbr in seen or gated(nbr):
+                continue                              # never step toward the wall
+            seen.add(nbr); q.append((nbr, edge))      # carry the FIRST-hop edge so we can return it
+        while q:
+            node, first_edge = q.popleft()
+            if has_grass(node):
+                # one hop toward the grass; if node is itself the adjacent grass, that's the hop.
+                first_map = self._conn_graph.get(cur, {}).get(first_edge)
+                return (first_map or node, first_edge)
+            for edge, nbr in self._conn_graph.get(node, {}).items():
+                if nbr in seen or gated(nbr):
+                    continue
+                seen.add(nbr); q.append((nbr, first_edge))
+        return None
+
     def _grass_target(self, state):
         """Where she can HONESTLY hunt: ('here', tile) if reachable on this map, else ('route', (g,n),
-        edge) for an adjacent group-3 ROUTE (cities are num 0..~12; routes >=19 carry wild grass), else
-        None. catch_one re-verifies grass on arrival (no_grass backstop) so a phantom hunt is never
-        silently offered."""
+        edge) for grass she can reach WITHOUT crossing the gated wall — an ungated adjacent route first,
+        else (Phase 2) the nearest grass BEHIND her via the learned graph, else the gated route as a last
+        resort (so _route_action surfaces the wall rather than silently offering a phantom hunt).
+        catch_one re-verifies grass on arrival (no_grass backstop) so a wrong guess never freezes."""
         tile = self._reachable_grass()
         if tile is not None:
             return ("here", tile)
         routes = [(d, (grp, num)) for d, (grp, num) in self._map_connections()
                   if grp == 3 and num >= 19]
         # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
-        # wall. Only fall back to the gated route if it's the ONLY grass — then _route_action's gate
-        # surfaces it instead of crossing the bridge into the trainer who keeps blacking her out.
+        # wall. Adjacent ungated route wins (this already includes grass directly behind her).
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)]
-        chosen = non_gated or routes
-        if chosen:
-            d, m = chosen[0]
+        if non_gated:
+            d, m = non_gated[0]
+            return ("route", m, self._EDGE[d])
+        # BATCH-6 PHASE 2: no UNGATED grass directly adjacent — before surfacing the gated bridge (the
+        # death-loop), BFS the learned graph for grass BEHIND her on already-cleared routes. One hop/tick.
+        hop = self._grass_via_graph(state)
+        if hop is not None:
+            nxt, edge = hop
+            log(f"   [roam] grass-behind-the-wall: routing one hop {edge} -> {nxt} toward known/likely grass "
+                f"(avoiding the gated route)")
+            return ("route", nxt, edge)
+        # Truly only the gated route exists -> surface it; _route_action's gate tells her it's blocked.
+        if routes:
+            d, m = routes[0]
             return ("route", m, self._EDGE[d])
         return None
 
@@ -2310,12 +2410,16 @@ class Campaign:
         if self._grass_target(state) is not None:
             a["wander_catch"] = "wander the grass and try to catch a new teammate"
             a["battle"] = "train in the grass - fight wild pokemon to level the team up"
-        # SHOP WITH INTENT (PART C): offer "stock up" only when it actually DOES something — at a town
-        # with a mapped Mart, with money above the floor, and a real shopping need (low on potions /
-        # missing a cure for what's hurt her). Naturally surfaces AFTER a heal (she's then in the town).
-        if (state["map"] in CITY_MART_DOORS and self.money() > SHOP_MONEY_FLOOR
-                and self._shopping_list()):
-            a["stock_up"] = "stock up at the Mart — buy potions and the cures for what's been hurting you"
+        # SHOP WITH INTENT (PART C) + BATCH-6 PHASE-2 FORESIGHT: offer "stock up" when it DOES something —
+        # at a town with a mapped Mart and money above the floor, with EITHER a real restock need (low on
+        # potions / missing a cure) OR she's walled and could prepare deeper before a push (foresight,
+        # even if not yet empty). Naturally surfaces AFTER a heal (she's then in the town, next to the wall).
+        if state["map"] in CITY_MART_DOORS and self.money() > SHOP_MONEY_FLOOR:
+            fs = self._walled(state)
+            if self._shopping_list(foresight=fs):
+                a["stock_up"] = ("stock up at the Mart — load up on potions before you push that wall"
+                                 if fs else
+                                 "stock up at the Mart — buy potions and the cures for what's been hurting you")
         # TALK TO THE LOCALS (Batch 5 P4): offer only when there's actually a not-yet-talked-to
         # townsperson reachable-ish here (honest action set). Her earliest want — let her work the room.
         try:
@@ -2399,7 +2503,7 @@ class Campaign:
             return self.grind(lead + 2)
         if pick == "stock_up":
             door = CITY_MART_DOORS.get(state["map"])
-            sl = self._shopping_list()
+            sl = self._shopping_list(foresight=self._walled(state))
             if door is None or not sl:
                 return "nothing_to_buy"
             bought = self.buy_at_mart(door, sl)
@@ -2506,6 +2610,7 @@ class Campaign:
                 self._exit_to_overworld()
                 self._wait_overworld()
             state = self.read_live_state()
+            self._learn_map(state)         # BATCH-6 P2: fold this map's connections+grass into the graph
             # SHOP-WITH-INTENT memory (PART C): sample what's afflicting the party THIS tick so a later
             # stock-up buys the cure for what actually hurt her (persists even after it's healed off).
             newly = self.party_statuses()
@@ -2570,7 +2675,7 @@ class Campaign:
             # SHOP-WITH-INTENT awareness (PART C): when stock_up is on offer, fold the characterful
             # restock/affliction note into the same ctx seam so her pick reads as learning from the road.
             if "stock_up" in avail:
-                snote = self._shop_note()
+                snote = self._shop_note(foresight=self._walled(state))
                 if snote:
                     where = f"{where}. {snote}"
                     log(f"   [roam] SHOP: {snote!r} — surfacing 'stock_up' to the oracle")
@@ -2598,6 +2703,16 @@ class Campaign:
                 if wg:
                     where = f"{where}. {wg}"
                     log("   [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)")
+                # BATCH-6 PHASE 2c — when she's KEPT trying the blocked path, escalate hard: name the loop
+                # out loud and point at the concrete THIS-SIDE moves (build a team in the grass behind you,
+                # stock up at the Mart) so the audience sees her break the die→re-walk→die pattern.
+                if self._wall_gated_streak >= 2:
+                    where = (f"{where}. You keep turning back to that same blocked path — and it's blocked "
+                             f"every time, this is the exact loop that just blacks you out. Stop pushing it. "
+                             f"The real move is on THIS side: grind the grass behind you to level up, catch a "
+                             f"teammate for backup, or stock up at the Mart — THEN come back and take it.")
+                    log(f"   [roam] !! DETER: wall_gated streak {self._wall_gated_streak} — escalating "
+                        f"this-side options to break the re-walk loop")
             ra = self.strat.roster_awareness(state["party"])
             if ra:
                 where = f"{where}. {ra}"
@@ -2612,6 +2727,17 @@ class Campaign:
             out = self._route_action(pick, state)
             log(f"   [roam] RESULT: {pick} -> {out}")
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
+            # BATCH-6 PHASE 2c — DETER the blind re-walk: when the routing HARD-REFUSED to cross the wall
+            # (wall_gated), count it. A rising streak means she keeps trying the one path that's blocked —
+            # the next-tick oracle ctx escalates "this ends the same way; go build/stock on THIS side"
+            # (folded below via _wall_gated_streak). She can still choose it (agency) but it stops being
+            # the default loop. Any productive move (heal/stock/grass-behind/talk) clears the streak.
+            if out == "wall_gated":
+                self._wall_gated_streak += 1
+                log(f"   [roam] !! WALL-GATED streak={self._wall_gated_streak} — the way forward stays "
+                    f"blocked; escalating 'build a team / stock up on THIS side' to the oracle")
+            else:
+                self._wall_gated_streak = 0
             if pick == "heal" and out == "ok":
                 # SOUL BEAT (PART A): she took care of herself — voice it through the seam (firewall).
                 self.on_event("okay — patched up and ready. let's go.", kind="heal", tier=2)
