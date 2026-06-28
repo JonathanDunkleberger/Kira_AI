@@ -36,6 +36,11 @@ import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from pokemon_strategy import StrategicMemory  # noqa: E402  (Batch 3 Phase 2: loss/roster/opponent awareness)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
+from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
+try:
+    import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
+except Exception:
+    fm = None
 from battle_agent import BattleAgent  # noqa: E402
 from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
@@ -67,6 +72,10 @@ CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestat
 # --resume climb resumes KNOWING her story. Launch-independent (file-based, not tied to any endpoint).
 SOUL_JSON = os.path.join(STATES_KIRA, "pokemon_soul.json")
 STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
+# Batch-WORLD — her mental MAP (visited nodes + connectivity + traits + capabilities) persists
+# next to the campaign save, so a --resume climb wakes up KNOWING where she's been (no more
+# spatial amnesia that left the only place in her head to go = into the wall).
+WORLD_JSON = os.path.join(STATES_CAMPAIGN, "world_model.json")
 # BATCH 6 PHASE 7 — HEALTH READOUT (for JONNY's cockpit, distinct from the viewer HUD): the free-roam
 # loop publishes a tiny JSON the dashboard reads cross-process, so a glance at hour 6 says "she's fine"
 # or "she's been wedged an hour". Game-side fields only (progress/where/badges/last-checkpoint); the
@@ -373,6 +382,10 @@ class Campaign:
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
         # battle_agent / play_live surgery, and the wrapper is pure-additive (real runner unchanged).
         self.strat = StrategicMemory(log=log)
+        # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
+        # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
+        # with the known overworld nodes, enriched live each tick, persisted across --resume.
+        self.world = WorldModel(log=log)
         self.guide = GuideSearch(log=log)     # BATCH 6 PHASE 5: silent guide (no-op until dep is live)
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
@@ -2507,12 +2520,34 @@ class Campaign:
         conns = {self._EDGE[d]: tuple(m) for d, m in self._map_connections()}
         if conns:
             self._conn_graph.setdefault(cur, {}).update(conns)
+        has_grass = False
         try:
             if self._reachable_grass() is not None:
                 self._grass_maps.add(cur)
+                has_grass = True
         except Exception:
             pass
+        # Batch-WORLD — fold this map into her persistent mental map: live name + connectivity +
+        # live-confirmed traits (grass underfoot; Mart/Center from the door tables; group!=3 = interior).
+        try:
+            live_traits = {"has_grass": has_grass, "has_wild": has_grass,
+                           "has_mart": cur in CITY_MART_DOORS,
+                           "has_pokecenter": cur in CITY_PC_DOORS,
+                           "is_town": cur in CITY_MART_DOORS or cur in CITY_PC_DOORS}
+            self.world.note_visit(cur, name=self._PLACE_NAMES.get(cur), live_traits=live_traits, edges=conns)
+        except Exception as _w:
+            log(f"   [world] note_visit skipped: {_w}")
         return cur
+
+    def _refresh_world_caps(self):
+        """Batch-WORLD — update her capability registry from the live game (knows-the-HM AND
+        has-the-badge, via field_moves). Walk is always hers; Fly/Surf/etc. only when truly owned,
+        so the spatial brief reflects reality and she USES Fly/Surf the moment she earns them."""
+        can_use = None
+        if fm is not None:
+            pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            can_use = lambda hm: fm.can_use(self.b, hm, pc)   # noqa: E731
+        self.world.refresh_caps(can_use)
 
     @staticmethod
     def _is_route_map(m):
@@ -2925,6 +2960,13 @@ class Campaign:
         _prev_badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         self._continuity_load()                    # ADDENDUM D: resume KNOWING her saga (bonds/wants/grudge)
+        # Batch-WORLD — seed her mental map by badge-proof (places she MUST have crossed) and read her
+        # current travel capabilities, so from tick 1 she has a sense of place + knows she can walk back.
+        try:
+            self.world.seed_known(sum(1 for i in range(8) if self.has_badge(0x820 + i)))
+            self._refresh_world_caps()
+        except Exception as _ws:
+            log(f"   [world] seed/caps skipped: {_ws}")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
@@ -2981,6 +3023,7 @@ class Campaign:
                 self._wait_overworld()
             state = self.read_live_state()
             self._learn_map(state)         # BATCH-6 P2: fold this map's connections+grass into the graph
+            self._refresh_world_caps()     # Batch-WORLD: keep Fly/Surf/etc. live (she uses them when earned)
             # SHOP-WITH-INTENT memory (PART C): sample what's afflicting the party THIS tick so a later
             # stock-up buys the cure for what actually hurt her (persists even after it's healed off).
             newly = self.party_statuses()
@@ -3375,6 +3418,10 @@ class Campaign:
             self.strat.load(STRAT_JSON)
         except Exception as e:
             log(f"   [strat] !! continuity load failed: {e} (LOUD)")
+        try:
+            self.world.load(WORLD_JSON)     # Batch-WORLD: resume KNOWING the map she's built up
+        except Exception as e:
+            log(f"   [world] !! continuity load failed: {e} (LOUD)")
 
     def _continuity_save(self):
         """ADDENDUM D — persist her saga alongside a campaign anchor (bonds/wants + loss/wall history),
@@ -3389,6 +3436,10 @@ class Campaign:
             self.strat.save(STRAT_JSON)
         except Exception as e:
             log(f"   [strat] !! continuity save failed: {e} (LOUD)")
+        try:
+            self.world.save(WORLD_JSON)     # Batch-WORLD: bank her mental map next to the anchor
+        except Exception as e:
+            log(f"   [world] !! continuity save failed: {e} (LOUD)")
         # PHASE 4 — push the journey narrative to core Kira (grudge + team feelings + arc), so it
         # persists core-side and surfaces in idle chat / any game, not just this Pokémon process.
         try:
