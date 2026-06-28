@@ -2315,6 +2315,45 @@ class Campaign:
         pl = st_["party"][0]["level"] if st_.get("party") else None
         return not self.strat.stronger_since_wall(pc, pl)
 
+    def _wall_avoid(self, state):
+        """Batch-WORLD — maps the active spatial wall makes off-limits to ROUTING (a route-trainer
+        she can't beat yet). The HUB case (the wall is on the map she's standing on — e.g. Gary
+        triggering on the Cerulean City map) is handled by blocked-DIRS instead, so she's never
+        trapped on the very hub she heals at. Empty once she's grown enough to retry."""
+        r = self.strat.active_wall_rec()
+        if not r or not r.get("map_id"):
+            return set()
+        pc = state.get("party_count")
+        pl = state["party"][0]["level"] if state.get("party") else None
+        if self.strat.stronger_since_wall(pc, pl):
+            return set()
+        wm, cur = tuple(r["map_id"]), tuple(state["map"])
+        return set() if wm == cur else {wm}
+
+    def _wall_blocked_dirs(self, state):
+        """Batch-WORLD — when the active wall is ON her current map (a trainer guarding an exit, like
+        Gary at Cerulean's north edge), the blocked thing is a DIRECTION, not a neighbouring map. Pick
+        the exit nearest the wall's coords (from the live grid bounds), so the spatial brief can show
+        'NORTH → BLOCKED' truthfully. Best-effort: empty if coords/bounds aren't readable (the brief
+        just won't tag a direction; routing still steers her to known places, which are backward)."""
+        r = self.strat.active_wall_rec()
+        if not r or not r.get("map_id") or not r.get("coords"):
+            return set()
+        pc = state.get("party_count")
+        pl = state["party"][0]["level"] if state.get("party") else None
+        if self.strat.stronger_since_wall(pc, pl) or tuple(r["map_id"]) != tuple(state["map"]):
+            return set()
+        try:
+            g = tv.Grid(self.b)
+            x, y = r["coords"]
+            dist = {"north": y - g.sy_lo, "south": g.sy_hi - y,
+                    "west": x - g.sx_lo, "east": g.sx_hi - x}
+            present = {self._EDGE[d] for d, _m in self._map_connections()}
+            cand = {d: v for d, v in dist.items() if d in present and v >= 0}
+            return {min(cand, key=cand.get)} if cand else set()
+        except Exception:
+            return set()
+
     def _guide_lookup(self, state):
         """BATCH 6 PHASE 5 — form a templated guide query from the LIVE situation (mode forming a tool
         query from game facts — NOT scripting her personality) and return a characterful ctx line folding
@@ -3129,6 +3168,19 @@ class Campaign:
             # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
             # she's stuck; she still decides the next move HERSELF (capability-not-script).
             where = state["place"]
+            # Batch-WORLD (Phase 2) — SENSE OF PLACE: lead the oracle ctx with a short spatial picture
+            # from her visited-world memory (where she is, what's around, what's BLOCKED, what she can
+            # walk back to, how she can travel). This is the MAP she never had — so when a path is
+            # blocked she has somewhere in her head to go besides into the wall. Firewall: same `place`
+            # seam; she still decides. Avoid = route-walls she can't beat; blocked_dirs = a wall on THIS map.
+            try:
+                avoid = self._wall_avoid(state)
+                bdirs = self._wall_blocked_dirs(state)
+                brief = self.world.spatial_brief(tuple(state["map"]), avoid=avoid, blocked_dirs=bdirs)
+                if brief:
+                    where = f"{where}. {brief}"
+            except Exception as _wb:
+                log(f"   [world] spatial brief skipped: {_wb}")
             # SURVIVAL AWARENESS (PART A): fold the party-hurt note into the oracle ctx via the same
             # `place` seam the stuck-note uses (the only general field her prompt renders — firewall: no
             # core edit). A badly-hurt Kira is TOLD she's hurt + that healing comes first; she still
