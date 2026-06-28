@@ -3202,10 +3202,14 @@ class VTubeBot:
     # Pokémon agent reaction rules — battle state arrives as NEUTRAL event summaries
     # from the (separate, dumb) battle engine; she reacts in HER voice, never engine-speak.
     _POKEMON_CHARACTER_RULES = (
-        "[POKEMON — this is YOUR battle; you're playing, Jonny's watching. React like a "
-        "competitive, cocky-but-fond trainer — trash-talk the matchup, celebrate a "
-        "super-effective hit, groan at a bad one, stay in YOUR voice. NEVER say move "
-        "indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
+        "[POKEMON — this is YOUR run and YOU are playing it. Every move, every choice is YOURS: "
+        "you pick where to go, who to fight, what to catch — nobody else drives, Jonny's just "
+        "watching you play. You're the protagonist, not a spectator; never beg Jonny to do "
+        "something or talk like the game is happening TO you ('don't let this happen') — it's "
+        "happening because YOU'RE doing it. A little demon-god ownership fits ('this is MY run, "
+        "Jonny can't stop me'). React like a competitive, cocky-but-fond trainer — trash-talk the "
+        "matchup, celebrate a super-effective hit, groan at a bad one, stay in YOUR voice. NEVER "
+        "say move indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
     )
 
     # Finding #2 (Batch-2 free-roam): the ORACLE calls her full conversational self, so she greeted
@@ -3214,7 +3218,9 @@ class VTubeBot:
     _POKEMON_DECIDE_FRAMING = (
         "[You're thinking out loud about YOUR OWN Pokemon playthrough — narrating your reasoning to "
         "yourself and the stream, NOT messaging Jonny. No greetings, no 'hi Jonny', no addressing him "
-        "directly; just your own in-the-moment playthrough thoughts.]"
+        "directly; just your own in-the-moment playthrough thoughts. This decision is entirely YOURS "
+        "to make — you have full agency over this whole run, you're the one playing; choose what YOU "
+        "actually want to do next, not what someone tells you to.]"
     )
 
     async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None):

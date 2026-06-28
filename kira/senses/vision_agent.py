@@ -5,6 +5,12 @@ import re
 from collections import deque
 from io import BytesIO
 from PIL import ImageGrab
+try:
+    import pygetwindow as _pgw          # window-target capture (Pokémon vision-lock); already a VN-mode dep
+    PYGETWINDOW_AVAILABLE = True
+except Exception:
+    _pgw = None
+    PYGETWINDOW_AVAILABLE = False
 from openai import AsyncOpenAI
 from kira.config import (OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS,
                          VISION_CAPTURE_DEDUP_ENABLED, VISION_CAPTURE_DEDUP_WINDOW_S,
@@ -165,6 +171,11 @@ class UniversalVisionAgent:
         self.master_enabled = ENABLE_VISION
         self.quality_mode = "fast"       # 'fast' or 'high'
         self.activity_type = "general"   # Set by GameModeController / bot
+        # POKÉMON VISION-LOCK (Phase 1A): when non-empty, EVERY grab is restricted to the window whose
+        # title contains this substring (the game window) — she sees the game and NOTHING else (no
+        # desktop/code leak). Empty "" = normal full-screen capture (default; zero change off-mode).
+        # Set by control_server on pokemon_start, cleared on pokemon_stop.
+        self.capture_window_title = ""
 
         # Shared Buffer (populated by dashboard to avoid double-capturing)
         self.shared_frame = None
@@ -264,16 +275,17 @@ class UniversalVisionAgent:
             return "UNCERTAIN: vision unavailable (missing API key)."
         try:
             def process_image():
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy()
-                else:
-                    img = ImageGrab.grab()
+                img = self._grab_region()
+                if img is None:
+                    return None
                 img.thumbnail((1920, 1080))
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG", quality=85)
                 return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             base64_image = await asyncio.to_thread(process_image)
+            if base64_image is None:
+                return "I can't see the game window right now — give me a sec."
 
             prompt = (
                 "You are looking at Jonny's computer screen. Jonny just asked Kira "
@@ -354,16 +366,17 @@ class UniversalVisionAgent:
             return "Vision unavailable (Missing API Key)."
         try:
             def process_image():
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy()
-                else:
-                    img = ImageGrab.grab()
+                img = self._grab_region()
+                if img is None:
+                    return None
                 img.thumbnail((1920, 1080))
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG", quality=90)
                 return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             base64_image = await asyncio.to_thread(process_image)
+            if base64_image is None:
+                return "I can't read the game window right now."
 
             response = await asyncio.wait_for(
                 self.client.chat.completions.create(
@@ -461,12 +474,10 @@ class UniversalVisionAgent:
             # Capture and Scale based on quality mode
             # Run blocking image capture/processing in a thread
             def process_image():
-                # Check for shared frame (freshness < 1.0s)
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy() # Use the shared frame
-                else:
-                    img = ImageGrab.grab() # Fallback capture
-                
+                img = self._grab_region()
+                if img is None:
+                    return None
+
                 if self.quality_mode == "high" and not is_heartbeat:
                     img.thumbnail((1920, 1080)) # 1080p for high detail
                     quality = 85
@@ -484,6 +495,10 @@ class UniversalVisionAgent:
                 return base64.b64encode(buffered.getvalue()).decode('utf-8')
             
             base64_image = await asyncio.to_thread(process_image)
+            if base64_image is None:
+                # Vision-lock (Pokémon) and the game window is gone — skip this tick rather than
+                # describing a stale/desktop frame. The loud log already fired in _grab_region.
+                return self.last_description
 
             # One-time confirmation that the EYES thumbnail frame is being
             # captured (served by the dashboard's /vision/thumbnail endpoint).
@@ -606,14 +621,53 @@ class UniversalVisionAgent:
         print(f"   [TurboVision] Slideshow OFF — {self._slideshow_calls} analysis calls, "
               f"{len(self.episode_log)} events.")
 
+    def _grab_region(self, allow_shared=True):
+        """The single capture chokepoint. THREE modes, in priority:
+          1. POKÉMON VISION-LOCK — when self.capture_window_title is set, grab ONLY that window's
+             rect (the game window). She sees the game and nothing else. If the window is gone /
+             minimised / pygetwindow is missing, return None and log LOUD — we NEVER silently fall
+             back to the full desktop (that silent fallback IS the leak we're fixing; Constraint #3).
+          2. SHARED — a fresh dashboard-pushed frame (<1.0s old) when allowed.
+          3. FULL-SCREEN — the default ImageGrab.grab().
+        Returns a PIL image, or None ONLY in vision-lock mode when the window is unavailable
+        (callers skip the frame / answer honestly rather than describing the desktop)."""
+        title = self.capture_window_title
+        if title:
+            if not PYGETWINDOW_AVAILABLE:
+                print(f"   [Vision] !! vision-lock '{title}' requested but pygetwindow missing — "
+                      f"skipping frame (pip install pygetwindow pywin32)", flush=True)
+                return None
+            try:
+                needle = title.strip().lower()
+                win = next((w for w in _pgw.getAllWindows()
+                            if needle in (w.title or "").lower()), None)
+            except Exception as e:
+                print(f"   [Vision] !! vision-lock '{title}' lookup failed: {e} — skipping frame",
+                      flush=True)
+                return None
+            if win is None or win.width <= 0 or win.height <= 0:
+                print(f"   [Vision] !! vision-lock '{title}' window not found/minimised — skipping "
+                      f"frame (NOT leaking the desktop)", flush=True)
+                return None
+            try:
+                return ImageGrab.grab(
+                    bbox=(win.left, win.top, win.left + win.width, win.top + win.height))
+            except Exception as e:
+                print(f"   [Vision] !! vision-lock '{title}' grab failed: {e} — skipping frame",
+                      flush=True)
+                return None
+        # normal (un-locked) capture
+        if allow_shared and self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
+            return self.shared_frame.copy()
+        return ImageGrab.grab()
+
     def _grab_fullscreen_b64(self):
         """Sync full-screen grab → downscaled JPEG base64. Reuses a fresh shared
         frame if the dashboard just captured one (avoids a double grab)."""
         try:
-            if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                img = self.shared_frame.copy()
-            else:
-                img = ImageGrab.grab()
+            img = self._grab_region()
+            if img is None:
+                return None
             img.thumbnail((1280, 720))
             # EYES backfill (precedence: heartbeat wins when live). When the heartbeat
             # is PARKED (is_active False — e.g. chess), it isn't writing last_frame /

@@ -1056,6 +1056,21 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
             aa.pokemon_suppress(forced=True)
         elif aa is not None and action == "pokemon_stop":
             aa.pokemon_suppress(forced=False)
+        # POKÉMON VISION-LOCK (Phase 1A): Start restricts her EYES to the game window only (she
+        # stops seeing Jonny's desktop/code — the immersion-break she hit live); Stop releases back
+        # to full-screen. Same explicit-toggle pattern as the audio suppress above. The matched
+        # window-title substring is env-overridable (default = the play_live.py caption); logged LOUD.
+        import os as _os
+        va = getattr(bot, "vision_agent", None)
+        if va is not None and action in ("pokemon_start", "pokemon_stop"):
+            if action == "pokemon_start":
+                title = _os.getenv("POKEMON_VISION_WINDOW_TITLE", "Kira plays Pokemon")
+                va.capture_window_title = title
+                print(f"   [control] POKÉMON VISION-LOCK ON — eyes restricted to window "
+                      f"matching {title!r} (no desktop leak)", flush=True)
+            else:
+                va.capture_window_title = ""
+                print("   [control] POKÉMON VISION-LOCK OFF — eyes back to full-screen", flush=True)
         return _ok(**result)
 
     # ── Vision force-off override (master kill-switch) ────────────────────────
