@@ -176,3 +176,141 @@ def map_id_or_none(bridge):
         return tv.map_id(bridge)
     except Exception:
         return (0, 0)
+
+
+# ── Stage 2: QUESTLINE DERIVER ───────────────────────────────────────────────
+class Step:
+    """One concrete sub-goal of a questline: go somewhere + do something to obtain a capability/flag/item.
+
+    missing    : the capability/flag/item this step obtains (a KB capability key).
+    via        : how — 'talk_npc' | 'use_hm' | 'board' (reuses existing interaction primitives).
+    npc        : who to interact with (display/log).
+    from_map   : the map the destination is reached FROM (KB 'from', a 'g,n' string) — context for `dir`.
+    dir        : coarse, RELIABLE direction to head from there ('north'..) — NOT a map number.
+    place_name : human destination name.
+    success    : ('flag', name) or ('cap', hm_key) — the LIVE condition that means this step is DONE.
+    satisfied  : live-checked — True if already obtained (skip it).
+    resolved   : True if the KB knew how to obtain `missing`; False -> needs the GuideSearch fallback.
+    human      : in-character one-liner.
+    """
+    __slots__ = ("missing", "kind", "via", "npc", "from_map", "dir", "place_name",
+                 "success", "satisfied", "resolved", "human")
+
+    def __init__(self, missing, kind=None, via=None, npc=None, from_map=None, dir=None,
+                 place_name=None, success=None, satisfied=False, resolved=True, human=None):
+        self.missing = missing
+        self.kind = kind
+        self.via = via
+        self.npc = npc
+        self.from_map = from_map
+        self.dir = dir
+        self.place_name = place_name
+        self.success = success
+        self.satisfied = satisfied
+        self.resolved = resolved
+        self.human = human or f"get {missing}"
+
+    def __repr__(self):
+        flag = "✓" if self.satisfied else ("·" if self.resolved else "?")
+        return f"Step[{flag}]({self.missing}, via={self.via}, dir={self.dir}, {self.human!r})"
+
+
+class Questline:
+    """An ordered plan to clear a Gate: prereq steps first, each a Step. `actionable` is the first
+    not-yet-satisfied step (what to DO now). `narration` is the whole plan in her voice."""
+
+    def __init__(self, gate, steps):
+        self.gate = gate
+        self.steps = steps
+        self.actionable = next((s for s in steps if not s.satisfied), None)
+
+    @property
+    def complete(self):
+        return all(s.satisfied for s in self.steps)
+
+    @property
+    def derivable(self):
+        return all(s.resolved for s in self.steps)
+
+    def narration(self):
+        """Her derived plan, in character — the CONCLUSION she 'works out', never 'I searched'."""
+        todo = [s for s in self.steps if not s.satisfied]
+        if not todo:
+            return None
+        if not todo[0].resolved:
+            return (f"I'm stuck on this — {self.gate.human}. I'm not sure how to get past it; "
+                    f"let me think / look into it.")
+        first = todo[0]
+        tail = ""
+        if len(todo) > 1:
+            tail = " Then " + "; then ".join(s.human for s in todo[1:]) + "."
+        return f"Okay — to get past this I need {first.human}.{tail}"
+
+
+def _flag_id(kb, flag_name):
+    ent = (kb.get("flags") or {}).get(flag_name)
+    return int(ent["id"]) if ent and "id" in ent else None
+
+
+def _step_satisfied(step, bridge, kb, party_count_fn, log=print):
+    """LIVE cross-check: is this step already done? Flag-step -> flag set; HM/cap-step -> knows the move."""
+    kind, val = (step.success or (None, None))
+    try:
+        if kind == "flag":
+            fid = _flag_id(kb, val)
+            if fid is None:
+                return False
+            return bool(fm.read_flag(bridge, fid))
+        if kind == "cap":
+            mid = (HM_MOVE_IDS or {}).get(val)
+            if mid is None:
+                return False
+            import pokemon_state as st
+            return st.party_knows_move(bridge, mid, party_count_fn()) is not None
+    except Exception as e:
+        log(f"   [questline] satisfied-check {step.missing} failed: {e}")
+    return False
+
+
+HM_MOVE_IDS = {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148, "waterfall": 127}
+
+
+def _step_from_cap(key, cap):
+    ob = (cap or {}).get("obtain") or {}
+    success = None
+    if ob.get("sets_flag"):
+        success = ("flag", ob["sets_flag"])
+    elif ob.get("gives_cap"):
+        success = ("cap", ob["gives_cap"])
+    elif key.startswith("FLAG_"):
+        success = ("flag", key)
+    elif key in HM_MOVE_IDS:
+        success = ("cap", key)
+    return Step(missing=key, kind=cap.get("kind"), via=ob.get("via"), npc=ob.get("npc"),
+                from_map=ob.get("from"), dir=ob.get("dir"), place_name=ob.get("place_name"),
+                success=success, resolved=True, human=cap.get("human") or f"get {cap.get('name', key)}")
+
+
+def derive_questline(gate, kb, bridge, party_count_fn=None, log=print):
+    """Stage 2: Gate.missing -> an ordered Questline (prereqs first), every step LIVE-CROSS-CHECKED.
+    Walks the KB capability chain via obtain.prereq. An unknown capability yields an UNRESOLVED step
+    (handed to the GuideSearch fallback in Phase 4). Returns a Questline (possibly with .actionable=None
+    if everything's already satisfied — meaning the gate should now be passable)."""
+    caps = kb.get("capabilities") or {}
+    pcf = party_count_fn or (lambda: 6)
+    chain, key, seen = [], gate.missing, set()
+    while key and key not in seen:
+        seen.add(key)
+        cap = caps.get(key)
+        if not cap:
+            # KB doesn't know how to obtain this -> unresolved; Phase 4 GuideSearch fills it in.
+            chain.append(Step(missing=key, resolved=False,
+                              human=f"figure out how to get past {gate.human}"))
+            break
+        chain.append(_step_from_cap(key, cap))
+        key = (cap.get("obtain") or {}).get("prereq")
+    chain.reverse()                                    # earliest prerequisite first
+    for s in chain:
+        if s.resolved:
+            s.satisfied = _step_satisfied(s, bridge, kb, pcf, log=log)
+    return Questline(gate, chain)

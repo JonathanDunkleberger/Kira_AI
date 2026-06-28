@@ -2,7 +2,7 @@
   "_meta": {
     "purpose": "Curated FireRed gate/questline knowledge — the PRIMARY data source for the Questline Deriver (questline.py). Recognise a gate -> derive how to unlock it -> execute as nav goals. GuideSearch is the fallback when this KB is insufficient.",
     "source": "pret/pokefirered disassembly (data/maps/*/scripts.inc, include/constants/flags.h), distilled offline.",
-    "standing_rule": "Every map_id here is a disasm-derived SEED. The Deriver LIVE-CROSS-CHECKS each destination/flag against RAM before routing — disasm route-numbers are known-unreliable. 'verified_live' tracks what has been confirmed in-game this project.",
+    "standing_rule": "We deliberately store DIRECTIONS + named places + authoritative FLAGS — NOT disasm map NUMBERS. The disasm map_groups.json list-index does NOT equal the runtime SB1 map number: verified 2026-06-28 it gives ROUTE24=(3,42)/VERMILION=(3,25) while LIVE RAM gives Route24=(3,43) (Cerulean's north edge) and the verified city-block has Vermilion=(3,5). Directions (north/south) and flag ids ARE reliable; map numbers are learned LIVE by the world-model as she walks. The Deriver routes via the live world-model + these direction hints, and confirms each step by its success FLAG.",
     "updated": "2026-06-28"
   },
 
@@ -25,19 +25,19 @@
   },
 
   "capabilities": {
-    "_doc": "key (a flag/item/HM name, matching Gate.missing) -> how to OBTAIN it. obtain.prereq is another capability key (chains form the questline graph). place_map is a disasm-seed map id 'g,n' (LIVE-CROSS-CHECK before routing); null where the live id isn't pinned yet (deriver resolves via world-model / search).",
+    "_doc": "key (a flag/item/HM name, matching Gate.missing) -> how to OBTAIN it. obtain.prereq is another capability key (chains form the questline graph). 'from' is the map the typical encounter is on; 'dir' is the coarse direction to head FROM there (reliable); 'place_name' is the destination; 'gives_cap'/'sets_flag' is the success condition the executor confirms LIVE. No map numbers (see standing_rule).",
     "FLAG_GOT_SS_TICKET": {
       "kind": "item", "name": "the S.S. Ticket",
-      "obtain": {"via": "talk_npc", "npc": "Bill", "place": "Bill's house, past the Nugget Bridge (north)",
-                 "place_map": null, "place_map_source": "disasm: Route25/SeaCottage — id pending live cross-check",
-                 "prereq": null, "sets_flag": "FLAG_GOT_SS_TICKET"},
+      "obtain": {"via": "talk_npc", "npc": "Bill", "from": "3,3", "dir": "north",
+                 "place_name": "Bill's house, past the Nugget Bridge to the north",
+                 "prereq": null, "sets_flag": "FLAG_GOT_SS_TICKET", "gives_cap": null},
       "human": "the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over"
     },
     "cut": {
       "kind": "hm", "name": "HM01 Cut", "move_id": 15, "badge_no": 2,
-      "obtain": {"via": "talk_npc", "npc": "the ship's captain", "place": "the S.S. Anne, docked at Vermilion",
-                 "place_map": null, "place_map_source": "disasm: SSAnne maps — id pending live cross-check",
-                 "prereq": "FLAG_GOT_SS_TICKET", "sets_flag": null},
+      "obtain": {"via": "talk_npc", "npc": "the ship's captain", "from": "3,5", "dir": "south",
+                 "place_name": "the S.S. Anne, docked at Vermilion's harbour (south)",
+                 "prereq": "FLAG_GOT_SS_TICKET", "sets_flag": null, "gives_cap": "cut"},
       "human": "HM Cut — the seasick captain of the S.S. Anne in Vermilion gives it to you once you've boarded with the S.S. Ticket"
     }
   }
