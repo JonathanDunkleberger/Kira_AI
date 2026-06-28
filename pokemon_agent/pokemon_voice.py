@@ -70,6 +70,8 @@ def classify(summary, tags=None, ctx=None):
         return 3
     if "evolved into" in s or "is evolving" in s:
         return 3
+    if "shiny" in s or "a legendary" in s:           # Phase 2D big-moment recognition (the clippable one)
+        return 3
     if "GYM_LEADER" in tags:
         return 3
     if any(k in s for k in ("you lost", "blacked out", "knocked out", "we got knocked")):

@@ -83,6 +83,28 @@ def read_party_species(bridge, slot=0):
     return species
 
 
+def is_shiny(pid, otid):
+    """Gen-3 shininess: shiny iff (TID ^ SID ^ pidHi ^ pidLo) < 8, where otId packs SID<<16 | TID.
+    Pure function (testable without a bridge)."""
+    return (((otid & 0xFFFF) ^ (otid >> 16) ^ (pid & 0xFFFF) ^ (pid >> 16)) & 0xFFFF) < 8
+
+
+def enemy_is_shiny(bridge, slot=0):
+    """Is the enemy party mon at `slot` SHINY? Reads PID/otId from gEnemyParty (CONFIRMED base; PID@+0,
+    otId@+4 are unencrypted). slot 0 = the active wild foe / a trainer's lead. Defensive: any read
+    error -> False (never a false shiny freak-out). The most clippable moment the game can produce, so
+    this is read source-first off verified addresses, not guessed."""
+    try:
+        base = ram.GENEMY_PARTY + slot * PARTY_MON_SIZE
+        pid = bridge.rd32(base + 0)
+        otid = bridge.rd32(base + 4)
+        if pid == 0 and otid == 0:
+            return False
+        return is_shiny(pid, otid)
+    except Exception:
+        return False
+
+
 def in_battle(bridge) -> bool:
     """✅ VERIFIED gate. gBattleTypeFlags is STALE out of battle (false-positive), so
     we gate on the battle-RESOURCES pointer (valid EWRAM addr only during battle) AND

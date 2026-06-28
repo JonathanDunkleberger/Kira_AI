@@ -20,6 +20,9 @@ import pokemon_policy as pol
 
 HOLD = 8
 
+# Gen-1 legendaries (FireRed national-dex ids) — a big-beat recognition in run() (Phase 2D).
+_LEGENDARY_SPECIES = frozenset({144, 145, 146, 150, 151})   # Articuno, Zapdos, Moltres, Mewtwo, Mew
+
 # ── BATCH 2 PART B: in-battle "use your items" instinct ───────────────────────────────────────────
 # An active mon at/under this HP fraction WITH a heal item in the bag -> the oracle is OFFERED "use a
 # potion" (capability-not-script: she chooses, but she never faints with unused heals because the option
@@ -98,10 +101,15 @@ class BattleAgent:
         return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
 
     # ── events + performance beats ─────────────────────────────────────────────
-    def emit(self, summary, beat=False):
+    def emit(self, summary, beat=False, tier=None):
         """NEUTRAL game-event -> her self. beat=True is a PERFORMANCE moment: yield the
-        floor so her voice lands before the hands advance (brisk on non-beats)."""
-        self.on_event(summary)
+        floor so her voice lands before the hands advance (brisk on non-beats). `tier` (Phase 2D)
+        forwards an explicit salience tier for big beats (shiny/legendary) — the live on_event is
+        voice.emit which reads it; the default/headless sinks accept **k and ignore it."""
+        if tier is not None:
+            self.on_event(summary, tier=tier)
+        else:
+            self.on_event(summary)
         if beat and self.pace:
             self.pace(summary)
 
@@ -860,6 +868,7 @@ class BattleAgent:
         if not st.in_battle(self.b):
             return "timeout"
         self._started = True
+        self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
         self._skip_idx = None              # the ONE move slot to avoid for the NEXT selection only:
         # the move that just failed to fire (Disable / slow-turn verify). A 1-turn skip rotates us
         # off a disabled move WITHOUT permanently exiling our best attack - permanent benching caused
@@ -872,6 +881,39 @@ class BattleAgent:
             foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
             self.emit(f"a battle started against {foe}", beat=True)
             self._prev = state
+
+        # ── BIG-MOMENT RECOGNITION (Batch 3 Phase 2D): situational SIGNIFICANCE ───────────────────────
+        # SHINY is the most clippable moment the game can produce — treating one as normal is a tragedy.
+        # Detect it source-first off the CONFIRMED gEnemyParty PID/otId, FREAK OUT in character, and for
+        # a WILD shiny DIVERT the whole battle to careful capture (weaken, never KO, throw balls) — the
+        # existing catch_pokemon path. A trainer's shiny can't be caught -> freak-out only. Shininess is
+        # ~1/8192, so this branch can NEVER fire in a normal battle / the regression fixtures (verified
+        # all-False) — zero risk to the battle suites. LEGENDARY/rare gets a big beat too (id check).
+        if state and not getattr(self, "_bigmoment_done", False):
+            self._bigmoment_done = True
+            esp = state["enemy"]["species"]
+            foe = st.SPECIES_NAME.get(esp, "this Pokémon")
+            if st.enemy_is_shiny(self.b):
+                self.emit(f"WAIT — STOP. that {foe} is SHINY. chat, do you SEE this — you can play this "
+                          f"game for five years and never see one. this is real, this is happening.",
+                          beat=True, tier=3)
+                if not self._is_trainer_battle():
+                    self.log(f"   [engine] ✨✨ SHINY wild {foe} — diverting to CAREFUL CAPTURE "
+                             f"(weaken+catch, never KO)")
+                    res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
+                    # SAFETY: if the catch failed (no balls / broke out / timed out) and the shiny is
+                    # STILL on the field, FLEE rather than fight — never KO a shiny (the tragedy), and
+                    # never leave the battle hanging (a wedge). A clean catch ends the battle -> return.
+                    if res != "caught" and st.in_battle(self.b):
+                        self.emit(f"I couldn't catch it ({res}) — I am NOT killing a shiny, I'm backing "
+                                  f"out. that hurts.", beat=True, tier=3)
+                        self.log(f"   [engine] shiny capture failed ({res}) — fleeing to avoid KOing it")
+                        return self.flee(max_seconds=60)
+                    return res
+                self.log(f"   [engine] ✨ SHINY trainer {foe} — uncatchable, fighting (freak-out only)")
+            elif esp in _LEGENDARY_SPECIES:
+                self.emit(f"that's a {foe}. a LEGENDARY. okay — okay, do NOT mess this up.",
+                          beat=True, tier=3)
 
         last_glob, stall = None, 0
         while time.time() - t0 < max_seconds:

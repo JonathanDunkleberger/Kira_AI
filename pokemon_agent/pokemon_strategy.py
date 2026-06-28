@@ -27,12 +27,10 @@ self-check and degrades to "unknown size" + a LOUD log if it doesn't confirm —
 import pokemon_state as st
 import firered_ram as ram
 
-# gEnemyParty base. ✅ CONFIRMED 2026-06-27 by an EWRAM brute-scan: this base decodes the FULL enemy
-# roster correctly across four battle states (brock=geodude+onix, forest_trainer=weedle+caterpie, two
-# wilds=1 mon) — matches the long-standing firered_ram.py recon note. The naive GPLAYER_PARTY+6*100 is
-# WRONG here (that decoded nothing). Still re-checked live by _verify_enemy_roster() before any count is
-# trusted (defence-in-depth); on a mismatch, party-size reads suppress + log LOUD (never a silent guess).
-GENEMY_PARTY = 0x0202402C
+# gEnemyParty base (centralised in firered_ram, ✅ CONFIRMED 2026-06-27 via EWRAM brute-scan). Still
+# re-checked live by _verify_enemy_roster() before any count is trusted (defence-in-depth); on a
+# mismatch, party-size reads suppress + log LOUD (never a silent guess).
+GENEMY_PARTY = ram.GENEMY_PARTY
 _P_LEVEL_OFF = 0x54
 
 # How many times she must lose the SAME fight before the note escalates from "that stung, regroup" to

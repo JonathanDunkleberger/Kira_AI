@@ -14,6 +14,10 @@ GSAVEBLOCK1_PTR   = 0x03005008   # pointer -> current SaveBlock1 (DMA-shuffled t
 GSAVEBLOCK2_PTR   = 0x0300500C   # pointer -> SaveBlock2
 GPLAYER_PARTY_CNT = 0x02024029   # u8 party count. ✅ LOCKED 2026-06-22: read 1 from after_pick.state
 GPLAYER_PARTY     = 0x02024284   # party data (100 B/mon). ✅ LOCKED: species decrypted to 4=charmander
+GENEMY_PARTY      = 0x0202402C   # enemy party (100 B/mon). ✅ CONFIRMED 2026-06-27 via EWRAM brute-scan:
+#                                  decodes the full enemy roster across 4 battle states (brock=geodude+
+#                                  onix, forest_trainer=weedle+caterpie, wilds=1). PID@+0 / otId@+4 are
+#                                  unencrypted (same layout as the player party) -> enables shiny detection.
 
 # ── Offsets WITHIN SaveBlock1 (add to the dereferenced pointer) ───────────────
 SB1_OFF_POS_X     = 0x0000       # s16 player map X
