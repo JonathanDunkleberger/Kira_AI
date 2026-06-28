@@ -345,8 +345,12 @@ def log(m):
 
 # ── reusable objective handlers ──────────────────────────────────────────────
 class Campaign:
-    def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None):
+    def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None,
+                 journey=None):
         self.b = bridge
+        # PHASE 4 — continuity-into-core seam: push her journey narrative to core Kira at anchors, so
+        # she resumes KNOWING her story across launch methods + in idle chat. Headless/no-bot -> no-op.
+        self._journey_post = journey or (lambda _s: None)
         # STRATEGIC AWARENESS (Batch 3 Phase 2): road-memory of who she's fought + who's walled her.
         # Always present (pure reads, headless-safe). The injected battle-runner is WRAPPED so EVERY
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
@@ -1439,7 +1443,23 @@ class Campaign:
             for _ in range(14):
                 self.b.run_frame()
         if st.in_battle(self.b):
-            log(f"   OPENING: RIVAL battle -> {self.battle_runner()}")    # win OR lose - game goes on
+            _riv_lead = ""
+            try:
+                _rb = st.read_battle(self.b)
+                _riv_lead = st.SPECIES_NAME.get(_rb["enemy"]["species"], "") if _rb else ""
+            except Exception:
+                pass
+            _riv_out = self.battle_runner()
+            log(f"   OPENING: RIVAL battle -> {_riv_out}")                 # win OR lose - game goes on
+            # GARY NEMESIS ARC (Phase 4): record the very first showdown — the grudge starts HERE.
+            try:
+                self.strat.note_rival_encounter(
+                    won=(str(_riv_out).lower() == "win"), place="Oak's Lab", lead=_riv_lead,
+                    my_party=self.b.rd8(ram.GPLAYER_PARTY_CNT), my_level=self.b.rd8(ram.GPLAYER_PARTY + 0x54))
+                self.on_event(self.strat.rival_grudge_note() or "you and your rival just had your first battle.",
+                              kind="rival", tier=2)
+            except Exception as _re:
+                log(f"   [strat] !! opening rival-encounter record failed: {_re}")
             self.b.set_input_owner("agent")
         # walk out to Pallet - ROBUST to win OR loss (the post-battle dialogue + door differ a little
         # by outcome): drain dialogue + retry the south exit until we're actually out of the lab.
@@ -3213,6 +3233,66 @@ class Campaign:
             self.strat.save(STRAT_JSON)
         except Exception as e:
             log(f"   [strat] !! continuity save failed: {e} (LOUD)")
+        # PHASE 4 — push the journey narrative to core Kira (grudge + team feelings + arc), so it
+        # persists core-side and surfaces in idle chat / any game, not just this Pokémon process.
+        try:
+            self._journey_post(self._journey_narrative())
+        except Exception as e:
+            log(f"   [journey] !! continuity-into-core push failed: {e} (LOUD)")
+
+    def _journey_narrative(self):
+        """PHASE 4 — assemble her Pokémon-journey continuity for the core seam: WHERE she is, her TEAM
+        and how she feels about them, the GARY grudge, and the arc position. Pure reads + the persisted
+        soul/strat. This is what lets core Kira speak her journey in idle chat ('how's the Pokémon run
+        going?') and resume KNOWING her story. Best-effort; any field that errors is simply omitted."""
+        try:
+            state = self.read_live_state()
+        except Exception:
+            state = {}
+        party = state.get("party") or []
+        lead = party[0]["species"] if party else None
+        solo = (state.get("party_count") == 1)
+        # team feelings come from the soul bonds/wants (her own words), if present
+        bonds = []
+        wants = []
+        try:
+            if self.soul is not None:
+                bonds = [b.get("nickname") or b.get("species") for b in (self.soul.bonds or {}).values()]
+                wants = list(self.soul.wants or [])
+        except Exception:
+            pass
+        grudge = ""
+        try:
+            grudge = self.strat.rival_grudge_note()
+        except Exception:
+            pass
+        # a compact, declarative "her story right now" the core can inject as lived experience
+        bits = []
+        if lead:
+            if solo:
+                lead_line = ("a SOLO run with just her " + lead
+                             + " (a wild one she bonded with), no other team yet")
+            else:
+                lead_line = "her team led by " + lead
+            bits.append("She's playing Pokémon FireRed as Kira — " + lead_line + ".")
+        if bonds and not solo:
+            bits.append(f"Her team: {', '.join(str(x) for x in bonds if x)}.")
+        if state.get("arc"):
+            bits.append(state["arc"])
+        if grudge:
+            bits.append(grudge)
+        if wants:
+            bits.append(f"What she wants right now: {wants[0]}.")
+        return {
+            "summary": " ".join(bits),
+            "place": state.get("place"),
+            "badge_count": state.get("badge_count"),
+            "party_count": state.get("party_count"),
+            "lead": lead,
+            "solo": solo,
+            "grudge": grudge,
+            "arc": state.get("arc"),
+        }
 
     def _gain_sig(self):
         """ADDENDUM A — the IRREVERSIBLE-progress fingerprint: (badges, party size, dex caught). Used to

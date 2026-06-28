@@ -68,6 +68,11 @@ class StrategicMemory:
         self.recent = []                # chronological [foe_key] of recent losses (tail = most recent)
         self.active_wall = None         # the foe_key of the wall she's currently up against (cleared on a win)
         self._last_roster_n = None      # de-dupe the roster note so it isn't re-logged every tick
+        # ── GARY NEMESIS ARC (Phase 4): the escalating rival grudge across the WHOLE game. Each
+        # encounter references the last and builds to a payoff. This is the EMOTIONAL spine the
+        # loss-history (above) only feeds the facts to. Persisted, so the grudge survives sessions and
+        # (via the journey seam) reaches core Kira / idle chat. name is fixed unless the player renamed him.
+        self.rival = {"name": "Gary", "encounters": []}   # encounters: [{won, place, lead, my_party, my_level}]
 
     # ── enemy-roster self-check (CANDIDATE gate) ─────────────────────────────────────────────────
     def _verify_enemy_roster(self, b):
@@ -226,6 +231,51 @@ class StrategicMemory:
         return (f"You just went down to {desc}{where} — bit of bad luck. Shake it off; maybe heal up or "
                 f"pick your fights a little better. Your call.")
 
+    # ── GARY NEMESIS ARC (Phase 4) ───────────────────────────────────────────────────────────────
+    def note_rival_encounter(self, won, place="", lead="", my_party=None, my_level=None):
+        """Record a Gary/rival encounter as a STORY BEAT. The harness calls this when it knows a battle
+        is the rival (the opening Pallet rival is known; later rivals are recon-flagged — wire as their
+        detection lands). Each beat escalates the arc."""
+        self.rival["encounters"].append({
+            "won": bool(won), "place": place or "", "lead": lead or "",
+            "my_party": my_party, "my_level": my_level,
+        })
+        self.rival["encounters"] = self.rival["encounters"][-12:]
+        w = sum(1 for e in self.rival["encounters"] if e["won"])
+        l = len(self.rival["encounters"]) - w
+        self.log(f"   [strat] RIVAL beat #{len(self.rival['encounters'])} vs {self.rival['name']} "
+                 f"(won={won}, place={place!r}) — grudge now {w}W-{l}L")
+
+    def rival_grudge_note(self):
+        """The escalating-grudge note: references the LAST encounter and builds toward the payoff, framed
+        for HER to voice in character. '' until they've actually met. The arc, not just a stat line."""
+        enc = self.rival["encounters"]
+        if not enc:
+            return ""
+        name = self.rival["name"]
+        last = enc[-1]
+        w = sum(1 for e in enc if e["won"])
+        l = len(enc) - w
+        n = len(enc)
+        where = f" at {last['place']}" if last.get("place") else ""
+        if n == 1:
+            if last["won"]:
+                return (f"You and {name} have history now — you beat him in that first showdown{where}. "
+                        f"He won't take it well. This rivalry is just getting started.")
+            return (f"{name} got you in that first showdown{where} — smug as ever. That one's going to "
+                    f"stick. You'll get him next time. This rivalry is just getting started.")
+        # ongoing arc — reference the running tally + the last meeting, build momentum toward the payoff
+        tally = f"{w}-{l}" if (w or l) else "even"
+        if last["won"]:
+            lead_in = f"Last time{where} you finally got the better of {name}"
+        else:
+            lead_in = f"Last time{where} {name} beat you again"
+        edge = ("you're ahead in this rivalry now" if w > l else
+                "he's still got your number — for now" if l > w else
+                "you're dead even, and it's personal")
+        return (f"The {name} grudge runs deep — you've met {n} times ({tally}). {lead_in}, and "
+                f"{edge}. Every time you cross paths it's the whole journey on the line. The next one matters.")
+
     # ── SPATIAL WALL (Batch 4 Phase 2): persist the wall as a place + judge "still gated vs grown" ──
     def active_wall_rec(self):
         key = self.active_wall
@@ -278,12 +328,16 @@ class StrategicMemory:
     # itself is core-Kira continuity (One-Kira firewall: she should carry grudges in ANY game) — that
     # seam (a meaningful loss writing into core memory) is decided + flagged for the batch-two build.
     def to_dict(self):
-        return {"losses": self.losses, "recent": self.recent, "active_wall": self.active_wall}
+        return {"losses": self.losses, "recent": self.recent, "active_wall": self.active_wall,
+                "rival": self.rival}
 
     def from_dict(self, d):
         self.losses = d.get("losses") or {}
         self.recent = d.get("recent") or []
         self.active_wall = d.get("active_wall")
+        r = d.get("rival")
+        if isinstance(r, dict):
+            self.rival = {"name": r.get("name") or "Gary", "encounters": r.get("encounters") or []}
 
     def save(self, path):
         try:

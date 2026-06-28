@@ -215,6 +215,19 @@ class KiraVoice:
             self.log(f"   [kira-voice] !! POST FAILED (bot down?) T{tier} ({kind}) {summary!r}: {e}")
         return tier
 
+    # ── CONTINUITY-INTO-CORE seam (Phase 4): push her journey narrative to core Kira ──
+    def journey(self, state):
+        """Fire-and-forget the journey-continuity snapshot to core Kira (POST /cmd/pokemon_journey),
+        so she resumes KNOWING her story and can speak it in IDLE CHAT / any game — persisted core-side,
+        independent of how the Pokémon session launched. `state` is campaign._journey_narrative(). Never
+        raises (a continuity write must never disturb the run); a bot-down skip just logs."""
+        if not state:
+            return
+        try:
+            self._post("pokemon_journey", ctx=state)   # nested under ctx to match the seam's body model
+        except Exception as e:
+            self.log(f"   [kira-voice] ·journey skip· (bot down?) {e}")
+
     # ── the SOUL ORACLE client (Batch-2 keystone: a choice becomes HERS) ──────────
     def choose(self, kind, options, ctx=None, timeout=30):
         """Ask her SELF (over the seam) to make a STRUCTURED pick — the decision counterpart to
