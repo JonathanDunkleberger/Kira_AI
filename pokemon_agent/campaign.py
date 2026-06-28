@@ -34,6 +34,7 @@ import firered_ram as ram        # noqa: E402
 import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
+from pokemon_strategy import StrategicMemory  # noqa: E402  (Batch 3 Phase 2: loss/roster/opponent awareness)
 from battle_agent import BattleAgent  # noqa: E402
 from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
@@ -290,7 +291,14 @@ def log(m):
 class Campaign:
     def __init__(self, bridge, battle_runner, on_event=None, beat=None, render=None, choose=None):
         self.b = bridge
-        self.battle_runner = battle_runner
+        # STRATEGIC AWARENESS (Batch 3 Phase 2): road-memory of who she's fought + who's walled her.
+        # Always present (pure reads, headless-safe). The injected battle-runner is WRAPPED so EVERY
+        # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
+        # battle_agent / play_live surgery, and the wrapper is pure-additive (real runner unchanged).
+        self.strat = StrategicMemory(log=log)
+        self._raw_battle_runner = battle_runner
+        self.battle_runner = self._observed_battle_runner
+        battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
         # default sink must accept emit's kwargs (PokemonSoul.emit calls on_event(text, kind=, tier=));
         # a 1-arg default crashed headless soul fires (live passes voice.emit which already accepts them).
         self.on_event = on_event or (lambda s, **_k: log(f"[event] {s}"))
@@ -329,6 +337,24 @@ class Campaign:
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal)
+
+    def _observed_battle_runner(self):
+        """Phase-2 wrapper around the injected battle-runner: snapshot the foe at battle start, run the
+        REAL battle untouched, then record win/loss into strategic memory. Pure-additive — the runner's
+        behavior + return value are unchanged (battle suites stay green); any strat error is swallowed
+        LOUD and never affects the fight. Called only when a battle is live (in_battle); a stray
+        non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
+        try:
+            place = self._PLACE_NAMES.get(tv.map_id(self.b), "an unfamiliar area")
+            self.strat.observe_battle_start(self.b, place)
+        except Exception as _e:
+            log(f"   [strat] start-observe skipped: {_e}")
+        out = self._raw_battle_runner()
+        try:
+            self.strat.observe_battle_end(self.b, out)
+        except Exception as _e:
+            log(f"   [strat] end-observe skipped: {_e}")
+        return out
 
     def _advance_dialogue(self, taps=12):
         """Press A to advance/close any open textbox until movement is free again."""
@@ -2184,6 +2210,19 @@ class Campaign:
                 where = f"{where}. {note}"
                 log(f"   [roam] !! MACRO {macro}: no progress {ledger.stuck} ticks — feeding awareness "
                     f"back to the oracle: {note!r}")
+            # STRATEGIC AWARENESS (Batch 3 Phase 2): fold LOSS-LEARNING (she's hit a wall — same fight
+            # lost ≥2x = brute-forcing isn't working) + ROSTER-SHAPE (one Pokémon isn't a team) into the
+            # SAME `place` seam. FACTS + the menu of options (level / teammate / counter / come back),
+            # never a command — she still picks (capability-not-script; a stubborn solo-run stays valid).
+            # Loss-awareness leads: it's the run-existential one (the die→run-back→die loop killer).
+            la = self.strat.loss_awareness()
+            if la:
+                where = f"{where}. {la}"
+                log(f"   [roam] !! STRATEGY wall vs {self.strat.active_wall}: feeding loss-awareness to the oracle")
+            ra = self.strat.roster_awareness(state["party"])
+            if ra:
+                where = f"{where}. {ra}"
+                log(f"   [roam] STRATEGY roster: feeding team-shape awareness to the oracle")
             pick = self._soul_choose("action", avail,
                                      {"place": where, "progress": state["progress"], "party": party_str})
             if not pick:
