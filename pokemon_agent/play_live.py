@@ -74,6 +74,11 @@ def main():
                          "decides her own next move each tick via the soul oracle (wander_catch / battle "
                          "/ heal / head_to_gym), state-aware, unscripted. Use with --boot misty_done.state.")
     ap.add_argument("--roam-ticks", type=int, default=12, help="free-roam: max decision ticks")
+    ap.add_argument("--resume", action="store_true",
+                    help="PERSISTENT CAMPAIGN (Batch 5 — the Sherpa-timeline GO): resume her LIVING "
+                         "campaign save (states/campaign/kira_campaign.state) so she picks up the CLIMB "
+                         "from where she actually is, never rappelled to a frozen fragment. First run "
+                         "with no campaign save yet SEEDS from --boot. Pair with --free-roam.")
     ap.add_argument("--fresh-kira", action="store_true",
                     help="With --show: timestamp-archive the current states/kira/ playthrough to "
                          "states/kira/archive_<ts>/ and START A NEW Kira run from the bedroom (never "
@@ -126,16 +131,31 @@ def main():
         b.set_input_owner("agent")
         log(f"SHOW MODE: fresh ROM boot (canonical spine): map={tv.map_id(b)} url={args.url}")
     else:
-        from campaign import resolve_state
-        boot_path = resolve_state(args.boot)
-        if not boot_path:
-            log(f"FAIL - boot state missing: {args.boot} (searched workshop/kira/states/archive)"); return
-        with open(boot_path, "rb") as f:
-            b.load_state(f.read())
-        for _ in range(40):
-            b.run_frame()
-        b.set_input_owner("agent")
-        log(f"booted {args.boot}: map={tv.map_id(b)} coords={tv.coords(b)}  url={args.url}")
+        from campaign import resolve_state, STATES_CAMPAIGN, CAMPAIGN_SAVE
+        camp_path = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
+        if args.resume and os.path.exists(camp_path):
+            # RESUME the climb (Batch 5 P1): load her living campaign anchor — she continues from where
+            # she actually is, never reset to a fragment.
+            with open(camp_path, "rb") as f:
+                b.load_state(f.read())
+            for _ in range(40):
+                b.run_frame()
+            b.set_input_owner("agent")
+            log(f"⛰️  RESUMING CAMPAIGN from campaign/{CAMPAIGN_SAVE}: map={tv.map_id(b)} "
+                f"coords={tv.coords(b)} — she keeps climbing from here  url={args.url}")
+        else:
+            boot_path = resolve_state(args.boot)
+            if not boot_path:
+                log(f"FAIL - boot state missing: {args.boot} "
+                    f"(searched campaign/workshop/kira/states/archive)"); return
+            with open(boot_path, "rb") as f:
+                b.load_state(f.read())
+            for _ in range(40):
+                b.run_frame()
+            b.set_input_owner("agent")
+            seed = (" — SEEDING the campaign (first climb from here; progress anchors as she goes)"
+                    if args.resume else "")
+            log(f"booted {args.boot}: map={tv.map_id(b)} coords={tv.coords(b)}{seed}  url={args.url}")
 
     voice = KiraVoice(url=args.url, log=print)
     dialogue = DialogueReader(b, on_dialogue=voice.on_dialogue, state={}, log=print)

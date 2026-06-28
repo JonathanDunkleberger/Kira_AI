@@ -54,12 +54,19 @@ STATES = os.path.join(_HERE, "states")
 STATES_WORKSHOP = os.path.join(STATES, "workshop")
 STATES_KIRA = os.path.join(STATES, "kira")
 STATES_ARCHIVE = os.path.join(STATES, "archive")
+# states/campaign/ = Batch-5 PERSISTENT CAMPAIGN (the playthrough mode): her ONE living save that the
+# free-roam run writes to as she progresses and RESUMES from on the next GO — so a session picks up
+# where she actually is, never resetting to a frozen fragment. Isolated from the workshop fragments
+# (those stay as fallbacks) and PHYSICALLY separate from the canonical states/kira/ spine.
+STATES_CAMPAIGN = os.path.join(STATES, "campaign")
+CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestate filename
+CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
 
 
 def resolve_state(name):
     """Find a named savestate across the live buckets, preferring the live path over archaeology:
-    workshop/ -> kira/ -> flat states/ -> archive/. Returns the full path or None."""
-    for d in (STATES_WORKSHOP, STATES_KIRA, STATES, STATES_ARCHIVE):
+    campaign/ -> workshop/ -> kira/ -> flat states/ -> archive/. Returns the full path or None."""
+    for d in (STATES_CAMPAIGN, STATES_WORKSHOP, STATES_KIRA, STATES, STATES_ARCHIVE):
         p = os.path.join(d, name)
         if os.path.exists(p):
             return p
@@ -2292,9 +2299,29 @@ class Campaign:
         hard_recovered = False                     # forced one position-break this RED streak already?
         log("==== FREE ROAM: she's loose — every move from here is HER call ====")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
+        # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
+        # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
+        # actually is. _camp_sig is the cheap progress fingerprint we diff each tick.
+        def _camp_sig():
+            return (sum(1 for i in range(8) if self.has_badge(0x820 + i)),
+                    tv.map_id(self.b), self.b.rd8(ram.GPLAYER_PARTY_CNT))
+        last_camp_sig = _camp_sig()
+        self._save_campaign("roam_start")          # anchor the moment she's loose (resume point exists immediately)
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
+            # CAMPAIGN ANCHOR (Batch 5 P1) — checked at the TOP of every tick so it's NEVER skipped by a
+            # mid-tick `continue` (idle / hard-recovery / blackout): re-anchor the instant the prior tick
+            # made REAL progress (badge / new area / catch), plus a periodic heartbeat floor. Reads RAM
+            # directly so it reflects whatever the last action accomplished.
+            sig = _camp_sig()
+            if sig != last_camp_sig:
+                reason = ("badge" if sig[0] != last_camp_sig[0] else
+                          "new_area" if sig[1] != last_camp_sig[1] else "catch")
+                last_camp_sig = sig
+                self._save_campaign(reason)
+            elif tick > 1 and (tick - 1) % CAMPAIGN_SAVE_EVERY == 0:
+                self._save_campaign(f"tick{tick - 1}")
             self._wait_overworld()
             # BLACKOUT / STRANDED-IN-BUILDING RECOVERY (increment 4 PART A): a wild loss whites her out
             # and warps her INSIDE a Pokémon Center (map group != 3 — a building interior), healed. Her
@@ -2430,6 +2457,10 @@ class Campaign:
                 self.roster_react()                        # note_caught: bond + react to the new teammate
             if self.soul is not None:
                 self._soul_after_objective("FREE_ROAM", out)   # note_evolve / note_faint+outcome(loss)
+        # CLEAN EXIT: bank her final position so the next GO resumes exactly here (the run ending — time
+        # budget / ticks — is NOT a reset; she stays anchored where she climbed to). One last sig-check
+        # so a catch/area-change on the FINAL tick is reflected in the reason.
+        self._save_campaign("roam_end")
         log("==== FREE ROAM complete ====")
         return "roam_done"
 
@@ -2533,6 +2564,32 @@ class Campaign:
             return True
         except Exception as e:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
+            return False
+
+    def _save_campaign(self, reason="tick") -> bool:
+        """BATCH 5 PHASE 1 — bank her LIVING campaign save (the Sherpa-timeline anchor): the single
+        savestate that the next GO resumes from, so she keeps climbing from where she actually is and is
+        never rappelled back to a frozen fragment. Writes ATOMICALLY (temp + os.replace) so a kill/crash
+        mid-write can never corrupt the anchor (a half-written save would lose the whole climb). Lands in
+        states/campaign/ ONLY — physically separate from the workshop fragments (kept as fallbacks) and
+        the canonical states/kira/ spine. LOUD on success + failure (Constraint #3)."""
+        try:
+            os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+            path = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
+            tmp = path + ".tmp"
+            data = self.b.save_state()
+            with open(tmp, "wb") as f:
+                f.write(data)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, path)                      # atomic swap — the anchor is never half-written
+            badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            party = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            log(f"   ⛰️  CAMPAIGN SAVE [{reason}] -> campaign/{CAMPAIGN_SAVE}  "
+                f"(map={tv.map_id(self.b)} coords={tv.coords(self.b)} badges={badges} party={party})")
+            return True
+        except Exception as e:
+            log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
             return False
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
