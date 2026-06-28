@@ -346,10 +346,14 @@ class Campaign:
         non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
         pre_sp = pre_lvl = None
         try:
-            place = self._PLACE_NAMES.get(tv.map_id(self.b), "an unfamiliar area")
-            self.strat.observe_battle_start(self.b, place)
+            mid = tv.map_id(self.b)
+            place = self._PLACE_NAMES.get(mid, "an unfamiliar area")
             pre_sp = st.read_party_species(self.b, 0)          # Phase 3A: lead species + level before battle
             pre_lvl = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
+            # Batch-4 Phase 2: feed the SPATIAL wall + HER strength snapshot so a loss becomes a place she
+            # can route around, and the gate can later judge "grown enough to retry".
+            self.strat.observe_battle_start(self.b, place, map_id=mid, coords=tv.coords(self.b),
+                                            party_count=self.b.rd8(ram.GPLAYER_PARTY_CNT), lead_level=pre_lvl)
         except Exception as _e:
             log(f"   [strat] start-observe skipped: {_e}")
         out = self._raw_battle_runner()
@@ -2113,9 +2117,18 @@ class Campaign:
         tile = self._reachable_grass()
         if tile is not None:
             return ("here", tile)
-        for d, (grp, num) in self._map_connections():
-            if grp == 3 and num >= 19:
-                return ("route", (grp, num), self._EDGE[d])
+        routes = [(d, (grp, num)) for d, (grp, num) in self._map_connections()
+                  if grp == 3 and num >= 19]
+        # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
+        # wall. Only fall back to the gated route if it's the ONLY grass — then _route_action's gate
+        # surfaces it instead of crossing the bridge into the trainer who keeps blacking her out.
+        pcount = state.get("party_count")
+        plevel = state["party"][0]["level"] if state.get("party") else None
+        non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)]
+        chosen = non_gated or routes
+        if chosen:
+            d, m = chosen[0]
+            return ("route", m, self._EDGE[d])
         return None
 
     def _available_actions(self, state):
@@ -2170,12 +2183,22 @@ class Campaign:
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         if pick == "heal":
             return self.heal_nearest()
+        pcount = state.get("party_count")
+        plevel = state["party"][0]["level"] if state.get("party") else None
         if pick == "head_to_gym":
             # v1 (Cerulean->Vermilion leg): step toward the next gym via the SOUTH connection. Re-decided
             # each tick, so she advances one map at a time and can still change her mind (true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
             if south is None:
                 return "no_gym_route"
+            # BATCH-4 PHASE 2 spatial wall: don't route her straight back into the trainer who keeps
+            # blacking her out. If the next map is the gated wall map and she's no stronger, ABORT LOUD
+            # + tell the oracle the way is gated — she picks a different action (train/heal here first).
+            if self.strat.is_gated(south, pcount, plevel):
+                self.on_event(self.strat.wall_gate_note("reach the next gym"), kind="wall", tier=2)
+                log(f"   [roam] !! WALL-GATED: head_to_gym would route through {south} (the wall map) — "
+                    f"NOT feeding her back into the wall; surfacing to the oracle")
+                return "wall_gated"
             return self.trav.travel(target_map=south, edge="south")
         if pick in ("wander_catch", "battle"):
             # PHASE 3B: before any free-roam leveling, make sure the lead has a free move slot so a
@@ -2185,6 +2208,14 @@ class Campaign:
             gt = self._grass_target(state)
             if gt is not None and gt[0] == "route":
                 _, tgt, edge = gt
+                # spatial wall: the grass she wants is across the gated bridge -> don't re-cross into the
+                # wall. (_grass_target already PREFERS a non-gated route if one exists — route AROUND;
+                # this catches the case where the gated route is the ONLY grass -> surface it.)
+                if self.strat.is_gated(tgt, pcount, plevel):
+                    self.on_event(self.strat.wall_gate_note("get to the grass"), kind="wall", tier=2)
+                    log(f"   [roam] !! WALL-GATED: grass route {tgt} is the wall map — NOT crossing the "
+                        f"bridge into the wall; surfacing to the oracle")
+                    return "wall_gated"
                 log(f"   [roam] no grass underfoot -> routing to grass route {tgt} ({edge}) first")
                 r = self.trav.travel(target_map=tgt, edge=edge)
                 if r != "arrived":
@@ -2362,6 +2393,16 @@ class Campaign:
             if la:
                 where = f"{where}. {la}"
                 log(f"   [roam] !! STRATEGY wall vs {self.strat.active_wall}: feeding loss-awareness to the oracle")
+            # BATCH-4 PHASE 2 (persistent SPATIAL wall): while a wall gates a route and she hasn't grown,
+            # keep telling her the way forward is blocked — so she stops blindly choosing to re-cross it
+            # (the routing also hard-blocks it; this is the awareness half so the CHOICE is informed).
+            wr = self.strat.active_wall_rec()
+            if wr and wr.get("map_id") and not self.strat.stronger_since_wall(
+                    state.get("party_count"), state["party"][0]["level"] if state.get("party") else None):
+                wg = self.strat.wall_gate_note("get past here")
+                if wg:
+                    where = f"{where}. {wg}"
+                    log("   [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)")
             ra = self.strat.roster_awareness(state["party"])
             if ra:
                 where = f"{where}. {ra}"

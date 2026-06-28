@@ -106,10 +106,13 @@ class StrategicMemory:
         return (len(names) or None), (names or None)
 
     # ── battle observation (called by the Campaign's battle-runner wrapper) ──────────────────────
-    def observe_battle_start(self, b, place="an unfamiliar area"):
-        """Snapshot the foe at battle start. PURE reads. `place` is the human place-name (from
-        read_live_state) so a wall is keyed to WHERE it is. Defensive: a flaky mid-intro read just
-        yields a thin snapshot (the loss still records on the active-foe species)."""
+    def observe_battle_start(self, b, place="an unfamiliar area", map_id=None,
+                             coords=None, party_count=None, lead_level=None):
+        """Snapshot the foe at battle start. PURE reads. `place` is the human place-name; `map_id` is
+        the raw (group,num) so a wall becomes SPATIAL (Batch 4 Phase 2 — route around it). `party_count`
+        + `lead_level` snapshot HER strength so a wall can later be judged "still gated" vs "worth a
+        retry now that I've grown". Defensive: a flaky mid-intro read yields a thin snapshot (the loss
+        still records on the verified active-foe species)."""
         self.cur = None
         try:
             rb = st.read_battle(b)
@@ -127,6 +130,8 @@ class StrategicMemory:
                 "name": ("a trainer" if is_trainer else f"a wild {lead}"),
                 "lead": lead, "lead_level": e.get("level"), "types": types,
                 "size": size, "roster": roster, "place": place,
+                "map_id": tuple(map_id) if map_id else None, "coords": coords,
+                "my_party": party_count, "my_level": lead_level,
             }
         except Exception as e:
             self.log(f"   [strat] observe_battle_start err {e}")
@@ -147,13 +152,20 @@ class StrategicMemory:
             rec = self.losses.get(key)
             if rec:
                 rec["count"] += 1
+                # refresh the SPATIAL + strength snapshot to the latest loss (she may have grown a bit
+                # and still lost — the gate should compare against the most recent attempt)
+                rec["map_id"] = cur.get("map_id") or rec.get("map_id")
+                rec["coords"] = cur.get("coords") or rec.get("coords")
+                rec["my_party"] = cur.get("my_party") if cur.get("my_party") is not None else rec.get("my_party")
+                rec["my_level"] = cur.get("my_level") if cur.get("my_level") is not None else rec.get("my_level")
             else:
                 rec = {**cur, "count": 1}
                 self.losses[key] = rec
             self.recent.append(key)
             self.recent = self.recent[-8:]
             self.active_wall = key
-            self.log(f"   [strat] LOSS recorded vs {key} (now {rec['count']}x) — wall active")
+            self.log(f"   [strat] LOSS recorded vs {key} (now {rec['count']}x) at map={rec.get('map_id')} "
+                     f"— SPATIAL wall active (gated until stronger)")
         else:
             # a win (or flee) against the current wall clears it — she's past it / it isn't beating her
             if self.active_wall == key:
@@ -192,6 +204,50 @@ class StrategicMemory:
         return (f"You just lost to {desc}{where}. One loss isn't the end — but think about WHY before "
                 f"charging back in: are you under-levelled, out-numbered, or type-disadvantaged? "
                 f"Leveling up, grabbing a teammate, or a better matchup are options. Your call.")
+
+    # ── SPATIAL WALL (Batch 4 Phase 2): persist the wall as a place + judge "still gated vs grown" ──
+    def active_wall_rec(self):
+        key = self.active_wall
+        return self.losses.get(key) if key else None
+
+    def stronger_since_wall(self, party_count, lead_level):
+        """Has she GROWN since the wall last beat her? — a teammate added OR a level gained. If so the
+        gate is worth re-testing (she changed something). Unknown snapshot -> conservatively 'no' so the
+        gate holds rather than feeding her back into a loss."""
+        r = self.active_wall_rec()
+        if not r:
+            return True
+        wp, wl = r.get("my_party"), r.get("my_level")
+        if wp is None or wl is None or party_count is None or lead_level is None:
+            return False
+        return party_count > wp or lead_level > wl
+
+    def is_gated(self, map_id, party_count, lead_level):
+        """SPATIAL gate: is `map_id` the map where her active wall keeps beating her, AND she's no
+        stronger than her last attempt? True = routing onto that map just re-walks into the wall."""
+        r = self.active_wall_rec()
+        if not r or not r.get("map_id") or map_id is None:
+            return False
+        if tuple(map_id) != tuple(r["map_id"]):
+            return False
+        return not self.stronger_since_wall(party_count, lead_level)
+
+    def wall_gate_note(self, goal_desc="get there"):
+        """The strong SPATIAL note when a goal routes back through the gated wall map: she's TOLD the
+        way is blocked by a wall she can't beat yet, + the options — she still CHOOSES (capability-not-
+        script). '' if there's no active spatial wall."""
+        r = self.active_wall_rec()
+        if not r or not r.get("map_id"):
+            return ""
+        place = r.get("place") or "that route"
+        who = r["name"]
+        if r["is_trainer"]:
+            sz = f"{r['size']} Pokémon" if r.get("size") else "a full team"
+            who = f"that trainer ({r['lead']} lead, {sz})"
+        return (f"Heads up: the way there runs back through {place}, where {who} keeps blacking you out "
+                f"— that route is GATED until you're stronger. Don't just walk back into them. Level up "
+                f"or grab a teammate on THIS side first, then come back and take that bridge. (Still your "
+                f"call — but you can't pass them yet.)")
 
     def roster_awareness(self, party):
         """The 2B note: notice the team's shape. A solo run is a valid CHOICE, not a bug — so this only
