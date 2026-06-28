@@ -13,6 +13,13 @@ current SaveBlock1; coords are read as *(SaveBlock1Ptr) + offset.
 GSAVEBLOCK1_PTR   = 0x03005008   # pointer -> current SaveBlock1 (DMA-shuffled target)
 GSAVEBLOCK2_PTR   = 0x0300500C   # pointer -> SaveBlock2
 GPLAYER_PARTY_CNT = 0x02024029   # u8 party count. ✅ LOCKED 2026-06-22: read 1 from after_pick.state
+# ── BATCH 6 PHASE 4: Pokédex caught-count (clean RAM read, no menu) ──────────────────────────────
+# SOURCED from pret/pokefirered include/global.h: struct SaveBlock2.pokedex @ 0x18, struct Pokedex.owned
+# @ +0x10 -> owned[] at SaveBlock2 + 0x28. DEX_FLAGS_NO = ROUND_BITS_TO_BYTES(NUM_SPECIES=412) = 52, and
+# the struct places `seen` at Pokedex+0x44 = owned+0x34 (=52), confirming the byte-length. Dex flags are
+# NOT security-key encrypted (unlike money/items) -> a plain popcount of owned[] = species CAUGHT.
+SB2_POKEDEX_OWNED_OFF = 0x28
+DEX_OWNED_BYTES       = 52
 GPLAYER_PARTY     = 0x02024284   # party data (100 B/mon). ✅ LOCKED: species decrypted to 4=charmander
 GENEMY_PARTY      = 0x0202402C   # enemy party (100 B/mon). ✅ CONFIRMED 2026-06-27 via EWRAM brute-scan:
 #                                  decodes the full enemy roster across 4 battle states (brock=geodude+
@@ -121,3 +128,15 @@ def read_player_coords(bridge):
 
 def read_party_count(bridge):
     return bridge.rd8(GPLAYER_PARTY_CNT)
+
+
+def pokedex_owned_count(bridge):
+    """BATCH 6 PHASE 4 — how many species she's CAUGHT, read straight from RAM (no menu). Popcount of
+    the SaveBlock2 Pokédex owned-flag array (offset sourced above). Returns an int, or None if SaveBlock2
+    isn't allocated yet (pre-game). Bits past NUM_SPECIES are always 0, so popcounting the full 52 bytes
+    is exact. Lets her answer 'how many have I caught?' on demand — including when chat asks."""
+    sb2 = bridge.rd32(GSAVEBLOCK2_PTR)
+    if not valid_ewram_ptr(sb2):
+        return None
+    base = sb2 + SB2_POKEDEX_OWNED_OFF
+    return sum(bin(bridge.rd8(base + i)).count("1") for i in range(DEX_OWNED_BYTES))

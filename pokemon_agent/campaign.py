@@ -993,14 +993,22 @@ class Campaign:
             on_grass_map = False
         ng = self._GYM_ORDER[len(badges)] if len(badges) < len(self._GYM_ORDER) else None
         place = self._PLACE_NAMES.get(mp, "an unfamiliar area")
+        dex = ram.pokedex_owned_count(b)          # BATCH 6 PHASE 4: caught-count from RAM (no menu)
         progress = (f"{len(badges)} badge(s) earned ({', '.join(badges) or 'none'}). "
-                    + (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned."))
+                    + (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned.")
+                    + (f" Pokédex: {dex} caught." if dex is not None else ""))
         return {"map": mp, "place": place, "coords": co,
                 "badges": badges, "badge_count": len(badges),
                 "party": party, "party_count": cnt,
-                "on_grass_map": on_grass_map,
+                "on_grass_map": on_grass_map, "dex_caught": dex,
                 "next_gym": ({"city": ng[0], "leader": ng[1]} if ng else None),
                 "progress": progress}
+
+    def pokedex_count(self):
+        """BATCH 6 PHASE 4 — public accessor for 'how many have I caught?' (clean RAM popcount, no menu).
+        Returns an int, or None pre-game. So she can answer on demand — incl. when chat asks (the mode
+        exposes the read; the chat-Q&A wire to core is a thin pull, firewall-safe)."""
+        return ram.pokedex_owned_count(self.b)
 
     # ── GENERAL gym-trainer gauntlet (a gym LEADER is gated behind the junior trainers) ──────────
     _OB, _SZ = 0x02036E38, 0x24
