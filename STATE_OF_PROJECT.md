@@ -216,7 +216,25 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
      rationale is computed (before the action runs) so the dashboard reflects the CURRENT decision live.
      VERIFIED: `health.json` carries a fresh non-empty `rationale` after a run (+ the `questline` field so
      Jonny reads WHY she's off the direct path). Dashboard pixel-render is code-traced (no-cache + `g.rationale`
-     bound) — only literal live-eyes pending.
+     bound) — only literal live-eyes pending. **COMMITTED 50b72b7.**
+   - **LOSS-RESILIENCE — VERIFIED PASS 2026-06-28 (`recon_forward_loss.py`, 20-tick drive, no force-heal).**
+     The real test Jonny asked for: does a LOSS break the forward drive? It does NOT. Across the run she took
+     2 `battle_loss` + 4 `need_heal` (hurt retreats) on the un-fleeable Nugget-Bridge gauntlet, leveled
+     L24->L26 (grinding en route), and NEVER once picked a backward-travel option — the gate questline stayed
+     OPEN every tick and she stayed pointed NORTH at Bill. So a loss -> heal + grind-toward-strength while
+     pointed at the objective, exactly as wanted; it never knocks her backward to a cleared dead-end.
+   - **NEXT BLOCKER (foreseen headless, NOT a loss issue) — Route 24 north-traversal wedge.** The SAME loss
+     trace showed her reach Route 24 (3,43, Nugget Bridge) forward, then wedge: `head_to_gym ->
+     questline_no_edge` because `_run_questline_step` finds no NORTH edge from `_map_connections()` at her
+     position and no-ops (returns the string instead of EXPLORING/discovering north into the unexplored
+     Route 25). head_to_gym then gets no-move-pruned -> she's left with `talk_npc` + `travel:3,3` (back to
+     Cerulean) -> talk_npc spam / Cerulean<->Route24 loop. The questline progression gap, exposed by the
+     forward drive working well enough to GET her there. FIX (next increment): the questline executor must
+     discover/explore in the step direction when there's no known edge (walk to the north map-edge to cross
+     into Route 25, mirroring head_to_gym's south-discovery) AND handle the Nugget-Bridge gauntlet — needs
+     its own recon (is the north connection genuinely absent at (3,43), a sub-map, or a walk-to-edge issue?).
+     Until built, a full Bill-COMPLETION watch wedges at Nugget Bridge; the forward-drive BEHAVIOR
+     (east->Cerulean->questline opens->drives north, survives losses) is watch-ready.
    - **GROUND TRUTH RESOLVED 2026-06-28 (pret/pokefirered disasm + live RAM): the immediate gate is a
      STORY-GATE, not Cut. `kira_campaign.state` is NOT mis-positioned — it's a valid post-Misty/pre-Bill
      state.** `CeruleanCity_MapScripts → CeruleanCity_OnTransition` calls `CeruleanCity_EventScript_BlockExits`
