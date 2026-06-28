@@ -565,6 +565,7 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
             <div><b style="display:inline-block;width:42px;color:#e3c84a;font-weight:700">NEXT</b><span id="pokemon-goal-next" style="color:#cdd5e2">—</span></div>
             <div><b style="display:inline-block;width:42px;color:#9BA8BC;font-weight:700">GOAL</b><span id="pokemon-goal-long" style="color:#9BA8BC">—</span></div>
           </div>
+          <div id="pokemon-rationale" style="margin-top:8px;font-size:12px;font-style:italic;color:#7fd0ff;line-height:1.6">—</div>
         </div>
         <div class="muted" id="pokemon-meta" style="font-size:11px;margin-top:8px">PID —</div>
       </div></div>
@@ -762,6 +763,9 @@ function _renderHealth(h){ h=h||{};
     setText('pokemon-goal-now', now || '—');
     setText('pokemon-goal-next', gl.medium || '—');
     setText('pokemon-goal-long', gl.long || '—');
+    // FIX 3 — live rationale ("why I'm doing this right now"): purposeful vs lost, at a glance.
+    const _rl=document.getElementById('pokemon-rationale');
+    if(_rl){ _rl.textContent = g.rationale ? ('“'+g.rationale+'”') : '—'; }
   } else if(_gw){ _gw.style.display='none'; }
 }
 function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }

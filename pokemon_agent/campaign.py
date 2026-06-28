@@ -2965,19 +2965,29 @@ class Campaign:
             # in this oracle architecture — so the return reads as a strong positive pull, not a bland
             # equal. She still chooses; this just stops "keep grinding" from being the path of least
             # resistance after she's already prepared.
+            # FORWARD-ANCHORED: once she's past the readiness bar, the move is to TRAVEL to the next gym
+            # — a concrete physical destination head_to_gym routes toward via live map connections — NOT
+            # to circle the grass or chase a vague 'rematch' with no coordinates (the live aimless-grind
+            # bug). Reframe head_to_gym as the dominant FORWARD pull AND prune the grind actions so
+            # 'murder Rattatas forever' stops being offered. Never dead-ends her: only fires when
+            # head_to_gym is a real option here (a forward route exists).
             try:
-                wr = self.strat.ready_to_retry(state.get("party_count"),
-                                               state["party"][0]["level"] if state.get("party") else None)
-                if wr and "head_to_gym" in a:
-                    if wr.get("is_trainer"):
-                        who = wr.get("name") or (f"{wr.get('lead')}" if wr.get("lead") else "that rival")
-                    else:
-                        who = f"the wild {wr.get('lead')}" if wr.get("lead") else "that wall"
-                    place = wr.get("place") or "the route that walled you"
-                    a["head_to_gym"] = (f"GO BACK AND TAKE THE WALL — you've trained up for exactly this; "
-                                        f"head back to {place} and beat {who}. You're ready now; this is "
-                                        f"the move, not more grinding.")
-                    log(f"   [roam] !! READINESS → GO: reframed head_to_gym as the active 'go take {who}' pull")
+                _pc2 = state.get("party_count")
+                _pl2 = state["party"][0]["level"] if state.get("party") else None
+                wr = self.strat.ready_to_retry(_pc2, _pl2)
+                ng2 = state.get("next_gym")
+                if wr and "head_to_gym" in a and ng2:
+                    try:
+                        badge = self._BADGE_NAMES[state.get("badge_count", 0)]
+                    except Exception:
+                        badge = "next"
+                    a["head_to_gym"] = (f"YOU'RE READY — STOP GRINDING AND GO. Travel to {ng2['city']} and take "
+                                        f"on {ng2['leader']} for the {badge} Badge — that's the way FORWARD, the "
+                                        f"route ahead leads there. You trained up for exactly this; the move now "
+                                        f"is to GO to the next gym, not circle the grass.")
+                    pruned = [g for g in ("battle", "wander_catch") if a.pop(g, None) is not None]
+                    log(f"   [roam] !! READINESS → GO (grind-exit): past the bar — head_to_gym reframed "
+                        f"FORWARD to {ng2['city']}, pruned grind {pruned}; the move is to travel to the gym")
             except Exception as _rr:
                 log(f"   [roam] readiness reframe skipped: {_rr}")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
@@ -3247,6 +3257,25 @@ class Campaign:
             # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
             if south is None:
+                # OFF-SPINE RECOVERY (the forward-spine FLOOR): no forward (south) connection from here —
+                # she's wandered OFF the main path (e.g. west to Route 4 to grind), so head_to_gym used to
+                # dead-end on no_gym_route and she'd just keep grinding. Instead, route her BACK toward the
+                # nearest KNOWN town on the spine (learned edges only — no fabricated coords) so the next
+                # tick head_to_gym can resume heading south. This keeps her ALWAYS pointed at the next gym.
+                cur_map = tuple(state["map"])
+                try:
+                    avoid = self._wall_avoid(state)
+                    for tgt, nm, _h in self.world.reachable_with_trait(cur_map, "is_town", avoid=avoid):
+                        hop = self.world.next_hop(cur_map, tgt, avoid=avoid)
+                        if hop:
+                            back_map, edge_dir = hop
+                            log(f"   [roam] OFF-SPINE: no south route from {cur_map} — heading back toward "
+                                f"{nm} (the spine) via {edge_dir} to {back_map}, then south to the gym")
+                            self.on_event(f"I've drifted off the main path — heading back toward {nm} to "
+                                          f"pick the road to the next gym back up.", kind="route", tier=1)
+                            return self.trav.travel(target_map=back_map, edge=edge_dir)
+                except Exception as _os:
+                    log(f"   [roam] off-spine recovery skipped: {_os}")
                 return "no_gym_route"
             # BATCH-4 PHASE 2 spatial wall: don't route her straight back into the trainer who keeps
             # blacking her out. If the next map is the gated wall map and she's no stronger, ABORT LOUD
@@ -3707,6 +3736,12 @@ class Campaign:
             # she's doing — the immersion bug). She's the one PLAYING; first-person framing is explicit.
             _goals = self._goal_layers(state)
             _brief = self._party_brief(state)
+            # FIX 1+2 — fold the FIXED forward spine + her real run history in FIRST, so every decision is
+            # anchored to "always heading to the next gym" and grounded in what she's actually done.
+            try:
+                where = f"{where}. {self._spine_and_history(state)}"
+            except Exception as _sh:
+                log(f"   [roam] spine/history fold skipped: {_sh}")
             where = (f"{where}. YOUR PLAN — right now: {_goals['short']}. Next: {_goals['medium']}. "
                      f"Bigger picture: {_goals['long']}. Your team right now: {_brief}. Remember YOU are "
                      f"the one playing this — narrate your plan to chat in your own voice (first person: "
@@ -3751,6 +3786,10 @@ class Campaign:
             # FIX 1 — track consecutive identical picks (for the repeat-no-progress nudge above).
             self._repeat_pick_n = self._repeat_pick_n + 1 if pick == self._last_action_pick else 0
             self._last_action_pick = pick
+            # FIX 3 — live RATIONALE for the dashboard ("why am I doing THIS right now"), from her real
+            # current plan + pick. Published in the next health snapshot so Jonny reads purposeful-vs-lost.
+            self._rationale = self._rationale_line(state, pick, _goals)
+            log(f"   [roam] RATIONALE: {self._rationale}")
             # RECALIBRATION — record a PURPOSEFUL, going-somewhere pick as the standing objective she
             # returns to. Detour actions (heal / talk_npc / stock_up / grind / idle) deliberately do NOT
             # overwrite it, so the thread survives them. Cleared when its action completes (below).
@@ -4043,18 +4082,20 @@ class Campaign:
                 long = "Take on the Elite Four"
             wr = self.strat.active_wall_rec()
             rdy = self.strat.ready_to_retry(pc, pl) if STRATEGIC_STUCK_ENABLED else None
-            # MEDIUM — the wall she's prepping for (if any), else the road ahead
-            if wr:
+            # MEDIUM — the road ahead. Once READY, it's FORWARD to the next gym city (a concrete place she
+            # can route to), NOT a vague 'go back and rematch' with no coords (the aimless-grind trap). The
+            # wall only frames MEDIUM while she's still UNDER-prepared (the genuine 'build up first' phase).
+            if wr and not rdy:
                 if wr.get("is_trainer"):
                     who = wr.get("name") or (f"{wr.get('lead')}" if wr.get("lead") else "that rival")
                 else:
                     who = f"the wild {wr.get('lead')}" if wr.get("lead") else "that wall"
                 place = wr.get("place") or "that route"
                 onward = f", then push on toward {ng['city']}" if ng else ""
-                medium = (f"Go back to {place} and beat {who} — ready now" if rdy
-                          else f"Build a team strong enough to beat {who} at {place}{onward}")
+                medium = f"Build a team strong enough to beat {who} at {place}{onward}"
             elif ng:
-                medium = f"Make your way to {ng['city']}"
+                medium = (f"You're ready — travel to {ng['city']} and take on {ng['leader']}" if rdy
+                          else f"Make your way to {ng['city']}")
             else:
                 medium = "Press on through the league"
             # SHORT — current want, or the concrete strengthen task with an END CONDITION when walled
@@ -4073,7 +4114,11 @@ class Campaign:
                 else:
                     short = "Grind the team up a couple levels, then go back and retry"
             elif rdy:
-                short = "Head back and take the rematch — you're ready"
+                _bc = state.get("badge_count", 0)
+                _bn = self._BADGE_NAMES[_bc] if _bc < len(self._BADGE_NAMES) else None
+                short = (f"You're ready — stop grinding and head to {ng['city']}"
+                         + (f" for the {_bn} Badge" if _bn else "") if ng
+                         else "You're ready — stop grinding and push forward to the next objective")
             elif want:
                 short = want
             else:
@@ -4082,6 +4127,64 @@ class Campaign:
         except Exception as e:
             log(f"   [goals] layer build skipped: {e}")
             return {"short": "", "medium": "", "long": ""}
+
+    # FIX 2 — RUN HISTORY (her story-so-far), keyed by what her badges PROVE she's done this run. Honest
+    # past, NOT omniscient future (the Lapras-confabulation guard: she knows where she's BEEN, discovers
+    # what's ahead). Extend as she earns more badges.
+    _STORY_MILESTONES = {
+        0: "You just set out from Pallet Town with your first Pokémon — the whole journey's ahead of you.",
+        1: "You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter "
+           "City for the Boulder Badge. Now you're pushing on toward the next gym.",
+        2: "You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and "
+           "through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and "
+           "beat Misty for the Cascade Badge. Now you're after your third gym.",
+    }
+
+    def _story_so_far(self, badge_count):
+        """Her real run history (what she's actually done), for grounding her decision + voice context."""
+        return self._STORY_MILESTONES.get(badge_count, "")
+
+    def _spine_and_history(self, state):
+        """FIX 1+2 — the FIXED main-quest SPINE + her real RUN HISTORY, folded into her oracle ctx so she's
+        ALWAYS pointed at the next gym (never aimless) and grounded in what SHE has done this run (not
+        foreknowledge). Pure strings from live badge state + _GYM_ORDER; NO fabricated map coords — the
+        actual forward routing is live-RAM via head_to_gym (and learned as she walks it)."""
+        bc = state.get("badge_count", 0)
+        ng = state.get("next_gym")
+        spine = ("THE MAIN QUEST IS A FIXED PATH you're always on: beat the 8 Gym Leaders in order, then "
+                 "the Elite Four, then you win the game. ")
+        if ng:
+            spine += (f"You're on GYM {bc + 1} of 8 — next is {ng['leader']} in {ng['city']}. The road "
+                      f"forward leads there: until you've won you are ALWAYS making progress toward the "
+                      f"next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and "
+                      f"then you GET BACK ON THE ROAD to {ng['city']}. Never just circle the same grass.")
+        else:
+            spine += "All 8 badges are yours — the Elite Four is the final challenge before the credits."
+        hist = self._story_so_far(bc)
+        return spine + (f" YOUR STORY SO FAR (what you've actually done — your past, not the future): "
+                        f"{hist}" if hist else "")
+
+    def _rationale_line(self, state, pick, goals):
+        """FIX 3 — a one-sentence 'why am I doing THIS right now' for the dashboard, synthesized from her
+        REAL current plan (the concrete pick + her short/long goal), so Jonny can read purposeful-vs-lost
+        at a glance. Grounded in actual state (not a canned string); the oracle's verbatim reasoning would
+        need an oracle-return change (flagged — firewall)."""
+        ng = state.get("next_gym")
+        nxt = f" then on to {ng['city']} for {ng['leader']}" if ng else " then on to the Elite Four"
+        short = (goals or {}).get("short") or "exploring"
+        if pick == "head_to_gym":
+            return f"Heading for the next gym{(' — ' + ng['city']) if ng else ''}: {short}."
+        if pick in ("battle", "wander_catch"):
+            return f"{short} — building up here with a purpose,{nxt}."
+        if pick == "heal":
+            return f"Topping up at a Pokémon Center, then back on the road{nxt}."
+        if pick == "stock_up":
+            return f"Stocking up on supplies, then continuing{nxt}."
+        if pick and pick.startswith("travel:"):
+            return f"Routing to a place I need{nxt}."
+        if pick == "talk_npc":
+            return f"Checking in with a local, then{nxt}."
+        return f"{short}.{nxt}"
 
     def _publish_health(self, macro, state, last_badge_ts, run_start_ts):
         """BATCH 6 PHASE 7 — write the cockpit health snapshot (atomic JSON) the dashboard polls. Game-side
@@ -4125,6 +4228,7 @@ class Campaign:
                 "next_gym": state.get("next_gym"),
                 "now_state": now_state, "objective": objective, "want": want,
                 "goals": goals, "plan": plan,            # PHASE 1 — 3-tier goal (short/medium/long) + flat line
+                "rationale": getattr(self, "_rationale", ""),   # FIX 3 — live "why I'm doing this right now"
                 "active_objective": (self._active_objective or {}).get("label"),   # the thread she returns to after detours
 
                 "playthrough_s": self._playthrough_elapsed(),
