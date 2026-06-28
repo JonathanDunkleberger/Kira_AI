@@ -184,6 +184,7 @@ def decode_status(s):
 # verified at runtime by the buy bag-delta (a wrong id -> the target count won't rise -> LOUD abort, so
 # nothing is trusted blind). Pewter BUY list control-verified 2026-06-27 (recon_mart): Potion id 13. ──
 ITEM_POTION = 13
+ITEM_POKE_BALL = 4
 # weakest -> strongest healing potions (what "stock up on potions" buys, cheapest first)
 HEAL_ITEMS = {13: "Potion", 22: "Super Potion", 21: "Hyper Potion", 20: "Max Potion", 19: "Full Restore"}
 # status NAME -> (cure item id, cure name). Awakening(17) cures sleep; Parlyz Heal(18) paralysis; etc.
@@ -212,6 +213,12 @@ SHOP_POTION_TARGET = 6
 # I take that bridge" is a live, characterful option — not only a restock when she's already empty.
 SHOP_POTION_FORESIGHT = 10
 SHOP_CURE_QTY = 2
+# BATCH 6 PHASE 3 — Poké Ball FORESIGHT: a teammate is the answer to a wall (Phase 2), and you can't
+# catch one with an empty bag. When she's running a thin team and low on balls, "grab some Poké Balls"
+# surfaces as a real shopping need — so she goes into the grass equipped to actually come home with a
+# new family member, not empty-handed. Thin = party at/below this; restock up to the ball target.
+SHOP_THIN_PARTY = 3
+SHOP_BALL_TARGET = 5
 SHOP_MONEY_FLOOR = 500
 
 # ── THE CAMPAIGN: Pallet -> Pewter -> Brock, as an objective list ─────────────
@@ -2133,6 +2140,14 @@ class Campaign:
         pl = st_["party"][0]["level"] if st_.get("party") else None
         return not self.strat.stronger_since_wall(pc, pl)
 
+    def _thin_team(self):
+        """BATCH 6 PHASE 3 — is she running a thin bench (≤ SHOP_THIN_PARTY)? Drives Poké Ball foresight:
+        a thin team is the one that most needs to come home from the grass with a new member."""
+        try:
+            return self.b.rd8(ram.GPLAYER_PARTY_CNT) <= SHOP_THIN_PARTY
+        except Exception:
+            return False
+
     def _shopping_list(self, foresight=False):
         """What a sensible player would BUY here, given the bag + what's hurt her: top Potions up to the
         target (SHOP_POTION_FORESIGHT when she's walled and stocking up before a push, else
@@ -2143,6 +2158,10 @@ class Campaign:
         pot_need = target - self.bag_count(ITEM_POTION)
         if pot_need > 0:
             sl.append((ITEM_POTION, pot_need))
+        # BATCH 6 PHASE 3 — Poké Ball foresight: thin team + low on balls = she should leave the Mart
+        # equipped to actually catch a teammate (the real answer to a wall). Bag-delta verified like any buy.
+        if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:
+            sl.append((ITEM_POKE_BALL, SHOP_BALL_TARGET - self._ball_count()))
         for status in sorted(self._afflict_seen):
             cure = STATUS_CURE.get(status)
             if not cure:
@@ -2163,6 +2182,8 @@ class Campaign:
         if self.bag_count(ITEM_POTION) < target:
             bits.append("you're low on Potions" if not foresight
                         else "you could carry a lot more Potions before that next push")
+        if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:
+            bits.append("you're light on Poké Balls — grab some so you can actually catch a teammate out there")
         if cures:
             afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
             bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
