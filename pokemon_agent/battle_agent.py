@@ -1015,7 +1015,12 @@ class BattleAgent:
             self.emit(f"used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
         if ce["hp"] == 0 and pe["hp"] > 0:
             self._enemy_fainted = True
-            self.emit(f"{st.SPECIES_NAME.get(ce['species'], 'the enemy')} fainted", beat=True)
+            # BATCH 5 PHASE 3 — mark the SIDE so she never narrates her own WIN as a loss. The bare
+            # "{species} fainted" read as HER mon dying (she mourned a Nidoran she'd just KO'd). gBattleMons[1]
+            # is the ENEMY, so this faint is always a victory. (Avoid the substrings 'knocked out'/'you lost'
+            # — pokemon_voice.classify tiers those as a T3 LOSS; "took it down" stays the correct T1.)
+            self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} fainted — you took it down",
+                      beat=True)
         if co["hp"] == 0 and po["hp"] > 0:
             self._we_fainted = True
             self.emit("your Pokemon fainted", beat=True)
