@@ -39,6 +39,10 @@ _P_LEVEL_OFF = 0x54
 # How many times she must lose the SAME fight before the note escalates from "that stung, regroup" to
 # "brute-forcing clearly isn't working — change approach". Tunable; 2 = the spec's "same fight ≥2x".
 WALL_REPEAT = 2
+# STRATEGIC-STUCK FLOOR (the Gary death-loop killer). After this many losses to the SAME wall with NO
+# roster/level change between attempts, the loop is run-existential and the floor escalates hard: her
+# APPROACH is wrong, not her execution. 2 = catch it on the 2nd identical loss, to prevent the 3rd.
+STRATEGIC_STUCK_LOSSES = int(os.getenv("POKEMON_STRATEGIC_STUCK_LOSSES", "2"))
 
 
 def _species_at(b, base):
@@ -292,6 +296,41 @@ class StrategicMemory:
         if wp is None or wl is None or party_count is None or lead_level is None:
             return False
         return party_count > wp or lead_level > wl
+
+    # ── STRATEGIC-STUCK FLOOR (sibling to deep-wedge, but for STRATEGY not navigation) ──────────────
+    # The navigational watchdog can't see this loop: she's walking + fighting + healing, so the world
+    # fingerprint keeps CHANGING (stays GREEN) while she loses to the same wall over and over. This
+    # detects the STRATEGIC deadlock — repeated identical losses with no roster/level gain between them —
+    # the die→re-charge→die loop that is a run-existence threat. It only READS already-tracked data.
+    def strategically_stuck(self, party_count, lead_level):
+        """The wall rec if she's strategically stuck (≥STRATEGIC_STUCK_LOSSES to the same wall AND no
+        stronger than her last attempt — nothing changed between tries), else None. Losing once and
+        retrying is free will; losing identically N times unchanged is the loop the floor breaks."""
+        r = self.active_wall_rec()
+        if not r or r.get("count", 0) < STRATEGIC_STUCK_LOSSES:
+            return None
+        if self.stronger_since_wall(party_count, lead_level):
+            return None                                   # she changed something -> a legit retry, not the loop
+        return r
+
+    def strategic_stuck_note(self):
+        """The DOMINANT directive (stronger than loss_awareness): name the loop and the fix. Capability-
+        not-script — it tells her strengthening comes FIRST and lists how, but she still picks which way."""
+        r = self.active_wall_rec()
+        if not r:
+            return ""
+        n = r.get("count", 0)
+        if r.get("is_trainer"):
+            sz = f"{r['size']} Pokémon" if r.get("size") else "a full team"
+            who = f"that trainer ({r['lead']} lead, {sz})"
+        else:
+            who = f"the wild {r['lead']}"
+        return (f"STRATEGIC DEAD-END — stop and think. You've now lost to {who} {n} times with the SAME "
+                f"team at the SAME level. This is NOT something you grind out by trying again harder — your "
+                f"APPROACH is wrong, and re-charging in unchanged WILL black you out a {n + 1}th time. Do "
+                f"NOT march back into them. The only move is to get STRONGER first: grind levels in safe "
+                f"grass, catch a teammate so you're not running solo, or stock up on healing — THEN come "
+                f"back and take them. You choose HOW you strengthen, but strengthening comes first, period.")
 
     def is_gated(self, map_id, party_count, lead_level):
         """SPATIAL gate: is `map_id` the map where her active wall keeps beating her, AND she's no

@@ -107,6 +107,12 @@ FIELD_MOVES_ENABLED = os.getenv("POKEMON_FIELD_MOVES", "0") == "1"
 # the pickup actuation (grab_item) reuses the proven _talk face→A→drain mechanic but the bag-delta
 # confirmation is unverified here (the catch-path lesson) — arm POKEMON_ITEM_PICKUP=1 for the control.
 ITEM_PICKUP_ENABLED = os.getenv("POKEMON_ITEM_PICKUP", "0") == "1"
+# STRATEGIC-STUCK FLOOR (the Gary death-loop killer) — run-existential, so DEFAULT-ON (it's logic only:
+# it re-shapes the option set + ctx, no risky actuation). Revert switch if ever needed. FIREWALL: this
+# lives in the autonomous-play free_roam loop, which ONLY runs when SHE is playing — so the GRIND-ACTION
+# it steers toward is play-gated by construction and can never fire while she's cohosting a human-played
+# game. The FEELING about the loss is the separate emitted reaction (the core voice seam).
+STRATEGIC_STUCK_ENABLED = os.getenv("POKEMON_STRATEGIC_STUCK", "1") == "1"
 ITEM_GRAB_MAX_DIST  = int(os.getenv("POKEMON_ITEM_GRAB_MAX_DIST", "18"))   # max grass-free steps to detour
 
 
@@ -2606,6 +2612,34 @@ class Campaign:
                 a["talk_npc"] = "go say hi to someone nearby — talk to the locals, see what they know"
         except Exception:
             pass
+        # ── STRATEGIC-STUCK FLOOR (the Gary death-loop killer) — the TEETH ─────────────────────────
+        # loss_awareness already TELLS her "come back stronger", but advice without teeth lost 3× live.
+        # When she's strategically stuck (≥N identical losses, no roster/level change) AND a real
+        # strengthen path exists here, PRUNE the wall-re-approach (head_to_gym) from the pickable set so
+        # "throw the same mon at the same wall again" stops being the path of least resistance. She still
+        # CHOOSES how to strengthen (grind / catch / shop) — capability-not-script. If NO strengthen
+        # option is reachable, head_to_gym is KEPT (never dead-end her); the dominant ctx note + the
+        # mode-side backtrack fix handle that case. Play-gated by construction (free_roam = autonomous play).
+        if STRATEGIC_STUCK_ENABLED:
+            try:
+                pc = state.get("party_count")
+                pl = state["party"][0]["level"] if state.get("party") else None
+                if self.strat.strategically_stuck(pc, pl):
+                    strengthen = [k for k in ("wander_catch", "battle", "stock_up") if k in a]
+                    if strengthen:
+                        a.pop("head_to_gym", None)        # may NOT march back into the wall unchanged
+                        if "battle" in a:
+                            a["battle"] = ("STRENGTHEN FIRST — train in the grass to level up; you can't "
+                                           "beat that wall as you are")
+                        if "wander_catch" in a:
+                            a["wander_catch"] = ("STRENGTHEN FIRST — catch a teammate so you're not solo "
+                                                 "against that wall")
+                        if "stock_up" in a:
+                            a["stock_up"] = "STRENGTHEN FIRST — stock up on healing before you face them again"
+                        log("   [roam] !! STRATEGIC-STUCK: pruned head_to_gym (wall re-approach) — "
+                            f"strengthen options only: {strengthen}")
+            except Exception as _ss:
+                log(f"   [roam] strategic-stuck pruning skipped: {_ss}")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
         # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
         # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
@@ -3054,6 +3088,16 @@ class Campaign:
             # SAME `place` seam. FACTS + the menu of options (level / teammate / counter / come back),
             # never a command — she still picks (capability-not-script; a stubborn solo-run stays valid).
             # Loss-awareness leads: it's the run-existential one (the die→run-back→die loop killer).
+            # STRATEGIC-STUCK FLOOR — the DOMINANT note (leads, ahead of the softer loss_awareness). When
+            # she's truly stuck (≥N identical losses, no change), this names the loop and that strengthening
+            # comes FIRST. Paired with the option-pruning in _available_actions, this is the floor with teeth.
+            if STRATEGIC_STUCK_ENABLED and self.strat.strategically_stuck(
+                    state.get("party_count"), state["party"][0]["level"] if state.get("party") else None):
+                ssn = self.strat.strategic_stuck_note()
+                if ssn:
+                    where = f"{where}. {ssn}"
+                    log(f"   [roam] !!!! STRATEGIC-STUCK FLOOR vs {self.strat.active_wall}: dominant "
+                        f"'strengthen-first' directive folded — breaking the die→re-charge→die loop")
             la = self.strat.loss_awareness()
             if la:
                 where = f"{where}. {la}"
