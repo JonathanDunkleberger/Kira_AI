@@ -722,7 +722,16 @@ class BattleAgent:
         ours = state["ours"]
         frac = _hp_frac(ours)
         offers, plan = {}, {}
-        if frac <= BATTLE_CRIT_FRAC:
+        # MATCHUP-AWARE HEAL THRESHOLD (general, E4-critical): a foe that hits us SUPER-EFFECTIVELY can
+        # 2HKO from high HP, so the 30% crit floor heals too LATE (one more hit faints us). Against such a
+        # threat, heal EARLY — at HALF — so a Potion can OUT-HEAL its chip while we win the fight another
+        # way (poison/chip). This is exactly what cracks Gary's Charmander (Ember 2x on Ivysaur): heal
+        # through the Embers while poison kills it. An even/resisted foe still heals at the crit floor.
+        _myt = [t for t in (ours.get("types") or []) if t and t != "???"]
+        _foet = [t for t in (state.get("enemy", {}).get("types") or []) if t and t != "???"]
+        threat = self._matchup_def(_myt, _foet) if (_myt and _foet) else 1.0
+        heal_frac = 0.5 if threat >= 2 else BATTLE_CRIT_FRAC
+        if frac <= heal_frac:
             heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
             if heal is not None:
                 plan["use_potion"] = heal
@@ -859,13 +868,14 @@ class BattleAgent:
         # TYPE-INDEPENDENTLY (bypasses the resistance), sleep neutralizes the foe. Fire it ONCE, early,
         # when the foe is still fresh (worth the turn), then go back to chipping while the status works.
         # Capability-not-script + general (cracks any resist-wall, not just Charmander). ───────────────
+        # ONE status/foe (poison/leech preferred — type-independent CHIP that bypasses the resistance and
+        # keeps the fight SHORT; a 2nd status play made long fights wedge/time-out in the live look-ahead).
         if not getattr(self, "_status_played", False):
             _dmg_effs = [pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])
                          for i in range(4) if _usable(i) and ours["moves"][i].get("power", 0) > 0]
             best_dmg_eff = max(_dmg_effs) if _dmg_effs else 1.0
             foe_frac = enemy["hp"] / max(enemy.get("maxhp", 1), 1)
             if best_dmg_eff <= 0.5 and foe_frac > 0.5:
-                # prefer CHIP statuses (they win the fight) over pure neutralize, both type-independent
                 _STATUS_PREF = ["leechseed", "toxic", "poisonpowder", "spore", "sleeppowder",
                                 "hypnosis", "lovelykiss", "sing", "stunspore"]
                 _norm = lambda s: "".join(s.lower().split())
@@ -874,8 +884,8 @@ class BattleAgent:
                                and _norm(ours["moves"][i].get("name", "")) == want), None)
                     if si is not None:
                         idx, desc, self._status_played = si, ours["moves"][si].get("name", want), True
-                        self.log(f"   [engine] STATUS STRATEGY: damage is resisted (best x{best_dmg_eff:g}) "
-                                 f"-> {desc} to chip/neutralize past the wall (type-independent)")
+                        self.log(f"   [engine] STATUS STRATEGY: damage resisted (best x{best_dmg_eff:g}) "
+                                 f"-> {desc} (type-independent chip/neutralise past the wall)")
                         break
         self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                  f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
@@ -1082,9 +1092,18 @@ class BattleAgent:
         open list -> DOWN*slot -> A select -> A SEND OUT), confirming the active SPECIES actually changed.
         FAIL-SAFE: if it doesn't confirm, B back to the action menu and return False (caller fights —
         never wedges). Returns 'switched' or False. Shared by the matchup switch + the grind switch."""
+        # SETTLE FIRST (the fix the live look-ahead found): _goto_pokemon reads GBATTLE_ACTION_CURSOR,
+        # which is garbage in a transitional frame -> it bailed 'cursor not on POKEMON'. use_item_in_battle
+        # already settles before _goto_bag (same cursor) and works; do the same here.
+        if not self._settle_action_menu():
+            self.log("   [engine] switch: couldn't reach a clean action menu")
+            return False
         if not self._goto_pokemon():
+            self.log("   [engine] switch: _goto_pokemon failed (cursor not on POKEMON)")
             return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)  # open party list
+        self.log(f"   [engine] switch: opened party? white_box={self._white_box()} (want False=party screen) "
+                 f"target slot {slot}, before_sp {before_sp}")
         for _attempt in range(4):
             for _ in range(slot):                         # party cursor opens on slot 0 -> down to N
                 self._tap("DOWN")
@@ -1092,6 +1111,8 @@ class BattleAgent:
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)  # select
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(20)  # SEND OUT
             cur = st.read_battle(self.b)
+            self.log(f"   [engine] switch attempt {_attempt}: now species={cur['ours'].get('species') if cur else None} "
+                     f"hp={cur['ours']['hp'] if cur else None} (before {before_sp})")
             if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") != before_sp:
                 return "switched"
             self._advance_text()
@@ -1140,7 +1161,7 @@ class BattleAgent:
         self._started = True
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
-        self._status_played = False        # STATUS STRATEGY: poison/sleep/leech fires at most once per battle
+        self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -1216,8 +1237,8 @@ class BattleAgent:
                             and enemy["hp"] > 0 and enemy["hp"] == enemy["maxhp"]
                             and 1 <= enemy["species"] <= 411):
                         self._enemy_fainted = False        # next mon is out -> fight it
-                        self._status_played = False         # NEW foe -> reconsider a status move (so Gary's
-                        #                                     Charmander gets poisoned, not just his lead)
+                        self._status_played = False         # NEW foe -> poison/sleep the next mon too (e.g.
+                        #                                     Gary's Charmander, not just his lead)
                         self._prev = cur
                         self.emit(f"the trainer sent out "
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
