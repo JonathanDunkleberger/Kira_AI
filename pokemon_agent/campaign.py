@@ -47,6 +47,18 @@ FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forwar
 # under-levelled, grinding fields the WEAK party members (not the ace) to readiness, then resumes the
 # march. Extends the forward-drive family; firewall-clean (mode-side only). OFF restores grind(lead+2).
 STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "1") != "0"
+# SOLO weak-grind: field the weak member as lead and let it grind SOLO in the grass (no in-battle
+# participation-switch needed — that switch wedges the long core). Viable now that she can buy Super
+# Potions (the in-battle heal instinct keeps a weak lead alive) + heals route to a reachable Center.
+# The ace backstops in slot 1 (a weak-lead faint finishes the wild, no blackout). This is the real
+# team-building unblock (vs ace-overpower, which can't fix a type-resisted wall like Gary's Charmander).
+# Default OFF: the path is RIGHT (team-building) but unfinished — a weak L8 mon fielded in Route-4's
+# L8-13 grass FAINTS before earning XP (so the floor doesn't rise), and at the route's far edge no grass
+# is reachable to re-engage -> a churn stall. NEEDS (next session): route the weak mon to SURVIVABLE
+# low-level grass (its level >= wild levels) + verify the ace-backstop sends in on a weak-lead faint (so
+# the fight is WON, weak mon banks participation XP) + field the less-weak mon first. Arm with
+# POKEMON_SOLO_WEAK_GRIND=1 to continue. Until then ace-overpower (heals fine via the reachable-Center fix).
+SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
@@ -211,6 +223,11 @@ CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT = (3, 3), (31, 21), (8, 7)
 # Cerulean Pokemon Center door: (22,19) -> MAP_CERULEAN_CITY_POKEMON_CENTER_1F. Sourced from the
 # pokefirered disasm (CeruleanCity warp_events) AND cross-checked against the live RAM warp table.
 CERULEAN_PC_DOOR = (22, 19)
+# Cerulean Poke Mart: town door (29,28) -> interior (7,7), clerk at (2,3) (the verified Mart-layout
+# signature; recon_findmart 2026-06-28). NOTE: the prior session mis-tagged (30,11)/(7,1) as the Mart
+# — that's the POLICEMAN-blocked robbed-house (BlockExits gate, NPC perma-parked at (30,12) until
+# FLAG_GOT_SS_TICKET). Real Mart confirmed by entering + reading the clerk object, not menu actuation.
+CERULEAN_MART_DOOR = (29, 28)
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 
@@ -275,7 +292,8 @@ ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 23: "Full Heal",
               **{cid: cn for cid, cn in STATUS_CURE.values()}}
 
 # CITY -> Mart town door (extend as towns are reached; an unmapped city = no stock-up offered, LOUD).
-CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR}
+CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
+                   CERULEAN: CERULEAN_MART_DOOR}
 # CITY -> the BUY list's item ids IN ROW ORDER (cursor row = stock.index(id)). The mart item list is in
 # ROM (no EWRAM array), so the row order is data here — control-verified per town by the buy bag-delta;
 # an unverified/wrong row simply fails the per-purchase verify and aborts LOUD (never silent mis-buy).
@@ -284,6 +302,10 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR}
 MART_STOCK = {
     PEWTER:   [4, 13, 14, 18, 17, 15],
     VIRIDIAN: [4, 13, 14, 18, 17, 15],
+    # Cerulean BUY rows CONTROL-VERIFIED by the cursor-readback + bag-delta (recon_buytest 2026-06-28):
+    # row0 Poke Ball(4,200) · row1 Super Potion(22,700) · row2 Potion(13,300) · row3 Antidote(14,100) ·
+    # row4 Repel(350, not bought so id unregistered — buy-verify guards anything not listed).
+    CERULEAN: [4, 22, 13, 14],
 }
 MART_CURSOR = 0x02039940   # u8 highlighted-row index in the BUY list (CONTROL-found 2026-06-27 recon_mart)
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
@@ -674,8 +696,28 @@ class Campaign:
         if m == ROUTE3:                                   # Route 3 has no Center: nearest is Pewter (west)
             return "ok" if self._heal_excursion(PEWTER, PEWTER_PC_DOOR, "west",
                                                 ROUTE3, "east") == "ok" else "stuck"
-        if m in CITY_PC_DOORS:                            # this map HAS its own Center -> heal here
-            return "ok" if self.heal_at_center(CITY_PC_DOORS[m]) in ("healed", "healed_stuck_inside") else "stuck"
+        if m in CITY_PC_DOORS:                            # this map HAS its own Center
+            door = CITY_PC_DOORS[m]
+            grid = tv.Grid(self.b)
+            appr = (door[0], door[1] + 1)                # approach tile (stand south of the door)
+            if tv.bfs(grid, tv.coords(self.b), lambda t: t == appr, walkable=grid.walkable):
+                return ("ok" if self.heal_at_center(door) in ("healed", "healed_stuck_inside")
+                        else "stuck")
+            # Own Center UNREACHABLE from here — e.g. Route 4's PC (12,5) is across the Mt-Moon ledge
+            # split from the EAST grass, so a grind there could never heal and hard-STALLED (the look-
+            # ahead wedge). Heal at an ADJACENT city whose Center IS reachable instead of looping on an
+            # un-healable route. General split-route danger-awareness fix (uses the live map header, so
+            # it works for any future split route, not just Route 4).
+            _EDGE = {"N": "north", "S": "south", "E": "east", "W": "west"}
+            _REV = {"north": "south", "south": "north", "east": "west", "west": "east"}
+            log(f"   HEAL: own Center door {door} UNREACHABLE from {tv.coords(self.b)} on {m} "
+                f"-> crossing to an adjacent city to heal")
+            for d, nbr in self._map_connections():
+                if nbr in CITY_PC_DOORS and nbr != m and d in _EDGE:
+                    if self._heal_excursion(nbr, CITY_PC_DOORS[nbr], _EDGE[d], m, _REV[_EDGE[d]]) == "ok":
+                        return "ok"
+            log(f"   !! HEAL: no reachable adjacent Center from {m} (conns={self._map_connections()}) — LOUD")
+            return "stuck"
         # UNMAPPED map: fall back to the Viridian return, but LOUD (constraint #3 — never silent-degrade)
         log(f"   !! HEAL: no local Center mapped for {m} — FALLBACK to a cross-region Viridian heal "
             f"(FIX: add {m}'s PC door to CITY_PC_DOORS)")
@@ -854,7 +896,7 @@ class Campaign:
                 log(f"   !! HEAL-EXCURSION: didn't reach {city} (at {tv.map_id(self.b)})")
                 return "stuck"
             self.heal_at_center(pc_door)
-            healed = self.lead_hp()[0] >= self.lead_hp()[1]    # HP topped up = the heal succeeded
+            healed = self._party_fully_healed()                # whole party topped up = the heal succeeded
             for _ in range(6):
                 if tv.map_id(self.b) == back_map:
                     break
@@ -1778,15 +1820,29 @@ class Campaign:
     def _ball_count(self):
         """Poke Balls (item id 4) in the bag's balls pocket; quantity XOR'd with the SaveBlock2 key
         (mirrors BattleAgent._ball_count). 0 -> nothing to throw (the catch gate before this quest)."""
+        return self._balls_pocket_count(4)
+
+    def _balls_pocket_count(self, item_id):
+        """Count of a BALLS-pocket item (Gen-3 ids 1-12) in the bag's balls pocket (SaveBlock1+0x430,
+        16 slots; qty XOR the low-16 key). The Items-pocket bag_count() can't see balls, so the buy
+        verify + catch gate must read here for any ball id."""
         sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
         key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
         for i in range(16):
             iid = self.b.rd16(sb1 + 0x430 + i * 4)
             if iid == 0:
                 break
-            if iid == 4:
+            if iid == item_id:
                 return self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key
         return 0
+
+    def _item_count(self, item_id):
+        """Pocket-aware bag count: Poke Balls (ids 1-12) live in the balls pocket; everything else in
+        the Items pocket. The buy-verify reads THIS so a Poke-Ball purchase (invisible to bag_count)
+        verifies correctly instead of aborting LOUD on a false 'count didn't rise'."""
+        if 1 <= item_id <= 12:
+            return self._balls_pocket_count(item_id)
+        return self.bag_count(item_id)
 
     def _ball_note(self, state=None):
         """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO Poké Balls, catching is
@@ -2211,8 +2267,12 @@ class Campaign:
         share ONE layout so only the overworld door differs. Returns 'healed' or 'stuck' (LOUD)."""
         h0 = self.lead_hp()
         city = tv.map_id(self.b)                  # the city we heal in (generic; was Viridian-only)
-        if h0[0] >= h0[1]:
-            log(f"   HEAL: already full ({h0[0]}/{h0[1]}) - skipping"); return "healed"
+        # Heal if ANY party member needs it, not just the lead: a fainted BENCH mon (e.g. a weak mon KO'd
+        # during a solo-grind) left the old lead-only guard skipping the heal -> the fainted mon never
+        # revived -> the survival floor offered only 'heal' forever (infinite heal-loop, the look-ahead
+        # stall). The nurse revives + tops the WHOLE party, so gate on whole-party health.
+        if self._party_fully_healed():
+            log(f"   HEAL: whole party already full - skipping"); return "healed"
         return_to = tv.coords(self.b)             # heal is TRANSPARENT: come back here after
         log(f"   HEAL: lead at {h0[0]}/{h0[1]} -> routing to the Pokemon Center on {city} "
             f"via door {pc_door} (will return to {return_to})")
@@ -2241,12 +2301,13 @@ class Campaign:
             self.b.press("A", 6, 10, self.render, owner="agent")
             for _ in range(30):
                 self.b.run_frame()
-            if self.lead_hp()[0] == self.lead_hp()[1]:
-                break
-        h1 = self.lead_hp()
-        if h1[0] != h1[1] or h1[1] == 0:
-            log(f"   !! HEAL: nurse dialogue did not complete (HP {h1[0]}/{h1[1]})"); return "stuck"
-        log(f"   HEAL: restored {h0[0]}/{h0[1]} -> {h1[0]}/{h1[1]}")
+            if self._party_fully_healed():            # WHOLE party revived+topped (not just the lead — a
+                break                                 #   full lead + fainted bench used to break instantly)
+        if not self._party_fully_healed():
+            h1 = self.lead_hp()
+            log(f"   !! HEAL: nurse dialogue did not complete (party not full; lead {h1[0]}/{h1[1]})")
+            return "stuck"
+        log(f"   HEAL: restored party to full (lead was {h0[0]}/{h0[1]})")
         # 3) EXIT: the post-heal script holds control for a beat and the exit mat only fires when you
         # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
         # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
@@ -2320,6 +2381,16 @@ class Campaign:
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         return [self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + self._PARTY_LEVEL_OFF)
                 for s in range(min(cnt, 6))]
+
+    def _party_fully_healed(self):
+        """True iff EVERY party member is at full HP (none hurt, none fainted). The whole-party heal
+        gate — a fainted bench mon must still trigger a Center visit even when the lead is full."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            if self.b.rd16(base + P_HP) < self.b.rd16(base + P_MAXHP):
+                return False
+        return True
 
     def _swap_party_slots(self, i, j):
         """Swap two party slots' raw 100-byte structs in gPlayerParty (the same intact move the in-menu
@@ -2397,18 +2468,23 @@ class Campaign:
         # (strong lead, solo-grinds reliably) to `target` (= foe + OVERPOWER_MARGIN) so it bulldozes the
         # wall — bigger bulk to tank the super-effective hit + faster KOs (no fight-length time-out). The
         # ace already leads in normal play; ensure it, then grind IT. grind() loops to target + heals. ──
-        if not battle_agent.GRIND_SWITCH_ENABLED:
+        # Path choice: (1) in-battle participation-switch armed (GRIND_SWITCH) — weak lead switches to ace
+        # turn 1; (2) SOLO weak-grind — weak lead fights solo (Super-Potion heal + ace backstop); (3)
+        # ace-overpower fallback. (1)/(2) BOTH field the weak member (the real team-building); (3) only
+        # levels the ace (can't fix a type-resisted wall). Prefer (1) if armed, else (2) if enabled.
+        use_switch = battle_agent.GRIND_SWITCH_ENABLED
+        if not use_switch and not SOLO_WEAK_GRIND:
             self._restore_ace()                              # ace in slot 0
             log(f"   GRIND-OVERPOWER: bench-leveling needs the (gated) in-battle switch — instead leveling "
                 f"the ACE to L{target} to overpower the wall; levels now {self._party_levels()}")
             return self.grind(target)
-        log(f"   GRIND-WEAK: team floor under L{target} — fielding the weak ones (not the ace) to raise "
-            f"the team's floor; levels now {self._party_levels()}")
+        log(f"   GRIND-WEAK{'' if use_switch else '-SOLO'}: team floor under L{target} — fielding the weak "
+            f"ones (not the ace) to raise the team's floor; levels now {self._party_levels()}")
         t0 = time.time()
-        # PARTICIPATION-XP GRIND SWITCH: arm the battle engine to switch the weak lead out to the ace on
-        # turn 1 (the weak mon banks XP without being one-shot — the live look-ahead proved a fielded weak
-        # lead just faints + earns nothing). Scoped to THIS grind only; restored in the finally.
-        battle_agent.PROTECT_LEAD_GRIND = True
+        # PARTICIPATION-XP GRIND SWITCH (only when armed): switch the weak lead out to the ace on turn 1 so
+        # it banks XP without being one-shot. In SOLO mode it's OFF — the weak lead fights itself (Super
+        # Potions heal it, the ace backstops a faint). Scoped to THIS grind only; restored in the finally.
+        battle_agent.PROTECT_LEAD_GRIND = use_switch
         try:
             while time.time() - t0 < GRIND_WEAK_BUDGET_S:
                 levels = self._party_levels()
@@ -2579,13 +2655,13 @@ class Campaign:
             for _ in range(qty):
                 if self.money() < SHOP_MONEY_FLOOR:
                     log(f"   MART: at money floor ({self.money()}<{SHOP_MONEY_FLOOR}) — stopping shopping"); break
-                before = self.bag_count(item_id)
+                before = self._item_count(item_id)
                 if not self._mart_goto_row(row):
                     log(f"   !! MART: couldn't reach {nm}'s row {row} (cursor stuck) — abort {nm} LOUD"); break
                 price = self._mart_buy_one()
-                if price == 0 or self.bag_count(item_id) != before + 1:
+                if price == 0 or self._item_count(item_id) != before + 1:
                     log(f"   !! MART: buy-verify FAILED for {nm} (price={price}, "
-                        f"x{before}->x{self.bag_count(item_id)}) — abort {nm} LOUD"); break
+                        f"x{before}->x{self._item_count(item_id)}) — abort {nm} LOUD"); break
                 bought[item_id] = bought.get(item_id, 0) + 1
             if bought.get(item_id):
                 log(f"   MART: bought {bought[item_id]}x {nm}")
@@ -2896,9 +2972,11 @@ class Campaign:
         Bounded quantities (survival, not hoarding); returns [(item_id, qty), ...] (empty = well-stocked)."""
         sl = []
         target = SHOP_POTION_FORESIGHT if foresight else SHOP_POTION_TARGET
-        pot_need = target - self.bag_count(ITEM_POTION)
+        # count ALL healing-potion tiers she already carries (a Super Potion is still "a potion" for stock)
+        have = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+        pot_need = target - have
         if pot_need > 0:
-            sl.append((ITEM_POTION, pot_need))
+            sl.append((self._best_potion_for_sale(), pot_need))
         # BATCH 6 PHASE 3 — Poké Ball foresight: thin team + low on balls = she should leave the Mart
         # equipped to actually catch a teammate (the real answer to a wall). Bag-delta verified like any buy.
         if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:
@@ -2912,6 +2990,18 @@ class Campaign:
                 sl.append((cure[0], need))
         return sl
 
+    def _best_potion_for_sale(self):
+        """The STRONGEST healing potion the current city's Mart sells that she can comfortably afford — a
+        real player buys Super Potions (50 HP) over Potions (20 HP) when flush, because a war of attrition
+        vs a super-effective hitter (Gary's Charmander) is lost 20 HP at a time. Falls back to Potion.
+        GAME-KNOWLEDGE: heal-tier ids + rough prices are FRLG facts (rule 14 — isolate to gamedata on port)."""
+        stock = MART_STOCK.get(tv.map_id(self.b), [])
+        money = self.money()
+        for iid, price in ((20, 2500), (21, 1200), (22, 700), (ITEM_POTION, 300)):   # Max/Hyper/Super/Potion
+            if iid in stock and (money - SHOP_MONEY_FLOOR) >= price * 3:
+                return iid
+        return ITEM_POTION
+
     def _shop_note(self, foresight=False):
         """Characterful ctx line for the stock-up offer: names what hurt her + the restock need, so her
         pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals').
@@ -2920,7 +3010,7 @@ class Campaign:
         cures = [STATUS_CURE[s][1] for s in sorted(self._afflict_seen) if s in STATUS_CURE
                  and self.bag_count(STATUS_CURE[s][0]) < SHOP_CURE_QTY]
         bits = []
-        if self.bag_count(ITEM_POTION) < target:
+        if sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19)) < target:
             bits.append("you're low on Potions" if not foresight
                         else "you could carry a lot more Potions before that next push")
         if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:

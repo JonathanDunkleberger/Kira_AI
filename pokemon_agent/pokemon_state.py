@@ -30,6 +30,7 @@ F_TYPE2   = 0x22   # u8  ✅ (poison=3)
 F_HP      = 0x28   # u16  ✅ (21)
 F_LEVEL   = 0x2A   # u8   ✅ (6)  - was 0x2C (WRONG)
 F_MAXHP   = 0x2C   # u16  ✅ (21) - was 0x2A (WRONG)
+F_STATUS  = 0x4C   # u32  status1 (sleep bits 0-2, poison 0x08, burn 0x10, frz 0x20, par 0x40)
 
 # gBattleMoves table in ROM (struct = 12 bytes: effect, power, type, accuracy, pp, ...)
 GBATTLE_MOVES = 0x08250C04   # ROM addr (CANDIDATE)
@@ -240,8 +241,13 @@ def read_mon(bridge, index):
         moves.append({"id": mid, "name": MOVE_NAMES.get(mid, f"move#{mid}"),
                       "type": mt or "normal", "power": mp, "pp": bridge.rd8(base + F_PP + i)})
     types = [t for t in (t1, t2) if t and t != "normal" or t == t1]
+    # status1 (u32 @ 0x4C in BattlePokemon): sleep = bits 0-2 (turn counter), poison 0x08, burn 0x10,
+    # freeze 0x20, paralysis 0x40, bad-poison 0x80. Exposed so the engine can sleep-LOCK a foe (re-apply
+    # only when it's awake) instead of wasting a turn re-sleeping an already-asleep mon.
+    status1 = bridge.rd32(base + F_STATUS)
     return {"species": species, "hp": hp, "maxhp": maxhp, "level": bridge.rd8(base + F_LEVEL),
-            "types": [t1, t2], "moves": moves}
+            "types": [t1, t2], "moves": moves, "status1": status1,
+            "asleep": bool(status1 & 0x07)}
 
 
 def read_battle(bridge):

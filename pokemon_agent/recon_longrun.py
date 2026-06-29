@@ -236,16 +236,23 @@ def main():
         else:
             stall_run[0] = 0
             last_sig[0] = sig
-        # faithful chooser — FOLLOW the machinery's steering (the ctx framing is the weight):
-        #   1 forced/critical (single option) ; 2 strategic underlevel-grind when prep fires ;
-        #   3 forward (head_to_gym) ; 4 heal ; 5 stock_up ; 6 grind/catch ; 7 talk ; 8 first travel.
+        # faithful chooser — model a SENSIBLE player facing an under-levelled wall:
+        #   EQUIP the cheap consumable FIRST (stock_up: potions+balls are right there, cheap, fast) ->
+        #   once STOCKED, TRY the wall with your items (head_to_gym: a Potion+status-stall fight can win
+        #   where an empty-handed charge didn't) -> only GRIND (prep battle) when you can't shop and have
+        #   no potions -> else the survive/advance/grind/catch/talk fallback. This fixes the prior run's
+        #   trap where the prep-grind override sent her to grind the ACE in east Route-4 grass she couldn't
+        #   heal out of, instead of shopping + trying Gary with potions.
         pick = None
         if len(opts) == 1:
             pick = opts[0]
+        elif "stock_up" in opts:
+            pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
         elif (not BARGE) and prep is not None and "battle" in opts:
-            pick = "battle"
+            pick = "battle"                                # underlevelled wall -> GRIND the team (don't
+            #                                                re-charge a known-lost wall; build strength)
         else:
-            for pref in ("head_to_gym", "heal", "stock_up", "battle", "wander_catch", "talk_npc"):
+            for pref in ("heal", "head_to_gym", "battle", "wander_catch", "talk_npc"):
                 if pref in opts:
                     pick = pref
                     break

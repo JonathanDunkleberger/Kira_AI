@@ -69,6 +69,12 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
 # the underlevel grind leans on other paths. Arm with POKEMON_GRIND_SWITCH=1 once switch nav is verified.
 GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") != "0"
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
+# SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter) is correct STRATEGY but it makes fights LONG,
+# and a long fight exposes the in-battle MOVE-LIST actuation wedge on the long-running core (the look-ahead
+# saw it freeze-SPIN a trainer battle — worse than a clean attrition loss). OFF by default until the
+# move-list cursor-readback lands (the keystone); arm with POKEMON_SLEEP_LOCK=1 to test the strategy. The
+# one-status/foe poison chip (short) stays on. See STATE_OF_PROJECT.md §0 "in-battle actuation keystone".
+SLEEP_LOCK_ENABLED = os.getenv("POKEMON_SLEEP_LOCK", "0") != "0"
 # party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
 _P_STATUS = 0x50
 _ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -868,16 +874,34 @@ class BattleAgent:
         # TYPE-INDEPENDENTLY (bypasses the resistance), sleep neutralizes the foe. Fire it ONCE, early,
         # when the foe is still fresh (worth the turn), then go back to chipping while the status works.
         # Capability-not-script + general (cracks any resist-wall, not just Charmander). ───────────────
-        # ONE status/foe (poison/leech preferred — type-independent CHIP that bypasses the resistance and
-        # keeps the fight SHORT; a 2nd status play made long fights wedge/time-out in the live look-ahead).
-        if not getattr(self, "_status_played", False):
-            _dmg_effs = [pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])
-                         for i in range(4) if _usable(i) and ours["moves"][i].get("power", 0) > 0]
-            best_dmg_eff = max(_dmg_effs) if _dmg_effs else 1.0
-            foe_frac = enemy["hp"] / max(enemy.get("maxhp", 1), 1)
+        _dmg_effs = [pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])
+                     for i in range(4) if _usable(i) and ours["moves"][i].get("power", 0) > 0]
+        best_dmg_eff = max(_dmg_effs) if _dmg_effs else 1.0
+        foe_frac = enemy["hp"] / max(enemy.get("maxhp", 1), 1)
+        # SLEEP-LOCK vs a SUPER-EFFECTIVE hard-hitter (general, E4-critical): when the foe hits US
+        # super-effectively (it can fast-KO us) AND we can't out-damage it (best dmg resisted <=0.5),
+        # SLEEP beats poison — it stops the incoming damage ENTIRELY instead of just chipping. Re-apply
+        # whenever the foe is AWAKE (keep it locked) so our weak resisted chip wins the race safely; skip
+        # while it's already asleep (don't waste the turn — chip instead). This is what actually cracks
+        # Gary's Charmander (Ember 2x + burn on Ivysaur, Razor Leaf only 0.25x back). Soul-safe: she
+        # learns "put the scary one to sleep, then whittle it" — a real player's resist-wall answer.
+        _myt = [t for t in (ours.get("types") or []) if t and t != "???"]
+        _foet = [t for t in (enemy.get("types") or []) if t and t != "???"]
+        se_threat = (self._matchup_def(_myt, _foet) >= 2) if (_myt and _foet) else False
+        sleep_done = False
+        if (SLEEP_LOCK_ENABLED and best_dmg_eff <= 0.5 and se_threat
+                and not enemy.get("asleep") and foe_frac > 0.30):
+            si = next((i for i in range(4) if _usable(i)
+                       and ours["moves"][i].get("id", 0) in self._SLEEP_MOVES), None)
+            if si is not None:
+                idx, desc, sleep_done = si, ours["moves"][si].get("name", "sleep"), True
+                self.log(f"   [engine] SLEEP-LOCK: super-effective threat + damage resisted "
+                         f"(best x{best_dmg_eff:g}) -> {desc} (neutralise its hits, then chip safely)")
+        # ONE non-sleep status/foe (poison/leech — type-independent CHIP that bypasses the resistance) when
+        # sleep-lock isn't the play; a 2nd status play made long fights wedge/time-out in the look-ahead.
+        if not sleep_done and not getattr(self, "_status_played", False):
             if best_dmg_eff <= 0.5 and foe_frac > 0.5:
-                _STATUS_PREF = ["leechseed", "toxic", "poisonpowder", "spore", "sleeppowder",
-                                "hypnosis", "lovelykiss", "sing", "stunspore"]
+                _STATUS_PREF = ["leechseed", "toxic", "poisonpowder", "stunspore"]
                 _norm = lambda s: "".join(s.lower().split())
                 for want in _STATUS_PREF:
                     si = next((i for i in range(4) if _usable(i)

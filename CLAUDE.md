@@ -118,6 +118,41 @@ to Jonny and wastes his watches. Never again.
       core. When the 14× look-ahead reveals something that'd make her better EVERYWHERE (not just Pokémon),
       note it as a candidate core-enhancement for Jonny. Mode → lessons → carefully promoted to core = good.
 
+13. **CLIMB-TO-CREDITS CADENCE — stop ONLY at context budget or a genuine unsolvable unstick; NEVER at a
+    milestone, NEVER to ask permission.** A finished milestone (Mart, Gary, Bill, a gym, a town) is NOT a
+    stop — it's a checkpoint you BANK and immediately climb PAST. Do NOT come back to report "X done, want me
+    to continue?" — the answer is ALWAYS yes. The DEFINITION OF DONE is the rope laid all the way to **ROLLING
+    CREDITS** (8 gyms → Elite Four → credits), verified via the look-ahead such that Jonny could press GO on a
+    fresh Kira timeline and reach credits with reasonable certainty. The ONLY two valid stop conditions:
+    (a) **~80-85% context budget** → bank a clean handoff (rule 11) and stop; (b) **a GENUINE can't-be-coded
+    unstick** — something truly needing Jonny's hands or external input you cannot resolve via the disassembly
+    (pret/pokefirered), wikis (Bulbapedia), prior solved projects ("GPT beats Pokémon"), or your own reasoning.
+    This is RARE — you have authoritative game data + guides; almost never bounce a blocker to Jonny. Do NOT
+    stop to: report a finished milestone, confirm a verified chunk is good, or "check in." When you hit a
+    blocker: solve it (disasm + wikis + reasoning) and continue. Come back with "laid the rope to gym [X], here's
+    the per-stretch survey" — the FURTHEST point reached, not the first milestone finished. Survey as you climb:
+    note fragile crevasses you built OVER quickly (work, but re-examine later) vs. things fully solved.
+
+14. **PORTABLE-ENGINE PRINCIPLE — the real product is a GENERALIZABLE autonomous-game harness, not a FireRed
+    bot.** FireRed is instance #1 / the proving ground; the post-credits goal is to replicate this for other
+    RAM-accessible games (e.g. Pokémon Emerald) with minimal rework. So build with a CLEAN LINE between:
+    - **THE ENGINE (game-agnostic, reusable):** the look-ahead harness, checkpoints, run-the-rope loop, the
+      15-block bedrock player-competencies (forward-drive, team-building, strategic-grind, battle competence,
+      resource/economy, healing, stuck-resolution, spatial literacy, NPC literacy, gate-unlock, danger
+      awareness…), the operating rules, durable-docs continuity, the firewall. "What ANY player needs to play
+      ANY game" — build GENERAL, free of hardcoded FireRed facts where reasonable.
+    - **THE GAME-KNOWLEDGE LAYER (swappable, per-game):** the `gamedata/` KB — warp tables, flags, gym order,
+      item/HM sources, map IDs, type-chart specifics, Mart doors/stock. FireRed facts live HERE, separable from
+      the engine. When you MUST couple engine code to a FireRed specific, isolate it in the game-knowledge layer
+      and NOTE the coupling as portability debt.
+    - **CAPTURE META-LESSONS** in `pokemon_agent/AUTONOMOUS_GAME_HARNESS.md` (the portable artifact): the
+      15-block bedrock map, the pitfalls hit (assuming the model knows the game's goal; reactive-only objectives;
+      underleveled-with-no-team; disasm map-numbers unreliable; the Mt-Moon wrong-warp class; in-battle menu
+      actuation on the long core; pocket-aware item reads; misidentified-by-flaky-actuation, etc.), the operating
+      rules, and the "how to teach Kira a new RAM-accessible game" playbook. So game #2 starts from accumulated
+      wisdom and ports fast. NOTE-AND-SHAPE, not a detour: don't stop climbing FireRed to build for Emerald —
+      just build general where natural, isolate game-specifics in `gamedata/`, and capture lessons as you go.
+
 ## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
 
 **DON'T ASSUME SHE KNOWS ANYTHING.** Kira is a BLANK SLATE about FireRed — she has none of the mental

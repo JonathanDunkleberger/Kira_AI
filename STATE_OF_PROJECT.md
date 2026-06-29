@@ -13,6 +13,95 @@ Companion docs: `pokemon_agent/CODEBASE_AUDIT.md` (pokemon detail + stuck-vector
 
 ## 0. CURRENT FRONTIER — the rope as of 2026-06-28 night (read FIRST)
 
+### UPDATE 5 (2026-06-28 late, same session) — LOOK-AHEAD ran the Gary stretch 4×; the KEYSTONE is in-battle move-list actuation on the long core
+**What the look-ahead PROVED (4 runs from the canonical save, reading the sped-up logs):**
+- **Shop-first works** (chooser reordered): she buys Super Potions + Poké Balls, then heads north.
+- **She REACHES Gary** (through the Nugget Bridge gauntlet) — navigation/forward-drive is solid.
+- **Gary is a MOVE-COVERAGE wall, not a level wall.** Her L24 Ivysaur out-levels Gary's ~L18-20 team, but
+  her only damaging move (Razor Leaf) is resisted 0.5× by Pidgeotto / 0.25× by Charmander, and Charmander's
+  Ember is 2× + burns her. With 10 *regular* Potions + poison-only she LOST the attrition (run 2, clean loss).
+- **THE KEYSTONE (confirmed, the master blocker for the whole climb): in-battle MOVE-LIST actuation wedges
+  on the long-running core.** With Super Potions + SLEEP-LOCK (sleep the SE hitter) the *strategy* is right —
+  Sleep Powder fires, chips Pidgeotto 49→13 — but the LONGER fight then WEDGES: the move list stops
+  actuating (`_select_and_verify` returns `stuck`: the FIGHT submenu won't open / isn't detected), the
+  trainer battle can't be fled, and travel **infinitely re-enters → freeze-SPIN** (runs 3+4 burned the whole
+  budget spinning). Run 2 (no sleep-lock, short fight) lost cleanly with NO wedge → **fight LENGTH triggers
+  the wedge.** ROOT: the move-list nav (`_nav_move`/the FIGHT-open) uses BLIND taps + PIXEL detection, the
+  one in-battle menu WITHOUT a cursor-readback — the bag (`BAG_CURSOR`) and action menu
+  (`GBATTLE_ACTION_CURSOR`) have readbacks and work on the long core. **THE FIX (next session's keystone
+  build): add a MOVE-LIST cursor RAM readback** (derive the addr by RAM-diff while moving the move cursor;
+  mirror `_goto_bag`/`_mart_goto_row`) so opening FIGHT + nav + fire are RAM-verified, not pixel/blind.
+  Note: the wedge only manifests after the core has run a while (STATE's "fresh core actuates 6/6, long-
+  running core can't") so it's hard to iterate on in a short test — reproduce via a LONG headless fight.
+- **SECONDARY BUG surfaced: infinite stuck-spin watchdog gap.** A trainer battle that returns `stuck` is
+  re-entered by travel forever (no DECISION tick happens during the spin, so the decision-level stall
+  detector never fires). The in-battle anti-wedge floor returns `stuck` but nothing catches the re-entry
+  loop. Needs an in-battle/trainer-battle stuck circuit-breaker (surface to the watchdog layer).
+
+**FIXES SHIPPED this session (mode-side, firewall-clean; flags noted):**
+- **Sleep-lock vs SE hard-hitter** (battle_agent: sleep the foe, re-apply when it wakes, chip safely) +
+  **enemy status read** (pokemon_state `status1`/`asleep` @ 0x4C). CORRECT strategy but **gated OFF**
+  (`POKEMON_SLEEP_LOCK=0`) because it lengthens fights → triggers the wedge-spin; **arm it once the move-list
+  readback lands.** The short one-status/foe poison chip stays on.
+- **Super-Potion economy** (`_best_potion_for_sale` — buy the strongest potion the Mart sells that she can
+  afford; counts all heal tiers toward stock). GENERAL, reused at every Mart. ON.
+- **Heal-to-REACHABLE-center** (heal_nearest: if the local PC door is BFS-unreachable — Route 4's PC is
+  across the Mt-Moon ledge split from the east grass — cross to an adjacent city with a reachable Center via
+  the live map header). Fixes the run-1 hard-stall (`!! HEAL: couldn't reach the PC door` ×8 → death).
+  GENERAL split-route danger fix. ON.
+- **Solo weak-grind** (`POKEMON_SOLO_WEAK_GRIND=1`, default ON): field the weak member as lead and grind it
+  SOLO (no in-battle participation-switch, which wedges) — viable now that Super Potions heal a weak lead
+  mid-fight + the ace backstops a faint + heals are reachable. The real team-building unblock vs ace-
+  overpower (which can't fix a type-resisted wall). Grind fights are SHORT → don't hit the move-list wedge.
+  **Verifying now:** does it actually level Rattata/Spearow (run 5).
+- **Look-ahead chooser**: shop-first → GRIND when underlevelled (don't re-charge a known-lost wall) →
+  advance. (recon_longrun.py — the test harness, not engine.)
+
+**THE STANDING TRUTH (the climb's gating dependency):** every meaningful fight up the mountain (gym leaders,
+E4, any resist-wall) is multi-turn, so **the in-battle move-list actuation MUST be made robust on the long
+core (cursor-readback) before the climb can proceed past hard fights.** Team-building (solo-grind) gives her
+a real attacker so individual fights are SHORTER (less wedge exposure), but gym-leader fights will still be
+long enough to need the readback. **Next session: build the move-list cursor readback (the keystone), then
+re-run the Gary stretch with sleep-lock armed.**
+
+### UPDATE 4 (2026-06-28 late — fresh session) — #6 CERULEAN MART **SOLVED + VERIFIED**; Mart misID corrected; Gary diagnosis sharpened
+- **GROUND TRUTH re-read (recon_groundtruth.py + movedump):** live save sits INSIDE the Cerulean Pokémon
+  Center (map **(7,3)** @ (7,4), the blackout-respawn spot — NOT the overworld). Party: **Ivysaur L24
+  [Razor Leaf, PoisonPowder, Sleep Powder, EMPTY 4th slot]**, Rattata L8 [Tackle/Tail Whip/Quick Attack],
+  Spearow L10 [Peck/Growl/Leer]. **0 balls, 0 potions, 5936¥**, 2 badges, dex 4.
+- **PRIOR-SESSION MART MISIDENTIFICATION CORRECTED (rule 4 proactive):** the Mart is NOT (7,1)/door(30,11).
+  That door is the **POLICEMAN-blocked robbed-house** — STATE's own §0 note records `BlockExits` parks a
+  POLICEMAN at (30,12) (the sole approach to door (30,11)) until `FLAG_GOT_SS_TICKET`. Confirmed STATIONARY
+  (recon_npcwatch: 40s, never moved). The prior "by elimination → (7,1)" was wrong because the flaky
+  buy-test gave INCONCLUSIVE "cursor didn't respond" (not a clean reject) on a long-running core.
+- **REAL Cerulean Mart = interior (7,7), door (29,28)** — identified ROBUSTLY by interior layout (clerk
+  object at (2,3), the verified Viridian/Pewter signature), NOT menu actuation (recon_findmart.py). Door
+  (29,28) is freely reachable.
+- **BUY FLOW VERIFIED at (7,7)** in a clean run (recon_buytest): `_mart_enter_buylist()->True` (prior
+  failure was the long-running-core artifact of entering 6 buildings first). **Cerulean stock rows
+  (cursor-readback + bag-delta control-verified):** row0 Poké Ball(200) · row1 Super Potion(700) · row2
+  Potion(300) · row3 Antidote(100) · row4 Repel(350); 5-item list.
+- **GENERAL BUG FIXED — pocket-aware buy-verify (campaign.py, reusable at EVERY Mart):** `bag_count` reads
+  only the Items pocket (SaveBlock1+0x310); **Poké Balls live in a separate balls pocket (+0x430)**, so a
+  ball purchase was invisible → `buy_at_mart`'s `bag_count != before+1` verify ALWAYS failed → **she
+  literally couldn't buy balls**. Added `_balls_pocket_count(item_id)` + `_item_count(item_id)` (dispatch by
+  ball-id range 1-12) and wired `buy_at_mart` to use it. Registered `CERULEAN_MART_DOOR=(29,28)` in
+  `CITY_MART_DOORS` + `MART_STOCK[CERULEAN]=[4,22,13,14]`.
+- **E2E AUTONOMOUS SHOP — PASS (recon_shop_e2e.py):** from the live save, exit Center → walk to Mart →
+  `buy_at_mart([Potion×6, PokéBall×6])` → potions 0→6, balls 0→6, money 5936→2936, exit to overworld.
+  **#6 = COMPILES+WIRED (real stock_up path)+VERIFIED.** NOT committed yet (firewall: commit only specific
+  pokemon_agent files + campaign.py; Jonny's uncommitted vision-swap WIP in kira/ stays untouched).
+- **GARY DIAGNOSIS SHARPENED:** Ivysaur is *over*-levelled vs Gary's ~L18-20 team — the wall is **move
+  coverage**, not level. Her only damaging move (Razor Leaf) is resisted 0.25× by Charmander, BUT she has
+  **Sleep Powder + PoisonPowder** (type-independent). Clean kill = **Sleep Powder → PoisonPowder → stall +
+  heal-through with Potions** (poison ticks Charmander dead while sleep neutralizes Ember). The ONLY missing
+  ingredient was survival margin = Potions, now buyable. So team-building (#3) is the broader-climb need, but
+  **Gary may fall to existing-team + potions + stall** — being verified by the look-ahead now.
+- NEXT: look-ahead from canonical save (she can now shop) → read where it actually stalls (Gary win? Bridge?
+  Bill interaction?) → fix that blocker → climb. Harness chooser reordered to shop-before-charging-a-wall.
+
+
+
 **Rope laid solidly to:** post-Misty Cerulean (her real `states/campaign/kira_campaign.state`). The next
 pitch (Nugget Bridge → Bill → S.S. Ticket) is **NOT yet cleared** — the autonomous look-ahead found a real
 wall there, partially fixed (details below).
