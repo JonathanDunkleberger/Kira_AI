@@ -30,6 +30,13 @@ _LEGENDARY_SPECIES = frozenset({144, 145, 146, 150, 151})   # Articuno, Zapdos, 
 BATTLE_CRIT_FRAC = 0.30
 BAG_CURSOR = 0x0203AD04      # u8 in-battle bag LIST row cursor (recon_itemuse triangulation 2026-06-27,
 #                             adjacent to GBAG_POCKET 0x0203AD02; verified to step 0->1 down the list)
+# FIGHT move-list cursor + menu-mode (recon_movecursor_derive 2026-06-28). MOVE_CURSOR is a single 0..3
+# index in the 2x2 grid (TL0 TR1 / BL2 BR3): DOWN +2 (row), RIGHT +1 (col) — sits 4 B after the action
+# cursor 0x02023FF8. MENU_MODE == 1 on the FIGHT/BAG/POKEMON/RUN action menu, == 2 when the move list is
+# open. These let the move-list nav use RAM READBACK (open-detect + per-press verify) instead of blind
+# taps + pixel detection, which WEDGE on the long-running core (the keystone freeze-spin).
+MOVE_CURSOR = 0x02023FFC
+MENU_MODE = 0x02023E82
 _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures live here), 42 slots
 # Gen-3 item ids for the in-battle instinct (CANDIDATES; the use is self-verified by the item count
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
@@ -479,18 +486,19 @@ class BattleAgent:
         proven fight path stays untouched; used by catch_pokemon to fire a chosen weaken move."""
         opened = False
         self._home_to_fight()
-        for _ in range(8):
-            if self._in_move_list():
+        for _ in range(12):
+            if self._movelist_open():
                 opened = True; break
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            if self._in_move_list():
+            if self._movelist_open():
                 opened = True; break
-            if not self._white_box():
+            if not (self._white_box() or self._movelist_open()):
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
                 self._home_to_fight()
         if not opened:
             return "stuck"
-        self._nav_move(idx)
+        if not self._goto_move(idx):
+            return "stuck"
         state = st.read_battle(self.b)
         pp0 = state["ours"]["moves"][idx].get("pp", 0) if state else 0
         before = self._bstate()
@@ -810,6 +818,35 @@ class BattleAgent:
             self._tap("RIGHT"); self._tap("DOWN")
         self._wait(14)
 
+    def _movelist_open(self):
+        """RAM truth for 'the FIGHT move list is open' (MENU_MODE == 2), OR the pixel check — either
+        suffices. The RAM signal is what survives the long-running core (the pixel detect intermittently
+        fails there, the keystone wedge)."""
+        try:
+            if self.b.rd8(MENU_MODE) == 2:
+                return True
+        except Exception:
+            pass
+        return self._in_move_list()
+
+    def _goto_move(self, idx, tries=12):
+        """Walk the move-list cursor to slot idx by RAM READBACK of MOVE_CURSOR (0..3 in the 2x2 grid:
+        index = row*2 + col), VERIFYING each press actually moved the cursor — an eaten d-pad press on
+        the long core is simply retried (it can never silently land on the wrong move). Mirrors
+        _goto_bag/_mart_goto_row. Returns True on arrival."""
+        for _ in range(tries):
+            cur = self.b.rd8(MOVE_CURSOR)
+            if cur == idx:
+                return True
+            cr, cc = cur // 2, cur % 2
+            tr, tc = idx // 2, idx % 2
+            if cr != tr:
+                self._tap("DOWN" if tr > cr else "UP")
+            else:
+                self._tap("RIGHT" if tc > cc else "LEFT")
+            self._wait(8)
+        return self.b.rd8(MOVE_CURSOR) == idx
+
     def _select_and_verify(self, state):
         """Called when the white action-menu panel is up (screen-gated). REAL move-list nav
         (slot-0 swap retired 2026-06-25 after the phantom-A fix): home the cursor to FIGHT, open
@@ -889,14 +926,21 @@ class BattleAgent:
         _foet = [t for t in (enemy.get("types") or []) if t and t != "???"]
         se_threat = (self._matchup_def(_myt, _foet) >= 2) if (_myt and _foet) else False
         sleep_done = False
+        # SAFETY CAP: stop re-casting sleep after a few whiffs on the SAME foe — a foe that lowers our
+        # accuracy (Smokescreen/Sand-Attack, e.g. Gary's Charmander) makes the 75%-acc powder MISS every
+        # turn, so an uncapped sleep-lock loops forever (the 106-stuck regression). Past the cap, drop the
+        # status play and just chip (the real answer to such a foe is a stronger teammate, not more sleep).
         if (SLEEP_LOCK_ENABLED and best_dmg_eff <= 0.5 and se_threat
-                and not enemy.get("asleep") and foe_frac > 0.30):
+                and not enemy.get("asleep") and foe_frac > 0.30
+                and getattr(self, "_sleep_casts", 0) < 4):
             si = next((i for i in range(4) if _usable(i)
                        and ours["moves"][i].get("id", 0) in self._SLEEP_MOVES), None)
             if si is not None:
                 idx, desc, sleep_done = si, ours["moves"][si].get("name", "sleep"), True
+                self._sleep_casts = getattr(self, "_sleep_casts", 0) + 1
                 self.log(f"   [engine] SLEEP-LOCK: super-effective threat + damage resisted "
-                         f"(best x{best_dmg_eff:g}) -> {desc} (neutralise its hits, then chip safely)")
+                         f"(best x{best_dmg_eff:g}) -> {desc} (neutralise its hits, then chip safely; "
+                         f"try {self._sleep_casts}/4)")
         # ONE non-sleep status/foe (poison/leech — type-independent CHIP that bypasses the resistance) when
         # sleep-lock isn't the play; a 2nd status play made long fights wedge/time-out in the look-ahead.
         if not sleep_done and not getattr(self, "_status_played", False):
@@ -918,18 +962,21 @@ class BattleAgent:
         # POKEMON - NOT the white action panel) back out with B and re-home. Bounded.
         opened = False
         self._home_to_fight()
-        for _ in range(8):
-            if self._in_move_list():
+        for _ in range(12):
+            if self._movelist_open():                 # RAM (MENU_MODE==2) OR pixel — RAM survives long core
                 opened = True; break
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            if self._in_move_list():
+            if self._movelist_open():
                 opened = True; break
-            if not self._white_box():                 # a wrong submenu opened -> back out + re-home
+            if not (self._white_box() or self._movelist_open()):   # a wrong submenu opened -> back out
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
                 self._home_to_fight()
         if not opened:
             return "stuck"                            # never opened -> clean retry (re-settle)
-        self._nav_move(idx)                           # walk the cursor to the chosen move
+        if not self._goto_move(idx):                  # RAM-readback nav (verify each press moved the cursor)
+            self.log(f"   [engine] move-cursor didn't reach slot {idx} (now {self.b.rd8(MOVE_CURSOR)}) "
+                     f"-> clean retry")
+            return "stuck"
         pp0 = ours["moves"][idx].get("pp", 0)
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
@@ -1186,6 +1233,7 @@ class BattleAgent:
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
         self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
+        self._sleep_casts = 0              # SLEEP-LOCK whiff cap, reset per foe
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -1262,6 +1310,7 @@ class BattleAgent:
                             and 1 <= enemy["species"] <= 411):
                         self._enemy_fainted = False        # next mon is out -> fight it
                         self._status_played = False         # NEW foe -> poison/sleep the next mon too (e.g.
+                        self._sleep_casts = 0
                         #                                     Gary's Charmander, not just his lead)
                         self._prev = cur
                         self.emit(f"the trainer sent out "

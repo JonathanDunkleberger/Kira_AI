@@ -243,14 +243,21 @@ def main():
         #   no potions -> else the survive/advance/grind/catch/talk fallback. This fixes the prior run's
         #   trap where the prep-grind override sent her to grind the ACE in east Route-4 grass she couldn't
         #   heal out of, instead of shopping + trying Gary with potions.
+        try:
+            pots = camp.bag_count(C.ITEM_POTION) + camp.bag_count(22)   # Potion + Super Potion
+        except Exception:
+            pots = 0
         pick = None
         if len(opts) == 1:
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
+        elif pots >= 4 and "head_to_gym" in opts:
+            pick = "head_to_gym"                           # STOCKED -> TRY the wall with items (sleep-lock
+            #                                                + Super Potions); the move-cursor readback now
+            #                                                makes the long fight resolve instead of wedging
         elif (not BARGE) and prep is not None and "battle" in opts:
-            pick = "battle"                                # underlevelled wall -> GRIND the team (don't
-            #                                                re-charge a known-lost wall; build strength)
+            pick = "battle"                                # else grind the team
         else:
             for pref in ("heal", "head_to_gym", "battle", "wander_catch", "talk_npc"):
                 if pref in opts:
