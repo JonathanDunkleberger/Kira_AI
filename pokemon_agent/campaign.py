@@ -2352,13 +2352,17 @@ class Campaign:
             if not gs:
                 log(f"   !! GRIND: no grass reachable on {tv.map_id(self.b)} - stopping LOUD"); break
             cur = tv.coords(self.b) or (0, 0)
+            # Pace the NEAREST grass tiles only (not the farthest) so a long grind stays LOCAL and never
+            # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable (the
+            # Route-4-east strand: she walked to x=107 chasing gs[-1], then couldn't get back to grass).
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
+            nearby = [g for g in gs if g != cur][:4] or gs[:1]
             doors = frozenset(self._door_tiles())
-            for wp in (gs[0], gs[-1], gs[len(gs) // 2]):
+            for wp in nearby:
                 if lvl() >= target_level:
                     break
                 r = self.trav.travel(target_map=None, arrive_coord=wp,
-                                     max_steps=120, max_seconds=80, avoid=doors)
+                                     max_steps=60, max_seconds=80, avoid=doors)
                 if r == "battle_loss":
                     return "battle_loss"
                 if r == "need_heal":

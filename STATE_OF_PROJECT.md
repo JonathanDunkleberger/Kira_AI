@@ -13,6 +13,40 @@ Companion docs: `pokemon_agent/CODEBASE_AUDIT.md` (pokemon detail + stuck-vector
 
 ## 0. CURRENT FRONTIER — the rope as of 2026-06-28 night (read FIRST)
 
+### UPDATE 6 (2026-06-28 late, same session) — **KEYSTONE CRACKED** (committed a4ca84f): in-battle move-list cursor readback
+**THE master blocker is FIXED.** Derived the RAM addresses (recon_movecursor_derive — drive route3_caught
+into a wild battle via the Traveler, open the move list, RAM-diff after DOWN/RIGHT):
+- **`MOVE_CURSOR = 0x02023FFC`** — single 0..3 grid index (TL0 TR1 / BL2 BR3; DOWN +2, RIGHT +1), 4 bytes
+  after the action cursor 0x02023FF8. (The prior candidate 0x02024005 was WRONG.)
+- **`MENU_MODE = 0x02023E82`** — action menu = 1, FIGHT move list open = 2.
+- Built `_movelist_open()` (RAM `MENU_MODE==2` OR pixel — RAM survives the long core where pixel detect
+  fails) + `_goto_move(idx)` (readback nav: verify each press moved `MOVE_CURSOR`, retry eaten presses —
+  mirror of `_goto_bag`/`_mart_goto_row`). Wired into `_select_and_verify` + `_fire_move`.
+- **VERIFIED:** recon_movecursor_verify (MENU_MODE 1↔2 correct; `_goto_move` hits every slot 0/1/2/3; a
+  clean battle WINS through the new path). Look-ahead (POKEMON_SLEEP_LOCK=1, 14min): **ZERO stuck-spins**
+  over a long grind of winning battles (was an infinite freeze before). **The keystone holds.**
+
+**This UNBLOCKS the whole climb** — every gym + the E4 is multi-turn; long fights now resolve instead of
+freeze-spinning. It also unblocks team-building (bench grind / catch run short fights that resolve).
+
+**GARY's Charmander — the real counter is ACCURACY DEBUFF, not just resistance.** With the wedge gone she
+reaches Charmander, but it stays 44/44 forever: Gary's **Pidgeotto Sand-Attacks Ivysaur** (and the debuff
+PERSISTS across Gary's whole team since Ivysaur never switches out), so her 75%-acc powders AND her 0.25×
+Razor Leaf all MISS. Added a **sleep-lock SAFETY CAP** (max 4 whiffs/foe → stop re-casting; was the 106-
+stuck loop). Sleep-lock still default-OFF. **Implication:** the clean Gary kill needs a FRESH neutral
+attacker (e.g. a levelled Spearow — Peck is neutral + accurate) brought in AFTER/around the debuff, i.e.
+real team-building. The keystone fix makes that buildable.
+
+**TEAM-BUILDING progress (look-ahead, solo-weak-grind ON):** 0 stuck; solo-grind fields the weak mon and
+**levels it** (Rattata L8→L9 in 6 battles) — team-building mechanically WORKS now. Two remaining grind
+issues being fixed: (a) **grind-stranding** — `grind()` targeted the FARTHEST grass (`gs[-1]`), drifting
+her to Route-4's far-east ledge-pocket (x=107) where grass became unreachable → stall. FIXED: pace the
+NEAREST reachable grass (stay local). (b) it's SLOW + targets the whole FLOOR to L29 (overkill — only need
+one attacker ~L18). Solo-grind still default-OFF until the chain sustains a full bench-level + Gary win.
+
+**NEXT:** confirm the grind sustains + levels a useful attacker (Spearow), then beat Gary → Bill → S.S.
+Ticket → bank the first checkpoint → climb to gym 3 (Vermilion). The keystone (the hard part) is done.
+
 ### UPDATE 5 (2026-06-28 late, same session) — LOOK-AHEAD ran the Gary stretch 4×; the KEYSTONE is in-battle move-list actuation on the long core
 **What the look-ahead PROVED (4 runs from the canonical save, reading the sped-up logs):**
 - **Shop-first works** (chooser reordered): she buys Super Potions + Poké Balls, then heads north.
