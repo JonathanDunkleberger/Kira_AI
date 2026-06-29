@@ -61,6 +61,30 @@ can't Potion a fainted mon). Hard-won nuances for the next session (the Mt-Moon-
   enter each + detect the buy clerk). Mapping it enables autonomous stock-up, but **won't alone beat Gary**
   (team-strength-bound).
 
+### UPDATE 3 (late night) — ROOT-CAUSE PIVOT: she's a blank slate; building the BEDROCK competency map
+The real root (Jonny): she has **no team-building instinct** + **no model of what the game is FOR**, so her
+bench is random and she walls at every gym. Committed this session:
+- **f24d59d — FOUNDATIONAL GAME-MODEL** wired into her decision/voice ctx (`_spine_and_history`): win-cond
+  (8 badges→E4→credits), what a TEAM is for (6, balanced, solo+dead-bench loses), catching/Pokédex central,
+  roster-selection judgment, the full arc + a party-aware "your team is thin/lopsided" nudge. **VERIFIED
+  wired** (all elements present in the ctx; live behaviour-shaping needs a full look-ahead). + **ACE-OVERPOWER**
+  grind fallback (switch gated → level the ACE to overpower) — works mechanically but **SLOW for an
+  over-levelled ace** (low wild XP); this *confirms* team-building is the efficient/real fix (a fresh L10
+  catch levels fast on the same wilds).
+- **e2e772d — BEDROCK MAP** in CLAUDE.md ("Kira's player-competency checklist", 15 blocks status'd, Tier 1/2/3).
+  THE FRAME for all remaining work: build proactively just ahead of her feet. Tier-1 build order: #6 Mart/
+  economy → #3 team-building → #5 in-battle switch → #12 dialogue extraction. (#1 game-model + #7 healing done.)
+- **CERULEAN MART located = interior (7,1), door (30,11)** (by elimination — the buy-clerk test rejected all
+  6 other reachable Cerulean buildings). **BUT the door approach is blocked by an NPC** ("won't budge") + the
+  travel/enter_warp BFS won't path onto the warp tile (my plain BFS reaches it, so it's a travel/NPC-routing
+  bug, not geometry). So the buy-test never confirmed + it's not yet auto-mappable. NEXT: resolve the
+  NPC-block/door-approach (Layer-A route-around or talk-the-NPC) → confirm buy-clerk → add `CERULEAN_MART_DOOR`
+  to `CITY_MART_DOORS` → balls+potions unblock catching (#3) AND the barge (#6).
+- **GARY remains the immediate pitch**, now understood as a TEAM-STRENGTH wall whose CLEAN fix is team-building
+  (catch a good mon near Cerulean/Route24-25 → level it fast → real squad → beat Gary properly), with
+  ace-overpower as the slow fallback. Sequencing: Mart reach → catch/build → beat Gary → Bill → **bank the
+  first checkpoint** → gym-3 push.
+
 ### THE NUGGET-BRIDGE / BILL BLOCKER — fully diagnosed via the look-ahead
 The wall is **GARY (the rival) in Cerulean** — `trainer:Cerulean City:` lead `charmander` (Fire), recorded
 3× loss. Root-cause chain (each found by reading the sped-up playthrough log):
