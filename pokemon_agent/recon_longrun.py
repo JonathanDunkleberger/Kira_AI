@@ -252,12 +252,9 @@ def main():
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
-        elif pots >= 4 and "head_to_gym" in opts:
-            pick = "head_to_gym"                           # STOCKED -> TRY the wall with items (sleep-lock
-            #                                                + Super Potions); the move-cursor readback now
-            #                                                makes the long fight resolve instead of wedging
         elif (not BARGE) and prep is not None and "battle" in opts:
-            pick = "battle"                                # else grind the team
+            pick = "battle"                                # underlevelled + items-alone can't beat the
+            #                                                Smokescreen Charmander -> GRIND/team-build first
         else:
             for pref in ("heal", "head_to_gym", "battle", "wander_catch", "talk_npc"):
                 if pref in opts:
