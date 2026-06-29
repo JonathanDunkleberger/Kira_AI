@@ -260,6 +260,31 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
        (c) Then verify FLAG_GOT_SS_TICKET sets + the Cerulean south gate self-clears (the questline already
            self-clears on that flag — proven). **Bottom line: bend-fix DONE+verified; full Cerulean->Bill
            traversal is NOT yet headless-verified — gated on (a) team strength + (b) the Bill interaction.**
+   - **DESTINATION-INTERACTION LAYER BUILT + MECHANICS-VERIFIED 2026-06-28 (the (b) build; `recon_dest_interact.py`).**
+     The general capability that makes questlines COMPLETE (not just APPROACH): a `via=talk_npc` step now,
+     once traversal to the destination is exhausted, composes **enter the building (warp) -> talk the
+     occupant(s) -> re-check the success flag -> exit-if-wrong-building -> try the next** — until the flag
+     flips (the deriver's flag read is the done-signal, so NO map number is hardcoded; cross-check rule
+     honoured). New `_questline_interact` + `_questline_unentered_door`; entered doors tracked
+     (`_ql_entered_doors`, no re-entry loop); and a `_ql_inside_target` flag makes the blackout-recovery
+     (which auto-exits any interior at tick-start) **cooperate** — it leaves her inside a building she
+     entered ON PURPOSE for the quest, then she exits normally on a wrong building / on completion. Bill is
+     the first instance; the SAME layer serves the S.S. Anne Cut handoff + every fetch-quest NPC. **VERIFIED
+     (mechanics, isolated at a Cerulean building):** overworld->enter (group 3->7) -> talk occupants ×4 ->
+     recognise wrong building -> exit to overworld, and it did **NOT** false-complete the questline on a
+     non-Bill NPC (flag correctly stayed False). Other `via` kinds (board/use_hm) return a surfaced
+     'no_interaction' (future layers). REACHES the executor/decision path; committed.
+   - **THE ONE REMAINING GAP for full end-to-end Bill verification = a genuinely LEVELLED team.** Confirmed
+     hard: her L24/L8/L10 team can't clear the Nugget-Bridge trainer gauntlet (travel blows its wall-clock
+     budget fighting the (22,5) entrance trainer), and a RAM poke CANNOT fake strength — the level write
+     (0x54) doesn't even stick (the game recomputes level from EXP) and an HP/stat write is wiped by the
+     battle stat-recompute. So all CODE pieces of the chain are now built+individually-verified (forward
+     drive, bend-discovery traversal, destination-interaction, flag self-clear), but the full
+     Cerulean->Bill->ticket->gate-opens run is NOT yet headless-verified end-to-end — it needs a properly
+     LEVELLED save/checkpoint to cross the gauntlet (a Jonny grind, or a long headless grind), exactly as
+     anticipated. The earlier east-edge `no_path` looks like underlevel bouncing, not a hard pathing bug
+     (the bend-fix routes her east fine when she survives). **DO NOT watch until the full chain traverses+
+     completes headless from a levelled save.**
    - **GROUND TRUTH RESOLVED 2026-06-28 (pret/pokefirered disasm + live RAM): the immediate gate is a
      STORY-GATE, not Cut. `kira_campaign.state` is NOT mis-positioned — it's a valid post-Misty/pre-Bill
      state.** `CeruleanCity_MapScripts → CeruleanCity_OnTransition` calls `CeruleanCity_EventScript_BlockExits`

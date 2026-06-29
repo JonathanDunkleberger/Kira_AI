@@ -447,6 +447,8 @@ class Campaign:
             self.b, self.world, kb=self._questline_kb,
             party_count_fn=lambda: self.b.rd8(ram.GPLAYER_PARTY_CNT), log=log)
         self._active_questline = None
+        self._ql_entered_doors = set()        # doors entered for the active questline (no re-entry loop)
+        self._ql_inside_target = False        # True while deliberately inside a quest-target building
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
         battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
@@ -2553,6 +2555,8 @@ class Campaign:
         if self._active_questline is not None:
             log(f"   [roam] questline cleared ({reason})")
         self._active_questline = None
+        self._ql_entered_doors = set()        # fresh building-tracking for the next questline
+        self._ql_inside_target = False        # not deliberately inside any quest building anymore
 
     def _run_questline_step(self, state):
         """EXECUTOR: advance the active questline by routing toward its current actionable step (reusing
@@ -2604,15 +2608,97 @@ class Campaign:
                 log(f"   [roam] 🧭 QUESTLINE EXPLORE: no {d} edge from {cur_map} — the route bends; "
                     f"crossing {dd} into unexplored {nb} toward {step.place_name or 'the destination'}")
                 return self.trav.travel(target_map=nb, edge=dword)
-            # No coarse-dir edge AND no unexplored frontier — the destination may be a WARP off THIS map
-            # (e.g. Bill's cottage door). Surface it; never a silent spin (warp-entry is the next layer).
-            log(f"   [roam] questline: no {d} edge and no unexplored frontier from {cur_map} — surfacing "
-                f"(destination may be a building/warp here)")
-            return "questline_no_edge"
+            # No coarse-dir edge AND no unexplored frontier → she's ARRIVED at the destination AREA. The
+            # step now COMPLETES by an INTERACTION (talk an NPC, board a ship, use an HM), not more travel —
+            # hand off to the general destination-interaction layer (Bill is the first instance; the same
+            # path serves the S.S. Anne Cut handoff + every fetch-quest NPC after).
+            log(f"   [roam] questline: arrived at the destination area ({cur_map}, no further forward edge) "
+                f"— switching to the '{step.via}' interaction")
+            return self._questline_interact(state, step)
         if self.strat.is_gated(nbr, pc, pl):
             log(f"   [roam] questline: {d} hop {nbr} is wall-gated — surfacing")
             return "wall_gated"
         return self.trav.travel(target_map=nbr, edge=d)
+
+    def _questline_interact(self, state, step):
+        """DESTINATION-INTERACTION LAYER (general — the capability that makes questlines COMPLETE, not just
+        APPROACH). A `via='talk_npc'` step finishes by TALKING an NPC (Bill → S.S. Ticket, the S.S. Anne
+        captain → Cut, any fetch-quest giver), who is usually INSIDE a building. The success FLAG (re-checked
+        each tick by the deriver) is the real done-signal, so this NEVER hardcodes a map number (cross-check
+        rule) — it just does the obvious interaction until the flag flips:
+          • INSIDE a building (interior = map group != 3): talk the occupant(s). Next tick the deriver re-reads
+            the flag; when it sets, the questline self-clears (proven). Talked everyone + still no flag →
+            wrong building → exit and keep looking.
+          • OUTSIDE (overworld, group 3): enter an un-entered building door here (the NPC's inside); if there's
+            no building but an NPC standing out here, talk them.
+        Bounded: entered doors are tracked per-questline so she can't loop re-entering the same one. Reuses
+        the existing enter_warp / talk_npc / _exit_to_overworld primitives — this only SEQUENCES them."""
+        if step.via != "talk_npc":
+            # other step kinds (board a ship, use an HM at the destination) are future interaction layers
+            log(f"   [roam] questline: arrived but step.via='{step.via}' has no interaction layer yet — surfacing")
+            return "questline_no_interaction"
+        if not hasattr(self, "_ql_entered_doors"):
+            self._ql_entered_doors = set()
+        interior = tv.map_id(self.b)[0] != 3
+        if interior:
+            # She's inside a building she ENTERED for the quest (the blackout-recovery leaves her be while
+            # `_ql_inside_target` is set — they cooperate). Talk the occupant(s); the flag re-checks next tick.
+            r = self.talk_npc()
+            if r == "talked":
+                log("   [roam] 🗣️ QUESTLINE TALK: spoke to someone inside — re-checking the flag next tick")
+                return "questline_talked"
+            # nobody left to talk + the flag didn't set → wrong building; release the 'stay inside' marker
+            # so the blackout-recovery can exit her, and keep looking at the next candidate building.
+            log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
+            self._ql_inside_target = False
+            self._exit_to_overworld()
+            return "questline_wrong_building"
+        # overworld: the NPC is almost always inside a building → enter an un-entered door (NPC's in there)
+        door = self._questline_unentered_door()
+        if door is not None:
+            self.on_event("this looks like the place — let me head inside.", kind="route", tier=1)
+            before = tv.map_id(self.b)
+            self.enter_warp(pick=door)
+            if tuple(tv.map_id(self.b)) != tuple(before):
+                self._ql_entered_doors.add((tuple(before), tuple(door)))
+                self._ql_inside_target = True       # tell the blackout-recovery to LEAVE HER inside (she's
+                log(f"   [roam] 🚪 QUESTLINE ENTER: stepped into the building at door {door}")  # here on purpose
+                return "questline_entered"
+            log(f"   [roam] questline: tried to enter the building at {door} but didn't warp — surfacing")
+            return "questline_enter_failed"
+        # no building to enter here → maybe the quest NPC is standing out on the route
+        r = self.talk_npc()
+        if r == "talked":
+            log("   [roam] 🗣️ QUESTLINE TALK: spoke to someone out here — re-checking the flag next tick")
+            return "questline_talked"
+        log("   [roam] questline: arrived but found no building/NPC to interact with here — surfacing")
+        return "questline_arrived_no_target"
+
+    def _questline_unentered_door(self):
+        """Nearest reachable building door she hasn't ENTERED for the current questline (so she works through
+        the candidate buildings at the destination instead of re-entering one). (x,y) door tile or None.
+        Overworld only — reuses _door_tiles + a BFS reachability check."""
+        if not hasattr(self, "_ql_entered_doors"):
+            self._ql_entered_doors = set()
+        try:
+            cur_map = tuple(tv.map_id(self.b))
+            co = tv.coords(self.b)
+            grid = tv.Grid(self.b)
+        except Exception:
+            return None
+        if co is None:
+            return None
+        cands = []
+        for dr in self._door_tiles():
+            if (cur_map, tuple(dr)) in self._ql_entered_doors:
+                continue
+            approach = (dr[0], dr[1] + 1)               # stand just SOUTH of the door, step UP to enter
+            if tv.bfs(grid, co, lambda t, a=approach: t == a, walkable=grid.walkable):
+                cands.append(tuple(dr))
+        if not cands:
+            return None
+        cands.sort(key=lambda t: abs(t[0] - co[0]) + abs(t[1] - co[1]))
+        return cands[0]
 
     def _ensure_forward_questline(self, state):
         """PROACTIVE forward drive (ROOT FIX for the backward-grind). Recognise the gate on the FORWARD
@@ -3762,7 +3848,10 @@ class Campaign:
             # (group != 3) and EXIT to the overworld so a real objective can re-establish from the Center
             # (a known-good anchor) — never leave her parked where nothing can succeed. The faint itself
             # is felt via _soul_after_objective(battle_loss); this is the explicit "I came to" beat.
-            if tv.map_id(self.b)[0] != 3:
+            if tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False):
+                # (…unless she's INSIDE a questline-target building on purpose — `_ql_inside_target`. The
+                # destination-interaction layer entered Bill's cottage to talk him; don't eject her before
+                # she does. It clears the marker itself on a wrong building / when the questline completes.)
                 log(f"   [roam] !! BLACKOUT/STRANDED: in a building interior {tv.map_id(self.b)}"
                     f"@{tv.coords(self.b)} — exiting to the overworld to re-orient")
                 # WHITEOUT-BACKSTOP (swallow-proof wall record): the whiteout is irrefutable proof she

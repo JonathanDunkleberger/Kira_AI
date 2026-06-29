@@ -43,18 +43,21 @@ def _heal(b):
 def _boost(b):
     """GEOGRAPHY RECON ONLY (no save banked): bump the party to crush the Nugget-Bridge gauntlet so she
     reaches (3,43)+ and we can read what's actually north. Level byte + all six stat halfwords."""
-    # VERIFICATION boost (geography only, no save banked): ALL party get fat HP (so a worn-down teammate
-    # can't trigger a blackout that loses bridge progress) + the LEAD gets crushing offence so battles end
-    # in one turn. Only HP + the two offence stats are written (writing def/spd/spdef slots desyncs the
-    # engine into a false 'menu glitched' wedge — learned the hard way).
+    # VERIFICATION boost (geography only, no save banked): a pure HP/stat RAM write gets WIPED the moment a
+    # battle recomputes stats from LEVEL — so set the LEVEL high (the recompute then yields strong L-scaled
+    # stats that survive the battle) AND write fat HP + lead offence for the pre-recompute moment. Only HP +
+    # the two offence slots are written directly (writing def/spd/spdef desyncs the engine into a false 'menu
+    # glitched' wedge — learned the hard way). This simulates a properly-LEVELLED team (the real path is she
+    # grinds up; the live run uses a levelled save, not this poke).
     try:
         for s in range(ram.read_party_count(b)):
             base = ram.GPLAYER_PARTY + s * 100
-            b.core.memory.u16.raw_write(base + 0x58, 999)          # max HP
-            b.core.memory.u16.raw_write(base + 0x56, 999)         # cur HP
+            b.core.memory.u8.raw_write(base + 0x54, 50)            # level (drives the stat recompute)
+            b.core.memory.u16.raw_write(base + 0x58, 600)          # max HP
+            b.core.memory.u16.raw_write(base + 0x56, 600)         # cur HP
         lead = ram.GPLAYER_PARTY
-        b.core.memory.u16.raw_write(lead + 0x5A, 999)             # attack
-        b.core.memory.u16.raw_write(lead + 0x60, 999)            # sp.atk
+        b.core.memory.u16.raw_write(lead + 0x5A, 350)             # attack
+        b.core.memory.u16.raw_write(lead + 0x60, 350)            # sp.atk
     except Exception as e:
         print(f"   (boost skipped: {e})", flush=True)
 
