@@ -30,6 +30,37 @@ wall there, partially fixed (details below).
 - The faithful chooser handles `kind="battle_item"` (uses heals) + `kind="action"` (follows the machinery's
   steering). It stands in for the LLM oracle (which only fires per-tick, wireable later via the HTTP endpoint).
 
+### UPDATE (later same night) — battle fixes landed; Gary is a TEAM-STRENGTH wall
+Committed `97ca143` (+ `a725bb6`): **in-battle item-use WORKS** (the earlier "broken" was a LOGGING
+artifact — the success path `emit()`s, which the harness silences; potions ARE consumed, confirmed
+`count 40→39→…`). **Matchup-aware heal** (heal at 50% vs a super-effective hitter, not the 30% floor) +
+the **status strategy** (poison once/foe) now get her **all the way to Gary's LAST mon** (Pidgeotto dead →
+Charmander chipped to 9 → fainted → Abra → Rattata 16/34) — but she **loses the attrition war at the end**:
+Ivysaur faints to Charmander's 2× Embers (crit variance), and the **L8/L10 bench is too weak to finish**.
+**KEY FINDING: this is a TEAM-STRENGTH wall, not a battle-AI wall.** 40 injected potions don't fix it (you
+can't Potion a fainted mon). Hard-won nuances for the next session (the Mt-Moon-lesson kind):
+- **Don't over-stack status moves.** A 2nd status play/foe (sleep+poison) made the LONG healing fight
+  WEDGE/time-out ("stuck" ×10) — likely the move-list nav to non-adjacent slots (PoisonPowder s1 → Sleep
+  Powder s2 → Razor Leaf s0) stalls on the long core. Reverted to ONE status/foe (poison), which performed
+  best. Keep battle fights SHORT.
+- **Production battle cap = 180s** (`play_live.py:329`); the harness now matches it (was 40s — a 40s cap
+  made multi-mon healing fights falsely "stuck"/reset Gary to full). If you see "stuck" on a long fight,
+  suspect the cap, not the AI.
+- **THE REAL FIX = level the bench.** Two routes: (a) the in-battle participation-XP **switch** — the
+  settle-fix landed (party screen now OPENS via `_settle_action_menu()` before `_goto_pokemon`), but the
+  slot-SELECT still fails (species stays the weak lead after DOWN×slot+A+A — the FRLG party-screen nav /
+  a party-cursor readback is the missing piece; `_force_switch`/faint uses blind DOWN and works, so the
+  voluntary path differs — recon the party-screen layout + find the party-menu cursor RAM addr, mirror the
+  `_goto_bag` readback). `POKEMON_GRIND_SWITCH=0` until then. (b) **low-level-grass grind** (route the weak
+  mon to Route-3-class L3-6 grass where it survives + wins solo — reliable, no actuation, but slow). Route
+  (a) is higher-leverage (also E4 switching).
+- **Cerulean Mart is UNMAPPED** (`CITY_MART_DOORS` = Pewter/Viridian only) → she can't buy potions/balls
+  (has 5936 money, 0 potions, 0 balls). Cerulean overworld (3,3) building doors (live-read): Center=(22,19)→
+  (7,3) [blackout respawn]; other building warps → (7,0)/(7,1)/(7,2)/(7,5)/(7,6)/(7,7)/(7,9) at doors
+  (10,11)/(30,11)/(15,17)/(31,21)/(13,28)/(29,28)/(17,11) — the MART is one of these (NOT yet identified;
+  enter each + detect the buy clerk). Mapping it enables autonomous stock-up, but **won't alone beat Gary**
+  (team-strength-bound).
+
 ### THE NUGGET-BRIDGE / BILL BLOCKER — fully diagnosed via the look-ahead
 The wall is **GARY (the rival) in Cerulean** — `trainer:Cerulean City:` lead `charmander` (Fire), recorded
 3× loss. Root-cause chain (each found by reading the sped-up playthrough log):

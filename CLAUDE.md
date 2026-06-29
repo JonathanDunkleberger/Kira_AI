@@ -96,6 +96,28 @@ to Jonny and wastes his watches. Never again.
     tiles") must be captured EXPLICITLY. A reset is only seamless if the durable docs hold everything the warm
     session knew.
 
+12. **CORE-KIRA FIREWALL, REFINED (neither reckless nor timid).** Two distinct layers people call "core":
+    - **KIRA'S IDENTITY (sacred — never drift):** her personality, voice, wit, how she relates to Jonny, the
+      always-on companion self. This must NOT change. THE NIGHTMARE TO PREVENT: Jonny boots another game or
+      just wants to chat and she's **leaking Pokémon** — talking about her team / the S.S. Anne / where she
+      is in FireRed. Mode-state (party, FireRed progress, questline) lives BEHIND the Pokémon toggle and must
+      be INVISIBLE in always-on/other modes. That leak = a CRITICAL failure. Guard it.
+    - **PLUMBING / EXPRESSION LAYER (you MAY improve, carefully):** the shared machinery her personality flows
+      through (decision loop, reaction funnel, memory, vision, narration). You do NOT need to freeze on every
+      tiny edit. If making her personality flow BETTER through the Pokémon harness needs a careful, minimal
+      change to shared plumbing AND it enhances-or-is-neutral to general Kira (never degrades her), you may.
+    - **THE TEST for any core-touching edit:** "Does this preserve her IDENTITY and keep mode-state behind the
+      toggle, while improving how her personality EXPRESSES?" Yes → proceed carefully. If it alters identity,
+      risks leaking Pokémon into always-on Kira, or could degrade general behavior → STOP and flag for Jonny.
+    - **WHEN YOU DO touch shared/core:** (a) meticulous + minimal; (b) keep mode-state firewalled behind the
+      toggle; (c) TELL Jonny clearly in the report ("I made this core/plumbing edit, here's why it's
+      safe/additive") — he wants to KNOW every core touch, but you needn't PAUSE for approval on safe additive
+      ones; flag them.
+    - **DISCOVERY-LAB PRINCIPLE:** modes teach core. As watch-party mode surfaced "locked-in" behaviors that
+      improved general Kira, the Pokémon harness will surface personality/reaction lessons worth PROMOTING to
+      core. When the 14× look-ahead reveals something that'd make her better EVERYWHERE (not just Pokémon),
+      note it as a candidate core-enhancement for Jonny. Mode → lessons → carefully promoted to core = good.
+
 The living reality map of what's actually wired vs ghost vs dead is `pokemon_agent/STATE_OF_PROJECT.md`
 (+ `CODEBASE_AUDIT.md`). Keep it honest and current.
 
