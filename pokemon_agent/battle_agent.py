@@ -37,6 +37,10 @@ BAG_CURSOR = 0x0203AD04      # u8 in-battle bag LIST row cursor (recon_itemuse t
 # taps + pixel detection, which WEDGE on the long-running core (the keystone freeze-spin).
 MOVE_CURSOR = 0x02023FFC
 MENU_MODE = 0x02023E82
+# In-battle PARTY-LIST cursor = gPartyMenu.slotId (recon_partycursor_derive 2026-06-28): DOWN increments,
+# UP decrements (0=lead, 1=2nd, ... + a CANCEL entry past the last mon). Lets the in-battle SWITCH nav by
+# readback instead of blind DOWN*slot taps that wedge/mis-land on the long core (the gated switch's gap).
+PARTY_CURSOR = 0x02020777
 _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures live here), 42 slots
 # Gen-3 item ids for the in-battle instinct (CANDIDATES; the use is self-verified by the item count
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
@@ -847,6 +851,18 @@ class BattleAgent:
             self._wait(8)
         return self.b.rd8(MOVE_CURSOR) == idx
 
+    def _goto_party_slot(self, slot, tries=10):
+        """Walk the in-battle party-list cursor to `slot` by RAM READBACK of PARTY_CURSOR (gPartyMenu.slotId)
+        — DOWN increments, UP decrements; verify each press moved it (an eaten press is retried), so the
+        switch never blind-lands on the wrong mon on the long core. Returns True on arrival."""
+        for _ in range(tries):
+            cur = self.b.rd8(PARTY_CURSOR)
+            if cur == slot:
+                return True
+            self._tap("DOWN" if (cur < slot or cur > 5) else "UP")
+            self._wait(8)
+        return self.b.rd8(PARTY_CURSOR) == slot
+
     def _select_and_verify(self, state):
         """Called when the white action-menu panel is up (screen-gated). REAL move-list nav
         (slot-0 swap retired 2026-06-25 after the phantom-A fix): home the cursor to FIGHT, open
@@ -1174,19 +1190,27 @@ class BattleAgent:
             return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)  # open party list
         self.log(f"   [engine] switch: opened party? white_box={self._white_box()} (want False=party screen) "
-                 f"target slot {slot}, before_sp {before_sp}")
-        for _attempt in range(4):
-            for _ in range(slot):                         # party cursor opens on slot 0 -> down to N
-                self._tap("DOWN")
-            self._wait(6)
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)  # select
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(20)  # SEND OUT
+                 f"target slot {slot}, before_sp {before_sp}, cursor={self.b.rd8(PARTY_CURSOR)}")
+        # READBACK nav to the slot, A = select (-> "Do what with X?" with the cursor on SHIFT), A = SHIFT
+        # (starts the swap: "Come back X! / Go Y!"). Then ADVANCE the swap text until the active SPECIES
+        # actually flips — the old code read too early (mid-text) and saw no change, so it never confirmed.
+        # NAV is readback-VERIFIED (cursor reaches `slot`). The SELECT->SHIFT->swap CONFIRM flow is WIP:
+        # the sub-menu reuses PARTY_CURSOR (reads 2 after select) and an eaten select-A + a stray d-pad can
+        # re-land on the active mon ("X is already in battle"). For now: select with A, then PURE-A advance
+        # (never B — B cancels the sub-menu) until the active SPECIES flips. Gated (GRIND/BATTLE_SWITCH off),
+        # so an un-confirmed switch just falls through to fighting (fail-safe). TODO: derive the sub-menu
+        # cursor / detect "swap text up" to make SHIFT confirm deterministic (see recon_partycursor_derive).
+        if not self._goto_party_slot(slot):
+            self.log(f"   [engine] switch: party cursor didn't reach slot {slot} -> fight (fail-safe)")
+            for _ in range(3):
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+            return False
+        for _adv in range(18):
             cur = st.read_battle(self.b)
-            self.log(f"   [engine] switch attempt {_attempt}: now species={cur['ours'].get('species') if cur else None} "
-                     f"hp={cur['ours']['hp'] if cur else None} (before {before_sp})")
             if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") != before_sp:
+                self.log(f"   [engine] switch: SWITCHED to species {cur['ours'].get('species')} (slot {slot})")
                 return "switched"
-            self._advance_text()
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
         for _ in range(3):                                # didn't confirm -> back to the action menu, FIGHT
             if self._white_box():
                 break

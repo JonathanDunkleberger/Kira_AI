@@ -44,8 +44,21 @@ her to Route-4's far-east ledge-pocket (x=107) where grass became unreachable �
 NEAREST reachable grass (stay local). (b) it's SLOW + targets the whole FLOOR to L29 (overkill — only need
 one attacker ~L18). Solo-grind still default-OFF until the chain sustains a full bench-level + Gary win.
 
-**NEXT:** confirm the grind sustains + levels a useful attacker (Spearow), then beat Gary → Bill → S.S.
-Ticket → bank the first checkpoint → climb to gym 3 (Vermilion). The keystone (the hard part) is done.
+**PARTY-SWITCH (the 2nd keystone — WIP, gated):** applied the same readback method to the in-battle party
+menu. **`PARTY_CURSOR = 0x02020777`** (gPartyMenu slot byte) derived; `_goto_party_slot(idx)` readback nav
+**VERIFIED reaching slot 1**; the "Do what with X?" sub-menu (▶SHIFT/SUMMARY/CANCEL) is reached and SHIFT
+triggers the swap text ("Come back X!"). **BUT the SHIFT-confirm doesn't complete reliably** — the sub-menu
+REUSES PARTY_CURSOR (reads 2 after select) and the select can re-land on the active mon ("BULBASAUR is
+already in battle"), so the cursor→slot mapping needs more derivation (derive the SUB-MENU cursor; detect
+"swap text up" to confirm SHIFT deterministically). `_switch_to_slot` updated to use the readback nav +
+pure-A confirm + a fail-safe, but it's **gated OFF** (GRIND_SWITCH/BATTLE_SWITCH default 0) so it can't
+affect default play; the involuntary faint-switch (`_force_switch`) is independent + untouched. Finishing
+this enables the participation-XP grind (fast bench-leveling) + a FRESH attacker vs Charmander (resets the
+Sand-Attack accuracy debuff) — the clean Gary kill. recon: `recon_partycursor_derive.py`.
+
+**NEXT:** finish the party-switch SHIFT-confirm (small, isolated — the cursor readback foundation is done),
+which gives fast team-building; then beat Gary → Bill → S.S. Ticket → bank the first checkpoint → climb to
+gym 3 (Vermilion). OR proceed via the (slower) solo-weak-grind. The hard part (move-list keystone) is done.
 
 ### UPDATE 5 (2026-06-28 late, same session) — LOOK-AHEAD ran the Gary stretch 4×; the KEYSTONE is in-battle move-list actuation on the long core
 **What the look-ahead PROVED (4 runs from the canonical save, reading the sped-up logs):**
