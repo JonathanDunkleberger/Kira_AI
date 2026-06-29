@@ -55,6 +55,20 @@ UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
 # with Jonny watching). FAIL-SAFE regardless: if a switch doesn't confirm, she backs out and fights —
 # never wedges. When off, she still AVOIDS ineffective moves (that path is on + verified).
 BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
+# PARTICIPATION-XP GRIND SWITCH (Task B fix — the autonomous underlevel cure). When grinding the weak
+# team, the weak mon leads (so it's "sent out" and eligible for XP) but is ONE-SHOT before it can earn
+# any — so it gains nothing while the ace mops up and takes the XP (the live look-ahead proved this).
+# The real-player fix: lead the weak mon, turn-1 SWITCH to the ace — the weak mon participated (gets a
+# share of XP) and never takes a hit (it's benched before the enemy's turn), while the tanky ace KOs.
+# `PROTECT_LEAD_GRIND` is toggled by campaign.grind_weak_members AROUND its grind battles only (off in
+# normal play). FAIL-SAFE: a switch that doesn't confirm falls through to fighting (never wedges).
+# DEFAULT OFF: the live look-ahead proved the in-battle party-menu actuation WEDGES the wild battle on
+# this long-running core (the standing menu-nav-on-long-core risk — same reason BATTLE_SWITCH is gated).
+# A wedged grind battle returns 'stuck' and blacks her out. Kept (code-complete) for when the in-battle
+# switch actuation is made reliable (it's the real weak-mon-leveling cure for the E4); until then OFF, and
+# the underlevel grind leans on other paths. Arm with POKEMON_GRIND_SWITCH=1 once switch nav is verified.
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") != "0"
+PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
 _P_STATUS = 0x50
 _ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -604,15 +618,34 @@ class BattleAgent:
                 return True
         return self._white_box() and not self._in_move_list()
 
-    def _open_bag(self, tries=4):
-        """From the ACTION menu: FIGHT home -> RIGHT(=BAG) -> A. The bag is open iff the white action
-        panel is GONE (a blue description box). An eaten RIGHT lands A on FIGHT -> the MOVE LIST opens
-        (white panel STAYS) -> not opened -> B out + retry. So 'not white_box' after one A cleanly
-        distinguishes bag (opened) from move-list (eaten RIGHT) — no move is ever fired (that needs a
-        second A in the move list)."""
+    def _goto_bag(self, tries=10):
+        """Walk the action cursor to BAG (top-right, ACT_BAG=1) by READBACK, not a blind RIGHT — the
+        live look-ahead proved a blind _tap('RIGHT') gets EATEN on this long core, so A landed on FIGHT
+        and the bag never opened ('eaten RIGHT'), and she could never heal through a fight. Mirror of
+        _goto_pokemon: grid FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR). Confirms ACT_BAG before A."""
         for _ in range(tries):
-            self._home_to_fight()
-            self._tap("RIGHT")
+            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            if c == ram.ACT_BAG:
+                return True
+            if c == ram.ACT_FIGHT:
+                self._tap("RIGHT")
+            elif c == ram.ACT_RUN:
+                self._tap("UP")
+            elif c == ram.ACT_POKEMON:
+                self._tap("UP")                           # -> FIGHT, then RIGHT next iter -> BAG
+            else:
+                return False                              # not the action menu
+            self._wait(3)
+        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_BAG
+
+    def _open_bag(self, tries=4):
+        """From the ACTION menu: cursor->BAG (verified by readback) -> A. The bag is open iff the white
+        action panel is GONE (a blue description box). If A didn't open it (white panel stays), B out +
+        retry. The readback nav (vs a blind RIGHT) is the fix for the long-core 'eaten RIGHT' that left
+        her unable to use a Potion mid-fight — never fires a move (that needs a 2nd A in the move list)."""
+        for _ in range(tries):
+            if not self._goto_bag():
+                self._settle_action_menu(); continue
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(50)
             if not self._white_box():
@@ -634,6 +667,7 @@ class BattleAgent:
         dropped) | 'no_item' | 'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
+            self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
             return "no_item"
         row = ids.index(item_id)
         cnt0 = self._items_count(item_id)
@@ -666,13 +700,15 @@ class BattleAgent:
             if not st.in_battle(self.b):
                 break
         if self._items_count(item_id) < cnt0:
+            self.log(f"   [engine] use_item: USED item {item_id} (count {cnt0}->{self._items_count(item_id)})")
             self.emit("used an item — that's better", beat=True)
             for _ in range(6):                               # drain the "X recovered!" text back to battle
                 if self._white_box() or not st.in_battle(self.b):
                     break
                 self._advance_text()
             return "used"
-        self.log("   [engine] use_item: selected but nothing was consumed — keep fighting (LOUD)")
+        self.log(f"   [engine] use_item: pocket={self.b.rd8(ram.GBAG_POCKET)} cursor={self.b.rd8(BAG_CURSOR)} "
+                 f"row={row} — selected but item {item_id} NOT consumed (count still {cnt0}) — keep fighting (LOUD)")
         self._exit_bag(); return "failed"
 
     def _maybe_use_item(self, state):
@@ -817,6 +853,30 @@ class BattleAgent:
                 self.log("   [engine] !! NO EFFECTIVE MOVE — every usable move is type-immune here "
                          "(need a better matchup: switch / flee)")
                 return "no_effective_move"
+        # ── STATUS-MOVE STRATEGY (general, E4-critical): when EVERY damaging move is RESISTED (best
+        # eff <= 0.5 — e.g. Ivysaur's Grass moves into Gary's Fire Charmander, the live look-ahead wall),
+        # raw chipping loses the damage race. A STATUS move is the real play: poison/Leech-Seed chips
+        # TYPE-INDEPENDENTLY (bypasses the resistance), sleep neutralizes the foe. Fire it ONCE, early,
+        # when the foe is still fresh (worth the turn), then go back to chipping while the status works.
+        # Capability-not-script + general (cracks any resist-wall, not just Charmander). ───────────────
+        if not getattr(self, "_status_played", False):
+            _dmg_effs = [pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])
+                         for i in range(4) if _usable(i) and ours["moves"][i].get("power", 0) > 0]
+            best_dmg_eff = max(_dmg_effs) if _dmg_effs else 1.0
+            foe_frac = enemy["hp"] / max(enemy.get("maxhp", 1), 1)
+            if best_dmg_eff <= 0.5 and foe_frac > 0.5:
+                # prefer CHIP statuses (they win the fight) over pure neutralize, both type-independent
+                _STATUS_PREF = ["leechseed", "toxic", "poisonpowder", "spore", "sleeppowder",
+                                "hypnosis", "lovelykiss", "sing", "stunspore"]
+                _norm = lambda s: "".join(s.lower().split())
+                for want in _STATUS_PREF:
+                    si = next((i for i in range(4) if _usable(i)
+                               and _norm(ours["moves"][i].get("name", "")) == want), None)
+                    if si is not None:
+                        idx, desc, self._status_played = si, ours["moves"][si].get("name", want), True
+                        self.log(f"   [engine] STATUS STRATEGY: damage is resisted (best x{best_dmg_eff:g}) "
+                                 f"-> {desc} to chip/neutralize past the wall (type-independent)")
+                        break
         self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                  f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
         # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, pixel-confirm the list opened; retry the
@@ -1017,15 +1077,11 @@ class BattleAgent:
                 best, best_key = s, key
         return best
 
-    def _voluntary_switch(self, state):
-        """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE: if the menu nav doesn't
-        confirm a NEW active mon, B back to the action menu and return False so the caller just fights —
-        NEVER wedges. Returns 'switched' or False. Reuses the proven faint-switch party-menu confirm."""
-        slot = self._best_switch_slot(state)
-        if slot is None:
-            return False
-        before_sp = state.get("ours", {}).get("species")
-        self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
+    def _switch_to_slot(self, slot, before_sp):
+        """Switch the active mon to a SPECIFIC party slot via the proven nav (action-cursor->POKEMON ->
+        open list -> DOWN*slot -> A select -> A SEND OUT), confirming the active SPECIES actually changed.
+        FAIL-SAFE: if it doesn't confirm, B back to the action menu and return False (caller fights —
+        never wedges). Returns 'switched' or False. Shared by the matchup switch + the grind switch."""
         if not self._goto_pokemon():
             return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)  # open party list
@@ -1037,16 +1093,42 @@ class BattleAgent:
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(20)  # SEND OUT
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") != before_sp:
-                self.emit("switching it up — this is a better matchup", beat=True, tier=2)
-                self._skip_streak.clear()
                 return "switched"
             self._advance_text()
         for _ in range(3):                                # didn't confirm -> back to the action menu, FIGHT
             if self._white_box():
                 break
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+        return False
+
+    def _voluntary_switch(self, state):
+        """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE. Returns 'switched' or False."""
+        slot = self._best_switch_slot(state)
+        if slot is None:
+            return False
+        self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
+        r = self._switch_to_slot(slot, state.get("ours", {}).get("species"))
+        if r == "switched":
+            self.emit("switching it up — this is a better matchup", beat=True, tier=2)
+            self._skip_streak.clear()
+            return "switched"
         self.log("   [engine] matchup switch did not confirm -> fighting instead (fail-safe, no wedge)")
         return False
+
+    def _ace_reserve_slot(self):
+        """The highest-level ALIVE party member that is NOT slot 0 — the ace to switch the weak grind
+        lead out to (it tanks + KOs while the benched weak mon banks participation XP). None if no alive
+        reserve outranks the lead (then there's nothing to switch to — just fight)."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        lead_lv = self.b.rd8(ram.GPLAYER_PARTY + 0x54)
+        best, best_lv = None, lead_lv
+        for s in range(1, min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue                                  # fainted
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if lv > best_lv:
+                best, best_lv = s, lv
+        return best
 
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
@@ -1057,6 +1139,8 @@ class BattleAgent:
             return "timeout"
         self._started = True
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
+        self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
+        self._status_played = False        # STATUS STRATEGY: poison/sleep/leech fires at most once per battle
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -1132,6 +1216,8 @@ class BattleAgent:
                             and enemy["hp"] > 0 and enemy["hp"] == enemy["maxhp"]
                             and 1 <= enemy["species"] <= 411):
                         self._enemy_fainted = False        # next mon is out -> fight it
+                        self._status_played = False         # NEW foe -> reconsider a status move (so Gary's
+                        #                                     Charmander gets poisoned, not just his lead)
                         self._prev = cur
                         self.emit(f"the trainer sent out "
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
@@ -1164,6 +1250,23 @@ class BattleAgent:
                     self._acted_once = True
                     stall = 0
                     continue
+                # PARTICIPATION-XP GRIND SWITCH: while grinding the weak team (PROTECT_LEAD_GRIND), the weak
+                # mon LEADS (eligible for XP) but would be one-shot — so turn 1, switch it to the ace. The
+                # weak mon banks a share of XP and never takes a hit (benched before the enemy's turn); the
+                # tanky ace KOs. Fires at most once/battle; fail-safe (a non-confirm just fights).
+                if (GRIND_SWITCH_ENABLED and PROTECT_LEAD_GRIND and not self._grind_switched
+                        and state and not (self._enemy_fainted or self._we_fainted)):
+                    self._grind_switched = True            # one attempt/battle, whatever the result
+                    ace = self._ace_reserve_slot()
+                    if ace is not None:
+                        self.log(f"   [engine] GRIND SWITCH: weak lead out -> switching to ace slot {ace} "
+                                 f"(weak mon banks participation XP, ace does the fighting)")
+                        if self._switch_to_slot(ace, state.get("ours", {}).get("species")) == "switched":
+                            self._acted_once = True
+                            stall = 0
+                            self._unresolved_turns = 0
+                            continue
+                        self.log("   [engine] grind switch did not confirm -> fighting (fail-safe)")
                 # B-1 — MATCHUP SWITCH (gated POKEMON_BATTLE_SWITCH, fail-safe): before swinging, if the
                 # active mon is badly out-typed AND a better reserve exists, switch instead. Off by
                 # default until the actuation is live-verified; a failed switch backs out and fights.

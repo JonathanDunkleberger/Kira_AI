@@ -37,6 +37,64 @@ to Jonny and wastes his watches. Never again.
 7. **DEEP LOG REVIEW before proposing fixes** (when a watch happened): read the actual decision trace in
    `logs/debug/latest.log` (the console capture) + `logs/sessions_raw`, find the root cause AND the
    pattern, before coding.
+8. **DEFAULT VERIFICATION MODE = the LOOK-AHEAD ORACLE (not bite-sized tests).** To verify whether Kira
+   can play a stretch autonomously, the DEFAULT is: run her REAL full decision loop (forward-drive,
+   questline, strategic grind, recovery — all of it), HEADLESS, at MAX emulator speed (no audio/TTS/render
+   → ~14x real-time, the measured ceiling), for a LONG stretch — until she reaches the goal OR genuinely
+   STALLS, never a fixed-tick cutoff — then READ the full decision/state log to find the REAL chain of
+   blockers in ONE pass. This compresses ~2 hours of real-pace play into ~10 min of fast run + instant log
+   analysis. The standing harness is **`pokemon_agent/recon_longrun.py`** (look-ahead + resumable
+   checkpoint banking; canonical save protected via a staging dir; round-trip verified). RULES: (a) do NOT
+   default to 60-second / single-mechanic micro-tests — those answer "did this function fire?", not "can she
+   play this stretch?"; a micro-test is ONLY for isolating a mechanism a long-run already fingered as the
+   culprit. (b) Don't re-report KNOWN facts (she's underleveled, bridge trainers don't respawn) — report the
+   SOLUTION and the NEXT real blocker. (c) When a long-run surfaces a blocker, FIX that specific blocker,
+   then RE-RUN the long stretch — iterate toward credits, not toward green checkmarks on isolated functions.
+   (d) When she CLEARS a stretch, BANK the checkpoint so the real Sherpa timeline advances and we never
+   re-run cleared ground. THE BAR every run serves: Jonny hits GO → she plays the ENTIRE game to credits
+   autonomously, human let's-play pace, unaided — an enjoyable watch-party. "Does this get her closer to
+   rolling credits unaided?" is the test for every change.
+
+9. **AUTONOMOUS RUN-THE-ROPE MODE (default working loop for the Pokémon climb).** Jonny is the client;
+   you are the lead Sherpa. The job is to lay the rope from where we are to the summit (rolling credits)
+   so that later Jonny hits GO and Kira walks the whole route UNAIDED. He does NOT want to be in the loop
+   for NPC interactions, doorways, level-ups, TM/HM use, switching, or fetch-quests — solving those
+   autonomously IS the job. So: **DON'T** do small-increment→report→wait, don't ask him to confirm
+   gameplay details, don't run bite-sized tests, don't check in for reassurance. **DO** run the loop:
+   max-speed headless look-ahead (`recon_longrun.py`) → when it STALLS on a blocker (wedged in a
+   doorway/grass, can't enter a building, doesn't know to talk an NPC, can't switch, can't apply a TM/HM,
+   an unfinished fetch-quest, an unlearned forward map, anti-wedge) → DIAGNOSE → DESIGN → BUILD the fix →
+   RE-RUN → BANK a checkpoint when a stretch clears (progress ratchets forward, never re-run cleared
+   ground) → advance to the next stretch (Bill → Vermilion → Cut → Surge → Rock Tunnel/Flash → Celadon →
+   …). Build capabilities GENERALLY (solve once, reuse everywhere) so the rope is laid for the WHOLE game,
+   not patched per-instance. **ESCALATE to Jonny ONLY for:** (a) a genuine manual unstick you cannot solve
+   in code (exhaust autonomous options first); (b) a real external blocker (Google 403, missing asset,
+   destructive/irreversible decision); (c) end-of-session handoff — write a crisp `STATE_OF_PROJECT.md` +
+   ONE short "what's ready / what needs your eyes" summary. CONTEXT SURVIVAL: the harness + checkpoints +
+   `STATE_OF_PROJECT.md` are the durable state — bank to disk continuously so the climb survives context
+   resets and the next session resumes cleanly. Tone: direct, no reassurance/feelings-management — lay the
+   rope. Keep climbing as far as you can each session.
+
+10. **AMBITION MANDATE (you are the lead Sherpa / head knight — lay the WHOLE track).** The old
+    "small safe steps for Jonny to review" cadence is RETIRED — it was an accidental cap that wasted weeks.
+    Jonny does NOT want to review increments. The mandate: lay the rope from the current Sherpa save all the
+    way to **rolling credits** (8 gyms → Elite Four → credits), autonomously, via the 14× look-ahead harness
+    + checkpoints. You are FREE to decide, design fixes, build general capabilities, and climb as far as you
+    can without checking in. Be ambitious, not timid — default to bold autonomous progress, not cautious
+    increments. **The ONLY firewall: do NOT break core Kira** (her personality / oracle / memory / vision —
+    she works and is great; the Pokémon harness is bolted on the SIDE). Stay mode-side, keep core untouched,
+    and otherwise GO FOR IT. The bar: one day Jonny presses GO on the fresh Kira timeline and she plays the
+    whole game bedroom→credits at watchable human pace, unimpeded. Escalate ONLY a genuine can't-be-coded
+    physical stuck (e.g. the Mt. Moon wrong-ladder warp that needed a human to spot) — and only after
+    exhausting autonomous options. Otherwise: summit it, come back down, report the route.
+11. **CONTEXT-HANDOFF DISCIPLINE (never fall in the well).** The warm session always knows more than a fresh
+    one, so: (a) keep working until **~80-85% context budget** — do NOT hand off early; (b) continuously
+    write real state to disk as you go (`STATE_OF_PROJECT.md` §0 + checkpoints) so nothing lives only in your
+    head; (c) when you DO approach budget, STOP at a clean point and write a crisp handoff: exactly where the
+    track is laid, what's verified, the PRECISE next action, and any subtle in-flight reasoning a fresh
+    session would lose — the **Mt. Moon lesson**: hard-won non-obvious nuances (e.g. "avoid the OTHER warp
+    tiles") must be captured EXPLICITLY. A reset is only seamless if the durable docs hold everything the warm
+    session knew.
 
 The living reality map of what's actually wired vs ghost vs dead is `pokemon_agent/STATE_OF_PROJECT.md`
 (+ `CODEBASE_AUDIT.md`). Keep it honest and current.

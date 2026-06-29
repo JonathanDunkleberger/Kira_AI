@@ -43,10 +43,18 @@ import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a ga
 # it's the approved forward-progress feature. POKEMON_QUESTLINE=0 disables.
 QUESTLINE_ENABLED = os.getenv("POKEMON_QUESTLINE", "1") != "0"
 FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forward objective dominates the grind impulse
+# STRATEGIC UNDERLEVEL-GRIND (Task B): when a forward wall keeps beating her because the TEAM is
+# under-levelled, grinding fields the WEAK party members (not the ace) to readiness, then resumes the
+# march. Extends the forward-drive family; firewall-clean (mode-side only). OFF restores grind(lead+2).
+STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "1") != "0"
+# Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
+# itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
+GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
     fm = None
+import battle_agent  # noqa: E402  (module ref for the PROTECT_LEAD_GRIND toggle)
 from battle_agent import BattleAgent  # noqa: E402
 from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
@@ -2299,6 +2307,122 @@ class Campaign:
             self.walk_to_map(PEWTER, "west")
         return "ok"
 
+    # ── STRATEGIC UNDERLEVEL-GRIND (Task B): the smart middle between "ace farms grass, nothing else
+    # levels" (aimless) and "charge the wall, lose, charge again" (stubborn). A real player who hits an
+    # under-levelled wall benches the strong mon and FIELDS the weak ones against wild Pokémon to raise
+    # the team FLOOR, then crosses. We field the weak member by REORDERING it to slot 0 (XP goes to who's
+    # sent out) — exactly what the in-menu "switch order" does, so it's save-safe (each 100-byte mon
+    # struct is self-contained + checksummed over its OWN data; an intact move between slots changes no
+    # checksum). Survival = the existing heal-when-low floor in grind(). In-battle "ace as safety-switch"
+    # is a gated enhancement (POKEMON_BATTLE_SWITCH, unverified) — noted, not v1. ──────────────────────
+    def _party_levels(self):
+        """Live level byte (+0x54) of every party member, slot order. Pure read."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        return [self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + self._PARTY_LEVEL_OFF)
+                for s in range(min(cnt, 6))]
+
+    def _swap_party_slots(self, i, j):
+        """Swap two party slots' raw 100-byte structs in gPlayerParty (the same intact move the in-menu
+        'switch order' does — save-safe, see the block comment). Overworld-only (NEVER mid-battle, where
+        the active-mon pointer would dangle). No-op if i==j or either slot is out of the live count."""
+        if i == j:
+            return
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if not (0 <= i < cnt and 0 <= j < cnt):
+            log(f"   GRIND-WEAK: !! refusing slot swap {i}<->{j} (party count {cnt}) — no-op")
+            return
+        base = ram.GPLAYER_PARTY
+        ai, aj = base + i * st.PARTY_MON_SIZE, base + j * st.PARTY_MON_SIZE
+        for k in range(st.PARTY_MON_SIZE // 4):           # 100 B = 25 u32 words
+            wi = self.b.rd32(ai + k * 4)
+            wj = self.b.rd32(aj + k * 4)
+            self.b.core.memory.u32.raw_write(ai + k * 4, wj)
+            self.b.core.memory.u32.raw_write(aj + k * 4, wi)
+
+    def _restore_ace(self):
+        """Put the highest-level member back in slot 0 (the ace leads for the real wall + everyday play).
+        Order-independent (re-reads levels), so it cleans up after any number of weak-grind swaps."""
+        levels = self._party_levels()
+        if not levels:
+            return
+        ace = max(range(len(levels)), key=lambda s: levels[s])
+        if ace != 0:
+            log(f"   GRIND-WEAK: restoring the ace (slot {ace}, L{levels[ace]}) to lead")
+            self._swap_party_slots(0, ace)
+
+    def _prep_team_target(self, state):
+        """The readiness target IF she should be prepping an under-levelled team for the active wall,
+        else None. Fires only when STRATEGIC_GRIND is on, there's a real active wall with a known foe
+        level (so it's a recognised level problem, not a nav-bug-stuck or a pure type/strategy loss),
+        AND her team FLOOR (weakest member) is below that level. Single source of truth — the action
+        executor, the action-set framing, and the dashboard rationale all read THIS."""
+        if not STRATEGIC_GRIND_ENABLED:
+            return None
+        try:
+            t = self.strat.underlevel_target()
+            if not t:
+                return None
+            party = state.get("party") or []
+            if not party:
+                return None
+            floor = min(m["level"] for m in party)
+            return t if floor < t else None
+        except Exception as e:
+            log(f"   [roam] prep-team target skipped: {e}")
+            return None
+
+    def _prep_team_weak(self, state, target):
+        """The under-target members' species names (for the rationale/framing). Pure read off state."""
+        return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
+
+    def grind_weak_members(self, target):
+        """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
+        ace. Each loop: pick the weakest under-target member, reorder it to lead, grind() it toward
+        `target` (which heals it when low — survival), repeat until the floor crosses. Bounded by a
+        wall-clock budget so a tick can't run away. Returns 'ready' (floor crossed) | 'battle_loss' |
+        'ok' (budget/grass-out — partial progress, the next tick re-enters). Restores the ace on EVERY
+        exit path (a faint/loss must not strand the weak mon as lead)."""
+        log(f"   GRIND-WEAK: team floor under L{target} — fielding the weak ones (not the ace) to raise "
+            f"the team's floor; levels now {self._party_levels()}")
+        t0 = time.time()
+        # PARTICIPATION-XP GRIND SWITCH: arm the battle engine to switch the weak lead out to the ace on
+        # turn 1 (the weak mon banks XP without being one-shot — the live look-ahead proved a fielded weak
+        # lead just faints + earns nothing). Scoped to THIS grind only; restored in the finally.
+        battle_agent.PROTECT_LEAD_GRIND = True
+        try:
+            while time.time() - t0 < GRIND_WEAK_BUDGET_S:
+                levels = self._party_levels()
+                weak = [s for s, l in enumerate(levels) if l < target]
+                if not weak:
+                    log(f"   GRIND-WEAK: floor crossed L{target} (levels {levels}) — done");
+                    self._restore_ace()
+                    return "ready"
+                wk = min(weak, key=lambda s: levels[s])
+                if wk != 0:
+                    log(f"   GRIND-WEAK: fielding slot {wk} (L{levels[wk]}) as lead to train it")
+                    self._swap_party_slots(0, wk)
+                r = self.grind(target)                       # trains slot 0 (now the weak mon); heals when low
+                if r == "battle_loss":
+                    self._restore_ace()
+                    return "battle_loss"
+                if r != "ok":                                # no grass reachable etc. — surface, restore, retry next tick
+                    log(f"   GRIND-WEAK: grind returned {r!r} — restoring ace, retry next tick")
+                    self._restore_ace()
+                    return "ok"
+            log(f"   GRIND-WEAK: wall-clock budget — partial progress (levels {self._party_levels()}), "
+                f"restoring ace; the next tick re-enters")
+            self._restore_ace()
+            return "ok"
+        except Exception as e:
+            log(f"   GRIND-WEAK: !! errored ({e}) — restoring ace to leave the party sane")
+            try:
+                self._restore_ace()
+            except Exception:
+                pass
+            return "ok"
+        finally:
+            battle_agent.PROTECT_LEAD_GRIND = False        # disarm — normal play never grind-switches
+
     # ── BATCH 2 PART C: SHOP WITH INTENT (bag/money reads + the verified Mart buy primitive) ───────
     def money(self):
         """Player money (SaveBlock1+0x290 XOR SaveBlock2.encryptionKey+0xF20). Same decode as the
@@ -3131,6 +3255,22 @@ class Campaign:
                 has_balls = True
             if has_balls:
                 a["wander_catch"] = "wander the grass and try to catch a new teammate"
+            # STRATEGIC UNDERLEVEL-GRIND (Task B) — FRAME the grind as the WEAK-member prep when the team
+            # FLOOR is under the wall's level. This makes her PICK "battle" knowing it means "field
+            # Rattata/Spearow, level THEM" (the executor does exactly that), and surfaces the strategic
+            # reasoning to her decision/voice ctx — fixing the half-wire where the display said "train the
+            # team" but the action trained the ace. Fires on the FIRST loss already (foe level is known).
+            prep_t = self._prep_team_target(state)
+            if prep_t is not None:
+                weak = self._prep_team_weak(state, prep_t)
+                who = (weak[0] if len(weak) == 1
+                       else (", ".join(weak[:-1]) + " and " + weak[-1])) if weak else "your weakest"
+                a["battle"] = (f"STRENGTHEN FIRST — your team's under-levelled for that wall. Train the "
+                               f"WEAK ones ({who}) up to about L{prep_t} by leading with THEM in the grass "
+                               f"(not your strongest) — that's how the whole team gets strong enough to "
+                               f"cross. THEN go back and push through.")
+        else:
+            prep_t = None
         # SHOP WITH INTENT (PART C) + BATCH-6 PHASE-2 FORESIGHT: offer "stock up" when it DOES something —
         # at a town with a mapped Mart and money above the floor, with EITHER a real restock need (low on
         # potions / missing a cure) OR she's walled and could prepare deeper before a push (foresight,
@@ -3247,7 +3387,10 @@ class Campaign:
                         state["party"][0]["level"] if state.get("party") else None)
                 except Exception:
                     stuck = False
-            if not stuck:
+            # STRATEGIC UNDERLEVEL-GRIND (Task B): stand down ALSO while she's prepping an under-levelled
+            # team for the wall — the grind ISN'T "backward drift" then, it's the deliberate forward move
+            # (raise the floor → cross). Pruning battle/wander_catch here would be the stubborn-charge bug.
+            if not stuck and prep_t is None:
                 try:
                     cur = tuple(state["map"])
                     avoid = self._wall_avoid(state)
@@ -3719,6 +3862,12 @@ class Campaign:
                     return f"to_grass:{r}"
             if pick == "wander_catch":
                 return self.catch_one()
+            # STRATEGIC UNDERLEVEL-GRIND (Task B): if the TEAM FLOOR is under the wall's level, field the
+            # WEAK members (not the ace) and level THEM to readiness — the real fix for "the display said
+            # 'train the team' but the action trained the ace". Else the ordinary lead bump.
+            t = self._prep_team_target(state)
+            if t is not None:
+                return self.grind_weak_members(t)
             lead = state["party"][0]["level"] if state["party"] else 5
             return self.grind(lead + 2)
         if pick == "stock_up":
@@ -4135,6 +4284,18 @@ class Campaign:
                 if la:
                     where = f"{where}. {la}"
                     log(f"   [roam] !! STRATEGY wall vs {self.strat.active_wall}: feeding loss-awareness to the oracle")
+            # STRATEGIC UNDERLEVEL-GRIND (Task B): when the wall keeps her down because the TEAM FLOOR is
+            # under-levelled, fold the CONCRETE prep plan (level the WEAK ones — by name — to readiness,
+            # field THEM not the ace, THEN cross) into her decision/voice ctx. This is the reasoning Jonny
+            # SEES her act on: she steps aside, grinds the weak members with a stated purpose, and returns.
+            if not _ready:
+                _pt = self._prep_team_target(state)
+                if _pt is not None:
+                    ptn = self.strat.prep_team_note(self._prep_team_weak(state, _pt), _pt)
+                    if ptn:
+                        where = f"{where}. {ptn}"
+                        log(f"   [roam] !! UNDERLEVEL-PREP vs {self.strat.active_wall}: team floor < L{_pt} "
+                            f"— folding the 'level the weak ones, field THEM' plan into her decision ctx")
             # BATCH-4 PHASE 2 (persistent SPATIAL wall): while a wall gates a route and she hasn't grown,
             # keep telling her the way forward is blocked — so she stops blindly choosing to re-cross it
             # (the routing also hard-blocks it; this is the awareness half so the CHOICE is informed).
@@ -4541,7 +4702,15 @@ class Campaign:
                 want = ""
             if wr and not rdy:
                 target = wr.get("lead_level") or 0
-                if target and pl is not None:
+                # STRATEGIC UNDERLEVEL-GRIND (Task B): when the TEAM FLOOR is the problem, the concrete
+                # task is to level the WEAK members (named) by fielding them — not a vague "train the team".
+                pt = self._prep_team_target(state) if STRATEGIC_GRIND_ENABLED else None
+                if pt is not None:
+                    weak = self._prep_team_weak(state, pt)
+                    who = (weak[0] if len(weak) == 1
+                           else (", ".join(weak[:-1]) + " and " + weak[-1])) if weak else "the weak ones"
+                    short = f"Level the weak ones ({who}) to ~L{pt} by fielding THEM in the grass, THEN retry"
+                elif target and pl is not None:
                     short = f"Train the team toward ~L{target} (or catch one more teammate), THEN retry"
                 elif team_n < 2:
                     short = "Catch a teammate so you're not going in solo, then retry"
@@ -4609,6 +4778,18 @@ class Campaign:
         if pick == "head_to_gym":
             return f"Heading for the next gym{(' — ' + ng['city']) if ng else ''}: {short}."
         if pick in ("battle", "wander_catch"):
+            # STRATEGIC UNDERLEVEL-GRIND (Task B): make the WHY explicit on the dashboard — she's leveling
+            # the weak members on purpose to cross the wall, not aimlessly farming.
+            try:
+                pt = self._prep_team_target(state)
+                if pt is not None and pick == "battle":
+                    weak = self._prep_team_weak(state, pt)
+                    who = (weak[0] if len(weak) == 1
+                           else (", ".join(weak[:-1]) + " and " + weak[-1])) if weak else "the weak ones"
+                    return (f"Team's under-levelled — grinding {who} up to ~L{pt} (fielding them, not my "
+                            f"ace) so I can push through,{nxt}.")
+            except Exception:
+                pass
             return f"{short} — building up here with a purpose,{nxt}."
         if pick == "heal":
             return f"Topping up at a Pokémon Center, then back on the road{nxt}."

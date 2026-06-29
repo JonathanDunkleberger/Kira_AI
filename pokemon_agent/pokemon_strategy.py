@@ -50,6 +50,11 @@ STRATEGIC_STUCK_LOSSES = int(os.getenv("POKEMON_STRATEGIC_STUCK_LOSSES", "2"))
 # strengthening with no block AND no nag; crossing the high bar makes "go take the wall" the attractive
 # move. Without this she un-blocks but never returns (grinds forever by inertia — the live symptom).
 READY_RETRY_LEVELS = int(os.getenv("POKEMON_READY_RETRY_LEVELS", "2"))
+# STRATEGIC UNDERLEVEL-GRIND readiness margin. When a wall keeps beating her because her team is
+# under-levelled, the level her team FLOOR (weakest member) should reach is the foe's level she lost
+# to + this margin (self-calibrating off the LIVE foe she actually fought — no hardcoded map KB). 1 =
+# "get the weak ones up to roughly the trainers' level". Tunable.
+UNDERLEVEL_MARGIN = int(os.getenv("POKEMON_UNDERLEVEL_MARGIN", "1"))
 
 
 def _species_at(b, base):
@@ -414,6 +419,47 @@ class StrategicMemory:
                 f"NOT march back into them. The only move is to get STRONGER first: grind levels in safe "
                 f"grass, catch a teammate so you're not running solo, or stock up on healing — THEN come "
                 f"back and take them. You choose HOW you strengthen, but strengthening comes first, period.")
+
+    # ── STRATEGIC UNDERLEVEL-GRIND (Task B): recognise "the wall beats me because my TEAM is too
+    # weak" and derive the level the floor must reach. The wall she's losing to carries the FOE's level
+    # she fought (observe_battle_start snapshots `lead_level`), so the readiness target self-calibrates
+    # off the LIVE opponent — no hardcoded map/disasm KB to drift (cross-check rule honoured: it's the
+    # foe level she actually observed). PURE read; the campaign compares it against her team FLOOR. ──
+    def underlevel_target(self):
+        """The level her team FLOOR should reach to have a fair shot at the active wall — the foe's
+        level she lost to + UNDERLEVEL_MARGIN. None if there's no active wall or the foe level is
+        unknown (then it's not a recognisable level problem — strategy/type, handled by loss_awareness)."""
+        r = self.active_wall_rec()
+        if not r:
+            return None
+        fl = r.get("lead_level")
+        if not fl:
+            return None
+        return int(fl) + UNDERLEVEL_MARGIN
+
+    def prep_team_note(self, weak_names, target):
+        """The strategic rationale she voices while prepping: name the under-levelled members and the
+        plan (level THEM, not the ace, to readiness, THEN push through). Capability-not-script — the
+        reason, surfaced; she still drives. '' if there's no active wall to prep for."""
+        r = self.active_wall_rec()
+        if not r or not target:
+            return ""
+        if r.get("is_trainer"):
+            sz = f"{r['size']} Pokémon" if r.get("size") else "a full team"
+            wall = f"those trainers ({r['lead']} lead, {sz})"
+        else:
+            wall = f"the wild {r['lead']}"
+        where = f" at {r['place']}" if r.get("place") else ""
+        if weak_names:
+            who = (weak_names[0] if len(weak_names) == 1
+                   else (", ".join(weak_names[:-1]) + " and " + weak_names[-1]))
+            lead_in = f"{who} {'is' if len(weak_names) == 1 else 'are'} too weak for {wall}{where}"
+        else:
+            lead_in = f"my team's under-levelled for {wall}{where}"
+        return (f"{lead_in} — so before I push through, I'm going to level the weak ones up to about "
+                f"L{target} (field THEM in the grass, not my strongest — that's how the whole team gets "
+                f"stronger). Then I go back and cross. (My call — but charging in under-levelled just "
+                f"blacks me out again.)")
 
     def is_gated(self, map_id, party_count, lead_level):
         """SPATIAL gate: is `map_id` the map where her active wall keeps beating her, AND she's no

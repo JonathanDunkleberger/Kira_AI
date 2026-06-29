@@ -11,6 +11,74 @@ Companion docs: `pokemon_agent/CODEBASE_AUDIT.md` (pokemon detail + stuck-vector
 
 ---
 
+## 0. CURRENT FRONTIER — the rope as of 2026-06-28 night (read FIRST)
+
+**Rope laid solidly to:** post-Misty Cerulean (her real `states/campaign/kira_campaign.state`). The next
+pitch (Nugget Bridge → Bill → S.S. Ticket) is **NOT yet cleared** — the autonomous look-ahead found a real
+wall there, partially fixed (details below).
+
+### Standing infrastructure BUILT this session (the big deliverable) — COMPILES+WIRED+VERIFIED
+- **`pokemon_agent/recon_longrun.py` — the LOOK-AHEAD ORACLE + RESUMABLE CHECKPOINT.** Runs her REAL
+  `free_roam` loop headless at max emulator speed (**measured ceiling 14.3× real-time** = 856 fps; AudioPump
+  is the only throttle and it's off; video can't be disabled — pixel detection needs the framebuffer), for a
+  LONG stretch until the GOAL (S.S.-Ticket flag 0x234) or a genuine STALL. Rich per-decision + per-battle
+  logging. PIECE 2: canonical save is PROTECTED (all in-run persistence redirected to a staging dir), and the
+  staged savestate+sidecars are banked + **round-trip verified (save→load→party/badges/flag identical, PASS)**.
+  Env knobs: `LONGRUN_BARGE=1` (inject N potions + clear stale wall + forward-push chooser, for premise tests),
+  `LONGRUN_POTIONS=N`, `LONGRUN_BATTLE_LOG=1`. **This is the standing verification tool — use it, not
+  micro-tests (now CLAUDE.md rule 8).**
+- The faithful chooser handles `kind="battle_item"` (uses heals) + `kind="action"` (follows the machinery's
+  steering). It stands in for the LLM oracle (which only fires per-tick, wireable later via the HTTP endpoint).
+
+### THE NUGGET-BRIDGE / BILL BLOCKER — fully diagnosed via the look-ahead
+The wall is **GARY (the rival) in Cerulean** — `trainer:Cerulean City:` lead `charmander` (Fire), recorded
+3× loss. Root-cause chain (each found by reading the sped-up playthrough log):
+1. **Ivysaur's only damaging move is Grass (Razor Leaf), which Charmander RESISTS 0.25×** — she can't
+   out-damage it; her backups are Rattata L8 / Spearow L10 (Spearow's neutral Peck works but it's too weak).
+2. **In-battle BAG wouldn't open** (`_open_bag` did a blind `_tap('RIGHT')` that gets eaten on the long core →
+   "eaten RIGHT") → she couldn't use Potions. **FIXED:** new `_goto_bag` navigates by `GBATTLE_ACTION_CURSOR`
+   readback (mirror of the proven `_goto_pokemon`). General fix; no flag.
+3. **Move policy ignored STATUS moves** (power 0) → spammed resisted Razor Leaf. **FIXED:** `_select_and_verify`
+   now, when every damaging move is resisted (best eff ≤0.5) and the foe is fresh, fires a status move —
+   PoisonPowder/Leech/Toxic chip TYPE-INDEPENDENTLY (bypass the resistance), sleep neutralizes. General,
+   E4-relevant. Reset **per-foe** (so Gary's Charmander gets poisoned, not just his lead).
+4. **In-battle item use still SILENTLY NO-OPS** (the precise remaining blocker): the chooser correctly picks
+   `use_potion` (item 13) 11× per fight, `_goto_bag` is fixed, but `use_item_in_battle` returns on the
+   **unlogged `return "no_item"`** path — the in-battle items-pocket read (`_items_pocket`/`_items_count` /
+   the `_HEAL_ITEMS_PREF` heal-item mapping at battle_agent ~line 692) isn't seeing the potions. **NEXT
+   ACTION: fix the in-battle items-pocket read so a held Potion is found + consumed.** Once that lands, the
+   Potion-barge (poison-chip + heal-through) should beat Charmander headless.
+5. **In-battle SWITCH actuation wedges the battle on the long core** (`outcome=stuck`) — same menu-on-long-core
+   class as the bag bug, but the PARTY-menu nav (post-`_goto_pokemon` list nav) still needs the readback
+   treatment. So the **participation-XP grind-switch is gated OFF** (`POKEMON_GRIND_SWITCH=0`) — the live
+   look-ahead proved it one-shots/wedges. The weak-mon grind therefore can't level the floor yet (it needs
+   either the switch fixed OR low-level-grass routing).
+
+### Capability fixes shipped this session (additive, mode/engine-side; **battle-regression NOT yet re-run**)
+- `_goto_bag` readback (item-use bag open) — battle_agent. **General.**
+- Status-move strategy when resisted (poison/sleep/leech, per-foe) — battle_agent. **General, E4-relevant.**
+- Strategic underlevel-grind (recognise underlevel → field WEAK members via save-safe party-reorder → exit on
+  team FLOOR) — campaign + pokemon_strategy, `POKEMON_STRATEGIC_GRIND=1`. Mechanics VERIFIED 5/5
+  (`recon_strategic_grind.py`); but its participation-XP switch is gated off (see #5), so it can't yet level
+  the weak team in real battles.
+- Grind-switch (lead weak → turn-1 switch to ace for participation XP) — battle_agent, `POKEMON_GRIND_SWITCH=0`
+  (gated off: wedges on long core until the party-menu nav gets the readback fix).
+
+### FORWARD ROUTE MAP (the survey ahead)
+- **Gym-3 approach (Nugget Bridge→Bill, NOW):** blocked at Gary/Charmander. Closest to clear — needs the
+  in-battle item-use read fix (#4). Then poison-chip + Potions should win. Then Mart-buy autonomy: **Cerulean
+  Mart is UNMAPPED** in `CITY_MART_DOORS` (only Pewter/Viridian) → `stock_up` never offered at Cerulean → she
+  can't buy Potions herself (she has 5936 money, 0 potions). **Map the Cerulean Mart door** so the barge is
+  fully autonomous (no injected potions).
+- **Gym 3 (Surge/Vermilion):** needs S.S. Anne → **HM01 Cut** (Cut actuation gated `POKEMON_FIELD_MOVES=0`,
+  unverified on long core). Destination-interaction layer handles the S.S. Anne handoff.
+- **Gym 4+ / Rock Tunnel:** needs **Flash**. Later gates staged in `FORWARD_CLIMB_STAGING.md`.
+- **CROSS-CUTTING keystone (blocks the whole game):** **in-battle MENU ACTUATION on the long-running core**
+  (bag use, party switch). The `_goto_bag` readback fix is the template; the PARTY menu + the items-pocket
+  read need the same. This recurs at every gym/E4 (item use + switching are E4-critical). Solve it generally.
+
+---
+
 ## 1. HOW IT FLOWS TOGETHER (architecture at decision time)
 
 The Pokémon harness is a **separate subprocess** (`pokemon_agent/play_live.py`) that drives the emulator.
@@ -48,6 +116,7 @@ consulted for items + (gated) switching. Move selection is the hands; her voice 
 | 3-tier goal-layers | ✓ | decision place-seam + voice (FIX 2) + dashboard | content ✓; live pending | BRAIN+DISPLAY |
 | Recalibration (`_active_objective`) | ✓ | roam ctx + health + dashboard | pending live (detour→resume) | BRAIN+DISPLAY |
 | Strategic-stuck floor + readiness→GO | ✓ | `_available_actions` prune + ctx | two-tier unit ✓; live pending | BRAIN |
+| Strategic underlevel-grind (field WEAK members) | ✓ | `_prep_team_target`→`grind_weak_members` (exec) + `_available_actions` reframe + ctx fold + dashboard rationale | mechanics headless ✓ 5/5 (`recon_strategic_grind.py`); **real-battle leveling + weak-lead survival need live eyes** | BRAIN |
 | World-model (`pokemon_world`) | ✓ | spatial brief + travel targets → oracle | persists-resume (claimed) | BRAIN |
 | Catch procedure (weaken+PP) | ✓ | `catch_pokemon` | **pending live** (no catch in watch) | BRAIN |
 | Resolved/looping-NPC guard (B-2) | ✓ | `_drain_overworld`→`_looped_spots`→talk gates | regression ✓; live trigger pending | BRAIN |
@@ -274,6 +343,43 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
      recognise wrong building -> exit to overworld, and it did **NOT** false-complete the questline on a
      non-Bill NPC (flag correctly stayed False). Other `via` kinds (board/use_hm) return a surfaced
      'no_interaction' (future layers). REACHES the executor/decision path; committed.
+   - **STRATEGIC UNDERLEVEL-GRIND BUILT + MECHANICS-VERIFIED 2026-06-28 (Task B — the autonomous way she
+     reaches gauntlet-readiness HERSELF; `recon_strategic_grind.py` 5/5). REACHES: BRAIN + DISPLAY.** The
+     smart middle between the old "ace farms grass, nothing else levels" (aimless) and "charge the wall,
+     lose, charge again" (stubborn). **ROOT DIAGNOSIS (recon, not symptom):** the recognition/surfacing
+     ALREADY existed — `_goal_layers` said "train the team toward ~L{foe}", `loss_awareness` said "you were
+     under-levelled" — but the EXECUTION fielded the WRONG mon: the `battle` action ran `grind(lead+2)`,
+     training slot-0 = the ACE (Ivysaur). Classic "shown-on-display, not-wired-to-the-action" half-wire.
+     **FIX (all mode-side `campaign.py` + `pokemon_strategy.py`, firewall intact, `POKEMON_STRATEGIC_GRIND=1`):**
+       (1) RECOGNISE — `strat.underlevel_target()` derives the readiness target from the LIVE foe she lost
+           to (`active_wall_rec()["lead_level"]` + `UNDERLEVEL_MARGIN`, default 1) — self-calibrating, no
+           hardcoded map/disasm KB (cross-check rule honoured: it's the foe level she actually observed).
+           `_prep_team_target(state)` fires only when there's a real active wall AND her team FLOOR (weakest
+           member) is below that target — distinguishing genuine UNDERLEVEL from a type/strategy loss (floor
+           already ≥ foe → None) and from a nav-bug-stuck (requires a recorded loss; the watchdog owns bugs).
+       (2) ACTIVATE/SURFACE — `_available_actions` reframes `battle` to "STRENGTHEN FIRST — train the WEAK
+           ones ({named}) to ~L{t} by leading with THEM, not your strongest"; the prep plan folds into her
+           decision/voice ctx (place seam → BRAIN) via `prep_team_note`; `_goal_layers` SHORT + `_rationale_line`
+           name the weak-grind on the dashboard (DISPLAY). Forward-drive STANDS DOWN (doesn't prune the grind)
+           while prepping — so the weak-grind survives at the wall (the smart middle), not the stubborn-charge.
+       (3) GRIND THE WEAK — `grind_weak_members(t)` fields each weakest under-target member as lead via
+           `_swap_party_slots` (a save-safe intact 100-byte struct move — exactly the in-menu "switch order";
+           XP goes to who's sent out), grinds it (existing heal-when-low = survival), repeats until the FLOOR
+           crosses, then `_restore_ace` puts the highest-level mon back in slot 0.
+       (4) EXIT — floor ≥ target → ace restored → existing readiness→GO / forward-drive resumes the march.
+     **VERIFIED headless 5/5:** C1 party-reorder round-trips byte-for-byte (+ swap-back) = save-safe; C2
+     recognition fires on real underlevel, returns None for a higher-level/strategy loss; C3 the loop fields
+     rattata→spearow (NEVER the ace), exits when the floor crosses, restores ivysaur to slot 0, species
+     follow their structs; C4 `battle` reframed to weak-grind + forward-drive stands down (grind survives at
+     the wall); C5 `POKEMON_STRATEGIC_GRIND=0` fully reverts to `grind(lead+2)`. **NOT yet live-verified
+     (same gate as Task A — needs a levelled save / live run):** real-battle XP gain (does fielding the weak
+     lead actually level it) + weak-lead SURVIVAL (an L8 lead can be one-shot by a wild before the
+     between-battle heal floor triggers; the proper fix = in-battle ace safety-switch, gated on the
+     unverified `POKEMON_BATTLE_SWITCH`). GENERAL — recurs at every gym/gauntlet/E4. NOT committed (awaiting
+     review). PROACTIVE FINDING: the live `kira_campaign.state` has MOVED to an interior map (7,3) with no
+     reachable grass (handoff said Route-4) — so `recon_forward_drive2.py` P3 now reads INSPECT (its
+     `"battle" in reverted` assertion can't hold with no grass); confirmed pre-existing (fails identically on
+     stashed pre-change code), likely Jonny re-banking mid-grind.
    - **THE ONE REMAINING GAP for full end-to-end Bill verification = a genuinely LEVELLED team.** Confirmed
      hard: her L24/L8/L10 team can't clear the Nugget-Bridge trainer gauntlet (travel blows its wall-clock
      budget fighting the (22,5) entrance trainer), and a RAM poke CANNOT fake strength — the level write
