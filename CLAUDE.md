@@ -144,6 +144,47 @@ unencountered content):
 This is pure Phase-B soul: roster-as-relationship, attachment from the story of the team — given the
 *understanding* a player has, then her own agency on top.
 
+## KIRA'S PLAYER-COMPETENCY CHECKLIST (the BEDROCK MAP — build proactively, just ahead of her feet)
+
+THE UNIFYING PRINCIPLE: every wall so far = "a real player does X automatically; Kira doesn't, because we
+never made it explicit." She's a BLANK SLATE — assume she knows NOTHING until wired. Enumerate every
+competency a player has + make it explicit (understanding + capability + drive, never hard-coded). Build
+Tier 1 before the gym-3 push; lay Tier 2/3 as the look-ahead reaches them. Status: ✅done /🔨partial /❌missing.
+
+**TIER 1 (needed by ~gym 3 — these cause the recurring walls):**
+1. **Game purpose / win-cond / team-of-6 / Pokédex / arc** — ✅ wired into `_spine_and_history` (f24d59d);
+   needs live-verify it shapes behaviour.
+3. **Team-building (catch + choose-with-judgment + field/level)** — ❌ the BEHAVIOUR is missing (catch
+   primitive exists; no drive/selection-judgment/fielding; she has 0 balls). Game-model nudge is a start.
+5. **FULL battle competence (a coherent brain, not patched reflexes)** — 🔨 have: type-chart move pick,
+   status strategy, matchup-heal, in-battle items (fixed), PP rotation, flee floor. MISSING: reliable
+   in-battle SWITCHING (gated — slot-select wedges), proactive "don't let the key mon faint", coherent
+   heal/attack/switch arbitration.
+6. **Resource / economy (money→buy potions/balls, inventory, stock up, MAP MARTS)** — 🔨 buy mechanic +
+   `_shopping_list` + `stock_up` exist; only Pewter/Viridian Marts mapped → **Cerulean Mart UNMAPPED**
+   (it's interior (7,1), door ~(30,11), but the overworld path to that door currently fails — a spatial gap).
+7. **Healing / survival loop** — ✅ heal-when-hurt, critical-heal dominates, heal-excursion, heal-and-retry.
+11. **Spatial / map literacy** — 🔨 world-model + travel + bend-discovery + warp reading; MISSING full
+    directional reasoning + cave entrance/exit literacy (the Mt-Moon wrong-ladder gap) + the Mart-door reach.
+12. **NPC / dialogue literacy** — 🔨 advances dialogue + talk_npc + destination-interaction; MISSING
+    EXTRACTING quests/hints/directions from dialogue CONTENT (she reads boxes but doesn't parse them for info).
+
+**TIER 2 (mid-game ~gyms 3-5):** 8 **Move/TM/HM mgmt** 🔨 (auto-learn + keep-strongest; no TM/HM strategy,
+"never overwrite a good move" is heuristic); 9 **Evolution** 🔨 (evolves + soul hook; no drive/knowing-decline);
+10 **Stuck-resolution/search** 🔨 (watchdog/ledger/blackout-recovery; GuideSearch 403'd; no NPC-hint re-read);
+15 **PC/Box system** ❌ (no party↔box mgmt, can't handle >6).
+
+**TIER 3 (refine for E4):** 14 **Danger/risk awareness** 🔨 (spatial-wall + blackout-recovery; no proactive
+"don't enter high-level areas underleveled" / retreat-when-outmatched); deep battle strategy (coverage/switching).
+
+**ALREADY SOLID:** 2 **Forward-navigation drive** ✅ (forward-drive/questline/bend-discovery/destination-
+interaction); 4 **Strategic grinding** 🔨 (recognition built; execution blocked on the switch — ace-overpower
+fallback works but slow); 13 **Progression-gate understanding** ✅ (general gate-unlock questline, verified).
+
+**TIER-1 BUILD ORDER (recurring-wall killers first):** #6 Cerulean Mart reach+map (unblocks balls→catching
+AND potions) → #3 team-building behaviour (catch-with-judgment + field/level) → #5 in-battle switch
+(slot-select fix — also unblocks #4 bench-grind) → #12 dialogue info-extraction. #1/#7 essentially done.
+
 The living reality map of what's actually wired vs ghost vs dead is `pokemon_agent/STATE_OF_PROJECT.md`
 (+ `CODEBASE_AUDIT.md`). Keep it honest and current.
 
