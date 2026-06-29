@@ -235,6 +235,31 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
      its own recon (is the north connection genuinely absent at (3,43), a sub-map, or a walk-to-edge issue?).
      Until built, a full Bill-COMPLETION watch wedges at Nugget Bridge; the forward-drive BEHAVIOR
      (east->Cerulean->questline opens->drives north, survives losses) is watch-ready.
+   - **RECON RESOLVED + BEND-FIX BUILT 2026-06-28 (`recon_route24.py`). The (3,43) no-edge was a BENDING
+     ROUTE, not a missing connection.** Live header recon (drove her onto Route 24 with a verification boost):
+     **(3,43) = Route 24 (Nugget Bridge), header `conns=[('S',(3,3)),('E',(3,44))]` — NO north exit; it
+     connects EAST to (3,44) = Route 25.** So the path BENDS: Cerulean -N-> Route 24 -E-> Route 25 -> Bill.
+     The KB step carries a single COARSE compass bearing ("Bill is north"), and the old executor only checked
+     that one dir against the current map's edges -> at the bend (Route 24, no north edge) it no-op'd and
+     stranded her. **FIX (general, `_run_questline_step`):** on no coarse-dir edge, EXPLORE the frontier —
+     cross into an UNVISITED connected map (excluding the reverse of the coarse dir) to learn the bending
+     route live. VERIFIED FIRING: she now logs `QUESTLINE EXPLORE: no north edge from (3,43) — crossing E
+     into unexplored (3,44)` and climbs the bridge eastward, instead of the old `talk_npc` wedge (strictly
+     better watchability). **STILL NOT a full chain — REMAINING (each its own increment, STOP-and-report):**
+       (a) **Nugget Bridge gauntlet traversal** — a long single-file trainer line; in the headless loop she
+           advances only a few tiles/tick, `need_heal` fires (her real L8/L10 teammates are underlevelled),
+           she heals and bounces, never crossing in one run. A RAM HP-boost does NOT brute-force it (the game
+           RECOMPUTES stats on battle entry, wiping the boosted HP) — so verifying the crossing needs a
+           genuinely levelled team (grind first) or a fresh boosted SAVE, not a live RAM poke. Also saw a
+           `no_path` to the east edge once — recon the bridge geometry/approach.
+       (b) **Bill's-house destination-interaction — NOT BUILT.** The executor only does map-edge/frontier
+           travel; the KB step is `via=talk_npc, npc=Bill, sets_flag=FLAG_GOT_SS_TICKET`. It still needs:
+           enter Bill's cottage WARP (compose `enter_warp`) + TALK to Bill (`talk_npc`) to trigger the flag.
+           Primitives exist (`enter_warp`/`talk_npc`); the executor's destination layer that composes them
+           (and identifies Bill's specific door, no map-number per the cross-check rule) is the build.
+       (c) Then verify FLAG_GOT_SS_TICKET sets + the Cerulean south gate self-clears (the questline already
+           self-clears on that flag — proven). **Bottom line: bend-fix DONE+verified; full Cerulean->Bill
+           traversal is NOT yet headless-verified — gated on (a) team strength + (b) the Bill interaction.**
    - **GROUND TRUTH RESOLVED 2026-06-28 (pret/pokefirered disasm + live RAM): the immediate gate is a
      STORY-GATE, not Cut. `kira_campaign.state` is NOT mis-positioned — it's a valid post-Misty/pre-Bill
      state.** `CeruleanCity_MapScripts → CeruleanCity_OnTransition` calls `CeruleanCity_EventScript_BlockExits`

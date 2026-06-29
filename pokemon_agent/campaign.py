@@ -2575,18 +2575,41 @@ class Campaign:
                 f"guide (Phase 4)/a hand; releasing to normal roam")
             return "questline_unresolved"
         cur_map = tuple(state["map"])
+        _L2W = {"N": "north", "S": "south", "E": "east", "W": "west"}
+        _OPP = {"N": "S", "S": "N", "E": "W", "W": "E"}
         d = step.dir or "north"
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
-        nbr = next(((g, n) for dd, (g, n) in self._map_connections() if dd == letter), None)
+        pc, pl = state.get("party_count"), (state["party"][0]["level"] if state.get("party") else None)
         log(f"   [roam] 🧭 QUESTLINE STEP: '{step.human}' — heading {d.upper()} toward "
             f"{step.place_name or 'the destination'} (success={step.success})")
+        conns = self._map_connections()
+        nbr = next(((g, n) for dd, (g, n) in conns if dd == letter), None)
         if nbr is None:
-            # no edge that way from here (she's off the breadcrumb, or the destination is a warp not an
-            # edge — e.g. into Bill's cottage). Defer to normal routing this tick; never a silent spin.
-            log(f"   [roam] questline: no {d} connection from {cur_map} — deferring to normal routing")
+            # The route BENDS: the step's single coarse dir (KB stores a COARSE compass bearing, e.g. "Bill
+            # is north") has no map-edge on THIS map. RECON-CONFIRMED case: Cerulean -N-> Route 24 (3,43),
+            # whose only exits are S (back) + E -> Route 25 -> Bill. The old code no-op'd here ("no N edge")
+            # and stranded her. Instead, EXPLORE the frontier — cross into an UNVISITED connected map
+            # (discovery), never back the way the coarse dir came from (exclude the opposite edge), so she
+            # learns the bending route LIVE (the world graph then carries it). This is the general
+            # "questline handles an unlearned/bending forward segment" capability, not a Route-24 one-off.
+            frontier = [(dd, nb) for dd, nb in conns
+                        if dd != _OPP.get(letter) and not self.world.visited(tuple(nb))]
+            if frontier:
+                dd, nb = frontier[0]
+                nb = tuple(nb)
+                dword = _L2W[dd]
+                if self.strat.is_gated(nb, pc, pl):
+                    log(f"   [roam] questline: frontier hop {nb} ({dword}) is wall-gated — surfacing")
+                    return "wall_gated"
+                log(f"   [roam] 🧭 QUESTLINE EXPLORE: no {d} edge from {cur_map} — the route bends; "
+                    f"crossing {dd} into unexplored {nb} toward {step.place_name or 'the destination'}")
+                return self.trav.travel(target_map=nb, edge=dword)
+            # No coarse-dir edge AND no unexplored frontier — the destination may be a WARP off THIS map
+            # (e.g. Bill's cottage door). Surface it; never a silent spin (warp-entry is the next layer).
+            log(f"   [roam] questline: no {d} edge and no unexplored frontier from {cur_map} — surfacing "
+                f"(destination may be a building/warp here)")
             return "questline_no_edge"
-        if self.strat.is_gated(nbr, state.get("party_count"),
-                               state["party"][0]["level"] if state.get("party") else None):
+        if self.strat.is_gated(nbr, pc, pl):
             log(f"   [roam] questline: {d} hop {nbr} is wall-gated — surfacing")
             return "wall_gated"
         return self.trav.travel(target_map=nbr, edge=d)
