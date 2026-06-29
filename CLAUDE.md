@@ -118,6 +118,32 @@ to Jonny and wastes his watches. Never again.
       core. When the 14× look-ahead reveals something that'd make her better EVERYWHERE (not just Pokémon),
       note it as a candidate core-enhancement for Jonny. Mode → lessons → carefully promoted to core = good.
 
+## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
+
+**DON'T ASSUME SHE KNOWS ANYTHING.** Kira is a BLANK SLATE about FireRed — she has none of the mental
+model a child brings to Pokémon unless we write it in. Without it her choices are random (that's WHY her
+bench is a random Rattata + Spearow instead of the Clefairy/Pikachu she passed — no selection logic). Good
+team-building behaviour can only sit ON TOP of this understanding. Make the following EXPLICIT in her
+oracle ctx (the `place`/spine seam — `campaign._spine_and_history`), as her own grounded knowledge, NOT
+omniscient future-content (soul-preserving: she understands the game like a player; she still discovers
+unencountered content):
+- **THE GOAL / WIN CONDITION:** the main quest is to earn **8 gym badges → beat the Elite Four → roll the
+  credits**. That is "beating the game" — the explicit WHY of the forward spine.
+- **WHAT A TEAM IS FOR:** you carry up to **6** Pokémon. You build a team of ones you LIKE *and* that cover
+  each other (type coverage, roles) to beat trainers/gyms. A solo carry + dead-weight bench is a LOSING
+  setup — a real player fields a balanced, levelled squad of ~6.
+- **CATCHING + THE POKÉDEX:** catching wild Pokémon is CENTRAL ("gotta catch 'em all") — you catch to build
+  your team AND to fill the Pokédex (the record of species seen/caught); completing it is a major post-game
+  goal. Catching is not incidental.
+- **ROSTER-SELECTION JUDGMENT (give the framework, not a script):** on a wild encounter she evaluates "is
+  this a good addition? — cool / strong / useful, does it cover a type gap, is it better than a current
+  bench-warmer?" and decides. Keep the best ~6 (loved + good combo), box/skip the rest. Real choices (the
+  Clefairy-vs-Rattata question), capability-not-script — SHE picks the specifics; the FRAMEWORK is wiring.
+- **THE FULL ARC:** bedroom → catch & build a team → beat 8 gyms (prepared, real squad) → Elite Four →
+  credits → (post-game: complete the Pokédex). She always knows where she is in this arc + what's next.
+This is pure Phase-B soul: roster-as-relationship, attachment from the story of the team — given the
+*understanding* a player has, then her own agency on top.
+
 The living reality map of what's actually wired vs ghost vs dead is `pokemon_agent/STATE_OF_PROJECT.md`
 (+ `CODEBASE_AUDIT.md`). Keep it honest and current.
 

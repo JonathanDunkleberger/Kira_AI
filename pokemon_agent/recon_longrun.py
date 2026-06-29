@@ -113,7 +113,7 @@ def main():
         # (heal when crit-low). Without it _maybe_use_item bails (self.choose is None) and she never
         # heals through a fight — the false "she can't barge" result. chooser is in scope via closure.
         out = BattleAgent(b, on_event=lambda *a, **k: None, render=lambda: None,
-                          log=blog, choose=chooser).run(max_seconds=40)
+                          log=blog, choose=chooser).run(max_seconds=180)
         base = ram.GPLAYER_PARTY
         sp = st.SPECIES_NAME.get(st.read_party_species(b, 0), "?").title()
         hp, lv = b.rd16(base + 0x56), b.rd8(base + 0x54)
@@ -173,9 +173,9 @@ def main():
     # of pruning to an ineffective grind), and the chooser prefers FORWARD. Diagnostic config of the
     # standing tool — proves/refutes the barge path before we build the Mart+strategy autonomy. ──────────
     BARGE = os.getenv("LONGRUN_BARGE", "0") == "1"
-    if BARGE:
-        npot = int(os.getenv("LONGRUN_POTIONS", "16"))
-        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+    npot = int(os.getenv("LONGRUN_POTIONS", "0"))
+    if npot > 0:                                          # inject potions (sim of a Mart stock-up) — works
+        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)                 # with OR without clearing the wall
         key = b.rd32(b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
         for s in range(42):
             slot = sb1 + 0x0310 + s * 4
@@ -184,7 +184,8 @@ def main():
                 b.core.memory.u16.raw_write(slot, 13)
                 b.core.memory.u16.raw_write(slot + 2, npot ^ key)
                 break
-        camp.strat.active_wall = None
+    if BARGE:                                             # forward-push test: clear the stale wall so the
+        camp.strat.active_wall = None                     # machinery offers the push instead of grind
         camp.strat.losses = {}
 
     visited = set()

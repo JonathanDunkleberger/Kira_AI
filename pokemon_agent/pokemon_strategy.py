@@ -55,6 +55,14 @@ READY_RETRY_LEVELS = int(os.getenv("POKEMON_READY_RETRY_LEVELS", "2"))
 # to + this margin (self-calibrating off the LIVE foe she actually fought — no hardcoded map KB). 1 =
 # "get the weak ones up to roughly the trainers' level". Tunable.
 UNDERLEVEL_MARGIN = int(os.getenv("POKEMON_UNDERLEVEL_MARGIN", "1"))
+# ACE-OVERPOWER margin: when the bench can't be safely levelled (the participation-XP switch is gated/
+# unverified), the reliable autonomous play vs a wall is to level the ACE (strong lead, solo-grinds fine)
+# until it OUTLEVELS the wall enough to bulldoze it — bigger bulk to tank a super-effective hit + faster
+# KOs so a long healing fight can't time out. Target = the wall foe's level + this margin (~one evolution's
+# worth of levels above where she LOST). Keyed off her ace's level when it lost (not the foe's lead —
+# her ace often already out-levels the foe's lead; the loss is matchup/bulk, and a few more levels of bulk
+# let the ace tank the super-effective hit and finish the fight).
+OVERPOWER_MARGIN = int(os.getenv("POKEMON_OVERPOWER_MARGIN", "5"))
 
 
 def _species_at(b, base):
@@ -436,6 +444,21 @@ class StrategicMemory:
         if not fl:
             return None
         return int(fl) + UNDERLEVEL_MARGIN
+
+    def overpower_target(self):
+        """The level her ACE should reach to bulldoze the active wall when the bench can't be levelled
+        (switch gated): her ACE's level WHEN IT LOST + OVERPOWER_MARGIN (a few levels of bulk above where
+        the wall beat her). Falls back to the foe's lead level + a wider margin if her-level is unknown.
+        None if there's no active wall. Self-calibrating: if she grinds up and STILL loses, my_level
+        refreshes to the higher loss level, so the next target ratchets up until she wins."""
+        r = self.active_wall_rec()
+        if not r:
+            return None
+        my = r.get("my_level")
+        if my:
+            return int(my) + OVERPOWER_MARGIN
+        fl = r.get("lead_level")
+        return (int(fl) + OVERPOWER_MARGIN + 6) if fl else None
 
     def prep_team_note(self, weak_names, target):
         """The strategic rationale she voices while prepping: name the under-levelled members and the

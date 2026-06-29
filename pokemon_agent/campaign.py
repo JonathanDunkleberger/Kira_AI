@@ -2351,19 +2351,29 @@ class Campaign:
             self._swap_party_slots(0, ace)
 
     def _prep_team_target(self, state):
-        """The readiness target IF she should be prepping an under-levelled team for the active wall,
-        else None. Fires only when STRATEGIC_GRIND is on, there's a real active wall with a known foe
-        level (so it's a recognised level problem, not a nav-bug-stuck or a pure type/strategy loss),
-        AND her team FLOOR (weakest member) is below that level. Single source of truth — the action
-        executor, the action-set framing, and the dashboard rationale all read THIS."""
+        """The readiness target IF she should be prepping for the active wall, else None. Single source of
+        truth (action executor + framing + dashboard rationale read THIS). Two modes:
+          • SWITCH ARMED (`POKEMON_GRIND_SWITCH=1`): bench-leveling works via participation XP, so the
+            target is the FLOOR (weakest member) vs the foe — field the weak ones to readiness.
+          • SWITCH GATED (default): the bench can't be safely levelled (the in-battle switch wedges), so
+            the reliable play is ACE-OVERPOWER — level the ACE (strong lead) until it OUTLEVELS the wall;
+            target = foe + OVERPOWER_MARGIN, fire while the ACE is below it.
+        Fires only with STRATEGIC_GRIND on + a real active wall with a known foe level (a recognised level
+        problem, not a nav-bug or pure type loss)."""
         if not STRATEGIC_GRIND_ENABLED:
             return None
         try:
-            t = self.strat.underlevel_target()
-            if not t:
-                return None
             party = state.get("party") or []
             if not party:
+                return None
+            if not battle_agent.GRIND_SWITCH_ENABLED:
+                t = self.strat.overpower_target()           # ACE-OVERPOWER (switch gated)
+                if not t:
+                    return None
+                ace = max(m["level"] for m in party)
+                return t if ace < t else None
+            t = self.strat.underlevel_target()              # FIELD-WEAK (switch armed)
+            if not t:
                 return None
             floor = min(m["level"] for m in party)
             return t if floor < t else None
@@ -2382,6 +2392,16 @@ class Campaign:
         wall-clock budget so a tick can't run away. Returns 'ready' (floor crossed) | 'battle_loss' |
         'ok' (budget/grass-out — partial progress, the next tick re-enters). Restores the ace on EVERY
         exit path (a faint/loss must not strand the weak mon as lead)."""
+        # ── ACE-OVERPOWER (switch gated — the reliable path): the participation-XP switch wedges on the
+        # long core, so fielding the weak bench just gets them one-shot (no XP). Instead level the ACE
+        # (strong lead, solo-grinds reliably) to `target` (= foe + OVERPOWER_MARGIN) so it bulldozes the
+        # wall — bigger bulk to tank the super-effective hit + faster KOs (no fight-length time-out). The
+        # ace already leads in normal play; ensure it, then grind IT. grind() loops to target + heals. ──
+        if not battle_agent.GRIND_SWITCH_ENABLED:
+            self._restore_ace()                              # ace in slot 0
+            log(f"   GRIND-OVERPOWER: bench-leveling needs the (gated) in-battle switch — instead leveling "
+                f"the ACE to L{target} to overpower the wall; levels now {self._party_levels()}")
+            return self.grind(target)
         log(f"   GRIND-WEAK: team floor under L{target} — fielding the weak ones (not the ace) to raise "
             f"the team's floor; levels now {self._party_levels()}")
         t0 = time.time()
@@ -3262,13 +3282,20 @@ class Campaign:
             # team" but the action trained the ace. Fires on the FIRST loss already (foe level is known).
             prep_t = self._prep_team_target(state)
             if prep_t is not None:
-                weak = self._prep_team_weak(state, prep_t)
-                who = (weak[0] if len(weak) == 1
-                       else (", ".join(weak[:-1]) + " and " + weak[-1])) if weak else "your weakest"
-                a["battle"] = (f"STRENGTHEN FIRST — your team's under-levelled for that wall. Train the "
-                               f"WEAK ones ({who}) up to about L{prep_t} by leading with THEM in the grass "
-                               f"(not your strongest) — that's how the whole team gets strong enough to "
-                               f"cross. THEN go back and push through.")
+                if not battle_agent.GRIND_SWITCH_ENABLED:
+                    # ACE-OVERPOWER framing — level the strong lead to bulldoze the wall.
+                    a["battle"] = (f"STRENGTHEN FIRST — you keep losing that wall under-levelled. Grind your "
+                                   f"strongest up to about L{prep_t} in the grass so you can bulldoze "
+                                   f"through it — a clear level lead wins where an even fight didn't. THEN go "
+                                   f"back and push through.")
+                else:
+                    weak = self._prep_team_weak(state, prep_t)
+                    who = (weak[0] if len(weak) == 1
+                           else (", ".join(weak[:-1]) + " and " + weak[-1])) if weak else "your weakest"
+                    a["battle"] = (f"STRENGTHEN FIRST — your team's under-levelled for that wall. Train the "
+                                   f"WEAK ones ({who}) up to about L{prep_t} by leading with THEM in the grass "
+                                   f"(not your strongest) — that's how the whole team gets strong enough to "
+                                   f"cross. THEN go back and push through.")
         else:
             prep_t = None
         # SHOP WITH INTENT (PART C) + BATCH-6 PHASE-2 FORESIGHT: offer "stock up" when it DOES something —
@@ -3350,6 +3377,12 @@ class Campaign:
                 _pl2 = state["party"][0]["level"] if state.get("party") else None
                 wr = self.strat.ready_to_retry(_pc2, _pl2)
                 ng2 = state.get("next_gym")
+                # ACE-OVERPOWER guard: ready_to_retry releases on a small (+2) level gain, but the
+                # overpower plan wants a CLEAR (+9) lead before pushing — so don't release her early while
+                # the ace is still grinding toward the overpower target (prep_t still set). Without this she
+                # pushes at +2, loses again, and loops.
+                if prep_t is not None and not battle_agent.GRIND_SWITCH_ENABLED:
+                    wr = None
                 if wr and "head_to_gym" in a and ng2:
                     try:
                         badge = self._BADGE_NAMES[state.get("badge_count", 0)]
@@ -4754,8 +4787,27 @@ class Campaign:
         actual forward routing is live-RAM via head_to_gym (and learned as she walks it)."""
         bc = state.get("badge_count", 0)
         ng = state.get("next_gym")
-        spine = ("THE MAIN QUEST IS A FIXED PATH you're always on: beat the 8 Gym Leaders in order, then "
-                 "the Elite Four, then you win the game. ")
+        # ── FOUNDATIONAL GAME-MODEL (she's a blank slate — make the game's POINT explicit so her choices
+        # aren't random; see CLAUDE.md "Kira's foundational FireRed game-model"). Her grounded player-
+        # understanding, NOT omniscient future content. ──────────────────────────────────────────────
+        model = ("HOW POKÉMON WORKS (what you're playing for): the GOAL is to earn 8 Gym Badges, beat the "
+                 "Elite Four, and roll the credits — that's beating the game. You build a TEAM of up to 6 "
+                 "Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight "
+                 "bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild "
+                 "Pokémon is central ('gotta catch 'em all') — you catch to build that team and to fill the "
+                 "Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a "
+                 "gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually "
+                 "like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ")
+        # team-health nudge keyed on her ACTUAL party (capability-not-script: she decides what to do).
+        party = state.get("party") or []
+        if party:
+            lvls = sorted(m["level"] for m in party)
+            if len(party) < 3 or (len(party) >= 2 and lvls[0] <= max(6, lvls[-1] - 12)):
+                model += ("RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — "
+                          "that's why tough trainers wall you. Building up a real squad (catch a good new "
+                          "teammate, level the weak ones) is how a prepared trainer gets past these. ")
+        spine = model + ("THE MAIN QUEST IS A FIXED PATH you're always on: beat the 8 Gym Leaders in order, "
+                         "then the Elite Four, then you win the game. ")
         if ng:
             spine += (f"You're on GYM {bc + 1} of 8 — next is {ng['leader']} in {ng['city']}. The road "
                       f"forward leads there: until you've won you are ALWAYS making progress toward the "
