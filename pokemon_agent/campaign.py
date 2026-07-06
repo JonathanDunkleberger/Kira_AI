@@ -2064,6 +2064,18 @@ class Campaign:
             self.b.run_frame()
         gym_map = tv.map_id(self.b)                             # the gym interior we just entered
         log(f"   GYM: inside {gym_map} at {tv.coords(self.b)} - clearing junior trainers")
+        # 0) ENVIRONMENT PUZZLE (general seam; instance #1 = Vermilion's trash cans, 2026-07-06):
+        # some gyms gate the leader behind a puzzle, not just juniors. Solve it HONESTLY (narrated
+        # hunt; RAM verify-only) before the trainer sweep — beams block the leader approach anyway.
+        if name == "Lt. Surge":
+            import env_puzzle
+            from field_moves import read_flag as _rf
+            if not _rf(self.b, env_puzzle.FLAG_BOTH_SWITCHES):
+                pz = env_puzzle.TrashCanPuzzle(self, log=log)
+                pr = pz.run()
+                log(f"   GYM: trash-can puzzle -> {pr}")
+                if pr == "stuck":
+                    return "stuck"
         # 1) BEAT THE JUNIOR TRAINERS FIRST (the leader is gated until they're all down)
         self._clear_gym_trainers(gym.leader_front)
         # BLACKOUT during the juniors -> she whited out + respawned in the city PC (the map left the
