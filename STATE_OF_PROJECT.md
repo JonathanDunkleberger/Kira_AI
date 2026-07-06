@@ -53,7 +53,27 @@ fixture `states/workshop/canon_battle.state` (real 3-mon battle) for future in-b
 
 **Everything ELSE works (verified tonight or previously):** move-list actuation keystone (a4ca84f), shop /
 Cerulean Mart, heal-to-reachable-Center, forward-drive, questline (recognize→derive→execute→bend-discover→
-destination-interact), Nugget-Bridge nav. The rope is SOLID to Gary; Gary is the wall.
+destination-interact), Nugget-Bridge nav, in-battle SWITCH (2026-07-05). The rope is SOLID to Gary.
+
+**TWO WALLS FLAGGED TONIGHT (multi-cycle nav bugs — routed around per the anti-loop tripwire, NOT looped on):**
+1. **GRIND-STRANDING heal-wedge (blocks team-building / `GRIND_SWITCH`).** When the weak-grind fields a
+   fragile mon, it can route into the **far-east Route-4 below-ledge grass pocket (≈84,15)**; a faint/loss
+   there strands her — `heal_nearest` finds the local Center (12,5) unreachable AND the east edge to Cerulean
+   unreachable (`_heal_excursion` can't path out of the pocket) → `heal → stuck` spin → real stall (~63s; the
+   escape-hatch does NOT recover it). This is why `GRIND_SWITCH` is re-gated OFF. **FIX (next):** grind() must
+   only pace grass from which a Center is reachable (pre-check Center-reachability per waypoint / never cross a
+   one-way ledge into a pocket), OR heal-stuck-in-a-pocket must force a blackout/escape-hatch that actually
+   recovers. Then re-arm `GRIND_SWITCH` → participation-grind levels the bench (verified switch mechanism).
+2. **BILL-LOOP (blocks Vermilion).** After she WINS Gary (~1-in-5) she correctly advances to Route 24 (3,43)
+   and the questline bend-discovery crosses E toward Route 25/Bill — but `head_to_gym` **times out per tick**,
+   crawling only a few tiles up the Nugget Bridge (y 39→31→28) while fighting; and every Gary LOSS (80%)
+   triggers blackout→re-grind, eating the run budget (896 battles / 9 decisions / 24 min, ticket never
+   obtained). ROOT = Gary's unreliability is the budget-sink; a reliable Gary (needs wall #1's bench-leveling)
+   mostly dissolves it. Secondary: the per-tick head_to_gym travel budget is too small to complete the Route-24
+   crossing in one tick — give the questline crossing a bigger/again-until-map-flips budget.
+
+**Net: the SWITCH is the banked win tonight; both paths PAST Gary are gated on wall #1 (bench-leveling), which
+is gated on the grind-stranding fix. That fix is the single highest-leverage next piton.**
 
 **Standing harness:** `recon_longrun.py <save> <minutes>` — RUN IN BACKGROUND (foreground caps at 10min).
 `POKEMON_SLEEP_LOCK=1 LONGRUN_BATTLE_LOG=1`. Redirect to a file; grep only `^\[ *[0-9.]+s\] # ` decision
