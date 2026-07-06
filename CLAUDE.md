@@ -207,6 +207,19 @@ to Jonny and wastes his watches. Never again.
       now and you'll see [one sentence of what's ahead of her].`
     - **A freeze-spin-capable player is UNFINISHED on both timelines** — the stuck-spin circuit-breaker is
       non-negotiable, not a watch-night prop. Bank per stretch (each bank = a new watch-point Jonny may drop into).
+    - **PERSISTENT-WORLD PROTOCOL (operational law):** BOTH timelines are persistent SAVE FILES on disk — never
+      ethereal fragments, never scattered test-states, never "which save is real?" ambiguity. **Sherpa world =
+      ONE continuous playthrough:** there is exactly ONE canonical Sherpa state at all times; headless-farming
+      at 14.3x ADVANCES that world (grind her bench in a cave → she IS in that cave now — that's just where the
+      playthrough is); all real progress banks back to canonical; staging copies are for risky WIP only, clearly
+      named + disposable; canonical is never left wedged/forked and always carries the full sanctity bundle.
+      **THE POP-IN (seat-swap, ~30s, zero ceremony):** when Jonny wants to look — (1) finish the current tick,
+      bank live→canonical, stop the headless run; (2) hand him the seat: `play_live --resume --free-roam` at
+      human pace (music+voice+dashboard) from EXACTLY where she is; (3) he watches/plays as long as he wants;
+      (4) whatever state he leaves IS the new canonical — bank it, resume climbing from there. His session is
+      part of the same playthrough, not a detour. Pop-in/out commands live permanently atop STATE §0.
+    - **WATCH STATUS line (every survey):** `WATCH STATUS: canonical bank is [clean/wedged-being-fixed]; she is
+      currently at [location, doing what]; pop-in = [the command].`
 
 ## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
 

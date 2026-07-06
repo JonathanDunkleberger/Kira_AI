@@ -19,11 +19,16 @@ The Sherpa save IS Jonny's own playthrough; he can watch it live whenever, no ri
 python pokemon_agent/play_live.py --resume --free-roam        # resume the LIVING campaign save, she decides
 ```
 (The launcher pins `--phones=Leviathan` for the VTS mouth-flap firewall; live = windowed + music, NOT --headless.)
-**If she wedges mid-watch (recovery):** re-launch the same command — `--resume` reboots from the last banked
-campaign checkpoint; the escape-hatch/deep-wedge ring self-recovers on RED ticks. **WATCH-READY NOW:** the
-canonical `kira_campaign.state` is clean (healthy party, not wedged); on GO she shops → grinds Ivysaur →
-forward-drives to the Nugget-Bridge Gary. **NEVER bank a wedged/hurt state forward** — do WIP on a staging
-copy; only bank clean forward states (the full sanctity bundle: .state + journey_core + strat + world + soul).
+**POP-IN (Jonny taps the glass, ~30s):** if a headless climb is running, it finishes the tick + banks
+live→canonical + stops; then `python pokemon_agent/play_live.py --resume --free-roam` hands him the seat from
+EXACTLY where she is. Whatever state he leaves when he steps away IS the new canonical (bank it, resume from
+there — his session is part of the same one playthrough, not a detour). **RECOVERY if she wedges mid-watch:**
+re-launch the same command — `--resume` reboots from the last banked checkpoint; the escape-hatch/deep-wedge
+ring + the new heal-strand breaker self-recover. **PERSISTENCE LAW:** exactly ONE canonical Sherpa state
+always; headless farming ADVANCES that one world; **NEVER bank a wedged/hurt state forward** — WIP on clearly-
+named disposable staging copies, only bank clean forward states (full sanctity bundle: .state + journey_core
++ strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
+wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
 **Rope ends at: post-Misty Cerulean, at the Nugget-Bridge GARY wall.** Canonical save
 `pokemon_agent/states/campaign/kira_campaign.state` = inside Cerulean Center (map (7,3)@(7,4)), party
