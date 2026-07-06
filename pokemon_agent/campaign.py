@@ -345,6 +345,9 @@ MART_STOCK = {
     # row0 Poke Ball(4,200) · row1 Super Potion(22,700) · row2 Potion(13,300) · row3 Antidote(14,100) ·
     # row4 Repel(350, not bought so id unregistered — buy-verify guards anything not listed).
     CERULEAN: [4, 22, 13, 14],
+    # Vermilion rows per Bulbapedia (PokeBall, SuperPotion, IceHeal, Awakening, ParlyzHeal, Repel) —
+    # control-verified by a live bag-delta buy 2026-07-06; a wrong row aborts LOUD, never mis-buys.
+    VERMILION: [4, 22, 16, 17, 18, 86],
 }
 MART_CURSOR = 0x02039940   # u8 highlighted-row index in the BUY list (CONTROL-found 2026-06-27 recon_mart)
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
