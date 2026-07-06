@@ -65,7 +65,11 @@ UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
 # menu-nav lesson. So it's GATED OFF by default until a live control passes (arm POKEMON_BATTLE_SWITCH=1
 # with Jonny watching). FAIL-SAFE regardless: if a switch doesn't confirm, she backs out and fights —
 # never wedges. When off, she still AVOIDS ineffective moves (that path is on + verified).
-BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
+# ARMED 2026-07-05: the in-battle switch is now VERIFIED (recon_switch3.py + direct _switch_to_slot test on
+# the canon 3-mon fixture — SWITCHED ivysaur->spearow). The wedge was a WRONG-ADDRESS derivation (the old
+# PARTY_CURSOR=0x2020777 was a shadow byte); the real nav is BLIND DOWN*(slot+1) like the working
+# _force_switch (live cursor is a heap struct). Fail-safe B-out on any miss = never wedges, so default-on is safe.
+BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # PARTICIPATION-XP GRIND SWITCH (Task B fix — the autonomous underlevel cure). When grinding the weak
 # team, the weak mon leads (so it's "sent out" and eligible for XP) but is ONE-SHOT before it can earn
 # any — so it gains nothing while the ace mops up and takes the XP (the live look-ahead proved this).
@@ -78,7 +82,7 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
 # A wedged grind battle returns 'stuck' and blacks her out. Kept (code-complete) for when the in-battle
 # switch actuation is made reliable (it's the real weak-mon-leveling cure for the E4); until then OFF, and
 # the underlevel grind leans on other paths. Arm with POKEMON_GRIND_SWITCH=1 once switch nav is verified.
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") != "0"
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"   # ARMED 2026-07-05 (switch verified)
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter) is correct STRATEGY but it makes fights LONG,
 # and a long fight exposes the in-battle MOVE-LIST actuation wedge on the long-running core (the look-ahead
@@ -1175,37 +1179,32 @@ class BattleAgent:
         return best
 
     def _switch_to_slot(self, slot, before_sp):
-        """Switch the active mon to a SPECIFIC party slot via the proven nav (action-cursor->POKEMON ->
-        open list -> DOWN*slot -> A select -> A SEND OUT), confirming the active SPECIES actually changed.
+        """Switch the active mon to a SPECIFIC party slot, confirming the active SPECIES actually changed.
         FAIL-SAFE: if it doesn't confirm, B back to the action menu and return False (caller fights —
-        never wedges). Returns 'switched' or False. Shared by the matchup switch + the grind switch."""
-        # SETTLE FIRST (the fix the live look-ahead found): _goto_pokemon reads GBATTLE_ACTION_CURSOR,
-        # which is garbage in a transitional frame -> it bailed 'cursor not on POKEMON'. use_item_in_battle
-        # already settles before _goto_bag (same cursor) and works; do the same here.
+        never wedges). Returns 'switched' or False. Shared by the matchup switch + the grind switch.
+
+        NAV = BLIND DOWN, the same mechanism the WORKING _force_switch uses (the live party-menu cursor
+        lives in a heap-allocated sPartyMenuInternal struct, so a fixed-address readback is unreliable —
+        the old PARTY_CURSOR=0x2020777 was a SHADOW byte that never moved the real selection). Empirically
+        DERIVED + VERIFIED (recon_switch3.py, canon 3-mon fixture): DOWN*(slot+1) lands on `slot`
+        (DOWN*2 -> slot1, DOWN*3 -> slot2); the first DOWN doesn't leave the active mon. A = select ->
+        "Do what with X?" (cursor defaults to SHIFT), A = SHIFT -> the swap; then PURE-A advance the
+        "Come back X! / Go Y!" text until the active SPECIES flips (the ground-truth success signal)."""
         if not self._settle_action_menu():
             self.log("   [engine] switch: couldn't reach a clean action menu")
             return False
         if not self._goto_pokemon():
             self.log("   [engine] switch: _goto_pokemon failed (cursor not on POKEMON)")
             return False
-        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)  # open party list
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+        self._wait(30)                                            # open party list + SETTLE (no eaten 1st DOWN)
         self.log(f"   [engine] switch: opened party? white_box={self._white_box()} (want False=party screen) "
-                 f"target slot {slot}, before_sp {before_sp}, cursor={self.b.rd8(PARTY_CURSOR)}")
-        # READBACK nav to the slot, A = select (-> "Do what with X?" with the cursor on SHIFT), A = SHIFT
-        # (starts the swap: "Come back X! / Go Y!"). Then ADVANCE the swap text until the active SPECIES
-        # actually flips — the old code read too early (mid-text) and saw no change, so it never confirmed.
-        # NAV is readback-VERIFIED (cursor reaches `slot`). The SELECT->SHIFT->swap CONFIRM flow is WIP:
-        # the sub-menu reuses PARTY_CURSOR (reads 2 after select) and an eaten select-A + a stray d-pad can
-        # re-land on the active mon ("X is already in battle"). For now: select with A, then PURE-A advance
-        # (never B — B cancels the sub-menu) until the active SPECIES flips. Gated (GRIND/BATTLE_SWITCH off),
-        # so an un-confirmed switch just falls through to fighting (fail-safe). TODO: derive the sub-menu
-        # cursor / detect "swap text up" to make SHIFT confirm deterministic (see recon_partycursor_derive).
-        if not self._goto_party_slot(slot):
-            self.log(f"   [engine] switch: party cursor didn't reach slot {slot} -> fight (fail-safe)")
-            for _ in range(3):
-                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            return False
-        for _adv in range(18):
+                 f"target slot {slot}, before_sp {before_sp}")
+        for _ in range(slot + 1):                                 # DOWN*(slot+1) -> reach `slot` (derived)
+            self._tap("DOWN"); self._wait(10)
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(18)  # select -> sub-menu
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(18)  # confirm SHIFT
+        for _adv in range(16):                                    # advance swap text until the SPECIES flips
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") != before_sp:
                 self.log(f"   [engine] switch: SWITCHED to species {cur['ours'].get('species')} (slot {slot})")
