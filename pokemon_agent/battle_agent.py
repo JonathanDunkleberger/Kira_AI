@@ -833,6 +833,23 @@ class BattleAgent:
             return False
         return min(p[160, 150]) < 100
 
+    # The PARTY SCREEN ("Choose a POKéMON") replaces the whole battle UI with a teal striped
+    # background. Sample points sit in the LEFT column BELOW the active-mon box — background
+    # at ANY party size (the 5 reserve slots stack in the RIGHT column). Ground truth
+    # (fight_10.png, the layer-7 gauntlet diagnosis): stripes are (71,168,161)/(60,145,144) —
+    # G≈B both >120, R<100; battle/overworld/gym/cave frames score 0/4 (Route-3 grass
+    # (115,206,165) fails R<100; Brock's floor (24,165,107) fails B>120). 3-of-4 = screen up.
+    _PARTY_PTS = ((30, 110), (60, 115), (20, 90), (70, 108))
+
+    def _party_screen(self):
+        p = self.b.frame_rgb().load()
+        hits = 0
+        for x, y in self._PARTY_PTS:
+            r, g, bl = p[x, y][:3]
+            if r < 100 and g > 120 and bl > 120 and abs(g - bl) < 40:
+                hits += 1
+        return hits >= 3
+
     def _home_to_fight(self):
         """Park the action cursor on FIGHT (top-left) WITHOUT reading the stale cursor latch:
         UP then LEFT are absorbed at the top/left boundary, so from ANY of the 4 cells they net
@@ -1441,6 +1458,35 @@ class BattleAgent:
                             self._prev = st.read_battle(self.b)
                             self.emit("that one's down - sending out my next Pokemon", beat=True)
                             break
+                    # LAYER 7 (the gauntlet's terminal wedge, frame-diagnosed 2026-07-06): the
+                    # "Choose a POKéMON" PARTY SCREEN inside this drain. force_b's A/B pair
+                    # OSCILLATES on it forever (A selects a mon -> "Do what with X?", B cancels
+                    # back — 240s verified repro, fight_01-81 all the same frame). Handle it
+                    # deliberately: our active mon down = the screen is MANDATORY (send-next ->
+                    # the proven _force_switch); otherwise it's the VOLUNTARY shift-prompt screen
+                    # (it has a CANCEL) -> ONE clean B backs out ("No"), the trainer sends its
+                    # next mon and the fresh-enemy detect above resumes the fight. Each loop
+                    # iteration re-checks, so a B that only closed the sub-menu just B's again.
+                    if self._party_screen():
+                        if cur and cur["ours"]["hp"] == 0 and self._healthy_reserve_slot() is not None:
+                            self.log("   [engine] party screen in drain: our mon is DOWN -> forced switch")
+                            if self._force_switch():
+                                self._we_fainted = False
+                                self._prev = st.read_battle(self.b)
+                                self.emit("that one's down - sending out my next Pokemon", beat=True)
+                                break
+                        else:
+                            self.log("   [engine] party screen in drain: voluntary (shift prompt) -> single B out")
+                            self._wait(10)
+                            self.b.press("B", 2, 12, self.render, owner=self.owner)
+                            self._wait(20)
+                            if not self._party_screen():
+                                # screen cleared -> the game may RE-SHOW "Will you switch POKéMON?";
+                                # answer with a bare B (= No). Never A here: A re-picks Yes and the
+                                # whole cycle restarts one level up. A stray B is a harmless advance.
+                                self.b.press("B", 2, 12, self.render, owner=self.owner)
+                                self._wait(20)
+                        continue
                     self._advance_text(force_b=True)      # faint -> EXP -> level-up -> defeat -> exit
                 continue
             self._settle()                            # advance to a wait-point (narrates diffs)
