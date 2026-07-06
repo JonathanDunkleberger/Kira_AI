@@ -134,11 +134,32 @@ SPECIES_NAME table** (she called her own Meowth "species#52" — voice lie; bond
 names); **two-story-house exit rewrite** (taken-set warp-walk — enter_warp(prefer='south') warped
 1F↔2F forever in the Vermilion stair house (1,5)/(1,10); this trapped runs 12-13 post-arrival).
 **SHE PHYSICALLY ENTERED VERMILION (3,5) in run 12** (walked into a house before the goal check
-sampled — the two-story trap ate the run). KNOWN RESIDUE: a post-item-use 3-unresolved-stuck battle
-signature (the fight still progresses across re-entries — chips 54→31→7 — but burns ~60s/tick;
-pitfall-13's cousin, suspect stale menu byte after in-battle item use; diagnose next). Run 14 in
-flight at handoff — check `logs/longrun/nursery_run14.log`; if OUTCOME=GOAL, sanctity-gate + promote
-`G:\temp\longrun\banked_GOAL` (the proven promotion script pattern is in the session-1 block).
+sampled — the two-story trap ate the run).
+
+**LATE SESSION-2 (runs 15-17 + the frame-diagnosis; commit abff453) — the gauntlet spiral peeled to
+its LAST layer:** three more battle classes fixed + verified firing live: (a) the movelist open check
+is now the RESPONSE PROBE alone (the MENU_MODE byte can be stale LOW post-item-use just as it was
+stale HIGH — the caller's wrong-submenu B was CLOSING a genuinely-open list, A/B ×12 → stuck);
+(b) **RE-ENTRY CORPSE GUARD** — a re-entered battle whose foe already reads 0 HP arms `_enemy_fainted`
+at run start (a fresh agent never sees the 1→0 transition, so it move-picked into the switch prompt
+forever — weedle 0/38 ×51); (c) the offensive-resist switch trigger is now MOVE-based, not type-based
+(Ivysaur's poison TYPING scored 0.5 vs Weedle and hid her all-grass 0.25× moveset — the switch never
+fired; now Spearow leads the gauntlet with Peck 2×, verified run 17).
+**THE TERMINAL WEDGE, FRAME-DIAGNOSED (`recon_gauntlet_fight.py` + `scratchpad/fight_10.png`): the
+post-faint drain oscillates A/B on the "Choose a POKéMON" PARTY SCREEN** (A selects a mon, B cancels,
+A reopens — 240s verified repro). NEXT SESSION'S FIRST FIX: in the post-faint drain (battle_agent
+~line 1398 block), DETECT the party screen (the `white_box=False` party-screen check `_switch_to_slot`
+already uses) and handle it deliberately — our-mon-fainted ⇒ `_force_switch()`; otherwise a single
+deliberate B + settle (it has a CANCEL, it's voluntary). That one handler ends the gauntlet spiral;
+everything upstream of it is now proven.
+**🚨 SOUL BUG (frame discovery): HER ACE'S NICKNAME IS "AAAAAAAAAA"** — a naming-keyboard A-mash from
+some past prompt (suspect the evolution naming beat opening the keyboard headless). Two actions:
+(1) guard every naming prompt against opening the keyboard when the oracle returns None (decline with
+B — the catch flow already does this; the evolve/other flows may not); (2) the nickname itself is
+burned into the save — no rename primitive exists (a Name Rater lives in Lavender — a future
+in-character fix: "I'm getting this poor thing's name fixed"). Flag for Jonny: her Ivysaur has been
+named AAAAAAAAAA since some earlier session; the journey narrative should not voice it until fixed.
+Run artifacts: `logs/longrun/nursery_run15-17.log`; the stage state sits mid-gauntlet at (3,24)@(8,16).
 
 **Old context below (pre-strike): rope previously ended at 🎫 S.S. TICKET OBTAINED (2026-07-05 strike,
 run-8 `logs/longrun/ticket_run8.log`).**
