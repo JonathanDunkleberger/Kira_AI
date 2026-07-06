@@ -703,9 +703,10 @@ class BattleAgent:
 
     def _exit_bag(self):
         """Best-effort B back to a clean menu/battle so a FAILED item-use never leaves a menu dangling
-        for the battle loop to A into (which could fire a stray move). Bounded."""
-        for _ in range(6):
-            if self._white_box() or not st.in_battle(self.b):
+        for the battle loop to A into (which could fire a stray move). Bounded. The white_box exit is
+        gated on the bag being GONE — the bag's USE/CANCEL box lights the same pixels (layer 8)."""
+        for _ in range(10):
+            if not st.in_battle(self.b) or (self._white_box() and not self._bag_screen()):
                 return
             self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(10)
 
@@ -749,8 +750,12 @@ class BattleAgent:
         if self._items_count(item_id) < cnt0:
             self.log(f"   [engine] use_item: USED item {item_id} (count {cnt0}->{self._items_count(item_id)})")
             self.emit("used an item — that's better", beat=True)
+            # LAYER 8 FIX: close the BAG first — the old drain exited on _white_box(), but the bag's
+            # USE/CANCEL sub-box LIGHTS those pixels, so 'used' could return with the bag still open
+            # and the next turn's presses landed in it forever (caterpie 7/40, walk 3).
+            self._close_bag_screen()
             for _ in range(6):                               # drain the "X recovered!" text back to battle
-                if self._white_box() or not st.in_battle(self.b):
+                if not st.in_battle(self.b) or (self._white_box() and not self._bag_screen()):
                     break
                 self._advance_text()
             return "used"
@@ -849,6 +854,34 @@ class BattleAgent:
             if r < 100 and g > 120 and bl > 120 and abs(g - bl) < 40:
                 hits += 1
         return hits >= 3
+
+    # The BAG SCREEN (layer 8, the caterpie-7/40 wedge, frame stage_l8.png): an in-battle item flow
+    # can leave/return the battle to the open bag, and EVERY state byte lies there (MENU_MODE reads a
+    # stale 2, GBATTLE_MENU_UP a stale 1, and the USE/CANCEL sub-box lights the white-panel pixels) —
+    # so the turn loop "picked moves" into USE/CANCEL forever. Pixel truth: the item LIST PANEL is a
+    # pale yellow (r,g>240, 180<b<230) no battle screen has — 3/3 on the wedge frame, 0/3 on
+    # battle/party/overworld/gym/cave/Center fixtures. Panel points sit clear of the header plate
+    # (whose hue varies per pocket) so this reads True for ANY pocket.
+    _BAG_PTS = ((160, 30), (200, 60), (120, 10))
+
+    def _bag_screen(self):
+        p = self.b.frame_rgb().load()
+        hits = 0
+        for x, y in self._BAG_PTS:
+            r, g, bl = p[x, y][:3]
+            if r > 240 and g > 240 and 180 < bl < 230:
+                hits += 1
+        return hits >= 3
+
+    def _close_bag_screen(self, tries=10):
+        """Deliberate B-cascade out of an open bag back to the battle (USE/CANCEL box -> item list ->
+        pocket -> closed). Bounded; returns True when the bag is gone."""
+        for _ in range(tries):
+            if not self._bag_screen() or not st.in_battle(self.b):
+                return True
+            self.b.press("B", 2, 12, self.render, owner=self.owner)
+            self._wait(14)
+        return not self._bag_screen()
 
     def _home_to_fight(self):
         """Park the action cursor on FIGHT (top-left) WITHOUT reading the stale cursor latch:
@@ -1492,6 +1525,13 @@ class BattleAgent:
             self._settle()                            # advance to a wait-point (narrates diffs)
             if not st.in_battle(self.b):
                 return self._finish()
+            # LAYER 8 (the abandoned-bag wedge): if the BAG is on screen, every menu byte is a stale
+            # lie and every "move pick" lands on USE/CANCEL — close it deliberately before anything
+            # else reads the screen. Covers re-entered battles that inherited an open bag too.
+            if self._bag_screen():
+                self.log("   [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it")
+                self._close_bag_screen()
+                continue
             glob = self._bstate()
             if glob != last_glob:                     # real progress -> reset the wedge guard
                 last_glob, stall = glob, 0
