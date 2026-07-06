@@ -153,6 +153,29 @@ to Jonny and wastes his watches. Never again.
       wisdom and ports fast. NOTE-AND-SHAPE, not a detour: don't stop climbing FireRed to build for Emerald —
       just build general where natural, isolate game-specifics in `gamedata/`, and capture lessons as you go.
 
+15. **THE SELF-HELP ARSENAL — "I'm stuck" is not a state, it's a checklist you haven't finished.** Before
+    ANY blocker is allowed to slow the climb, exhaust ALL of these (in whatever order fits):
+    (1) **THE DISASSEMBLY** (pret/pokefirered) — the authoritative answer to every mechanism question: map
+    scripts, flags, warp tables, menu structures, trainer data, puzzle logic. Use it FIRST. (2) **THE WIKIS**
+    (Bulbapedia + Serebii) — every gym layout, trainer roster, puzzle solution, item location, route
+    encounter table. A human alt-tabs to these constantly; so do you. (3) **PRIOR ART** — "Claude/GPT plays
+    Pokémon"-class projects are public with repos/writeups/postmortems; every wall you hit, someone solved
+    and documented. Steal shamelessly, adapt through our readback/questline patterns. (4) **YOUR OWN EYES** —
+    when RAM/logs disagree with behavior, GRAB A FRAME AND LOOK at it like a human would; a single glance
+    resolves "what menu am I in / what does the box say / where am I standing" faster than an hour of log
+    archaeology. Build grab-and-look into the stuck-diagnosis loop. (5) **THE LOOK-AHEAD ORACLE** — reproduce
+    the stall fast at 14.3×, instrument, fix, re-run. ONLY after all five are exhausted does something qualify
+    as a genuine can't-be-coded unstick worth surfacing. "Stuck on Bill's menu" does NOT qualify — that's a
+    checklist 1-4 problem. Expectation (CEO): bugs are EXPECTED and fine; what's not fine is stopping.
+    Distance-with-bugs beats caution-with-polish. Come back to a pile of cleared stretches + an honest bug list.
+
+16. **DELEGATED DECISION AUTHORITY.** Jonny granted the PM decision authority on his behalf; through the PM,
+    you have decision authority within your mandate: any mode-side call, any fix sequencing, any gate-flag
+    arming, any verified commit — DECIDE AND EXECUTE, don't ask. The ONLY decisions reserved for Jonny:
+    core-Kira IDENTITY changes, anything touching `persona/private/`, destructive/irreversible ops, and
+    spending real money. Everything else: you are trusted — act like it. (The post-credits blue-sky parking
+    lot lives in `POST_CREDITS_VISION.md`; append core-promotion candidates to its LESSONS LEDGER as you climb.)
+
 ## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
 
 **DON'T ASSUME SHE KNOWS ANYTHING.** Kira is a BLANK SLATE about FireRed — she has none of the mental

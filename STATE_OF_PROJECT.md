@@ -11,7 +11,58 @@ Companion docs: `pokemon_agent/CODEBASE_AUDIT.md` (pokemon detail + stuck-vector
 
 ---
 
-## 0. CURRENT FRONTIER — the rope as of 2026-06-28 night (read FIRST)
+## 0. CURRENT TRUTH — read THIS first (2026-07-05 night; archaeology is the appendix below)
+
+**Rope ends at: post-Misty Cerulean, at the Nugget-Bridge GARY wall.** Canonical save
+`pokemon_agent/states/campaign/kira_campaign.state` = inside Cerulean Center (map (7,3)@(7,4)), party
+**Ivysaur L24 / Rattata L8 / Spearow L10** (all healthy), 2 badges, 5936¥, 0 balls, 0 potions, dex 4.
+Tip `9cb52eb`. Emulator boots + reads fine here (py3.10 + vendored mgba; ROM `roms/firered.gba`).
+
+**VERIFIED LIVE 2026-07-05 (a fresh look-ahead from the canonical save — first run since keystone 1):**
+the forward loop WORKS end-to-end up TO Gary — she shops (stock_up: buys potions+balls, 5936→336¥),
+grinds Ivysaur L24→**L29**, forward-drives north through the Nugget-Bridge trainers, and REACHES Gary.
+Then she **LOSES to Gary (grudge 0W-3L)**: the log shows Sleep Powder / PoisonPowder / Razor Leaf all
+firing while **Charmander stays 44/44** — Gary's Pidgeotto **Sand-Attack** debuff (persists because Ivysaur
+never switches out) makes her powders AND Razor Leaf MISS. **L29 ace + sleep-lock + potions CANNOT beat
+Gary.** The clean kill NEEDS a fresh neutral attacker (reset the accuracy debuff) → the in-battle SWITCH
+or a levelled bench. This is the ONE blocker gating the whole climb.
+
+**THE BLOCKER = the in-battle SWITCH is genuinely UNFINISHED (keystone-2 found the WRONG address).**
+Diagnosed hard tonight via RAM-diff + screenshots (`recon_submenu_derive.py`, `recon_switch_test.py`):
+- `_prep_team_target`/`grind_weak_members`: with `GRIND_SWITCH=0` + `SOLO_WEAK_GRIND=0` (defaults) it takes
+  the ACE-OVERPOWER fallback → grinds ONLY Ivysaur; the bench never levels. So team-building is gated on
+  the switch (or solo-grind).
+- **`PARTY_CURSOR = 0x02020777` is a SHADOW byte, NOT the committed in-battle party-selection slot.** Moving
+  it (DOWN→1, RIGHT→2) does NOT move the real cursor — the sub-menu always opens for slot 0, so SHIFT hits
+  the active mon → **"BULBASAUR is already in battle"**, no swap. The old "party-cursor readback VERIFIED to
+  slot 1" checked the byte value, not the visual effect (a false verify). THIS is why keystone-2 stalled.
+- NEW derived-and-CONFIRMED signals (reuse these next session): **sub-menu-open flag `0x02020521`** (0=list,
+  1="Do what with X?" up, clean toggle); **sub-menu cursor sprite-Y `0x02020017`** (SHIFT=2 / SUMMARY=18 /
+  CANCEL=34); sub-menu defaults to SHIFT. Layout: 1 big card (slot 0) + right column — 2D, so nav key for
+  slot 0→reserve may be RIGHT not DOWN (unverified visually — CHECK by screenshot).
+- **EXACT NEXT STEP:** derive the REAL in-battle selection slot: press the nav key that VISUALLY moves the ▶
+  onto the reserve (verify via `b.frame_rgb().save`), RAM-diff a wide EWRAM region for the byte that tracks
+  the visual cursor AND makes the sub-menu open for the CORRECT mon (cross-check pokefirered `party_menu.c`
+  `gPartyMenu.slotId` / `Task_HandleChooseMonInput`). Then `_switch_to_slot` confirm = open list → nav real
+  cursor to reserve → A (verify `0x02020521`==1) → A on SHIFT → verify `gBattleMons[0]` species flips. Once
+  it swaps, arm `POKEMON_BATTLE_SWITCH=1` + `POKEMON_GRIND_SWITCH=1` → participation-grind levels the bench →
+  fresh attacker beats Gary. `recon_switch_test.py` is the ready-made pass/fail harness (drive→switch→flip).
+
+**Everything ELSE works (verified tonight or previously):** move-list actuation keystone (a4ca84f), shop /
+Cerulean Mart, heal-to-reachable-Center, forward-drive, questline (recognize→derive→execute→bend-discover→
+destination-interact), Nugget-Bridge nav. The rope is SOLID to Gary; Gary is the wall.
+
+**Standing harness:** `recon_longrun.py <save> <minutes>` — RUN IN BACKGROUND (foreground caps at 10min).
+`POKEMON_SLEEP_LOCK=1 LONGRUN_BATTLE_LOG=1`. Redirect to a file; grep only `^\[ *[0-9.]+s\] # ` decision
+lines + `RIVAL beat|END:|STALL:` — the per-decision `ctx` dumps are HUGE, never tail them raw.
+
+**Session note:** the Gemini vision migration (`kira/senses/gemini_vision.py` + 4 files) remains UNCOMMITTED
+(Jonny's core-side WIP, firewalled — not committed without his explicit smoke-test pass). CLAUDE.md rules
+15 (self-help arsenal) + 16 (delegated authority) added; `POST_CREDITS_VISION.md` parking lot created.
+
+---
+
+## APPENDIX — dated archaeology (historical; CURRENT TRUTH above supersedes)
 
 ### UPDATE 6 (2026-06-28 late, same session) — **KEYSTONE CRACKED** (committed a4ca84f): in-battle move-list cursor readback
 **THE master blocker is FIXED.** Derived the RAM addresses (recon_movecursor_derive — drive route3_caught
