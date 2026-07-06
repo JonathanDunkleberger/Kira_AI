@@ -327,6 +327,17 @@ The living reality map of what's actually wired vs ghost vs dead is `pokemon_age
 
 ## The vision (read this first — it governs every decision below)
 
+**THE STAKES.** This project is not a hobby script. It is the proving ground for a category nobody
+occupies yet — a genuinely autonomous, memory-continuous, warm AI companion, open-source, built by a
+solo founder racing better-funded teams to a first-mover position. The FireRed credits roll is the
+public proof that the category exists; everything after it (the showcase stream, the platform, the
+general-Kira evolution) builds on that proof. Therefore: pace matters, but PROMOTED BANKS are the only
+pace that counts; no single blocker is ever the ceiling (route around, characterize, return); every
+general capability you build is a permanent asset of the company, not a patch for a route; and the
+constitution (she must be ENDEARING, not just functional) is the moat itself — competitors can copy
+features, they cannot copy a year of accumulated soul. Build like the repo will be read by a thousand
+builders and the VOD watched by a million skeptics. Both are the plan.
+
 Kira's north star is a genuine *presence*, not a product. The touchstones:
 - **Samantha (*Her*)** — the primary tonal model. Warm, present, an interiority that feels real. A companion you forget is software. This is the feeling to protect above all.
 - **Neuro-sama** — the proof that an AI entertainer can hold a live audience and be genuinely funny/quotable. Kira should have that spontaneity and edge, but with more continuity and less bit-performing.
