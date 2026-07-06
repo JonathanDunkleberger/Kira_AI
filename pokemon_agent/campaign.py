@@ -241,6 +241,16 @@ CERULEAN_PC_DOOR = (22, 19)
 # — that's the POLICEMAN-blocked robbed-house (BlockExits gate, NPC perma-parked at (30,12) until
 # FLAG_GOT_SS_TICKET). Real Mart confirmed by entering + reading the clerk object, not menu actuation.
 CERULEAN_MART_DOOR = (29, 28)
+# Vermilion City (live block (3,5) — confirmed on foot, vermilion_walk1 2026-07-06). Doors from the
+# pret disasm VermilionCity warp_events (the same source that matched Route 4/Cerulean live exactly;
+# live-confirm on first use): Pokémon Center (15,6); Mart (29,17); Gym (14,25) — CUT-LOCKED behind
+# the fence tree (HM01 from the S.S. Anne captain first); Fan Club (12,17) = the Bike Voucher.
+# ⚠ THE DOCK: (22,34)/(23,34)/(24,34) are the S.S. ANNE BOARDING PIER (ticket-gated triggers at
+# (22-23,32-33)) — the SOUTHERNMOST doors in town, which is how the blind "warp south" heal
+# heuristic BOARDED THE BOAT (vermilion_walk1; also the true identity of the run-12/13 "stair-house
+# trap": (1,4)=ship exterior, (1,5)=1F corridor, (1,10)=2F, (1,12..16)=cabins — the SHIP, no house).
+VERMILION = (3, 5)
+VERMILION_PC_DOOR, VERMILION_MART_DOOR = (15, 6), (29, 17)
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 
@@ -249,7 +259,8 @@ FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 # hardcoded Forest-era default (everything-not-Route3/4 -> Viridian), which routed Cerulean cross-
 # region south. EXTEND as new cities are reached; an unmapped city heals LOUD-fallback, never silent.
 CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
-                 CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR}
+                 CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR,
+                 VERMILION: VERMILION_PC_DOOR}
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -306,7 +317,10 @@ ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 23: "Full Heal",
 
 # CITY -> Mart town door (extend as towns are reached; an unmapped city = no stock-up offered, LOUD).
 CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
-                   CERULEAN: CERULEAN_MART_DOOR}
+                   CERULEAN: CERULEAN_MART_DOOR,
+                   # Vermilion Mart door registered; MART_STOCK rows NOT yet control-verified —
+                   # buy_at_mart loud-skips until a live visit bills the row order.
+                   VERMILION: VERMILION_MART_DOOR}
 # CITY -> the BUY list's item ids IN ROW ORDER (cursor row = stock.index(id)). The mart item list is in
 # ROM (no EWRAM array), so the row order is data here — control-verified per town by the buy bag-delta;
 # an unverified/wrong row simply fails the per-purchase verify and aborts LOUD (never silent mis-buy).
@@ -828,6 +842,20 @@ class Campaign:
             except Exception as _he:
                 log(f"   HEAL: escape-hatch on strand crashed: {_he!r} (LOUD) — falling through to stuck")
             return "stuck"
+        # UNMAPPED map, ADJACENT-CITY FIRST (2026-07-06, the Route-6/S.S.-Anne lesson): the LIVE map
+        # header knows neighbours she hasn't VISITED yet — the world graph below only routes VISITED
+        # nodes, so a first approach to a new town (Route 6 hurt from the gauntlet, Vermilion one edge
+        # south) found "no graph route" and the blind warp-south fallback BOARDED THE BOAT. One edge
+        # cross to a registered-Center neighbour, heal, return — the Route-3->Pewter pattern, general.
+        _EDGEU = {"N": "north", "S": "south", "E": "east", "W": "west"}
+        _REVU = {"north": "south", "south": "north", "east": "west", "west": "east"}
+        for d, nbr in self._map_connections():
+            if tuple(nbr) in CITY_PC_DOORS and tuple(nbr) != tuple(m) and d in _EDGEU:
+                log(f"   HEAL: unmapped {m} — ADJACENT city {self.world.name(tuple(nbr))} ({d}) has a "
+                    f"registered Center; one-edge heal excursion")
+                if self._heal_excursion(tuple(nbr), CITY_PC_DOORS[tuple(nbr)], _EDGEU[d],
+                                        m, _REVU[_EDGEU[d]]) == "ok":
+                    return "ok"
         # UNMAPPED map (2026-07-05, the Route-25 heal->stuck x10): route via HER WORLD GRAPH to the
         # nearest VISITED Center city (Route 25 -> Route 24 -> Cerulean), multi-hop, fleeing wilds.
         # General: works for every future unmapped route she's walked to. Does NOT walk back afterward —
@@ -936,7 +964,12 @@ class Campaign:
     # moving WEST); walking onto it any other way just walks THROUGH it (run-9 lesson).
     _WARP_ENTRY = {0x62: ("RIGHT", (1, 0)), 0x63: ("LEFT", (-1, 0)), 0x64: ("UP", (0, -1)),
                    0x65: ("DOWN", (0, 1)), 0x6C: ("RIGHT", (1, 0)), 0x6D: ("LEFT", (-1, 0)),
-                   0x6E: ("RIGHT", (1, 0)), 0x6F: ("LEFT", (-1, 0))}
+                   0x6E: ("RIGHT", (1, 0)), 0x6F: ("LEFT", (-1, 0)),
+                   # ESCALATORS 0x6A/0x6B (the Center 1F<->2F Cable Club pair; live-derived on the
+                   # Vermilion Center 2026-07-06): board from the EAST — step LEFT onto the tile
+                   # (the south approach is collision-blocked; UP from below never enters), and the
+                   # warp fires ~60-120 frames AFTER standing on it — the on-tile wait below.
+                   0x6A: ("LEFT", (-1, 0)), 0x6B: ("LEFT", (-1, 0))}
 
     def _tile_behavior(self, sx, sy):
         """Metatile behavior byte at save coords (the same read Grid/doors use). 0 on failure."""
@@ -966,12 +999,25 @@ class Campaign:
         if self.trav.travel(target_map=None, arrive_coord=stand, max_steps=120,
                             max_seconds=60) != "arrived":
             return False
-        for _ in range(3):
+        # 6 presses, not 3: the first press after travel is a TURN (and is routinely EATEN — the
+        # face-verified-turn class), the next steps ONTO the tile, and an arrow warp (0x65 mats)
+        # fires only on a FURTHER press while standing on it — 3 ran out one press short.
+        for _ in range(6):
             self.b.press(key, 8, 10, self.render, owner="agent")
             for _ in range(30):
                 self.b.run_frame()
                 self.render()
+            # DELAYED warps (escalators): the map flips a beat AFTER standing on the tile — if
+            # we're ON it, wait it out; a re-press would walk OFF the tile and lose the entry.
+            if tuple(tv.map_id(self.b)) == m0 and tuple(tv.coords(self.b) or ()) == tuple(wt):
+                for _ in range(240):
+                    self.b.run_frame()
+                    if tuple(tv.map_id(self.b)) != m0:
+                        break
             if tuple(tv.map_id(self.b)) != m0:
+                for _ in range(60):                   # SETTLE the fade-in: the map header/layout
+                    self.b.run_frame()                # pointers are mid-transition the instant the
+                #                                       id flips — a back-to-back tile read gets 0s
                 log(f"   directional warp {wt} (behavior 0x{bh:02x}) entered via {key}")
                 return True
         return False
@@ -6070,12 +6116,30 @@ class Campaign:
                 return True
             before = tuple(tv.map_id(self.b))
             cur = tuple(tv.coords(self.b))
-            cands = [tuple(w[0]) for w in tv.read_warps(self.b)]
+            ws = tv.read_warps(self.b)
+            cands = [tuple(w[0]) for w in ws]
+            # STREET-FIRST (2026-07-06, the Vermilion Center/Cable-Club stall): each warp's DEST is
+            # already known — a warp straight to the overworld (group 3) beats every interior hop.
+            # Nearest-first alone ping-ponged the two Center floors via the escalator and then burned
+            # travel budgets on the attendant-blocked Cable-Club room warps.
+            street = {tuple(w[0]) for w in ws if w[1][0] == 3}
             fresh = [w for w in cands if (before, w) not in taken]
-            cands = sorted(fresh or cands, key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+            # within a tier, an ACTUATABLE warp (a behavior the directional table can fire) beats a
+            # dead arrival-mat: the Center's exit row is (6,8)/(7,8)/(8,8) but only (7,8) is the 0x65
+            # arrow that actually fires — trying the dead mats first burned a travel leg each.
+            cands = sorted(fresh or cands,
+                           key=lambda t: (t not in street,
+                                          self._tile_behavior(*t) not in self._WARP_ENTRY,
+                                          abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
             moved = False
             for wt in cands:
                 taken.add((before, wt))
+                # a directional/escalator tile has a REQUIRED entry side + a delayed fire — the
+                # dedicated primitive knows both; blind travel to the tile wedges on the blocked side
+                if self._tile_behavior(*wt) in self._WARP_ENTRY:
+                    if self._enter_directional_warp(wt) and tuple(tv.map_id(self.b)) != before:
+                        moved = True
+                        break
                 self.trav.travel(target_map=None, arrive_coord=wt, max_steps=160, max_seconds=60)
                 for _ in range(30):
                     self.b.run_frame()
