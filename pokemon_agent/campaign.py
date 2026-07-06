@@ -3075,9 +3075,20 @@ class Campaign:
                 # WALL-LESS bench-raising (2026-07-06 nursery): a fresh catch shouldn't ride the bench
                 # at L5 while the ace is L30 — when the floor sags PROACTIVE_BENCH_GAP under the lead,
                 # prep toward lead-8 (modest, bounded; a recorded wall's target still dominates above).
+                # PINNED AT ARM TIME (ship-run-2 lesson): participation XP levels the ACE too, so a
+                # LIVE lead-8 target rises every grind cycle (25→26→…) and the bench chases its own
+                # tail for the whole run budget. The goal freezes when prep arms; it retires when the
+                # floor crosses it (a later re-sag re-pins fresh).
                 lead = max(m["level"] for m in party)
-                if floor < lead - PROACTIVE_BENCH_GAP:
-                    t = lead - 8
+                pin = getattr(self, "_bench_pin", None)
+                if pin is not None:
+                    if floor >= pin:
+                        self._bench_pin = None              # goal reached — the pin retires
+                    else:
+                        t = pin
+                elif floor < lead - PROACTIVE_BENCH_GAP:
+                    self._bench_pin = lead - 8
+                    t = self._bench_pin
             if not t:
                 return None
             return t if floor < t else None
