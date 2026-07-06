@@ -871,14 +871,17 @@ class BattleAgent:
         cursor-desync lesson): trust CURSOR-RESPONSE, not a state byte. The list counts as open only if
         MOVE_CURSOR actually responds to a probe press (probe toward a neighbor, readback, restore).
         Known edge: a 1-move mon's cursor can't move (probe reads as closed) → the caller presses A,
-        which on a truly-open 1-move list just fires slot 0 — the only move, harmless."""
-        if not self._movelist_open():
-            return False
+        which on a truly-open 1-move list just fires slot 0 — the only move, harmless.
+        2026-07-06 (run-14, the post-item-use A/B livelock): the byte can be stale LOW just as it was
+        stale HIGH — gating the probe on _movelist_open() made a GENUINELY-open list read as closed,
+        so the caller's wrong-submenu B closed it, the next A reopened it, ×12 → 'stuck' forever at
+        the Route-6 gauntlet. The RESPONSE PROBE alone is the ground truth — no byte gate either way.
+        (A stray probe on the ACTION menu just nudges its cursor; the caller re-homes with UP+LEFT.)"""
         cur = self.b.rd8(MOVE_CURSOR)
         probe = "RIGHT" if cur % 2 == 0 else "LEFT"
         back = "LEFT" if probe == "RIGHT" else "RIGHT"
         self._tap(probe); self._wait(8)
-        if self.b.rd8(MOVE_CURSOR) == cur:            # cursor didn't respond -> NOT really open (stale byte)
+        if self.b.rd8(MOVE_CURSOR) == cur:            # cursor didn't respond -> not open (or 1-move edge)
             return False
         self._tap(back); self._wait(8)                # restore the cursor (readback nav re-verifies anyway)
         return True
@@ -1221,12 +1224,16 @@ class BattleAgent:
         if not enemy_types:
             return None
         active_types = [t for t in (state.get("ours", {}).get("types") or []) if t]
-        # 2026-07-06 OFFENSIVE-RESIST trigger: a hard-resisted attacker (<=0.25x, the Ivysaur-vs-Weedle
-        # Route-6 gauntlet wall) is as stuck as a defensively out-typed one — the fight chips for minutes
-        # and times the travel leg out. A reserve with a neutral/SE hit (Spearow's Peck) ends it in two
-        # turns. 0.5x stays acceptable (don't churn on mild resists).
-        active_bad = self._matchup_def(active_types, enemy_types) >= 2 \
-            or self._matchup_off(active_types, enemy_types) <= 0.25
+        # 2026-07-06 OFFENSIVE-RESIST trigger, MOVE-BASED (run-16 lesson): the TYPE proxy lied —
+        # Ivysaur's poison TYPING scores 0.5 vs Weedle, but her only damaging MOVES are grass (0.25x
+        # Razor Leaf), so the type math never tripped and the gauntlet fight chipped for 15 minutes.
+        # Judge by the best USABLE damaging move she actually has; a hard-resisted moveset (<=0.25x)
+        # swaps to a reserve with a neutral/SE hit (Spearow's Peck). 0.5x stays acceptable (no churn).
+        _dmg = [pol.effectiveness(m.get("type", "normal"), enemy_types)
+                for m in (state.get("ours", {}).get("moves") or [])
+                if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
+        best_move_eff = max(_dmg) if _dmg else 1.0
+        active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
         if not active_bad:
             return None
         active_sp = state.get("ours", {}).get("species")
@@ -1334,6 +1341,19 @@ class BattleAgent:
         # (the PoisonPowder-spam lesson: don't permanently bench a move, just rotate off it this streak).
         # Cleared the instant any move fires.
         self._prev = st.read_battle(self.b)
+        # 2026-07-06 RE-ENTRY CORPSE GUARD (the Route-6 gauntlet livelock): a previous engagement can
+        # abort mid-faint (budget/stuck), and travel re-enters the SAME battle with the foe already at
+        # 0 HP — a FRESH agent never sees the 1->0 transition, so the faint flag never sets and the
+        # engine move-picks into the "will you switch Pokémon?" prompt forever (weedle 0/38 ×51).
+        # Joining mid-faint = the faint already happened: arm the flag so the post-faint drain
+        # (force-B answers the prompt, fresh-enemy detect resumes the fight) owns it from turn one.
+        if self._prev:
+            if self._prev["enemy"]["hp"] == 0:
+                self._enemy_fainted = True
+                self.log("   [engine] re-entry: foe is already DOWN — draining the faint/switch chain")
+            if self._prev["ours"]["hp"] == 0:
+                self._we_fainted = True
+                self.log("   [engine] re-entry: OUR active is already down — forced-switch chain owns it")
         self._reach_first_menu(t0, max_seconds)
         state = st.read_battle(self.b) or self._prev
         if state:
