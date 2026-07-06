@@ -2352,9 +2352,24 @@ class Campaign:
             if not gs:
                 log(f"   !! GRIND: no grass reachable on {tv.map_id(self.b)} - stopping LOUD"); break
             cur = tv.coords(self.b) or (0, 0)
+            # ANTI-STRAND (2026-07-05): drop grass from which the map's Center is UNREACHABLE. The Route-4
+            # heal-wedge: the weak-grind fielded a fragile mon into the far-east below-ledge pocket (84,15);
+            # a faint there stranded her (Center (12,5) across the ledge + east edge to Cerulean unreachable)
+            # -> heal 'stuck' -> hard STALL. Only pace grass that can BFS-reach the local Center approach, so
+            # a faint there is always healable. If the map has no local Center, keep all (heal crosses out).
+            mnow = tv.map_id(self.b)
+            grid_now = tv.Grid(self.b)
+            if mnow in CITY_PC_DOORS:
+                _door = CITY_PC_DOORS[mnow]; _appr = (_door[0], _door[1] + 1)
+                safe = [g for g in gs if g != cur
+                        and tv.bfs(grid_now, g, lambda t, a=_appr: t == a, walkable=grid_now.walkable)]
+                if safe:
+                    gs = safe
+                elif [g for g in gs if g != cur]:                # ALL grass is strand-risk on this map ->
+                    log(f"   !! GRIND: all grass on {mnow} is Center-UNREACHABLE (strand risk) - "
+                        f"stopping this map's grind LOUD"); break
             # Pace the NEAREST grass tiles only (not the farthest) so a long grind stays LOCAL and never
-            # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable (the
-            # Route-4-east strand: she walked to x=107 chasing gs[-1], then couldn't get back to grass).
+            # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable.
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
             nearby = [g for g in gs if g != cur][:4] or gs[:1]
             doors = frozenset(self._door_tiles())
