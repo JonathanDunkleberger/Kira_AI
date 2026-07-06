@@ -3713,6 +3713,35 @@ class Campaign:
         cands.sort(key=lambda t: abs(t[0] - co[0]) + abs(t[1] - co[1]))
         return cands[0]
 
+    def _gym_gate_probe(self, gym):
+        """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
+        at the blocking obstacle — Vermilion's cut tree IS the chokepoint), then run the HM-obstacle
+        recognizer AT HER FEET. This was the missing wire: recognize() was only ever called with
+        blocked_dir (exit gates), so the adjacency-based HM_OBSTACLE gate was dead code from the
+        roam loop. Returns a Gate or None."""
+        try:
+            grid = tv.Grid(self.b)
+            cur = tuple(tv.coords(self.b))
+            door = tuple(gym.door)
+            for d in (1, 2, 3):
+                path = tv.bfs(grid, cur,
+                              lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
+                              walkable=grid.walkable)
+                if path:
+                    self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
+                                     max_steps=200, max_seconds=90)
+                    break
+            here = tv.coords(self.b)
+            gate = self._gate_recognizer.recognize(tuple(tv.map_id(self.b)),
+                                                   player_xy=tuple(here) if here else None,
+                                                   grid=grid)
+            if gate:
+                log(f"   [roam] 🚧 GYM-GATE PROBE: {gate}")
+            return gate
+        except Exception as _e:
+            log(f"   [roam] gym-gate probe skipped: {_e}")
+            return None
+
     def _ensure_forward_questline(self, state):
         """PROACTIVE forward drive (ROOT FIX for the backward-grind). Recognise the gate on the FORWARD
         road to the next gym and OPEN/refresh the unlock questline at DECISION time — BEFORE the action set
@@ -4698,6 +4727,13 @@ class Campaign:
                     self.on_event(f"alright, {ng['leader']}'s gym. this is it — I'm actually a little nervous. "
                                   f"okay. let's climb.", kind="gym", tier=2)
                 out = self.beat_gym(ng["leader"])
+                # GYM-GATE PROBE (2026-07-06): a 'stuck' entry can be an HM OBSTACLE on the door
+                # approach (Vermilion's cut tree). Walk to the chokepoint, recognize at her feet,
+                # and pursue the unlock errand instead of re-bonking the door forever.
+                if out == "stuck" and QUESTLINE_ENABLED and self._active_questline is None:
+                    gate = self._gym_gate_probe(gym)
+                    if gate and self._open_questline(gate, state):
+                        return self._run_questline_step(state)
                 if out == "badge":
                     # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
                     # moving on". Tier-3 big beat → her core deep-reaction path RISES; the saga promotes it.
