@@ -21,11 +21,21 @@ Tip `9cb52eb`. Emulator boots + reads fine here (py3.10 + vendored mgba; ROM `ro
 **VERIFIED LIVE 2026-07-05 (a fresh look-ahead from the canonical save — first run since keystone 1):**
 the forward loop WORKS end-to-end up TO Gary — she shops (stock_up: buys potions+balls, 5936→336¥),
 grinds Ivysaur L24→**L29**, forward-drives north through the Nugget-Bridge trainers, and REACHES Gary.
-Then she **LOSES to Gary (grudge 0W-3L)**: the log shows Sleep Powder / PoisonPowder / Razor Leaf all
-firing while **Charmander stays 44/44** — Gary's Pidgeotto **Sand-Attack** debuff (persists because Ivysaur
-never switches out) makes her powders AND Razor Leaf MISS. **L29 ace + sleep-lock + potions CANNOT beat
-Gary.** The clean kill NEEDS a fresh neutral attacker (reset the accuracy debuff) → the in-battle SWITCH
-or a levelled bench. This is the ONE blocker gating the whole climb.
+Gary's Pidgeotto **Sand-Attack** debuff (persists because Ivysaur never switches out) makes her powders +
+Razor Leaf MISS (Charmander sits at 44/44). She loses most attempts but **DID beat Gary on attempt #5
+(grudge 1W-4L)** — so L29 ace + sleep-lock + potions wins ~1-in-5 by attrition/variance, NOT impossible,
+just **unreliable** (a fresh neutral attacker via the switch makes it consistent + watchable).
+
+**TWO real blockers now (the full run clarified it):**
+1. **Gary is unreliable** (~20% win) → fresh attacker (switch/levelled bench) for a clean, watchable kill.
+2. **She does NOT progress even after WINNING Gary.** The 24-min run = **896 battles, only 9 decisions,
+   ticket_flag still False, visited only (3,3)/(3,22)/(3,43)** — she's stuck in a
+   lose→blackout→grind→forward-drive→re-fight LOOP at the Nugget Bridge and never completes the post-Gary
+   **Route 24 (3,43) → Route 25 → Bill's house → talk Bill → S.S. Ticket** chain. She reaches Route 24 but
+   loops instead of crossing. This is BOTH a progression gap (the bridge→Bill traversal/interaction isn't
+   completing headless) AND a watchability disaster (a whole stream of re-fighting the same trainers).
+   The switch fixes #1 and probably breaks the loop (#2) by making the crossing survivable — but verify the
+   Bill completion separately (it was flagged pre-vacation as never e2e-verified).
 
 **THE BLOCKER = the in-battle SWITCH is genuinely UNFINISHED (keystone-2 found the WRONG address).**
 Diagnosed hard tonight via RAM-diff + screenshots (`recon_submenu_derive.py`, `recon_switch_test.py`):
