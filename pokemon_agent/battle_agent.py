@@ -548,6 +548,18 @@ class BattleAgent:
         self._prev = st.read_battle(self.b)
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         softened = False
+        # 2026-07-06 NURSERY FIX: a strong ace "wearing down" a much-weaker wild ONE-SHOTS it (run-12:
+        # 3 judged keepers KO'd mid-weaken, labeled 'fled'). Early-route species catch fine at full HP —
+        # when the foe is 10+ levels under the lead, skip the weaken and just throw (the loop re-throws
+        # on a break anyway). A real player doesn't wind up on a Pidgey a third their size.
+        try:
+            _rb0 = st.read_battle(self.b)
+            if weaken and _rb0 and (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10:
+                weaken = False
+                self.log("   [engine] catch: foe is 10+ levels under the lead — throwing at full HP "
+                         "(weakening would just KO it)")
+        except Exception:
+            pass
 
         def _ended():
             """Battle ended: settle, then a party+1 means we CAUGHT it (the 'Gotcha!' can end the
@@ -1067,6 +1079,23 @@ class BattleAgent:
             self._skip_streak.clear()                  # a move FIRED -> whole moveset eligible again
             #                                            (resets the streak; never permanently benches)
         else:
+            # 2026-07-06 THE BUTTERFREE SLEEP WEDGE: if OUR mon is ASLEEP/FROZEN/paralysis-skipped, the
+            # turn RESOLVED — we just didn't act (no PP drop, and a Sleep-Powder/Harden foe changes no
+            # HP either). Counting that as "didn't fire" benched every move, aborted the unfleeable
+            # trainer battle, and travel re-entered it forever (Route 6, Butterfree 54/54 ×∞). An
+            # immobilized turn is a REAL turn: report it resolved, keep the moveset eligible, and let
+            # the fight continue — she wakes in 1-4 turns and Peck ends it.
+            try:
+                cur = st.read_battle(self.b)
+                st1 = (cur or {}).get("ours", {}).get("status1", 0)
+            except Exception:
+                st1 = 0
+            if st1 & 0x67:                             # sleep(0x07) | freeze(0x20) | paralysis(0x40)
+                why = "asleep" if st1 & 0x07 else ("frozen" if st1 & 0x20 else "fully paralyzed")
+                self.log(f"   [engine] turn resolved by IMMOBILIZATION ({why}) — not a dead move; "
+                         f"fighting on (she'll come around)")
+                self.emit(f"no — {desc} didn't happen, I'm {why}! hang in there…", beat=True, tier=1)
+                return "done"
             # didn't fire (no PP drop, no HP change) = 0-PP / Disabled / couldn't act: add to the streak
             # so the NEXT pick rotates to a move she hasn't tried — and once all are tried, she flees
             # rather than re-spamming. The streak is per-no-progress-run, cleared on any successful fire.
@@ -1192,8 +1221,12 @@ class BattleAgent:
         if not enemy_types:
             return None
         active_types = [t for t in (state.get("ours", {}).get("types") or []) if t]
+        # 2026-07-06 OFFENSIVE-RESIST trigger: a hard-resisted attacker (<=0.25x, the Ivysaur-vs-Weedle
+        # Route-6 gauntlet wall) is as stuck as a defensively out-typed one — the fight chips for minutes
+        # and times the travel leg out. A reserve with a neutral/SE hit (Spearow's Peck) ends it in two
+        # turns. 0.5x stays acceptable (don't churn on mild resists).
         active_bad = self._matchup_def(active_types, enemy_types) >= 2 \
-            or self._matchup_off(active_types, enemy_types) == 0
+            or self._matchup_off(active_types, enemy_types) <= 0.25
         if not active_bad:
             return None
         active_sp = state.get("ours", {}).get("species")

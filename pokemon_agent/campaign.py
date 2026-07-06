@@ -4178,6 +4178,19 @@ class Campaign:
                 # pushes at +2, loses again, and loops.
                 if prep_t is not None and not battle_agent.GRIND_SWITCH_ENABLED:
                     wr = None
+                # WALL RETIREMENT (2026-07-06 nursery fix): readiness crossed AND she has moved PAST the
+                # wall's map — the record's whole job (grind exit + the go-take-the-wall pull) is spent.
+                # Keeping it alive made READINESS→GO prune the nursery on every NEW route forever
+                # (runs 8-10: wander_catch never offered on Routes 5/6 because of a conquered Cerulean
+                # trainer). Retire it; a fresh loss re-records. Scoped: only when she's off the wall map.
+                if wr:
+                    try:
+                        rec = self.strat.active_wall_rec()
+                        if rec and tuple(rec.get("map_id") or ()) != tuple(state["map"]):
+                            self.strat.retire_active_wall("readiness crossed + region advanced past it")
+                            wr = None
+                    except Exception as _wrx:
+                        log(f"   [roam] wall retirement skipped: {_wrx}")
                 if wr and "head_to_gym" in a and ng2:
                     try:
                         badge = self._BADGE_NAMES[state.get("badge_count", 0)]
@@ -4187,9 +4200,19 @@ class Campaign:
                                         f"on {ng2['leader']} for the {badge} Badge — that's the way FORWARD, the "
                                         f"route ahead leads there. You trained up for exactly this; the move now "
                                         f"is to GO to the next gym, not circle the grass.")
-                    pruned = [g for g in ("battle", "wander_catch") if a.pop(g, None) is not None]
+                    # NURSERY EXEMPTION: with a THIN team + balls in the bag, catching IS forward
+                    # progress (her own game-model says so) — never prune it as "grind".
+                    try:
+                        keep_catch = (state.get("party_count", 6) < 4
+                                      and self._balls_pocket_count(ITEM_POKE_BALL) > 0)
+                    except Exception:
+                        keep_catch = False
+                    prune_set = ("battle",) if keep_catch else ("battle", "wander_catch")
+                    pruned = [g for g in prune_set if a.pop(g, None) is not None]
                     log(f"   [roam] !! READINESS → GO (grind-exit): past the bar — head_to_gym reframed "
-                        f"FORWARD to {ng2['city']}, pruned grind {pruned}; the move is to travel to the gym")
+                        f"FORWARD to {ng2['city']}, pruned grind {pruned}"
+                        + ("; wander_catch KEPT (thin team + balls — the nursery breathes)" if keep_catch
+                           else "") + "; the move is to travel to the gym")
             except Exception as _rr:
                 log(f"   [roam] readiness reframe skipped: {_rr}")
         # ── PROACTIVE FORWARD DRIVE (the backward-grind killer — the ROOT fix) ───────────────────────
@@ -6035,22 +6058,48 @@ class Campaign:
         return to the walkable overworld. The general recovery primitive every blackout respawn needs.
         Tries the south exit door; falls back to walking DOWN onto the entrance mat (PC/house mats fire
         on a step-on from the north). Returns True once on the overworld (group 3)."""
+        # 2026-07-06 REWRITE (the TWO-STORY HOUSE class, runs 12-13): the old 'south door' preference
+        # warps 1F<->2F forever in a stair house (the stairs door IS the southmost warp on both floors).
+        # Now: walk this floor's warp events NEAREST-FIRST, but each (floor, warp) is TAKEN once per
+        # call — after the stairs are consumed, the next candidate is the actual street door. Entry per
+        # kind: walk-onto (mats), directional stairs (the 0x6C-0x6F table), door ritual.
         self.b.set_input_owner("agent")
-        for _ in range(max_tries):
+        taken = set()
+        for _ in range(max_tries * 3):
             if tv.map_id(self.b)[0] == 3:
                 return True
-            before = tv.map_id(self.b)
-            if self.enter_warp(prefer="south") == "warped" and tv.map_id(self.b) != before:
-                log(f"   EXIT-BUILDING: warped {before} -> {tv.map_id(self.b)}@{tv.coords(self.b)}")
-                continue
-            for _ in range(10):                       # fallback: walk DOWN onto the exit mat
-                self.b.press("DOWN", 8, 8, self.render, owner="agent")
-                for _ in range(8):
+            before = tuple(tv.map_id(self.b))
+            cur = tuple(tv.coords(self.b))
+            cands = [tuple(w[0]) for w in tv.read_warps(self.b)]
+            fresh = [w for w in cands if (before, w) not in taken]
+            cands = sorted(fresh or cands, key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+            moved = False
+            for wt in cands:
+                taken.add((before, wt))
+                self.trav.travel(target_map=None, arrive_coord=wt, max_steps=160, max_seconds=60)
+                for _ in range(30):
                     self.b.run_frame()
-                if tv.map_id(self.b) != before:
+                if tuple(tv.map_id(self.b)) != before:
+                    moved = True
                     break
-            if tv.map_id(self.b) != before:
-                log(f"   EXIT-BUILDING: walked out {before} -> {tv.map_id(self.b)}@{tv.coords(self.b)}")
+                if self._enter_directional_warp(wt) and tuple(tv.map_id(self.b)) != before:
+                    moved = True
+                    break
+                if self.enter_warp(pick=wt, budget_s=60) == "warped" \
+                        and tuple(tv.map_id(self.b)) != before:
+                    moved = True
+                    break
+            if not moved:
+                for _ in range(10):                   # last resort: the classic DOWN-mat walk
+                    self.b.press("DOWN", 8, 8, self.render, owner="agent")
+                    for _ in range(8):
+                        self.b.run_frame()
+                    if tuple(tv.map_id(self.b)) != before:
+                        break
+                if tuple(tv.map_id(self.b)) == before:
+                    break                             # nothing on this floor moves us — give up LOUD
+            if tuple(tv.map_id(self.b)) != before:
+                log(f"   EXIT-BUILDING: {before} -> {tv.map_id(self.b)}@{tv.coords(self.b)}")
         if tv.map_id(self.b)[0] != 3:
             log(f"   !! EXIT-BUILDING: still inside {tv.map_id(self.b)}@{tv.coords(self.b)} - LOUD")
         return tv.map_id(self.b)[0] == 3

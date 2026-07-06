@@ -381,6 +381,20 @@ class StrategicMemory:
         key = self.active_wall
         return self.losses.get(key) if key else None
 
+    def retire_active_wall(self, reason=""):
+        """RETIRE a conquered/outgrown wall record (2026-07-06). A wall's job is the strategic-stuck
+        floor + the readiness grind-exit; once she's crossed the bar AND advanced past its region,
+        keeping it alive poisons every NEW route (the READINESS→GO pull pruned the nursery forever).
+        Deletes the record so a fresh loss re-records cleanly. LOUD."""
+        key = self.active_wall
+        if not key:
+            return
+        rec = self.losses.pop(key, None)
+        self.active_wall = None
+        self.recent = [k for k in self.recent if k != key]
+        self.log(f"   [strat] WALL RETIRED: {key} ({(rec or {}).get('count', '?')}x losses) — {reason}; "
+                 f"a fresh loss re-records")
+
     def stronger_since_wall(self, party_count, lead_level):
         """Has she GROWN since the wall last beat her? — a teammate added OR a level gained. If so the
         gate is worth re-testing (she changed something). Unknown snapshot -> conservatively 'no' so the
