@@ -114,6 +114,32 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 2 (the NURSERY-BREATHES strike; commit 3142cf4) ──
+**THE NURSERY RAN LIVE (runs 12-13): judged catches with voiced reasons are IN THE LOGS** — "a bug
+type — I don't have ANY bug coverage, and L16 is workable. that's a real gap filled" (weedle), "my
+bench is thin (3) and a L13 pidgey can pull weight" — and run 13 LANDED the first judged teammate:
+**MEOWTH joined the party (4 mons, dex 5)**, with the proactive bench-target immediately planning
+"level the weak ones (meowth) to ~L11 by fielding THEM." Wall #1 of the mission (Route 6 @(17,25))
+was NOT spatial: BFS to the south border exists — it's the **bug-catcher gauntlet**, root-caused as
+THREE battle classes, all fixed: (1) **offensive-resist matchup switch** (lead hard-resisted ≤0.25×
+now swaps to a neutral/SE reserve — Ivysaur→Spearow vs the bugs); (2) **the Butterfree sleep/paralysis
+wedge** — an immobilized turn (asleep/frozen/fully-paralyzed) read as "move didn't fire," benched the
+moveset, aborted the unfleeable battle, and travel re-entered forever; now an immobilized turn is a
+RESOLVED turn (voiced: "I'm asleep! hang in there…"); (3) **ace one-shot-during-weaken** — judged
+keepers died to the L31 ace "wearing them down"; foes 10+ levels under the lead are now thrown at
+full HP (early species catch fine at full HP). Plus: **WALL RETIREMENT** (readiness crossed + region
+advanced ⇒ the conquered record retires — it was pruning wander_catch on every new route) + the
+**nursery exemption** (thin team + balls ⇒ catching never pruned as "grind"); **full Kanto-151
+SPECIES_NAME table** (she called her own Meowth "species#52" — voice lie; bonds wrote placeholder
+names); **two-story-house exit rewrite** (taken-set warp-walk — enter_warp(prefer='south') warped
+1F↔2F forever in the Vermilion stair house (1,5)/(1,10); this trapped runs 12-13 post-arrival).
+**SHE PHYSICALLY ENTERED VERMILION (3,5) in run 12** (walked into a house before the goal check
+sampled — the two-story trap ate the run). KNOWN RESIDUE: a post-item-use 3-unresolved-stuck battle
+signature (the fight still progresses across re-entries — chips 54→31→7 — but burns ~60s/tick;
+pitfall-13's cousin, suspect stale menu byte after in-battle item use; diagnose next). Run 14 in
+flight at handoff — check `logs/longrun/nursery_run14.log`; if OUTCOME=GOAL, sanctity-gate + promote
+`G:\temp\longrun\banked_GOAL` (the proven promotion script pattern is in the session-1 block).
+
 **Old context below (pre-strike): rope previously ended at 🎫 S.S. TICKET OBTAINED (2026-07-05 strike,
 run-8 `logs/longrun/ticket_run8.log`).**
 Canonical save `pokemon_agent/states/campaign/kira_campaign.state` = inside Bill's Sea Cottage
