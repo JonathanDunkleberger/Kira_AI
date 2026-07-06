@@ -98,6 +98,11 @@ class TeachFlow:
                         and abs(p[x, y][1] - p[x, y][2]) < 40)
         if teal_hits >= 3:
             return "party"
+        # the FORGET/"KNOWN MOVES" summary (tk_020): blue plate at (200,4)=(0,108,191) + the
+        # whitish-cyan move boxes at x=122 — no other screen in the flow has this pair.
+        if (near(200, 4, (0, 108, 191)) and p[122, 67][0] > 225 and p[122, 67][1] > 240
+                and p[122, 90][0] > 225 and p[122, 90][1] > 240):
+            return "forget"
         yellow_hits = sum(1 for x, y in ((160, 30), (200, 60), (120, 10))
                           if p[x, y][0] > 240 and p[x, y][1] > 240 and 180 < p[x, y][2] < 230)
         if yellow_hits >= 2:
@@ -146,6 +151,30 @@ class TeachFlow:
                 continue
             self._press("DOWN" if cur < target else "UP", settle=18)
         return self._party_cursor() == target
+
+    # forget/"KNOWN MOVES" screen cursor: the selected row's RED-ORANGE border at x=122 (row-0 box
+    # top y=18, spacing ~23 native; measured tk_020). Closed-loop like the party nav.
+    _FORGET_TOPS = (18, 45, 67, 90, 112)     # measured (tk_020 row0=18; fg_1 row1=45; probes 67/90/112)
+
+    def _forget_cursor(self):
+        p = self.b.frame_rgb().load()
+        for k, y0 in enumerate(self._FORGET_TOPS):
+            for dy in (-3, -2, -1, 0, 1, 2, 3):
+                r, g, b = p[122, y0 + dy][:3]
+                if r > 200 and g < 120 and b < 80:
+                    return k
+        return None
+
+    def _forget_goto(self, target, tries=12):
+        for _ in range(tries):
+            cur = self._forget_cursor()
+            if cur == target:
+                return True
+            if cur is None:
+                self._press("DOWN", settle=18)
+                continue
+            self._press("DOWN" if cur < target else "UP", settle=18)
+        return self._forget_cursor() == target
 
     def _b_cascade(self, n=12):
         import travel as tv
@@ -239,9 +268,11 @@ class TeachFlow:
             elif scr == "bag":
                 self._press("A", settle=80)                      # the case-USE press hasn't landed yet
                 #                                                  (bag cursor is readback-parked on the case)
-            elif scr == "forget" and forget_idx is not None and not forgot:
-                for _ in range(forget_idx):
-                    self._press("DOWN", settle=22)
+            elif scr == "forget" and not forgot:
+                tgt = forget_idx if forget_idx is not None else 0
+                if not self._forget_goto(tgt):
+                    self.log(f"   [teach] !! forget cursor never reached row {tgt} — B out")
+                    break
                 self._press("A", settle=90)
                 forgot = True
             else:                                                # dialogue / transition -> advance
