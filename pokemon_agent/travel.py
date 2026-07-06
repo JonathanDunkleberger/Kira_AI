@@ -183,6 +183,24 @@ def read_warps(b):
         return []
 
 
+def read_bg_events(b):
+    """[(x, y), kind] for every BG event (sign / console / script tile — Bill's Cell-Separation machine
+    class) on the current map. SAVE coords; kind 0-4 = script/sign (facing variants), 7 = hidden item.
+    Same MapHeader.events read as read_warps (+0x03 bgEventCount, +0x10 BgEvent*, stride 12). Pure read."""
+    try:
+        ev = b.rd32(GMAPHEADER + 0x04)
+        if not _valid_ptr(ev):
+            return []
+        n = b.rd8(ev + 0x03)                      # bgEventCount
+        arr = b.rd32(ev + 0x10)                   # BgEvent* (ROM)
+        if not _valid_ptr(arr) or not (0 < n <= 64):
+            return []
+        return [((b.rds16(e), b.rds16(e + 2)), b.rd8(e + 5))
+                for i in range(n) for e in (arr + i * 12,)]
+    except Exception:
+        return []
+
+
 # ── collision grid (cached per map load) ─────────────────────────────────────
 class Grid:
     """Snapshot of the current map's collision, indexed in SAVE coordinates.
@@ -792,6 +810,12 @@ class Traveler:
                     return "no_path"
                 if no_path == 1:
                     self.log(f"   [travel] path blocked at {cur} (NPC on the gap?) - waiting")
+                # WATCHDOG TRUCE (2026-07-05): this wait is DELIBERATE stillness (letting a walker NPC
+                # step off the gap) — the POSITION-LOOP guard reading it as a spinner-wedge aborted the
+                # Route-25 door approach mid-gauntlet (two watchdogs fighting, the dueling-recovery
+                # class). Clear the confinement window while waiting; the guard still catches REAL
+                # spinner/warp loops (those cycle position involuntarily with no waiting branch active).
+                _pos_window.clear()
                 for _ in range(24):
                     self.b.run_frame(); self.render()
                 continue

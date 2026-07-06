@@ -688,6 +688,84 @@ class Campaign:
             return r
         return "stuck"
 
+    def _center_reachable_here(self):
+        """Pure predicate — from the CURRENT position, is a Pokémon Center reachable (is this spot
+        HEAL-SAFE)? THE strand guard: a GREEN tick in an un-healable spot must NOT be banked as the
+        escape target, or the reload loops straight back into the strand (the observed infinite STALL).
+        TWO accurate signals, mirroring what heal_nearest can ACTUALLY do:
+          1. OWN-map Center door BFS-reachable (or Route 3, which heals west at Pewter).
+          2. An ADJACENT Center-city excursion is crossable: a connection to a CITY_PC_DOORS neighbour
+             whose CONNECTION BAND (border rows where the neighbour's overlap tile is walkable — the
+             same signal travel's edge-cross uses) has a BFS-reachable tile. Run-4 proof this matters:
+             at Route-4 (107,12) the own Center is ledge-isolated but the east excursion to Cerulean
+             works (healed + returned twice in the log) — refusing to bank there threw away a full
+             L16/16 bench-level on the next revert. NOTE the earlier naive version of (2) ("can reach
+             any border tile ⇒ crossable") was WRONG — the BAND is what makes it accurate.
+        Over-conservative = skip a bank that tick (harmless); false-'safe' = re-poisons the loop (fatal)."""
+        try:
+            m = tv.map_id(self.b)
+            here = tv.coords(self.b)
+            if here is None:
+                return False
+            if m == ROUTE3:                          # Route 3 heals west at Pewter (its normal connection)
+                return True
+            grid = tv.Grid(self.b)
+            door = CITY_PC_DOORS.get(m)              # 1) own-map Center door reachable from here?
+            if door is not None:
+                appr = (door[0], door[1] + 1)        # stand just south of the door
+                if tv.bfs(grid, here, lambda t, a=appr: t == a, walkable=grid.walkable):
+                    return True
+            # 2) adjacent Center-city excursion crossable (band-accurate, mirrors heal_nearest)
+            _EDGE = {"N": "north", "S": "south", "E": "east", "W": "west"}
+            for d, nbr in self._map_connections():
+                if nbr not in CITY_PC_DOORS or nbr == m or d not in _EDGE:
+                    continue
+                if self._edge_band_reachable(grid, here, _EDGE[d]):
+                    return True
+            # 3) multi-hop: the world graph reaches a known Center city from this map (heal_nearest's
+            #    graph-heal path) AND the FIRST hop's edge band is tile-reachable from here. Mirrors what
+            #    heal can ACTUALLY do — without this, every Route-25 tile read unsafe and the deep Bill
+            #    progress could never bank (run-5: 'snapshot SKIPPED' at (27,6) → the revert lost it all).
+            try:
+                targets = self.world.reachable_with_trait(tuple(m), "has_pokecenter", None)
+                dest = next((tuple(mid) for mid, _nm, _h in targets if tuple(mid) in CITY_PC_DOORS), None)
+                if dest is not None:
+                    hop = self.world.next_hop(tuple(m), dest, None)
+                    if hop is not None:
+                        _nxt, edge = hop
+                        if self._edge_band_reachable(grid, here, edge):
+                            return True
+            except Exception:
+                pass
+            return False
+        except Exception as _e:
+            log(f"   [safe] center-reachable check errored: {_e!r} — treating as UNSAFE (conservative)")
+            return False
+
+    @staticmethod
+    def _edge_band_reachable(grid, here, edge):
+        """Can `here` BFS-reach a border tile in the map-edge's CONNECTION BAND (the rows/cols where the
+        neighbour's overlap tile just past the border is walkable)? The same crossable-edge signal
+        travel's edge-goal uses — a border tile OUTSIDE the band is a hard wall, so plain border
+        reachability is a false 'crossable' (the (84,15) lesson)."""
+        if edge == "east":
+            line, past_d, axis = grid.sx_hi, 1, 0
+        elif edge == "west":
+            line, past_d, axis = grid.sx_lo, -1, 0
+        elif edge == "north":
+            line, past_d, axis = grid.sy_lo, -1, 1
+        else:
+            line, past_d, axis = grid.sy_hi, 1, 1
+        if axis == 0:
+            band = {p for p in range(grid.sy_lo, grid.sy_hi + 1) if grid.walkable(line + past_d, p)}
+            goal = lambda t: t[0] == line and t[1] in band
+        else:
+            band = {p for p in range(grid.sx_lo, grid.sx_hi + 1) if grid.walkable(p, line + past_d)}
+            goal = lambda t: t[1] == line and t[0] in band
+        if not band:
+            return False
+        return bool(tv.bfs(grid, here, goal, walkable=grid.walkable))
+
     def heal_nearest(self):
         """Heal at the Pokemon Center NEAREST the CURRENT map. Returns 'ok' | 'stuck'.
 
@@ -723,28 +801,67 @@ class Campaign:
             log(f"   !! HEAL: no reachable adjacent Center from {m} (conns={self._map_connections()}) — LOUD")
             # RULE 17 / STUCK-SPIN BREAKER (2026-07-05): a TRUE strand (no Center reachable ANYWHERE — e.g. a
             # faint in a one-way-ledge grass pocket) must NOT return 'stuck' and spin the roam loop on an
-            # un-healable 'heal' forever (unwatchable + unstreamable). Force an autonomous escape-hatch reload
-            # to the last banked checkpoint (which is by construction pre-strand + Center-reachable). Returns
-            # 'ok' on recovery so the caller continues from the good spot; only 'stuck' if there's truly no
-            # checkpoint to fall back to (then the roam RED-ladder / deep-wedge ring owns it).
+            # un-healable 'heal' forever (unwatchable + unstreamable). Force an autonomous reload to a banked
+            # SAFE checkpoint and continue from there. FIX (2026-07-05): the recent-good snapshot is now
+            # poison-free (only banked from Center-reachable spots — see _center_reachable_here), so the
+            # escape-hatch reloads OUT of the pocket instead of straight back into it (was the infinite
+            # reload STALL). Belt-and-suspenders: if recent-good is absent/declines, fall back to the
+            # deep-wedge RING (gain-seam checkpoints — a guaranteed-safe city like post-Misty Cerulean).
             try:
                 if getattr(self, "_last_good_state", None) is not None and self._escape_hatch_reload():
                     log("   HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)")
                     return "ok"
+                if len(getattr(self, "_safe_ring", ()) or ()) and self._deep_wedge_revert():
+                    log("   HEAL: TRUE strand -> deep-wedge ring reverted to a guaranteed-safe checkpoint (recovered)")
+                    return "ok"
             except Exception as _he:
                 log(f"   HEAL: escape-hatch on strand crashed: {_he!r} (LOUD) — falling through to stuck")
             return "stuck"
-        # UNMAPPED map: fall back to the Viridian return, but LOUD (constraint #3 — never silent-degrade)
-        log(f"   !! HEAL: no local Center mapped for {m} — FALLBACK to a cross-region Viridian heal "
-            f"(FIX: add {m}'s PC door to CITY_PC_DOORS)")
+        # UNMAPPED map (2026-07-05, the Route-25 heal->stuck x10): route via HER WORLD GRAPH to the
+        # nearest VISITED Center city (Route 25 -> Route 24 -> Cerulean), multi-hop, fleeing wilds.
+        # General: works for every future unmapped route she's walked to. Does NOT walk back afterward —
+        # the roam re-derives position next tick (beaten trainers make the re-walk cheap).
+        try:
+            targets = self.world.reachable_with_trait(tuple(m), "has_pokecenter", None)
+        except Exception as _wt:
+            log(f"   !! HEAL: world-graph Center lookup failed ({_wt})"); targets = []
+        dest = next((tuple(mid) for mid, _nm, _h in targets if tuple(mid) in CITY_PC_DOORS), None)
+        if dest is not None:
+            log(f"   HEAL: no local Center mapped for {m} — world-graph routing to "
+                f"{self.world.name(dest)}'s Center (multi-hop, fleeing wilds)")
+            saved, saved_runner = self._suppress_heal, self.trav.battle_runner
+            self._suppress_heal = True
+            self.trav.battle_runner = self._flee_runner
+            try:
+                for _hop in range(8):
+                    cur = tuple(tv.map_id(self.b))
+                    if cur == dest:
+                        break
+                    hop = self.world.next_hop(cur, dest, None)
+                    if hop is None:
+                        log(f"   !! HEAL: graph route to {dest} broke at {cur} (LOUD)"); break
+                    nxt, edge = hop
+                    if self.trav.travel(target_map=nxt, edge=edge) == "battle_loss":
+                        return "ok"        # blacked out en route -> respawn auto-heals at a Center
+                if tuple(tv.map_id(self.b)) == dest:
+                    return ("ok" if self.heal_at_center(CITY_PC_DOORS[dest])
+                            in ("healed", "healed_stuck_inside") else "stuck")
+            finally:
+                self._suppress_heal, self.trav.battle_runner = saved, saved_runner
+        # LAST resort: the old Viridian return, LOUD (constraint #3 — never silent-degrade)
+        log(f"   !! HEAL: no graph route to any known Center from {m} — FALLBACK to a cross-region "
+            f"Viridian heal (FIX: add {m}'s PC door to CITY_PC_DOORS)")
         return "ok" if self.return_to_center() not in ("stuck", "battle_loss") else "stuck"
 
-    def enter_warp(self, prefer="nearest", pick=None):
+    def enter_warp(self, prefer="nearest", pick=None, budget_s=None):
         """REAL warp entry: find door/warp tiles (behavior 0x6x), walk to the tile just
         beside a chosen one, step INTO it, and confirm the map flips. `pick` (x,y) targets a
         specific door; else `prefer` = 'nearest' / 'north' (forward-progress gates are the
         northmost door, approached from the south, stepped UP) / 'south' (the heal-return exit,
-        the southmost door, approached from the north, stepped DOWN)."""
+        the southmost door, approached from the north, stepped DOWN). `budget_s` overrides the
+        approach leg's wall-clock budget — a TRAINER-GAUNTLET approach (Route 25 to Bill: 6+
+        fights en route) blows the 300s default at half-distance (run-5: aborted at step 72,
+        door 28 tiles away, 'no reachable door warped')."""
         before = tv.map_id(self.b)
         doors = self._door_tiles()
         if not doors:
@@ -773,7 +890,8 @@ class Campaign:
                           walkable=grid.walkable):
                 continue
             log(f"   reachable door {door}: walking to approach {approach}")
-            r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300)
+            r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300,
+                                 max_seconds=(budget_s or 300))
             if r == "need_heal":
                 return "need_heal"          # heal interrupt during the approach -> let caller heal
             if r != "arrived":
@@ -1407,39 +1525,85 @@ class Campaign:
         return any(idx not in talked and not self._npc_is_resolved(c)
                    for idx, c, _f in self._talkable_npcs())
 
+    _FACING_VAL = {"DOWN": 1, "UP": 2, "LEFT": 3, "RIGHT": 4}
+
+    def _face_verified(self, key, tries=6):
+        """READBACK-VERIFIED turn (2026-07-05, the Bill's-console fix): press the direction until the
+        facing byte actually reads it. The FIRST turn press right after a travel leg is routinely EATEN
+        (the walk animation still settling) — a blind face+A then interacts with the WRONG tile, which
+        is exactly why the cottage PC read as 'un-interactable' and talk_npc silently 'chatted' with
+        empty air. Same doctrine as the move-list / bag cursor readbacks: never trust a press, verify
+        the effect."""
+        from dialogue_drive import player_facing
+        want = self._FACING_VAL[key]
+        for _ in range(tries):
+            if player_facing(self.b) == want:
+                return True
+            self.b.press(key, 8, 8, self.render, owner="agent")
+            for _f in range(16):
+                self.b.run_frame(); self.render()
+        return player_facing(self.b) == want
+
     def talk_npc(self):
         """BATCH 5 PHASE 4 — her earliest want ('talk to the locals'). Pick a reachable townsperson she
         hasn't talked to here yet, walk to them, face + A, and let the READ+REACT seam fire (the live
         DialogueReader poll already voices what they say in HER words). Tracks talked NPCs per-map so she
-        works the room instead of mashing one person. Returns 'talked' | 'no_npc'."""
+        works the room instead of mashing one person. Returns 'talked' | 'no_npc'.
+
+        2026-07-05 (the Bill last-mile): (a) WANDERER TRACKING — re-read the NPC's LIVE coords on arrival
+        (a LOOK_AROUND/wander NPC moves mid-approach; the old code then A'd the tile they LEFT — the
+        silent 'chatted with empty air' bug); (b) FACE-VERIFIED turn; (c) HONEST 'talked' — only counts
+        if a dialogue box actually OPENED (box_open readback), so a missed interaction retries instead
+        of poisoning the talked-set."""
+        from dialogue_drive import box_open as _box
         mp = tv.map_id(self.b)
         if not hasattr(self, "_talked_npcs"):
             self._talked_npcs = {}
         talked = self._talked_npcs.setdefault(mp, set())
-        for idx, body, _facing in self._talkable_npcs():
-            if idx in talked or self._npc_is_resolved(body):    # B-2: skip talked + looped/resolved NPCs
+        for idx, body0, _facing in self._talkable_npcs():
+            if idx in talked or self._npc_is_resolved(body0):   # B-2: skip talked + looped/resolved NPCs
                 continue
-            grid = tv.Grid(self.b)
-            cur = tv.coords(self.b)
-            for adj in ((0, 1), (0, -1), (-1, 0), (1, 0)):
-                front = (body[0] + adj[0], body[1] + adj[1])
-                if not tv.bfs(grid, cur, lambda t: t == front, walkable=grid.walkable):
-                    continue
-                log(f"   TALK: approaching NPC obj#{idx} at {body} via {front}")
-                self.trav.travel(target_map=None, arrive_coord=front, max_steps=200, max_seconds=60)
-                if st.in_battle(self.b):
-                    return "talked"                            # an interaction started a battle — loop fights it
-                if tv.coords(self.b) != front:
-                    break                                      # couldn't reach this side — try the next NPC
-                face = self._TOWARD[(-adj[0], -adj[1])]        # turn toward them
-                self.b.press(face, 8, 8, self.render, owner="agent")
-                self.b.press("A", 6, 12, self.render, owner="agent")
-                for _ in range(20):
-                    self.b.run_frame(); self.render()
-                self._drain_overworld(label="npc-talk")        # read + advance their line (her reaction fires)
-                talked.add(idx)
-                log(f"   TALK: chatted with NPC obj#{idx}")
-                return "talked"
+            for _attempt in range(4):                           # wanderer tracking: re-approach live coords
+                body = next((c for i, c, _f in self._talkable_npcs() if i == idx), None)
+                if body is None:
+                    break                                       # despawned (a scripted NPC can leave)
+                grid = tv.Grid(self.b)
+                cur = tv.coords(self.b)
+                moved_on = False
+                for adj in ((0, 1), (0, -1), (-1, 0), (1, 0)):
+                    front = (body[0] + adj[0], body[1] + adj[1])
+                    if front != cur and not tv.bfs(grid, cur, lambda t, f=front: t == f,
+                                                   walkable=grid.walkable):
+                        continue
+                    if front != cur:
+                        log(f"   TALK: approaching NPC obj#{idx} at {body} via {front}")
+                        self.trav.travel(target_map=None, arrive_coord=front, max_steps=200, max_seconds=60)
+                    if st.in_battle(self.b):
+                        return "talked"                        # an interaction started a battle — loop fights it
+                    if tv.coords(self.b) != front:
+                        break                                  # couldn't reach this side — re-read + retry
+                    live = next((c for i, c, _f in self._talkable_npcs() if i == idx), None)
+                    if live != body:
+                        moved_on = True
+                        break                                  # they wandered mid-walk — re-approach fresh
+                    self._face_verified(self._TOWARD[(-adj[0], -adj[1])])
+                    opened = False
+                    for _a in range(3):                        # a post-walk A can be eaten too — bounded retry
+                        self.b.press("A", 6, 12, self.render, owner="agent")
+                        for _ in range(20):
+                            self.b.run_frame(); self.render()
+                        if _box(self.b):
+                            opened = True
+                            break
+                    if not opened:
+                        moved_on = True                        # no box = interaction missed -> retry fresh
+                        break
+                    self._drain_overworld(label="npc-talk")    # read + advance their line (her reaction fires)
+                    talked.add(idx)
+                    log(f"   TALK: chatted with NPC obj#{idx} (box verified)")
+                    return "talked"
+                if not moved_on:
+                    break                                      # sides exhausted for a stationary NPC
         log("   TALK: no reachable un-talked NPC here")
         return "no_npc"
 
@@ -2813,6 +2977,10 @@ class Campaign:
         self._active_questline = None
         self._ql_entered_doors = set()        # fresh building-tracking for the next questline
         self._ql_inside_target = False        # not deliberately inside any quest building anymore
+        self._ql_past_anchor = False          # next questline starts anchor-relative again
+        self._ql_bend_maps = set()            # forget the explored bend with the questline
+        self._ql_room_sweeps = 0              # fresh room-sweep budget for the next questline
+        self._ql_bg_done = set()              # fresh machine/sign tracking too
 
     def _run_questline_step(self, state):
         """EXECUTOR: advance the active questline by routing toward its current actionable step (reusing
@@ -2845,6 +3013,23 @@ class Campaign:
         conns = self._map_connections()
         nbr = next(((g, n) for dd, (g, n) in conns if dd == letter), None)
         if nbr is None:
+            # RE-ANCHOR (2026-07-05, run-4 lesson): the step's coarse dir is relative to the GATE map
+            # (e.g. "Bill is north" means north OF CERULEAN). Standing on a map BEHIND the anchor with no
+            # step-dir edge (post-grind on Route 4, west of Cerulean), the old fallbacks misfire: the
+            # frontier is empty (Cerulean already visited) → "arrived at the destination area" → interact
+            # with nothing → head_to_gym no-ops forever (the (107,12) wedge). If we haven't yet crossed
+            # PAST the anchor this questline, the move is simply: route back TO the anchor city first.
+            gate_where = tuple(self._active_questline.gate.where or ()) or None
+            if (gate_where and cur_map != gate_where
+                    and not getattr(self, "_ql_past_anchor", False)):
+                hop = self.world.next_hop(cur_map, gate_where, avoid=self._wall_avoid(state))
+                if hop:
+                    nxt, edge2 = hop
+                    if not self.strat.is_gated(tuple(nxt), pc, pl):
+                        log(f"   [roam] 🧭 QUESTLINE RE-ANCHOR: '{step.human}' is relative to "
+                            f"{self.world.name(gate_where)} and we're off-frame at "
+                            f"{self.world.name(cur_map)} — routing {edge2} -> {nxt} back to the anchor first")
+                        return self.trav.travel(target_map=nxt, edge=edge2)
             # The route BENDS: the step's single coarse dir (KB stores a COARSE compass bearing, e.g. "Bill
             # is north") has no map-edge on THIS map. RECON-CONFIRMED case: Cerulean -N-> Route 24 (3,43),
             # whose only exits are S (back) + E -> Route 25 -> Bill. The old code no-op'd here ("no N edge")
@@ -2863,7 +3048,26 @@ class Campaign:
                     return "wall_gated"
                 log(f"   [roam] 🧭 QUESTLINE EXPLORE: no {d} edge from {cur_map} — the route bends; "
                     f"crossing {dd} into unexplored {nb} toward {step.place_name or 'the destination'}")
+                if not hasattr(self, "_ql_bend_maps"):
+                    self._ql_bend_maps = set()
+                self._ql_bend_maps.add(nb)         # remember the bend so a bounce-back can CONTINUE it
                 return self.trav.travel(target_map=nb, edge=dword)
+            # BEND-CONTINUE (2026-07-05, run-6's Route-24 'arrived' misfire): once the bend has been
+            # explored (Route 25 visited), the frontier goes empty on EVERY map — but an empty frontier
+            # on a NON-bend map (bounced back to Route 24 after a heal) does NOT mean 'arrived'; it means
+            # 'get back on the bend'. Hop toward the recorded bend map; only a map we entered VIA the bend
+            # (or a questline with no bend at all) may declare 'arrived' and interact.
+            bends = getattr(self, "_ql_bend_maps", set())
+            if bends and cur_map not in bends:
+                nxt = next(((dd, tuple(nb)) for dd, nb in conns if tuple(nb) in bends), None)
+                if nxt is not None:
+                    dd, nb = nxt
+                    log(f"   [roam] 🧭 QUESTLINE BEND-CONTINUE: back on the explored bend — "
+                        f"crossing {dd} into {nb} toward {step.place_name or 'the destination'}")
+                    return self.trav.travel(target_map=nb, edge=_L2W[dd])
+                # no connection to the bend from here — route back to the anchor and re-walk it
+                log(f"   [roam] questline: off the bend at {cur_map} with no direct hop — re-walking "
+                    f"via the anchor")
             # No coarse-dir edge AND no unexplored frontier → she's ARRIVED at the destination AREA. The
             # step now COMPLETES by an INTERACTION (talk an NPC, board a ship, use an HM), not more travel —
             # hand off to the general destination-interaction layer (Bill is the first instance; the same
@@ -2874,6 +3078,10 @@ class Campaign:
         if self.strat.is_gated(nbr, pc, pl):
             log(f"   [roam] questline: {d} hop {nbr} is wall-gated — surfacing")
             return "wall_gated"
+        # crossing the step-dir edge FROM the anchor map = we're going PAST the anchor now; the re-anchor
+        # fallback must stop firing (else a bending route past the anchor would get dragged back to it).
+        if cur_map == (tuple(self._active_questline.gate.where or ()) or None):
+            self._ql_past_anchor = True
         return self.trav.travel(target_map=nbr, edge=d)
 
     def _questline_interact(self, state, step):
@@ -2903,9 +3111,28 @@ class Campaign:
             if r == "talked":
                 log("   [roam] 🗣️ QUESTLINE TALK: spoke to someone inside — re-checking the flag next tick")
                 return "questline_talked"
+            # WORK THE ROOM (2026-07-05, the Bill Cell-Separation class): quest buildings have scripted
+            # MACHINES/consoles — BG events read live from the map header (no hardcoded coords). Interact
+            # them facing-correct; a fired script (box opened) means world state advanced — re-check next tick.
+            if self._questline_bg_sweep():
+                log("   [roam] 🖥️ QUESTLINE ROOM: worked a machine/sign in here — re-checking the flag next tick")
+                return "questline_worked_room"
+            # RE-SWEEP (bounded): scripts change WHO is in the room (Bill re-appears human after the
+            # separation) — clear the talked-set and go again before giving up on the building.
+            sweeps = getattr(self, "_ql_room_sweeps", 0)
+            if sweeps < 2:
+                self._ql_room_sweeps = sweeps + 1
+                try:
+                    self._talked_npcs.get(tv.map_id(self.b), set()).clear()
+                    getattr(self, "_ql_bg_done", set()).clear()   # scripts are state-dependent — re-arm them too
+                except Exception:
+                    pass
+                log(f"   [roam] questline: room re-sweep {sweeps + 1}/2 (scripts change who's here)")
+                return "questline_resweep"
             # nobody left to talk + the flag didn't set → wrong building; release the 'stay inside' marker
             # so the blackout-recovery can exit her, and keep looking at the next candidate building.
             log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
+            self._ql_room_sweeps = 0
             self._ql_inside_target = False
             self._exit_to_overworld()
             return "questline_wrong_building"
@@ -2914,7 +3141,9 @@ class Campaign:
         if door is not None:
             self.on_event("this looks like the place — let me head inside.", kind="route", tier=1)
             before = tv.map_id(self.b)
-            self.enter_warp(pick=door)
+            # 900s approach budget: the door can sit past a trainer GAUNTLET (Route 25 -> Bill = 6+
+            # fights en route); the 300s default aborted at half-distance (run-5 'enter_failed').
+            self.enter_warp(pick=door, budget_s=900)
             if tuple(tv.map_id(self.b)) != tuple(before):
                 self._ql_entered_doors.add((tuple(before), tuple(door)))
                 self._ql_inside_target = True       # tell the blackout-recovery to LEAVE HER inside (she's
@@ -2929,6 +3158,49 @@ class Campaign:
             return "questline_talked"
         log("   [roam] questline: arrived but found no building/NPC to interact with here — surfacing")
         return "questline_arrived_no_target"
+
+    def _questline_bg_sweep(self):
+        """Interact the CURRENT map's BG events (scripted machines/consoles/signs — Bill's Cell-Separation
+        PC is instance #1), read LIVE from the map header (general, zero hardcoded coords). Approaches the
+        facing-correct side per the event's kind (1=face N, 2=S, 3=E, 4=W, 0=any side), FACE-VERIFIED turn,
+        A with a box readback (+ a longer settle so a triggered cutscene can play). Tracks interacted tiles
+        per building visit. Returns True iff a box actually opened (a script fired = world advanced)."""
+        from dialogue_drive import box_open as _box
+        if not hasattr(self, "_ql_bg_done"):
+            self._ql_bg_done = set()
+        mp = tuple(tv.map_id(self.b))
+        _SIDES = {1: [((0, 1), "UP")], 2: [((0, -1), "DOWN")], 3: [((-1, 0), "RIGHT")], 4: [((1, 0), "LEFT")],
+                  0: [((0, 1), "UP"), ((0, -1), "DOWN"), ((-1, 0), "RIGHT"), ((1, 0), "LEFT")]}
+        for (bx, by), kind in tv.read_bg_events(self.b):
+            if kind > 4 or (mp, (bx, by)) in self._ql_bg_done:
+                continue
+            grid = tv.Grid(self.b)
+            cur = tv.coords(self.b)
+            for (adx, ady), face in _SIDES.get(kind, []):
+                front = (bx + adx, by + ady)
+                if not grid.walkable(*front):
+                    continue
+                if front != cur and not tv.bfs(grid, cur, lambda t, f=front: t == f, walkable=grid.walkable):
+                    continue
+                if front != cur:
+                    self.trav.travel(target_map=None, arrive_coord=front, max_steps=60, max_seconds=40)
+                if tv.coords(self.b) != front:
+                    continue
+                self._face_verified(face)
+                for _a in range(2):
+                    self.b.press("A", 6, 12, self.render, owner="agent")
+                    for _f in range(50):
+                        self.b.run_frame(); self.render()
+                    if _box(self.b):
+                        log(f"   [roam] 🖥️ BG-EVENT fired at ({bx},{by}) (facing {face}) — driving")
+                        self._drain_overworld(label="bg-event")
+                        for _f in range(90):               # let a triggered cutscene finish
+                            self.b.run_frame(); self.render()
+                        self._ql_bg_done.add((mp, (bx, by)))
+                        return True
+                break                                      # correct side tried clean — this event is inert now
+            self._ql_bg_done.add((mp, (bx, by)))           # unreachable/inert — don't re-try every sweep
+        return False
 
     def _questline_unentered_door(self):
         """Nearest reachable building door she hasn't ENTERED for the current questline (so she works through
@@ -4204,7 +4476,15 @@ class Campaign:
             # ADDENDUM A — capture a KNOWN-GOOD snapshot on every PROGRESSING tick: this is the state the
             # escape-hatch rewinds to, so by construction it's from BEFORE any wedge and already carries
             # the latest gains. Cheap (one savestate held in memory); overwritten as she progresses.
-            if macro == ledger.GREEN:
+            # STRAND-POISON GUARD (2026-07-05 strike): ONLY bank from a Center-reachable (heal-safe) spot.
+            # A GREEN grind tick standing in an un-healable one-way pocket (Route-4 (84,15)) must NEVER
+            # become the escape target — that was THE bug: the escape-hatch reloaded straight back into
+            # the strand, looping forever (observed infinite STALL). A poisoned checkpoint is worse than
+            # none. Both recent-good AND the gain-seam ring are guarded.
+            if macro == ledger.GREEN and not self._center_reachable_here():
+                log("   [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to "
+                    "bank a poisoned escape target (would reload back into the strand)")
+            elif macro == ledger.GREEN:
                 try:
                     self._last_good_state = self.b.save_state()
                     self._last_good_gain = self._gain_sig()
@@ -4325,7 +4605,24 @@ class Campaign:
                 self.on_event("okay, this isn't working — I'm heading to the Pokémon Center to reset and "
                               "figure out my next move.", kind="recover", tier=2)
                 hard_recovered = True
+                _hr_pos = (tuple(tv.map_id(self.b)), tv.coords(self.b))
                 self.heal_nearest()                # known-reachable anchor; restores HP -> fp moves -> escape
+                # POSITION-BREAK GUARANTEE (2026-07-05, run-4 lesson): with a FULL party the heal-excursion
+                # walks to the adjacent city and FAITHFULLY RETURNS to the exact wedge tile — a perfect
+                # no-op that leaves the fingerprint frozen (RED kept climbing until the escape-hatch
+                # reverted a whole bench-level away). Hard recovery's JOB is a position change: if heal
+                # ended where it started, take the excursion ONE-WAY — cross to an adjacent Center city
+                # and STAY there (the roam re-routes forward from the city next tick).
+                if (tuple(tv.map_id(self.b)), tv.coords(self.b)) == _hr_pos:
+                    log("   [roam] !! HARD RECOVERY was a no-op (healed + returned to the same tile) — "
+                        "breaking the position ONE-WAY to an adjacent Center city")
+                    _EDGE = {"N": "north", "S": "south", "E": "east", "W": "west"}
+                    for _d, _nbr in self._map_connections():
+                        if _nbr in CITY_PC_DOORS and tuple(_nbr) != tuple(tv.map_id(self.b)) and _d in _EDGE:
+                            r_ow = self.trav.travel(target_map=_nbr, edge=_EDGE[_d])
+                            log(f"   [roam] one-way position break {_EDGE[_d]} -> {_nbr}: {r_ow}")
+                            if tuple(tv.map_id(self.b)) == tuple(_nbr):
+                                break
                 ledger.note_action("hard_recovery", "forced_center")
                 continue                           # re-observe next tick from the broken position
             log(f"   [roam] OPTIONS OFFERED: {list(avail.keys())}")
@@ -5156,13 +5453,18 @@ class Campaign:
         }
 
     def _gain_sig(self):
-        """ADDENDUM A — the IRREVERSIBLE-progress fingerprint: (badges, party size, dex caught). Used to
-        guarantee the escape-hatch never reloads PAST a real gain (a badge, a new teammate, a fresh catch
-        like a shiny). Pure reads."""
+        """ADDENDUM A — the IRREVERSIBLE-progress fingerprint: (badges, party size, dex caught, team
+        LEVEL-SUM). Used to guarantee the escape-hatch never reloads PAST a real gain. LEVEL-SUM added
+        2026-07-05 after the level-blind sig cost a full bench-level TWICE in one night: run-4 reverted a
+        13-min L16/16 weak-grind, then run-5 reverted Ivysaur L30→28 + the Route-25 position — 154+ wins
+        of XP registered as ZERO gain because levels weren't in the sig. Level-sum is monotonic (levels
+        never go down), so every level-up now protects itself AND banks a fresh gain-seam ring checkpoint
+        (each level = a piton). Pure reads."""
         badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
         party = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         dex = ram.pokedex_owned_count(self.b) or 0
-        return (badges, party, dex)
+        levels = sum(self._party_levels() or [0])
+        return (badges, party, dex, levels)
 
     def _deep_wedge_revert(self):
         """PHASE 1 — the floor beneath the escape-hatch. The recent-good reload is exhausted and the
@@ -5246,7 +5548,7 @@ class Campaign:
                 f"never reload if we couldn't back up first)")
             return False
         # 2) GAIN GUARD — never rewind past a real gain (badge / teammate / fresh catch)
-        cur_gain, good_gain = self._gain_sig(), (self._last_good_gain or (0, 0, 0))
+        cur_gain, good_gain = self._gain_sig(), (self._last_good_gain or (0, 0, 0, 0))
         if any(c > g for c, g in zip(cur_gain, good_gain)):
             log(f"   [roam] !! ESCAPE-HATCH: current gain {cur_gain} EXCEEDS last-good {good_gain} — a real "
                 f"gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current "

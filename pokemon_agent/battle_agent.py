@@ -88,7 +88,8 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # fix is bigger: route the weak-grind to a SAFE MAP (Route 3: flat, L3-6, Center-reachable via Pewter) rather
 # than Route 4 at all, OR make a true strand (heal 'stuck', no reachable Center) force an escape-hatch reload
 # that recovers. Flagged in STATE §0 as the top rebuild item. Switch MECHANISM + BATTLE_SWITCH stay armed/verified.
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") != "0"
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"   # DEFAULT-ON 2026-07-05: chain
+#   proven end-to-end (bench L8/10->16 via participation XP -> Gary first-try -> bridge -> Bill -> TICKET)
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter) is correct STRATEGY but it makes fights LONG,
 # and a long fight exposes the in-battle MOVE-LIST actuation wedge on the long-running core (the look-ahead
@@ -843,6 +844,27 @@ class BattleAgent:
             pass
         return self._in_move_list()
 
+    def _movelist_open_verified(self):
+        """_movelist_open + a CURSOR-RESPONSE cross-check. THE immortal-Ekans wedge (2026-07-05 look-ahead):
+        after an in-battle ITEM use, MENU_MODE reads a STALE 2, so the open-check short-circuited True
+        BEFORE the FIGHT-opening A was ever pressed — the move list was never open, _goto_move's presses
+        landed on the action menu, MOVE_CURSOR never moved, the flee also failed against the phantom
+        state, and travel re-entered the SAME battle ~50x (ekans 27/27 every time). Doctrine (the
+        cursor-desync lesson): trust CURSOR-RESPONSE, not a state byte. The list counts as open only if
+        MOVE_CURSOR actually responds to a probe press (probe toward a neighbor, readback, restore).
+        Known edge: a 1-move mon's cursor can't move (probe reads as closed) → the caller presses A,
+        which on a truly-open 1-move list just fires slot 0 — the only move, harmless."""
+        if not self._movelist_open():
+            return False
+        cur = self.b.rd8(MOVE_CURSOR)
+        probe = "RIGHT" if cur % 2 == 0 else "LEFT"
+        back = "LEFT" if probe == "RIGHT" else "RIGHT"
+        self._tap(probe); self._wait(8)
+        if self.b.rd8(MOVE_CURSOR) == cur:            # cursor didn't respond -> NOT really open (stale byte)
+            return False
+        self._tap(back); self._wait(8)                # restore the cursor (readback nav re-verifies anyway)
+        return True
+
     def _goto_move(self, idx, tries=12):
         """Walk the move-list cursor to slot idx by RAM READBACK of MOVE_CURSOR (0..3 in the 2x2 grid:
         index = row*2 + col), VERIFYING each press actually moved the cursor — an eaten d-pad press on
@@ -989,10 +1011,14 @@ class BattleAgent:
         opened = False
         self._home_to_fight()
         for _ in range(12):
-            if self._movelist_open():                 # RAM (MENU_MODE==2) OR pixel — RAM survives long core
+            # VERIFIED open (cursor-response, not just the MENU_MODE byte): a stale-2 byte after an item
+            # use short-circuited this check before A was ever pressed = the immortal-Ekans wedge.
+            if self._movelist_open_verified():
                 opened = True; break
+            self._home_to_fight()                     # a failed probe may have nudged the ACTION cursor
+            #                                           (RIGHT lands on BAG) — re-home so A opens FIGHT
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            if self._movelist_open():
+            if self._movelist_open_verified():
                 opened = True; break
             if not (self._white_box() or self._movelist_open()):   # a wrong submenu opened -> back out
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
@@ -1381,6 +1407,20 @@ class BattleAgent:
                         and state and not (self._enemy_fainted or self._we_fainted)):
                     self._grind_switched = True            # one attempt/battle, whatever the result
                     ace = self._ace_reserve_slot()
+                    # ALREADY-ACE GUARD (2026-07-05): after a mid-battle switch the ACTIVE mon is no longer
+                    # gPlayerParty[0], so "is the lead weak?" must compare against the mon actually OUT.
+                    # If the active species IS the ace's species, there's nothing to protect — switching
+                    # would pull the tank OUT (the run-3 misfire: 'weak lead out' fired at an Ivysaur that
+                    # was already fighting). Species match beats a level compare here: read_battle's 'ours'
+                    # is the ground truth for who's out.
+                    if ace is not None:
+                        try:
+                            ace_sp = st.read_party_species(self.b, ace)
+                        except Exception:
+                            ace_sp = None
+                        if ace_sp is not None and state.get("ours", {}).get("species") == ace_sp:
+                            self.log("   [engine] GRIND SWITCH: ace is ALREADY the active mon — no switch needed")
+                            ace = None
                     if ace is not None:
                         self.log(f"   [engine] GRIND SWITCH: weak lead out -> switching to ace slot {ace} "
                                  f"(weak mon banks participation XP, ace does the fighting)")
@@ -1393,7 +1433,14 @@ class BattleAgent:
                 # B-1 — MATCHUP SWITCH (gated POKEMON_BATTLE_SWITCH, fail-safe): before swinging, if the
                 # active mon is badly out-typed AND a better reserve exists, switch instead. Off by
                 # default until the actuation is live-verified; a failed switch backs out and fights.
-                if (BATTLE_SWITCH_ENABLED and state and not (self._enemy_fainted or self._we_fainted)
+                # STRAND-ROOT FIX (2026-07-05 strike): NOT during a participation grind. PROTECT_LEAD_GRIND
+                # just brought the tanky ACE in so the weak mon banks XP without taking a hit — the matchup
+                # switch would immediately pull the ace back out (it reads Ivysaur as "out-typed" vs the
+                # wild) and re-field the fragile mon, which then faints and STRANDS her (the observed
+                # Route-4 (84,15) strand: GRIND SWITCH in, MATCHUP SWITCH straight back out). During a grind
+                # the ace STAYS and tanks — no matchup churn.
+                if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND
+                        and state and not (self._enemy_fainted or self._we_fainted)
                         and self._voluntary_switch(state) == "switched"):
                     self._acted_once = True
                     stall = 0
