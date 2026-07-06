@@ -218,6 +218,15 @@ to Jonny and wastes his watches. Never again.
       human pace (music+voice+dashboard) from EXACTLY where she is; (3) he watches/plays as long as he wants;
       (4) whatever state he leaves IS the new canonical — bank it, resume climbing from there. His session is
       part of the same playthrough, not a detour. Pop-in/out commands live permanently atop STATE §0.
+    - **THE MANUAL-INTERRUPT CLAUSE:** at any time, Jonny may take the seat on the Sherpa timeline and play
+      MANUALLY — fiddle, wander, fight, shop, whatever — and when he steps away, the world he leaves IS the
+      new canonical: bank it (full sanctity bundle), and Kira resumes autonomously from exactly there, her
+      story continuity intact. Her narration handles what she didn't cause NATURALLY ("huh, we're over here
+      now") — never a crash, never confusion, never a broken saga. Low priority to BUILD for (the pop-in
+      protocol covers most of it) — but VERIFY the human-played-then-resume path once (Jonny plays ~2 min,
+      walks away, she resumes clean, sanctity valid); the verification is filed on the pre-showtime
+      checklist (STATE §0). The principle: the Sherpa world belongs to BOTH of them; her autonomy must
+      survive his hands.
     - **WATCH STATUS line (every survey):** `WATCH STATUS: canonical bank is [clean/wedged-being-fixed]; she is
       currently at [location, doing what]; pop-in = [the command].`
 

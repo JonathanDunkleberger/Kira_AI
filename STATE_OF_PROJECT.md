@@ -441,6 +441,16 @@ lines + `RIVAL beat|END:|STALL:` — the per-decision `ctx` dumps are HUGE, neve
 
 ---
 
+## PRE-SHOWTIME CHECKLIST (verifications owed before the Kira timeline / heavy watch use)
+
+- ☐ **MANUAL-INTERRUPT VERIFY (Jonny's clause, 2026-07-06):** Jonny plays ~2 min manually on the
+  Sherpa save, walks away → bank (full sanctity bundle) → Kira resumes autonomously, clean,
+  sanctity VALID, narration takes the changed world in stride ("huh, we're over here now" — no
+  crash/confusion/saga break). Needs Jonny's hands for the manual part; the resume machinery is
+  the standard pop-in path.
+- ☐ **KILL-TEST cadence (rule 17):** ≥1 hard-kill + resume per banked checkpoint — run one on the
+  next promoted bank (mechanically + narratively seamless).
+
 ## SOUL-DEBT LEDGER (CEO obligation #2 — the human halves we deferred; PAY before the Kira timeline starts)
 
 **Definition:** a debt = a bedrock block whose MECHANICAL half is built but whose ENDEARING/human half is
