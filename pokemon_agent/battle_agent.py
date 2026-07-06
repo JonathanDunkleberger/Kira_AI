@@ -82,12 +82,11 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # A wedged grind battle returns 'stuck' and blacks her out. Kept (code-complete) for when the in-battle
 # switch actuation is made reliable (it's the real weak-mon-leveling cure for the E4); until then OFF, and
 # the underlevel grind leans on other paths. Arm with POKEMON_GRIND_SWITCH=1 once switch nav is verified.
-# RE-GATED 2026-07-05: the switch MECHANISM is verified, but arming the weak-grind exposed a GRIND-STRANDING
-# regression — the weak-grind routes the fragile weak mon into the far-east Route-4 below-ledge grass pocket
-# (84,15), loses a battle there, then can't path back to ANY Center (heal-wedge -> stall at 63s). The
-# participation switch itself works; the blocker is grind routing into an unreachable pocket + heal-reachability
-# from it. Fix that (grind only Center-reachable grass) THEN re-arm. BATTLE_SWITCH stays armed (harmless/verified).
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") != "0"
+# RE-ARMED 2026-07-05: the grind-stranding regression is fixed — grind(fragile=True) now paces only grass she
+# can WALK BACK FROM (no one-way ledge strand), CONDITIONAL on mon fragility so the tanky ace-grind is unaffected
+# (the blanket filter that regressed it was reverted). The participation switch is verified; with reachable-grass
+# routing a weak-mon faint is always healable. Weak lead -> turn-1 switch to ace -> weak mon banks participation XP.
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter) is correct STRATEGY but it makes fights LONG,
 # and a long fight exposes the in-battle MOVE-LIST actuation wedge on the long-running core (the look-ahead

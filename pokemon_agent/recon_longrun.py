@@ -152,6 +152,12 @@ def main():
                 camp.soul.save(os.path.join(STAGE, "soul.json"))
         except Exception:
             pass
+        try:                                                  # RULE 17 — bank her saga WITH the checkpoint
+            import json as _json
+            with open(os.path.join(STAGE, "journey_core.json"), "w", encoding="utf-8") as jf:
+                _json.dump(camp._journey_narrative(), jf, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity

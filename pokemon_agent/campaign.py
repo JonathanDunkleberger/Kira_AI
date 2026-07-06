@@ -111,6 +111,10 @@ PLAYTHROUGH_JSON = os.path.join(STATES_CAMPAIGN, "playthrough.json")
 # or "she's been wedged an hour". Game-side fields only (progress/where/badges/last-checkpoint); the
 # dashboard merges in API spend from the bot's own cost-tracker.
 HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
+# RULE 17 SANCTITY — bank her NARRATIVE saga (grudge/team-feelings/arc) WITH the checkpoint bundle, next to
+# strat/world/soul, so a checkpoint restore resumes her STORY (not just game+strategy). Core Kira keeps its
+# own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
+JOURNEY_JSON = os.path.join(STATES_CAMPAIGN, "journey_core.json")
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
 # BATCH 6 PHASE 6 + ADDENDUM A — LAST-RESORT wedge escape-hatch (the 30-hr-run insurance). Fires only
 # AFTER the forced-heal hard-recovery has already been tried and RED persists (a GENUINE fingerprint-
@@ -2329,11 +2333,16 @@ class Campaign:
             log(f"   HEAL: returned toward {return_to} -> {r} (now {tv.coords(self.b)})")
         return "healed"
 
-    def grind(self, target_level):
+    def grind(self, target_level, fragile=False):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
         capability (the 'walk away' vision needs autonomous leveling). From a CITY with no grass
         (Pewter), cross EAST to the adjacent route (Route 3: grass + a trainer gauntlet = fast XP),
-        grind, then cross back. Wilds are FOUGHT (XP), not fled. Returns 'ok' | 'battle_loss'."""
+        grind, then cross back. Wilds are FOUGHT (XP), not fled. Returns 'ok' | 'battle_loss'.
+
+        `fragile=True` (weak bench-mon grind): the lead can FAINT, so ONLY pace grass she can WALK BACK
+        FROM to the safe start anchor — never cross a one-way ledge into a pocket where a faint would
+        strand her un-healably (the Route-4-east heal-wedge). The tanky ace (fragile=False) is unfiltered
+        (it never faints there, so Center-unreachable grass is fine — filtering it regressed the ace-grind)."""
         def lvl():
             return self.b.rd8(ram.GPLAYER_PARTY + 0x54)
         if lvl() >= target_level:
@@ -2343,18 +2352,29 @@ class Campaign:
 
         def grass_save():
             return [(x - off, y - off) for (x, y) in tv.Grid(self.b).grass]
-        log(f"   GRIND: Lv{lvl()} < {target_level} - heading to the grass to train")
+        log(f"   GRIND: Lv{lvl()} < {target_level} - heading to the grass to train"
+            + (" [FRAGILE: reachable grass only]" if fragile else ""))
         if not grass_save() and home == PEWTER:               # city has no grass -> Route 3 (east)
             self.walk_to_map(ROUTE3, "east")
+        anchor = tv.coords(self.b) or (0, 0)                   # safe start (Center-reachable); fragile grind
+        #                                                        must be able to walk BACK here from any grass
         t0 = time.time()
         while lvl() < target_level and time.time() - t0 < 480:
             gs = grass_save()
             if not gs:
                 log(f"   !! GRIND: no grass reachable on {tv.map_id(self.b)} - stopping LOUD"); break
             cur = tv.coords(self.b) or (0, 0)
+            if fragile:                                        # keep only grass she can RETURN from (no one-way strand)
+                grid_now = tv.Grid(self.b)
+                safe = [g for g in gs if g != anchor
+                        and tv.bfs(grid_now, g, lambda t, a=anchor: t == a, walkable=grid_now.walkable)]
+                if safe:
+                    gs = safe
+                elif [g for g in gs if g != cur]:              # ALL grass is a one-way strand-risk here ->
+                    log(f"   !! GRIND[fragile]: all grass on {tv.map_id(self.b)} is a one-way strand from "
+                        f"{anchor} - stopping this map's fragile grind LOUD"); break
             # Pace the NEAREST grass tiles only (not the farthest) so a long grind stays LOCAL and never
-            # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable (the
-            # Route-4-east strand: she walked to x=107 chasing gs[-1], then couldn't get back to grass).
+            # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable.
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
             nearby = [g for g in gs if g != cur][:4] or gs[:1]
             doors = frozenset(self._door_tiles())
@@ -2501,7 +2521,7 @@ class Campaign:
                 if wk != 0:
                     log(f"   GRIND-WEAK: fielding slot {wk} (L{levels[wk]}) as lead to train it")
                     self._swap_party_slots(0, wk)
-                r = self.grind(target)                       # trains slot 0 (now the weak mon); heals when low
+                r = self.grind(target, fragile=True)         # weak mon can faint -> reachable grass only
                 if r == "battle_loss":
                     self._restore_ace()
                     return "battle_loss"
@@ -5053,10 +5073,21 @@ class Campaign:
             log(f"   [world] !! continuity save failed: {e} (LOUD)")
         # PHASE 4 — push the journey narrative to core Kira (grudge + team feelings + arc), so it
         # persists core-side and surfaces in idle chat / any game, not just this Pokémon process.
+        narrative = None
         try:
-            self._journey_post(self._journey_narrative())
+            narrative = self._journey_narrative()
+            self._journey_post(narrative)
         except Exception as e:
             log(f"   [journey] !! continuity-into-core push failed: {e} (LOUD)")
+        # RULE 17 SANCTITY — ALSO bank her saga campaign-side so a checkpoint restore resumes her STORY.
+        try:
+            import json as _json
+            if narrative is None:
+                narrative = self._journey_narrative()
+            with open(JOURNEY_JSON, "w", encoding="utf-8") as f:
+                _json.dump(narrative, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            log(f"   [journey] !! campaign-side saga bank failed: {e} (LOUD)")
 
     def _journey_narrative(self):
         """PHASE 4 — assemble her Pokémon-journey continuity for the core seam: WHERE she is, her TEAM
