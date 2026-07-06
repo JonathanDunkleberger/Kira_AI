@@ -1,0 +1,298 @@
+"""hm_teach.py — teach a TM/HM from the overworld TM CASE to a party mon (stage 2 of the HM pipeline).
+
+DERIVED 2026-07-06 (recon_teach_derive.py, live on the Vermilion canonical, throwaway cores):
+  - START-menu cursor  = 0x020370F4 (rows post-dex: 0 POKEDEX, 1 POKEMON, 2 BAG, 3 <player>,
+    4 SAVE, 5 OPTION, 6 EXIT). Readback-navigable.
+  - Overworld BAG      : pocket byte 0x0203AD02 (0 Items / 1 Key Items / 2 Poke Balls) — SAME address
+    as the in-battle bag; the LIST cursor is 0x0203AD06 (the in-battle 0x0203AD04 does NOT track here).
+  - TM CASE            : ITEM_TM_CASE=364 in Key Items (366 is the Teachy TV — the first sin of this
+    recon). Its list shows TMs sorted by number, then HMs sorted, then CLOSE; the applet's cursor is
+    heap-state (NOT readable at a fixed address — the party-menu lesson), so row nav is BLIND DOWN
+    with generous settles and the WHOLE flow is ground-truthed at the end via read_party_moves.
+  - The teach party screen + the make-room/forget screens are blind-A/DOWN navigable; the forget
+    list is rows 0-3 = current moves, row 4 = the new move (picking it = give up learning).
+
+FAIL-SAFE: every path B-cascades back to the overworld; the ONLY success signal is the target mon's
+decrypted move list containing the move id afterward. A wrong/eaten press can waste a pass, never
+mis-report. The caller supplies mon/forget choices (the oracle's judgment); `default_plan` gives the
+headless policy lean.
+"""
+import time
+
+import firered_ram as ram
+import pokemon_state as st
+
+START_CURSOR = 0x020370F4        # pause-menu row (derived, recon_teach_derive)
+BAG_POCKET = 0x0203AD02          # shared with the in-battle bag
+BAG_LIST_CURSOR = 0x0203AD06     # overworld bag list row (in-battle uses 0x0203AD04)
+ITEM_TM_CASE = 364
+HM_ITEM = {"cut": 339, "fly": 340, "surf": 341, "strength": 342, "flash": 343,
+           "rock_smash": 344, "waterfall": 345, "dive": 346}
+TM_FIRST = 289                   # ITEM_TM01
+HM_FIRST = 339                   # ITEM_HM01
+KEY_ITEMS_OFF, TM_CASE_OFF = 0x3B8, 0x464
+
+
+def _sb1(b):
+    return b.rd32(ram.GSAVEBLOCK1_PTR)
+
+
+def pocket_items(b, off, n):
+    out = []
+    for i in range(n):
+        iid = b.rd16(_sb1(b) + off + i * 4)
+        if iid == 0:
+            break
+        out.append(iid)
+    return out
+
+
+def tm_case_row(b, item_id):
+    """DISPLAY row of `item_id` in the TM Case: TMs sorted by number first, HMs sorted after
+    (CLOSE is last). None if the item isn't in the case."""
+    have = pocket_items(b, TM_CASE_OFF, 58)
+    if item_id not in have:
+        return None
+    tms = sorted(i for i in have if i < HM_FIRST)
+    hms = sorted(i for i in have if i >= HM_FIRST)
+    order = tms + hms
+    return order.index(item_id)
+
+
+class TeachFlow:
+    """Drives START -> BAG -> Key Items -> TM CASE -> row -> USE -> party slot -> (make room ->
+    forget idx) -> verify. Duck-types campaign (.b, .render)."""
+
+    def __init__(self, campaign, log=print, on_event=None):
+        self.c = campaign
+        self.b = campaign.b
+        self.log = log
+        self.emit = on_event or (lambda *a, **k: None)
+
+    def _press(self, key, settle=24, hold=8, rel=12):
+        self.b.press(key, hold, rel, self.c.render, owner="agent")
+        for _ in range(settle):
+            self.b.run_frame()
+            self.c.render()
+
+    def _nav_byte(self, addr, target, down="DOWN", up="UP", tries=12):
+        for _ in range(tries):
+            v = self.b.rd8(addr)
+            if v == target:
+                return True
+            self._press(down if v < target else up, settle=16)
+        return self.b.rd8(addr) == target
+
+    # screen classifiers (pixel truth — same doctrine as battle_agent's _party_screen/_bag_screen).
+    # CASE vs BAG share the pale-yellow list palette; the CASE has the BLUE description panel across
+    # the bottom (the bag's bottom stays tan). Points are native 240x160.
+    def _classify(self):
+        p = self.b.frame_rgb().load()
+
+        def near(x, y, rgb, tol=90):
+            c = p[x, y][:3]
+            return sum(abs(c[i] - rgb[i]) for i in range(3)) < tol
+
+        teal_hits = sum(1 for x, y in ((30, 110), (60, 115), (20, 90), (70, 108))
+                        if p[x, y][0] < 100 and p[x, y][1] > 120 and p[x, y][2] > 120
+                        and abs(p[x, y][1] - p[x, y][2]) < 40)
+        if teal_hits >= 3:
+            return "party"
+        yellow_hits = sum(1 for x, y in ((160, 30), (200, 60), (120, 10))
+                          if p[x, y][0] > 240 and p[x, y][1] > 240 and 180 < p[x, y][2] < 230)
+        if yellow_hits >= 2:
+            # measured ground truth (teach_2/3/5, th_013): the CASE has a GRAY header plate at
+            # (20,20)=(187,187,187) + the yellow disc art at (30,60)=(247,214,57); the BAG's header
+            # is ORANGE (232,139,65). The USE/GIVE/EXIT sub-box turns (200,115)/(215,125)/(205,135)
+            # WHITE (they are the blue description panel otherwise).
+            if near(20, 20, (187, 187, 187)) and near(30, 60, (247, 214, 57)):
+                white_sub = sum(1 for x, y in ((200, 115), (215, 125), (205, 135))
+                                if min(p[x, y][:3]) > 200) >= 2
+                return "case_sub" if white_sub else "case"
+            return "bag"
+        return "dialogue"
+
+    # party-screen cursor READBACK (visual — the heap cursor has no fixed address): the SELECTED
+    # right-column slot draws an exact-orange border (255,107,34) at x=225 on its box edge (box
+    # tops ~y {14,35,56,77,98}, measured tj_004/tg_011). No orange anywhere = lead or CANCEL.
+    _SLOT_TOPS = {1: 14, 2: 35, 3: 56, 4: 77, 5: 98}
+
+    def _party_cursor(self):
+        p = self.b.frame_rgb().load()
+        for slot, y0 in self._SLOT_TOPS.items():
+            for dy in (-2, -1, 0, 1, 2):
+                r, g, b = p[225, y0 + dy][:3]
+                if r > 245 and 90 < g < 130 and b < 60:
+                    return slot
+        return None                                   # lead or CANCEL (no slot border lit)
+
+    def _party_goto(self, target, tries=14):
+        """Closed-loop cursor walk to `target` slot on the OVERWORLD party screen. The menu
+        REMEMBERS its last position across opens (tj_004: it opened on slot 2), so counted blind
+        presses walk off the end — read the border, step, re-read."""
+        for _ in range(tries):
+            cur = self._party_cursor()
+            if cur == target:
+                return True
+            if cur is None:                           # on the lead (or CANCEL): RIGHT enters the column
+                if target == 0:
+                    return True                       # want the lead and no slot is lit -> likely there
+                self._press("RIGHT", settle=18)
+                if self._party_cursor() is None:      # still nothing lit -> we were on CANCEL: UP = slot 5
+                    self._press("UP", settle=18)
+                continue
+            if target == 0:
+                self._press("LEFT", settle=18)        # any slot -> LEFT returns to the lead panel
+                continue
+            self._press("DOWN" if cur < target else "UP", settle=18)
+        return self._party_cursor() == target
+
+    def _b_cascade(self, n=12):
+        import travel as tv
+        for _ in range(n):
+            if tv.map_id(self.b)[0] in (1, 3, 9) and self.b.rd8(START_CURSOR) is not None:
+                # cheap 'menus gone' proxy: two Bs beyond the last visible change are harmless
+                pass
+            self._press("B", settle=16)
+
+    def teach(self, hm_key, mon_slot, forget_idx=None, max_seconds=120,
+              item_override=None, move_override=None):
+        """Teach HM `hm_key` to party `mon_slot`; forget_idx = which current move to overwrite when
+        the mon already has 4 (None = the mon has room / caller believes so). item/move_override
+        drive the SAME flow for an arbitrary TM (the control-test vehicle). Returns
+        'taught' | 'not_in_case' | 'failed' (fail-safe: overworld restored, nothing mis-reported)."""
+        t0 = time.time()
+        item = item_override or HM_ITEM.get(hm_key)
+        move_id = move_override or {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148,
+                                    "rock_smash": 249, "waterfall": 127, "dive": 291}[hm_key]
+        row = tm_case_row(self.b, item)
+        if row is None:
+            return "not_in_case"
+        before = st.read_party_moves(self.b, mon_slot)
+        if move_id in before:
+            return "taught"
+        self.b.set_input_owner("agent")
+        self.log(f"   [teach] {hm_key} -> slot {mon_slot} (case row {row}, forget_idx {forget_idx})")
+        # 1. START menu -> BAG (readback nav on the derived cursor)
+        self._press("START", settle=60)
+        if not self._nav_byte(START_CURSOR, 2):
+            self.log("   [teach] !! START-menu cursor no-response — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)                              # open the bag
+        # 2. Key Items pocket
+        for _ in range(4):
+            if self.b.rd8(BAG_POCKET) == 1:
+                break
+            self._press("RIGHT" if self.b.rd8(BAG_POCKET) < 1 else "LEFT", settle=20)
+        if self.b.rd8(BAG_POCKET) != 1:
+            self.log("   [teach] !! couldn't reach Key Items — aborting"); self._b_cascade(); return "failed"
+        # 3. TM CASE row (readback) -> open it
+        ki = pocket_items(self.b, KEY_ITEMS_OFF, 30)
+        if ITEM_TM_CASE not in ki:
+            self.log("   [teach] !! no TM Case in Key Items"); self._b_cascade(); return "failed"
+        if not self._nav_byte(BAG_LIST_CURSOR, ki.index(ITEM_TM_CASE)):
+            self.log("   [teach] !! bag list cursor no-response — aborting"); self._b_cascade(); return "failed"
+        self._press("A", settle=40)                              # select TM CASE
+        self._press("A", settle=100)                             # USE -> the case UI (applet fade)
+        # 4-6. STATE MACHINE (blind press SEQUENCES desynced — frame-diagnosed: one shifted beat
+        # turned USE into GIVE and handed the TM to the lead as a HELD ITEM). Each iteration
+        # classifies the SCREEN (pixel truth, the stale-byte doctrine) and takes ONE step:
+        #   case list  -> DOWN toward the row (counted), then A (select) -> A on the sub-box = USE
+        #   party teal -> RIGHT/DOWN to the slot (counted), then A picks the mon
+        #   dialogue   -> A (advances make-room Y/N with YES-default + all learn text)
+        #   forget-summary (only when forget_idx is set) -> DOWN x idx + A, once
+        downs_left, picked, sub_seen, party_navved, forgot = row, False, False, False, False
+        post_pick_a = 0
+        for _ in range(70):
+            if move_id in st.read_party_moves(self.b, mon_slot):
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "case_sub":
+                sub_seen = True
+                self._press("A", settle=90)                      # USE (top row default)
+            elif scr == "case":
+                if sub_seen and picked:
+                    # NOT done — the make-room/learn dialogue renders OVER the case UI (frame-
+                    # diagnosed, it05): walk it with A. The loop's top move-check is the real
+                    # done signal; post_pick_a bounds the walk so a silent dead-end still exits.
+                    post_pick_a += 1
+                    if post_pick_a > 12:
+                        break
+                    self._press("A", settle=60)
+                elif downs_left > 0:
+                    self._press("DOWN", settle=24)
+                    downs_left -= 1
+                else:
+                    self._press("A", settle=50)                  # select the row -> sub-box
+            elif scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):           # closed-loop (the menu REMEMBERS its
+                        self.log("   [teach] !! party cursor never reached the slot — B out")
+                        break                                    #  position across opens — never count blind)
+                    party_navved = True
+                    self._press("A", settle=90)                  # pick the mon
+                    picked = True
+                else:
+                    self._press("A", settle=60)                  # teach dialogue over the party UI
+            elif scr == "bag":
+                self._press("A", settle=80)                      # the case-USE press hasn't landed yet
+                #                                                  (bag cursor is readback-parked on the case)
+            elif scr == "forget" and forget_idx is not None and not forgot:
+                for _ in range(forget_idx):
+                    self._press("DOWN", settle=22)
+                self._press("A", settle=90)
+                forgot = True
+            else:                                                # dialogue / transition -> advance
+                self._press("A", settle=50)
+        # 7. B-cascade out of case/bag/menu regardless of outcome
+        self._b_cascade()
+        after = st.read_party_moves(self.b, mon_slot)
+        if move_id in after:
+            self.log(f"   [teach] VERIFIED: slot {mon_slot} moves {before} -> {after}")
+            return "taught"
+        self.log(f"   [teach] !! NOT taught (moves {after} unchanged) — failed LOUD")
+        return "failed"
+
+
+# ── headless policy: which mon takes the HM + which move makes room ───────────
+# Gen-3 Cut learnset membership for HER likely species (game-knowledge, minimal): most Normal-types
+# + starters learn Cut; Spearow/most pure-Flying do NOT. Extend per-HM as they arrive.
+_CUT_OK = {1, 2, 3, 19, 20, 52, 53}          # bulba line, rattata line, meowth line
+_HM_OK = {"cut": _CUT_OK}
+# expendable move classes for the forget choice: pure-status/no-power utility first, never the
+# mon's strongest damaging move.
+_PRECIOUS = {73}                              # leech seed etc. — never auto-forget
+
+
+def default_plan(b, hm_key, party_count):
+    """(mon_slot, forget_idx, reason) headless lean: the lowest-level COMPATIBLE non-lead with a
+    free slot, else the compatible mon whose weakest no-power move can go. None if no candidate."""
+    ok = _HM_OK.get(hm_key)
+    cands = []
+    for s in range(party_count):
+        sp = st.read_party_species(b, s)
+        if ok is not None and sp not in ok:
+            continue
+        lv = b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
+        moves = st.read_party_moves(b, s)
+        free = 0 in moves or len([m for m in moves if m]) < 4
+        cands.append((s, sp, lv, moves, free))
+    if not cands:
+        return None
+    # free slot first, then lowest level (don't burn the ace's moveset), lead last
+    cands.sort(key=lambda c: (not c[4], c[0] == 0, c[2]))
+    s, sp, lv, moves, free = cands[0]
+    if free:
+        return s, None, f"slot {s} has room — no move given up"
+    scored = []
+    for i, m in enumerate(moves):
+        if not m or m in _PRECIOUS:
+            continue
+        _t, power = st.move_info(b, m)        # ROM gBattleMoves truth (same read the engine trusts)
+        scored.append((power or 0, i, m))
+    scored.sort()
+    if not scored:
+        return s, 0, "overwriting the first move (no scoring data)"
+    return s, scored[0][1], f"forgetting move {scored[0][2]} (weakest, power {scored[0][0]})"

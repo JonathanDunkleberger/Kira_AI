@@ -3441,6 +3441,35 @@ class Campaign:
         d = step.dir or "north"
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
         pc, pl = state.get("party_count"), (state["party"][0]["level"] if state.get("party") else None)
+        # ── THE TEACH BRIDGE (HM pipeline stage 2, 2026-07-06) ─────────────────────────────────
+        # A ('cap', hm) step reads satisfied only when a PARTY MON KNOWS the move — but the errand
+        # obtains the ITEM. With HM01 in the TM Case and nobody knowing Cut, routing back to the
+        # captain loops forever. The bridge: item in the case + move unknown -> TEACH it here (her
+        # judgment picks the mon; free-slot targets avoid the forget screen; RAM-verified LOUD).
+        if step.success and step.success[0] == "cap":
+            import hm_teach as ht
+            hm = step.success[1]
+            _hm_move = {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148,
+                        "rock_smash": 249, "waterfall": 127}.get(hm)
+            if (_hm_move is not None
+                    and ht.tm_case_row(self.b, ht.HM_ITEM.get(hm, -1)) is not None
+                    and st.party_knows_move(self.b, _hm_move, pc or 6) is None):
+                plan = ht.default_plan(self.b, hm, pc or 6)
+                if plan is None:
+                    log(f"   [roam] !! TEACH: no compatible party mon for {hm} — releasing (LOUD)")
+                    return "questline_unresolved"
+                slot, forget_idx, reason = plan
+                mon = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot {slot}")
+                self.on_event(f"I've got the HM right here — teaching {hm.title()} to {mon}. "
+                              f"{reason}.", kind="route", tier=2)
+                log(f"   [roam] 🧭 TEACH BRIDGE: {hm} -> {mon} (slot {slot}, {reason})")
+                r = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(hm, slot, forget_idx)
+                log(f"   [roam] TEACH BRIDGE result: {r}")
+                if r == "taught":
+                    self.on_event(f"{mon} knows {hm.title()} now — that tree isn't stopping us anymore.",
+                                  kind="route", tier=2)
+                    return "questline_step_done"
+                return "questline_teach_failed"
         log(f"   [roam] 🧭 QUESTLINE STEP: '{step.human}' — heading {d.upper()} toward "
             f"{step.place_name or 'the destination'} (success={step.success})")
         conns = self._map_connections()
