@@ -721,6 +721,18 @@ class Campaign:
                     if self._heal_excursion(nbr, CITY_PC_DOORS[nbr], _EDGE[d], m, _REV[_EDGE[d]]) == "ok":
                         return "ok"
             log(f"   !! HEAL: no reachable adjacent Center from {m} (conns={self._map_connections()}) — LOUD")
+            # RULE 17 / STUCK-SPIN BREAKER (2026-07-05): a TRUE strand (no Center reachable ANYWHERE — e.g. a
+            # faint in a one-way-ledge grass pocket) must NOT return 'stuck' and spin the roam loop on an
+            # un-healable 'heal' forever (unwatchable + unstreamable). Force an autonomous escape-hatch reload
+            # to the last banked checkpoint (which is by construction pre-strand + Center-reachable). Returns
+            # 'ok' on recovery so the caller continues from the good spot; only 'stuck' if there's truly no
+            # checkpoint to fall back to (then the roam RED-ladder / deep-wedge ring owns it).
+            try:
+                if getattr(self, "_last_good_state", None) is not None and self._escape_hatch_reload():
+                    log("   HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)")
+                    return "ok"
+            except Exception as _he:
+                log(f"   HEAL: escape-hatch on strand crashed: {_he!r} (LOUD) — falling through to stuck")
             return "stuck"
         # UNMAPPED map: fall back to the Viridian return, but LOUD (constraint #3 — never silent-degrade)
         log(f"   !! HEAL: no local Center mapped for {m} — FALLBACK to a cross-region Viridian heal "

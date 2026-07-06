@@ -13,6 +13,18 @@ Companion docs: `pokemon_agent/CODEBASE_AUDIT.md` (pokemon detail + stuck-vector
 
 ## 0. CURRENT TRUTH — read THIS first (2026-07-05 night; archaeology is the appendix below)
 
+### ▶ GO PROCEDURE — Jonny may press GO on the Sherpa save AT ANY MOMENT (watch-readiness is permanent)
+The Sherpa save IS Jonny's own playthrough; he can watch it live whenever, no ritual. **Standing launch:**
+```
+python pokemon_agent/play_live.py --resume --free-roam        # resume the LIVING campaign save, she decides
+```
+(The launcher pins `--phones=Leviathan` for the VTS mouth-flap firewall; live = windowed + music, NOT --headless.)
+**If she wedges mid-watch (recovery):** re-launch the same command — `--resume` reboots from the last banked
+campaign checkpoint; the escape-hatch/deep-wedge ring self-recovers on RED ticks. **WATCH-READY NOW:** the
+canonical `kira_campaign.state` is clean (healthy party, not wedged); on GO she shops → grinds Ivysaur →
+forward-drives to the Nugget-Bridge Gary. **NEVER bank a wedged/hurt state forward** — do WIP on a staging
+copy; only bank clean forward states (the full sanctity bundle: .state + journey_core + strat + world + soul).
+
 **Rope ends at: post-Misty Cerulean, at the Nugget-Bridge GARY wall.** Canonical save
 `pokemon_agent/states/campaign/kira_campaign.state` = inside Cerulean Center (map (7,3)@(7,4)), party
 **Ivysaur L24 / Rattata L8 / Spearow L10** (all healthy), 2 badges, 5936¥, 0 balls, 0 potions, dex 4.

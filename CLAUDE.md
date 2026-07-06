@@ -190,6 +190,24 @@ to Jonny and wastes his watches. Never again.
     down-climb survey carries a **SANCTITY AUDIT**: an honest ranked list of what would break TODAY if the
     Kira timeline started tomorrow (resume gaps, continuity holes, Jonny-hands-required recoveries).
 
+18. **THE TWO-TIMELINE DOCTRINE (final form).** There are exactly two timelines:
+    - **TIMELINE 1 — THE SHERPA TIMELINE = the working line AND Jonny's own playthrough.** The save we climb
+      on. **Jonny may hit GO on it AT ANY MOMENT** — 5 seconds from now, 3am, mid-session — at human pace with
+      voice+music, watch 10 min or 4 hours, then walk away. No scheduling, no permission, no briefing ritual.
+      Therefore **WATCH-READINESS IS A PERMANENT PROPERTY OF THE CANONICAL SAVE, not an event you prepare.** At
+      all times the banked state MUST: (a) resume cleanly into `play_live --resume --free-roam`; (b) carry her
+      full story (the complete sanctity bundle — journey_core + strat + world + soul, not just the `.state`);
+      (c) never sit in a known-wedged condition. If your WIP would leave the canonical save unwatchable, work
+      on a **staging copy** and only bank forward CLEAN states. The standing **GO PROCEDURE** (exact launch +
+      the one recovery command) lives permanently at the TOP of `STATE §0`, always current.
+    - **TIMELINE 2 — THE KIRA TIMELINE (sacred, untouched).** The fresh bedroom→credits playthrough for the
+      audience. It does not exist yet; **nothing touches it until the E4 flag flies on timeline 1** — not for
+      testing, not ever early.
+    - **REPORTING:** every survey ends with ONE line — `WATCH STATUS: GO-ready from [banked point]; press GO
+      now and you'll see [one sentence of what's ahead of her].`
+    - **A freeze-spin-capable player is UNFINISHED on both timelines** — the stuck-spin circuit-breaker is
+      non-negotiable, not a watch-night prop. Bank per stretch (each bank = a new watch-point Jonny may drop into).
+
 ## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
 
 **DON'T ASSUME SHE KNOWS ANYTHING.** Kira is a BLANK SLATE about FireRed — she has none of the mental
