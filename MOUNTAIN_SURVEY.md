@@ -83,9 +83,13 @@ Route order (canonical FRLG):
 
 ## 6. SANCTITY AUDIT (rule 17) — what breaks TODAY if the Kira timeline started tomorrow
 Ranked by severity:
-- **[HIGH] Resume of the full narrative/continuity stack is UNVERIFIED end-to-end.** The `.state` round-trips
-  (harness checks it), but a hard-kill + resume of world-model + strat + soul + journey continuity TOGETHER
-  has not been kill-tested this session. Do the kill-test before any live run.
+- **[HIGH] Resume bundle is INCOMPLETE — narrative continuity may not survive a resume.** Spot-checked a
+  banked checkpoint (rule-17): it carries `kira_campaign.state` + `strat_memory.json` + `world_model.json` +
+  `soul.json` (35 B — suspiciously minimal), but **`journey_core.json` (the saga/grudge/arc narrative
+  continuity) is NOT in the bundle** — it lives separately in `states/kira/`. So a day-2 resume could restore
+  the GAME and her strategy memory but lose (or desync) her STORY. The `.state` itself round-trips (harness-
+  verified party/badges/coords); the CONTINUITY sidecars need a real hard-kill kill-test as a set before any
+  live run, and `journey_core.json` must be banked WITH the checkpoint.
 - **[HIGH] Spatial wedges are not all recoverable in-character.** The grind-strand hit a hard STALL, not a
   graceful recovery — on stream that's a frozen avatar. The escape-hatch/deep-wedge ring exists but did NOT
   recover the pocket-strand. Every wedge must degrade to an in-character recovery, never a stall.
