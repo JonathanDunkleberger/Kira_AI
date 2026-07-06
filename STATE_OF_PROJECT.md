@@ -114,6 +114,111 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 4 (MARATHON day 1 — the HM pipeline; IN PROGRESS) ──
+**REALITY CHECK at session start: canonical was STILL the Route 5 bank** (walk 3 ran all night
+wedged at the gauntlet — the prompt's "Vermilion is canonical" was ahead of the disk). Two more
+battle-wedge classes killed + verified this session:
+**LAYER 8 (commit b6593e7) — the ABANDONED-BAG wedge (walk 3, caterpie 7/40 ×18 re-entries):**
+`use_item_in_battle` returned 'used' with the BAG still open (its drain exited on `_white_box()`,
+but the bag's USE/CANCEL box lights those pixels). On the open bag EVERY RAM byte lies (MENU_MODE
+stale 2, MENU_UP stale 1, cursors frozen) → the turn loop "picked Peck" into USE/CANCEL forever.
+Fix: `_bag_screen()` pale-yellow list-panel pixel detector (pocket-agnostic) + `_close_bag_screen()`
+B-cascade + a bag check at the TOP of the turn loop + use_item/exit_bag never return with the bag
+up. VERIFIED: wedge state → bag closed → Peck → win in 2s. Fired live in walk 4 mid-gauntlet.
+**FAINTED-LEAD BATTLE-START (commit fa0d6f0) — the heal-excursion timeout class (walk 4):** a wild
+encounter with a fainted lead OPENS on the forced "Choose a POKéMON" screen; flee() misread it and
+`_reach_first_menu`'s A/B mash pre-selected the corpse's sub-menu → 90s timeouts ate the excursion
+budget. Fix: `_reach_first_menu` stops at the party screen; flee() sends a healthy reserve FIRST;
+`_force_switch` opens every attempt with B+settle (convergent retries). VERIFIED 3s on the wedge.
+**SURGE REGISTERED (fa0d6f0):** GYMS row "Lt. Surge" — door (14,25), Surge (5,2)/front (5,3),
+Thunder 0x822, juniors (2,11)/(8,13)/(7,8), exits (4-6,19) — so head_to_gym routes to the gym door,
+whose approach is the CUT TREE → arms the HM_OBSTACLE gate → the hm01 questline → the S.S. Anne.
+⚠ the gym ALSO has the trash-can electric-lock puzzle — beat_gym is NOT trustworthy for Surge until
+that solver lands (recon next session).
+**SHIP MECHANICS BILLED (pret):** captain gives HM01 on talk (rub-back scene), sets FLAG_GOT_HM01
+**0x237** + VAR_MAP_SCENE_VERMILION_CITY=1; **the FIRST step onto SSAnne_Exterior after that
+auto-fires the DEPARTURE cutscene** (forced 9-step walk, warp to Vermilion (23,34), ship gone
+FOREVER). Banking discipline: bank pre-boarding + post-HM01-on-ship; ship trainers + the GARY
+REMATCH (2F corridor, grudge-arc soul moment) come before the captain. Ship maps: exterior (1,4),
+1F corridor (1,5), 2F (1,10), cabins (1,12..16).
+**VERMILION IS CANONICAL (promote_bank.py, commit c45590e):** walk 5 GOAL'd in **48.8s/2 decisions/
+0 stalls** (the full 8-layer fix stack held); party healed to FULL at the Vermilion Center through
+the real heal machinery, then promoted through the sanctity gate (backup
+`pre_vermilion_backup_20260706_152434`). Canonical = (3,5)@(24,0), Ivysaur L31/Spearow L18/
+Rattata L17, all full. `promote_bank.py` is now the STANDING promotion tool.
+**VERMILION MART CONTROL-VERIFIED (5103f1e):** ship run 1 insta-stalled on stock_up×15 (0 potions
+post-gauntlet, stock unbilled). Rows billed + live-verified (2× Super Potion, bag-delta, money
+3004→1604): [PokeBall, SuperPotion 700, IceHeal, Awakening, ParlyzHeal, Repel].
+**HM TEACH — BUILT + RAM-VERIFIED (afc4985), the session's headline:**
+`recon_teach_derive.py` derived: START-menu cursor **0x020370F4** (BAG=row 2); overworld bag pocket
+byte 0x0203AD02 (shared w/ battle) but LIST cursor **0x0203AD06** (battle's AD04 doesn't track);
+**ITEM_TM_CASE=364** (366 = Teachy TV — we opened it once); the case list = TMs sorted then HMs
+(display row computed from the pocket array), its cursor is HEAP (no readback); the teach party
+screen REMEMBERS its cursor across opens → closed-loop nav off the selected-slot ORANGE border
+((255,107,34)@x225, box tops y{14,35,56,77,98}). `hm_teach.py` = a pixel-classified STATE MACHINE
+(case/case_sub/bag/party/dialogue — a blind sequence once GAVE the TM as a held item!) +
+free-slot-first `default_plan` + read_party_moves ground truth. **VERIFIED: TM28 Dig → Rattata
+'taught'.** ⚠ RESIDUE (honest): the make-room/forget screen is A-walked and forgets ROW 0, not the
+judged idx — free-slot targets (Meowth, 3 moves, Cut-compatible ✓) never hit it; a forget-screen
+readback pass is OWED before any 4-move teach on a precious moveset. **TEACH BRIDGE** wired into
+`_run_questline_step`: a ('cap',hm) step + item-in-case + move-unknown teaches on the spot (voiced
+judgment) instead of looping to the giver NPC.
+**SHIP RUN 2 (in flight, `ship_run2.log`):** the run is LIVING WELL — stock_up bought potions,
+**Meowth judged-caught into the canonical lineage (party 4!)**, then a 15-min proactive bench
+mega-grind fired **TWO EVOLUTIONS: VENUSAUR L33 + RATICATE L20** (+ Meowth L19), healed, arrived
+Vermilion, and went BACK to grind the bench to ~L25 (narrated purpose — Fearow next). The gym-tree
+→ hm01-questline → dock chain comes after the grind; the run may TIMEOUT-bank a leveled squad
+first (promote it — squad-building IS forward progress).
+**STAGE-3 (USE) WIRING (pre-existing, verify live):** `use_cut` oracle pick → `_route_action` →
+`fm.FieldMoveActuator.clear_obstacle` (face+A → prompt → YES; recon-flagged path A) — exercised
+automatically once HM01+teach land and she stands at the tree. DEPARTURE CAUTION: first exterior
+step post-HM01 force-walks + warps her (cutscene) — watch the watchdogs don't fight it.
+
+### ── 2026-07-06 SESSION 3 (the FINISHING strike — Vermilion push; IN PROGRESS) ──
+**LAYER 7 KILLED + VERIFIED (commit e2ed4fd):** `_party_screen()` pixel detector (teal-stripe
+signature, left column below the active-mon box — background at ANY party size; 4/4 on the wedge
+frames, 0/4 on battle/overworld/gym/cave fixtures) + a deliberate drain handler: our-mon-down ⇒
+`_force_switch()`; voluntary shift-prompt screen ⇒ ONE clean B out + a bare-B "No" to the re-shown
+prompt (never A — A re-picks Yes one level up). The exact 240s wedge state now resolves in **3s**
+(B out → trainer sent caterpie → Peck → win). The seven-layer gauntlet onion is CLOSED.
+**WALK 1 (`logs/longrun/vermilion_walk1.log`) — the rope held to VERMILION in ONE tick** (canonical →
+burgled house → Route 5 → UGP → Route 6 gauntlet → crossed into (3,5) at 242s), then exposed the next
+blocker class: hurt from the gauntlet (Spearow 0 HP + a faint), heal from Route 6 found **no route to
+any known Center** (world-graph only routes VISITED nodes; Vermilion unvisited) → the blind
+"warp-south" fallback walked her through the SOUTHERNMOST doors in town = **THE S.S. ANNE DOCK — she
+boarded the boat** and wandered its corridors the rest of the run. ⚠️ RE-IDENTIFICATION: the run-12/13
+"Vermilion stair-house trap (1,5)/(1,10)" was actually the SHIP — (1,4)=exterior, (1,5)=1F corridor,
+(1,10)=2F, (1,12..16)=cabins. TWO FIXES SHIPPED: (a) **Vermilion registered** — (3,5), PC door (15,6),
+Mart door (29,17) (disasm-sourced, MART_STOCK left unbilled → buy loud-skips until a live visit);
+(b) **adjacent-city heal for UNMAPPED maps** — the live map header knows UNVISITED neighbours; a
+registered-Center neighbour one edge away gets a heal excursion before the graph/Viridian fallbacks
+(Route-3→Pewter pattern generalized). Walk 2 relaunched (`vermilion_walk2.log`).
+**SOUL-BUG AUDIT (AAAAAAAAAA):** action (1) from last session is ALREADY SATISFIED — the evolve
+naming beat never opens the in-game keyboard (bond-layer only, campaign.py ~1639); starter + catch
+flows decline via the guarded `_handle_nickname`. The burned nickname predates the guard; the fix
+remains the Lavender Name Rater as an in-character beat. No code change needed.
+**VERMILION PRE-BILL (disasm):** Center (15,6) **LIVE ROUND-TRIP VERIFIED** (interior (9,1), nurse
+(7,2) = the shared PC layout; the generic heal healed her 79/79 through it) · Mart (29,17)
+(registered; MART_STOCK unbilled → loud skip until a live visit) · **Gym (14,25), CUT-LOCKED**
+(fence tree; HM01 = S.S. Anne captain — tomorrow's headline, NOT started) · Fan Club (12,17) =
+Bike Voucher · dock warps (22-24,34) → SSAnne_Exterior (arrive ~(32,5); gangway (32,14)/(33,15) →
+1F corridor; ticket triggers (22-23,32-33)). `recon_vermilion_map.py` runs the remaining door sweep.
+**WALK 2 (`vermilion_walk2.log`) + THE CENTER-EXIT CLASS (commit b887205):** the adjacent-city heal
+FIRED ("ADJACENT city Vermilion City (S)"), she healed at the Vermilion Center — then STALLED inside
+the **Cable Club 2F** (map (9,2); 1F=(9,1)). Root causes, all fixed + micro-verified (2F→street in
+1s): (a) **escalators are 0x6A/0x6B, board from the EAST** — step LEFT onto the tile; the south
+approach is COLLISION-BLOCKED (where travel kept standing); warp fires ~60-120f AFTER standing on
+it → added to `_WARP_ENTRY` + an on-tile delayed wait; (b) **60 settle frames post-warp** — the map
+header reads 0s mid-fade, so back-to-back `_tile_behavior` reads lied; (c) **6-press budget** (was
+3) — turn + eaten press + step-on + arrow-fire; the 0x65 exit mat fired one press past the old
+budget; (d) **`_exit_to_overworld` STREET-FIRST sort** — dest group 3 beats interior hops,
+actuatable behaviors beat dead arrival-mats (the Center exit row (6,8)/(7,8)/(8,8) has ONE live
+0x65 arrow at (7,8)); the directional primitive now runs before blind travel. The old
+nearest-first ping-ponged the floors then burned budgets on the attendant-blocked link-room warps.
+Walk 3 in flight (`vermilion_walk3.log`).
+**PRUNABLE:** ~10 `pre_reload_*.state` escape-hatch banks accumulating in `states/campaign/`
+(disposable staging; the 2026-07-05 ones are stale).
+
 ### ── 2026-07-06 SESSION 2 (the NURSERY-BREATHES strike; commit 3142cf4) ──
 **THE NURSERY RAN LIVE (runs 12-13): judged catches with voiced reasons are IN THE LOGS** — "a bug
 type — I don't have ANY bug coverage, and L16 is workable. that's a real gap filled" (weedle), "my
