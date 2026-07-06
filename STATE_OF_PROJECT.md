@@ -60,10 +60,14 @@ destination-interact), Nugget-Bridge nav, in-battle SWITCH (2026-07-05). The rop
    fragile mon, it can route into the **far-east Route-4 below-ledge grass pocket (≈84,15)**; a faint/loss
    there strands her — `heal_nearest` finds the local Center (12,5) unreachable AND the east edge to Cerulean
    unreachable (`_heal_excursion` can't path out of the pocket) → `heal → stuck` spin → real stall (~63s; the
-   escape-hatch does NOT recover it). This is why `GRIND_SWITCH` is re-gated OFF. **FIX (next):** grind() must
-   only pace grass from which a Center is reachable (pre-check Center-reachability per waypoint / never cross a
-   one-way ledge into a pocket), OR heal-stuck-in-a-pocket must force a blackout/escape-hatch that actually
-   recovers. Then re-arm `GRIND_SWITCH` → participation-grind levels the bench (verified switch mechanism).
+   escape-hatch does NOT recover it). This is why `GRIND_SWITCH` is re-gated OFF. **ATTEMPTED + REVERTED
+   (90b807e):** a blanket "grind only Center-reachable grass" filter REGRESSED the ace-grind — the look-ahead
+   showed **ALL Route-4 grass is Center-UNREACHABLE** (Center (12,5) is ledge-isolated from every grass tile),
+   so it blocked the grind entirely, but the TANKY ace legitimately grinds there without stranding (run_02
+   leveled Ivysaur L24→L29 on it). **EXACT FIX (next — do NOT re-apply the blanket filter):** make it
+   CONDITIONAL — require Center-reachable grass only for a FRAGILE mon (weak-grind / can-faint), never the
+   tanky ace; OR route the weak-grind to **Route 3** (flat L3-6 = survivable, Center-reachable via Pewter-west).
+   Then re-arm `GRIND_SWITCH` → participation-grind levels the bench (verified switch mechanism).
 2. **BILL-LOOP (blocks Vermilion).** After she WINS Gary (~1-in-5) she correctly advances to Route 24 (3,43)
    and the questline bend-discovery crosses E toward Route 25/Bill — but `head_to_gym` **times out per tick**,
    crawling only a few tiles up the Nugget Bridge (y 39→31→28) while fighting; and every Gary LOSS (80%)
