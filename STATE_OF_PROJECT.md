@@ -37,26 +37,19 @@ just **unreliable** (a fresh neutral attacker via the switch makes it consistent
    The switch fixes #1 and probably breaks the loop (#2) by making the crossing survivable — but verify the
    Bill completion separately (it was flagged pre-vacation as never e2e-verified).
 
-**THE BLOCKER = the in-battle SWITCH is genuinely UNFINISHED (keystone-2 found the WRONG address).**
-Diagnosed hard tonight via RAM-diff + screenshots (`recon_submenu_derive.py`, `recon_switch_test.py`):
-- `_prep_team_target`/`grind_weak_members`: with `GRIND_SWITCH=0` + `SOLO_WEAK_GRIND=0` (defaults) it takes
-  the ACE-OVERPOWER fallback → grinds ONLY Ivysaur; the bench never levels. So team-building is gated on
-  the switch (or solo-grind).
-- **`PARTY_CURSOR = 0x02020777` is a SHADOW byte, NOT the committed in-battle party-selection slot.** Moving
-  it (DOWN→1, RIGHT→2) does NOT move the real cursor — the sub-menu always opens for slot 0, so SHIFT hits
-  the active mon → **"BULBASAUR is already in battle"**, no swap. The old "party-cursor readback VERIFIED to
-  slot 1" checked the byte value, not the visual effect (a false verify). THIS is why keystone-2 stalled.
-- NEW derived-and-CONFIRMED signals (reuse these next session): **sub-menu-open flag `0x02020521`** (0=list,
-  1="Do what with X?" up, clean toggle); **sub-menu cursor sprite-Y `0x02020017`** (SHIFT=2 / SUMMARY=18 /
-  CANCEL=34); sub-menu defaults to SHIFT. Layout: 1 big card (slot 0) + right column — 2D, so nav key for
-  slot 0→reserve may be RIGHT not DOWN (unverified visually — CHECK by screenshot).
-- **EXACT NEXT STEP:** derive the REAL in-battle selection slot: press the nav key that VISUALLY moves the ▶
-  onto the reserve (verify via `b.frame_rgb().save`), RAM-diff a wide EWRAM region for the byte that tracks
-  the visual cursor AND makes the sub-menu open for the CORRECT mon (cross-check pokefirered `party_menu.c`
-  `gPartyMenu.slotId` / `Task_HandleChooseMonInput`). Then `_switch_to_slot` confirm = open list → nav real
-  cursor to reserve → A (verify `0x02020521`==1) → A on SHIFT → verify `gBattleMons[0]` species flips. Once
-  it swaps, arm `POKEMON_BATTLE_SWITCH=1` + `POKEMON_GRIND_SWITCH=1` → participation-grind levels the bench →
-  fresh attacker beats Gary. `recon_switch_test.py` is the ready-made pass/fail harness (drive→switch→flip).
+**KEYSTONE 2 — IN-BATTLE SWITCH: ✅ SOLVED + VERIFIED (2026-07-05, committed `b6bc46c`).** The old
+derivation used `PARTY_CURSOR=0x02020777`, a SHADOW byte that never moved the real selection (the live
+party-menu cursor is in a HEAP-allocated `sPartyMenuInternal` struct → no fixed-address readback works;
+that's why RAM-diff kept failing and why the prior "verified to slot 1" was a false verify — it checked the
+byte, not the effect). **The working mechanism is BLIND DOWN, exactly like the proven `_force_switch`:**
+`DOWN*(slot+1)` reaches `slot` (derived + verified on a real 3-mon fixture, `recon_switch3.py`: DOWN*2→slot1,
+DOWN*3→slot2; the first DOWN doesn't leave the active mon), A=select → "Do what with X?" (defaults to SHIFT),
+A=SHIFT, then advance the swap text until `gBattleMons[0]` species flips (ground truth). `_switch_to_slot`
+rewritten; direct test PASS (ivysaur→spearow). Fail-safe B-out on any miss = never wedges → **armed by
+default** (`POKEMON_BATTLE_SWITCH` + `POKEMON_GRIND_SWITCH` now default-on). This unblocks participation-XP
+bench-leveling (weak lead → turn-1 switch to ace → weak mon banks XP) AND a fresh attacker vs Gary. NEW
+fixture `states/workshop/canon_battle.state` (real 3-mon battle) for future in-battle iteration.
+**Resume-safety (rule 17): NOT yet kill-tested — do that on the next banked checkpoint.**
 
 **Everything ELSE works (verified tonight or previously):** move-list actuation keystone (a4ca84f), shop /
 Cerulean Mart, heal-to-reachable-Center, forward-drive, questline (recognize→derive→execute→bend-discover→

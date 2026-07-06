@@ -176,6 +176,20 @@ to Jonny and wastes his watches. Never again.
     spending real money. Everything else: you are trusted — act like it. (The post-credits blue-sky parking
     lot lives in `POST_CREDITS_VISION.md`; append core-promotion candidates to its LESSONS LEDGER as you climb.)
 
+17. **THE SANCTITY OF THE KIRA TIMELINE — every piton is RESUME-SAFE by default.** The Kira timeline is not
+    "she can beat the game" — it is a LIVE SHOW THAT CANNOT BREAK: a first-time, human-paced let's-play across
+    MANY sessions over 30-40 hours with real viewers, where (a) any crash/stop mid-stream resumes cleanly,
+    (b) day two picks up EXACTLY where day one ended — game state AND her memory of the journey (team, names,
+    grudges, arcs, theories) — and (c) live hiccups recover gracefully/in-character, never a frozen avatar in
+    front of an audience. The Sherpa line exists to make that unbreakable. THEREFORE: a capability that works
+    but doesn't survive a hard process-kill + resume is **🔨, not ✅**. "Done" now requires: does its state
+    survive resume? (game save + world-model + questline + roster + strat memory + journey/narrative continuity
+    — ALL of it, not just the `.state`). **THE KILL-TEST** (add to the verification arsenal, run ≥once per
+    banked checkpoint): hard-kill the headless run mid-activity, resume from disk — PASS = she continues
+    seamlessly, mechanically AND narratively. Fix resume gaps at the piton, not retrofitted later. The
+    down-climb survey carries a **SANCTITY AUDIT**: an honest ranked list of what would break TODAY if the
+    Kira timeline started tomorrow (resume gaps, continuity holes, Jonny-hands-required recoveries).
+
 ## KIRA'S FOUNDATIONAL FIRERED GAME-MODEL (her grounded understanding — wire into her decision/voice ctx)
 
 **DON'T ASSUME SHE KNOWS ANYTHING.** Kira is a BLANK SLATE about FireRed — she has none of the mental
