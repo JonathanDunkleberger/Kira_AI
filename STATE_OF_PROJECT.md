@@ -173,6 +173,27 @@ first (promote it — squad-building IS forward progress).
 `fm.FieldMoveActuator.clear_obstacle` (face+A → prompt → YES; recon-flagged path A) — exercised
 automatically once HM01+teach land and she stands at the tree. DEPARTURE CAUTION: first exterior
 step post-HM01 force-walks + warps her (cutscene) — watch the watchdogs don't fight it.
+**JUDGED FORGET PAID (4eff093):** the KNOWN-MOVES screen is a first-class state — signature
+(blue plate (0,108,191)@(200,4) + whitish boxes @x122) + closed-loop cursor off the selected row's
+red border (tops {18,45,67,90,112}, MEASURED — a uniform-spacing guess read None while DOWN worked).
+VERIFIED: forget_idx=1 swapped Tail Whip→Dig, Tackle survived. 4-move teaches are judgment-safe.
+**BENCH PIN (cda8faf):** ship run 2's grind chased its own tail (participation XP levels the ACE →
+live lead-8 target rose 25→26→27 every cycle, 376 battles, whole budget). The proactive-bench
+target now FREEZES at arm time and retires when the floor crosses it.
+**SQUAD PROMOTED (pre_squad_backup_20260706_162755):** ship run 2's TIMEOUT bank, healed via the
+full adjacent-city excursion (Route 6→Vermilion Center→back, end-to-end clean), sanctity VALID:
+**canonical = Route 6 (3,24)@(12,39), VENUSAUR L36 / MEOWTH L24 / RATICATE L24 / FEAROW L23, all
+full HP, Meowth bonded in soul.json.** Ship run 3 in flight (`ship_run3.log`, goal 0x237 = HM01)
+on the complete pipeline: pinned bench converges → gym tree → questline → dock → captain → teach
+bridge (Meowth free-slot) → use_cut.
+**TRASH-CAN PUZZLE BILLED (recon only, solver next session):** `SetVermilionTrashCans` randomizes
+both cans into **VAR_TEMP_0/VAR_TEMP_1** (READABLE RAM — constitution: she searches honestly,
+RAM is verify-only); wrong 2nd pick re-randomizes + beams back on;
+FLAG_FOUND_BOTH_VERMILION_GYM_SWITCHES opens Surge.
+**WATCH STATUS: canonical bank is CLEAN; she is on Route 6 south of Vermilion with a real four-mon
+squad (Venusaur/Meowth/Raticate/Fearow, badges 2) about to work the S.S. Anne for HM01 Cut;
+pop-in = `python pokemon_agent/play_live.py --resume --free-roam` — press GO and you'll see her
+walk into Vermilion with the ocean ahead and the ship waiting at the dock.**
 
 ### ── 2026-07-06 SESSION 3 (the FINISHING strike — Vermilion push; IN PROGRESS) ──
 **LAYER 7 KILLED + VERIFIED (commit e2ed4fd):** `_party_screen()` pixel detector (teal-stripe
