@@ -262,12 +262,16 @@ def main():
             pick = "battle"                                # underlevelled + items-alone can't beat the
             #                                                Smokescreen Charmander -> GRIND/team-build first
         else:
-            for pref in ("heal", "head_to_gym", "battle", "wander_catch", "talk_npc"):
+            # travel:* BEFORE talk_npc (run-4 lesson: at the post-grind Route-4 spot the opts collapsed to
+            # ['talk_npc','travel:3,3'] and the old order spammed no_npc talk 7x instead of walking to
+            # Cerulean — a real player moves toward somewhere useful before re-talking an empty route).
+            for pref in ("heal", "head_to_gym", "battle", "wander_catch"):
                 if pref in opts:
                     pick = pref
                     break
             if pick is None:
-                pick = next((o for o in opts if o.startswith("travel:")), opts[0] if opts else None)
+                pick = next((o for o in opts if o.startswith("travel:")),
+                            "talk_npc" if "talk_npc" in opts else (opts[0] if opts else None))
         L(f"#{decisions[0]:>3} {str(mp):>9}@{str(co):<9} party={[ (s[:4],lv) for s,lv,_,_ in party]} "
           f"prep={prep} ql={ql_doing!r}")
         L(f"      opts={sorted(opts)} -> PICK {pick}"
