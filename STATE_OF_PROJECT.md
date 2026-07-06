@@ -30,7 +30,92 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
-**Rope ends at: 🎫 S.S. TICKET OBTAINED (2026-07-05 strike, run-8 `logs/longrun/ticket_run8.log`).**
+### ── 2026-07-06 STRIKE (the SOUTH GATE + soul-truth session) ──
+**Rope now ends at: 🚪 ROUTE 5 — THE SOUTH GATE IS OPEN (run-3 `logs/longrun/south_run3.log`, GOAL in
+190s/4 decisions/0 stalls). Canonical PROMOTED to Route 5 (3,23)@(32,0)** (backup
+`states/campaign/pre_route5_backup_20260706_072125/`; sanctity-gated promotion, monotonic story check
+PASS). Run 4 (nursery + Vermilion push) in flight at session close — read `logs/longrun/nursery_run4.log`.
+
+**THE SOUTH-GATE GROUND TRUTH (recon_south_geometry.py + pret map.json + Bulbapedia, all agree):**
+post-ticket, the cut tree at (26,32) STAYS — it is the ONLY base-collision fence gap; there is NO ledge
+(the "green strip" is a hedge; behaviors dumped, zero MB_JUMP on the row). The pre-Cut route south is
+**THROUGH THE BURGLED HOUSE** — front door (30,11) (freed by the ticket flag) → interior (7,1) → back
+door → the fenced garden (Rocket grunt, TM28 fight — she beat him) → the east corridor (cols 39-40) →
+the fence crossing at (39-40,32) → the south strip → Route 5. The plaza can NEVER reach this on foot
+(flood-proven NONE with the tree object modeled).
+
+**NEW ENGINE PRIMITIVES (all general, all look-ahead-verified tonight):**
+1. **DOOR PASS-THROUGH (`campaign._door_passthrough` + `_edge_travel`)** — when an edge crossing reports
+   a hard no-route (fenced region), try reachable doors as CONNECTORS: enter, multi-hop the interior
+   warps (farthest-from-spawn heuristic, bounded 6 hops — depth 1 = the burgled house, depth 3 = the
+   Underground Path huts), pop out elsewhere, retry the edge. Connector-fingerprint priority (a building
+   with SEVERAL city-side warps — the burgled house has 3 — is the likeliest pass-through, tried first);
+   proven connectors remembered per map (`_pt_known`) so heal/battle interrupts reuse instead of
+   re-searching; interiors that dead-end (Center upstairs) are backed out of via `_exit_to_overworld`.
+   Wired into ALL edge hops (EDGE-ROUTE / FORWARD-SPINE / south-block / travel:*). This ALSO covers the
+   Saffron gatehouse + UGP shapes ahead.
+2. **FIELD-OBSTACLE HONESTY + MEMORY (travel.py)** — a cut tree / Strength boulder on the only gap is
+   classified by graphicsId (95/97), voiced honestly ("that's one of those small trees — the kind you
+   can CUT down…"), remembered as a HARD BLOCK (`blocked_npcs`) and REROUTED around in-leg. Root fix for
+   the crossed→tree→crossed loop of run 2: the NPC-allowing BFS prefers the SHORTEST path, so the near
+   tree beat the real long detour every replan until the tree became a remembered block.
+3. **BATTLE-LOOP BREAKER (travel.py)** — 3 consecutive `stuck` battle outcomes with the battle still
+   open = abort the leg LOUD (the ×27 immortal-re-entry spin of run 1, killed as a class). Cause also
+   fixed: `catch_pokemon` no_balls paths now FLEE the live battle before returning (an abandoned battle
+   re-detects as a fresh encounter forever).
+4. **ROSTER-SELECTION JUDGMENT (`pokemon_strategy.roster_judgment` + the catch_one hook,
+   `POKEMON_CATCH_JUDGMENT=1`)** — soul-debt #3's choice framework: dupe / type-coverage / level / room,
+   first-person REASON both ways, oracle decides live (headless follows the lean), skip-voice throttled
+   per species. Unit-verified 5/5 (dupe-skip, coverage-catch, scrawny-skip…). Plus **PROACTIVE BENCH**
+   (`POKEMON_PROACTIVE_BENCH=1`): wall-less prep target lead-8 when the floor sags >10 under the lead.
+   Plus the **bond-hook fix**: ANY pick ending in a catch now fires roster_react (a travel:-pick catch
+   was silently skipping naming/bonds — why soul.json stayed empty).
+
+**RIDE-ALONGS SHIPPED (constitution teeth):** (a) false "[evolve]" beat FIXED — PID discriminator
+(evolution keeps the mon's personality value; a party reorder swaps it) in `_soul_after_objective` +
+play_live's battle watch; verified 3/3 (`recon_evolve_disc.py`). (b) **JOURNEY BACKFILL** — the run-5
+Gary win (1W-2L) was missing from canonical strat/journey (runs 6-8 restarted from a pre-win bank and
+the promotion regressed her story); backfilled from gary_run5.log ground truth into strat_memory +
+regenerated journey_core (campaign-side AND core-side `states/kira/journey_core.json`, + a weight-4.0
+saga beat with run-5's real timestamp). Her proudest moment is back in her memory. NOTE: the reported
+"mojibake" was MY read artifact (default-encoding open() on Windows) — the files were always clean
+UTF-8; all writers/readers verified explicit utf-8. (c) **SANCTITY VALIDATOR (`sanctity.py`)** — bank-time
+schema/encoding/truth/monotonic validation; the monotonic rival-count rule catches the exact lost-win
+class; wired into recon_longrun banks (DO-NOT-PROMOTE loud fail) + campaign continuity saves + the
+promotion script. Ran live on runs 2-3: VALID. (d) **SLEEP_LOCK default ON** (battle_agent) — the gating
+reason (move-list wedge) is fixed and the whiff cap bounds the worst case; a live GO now gets the real
+strategy. (e) `recon_groundtruth.py` pocket-aware fix — pitfall #7 claimed the frontier report: she had
+**5 Poké Balls** (balls pocket) + **a Nugget** (sellable 5000₽, no sell flow yet) all along.
+
+**KB DATA-BILLED (gamedata/frlg_gates.json):** every gate to credits — HM01-05 flags (0x237-0x23B),
+Bike Voucher/Bicycle, Poké Flute chain (Scope→Fuji→Flute→Snorlax 0x253), Tea (0x2A6), Gold Teeth→
+Strength, Safari Surf, badge flags — directions+flags format, hide-flag ids (Scope 0x037/Lift Key 0x036)
+caveated, + route_notes (UGP paths, Saffron unlock, Cinnabar/VR/E4). Deriver loads it clean.
+
+**LATE-SESSION ADDENDUM (runs 4-10, `logs/longrun/nursery_run*.log`) — the road to Vermilion, walked to
+Route 6:** run 10 PROVED the full autonomous chain **Cerulean → burgled-house pass-through → Route 5 →
+region re-entry (offset +0, cols aligned) → the Underground Path north entrance (building at Route 5
+(31,31) → interior (1,30)) → the tunnel doorway (7,4), a 0x6F DOWN-LEFT STAIR warp entered moving WEST
+(`_enter_directional_warp`, the `_WARP_ENTRY` table) → the tunnel → out on ROUTE 6 (3,24)@(8,16)**. Fixes
+en route: heal-dead-map strand guard (one-way pocket ⇒ suppress non-critical heal), FORWARD-FRONTIER
+(past base camp ⇒ march away, never bounce — the Cerulean↔Route-5 ping-pong), pass-through candidates
+from read_warps not _door_tiles (the daycare/hut confusion), REGION RE-ENTRY (`_reenter_at_column` — a
+warp in a fenced region is reached by re-crossing the border at its column). KB truth: Route 5 (23,25)→
+(17,0) is the DAYCARE; (31,31)→(1,30) is the UGP entrance; Route 6 = (3,24).
+**NEXT BLOCKER (fresh session starts HERE): Route 6 @(17,25) hard travel wedge** — 10 consecutive
+`head_to_gym -> stuck` with ZERO movement (opts collapsed to [head_to_gym] alone; ~13s/tick), until the
+ring recovery warped her back to Route 5. UNDIAGNOSED — grab a frame at (3,24)@(17,25) first (arsenal #4;
+suspect: a trainer/NPC gauntlet or a gate-side geometry the south-edge BFS can't reach). THEN: Vermilion
+arrival + Mart/Center/gym mapping (task 6, the Cerulean recipe).
+**NURSERY HONESTY: the choice framework is BUILT+unit-verified but NO judged catch has run live yet** —
+runs 8-10 never offered wander_catch on Routes 5/6 because the stale Cerulean wall record's READINESS→GO
+keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: let the nursery breathe
+(clear the stale wall record or relax the prune when party<4 with balls), then the bar is 2-3 judged,
+named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
+**Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
+
+**Old context below (pre-strike): rope previously ended at 🎫 S.S. TICKET OBTAINED (2026-07-05 strike,
+run-8 `logs/longrun/ticket_run8.log`).**
 Canonical save `pokemon_agent/states/campaign/kira_campaign.state` = inside Bill's Sea Cottage
 (map (30,0)@(7,7)), party **Ivysaur L30 / Spearow L17 / Rattata L17** (ALL FULL HP), 2 badges,
 **FLAG_GOT_SS_TICKET set**, Gary grudge 1W-2L, dex 4. Promoted from `banked_GOAL` (continuous real-play
@@ -189,11 +274,14 @@ lines + `RIVAL beat|END:|STALL:` — the per-decision `ctx` dumps are HUGE, neve
 deferred. Completion without these = a tech demo. The rebuild phase clears this ledger. Each entry:
 `block · mechanical (have) · human debt (owe) · pay-plan`. Status: 💳 open / 🔨 partial / ✅ paid.
 
-- 💳 **#3 TEAM-BUILDING — the CHOICE is the soul.** HAVE: catch mechanics (throw_ball, pocket-aware, party
-  1→2 proven). OWE: her *choosing* — "I want THIS one because…" — evaluating a wild mon on cool/strong/
-  covers-a-gap/better-than-a-benchwarmer and voicing the decision (the Clefairy-vs-Rattata question). Right
-  now she catches whatever with no narrated selection judgment. PAY: wire roster-selection judgment into the
-  catch oracle so the pick is HERS and SPOKEN, not silent/random.
+- 🔨 **#3 TEAM-BUILDING — the CHOICE is the soul.** LARGELY PAID 2026-07-06: `roster_judgment` (dupe/
+  coverage/level/room framework) + the catch_one hook — she sizes up every wild, the oracle gets the call
+  (`catch_judgment` seam), and she VOICES it both ways ("a fighting type — I don't have ANY fighting
+  coverage… I want this one" / "I've already got one of those — a twin rattata doesn't make the team
+  stronger… not this one"). Unit-verified 5/5; headless follows the framework's lean. RESIDUE: (a) live
+  naming/choice needs oracle eyes (headless can't invent names); (b) quasi-dupe refinement (a Pidgey when
+  she runs a Spearow passes the thin-bench rule — full type-overlap should read as "variety, not strength");
+  (c) run-2 pre-judgment dupes (2× rattata, 2× ekans) exist only in a dead staging bank, not canonical.
 - 💳 **#12 DIALOGUE — she advances text; she doesn't READ it like a first-timer.** HAVE: dialogue_drive
   (box-detect, read-along pacing), talk_npc. OWE: visible first-time REACTION to content (surprise, a
   guess about what it means, an opinion) + extracting quests/hints/directions from box CONTENT. She reads
@@ -206,9 +294,11 @@ deferred. Completion without these = a tech demo. The rebuild phase clears this 
   the heavy lifting") — small, note for the next watchability pass. ALSO: the false "[evolve]" beat during
   grind-switches (see §0) is a VOICE LIE — fix before the Kira timeline.
 - 💳 **ROSTER-AS-RELATIONSHIP — attachment engine, thin because the team doesn't exist yet.** HAVE:
-  roster-naming-on-catch hook, soul persistence. OWE: names that STICK + opinions + grief on faint + pride
-  on a clutch win + a team story that accretes over the 30-40h run. PAY: blocked on #3 (need a real chosen
-  team first); build the attachment hooks as the team fills out.
+  roster-naming-on-catch hook, soul persistence, + (2026-07-06) the BOND-HOOK FIX — a catch via ANY pick
+  now fires roster_react/note_caught (a travel:-pick catch was silently skipping it; that's why soul.json
+  bonds stayed empty despite a real catch). OWE: names that STICK + opinions + grief on faint + pride
+  on a clutch win + a team story that accretes over the 30-40h run. PAY: unblocking now as the nursery
+  fills the team; build the attachment hooks as it grows.
 
 **Ledger law:** when a piton pays a debt, mark it ✅ here with the commit. No debt is silently cleared.
 

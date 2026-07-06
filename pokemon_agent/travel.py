@@ -580,6 +580,7 @@ class Traveler:
         # so free_roam re-routes. NOT a puzzle solver (deterministic warps are a separate scoped item) —
         # this is the can't-loop-forever floor, the overworld sibling of the battle flee / dialogue cycle floors.
         _pos_window = deque(maxlen=POS_LOOP_WINDOW)
+        _bstuck = [0]   # 2026-07-06 BATTLE-LOOP BREAKER: consecutive unresolved 'stuck' battles
         for step in range(max_steps):
             # LAYER B cooperative cancel: the universal watchdog latched a disengage -> bail this leg
             # LOUD so the roam loop runs its top-level recovery (don't keep spinning a sub-tick loop).
@@ -633,6 +634,20 @@ class Traveler:
                 if outcome == "loss":
                     self.on_event("we got knocked out... I need to regroup")
                     return "battle_loss"
+                # 2026-07-06 BATTLE-LOOP BREAKER: a 'stuck' outcome with the battle STILL open means
+                # the runner cannot resolve THIS battle — re-detecting it as a fresh encounter forever
+                # was the south_run1 ×27 spin (an abandoned no-balls catch battle). Three consecutive
+                # -> abort the leg LOUD; roam's recovery (no-move pruning / hard recovery) owns it.
+                if outcome == "stuck" and st.in_battle(self.b):
+                    _bstuck[0] += 1
+                    if _bstuck[0] >= 3:
+                        self.log("   [travel] !! BATTLE-LOOP BREAKER: 3 consecutive unresolved 'stuck' "
+                                 "battles — aborting the leg LOUD (no infinite re-entry)")
+                        self.on_event("something's off with this fight — I need to step back and reset")
+                        self.last_fail_reason = "battle_loop"
+                        return "stuck"
+                else:
+                    _bstuck[0] = 0
                 self.b.set_input_owner(self.owner)   # reclaim from the battle agent
                 grid = Grid(self.b)
                 stuck = 0
@@ -761,6 +776,48 @@ class Traveler:
                                 self.log("   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller")
                                 return "need_heal"
                             continue
+                        # 2026-07-06 HONESTY FIX (STATE §7 prescription, built): a cut-tree/boulder on the
+                        # gap is a FIELD OBSTACLE, not a "stuck NPC" — it answers A with a box ("This
+                        # tree looks like it can be CUT down!") so the plain-NPC check misclassified it
+                        # (south_run1: the Cerulean south tree read as no_route_npc_blocked). Classify
+                        # by the object's graphicsId (the game's own mechanism) and surface DISTINCTLY.
+                        if blk is not None:
+                            try:
+                                import field_moves as _fmv
+                                _fobjs = {ob["coord"]: ob for ob in _fmv.scan_field_objects(
+                                    self.b, {_fmv.GFX_CUT_TREE, _fmv.GFX_BOULDER})}
+                            except Exception:
+                                _fobjs = {}
+                            if blk in _fobjs:
+                                _is_tree = _fobjs[blk]["gfx"] == _fmv.GFX_CUT_TREE
+                                # REMEMBER the obstacle as a hard block (until the HM is owned) and
+                                # REPLAN in-leg first: the NPC-allowing BFS prefers the SHORTEST path,
+                                # so a near tree beats a far real detour (Cerulean: the garden corridor
+                                # lost to the tree every replan — the crossed→tree→crossed loop). With
+                                # the tile in shared block memory the next plan finds the long way.
+                                self.blocked_npcs.add((cur_map, blk))
+                                blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
+                                reroute = bfs(grid, coords(self.b), goal,
+                                              walkable=lambda sx, sy: grid.walkable(sx, sy)
+                                              and (sx, sy) not in static_blocked and (sx, sy) not in avoid
+                                              and (sx, sy) not in blocked_here)
+                                if reroute and len(reroute) >= 2:
+                                    self.log(f"   [travel] FIELD OBSTACLE {blk} on {cur_map} "
+                                             f"({'CUT tree' if _is_tree else 'STRENGTH boulder'}) — "
+                                             f"remembered as a hard block; a LONGER route exists, rerouting")
+                                    no_path = stuck = fp_stall = 0; last_fp = None
+                                    continue
+                                self.last_fail_reason = "hm_blocked:cut" if _is_tree else "hm_blocked:strength"
+                                self.on_event("that's one of those small trees — the kind you can CUT "
+                                              "down with the right HM. I can't clear it yet, so this "
+                                              "way's closed for now — I need another route."
+                                              if _is_tree else
+                                              "a boulder's plugging the gap — that needs STRENGTH. "
+                                              "Another route for now.")
+                                self.log(f"   [travel] !! FIELD OBSTACLE on the only gap: {blk} on "
+                                         f"{cur_map} is a {'CUT tree' if _is_tree else 'STRENGTH boulder'}"
+                                         f" -> no_route_hm_blocked (honest; not a stuck NPC)")
+                                return "no_route_hm_blocked"
                         # LAYER A — PLAIN NPC on the only gap (we approached, NO battle started). This is
                         # the live Slowbro wedge: re-bumping its dialogue forever. Confirm it's a re-showing
                         # box (not a delayed trainer) and ADD it to the SHARED block memory so this leg AND

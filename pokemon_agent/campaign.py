@@ -34,7 +34,7 @@ import firered_ram as ram        # noqa: E402
 import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
-from pokemon_strategy import StrategicMemory  # noqa: E402  (Batch 3 Phase 2: loss/roster/opponent awareness)
+from pokemon_strategy import StrategicMemory, roster_judgment  # noqa: E402  (Batch 3 Phase 2 + block-#3 choice)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
 import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a gate -> derive a questline -> execute)
@@ -47,6 +47,15 @@ FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forwar
 # under-levelled, grinding fields the WEAK party members (not the ace) to readiness, then resumes the
 # march. Extends the forward-drive family; firewall-clean (mode-side only). OFF restores grind(lead+2).
 STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "1") != "0"
+# BLOCK #3 (2026-07-06 nursery): she JUDGES a wild before throwing — dupe/coverage/level/room — and
+# voices the choice both ways ("not this one because…" / "THIS one because…"). The oracle decides
+# live; headless follows the framework's lean. OFF restores catch-whatever-appears.
+CATCH_JUDGMENT_ENABLED = os.getenv("POKEMON_CATCH_JUDGMENT", "1") != "0"
+# Wall-less bench-leveling: a real player raises a fresh catch instead of hauling dead weight — when
+# the bench floor sits far under the lead (default gap 10), prep fires toward lead-8 even with no
+# recorded wall (the wall-based target still dominates when present).
+PROACTIVE_BENCH = os.getenv("POKEMON_PROACTIVE_BENCH", "1") != "0"
+PROACTIVE_BENCH_GAP = int(os.getenv("POKEMON_PROACTIVE_BENCH_GAP", "10"))
 # SOLO weak-grind: field the weak member as lead and let it grind SOLO in the grass (no in-battle
 # participation-switch needed — that switch wedges the long core). Viable now that she can buy Super
 # Potions (the in-battle heal instinct keeps a weak lead alive) + heals route to a reachable Center.
@@ -517,6 +526,8 @@ class Campaign:
         except Exception:
             self.soul = None
         self._last_lead_species = None        # for the note_evolve soul hook (lead species-change watch)
+        self._last_lead_pid = None            # slot-0 personality value — evolution keeps the PID, a
+                                              # party REORDER swaps it (the false-"[evolve]" discriminator)
         # BATCH 2 PART C: statuses that have afflicted the party recently (sampled each free-roam tick),
         # so "shop with intent" buys the SPECIFIC cures for what actually hurt her, not a generic kit.
         self._afflict_seen = set()
@@ -919,6 +930,304 @@ class Campaign:
                 if 0x60 <= (self.b.rd32(base + idx * 4) & 0xFF) <= 0x6F:
                     out.append((bx - 7, by - 7))
         return out
+
+    # DIRECTIONAL WARP TILES (pret metatile_behaviors.h): stair/arrow warps fire ONLY when entered
+    # moving in their direction — the UGP tunnel doorway is 0x6F MB_DOWN_LEFT_STAIR_WARP (enter
+    # moving WEST); walking onto it any other way just walks THROUGH it (run-9 lesson).
+    _WARP_ENTRY = {0x62: ("RIGHT", (1, 0)), 0x63: ("LEFT", (-1, 0)), 0x64: ("UP", (0, -1)),
+                   0x65: ("DOWN", (0, 1)), 0x6C: ("RIGHT", (1, 0)), 0x6D: ("LEFT", (-1, 0)),
+                   0x6E: ("RIGHT", (1, 0)), 0x6F: ("LEFT", (-1, 0))}
+
+    def _tile_behavior(self, sx, sy):
+        """Metatile behavior byte at save coords (the same read Grid/doors use). 0 on failure."""
+        try:
+            ml = self.b.rd32(0x02036DFC)
+            attr = (self.b.rd32(self.b.rd32(ml + 0x10) + 0x14),
+                    self.b.rd32(self.b.rd32(ml + 0x14) + 0x14))
+            w = self.b.rd32(tv.BACKUP_LAYOUT)
+            mp = self.b.rd32(tv.BACKUP_LAYOUT + 8)
+            e = self.b.rd16(mp + ((sx + 7) + w * (sy + 7)) * 2)
+            mid = e & 0x3FF
+            base, idx = (attr[0], mid) if mid < 640 else (attr[1], mid - 640)
+            return self.b.rd32(base + idx * 4) & 0xFF
+        except Exception:
+            return 0
+
+    def _enter_directional_warp(self, wt):
+        """Enter a stair/arrow warp tile the way the game demands: stand on the tile OPPOSITE its
+        entry direction and step INTO it. Returns True iff the map flipped."""
+        bh = self._tile_behavior(*wt)
+        ent = self._WARP_ENTRY.get(bh)
+        if ent is None:
+            return False
+        key, (dx, dy) = ent
+        stand = (wt[0] - dx, wt[1] - dy)
+        m0 = tuple(tv.map_id(self.b))
+        if self.trav.travel(target_map=None, arrive_coord=stand, max_steps=120,
+                            max_seconds=60) != "arrived":
+            return False
+        for _ in range(3):
+            self.b.press(key, 8, 10, self.render, owner="agent")
+            for _ in range(30):
+                self.b.run_frame()
+                self.render()
+            if tuple(tv.map_id(self.b)) != m0:
+                log(f"   directional warp {wt} (behavior 0x{bh:02x}) entered via {key}")
+                return True
+        return False
+
+    # ── THE DOOR PASS-THROUGH PRIMITIVE (2026-07-06 — the south-gate class, GENERAL) ──────────────
+    # GROUND TRUTH (recon_south_geometry + pret map.json + Bulbapedia): post-ticket Cerulean's ONLY
+    # pre-Cut route south is THROUGH the burgled house — front door (30,11) → interior → back door →
+    # the fenced garden → the east corridor (cols 39-40) → the fence crossing at (39-40,32) → the
+    # south strip → Route 5. The overworld BFS can NEVER see this (the region is fence-isolated), so
+    # when an edge crossing reports no-route, doors are the remaining connectors. The SAME shape is
+    # the Underground Path huts and the Saffron gatehouses — build once, reuse everywhere.
+    def _door_passthrough(self, budget_s=240):
+        """Enter a reachable, untried door on this map; inside, exit through a DIFFERENT warp; if we
+        pop out materially elsewhere (across a fence / on another map), report 'crossed' so the
+        caller retries its edge crossing from the new region. Bounded (each door once per map per
+        session); on a dead end she exits back out the way she came (and roam's blackout-recovery
+        auto-exits interiors anyway). Returns 'crossed' | 'no_passthrough' | 'need_heal'."""
+        b = self.b
+        m0 = tuple(tv.map_id(b))
+        pos0 = tuple(tv.coords(b))
+        if not hasattr(self, "_pt_tried"):
+            self._pt_tried = {}
+        tried = self._pt_tried.setdefault(m0, set())
+        grid = tv.Grid(b)
+        # connector fingerprint: a building with SEVERAL warp tiles on this map (front + back doors,
+        # like the burgled house's three) is the likeliest pass-through — try those FIRST.
+        dest_doors = {}
+        for (wxy, wdest, _wid) in tv.read_warps(b):
+            dest_doors.setdefault(tuple(wdest), set()).add(tuple(wxy))
+        door_dest = {t: dest for dest, ts in dest_doors.items() for t in ts}
+        # Candidates = ALL warp events (read_warps), not just door-behavior tiles — the Underground
+        # Path hut is a plain warp mat _door_tiles can't see (run-6 lesson). Reachable = the tile
+        # itself or ANY orthogonal neighbor (gates face north; the old south-approach convention
+        # skipped them). Entry method dispatches per kind below.
+        door_behav = {tuple(d) for d in self._door_tiles()}
+        cands = []
+        for wt in door_dest:
+            if wt in tried:
+                continue
+            if tv.bfs(grid, pos0, lambda t, w=wt: t == w or
+                      (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=grid.walkable):
+                cands.append(wt)
+        cands.sort(key=lambda t: (-len(dest_doors.get(door_dest.get(tuple(t)), ())),
+                                  abs(t[0] - pos0[0]) + abs(t[1] - pos0[1])))
+        # a connector that WORKED here before is remembered — try it first, always (re-attempts after
+        # a heal interrupt must not burn the search again or skip the proven door via the tried-set)
+        known = getattr(self, "_pt_known", {}).get(m0)
+        if known:
+            cands = [known] + [c for c in cands if tuple(c) != tuple(known)]
+        if not cands:
+            # PHASE 2 — REGION RE-ENTRY (2026-07-06, the Route-5 middle-terrace class): a warp on THIS
+            # map can sit in a region only enterable from the NEIGHBOR map at aligned columns (the UGP
+            # hut: middle corridor, entered from Cerulean's strip; crossing offset +6). For each
+            # locally-unreachable warp: cross back to the neighbor, walk to the border column that
+            # aligns with the warp's x, re-cross, and see if the warp became reachable.
+            far = [wt for wt in door_dest if wt not in tried]
+            far.sort(key=lambda t: -len(dest_doors.get(door_dest.get(tuple(t)), ())))
+            for wt in far:
+                tried.add(wt)
+                if self._reenter_at_column(wt) == "entered":
+                    grid2 = tv.Grid(b)
+                    if tv.bfs(grid2, tuple(tv.coords(b)), lambda t, w=wt: t == w or
+                              (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=grid2.walkable):
+                        tried.discard(wt)
+                        cands = [wt]
+                        pos0 = tuple(tv.coords(b))
+                        log(f"   PASSTHROUGH: region re-entry unlocked warp {wt} — proceeding")
+                        break
+            if not cands:
+                return "no_passthrough"
+        log(f"   PASSTHROUGH: overworld can't reach the target — trying {len(cands)} door(s) as "
+            f"connectors (a building can open onto the far side)")
+        self.on_event("hmm — no way through out here. maybe one of these buildings has a back way…",
+                      kind="route", tier=1)
+        for door in cands:
+            if tuple(tv.map_id(b)) != m0:
+                # a previous candidate left us INSIDE — recover to the overworld before continuing
+                self._exit_to_overworld()
+                if tuple(tv.map_id(b)) != m0:
+                    log("   PASSTHROUGH: !! stranded off the start map — aborting the search LOUD "
+                        "(roam's recovery owns it)")
+                    return "no_passthrough"
+            tried.add(tuple(door))
+            def _settle(frames):
+                for _ in range(frames):
+                    b.run_frame()
+                    self.render()
+                return tuple(tv.map_id(b))
+            if tuple(door) in door_behav:
+                r = self.enter_warp(pick=door, budget_s=budget_s)
+                if r == "need_heal":
+                    return "need_heal"
+                if r != "warped":
+                    continue
+            else:
+                # a plain warp mat (hut stairs / hole): walk ONTO it; nudge through if standing on it
+                r = self.trav.travel(target_map=None, arrive_coord=tuple(door),
+                                     max_steps=300, max_seconds=budget_s)
+                if r == "need_heal":
+                    return "need_heal"
+                if _settle(30) == m0:
+                    if tuple(tv.coords(b)) == tuple(door):
+                        for key in ("DOWN", "UP", "LEFT", "RIGHT"):
+                            self.b.press(key, 8, 8, self.render, owner="agent")
+                            if _settle(36) != m0:
+                                break
+                    if tuple(tv.map_id(b)) == m0:
+                        continue                              # never fired — not a usable connector
+            # MULTI-HOP WARP-WALK (bounded): keep taking the farthest-unentered warp of each interior
+            # until we pop back onto the OVERWORLD. Depth 1 = the burgled house (house -> garden);
+            # depth 3 = the Underground Path (hut -> tunnel -> hut -> the far route). A room whose only
+            # exits lead back where we came from dead-ends the walk (the Center-upstairs case).
+            dead_end = False
+            for hop in range(6):
+                m_in = tuple(tv.map_id(b))
+                if m_in[0] == 3:
+                    break                                     # back on the overworld — evaluate below
+                spawn = tuple(tv.coords(b))
+                exits = sorted((tuple(w[0]) for w in tv.read_warps(b)),
+                               key=lambda t: -(abs(t[0] - spawn[0]) + abs(t[1] - spawn[1])))
+                moved = False
+                for wt in exits:
+                    if abs(wt[0] - spawn[0]) + abs(wt[1] - spawn[1]) <= 1:
+                        continue                              # the warp we arrived by — skip
+                    self.trav.travel(target_map=None, arrive_coord=wt, max_steps=260, max_seconds=110)
+                    if _settle(30) != m_in:
+                        moved = True
+                        break                                 # walking onto the mat warped us
+                    if tuple(tv.coords(b)) == wt:             # standing ON it: nudge through
+                        # one press at a time, SETTLED before judging — a press queued during the
+                        # warp fade executes on arrival and can step us onto the twin mat (the
+                        # (31,9) re-entry bug: she popped out and instantly walked back inside).
+                        for key in ("UP", "DOWN", "LEFT", "RIGHT"):
+                            self.b.press(key, 8, 8, self.render, owner="agent")
+                            if _settle(36) != m_in:
+                                break
+                        if tuple(tv.map_id(b)) != m_in:
+                            moved = True
+                            break
+                    # DIRECTIONAL stair/arrow warp (the UGP tunnel doorway 0x6F): enter moving in
+                    # its direction — walk-onto and UP-entry both walk THROUGH it.
+                    if self._enter_directional_warp(tuple(wt)) and tuple(tv.map_id(b)) != m_in:
+                        moved = True
+                        break
+                    # DOOR-TYPE inner warp: fires only when ENTERED from its front tile — the
+                    # stand-beside + step-in ritual, not walk-onto.
+                    if self.enter_warp(pick=tuple(wt), budget_s=90) == "warped" \
+                            and tuple(tv.map_id(b)) != m_in:
+                        moved = True
+                        break
+                if not moved:
+                    dead_end = True
+                    break
+            _settle(60)                                       # finish the door-exit walk animation
+            m_out, pos1 = tuple(tv.map_id(b)), tuple(tv.coords(b))
+            if dead_end or m_out[0] != 3:
+                # no onward exit (single-door house / Center upstairs loop) — recover and try the next
+                log(f"   PASSTHROUGH: {door} dead-ends inside ({m_out}) — backing out")
+                self._exit_to_overworld()
+                continue
+            if m_out != m0 or abs(pos1[0] - pos0[0]) + abs(pos1[1] - pos0[1]) > 6:
+                log(f"   PASSTHROUGH: CROSSED via door {door}: {m0}@{pos0} -> {m_out}@{pos1}")
+                self.on_event("ha — knew it! through the building and out the other side. "
+                              "the road's open.", kind="route", tier=2)
+                # remember the proven connector (re-attempts after heal/battle interrupts reuse it)
+                if not hasattr(self, "_pt_known"):
+                    self._pt_known = {}
+                self._pt_known[m0] = tuple(door)
+                tried.discard(tuple(door))
+                # (the roam tick's note_visit warp-learning records the connector in the graph)
+                return "crossed"
+            # popped out beside where we entered (same building, two front doors) — keep trying
+            log(f"   PASSTHROUGH: door {door} popped out beside the entry ({pos1}) — not a crossing")
+        return "no_passthrough"
+
+    def _reenter_at_column(self, warp_tile):
+        """REGION RE-ENTRY: leave this map via its NORTH/SOUTH connection, walk the neighbor's border
+        to the column aligned with `warp_tile` (using the real connection OFFSET from the header), and
+        step back across — landing in the fenced region that holds the warp. Returns 'entered'|'failed'.
+        First instance: Route 5's middle terrace (the UGP hut) from Cerulean's strip, offset +6."""
+        b = self.b
+        m0 = tuple(tv.map_id(b))
+        GH = 0x02036DFC
+        try:
+            cp = b.rd32(GH + 0x0C)
+            cnt, arr = b.rd32(cp), b.rd32(cp + 4)
+            conns = []
+            for i in range(min(cnt, 8)):
+                e = arr + i * 12
+                d = b.rd32(e)
+                off = b.rd32(e + 4)
+                if off >= 0x80000000:
+                    off -= 0x100000000
+                conns.append((d, off, (b.rd8(e + 9), b.rd8(e + 8))))
+        except Exception:
+            return "failed"
+        # prefer the NORTH neighbor (2) then SOUTH (1) — the region-split class is a N/S phenomenon
+        for want_dir, back_edge, back_word in ((2, "south", "north"), (1, "north", "south")):
+            hit = next(((off, m) for d, off, m in conns if d == want_dir), None)
+            if hit is None:
+                continue
+            off, nmap = hit
+            # cross to the neighbor first (any reachable band tile will do)
+            if self.trav.travel(target_map=tuple(nmap), edge=back_word, max_seconds=180) != "arrived":
+                continue
+            # on the neighbor: this map's column x maps to neighbor column x + off... the offset is
+            # applied entering m0 FROM the neighbor as (neighbor_x - off) -> m0_x, so target
+            # neighbor_x = warp_x + off. Walk to the border row at that column, then step across.
+            # offset SIGN is convention-ambiguous — hedge both; the post-re-entry BFS verifies anyway
+            tx = warp_tile[0] + off
+            tx2 = warp_tile[0] - off
+            g2 = tv.Grid(b)
+            border_y = g2.sy_hi if back_word == "north" else 0
+            goal_cols = list(dict.fromkeys(list(range(tx - 2, tx + 3)) + list(range(tx2 - 2, tx2 + 3))))
+            got = None
+            for cx in sorted(goal_cols, key=lambda c: min(abs(c - tx), abs(c - tx2))):
+                if self.trav.travel(target_map=None, arrive_coord=(cx, border_y),
+                                    max_steps=400, max_seconds=150) == "arrived":
+                    got = cx
+                    break
+            if got is None:
+                continue
+            step_key = "DOWN" if back_word == "north" else "UP"
+            for _ in range(4):
+                self.b.press(step_key, 8, 10, self.render, owner="agent")
+                for _ in range(20):
+                    b.run_frame()
+                    self.render()
+                if tuple(tv.map_id(b)) == m0:
+                    log(f"   PASSTHROUGH: re-entered {m0} at column {got} (offset {off:+d}) "
+                        f"targeting warp {warp_tile}")
+                    return "entered"
+            # couldn't step across at this column — give up this direction
+        return "failed"
+
+    def _edge_travel(self, target_map, edge, budget_s=None):
+        """An edge hop with the pass-through fallback: when the crossing reports a hard no-route
+        (fence/tree/NPC-walled region), try a building connector, then retry the crossing once.
+        Both legs AVOID warp tiles (the Mt-Moon lesson: pathing across a door mat fires it — the
+        garden retry walked straight back into the burgled house without this)."""
+        kw = {} if budget_s is None else {"max_seconds": budget_s}
+        avoid = {tuple(w[0]) for w in tv.read_warps(self.b)}
+        r = self.trav.travel(target_map=target_map, edge=edge, avoid=avoid, **kw)
+        hard_noroute = (r in ("no_route_hm_blocked", "no_route_npc_blocked")
+                        or (r in ("no_path", "stuck")
+                            and getattr(self.trav, "last_fail_reason", "") in ("no_route", "npc_blocked")))
+        if hard_noroute:
+            pt = self._door_passthrough()
+            if pt == "need_heal":
+                return "need_heal"
+            if pt == "crossed":
+                if tuple(tv.map_id(self.b)) == tuple(target_map):
+                    return "arrived"                           # the connector itself crossed the map
+                avoid = {tuple(w[0]) for w in tv.read_warps(self.b)}
+                return self.trav.travel(target_map=target_map, edge=edge, avoid=avoid, **kw)
+        return r
 
     def advance_north(self, target_map, max_legs=60):
         """Generic 'head north until target_map' - auto-picks WALK (cross a route edge)
@@ -2225,6 +2534,47 @@ class Campaign:
                 out = self.battle_runner()
                 trainer_secs[0] += time.time() - _tb
                 return out
+            # BLOCK #3 — THE CHOICE (2026-07-06 nursery): a real player doesn't ball everything that
+            # rustles the grass. Size the wild up (dupe/coverage/level/room), offer the call to the
+            # oracle (hers, live), follow the framework's lean headless — and VOICE it both ways.
+            if CATCH_JUDGMENT_ENABLED:
+                try:
+                    rb = st.read_battle(self.b)
+                    foe_mon = rb["enemy"] if rb else None
+                except Exception:
+                    foe_mon = None
+                if foe_mon and foe_mon.get("species"):
+                    fid = foe_mon["species"]
+                    fname = st.SPECIES_NAME.get(fid, f"pokémon #{fid}")
+                    team = []
+                    for i in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)):
+                        sid = st.read_party_species(self.b, i)
+                        team.append({"species_id": sid,
+                                     "level": self.b.rd8(ram.GPLAYER_PARTY + i * st.PARTY_MON_SIZE + 0x54),
+                                     "types": st.SPECIES_TYPES.get(sid, [])})
+                    foe_desc = {"species_id": fid, "name": fname, "level": foe_mon.get("level"),
+                                "types": st.SPECIES_TYPES.get(fid, foe_mon.get("types") or [])}
+                    rec, reason, facts = roster_judgment(team, foe_desc)
+                    pick = self._soul_choose(
+                        "catch_judgment",
+                        {"catch": f"throw a ball at this {fname} (L{foe_desc['level']})",
+                         "skip": f"pass on the {fname} — fight or flee, keep hunting"},
+                        {"place": f"a wild {fname} (L{foe_desc['level']}, "
+                                  f"{'/'.join(t for t in foe_desc['types'] if t) or 'unknown type'}) "
+                                  f"just appeared. sizing it up: {reason}. your call — is this one "
+                                  f"joining the team?"})
+                    decision = pick if pick in ("catch", "skip") else ("catch" if rec else "skip")
+                    log(f"   CATCH-JUDGMENT: {fname} L{foe_desc['level']} -> {decision} "
+                        f"(lean={'catch' if rec else 'skip'}, oracle={pick!r}) — {reason}")
+                    if decision == "skip":
+                        if not hasattr(self, "_catch_skip_voiced"):
+                            self._catch_skip_voiced = set()
+                        if fid not in self._catch_skip_voiced:
+                            self._catch_skip_voiced.add(fid)
+                            self.on_event(f"a {fname}… {reason}. not this one — moving on.",
+                                          kind="roster", tier=1)
+                        return self.battle_runner()          # fight/resolve it normally, keep hunting
+                    self.on_event(f"oh — a {fname}! {reason}. I want this one.", kind="roster", tier=2)
             log("   CATCH: WILD encounter - committing to the catch")
             # CATCH ON THE MAIN CORE (default). The old "throw doesn't actuate in a long-running core" was
             # MISDIAGNOSED as decay; the real bug was the in-battle bag opening on the wrong (Items) pocket
@@ -2459,7 +2809,19 @@ class Campaign:
         # 1) to the PC door + step in
         if self.trav.travel(target_map=None, arrive_coord=(pc_door[0],
                             pc_door[1] + 1), max_steps=400, max_seconds=120) != "arrived":
-            log(f"   !! HEAL: couldn't reach the PC door (at {tv.coords(self.b)})"); return "stuck"
+            # 2026-07-06 STRAND GUARD (nursery run-4): from a one-way pocket (Cerulean's post-ticket
+            # south strip) the own-map Center door is UNREACHABLE and re-picking heal ping-pongs two
+            # tiles forever (position changes each tick, so the no-move pruning never fires). Remember
+            # the dead heal AT THIS SPOT so _available_actions stops offering it while she's non-
+            # critical here — the road forward (the next town's Center) is the real heal.
+            if not hasattr(self, "_heal_dead_maps"):
+                self._heal_dead_maps = set()
+            self._heal_dead_maps.add(tuple(tv.map_id(self.b)))
+            log(f"   !! HEAL: couldn't reach the PC door (at {tv.coords(self.b)}) — remembered as "
+                f"heal-dead on this map (offer suppressed while non-critical; push to the next Center)")
+            self.on_event("can't get back to the Pokémon Center from this side — I'll patch up at the "
+                          "next town ahead.", kind="recover", tier=1)
+            return "no_reachable_center"
         before = tv.map_id(self.b)
         for _ in range(6):
             self.b.press("UP", 8, 10, self.render, owner="agent")
@@ -2488,6 +2850,9 @@ class Campaign:
             log(f"   !! HEAL: nurse dialogue did not complete (party not full; lead {h1[0]}/{h1[1]})")
             return "stuck"
         log(f"   HEAL: restored party to full (lead was {h0[0]}/{h0[1]})")
+        # a successful heal on this map proves the Center reachable from HERE — clear any strand-guard
+        # memo (the mark was for a one-way pocket; from the normal side the offer must return)
+        getattr(self, "_heal_dead_maps", set()).discard(tuple(tv.map_id(self.b)))
         # 3) EXIT: the post-heal script holds control for a beat and the exit mat only fires when you
         # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
         # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
@@ -2644,9 +3009,16 @@ class Campaign:
                 ace = max(m["level"] for m in party)
                 return t if ace < t else None
             t = self.strat.underlevel_target()              # FIELD-WEAK (switch armed)
+            floor = min(m["level"] for m in party)
+            if not t and PROACTIVE_BENCH and len(party) >= 2:
+                # WALL-LESS bench-raising (2026-07-06 nursery): a fresh catch shouldn't ride the bench
+                # at L5 while the ace is L30 — when the floor sags PROACTIVE_BENCH_GAP under the lead,
+                # prep toward lead-8 (modest, bounded; a recorded wall's target still dominates above).
+                lead = max(m["level"] for m in party)
+                if floor < lead - PROACTIVE_BENCH_GAP:
+                    t = lead - 8
             if not t:
                 return None
-            floor = min(m["level"] for m in party)
             return t if floor < t else None
         except Exception as e:
             log(f"   [roam] prep-team target skipped: {e}")
@@ -3396,13 +3768,22 @@ class Campaign:
         on a gym clear. Signal + wiring + LOG only — mood/bond math is core's (firewall)."""
         try:
             sp = st.read_party_species(self.b, 0)
+            pid = self.b.rd32(ram.GPLAYER_PARTY + 0)      # slot-0 personality value
             if self._last_lead_species and sp and sp != self._last_lead_species:
                 before = st.SPECIES_NAME.get(self._last_lead_species, "?")
                 after = st.SPECIES_NAME.get(sp, "?")
-                log(f"   [soul] note_evolve FIRE -> {before} -> {after}")
-                self.soul.note_evolve(before, after)
+                # EVOLUTION keeps the mon's PID; a party REORDER (grind fielding / _restore_ace) puts a
+                # DIFFERENT mon in slot 0. Only a same-PID species change is a real evolution — anything
+                # else was the false "ivysaur evolved into spearow" voice lie (2026-07-05 known bug).
+                if pid and self._last_lead_pid and pid == self._last_lead_pid:
+                    log(f"   [soul] note_evolve FIRE -> {before} -> {after} (same PID — real evolution)")
+                    self.soul.note_evolve(before, after)
+                else:
+                    log(f"   [soul] lead swap {before} -> {after} (PID changed — party reorder, "
+                        f"NOT an evolution; no beat)")
             if sp:
                 self._last_lead_species = sp
+                self._last_lead_pid = pid
         except Exception as _e:
             log(f"   [soul] evolve-check err {_e}")
         if out in ("battle_loss", "blackout"):
@@ -3618,7 +3999,7 @@ class Campaign:
         nxt, edge = hop
         log(f"   [roam] TRAVEL: {self.world.name(cur)} -> {self.world.name(dst)} "
             f"(next hop {edge} -> {self.world.name(nxt)})")
-        r = self.trav.travel(target_map=nxt, edge=edge)
+        r = self._edge_travel(nxt, edge)
         if r != "arrived":
             return f"travel:{r}"
         if tuple(tv.map_id(self.b)) == dst:
@@ -3654,7 +4035,12 @@ class Campaign:
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
-        if self.needs_heal() or sev == "hurt":
+        # 2026-07-06 STRAND GUARD: heal is NOT offered (while non-critical) on a map where the last
+        # heal attempt proved the Center unreachable (a one-way pocket, e.g. Cerulean's south strip) —
+        # re-offering it was the run-4 ping-pong stall. Critical severity above still overrides (the
+        # RED hard-recovery backstops a heal that can't route).
+        _heal_dead = tuple(state.get("map") or ()) in getattr(self, "_heal_dead_maps", set())
+        if (self.needs_heal() or sev == "hurt") and not _heal_dead:
             a["heal"] = "go to a Pokemon Center and heal the team up"
         # PP DEPLETION (Phase 4) — a Center restores PP, not just HP. When the lead can barely act
         # (≤1 move with PP left) she can neither weaken-to-catch nor fight safely — the depleted spiral
@@ -3673,6 +4059,17 @@ class Campaign:
                 has_balls = True
             if has_balls:
                 a["wander_catch"] = "wander the grass and try to catch a new teammate"
+                # nursery drive (2026-07-06): with a thin team + balls in the bag, catching is
+                # PURPOSEFUL — she's building the squad, judging keepers, not collecting at random.
+                try:
+                    if state.get("party_count", 6) < 4 and self._balls_pocket_count(ITEM_POKE_BALL) > 0:
+                        a["wander_catch"] = (f"BUILD THE TEAM — you're carrying "
+                                             f"{state.get('party_count')} and a real trainer fields a "
+                                             f"balanced ~6. hunt the grass for a KEEPER (something that "
+                                             f"covers a type you lack, at a workable level) — judge each "
+                                             f"one, don't ball everything")
+                except Exception:
+                    pass
             # STRATEGIC UNDERLEVEL-GRIND (Task B) — FRAME the grind as the WEAK-member prep when the team
             # FLOOR is under the wall's level. This makes her PICK "battle" knowing it means "field
             # Rattata/Spearow, level THEM" (the executor does exactly that), and surfaces the strategic
@@ -4208,7 +4605,7 @@ class Campaign:
                         self.enter_warp(pick=detail)              # door warp: stand beside + step in
                         return "warped" if tv.map_id(self.b) != before else "warp_failed"
                     log(f"   [roam] EDGE-ROUTE toward {ng['city']}: {cur_map} -> {nxt_map} (edge {detail})")
-                    return self.trav.travel(target_map=nxt_map, edge=detail)
+                    return self._edge_travel(nxt_map, detail)
             # FORWARD-SPINE RECOVERY (off-branch): we're here because the learned graph can't yet route to
             # the gym CITY (she hasn't crossed the gate, so those maps are unlearned). Do NOT blindly walk
             # the local 'south' edge below — on a side-branch (e.g. Route 4, whose 'south' is Route 3, even
@@ -4218,6 +4615,31 @@ class Campaign:
             # south block runs (south from Cerulean = the Slowbro gate → questline). Edges only (no coords).
             base = self._base_camp(state)
             if base is not None and base != cur_map:
+                # FRONTIER-MARCH (2026-07-06, the Route-5 ping-pong fix): if base camp is the NEIGHBOR
+                # we just came from, we are ON the forward road PAST it — bouncing "back to base camp"
+                # while base camp says "go forward" ping-pongs two maps forever (run 5: Cerulean <->
+                # Route 5 ×14). March AWAY from base instead: the opposite connection first, else any
+                # non-base connection (a bend), else a DOOR pass-through (gatehouse/tunnel country).
+                _dirword = {"N": "north", "S": "south", "E": "east", "W": "west"}
+                _opp = {"N": "S", "S": "N", "E": "W", "W": "E"}
+                try:
+                    conns = list(self._map_connections())
+                except Exception:
+                    conns = []
+                back_dir = next((d for d, m in conns if tuple(m) == tuple(base)), None)
+                if back_dir is not None:
+                    fwd = next(((d, m) for d, m in conns if d == _opp[back_dir]), None) \
+                          or next(((d, m) for d, m in conns if tuple(m) != tuple(base)), None)
+                    if fwd is not None:
+                        fdir, fmap = fwd
+                        log(f"   [roam] FORWARD-FRONTIER: past base camp {self.world.name(base)} — "
+                            f"marching {_dirword[fdir]} to {tuple(fmap)} (never bounce back to base)")
+                        self.on_event("this is new ground — the road to the next gym runs on ahead. "
+                                      "keeping on.", kind="route", tier=1)
+                        return self._edge_travel(tuple(fmap), _dirword[fdir])
+                    pt = self._door_passthrough()
+                    if pt == "crossed":
+                        return "passthrough_forward"
                 try:
                     hop = self.world.next_hop(cur_map, base, avoid=self._wall_avoid(state))
                 except Exception:
@@ -4229,7 +4651,7 @@ class Campaign:
                         f"camp {bname} via {edge_dir} to {back_map} (then the gate questline takes over)")
                     self.on_event(f"I've drifted off the road — heading back toward {bname} to pick the way "
                                   f"forward back up.", kind="route", tier=1)
-                    return self.trav.travel(target_map=back_map, edge=edge_dir)
+                    return self._edge_travel(back_map, edge_dir)
             # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
             # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
@@ -4270,7 +4692,7 @@ class Campaign:
                 gate = self._gate_recognizer.recognize(cur_map, blocked_dir="south")
                 if gate and self._open_questline(gate, state):
                     return self._run_questline_step(state)
-            return self.trav.travel(target_map=south, edge="south")
+            return self._edge_travel(south, "south")
         if pick in ("wander_catch", "battle"):
             # PHASE 3B: before any free-roam leveling, make sure the lead has a free move slot so a
             # level-up move auto-learns (the un-actuatable 'Delete a move?' box never appears). Her call
@@ -4921,7 +5343,10 @@ class Campaign:
                 self.on_event(("stocked up — and grabbed " + cured + " so that doesn't cost me again")
                               if cured else "stocked up on potions — better to have them and not need them",
                               kind="shop", tier=2)
-            if pick == "wander_catch" and out == "caught" and self.soul is not None:
+            # ANY pick that ends in a catch gets the family beat — the 2026-07-06 nursery fix: a catch
+            # via travel:<grass-map> (which auto-hunts on arrival) was skipping the naming/bond hook,
+            # which is why soul.json bonds stayed EMPTY despite a real catch (the soul-debt #3 gap).
+            if out == "caught" and self.soul is not None:
                 self.roster_react()                        # note_caught: bond + react to the new teammate
             if self.soul is not None:
                 self._soul_after_objective("FREE_ROAM", out)   # note_evolve / note_faint+outcome(loss)
@@ -5397,6 +5822,13 @@ class Campaign:
                 _json.dump(narrative, f, ensure_ascii=False, indent=2)
         except Exception as e:
             log(f"   [journey] !! campaign-side saga bank failed: {e} (LOUD)")
+        # RIDE-ALONG 0c (2026-07-06): validate the just-written bundle — schema/encoding/truth. Story
+        # corruption must be LOUD at write time, not discovered by a viewer. Never crashes the save path.
+        try:
+            import sanctity as _sanctity
+            _sanctity.validate_bundle(STATES_CAMPAIGN, log=log)
+        except Exception as _se:
+            log(f"   [sanctity] !! validation skipped: {_se}")
 
     def _journey_narrative(self):
         """PHASE 4 — assemble her Pokémon-journey continuity for the core seam: WHERE she is, her TEAM

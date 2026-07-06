@@ -52,8 +52,16 @@ from campaign import Campaign, resolve_state, STATES_CAMPAIGN  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 PMON = st.PARTY_MON_SIZE
-SS_TICKET = 0x234                                          # FLAG_GOT_SS_TICKET — the real goal signal
+SS_TICKET = 0x234                                          # FLAG_GOT_SS_TICKET — the pre-ticket goal signal
 STALL_DECISIONS = 14                                      # no-progress decisions in a row = a genuine stall
+# GOAL CONFIG (2026-07-06, post-ticket era): the goal is now configurable per stretch —
+#   LONGRUN_GOAL_MAP="3,23"  -> GOAL when she stands on that map (e.g. Route 5 for the south gate)
+#   LONGRUN_GOAL_FLAG="0x234"-> GOAL when that flag TRANSITIONS to set during the run
+# Default (neither set): the classic ticket-flag goal, but only if it was UNSET at boot — a save that
+# already holds the ticket must not insta-GOAL (that was the hardcode's failure mode).
+_gm = os.getenv("LONGRUN_GOAL_MAP", "")
+GOAL_MAP = tuple(int(x) for x in _gm.split(",")) if _gm else None
+GOAL_FLAG = int(os.getenv("LONGRUN_GOAL_FLAG", "0"), 0) or None
 
 SCRATCH = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
 STAGE = os.path.join(SCRATCH, "stage")                    # in-run persistence lands HERE (canonical untouched)
@@ -198,6 +206,9 @@ def main():
     decisions = [0]
     last_sig = [None]
     stall_run = [0]
+    # was the goal-flag ALREADY set at boot? (a held ticket must not insta-GOAL — flag goals fire on
+    # the TRANSITION only)
+    boot_goal_flag = [bool(fm.read_flag(b, GOAL_FLAG if GOAL_FLAG is not None else SS_TICKET))]
     start_party = _party(b)
     start_levels = [lv for _, lv, _, _ in start_party]
 
@@ -232,8 +243,14 @@ def main():
         ql_doing = (ql.actionable.human if (ql and ql.actionable) else None)
         b_desc = options.get("battle", "") if isinstance(options, dict) else ""
         h_desc = options.get("head_to_gym", "") if isinstance(options, dict) else ""
-        # GOAL — the S.S. Ticket flag is the true done-signal (the questline self-clears on it).
-        if fm.read_flag(b, SS_TICKET):
+        # GOAL — configurable per stretch (map reached / flag transition / classic ticket default).
+        if GOAL_MAP is not None:
+            if mp == GOAL_MAP:
+                raise _Done(f"GOAL: reached map {GOAL_MAP} at {co}")
+        elif GOAL_FLAG is not None:
+            if fm.read_flag(b, GOAL_FLAG) and not boot_goal_flag[0]:
+                raise _Done(f"GOAL: flag 0x{GOAL_FLAG:X} set")
+        elif fm.read_flag(b, SS_TICKET) and not boot_goal_flag[0]:
             raise _Done("GOAL: S.S. Ticket obtained (FLAG_GOT_SS_TICKET set)")
         # STALL — no progress on any dimension across STALL_DECISIONS consecutive decisions.
         sig = progress_sig()
@@ -258,6 +275,11 @@ def main():
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
+        elif (not BARGE) and "wander_catch" in opts and len(party) < 4 \
+                and camp._balls_pocket_count(C.ITEM_POKE_BALL) > 0:
+            pick = "wander_catch"                          # NURSERY (2026-07-06): thin team + balls +
+            #                                                fresh grass -> a sensible player builds the
+            #                                                squad FIRST (judgment-gated; dupes skipped)
         elif (not BARGE) and prep is not None and "battle" in opts:
             pick = "battle"                                # underlevelled + items-alone can't beat the
             #                                                Smokescreen Charmander -> GRIND/team-build first
@@ -265,7 +287,11 @@ def main():
             # travel:* BEFORE talk_npc (run-4 lesson: at the post-grind Route-4 spot the opts collapsed to
             # ['talk_npc','travel:3,3'] and the old order spammed no_npc talk 7x instead of walking to
             # Cerulean — a real player moves toward somewhere useful before re-talking an empty route).
-            for pref in ("heal", "head_to_gym", "battle", "wander_catch"):
+            # HEAL only when someone's actually CRITICAL/fainted (2026-07-06 nursery run-4 lesson: a
+            # 43%-HP Spearow made the chooser slavishly re-pick heal in a pocket that can't reach a
+            # Center — a real player pushes to the NEXT town's Center when merely dinged).
+            critical = any(hp == 0 or (mx and hp / mx < 0.25) for _, _, hp, mx in party)
+            for pref in (("heal",) if critical else ()) + ("head_to_gym", "battle", "wander_catch", "heal"):
                 if pref in opts:
                     pick = pref
                     break
@@ -345,8 +371,18 @@ def main():
         rt = f"{'OK' if rt_ok else 'MISMATCH'} (party/badges/flag {'match' if rt_ok else 'DIFFER'})"
     except Exception as e:
         rt = f"FAILED: {e}"
-    L(f"\nBANKED checkpoint -> {banked}  (savestate + world_model/strat/soul sidecars)")
+    # RIDE-ALONG 0c (2026-07-06): SANCTITY VALIDATION — story corruption fails a bank like a wedge
+    # fails a run. prev = the canonical bundle this bank would replace (monotonic story guard).
+    try:
+        import sanctity
+        sane, s_issues = sanctity.validate_bundle(
+            banked, prev_dir=STATES_CAMPAIGN, live_badges=_badges(b), log=L)
+    except Exception as _se:
+        sane, s_issues = False, [f"validator crashed: {_se}"]
+        L(f"   [sanctity] !! validator crashed: {_se}")
+    L(f"\nBANKED checkpoint -> {banked}  (savestate + world_model/strat/soul/journey sidecars)")
     L(f"  round-trip (save->load->identical): {rt}")
+    L(f"  sanctity: {'VALID' if sane else 'FAILED — DO NOT PROMOTE (' + '; '.join(s_issues)[:200] + ')'}")
     L(f"  canonical save UNTOUCHED (look-ahead persisted only to {STAGE})")
     L(f"  to advance the real Sherpa timeline: promote {banked}/* into {STATES_CAMPAIGN}/ (Jonny's call)")
 

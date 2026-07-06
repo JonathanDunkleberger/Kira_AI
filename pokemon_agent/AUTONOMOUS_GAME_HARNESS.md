@@ -98,6 +98,34 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     layered recovery (rotation → flee → re-entry) assumed the same wrong state, so all of them failed
     identically; a single verified-state primitive at the bottom fixes the whole stack.
 
+14. **A press queued during a warp fade executes ON ARRIVAL.** Nudging through a door mat with a
+    blind key sequence buffers the NEXT press through the screen fade — it fires the instant control
+    returns and can step you onto the twin mat straight back inside (the Cerulean (31,9) re-entry:
+    pop out of the house, instantly walk back in, zero travel steps logged). RULE: one press at a
+    time, SETTLE ~30 frames, re-read the map, only then judge/continue. (Same family as pitfall 6:
+    never trust an action landed without reading the world back.)
+15. **Shortest-path planning prefers a NEAR hard-obstacle over the real long detour.** The
+    NPC-allowing fallback BFS re-picked the cut tree (18 tiles) over the burgled-house corridor
+    (~50 tiles) on every replan — a crossed→tree→crossed loop. When an obstacle is UNCLEARABLE
+    (an HM you don't own), add it to persistent block memory the first time you classify it, then
+    REPLAN — the long way only wins once the short way is remembered as closed.
+16. **Phantom mojibake: a default-encoding read on Windows fakes story corruption.** `open()` without
+    `encoding=` decodes UTF-8 sidecars as cp1252 — "Pokémon" reads as "PokÃ©mon" and you'll ship a
+    "fix" for a file that was never broken. All sidecar reads/writes: explicit utf-8; validators must
+    read explicit too (ours does).
+17. **A one-way pocket makes 'go heal' a stall loop.** Post-gate regions you can't walk BACK from
+    (Cerulean's south strip) leave the known Center unreachable; re-offering heal ping-pongs two
+    tiles forever — and a 2-tile oscillation defeats a position-based no-move guard. On a failed
+    heal-route: remember the map as heal-dead, suppress the offer while non-critical, and push to
+    the NEXT town's Center (what a real player does). Clear the memo on the next successful heal.
+
+**ENGINE CAPABILITY (added 2026-07-06): THE DOOR PASS-THROUGH.** When an edge crossing has no
+overworld route (fenced region), buildings are the remaining connectors: try reachable doors
+(multi-warp buildings first — a connector fingerprint), walk the interior's warps farthest-first,
+multi-hop up to 6 rooms (depth 1 = a pass-through house, depth 3 = an underground tunnel), pop out,
+retry the edge. Remember proven connectors per map. This one primitive covers pass-through houses,
+gatehouses, and under-city tunnels — every "the road is fenced; the way through is a building" gate.
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.

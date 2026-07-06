@@ -28,8 +28,9 @@ def main():
     print(f"party_count={s['party_count']}")
     for m in s["party"]:
         print(f"   {m['species']:12} L{m['level']:<3} HP {m['hp']}/{m['maxhp']}")
-    print(f"\nballs(PokeBall id4)={camp.bag_count(ITEM_POKE_BALL)}  "
-          f"GreatBall(3)={camp.bag_count(3)}  potions(id13)={camp.bag_count(ITEM_POTION)}")
+    # pocket-aware (pitfall #7): balls live in the BALLS pocket — bag_count (Items) can't see them
+    print(f"\nballs(PokeBall id4)={camp._balls_pocket_count(ITEM_POKE_BALL)}  "
+          f"GreatBall(3)={camp._balls_pocket_count(3)}  potions(id13)={camp.bag_count(ITEM_POTION)}")
     for iid, nm in ITEM_NAMES.items():
         c = camp.bag_count(iid)
         if c:

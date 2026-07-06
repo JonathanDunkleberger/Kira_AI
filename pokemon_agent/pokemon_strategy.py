@@ -36,6 +36,47 @@ import firered_ram as ram
 GENEMY_PARTY = ram.GENEMY_PARTY
 _P_LEVEL_OFF = 0x54
 
+
+# ── BLOCK #3 — ROSTER-SELECTION JUDGMENT (2026-07-06 nursery build; soul-debt #3's mechanical half) ──
+# The framework a real player runs on every wild encounter: is it NEW, does it COVER a type gap, is it
+# a decent LEVEL, is there ROOM? Pure function — it LEANS, with a first-person-ready REASON either way;
+# the ORACLE decides live (capability-not-script), headless follows the lean. Never edits anything.
+def roster_judgment(team, foe):
+    """team = [{'species_id', 'level', 'types': [...]}]; foe = {'species_id', 'name', 'level',
+    'types': [...]}. Returns (recommend_catch: bool, reason: str, facts: dict)."""
+    name = foe.get("name") or "it"
+    f_types = [t for t in (foe.get("types") or []) if t]
+    team_ids = {m.get("species_id") for m in team}
+    team_types = {t for m in team for t in (m.get("types") or []) if t}
+    levels = [m.get("level") or 0 for m in team] or [1]
+    floor, lead = min(levels), max(levels)
+    new_types = [t for t in dict.fromkeys(f_types) if t not in team_types]
+    coverage = [t for t in new_types if t != "normal"]
+    facts = {"dupe": foe.get("species_id") in team_ids, "new_types": new_types,
+             "coverage": coverage, "foe_level": foe.get("level"), "floor": floor,
+             "lead": lead, "room": len(team) < 6}
+    lv = foe.get("level") or 0
+    if not facts["room"]:
+        return (False, f"my team's full — {name} would need someone to make way, and I like my six",
+                facts)
+    if facts["dupe"]:
+        return (False, f"I've already got one of those — a twin {name} doesn't make the team stronger",
+                facts)
+    if coverage:
+        tt = "/".join(coverage)
+        if lv >= max(2, floor - 6):
+            return (True, f"a {tt} type — I don't have ANY {tt} coverage, and L{lv} is workable. "
+                          f"that's a real gap filled", facts)
+        return (True, f"a {tt} type — I have zero {tt} coverage. it's only L{lv} so it needs raising, "
+                      f"but the gap's worth it", facts)
+    if len(team) < 4 and lv >= max(2, floor - 4):
+        return (True, f"nothing new type-wise, but my bench is thin ({len(team)}) and a L{lv} {name} "
+                      f"can pull weight", facts)
+    if lv < max(2, floor - 6):
+        return (False, f"L{lv}? way under my crew — it'd ride the bench forever", facts)
+    return (False, f"{name} doesn't add anything my team doesn't already do", facts)
+
+
 # How many times she must lose the SAME fight before the note escalates from "that stung, regroup" to
 # "brute-forcing clearly isn't working — change approach". Tunable; 2 = the spec's "same fight ≥2x".
 WALL_REPEAT = 2

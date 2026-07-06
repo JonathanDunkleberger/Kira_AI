@@ -91,12 +91,12 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"   # DEFAULT-ON 2026-07-05: chain
 #   proven end-to-end (bench L8/10->16 via participation XP -> Gary first-try -> bridge -> Bill -> TICKET)
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
-# SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter) is correct STRATEGY but it makes fights LONG,
-# and a long fight exposes the in-battle MOVE-LIST actuation wedge on the long-running core (the look-ahead
-# saw it freeze-SPIN a trainer battle — worse than a clean attrition loss). OFF by default until the
-# move-list cursor-readback lands (the keystone); arm with POKEMON_SLEEP_LOCK=1 to test the strategy. The
-# one-status/foe poison chip (short) stays on. See STATE_OF_PROJECT.md §0 "in-battle actuation keystone".
-SLEEP_LOCK_ENABLED = os.getenv("POKEMON_SLEEP_LOCK", "0") != "0"
+# SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter). DEFAULT-ON 2026-07-06 (war-room call):
+# the reason it was gated — long fights exposing the move-list wedge — is FIXED (the a4ca84f cursor
+# readback + the 2026-07-05 _movelist_open_verified immortal-battle fix), and the whiff SAFETY CAP
+# (max 4 misses/foe, the Sand-Attack lesson) bounds the worst case. A live GO watch deserves the
+# correct strategy, not the gated one. Disarm with POKEMON_SLEEP_LOCK=0 if a long-fight wedge recurs.
+SLEEP_LOCK_ENABLED = os.getenv("POKEMON_SLEEP_LOCK", "1") != "0"
 # party-mon STATUS1 (u32 @ +0x50 in the 100-byte struct) — the reliable party-only block (== campaign).
 _P_STATUS = 0x50
 _ST_SLEEP, _ST_PSN, _ST_BRN, _ST_FRZ, _ST_PAR, _ST_TOX = 0x07, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -561,6 +561,10 @@ class BattleAgent:
                 return _ended()
             if self._ball_count() <= 0:
                 self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
+                # 2026-07-06 WEDGE FIX: never walk away from a LIVE battle — an abandoned battle gets
+                # re-detected by travel as a fresh encounter forever (south_run1: 'stuck' ×27 spin).
+                # Resolve it first (flee the wild), THEN report no_balls.
+                self.flee(max_seconds=45)
                 return "no_balls"
             self._settle()
             if not st.in_battle(self.b):
@@ -597,6 +601,8 @@ class BattleAgent:
                 softened = True
                 continue
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))))
+            if res == "no_balls" and st.in_battle(self.b):
+                self.flee(max_seconds=45)        # same wedge fix: resolve the live battle before reporting
             if res in ("caught", "no_balls", "trainer"):
                 return res
             # 'broke_free' / 'stuck' -> the foe took its turn; loop and throw again (commit)

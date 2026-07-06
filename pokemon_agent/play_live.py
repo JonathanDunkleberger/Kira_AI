@@ -303,6 +303,7 @@ def main():
         battle (the engine drains both chains silently) -> Tier 2 / Tier 3."""
         lvl0 = b.rd8(ram.GPLAYER_PARTY + LEAD_LEVEL)
         sp0 = st.read_party_species(b, 0)
+        pid0 = b.rd32(ram.GPLAYER_PARTY + 0)   # slot-0 PID: evolution keeps it, a reorder swaps it
         trainer = bool(b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
         _rb = st.read_battle(b)
         foe = st.SPECIES_NAME.get(_rb["enemy"]["species"], "").lower() if _rb else ""
@@ -341,9 +342,12 @@ def main():
                     pace("clutch")
         except Exception as _cle:
             log(f"!! clutch-check skipped ({_cle})")
-        # EVOLUTION (a species change on the lead) -> Tier 3 big beat
+        # EVOLUTION (a species change on the lead) -> Tier 3 big beat. PID-guarded: evolution keeps
+        # the mon's personality value; a party reorder puts a DIFFERENT mon (new PID) in slot 0 —
+        # that's a swap, not an evolution (the false-"[evolve]" voice-lie class, fixed 2026-07-06).
         sp1 = st.read_party_species(b, 0)
-        if sp1 and sp1 != sp0:
+        pid1 = b.rd32(ram.GPLAYER_PARTY + 0)
+        if sp1 and sp1 != sp0 and pid0 and pid1 == pid0:
             nm0 = st.SPECIES_NAME.get(sp0, "my Pokemon")
             nm1 = st.SPECIES_NAME.get(sp1, "something new")
             voice.emit(f"my {nm0} evolved into {nm1}!", kind="evolve", tier=3)
