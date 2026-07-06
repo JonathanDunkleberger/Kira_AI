@@ -64,10 +64,17 @@ destination-interact), Nugget-Bridge nav, in-battle SWITCH (2026-07-05). The rop
    (90b807e):** a blanket "grind only Center-reachable grass" filter REGRESSED the ace-grind — the look-ahead
    showed **ALL Route-4 grass is Center-UNREACHABLE** (Center (12,5) is ledge-isolated from every grass tile),
    so it blocked the grind entirely, but the TANKY ace legitimately grinds there without stranding (run_02
-   leveled Ivysaur L24→L29 on it). **EXACT FIX (next — do NOT re-apply the blanket filter):** make it
-   CONDITIONAL — require Center-reachable grass only for a FRAGILE mon (weak-grind / can-faint), never the
-   tanky ace; OR route the weak-grind to **Route 3** (flat L3-6 = survivable, Center-reachable via Pewter-west).
-   Then re-arm `GRIND_SWITCH` → participation-grind levels the bench (verified switch mechanism).
+   leveled Ivysaur L24→L29 on it). **2nd/3rd attempt (SHIPPED but INSUFFICIENT — `GRIND_SWITCH` re-gated OFF):**
+   added `grind(fragile=True)` = weak-grind paces only grass she can WALK BACK FROM to the safe start anchor
+   (conditional, ace unaffected — infrastructure KEPT, it's correct + harmless). But she STILL strands at
+   (84,15): the strand arrives via a DIFFERENT path than grass-pacing — a **`battle_loss` mid-travel** to a
+   grass tile, or the grind **anchor itself being set inside the east area**, drops her in the pocket before
+   the filter applies. **REAL FIX (the top rebuild item — bigger than a filter):** (a) route the weak-grind to
+   a SAFE MAP — **Route 3** (flat, L3-6 = survivable, Center-reachable via Pewter-west) — never Route 4; AND/OR
+   (b) make a true strand (`heal → stuck`, no reachable Center anywhere) FORCE an escape-hatch reload that
+   actually recovers (today it just spins `heal → stuck` → stall). Both are real work; do NOT re-attempt the
+   grass-filter (3 tries, tripwire hit). The verified switch mechanism is READY the moment the weak-grind can
+   reach safe grass. `grind(fragile=)` + the rule-17 journey bank are shipped this session.
 2. **BILL-LOOP (blocks Vermilion).** After she WINS Gary (~1-in-5) she correctly advances to Route 24 (3,43)
    and the questline bend-discovery crosses E toward Route 25/Bill — but `head_to_gym` **times out per tick**,
    crawling only a few tiles up the Nugget Bridge (y 39→31→28) while fighting; and every Gary LOSS (80%)
