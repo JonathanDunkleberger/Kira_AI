@@ -247,6 +247,17 @@ class BattleAgent:
             return "fled"
         self._prev = st.read_battle(self.b)
         self._reach_first_menu(t0, max_seconds)
+        # FAINTED-LEAD BATTLE START (the heal-excursion timeout class): the wild battle opens on the
+        # FORCED "Choose a POKéMON" screen — no action menu exists until someone is sent out, so the
+        # old path misread it (ours.hp==0 -> false 'loss'; or run()'s A/B drain oscillated 90s). Send
+        # the healthy reserve out FIRST, then run away like a normal fight.
+        if self._party_screen():
+            cur0 = st.read_battle(self.b)
+            if (cur0 is None or cur0["ours"]["hp"] == 0) and self._healthy_reserve_slot() is not None:
+                self.log("   [engine] flee: battle opened on the forced send-out screen -> sending a "
+                         "healthy reserve, then running")
+                self._force_switch()
+                self._prev = st.read_battle(self.b)
         if self._is_trainer_battle():                 # can't flee a trainer -> WIN it
             return self.run(max_seconds=max_seconds)
         for _ in range(3):                            # ensure the ACTION menu, not the move list:
@@ -1183,6 +1194,11 @@ class BattleAgent:
                 return
             if self._white_box():
                 return                                # action menu reached
+            # a battle can OPEN on the forced send-out party screen (fainted lead) — A/B mashing
+            # there selects/cancels the fainted slot-0 forever; return and let the caller's
+            # party-screen handling own it (flee's send-out-first / run()'s post-faint drain).
+            if self._party_screen():
+                return
             self._advance_text()
 
     # ── forced faint-switch (party>=2; the lead goes down mid-battle) ───────────
@@ -1211,6 +1227,13 @@ class BattleAgent:
             if cur and cur["ours"]["hp"] > 0:
                 return True                               # a healthy mon is active -> switched
             self._wait(18)                                # let the party menu settle
+            # CLOSE any already-open "Do what with X?" sub-menu first (battle-START send-out screens
+            # arrive pre-wedged: _reach_first_menu's A selected the FAINTED slot-0 before we got here,
+            # so DOWN-navigation pressed inside the sub-menu and A re-sent the corpse — the fainted-
+            # lead excursion timeout class). B on the LIST itself is refused (forced screen), so this
+            # is safe and makes every retry start from the list with the cursor at its last spot=0.
+            self.b.press("B", 2, 12, self.render, owner=self.owner)
+            self._wait(14)
             for _ in range(slot):                         # cursor opens on slot 0 -> down to healthy
                 self._tap("DOWN")
             self._wait(6)

@@ -251,8 +251,15 @@ CERULEAN_MART_DOOR = (29, 28)
 # trap": (1,4)=ship exterior, (1,5)=1F corridor, (1,10)=2F, (1,12..16)=cabins — the SHIP, no house).
 VERMILION = (3, 5)
 VERMILION_PC_DOOR, VERMILION_MART_DOOR = (15, 6), (29, 17)
+# Vermilion Gym (disasm VermilionCity_Gym; interiors live-verify on first entry): town door (14,25)
+# — CUT-LOCKED behind the fence tree until HM01. Surge at (5,2), fought from (5,3) UP; juniors at
+# (2,11)/(8,13)/(7,8); exits (4-6,19). ⚠ the leader is ALSO gated by the TRASH-CAN electric-lock
+# puzzle (two switches; disasm recon pending) — beat_gym's junior-then-leader pattern is NOT enough
+# here; do not trust a beat_gym('Lt. Surge') run until the can-puzzle solver lands.
+VERMILION_GYM_DOOR, SURGE_FRONT = (14, 25), (5, 3)
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
+FLAG_BADGE_THUNDER = 0x822
 
 # CITY -> its own Pokemon Center door (PC interiors share ONE layout, so heal_at_center(door) heals
 # in ANY of them — only the overworld door differs). The map-keyed table replaces heal_nearest's old
@@ -276,6 +283,11 @@ _STARTER_LINES = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9})
 GYMS = {
     "Brock": GymSpec("Brock", PEWTER, PEWTER_GYM_DOOR, BROCK_FRONT, FLAG_BADGE_BOULDER, 2, "UP"),
     "Misty": GymSpec("Misty", CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT, FLAG_BADGE_CASCADE, 0, "UP"),
+    # Registered so head_to_gym routes to the door (whose approach is the CUT TREE — standing at it
+    # arms the HM_OBSTACLE gate -> the hm01 questline -> the S.S. Anne). The gym itself stays
+    # UNBEATABLE until the trash-can puzzle solver lands (see VERMILION_GYM_DOOR note).
+    "Lt. Surge": GymSpec("Lt. Surge", VERMILION, VERMILION_GYM_DOOR, SURGE_FRONT,
+                         FLAG_BADGE_THUNDER, 0, "UP"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
