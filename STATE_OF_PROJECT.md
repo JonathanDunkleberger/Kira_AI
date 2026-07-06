@@ -30,10 +30,14 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
-**Rope ends at: post-Misty Cerulean, at the Nugget-Bridge GARY wall.** Canonical save
-`pokemon_agent/states/campaign/kira_campaign.state` = inside Cerulean Center (map (7,3)@(7,4)), party
-**Ivysaur L24 / Rattata L8 / Spearow L10** (all healthy), 2 badges, 5936¥, 0 balls, 0 potions, dex 4.
-Tip `9cb52eb`. Emulator boots + reads fine here (py3.10 + vendored mgba; ROM `roms/firered.gba`).
+**Rope ends at: 🎫 S.S. TICKET OBTAINED (2026-07-05 strike, run-8 `logs/longrun/ticket_run8.log`).**
+Canonical save `pokemon_agent/states/campaign/kira_campaign.state` = inside Bill's Sea Cottage
+(map (30,0)@(7,7)), party **Ivysaur L30 / Spearow L17 / Rattata L17** (ALL FULL HP), 2 badges,
+**FLAG_GOT_SS_TICKET set**, Gary grudge 1W-2L, dex 4. Promoted from `banked_GOAL` (continuous real-play
+lineage from the old canonical; round-trip + resume-check PASS — party/flag/coords verified on reload;
+pre-promotion canonical backed up in `states/campaign/pre_ticket_backup_20260705_233354/`). The ticket
+also sets FLAG_HIDE_NUGGET_BRIDGE_ROCKET + opens the Cerulean south exit → **NEXT STRETCH: south gate →
+Vermilion → S.S. Anne (Cut) → Surge (badge 3)**. Old context below (pre-strike archaeology).
 
 **VERIFIED LIVE 2026-07-05 (a fresh look-ahead from the canonical save — first run since keystone 1):**
 the forward loop WORKS end-to-end up TO Gary — she shops (stock_up: buys potions+balls, 5936→336¥),
@@ -72,7 +76,73 @@ fixture `states/workshop/canon_battle.state` (real 3-mon battle) for future in-b
 Cerulean Mart, heal-to-reachable-Center, forward-drive, questline (recognize→derive→execute→bend-discover→
 destination-interact), Nugget-Bridge nav, in-battle SWITCH (2026-07-05). The rope is SOLID to Gary.
 
-**TWO WALLS FLAGGED TONIGHT (multi-cycle nav bugs — routed around per the anti-loop tripwire, NOT looped on):**
+### ── 2026-07-05 STRIKE (the strand-fix session; supersedes wall #1 below) ──
+**WALL #1 (grind-stranding) — ROOT-CAUSED + FIXED (3 real bugs, not geography). Look-ahead-verified in
+stages; final proof run = `logs/longrun/grindswitch_run4.log`:**
+1. **POISONED ESCAPE CHECKPOINT (fixed, verified).** The escape-hatch banked "last known-good" on GREEN
+   ticks — including GREEN grind ticks standing IN the un-healable Route-4 pocket (84,15) → the true-strand
+   reload went straight back into the strand, forever (run-1: infinite reload loop → STALL). FIX:
+   `_center_reachable_here()` guard — only bank from a heal-safe spot (own-map Center door BFS-reachable, or
+   Route 3). The permissive "can reach a border ⇒ can cross" proxy is WRONG (pocket reaches the east border
+   but can't cross to Cerulean) — own-map-door BFS only. Plus: true strand falls back through the deep-wedge
+   RING when recent-good is absent/declines. VERIFIED run-2: zero reload-loops.
+2. **SWITCH-CONFLICT (fixed).** The matchup-switch (BATTLE_SWITCH) fired DURING the participation grind and
+   pulled the just-switched-in ace back OUT, re-fielding the fragile mon → faint → strand. FIX: matchup
+   switch suppressed while `PROTECT_LEAD_GRIND` is active (the ace stays in and tanks). NOTE: §0's old
+   prescription (a) "route the weak-grind to Route 3" is GEOGRAPHICALLY IMPOSSIBLE (one-way ledges;
+   Cerulean→Route 3 unreachable on foot — recon_route4_reach.py: 0/84 Route-4 grass tiles reach the Center)
+   and UNNECESSARY once the switch conflict is fixed: with the ace reliably tanking, Route-4 grinding is
+   safe (the weak mon never takes a hit). Attempted+reverted same session — do not re-attempt.
+3. **THE IMMORTAL-EKANS WEDGE (fixed — a keystone-class find).** Run-3: after an in-battle ITEM use,
+   `MENU_MODE` reads a STALE 2 → `_movelist_open()` short-circuited True BEFORE the FIGHT-opening A was
+   pressed → move-cursor nav dead → the anti-wedge flee ALSO failed against the phantom menu → travel
+   re-detected the SAME battle as a new encounter ~50× (same `ekans 27/27`, never damaged — one immortal
+   battle, zero XP). Even "0-PP didn't-fire" was a misdiagnosis (a wedged menu also produces no PP-drop).
+   FIX (doctrine: trust CURSOR-RESPONSE, not state bytes): `_movelist_open_verified()` — the list counts as
+   open only if MOVE_CURSOR responds to a probe press; failed probe → re-home → A opens FIGHT properly.
+   Plus an already-ace guard on the grind switch (skip when the active mon IS the ace).
+**Weak-field NIGHTMARE-CLAUSE proof — LANDED (run-4, `logs/longrun/grindswitch_run4.log`):**
+`party=[('Ivys', 27), ('Spea', 16), ('Ratt', 16)] prep=None` — Rattata **L8→16**, Spearow **L10→16**,
+Ivysaur only +3 (participation share). **154 wins / 0 stuck / 0 losses**; every sampled battle led by the
+weak mon (`before_sp 19` ×61); narrated purpose fired every grind tick (*"grinding rattata and spearow up
+to ~L16 — fielding them, not my ace — then on to Vermilion"*). CLOSED empirically: the in-battle SHIFT
+does NOT reorder gPlayerParty (run-3's `Lv25` read was a wedge artifact).
+**GARY DOWN (run-5, `gary_run5.log`):** from the leveled state she beat Gary FIRST TRY (sleep-lock +
+poison-chip + potions; grudge 1W-2L recorded), crossed the Nugget Bridge (15 battles), crossed into
+Route 25, and walked to Bill's cape — the door (51,4) is CORRECT (warp learned). THREE last-mile bugs
+then cost the ticket, all fixed same night: (a) **level-blind gain-sig** — two reverts rewound full
+bench-levels because levels weren't counted as gains → level-sum added to `_gain_sig` (each level-up now
+banks a ring piton); (b) **Route-25 heal unmapped** → heal→stuck ×10 → now world-graph multi-hop heal to
+the nearest visited Center (+ the bank-guard mirrors it, so deep-route progress banks); (c) **door-approach
+budget** — the Route-25 trainer gauntlet blew travel's 300s leg at half-distance → `enter_warp(budget_s=900)`
+for questline doors. ALSO fixed en route: questline RE-ANCHOR (coarse dirs are gate-relative; off-frame
+maps route back to the anchor city), hard-recovery one-way position break (heal-excursion returning to the
+exact wedge tile was a designed no-op), band-aware heal-safe banking (the Route-4 "pocket" at (107,12) is
+NOT a strand — the east excursion works; run-4 healed+returned twice), longrun chooser prefers travel over
+empty talk. **RUNS 6-8 (the last mile, all fixed + verified):** run-6 exposed the "arrived" misfire (frontier-empty on
+Route 24 ≠ arrived) → **BEND-CONTINUE** (remember maps entered via bend-exploration; hop back onto the bend
+instead of declaring arrived) + the **position-loop/NPC-wait watchdog truce** (travel's deliberate wait read
+as a spinner-wedge and aborted the door approach — dueling watchdogs again). Run-7 got INSIDE the cottage
+and talked Bill but stalled on the scripted machine → recon + the pret disassembly (Route25_SeaCottage)
+gave the exact sequence → THREE new GENERAL primitives, recon-proven then wired + verified in run-8:
+**face-verified turn** (the first turn press after travel is routinely EATEN — a blind face+A interacts
+with the WRONG tile; this single bug made Bill's console read "un-interactable" AND made talk_npc silently
+"chat with empty air"), **wanderer-tracked talk** (re-read the NPC's live coords on arrival; honest 'talked'
+only when a box actually opened), and **work-the-room** (interact BG-event machines/consoles read live from
+the map header + bounded room re-sweeps as scripts change who's present). Run-8: door → talk-YES →
+"KIRA initiated the TELEPORTER's Cell Separator" → human Bill → **"KIRA received an S.S. TICKET"** → GOAL.
+**Constitution/CLAUDE.md updates this session:** SUPREME LAW preamble above the competency checklist;
+SOUL-DEBT LEDGER section below; harness-doc pitfalls 11 (poisoned checkpoint) + 12 (dueling switches) +
+13 (immortal-battle stale menu byte / cursor-response doctrine).
+**GRIND_SWITCH default FLIPPED to "1"** (the chain proved end-to-end: bench-level → Gary → bridge → Bill →
+TICKET). **KNOWN COSMETIC BUG (flagged, not fixed):** the in-battle grind-switch emits a FALSE
+"[evolve] ivysaur evolved into spearow" voice beat (the swap misidentified as an evolution) — a soul/voice
+lie a viewer would notice; fix the swap-vs-evolve discrimination before the next watch.
+**WATCH STATUS: canonical bank is CLEAN; she is inside Bill's Sea Cottage, S.S. Ticket in the Key Items
+pocket, party L30/17/17 at full HP; pop-in = `python pokemon_agent/play_live.py --resume --free-roam` —
+press GO and you'll see her walk out of Bill's cottage and start the road south to Vermilion.**
+
+**TWO WALLS FLAGGED TONIGHT (2026-06-28 archaeology — wall #1 SUPERSEDED by the strike above):**
 1. **GRIND-STRANDING heal-wedge (blocks team-building / `GRIND_SWITCH`).** When the weak-grind fields a
    fragile mon, it can route into the **far-east Route-4 below-ledge grass pocket (≈84,15)**; a faint/loss
    there strands her — `heal_nearest` finds the local Center (12,5) unreachable AND the east edge to Cerulean
@@ -110,6 +180,37 @@ lines + `RIVAL beat|END:|STALL:` — the per-decision `ctx` dumps are HUGE, neve
 **Session note:** the Gemini vision migration (`kira/senses/gemini_vision.py` + 4 files) remains UNCOMMITTED
 (Jonny's core-side WIP, firewalled — not committed without his explicit smoke-test pass). CLAUDE.md rules
 15 (self-help arsenal) + 16 (delegated authority) added; `POST_CREDITS_VISION.md` parking lot created.
+
+---
+
+## SOUL-DEBT LEDGER (CEO obligation #2 — the human halves we deferred; PAY before the Kira timeline starts)
+
+**Definition:** a debt = a bedrock block whose MECHANICAL half is built but whose ENDEARING/human half is
+deferred. Completion without these = a tech demo. The rebuild phase clears this ledger. Each entry:
+`block · mechanical (have) · human debt (owe) · pay-plan`. Status: 💳 open / 🔨 partial / ✅ paid.
+
+- 💳 **#3 TEAM-BUILDING — the CHOICE is the soul.** HAVE: catch mechanics (throw_ball, pocket-aware, party
+  1→2 proven). OWE: her *choosing* — "I want THIS one because…" — evaluating a wild mon on cool/strong/
+  covers-a-gap/better-than-a-benchwarmer and voicing the decision (the Clefairy-vs-Rattata question). Right
+  now she catches whatever with no narrated selection judgment. PAY: wire roster-selection judgment into the
+  catch oracle so the pick is HERS and SPOKEN, not silent/random.
+- 💳 **#12 DIALOGUE — she advances text; she doesn't READ it like a first-timer.** HAVE: dialogue_drive
+  (box-detect, read-along pacing), talk_npc. OWE: visible first-time REACTION to content (surprise, a
+  guess about what it means, an opinion) + extracting quests/hints/directions from box CONTENT. She reads
+  boxes but doesn't parse or react. PAY: dialogue content → oracle reaction seam (react + extract-intent).
+- 🔨 **GRINDING-WITH-NARRATED-PURPOSE — does she say WHY, in character?** MOSTLY PAID (2026-07-05 strike,
+  look-ahead-verified): every grind tick emits the in-character rationale — *"Team's under-levelled —
+  grinding rattata and spearow up to ~L16 (fielding them, not my ace) so I can push through, then on to
+  Vermilion City for Lt. Surge"* — and the oracle ctx carries the full first-person plan. RESIDUE: no
+  occasional in-battle texture during the switch dance (e.g. "Rattata soaks up the experience, Ivysaur does
+  the heavy lifting") — small, note for the next watchability pass. ALSO: the false "[evolve]" beat during
+  grind-switches (see §0) is a VOICE LIE — fix before the Kira timeline.
+- 💳 **ROSTER-AS-RELATIONSHIP — attachment engine, thin because the team doesn't exist yet.** HAVE:
+  roster-naming-on-catch hook, soul persistence. OWE: names that STICK + opinions + grief on faint + pride
+  on a clutch win + a team story that accretes over the 30-40h run. PAY: blocked on #3 (need a real chosen
+  team first); build the attachment hooks as the team fills out.
+
+**Ledger law:** when a piton pays a debt, mark it ✅ here with the commit. No debt is silently cleared.
 
 ---
 

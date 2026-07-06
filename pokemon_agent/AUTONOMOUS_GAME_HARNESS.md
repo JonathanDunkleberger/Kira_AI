@@ -65,6 +65,38 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
 10. **Story-gates force a route order** — a parked NPC/obstacle (Slowbro/policeman until S.S. Ticket) means
     "go fetch X first." Recognise typed gates → derive an ordered questline from the KB → execute it via the
     travel layer (the general gate-unlock capability). Generalises to Cut/Surf/Strength/Flash/Fly/item-gates.
+11. **A recovery checkpoint captured in an un-healable spot is POISON** — worse than none. The escape-hatch
+    banks "last known-good" on every PROGRESSING (GREEN) tick; a weak-field grind that walks into a one-way
+    ledge pocket (Route-4 (84,15): the Center is ledge-isolated from *every* grass tile — proven, 0/84) keeps
+    scoring GREEN as it levels, so the snapshot is taken INSIDE the strand → on the faint, the escape-hatch
+    reloads straight back into the pocket → infinite reload STALL. FIX: guard the capture — only bank from a
+    Center-reachable (heal-safe) position (`_center_reachable_here`: own-map Center door BFS-reachable, or a
+    known-safe route). Use the ACCURATE signal only: "can reach a border tile ⇒ can cross to the neighbour
+    city" is a FALSE proxy (the pocket's east border is reachable but doesn't cross to Cerulean). Over-
+    conservative = harmless (skip a tick); a false "safe" = fatal (re-poisons). Belt: on a true strand, fall
+    back through the deep-wedge RING (gain-seam checkpoints) when recent-good is absent/declines.
+12. **Two switch systems will fight each other.** A participation-XP GRIND switch (field the weak mon, swap
+    it to the tanky ace turn 1 so it banks XP without a hit) and a MATCHUP switch (swap out an out-typed
+    active) both firing in the same turn = the grind switch brings the ace in, the matchup switch immediately
+    pulls it back out and re-fields the fragile mon → it faints → strand. This was a Route-4 strand root
+    (not geography — the geography just made the faint un-healable). FIX: suppress the matchup switch while
+    the participation grind is active (`not PROTECT_LEAD_GRIND`); during a grind the ace STAYS and tanks. This
+    made bench-leveling safe ON the local grass — no need to route the fragile grind to a far "safe map"
+    (which was also geographically blocked: Route 4's ledges are one-way, so Route 3 is unreachable on foot
+    from Cerulean). General lesson: when two autonomous behaviors can act on the same tick, gate the lower-
+    priority one OFF while the higher-priority intent owns the turn.
+13. **THE IMMORTAL-BATTLE WEDGE — a stale menu-state byte defeats EVERY recovery layer at once.** After an
+    in-battle item use, the "move list is open" RAM byte (MENU_MODE) stayed 2 → the open-check short-circuited
+    True BEFORE the FIGHT-opening press was ever sent → cursor nav pressed into the wrong screen (cursor
+    readback correctly refused to lie) → the move never fired ("didn't fire" then MISDIAGNOSED as 0-PP, since
+    a wedged menu also produces no PP-drop) → the anti-wedge FLEE also failed against the same phantom state →
+    the travel layer re-detected the STILL-OPEN battle as a fresh encounter and re-entered it ~50× (the same
+    undamaged foe every time — ONE immortal battle, zero XP, the whole grind budget burned). THE TELL in a
+    log: the "different" encounters are all the same species at exactly full HP. THE DOCTRINE (now twice-paid:
+    the GBATTLE_PHASE counter lesson and this): NEVER trust a state byte alone — verify menus by
+    CURSOR-RESPONSE (probe a press, read the cursor back; only a responding cursor counts as open). Every
+    layered recovery (rotation → flee → re-entry) assumed the same wrong state, so all of them failed
+    identically; a single verified-state primitive at the bottom fixes the whole stack.
 
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —

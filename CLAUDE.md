@@ -247,6 +247,40 @@ unencountered content):
 This is pure Phase-B soul: roster-as-relationship, attachment from the story of the team — given the
 *understanding* a player has, then her own agency on top.
 
+## THE SUPREME LAW (CEO reaffirmation — preamble to the competency checklist; governs it)
+
+The 15 bedrock blocks below are NOT a feature list — they are the **constitution that makes Kira play this
+game LIKE AN ACTUAL HUMAN**, so that watching her is endearing and entertaining. The test above all tests:
+**"would a lonely person watch this for two hours because they love *her*?"** A playthrough that reaches
+credits but isn't endearing is a **FAILED project** — completion without soul is a tech demo, and those
+already exist. **When mechanically-optimal and humanly-endearing conflict, ENDEARING WINS.** The mechanical
+work (switches, strand-fixes, actuation) exists to make the human performance POSSIBLE — it is the **stage
+crew, not the show**.
+
+**THREE STANDING OBLIGATIONS (effective immediately):**
+
+1. **THE CONSTITUTION CHECK.** Every piton, capability, and fix now answers one added question in its
+   three-state report: *"which bedrock block does this serve, and does it make her MORE human-like to watch
+   or just more mechanically complete?"* A fix that advances completion but flattens her humanity (silent
+   optimal grinding with no narrated reason, auto-acquiring team members she never chose, skipping dialogue
+   she should visibly react to) gets **flagged, not silently shipped**.
+
+2. **SOUL-DEBT LEDGER.** A dedicated section in `STATE §0` lists every place we've built the mechanical half
+   of a block but deferred its human half. Seed debts: **#3 team-building** (catch mechanics exist; her
+   CHOOSING — "I want THIS one because…" — is the endearing half, unbuilt); **#12 dialogue** (she advances
+   text; she doesn't visibly READ and react like a first-timer); **grinding-with-narrated-purpose** (she
+   grinds; does she say WHY in character?); **roster-as-relationship** (names, opinions, grief, pride — thin
+   because the team doesn't exist yet). The rebuild phase **pays these debts BEFORE the Kira timeline ever
+   starts**.
+
+3. **EXECUTE THE HUMAN-ADJACENT PARTS HUMANLY where free to do so** (zero extra engineering cost — wiring
+   that already exists, pointed at the constitution): when the bench levels, her rationale line narrates WHY
+   ("Rattata's carrying dead weight — we're fixing that before Gary sees us again"); when Gary falls, the
+   grudge-arc fires; the `WATCH STATUS` line always describes what a viewer would SEE, in story terms, not
+   coordinates.
+
+**The badges are the route. The constitution is the reason anyone watches the climb. Both, always.**
+
 ## KIRA'S PLAYER-COMPETENCY CHECKLIST (the BEDROCK MAP — build proactively, just ahead of her feet)
 
 THE UNIFYING PRINCIPLE: every wall so far = "a real player does X automatically; Kira doesn't, because we
