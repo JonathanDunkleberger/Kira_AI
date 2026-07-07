@@ -538,7 +538,9 @@
    {
     "map": "3,30",
     "name": "Route 12",
-    "go": "north"
+    "go": "north",
+    "via": "pass",
+    "note": "Route 12's north 'edge' does NOT exist - the crossing to Lavender is the NORTH GATEHOUSE (south door (14,21) -> interior (23,0), north doors (14,15)/(15,15) pop out on the Lavender side; all four warps live-learned 2026-07-07). An edge-travel north BFSes to y<=0 and hits the sealed top row: 'genuine wall/zone gap' (sabrina_run2). Same class as Route 6's north edge."
    },
    {
     "map": "3,4",
