@@ -362,7 +362,12 @@ def main():
             # HEAL only when someone's actually CRITICAL/fainted (2026-07-06 nursery run-4 lesson: a
             # 43%-HP Spearow made the chooser slavishly re-pick heal in a pocket that can't reach a
             # Center — a real player pushes to the NEXT town's Center when merely dinged).
-            critical = any(hp == 0 or (mx and hp / mx < 0.25) for _, _, hp, mx in party)
+            # CORE-DOWN, not any-faint (mirrors campaign._hurt_severity 2026-07-07): a fainted
+            # bench mon must not make 'heal' the standing first preference on Center-less roads.
+            _down = sum(1 for _, _, hp, _ in party if hp == 0)
+            _lhp, _lmx = (party[0][2], party[0][3]) if party else (1, 1)
+            critical = ((_lmx and _lhp / _lmx < 0.25)
+                        or _down >= max(1, len(party) // 2))
             for pref in (("heal",) if critical else ()) + ("head_to_gym", "battle", "wander_catch", "heal"):
                 if pref in opts:
                     pick = pref
