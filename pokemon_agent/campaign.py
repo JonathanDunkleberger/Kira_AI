@@ -3443,7 +3443,7 @@ class Campaign:
         self._ql_past_anchor = False          # next questline starts anchor-relative again
         self._ql_bend_maps = set()            # forget the explored bend with the questline
         self._ql_room_sweeps = 0              # fresh room-sweep budget for the next questline
-        self._ql_room_talks = 0               # fresh per-room talk budget too
+        self._ql_talks_map = {}               # fresh per-map talk budgets too
         self._ql_bg_done = set()              # fresh machine/sign tracking too
 
     def _run_questline_step(self, state):
@@ -3647,7 +3647,15 @@ class Campaign:
             except Exception:
                 n_npc = 4
             talk_budget = max(4, min(10, n_npc + 3))
-            talks = getattr(self, "_ql_room_talks", 0)
+            # PER MAP for the questline's LIFETIME, not per entry (run 17): the tour re-transits
+            # chatted-out rooms, and a per-entry reset re-burned the whole budget in each — the
+            # STALL detector (whose sig can't see room-touring) ran out ~5 hops short of the
+            # captain. A room once chatted out STAYS chatted out; re-entries go straight to the
+            # tour. The dict resets with the questline (any step completion re-derives).
+            if not hasattr(self, "_ql_talks_map"):
+                self._ql_talks_map = {}
+            _mp_key = tuple(tv.map_id(self.b))
+            talks = self._ql_talks_map.get(_mp_key, 0)
             chatted_out = talks >= talk_budget
             if chatted_out:
                 log(f"   [roam] questline: room chatted out ({talks}/{talk_budget} talks) — moving the tour on")
@@ -3656,14 +3664,14 @@ class Campaign:
             if not chatted_out:
                 r = self.talk_npc()
                 if r == "talked":
-                    self._ql_room_talks = talks + 1
+                    self._ql_talks_map[_mp_key] = talks + 1
                     log("   [roam] 🗣️ QUESTLINE TALK: spoke to someone inside — re-checking the flag next tick")
                     return "questline_talked"
                 # WORK THE ROOM (2026-07-05, the Bill Cell-Separation class): quest buildings have scripted
                 # MACHINES/consoles — BG events read live from the map header (no hardcoded coords). Interact
                 # them facing-correct; a fired script (box opened) means world state advanced — re-check next tick.
                 if self._questline_bg_sweep():
-                    self._ql_room_talks = talks + 1
+                    self._ql_talks_map[_mp_key] = talks + 1
                     log("   [roam] 🖥️ QUESTLINE ROOM: worked a machine/sign in here — re-checking the flag next tick")
                     return "questline_worked_room"
             # RE-SWEEP, INLINE (2026-07-06 rework): the old version RETURNED 'questline_resweep'
@@ -3689,11 +3697,11 @@ class Campaign:
                 log(f"   [roam] questline: inline room re-sweep {sweeps + 1}/2 (scripts change who's here)")
                 r = self.talk_npc()
                 if r == "talked":
-                    self._ql_room_talks = getattr(self, "_ql_room_talks", 0) + 1
+                    self._ql_talks_map[_mp_key] = self._ql_talks_map.get(_mp_key, 0) + 1
                     log("   [roam] 🗣️ QUESTLINE TALK (re-sweep): spoke to someone — re-checking the flag next tick")
                     return "questline_talked"
                 if self._questline_bg_sweep():
-                    self._ql_room_talks = getattr(self, "_ql_room_talks", 0) + 1
+                    self._ql_talks_map[_mp_key] = self._ql_talks_map.get(_mp_key, 0) + 1
                     log("   [roam] 🖥️ QUESTLINE ROOM (re-sweep): worked a machine — re-checking the flag next tick")
                     return "questline_worked_room"
             elif not chatted_out:
@@ -3734,7 +3742,6 @@ class Campaign:
                 if tuple(tv.map_id(self.b)) != mp0:
                     self._ql_entered_doors.add((mp0, wt))
                     self._ql_room_sweeps = 0
-                    self._ql_room_talks = 0
                     # a DEEPER hop is DELIBERATE interiority (run 15: the marker had been dropped
                     # mid-tour, so the blackout/stranded recovery ejected her from every new room
                     # — 2F included — with a FALSE 'I blacked out' beat + a fake note_blackout).
@@ -3751,7 +3758,6 @@ class Campaign:
             # so the blackout-recovery can exit her, and keep looking at the next candidate building.
             log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
             self._ql_room_sweeps = 0
-            self._ql_room_talks = 0
             self._exit_to_overworld()
             # still interior after the exit hop ⇒ we're in a multi-room COMPLEX (the ship): this
             # room was a toured-out hub, not a wrong BUILDING — the tour continues from the outer
@@ -3770,7 +3776,6 @@ class Campaign:
             if tuple(tv.map_id(self.b)) != tuple(before):
                 self._ql_entered_doors.add((tuple(before), tuple(door)))
                 self._ql_room_sweeps = 0
-                self._ql_room_talks = 0
                 self._ql_inside_target = True       # tell the blackout-recovery to LEAVE HER inside (she's
                 log(f"   [roam] 🚪 QUESTLINE ENTER: stepped into the building at door {door}")  # here on purpose
                 return "questline_entered"
