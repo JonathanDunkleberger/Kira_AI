@@ -3647,18 +3647,25 @@ class Campaign:
             if self._questline_bg_sweep():
                 log("   [roam] 🖥️ QUESTLINE ROOM: worked a machine/sign in here — re-checking the flag next tick")
                 return "questline_worked_room"
-            # RE-SWEEP (bounded): scripts change WHO is in the room (Bill re-appears human after the
-            # separation) — clear the talked-set and go again before giving up on the building.
-            sweeps = getattr(self, "_ql_room_sweeps", 0)
-            if sweeps < 2:
-                self._ql_room_sweeps = sweeps + 1
-                try:
-                    self._talked_npcs.get(tv.map_id(self.b), set()).clear()
-                    getattr(self, "_ql_bg_done", set()).clear()   # scripts are state-dependent — re-arm them too
-                except Exception:
-                    pass
-                log(f"   [roam] questline: room re-sweep {sweeps + 1}/2 (scripts change who's here)")
-                return "questline_resweep"
+            # RE-SWEEP, INLINE (2026-07-06 rework): the old version RETURNED 'questline_resweep'
+            # (a deliberate no-move tick) twice — and the roam's SILENT-NO-MOVE pruner counts two
+            # no-move returns as a dead route, so head_to_gym got PRUNED before the third call
+            # could ever GO DEEPER (ship run 12: the 2F stairs sat untried while she stalled).
+            # Now the re-sweep happens INSIDE this call: clear the sets, talk+work once more, and
+            # fall through to GO-DEEPER in the same tick — no intentional no-move returns exist.
+            try:
+                self._talked_npcs.get(tv.map_id(self.b), set()).clear()
+                getattr(self, "_ql_bg_done", set()).clear()       # scripts are state-dependent — re-arm too
+            except Exception:
+                pass
+            log("   [roam] questline: inline room re-sweep (scripts change who's here)")
+            r = self.talk_npc()
+            if r == "talked":
+                log("   [roam] 🗣️ QUESTLINE TALK (re-sweep): spoke to someone — re-checking the flag next tick")
+                return "questline_talked"
+            if self._questline_bg_sweep():
+                log("   [roam] 🖥️ QUESTLINE ROOM (re-sweep): worked a machine — re-checking the flag next tick")
+                return "questline_worked_room"
             # GO DEEPER (2026-07-06, the SHIP class): a multi-room quest building (S.S. Anne:
             # exterior deck → gangway → 1F corridor → 2F → the captain's office) has the target
             # several WARPS in — "nobody here" means the NEXT room, not the wrong building. Enter an
