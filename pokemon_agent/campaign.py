@@ -3289,7 +3289,16 @@ class Campaign:
         while lvl() < target_level and time.time() - t0 < 480:
             gs = grass_save()
             if not gs:
-                log(f"   !! GRIND: no grass reachable on {tv.map_id(self.b)} - stopping LOUD"); break
+                # NO GRASS AT ALL on this map (koga_run4, water Route (3,37)): the old bare `break`
+                # fell through to `return "ok"`, which GRIND-WEAK's while-loop treats as retryable —
+                # the celadon_run3 192× spin reborn through this branch (thousands of no-grass loops
+                # burning the whole grind budget). Same medicine as the strand branch below: remember
+                # the dead map + return the DISTINCT sentinel so the caller stands down this tick.
+                log(f"   !! GRIND: no grass reachable on {tv.map_id(self.b)} - stopping LOUD")
+                if not hasattr(self, "_grind_dead"):
+                    self._grind_dead = set()
+                self._grind_dead.add(tuple(tv.map_id(self.b)))
+                return "no_safe_grass"
             cur = tv.coords(self.b) or (0, 0)
             if fragile:                                        # keep only grass she can RETURN from (no one-way strand)
                 grid_now = tv.Grid(self.b)
@@ -3394,6 +3403,18 @@ class Campaign:
         problem, not a nav-bug or pure type loss)."""
         if not STRATEGIC_GRIND_ENABLED:
             return None
+        # PREP STAND-DOWN (koga_run5, the Fuchsia pocket): when repeated grind attempts from this
+        # position found NO reachable grass (one-way ledges east, grassless water south, unexplored
+        # west), 'train first' is an UNEXECUTABLE plan — folding it anyway just has the oracle pick
+        # 'battle' into an instant failure forever (the 5-second STALL). Two straight dry attempts
+        # drop the plan so the gym rematch / forward road becomes the natural pick. Resets the
+        # moment any grass is actually reached.
+        if getattr(self, "_prep_dry", 0) >= 2:
+            if not getattr(self, "_prep_dry_logged", False):
+                self._prep_dry_logged = True
+                log("   [roam] !! PREP STAND-DOWN: repeated grind attempts found NO reachable grass "
+                    "from here — dropping the 'train first' plan (rematch / move forward instead)")
+            return None
         try:
             party = state.get("party") or []
             if not party:
@@ -3495,7 +3516,9 @@ class Campaign:
                 if r != "ok":                                # no grass reachable etc. — surface, restore, retry next tick
                     log(f"   GRIND-WEAK: grind returned {r!r} — restoring ace, retry next tick")
                     self._restore_ace()
-                    return "ok"
+                    return r                                 # pass the DISTINCT sentinel through (the
+                    #                                          caller's prep stand-down counts dry runs;
+                    #                                          masking it as 'ok' hid the failure)
             log(f"   GRIND-WEAK: wall-clock budget — partial progress (levels {self._party_levels()}), "
                 f"restoring ace; the next tick re-enters")
             self._restore_ace()
@@ -4702,8 +4725,10 @@ class Campaign:
         plevel = state["party"][0]["level"] if state.get("party") else None
         def gated(m):
             return self.strat.is_gated(m, pcount, plevel)
+        dead = getattr(self, "_grind_dead", set())         # maps grind() proved grassless/strand-only
         def has_grass(m):
-            return (m in self._grass_maps or self._is_route_map(m)) and m != cur
+            return ((m in self._grass_maps or self._is_route_map(m))
+                    and m != cur and tuple(m) not in dead)
         unreach = getattr(self, "_grass_unreach", set())   # koga_run3: hops that failed from here
         seen = {cur}
         q = deque()
@@ -4743,8 +4768,11 @@ class Campaign:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
             known = self.world.reachable_with_trait(cur, "has_grass", avoid)
+            _dead = getattr(self, "_grind_dead", set())    # maps grind() proved grassless/strand-only
             for _entry in (known or []):                   # try EVERY known grass, not just the nearest
                 dst = _entry[0]                            # entries are (dst, ...) — width varies
+                if tuple(dst) in _dead:
+                    continue                               # visited trait says grass; grind says dead
                 hop = self.world.next_hop(cur, dst, avoid)
                 if not hop:
                     continue
@@ -4761,8 +4789,9 @@ class Campaign:
         # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
         # wall. Adjacent ungated route wins (this already includes grass directly behind her).
         cur = tuple(state["map"])
+        _dead = getattr(self, "_grind_dead", set())        # proven-grassless maps aren't candidates
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
-                     and (cur, tuple(m)) not in unreach]
+                     and (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
         if non_gated:
             d, m = non_gated[0]
             return ("route", m, self._EDGE[d])
@@ -4775,8 +4804,12 @@ class Campaign:
                 f"(avoiding the gated route)")
             return ("route", nxt, edge)
         # Truly only the gated route exists -> surface it; _route_action's gate tells her it's blocked.
-        if routes:
-            d, m = routes[0]
+        # (koga_run5: the last resort must ALSO honor the fail/dead memories — returning a proven
+        # no-route hop here re-created the exact spin the memories exist to kill.)
+        _last = [(d, m) for d, m in routes
+                 if (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
+        if _last:
+            d, m = _last[0]
             return ("route", m, self._EDGE[d])
         return None
 
@@ -5723,9 +5756,11 @@ class Campaign:
                     if not hasattr(self, "_grass_unreach"):
                         self._grass_unreach = set()
                     self._grass_unreach.add((tuple(state["map"]), tuple(tgt)))
+                    self._prep_dry = getattr(self, "_prep_dry", 0) + 1   # counts toward stand-down
                     log(f"   [roam] grass route {tgt} UNREACHABLE from {tuple(state['map'])} ({r}) — "
                         f"remembered; next tick tries a different grass")
                     return f"to_grass:{r}"
+                self._prep_dry, self._prep_dry_logged = 0, False   # the grass road works from here
             if pick == "wander_catch":
                 return self.catch_one()
             # STRATEGIC UNDERLEVEL-GRIND (Task B): if the TEAM FLOOR is under the wall's level, field the
@@ -5733,7 +5768,10 @@ class Campaign:
             # 'train the team' but the action trained the ace". Else the ordinary lead bump.
             t = self._prep_team_target(state)
             if t is not None:
-                return self.grind_weak_members(t)
+                r = self.grind_weak_members(t)
+                if r == "no_safe_grass":                 # a dry attempt counts toward stand-down
+                    self._prep_dry = getattr(self, "_prep_dry", 0) + 1
+                return r
             lead = state["party"][0]["level"] if state["party"] else 5
             return self.grind(lead + 2)
         if pick == "stock_up":

@@ -30,6 +30,95 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #7 (🌆 FUCHSIA REACHED — Koga engaged; the Self-Destruct lesson) ──
+**CANONICAL = fuchsia_reach: Route 15 (3,33)@(0,12), Venusaur L54, badges 4, party HEALED,
+sanctity VALID** (backup pre_fuchsia_reach_backup_20260707_045518). Routes 12→13→14→15 fought
+through, FUCHSIA REACHED, gym entered, **ALL SIX Koga juniors BEATEN** — then KOGA WIPED HER:
+his L37 Koffing **SELF-DESTRUCTED on Venusaur turn one** (the ace one-shot at ANY dominance)
+and the dead-weight bench (Pers36/Fear34/Rati31/Ekans15/Mankey10) fed itself to Muk/Weezing
+(Muk down to 37HP — close even benched). Gym flags: juniors stay beaten; only Koga remains.
+**FIXES SHIPPED (c93f10b + the grind-spin follow-up), all general engine assets:**
+- **NUKE-SLEEP OPENER** (battle_agent `_NUKE_SPECIES`): Self-Destruct family (Geodude/Voltorb/
+  Koffing lines) gets slept BEFORE it can detonate-trade, at ANY damage matchup — the old
+  sleep-lock only fired when resisted+threatened, exactly why it sat out vs an x1 Koffing.
+- **FOES-SEEN LEDGER + attach-time rival re-check** (kills the filed tower4 bug): engine records
+  every foe read LIVE at action menus (`battle_agent.LAST_FOES_SEEN`, per-battle reset); campaign
+  re-checks it post-battle against the rival counter-line (recomputed from her starter — the
+  erika_run1 Ivysaur false-positive stays dead). No more manual Gary backfills.
+- **ASYNC-WHITEOUT GUARD** (`_exit_to_overworld`): the pending whiteout warp fired MID-candidate
+  (Koga loss → respawn while the exit leg walked) → every later candidate was a stale gym coord
+  on the Center map (wedge ×6). Map-changed is now checked unconditionally per candidate.
+- **GRASS-TARGET FAIL MEMORY** (`_grass_target`): (from-map → target) no_route failures
+  remembered in-RAM; next tick tries a DIFFERENT grass (killed the 14-tick Route-15 stall —
+  she sat in the one-way ledge pocket re-proposing east forever).
+- **GRIND NO-GRASS SPIN** (koga_run4): grind()'s no-grass branch `break`→"ok" made GRIND-WEAK
+  retry in a tight loop (celadon_run3 class, reborn on water Route (3,37)) — now returns
+  `no_safe_grass` + records `_grind_dead`; grind-dead maps are vetoed as grass CANDIDATES in
+  all three _grass_target sources (the optimistic "group-3 route = grass" test sent her to the
+  grassless water route in the first place).
+**GEOGRAPHY TRUTH (Fuchsia pocket):** Route 15's west end (0,12) is a one-way ledge pocket —
+NO route east, NO reachable grass; water Route 19 south (3,37) has NO grass. The trainable
+grass is WEST of Fuchsia (Route 18) — the graph-BFS finds it once the dead maps are vetoed.
+Fuchsia Center = map (11,5), door row y=8, only (7,8) fires (0x65). Gym = (11,3), Koga front
+(7,14), juniors objs [1,2,3,5,6,7].
+**IN FLIGHT AT WRITE: koga_run5** (goal 0x824, logs/longrun/koga_run5.log) — expected line:
+grind the bench on Route 18's grass (UNDERLEVEL-PREP wants floor ~L34) → re-enter the gym →
+KOGA with the nuke-sleep opener. Watch for: the wall-gate on map (11,3) possibly vetoing the
+retry (loss recorded there — if head_to_gym refuses, arm the strike pattern: recon_tower is
+the template; disasm FuchsiaCity_Gym).
+
+### ── 2026-07-07 NIGHT SHIFT #6 (🔭 SILPH SCOPE BANKED — hideout COMPLETE; spin crosser generalized) ──
+**CANONICAL = CELADON (3,6)@(34,22), silph_scope_out PROMOTED** (chain tonight: silph_scope
+[B4F, scope in bag] → silph_scope_out [street, HEALED at the Celadon Center]; backups pre_* both;
+sanctity VALID both). Key Items now: [...TM case, 356 LIFT KEY, **359 SILPH SCOPE**]. Party
+Venusaur47/Persian35/Fearow33/Raticate31/Ekans15/Mankey10, badges 4. Commit 121be05.
+**THE B2F ELEVATOR WALL — full postmortem (hideout10-12 + recon_b2f_sim.py):**
+(a) B1F is SPLIT by a full wall at y19-20; its elevator doors (23-25,25) live in the sealed SOUTH
+half (served only by B2F's (23,12) stairs) — the B1F approach is a dead end from the north.
+(b) The B2F east room holding the elevator (28-29,16, 0x69 doors) is entered THROUGH the west
+spin maze — the old node_ok x>=12 "east bias" forbade exactly those routes. Offline glide-BFS
+over a dumped behavior grid (grid_b2f.txt) found 308 rest tiles + a 46-press route; verified live.
+(c) The maze is SEALED by a collectible ITEM BALL (MOON STONE at (2,5) — now in bag): with it
+standing there is NO route; the game expects you to pick it up. The crosser now collects
+reachable balls and replans.
+(d) Live object reads are DISTANCE-CULLED (gObjectEvents): far balls are invisible to planning.
+NEW **travel.read_object_templates(b)** reads the map's STATIC templates + spawn-flag truth
+(MapHeader.events +0/+4, stride 0x18; ball gfx=0x5C; verified vs disasm on B2F) — planners union
+it with _npc_tiles.
+**SPIN CROSSER EXTRACTED → `spin_nav.py` (SpinNav)** — the general asset: glide sim + rest-tile
+BFS + ball-collect sweep + BOX-DRAIN guard (a beaten grunt's re-talk box eats every direction
+press — the exit1 wedge; drain before each press) + twice-failed-step avoidance (wandering-NPC
+squatting) with relax-once. recon_hideout.py + recon_hideout_exit.py ride it. **Viridian Gym's
+spin maze rides this later; wire into travel/campaign when a longrun bites (portability debt).**
+**GIOVANNI BEATEN** (Onix/Rhyhorn/Kangaskhan, Razor Leaf x4s) + both door grunts; scope ball
+pressed; elevator ride CODED both directions (panel bg (0,2); DOWN presses to descend, UP to
+ascend; self-correcting landing). recon_hideout_exit.py = the walk-out vehicle (elevator → maze →
+GC → street → heal → bank) so canonical NEVER sits mid-dungeon behind a spin maze generic nav
+can't cross.
+**🎺 THE FLUTE CHAIN FELL TOO (same shift): TOWER STRIKE (c40bc72, recon_tower.py) → POKE
+FLUTE PROMOTED → SNORLAX WOKEN (c6cb914, recon_snorlax.py) → the coastal road is OPEN.**
+- flute_run13 truth: the questline door-hint entered the Tower + go-deepered to 2F, but GARY
+  (object (16,5), battle needs the multi-box talk escalation) wedged the tour. recon_tower:
+  approach legs (Celadon→R7→UGP#2→R8→Lavender, enter_to = warp-dest routing on read_warps —
+  NO hardcoded stair coords), climb as a STATE MACHINE on current-map (heal bounces just
+  re-dispatch), GARY beaten (rival ledger now 3W-2L — the win needed a BACKFILL: the observer
+  ATTACHED MID-BATTLE (scene fired during approach travel) and rival detection missed —
+  **FILED BUG: rival detection misses attach-time battles**), ghost MAROWAK beaten en route
+  (Scope = normal wild), 7F grunts, FUJI → his house → FLUTE (item 350 + flag 0x23D).
+  GENERAL KILL (campaign.py): _enter_directional_warp's on-tile mount presses ×3 (first press
+  eaten as TURN — Tower 2F 0x6D stair, both side stand-tiles walled, fires from ON the tile).
+- koga_run1 walked to Route 12's north gate and stalled — the "Snorlax blocker" is at (14,70)
+  (disasm), 70 tiles south; head_to_gym couldn't route past the body. recon_snorlax: gate
+  pass-through (north doors (14,15)/(15,15)→(23,0), prefer='south' entry) → road gauntlet →
+  face (14,70) + A → flute plays → wild L30 Snorlax ATTACKS → beaten → flag 0x253 + body gone.
+- PROMOTION CHAIN tonight (all sanctity VALID): silph_scope → silph_scope_out → poke_flute →
+  route12_snorlax → **snorlax_woken = CANONICAL: Route 12 (3,30)@(14,69), Venusaur L51,
+  badges 4, Scope+Flute+Lift Key banked, rival 3W-2L.**
+**IN FLIGHT AT WRITE: koga_run2** (goal 0x824, logs/longrun/koga_run2.log) — Routes 12-15 →
+Fuchsia → KOGA (GYMS row EXISTS — campaign.py:323, disasm coords, flag 0x824; the shift-5
+handoff wrongly said missing). Watch: Fuchsia city id (3,7) is EXPECTED-binds-on-walk; Koga's
+gym is invisible-walls (RAM collision truthful per the registry note).
+
 ### ── 2026-07-07 NIGHT SHIFT #5 (👻 GHOST-VILEPLUME killed; Secret Power taught; hideout 80% cracked) ──
 **CANONICAL = CELADON (3,6)@(11,15), tm43_secret_power PROMOTED** (backup pre_tm43_secret_power_
 backup_20260707_025255). Party HEALED, badges 4, $13,378, sanctity VALID. **Venusaur [RazorLeaf,
