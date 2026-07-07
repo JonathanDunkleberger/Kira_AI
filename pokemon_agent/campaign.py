@@ -383,7 +383,11 @@ MART_STOCK = {
     # control-verified by a live bag-delta buy 2026-07-06; a wrong row aborts LOUD, never mis-buys.
     VERMILION: [4, 22, 16, 17, 18, 86],
 }
-MART_CURSOR = 0x02039940   # u8 highlighted-row index in the BUY list (CONTROL-found 2026-06-27 recon_mart)
+MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
+MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
+# TRUE BUY-LIST SELECTION = selectedRow + scrollOffset. On lists deeper than the window the row
+# byte alone LIES (tm_errand run-11: (row 4, scroll 2) = CANCEL on the Celadon TM list; its A
+# exited the shop and the buy-mash re-entered and bought row 0). Every shop nav reads the SUM.
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
 # much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
 SHOP_POTION_TARGET = 6
@@ -618,6 +622,9 @@ class Campaign:
         # Deterrence (Phase 2c): consecutive ticks the routing hard-refused to cross the active wall.
         # Escalates the "this ends the same way" framing so the blind re-walk stops being her default.
         self._wall_gated_streak = 0
+        # blackout-evidence: set by _observed_battle_runner, consumed per roam tick — the tick-top
+        # "indoors = blackout" heuristic only fires when a battle actually RAN (run-9 ghost class)
+        self._battle_ran_this_action = False
         # one Traveler reused for every WALK leg (BFS + NPC-aware + grass-aware + handoff)
         # stuck_check (LAYER B): travel polls this each step; when the universal watchdog has latched a
         # disengage, travel bails its leg LOUD ("stuck") so the wedge unwinds to the roam loop's
@@ -648,6 +655,7 @@ class Campaign:
         LOUD and never affects the fight. Called only when a battle is live (in_battle); a stray
         non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
         pre_sp = pre_lvl = None
+        self._battle_ran_this_action = True    # blackout-evidence: a whiteout implies a battle RAN
         try:
             mid = tv.map_id(self.b)
             place = self._PLACE_NAMES.get(mid, "an unfamiliar area")
@@ -3490,17 +3498,26 @@ class Campaign:
                 out.add(nm)
         return out
 
-    def _mart_goto_row(self, row, tries=12):
-        """Move the BUY-list cursor to `row`, VERIFYING via the cursor-index readback (MART_CURSOR)
-        each press so an eaten d-pad press can't leave us buying the wrong item. Returns True on arrival."""
+    def _mart_index(self):
+        """TRUE BUY-list selection = selectedRow + scrollOffset (see MART_CURSOR/MART_SCROLL)."""
+        return self.b.rd16(MART_CURSOR) + self.b.rd16(MART_SCROLL)
+
+    def _mart_goto_row(self, row, tries=16):
+        """Move the BUY-list selection to true index `row`, VERIFYING via the row+scroll readback
+        each press so an eaten d-pad press can't leave us buying the wrong item. The row byte lags
+        the scroll animation — arrival is re-verified after settling. Returns True on arrival."""
         for _ in range(tries):
-            cur = self.b.rd8(MART_CURSOR)
+            cur = self._mart_index()
             if cur == row:
-                return True
+                for _ in range(20):                        # settle: scroll animation lag
+                    self.b.run_frame()
+                if self._mart_index() == row:
+                    return True
+                continue
             self.b.press("DOWN" if cur < row else "UP", 8, 10, self.render, owner="agent")
-            for _ in range(12):
+            for _ in range(20):
                 self.b.run_frame()
-        return self.b.rd8(MART_CURSOR) == row
+        return self._mart_index() == row
 
     def _mart_buy_one(self, max_a=26):
         """Buy ONE of the highlighted item: press A (advancing the slow clerk text + confirming the
@@ -3556,11 +3573,11 @@ class Campaign:
         if self.money() < guard:                          # an A accidentally bought something -> bail LOUD
             log(f"   !! MART: money dropped during entry ({guard}->{self.money()}) — accidental buy, abort")
             return False
-        c0 = self.b.rd8(MART_CURSOR)                       # CONFIRM the list: DOWN must move the cursor
+        c0 = self._mart_index()                            # CONFIRM the list: DOWN must move the selection
         self.b.press("DOWN", 8, 10, self.render, owner="agent")
         for _ in range(12):
             self.b.run_frame()
-        if self.b.rd8(MART_CURSOR) != c0:
+        if self._mart_index() != c0:
             self._mart_goto_row(0)                         # back to the top, ready to shop
             return True
         log("   !! MART: could not confirm the BUY list (cursor didn't respond) — aborting LOUD")
@@ -5788,7 +5805,18 @@ class Campaign:
             # (group != 3) and EXIT to the overworld so a real objective can re-establish from the Center
             # (a known-good anchor) — never leave her parked where nothing can succeed. The faint itself
             # is felt via _soul_after_objective(battle_loss); this is the explicit "I came to" beat.
-            if tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False):
+            if (tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False)
+                    and not getattr(self, "_battle_ran_this_action", False)):
+                # EVIDENCE GATE (run-9 ghost-vileplume class): being indoors at tick top is NOT proof of
+                # a blackout — the questline's anchor-first warp step legitimately ENDS a tick inside a
+                # transit hut. Without a battle having RUN since the last tick there is nothing to have
+                # whited out FROM: the old unconditional branch here recorded a loss vs the STALE
+                # last_foe snapshot (Erika's vileplume, still in the save's RAM), gated Route 8 on a
+                # trainer that doesn't exist, narrated a false "I blacked out" memory, and its ejection
+                # rebuilt the hut hop-loop. No battle -> normal transit -> continue from inside.
+                log(f"   [roam] tick opened inside interior {tv.map_id(self.b)}@{tv.coords(self.b)} "
+                    f"with no battle since last tick — NOT a blackout; continuing (mid-route interior)")
+            elif tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False):
                 # (…unless she's INSIDE a questline-target building on purpose — `_ql_inside_target`. The
                 # destination-interaction layer entered Bill's cottage to talk him; don't eject her before
                 # she does. It clears the marker itself on a wrong building / when the questline completes.)
@@ -5810,6 +5838,7 @@ class Campaign:
                               kind="blackout", tier=2)
                 self._exit_to_overworld()
                 self._wait_overworld()
+            self._battle_ran_this_action = False   # blackout-evidence is per-tick; consumed above
             state = self.read_live_state()
             self._learn_map(state)         # BATCH-6 P2: fold this map's connections+grass into the graph
             self._refresh_world_caps()     # Batch-WORLD: keep Fly/Surf/etc. live (she uses them when earned)
