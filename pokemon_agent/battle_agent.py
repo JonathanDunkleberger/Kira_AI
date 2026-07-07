@@ -1098,6 +1098,24 @@ class BattleAgent:
         _myt = [t for t in (ours.get("types") or []) if t and t != "???"]
         _foet = [t for t in (enemy.get("types") or []) if t and t != "???"]
         se_threat = (self._matchup_def(_myt, _foet) >= 2) if (_myt and _foet) else False
+        # OBSERVED-SE-CHUNK LATCH (blaine_run2, the Cinnabar whiteout loop): the generic
+        # sleep-lock below demands our damage be RESISTED (<=0.5) — vs Blaine our Normal
+        # moves are x1 so it never armed, while his fire chunked our grass ace x2 through
+        # a 4-deep potioning roster (attrition loss at a 12-level advantage). A real player
+        # sleeps the scary one REGARDLESS of their own damage. Latch when we OBSERVE the
+        # foe class actually chunk us (>=18% of our max between decisions — above a burn
+        # tick's 12.5%, so wild trash and chip never arm it), then let the sleep-lock fire
+        # on se_threat alone. Per-attach state, same whiff cap as the lock.
+        _okey = (ours.get("species"), ours.get("maxhp"))
+        _ohp = ours.get("hp", 0)
+        if (se_threat and getattr(self, "_hp_key", None) == _okey
+                and _ohp < getattr(self, "_hp_last", _ohp)
+                and (self._hp_last - _ohp) / max(ours.get("maxhp", 1), 1) >= 0.18
+                and not getattr(self, "_se_chunk_latch", False)):
+            self._se_chunk_latch = True
+            self.log("   [engine] SE-CHUNK observed: this foe class hits us super-effectively "
+                     "and HARD -> sleep-lock armed even at neutral damage")
+        self._hp_key, self._hp_last = _okey, _ohp
         sleep_done = False
         # SAFETY CAP: stop re-casting sleep after a few whiffs on the SAME foe — a foe that lowers our
         # accuracy (Smokescreen/Sand-Attack, e.g. Gary's Charmander) makes the 75%-acc powder MISS every
@@ -1119,7 +1137,8 @@ class BattleAgent:
                 self.log(f"   [engine] NUKE-SLEEP: {st.SPECIES_NAME.get(enemy['species'], '?')} is "
                          f"Self-Destruct family -> {desc} first (it can't detonate asleep; "
                          f"try {self._sleep_casts}/4)")
-        if (SLEEP_LOCK_ENABLED and not sleep_done and best_dmg_eff <= 0.5 and se_threat
+        if (SLEEP_LOCK_ENABLED and not sleep_done and se_threat
+                and (best_dmg_eff <= 0.5 or getattr(self, "_se_chunk_latch", False))
                 and not enemy.get("asleep") and foe_frac > 0.30
                 and getattr(self, "_sleep_casts", 0) < 4):
             si = next((i for i in range(4) if _usable(i)
@@ -1127,7 +1146,9 @@ class BattleAgent:
             if si is not None:
                 idx, desc, sleep_done = si, ours["moves"][si].get("name", "sleep"), True
                 self._sleep_casts = getattr(self, "_sleep_casts", 0) + 1
-                self.log(f"   [engine] SLEEP-LOCK: super-effective threat + damage resisted "
+                why = ("damage resisted" if best_dmg_eff <= 0.5
+                       else "it chunks us at neutral damage")
+                self.log(f"   [engine] SLEEP-LOCK: super-effective threat + {why} "
                          f"(best x{best_dmg_eff:g}) -> {desc} (neutralise its hits, then chip safely; "
                          f"try {self._sleep_casts}/4)")
         # ONE non-sleep status/foe (poison/leech — type-independent CHIP that bypasses the resistance) when
