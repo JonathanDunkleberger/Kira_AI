@@ -58,6 +58,7 @@ _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures l
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
 _HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
 _REVIVE_ITEMS_PREF = (25, 24)             # Max Revive, Revive
+_ETHER_ITEMS_PREF = (37, 36, 35, 34)      # Max Elixir, Elixir, Max Ether, Ether (all-move first)
 _STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
 _FULL_HEAL = 23
 
@@ -939,6 +940,16 @@ class BattleAgent:
                 plan["use_revive"] = (revive, down)
                 offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
                                         "it's stronger than anyone still standing and you HAVE a Revive")
+        # PP-RESTORE INSTINCT (night shift #13): foe-aware famine + an Ether/Elixir in the bag ->
+        # offer restoring PP BEFORE the famine switch pulls the ace out. Rides the same aimed
+        # walk: A selects the aimed mon, the move-restore box defaults to move 0 (the workhorse
+        # slot), count-drop verifies — a mis-walk is 'failed' -> keep fighting, never a wedge.
+        if self._active_pp_famine(state):
+            ether = next((i for i in _ETHER_ITEMS_PREF if self._items_count(i) > 0), None)
+            if ether is not None:
+                plan["use_ether"] = (ether, aim)
+                offers["use_ether"] = ("restore PP with your Ether — you're out of moves that can "
+                                       "hit this foe and it puts your best move back in the fight")
         if not offers:
             return False
         offers["keep_fighting"] = "keep attacking — push through it"
