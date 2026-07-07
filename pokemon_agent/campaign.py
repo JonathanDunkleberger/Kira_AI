@@ -276,6 +276,18 @@ FUCHSIA_PC_DOOR = (25, 31)
 FUCHSIA_GYM_DOOR = (9, 32)
 KOGA_FRONT = (7, 14)     # Koga NPC at (7,13) FACE_DOWN -> stand below at (7,14), face UP.
 FLAG_BADGE_SOUL = 0x824
+# Saffron (badge 6, Sabrina) — disasm 2026-07-07 (pret map_groups.json: SaffronCity is INDEX 10
+# in the towns-and-routes group — the (3,11) extrapolation was off by one, (3,11) is
+# SaffronCity_Connection). SaffronCity/map.json: gym door (46,12), Silph Co door (33,30),
+# Center (24,38), Mart (40,21). SaffronCity_Gym/map.json: Sabrina object at (14,11) ->
+# front tile (14,12), face UP; entrance warps (13-15,23); the interior is a TELEPORT-PAD
+# maze (32 warp events) — travel BFS won't cross it; strike/warp-dest routing owns that.
+# NOTE the gym door is Rocket-BLOCKED until Silph Co. clears (Card Key 5F, Giovanni #2 11F).
+SAFFRON = (3, 10)
+SAFFRON_PC_DOOR = (24, 38)
+SAFFRON_GYM_DOOR = (46, 12)
+SABRINA_FRONT = (14, 12)
+FLAG_BADGE_MARSH = 0x825
 ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym map.json) -> stand
                          # below her at (6,5), face UP. NOTE the gym has CUT TREES inside at
                          # (6,8) (center aisle -> her), (3,5), (9,6) — the run-1/2 travel wedges.
@@ -290,7 +302,8 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  (3, 28): (13, 20),    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
                  (3, 4): (6, 5),       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
                  CELADON: CELADON_PC_DOOR,   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
-                 FUCHSIA: FUCHSIA_PC_DOOR}   # Fuchsia: (25,31) (disasm; city id EXPECTED, binds on walk)
+                 FUCHSIA: FUCHSIA_PC_DOOR,   # Fuchsia: (25,31) (disasm; city id EXPECTED, binds on walk)
+                 SAFFRON: SAFFRON_PC_DOOR}   # Saffron: (24,38) (disasm SaffronCity map.json 2026-07-07)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -322,6 +335,11 @@ GYMS = {
     # so travel's BFS walks it like any gym. City id EXPECTED (see FUCHSIA note).
     "Koga": GymSpec("Koga", FUCHSIA, FUCHSIA_GYM_DOOR, KOGA_FRONT,
                     FLAG_BADGE_SOUL, 0, "UP"),
+    # Registered so head_to_gym targets Saffron and beat_gym binds on arrival. The DOOR is
+    # Rocket-blocked until Silph Co. clears, and the interior is a teleport-pad maze — the
+    # leader approach needs pad routing (warp events; read_warps sees them) or a strike.
+    "Sabrina": GymSpec("Sabrina", SAFFRON, SAFFRON_GYM_DOOR, SABRINA_FRONT,
+                       FLAG_BADGE_MARSH, 0, "UP"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58

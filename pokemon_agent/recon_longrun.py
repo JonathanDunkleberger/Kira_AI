@@ -50,6 +50,7 @@ import field_moves as fm                                  # noqa: E402
 from battle_agent import BattleAgent                      # noqa: E402
 import campaign as C                                      # noqa: E402
 from campaign import Campaign, resolve_state, STATES_CAMPAIGN  # noqa: E402
+import world_fingerprint as wfp                            # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 PMON = st.PARTY_MON_SIZE
@@ -268,8 +269,15 @@ def main():
     def progress_sig():
         lv = [b.rd8(ram.GPLAYER_PARTY + s * PMON + 0x54)
               for s in range(min(b.rd8(ram.GPLAYER_PARTY_CNT), 6))]
+        # BAG in the signature (sabrina_run5): acquiring a quest ITEM (the Tea) is real progress,
+        # but badges/levels/maps all held still while the errand ran — the detector declared a
+        # FALSE STALL 4 ticks after the flag flipped. A true wedge never changes the bag.
+        try:
+            bag = hash(wfp.fingerprint(b).bag) & 0xFFFF
+        except Exception:
+            bag = 0
         return (_badges(b), 1 if fm.read_flag(b, SS_TICKET) else 0, sum(lv),
-                b.rd8(ram.GPLAYER_PARTY_CNT), len(visited))
+                b.rd8(ram.GPLAYER_PARTY_CNT), len(visited), bag)
 
     def chooser(kind, options, ctx):
         # IN-BATTLE ITEM use (kind="battle_item"): the engine offers a heal/cure when a mon is crit-low.

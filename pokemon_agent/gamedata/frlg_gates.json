@@ -406,7 +406,7 @@
     "name": "Route 6",
     "go": "north",
     "via": "pass",
-    "note": "Saffron's south gatehouse (3,11) refuses passage pre-Tea; the Underground Path hut on Route 6 (warp (19,13)->(1,32)) crosses under Saffron to Route 5 - the door-passthrough primitive executes this (proven both directions 2026-07-06)"
+    "note": "Saffron's south gatehouse refuses passage pre-Tea; the Underground Path hut on Route 6 (warp (19,13)->(1,32)) crosses under Saffron to Route 5 - the door-passthrough primitive executes this (proven both directions 2026-07-06)"
    },
    {
     "map": "3,23",
@@ -552,10 +552,10 @@
     "name": "Route 8",
     "go": "west",
     "via": "pass",
-    "note": "the west crossing is Saffron's EAST gatehouse - the thirsty guard REFUSES pre-Tea (exit_gates 3,26/west arms the Tea errand: Celadon Mansion old lady, FLAG_GOT_TEA 0x2A6). With Tea in hand the guard drinks and the gate opens. Route 8's learned west edge = 3,11 (Saffron, binds on walk)."
+    "note": "the west crossing is Saffron's EAST gatehouse - the thirsty guard REFUSES pre-Tea (exit_gates 3,26/west arms the Tea errand: Celadon Mansion old lady, FLAG_GOT_TEA 0x2A6). With Tea in hand the guard drinks and the gate opens. Route 8's west connection = 3,10 (Saffron; pret map_groups: SaffronCity index 10, (3,11) is SaffronCity_Connection - the shift-7 (3,11) guess was off by one)."
    },
    {
-    "map": "3,11",
+    "map": "3,10",
     "name": "Saffron City",
     "expected": true,
     "note": "Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared (Card Key 5F, Giovanni #2 11F - hideout-class strike; see route_notes/saffron_unlock)"
