@@ -30,6 +30,77 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #10 (🏢 SILPH CO — the pad chain; route truth from disasm) ──
+**CANONICAL unchanged = saffron_reach** (Saffron (3,10)@(47,13), badges 5, TEA, full HP).
+**Shift 9's real ending (strikes 8-12, unclosed):** strike12 was the breakthrough — CARD KEY
+BANKED IN-RUN at 32.5s via the 9F pad (22,18) → 5F pocket (10,20) → ball (22,21) west front.
+Then it hit the 7F wall: from stair arrival (27,4) there is NO path to Gary (2,5) / Lapras
+(0,8) / the 11F pad (5,8) — and gary_done/lapras_done LATCHED ON FAILURE, then a full
+tower-descent heal ate the clock; the shift died mid-battle on 3F.
+**ROUTE TRUTH (pret 3F/7F/9F/11F map.json + strike12 live-learned warps — all cross-checked):**
+- **7F's west pocket is PAD-ONLY** (Gary triggers (2,4)/(2,5), rival obj (2,6), Lapras guy
+  (0,7), 11F pad (5,8)): no card door reaches x<=5. Entrances: 3F pad landing (5,4), 11F pad.
+- **THE PAD CHAIN:** 9F (9,4) ↔ 3F (2,14) · 3F (13,14) ↔ 7F (5,4) · 7F (5,8) ↔ 11F (2,5).
+- **9F HAS A FREE FULL HEAL:** hostage woman (2,16), NO hide flag, stays post-strike
+  (SilphCo_9F_EventScript_HealWoman). Kills the tower-descent heal class entirely.
+- Doors that matter: 3F west (9-10,12-13) / east (20-21,12-13) flank the pad room; 9F west
+  corridor (2-3,10-11) gates the heal woman; 11F (5-6,16-17) guards the SOUTH entrance only —
+  **Giovanni (6,11) is directly open from the 11F pad landing (2,5)** (triggers (5,15)/(6,15)
+  are south-side; grunts' sight columns miss the x2-6 approach).
+**STRIKE13 FIXES (recon_silph.py):** phase B = stairs→9F(heal)→pad chain; gary/lapras latch
+only on SUCCESS (battle-counter evidence or flag 0x246); 7F-stairs-side routes to the chain
+instead of sieging the pocket; heal_mode latch routes over pads to the 9F woman (key in hand);
+walk_path_to drains coord-trigger SCENE dialogue (Gary's walk-up) before the battle check;
+walk-out opens the 3F east door.
+**🔥 THE TAP-TURN GHOST (commit 7634d33 — campaign.py _step_to, probe-diagnosed):** an 8-frame
+tap in a direction she isn't FACING only TURNS her; the old "didn't move ⇒ blocked ⇒ nudge
+RIGHT" logic UNDID the turn and oscillated forever (or drifted her east across the map — the
+strike12/13 "east column wander"). EVERY "elevation-sealed tile" in the Silph siege was this
+actuation bug, not geometry. Fix: tap the SAME key again (turn → exactly one step; a 26-frame
+hold walks TWO tiles, trace-proven). Harness pitfall #27. ride_pad now also sorts pad-neighbor
+approaches by real BFS distance (the fixed order walked a 40-step one-way trap first).
+**9F DOOR ALGEBRA (strike14 postmortem + component analysis on the probe grid):** 9F is a
+card-door maze; from the pad landing (22,18): stairs already open, heal woman needs the WMID
+door (12-13,16-17), the 3F pad needs WMID+WEST (2-3,10-11); NE/pad-room doors never needed.
+Real map width is 39 (x31-38 east area is REAL floor, not border). Ed the scientist's
+walk-up vacating his 1-wide corridor is how phase A ever entered without doors. heal_mode now
+STANDS DOWN after 12 dry attempts (lesson 24 applied to detours). IN FLIGHT: silph_strike15.
+**THEN:** promote silph_cleared → longrun goal 0x825 (Sabrina; gym door unblocks; interior =
+teleport-pad maze — pads are warps, enter_to-style routing may carry).
+
+### ── 2026-07-07 NIGHT SHIFT #9 (🏢 SILPH CO — the 5F Card Key siege; probe-driven) ──
+**CANONICAL unchanged = saffron_reach** (Saffron (3,10)@(47,13), badges 5, TEA, full HP).
+**Strike iterations 4→8, each killed by a probe-diagnosed mechanism (all fixed, committed):**
+- **strike3/4 lobby↔street livelock:** the Silph 1F entrance mat (8,20) is **0x65 DOWN-arrow**
+  (probe-proven, recon_silph_probe.py) — the step-off-arrival-warp guard stepped SOUTH first =
+  pressing the mat's own fire direction = out the front door, forever. LAW: **never step off a
+  directional warp tile in its fire direction** (fixed in recon_silph + the same latent class
+  in campaign.py's questline deeper-hop step-off).
+- **strike5 pad rides:** travel BFS pathed ACROSS the 5F teleport pad (10,20) → silently rode
+  it to 9F mid-ball-approach. Fix: strike goto() passes travel's existing `avoid=` (the Mt Moon
+  mechanism) = warp tiles minus the target. ALSO: Phase A now DESCENDS when above 5F (a pad
+  ride left her climbing keyless to a silent 11F dead end); enter_to steps OFF a pad she's
+  standing on before re-firing it (pads don't re-fire underfoot).
+- **strike6 travel thrash:** static grid BFS is NPC-BLIND — the shortest 5F path threads
+  Grunt2's tile (35,7); after she BEATS him the body still stands there, and travel TTL-ages
+  the block → replans west → Grunt1 (9,21) seals that → thrash forever. Fix: `walk_path_to`
+  (strike-pattern deterministic mover): static BFS with warps+template-NPC tiles masked,
+  stepped tile-by-tile, battles recompute. goto = walk_path_to first, travel fallback.
+- **COORD-CONVENTION BUG (bug-class sweep done):** `tv.Grid.walkable(sx,sy)` takes SAVE coords
+  (adds MAP_OFFSET itself) — callers pre-adding MAP_OFFSET read a tile +7,+7 off. Fixed live
+  instances: campaign.py:4273 (questline step-off), recon_silph.py ×2. (recon_captain_door.py /
+  recon_ship_2f.py have it too — dead one-shot archives, left.)
+- **5F ROUTE TRUTH (probe4 + pret SilphCo_5F/map.json):** live (1,51)=SilphCo_5F exactly (all
+  7 warps match: 3F=(1,49) 4F=(1,50) 6F=(1,52) 7F=(1,53) 9F=(1,55) elev=(1,58)). Card Key ball
+  (22,21) IS itself a solid object sealing row 21 — **the EAST front (23,21) is the ONLY
+  NPC-free-reachable front** (len 41 from the stairs); west front needs Grunt1's tile or the
+  pad. Card doors: (7-8,9-10) (7-8,18-19) (18-19,13-14). Strike now tries LEFT/(23,21) first.
+**IN FLIGHT AT WRITE: silph_strike8** — expect: Card Key → 3F pad (13,14)→7F → GARY #6 →
+Lapras → pad (5,8)→11F → GIOVANNI → 0x3E → bank silph_cleared → promote → longrun goal 0x825
+(Sabrina; gym door unblocks; interior = teleport-pad maze, pads are warps, enter_to may carry).
+**Probe fleet (kept, reusable):** recon_silph_probe.py (behavior bytes), probe2 (objects+BFS),
+probe3 (true ASCII floor map — display fixed), probe4 (path/mask forensics).
+
 ### ── 2026-07-07 NIGHT SHIFT #8 (🍵 TEA → 🏙️ SAFFRON ENTERED; Silph strike in flight) ──
 **CANONICAL = saffron_reach: Saffron City (3,10)@(47,13) — AT the gym door, badges 5, TEA in
 bag, party FULL HP, sanctity VALID** (backups pre_tea_banked_… + pre_saffron_reach_…).

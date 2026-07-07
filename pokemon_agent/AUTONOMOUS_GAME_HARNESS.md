@@ -166,6 +166,15 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     down" (harmless — fresh-enemy detect recovers) but a stale OUR-corpse mis-arms the forced-switch
     chain, which silently B-drains a live fight until timeout. Every re-entry flag needs a live-read
     disarm: if the flag's premise isn't true NOW, drop it and fight.
+27. **TAP-TURN vs STEP is the mother of phantom walls (grid games).** A short d-pad tap in a
+    direction the avatar isn't facing only TURNS them; coords don't change. A stepper that reads
+    "didn't move" as "blocked" — and then blind-nudges a fixed direction "to unbox" — UNDOES the turn
+    and oscillates forever, or drifts the avatar in the nudge direction across the map. Weeks of
+    "elevation-sealed tiles", "one-way columns" and dead-marked walkable tiles in Silph Co were this
+    ONE actuation bug (strike13 trace: tap=turn-only; 26-frame hold=TWO tiles/overshoot; the cure is
+    tap-again — turn first, then exactly one step). LAW: before believing any step-failure is
+    geometry, retry the same key once; and calibrate tap/hold frame windows per game EARLY — turn
+    threshold, one-tile walk, two-tile run — they gate every mover built on top.
 
 **ENGINE CAPABILITY (added 2026-07-06): THE DOOR PASS-THROUGH.** When an edge crossing has no
 overworld route (fenced region), buildings are the remaining connectors: try reachable doors

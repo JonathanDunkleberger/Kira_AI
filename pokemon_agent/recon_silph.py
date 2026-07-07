@@ -29,7 +29,8 @@ import time
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
-os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+if os.environ.get("WATCH") != "1":               # WATCH=1 = a live pygame window for Jonny
+    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
 
 from bridge import Bridge            # noqa: E402
@@ -64,7 +65,11 @@ CARD_BALL_5F = (22, 21)
 # FREE FULL HEAL: the hostage woman (2,16), no hide flag (SilphCo_9F_EventScript_HealWoman).
 DOORS_3F_WEST = [(9, 12), (10, 12), (9, 13), (10, 13)]     # flanks the pad room, west side
 DOORS_3F_EAST = [(20, 12), (21, 12), (20, 13), (21, 13)]   # east side (stairs approach)
-DOORS_9F_WEST = [(2, 10), (3, 10), (2, 11), (3, 11)]       # west corridor -> the heal woman
+# 9F is a card-door maze (component-analysis on the probe grid, _tmp truth 2026-07-07):
+# from the pad landing (22,18): stairs already open; heal woman needs WMID open;
+# the 3F pad needs WMID + WEST open. The NE/pad-room doors are never needed.
+DOORS_9F_WMID = [(13, 17), (12, 17), (13, 16), (12, 16)]   # unseals the heal woman
+DOORS_9F_WEST = [(2, 10), (3, 10), (2, 11), (3, 11)]       # unseals the 3F-pad corridor
 DOORS_11F = [(5, 16), (6, 16), (5, 17), (6, 17)]           # south entrance (unused from the pad)
 GARY_TRIGGER_7F = (2, 5)
 LAPRAS_FRONT_7F = (0, 8)                          # guy at (0,7), face UP
@@ -92,16 +97,46 @@ def main():
     for _ in range(40):
         b.run_frame()
 
+    render_fn = lambda: None                       # noqa: E731
+    if os.environ.get("WATCH") == "1":
+        # attended mode: a live window (max emulation speed, ~15fps blit) so Jonny can
+        # watch the strike run — same pattern as recon_b2f_watch, throttled via run_frame.
+        import pygame
+        pygame.init()
+        _scale = 3
+        _win = (b.width * _scale, b.height * _scale)
+        _screen = pygame.display.set_mode(_win)
+        pygame.display.set_caption("Kira — SILPH CO STRIKE (live watch)")
+
+        def render_fn():
+            for _ev in pygame.event.get():
+                if _ev.type == pygame.QUIT:
+                    raise KeyboardInterrupt
+            _surf = pygame.image.fromstring(b.frame_rgb().tobytes(),
+                                            (b.width, b.height), "RGB")
+            _screen.blit(pygame.transform.scale(_surf, _win), (0, 0))
+            pygame.display.flip()
+
+        _fc = [0]
+        _orig_rf = b.run_frame
+
+        def _rf_watch():
+            _orig_rf()
+            _fc[0] += 1
+            if _fc[0] % 4 == 0:
+                render_fn()
+        b.run_frame = _rf_watch
+
     n_battles = [0]
 
     def fight():
         n_battles[0] += 1
-        return BattleAgent(b, on_event=lambda *a, **k: None, render=lambda: None,
+        return BattleAgent(b, on_event=lambda *a, **k: None, render=render_fn,
                            log=lambda m: print(m, flush=True)).run(max_seconds=240)
 
     camp = Campaign(b, battle_runner=fight,
                     on_event=lambda s, **k: L(f"[event] {s}"),
-                    beat=lambda *a, **k: None, render=lambda: None)
+                    beat=lambda *a, **k: None, render=render_fn)
     os.makedirs(STAGE, exist_ok=True)
     os.makedirs(DBG, exist_ok=True)
 
@@ -242,7 +277,10 @@ def main():
             return False
         return tuple(tv.coords(b) or ()) == tile
 
-    def engage(front, face, label, drains=1):
+    def engage(front, face, label, drains=1, key="A"):
+        # key="B" for GIFT talks (Lapras): the "give a nickname? [YES]" prompt defaults YES,
+        # so an A-drain opens the naming KEYBOARD (the strike15 7F wedge — frame-proven);
+        # B advances text AND declines the nickname (battle_agent's proven catch pattern).
         if not goto(front, label):
             L(f"!! [{label}] couldn't reach {front} (at {tv.coords(b)})")
             return "nothing"
@@ -259,7 +297,7 @@ def main():
             if dd_box(b):
                 out = "talked"
                 for _k in range(drains):
-                    drain()
+                    drain(key=key)
                     if st.in_battle(b):
                         L(f"   [{label}] battle -> {camp.battle_runner()}")
                         drain()
@@ -416,8 +454,9 @@ def main():
 
     def heal_9f():
         """The 9F hostage (2,16) fully heals the party — free, no flag, stays post-strike
-        (disasm SilphCo_9F_EventScript_HealWoman). Kills the tower-descent heal entirely."""
-        open_doors(DOORS_9F_WEST, "9f-heal-door")     # west corridor door; no-op if open
+        (disasm SilphCo_9F_EventScript_HealWoman). Kills the tower-descent heal entirely.
+        Her room is card-sealed from the pad landing: WMID (12-13,16-17) is the key door."""
+        open_doors(DOORS_9F_WMID, "9f-heal-door")     # no-op once open
         r = engage(HEAL_9F_FRONT, "UP", "9f-heal", drains=4)
         for _ in range(240):                          # the heal fade/jingle
             b.run_frame()
@@ -428,11 +467,19 @@ def main():
     deadline = time.time() + 1800
     while time.time() < deadline and not saffron_free():
         here = tuple(tv.map_id(b))
-        if lead_frac() < 0.5:
+        if lead_frac() < 0.5 and heal_mode[0] is not None:
             heal_mode[0] = True
         if heal_mode[0] and lead_frac() > 0.9:
             heal_mode[0] = False
+            wedges.pop("heal", None)
         if heal_mode[0]:
+            # a heal detour that can't execute must STAND DOWN (harness lesson 24) —
+            # the mission continues hurt; a whiteout is the recoverable safety net.
+            wedges["heal"] = wedges.get("heal", 0) + 1
+            if wedges["heal"] > 12:
+                L("!! heal detour abandoned after 12 attempts — continuing the mission hurt")
+                heal_mode[0] = None            # latched OFF for the rest of the run
+                continue
             cur = tuple(tv.coords(b) or (0, 0))
             if have_key() and here in SILPH:
                 # route to the 9F hostage over the pad chain — never leave the tower
@@ -580,10 +627,24 @@ def main():
                         gary_done[0] = True
                 continue
             if not lapras_done[0]:
-                r = engage(LAPRAS_FRONT_7F, "UP", "lapras", drains=6)
-                drain(key="B")                       # nickname/PC boxes resolve on B
+                # B-drains: the gift flow's nickname prompt + party-full "transferred to
+                # BILL's PC" boxes all resolve on B without ever opening the keyboard.
+                r = engage(LAPRAS_FRONT_7F, "UP", "lapras", drains=8, key="B")
+                drain(key="B")
                 got = fm.read_flag(b, LAPRAS_FLAG)
-                if r != "nothing" or got:
+                if not got and not dd_box(b) and not st.in_battle(b):
+                    # safety net: if the naming KEYBOARD is somehow up anyway (no box, no
+                    # flag, inputs being eaten), commit the default name (START->OK->A =
+                    # exactly how the shift-11 probe escaped), then B-drain the transfer.
+                    from naming import name_entry
+                    name_entry(b, "", render=camp.render)
+                    drain(key="B")
+                    got = fm.read_flag(b, LAPRAS_FLAG)
+                if r != "nothing" and got:
+                    lapras_done[0] = True
+                    L(f"   LAPRAS banked -> {r} (flag={got})")
+                    _stage_save("post_lapras")
+                elif r != "nothing" or got:
                     lapras_done[0] = True
                     L(f"   LAPRAS guy -> {r} (flag={got})")
                     _stage_save("post_lapras")
@@ -630,17 +691,19 @@ def main():
                 return 1
             continue
         if here == F9:
+            # the door algebra (component truth): WMID unseals the heal woman; WMID+WEST
+            # unseal the 3F pad. Open in that order, healing on the way when hurt.
+            open_doors(DOORS_9F_WMID, "9f-wmid")     # no-op once open
             if lead_frac() < 0.85:
                 heal_9f()                            # she's right there — top up pre-Gary
+            open_doors(DOORS_9F_WEST, "9f-west")
             if not ride_pad(PAD_9F_TO_3F, "pad-3f"):
-                open_doors(DOORS_9F_WEST, "9f-door")
-                if not ride_pad(PAD_9F_TO_3F, "pad-3f-2"):
-                    wedges[here] = wedges.get(here, 0) + 1
-                    if wedges[here] >= 3:
-                        snap("33_no_3f_pad")
-                        L("!! can't ride the 9F->3F pad x3 — abort")
-                        return 1
-                    drain()
+                wedges[here] = wedges.get(here, 0) + 1
+                if wedges[here] >= 3:
+                    snap("33_no_3f_pad")
+                    L("!! can't ride the 9F->3F pad x3 — abort")
+                    return 1
+                drain()
             continue
         if here == F3:
             doors = DOORS_3F_WEST if cur[0] < 15 else DOORS_3F_EAST
