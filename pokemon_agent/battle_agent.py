@@ -800,9 +800,13 @@ class BattleAgent:
                 return
             self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(10)
 
-    def use_item_in_battle(self, item_id, max_seconds=30):
-        """Use one `item_id` from the Items pocket on the active (lead) mon. Returns 'used' (count
-        dropped) | 'no_item' | 'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable."""
+    def use_item_in_battle(self, item_id, max_seconds=30, target_slot=None):
+        """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
+        'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target_slot` aims the
+        item's party screen at that slot by PARTY_CURSOR readback — post-switch the cursor defaults
+        to slot 0 (the BENCH), so without it a heal aimed at the active mon lands on a bench-warmer
+        (e4_run3 Agatha: two Full Restores 'USED' while Persian tanked on at 26/104). None/0 keeps
+        the legacy slot-0 walk."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
             self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
@@ -836,11 +840,15 @@ class BattleAgent:
                      f"(cursor={self.b.rd8(BAG_CURSOR)} scroll={self.b.rd16(BAG_SCROLL)}) — "
                      f"keep fighting (LOUD)")
             self._exit_bag(); return "failed"
-        # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target(lead)->apply.
-        # Break THE INSTANT the count drops (the use registered): a further A could re-open the bag.
-        for _ in range(8):
+        # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target->apply.
+        # A#0 selects the item, A#1 hits USE (party screen opens); from there AIM the party cursor
+        # at target_slot by readback before each confirm (readback-gated: if the party screen isn't
+        # up the cursor doesn't move and the taps are inert). Break THE INSTANT the count drops.
+        for n in range(8):
             if self._items_count(item_id) < cnt0:
                 break
+            if target_slot and n >= 2:
+                self._goto_party_slot(target_slot)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
             if not st.in_battle(self.b):
                 break
@@ -860,6 +868,26 @@ class BattleAgent:
                  f"scroll={self.b.rd16(BAG_SCROLL)} row={row} — selected but item {item_id} NOT consumed "
                  f"(count still {cnt0}) — keep fighting (LOUD)")
         self._exit_bag(); return "failed"
+
+    def _active_party_slot(self, state):
+        """Party index of the mon actually OUT, by species+curHP match against the party block.
+        After a mid-battle switch the active mon is NOT gPlayerParty[0], and the item party
+        screen's cursor defaults to slot 0 — so an un-aimed heal lands on the bench. Returns
+        None when unknown/ambiguous (fail-safe: caller keeps the legacy slot-0 walk)."""
+        ours = state.get("ours", {})
+        sp, hp = ours.get("species"), ours.get("hp")
+        if not sp:
+            return None
+        hits = []
+        for i in range(6):
+            try:
+                if st.read_party_species(self.b, i) != sp:
+                    continue
+                if self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56) == hp:
+                    hits.append(i)
+            except Exception:
+                return None
+        return hits[0] if len(hits) == 1 else None
 
     def _maybe_use_item(self, state):
         """OFFER the in-battle item instinct to the oracle when it's a REAL option: the active mon is

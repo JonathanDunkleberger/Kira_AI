@@ -66,8 +66,15 @@ def main():
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    # E4_BOOT=dir -> boot a ratchet bank (banked_E4) instead of canonical, so a run that
+    # died MID-CHAIN resumes with its DEFEATED flags (cleared rooms stay cleared). Booting
+    # a bank lands inside a room: the dispatch loop's off-route branch walks her south to
+    # the lobby (beaten trainers don't re-fight), learns the center, and re-enters the chain.
+    boot_dir = os.environ.get("E4_BOOT") or CANON
+    with open(os.path.join(boot_dir, "kira_campaign.state"), "rb") as f:
         b.load_state(f.read())
+    if boot_dir != CANON:
+        print(f"BOOT from bank: {boot_dir}", flush=True)
     for _ in range(40):
         b.run_frame()
 
