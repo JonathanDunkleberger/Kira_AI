@@ -30,6 +30,37 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #5 — 🏅 BLAINE BADGE 7 PROMOTED; Giovanni strike in flight ──
+**CANONICAL = blaine_badge7** (Cinnabar (3,8)@(20,5), BADGES 7, healed, sanctity
+VALID, round-trip verified; backup pre_blaine_badge7_backup_20260707_130328;
+Venusaur L60). **blaine_run4 won FIRST TRY, 59s door→badge→bank.**
+- **THE QUIZ-GYM CLASS SOLVED (recon_blaine.py, aaed50f):** six quiz doors, correct
+  answers derived from pret (Q1 Y/Q2-4 N/Q5 Y/Q6 N); ONE drain key per station (B
+  advances msgboxes AND selects NO); fail-safe both ways (wrong answer = the room's
+  trainer walks to us, winning fires the same door-open). All 6 opened by correct
+  answers in 12.5s, zero junior battles.
+- **SETMETATILE DOORWAYS READ ELEVATION 0 (run1 truth):** opened-door tiles =
+  collision-0/elev-0 beside elev-3 floor; per-TILE elevation laws in strike movers
+  are WRONG (elev 0 is the game's wildcard) — Grid.edge_open's per-EDGE law already
+  owns it. Removed from the vehicle's walk_path_to.
+- **SE-CHUNK LATCH → sleep-lock at neutral damage (battle_agent, 9e3a447,
+  E4-CRITICAL):** the lock had demanded our damage be resisted; vs Blaine (Normal x1
+  out, fire x2 in, 4-deep potioning roster) it never armed → attrition whiteout loop
+  (runs 2-3, 0-for-3). Now: foe class OBSERVED chunking us ≥18% max between decisions
+  (above a burn tick) arms the lock on se_threat alone. run4: Sleep Powder neutralised
+  the roster, first-try win. VERIFIED live.
+- **THE BILL AMBUSH (island scripts truth):** beating Blaine arms a FORCED island
+  scene — Bill at the gym doorstep, YES/NO where A-drain = sail to the Sevii Islands
+  mid-bank. Post-badge island drains are B-ONLY (verified declined, run4).
+- ⚠️ OPERATOR LESSON: a taskkill during run2's bank window cost a won badge (the
+  fix was worth it — run4's win is deterministic, not run2's coin-flip). Never kill
+  a strike between "badge=True" and "BANKED" — check the log end first.
+**IN FLIGHT: recon_giovanni.py run1 (giovanni_run1.log)** — badge 8: sea road home
+(five north crossings Cinnabar→R21S→R21N→Pallet→R1→Viridian, seafoam machinery),
+gym door self-unlocks at 7 badges, spin_nav gets its second customer (the gym's
+spin-tile maze), Giovanni (2,2)→front (2,3). Then: R22 Gary → Victory Road → E4.
+Full recipe in NEXT_SESSION.md.
+
 ### ── 2026-07-07 NIGHT SHIFT #4 CLOSE (12:40) — 🏅🏅 cinnabar_reach + secret_key PROMOTED ──
 **CANONICAL = secret_key** (Cinnabar (3,8)@(8,4), badges 6, SECRET KEY in bag, party
 HEALED, sanctity VALID both promotions). Shift arc: Seafoam derivation (offline
