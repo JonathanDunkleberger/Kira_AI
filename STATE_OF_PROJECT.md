@@ -114,6 +114,33 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 5 (MARATHON day 1 cont. — the road to the ship; IN PROGRESS) ──
+**REALITY CHECK: "Cut is live" was ahead of the disk again** — ship run 3 died with the session
+shell mid-grind (no boarding ever happened). This session peeled the chain in 5 look-ahead cycles:
+**CANONICAL = the L31+ SQUAD (pre_squad31_backup_20260706_180600):** Venusaur L41 / Persian L31 /
+Fearow L31 / Raticate L31, all full, **the Meowth bond EVOLVED-IN-PLACE to Persian** (soulfix
+bundle; sanctity VALID). Surge's Raichu is L24 — she's over-prepped.
+**RUN-5 TRIAGE (5dac913):** (a) probe radius d≤3→10 (insufficient — see v3); (b) **BENCH-PIN
+RE-ARM GUARD** — retire-then-re-pin was a 567-battle treadmill (Venusaur 36→41, 3 evolutions!);
+a retired prep re-arms only on ROSTER CHANGE; (c) **SOUL-CONTINUITY SEED** — recon_longrun's no-op
+_continuity_load skipped soul.load, so EVERY run banked soul={} unless a mid-run catch re-created
+it (sanctity's 1→0 refusal was RIGHT — it saved the Meowth bond). Runs now seed from the boot
+bundle; + the bond FOLLOWS evolution (pokemon_soul.note_evolve updates species in place).
+**PROBE v3 (66b6546):** scan-first — the Grid is OPTIMISTIC about fences (discovered only by
+bonking), so 'closest-to-door' walks drifted to the BEACH and armed SURF/Safari (runs 5-6). Now:
+scan the loaded tree/boulder OBJECTS near the door, walk adjacent to the OBJECT, recognize there.
+VERIFIED: Gate(hm_obstacle,'cut') arms at the tree (19,23)/(19,24). + QUESTLINE NO-PROGRESS
+ABANDON (same gate+tile ×5 → drop loud) + ascii-safe probe logging (an emoji log crashed cp1252
+in the except path and ATE the gate).
+**DESTINATION-IN-CITY / THE PIER CLASS (d3633f2 + b693dbe):** run 7 ping-ponged 2 tiles — the cut
+step says "SOUTH" but Vermilion has NO south connection; the dock is a WARP TRIO on the city map.
+Standing on the anchor map with a connectionless step dir → `enter_warp(prefer=d)` (southmost
+warps = the pier; ticket triggers self-clear) + `_ql_past_anchor` set on the warp (else the
+re-anchor drags her back OFF the ship). Ship run 9 in flight (`ship_run9.log`, goal 0x237).
+**Jonny directives encoded:** THE STAKES paragraph (CLAUDE.md vision top) + THE MANUAL-INTERRUPT
+CLAUSE (persistent-world protocol) + the PRE-SHOWTIME CHECKLIST section (manual-play verify,
+kill-test cadence).
+
 ### ── 2026-07-06 SESSION 4 (MARATHON day 1 — the HM pipeline; IN PROGRESS) ──
 **REALITY CHECK at session start: canonical was STILL the Route 5 bank** (walk 3 ran all night
 wedged at the gauntlet — the prompt's "Vermilion is canonical" was ahead of the disk). Two more
