@@ -30,6 +30,83 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #11 — VR 2F-switch2 GHOST-BOULDER solved; the 3F drop detour ──
+**CANONICAL unchanged = giovanni_badge8.** run8 aborted LOUD (the new armor worked:
+27s to a clean diagnosis instead of run7's silent all-night spin) on "no boulder on
+row 19". That was GROUND TRUTH, not a scan miss:
+- **THE 0x058 MISREAD (shift-8):** the 2F row-19 boulder (33,19) carries
+  FLAG_HIDE_VICTORY_ROAD_2F_BOULDER (0x058) — SET means HIDDEN, and it starts set.
+  It only appears after the 3F (33,18) boulder is pushed through hole (34,18):
+  HandleBoulderFallThroughHole (field_control_avatar.c:1066) clears the reveal
+  flag stored in the boulder object's TRAINER_TYPE field (the pret firered
+  falling-boulder idiom, same class as Seafoam).
+- **THE DETOUR (BFS-derived, vr3f_probe2/3.py in G:/temp/longrun/pret; wired into
+  recon_victory.py f3485dc, dispatches on flag 0x058):** 2F (34,9) ladder (the only
+  up-ladder reachable pre-barrier2) → 3F: push (32,5) U2, L21 **along row 3** (the
+  naive row-5 line is blocked by trainer Alexa (21,5) — defeated trainers persist
+  as walls), D1, L5, D3, R1 → lands (7,7) switch → 3F barrier (12,12-13) opens →
+  push (33,18) RIGHT into the hole → jump in after it (beh 0x66) → lands 2F (34,19)
+  beside the revealed boulder → row-19 LEFT×19 as already coded.
+- **NO BYPASS EXISTS:** the 3F (37,10) warp drops into the 2F east-pocket exit
+  region, but its pocket is a SEALED 52-tile island (only entry = (39,17) ladder,
+  which is behind barrier2). Boulder (35,13) can only be pushed INTO the pocket
+  corridor (36,13) — a permanent SEAL risk; the vehicle never touches it.
+**🏅🏅 VICTORY ROAD CLEARED — indigo_reach PROMOTED (15:45, sanctity VALID,
+backup pre_indigo_reach_backup_20260707_154528).** Runs 9-11 (all RESUME_STAGE
+ratchet): run9 walked the whole detour LIVE (3F switch 40s → drop+hole-jump 203s →
+row-19 push → 2F-switch2 OPEN 210s — and the new drain armor fired+recovered twice
+en route, run7's killer class is dead) then aborted on the LAST 11 tiles: Ray+Tyra
+(38,13)/(39,13) are a trainerbattle_DOUBLE and the battle agent has no
+double-target actuation (move → target submenu → stuck ×2 → LOUD). **FILED GAP:
+double-battle actuation** (E4 = all singles; fix before any double route). run10
+dodged them via column 36 (sight = 1 tile DOWN: avoid (38,14)/(39,14), go_warp
+avoid= plumbing) and cleared VR in 9s flat — but banked DIRTY: Indigo Exterior
+wasn't in CITY_PC_DOORS so heal_nearest wandered south to R23 (23% lead).
+Registered (3,9)→(11,6) + **NURSE_FRONT_OVERRIDES** (the League center is NOT the
+shared PC layout; nurse (13,10), stand (13,11)) — run11 healed at the League
+center first try and banked CLEAN at (3,9)@(12,19), lead 100%, Venusaur **L66**,
+$63,678. Commits f3485dc, 17a5b49.
+**IN FLIGHT: e4_run1 (recon_e4.py, e4_run1.log) — THE CREDITS STRIKE:** heal →
+League mart kit (FR×10/Rev×6/FH×4) → Lorelei→Bruno→Agatha→Lance→GARY → HoF →
+banked_CREDITS. Watch the Agatha wall (Venusaur can't touch Levitate-ghosts —
+sleep-lock + attrition is the plan; a 2-stuck abort there = battle-agent move
+choice fix, not vehicle).
+
+### ── 2026-07-07 NIGHT SHIFT #8 — VICTORY ROAD: the three-switch truth; strike iterating ──
+**CANONICAL unchanged = giovanni_badge8** (Viridian, ALL EIGHT BADGES, healed). Shift
+work = the VR vehicle (recon_victory.py) iterated run2→run6 on look-ahead postmortems:
+- **"1F no puzzle" was FALSE** — vr_solve.py was elevation-blind. Elevation-aware
+  re-derivation (vr1f_probe1-6.py in %TEMP%/longrun/pret, every pusher stand verified
+  per step): EVERY floor barrier opens only by pushing a boulder onto its 0x20
+  STRENGTH_BUTTON switch (boulder-lands-on-switch fires the coord event —
+  field_control_avatar.c:1076). 1F chain (7,18)→(20,16) [the (11,20) stand is the
+  entrance arrow tile 0x65: fires on DOWN only, we press UP]; 2F puzzle1 corrected to
+  D1,L2,D1,L2 (old L,L,D,D,L,L was elevation-ILLEGAL); 2F switch2 = row-19 boulder
+  (33,19) LEFT×19 → (14,19) (present from game start, FLAG 0x058 clear; the 3F
+  hole (34,18) is the game's own RESET-insurance for a wedged push, not a reveal
+  requirement). **1F switch + 2F switch1 VERIFIED LIVE (run3/4: barriers open=True).**
+- **SILENT FIELD WHITEOUT class:** faint/whiteout boxes get B-drained by
+  handle_interrupts → she respawns at the Viridian center with zero log evidence
+  (run3's 15s gap). Vehicle rebuilt as ONE whiteout-tolerant dispatch loop —
+  progress RATCHETS (Gary var + gauntlet + switch vars persist in the save);
+  switches skip-if-open; retreat-heal at Viridian when lead <50% at R23 south
+  (the road home is battle-free post-Gary).
+- **PHANTOM WARP ANCHORS:** R23's (9,154) gate warp sits on a col-1 tile — only
+  walkable warp tiles are real entries (filter added). **DOOR WALK-OUT class:**
+  gate exits (6-8,10) are beh-0 warp tiles that never fire on step — standing on
+  one, the exit is pressing OUT through the door frame (go_warp handles it now).
+- **recon_e4.py BUILT (COMPILES, unrun):** the credits vehicle — League mart
+  stock-up (Full Restore×10/Revive×6/Full Heal×4 via tm_errand's true-index buy
+  engine, per-unit money+bag verify), generic E4 room handler (rooms discovered
+  from RAM warps, trainer = live NPC scan, talk→fight→north door), HoF bank
+  (banked_CREDITS) + credits drain. Battle agent's heal instinct already prefers
+  Full Restore (id 19 first in _HEAL_ITEMS_PREF). Door guard verbatim-verified
+  flavor-only pre-National-Dex.
+- Bag truth: NO potions/repels aboard; Viridian mart sells none worth buying.
+  Money $86k = the E4 fund (each whiteout halves it — the retreat-heal protects it).
+**IN FLIGHT: victory_run6** (victory_run6.log) — full loop with all fixes; on
+indigo_reach bank: promote, launch recon_e4.py, THE CREDITS ARE THE NEXT BANK.
+
 ### ── 2026-07-07 NIGHT SHIFT #5 — 🏅 BLAINE BADGE 7 PROMOTED; Giovanni strike in flight ──
 **CANONICAL = blaine_badge7** (Cinnabar (3,8)@(20,5), BADGES 7, healed, sanctity
 VALID, round-trip verified; backup pre_blaine_badge7_backup_20260707_130328;
