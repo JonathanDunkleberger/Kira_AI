@@ -303,7 +303,9 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  (3, 4): (6, 5),       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
                  CELADON: CELADON_PC_DOOR,   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
                  FUCHSIA: FUCHSIA_PC_DOOR,   # Fuchsia: (25,31) (disasm; city id EXPECTED, binds on walk)
-                 SAFFRON: SAFFRON_PC_DOOR}   # Saffron: (24,38) (disasm SaffronCity map.json 2026-07-07)
+                 SAFFRON: SAFFRON_PC_DOOR,   # Saffron: (24,38) (disasm SaffronCity map.json 2026-07-07)
+                 (3, 8): (14, 11)}           # Cinnabar: (disasm CinnabarIsland map.json 2026-07-07;
+                                             # the seafoam_run10 loud-fallback gap)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
