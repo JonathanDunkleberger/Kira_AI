@@ -1250,12 +1250,18 @@ class Campaign:
     # south strip → Route 5. The overworld BFS can NEVER see this (the region is fence-isolated), so
     # when an edge crossing reports no-route, doors are the remaining connectors. The SAME shape is
     # the Underground Path huts and the Saffron gatehouses — build once, reuse everywhere.
-    def _door_passthrough(self, budget_s=240):
+    def _door_passthrough(self, budget_s=240, want_map=None):
         """Enter a reachable, untried door on this map; inside, exit through a DIFFERENT warp; if we
         pop out materially elsewhere (across a fence / on another map), report 'crossed' so the
         caller retries its edge crossing from the new region. Bounded (each door once per map per
         session); on a dead end she exits back out the way she came (and roam's blackout-recovery
-        auto-exits interiors anyway). Returns 'crossed' | 'no_passthrough' | 'need_heal'."""
+        auto-exits interiors anyway). Returns 'crossed' | 'no_passthrough' | 'need_heal'.
+        `want_map` (sabrina_run6): the caller's desired far-side map. Candidates whose warp DEST is
+        that map (or unvisited) sort first — the UGP hut ('crosses' AROUND Saffron to visited Route
+        7 ground) otherwise beats the actual Saffron gate on raw distance, and the road-follow then
+        steers back to Route 8 for an infinite tunnel ping-pong. A crossing that lands off-want is
+        still usable (pre-Tea the tunnel IS the billed detour) but is never REMEMBERED as this
+        map's proven connector."""
         b = self.b
         m0 = tuple(tv.map_id(b))
         pos0 = tuple(tv.coords(b))
@@ -1290,7 +1296,16 @@ class Campaign:
             if tv.bfs(grid, pos0, lambda t, w=wt: t == w or
                       (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=grid.walkable):
                 cands.append(wt)
-        cands.sort(key=lambda t: (-len(dest_doors.get(door_dest.get(tuple(t)), ())),
+        def _dest_rank(t):
+            dm = tuple(door_dest.get(tuple(t)) or ())
+            if want_map and dm == tuple(want_map):
+                return 0                              # a door straight into the wanted map
+            try:
+                return 2 if self.world.visited(dm) else 1   # unvisited interiors beat known ground
+            except Exception:
+                return 1
+        cands.sort(key=lambda t: (_dest_rank(t),
+                                  -len(dest_doors.get(door_dest.get(tuple(t)), ())),
                                   abs(t[0] - pos0[0]) + abs(t[1] - pos0[1])))
         # a connector that WORKED here before is remembered — try it first, always (re-attempts after
         # a heal interrupt must not burn the search again or skip the proven door via the tried-set)
@@ -1432,9 +1447,12 @@ class Campaign:
                 self.on_event("ha — knew it! through the building and out the other side. "
                               "the road's open.", kind="route", tier=2)
                 # remember the proven connector (re-attempts after heal/battle interrupts reuse it)
-                if not hasattr(self, "_pt_known"):
-                    self._pt_known = {}
-                self._pt_known[m0] = tuple(door)
+                # — but NEVER enshrine a crossing that landed off the caller's want (the UGP hut
+                # to Route 7 is a detour, not this map's road connector)
+                if want_map is None or m_out == tuple(want_map):
+                    if not hasattr(self, "_pt_known"):
+                        self._pt_known = {}
+                    self._pt_known[m0] = tuple(door)
                 tried.discard(tuple(door))
                 # (the roam tick's note_visit warp-learning records the connector in the graph)
                 return "crossed"
@@ -1519,7 +1537,7 @@ class Campaign:
                         or (r in ("no_path", "stuck")
                             and getattr(self.trav, "last_fail_reason", "") in ("no_route", "npc_blocked")))
         if hard_noroute:
-            pt = self._door_passthrough()
+            pt = self._door_passthrough(want_map=tuple(target_map) if target_map else None)
             if pt == "need_heal":
                 return "need_heal"
             if pt == "crossed":
@@ -5550,7 +5568,7 @@ class Campaign:
             self.on_event(f"the road to {city} runs {leg['go']} from here — onward.",
                           kind="route", tier=1)
             if leg.get("via") == "pass":
-                pt = self._door_passthrough()
+                pt = self._door_passthrough(want_map=tuple(nxt) if nxt else None)
                 if pt == "need_heal":
                     return "need_heal"
                 if pt == "crossed":
