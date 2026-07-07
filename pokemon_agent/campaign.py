@@ -267,6 +267,15 @@ FLAG_BADGE_RAINBOW = 0x823
 CELADON = (3, 6)
 CELADON_PC_DOOR = (48, 11)
 CELADON_GYM_DOOR = (11, 30)
+# Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
+# map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
+# Celadon 3,6 confirmed live) — EXPECTED until she walks it (a wrong id = beat_gym just
+# doesn't trigger; the billed road carries her there and the id binds on arrival).
+FUCHSIA = (3, 7)
+FUCHSIA_PC_DOOR = (25, 31)
+FUCHSIA_GYM_DOOR = (9, 32)
+KOGA_FRONT = (7, 14)     # Koga NPC at (7,13) FACE_DOWN -> stand below at (7,14), face UP.
+FLAG_BADGE_SOUL = 0x824
 ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym map.json) -> stand
                          # below her at (6,5), face UP. NOTE the gym has CUT TREES inside at
                          # (6,8) (center aisle -> her), (3,5), (9,6) — the run-1/2 travel wedges.
@@ -280,7 +289,8 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  VERMILION: VERMILION_PC_DOOR,
                  (3, 28): (13, 20),    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
                  (3, 4): (6, 5),       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
-                 CELADON: CELADON_PC_DOOR}   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
+                 CELADON: CELADON_PC_DOOR,   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
+                 FUCHSIA: FUCHSIA_PC_DOOR}   # Fuchsia: (25,31) (disasm; city id EXPECTED, binds on walk)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -308,6 +318,10 @@ GYMS = {
                          FLAG_BADGE_THUNDER, 0, "UP"),
     "Erika": GymSpec("Erika", CELADON, CELADON_GYM_DOOR, ERIKA_FRONT,
                      FLAG_BADGE_RAINBOW, 0, "UP"),
+    # Koga's invisible-wall maze is a VISION gimmick only — the RAM collision map is truthful,
+    # so travel's BFS walks it like any gym. City id EXPECTED (see FUCHSIA note).
+    "Koga": GymSpec("Koga", FUCHSIA, FUCHSIA_GYM_DOOR, KOGA_FRONT,
+                    FLAG_BADGE_SOUL, 0, "UP"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
@@ -615,7 +629,10 @@ class Campaign:
                                 blocked_npcs=self._blocked_npcs,   # LAYER A: shared route-around memory
                                 field_clear=lambda hm, face: (
                                     self.field.clear_obstacle(hm, face)
-                                    if getattr(self, "field", None) else "cant"))
+                                    if getattr(self, "field", None) else "cant"),
+                                # transit-time map learning: step-on mats fire MID-leg (UGP
+                                # tunnel->hut), so every transition folds into the mental map
+                                on_transition=lambda: self._learn_transit())
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:

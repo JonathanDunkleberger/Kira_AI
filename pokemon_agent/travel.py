@@ -371,7 +371,7 @@ class Traveler:
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
                  log=print, owner="agent", beat=None, pause_check=None, stuck_check=None,
-                 blocked_npcs=None, field_clear=None):
+                 blocked_npcs=None, field_clear=None, on_transition=None):
         self.b = bridge
         self.battle_runner = battle_runner
         # CAPABILITY-IN-HAND obstacle clearing (east run 1): campaign-provided callback
@@ -379,6 +379,11 @@ class Traveler:
         # tree / boulder and the party KNOWS the HM, travel clears it in-leg instead of
         # remembering a hard block it could open.
         self.field_clear = field_clear
+        # TRANSIT-TIME map learning (2026-07-07, flute_run5): a step-on MAT warp fires MID-travel
+        # (the UGP tunnel->hut hop), so maps crossed inside one leg never reached the mental map
+        # and graph routing dead-ended over walked ground. The campaign hooks its warp-learner
+        # here; called on EVERY map transition travel observes. Must never raise.
+        self.on_transition = on_transition
         # optional callback checked AFTER each battle; if it returns truthy, travel() yields
         # control to the caller with "need_heal" (the heal-when-low interrupt) so the campaign
         # can route back to the Center before resuming the leg.
@@ -691,6 +696,11 @@ class Traveler:
             if m != cur_map:
                 self.log(f"   [travel] MAP TRANSITION {cur_map} -> {m}")
                 cur_map = m
+                if self.on_transition is not None:
+                    try:
+                        self.on_transition()
+                    except Exception as _ot:
+                        self.log(f"   [travel] on_transition hook failed: {_ot} (continuing)")
                 grid = Grid(self.b)
                 plan_cache = None
                 stuck = exit_tries = 0
