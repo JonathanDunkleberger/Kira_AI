@@ -1031,7 +1031,29 @@ class Campaign:
         m0 = tuple(tv.map_id(self.b))
         if self.trav.travel(target_map=None, arrive_coord=stand, max_steps=120,
                             max_seconds=60) != "arrived":
-            return False
+            # ON-TILE FALLBACK (2026-07-06, the captain's-office 0x6C stair): the opposite
+            # stand tile can be WALLED (SSAnne 2F reaches its stair only from the SOUTH; (29,2)
+            # doesn't exist as floor). The stair still fires when you stand ON the tile and
+            # press its entry direction — recon-proven: one RIGHT on (30,2) → the office.
+            # Get on it via any reachable neighbor, then fall into the press loop below.
+            if tuple(tv.coords(self.b) or ()) != tuple(wt):
+                for nb, k2 in (((wt[0], wt[1] + 1), "UP"), ((wt[0], wt[1] - 1), "DOWN"),
+                               ((wt[0] - 1, wt[1]), "RIGHT"), ((wt[0] + 1, wt[1]), "LEFT")):
+                    if self.trav.travel(target_map=None, arrive_coord=nb, max_steps=120,
+                                        max_seconds=45) != "arrived":
+                        continue
+                    self.b.press(k2, 8, 10, self.render, owner="agent")
+                    for _ in range(30):
+                        self.b.run_frame()
+                    if tuple(tv.map_id(self.b)) != m0:
+                        for _ in range(60):
+                            self.b.run_frame()
+                        log(f"   directional warp {wt} (behavior 0x{bh:02x}) fired on approach via {k2}")
+                        return True
+                    if tuple(tv.coords(self.b) or ()) == tuple(wt):
+                        break
+            if tuple(tv.coords(self.b) or ()) != tuple(wt):
+                return False
         # 6 presses, not 3: the first press after travel is a TURN (and is routinely EATEN — the
         # face-verified-turn class), the next steps ONTO the tile, and an arrow warp (0x65 mats)
         # fires only on a FURTHER press while standing on it — 3 ran out one press short.
@@ -6395,6 +6417,37 @@ class Campaign:
         log(f"   BLACKOUT-RECOVERY: respawned at {tv.map_id(self.b)}@{tv.coords(self.b)} "
             f"HP={self.lead_hp()}")
 
+    def _street_gradient(self):
+        """Hop distance of every KNOWN map to the overworld (group 3), reverse-BFS over the
+        world model's WARP graph. Lets a nested-complex exit DESCEND toward the street
+        instead of wandering local-greedy (ship run 19: from the 1F corridor the nearest
+        warp led back INTO the 2F corridor; the gangway to the deck was 2 hops of foresight
+        away). Unknown maps read as 999 — deprioritized, never fatal."""
+        try:
+            nodes = self.world.nodes
+        except Exception:
+            return {}
+        import collections
+        rev = collections.defaultdict(set)
+        keys = set()
+        for key, nd in nodes.items():
+            keys.add(key)
+            for _xy, dk in (nd.get("warps") or {}).items():
+                rev[dk].add(key)
+                keys.add(dk)
+        dist, dq = {}, collections.deque()
+        for key in keys:
+            if key.startswith("3,"):
+                dist[key] = 0
+                dq.append(key)
+        while dq:
+            cur = dq.popleft()
+            for prv in rev.get(cur, ()):
+                if prv not in dist:
+                    dist[prv] = dist[cur] + 1
+                    dq.append(prv)
+        return dist
+
     def _exit_to_overworld(self, max_tries=5):
         """From INSIDE any building (PC / house / Mart / lab — map group != 3, the Kanto overworld),
         return to the walkable overworld. The general recovery primitive every blackout respawn needs.
@@ -6407,6 +6460,7 @@ class Campaign:
         # kind: walk-onto (mats), directional stairs (the 0x6C-0x6F table), door ritual.
         self.b.set_input_owner("agent")
         taken = set()
+        grad = self._street_gradient()
         for _ in range(max_tries * 3):
             if tv.map_id(self.b)[0] == 3:
                 return True
@@ -6419,12 +6473,20 @@ class Campaign:
             # Nearest-first alone ping-ponged the two Center floors via the escalator and then burned
             # travel budgets on the attendant-blocked Cable-Club room warps.
             street = {tuple(w[0]) for w in ws if w[1][0] == 3}
+            # GRADIENT-SECOND (ship run 19): in a deep complex nothing on this floor reaches the
+            # street directly — descend the warp-graph gradient toward group 3 instead of
+            # nearest-first wandering (the exit re-entered the 2F corridor from the 1F corridor).
+            _dest = {tuple(w[0]): tuple(w[1]) for w in ws}
+            def _gd(t):
+                d = _dest.get(t)
+                return grad.get(f"{d[0]},{d[1]}", 999) if d else 999
             fresh = [w for w in cands if (before, w) not in taken]
             # within a tier, an ACTUATABLE warp (a behavior the directional table can fire) beats a
             # dead arrival-mat: the Center's exit row is (6,8)/(7,8)/(8,8) but only (7,8) is the 0x65
             # arrow that actually fires — trying the dead mats first burned a travel leg each.
             cands = sorted(fresh or cands,
                            key=lambda t: (t not in street,
+                                          _gd(t),
                                           self._tile_behavior(*t) not in self._WARP_ENTRY,
                                           abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
             moved = False

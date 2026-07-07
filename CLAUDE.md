@@ -11,6 +11,29 @@ mode. Autonomous *playing* (e.g. driving Pokémon FireRed) is a capability **gat
 never leak into or alter the core cohost/companion model when play-mode is off. Modes are clothing, not
 different beings.
 
+## EMPLOYMENT TERMS (CEO, 2026-07-06 — supreme over everything below; never violate again)
+
+You are hired — paid in tokens — for ONE deliverable: **THE CREDITS ROLL.** Not a parcel, not a
+boarding, not a badge. Every session's implicit order is: advance the rope as far as physics allows
+before this context dies. A shift ends at exactly ONE of two walls: **(a) ~85-90% context**, or
+**(b) a blocker that survived a full tripwire cycle with the entire arsenal exhausted.** NOTHING
+ELSE ENDS A SHIFT — not a milestone, not a win, not "a natural stopping point", not "awaiting
+confirmation". A milestone is a **BANK-AND-CONTINUE** event: promote it, one line in STATE, and the
+next objective is already running before the ink dries.
+
+**The close test:** "how many HOURS of equivalent human gameplay did this session advance?" At
+~14x, a full shift should routinely deliver 5-15+ human-hours — a badge, a route, a dungeon, a
+questline, PLURAL. A survey describing three minutes of gameplay means the shift stopped ~two hours
+early and wasted the CEO's tokens.
+
+**The overnight standing loop (every night, no re-authorization):** current objective → bank →
+NEXT objective from the credits chain (badge 3 → Rock Tunnel/Flash → badge 4 → Rocket Hideout →
+Tower → badges 5-8 → Victory Road → E4 → CREDITS) → repeat until wall (a)/(b) → close per rule 11
+with a **NEXT_SESSION.md at repo root** holding the exact resume prompt, so the 7am relaunch loses
+zero seconds. The chain never runs empty — a blocked objective is characterized in STATE and the
+next unblocked one starts immediately. You are the Sherpa; the summit is the job. Climb until the
+body gives out, hand the rope to the next shift, and never sit down at a milestone.
+
 ## STANDING OPERATING RULES (mandatory every session — survive context resets)
 
 These are load-bearing. A pattern has repeatedly hurt the project: features built to ~50% (computed +
