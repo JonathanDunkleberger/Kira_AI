@@ -1059,10 +1059,16 @@ class Campaign:
             if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
                       walkable=grid.walkable):
                 log(f"   reachable door {door}: walking to approach {approach}")
-                r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300,
+                # max_steps 900 (was 300): a long-map approach (Route 12's ~100-row pier maze,
+                # sabrina_run2) burns 300 steps on obstacle re-routing and dies 26 rows short —
+                # a BUDGET failure misread as entry geometry. Wall-clock stays the real bound.
+                r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=900,
                                      max_seconds=(budget_s or 300))
                 if r == "need_heal":
                     return "need_heal"      # heal interrupt during the approach -> let caller heal
+                if r == "timeout" and pick is not None:
+                    log(f"   approach to {door} ran out of steps/time — retryable, NOT entry geometry")
+                    return "no_reach"
                 if r == "arrived":
                     for _ in range(5):                   # step INTO the doorway -> warp
                         self.b.press(step_key, 8, 8, self.render, owner="agent")
@@ -1315,15 +1321,23 @@ class Campaign:
             if tuple(door) in door_behav:
                 r = self.enter_warp(pick=door, budget_s=budget_s)
                 if r == "need_heal":
+                    tried.discard(tuple(door))   # entry never attempted — leave it retryable
                     return "need_heal"
+                if r == "no_reach":
+                    tried.discard(tuple(door))   # approach budget ran dry — retryable next attempt
+                    continue
                 if r != "warped":
                     continue
             else:
                 # a plain warp mat (hut stairs / hole): walk ONTO it; nudge through if standing on it
                 r = self.trav.travel(target_map=None, arrive_coord=tuple(door),
-                                     max_steps=300, max_seconds=budget_s)
+                                     max_steps=900, max_seconds=budget_s)
                 if r == "need_heal":
+                    tried.discard(tuple(door))   # entry never attempted — leave it retryable
                     return "need_heal"
+                if r == "timeout":
+                    tried.discard(tuple(door))
+                    continue
                 if _settle(30) == m0:
                     if tuple(tv.coords(b)) == tuple(door):
                         for key in ("DOWN", "UP", "LEFT", "RIGHT"):
@@ -1390,7 +1404,12 @@ class Campaign:
                 log(f"   PASSTHROUGH: {door} dead-ends inside ({m_out}) — backing out")
                 self._exit_to_overworld()
                 continue
-            if m_out != m0 or abs(pos1[0] - pos0[0]) + abs(pos1[1] - pos0[1]) > 6:
+            # a crossing must pop out AWAY FROM ITS OWN ENTRY DOOR — the pos0-relative test alone
+            # called the (12,86) rest house "crossed" because the search STARTED far away
+            # (sabrina_run2: (15,119) -> in the door -> out beside it at (12,87), delta 35 > 6),
+            # then _pt_known enshrined the false connector forever.
+            d_door = abs(pos1[0] - door[0]) + abs(pos1[1] - door[1])
+            if m_out != m0 or (d_door > 3 and abs(pos1[0] - pos0[0]) + abs(pos1[1] - pos0[1]) > 6):
                 log(f"   PASSTHROUGH: CROSSED via door {door}: {m0}@{pos0} -> {m_out}@{pos1}")
                 self.on_event("ha — knew it! through the building and out the other side. "
                               "the road's open.", kind="route", tier=2)
@@ -1403,6 +1422,11 @@ class Campaign:
                 return "crossed"
             # popped out beside where we entered (same building, two front doors) — keep trying
             log(f"   PASSTHROUGH: door {door} popped out beside the entry ({pos1}) — not a crossing")
+            if getattr(self, "_pt_known", {}).get(m0) == tuple(door):
+                # the remembered "proven" connector just failed to cross — it was a false positive;
+                # forget it or it gets retried FIRST on every attempt, forever (the run-3 loop)
+                del self._pt_known[m0]
+                log(f"   PASSTHROUGH: forgot poisoned 'proven' connector {door} on {m0}")
         return "no_passthrough"
 
     def _reenter_at_column(self, warp_tile):
