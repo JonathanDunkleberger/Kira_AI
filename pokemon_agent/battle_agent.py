@@ -23,6 +23,14 @@ HOLD = 8
 # Gen-1 legendaries (FireRed national-dex ids) — a big-beat recognition in run() (Phase 2D).
 _LEGENDARY_SPECIES = frozenset({144, 145, 146, 150, 151})   # Articuno, Zapdos, Moltres, Mewtwo, Mew
 
+# SELF-DESTRUCT FAMILY (FireRed national-dex ids) — foes that can NUKE-TRADE our active: Self-
+# Destruct/Explosion one-shots even a dominant lead (koga_run3 2026-07-07: Koga's L37 Koffing
+# detonated on Venusaur L54 turn one; the bench then fed itself to Muk/Weezing — full wipe). The
+# human answer: SLEEP the bomber first — it can't detonate while asleep. Geodude/Graveler/Golem,
+# Voltorb/Electrode, Koffing/Weezing. (Game-knowledge in engine code — portability debt, same
+# class as _LEGENDARY_SPECIES.)
+_NUKE_SPECIES = frozenset({74, 75, 76, 100, 101, 109, 110})
+
 # ── BATCH 2 PART B: in-battle "use your items" instinct ───────────────────────────────────────────
 # An active mon at/under this HP fraction WITH a heal item in the bag -> the oracle is OFFERED "use a
 # potion" (capability-not-script: she chooses, but she never faints with unused heals because the option
@@ -120,6 +128,15 @@ def _hp_frac(mon):
     return (mon["hp"] / mon["maxhp"]) if mon and mon["maxhp"] else 1.0
 
 
+# FOES-SEEN LEDGER (the attach-time rival miss, tower4 2026-07-07): every species READ LIVE on the
+# field this battle (display struct, HP>0 — can't be stale). When the observer ATTACHES to an
+# already-running scene battle (Gary's Tower approach), gEnemyParty still holds the PREVIOUS fight
+# at scan time, so the campaign's start-scan rival detection misses; it re-checks THIS ledger after
+# the fight. Reset at each run() entry; module-level so the campaign wrapper can read it without
+# holding the (per-battle) agent instance.
+LAST_FOES_SEEN = set()
+
+
 class BattleAgent:
     def __init__(self, bridge, on_event=None, render=None, hold_frames=HOLD,
                  pace=None, owner="agent", log=print, choose=None):
@@ -188,6 +205,15 @@ class BattleAgent:
     # WAITING for input (RAM static), THEN navigate the cursor with eaten-press tolerance
     # and VERIFY the move actually registered (HP moved). Never a blind A/B that could open
     # the wrong submenu or select RUN (flee).
+    def _note_foe(self, state):
+        """Record a LIVE-read foe species into LAST_FOES_SEEN (see the module-level note)."""
+        try:
+            e = (state or {}).get("enemy") or {}
+            if 1 <= e.get("species", 0) <= 411 and e.get("hp", 0) > 0:
+                LAST_FOES_SEEN.add(e["species"])
+        except Exception:
+            pass
+
     def _bstate(self):
         s = st.read_battle(self.b)
         return (s["enemy"]["hp"], s["ours"]["hp"]) if s else None
@@ -1077,7 +1103,23 @@ class BattleAgent:
         # accuracy (Smokescreen/Sand-Attack, e.g. Gary's Charmander) makes the 75%-acc powder MISS every
         # turn, so an uncapped sleep-lock loops forever (the 106-stuck regression). Past the cap, drop the
         # status play and just chip (the real answer to such a foe is a stronger teammate, not more sleep).
-        if (SLEEP_LOCK_ENABLED and best_dmg_eff <= 0.5 and se_threat
+        # NUKE-SLEEP OPENER (koga_run3, the Koga wipe): a Self-Destruct-family foe can one-shot-
+        # trade our active at ANY matchup — sleep it BEFORE it detonates, whatever our damage eff
+        # (the generic sleep-lock below only fires when we're resisted+threatened, which is exactly
+        # why it sat out vs Koga's x1-neutral Koffing). Shares the whiff cap; skips once the foe is
+        # low (kill it instead — a KO can't detonate either).
+        if (SLEEP_LOCK_ENABLED and enemy.get("species") in _NUKE_SPECIES
+                and not enemy.get("asleep") and foe_frac > 0.30
+                and getattr(self, "_sleep_casts", 0) < 4):
+            si = next((i for i in range(4) if _usable(i)
+                       and ours["moves"][i].get("id", 0) in self._SLEEP_MOVES), None)
+            if si is not None:
+                idx, desc, sleep_done = si, ours["moves"][si].get("name", "sleep"), True
+                self._sleep_casts = getattr(self, "_sleep_casts", 0) + 1
+                self.log(f"   [engine] NUKE-SLEEP: {st.SPECIES_NAME.get(enemy['species'], '?')} is "
+                         f"Self-Destruct family -> {desc} first (it can't detonate asleep; "
+                         f"try {self._sleep_casts}/4)")
+        if (SLEEP_LOCK_ENABLED and not sleep_done and best_dmg_eff <= 0.5 and se_threat
                 and not enemy.get("asleep") and foe_frac > 0.30
                 and getattr(self, "_sleep_casts", 0) < 4):
             si = next((i for i in range(4) if _usable(i)
@@ -1541,6 +1583,7 @@ class BattleAgent:
         if not st.in_battle(self.b):
             return "timeout"
         self._started = True
+        LAST_FOES_SEEN.clear()             # foes-seen ledger: fresh per battle (attach-time rival fix)
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
         self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
@@ -1572,6 +1615,7 @@ class BattleAgent:
             foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
             self.emit(f"a battle started against {foe}", beat=True)
             self._prev = state
+            self._note_foe(state)
 
         # ── BIG-MOMENT RECOGNITION (Batch 3 Phase 2D): situational SIGNIFICANCE ───────────────────────
         # SHINY is the most clippable moment the game can produce — treating one as normal is a tragedy.
@@ -1639,6 +1683,7 @@ class BattleAgent:
                         self._sleep_casts = 0
                         #                                     Gary's Charmander, not just his lead)
                         self._prev = cur
+                        self._note_foe(cur)
                         self.emit(f"the trainer sent out "
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
                                   beat=True)
@@ -1699,6 +1744,7 @@ class BattleAgent:
                 last_glob, stall = glob, 0
             if self._white_box():                     # the action menu is up (white panel) ->
                 state = st.read_battle(self.b)         # pick + commit a move, verify it lands
+                self._note_foe(state)                  # foes-seen ledger (live turn read)
                 # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
                 # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
                 # Any non-use falls through to the proven move path (fail-safe; never wedges).

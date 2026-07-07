@@ -723,6 +723,31 @@ class Campaign:
             self.strat.observe_battle_end(self.b, record_out)   # record_out = swallow-guarded outcome
         except Exception as _e:
             log(f"   [strat] end-observe skipped: {_e}")
+        # ATTACH-TIME RIVAL RE-CHECK (the filed tower4 bug): when the observer attaches to an
+        # already-RUNNING scene battle (Gary walked up mid-travel), gEnemyParty still holds the
+        # PREVIOUS fight at scan time — the start-scan above reads stale data and misses him (the
+        # Tower win needed a manual ledger backfill). But the engine read every foe LIVE at its
+        # action menus: re-check that foes-seen ledger against his counter line (recomputed from her
+        # starter so the erika_run1 Ivysaur-Cooltrainer false-positive stays dead; if her starter
+        # can't be found the check is SKIPPED, never widened).
+        if not _is_rival:
+            try:
+                import battle_agent as _ba
+                _lines = None
+                for _ps in range(self.b.rd8(ram.GPLAYER_PARTY_CNT)):
+                    _psp = st.read_party_species(self.b, _ps)
+                    if _psp in _STARTER_LINES:
+                        _lines = _RIVAL_LINE_BY_PLAYER_BASE[((_psp - 1) // 3) * 3 + 1]
+                        break
+                _late = (set(_ba.LAST_FOES_SEEN) & set(_lines)) if _lines else set()
+                if _late:
+                    _is_rival = True
+                    _riv_lead_nm = st.SPECIES_NAME.get(sorted(_late)[0], "")
+                    log(f"   [strat] RIVAL detected POST-BATTLE from the foes-seen ledger "
+                        f"({sorted(_late)}) — the start-scan attached mid-scene and read stale "
+                        f"gEnemyParty; recording him now (no backfill needed)")
+            except Exception as _le:
+                log(f"   [strat] late rival re-check skipped: {_le}")
         # B-4 — GARY NEMESIS ARC: record the rival encounter at EVERY fight (not just the opening) so the
         # persisted grudge actually ESCALATES across the run, and voice the escalating-grudge beat.
         # A TIMEOUT is an engine artifact, not a story beat — recording it as won=False writes a
@@ -4679,11 +4704,12 @@ class Campaign:
             return self.strat.is_gated(m, pcount, plevel)
         def has_grass(m):
             return (m in self._grass_maps or self._is_route_map(m)) and m != cur
+        unreach = getattr(self, "_grass_unreach", set())   # koga_run3: hops that failed from here
         seen = {cur}
         q = deque()
         for edge, nbr in self._conn_graph.get(cur, {}).items():
-            if nbr in seen or gated(nbr):
-                continue                              # never step toward the wall
+            if nbr in seen or gated(nbr) or (cur, tuple(nbr)) in unreach:
+                continue                              # never step toward the wall / a proven no-route
             seen.add(nbr); q.append((nbr, edge))      # carry the FIRST-hop edge so we can return it
         while q:
             node, first_edge = q.popleft()
@@ -4712,25 +4738,31 @@ class Campaign:
         # WITHOUT crossing a wall (adjacent or several hops BEHIND her). This is the missing verb — she
         # walks back to Route 4 / Mt Moon that she's already cleared, instead of blindly routing onto
         # the unvisited route across Gary's bridge (which the old live-connection scan below would pick).
+        unreach = getattr(self, "_grass_unreach", set())   # koga_run3: (from-map, target) travel fails
         try:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
             known = self.world.reachable_with_trait(cur, "has_grass", avoid)
-            if known:
-                dst = known[0][0]
+            for _entry in (known or []):                   # try EVERY known grass, not just the nearest
+                dst = _entry[0]                            # entries are (dst, ...) — width varies
                 hop = self.world.next_hop(cur, dst, avoid)
-                if hop:
-                    nxt, edge = hop
-                    log(f"   [roam] grass she KNOWS: routing {edge} -> {nxt} toward {self.world.name(dst)} "
-                        f"(visited grass, avoiding any wall)")
-                    return ("route", nxt, edge)
+                if not hop:
+                    continue
+                nxt, edge = hop
+                if (cur, tuple(nxt)) in unreach:
+                    continue                               # this hop already failed from here — next
+                log(f"   [roam] grass she KNOWS: routing {edge} -> {nxt} toward {self.world.name(dst)} "
+                    f"(visited grass, avoiding any wall)")
+                return ("route", nxt, edge)
         except Exception as _gt:
             log(f"   [roam] world grass-target skipped: {_gt}")
         routes = [(d, (grp, num)) for d, (grp, num) in self._map_connections()
                   if grp == 3 and num >= 19]
         # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
         # wall. Adjacent ungated route wins (this already includes grass directly behind her).
-        non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)]
+        cur = tuple(state["map"])
+        non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
+                     and (cur, tuple(m)) not in unreach]
         if non_gated:
             d, m = non_gated[0]
             return ("route", m, self._EDGE[d])
@@ -5682,6 +5714,17 @@ class Campaign:
                 log(f"   [roam] no grass underfoot -> routing to grass route {tgt} ({edge}) first")
                 r = self.trav.travel(target_map=tgt, edge=edge)
                 if r != "arrived":
+                    # GRASS-TARGET FAIL MEMORY (koga_run3, the Route-15 stall): from a one-way ledge
+                    # pocket the SAME target fails with no_route forever — _grass_target re-proposed
+                    # east->(3,32) fourteen straight ticks until the stall detector killed the run.
+                    # Remember (from-map -> target) failures IN-RAM so the next tick falls through to
+                    # the NEXT candidate (the graph-BFS then routes her out the other way, e.g. west
+                    # through Fuchsia to Route 18's reachable grass). Session-scoped, never persisted.
+                    if not hasattr(self, "_grass_unreach"):
+                        self._grass_unreach = set()
+                    self._grass_unreach.add((tuple(state["map"]), tuple(tgt)))
+                    log(f"   [roam] grass route {tgt} UNREACHABLE from {tuple(state['map'])} ({r}) — "
+                        f"remembered; next tick tries a different grass")
                     return f"to_grass:{r}"
             if pick == "wander_catch":
                 return self.catch_one()
@@ -7095,6 +7138,16 @@ class Campaign:
                                           abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
             moved = False
             for wt in cands:
+                # ASYNC-WHITEOUT GUARD (koga_run3, the Fuchsia Center wedge ×6): a pending whiteout
+                # warp can fire MID-attempt (she engaged Koga, "lost", and the respawn executed while
+                # the first exit leg was walking) — the map silently changes under us and every
+                # remaining candidate is a STALE coord on the wrong map. The per-attempt checks below
+                # are short-circuited when the attempt itself fails ('_enter_directional_warp(wt) and
+                # map != before'), so check the map UNCONDITIONALLY before burning a leg on the next
+                # stale candidate; a changed map restarts the outer loop with fresh warps.
+                if tuple(tv.map_id(self.b)) != before:
+                    moved = True
+                    break
                 taken.add((before, wt))
                 # a directional/escalator tile has a REQUIRED entry side + a delayed fire — the
                 # dedicated primitive knows both; blind travel to the tile wedges on the blocked side
