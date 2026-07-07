@@ -3522,6 +3522,20 @@ class Campaign:
         conns = self._map_connections()
         nbr = next(((g, n) for dd, (g, n) in conns if dd == letter), None)
         if nbr is None:
+            # DESTINATION-IN-CITY (2026-07-06, the PIER class — ship run 7's 2-tile ping-pong): the
+            # step points a direction with NO map connection while we stand ON the anchor map — the
+            # way on is a WARP on THIS map (Vermilion's dock = its SOUTHmost warp trio; the ticket
+            # triggers on the pier clear themselves). Try the direction-most warp BEFORE re-anchor/
+            # bend logic (which bounced east to Route 11 and back forever).
+            gate_where0 = tuple(self._active_questline.gate.where or ()) or None
+            if gate_where0 and cur_map == gate_where0 and d in ("south", "north"):
+                before_m = tuple(tv.map_id(self.b))
+                if self.enter_warp(prefer=d, budget_s=300) == "warped" \
+                        and tuple(tv.map_id(self.b)) != before_m:
+                    log(f"   [roam] 🧭 QUESTLINE: no {d} edge on the anchor map — entered its "
+                        f"{d}-most warp toward {step.place_name or 'the destination'} "
+                        f"({before_m} -> {tv.map_id(self.b)})")
+                    return "warped"
             # RE-ANCHOR (2026-07-05, run-4 lesson): the step's coarse dir is relative to the GATE map
             # (e.g. "Bill is north" means north OF CERULEAN). Standing on a map BEHIND the anchor with no
             # step-dir edge (post-grind on Route 4, west of Cerulean), the old fallbacks misfire: the
