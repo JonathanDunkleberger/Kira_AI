@@ -3753,6 +3753,26 @@ class Campaign:
                 log(f"   [roam] !! QUESTLINE DOOR-HINT: couldn't enter {tuple(step.door)} — "
                     f"falling through to the general search")
         d = step.dir or "north"
+        # ANCHOR-FIRST ROUTING (2026-07-07, flute_run2): the step's compass dir is relative to ITS
+        # anchor map — from anywhere else it's noise. The old re-anchor only lived in the no-edge
+        # fallback, so at Lavender the CELADON errand's 'north' matched Lavender's real north edge
+        # and she ping-ponged Lavender<->Route 10 to a STALL, never routing home. Not yet past the
+        # anchor and not standing on it -> route toward it via the world graph FIRST; dir/bend/door
+        # logic applies only on/past the anchor. Graph can't reach it -> fall through to discovery.
+        if (step_anchor and cur_map != step_anchor
+                and not getattr(self, "_ql_past_anchor", False)):
+            _pc2 = state.get("party_count")
+            _pl2 = state["party"][0]["level"] if state.get("party") else None
+            hop = self.world.next_hop(cur_map, step_anchor, avoid=self._wall_avoid(state))
+            if hop:
+                nxt, edge2 = hop
+                if not self.strat.is_gated(tuple(nxt), _pc2, _pl2):
+                    log(f"   [roam] 🧭 QUESTLINE ANCHOR-FIRST: '{step.human}' anchors on "
+                        f"{self.world.name(step_anchor)} and we're at {self.world.name(cur_map)} — "
+                        f"routing {edge2} -> {nxt} toward the anchor first")
+                    return self.trav.travel(target_map=nxt, edge=edge2)
+            log(f"   [roam] questline: no graph route {cur_map} -> anchor {step_anchor} yet — "
+                f"falling through to dir/bend discovery")
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
         pc, pl = state.get("party_count"), (state["party"][0]["level"] if state.get("party") else None)
         # ── THE TEACH BRIDGE (HM pipeline stage 2, 2026-07-06) ─────────────────────────────────
