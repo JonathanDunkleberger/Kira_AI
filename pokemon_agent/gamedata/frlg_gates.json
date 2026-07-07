@@ -359,5 +359,70 @@
   "lavender_reach": "Cerulean -> Route 9 east (a Cut tree at its mouth - she has Cut) -> Route 10 north (a Pokemon Center sits right by the tunnel door) -> ROCK TUNNEL (PITCH DARK: teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species) -> south mouth -> Route 10 south -> Lavender Town. Route 12 from the east is Snorlax-blocked (needs the Poke Flute) - the tunnel is the ONLY pre-Flute road to Lavender.",
   "postgame_dex_arc": "POST-CREDITS ONLY (DEX DOCTRINE): after the Elite Four, CERULEAN CAVE unlocks (the guard by the cave mouth NW of Cerulean stands down) - MEWTWO waits at its bottom, the strongest Pokemon in the game: her post-credits love-letter episode, the encore hunt. Dex completion is a post-game arc, never a pre-credits grind.",
   "legendary_birds": "OPTIONAL side-arcs, default SKIP unless en route (soul/pacing call): ZAPDOS - the Power Plant, reached by Surfing south from Route 10's east water (right by the Rock Tunnel road, needs Surf). ARTICUNO - deep in the Seafoam Islands (Routes 19/20, needs Surf + Strength boulder work). MOLTRES - Mt. Ember on One Island (Sevii, post-Blaine ferry). All L50 one-shot encounters - save-worthy moments if she goes."
+ },
+ "roads": {
+  "_doc": "Per-gym ROAD BILLING - the curated forward road to the next gym city, as ordered LEGS. head_to_gym follows this when the live world-graph can't route to the gym city yet (the graph only knows walked ground). A leg = the map she can be standing on ('map' as 'g,n' + human 'name'), the billed crossing direction 'go', optional 'via':'pass' when the crossing is DOOR-PASSTHROUGH country (an Underground Path / gatehouse detour the door-passthrough primitive executes), and 'note' for the human context. Map ids marked 'expected': true are extrapolated from the live-learned route sequence (3,19..3,24 = Routes 1..6, 3,29 = Route 11, all confirmed live) and BIND when she walks them - a wrong expected id just means that leg never matches, never a wrong turn. Roads for later gyms are billed when their leg of the climb opens (don't fabricate - the standing rule).",
+  "Celadon City": [
+   {
+    "map": "3,5",
+    "name": "Vermilion City",
+    "go": "north"
+   },
+   {
+    "map": "3,24",
+    "name": "Route 6",
+    "go": "north",
+    "via": "pass",
+    "note": "Saffron's south gatehouse (3,11) refuses passage pre-Tea; the Underground Path hut on Route 6 (warp (19,13)->(1,32)) crosses under Saffron to Route 5 - the door-passthrough primitive executes this (proven both directions 2026-07-06)"
+   },
+   {
+    "map": "3,23",
+    "name": "Route 5",
+    "go": "north"
+   },
+   {
+    "map": "3,3",
+    "name": "Cerulean City",
+    "go": "east",
+    "note": "a CUT tree sits at Route 9's mouth - she has Cut; in-leg field_clear cuts it"
+   },
+   {
+    "map": "3,27",
+    "name": "Route 9",
+    "go": "east",
+    "note": "id from Cerulean's live-learned east edge; trainer gauntlet route, no Center"
+   },
+   {
+    "map": "3,28",
+    "name": "Route 10 north",
+    "expected": true,
+    "go": "south",
+    "via": "pass",
+    "note": "a Pokemon Center sits right by the ROCK TUNNEL door. 'South' means THROUGH Rock Tunnel (PITCH DARK - teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species). The tunnel strike owns the crossing - DO NOT enter dark. Route 12 from the east is Snorlax-blocked; the tunnel is the ONLY pre-Flute road to Lavender."
+   },
+   {
+    "map": "3,4",
+    "name": "Lavender Town",
+    "go": "west"
+   },
+   {
+    "map": "3,26",
+    "name": "Route 8",
+    "expected": true,
+    "go": "west",
+    "via": "pass",
+    "note": "the Route 8 gatehouse into Saffron refuses pre-Tea; the SECOND Underground Path (entrance hut near the gatehouse) goes under Saffron east-west to Route 7"
+   },
+   {
+    "map": "3,25",
+    "name": "Route 7",
+    "expected": true,
+    "go": "west"
+   },
+   {
+    "map": "3,6",
+    "name": "Celadon City"
+   }
+  ]
  }
 }

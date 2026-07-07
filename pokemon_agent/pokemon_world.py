@@ -237,6 +237,19 @@ class WorldModel:
                 q.append((nbr, path + [nbr]))
         return None
 
+    def edge_neighbor(self, map_id, dirword):
+        """The learned neighbor map across `map_id`'s edge in `dirword` ('north'..), or None.
+        Connections are learned from the map header ON VISIT (all four at once), so a visited map
+        knows its neighbors' ids before she ever crosses — the road-binding seam relies on this."""
+        nbr = self.nodes.get(_k(map_id), {}).get("edges", {}).get(dirword)
+        if not nbr:
+            return None
+        try:
+            g, n = nbr.split(",")
+            return (int(g), int(n))
+        except Exception:
+            return None
+
     def next_hop(self, src, dst, avoid=None):
         """The FIRST step toward dst: (next_map_id, direction) or None — EDGE hops only (legacy
         callers that only walk map borders). Warp-aware callers use next_step()."""

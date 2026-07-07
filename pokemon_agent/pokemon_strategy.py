@@ -546,9 +546,18 @@ class StrategicMemory:
 
     def is_gated(self, map_id, party_count, lead_level):
         """SPATIAL gate: is `map_id` the map where her active wall keeps beating her, AND she's no
-        stronger than her last attempt? True = routing onto that map just re-walks into the wall."""
+        stronger than her last attempt? True = routing onto that map just re-walks into the wall.
+        TRAINER walls ONLY (2026-07-07, the east_run2 Route-6 lockdown): a spatial gate exists to
+        stop feeding her into a CHOKEPOINT GUARD — a trainer parked on the road who forces the same
+        battle every crossing. A WILD loss is a probabilistic grass event: it cannot guard a route,
+        and gating the map on it poisoned the retreat/heal path AND the forward road (a bench-mon
+        faint to an oddish marked Route 6 BLOCKED, cutting Vermilion off — options degenerated to
+        ['heal'] and the run stalled). Wild walls KEEP the loss-awareness note, the strategic-stuck
+        floor, and the grind-readiness exit — strategy, not routing."""
         r = self.active_wall_rec()
         if not r or not r.get("map_id") or map_id is None:
+            return False
+        if not r.get("is_trainer"):
             return False
         if tuple(map_id) != tuple(r["map_id"]):
             return False

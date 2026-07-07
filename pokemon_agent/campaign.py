@@ -3401,8 +3401,8 @@ class Campaign:
         triggering on the Cerulean City map) is handled by blocked-DIRS instead, so she's never
         trapped on the very hub she heals at. Empty once she's grown enough to retry."""
         r = self.strat.active_wall_rec()
-        if not r or not r.get("map_id"):
-            return set()
+        if not r or not r.get("map_id") or not r.get("is_trainer"):
+            return set()                # wild walls never gate ROUTING (see strat.is_gated)
         pc = state.get("party_count")
         pl = state["party"][0]["level"] if state.get("party") else None
         if self.strat.stronger_since_wall(pc, pl):
@@ -3417,8 +3417,8 @@ class Campaign:
         'NORTH → BLOCKED' truthfully. Best-effort: empty if coords/bounds aren't readable (the brief
         just won't tag a direction; routing still steers her to known places, which are backward)."""
         r = self.strat.active_wall_rec()
-        if not r or not r.get("map_id") or not r.get("coords"):
-            return set()
+        if not r or not r.get("map_id") or not r.get("coords") or not r.get("is_trainer"):
+            return set()                # wild walls never gate ROUTING (see strat.is_gated)
         pc = state.get("party_count")
         pl = state["party"][0]["level"] if state.get("party") else None
         if self.strat.stronger_since_wall(pc, pl) or tuple(r["map_id"]) != tuple(state["map"]):
@@ -4661,7 +4661,12 @@ class Campaign:
                                and self._active_questline.derivable)
                     # base camp matters only PRE-gate (no graph route to the gym yet); on-spine progress
                     # (route exists) is left untouched — head_to_gym already routes correctly there.
-                    anchor = None if route_exists else self._base_camp(state)
+                    # ROAD-AWARE (2026-07-07): a billed road supersedes the base-camp pull — standing ON
+                    # the road means she's NOT drifting (anchor=cur -> no reframe, options stay rich);
+                    # off it, pull toward the deepest reachable road anchor, not the spine predecessor.
+                    anchor = None
+                    if not route_exists:
+                        anchor = self._road_pull_anchor(state) or self._base_camp(state)
                     off_branch = anchor is not None and anchor != cur
                     if ql_open or off_branch:
                         if ql_open:
@@ -4924,6 +4929,116 @@ class Campaign:
             pass
         return None
 
+    # ── BILLED ROADS (2026-07-07, the east_run2 fix) ──────────────────────────────────────────────
+    # The old forward model when the graph can't route to the gym city was "go to the GYM_SPINE
+    # predecessor, then march the SOUTH edge" — badge-1..3 geometry baked into a general rule. The
+    # badge-4 road bends EAST from CERULEAN (two cities behind the spine predecessor), so at Cerulean
+    # she was told "you've drifted — go back to Vermilion", and at Vermilion there was no south edge:
+    # no_gym_route, loop, stall (east_run2). The fix is the KB's promise kept: curated DIRECTION
+    # billing per gym road (gamedata/frlg_gates.json "roads"), executed leg-by-leg through the same
+    # primitives (edge travel + door-passthrough), map ids bound live from the learned graph.
+    def _gym_road(self, ng):
+        """The billed road to the next gym city as parsed, LIVE-BOUND legs:
+        [{'map': (g,n), 'name', 'go', 'via', 'note'}, ...]. None when no road is billed (the
+        base-camp heuristic remains the fallback). Binding: a leg whose 'go'-edge neighbor is
+        already in the learned graph overrides the next leg's expected id (connections are learned
+        from the map header on visit, so binding lands one map AHEAD of her feet — a wrong expected
+        id self-corrects before she ever stands on it). 'pass' legs cross via warps, not edges, so
+        they never bind (Route 6's north edge is the Saffron gatehouse, not Route 5)."""
+        if not ng:
+            return None
+        try:
+            road = (self._questline_kb or {}).get("roads", {}).get(ng.get("city"))
+        except Exception:
+            road = None
+        if not isinstance(road, list):
+            return None
+        legs = []
+        for leg in road:
+            try:
+                g, n = str(leg["map"]).split(",")
+                legs.append({**leg, "map": (int(g), int(n))})
+            except Exception:
+                continue
+        if not legs:
+            return None
+        for i in range(len(legs) - 1):
+            go = legs[i].get("go")
+            if not go or legs[i].get("via") == "pass":
+                continue
+            nbr = self.world.edge_neighbor(legs[i]["map"], go)
+            if nbr:
+                legs[i + 1]["map"] = nbr
+        return legs
+
+    def _road_step(self, state, road):
+        """One forward move along the billed road. Standing ON a leg -> execute its billed crossing
+        ('via':'pass' tries the proven door-passthrough first — the Underground Path class — then
+        the plain edge). Off-road -> one graph hop toward the DEEPEST road anchor the learned world
+        reaches. None = the road can't help from here (caller falls through to base-camp logic)."""
+        cur = tuple(state["map"])
+        avoid = self._wall_avoid(state)
+        city = (state.get("next_gym") or {}).get("city", "the next gym")
+        for i in range(len(road) - 1, -1, -1):
+            leg = road[i]
+            if leg["map"] != cur or not leg.get("go"):
+                continue
+            nxt = road[i + 1]["map"] if i + 1 < len(road) else None
+            nm = road[i + 1]["name"] if i + 1 < len(road) else "the road ahead"
+            log(f"   [roam] ROAD to {city}: on {leg['name']} — billed leg {leg['go']} toward {nm}"
+                + (" (pass-through country)" if leg.get("via") == "pass" else ""))
+            self.on_event(f"the road to {city} runs {leg['go']} from here — onward.",
+                          kind="route", tier=1)
+            if leg.get("via") == "pass":
+                pt = self._door_passthrough()
+                if pt == "need_heal":
+                    return "need_heal"
+                if pt == "crossed":
+                    if nxt and tuple(tv.map_id(self.b)) == tuple(nxt):
+                        return "arrived"
+                    return "road_passthrough"      # progressed; next tick continues from the new map
+                # no connector fired — fall through to the plain edge (it may simply be open)
+            return self._edge_travel(nxt, leg["go"]) if nxt else "no_gym_route"
+        for leg in reversed(road):
+            if leg["map"] == cur:
+                return None                        # standing on the final leg (the city) — not ours
+            try:
+                step = self.world.next_step(cur, leg["map"], avoid=avoid)
+            except Exception:
+                step = None
+            if step:
+                nxt_map, kind, detail = step
+                log(f"   [roam] ROAD to {city}: off-road at {cur} — steering toward road anchor "
+                    f"{leg['name']} ({'warp ' + str(detail) if kind == 'warp' else detail})")
+                if kind == "warp":
+                    before = tv.map_id(self.b)
+                    self.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
+                    if tv.map_id(self.b) != before:
+                        return "warped"
+                    self.enter_warp(pick=detail)
+                    return "warped" if tv.map_id(self.b) != before else "warp_failed"
+                return self._edge_travel(nxt_map, detail)
+        return None
+
+    def _road_pull_anchor(self, state):
+        """The forward-drive pull target when a road is billed: her own map when she's ON the road
+        (no 'you've drifted' reframe — head_to_gym advances the leg under her feet), else the
+        deepest road anchor the graph can route to. None -> caller uses the base-camp heuristic."""
+        road = self._gym_road(state.get("next_gym"))
+        if not road:
+            return None
+        cur = tuple(state["map"])
+        if any(l["map"] == cur for l in road):
+            return cur
+        avoid = self._wall_avoid(state)
+        for leg in reversed(road):
+            try:
+                if self.world.route(cur, leg["map"], avoid):
+                    return leg["map"]
+            except Exception:
+                continue
+        return None
+
     def _route_action(self, pick, state):
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
@@ -5045,6 +5160,15 @@ class Campaign:
                         return "warped" if tv.map_id(self.b) != before else "warp_failed"
                     log(f"   [roam] EDGE-ROUTE toward {ng['city']}: {cur_map} -> {nxt_map} (edge {detail})")
                     return self._edge_travel(nxt_map, detail)
+            # BILLED-ROAD FALLBACK (2026-07-07): the learned graph can't route to the gym city yet —
+            # follow the curated road from the KB (badge-4+ roads bend EAST/NORTH; the base-camp
+            # 'march south' heuristic below is badge-1..3 geometry and looped Vermilion<->Cerulean
+            # forever in east_run2). One leg per tick — free roam preserved.
+            road = self._gym_road(ng)
+            if road:
+                rr = self._road_step(state, road)
+                if rr is not None:
+                    return rr
             # FORWARD-SPINE RECOVERY (off-branch): we're here because the learned graph can't yet route to
             # the gym CITY (she hasn't crossed the gate, so those maps are unlearned). Do NOT blindly walk
             # the local 'south' edge below — on a side-branch (e.g. Route 4, whose 'south' is Route 3, even
@@ -5622,8 +5746,11 @@ class Campaign:
             # BATCH-4 PHASE 2 (persistent SPATIAL wall): while a wall gates a route and she hasn't grown,
             # keep telling her the way forward is blocked — so she stops blindly choosing to re-cross it
             # (the routing also hard-blocks it; this is the awareness half so the CHOICE is informed).
+            # trainer walls only — a wild loss never reads as "the route is GATED" (it isn't: the
+            # routing side no longer gates wild walls, and telling her it does made her abandon the
+            # forward road after one bench-faint to an oddish; loss_awareness still covers wild losses)
             wr = self.strat.active_wall_rec()
-            if wr and wr.get("map_id") and not self.strat.stronger_since_wall(
+            if wr and wr.get("map_id") and wr.get("is_trainer") and not self.strat.stronger_since_wall(
                     state.get("party_count"), state["party"][0]["level"] if state.get("party") else None):
                 wg = self.strat.wall_gate_note("get past here")
                 if wg:
