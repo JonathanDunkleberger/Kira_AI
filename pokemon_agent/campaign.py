@@ -2655,13 +2655,23 @@ class Campaign:
             # rustles the grass. Size the wild up (dupe/coverage/level/room), offer the call to the
             # oracle (hers, live), follow the framework's lean headless — and VOICE it both ways.
             if CATCH_JUDGMENT_ENABLED:
-                try:
-                    rb = st.read_battle(self.b)
-                    foe_mon = rb["enemy"] if rb else None
-                except Exception:
-                    foe_mon = None
-                if foe_mon and foe_mon.get("species"):
-                    fid = foe_mon["species"]
+                # FOE SOURCE = gEnemyParty[0] (written at wild-mon CREATION, before the battle
+                # intro even fades in), NOT the gBattleMons snapshot: at hand-off time
+                # gBattleMons[1] can still hold the PREVIOUS battle's foe — the voltorb_run1
+                # stale read that judged "voltorb L14" (the LAST battle's foe) and balled a
+                # second ekans while she voiced wanting electric coverage. read_battle stays
+                # as the fallback only (gEnemyParty zeroed / decrypt error).
+                fid = st.read_enemy_species(self.b)
+                flvl = st.read_enemy_level(self.b)
+                if not fid:
+                    try:
+                        rb = st.read_battle(self.b)
+                        foe_mon = rb["enemy"] if rb else None
+                    except Exception:
+                        foe_mon = None
+                    fid = (foe_mon or {}).get("species") or 0
+                    flvl = (foe_mon or {}).get("level") or 0
+                if fid:
                     fname = st.SPECIES_NAME.get(fid, f"pokémon #{fid}")
                     team = []
                     for i in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)):
@@ -2669,8 +2679,8 @@ class Campaign:
                         team.append({"species_id": sid,
                                      "level": self.b.rd8(ram.GPLAYER_PARTY + i * st.PARTY_MON_SIZE + 0x54),
                                      "types": st.SPECIES_TYPES.get(sid, [])})
-                    foe_desc = {"species_id": fid, "name": fname, "level": foe_mon.get("level"),
-                                "types": st.SPECIES_TYPES.get(fid, foe_mon.get("types") or [])}
+                    foe_desc = {"species_id": fid, "name": fname, "level": flvl,
+                                "types": st.SPECIES_TYPES.get(fid, [])}
                     try:
                         _dex_new = ram.pokedex_owns(self.b, fid) is False   # DEX DOCTRINE: first-of-a-kind leans catch
                     except Exception:
@@ -4046,7 +4056,9 @@ class Campaign:
             sl.append((self._best_potion_for_sale(), pot_need))
         # BATCH 6 PHASE 3 — Poké Ball foresight: thin team + low on balls = she should leave the Mart
         # equipped to actually catch a teammate (the real answer to a wall). Bag-delta verified like any buy.
-        if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:
+        # 2026-07-07 BALL FLOOR: catching is CENTRAL (dex doctrine) — a full-ish team doesn't excuse
+        # walking out of a Mart with an empty ball pocket. Never leave with fewer than 2.
+        if (self._thin_team() or self._ball_count() < 2) and self._ball_count() < SHOP_BALL_TARGET:
             sl.append((ITEM_POKE_BALL, SHOP_BALL_TARGET - self._ball_count()))
         for status in sorted(self._afflict_seen):
             cure = STATUS_CURE.get(status)
@@ -4529,7 +4541,12 @@ class Campaign:
             cur = tuple(state["map"])
             tavoid = self._wall_avoid(state)
             can_fly = self.world.has_cap("fly")
-            for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid)[:4]:
+            # 2026-07-07 BALL-LESS TEETH: with ZERO balls the nearest Mart is the destination that
+            # matters — grass targets otherwise fill all 4 slots and the Mart never surfaces (how the
+            # voltorb hunt would have wandered ball-less forever). Mart-first when the pocket is empty.
+            _traits = (("has_mart", "has_grass") if self._ball_count() == 0
+                       else ("has_grass", "has_mart"))
+            for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid, want_traits=_traits)[:4]:
                 verb = "fly to" if (can_fly and self.world.is_town(mid)) else "head back to"
                 a[f"travel:{mid[0]},{mid[1]}"] = f"{verb} {nm} — {why}"
         except Exception as _ta:

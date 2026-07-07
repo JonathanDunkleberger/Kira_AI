@@ -559,16 +559,19 @@ class BattleAgent:
         self._prev = st.read_battle(self.b)
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         softened = False
+        status_only = False
+        sleep_tries = 0
         # 2026-07-06 NURSERY FIX: a strong ace "wearing down" a much-weaker wild ONE-SHOTS it (run-12:
         # 3 judged keepers KO'd mid-weaken, labeled 'fled'). Early-route species catch fine at full HP —
-        # when the foe is 10+ levels under the lead, skip the weaken and just throw (the loop re-throws
-        # on a break anyway). A real player doesn't wind up on a Pidgey a third their size.
+        # when the foe is 10+ levels under the lead, never CHIP it (one hit would KO). But a pure SLEEP
+        # move is damage-free with ZERO KO risk and x2 catch rate in Gen 3 — with a thin ball supply
+        # that's the difference between "caught" and "the last ball broke free". Sleep-then-throw.
         try:
             _rb0 = st.read_battle(self.b)
             if weaken and _rb0 and (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10:
-                weaken = False
-                self.log("   [engine] catch: foe is 10+ levels under the lead — throwing at full HP "
-                         "(weakening would just KO it)")
+                status_only = True
+                self.log("   [engine] catch: foe is 10+ levels under the lead — no chipping (would KO); "
+                         "SLEEP-then-throw if a sleep move is up")
         except Exception:
             pass
 
@@ -602,7 +605,21 @@ class BattleAgent:
             state = st.read_battle(self.b)
             if state and state["enemy"]["hp"] <= 0:
                 return "fainted"                         # we KO'd it - can't catch a fainted foe
-            if weaken and not softened and state is not None:
+            if status_only and not softened and state is not None:
+                # BIG-LEVEL-GAP path: sleep is the ONLY safe soften (any hit could KO). Fire a sleep
+                # move (75%-acc powders miss — retry once), re-checking asleep each loop; then throw.
+                # No sleep move usable / both tries spent -> throw at full HP (the old behavior).
+                if not state["enemy"].get("asleep") and sleep_tries < 2:
+                    si = next((i for i, m in enumerate(state["ours"]["moves"])
+                               if m.get("id", 0) in self._SLEEP_MOVES and m.get("pp", 0) > 0), None)
+                    if si is not None:
+                        sleep_tries += 1
+                        self.emit("let me put it to sleep first — easier to catch that way", beat=True)
+                        self._fire_move(si)
+                        continue
+                softened = True
+                continue
+            if weaken and not status_only and not softened and state is not None:
                 # PHASE 4 GUARD: if she can't weaken AT ALL (no status + no damaging move with PP —
                 # depleted) and the foe is still near full HP, DON'T throw — a full-HP catch is low-odds
                 # and that's exactly how she burned her whole ball supply tonight. Flee (preserve the

@@ -302,10 +302,30 @@ class TeachFlow:
 
 
 # ── headless policy: which mon takes the HM + which move makes room ───────────
-# Gen-3 Cut learnset membership for HER likely species (game-knowledge, minimal): most Normal-types
-# + starters learn Cut; Spearow/most pure-Flying do NOT. Extend per-HM as they arrive.
-_CUT_OK = {1, 2, 3, 19, 20, 52, 53}          # bulba line, rattata line, meowth line
-_HM_OK = {"cut": _CUT_OK}
+# TM/HM compatibility = ROM TRUTH, not a hand table. gTMHMLearnsets is u64[species] (8 bytes per
+# species): bit 0 = TM01 … bit 49 = TM50, bit 50 = HM01 Cut … bit 57 = HM08 Dive. Base address
+# CONTROL-verified 2026-07-07 (recon_tmhm_scan.py: known compat facts all match, incl. the
+# live-taught Cut→Raticate). Retires the hand-maintained _CUT_OK class — which mis-called Flash
+# ("none of her six learns it"): Venusaur AND Persian are Flash-compatible in FRLG.
+GTMHM_LEARNSETS = 0x08252BC8
+_HM_BIT = {"cut": 50, "fly": 51, "surf": 52, "strength": 53, "flash": 54,
+           "rocksmash": 55, "waterfall": 56, "dive": 57}
+
+
+def hm_compatible(b, hm_key, species):
+    """Can `species` learn this HM? Read from ROM gTMHMLearnsets (authoritative; game-agnostic
+    pattern — only the base address is per-game). False on unknown key / species 0 / read error."""
+    bit = _HM_BIT.get(hm_key)
+    if bit is None or not species:
+        return False
+    try:
+        lo = b.rd32(GTMHM_LEARNSETS + species * 8)
+        hi = b.rd32(GTMHM_LEARNSETS + species * 8 + 4)
+        return bool((((hi << 32) | lo) >> bit) & 1)
+    except Exception:
+        return False
+
+
 # expendable move classes for the forget choice: pure-status/no-power utility first, never the
 # mon's strongest damaging move.
 _PRECIOUS = {73}                              # leech seed etc. — never auto-forget
@@ -314,11 +334,10 @@ _PRECIOUS = {73}                              # leech seed etc. — never auto-f
 def default_plan(b, hm_key, party_count):
     """(mon_slot, forget_idx, reason) headless lean: the lowest-level COMPATIBLE non-lead with a
     free slot, else the compatible mon whose weakest no-power move can go. None if no candidate."""
-    ok = _HM_OK.get(hm_key)
     cands = []
     for s in range(party_count):
         sp = st.read_party_species(b, s)
-        if ok is not None and sp not in ok:
+        if not hm_compatible(b, hm_key, sp):
             continue
         lv = b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
         moves = st.read_party_moves(b, s)

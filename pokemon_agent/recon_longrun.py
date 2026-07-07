@@ -342,6 +342,16 @@ def main():
             #                                                gate): the stretch's POINT is a new
             #                                                registration — hunt fresh grass first
             #                                                (judgment still skips dupes)
+        elif GOAL_DEX is not None and ram.pokedex_owned_count(b) < GOAL_DEX \
+                and camp._balls_pocket_count(C.ITEM_POKE_BALL) == 0 \
+                and isinstance(options, dict) \
+                and any(k.startswith("travel:") and "Mart" in str(v)
+                        for k, v in options.items()):
+            # BALL-LESS dex run (2026-07-07): can't register anything without balls — a real
+            # player detours to the nearest Mart FIRST. The campaign surfaces the Mart city
+            # mart-first in travel targets when the ball pocket is empty; ride that option.
+            pick = next(k for k, v in options.items()
+                        if k.startswith("travel:") and "Mart" in str(v))
         elif (not BARGE) and prep is not None and "battle" in opts:
             pick = "battle"                                # underlevelled + items-alone can't beat the
             #                                                Smokescreen Charmander -> GRIND/team-build first

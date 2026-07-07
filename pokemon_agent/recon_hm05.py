@@ -40,7 +40,8 @@ FLASH_MOVE = 148
 ROUTE11, ROUTE2, VERMILION = (3, 29), (3, 20), (3, 5)
 # the westbound road home (reverse of the billed Celadon road), one leg per map
 BACK_LEGS = {(3, 28): ("west", (3, 27)), (3, 27): ("west", (3, 3)), (3, 3): ("south", (3, 23)),
-             (3, 23): ("pass", (3, 24)), (3, 24): ("south", (3, 5)), (3, 5): ("east", ROUTE11)}
+             (3, 23): ("pass", (3, 24)), (3, 24): ("south", (3, 5)), (3, 5): ("east", ROUTE11),
+             (3, 22): ("east", (3, 3))}   # Route 4 (the dex-11 catch bank) joins at Cerulean
 
 
 def main():

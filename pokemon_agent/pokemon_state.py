@@ -172,6 +172,18 @@ def read_enemy_species(bridge, slot=0):
         return 0
 
 
+def read_enemy_level(bridge, slot=0):
+    """Plaintext level of ENEMY party slot N (gEnemyParty base +0x54 — the unencrypted
+    battle-stats block, same layout as the player party). 0 on any read error. Pairs with
+    read_enemy_species as the AUTHORITATIVE at-encounter foe read: gEnemyParty is written
+    when the wild mon is CREATED (before the battle intro even fades in), while
+    gBattleMons[1] lags a beat and can still hold the PREVIOUS battle's foe."""
+    try:
+        return bridge.rd8(ram.GENEMY_PARTY + slot * PARTY_MON_SIZE + 0x54)
+    except Exception:
+        return 0
+
+
 def read_party_moves(bridge, slot=0):
     """Decrypt the 4 move IDs of party slot N. Sibling of read_party_species, but reads the
     ATTACKS substructure instead of Growth (same XOR key = PID ^ OTID, same personality%24 order).
