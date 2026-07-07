@@ -3060,7 +3060,9 @@ class Campaign:
                     if not hasattr(self, "_grind_dead"):
                         self._grind_dead = set()
                     self._grind_dead.add(tuple(tv.map_id(self.b)))
-                    break
+                    return "no_safe_grass"                     # DISTINCT from 'ok' — GRIND-WEAK's
+                    #                                            while-loop treated 'ok' as retryable
+                    #                                            and re-entered 192x (celadon_run3)
             # Pace the NEAREST grass tiles only (not the farthest) so a long grind stays LOCAL and never
             # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable.
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
