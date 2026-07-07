@@ -149,10 +149,18 @@ def main():
         return ram.valid_ewram_ptr(b.rd32(ram.GBATTLE_RES_PTR))
 
     # ── SAFARI BATTLE HANDLER (BALL/BAIT/ROCK/RUN menu — not the FIGHT menu) ─────────────
+    thrown_species = set()             # ball economy (strike5 truth): 2 throws at EVERY
+    #                                    re-encounter of an uncatchable species drains 30
+    #                                    balls in ~3 min and ends the game mid-crossing —
+    #                                    the dex doctrine is ONE cheap attempt per species.
+
     def safari_battle():
         n_battles[0] += 1
         sp = st.read_enemy_species(b, 0)
-        new = sp and ram.pokedex_owns(b, sp) is False
+        new = (sp and ram.pokedex_owns(b, sp) is False
+               and sp not in thrown_species)
+        if new:
+            thrown_species.add(sp)
         nm = st.SPECIES_NAME.get(sp, f"#{sp}")
         L(f"   [safari] wild {nm} (new={new})")
 
@@ -462,11 +470,14 @@ def main():
             for _ in range(60):
                 b.run_frame()
             drain(key="A")
-            if not (step_warp((4, 1), "into-center") and tuple(tv.map_id(b)) == CENTER):
-                if wedge("into_center", 4, "can't reach the Safari Center"):
-                    return 1
-            else:
+            # the pay script itself can WARP her in (strike4/5 truth) — check before stepping
+            if tuple(tv.map_id(b)) != CENTER:
+                step_warp((4, 1), "into-center")
+            if tuple(tv.map_id(b)) == CENTER:
+                wedges.pop("into_center", None)
                 _stage_save("safari_in")
+            elif wedge("into_center", 6, "can't reach the Safari Center"):
+                return 1
             continue
 
         if CENTER and here == CENTER:
