@@ -4270,7 +4270,9 @@ class Campaign:
                                (wt[0] + 1, wt[1]), (wt[0] - 1, wt[1])):
                         if _fire is not None and (nb[0] - wt[0], nb[1] - wt[1]) == _fire:
                             continue
-                        if g3.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
+                        # Grid.walkable takes SAVE coords (it adds MAP_OFFSET itself) — the old
+                        # +OFFSET call read a tile shifted +7,+7 (silph probe3, 2026-07-07).
+                        if g3.walkable(nb[0], nb[1]):
                             self.trav.travel(target_map=None, arrive_coord=nb,
                                              max_steps=10, max_seconds=15)
                             break

@@ -157,9 +157,51 @@ def main():
                 for _ in range(30):
                     b.run_frame()
 
+    def walk_path_to(tile, label, tries=6):
+        """Deterministic same-map mover (the strike pattern): static BFS with WARPS and
+        template-NPC BODIES masked (strike6 truth: the shortest 5F path threads the beaten
+        hypno's tile (35,7) — grid BFS is NPC-blind, and travel TTL-thrashes between two
+        NPC-sealed plans forever), then step it tile-by-tile. Battles/wanderers recompute;
+        a step that fails OUTSIDE battle is a collision-walkable-but-game-blocked tile
+        (strike9: the 5F stair alcove (28,3) — elevation quirk) → DEAD for this call."""
+        dead = set()
+        for _ in range(tries):
+            cur = tuple(tv.coords(b) or (0, 0))
+            if cur == tile:
+                return True
+            g = tv.Grid(b)
+            wts = {tuple(w[0]) for w in tv.read_warps(b)} - {tile}
+            npcs = ({tuple(o[0]) for o in tv.read_object_templates(b) if o[2]}
+                    | dead) - {tile}
+            p = tv.bfs(g, cur, lambda t: t == tile,
+                       walkable=lambda sx, sy: g.walkable(sx, sy)
+                       and (sx, sy) not in wts and (sx, sy) not in npcs)
+            if not p:
+                L(f"   [{label}] no NPC-free static path {cur} -> {tile} "
+                  f"(dead={sorted(dead)})")
+                return False
+            for t in p[1:]:
+                ok = camp._step_to(tuple(t))
+                # battle check BEFORE judging the step: a trainer's SIGHT LINE fires mid-walk
+                # and freezes coords — _step_to then reads as failed with the fight unfought
+                # (strike8: Grunt2 saw her on row 6, walk_path_to burned its tries in-battle).
+                if st.in_battle(b):
+                    L(f"   [{label}] battle mid-path -> {camp.battle_runner()}")
+                    drain()
+                    break
+                if not ok:
+                    dead.add(tuple(t))
+                    L(f"   [{label}] step into {tuple(t)} failed — dead-marked, recompute")
+                    break
+            if tuple(tv.coords(b) or ()) == tile:
+                return True
+        return tuple(tv.coords(b) or ()) == tile
+
     def goto(tile, label):
-        # NEVER path through a warp tile (strike5: the 5F ball approach BFS'd across the
-        # teleport pad -> silently rode it to 9F, twice) — the Mt Moon avoid= mechanism.
+        if walk_path_to(tile, label):
+            return True
+        # fallback: travel's NPC-aware walker, warp tiles masked (the Mt Moon avoid=
+        # mechanism — strike5: the ball approach BFS'd across the 5F pad, rode it to 9F).
         av = {tuple(w[0]) for w in tv.read_warps(b)} - {tile}
         r = camp.trav.travel(target_map=None, arrive_coord=tile, max_steps=250, max_seconds=120,
                              avoid=av)
@@ -216,7 +258,7 @@ def main():
             g6 = tv.Grid(b)
             for nb in ((cur[0], cur[1] + 1), (cur[0] + 1, cur[1]),
                        (cur[0] - 1, cur[1]), (cur[0], cur[1] - 1)):
-                if nb not in wts and g6.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
+                if nb not in wts and g6.walkable(nb[0], nb[1]):
                     camp._step_to(nb)
                     cur = tuple(tv.coords(b) or (0, 0))
                     break
@@ -346,15 +388,18 @@ def main():
                        (cur[0] - 1, cur[1]), (cur[0], cur[1] - 1)):
                 if (nb[0] - cur[0], nb[1] - cur[1]) == fire:
                     continue
-                if nb not in warp_tiles and g5.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
+                if nb not in warp_tiles and g5.walkable(nb[0], nb[1]):
                     camp._step_to(nb)
                     break
 
         # PHASE A — no Card Key yet: climb the stairs to 5F and take the ball.
         if not have_key():
             if here == F5:
-                for face, front in (("RIGHT", (CARD_BALL_5F[0] - 1, CARD_BALL_5F[1])),
-                                    ("LEFT", (CARD_BALL_5F[0] + 1, CARD_BALL_5F[1])),
+                # EAST front FIRST (probe4 truth: the ball is itself a solid object sealing
+                # row 21 — (23,21) is the ONLY NPC-free-reachable front, len 41 from the
+                # stairs; the west front needs Grunt1's tile or the 9F pad).
+                for face, front in (("LEFT", (CARD_BALL_5F[0] + 1, CARD_BALL_5F[1])),
+                                    ("RIGHT", (CARD_BALL_5F[0] - 1, CARD_BALL_5F[1])),
                                     ("DOWN", (CARD_BALL_5F[0], CARD_BALL_5F[1] - 1)),
                                     ("UP", (CARD_BALL_5F[0], CARD_BALL_5F[1] + 1))):
                     if tuple(tv.map_id(b)) != F5:      # an accidental stair re-fire mid-approach
