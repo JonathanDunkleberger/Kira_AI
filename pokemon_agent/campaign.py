@@ -3675,10 +3675,26 @@ class Campaign:
             mp0 = tuple(tv.map_id(self.b))
             here0 = tuple(tv.coords(self.b) or (0, 0))
             ws0 = tv.read_warps(self.b)
+            _dest_of = {tuple(xy): tuple(dest) for (xy, dest, _wid) in ws0}
             cand = [tuple(xy) for (xy, dest, _wid) in ws0
                     if dest[0] != 3 and (mp0, tuple(xy)) not in self._ql_entered_doors]
-            cand.sort(key=lambda t: -(abs(t[0] - here0[0]) + abs(t[1] - here0[1])))
+            # UNVISITED MAPS FIRST (run-13 lesson): deepest-first kept touring the same holds while
+            # the 2F stairs (an unvisited map) sat untried — a warp into somewhere NEW is the whole
+            # point of going deeper. Distance breaks ties.
+            cand.sort(key=lambda t: (self.world.visited(_dest_of.get(t, (0, 0))),
+                                     -(abs(t[0] - here0[0]) + abs(t[1] - here0[1]))))
             for wt in cand:
+                # spawning ON a warp tile doesn't re-fire it — step OFF first so the entry ritual
+                # (approach + step-in) has somewhere to approach from (run-13: stalled standing on
+                # the hold's own exit warp).
+                if tuple(tv.coords(self.b) or ()) == wt:
+                    g3 = tv.Grid(self.b)
+                    for nb in ((wt[0], wt[1] + 1), (wt[0], wt[1] - 1),
+                               (wt[0] + 1, wt[1]), (wt[0] - 1, wt[1])):
+                        if g3.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
+                            self.trav.travel(target_map=None, arrive_coord=nb,
+                                             max_steps=10, max_seconds=15)
+                            break
                 if self._tile_behavior(*wt) in self._WARP_ENTRY:
                     self._enter_directional_warp(wt)
                 if tuple(tv.map_id(self.b)) == mp0:
