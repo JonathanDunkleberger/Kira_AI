@@ -1399,6 +1399,15 @@ class BattleAgent:
         active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
         if not active_bad:
             return None
+        # LEVEL-DOMINANCE VETO (2026-07-07, erika_run3): type math must never outrank a crushing
+        # level lead. L45 Venusaur's Razor Leaf reads 0.25x into Erika's grass/poison juniors, so
+        # the offensive-resist trigger fired and the ranking swapped in L15 Ekans ("resists most")
+        # — which fainted, forced-switch churned, and she BLACKED OUT to a L21 Gloom she outleveled
+        # by 24. A big level lead wins through any resistance; stay in and swing.
+        foe_lv = state.get("enemy", {}).get("level") or 0
+        act_lv = state.get("ours", {}).get("level") or 0
+        if foe_lv and act_lv >= foe_lv + 10:
+            return None
         active_sp = state.get("ours", {}).get("species")
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         best, best_key = None, None
@@ -1408,13 +1417,18 @@ class BattleAgent:
             sp = st.read_party_species(self.b, s)
             if sp == active_sp:
                 continue                                  # (probably) the one already out
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if foe_lv and lv + 5 < foe_lv:
+                continue                                  # FODDER FLOOR: switching INTO a faint is
+                                                          # never an improvement (the Ekans churn)
             types = st.species_types(sp)
             if not types:
                 continue
             cdef = self._matchup_def(types, enemy_types)
             if cdef >= 2:
                 continue                                  # also weak — not an improvement
-            key = (-cdef, self._matchup_off(types, enemy_types))   # resists most, then hits hardest
+            # resists most, then hits hardest, then the higher level (level breaks type ties)
+            key = (-cdef, self._matchup_off(types, enemy_types), lv)
             if best_key is None or key > best_key:
                 best, best_key = s, key
         return best
