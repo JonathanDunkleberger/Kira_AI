@@ -110,6 +110,23 @@ def main():
             pf.write(str(os.getpid()))
     except Exception as _re:
         print(f"[reap] predecessor check failed: {_re}", flush=True)
+    # …and stale WATCHER loops (2026-07-06 ground-truth lesson): watchers are BASH until/tail-grep
+    # loops, not python — the PID file never covered them, and ones launched by a DEAD session have
+    # no live handle anywhere. Kill bash processes whose commandline references our longrun logs and
+    # that are older than 2h (no legit watcher outlives a 75-min run; the age gate protects this
+    # launch's own shell chain and any interactive shells).
+    try:
+        _ps = ("Get-CimInstance Win32_Process -Filter \"name='bash.exe'\" | "
+               "Where-Object { $_.CommandLine -match 'longrun' -and "
+               "((Get-Date) - $_.CreationDate).TotalHours -gt 2 } | "
+               "ForEach-Object { Stop-Process -Id $_.ProcessId -Force; "
+               "Write-Output ('reaped watcher ' + $_.ProcessId) }")
+        _out = subprocess.run(["powershell", "-NoProfile", "-Command", _ps],
+                              capture_output=True, text=True, timeout=30).stdout.strip()
+        if _out:
+            print(f"[reap] {_out}", flush=True)
+    except Exception as _rw:
+        print(f"[reap] watcher sweep failed: {_rw}", flush=True)
 
     for f_ in os.listdir(STAGE):
         try:
