@@ -30,6 +30,33 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #4 (11:20→) — ⚔️ THE SEAFOAM STRIKE (runs 1-5) ──
+**CANONICAL unchanged = surf_taught.** recon_seafoam.py = the strike vehicle (commits
+7bb5a31, a794e03). **THE CROSSING IS FULLY DERIVED ON PRET GROUND TRUTH** (see
+NEXT_SESSION.md for the mission table): no route with currents active (meta-BFS proven);
+the B3F current stops when both boulders cascade down the 0x66 hole chain 1F→B1F→B2F
+(flags 0x046/0x047 → 0x2D2 → CURRENT_STOPPED layout swap); route = fall B2F hole →
+becalmed B3F surf → east ladder chain → F1 exit (32,21) → R20 west sea → Cinnabar.
+**WALLS KILLED THIS SHIFT (each frame/stack-diagnosed):**
+1. **THE BRIGHT-TILESET dd_box LIVELOCK (run3, py-spy stack + frame grab):**
+   dialogue_drive.box_open's 200-threshold read the Seafoam ICE FLOOR (min-channel 239)
+   as a permanently-open box → every sea_walk wedged in handle_interrupts/drain forever,
+   SILENTLY (no log line — the interrupt path logs nothing). FIX (core-adjacent, flagged):
+   threshold 242 — the FRLG message fill is engine-constant 248/255; measured populations
+   separate cleanly. mgba scales 5-bit as (c<<3)|(c>>2) → 239 vs 255.
+2. **DISTANCE-CULLED BOULDERS (run2):** live gObjectEvents don't exist >~8 tiles out —
+   nearest_boulder now template-guided-walks first, live-scans after. Masks: LIVE npc
+   body tiles (wanderers park off-template — run4's beach swimmer blocked the same step
+   20×) + non-boulder templates; boulder tiles from LIVE coords only (post-push template
+   tiles are floor).
+3. MB_SAND (0x21) beach strips read walkable ✓ (not water) — R19's shore band is the
+   mount seam; step-blocked-by-NPC ≠ step-blocked-by-water (diagnose with the live frame).
+**Diagnosis additions to the playbook:** py-spy dump on a silent wedge (pip-installed in
+.venv) beats log archaeology; a monitor filter must include the op lines.
+Logs: logs/longrun/seafoam_run1-5.log. Mansion prep BANKED: all pret maps cached
+(Secret Key = B1F (5,7); statue-toggle setmetatile diffs = collision bit in arg 4;
+statues 1F(5,5) 2F(2,16) 3F(12,5) B1F(24,29)/(27,5) bg-events; floors (1,59)-(1,62)).
+
 ### ── 2026-07-07 NIGHT SHIFT #2 CLOSE (10:45) — 🏅🏅 safari_hms + surf_taught PROMOTED ──
 **CANONICAL = surf_taught** (Fuchsia (3,7)@(33,32), badges 6; Lapras has SURF, Venusaur has
 STRENGTH; both promotions sanctity-VALID + round-trip verified). Full story in

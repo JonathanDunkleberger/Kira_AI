@@ -247,6 +247,20 @@ def main():
     def live_boulders():
         return [ob["coord"] for ob in fm.scan_field_objects(b, {fm.GFX_BOULDER})]
 
+    def live_npc_tiles():
+        """Live object-event BODY tiles (travel._npc_tiles pattern) — run4 truth: a
+        WANDERING swimmer parked on the planned tile blocks the same step forever if
+        only static templates are masked. Body tile only, never the facing tile."""
+        OB, SZ = 0x02036E38, 0x24
+        out = set()
+        for i in range(1, 16):
+            o = OB + i * SZ
+            if not (b.rd8(o) & 1):
+                continue
+            out.add((b.rds16(o + 0x10) - tv.MAP_OFFSET,
+                     b.rds16(o + 0x12) - tv.MAP_OFFSET))
+        return out
+
     def step_to(tile, wset=None):
         cur = tuple(tv.coords(b) or (0, 0))
         d = (tile[0] - cur[0], tile[1] - cur[1])
@@ -285,10 +299,12 @@ def main():
             wset = water_save(g)
             wts = {tuple(w[0]) for w in tv.read_warps(b)}
             # boulders: LIVE positions only — templates go stale after a push (the
-            # template coord becomes empty floor and must not mask the path)
-            npcs = set(live_boulders()) | {tuple(o[0]) for o in
-                                           tv.read_object_templates(b)
-                                           if o[2] and o[1] != fm.GFX_BOULDER}
+            # template coord becomes empty floor and must not mask the path).
+            # NPCs: live body tiles FIRST (wanderers move off-template — run4), plus
+            # non-boulder templates for distance-culled far spawns.
+            npcs = live_npc_tiles() | {tuple(o[0]) for o in
+                                       tv.read_object_templates(b)
+                                       if o[2] and o[1] != fm.GFX_BOULDER}
             ok0 = sea_ok(g, wset)
             p = tv.bfs(g, cur, goal_test,
                        walkable=lambda sx, sy: ok0(sx, sy) and (sx, sy) not in wts
@@ -304,7 +320,10 @@ def main():
                     budget += 1
                     break
                 if not step_to(tuple(t), wset):
-                    L(f"   [{label}] step blocked {tuple(tv.coords(b) or ())} -> {tuple(t)}")
+                    L(f"   [{label}] step blocked {tuple(tv.coords(b) or ())} -> {tuple(t)} "
+                      f"(facing {b.rd8(0x02036E38 + 0x18) & 0xF}, "
+                      f"npcs {sorted(live_npc_tiles())[:6]})")
+                    snap(f"blocked_{t[0]}_{t[1]}")
                     break
                 if tuple(tv.map_id(b)) != m0:
                     return True

@@ -44,11 +44,16 @@ _FACE_OFF = 0x18                # facing direction nibble (1=down 2=up 3=left 4=
 def box_open(b):
     """True iff an overworld dialogue box is currently displayed (bottom band solid white)."""
     p = b.frame_rgb().load()
-    # 242: the FRLG message-window fill is a constant 248-white; the brightest floor
-    # tileset measured (Seafoam ice, min-channel 239) false-positived the old 200
-    # threshold PERMANENTLY (night shift 4: the drain livelock class on bright maps).
-    hits = sum(1 for y in _BOX_ROWS for x in _BOX_XS if min(p[x, y]) > 242)
-    return hits >= int(0.78 * len(_BOX_ROWS) * len(_BOX_XS))
+    # DUAL CLAUSE (night shift 4, both populations measured): a real FRLG message box
+    # is 255-white fill + dark text/border pixels -> >=40% pure-white AND >=78% bright.
+    # The Seafoam ICE floor false-positived the old single 200-threshold FOREVER (the
+    # silent drain-livelock class): 100% of its band sits in 200-242 with ZERO pixels
+    # >242 -> fails the pure-white clause. A text-heavy trainer-intro box measured
+    # 61% >242 / 87% >200 -> passes both. (mgba scales 5-bit via (c<<3)|(c>>2).)
+    n = len(_BOX_ROWS) * len(_BOX_XS)
+    vals = [min(p[x, y]) for y in _BOX_ROWS for x in _BOX_XS]
+    return (sum(1 for v in vals if v > 242) >= int(0.40 * n)
+            and sum(1 for v in vals if v > 200) >= int(0.78 * n))
 
 
 def player_facing(b):
