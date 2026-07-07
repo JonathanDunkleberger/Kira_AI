@@ -537,6 +537,7 @@ class Traveler:
         avoid = frozenset(avoid or ())
         self.b.set_input_owner(self.owner)
         grid = Grid(self.b)
+        plan_cache = None            # PLAN HYSTERESIS state (see the planning site below)
         cur_map = map_id(self.b)
         t0 = time.time()
         self.log(f"   [travel] start map={cur_map} coords={coords(self.b)} -> "
@@ -672,6 +673,7 @@ class Traveler:
                     _bstuck[0] = 0
                 self.b.set_input_owner(self.owner)   # reclaim from the battle agent
                 grid = Grid(self.b)
+                plan_cache = None
                 stuck = 0
                 # CLEAR accumulated obstacle memory: a battle disrupts position/NPC layout, and the
                 # step-failures logged mid-combat (a wild triggered as we pressed) wrongly mark good
@@ -690,6 +692,7 @@ class Traveler:
                 self.log(f"   [travel] MAP TRANSITION {cur_map} -> {m}")
                 cur_map = m
                 grid = Grid(self.b)
+                plan_cache = None
                 stuck = exit_tries = 0
             if arrive_coord is None and target_map is not None and m == target_map:
                 self.log(f"   [travel] ARRIVED at target map {m} coords={coords(self.b)}")
@@ -717,11 +720,24 @@ class Traveler:
                 return ((sx, sy) not in npc and (sx, sy) not in static_blocked
                         and (sx, sy) not in avoid and (sx, sy) not in blocked_here
                         and blocked.get((sx, sy), -10 ** 9) <= cutoff)
-            path = bfs(grid, cur, goal,
-                       walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
-            if not path:
+            # PLAN HYSTERESIS (2026-07-07 Route-10 mouth churn): with a walker NPC flickering on
+            # a corridor gap, per-step replans TIE-FLIP between two near-equal routes (up-and-over
+            # vs down-and-around) and she oscillates in place until the position-loop guard kills
+            # the leg — deterministic in headless replay. Keep following the CURRENT plan while we
+            # are ON it and its next step stays walkable+free; a real block (step onto an occupied
+            # tile) still fails the step and forces the full replan below.
+            path = None
+            if plan_cache and len(plan_cache) >= 2 and plan_cache[0] == cur:
+                nx_, ny_ = plan_cache[1]
+                if grid.walkable(nx_, ny_) and free(nx_, ny_):
+                    path = plan_cache
+            if path is None:
                 path = bfs(grid, cur, goal,
-                           walkable=lambda sx, sy: grid.walkable(sx, sy) and free(sx, sy))
+                           walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
+                if not path:
+                    path = bfs(grid, cur, goal,
+                               walkable=lambda sx, sy: grid.walkable(sx, sy) and free(sx, sy))
+            plan_cache = path[1:] if path and len(path) >= 2 else None
             if not path or len(path) < 2:
                 if arrive_coord is not None and cur == arrive_coord:
                     self.log(f"   [travel] reached target coord {arrive_coord}")
