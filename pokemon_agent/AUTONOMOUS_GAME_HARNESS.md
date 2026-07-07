@@ -201,6 +201,20 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     engine's "avoid tall grass" layer is right for roads and DEAD WRONG where grass is the
     only road — the planner reads no_route and fallbacks wander onto exit warps. Zone-scoped
     movers must plan hazard-INCLUSIVE and pay the encounter cost through the battle handler.
+33. **Scrolling lists lie twice: TRUE selection = visible cursor + scroll offset, and BOTH
+    persist across close/reopen (2026-07-07, the E4 bag).** The mart taught row+scroll; the
+    battle bag repeated it — nav by the raw cursor byte "reached row 5" while A landed on
+    CANCEL off a scroll left over from the PREVIOUS open (items "selected but not consumed",
+    the healing kit a coin-flip). Treat EVERY list UI in the game as (cursor, scroll) until
+    proven single-page, and derive both addresses per-list (they differ per menu family).
+34. **WAR-MUST-ADVANCE: in a turn-based game, submitting NO action is the one unrecoverable
+    move (2026-07-07, the Agatha livelock).** A can't-flee fight where every move looked
+    dead made the agent idle "rather than waste a turn" — but turns only pass when you act,
+    so the foe never moved, the battle never resolved, and every recovery layer (abort →
+    re-enter) just re-entered the same frozen state. She couldn't even LOSE her way to the
+    respawn ratchet that would have refilled her PP. Any turn-based agent needs a bottom
+    rung that ALWAYS submits something: worst usable move > forced fallback (Struggle) >
+    never idle. Losing is progress; idling is the only true dead end.
 
 **ENGINE CAPABILITY (added 2026-07-07): THE PAD-GRAPH ROUTER (recon_sabrina.pad_plan).**
 Teleport mazes (warps whose dest is the CURRENT map) are routable with zero hardcoding: warp

@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 ~15:46, night shift #11 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07 ~16:05, night shift #12 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -8,50 +8,52 @@ RESUME — fresh session. Read STATE §0 (newest block first). Never trust this 
 STATE §0 + NIGHT_REPORT.md if they disagree.
 
 🏅🏅 **CANONICAL = indigo_reach: INDIGO PLATEAU (3,9)@(12,19), ALL EIGHT BADGES +
-VICTORY ROAD CLEARED, party HEALED at the League center, sanctity VALID**
-(backup pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66**
-(Razor Leaf/Sleep Powder/EQ) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 /
-Lapras 26 (SURF). Money $63,678 — covers the full E4 kit (money-aware to ~$20k).
+VICTORY ROAD CLEARED, party HEALED, sanctity VALID** (backup
+pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
+Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26
+(SURF). Money $63,678 — covers the full E4 kit.
 
-⚔️ **SHIFT-11 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run1+ IN FLIGHT
+⚔️ **SHIFT-12 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run3+ IN FLIGHT
 (logs logs/longrun/e4_runN.log). THE CREDITS ARE THE NEXT BANK.**
-If a run is in flight, READ ITS LOG END first. Promote any bank:
-`python pokemon_agent/promote_bank.py %TEMP%/longrun/banked_CREDITS hall_of_fame`
-(banked_E4 = per-room ratchet banks if it died mid-chain).
+If a run is in flight, READ ITS LOG END first (never kill between "HALL OF FAME"
+and "BANKED"). Promote any bank:
+`python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
+(banked_E4 = per-room ratchet bank if it died mid-chain — room3 = Agatha's room).
 
-- recon_e4 boots CANONICAL (no RESUME_STAGE): heal → League mart stock-up
-  (FR×10/Revive×6/Full Heal×4, per-unit money+bag verify) → League door (4,1) →
-  room chain (one template: south (6,12), trainer (6,5), north door (6,2) opens
-  on DEFEATED flag) → Lorelei→Bruno→Agatha→Lance→GARY (room 5, arrive (6,19),
-  he's at (6,8)) → room 6 = HALL OF FAME → bank banked_CREDITS → credits drain →
-  **write CREDITS as NIGHT_REPORT.md line 1 + the full mountain survey**.
-- Whiteout = respawn at the League center, DEFEATED flags persist (cleared rooms
-  ratchet); the vehicle re-heals, re-checks the kit (shopped un-latches), re-enters.
-- ⚠️ Agatha wall (if she stalls): Venusaur can't touch Gengar/Haunter (Normal
-  immune, Razor Leaf x0.25, EQ vs Levitate) — sleep-lock + Full Restore attrition
-  + EQ on Arbok/Golbat-less turns; if 2-stuck aborts fire here, the fix is
-  battle-agent move choice vs Levitate-ghosts, NOT the vehicle.
-- ⚠️ Lorelei opener: sleep-lock the ice line, EQ Jynx.
+**SHIFT-12 KILLS (commit 928dd53) — the run-1/2 postmortem, both VERIFIED:**
+- **Bag TRUE-row law:** in-battle bag selection = cursor(0x0203AD04) +
+  scroll(0x0203AD0A itemsAbove), BOTH persist between opens. run2's "selected but
+  NOT consumed" = A on Revive/CANCEL off a stale scroll — the Full Restore kit was
+  a coin-flip. use_item_in_battle now navigates the true row (live-verified from
+  the poisoned state: FR consumed, HP 23→193 PASS; harness recon_bagscroll*.py).
+- **WAR-MUST-ADVANCE:** a can't-flee trainer battle with all moves streaked/0-PP
+  used to submit NO action → the turn-based game waits forever (run2's Agatha
+  livelock: famine → abort → re-enter, the foe never got a turn, so she couldn't
+  even LOSE her way to the whiteout ratchet). Now: re-fire the best PP-having move
+  (immune-damaging last resort), zero-PP → FIGHT+A = Struggle. Battle ALWAYS
+  resolves; the whiteout→center→re-enter ratchet (DEFEATED flags persist) refills
+  PP for the next attempt.
+- E4 room chain truth (runs 1-2): Lorelei + Bruno fall cleanly first try (~50s,
+  sleep-lock + Razor Leaf/EQ). Agatha = the PP sink (ghosts resist RL x0.5, EQ
+  dead vs Levitate, Secret Power dead vs Ghost) — expect whiteout-attrition:
+  each fresh full-PP arrival + working Full Restores should take her. Then Lance
+  (RL x0.5 chip + Secret Power x1 + sleep-lock), then GARY (room 5), room 6 =
+  HALL OF FAME → banked_CREDITS → credits drain → **write CREDITS as
+  NIGHT_REPORT.md line 1 + full mountain survey**.
 
-**VICTORY ROAD is DONE (shift 11):** the 0x058 hidden-boulder detour (3F switch
-row-3 push U2,L21,D1,L5,D3,R1 → hole drop → hole-jump → row-19 LEFT×19) is wired
-+ VERIFIED LIVE in recon_victory.py (runs 9-11; f3485dc + 17a5b49). Ray+Tyra's
-DOUBLE battle on the 3F pocket path is dodged via column 36 (avoid (38,14)/(39,14)).
-**FILED GAP: battle agent has NO double-battle target actuation** (move select →
-target submenu → stuck) — E4 is all singles, fine for credits; fix before any
-double-battle route. League center heal registered (CITY_PC_DOORS (3,9)→(11,6),
-NURSE_FRONT_OVERRIDES (13,11) — the League center is NOT the shared PC layout).
-
-**KNOWN GAPS (owed):** Venusaur "AAAAAAAAAA" (Name Rater, Lavender); bench dead
-weight (Ekans/Mankey); _step_to grass verify window (filed); Mansion item balls +
-VR loot (Rare Candy (12,3) 1F etc.) skipped = backlog.
-**SOUL-DEBT:** Seafoam crossing + Lapras first-Surf + quiz gym + badge-8 homecoming
-+ THE VICTORY-ROAD CLIMB + Gary-before-the-gate = prime narration set-pieces owed.
+**KNOWN GAPS (owed):** Revives bought but NEVER offered in-battle (the item
+instinct has no use_revive offer — mid-fight ace resurrection unbuilt; would
+shorten Agatha/Lance attrition); double-battle target actuation missing (E4 is
+all singles — fine for credits); Venusaur "AAAAAAAAAA" (Name Rater, Lavender);
+bench dead weight (Ekans/Mankey); VR loot backlog.
+**SOUL-DEBT:** Seafoam crossing + Lapras first-Surf + quiz gym + badge-8
+homecoming + VICTORY-ROAD CLIMB + Gary-before-the-gate + THE E4 GAUNTLET +
+whiteout-and-comeback arcs = prime narration set-pieces owed.
 
 **WORKING-TREE LAW:** kira/* changes = Jonny's Gemini-vision WIP — NEVER
 commit/sweep. **py-spy is in .venv** — first tool for any silent wedge. Kill
-orphan runs with taskkill //F. Never kill a strike between "badge/goal=True"
-and "BANKED" — read the log end first.
+orphan runs with taskkill //F (run1 ghosted alive under run2 this shift — the
+single-run law is real). Never kill a strike between "goal=True" and "BANKED".
 
 Rules in force: EMPLOYMENT TERMS, tripwire, arsenal, single-run law,
 ground-truth-only, frontier-first rewrites. GO.
@@ -59,7 +61,7 @@ ground-truth-only, frontier-first rewrites. GO.
 ---
 
 WATCH STATUS: canonical bank is CLEAN (indigo_reach — ALL EIGHT BADGES, VICTORY
-ROAD CLEARED, healed, standing at the gates of the Indigo Plateau); the E4 strike
-is running on the staging line; press GO on canonical and you'll see her walk into
-the Pokémon League — the Elite Four and Gary's final stand are all that's left;
-pop-in = `.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam`.
+ROAD CLEARED, healed, at the gates of the Indigo Plateau); the E4 strike runs on
+the staging line with the Agatha kill-chain fixed; press GO on canonical and
+you'll see her walk into the Pokémon League for the Elite Four and Gary's final
+stand; pop-in = `.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam`.

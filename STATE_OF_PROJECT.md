@@ -30,6 +30,36 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #12 — the Agatha DOUBLE-KILL: bag TRUE-row + war-must-advance ──
+**CANONICAL unchanged = indigo_reach. e4_run3 IN FLIGHT (logs/longrun/e4_run3.log).**
+e4_run2 postmortem (rooms 1-2 = Lorelei+Bruno fell first-try in ~50s; wall = Agatha, two
+engine bugs, both fixed + VERIFIED, commit 928dd53):
+- **BAG TRUE-ROW LAW (the mart law, battle-bag edition):** in-battle bag selection =
+  cursor(0x0203AD04) + scrollOffset(0x0203AD0A = gBagMenuState.itemsAbove[0], derived +
+  press-verified by recon_bagscroll.py), and BOTH persist between opens. use_item_in_battle
+  navigated on the raw cursor byte → run2's "selected but NOT consumed" was A landing on
+  Revive ("no effect") or CANCEL (bag closes; follow-up A's spilled into the action menu —
+  the "BAG open at the turn loop" chaos). The Full Restore kit was a coin-flip exactly when
+  the E4 plan is FR attrition. Fixed nav is VERIFIED live from the poisoned state
+  (recon_bagscroll_verify.py: cursor=5/scroll=1 → FR consumed, HP 23→193, PASS).
+- **WAR-MUST-ADVANCE (turn-based livelock class, run-existential):** a can't-flee TRAINER
+  battle where every move is streaked/0-PP returned no_usable_move/no_effective_move and
+  submitted NO action — in a turn-based game the foe never gets a turn, so the battle NEVER
+  resolves: famine → anti-wedge abort → vehicle re-enters → forever. She couldn't even LOSE
+  her way to the whiteout ratchet (respawn heals PP; DEFEATED flags ratchet cleared rooms).
+  Now: trainer battle + moves-exhausted → clear the streak and re-fire the best PP-having
+  move (connect-capable preferred, immune-damaging last resort — a passed turn still
+  resolves); zero PP anywhere → FIGHT+A and the game substitutes STRUGGLE (_struggle()).
+  Wild battles keep the old surface-to-flee behavior. VERIFIED by inspection + will show in
+  run3's log ("war-must-advance" lines).
+- **Agatha math (why the ratchet wins):** ghosts resist RL x0.5, EQ dead vs Levitate,
+  Secret Power dead vs Ghost; arriving from Bruno with ~half PP famines mid-fight. Fresh
+  full-PP arrival (post-whiteout, rooms 1-2 pass through on DEFEATED flags) + working FRs +
+  sleep-lock should take her; Lance = RL chip + Secret Power x1; then Gary → HALL OF FAME.
+- **Single-run law bite:** run1's process ghosted ALIVE under run2 (two recon_e4.py
+  side-by-side at shift start). Reap predecessors at launch, always.
+- FILED (unchanged): revives bought but never OFFERED in-battle; double-battle actuation.
+
 ### ── 2026-07-07 NIGHT SHIFT #11 — VR 2F-switch2 GHOST-BOULDER solved; the 3F drop detour ──
 **CANONICAL unchanged = giovanni_badge8.** run8 aborted LOUD (the new armor worked:
 27s to a clean diagnosis instead of run7's silent all-night spin) on "no boulder on
@@ -66,11 +96,22 @@ Registered (3,9)→(11,6) + **NURSE_FRONT_OVERRIDES** (the League center is NOT 
 shared PC layout; nurse (13,10), stand (13,11)) — run11 healed at the League
 center first try and banked CLEAN at (3,9)@(12,19), lead 100%, Venusaur **L66**,
 $63,678. Commits f3485dc, 17a5b49.
-**IN FLIGHT: e4_run1 (recon_e4.py, e4_run1.log) — THE CREDITS STRIKE:** heal →
-League mart kit (FR×10/Rev×6/FH×4) → Lorelei→Bruno→Agatha→Lance→GARY → HoF →
-banked_CREDITS. Watch the Agatha wall (Venusaur can't touch Levitate-ghosts —
-sleep-lock + attrition is the plan; a 2-stuck abort there = battle-agent move
-choice fix, not vehicle).
+**e4_run1 postmortem (both walls fixed, beadb1e):** (1) **THE ITEM INSTINCT WAS
+ORACLE-GATED OFF in every headless vehicle** — _maybe_use_item returns False when
+BattleAgent.choose is None, and no recon vehicle ever passed a chooser; Lorelei
+wiped the party with FR×10 UNTOUCHED. recon_e4 now passes a deterministic chooser
+(always take the offered heal/cure; choose only routes "battle_item"). ⚠️ BUG
+CLASS: any headless vehicle expecting in-battle items has the same gate —
+audit before relying on it. FILED: revives are never OFFERED by the instinct
+(active-mon heal + status cure only) — the Agatha fodder-revive plan needs that
+wire if attrition fails. (2) **post-whiteout FREEZE** — 22 no-move replans at the
+center (hidden-modal-box class, dd_box blind to it): walk() freeze armor added
+(3 no-move replans → snap frame + blind B/A drain) + fast bail when the map
+changes mid-walk.
+**IN FLIGHT: e4_run2 (e4_run2.log) — THE CREDITS STRIKE:** heal → kit → Lorelei→
+Bruno→Agatha→Lance→GARY → HoF → banked_CREDITS. Watch the Agatha wall (Venusaur
+can't touch Levitate-ghosts — sleep-lock + FR attrition; a 2-stuck abort there =
+battle-agent move choice vs ghosts, not the vehicle).
 
 ### ── 2026-07-07 NIGHT SHIFT #8 — VICTORY ROAD: the three-switch truth; strike iterating ──
 **CANONICAL unchanged = giovanni_badge8** (Viridian, ALL EIGHT BADGES, healed). Shift
