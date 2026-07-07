@@ -3928,10 +3928,31 @@ class Campaign:
                             self.trav.travel(target_map=None, arrive_coord=stand,
                                              max_steps=200, max_seconds=90)
                             if tuple(tv.coords(self.b) or ()) == stand:
+                                # CAPABILITY IN HAND (surge run 4): a cut tree + a party mon
+                                # that KNOWS Cut = clear it RIGHT HERE — the stage-3 automatic
+                                # chain. Arming a gate instead makes the recognizer fall
+                                # through to the WATER beside the gym and open a Safari-Zone
+                                # surf errand that poisons her context ('blocked by water' —
+                                # the oracle then never picks use_cut).
+                                if (ob["gfx"] == _fm.GFX_CUT_TREE and self.field is not None
+                                        and _fm.can_use(self.b, "cut",
+                                                        self.b.rd8(ram.GPLAYER_PARTY_CNT))):
+                                    face = {(0, -1): "UP", (0, 1): "DOWN",
+                                            (-1, 0): "LEFT", (1, 0): "RIGHT"}[
+                                        (ox - stand[0], oy - stand[1])]
+                                    self.on_event("that little tree's right in the way — Cut "
+                                                  "time. TIMBER!", kind="field", tier=2)
+                                    res = self.field.clear_obstacle("cut", face)
+                                    log(f"   [roam] auto use_cut at {ob['coord']} "
+                                        f"(face {face}) -> {res}")
+                                    if res == "used":
+                                        return "cleared"
                                 return True
                 return False
 
             found = _obstacle_probe()
+            if found == "cleared":
+                return None      # tree is DOWN — no gate; the next tick's door leg walks through
             if not found:
                 # phase B — reposition toward the door (bounded) so nearer objects LOAD, then rescan
                 for d in range(2, 11, 2):
@@ -3942,7 +3963,8 @@ class Campaign:
                         self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
                                          max_steps=200, max_seconds=60)
                         break
-                _obstacle_probe()
+                if _obstacle_probe() == "cleared":
+                    return None
             here = tv.coords(self.b)
             gate = self._gate_recognizer.recognize(tuple(tv.map_id(self.b)),
                                                    player_xy=tuple(here) if here else None,
