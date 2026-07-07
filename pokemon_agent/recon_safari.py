@@ -5,10 +5,17 @@ Strength — BOTH live behind the Safari Zone). Disasm ground truth (pret, fetch
   Fuchsia (3,7): Safari entrance door (24,5); Warden's House door (33,31).
   Entrance interior: city doors (3-5,7); ENTRY TRIGGERS at (3-5,3) — walking north fires the
   $500 join prompt (YES default, A pays, 30 balls); warp (4,1) -> SAFARI CENTER.
-  Center: arrival (26,30); WEST doors (8,17-19); exit warps (25-27,30) -> entrance.
-  West (Area 3): arrival (40,26-28); GOLD TEETH item ball (28,14)
-  (FLAG_HIDE_SAFARI_ZONE_WEST_GOLD_TEETH); SECRET HOUSE door (12,7); house: HM03 attendant
-  (6,5) (engage from (6,6) face UP); house exit (3-5,9) -> West.
+  Center: arrival (26,30); exit warps (25-27,30) -> entrance; EAST doors (43,15-17).
+  ⚠ THE POND TRUTH (strikes 7-11, probe + pret map.bin): the Center's pond splits it into
+  TWO components — the WEST doors (8,17-19) + NORTH doors (25-27,5) sit on the far SHELF,
+  UNREACHABLE on foot from the entrance pocket. The tour chain is the classic Safari loop:
+  Center -EAST(43,15-17)-> Area 1 East [arrive (8,26-28); its NW doors (8,9-11)] ->
+  Area 2 North [arrive (48,31-33); its S doors (10-12,34)/(20-22,34)] ->
+  Area 3 West [arrive (30-32,5)/(37-39,5) top row]. Return = REVERSE the chain (West's
+  (40,26-28) doors land on the Center SHELF — wrong side for the exit mats).
+  West (Area 3): GOLD TEETH item ball (28,14) (FLAG_HIDE_SAFARI_ZONE_WEST_GOLD_TEETH);
+  SECRET HOUSE door (12,7); house: HM03 attendant (6,5) (engage from (6,6) face UP);
+  house exit (3-5,9) -> West.
   Warden's house: give Gold Teeth (auto on talk) -> HM04 STRENGTH.
   HM item ids: HM03 Surf = 341, HM04 Strength = 342 (TM-case pocket); Gold Teeth = key item.
 SAFARI RULES: 600-step limit (running out = scripted warp back to the entrance — the strike
@@ -162,7 +169,7 @@ def main():
         if new:
             thrown_species.add(sp)
         nm = st.SPECIES_NAME.get(sp, f"#{sp}")
-        L(f"   [safari] wild {nm} (new={new})")
+        L(f"   [safari] wild {nm} (new={new}) @ {tv.coords(b)}")
 
         def settle(n):
             for _ in range(n):
@@ -260,6 +267,8 @@ def main():
             p = tv.bfs(g, cur, lambda t: t == tile,
                        walkable=lambda sx, sy: g.walkable(sx, sy)
                        and (sx, sy) not in wts and (sx, sy) not in npcs)
+            L(f"   [{label}] replan at {cur} -> {tile} (len {len(p) if p else 0}, "
+              f"budget {budget})")
             if not p:
                 L(f"   [{label}] no NPC-free static path {cur} -> {tile} "
                   f"(dead={sorted(dead)})")
@@ -270,7 +279,13 @@ def main():
                     on_battle()
                     drain()
                     budget += 1          # a battle is not a failed try (grass roads have
-                    break                # an encounter every few steps — strike4 truth)
+                    #                      an encounter every few steps — strike4 truth)
+                    if not ok and tuple(tv.coords(b) or ()) != tuple(t):
+                        dead.add(tuple(t))   # strike8 truth: a blocked step whose NUDGE
+                        #                      lands in grass fires a battle, and this
+                        #                      branch used to SKIP dead-marking — the
+                        #                      shore treadmill (35,17)<->(34,17)
+                    break
                 if not ok:
                     for _ in range(120):
                         b.run_frame()
@@ -356,6 +371,12 @@ def main():
                       f"@ {tv.coords(b)}")
                     return True
             break
+        if not cands:
+            L(f"   [{label}] ZERO approach candidates for {wt}: grid {g.w}x{g.h}, "
+              f"cur {cur0} walkable={g.walkable(*cur0)}; "
+              + "; ".join(f"nb {nb}: walk={g.walkable(*nb)} warp={nb in wts}"
+                          for nb in ((wt[0] - 1, wt[1]), (wt[0] + 1, wt[1]),
+                                     (wt[0], wt[1] - 1), (wt[0], wt[1] + 1))))
         L(f"!! [{label}] warp step {wt} failed (at {tv.map_id(b)}@{tv.coords(b)})")
         return False
 
@@ -406,7 +427,7 @@ def main():
           f"(entrance={ENTRANCE}, warden={WARDEN_HOUSE})")
         return 1
     L(f"   resolved: entrance={ENTRANCE} warden_house={WARDEN_HOUSE}")
-    CENTER = WEST = SECRET = None
+    CENTER = EAST = NORTH = WEST = SECRET = None
     safari_maps = set()
 
     wedges = {}
@@ -419,6 +440,8 @@ def main():
             L(f"!! {msg} x{cap} — abort LOUD")
             return True
         drain()
+        for _ in range(150):     # PACE the retries: strike10 burned 12 attempts in 0.3s,
+            b.run_frame()        # all inside one warp-transition window
         return False
 
     while time.time() < deadline:
@@ -474,6 +497,9 @@ def main():
             if tuple(tv.map_id(b)) != CENTER:
                 step_warp((4, 1), "into-center")
             if tuple(tv.map_id(b)) == CENTER:
+                for _ in range(180):     # strike9/10 truth: SB1 map ids flip FIRST; the
+                    b.run_frame()        # header/backup layout rebuild lags — planning
+                #                          instantly reads the PREVIOUS city's grid
                 wedges.pop("into_center", None)
                 _stage_save("safari_in")
             elif wedge("into_center", 6, "can't reach the Safari Center"):
@@ -481,17 +507,49 @@ def main():
             continue
 
         if CENTER and here == CENTER:
-            if WEST is None:
-                WEST = dest_of((8, 17))
-                if WEST:
-                    safari_maps.add(WEST)
+            if EAST is None:
+                EAST = dest_of((43, 15))
+                if EAST:
+                    safari_maps.add(EAST)
             if have_surf():
                 # leave: the exit warps (25-27,30) -> entrance (a leave prompt may fire)
                 if not any(step_warp(w, "center-exit") for w in ((26, 30), (25, 30), (27, 30))):
                     if wedge("center_exit", 4, "can't exit the Safari Center"):
                         return 1
                 continue
-            if not any(step_warp(w, "to-west") for w in ((8, 18), (8, 17), (8, 19))):
+            # POND TRUTH: west doors unreachable on foot — the tour goes EAST first
+            if not any(step_warp(w, "to-east") for w in ((43, 16), (43, 15), (43, 17))):
+                if wedge("to_east", 4, "can't reach Area 1 (East)"):
+                    return 1
+            continue
+
+        if EAST and here == EAST:
+            if NORTH is None:
+                NORTH = dest_of((8, 9))
+                if NORTH:
+                    safari_maps.add(NORTH)
+            if have_surf():
+                if not any(step_warp(w, "east-back") for w in ((8, 27), (8, 26), (8, 28))):
+                    if wedge("east_back", 4, "can't get back to the Center"):
+                        return 1
+                continue
+            if not any(step_warp(w, "to-north") for w in ((8, 10), (8, 9), (8, 11))):
+                if wedge("to_north", 4, "can't reach Area 2 (North)"):
+                    return 1
+            continue
+
+        if NORTH and here == NORTH:
+            if WEST is None:
+                WEST = dest_of((10, 34))
+                if WEST:
+                    safari_maps.add(WEST)
+            if have_surf():
+                if not any(step_warp(w, "north-back") for w in ((48, 32), (48, 31), (48, 33))):
+                    if wedge("north_back", 4, "can't get back to Area 1"):
+                        return 1
+                continue
+            if not any(step_warp(w, "to-west") for w in ((21, 34), (20, 34), (22, 34),
+                                                         (11, 34), (10, 34), (12, 34))):
                 if wedge("to_west", 4, "can't reach Area 3 (West)"):
                     return 1
             continue
@@ -532,9 +590,11 @@ def main():
                     if wedge("secret", 4, "can't reach the Secret House"):
                         return 1
                 continue
-            # have surf — back to the Center
-            if not any(step_warp(w, "west-back") for w in ((40, 27), (40, 26), (40, 28))):
-                if wedge("west_back", 4, "can't get back to the Center"):
+            # have surf — reverse the chain via the NORTH top doors (the (40,26-28)
+            # doors land on the Center's pond-locked SHELF — no path to the exit mats)
+            if not any(step_warp(w, "west-back") for w in ((31, 5), (30, 5), (32, 5),
+                                                           (38, 5), (37, 5), (39, 5))):
+                if wedge("west_back", 4, "can't get back to Area 2"):
                     return 1
             continue
 
@@ -597,7 +657,11 @@ def main():
         elif CENTER and here == CENTER:
             step_warp((26, 30), "final-center-exit")
         elif WEST and here == WEST:
-            step_warp((40, 27), "final-west-exit")
+            any(step_warp(w, "final-west-exit") for w in ((31, 5), (30, 5), (38, 5)))
+        elif NORTH and here == NORTH:
+            any(step_warp(w, "final-north-exit") for w in ((48, 32), (48, 31), (48, 33)))
+        elif EAST and here == EAST:
+            any(step_warp(w, "final-east-exit") for w in ((8, 27), (8, 26), (8, 28)))
         elif SECRET and here == SECRET:
             step_warp((4, 9), "final-house-exit")
         elif here == WARDEN_HOUSE:

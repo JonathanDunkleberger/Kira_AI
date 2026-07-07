@@ -246,10 +246,33 @@ class Grid:
         try:
             ml = b.rd32(GMAPHEADER)
             lw, lh = b.rd32(ml), b.rd32(ml + 4)
+
+            def _content_synced():
+                # DIMS-EQUAL MAPS DEFEAT A DIMS-ONLY CHECK (Fuchsia vs Safari Center,
+                # 2026-07-07: the pay-script warp left a Fuchsia-content backup that
+                # PASSED the dims guard — the strike planned the wrong city and
+                # treadmilled on a phantom pond). The backup is rebuilt from the header
+                # layout's ROM map (MapLayout.map @ +0x0C), so sample-compare metatile
+                # ids; >=20/24 tolerates script-modified tiles (opened doors etc).
+                rom_map = b.rd32(ml + 0x0C)
+                if not (0x08000000 <= rom_map < 0x0A000000):
+                    return True                    # can't verify — don't block
+                bw = b.rd32(BACKUP_LAYOUT)
+                mp0 = b.rd32(BACKUP_LAYOUT + 8)
+                hits = 0
+                for k in range(24):
+                    sx, sy = (k * 7919) % lw, (k * 104729) % lh
+                    rv = b.rd16(rom_map + (sy * lw + sx) * 2)
+                    bv = b.rd16(mp0 + ((sy + MAP_OFFSET) * bw + (sx + MAP_OFFSET)) * 2)
+                    if (rv & 0x3FF) == (bv & 0x3FF):
+                        hits += 1
+                return hits >= 20
+
             if 0 < lw < 1000 and 0 < lh < 1000:
                 for _ in range(40):
                     if (abs(b.rd32(BACKUP_LAYOUT) - (lw + 15)) <= 2
-                            and abs(b.rd32(BACKUP_LAYOUT + 4) - (lh + 15)) <= 2):
+                            and abs(b.rd32(BACKUP_LAYOUT + 4) - (lh + 15)) <= 2
+                            and _content_synced()):
                         break
                     for _f in range(10):
                         b.run_frame()
@@ -264,9 +287,10 @@ class Grid:
             attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
         except Exception:
             attr = None
-        # `water` is ADDITIVE (Phase 2 field-moves): buffer-coords whose behavior is a
-        # surfable-water tile. It does NOT change walkability/BFS — water stays collision-
-        # blocked; field_moves.surf_edge_adjacent reads this set to know Surf is offerable.
+        # `water`: buffer-coords whose behavior is a surfable-water tile. GROUND TRUTH
+        # (safari-pond probe 2026-07-07): such tiles read RAW collision 0, so walkable()
+        # must EXCLUDE them or BFS routes across ponds (the shore-treadmill wedge class).
+        # field_moves.surf_edge_adjacent reads this set to know Surf is offerable.
         self.col, self.grass, self.ledge, self.impass, self.water = {}, set(), {}, {}, set()
         for by in range(self.h):
             row = mp + by * self.w * 2
@@ -293,10 +317,14 @@ class Grid:
         self.sy_lo, self.sy_hi = 0, self.h - 2 * MAP_OFFSET - 1
 
     def walkable(self, sx, sy):
+        # WATER IS NOT A ROAD (safari-pond truth 2026-07-07): surfable water reads RAW
+        # collision 0 — the game gates it by BEHAVIOR (needs Surf), not collision, so a
+        # col==0 BFS plans straight across ponds and the walker treadmills on the shore.
+        # Surf-mode planners must OR self.water back in explicitly.
         bx, by = sx + MAP_OFFSET, sy + MAP_OFFSET
         if not (0 <= bx < self.w and 0 <= by < self.h):
             return False
-        return self.col.get((bx, by), 1) == 0
+        return self.col.get((bx, by), 1) == 0 and (bx, by) not in self.water
 
     def walkable_safe(self, sx, sy):
         """walkable AND not tall grass - the encounter-free planning layer."""

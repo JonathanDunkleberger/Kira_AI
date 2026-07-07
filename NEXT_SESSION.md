@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #1 of the new loop, pre-strike rewrite)
+# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #2, pre-strike rewrite)
 
 Paste this to the fresh session:
 
@@ -7,92 +7,74 @@ Paste this to the fresh session:
 RESUME — fresh session. Read STATE §0 (newest block first). Never trust this file over
 STATE §0 + NIGHT_REPORT.md if they disagree.
 
-🏅 **BANKED THIS SHIFT (night shift #1, commits 7631b1c + d6a45f4):**
-- **BADGE 6 (Marsh) PROMOTED — sabrina_badge6.** recon_sabrina.py's **pad_plan() = the
-  runtime PAD-GRAPH ROUTER** cracked the teleport maze in 33s (warps whose dest is the
-  current map are pads; dest_warp_id indexes the landing tile; flood-fill walk-regions,
-  meta-BFS with pad rides as edges — zero hardcoded rooms, ports to any teleport maze).
-  Two general leaks killed: unbounded floods leak around the collision-0 BORDER ring; the
-  ELEVATION nibble (map-grid bits 12-15) seals rooms an elevation-blind flood welds together.
-- **LAPRAS IN PARTY — lapras_party PROMOTED** (competency #15 BOTH WAYS: recon_lapras.py
-  box RAM reader @ gPokemonStoragePtr 0x03005010 + MB_PC 0x83 behavior-scan finds any
-  Center's console + the storage-list CURSOR-MEMORY trap killed). Mankey L10 → box.
-  Party: Venusaur 57 / Persian 37 / Fearow 35 / Raticate 31 / Ekans 15 / **LAPRAS 25**.
+**CANONICAL = fuchsia_south: Fuchsia City (3,7)@(47,21), badges 6, $71,886, sanctity VALID**
+(banked 08:41; backup pre_fuchsia_south_backup_20260707_084122). Party: Venusaur L57 /
+Persian 37 / Fearow 35 / Raticate 31 / Ekans 15 / **LAPRAS L25 (slot 5 — the Surf carrier,
+withdrawn from Bill's PC by recon_lapras)**. Mankey L10 is in the box.
 
-🏅 **ALSO BANKED: fuchsia_south PROMOTED** (recon_road.py, commit 57bd88e — the
-deterministic world-graph road strike: Saffron→Fuchsia in 21s, zero battles. The badge-6
-stall truth: with 6 badges head_to_gym targets Cinnabar, an island the graph can't route
-to without Surf — recon_road is the standing answer for any learned road).
+⚔️ **IN FLIGHT AT WRITE: the SAFARI STRIKE, attempt 12 (recon_safari.py → log
+logs/longrun/safari_strike12.log).** FIRST MOVE: read that log's END.
+- Targets in one entry: **GOLD TEETH** ball (Area 3 West (28,14)) + **HM03 SURF** (Secret
+  House attendant (6,5), West door (12,7)) → exit → Warden's house (Fuchsia door (33,31))
+  → **HM04 STRENGTH**. Success = items 341+342 in the TM pocket → banks to
+  %TEMP%/longrun/banked_SAFARI → promote as **safari_hms**
+  (`python pokemon_agent/promote_bank.py <bank> safari_hms`).
+- **THE POND TRUTH (strikes 7-11, night shift 2 — do NOT try the west doors again):** the
+  Center's pond splits it into two components; the WEST (8,17-19) + NORTH (25-27,5) doors
+  are on the far SHELF, unreachable on foot from the entrance pocket. The route is the
+  classic tour chain **Center → EAST (43,15-17) → Area 1 (NW doors (8,9-11)) → Area 2
+  (S doors (20-22,34)/(10-12,34)) → Area 3 West** — billed from pret map.json + live
+  probe, wired into recon_safari (strike 12). Return leg REVERSES the chain (West's
+  (40,26-28) doors land on the shelf).
+- The script is FLAG-IDEMPOTENT and boots from canonical each run — a dead/killed strike
+  just relaunches (`.venv\Scripts\python.exe -u pokemon_agent\recon_safari.py`).
+- **Strike history (do NOT re-diagnose):** 1 = entry-trigger froze enter_to (fixed:
+  deliberate step onto (4,3) + A-drain pays); 2 = grass-free planner reads no_route where
+  GRASS IS THE ROAD (fixed: step_warp on grass-inclusive walk_path_to); 3 = st.in_battle
+  BLIND to safari battles — gate on GBATTLE_RES_PTR alone (fight_open); 4 = battles must
+  not consume walk try-budget; 5 = ball economy — ONE attempt per species per run
+  (thrown_species), and the pay script can auto-warp her into the Center (committed
+  0c53e3c); 6 = healthy, killed by shift-1 close mid-grass at 94s; 7/8 = the SHORE
+  TREADMILL, probe-diagnosed (night shift 2): safari-pond water reads RAW COLLISION 0
+  (gated by behavior, not collision) → BFS planned across the pond, the blocked step's
+  nudge landed in grass, the battle branch skipped dead-marking → (35,17)↔(34,17)
+  forever. KILLED GENERALLY: Grid.walkable now excludes Grid.water (travel.py — surf
+  planners must OR water back in), + walk_path_to dead-marks battle-interrupted failed
+  steps. recon_cinnabar.py (DRAFT, unrun) already ORs water back in via sea_ok.
 
-⚔️ **IN FLIGHT AT WRITE: the SAFARI STRIKE (recon_safari.py, log
-logs/longrun/safari_strike1.log).** Targets in one entry: **GOLD TEETH** ball (Area 3 West
-(28,14)) + **HM03 SURF** (Secret House attendant (6,5), door West (12,7)) → exit → Warden's
-house (Fuchsia (33,31)) → **HM04 STRENGTH**. Disasm truth is in the script docstring
-(entrance (24,5), pay-trigger row y=3, Center↔West doors, all warp coords). Safari battles
-use the BALL/BAIT/ROCK/RUN menu — the handler throws balls at NEW species (dex doctrine)
-then flees by cursor combos; all end-drains are B (nickname-keyboard class). Step-limit
-warp-out = re-enter-and-resume (objectives are flag-idempotent). FIRST MOVE: read the log
-END. Success = items 341+342 in the TM pocket → promote banked_SAFARI as **safari_hms** →
-then: teach SURF to LAPRAS (hm_teach.HMTeach.teach — the standing vehicle), Surf actuation
-south (R19/R20 water) → Cinnabar → Mansion (Secret Key) → BLAINE = badge 7.
-
-🏢✅ **SILPH CO CLEARED + PROMOTED (attended strike16, 07:58 — 359s end-to-end, exit 0):**
-Card Key → 9F heal → pad chain → **GARY #6 BEATEN** → **LAPRAS banked (flag=True, → Bill's
-PC, party full)** → 11F south door (the pad-landing column is sealed; the door fallback is
-the real approach) → **GIOVANNI BEATEN (0x3E saffron_free=True)** → **MASTER BALL from the
-president (flag 0x250=True)** → walked out + healed. Log: logs/longrun/silph_strike16.log.
-
-**CANONICAL = silph_cleared: Saffron City (3,10)@(33,31) — outside Silph, badges 5, SAFFRON
-FREE, Master Ball in bag, Venusaur L57 full HP, sanctity VALID, round-trip verified**
-(backup pre_silph_cleared_backup_20260707_075833). Party: Venusaur L57 / Persian 37 /
-Fearow 35 / Raticate 31 / Ekans 15 / Mankey 10. LAPRAS is in Bill's PC.
-
-🔮 **LIVE OBJECTIVE: SABRINA = BADGE 6 (longrun goal 0x825).** Saffron is free and the gym
-door is unblocked. GymSpec billed (shift 8). Interior = the teleport-pad maze — pads are
-WARPS, the Silph ride_pad/enter_to primitives should carry. Launch the longrun at the gym,
-iterate per wall, bank sabrina_badge6.
-
-**Already killed by shifts 9-11 + the attended pass (do NOT re-diagnose — STATE §0 has the
-full postmortems; commits 1a0d16d, accd57e, 7634d33, 1fd4e74):**
-- 1F lobby↔street livelock: the entrance mat (8,20) is a 0x65 DOWN-arrow warp — LAW: never
-  step off a directional warp tile in its fire direction (fixed recon_silph + campaign).
-- Card Key banks in-run ~30s: 9F pad (22,18) → 5F pocket → ball (22,21) from the EAST front.
-- The tap-turn ghost (campaign `_step_to`): an 8-frame tap in an unfaced direction only
-  TURNS her; re-tap the SAME key. Every "elevation-sealed tile" in the siege was this.
-- walk_path_to = NPC-masked static BFS (grid BFS is NPC-blind; beaten trainers still stand).
-- 9F door algebra: WMID doors (12-13,16-17) unseal the hostage HEAL woman (2,16) — a FREE
-  repeatable full heal; WMID+WEST (2-3,10-11) unseal the 3F-pad corridor.
-- The pad chain: 9F (9,4)↔3F (2,14) · 3F (13,14)↔7F (5,4) · 7F (5,8)↔11F (2,5). The 7F
-  Gary/Lapras pocket is PAD-ONLY; Giovanni (6,11) is open from the 11F pad landing (2,5).
-- **GARY #6 BEATEN in strike15** (grudge 4W-2L, in strat memory via the stage saves).
-- The "7F wedge" = the LAPRAS GIFT NICKNAME KEYBOARD (frame-proven, wedge7f_frame.png):
-  A-drains on "give a nickname? [YES]" opened the keyboard, which ate all overworld input —
-  the same bug class that once named Venusaur "AAAAAAAAAA". Fixed: engage(key="B") B-drains
-  the gift end-to-end + a name_entry(b,"") START→OK escape hatch.
-
-**THE CHAIN AFTER (bank each, keep climbing):** badge 7 = BLAINE, Cinnabar — needs SURF
-(HM03, Safari Zone Secret House, Fuchsia) + a Surf-capable teammate (Venusaur can't —
-**LAPRAS in Bill's PC is the natural surfer**: box-withdraw = competency #15, unbuilt, likely
-the next real capability build) → badge 8 = GIOVANNI, Viridian → Route 22/23 → Victory Road
-→ E4 → **CREDITS**.
+**THE CHAIN AFTER SAFARI (bank each, keep climbing):**
+1. **Teach SURF → LAPRAS slot 5** (hm_teach.HMTeach.teach('surf',5) — the standing vehicle;
+   forget a Mist-class move). Then HM04 Strength → whoever fits (Venusaur? check compat via
+   the ROM table @0x08252BC8 — never hand-tables).
+2. **Surf actuation** — fm.surf_edge_adjacent exists in field_moves; the WATER STEP is the
+   next capability seam (Route 19/20 south of Fuchsia). Build general: face water edge →
+   A → YES → riding state.
+3. Route 19/20 surf south-west → **CINNABAR** → Mansion (SECRET KEY, gym locked without it)
+   → **BLAINE = BADGE 7**.
+4. **GIOVANNI, Viridian = BADGE 8** (gym needs spin_nav.py — built, NOT wired into
+   travel/campaign; the maze is spin tiles).
+5. Route 22/23 → **VICTORY ROAD** (Strength boulders — HM04 from this safari strike) →
+   **E4 → CREDITS.**
 
 **KNOWN GAPS (owed, carried):** Venusaur still named "AAAAAAAAAA" (Name Rater, Lavender —
-cheap soul beat when passing); bench dead weight (Ekans L15/Mankey L10 — E4 needs a real
-squad; Lapras helps); spin_nav.py not wired into travel/campaign (Viridian Gym needs it);
-questline can't CLIMB interiors generically (two strikes prove the spec — promote the
-state-machine pattern when a third dungeon bites); passthrough nearest-door vs multi-warp
-ordering.
+cheap soul beat when passing); bench dead weight (Ekans L15 + boxed Mankey L10 — E4 needs a
+real squad; Lapras helps); spin_nav.py unwired (Viridian Gym blocker); questline can't CLIMB
+interiors generically; safari catches are silent RAM catches — no judged-catch narration.
 
-**SOUL-DEBT (flag while passing):** LAPRAS joined the family unnamed and unmet, straight to
-the PC — her first withdrawal deserves the roster-bond beat. Gary 4W-2L is live narrative.
+**SOUL-DEBT (flag while passing):** LAPRAS joined unmet, unnamed, via a PC menu — her first
+fielded moment (the first Surf!) deserves the roster-bond beat. Gary 4W-2L is live narrative.
+
+**WORKING-TREE LAW:** kira/bot.py, kira/brain/cost_tracker.py, kira/modes/vn_autopilot.py,
+kira/senses/vision_agent.py + gemini_vision.py = **Jonny's Gemini-vision WIP — NEVER commit,
+never sweep into pokemon commits.** Stage pokemon files by explicit path only.
 
 Rules in force: EMPLOYMENT TERMS (two-wall shift ends, bank-and-continue), tripwire, arsenal,
 single-run law, ground-truth-only (grid-dump/battle-trace before believing any wall),
-frontier-first NEXT_SESSION.md rewrites. GO.
+frontier-first NEXT_SESSION.md rewrites (BEFORE long strikes + at every bank). GO.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN (silph_cleared — Team Rocket just driven out of
-Saffron, Master Ball in her bag, Lapras waiting in Bill's PC); she is outside Silph Co,
-Sabrina's gym next; pop-in = `.venv\Scripts\python.exe -u pokemon_agent\play_live.py
---resume --free-roam`.
+WATCH STATUS: canonical bank is CLEAN (fuchsia_south — badge 6 on her jacket, Lapras
+finally at her side, standing in Fuchsia with the Safari Zone gate to the north); she is
+about to run the Safari for Surf + Strength, the badge-7 unlock; pop-in =
+`.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam`.
