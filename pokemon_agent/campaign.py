@@ -267,7 +267,8 @@ FLAG_BADGE_THUNDER = 0x822
 # region south. EXTEND as new cities are reached; an unmapped city heals LOUD-fallback, never silent.
 CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR,
-                 VERMILION: VERMILION_PC_DOOR}
+                 VERMILION: VERMILION_PC_DOOR,
+                 (3, 28): (13, 20)}    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
