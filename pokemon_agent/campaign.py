@@ -3533,8 +3533,12 @@ class Campaign:
                 if self.enter_warp(prefer=d, budget_s=300) == "warped" \
                         and tuple(tv.map_id(self.b)) != before_m:
                     # entering the destination-ward warp = we are PAST the anchor now; without this
-                    # the re-anchor would route her straight OFF the ship back to the city.
+                    # the re-anchor would route her straight OFF the ship back to the city. And she
+                    # is now deliberately INSIDE quest territory — the blackout interior auto-exit
+                    # must LEAVE HER THERE (run 9: it ejected her off the ship one tick after
+                    # boarding and the no-progress guard then killed the errand).
                     self._ql_past_anchor = True
+                    self._ql_inside_target = True
                     log(f"   [roam] 🧭 QUESTLINE: no {d} edge on the anchor map — entered its "
                         f"{d}-most warp toward {step.place_name or 'the destination'} "
                         f"({before_m} -> {tv.map_id(self.b)})")
