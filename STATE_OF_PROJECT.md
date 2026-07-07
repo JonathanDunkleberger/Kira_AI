@@ -30,7 +30,44 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
-### ── 2026-07-07 NIGHT SHIFT #7 UPDATE 2 (🏆 BADGE 5 — KOGA BEATEN; Saffron road billed + marching) ──
+### ── 2026-07-07 NIGHT SHIFT #8 (🍵 TEA → 🏙️ SAFFRON ENTERED; Silph strike in flight) ──
+**CANONICAL = saffron_reach: Saffron City (3,10)@(47,13) — AT the gym door, badges 5, TEA in
+bag, party FULL HP, sanctity VALID** (backups pre_tea_banked_… + pre_saffron_reach_…).
+**THE NIGHT'S CHAIN (commits 8cc1aa2 → f5ce337):**
+- **Route 12 north gatehouse CROSSED** (the shift-7 frontier): four passthrough bugs killed —
+  (a) enter_warp approach max_steps 300→900 (Route 12's pier maze died on the cap and misread
+  as entry geometry; new 'no_reach' return), (b) need_heal/timeout no longer burn the candidate
+  in `tried`, (c) the CROSSED test is now DOOR-relative (>3 tiles from the entry door), killing
+  the rest-house false positive, (d) a `_pt_known` connector that fails to cross is forgotten.
+- **WRONG-ENTRANCE RECOVERY (general)**: occupants VISIBLE but BFS-unreachable on an interior =
+  sealed sub-region = same building, different entrance. The interact layer remembers the
+  interior (`_ql_sibling_dest`); city door pickers skip entered-and-FAILED doors and prefer
+  siblings warping into that interior. Proven live: Celadon Mansion back door burned → front
+  door (30,11) → the old lady → **FLAG_GOT_TEA set, questline cleared** (sabrina_run5).
+- **Saffron = (3,10), NOT (3,11)** (pret map_groups: index 10; (3,11) is SaffronCity_Connection).
+  The wrong id sent travel EAST hunting a ghost map. KB corrected; **Sabrina GYMS row billed**
+  (door (46,12), Sabrina front (14,12), badge flag 0x825, Center (24,38) in CITY_PC_DOORS;
+  interiors are group 14: gym (14,3), Center (14,6)).
+- **Want-aware door-passthrough**: candidates sort dest-first (want-map, then UNVISITED
+  interiors, then known ground); off-want crossings are usable but never enshrined in
+  `_pt_known`. Killed the R8↔R7 Underground-Path ping-pong (sabrina_run6).
+- **Bag hash in the longrun stall sig** (recon_longrun): a quest-item acquisition is progress;
+  run5 was declared stalled 4 ticks AFTER the Tea landed.
+**SAFFRON ENTERED (sabrina_run7): the TEA gate opened, (3,10) bound, she walked to the gym —
+`!! GYM: couldn't enter the Sabrina gym` ×14 = RocketGrunt3 (46,13) blocks it until
+FLAG_HIDE_SAFFRON_ROCKETS (0x3E), set ONLY by Giovanni's defeat on Silph 11F.**
+**IN FLIGHT AT WRITE: recon_silph.py (silph_strike2)** — the hideout/tower-class strike, disasm
+truth banked in its docstring: Silph floors (1,47)..(1,57) LIVE-verified; 5F Card Key ball
+(22,21) (item 355, pickup flag 0x192); card doors = BG 'sign' events ON the barrier tiles,
+A-press opens with the key (per-floor flags 0x27C..0x28D); 3F pad (13,14)→7F (5,4); 7F: GARY
+auto-triggers at (2,4)/(2,5) (rival #6 — the foes-seen ledger's live test), LAPRAS free from
+(0,7) (flag 0x246, party full → PC), pad (5,8)→11F; 11F: GIOVANNI (6,11) → 0x3E + president
+(9,9) hands the MASTER BALL (0x250). Exit reverse pads → heal → bank as silph_cleared.
+**THEN:** relaunch the longrun (goal 0x825) — gym door unblocks; the interior is a TELEPORT-PAD
+maze (32 warp events, group (14,3)) — pads are warps, enter_to-style routing may just work;
+else a gym strike rides the same pattern. Sabrina: Psychic team L37-43; Venusaur L55 + the
+NUKE-SLEEP opener should carry; watch for Alakazam's Psychic vs her poison typing (Venusaur is
+GRASS/POISON — psychic hits x2; sleep it first).
 **CANONICAL = koga_badge5: Fuchsia (3,7)@(9,33), badges 5 ($55k), Venusaur L55, sanctity VALID**
 (backup pre_koga_badge5_backup_20260707_050954; party was HURT in-bank — Venusaur/Persian fainted
 taking Weezing — but the NEXT leg's first tick heals at the Fuchsia Center, verified in
