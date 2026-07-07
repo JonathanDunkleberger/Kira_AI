@@ -686,8 +686,13 @@ def main():
                   f"Viridian before the Road (battle-free road home)")
                 retreating = True
             elif retreating:
+                # the gate pair is (8,153) arrow-warp + (9,154) PHANTOM anchor on a
+                # col-1 tile — only walkable warp tiles are real entries
+                g_r23 = tv.Grid(b)
                 gates = [tuple(xy) for xy, d, _w in tv.read_warps(b)
-                         if tuple(d) == GATE]
+                         if tuple(d) == GATE
+                         and g_r23.col.get((xy[0] + tv.MAP_OFFSET,
+                                            xy[1] + tv.MAP_OFFSET), 1) == 0]
                 gates.sort(key=lambda t: t[1], reverse=True)
                 if not gates or not go_warp(gates[0], GATE, "r23-to-gate"):
                     if wedge("r23-to-gate"):
