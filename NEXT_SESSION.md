@@ -10,13 +10,16 @@ trash-can solver debut → badge), flags 0x822/0x237/0x264 verified on-disk, par
 VALID (badge3_bank_20260706_212559 promoted). Ship arc CLOSED (HM01, Gary 2-2 aboard, departed).
 
 Tonight's chain (the credits path, badge 4 next):
-1. READ `logs/longrun/east_run2.log` END first (in flight at close; GOAL_MAP=3,28 = Route 10).
-   East run 1 already PROVED the northbound crossing (Vermilion → Route 6 → Route 5 → Cerulean
-   autonomous) and stalled at Route 9's mouth tree — the GENERAL travel-layer auto-clear
-   (field_clear callback, cut trees + boulders in-leg) landed after it and rides in run 2.
-   If GOAL: bank holds Route-10 arrival — verify + heal-cycle + promote (promote_bank.py; the
-   heal tool pattern lives in STATE session-7; REMEMBER cut trees REGROW on state reload — the
-   heal may need a re-cut first). If STALL: characterize from the raw log, one wedge per cycle.
+1. EAST RUN 2 RESULT (read `logs/longrun/east_run2.log` for detail): STALL after 31 min at
+   Route 6 (3,24)@(14,30), last opts=['heal'] — a HEAL SPIN on an OVERWORLD map (the interior-
+   first rung doesn't apply; Route 6 is one edge from Vermilion so the adjacent-city excursion
+   should have fired — diagnose WHY it didn't; grep 'HEAL' in the log tail). Party reached
+   Venusaur L46/Persian L35/Fearow L33 and she toured ~(47,20)-coord maps (Route 9 side) before
+   the faint. Run 1 proved Vermilion→Cerulean northbound autonomous; the in-leg auto-clear
+   (field_clear) rode in run 2 — check whether it fired ('CLEARED with' in the log).
+   FIRST MOVE: fix the Route-6 heal wedge (one wedge per cycle), relaunch GOAL_MAP=3,28.
+   If a run GOALs: verify + heal-cycle + promote (promote_bank.py; trees REGROW on reload —
+   the heal may need a re-cut first).
 2. DEX 10 → FLASH: she's dex 9. One judged catch on Route 9/10 (Voltorb is NEW there) closes the
    Flash aide gate (KB bills HM05/aide/Route-2-gate already). Teach Flash needs a slot judgment.
 3. ROCK TUNNEL: bill it into frlg_gates.json (entrances Route 10 north/south, Flash-dark), then
