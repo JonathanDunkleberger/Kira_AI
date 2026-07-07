@@ -161,16 +161,24 @@ class TeachFlow:
             self._press("DOWN" if cur < target else "UP", settle=18)
         return self._party_cursor() == target
 
-    # forget/"KNOWN MOVES" screen cursor: the selected row's RED-ORANGE border at x=122 (row-0 box
-    # top y=18, spacing ~23 native; measured tk_020). Closed-loop like the party nav.
-    _FORGET_TOPS = (18, 45, 67, 90, 112)     # measured (tk_020 row0=18; fg_1 row1=45; probes 67/90/112)
+    # forget/"KNOWN MOVES" screen cursor: the selected row's RED-ORANGE border draws TWO
+    # horizontal runs (box top + bottom). MEASURED live (recon_forget_probe, victory_run1
+    # postmortem): tops = 18/46/74/102/130, 28px spacing — the old 67/90/112 were unmeasured
+    # probes and missed rows 2-4 entirely (the EQ-teach B-out). A row's BOTTOM run lands in
+    # the NEXT row's top window, so rows are checked ASCENDING (the true top border wins).
+    # The cursor WRAPS row4 -> row0 (measured), so the closed-loop goto always converges.
+    _FORGET_TOPS = (18, 46, 74, 102, 130)
 
     def _forget_cursor(self):
         p = self.b.frame_rgb().load()
         for k, y0 in enumerate(self._FORGET_TOPS):
-            for dy in (-3, -2, -1, 0, 1, 2, 3):
-                r, g, b = p[122, y0 + dy][:3]
-                if r > 200 and g < 120 and b < 80:
+            for dy in (-2, -1, 0, 1, 2):
+                n = 0
+                for x in (116, 119, 122, 125, 128):
+                    r, g, b = p[x, y0 + dy][:3]
+                    if r > 200 and g < 120 and b < 80:
+                        n += 1
+                if n >= 2:
                     return k
         return None
 

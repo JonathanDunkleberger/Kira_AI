@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #5 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #7 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -7,58 +7,57 @@ Paste this to the fresh session:
 RESUME — fresh session. Read STATE §0 (newest block first). Never trust this file over
 STATE §0 + NIGHT_REPORT.md if they disagree.
 
-🏅 **CANONICAL = blaine_badge7: Cinnabar Island (3,8)@(20,5), BADGES 7, party
-HEALED, sanctity VALID, round-trip verified** (backup
-pre_blaine_badge7_backup_20260707_130328). Party: Venusaur L60 (Razor Leaf/
-STRENGTH/Sleep Powder/Secret Power) / Persian 37 / Fearow 35 / Raticate 31 /
-Ekans 15 / Lapras L25 (SURF). Blaine fell FIRST TRY in blaine_run4 (59s total)
-once the SE-CHUNK sleep-lock landed (battle_agent commit 9e3a447); Bill's
-One-Island ambush B-declined; recon_blaine.py = the reusable quiz-gym vehicle.
+🏅 **CANONICAL = giovanni_badge8: Viridian City (3,1)@(36,11), ALL EIGHT BADGES,
+party HEALED, sanctity VALID** (backup pre_giovanni_badge8_backup_20260707_131428).
+Party: Venusaur L61 (Razor Leaf/STRENGTH/Sleep Powder/**EARTHQUAKE** once the
+victory strike's phase 0 banks — canonical still has Secret Power) / Persian 37 /
+Fearow 35 / Raticate 31 / Ekans 15 / Lapras L25 (SURF). Money ~$86k.
 
-⚔️ **SHIFT-5 LIVE OBJECTIVE: GIOVANNI badge 8 — strike vehicle = pokemon_agent/
-recon_giovanni.py, runs logging to logs/longrun/giovanni_runN.log.** If a run is
-in flight, READ ITS LOG END first; promote any bank before anything else
-(`python pokemon_agent/promote_bank.py %TEMP%/longrun/banked_GIOVANNI
-giovanni_badge8`).
+⚔️ **SHIFT-7 LIVE OBJECTIVE: THE ROAD TO THE PLATEAU — pokemon_agent/
+recon_victory.py, logs logs/longrun/victory_runN.log.** If a run is in flight,
+READ ITS LOG END first; promote any bank (`python pokemon_agent/promote_bank.py
+%TEMP%/longrun/banked_VICTORY indigo_reach`).
+- **victory_run1 postmortem SOLVED:** the EQ teach B-out was the FORGET-screen
+  cursor — `_FORGET_TOPS` rows 2-4 were unmeasured probes (67/90/112); measured
+  truth (recon_forget_probe.py) = tops **18/46/74/102/130** (28px spacing, border
+  = box top+bottom runs, cursor WRAPS 4→0). Fixed in hm_teach.py, teach verified
+  end-to-end on a throwaway core (Secret Power → EQ, 4.6s).
+- Vehicle covers: EQ teach (TM26→Venusaur over Secret Power, forget_idx 3) →
+  R22 GARY (trigger col 33, var==3, his strongest pre-E4 team; loss =
+  whiteout-retry loop) → gate (28,0) → R23 badge gauntlet (7 drain-scenes) →
+  VICTORY ROAD: 1F (11,20)→(3,2) no puzzle; 2F THE ONE PUZZLE = boulder (6,17)
+  L,L,D,D,L,L onto switch (2,19) (offline-derived, all tiles verified) →
+  (36,17)→3F (39,17)→(37,10)→2F east (38,9)→(48,12)→R23 north → INDIGO PLATEAU
+  → heal → bank indigo_reach.
 
-**THE DERIVED TRUTH (pret cached G:\temp\longrun\pret\ViridianGym*.json/.inc):**
-- THE ROAD: Cinnabar→Viridian = FIVE consecutive NORTH edge crossings
-  (Cinnabar → R21S → R21N → Pallet → Route1 → Viridian); sea legs surf on
-  Lapras (recon_seafoam mount/sea_walk/cross_edge machinery cloned verbatim).
-- THE DOOR: ViridianCity OnTransition unlocks the gym with badges 2-7 held (she
-  has 1-7) — coord event (36,11) dies on first city transition; warp (36,10) →
-  gym map (5,1).
-- THE GYM: spin-tile floor maze, NO doors/quizzes — spin_nav.SpinNav.cross()
-  (the proven hideout glide crosser) gets its second customer. 8 juniors WITH
-  sight 2-3 (spotting battles fine: Razor Leaf x2 into ground/rock; SE-chunk
-  sleep-lock covers Nido poison). Giovanni (2,2) face DOWN → front (2,3), face
-  UP. Post-win: **BADGE 8 = flag 0x827** + TM26 (A-drain) + his removeobject
-  fade. NO exit ambush.
-- ⚠️ After badge 8, VAR_MAP_SCENE_ROUTE22=3 arms GARY on Route 22 (westbound,
-  his strongest pre-E4 team) — that's the NEXT objective's opening fight.
-
-**Then (the standing chain):** Route 22 (Gary) → Route 23 badge-gate → Victory
-Road (Strength/boulder machinery from recon_seafoam reuses directly) → Indigo
-Plateau → E4 (stock Full Restores/Revives first — she has ~$72k) → **CREDITS.**
+**After indigo_reach: E4 = the LAST vehicle** — shop Full Restores/Revives at
+the League mart FIRST (~$86k available), then Lorelei→Bruno→Agatha→Lance→
+CHAMPION GARY → **CREDITS** (write CREDITS as NIGHT_REPORT line 1 + full survey).
+⚠️ Agatha wall: Venusaur has NO move that touches Gengar/Haunter (ghost immune
+to Normal, Razor Leaf x0.25, EQ blocked by Levitate) — plan: sleep-lock + Bite
+users (Persian/Raticate) + Full Restore attrition, or lean EQ on Arbok +
+fodder-revive cycling.
+⚠️ Lorelei opener: Dewgong/Cloyster/Slowbro all take Razor Leaf x2 EXCEPT
+Dewgong (x1) and Jynx/Lapras (x1/x0.5-ish) — sleep-lock the ice line, EQ Jynx.
 
 **KNOWN GAPS (owed):** Venusaur "AAAAAAAAAA" (Name Rater, Lavender); bench dead
-weight (Ekans/Mankey); spin_nav unwired; _step_to grass verify window (filed);
-Mansion item balls (TM22/TM14/Full Restore) skipped = backlog.
-**SOUL-DEBT:** Seafoam crossing + burned-mansion key hunt + Lapras first-Surf =
-prime narration set-pieces owed at next play-live; safari catches un-narrated;
-the quiz gym is a NATURAL soul beat (her sweating trivia questions) — note for
-the play-live pass.
+weight (Ekans/Mankey); _step_to grass verify window (filed); Mansion item balls
+(TM22/TM14/Full Restore) skipped = backlog.
+**SOUL-DEBT:** Seafoam crossing + burned-mansion key hunt + Lapras first-Surf +
+the quiz gym + the badge-8 homecoming (Viridian gym finally open) = prime
+narration set-pieces owed at next play-live; safari catches un-narrated.
 
 **WORKING-TREE LAW:** kira/* changes = Jonny's Gemini-vision WIP — NEVER
 commit/sweep. **py-spy is in .venv** — first tool for any silent wedge. Kill
-orphan runs with taskkill //F.
+orphan runs with taskkill //F. Never kill a strike between "badge/goal=True"
+and "BANKED" — read the log end first.
 
 Rules in force: EMPLOYMENT TERMS, tripwire, arsenal, single-run law,
 ground-truth-only, frontier-first rewrites. GO.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN (secret_key — badge 6 + Secret Key, healed,
-standing in front of the Cinnabar Mansion); press GO and you'll see her open the
-long-locked Cinnabar Gym for the badge-7 showdown with Blaine; pop-in =
-`.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam`.
+WATCH STATUS: canonical bank is CLEAN (giovanni_badge8 — ALL EIGHT BADGES, healed,
+standing in Viridian City); press GO and you'll see her set out west for Route 22
+— the rematch with Gary on the road to Victory Road and the Indigo Plateau;
+pop-in = `.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam`.
