@@ -20,6 +20,9 @@ param(
     [switch]$Test
 )
 $ErrorActionPreference = "Continue"
+# PS 5.1 encodes pipeline input to native exes with $OutputEncoding (default ASCII) --
+# force UTF-8 so the frontier's arrows/symbols survive the stdin pipe to claude.
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 $Report = Join-Path $Root "NIGHT_REPORT.md"
@@ -62,10 +65,14 @@ while ($true) {
     Write-Host "== SHIFT $shift launching $(Get-Date -Format HH:mm) (log: $log) =="
 
     if ($Test) {
-        $prompt = "NIGHT-SHIFT PLUMBING TEST (attended): read NEXT_SESSION.md, confirm you can see " +
-                  "the frontier (name its first objective in one sentence), append exactly one line " +
-                  "'- TEST shift: plumbing OK, frontier visible' to NIGHT_REPORT.md, and exit. Do NOT " +
-                  "launch any emulator runs or start the actual work -- this is only a relauncher test."
+        # The test prompt CARRIES the real frontier content below it -- the whole point is proving
+        # that arbitrary frontier text (quotes, -u flags, newlines) survives the launch path.
+        $prompt = "NIGHT-SHIFT PLUMBING TEST (attended): the REAL NEXT_SESSION.md content is appended " +
+                  "below ONLY to prove prompt-passing survives its special characters -- do NOT act on " +
+                  "it, do NOT launch any emulator runs. Just: (1) confirm you received it by naming its " +
+                  "first objective in one sentence, (2) append exactly one line " +
+                  "'- TEST shift: plumbing OK, frontier visible' to NIGHT_REPORT.md, (3) exit.`n`n" +
+                  "--- FRONTIER CONTENT (do not act on) ---`n" + (Get-Content $Frontier -Raw -Encoding UTF8)
     } else {
         $preface = "NIGHT SHIFT #$shift (unattended -- the night_shift.ps1 loop; CLAUDE.md employment " +
                    "terms in force). NIGHT-SHIFT CONTRACT for THIS session: (1) at close, append ONE " +
@@ -79,11 +86,31 @@ while ($true) {
                    "successors launched off a shift-7 file); the loop feeds it verbatim to your " +
                    "successor, and an unchanged frontier + zero commits across two shifts fires the " +
                    "loop's brake; commit every real fix (commits are your proof of life).`n`n"
-        $prompt = $preface + (Get-Content $Frontier -Raw)
+        # -Encoding UTF8: PS 5.1 reads BOM-less UTF-8 as ANSI, mojibaking the frontier's arrows.
+        $prompt = $preface + (Get-Content $Frontier -Raw -Encoding UTF8)
     }
 
-    & claude --dangerously-skip-permissions -p $prompt *> $log
-    $mins = [int]((Get-Date) - $started).TotalMinutes
+    # Prompt goes via STDIN, never argv: PS 5.1 quotes-but-never-escapes native args, so any
+    # embedded '"' in NEXT_SESSION.md re-tokenizes the tail and claude parses fragments like
+    # '-u' as CLI options ("error: unknown option '-u'" -> instant 0-minute shifts). Piped
+    # stdin has no argument-parsing surface at all.
+    $prompt | & claude --dangerously-skip-permissions -p *> $log
+    $exitCode = $LASTEXITCODE
+    $secs = [int]((Get-Date) - $started).TotalSeconds
+    $mins = [int]($secs / 60)
+
+    # LAUNCH SELF-TEST: a shift that dies in under 60s never did any work -- surface the real
+    # error LOUDLY (console + report) instead of a silent 0-minute close feeding the brake.
+    $logBytes = 0
+    if (Test-Path $log) { $logBytes = (Get-Item $log).Length }
+    if (($secs -lt 60) -and (($exitCode -ne 0) -or ($logBytes -eq 0))) {
+        $tail = "(log empty -- claude produced no output at all)"
+        if ($logBytes -gt 0) { $tail = ((Get-Content $log -Tail 10) -join "`n") }
+        Write-Host "== SHIFT $shift FAST-FAIL: exited in ${secs}s (exit code $exitCode, log $logBytes bytes) ==" -ForegroundColor Red
+        Write-Host $tail -ForegroundColor Red
+        Add-Content $Report ("- shift {0} FAST-FAIL {1} ({2}s, exit {3}): {4}" -f `
+            $shift, (Get-Date -Format "HH:mm"), $secs, $exitCode, ($tail -replace "\r?\n", " / "))
+    }
 
     $endHead = (git rev-parse HEAD 2>$null)
     $endFrontier = Get-FrontierHash
