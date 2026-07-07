@@ -1113,9 +1113,18 @@ class Campaign:
         # itself or ANY orthogonal neighbor (gates face north; the old south-approach convention
         # skipped them). Entry method dispatches per kind below.
         door_behav = {tuple(d) for d in self._door_tiles()}
+        # NO-CONNECTOR maps (KB, 2026-07-07): never enter a dark warp MAZE as a "connector" — the
+        # bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark (celadon_run5).
+        try:
+            _nc = {tuple(int(x) for x in k.split(","))
+                   for k in (self._gate_recognizer.kb.get("no_connector") or {}).get("maps", [])}
+        except Exception:
+            _nc = set()
         cands = []
         for wt in door_dest:
             if wt in tried:
+                continue
+            if tuple(door_dest.get(wt) or ()) in _nc:
                 continue
             if tv.bfs(grid, pos0, lambda t, w=wt: t == w or
                       (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=grid.walkable):
@@ -3583,6 +3592,14 @@ class Campaign:
             if (_hm_move is not None
                     and ht.tm_case_row(self.b, ht.HM_ITEM.get(hm, -1)) is not None
                     and st.party_knows_move(self.b, _hm_move, pc or 6) is None):
+                # SETTLED RE-CHECK (celadon_run4/5): a mid-transition window misread the ace's
+                # 4th move slot as empty and armed a bogus re-teach of a KNOWN move. Settle frames,
+                # re-read with the LIVE party count; known -> the step is already satisfied.
+                for _f in range(30):
+                    self.b.run_frame()
+                if st.party_knows_move(self.b, _hm_move, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is not None:
+                    log(f"   [roam] TEACH BRIDGE: settled re-read says {hm} IS known — step satisfied")
+                    return "questline_step_done"
                 plan = ht.default_plan(self.b, hm, pc or 6)
                 if plan is None:
                     log(f"   [roam] !! TEACH: no compatible party mon for {hm} — releasing (LOUD)")

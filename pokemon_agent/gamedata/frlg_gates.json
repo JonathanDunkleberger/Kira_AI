@@ -432,5 +432,12 @@
     "name": "Celadon City"
    }
   ]
+ },
+ "no_connector": {
+  "_doc": "maps the door-passthrough must NEVER enter as a connector (dark warp mazes: the passthrough's bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark, celadon_run5). The dedicated strikes own these crossings.",
+  "maps": [
+   "1,81",
+   "1,82"
+  ]
  }
 }
