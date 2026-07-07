@@ -4003,8 +4003,33 @@ class Campaign:
             gate_where0 = step_anchor            # anchor-relative: the STEP's map (flute_run1 fix)
             if gate_where0 and cur_map == gate_where0 and d in ("south", "north"):
                 before_m = tuple(tv.map_id(self.b))
-                if self.enter_warp(prefer=d, budget_s=300) == "warped" \
-                        and tuple(tv.map_id(self.b)) != before_m:
+                # WRONG-ENTRANCE RECOVERY (sabrina_run4, the Celadon-Mansion back-door loop): pick
+                # the d-most door OURSELVES instead of enter_warp(prefer=d), so we can (a) skip
+                # doors this questline already entered-and-failed (the blind picker re-entered the
+                # mansion's back stairwell forever) and (b) PREFER sibling doors into the interior
+                # map that held a visible-but-unreachable occupant (same building, other entrance —
+                # the tea room is sealed from the back door's spawn). Fall back to d-most order.
+                if not hasattr(self, "_ql_entered_doors"):
+                    self._ql_entered_doors = set()
+                try:
+                    _wd = {tuple(xy): tuple(dest) for (xy, dest, _wid) in tv.read_warps(self.b)}
+                except Exception:
+                    _wd = {}
+                _sib = getattr(self, "_ql_sibling_dest", None)
+                _cands = [tuple(t) for t in self._door_tiles()
+                          if (cur_map, tuple(t)) not in self._ql_entered_doors]
+                _cands.sort(key=lambda t: (0 if (_sib and _wd.get(t) == _sib) else 1,
+                                           t[1] if d == "north" else -t[1]))
+                _warped_in = False
+                for _dr in _cands[:6]:
+                    if self.enter_warp(pick=_dr, budget_s=300) == "warped" \
+                            and tuple(tv.map_id(self.b)) != before_m:
+                        # remember HOW we got in; only burned into entered_doors if the visit
+                        # FAILS (wrong building) — a mid-quest heal-return may re-enter freely
+                        self._ql_city_door = (cur_map, _dr)
+                        _warped_in = True
+                        break
+                if _warped_in:
                     # entering the destination-ward warp = we are PAST the anchor now; without this
                     # the re-anchor would route her straight OFF the ship back to the city. And she
                     # is now deliberately INSIDE quest territory — the blackout interior auto-exit
@@ -4230,6 +4255,25 @@ class Campaign:
             # nobody left to talk + no deeper rooms → wrong building; release the 'stay inside' marker
             # so the blackout-recovery can exit her, and keep looking at the next candidate building.
             log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
+            # WRONG-ENTRANCE detection (sabrina_run4): occupants VISIBLE on this map but with NO
+            # walkable path to them = a sealed sub-region — same building, DIFFERENT entrance
+            # (Celadon Mansion: the back door spawns in the stairwell, the tea room only opens to
+            # the front doors). Remember the interior map; the city door pickers then prefer OTHER
+            # overworld doors warping into it.
+            try:
+                _gi = tv.Grid(self.b)
+                _hi = tuple(tv.coords(self.b))
+                _unreach = [c for _i, c, _f in self._talkable_npcs()
+                            if not tv.bfs(_gi, _hi, lambda t, cc=c:
+                                          abs(t[0] - cc[0]) + abs(t[1] - cc[1]) == 1,
+                                          walkable=_gi.walkable)]
+                if _unreach:
+                    self._ql_sibling_dest = mp0
+                    log(f"   [roam] 🚪 QUESTLINE WRONG-ENTRANCE: {len(_unreach)} occupant(s) on "
+                        f"{mp0} are VISIBLE but UNREACHABLE (sealed room, e.g. {_unreach[0]}) — "
+                        f"will try a different door into this building")
+            except Exception as _we:
+                log(f"   [roam] wrong-entrance check skipped: {_we}")
             self._ql_room_sweeps = 0
             self._exit_to_overworld()
             # still interior after the exit hop ⇒ we're in a multi-room COMPLEX (the ship): this
@@ -4237,6 +4281,14 @@ class Campaign:
             # room next tick. Keep the deliberate-inside marker in that case, or the blackout
             # recovery ejects her off the ship with a false whiteout (run 15's terminal spiral).
             self._ql_inside_target = tuple(tv.map_id(self.b))[0] != 3
+            if not self._ql_inside_target:
+                # the whole BUILDING failed — burn the city door we entered by so neither picker
+                # walks back into it this questline (the back-door re-entry loop)
+                _cd = getattr(self, "_ql_city_door", None)
+                if _cd:
+                    self._ql_entered_doors.add(_cd)
+                    self._ql_city_door = None
+                    log(f"   [roam] questline: burned failed entrance {_cd[1]} on {_cd[0]}")
             return "questline_wrong_building"
         # overworld: the NPC is almost always inside a building → enter an un-entered door (NPC's in there)
         door = self._questline_unentered_door()
@@ -4347,7 +4399,11 @@ class Campaign:
                 cands.append(tuple(dr))
         if not cands:
             return None
-        cands.sort(key=lambda t: abs(t[0] - co[0]) + abs(t[1] - co[1]))
+        # WRONG-ENTRANCE RECOVERY: doors into the interior that held a visible-but-unreachable
+        # occupant jump the queue (same building, other entrance — see _questline_interact)
+        _sib = getattr(self, "_ql_sibling_dest", None)
+        cands.sort(key=lambda t: (0 if (_sib and _wdest.get(t) == _sib) else 1,
+                                  abs(t[0] - co[0]) + abs(t[1] - co[1])))
         return cands[0]
 
     def _gym_gate_probe(self, gym):
