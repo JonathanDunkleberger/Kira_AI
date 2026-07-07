@@ -3532,6 +3532,9 @@ class Campaign:
                 before_m = tuple(tv.map_id(self.b))
                 if self.enter_warp(prefer=d, budget_s=300) == "warped" \
                         and tuple(tv.map_id(self.b)) != before_m:
+                    # entering the destination-ward warp = we are PAST the anchor now; without this
+                    # the re-anchor would route her straight OFF the ship back to the city.
+                    self._ql_past_anchor = True
                     log(f"   [roam] 🧭 QUESTLINE: no {d} edge on the anchor map — entered its "
                         f"{d}-most warp toward {step.place_name or 'the destination'} "
                         f"({before_m} -> {tv.map_id(self.b)})")
