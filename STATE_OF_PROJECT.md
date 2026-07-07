@@ -30,6 +30,19 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #4 CLOSE (12:40) — 🏅🏅 cinnabar_reach + secret_key PROMOTED ──
+**CANONICAL = secret_key** (Cinnabar (3,8)@(8,4), badges 6, SECRET KEY in bag, party
+HEALED, sanctity VALID both promotions). Shift arc: Seafoam derivation (offline
+meta-BFS on pret bins + scripts.inc) → recon_seafoam runs 1-10 (each wall frame/
+stack-diagnosed: dd_box ice livelock → dual-clause; distance-culled boulders;
+live-npc masks; B1F-rim elevation law → ENGINE-WIDE in Grid.edge_open; arrow-warp
+exit class) → **run10 = 153s Fuchsia→Cinnabar autonomous** (boulder cascade, 0x2D2
+layout swap, becalmed surf) → PROMOTED → recon_mansion runs 1-10 (coord-event script
+masks; FACING_NORTH statues; anchor-warp truth; stair warps 0x6C-0x6F; the toggle
+exit dance + SE back door) → **run10 = 72s door→key→healed→out** → PROMOTED.
+Frontier: **BLAINE badge 7** (gym door (20,4) unlockable now; recipe in
+NEXT_SESSION.md). Commits 7bb5a31→7a9b52e. Logs: seafoam_run1-10, mansion_run1-10.
+
 ### ── 2026-07-07 NIGHT SHIFT #4 (11:20→) — ⚔️ THE SEAFOAM STRIKE (runs 1-5) ──
 **CANONICAL unchanged = surf_taught.** recon_seafoam.py = the strike vehicle (commits
 7bb5a31, a794e03). **THE CROSSING IS FULLY DERIVED ON PRET GROUND TRUTH** (see
