@@ -147,6 +147,13 @@
     "blocker": "a giant SNORLAX asleep across the Route 12 bridge road south of Lavender (wakes only to the Poke Flute - the whole Rocket Hideout -> Silph Scope -> Pokemon Tower -> Mr. Fuji chain stands behind it)",
     "human": "the road south is blocked by a huge sleeping Snorlax - nothing wakes it but the Poke Flute, and that means dealing with Team Rocket first: the Silph Scope from their hideout under Celadon's Game Corner, then the Tower ghost, then Mr. Fuji"
    }
+  },
+  "3,26": {
+   "west": {
+    "flag": "FLAG_GOT_TEA",
+    "blocker": "Saffron's east gatehouse guard is parched and refuses passage - he wants the Tea (the old lady in Celadon Mansion's ground floor gives it away; Celadon is reachable from Route 8 via the Underground Path huts, proven both ways)",
+    "human": "the gate guard into Saffron won't budge - he's dying of thirst. An old lady in Celadon Mansion hands out Tea; bring him that and he'll wave you through"
+   }
   }
  },
  "capabilities": {
@@ -308,7 +315,10 @@
     "from": "3,6",
     "dir": "north",
     "place_name": "the Rocket Hideout under the Celadon Game Corner (the poster in the Game Corner hides the stairs; the Lift Key opens the elevator; Giovanni holds the Scope on B4)",
-    "door": [34, 21],
+    "door": [
+     34,
+     21
+    ],
     "prereq": null,
     "sets_flag": "FLAG_GOT_SILPH_SCOPE",
     "confirm_item": 359,
@@ -325,7 +335,10 @@
     "npc": "Mr. Fuji",
     "from": "3,4",
     "dir": "north",
-    "door": [18, 6],
+    "door": [
+     18,
+     6
+    ],
     "place_name": "the top of Pokémon Tower in Lavender — rescue Mr. Fuji from Team Rocket (the Silph Scope gets you past the ghost Marowak on floor 6)",
     "prereq": "silph_scope",
     "sets_flag": "FLAG_GOT_POKE_FLUTE",
@@ -498,6 +511,52 @@
     "map": "3,7",
     "name": "Fuchsia City",
     "expected": true
+   }
+  ],
+  "Saffron City": [
+   {
+    "map": "3,7",
+    "name": "Fuchsia City",
+    "go": "east"
+   },
+   {
+    "map": "3,33",
+    "name": "Route 15",
+    "go": "east",
+    "note": "coastal corridor back north - ALL directions here are live-learned edges (world_model 2026-07-07), not extrapolation"
+   },
+   {
+    "map": "3,32",
+    "name": "Route 14",
+    "go": "east"
+   },
+   {
+    "map": "3,31",
+    "name": "Route 13",
+    "go": "north"
+   },
+   {
+    "map": "3,30",
+    "name": "Route 12",
+    "go": "north"
+   },
+   {
+    "map": "3,4",
+    "name": "Lavender Town",
+    "go": "west"
+   },
+   {
+    "map": "3,26",
+    "name": "Route 8",
+    "go": "west",
+    "via": "pass",
+    "note": "the west crossing is Saffron's EAST gatehouse - the thirsty guard REFUSES pre-Tea (exit_gates 3,26/west arms the Tea errand: Celadon Mansion old lady, FLAG_GOT_TEA 0x2A6). With Tea in hand the guard drinks and the gate opens. Route 8's learned west edge = 3,11 (Saffron, binds on walk)."
+   },
+   {
+    "map": "3,11",
+    "name": "Saffron City",
+    "expected": true,
+    "note": "Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared (Card Key 5F, Giovanni #2 11F - hideout-class strike; see route_notes/saffron_unlock)"
    }
   ]
  },
