@@ -1021,9 +1021,23 @@ class Campaign:
                 self._advance_dialogue(taps=2)           # gate buildings may print a line
                 if tv.map_id(self.b) != before:
                     log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door}")
+                    self._learn_transit()
                     return "warped"
         log(f"   no reachable door warped (entry geometry?) - LOUD")
         return "no_warp"
+
+    def _learn_transit(self):
+        """TRANSIT-TIME warp learning (2026-07-07, flute_run4): _learn_map fires once per roam
+        TICK, but door-passthrough/enter_warp cross interiors WITHIN one action — the UGP huts'
+        warps were never recorded (world model: visited=False, warps={}), so the mental-map BFS
+        dead-ended at the hut door and read 'no route Lavender->Celadon' though she'd WALKED that
+        road. Fold the map we just landed on into the graph immediately. Pure reads; never raises."""
+        try:
+            for _ in range(30):                 # settle past the mid-transition layout window
+                self.b.run_frame()
+            self._learn_map()
+        except Exception as _lt:
+            log(f"   [world] transit learn skipped: {_lt}")
 
     def _door_tiles(self):
         ml = self.b.rd32(0x02036DFC)
@@ -1097,6 +1111,7 @@ class Campaign:
                         for _ in range(60):
                             self.b.run_frame()
                         log(f"   directional warp {wt} (behavior 0x{bh:02x}) fired on approach via {k2}")
+                        self._learn_transit()
                         return True
                     if tuple(tv.coords(self.b) or ()) == tuple(wt):
                         break
@@ -1122,6 +1137,7 @@ class Campaign:
                     self.b.run_frame()                # pointers are mid-transition the instant the
                 #                                       id flips — a back-to-back tile read gets 0s
                 log(f"   directional warp {wt} (behavior 0x{bh:02x}) entered via {key}")
+                self._learn_transit()
                 return True
         return False
 
