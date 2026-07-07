@@ -7,17 +7,34 @@ Paste this to the fresh session:
 RESUME — fresh session. Read STATE §0 (newest block first). Never trust this file over
 STATE §0 + NIGHT_REPORT.md if they disagree.
 
-⚔️ **IN FLIGHT AT WRITE: the SAFFRON GYM STRIKE (recon_sabrina.py, log
-logs/longrun/sabrina_strike1.log).** Run8 (longrun) confirmed the billed wall in 79s: the
-gym interior (14,3) is warp-partitioned — travel BFS = no_route from the entrance pocket,
-campaign's gym handler false-latches "juniors cleared" and A-mashes Sabrina from 11 tiles
-away. The strike carries the fix: **pad_plan() — a runtime PAD-GRAPH ROUTER** (warps whose
-dest is the current map are pads; dest_warp_id indexes the landing tile; flood-fill
-walk-regions, meta-BFS with pad rides as edges — zero hardcoded room sequence, ports to any
-teleport maze). FIRST MOVE: read that log's END. If badge 0x825 → bank is
-%TEMP%/longrun/banked_SABRINA → `python pokemon_agent/promote_bank.py <bank> sabrina_badge6`
-→ next chain link (Surf/HM03, below). If failed → snap frames are in
-%TEMP%/longrun/sabrina_probe/, fix, relaunch sabrina_strike2.
+🏅 **BANKED THIS SHIFT (night shift #1, commits 7631b1c + d6a45f4):**
+- **BADGE 6 (Marsh) PROMOTED — sabrina_badge6.** recon_sabrina.py's **pad_plan() = the
+  runtime PAD-GRAPH ROUTER** cracked the teleport maze in 33s (warps whose dest is the
+  current map are pads; dest_warp_id indexes the landing tile; flood-fill walk-regions,
+  meta-BFS with pad rides as edges — zero hardcoded rooms, ports to any teleport maze).
+  Two general leaks killed: unbounded floods leak around the collision-0 BORDER ring; the
+  ELEVATION nibble (map-grid bits 12-15) seals rooms an elevation-blind flood welds together.
+- **LAPRAS IN PARTY — lapras_party PROMOTED** (competency #15 BOTH WAYS: recon_lapras.py
+  box RAM reader @ gPokemonStoragePtr 0x03005010 + MB_PC 0x83 behavior-scan finds any
+  Center's console + the storage-list CURSOR-MEMORY trap killed). Mankey L10 → box.
+  Party: Venusaur 57 / Persian 37 / Fearow 35 / Raticate 31 / Ekans 15 / **LAPRAS 25**.
+
+🏅 **ALSO BANKED: fuchsia_south PROMOTED** (recon_road.py, commit 57bd88e — the
+deterministic world-graph road strike: Saffron→Fuchsia in 21s, zero battles. The badge-6
+stall truth: with 6 badges head_to_gym targets Cinnabar, an island the graph can't route
+to without Surf — recon_road is the standing answer for any learned road).
+
+⚔️ **IN FLIGHT AT WRITE: the SAFARI STRIKE (recon_safari.py, log
+logs/longrun/safari_strike1.log).** Targets in one entry: **GOLD TEETH** ball (Area 3 West
+(28,14)) + **HM03 SURF** (Secret House attendant (6,5), door West (12,7)) → exit → Warden's
+house (Fuchsia (33,31)) → **HM04 STRENGTH**. Disasm truth is in the script docstring
+(entrance (24,5), pay-trigger row y=3, Center↔West doors, all warp coords). Safari battles
+use the BALL/BAIT/ROCK/RUN menu — the handler throws balls at NEW species (dex doctrine)
+then flees by cursor combos; all end-drains are B (nickname-keyboard class). Step-limit
+warp-out = re-enter-and-resume (objectives are flag-idempotent). FIRST MOVE: read the log
+END. Success = items 341+342 in the TM pocket → promote banked_SAFARI as **safari_hms** →
+then: teach SURF to LAPRAS (hm_teach.HMTeach.teach — the standing vehicle), Surf actuation
+south (R19/R20 water) → Cinnabar → Mansion (Secret Key) → BLAINE = badge 7.
 
 🏢✅ **SILPH CO CLEARED + PROMOTED (attended strike16, 07:58 — 359s end-to-end, exit 0):**
 Card Key → 9F heal → pad chain → **GARY #6 BEATEN** → **LAPRAS banked (flag=True, → Bill's

@@ -30,6 +30,40 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #1 (new loop, 08:10→) — 🏅 BADGE 6 + LAPRAS + FUCHSIA + the Safari strike ──
+**FOUR PROMOTIONS this shift (commits 7631b1c, d6a45f4, 57bd88e):**
+1. **sabrina_badge6** — recon_sabrina.py: **pad_plan() = the runtime PAD-GRAPH ROUTER**
+   (same-map warps are pads; dest_warp_id indexes the landing; region flood + meta-BFS with
+   pad rides as edges — zero hardcoded rooms). Badge in 33s. Two general leak kills: (a) an
+   UNBOUNDED region flood escapes the collision-0 border ring; (b) the ELEVATION nibble
+   (map-grid bits 12-15) — void strips read collision-0/elev-0 beside elev-3 floor; the game
+   blocks cross-elevation steps (the Silph "elevation-sealed" class, now solved generally).
+   Probe: recon_sabrina_probe.py (collision+elevation ASCII dump).
+2. **lapras_party** — recon_lapras.py: PC-box competency #15 BOTH WAYS. Box RAM reader
+   (gPokemonStoragePtr 0x03005010, BoxPokemon 80B, party-identical decrypt), MB_PC (0x83)
+   behavior-scan finds ANY Center's console ("shared PC layout" is FALSE for stand tiles),
+   and the storage-list CURSOR-MEMORY trap (reopens on DEPOSIT; blind A nearly STORE'd
+   Persian). Mankey L10 → box; **LAPRAS L25 in party slot 5** (the Surf carrier).
+3. **fuchsia_south** — recon_road.py: the deterministic world-graph road strike (loop
+   world.next_step + campaign's own hop executors). Saffron→Fuchsia 21s, zero battles.
+   Root truth: with 6 badges head_to_gym targets CINNABAR (island, needs Surf) → the
+   longrun stalls in Saffron; recon_road is the standing answer for any learned road.
+4. **(in flight at write) the SAFARI STRIKE** — recon_safari.py: pay-gate ($500 trigger row
+   y=3), GOLD TEETH (West (28,14)) + HM03 SURF (Secret House) → Warden → HM04 STRENGTH.
+   Kills so far: st.in_battle is BLIND to safari battles (no player battle-mon —
+   gBattleMons[0] sanity fails; gate on GBATTLE_RES_PTR alone = fight_open()); travel's
+   grass-free planner reads no_route where GRASS IS THE ONLY ROAD (step_warp = ride_pad
+   pattern on grass-inclusive walk_path_to); battles must not consume walk try-budget;
+   safari catches ride the dex doctrine (nidoran + rhyhorn caught by ball-throws at new
+   species). Logs: logs/longrun/safari_strike1-5.log.
+**CHAIN AFTER SAFARI:** teach SURF→Lapras (hm_teach.teach('surf',5), forget Mist-class) →
+Surf actuation R19/R20 (fm.surf_edge_adjacent exists; the water step is the next capability
+seam) → Cinnabar → Mansion (Secret Key) → BLAINE badge 7 → Giovanni badge 8 → Victory Road
+(Strength in bag) → E4 → credits.
+**SOUL-DEBT (carried):** Lapras joined via a PC menu — unmet, unnamed; her first fielded
+moment deserves the roster-bond beat. Venusaur still "AAAAAAAAAA" (Name Rater, Lavender).
+Safari catches (nidoran/rhyhorn) are silent RAM catches — no judged-catch narration fired.
+
 ### ── 2026-07-07 ATTENDED INTERVENTION 07:45 (🔧 frontier repair + the Lapras keyboard) ──
 **Shift 11 killed mid-work at Jonny's order (stale-frontier launch). Debris swept:** no orphan
 processes; canonical saffron_reach CLEAN; kira/ working-tree changes = the PRE-EXISTING Gemini

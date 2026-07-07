@@ -176,6 +176,38 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     geometry, retry the same key once; and calibrate tap/hold frame windows per game EARLY — turn
     threshold, one-tile walk, two-tile run — they gate every mover built on top.
 
+28. **A REGION FLOOD without bounds or elevation welds sealed rooms together (2026-07-07,
+    the Saffron Gym strikes).** Two leak classes in any homebrew flood-fill: (a) BORDER tiles
+    outside the playable rectangle read collision-0 — an unbounded flood escapes around the
+    border ring; (b) the map-grid u16 carries an ELEVATION nibble (bits 12-15) the 2-bit
+    collision read ignores — void strips read collision-0/elevation-0 beside elevation-3
+    floor, and the game blocks cross-elevation steps (the whole Silph "elevation-sealed"
+    class). Planners must bound to the playable rect AND hold the seed's elevation (0xF =
+    multi-level pass). Indoors this is load-bearing; outdoors prefer the engine BFS.
+29. **Menu LISTS remember their cursor across close/reopen (2026-07-07, the PC storage
+    menu).** After driving one submenu (DEPOSIT), the reopened list is NOT on its top item —
+    a blind "A = first item" reopened the deposit GUI and nearly boxed the wrong mon. Any
+    reopened list needs a cursor reset (UPs to the top) or a screen-verified pick.
+30. **Interactables are findable by METATILE BEHAVIOR, not coordinates (2026-07-07, the PC
+    console).** "All Centers share a layout" was false for stand tiles; the console IS
+    behavior 0x83 (MB_PC) wherever it sits. Scanning the behavior byte finds consoles/maps/
+    signs in ANY room — prefer behavior-scan over per-room coordinate calibration.
+31. **Special battle UIs need their own handler + map-scoped dispatch (2026-07-07, Safari).**
+    A zone can replace the FIGHT menu wholesale (BALL/BAIT/ROCK/RUN) — the battle agent's
+    cursor model is meaningless there, and inside such a zone EVERY battle is that kind, so
+    dispatch by map-id. End-of-battle drains use B everywhere a catch/gift flow can reach the
+    nickname keyboard.
+32. **Grass/hazard-free planning seals hazard-priced zones (2026-07-07, Safari West).** The
+    engine's "avoid tall grass" layer is right for roads and DEAD WRONG where grass is the
+    only road — the planner reads no_route and fallbacks wander onto exit warps. Zone-scoped
+    movers must plan hazard-INCLUSIVE and pay the encounter cost through the battle handler.
+
+**ENGINE CAPABILITY (added 2026-07-07): THE PAD-GRAPH ROUTER (recon_sabrina.pad_plan).**
+Teleport mazes (warps whose dest is the CURRENT map) are routable with zero hardcoding: warp
+events come in id order, so pad tile -> warps[dest_warp_id] tile is the whole edge list;
+flood-fill walk-regions (warps+NPCs masked, bounded, elevation-held), meta-BFS over regions
+with pad rides as edges, execute ride-by-ride with replan. Ports to any teleport/portal maze.
+
 **ENGINE CAPABILITY (added 2026-07-06): THE DOOR PASS-THROUGH.** When an edge crossing has no
 overworld route (fenced region), buildings are the remaining connectors: try reachable doors
 (multi-warp buildings first — a connector fingerprint), walk the interior's warps farthest-first,
