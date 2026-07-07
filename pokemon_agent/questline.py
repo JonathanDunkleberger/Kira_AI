@@ -221,10 +221,11 @@ class Step:
     human      : in-character one-liner.
     """
     __slots__ = ("missing", "kind", "via", "npc", "from_map", "dir", "place_name",
-                 "success", "satisfied", "resolved", "human")
+                 "success", "satisfied", "resolved", "human", "door")
 
     def __init__(self, missing, kind=None, via=None, npc=None, from_map=None, dir=None,
-                 place_name=None, success=None, satisfied=False, resolved=True, human=None):
+                 place_name=None, success=None, satisfied=False, resolved=True, human=None,
+                 door=None):
         self.missing = missing
         self.kind = kind
         self.via = via
@@ -236,6 +237,10 @@ class Step:
         self.satisfied = satisfied
         self.resolved = resolved
         self.human = human or f"get {missing}"
+        # DOOR HINT (2026-07-07, flute_run1): the exact door tile (x,y) ON from_map when the target
+        # building sits INSIDE the anchor town (Pokemon Tower, the Game Corner) — a coarse compass
+        # dir walks OUT of town (she entered Rock Tunnel hunting Mr. Fuji). None = route by dir.
+        self.door = tuple(door) if door else None
 
     def __repr__(self):
         flag = "✓" if self.satisfied else ("·" if self.resolved else "?")
@@ -294,6 +299,17 @@ def _step_satisfied(step, bridge, kb, party_count_fn, log=print):
                 return False
             import pokemon_state as st
             return st.party_knows_move(bridge, mid, party_count_fn()) is not None
+        if kind == "item":
+            # ITEM-CONFIRMED step (2026-07-07, flute_run1): HIDE-class flag ids (the KB's own
+            # id_caveats — FLAG_GOT_SILPH_SCOPE=0x037 collides with a hide flag) read SET while
+            # the item was never obtained, so the deriver skipped the whole Rocket Hideout and
+            # sent her to the Tower scope-less. The BAG is the ground truth: key-items pocket
+            # first (where every quest item lives), items pocket as a defensive second.
+            import hm_teach as ht
+            iid = int(val)
+            if iid in ht.pocket_items(bridge, ht.KEY_ITEMS_OFF, 30):
+                return True
+            return iid in ht.pocket_items(bridge, 0x310, 42)
     except Exception as e:
         log(f"   [questline] satisfied-check {step.missing} failed: {e}")
     return False
@@ -312,6 +328,10 @@ def _step_from_cap(key, cap):
         # case). sets_flag priority ended the errand with HM01 still unlearned (surge run 2:
         # 0x237 set -> actionable=None -> head_to_gym 'stuck' at the tree forever).
         success = ("cap", key)
+    elif ob.get("confirm_item"):
+        # ITEM confirmation OUTRANKS the flag when the KB bills one — the HIDE-class flag-id
+        # class (silph_scope 0x037) reads set spuriously; the bag can't lie (flute_run1).
+        success = ("item", int(ob["confirm_item"]))
     elif ob.get("sets_flag"):
         success = ("flag", ob["sets_flag"])
     elif ob.get("gives_cap"):
@@ -320,7 +340,8 @@ def _step_from_cap(key, cap):
         success = ("flag", key)
     return Step(missing=key, kind=cap.get("kind"), via=ob.get("via"), npc=ob.get("npc"),
                 from_map=ob.get("from"), dir=ob.get("dir"), place_name=ob.get("place_name"),
-                success=success, resolved=True, human=cap.get("human") or f"get {cap.get('name', key)}")
+                success=success, resolved=True, human=cap.get("human") or f"get {cap.get('name', key)}",
+                door=ob.get("door"))
 
 
 def _search_fallback(gate, key, guide, log):

@@ -3714,6 +3714,44 @@ class Campaign:
         cur_map = tuple(state["map"])
         _L2W = {"N": "north", "S": "south", "E": "east", "W": "west"}
         _OPP = {"N": "S", "S": "N", "E": "W", "W": "E"}
+        # STEP-ANCHOR (2026-07-07, flute_run1): a chain's steps carry their OWN from-maps — the
+        # silph_scope errand anchors on CELADON while its gate was recognized in LAVENDER. All
+        # anchor-relative logic below (dock warp, re-anchor, past-anchor) must use the STEP's
+        # anchor, else the executor walks the gate town's compass dir (she marched north out of
+        # Lavender into Rock Tunnel hunting a Celadon errand). Past-anchor/bends reset per STEP.
+        step_anchor = None
+        try:
+            if step.from_map:
+                step_anchor = tuple(int(x) for x in str(step.from_map).split(","))
+        except Exception:
+            step_anchor = None
+        if step_anchor is None:
+            step_anchor = tuple(self._active_questline.gate.where or ()) or None
+        if getattr(self, "_ql_cur_step", None) != step.missing:
+            self._ql_cur_step = step.missing
+            self._ql_past_anchor = False
+            self._ql_bend_maps = set()
+        # DOOR HINT (flute_run1): the target building sits INSIDE the anchor town (Pokemon Tower,
+        # the Game Corner) — no compass dir reaches it. The KB bills the exact door tile; standing
+        # in the anchor town, enter THAT door. One shot per questline (the entered-doors set).
+        if getattr(step, "door", None) and cur_map == step_anchor:
+            if not hasattr(self, "_ql_entered_doors"):
+                self._ql_entered_doors = set()
+            _dkey = (cur_map, tuple(step.door))
+            if _dkey not in self._ql_entered_doors:
+                log(f"   [roam] 🚪 QUESTLINE DOOR-HINT: {step.place_name or step.missing} is IN "
+                    f"town — entering the billed door {tuple(step.door)} on {cur_map}")
+                _before = tuple(tv.map_id(self.b))
+                self.enter_warp(pick=tuple(step.door), budget_s=900)
+                if tuple(tv.map_id(self.b)) != _before:
+                    self._ql_entered_doors.add(_dkey)
+                    self._ql_room_sweeps = 0
+                    self._ql_past_anchor = True
+                    self._ql_inside_target = True
+                    log(f"   [roam] 🚪 QUESTLINE ENTER (door-hint): inside {tv.map_id(self.b)}")
+                    return "questline_entered"
+                log(f"   [roam] !! QUESTLINE DOOR-HINT: couldn't enter {tuple(step.door)} — "
+                    f"falling through to the general search")
         d = step.dir or "north"
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
         pc, pl = state.get("party_count"), (state["party"][0]["level"] if state.get("party") else None)
@@ -3764,7 +3802,7 @@ class Campaign:
             # way on is a WARP on THIS map (Vermilion's dock = its SOUTHmost warp trio; the ticket
             # triggers on the pier clear themselves). Try the direction-most warp BEFORE re-anchor/
             # bend logic (which bounced east to Route 11 and back forever).
-            gate_where0 = tuple(self._active_questline.gate.where or ()) or None
+            gate_where0 = step_anchor            # anchor-relative: the STEP's map (flute_run1 fix)
             if gate_where0 and cur_map == gate_where0 and d in ("south", "north"):
                 before_m = tuple(tv.map_id(self.b))
                 if self.enter_warp(prefer=d, budget_s=300) == "warped" \
@@ -3786,7 +3824,7 @@ class Campaign:
             # frontier is empty (Cerulean already visited) → "arrived at the destination area" → interact
             # with nothing → head_to_gym no-ops forever (the (107,12) wedge). If we haven't yet crossed
             # PAST the anchor this questline, the move is simply: route back TO the anchor city first.
-            gate_where = tuple(self._active_questline.gate.where or ()) or None
+            gate_where = step_anchor             # anchor-relative: the STEP's map (flute_run1 fix)
             if (gate_where and cur_map != gate_where
                     and not getattr(self, "_ql_past_anchor", False)):
                 hop = self.world.next_hop(cur_map, gate_where, avoid=self._wall_avoid(state))
@@ -3847,7 +3885,7 @@ class Campaign:
             return "wall_gated"
         # crossing the step-dir edge FROM the anchor map = we're going PAST the anchor now; the re-anchor
         # fallback must stop firing (else a bending route past the anchor would get dragged back to it).
-        if cur_map == (tuple(self._active_questline.gate.where or ()) or None):
+        if cur_map == step_anchor:
             self._ql_past_anchor = True
         return self.trav.travel(target_map=nbr, edge=d)
 
@@ -3953,7 +3991,8 @@ class Campaign:
             ws0 = tv.read_warps(self.b)
             _dest_of = {tuple(xy): tuple(dest) for (xy, dest, _wid) in ws0}
             cand = [tuple(xy) for (xy, dest, _wid) in ws0
-                    if dest[0] != 3 and (mp0, tuple(xy)) not in self._ql_entered_doors]
+                    if dest[0] != 3 and (mp0, tuple(xy)) not in self._ql_entered_doors
+                    and tuple(dest) not in self._no_connector_maps()]   # never tour INTO a maze
             # UNVISITED MAPS FIRST (run-13 lesson): deepest-first kept touring the same holds while
             # the 2F stairs (an unvisited map) sat untried — a warp into somewhere NEW is the whole
             # point of going deeper. Distance breaks ties.
@@ -4068,6 +4107,15 @@ class Campaign:
             self._ql_bg_done.add((mp, (bx, by)))           # unreachable/inert — don't re-try every sweep
         return False
 
+    def _no_connector_maps(self):
+        """KB no_connector maps as a set of (g,n) tuples — warp MAZES (Rock Tunnel) that generic
+        touring/pass-through must never enter; the dedicated strikes own those crossings."""
+        try:
+            return {tuple(int(x) for x in k.split(","))
+                    for k in (self._gate_recognizer.kb.get("no_connector") or {}).get("maps", [])}
+        except Exception:
+            return set()
+
     def _questline_unentered_door(self):
         """Nearest reachable building door she hasn't ENTERED for the current questline (so she works through
         the candidate buildings at the destination instead of re-entering one). (x,y) door tile or None.
@@ -4082,9 +4130,19 @@ class Campaign:
             return None
         if co is None:
             return None
+        # NO-CONNECTOR guard (2026-07-07, flute_run1): the Rock Tunnel mouth is a "door" by tile
+        # behavior — the quest tour entered it hunting Mr. Fuji and wandered the maze to a STALL.
+        # A door whose warp destination is a billed no-connector maze is never a quest building.
+        try:
+            _nc = self._no_connector_maps()
+            _wdest = {tuple(xy): tuple(dest) for (xy, dest, _wid) in tv.read_warps(self.b)}
+        except Exception:
+            _nc, _wdest = set(), {}
         cands = []
         for dr in self._door_tiles():
             if (cur_map, tuple(dr)) in self._ql_entered_doors:
+                continue
+            if _wdest.get(tuple(dr)) in _nc:
                 continue
             approach = (dr[0], dr[1] + 1)               # stand just SOUTH of the door, step UP to enter
             if tv.bfs(grid, co, lambda t, a=approach: t == a, walkable=grid.walkable):

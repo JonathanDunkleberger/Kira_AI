@@ -308,9 +308,11 @@
     "from": "3,6",
     "dir": "north",
     "place_name": "the Rocket Hideout under the Celadon Game Corner (the poster in the Game Corner hides the stairs; the Lift Key opens the elevator; Giovanni holds the Scope on B4)",
+    "door": [34, 21],
     "prereq": null,
     "sets_flag": "FLAG_GOT_SILPH_SCOPE",
-    "confirm_note": "0x037 is HIDE-class — if the flag read is unreliable, confirm by the Tower ghost resolving",
+    "confirm_item": 359,
+    "confirm_note": "0x037 is HIDE-class and READ SET SPURIOUSLY (flute_run1 2026-07-07 skipped the whole hideout on it) — confirm_item 359 (ITEM_SILPH_SCOPE, disasm items.h, TM_CASE=364 anchor) is the bag ground truth. door = the Game Corner's Celadon door (34,21) -> interior (10,14) (disasm CeladonCity map.json, matches the live-learned warp).",
     "gives_cap": "silph_scope"
    },
    "human": "the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower"
@@ -323,9 +325,12 @@
     "npc": "Mr. Fuji",
     "from": "3,4",
     "dir": "north",
+    "door": [18, 6],
     "place_name": "the top of Pokémon Tower in Lavender — rescue Mr. Fuji from Team Rocket (the Silph Scope gets you past the ghost Marowak on floor 6)",
     "prereq": "silph_scope",
     "sets_flag": "FLAG_GOT_POKE_FLUTE",
+    "confirm_item": 350,
+    "confirm_note": "door = the Tower's Lavender door (18,6) (disasm LavenderTown map.json) — the Tower is IN town; the coarse 'north' walked her out to Route 10/Rock Tunnel (flute_run1). confirm_item 350 = ITEM_POKE_FLUTE.",
     "gives_cap": null
    },
    "human": "the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax"
