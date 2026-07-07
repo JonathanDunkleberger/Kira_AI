@@ -1,14 +1,23 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07, attended intervention after shift 11)
+# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #1 of the new loop, pre-strike rewrite)
 
 Paste this to the fresh session:
 
 ---
 
-RESUME — fresh session. Read STATE §0 NIGHT SHIFT #9/#10 blocks first. Context: the night
-loop ran 11 shifts; shift 8 died at the context wall MID-STRIKE without closing, so this file
-sat at shift-7 vintage while shifts 9-11 flew off it — repaired attended 07:45. The night
-contract now demands frontier-first rewrites BEFORE launching long strikes (night_shift.ps1
-preface point 3). Never trust this file over STATE §0 + NIGHT_REPORT.md if they disagree.
+RESUME — fresh session. Read STATE §0 (newest block first). Never trust this file over
+STATE §0 + NIGHT_REPORT.md if they disagree.
+
+⚔️ **IN FLIGHT AT WRITE: the SAFFRON GYM STRIKE (recon_sabrina.py, log
+logs/longrun/sabrina_strike1.log).** Run8 (longrun) confirmed the billed wall in 79s: the
+gym interior (14,3) is warp-partitioned — travel BFS = no_route from the entrance pocket,
+campaign's gym handler false-latches "juniors cleared" and A-mashes Sabrina from 11 tiles
+away. The strike carries the fix: **pad_plan() — a runtime PAD-GRAPH ROUTER** (warps whose
+dest is the current map are pads; dest_warp_id indexes the landing tile; flood-fill
+walk-regions, meta-BFS with pad rides as edges — zero hardcoded room sequence, ports to any
+teleport maze). FIRST MOVE: read that log's END. If badge 0x825 → bank is
+%TEMP%/longrun/banked_SABRINA → `python pokemon_agent/promote_bank.py <bank> sabrina_badge6`
+→ next chain link (Surf/HM03, below). If failed → snap frames are in
+%TEMP%/longrun/sabrina_probe/, fix, relaunch sabrina_strike2.
 
 🏢✅ **SILPH CO CLEARED + PROMOTED (attended strike16, 07:58 — 359s end-to-end, exit 0):**
 Card Key → 9F heal → pad chain → **GARY #6 BEATEN** → **LAPRAS banked (flag=True, → Bill's
