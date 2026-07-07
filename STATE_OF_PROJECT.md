@@ -56,8 +56,24 @@ engine bugs, both fixed + VERIFIED, commit 928dd53):
   Secret Power dead vs Ghost; arriving from Bruno with ~half PP famines mid-fight. Fresh
   full-PP arrival (post-whiteout, rooms 1-2 pass through on DEFEATED flags) + working FRs +
   sleep-lock should take her; Lance = RL chip + Secret Power x1; then Gary → HALL OF FAME.
-- **Single-run law bite:** run1's process ghosted ALIVE under run2 (two recon_e4.py
-  side-by-side at shift start). Reap predecessors at launch, always.
+- **Single-run law bite:** the "two processes" at shift start were ONE run — the .venv
+  python.exe is a SHIM that parents the real interpreter (kill the TREE, `taskkill /F /T`).
+- **⚠️ THE GAUNTLET RESETS ON WHITEOUT (run5 ground truth, kills the vehicle's premise):**
+  after a whiteout the E4 DEFEATED flags do NOT carry — run5 re-fought Lorelei (lead
+  100%→57%) and Bruno on the re-entry chain. THE E4 MUST FALL IN ONE UNBROKEN RUN.
+  Per-room ratchet banking is still useful for diagnosis but NOT for progress. The
+  winning formula = full kit (canonical's $63k → FR×10/Rev×6/FH×4) + aimed items +
+  war-must-advance + the Struggle endgame (PP-free 40bp offense whose recoil the FR
+  stack funds) + bench PP pools. run6 runs this from canonical: ~3 full-kit gauntlet
+  attempts fit the deadline (whiteout → re-shop ~$16k → retry from Lorelei).
+- **PP economy is the structural wall** (Venusaur ~50 damaging PP vs ~55-60 needed over
+  5 fights; only ONE Ether aboard). If run6's attempts near-miss at Lance/Gary, next
+  levers: Elixir/Max-Ether loot sweep (Victory Road/Mansion item balls, billed as
+  backlog) or an Ether-instinct (needs mon→move two-level item targeting).
+- run3's "phantom battle" wedge stands as filed (stale GBATTLE_RES_PTR post-whiteout;
+  forensics now dump at every anti-wedge abort) — run5 did NOT reproduce it (its
+  re-entry chain fought REAL battles), so it may need the specific mid-battle-loss
+  shape; the dumps will catch it if it returns.
 - FILED (unchanged): revives bought but never OFFERED in-battle; double-battle actuation.
 
 ### ── 2026-07-07 NIGHT SHIFT #11 — VR 2F-switch2 GHOST-BOULDER solved; the 3F drop detour ──
