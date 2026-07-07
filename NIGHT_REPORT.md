@@ -19,3 +19,10 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 9 06:15->06:56 (40m): 2 commit(s), frontier unchanged
 - shift 10 06:57->07:35 (38m): 1 commit(s), frontier unchanged
 - ATTENDED 07:45-08:00 survey: SILPH CO CLEARED + PROMOTED (silph_cleared canonical, sanctity VALID — Card Key, 9F heal, GARY #6 won, LAPRAS banked to Bill's PC, GIOVANNI beaten 0x3E, MASTER BALL; 359s attended strike16 with Jonny's window up) | the 7F wedge was the Lapras NICKNAME KEYBOARD (frame-proven; gift talks now B-drain, 1fd4e74) | frontier repaired: NEXT_SESSION was shift-7 stale because shift 8 died mid-strike — contract now demands frontier-first rewrites (a99a607) | frontier: SABRINA badge 6 (gym door open, teleport-pad maze) | needs eyes: none — READY FOR RELOOP
+- shift 1 08:02->08:02 (0m): 0 commit(s), frontier unchanged
+- shift 2 08:03->08:03 (0m): 0 commit(s), frontier unchanged
+- BRAKE 08:03: two consecutive shifts of provable nothing (identical frontier, zero commits). The wall needs human eyes -- see STATE section 0 CURRENT TRUTH + the last shift log: G:\JonnyD\NeuroAI_Bot\logs\nightshift\shift_002_0707_0803.log
+- TEST shift: plumbing OK, frontier visible
+- shift 1 08:09->08:10 (1m): 0 commit(s), frontier unchanged
+- shift 1 08:13->09:01 (48m): 4 commit(s), frontier ADVANCED
+- shift 2 survey: TWO PROMOTIONS (safari_hms: Gold Teeth + HM03 Surf + HM04 Strength, strike 20 = 50s tour-chain; surf_taught: Surf->Lapras + Strength->Venusaur) + 6 commits of general kills (water-not-a-road walkable, content-verified Grid guard vs dims-equal stale backups, per-edge elevation law, nudge-free stepper, reef-aware sea BFS, offset-aware edge crossing, 24px teach-chooser anchors) | frontier: SEAFOAM CROSSING -> Cinnabar -> Blaine badge 7 (R20 surface SEVERED - dual-flood proven; interior = pad_plan ladder maze, warp pairs billed in NEXT_SESSION) | needs eyes: none - successor ports recon_sabrina.pad_plan over the Seafoam floors per NEXT_SESSION first move

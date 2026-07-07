@@ -30,6 +30,19 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #2 CLOSE (10:45) — 🏅🏅 safari_hms + surf_taught PROMOTED ──
+**CANONICAL = surf_taught** (Fuchsia (3,7)@(33,32), badges 6; Lapras has SURF, Venusaur has
+STRENGTH; both promotions sanctity-VALID + round-trip verified). Full story in
+NEXT_SESSION.md (frontier-first, current). Shift arc: safari strikes 7-20 (the pond truth,
+the dims-equal stale grid, the per-edge elevation law, the West component split — strike 20
+landed 50s end-to-end) → HM teach (the 24px slot-anchor fix; Razor Leaf saved from the
+forget-fallback) → sea road runs 1-7 (mount actuation PROVEN, reef class killed,
+offset-aware crossings) → **THE SEAFOAM SEVERANCE** (R20 surface has no east↔west
+connection; the crossing is the multi-floor Seafoam interior = pad_plan class; all warp
+pairs billed). Commits: 0c53e3c, 6ae1a22, cb597cc, f1b1a0c, 915c072, c52e096.
+**Next objective: Seafoam crossing (port pad_plan) → Cinnabar → Mansion Secret Key →
+BLAINE badge 7.**
+
 ### ── 2026-07-07 NIGHT SHIFT #2 (09:03→) — 🦁 THE SAFARI POND TRUTH (strikes 7-13) ──
 **CANONICAL unchanged = fuchsia_south** (Fuchsia (3,7)@(47,21), badges 6, $71,886, Lapras
 L25 slot 5). The safari strike is the live objective; commits 0c53e3c + 6ae1a22.
