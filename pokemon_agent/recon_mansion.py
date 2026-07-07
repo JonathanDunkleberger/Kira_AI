@@ -55,19 +55,24 @@ FLAG_KEY_TAKEN = 0x1A8
 KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 
+# CORRECTED (run6 + anchor truth): a warp EVENT with plain behavior is a LANDING
+# ANCHOR and never fires (2F (27,17) = the 3F fall-holes' landing). Route uses only
+# trigger-behavior tiles: stairs 0x6C/0x6F, falls 0x66, arrows 0x65.
 MISSION = [
     ("door", (8, 3), M1F),          # mansion front door (Cinnabar overworld)
-    ("toggle", (5, 5), True),
-    ("door", (10, 13), M2F),
-    ("door", (27, 17), M3F),
-    ("door", (18, 18), M1F),        # balcony stairs back down
-    ("door", (25, 27), MB1F),
+    ("door", (10, 13), M2F),        # 0x6C up-right stair
+    ("door", (9, 3), M3F),          # 0x6C up-right stair
+    ("toggle", (12, 5), True),      # 3F statue
+    ("door", (18, 18), M1F),        # 0x66 fall hole -> 1F balcony (19,22)
+    ("door", (25, 27), MB1F),       # 0x6F down-left stair
     ("toggle", (24, 29), False),
     ("toggle", (27, 5), True),
     ("pickup", (5, 7)),
-    ("door", (34, 29), M1F),
-    ("door", (8, 33), CINNABAR),    # south exit mats
-]
+    ("toggle", (27, 5), False),     # re-open the way back (ON seals the stair side)
+    ("toggle", (24, 29), True),     # 1F SE pocket needs ON (Press opens (27-29,25))
+    ("door", (34, 29), M1F),        # 0x6C stair up
+    ("door", (34, 33), CINNABAR),   # the SE BACK DOOR (0x65) — the front hall is
+]                                   # unreachable from the stair pocket in EITHER state
 
 
 def main():
@@ -274,7 +279,12 @@ def main():
                 return True
         return False
 
-    ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
+    # arrow warps (0x62-0x65) + DIRECTIONAL STAIR WARPS (0x6C-0x6F: UP_RIGHT /
+    # UP_LEFT / DOWN_RIGHT / DOWN_LEFT — fire only when WALKED INTO along their
+    # direction; the run5 (10,13) wedge stood ON one, the UGP 0x6F class).
+    ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN",
+                 0x6C: "RIGHT", 0x6D: "LEFT", 0x6E: "RIGHT", 0x6F: "LEFT"}
+    OPP = {"UP": "DOWN", "DOWN": "UP", "LEFT": "RIGHT", "RIGHT": "LEFT"}
 
     def tile_behavior(t):
         try:
@@ -302,6 +312,9 @@ def main():
             d = DELTA[arrow]
             nbs = [(tile[0] - d[0], tile[1] - d[1])]
         for attempt in range(4):
+            if arrow and tuple(tv.coords(b) or ()) == tile:
+                b.press(OPP[arrow], 26, 10, camp.render, owner="agent")  # step OFF first
+                settle(40)
             if tuple(tv.coords(b) or ()) not in nbs and tuple(tv.coords(b) or ()) != tile:
                 if not walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
                     return False
