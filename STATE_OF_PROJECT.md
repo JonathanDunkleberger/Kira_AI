@@ -114,6 +114,31 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 7 LATE (⚡ BADGE 3 CANONICAL — THE BAR IS MET) ──
+**CANONICAL = BADGE 3/Vermilion (3,5)@(28,21)** (promoted badge3_bank_20260706_212559; backup
+pre_badge3_backup_20260706_212610; sanctity VALID; party FULL Venusaur42/Persian32/Fearow31/
+Raticate31; **flags 0x822 + 0x237 + 0x264 all verified ON-DISK in a fresh core**). Surge run 5
+GOAL'd the WHOLE cascade in 211s: teach (Cut→Raticate over Focus Energy, judged forget, RAM-
+verified) → **auto use_cut at the tree ("TIMBER!")** → **trash-can solver LIVE DEBUT** (bin-diving
+beat → wrong-2nd reset → "the switches MOVED. we go again." → both switches, 0x264) → juniors →
+**Lt. Surge DOWN — Thunder Badge**, her "badge number 3" beat in the log. First badge with a team
+she built, grudge already 2-2 — THE BAR from the ship arc is MET.
+**Cascade wedges killed en route (runs 1-4, committed):** (a) `_best_potion_for_sale` SOLD-HERE
+fallback + shop-fail fingerprint (bcd507e); (b) HM questline steps succeed on the CAPABILITY not
+the item flag (d57f850 — 0x237-satisfied ended the errand with Cut unlearned); (c) teach flow ×3:
+case-cursor HOME (heap cursor REMEMBERS its row), tm_case_row = RAW pocket index (sorted model
+picked TM39 'NOT ABLE!×4' where it expected HM01 at row 0), party-cursor border-RUN detector
+(old x=225 probe sat inside the box) (commit after d57f850); (d) AUTO-CUT at the gym tree when
+the capability is in hand — with Cut known the recognizer fell through to the WATER and armed a
+Safari-Zone surf errand that poisoned her ctx; the probe now clears the tree on the spot.
+**KNOWN QUIRK (characterized, worked around in the heal tool):** cut trees REGROW on savestate
+reload — the badge-3 bank woke fenced inside the gym pocket; the heal cycle re-cut (19,24) first.
+A general travel-layer "cuttable blocker + capability known ⇒ cut through" is OWED (today only
+the gym-door probe auto-cuts). **East leg launched (`logs/longrun/east_run1.log`, GOAL_MAP=3,28
+Route 10): Vermilion → Cerulean → Route 9 (Cut tree at its mouth — she has Cut) → Route 10;
+judged catch en route closes dex 9→10 (Flash aide gate). DO NOT enter Rock Tunnel (Flash-dark
+is its own strike).**
+
 ### ── 2026-07-06 SESSION 7 (OVERNIGHT — 🎖 HM01 CANONICAL; the ship is DONE) ──
 **CANONICAL = HM01/Vermilion (3,5)@(23,32)** (promoted hm01_bank_20260706_203730; backup
 pre_hm01_backup_20260706_203744; sanctity VALID; party FULL Venusaur41/Persian32/Fearow31/
