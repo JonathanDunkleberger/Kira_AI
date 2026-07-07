@@ -558,7 +558,7 @@ def main():
     if not fm.read_flag(b, 0x827):
         L("!! badge 8 not held — wrong canonical, abort")
         return 1
-    deadline = time.time() + 2700
+    deadline = time.time() + 3600
 
     # ── PHASE 0: TEACH EARTHQUAKE (TM26 -> Venusaur slot 0, over Secret Power) ─
     have = st.read_party_moves(b, 0) or []
@@ -576,63 +576,15 @@ def main():
         if MOVE_EQ in after:
             _stage_save("eq_taught")
 
-    # ── PHASE 1+2: Viridian -> R22 (Gary) -> gate -> R23 ─────────────────────
-    wedges = {}
-    while time.time() < deadline and tuple(tv.map_id(b)) != R23:
-        if handle_interrupts():
-            continue
-        here = tuple(tv.map_id(b))
-        if here == VIRIDIAN:
-            if lead_frac() < 0.7:
-                camp.heal_nearest()
-                continue
-            if not cross_edge("west", "to-r22"):
-                wedges["w"] = wedges.get("w", 0) + 1
-                if wedges["w"] >= 3:
-                    L("!! can't cross west to R22 x3 — abort")
-                    return 1
-            continue
-        if here == R22:
-            # the walk to the gate crosses Gary's trigger column (33) — the scene +
-            # battle fire mid-path and handle_interrupts owns them. A loss whiteouts
-            # (map flips) and the loop heals + returns.
-            if not go_warp((8, 5), GATE, "gate-south"):
-                if tuple(tv.map_id(b)) != R22:
-                    continue                          # whiteout mid-walk — loop recovers
-                wedges["gate"] = wedges.get("gate", 0) + 1
-                if wedges["gate"] >= 3:
-                    L("!! gate entry x3 failed — abort")
-                    snap("gate_fail")
-                    return 1
-            continue
-        if here == GATE:
-            cands = [tuple(xy) for xy, d, _w in tv.read_warps(b) if tuple(d) == R23]
-            if not cands:
-                L("!! no R23 warp inside the gate — abort")
-                return 1
-            cands.sort(key=lambda t: t[1])            # north side = lowest y
-            if not go_warp(cands[0], R23, "gate-north"):
-                drain()
-            continue
-        # off-route (whiteout interior, etc.) — exit to the overworld
-        L(f"   off-route at {here} — exiting to the overworld")
-        camp.enter_warp(prefer="south")
-        settle(80)
-        if tuple(tv.map_id(b)) == here and here not in (VIRIDIAN, R22):
-            camp.heal_nearest()
-    if tuple(tv.map_id(b)) != R23:
-        L("!! never reached Route 23")
-        return 1
-    L(f"   ROUTE 23 @ {tv.coords(b)} after {n_battles[0]} battles (Gary handled en route)")
-    _stage_save("r23_south")
-
-    # ── PHASE 3: the badge gauntlet north -> Victory Road door (5,28) ────────
-    if not go_warp((5, 28), VR1F, "vr-door"):
-        L("!! Victory Road door failed")
-        return 1
-    L(f"   VICTORY ROAD 1F @ {tv.coords(b)} [lead {lead_frac():.0%}]")
-
-    # ── PHASE 4: the three-switch chain (elevation-aware truth) ──────────────
+    # ── PHASES 1-5: ONE WHITEOUT-TOLERANT DISPATCH LOOP ──────────────────────
+    # victory_run3 truth: a silent field whiteout (faint boxes B-drained by
+    # handle_interrupts) respawned her in the Viridian center mid-2F and the
+    # linear phase chain aborted. But progress RATCHETS: Gary's var, the
+    # gauntlet scenes and every VR switch var persist in the save — a whiteout
+    # costs half the money and a re-cross, never solved ground. So: dispatch
+    # on the CURRENT map every iteration; skip switches whose barriers are
+    # already open; retreat-heal at Viridian before entering VR hurt (the
+    # R22/R23-south road is battle-free once Gary is beaten).
     def run_puzzle(ops, barrier_tile, label):
         for op in ops:
             while handle_interrupts():
@@ -655,57 +607,142 @@ def main():
         _stage_save(label)
         return opened
 
-    # 1F: switch (20,16) opens barrier (12,14-15) -> ladder (3,2)
-    if not run_puzzle(VR1F_PUZZLE, (12, 14), "1f-switch"):
-        L("!! 1F switch puzzle failed — abort LOUD")
-        return 1
-    if not go_warp((3, 2), VR2F, "1f-ladder"):
-        return 1
-    # 2F: puzzle1 (west pocket) -> barrier1 (13,10-11)
-    if not run_puzzle(VR2F_PUZZLE1, (13, 10), "2f-switch1"):
-        L("!! 2F switch-1 puzzle failed — abort LOUD")
-        return 1
-    # 2F: the row-19 boulder x19 LEFT -> switch (14,19) -> barrier2 (33,16-17).
-    # If the (33,19) boulder is ever MISSING/wedged, the 3F detour is the game's
-    # own reset: (34,9) ladder -> push (32,5) onto switch (7,7) -> push (33,18)
-    # into hole (34,18) -> fall in -> a fresh boulder waits at (33,19).
-    if not run_puzzle(VR2F_PUZZLE2, (33, 16), "2f-switch2"):
-        L("!! 2F switch-2 failed — see the 3F-detour note above; abort LOUD")
-        return 1
-    # 2F east: ladder (36,17) -> 3F (39,17)
-    if not go_warp((36, 17), VR3F, "2f-to-3f"):
-        return 1
-    # 3F pocket: (39,17) -> (37,10) -> 2F (38,9)
-    if not go_warp((37, 10), VR2F, "3f-to-2f-east"):
-        return 1
-    # 2F east pocket: door (48,12) -> R23 north (18,28)
-    if not (go_warp((48, 12), R23, "vr-exit")
-            or go_warp((47, 13), R23, "vr-exit-b")
-            or go_warp((49, 13), R23, "vr-exit-c")):
-        return 1
-    L(f"   VICTORY ROAD CLEARED -> R23 north @ {tv.coords(b)} "
-      f"[lead {lead_frac():.0%}, battles {n_battles[0]}]")
-    _stage_save("vr_cleared")
+    def barrier_open(tile):
+        g = tv.Grid(b)
+        return g.col.get((tile[0] + tv.MAP_OFFSET, tile[1] + tv.MAP_OFFSET), 1) == 0
 
-    # ── PHASE 5: north edge -> Indigo Plateau -> heal -> bank ────────────────
-    while time.time() < deadline and tuple(tv.map_id(b)) != INDIGO:
+    def puzzle2_2f():
+        # the row-19 boulder may sit ANYWHERE x14..33 after a partial chain —
+        # find it, push LEFT the remaining distance onto the (14,19) switch
+        if not ensure_strength((33, 19)):
+            return False
+        bl = None
+        for ax in (33, 27, 21, 16):
+            c = nearest_boulder((ax, 19), radius=6)
+            if c and c[1] == 19 and 14 <= c[0] <= 33:
+                bl = c
+                break
+        if bl is None:
+            L("!! [2f-sw2] no boulder on row 19 — 3F reset detour needed: (34,9) "
+              "ladder -> push (32,5) onto (7,7) -> push (33,18) into hole (34,18)")
+            return False
+        if bl[0] == 14:
+            return True
+        return push(bl, "LEFT", bl[0] - 14)
+
+    wedges = {}
+
+    def wedge(label, cap=4):
+        wedges[label] = wedges.get(label, 0) + 1
+        if wedges[label] >= cap:
+            L(f"!! [{label}] failed x{cap} — abort LOUD")
+            snap(f"wedge_{label[:14]}")
+            return True
+        return False
+
+    retreating = False
+    r23_logged = vr_logged = False
+    while time.time() < deadline:
         if handle_interrupts():
             continue
         here = tuple(tv.map_id(b))
-        if here == R23:
-            if not cross_edge("north", "to-indigo"):
-                wedges["n"] = wedges.get("n", 0) + 1
-                if wedges["n"] >= 3:
-                    L("!! R23 north crossing x3 failed — abort")
+        if here == INDIGO:
+            break
+        if here == VIRIDIAN:
+            if lead_frac() < 0.9:
+                camp.heal_nearest()
+                continue
+            retreating = False
+            if not cross_edge("west", "to-r22") and wedge("viridian-west"):
+                return 1
+        elif here == R22:
+            # eastward = home to heal; westward crosses Gary's trigger col 33
+            # (the scene + battle fire mid-path; handle_interrupts owns them;
+            # a loss whiteouts and this loop recovers)
+            if retreating:
+                if not cross_edge("east", "r22-home") and wedge("r22-home"):
                     return 1
-            continue
-        if here in (VR1F, VR2F, VR3F):
-            L("!! back inside Victory Road?? — abort loud")
-            snap("vr_reentry")
-            return 1
-        L(f"   off-route at {here} — exiting")
-        camp.enter_warp(prefer="south")
-        settle(80)
+            elif not go_warp((8, 5), GATE, "gate-south"):
+                if tuple(tv.map_id(b)) == R22 and wedge("gate-south"):
+                    snap("gate_fail")
+                    return 1
+        elif here == GATE:
+            dest = R22 if retreating else R23
+            cands = [tuple(xy) for xy, d, _w in tv.read_warps(b) if tuple(d) == dest]
+            if not cands:
+                L(f"!! no {dest} warp inside the gate — abort")
+                return 1
+            # north side = lowest y; south side = highest y
+            cands.sort(key=lambda t: t[1], reverse=retreating)
+            if not go_warp(cands[0], dest, "gate-thru"):
+                drain()
+        elif here == R23:
+            cy = (tv.coords(b) or (0, 0))[1]
+            if cy <= 30:                              # north side (past VR)
+                if not cross_edge("north", "to-indigo") and wedge("r23-north"):
+                    return 1
+            elif lead_frac() < 0.5 and not retreating:
+                L(f"   [retreat] lead {lead_frac():.0%} at R23 south — healing at "
+                  f"Viridian before the Road (battle-free road home)")
+                retreating = True
+            elif retreating:
+                gates = [tuple(xy) for xy, d, _w in tv.read_warps(b)
+                         if tuple(d) == GATE]
+                gates.sort(key=lambda t: t[1], reverse=True)
+                if not gates or not go_warp(gates[0], GATE, "r23-to-gate"):
+                    if wedge("r23-to-gate"):
+                        return 1
+            else:
+                if not r23_logged:
+                    L(f"   ROUTE 23 @ {tv.coords(b)} after {n_battles[0]} battles "
+                      f"(Gary handled en route)")
+                    _stage_save("r23_south")
+                    r23_logged = True
+                if not go_warp((5, 28), VR1F, "vr-door") and wedge("vr-door"):
+                    return 1
+        elif here == VR1F:
+            if not vr_logged:
+                L(f"   VICTORY ROAD 1F @ {tv.coords(b)} [lead {lead_frac():.0%}]")
+                vr_logged = True
+            if not barrier_open((12, 14)):
+                if not run_puzzle(VR1F_PUZZLE, (12, 14), "1f-switch") \
+                        and wedge("1f-switch", 3):
+                    return 1
+            elif not go_warp((3, 2), VR2F, "1f-ladder") and wedge("1f-ladder"):
+                return 1
+        elif here == VR2F:
+            cx, cy = tuple(tv.coords(b) or (0, 0))
+            if cx >= 36 and cy <= 13:                 # east pocket (from 3F drop)
+                if (go_warp((48, 12), R23, "vr-exit")
+                        or go_warp((47, 13), R23, "vr-exit-b")
+                        or go_warp((49, 13), R23, "vr-exit-c")):
+                    L(f"   VICTORY ROAD CLEARED -> R23 north @ {tv.coords(b)} "
+                      f"[lead {lead_frac():.0%}, battles {n_battles[0]}]")
+                    _stage_save("vr_cleared")
+                elif wedge("vr-exit"):
+                    return 1
+            elif not barrier_open((13, 10)):
+                if not run_puzzle(VR2F_PUZZLE1, (13, 10), "2f-switch1") \
+                        and wedge("2f-switch1", 3):
+                    return 1
+            elif not barrier_open((33, 16)):
+                if puzzle2_2f():
+                    settle(150)
+                    drain()
+                    _stage_save("2f-switch2")
+                    L(f"   [2f-switch2] barrier (33,16) open={barrier_open((33, 16))}")
+                elif wedge("2f-switch2", 3):
+                    return 1
+            elif not go_warp((36, 17), VR3F, "2f-to-3f") and wedge("2f-to-3f"):
+                return 1
+        elif here == VR3F:
+            if not go_warp((37, 10), VR2F, "3f-to-2f-east") and wedge("3f-to-2f"):
+                return 1
+        else:
+            # off-route (whiteout center interior, etc.) — exit to the overworld
+            L(f"   off-route at {here} — exiting to the overworld")
+            camp.enter_warp(prefer="south")
+            settle(80)
     if tuple(tv.map_id(b)) != INDIGO:
         L("!! never reached Indigo Plateau")
         return 1
