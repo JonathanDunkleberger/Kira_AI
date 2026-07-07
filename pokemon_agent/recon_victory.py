@@ -12,11 +12,18 @@ scripts/bins + vr_solve.py offline meta-BFS):
 - Phase 3: R23 south leg northward: six badge-guard lockall scenes (Cascade y149 ->
   Volcano y61) + Earth guard (y31-36) — all msgbox drains, she holds all 8 badges.
   VICTORY ROAD door (5,28) -> VR 1F (1,39).
-- Phase 4 (offline-solved, vr_solve.py): 1F walk (11,20)->(3,2) [no puzzle — the 1F
-  barrier gates loot only] -> 2F (1,9) pocket: THE ONE MANDATORY PUZZLE — Strength
-  boulder (6,17) pushed L,L,D,D,L,L onto switch (2,19) (every boulder/pusher tile
-  verified free in the bin) -> barrier1 (13,10-11) opens -> walk (36,17) -> 3F (39,17)
-  pocket -> (37,10) -> 2F east (38,9) -> (48,12) -> R23 north (18,28).
+- Phase 4 (offline-solved ELEVATION-AWARE, vr1f_probe*.py — vr_solve.py's "1F/2F-east
+  no puzzle" was an elevation-blind artifact; victory_run2 died on it): every floor
+  barrier opens ONLY by pushing a boulder onto its 0x20 STRENGTH_BUTTON switch
+  (boulder-lands-on-switch fires the coord event — field_control_avatar.c:1076).
+  1F: barrier (12,14-15) gates the ladder; push (7,18) -> switch (20,16) [chain
+  below; the (11,20) stand is the entrance arrow tile 0x65 — fires on DOWN only,
+  we press UP there] -> ladder (3,2). 2F: puzzle1 (6,17) D,LL,D,LL -> switch (2,19)
+  opens barrier1 (13,10-11); then the row-19 boulder (33,19) (present from game
+  start, FLAG 0x058 clear — the 3F hole (34,18) is the game's reset-insurance for
+  a botched push, not a required reveal) LEFT x19 -> switch (14,19) opens barrier2
+  (33,16-17) -> walk (36,17) -> 3F (39,17) pocket -> (37,10) -> 2F east (38,9) ->
+  (48,12) -> R23 north (18,28).
 - Phase 5: north edge -> Indigo Plateau Exterior (3,9) -> heal at the League center ->
   BANK indigo_reach. (E4 strike = the NEXT vehicle: shop Full Restores first.)
 Bank -> %TEMP%/longrun/banked_VICTORY.
@@ -64,11 +71,27 @@ KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 TM26_ITEM, MOVE_EQ = 314, 89
 
-# the 2F switch puzzle, offline-derived (vr_solve.py; L-L-D-D-L-L, all tiles verified)
-VR2F_PUZZLE = [("strength", (6, 17)),
-               ("push", (6, 17), "LEFT", 2),
-               ("push", (4, 17), "DOWN", 2),
-               ("push", (4, 19), "LEFT", 2)]
+# the three-switch truth, offline-derived elevation-aware (vr1f_probe6.py verified
+# every stand tile reachable at its step). Op = (kind, tile[, KEY, n[, allow-stands]]).
+VR1F_PUZZLE = [("strength", (7, 18)),
+               ("push", (7, 18), "DOWN", 1),
+               ("push", (7, 19), "RIGHT", 4),
+               # stand (11,20) = the entrance arrow tile (0x65: warps on DOWN
+               # press only; this push presses UP) — sea_walk must allow it
+               ("push", (11, 19), "UP", 1, ((11, 20),)),
+               ("push", (11, 18), "RIGHT", 1),
+               ("push", (12, 18), "UP", 1),
+               ("push", (12, 17), "RIGHT", 7),
+               ("push", (19, 17), "UP", 2),
+               ("push", (19, 15), "RIGHT", 1),
+               ("push", (20, 15), "DOWN", 1)]      # lands (20,16) = the switch
+VR2F_PUZZLE1 = [("strength", (6, 17)),
+                ("push", (6, 17), "DOWN", 1),
+                ("push", (6, 18), "LEFT", 2),
+                ("push", (4, 18), "DOWN", 1),
+                ("push", (4, 19), "LEFT", 2)]      # lands (2,19) = switch 1
+VR2F_PUZZLE2 = [("strength", (33, 19)),
+                ("push", (33, 19), "LEFT", 19)]    # lands (14,19) = switch 2
 
 
 def main():
@@ -280,7 +303,7 @@ def main():
                 return True
         return False
 
-    def sea_walk(goal_test, label, tries=14, avoid=()):
+    def sea_walk(goal_test, label, tries=14, avoid=(), allow=()):
         budget = tries
         while budget > 0:
             budget -= 1
@@ -292,7 +315,7 @@ def main():
                 return True
             g = tv.Grid(b)
             wset = water_save(g)
-            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+            wts = {tuple(w[0]) for w in tv.read_warps(b)} - set(allow)
             npcs = live_npc_tiles() | {tuple(o[0]) for o in
                                        tv.read_object_templates(b)
                                        if o[2] and o[1] != fm.GFX_BOULDER}
@@ -498,7 +521,7 @@ def main():
         snap("strength_fail")
         return False
 
-    def push(approx, key, n):
+    def push(approx, key, n, allow=()):
         d = DELTA[key]
         for i in range(n):
             bl = nearest_boulder(approx)
@@ -507,7 +530,7 @@ def main():
                 return False
             stand = (bl[0] - d[0], bl[1] - d[1])
             if not sea_walk(lambda c, s=stand: c == s, f"push-approach{i}",
-                            avoid={tuple(bl)}):
+                            avoid={tuple(bl)}, allow=allow):
                 L(f"!! [push] can't reach {stand} to push {bl} {key}")
                 return False
             moved = False
@@ -609,30 +632,45 @@ def main():
         return 1
     L(f"   VICTORY ROAD 1F @ {tv.coords(b)} [lead {lead_frac():.0%}]")
 
-    # ── PHASE 4: the offline-derived leg chain ───────────────────────────────
-    # 1F: (11,20) -> ladder (3,2) -> 2F (no puzzle on this leg)
+    # ── PHASE 4: the three-switch chain (elevation-aware truth) ──────────────
+    def run_puzzle(ops, barrier_tile, label):
+        for op in ops:
+            while handle_interrupts():
+                pass
+            L(f"-- op {op} (map {tv.map_id(b)} @ {tv.coords(b)})")
+            if op[0] == "strength":
+                if not ensure_strength(op[1]):
+                    return False
+            elif op[0] == "push":
+                if not push(op[1], op[2], op[3],
+                            allow=op[4] if len(op) > 4 else ()):
+                    return False
+        settle(150)                                   # switch scene (SE + map redraw)
+        drain()
+        g_now = tv.Grid(b)
+        opened = g_now.col.get((barrier_tile[0] + tv.MAP_OFFSET,
+                                barrier_tile[1] + tv.MAP_OFFSET), 1) == 0
+        L(f"   [{label}] barrier {barrier_tile} open={opened}")
+        snap(f"{label}_done")
+        _stage_save(label)
+        return opened
+
+    # 1F: switch (20,16) opens barrier (12,14-15) -> ladder (3,2)
+    if not run_puzzle(VR1F_PUZZLE, (12, 14), "1f-switch"):
+        L("!! 1F switch puzzle failed — abort LOUD")
+        return 1
     if not go_warp((3, 2), VR2F, "1f-ladder"):
         return 1
-    # 2F pocket (1,9): THE puzzle — boulder (6,17) L,L,D,D,L,L onto switch (2,19)
-    for op in VR2F_PUZZLE:
-        while handle_interrupts():
-            pass
-        L(f"-- op {op} (map {tv.map_id(b)} @ {tv.coords(b)})")
-        if op[0] == "strength":
-            if not ensure_strength(op[1]):
-                return 1
-        elif op[0] == "push":
-            if not push(op[1], op[2], op[3]):
-                return 1
-    settle(150)                                       # switch scene (SE + map redraw)
-    drain()
-    g_now = tv.Grid(b)
-    barrier_open = g_now.col.get((13 + tv.MAP_OFFSET, 10 + tv.MAP_OFFSET), 1) == 0
-    L(f"   [2f-switch] barrier1 (13,10) open={barrier_open}")
-    snap("2f_switch_done")
-    _stage_save("2f_switch")
-    if not barrier_open:
-        L("!! barrier1 still closed after the push chain — abort LOUD")
+    # 2F: puzzle1 (west pocket) -> barrier1 (13,10-11)
+    if not run_puzzle(VR2F_PUZZLE1, (13, 10), "2f-switch1"):
+        L("!! 2F switch-1 puzzle failed — abort LOUD")
+        return 1
+    # 2F: the row-19 boulder x19 LEFT -> switch (14,19) -> barrier2 (33,16-17).
+    # If the (33,19) boulder is ever MISSING/wedged, the 3F detour is the game's
+    # own reset: (34,9) ladder -> push (32,5) onto switch (7,7) -> push (33,18)
+    # into hole (34,18) -> fall in -> a fresh boulder waits at (33,19).
+    if not run_puzzle(VR2F_PUZZLE2, (33, 16), "2f-switch2"):
+        L("!! 2F switch-2 failed — see the 3F-detour note above; abort LOUD")
         return 1
     # 2F east: ladder (36,17) -> 3F (39,17)
     if not go_warp((36, 17), VR3F, "2f-to-3f"):
