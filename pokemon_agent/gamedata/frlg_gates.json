@@ -132,6 +132,13 @@
     "human": "the road south out of Cerulean is blocked right now — a guy and his Slowbro won't budge until I've run an errand up north",
     "post_flag_note": "even with the ticket the direct fence gap holds a CUT tree — the walking route is THROUGH the burgled house (the door the policeman guarded) and around the east side; the door pass-through primitive executes this (proven 2026-07-06)"
    }
+  },
+  "3,28": {
+   "south": {
+    "flag": "flash",
+    "blocker": "ROCK TUNNEL - the way south to Lavender runs THROUGH the tunnel and it is PITCH DARK inside (a capability gate, not a story flag: satisfied when a party mon KNOWS Flash)",
+    "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)"
+   }
   }
  },
  "capabilities": {
@@ -176,9 +183,9 @@
    "obtain": {
     "via": "talk_npc",
     "npc": "Professor Oak's aide",
-    "from": "3,19",
-    "dir": "south",
-    "place_name": "the Route 2 east gate house, by Diglett's Cave south of Pewter",
+    "from": "3,29",
+    "dir": "north",
+    "place_name": "the Route 2 east gatehouse - through Diglett's Cave (the cave mouth on Route 11's north side; the tunnel pops out on Route 2 right by the aide's gate)",
     "prereq": null,
     "requires_note": "he only hands it over once you OWN >=10 species — build the team/dex first",
     "sets_flag": "FLAG_GOT_HM05",

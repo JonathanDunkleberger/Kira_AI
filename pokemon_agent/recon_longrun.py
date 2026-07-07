@@ -63,6 +63,8 @@ STALL_DECISIONS = 14                                      # no-progress decision
 _gm = os.getenv("LONGRUN_GOAL_MAP", "")
 GOAL_MAP = tuple(int(x) for x in _gm.split(",")) if _gm else None
 GOAL_FLAG = int(os.getenv("LONGRUN_GOAL_FLAG", "0"), 0) or None
+#   LONGRUN_GOAL_DEX="10"    -> GOAL when the OWNED dex count reaches N (the Flash-aide gate class)
+GOAL_DEX = int(os.getenv("LONGRUN_GOAL_DEX", "0")) or None
 
 SCRATCH = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
 STAGE = os.path.join(SCRATCH, "stage")                    # in-run persistence lands HERE (canonical untouched)
@@ -294,7 +296,9 @@ def main():
         ql_doing = (ql.actionable.human if (ql and ql.actionable) else None)
         b_desc = options.get("battle", "") if isinstance(options, dict) else ""
         h_desc = options.get("head_to_gym", "") if isinstance(options, dict) else ""
-        # GOAL — configurable per stretch (map reached / flag transition / classic ticket default).
+        # GOAL — configurable per stretch (map reached / flag transition / dex count / ticket default).
+        if GOAL_DEX is not None and ram.pokedex_owned_count(b) >= GOAL_DEX:
+            raise _Done(f"GOAL: dex owned reached {ram.pokedex_owned_count(b)} (target {GOAL_DEX})")
         if GOAL_MAP is not None:
             if mp == GOAL_MAP:
                 raise _Done(f"GOAL: reached map {GOAL_MAP} at {co}")
@@ -331,6 +335,13 @@ def main():
             pick = "wander_catch"                          # NURSERY (2026-07-06): thin team + balls +
             #                                                fresh grass -> a sensible player builds the
             #                                                squad FIRST (judgment-gated; dupes skipped)
+        elif GOAL_DEX is not None and "wander_catch" in opts \
+                and ram.pokedex_owned_count(b) < GOAL_DEX \
+                and camp._balls_pocket_count(C.ITEM_POKE_BALL) > 0:
+            pick = "wander_catch"                          # DEX-GOAL run (2026-07-07, the Flash-aide
+            #                                                gate): the stretch's POINT is a new
+            #                                                registration — hunt fresh grass first
+            #                                                (judgment still skips dupes)
         elif (not BARGE) and prep is not None and "battle" in opts:
             pick = "battle"                                # underlevelled + items-alone can't beat the
             #                                                Smokescreen Charmander -> GRIND/team-build first

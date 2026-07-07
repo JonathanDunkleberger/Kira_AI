@@ -4985,6 +4985,23 @@ class Campaign:
                 continue
             nxt = road[i + 1]["map"] if i + 1 < len(road) else None
             nm = road[i + 1]["name"] if i + 1 < len(road) else "the road ahead"
+            # GATE CHECK before crossing (the Rock-Tunnel dark class): a billed leg can be story/
+            # capability-gated (exit_gates) — recognize it and pursue the unlock questline instead
+            # of walking into it (the pass-through would otherwise carry her into the pitch-dark
+            # tunnel pre-Flash). Same seam as head_to_gym's south-gate block.
+            try:
+                gate = self._gate_recognizer.recognize(cur, blocked_dir=leg["go"])
+            except Exception:
+                gate = None
+            if gate:
+                if QUESTLINE_ENABLED and self._open_questline(gate, state):
+                    return self._run_questline_step(state)
+                # recognized gate + no pursuable errand -> NEVER cross it (the pass-through would
+                # carry her into the pitch-dark tunnel); surface the why and let roam pick elsewhere
+                self.on_event(gate.human, kind="route", tier=2)
+                log(f"   [roam] ROAD to {city}: leg {leg['go']} off {leg['name']} is GATED "
+                    f"({gate.missing}) — not crossing; surfacing")
+                return "road_gated"
             log(f"   [roam] ROAD to {city}: on {leg['name']} — billed leg {leg['go']} toward {nm}"
                 + (" (pass-through country)" if leg.get("via") == "pass" else ""))
             self.on_event(f"the road to {city} runs {leg['go']} from here — onward.",

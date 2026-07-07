@@ -111,6 +111,20 @@ class GateRecognizer:
         if not g:
             return None
         flag = g.get("flag")
+        # CAPABILITY gate (2026-07-07, the Rock-Tunnel dark class): 'flag' may name an HM capability
+        # ('flash') instead of a story flag — satisfied when a party mon KNOWS the move, read LIVE
+        # (the item flag alone leaves the tunnel dark; between FLAG_GOT_HM05 and a lit tunnel sits
+        # the TEACH, which the executor's teach bridge fires on the unsatisfied cap step).
+        if flag in HM_MOVE_IDS:
+            try:
+                import pokemon_state as st
+                if st.party_knows_move(self.b, HM_MOVE_IDS[flag], self._pc()) is not None:
+                    return None               # she can already do it -> the road is open now
+            except Exception as e:
+                self.log(f"   [questline] cap-gate read {flag} failed: {e}")
+            return Gate(STORY_NPC, missing=flag, where=tuple(map_id),
+                        human=g.get("human", "the way is blocked"),
+                        detail={"direction": direction, "cap": flag, "blocker": g.get("blocker")})
         is_set = self._flag_set(flag)
         if is_set:                            # LIVE cross-check: flag already set -> the road is open now
             return None
