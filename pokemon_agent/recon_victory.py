@@ -19,11 +19,18 @@ scripts/bins + vr_solve.py offline meta-BFS):
   1F: barrier (12,14-15) gates the ladder; push (7,18) -> switch (20,16) [chain
   below; the (11,20) stand is the entrance arrow tile 0x65 — fires on DOWN only,
   we press UP there] -> ladder (3,2). 2F: puzzle1 (6,17) D,LL,D,LL -> switch (2,19)
-  opens barrier1 (13,10-11); then the row-19 boulder (33,19) (present from game
-  start, FLAG 0x058 clear — the 3F hole (34,18) is the game's reset-insurance for
-  a botched push, not a required reveal) LEFT x19 -> switch (14,19) opens barrier2
-  (33,16-17) -> walk (36,17) -> 3F (39,17) pocket -> (37,10) -> 2F east (38,9) ->
-  (48,12) -> R23 north (18,28).
+  opens barrier1 (13,10-11). THE RUN8 TRUTH (vr3f_probe2/3): the row-19 boulder
+  (33,19) is FLAG-0x058-HIDDEN until the 3F (33,18) boulder drops through hole
+  (34,18) (HandleBoulderFallThroughHole clears the reveal flag stored in the
+  object's trainer_type — field_control_avatar.c:1066); shift-8's "present from
+  game start" was wrong, hence run8's empty row. THE DETOUR: 2F (34,9) ladder ->
+  3F, push (32,5) U2,L21(row 3 — row 5 is Alexa-blocked),D1,L5,D3,R1 -> switch
+  (7,7) opens the 3F barrier (12,12-13) -> push (33,18) RIGHT into the hole ->
+  jump in after it (lands 2F (34,19)). Then LEFT x19 -> switch (14,19) opens
+  barrier2 (33,16-17) -> walk (36,17) -> 3F (39,17) pocket -> (37,10) -> 2F east
+  (38,9) -> (48,12) -> R23 north (18,28). The (37,10) pocket is a SEALED island
+  (no switch2 bypass) and boulder (35,13) can wedge INTO its corridor — never
+  push it.
 - Phase 5: north edge -> Indigo Plateau Exterior (3,9) -> heal at the League center ->
   BANK indigo_reach. (E4 strike = the NEXT vehicle: shop Full Restores first.)
 Bank -> %TEMP%/longrun/banked_VICTORY.
@@ -92,6 +99,16 @@ VR2F_PUZZLE1 = [("strength", (6, 17)),
                 ("push", (4, 19), "LEFT", 2)]      # lands (2,19) = switch 1
 VR2F_PUZZLE2 = [("strength", (33, 19)),
                 ("push", (33, 19), "LEFT", 19)]    # lands (14,19) = switch 2
+FLAG_2F_BOULDER_HIDDEN = 0x058     # FLAG_HIDE_VICTORY_ROAD_2F_BOULDER: set = not yet dropped
+# 3F switch leg (vr3f_probe2 push-BFS on the bins; stands verified; row 3 dodges
+# trainer Alexa (21,5) who blocks the naive row-5 line)
+VR3F_SWITCH_PUZZLE = [("strength", (32, 5)),
+                      ("push", (32, 5), "UP", 2),
+                      ("push", (32, 3), "LEFT", 21),
+                      ("push", (11, 3), "DOWN", 1),
+                      ("push", (11, 4), "LEFT", 5),
+                      ("push", (6, 4), "DOWN", 3),
+                      ("push", (6, 7), "RIGHT", 1)]  # lands (7,7) = the 3F switch
 
 
 def main():
@@ -780,7 +797,13 @@ def main():
                         and wedge("2f-switch1", 3):
                     return 1
             elif not barrier_open((33, 16)):
-                if puzzle2_2f():
+                if fm.read_flag(b, FLAG_2F_BOULDER_HIDDEN):
+                    # the row-19 boulder hasn't dropped from 3F yet — up the
+                    # (34,9) ladder (the only up-ladder reachable pre-barrier2)
+                    if not go_warp((34, 9), VR3F, "2f-to-3f-detour") \
+                            and wedge("2f-to-3f-detour"):
+                        return 1
+                elif puzzle2_2f():
                     settle(150)
                     drain()
                     _stage_save("2f-switch2")
@@ -790,7 +813,33 @@ def main():
             elif not go_warp((36, 17), VR3F, "2f-to-3f") and wedge("2f-to-3f"):
                 return 1
         elif here == VR3F:
-            if not go_warp((37, 10), VR2F, "3f-to-2f-east") and wedge("3f-to-2f"):
+            if fm.read_flag(b, FLAG_2F_BOULDER_HIDDEN):
+                # THE RESET/REVEAL DETOUR — leg 1: boulder (32,5) -> switch (7,7)
+                # opens the 3F barrier (12,12-13); leg 2: push (33,18) RIGHT into
+                # hole (34,18) (drops it to 2F (33,19), clears 0x058), then jump
+                # in after it -> lands 2F (34,19) beside the fresh boulder.
+                # NEVER push boulder (35,13) — it can seal the (37,10) pocket.
+                if not barrier_open((12, 12)):
+                    if not run_puzzle(VR3F_SWITCH_PUZZLE, (12, 12), "3f-switch") \
+                            and wedge("3f-switch", 3):
+                        return 1
+                elif not ensure_strength((33, 18)):
+                    if wedge("3f-drop-strength"):
+                        return 1
+                elif not push((33, 18), "RIGHT", 1):
+                    if wedge("3f-drop"):
+                        return 1
+                else:
+                    settle(120)
+                    L(f"   [3f-drop] boulder down the hole (34,18) — 2F boulder "
+                      f"hidden={fm.read_flag(b, FLAG_2F_BOULDER_HIDDEN)}")
+                    _stage_save("3f_drop")
+                    # the hole is a warp tile (0x66) — jump in after it
+                    if not sea_walk(lambda c: c == (34, 18), "hole-jump",
+                                    allow=((34, 18),)) and wedge("hole-jump"):
+                        return 1
+                    settle(180)
+            elif not go_warp((37, 10), VR2F, "3f-to-2f-east") and wedge("3f-to-2f"):
                 return 1
         else:
             # off-route (whiteout center interior, etc.) — exit to the overworld
