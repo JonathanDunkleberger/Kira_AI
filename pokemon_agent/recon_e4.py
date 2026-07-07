@@ -449,7 +449,11 @@ def main():
     deadline = time.time() + 5400
 
     # ── the dispatch loop: center -> shop+heal -> door chain -> CREDITS ──────
-    center = None                 # the League center's map id, learned on arrival
+    # The League center's map id is KB ground truth (learned live in e4_run3). Pre-seeding
+    # it lets an E4_BOOT mid-chain resume dispatch straight into the room logic instead of
+    # spinning the off-route branch (run4: enter_warp with no adjacent warp fails instantly
+    # -> a 10Hz "off-route" livelock).
+    center = (13, 0)
     shopped = False
     healed = False
     rooms_cleared = 0

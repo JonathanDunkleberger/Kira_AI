@@ -13,12 +13,32 @@ pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sl
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26
 (SURF). Money $63,678 — covers the full E4 kit.
 
-⚔️ **SHIFT-12 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run3+ IN FLIGHT
+⚔️ **SHIFT-12 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run5+ IN FLIGHT
 (logs logs/longrun/e4_runN.log). THE CREDITS ARE THE NEXT BANK.**
 If a run is in flight, READ ITS LOG END first (never kill between "HALL OF FAME"
 and "BANKED"). Promote any bank:
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
-(banked_E4 = per-room ratchet bank if it died mid-chain — room3 = Agatha's room).
+(banked_E4 = per-room ratchet bank if it died mid-chain).
+
+**RUN-3/4/5 TRUTH CHAIN (read before touching the vehicle):**
+- run3 attempt 1 CLEARED AGATHA (Struggle-recoil finish) and reached LANCE's room
+  (1,78) with 3 fainted mons; lost to Lance → whiteout. THEN the run terminally
+  livelocked in Agatha's room on a PHANTOM battle: fight_open() =
+  valid_ewram_ptr(GBATTLE_RES_PTR) stayed TRUE after the whiteout (stale pointer),
+  the engine re-attached to a DEAD battle's frozen struct (phantom 0-PP reads,
+  no action menu, _goto_pokemon/Struggle can't fire, anti-wedge abort → re-enter
+  forever). ⚠️ SUSPECTED CLASS: fight_open needs a LIVENESS check, not a pointer
+  check — same family as "GBATTLE_PHASE is a frame counter". The anti-wedge abort
+  now dumps forensics (action_cursor/white_box/move_list/pp + frame) — read
+  G:/temp/longrun/e4_probe on any wedge.
+- run4/5: E4_BOOT=dir boots a ratchet bank mid-chain; center is pre-seeded (13,0)
+  (KB truth) because the off-route fallback livelocks booting inside a room.
+  run5 boots the Lance-room bank (3 weak mons alive): plan = lose to Lance →
+  whiteout → center → shop (money ~$19k→FRs) → chain → rooms pass on DEFEATED
+  flags → fresh full-PP Lance attempts, working+AIMED Full Restores.
+- Agatha PP economy (why she famines): her ghosts stall (Hypnosis/Confuse Ray)
+  + she Full-Restores; RL x0.5 chip burns ~2 PP per effective hit. Persian's
+  Bite (Dark x2) is the real anti-ghost gun.
 
 **SHIFT-12 KILLS (commit 928dd53) — the run-1/2 postmortem, both VERIFIED:**
 - **Bag TRUE-row law:** in-battle bag selection = cursor(0x0203AD04) +

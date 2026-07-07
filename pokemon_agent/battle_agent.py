@@ -2068,8 +2068,17 @@ class BattleAgent:
                             self.emit("nothing's landing and I'm out of good moves — I'm backing out "
                                       "of this one.", beat=True, tier=2)
                             return self.flee(max_seconds=60)
+                        _pp = None
+                        try:
+                            _pp = [m.get("pp") for m in (state or {}).get("ours", {}).get("moves", [])]
+                        except Exception:
+                            pass
                         self.log(f"   [engine] !! ANTI-WEDGE FLOOR: {self._unresolved_turns} unresolved "
-                                 f"turns (last={res}) in a TRAINER battle -> can't flee; LOUD abort")
+                                 f"turns (last={res}) in a TRAINER battle -> can't flee; LOUD abort "
+                                 f"[forensics: action_cursor={self.b.rd8(ram.GBATTLE_ACTION_CURSOR)} "
+                                 f"white_box={self._white_box()} move_list={self._in_move_list()} "
+                                 f"ours_pp={_pp}]")
+                        self._debug_snap("antiwedge_trainer")
                         self.emit("I'm jammed up in here — can't get a move to land.", beat=False)
                         return "stuck"
             else:
