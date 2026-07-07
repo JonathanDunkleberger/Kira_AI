@@ -385,7 +385,7 @@ def main():
     L(f"PARTY  end  : {end_party}")
     L(f"LEVELS start {start_levels} -> end {end_levels} (floor {min(start_levels)}->{min(end_levels)}, "
       f"sum {sum(start_levels)}->{sum(end_levels)})")
-    L(f"badges {_badges(b)} | ticket_flag {bool(fm.read_flag(b, SS_TICKET))} | maps visited {len(visited)}: "
+    L(f"badges {_badges(b)} | dex {ram.pokedex_owned_count(b)} | ticket_flag {bool(fm.read_flag(b, SS_TICKET))} | maps visited {len(visited)}: "
       f"{sorted(visited)}")
 
     # which mon got fielded in battles (the strategic-grind question)

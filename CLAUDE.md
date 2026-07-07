@@ -276,6 +276,16 @@ unencountered content):
   Clefairy-vs-Rattata question), capability-not-script — SHE picks the specifics; the FRAMEWORK is wiring.
 - **THE FULL ARC:** bedroom → catch & build a team → beat 8 gyms (prepared, real squad) → Elite Four →
   credits → (post-game: complete the Pokédex). She always knows where she is in this arc + what's next.
+- **DEX DOCTRINE (CEO, 2026-07-06 — tuning, not machinery):** the Pokédex is her **AMBIENT PRIDE STAT**,
+  not a pre-credits checklist. (1) Judged catching stays sovereign, but "it's a NEW SPECIES" carries real
+  positive weight when the catch is CHEAP (already in a battle, balls in bag, no pace cost) — first-of-a-
+  kind encounters during normal travel should usually end in an attempt. (2) She narrates dex growth with
+  pride at natural moments — new registrations, round numbers ("that's 30!") — ONE beat, never a lecture.
+  (3) She NEVER grinds/detours for dex filler pre-credits; completion-obsession is explicitly a POST-GAME
+  arc (Cerulean Cave opens after the E4; **MEWTWO at its bottom is the post-credits love-letter episode**).
+  (4) The in-run legendaries (Articuno/Zapdos/Moltres) are OPTIONAL side-arc candidates — locations billed
+  in the KB; attempting pre-E4 is a soul/pacing decision, default SKIP unless en route. (5) The dex count
+  rides the WATCH STATUS / run-summary stat line.
 This is pure Phase-B soul: roster-as-relationship, attachment from the story of the team — given the
 *understanding* a player has, then her own agency on top.
 

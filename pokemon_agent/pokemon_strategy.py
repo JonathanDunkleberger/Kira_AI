@@ -41,9 +41,11 @@ _P_LEVEL_OFF = 0x54
 # The framework a real player runs on every wild encounter: is it NEW, does it COVER a type gap, is it
 # a decent LEVEL, is there ROOM? Pure function — it LEANS, with a first-person-ready REASON either way;
 # the ORACLE decides live (capability-not-script), headless follows the lean. Never edits anything.
-def roster_judgment(team, foe):
+def roster_judgment(team, foe, dex_new=None):
     """team = [{'species_id', 'level', 'types': [...]}]; foe = {'species_id', 'name', 'level',
-    'types': [...]}. Returns (recommend_catch: bool, reason: str, facts: dict)."""
+    'types': [...]}; dex_new = True when she has NEVER OWNED this species (DEX DOCTRINE 2026-07-06:
+    a first-of-a-kind carries real positive weight when the catch is cheap — the dex is her ambient
+    pride stat, never a pre-credits grind target). Returns (recommend_catch, reason, facts)."""
     name = foe.get("name") or "it"
     f_types = [t for t in (foe.get("types") or []) if t]
     team_ids = {m.get("species_id") for m in team}
@@ -54,7 +56,7 @@ def roster_judgment(team, foe):
     coverage = [t for t in new_types if t != "normal"]
     facts = {"dupe": foe.get("species_id") in team_ids, "new_types": new_types,
              "coverage": coverage, "foe_level": foe.get("level"), "floor": floor,
-             "lead": lead, "room": len(team) < 6}
+             "lead": lead, "room": len(team) < 6, "dex_new": bool(dex_new)}
     lv = foe.get("level") or 0
     if not facts["room"]:
         return (False, f"my team's full — {name} would need someone to make way, and I like my six",
@@ -69,6 +71,9 @@ def roster_judgment(team, foe):
                           f"that's a real gap filled", facts)
         return (True, f"a {tt} type — I have zero {tt} coverage. it's only L{lv} so it needs raising, "
                       f"but the gap's worth it", facts)
+    if dex_new and lv >= max(2, floor - 8):
+        return (True, f"wait — I've never caught a {name} before. new species, ball's already in my "
+                      f"bag… the dex grows today", facts)
     if len(team) < 4 and lv >= max(2, floor - 4):
         return (True, f"nothing new type-wise, but my bench is thin ({len(team)}) and a L{lv} {name} "
                       f"can pull weight", facts)

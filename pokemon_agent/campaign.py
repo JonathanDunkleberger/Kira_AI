@@ -2670,7 +2670,11 @@ class Campaign:
                                      "types": st.SPECIES_TYPES.get(sid, [])})
                     foe_desc = {"species_id": fid, "name": fname, "level": foe_mon.get("level"),
                                 "types": st.SPECIES_TYPES.get(fid, foe_mon.get("types") or [])}
-                    rec, reason, facts = roster_judgment(team, foe_desc)
+                    try:
+                        _dex_new = ram.pokedex_owns(self.b, fid) is False   # DEX DOCTRINE: first-of-a-kind leans catch
+                    except Exception:
+                        _dex_new = False
+                    rec, reason, facts = roster_judgment(team, foe_desc, dex_new=_dex_new)
                     pick = self._soul_choose(
                         "catch_judgment",
                         {"catch": f"throw a ball at this {fname} (L{foe_desc['level']})",
@@ -4127,6 +4131,19 @@ class Campaign:
             self.soul.note_caught(name, nick, where)        # records bond (name + opinion) + emits via seam
             if nick.lower() != name.lower():
                 self.on_event(f"welcome to the family, {nick}. you're one of us now.", kind="roster", tier=3)
+        # DEX DOCTRINE (2026-07-06): the Pokédex is her AMBIENT PRIDE STAT — one beat at a new
+        # registration, a bigger one at round numbers. Never a lecture, never a grind target.
+        try:
+            dex = ram.pokedex_owned_count(self.b)
+            if dex and dex != getattr(self, "_last_dex_count", None):
+                self._last_dex_count = dex
+                if dex % 10 == 0:
+                    self.on_event(f"and that makes {dex} in the Pokédex — {dex}! we're really "
+                                  f"building something here.", kind="roster", tier=2)
+                else:
+                    self.on_event(f"Pokédex ticked up — {dex} kinds caught now.", kind="roster", tier=1)
+        except Exception:
+            pass
         else:
             self.on_event(f"you've got a new teammate now — a {name} that's going to fight alongside you")
         return "reacted"

@@ -140,3 +140,15 @@ def pokedex_owned_count(bridge):
         return None
     base = sb2 + SB2_POKEDEX_OWNED_OFF
     return sum(bin(bridge.rd8(base + i)).count("1") for i in range(DEX_OWNED_BYTES))
+
+
+def pokedex_owns(bridge, species_id):
+    """DEX DOCTRINE (2026-07-06): does she OWN this species? Kanto internal ids 1-151 equal
+    national dex numbers, so the owned bit is (species_id-1). None on bad ptr/out-of-range."""
+    if not species_id or species_id > 151:
+        return None
+    sb2 = bridge.rd32(GSAVEBLOCK2_PTR)
+    if not valid_ewram_ptr(sb2):
+        return None
+    idx = species_id - 1
+    return bool(bridge.rd8(sb2 + SB2_POKEDEX_OWNED_OFF + (idx >> 3)) & (1 << (idx & 7)))
