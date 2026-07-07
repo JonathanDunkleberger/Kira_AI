@@ -5760,7 +5760,6 @@ class Campaign:
                     log(f"   [roam] grass route {tgt} UNREACHABLE from {tuple(state['map'])} ({r}) — "
                         f"remembered; next tick tries a different grass")
                     return f"to_grass:{r}"
-                self._prep_dry, self._prep_dry_logged = 0, False   # the grass road works from here
             if pick == "wander_catch":
                 return self.catch_one()
             # STRATEGIC UNDERLEVEL-GRIND (Task B): if the TEAM FLOOR is under the wall's level, field the
@@ -5771,6 +5770,10 @@ class Campaign:
                 r = self.grind_weak_members(t)
                 if r == "no_safe_grass":                 # a dry attempt counts toward stand-down
                     self._prep_dry = getattr(self, "_prep_dry", 0) + 1
+                elif r in ("ready", "ok"):               # ACTUAL grinding happened (not mere arrival —
+                    #                                      run6: the Fuchsia↔Route-15 shuttle 'arrived'
+                    #                                      every other tick and reset the counter forever)
+                    self._prep_dry, self._prep_dry_logged = 0, False
                 return r
             lead = state["party"][0]["level"] if state["party"] else 5
             return self.grind(lead + 2)
