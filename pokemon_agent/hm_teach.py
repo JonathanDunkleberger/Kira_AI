@@ -189,6 +189,57 @@ class TeachFlow:
                 pass
             self._press("B", settle=16)
 
+    def use_field_move(self, mon_slot, verify, label="field-move", max_seconds=60):
+        """Use a FIELD MOVE from the overworld party menu: START -> POKEMON -> `mon_slot` ->
+        the mon's submenu (field moves list FIRST, above SUMMARY/SWITCH/...) -> A; `verify()`
+        (RAM truth — e.g. FLAG_SYS_FLASH_ACTIVE for Flash) decides success. Attempt k selects
+        submenu row k (no cursor address known for this submenu, so rows are blind — but each
+        attempt reopens the menu fresh, making the count deterministic). Returns
+        'used' | 'failed'; fail-safe B-cascade back to the overworld either way."""
+        t0 = time.time()
+        self.b.set_input_owner("agent")
+        for attempt in range(3):
+            if time.time() - t0 > max_seconds:
+                break
+            self._b_cascade(6)                                   # clean slate
+            self._press("START", settle=60)
+            if not self._nav_byte(START_CURSOR, 1):              # row 1 = POKEMON (post-dex menu)
+                self.log(f"   [{label}] !! START-menu cursor no-response — retrying")
+                continue
+            self._press("A", settle=90)                          # open the party screen
+            ok_party = False
+            for _ in range(10):
+                if self._classify() == "party":
+                    ok_party = True
+                    break
+                self._press("A", settle=20)
+            if not ok_party:
+                self.log(f"   [{label}] !! party screen never came up (attempt {attempt})")
+                continue
+            if not self._party_goto(mon_slot):
+                self.log(f"   [{label}] !! party cursor couldn't reach slot {mon_slot}")
+                continue
+            self._press("A", settle=40)                          # the mon's action submenu
+            for _ in range(attempt):                             # attempt k -> submenu row k
+                self._press("DOWN", settle=14)
+            self._press("A", settle=40)                          # fire the field move
+            for _ in range(90):                                  # drain the animation
+                if verify():
+                    break
+                self.b.run_frame(); self.c.render()
+            for _ in range(4):                                   # a held "used FLASH!" box
+                if verify():
+                    break
+                self._press("B", settle=20)
+            if verify():
+                self._b_cascade()
+                self.log(f"   [{label}] VERIFIED used (attempt {attempt}, submenu row {attempt})")
+                return "used"
+            self.log(f"   [{label}] attempt {attempt} (row {attempt}) did not verify — backing out")
+        self._b_cascade()
+        self.log(f"   [{label}] !! FAILED — field move never verified (LOUD)")
+        return "failed"
+
     def teach(self, hm_key, mon_slot, forget_idx=None, max_seconds=120,
               item_override=None, move_override=None):
         """Teach HM `hm_key` to party `mon_slot`; forget_idx = which current move to overwrite when

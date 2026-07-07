@@ -139,31 +139,58 @@ def main():
         return True
 
     def cross_cave(into_prefer, out_map, budget_s=420):
-        """Cross a 2-warps-per-room cave chain (Diglett's): enter via the preferred-side warp on
-        this map, then in each interior room walk to the FARTHEST warp tile until we pop out on
-        out_map. Wild battles handled by the traveler underneath."""
+        """Cross a warp-chain cave (Diglett's): enter via the preferred-side warp, then in each
+        room pick the next warp by DESTINATION truth (read_warps carries dest map ids):
+          1) a warp whose dest is the OVERWORLD and not the map we came in from = the far door
+             — take it (run 3 lesson: "farthest tile" tie-broke onto the ladder BACK DOWN);
+          2) else the farthest warp not yet used this crossing (visited memory kills the
+             east<->west ping-pong). Wild battles handled by the traveler underneath."""
         m0 = tuple(tv.map_id(b))
         w = camp.enter_warp(prefer=into_prefer)
         L(f"cave: enter_warp({into_prefer}) -> {w} (now {tv.map_id(b)})")
         if tuple(tv.map_id(b)) == m0:
             return False
         t = time.time()
+        visited = set()
         while tv.map_id(b)[0] != 3:
             if time.time() - t > budget_s:
                 L(f"!! cave crossing TIMEOUT at {tv.map_id(b)}")
                 return False
             pos = tuple(tv.coords(b))
-            warps = [tuple(wxy) for (wxy, _d, _i) in tv.read_warps(b)]
+            mid = tuple(tv.map_id(b))
+            warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
             if not warps:
-                L(f"!! cave room {tv.map_id(b)} shows no warps — stuck")
+                L(f"!! cave room {mid} shows no warps — stuck")
                 return False
-            far = max(warps, key=lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1]))
-            L(f"cave room {tv.map_id(b)}: at {pos}, heading to far warp {far} (of {warps})")
-            before = tuple(tv.map_id(b))
+            visited.add((mid, pos))                      # the tile we stand on = the warp we rode in
+            dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
+            outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0]
+            if outs:
+                far = min(outs, key=dist)
+                L(f"cave room {mid}: at {pos}, EXIT door {far} (dest overworld) of {warps}")
+            else:
+                fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
+                cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
+                far = max(cands, key=dist)
+                L(f"cave room {mid}: at {pos}, heading to warp {far} (of {warps}; fresh={fresh})")
+            visited.add((mid, far))
+            before = mid
             camp.trav.travel(target_map=None, arrive_coord=far, max_steps=400)
             if tuple(tv.map_id(b)) == before:
                 # standing beside a ladder that needs a step-on: nudge through enter_warp
                 camp.enter_warp(pick=far)
+            if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
+                # standing ON a walk-through door mat (run-4: the Route-2 exit door): these fire
+                # on the CROSSING step, not on arrival — step out through it, DOWN first (the
+                # Diglett rooms' mats sit on the bottom wall), map-change checked each try.
+                for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):
+                    b.press(d_, 10, 6, lambda: None, owner="agent")
+                    for _f in range(40):
+                        b.run_frame()
+                    if tuple(tv.map_id(b)) != before:
+                        break
+                    if tuple(tv.coords(b)) != far:          # stepped OFF the mat sideways — back on
+                        camp.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
             if tuple(tv.map_id(b)) == before:
                 L(f"!! cave: warp {far} didn't fire")
                 return False

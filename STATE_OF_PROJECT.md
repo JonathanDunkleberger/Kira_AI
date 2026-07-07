@@ -30,6 +30,67 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #2 (in progress — dex 11 banked, HM05 errand in flight) ──
+**Canonical = DEX 11 / Route 4 (3,22)@(75,17)** (promoted dex11_mankey; backup
+pre_dex11_mankey_backup_20260706_235322; party 6/6 Venusaur42/Persian33/Fearow32/Raticate31/
+Ekans15/**Mankey10** — the judged fighting-coverage catch; sanctity VALID).
+**KILLS (committed df3c208):** (a) CATCH-JUDGMENT STALE-FOE — judgment read gBattleMons[1] at
+encounter hand-off = the PREVIOUS battle's foe (voltorb_run1 judged "voltorb L14", balled a 2nd
+ekans while voicing electric coverage); foe source now gEnemyParty[0] (+read_enemy_level).
+VERIFIED in voltorb_run2 (all judgments matched engine species). (b) SLEEP-THEN-THROW on
+10+level-gap catches (pure sleep = 0 KO risk, x2 rate) — mankey caught with it live. (c)
+BALL-LESS TEETH end-to-end: _shopping_list ball floor (<2), mart-first travel_targets on empty
+pocket, longrun chooser rides the Mart travel option (verified: last ball broke on voltorb →
+she walked to Cerulean, healed, stocked, returned, caught). (d) **ROM TM/HM COMPAT** —
+gTMHMLearnsets @0x08252BC8 (recon_tmhm_scan.py, 14-fact control); retired _CUT_OK hand-table;
+**shift-1's "none of her six learns Flash" was WRONG: Venusaur AND Persian are Flash-compatible
+in FRLG** → no Voltorb needed; teach goes to Persian. (e) GRID MID-TRANSITION GUARD (travel.py)
+— gBackupMapLayout keeps the OLD map's dims ~120 frames post-warp; a Grid built then reads
+collision at the wrong stride (the Diglett's-Cave phantom-wall wedge class). Grid now spins
+until backup tracks gMapHeader->mapLayout. (f) travel no-path retries rebuild the grid.
+(g) cross_cave is DESTINATION-AWARE (read_warps dest truth: prefer the overworld door that
+isn't the way we came; visited-memory kills ladder ping-pong) + door-MAT step-through nudge
+(mats fire on the crossing step; presses need owner="agent" — the phantom-drop lesson).
+**IN FLIGHT:** recon_hm05 run 6 (Route 4→Vermilion→Route 11→Diglett's Cave→Route 2 aide→HM05
+→teach Flash→Persian→return→bank). **BUILT, UNRUN:** recon_rocktunnel.py (heal at R10 Center →
+north mouth → use_field_move FLASH verified vs 0x806 → destination-aware maze cross → south
+mouth → Lavender bank) + TeachFlow.use_field_move (START→POKEMON→slot→submenu row-k, RAM-flag
+verified — the Flash-use primitive, party-menu class). NEXT: promote hm05 bank → rocktunnel
+strike → promote → badge-4 road (Lavender→Route 8→UGP #2→Celadon→Erika, goal flag 0x823).
+
+### ── 2026-07-07 NIGHT SHIFT #1 (BILLED ROADS + the Flash chain) ──
+**Rope now ends at: 🛣️ ROUTE 10 (3,28), dex 10→(11?), PC-box deposit CRACKED.** Canonical promotions
+tonight (all sanctity-gated): `route10_reach` → `dex10` (Ekans caught, party was 6/6) → `pcbox_spearow`
+(dupe Spearow deposited at the R10 Center, party 5/6 — the slot freed FOR VOLTORB, the Flash mon).
+Backups: `pre_route10_reach/ pre_dex10/ pre_pcbox_spearow_backup_*`.
+
+**EAST_RUN2 ROOT CAUSE (killed):** head_to_gym's forward model was "base camp = GYM_SPINE predecessor +
+march SOUTH" — badge-1..3 geometry. Badge-4's road bends EAST from CERULEAN, so she was sent back to
+Vermilion from Cerulean forever (no_gym_route → 14-decision STALL). ALSO: a bench-faint to a wild oddish
+recorded a SPATIAL wall that gated Route 6 and marked Vermilion "BLOCKED" in her world brief.
+
+**NEW ENGINE PIECES (committed 6e5b88f, 7e181aa, b877034 — all VERIFIED via look-ahead):**
+1. **BILLED ROADS** (KB `roads` + `campaign._gym_road/_road_step/_road_pull_anchor`): per-gym road as
+   ordered legs (edge dirs + UGP pass-throughs), map ids LIVE-BOUND from the learned graph one map ahead.
+   Celadon road billed Vermilion→…→Celadon. VERIFIED: road_run1 GOAL Vermilion→Route 10 in 41s/7 decisions.
+2. **Wild losses no longer gate ROUTING** (trainer walls only — is_gated/_wall_avoid/_wall_blocked_dirs).
+3. **CAPABILITY EXIT-GATES** (questline.exit_gate): `flag` may name an HM cap ('flash'), satisfied when a
+   party mon KNOWS the move. Rock Tunnel billed: exit_gates 3,28/south, PITCH DARK, gate='flash'. The road
+   follower checks gates BEFORE crossing (`road_gated` — VERIFIED she refuses the dark tunnel).
+4. **LONGRUN_GOAL_DEX=N** + dex-goal chooser (wander_catch priority). VERIFIED: dex10 GOAL in 9.9s.
+5. **PC-BOX DEPOSIT** (recon_pcbox.py — Tier-2 #15 first slice): PC console at interior (11,2) stand
+   (11,3); storage system = a LIST MENU over the room (not full-screen until DEPOSIT chosen); pixel-probe
+   driven; verify party count AFTER exit. VERIFIED live (6→5).
+6. **Route 10 ground truth:** PC door (13,20) (now in CITY_PC_DOORS); ROCK TUNNEL = map (1,81), mouths
+   (8,19) N / (8,57) S on R10.
+
+**THE FLASH CHAIN (in flight at close — the badge-4 critical path):** none of her six could learn Flash
+(Gen-3 compat) → boxed the dupe Spearow → catch VOLTORB on R10 (dex-11 run) → teach IT Flash (hm_teach;
+Voltorb L14-16 has a free slot) → then the ROCK TUNNEL strike (cave nav machinery from Mt Moon; Flash-use
+flow still unbuilt — party menu → Voltorb → FLASH inside the tunnel). `recon_hm05.py` (WRITTEN, UNRUN —
+COMPILES only) fetches HM05: road home → Diglett's Cave crossing (2-warps-per-room walker) → aide
+gatehouse (needs dex≥10 ✓) → teach → return → bank. Run it AFTER the Voltorb catch banks.
+
 ### ── 2026-07-06 STRIKE (the SOUTH GATE + soul-truth session) ──
 **Rope now ends at: 🚪 ROUTE 5 — THE SOUTH GATE IS OPEN (run-3 `logs/longrun/south_run3.log`, GOAL in
 190s/4 decisions/0 stalls). Canonical PROMOTED to Route 5 (3,23)@(32,0)** (backup

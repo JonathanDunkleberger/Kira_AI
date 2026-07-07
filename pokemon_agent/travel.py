@@ -209,6 +209,23 @@ class Grid:
 
     def __init__(self, bridge):
         b = bridge
+        # MID-TRANSITION GUARD (2026-07-07 Diglett's-Cave entry wedge): for ~120 frames after a
+        # warp, gBackupMapLayout still holds the PREVIOUS map's dims while the new map streams in —
+        # a Grid built then reads collision with the wrong stride (phantom-wall pockets on an open
+        # room). gMapHeader->mapLayout updates first; spin frames (bounded) until the backup tracks
+        # it (layout + ~15 border margin). Costs one comparison when already settled.
+        try:
+            ml = b.rd32(GMAPHEADER)
+            lw, lh = b.rd32(ml), b.rd32(ml + 4)
+            if 0 < lw < 1000 and 0 < lh < 1000:
+                for _ in range(40):
+                    if (abs(b.rd32(BACKUP_LAYOUT) - (lw + 15)) <= 2
+                            and abs(b.rd32(BACKUP_LAYOUT + 4) - (lh + 15)) <= 2):
+                        break
+                    for _f in range(10):
+                        b.run_frame()
+        except Exception:
+            pass
         self.w = b.rd32(BACKUP_LAYOUT)
         self.h = b.rd32(BACKUP_LAYOUT + 4)
         mp = b.rd32(BACKUP_LAYOUT + 8)
@@ -904,6 +921,12 @@ class Traveler:
                 _pos_window.clear()
                 for _ in range(24):
                     self.b.run_frame(); self.render()
+                # STALE-GRID GUARD (2026-07-07 Diglett's-Cave entry wedge): a travel() issued right
+                # after a warp can build its grid MID-FADE (collision garbage = everything blocked),
+                # and this retry loop reused that grid forever — 4 identical no-route fingerprints on
+                # a fully-open room. Rebuild before re-planning; real walls stay walls, a half-loaded
+                # map heals on the next pass.
+                grid = Grid(self.b)
                 continue
             no_path = fp_stall = 0; last_fp = None     # a path exists -> progressing; clear the guard
 
