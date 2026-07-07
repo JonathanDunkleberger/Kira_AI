@@ -30,6 +30,50 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #5 (👻 GHOST-VILEPLUME killed; Secret Power taught; hideout 80% cracked) ──
+**CANONICAL = CELADON (3,6)@(11,15), tm43_secret_power PROMOTED** (backup pre_tm43_secret_power_
+backup_20260707_025255). Party HEALED, badges 4, $13,378, sanctity VALID. **Venusaur [RazorLeaf,
+PoisonPowder, SleepPowder, SECRET POWER 70-neutral] · Fearow [SECRET POWER (STAB ~105eff), Growl,
+Leer, FuryAtk]** — the 0.25x-only moveset famine is CURED at the definition.
+**👻 THE BIG KILL (run-9 frame+RAM diagnosis): the "Route 8 Vileplume trainer" of runs 7/8/9 NEVER
+EXISTED.** The anchor-first warp step legitimately ends a tick INSIDE the UGP hut → the tick-top
+"indoors = blackout" heuristic fired on normal transit → note_blackout attributed a loss to the
+STALE last_foe (ERIKA'S gym vileplume, still in the save's RAM + strat sidecar) → phantom wall
+gated Route 8 → bench-grind plan spawned → ejection rebuilt the hut hop-loop. Money never halved.
+FIX (15b63f6): blackout branch demands BATTLE EVIDENCE (_battle_ran_this_action, set by
+_observed_battle_runner, consumed per tick). **LEDGER LESSON: a "wall" diagnosis needs a battle
+trace + money check — the whiteout-backstop can launder stale RAM into a convincing story.**
+**TM ERRAND (d3d7dee, recon_tm_errand.py — reusable TM buy+teach vehicle, VERIFIED end-to-end):**
+Dept Store door (11,14)→1F stairs (4,2)=0x6d→2F TM clerk behind the 0x80 counter col x=2
+(customer at (3,6) faces WEST — counters forward A) → buy on TRUE INDEX = selectedRow+scrollOffset
+(sShopData 0x02039934 +0xC/+0xE; row alone bought TM05 via CANCEL) → TeachFlow item/move
+overrides → bank → PROMOTED. 2F stock: TMs [TM05 1000, TM15 7500, TM28 2000, TM31 3000, **TM43
+3000**, TM45]; items clerk (1,8) has REVIVES (9 rows). GENERAL KILLS: enter_warp directional-door
+fallback (0x62-0x6F fire only entered THEIR way) even when the approach tile is unreachable
+(hut-exit-mat class, c3a3623) + MAT-ROW fallback (warp TABLE lists side tiles with behavior 0x00 —
+only the center 0x65 mat actually fires; run-11 wedge); teach() START OPEN-VERIFY (menu cursor
+bytes are stale across sessions); campaign shop nav on true index; hm_teach.tm_compatible().
+**🏰 ROCKET HIDEOUT STRIKE (fb51898, recon_hideout.py — deterministic 40s from canonical, re-run
+to reproduce):** poster grunt beaten → POSTER PRESSED (stairs unlock) → B1F→B2F→B3F → **SPIN MAZE
+CROSSED (the slide crosser — the billed next build, DONE)** → B4F → **LIFT KEY IN BAG (356)** →
+climbed back to B2F. SLIDE MODEL truth: spinners 0x54-0x57 redirect, 0x58 dots/walls stop, PLAIN
+FLOOR DOES NOT STOP A SLIDE (momentum), a press on a wall-stopped spinner resumes ITS dir; NPC
+tiles block; replan after mid-route battles; border-bounds guard (Grid wraps at x=0).
+**⛔ THE LIVE FRONTIER: B4F's boss corridor (grunts (16,14)/(19,14), GIOVANNI (19,4), SCOPE ball
+(20,5)) is WALLED OFF on foot — elevator-only (its B4F door (20-21,23) is inside the corridor).
+The elevator ride is CODED (panel bg (0,2) in the elevator map; floor multichoice; self-correcting
+landing check; wrong-floor re-board via nearest door) but UNREACHED: the B2F glide graph finds NO
+route from (15,8)/(21,2) to the elevator (28-29,16). NEXT MOVE: re-run recon_hideout to B2F, dump
+the full behavior grid + frame there, hand-derive the elevator entry (likely a walk corridor the
+glide BFS can't see, or the alcove needs approach from a specific row), fix, complete: ride → beat
+2 grunts → Giovanni → scope ball → verify ('item',359) → bank banked_SCOPE → promote.** Then the
+longrun (goal 0x23D) drives Tower → Fuji → flute; wake Snorlax; Koga (GYMS row still missing!).
+**Longrun gaps surfaced (run-12, owed):** the questline's "north-most warp" heuristic tours the
+WRONG building repeatedly (Celadon mansion ↔ city loop = the run-12 stall) — needs entered-door
+memory; the destination interaction needs KB interior RITUALS (grunt/poster class) — the strike
+is the scripted proof + spec. Moveset-gap auto-arbitration still not wired general (errand = the
+vehicle). Venusaur still "AAAAAAAAAA".
+
 ### ── 2026-07-07 NIGHT SHIFT #4 (🏅 BADGE 4 CANONICAL — Erika down; the flute chain armed) ──
 **CANONICAL = CELADON, BADGES 4 (3,6)@(11,31)** (promoted erika_badge4; backup
 pre_erika_badge4_backup_20260707_014247). Party Venusaur46/Persian35/Fearow33/Raticate31/Ekans15/
