@@ -156,13 +156,16 @@ def main():
                     b.run_frame()
 
     def handle_interrupts():
+        """'battle' / 'box' / False — walk() refunds budget ONLY for battles (a box
+        that reopens every cycle must BURN budget or the loop has infinite fuel —
+        the run1 (20,6) 527-replan wedge)."""
         if fight_open():
             fight()
             drain()
-            return True
+            return "battle"
         if dd_box(b):
             drain()
-            return True
+            return "box"
         return False
 
     def settle(n=90):
@@ -180,20 +183,48 @@ def main():
                      b.rds16(o + 0x12) - tv.MAP_OFFSET))
         return out
 
+    def coord_event_tiles():
+        """Script-trigger tiles (MapHeader.events coordEvents, stride 0x10) — the
+        run1-3 Cinnabar wedge: (20,5) fires GymDoorLocked, boxes + bounces her;
+        BFS must route AROUND script tiles like warps."""
+        try:
+            ev = b.rd32(tv.GMAPHEADER + 0x04)
+            n = b.rd8(ev + 0x02)
+            arr = b.rd32(ev + 0x0C)
+            if not (0 < n <= 32) or arr < 0x08000000:
+                return set()
+            return {(b.rds16(arr + i * 0x10), b.rds16(arr + i * 0x10 + 2))
+                    for i in range(n)}
+        except Exception:
+            return set()
+
     def walk(goal_test, label, tries=10, avoid=()):
         budget = tries
+        stuck = [None, 0]                       # same-coord replan wedge detector
         while budget > 0:
             budget -= 1
-            if handle_interrupts():
+            it = handle_interrupts()
+            if it == "battle":
                 budget += 1
                 continue
+            if it:
+                continue                        # box drained: burns budget
             cur = tuple(tv.coords(b) or (0, 0))
             if goal_test(cur):
                 return True
+            if cur == stuck[0]:
+                stuck[1] += 1
+                if stuck[1] >= 4:
+                    L(f"!! [{label}] WEDGE: 4 same-coord replans at {cur} "
+                      f"(dd_box={dd_box(b)} fight={fight_open()})")
+                    snap(f"wedge_{label[:12]}_{cur[0]}_{cur[1]}")
+                    return False
+            else:
+                stuck[0], stuck[1] = cur, 0
             g = tv.Grid(b)
             wts = {tuple(w[0]) for w in tv.read_warps(b)}
-            npcs = live_npc_tiles() | {tuple(o[0]) for o in
-                                       tv.read_object_templates(b) if o[2]}
+            npcs = live_npc_tiles() | coord_event_tiles() | {
+                tuple(o[0]) for o in tv.read_object_templates(b) if o[2]}
             p = tv.bfs(g, cur, goal_test,
                        walkable=lambda sx, sy: g.walkable(sx, sy) and (sx, sy) not in wts
                        and (sx, sy) not in npcs and (sx, sy) not in avoid)
@@ -204,8 +235,12 @@ def main():
                 return False
             m0 = tuple(tv.map_id(b))
             for t in p[1:]:
-                if handle_interrupts():
-                    budget += 1
+                it2 = handle_interrupts()
+                if it2:
+                    L(f"   [{label}] interrupt={it2} at {tuple(tv.coords(b) or ())} "
+                      f"before step {tuple(t)}")
+                    if it2 == "battle":
+                        budget += 1
                     break
                 if not step_to(tuple(t)):
                     L(f"   [{label}] step blocked {tuple(tv.coords(b) or ())} -> {tuple(t)}")
@@ -298,10 +333,14 @@ def main():
         snap(f"warpfail_{label[:16]}")
         return False
 
-    def interact(tile, label, key="A", verify=None, tries=3):
-        """Face `tile` from an adjacent square, press A, drain (A = YES default)."""
-        nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in
-               ((0, 1), (0, -1), (1, 0), (-1, 0))]
+    def interact(tile, label, key="A", verify=None, tries=3, stand=None):
+        """Face `tile` from an adjacent square, press A, drain (A = YES default).
+        `stand`: required standing tile (the Mansion statues are bg events with
+        BG_EVENT_PLAYER_FACING_NORTH — they fire ONLY from below, facing UP; run4
+        interacted from the east forever)."""
+        nbs = ([stand] if stand else
+               [(tile[0] + dx, tile[1] + dy) for dx, dy in
+                ((0, 1), (0, -1), (1, 0), (-1, 0))])
         for attempt in range(tries):
             if tuple(tv.coords(b) or ()) not in nbs:
                 if not walk(lambda c, s=set(nbs): c in s, f"{label}-approach",
@@ -355,7 +394,8 @@ def main():
                 L(f"   [toggle] switch already {want}")
                 continue
             if not interact(op[1], f"statue{op[1]}", key="A",
-                            verify=lambda w=want: fm.read_flag(b, FLAG_SWITCH) == w):
+                            verify=lambda w=want: fm.read_flag(b, FLAG_SWITCH) == w,
+                            stand=(op[1][0], op[1][1] + 1)):    # FACING_NORTH class
                 return 1
             L(f"   [toggle] switch -> {fm.read_flag(b, FLAG_SWITCH)}")
             _stage_save("toggle")
