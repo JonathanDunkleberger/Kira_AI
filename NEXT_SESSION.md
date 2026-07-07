@@ -10,19 +10,21 @@ sat at shift-7 vintage while shifts 9-11 flew off it — repaired attended 07:45
 contract now demands frontier-first rewrites BEFORE launching long strikes (night_shift.ps1
 preface point 3). Never trust this file over STATE §0 + NIGHT_REPORT.md if they disagree.
 
-**CANONICAL = saffron_reach: Saffron City (3,10)@(47,13) — AT the gym door, badges 5
-(Boulder/Cascade/Thunder/Rainbow/Soul), TEA in bag, Venusaur L55 full HP, sanctity VALID**
-(backup pre_saffron_reach_backup_20260707_060438). Party is FULL (6) — the Silph Lapras gift
-transfers to Bill's PC.
+🏢✅ **SILPH CO CLEARED + PROMOTED (attended strike16, 07:58 — 359s end-to-end, exit 0):**
+Card Key → 9F heal → pad chain → **GARY #6 BEATEN** → **LAPRAS banked (flag=True, → Bill's
+PC, party full)** → 11F south door (the pad-landing column is sealed; the door fallback is
+the real approach) → **GIOVANNI BEATEN (0x3E saffron_free=True)** → **MASTER BALL from the
+president (flag 0x250=True)** → walked out + healed. Log: logs/longrun/silph_strike16.log.
 
-🏢 **LIVE OBJECTIVE: FINISH + BANK THE SILPH CO STRIKE — ~95% cracked.**
-`pokemon_agent/recon_silph.py` boots from canonical and runs the whole tower in ~2-4 min at
-max speed. FIRST MOVE: check whether the attended strike16 already finished —
-`logs/longrun/silph_strike16.log` + `%TEMP%\longrun\banked_SILPH` + `%TEMP%\longrun\
-stage_silph`. If `saffron_free` (flag 0x3E, Giovanni beaten) fired: **bank + promote
-silph_cleared via promote_bank.py** (full sanctity bundle — the stage saves carry Gary #6 and
-Lapras), then go straight to Sabrina. If not, the log names the wall; every wall in this
-tower so far fell to a probe (recon_silph_probe*.py / recon_silph7f_probe.py patterns).
+**CANONICAL = silph_cleared: Saffron City (3,10)@(33,31) — outside Silph, badges 5, SAFFRON
+FREE, Master Ball in bag, Venusaur L57 full HP, sanctity VALID, round-trip verified**
+(backup pre_silph_cleared_backup_20260707_075833). Party: Venusaur L57 / Persian 37 /
+Fearow 35 / Raticate 31 / Ekans 15 / Mankey 10. LAPRAS is in Bill's PC.
+
+🔮 **LIVE OBJECTIVE: SABRINA = BADGE 6 (longrun goal 0x825).** Saffron is free and the gym
+door is unblocked. GymSpec billed (shift 8). Interior = the teleport-pad maze — pads are
+WARPS, the Silph ride_pad/enter_to primitives should carry. Launch the longrun at the gym,
+iterate per wall, bank sabrina_badge6.
 
 **Already killed by shifts 9-11 + the attended pass (do NOT re-diagnose — STATE §0 has the
 full postmortems; commits 1a0d16d, accd57e, 7634d33, 1fd4e74):**
@@ -41,11 +43,6 @@ full postmortems; commits 1a0d16d, accd57e, 7634d33, 1fd4e74):**
   A-drains on "give a nickname? [YES]" opened the keyboard, which ate all overworld input —
   the same bug class that once named Venusaur "AAAAAAAAAA". Fixed: engage(key="B") B-drains
   the gift end-to-end + a name_entry(b,"") START→OK escape hatch.
-
-🔮 **THEN: SABRINA = BADGE 6 (longrun goal 0x825).** 0x3E frees Saffron and unblocks the gym
-door canonical is standing AT. GymSpec billed (shift 8). Interior = the teleport-pad maze —
-pads are WARPS, the Silph ride_pad/enter_to primitives should carry. Longrun at the gym,
-iterate per wall, bank sabrina_badge6.
 
 **THE CHAIN AFTER (bank each, keep climbing):** badge 7 = BLAINE, Cinnabar — needs SURF
 (HM03, Safari Zone Secret House, Fuchsia) + a Surf-capable teammate (Venusaur can't —
@@ -69,7 +66,7 @@ frontier-first NEXT_SESSION.md rewrites. GO.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN; she is at the Saffron gym door with badges 5, the
-Silph strike running from it headless; pop-in = `.venv\Scripts\python.exe -u
-pokemon_agent\play_live.py --resume --free-roam`. Attended strike watch: set `WATCH=1` then
-`.venv\Scripts\python.exe -u pokemon_agent\recon_silph.py`.
+WATCH STATUS: canonical bank is CLEAN (silph_cleared — Team Rocket just driven out of
+Saffron, Master Ball in her bag, Lapras waiting in Bill's PC); she is outside Silph Co,
+Sabrina's gym next; pop-in = `.venv\Scripts\python.exe -u pokemon_agent\play_live.py
+--resume --free-roam`.
