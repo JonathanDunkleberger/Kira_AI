@@ -3052,7 +3052,15 @@ class Campaign:
                     gs = safe
                 elif [g for g in gs if g != cur]:              # ALL grass is a one-way strand-risk here ->
                     log(f"   !! GRIND[fragile]: all grass on {tv.map_id(self.b)} is a one-way strand from "
-                        f"{anchor} - stopping this map's fragile grind LOUD"); break
+                        f"{anchor} - stopping this map's fragile grind LOUD")
+                    # GRIND-DEAD MAP MEMORY (2026-07-07 celadon_run2 spin): the chooser re-picked
+                    # prep-battle forever while this map kept refusing — remember the refusal so
+                    # the PROACTIVE pin stands down here (mirror of the heal-dead-map guard); a
+                    # recorded WALL target still dominates (walls are worth a detour, bench is not).
+                    if not hasattr(self, "_grind_dead"):
+                        self._grind_dead = set()
+                    self._grind_dead.add(tuple(tv.map_id(self.b)))
+                    break
             # Pace the NEAREST grass tiles only (not the farthest) so a long grind stays LOCAL and never
             # drifts across a one-way ledge into a pocket where the grass behind becomes unreachable.
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
@@ -3149,7 +3157,8 @@ class Campaign:
                 return t if ace < t else None
             t = self.strat.underlevel_target()              # FIELD-WEAK (switch armed)
             floor = min(m["level"] for m in party)
-            if not t and PROACTIVE_BENCH and len(party) >= 2:
+            if (not t and PROACTIVE_BENCH and len(party) >= 2
+                    and tuple(tv.map_id(self.b)) not in getattr(self, "_grind_dead", ())):
                 # WALL-LESS bench-raising (2026-07-06 nursery): a fresh catch shouldn't ride the bench
                 # at L5 while the ace is L30 — when the floor sags PROACTIVE_BENCH_GAP under the lead,
                 # prep toward lead-8 (modest, bounded; a recorded wall's target still dominates above).
