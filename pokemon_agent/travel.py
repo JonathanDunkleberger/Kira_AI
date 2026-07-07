@@ -292,11 +292,13 @@ class Grid:
         # must EXCLUDE them or BFS routes across ponds (the shore-treadmill wedge class).
         # field_moves.surf_edge_adjacent reads this set to know Surf is offerable.
         self.col, self.grass, self.ledge, self.impass, self.water = {}, set(), {}, {}, set()
+        self.elev = {}
         for by in range(self.h):
             row = mp + by * self.w * 2
             for bx in range(self.w):
                 e = b.rd16(row + bx * 2)
                 self.col[(bx, by)] = (e & 0x0C00) >> 10
+                self.elev[(bx, by)] = (e >> 12) & 0xF
                 if attr:
                     mid = e & 0x3FF
                     base, idx = (attr[0], mid) if mid < NUM_PRIMARY else (attr[1], mid - NUM_PRIMARY)
@@ -344,6 +346,17 @@ class Grid:
             return False
         d = self.impass.get((sx + dx + MAP_OFFSET, sy + dy + MAP_OFFSET))
         if d is not None and (dx, dy) in IMPASS_ENTER.get(d, ()):
+            return False
+        # PER-EDGE ELEVATION LAW (promoted from recon_sabrina/safari, night shift 4:
+        # the B1F pool-rim wedge — runtime BFS planned an elev-3 -> elev-4 step the
+        # game refuses). Legal iff elevations equal, or either is 0 (transition) or
+        # 0xF (multi-level). Water tiles are EXEMPT: the shoreline edge is the surf
+        # mount/dismount, which the game bridges across elevations.
+        a2 = (sx + MAP_OFFSET, sy + MAP_OFFSET)
+        d2 = (sx + dx + MAP_OFFSET, sy + dy + MAP_OFFSET)
+        ea, eb = self.elev.get(a2, 0), self.elev.get(d2, 0)
+        if (ea != eb and 0 not in (ea, eb) and 0xF not in (ea, eb)
+                and a2 not in self.water and d2 not in self.water):
             return False
         return True
 
