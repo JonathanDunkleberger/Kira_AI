@@ -30,6 +30,41 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #2 (09:03→) — 🦁 THE SAFARI POND TRUTH (strikes 7-13) ──
+**CANONICAL unchanged = fuchsia_south** (Fuchsia (3,7)@(47,21), badges 6, $71,886, Lapras
+L25 slot 5). The safari strike is the live objective; commits 0c53e3c + 6ae1a22.
+**FIVE WALLS KILLED (each probe-diagnosed on ground truth, recon_safari_probe.py built):**
+1. **THE SHORE TREADMILL (strikes 7/8):** surfable water reads **RAW COLLISION 0** (Gen-3
+   gates water by BEHAVIOR) → col==0 BFS planned across the pond; the blocked step's
+   sideways nudge landed in grass → encounter → the battle branch skipped dead-marking →
+   (35,17)↔(34,17) forever. GENERAL KILLS: **Grid.walkable excludes Grid.water**
+   (travel.py — surf planners OR water back in) + walk_path_to dead-marks
+   battle-interrupted failed steps.
+2. **THE DIMS-EQUAL STALE GRID (strikes 9/10):** Fuchsia and SafariZone_Center have
+   IDENTICAL layout dims → the dims-only post-warp Grid guard passed while
+   gBackupMapLayout still held Fuchsia content (planning ran on the wrong city; probe
+   dumps of staged saves show the same). GENERAL KILL: **the Grid guard now
+   CONTENT-VERIFIES** the backup vs the header layout's ROM map (24-sample metatile
+   compare, ≥20 match). Harness pitfall class: dims-equal warp pairs.
+3. **THE POND TRUTH (strike 11 + pret map.bin):** the Center's WEST doors (8,17-19) are
+   **unreachable on foot from the entrance pocket** — the pond splits the map into two
+   components (tv.bfs's None was CORRECT). Route rebuilt: the classic tour chain
+   **Center → EAST (43,15-17) → Area 1 (NW (8,9-11)) → Area 2 (S (20-22,34)) → Area 3
+   West**; return REVERSES the chain (West (40,26-28) lands on the shelf). Warp pairs
+   billed from pret map.json (G:\temp\longrun\pret\).
+4. **grass steps read as FAILED in _step_to's verify window** (strike 12) → each tile
+   cost a replan + a budget try → len-37 walks exhausted tries → the East→Center
+   nudge-onto-door bounce loop. FIX: movement never consumes a try (+ 400-hop cap).
+   FILED (campaign, shared): _step_to's move-verify window is too short for grass steps.
+5. Ball economy (strike 5/6, commit 0c53e3c): ONE throw-pair per SPECIES per run; the
+   pay script can auto-warp her in (+ 180 settle frames; paced wedge retries).
+**ALSO: recon_cinnabar.py DRAFT** (the sea road Fuchsia→R19→R20→Cinnabar; water-as-road
+stepper with the mount toll at land→water edges; surfing detected BEHAVIORALLY = her coord
+∈ Grid.water — no gPlayerAvatar reader). UNRUN until safari_hms + surf_taught bank.
+**Diagnosis pattern that worked (promote to the playbook):** instrument coords into the
+battle/replan lines → kill/relaunch (runs are deterministic from canonical) → probe the
+staged save offline (grid dump + flood-frontier classify) → screenshot → pret map.bin.
+
 ### ── 2026-07-07 NIGHT SHIFT #1 (new loop, 08:10→) — 🏅 BADGE 6 + LAPRAS + FUCHSIA + the Safari strike ──
 **FOUR PROMOTIONS this shift (commits 7631b1c, d6a45f4, 57bd88e):**
 1. **sabrina_badge6** — recon_sabrina.py: **pad_plan() = the runtime PAD-GRAPH ROUTER**

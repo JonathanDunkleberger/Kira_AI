@@ -252,10 +252,58 @@ def main():
             return safari_battle()
         return trainer_fight()
 
+    KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
+
+    def elev_of(sx, sy):
+        """Map-grid ELEVATION nibble (bits 12-15) — the Sabrina/Silph class: void strips
+        read collision-0/elev-0 beside elev-3 floor and the game blocks cross-elevation
+        steps (East's y<=8 phantom-open strip, strike15 truth). 0xF = multi-level pass."""
+        w = b.rd32(tv.BACKUP_LAYOUT)
+        h = b.rd32(tv.BACKUP_LAYOUT + 4)
+        mp = b.rd32(tv.BACKUP_LAYOUT + 8)
+        bx, by = sx + tv.MAP_OFFSET, sy + tv.MAP_OFFSET
+        if not (0 <= bx < w and 0 <= by < h):
+            return -1
+        return (b.rd16(mp + (by * w + bx) * 2) >> 12) & 0xF
+
+    def safari_step(t):
+        """One-tile step, tap-turn aware, NO SIDEWAYS NUDGE. camp._step_to's short verify
+        window reads grass steps as failures and its nudges BURN SAFARI STEPS + bounce her
+        onto adjacent door warps (strike 12/13 truth: the tour died to the 600-step limit
+        on nudge waste). Returns 'ok' | 'battle' | 'blocked' | 'warped'."""
+        m0 = tuple(tv.map_id(b))
+        cur = tuple(tv.coords(b) or (0, 0))
+        d = (t[0] - cur[0], t[1] - cur[1])
+        if d in ((2, 0), (-2, 0), (0, 2), (0, -2)):
+            d = (d[0] // 2, d[1] // 2)         # LEDGE HOP: one press, the game jumps 2
+        key = KEY_OF.get(d)
+        if key is None:
+            return "blocked"
+        for _attempt in range(3):              # tap 1 may only TURN her (tap-turn law)
+            b.press(key, 8, 6, camp.render, owner="agent")
+            for _ in range(60):                # grass rustle / ledge-hop anim settle
+                b.run_frame()
+                if tuple(tv.coords(b) or ()) == t:
+                    break
+            if fight_open():
+                return "battle"
+            if tuple(tv.map_id(b)) != m0:
+                return "warped"
+            if tuple(tv.coords(b) or ()) == t:
+                return "ok"
+        if dd_box(b):
+            return "battle"                    # a box opened — let the caller drain
+        return "blocked"
+
     def walk_path_to(tile, label, tries=8):
         dead = set()
         budget = tries
+        hops = 0
         while budget > 0:
+            hops += 1
+            if hops > 400:            # hard cap — the deadline is the real guard
+                L(f"   [{label}] hop cap hit at {tv.coords(b)}")
+                return False
             budget -= 1
             cur = tuple(tv.coords(b) or (0, 0))
             if cur == tile:
@@ -264,44 +312,44 @@ def main():
             wts = {tuple(w[0]) for w in tv.read_warps(b)} - {tile}
             npcs = ({tuple(o[0]) for o in tv.read_object_templates(b) if o[2]}
                     | dead) - {tile}
+            # LEDGE TILES ARE NEVER STANDING TILES (strike14 truth): tv.bfs special-cases
+            # a ledge only when approached in jump direction — any other approach walks
+            # THROUGH it as floor, which the game refuses. Exclude them from standing;
+            # bfs's own hop logic still jumps them in the legal direction.
+            # NO ELEVATION FILTER (strike16/17 lesson): elevation legality is PER-STEP
+            # (equal, or either side 0/0xF — stairs chain e3->e0->e4), so any per-PLAN
+            # seed filter cuts legal raised paths (East's e4 loop to the north doors).
+            # Phantom elev-void strips die by dead-marking instead (bounded churn).
             p = tv.bfs(g, cur, lambda t: t == tile,
                        walkable=lambda sx, sy: g.walkable(sx, sy)
+                       and g.ledge_dir(sx, sy) is None
                        and (sx, sy) not in wts and (sx, sy) not in npcs)
             L(f"   [{label}] replan at {cur} -> {tile} (len {len(p) if p else 0}, "
-              f"budget {budget})")
+              f"budget {budget}, head {[tuple(x) for x in (p or [])[1:4]]})")
             if not p:
                 L(f"   [{label}] no NPC-free static path {cur} -> {tile} "
                   f"(dead={sorted(dead)})")
                 return False
             for t in p[1:]:
-                ok = camp._step_to(tuple(t))
-                if fight_open():
+                r = safari_step(tuple(t))
+                if r == "battle":
                     on_battle()
                     drain()
                     budget += 1          # a battle is not a failed try (grass roads have
-                    #                      an encounter every few steps — strike4 truth)
-                    if not ok and tuple(tv.coords(b) or ()) != tuple(t):
-                        dead.add(tuple(t))   # strike8 truth: a blocked step whose NUDGE
-                        #                      lands in grass fires a battle, and this
-                        #                      branch used to SKIP dead-marking — the
-                        #                      shore treadmill (35,17)<->(34,17)
-                    break
-                if not ok:
-                    for _ in range(120):
-                        b.run_frame()
-                    if dd_box(b):
-                        drain()
-                    if fight_open():
-                        on_battle()
-                        drain()
-                        budget += 1
-                        break
-                    dead.add(tuple(t))
+                    break                # an encounter every few steps — strike4 truth)
+                if r == "warped":
+                    return False         # step limit / door — the main loop re-dispatches
+                if r == "blocked":
+                    dead.add(tuple(t))   # genuinely refused (pond shore / fence)
                     break
             if tuple(tv.coords(b) or ()) == tile:
                 return True
             if tuple(tv.map_id(b)) != start_map[0]:
                 return False                    # warped mid-walk (step limit) — re-dispatch
+            if tuple(tv.coords(b) or ()) != cur:
+                budget += 1        # she MOVED — progress is never a consumed try (grass
+                #                    steps read as failed in _step_to's verify window and
+                #                    were eating one try per TILE — strike12 truth)
         return tuple(tv.coords(b) or ()) == tile
 
     def engage(front, face, label, drains=3, key="B"):
@@ -338,6 +386,7 @@ def main():
         wts = {tuple(w[0]) for w in tv.read_warps(b)}
         npcs = {tuple(o[0]) for o in tv.read_object_templates(b) if o[2]}
         cur0 = tuple(tv.coords(b) or (0, 0))
+        e0 = elev_of(*cur0)
         cands = []
         for nb, kin in (((wt[0] - 1, wt[1]), "RIGHT"), ((wt[0] + 1, wt[1]), "LEFT"),
                         ((wt[0], wt[1] - 1), "DOWN"), ((wt[0], wt[1] + 1), "UP")):
@@ -345,6 +394,7 @@ def main():
                 continue
             p = tv.bfs(g, cur0, lambda t, a=nb: t == a,
                        walkable=lambda sx, sy: g.walkable(sx, sy)
+                       and g.ledge_dir(sx, sy) is None
                        and (sx, sy) not in wts and (sx, sy) not in npcs) \
                 if cur0 != nb else [cur0]
             if p:
@@ -444,11 +494,15 @@ def main():
             b.run_frame()        # all inside one warp-transition window
         return False
 
+    last_map = [None]
     while time.time() < deadline:
         if have_surf() and have_strength():
             break
         here = tuple(tv.map_id(b))
         start_map[0] = here
+        if here != last_map[0]:
+            last_map[0] = here
+            _stage_save(f"arrive_{here[0]}_{here[1]}")   # probe-ability on every map
         if fight_open():
             on_battle()
             drain()
