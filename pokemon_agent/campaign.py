@@ -3093,14 +3093,21 @@ class Campaign:
                 # floor crosses it (a later re-sag re-pins fresh).
                 lead = max(m["level"] for m in party)
                 pin = getattr(self, "_bench_pin", None)
+                sig = tuple(sorted(m["species"] for m in party))
                 if pin is not None:
                     if floor >= pin:
                         self._bench_pin = None              # goal reached — the pin retires
+                        self._bench_done_sig = sig          # remember WHO was prepped
                     else:
                         t = pin
                 elif floor < lead - PROACTIVE_BENCH_GAP:
-                    self._bench_pin = lead - 8
-                    t = self._bench_pin
+                    # RE-ARM GUARD (ship-run-5: 567 battles): the ace outruns the bench forever, so
+                    # retiring at floor N and re-pinning at N+2 is a TREADMILL. A retired prep only
+                    # re-arms when the ROSTER CHANGED (a new member actually needs raising) — the
+                    # ace pulling ahead of an already-prepped bench is not a reason to grind.
+                    if getattr(self, "_bench_done_sig", None) != sig:
+                        self._bench_pin = lead - 8
+                        t = self._bench_pin
             if not t:
                 return None
             return t if floor < t else None
@@ -3723,7 +3730,11 @@ class Campaign:
             grid = tv.Grid(self.b)
             cur = tuple(tv.coords(self.b))
             door = tuple(gym.door)
-            for d in (1, 2, 3):
+            # walk to the CLOSEST reachable tile to the door, out to d=10 — the Vermilion yard is
+            # FENCED (nearest reachable ≈5, through the tree gap at (19,23)); the old d≤3 gave up
+            # far away where the SEA was adjacent and the recognizer armed a SURF/Safari questline
+            # instead of the tree (ship run 5's misdirection stall).
+            for d in range(1, 11):
                 path = tv.bfs(grid, cur,
                               lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
                               walkable=grid.walkable)

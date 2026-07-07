@@ -111,6 +111,13 @@ class PokemonSoul:
         self.emit(f"{who} is down - I've got you, take a rest", kind="roster", tier=2)
 
     def note_evolve(self, before, after, who=None):
+        # THE BOND FOLLOWS THE EVOLUTION (2026-07-06): meowth→persian must not orphan the family
+        # entry — same friend, new form. Any bond whose species matches `before` updates in place
+        # (nickname/key preserved; the relationship accretes, never resets).
+        for _k, bnd in list((self.bonds or {}).items()):
+            if isinstance(bnd, dict) and (bnd.get("species") or "").lower() == (before or "").lower():
+                bnd["species"] = after
+                bnd["note"] = f"evolved from {before}"
         self.emit(f"{who or before} evolved into {after}", kind="evolve", tier=3)
 
     def note_outcome(self, won, what=None):

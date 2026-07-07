@@ -175,6 +175,21 @@ def main():
         camp.world.load(C.WORLD_JSON)
     except Exception:
         pass
+    # ── CONTINUITY SEED (2026-07-06, the bond-regression class): the no-op load above also skipped
+    # the SOUL, so every run started with EMPTY bonds and banked soul={} unless a catch happened
+    # mid-run — sanctity then (rightly) refused the promotion (bonds 1->0, the Meowth bond). Seed
+    # the subjective layer from the BOOT bundle's own sidecar (a named bank) else canonical, so her
+    # story carries INTO the run and ACCRETES instead of resetting. ────────────────────────────────
+    try:
+        _boot_dir = os.path.dirname(resolve_state(boot))
+        _soul_src = os.path.join(_boot_dir, "soul.json")
+        if not os.path.exists(_soul_src):
+            _soul_src = os.path.join(STATES_CAMPAIGN, "soul.json")
+        if camp.soul is not None and os.path.exists(_soul_src):
+            camp.soul.load(_soul_src)
+            L(f"soul continuity seeded from {_soul_src} ({len(camp.soul.bonds)} bond(s))")
+    except Exception as _se:
+        L(f"!! soul seed failed: {_se}")
     try:
         camp.strat.load(C.STRAT_JSON)
     except Exception:
