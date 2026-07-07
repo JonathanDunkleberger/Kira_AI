@@ -1280,6 +1280,12 @@ class Campaign:
                 m_in = tuple(tv.map_id(b))
                 if m_in[0] == 3:
                     break                                     # back on the overworld — evaluate below
+                # TRANSIT LEARNING (2026-07-07, flute_run6): fold THIS interior into the mental map
+                # NOW — mat warps fire on travel's arrival boundary, so neither travel's transition
+                # hook nor enter_warp ever saw the UGP huts; the graph stayed one hop short and
+                # anchor routing read 'no route Lavender->Celadon' over walked ground, three runs
+                # straight. Each hop iteration stands on exactly the map that needs recording.
+                self._learn_transit()
                 spawn = tuple(tv.coords(b))
                 exits = sorted((tuple(w[0]) for w in tv.read_warps(b)),
                                key=lambda t: -(abs(t[0] - spawn[0]) + abs(t[1] - spawn[1])))
@@ -3813,12 +3819,18 @@ class Campaign:
                     f"{self.world.name(step_anchor)} and we're at {self.world.name(cur_map)} — "
                     f"{_kind} -> {_nxt} toward the anchor first")
                 if _kind == "warp":
-                    _before = tv.map_id(self.b)
+                    _before = tuple(tv.map_id(self.b))
                     self.trav.travel(target_map=None, arrive_coord=_detail, max_steps=300)
-                    if tv.map_id(self.b) != _before:
+                    if tuple(tv.map_id(self.b)) != _before:
                         return "warped"
-                    self.enter_warp(pick=_detail)
-                    return "warped" if tv.map_id(self.b) != _before else "warp_failed"
+                    # DIRECTIONAL stair/arrow tiles (UGP tunnel doorway 0x6F) fire only when
+                    # entered moving their way — try that ritual before the door step-in.
+                    if (self._enter_directional_warp(tuple(_detail))
+                            and tuple(tv.map_id(self.b)) != _before):
+                        return "warped"
+                    if tuple(tv.map_id(self.b)) == _before:
+                        self.enter_warp(pick=_detail)
+                    return "warped" if tuple(tv.map_id(self.b)) != _before else "warp_failed"
                 return self._edge_travel(_nxt, _detail)
             log(f"   [roam] questline: no graph route {cur_map} -> anchor {step_anchor} yet — "
                 f"falling through to dir/bend discovery")
