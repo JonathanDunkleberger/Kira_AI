@@ -268,7 +268,8 @@ FLAG_BADGE_THUNDER = 0x822
 CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR,
                  VERMILION: VERMILION_PC_DOOR,
-                 (3, 28): (13, 20)}    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
+                 (3, 28): (13, 20),    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
+                 (3, 4): (6, 5)}       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -1452,8 +1453,15 @@ class Campaign:
                                     max_steps=400, max_seconds=120) != "arrived":
                     break
             if tv.map_id(self.b) == back_map:
-                log(f"   HEAL-EXCURSION: healed + back on {back_map} at {tv.coords(self.b)}")
-                return "ok"
+                if healed:
+                    log(f"   HEAL-EXCURSION: healed + back on {back_map} at {tv.coords(self.b)}")
+                    return "ok"
+                # 2026-07-07 tunnel_run4: the remote PC was unreachable (heal-dead side of the
+                # map), the round-trip still completed, and the unconditional 'ok' here banked a
+                # fainted-ekans party as 'healed'. Honesty: no heal = no ok.
+                log(f"   !! HEAL-EXCURSION: back on {back_map} but the party is NOT healed "
+                    f"(remote Center unreachable) — honest fail")
+                return "stuck"
             # The HEAL succeeded; the cross-back wedged (typically an NPC parked at the PC door). That
             # is NOT a hard stall — return ok so the caller re-navs toward the real goal FROM HERE
             # (moving away from the door), retrying as the NPC steps off. Heal is best-effort transport.
