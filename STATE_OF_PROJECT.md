@@ -30,7 +30,46 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
-### ── 2026-07-07 NIGHT SHIFT #2 (🏙️ CELADON CANONICAL — tunnel crossed, road walked) ──
+### ── 2026-07-07 NIGHT SHIFT #4 (🏅 BADGE 4 CANONICAL — Erika down; the flute chain armed) ──
+**CANONICAL = CELADON, BADGES 4 (3,6)@(11,31)** (promoted erika_badge4; backup
+pre_erika_badge4_backup_20260707_014247). Party Venusaur46/Persian35/Fearow33/Raticate31/Ekans15/
+Mankey10 — Venusaur+Persian rode out at 0 HP post-gym (she heals at the registered Celadon Center
+(48,11) on the next heal pick; NOT wedged). Dex 11, $19,378.
+**THE ERIKA KILL CHAIN (erika_run2 postmortem → 3 general fixes → badge in 117.8s):**
+(a) **PP-FAMINE arbitration** (3b99978): read_party_pp + slot_has_damaging_pp (Attacks substruct
+word 2, ROM gBattleMoves power) → in-battle PP-FAMINE SWITCH (alive-but-winless active → best
+reserve WITH damaging PP, once/species/battle); heal-before-the-gym gate (_party_gym_ready:
+faints/ace<50%/famine → Center first — VERIFIED firing tick 1 of erika_run3/4); gauntlet famine
+break → needs_heal (juniors stay beaten); a stuck leader fight NEVER falls through to the award
+drain while the battle is live (the 'Do what with this POKéMON?' 300-step A-mash class);
+_drain_overworld refuses to drain during a live battle.
+(b) **LEVEL-DOMINANCE VETO** (deefab3): the matchup switch fielded L15 Ekans ("resists most") into
+L21+ gym mons and she BLACKED OUT to a Gloom she outleveled by 24 → active ≥ foe+10 never
+switches; candidates >5 under the foe are fodder; level breaks type ties.
+(c) Erika front (6,5) was already ground-truthed (shift 3); the interior CUT trees ((6,8) center
+aisle) are handled by travel's in-leg field_clear — RATICATE used CUT, twice, live.
+**BADGE-5 LEG (in flight at close — read logs/longrun/flute_runN.log):** next_gym = Koga; both
+Fuchsia roads are Snorlax-locked → the KB chain silph_scope → Poké Flute → wake Snorlax is armed by
+the new Lavender-south exit gate. KB billed (463747f): Fuchsia road (Celadon→R7→UGP#2→R8→Lavender→
+R12-15, expected ids 3,30-3,33 + Fuchsia 3,7 bind-on-walk). QUESTLINE ENGINE HARDENED (2068e83 +
+3da5894, flute_run1/2 postmortems): **item-confirmed steps** (('item',id) success via key-items
+pocket — FLAG_GOT_SILPH_SCOPE 0x037 is HIDE-class and READ SET SPURIOUSLY, skipping the whole
+hideout); **door hints** (Game Corner = Celadon door (34,21)→interior (10,14); Tower = Lavender
+(18,6) — disasm map.json truth); **step anchors** (a chain's errands span towns — dock/re-anchor/
+past-anchor now use the STEP's from-map, reset per step); **ANCHOR-FIRST routing** (compass dirs
+apply only on/past the anchor — killed the Lavender↔Route-10 ping-pong); **no_connector guard** on
+quest door-entry + GO-DEEPER (she toured INTO Rock Tunnel hunting Mr. Fuji).
+**ROCKET HIDEOUT GROUND TRUTH (disasm, for the strike if the generic tour stalls):** Game Corner
+interior (10,14): grunt (11,2) guards poster sign (11,1) — beat grunt, press poster → stairs
+(15,2)→B1F. B1F: down (17,2)+(15,30), elevator (23-25,25). B2F: arrive (28,2), down-to-B3F (21,2),
+elevator (28-29,16) — SPIN-TILE maze floor. B3F: arrive (18,2), down-to-B4F (15,18). B4F: arrive
+(11,15); GIOVANNI (19,4); Silph Scope ball (20,5); Lift Key ball (3,2) by grunt (4,2); grunts
+(16,14)/(19,14) guard the boss door; elevator (20-21,23). Item ids (disasm): SILPH_SCOPE=359,
+LIFT_KEY=356, POKE_FLUTE=350, CARD_KEY=355, SECRET_KEY=351, GOLD_TEETH=353, TEA=369, BICYCLE=360.
+**KNOWN RISK AHEAD:** B2F/B3F spin-arrow tiles — travel's BFS doesn't model forced slides; if the
+GO-DEEPER tour can't reach the down-stairs, build a slide-aware edge model (deterministic: arrow →
+slide to stop tile; add as graph edges). The Tower needs the Scope FIRST (ghost Marowak floor 6);
+channelers are normal trainer fights.
 **CANONICAL = CELADON CITY (3,6)@(59,15)** (promotion chain tonight, every step sanctity-gated:
 dex11_mankey → hm05_flash → rocktunnel_lavender → celadon_reach; backups pre_* alongside).
 Party Venusaur45(FLASH)/Persian34/Fearow32/Raticate31/Ekans15(fainted-benchwarmer)/Mankey10; dex 11.
