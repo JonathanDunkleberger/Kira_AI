@@ -260,6 +260,14 @@ VERMILION_GYM_DOOR, SURGE_FRONT = (14, 25), (5, 3)
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 FLAG_BADGE_THUNDER = 0x822
+FLAG_BADGE_RAINBOW = 0x823
+# Celadon ground truth (probed live 2026-07-07 from the celadon_run9 bank): Center door (48,11)
+# -> interior (10,12) arrival (7,8) standard layout; GYM door (11,30) -> interior (10,16), the
+# statue hall at (6,18); a CUT tree sits on the approach path (in-leg field_clear handles it).
+CELADON = (3, 6)
+CELADON_PC_DOOR = (48, 11)
+CELADON_GYM_DOOR = (11, 30)
+ERIKA_FRONT = (4, 4)     # leader podium top-center; front tile below her, face UP (iterate if off)
 
 # CITY -> its own Pokemon Center door (PC interiors share ONE layout, so heal_at_center(door) heals
 # in ANY of them — only the overworld door differs). The map-keyed table replaces heal_nearest's old
@@ -269,7 +277,8 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  CERULEAN: CERULEAN_PC_DOOR, ROUTE4: ROUTE4_PC_DOOR,
                  VERMILION: VERMILION_PC_DOOR,
                  (3, 28): (13, 20),    # Route 10: the Center by the Rock Tunnel door (live 2026-07-07)
-                 (3, 4): (6, 5)}       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
+                 (3, 4): (6, 5),       # Lavender: NW building -> interior (8,0), arrival (7,8) (probed live)
+                 CELADON: CELADON_PC_DOOR}   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -290,6 +299,8 @@ GYMS = {
     # UNBEATABLE until the trash-can puzzle solver lands (see VERMILION_GYM_DOOR note).
     "Lt. Surge": GymSpec("Lt. Surge", VERMILION, VERMILION_GYM_DOOR, SURGE_FRONT,
                          FLAG_BADGE_THUNDER, 0, "UP"),
+    "Erika": GymSpec("Erika", CELADON, CELADON_GYM_DOOR, ERIKA_FRONT,
+                     FLAG_BADGE_RAINBOW, 0, "UP"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
