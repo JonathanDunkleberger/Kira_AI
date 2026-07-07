@@ -308,6 +308,15 @@ class TeachFlow:
                         break
                     self._press("A", settle=60)
                 elif not case_homed:
+                    # the case UI SORTS its backing array on open (HMs first): a row computed from
+                    # the raw array right after an acquisition is STALE (hm05 run 7: the aide's
+                    # give-script appended HM05 at raw 5; the open case displayed it at row 1 and
+                    # the counted DOWNs picked a wrong row). Re-read now that the case is open.
+                    row2 = tm_case_row(self.b, item)
+                    if row2 is not None and row2 != row:
+                        self.log(f"   [teach] case re-sorted on open: row {row} -> {row2}")
+                        row = row2
+                        downs_left = row2
                     # the case list cursor is HEAP-allocated with NO readback and it REMEMBERS
                     # its row across opens (surge run 3: DOWNs counted from a parked cursor
                     # selected the wrong row -> a case<->bag oscillation that never reached the

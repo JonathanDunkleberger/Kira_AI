@@ -207,18 +207,42 @@ def main():
     if not cross_cave("north", ROUTE2):
         _stage_save("fail"); return 1
 
-    # ── 3) the aide's gatehouse: enter the door just south, talk until 0x23B sets ──────
+    # ── 3) the aide's gatehouse: the Route 2 GATE south of the cave exit. It is a GATE
+    # BAND (walk-through warp on the building's north face), NOT a door — run 6 lesson:
+    # enter_warp(prefer=) saw no door and the passthrough fallback warped her back through
+    # the CAVE to Route 11. Warp-truth instead: nearest interior-dest warp at/below her,
+    # excluding the cave door she's standing on.
     got = False
-    for attempt in range(3):
+    tried_g = set()
+    for attempt in range(4):
         if fm.read_flag(b, FLAG_GOT_HM05):
             got = True
             break
-        if tv.map_id(b)[0] == 3:                      # outside — enter the gate building south
-            w = camp.enter_warp(prefer="south")
-            L(f"gatehouse: enter_warp(south) -> {w} (now {tv.map_id(b)})")
+        if tv.map_id(b)[0] == 3:
+            pos = tuple(tv.coords(b))
+            gws = [(tuple(w), tuple(d)) for (w, d, _i) in tv.read_warps(b)
+                   if d[0] != 3 and tuple(w) != pos and tuple(w) not in tried_g]
+            if not gws:
+                L("!! gatehouse: no untried interior warp on this map — LOUD")
+                break
+            south = [w for (w, d) in gws if w[1] >= pos[1]] or [w for (w, d) in gws]
+            tgt = min(south, key=lambda w: abs(w[0] - pos[0]) + abs(w[1] - pos[1]))
+            tried_g.add(tgt)
+            L(f"gatehouse: heading to warp {tgt} (of {gws})")
+            camp.trav.travel(target_map=None, arrive_coord=tgt, max_steps=300, max_seconds=180)
+            if tv.map_id(b)[0] == 3 and tuple(tv.coords(b)) == tgt:
+                for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):   # gate bands fire on the crossing step
+                    b.press(d_, 10, 6, lambda: None, owner="agent")
+                    for _f in range(40):
+                        b.run_frame()
+                    if tv.map_id(b)[0] != 3:
+                        break
             if tv.map_id(b)[0] == 3:
-                L("!! gatehouse: no door south — trying passthrough search")
-                camp._door_passthrough()
+                w = camp.enter_warp(pick=tgt)
+                L(f"gatehouse: enter_warp({tgt}) -> {w} (now {tv.map_id(b)})")
+            if tv.map_id(b)[0] == 3:
+                L(f"gatehouse: warp {tgt} didn't fire — trying the next candidate")
+                continue
         talks = 0
         while not fm.read_flag(b, FLAG_GOT_HM05) and talks < 8:
             r = camp.talk_npc()

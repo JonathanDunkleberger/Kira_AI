@@ -52,6 +52,70 @@ FWD_LEGS = {(3, 29): ("west", (3, 5)), (3, 5): ("north", (3, 24)), (3, 24): ("pa
             (3, 22): ("east", (3, 3))}
 
 
+
+def cross_warp_maze(b, camp, L, m0, budget_s=900, stage_fail=None):
+    """Destination-aware warp-maze crossing (Diglett's / Rock Tunnel class): exit = an
+    overworld-dest warp TILE we haven't stood on (handles both-mouths-same-dest); else the
+    farthest unvisited interior warp; unreachable targets are marked and skipped (partitioned
+    floors); door mats get the step-through nudge. Returns True when out on the overworld."""
+    import time as _t
+    t0 = _t.time()
+    visited = set()
+    fail_streak = 0
+    while tuple(tv.map_id(b))[0] != 3:
+        if _t.time() - t0 > budget_s:
+            L(f"!! maze crossing TIMEOUT at {tv.map_id(b)}")
+            return False
+        pos = tuple(tv.coords(b))
+        mid = tuple(tv.map_id(b))
+        warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
+        if not warps:
+            L(f"!! room {mid} shows no warps — stuck")
+            return False
+        visited.add((mid, pos))
+        dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
+        outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0 and (mid, w_) not in visited
+                and w_ != pos]
+        if not outs:                                     # both-mouths-same-dest fallback
+            outs = [w_ for (w_, d) in warps if d[0] == 3 and (mid, w_) not in visited and w_ != pos]
+        if outs:
+            far = min(outs, key=dist)
+            L(f"room {mid}: at {pos}, trying EXIT door {far} (dest overworld) of {warps}")
+        else:
+            fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
+            cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
+            if not cands:
+                L(f"!! room {mid}: no warp candidates left")
+                return False
+            far = max(cands, key=dist)
+            L(f"room {mid}: at {pos}, heading to warp {far} (of {warps}; fresh={fresh})")
+        visited.add((mid, far))
+        before = mid
+        camp.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240)
+        if tuple(tv.map_id(b)) == before:
+            camp.enter_warp(pick=far)
+        if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
+            for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):   # door mats fire on the crossing step
+                b.press(d_, 10, 6, lambda: None, owner="agent")
+                for _f in range(40):
+                    b.run_frame()
+                if tuple(tv.map_id(b)) != before:
+                    break
+                if tuple(tv.coords(b)) != far:
+                    camp.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
+        if tuple(tv.map_id(b)) == before:
+            visited.add((before, far))
+            fail_streak += 1
+            L(f"room {before}: warp {far} unreachable/didn't fire — marked, trying another "
+              f"(streak {fail_streak})")
+            if fail_streak >= 6:
+                L("!! six dead warp targets in a row")
+                return False
+        else:
+            fail_streak = 0
+    return True
+
+
 def main():
     t0 = time.time()
 
@@ -144,6 +208,16 @@ def main():
                 return False
         return True
 
+    # ── 0) a Route 2 start (the hm05 bank lands there): cross Diglett's Cave back east ─
+    if tuple(tv.map_id(b)) == (3, 20):
+        L("boot on Route 2 — crossing Diglett's Cave east to Route 11")
+        w = camp.enter_warp(pick=(17, 11))
+        L(f"cave door (17,11) -> {w} (now {tv.map_id(b)})")
+        if tuple(tv.map_id(b))[0] == 3 or not cross_warp_maze(b, camp, L, (3, 20)):
+            L("!! couldn't cross back to Route 11 — staged, not banked")
+            _stage_save("fail"); return 1
+        L(f"back on the east side: {tv.map_id(b)} {tv.coords(b)}")
+
     # ── 1) road to Route 10 ──────────────────────────────────────────────────────────
     if tuple(tv.map_id(b)) != ROUTE10 and not walk_legs(ROUTE10, FWD_LEGS):
         _stage_save("fail"); return 1
@@ -180,59 +254,10 @@ def main():
         _stage_save("fail"); return 1
     camp.on_event("and there's light! okay, Rock Tunnel — let's do this properly.", kind="route", tier=2)
 
-    # destination-aware crossing (recon_hm05 pattern + the both-mouths-same-dest rule)
-    t_cross = time.time()
-    visited = set()
-    fail_streak = 0
-    while tuple(tv.map_id(b))[0] != 3:
-        if time.time() - t_cross > 900:
-            L(f"!! tunnel crossing TIMEOUT at {tv.map_id(b)}")
-            _stage_save("fail"); return 1
-        pos = tuple(tv.coords(b))
-        mid = tuple(tv.map_id(b))
-        warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
-        if not warps:
-            L(f"!! room {mid} shows no warps — stuck")
-            _stage_save("fail"); return 1
-        visited.add((mid, pos))
-        dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
-        outs = [w_ for (w_, d) in warps if d[0] == 3 and (mid, w_) not in visited and w_ != pos]
-        if outs:
-            far = min(outs, key=dist)
-            L(f"room {mid}: at {pos}, trying EXIT door {far} (dest overworld) of {warps}")
-        else:
-            fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
-            cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
-            if not cands:
-                L(f"!! room {mid}: no warp candidates left"); _stage_save("fail"); return 1
-            far = max(cands, key=dist)
-            L(f"room {mid}: at {pos}, heading to warp {far} (of {warps}; fresh={fresh})")
-        before = mid
-        camp.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240)
-        if tuple(tv.map_id(b)) == before:
-            camp.enter_warp(pick=far)
-        if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
-            # standing ON a walk-through door mat: fires on the CROSSING step, not on arrival —
-            # step out through it, DOWN first (mats sit on the bottom wall), map-change checked.
-            for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):
-                b.press(d_, 10, 6, lambda: None, owner="agent")
-                for _f in range(40):
-                    b.run_frame()
-                if tuple(tv.map_id(b)) != before:
-                    break
-                if tuple(tv.coords(b)) != far:              # stepped OFF sideways — back on the mat
-                    camp.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
-        if tuple(tv.map_id(b)) == before:
-            # unreachable from this section (the partitioned 1F) — mark and try another warp
-            visited.add((before, far))
-            fail_streak += 1
-            L(f"room {before}: warp {far} unreachable/didn't fire — marked, trying another "
-              f"(streak {fail_streak})")
-            if fail_streak >= 6:
-                L("!! six dead warp targets in a row — staged, not banked")
-                _stage_save("fail"); return 1
-        else:
-            fail_streak = 0
+    # destination-aware crossing (the shared maze crosser; m0=(3,255) sentinel so BOTH
+    # Route-10 mouths count as exits — the visited-set already excludes the one we entered on)
+    if not cross_warp_maze(b, camp, L, (3, 255)):
+        _stage_save("fail"); return 1
 
     L(f"OUT of the tunnel at {tv.map_id(b)} coords={tv.coords(b)}")
     if tuple(tv.map_id(b)) != ROUTE10:
