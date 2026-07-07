@@ -407,10 +407,20 @@ def main():
     rooms_cleared = 0
     seen_rooms = []               # map ids in door-chain order (Lorelei..Champion)
     hof_banked = False
+    prev_here = None
     while time.time() < deadline:
         if handle_interrupts():
             continue
         here = tuple(tv.map_id(b))
+        came_from, prev_here = prev_here, here
+        if here == center and seen_rooms and came_from is not None \
+                and came_from not in (center, INDIGO_EXT):
+            # back at the center FROM the chain = a whiteout — the respawn heals
+            # the party but the Full Restore kit is drained: re-check the shop
+            # (money-aware; no-op if the bag is still stocked)
+            L(f"   back at the center from the chain (whiteout) — re-checking the kit "
+              f"[money ${camp.money()}, FR x{camp.bag_count(FULL_RESTORE)}]")
+            shopped = False
         warps = [(tuple(xy), tuple(d)) for xy, d, _w in tv.read_warps(b)]
         if here == INDIGO_EXT:
             # enter the center (its door is the only warp here)

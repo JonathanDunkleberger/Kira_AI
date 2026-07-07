@@ -477,7 +477,7 @@ def main():
         except Exception:
             return 0
 
-    def go_warp(tile, dest, label):
+    def go_warp(tile, dest, label, avoid=()):
         m0 = tuple(tv.map_id(b))
         if m0 == dest:
             return True
@@ -490,7 +490,8 @@ def main():
             nbs = [(tile[0] - d[0], tile[1] - d[1])]
         for attempt in range(4):
             if tuple(tv.coords(b) or ()) not in nbs and tuple(tv.coords(b) or ()) != tile:
-                if not sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
+                if not sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach",
+                                avoid=avoid):
                     return False
             cur = tuple(tv.coords(b) or (0, 0))
             if cur == tile and not arrow:
@@ -839,7 +840,12 @@ def main():
                                     allow=((34, 18),)) and wedge("hole-jump"):
                         return 1
                     settle(180)
-            elif not go_warp((37, 10), VR2F, "3f-to-2f-east") and wedge("3f-to-2f"):
+            elif not go_warp((37, 10), VR2F, "3f-to-2f-east",
+                             # Ray+Tyra (38,13)/(39,13) are a trainerbattle_DOUBLE
+                             # (sight 1, facing DOWN) and the battle agent has no
+                             # double-battle target actuation (run9 fight#36/37
+                             # stuck) — dodge their sight tiles via column 36
+                             avoid=((38, 14), (39, 14))) and wedge("3f-to-2f"):
                 return 1
         else:
             # off-route (whiteout center interior, etc.) — exit to the overworld

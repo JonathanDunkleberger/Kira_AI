@@ -304,8 +304,16 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  CELADON: CELADON_PC_DOOR,   # Celadon: (48,11) -> (10,12), arrival (7,8) (probed live)
                  FUCHSIA: FUCHSIA_PC_DOOR,   # Fuchsia: (25,31) (disasm; city id EXPECTED, binds on walk)
                  SAFFRON: SAFFRON_PC_DOOR,   # Saffron: (24,38) (disasm SaffronCity map.json 2026-07-07)
-                 (3, 8): (14, 11)}           # Cinnabar: (disasm CinnabarIsland map.json 2026-07-07;
+                 (3, 8): (14, 11),           # Cinnabar: (disasm CinnabarIsland map.json 2026-07-07;
                                              # the seafoam_run10 loud-fallback gap)
+                 (3, 9): (11, 6)}            # Indigo Plateau Exterior -> the League center door
+                                             # (disasm IndigoPlateau_Exterior.json; victory_run10's
+                                             # heal wandered south to R23 without this)
+
+# PC interiors share ONE layout — EXCEPT the League center (2-story, nurse behind the long
+# counter at (13,10), stand (13,11)). heal_at_center consults this by DOOR before defaulting
+# to the shared NURSE_FRONT.
+NURSE_FRONT_OVERRIDES = {(11, 6): (13, 11)}
 
 # ── GYM REGISTRY: one row per leader, so beat_gym is data-driven + general (gyms gate the leader
 # behind junior trainers - beat all juniors, THEN the leader). reserve = move-slots to free for an
@@ -3292,7 +3300,7 @@ class Campaign:
             self.b.run_frame()
         self.b.set_input_owner("agent")
         # 2) to the nurse counter + drive the YES heal dialogue
-        self._step_to(NURSE_FRONT)
+        self._step_to(NURSE_FRONT_OVERRIDES.get(tuple(pc_door), NURSE_FRONT))
         self.b.press("UP", 6, 8, self.render, owner="agent")     # face the nurse
         for _ in range(26):
             # YES/NO box eats the first press; UP engages (YES is top, can't move off), A=YES
