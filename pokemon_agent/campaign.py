@@ -857,6 +857,24 @@ class Campaign:
             except Exception as _he:
                 log(f"   HEAL: escape-hatch on strand crashed: {_he!r} (LOUD) — falling through to stuck")
             return "stuck"
+        # INTERIOR-FIRST (2026-07-06, ship run 18): hurt DEEP inside a multi-room complex (a fainted
+        # Persian in S.S. Anne cabin (1,13)) NO step below can route — interiors aren't graph nodes
+        # and have no edge connections, so heal spun 'stuck' x14 into a STALL. Get OUT to the
+        # overworld first (the street-first exit unwinds the ship, proven run 15), then heal from
+        # the street — the ship exits into Vermilion, whose own Center is registered. Pre-HM01
+        # re-boarding is proven; post-HM01 the run has already GOAL'd.
+        if tuple(m)[0] != 3:
+            log(f"   HEAL: inside a building complex {m} — exiting to the overworld before routing")
+            try:
+                self._exit_to_overworld()
+            except Exception as _xe:
+                log(f"   HEAL: exit-to-overworld crashed: {_xe!r} (LOUD)")
+            m2 = tuple(tv.map_id(self.b))
+            if m2[0] == 3:
+                if m2 in CITY_PC_DOORS:
+                    return ("ok" if self.heal_at_center(CITY_PC_DOORS[m2])
+                            in ("healed", "healed_stuck_inside") else "stuck")
+                m = m2                      # continue the ladder from the street
         # UNMAPPED map, ADJACENT-CITY FIRST (2026-07-06, the Route-6/S.S.-Anne lesson): the LIVE map
         # header knows neighbours she hasn't VISITED yet — the world graph below only routes VISITED
         # nodes, so a first approach to a new town (Route 6 hurt from the gauntlet, Vermilion one edge
