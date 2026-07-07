@@ -1,106 +1,75 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #7 close)
+# NEXT_SESSION — resume prompt (write date 2026-07-07, attended intervention after shift 11)
 
 Paste this to the fresh session:
 
 ---
 
-RESUME — fresh session. Read STATE §0 NIGHT SHIFT #7 blocks first (both). Last shift's arc
-(commits c93f10b → cf24958):
+RESUME — fresh session. Read STATE §0 NIGHT SHIFT #9/#10 blocks first. Context: the night
+loop ran 11 shifts; shift 8 died at the context wall MID-STRIKE without closing, so this file
+sat at shift-7 vintage while shifts 9-11 flew off it — repaired attended 07:45. The night
+contract now demands frontier-first rewrites BEFORE launching long strikes (night_shift.ps1
+preface point 3). Never trust this file over STATE §0 + NIGHT_REPORT.md if they disagree.
 
-🏆 **BADGE 5 BANKED — KOGA BEATEN.** koga_run3 reached Fuchsia and cleared all six gym juniors,
-then Koga's L37 Koffing SELF-DESTRUCTED on Venusaur L54 turn one → full wipe. Five general
-fixes, then koga_run8 took the badge in 54 seconds:
-- **NUKE-SLEEP opener** (battle_agent `_NUKE_SPECIES` — Geodude/Voltorb/Koffing families):
-  sleep the bomber BEFORE it detonates, at ANY damage matchup. Verified live: both Koffings
-  slept, zero detonations.
-- **PREP STAND-DOWN**: 2 straight dry grind attempts → the "train first" plan drops LOUD, the
-  rematch/forward road wins. Resets ONLY on real grinding (an A↔B shuttle "arrives" every tick
-  — that reset bug cost run6).
-- **Grass fail-memory + grind-dead maps** (`_grass_unreach`, `_grind_dead`): one-way ledge
-  pockets (Route 15 west end) and grassless "routes" (water Route 19) are vetoed as grind
-  candidates in every `_grass_target` source including the last-resort branch.
-- **Stale-attach disarms BOTH ways** (battle_agent): the save's display struct can hold the
-  LAST fight's corpse at attach — foe-side (harmless) AND our-side (silent B-drain livelock,
-  now disarmed by live read). The filed tower4 rival-miss is properly fixed: the engine keeps
-  `LAST_FOES_SEEN` (live action-menu reads, can't be stale); campaign re-checks it post-battle
-  against the rival counter-line. Gary #6 in Silph Co will be its live test.
-- **ASYNC-WHITEOUT guard** (`_exit_to_overworld`): the respawn warp fires mid-candidate; check
-  map-changed unconditionally per candidate (the Fuchsia Center ×6 wedge).
+**CANONICAL = saffron_reach: Saffron City (3,10)@(47,13) — AT the gym door, badges 5
+(Boulder/Cascade/Thunder/Rainbow/Soul), TEA in bag, Venusaur L55 full HP, sanctity VALID**
+(backup pre_saffron_reach_backup_20260707_060438). Party is FULL (6) — the Silph Lapras gift
+transfers to Bill's PC.
 
-**CANONICAL = koga_badge5: Fuchsia (3,7)@(9,33), badges 5, Venusaur L55, $55k, sanctity VALID.**
-(Party was hurt in-bank; every new run's first tick heals at the Fuchsia Center — verified ×3.
-Check `ls pokemon_agent/states/campaign/pre_*` for anything sabrina_run3+ promoted after this
-was written.)
+🏢 **LIVE OBJECTIVE: FINISH + BANK THE SILPH CO STRIKE — ~95% cracked.**
+`pokemon_agent/recon_silph.py` boots from canonical and runs the whole tower in ~2-4 min at
+max speed. FIRST MOVE: check whether the attended strike16 already finished —
+`logs/longrun/silph_strike16.log` + `%TEMP%\longrun\banked_SILPH` + `%TEMP%\longrun\
+stage_silph`. If `saffron_free` (flag 0x3E, Giovanni beaten) fired: **bank + promote
+silph_cleared via promote_bank.py** (full sanctity bundle — the stage saves carry Gary #6 and
+Lapras), then go straight to Sabrina. If not, the log names the wall; every wall in this
+tower so far fell to a probe (recon_silph_probe*.py / recon_silph7f_probe.py patterns).
 
-🛣️ **BADGE-6 LEG OPEN — the Saffron road is billed and VERIFIED to carry her** (roads/"Saffron
-City" in gamedata/frlg_gates.json, all directions from live-learned world-model edges):
-Fuchsia→R15(e)→R14(e)→R13(n)→R12(n,**via pass**)→Lavender(w)→R8(w, via pass)→Saffron (3,11
-expected). New exit_gates "3,26"/west = the thirsty-guard TEA gate (FLAG_GOT_TEA 0x2A6;
-capabilities/FLAG_GOT_TEA = Celadon Mansion old lady, already billed).
+**Already killed by shifts 9-11 + the attended pass (do NOT re-diagnose — STATE §0 has the
+full postmortems; commits 1a0d16d, accd57e, 7634d33, 1fd4e74):**
+- 1F lobby↔street livelock: the entrance mat (8,20) is a 0x65 DOWN-arrow warp — LAW: never
+  step off a directional warp tile in its fire direction (fixed recon_silph + campaign).
+- Card Key banks in-run ~30s: 9F pad (22,18) → 5F pocket → ball (22,21) from the EAST front.
+- The tap-turn ghost (campaign `_step_to`): an 8-frame tap in an unfaced direction only
+  TURNS her; re-tap the SAME key. Every "elevation-sealed tile" in the siege was this.
+- walk_path_to = NPC-masked static BFS (grid BFS is NPC-blind; beaten trainers still stand).
+- 9F door algebra: WMID doors (12-13,16-17) unseal the hostage HEAL woman (2,16) — a FREE
+  repeatable full heal; WMID+WEST (2-3,10-11) unseal the 3F-pad corridor.
+- The pad chain: 9F (9,4)↔3F (2,14) · 3F (13,14)↔7F (5,4) · 7F (5,8)↔11F (2,5). The 7F
+  Gary/Lapras pocket is PAD-ONLY; Giovanni (6,11) is open from the 11F pad landing (2,5).
+- **GARY #6 BEATEN in strike15** (grudge 4W-2L, in strat memory via the stage saves).
+- The "7F wedge" = the LAPRAS GIFT NICKNAME KEYBOARD (frame-proven, wedge7f_frame.png):
+  A-drains on "give a nickname? [YES]" opened the keyboard, which ate all overworld input —
+  the same bug class that once named Venusaur "AAAAAAAAAA". Fixed: engage(key="B") B-drains
+  the gift end-to-end + a name_entry(b,"") START→OK escape hatch.
 
-⛔ **FIRST MOVE: fix the Route 12 northbound gate crossing (FULLY DIAGNOSED), then run the leg.**
-sabrina_run3 wedged on it and was killed at close. The frontier is the **Route 12 NORTH
-GATEHOUSE** (south door (14,21)→interior (23,0), out (14,15)/(15,15) on the Lavender side —
-all live-learned warps on (3,30)). Route 12's top row is SEALED (no north edge — grid-dump
-proven; the leg is billed via='pass' now, cf24958). The passthrough failure mechanism, exact
-(campaign.py `_door_passthrough` ~line 1229):
-1. Candidates sort multi-warp-first, so the GATE (14,21) IS tried first — but its ENTRY fails
-   (likely the entry-method dispatch: recon_snorlax entered these gate doors southbound with
-   prefer='south'; northbound needs entry walking NORTH into (14,21) — check what the entry
-   step actually did in `logs/longrun/sabrina_run2.log`/`run3.log`), and it lands in the
-   per-session `tried` set — one shot, gone.
-2. The (12,86) REST HOUSE then "crosses" — a FALSE POSITIVE (single-warp house: she pops out
-   beside her own entry, position technically changed) — and gets remembered as the map's
-   proven connector (`self._pt_known[m0]`), which is retried FIRST every subsequent attempt,
-   forever ("popped out beside the entry — not a crossing" ×∞).
-FIXES (both needed): (a) a connector that pops out beside its entry must NOT set `_pt_known`
-(and should join `tried`); (b) the gate entry — give (14,21) the directional-entry treatment
-(_enter_directional_warp / prefer-north) or strike the crossing scripted (recon_snorlax.py
-already walks this exact gate SOUTHBOUND — reverse it, ~20 lines, then bank at Lavender and
-let the longrun continue). The STATIC grid path from the pocket to the gate is proven:
-(12,87) → west lane x=8-10 → east along row 72 → north through the x=14 choke (rows 69-71,
-the woken-Snorlax tile (14,70) is CLEAR) → gate. Relaunch after:
-`LONGRUN_GOAL_FLAG=0x825 LONGRUN_BATTLE_LOG=1 POKEMON_SLEEP_LOCK=1 POKEMON_CATCH_JUDGMENT=1
-POKEMON_PROACTIVE_BENCH=0 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py
-kira_campaign.state 90 > logs/longrun/sabrina_runN.log 2>&1`
+🔮 **THEN: SABRINA = BADGE 6 (longrun goal 0x825).** 0x3E frees Saffron and unblocks the gym
+door canonical is standing AT. GymSpec billed (shift 8). Interior = the teleport-pad maze —
+pads are WARPS, the Silph ride_pad/enter_to primitives should carry. Longrun at the gym,
+iterate per wall, bank sabrina_badge6.
 
-THEN the leg continues: Lavender → Route 8 west → the gatehouse guard refuses → the TEA
-questline arms (exit_gates 3,26/west) → route to Celadon via the Underground Path (door-
-passthrough, proven both ways) → Mansion old lady → TEA → back → Saffron. KNOWN WALLS after
-entry: **Sabrina's gym door is Rocket-BLOCKED until SILPH CO is cleared** (Card Key on 5F opens
-doors, Giovanni #2 on 11F, GARY #6 mid-tower — recon_hideout.py/recon_tower.py are the strike
-pattern; plan a `recon_silph.py` strike, don't wait for the questline to learn 11 floors);
-no GYMS row for Sabrina yet (needs gym door/leader coords — disasm SaffronCity map.json when
-she arrives); the gym interior is a TELEPORT-PAD maze (pads are warp events — read_warps sees
-them; warp-dest routing like recon_tower's enter_to may just work).
+**THE CHAIN AFTER (bank each, keep climbing):** badge 7 = BLAINE, Cinnabar — needs SURF
+(HM03, Safari Zone Secret House, Fuchsia) + a Surf-capable teammate (Venusaur can't —
+**LAPRAS in Bill's PC is the natural surfer**: box-withdraw = competency #15, unbuilt, likely
+the next real capability build) → badge 8 = GIOVANNI, Viridian → Route 22/23 → Victory Road
+→ E4 → **CREDITS**.
 
-KNOWN GAPS (owed): passthrough nearest-door vs multi-warp ordering (above); spin_nav not wired
-into travel/campaign (Viridian Gym); questline can't CLIMB interiors generically (two strikes
-prove the spec — promote the state-machine pattern when a third dungeon bites); Venusaur still
-named "AAAAAAAAAA" (Name Rater in Lavender — cheap now, she passes through Lavender THIS leg;
-consider folding it into the run as a soul beat); bench still dead weight (Ekans L15/Mankey L10
-— Koga cost the ace two faints; E4 needs a real squad — Route 18 west of Fuchsia has grass if a
-grind plan ever needs a real target near Fuchsia).
+**KNOWN GAPS (owed, carried):** Venusaur still named "AAAAAAAAAA" (Name Rater, Lavender —
+cheap soul beat when passing); bench dead weight (Ekans L15/Mankey L10 — E4 needs a real
+squad; Lapras helps); spin_nav.py not wired into travel/campaign (Viridian Gym needs it);
+questline can't CLIMB interiors generically (two strikes prove the spec — promote the
+state-machine pattern when a third dungeon bites); passthrough nearest-door vs multi-warp
+ordering.
+
+**SOUL-DEBT (flag while passing):** LAPRAS joined the family unnamed and unmet, straight to
+the PC — her first withdrawal deserves the roster-bond beat. Gary 4W-2L is live narrative.
 
 Rules in force: EMPLOYMENT TERMS (two-wall shift ends, bank-and-continue), tripwire, arsenal,
 single-run law, ground-truth-only (grid-dump/battle-trace before believing any wall),
-NEXT_SESSION.md at close. GO.
+frontier-first NEXT_SESSION.md rewrites. GO.
 
 ---
 
-## Morning survey pointers (for Jonny's 60-second read)
-- **Promoted tonight (2):** fuchsia_reach (Routes 12-15 + all six Koga juniors cleared) →
-  **koga_badge5** (BADGE 5, Venusaur L55). Both sanctity VALID.
-- **The night's real story:** Koga wiped her once — his Koffing Self-Destruct-traded her ace
-  turn one, the classic. The fix is exactly what a human does: sleep the bomber first. Rematch
-  took 54 seconds. Around it: five general engine kills (stand-down for unexecutable plans,
-  one-way-pocket memories, both stale-attach disarms, the async-whiteout guard) and the
-  attach-time rival bug from shift 6 is properly dead (foes-seen ledger).
-- **Human-hours advanced:** Routes 12-15 gauntlet + Fuchsia + the full gym (juniors + Koga,
-  with one wipe-and-rematch) ≈ 2-3 hours of human gameplay; badge-6 road billed and marching.
-- **Owed/honest:** Route 12 northbound gate crossing was the live frontier at close
-  (sabrina_run3 in flight); Silph Co strike is the big rock between her and badge 6.
-
-WATCH STATUS: canonical bank is CLEAN (heals on first tick); she is at Fuchsia with badge 5 —
-or northbound on Route 12 if sabrina_run3 promoted — heading for Lavender/Saffron;
-pop-in = `python pokemon_agent/play_live.py --resume --free-roam`.
+WATCH STATUS: canonical bank is CLEAN; she is at the Saffron gym door with badges 5, the
+Silph strike running from it headless; pop-in = `.venv\Scripts\python.exe -u
+pokemon_agent\play_live.py --resume --free-roam`. Attended strike watch: set `WATCH=1` then
+`.venv\Scripts\python.exe -u pokemon_agent\recon_silph.py`.

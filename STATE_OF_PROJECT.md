@@ -30,6 +30,25 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 ATTENDED INTERVENTION 07:45 (🔧 frontier repair + the Lapras keyboard) ──
+**Shift 11 killed mid-work at Jonny's order (stale-frontier launch). Debris swept:** no orphan
+processes; canonical saffron_reach CLEAN; kira/ working-tree changes = the PRE-EXISTING Gemini
+vision migration WIP (untouched, not night-shift debris); pokemon-side work salvaged+committed
+(1fd4e74) — shift 11's diagnosis was VALID despite the suspect launch.
+**THE "7F WEDGE" SOLVED BY ONE FRAME (wedge7f_frame.png): the LAPRAS GIFT NICKNAME KEYBOARD.**
+engage()'s A-drains hit "give a nickname? [YES]" (defaults YES) → keyboard opened → dd_box
+reads False → drain returns → every overworld step eaten. Same bug class that named Venusaur
+"AAAAAAAAAA". Fix: engage(key=) + B-drains end-to-end on the gift (battle_agent's proven
+decline pattern) + name_entry(b,"") START→OK escape hatch. Party full → LAPRAS → Bill's PC
+(frame-proven "transferred to BILL's" — box-withdraw #15 now has a real customer: the Surf
+carrier for Blaine).
+**FRONTIER-FILE STALENESS root-caused:** shift 8 died at the context wall MID-STRIKE — the
+contract only demanded NEXT_SESSION.md "current at close", so it froze at shift-7 vintage and
+shifts 9-11 launched off it. **Contract amended (night_shift.ps1 preface pt 3): rewrite the
+frontier BEFORE launching any long strike + at every bank, never only at close.**
+NEXT_SESSION.md rewritten to the true frontier. WATCH=1 env added to recon_silph.py (live
+pygame window, attended watch). silph_strike16 launched attended with the window up.
+
 ### ── 2026-07-07 NIGHT SHIFT #10 (🏢 SILPH CO — the pad chain; route truth from disasm) ──
 **CANONICAL unchanged = saffron_reach** (Saffron (3,10)@(47,13), badges 5, TEA, full HP).
 **Shift 9's real ending (strikes 8-12, unclosed):** strike12 was the breakthrough — CARD KEY

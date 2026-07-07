@@ -72,10 +72,13 @@ while ($true) {
                    "line to NIGHT_REPORT.md -- '- shift ${shift} survey: <what banked> | frontier: " +
                    "<next objective> | needs eyes: <blocker or none>'; (2) if THE CREDITS ROLL, write " +
                    "CREDITS as the FIRST line of NIGHT_REPORT.md + the full mountain survey below it " +
-                   "(that line stops the loop); (3) keep NEXT_SESSION.md CURRENT at close -- the loop " +
-                   "feeds it verbatim to your successor, and an unchanged frontier + zero commits " +
-                   "across two shifts fires the loop's brake; commit every real fix (commits are your " +
-                   "proof of life).`n`n"
+                   "(that line stops the loop); (3) keep NEXT_SESSION.md CURRENT CONTINUOUSLY, not " +
+                   "only at close -- REWRITE IT BEFORE LAUNCHING ANY LONG STRIKE/RUN and at every " +
+                   "bank (frontier-first discipline: a shift that dies at the context wall mid-strike " +
+                   "must still leave a TRUE frontier -- shift 8 died mid-Silph-strike and three " +
+                   "successors launched off a shift-7 file); the loop feeds it verbatim to your " +
+                   "successor, and an unchanged frontier + zero commits across two shifts fires the " +
+                   "loop's brake; commit every real fix (commits are your proof of life).`n`n"
         $prompt = $preface + (Get-Content $Frontier -Raw)
     }
 
