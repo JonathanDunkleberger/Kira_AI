@@ -492,38 +492,67 @@ def main():
             settle(30)
         return True
 
+    ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
+
+    def tile_behavior(t):
+        """Live metatile behavior via the backup layout + tileset attrs (probe read)."""
+        try:
+            ml = b.rd32(tv.GMAPHEADER)
+            attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
+            bw = b.rd32(tv.BACKUP_LAYOUT)
+            mp0 = b.rd32(tv.BACKUP_LAYOUT + 8)
+            mid = b.rd16(mp0 + ((t[1] + tv.MAP_OFFSET) * bw
+                                + (t[0] + tv.MAP_OFFSET)) * 2) & 0x3FF
+            base, idx = (attr[0], mid) if mid < tv.NUM_PRIMARY else (attr[1],
+                                                                     mid - tv.NUM_PRIMARY)
+            return b.rd32(base + idx * 4) & 0xFF
+        except Exception:
+            return 0
+
     def go_warp(tile, dest, label):
-        """Walk adjacent to a warp/hole/door tile, then step ON it; verify map flip."""
+        """Walk adjacent to a warp/hole/door tile, then step ON it; verify map flip.
+        ARROW-WARP class (run9: the F1 west exit (32,21) is MB_SOUTH_ARROW_WARP 0x65 —
+        fires ONLY by pressing its arrow direction while standing on the mat): approach
+        from the arrow-opposite side and hold the arrow key through the tile."""
         m0 = tuple(tv.map_id(b))
         if m0 == dest:
             return True
+        beh = tile_behavior(tile)
+        arrow = ARROW_KEY.get(beh)
         nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in
                ((0, 1), (0, -1), (1, 0), (-1, 0))]
-        for attempt in range(3):
-            if tuple(tv.coords(b) or ()) not in nbs:
+        if arrow:
+            d = DELTA[arrow]
+            nbs = [(tile[0] - d[0], tile[1] - d[1])]   # walk in along the arrow
+        for attempt in range(4):
+            if tuple(tv.coords(b) or ()) not in nbs and tuple(tv.coords(b) or ()) != tile:
                 if not sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
                     return False
             cur = tuple(tv.coords(b) or (0, 0))
-            key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
+            key = (arrow if arrow and cur == tile
+                   else KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1])) or arrow)
             if key is None:
                 continue
-            b.press(key, 26, 10, camp.render, owner="agent")
-            for _ in range(240):
-                b.run_frame()
+            for _press in range(4 if arrow else 1):
+                b.press(key, 26, 10, camp.render, owner="agent")
+                for _ in range(120):
+                    b.run_frame()
+                    if tuple(tv.map_id(b)) != m0:
+                        break
                 if tuple(tv.map_id(b)) != m0:
                     break
             if handle_interrupts():
                 continue
             if tuple(tv.map_id(b)) == dest:
                 settle(180)                     # warp settle + map scripts
-                L(f"   [{label}] {m0} -> {dest} @ {tv.coords(b)}")
+                L(f"   [{label}] {m0} -> {dest} @ {tv.coords(b)} (beh {hex(beh)})")
                 _stage_save(label)
                 return True
             if tuple(tv.map_id(b)) != m0:
                 L(f"!! [{label}] warped to {tuple(tv.map_id(b))}, wanted {dest}")
                 settle(180)
                 return False
-        L(f"!! [{label}] never fired (at {tv.map_id(b)}@{tv.coords(b)})")
+        L(f"!! [{label}] never fired (at {tv.map_id(b)}@{tv.coords(b)}, beh {hex(beh)})")
         snap(f"warpfail_{label[:16]}")
         return False
 
