@@ -38,6 +38,10 @@ _NUKE_SPECIES = frozenset({74, 75, 76, 100, 101, 109, 110})
 BATTLE_CRIT_FRAC = 0.30
 BAG_CURSOR = 0x0203AD04      # u8 in-battle bag LIST row cursor (recon_itemuse triangulation 2026-06-27,
 #                             adjacent to GBAG_POCKET 0x0203AD02; verified to step 0->1 down the list)
+BAG_SCROLL = 0x0203AD0A      # u16 itemsAbove[0] — rows hidden above the window. TRUE selection =
+#                             BAG_CURSOR + BAG_SCROLL, and BOTH persist between bag opens (derived +
+#                             press-verified by recon_bagscroll 2026-07-07: the e4_run2 'selected but
+#                             NOT consumed' class was A landing on Revive/CANCEL off a stale scroll).
 # FIGHT move-list cursor + menu-mode (recon_movecursor_derive 2026-06-28). MOVE_CURSOR is a single 0..3
 # index in the 2x2 grid (TL0 TR1 / BL2 BR3): DOWN +2 (row), RIGHT +1 (col) — sits 4 B after the action
 # cursor 0x02023FF8. MENU_MODE == 1 on the FIGHT/BAG/POKEMON/RUN action menu, == 2 when the move list is
@@ -739,6 +743,38 @@ class BattleAgent:
             self._wait(3)
         return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_BAG
 
+    def _goto_fight(self, tries=10):
+        """Walk the action cursor to FIGHT (top-left, ACT_FIGHT=0) by readback. Mirror of _goto_bag;
+        grid is FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR)."""
+        for _ in range(tries):
+            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            if c == ram.ACT_FIGHT:
+                return True
+            if c == ram.ACT_BAG:
+                self._tap("LEFT")
+            elif c == ram.ACT_POKEMON:
+                self._tap("UP")
+            elif c == ram.ACT_RUN:
+                self._tap("UP")                           # -> BAG, then LEFT next iter -> FIGHT
+            else:
+                return False                              # not the action menu
+            self._wait(3)
+        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
+
+    def _struggle(self):
+        """ZERO PP anywhere in a can't-flee battle: A on FIGHT — the game substitutes Struggle
+        ("X has no moves left!"), which passes the turn and lets the battle actually resolve.
+        Returns 'done' if the confirm fired, else 'no_usable_move' (rides the anti-wedge floor)."""
+        if not self._settle_action_menu() or not self._goto_fight():
+            return "no_usable_move"
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+        self._wait(30)
+        for _ in range(6):                                # drain the "no moves left!" text
+            if not st.in_battle(self.b) or self._white_box():
+                break
+            self._advance_text()
+        return "done"
+
     def _open_bag(self, tries=4):
         """From the ACTION menu: cursor->BAG (verified by readback) -> A. The bag is open iff the white
         action panel is GONE (a blue description box). If A didn't open it (white panel stays), B out +
@@ -786,12 +822,19 @@ class BattleAgent:
         if self.b.rd8(ram.GBAG_POCKET) != 0:
             self.log("   [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)")
             self._exit_bag(); return "failed"
-        for _ in range(12):                                  # nav to the item's row via cursor readback
-            if self.b.rd8(BAG_CURSOR) == row:
+        def _sel():
+            # TRUE selection = cursor + scrollOffset (the mart-list law, recon_bagscroll-verified).
+            # The raw cursor byte alone LIES after any scrolled visit — the list remembers both.
+            return self.b.rd8(BAG_CURSOR) + self.b.rd16(BAG_SCROLL)
+        for _ in range(14):                                  # nav to the item's TRUE row (cursor+scroll)
+            if _sel() == row:
                 break
-            self._tap("DOWN" if self.b.rd8(BAG_CURSOR) < row else "UP"); self._wait(10)
-        if self.b.rd8(BAG_CURSOR) != row:
-            self.log(f"   [engine] use_item: couldn't reach row {row} (cursor stuck) — keep fighting (LOUD)")
+            self._tap("DOWN" if _sel() < row else "UP"); self._wait(10)
+        self._wait(8)                                        # settle scroll animation, then re-verify
+        if _sel() != row:
+            self.log(f"   [engine] use_item: couldn't reach true row {row} "
+                     f"(cursor={self.b.rd8(BAG_CURSOR)} scroll={self.b.rd16(BAG_SCROLL)}) — "
+                     f"keep fighting (LOUD)")
             self._exit_bag(); return "failed"
         # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target(lead)->apply.
         # Break THE INSTANT the count drops (the use registered): a further A could re-open the bag.
@@ -814,7 +857,8 @@ class BattleAgent:
                 self._advance_text()
             return "used"
         self.log(f"   [engine] use_item: pocket={self.b.rd8(ram.GBAG_POCKET)} cursor={self.b.rd8(BAG_CURSOR)} "
-                 f"row={row} — selected but item {item_id} NOT consumed (count still {cnt0}) — keep fighting (LOUD)")
+                 f"scroll={self.b.rd16(BAG_SCROLL)} row={row} — selected but item {item_id} NOT consumed "
+                 f"(count still {cnt0}) — keep fighting (LOUD)")
         self._exit_bag(); return "failed"
 
     def _maybe_use_item(self, state):
@@ -1061,11 +1105,36 @@ class BattleAgent:
                 desc = ours["moves"][idx].get("name", desc)
             else:
                 # Every usable move has already failed to fire this streak (or none are usable at all —
-                # the 0-PP Mankey wedge). Do NOT re-fire a known-dead move; surface so the run-loop
-                # anti-wedge floor flees (wild) / aborts (trainer) instead of livelocking.
-                self.log("   [engine] !! MOVES EXHAUSTED — every usable move tried with no effect this "
-                         "streak (or none usable); not re-spamming a dead move")
-                return "no_usable_move"
+                # the 0-PP Mankey wedge). A WILD battle surfaces to the anti-wedge floor and FLEES. A
+                # TRAINER battle cannot flee — and idling submits NO action, so the turn-based game waits
+                # forever (e4_run2 Agatha: PP famine -> no_usable_move -> abort -> re-enter, an infinite
+                # livelock in which the foe never even got a turn, so she couldn't even LOSE her way to
+                # the whiteout ratchet that refills PP). WAR-MUST-ADVANCE: re-fire the best PP-having
+                # move anyway — even a failing move passes the turn, the foe acts, and the battle reaches
+                # a real resolution (win, faint->forced switch, or whiteout->center ratchet).
+                usable_all = [i for i in range(4) if _usable(i)]
+                if self._is_trainer_battle() and usable_all:
+                    self._skip_streak.clear()
+                    idx = max(usable_all, key=lambda i: (
+                        # prefer moves that can CONNECT (status counts); immune-damaging is last resort
+                        1 if (ours["moves"][i].get("power", 0) == 0
+                              or pol.effectiveness(ours["moves"][i].get("type", "normal"),
+                                                   enemy["types"]) > 0) else 0,
+                        max(ours["moves"][i].get("power", 0), 1)
+                        * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])))
+                    desc = ours["moves"][idx].get("name", desc)
+                    self.log(f"   [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: "
+                             f"re-firing {desc} (idling never resolves a can't-flee fight)")
+                elif self._is_trainer_battle():
+                    # ZERO PP anywhere: A on FIGHT makes the game substitute STRUGGLE — the built-in
+                    # resolver for exactly this state. Never idle a can't-flee battle.
+                    self.log("   [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A "
+                             "(the game substitutes Struggle)")
+                    return self._struggle()
+                else:
+                    self.log("   [engine] !! MOVES EXHAUSTED — every usable move tried with no effect "
+                             "this streak (or none usable); not re-spamming a dead move")
+                    return "no_usable_move"
         eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
                                 enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
         # B-1 — INEFFECTIVE-MOVE AVERSION: never swing a DAMAGING move that does NOTHING (type-immune,
@@ -1088,10 +1157,16 @@ class BattleAgent:
                 desc = ours["moves"][idx].get("name", desc)
                 eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"), enemy["types"])
                 self.log(f"   [engine] avoided a type-immune move -> {desc} (eff x{eff:g}) instead")
-            else:
+            elif not self._is_trainer_battle():
                 self.log("   [engine] !! NO EFFECTIVE MOVE — every usable move is type-immune here "
                          "(need a better matchup: switch / flee)")
                 return "no_effective_move"
+            else:
+                # WAR-MUST-ADVANCE (trainer battles can't flee, and the switch path already had its
+                # shot upstream): swing the immune move anyway — "it doesn't affect..." still passes
+                # the turn, the foe acts, and the battle resolves instead of livelocking (e4_run2).
+                self.log(f"   [engine] NO EFFECTIVE MOVE in a TRAINER battle -> war-must-advance: "
+                         f"firing {desc} anyway (a passed turn beats an eternal menu)")
         # ── STATUS-MOVE STRATEGY (general, E4-critical): when EVERY damaging move is RESISTED (best
         # eff <= 0.5 — e.g. Ivysaur's Grass moves into Gary's Fire Charmander, the live look-ahead wall),
         # raw chipping loses the damage race. A STATUS move is the real play: poison/Leech-Seed chips
