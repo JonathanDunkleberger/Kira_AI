@@ -114,6 +114,38 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 6 (MARATHON — aboard the S.S. Anne; handoff at context budget) ──
+**WHERE THE ROPE ENDS: she BOARDS, TOURS THE SHIP, and BEATS GARY ABOARD (grudge 2-2, verified in
+runs 11-13 independently) — the captain not yet reached.** Ship runs 11-14, one wedge per cycle:
+- **GO-DEEPER (1041a2d):** interact layer treated the exterior deck as "arrived" → now enters
+  untried non-overworld warps, so she descends deck→gangway→corridors→holds. WORKS (8 ship maps).
+- **PRUNER INTERLEAVE (785f860):** 'questline_resweep' returned deliberate no-move ticks; the
+  roam's SILENT-NO-MOVE pruner counted 2 as a dead route and pruned head_to_gym BEFORE go-deeper
+  could run — the 2F stairs sat untried. Re-sweep is now INLINE (no no-move returns).
+- **UNVISITED-FIRST + STEP-OFF (9fa0b0b, riding in run 14):** deepest-first toured the same holds
+  (stairs = unvisited map now sorts FIRST); spawning ON a hold's exit warp can't re-fire it → step
+  off before the entry ritual. **Run 14 in flight (`ship_run14.log`, goal 0x237).**
+- **GROUND TRUTH (stage state):** the 1F corridor (1,5) warps: 2F stairs **(2,18)→(1,10)** and
+  **(3,20)→(1,10)**, cabins (5..23,10)→(1,12..17,29), exits (19,1)/(20,0)→(1,4). The captain's
+  office is off the 2F (1,10). Gary auto-engages on the tour (LoS) — beaten every run at L41/31s.
+**SINGLE-RUN LAW (2f44c5f, Jonny's housekeeping):** recon_longrun REAPS predecessors at launch —
+PID-file for the run process + a PowerShell sweep killing bash 'longrun' watchers >2h old (the
+9-11h nursery-watcher zombies were bash loops from a DEAD session — invisible to python checks and
+holding no live handles; the ghost-notification/false-'Cut is live' class, closed at the root).
+**MONITORS ARE DEMOTED: convenience only, never evidence** — run-11's monitor sat silent for 37
+min on a run that had finished in 45s. Ground truth = tasklist + the raw log, always.
+**NEXT SESSION (exact):** read `ship_run14.log` END. If GOAL (0x237): the bank holds HM01 →
+promote (promote_bank.py; party may need the surgical heal first — never promote hurt) → next run
+teaches Cut (teach bridge fires; Persian has 4 moves now, judged forget ready; check compat —
+Persian learns Cut ✓) → use_cut at the tree (19,24) → trash-can solver (env_puzzle, beat_gym
+step 0) → SURGE. If STALL on the ship: read where the tour stopped (grep DEEPER + the stall pos),
+fix that hop, relaunch — each cycle has been one clean wedge. ⚠ DEPARTURE: her first step onto the
+exterior (1,4) after HM01 auto-fires the cutscene (forced walk → Vermilion (23,34), ship gone) —
+expect a weird-looking warp in the log; it is NORMAL. ⚠ the bank's journey/strat re-record the
+Gary ship win each run (2W-2L) — sanctity's monotonic check passes it; fine.
+**Prunables:** ship_run1-14 logs (keep 11-14), pre_reload_*.state litter, the run-5 DO-NOT-PROMOTE
+banked_STALL is superseded (its game state was promoted via the soulfix bundle).
+
 ### ── 2026-07-06 SESSION 5 (MARATHON day 1 cont. — the road to the ship; IN PROGRESS) ──
 **REALITY CHECK: "Cut is live" was ahead of the disk again** — ship run 3 died with the session
 shell mid-grind (no boarding ever happened). This session peeled the chain in 5 look-ahead cycles:
