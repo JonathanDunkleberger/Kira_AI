@@ -118,6 +118,54 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     tiles forever — and a 2-tile oscillation defeats a position-based no-move guard. On a failed
     heal-route: remember the map as heal-dead, suppress the offer while non-critical, and push to
     the NEXT town's Center (what a real player does). Clear the memo on the next successful heal.
+18. **Forced-movement floors defeat tile-BFS planning — simulate the mechanic, BFS over REST states.**
+    Spin tiles (and ice/currents in other games) redirect or carry the player, so a walkability BFS
+    diverges the instant she touches one (the position-loop class). The general fix (`spin_nav.py`,
+    proven on Rocket Hideout B2F/B3F, 2026-07-07): a deterministic glide SIMULATOR + BFS whose nodes
+    are REST tiles and whose edges are whole glides, executed press-by-press with replan-on-divergence.
+    Bonus truth: such a maze can be SEALED by a collectible object (an item ball) — "no route" can
+    mean "pick the thing up first", which is also what a human does.
+19. **Live object reads are DISTANCE-CULLED; whole-map planners need the STATIC template list.** The
+    live object array holds only nearby spawns, so a long plan routes through a tile where a far item
+    ball/NPC will be standing on arrival. Read the map header's object-event TEMPLATES + spawn flags
+    (collected/gone truth) and union with the live read (`travel.read_object_templates`).
+20. **An open dialogue box eats EVERY direction press.** Any press-executor (glide plans, mount
+    rituals) must drain boxes before pressing — a beaten trainer's re-talk box silently starves a
+    whole plan into a fake wedge.
+21. **Scene-triggered battles start DURING travel; an observer that attaches late mis-detects.** A
+    rival/boss cutscene fires as the approach leg arrives; by the time the battle wrapper attaches,
+    fingerprint detection can miss and the win never reaches the story ledger. Record from a
+    start-of-battle hook, not attach-time; until then backfill from the log (ground truth > blank).
+22. **Interior CLIMBS are not destinations.** A questline that navigates to a building's door and
+    then "talks NPCs" strands on any multi-floor dungeon (tower/hideout). The proven shape: a STATE
+    MACHINE on the current map (heal bounces re-dispatch; beaten trainers stay beaten) + warp-DEST
+    routing (pick the warp whose table destination is the next floor — never hardcode stair coords;
+    directional stairs may need mounting from ON the tile, and the mount press is routinely eaten as
+    a turn — press ×3). Two scripted strikes (hideout, tower) are the spec to fold into the questline.
+
+23. **NUKE-TRADE FOES need a pre-emptive answer, not a reactive one.** A Self-Destruct-class move
+    one-shots even a dominant ace at ANY matchup — no damage-race logic sees it coming (Koga's L37
+    Koffing detonated on a L54 Venusaur turn one; the bench then fed itself piecemeal). The human
+    answer is species-triggered: know the game's nuke families (KB layer) and open with SLEEP —
+    a sleeping foe can't detonate, a KO'd one can't either. Reactive threat models (is it
+    super-effective vs me?) never fire on these.
+24. **A PLAN THAT CANNOT EXECUTE must STAND DOWN, loudly.** "Train the team first" is correct advice
+    that becomes a stall engine when no training ground is reachable (one-way ledge pockets, water
+    routes, unexplored frontiers). If the advisory layer keeps folding the plan while its executor
+    keeps failing, the oracle loyally picks the failing action forever. Count consecutive dry
+    attempts; after N, drop the plan and let the forward objective (rematch, next town) win. Reset
+    only on REAL execution (grinding happened), never on mere travel arrival — an A↔B shuttle
+    'arrives' every tick.
+25. **ONE-WAY GEOGRAPHY breaks flat map-graphs.** A ledge-pocket makes reachability POSITIONAL: the
+    same map is enterable westbound but its east exit is gone once you're in the pocket. A flat
+    (map→map) edge graph will keep proposing routes the pathfinder can't walk. Remember (from-map →
+    target) travel failures and veto them as candidates; remember grind-dead maps (grassless/strand-
+    only) separately — the optimistic "route number ⇒ has grass" heuristic sent her to a water route.
+26. **The stale display-struct at attach cuts BOTH ways.** Joining a battle mid-scene, the save's
+    battle display struct can hold the LAST fight's data: a stale foe-corpse mis-arms "enemy already
+    down" (harmless — fresh-enemy detect recovers) but a stale OUR-corpse mis-arms the forced-switch
+    chain, which silently B-drains a live fight until timeout. Every re-entry flag needs a live-read
+    disarm: if the flag's premise isn't true NOW, drop it and fight.
 
 **ENGINE CAPABILITY (added 2026-07-06): THE DOOR PASS-THROUGH.** When an edge crossing has no
 overworld route (fenced region), buildings are the remaining connectors: try reachable doors
