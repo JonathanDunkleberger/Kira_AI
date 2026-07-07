@@ -1031,26 +1031,28 @@ class Campaign:
             # (grid.walkable, not _safe): grass-heavy maps like Viridian Forest are
             # wall-to-wall tall grass, so a grass-free pre-check wrongly skips every door.
             grid = tv.Grid(self.b)
-            if not tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
-                          walkable=grid.walkable):
-                continue
-            log(f"   reachable door {door}: walking to approach {approach}")
-            r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300,
-                                 max_seconds=(budget_s or 300))
-            if r == "need_heal":
-                return "need_heal"          # heal interrupt during the approach -> let caller heal
-            if r != "arrived":
-                continue
-            for _ in range(5):                           # step INTO the doorway -> warp
-                self.b.press(step_key, 8, 8, self.render, owner="agent")
-                self._advance_dialogue(taps=2)           # gate buildings may print a line
-                if tv.map_id(self.b) != before:
-                    log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door}")
-                    self._learn_transit()
-                    return "warped"
-            # DIRECTIONAL STAIR/ARROW/ESCALATOR DOOR (the dept-store-stairs class): a blind
-            # UP-step walks straight past 0x62-0x6F tiles — they fire only when entered moving
-            # their direction. The ritual exists for anchor routing; ride it here too.
+            if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
+                      walkable=grid.walkable):
+                log(f"   reachable door {door}: walking to approach {approach}")
+                r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=300,
+                                     max_seconds=(budget_s or 300))
+                if r == "need_heal":
+                    return "need_heal"      # heal interrupt during the approach -> let caller heal
+                if r == "arrived":
+                    for _ in range(5):                   # step INTO the doorway -> warp
+                        self.b.press(step_key, 8, 8, self.render, owner="agent")
+                        self._advance_dialogue(taps=2)   # gate buildings may print a line
+                        if tv.map_id(self.b) != before:
+                            log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door}")
+                            self._learn_transit()
+                            return "warped"
+            # DIRECTIONAL STAIR/ARROW/ESCALATOR/MAT DOOR (dept-store-stairs + hut-exit-mat
+            # classes): a blind UP-step walks straight past 0x62-0x6F tiles — they fire only
+            # when entered moving their direction — AND their canonical approach tile can be
+            # unwalkable (run-10: the hut exit mats' y+1 is past the wall, so the pre-check
+            # `continue` skipped the ritual and she wedged inside on the LAST door). Run the
+            # ritual regardless of approach reachability — it routes its own stand tile and
+            # has the on-tile fallback.
             if (self._tile_behavior(*door) in self._WARP_ENTRY
                     and self._enter_directional_warp(door)):
                 log(f"   WARPED {before} -> {tv.map_id(self.b)} via directional door {door}")
