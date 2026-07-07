@@ -1421,13 +1421,26 @@ class Campaign:
             return (None, "")
         s, hp, mx, frac = min(ph, key=lambda t: t[3])     # the worst-off member
         nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s), f"slot{s}").title()
-        fainted = any(h == 0 for _, h, _, _ in ph)
-        if frac <= self.PARTY_CRIT_FRAC or fainted:
+        fainted_n = sum(1 for _, h, _, _ in ph if h == 0)
+        lead_frac = next((f for sl, h, m, f in ph if sl == 0), 1.0)
+        # CRITICAL = the FIGHTING CORE is in danger — not "any bench mon is down". celadon_run7:
+        # a fainted L15 bench ekans behind a FULL-HP L45 lead collapsed the options to an
+        # un-routable 'heal' one edge from Celadon and stalled the road. A real player walks a
+        # fainted benchwarmer to the NEXT Center; they stop everything only when the team that
+        # actually fights is about to black out.
+        core_down = (lead_frac <= self.PARTY_CRIT_FRAC
+                     or fainted_n >= max(1, len(ph) // 2)
+                     or all(h == 0 or f <= self.PARTY_CRIT_FRAC for _, h, _, f in ph))
+        if core_down:
             return ("critical",
                     f"Your team is badly hurt — {nm} is at {hp}/{mx} HP"
-                    f"{' and a teammate has fainted' if fainted else ''}. A real trainer heals at a "
-                    f"Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks "
-                    f"a blackout.")
+                    f"{f' and {fainted_n} teammate(s) are down' if fainted_n else ''}. A real trainer "
+                    f"heals at a Pokémon Center before doing ANYTHING else — wandering into grass this "
+                    f"hurt risks a blackout.")
+        if fainted_n:
+            return ("hurt",
+                    f"{nm} is down ({fainted_n} fainted) — patch up at the next Pokémon Center on "
+                    f"the way, but the road comes first while the rest of the team is standing.")
         if frac < self.PARTY_HURT_FRAC:
             return ("hurt",
                     f"{nm} is hurt ({hp}/{mx} HP) — topping up at a Pokémon Center would be smart "
