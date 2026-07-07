@@ -592,7 +592,10 @@ class Campaign:
                                 on_event=self.on_event, beat=self.beat,
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal,
                                 stuck_check=lambda: self._stuck_request is not None,
-                                blocked_npcs=self._blocked_npcs)   # LAYER A: shared route-around memory
+                                blocked_npcs=self._blocked_npcs,   # LAYER A: shared route-around memory
+                                field_clear=lambda hm, face: (
+                                    self.field.clear_obstacle(hm, face)
+                                    if getattr(self, "field", None) else "cant"))
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:

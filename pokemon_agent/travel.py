@@ -354,9 +354,14 @@ class Traveler:
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
                  log=print, owner="agent", beat=None, pause_check=None, stuck_check=None,
-                 blocked_npcs=None):
+                 blocked_npcs=None, field_clear=None):
         self.b = bridge
         self.battle_runner = battle_runner
+        # CAPABILITY-IN-HAND obstacle clearing (east run 1): campaign-provided callback
+        # `field_clear(hm_key, face_key) -> 'used'|...` — when the chokepoint blocker is a cut
+        # tree / boulder and the party KNOWS the HM, travel clears it in-leg instead of
+        # remembering a hard block it could open.
+        self.field_clear = field_clear
         # optional callback checked AFTER each battle; if it returns truthy, travel() yields
         # control to the caller with "need_heal" (the heal-when-low interrupt) so the campaign
         # can route back to the Center before resuming the leg.
@@ -790,6 +795,30 @@ class Traveler:
                                 _fobjs = {}
                             if blk in _fobjs:
                                 _is_tree = _fobjs[blk]["gfx"] == _fmv.GFX_CUT_TREE
+                                # CAPABILITY IN HAND (east run 1, the GENERAL fix the badge-3
+                                # cascade owed): she KNOWS the HM — clear the obstacle right
+                                # here and continue the leg. Only the gym-door probe auto-cut
+                                # before; Route 9's mouth tree stalled her at Cerulean (35,33).
+                                try:
+                                    _hm = "cut" if _is_tree else "strength"
+                                    _cur0 = coords(self.b)
+                                    _face = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT",
+                                             (1, 0): "RIGHT"}.get((blk[0] - _cur0[0],
+                                                                   blk[1] - _cur0[1]))
+                                    if (self.field_clear is not None and _face
+                                            and _fmv.can_use(self.b, _hm)):
+                                        self.on_event("that little tree's in my way — good thing "
+                                                      "I carry Cut now. TIMBER!" if _is_tree else
+                                                      "a boulder — STRENGTH time. heave!")
+                                        if self.field_clear(_hm, _face) == "used":
+                                            self.log(f"   [travel] FIELD OBSTACLE {blk} on "
+                                                     f"{cur_map} CLEARED with {_hm} — "
+                                                     f"continuing the leg")
+                                            no_path = stuck = fp_stall = 0
+                                            last_fp = None
+                                            continue
+                                except Exception as _ce:
+                                    self.log(f"   [travel] obstacle-clear attempt failed: {_ce!r}")
                                 # REMEMBER the obstacle as a hard block (until the HM is owned) and
                                 # REPLAN in-leg first: the NPC-allowing BFS prefers the SHORTEST path,
                                 # so a near tree beats a far real detour (Cerulean: the garden corridor
