@@ -1231,11 +1231,75 @@ class BattleAgent:
                 return s
         return None
 
+    # BATTLE party-screen cursor READBACK (erika_run1 wedge, 2026-07-07): the party menu REMEMBERS
+    # its cursor across opens, so after mid-battle switches the forced-switch screen opens on the
+    # FAINTED active mon's slot — blind DOWN*slot from an assumed slot-0 start selected the corpse
+    # ("MANKEY has no energy left to battle!") 65 times to timeout. Read the selected slot's ORANGE
+    # border (255,115,49 — measured on switch_right.png) instead. NOTE: battle right-column slot
+    # tops are y=10+24*(s-1) (24px pitch, measured on s3_down1.png) — NOT the overworld menu's 21px
+    # pitch (hm_teach._SLOT_TOPS); the two screens differ, don't share anchors.
+    @staticmethod
+    def _cursor_orange(c):
+        """The selection-border orange, bright phase (255,115,49 — switch_right.png ground truth)
+        OR its palette-fade dim phase (~(123,90,57), s2_list0.png was captured mid-fade). A miss on
+        a fading frame just costs one retry loop, but accepting both phases reads through it."""
+        r, g, bl = c[:3]
+        return (r > 240 and 80 < g < 140 and bl < 70) or \
+               (100 < r < 170 and 60 < g < 125 and bl < 80 and r > g > bl)
+
+    def _party_cursor_slot(self):
+        """Selected RIGHT-column slot (1-5) on the in-battle party screen, or None (lead/CANCEL/
+        no border found). Border = horizontal orange run across the slot's top edge."""
+        p = self.b.frame_rgb().load()
+        for slot in (1, 2, 3, 4, 5):
+            y0 = 10 + 24 * (slot - 1)
+            for dy in (-3, -2, -1, 0, 1, 2, 3):
+                n = sum(1 for x in (110, 140, 170, 200, 225)
+                        if self._cursor_orange(p[x, y0 + dy]))
+                if n >= 4:
+                    return slot
+        return None
+
+    def _party_cursor_on_lead(self):
+        """True iff the LEAD (left panel) is the selected slot — its top border (y≈26, x 4..90)
+        lights the same orange (switch_right.png ground truth: rows 26-27 lit across x 10-80)."""
+        p = self.b.frame_rgb().load()
+        for y in (25, 26, 27, 28):
+            n = sum(1 for x in (10, 30, 50, 70) if self._cursor_orange(p[x, y]))
+            if n >= 3:
+                return True
+        return False
+
+    def _party_goto_slot(self, target, tries=14):
+        """Closed-loop cursor walk on the BATTLE party screen. target = party index 0-5 (0 = lead
+        panel). Returns True only when the border readback confirms the cursor is on target."""
+        for _ in range(tries):
+            cur = self._party_cursor_slot()
+            if cur is None and self._party_cursor_on_lead():
+                cur = 0
+            if cur == target:
+                return True
+            if cur is None:                               # nothing lit -> CANCEL (bottom-right)
+                self._tap("UP"); self._wait(16)           # UP from CANCEL lands slot 5
+                continue
+            if target == 0:
+                self._tap("LEFT"); self._wait(16)         # any right slot -> LEFT = lead panel
+                continue
+            if cur == 0:
+                self._tap("RIGHT"); self._wait(16)        # lead -> enter the right column
+                continue
+            self._tap("DOWN" if cur < target else "UP"); self._wait(16)
+        cur = self._party_cursor_slot()
+        if cur is None and self._party_cursor_on_lead():
+            cur = 0
+        return cur == target
+
     def _force_switch(self):
         """Lead fainted with a healthy reserve -> the 'Choose a POKéMON' party menu is up.
-        Navigate to the first healthy slot (cursor opens on slot 0) and confirm SEND OUT
-        (the select submenu defaults to SEND OUT). Returns True once a healthy mon is active.
-        Reconned flow on rf_leg0: DOWN*slot -> A (select) -> A (SEND OUT)."""
+        Walk the cursor CLOSED-LOOP (border readback) to the first healthy slot and confirm
+        SEND OUT (the select submenu defaults to SEND OUT). Returns True once a healthy mon
+        is active. Last-resort attempts fall back to the legacy blind DOWN*slot walk (covers
+        a palette/geometry miss on the readback — it logs which path ran)."""
         slot = self._healthy_reserve_slot()
         if slot is None:
             return False
@@ -1248,12 +1312,21 @@ class BattleAgent:
             # arrive pre-wedged: _reach_first_menu's A selected the FAINTED slot-0 before we got here,
             # so DOWN-navigation pressed inside the sub-menu and A re-sent the corpse — the fainted-
             # lead excursion timeout class). B on the LIST itself is refused (forced screen), so this
-            # is safe and makes every retry start from the list with the cursor at its last spot=0.
+            # is safe and makes every retry start from the list.
             self.b.press("B", 2, 12, self.render, owner=self.owner)
             self._wait(14)
-            for _ in range(slot):                         # cursor opens on slot 0 -> down to healthy
-                self._tap("DOWN")
-            self._wait(6)
+            if _attempt < 4:
+                if not self._party_goto_slot(slot):
+                    self.log(f"   [engine] fswitch: cursor readback couldn't reach slot {slot} "
+                             f"(cursor={self._party_cursor_slot()}) -> drain a beat, retry")
+                    self._advance_text()
+                    continue
+                self.log(f"   [engine] fswitch: cursor confirmed on slot {slot} (closed-loop)")
+            else:                                         # legacy blind fallback (pre-2026-07-07 path)
+                self.log(f"   [engine] fswitch: LEGACY blind walk to slot {slot} (readback failed 4x)")
+                for _ in range(slot):
+                    self._tap("DOWN")
+                self._wait(6)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select mon
             self._wait(12)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # -> SEND OUT

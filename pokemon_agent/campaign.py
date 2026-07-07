@@ -286,10 +286,15 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
 # front tile (UP for Brock + Misty - the leader sits directly above their front tile). ──
 GymSpec = namedtuple("GymSpec", ["name", "city", "door", "leader_front", "badge_flag",
                                  "reserve", "leader_dir"])
-# B-4 — the three Kanto starter EVOLUTION families. No vanilla Kanto trainer EXCEPT the rival (Gary)
-# fields a starter-line Pokémon, so a trainer battle containing one of these = a Gary encounter, at ANY
-# fight (he leads with Pidgey-line later, so we scan his whole party, not just the active lead).
+# B-4 — the three Kanto starter EVOLUTION families. The old claim "no vanilla trainer except the
+# rival fields a starter-line mon" is FALSE (erika_run1, 2026-07-07: a Celadon Gym Cooltrainer's
+# IVYSAUR fingerprinted as Gary and polluted the grudge ledger). The rival's ace is ALWAYS the
+# counter-starter line to HERS (player Bulbasaur -> his Charmander line), so detection matches
+# ONLY that line; her own line (gym Ivysaurs) and the third line can never be him.
 _STARTER_LINES = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 9})
+_RIVAL_LINE_BY_PLAYER_BASE = {1: frozenset({4, 5, 6}),    # she picked Bulbasaur -> Gary has Charmander line
+                              4: frozenset({7, 8, 9}),    # Charmander -> Squirtle line
+                              7: frozenset({1, 2, 3})}    # Squirtle -> Bulbasaur line
 
 GYMS = {
     "Brock": GymSpec("Brock", PEWTER, PEWTER_GYM_DOOR, BROCK_FRONT, FLAG_BADGE_BOULDER, 2, "UP"),
@@ -640,7 +645,27 @@ class Campaign:
         _is_rival, _riv_lead_nm = False, ""
         try:
             if self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08:        # trainer battle
-                _is_rival = any(st.read_enemy_species(self.b, s) in _STARTER_LINES for s in range(6))
+                # HER starter family (from her party) -> the rival's counter line. If her starter is
+                # somehow not in the party (boxed — can't happen pre-box-mgmt), fall back to the old
+                # any-starter-line detection rather than go blind.
+                _riv_lines = _STARTER_LINES
+                for _ps in range(self.b.rd8(ram.GPLAYER_PARTY_CNT)):
+                    _psp = st.read_party_species(self.b, _ps)
+                    if _psp in _STARTER_LINES:
+                        _riv_lines = _RIVAL_LINE_BY_PLAYER_BASE[((_psp - 1) // 3) * 3 + 1]
+                        break
+                # STALE-SLOT GATE (the ship-class false Garys, encounters 4-7): gEnemyParty slots
+                # beyond the CURRENT trainer's roster keep the PREVIOUS battle's mons, so after a
+                # real Gary fight every small-roster trainer "contained" his ace. A REAL battle
+                # starts with every enemy mon at FULL HP; the stale mons she beat sit at 0 — so a
+                # rival-line hit only counts from a slot that is ALIVE (HP>0, plaintext +0x56).
+                for _es in range(6):
+                    if st.read_enemy_species(self.b, _es) in _riv_lines:
+                        if self.b.rd16(ram.GENEMY_PARTY + _es * 100 + 0x56) > 0:
+                            _is_rival = True
+                            break
+                        log(f"   [strat] rival-line species in enemy slot {_es} but at 0 HP "
+                            f"-> STALE previous-battle data, not Gary (skipping)")
                 if _is_rival:
                     _rb0 = st.read_battle(self.b)
                     _riv_lead_nm = st.SPECIES_NAME.get(_rb0["enemy"]["species"], "") if _rb0 else ""
@@ -673,6 +698,11 @@ class Campaign:
             log(f"   [strat] end-observe skipped: {_e}")
         # B-4 — GARY NEMESIS ARC: record the rival encounter at EVERY fight (not just the opening) so the
         # persisted grudge actually ESCALATES across the run, and voice the escalating-grudge beat.
+        # A TIMEOUT is an engine artifact, not a story beat — recording it as won=False writes a
+        # false LOSS into the grudge ledger (erika_run1's phantom "Gary loss #8"). Skip it.
+        if _is_rival and str(record_out).lower() == "timeout":
+            log("   [strat] rival battle ended in engine TIMEOUT -> NOT recorded in the grudge ledger")
+            _is_rival = False
         if _is_rival:
             try:
                 self.strat.note_rival_encounter(
