@@ -190,15 +190,32 @@ def read_party_moves(bridge, slot=0):
     Moves are stored ONLY here (encrypted) — there is no plaintext move cache in the party struct
     (sourced: pret/pokefirered struct PokemonSubstruct1 { u16 moves[4]; u8 pp[4]; }). Returns a
     4-int list (0 = empty slot). This is the read that answers 'does this mon know an HM?'."""
-    base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
-    pid = bridge.rd32(base + 0)
-    otid = bridge.rd32(base + 4)
-    key = pid ^ otid
-    order = _SUBSTRUCT_ORDER[pid % 24]
-    a = base + 32 + order.index("A") * 12     # Attacks substructure (12 bytes = 3 u32 words)
-    w0 = bridge.rd32(a + 0) ^ key             # moves[0] (low u16), moves[1] (high u16)
-    w1 = bridge.rd32(a + 4) ^ key             # moves[2] (low u16), moves[3] (high u16)
-    return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
+    def _one_read():
+        base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
+        pid = bridge.rd32(base + 0)
+        otid = bridge.rd32(base + 4)
+        key = pid ^ otid
+        order = _SUBSTRUCT_ORDER[pid % 24]
+        a = base + 32 + order.index("A") * 12  # Attacks substructure (12 bytes = 3 u32 words)
+        w0 = bridge.rd32(a + 0) ^ key          # moves[0] (low u16), moves[1] (high u16)
+        w1 = bridge.rd32(a + 4) ^ key          # moves[2] (low u16), moves[3] (high u16)
+        return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
+    # READ-TWICE-AGREE (2026-07-07 celadon_run4): a transient mid-shuffle read once returned the
+    # lead's moves with the 4th slot zeroed — the teach bridge then armed a bogus re-teach. Two
+    # consecutive AGREEING reads (a few frames apart on disagreement) or the last attempt wins.
+    prev = _one_read()
+    cur = _one_read()                          # immediate re-read: free when stable (the hot path)
+    if cur == prev:
+        return cur
+    for _ in range(2):                         # tearing seen -> sample across a few frames
+        if hasattr(bridge, "run_frame"):
+            for _f in range(4):
+                bridge.run_frame()
+        nxt = _one_read()
+        if nxt == cur:
+            return nxt
+        cur = nxt
+    return cur
 
 
 def party_knows_move(bridge, move_id, count=6):

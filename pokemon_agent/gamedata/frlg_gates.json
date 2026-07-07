@@ -137,7 +137,8 @@
    "south": {
     "flag": "flash",
     "blocker": "ROCK TUNNEL - the way south to Lavender runs THROUGH the tunnel and it is PITCH DARK inside (a capability gate, not a story flag: satisfied when a party mon KNOWS Flash)",
-    "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)"
+    "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)",
+    "only_when_y_below": 40
    }
   }
  },

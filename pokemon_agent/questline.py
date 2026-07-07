@@ -110,6 +110,19 @@ class GateRecognizer:
         g = eg.get(direction)
         if not g:
             return None
+        # POSITIONAL QUALIFIER (2026-07-07, the Route-10 two-segment class): both ends of Rock
+        # Tunnel sit on ONE map, so the 'south = through the dark tunnel' gate must not arm on
+        # the SOUTH segment (Lavender is one open edge away). A gate may carry
+        # "only_when_y_below": N — it applies only while the player's y < N.
+        yb = g.get("only_when_y_below")
+        if yb is not None:
+            try:
+                import travel as tv
+                _c = tv.coords(self.b)
+                if _c and _c[1] >= yb:
+                    return None
+            except Exception:
+                pass
         flag = g.get("flag")
         # CAPABILITY gate (2026-07-07, the Rock-Tunnel dark class): 'flag' may name an HM capability
         # ('flash') instead of a story flag — satisfied when a party mon KNOWS the move, read LIVE
