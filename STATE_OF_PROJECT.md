@@ -30,6 +30,29 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #7 UPDATE 2 (🏆 BADGE 5 — KOGA BEATEN; Saffron road billed + marching) ──
+**CANONICAL = koga_badge5: Fuchsia (3,7)@(9,33), badges 5 ($55k), Venusaur L55, sanctity VALID**
+(backup pre_koga_badge5_backup_20260707_050954; party was HURT in-bank — Venusaur/Persian fainted
+taking Weezing — but the NEXT leg's first tick heals at the Fuchsia Center, verified in
+sabrina_run1/2: SURVIVAL-CRITICAL surfaced 'heal', full restore, then the road).
+**THE KOGA KILL (koga_run8, 54s start-to-badge):** prep stand-down latched (2 dry grind attempts
+→ the 'train first' plan dropped, loud) → head_to_gym → the ONE junior run3 missed (stale-attach
+disarm verified working) → KOGA: **NUKE-SLEEP opener slept BOTH Koffings before they could
+Self-Destruct**, Venusaur ground Muk through a mid-fight heal, Fearow finished Weezing.
+`GYM: *** KOGA BADGE obtained ***`, badge5 in the fp, sanctity VALID, PROMOTED.
+**BADGE-6 LEG OPEN (d373ccd):** roads/"Saffron City" billed from live-learned edges (zero
+fabrication): Fuchsia→R15(e)→R14(e)→R13(n)→R12(n)→Lavender(w)→Route 8(w,pass)→Saffron (3,11
+expected). exit_gates 3,26/west = the thirsty-guard TEA gate (FLAG_GOT_TEA 0x2A6; the
+capabilities entry — Celadon Mansion old lady — was already billed). **sabrina_run2 IN FLIGHT
+at write:** billed road verified carrying her R15→R14→R13→R12 northbound.
+**KNOWN NEXT WALLS (in order):** (a) the Route 8 gatehouse TEA errand — questline must route
+Route 8→Celadon via the Underground Path (door-passthrough, proven both ways) and back;
+(b) **Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared** (Card Key 5F, Giovanni #2
+11F — recon_hideout/recon_tower are the strike pattern; Gary #6 is in Silph too — the attach-time
+rival fix will get its live test); (c) no GYMS row for Sabrina yet (needs Saffron door/leader
+coords from disasm when she arrives); (d) Saffron gym interior is a TELEPORT-PAD maze — likely
+strike material, pads are warp events (read_warps sees them).
+
 ### ── 2026-07-07 NIGHT SHIFT #7 (🌆 FUCHSIA REACHED — Koga engaged; the Self-Destruct lesson) ──
 **CANONICAL = fuchsia_reach: Route 15 (3,33)@(0,12), Venusaur L54, badges 4, party HEALED,
 sanctity VALID** (backup pre_fuchsia_reach_backup_20260707_045518). Routes 12→13→14→15 fought
