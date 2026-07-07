@@ -134,7 +134,13 @@ PID-file for the run process + a PowerShell sweep killing bash 'longrun' watcher
 holding no live handles; the ghost-notification/false-'Cut is live' class, closed at the root).
 **MONITORS ARE DEMOTED: convenience only, never evidence** — run-11's monitor sat silent for 37
 min on a run that had finished in 45s. Ground truth = tasklist + the raw log, always.
-**NEXT SESSION (exact):** read `ship_run14.log` END. If GOAL (0x237): the bank holds HM01 →
+**RUN 14 RESULT (read before acting): STALL at (1,28)@(3,6)** — unvisited-first WORKED (a brand-new
+room via (1,8)'s warp (18,2)); the stall class repeats: stuck in a room whose remaining exits won't
+fire. PATTERN across runs 13-14: the terminal room's exit warp fails the entry ritual (spawn-on-tile
+/ directional-entry side / entered-set) — grab a frame at the stall pos + dump that room's warps
+and behaviors (the arsenal), fix the ENTRY, don't add more touring logic. The tour itself is sound:
+5 hops in 30s, deterministic, Gary falls when he's on the path.
+**NEXT SESSION (exact):** diagnose (1,28)@(3,6) as above, then read `ship_run14.log` END. If GOAL (0x237): the bank holds HM01 →
 promote (promote_bank.py; party may need the surgical heal first — never promote hurt) → next run
 teaches Cut (teach bridge fires; Persian has 4 moves now, judged forget ready; check compat —
 Persian learns Cut ✓) → use_cut at the tree (19,24) → trash-can solver (env_puzzle, beat_gym
