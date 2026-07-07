@@ -452,6 +452,45 @@ def main():
                 if not sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
                     return False
             cur = tuple(tv.coords(b) or (0, 0))
+            if cur == tile and not arrow:
+                # standing ON a plain (beh-0) warp tile that never fires on step —
+                # the real exit is walking OUT through the door frame beyond it
+                # (the gate-mat class: R22 gate exits (6-8,10), doors below read
+                # col-1 but pressing INTO them enters). Try outward-first.
+                g0 = tv.Grid(b)
+                order = []
+                if tile[1] >= g0.sy_hi - 2:
+                    order.append("DOWN")
+                if tile[1] <= 2:
+                    order.append("UP")
+                if tile[0] >= g0.sx_hi - 2:
+                    order.append("RIGHT")
+                if tile[0] <= 2:
+                    order.append("LEFT")
+                order += [k for k in ("DOWN", "UP", "LEFT", "RIGHT") if k not in order]
+                for k2 in order:
+                    b.press(k2, 26, 10, camp.render, owner="agent")
+                    for _ in range(120):
+                        b.run_frame()
+                        if tuple(tv.map_id(b)) != m0:
+                            break
+                    if tuple(tv.map_id(b)) != m0:
+                        break
+                    if tuple(tv.coords(b) or ()) != tile:      # stepped off — go back
+                        sea_walk(lambda c, t=tile: c == t, f"{label}-remount",
+                                 allow=(tile,))
+                if handle_interrupts():
+                    continue
+                if tuple(tv.map_id(b)) == dest:
+                    settle(180)
+                    L(f"   [{label}] {m0} -> {dest} @ {tv.coords(b)} (door walk-out)")
+                    _stage_save(label)
+                    return True
+                if tuple(tv.map_id(b)) != m0:
+                    L(f"!! [{label}] warped to {tuple(tv.map_id(b))}, wanted {dest}")
+                    settle(180)
+                    return False
+                continue
             key = (arrow if arrow and cur == tile
                    else KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1])) or arrow)
             if key is None:
@@ -676,6 +715,8 @@ def main():
             cands.sort(key=lambda t: t[1], reverse=retreating)
             if not go_warp(cands[0], dest, "gate-thru"):
                 drain()
+                if wedge("gate-thru", 6):
+                    return 1
         elif here == R23:
             cy = (tv.coords(b) or (0, 0))[1]
             if cy <= 30:                              # north side (past VR)
