@@ -1688,6 +1688,21 @@ class BattleAgent:
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
                                   beat=True)
                         break
+                    # STALE-ATTACH DISARM (koga_run7, the obj7 silent drain): _we_fainted can be armed
+                    # at re-entry from the SAVE's display struct still holding the LAST battle's corpse
+                    # (run3's Koga loss left Mankey at 0 in the struct; the first battle of the next
+                    # process attached with "OUR active is already down" while Venusaur stood at full).
+                    # If the LIVE read shows our active healthy and no mandatory party screen, we are
+                    # NOT in a faint chain — disarm and fight normally (symmetric to the fresh-enemy
+                    # detect above; a real faint keeps ours at 0 until the forced switch, so this can't
+                    # fire mid-chain).
+                    if (self._we_fainted and cur and cur["ours"]["hp"] > 0
+                            and not self._party_screen()):
+                        self._we_fainted = False
+                        self._prev = cur
+                        self.log("   [engine] stale-attach: our active is actually STANDING "
+                                 "(display struct held the last battle's corpse) -> fighting normally")
+                        break
                     # OUR mon fainted but we have a healthy reserve -> this is a FORCED SWITCH,
                     # not a loss: navigate the "Choose a POKéMON" menu and send the next mon, then
                     # fall back into the normal fight loop (roster-depth survival, now explicit).
