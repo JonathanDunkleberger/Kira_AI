@@ -878,6 +878,20 @@ class BattleAgent:
     # in the move list - so the three states are cleanly separable from the screen. ──
     _WHITE_PTS = ((135, 138), (200, 138), (135, 150), (190, 150), (150, 150), (175, 150))
 
+    def _debug_snap(self, tag):
+        """Save the current frame when a wedge trips (BATTLE_DEBUG_DIR env, set by recon
+        vehicles). The victory_run7 lesson: a silent wedge with no frame costs a shift of
+        log archaeology; a frame costs one glance. No-op when the env is unset (play_live)."""
+        d = os.environ.get("BATTLE_DEBUG_DIR")
+        if not d:
+            return
+        try:
+            self.b.frame_rgb().resize((480, 320)).save(
+                os.path.join(d, f"bwedge_{tag}_{int(time.time())}.png"))
+            self.log(f"   [engine] wedge frame -> bwedge_{tag}.png")
+        except Exception as e:
+            self.log(f"   [engine] wedge snap failed: {e}")
+
     def _white_box(self):
         """True iff the bottom-right white menu panel is up (action menu OR move list) - i.e.
         NOT a blue text/dialogue box. The reliable 'a menu is waiting for me' signal."""
@@ -1672,6 +1686,11 @@ class BattleAgent:
                           beat=True, tier=3)
 
         last_glob, stall = None, 0
+        # victory_run7 (2026-07-07): gMoveToLearn is STALE across battles — snapshot at attach so
+        # only a CHANGED nonzero value reads as a live level-up move prompt. The drain-armor
+        # fingerprint lives on self so it survives the outer loop's re-entries into the drain.
+        self._learn_seen = self.b.rd16(ram.GMOVE_TO_LEARN)
+        self._drain_fp, self._drain_noprog = None, 0
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
                 return self._finish()
@@ -1763,7 +1782,66 @@ class BattleAgent:
                                 self.b.press("B", 2, 12, self.render, owner=self.owner)
                                 self._wait(20)
                         continue
-                    self._advance_text(force_b=True)      # faint -> EXP -> level-up -> defeat -> exit
+                    # LEVEL-UP MOVE PROMPT (the 4-moves-known "Delete an older move?" flow; armed
+                    # by a NEW gMoveToLearn value — victory_run7's L64 Venusaur sits one level from
+                    # SolarBeam, so this WILL fire mid-E4). Handle it DELIBERATELY: B declines the
+                    # delete, A confirms the stop — the B,A pair resolves the flow from ANY phase
+                    # (B: Delete?->Stop?; A: Stop?->done) and both keys are plain text-advances on
+                    # the surrounding msgboxes, so a stale/early read costs nothing. The proven
+                    # quartet is load-bearing; choosing to REPLACE is a future roster-policy hook.
+                    mv = self.b.rd16(ram.GMOVE_TO_LEARN)
+                    if mv and mv != self._learn_seen and mv <= 354:
+                        self._learn_seen = mv
+                        mname = st.MOVE_NAMES.get(mv, f"move#{mv}")
+                        self.log(f"   [engine] LEVEL-UP MOVE PROMPT: wants to learn {mname} over a "
+                                 f"full moveset -> DECLINING deliberately (B=keep the set, A=confirm)")
+                        self.emit(f"ooh — {mname} on offer. tempting, but I know my four. "
+                                  f"we keep the set.", beat=True, tier=1)
+                        for _ in range(12):
+                            if (not st.in_battle(self.b) or self._party_screen()
+                                    or self._white_box()):
+                                break
+                            self.b.press("B", 2, 14, self.render, owner=self.owner)
+                            self._wait(16)
+                            self.b.press("A", 2, 14, self.render, owner=self.owner)
+                            self._wait(16)
+                        continue
+                    # DRAIN ARMOR (victory_run7's silent 7-minute spin): this drain was exempt from
+                    # every anti-wedge guard — no stall count, no unresolved floor — so an
+                    # unrecognized box left ONLY the 420s battle timeout, and the vehicle then
+                    # re-entered the same wedge forever. Fingerprint progress; escalate LOUDLY:
+                    # 40 no-progress advances -> snap a frame + B-first pairs (decline-class boxes);
+                    # 80 -> one START tap (keyboard-class escape) and keep pairing; 120 -> return
+                    # "stuck" with a frame so the caller's wedge machinery owns it. Any HP/state
+                    # change resets — a normal victory chain is ~10-25 advances, never 40.
+                    fp = ((cur["enemy"]["hp"], cur["ours"]["hp"]) if cur else None,
+                          st.in_battle(self.b))
+                    if fp == self._drain_fp:
+                        self._drain_noprog += 1
+                    else:
+                        self._drain_fp, self._drain_noprog = fp, 0
+                    if self._drain_noprog == 40:
+                        self.log("   [engine] !! post-faint drain: 40 advances, zero progress -> "
+                                 "switching to B-first decline pairs (wedge frame saved)")
+                        self._debug_snap("drain40")
+                    elif self._drain_noprog == 80:
+                        self.log("   [engine] !! drain still frozen at 80 -> START tap "
+                                 "(keyboard-class escape), pairing on")
+                        self._debug_snap("drain80")
+                        self.b.press("START", 2, 14, self.render, owner=self.owner)
+                        self._wait(16)
+                    elif self._drain_noprog >= 120:
+                        self.log("   [engine] !! post-faint drain WEDGED (120 no-progress advances) "
+                                 "-> LOUD stuck + frame; never the silent 420s spin again")
+                        self._debug_snap("drain120")
+                        return "stuck"
+                    if self._drain_noprog >= 40:
+                        self.b.press("B", 2, 14, self.render, owner=self.owner)
+                        self._wait(16)
+                        self.b.press("A", 2, 14, self.render, owner=self.owner)
+                        self._wait(16)
+                    else:
+                        self._advance_text(force_b=True)  # faint -> EXP -> level-up -> defeat -> exit
                 continue
             self._settle()                            # advance to a wait-point (narrates diffs)
             if not st.in_battle(self.b):

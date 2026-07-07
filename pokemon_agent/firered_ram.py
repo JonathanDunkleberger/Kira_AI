@@ -35,6 +35,10 @@ SB1_OFF_POS_Y     = 0x0002       # s16 player map Y
 # (read 0x1c in the overworld after the rival fight). The reliable in-battle signal
 # is the battle-RESOURCES pointer: null out of battle, a valid EWRAM ptr in battle.
 GBATTLE_TYPE_FLAGS = 0x02022B4C  # u32 battle type bitflags - STALE out of battle, do NOT gate on it
+GMOVE_TO_LEARN     = 0x02024022  # u16 gMoveToLearn (pret symbols 2026-07-07): armed with the pending
+#                                  move id when a level-up wants to teach with 4 moves known (the
+#                                  "Delete an older move?" flow). STALE after the flow — treat only a
+#                                  CHANGED nonzero value as a live prompt (snapshot at battle attach).
 GBATTLE_RES_PTR    = 0x02023FE8  # ✅ battle-resources ptr: valid EWRAM addr ONLY during battle (the GATE)
 GBATTLE_MONS       = 0x02023BE4  # ✅ gBattleMons[4] base (was 0x02024084 - WRONG). 88 bytes each.
 GBATTLE_MON_SIZE   = 88

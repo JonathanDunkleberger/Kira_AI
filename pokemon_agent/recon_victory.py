@@ -101,10 +101,20 @@ def main():
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    # RESUME_STAGE=1: boot from the vehicle's own last stage bank instead of canonical —
+    # the ratchet across PROCESS restarts (run7's 1F+2F-switch1 progress lives in the
+    # stage save; re-rolling Gary/gauntlet dice for a mid-VR wedge wastes the climb).
+    _boot = os.path.join(CANON, "kira_campaign.state")
+    if os.environ.get("RESUME_STAGE") == "1":
+        _sp = os.path.join(STAGE, "kira_campaign.state")
+        if os.path.exists(_sp):
+            _boot = _sp
+    with open(_boot, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()
+    os.environ.setdefault("BATTLE_DEBUG_DIR", DBG)   # battle_agent wedge frames -> victory_probe/
+    L(f"boot state = {_boot}")
 
     render_fn = lambda: None                       # noqa: E731
     if os.environ.get("WATCH") == "1":
@@ -135,11 +145,25 @@ def main():
         b.run_frame = _rf_watch
 
     n_battles = [0]
+    bad_fights = [0]
 
     def fight():
         n_battles[0] += 1
-        return BattleAgent(b, on_event=lambda *a, **k: None, render=render_fn,
-                           log=lambda m: print(m, flush=True)).run(max_seconds=420)
+        r = BattleAgent(b, on_event=lambda *a, **k: None, render=render_fn,
+                        log=lambda m: print(m, flush=True)).run(max_seconds=420)
+        L(f"   [fight#{n_battles[0]}] result={r}")
+        # run7's kill: a wedged battle re-entered forever (420s per cycle, zero log). Two
+        # consecutive stuck/timeout results = the drain armor failed too -> abort LOUD with
+        # a frame instead of a silent all-night spin.
+        if r in ("stuck", "timeout"):
+            bad_fights[0] += 1
+            if bad_fights[0] >= 2:
+                L("!! [fight] 2 consecutive stuck/timeout battles — aborting the run LOUD")
+                snap("fight_wedge_abort")
+                sys.exit(3)
+        else:
+            bad_fights[0] = 0
+        return r
 
     camp = Campaign(b, battle_runner=fight,
                     on_event=lambda s, **k: L(f"[event] {s}"),
