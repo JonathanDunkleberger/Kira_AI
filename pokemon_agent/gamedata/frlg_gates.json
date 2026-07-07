@@ -140,6 +140,13 @@
     "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)",
     "only_when_y_below": 40
    }
+  },
+  "3,4": {
+   "south": {
+    "flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+    "blocker": "a giant SNORLAX asleep across the Route 12 bridge road south of Lavender (wakes only to the Poke Flute - the whole Rocket Hideout -> Silph Scope -> Pokemon Tower -> Mr. Fuji chain stands behind it)",
+    "human": "the road south is blocked by a huge sleeping Snorlax - nothing wakes it but the Poke Flute, and that means dealing with Team Rocket first: the Silph Scope from their hideout under Celadon's Game Corner, then the Tower ghost, then Mr. Fuji"
+   }
   }
  },
  "capabilities": {
@@ -430,6 +437,62 @@
    {
     "map": "3,6",
     "name": "Celadon City"
+   }
+  ],
+  "Fuchsia City": [
+   {
+    "map": "3,6",
+    "name": "Celadon City",
+    "go": "east"
+   },
+   {
+    "map": "3,25",
+    "name": "Route 7",
+    "go": "east",
+    "via": "pass",
+    "note": "Saffron's west gatehouse refuses pre-Tea; the SECOND Underground Path (Routes 7-8 huts) crosses under Saffron east-west - proven westbound 2026-07-07, same huts in reverse"
+   },
+   {
+    "map": "3,26",
+    "name": "Route 8",
+    "expected": true,
+    "go": "east"
+   },
+   {
+    "map": "3,4",
+    "name": "Lavender Town",
+    "go": "south",
+    "note": "Route 12 south is SNORLAX-blocked pre-Flute (exit gate FLAG_WOKE_UP_ROUTE_12_SNORLAX arms the flute chain: Silph Scope from Giovanni in the Rocket Hideout under Celadon's Game Corner -> Pokemon Tower -> Mr. Fuji's Poke Flute). The Tower is IN Lavender - the chain routes back here."
+   },
+   {
+    "map": "3,30",
+    "name": "Route 12",
+    "expected": true,
+    "go": "south",
+    "note": "id extrapolated from the live-learned route sequence (Route 11 = 3,29 confirmed); binds when walked. Coastal bridge road."
+   },
+   {
+    "map": "3,31",
+    "name": "Route 13",
+    "expected": true,
+    "go": "west"
+   },
+   {
+    "map": "3,32",
+    "name": "Route 14",
+    "expected": true,
+    "go": "west"
+   },
+   {
+    "map": "3,33",
+    "name": "Route 15",
+    "expected": true,
+    "go": "west"
+   },
+   {
+    "map": "3,7",
+    "name": "Fuchsia City",
+    "expected": true
    }
   ]
  },
