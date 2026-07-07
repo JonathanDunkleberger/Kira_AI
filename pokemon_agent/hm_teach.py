@@ -48,15 +48,13 @@ def pocket_items(b, off, n):
 
 
 def tm_case_row(b, item_id):
-    """DISPLAY row of `item_id` in the TM Case: TMs sorted by number first, HMs sorted after
-    (CLOSE is last). None if the item isn't in the case."""
+    """DISPLAY row of `item_id` in the TM Case = its RAW POCKET-ARRAY index. Frame-proven
+    (surge run 3): the old sorted-TMs-then-HMs model computed row 3 for HM01, but selecting
+    row 3 lit 'NOT ABLE!' on all four mons — that row was TM39 Rock Tomb, exactly the raw
+    array's index 3 ([HM01, TM03, TM28, TM39]). The case lists the pocket as-is; HM01 sat
+    at row 0. None if the item isn't in the case."""
     have = pocket_items(b, TM_CASE_OFF, 58)
-    if item_id not in have:
-        return None
-    tms = sorted(i for i in have if i < HM_FIRST)
-    hms = sorted(i for i in have if i >= HM_FIRST)
-    order = tms + hms
-    return order.index(item_id)
+    return have.index(item_id) if item_id in have else None
 
 
 class TeachFlow:
@@ -118,17 +116,24 @@ class TeachFlow:
         return "dialogue"
 
     # party-screen cursor READBACK (visual — the heap cursor has no fixed address): the SELECTED
-    # right-column slot draws an exact-orange border (255,107,34) at x=225 on its box edge (box
-    # tops ~y {14,35,56,77,98}, measured tj_004/tg_011). No orange anywhere = lead or CANCEL.
-    _SLOT_TOPS = {1: 14, 2: 35, 3: 56, 4: 77, 5: 98}
+    # right-column slot draws an orange border AROUND ITS BOX OUTLINE. The old single-pixel probe
+    # at x=225 sat INSIDE the box and read nothing on the teach chooser (surge run 3) — detect the
+    # TOP BORDER as a horizontal RUN instead (≥3 of 5 sampled x's orange on one row). Two anchor
+    # sets per slot: measured live on the teach chooser (10+21k) + the legacy tj_004 tops (14+21k).
+    _SLOT_TOPS = {1: (10, 14), 2: (31, 35), 3: (52, 56), 4: (73, 77), 5: (94, 98)}
 
     def _party_cursor(self):
         p = self.b.frame_rgb().load()
-        for slot, y0 in self._SLOT_TOPS.items():
-            for dy in (-2, -1, 0, 1, 2):
-                r, g, b = p[225, y0 + dy][:3]
-                if r > 245 and 90 < g < 130 and b < 60:
-                    return slot
+        for slot, tops in self._SLOT_TOPS.items():
+            for y0 in tops:
+                for dy in (-2, -1, 0, 1, 2, 3):
+                    n = 0
+                    for x in (100, 130, 160, 190, 220):
+                        r, g, b = p[x, y0 + dy][:3]
+                        if r > 240 and 80 < g < 140 and b < 70:
+                            n += 1
+                    if n >= 3:
+                        return slot
         return None                                   # lead or CANCEL (no slot border lit)
 
     def _party_goto(self, target, tries=14):
@@ -232,6 +237,7 @@ class TeachFlow:
         #   forget-summary (only when forget_idx is set) -> DOWN x idx + A, once
         downs_left, picked, sub_seen, party_navved, forgot = row, False, False, False, False
         post_pick_a = 0
+        case_homed = False
         for _ in range(70):
             if move_id in st.read_party_moves(self.b, mon_slot):
                 break
@@ -250,6 +256,14 @@ class TeachFlow:
                     if post_pick_a > 12:
                         break
                     self._press("A", settle=60)
+                elif not case_homed:
+                    # the case list cursor is HEAP-allocated with NO readback and it REMEMBERS
+                    # its row across opens (surge run 3: DOWNs counted from a parked cursor
+                    # selected the wrong row -> a case<->bag oscillation that never reached the
+                    # party chooser). UP clamps at row 0 (recon-proven live) — HOME first.
+                    for _ in range(row + 9):
+                        self._press("UP", settle=18)
+                    case_homed = True
                 elif downs_left > 0:
                     self._press("DOWN", settle=24)
                     downs_left -= 1
