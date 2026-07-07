@@ -57,6 +57,7 @@ _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures l
 # Gen-3 item ids for the in-battle instinct (CANDIDATES; the use is self-verified by the item count
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
 _HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
+_REVIVE_ITEMS_PREF = (25, 24)             # Max Revive, Revive
 _STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
 _FULL_HEAL = 23
 
@@ -803,10 +804,11 @@ class BattleAgent:
     def use_item_in_battle(self, item_id, max_seconds=30, target_slot=None):
         """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
         'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target_slot` aims the
-        item's party screen at that slot by PARTY_CURSOR readback — post-switch the cursor defaults
+        item's party screen at that slot by border readback — post-switch the cursor defaults
         to slot 0 (the BENCH), so without it a heal aimed at the active mon lands on a bench-warmer
-        (e4_run3 Agatha: two Full Restores 'USED' while Persian tanked on at 26/104). None/0 keeps
-        the legacy slot-0 walk."""
+        (e4_run3 Agatha: two Full Restores 'USED' while Persian tanked on at 26/104). None keeps
+        the legacy un-aimed walk; aim taps are party-screen-gated (pixel truth) so a lagging
+        party open never taps into the bag's USE/CANCEL sub-box."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
             self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
@@ -847,8 +849,10 @@ class BattleAgent:
         for n in range(8):
             if self._items_count(item_id) < cnt0:
                 break
-            if target_slot and n >= 2:
-                self._goto_party_slot(target_slot)
+            if target_slot is not None and n >= 2 and self._party_screen():
+                # border readback (the PROVEN fswitch walk) — NOT _goto_party_slot's
+                # PARTY_CURSOR, which is a shadow byte (the 2026-07-05 switch lesson)
+                self._party_goto_slot(target_slot)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
             if not st.in_battle(self.b):
                 break
@@ -909,18 +913,32 @@ class BattleAgent:
         _foet = [t for t in (state.get("enemy", {}).get("types") or []) if t and t != "???"]
         threat = self._matchup_def(_myt, _foet) if (_myt and _foet) else 1.0
         heal_frac = 0.5 if threat >= 2 else BATTLE_CRIT_FRAC
+        # AIM every heal/cure at the mon actually OUT (post-switch the party cursor defaults to
+        # slot 0 = the bench — the e4_run3 Agatha bug: FRs 'USED' onto a bench-warmer). The AIM
+        # machinery shipped in 1a5ed9f but was never passed from here — wired night shift #13.
+        aim = self._active_party_slot(state)
         if frac <= heal_frac:
             heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
             if heal is not None:
-                plan["use_potion"] = heal
+                plan["use_potion"] = (heal, aim)
                 offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
                                         f"about to faint, and you HAVE one in the bag")
         status = self._lead_status()
         if status:
             cure = self._STATUS_CURE_for(status)
             if cure is not None:
-                plan["use_cure"] = cure
+                plan["use_cure"] = (cure, aim)
                 offers["use_cure"] = f"use the cure for {status} — it's hurting you and you have the item"
+        # REVIVE INSTINCT (night shift #13): the fallen-ace case that killed e4_run3 at Lance —
+        # Revives rode the bag unused while bench-warmers tanked on. Offer resurrection only when
+        # the fainted mon out-levels everything still standing (fodder fainting never triggers it).
+        revive = next((i for i in _REVIVE_ITEMS_PREF if self._items_count(i) > 0), None)
+        if revive is not None:
+            down = self._revive_worthy_slot()
+            if down is not None:
+                plan["use_revive"] = (revive, down)
+                offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
+                                        "it's stronger than anyone still standing and you HAVE a Revive")
         if not offers:
             return False
         offers["keep_fighting"] = "keep attacking — push through it"
@@ -929,10 +947,32 @@ class BattleAgent:
         self.log(f"   [engine] ITEM-INSTINCT offer: {list(offers)} ctx={ctx}")
         pick = self.choose("battle_item", offers, ctx)
         if pick and pick in plan:
-            self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {plan[pick]})")
-            return self.use_item_in_battle(plan[pick]) == "used"
+            item, slot = plan[pick]
+            self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {item}, aim slot {slot})")
+            return self.use_item_in_battle(item, target_slot=slot) == "used"
         self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
         return False
+
+    def _revive_worthy_slot(self):
+        """Party slot of the strongest FAINTED mon, iff it out-levels every mon still standing.
+        That's the revive-worth-a-turn test: the ace is down and the field is held by fodder.
+        Returns None otherwise (never revives Ekans-class bench weight mid-fight)."""
+        try:
+            lv_alive, best = 0, None
+            for i in range(6):
+                if not st.read_party_species(self.b, i):
+                    continue
+                hp = self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56)
+                lv = self.b.rd8(ram.GPLAYER_PARTY + i * 100 + 0x54)
+                if hp > 0:
+                    lv_alive = max(lv_alive, lv)
+                elif best is None or lv > best[1]:
+                    best = (i, lv)
+        except Exception:
+            return None
+        if best is not None and best[1] > lv_alive:
+            return best[0]
+        return None
 
     def _STATUS_CURE_for(self, status):
         """The cure item id for a status that's actually in the bag (specific cure, else Full Heal)."""
@@ -1670,11 +1710,22 @@ class BattleAgent:
         return False
 
     def _active_pp_famine(self, state):
-        """True iff the ACTIVE mon has no damaging move with PP left (gBattleMons ground truth —
-        power comes from ROM gBattleMoves via read_battle). Status-move PP doesn't count: it can
-        never KO, so a mon in famine is alive but winless."""
+        """True iff the ACTIVE mon has no damaging move with PP left that can CONNECT vs the
+        CURRENT foe (gBattleMons ground truth — power from ROM gBattleMoves via read_battle).
+        Status-move PP doesn't count (can never KO), and neither does a type-IMMUNE damaging
+        move (e4_run7 Agatha: Venusaur with only Normal-type PP vs Gengar burned ~10
+        war-must-advance turns + 2 Full Restores while Persian's Bite sat on the bench —
+        immune-only PP is famine vs THIS foe, and the famine switch is the only winning line).
+        Unknown foe types count as connecting (never over-trigger)."""
         mv = (state.get("ours") or {}).get("moves") or []
-        return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0 for m in mv)
+        foet = [t for t in ((state.get("enemy") or {}).get("types") or []) if t and t != "???"]
+
+        def _connects(m):
+            if not foet:
+                return True
+            return pol.effectiveness(m.get("type", "normal"), foet) > 0
+        return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
+                       and _connects(m) for m in mv)
 
     def _pp_reserve_slot(self, state):
         """The best ALIVE party member that still has DAMAGING PP and is not the mon already out
