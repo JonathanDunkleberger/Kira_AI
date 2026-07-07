@@ -295,6 +295,42 @@ def main():
             return "battle"                    # a box opened — let the caller drain
         return "blocked"
 
+    def safari_bfs(g, start, goal_test, tile_ok):
+        """tv.bfs + THE PER-EDGE ELEVATION LAW (strike18 truth: she wandered onto the
+        West teeth-plateau (e4) and every e4->e3 edge off it is game-refused; exits are
+        the e0 stair tiles). A step is legal iff elevations match or either side is
+        0/0xF; ledge hops are exempt (jumping down changes elevation legally)."""
+        from collections import deque
+        came = {start: None}
+        q = deque([start])
+        while q:
+            cur = q.popleft()
+            if goal_test(cur):
+                path = []
+                while cur is not None:
+                    path.append(cur)
+                    cur = came[cur]
+                return path[::-1]
+            cx, cy = cur
+            ec = elev_of(cx, cy)
+            for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                if g.ledge_dir(cx + dx, cy + dy) == (dx, dy):
+                    nx, ny = cx + 2 * dx, cy + 2 * dy
+                else:
+                    nx, ny = cx + dx, cy + dy
+                    if not g.edge_open(cx, cy, dx, dy):
+                        continue
+                    en = elev_of(nx, ny)
+                    if ec not in (0, 0xF) and en not in (0, 0xF) and en != ec:
+                        continue
+                if not (g.sx_lo <= nx <= g.sx_hi and g.sy_lo <= ny <= g.sy_hi):
+                    continue
+                if (nx, ny) in came or not tile_ok(nx, ny):
+                    continue
+                came[(nx, ny)] = cur
+                q.append((nx, ny))
+        return None
+
     def walk_path_to(tile, label, tries=8):
         dead = set()
         budget = tries
@@ -316,14 +352,10 @@ def main():
             # a ledge only when approached in jump direction — any other approach walks
             # THROUGH it as floor, which the game refuses. Exclude them from standing;
             # bfs's own hop logic still jumps them in the legal direction.
-            # NO ELEVATION FILTER (strike16/17 lesson): elevation legality is PER-STEP
-            # (equal, or either side 0/0xF — stairs chain e3->e0->e4), so any per-PLAN
-            # seed filter cuts legal raised paths (East's e4 loop to the north doors).
-            # Phantom elev-void strips die by dead-marking instead (bounded churn).
-            p = tv.bfs(g, cur, lambda t: t == tile,
-                       walkable=lambda sx, sy: g.walkable(sx, sy)
-                       and g.ledge_dir(sx, sy) is None
-                       and (sx, sy) not in wts and (sx, sy) not in npcs)
+            p = safari_bfs(g, cur, lambda t: t == tile,
+                           lambda sx, sy: g.walkable(sx, sy)
+                           and g.ledge_dir(sx, sy) is None
+                           and (sx, sy) not in wts and (sx, sy) not in npcs)
             L(f"   [{label}] replan at {cur} -> {tile} (len {len(p) if p else 0}, "
               f"budget {budget}, head {[tuple(x) for x in (p or [])[1:4]]})")
             if not p:
@@ -392,10 +424,10 @@ def main():
                         ((wt[0], wt[1] - 1), "DOWN"), ((wt[0], wt[1] + 1), "UP")):
             if nb in wts or not g.walkable(nb[0], nb[1]):
                 continue
-            p = tv.bfs(g, cur0, lambda t, a=nb: t == a,
-                       walkable=lambda sx, sy: g.walkable(sx, sy)
-                       and g.ledge_dir(sx, sy) is None
-                       and (sx, sy) not in wts and (sx, sy) not in npcs) \
+            p = safari_bfs(g, cur0, lambda t, a=nb: t == a,
+                           lambda sx, sy: g.walkable(sx, sy)
+                           and g.ledge_dir(sx, sy) is None
+                           and (sx, sy) not in wts and (sx, sy) not in npcs) \
                 if cur0 != nb else [cur0]
             if p:
                 cands.append((len(p), nb, kin))
@@ -602,8 +634,11 @@ def main():
                     if wedge("north_back", 4, "can't get back to Area 1"):
                         return 1
                 continue
-            if not any(step_warp(w, "to-west") for w in ((21, 34), (20, 34), (22, 34),
-                                                         (11, 34), (10, 34), (12, 34))):
+            # WEST IS SPLIT TOO (strike19 dual-flood): the (10-12,34) doors land at
+            # (30-32,5) INSIDE the teeth/Secret-House component; the (20-22,34) doors
+            # land at (37-39,5) in the arrival/east component with NO legal crossing.
+            if not any(step_warp(w, "to-west") for w in ((11, 34), (10, 34), (12, 34),
+                                                         (21, 34), (20, 34), (22, 34))):
                 if wedge("to_west", 4, "can't reach Area 3 (West)"):
                     return 1
             continue

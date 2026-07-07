@@ -7,13 +7,17 @@ Paste this to the fresh session:
 RESUME — fresh session. Read STATE §0 (newest block first). Never trust this file over
 STATE §0 + NIGHT_REPORT.md if they disagree.
 
-**CANONICAL = fuchsia_south: Fuchsia City (3,7)@(47,21), badges 6, $71,886, sanctity VALID**
-(banked 08:41; backup pre_fuchsia_south_backup_20260707_084122). Party: Venusaur L57 /
-Persian 37 / Fearow 35 / Raticate 31 / Ekans 15 / **LAPRAS L25 (slot 5 — the Surf carrier,
-withdrawn from Bill's PC by recon_lapras)**. Mankey L10 is in the box.
+**CANONICAL = safari_hms: Fuchsia City (3,7)@(33,32), badges 6, sanctity VALID, round-trip
+verified** (banked 10:19; backup pre_safari_hms_backup_20260707_101928). Party: Venusaur
+L57 / Persian 37 / Fearow 35 / Raticate 31 / Ekans 15 / **LAPRAS L25 (slot 5)**.
+🏅 **HM03 SURF + HM04 STRENGTH + GOLD TEETH banked** (safari strike 20: 50s end-to-end,
+the East→North→West tour chain; the badge-7 unlock is OPEN).
 
-⚔️ **IN FLIGHT AT WRITE: the SAFARI STRIKE, attempt 12 (recon_safari.py → log
-logs/longrun/safari_strike12.log).** FIRST MOVE: read that log's END.
+⚔️ **IN FLIGHT AT WRITE: the SURF-TEACH leg (recon_surf_teach.py → log
+logs/longrun/surf_teach1.log), then recon_cinnabar.py (the sea road).** FIRST MOVE: read
+the newest log's END; promote any bank (surf_taught → cinnabar_reach).
+
+**SAFARI DONE — history below is for the record (strike 20 landed 50s end-to-end):**
 - Targets in one entry: **GOLD TEETH** ball (Area 3 West (28,14)) + **HM03 SURF** (Secret
   House attendant (6,5), West door (12,7)) → exit → Warden's house (Fuchsia door (33,31))
   → **HM04 STRENGTH**. Success = items 341+342 in the TM pocket → banks to

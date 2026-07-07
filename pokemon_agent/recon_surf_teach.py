@@ -36,9 +36,11 @@ BANK = os.path.join(SCRATCH, "banked_SURF_TAUGHT")
 
 SURF_MOVE, STRENGTH_MOVE = 57, 70
 # moves safe to forget, worst first (status chaff a real player would drop)
-CHAFF = [47, 45, 39, 43, 54, 145, 48, 111, 28, 46, 104]   # sing,growl,tailwhip,leer,mist,
-#                                                           bubble,supersonic,defcurl,sand-
-#                                                           attack,roar,double-team
+CHAFF = [47, 45, 39, 43, 54, 145, 48, 111, 28, 46, 104, 77]   # sing,growl,tailwhip,leer,
+#                                                    mist,bubble,supersonic,defcurl,sand-
+#                                                    attack,roar,double-team,poisonpowder
+# (77 added surf_teach run 2: the fallback "drop slot 0" ate Venusaur's RAZOR LEAF for
+#  Strength — grass STAB + Sleep Powder are load-bearing; PoisonPowder is the sacrifice)
 
 
 def pick_forget(moves):

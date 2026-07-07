@@ -120,7 +120,11 @@ class TeachFlow:
     # at x=225 sat INSIDE the box and read nothing on the teach chooser (surge run 3) — detect the
     # TOP BORDER as a horizontal RUN instead (≥3 of 5 sampled x's orange on one row). Two anchor
     # sets per slot: measured live on the teach chooser (10+21k) + the legacy tj_004 tops (14+21k).
-    _SLOT_TOPS = {1: (10, 14), 2: (31, 35), 3: (52, 56), 4: (73, 77), 5: (94, 98)}
+    # THIRD anchor set (surf_teach 2026-07-07, measured live): the 6-mon teach chooser
+    # spaces rows 24px (10+24k) — the 21k anchors miss slots 4/5 entirely (the cursor
+    # walked past Lapras to CANCEL and the teach failed LOUD).
+    _SLOT_TOPS = {1: (10, 14), 2: (34, 31, 35), 3: (58, 52, 56),
+                  4: (82, 73, 77), 5: (106, 94, 98)}
 
     def _party_cursor(self):
         p = self.b.frame_rgb().load()
