@@ -1,52 +1,46 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 night shift #2)
+# NEXT_SESSION — resume prompt (write date 2026-07-07, night shift #2 close)
 
 Paste this to the fresh session:
 
 ---
 
-RESUME — fresh session. Read STATE §0 CURRENT TRUTH first (NIGHT SHIFT #2 block). Last session:
-🔦 **HM05/FLASH CANONICAL** — dex 11 (judged Mankey catch, the choice framework's live debut),
-HM05 fetched through Diglett's Cave (aide gate cracked warp-truth), **FLASH taught to Venusaur**
-(case-sort teach fix, moves [75,77,79,148] on-disk), canonical = hm05_flash @ Route 2 (19,28).
-Rock Tunnel strike (recon_rocktunnel.py) was IN FLIGHT at close — **read
-`logs/longrun/tunnel_run<N>.log` (highest N) FIRST**: she enters the tunnel, LIGHTS FLASH
-(use_field_move verified vs flag 0x806 — the party-menu field-move primitive works live), and
-crosses the 1F/B1F maze by section-DFS (grid-BFS reachability + backtracking).
+RESUME — fresh session. Read STATE §0 CURRENT TRUTH first (NIGHT SHIFT #2 block). Last shift:
+🏙️ **CELADON CANONICAL** — the full chain banked in one night: dex 11 (judged Mankey catch) →
+HM05 fetched (Diglett's Cave crossed both ways) → **FLASH taught to Venusaur** → **ROCK TUNNEL
+crossed LIT** (use_field_move debut) → Lavender → Route 8 → UGP #2 under Saffron → Route 7 →
+**CELADON CITY** (celadon_reach promoted; Center (48,11) + gym (11,30) + Erika registered).
 
-The chain (badge 4 critical path):
-1. If tunnel_run banked → `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_ROCKTUNNEL
-   rocktunnel_lavender` → canonical = LAVENDER. If it failed, the wedge class is in the maze
-   crosser (recon_rocktunnel.py cross_warp_maze) — known residual risk: exhausted-section
-   ping-pong needs a breadcrumb stack (backtrack via the ORIGINAL entry warp, not the last one).
-2. BADGE-4 ROAD: from Lavender, `LONGRUN_GOAL_MAP=3,6` recon_longrun (the Celadon road is
-   KB-billed: Lavender → Route 8 → UGP #2 pass → Route 7 → Celadon; the road follower drives it
-   via head_to_gym). Then ERIKA: `LONGRUN_GOAL_FLAG=0x823`. Watch the gym-tree (Cut known) +
-   Erika is grass — Venusaur's Razor Leaf is resisted; Fearow's flying moves are the coverage.
-3. Then the chain: Rocket Hideout (Game Corner) → Silph Scope → Pokémon Tower → Poké Flute →
-   badges 5-8 (KB frlg_gates.json bills every gate to credits).
+FIRST MOVE: read `logs/longrun/erika_run1.log` (highest erika_run N) — the badge-4 strike
+(LONGRUN_GOAL_FLAG=0x823) was in flight at close, deep in the gym gauntlet.
+- If GOAL: promote (promote_bank.py G:/temp/longrun/banked_GOAL erika_badge4) → then the chain:
+  Rocket Hideout (Game Corner basement, Silph Scope) → Pokémon Tower → Poké Flute → badge 5.
+  KB frlg_gates.json bills every gate.
+- If it failed at the LEADER approach: ERIKA_FRONT=(4,4) in campaign.py GYMS is a first guess —
+  the gym's top NPC row was (5,4)/(6,4)/(7,4); grab a frame at the cleared gym top, fix the
+  front tile, re-run. Everything else (door, juniors, Center) is probed truth.
+- Party note: Ekans L15 rides fainted (harmless — core-down doctrine); heal at Celadon Center
+  (registered) happens naturally next heal pick.
 
-SOUL DEBT parked: her ACE Venusaur is nicknamed **"AAAAAAAAAA"** (day-one naming accident).
-The Name Rater is in Lavender. Options: build the rename flow (naming-keyboard UI, a real
-build) OR wire one owning-it beat ("yes, his name is AAAAAAAAAA — he's earned it"). Oracle/
-Jonny call; don't let it block the road.
-
-Rules in force: EMPLOYMENT TERMS (CLAUDE.md top — two-wall shift ends, bank-and-continue),
-tripwire, arsenal, single-run law, ground-truth-only, NEXT_SESSION.md at close. Launch recipe:
-`LONGRUN_GOAL_MAP=... / LONGRUN_GOAL_FLAG=... LONGRUN_BATTLE_LOG=1 POKEMON_SLEEP_LOCK=1
-POKEMON_CATCH_JUDGMENT=1 POKEMON_PROACTIVE_BENCH=1 python pokemon_agent/recon_longrun.py
-kira_campaign.state 75 > logs/longrun/<name>.log 2>&1` (bg). GO.
+Rules in force: EMPLOYMENT TERMS (two-wall shift ends, bank-and-continue), tripwire, arsenal,
+single-run law, ground-truth-only, NEXT_SESSION.md at close. Launch recipe:
+`LONGRUN_GOAL_FLAG=0x823 LONGRUN_BATTLE_LOG=1 POKEMON_SLEEP_LOCK=1 POKEMON_CATCH_JUDGMENT=1
+POKEMON_PROACTIVE_BENCH=0 python pokemon_agent/recon_longrun.py kira_campaign.state 70 >
+logs/longrun/<name>.log 2>&1` (bg). PROACTIVE_BENCH stays 0 on road/gym runs until the
+Celadon-side grass is mapped (the bench pin fights Center-less roads). GO.
 
 ---
 
 ## Morning survey pointers (for Jonny's 60-second read)
-- **What banked tonight (shift 2):** dex11_mankey (judged catch live debut — she reasoned
-  "fighting coverage gap" and it was TRUE this time) → hm05_flash (HM05 flag + Flash on the ace,
-  verified on-disk). Possibly rocktunnel_lavender if the last run GOAL'd — check NIGHT_REPORT.
-- **The night's kills (commits df3c208, 945a8a8, f92e7a3 +):** catch-judgment stale-foe
-  (gEnemyParty truth), sleep-then-throw, ball-less mart teeth (verified end-to-end round trip),
-  ROM TM/HM compat table (killed a wrong shift-1 conclusion), Grid mid-transition guard,
-  travel plan hysteresis (replan tie-flip churn), destination-aware maze crossing, TM-case
-  sort-on-open teach fix, use_field_move primitive (Flash lit in-tunnel, verified).
-- **Honesty:** the voltorb hunt caught a dupe ekans under the OLD bug (staging only, never
-  banked); Rock Tunnel maze is the largest warp maze yet — if it failed overnight it's the
-  breadcrumb-stack residual, one fix from done.
+- **Banked tonight (all sanctity-gated):** dex11_mankey → hm05_flash → rocktunnel_lavender →
+  celadon_reach. That's Route 4 → CELADON in one shift: two cave systems, an HM fetch+teach,
+  and the whole east-west road.
+- **Soul beats that landed:** the judged Mankey catch ("fighting coverage — a real gap filled"),
+  "and there's light!" in the tunnel, "Lavender Town... we made it through the dark."
+- **The night's kills (12+ commits):** stale-foe catch judgment (gEnemyParty truth), sleep-then-
+  throw, ball-less mart teeth, ROM TM/HM compat (killed shift-1's wrong "no Flash learner" call),
+  Grid mid-transition guard, plan hysteresis, section-DFS maze crosser, TM-case sort fix,
+  use_field_move primitive, segment-aware gates, CRITICAL=fighting-core (the heal-spin stall
+  class killed at the definition), Lavender+Celadon Centers registered.
+- **Owed / honest:** Erika front tile unverified; Venusaur is still named AAAAAAAAAA (Name Rater
+  = Lavender; owning-it beat vs rename — soul call); Celadon Mart (dept store) unmapped for
+  MART_STOCK; quasi-dupe catch refinement still parked.

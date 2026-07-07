@@ -30,7 +30,24 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
-### ── 2026-07-07 NIGHT SHIFT #2 (in progress — dex 11 banked, HM05 errand in flight) ──
+### ── 2026-07-07 NIGHT SHIFT #2 (🏙️ CELADON CANONICAL — tunnel crossed, road walked) ──
+**CANONICAL = CELADON CITY (3,6)@(59,15)** (promotion chain tonight, every step sanctity-gated:
+dex11_mankey → hm05_flash → rocktunnel_lavender → celadon_reach; backups pre_* alongside).
+Party Venusaur45(FLASH)/Persian34/Fearow32/Raticate31/Ekans15(fainted-benchwarmer)/Mankey10; dex 11.
+THE NIGHT'S ARC: Voltorb-hunt bug (stale-foe judgment) killed → judged Mankey catch (dex 11) →
+Diglett's Cave crossed (3 nav kills) → Route 2 aide (warp-truth gate hunt) → HM05 → FLASH taught
+to Venusaur (case-sort fix) → ROCK TUNNEL crossed LIT (use_field_move debut, section-DFS maze) →
+Lavender (Center registered) → Route 8 → UGP #2 under Saffron → Route 7 → CELADON (Center (48,11)
++ gym (11,30) + Erika registered — front tile (4,4) is a first guess, badge run verifies).
+ERIKA RUN (GOAL_FLAG=0x823) in flight at last update — read logs/longrun/erika_run1.log.
+LATE-SESSION KILLS (committed): plan HYSTERESIS (replan tie-flip churn), proactive-bench sitting
+cap (+6 bites) + grind-dead map memory + no_safe_grass honesty, tunnel banned as passthrough
+connector, tunnel gate segment-aware (only_when_y_below), party-move read-twice hardening +
+teach-bridge settled re-check, CRITICAL=fighting-core (bench faint ≠ heal-spin; the east_run2/
+celadon_run7 stall class killed at the definition), heal-excursion honest fail, Lavender+Celadon
+Centers registered. SOUL DEBT noted: the ace Venusaur is nicknamed "AAAAAAAAAA" (Name Rater is in
+Lavender; owning-it beat vs rename = oracle/Jonny call).
+
 **Canonical = DEX 11 / Route 4 (3,22)@(75,17)** (promoted dex11_mankey; backup
 pre_dex11_mankey_backup_20260706_235322; party 6/6 Venusaur42/Persian33/Fearow32/Raticate31/
 Ekans15/**Mankey10** — the judged fighting-coverage catch; sanctity VALID).
