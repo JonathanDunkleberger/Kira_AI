@@ -1404,9 +1404,13 @@ class BattleAgent:
         # the offensive-resist trigger fired and the ranking swapped in L15 Ekans ("resists most")
         # — which fainted, forced-switch churned, and she BLACKED OUT to a L21 Gloom she outleveled
         # by 24. A big level lead wins through any resistance; stay in and swing.
+        # REFINED same night (flute_run7): the veto only holds when she can still actually HIT —
+        # Venusaur's ONLY damaging move at 0.25x into a Vileplume is a stall, not dominance (she
+        # whiteout-lost that fight with L33 Fearow benched holding super-effective Flying moves).
+        # Offensive famine (best usable eff <= 0.25) overrides the level veto.
         foe_lv = state.get("enemy", {}).get("level") or 0
         act_lv = state.get("ours", {}).get("level") or 0
-        if foe_lv and act_lv >= foe_lv + 10:
+        if foe_lv and act_lv >= foe_lv + 10 and best_move_eff > 0.25:
             return None
         active_sp = state.get("ours", {}).get("species")
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
