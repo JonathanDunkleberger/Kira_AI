@@ -3458,6 +3458,23 @@ class Campaign:
                           kind="route", tier=2)
             self._clear_questline("complete")
             return "questline_done"
+        # NO-PROGRESS ABANDON (2026-07-06, the surf-misdirection spin): an errand that leaves her
+        # standing on the SAME tile call after call is the WRONG errand (or an unroutable one) —
+        # drop it LOUD and let the roam re-recognize fresh (the probe may arm a better gate).
+        _fp = (self._active_questline.gate.missing, tuple(tv.map_id(self.b)),
+               tuple(tv.coords(self.b) or ()))
+        if _fp == getattr(self, "_ql_fp", None):
+            self._ql_fp_n = getattr(self, "_ql_fp_n", 0) + 1
+            if self._ql_fp_n >= 5:
+                log(f"   [roam] !! QUESTLINE NO-PROGRESS ×{self._ql_fp_n} ({_fp[0]}) — abandoning "
+                    f"the errand; re-recognizing fresh")
+                self.on_event("hm — this plan's going nowhere from here. let me rethink.",
+                              kind="route", tier=1)
+                self._clear_questline("no-progress abandon")
+                self._ql_fp, self._ql_fp_n = None, 0
+                return "questline_abandoned"
+        else:
+            self._ql_fp, self._ql_fp_n = _fp, 0
         step = q.actionable
         if step is None or not step.resolved:
             # KB can't resolve this gate → the GuideSearch fallback (Phase 4) fills it in; until then surface
@@ -3730,24 +3747,50 @@ class Campaign:
             grid = tv.Grid(self.b)
             cur = tuple(tv.coords(self.b))
             door = tuple(gym.door)
-            # walk to the CLOSEST reachable tile to the door, out to d=10 — the Vermilion yard is
-            # FENCED (nearest reachable ≈5, through the tree gap at (19,23)); the old d≤3 gave up
-            # far away where the SEA was adjacent and the recognizer armed a SURF/Safari questline
-            # instead of the tree (ship run 5's misdirection stall).
-            for d in range(1, 11):
-                path = tv.bfs(grid, cur,
-                              lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
-                              walkable=grid.walkable)
-                if path:
-                    self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
-                                     max_steps=200, max_seconds=90)
-                    break
+            # phase A — SCAN FIRST: beat_gym's failed door approach already parked her near the
+            # yard, where the fence-gap TREE OBJECT is loaded. Walking "closer to the door" first
+            # is actively harmful — the Grid is OPTIMISTIC about fences (static obstacles are only
+            # discovered by bonking them), so a distance-first walk drifted to the BEACH and armed
+            # a SURF/Safari questline (runs 5-6). A tree/boulder near the door IS the gate: walk
+            # adjacent to the OBJECT and recognize there (obstacles outrank water in the recognizer).
+            import field_moves as _fm
+
+            def _obstacle_probe():
+                g2 = tv.Grid(self.b)
+                here2 = tuple(tv.coords(self.b))
+                for ob in _fm.scan_field_objects(self.b, {_fm.GFX_CUT_TREE, _fm.GFX_BOULDER}):
+                    ox, oy = ob["coord"]
+                    if abs(ox - door[0]) + abs(oy - door[1]) > 12:
+                        continue                                 # unrelated obstacle across the map
+                    for stand in ((ox, oy - 1), (ox, oy + 1), (ox - 1, oy), (ox + 1, oy)):
+                        if tv.bfs(g2, here2, lambda t, s=stand: t == s, walkable=g2.walkable):
+                            self.trav.travel(target_map=None, arrive_coord=stand,
+                                             max_steps=200, max_seconds=90)
+                            if tuple(tv.coords(self.b) or ()) == stand:
+                                return True
+                return False
+
+            found = _obstacle_probe()
+            if not found:
+                # phase B — reposition toward the door (bounded) so nearer objects LOAD, then rescan
+                for d in range(2, 11, 2):
+                    path = tv.bfs(grid, cur,
+                                  lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
+                                  walkable=grid.walkable)
+                    if path:
+                        self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
+                                         max_steps=200, max_seconds=60)
+                        break
+                _obstacle_probe()
             here = tv.coords(self.b)
             gate = self._gate_recognizer.recognize(tuple(tv.map_id(self.b)),
                                                    player_xy=tuple(here) if here else None,
-                                                   grid=grid)
+                                                   grid=tv.Grid(self.b))
             if gate:
-                log(f"   [roam] 🚧 GYM-GATE PROBE: {gate}")
+                try:
+                    log(f"   [roam] [!] GYM-GATE PROBE: {gate}")
+                except Exception:
+                    pass
             return gate
         except Exception as _e:
             log(f"   [roam] gym-gate probe skipped: {_e}")
