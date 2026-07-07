@@ -3763,14 +3763,30 @@ class Campaign:
                 and not getattr(self, "_ql_past_anchor", False)):
             _pc2 = state.get("party_count")
             _pl2 = state["party"][0]["level"] if state.get("party") else None
-            hop = self.world.next_hop(cur_map, step_anchor, avoid=self._wall_avoid(state))
-            if hop:
-                nxt, edge2 = hop
-                if not self.strat.is_gated(tuple(nxt), _pc2, _pl2):
-                    log(f"   [roam] 🧭 QUESTLINE ANCHOR-FIRST: '{step.human}' anchors on "
-                        f"{self.world.name(step_anchor)} and we're at {self.world.name(cur_map)} — "
-                        f"routing {edge2} -> {nxt} toward the anchor first")
-                    return self.trav.travel(target_map=nxt, edge=edge2)
+            # WARP-AWARE routing (flute_run3: next_hop is EDGE-only, so Lavender->Celadon — a road
+            # that crosses the Underground Path — read 'no route' and she fell into dir noise).
+            # next_step routes THROUGH learned warps, executed exactly like head_to_gym's warp-route.
+            try:
+                wstep = self.world.next_step(cur_map, step_anchor, avoid=self._wall_avoid(state))
+            except Exception as _ws:
+                wstep = None
+                log(f"   [roam] questline anchor-first next_step skipped: {_ws}")
+            if wstep:
+                _nxt, _kind, _detail = wstep
+                if self.strat.is_gated(tuple(_nxt), _pc2, _pl2):
+                    log(f"   [roam] questline: anchor-first hop {_nxt} is wall-gated — surfacing")
+                    return "wall_gated"
+                log(f"   [roam] 🧭 QUESTLINE ANCHOR-FIRST: '{step.human}' anchors on "
+                    f"{self.world.name(step_anchor)} and we're at {self.world.name(cur_map)} — "
+                    f"{_kind} -> {_nxt} toward the anchor first")
+                if _kind == "warp":
+                    _before = tv.map_id(self.b)
+                    self.trav.travel(target_map=None, arrive_coord=_detail, max_steps=300)
+                    if tv.map_id(self.b) != _before:
+                        return "warped"
+                    self.enter_warp(pick=_detail)
+                    return "warped" if tv.map_id(self.b) != _before else "warp_failed"
+                return self._edge_travel(_nxt, _detail)
             log(f"   [roam] questline: no graph route {cur_map} -> anchor {step_anchor} yet — "
                 f"falling through to dir/bend discovery")
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
