@@ -278,14 +278,19 @@ HM_MOVE_IDS = {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148, "
 def _step_from_cap(key, cap):
     ob = (cap or {}).get("obtain") or {}
     success = None
-    if ob.get("sets_flag"):
+    if key in HM_MOVE_IDS:
+        # an HM step's success is the CAPABILITY — a party mon KNOWS the move — never the item
+        # flag: between FLAG_GOT_HMxx and 'can cut' sits the TEACH (the bridge in
+        # _run_questline_step fires exactly on an unsatisfied ('cap',hm) step with the HM in the
+        # case). sets_flag priority ended the errand with HM01 still unlearned (surge run 2:
+        # 0x237 set -> actionable=None -> head_to_gym 'stuck' at the tree forever).
+        success = ("cap", key)
+    elif ob.get("sets_flag"):
         success = ("flag", ob["sets_flag"])
     elif ob.get("gives_cap"):
         success = ("cap", ob["gives_cap"])
     elif key.startswith("FLAG_"):
         success = ("flag", key)
-    elif key in HM_MOVE_IDS:
-        success = ("cap", key)
     return Step(missing=key, kind=cap.get("kind"), via=ob.get("via"), npc=ob.get("npc"),
                 from_map=ob.get("from"), dir=ob.get("dir"), place_name=ob.get("place_name"),
                 success=success, resolved=True, human=cap.get("human") or f"get {cap.get('name', key)}")
