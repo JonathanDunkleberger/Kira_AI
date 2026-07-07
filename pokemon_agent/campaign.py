@@ -3172,7 +3172,11 @@ class Campaign:
                     # re-arms when the ROSTER CHANGED (a new member actually needs raising) — the
                     # ace pulling ahead of an already-prepped bench is not a reason to grind.
                     if getattr(self, "_bench_done_sig", None) != sig:
-                        self._bench_pin = lead - 8
+                        # SITTING CAP (2026-07-07 celadon_run1: Mankey L10 vs lead L45 pinned a
+                        # 27-level marathon that parked the badge-4 road): a real player raises a
+                        # new catch a FEW levels while traveling, not to parity in one sitting.
+                        # Raise the floor in +6 bites; the pin retires/re-arms per roster change.
+                        self._bench_pin = min(lead - 8, floor + 6)
                         t = self._bench_pin
             if not t:
                 return None
