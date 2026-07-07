@@ -218,6 +218,51 @@ def read_party_moves(bridge, slot=0):
     return cur
 
 
+def read_party_pp(bridge, slot=0):
+    """Decrypt the 4 current-PP bytes of party slot N. Same Attacks substructure as
+    read_party_moves (pret/pokefirered PokemonSubstruct1 { u16 moves[4]; u8 pp[4]; } — pp is the
+    third u32 word), same XOR key, same read-twice-agree tearing guard. Returns a 4-int list
+    aligned index-for-index with read_party_moves."""
+    def _one_read():
+        base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
+        pid = bridge.rd32(base + 0)
+        otid = bridge.rd32(base + 4)
+        key = pid ^ otid
+        order = _SUBSTRUCT_ORDER[pid % 24]
+        a = base + 32 + order.index("A") * 12
+        w2 = bridge.rd32(a + 8) ^ key          # pp[0..3] packed in the word after moves[2..3]
+        return [w2 & 0xFF, (w2 >> 8) & 0xFF, (w2 >> 16) & 0xFF, (w2 >> 24) & 0xFF]
+    prev = _one_read()
+    cur = _one_read()
+    if cur == prev:
+        return cur
+    for _ in range(2):
+        if hasattr(bridge, "run_frame"):
+            for _f in range(4):
+                bridge.run_frame()
+        nxt = _one_read()
+        if nxt == cur:
+            return nxt
+        cur = nxt
+    return cur
+
+
+def slot_has_damaging_pp(bridge, slot=0):
+    """True iff party slot N still has PP on at least one DAMAGING move (ROM gBattleMoves power
+    > 0). The PP-famine ground truth (erika_run2 2026-07-07): a mon can be alive but WINLESS —
+    Fearow ran the Celadon gauntlet dry and Growl/Leer'd a 60/60 Gloom until the anti-wedge
+    abort. Defensive: any read error returns True (never block a battle on a bad read)."""
+    try:
+        moves = read_party_moves(bridge, slot)
+        pps = read_party_pp(bridge, slot)
+        for mid, pp in zip(moves, pps):
+            if mid and pp > 0 and move_info(bridge, mid)[1] > 0:
+                return True
+        return False
+    except Exception:
+        return True
+
+
 def party_knows_move(bridge, move_id, count=6):
     """Which party slot (0-based) knows move_id, or None. Scans up to `count` members.
     Defensive: a decrypt/read error on one slot is skipped, never raised (a bad read must

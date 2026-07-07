@@ -1471,6 +1471,35 @@ class BattleAgent:
         self.log("   [engine] matchup switch did not confirm -> fighting instead (fail-safe, no wedge)")
         return False
 
+    def _active_pp_famine(self, state):
+        """True iff the ACTIVE mon has no damaging move with PP left (gBattleMons ground truth —
+        power comes from ROM gBattleMoves via read_battle). Status-move PP doesn't count: it can
+        never KO, so a mon in famine is alive but winless."""
+        mv = (state.get("ours") or {}).get("moves") or []
+        return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0 for m in mv)
+
+    def _pp_reserve_slot(self, state):
+        """The best ALIVE party member that still has DAMAGING PP and is not the mon already out
+        (species compare — after a switch the active is no longer gPlayerParty[0], the ace-guard
+        lesson). Highest level wins. None if nobody qualifies (whole party dry -> heal, not switch)."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        active_sp = (state.get("ours") or {}).get("species")
+        best, best_lv = None, -1
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue                                  # fainted
+            try:
+                if st.read_party_species(self.b, s) == active_sp:
+                    continue                              # already the mon that's out
+            except Exception:
+                pass
+            if not st.slot_has_damaging_pp(self.b, s):
+                continue
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if lv > best_lv:
+                best, best_lv = s, lv
+        return best
+
     def _ace_reserve_slot(self):
         """The highest-level ALIVE party member that is NOT slot 0 — the ace to switch the weak grind
         lead out to (it tanks + KOs while the benched weak mon banks participation XP). None if no alive
@@ -1498,6 +1527,8 @@ class BattleAgent:
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
         self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
         self._sleep_casts = 0              # SLEEP-LOCK whiff cap, reset per foe
+        self._famine_tried = set()         # PP-FAMINE SWITCH: active species already offered a famine
+        # switch this battle (one shot per species — a forced re-entry retries once, never churns).
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -1657,6 +1688,36 @@ class BattleAgent:
                     self._acted_once = True
                     stall = 0
                     continue
+                # PP-FAMINE SWITCH (2026-07-07, erika_run2 postmortem — the gym-gauntlet PP wall): the
+                # active mon can be ALIVE but WINLESS — every damaging move at 0 PP after a long gauntlet,
+                # leaving only status moves that can never KO (Fearow Growl/Leer'd a 60/60 Gloom until the
+                # anti-wedge abort, ×12 futile battles, while Venusaur sat full-HP/full-PP on the bench).
+                # That's not a matchup question, it's a hard constraint: if a bench mon still has damaging
+                # PP, switching is the ONLY line that can win. Fires BEFORE grind/matchup logic (it
+                # overrides both — a PP-dry ace can't grind either), once per active species per battle
+                # (a forced re-entry of the same dry mon gets one more try, never a churn loop). Fail-safe:
+                # an unconfirmed switch just fights on; no reserve -> log LOUD and let the anti-wedge
+                # floor + the campaign's needs_heal gate own it.
+                if (state and not (self._enemy_fainted or self._we_fainted)
+                        and self._active_pp_famine(state)
+                        and state.get("ours", {}).get("species") not in self._famine_tried):
+                    self._famine_tried.add(state.get("ours", {}).get("species"))
+                    _fs = self._pp_reserve_slot(state)
+                    if _fs is not None:
+                        self.log(f"   [engine] PP FAMINE: active has no damaging PP left -> switching to "
+                                 f"party slot {_fs} (the only line that can still win)")
+                        if self._switch_to_slot(_fs, state.get("ours", {}).get("species")) == "switched":
+                            self.emit("I'm out of real moves on this one — switching to someone who can "
+                                      "still hit.", beat=True, tier=2)
+                            self._skip_streak.clear()
+                            self._acted_once = True
+                            stall = 0
+                            self._unresolved_turns = 0
+                            continue
+                        self.log("   [engine] famine switch did not confirm -> fighting on (fail-safe)")
+                    else:
+                        self.log("   [engine] !! PP FAMINE: no reserve with damaging PP either — the whole "
+                                 "party is dry (needs a Center; the campaign's readiness gate owns that)")
                 # PARTICIPATION-XP GRIND SWITCH: while grinding the weak team (PROTECT_LEAD_GRIND), the weak
                 # mon LEADS (eligible for XP) but would be one-shot — so turn 1, switch it to the ace. The
                 # weak mon banks a share of XP and never takes a hit (benched before the enemy's turn); the

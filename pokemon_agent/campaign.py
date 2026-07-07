@@ -267,7 +267,9 @@ FLAG_BADGE_RAINBOW = 0x823
 CELADON = (3, 6)
 CELADON_PC_DOOR = (48, 11)
 CELADON_GYM_DOOR = (11, 30)
-ERIKA_FRONT = (4, 4)     # leader podium top-center; front tile below her, face UP (iterate if off)
+ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym map.json) -> stand
+                         # below her at (6,5), face UP. NOTE the gym has CUT TREES inside at
+                         # (6,8) (center aisle -> her), (3,5), (9,6) — the run-1/2 travel wedges.
 
 # CITY -> its own Pokemon Center door (PC interiors share ONE layout, so heal_at_center(door) heals
 # in ANY of them — only the overworld door differs). The map-keyed table replaces heal_nearest's old
@@ -2098,6 +2100,14 @@ class Campaign:
         Returns the drive result. B-2: on 'exhausted' (the cycle-watchdog bailed on a LOOPING NPC),
         records this spot so she won't re-engage it (the full re-talking-beaten-NPC class, not just
         the literal Slowbro instance)."""
+        # LIVE-BATTLE GUARD (2026-07-07, erika_run2): a stuck-abort can leave the BATTLE still live
+        # (e.g. its forced-switch party menu up). Draining then A-mashes battle menus blind — 300
+        # presses selecting fainted mons ("PERSIAN has no energy left!" forever). Battle UI belongs
+        # to the battle engine, never this overworld primitive; the caller's loop re-enters the fight.
+        if st.in_battle(self.b):
+            log(f"   [roam] !! drain '{label}' requested during a LIVE battle -> skipping "
+                f"(battle engine owns that UI)")
+            return "in_battle"
         self.b.set_input_owner("agent")
         res = DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label=label)
         if res == "exhausted":
@@ -2117,10 +2127,49 @@ class Campaign:
                 pass
         return res
 
+    def _party_damaging_pp(self):
+        """True iff ANY alive party member still has PP on a damaging move — the PP-famine ground
+        truth (erika_run2 2026-07-07: the whole gauntlet ran dry and every battle went 'stuck').
+        Defensive: any read error returns True (the check is a detour trigger, never a wall)."""
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            for s in range(min(cnt, 6)):
+                if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                    continue
+                if st.slot_has_damaging_pp(self.b, s):
+                    return True
+            return False
+        except Exception:
+            return True
+
+    def _party_gym_ready(self):
+        """Battle-readiness for a GYM push (a dense, no-Center gauntlet): no fainted mons, the ace
+        above half HP, and damaging PP somewhere in the party. A human ALWAYS taps the Center
+        before a gym — and gym cities always have one, so the heal is cheap and returns to the
+        pre-heal spot. Conservative on read errors (ready) — the gate detours, never walls."""
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            best_lv, best_frac = -1, 1.0
+            for s in range(min(cnt, 6)):
+                hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+                mx = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x58)
+                if hp <= 0:
+                    return False                       # a faint anywhere -> Center first (it's in town)
+                lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+                if lv > best_lv and mx > 0:
+                    best_lv, best_frac = lv, hp / mx
+            if best_frac < 0.5:
+                return False                           # the ace is half-dead -> Center first
+            return self._party_damaging_pp()
+        except Exception:
+            return True
+
     def _clear_gym_trainers(self, leader_front, max_rounds=10):
         """Beat EVERY junior trainer (re-scanning each round, since far ones are proximity-loaded
         and one may wander), THEN return so the caller engages the gated leader. General gym
-        mechanic - reusable for Surge/Erika/etc."""
+        mechanic - reusable for Surge/Erika/etc. Returns 'pp_famine' when a battle went stuck with
+        the party PP-dry (the erika_run2 wall) — the caller heals and re-takes the gym (beaten
+        juniors stay beaten in-game); None otherwise."""
         beaten = set()                                         # object indices already cleared
         for rnd in range(max_rounds):
             self.b.set_input_owner("agent")
@@ -2132,16 +2181,26 @@ class Campaign:
                 log(f"   GYM: engaging junior trainer obj{idx} at {T} (facing {facing})")
                 self._engage_trainer(T, facing)
                 if st.in_battle(self.b):
-                    log(f"   GYM: junior trainer -> {self.battle_runner()}")
+                    _jr = self.battle_runner()
+                    log(f"   GYM: junior trainer -> {_jr}")
                     self._drain_overworld(label="trainer")
+                    if _jr == "stuck" and not self._party_damaging_pp():
+                        log("   GYM: gauntlet PP FAMINE (stuck battle + no damaging PP anywhere) "
+                            "-> needs_heal (juniors stay beaten; we come back full)")
+                        return "pp_famine"
                 beaten.add(idx)                                # cleared (or unreachable) -> don't reloop
                 continue
             # none loaded -> advance toward the leader to load/trigger far trainers (LoS may fire)
             self.trav.travel(target_map=None, arrive_coord=leader_front,
                              max_steps=200, max_seconds=90)
             if st.in_battle(self.b):
-                log(f"   GYM: en-route LoS trainer -> {self.battle_runner()}")
+                _lr = self.battle_runner()
+                log(f"   GYM: en-route LoS trainer -> {_lr}")
                 self._drain_overworld(label="trainer")
+                if _lr == "stuck" and not self._party_damaging_pp():
+                    log("   GYM: gauntlet PP FAMINE (stuck battle + no damaging PP anywhere) "
+                        "-> needs_heal (juniors stay beaten; we come back full)")
+                    return "pp_famine"
                 nt = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
                 if nt:
                     px, py = tv.coords(self.b) or (0, 0)
@@ -2162,6 +2221,18 @@ class Campaign:
         gym = GYMS.get(name)
         if gym is None:
             log(f"   !! GYM: no spec for '{name}'"); return "stuck"
+        # HEAL-BEFORE-THE-GYM GATE (2026-07-07, erika_run2): she walked into Erika's gauntlet with
+        # two fainted mons and a PP-dry lead and status-moved her way to a 12-battle futility wall.
+        # A human ALWAYS taps the Center first — gym cities always have one and heal_at_center
+        # returns to the pre-heal spot. ONE attempt, never a loop: if the heal fails we still take
+        # the gym (the in-battle famine switch is the backstop).
+        if not self._party_gym_ready():
+            log("   GYM: party not battle-ready (faints / low ace HP / PP famine) -> Center first, "
+                "then the gym")
+            self.on_event("hold on — nobody walks into a gym half-dead. Center first, then we do "
+                          "this properly.", kind="gym", tier=2)
+            hr = self.heal_nearest()
+            log(f"   GYM: pre-gym heal -> {hr}")
         if gym.reserve:
             self._reserve_move_slots(gym.reserve)
             log(f"   GYM: reserved {gym.reserve} slot(s) for a level-up learn; moves now "
@@ -2192,7 +2263,8 @@ class Campaign:
                 if pr == "stuck":
                     return "stuck"
         # 1) BEAT THE JUNIOR TRAINERS FIRST (the leader is gated until they're all down)
-        self._clear_gym_trainers(gym.leader_front)
+        if self._clear_gym_trainers(gym.leader_front) == "pp_famine":
+            return "needs_heal"                                # heal + re-take (juniors stay beaten)
         # BLACKOUT during the juniors -> she whited out + respawned in the city PC (the map left the
         # gym interior). _clear_gym_trainers can't tell (no trainers load in the PC), so detect it here
         # and propagate -> the segment's blackout-recovery respawns + RE-RUNS the gym (beaten juniors
@@ -2231,6 +2303,18 @@ class Campaign:
             if res == "loss":
                 log(f"   GYM: lost to {name} (blackout) - caller recovers + retries the gym")
                 return "battle_loss"
+            # A STUCK leader fight with the battle STILL LIVE must never reach the award drain —
+            # erika_run2's award drain A-mashed the live battle's forced-switch party menu for 300
+            # steps ("Do what with this POKéMON?"). PP famine -> heal + re-take; anything else
+            # surfaces honestly (the roam loop's encounter hand-off re-enters the live fight).
+            if res == "stuck" and st.in_battle(self.b):
+                if not self._party_damaging_pp():
+                    log(f"   GYM: {name} fight STUCK on PP famine -> needs_heal (heal, come back, "
+                        f"re-take — juniors stay beaten)")
+                    return "needs_heal"
+                log(f"   !! GYM: {name} fight stuck with the battle still live (not PP) - "
+                    f"surfacing stuck, never draining a live battle")
+                return "stuck"
         # 3) AWARD (the climax): drive the badge + TM gift to a clean close at a WATCHABLE pace via
         # the general dialogue primitive. draining_award tells the soul-on render (play_live) to stop
         # polling/holding here so nothing competes with the drain. The proven brisk A-mash stays as a
@@ -5252,6 +5336,16 @@ class Campaign:
                     self.on_event(f"YES — we DID it! {ng['leader']} is DOWN. I was genuinely nervous about that "
                                   f"one and we pulled it off — badge number {nb}. okay. okay! onward.",
                                   kind="gym", tier=3)
+                elif out == "needs_heal":
+                    # PP FAMINE / battle-unready mid-gym (erika_run2): heal NOW at the city's own
+                    # Center, then the next tick re-picks head_to_gym (the RECALIBRATE nudge holds
+                    # the thread) and re-takes the gym — beaten juniors stay beaten in-game.
+                    self.on_event("we're running on empty — Center first, then we take this gym "
+                                  "properly.", kind="gym", tier=2)
+                    hr = self.heal_nearest()
+                    log(f"   [roam] gym needs_heal -> heal_nearest {hr} (next tick re-takes the gym; "
+                        f"juniors stay beaten)")
+                    return "ok" if hr == "ok" else "stuck"
                 elif out in ("battle_loss", "loss", "blackout"):
                     # PHASE 6 — the down-beat of the arc: a gym loss STINGS (and feeds the wall the next
                     # dread references). Tier-2 so it's felt, not swallowed.

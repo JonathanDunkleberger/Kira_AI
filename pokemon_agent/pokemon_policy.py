@@ -61,7 +61,12 @@ def choose_move(our_moves, enemy_types, our_hp_frac=1.0):
             best_i, best_score, best_eff = i, score, eff
     if best_i < 0:                       # no PP anywhere -> Struggle / first move
         return 0, "out of options (Struggle)", our_hp_frac < LOW_HP_FRAC
-    word = ("a super-effective hit" if best_eff >= 2 else
-            "a not-very-effective hit" if 0 < best_eff < 1 else
-            "no effect" if best_eff == 0 else "a solid hit")
+    if our_moves[best_i].get("power", 0) <= 0:
+        # Only status moves have PP left (or one is genuinely best) — never bill it as a "hit"
+        # (erika_run2 logged 'Growl - a solid hit' for hours while a 60/60 Gloom never moved).
+        word = "a status move (nothing damaging left)"
+    else:
+        word = ("a super-effective hit" if best_eff >= 2 else
+                "a not-very-effective hit" if 0 < best_eff < 1 else
+                "no effect" if best_eff == 0 else "a solid hit")
     return best_i, f"{our_moves[best_i]['name']} - {word}", our_hp_frac < LOW_HP_FRAC
