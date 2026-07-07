@@ -679,7 +679,13 @@ def main():
             return True
         return False
 
-    retreating = False
+    # NO retreat leg: the R22 gate's southbound exits (6-8,10) are beh-0 ARRIVAL
+    # ANCHORS the engine cannot fire (pret: only 0x6x-class behaviors warp), so the
+    # road home is closed to us. Instead, a low-lead VR entry is ACCEPTED: a wipe
+    # inside = free full heal at the Viridian center; Gary's var, the gauntlet and
+    # every switch var persist, so life 2 re-enters at ~100% with the puzzles
+    # ratcheted. Money halves per wipe — the E4 shopping plan is money-aware and
+    # still covers a full kit down to ~$20k.
     r23_logged = vr_logged = False
     while time.time() < deadline:
         if handle_interrupts():
@@ -691,29 +697,23 @@ def main():
             if lead_frac() < 0.9:
                 camp.heal_nearest()
                 continue
-            retreating = False
             if not cross_edge("west", "to-r22") and wedge("viridian-west"):
                 return 1
         elif here == R22:
-            # eastward = home to heal; westward crosses Gary's trigger col 33
-            # (the scene + battle fire mid-path; handle_interrupts owns them;
-            # a loss whiteouts and this loop recovers)
-            if retreating:
-                if not cross_edge("east", "r22-home") and wedge("r22-home"):
-                    return 1
-            elif not go_warp((8, 5), GATE, "gate-south"):
+            # westward crosses Gary's trigger col 33 (the scene + battle fire
+            # mid-path; handle_interrupts owns them; a loss whiteouts and this
+            # loop recovers via the center)
+            if not go_warp((8, 5), GATE, "gate-south"):
                 if tuple(tv.map_id(b)) == R22 and wedge("gate-south"):
                     snap("gate_fail")
                     return 1
         elif here == GATE:
-            dest = R22 if retreating else R23
-            cands = [tuple(xy) for xy, d, _w in tv.read_warps(b) if tuple(d) == dest]
+            cands = [tuple(xy) for xy, d, _w in tv.read_warps(b) if tuple(d) == R23]
             if not cands:
-                L(f"!! no {dest} warp inside the gate — abort")
+                L("!! no R23 warp inside the gate — abort")
                 return 1
-            # north side = lowest y; south side = highest y
-            cands.sort(key=lambda t: t[1], reverse=retreating)
-            if not go_warp(cands[0], dest, "gate-thru"):
+            cands.sort(key=lambda t: t[1])            # north side = lowest y
+            if not go_warp(cands[0], R23, "gate-thru"):
                 drain()
                 if wedge("gate-thru", 6):
                     return 1
@@ -722,26 +722,10 @@ def main():
             if cy <= 30:                              # north side (past VR)
                 if not cross_edge("north", "to-indigo") and wedge("r23-north"):
                     return 1
-            elif lead_frac() < 0.5 and not retreating:
-                L(f"   [retreat] lead {lead_frac():.0%} at R23 south — healing at "
-                  f"Viridian before the Road (battle-free road home)")
-                retreating = True
-            elif retreating:
-                # the gate pair is (8,153) arrow-warp + (9,154) PHANTOM anchor on a
-                # col-1 tile — only walkable warp tiles are real entries
-                g_r23 = tv.Grid(b)
-                gates = [tuple(xy) for xy, d, _w in tv.read_warps(b)
-                         if tuple(d) == GATE
-                         and g_r23.col.get((xy[0] + tv.MAP_OFFSET,
-                                            xy[1] + tv.MAP_OFFSET), 1) == 0]
-                gates.sort(key=lambda t: t[1], reverse=True)
-                if not gates or not go_warp(gates[0], GATE, "r23-to-gate"):
-                    if wedge("r23-to-gate"):
-                        return 1
             else:
                 if not r23_logged:
                     L(f"   ROUTE 23 @ {tv.coords(b)} after {n_battles[0]} battles "
-                      f"(Gary handled en route)")
+                      f"(Gary handled en route) [lead {lead_frac():.0%}]")
                     _stage_save("r23_south")
                     r23_logged = True
                 if not go_warp((5, 28), VR1F, "vr-door") and wedge("vr-door"):
