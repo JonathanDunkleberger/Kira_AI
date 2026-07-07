@@ -19,9 +19,19 @@ Cinnabar Island. Swimmers + Tentacool ride the normal BattleAgent.
 Success = arrival on a NEW city map west of Route 20 with a Pokemon Center (Cinnabar),
 heal, bank -> banked_CINNABAR (label cinnabar_reach).
 
-STATUS: DRAFT — written night shift #2 while the Safari strike ran; UNRUN until the
-safari_hms + surf_taught banks land. Expect first-run walls at: the Fuchsia south-edge
-band, the R19->R20 west band, Seafoam strip re-mounts.
+STATUS after runs 1-7 (night shift 2) — PROVEN: the Surf MOUNT actuation (A-prompt, one
+try), fast surf glide (46 tiles/15s), the R19->R20 offset-40 west crossing, reef-aware
+sea BFS. ⛔ THE ROUTE-20 TRUTH (dual-flood + pret): R20's surface is SEVERED at Seafoam —
+east sea (x52..120) and west sea (x0..79) interleave with ZERO adjacency; the crossing is
+the SEAFOAM INTERIOR: R20 (60,8) [east island] -> 1F arrive (6,21) -> east-upper room ->
+ladder (30,8) -> B1F (29,8) ... deeper floors (B1F flood from (29,8) is 66 tiles and does
+NOT reach the (28,19) return ladder — the chain dives B2F+) ... -> 1F east-lower (28,19)
+-> exit (32,21) -> R20 (72,14) [WEST sea component] -> west -> Cinnabar (west connection
+offset 0). NEXT BUILD: port recon_sabrina.pad_plan (warps-as-edges meta-BFS) over the
+Seafoam floors — ladders are pads; all warp pairs billed in G:\temp\longrun\pret\.
+ALTERNATIVE ROAD (billed): Pallet -> Route 21 south is Seafoam-free, but the learned
+world graph has NO edges at Pallet/Viridian/Pewter (visited pre-edge-machinery) and the
+western Cycling Road needs a bike — overland billing is its own project.
 
 RUN: .venv\\Scripts\\python.exe -u pokemon_agent\\recon_cinnabar.py
 """
@@ -160,6 +170,14 @@ def main():
 
     def sea_ok(g, wset):
         def ok(sx, sy):
+            # water is a road ONLY at collision 0 (run4 truth: R20 has col-1 REEF water
+            # (116,5) — behavior 0x15 like the open sea, but the game blocks it; the
+            # wset-OR admitted it and she tapped the reef forever)
+            bx, by = sx + tv.MAP_OFFSET, sy + tv.MAP_OFFSET
+            if not (0 <= bx < g.w and 0 <= by < g.h):
+                return False
+            if g.col.get((bx, by), 1) != 0:
+                return False
             return g.walkable(sx, sy) or (sx, sy) in wset
         return ok
 
@@ -172,6 +190,8 @@ def main():
     def mount(face_key):
         """Face the water, A -> 'want to SURF?' YES (default) -> she hops on.
         Verified by the BEHAVIORAL read: coord lands in the water set."""
+        if on_water():
+            return True                          # already surfing — never re-prompt
         for attempt in range(4):
             b.press(face_key, 8, 10, camp.render, owner="agent")
             b.press("A", 8, 12, camp.render, owner="agent")
@@ -191,18 +211,32 @@ def main():
         L(f"!! [surf] mount failed at {tv.coords(b)} facing {face_key}")
         return False
 
-    def step_to(tile):
-        """One-tile step with the tap-turn law + the mount toll at a land->water edge."""
+    def step_to(tile, wset=None):
+        """One-tile step, tap-turn aware, no nudge (the safari_step pattern — run1 truth:
+        camp._step_to's verify window flounders on surf movement, 22s/tile) + the mount
+        toll at a land->water edge."""
         cur = tuple(tv.coords(b) or (0, 0))
         d = (tile[0] - cur[0], tile[1] - cur[1])
+        if d in ((2, 0), (-2, 0), (0, 2), (0, -2)):
+            d = (d[0] // 2, d[1] // 2)           # ledge hop: one press, the game jumps 2
         key = KEY_OF.get(d)
         if key is None:
             return camp._step_to(tile)
-        g = tv.Grid(b)
-        wset = water_save(g)
-        if tile in wset and cur not in wset:
+        if wset is None:
+            wset = water_save(tv.Grid(b))
+        if tile in wset and cur not in wset and not on_water():
             return mount(key)                    # the toll: A-prompt, not a step
-        return camp._step_to(tile)
+        for _attempt in range(3):                # tap 1 may only TURN her
+            b.press(key, 8, 6, camp.render, owner="agent")
+            for _ in range(50):                  # surf glide / grass settle
+                b.run_frame()
+                if tuple(tv.coords(b) or ()) == tile:
+                    break
+            if fight_open() or dd_box(b):
+                return True                      # caller's interrupt handler owns it
+            if tuple(tv.coords(b) or ()) == tile:
+                return True
+        return False
 
     def sea_walk(goal_test, label, tries=10):
         """BFS over land+water, execute with step_to. Battles/boxes don't spend tries."""
@@ -223,27 +257,71 @@ def main():
             p = tv.bfs(g, cur, goal_test,
                        walkable=lambda sx, sy: ok0(sx, sy)
                        and (sx, sy) not in wts and (sx, sy) not in npcs)
+            L(f"   [{label}] replan at {cur} (len {len(p) if p else 0}, budget {budget}, "
+              f"water={cur in wset}, head {[tuple(x) for x in (p or [])[1:4]]})")
             if not p:
-                L(f"   [{label}] no sea path from {cur}")
+                L(f"   [{label}] no sea path from {cur} — grid {g.w}x{g.h} "
+                  f"sx_hi={g.sx_hi} sy_hi={g.sy_hi}")
+                for dy in (-1, 0, 1):
+                    row = []
+                    for dx in (-2, -1, 0, 1, 2):
+                        sx, sy = cur[0] + dx, cur[1] + dy
+                        bx, by = sx + tv.MAP_OFFSET, sy + tv.MAP_OFFSET
+                        c = g.col.get((bx, by), '?')
+                        row.append(f"({sx},{sy})c{c}{'W' if (sx, sy) in wset else ''}")
+                    L(f"      {' '.join(row)}")
+                snap(f"noseapath_{cur[0]}_{cur[1]}")
                 return False
             m0 = tuple(tv.map_id(b))
             for t in p[1:]:
                 if handle_interrupts():
                     budget += 1
                     break
-                if not step_to(tuple(t)):
+                if not step_to(tuple(t), wset):
+                    L(f"   [{label}] step blocked {tuple(tv.coords(b) or ())} -> {tuple(t)}")
                     break
                 if tuple(tv.map_id(b)) != m0:
                     return True                  # crossed an edge mid-walk — re-dispatch
             if goal_test(tuple(tv.coords(b) or ())):
                 return True
+            if tuple(tv.coords(b) or ()) != cur:
+                budget += 1                      # movement is progress, never a spent try
         return goal_test(tuple(tv.coords(b) or ()))
+
+    def _s32(v):
+        return v - (1 << 32) if v >= (1 << 31) else v
+
+    DIRN_OF = {"south": 1, "north": 2, "west": 3, "east": 4}
+
+    def connections():
+        """Live MapConnection table (recon_map_connections struct truth):
+        gMapHeader+0x0C -> {s32 count, MapConnection*}; each 0xC: dir u8, offset s32,
+        group u8, num u8. Returns {direction_code: [offset, ...]}."""
+        out = {}
+        hdr = b.rd32(tv.GMAPHEADER + 0x0C)
+        if not hdr or hdr < 0x02000000:
+            return out
+        n = _s32(b.rd32(hdr))
+        arr = b.rd32(hdr + 4)
+        if not (0 < n < 16) or arr < 0x02000000:
+            return out
+        for i in range(n):
+            c = arr + i * 0xC
+            out.setdefault(b.rd8(c), []).append(_s32(b.rd32(c + 4)))
+        return out
 
     def cross_edge(direction, label):
         """Cross a map connection: sea_walk to the extreme row/col in `direction`, then
-        hold the key until the map id flips (connection bands are partial — if the hold
-        doesn't cross, slide along the edge and retry)."""
+        hold the key until the map id flips. THE OFFSET TRUTH (run2: R19->R20 is a WEST
+        connection at offset 40 — the band only exists at y>=40; probing y=10 can never
+        fire): filter band tiles by the live connection offset, and fast-fail when the
+        map has no connection in that direction at all."""
         m0 = tuple(tv.map_id(b))
+        conns = connections().get(DIRN_OF[direction])
+        if not conns:
+            L(f"   [{label}] no {direction} connection on {m0} — skip")
+            return False
+        off = conns[0]
         key = {"south": "DOWN", "north": "UP", "west": "LEFT", "east": "RIGHT"}[direction]
         for round_ in range(6):
             g = tv.Grid(b)
@@ -251,18 +329,24 @@ def main():
             ok0 = sea_ok(g, wset)
             if direction in ("south", "north"):
                 extreme = g.sy_hi if direction == "south" else 0
-                band = [(x, extreme) for x in range(g.sx_lo, g.sx_hi + 1) if ok0(x, extreme)]
+                band = [(x, extreme) for x in range(max(g.sx_lo, off), g.sx_hi + 1)
+                        if ok0(x, extreme)]
             else:
                 extreme = g.sx_hi if direction == "east" else 0
-                band = [(extreme, y) for y in range(g.sy_lo, g.sy_hi + 1) if ok0(extreme, y)]
+                band = [(extreme, y) for y in range(max(g.sy_lo, off), g.sy_hi + 1)
+                        if ok0(extreme, y)]
             if not band:
                 L(f"!! [{label}] no {direction}-edge band on {m0}")
-                return False
+                for _ in range(120):
+                    b.run_frame()    # transition settle before the next round
+                continue
             cur = tuple(tv.coords(b) or (0, 0))
             band.sort(key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]) + round_ * 7)
             tgt = band[min(round_, len(band) - 1)]
             if not sea_walk(lambda c, t=tgt: c == t, f"{label}-band"):
-                continue
+                for _ in range(120):
+                    b.run_frame()    # settle: a failed round right after a map change
+                continue             # usually means the grid was mid-stitch
             for _hold in range(4):
                 cur2 = tuple(tv.coords(b) or (0, 0))
                 nxt = {"south": (cur2[0], cur2[1] + 1), "north": (cur2[0], cur2[1] - 1),
@@ -312,6 +396,9 @@ def main():
             continue
         if here != seen_maps[-1]:
             seen_maps.append(here)
+            for _ in range(180):     # seamless edge SCROLL: the backup stitches for a
+                b.run_frame()        # while after the map id flips (run5: BFS read a
+            #                          half-built grid 0.1s post-cross and found nothing)
             _stage_save(f"map_{here[0]}_{here[1]}")
         # arrival heuristic: a NEW map after >=2 water crossings that is NOT a route-sized
         # sliver — confirmed by a Center door on the map (Cinnabar has one; routes don't).
