@@ -3659,7 +3659,35 @@ class Campaign:
                     pass
                 log(f"   [roam] questline: room re-sweep {sweeps + 1}/2 (scripts change who's here)")
                 return "questline_resweep"
-            # nobody left to talk + the flag didn't set → wrong building; release the 'stay inside' marker
+            # GO DEEPER (2026-07-06, the SHIP class): a multi-room quest building (S.S. Anne:
+            # exterior deck → gangway → 1F corridor → 2F → the captain's office) has the target
+            # several WARPS in — "nobody here" means the NEXT room, not the wrong building. Enter an
+            # untried warp on THIS map that does NOT lead back to the overworld, deepest-first
+            # (farthest from where we stand). The entered-doors set makes the tour FINITE; cabin
+            # trainers met on the way are the intended XP.
+            mp0 = tuple(tv.map_id(self.b))
+            here0 = tuple(tv.coords(self.b) or (0, 0))
+            ws0 = tv.read_warps(self.b)
+            cand = [tuple(xy) for (xy, dest, _wid) in ws0
+                    if dest[0] != 3 and (mp0, tuple(xy)) not in self._ql_entered_doors]
+            cand.sort(key=lambda t: -(abs(t[0] - here0[0]) + abs(t[1] - here0[1])))
+            for wt in cand:
+                if self._tile_behavior(*wt) in self._WARP_ENTRY:
+                    self._enter_directional_warp(wt)
+                if tuple(tv.map_id(self.b)) == mp0:
+                    self.enter_warp(pick=wt, budget_s=180)
+                if tuple(tv.map_id(self.b)) != mp0:
+                    self._ql_entered_doors.add((mp0, wt))
+                    self._ql_room_sweeps = 0
+                    try:
+                        getattr(self, "_ql_bg_done", set()).clear()
+                        self._talked_npcs.get(tuple(tv.map_id(self.b)), set()).clear()
+                    except Exception:
+                        pass
+                    log(f"   [roam] 🚪 QUESTLINE DEEPER: {mp0} -> {tv.map_id(self.b)} via warp {wt} "
+                        f"(the target's further in)")
+                    return "questline_deeper"
+            # nobody left to talk + no deeper rooms → wrong building; release the 'stay inside' marker
             # so the blackout-recovery can exit her, and keep looking at the next candidate building.
             log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
             self._ql_room_sweeps = 0

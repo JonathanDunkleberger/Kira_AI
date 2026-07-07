@@ -26,6 +26,7 @@ RUN:  python pokemon_agent/recon_longrun.py [boot_state] [max_minutes]
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
 
@@ -92,6 +93,24 @@ def main():
     max_minutes = float(sys.argv[2]) if len(sys.argv) > 2 else 20.0
     os.makedirs(STAGE, exist_ok=True)
     # fresh stage each run
+    # SINGLE-RUN LAW (2026-07-06, Jonny's directive): ONE live look-ahead at a time — a new launch
+    # REAPS its predecessor first. Zombie runs kept farming after their session died, wrote stale
+    # banks, and their watchers ghost-notified later sessions (the false-"Cut is live" incident).
+    pidf = os.path.join(SCRATCH, "longrun.pid")
+    try:
+        if os.path.exists(pidf):
+            old = int(open(pidf).read().strip() or 0)
+            if old and old != os.getpid():
+                chk = subprocess.run(["tasklist", "/FI", f"PID eq {old}"],
+                                     capture_output=True, text=True).stdout
+                if str(old) in chk and "python" in chk.lower():
+                    subprocess.run(["taskkill", "/F", "/PID", str(old)], capture_output=True)
+                    print(f"[reap] SINGLE-RUN LAW: killed predecessor look-ahead PID {old}", flush=True)
+        with open(pidf, "w") as pf:
+            pf.write(str(os.getpid()))
+    except Exception as _re:
+        print(f"[reap] predecessor check failed: {_re}", flush=True)
+
     for f_ in os.listdir(STAGE):
         try:
             os.remove(os.path.join(STAGE, f_))
