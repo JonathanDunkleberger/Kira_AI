@@ -3232,6 +3232,15 @@ class Campaign:
                 if tv.coords(self.b) != cur:
                     moved = True
                     break
+                # an 8-frame tap that didn't move us is usually a TURN (she wasn't facing
+                # that way) — NOT a wall. Tap the SAME key once more (now facing → exactly
+                # one step; a 26-frame hold walks TWO tiles and overshoots, trace-proven);
+                # only then judge the tile. The blind RIGHT-nudge below otherwise undoes
+                # the turn and OSCILLATES forever (the Silph "elevation seal" ghost).
+                self.b.press(key, 8, 8, self.render, owner="agent")
+                if tv.coords(self.b) != cur:
+                    moved = True
+                    break
             if not moved:
                 self.b.press("RIGHT", 8, 8, self.render, owner="agent")
         return tv.coords(self.b) == tile
