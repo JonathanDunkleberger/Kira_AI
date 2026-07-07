@@ -158,11 +158,16 @@ def main():
                     b.run_frame()
 
     def goto(tile, label):
-        r = camp.trav.travel(target_map=None, arrive_coord=tile, max_steps=250, max_seconds=120)
+        # NEVER path through a warp tile (strike5: the 5F ball approach BFS'd across the
+        # teleport pad -> silently rode it to 9F, twice) — the Mt Moon avoid= mechanism.
+        av = {tuple(w[0]) for w in tv.read_warps(b)} - {tile}
+        r = camp.trav.travel(target_map=None, arrive_coord=tile, max_steps=250, max_seconds=120,
+                             avoid=av)
         if st.in_battle(b):
             L(f"   [{label}] battle en route -> {camp.battle_runner()}")
             drain()
-            r = camp.trav.travel(target_map=None, arrive_coord=tile, max_steps=250, max_seconds=120)
+            r = camp.trav.travel(target_map=None, arrive_coord=tile, max_steps=250,
+                                 max_seconds=120, avoid=av)
         if r != "arrived" and not camp._step_to(tile):
             return False
         return tuple(tv.coords(b) or ()) == tile
@@ -203,6 +208,18 @@ def main():
             L(f"!! [{label}] no warp on {m0} leads to {dest}")
             return False
         cur = tuple(tv.coords(b) or (0, 0))
+        if cur in cands:
+            # standing ON the pad/warp we need — it won't re-fire underfoot (strike5's
+            # back-to-5f wedge on the 9F return pad). Step off to a safe neighbor first;
+            # enter_warp then walks back on and it fires on contact.
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+            g6 = tv.Grid(b)
+            for nb in ((cur[0], cur[1] + 1), (cur[0] + 1, cur[1]),
+                       (cur[0] - 1, cur[1]), (cur[0], cur[1] - 1)):
+                if nb not in wts and g6.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
+                    camp._step_to(nb)
+                    cur = tuple(tv.coords(b) or (0, 0))
+                    break
         cands.sort(key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
         for wt in cands:
             r = camp.enter_warp(pick=wt)
@@ -314,14 +331,21 @@ def main():
             continue
         idx = SILPH.index(here)
 
-        # standing ON the arrival stair re-fires it mid-pathfind (strike2: she silently dropped
-        # back to 4F and A-pressed empty tiles) — step off to a non-warp neighbor first
+        # standing ON an arrival STAIR re-fires it mid-pathfind (strike2: she silently dropped
+        # back to 4F and A-pressed empty tiles) — step off to a non-warp neighbor first.
+        # NEVER step in the warp's own fire direction (strike3/4 lesson, probe-proven: the 1F
+        # entrance mat is 0x65 DOWN-arrow; the old south-first neighbor order pressed DOWN on
+        # it = out the front door = the lobby<->street livelock).
         cur = tuple(tv.coords(b) or (0, 0))
         warp_tiles = {tuple(w[0]) for w in tv.read_warps(b)}
-        if cur in warp_tiles:
+        ent = camp._WARP_ENTRY.get(camp._tile_behavior(*cur)) if cur in warp_tiles else None
+        if ent is not None:
+            fire = ent[1]
             g5 = tv.Grid(b)
             for nb in ((cur[0], cur[1] + 1), (cur[0] + 1, cur[1]),
                        (cur[0] - 1, cur[1]), (cur[0], cur[1] - 1)):
+                if (nb[0] - cur[0], nb[1] - cur[1]) == fire:
+                    continue
                 if nb not in warp_tiles and g5.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
                     camp._step_to(nb)
                     break
@@ -349,8 +373,11 @@ def main():
                     return 1
                 _stage_save("card_key")
                 continue
-            nxt = SILPH[idx + 1] if idx + 1 < len(SILPH) else None
-            if nxt and not enter_to(nxt, f"floor{idx + 2}-up"):
+            # Phase A's goal is 5F — DESCEND when above it (strike5: a pad ride dropped her on
+            # 9F and the climb-only dispatch marched keyless to 11F, a silent dead end).
+            step_a = 1 if idx < 4 else -1
+            nxt = SILPH[idx + step_a] if 0 <= idx + step_a < len(SILPH) else None
+            if nxt and not enter_to(nxt, f"floor{idx + 1 + step_a}-{'up' if step_a > 0 else 'down'}"):
                 if tuple(tv.map_id(b)) == here:
                     wedges[here] = wedges.get(here, 0) + 1
                     if wedges[here] >= 3:

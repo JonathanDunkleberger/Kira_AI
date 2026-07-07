@@ -4260,11 +4260,16 @@ class Campaign:
             for wt in cand:
                 # spawning ON a warp tile doesn't re-fire it — step OFF first so the entry ritual
                 # (approach + step-in) has somewhere to approach from (run-13: stalled standing on
-                # the hold's own exit warp).
+                # the hold's own exit warp). NEVER step off in a directional tile's own fire
+                # direction — pressing it fires the warp (silph strike4, probe-proven: the 1F
+                # entrance mat is 0x65 DOWN-arrow; south-first stepped her out the front door).
                 if tuple(tv.coords(self.b) or ()) == wt:
                     g3 = tv.Grid(self.b)
+                    _fire = (self._WARP_ENTRY.get(self._tile_behavior(*wt)) or (None, None))[1]
                     for nb in ((wt[0], wt[1] + 1), (wt[0], wt[1] - 1),
                                (wt[0] + 1, wt[1]), (wt[0] - 1, wt[1])):
+                        if _fire is not None and (nb[0] - wt[0], nb[1] - wt[1]) == _fire:
+                            continue
                         if g3.walkable(nb[0] + tv.MAP_OFFSET, nb[1] + tv.MAP_OFFSET):
                             self.trav.travel(target_map=None, arrive_coord=nb,
                                              max_steps=10, max_seconds=15)
