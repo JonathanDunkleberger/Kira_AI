@@ -1057,6 +1057,20 @@ class Campaign:
                     and self._enter_directional_warp(door)):
                 log(f"   WARPED {before} -> {tv.map_id(self.b)} via directional door {door}")
                 return "warped"
+        # MULTI-TILE MAT ROW (run-11 hut wedge): the warp TABLE lists side tiles ((5,8)/(7,8) →
+        # overworld) whose behavior is 0x00 — only the CENTER mat carries the 0x65 arrow that
+        # actually fires. A pick aimed at a side tile fails every ritual. Fall back to the
+        # actuatable door tiles ADJACENT to the pick (never far ones — those lead elsewhere).
+        if pick is not None:
+            near = sorted((d for d in doors
+                           if d != pick and abs(d[0] - pick[0]) + abs(d[1] - pick[1]) <= 2),
+                          key=lambda d: abs(d[0] - pick[0]) + abs(d[1] - pick[1]))
+            for door in near:
+                log(f"   pick {pick} failed — trying adjacent actuatable door {door} (mat-row)")
+                if (self._tile_behavior(*door) in self._WARP_ENTRY
+                        and self._enter_directional_warp(door)):
+                    log(f"   WARPED {before} -> {tv.map_id(self.b)} via mat-row door {door}")
+                    return "warped"
         log(f"   no reachable door warped (entry geometry?) - LOUD")
         return "no_warp"
 

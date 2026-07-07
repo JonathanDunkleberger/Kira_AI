@@ -201,6 +201,35 @@ def read_bg_events(b):
         return []
 
 
+def read_object_templates(b):
+    """[(x, y), graphics_id, present] for every object-event TEMPLATE on the current map
+    (MapHeader.events count @+0, ObjectEventTemplate* @+4, stride 0x18; SAVE coords like
+    read_warps). The live gObjectEvents array (_npc_tiles) is DISTANCE-CULLED — far objects
+    despawn — so whole-map planners (the spin-tile glide BFS) route through tiles where an
+    unspawned ITEM BALL will be standing by the time she arrives (hideout-B2F Moon-Stone
+    class, 2026-07-07). present=False when the template's spawn flag is SET (ball collected /
+    one-time NPC gone) — that tile is free. Wanderers' templates hold the SPAWN tile, not the
+    live one — union with _npc_tiles for planning. Pure read."""
+    try:
+        ev = b.rd32(GMAPHEADER + 0x04)
+        if not _valid_ptr(ev):
+            return []
+        n = b.rd8(ev)                             # objectEventCount
+        arr = b.rd32(ev + 0x04)                   # ObjectEventTemplate* (ROM)
+        if not _valid_ptr(arr) or not (0 < n <= 64):
+            return []
+        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+        out = []
+        for i in range(n):
+            t = arr + i * 0x18
+            flag = b.rd16(t + 20)
+            gone = bool(flag) and bool(b.rd8(sb1 + 0x0EE0 + (flag >> 3)) & (1 << (flag & 7)))
+            out.append(((b.rds16(t + 4), b.rds16(t + 6)), b.rd8(t + 1), not gone))
+        return out
+    except Exception:
+        return []
+
+
 # ── collision grid (cached per map load) ─────────────────────────────────────
 class Grid:
     """Snapshot of the current map's collision, indexed in SAVE coordinates.

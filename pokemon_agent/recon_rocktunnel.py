@@ -53,15 +53,20 @@ FWD_LEGS = {(3, 29): ("west", (3, 5)), (3, 5): ("north", (3, 24)), (3, 24): ("pa
 
 
 
-def cross_warp_maze(b, camp, L, m0, budget_s=900, stage_fail=None):
-    """Destination-aware warp-maze crossing (Diglett's / Rock Tunnel class): exit = an
-    overworld-dest warp TILE we haven't stood on (handles both-mouths-same-dest); else the
-    farthest unvisited interior warp; unreachable targets are marked and skipped (partitioned
-    floors); door mats get the step-through nudge. Returns True when out on the overworld."""
+def cross_warp_maze(b, camp, L, m0, budget_s=900):
+    """Warp-maze crossing as a DFS over ROOM SECTIONS (Rock Tunnel class: partitioned floors,
+    both mouths dest the same overworld map).
+      - reachability is tested by GRID BFS from the current tile (no wasted walk attempts, and
+        it is SECTION-relative — the run-3 killer was a global 'unreachable' mark: the south
+        door, dead from the entry section, was never retried from the section that reaches it);
+      - `rode` marks warps ridden FORWARD (cycle guard); a dead-end section backtracks by
+        re-riding the warp we arrived on;
+      - walking to a warp AVOIDS the other warp tiles (the Mt Moon walk-through-fires trap);
+      - door mats get the step-through nudge. True when out on the overworld (≠ m0 preferred).
+    """
     import time as _t
     t0 = _t.time()
-    visited = set()
-    fail_streak = 0
+    rode = set()
     while tuple(tv.map_id(b))[0] != 3:
         if _t.time() - t0 > budget_s:
             L(f"!! maze crossing TIMEOUT at {tv.map_id(b)}")
@@ -72,28 +77,56 @@ def cross_warp_maze(b, camp, L, m0, budget_s=900, stage_fail=None):
         if not warps:
             L(f"!! room {mid} shows no warps — stuck")
             return False
-        visited.add((mid, pos))
+        g = tv.Grid(b)
+        others = [w for (w, d) in warps if w != pos]
+
+        def _reachable(w_):
+            return bool(tv.bfs(g, pos, lambda t, ww=w_: t == ww,
+                               walkable=lambda sx, sy: g.walkable(sx, sy)
+                               and ((sx, sy) == w_ or (sx, sy) not in others or (sx, sy) == pos)))
+
+        reach = [w for w in others if _reachable(w)]
         dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
-        outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0 and (mid, w_) not in visited
-                and w_ != pos]
-        if not outs:                                     # both-mouths-same-dest fallback
-            outs = [w_ for (w_, d) in warps if d[0] == 3 and (mid, w_) not in visited and w_ != pos]
-        if outs:
-            far = min(outs, key=dist)
-            L(f"room {mid}: at {pos}, trying EXIT door {far} (dest overworld) of {warps}")
+        exits = [w for (w, d) in warps if d[0] == 3 and d != m0
+                 and w in reach and (mid, w) not in rode]
+        if not exits:
+            exits = [w for (w, d) in warps if d[0] == 3 and w in reach
+                     and (mid, w) not in rode and w != pos]
+        backtrack = False
+        if exits:
+            far = min(exits, key=dist)
+            L(f"room {mid}: at {pos}, EXIT door {far} reachable (of {warps})")
         else:
-            fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
-            cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
-            if not cands:
-                L(f"!! room {mid}: no warp candidates left")
+            fresh = [w for w in reach if (mid, w) not in rode]
+            if fresh:
+                far = max(fresh, key=dist)
+                L(f"room {mid}: at {pos}, riding fresh warp {far} (reach={reach})")
+            elif any(w == pos for (w, d) in warps):
+                far = pos
+                backtrack = True
+                L(f"room {mid}: section exhausted — BACKTRACKING via the arrival warp {pos}")
+            else:
+                L(f"!! room {mid}: section exhausted and no arrival warp to backtrack on")
                 return False
-            far = max(cands, key=dist)
-            L(f"room {mid}: at {pos}, heading to warp {far} (of {warps}; fresh={fresh})")
-        visited.add((mid, far))
+        if not backtrack:
+            rode.add((mid, far))
         before = mid
-        camp.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240)
-        if tuple(tv.map_id(b)) == before:
-            camp.enter_warp(pick=far)
+        if backtrack:
+            # step OFF then back ON to re-fire the ladder under our feet
+            for d_ in ("UP", "DOWN", "LEFT", "RIGHT"):
+                b.press(d_, 10, 6, lambda: None, owner="agent")
+                for _f in range(30):
+                    b.run_frame()
+                if tuple(tv.coords(b)) != pos:
+                    break
+            camp.trav.travel(target_map=None, arrive_coord=pos, max_steps=30)
+            if tuple(tv.map_id(b)) == before:
+                camp.enter_warp(pick=pos)
+        else:
+            camp.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240,
+                             avoid=[w for w in others if w != far])
+            if tuple(tv.map_id(b)) == before:
+                camp.enter_warp(pick=far)
         if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
             for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):   # door mats fire on the crossing step
                 b.press(d_, 10, 6, lambda: None, owner="agent")
@@ -103,16 +136,8 @@ def cross_warp_maze(b, camp, L, m0, budget_s=900, stage_fail=None):
                     break
                 if tuple(tv.coords(b)) != far:
                     camp.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
-        if tuple(tv.map_id(b)) == before:
-            visited.add((before, far))
-            fail_streak += 1
-            L(f"room {before}: warp {far} unreachable/didn't fire — marked, trying another "
-              f"(streak {fail_streak})")
-            if fail_streak >= 6:
-                L("!! six dead warp targets in a row")
-                return False
-        else:
-            fail_streak = 0
+        if tuple(tv.map_id(b)) == before and not backtrack:
+            L(f"room {before}: warp {far} didn't fire despite reachability — marked ridden, next")
     return True
 
 

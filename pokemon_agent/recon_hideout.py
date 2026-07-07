@@ -31,6 +31,7 @@ from battle_agent import BattleAgent  # noqa: E402
 from campaign import Campaign        # noqa: E402
 import campaign as C                 # noqa: E402
 from dialogue_drive import box_open as dd_box  # noqa: E402
+from spin_nav import SpinNav         # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 CANON = os.path.join(_HERE, "states", "campaign")
@@ -169,132 +170,10 @@ def main():
                 break
         return out
 
-    # ── SPIN-TILE SLIDE CROSSER (B3F class; pret metatile_behaviors.h ground truth) ────────────
-    # 0x54-0x57 = MB_SPIN_RIGHT/LEFT/UP/DOWN (forced glide, redirected by each spinner crossed),
-    # 0x58 = MB_STOP_SPINNING (rest dot). Travel's BFS treats spinners as plain floor, so its
-    # plans diverge the instant she touches one (the position-loop). Here: simulate every glide
-    # deterministically, BFS over REST tiles with glide edges, execute press-by-press.
-    SPIN = {0x54: (1, 0), 0x55: (-1, 0), 0x56: (0, -1), 0x57: (0, 1)}
-
-    def spin_cross(target_pred, label, rounds=3, node_ok=None):
-        for _round in range(rounds):
-            if _spin_cross_once(target_pred, f"{label}#{_round + 1}", node_ok=node_ok):
-                return True
-            if tuple(tv.coords(b) or ()) and target_pred(tuple(tv.coords(b))):
-                return True
-        return False
-
-    def _spin_cross_once(target_pred, label, max_hops=60, node_ok=None):
-        g = tv.Grid(b)
-        npc = set(camp.trav._npc_tiles())      # live NPCs block glides (a grunt IS a wall here)
-        # playable dims (BACKUP_LAYOUT includes the +14 border) — Grid reads WRAP at the edges,
-        # which planned a LEFT glide off x=0 (hideout7)
-        w_play = b.rd32(tv.BACKUP_LAYOUT) - 14
-        h_play = b.rd32(tv.BACKUP_LAYOUT + 4) - 14
-
-        def in_bounds(x, y):
-            return 0 <= x < w_play and 0 <= y < h_play
-
-        def bh(t):
-            return camp._tile_behavior(*t)
-
-        def glide(frm, d):
-            """One press from `frm` moving `d`. Mechanics (hideout3 ground truth): stepping onto
-            a spinner starts a SLIDE; while sliding, spinners redirect, 0x58 stop-dots stop, and
-            PLAIN floor does NOT stop (momentum carries) — only a wall or a dot ends it. A press
-            while standing ON a spinner resumes that spinner's own direction."""
-            x, y = frm
-            dx, dy = d
-            sliding = False
-            v0 = bh(frm)
-            if v0 in SPIN:
-                dx, dy = SPIN[v0]
-                sliding = True
-            for _ in range(300):
-                nx, ny = x + dx, y + dy
-                if not in_bounds(nx, ny) or not g.walkable(nx, ny) or (nx, ny) in npc:
-                    return (x, y) if (x, y) != frm else None
-                x, y = nx, ny
-                v = bh((x, y))
-                if v in SPIN:
-                    dx, dy = SPIN[v]
-                    sliding = True
-                    continue
-                if v == 0x58 or not sliding:
-                    return (x, y)
-                # plain floor mid-slide: momentum carries — keep going
-            return (x, y)
-
-        last = tuple(tv.coords(b))         # settle any in-flight slide before planning
-        still = 0
-        for _ in range(300):
-            b.run_frame()
-            cur = tuple(tv.coords(b))
-            if cur == last:
-                still += 1
-                if still >= 40:
-                    break
-            else:
-                last, still = cur, 0
-        start = tuple(tv.coords(b))
-        from collections import deque
-        prev = {start: None}
-        q = deque([start])
-        goal = None
-        while q:
-            cur = q.popleft()
-            if target_pred(cur):
-                goal = cur
-                break
-            for key, d in (("RIGHT", (1, 0)), ("LEFT", (-1, 0)), ("UP", (0, -1)), ("DOWN", (0, 1))):
-                dst = glide(cur, d)
-                if dst and dst not in prev and (node_ok is None or node_ok(dst)):
-                    prev[dst] = (cur, key)
-                    q.append(dst)
-        if goal is None:
-            L(f"!! [{label}] spin-BFS found no route from {start}")
-            return False
-        plan = []
-        n = goal
-        while prev[n] is not None:
-            p, k = prev[n]
-            plan.append((k, n))
-            n = p
-        plan.reverse()
-        L(f"   [{label}] spin plan: {plan}")
-        for key, expect in plan[:max_hops]:
-            ok = False
-            for _ in range(4):                     # first press can be an eaten TURN
-                c0 = tuple(tv.coords(b))
-                b.press(key, 8, 10, camp.render, owner="agent")
-                for _ in range(20):
-                    b.run_frame()
-                # wait for the glide to SETTLE (coords stable across a beat)
-                last = tuple(tv.coords(b))
-                still = 0
-                for _ in range(240):
-                    b.run_frame()
-                    cur = tuple(tv.coords(b))
-                    if cur == last:
-                        still += 1
-                        if still >= 30:
-                            break
-                    else:
-                        last, still = cur, 0
-                if st.in_battle(b):                # LoS trainer mid-route: fight, then REPLAN
-                    L(f"   [{label}] battle mid-cross -> {fight()}")
-                    drain()
-                    return False
-                if last == expect:
-                    ok = True
-                    break
-                if last != c0:                     # moved but NOT where simulated — replan
-                    L(f"!! [{label}] glide diverged: pressed {key} at {c0}, expected {expect}, got {last}")
-                    return False
-            if not ok:
-                L(f"!! [{label}] press {key} never moved off {tuple(tv.coords(b))} — replanning")
-                return False
-        return True
+    # ── SPIN-TILE SLIDE CROSSER — general engine asset, extracted to spin_nav.py after this
+    # strike proved it end-to-end (glide sim + rest-tile BFS + ball-collect sweep) ─────────────
+    _nav = SpinNav(b, camp, fight, drain, log=L)
+    spin_cross = _nav.cross
 
     L(f"boot map={tv.map_id(b)} coords={tv.coords(b)} key_items={key_items()}")
     if SILPH_SCOPE in key_items():
@@ -401,20 +280,51 @@ def main():
         L(f"   {label}: map={tv.map_id(b)} coords={tv.coords(b)}")
 
     def board_elevator(door_pick):
+        """B2F elevator truth (hideout10 postmortem + recon_b2f_sim.py offline glide-BFS over
+        the dumped grid): the door (0x69, warp (28-29,16)) fronts an east room that is entered
+        THROUGH the west spin maze (e.g. the (17,6) LEFT glide lands (1,4), then south + east
+        to (15,20) and UP into the room). The old node_ok x>=12 'east bias' forbade exactly
+        those routes — that WAS the wall. B1F is a dead end here: its own elevator doors
+        (23-25,25) sit in a south half sealed off by a full wall at y19-20, reachable only
+        FROM this room via the (23,12) stairs. So: unrestricted spin-BFS to the door's south
+        approach FIRST (travel is spinner-blind on this floor — it wedges in the west pocket),
+        then the plain door ritual."""
         m0 = tuple(tv.map_id(b))
-        r = camp.enter_warp(pick=door_pick)
-        if r != "warped" or tuple(tv.map_id(b)) == m0:
-            # bias EAST: the west half of B2F is a one-way spinner pocket (hideout7/8)
-            if not spin_cross(lambda t: abs(t[0] - door_pick[0]) + abs(t[1] - door_pick[1]) <= 1,
-                              "to-elevator", node_ok=lambda t: t[0] >= 12):
-                return False
-            r = camp.enter_warp(pick=door_pick)
+        ax, ay = door_pick[0], door_pick[1] + 1
+        spin_cross(lambda t: abs(t[0] - ax) + abs(t[1] - ay) <= 1, "to-elevator", rounds=4)
+        camp.enter_warp(pick=door_pick)
         for _ in range(80):
             b.run_frame()
         return tuple(tv.map_id(b)) != m0
 
-    if not board_elevator((28, 16)) and not board_elevator((29, 16)):
+    def dump_grid(tag):
+        """Behavior/walkability grid of the CURRENT map -> DBG, for maze postmortems."""
+        try:
+            g = tv.Grid(b)
+            npc = set(camp.trav._npc_tiles())
+            w_play = b.rd32(tv.BACKUP_LAYOUT) - 14
+            h_play = b.rd32(tv.BACKUP_LAYOUT + 4) - 14
+            lines = [f"map={tv.map_id(b)} coords={tv.coords(b)} dims={w_play}x{h_play} "
+                     f"npcs={sorted(npc)}  (N=npc #=wall .=plain hex=behavior)"]
+            for y in range(h_play):
+                row = []
+                for x in range(w_play):
+                    v = camp._tile_behavior(x, y)
+                    row.append(" N " if (x, y) in npc else
+                               " # " if not g.walkable(x, y) else
+                               (f"{v:02x} " if v else " . "))
+                lines.append(f"y{y:02d} " + "".join(row))
+            p = os.path.join(DBG, f"grid_{tag}.txt")
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
+            L(f"   grid dumped -> {p}")
+        except Exception as e:
+            L(f"   grid dump failed: {e}")
+
+    if not (board_elevator((28, 16)) or board_elevator((29, 16))):
         snap("57_no_elevator")
+        dump_grid("no_elevator")
+        _stage_save("elevator_fail")           # boot the next probe HERE, not 40s back
         L("!! couldn't board the B2F elevator — abort")
         return 1
     L(f"   in the elevator: map={tv.map_id(b)} coords={tv.coords(b)}")

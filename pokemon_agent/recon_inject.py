@@ -25,9 +25,10 @@ from campaign import Campaign    # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 START = os.path.join(_HERE, "states", "seg_route3_start.state")
-BUFB0 = 0x02023418
-EXEC = 0x02023BC8
-ACTARR = 0x02023DC0
+BUFB0 = 0x020233C4          # real gBattleBufferB[0] (.sym-validated; 0x02023418 was a lookalike)
+EXEC = 0x02023BC8           # gBattleControllerExecFlags
+GCHOSEN = 0x02023D7C        # real gChosenActionByBattler (.sym-validated)
+ACTARR = GCHOSEN
 PARTYCNT = ram.GPLAYER_PARTY_CNT
 
 
@@ -58,37 +59,48 @@ def main():
         log.append(f"menu: party={p0} exec={b.rd32(EXEC):#x} actarr0={b.rd8(ACTARR)} enemyHP={ehp0}")
         # ── let the ENGINE confirm FIGHT (reliable live), and on the exec-flag 1->0 edge SWAP the
         # emitted action USE_MOVE(0)->USE_ITEM(1) in the buffer so the engine consumes USE_ITEM. ──
-        # TWO-EDGE BALL THROW (only known addresses): both the chosen ACTION and the chosen ITEM flow
-        # through gBattleBufferB[0][1] on the controller's completion edge. So:
-        #   edge A (action controller done): swap -> USE_ITEM(1)  -> engine opens the bag controller
-        #   the bag is canceled (B) -> edge B (item controller done): swap -> POKE_BALL(4) -> ball thrown
-        # Repeat per turn (retry on break-out). Caterpie has a high catch rate, so retries catch it.
+        # BALL THROW — FULL input control (no ag2 contention). Per turn:
+        #  (1) ACTION phase: press A on FIGHT while HOLDING gBattleBufferB[0][1]=USE_ITEM -> the action
+        #      emit is swapped to USE_ITEM -> engine opens the bag (chosen0 -> 1).
+        #  (2) ITEM phase: press B to close the bag while FORCING gSpecialVar_ItemId=POKE_BALL -> the
+        #      bag-close completion emits the Poké Ball -> engine throws it. Retry on break-out.
+        # BALL THROW — SKIP THE BAG via controller-func override (.sym-sourced addresses):
+        #  ag2 confirms FIGHT; the hook HOLDS gBattleBufferB[0][1]=USE_ITEM so the engine consumes it
+        #  (chosen0->1) and sets gBattlerControllerFuncs[0]=OpenBagAndChooseItem. We then OVERRIDE that
+        #  func -> CompleteWhenChoseItem (Thumb|1) with gSpecialVar_ItemId=ITEM, so it emits the ball
+        #  with NO bag opened -> engine throws. Control: ITEM=4 throws (party N->N+1 on a weak foe);
+        #  ITEM=0 (no item) must NOT throw — distinguishable.
         BASE = int(os.getenv("INJECT_BASE", "0x020233C4"), 0)
-        ITEM = int(os.getenv("INJECT_ITEM", "4"))          # ITEM_POKE_BALL
-        state = {"prev": b.rd32(EXEC) & 1, "phase": "action", "edges": 0, "throws": 0, "bag_b": 0}
+        GSPEC = int(os.getenv("INJECT_GSPEC", "0x0203AD30"), 0)
+        ITEM = int(os.getenv("INJECT_ITEM", "4"))
+        GBCF = 0x03004FE0                                  # gBattlerControllerFuncs[0]
+        COMPLETE = 0x0803073C | 1                          # CompleteWhenChoseItem | Thumb bit
+        ENEMY_HP = ram.GBATTLE_MONS + ram.GBATTLE_MON_SIZE + 0x28   # gBattleMons[1] current HP (u16)
+        WEAKEN_HP = int(os.getenv("WEAKEN_HP", "1"))       # RAM-weaken the foe (sandbox) so a throw catches; 0=off
+        w16 = b.core.memory.u16.raw_write
+        w32 = b.core.memory.u32.raw_write
+        state = {"overridden": False, "throws": 0, "consumed": 0}
 
         def swap_hook():
-            cur = b.rd32(EXEC) & 1
-            if state["prev"] == 1 and cur == 0:            # a controller just completed
-                state["edges"] += 1
-                if state["phase"] == "action":
-                    w8(BASE + 1, 1)                        # -> USE_ITEM
-                    state["phase"] = "item"
-                else:
-                    w8(BASE + 1, ITEM); w8(BASE + 2, 0)    # -> POKE_BALL
+            chosen0 = b.rd8(GCHOSEN)
+            if chosen0 != 1:                               # ACTION phase: hold USE_ITEM; arm next turn
+                w8(BASE + 1, 1)
+                if WEAKEN_HP > 0 and b.rd16(ENEMY_HP) > WEAKEN_HP:
+                    w16(ENEMY_HP, WEAKEN_HP)               # weaken-not-faint (keep it alive at low HP)
+                state["overridden"] = False
+            else:                                          # ITEM phase: skip bag, emit the ball
+                w16(GSPEC, ITEM)                           # chosen item (CompleteWhenChoseItem emits this)
+                w16(0x02023D68, ITEM)                      # gLastUsedItem = the ball (throw script reads this)
+                if not state["overridden"]:               # override the func ONCE (re-writing it every
+                    w32(GBCF, COMPLETE)                    #   frame would loop CompleteWhenChoseItem and
+                    state["consumed"] += 1                 #   block PlayerBufferExecCompleted)
                     state["throws"] += 1
-                    state["phase"] = "action"
-            state["prev"] = cur
-            # while the item controller is up (bag open after USE_ITEM), tap B to cancel it -> edge B
-            if state["phase"] == "item" and cur == 1:
-                state["bag_b"] += 1
-                if state["bag_b"] % 6 == 0:
-                    b.set_keys("B", owner="agent")
+                    state["overridden"] = True
         ag2 = BattleAgent(b, on_event=lambda *a, **k: None, render=swap_hook, log=lambda m: None)
-        ag2.run(max_seconds=70)
+        ag2.run(max_seconds=80)
         p1 = b.rd8(PARTYCNT)
-        log.append(f"TWO-EDGE throw BASE={hex(BASE)} ITEM={ITEM}: edges={state['edges']} "
-                   f"throws={state['throws']} party {p0}->{p1} in_battle={st.in_battle(b)} "
+        log.append(f"THROW(func-skip) ITEM={ITEM}: useitem_consumed={state['consumed']} "
+                   f"party {p0}->{p1} in_battle={st.in_battle(b)} "
                    f"{'*** CAUGHT! party+1 ***' if p1 > p0 else '(no catch)'}")
         return "loss"
 

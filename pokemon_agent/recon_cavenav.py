@@ -13,6 +13,8 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
 WATCH = os.getenv("WATCH", "1") == "1"      # visible window so Jonny watches; WATCH=0 = headless
+INVINCIBLE = os.getenv("INVINCIBLE", "0") == "1"   # top up battle HP each frame: ISOLATE nav from
+#                                                    survival (party=1 fixture can't reserve-switch)
 if not WATCH:
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
@@ -22,6 +24,7 @@ import travel as tv                   # noqa: E402
 from battle_agent import BattleAgent  # noqa: E402
 from campaign import Campaign         # noqa: E402
 from cave_nav import CaveNav          # noqa: E402
+import pokemon_state as st            # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 STATES = os.path.join(_HERE, "states")
@@ -57,9 +60,15 @@ def main():
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT:
                     raise KeyboardInterrupt
+            if INVINCIBLE and st.in_battle(b):       # NAV ISOLATION: un-KO-able so a mid-battle
+                w16(ram.GBATTLE_MONS + 0x28, b.rd16(ram.GBATTLE_MONS + 0x2C))   # HP := maxHP
             surf = pygame.image.fromstring(b.frame_rgb().tobytes(), (b.width, b.height), "RGB")
             screen.blit(pygame.transform.scale(surf, win), (0, 0))
             pygame.display.flip()
+    else:
+        def render():
+            if INVINCIBLE and st.in_battle(b):
+                w16(ram.GBATTLE_MONS + 0x28, b.rd16(ram.GBATTLE_MONS + 0x2C))
 
     def heal_party():
         for s in range(ram.read_party_count(b)):
