@@ -22,10 +22,10 @@ BANK = sys.argv[1] if len(sys.argv) > 1 else r"G:\temp\longrun\banked_GOAL"
 
 
 def main():
-    st = os.path.join(BANK, "kira_campaign.state")
-    print(f"bank: {st}")
+    st_path = os.path.join(BANK, "kira_campaign.state")
+    print(f"bank: {st_path}")
     b = Bridge(ROM)
-    with open(st, "rb") as f:
+    with open(st_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(60):
         b.run_frame()

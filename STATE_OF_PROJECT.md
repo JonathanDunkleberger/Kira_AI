@@ -114,6 +114,35 @@ keeps PRUNING catch/grind ("the move is to travel to the gym"). Next session: le
 named, leveled catches + soul.json bonds filling. Also unpaid: quasi-dupe refinement (Pidgey-vs-Spearow).
 **Canonical remains the promoted ROUTE 5 bank (clean, sanctity VALID).** Runs 4-10 were staging-only.
 
+### ── 2026-07-06 SESSION 7 (OVERNIGHT — 🎖 HM01 CANONICAL; the ship is DONE) ──
+**CANONICAL = HM01/Vermilion (3,5)@(23,32)** (promoted hm01_bank_20260706_203730; backup
+pre_hm01_backup_20260706_203744; sanctity VALID; party FULL Venusaur41/Persian32/Fearow31/
+Raticate31; **FLAG 0x237 verified ON-DISK in a fresh core** — recon_verify_hm01_bank.py). The ship
+DEPARTED during the heal exit (cutscene, normal — gone forever). Gary grudge 2-2 (meeting #4
+aboard). **Badge-3 cascade running (`logs/longrun/surge_run2.log`, goal 0x822): teach Cut→Persian
+→ use_cut (19,24) → trash-can solver debut → SURGE.**
+**Ship runs 14-20 + surge run 1, one wedge per cycle, all committed:** (a) re-sweep BOUNDED 2×/room
+(f102342 — the Machoke cul-de-sac (1,28)); (b) `_ql_inside_target` SET on DEEPER + KEPT when a hub
+exit stays interior (f102342 — the false-'I blacked out' ejections + fake note_blackout, runs 15);
+(c) talk budget PER-MAP for the questline's LIFETIME (ecd801e — the galley's 6 wandering cooks;
+re-transits re-burned per-entry budgets and out-ran the 14-decision stall sig, runs 16-17);
+(d) heal ladder INTERIOR-FIRST rung — _exit_to_overworld before routing (7752982 — fainted-Persian
+['heal'] spin in cabin (1,13), run 18); (e) `_street_gradient()` reverse-BFS over world-model warp
+tables + gradient-second exit sort (3dd2a82 — the exit wandered 1F↔2F, run 19); (f)
+`_enter_directional_warp` ON-TILE FALLBACK (3dd2a82 — **the captain's stair (1,6)@(30,2) is 0x6C
+with a WALLED stand tile; stand ON it + press RIGHT → (1,11)**; recon_captain_door2.py proof;
+captain gfx63@(5,4)); (g) `_best_potion_for_sale` SOLD-HERE fallback + shop-fail fingerprint
+suppressor (surge run 1: wallet 2044 failed every 3×-comfort tier → fell back to plain Potion
+which Vermilion doesn't sell → 'shop_failed'×16 STALL at the Mart door).
+**SHIP MAP TRUTH (corrects session 6):** (1,10)=GALLEY (dead end, 6 cooks), (1,6)=the real 2F
+corridor (9 warps incl. (30,2)→(1,11) captain), (1,7)/(1,9)=stern deck, (1,5)@(20,10)→(1,29)
+untoured. **EMPLOYMENT TERMS encoded at CLAUDE.md top** (CEO 2026-07-06): credits-roll deliverable,
+two-wall shift ends, bank-and-continue milestones, overnight loop, NEXT_SESSION.md at close.
+**Heal-cycle tool:** recon_heal_hm01.py (bank → real heal machinery → healed bundle; MUST seed
+camp.world from the BANK's world_model.json — canonical's map has never seen interiors).
+**East-leg note:** dex=9 caught; the Flash aide needs **10 OWNED** — one judged catch on Route
+9/10 closes the gap (KB already bills HM05/aide/Route-2-gate; Rock Tunnel needs billing).
+
 ### ── 2026-07-06 SESSION 6 (MARATHON — aboard the S.S. Anne; handoff at context budget) ──
 **WHERE THE ROPE ENDS: she BOARDS, TOURS THE SHIP, and BEATS GARY ABOARD (grudge 2-2, verified in
 runs 11-13 independently) — the captain not yet reached.** Ship runs 11-14, one wedge per cycle:

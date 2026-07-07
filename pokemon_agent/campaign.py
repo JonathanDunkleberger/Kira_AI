@@ -4034,8 +4034,16 @@ class Campaign:
         GAME-KNOWLEDGE: heal-tier ids + rough prices are FRLG facts (rule 14 — isolate to gamedata on port)."""
         stock = MART_STOCK.get(tv.map_id(self.b), [])
         money = self.money()
-        for iid, price in ((20, 2500), (21, 1200), (22, 700), (ITEM_POTION, 300)):   # Max/Hyper/Super/Potion
+        tiers = ((20, 2500), (21, 1200), (22, 700), (ITEM_POTION, 300))   # Max/Hyper/Super/Potion
+        for iid, price in tiers:
             if iid in stock and (money - SHOP_MONEY_FLOOR) >= price * 3:
+                return iid
+        # SOLD-HERE FALLBACK (surge run 1): with 2044 in the wallet the 3x-comfort check failed
+        # every tier and the old fallback returned a plain Potion — which Vermilion DOESN'T SELL
+        # ('shop_failed' -> the surfacer re-offered stock_up forever -> a 14-tick STALL at the
+        # Mart door). Buy the strongest tier that's ON THE SHELF and affordable for at least ONE.
+        for iid, price in tiers:
+            if iid in stock and (money - SHOP_MONEY_FLOOR) >= price:
                 return iid
         return ITEM_POTION
 
@@ -4456,7 +4464,9 @@ class Campaign:
         # even if not yet empty). Naturally surfaces AFTER a heal (she's then in the town, next to the wall).
         if state["map"] in CITY_MART_DOORS and self.money() > SHOP_MONEY_FLOOR:
             fs = self._walled(state)
-            if self._shopping_list(foresight=fs):
+            if getattr(self, "_shop_fail_fp", None) == (tuple(state["map"]), self.money()):
+                pass    # this exact shop already failed with this wallet — don't re-offer a spin
+            elif self._shopping_list(foresight=fs):
                 a["stock_up"] = ("stock up at the Mart — load up on potions before you push that wall"
                                  if fs else
                                  "stock up at the Mart — buy potions and the cures for what's been hurting you")
@@ -5116,7 +5126,13 @@ class Campaign:
             if door is None or not sl:
                 return "nothing_to_buy"
             bought = self.buy_at_mart(door, sl)
-            return "stocked" if bought else "shop_failed"
+            if bought:
+                self._shop_fail_fp = None
+                return "stocked"
+            # remember the failure fingerprint — same city + same wallet means retrying is a spin
+            # (surge run 1: 'Potion not sold here' x16 stalled the roam at the Mart door)
+            self._shop_fail_fp = (tuple(state["map"]), self.money())
+            return "shop_failed"
         if pick == "talk_npc":
             return self.talk_npc()
         return "unknown_action"
