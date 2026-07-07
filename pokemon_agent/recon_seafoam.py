@@ -284,8 +284,11 @@ def main():
             g = tv.Grid(b)
             wset = water_save(g)
             wts = {tuple(w[0]) for w in tv.read_warps(b)}
+            # boulders: LIVE positions only — templates go stale after a push (the
+            # template coord becomes empty floor and must not mask the path)
             npcs = set(live_boulders()) | {tuple(o[0]) for o in
-                                           tv.read_object_templates(b) if o[2]}
+                                           tv.read_object_templates(b)
+                                           if o[2] and o[1] != fm.GFX_BOULDER}
             ok0 = sea_ok(g, wset)
             p = tv.bfs(g, cur, goal_test,
                        walkable=lambda sx, sy: ok0(sx, sy) and (sx, sy) not in wts
@@ -393,11 +396,21 @@ def main():
         for _ in range(n):
             b.run_frame()
 
-    def nearest_boulder(approx):
-        bs = live_boulders()
-        if not bs:
-            return None
-        return min(bs, key=lambda t: abs(t[0] - approx[0]) + abs(t[1] - approx[1]))
+    def nearest_boulder(approx, radius=8):
+        """Live gObjectEvents are DISTANCE-CULLED — a far boulder reads as absent.
+        If no live boulder is near `approx`, walk toward approx first, then re-scan."""
+        for _attempt in range(3):
+            bs = [t for t in live_boulders()
+                  if abs(t[0] - approx[0]) + abs(t[1] - approx[1]) <= radius]
+            if bs:
+                return min(bs, key=lambda t: abs(t[0] - approx[0]) + abs(t[1] - approx[1]))
+            cur = tuple(tv.coords(b) or (0, 0))
+            if abs(cur[0] - approx[0]) + abs(cur[1] - approx[1]) <= 3:
+                return None                     # close enough to trust the empty scan
+            if not sea_walk(lambda c, a=approx: abs(c[0] - a[0]) + abs(c[1] - a[1]) <= 3,
+                            "boulder-approach"):
+                return None
+        return None
 
     def ensure_strength(approx):
         """Face the target boulder, A -> YES; verified by FLAG_SYS_USE_STRENGTH."""
@@ -541,7 +554,7 @@ def main():
         while handle_interrupts():
             pass
         kind = op[0]
-        L(f"── op {op} (map {tv.map_id(b)} @ {tv.coords(b)})")
+        L(f"-- op {op} (map {tv.map_id(b)} @ {tv.coords(b)})")
         if kind == "strength":
             if not ensure_strength(op[1]):
                 return 1

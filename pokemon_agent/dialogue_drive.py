@@ -44,7 +44,10 @@ _FACE_OFF = 0x18                # facing direction nibble (1=down 2=up 3=left 4=
 def box_open(b):
     """True iff an overworld dialogue box is currently displayed (bottom band solid white)."""
     p = b.frame_rgb().load()
-    hits = sum(1 for y in _BOX_ROWS for x in _BOX_XS if min(p[x, y]) > 200)
+    # 242: the FRLG message-window fill is a constant 248-white; the brightest floor
+    # tileset measured (Seafoam ice, min-channel 239) false-positived the old 200
+    # threshold PERMANENTLY (night shift 4: the drain livelock class on bright maps).
+    hits = sum(1 for y in _BOX_ROWS for x in _BOX_XS if min(p[x, y]) > 242)
     return hits >= int(0.78 * len(_BOX_ROWS) * len(_BOX_XS))
 
 
