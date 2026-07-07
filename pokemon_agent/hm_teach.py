@@ -258,10 +258,22 @@ class TeachFlow:
             return "taught"
         self.b.set_input_owner("agent")
         self.log(f"   [teach] {hm_key} -> slot {mon_slot} (case row {row}, forget_idx {forget_idx})")
-        # 1. START menu -> BAG (readback nav on the derived cursor)
+        # 1. START menu -> BAG (readback nav on the derived cursor).
+        # OPEN-VERIFY first: every menu cursor byte is STALE across sessions (tm_errand run-16:
+        # a second back-to-back teach trusted teach 1's parked values straight down the chain
+        # and drove the OVERWORLD with A) — the cursor must RESPOND to a press before any nav
+        # trusts it. A DOWN on a closed menu steps the player, so this only retries START.
+        opened = False
         self._press("START", settle=60)
-        if not self._nav_byte(START_CURSOR, 2):
-            self.log("   [teach] !! START-menu cursor no-response — aborting (B out)")
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [teach] !! START menu never opened / cursor no-response — aborting (B out)")
             self._b_cascade(); return "failed"
         self._press("A", settle=80)                              # open the bag
         # 2. Key Items pocket
@@ -382,6 +394,19 @@ def hm_compatible(b, hm_key, species):
         lo = b.rd32(GTMHM_LEARNSETS + species * 8)
         hi = b.rd32(GTMHM_LEARNSETS + species * 8 + 4)
         return bool((((hi << 32) | lo) >> bit) & 1)
+    except Exception:
+        return False
+
+
+def tm_compatible(b, tm_no, species):
+    """Can `species` learn TM `tm_no` (1-50)? Same ROM gTMHMLearnsets row as hm_compatible —
+    bits 0-49 are TM01-TM50 (bit = tm_no-1), 50-57 the HMs. False on bad input / read error."""
+    if not species or not (1 <= tm_no <= 50):
+        return False
+    try:
+        lo = b.rd32(GTMHM_LEARNSETS + species * 8)
+        hi = b.rd32(GTMHM_LEARNSETS + species * 8 + 4)
+        return bool((((hi << 32) | lo) >> (tm_no - 1)) & 1)
     except Exception:
         return False
 

@@ -1040,6 +1040,13 @@ class Campaign:
                     log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door}")
                     self._learn_transit()
                     return "warped"
+            # DIRECTIONAL STAIR/ARROW/ESCALATOR DOOR (the dept-store-stairs class): a blind
+            # UP-step walks straight past 0x62-0x6F tiles — they fire only when entered moving
+            # their direction. The ritual exists for anchor routing; ride it here too.
+            if (self._tile_behavior(*door) in self._WARP_ENTRY
+                    and self._enter_directional_warp(door)):
+                log(f"   WARPED {before} -> {tv.map_id(self.b)} via directional door {door}")
+                return "warped"
         log(f"   no reachable door warped (entry geometry?) - LOUD")
         return "no_warp"
 
