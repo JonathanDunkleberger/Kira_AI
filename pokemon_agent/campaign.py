@@ -1152,15 +1152,20 @@ class Campaign:
                     if self.trav.travel(target_map=None, arrive_coord=nb, max_steps=120,
                                         max_seconds=45) != "arrived":
                         continue
-                    self.b.press(k2, 8, 10, self.render, owner="agent")
-                    for _ in range(30):
-                        self.b.run_frame()
-                    if tuple(tv.map_id(self.b)) != m0:
-                        for _ in range(60):
+                    # 3 presses, not 1: the first is routinely eaten as a TURN (tower1's 2F
+                    # 0x6D stair — the probe needed UP×3 from (4,11) to actually mount (4,10))
+                    for _try in range(3):
+                        self.b.press(k2, 8, 10, self.render, owner="agent")
+                        for _ in range(30):
                             self.b.run_frame()
-                        log(f"   directional warp {wt} (behavior 0x{bh:02x}) fired on approach via {k2}")
-                        self._learn_transit()
-                        return True
+                        if tuple(tv.map_id(self.b)) != m0:
+                            for _ in range(60):
+                                self.b.run_frame()
+                            log(f"   directional warp {wt} (behavior 0x{bh:02x}) fired on approach via {k2}")
+                            self._learn_transit()
+                            return True
+                        if tuple(tv.coords(self.b) or ()) == tuple(wt):
+                            break
                     if tuple(tv.coords(self.b) or ()) == tuple(wt):
                         break
             if tuple(tv.coords(self.b) or ()) != tuple(wt):
