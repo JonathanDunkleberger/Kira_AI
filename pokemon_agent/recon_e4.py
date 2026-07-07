@@ -101,10 +101,22 @@ def main():
 
     n_battles = [0]
 
+    # e4_run1 truth: the item instinct is ORACLE-GATED (_maybe_use_item returns False
+    # when choose is None) and recon vehicles never passed a chooser — so the whole
+    # Full Restore kit sat unused while Lorelei's Lapras wiped the party (FR x10
+    # intact through a whiteout). Headless E4 policy = what a competent player does:
+    # ALWAYS take the offered heal/cure. choose() only routes "battle_item".
+    def _choose(ptype, offers, ctx):
+        for k in ("use_potion", "use_cure"):
+            if k in offers:
+                return k
+        return "keep_fighting"
+
     def fight():
         n_battles[0] += 1
         return BattleAgent(b, on_event=lambda *a, **k: None, render=render_fn,
-                           log=lambda m: print(m, flush=True)).run(max_seconds=600)
+                           log=lambda m: print(m, flush=True),
+                           choose=_choose).run(max_seconds=600)
 
     camp = Campaign(b, battle_runner=fight,
                     on_event=lambda s, **k: L(f"[event] {s}"),
@@ -219,14 +231,43 @@ def main():
 
     def walk(goal_test, label, tries=12, allow=()):
         budget = tries
+        frozen, last_pos = 0, None
+        map_start = tuple(tv.map_id(b))
         while budget > 0:
             budget -= 1
             if handle_interrupts():
                 budget += 1
                 continue
+            if tuple(tv.map_id(b)) != map_start:
+                # a whiteout (or any warp) mid-walk: the goal coords belong to the
+                # OLD map — bail and let the dispatch loop re-route (e4_run1 burned
+                # 17s planning room-coords on the center map)
+                L(f"   [{label}] map changed {map_start} -> {tuple(tv.map_id(b))} — bail")
+                return False
             cur = tuple(tv.coords(b) or (0, 0))
             if goal_test(cur):
                 return True
+            # FREEZE ARMOR (e4_run1: post-whiteout she stood at (13,12) planning
+            # len-20 paths for 22 replans without moving ONE tile — the signature
+            # of a hidden modal box eating inputs that dd_box doesn't see, the
+            # bright-tileset class). 3 no-move replans -> snap the truth + blind
+            # B/A drain, then keep walking.
+            if cur == last_pos:
+                frozen += 1
+                if frozen >= 3:
+                    L(f"!! [{label}] FROZEN at {cur} x{frozen} replans — hidden box? "
+                      f"blind B/A drain + frame to e4_probe/")
+                    snap(f"frozen_{label[:12]}")
+                    for k in ("B", "B", "A", "B"):
+                        b.press(k, 8, 12, camp.render, owner="agent")
+                        for _ in range(30):
+                            b.run_frame()
+                    drain()
+                    frozen = 0
+                    budget += 1
+            else:
+                frozen = 0
+            last_pos = cur
             g = tv.Grid(b)
             wts = {tuple(w[0]) for w in tv.read_warps(b)} - set(allow)
             npcs = set(live_npc_tiles())
