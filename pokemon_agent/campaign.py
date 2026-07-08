@@ -2768,7 +2768,12 @@ class Campaign:
 
     # ── starter pick (Oak's lab) - CAPABILITY not DECISION ──────────────────────
     # The three Poké Balls on Oak's table (recon_starter / starter.state): left->right.
-    STARTER_BALLS = {0: (8, 4), 1: (9, 4), 2: (10, 4)}         # ball tiles (face UP from below)
+    # Ball tiles (face UP from below). TABLE ORDER IS THE RBY LAYOUT — left→right:
+    # BULBASAUR, SQUIRTLE, CHARMANDER (empirical, take-6 2026-07-08: standing (9,5) grabbed
+    # SQUIRTLE #7 when the old map claimed (9,4)=charmander; never caught before because no
+    # run had ever picked a non-zero ball). Index stays the species intent (0=bulba 1=char
+    # 2=squirtle); the TILE maps to where that species actually sits.
+    STARTER_BALLS = {0: (8, 4), 1: (10, 4), 2: (9, 4)}
     STARTER_SPECIES = {0: 1, 1: 4, 2: 7}                       # Bulbasaur / Charmander / Squirtle
 
     def choose_starter(self):
@@ -2876,12 +2881,22 @@ class Campaign:
         _stood = False
         for _wave in range(6):
             DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label="oak-intro")
-            if self._step_to((bx, by + 1)):                    # stand directly below the ball
+            # BFS FIRST (take-5 lesson): the greedy stepper WANDERS in the crowded lab (Oak/Gary/
+            # table) — it drifted her to (9,2) behind the table reading a bookshelf. The Traveler's
+            # NPC-aware BFS paths to the stand tile or LOGS the blocking NPC; greedy is the fallback
+            # for the last nudge only.
+            try:
+                self.trav.travel(target_map=None, arrive_coord=(bx, by + 1),
+                                 max_steps=60, max_seconds=15)
+            except Exception as _te:
+                log(f"   STARTER: BFS leg error ({_te}) — greedy fallback")
+            if tv.coords(self.b) == (bx, by + 1) or self._step_to((bx, by + 1), steps=16):
                 _stood = True
                 break
-            log(f"   STARTER: script still holds input (wave {_wave + 1}) — draining the next wave")
+            log(f"   STARTER: stand tile {(bx, by + 1)} not reached (wave {_wave + 1}; "
+                f"at {tv.coords(self.b)}) — draining the next wave and retrying")
         if not _stood:
-            log("   !! STARTER: never got control to reach the ball (LOUD)")
+            log("   !! STARTER: never reached the ball's stand tile (LOUD)")
         for _ in range(6):
             self.b.press("UP", 8, 8, self.render, owner="agent")
             self.b.press("A", 8, 8, self.render, owner="agent")
@@ -2899,6 +2914,12 @@ class Campaign:
         if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
             sp = st.read_party_species(self.b, 0)
             log(f"   STARTER: *** picked {st.SPECIES_NAME.get(sp, '?')} (#{sp}) ***")
+            # GRAB-VERIFY (take-6 lesson): the obtained species must MATCH her chosen index — a
+            # wrong-ball grab (the B-S-C table-order class) must scream, never ship silently.
+            _want_sp = self.STARTER_SPECIES.get(idx)
+            if _want_sp and sp != _want_sp:
+                log(f"   !! STARTER MISMATCH (LOUD): she chose {st.SPECIES_NAME.get(_want_sp)} "
+                    f"(ball {idx}) but obtained {st.SPECIES_NAME.get(sp, '?')} — tile map wrong?")
             self.on_event(f"I'll go with {st.SPECIES_NAME.get(sp, 'this one')}")
             self._handle_nickname()                            # the "give a nickname?" prompt - her choice
             return "picked"
