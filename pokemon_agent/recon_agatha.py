@@ -24,8 +24,11 @@ import pokemon_state as st           # noqa: E402
 from battle_agent import BattleAgent  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
-SNAP = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "agatha_room3_probe_state")
+# banked_E4 = the ratchet bank the last e4 run wrote at Agatha's door (room3 entry) — the
+# LIVE fixture. The old agatha_room3_probe_state is run3-era (boots Lance's room, 3 fainted).
+SNAP = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "banked_E4")
 DBG = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "agatha_probe")
+os.environ.setdefault("BATTLE_DEBUG_DIR", DBG)
 
 
 def main():
@@ -93,7 +96,7 @@ def main():
     L("AGATHA battle OPEN")
 
     def _choose(ptype, offers, ctx):
-        for k in ("use_potion", "use_cure"):
+        for k in ("use_potion", "use_cure", "use_ether", "use_revive"):
             if k in offers:
                 return k
         return "keep_fighting"

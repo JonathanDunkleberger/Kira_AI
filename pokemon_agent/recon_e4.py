@@ -31,6 +31,10 @@ if _HERE not in sys.path:
 if os.environ.get("WATCH") != "1":
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+# The anti-wedge forensic frame dump is env-gated — set it HERE, not in the launcher shell
+# (runs 7-8 aborted dozens of times with ZERO frames because the env didn't ride the launch).
+os.environ.setdefault("BATTLE_DEBUG_DIR", os.path.join(
+    os.environ.get("TEMP", _HERE), "longrun", "e4_probe"))
 
 from bridge import Bridge            # noqa: E402
 import travel as tv                  # noqa: E402
@@ -192,7 +196,10 @@ def main():
         return n
 
     def fight_open():
-        return ram.valid_ewram_ptr(b.rd32(ram.GBATTLE_RES_PTR))
+        # pointer validity + LIVENESS (gMain.callback2) — a stale res_ptr after a whiteout
+        # is a corpse, not a fight (the run3 phantom re-attach livelock)
+        return (ram.valid_ewram_ptr(b.rd32(ram.GBATTLE_RES_PTR))
+                and not ram.battle_cb2_dead(b))
 
     def drain(max_n=60, key="B"):
         stable = 0

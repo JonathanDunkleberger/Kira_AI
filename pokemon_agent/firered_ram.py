@@ -120,6 +120,31 @@ def valid_ewram_ptr(p: int) -> bool:
     return EWRAM_LO <= p < EWRAM_HI
 
 
+# ── BATTLE LIVENESS (the e4_run3 phantom-battle class) ──────────────────────────────────
+# GBATTLE_RES_PTR can stay a valid EWRAM address AFTER a whiteout (stale pointer), so a
+# pointer check alone re-attaches to a DEAD battle's frozen struct (phantom 0-PP reads, no
+# action menu, an eternal abort->re-enter livelock). gMain.callback2 is the ground truth:
+# during any real battle it is a battle-family callback (BattleMainCB2/transitions — verified
+# live: only 0x08010509/0x08011101 over 1200 battle frames incl. menus); back in the world it
+# is CB2_Overworld, and the whiteout transition is CB2_WhiteOut (pret pokefirered.sym).
+GMAIN_CB2 = 0x030030F4                  # gMain (0x030030F0) + 4 = callback2
+# In-battle party DISPLAY order (pret gBattlePartyCurrentOrder, 6 high-first nibbles):
+# position 0 = the mon in the party screen's big LEFT panel (the ACTIVE battler), 1-5 = the
+# right column top-down. After any switch display order != party order — every party-screen
+# walk (item aim, switches) must convert through this (agatha_diag4: a Revive aimed at
+# "party slot 0" pressed A on the ACTIVE mon's panel forever). Verified live: identity
+# order pre-switch, nibbles high-first.
+GBATTLE_PARTY_ORDER = 0x0203B0DC
+_CB2_OVERWORLD = 0x080565B4 | 1         # thumb bit set as stored
+_CB2_WHITEOUT = 0x080566A4 | 1
+
+
+def battle_cb2_dead(bridge) -> bool:
+    """True iff gMain.callback2 says we are IN THE WORLD (overworld/whiteout) — any battle
+    struct still pointing somewhere is a corpse, not a fight."""
+    return bridge.rd32(GMAIN_CB2) in (_CB2_OVERWORLD, _CB2_WHITEOUT)
+
+
 def read_player_coords(bridge):
     """Returns (x, y) or None if SaveBlock1 isn't allocated yet (pre-game)."""
     sb1 = bridge.rd32(GSAVEBLOCK1_PTR)

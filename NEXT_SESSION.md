@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 ~16:40, night shift #13 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07 ~17:15, night shift #13 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -20,15 +20,34 @@ If banked_CREDITS exists: promote it —
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
 run between "HALL OF FAME" and "BANKED".
 
-**RUN-6 TRUTH (the current best attempt — killed EXTERNALLY, not defeated):**
-fresh canonical boot → shopped 10 Full Restores + 6 Revives + 4 Full Heals ($22,278
-left) → Lorelei fell (~50s, sleep-lock + RL x2) → Bruno fell → entered Agatha
-(lead 69%, alive 6) → was chipping Agatha's ghosts (RL x0.5, FRs firing correctly,
-5 left) when the shift-12→13 handover killed the python tree at 16:35. THE VEHICLE
-IS SOUND — relaunch is the correct move, fresh from canonical (E4_BOOT unset):
-`.venv\Scripts\python.exe -u pokemon_agent\recon_e4.py` with stdout to
-logs/longrun/e4_run7.log. A fresh boot re-loads canonical ($63k restored), re-shops,
-re-clears rooms 1-2 in ~3 min at 14x.
+**RUN 7/8 TRUTH CHAIN (shift-13 postmortems — read before touching the vehicle):**
+- run7 attempt 1 CLEARED AGATHA (again — she IS beatable on one tank) and entered
+  LANCE's room (alive 3, lead 0%); whiteout at Lance; ALL 10 FRs burned on Agatha.
+- The re-chain then died in the BURNED-FAMINE LIVELOCK (root-caused + FIXED
+  18ec09b/later): the famine switch used to fire the same turn an item flow ended,
+  with the BAG still on screen → "_goto_pokemon failed" → the once-per-species
+  famine try was CONSUMED → status-spam → all-dry → Struggle/abort forever. NOW:
+  dirty-screen guard (bag closed first, try not consumed).
+- PHANTOM-BATTLE CLASS KILLED (run3's suspicion, now wired): st.in_battle +
+  recon_e4.fight_open now require gMain.callback2 (0x030030F4) NOT be
+  CB2_Overworld/CB2_WhiteOut (0x080565B5/0x080566A5 thumb) — a stale
+  GBATTLE_RES_PTR after whiteout is a corpse, never re-attach. LIVE-VERIFIED:
+  battle frames show only 0x08010509/0x08011101 over 1200 frames incl. menus.
+- Engine upgrades shipped 18ec09b+8233b90: FOE-AWARE famine (immune-only PP = famine;
+  Levitate table for Gengar-line EQ hole), REVIVE instinct (_revive_worthy_slot:
+  fainted mon out-levels all standing), PP-RESTORE instinct (Ether/Elixir at famine;
+  canonical bag holds x1 Ether), item AIM wired (1a5ed9f built it, nothing called it)
+  via border-readback + wait-for-party-screen.
+- ⚠️ OPEN AT WRITE TIME: use_revive actuation still "selected but NOT consumed" in
+  agatha_diag2/3 (logs logs/longrun/agatha_diagN.log) — instrumented walk (per-press
+  party/bag/white + itemfail frame to agatha_probe/) riding agatha_diag4; read that
+  log's use_item walk lines for the mechanism. recon_agatha.py now boots banked_E4
+  (the live room3 bank) — the standing Agatha repro fixture.
+- recon_e4.py now sets BATTLE_DEBUG_DIR itself (runs 7-8 aborted with ZERO frames
+  because the env never rode my launches — never trust the launcher shell).
+- Launch: `.venv\Scripts\python.exe -u pokemon_agent\recon_e4.py` with stdout to
+  logs/longrun/e4_runN.log. Fresh boot re-loads canonical ($63k restored), re-shops,
+  re-clears rooms 1-2 in ~3 min at 14x.
 
 **THE GAUNTLET LAW (shift-12, commit 2d7234d): E4 RESETS ON WHITEOUT** — DEFEATED
 flags do NOT survive a whiteout (run5 proof: post-whiteout she re-fought Lorelei).

@@ -59,6 +59,10 @@ _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures l
 _HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
 _REVIVE_ITEMS_PREF = (25, 24)             # Max Revive, Revive
 _ETHER_ITEMS_PREF = (37, 36, 35, 34)      # Max Elixir, Elixir, Max Ether, Ether (all-move first)
+# Kanto species whose ability is ALWAYS Levitate -> Ground does NOTHING despite the chart's x2
+# (Agatha's gengars: EQ 'connects' on paper, so chart-only famine never fires while EQ has PP).
+# Game-knowledge inline (portability debt: belongs in gamedata/ when the ability layer generalizes).
+_LEVITATE_SPECIES = {92, 93, 94, 109, 110}  # Gastly, Haunter, Gengar, Koffing, Weezing
 _STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
 _FULL_HEAL = 23
 
@@ -850,10 +854,23 @@ class BattleAgent:
         for n in range(8):
             if self._items_count(item_id) < cnt0:
                 break
-            if target_slot is not None and n >= 2 and self._party_screen():
-                # border readback (the PROVEN fswitch walk) — NOT _goto_party_slot's
-                # PARTY_CURSOR, which is a shadow byte (the 2026-07-05 switch lesson)
-                self._party_goto_slot(target_slot)
+            if target_slot is not None and n >= 2:
+                # WAIT for the party screen to draw, THEN aim, THEN confirm (agatha_diag2:
+                # a blind A here lands on the REMEMBERED party cursor — wherever the last
+                # fswitch left it — so a Revive/heal hits a wrong mon, 'no effect' churns,
+                # and the item NEVER consumes). Border readback (the PROVEN fswitch walk),
+                # not _goto_party_slot's PARTY_CURSOR shadow byte.
+                for _ in range(10):
+                    if self._party_screen():
+                        break
+                    self._wait(8)
+                _disp = self._battle_display_slot(target_slot)
+                if self._party_screen() and not self._party_goto_slot(_disp):
+                    self.log(f"   [engine] use_item: aim couldn't reach party slot {target_slot} "
+                             f"(display pos {_disp}) — confirming where the cursor is (fail-safe)")
+            self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
+                     f"bag={self._bag_screen()} white={self._white_box()} "
+                     f"pcur={self._party_cursor_slot()} lead={self._party_cursor_on_lead()}")
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
             if not st.in_battle(self.b):
                 break
@@ -872,6 +889,7 @@ class BattleAgent:
         self.log(f"   [engine] use_item: pocket={self.b.rd8(ram.GBAG_POCKET)} cursor={self.b.rd8(BAG_CURSOR)} "
                  f"scroll={self.b.rd16(BAG_SCROLL)} row={row} — selected but item {item_id} NOT consumed "
                  f"(count still {cnt0}) — keep fighting (LOUD)")
+        self._debug_snap(f"itemfail_{item_id}")
         self._exit_bag(); return "failed"
 
     def _active_party_slot(self, state):
@@ -1501,6 +1519,22 @@ class BattleAgent:
                 return True
         return False
 
+    def _battle_display_slot(self, party_slot):
+        """DISPLAY position of a party slot on the IN-BATTLE party screen (0 = the big left
+        panel = the ACTIVE battler; 1-5 = the right column). gBattlePartyCurrentOrder holds
+        the battle-order permutation the menu draws in; after any switch display != party
+        order — walking a raw party index lands the wrong mon (agatha_diag4: the Revive
+        pressed A on the ACTIVE mon's panel forever; the aimed FR refused the same way).
+        Falls back to the party index itself (the pre-switch identity) on any bad read."""
+        try:
+            order = []
+            for i in range(3):
+                v = self.b.rd8(ram.GBATTLE_PARTY_ORDER + i)
+                order += [(v >> 4) & 0xF, v & 0xF]
+            return order.index(party_slot)
+        except (ValueError, Exception):
+            return party_slot
+
     def _party_goto_slot(self, target, tries=14):
         """Closed-loop cursor walk on the BATTLE party screen. target = party index 0-5 (0 = lead
         panel). Returns True only when the border readback confirms the cursor is on target."""
@@ -1546,16 +1580,18 @@ class BattleAgent:
             # is safe and makes every retry start from the list.
             self.b.press("B", 2, 12, self.render, owner=self.owner)
             self._wait(14)
+            _disp = self._battle_display_slot(slot)       # party index -> DISPLAY position
             if _attempt < 4:
-                if not self._party_goto_slot(slot):
-                    self.log(f"   [engine] fswitch: cursor readback couldn't reach slot {slot} "
-                             f"(cursor={self._party_cursor_slot()}) -> drain a beat, retry")
+                if not self._party_goto_slot(_disp):
+                    self.log(f"   [engine] fswitch: cursor readback couldn't reach party slot {slot} "
+                             f"(display {_disp}, cursor={self._party_cursor_slot()}) -> drain a beat, retry")
                     self._advance_text()
                     continue
-                self.log(f"   [engine] fswitch: cursor confirmed on slot {slot} (closed-loop)")
+                self.log(f"   [engine] fswitch: cursor confirmed on party slot {slot} "
+                         f"(display {_disp}, closed-loop)")
             else:                                         # legacy blind fallback (pre-2026-07-07 path)
-                self.log(f"   [engine] fswitch: LEGACY blind walk to slot {slot} (readback failed 4x)")
-                for _ in range(slot):
+                self.log(f"   [engine] fswitch: LEGACY blind walk to display {_disp} (readback failed 4x)")
+                for _ in range(_disp):
                     self._tap("DOWN")
                 self._wait(6)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select mon
@@ -1688,10 +1724,11 @@ class BattleAgent:
             return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
         self._wait(30)                                            # open party list + SETTLE (no eaten 1st DOWN)
+        _disp = self._battle_display_slot(slot)                   # party index -> DISPLAY position
         self.log(f"   [engine] switch: opened party? white_box={self._white_box()} (want False=party screen) "
-                 f"target slot {slot}, before_sp {before_sp}")
-        for _ in range(slot + 1):                                 # DOWN*(slot+1) -> reach `slot` (derived)
-            self._tap("DOWN"); self._wait(10)
+                 f"target party slot {slot} (display {_disp}), before_sp {before_sp}")
+        for _ in range(_disp + 1):                                # DOWN*(display+1) -> reach the row (derived
+            self._tap("DOWN"); self._wait(10)                     # on the identity fixture; order-corrected)
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(18)  # select -> sub-menu
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(18)  # confirm SHIFT
         for _adv in range(16):                                    # advance swap text until the SPECIES flips
@@ -1730,10 +1767,13 @@ class BattleAgent:
         Unknown foe types count as connecting (never over-trigger)."""
         mv = (state.get("ours") or {}).get("moves") or []
         foet = [t for t in ((state.get("enemy") or {}).get("types") or []) if t and t != "???"]
+        foe_sp = (state.get("enemy") or {}).get("species")
 
         def _connects(m):
             if not foet:
                 return True
+            if m.get("type") == "ground" and foe_sp in _LEVITATE_SPECIES:
+                return False                              # Levitate: immune despite the chart
             return pol.effectiveness(m.get("type", "normal"), foet) > 0
         return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
                        and _connects(m) for m in mv)
@@ -2044,6 +2084,17 @@ class BattleAgent:
                 if (state and not (self._enemy_fainted or self._we_fainted)
                         and self._active_pp_famine(state)
                         and state.get("ours", {}).get("species") not in self._famine_tried):
+                    # DIRTY-SCREEN GUARD (e4_run8 Agatha): the famine often trips the very turn an
+                    # item flow ends, with the BAG still on screen — the switch nav then can't reach
+                    # POKEMON ("cursor not on POKEMON") and the once-per-species try was BURNED, dooming
+                    # the battle to status-spam -> all-dry -> Struggle livelock. Close the bag and let
+                    # the next iteration retry famine with a clean action menu; consume the try only
+                    # when the attempt starts from a real menu.
+                    if self._bag_screen():
+                        self.log("   [engine] PP FAMINE deferred: bag still open -> B-closing it first "
+                                 "(try not consumed)")
+                        self._close_bag_screen()
+                        continue
                     self._famine_tried.add(state.get("ours", {}).get("species"))
                     _fs = self._pp_reserve_slot(state)
                     if _fs is not None:

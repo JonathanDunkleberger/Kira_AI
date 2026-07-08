@@ -305,6 +305,9 @@ def in_battle(bridge) -> bool:
     state tested (incl. immediately post-rival-battle)."""
     if not ram.valid_ewram_ptr(bridge.rd32(ram.GBATTLE_RES_PTR)):
         return False
+    if ram.battle_cb2_dead(bridge):
+        return False                     # phantom-battle class (e4_run3): stale res_ptr after a
+        #                                  whiteout — gMain.callback2 says we're in the WORLD
     base = GBATTLE_MONS
     sp = bridge.rd16(base + F_SPECIES)
     mhp = bridge.rd16(base + F_MAXHP)
