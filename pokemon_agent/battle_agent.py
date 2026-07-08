@@ -63,6 +63,17 @@ _ETHER_ITEMS_PREF = (37, 36, 35, 34)      # Max Elixir, Elixir, Max Ether, Ether
 # (Agatha's gengars: EQ 'connects' on paper, so chart-only famine never fires while EQ has PP).
 # Game-knowledge inline (portability debt: belongs in gamedata/ when the ability layer generalizes).
 _LEVITATE_SPECIES = {92, 93, 94, 109, 110}  # Gastly, Haunter, Gengar, Koffing, Weezing
+
+
+def _eff(move, enemy):
+    """Move-vs-foe effectiveness = the type chart WITH the ability layer on top. Levitate blocks
+    ALL Ground moves (status included, Gen 3), so Ground into a Levitate species is x0 despite the
+    chart's x2 — run21 donated 4+ free turns per Gengar picking EQ as 'super-effective' for zero
+    damage. Every move-pick judgment goes through THIS; pol.effectiveness stays the raw chart."""
+    enemy = enemy or {}
+    if move.get("type") == "ground" and enemy.get("species") in _LEVITATE_SPECIES:
+        return 0.0
+    return pol.effectiveness(move.get("type", "normal"), enemy.get("types") or [])
 _STATUS_CURE_ITEM = {"poison": 14, "burn": 15, "freeze": 16, "sleep": 17, "paralysis": 18}
 _FULL_HEAL = 23
 
@@ -1265,7 +1276,7 @@ class BattleAgent:
             cands = [i for i in range(4) if _usable(i) and i not in self._skip_streak]
             if cands:
                 idx = max(cands, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
-                          * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
+                          * _eff(ours["moves"][i], enemy))
                 desc = ours["moves"][idx].get("name", desc)
             else:
                 # Every usable move has already failed to fire this streak (or none are usable at all —
@@ -1282,10 +1293,9 @@ class BattleAgent:
                     idx = max(usable_all, key=lambda i: (
                         # prefer moves that can CONNECT (status counts); immune-damaging is last resort
                         1 if (ours["moves"][i].get("power", 0) == 0
-                              or pol.effectiveness(ours["moves"][i].get("type", "normal"),
-                                                   enemy["types"]) > 0) else 0,
+                              or _eff(ours["moves"][i], enemy) > 0) else 0,
                         max(ours["moves"][i].get("power", 0), 1)
-                        * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])))
+                        * _eff(ours["moves"][i], enemy)))
                     desc = ours["moves"][idx].get("name", desc)
                     self.log(f"   [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: "
                              f"re-firing {desc} (idling never resolves a can't-flee fight)")
@@ -1299,8 +1309,7 @@ class BattleAgent:
                     self.log("   [engine] !! MOVES EXHAUSTED — every usable move tried with no effect "
                              "this streak (or none usable); not re-spamming a dead move")
                     return "no_usable_move"
-        eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"),
-                                enemy["types"]) if 0 <= idx < len(ours["moves"]) else 1.0
+        eff = _eff(ours["moves"][idx], enemy) if 0 <= idx < len(ours["moves"]) else 1.0
         # B-1 — INEFFECTIVE-MOVE AVERSION: never swing a DAMAGING move that does NOTHING (type-immune,
         # eff==0 — e.g. a Normal move into a Ghost). That's the "keeps using a move that does nothing"
         # failure. Re-pick a move that can actually connect (resisted/0.5 moves are still useful and the
@@ -1311,15 +1320,14 @@ class BattleAgent:
             m = ours["moves"][i]
             if m.get("id", 0) == 0 or m.get("pp", 0) <= 0 or i in self._skip_streak:
                 return False
-            return not (m.get("power", 0) > 0
-                        and pol.effectiveness(m.get("type", "normal"), enemy["types"]) == 0)
+            return not (m.get("power", 0) > 0 and _eff(m, enemy) == 0)
         if 0 <= idx < 4 and ours["moves"][idx].get("power", 0) > 0 and eff == 0:
             _uc = [i for i in range(4) if _useful(i)]
             if _uc:
                 idx = max(_uc, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
-                          * pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"]))
+                          * _eff(ours["moves"][i], enemy))
                 desc = ours["moves"][idx].get("name", desc)
-                eff = pol.effectiveness(ours["moves"][idx].get("type", "normal"), enemy["types"])
+                eff = _eff(ours["moves"][idx], enemy)
                 self.log(f"   [engine] avoided a type-immune move -> {desc} (eff x{eff:g}) instead")
             elif not self._is_trainer_battle():
                 self.log("   [engine] !! NO EFFECTIVE MOVE — every usable move is type-immune here "
@@ -1337,7 +1345,7 @@ class BattleAgent:
         # TYPE-INDEPENDENTLY (bypasses the resistance), sleep neutralizes the foe. Fire it ONCE, early,
         # when the foe is still fresh (worth the turn), then go back to chipping while the status works.
         # Capability-not-script + general (cracks any resist-wall, not just Charmander). ───────────────
-        _dmg_effs = [pol.effectiveness(ours["moves"][i].get("type", "normal"), enemy["types"])
+        _dmg_effs = [_eff(ours["moves"][i], enemy)
                      for i in range(4) if _usable(i) and ours["moves"][i].get("power", 0) > 0]
         best_dmg_eff = max(_dmg_effs) if _dmg_effs else 1.0
         foe_frac = enemy["hp"] / max(enemy.get("maxhp", 1), 1)
@@ -1791,7 +1799,7 @@ class BattleAgent:
         # Razor Leaf), so the type math never tripped and the gauntlet fight chipped for 15 minutes.
         # Judge by the best USABLE damaging move she actually has; a hard-resisted moveset (<=0.25x)
         # swaps to a reserve with a neutral/SE hit (Spearow's Peck). 0.5x stays acceptable (no churn).
-        _dmg = [pol.effectiveness(m.get("type", "normal"), enemy_types)
+        _dmg = [_eff(m, state.get("enemy") or {})
                 for m in (state.get("ours", {}).get("moves") or [])
                 if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
         best_move_eff = max(_dmg) if _dmg else 1.0
@@ -1922,14 +1930,13 @@ class BattleAgent:
                        and self._move_connects(m, state) for m in mv)
 
     def _move_connects(self, m, state):
-        """Can this move DAMAGE the current foe at all? (type chart + the Levitate hole;
+        """Can this move DAMAGE the current foe at all? (_eff = type chart + the ability layer;
         unknown foe types count as connecting — never over-trigger a famine.)"""
-        foet = [t for t in ((state.get("enemy") or {}).get("types") or []) if t and t != "???"]
+        enemy = state.get("enemy") or {}
+        foet = [t for t in (enemy.get("types") or []) if t and t != "???"]
         if not foet:
             return True
-        if m.get("type") == "ground" and (state.get("enemy") or {}).get("species") in _LEVITATE_SPECIES:
-            return False                                  # Levitate: immune despite the chart
-        return pol.effectiveness(m.get("type", "normal"), foet) > 0
+        return _eff(m, enemy) > 0
 
     def _pp_reserve_slot(self, state):
         """The best ALIVE party member that still has DAMAGING PP and is not the mon already out
