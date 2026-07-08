@@ -30,6 +30,49 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 20:04 — 🏆 THE CREDITS ROLLED (night shift #18, e4_run23 lap 2) ──
+**CANONICAL = hall_of_fame (PROMOTED, sanctity VALID, backup pre_hall_of_fame_backup_20260707_200544):
+map (1,80) Hall of Fame, Venusaur L95 last-mon-standing at 7/250, credits sequence drained on-screen.**
+The closing chain: Levitate ability layer (1a464e8, VERIFIED live) + shop kit rebalance (e3a66f1,
+VERIFIED live — 5 Revives/3 Full Heals/1 Full Restore on the winning lap) + the XP ratchet
+(L66→L95 across runs 20-23) + the self-sustaining $12-14k/lap economy. Full survey = NIGHT_REPORT.md
+top block; next-session orientation = NEXT_SESSION.md. **Timeline 1 SUMMITED; timeline 2 (the Kira
+show timeline) is now unblocked and waits on Jonny's direction — the rebuild phase list is in
+NEXT_SESSION.md (soul debts → live-show sanctity audit → portable-engine harvest → prune).**
+recon_tutor_de.py = built-but-unused tutor-errand template (COMPILES, never run — she won first).
+
+### ── 2026-07-07 NIGHT SHIFT #18 — LANCE FELL ON LAP 1; GARY IS THE LAST WALL; PP-per-KO is the game ──
+**CANONICAL unchanged = indigo_reach. e4_run22 IN FLIGHT (logs/longrun/e4_run22.log, detached,
+launched 19:47, 4h deadline, E4_BOOT=banked_E4 ratchet — ace L89+, $12k+/lap self-sustaining).**
+- **run21 POSTMORTEM (killed at a clean whiteout-center bank to pick up the Levitate fix):** the
+  shift-17 poverty stack ALL VERIFIED LIVE — poverty laps bought Full Heals, Full Heals consumed
+  vs Hypnosis (use_item count drop + impostor B-drain clean), laps deepened every cycle, L82→L87
+  in ~13 min, and the FINAL LAP cleared Lorelei→Bruno→Agatha→**LANCE BEATEN**→**GARY THE
+  CHAMPION**, dying at Pidgeot on ZERO PP everywhere (Struggle recoil), banking $12,480.
+- **THE LEVITATE FIX [1a464e8, VERIFIED live in run22 lap 1]:** run21 picked EQ as "super-
+  effective x2" into Agatha's Gengar/Haunter — Levitate blocks ALL Ground moves, zero damage,
+  4+ donated turns per Gengar. `_eff(move, enemy)` (chart + ability layer) now drives the whole
+  battle_agent pick path; unit-tested (EQ/gengar x0, RL/gengar x0.5, EQ/machamp x1) AND live-
+  verified: run22 lap 1 cleared Agatha in ONE PASS (~46s), zero EQ-into-Levitate picks, and
+  reached **room #5 = GARY** at 136s with 6 Revives aboard (deepest, best-equipped attempt ever;
+  died PP-dry at his mid-team).
+- **THE BINDING CONSTRAINT = PP-per-KO.** ~50 damaging PP (RL 25 / Strength 15 / EQ 10) vs 26
+  gauntlet mons; center-heal refills PP each lap, so the whole question is PP surviving to Gary.
+  NO Ethers/Elixirs in bag or shops (recon_bagdump.py VERIFIED — mid-gauntlet refill is a dead
+  end). Convergence levers: (1) the XP ratchet (~+1.5 lv/lap, compounds one-shot rates), (2) kit
+  rebalance [e3a66f1, next boot]: 5 Revives + 3 Full Heals + FRs with the rest — run22's $12k
+  laps bought 8 Revives and NO sleep cure, and the ace sat at half HP mid-Gary with FR x0,
+  (3) queued if plateau: Double-Edge tutor = "very end of Victory Road" i.e. by the league-side
+  exit door, CLOSE to Indigo (DE 120pow/15PP over Strength 80/15 = strict damage-per-PP upgrade;
+  teach machinery reusable from hm_teach.py party/forget screens; recoil acceptable on the
+  revive economy). Lapras+Ice Beam power-level stays last resort.
+- **LAP VARIANCE IS REAL:** lap 1 = Gary; lap 2 = dead by Agatha (~197s, Hypnosis with no Full
+  Heals aboard). Don't read one bad lap as a regression — the ratchet + kit fixes push the
+  distribution's tail toward credits. Bounce runs ONLY at a fresh "[whiteout_center] BANKED"
+  line (the zero-cost window; purchases after the bank are rebuyable from banked money).
+- recon_bagdump.py = standing offline kit probe (boots a COPY of any bank, prints bag+party;
+  never touches the live run).
+
 ### ── 2026-07-07 NIGHT SHIFT #17 — THE POVERTY DEATH SPIRAL KILLED; run21 in flight ──
 **CANONICAL unchanged = indigo_reach. e4_run21 IN FLIGHT (logs/longrun/e4_run21.log, detached,
 launched ~19:50, 4h deadline, E4_BOOT=banked_E4 ratchet ~L79).** run20 postmortem (read live,

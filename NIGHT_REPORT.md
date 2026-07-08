@@ -1,3 +1,67 @@
+CREDITS
+
+# 🏆 THE CREDITS ROLLED — 2026-07-07 20:04, night shift #18, e4_run23 lap 2
+
+**HALL OF FAME BANKED + PROMOTED TO CANONICAL** (sanctity VALID incl. monotonic; backup
+`pre_hall_of_fame_backup_20260707_200544`; round-trip verified: map (1,80) Hall of Fame,
+party [venusaur L95 7/250, persian 39, fearow 37, raticate 31, ekans 17, lapras 27]).
+The full credits sequence drained on-screen (log: `logs/longrun/e4_run23.log`, the
+[credits] map-cycle at +3..+19s past the HoF bank). Deliverable per the employment
+terms: **THE CREDITS ROLL — delivered.**
+
+## THE FINAL STAND (what a viewer would have seen)
+Venusaur — the bedroom Bulbasaur, still nicknamed AAAAAAAAAA — walked into the Champion's
+room as the last body on the team, sleep-locked Gary's Charizard and chipped it from 190
+with x0.25 Razor Leaves, ONE-SHOT Rhydon (x4), and outlasted Gyarados to take the title at
+**7/250 HP, alive 1, lead 3%**. Room #6 = Hall of Fame, banked at 346s into run23.
+
+## THE CLOSING CHAIN (shift 18, ~35 min of fixes — each verified live)
+1. **Levitate ability layer** (1a464e8): run21 donated 4+ free turns per Gengar picking EQ
+   as "super-effective x2" — Levitate blocks ALL Ground moves. `_eff(move, enemy)` = chart
+   + ability layer through the whole battle_agent pick path. Run22 lap 1 cleared Agatha in
+   ONE PASS. VERIFIED.
+2. **Kit rebalance** (e3a66f1): the $12k lap bought 8 Revives and NO sleep cure; now
+   5 Revives + 3 Full Heals + Full Restores with the rest. Run23's winning lap ran exactly
+   that plan. VERIFIED.
+3. **Two zero-cost bounces** at fresh whiteout-center banks (the only safe kill window) to
+   pick the fixes up mid-night; the XP ratchet (banked_E4 re-banked every whiteout) carried
+   L66→L95 across runs 20-23 while money converged to a self-sustaining $12-14k/lap.
+
+## THE MOUNTAIN (bedroom → credits, all autonomous banks)
+Pallet bedroom → Brock → Mt Moon → Misty → Bill → S.S. Anne/Surge → Diglett's/Flash →
+Rock Tunnel → Erika → Rocket Hideout/Scope → Tower/Flute → Snorlax → Koga → TEA/Silph →
+Sabrina → Safari (HM03/04) → SEAFOAM CROSSING → Mansion Key → Blaine → Giovanni →
+Victory Road → Indigo → **Lorelei → Bruno → Agatha → Lance → GARY → HALL OF FAME**.
+Every stretch banked + promoted through the sanctity gate; the Sherpa timeline is ONE
+continuous playthrough on disk, resumable at any point in its history via the backups.
+
+## HONEST STATE (three-state)
+- E4 engine (recon_e4 + battle_agent stack): VERIFIED end-to-end by the credits themselves.
+- recon_bagdump.py (offline kit probe): VERIFIED (found the no-Ethers truth that shaped the
+  endgame economy).
+- recon_tutor_de.py (Double-Edge tutor errand): COMPILES, **never run** — she won before it
+  was needed. Kept as the template for future move-tutor errands (pret truths inline).
+- Known gaps that DIDN'T block credits (owed to the Kira timeline): bench dead weight
+  (5 mons L17-39 vs L60+ content), the AAAAAAAAAA nickname (Name Rater, Lavender),
+  double-battle target actuation, dialogue info-extraction (#12), PC/box system (#15).
+
+## WHAT THE CREDITS PROVE / WHAT THEY DON'T
+PROVEN: a blank-slate agent + the 15-block competency constitution can play FireRed
+bedroom→credits fully autonomously — navigation, team-building, economy, gym gauntlets,
+mazes, HM gates, the E4 comeback economy — on the real console loop with no RAM pokes.
+NOT YET: the SHOW. The Kira timeline (timeline 2) — fresh bedroom→credits at human pace,
+voiced, narrated, soul-on, resumable live across sessions — is now UNBLOCKED per the
+two-timeline doctrine ("nothing touches it until the E4 flag flies on timeline 1").
+The soul-debt ledger (STATE §0) is the pre-showtime work list; the E4 arc itself added
+prime set-pieces (the whiteout-and-comeback treadmill, the 7-HP final stand).
+
+WATCH STATUS: canonical bank is CLEAN (hall_of_fame — CHAMPION, credits drained); she is
+in the Hall of Fame with her half-dead team of misfits and the title; pop-in =
+`.venv\Scripts\python.exe -u pokemon_agent\play_live.py --resume --free-roam` (post-game
+Kanto: Cerulean Cave/Mewtwo is open — the love-letter episode when Jonny wants it).
+
+---
+
 # NIGHT REPORT -- started 2026-07-06 22:16
 One line per shift below (newest last). The winning session promotes the magic word to line 1.
 
@@ -40,3 +104,9 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 11 15:22->15:53 (32m): 4 commit(s), frontier ADVANCED
 - shift 12 15:54->16:35 (41m): 5 commit(s), frontier ADVANCED
 - shift 13 survey: THE E4 LIVELOCK FAMILY IS DEAD (9 commits) — cb2 battle LIVENESS kills the phantom re-attach (gMain.callback2 0x030030F4; stale GBATTLE_RES_PTR = corpse, wired into st.in_battle); PARTY-WALK FINAL FORM (run12 frame proof: gPlayerParty ITSELF is battle-ordered in-fight, gBattlePartyCurrentOrder is only the RESTORE map — walk identity, verify by OUTCOME, sweep rows on miss); fswitch FOCUS PROBE (run11 frame: 'has no will to fight!' box ate every tap under a lit border) + target rotation; famine dirty-screen guard (once-per-battle try never burned by an open bag); FOE-AWARE famine (immune-only PP = famine, Levitate table); NEW INSTINCTS all live-verified: aimed FRs, mid-battle REVIVE (fallen-ace test), PP-restore Ether at famine, vehicle chooser picks them (run9 died declining 6 revive offers); Agatha WON in repro (65s, 5/6 alive), Bruno felled through full faint chains in runs 11-13 | frontier: e4_run14 DETACHED (survives handover — CHECK FOR LIVE PYTHON FIRST, read e4_run14.log end); gauntlet grinds autonomously: whiteout->restock->rechain, no known livelocks; walls = Agatha's ace attrition then LANCE (run7 reached his room); levers if runs keep dying: revive-sweep polish + Lance sleep-lock tuning | needs eyes: none
+- shift 13 16:36->17:38 (62m): 9 commit(s), frontier ADVANCED
+- shift 14 17:39->18:45 (66m): 10 commit(s), frontier ADVANCED
+- shift 15 18:46->19:03 (17m): 3 commit(s), frontier ADVANCED
+- shift 16 19:04->19:22 (18m): 2 commit(s), frontier ADVANCED
+- shift 17 19:23->19:37 (15m): 1 commit(s), frontier ADVANCED
+- shift 18 survey: **CREDITS ROLLED 20:04** (run23 lap 2 — Levitate ability layer 1a464e8 + kit rebalance e3a66f1 + two zero-cost bounces closed the PP-per-KO wall; Venusaur L95 last-mon-standing beat Charizard/Rhydon/Gyarados at 7 HP; hall_of_fame PROMOTED to canonical, sanctity VALID) | frontier: THE KIRA TIMELINE — timeline 1 summited, timeline 2 (fresh bedroom→credits, human pace, soul-on) now unblocked; soul-debt ledger = the work list | needs eyes: Jonny — press GO on canonical for the Hall of Fame pop-in, and decide when the Kira-timeline rebuild phase starts
