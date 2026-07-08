@@ -22,6 +22,7 @@ import os
 import time
 
 from dialogue_reader import DialogueReader
+import pokemon_state as _pst        # battle gate: an engage box can lead INTO a battle mid-drain
 import world_fingerprint as wf      # MICRO watchdog: stop A-mashing an exhausted/looping NPC
 
 # FIX 1 (dialogue half) — a CYCLING NPC (it rotates through several distinct lines forever, e.g. the
@@ -120,6 +121,17 @@ class DialogueDriver:
                 return True
             self.b.press("B", 4, 10, self.render, owner=self.owner)
             self._hold_s(0.03)
+        # LAST RESORT — KEYBOARD-CLASS ESCAPE (the Celadon Eevee wedge, night shift 8): the naming
+        # KEYBOARD eats B (B only deletes typed letters), so a B-mash can never close it. START
+        # jumps the cursor to OK, A confirms; an empty name keeps the species name — a clean
+        # decline. Inert if the lock is a cutscene (START/A are eaten), so always safe to try.
+        self.b.press("START", 6, 12, self.render, owner=self.owner)
+        self._hold_s(0.05)
+        self.b.press("A", 6, 12, self.render, owner=self.owner)
+        self._hold_s(0.05)
+        if not box_open(self.b) and self._control_returned():
+            self.log("   [dlg] keyboard-class escape (START+A) regained control")
+            return True
         self.log(f"   [dlg] !! B-close did not regain control after {max_tries} tries - LOUD "
                  f"(stopping the mash anyway; caller re-paths away)")
         return False
@@ -167,10 +179,21 @@ class DialogueDriver:
         frozen = 0                                        # consecutive presses: same line + frozen world
         fp_prev = None
         seen = {}                                         # FIX 1: normalized line -> times shown (cycle detect)
+        adv_key = "A"                                     # NICKNAME GUARD: current page's advance key
+        blind = 0                                         # consecutive no-box/no-control iterations
         for _ in range(max_steps):
             if stop_when and stop_when():
                 return "stopped"
+            # BATTLE GATE (night shift 8, the '[dlg engage] max_steps=300' class): a trainer's
+            # LoS/engage intro box leads INTO a battle — overworld control never returns, and 300
+            # blind presses land on live battle menus (the erika_run2 lesson, now enforced at the
+            # PRIMITIVE, not just _drain_overworld's entry). Battle UI is the battle engine's job.
+            if _pst.in_battle(self.b):
+                self.log(f"   [dlg{(' ' + label) if label else ''}] battle opened mid-drain -> "
+                         f"handing off (battle engine owns that UI)")
+                return "in_battle"
             if box_open(self.b):
+                blind = 0
                 cur = self.dr._read_buffer()
                 new_line = bool(cur and cur != last)
                 if new_line:                              # a NEW message -> snap to FULL, then read-along
@@ -186,6 +209,16 @@ class DialogueDriver:
                                  f"walking away (cycle-watchdog)")
                         self._close_box()
                         return "exhausted"
+                    # NICKNAME-KEYBOARD GUARD (the Celadon Eevee wedge, night shift 8 — the gift-mon
+                    # class the battle path already solved): "give a nickname?" Yes/No defaults YES,
+                    # so an A opens the naming KEYBOARD — full-screen, invisible to the box band, eats
+                    # 300 blind presses and leaves the field locked FOREVER (travel then reads
+                    # "blocked at <her own tile>" — the ROCKTUNNEL (7,4) ghost). B advances text AND
+                    # answers NO, so this page (and its Yes/No) is driven with B, never A.
+                    adv_key = "B" if "nickname" in _k else "A"
+                    if adv_key == "B":
+                        self.log(f"   [dlg{(' ' + label) if label else ''}] nickname prompt — "
+                                 f"declining with B (keyboard guard)")
                     self.log(f"   [dlg{(' ' + label) if label else ''}] "
                              f"{cur.replace(chr(10), ' ')[:72]!r}")
                     # CLEAN RENDER FIX (2026-06-27, watchability): the box used to be advanced by a single
@@ -196,7 +229,7 @@ class DialogueDriver:
                     # on), so the whole line shows cleanly+instantly; THEN read-along HOLD on the full
                     # text; THEN the advance below moves to the next page. Only the RENDER is made clean —
                     # the fast advance cadence (the halved curve) is UNCHANGED.
-                    self.b.press("A", 4, 6, self.render, owner=self.owner)
+                    self.b.press(adv_key, 4, 6, self.render, owner=self.owner)
                     last = self.dr._read_buffer() or last  # adopt what's shown now (snapped-full text)
                     if DialogueDriver.line_sink is not None:
                         try:                              # hint tap: report the full accepted line
@@ -204,7 +237,7 @@ class DialogueDriver:
                         except Exception:
                             pass
                     self._hold_s(self._read_seconds(last, min_s, max_s, base_s, per_char_s))
-                self.b.press("A", 4, 10, self.render, owner=self.owner)  # advance one page, paced
+                self.b.press(adv_key, 4, 10, self.render, owner=self.owner)  # advance one page, paced
                 self._hold_s(page_gap_s)
                 fp = wf.fingerprint(self.b)               # did this press change the line OR the world?
                 advanced = new_line or (fp is None) or (fp != fp_prev)
@@ -222,8 +255,26 @@ class DialogueDriver:
                 # box not showing: either DONE (control back) or a brief between-pages gap (locked).
                 if self._control_returned():
                     return "closed"
-                self.b.press("A", 4, 10, self.render, owner=self.owner)  # still locked -> push gap
+                blind += 1
+                if blind >= 8:
+                    # BLIND-LOCK (night shift 8): no box, no control, for far longer than any
+                    # between-pages gap — a full-screen UI the box band can't see (the naming
+                    # KEYBOARD) or a long scripted hold. A-presses here TYPE on a keyboard, so
+                    # switch to B (deletes strayed letters; inert in a cutscene) and periodically
+                    # try the keyboard-class escape: START (cursor -> OK) + A (confirm; empty name
+                    # = species name kept = a clean decline).
+                    if blind % 24 == 0:
+                        self.log(f"   [dlg{(' ' + label) if label else ''}] !! blind-locked "
+                                 f"x{blind} (no box, no control) -> START+A keyboard-class escape")
+                        self.b.press("START", 6, 12, self.render, owner=self.owner)
+                        self._hold_s(0.05)
+                        self.b.press("A", 6, 12, self.render, owner=self.owner)
+                    else:
+                        self.b.press("B", 4, 10, self.render, owner=self.owner)
+                else:
+                    self.b.press("A", 4, 10, self.render, owner=self.owner)  # brief gap -> push it
                 self._hold_s(page_gap_s)
         self.log(f"   [dlg{(' ' + label) if label else ''}] !! max_steps={max_steps} reached, "
-                 f"control not regained - LOUD (not silently giving up)")
-        return "timeout"
+                 f"control not regained - LOUD (recovery sweep before giving the field back)")
+        self._close_box()          # night shift 8: never RETURN a locked field silently — the
+        return "timeout"           # B-mash + keyboard-class escape is the caller's last shield
