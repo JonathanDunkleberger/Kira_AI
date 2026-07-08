@@ -1,187 +1,97 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 12)
+# NEXT_SESSION — THE CLOSING BELL (FINAL MANDATE, CEO 2026-07-08 07:00)
 
-## ⚡ SHIFT 12 IN FLIGHT (rewrite this block as you bank)
-- **Shift 11's full 15-arc sweep SURVIVED the handover** — shift 12 found it alive (launched
-  6:09am) and is watching it (log `logs\longrun\descent_full_shift11.log`). Results so far
-  (11/15): ALL PASS except **banked_ROCKTUNNEL: WARN twedge=21**. Autopsy done from the log:
-  the WARN is ONE class — a loop of `no_route` travel wedges inside map **(19,0)** (a Route-7
-  ↔Saffron GATEHOUSE interior, tiles (6,4)/(5,5)/(6,5), "path blocked (NPC on the gap?)" —
-  a guard NPC corridor). This is exactly the stale `_blocked_npcs` corridor-seal class that
-  **5aaf72d fixed AFTER this sweep launched**. Also noted: group 19 (gatehouses) has NO
-  `_PLACE_NAMES` entry — she reads "an unfamiliar area" inside every connection gate.
-- **BANKED (adc280e): SPIN-MAZE PHANTOM-WALL FIX + spotting-freeze guard.** banked_BLAINE
-  graded WARN (twedge=23), bulk inside the Viridian Gym (5,1): SpinNav's blanket
-  templates∪live NPC mask let a beaten LoS trainer block TWO tiles (spawn + where he
-  stopped), sealing the 12-spinner maze ("spin-BFS found no route from (10,5)"). NEW
-  `travel.culled_template_tiles` (template tiles ONLY for objects absent from the live
-  array, matched by localId — template @+0, live @+0x08) + SpinNav now fights an
-  already-open battle before planning (LoS approach eats presses; next round planned over
-  frozen coords). ALSO in adc280e: live-proven `_PLACE_NAMES` — (19,0)=Route 7–Saffron
-  gate, (21,0)=Route 10 Pokémon Center. ⚠️ localId offset (+0x08) is layout-derived, not
-  yet live-probed — validate with a 60s probe (templates' localId/tile vs live) before
-  trusting the re-grade; if localIds read garbage, culled mask drops real walls (fail-soft:
-  blocked_step replans, but wedge counts would show it).
-- **SWEEP DONE (15/15, 06:43): 12 PASS / 3 WARN** — ROCKTUNNEL (21 twedge), BLAINE (23),
-  VICTORY (45). Table in DESCENT_PREGRADE.md. Every WARN autopsied + fixed this shift:
-  ROCKTUNNEL = the (19,0) gatehouse stale-NPC loop (5aaf72d, pre-committed); BLAINE = spin-
-  maze phantom walls + spotting-freeze race (adc280e); VICTORY = ×27 blind ritual legs into
-  the VR 2F boulder-sealed pocket (30b383a sealed-pocket pre-check). Second VICTORY cluster
-  (Route 23 (19,76) heal-excursion north ×10) = bounded + self-recovering (she healed via
-  Viridian) — left as-is deliberately. **localId probe: PASS** (live localIds 1:1 with
-  templates, spawn coords exact — adc280e's layout claim is live-proven).
-- **KNOWN CREVASSE (portability-debt note, not tonight's rope):** Victory Road interior is
-  STRIKE-ONLY (recon_victory.py hand-derived push sequences); the general engine has no
-  boulder-puzzle driver. Same class as Seafoam interior. For the SHOW timeline the fresh
-  climb will need either the strike promoted to questline data or a general
-  `boulder_assist` (spin_assist pattern + recon_victory's push tables as gamedata).
-- **NOW RUNNING: targeted re-grade** of the 3 WARN arcs on tonight's code
-  (`$env:DESCENT_ARCS='banked_ROCKTUNNEL,banked_BLAINE,banked_VICTORY'`,
-  log `logs\longrun\descent_regrade_shift12.log`) — expect all three wedge storms gone or
-  collapsed; NOTE it OVERWRITES DESCENT_PREGRADE.md with a 3-arc table (full 15-arc table
-  preserved in this block above + git history of DESCENT_PREGRADE.md). If this shift died
-  mid-run: read that log; re-run only if killed.
-- **THEN: (3)** evobeat verify (`.venv\Scripts\python.exe -u
-  pokemon_agent\recon_evobeat_verify.py`) — script PRE-CHECKED: every Campaign/travel name
-  it calls exists (no 569f223-class ghosts).
-  SINGLE-RUN LAW: one emulator job at a time; nothing launched within ~40 min of handover.
+This REPLACES all prior phase structures. ONE list. Everything ships TODAY-scale. No sequencing
+courtesy between items — parallelize where the emulator allows, batch everything batchable, close
+items COMPLETELY, value line per shift. The ONLY stops: a genuine needs-eyes, or the list EMPTY.
+When both A and B are done → write **SAGA CLOSED** on line 1 of NIGHT_REPORT.md.
 
-## ⚡ SHIFT 11 STATE (prior)
-- **BANKED: VIRIDIAN SPIN MAZE VERIFIED (9a DONE).** Round 1 of `recon_spinmaze_verify.py`
-  (NEW, committed) exposed the real defect: on a spinner floor BOTH loop guards are blind —
-  slides keep coords CHANGING (fp-stall never fires) across ~9 distinct tiles (position-loop
-  needs ≤3) — so the spin_assist hand-off was UNREACHABLE; she burned 500 steps in 7s
-  oscillating on row 17 (log `spinmaze_verify_shift11.log`). FIX: SPINNER NET-PROGRESS
-  TRIPWIRE in travel.py (third guard: 40 iterations with no manhattan gain toward the goal
-  on a floor with spin tiles → same glide-crosser hand-off; assist spent → abort LOUD
-  'spinner_loop', counts as a wedge). Round 2 (`spinmaze_verify_shift11_r2.log`): PASS —
-  banked_POSTGAME → house exit → Pallet→R1→Viridian → gym door → tripwire fired →
-  SpinNav 38-press glide → landed EXACTLY (2,3), 0 wedges. spin_assist live-VERIFIED.
-- **NOW RUNNING: (b) FULL 15-arc sweep** `recon_descent_grade.py 120` on tonight's code →
-  regenerates DESCENT_PREGRADE.md (log `logs\longrun\descent_full_shift11.log`, ~35 min).
-  If this shift died mid-sweep: read that log + DESCENT_PREGRADE.md; re-run only if killed.
-- **TWO MORE SWEEP-SURFACED FIXES, committed MID-sweep (the running sweep predates them —
-  re-grade at least ROCKTUNNEL + SCOPE after it finishes, fixes in):**
-  (1) 569f223 — head_to_gym's go-deeper tour called `_tile_feet_reachable`, a NEVER-DEFINED
-  name (shift-8 typo): every deeper-warp scan AttributeError'd (caught LOUD → tour never
-  went deeper; 4 crashes in the sweep log). Real helper = `_warp_hop_reachable`.
-  (2) 5aaf72d — LAYER-A staleness release: grow-only `_blocked_npcs` let a wanderer's old
-  tile wall corridors forever; near+empty marked tiles now release (this-leg marks exempt).
-  Standing close-out law (now in AUTONOMOUS_GAME_HARNESS.md): grep every long-run log for
-  `ACTION CRASHED` — a repeated identical traceback is a BUG, not weather.
-- **(c) evolution early beat: BUILT + COMMITTED (55350e1), verify QUEUED behind the
-  sweep.** _drive_evolution now gates on ANY slot's level-up (was lead-only — bench
-  evolutions left the cutscene undriven) and emits ONE tier-3 "X is evolving!" beat the
-  moment the box text appears in the gStringVar block (early, overlaps the animation).
-  Verify: `.venv\Scripts\python.exe -u pokemon_agent\recon_evobeat_verify.py` (needs the
-  emulator free — run AFTER the sweep). INCONCLUSIVE if no bundle has a past-due LEVEL
-  evolver (Ekans must be >L22 somewhere); then the beat stays WIRED-not-VERIFIED.
+## DEFINITION OF DONE
 
-## ⚡ SHIFT 10 STATE (prior)
-0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`).
-   Shift 10 read the corpse + ran SEVEN instrumented re-grade rounds. THE FINDS, all committed:
-   (a) **TRANSPOSED MapConnection read** in `_reenter_at_column` — (mapNum,mapGroup) vs our
-   (group,num): Route 1 (3,19) became (19,3), every re-entry leg no_routed forever. f59484a.
-   (b) **Center-less regroup floor**: Pallet has no CITY_PC_DOORS entry → `_regroup_walk`
-   looped 'stuck' ~25 decisions. Now rides the world graph one hop per call toward the
-   nearest known Center city. f59484a.
-   (c) travel start line logs `surf-capable` (the silent can_surf gate, rule 3). f59484a.
-1. **SURF EDGE-MOUNT (1bf0329):** at a map edge whose past-border tile is WATER, an unmounted
-   D-pad press is EATEN — the mount ceremony only lived on the mid-path land→water step.
-   Now mounts FIRST at the edge, then crosses.
-2. **N/S CONNECTION BAND (9699ab6):** "N/S flip at the edge, no overlap" is only true for
-   full-width land connections. The neighbour row IS readable one tile past the border
-   (probe: Pallet y=20 reads Route 21 water at cols 7-10 — the real bay; col 12, where she
-   blind-pressed ×6, is closed; y=-1 reads the Route 1 gap at cols 12-13). N/S goals now
-   gate to crossable columns exactly like E/W; empty band = old behavior.
-3. **ROUND 3 PROOF: THE SEA IS CROSSED** — Pallet → Route 21 live ("south connection band
-   cols", "SURF MOUNT"); terminal dead-airs DEAD. Remaining wedges = two bounces, one class:
-4. **WATER-START REACHABILITY LAW (bb6f125):** a land-only BFS dies AT ITS OWN START on a
-   surf-mounted (water) stand — grass read unreachable on every sea route (the R21
-   north↔south wander ping-pong ×16 ticks), and _door_passthrough's door-reach silently
-   skipped the Seafoam entrances across open water. Fixed at _reachable_grass,
-   catch_one._reach, _door_passthrough + new `_surf_usable()` (fail-closed). Round 4: E4 ran
-   76 battles in 7 decisions — she finds and grinds sea-route grass now. NOTE: Route 20 is
-   HONESTLY split at Seafoam (current tiles aren't SURFABLE_WATER; the billed road runs
-   THROUGH the islands via:pass — interior puzzle is strike-only, not general).
-5. **MAP-BOUND WANDER (3d03ed2) + COORD-FRAME LAW (1f442a1):** the "world tour" class
-   (Indigo→Viridian→Pewter→Cerulean→Pallet inside ONE wander_catch) = grass waypoints
-   scanned on one map chased across map flips (drift even counted as progress). catch walks
-   are now bound to the scanned map, AND travel coord-mode legs END at any map transition
-   ('transitioned' — an arrive_coord is the starting map's frame; warp-ride callers already
-   check map_id after and are unaffected).
-6. **PARTIAL-VOID / IMPOSSIBLE-STAND detector (f59484a + tick-top commits):** the QW-4 family
-   can wear a PLAUSIBLE map id while she "stands" on a fully-enclosed col=1 tile
-   (`_world_lost` only sees the full title signature). `_impossible_stand()` fires in
-   regroup's stuck-path AND at the tick top (gated on wedge growth; streak 1) →
-   `_void_recover()`. VERIFIED LIVE twice: "world restored at (3,40)@(13,45)" (round 5) and
-   at PEWTER (round 7). **ROOT-CAUSE THREAD (open): the desynced coord READ keeps x and
-   shifts y DOWN** — Pallet real ~(8,19) read (8,6) Δ13; Pewter real (20,25) read (20,4)
-   Δ21. A rebase/offset artifact after certain map flips. Grep future logs for the tripwire
-   line and diff read-vs-restored y. Shift-9's "(3,0)→(0,0)→(1,80)" transitions (pre-detector
-   code) remain unexplained; if (0,0)/(1,x) transitions no warp explains reappear, reopen.
-7. **ROUND 8 (FINAL, shift10h.log): BOTH ARCS PASS — "riskiest arcs: none".** E4 twedge 11
-   (trend across the fix chain: 26→22→32→27→21→11), SURF_TAUGHT PASS steady (14). The Pewter
-   y-shift desync recurred 3× in-window; the tick-top tripwire recovered all three (bounded
-   budget 3 — a 4th in one window abandons loud, which is correct). The last two flagged
-   descent arcs are green; DESCENT_PREGRADE.md holds the 2-arc table (the full 15-arc sweep
-   regenerates it).
-8. **LEVEL-UP EARLY BEAT: VERIFIED (F-7(c) slice 2 done).** `recon_lvlbeat_verify.py` run
-   shift 10 (log `lvlbeat_verify_shift10.log`): "my venusaur just leveled up to level 43"
-   fired with in_battle=True — inside the post-faint drain, on the grew-to box, exactly the
-   design. RESULT: PASS. (Bonus verified in the same run: dlg hm-cut auto-clears trees
-   mid-leg; sleep-lock + status strategy live.)
-9. **NEXT (in order — the successor's first moves):**
-   (a) **Viridian Gym spin maze locomotion verify** — banked_GIOVANNI/stage_giovanni are both
-   POST-badge (banked 13:14 after the badge-8 PNG) but the spin TILES persist post-badge, so
-   an honest verify = spawn banked_E4/postgame → walk into Viridian Gym (city (3,1), gym warp
-   (36,10) → map (5,1)) → cross the maze with the REAL loop (Grid.spin + Traveler.spin_assist
-   → campaign._spin_assist, un-verified live since 2eb2b05).
-   (b) **FULL 15-arc sweep on tonight's code**
-   (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, ~35 min) → the
-   clean table + ranked spot-watch list for Jonny. Do NOT launch it within ~40 min of a
-   handover (the night-loop kills in-flight runs — that's how shift 9's re-grade died).
-   (c) evolution early beat (post-battle cutscene, own seam) — still unbuilt.
+**A) POKÉMON SHOWCASE-READY**
+- [~] Fix the banked_VICTORY 153-twedge regression (the known blocker). **ROOT CAUSE FOUND +
+  FIX SHIPPED shift 14** (see in-flight block below) — re-grade RUNNING.
+- [ ] Full descent re-sweep on current code = ALL 15 arcs PASS; DESCENT_PREGRADE.md regenerated
+  complete (run AFTER the VICTORY re-grade passes; ~35 min; not within 40 min of handover).
+- [ ] GO button + watch rig + soul stack verified against final code (go.py / watch.py smoke).
+- [ ] Fresh 10-min throwaway passes the F-5 bar: bedroom→starter ~90s travel, zero wall-grinding,
+  voiced choices, mom acknowledged, no stale reactions.
+- [ ] Then ONE human watch round (Jonny) → his notes get ONE fix pass → done.
 
-## STANDING TRUTHS (carry forward)
-- Re-grade command: `$env:DESCENT_ARCS='banked_E4,banked_SURF_TAUGHT';
-  .venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120 *> logs\longrun\<log>`.
-- Full 15-arc sweep snapshot (older code): `logs\longrun\DESCENT_PREGRADE_full_shift7.md` —
-  every flagged arc since re-graded PASS except the E4 work above.
-- Standing probes from tonight: `recon_pallet_bfs_probe.py` (impossible-stand/desync
-  diagnoser + overlap-row reader), `recon_surfgate_probe.py` (can_use gate off any bundle),
-  `recon_r21_crossing_probe.py` (sea-crossing repro + frame dumps → %TEMP%\longrun\r21_probe).
-- venv python is a shim — TWO PIDs per launch; never taskkill your own run. SINGLE-RUN LAW:
-  one emulator recon at a time.
+**B) GENERAL KIRA AT HER BEST** (the 60% backlog → 100% of machine-shippable)
+- [ ] Latency war finished: full de-block of the 3860ms chain, prefetch default decision,
+  freshness windows tuned.
+- [ ] Conversation engine tuned for live chat: restraint/timing, advisors polish (G-2),
+  reject-with-reason, moderation hooks + output-side liability filter.
+- [ ] Attention Director wired (I-1b — EXTEND the existing Activity Director, rule 3).
+- [ ] Media-pacing profiles (I-1c).
+- [ ] 'Heavy lifting' tic governor (mode-side now, core recon flagged).
+- [ ] Cost receipts live (Phase J).
+- [ ] Clipper COMPLETE: all three output tiers + ranked shorts manifest per spec (10 ranked
+  shorts + 20-min superfan cut + 3-5min midform, ONE dated folder, caption source audited for
+  reuse of existing transcripts, review queue).
+- [ ] Regression: every core touch re-verified in sandbox; firewall loud-logs.
+
+**BURN DISCIPLINE UNCHANGED:** value lines, no idle-grinding while blocked, bounded recon.
+If the list empties except needs-eyes: STOP, write the couch list, stop burning.
+
+## ⚡ SHIFT 14 IN FLIGHT (rewrite as you bank)
+- **banked_VICTORY 153-twedge FAIL — ROOT CAUSE:** Route 23 (3,42) is a SPLIT MAP by design:
+  its south half is walled from its north half — **Victory Road IS the road between them**
+  (warps (5,28)→(1,39) and (18,28)→(1,40); south exit = gate warps (8,153)/(9,154)→(28,0),
+  NO south edge). Hurt in the south half, the heal ladder was component-blind: (1) "Indigo is
+  adjacent north" excursion → structurally no_route ×20/tile; (2) graph multi-hop to Indigo →
+  same; (3) Viridian fallback said "no south warp" — a LIE: enter_warp's door pre-check was
+  LAND-ONLY (`grid.walkable`), and the gate door sits across the lake. The water-start
+  reachability law (shift 10) never reached enter_warp.
+- **FIX SHIPPED (campaign.py, 5 edits, COMPILES):** `_edge_band_reachable` takes a walkable
+  layer (or_surf when `_surf_usable`); heal ladder adjacent-city step band-pre-checks from the
+  FEET before any excursion (LOUD skip); graph-hop loop pre-checks each cardinal hop (fail-fast
+  to next rung); `return_to_center` picks per-leg direction (Viridian-adjacent aware — from
+  Route 22 Viridian is EAST) + band-pre-check skips straight to warp; `enter_warp` pre-check is
+  surf-aware. Net: heal from south Route 23 = surf south → gate (28,0) → Route 22 → east →
+  Viridian. All general (helps every water-adjacent door + every split map).
+- **NOW RUNNING:** targeted re-grade `$env:DESCENT_ARCS='banked_VICTORY'` →
+  `logs\longrun\descent_regrade_shift14_victory.log`. PASS bar: twedge ≤ 20 (expect residual =
+  VR-interior ~7 + grass-remember one-offs). If PASS → launch the FULL 15-arc sweep. NOTE the
+  grader OVERWRITES DESCENT_PREGRADE.md per run (full table = git history).
+- **Residual known-crevasse (NOT tonight's rope):** Victory Road interior is STRIKE-ONLY
+  (recon_victory.py hand-derived boulder pushes); wedges inside (1,40) are bounded. Portability
+  debt filed: general boulder_assist (spin_assist pattern + push tables as gamedata).
+- Queued behind the sweep (SINGLE-RUN LAW): evobeat verify
+  (`.venv\Scripts\python.exe -u pokemon_agent\recon_evobeat_verify.py`) — INCONCLUSIVE if no
+  bundle has a past-due LEVEL evolver; then the beat stays WIRED-not-VERIFIED.
+
+## NEEDS-EYES LEDGER — THE FINAL COUCH LIST (batch for ONE sitting; surface TOGETHER, never one at a time)
+1. Fresh throwaway watch (F-5 bar) + descent spot-watches from DESCENT_PREGRADE.md (one sitting).
+2. Prefetch A/B (2 min — bot restart w/ flag + one conversation).
+3. 20-min cohost smoke with new eyes (G-4 exit).
+4. Tri-mode session (Phase I exit, 15 min).
+5. First clipper manifest review (K exit).
+(Final showtime sign-off — the Kira-timeline launch is HIS press, always.)
+
+## STANDING TRUTHS (carry forward — operational law)
+- Re-grade command: `$env:DESCENT_ARCS='<arcs>'; .venv\Scripts\python.exe -u
+  pokemon_agent\recon_descent_grade.py 120 *> logs\longrun\<log>`. Full sweep = no DESCENT_ARCS.
+- venv python is a shim — TWO PIDs per launch; never taskkill your own run. SINGLE-RUN LAW: one
+  emulator recon at a time; nothing launched within ~40 min of a handover (night loop kills
+  in-flight runs).
 - Grade harness is READ-ONLY on bundles; banked_CREDITS excluded (mid-ceremony grenade).
-- Known general gaps: Viridian spin maze (spin_assist un-verified live); level-up early beat
-  WIRED not verified; evolution early beat unbuilt; Seafoam interior = strike-only.
+- PS 5.1 `*>` logs are UTF-16 — grep fails silently; use Select-String or decode first.
 - ⚠️ PS 5.1 mangles this file's UTF-8 via Get-Content/Set-Content round-trips — edit it with
   the Write/Edit tools only.
-
-## BURN DISCIPLINE (CEO directive — density is mandatory)
-1. THE VALUE LINE in every survey. 2. Bounded recon. 3. Depth over spread. 4. No idle-grind.
-
-## NEEDS-EYES LEDGER (the ONLY loop-stoppers)
-1. Descent spot-watches — pick from DESCENT_PREGRADE.md's ranked list.
-2. Round-3 throwaway grading (F-5 bar) — after the F-1 feel-take is green.
-3. Prefetch A/B B-side — bot restart w/ flag + one conversation (2 min of Jonny).
-4. F-9 tic governor feel — rides any watched take.
-5. Cohost smoke session (G-4 exit, 20 min).
-6. Tri-mode session (Phase I exit, 15 min).
-7. Clipper output review (K exit).
-8. Final showtime sign-off — the Kira-timeline launch is HIS press, always.
-
-## WORKING-TREE LAW
-kira/* = Jonny's + approved core work under loud-log law. Prune targets (C-4 leftovers):
-untracked recon_* fleet remainder, repo-root states/, verify_dialogue.py. Throwaway
-sandboxes: `go.py --clean-throwaways` + `watch.py --clean`.
+- NIGHT-SHIFT BOT ETIQUETTE: never launch run.py unattended without checking desk presence
+  (:8766 + recent mic) first; kill the tree cleanly after.
+- kira/* = Jonny's + approved core work under loud-log law. `git add Kira/` capital-K silently
+  fails — lowercase `kira/`.
+- Known general gaps: Seafoam + Victory Road interiors = strike-only; evolution early beat
+  WIRED-not-VERIFIED; desynced coord-read root-cause thread open (detector recovers it).
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN — the TRUE post-game: the Champion at home in Pallet
-Town ((4,0)@(4,8), full healthy party — Venusaur L95, Persian, Fearow, Raticate, Ekans,
-Lapras — badges 8, player in control; sanctity VALID). She is at home, victory lap ahead
-(Cerulean Cave open; her stated want: catch Mewtwo — and the sea roads south of Pallet now
-actually carry her). Pop-in = `python pokemon_agent/watch.py` → spawn 'postgame'
-(or --canonical, safe). Her tick context opens grounded: "You're at home — indoors, inside
-a building."
+WATCH STATUS: canonical bank is CLEAN — the TRUE post-game: the Champion at home in Pallet Town
+((4,0)@(4,8), full healthy party — Venusaur L95, Persian, Fearow, Raticate, Ekans, Lapras —
+badges 8, player in control; sanctity VALID). She is at home, victory lap ahead (Cerulean Cave
+open; her stated want: catch Mewtwo). Pop-in = `python pokemon_agent/watch.py` → spawn
+'postgame' (or --canonical, safe).
+
+READY FOR THE TRAIN.

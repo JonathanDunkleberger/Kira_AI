@@ -994,11 +994,14 @@ class Campaign:
             return False
 
     @staticmethod
-    def _edge_band_reachable(grid, here, edge):
+    def _edge_band_reachable(grid, here, edge, walkable=None):
         """Can `here` BFS-reach a border tile in the map-edge's CONNECTION BAND (the rows/cols where the
         neighbour's overlap tile just past the border is walkable)? The same crossable-edge signal
         travel's edge-goal uses — a border tile OUTSIDE the band is a hard wall, so plain border
-        reachability is a false 'crossable' (the (84,15) lesson)."""
+        reachability is a false 'crossable' (the (84,15) lesson). `walkable` overrides the collision
+        layer — pass grid.walkable_or_surf when Surf is usable so water crossings (Pallet→R21 south
+        band) and water-locked bands count as crossable."""
+        wk = walkable or grid.walkable
         if edge == "east":
             line, past_d, axis = grid.sx_hi, 1, 0
         elif edge == "west":
@@ -1008,14 +1011,14 @@ class Campaign:
         else:
             line, past_d, axis = grid.sy_hi, 1, 1
         if axis == 0:
-            band = {p for p in range(grid.sy_lo, grid.sy_hi + 1) if grid.walkable(line + past_d, p)}
+            band = {p for p in range(grid.sy_lo, grid.sy_hi + 1) if wk(line + past_d, p)}
             goal = lambda t: t[0] == line and t[1] in band
         else:
-            band = {p for p in range(grid.sx_lo, grid.sx_hi + 1) if grid.walkable(p, line + past_d)}
+            band = {p for p in range(grid.sx_lo, grid.sx_hi + 1) if wk(p, line + past_d)}
             goal = lambda t: t[1] == line and t[0] in band
         if not band:
             return False
-        return bool(tv.bfs(grid, here, goal, walkable=grid.walkable))
+        return bool(tv.bfs(grid, here, goal, walkable=wk))
 
     def heal_nearest(self):
         """Heal at the Pokemon Center NEAREST the CURRENT map. Returns 'ok' | 'stuck'.
@@ -1093,8 +1096,24 @@ class Campaign:
         # cross to a registered-Center neighbour, heal, return — the Route-3->Pewter pattern, general.
         _EDGEU = {"N": "north", "S": "south", "E": "east", "W": "west"}
         _REVU = {"north": "south", "south": "north", "east": "west", "west": "east"}
+        # REACHABILITY PRE-CHECK (2026-07-08, the Route-23 153-twedge storm): a map can be SPLIT into
+        # components the connection graph can't see — Route 23's south half is walled from its north
+        # half by design (Victory Road IS the road between them). "Indigo is adjacent north" is true
+        # at map granularity and a lie at feet granularity; every un-checked excursion north burned a
+        # travel-wedge cycle. Band-check from the FEET (surf-aware) before committing any leg.
+        _hgrid = _hhere = _hwk = None
+        try:
+            _hgrid, _hhere = tv.Grid(self.b), tv.coords(self.b)
+            _hwk = _hgrid.walkable_or_surf if self._surf_usable() else None
+        except Exception as _ge:
+            log(f"   HEAL: pre-check grid unavailable ({_ge!r}) — proceeding un-checked (LOUD)")
         for d, nbr in self._map_connections():
             if tuple(nbr) in CITY_PC_DOORS and tuple(nbr) != tuple(m) and d in _EDGEU:
+                if _hgrid is not None and _hhere is not None and not self._edge_band_reachable(
+                        _hgrid, _hhere, _EDGEU[d], walkable=_hwk):
+                    log(f"   HEAL: ADJACENT city {self.world.name(tuple(nbr))} ({d}) band UNREACHABLE "
+                        f"from feet (split map, Route-23 class) — skipping the excursion")
+                    continue
                 log(f"   HEAL: unmapped {m} — ADJACENT city {self.world.name(tuple(nbr))} ({d}) has a "
                     f"registered Center; one-edge heal excursion")
                 if self._heal_excursion(tuple(nbr), CITY_PC_DOORS[tuple(nbr)], _EDGEU[d],
@@ -1124,6 +1143,18 @@ class Campaign:
                     if hop is None:
                         log(f"   !! HEAL: graph route to {dest} broke at {cur} (LOUD)"); break
                     nxt, edge = hop
+                    # Route-23-class pre-check: a cardinal hop the FEET can't reach (split map)
+                    # would wedge travel x4 and retry x8 — fail FAST to the next ladder rung.
+                    if edge in ("north", "south", "east", "west"):
+                        try:
+                            _g = tv.Grid(self.b)
+                            _w = _g.walkable_or_surf if self._surf_usable() else None
+                            if not self._edge_band_reachable(_g, tv.coords(self.b), edge, walkable=_w):
+                                log(f"   !! HEAL: graph hop {cur}->{nxt} ({edge}) band UNREACHABLE "
+                                    f"from feet (split map) — abandoning the graph route (LOUD)")
+                                break
+                        except Exception:
+                            pass               # pre-check is advisory; travel stays the arbiter
                     if self.trav.travel(target_map=nxt, edge=edge) == "battle_loss":
                         return "ok"        # blacked out en route -> respawn auto-heals at a Center
                 if tuple(tv.map_id(self.b)) == dest:
@@ -1168,9 +1199,13 @@ class Campaign:
             # instantly instead of a slow walk-then-fail. Uses grass-ALLOWED collision
             # (grid.walkable, not _safe): grass-heavy maps like Viridian Forest are
             # wall-to-wall tall grass, so a grass-free pre-check wrongly skips every door.
+            # SURF-AWARE (2026-07-08, Route-23 "no south warp" lie): the gate door at (8,153)
+            # sits across the lake — a land-only pre-check skipped the ONLY exit from the
+            # route's south half. Same water-start law as _reachable_grass/_door_passthrough.
             grid = tv.Grid(self.b)
+            _wk = grid.walkable_or_surf if self._surf_usable() else grid.walkable
             if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
-                      walkable=grid.walkable):
+                      walkable=_wk):
                 log(f"   reachable door {door}: walking to approach {approach}")
                 # max_steps 900 (was 300): a long-map approach (Route 12's ~100-row pier maze,
                 # sabrina_run2) burns 300 steps on obstacle re-routing and dies 26 rows short —
@@ -1845,18 +1880,40 @@ class Campaign:
         self._suppress_heal = True              # don't re-trigger heal WHILE returning to heal
         self.trav.battle_runner = self._flee_runner   # RETREAT: flee wild fights on the way out
         try:
+            _EDGED = {"N": "north", "S": "south", "E": "east", "W": "west"}
             for leg in range(20):
                 m = tv.map_id(self.b)
                 if m == VIRIDIAN:
                     break
-                out = self.trav.travel(target_map=VIRIDIAN, edge=edge, max_steps=800)
+                # PER-LEG direction (2026-07-08, the Route-23 gate road): after a warp hop the fixed
+                # north/south heuristic is stale — from Route 22 Viridian is EAST. When Viridian is a
+                # live connection of THIS map, head straight at it.
+                edge_leg = edge
+                try:
+                    for _d, _nbr in self._map_connections():
+                        if tuple(_nbr) == tuple(VIRIDIAN) and _d in _EDGED:
+                            edge_leg = _EDGED[_d]
+                            break
+                except Exception:
+                    pass
+                # Band pre-check (surf-aware): an edge the feet can't reach (split map / interior)
+                # goes STRAIGHT to the warp attempt instead of burning a travel-wedge cycle.
+                band_ok = True
+                try:
+                    _g = tv.Grid(self.b)
+                    _w = _g.walkable_or_surf if self._surf_usable() else None
+                    band_ok = self._edge_band_reachable(_g, tv.coords(self.b), edge_leg, walkable=_w)
+                except Exception:
+                    pass
+                out = (self.trav.travel(target_map=VIRIDIAN, edge=edge_leg, max_steps=800)
+                       if band_ok else "no_edge")
                 if out == "arrived":
                     continue                       # crossed an edge toward Viridian
                 if out == "battle_loss":
                     return "battle_loss"           # blacked out en route -> auto-heals at Viridian
-                log(f"   HEAL-RETURN leg {leg}: no {edge} edge on map {m} - warping {edge}")
-                if self.enter_warp(prefer=edge) != "warped":
-                    log(f"   !! HEAL-RETURN stuck on map {m} (no {edge} edge, no {edge} warp)")
+                log(f"   HEAL-RETURN leg {leg}: no {edge_leg} edge on map {m} - warping {edge_leg}")
+                if self.enter_warp(prefer=edge_leg) != "warped":
+                    log(f"   !! HEAL-RETURN stuck on map {m} (no {edge_leg} edge, no {edge_leg} warp)")
                     return "stuck"
             if tv.map_id(self.b) != VIRIDIAN:
                 log(f"   !! HEAL-RETURN did not reach Viridian (at {tv.map_id(self.b)})")
