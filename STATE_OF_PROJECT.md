@@ -30,6 +30,33 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #14 — THE ORDER LAW: menu-time content walks (run14 wall killed) ──
+**CANONICAL unchanged = indigo_reach. e4_run15 IN FLIGHT (logs/longrun/e4_run15.log, detached)
+carrying b7c21d0.** Run14 postmortem (every attempt died at a fainted ace): the shift-13 "final
+form" was STILL half-wrong — new probe `recon_partytruth.py` (frame+RAM, banked_E4 fixture)
+settles it for good:
+- **THE ORDER LAW [VERIFIED, probe]:** gPlayerParty HP is LIVE always (Raticate ticked
+  37→24→11→7→0 at its own slot). While the party MENU is open the game PHYSICALLY rearranges
+  gPlayerParty into display order and RESTORES it on close. Menu row i IS gPlayerParty[i]
+  ONLY while the menu is up. The whole family (run12 double-convert, run14 revive-on-wrong-row,
+  voluntary switch mis-lands) = carrying a slot index ACROSS the menu-open boundary.
+- **run14's actual churn, frame-diagnosed:** Revive aimed at pre-menu "slot 0" confirmed the
+  HEALTHY active mon's panel → "no effect" boxes ate the sweep; the fswitch focus-probe's blind
+  DOWN moved the SEND OUT sub-menu cursor to ▶SUMMARY → confirm A opened the summary screen →
+  3-min churns into corpses → whiteout loop (money → $0, no re-shop within a run).
+- **Fix (b7c21d0) [VERIFIED, recon_revive_verify.py — forced ace-faint chain vs Agatha]:**
+  `_menu_rows()` (menu-time content = walk truth), `_party_focus()` (B-first on the sub-menu —
+  pixel discriminator (210,130)+(230,130) white vs teal; DOWN-probe requires real movement;
+  never A unfocused), fswitch/switch/item-aim all pick rows by content at menu time (aim kinds
+  'active'/'fainted', species-pinned switch confirm). Repro result: revive consumed at menu
+  rows 3 AND 5 across two opens (the rows really move), 0 NOT-consumed, 0 focus failures, ace
+  resurrected, AGATHA WON. `gBattlerPartyIndexes=0x02023BCE` confirmed + billed.
+- **Ops:** vendored mgba `memory.__setitem__` is BROKEN (wrong arg count) — use
+  `u16.raw_write(addr, val)`; recon_revive_verify = standing party-walk regression fixture.
+- **Eyes owed:** `_switch_to_slot` rewrite (famine/voluntary switch) fail-safed but only
+  indirectly exercised — watch "[engine] switch:" lines in run15.
+**FRONTIER: run15 through Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
+
 ### ── 2026-07-07 NIGHT SHIFT #13 — the LIVELOCK FAMILY dies: cb2 liveness + display-order walks ──
 **CANONICAL unchanged = indigo_reach. e4_run9 IN FLIGHT (logs/longrun/e4_run9.log) — full fix
 stack aboard.** Runs 7/8 postmortem (both died in Agatha livelocks; run7 attempt-1 CLEARED

@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 ~17:15, night shift #13 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07 ~18:05, night shift #14 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -12,90 +12,67 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` **e4_run14 DETACHED**
+⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run15 DETACHED**
 (Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run14.log END before touching anything). Earlier runs
-(logs logs/longrun/e4_runN.log) with the FULL fix stack: cb2 liveness, fswitch FOCUS
-PROBE (c7d7b6d — run11 frame: a "has no will to fight!" message box ate every tap
-while the lit border FAKED focus; probe with a tap, require MOVEMENT), target rotation
-(dfe3646), dirty-screen famine guard, revive/ether instincts + a chooser that PICKS
-them (85190d0), and the PARTY-WALK FINAL FORM (b6bfda3, run12 frame proof):
-**gPlayerParty ITSELF is battle-ordered during a fight** — a live-scanned slot is
-ALREADY the display row; gBattlePartyCurrentOrder is only the RESTORE map (converting
-through it DOUBLE-converts). Walk identity + verify by OUTCOME (count-drop / healthy-
-active), sweep rows on failure. Runs 11/12 proved the instinct stack live: aimed FRs,
-mid-battle revives, the Ether at famine, Bruno + 4/5 of Agatha falling through full
-faint chains. THE CREDITS ARE THE NEXT BANK.**
-FIRST MOVE: check for a live python process + read the newest e4_runN.log END.
+read logs/longrun/e4_run15.log END before touching anything). run15 carries the
+**PARTY-MENU ORDER LAW fix (b7c21d0)** — the wall that killed every run14 attempt.
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
 run between "HALL OF FAME" and "BANKED".
 
-**RUN 7/8 TRUTH CHAIN (shift-13 postmortems — read before touching the vehicle):**
-- run7 attempt 1 CLEARED AGATHA (again — she IS beatable on one tank) and entered
-  LANCE's room (alive 3, lead 0%); whiteout at Lance; ALL 10 FRs burned on Agatha.
-- The re-chain then died in the BURNED-FAMINE LIVELOCK (root-caused + FIXED
-  18ec09b/later): the famine switch used to fire the same turn an item flow ended,
-  with the BAG still on screen → "_goto_pokemon failed" → the once-per-species
-  famine try was CONSUMED → status-spam → all-dry → Struggle/abort forever. NOW:
-  dirty-screen guard (bag closed first, try not consumed).
-- PHANTOM-BATTLE CLASS KILLED (run3's suspicion, now wired): st.in_battle +
-  recon_e4.fight_open now require gMain.callback2 (0x030030F4) NOT be
-  CB2_Overworld/CB2_WhiteOut (0x080565B5/0x080566A5 thumb) — a stale
-  GBATTLE_RES_PTR after whiteout is a corpse, never re-attach. LIVE-VERIFIED:
-  battle frames show only 0x08010509/0x08011101 over 1200 frames incl. menus.
-- Engine upgrades shipped 18ec09b+8233b90: FOE-AWARE famine (immune-only PP = famine;
-  Levitate table for Gengar-line EQ hole), REVIVE instinct (_revive_worthy_slot:
-  fainted mon out-levels all standing), PP-RESTORE instinct (Ether/Elixir at famine;
-  canonical bag holds x1 Ether), item AIM wired (1a5ed9f built it, nothing called it)
-  via border-readback + wait-for-party-screen.
-- ⚠️ OPEN AT WRITE TIME: use_revive actuation still "selected but NOT consumed" in
-  agatha_diag2/3 (logs logs/longrun/agatha_diagN.log) — instrumented walk (per-press
-  party/bag/white + itemfail frame to agatha_probe/) riding agatha_diag4; read that
-  log's use_item walk lines for the mechanism. recon_agatha.py now boots banked_E4
-  (the live room3 bank) — the standing Agatha repro fixture.
-- recon_e4.py now sets BATTLE_DEBUG_DIR itself (runs 7-8 aborted with ZERO frames
-  because the env never rode my launches — never trust the launcher shell).
-- Launch: `.venv\Scripts\python.exe -u pokemon_agent\recon_e4.py` with stdout to
-  logs/longrun/e4_runN.log. Fresh boot re-loads canonical ($63k restored), re-shops,
-  re-clears rooms 1-2 in ~3 min at 14x.
+**THE ORDER LAW (shift-14, b7c21d0 — supersedes ALL prior party-walk models; probe
+recon_partytruth.py, frame+RAM proof):** gPlayerParty HP is LIVE and accurate at all
+times. While the in-battle party MENU is open, the game PHYSICALLY rearranges
+gPlayerParty into display order (gBattlePartyCurrentOrder nibbles) and RESTORES it on
+menu close. Menu row i IS gPlayerParty[i] — but ONLY while the menu is open. NEVER
+carry a slot index across the menu-open boundary: decide WHAT to target before the
+menu (species / 'active' / 'fainted'), resolve WHICH ROW by content at menu time
+(battle_agent._menu_rows). gBattlerPartyIndexes = 0x02023BCE confirmed.
 
-**THE GAUNTLET LAW (shift-12, commit 2d7234d): E4 RESETS ON WHITEOUT** — DEFEATED
-flags do NOT survive a whiteout (run5 proof: post-whiteout she re-fought Lorelei).
-E4 = ONE UNBROKEN RUN Lorelei→Bruno→Agatha→Lance→Gary on one tank of PP
-(~RL25+EQ10+SP15+SecretPower20). Per-room banked_E4 = diagnosis only. Whiteout-
-attrition does NOT accumulate; each attempt is fresh-from-canonical. The doors lock
-behind her — no mid-chain center heal.
+**RUN14 POSTMORTEM (why every attempt died):** ace faints → Revive aimed at pre-menu
+"slot 0" → confirmed the healthy active mon's lead panel → "It won't have any
+effect." boxes ate the sweep; fswitch's blind DOWN focus-probe moved the SEND OUT
+sub-menu cursor to SUMMARY → the confirm A opened the summary screen → 3-minute
+churns into corpses → whiteout, repeat. Fixed: _party_focus (B-first on the sub-menu,
+pixel discriminator (210,130)+(230,130) white; DOWN-probe requires real movement;
+never A unfocused), menu-time row picks everywhere (fswitch, _switch_to_slot, item
+aim). VERIFIED on the forced ace-faint Agatha repro (recon_revive_verify.py): revive
+consumed at menu rows 3 AND 5 across two opens, 0 NOT-consumed, 0 focus failures,
+ace resurrected, Agatha WON. That repro (boots banked_E4, writes ace hp=1 via
+b.core.memory.u16.raw_write — note: raw_write, the vendored __setitem__ is broken)
+= the standing fixture for any party-walk regression.
+
+**THE GAUNTLET LAW (shift-12, 2d7234d): E4 RESETS ON WHITEOUT** — one unbroken run
+Lorelei→Bruno→Agatha→Lance→Gary on one tank of PP. Per-room banked_E4 = diagnosis
+only. Fresh recon_e4 boot re-loads canonical ($63k restored), re-shops (FR x10,
+Revive x6, Full Heal x4), re-clears rooms 1-2 in ~3 min at 14x. In-run whiteouts
+drain money to $0 → later attempts in the SAME run can't re-shop; the kit persists
+through whiteout though (items aren't lost, only unconsumed).
 
 **KNOWN WALLS (in kill order):**
-- Agatha = the PP sink (ghosts resist RL x0.5, EQ dead vs Levitate/Gengar,
-  Secret Power dead vs Ghost; she Full-Restores + Hypnosis/Confuse Ray stalls).
-  Run3 attempt-1 DID clear her at L66 (Struggle-recoil finish) — she is beatable
-  on one tank.
-- Lance killed run3 attempt-1 (arrived with 3 fainted). With FRs now actually
-  consuming (bag TRUE-row fix 928dd53) arrival state should be far better.
-- **REVIVES bought but NEVER offered in-battle** — the #1 unbuilt lever: if
-  Venusaur faints vs Agatha/Lance, a Revive→FR resurrection from a sacrificial
-  bench mon turns a loss into a continue. The party-screen AIM machinery already
-  exists (post-switch item AIM, shift 12); wiring 'use_revive' into the
-  ITEM-INSTINCT offer when ace fainted = the highest-value fix if runs keep dying
-  at Lance. Build it on a STAGING copy while a run flies.
-- run3's PHANTOM battle re-attach (fight_open pointer stale after whiteout) —
-  anti-wedge now dumps forensics to G:/temp/longrun/e4_probe; read that on any
-  wedge. Class: needs LIVENESS check not pointer check.
+- Agatha = the PP sink (ghosts resist RL, EQ dead vs Levitate/Gengar, Secret Power
+  dead vs Ghost; she Full-Restores + status-stalls). Beatable at L66 — proven twice
+  now (run7 attempt-1, revive_verify with a forced faint chain).
+- Lance = the frontier wall. Arrival state is everything: with revives now actually
+  consuming, arrivals should carry a standing ace instead of 3 corpses.
+- Watch run15 for the famine/voluntary switch path ("[engine] switch:" lines) — the
+  _switch_to_slot rewrite (species-pinned confirm) is fixture-verified only
+  indirectly; it is fail-safed (B-out → keeps fighting) but eyes on first live use.
 
-**KNOWN GAPS (owed, non-blocking):** double-battle target actuation (E4 all
-singles — fine); Venusaur "AAAAAAAAAA" (Name Rater, Lavender); bench dead weight;
-VR loot backlog.
-**SOUL-DEBT:** Seafoam crossing + Lapras first-Surf + quiz gym + badge-8
-homecoming + VICTORY-ROAD CLIMB + Gary-before-the-gate + THE E4 GAUNTLET +
-whiteout-and-comeback arcs = prime narration set-pieces owed.
+**KNOWN GAPS (owed, non-blocking):** double-battle target actuation (E4 all singles);
+Venusaur "AAAAAAAAAA" (Name Rater, Lavender); bench dead weight; VR loot backlog.
+**SOUL-DEBT:** Seafoam crossing + Lapras first-Surf + quiz gym + badge-8 homecoming +
+VICTORY-ROAD CLIMB + Gary-before-the-gate + THE E4 GAUNTLET + whiteout-and-comeback
+arcs = prime narration set-pieces owed.
 
-**WORKING-TREE LAW:** kira/* changes = Jonny's Gemini-vision WIP — NEVER
-commit/sweep. **py-spy is in .venv** — first tool for any silent wedge. Kill
-orphan runs with taskkill //F //T (single-run law). Never kill a strike between
-"goal=True" and "BANKED".
+**WORKING-TREE LAW:** kira/* changes = Jonny's Gemini-vision WIP — NEVER commit/sweep.
+**py-spy is in .venv** — first tool for any silent wedge. Kill orphan runs with
+taskkill //F //T (single-run law). Never kill a strike between "goal=True" and
+"BANKED". Launch: `.venv\Scripts\python.exe -u pokemon_agent\recon_e4.py` with stdout
+to logs/longrun/e4_runN.log (recon_e4 sets BATTLE_DEBUG_DIR itself → G:/temp/longrun/
+e4_probe; frames land there on every wedge — LOOK at them, one glance beats an hour
+of log archaeology).
 
 Rules in force: EMPLOYMENT TERMS, tripwire, arsenal, single-run law,
 ground-truth-only, frontier-first rewrites. GO.
