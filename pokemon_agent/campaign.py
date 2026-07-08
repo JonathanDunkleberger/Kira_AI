@@ -1377,13 +1377,18 @@ class Campaign:
         except Exception:
             _nc = set()
         cands = []
+        # WATER-START/WATER-ROAD (night shift 10): a sea-route connector (the Seafoam entrances
+        # on Route 20) sits across open water — the land-only reach test silently skipped it and
+        # the passthrough reported no_passthrough from a surf stand. Same layer law as the grass
+        # reachability: plan over land+water when Surf is usable.
+        _wlk = grid.walkable_or_surf if self._surf_usable() else grid.walkable
         for wt in door_dest:
             if wt in tried:
                 continue
             if tuple(door_dest.get(wt) or ()) in _nc:
                 continue
             if tv.bfs(grid, pos0, lambda t, w=wt: t == w or
-                      (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=grid.walkable):
+                      (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=_wlk):
                 cands.append(wt)
         def _dest_rank(t):
             dm = tuple(door_dest.get(tuple(t)) or ())
@@ -3372,9 +3377,12 @@ class Campaign:
         # If NONE is reachable (walled off, or a bad early-spawn target — the live (9,60)->(2,2) wedge),
         # return UP to roam so the oracle picks a different action, instead of travel spinning a dead
         # target for minutes (capability-not-script: she decides, we don't script the escape).
+        # WATER-START (night shift 10): from a surf-mounted (water) stand the land-only layer dies
+        # at its own start tile — ride land+water when Surf is usable (executor owns the ceremony).
+        _wlk = g_now.walkable_or_surf if self._surf_usable() else g_now.walkable
         def _reach(tile):
             return bool(tv.bfs(g_now, cur0, lambda t: t == tile,
-                               walkable=lambda sx, sy: g_now.walkable(sx, sy) and (sx, sy) not in doors))
+                               walkable=lambda sx, sy: _wlk(sx, sy) and (sx, sy) not in doors))
         reachable = [t for t in grass if _reach(t)]
         if not reachable:
             log(f"   !! CATCH: {len(grass)} grass tile(s) here but NONE reachable from {cur0} "
@@ -5486,6 +5494,16 @@ class Campaign:
             log(f"   [roam] connection read failed: {e}")
             return []
 
+    def _surf_usable(self):
+        """True when Surf would actually work (known + badge) — the gate for water-aware
+        reachability layers. Fail-CLOSED on read flakes: a false negative degrades to the old
+        land-only behavior, a false positive would bill unreachable water roads as roads."""
+        try:
+            import field_moves as _fm
+            return bool(_fm.can_use(self.b, "surf"))
+        except Exception:
+            return False
+
     def _reachable_grass(self):
         """Confirmed huntable grass on the CURRENT map: a grass tile INSIDE playable bounds that BFS can
         reach from the player. Returns the reached grass save-coord, else None. Excludes connection-bleed
@@ -5502,7 +5520,12 @@ class Campaign:
                     if g.sx_lo <= sx <= g.sx_hi and g.sy_lo <= sy <= g.sy_hi}
         if not playable:
             return None
-        path = tv.bfs(g, co, lambda t: t in playable)
+        # WATER-START (night shift 10, the Route 21 wander ping-pong): a surf-mounted stand is a
+        # WATER tile — the land-only BFS dies at its own start and every grass on a sea route reads
+        # "unreachable", so wander_catch bounced between the two Route 21 halves all window. With
+        # Surf usable, plan over land+water (the executor owns mount/dismount).
+        walk = g.walkable_or_surf if self._surf_usable() else g.walkable
+        path = tv.bfs(g, co, lambda t: t in playable, walkable=walk)
         return path[-1] if path else None
 
     def _learn_map(self, state=None):
