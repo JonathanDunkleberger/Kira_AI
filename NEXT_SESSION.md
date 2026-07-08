@@ -1,15 +1,22 @@
 # NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 11)
 
 ## ⚡ SHIFT 11 IN FLIGHT (rewrite this block as you bank)
-- **NOW RUNNING:** `recon_spinmaze_verify.py` (NEW) — Viridian Gym spin-maze locomotion
-  verify per shift-10 handoff 9(a): spawn banked_POSTGAME → exit house →
-  Pallet→Route1→Viridian → gym door (36,10) → map (5,1) → cross the maze to (2,3)
-  (Giovanni hidden post-badge; tile open per pret ViridianGym.json). Log:
-  `logs\longrun\spinmaze_verify_shift11.log`. PASS/FAIL semantics in the script header.
-  If this shift died mid-run: read that log tail; PASS → next is (b) the FULL 15-arc
-  sweep; FAIL → diagnose the maze leg (spin_assist seam campaign.py:2622 / travel.py:1185).
-- Then: (b) full 15-arc sweep `recon_descent_grade.py 120` (~35 min — NOT within 40 min
-  of handover); (c) evolution early beat (post-battle cutscene, own seam) — unbuilt.
+- **BANKED: VIRIDIAN SPIN MAZE VERIFIED (9a DONE).** Round 1 of `recon_spinmaze_verify.py`
+  (NEW, committed) exposed the real defect: on a spinner floor BOTH loop guards are blind —
+  slides keep coords CHANGING (fp-stall never fires) across ~9 distinct tiles (position-loop
+  needs ≤3) — so the spin_assist hand-off was UNREACHABLE; she burned 500 steps in 7s
+  oscillating on row 17 (log `spinmaze_verify_shift11.log`). FIX: SPINNER NET-PROGRESS
+  TRIPWIRE in travel.py (third guard: 40 iterations with no manhattan gain toward the goal
+  on a floor with spin tiles → same glide-crosser hand-off; assist spent → abort LOUD
+  'spinner_loop', counts as a wedge). Round 2 (`spinmaze_verify_shift11_r2.log`): PASS —
+  banked_POSTGAME → house exit → Pallet→R1→Viridian → gym door → tripwire fired →
+  SpinNav 38-press glide → landed EXACTLY (2,3), 0 wedges. spin_assist live-VERIFIED.
+- **NOW RUNNING: (b) FULL 15-arc sweep** `recon_descent_grade.py 120` on tonight's code →
+  regenerates DESCENT_PREGRADE.md (log `logs\longrun\descent_full_shift11.log`, ~35 min).
+  If this shift died mid-sweep: read that log + DESCENT_PREGRADE.md; re-run only if killed.
+- **BUILDING meanwhile: (c) evolution early beat** — emit at cutscene START ("X is
+  evolving!" box, dialogue read) so her line lands DURING the 20-30s animation; naming
+  beat at the end already exists (campaign._drive_evolution, campaign.py:2044).
 
 ## ⚡ SHIFT 10 STATE (prior)
 0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`).

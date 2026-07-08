@@ -39,6 +39,13 @@ NUM_PRIMARY = 640                  # metatile ids < 640 use the primary tileset
 # POS_LOOP_WINDOW steps without arriving, she's spinning (warp/spinner) -> bail. Env-tunable.
 POS_LOOP_WINDOW = int(os.getenv("POKEMON_POS_LOOP_WINDOW", "18"))
 POS_LOOP_DISTINCT = int(os.getenv("POKEMON_POS_LOOP_DISTINCT", "3"))
+# SPINNER NET-PROGRESS TRIPWIRE (night shift 11, the Viridian Gym row-17 oscillation): on a
+# forced-slide floor BOTH loop guards are blind — slides keep the coords CHANGING (the fp-stall
+# wedge never fires) across MANY distinct tiles (position-loop needs <=POS_LOOP_DISTINCT) while
+# the spin-blind BFS re-plans forever (500 steps burned in 7s headless, assist never reached).
+# Third guard: this many loop iterations without the manhattan distance to the goal improving,
+# on a floor that HAS spin tiles, means the maze is winning -> glide-crosser hand-off.
+SPIN_PROGRESS_STEPS = int(os.getenv("POKEMON_SPIN_PROGRESS_STEPS", "40"))
 # tall-grass / encounter behavior. 0x02 = MB_TALL_GRASS (the walkable grass that
 # spawns wild battles), read from the u32 metatileAttributes low byte. Planning
 # PREFERS grass-free tiles but falls back to crossing grass when there's no dry route
@@ -784,6 +791,7 @@ class Traveler:
         # so free_roam re-routes. NOT a puzzle solver (deterministic warps are a separate scoped item) —
         # this is the can't-loop-forever floor, the overworld sibling of the battle flee / dialogue cycle floors.
         _pos_window = deque(maxlen=POS_LOOP_WINDOW)
+        _spin_best, _spin_noprog = None, 0   # spinner net-progress tripwire state (see constants)
         _bstuck = [0]   # 2026-07-06 BATTLE-LOOP BREAKER: consecutive unresolved 'stuck' battles
         for step in range(max_steps):
             # LAYER B cooperative cancel: the universal watchdog latched a disengage -> bail this leg
@@ -802,6 +810,41 @@ class Traveler:
                     self.on_event("I keep getting moved in circles here — let me find another way around.")
                     self.last_fail_reason = "position_loop"
                     return "stuck"
+                # SPINNER NET-PROGRESS TRIPWIRE (see constants): only on floors with spin tiles
+                # and only for coord legs (edge legs never target a spinner interior).
+                if grid.spin and arrive_coord is not None:
+                    _d = abs(_pc[0] - arrive_coord[0]) + abs(_pc[1] - arrive_coord[1])
+                    if _spin_best is None or _d < _spin_best:
+                        _spin_best, _spin_noprog = _d, 0
+                    else:
+                        _spin_noprog += 1
+                    if _spin_noprog >= SPIN_PROGRESS_STEPS:
+                        if self.spin_assist is not None and not spin_assist_tried:
+                            spin_assist_tried = True
+                            self.log(f"   [travel] SPINNER NET-PROGRESS tripwire: {_spin_noprog} "
+                                     f"iterations without gaining on {arrive_coord} across a "
+                                     f"{len(grid.spin)}-spinner floor -> glide-crosser assist")
+                            try:
+                                if self.spin_assist(tuple(arrive_coord)):
+                                    no_path = stuck = fp_stall = 0
+                                    last_fp = None
+                                    plan_cache = None
+                                    _pos_window.clear()
+                                    _spin_best, _spin_noprog = None, 0
+                                    grid = Grid(self.b)   # assist may collect a ball (topology)
+                                    continue
+                            except Exception as _se:
+                                self.log(f"   [travel] !! spin assist error: {_se}")
+                        # assist spent/absent/failed -> abort LOUD; never burn the whole step
+                        # budget sliding in circles (the 500-steps-in-7s class).
+                        self.log(f"   [travel] !! SPINNER LOOP: no net progress in {_spin_noprog} "
+                                 f"iterations at {_pc} map={map_id(self.b)} and no assist left "
+                                 f"-> ABORT LOUD")
+                        self.on_event("these spin tiles keep throwing me around — I need to "
+                                      "rethink this route")
+                        self.last_fail_reason = "spinner_loop"
+                        self.wedge_total += 1
+                        return "stuck"
             # TRAVEL MUSE: fill a long silent WALK (no encounter/arrival to react to) with a neutral
             # "taking it in" beat so she isn't dead-air for 30-50s. Never during a battle; gated by
             # the voice floor like any beat. Her self colors the neutral seed.
