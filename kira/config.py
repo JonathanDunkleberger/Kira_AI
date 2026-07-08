@@ -327,6 +327,16 @@ STREAM_LOGGING_ENABLED = os.getenv("STREAM_LOGGING_ENABLED", "true").lower() == 
 # (no summary yet / PENDING / parse fail); every branch logs [DiaryBridge]. Default ON.
 DIARY_RECAP_ENABLED = os.getenv("DIARY_RECAP_ENABLED", "true").lower() == "true"
 
+# ── Cold-open recap (Phase G-3, soul showcase) ─────────────────────────────────
+# When ON, the FIRST voice exchange of a session carries a one-shot COLD OPEN
+# directive: open with ONE sentence of welcome-back continuity (a specific
+# callback to last session, fed by the StartupBrief the reply path already
+# injects) before answering — the voiced sibling of the Pokémon go.py recap
+# register, for ALL sessions. Skipped when no brief exists (true first session).
+# Default OFF — OFF preserves the prompt byte-for-byte; feel-test one variable
+# at a time per the cadence plan.
+COLD_OPEN_RECAP_ENABLED = os.getenv("COLD_OPEN_RECAP_ENABLED", "false").lower() == "true"
+
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
 AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")

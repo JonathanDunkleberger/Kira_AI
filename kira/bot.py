@@ -55,6 +55,7 @@ from kira.config import (
     CHAT_CATCHUP_ENABLED, CHAT_CATCHUP_S, CHAT_CATCHUP_MAX_MSGS, CHAT_BANK_CAP,
     LOCK_IN_BREAKTHROUGH_SCORE,
     DIARY_RECAP_ENABLED,
+    COLD_OPEN_RECAP_ENABLED,
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     DIRECTOR_POST_SPEECH_HOLD_S, DIRECTOR_FRESH_MIN_SILENCE_S,
@@ -5199,6 +5200,10 @@ class VTubeBot:
                 )
                 self.recent_activity_brief = _hdr + "\n" + brief.strip()
                 print(f"   [StartupBrief] Generated activity brief ({len(self.recent_activity_brief)} chars)")
+                # PHASE G-3 (cold-open recap): arm the one-shot cold-open beat for
+                # this session's first voice exchange (fires only if
+                # COLD_OPEN_RECAP_ENABLED — see process_and_respond).
+                self._cold_open_pending = True
             else:
                 self.recent_activity_brief = ""
                 print(f"   [StartupBrief] Skipping brief — Claude unavailable or response rejected.")
@@ -10600,6 +10605,22 @@ class VTubeBot:
                         f"don\u2019t recite them. Do NOT open the session by referencing this material — "
                         f"let it surface only when a moment naturally invites it.]\n{self.recent_activity_brief}"
                     )
+                    # PHASE G-3 (cold-open recap, soul showcase): the session's FIRST
+                    # voice exchange opens with ONE beat of welcome-back continuity —
+                    # the sanctioned one-time exception to the "don't open with this
+                    # material" rule above. Fires once per boot, only when a
+                    # StartupBrief exists. Flag-gated COLD_OPEN_RECAP_ENABLED,
+                    # default OFF = prompt byte-identical. CORE touch (Rule 12).
+                    if COLD_OPEN_RECAP_ENABLED and getattr(self, "_cold_open_pending", False):
+                        self._cold_open_pending = False
+                        print("   [ColdOpen] firing the one-shot session cold-open recap directive.")
+                        dynamic_context += (
+                            "\n\n[COLD OPEN — this is the first exchange of the session. "
+                            "As the ONE exception to the rule above: open with a single "
+                            "sentence of welcome-back continuity — a specific callback to "
+                            "last session (a moment, a bit, a person) in your own voice — "
+                            "then answer normally. One beat, never a recap lecture.]"
+                        )
                 # ② Current want — the through-line in BOTH paths so replies ladder toward it too.
                 if CURRENT_WANT_ENABLED and self.current_want:
                     dynamic_context += (
