@@ -4729,6 +4729,16 @@ class Campaign:
             cand.sort(key=lambda t: (self.world.visited(_dest_of.get(t, (0, 0))),
                                      -(abs(t[0] - here0[0]) + abs(t[1] - here0[1]))))
             for wt in cand:
+                # FEET-REACHABILITY LAW (night shift 8, the Celadon Mansion climb): from a
+                # warp-partitioned landing (back stairwell) the FRONT stairs are visible but
+                # walk-sealed — enter_warp then grinds its whole 180s budget against the gap
+                # (~15 travel wedges + static-obstacle churn PER FLOOR). Same law as shift 6's
+                # exit-chain sealed-door skip: pre-check before any leg, and DON'T consume the
+                # candidate (floors mutate — it retries the moment the pocket unseals).
+                if not self._tile_feet_reachable(wt):
+                    log(f"   [roam] questline: deeper warp {wt} walk-unreachable from here — "
+                        f"skipped (sealed pocket, not consumed)")
+                    continue
                 # spawning ON a warp tile doesn't re-fire it — step OFF first so the entry ritual
                 # (approach + step-in) has somewhere to approach from (run-13: stalled standing on
                 # the hold's own exit warp). NEVER step off in a directional tile's own fire
