@@ -30,6 +30,29 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ▶▶ SOUL-ON WATCH RIG — `watch.py` (post-credits Phase B, 2026-07-07) — the couch-test, ANY spawn point
+ONE command to watch her play soul-on from anywhere on the Sherpa timeline (summit / pre-E4 / pre-Giovanni /
+Seafoam / …), true speed, her voice + game music, visible window, canonical never touched:
+```
+python pokemon_agent/watch.py            # interactive spawn-point picker
+python pokemon_agent/watch.py --at pre-e4 | --canonical | --list | --clean
+```
+**IT REFUSES SOUL-BLIND.** It preflights the live bot's control server (:8766); bot DOWN → it refuses loudly
+with the exact boot command (`python run.py`). Tonight's pop-in ran bot-down (every oracle POST 10061, silent
+soul-blind grinding) — that is now **impossible by accident**. So the watch order is: (1) `python run.py` in
+its own terminal, wait for :8766; (2) `python pokemon_agent/watch.py`. **CANONICAL-SAFE:** the chosen banked
+bundle is copied to a DISPOSABLE sandbox and play_live is pointed there via `POKEMON_CAMPAIGN_DIR` (campaign.py
+honors it) — canonical `states/campaign` is never opened for write, so a hard-kill mid-watch can't clobber the
+summit. `promote_bank` keeps its own canonical path (promotions unaffected). Ctrl-C = clean stop; `--clean`
+prunes old sandboxes. Spawn labels are best-effort — trust the on-load `booted map=…coords=…` line.
+**LAG FIX shipped with it** (STATE item 4, `POKEMON_VOICE_ASYNC=1` default): reaction POSTs + is_speaking +
+the oracle choose no longer block the render thread (worker thread + cache + frame-pump), so no per-reaction /
+per-think stutter in the watch. Kill-switch `POKEMON_VOICE_ASYNC=0` reverts to synchronous.
+**KNOWN — needs eyes:** the summit (post-credits) watch: post-game DETECTION + naming shipped (she knows
+she's Champion in "the Hall of Fame"), but whether she autonomously WALKS OUT of the league vs idles is the
+one thing the summit watch must confirm (residual fix scoped = a post-game "exit league → Cerulean Cave"
+objective). Pre-credits spawns have normal gym objectives and won't strand.
+
 ### ── 2026-07-07 20:04 — 🏆 THE CREDITS ROLLED (night shift #18, e4_run23 lap 2) ──
 **CANONICAL = hall_of_fame (PROMOTED, sanctity VALID, backup pre_hall_of_fame_backup_20260707_200544):
 map (1,80) Hall of Fame, Venusaur L95 last-mon-standing at 7/250, credits sequence drained on-screen.**
@@ -1493,12 +1516,13 @@ deferred. Completion without these = a tech demo. The rebuild phase clears this 
   occasional in-battle texture during the switch dance (e.g. "Rattata soaks up the experience, Ivysaur does
   the heavy lifting") — small, note for the next watchability pass. ALSO: the false "[evolve]" beat during
   grind-switches (see §0) is a VOICE LIE — fix before the Kira timeline.
-- 💳 **ROSTER-AS-RELATIONSHIP — attachment engine, thin because the team doesn't exist yet.** HAVE:
+- 🔨 **ROSTER-AS-RELATIONSHIP — attachment engine, thin because the team doesn't exist yet.** HAVE:
   roster-naming-on-catch hook, soul persistence, + (2026-07-06) the BOND-HOOK FIX — a catch via ANY pick
-  now fires roster_react/note_caught (a travel:-pick catch was silently skipping it; that's why soul.json
-  bonds stayed empty despite a real catch). OWE: names that STICK + opinions + grief on faint + pride
-  on a clutch win + a team story that accretes over the 30-40h run. PAY: unblocking now as the nursery
-  fills the team; build the attachment hooks as it grows.
+  now fires roster_react/note_caught; + (2026-07-07, **25d8426**) **GRIEF ON FAINT PAID** — a teammate
+  going alive→0 on a win now fires a T2 pang ("we won… but my X went down doing it. rest up"), the
+  bittersweet half; pride-on-clutch-win + evolution + shiny already fire. OWE (residue): names that STICK
+  (blocked on the Name-Rater/AAAAAAAAAA nickname debt), opinions, a team story that accretes over the run.
+  PAY: as the nursery fills the team; nickname-sticking needs the Name-Rater keyboard errand.
 
 **Ledger law:** when a piton pays a debt, mark it ✅ here with the commit. No debt is silently cleared.
 
@@ -1887,7 +1911,12 @@ ambient audio + dialogue summary, running bits, voice guardrails. None of these 
    the GITIGNORED `persona/private/personality.txt` (reach the prompt as persona text, but not tracked in
    code or committed). Jonny to decide: promote to tracked `kira_state` arc-tracking (like called-shots),
    or accept as persona-deep. Either way, record the decision here.
-4. **Off-thread decision/event HTTP (the DEEPER lag fix).** `_soul_choose`→`voice.choose` and
+4. ✅ **Off-thread decision/event HTTP (the DEEPER lag fix) — DONE 2026-07-07 (3df63d1).** Shipped behind
+   `POKEMON_VOICE_ASYNC=1` (default; `=0` reverts): fire-and-forget POSTs (emit/journey) → a FIFO worker
+   thread (order preserved), `is_speaking()` → a ~150ms background-polled cache (killed the per-frame GET in
+   pace()'s hold loops), and a blocking `choose()` PUMPS FRAMES (new `voice.frame_pump`, wired in play_live)
+   so video+music stay live while she thinks. Verified headless both paths. Watch will confirm the feel.
+   ~~ORIGINAL:~~ `_soul_choose`→`voice.choose` and
    `voice.emit`/`on_dialogue` are SYNCHRONOUS blocking `urllib` calls on the MAIN render thread
    (`pokemon_voice.py:271-287`) — every LLM decision freezes game render + music for its duration. The
    post-watch throttle (silent-no-move guard) stops the *rapid* stutter by ending the stuck re-pick loop,
