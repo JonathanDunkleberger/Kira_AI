@@ -62,6 +62,22 @@ from kira.config import (
     WHISPER_MODEL_SIZE,
 )
 
+_builtin_print = print
+
+
+def print(*args, **kwargs):  # noqa: A001 — deliberate module-local shadow
+    """Console-safe print: this module's loud-logs use arrows/ellipses, which
+    crash with UnicodeEncodeError when stdout is a cp1252 pipe (scheduled or
+    piped runs — the Phase-K auto-watch path). A loud-log must never kill the
+    pipeline it is narrating; degrade to replacement chars instead."""
+    try:
+        _builtin_print(*args, **kwargs)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or "ascii"
+        _builtin_print(*(str(a).encode(enc, "replace").decode(enc) for a in args),
+                       **kwargs)
+
+
 # Minimum output clip length (seconds) — env-tunable via CLIP_MIN_SECONDS. Floor
 # protects against unusable stubs; drop it for short-form one-liners. In asymmetric
 # mode the floor grows the FRONT, never the tail (preserving the hard punch out-cut).
@@ -1477,9 +1493,10 @@ def _render_vertical(src: str, ss: float, dur: float, ass_path: str | None,
 
 
 def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
-                          nvenc_ok: bool) -> list[str]:
-    """Render the top-N cut clips as 9:16 captioned shorts. Returns rendered
-    paths, best-first. Reads the already-cut clip files (c.out_path)."""
+                          nvenc_ok: bool) -> list[dict]:
+    """Render the top-N cut clips as 9:16 captioned shorts. Returns one dict per
+    rendered short (best-first): {path, ass, source_index, rank, duration_s,
+    captions}. Reads the already-cut clip files (c.out_path)."""
     picks = by_score[:max(0, CLIP_SHORTS_COUNT)]
     if not picks:
         return []
@@ -1499,7 +1516,7 @@ def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
               f"render WITHOUT captions.")
 
     import tempfile
-    out_paths: list[str] = []
+    rendered: list[dict] = []
     for rank, c in enumerate(picks, 1):
         cdur = c.clip_duration or _probe_duration(c.out_path)
         # Over-length clip → keep the punch: take the LAST max-window (the punch
@@ -1540,7 +1557,9 @@ def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
 
         if not _render_vertical(c.out_path, ss, dur, ass_path, sp, nvenc_ok):
             continue
-        out_paths.append(sp)
+        rendered.append({"path": sp, "ass": ass_path, "source_index": c.index,
+                         "rank": rank, "duration_s": round(dur, 1),
+                         "captions": cap_note})
 
         side = os.path.splitext(sp)[0] + "_title.txt"
         tags = " ".join(f"#{h}" for h in c.hashtags) if c.hashtags else ""
@@ -1553,7 +1572,7 @@ def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
             ] + ([tags] if tags else [])) + "\n")
         print(f"   [Phase4] (d) short {rank}/{len(picks)} → {dur:.0f}s "
               f"(score {c.score}/10, {cap_note}) → {sp}")
-    return out_paths
+    return rendered
 
 
 def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: str,
@@ -1639,16 +1658,19 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
         pass
 
     # ── (d) vertical shorts: top-N, 9:16, captions burned in (Phase K item 1) ──
-    short_paths = build_vertical_shorts(by_score, dir_short, slug, nvenc_ok)
+    shorts_meta = build_vertical_shorts(by_score, dir_short, slug, nvenc_ok)
+    short_paths = [s["path"] for s in shorts_meta]
     if not short_paths:
         print("   [Phase4] (d) shorts: NONE rendered (see [Shorts] lines above).")
 
     report = _write_phase4_report(candidates, day_dir, date_str, activity,
                                   reel_path, highlight_path, short_paths)
+    manifest = _write_manifest(candidates, day_dir, date_str, activity,
+                               reel_path, highlight_path, shorts_meta)
     return {"clips_dir": dir_clips, "reel_path": reel_path,
             "highlight_path": highlight_path,
             "short_path": short_paths[0] if short_paths else None,
-            "short_paths": short_paths, "report": report}
+            "short_paths": short_paths, "report": report, "manifest": manifest}
 
 
 def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: str,
@@ -1700,6 +1722,71 @@ def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: st
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     return report_path
+
+
+def _write_manifest(candidates: list[Candidate], day_dir: str, date_str: str,
+                    activity: str, reel_path: str | None,
+                    highlight_path: str | None, shorts_meta: list[dict]) -> str:
+    """Write manifest.json — the machine-readable review-queue state (Phase K
+    item 3). clips_report.md is the human view; this is the same package for
+    tooling: every output with its metadata and a per-item ``approved`` flag
+    (default false — Jonny flips them; a future poster reads only approved
+    entries). Paths are day_dir-relative so the folder can be moved wholesale.
+    """
+    def rel(p: str | None) -> str | None:
+        return os.path.relpath(p, day_dir) if p else None
+
+    cut = sorted([c for c in candidates if c.status == "cut" and c.out_path],
+                 key=lambda c: (c.score, c.match_confidence), reverse=True)
+    manifest = {
+        "schema_version": 1,
+        "date": date_str,
+        "activity": activity,
+        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "review": {"approved": False, "notes": ""},
+        "outputs": {
+            "reel": rel(reel_path),
+            "highlight": rel(highlight_path),
+            "shorts": [
+                {**s, "path": rel(s["path"]), "ass": rel(s.get("ass")),
+                 "approved": False}
+                for s in shorts_meta
+            ],
+        },
+        "clips": [
+            {
+                "id": c.index,
+                "rank": rank,
+                "file": rel(c.out_path),
+                "title": c.final_title or c.title,
+                "description": c.description or c.why,
+                "hashtags": c.hashtags,
+                "type": c.clip_type or None,
+                "score": c.score,
+                "duration_s": round(c.clip_duration or 0.0, 1),
+                "anchor_epoch": c.anchor_start_epoch,
+                "anchor_hms": (datetime.fromtimestamp(c.anchor_start_epoch)
+                               .strftime("%H:%M:%S") if c.anchor_start_epoch else None),
+                "match_confidence": round(c.match_confidence, 3),
+                "matched_via": c.matched_via,
+                "anchor_mode": c.anchor_mode,
+                "cut_method": c.cut_method,
+                "approved": False,
+            }
+            for rank, c in enumerate(cut, 1)
+        ],
+        "not_cut": [
+            {"id": c.index, "title": c.title, "status": c.status,
+             "error": c.error or None}
+            for c in candidates if c.status in ("missed", "error")
+        ],
+        "llm_usage": dict(_RUN_LLM),
+    }
+    manifest_path = os.path.join(day_dir, "manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    print(f"   [Phase4] manifest → {manifest_path}")
+    return manifest_path
 
 
 # ─────────────────────────────────────────────────────────────────────────────
