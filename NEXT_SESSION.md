@@ -1,267 +1,155 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (written 2026-07-07, post-credits; CEO-stacked FULL COMPLETION MANDATE)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 ~00:00 after the quiet-window session; CEO: THE DESCENT restructure)
 
 Paste this to the fresh session / this IS the night-train's standing order. Employment terms
 in force: loop until done, bank per phase, honest three-state surveys, stop ONLY for a
 needs-eyes item on the ledger below or ~85% context (then rewrite THIS file frontier-first
 and hand off). Rule 16 covers everything else — decide and execute.
 
-## BURN DISCIPLINE (CEO directive 2026-07-08 — the train costs real money per shift; density is mandatory)
-1. **THE VALUE LINE.** Every shift survey MUST end with: `this shift bought: [concrete
-   capability/fix/deliverable] — [shipped/verified/landed]` — one sentence, no fluff. If a
-   shift cannot write a TRUE value line, that is the signal to STOP and surface needs-eyes
-   rather than burn another shift.
-2. **BOUNDED RECON.** Audit/recon phases (G especially) produce a BUILD-LIST in ≤1 shift,
-   then shifts BUILD from the list — no open-ended analysis shifts.
-3. **DEPTH OVER SPREAD.** Prefer landing 3 things FULLY over touching 10 things partially —
-   partial work that needs re-context next shift is the expensive failure mode.
-4. **NO IDLE-GRIND.** If a phase is blocked on Jonny's eyes, do NOT fill the shift with
-   adjacent low-value work — close early and cheap; the relauncher handles the rest.
+## BURN DISCIPLINE (CEO directive — density is mandatory)
+1. **THE VALUE LINE.** Every shift survey ends: `this shift bought: [deliverable] —
+   [shipped/verified/landed]`. Can't write a true one → STOP, surface needs-eyes.
+2. **BOUNDED RECON.** Build-list in ≤1 shift, then BUILD.
+3. **DEPTH OVER SPREAD.** 3 things fully > 10 things partially.
+4. **NO IDLE-GRIND.** Blocked on Jonny → close early and cheap.
+
+## ⛰️ THE DESCENT — HUMANITY-PASS DOCTRINE (CEO, after 3 watched soul-on runs; the showcase gate)
+The Sherpa run proved the mountain climbs; the showcase requires it climbed like a HUMAN.
+**HUMAN-PACE PLAY:** the rope (Sherpa knowledge) is her INSTINCT, not her GPS. In showcase/
+soul mode she plays like a person — reads signs, talks to NPCs (mom!), notices rooms, fishes
+if she wants, lingers, voices detours. **Speedrun behavior (beelines, skipped dialogue,
+robotic efficiency) is a DEFECT in this mode even when mechanically optimal.** Endearing
+beats efficient — the supreme law governs. The descent (F-11) is the quality gate in front
+of the Kira-timeline GO; phases E/G/H/I/K remain behind it.
 
 ---
 
-RESUME — fresh session. The Sherpa timeline is SUMMITED (credits 2026-07-07; canonical =
-hall_of_fame, SACRED). POST-CREDITS PHASE 1 landed and was ACCEPTED by the CEO (commits
-7a416ef Gemini vision · 93ee1f9 watch rig · 3df63d1 lag fix/naming/post-game · 25d8426
-grief beat · cd8a27d docs). Read STATE §0 top (GO PROCEDURE + SOUL-ON WATCH RIG block)
-first. The CEO then STACKED the FULL COMPLETION MANDATE below — phases C-remainder + E–H.
-Work them in order unless a needs-eyes dependency forces a swap; bank each phase with a
-commit + one STATE §0 line; never stop at a milestone.
+## FRONTIER (quiet-window session close, 2026-07-08 ~00:00 — Jonny watched 3 soul-on runs live)
+**Commits this session: ffe16fd (rehearsal fix batch) + this file.** The GO-button throwaway
+ran SIX takes (3 watched by Jonny → his notes = F-1..F-11 below; 3 headless verify).
 
-## FRONTIER (rewritten at shift-2 close, 2026-07-07 ~23:1x — full detail in STATE §0 top block)
-**DONE shift 2 (commits 63237f1·00137b1·c3d78b2·e3f9c06·dd2ace6·19e1cb6·3ab8bd8):** K item 1
-vertical shorts (VERIFIED e2e on a real VOD, frame-grab confirmed), K item 3 manifest.json
-review queue + D2 stitcher retired + cp1252 loud-log crash class killed, K length targets
-(highlight scaled to session, best-of 240s), D4 prompt single-sourced (prompt_spec.py),
-**G-2** chat-as-advisors/reject-with-reason (CORE, `CHAT_ADVISORS_ENABLED` OFF), **G-3**
-cold-open recap for all sessions (CORE, `COLD_OPEN_RECAP_ENABLED` OFF), **I-1 audit banked**
-= MODE_TRANSITION_AUDIT.md (persona firewall HOLDS; 6 seams ledgered with fix order).
+**LANDED + VERIFIED live this session:**
+- **Voiced starter choice** (the constitution's purest moment): `_choose_starter_soul()` →
+  her soul picked **CHARMANDER 5-for-5 across independent asks** (a real preference), T3
+  "your partner" beat fired to her voice (Jonny heard it, take 3). The old silent default-0
+  is dead.
+- **Judged nickname** (F-3 CEO principle): free-text soul ask before the pick — take 5:
+  "keep the species name (her choice)". The AAAAAAAAA race (streaming-prompt answer landing
+  late → A-drain typing on the keyboard) is fixed with settle-until-stable + verified-decline.
+- **Scripted-intercept abort** (F-1's opening symptom): advance_north gains abort_when +
+  leg_seconds; the 2-5 min lab wall-bumping (takes 1-2) → prompt lab arrival (take 3).
+- **F-2 name-grounding** line in _spine_and_history (the "who told them my name?" tic).
+- **F-8 harness half**: _muse_seed no longer types buildings as caves (INDOOR_MUSE; only
+  map group 1 = dungeons keeps cave gloom) + Pallet interior names in _PLACE_NAMES ("at
+  Oak's lab", not "an unfamiliar area").
+- **C-1 READING register VERIFIED in production** (first-timer dialogue framing, 8+ fires);
+  cold-open self-naming (KIRA), rival naming (GARY), Gary-loss canon + grudge arc
+  ("0W-1L… this rivalry is just getting started"), post-loss want continuity ("Charmander
+  starter") — ALL GOOD per Jonny (= F-4 protect list, add to Phase-H regression).
 
-**DONE shift 1 (commits 70632fd·c0df5d9·6454008·a176b9f·fe21477):** C-1 (dialogue register +
-intel ledger), C-2 (unmet-teammate intro — NOTE: Lapras is IN the party, sandbox-verified), C-3
-(Name Rater, pret-grounded, dry-verified), C-4 (harvest 35-39 + 161 one-shots pruned), E (go.py —
-refusal/rails/recap verified), G-1 (latency measured off real logs + KIRA_TTS_PREFETCH default-OFF
-pipeline, stub-verified), post-game coherence + leave_building (the summit-strand fix).
+**✅ TAKE 7 — THE VOICED-CHOICE CHAIN IS FULLY GREEN (1d204b1):** soul chose CHARMANDER
+(6-for-6 across takes — a real preference) → judged nickname (her deliberate pass,
+verified-gone) → hands grabbed HER ball → `picked charmander (#4)`, no mismatch. En route
+takes 5-6 killed two latent bugs: greedy `_step_to` lab-wandering (BFS-first now) and a
+RECON-ERA DATA BUG — the lab table is the RBY order B-SQUIRTLE-C, so ball 1's tile held
+Squirtle (never caught before; no run had ever picked non-zero). GRAB-VERIFY now screams
+on any species/choice mismatch. Take 6 also proved she can WIN the opening rival fight.
 
-**THE QUIET-WINDOW VERIFY QUEUE (first thing when the bot can run without surprising Jonny —
-check :8766 + desk presence FIRST, memory night-shift-bot-launch-etiquette):**
-1. Boot bot → `watch.py --at pre-e4 --headless` → grep bot log `READING register` + play_live
-   `[hints] +` (C-1) → kill tree.
-2. `go.py --throwaway` 10-min spin (bedroom→Oak→starter voiced) → transcript to needs-eyes item 2.
-3. Flip `KIRA_TTS_PREFETCH=1` → one conversation → compare [LATENCY] + inter-sentence gaps → if
-   clean, propose default-ON to Jonny.
-4. A summit watch: does she pick `leave_building` and walk out? (post-game arc now coherent.)
-5. NEW (shift 2): feel-test `CHAT_ADVISORS_ENABLED=1` (send a backseat suggestion via chat,
-   watch for reasoned decline vs silent comply) and `COLD_OPEN_RECAP_ENABLED=1` (boot, first
-   voice exchange should open with ONE welcome-back callback beat; grep `[ColdOpen]`) — ONE
-   variable at a time per the cadence plan.
+**✅ QW-4 SUMMIT WALK-OUT — PASS, with a NEW BUG at the tail** (`logs/quietwindow_summit.log`):
+resume loaded the summit perfectly; her self-chosen want = **"catch Mewtwo"** (the love-
+letter arc, unprompted); `leave_building` offered → SHE PICKED IT → EXIT (1,80)→(3,9)
+Indigo Plateau — the summit strand is dead. She then traveled + battled (Sleep Powder
+kit use). THEN: **THE VOID-CORE CLASS (new, watch-mode)** — after a battle+movelearn
+sequence her position reads went inconsistent (impossible jumps: Cerulean→Lavender→Saffron
+in one action) and the core ended at map (0,0), party 0, with the roam happily "playing"
+the dead world (and SAVING it — to the SANDBOX only; canonical verified untouched,
+last-write still 20:25). CONFOUND to exclude in the repro: a concurrent throwaway take was
+killed mid-summit-run. DIAGNOSE with a clean single-run repro off banked_CREDITS.
+Two more findings from the same log: (a) her want said "Lapras from Silph Co" WHILE LAPRAS
+IS IN HER PARTY — wants aren't grounded against the roster (F-8 class, decision-side);
+(b) the "!! DECISION LATENCY blocked the main thread" warning predates the frame-pump
+(the world stays live now) — make the warning pump-aware or it cries wolf.
 
-**NEXT BUILD WORK (in order):** I-1 SEAM FIXES per MODE_TRANSITION_AUDIT.md fix order (read it
-first; seams 3→1→2→4; behavior changes, so Phase-H sandbox verify BEFORE banking — do them in a
-quiet window, not blind) → G-1 remaining hops (perception-lock contention measurement; Azure
-chunked streaming = design first, big blast radius; vad_close = flag-only, NEVER touch VAD
-semantics) → Phase I-2 attention director (EXTEND SessionIntensity per the audit — it IS the
-focus machine; do NOT build a parallel one) → I-3 media pacing (the dead `_PACING` table
-bot.py:2752 is the ready-made spec; build it a live consumer). Phase F waits on Jonny's notes.
+**NOT RUN this window (ready-to-run):** **prefetch A/B B-side** — bot RESTART with
+`KIRA_TTS_PREFETCH=1` + one conversation with Jonny; compare [TurnTiming]/[LATENCY]
+inter-sentence gaps vs the serial baseline he ear-calibrated tonight. Rides F-7(d).
 
-**PHASE K IN FLIGHT (wait-gap work per its scheduling law):** full Rule-3 recon banked =
-**CLIPPER_RECON.md** (read it before touching the pipeline — keep-list + rebuild list + debt
-D1-D5). Landed: D1 tail-fix (shift 1), item 4 cost line (shift 1), and **item 1 THE
-VERTICAL-SHORTS RENDERER (shift 2, commit 63237f1 — VERIFIED end-to-end on a real VOD):**
-`04_shorts/` = top-N (CLIP_SHORTS_COUNT=5, CLIP_SHORT_MAX_SECONDS=60) true 1080×1920 blur-pad
-renders, word-timed captions burned in (faster-whisper CPU on each short's OWN audio →
-clip-relative timings → `.ass` sidecar kept next to the .mp4 for hand-tweaks → single-pass
-ffmpeg burn; caption failure degrades LOUDLY to an uncaptioned render). Over-length clips keep
-the punch (last max-window). ALSO LANDED shift 2: **item 3 manifest.json** (machine review
-queue, per-item approved:false, D2 stitcher retired) + **length targets** (highlight scaled to
-session span, best-of 240s) + **D4** (prompt_spec.py single source — the format block is the
-cutter's parsing contract) + the cp1252 loud-log crash class killed module-wide. PLUS (late
-shift 2, 3c0c1e6): **item 2 SELECTION HALF landed** — `load_beat_epochs` + a +2 score boost
-(capped 10, loud per-boost) for candidates overlapping a live-captured beat, unit-VERIFIED;
-consumes `highlight_captured` today AND the reserved `kira_moment` type. REMAINING K work:
-(2-bot) log tiered soul/reaction/judged beats as `kira_moment` in bot.py's stream_logger
-(CORE touch, plugs into the cutter with zero changes); (5) D3 hardcoded paths (.env:11-12,116);
-then the EXIT RUN: one full 007/dev-stream VOD
-through `python scripts/cut_clips.py` end-to-end, outputs postable with zero manual editing →
-needs-eyes item 6. (Today's real VODs exist: `2026-07-07 20-16-17.mp4` + `16-50-08.mp4` in
-OBS_RECORDINGS_DIR — candidates for the exit run if candidate .md artifacts exist for them.)
+## PHASE F — RESTRUCTURED INTO THE DESCENT (Jonny's notes, priority order)
+- **F-1 LOCOMOTION (CRITICAL, still first — nothing grades honestly until her legs work).**
+  Symptom fixed (intercept-abort); the ARCHITECTURE work remains: DOCTRINE — soul chooses
+  destinations/intents and narrates; deterministic pathfinding executes ALL movement.
+  Diagnose movement routing in soul mode end-to-end; wire intents→pathfinder; add the
+  WANDER TRIPWIRE (no nav progress ~20s → harness takes the wheel to the current
+  objective). Kills the token burn too (minutes of pointless oracle calls while wedged).
+- **F-7 MOMENT ALIGNMENT (second — the seam viewers feel; reactions land 500ms-1s late).**
+  A SYNC problem, not just latency: (a) per-stage timestamps on the full event→voice chain
+  (extend the 3860ms measurement); (b) FRESHNESS WINDOWS — every reaction tagged with its
+  triggering moment; would-miss → drop or reframe as explicit afterthought, never
+  stale-as-live; (c) SPECULATIVE PREFETCH for predictable beats (dialogue boxes/battle
+  events are known before they resolve — generate early, fire on trigger); (d) wire
+  KIRA_TTS_PREFETCH default-ON if the A/B holds. Target: salient reaction perceived <2.5s
+  AND aligned.
+- **F-6 SOCIAL FABRIC:** NPC/object salience layer — key figures (family/rival/leaders/
+  quest NPCs) + first-time key objects (the pokéball table!) exert pull on intents; "mom on
+  route, day one" is near-mandatory; a deliberate skip must be VOICED. Salience feeds
+  destination choice (F-1); pathfinder executes.
+- **F-8 GROUNDED PERCEPTION (harness half landed):** remaining — every soul tick carries a
+  location context block (map name, indoor/outdoor, region flavor from SEED_NODES); assert
+  only what's grounded, ungrounded impressions as curiosity/questions; audit other
+  commentary surfaces (music/weather/NPCs) for the confabulation path.
+- **F-9 VERBAL TIC:** "doing a lot of heavy lifting" repeats + playful ban-evasion. Core
+  fix → post-arc general recon (LOGGED). NOW: mode-side phrase-frequency governor so the
+  showcase isn't wallpapered.
+- **F-10 TEXTBOX DURABILITY:** 10-15s stall on Oak's FIRST textbox only — a first-encounter
+  warm-up wedge class. Diagnose (cold TTS? first oracle round-trip? dialogue-reader init?)
+  and fix — first impressions are where stalls can't live.
+- **F-5 EXIT BAR (per-take):** bedroom→starter ~90s of travel, zero wall-grinding, voiced
+  nickname call. **Jonny grades round 3 with the same notepad** once F-1 proper + the ball
+  grab are green.
+- **F-4 PROTECT (bank, don't touch):** self-naming, canon Gary loss, post-loss continuity,
+  grudge arc, judged catches → Phase-H regression list.
 
-### shift-1 detail (superseded by the block above; kept for context)
-- **C-1 DIALOGUE FIRST-TIMER + HINT EXTRACTION: BUILT + COMPILED, live-verify PARKED.**
-  Core touches (loud-log): `bot.py _pokemon_react` gained `kind=` + a READING-register ask
-  (kind=='dialogue' or 'you read:'/'gym leader says' prefix fallback); `control_server.py`
-  pokemon_event passes `body.kind`. Mode-side: `dialogue_hints.py` (extractor + persistent
-  HintLedger, unit-verified incl. resume round-trip), DialogueDriver class tap `line_sink`,
-  campaign init + decision-ctx fold after `_spine_and_history`; optional-sidecar plumbing in
-  sanctity/promote_bank/watch.py (old banks stay VALID).
-- **C-2 UNMET-TEAMMATE INTRO (Lapras generalized): BUILT + COMPILED, live-verify PARKED.**
-  `campaign._meet_new_teammates` (PID-set diff, tick-top; baseline-silent first tick;
-  catch-path marks met; reunion-vs-intro via bonds) + `soul.note_met` + GIFT_BACKSTORY
-  (Lapras/Silph story).
-- **⚠️ LIVE-VERIFY OF BOTH IS PARKED (needs-eyes/quiet-window):** shift 1 launched run.py
-  for the verify and Kira engaged a PRESENT, confused Jonny (~21:30); killed on his voiced
-  request. See NIGHT_REPORT.md top block + memory 'night-shift-bot-launch-etiquette'.
-  BEFORE any future unattended run.py: check :8766 + desk presence. Verify plan when clear:
-  boot bot → watch.py --at pre-e4 headless → grep bot log for 'READING register' + play_live
-  log for '[hints] +' → kill tree.
-- **C-3 NAME RATER: DESIGNED + DRY-VERIFIED (c0df5d9).** recon_name_rater.py — pret ground
-  truth (House2 door (10,16), stand (4,5) face UP; YESNO→ChoosePartyMon→YESNO→keyboard);
-  DRY mode found the real AAAAAAAAAA ace vs canonical. Live walk+keyboard = needs eyes.
-- **C-2 REWORKED on ground truth:** Lapras is IN the party at the summit (slot 5) — baseline
-  intro now fires for unbonded GIFT_BACKSTORY members once; other unbonded veterans get
-  silent bond backfill. Sandbox one-tick verify PASS. Plus post-game coherence (spine/goals/
-  arc = victory-lap, never "E4 next") and the NEW post-game-gated `leave_building` action
-  (the summit-strand scoped fix) — VERIFIED offered in the Hall.
-- **NEXT:** C-4 harvest+prune → E GO button (build now; its throwaway live test also waits
-  on the quiet window).
+## F-11 THE DESCENT ITSELF (the big preemptive pass — night-train grindable)
+Using the watch rig's sandbox spawns, re-run EACH major arc of the completed rope SOUL-ON:
+bedroom/Pallet → Viridian-Pewter → Mt Moon → Cerulean/Misty → Vermilion/ship → Rock Tunnel/
+Lavender → Celadon/Rocket → Fuchsia/Safari → Seafoam/Cinnabar → Viridian-2 → Victory Road →
+E4. GRADE each against the humanity doctrine + the wedge classes (F-1 locomotion, F-6
+salience, F-7 alignment, F-8 grounding, F-9 repetition, F-10 warm-up stalls). Machine-
+gradable checks run headless-with-soul; failures get fixed and re-run; each arc BANKS a
+humanity-pass line in the report. Jonny spot-watches the machine-flagged riskiest arcs +
+2-3 random ones — his notes are the final gate per arc. **EXIT: every arc passes machine
+checks + Jonny has zero immersion-break notes on his spot-watches. THEN the GO button is
+showcase-ready.** SEQUENCING: F-1 first, then F-7, then the descent proper.
 
-## PHASE 1 RECORD (done, for orientation — do not redo)
-- **Gemini vision** (kira/ eyes, VERIFIED live smoke test) — kira/ tree clean.
-- **watch.py** — one-command soul-on watch from any banked point; preflights :8766 and
-  REFUSES if the bot is down; disposable sandbox via `POKEMON_CAMPAIGN_DIR` (canonical
-  never written). Order: `python run.py` (wait for :8766) → `python pokemon_agent/watch.py`.
-- **Lag fix** `POKEMON_VOICE_ASYNC=1` (worker-thread POSTs, cached is_speaking, frame-pumped
-  choose). **Finale named** (pret-verified ids; "(1,80)" = "the Hall of Fame"). **post_game**
-  detection in read_live_state.
-- **Grief-on-faint** T2 beat (roster-as-relationship down-payment).
+## OTHER PHASES (unchanged, behind the descent gate)
+- **E GO BUTTON:** built + rehearsed (go.py; 6 takes). Cold-open recap machinery untested on
+  a RESUME (all takes were fresh runs) — verify when a show save exists.
+- **G MAGIC AUDIT:** G-1 latency partially done (async voice, prefetch built; F-7 absorbs
+  the rest), G-2 chat-advisors + G-3 cold-open SHIPPED flag-OFF (feel-tests pending), G-4
+  cohost smoke = needs-eyes.
+- **H REGRESSION GUARD:** standing law; F-4's protect list joins it.
+- **I ONE-KIRA MODE MATRIX:** I-1 audit banked (MODE_TRANSITION_AUDIT.md, 6 seams); I-2
+  attention director (extend SessionIntensity); I-3 media pacing (dead _PACING table
+  bot.py:2752 gets a consumer).
+- **K THE CLIPPER:** items 1/3/4 + selection-half landed; remaining: kira_moment logging
+  (core touch), D3 paths, the 007 exit run → needs-eyes item 6.
 
-## PHASE C-REMAINDER — SOUL DEBTS (CEO approvals now in hand)
-1. **#12 DIALOGUE FIRST-TIMER REACTIONS — ✅ APPROVED to build IN CORE** (`_pokemon_react` /
-   its prompt seam in bot.py). Rule 12 applies in full: meticulous + minimal, mode-state
-   stays behind the Pokémon toggle, and EVERY core touch is **logged loudly in the survey**
-   ("core/plumbing edit, here's why it's safe/additive"). Deliverable: she visibly READS
-   dialogue like a first-timer — surprise, a guess at meaning, an opinion — and EXTRACTS
-   quests/hints/directions from box content into her decision ctx. Verify on a watch-rig
-   sandbox spin (Phase H law) before banking.
-2. **THE LAPRAS FIRST-FIELD MOMENT** — design + wire the set-piece: the gifted, unmet,
-   unnamed Lapras (sitting in Bill's PC since Silph) gets an INTRODUCTION arc when first
-   fielded — met/named/reacted-to, not silently deployed. Mode-side (soul/roster seams).
-3. **NAME RATER ERRAND (design)** — the sticking-nicknames debt (the AAAAAAAAAA ace). Design
-   the errand on the proven tutor-errand template (recon_tutor_de.py); the nickname keyboard
-   is the known hazard (gift-mon lesson: drain with B, never A — see memory). Design +
-   offline verify; live naming needs oracle eyes.
-4. **PORTABLE-ENGINE HARVEST + PRUNE** (rules 14/summit list): fold the E4-era meta-lessons
-   into AUTONOMOUS_GAME_HARNESS.md (Levitate ability-layer class, PP-economy convergence,
-   gauntlet-reset law, zero-cost bounce window, order law); prune the untracked recon_*
-   one-shot fleet (keep standing vehicles: recon_longrun, recon_e4, promote_bank,
-   recon_bagdump, hm_teach, recon_tutor_de, watch.py-adjacent tools); NIGHT_REPORT.md tidy.
-
-## PHASE E — THE GO BUTTON (the Kira-timeline showcase launcher)
-ONE command that starts THE SACRED FRESH RUN (timeline 2): brand-new save, bedroom, soul-on,
-voice-on, true speed, STREAMING-READY. Audio doctrine: her TTS → the virtual cable (OBS) per
-the existing audio routing; **game audio NEVER on the cable** (phones/speakers only — the
-mouth-flap/loopback firewall). Resumable across multi-day sessions: every resume opens with a
-COLD-OPEN RECAP in her voice (where we are, who's on the team, what's next — journey_core-fed).
-The Kira timeline itself stays UNTOUCHED until Jonny presses it — but **TEST THE BUTTON on a
-THROWAWAY fresh save**: verify the first ~10 minutes (bedroom → Oak → starter choice with
-judged reasoning VOICED) then discard the throwaway. The launcher must refuse-loudly on a
-down soul stack exactly like watch.py, and must be PHYSICALLY incapable of touching the
-Sherpa canonical or an existing Kira save (archive-first law, states/kira lineage rules).
-
-## PHASE F — SHOWCASE JANK BUDGET (after Jonny's watch notes arrive)
-One full pass on his notepad list + a standing jank hunt with defined classes: dead air >10s,
-repeated/looping lines, robotic recovery phrasing, visible input-mash, pacing ugliness
-(holds too long/short, read-ahead). Fix root causes, not lines. EXIT CRITERION: a full E4
-sandbox watch (watch.py --at pre-e4) producing ZERO immersion-break notes.
-
-## PHASE G — MAGIC AUDIT EXECUTED (core-Kira, five pillars — implement, don't just document)
-Priority order:
-1. **LATENCY** — measure end-to-end (voice-in → first TTS audio; perception → reaction) with
-   real timestamps; then hunt every remaining blocking/non-streamed hop (Phase D's async
-   voice seam is Exhibit A of the class — find the rest: perception vs conversation lock
-   contention, sync HTTP, non-streamed LLM hops, serial TTS). Fix within the CLAUDE.md
-   systemic-cause doctrine — no symptom patches.
-2. **CONVERSATION ENGINE** — restraint/timing (when NOT to speak), chat-as-advisors
-   (streamer register: chat informs, she decides), reject-with-reason (she can decline a
-   suggestion in character, with a why).
-3. **SOUL SHOWCASE** — cold-open recaps (shared with Phase E), cross-session callbacks,
-   persistent evolving opinions surfacing unprompted.
-4. **COHOST READINESS** — EXIT CRITERION: a 20-minute cohost smoke session Jonny can run with
-   the new Gemini eyes (he plays anything on screen; she sees, hears, comments, remembers).
-Core touches throughout follow Rule 12 + Phase H law. Identity firewall absolute: no Pokémon
-leak into always-on Kira.
-
-## PHASE H — REGRESSION GUARD (standing law from now on)
-EVERY core change is re-verified against a soul-on sandbox spin (watch.py or a cohost smoke)
-BEFORE banking. The two-bucket firewall holds: mode-state behind the toggle, identity sacred.
-Every core touch is logged loudly in the survey — a core edit that ships silent is a
-violation even if correct. Kill-tests (rule 17) at every new banked capability.
-
-## PHASE I — THE ONE-KIRA MODE MATRIX (Tier 2 addendum, same terms as E–H)
-Audit and IMPLEMENT her single coherent self expressing across every context: cohosting
-(per-game tonal range — slow-burn stealth like Hitman vs. spectacle like GTA vs. story like
-Pragmata), playing-herself (Pokémon), watch-party (anime episode vs. movie vs.
-music-while-Jonny-codes ambient companionship), and idle-chat. Modes are CLOTHING, not
-beings (the One-Kira firewall is the spec here, not just the constraint). Deliverables:
-1. **MODE-TRANSITION AUDIT** — she never resets personality across a mode switch; callbacks,
-   opinions, and running jokes CARRY (trace the actual context assembly per mode, find every
-   seam where memory/opinions/callbacks drop on a switch, fix them). Pokémon mode-state stays
-   behind its toggle (rule 12) — carrying HER is not carrying the party.
-2. **THE ATTENTION DIRECTOR** — a focus-state machine (roam / action / boss / crisis / lull /
-   ambient) driving her speech rate and chat-sampling per mode, and she NARRATES her own
-   attention shifts in character ("ok this fight looks serious, chat — one sec"). Extends the
-   existing Activity Director / governor pieces (recon first — activity-aware governance
-   pieces exist unwired, see memory 'next-chapter chat-vs-game balance'); don't build a
-   parallel v2.
-3. **MEDIA-PACING RESTRAINT PROFILES** — movie / anime / music each get a timing model
-   DISTINCT from game cohosting: silence is golden during scenes; riff windows open at cuts,
-   credits, and lulls. (The perception path — vision + loopback — is the heart of watch-party;
-   pacing is what makes it companionship instead of interruption.)
-EXIT CRITERION: Jonny runs one 15-minute session in THREE different modes and she is
-recognizably the SAME PERSON with mode-appropriate behavior in each. That tri-mode session =
-needs-eyes ledger item 5.
-
-## PHASE K — THE CLIPPER (distribution pipeline, enterprise pass; CEO addendum 2026-07-08)
-**SCHEDULING LAW: runs AFTER the completion mandate's build phases (C-remainder/E/F/G/H/I) or
-in needs-eyes WAIT GAPS — never displacing them.** The existing editing pipeline (the one
-tested on the 007 VOD: full-highlights cut / 3-4min cut / 30-60s short) gets the full
-recon→revise→harden treatment. DELIVERABLE: Jonny drops a VOD folder path (or it auto-watches
-the OBS recordings folder) and receives, hands-off:
-1. a HIGHLIGHTS CUT scaled to VOD length,
-2. a 3-4 minute BEST-OF,
-3. 3-5 VERTICAL SHORTS (9:16, captioned — **burned-in subtitles are non-negotiable** for
-   shorts virality),
-4. suggested TITLES + DESCRIPTIONS + TAGS per the banked title/thumbnail doctrine
-   (Neuro-comparison framing, personality-claim hooks).
-REQUIREMENTS:
-- **Clip selection keys on KIRA MOMENTS, not just game events** — mine her structured logs
-  (soul ticks, reactions, judged decisions, dialogue reads, wants) ALONGSIDE the
-  audio/transcript: "she named the rat and declared war" outclips "boss died".
-- **Multi-episode awareness** for the showcase: per-stream episode cuts + running-arc
-  callbacks.
-- **REVIEW QUEUE, not auto-post** — Jonny approves each render; output to a staging folder
-  with a one-glance manifest.
-- **Cost-instrumented per Phase J** (what did this VOD cost to process). [Forward reference —
-  Phase J = cost instrumentation, stacked separately; if not yet in this file when K starts,
-  instrument costs inline and reconcile when J lands.]
-- **Recon FIRST per Rule 3**: audit the existing pipeline, keep what's good, name what's weak,
-  rebuild ONLY the weak.
-EXIT CRITERIA: Jonny feeds it one existing 007/dev-stream VOD and the outputs are
-postable-quality with ZERO manual editing. That review = needs-eyes ledger item 6.
-
-## NEEDS-EYES LEDGER (the ONLY loop-stoppers; everything else Rule 16)
-1. **Jonny's watch-session notes** (pending tonight/tomorrow) → feeds Phase F.
-2. **GO-button throwaway review** — after Phase E's 10-min throwaway verify, surface the
-   result (transcript + what she said at the starter choice) for his sanity check.
-3. **Cohost smoke session** (Phase G exit) — he runs it, 20 min.
-4. **Final showtime sign-off** — the Kira timeline launch is HIS press, always.
-5. **Tri-mode session** (Phase I exit) — he runs 15 min across THREE modes; same person,
-   mode-appropriate behavior in each.
-6. **Clipper output review** (Phase K exit) — one 007/dev-stream VOD in, postable-quality
-   cuts out, zero manual editing; he reviews the staging-folder renders.
-Also still true: the SUMMIT-WATCH strand check (does she walk OUT of the Hall of Fame or
-idle?) rides needs-eyes item 1 — post-game detect+naming shipped; if she idles, the scoped
-fix is a post-game "exit league → heal → Cerulean Cave" objective (team is 1/6 from the
-final stand — heal first).
+## NEEDS-EYES LEDGER (the ONLY loop-stoppers)
+1. **Round-3 throwaway grading** (F-5 bar) — after F-1 proper + ball grab green.
+2. **Prefetch A/B B-side** — bot restart w/ flag + one conversation (2 min of Jonny).
+3. **Descent spot-watches** (F-11 per-arc final gate).
+4. **Cohost smoke session** (G-4 exit, 20 min).
+5. **Tri-mode session** (Phase I exit, 15 min).
+6. **Clipper output review** (K exit).
+7. **Final showtime sign-off** — the Kira-timeline launch is HIS press, always.
 
 ## WORKING-TREE LAW
-kira/* = Jonny's (Gemini landed; future kira/ edits under this mandate are Phase G/C-1 core
-work — commit them under the loud-log law, never sweep unrelated WIP). Untracked
-pokemon_agent/recon_* fleet + NIGHT_REPORT.md (modified) + repo-root states/ +
-pokemon_agent/verify_dialogue.py = night-loop leftovers → Phase C-4 prune targets.
+kira/* = Jonny's + approved core work under loud-log law. Prune targets (C-4 leftovers):
+untracked recon_* fleet remainder, repo-root states/, verify_dialogue.py, NIGHT_REPORT.md.
+Throwaway sandboxes: `go.py --clean-throwaways` + `watch.py --clean`.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN (hall_of_fame — Champion, SACRED). Watch rig GO:
-`python run.py` then `python pokemon_agent/watch.py` — any spawn point, soul-on, true speed.
-The train's first moves: Phase C-1 (dialogue reactions, core, approved) and Phase E (the GO
-button) — both are watch-riggable without Jonny; his notes slot in as Phase F when they land.
+WATCH STATUS: canonical bank is CLEAN (hall_of_fame — Champion, SACRED, untouched all
+session; every rehearsal ran in disposable sandboxes). The soul-on watch rig + GO button are
+live; the opening plays voiced end-to-end except the ball-grab (take-6 verdict in
+logs/quietwindow_go_take6.log). Pop-in = `python pokemon_agent/watch.py`.
