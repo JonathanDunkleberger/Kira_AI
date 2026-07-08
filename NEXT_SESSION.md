@@ -1,6 +1,17 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 10)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 11)
 
-## ⚡ SHIFT 10 STATE (current)
+## ⚡ SHIFT 11 IN FLIGHT (rewrite this block as you bank)
+- **NOW RUNNING:** `recon_spinmaze_verify.py` (NEW) — Viridian Gym spin-maze locomotion
+  verify per shift-10 handoff 9(a): spawn banked_POSTGAME → exit house →
+  Pallet→Route1→Viridian → gym door (36,10) → map (5,1) → cross the maze to (2,3)
+  (Giovanni hidden post-badge; tile open per pret ViridianGym.json). Log:
+  `logs\longrun\spinmaze_verify_shift11.log`. PASS/FAIL semantics in the script header.
+  If this shift died mid-run: read that log tail; PASS → next is (b) the FULL 15-arc
+  sweep; FAIL → diagnose the maze leg (spin_assist seam campaign.py:2622 / travel.py:1185).
+- Then: (b) full 15-arc sweep `recon_descent_grade.py 120` (~35 min — NOT within 40 min
+  of handover); (c) evolution early beat (post-battle cutscene, own seam) — unbuilt.
+
+## ⚡ SHIFT 10 STATE (prior)
 0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`).
    Shift 10 read the corpse + ran SEVEN instrumented re-grade rounds. THE FINDS, all committed:
    (a) **TRANSPOSED MapConnection read** in `_reenter_at_column` — (mapNum,mapGroup) vs our
