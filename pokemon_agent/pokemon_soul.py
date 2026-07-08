@@ -133,10 +133,41 @@ class PokemonSoul:
                 self.emit(want, kind="want", tier=2)
 
     # ── lever 2: ROSTER AS FAMILY ────────────────────────────────────────────────────────────────
+    # MEMORY-MAGIC (2026-07-08): a bond is not a stat line — it ACCRETES a felt history. Each bond
+    # carries `history`: a short, capped list of the moments that made this teammate hers (joined
+    # here, fell fighting there, evolved, clutched a fight). The roster-as-relationship the core
+    # speaks in chat draws on THIS, so she remembers each Pokémon as a companion with a story, not
+    # a species string. Kept small (last N) so it stays vivid, not a log.
+    _HISTORY_CAP = 5
+
+    def _bond_history_add(self, key_or_species, moment):
+        """Append a felt moment to the matching bond's history (by nickname-key OR species). Best-
+        effort, capped, dedup-adjacent. No-op if the bond isn't found (a moment with no home is not
+        invented onto a random teammate)."""
+        moment = (moment or "").strip()
+        if not moment:
+            return
+        low = (key_or_species or "").lower()
+        bnd = self.bonds.get(low)
+        if bnd is None:
+            for _k, v in (self.bonds or {}).items():
+                if isinstance(v, dict) and (v.get("species") or "").lower() == low:
+                    bnd = v
+                    break
+        if not isinstance(bnd, dict):
+            return
+        hist = bnd.setdefault("history", [])
+        if hist and hist[-1] == moment:
+            return
+        hist.append(moment)
+        del hist[:-self._HISTORY_CAP]
+
     def note_caught(self, species, nickname, where=None):
         """A new teammate joins the family - record the bond + a relational reaction (not a stat line)."""
         key = (nickname or species or "").lower()
-        self.bonds[key] = {"species": species, "nickname": nickname, "caught": where, "note": "new"}
+        _origin = f"I caught them {where}" if where else "I caught them out in the wild"
+        self.bonds[key] = {"species": species, "nickname": nickname, "caught": where,
+                           "note": _origin, "history": [_origin]}
         who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
         self.emit(f"{who} is part of the team now" + (f" - caught {where}" if where else ""),
                   kind="roster", tier=2)
@@ -147,15 +178,32 @@ class PokemonSoul:
         met, named, recorded as family — never silently deployed. `how` is the backstory line
         (GIFT_BACKSTORY) when we know it."""
         key = (nickname or species or "").lower()
+        _origin = how or "joined me later (not a wild catch — we met along the way)"
         self.bonds[key] = {"species": species, "nickname": nickname,
-                           "caught": None, "note": how or "joined the team (not caught — met later)"}
+                           "caught": None, "note": _origin, "history": [_origin]}
         who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
         self.emit(f"so {who} is officially one of us now — welcome aboard, {who}.",
                   kind="roster", tier=3)
 
+    def note_name_reason(self, key_or_species, nickname, reason):
+        """THE ENDEARING HALF (soul-debt #3): when she NAMES a teammate, record WHY in her own words —
+        the naming reason is the heart of roster-as-relationship. Folds into the bond's history so
+        chat-Kira can say 'I named her X because…' hours later. Best-effort; skipped if no reason."""
+        if reason and reason.strip():
+            self._bond_history_add(key_or_species,
+                                   f"I named {nickname or 'them'} {nickname or ''} — {reason.strip()}".replace("  ", " "))
+
     def note_faint(self, who):
-        """A teammate goes down - a felt beat for family, not a neutral 'fainted'."""
+        """A teammate goes down - a felt beat for family, not a neutral 'fainted'. Accretes the moment
+        onto that teammate's history so a loss is REMEMBERED, not just voiced once."""
+        self._bond_history_add(who, "fought hard and fell for me in battle")
         self.emit(f"{who} is down - I've got you, take a rest", kind="roster", tier=2)
+
+    def note_clutch(self, who, where=None):
+        """A teammate pulled out a win at the wire — the kind of moment that DEFINES a bond. Accreted
+        so she remembers 'X saved the day' as part of who they are to her."""
+        self._bond_history_add(who, f"clutched a fight for me{(' at ' + where) if where else ''} — "
+                                    f"pulled it out at the wire")
 
     def note_evolve(self, before, after, who=None):
         # THE BOND FOLLOWS THE EVOLUTION (2026-07-06): meowth→persian must not orphan the family
@@ -165,6 +213,11 @@ class PokemonSoul:
             if isinstance(bnd, dict) and (bnd.get("species") or "").lower() == (before or "").lower():
                 bnd["species"] = after
                 bnd["note"] = f"evolved from {before}"
+                _h = bnd.setdefault("history", [])
+                _moment = f"evolved from {before} into {after} right in front of me"
+                if not _h or _h[-1] != _moment:
+                    _h.append(_moment)
+                    del _h[:-self._HISTORY_CAP]
         self.emit(f"{who or before} evolved into {after}", kind="evolve", tier=3)
 
     def note_outcome(self, won, what=None):

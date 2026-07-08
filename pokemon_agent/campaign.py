@@ -8564,18 +8564,27 @@ class Campaign:
             sp = m.get("species")
             lvl = m.get("level")
             nick = note = caught = None
+            hist = []
             try:
                 for _k, v in bonds.items():
                     if isinstance(v, dict) and v.get("species") == sp:
-                        nick = v.get("nickname"); note = v.get("note"); caught = v.get("caught"); break
+                        nick = v.get("nickname"); note = v.get("note"); caught = v.get("caught")
+                        hist = v.get("history") or []
+                        break
             except Exception:
                 pass
             _real_nick = nick if (nick and nick != sp) else None
+            # STORY = the accreted felt HISTORY (roster-as-relationship) when present — the moments
+            # that made this teammate hers — else the origin note. This is what lets chat-Kira speak
+            # each Pokémon as a companion with a past, not a species string.
             _story = []
-            if caught:
-                _story.append(f"caught {caught}")
-            if note and note not in ("new", None):
-                _story.append(note)
+            if hist:
+                _story = list(dict.fromkeys(hist))[-3:]          # last few distinct moments, in order
+            else:
+                if caught:
+                    _story.append(f"caught {caught}")
+                if note and note not in ("new", None):
+                    _story.append(note)
             roster.append({"nickname": _real_nick, "species": sp, "level": lvl,
                            "story": "; ".join(_story) or None})
             _label = f"{_real_nick} the {sp}" if _real_nick else sp
