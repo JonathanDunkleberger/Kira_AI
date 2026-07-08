@@ -380,6 +380,20 @@ class Grid:
         bx, by = sx + MAP_OFFSET, sy + MAP_OFFSET
         return self.walkable(sx, sy) and (bx, by) not in self.grass
 
+    def is_water(self, sx, sy):
+        """Surfable-water tile at SAVE coords (behavior-classified; raw collision reads 0)."""
+        return (sx + MAP_OFFSET, sy + MAP_OFFSET) in self.water
+
+    def walkable_or_surf(self, sx, sy):
+        """WATER-AWARE planning layer (2026-07-08, the Pallet->R21 shore-bonk fix): land-walkable
+        OR surfable water — for a party that KNOWS Surf + has the badge. col==0 covers both (water
+        reads raw collision 0); the executor owns the shoreline ceremony (surf A-prompt mount on
+        the land->water step, auto-dismount on water->land)."""
+        bx, by = sx + MAP_OFFSET, sy + MAP_OFFSET
+        if not (0 <= bx < self.w and 0 <= by < self.h):
+            return False
+        return self.col.get((bx, by), 1) == 0
+
     def ledge_dir(self, sx, sy):
         """If (sx,sy) is a ledge tile, the (dx,dy) you can only jump it in; else None. Save coords."""
         return self.ledge.get((sx + MAP_OFFSET, sy + MAP_OFFSET))
@@ -661,6 +675,18 @@ class Traveler:
         grid = Grid(self.b)
         plan_cache = None            # PLAN HYSTERESIS state (see the planning site below)
         cur_map = map_id(self.b)
+        # WATER-AWARE TRAVEL (2026-07-08): with Surf usable (known + badge) the planner may route
+        # ACROSS surfable water as a LAST resort (land routes stay preferred — mounting is a
+        # ceremony, and a human only surfs when the road is the sea). Computed once per leg; the
+        # executor mounts at the land->water boundary via the campaign's field_clear (the proven
+        # GetInteractedWaterScript A-prompt), and the game auto-dismounts on water->land.
+        can_surf = False
+        if self.field_clear is not None:
+            try:
+                import field_moves as _fms
+                can_surf = _fms.can_use(self.b, "surf")
+            except Exception:
+                can_surf = False
         t0 = time.time()
         self.log(f"   [travel] start map={cur_map} coords={coords(self.b)} -> "
                  f"{'coord ' + str(arrive_coord) if arrive_coord else 'map ' + str(target_map)} "
@@ -709,7 +735,10 @@ class Traveler:
         band = None
         if edge in ("east", "west"):
             past = (grid.sx_hi + 1) if edge == "east" else (grid.sx_lo - 1)
-            cand = {p for p in range(grid.sy_lo, grid.sy_hi + 1) if grid.walkable(past, p)}
+            # water-aware: on a sea route the neighbour's overlap tiles ARE water — a surf-capable
+            # party can cross there (the band was empty and the leg dead-ended pre-2026-07-08).
+            cand = {p for p in range(grid.sy_lo, grid.sy_hi + 1)
+                    if grid.walkable(past, p) or (can_surf and grid.is_water(past, p))}
             band = cand or None        # no overlap detected -> fall back to any edge tile
             if band:
                 self.log(f"   [travel] {edge} connection band rows: {sorted(band)}")
@@ -856,7 +885,8 @@ class Traveler:
             path = None
             if plan_cache and len(plan_cache) >= 2 and plan_cache[0] == cur:
                 nx_, ny_ = plan_cache[1]
-                if grid.walkable(nx_, ny_) and free(nx_, ny_):
+                if ((grid.walkable(nx_, ny_) or (can_surf and grid.is_water(nx_, ny_)))
+                        and free(nx_, ny_)):
                     path = plan_cache
             if path is None:
                 path = bfs(grid, cur, goal,
@@ -864,6 +894,12 @@ class Traveler:
                 if not path:
                     path = bfs(grid, cur, goal,
                                walkable=lambda sx, sy: grid.walkable(sx, sy) and free(sx, sy))
+                # WATER-AWARE last resort: no land route exists but the party can Surf — plan
+                # across surfable water (sea routes / lake crossings). Land stays preferred by
+                # construction (this only runs when both land plans failed).
+                if not path and can_surf:
+                    path = bfs(grid, cur, goal,
+                               walkable=lambda sx, sy: grid.walkable_or_surf(sx, sy) and free(sx, sy))
             plan_cache = path[1:] if path and len(path) >= 2 else None
             if not path or len(path) < 2:
                 if arrive_coord is not None and cur == arrive_coord:
@@ -1075,6 +1111,37 @@ class Traveler:
 
             d = direction(cur, path[1])
             nxt = path[1]
+            # SURF MOUNT at the shoreline (water-aware travel 2026-07-08): the planned step goes
+            # land->water — a D-pad press can't enter water (the game gates it behind the Surf
+            # A-prompt; the raw press just turns/bonks, which the fail-accounting would wrongly
+            # mark as a blocked tile). Face the water, fire the proven A-prompt mount, and re-plan
+            # from the water. Water->water and water->land steps are normal presses (the game
+            # auto-dismounts onto the shore).
+            if can_surf and grid.is_water(*nxt) and not grid.is_water(*cur):
+                self._press(d)                       # blocked press = turn to face the water
+                if st.in_battle(self.b):
+                    continue
+                if coords(self.b) == cur and self.field_clear is not None:
+                    r = self.field_clear("surf", DIR_KEY[d])
+                    if r == "used":
+                        for _ in range(40):          # mount animation carries her onto the water
+                            self.b.run_frame(); self.render()
+                        self.log(f"   [travel] 🌊 SURF MOUNT at {cur} -> {nxt} (map {cur_map})")
+                        self.beat("okay — onto the water. Surf's up.")
+                        plan_cache = None
+                        stuck = 0
+                        continue
+                    self.log(f"   [travel] surf mount at {cur} -> {nxt} FAILED ({r}) — falling "
+                             f"through to normal step accounting")
+                # already moved (was somehow crossable) or mount failed -> normal accounting below
+                after = coords(self.b)
+                if after == cur:
+                    blocked[nxt] = step              # couldn't mount here — re-plan around this tile
+                    fail_count[nxt] = fail_count.get(nxt, 0) + 1
+                    stuck += 1
+                else:
+                    stuck = 0
+                continue
             self._press(d)
             after = coords(self.b)
             if st.in_battle(self.b):                # the step walked into a wild encounter:

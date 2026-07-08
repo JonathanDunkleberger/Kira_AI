@@ -6326,6 +6326,27 @@ class Campaign:
                     gate = self._gym_gate_probe(gym)
                     if gate and self._open_questline(gate, state):
                         return self._run_questline_step(state)
+                # GYM-INTERIOR PING-PONG BREAKER (descent re-grade 2026-07-08, the banked_SILPH
+                # Saffron loop): beat_gym 'stuck' can end with her INSIDE an interior she can't
+                # cross (Sabrina's teleport pads — strike-solved, not general yet); the next tick's
+                # warp-route walks her back OUT to the city, then re-enters, forever (each cycle
+                # MOVES so the movement-cleared dead-route memory never bites). Two consecutive
+                # unhandled stucks on the same gym → structurally dead on the CITY map (leaving the
+                # map re-arms one retry) + one honest beat. A badge or questline clears the streak.
+                if not hasattr(self, "_gym_stuck_streak"):
+                    self._gym_stuck_streak = {}
+                if out == "stuck":
+                    n = self._gym_stuck_streak.get(ng["leader"], 0) + 1
+                    self._gym_stuck_streak[ng["leader"]] = n
+                    if n >= 2:
+                        self._dead_moves_structural.setdefault(tuple(gym.city), set()).add("head_to_gym")
+                        self.on_event(f"okay, {ng['leader']}'s gym has me beat for the moment — that layout "
+                                      f"is a puzzle and I keep bouncing off it. I'll regroup and come back "
+                                      f"at it fresh.", kind="gym", tier=2)
+                        log(f"   [roam] !! GYM-INTERIOR WALL: beat_gym stuck x{n} on {ng['leader']} — "
+                            f"head_to_gym structurally parked on {gym.city} until she leaves the map")
+                else:
+                    self._gym_stuck_streak.pop(ng["leader"], None)
                 if out == "badge":
                     # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
                     # moving on". Tier-3 big beat → her core deep-reaction path RISES; the saga promotes it.
