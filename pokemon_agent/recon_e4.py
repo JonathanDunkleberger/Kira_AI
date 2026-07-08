@@ -65,7 +65,12 @@ FULL_RESTORE, MAX_POTION, REVIVE, FULL_HEAL = 19, 20, 24, 23
 # bought NOTHING when poor, so by attempt 5 the bag was empty and every lap ran itemless.
 # Revives first ($1500 = the comeback cycle: the ace back at half HP, and fainting cleared
 # its sleep), Full Heals second (the $600 Jynx sleep counter), Full Restores with the rest.
-SHOPPING = [(REVIVE, 4, 8, 1500), (FULL_HEAL, 5, 5, 600), (FULL_RESTORE, 2, 16, 3000)]
+# CAPS REBALANCED (shift-18, run22 laps 1-2): the $12k steady-state lap bought 8 Revives and
+# then couldn't afford ONE Full Heal — laps ran with NO sleep cure into Jynx/Hypnosis, and the
+# ace sat at half HP mid-Gary with FR x0 while the worthy-gate (rightly) refused to burn turns
+# reviving L39 bench bodies. 5 Revives ($7.5k) + 3 Full Heals ($1.8k) + FRs with the rest
+# (~$3k -> 1 per lap): ace UPTIME beats a deeper pile of one-turn bench corpses.
+SHOPPING = [(REVIVE, 4, 5, 1500), (FULL_HEAL, 5, 3, 600), (FULL_RESTORE, 2, 16, 3000)]
 CLERK_STAND = (2, 7)
 LEAGUE_DOOR = (4, 1)
 CENTER_EXIT = (11, 16)
