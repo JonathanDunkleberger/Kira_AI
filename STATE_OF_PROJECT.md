@@ -53,6 +53,41 @@ she's Champion in "the Hall of Fame"), but whether she autonomously WALKS OUT of
 one thing the summit watch must confirm (residual fix scoped = a post-game "exit league → Cerulean Cave"
 objective). Pre-credits spawns have normal gym objectives and won't strand.
 
+### ── 2026-07-07 NIGHT SHIFT #2 (completion mandate) — K SHORTS/MANIFEST/TARGETS + G-2 + G-3 + I-1 AUDIT ──
+**Commits 63237f1 · 00137b1 · c3d78b2 · e3f9c06 · dd2ace6 · 19e1cb6 · 3ab8bd8.** No bot boots
+(22:14 start, Jonny at desk 45 min prior — etiquette held); every live verify stays on the quiet-window queue.
+- **K item 1 VERTICAL SHORTS (VERIFIED end-to-end on a real VOD):** `04_shorts/` = top-N
+  (CLIP_SHORTS_COUNT=5) true 1080×1920 blur-pad renders + word-timed burned-in captions
+  (faster-whisper CPU on the short's own audio → `.ass` sidecar kept → single-pass burn;
+  caption failure degrades LOUDLY to uncaptioned). Frame-grab confirmed the burn visually.
+- **K item 3 manifest.json (VERIFIED unit + cp1252 pipe):** machine review-queue next to
+  clips_report.md — every output + per-item `approved:false`; D2 CLOSED (stitch_clips.py
+  retired, confirmed orphaned). **BUG CLASS KILLED:** the module's unicode loud-logs
+  (→/…/⚠) crashed the pipeline under cp1252 pipes — console-safe print shadow fixed all
+  sites; a loud-log never kills the run it narrates.
+- **K length targets (COMPILES+import-verified):** highlight body scaled to
+  CLIP_HIGHLIGHT_FRACTION(0.10)×session span clamp 900s, lowest-score dropped LOUDLY;
+  best-of cap 300→240s. **D4 (VERIFIED unit):** candidate prompt single-sourced in
+  kira/clips/prompt_spec.py (the format block is the cutter's parsing CONTRACT).
+- **G-2 chat-as-advisors + reject-with-reason (CORE touch, loud-logged; COMPILES+WIRED,
+  flag `CHAT_ADVISORS_ENABLED` DEFAULT OFF = chat prompt byte-identical):** advisor
+  framing + a reasoned in-character decline as a first-class move alongside SKIP. Recon
+  first: restraint machinery already exists default-OFF (salience gate/rate cap/budget/
+  room-read/Lock-In) — NOT rebuilt; reject-with-reason was the genuinely missing piece.
+- **G-3 cold-open recap (CORE touch, loud-logged; COMPILES+WIRED, flag
+  `COLD_OPEN_RECAP_ENABLED` DEFAULT OFF):** the session's first voice exchange opens with
+  ONE beat of welcome-back continuity off the existing StartupBrief — the voiced sibling
+  of go.py's Pokémon recap register, for ALL sessions. `[ColdOpen]` log on fire.
+- **I-1 MODE-TRANSITION AUDIT banked = `MODE_TRANSITION_AUDIT.md` (root):** persona
+  firewall HOLDS (no reset on any switch; _reset_session_takes dead); the "reset feel" is
+  6 ledgered context-assembly seams (VN asides drop bits/opinions; chess early-return;
+  media playthrough doctrine split; chat-batch omits favorites/bond; pokemon live-state
+  path asymmetry; DEAD `_PACING` riff-window table = the ready-made I-3 spec). Pokémon
+  firewall: no mode-state leak found; saga WRITE-side follow-up owed. Fix order in doc;
+  seam fixes are behavior changes → Phase-H sandbox verify before banking.
+- **Feel-test queue additions:** flip CHAT_ADVISORS_ENABLED and COLD_OPEN_RECAP_ENABLED
+  one at a time (cadence plan) — both ride the quiet-window/Jonny queue.
+
 ### ── 2026-07-07 NIGHT SHIFT #1 (completion mandate) — PHASES C+E BANKED; G-1 PREFETCH; LIVE-VERIFY PARKED ──
 **Commits 70632fd · c0df5d9 · 6454008 · a176b9f · fe21477.** All offline-verifiable pieces VERIFIED; every
 live verify PARKED on the quiet window (run.py launched ~21:30 engaged a PRESENT Jonny — killed on his

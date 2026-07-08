@@ -27,8 +27,16 @@ first. The CEO then STACKED the FULL COMPLETION MANDATE below — phases C-remai
 Work them in order unless a needs-eyes dependency forces a swap; bank each phase with a
 commit + one STATE §0 line; never stop at a milestone.
 
-## FRONTIER (rewritten at shift-1 close, 2026-07-07 ~22:40 — full detail in STATE §0 top block)
-**DONE this shift (commits 70632fd·c0df5d9·6454008·a176b9f·fe21477):** C-1 (dialogue register +
+## FRONTIER (rewritten at shift-2 close, 2026-07-07 ~23:1x — full detail in STATE §0 top block)
+**DONE shift 2 (commits 63237f1·00137b1·c3d78b2·e3f9c06·dd2ace6·19e1cb6·3ab8bd8):** K item 1
+vertical shorts (VERIFIED e2e on a real VOD, frame-grab confirmed), K item 3 manifest.json
+review queue + D2 stitcher retired + cp1252 loud-log crash class killed, K length targets
+(highlight scaled to session, best-of 240s), D4 prompt single-sourced (prompt_spec.py),
+**G-2** chat-as-advisors/reject-with-reason (CORE, `CHAT_ADVISORS_ENABLED` OFF), **G-3**
+cold-open recap for all sessions (CORE, `COLD_OPEN_RECAP_ENABLED` OFF), **I-1 audit banked**
+= MODE_TRANSITION_AUDIT.md (persona firewall HOLDS; 6 seams ledgered with fix order).
+
+**DONE shift 1 (commits 70632fd·c0df5d9·6454008·a176b9f·fe21477):** C-1 (dialogue register +
 intel ledger), C-2 (unmet-teammate intro — NOTE: Lapras is IN the party, sandbox-verified), C-3
 (Name Rater, pret-grounded, dry-verified), C-4 (harvest 35-39 + 161 one-shots pruned), E (go.py —
 refusal/rails/recap verified), G-1 (latency measured off real logs + KIRA_TTS_PREFETCH default-OFF
@@ -42,24 +50,38 @@ check :8766 + desk presence FIRST, memory night-shift-bot-launch-etiquette):**
 3. Flip `KIRA_TTS_PREFETCH=1` → one conversation → compare [LATENCY] + inter-sentence gaps → if
    clean, propose default-ON to Jonny.
 4. A summit watch: does she pick `leave_building` and walk out? (post-game arc now coherent.)
+5. NEW (shift 2): feel-test `CHAT_ADVISORS_ENABLED=1` (send a backseat suggestion via chat,
+   watch for reasoned decline vs silent comply) and `COLD_OPEN_RECAP_ENABLED=1` (boot, first
+   voice exchange should open with ONE welcome-back callback beat; grep `[ColdOpen]`) — ONE
+   variable at a time per the cadence plan.
 
-**NEXT BUILD WORK (in order):** G-1 remaining hops (perception-lock contention measurement; Azure
+**NEXT BUILD WORK (in order):** I-1 SEAM FIXES per MODE_TRANSITION_AUDIT.md fix order (read it
+first; seams 3→1→2→4; behavior changes, so Phase-H sandbox verify BEFORE banking — do them in a
+quiet window, not blind) → G-1 remaining hops (perception-lock contention measurement; Azure
 chunked streaming = design first, big blast radius; vad_close = flag-only, NEVER touch VAD
-semantics) → G-2 conversation restraint/reject-with-reason (core, flag-gated) → G-3 cold-open/
-callbacks (recap register exists; extend to non-Pokémon sessions) → Phase I-1 mode-transition
-audit (recon first: memory 'next-chapter chat-vs-game balance' — Activity Director pieces exist
-unwired; NO parallel v2). Phase F waits on Jonny's notes.
+semantics) → Phase I-2 attention director (EXTEND SessionIntensity per the audit — it IS the
+focus machine; do NOT build a parallel one) → I-3 media pacing (the dead `_PACING` table
+bot.py:2752 is the ready-made spec; build it a live consumer). Phase F waits on Jonny's notes.
 
-**PHASE K STARTED (wait-gap work per its scheduling law, shift 1):** full Rule-3 recon banked =
+**PHASE K IN FLIGHT (wait-gap work per its scheduling law):** full Rule-3 recon banked =
 **CLIPPER_RECON.md** (read it before touching the pipeline — keep-list + rebuild list + debt
-D1-D5). Landed: D1 tail-fix FINISHED (front-grow in both anchor modes) + item 4 cost
-instrumentation (clips_report.md now prints the per-VOD LLM cost line). NEXT K work in order:
-(1) the vertical-short renderer — 1080×1920 + burned-in `.ass` captions from the existing
-Whisper segments, 3-5 shorts (THE non-negotiable gap, from-scratch); (2) kira-moment selection
-(log tier-3/soul beats cutter-readably, blend into scoring); (3) manifest.json + review-queue
-state (also resolves the orphaned stitch_clips.py); (4) length targets (highlight cut scaled
-to VOD, best-of 3-4 min); (5) D3/D4 hygiene. Exit = one 007 VOD, zero manual editing →
-needs-eyes item 6.
+D1-D5). Landed: D1 tail-fix (shift 1), item 4 cost line (shift 1), and **item 1 THE
+VERTICAL-SHORTS RENDERER (shift 2, commit 63237f1 — VERIFIED end-to-end on a real VOD):**
+`04_shorts/` = top-N (CLIP_SHORTS_COUNT=5, CLIP_SHORT_MAX_SECONDS=60) true 1080×1920 blur-pad
+renders, word-timed captions burned in (faster-whisper CPU on each short's OWN audio →
+clip-relative timings → `.ass` sidecar kept next to the .mp4 for hand-tweaks → single-pass
+ffmpeg burn; caption failure degrades LOUDLY to an uncaptioned render). Over-length clips keep
+the punch (last max-window). ALSO LANDED shift 2: **item 3 manifest.json** (machine review
+queue, per-item approved:false, D2 stitcher retired) + **length targets** (highlight scaled to
+session span, best-of 240s) + **D4** (prompt_spec.py single source — the format block is the
+cutter's parsing contract) + the cp1252 loud-log crash class killed module-wide. REMAINING K
+work: (2) kira-moment selection — log tier-3/soul/judged beats cutter-readably (bot.py
+events.jsonl already carries highlight_captured; add tiered pokemon/reaction beats), blend
+into candidate scoring so "she named the rat and declared war" outranks "boss died";
+(5) D3 hardcoded paths (.env:11-12,116); then the EXIT RUN: one full 007/dev-stream VOD
+through `python scripts/cut_clips.py` end-to-end, outputs postable with zero manual editing →
+needs-eyes item 6. (Today's real VODs exist: `2026-07-07 20-16-17.mp4` + `16-50-08.mp4` in
+OBS_RECORDINGS_DIR — candidates for the exit run if candidate .md artifacts exist for them.)
 
 ### shift-1 detail (superseded by the block above; kept for context)
 - **C-1 DIALOGUE FIRST-TIMER + HINT EXTRACTION: BUILT + COMPILED, live-verify PARKED.**
