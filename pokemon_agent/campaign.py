@@ -99,13 +99,26 @@ STATES_ARCHIVE = os.path.join(STATES, "archive")
 # free-roam run writes to as she progresses and RESUMES from on the next GO — so a session picks up
 # where she actually is, never resetting to a frozen fragment. Isolated from the workshop fragments
 # (those stay as fallbacks) and PHYSICALLY separate from the canonical states/kira/ spine.
-STATES_CAMPAIGN = os.path.join(STATES, "campaign")
+# TIME-MACHINE / WATCH-SANDBOX override (watch.py): redirect the ENTIRE persistent-campaign
+# bundle (state + strat/world/journey/health/playthrough sidecars, all derived below) to a
+# disposable sandbox dir so a watch session spawned from a BANKED point never writes canonical.
+# Crash-safe by construction: canonical states/campaign is never opened for write when this is
+# set, so even a hard-kill mid-watch leaves canonical untouched. Unset = canonical, unchanged.
+# NOTE: promote_bank.py keeps its OWN canonical path, so promotions always target true canonical
+# regardless of this override.
+_CAMPAIGN_DIR_OVERRIDE = os.getenv("POKEMON_CAMPAIGN_DIR", "").strip()
+STATES_CAMPAIGN = _CAMPAIGN_DIR_OVERRIDE or os.path.join(STATES, "campaign")
 CAMPAIGN_SAVE = "kira_campaign.state"      # the single living-campaign savestate filename
 # ADDENDUM D — NARRATIVE continuity sidecars (persist her SAGA, not just game RAM): her team bonds/wants
 # live in the canonical soul JSON; the loss/wall history (the factual basis of her Gary grudge) lives next
 # to the campaign save. Both are loaded at free-roam (Sherpa) start + saved at every campaign anchor, so a
 # --resume climb resumes KNOWING her story. Launch-independent (file-based, not tied to any endpoint).
-SOUL_JSON = os.path.join(STATES_KIRA, "pokemon_soul.json")
+# In a watch-sandbox the soul rides IN the sandbox too (bundle soul.json is copied there as
+# pokemon_soul.json by watch.py), so canonical states/kira soul stays untouched. Otherwise the
+# canonical kira-lineage soul. Only the free-roam continuity path reads SOUL_JSON; the --show
+# segment path keeps its own explicit states/kira soul handling below.
+SOUL_JSON = (os.path.join(_CAMPAIGN_DIR_OVERRIDE, "pokemon_soul.json")
+             if _CAMPAIGN_DIR_OVERRIDE else os.path.join(STATES_KIRA, "pokemon_soul.json"))
 STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
 # Batch-WORLD — her mental MAP (visited nodes + connectivity + traits + capabilities) persists
 # next to the campaign save, so a --resume climb wakes up KNOWING where she's been (no more

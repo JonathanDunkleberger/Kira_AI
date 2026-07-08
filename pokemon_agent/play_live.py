@@ -84,6 +84,9 @@ def main():
                          "decides her own next move each tick via the soul oracle (wander_catch / battle "
                          "/ heal / head_to_gym), state-aware, unscripted. Use with --boot misty_done.state.")
     ap.add_argument("--roam-ticks", type=int, default=12, help="free-roam: max decision ticks")
+    ap.add_argument("--roam-seconds", type=int, default=None,
+                    help="free-roam: max wall-clock seconds before the loop returns (default 900). "
+                         "watch.py passes a large value so a watch session runs until you stop it.")
     ap.add_argument("--resume", action="store_true",
                     help="PERSISTENT CAMPAIGN (Batch 5 — the Sherpa-timeline GO): resume her LIVING "
                          "campaign save (states/campaign/kira_campaign.state) so she picks up the CLIMB "
@@ -395,7 +398,10 @@ def main():
         elif args.go:
             outcome = camp.run_segments(build_segments(), mode="workshop")
         elif args.free_roam:
-            outcome = camp.free_roam(max_ticks=args.roam_ticks)
+            _rk = {"max_ticks": args.roam_ticks}
+            if args.roam_seconds is not None:
+                _rk["max_seconds"] = args.roam_seconds
+            outcome = camp.free_roam(**_rk)
         else:
             outcome = camp.run(objectives)
     except KeyboardInterrupt:
