@@ -1,6 +1,59 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 5, pre-strike; CEO: THE DESCENT restructure)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 7, pre-strike)
 
-## ⚡ SHIFT 5 STATE (pad-router port in progress; full 15-arc sweep in flight)
+## ⚡ SHIFT 7 STATE (in flight — FULL 15-arc sweep running on the shift-6 fix stack)
+0. **SCOPE RE-GRADE #2 = PASS** (descent_regrade_scope2_shift6.log: twedge 271→5, nav 0,
+   decision-budget end). Road-anchor parking + sealed-by-a-guard exit chain BOTH hold e2e.
+   Shift 6's own full-sweep launch was killed at the 04:02 handover mid-arc
+   (descent_full_shift6.log, Route 13) — shift 7 relaunched it.
+1. **IN FLIGHT: FULL 15-arc sweep on tonight's code** —
+   `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`
+   → log `logs\longrun\descent_full_shift7.log`, ~35 min; regenerates
+   `pokemon_agent/DESCENT_PREGRADE.md` (full table incl. twedge column). SINGLE-RUN LAW:
+   do NOT launch any other emulator recon while it runs (recon tools reap predecessors).
+   If this file is being read fresh and the sweep is dead/absent: relaunch it first.
+2. **NEXT after the sweep (in order):** (a) fix what it flags (diagnose → fix → re-grade
+   the flagged arc → commit); (b) ROCKTUNNEL WARN (nav=1): TEA questline climbs Celadon
+   Mansion to map (10,11), wedges at (7,4) — "path blocked at (7,4), blocker NPC
+   tile=None, npcs nearby=[(3,5)]", can't take the FIRST STEP; needs a probe (who blocks
+   (7,4)? wanderer body the template read misses? doorway metatile?); shift-6 door-skip
+   cheapens the fan-out but the blocked-first-step class is unfixed; (c) level-up early
+   beat verify (printed-events run, recon_winbeat_verify pattern); (d) Viridian Gym spin
+   maze (spin_assist un-verified live).
+
+## SHIFT 6 STATE (background — all landed + committed)
+1. **ROAD-ANCHOR PARKING — COMMITTED 7c2025b (VERIFIED in re-grade #1):** `campaign.
+   _next_step_rideable` wraps `world.next_step` with a travel-grade BFS reachability
+   pre-check from her FEET before any warp ride (NPC-blind, fail-OPEN on read flakes);
+   unreachable hop → parked for THIS query, route re-asked (`world.warp_tiles` rides any
+   reachable door of a multi-door hop); nothing rideable → honest `no_gym_route` (the
+   structural outcome that stops forward-drive's re-frame). Wired at all three warp-ride
+   sites (_road_step, head_to_gym warp-route, questline anchor-first). Re-grade #1 proof:
+   tick-1 head_to_gym parked cleanly, B4F wedges 271→17.
+2. **SEALED-BY-A-GUARD EXIT CHAIN — COMMITTED aba03c5 (VERIFIED e2e):** re-grade #1 still
+   FAILED on twedge=223 — all in `_exit_to_overworld` on hideout B1F. Probes
+   (recon_b1f_probe/probe2, standing) + pret: **RocketHideout_B1F holds a TRAINER-GATED
+   BARRIER at (20-21,19-21)** — coll-3 wall until TRAINER_TEAM_ROCKET_GRUNT_12 (the guard
+   at (21,27)) falls, then setmetatile opens the floor. THE GENERAL LESSON: scripts change
+   the FLOOR, not just who's here — a sealed walk-region's opener can be a PERSON. Fixes:
+   (a) SEALED-DOOR SKIP — flood pre-check before any exit-door leg, skipped doors NOT
+   consumed (retried the moment the floor unseals); (b) PERSISTENT ELEVATOR ROW CURSOR
+   (bag TRUE-row law) + ride all remaining rows while aboard; (c) `_engage_exit_guard` —
+   no reachable door → talk/fight nearest reachable object event (live coords, once per
+   map) → re-plan on the fresh grid. VERIFY (recon_exit_verify.py, standing): B4F → car →
+   B1F → guard fight WON → barrier open → Game Corner → street, ONE tick, 38s, 4 wedges.
+3. **NEXT (in order):** (a) read SCOPE re-grade #2 (log → descent_regrade_scope2_shift6.log,
+   expect PASS/WARN); (b) FULL 15-arc sweep on tonight's code
+   (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, ~35 min) →
+   DESCENT_PREGRADE.md regenerates with the twedge column → fix what it flags; (c)
+   ROCKTUNNEL WARN (nav=1): the TEA questline climbs Celadon Mansion to map (10,11), ends
+   wedged at (7,4) — travel reads "path blocked at (7,4), blocker NPC tile=None, npcs
+   nearby=[(3,5)]" and can't take the FIRST STEP; the exit-loop fans doomed doors
+   (tonight's door-skip will cheapen it, but the blocked-first-step class is unfixed —
+   needs a probe: who blocks (7,4)? wanderer body the template read misses?); (d) level-up
+   early beat verify (printed-events run); (e) Viridian Gym spin maze (spin_assist
+   un-verified).
+
+## SHIFT 5 STATE (background — all landed + committed)
 Shift 4 CLOSED with: water-aware travel COMMITTED (e9f1715 — surf-capable Grid/BFS layer +
 shoreline mount; the Pallet→R21 shore-bonk class), questline FENCED-BEND passthrough + the gym
 ping-pong breaker COMMITTED (1cc70e6), and the 4-arc re-grade LANDED: **ROCKTUNNEL / SABRINA /
