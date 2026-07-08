@@ -61,10 +61,23 @@ settles it for good:
   [VERIFIED: recon_ether_verify PASS (used on first walk, immunity offers suppressed) +
   recon_revive_verify re-PASS after the aim-once change. Probe law: gBattleMons rebuilds
   during the battle intro — RAM writes stick only after GBATTLE_MENU_UP==1.]
+- **THE POCKET-HOLE BUG (7f83916 — run16's all-offers collapse, forensics-confirmed live in
+  run17):** consuming the LAST of an item mid-battle leaves a zero HOLE in the RAM Items
+  pocket; `_items_pocket` broke at the first zero id, so the Ether (display row 0) hitting
+  x0 at Agatha made the WHOLE pocket read empty for the rest of the process — no potion/
+  cure/revive offers ever again (run16: Agatha's last mon at 17 HP, then 5 whiteouts with
+  FR x10 "in the bag") while camp.bag_count (scan-all) kept the kit-check green. The new
+  `revive-check` forensic line named it in one glance: `revive_item=None, worthy=0`.
+  Fixed scan-all-skip-holes; hole assertion rides recon_ether_verify. [VERIFIED both fixtures]
+- **Cure instinct reads the ACTIVE battler now (dd56205)** — `_lead_status` read
+  gPlayerParty[0], so a sleep-locked fodder post-switch never got a cure while the dead
+  ace's 'none' was consulted. Decodes state['ours'].status1 (gBattleMons). [WIRED, fixture-
+  covered indirectly]
 - **Eyes owed:** `_switch_to_slot` rewrite (famine/voluntary switch) fail-safed but only
-  indirectly exercised — watch "[engine] switch:" lines in run16; run15 also showed
-  "_goto_pokemon failed" famine-switch flakiness on a dirty screen (pre-existing class).
-**FRONTIER: run16 through Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
+  indirectly exercised — watch "[engine] switch:" lines; "_goto_pokemon failed" famine-switch
+  flakiness on a dirty screen remains (pre-existing class, fail-safed).
+**FRONTIER: run18 (full stack: order law + ether + cure-active + pocket-hole) through
+Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
 
 ### ── 2026-07-07 NIGHT SHIFT #13 — the LIVELOCK FAMILY dies: cb2 liveness + display-order walks ──
 **CANONICAL unchanged = indigo_reach. e4_run9 IN FLIGHT (logs/longrun/e4_run9.log) — full fix
