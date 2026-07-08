@@ -610,6 +610,16 @@ class Campaign:
         # transient blocks like an NPC on the gap), these stay pruned while she's ON the map;
         # leaving clears the map's entry, so returning retries exactly once.
         self._dead_moves_structural = {}
+        # SPLIT-MAP ROAD MEMORY (2026-07-08, the SURF_TAUGHT Route-19↔20 metronome): retry-once
+        # (leave clears the map's entry) is right for transients but LAUNDERS a split-map dead end —
+        # she bounces A→B ("arrived", movement clears everything), fails on B, leaves to A, forever.
+        # Strikes count structural fails per (map, pick) and NEVER clear on movement; a pick with
+        # ≥2 strikes survives the leave-clears rule (proven dead across visits). And when
+        # head_to_gym proves dead on the map it JUST rode into, the SOURCE map's head_to_gym is
+        # parked too (the leg that keeps feeding the dead end), with one narrated beat.
+        self._dead_route_strikes = {}
+        self._last_hg_leg = None              # (from_map, to_map) of the last map-crossing head_to_gym
+        self._split_map_beat_done = set()     # one beat per dead road, not a lecture
         # B-2 — RESOLVED/LOOPING-NPC guard: (map_id, coords) spots where a dialogue loop was disengaged
         # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
         # the same looping NPC / re-trigger a beaten trainer's restarting lines.
@@ -7738,8 +7748,32 @@ class Campaign:
                 # excursion) cleared _dead_moves and resurrected the same doomed travels (the
                 # banked_E4 Saffron heal↔dead-travel oscillation, night shift 9).
                 if out in ("no_gym_route", "questline_no_route", "questline_arrived_no_target",
-                           "no_route"):
-                    self._dead_moves_structural.setdefault(tuple(_pos0[0]), set()).add(pick)
+                           "no_route", "no_path"):
+                    _sm = tuple(_pos0[0])
+                    self._dead_moves_structural.setdefault(_sm, set()).add(pick)
+                    self._dead_route_strikes[(_sm, pick)] = \
+                        self._dead_route_strikes.get((_sm, pick), 0) + 1
+                    # SPLIT-MAP: head_to_gym died on the map it just rode into → the SOURCE
+                    # map's head_to_gym leg IS the dead end's feeder (Route 19↔20 at Seafoam,
+                    # Route 23's halves at Victory Road). Park it too, for the session.
+                    if (pick == "head_to_gym" and self._last_hg_leg
+                            and tuple(self._last_hg_leg[1]) == _sm
+                            and tuple(self._last_hg_leg[0]) != _sm):
+                        _src = tuple(self._last_hg_leg[0])
+                        self._dead_moves_structural.setdefault(_src, set()).add(pick)
+                        self._dead_route_strikes[(_src, pick)] = max(
+                            2, self._dead_route_strikes.get((_src, pick), 0) + 1)
+                        self._dead_route_strikes[(_sm, pick)] = max(
+                            2, self._dead_route_strikes[(_sm, pick)])
+                        log(f"   [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on {_sm} right "
+                            f"after riding in from {_src} — BOTH legs parked for the session "
+                            f"(strikes persist across visits)")
+                        if (_src, _sm) not in self._split_map_beat_done:
+                            self._split_map_beat_done.add((_src, _sm))
+                            self.on_event("okay, this road just dead-ends into water and rock — "
+                                          "no getting through here the straight way. I'll find "
+                                          "another route and come back when I can cross.",
+                                          kind="travel", tier=2)
                 log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
                     f"(streak {self._nomove_streak}, dead routes {sorted(self._dead_moves)}) — not moving "
                     f"her; ALL dead routes get pruned next tick so she must do something that works")
@@ -7749,8 +7783,20 @@ class Campaign:
                 self._nomove_streak = 0
                 self._dead_moves.clear()
                 if tuple(_pos0[0]) != tuple(_pos1[0]):
-                    # left the map -> its structural dead routes get ONE retry when she returns
-                    self._dead_moves_structural.pop(tuple(_pos0[0]), None)
+                    if pick == "head_to_gym":
+                        # remember the leg so a structural fail on arrival can park its feeder
+                        self._last_hg_leg = (tuple(_pos0[0]), tuple(_pos1[0]))
+                    # left the map -> its structural dead routes get ONE retry when she returns —
+                    # EXCEPT picks with ≥2 strikes (proven dead across visits: the split-map class)
+                    _lm = tuple(_pos0[0])
+                    _kept = {k for k in self._dead_moves_structural.get(_lm, set())
+                             if self._dead_route_strikes.get((_lm, k), 0) >= 2}
+                    if _kept:
+                        self._dead_moves_structural[_lm] = _kept
+                        log(f"   [roam] structural dead routes KEPT on {_lm} across exit "
+                            f"(≥2 strikes): {sorted(_kept)}")
+                    else:
+                        self._dead_moves_structural.pop(_lm, None)
             # RECALIBRATION — clear the standing objective once it's actually achieved (badge won, teammate
             # caught, destination reached) so the recalibrate nudge stops pushing a finished goal; the next
             # purposeful pick sets the new one.
