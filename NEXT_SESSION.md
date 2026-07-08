@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 ~18:05, night shift #14 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07 ~18:35, night shift #14 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -12,10 +12,14 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run15 DETACHED**
+⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run16 DETACHED**
 (Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run15.log END before touching anything). run15 carries the
-**PARTY-MENU ORDER LAW fix (b7c21d0)** — the wall that killed every run14 attempt.
+read logs/longrun/e4_run16.log END before touching anything). run16 carries the
+**PARTY-MENU ORDER LAW fix (b7c21d0)** + the **ETHER aim-once/immunity-gate fix
+(8a811ec)** — run15 cleared Lorelei in 59s (vs 200s+ whiteout in run14) then
+livelocked at Agatha on the OLD ether flow; both walls now fixture-verified dead
+(recon_revive_verify PASS, recon_ether_verify PASS, re-run after every battle_agent
+party-walk edit).
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
@@ -49,6 +53,15 @@ only. Fresh recon_e4 boot re-loads canonical ($63k restored), re-shops (FR x10,
 Revive x6, Full Heal x4), re-clears rooms 1-2 in ~3 min at 14x. In-run whiteouts
 drain money to $0 → later attempts in the SAME run can't re-shop; the kit persists
 through whiteout though (items aren't lost, only unconsumed).
+
+**THE ETHER TRUTHS (shift-14, 8a811ec — run15 Agatha livelock postmortem):** the aimed
+item walk now aims EXACTLY ONCE (focus + menu-time row on first party-screen sight)
+then confirms BLIND — the Ether opens a MOVE-SELECT sub-box after the mon confirm, and
+per-iteration re-focus B-cancelled it every lap (itemfail_34 forever). The ether OFFER
+is gated on move slot 0 being damaging + CONNECTS + 0 PP — an IMMUNITY famine (foe-aware
+famine class) cannot be cured by PP ("won't have any effect" ate 8 walks on full-PP
+fodder vs Gengar). Probe note: gBattleMons rebuilds during the battle intro — RAM writes
+to it only stick AFTER the action menu is up (GBATTLE_MENU_UP==1).
 
 **KNOWN WALLS (in kill order):**
 - Agatha = the PP sink (ghosts resist RL, EQ dead vs Levitate/Gengar, Secret Power

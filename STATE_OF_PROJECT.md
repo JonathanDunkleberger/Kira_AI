@@ -53,9 +53,18 @@ settles it for good:
   resurrected, AGATHA WON. `gBattlerPartyIndexes=0x02023BCE` confirmed + billed.
 - **Ops:** vendored mgba `memory.__setitem__` is BROKEN (wrong arg count) — use
   `u16.raw_write(addr, val)`; recon_revive_verify = standing party-walk regression fixture.
+- **ETHER truths (8a811ec — run15 postmortem; run15 cleared Lorelei in 59s then livelocked
+  at Agatha):** the aimed item walk aims ONCE then confirms blind (the Ether opens a
+  MOVE-SELECT sub-box after the mon confirm; per-iteration re-focus B-cancelled it every
+  lap = itemfail_34 forever). Ether OFFER gated on move slot 0 damaging + CONNECTS + 0 PP —
+  an IMMUNITY famine can't be cured by PP ('won't have any effect' x8 on full-PP fodder).
+  [VERIFIED: recon_ether_verify PASS (used on first walk, immunity offers suppressed) +
+  recon_revive_verify re-PASS after the aim-once change. Probe law: gBattleMons rebuilds
+  during the battle intro — RAM writes stick only after GBATTLE_MENU_UP==1.]
 - **Eyes owed:** `_switch_to_slot` rewrite (famine/voluntary switch) fail-safed but only
-  indirectly exercised — watch "[engine] switch:" lines in run15.
-**FRONTIER: run15 through Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
+  indirectly exercised — watch "[engine] switch:" lines in run16; run15 also showed
+  "_goto_pokemon failed" famine-switch flakiness on a dirty screen (pre-existing class).
+**FRONTIER: run16 through Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
 
 ### ── 2026-07-07 NIGHT SHIFT #13 — the LIVELOCK FAMILY dies: cb2 liveness + display-order walks ──
 **CANONICAL unchanged = indigo_reach. e4_run9 IN FLIGHT (logs/longrun/e4_run9.log) — full fix
