@@ -18,18 +18,34 @@
    dead-air: 4×no_route travels re-offered ~25 straight decisions);
    (c) plain "no_route" added to the STRUCTURAL dead-route set (else the heal excursion's
    movement resurrected the same doomed travels — the oscillation).
-3. **IN FLIGHT: re-grade of banked_SCOPE,SURF_TAUGHT,SABRINA,E4 on the fixed code** — log
-   `logs\longrun\descent_regrade_warns_shift9.log` (launched ~04:45, ~10 min). SINGLE-RUN
-   LAW: no other emulator recon while it runs. If dead when read fresh: relaunch with
-   `$env:DESCENT_ARCS='banked_SCOPE,banked_SURF_TAUGHT,banked_SABRINA,banked_E4'`.
-   EXPECT: SABRINA/SCOPE → PASS; E4 → PASS or the regroup floor visible; SURF_TAUGHT may
-   still WARN — its head_to_gym returns 'stuck' on Route 19 (0,42) water edge (billed road
-   wants Surf legs?) — if it WARNs again, diagnose THAT (real nav gap, not grader noise).
-4. **NEXT (in order):** (a) read the WARN re-grade, fix/commit what's left; (b) level-up
+3. **4-ARC RE-GRADE LANDED: SCOPE/SURF_TAUGHT/SABRINA → PASS** (the benign-still fix
+   verified live: prunes fire honestly, no more questline_talked poisoning). **E4 still
+   WARN** but the machinery worked (all-dead prune → floor fired) — the floor's heal was a
+   NO-OP (healthy party short-circuit + transparent-return), 25 straight heal→ok decisions
+   at Saffron (39,24). Log: `descent_regrade_warns_shift9.log`.
+4. **E4 ROOT CAUSE = TWO REAL DEFECTS, FIXES BUILT (COMPILES+WIRED, re-grade in flight):**
+   (a) **`_travel_to_known` used edge-only `world.next_hop`** — a gate-locked city's every
+   exit is a WARP (Saffron's 4 gatehouses), so plain travel picks read no_route FOREVER
+   even though the graph knew the way. Now rides `_next_step_rideable` (same as
+   head_to_gym; warp hops actuated via the _road_step pattern: travel-to-door + enter_warp).
+   (b) **EMPTY-OPTIONS floor now offers `regroup` not `heal`** — new `_regroup_walk`:
+   walk to this city's Center door anchor, else `_door_passthrough` out of the pocket;
+   dispatched in `_route_action`. Also SURF_TAUGHT diagnosed for real: travel's edge-band
+   is INFERRED from overlap tiles and (0,42) on Route 19 won't cross → EDGE-ROW RETRY in
+   travel.py drops the failed row from the band and re-plans (committed 9917b8d).
+5. **IN FLIGHT: re-grade banked_E4 + banked_SURF_TAUGHT on the travel fixes** — log
+   `logs\longrun\descent_regrade_e4surf_shift9.log` (launched ~05:00, ~5 min). If dead
+   fresh: `$env:DESCENT_ARCS='banked_E4,banked_SURF_TAUGHT'; .venv\Scripts\python.exe -u
+   pokemon_agent\recon_descent_grade.py 120`. EXPECT: E4 travels now ride the gate warps
+   (or regroup walks her to the Center); watch for "TRAVEL: ... next hop warp".
+6. **NEXT (in order):** (a) read the E4/SURF re-grade, fix/commit what's left; (b) level-up
    early beat verify — `.venv\Scripts\python.exe -u pokemon_agent\recon_lvlbeat_verify.py`
    (default banked_HM05; arms a real level-up by -1 on the lead's level byte);
-   (c) Viridian Gym spin maze (spin_assist un-verified live); (d) if all green: FULL
-   15-arc sweep on tonight's code for the clean table → ranked spot-watch list for Jonny.
+   (c) Viridian Gym spin maze — NOTE: banked_GIOVANNI is POST-badge-8 (spawns Viridian
+   City badges=8), so descent arcs never re-cross the spin maze; the honest verify needs a
+   pre-badge state (check `%TEMP%\longrun\giovanni_probe` map/coords first — it may be the
+   climb-era in-gym state); (d) if all green: FULL 15-arc sweep on tonight's code for the
+   clean table → ranked spot-watch list for Jonny.
 
 ## SHIFT 8 STATE (background — landed + verified this shift)
 0. **ROCKTUNNEL (7,4) MYSTERY = SOLVED, FIX COMMITTED e2d5f9a (COMPILES+WIRED, verify

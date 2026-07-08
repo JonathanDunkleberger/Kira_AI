@@ -3679,6 +3679,37 @@ class Campaign:
                 self.b.press("RIGHT", 8, 8, self.render, owner="agent")
         return tv.coords(self.b) == tile
 
+    def _regroup_walk(self):
+        """The EMPTY-OPTIONS floor's honest mover (night shift 9): heal is a no-op when healthy
+        and transparent (returns her to the same tile) otherwise, so the floor could offer it
+        forever without her moving an inch (banked_E4, Saffron (39,24), 25 straight decisions).
+        Regroup RELOCATES: walk to this city's Center door (the known anchor real options
+        re-emerge from), else ride a connector building out of the sealed pocket. Returns
+        'regrouped' | 'need_heal' | 'stuck' (loud)."""
+        m = tv.map_id(self.b)
+        door = CITY_PC_DOORS.get(m)
+        if door:
+            appr = (door[0], door[1] + 1)
+            cur = tv.coords(self.b)
+            if cur and tuple(cur) != appr:
+                grid = tv.Grid(self.b)
+                if tv.bfs(grid, tuple(cur), lambda t: t == appr, walkable=grid.walkable):
+                    if self.trav.travel(target_map=None, arrive_coord=appr,
+                                        max_steps=300, max_seconds=90) == "arrived":
+                        log(f"   [roam] REGROUP: walked to the Center anchor {appr} on {m}")
+                        return "regrouped"
+        # no (reachable) Center on this map — a connector building is the honest way out of a
+        # sealed pocket (the same primitive the questline passthrough rides).
+        pt = self._door_passthrough(want_map=None)
+        if pt == "crossed":
+            log("   [roam] REGROUP: rode a connector building out of the pocket")
+            return "regrouped"
+        if pt == "need_heal":
+            return "need_heal"
+        log(f"   [roam] !! REGROUP: no Center anchor and no connector fired from {m} "
+            f"{tv.coords(self.b)} — LOUD (a true seal; watchdogs carry it)")
+        return "stuck"
+
     def heal_at_center(self, pc_door=VIRIDIAN_PC_DOOR):
         """AUTHENTIC Pokemon Center heal (no RAM poking): route to a Pokemon Center door (default
         Viridian; pass any city's PC door for NEAREST-center healing), enter, walk to the nurse
@@ -5588,16 +5619,28 @@ class Campaign:
             except Exception as _fe:
                 log(f"   [roam] fly attempt errored ({_fe}) — walking instead")
         avoid = self._wall_avoid(state)
-        hop = self.world.next_hop(cur, dst, avoid=avoid)
-        if hop is None:
+        # WARP-AWARE (night shift 9, the banked_E4 Saffron seal): next_hop is EDGE-ONLY, but a
+        # gate-locked city's every exit is a WARP (Saffron's four gatehouses) — the graph knew the
+        # way and next_hop couldn't express hop #1, so every plain travel pick read no_route
+        # forever. Use the same rideable next_step head_to_gym rides (feet-reachability law).
+        step = self._next_step_rideable(cur, dst, avoid)
+        if step is None:
             log(f"   [roam] travel to {self.world.name(dst)}: no wall-free route from {self.world.name(cur)}")
             return "no_route"
-        nxt, edge = hop
+        nxt, kind, detail = step
         log(f"   [roam] TRAVEL: {self.world.name(cur)} -> {self.world.name(dst)} "
-            f"(next hop {edge} -> {self.world.name(nxt)})")
-        r = self._edge_travel(nxt, edge)
-        if r != "arrived":
-            return f"travel:{r}"
+            f"(next hop {('warp ' + str(detail)) if kind == 'warp' else detail} -> {self.world.name(nxt)})")
+        if kind == "warp":
+            before = tuple(tv.map_id(self.b))
+            self.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
+            if tuple(tv.map_id(self.b)) == before:
+                self.enter_warp(pick=detail)
+            if tuple(tv.map_id(self.b)) == before:
+                return "travel:warp_failed"
+        else:
+            r = self._edge_travel(nxt, detail)
+            if r != "arrived":
+                return f"travel:{r}"
         if tuple(tv.map_id(self.b)) == dst:
             node = self.world.node(dst)
             if node and node["traits"].get("has_grass"):
@@ -6006,8 +6049,13 @@ class Campaign:
         # known anchor real options re-emerge next tick). Pre-credits this floor is naturally dormant
         # (head_to_gym is always offered while a next gym exists).
         if not a:
-            a["heal"] = ("nothing obvious to do from this spot — regroup: head to the nearest "
-                         "Pokémon Center and take stock from there")
+            # night shift 9: this was a["heal"], but heal is a NO-OP for a healthy party
+            # (heal_at_center's fully-healed skip) and TRANSPARENT otherwise (returns her to the
+            # same tile) — the banked_E4 window stood at Saffron (39,24) picking it for 25 straight
+            # decisions. "regroup" actually RELOCATES: walk to the Center anchor, or ride a
+            # connector building out of a sealed pocket.
+            a["regroup"] = ("nothing obvious to do from this spot — regroup: head over to the "
+                            "Pokémon Center and take stock from there")
             log("   [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering "
                 "the regroup-at-Center anchor so the roam never dead-ends")
         return a
@@ -6373,6 +6421,8 @@ class Campaign:
         self._now_state = {"heal": "HEALING", "stock_up": "SHOPPING"}.get(pick, "EXPLORING")
         if pick == "heal":
             return self.heal_nearest()
+        if pick == "regroup":
+            return self._regroup_walk()
         # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
         # building-exit to step back onto the overworld, then normal actions take over next tick.
         if pick == "leave_building":
