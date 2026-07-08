@@ -923,6 +923,33 @@ class Traveler:
                     self.log(f"   [travel] reached target coord {arrive_coord}")
                     return "arrived"
                 if arrive_coord is None and exit_cmp(cur[exit_axis]):   # at/past the edge -> cross
+                    # SURF EDGE-MOUNT (night shift 10, the Pallet south-shore terminal dead-air):
+                    # on a sea edge the tile past the border is WATER — an unmounted D-pad press
+                    # into it is EATEN (the game gates water behind the Surf A-prompt), so the
+                    # blind exit presses below burned all 6 tries, edge rows dropped from the
+                    # band one by one, and travel aborted a road the game happily allows. Mount
+                    # FIRST (the proven mid-path shoreline ceremony), then cross from the water.
+                    if can_surf and not grid.is_water(*cur) and self.field_clear is not None:
+                        _dxy = DIR_DELTA[exit_dir]
+                        _past = (cur[0] + _dxy[0], cur[1] + _dxy[1])
+                        if grid.is_water(*_past):
+                            self._press(exit_dir)        # blocked press = turn to face the sea
+                            if st.in_battle(self.b):
+                                continue
+                            if coords(self.b) == cur:
+                                r = self.field_clear("surf", DIR_KEY[exit_dir])
+                                if r == "used":
+                                    for _ in range(40):  # mount animation carries her onto the water
+                                        self.b.run_frame(); self.render()
+                                    self.log(f"   [travel] 🌊 SURF EDGE-MOUNT at {cur} facing "
+                                             f"{exit_dir} (map {cur_map}) — crossing the sea edge "
+                                             f"mounted")
+                                    self.beat("okay — onto the water. Surf's up.")
+                                    plan_cache = None
+                                    exit_tries = 0
+                                    continue
+                                self.log(f"   [travel] surf edge-mount at {cur} FAILED ({r}) — "
+                                         f"falling through to the blind exit press")
                     before = cur
                     self._press(exit_dir)
                     if coords(self.b) == before:      # press didn't move us -> a genuinely wasted try
