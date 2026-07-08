@@ -1578,13 +1578,27 @@ class BattleAgent:
             if cur and cur["ours"]["hp"] > 0:
                 return True                               # a healthy mon is active -> switched
             self._wait(18)                                # let the party menu settle
-            # CLOSE any already-open "Do what with X?" sub-menu first (battle-START send-out screens
-            # arrive pre-wedged: _reach_first_menu's A selected the FAINTED slot-0 before we got here,
-            # so DOWN-navigation pressed inside the sub-menu and A re-sent the corpse — the fainted-
-            # lead excursion timeout class). B on the LIST itself is refused (forced screen), so this
-            # is safe and makes every retry start from the list.
-            self.b.press("B", 2, 12, self.render, owner=self.owner)
-            self._wait(14)
+            # REGAIN LIST FOCUS before any walk. Two tap-eaters stack here: the "Do what with X?"
+            # sub-menu (the fainted-lead excursion class) and the "X has no will to fight!"
+            # MESSAGE BOX (run11 Agatha wedge: the cursor sat lit-but-frozen under the message,
+            # DOWN + the LEGACY walk were both inert, and every A re-selected the corpse —
+            # frame-diagnosed). A lit border does NOT mean the list has focus — PROBE with a tap
+            # and require the cursor to actually MOVE; B-dismiss and retry until it does.
+            _focus = False
+            for _ in range(6):
+                _c0 = self._party_cursor_slot()
+                self._tap("DOWN"); self._wait(14)
+                _c1 = self._party_cursor_slot()
+                if _c1 != _c0 or (_c1 is None and self._party_cursor_on_lead()):
+                    _focus = True
+                    break
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(20)
+            if not _focus:
+                self.log("   [engine] fswitch: party list never regained focus (message box "
+                         "eating taps?) -> drain a beat, retry")
+                self._advance_text()
+                continue
             # RE-EVALUATE the target each attempt (a mid-flow revive changes the party), skipping
             # targets that already failed twice; all skipped -> wipe the ledger and start over.
             slot = self._healthy_reserve_slot(skip=_tried)
