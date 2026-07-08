@@ -4402,7 +4402,7 @@ class Campaign:
             # that crosses the Underground Path — read 'no route' and she fell into dir noise).
             # next_step routes THROUGH learned warps, executed exactly like head_to_gym's warp-route.
             try:
-                wstep = self.world.next_step(cur_map, step_anchor, avoid=self._wall_avoid(state))
+                wstep = self._next_step_rideable(cur_map, step_anchor, avoid=self._wall_avoid(state))
             except Exception as _ws:
                 wstep = None
                 log(f"   [roam] questline anchor-first next_step skipped: {_ws}")
@@ -6214,6 +6214,56 @@ class Campaign:
                 legs[i + 1]["map"] = nbr
         return legs
 
+    # ── ROAD-ANCHOR PARKING (2026-07-08 night shift 6, the banked_SCOPE twedge=271 class) ────────
+    # From a walk-sealed pocket (hideout B4F's boss corridor) the world GRAPH still routes forward
+    # through this map's warps, but her FEET can't reach any of them — travel read no_route and
+    # enter_warp fanned five more doomed approaches, six travel wedges per tick, every tick,
+    # forever ('warp_failed' is not a structural outcome, so forward-drive kept re-framing
+    # head_to_gym as the dominant pull). The fix is a reachability PRE-CHECK with travel's own
+    # pathfinder before any warp ride: an unreachable hop is parked for THIS query and the route
+    # re-asked; when every forward hop is parked the caller falls through honestly to
+    # no_gym_route — the structural outcome that stops the re-framing and leaves the oracle the
+    # exit machinery that works (leave_building -> the elevator). Computed fresh from her feet
+    # each tick, so it self-heals the moment she stands somewhere the warp IS reachable.
+    def _warp_hop_reachable(self, tile):
+        """True if her feet can walk to `tile` or a cardinal neighbor of it (door mats are entered
+        from an adjacent stand-tile — the same fan enter_warp tries). travel-grade BFS, NPC-blind
+        (bodies move; a genuine wall doesn't). Fail-OPEN on any read flake — a bad read must
+        never park a real road."""
+        try:
+            grid = tv.Grid(self.b)
+            cur = tuple(tv.coords(self.b))
+            tx, ty = tile
+            goal = {(tx, ty), (tx + 1, ty), (tx - 1, ty), (tx, ty + 1), (tx, ty - 1)}
+            if cur in goal:
+                return True
+            return bool(tv.bfs(grid, cur, lambda t: t in goal, walkable=grid.walkable))
+        except Exception:
+            return True
+
+    def _next_step_rideable(self, cur, dst, avoid):
+        """world.next_step, skipping warp hops whose every door tile is walk-unreachable from her
+        feet. Returns (nxt_map, kind, detail) with `detail` swapped to a REACHABLE door when the
+        first-listed one is sealed, or None when no rideable route remains."""
+        dead = set(tuple(m) for m in (avoid or []))
+        for _ in range(6):                     # bounded requery — never an inner spin
+            try:
+                step = self.world.next_step(cur, dst, avoid=list(dead))
+            except Exception:
+                return None
+            if not step or step[1] != "warp":
+                return step
+            nxt_map, kind, detail = step
+            doors = self.world.warp_tiles(cur, nxt_map) or [detail]
+            ok = next((t for t in doors if self._warp_hop_reachable(t)), None)
+            if ok is not None:
+                return (nxt_map, kind, ok)
+            dead.add(tuple(nxt_map))
+            log(f"   [roam] !! ROAD-ANCHOR PARKED: every door {doors} from {cur} toward {nxt_map} "
+                f"is walk-unreachable from her feet (sealed pocket) — re-asking the route without "
+                f"that hop")
+        return None
+
     def _road_step(self, state, road):
         """One forward move along the billed road. Standing ON a leg -> execute its billed crossing
         ('via':'pass' tries the proven door-passthrough first — the Underground Path class — then
@@ -6263,7 +6313,7 @@ class Campaign:
             if leg["map"] == cur:
                 return None                        # standing on the final leg (the city) — not ours
             try:
-                step = self.world.next_step(cur, leg["map"], avoid=avoid)
+                step = self._next_step_rideable(cur, leg["map"], avoid)
             except Exception:
                 step = None
             if step:
@@ -6443,7 +6493,7 @@ class Campaign:
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
                 try:
-                    step = self.world.next_step(cur_map, target_city, avoid=self._wall_avoid(state))
+                    step = self._next_step_rideable(cur_map, target_city, avoid=self._wall_avoid(state))
                 except Exception as _ws:
                     step = None
                     log(f"   [roam] warp-route step skipped: {_ws}")

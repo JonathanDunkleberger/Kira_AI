@@ -299,6 +299,19 @@ class WorldModel:
                 return (nxt, "warp", (int(g[0]), int(g[1])))
         return None
 
+    def warp_tiles(self, src, dst):
+        """EVERY learned warp tile on `src` that lands on `dst` — next_step returns only the
+        first, but one map can hold several doors to the same neighbor (hideout B4F's twin
+        lift-lobby doors) and only some may be walk-reachable from where she stands."""
+        node = self.nodes.get(_k(src), {})
+        dk = _k(dst)
+        out = []
+        for xy, nbr in node.get("warps", {}).items():
+            if nbr == dk:
+                g = xy.split(",")
+                out.append((int(g[0]), int(g[1])))
+        return out
+
     def reachable_with_trait(self, src, trait, avoid=None):
         """Visited places she can REACH from here (route exists, not across a wall) that have
         `trait` — e.g. all known grass she could walk back to. [(map_id, name, hops)] nearest
