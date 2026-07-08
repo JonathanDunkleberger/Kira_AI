@@ -1,70 +1,79 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 10, pre-re-grade)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 10)
 
 ## ⚡ SHIFT 10 STATE (current)
-0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`,
-   495KB, no grade rows written — DESCENT_PREGRADE.md still shows the 04:48 4-arc table).
-   Shift 10 read the corpse in full. THE FINDS (all diagnosed from the log + live probes):
-   (a) **TRANSPOSED MapConnection read** in `_reenter_at_column` (campaign.py) — (mapNum,
-   mapGroup) vs our (group,num): Route 1 (3,19) became (19,3) → every re-entry leg no_routed
-   forever (the alternating (19,3)/(39,3) storm at Pallet). FIXED.
-   (b) **Center-less regroup floor**: Pallet has no CITY_PC_DOORS entry + no connector fired →
-   `_regroup_walk` looped 'stuck' ~25 straight decisions (the terminal dead-air). FIXED: rides
-   the world graph one hop per call toward the nearest known Center city (Pallet → Viridian).
-   (c) **PARTIAL-VOID / IMPOSSIBLE-STAND class (new QW-4 variant)**: the window read her
-   "standing" at Pallet (8,6) — probe `recon_pallet_bfs_probe.py` (standing tool) proves that
-   tile is col=1 with ALL FOUR neighbours col=1: physically impossible. A desynced/rebooted
-   world wearing a plausible map id (map (3,0), party 6, badges 8) — `_world_lost` only sees
-   the full title signature (map (0,0)+party 0). Also seen: tick-1 garbage party read ("Persian
-   0/106, 5 down" then "already full" 60s later) and a spontaneous (0,0)→(1,80) "transition"
-   mid-leg (reboot → in-game save reload). FIXED (detector): IMPOSSIBLE-STAND tripwire in
-   regroup's stuck-path (overworld-gated, enclosed-stand signature) → `_void_recover()`.
-   WHAT'S NOT FOUND: the reboot TRIGGER itself (same open question as shift 1's QW-4).
-   (d) travel start line now logs `surf-capable` — the silent can_surf gate is loud (rule 3).
-   Probes also confirmed: can_use(surf)=True on banked_E4; Pallet water BFS paths fine
-   (south crossing len 15) — the water layer is HEALTHY; the storm was the desync, not surf.
-   ALL COMMITTED: **f59484a** (+ shift-9's regroup map-change truth folded in).
-1. **RE-GRADE ROUND 1 (shift10.log, killed deliberately) FOUND THE REAL E4 DEFECT — THE
-   SURF EDGE-MOUNT GAP, FIXED 1bf0329:** the dead-air reproduced with REAL geometry (not the
-   desync): she stands at Pallet (12,19), the south EDGE row, surf-capable — and travel's
-   at-edge branch blind-pressed S ×6 into the sea, all EATEN (the mount ceremony only lived
-   on the MID-PATH land→water step, never at the edge-cross press). Every south-sea travel
-   died there. Round 1 also proved: `surf-capable` logging live ✓; the Center-less regroup
-   fallback FIRES ("riding toward Cinnabar Island") ✓ — it failed only on the same mount gap.
-   Fix: at-edge + past-tile-is-water + unmounted → run the shoreline mount ceremony first.
-2. **IN FLIGHT: re-grade round 2 on 1bf0329** — log
-   `logs\longrun\descent_regrade_e4surf_shift10b.log` (~5 min). If dead fresh:
-   `$env:DESCENT_ARCS='banked_E4,banked_SURF_TAUGHT'; .venv\Scripts\python.exe -u
-   pokemon_agent\recon_descent_grade.py 120 *> logs\longrun\descent_regrade_e4surf_shift10b.log`.
-   EXPECT: "SURF EDGE-MOUNT" in the log; E4 roams south to Cinnabar/R21 freely; dead-air gone.
-3. **NEXT (in order):** (a) read the re-grade, fix/commit what's left; (b) level-up early beat
+0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`).
+   Shift 10 read the corpse + ran SEVEN instrumented re-grade rounds. THE FINDS, all committed:
+   (a) **TRANSPOSED MapConnection read** in `_reenter_at_column` — (mapNum,mapGroup) vs our
+   (group,num): Route 1 (3,19) became (19,3), every re-entry leg no_routed forever. f59484a.
+   (b) **Center-less regroup floor**: Pallet has no CITY_PC_DOORS entry → `_regroup_walk`
+   looped 'stuck' ~25 decisions. Now rides the world graph one hop per call toward the
+   nearest known Center city. f59484a.
+   (c) travel start line logs `surf-capable` (the silent can_surf gate, rule 3). f59484a.
+1. **SURF EDGE-MOUNT (1bf0329):** at a map edge whose past-border tile is WATER, an unmounted
+   D-pad press is EATEN — the mount ceremony only lived on the mid-path land→water step.
+   Now mounts FIRST at the edge, then crosses.
+2. **N/S CONNECTION BAND (9699ab6):** "N/S flip at the edge, no overlap" is only true for
+   full-width land connections. The neighbour row IS readable one tile past the border
+   (probe: Pallet y=20 reads Route 21 water at cols 7-10 — the real bay; col 12, where she
+   blind-pressed ×6, is closed; y=-1 reads the Route 1 gap at cols 12-13). N/S goals now
+   gate to crossable columns exactly like E/W; empty band = old behavior.
+3. **ROUND 3 PROOF: THE SEA IS CROSSED** — Pallet → Route 21 live ("south connection band
+   cols", "SURF MOUNT"); terminal dead-airs DEAD. Remaining wedges = two bounces, one class:
+4. **WATER-START REACHABILITY LAW (bb6f125):** a land-only BFS dies AT ITS OWN START on a
+   surf-mounted (water) stand — grass read unreachable on every sea route (the R21
+   north↔south wander ping-pong ×16 ticks), and _door_passthrough's door-reach silently
+   skipped the Seafoam entrances across open water. Fixed at _reachable_grass,
+   catch_one._reach, _door_passthrough + new `_surf_usable()` (fail-closed). Round 4: E4 ran
+   76 battles in 7 decisions — she finds and grinds sea-route grass now. NOTE: Route 20 is
+   HONESTLY split at Seafoam (current tiles aren't SURFABLE_WATER; the billed road runs
+   THROUGH the islands via:pass — interior puzzle is strike-only, not general).
+5. **MAP-BOUND WANDER (3d03ed2) + COORD-FRAME LAW (1f442a1):** the "world tour" class
+   (Indigo→Viridian→Pewter→Cerulean→Pallet inside ONE wander_catch) = grass waypoints
+   scanned on one map chased across map flips (drift even counted as progress). catch walks
+   are now bound to the scanned map, AND travel coord-mode legs END at any map transition
+   ('transitioned' — an arrive_coord is the starting map's frame; warp-ride callers already
+   check map_id after and are unaffected).
+6. **PARTIAL-VOID / IMPOSSIBLE-STAND detector (f59484a + tick-top commits):** the QW-4 family
+   can wear a PLAUSIBLE map id while she "stands" on a fully-enclosed col=1 tile
+   (`_world_lost` only sees the full title signature). `_impossible_stand()` fires in
+   regroup's stuck-path AND at the tick top (gated on wedge growth; streak 1) →
+   `_void_recover()`. VERIFIED LIVE twice: "world restored at (3,40)@(13,45)" (round 5) and
+   at PEWTER (round 7). **ROOT-CAUSE THREAD (open): the desynced coord READ keeps x and
+   shifts y DOWN** — Pallet real ~(8,19) read (8,6) Δ13; Pewter real (20,25) read (20,4)
+   Δ21. A rebase/offset artifact after certain map flips. Grep future logs for the tripwire
+   line and diff read-vs-restored y. Shift-9's "(3,0)→(0,0)→(1,80)" transitions (pre-detector
+   code) remain unexplained; if (0,0)/(1,x) transitions no warp explains reappear, reopen.
+7. **ROUND 8 (FINAL, shift10h.log): BOTH ARCS PASS — "riskiest arcs: none".** E4 twedge 11
+   (trend across the fix chain: 26→22→32→27→21→11), SURF_TAUGHT PASS steady (14). The Pewter
+   y-shift desync recurred 3× in-window; the tick-top tripwire recovered all three (bounded
+   budget 3 — a 4th in one window abandons loud, which is correct). The last two flagged
+   descent arcs are green; DESCENT_PREGRADE.md holds the 2-arc table (the full 15-arc sweep
+   regenerates it).
+8. **NEXT (in order):** (a) read round 8, commit anything left; (b) level-up early beat
    verify — `.venv\Scripts\python.exe -u pokemon_agent\recon_lvlbeat_verify.py` (default
    banked_HM05; arms a real level-up by -1 on the lead's level byte); (c) Viridian Gym spin
-   maze (banked_GIOVANNI is POST-badge-8 so descent arcs never cross it; honest verify needs a
-   pre-badge state — check `%TEMP%\longrun\giovanni_probe` first); (d) if green: FULL 15-arc
-   sweep on tonight's code (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py
-   120`, ~35 min) → clean table → ranked spot-watch list for Jonny.
-4. **OPEN QUESTION (characterized, not solved): the REBOOT TRIGGER.** Something mid-window
-   reboots the game to title (QW-4 family). Tonight's detector catches the aftermath; the
-   cause is unfound. If a re-grade reproduces it, look for a MAP TRANSITION to (0,0) or (1,x)
-   that no warp explains.
-
-## SHIFT 9 STATE (background — landed + verified)
-- 4-arc re-grade landed 04:48: SCOPE/SURF_TAUGHT/SABRINA → PASS (benign-still fix verified
-  live); E4 WARN → diagnosed → the two travel fixes committed 3ddfaf9 (gate-locked city
-  travel via _next_step_rideable + regroup floor); EDGE-ROW RETRY 9917b8d; NO-MOVE guard
-  honesty 3c3522e. ROCKTUNNEL re-grade FAIL→PASS on e2d5f9a (nickname-keyboard class killed;
-  guard positive-path = logic-only, not hit live).
+   maze — banked_GIOVANNI/stage_giovanni are both POST-badge (banked 13:14 after the badge-8
+   PNG); the spin TILES persist post-badge, so an honest locomotion verify = spawn banked_E4/
+   postgame → walk into Viridian Gym → cross the maze with the REAL loop (spin_assist);
+   (d) if green: FULL 15-arc sweep on tonight's code
+   (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, ~35 min) →
+   clean table → ranked spot-watch list for Jonny.
 
 ## STANDING TRUTHS (carry forward)
-- Full 15-arc sweep snapshot (pre-e2d5f9a code): `logs\longrun\DESCENT_PREGRADE_full_shift7.md`
-  — 10 PASS / 4 WARN / 1 FAIL at that code level; every flagged arc since re-graded PASS
-  except tonight's E4 work.
+- Re-grade command: `$env:DESCENT_ARCS='banked_E4,banked_SURF_TAUGHT';
+  .venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120 *> logs\longrun\<log>`.
+- Full 15-arc sweep snapshot (older code): `logs\longrun\DESCENT_PREGRADE_full_shift7.md` —
+  every flagged arc since re-graded PASS except the E4 work above.
+- Standing probes from tonight: `recon_pallet_bfs_probe.py` (impossible-stand/desync
+  diagnoser + overlap-row reader), `recon_surfgate_probe.py` (can_use gate off any bundle),
+  `recon_r21_crossing_probe.py` (sea-crossing repro + frame dumps → %TEMP%\longrun\r21_probe).
 - venv python is a shim — TWO PIDs per launch; never taskkill your own run. SINGLE-RUN LAW:
   one emulator recon at a time.
-- Grade harness is READ-ONLY on bundles (persistence no-op'd); banked_CREDITS excluded (the
-  mid-ceremony grenade).
-- Known general gaps still open: Viridian Gym spin maze (spin_assist un-verified live);
-  level-up early beat WIRED not verified; evolution early beat unbuilt.
+- Grade harness is READ-ONLY on bundles; banked_CREDITS excluded (mid-ceremony grenade).
+- Known general gaps: Viridian spin maze (spin_assist un-verified live); level-up early beat
+  WIRED not verified; evolution early beat unbuilt; Seafoam interior = strike-only.
+- ⚠️ PS 5.1 mangles this file's UTF-8 via Get-Content/Set-Content round-trips — edit it with
+  the Write/Edit tools only.
 
 ## BURN DISCIPLINE (CEO directive — density is mandatory)
 1. THE VALUE LINE in every survey. 2. Bounded recon. 3. Depth over spread. 4. No idle-grind.
@@ -89,6 +98,7 @@ sandboxes: `go.py --clean-throwaways` + `watch.py --clean`.
 WATCH STATUS: canonical bank is CLEAN — the TRUE post-game: the Champion at home in Pallet
 Town ((4,0)@(4,8), full healthy party — Venusaur L95, Persian, Fearow, Raticate, Ekans,
 Lapras — badges 8, player in control; sanctity VALID). She is at home, victory lap ahead
-(Cerulean Cave open; her stated want: catch Mewtwo). Pop-in = `python pokemon_agent/watch.py`
-→ spawn 'postgame' (or --canonical, safe). Her tick context now opens grounded: "You're at
-home — indoors, inside a building."
+(Cerulean Cave open; her stated want: catch Mewtwo — and the sea roads south of Pallet now
+actually carry her). Pop-in = `python pokemon_agent/watch.py` → spawn 'postgame'
+(or --canonical, safe). Her tick context opens grounded: "You're at home — indoors, inside
+a building."
