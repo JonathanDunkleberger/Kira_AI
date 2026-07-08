@@ -48,10 +48,15 @@ If the list empties except needs-eyes: STOP, write the couch list, stop burning.
   split parked BOTH legs for the session; memory KEPT across every exit; metronome dead.
 - **✅ Full 15-arc sweep (2158e43-era code): 14 PASS / 1 WARN** (SURF_TAUGHT pre-fix; table
   banked in git 90091a4). VICTORY PASS confirmed on a second window (twedge 14, 81 battles).
-- **🔄 FINAL full 15-arc sweep RUNNING on HEAD** (log `logs\longrun\descent_final_shift14.log`,
-  ~60 min) → its regenerated DESCENT_PREGRADE.md = the DoD-A artifact. If this shift died
-  mid-sweep: read that log; re-run only if killed. THEN: evobeat verify
-  (`recon_evobeat_verify.py`; INCONCLUSIVE = stays WIRED-not-VERIFIED).
+- **🏁 FINAL full 15-arc sweep on HEAD: ALL 15 PASS — riskiest-arcs list EMPTY** (aeb2333;
+  log `descent_final_shift14.log`). SURF_TAUGHT 15→2, SAFARI 15→1, VICTORY PASS ×3 windows.
+  DESCENT_PREGRADE.md regenerated complete = the DoD-A machine artifact, DONE.
+- **Evobeat verify: INCONCLUSIVE (as pre-briefed)** — no bundle has a past-due LEVEL evolver
+  (Ekans max L17, needs L22). Evolution early beat stays WIRED-not-VERIFIED; it verifies
+  organically the first time a bench evolver crosses its level (or on a spot-watch).
+- **MACHINE LIST EMPTY — only needs-eyes remain.** Per the mandate: burning stopped. The
+  couch list below is THE deliverable; SAGA CLOSED goes on NIGHT_REPORT line 1 after the
+  couch sitting + the one fix pass.
 - **✅ B-BATCH SHIPPED (commit 392b872, core touches flagged, defaults byte-identical):**
   Phase-J receipts (write_receipt → logs/receipts/ + LEDGER.jsonl, at-shutdown, WIRED);
   output-side liability filter (KIRA_LIABILITY_FILTER ON, narrow secrets/PII on the pre-TTS
@@ -69,12 +74,24 @@ If the list empties except needs-eyes: STOP, write the couch list, stop burning.
 - Residual known-crevasse (unchanged): Victory Road + Seafoam interiors STRIKE-ONLY; travel's
   strength-push primitive can mis-clear/misread a boulder as a trainer (bounded, filed).
 
-## NEEDS-EYES LEDGER — THE FINAL COUCH LIST (batch for ONE sitting; surface TOGETHER, never one at a time)
-1. Fresh throwaway watch (F-5 bar) + descent spot-watches from DESCENT_PREGRADE.md (one sitting).
-2. Prefetch A/B (2 min — bot restart w/ flag + one conversation).
-3. 20-min cohost smoke with new eyes (G-4 exit).
-4. Tri-mode session (Phase I exit, 15 min).
-5. First clipper manifest review (K exit).
+## 🛋️ THE FINAL COUCH LIST (the ONLY remaining work — ONE sitting, ~1.5-2h total)
+1. **Fresh 10-min throwaway (F-5 bar) + descent spot-watches.** Boot her (`python run.py`,
+   wait for :8766), then `python pokemon_agent/go.py --throwaway` (~10 min; bar: bedroom→
+   starter ~90s travel, zero wall-grinding, voiced choices, mom acknowledged, no stale
+   reactions). Spot-watches: `python pokemon_agent/watch.py` — all arcs graded PASS, so pick
+   any 2-3 for feel (suggest VICTORY + BLAINE + POSTGAME). Cleanup:
+   `go.py --clean-throwaways` + `watch.py --clean`.
+2. **Prefetch A/B (2 min):** restart the bot with `KIRA_TTS_PREFETCH=1`, one conversation —
+   decide the default (pump is complete; only the default is undecided).
+3. **20-min cohost smoke** (G-4 exit) — optionally with `MEDIA_PACING_ENABLED=true` +
+   `ATTENTION_DIRECTOR_ENABLED=true` + `CHAT_ADVISORS_ENABLED=true` to feel-test the new
+   flags one at a time per the cadence plan.
+4. **Tri-mode session** (Phase I exit, 15 min): companion → pokemon-play → watch-party,
+   checking the firewall (no Pokémon leak outside play-mode).
+5. **First clipper manifest review** (K exit): run the clipper on a real VOD
+   (`python scripts/cut_clips.py --date <date>`), review manifest.json (now 10 shorts /
+   20-min superfan / 5-min midform), flip approved flags.
+Then ONE fix pass on your notes → write **SAGA CLOSED** on NIGHT_REPORT.md line 1.
 (Final showtime sign-off — the Kira-timeline launch is HIS press, always.)
 
 ## STANDING TRUTHS (carry forward — operational law)
