@@ -1,9 +1,37 @@
-# NEXT_SESSION — THE CLOSING BELL (FINAL MANDATE, CEO 2026-07-08 07:00)
+# NEXT_SESSION — POST-COUCH (SAGA WRAP, 2026-07-08)
 
-This REPLACES all prior phase structures. ONE list. Everything ships TODAY-scale. No sequencing
-courtesy between items — parallelize where the emulator allows, batch everything batchable, close
-items COMPLETELY, value line per shift. The ONLY stops: a genuine needs-eyes, or the list EMPTY.
-When both A and B are done → write **SAGA CLOSED** on line 1 of NIGHT_REPORT.md.
+**The showcase-critical bucket is DONE.** First human couch-watch happened; Fix Pass 1 (persona
+dial) + the two round-2 items (parcel stall, mic diagnosis) + P-7 OpenAI purge + the save-file
+card all shipped and verified same-day. Full record: **COUCH_NOTES.md**. All 15 descent arcs
+PASS; clipper final spec + Phase-J receipts confirmed wired. **SAGA WRAP, not CLOSED — "CLOSED"
+is Jonny's call after his own spot-watch.**
+
+## GO-LIVE RITUAL (do this before any live boot)
+1. **Confirm the audio device is present + selected BEFORE booting** (esp. after a Bluetooth
+   drop — the loopback binds at boot and won't hot-rebind a vanished device; that was the whole
+   "she can't hear me" episode). 2. Boot `python run.py`. 3. Mic check ("cheddar"). Save-file
+   card is live at `http://127.0.0.1:8766/pokemon_savecard` once booted.
+
+## THE FINAL COUCH LIST (needs Jonny's eyes / not showcase-blocking — ride the free weekly window)
+1. **Live mic check** on the Focusrite ("cheddar") — confirm a fresh `>>> You said:` after reboot.
+2. **Loopback-cable decision** (R2-2): should loopback refuse to fall back onto the TTS-carrying
+   VB-cable? Rig-specific + core-senses (HARD CONSTRAINT #2) — flagged, not cowboyed. Your call.
+3. **Later-game descent spot-watches** — all arcs PASS; pick any (VICTORY / BLAINE / POSTGAME).
+4. **Prefetch A/B** (KIRA_TTS_PREFETCH=1) → decide the default (pump complete; default undecided).
+5. **20-min cohost smoke** — optionally feel-test the new flags one at a time (MEDIA_PACING /
+   ATTENTION_DIRECTOR / CHAT_ADVISORS, all default-OFF).
+6. **Tri-mode session** (companion → pokemon → watch-party) — firewall check.
+7. **First clipper manifest review** on a real VOD (10 shorts / superfan / midform).
+8. **Deep latency war** beyond the shipped fixes; **live-chat conversation tuning**; **Attention
+   Director feel-tuning**; **Hitman / cohost-mode recon** — all parked, need eyes + the weekly window.
+9. **Segment-driver Route-1 boundary wedge** (fresh-spine intro only) — a genuine no-route class
+   the impossible-stand rung doesn't cover; deprioritized (you're watching later-game, not intros).
+10. **Audio-mood via Gemini** — the P-7 casualty; migrate like vision if you want music/mood back.
+
+---
+Below = the CLOSING-BELL mandate as it stood pre-couch (historical; the couch list above supersedes).
+
+## DEFINITION OF DONE (historical)
 
 ## DEFINITION OF DONE
 
