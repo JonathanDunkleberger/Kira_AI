@@ -880,6 +880,17 @@ class Traveler:
                 grid = Grid(self.b)
                 plan_cache = None
                 stuck = exit_tries = 0
+                # COORD LEG ENDS AT A TRANSITION (night shift 10, the (8,6) limbo class): an
+                # arrive_coord is a coordinate in the STARTING map's frame — after any map flip
+                # (a mat warp, an edge slipped mid-walk) chasing the same numbers on the new map
+                # is always wrong (round 5: the leg crossed R21->Pallet chasing (11,10) and
+                # wedge-stormed on Pallet before returning). End the leg honestly; the caller
+                # re-decides from where she stands. Warp-ride callers WANT the flip — they check
+                # map_id after and treat this as mission-accomplished.
+                if arrive_coord is not None and target_map is None:
+                    self.log(f"   [travel] coord leg ended by the transition -> {m} "
+                             f"(target {arrive_coord} was the old map's frame)")
+                    return "transitioned"
             if arrive_coord is None and target_map is not None and m == target_map:
                 self.log(f"   [travel] ARRIVED at target map {m} coords={coords(self.b)}")
                 # NEW-AREA beat: gate so her arrival line lands as the new map comes up.
