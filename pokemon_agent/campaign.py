@@ -5943,7 +5943,12 @@ class Campaign:
             self.on_event("okay — the Champion walks out the front door. let's go see my world.",
                           kind="travel", tier=2)
             self._exit_to_overworld()
-            return "left_building"
+            # HONESTY FIX (void-core batch, repro'd 2026-07-08): the old unconditional
+            # "left_building" LIED when the exit failed (recon_voidcore: she stayed wedged in the
+            # Hall of Fame for 20+ ticks while every result said she'd left). Report what happened:
+            # overworld = group 3; anything else means the exit didn't take -> 'stuck' surfaces to
+            # the oracle/RED ladder instead of a green-looking no-op.
+            return "left_building" if tv.map_id(self.b)[0] == 3 else "stuck"
         # USE AN HM (PHASE 2): she chose to clear the obstacle in front. Re-detect (state may have
         # shifted), then actuate via the field-move actuator. Returns 'used'/'no_prompt'/'cant'/'stuck'
         # → all non-fatal: a flake surfaces to the oracle next tick, never a freeze.
@@ -6322,9 +6327,33 @@ class Campaign:
         last_camp_sig = _camp_sig()
         self._save_campaign("roam_start")          # anchor the moment she's loose (resume point exists immediately)
         self._continuity_save()                    # ADDENDUM D: bank her saga next to the position anchor
+        void_recoveries = 0                        # VOID-CORE recovery budget this run (bounded)
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
+            # ── VOID-CORE TRIPWIRE (2026-07-08, the QW-4 class — FIRST, before the anchor block,
+            # which would otherwise read the zeroed badges as a "badge change" and BANK the title
+            # screen). The game rebooted itself to title mid-run: do NOT play it, do NOT save it,
+            # do NOT burn an oracle call on it — reload the newest real world and continue. Bounded:
+            # repeated void within one run means the reboot re-triggers -> stop loud for a human.
+            if self._world_lost():
+                void_recoveries += 1
+                log(f"   [roam] !!!! VOID-CORE TRIPWIRE #{void_recoveries}: the world reads DEAD "
+                    f"(title-screen signature) — the game REBOOTED under us. Recovering, not playing it.")
+                self.on_event("whoa — everything just went dark on me. hang on… rewinding to where "
+                              "I last knew the world was real.", kind="recover", tier=2)
+                if void_recoveries <= 3 and self._void_recover():
+                    ledger.note_action("void_recover", "reloaded")
+                    self._wait_overworld()
+                    continue
+                log("   [roam] !!!! VOID-CORE unrecoverable (no real state to reload, or the reboot "
+                    "keeps re-triggering) — ABANDONING loud, this needs a human")
+                self._roam_progress = "ABANDONED"
+                self.on_event("the world's gone and I can't get it back on my own — I need a hand.",
+                              kind="abandoned", tier=3)
+                self._fire_deadman_alert({"place": "void (title screen)", "coords": None,
+                                          "badge_count": 0})
+                return "abandoned"
             # CAMPAIGN ANCHOR (Batch 5 P1) — checked at the TOP of every tick so it's NEVER skipped by a
             # mid-tick `continue` (idle / hard-recovery / blackout): re-anchor the instant the prior tick
             # made REAL progress (badge / new area / catch), plus a periodic heartbeat floor. Reads RAM
@@ -6760,6 +6789,15 @@ class Campaign:
             # PROBLEM 1 (lag) TRACE: _soul_choose -> voice.choose is a SYNCHRONOUS blocking HTTP/LLM
             # call on this (main) thread — while it runs, game render + music are frozen. Time it so a
             # slow decision (the periodic stutter, worst when ticks fire fast on a stuck loop) is VISIBLE.
+            # ZERO-INPUT THINK GUARANTEE (void-core batch): the watch-rig pump runs frames while the
+            # LLM decides — if any prior handler left a key held (an abort path that skipped its
+            # release), she WALKS during the think (the intra-tick position-jump class the QW-4 log
+            # showed: STATE IN on one map, the action reading another). Release NOW so pumped frames
+            # are truly idle. Best-effort: owner-mismatch is dropped+logged by the bridge by design.
+            try:
+                self.b.release(owner="agent")
+            except Exception:
+                pass
             _t_choose = _t.time()
             pick = self._soul_choose("action", avail,
                                      {"place": where, "progress": state["progress"], "party": _brief,
@@ -6989,6 +7027,53 @@ class Campaign:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
             return False
 
+    # ── VOID-CORE CLASS KILLERS (2026-07-08 night shift — QW-4 diagnosis, repro'd clean in
+    # recon_voidcore.py + frame-verified in recon_voidlook.py: the "dead world" IS the FireRed
+    # TITLE SCREEN. The game can REBOOT ITSELF to title mid-run (the post-credits SoftReset class —
+    # the dead states carry a DIFFERENT saveblock randomization than the live session, which only a
+    # game boot produces). The QW-4 summit watch then PLAYED the title screen for whole ticks
+    # (head_to_gym/heal offered, oracle calls burned) and STAGE-SAVED it over its campaign anchor —
+    # and sanctity BLESSED the poisoned bundle. These three methods kill the whole class regardless
+    # of what triggers the reboot. ─────────────────────────────────────────────────────────────────
+    def _world_lost(self):
+        """TRUE when live reads show the DEAD-WORLD signature: map (0,0) + coords None + party 0 +
+        zero badges — the title screen after an in-game reboot. NO legit mid-roam moment reads like
+        this (even a fresh bedroom start has a real map id, and free_roam only ever runs with a
+        party). Cheap (4 reads); any read fault -> False (never block the loop on a probe)."""
+        try:
+            return (tv.map_id(self.b) == (0, 0)
+                    and tv.coords(self.b) is None
+                    and self.b.rd8(ram.GPLAYER_PARTY_CNT) == 0
+                    and not any(self.has_badge(0x820 + i) for i in range(8)))
+        except Exception:
+            return False
+
+    def _void_recover(self):
+        """The world is GONE (title screen mid-run). Reload the newest REAL state we hold:
+        the in-memory last-good snapshot first, else the on-disk campaign anchor. Each candidate is
+        re-probed after load — a poisoned candidate (the summit banked the title screen!) is skipped
+        LOUD, never trusted. Returns True on a verified-real world."""
+        candidates = []
+        if getattr(self, "_last_good_state", None):
+            candidates.append(("last-good snapshot", lambda: self._last_good_state))
+        _anchor = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
+        if os.path.exists(_anchor):
+            candidates.append(("campaign anchor", lambda: open(_anchor, "rb").read()))
+        for label, get in candidates:
+            try:
+                self.b.load_state(get())
+                self._wait_overworld()
+                if not self._world_lost():
+                    log(f"   [roam] !!!! VOID-CORE RECOVERED via {label}: world restored at "
+                        f"{tv.map_id(self.b)}@{tv.coords(self.b)} "
+                        f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} (LOUD)")
+                    return True
+                log(f"   [roam] !! VOID-CORE: {label} is ITSELF a dead world (poisoned bank) — "
+                    f"skipping it (LOUD)")
+            except Exception as e:
+                log(f"   [roam] !! VOID-CORE: reload via {label} failed ({e}) — trying next")
+        return False
+
     def _save_campaign(self, reason="tick") -> bool:
         """BATCH 5 PHASE 1 — bank her LIVING campaign save (the Sherpa-timeline anchor): the single
         savestate that the next GO resumes from, so she keeps climbing from where she actually is and is
@@ -6996,6 +7081,13 @@ class Campaign:
         mid-write can never corrupt the anchor (a half-written save would lose the whole climb). Lands in
         states/campaign/ ONLY — physically separate from the workshop fragments (kept as fallbacks) and
         the canonical states/kira/ spine. LOUD on success + failure (Constraint #3)."""
+        if self._world_lost():
+            # POISON GUARD (void-core class): NEVER anchor a dead world — the QW-4 summit run
+            # overwrote its sandbox anchor with the TITLE SCREEN and the next resume would have
+            # spawned into nothing. Refusing is loud; the previous anchor stays authoritative.
+            log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: the live world reads DEAD (title-screen "
+                f"signature — map (0,0), party 0). NOT poisoning the anchor (LOUD)")
+            return False
         try:
             os.makedirs(STATES_CAMPAIGN, exist_ok=True)
             path = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
