@@ -327,6 +327,17 @@ def main():
                 pace("shiny")
         except Exception as _she:
             log(f"!! shiny-check skipped ({_she})")
+        # ROSTER-AS-RELATIONSHIP (soul-debt): snapshot each teammate's HP before the fight so a mon
+        # that goes alive -> 0 during it reads as a real FAINT afterwards (grief beat below). Mode-side,
+        # bounded RAM read (species + current HP off the 100-byte party struct), never crashes.
+        def _party_hp():
+            snap = []
+            _cnt = b.rd8(ram.GPLAYER_PARTY_CNT)
+            for s in range(min(_cnt, 6)):
+                base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+                snap.append((st.read_party_species(b, s), b.rd16(base + 0x56)))
+            return snap
+        party0 = _party_hp()
         out = BattleAgent(b, on_event=voice.emit, render=render,
                           pace=(None if args.no_pace else pace),
                           choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
@@ -345,6 +356,23 @@ def main():
                     pace("clutch")
         except Exception as _cle:
             log(f"!! clutch-check skipped ({_cle})")
+        # GRIEF ON A FAINT (soul-debt: roster-as-relationship — the endearing bittersweet half). On a
+        # WIN where a teammate went down (alive -> 0 HP), she feels it — "we won, but my X fell". Gated
+        # to wins so it never double-fires with the campaign's own T3 'blacked out' beat (a total wipe).
+        # T2 pang (a single loss, not a badge-scale event); one beat per battle. Names the species
+        # (sticking nicknames are the separate Name-Rater debt). Bounded; never crashes the path.
+        try:
+            if out == "win":
+                party1 = _party_hp()
+                for (sp_a, hp_a), (sp_b, hp_b) in zip(party0, party1):
+                    if sp_a and sp_a == sp_b and hp_a > 0 and hp_b == 0:
+                        _nmf = st.SPECIES_NAME.get(sp_a, "one of my team")
+                        voice.emit(f"we won… but my {_nmf} went down doing it. you did good — rest up.",
+                                   kind="faint", tier=2)
+                        pace("faint")
+                        break
+        except Exception as _fe:
+            log(f"!! faint-check skipped ({_fe})")
         # EVOLUTION (a species change on the lead) -> Tier 3 big beat. PID-guarded: evolution keeps
         # the mon's personality value; a party reorder puts a DIFFERENT mon (new PID) in slot 0 —
         # that's a swap, not an evolution (the false-"[evolve]" voice-lie class, fixed 2026-07-06).
