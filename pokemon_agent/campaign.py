@@ -3500,6 +3500,12 @@ class Campaign:
             wi = 0
             fails = 0
             FAIL_BUDGET = len(waypoints) + 2     # ~each waypoint once, then surface to roam
+            # MAP-BOUND WANDER (night shift 10, the world-tour class): the grass list is THIS
+            # map's; a leg that drifts across a connection (detour/encounter/edge) makes every
+            # remaining waypoint a coordinate on the WRONG map — the old loop kept feeding them
+            # (drift even counted as 'progress') and marched her Indigo→Viridian→Pewter→Cerulean
+            # →Pallet inside one catch action. The wander is bound to the scanned map.
+            m_grass = tuple(tv.map_id(self.b))
             # BUDGET (Batch 5 P2): measure only GENUINE catch-wandering time — credit back the forced
             # trainer-fight wall-clock so a trainer gauntlet between her and the grass can't time the
             # catch out before she gets a single throw.
@@ -3523,6 +3529,11 @@ class Campaign:
                 wi += 1
                 if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
                     caught[0] = True; break
+                if tuple(tv.map_id(self.b)) != m_grass:
+                    log(f"   CATCH: wander drifted off the grass map {m_grass} -> "
+                        f"{tuple(tv.map_id(self.b))} — ending the walk cleanly; roam re-decides "
+                        f"from here (stale waypoints never chased cross-map)")
+                    break
                 # BOUND THE SPIN (increment 3.5): a travel that REACHED the grass ('arrived') or moved
                 # us is progress (keep wandering for encounters). A travel that pathed nowhere is a dead
                 # waypoint right now (NPC won't clear / unreachable). Tally those and, after FAIL_BUDGET,
