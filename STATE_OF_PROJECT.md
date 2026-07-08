@@ -30,6 +30,32 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #13 — the LIVELOCK FAMILY dies: cb2 liveness + display-order walks ──
+**CANONICAL unchanged = indigo_reach. e4_run9 IN FLIGHT (logs/longrun/e4_run9.log) — full fix
+stack aboard.** Runs 7/8 postmortem (both died in Agatha livelocks; run7 attempt-1 CLEARED
+Agatha again and whiteouted at LANCE — Lance is the wall). Commits 18ec09b, 8233b90, 5e94a63:
+- **PHANTOM-BATTLE CLASS KILLED (run3's suspicion CONFIRMED):** GBATTLE_RES_PTR stays valid
+  after a whiteout → pointer-only gates re-attach a DEAD battle (frozen struct, taps move
+  nothing). LIVENESS = gMain.callback2 (0x030030F4): CB2_Overworld/CB2_WhiteOut = corpse.
+  Wired into st.in_battle + recon_e4.fight_open. VERIFIED both polarities. [VERIFIED]
+- **BURNED-FAMINE GUARD:** the famine switch fired with the BAG still open (the turn an item
+  flow ended), failed, and CONSUMED its once-per-species try → status-spam → all-dry →
+  Struggle/abort forever. Now closes the bag first, try not consumed. [VERIFIED, diag2]
+- **DISPLAY-ORDER PARTY WALKS (frame-diagnosed):** the in-battle party screen draws in BATTLE
+  order (gBattlePartyCurrentOrder 0x0203B0DC; pos 0 = LEFT panel = ACTIVE battler) — after any
+  switch, display != party order: the Revive pressed A on the ACTIVE mon forever, aimed FRs
+  refused, blind switch walks could mis-land (species-confirm masked it). _battle_display_slot
+  converts everywhere (item aim, fswitch, _switch_to_slot). [VERIFIED end-to-end: agatha_diag5
+  = REVIVE CONSUMED, revived Venusaur re-fielded, **AGATHA WON in 65s, 5/6 alive**]
+- **Engine instincts added:** foe-aware PP famine (immune-only PP = famine; _LEVITATE_SPECIES
+  chart-hole table), REVIVE instinct (fainted mon out-levels all standing), PP-RESTORE instinct
+  (Ether/Elixir at famine; canonical bag holds Ether x1 + Moon Stone). Item AIM was half-wired
+  since 1a5ed9f (ZERO callers) — now wired + verified. [VERIFIED in repro]
+- **Ops truths:** recon_e4.py self-sets BATTLE_DEBUG_DIR (runs 7-8 aborted with ZERO forensic
+  frames — the env never rode my launches); recon_agatha.py = standing repro, boots banked_E4;
+  the night-loop handover KILLS in-flight runs (run6 died externally mid-Agatha, not defeated).
+**FRONTIER: run9 through Agatha → LANCE (the wall) → Gary → HALL OF FAME → CREDITS.**
+
 ### ── 2026-07-07 NIGHT SHIFT #12 — the Agatha DOUBLE-KILL: bag TRUE-row + war-must-advance ──
 **CANONICAL unchanged = indigo_reach. e4_run3 IN FLIGHT (logs/longrun/e4_run3.log).**
 e4_run2 postmortem (rooms 1-2 = Lorelei+Bruno fell first-try in ~50s; wall = Agatha, two

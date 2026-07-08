@@ -118,7 +118,10 @@ def main():
     # intact through a whiteout). Headless E4 policy = what a competent player does:
     # ALWAYS take the offered heal/cure. choose() only routes "battle_item".
     def _choose(ptype, offers, ctx):
-        for k in ("use_potion", "use_cure"):
+        # run9 truth: the Bruno collapse offered use_revive SIX times while the bench died
+        # one-by-one with 6 Revives in the bag — this list must know EVERY instinct the
+        # engine can offer (revive + ether shipped shift-13), or the kit rides to a whiteout.
+        for k in ("use_potion", "use_cure", "use_ether", "use_revive"):
             if k in offers:
                 return k
         return "keep_fighting"
