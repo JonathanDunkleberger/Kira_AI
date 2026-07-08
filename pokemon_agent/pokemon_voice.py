@@ -431,12 +431,33 @@ class KiraVoice:
         """Traveler 'savor' beat (wild encounter / new area) -> classified like any event."""
         return self.emit(summary, kind="beat")
 
+    # P-6 (couch fix-pass 1, CEO pacing law): PURE SYSTEM/BOOKKEEPING boxes — "KIRA
+    # received X", "put X in the POCKET", "obtained/found X", "KIRA used the ..." — are
+    # mechanical confirmations, not dialogue. Reading each aloud verbatim in SHOW mode was
+    # a stack of TTS round-trips (the parcel handover: 4 boxes -> ~25s felt-stall, telemetry
+    # -confirmed). Advance them at reading pace (dialogue_drive unchanged), but DON'T narrate
+    # them — the meaningful item moments (first catch, Pokédex, HMs, badges) fire through
+    # their OWN dedicated soul/first beats, not this verbatim read-along. Hint extraction is
+    # untouched (its tap is dialogue_drive.line_sink, a separate path).
+    _SYSTEM_BOX = re.compile(
+        r"\b(?:received|put\s+(?:the\s+|a\s+)?[A-Z].*\bpocket\b|obtained|found\s+(?:the\s+|a\s+|one\s+)?|"
+        r"got\s+(?:the\s+|a\s+)?[A-Z0-9]|placed\s+.*\bpocket\b)\b",
+        re.I)
+
     def on_dialogue(self, line, tags):
         """DialogueReader hook: an overworld line she just read -> her seam. The salience tags
         (GYM_LEADER -> Tier 3, TYPE -> Tier 2) drive the tier, so Brock's speech savors and a
         random signpost stays brisk."""
         line = (line or "").strip()
         if not line:
+            return None
+        # P-6: skip VOICING pure system boxes (still advanced visually at reading pace). Never
+        # skip a TYPE/GYM_LEADER-tagged line (those are real dialogue that happens to contain a
+        # keyword) — only untagged mechanical confirmations.
+        if not (tags and any(t in ("GYM_LEADER", "TYPE") for t in tags)) \
+                and self._SYSTEM_BOX.search(line):
+            self.log(f"   [kira-voice] ·system-box· (not narrated) {line[:60]!r}")
+            self.last_dialogue_tier = None
             return None
         lead = "the gym leader says" if "GYM_LEADER" in (tags or []) else "you read"
         t = self.emit(f'{lead}: "{line}"', kind="dialogue", tags=tags)
