@@ -12,9 +12,9 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run16 DETACHED**
+⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run17 DETACHED**
 (Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run16.log END before touching anything). run16 carries the
+read logs/longrun/e4_run17.log END before touching anything). run16 carries the
 **PARTY-MENU ORDER LAW fix (b7c21d0)** + the **ETHER aim-once/immunity-gate fix
 (8a811ec)** — run15 cleared Lorelei in 59s (vs 200s+ whiteout in run14) then
 livelocked at Agatha on the OLD ether flow; both walls now fixture-verified dead
