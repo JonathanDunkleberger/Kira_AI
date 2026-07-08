@@ -12,17 +12,18 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run12+ IN FLIGHT
-(logs logs/longrun/e4_runN.log) with the FULL fix stack: cb2 liveness, display-order
-walks (+contradiction guard +target rotation, dfe3646), fswitch FOCUS PROBE (c7d7b6d —
-run11's "has no will to fight!" message box ate every tap; a lit border does NOT mean
-list focus, probe with a tap and require MOVEMENT), dirty-screen famine guard,
-revive/ether instincts + a chooser that PICKS them (85190d0 — run9 died at Bruno
-declining 6 revive offers). Run11 proved the full instinct stack live: aimed FRs,
-2 mid-battle revives, the Ether at famine, Bruno fell through a full faint chain.
-gBattlePartyCurrentOrder is LAGGING/eventually-consistent in singles — trust it only
-with the contradiction guard + rotation + focus probe around it.
-THE CREDITS ARE THE NEXT BANK.**
+⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run13+ IN FLIGHT
+(logs logs/longrun/e4_runN.log) with the FULL fix stack: cb2 liveness, fswitch FOCUS
+PROBE (c7d7b6d — run11 frame: a "has no will to fight!" message box ate every tap
+while the lit border FAKED focus; probe with a tap, require MOVEMENT), target rotation
+(dfe3646), dirty-screen famine guard, revive/ether instincts + a chooser that PICKS
+them (85190d0), and the PARTY-WALK FINAL FORM (b6bfda3, run12 frame proof):
+**gPlayerParty ITSELF is battle-ordered during a fight** — a live-scanned slot is
+ALREADY the display row; gBattlePartyCurrentOrder is only the RESTORE map (converting
+through it DOUBLE-converts). Walk identity + verify by OUTCOME (count-drop / healthy-
+active), sweep rows on failure. Runs 11/12 proved the instinct stack live: aimed FRs,
+mid-battle revives, the Ether at famine, Bruno + 4/5 of Agatha falling through full
+faint chains. THE CREDITS ARE THE NEXT BANK.**
 FIRST MOVE: check for a live python process + read the newest e4_runN.log END.
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
