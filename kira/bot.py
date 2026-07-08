@@ -3429,7 +3429,19 @@ class VTubeBot:
             return {"stored": False}
         # Preserve the accumulated saga across snapshot overwrites (consolidation lives core-side).
         prev = getattr(self, "_pokemon_journey_state", None) or self._load_pokemon_journey() or {}
-        state["saga"] = prev.get("saga", []) if isinstance(prev, dict) else []
+        # RUN-SCOPING (memory-magic 2026-07-08, CORE touch): a FRESH run (0 badges) arriving over an
+        # ADVANCED prior run (had badges) is a NEW playthrough — do NOT inherit the old run's saga.
+        # This is how a Charmander throwaway contaminated the Venusaur Champion journey, and exactly
+        # how the real FRESH Kira-timeline would otherwise inherit sherpa-run beats. Reset at the
+        # boundary, LOUD. Same-run POSTs (badges non-decreasing) accrete normally.
+        _prev_badges = (prev.get("badge_count") if isinstance(prev, dict) else 0) or 0
+        _new_badges = state.get("badge_count") or 0
+        if _new_badges == 0 and _prev_badges > 0:
+            print(f"   [Pokemon] FRESH RUN detected (badges {_prev_badges}→0) — retiring the old run's "
+                  f"saga so the new playthrough starts its OWN story (run-scoping, CORE).")
+            state["saga"] = []
+        else:
+            state["saga"] = prev.get("saga", []) if isinstance(prev, dict) else []
         self._pokemon_journey_state = state
         try:
             self._save_pokemon_journey(state)
@@ -3502,17 +3514,65 @@ class VTubeBot:
             return ""
         summary = st.get("summary")
         saga = st.get("saga") or []
+        # FRESHNESS FIX (the 'still says rattata after the party changed' bug): the journey summary is
+        # only re-POSTed at continuity anchors, so its roster lags reality. Prefer the LIVE party
+        # (health.json via pokemon_proc) when the run is up — fresh membership + levels — and keep the
+        # stored roster only for the nickname/story (the feeling). Idle / process-off falls back to the
+        # last known roster (durable). This is what makes her know her CURRENT team, not a stale snapshot.
+        roster = self._pokemon_live_roster(st.get("roster") or [])
         if not summary and not saga:
             return ""
-        out = ("[YOUR POKÉMON JOURNEY — lived experience, reference it like your own ongoing story "
-               "even outside the game]\n")
+        # MEMORY-MAGIC (2026-07-08): strong FIRST-PERSON identity grounding — this fixes the spot-watch
+        # bug where chat-Kira narrated her OWN game as if someone else were playing. She IS the one on
+        # this journey. FIREWALL: the "only when it's relevant / never unprompted" clause is the anti-leak
+        # guard (rule 12's nightmare — gushing Pokémon when Jonny boots another game or just wants to chat).
+        out = ("[MY POKÉMON JOURNEY — this run is MINE and I lived it: I'm the one who's been playing, "
+               "I caught these Pokémon and named them, I fought these battles and felt these wins and "
+               "losses. When it's actually relevant — Jonny asks how the run's going, about my team, "
+               "about Gary — I speak it in the FIRST PERSON as my own ongoing story, with the feeling "
+               "attached, NEVER as if someone else is at the controls. I do NOT bring it up unprompted "
+               "in an unrelated moment.]\n")
         if summary:
             out += summary + "\n"
+        if roster:
+            out += "My team, one by one — who they are to me:\n"
+            for r in roster:
+                sp = r.get("species") or "a teammate"
+                nm = f"{r['nickname']} the {sp}" if r.get("nickname") else sp
+                lvl = f" (L{r['level']})" if r.get("level") else ""
+                story = f" — {r['story']}" if r.get("story") else ""
+                out += f"  - {nm}{lvl}{story}\n"
         if saga:
             top = sorted(saga, key=lambda b: (b.get("weight", 0.0), b.get("ts", 0.0)), reverse=True)[:8]
-            out += "The beats that stuck with you (your saga so far):\n"
+            out += "The moments that stuck with me:\n"
             out += "\n".join(f"  - {b.get('text','')}" for b in top) + "\n"
         return out + "\n"
+
+    def _pokemon_live_roster(self, stored_roster):
+        """Cross the LIVE party (pokemon_proc health — fresh membership + levels) with the stored
+        roster's nickname/story (the FEELING, from soul.bonds). Fixes the lag where the journey
+        summary — re-POSTed only at anchors — kept naming a Pokémon she'd since swapped out. Returns
+        the fresh roster while the run is up; the stored roster (last known) when it's off. Best-effort:
+        any read flake falls back to the stored roster so idle chat still knows her last team."""
+        try:
+            from kira import pokemon_proc
+            if not pokemon_proc.is_running():
+                return stored_roster
+            g = (pokemon_proc.health() or {}).get("game") or {}
+            live = g.get("party_hud") or []
+            if not live:
+                return stored_roster
+            by_species = {r["species"]: r for r in (stored_roster or []) if r.get("species")}
+            out = []
+            for m in live:
+                sp = m.get("species")
+                s = by_species.get(sp, {})
+                out.append({"species": sp, "level": m.get("level"),
+                            "nickname": m.get("nickname") or s.get("nickname"),
+                            "story": s.get("story")})
+            return out
+        except Exception:
+            return stored_roster
 
     # FireRed badge -> the gym leader who gives it (so "did you beat Misty?" answers from real state).
     _BADGE_LEADER = {"Boulder": "Brock", "Cascade": "Misty", "Thunder": "Lt. Surge", "Rainbow": "Erika",
@@ -10762,6 +10822,24 @@ class VTubeBot:
                     dynamic_context += (
                         f"\n\n[KNOWN RECENT CHATTERS \u2014 recognize these names if they show up]\n{self.recent_chatters_brief}"
                     )
+
+                # MEMORY-MAGIC (2026-07-08, CORE touch \u2014 Rule 12): her Pok\u00e9mon journey (first-person,
+                # live team as relationships, saga) in the LIVE VOICE-REPLY path. This was the desync
+                # blocker \u2014 the journey reached the chat-BATCH path but NOT here, so when Jonny TALKED
+                # to her she had no context that SHE'D been playing and narrated her own run as if
+                # someone else were at the controls. Now she knows her team + story when he asks.
+                # FIREWALL: the block's own header is the anti-leak guard ("only when relevant, never
+                # unprompted"), so this is additive/neutral to non-Pok\u00e9mon chat. Loud-logged once/session.
+                try:
+                    _pkmn_journey = self._pokemon_journey_block()
+                    if _pkmn_journey:
+                        dynamic_context += "\n\n" + _pkmn_journey
+                        if not getattr(self, "_journey_voice_inject_logged", False):
+                            self._journey_voice_inject_logged = True
+                            print("   [Pokemon] journey/roster now injected into the LIVE VOICE-REPLY "
+                                  "path (memory-magic core touch) \u2014 she knows her team when Jonny asks.")
+                except Exception as _je:
+                    print(f"   [Pokemon] journey voice-inject skipped (LOUD): {_je}")
 
                 # Shared agency layer: active theories, tracked entities, investment note.
                 # Only injected when non-trivial content exists (get_state_block returns "").

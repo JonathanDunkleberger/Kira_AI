@@ -402,7 +402,9 @@ def main():
         sp1 = st.read_party_species(b, 0)
         pid1 = b.rd32(ram.GPLAYER_PARTY + 0)
         if sp1 and sp1 != sp0 and pid0 and pid1 == pid0:
-            nm0 = st.SPECIES_NAME.get(sp0, "my Pokemon")
+            # fallbacks must NOT include "my" — the f-string already prepends it (the "my my
+            # Pokemon evolved" bug that contaminated the saga when a species lookup missed).
+            nm0 = st.SPECIES_NAME.get(sp0, "Pokémon")
             nm1 = st.SPECIES_NAME.get(sp1, "something new")
             voice.emit(f"my {nm0} evolved into {nm1}!", kind="evolve", tier=3)
             pace("evolved into")

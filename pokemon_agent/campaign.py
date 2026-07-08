@@ -8533,10 +8533,12 @@ class Campaign:
             log(f"   [sanctity] !! validation skipped: {_se}")
 
     def _journey_narrative(self):
-        """PHASE 4 — assemble her Pokémon-journey continuity for the core seam: WHERE she is, her TEAM
-        and how she feels about them, the GARY grudge, and the arc position. Pure reads + the persisted
-        soul/strat. This is what lets core Kira speak her journey in idle chat ('how's the Pokémon run
-        going?') and resume KNOWING her story. Best-effort; any field that errors is simply omitted."""
+        """PHASE 4 + MEMORY-MAGIC (2026-07-08) — assemble her Pokémon-journey continuity for the core
+        seam, written FIRST PERSON as HER lived experience (never third-person 'she's playing' — that
+        distancing is exactly what made chat-Kira narrate her own game as if someone ELSE were at the
+        controls). Carries WHERE she is, her LIVE TEAM as relationships (name/species/level + how each
+        joined + how she feels), the GARY grudge, arc, and want. Emits a structured `roster` the core
+        renders richly. Pure reads + the persisted soul/strat; any field that errors is omitted."""
         try:
             state = self.read_live_state()
         except Exception:
@@ -8544,37 +8546,65 @@ class Campaign:
         party = state.get("party") or []
         lead = party[0]["species"] if party else None
         solo = (state.get("party_count") == 1)
-        # team feelings come from the soul bonds/wants (her own words), if present
-        bonds = []
+        bonds = {}
         wants = []
         try:
             if self.soul is not None:
-                bonds = [b.get("nickname") or b.get("species") for b in (self.soul.bonds or {}).values()]
+                bonds = self.soul.bonds or {}
                 wants = list(self.soul.wants or [])
         except Exception:
             pass
+        # RICH ROSTER — each LIVE teammate as a RELATIONSHIP, not a species string: cross the live
+        # party with soul.bonds (her own record of who they are to her). Nickname when she named one;
+        # the joining story (caught where / evolved from / gifted) + her note become the FEELING the
+        # core can speak. This is the roster-as-relationship layer, carried to chat.
+        roster = []
+        _roster_phrases = []
+        for m in party:
+            sp = m.get("species")
+            lvl = m.get("level")
+            nick = note = caught = None
+            try:
+                for _k, v in bonds.items():
+                    if isinstance(v, dict) and v.get("species") == sp:
+                        nick = v.get("nickname"); note = v.get("note"); caught = v.get("caught"); break
+            except Exception:
+                pass
+            _real_nick = nick if (nick and nick != sp) else None
+            _story = []
+            if caught:
+                _story.append(f"caught {caught}")
+            if note and note not in ("new", None):
+                _story.append(note)
+            roster.append({"nickname": _real_nick, "species": sp, "level": lvl,
+                           "story": "; ".join(_story) or None})
+            _label = f"{_real_nick} the {sp}" if _real_nick else sp
+            _label = f"{_label} (L{lvl})" if lvl else _label
+            _roster_phrases.append(_label + (f" — {'; '.join(_story)}" if _story else ""))
         grudge = ""
         try:
             grudge = self.strat.rival_grudge_note()
         except Exception:
             pass
-        # a compact, declarative "her story right now" the core can inject as lived experience
+        # a compact, declarative FIRST-PERSON "my story right now" the core injects as lived experience
         bits = []
         if lead:
             if solo:
-                lead_line = ("a SOLO run with just her " + lead
-                             + " (a wild one she bonded with), no other team yet")
+                bits.append(f"I'm playing Pokémon FireRed — I'm the one on this journey, at the controls. "
+                            f"It's a solo run right now, just my {lead}, a wild one I bonded with.")
             else:
-                lead_line = "her team led by " + lead
-            bits.append("She's playing Pokémon FireRed as Kira — " + lead_line + ".")
-        if bonds and not solo:
-            bits.append(f"Her team: {', '.join(str(x) for x in bonds if x)}.")
+                bits.append(f"I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, "
+                            f"and my team is led by my {lead}.")
+        # NOTE: the roster is NOT baked into the summary string — that string is only re-POSTed at
+        # anchors and would go stale (the 'still says rattata' bug). The core renders the `roster`
+        # field LIVE instead (single source of team truth), so the summary carries only identity/arc/
+        # grudge/want, which age gracefully.
         if state.get("arc"):
-            bits.append(state["arc"])
+            bits.append(state["arc"])          # native second-person self-address (house style)
         if grudge:
-            bits.append(grudge)
+            bits.append(grudge)                # ditto — 'you've met Gary 6 times' reads as her own voice
         if wants:
-            bits.append(f"What she wants right now: {wants[0]}.")
+            bits.append(f"What I want right now: {wants[0]}.")
         return {
             "summary": " ".join(bits),
             "place": state.get("place"),
@@ -8584,6 +8614,7 @@ class Campaign:
             "solo": solo,
             "grudge": grudge,
             "arc": state.get("arc"),
+            "roster": roster,
         }
 
     def _gain_sig(self):
