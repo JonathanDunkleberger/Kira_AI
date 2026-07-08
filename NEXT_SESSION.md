@@ -1,4 +1,31 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 2, mid-shift; CEO: THE DESCENT restructure)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 5, pre-strike; CEO: THE DESCENT restructure)
+
+## ⚡ SHIFT 5 STATE (pad-router port in progress; full 15-arc sweep in flight)
+Shift 4 CLOSED with: water-aware travel COMMITTED (e9f1715 — surf-capable Grid/BFS layer +
+shoreline mount; the Pallet→R21 shore-bonk class), questline FENCED-BEND passthrough + the gym
+ping-pong breaker COMMITTED (1cc70e6), and the 4-arc re-grade LANDED: **ROCKTUNNEL / SABRINA /
+BLAINE = PASS; SILPH = WARN (nav=4)**. A shift-end SILPH re-grade (descent_regrade_shift4b.log,
+killed at handover) shows the WARN's true face: inside Saffron Gym (14,3) EVERY walk-route
+reads no_route — it's the TELEPORT-PAD MAZE (warp-partitioned interior); the gym handler
+travel-wedges ×4 (the nav tripwires), false-clears juniors off the one reachable object, and
+A-mashes Sabrina from 11 tiles away. The fix is known + strike-proven: recon_sabrina.py's
+`pad_plan` (runtime pad-graph: same-map warp events = pads, dest_warp_id = landing; flood-fill
+walk-regions elevation-strict, meta-BFS with pad rides as edges) + `ride_pad` (long-hold mount).
+**SHIFT 5 IN FLIGHT:**
+1. **FULL 15-arc sweep** (baseline of HEAD incl. water travel, never full-swept):
+   `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, log →
+   `logs\longrun\descent_full_shift5.log` (~35 min). Regenerates DESCENT_PREGRADE.md (15 rows).
+   If it didn't finish: re-run it. Read the ranked list; fix FAIL/WARN arcs per the loop.
+2. **PAD-ROUTER PORT (the shift's big swing):** new engine module `pokemon_agent/pad_nav.py`
+   (PadNav: plan/ride/goto_region, ported strike-verbatim — REGION FLOOD stays STRICT to the
+   seed elevation (0xF pass): Grid.edge_open's law allows 0-as-transition, which would weld the
+   x29 void strip to the rooms) + campaign wiring: beat_gym arms a per-gym router when the
+   interior has same-map warps; _clear_gym_trainers pad-hops into each trainer's region;
+   leader approach + post-badge walk-out pad-route first. Then RE-GRADE SILPH
+   (`$env:DESCENT_ARCS='banked_SILPH'`) — expect PASS with real junior clears.
+NOTE: venv python is a shim — TWO PIDs per launch; never taskkill your own run.
+Remaining known general gap after this: none billed — VIRIDIAN GYM's spin maze rides
+spin_nav.py when a longrun bites it (wire noted in that module's header).
 
 Paste this to the fresh session / this IS the night-train's standing order. Employment terms
 in force: loop until done, bank per phase, honest three-state surveys, stop ONLY for a
@@ -56,13 +83,19 @@ of the Kira-timeline GO; phases E/G/H/I/K remain behind it.
 
 **NEXT after the sweep (in order):**
 1. **Fix what the pre-grade flags** (each FAIL/WARN arc → diagnose → fix → re-grade that arc).
-2. **F-6 SOCIAL FABRIC** (the biggest unbuilt descent piece): NPC/object salience layer —
-   key figures (mom/rival/leaders/quest NPCs) + first-time key objects exert pull on intents;
-   deliberate skips must be VOICED. Salience feeds destination choice; pathfinder executes.
-3. **F-7(c) SPECULATIVE PREFETCH** for predictable beats (dialogue/battle events known before
-   they resolve — generate early, fire on trigger).
-4. **F-10 TEXTBOX WARM-UP STALL** — self-diagnoses via the shipped F-7(a) telemetry on the
+2. **F-7(c) SPECULATIVE PREFETCH — slice 1 BUILT shift 3 (verify in flight):** the CERTAIN-WIN
+   EARLY BEAT in battle_agent: when a faint leaves ZERO live mons in gEnemyParty (party HP is
+   synced every damage write — pret Cmd_datahpupdate), ONE merged win line fires AT THE FAINT
+   (in place of "took it down"; _finish dedups; catch flow + double-faint + switch-in guarded)
+   so the ~4s LLM chain runs during the 5-15s victory drain and her "we won!" lands ON the
+   victory screen instead of ~10s into the overworld. Verify = `recon_winbeat_verify.py`
+   (trainer=Agatha premature-win guard off banked_E4, wild=Route 2 off banked_HM05, log →
+   logs/longrun/winbeat_verify.log). If it PASSED and uncommitted: commit. Remaining F-7(c)
+   beats (build later, same pattern): level-up/evolution fire post-drain in play_live (late by
+   the whole drain); dialogue reader timing unexamined.
+3. **F-10 TEXTBOX WARM-UP STALL** — self-diagnoses via the shipped F-7(a) telemetry on the
    next watched take; if a take happens, read the [queue age + POST ms] numbers first.
+(F-6 SOCIAL FABRIC shipped shift 2 — commit 3ef4da9.)
 
 ## PHASE F — remaining ledger (watched-take items ride the quiet window)
 - **F-1 LOCOMOTION:** architecture landed + loop-verified (wander tripwire). Sign-off needs a
