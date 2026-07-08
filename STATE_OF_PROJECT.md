@@ -30,6 +30,35 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #15 — LANCE BEATEN; GARY = THE LAST WALL; run19 economy stack ──
+**CANONICAL unchanged = indigo_reach. e4_run19 IN FLIGHT (logs/longrun/e4_run19.log, detached,
+4h deadline, launched ~19:20).** run18 (shift-14's detached strike) = the deepest run ever:
+- **ATTEMPT 1 BEAT LANCE (first time)** — Lorelei+Bruno+Agatha cleared in ~2 min wall, Lance's
+  room banked 131s, **room #5 = GARY THE CHAMPION entered at 226s** with alive=1 (Venusaur 45%,
+  FR x0) → whiteout 236s. ONLY GARY REMAINS between her and the credits.
+- **Attempt 2:** beat Agatha ON STRUGGLE (zero PP anywhere), entered Lance with 1 body + 0 PP →
+  instant whiteout. Attempts 3-5: broke ($0), kitless, early deaths.
+- **ROOT CAUSE, Gary arrival [VERIFIED in-log]:** `_revive_worthy_slot` only revives a fainted
+  mon that OUT-LEVELS all standing — while the L70 ace stood, worthy=None past 3-5 corpses (all
+  of Lance), so the bench stayed dead and an ace faint = whiteout. **FIX (9e8fd18) [COMPILES,
+  live-verify owed]: LAST-BODY INSURANCE** — active mon is the LAST body + hurt (<=50%) + >=2
+  revives → revive strongest fainted regardless of level (a body = the comeback cycle). Walk
+  machinery untouched. Standing fixtures couldn't pre-verify (run18 overwrote banked_E4 with a
+  1-body kitless Gary state); run19's room banks restore fixture-capable states — verify live
+  via "LAST-BODY INSURANCE armed" + count-drop.
+- **ECONOMY LAWS (069d28f) [WIRED into recon_e4, verified in run19's boot log]:** (1) items
+  persist through whiteout, unspent cash HALVES → SPEND THE WAD (FR x16 + Revive x8 + FH,
+  ~$61k as items; run18 bled $63k→$0 with $24k never converted). (2) XP compounds only within
+  one process (L66→71 across run18's two real attempts; restart = canonical L66) → 4h deadline
+  + XP RATCHET (bank banked_E4 at every whiteout-center; E4_BOOT=dir resumes with levels).
+- **THE PP WALL, resolved conceptually:** center heal restores ALL PP → famine binds only
+  within one attempt; the level curve (one-shots → 1 PP/kill) is the cure and run19 farms it.
+  ⛔ VR loot sweep = DEAD END (Bulbapedia: FRLG VR has NO Elixir-class items). If the curve
+  plateaus: Double-Edge tutor (VR 2F) or power-leveled Lapras+Ice Beam — detours, not yet.
+- **Live-verified in run18/19:** voluntary switch (species-pinned) fired live and landed
+  clean x2; shop scaler; whiteout re-shop loop; north-door chain. **Known cosmetic:** post-
+  whiteout "clerk-approach FROZEN x3" always self-recovers via the B/A drain (watch item).
+
 ### ── 2026-07-07 NIGHT SHIFT #14 — THE ORDER LAW: menu-time content walks (run14 wall killed) ──
 **CANONICAL unchanged = indigo_reach. e4_run15 IN FLIGHT (logs/longrun/e4_run15.log, detached)
 carrying b7c21d0.** Run14 postmortem (every attempt died at a fainted ace): the shift-13 "final

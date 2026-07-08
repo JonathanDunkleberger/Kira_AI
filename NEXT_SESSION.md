@@ -38,12 +38,16 @@ the shift-15 trio:
   has 4h to converge on the level curve.
 **run18 history: attempt 1 = LANCE BEATEN, died at Gary alive=1; attempt 2 = beat
 Agatha on Struggle (ZERO PP), instant death at Lance; attempts 3-5 = broke, kitless.**
-**THE PP WALL (the residual wall if run19 fails):** ~50 attack PP (RL25/EQ10/Str15)
-vs 26 E4 mons; Ethers NOT buyable. The structural cure = VICTORY ROAD LOOT BACKLOG
-(FRLG VR holds Elixir-class item balls, uncollected; she's parked at Indigo).
-Machinery EXISTS: field_moves.item_balls (gfx 92) + pickup + spin_nav ball-grab.
-Build recon_vrloot.py: boot canonical -> re-enter VR southbound -> sweep reachable
-balls (Strength re-arms per map, 0x805) -> back to Indigo -> bank -> promote.
+**THE PP WALL, CORRECTLY UNDERSTOOD (shift-15):** ~50 attack PP (RL25/EQ10/Str15) vs
+26 E4 mons — but a CENTER HEAL RESTORES ALL PP, so the famine only binds WITHIN one
+unbroken attempt. The cure is the level curve: one-shots drive PP-per-kill toward 1,
+and the fat kit keeps each attempt alive deep enough to farm E4 XP (~+2-3 levels per
+deep attempt). ⛔ DEAD END, do NOT build: VR loot sweep — Bulbapedia confirms FRLG
+Victory Road has NO Elixir-class items (only Rare Candy 1F, hidden Full Restore 1F,
+Max Revive 3F, TMs). Ethers are unbuyable, full stop. If run19's curve stalls, the
+next real accelerants: (a) Double-Edge move tutor (VR 2F, 15PP/120pow, Venusaur-
+compatible) widens the PP pool; (b) power-level a 2nd attacker (Lapras + Ice Beam
+x4 vs Lance's dragons) — both detours, only if the curve provably plateaus.
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
