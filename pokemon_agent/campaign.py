@@ -312,6 +312,25 @@ FLAG_BADGE_MARSH = 0x825
 ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym map.json) -> stand
                          # below her at (6,5), face UP. NOTE the gym has CUT TREES inside at
                          # (6,8) (center aisle -> her), (3,5), (9,6) — the run-1/2 travel wedges.
+# Cinnabar (badge 7, Blaine) — descent pre-grade fix 2026-07-08: with NO GymSpec, head_to_gym at
+# the gym's own city returned no_gym_route instantly forever (announce-the-gym + stand-still — the
+# banked_CINNABAR WARN livelock). Door (20,4) -> interior (12,0), LIVE-learned warp matching
+# recon_blaine's GYM const; Blaine (5,4) -> front (5,5), face UP. The door is LOCKED until the
+# Secret Key (Mansion B1F) — beat_gym's 'stuck' at the door arms the gym-gate probe -> the unlock
+# questline (the designed general flow). The interior QUIZ-DOOR chain is strike-solved only
+# (recon_blaine QUIZ_CHAIN) — if a live general walk wedges there, that seam is the port target.
+CINNABAR = (3, 8)
+CINNABAR_GYM_DOOR = (20, 4)
+BLAINE_FRONT = (5, 5)
+FLAG_BADGE_VOLCANO = 0x826
+# Viridian (badge 8, Giovanni) — same fix. Door (36,10) -> interior (5,1), LIVE-read off
+# banked_GIOVANNI; Giovanni (2,2) -> front (2,3), face UP (recon_giovanni). The door unlocks via
+# ViridianCity OnTransition once badges 2-7 are held. Interior is a SPIN-TILE floor (the
+# Rocket-Hideout class — spin_nav's slide crosser is the seam if the general walk wedges).
+VIRIDIAN_CITY = (3, 1)
+VIRIDIAN_GYM_DOOR = (36, 10)
+GIOVANNI_FRONT = (2, 3)
+FLAG_BADGE_EARTH = 0x827
 
 # CITY -> its own Pokemon Center door (PC interiors share ONE layout, so heal_at_center(door) heals
 # in ANY of them — only the overworld door differs). The map-keyed table replaces heal_nearest's old
@@ -371,6 +390,13 @@ GYMS = {
     # leader approach needs pad routing (warp events; read_warps sees them) or a strike.
     "Sabrina": GymSpec("Sabrina", SAFFRON, SAFFRON_GYM_DOOR, SABRINA_FRONT,
                        FLAG_BADGE_MARSH, 0, "UP"),
+    # Badge 7/8 (descent pre-grade fix): registered so head_to_gym AT the city enters/probes
+    # instead of the no_gym_route stand-still livelock. Locked doors arm the gate questline;
+    # interior gimmicks (Blaine's quiz doors, Giovanni's spin floor) are flagged at the consts.
+    "Blaine": GymSpec("Blaine", CINNABAR, CINNABAR_GYM_DOOR, BLAINE_FRONT,
+                      FLAG_BADGE_VOLCANO, 0, "UP"),
+    "Giovanni": GymSpec("Giovanni", VIRIDIAN_CITY, VIRIDIAN_GYM_DOOR, GIOVANNI_FRONT,
+                        FLAG_BADGE_EARTH, 0, "UP"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
@@ -578,6 +604,12 @@ class Campaign:
         # forcing her onto an action that actually does something. Both reset on any real movement.
         self._dead_moves = set()
         self._nomove_streak = 0
+        # F-11 STRUCTURAL DEAD-ROUTE MEMORY (descent pre-grade, the Cinnabar head_to_gym×25):
+        # map-tuple -> set of picks that failed STRUCTURALLY there (no_gym_route — no route
+        # EXISTS from that map). Unlike _dead_moves (cleared by ANY movement — right for
+        # transient blocks like an NPC on the gap), these stay pruned while she's ON the map;
+        # leaving clears the map's entry, so returning retries exactly once.
+        self._dead_moves_structural = {}
         # B-2 — RESOLVED/LOOPING-NPC guard: (map_id, coords) spots where a dialogue loop was disengaged
         # (the cycle-watchdog bailed). She won't re-initiate talk there, so she can't get re-sucked into
         # the same looping NPC / re-trigger a beaten trainer's restarting lines.
@@ -2132,6 +2164,24 @@ class Campaign:
         # Pallet interiors (group 4 — quiet-window rehearsal finding #4: the FIRST grudge beat read
         # "at an unfamiliar area" because Oak's lab had no name; these are the opening's stage).
         (4, 0): "home", (4, 1): "her bedroom", (4, 2): "Gary's house", (4, 3): "Oak's lab",
+        # F-8 round 3 (2026-07-08 shift 3, descent pre-grade payload): CITY-INTERIOR groups.
+        # Ground truth: interiors group = city index + 4, locked by SIX live anchors — Pallet=4
+        # (this table), Cerulean=7 (Mart interior (7,7), campaign MART_SPECS live), Lavender=8
+        # (banked_FLUTE boots (8,2) = Mr. Fuji's house, frame-verified tonight), Vermilion=9
+        # (env_puzzle VERMILION_GYM=(9,7) live), Celadon=10 (gym interior (10,16) live),
+        # Saffron=14 (SILPH arc's head_to_gym walked her inside (14,3) = Sabrina's gym).
+        # Generic "a building in X" is TRUE and kills the "unfamiliar area" lie on ground the
+        # rope crossed; specific rooms override only where live-verified.
+        **{(4 + ci, n): f"a building in {city}" for ci, city in enumerate((
+            "Pallet Town", "Viridian City", "Pewter City", "Cerulean City", "Lavender Town",
+            "Vermilion City", "Celadon City", "Fuchsia City", "Cinnabar Island",
+            "Indigo Plateau", "Saffron City")) for n in range(24) if (4 + ci, n) not in (
+            (4, 0), (4, 1), (4, 2), (4, 3))},
+        (7, 5): "the Cerulean Gym", (7, 7): "the Cerulean Poké Mart",
+        (8, 0): "the Lavender Pokémon Center", (8, 2): "Mr. Fuji's house",
+        (9, 7): "the Vermilion Gym",
+        (10, 16): "the Celadon Gym",
+        (14, 3): "the Saffron Gym — Sabrina's teleport maze",
     }
     _HALL_MAPS = {(1, 80), (1, 79)}       # standing here with all 8 badges == she beat the game
     _BADGE_NAMES = ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"]
@@ -5817,6 +5867,22 @@ class Campaign:
             else:
                 log(f"   [roam] !! NO-MOVE: dead routes {sorted(removable)} but they're the only options "
                     f"left — NOT pruning (won't dead-end her); strategic-stuck/macro recovery will carry it")
+        # F-11 STRUCTURAL DEAD-ROUTE MEMORY (the banked_CINNABAR/BLAINE WARN class): a pick proven
+        # structurally dead ON THIS MAP stays pruned regardless of movement — the movement-clears-
+        # dead rule above resurrected head_to_gym every time an unrelated action moved her a few
+        # tiles (announce-the-gym → stand still ×25, dead air a viewer feels). One retry on map
+        # re-entry (leaving clears the entry); an ACTIVE questline re-enables head_to_gym since it
+        # then drives the errand, not the dead route. Same never-empty guard as the prune above.
+        try:
+            sdead = {k for k in self._dead_moves_structural.get(tuple(state.get("map") or ()), set())
+                     if k in a and not (k == "head_to_gym" and self._active_questline is not None)}
+            if sdead and (len(a) - len(sdead)) >= 1:
+                for k in sdead:
+                    a.pop(k, None)
+                log(f"   [roam] !! STRUCTURAL DEAD-ROUTE: {sorted(sdead)} proven dead on this map — "
+                    f"pruned until she leaves it (or a questline arms); remaining: {sorted(a)}")
+        except Exception as _sde:
+            log(f"   [roam] structural dead-route prune skipped: {_sde}")
         # NEVER-EMPTY FLOOR (2026-07-08 soak finding): an EMPTY set ends free roam — on a live watch
         # that stops her cold mid-show (hit on the post-game victory lap at an unfamiliar strip: no
         # grass target, no known travel routes, no gym objective). There is always ONE honest move:
@@ -7129,6 +7195,11 @@ class Campaign:
             if _is_move_pick and not _moved and out not in ("arrived", "badge", "caught"):
                 self._nomove_streak += 1
                 self._dead_moves.add(pick)
+                # F-11 STRUCTURAL failure: no_gym_route means no route EXISTS from this map — a
+                # few tiles of unrelated movement can't change that, so remember it PER MAP (the
+                # prune consults this set independent of the movement-cleared one).
+                if out == "no_gym_route":
+                    self._dead_moves_structural.setdefault(tuple(_pos0[0]), set()).add(pick)
                 log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
                     f"(streak {self._nomove_streak}, dead routes {sorted(self._dead_moves)}) — not moving "
                     f"her; ALL dead routes get pruned next tick so she must do something that works")
@@ -7137,6 +7208,9 @@ class Campaign:
             elif _moved:
                 self._nomove_streak = 0
                 self._dead_moves.clear()
+                if tuple(_pos0[0]) != tuple(_pos1[0]):
+                    # left the map -> its structural dead routes get ONE retry when she returns
+                    self._dead_moves_structural.pop(tuple(_pos0[0]), None)
             # RECALIBRATION — clear the standing objective once it's actually achieved (badge won, teammate
             # caught, destination reached) so the recalibrate nudge stops pushing a finished goal; the next
             # purposeful pick sets the new one.

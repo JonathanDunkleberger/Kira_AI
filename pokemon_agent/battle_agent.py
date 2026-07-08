@@ -192,6 +192,10 @@ class BattleAgent:
         self._skip_streak = set()      # FIX 1: every move slot that failed to fire THIS streak — so she
                                        # rotates through her WHOLE moveset (never re-spams a dead/0-PP
                                        # move) and only flees once all are exhausted. Clears on any fire.
+        self._win_emitted = False      # F-7(c): the certain-win beat already fired at the faint —
+                                       # _finish must not voice the same win again 5-15s later.
+        self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
+                                       # "you won" beat — set for the catch_pokemon flow.
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -204,6 +208,24 @@ class BattleAgent:
     def _is_trainer_battle(self):
         """BATTLE_TYPE_TRAINER (0x08). Valid in-battle. Wild = can flee, trainer = can't."""
         return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
+
+    def _enemy_live_remaining(self):
+        """F-7(c): how many LIVE mons remain in gEnemyParty (valid species, HP > 0). The party
+        struct's plaintext HP (+0x56) is synced on every damage write (pret: Cmd_datahpupdate
+        SetMonData's back to the party), so at the moment the active foe faints this answers
+        'is the battle DECIDED?' — 0 means no switch-in can come, the win is certain.
+        Defensive: any read error returns a big count (never a false battle-over)."""
+        try:
+            n = 0
+            for s in range(6):
+                sp = st.read_enemy_species(self.b, s)
+                if not (1 <= sp <= 411):
+                    continue
+                if self.b.rd16(ram.GENEMY_PARTY + s * st.PARTY_MON_SIZE + 0x56) > 0:
+                    n += 1
+            return n
+        except Exception:
+            return 99
 
     # ── events + performance beats ─────────────────────────────────────────────
     def emit(self, summary, beat=False, tier=None):
@@ -601,6 +623,8 @@ class BattleAgent:
         if self._is_trainer_battle():
             return "trainer"
         self._started = True
+        self._catching = True              # F-7(c): KOing a catch target is a FAILURE — the
+        #                                    certain-win beat stays silent for this whole flow
         self._skip_streak = set()
         self._reach_first_menu(t0, max_seconds)
         self._prev = st.read_battle(self.b)
@@ -1984,6 +2008,8 @@ class BattleAgent:
             return "timeout"
         self._started = True
         LAST_FOES_SEEN.clear()             # foes-seen ledger: fresh per battle (attach-time rival fix)
+        self._win_emitted = False          # F-7(c): fresh engagement -> the certain-win beat re-arms
+        self._catching = False             # (a prior catch on this agent must not mute the win beat)
         self._bigmoment_done = False       # Phase 2D: fire shiny/legendary recognition once per battle
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
         self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
@@ -2084,6 +2110,8 @@ class BattleAgent:
                             and enemy["hp"] > 0 and enemy["hp"] == enemy["maxhp"]
                             and 1 <= enemy["species"] <= 411):
                         self._enemy_fainted = False        # next mon is out -> fight it
+                        self._win_emitted = False          # F-7(c) defensive: a switch-in proves the win
+                        #                                    read was premature — re-arm the real one
                         self._status_played = False         # NEW foe -> poison/sleep the next mon too (e.g.
                         self._sleep_casts = 0
                         #                                     Gary's Charmander, not just his lead)
@@ -2367,7 +2395,10 @@ class BattleAgent:
         prev = self._prev or {}
         ours = prev.get("ours", {})
         if self._enemy_fainted or (prev.get("enemy", {}).get("hp", 1) == 0):
-            self.emit("you won the battle", beat=True)
+            # F-7(c): the certain-win beat already voiced this win AT THE FAINT (the drain +
+            # LLM chain aligned her reaction with the victory screen) — never voice it twice.
+            if not self._win_emitted:
+                self.emit("you won the battle", beat=True)
             return "win"
         if ours.get("hp", 1) == 0:
             self.emit("you lost - your Pokemon fainted", beat=True)
@@ -2387,6 +2418,21 @@ class BattleAgent:
             self.emit(f"used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
         if ce["hp"] == 0 and pe["hp"] > 0:
             self._enemy_fainted = True
+            # F-7(c) SPECULATIVE PREFETCH (the certain-win early beat): when THIS faint leaves no
+            # live mon anywhere in gEnemyParty, the battle is DECIDED at this frame — but the win
+            # line used to fire only after the whole victory drain (faint anim → EXP → level-up,
+            # 5-15s at human pace) PLUS the ~4s LLM chain, so "we won!" landed ~10s into the
+            # overworld. Emit ONE merged win beat NOW instead: the generation chain runs DURING
+            # the drain and her voice lands on the victory screen. One line, not two — a win emit
+            # microseconds after "took it down" would be floor-dropped by the voice gate. Guards:
+            # our mon alive (a double-faint is a loss path), never in the catch flow (KOing a
+            # catch target is a failure), certain only when zero live foes remain.
+            if (not self._win_emitted and not self._catching and not self._we_fainted
+                    and cur["ours"]["hp"] > 0 and self._enemy_live_remaining() == 0):
+                self._win_emitted = True
+                self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} went down — "
+                          f"that's the battle, you won", beat=True)
+                return
             # BATCH 5 PHASE 3 — mark the SIDE so she never narrates her own WIN as a loss. The bare
             # "{species} fainted" read as HER mon dying (she mourned a Nidoran she'd just KO'd). gBattleMons[1]
             # is the ENEMY, so this faint is always a victory. (Avoid the substrings 'knocked out'/'you lost'
