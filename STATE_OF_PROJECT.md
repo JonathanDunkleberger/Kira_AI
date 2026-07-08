@@ -41,12 +41,14 @@ Agatha again and whiteouted at LANCE — Lance is the wall). Commits 18ec09b, 82
 - **BURNED-FAMINE GUARD:** the famine switch fired with the BAG still open (the turn an item
   flow ended), failed, and CONSUMED its once-per-species try → status-spam → all-dry →
   Struggle/abort forever. Now closes the bag first, try not consumed. [VERIFIED, diag2]
-- **DISPLAY-ORDER PARTY WALKS (frame-diagnosed):** the in-battle party screen draws in BATTLE
-  order (gBattlePartyCurrentOrder 0x0203B0DC; pos 0 = LEFT panel = ACTIVE battler) — after any
-  switch, display != party order: the Revive pressed A on the ACTIVE mon forever, aimed FRs
-  refused, blind switch walks could mis-land (species-confirm masked it). _battle_display_slot
-  converts everywhere (item aim, fswitch, _switch_to_slot). [VERIFIED end-to-end: agatha_diag5
-  = REVIVE CONSUMED, revived Venusaur re-fielded, **AGATHA WON in 65s, 5/6 alive**]
+- **PARTY-WALK FINAL FORM (two models overturned; run12 frame settled it):**
+  gPlayerParty ITSELF is battle/display-ordered DURING a fight — a live-scanned slot
+  (healthy/fainted/active) is ALREADY the display row; gBattlePartyCurrentOrder (0x0203B0DC)
+  is only the RESTORE map (converting through it DOUBLE-converts). Walk identity + verify by
+  OUTCOME (count-drop for items, healthy-active for switches), sweep rows on failure; fswitch
+  adds a FOCUS PROBE (run11 frame: a "has no will to fight!" message box ate every tap while
+  the lit border FAKED focus) + target rotation. [VERIFIED live: agatha_diag5 AGATHA WON 65s;
+  runs 11-13 = aimed FRs, mid-battle revives consumed, Bruno felled through full faint chains]
 - **Engine instincts added:** foe-aware PP famine (immune-only PP = famine; _LEVITATE_SPECIES
   chart-hole table), REVIVE instinct (fainted mon out-levels all standing), PP-RESTORE instinct
   (Ether/Elixir at famine; canonical bag holds Ether x1 + Moon Stone). Item AIM was half-wired

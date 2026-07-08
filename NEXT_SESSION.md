@@ -12,7 +12,9 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run13+ IN FLIGHT
+⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` **e4_run14 DETACHED**
+(Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
+read logs/longrun/e4_run14.log END before touching anything). Earlier runs
 (logs logs/longrun/e4_runN.log) with the FULL fix stack: cb2 liveness, fswitch FOCUS
 PROBE (c7d7b6d — run11 frame: a "has no will to fight!" message box ate every tap
 while the lit border FAKED focus; probe with a tap, require MOVEMENT), target rotation

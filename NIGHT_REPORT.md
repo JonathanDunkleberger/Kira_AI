@@ -29,3 +29,14 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 2 09:02->11:13 (131m): 7 commit(s), frontier ADVANCED
 - shift 3 11:14->11:16 (2m): 0 commit(s), frontier unchanged
 - shift 4 survey: TWO PROMOTIONS (cinnabar_reach: THE SEAFOAM CROSSING autonomous in 153s - boulder cascade 1F->B2F, FLAG 0x2D2 layout swap, becalmed B3F surf, arrow-warp exit, west sea; secret_key: Mansion key in 72s - toggle-state route, statue dance, SE back door, healed) + 7 general engine kills (box_open dual-clause bright-tileset fix, per-edge elevation law INTO Grid.edge_open, arrow+stair warp classes 0x62-0x6F, anchor-warp truth, coord-event script masks, box-burns-budget, Strength actuation verified live 0x805) | frontier: BLAINE badge 7 - gym door (20,4) unlockable NOW, full recipe + cached gym maps in NEXT_SESSION | needs eyes: none - successor clones the gym vehicle pattern and strikes Blaine
+- shift 4 11:17->12:41 (83m): 10 commit(s), frontier ADVANCED
+- shift 5 12:42->13:29 (48m): 3 commit(s), frontier ADVANCED
+- shift 6 FAST-FAIL 13:30 (2s, exit 1): You're out of usage credits. Run /usage-credits to keep using Fable 5 or /model to switch models.
+- shift 6 13:30->13:30 (0m): 0 commit(s), frontier unchanged
+- shift 7 13:31->13:37 (6m): 1 commit(s), frontier ADVANCED
+- shift 8 13:38->14:36 (58m): 5 commit(s), frontier ADVANCED
+- shift 9 14:37->15:05 (27m): 0 commit(s), frontier unchanged
+- shift 10 15:06->15:21 (15m): 1 commit(s), frontier ADVANCED
+- shift 11 15:22->15:53 (32m): 4 commit(s), frontier ADVANCED
+- shift 12 15:54->16:35 (41m): 5 commit(s), frontier ADVANCED
+- shift 13 survey: THE E4 LIVELOCK FAMILY IS DEAD (9 commits) — cb2 battle LIVENESS kills the phantom re-attach (gMain.callback2 0x030030F4; stale GBATTLE_RES_PTR = corpse, wired into st.in_battle); PARTY-WALK FINAL FORM (run12 frame proof: gPlayerParty ITSELF is battle-ordered in-fight, gBattlePartyCurrentOrder is only the RESTORE map — walk identity, verify by OUTCOME, sweep rows on miss); fswitch FOCUS PROBE (run11 frame: 'has no will to fight!' box ate every tap under a lit border) + target rotation; famine dirty-screen guard (once-per-battle try never burned by an open bag); FOE-AWARE famine (immune-only PP = famine, Levitate table); NEW INSTINCTS all live-verified: aimed FRs, mid-battle REVIVE (fallen-ace test), PP-restore Ether at famine, vehicle chooser picks them (run9 died declining 6 revive offers); Agatha WON in repro (65s, 5/6 alive), Bruno felled through full faint chains in runs 11-13 | frontier: e4_run14 DETACHED (survives handover — CHECK FOR LIVE PYTHON FIRST, read e4_run14.log end); gauntlet grinds autonomously: whiteout->restock->rechain, no known livelocks; walls = Agatha's ace attrition then LANCE (run7 reached his room); levers if runs keep dying: revive-sweep polish + Lance sleep-lock tuning | needs eyes: none
