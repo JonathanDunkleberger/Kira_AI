@@ -3772,17 +3772,12 @@ class Campaign:
         # family wearing a plausible map id (map (3,0), party 6, badges 8 — _world_lost is
         # blind to it). Escalate to void recovery instead of looping 'stuck' to the budget.
         try:
-            cur = tuple(tv.coords(self.b) or ())
-            if cur and tuple(tv.map_id(self.b))[0:1] == (3,):
-                g = tv.Grid(self.b)
-                _nbrs = [(cur[0] + dx, cur[1] + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
-                if (not g.walkable(*cur) and not g.is_water(*cur)
-                        and all(not g.walkable(*t) and not g.is_water(*t) for t in _nbrs)):
-                    log(f"   [roam] !!!! IMPOSSIBLE-STAND: she 'stands' on fully-enclosed "
-                        f"non-walkable {cur} on {tv.map_id(self.b)} — desynced/void-class world "
-                        f"(partial QW-4). Reloading the last real state (LOUD).")
-                    if self._void_recover():
-                        return "regrouped"
+            if self._impossible_stand():
+                log(f"   [roam] !!!! IMPOSSIBLE-STAND: she 'stands' on fully-enclosed "
+                    f"non-walkable {tv.coords(self.b)} on {tv.map_id(self.b)} — desynced/"
+                    f"void-class world (partial QW-4). Reloading the last real state (LOUD).")
+                if self._void_recover():
+                    return "regrouped"
         except Exception as _ise:
             log(f"   [roam] !! impossible-stand probe errored ({_ise}) — continuing")
         log(f"   [roam] !! REGROUP: no Center anchor and no connector fired from {m} "
@@ -6959,6 +6954,36 @@ class Campaign:
                 self._fire_deadman_alert({"place": "void (title screen)", "coords": None,
                                           "badge_count": 0})
                 return "abandoned"
+            # ── IMPOSSIBLE-STAND AT THE TICK TOP (night shift 10): the PARTIAL-void variant
+            # burns a wedge STORM through wander/travel picks long before any floor collapses
+            # to the regroup path where the original check lives (round 6: 20 wedges at
+            # Pallet "(8,6)" and the floor never reached). Cheap gate: only probed on a tick
+            # whose predecessor actually burned travel wedges; two consecutive impossible
+            # reads -> the same recovery as void-core (shared bounded budget).
+            _wt = getattr(self.trav, "wedge_total", 0)
+            if _wt > getattr(self, "_last_wedge_total", 0) and self._impossible_stand():
+                self._imp_stand_streak = getattr(self, "_imp_stand_streak", 0) + 1
+            else:
+                self._imp_stand_streak = 0
+            self._last_wedge_total = _wt
+            if self._imp_stand_streak >= 2:
+                void_recoveries += 1
+                self._imp_stand_streak = 0
+                log(f"   [roam] !!!! IMPOSSIBLE-STAND TRIPWIRE (tick-top) #{void_recoveries}: "
+                    f"enclosed non-walkable stand {tv.coords(self.b)} on {tv.map_id(self.b)} "
+                    f"for 2 straight wedge-burning ticks — partial-void world; recovering now "
+                    f"instead of letting the storm run.")
+                self.on_event("okay, something's properly wrong with where the world thinks I'm "
+                              "standing — rewinding to solid ground.", kind="recover", tier=2)
+                if void_recoveries <= 3 and self._void_recover():
+                    ledger.note_action("void_recover", "impossible_stand")
+                    self._wait_overworld()
+                    continue
+                log("   [roam] !!!! IMPOSSIBLE-STAND unrecoverable — ABANDONING loud")
+                self._roam_progress = "ABANDONED"
+                self._fire_deadman_alert({"place": "impossible stand (partial void)",
+                                          "coords": tv.coords(self.b), "badge_count": 0})
+                return "abandoned"
             # CAMPAIGN ANCHOR (Batch 5 P1) — checked at the TOP of every tick so it's NEVER skipped by a
             # mid-tick `continue` (idle / hard-recovery / blackout): re-anchor the instant the prior tick
             # made REAL progress (badge / new area / catch), plus a periodic heartbeat floor. Reads RAM
@@ -7736,6 +7761,22 @@ class Campaign:
                     and tv.coords(self.b) is None
                     and self.b.rd8(ram.GPLAYER_PARTY_CNT) == 0
                     and not any(self.has_badge(0x820 + i) for i in range(8)))
+        except Exception:
+            return False
+
+    def _impossible_stand(self):
+        """The PARTIAL-void signature (night shift 10): she 'stands' on a non-walkable tile
+        with ZERO walkable/surfable neighbours — a door mat has an open front; no legit stand
+        reads fully enclosed. Wears a plausible map id (Pallet, party 6, badges 8), so
+        _world_lost is blind to it. Overworld-gated; False on any read flake."""
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+            if not cur or tuple(tv.map_id(self.b))[0:1] != (3,):
+                return False
+            g = tv.Grid(self.b)
+            nbrs = [(cur[0] + dx, cur[1] + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+            return (not g.walkable(*cur) and not g.is_water(*cur)
+                    and all(not g.walkable(*t) and not g.is_water(*t) for t in nbrs))
         except Exception:
             return False
 
