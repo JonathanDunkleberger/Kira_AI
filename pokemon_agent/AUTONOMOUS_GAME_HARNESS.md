@@ -354,6 +354,25 @@ needs the long patience branch (bounded ~10s) and an honest npc-block reason whe
 fails. Hygiene twin: an A-press that opens a plain NPC's chatter with the blocker unmatched
 must CLOSE the box before continuing, or the open box eats every later press of the leg.
 
+**ENGINE PITFALL (added 2026-07-08, night shift 11): FORCED-MOVEMENT FLOORS BLIND EVERY
+STILLNESS-SHAPED GUARD.** Wedge detectors tuned for "she can't move" (identical world
+fingerprint across retries; confined to ≤3 tiles) never fire on a floor that MOVES her —
+spinner/slide/conveyor tiles keep the coords changing across many distinct tiles while the
+terrain-blind BFS replans forever (measured: 500 steps burned in 7 seconds, the purpose-built
+assist never invoked). The general law: pair every stillness guard with a NET-PROGRESS guard —
+N iterations without the distance-to-goal ever improving, on a floor known to have forced-
+movement tiles, IS the wedge; hand off to the specialized crosser there. Symptom signature to
+recognize it in logs: steps tick fast, coords oscillate over a band, "path N to exit" stays
+roughly constant. Any game with ice floors, conveyors, or spinners will reproduce this class.
+
+**ENGINE PITFALL (added 2026-07-08, night shift 11): THE CAUGHT-LOUD CRASH THAT READS AS A
+QUIRK.** A per-action try/except that logs-and-continues (correct for liveness) lets a plain
+programming error — here a call to a NEVER-DEFINED method name, alive for three shifts —
+masquerade as "the tour just doesn't go deeper." Caught-LOUD is for survival, not absolution:
+grep every long-run log for `ACTION CRASHED`/`AttributeError` as a standing close-out step,
+because a repeated identical traceback is a BUG, not weather. (Python only resolves names on
+the executed path, so a misnamed call in a rarely-taken branch compiles clean and waits.)
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.
