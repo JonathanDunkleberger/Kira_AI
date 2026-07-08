@@ -173,6 +173,13 @@ def main():
             log(f"booted {args.boot}: map={tv.map_id(b)} coords={tv.coords(b)}{seed}  url={args.url}")
 
     voice = KiraVoice(url=args.url, log=print)
+    # P-1(c) SHOWCASE SPEECH BUDGET (couch fix-pass 1): first-playthrough energy — in SHOW
+    # mode the lulls carry musing and fights stay vocal: floor 1.0→0.8s, grind-gap 1.8→1.2s,
+    # ambient trickle 5.0→3.0s. Module dials (fires read them at call time); workshop/headless
+    # runs keep the quieter defaults. Env vars still win (pv reads env at import).
+    if args.show:
+        pv.FLOOR_S, pv.GRIND_GAP_S, pv.AMBIENT_GAP_S = 0.8, 1.2, 3.0
+        log("showcase voice profile ON: FLOOR 0.8s / GRIND_GAP 1.2s / AMBIENT_GAP 3.0s (P-1c)")
     dialogue = DialogueReader(b, on_dialogue=voice.on_dialogue, state={}, log=print)
 
     # optional live window (so Jonny SEES the run while recording)
@@ -314,6 +321,19 @@ def main():
         voice.set_context(trainer=trainer, rare=rare)
         if trainer or rare:
             log(f"battle context: trainer={trainer} foe={foe or '?'} rare={rare} -> Tier 2 savor")
+            # P-3 (couch fix-pass 1): BATTLE-START STAKES — the streamer breath BEFORE the
+            # action: what she's walking into + how the team stands. Trainer/rare only
+            # (wild grind stays brisk); one beat, her voice owns the delivery.
+            try:
+                _shp = b.rd16(ram.GPLAYER_PARTY + 0x56)
+                _smx = b.rd16(ram.GPLAYER_PARTY + 0x58)
+                _shape = ("and we're going in HURT — this could get scary"
+                          if (_smx and _shp <= _smx // 3) else "team's in good shape — let's play it smart")
+                _who = ("a trainer just locked eyes with me" if trainer
+                        else f"whoa — that's a {foe.upper()}, an actually rare one")
+                voice.emit(f"okay okay — {_who}. {_shape}.", kind="stakes", tier=2)
+            except Exception as _ste:
+                log(f"!! stakes-beat skipped ({_ste})")
         # HIGHLIGHT (Phase 4 — the clip engine): a SHINY foe is the single most clippable thing the
         # game can produce. Detected off the verified gEnemyParty (enemy_is_shiny is defensive — never
         # a false freak-out). Emit tier-3 so her CORE deep-reaction layer rises to it (Opus, full room);
@@ -343,6 +363,7 @@ def main():
                           choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
                           log=lambda m: None).run(max_seconds=180)
         voice.clear_context()
+        _end_beat = False       # P-3: did a bigger beat already own this battle's ending?
         # HIGHLIGHT (Phase 4): a CLUTCH win — she pulled it out at a sliver of HP. Post-battle the lead
         # survived (hp>0) at near-death after a WIN = the run-saving moment. Tier-3 so she RISES to it
         # (relief/triumph), not "oh great, moving on". Bounded read; never crashes the battle path.
@@ -354,6 +375,7 @@ def main():
                     voice.emit(f"oh my god — {_hp} HP. {_hp} health left and we WON. that was so close.",
                                kind="clutch", tier=3)
                     pace("clutch")
+                    _end_beat = True
         except Exception as _cle:
             log(f"!! clutch-check skipped ({_cle})")
         # GRIEF ON A FAINT (soul-debt: roster-as-relationship — the endearing bittersweet half). On a
@@ -370,6 +392,7 @@ def main():
                         voice.emit(f"we won… but my {_nmf} went down doing it. you did good — rest up.",
                                    kind="faint", tier=2)
                         pace("faint")
+                        _end_beat = True
                         break
         except Exception as _fe:
             log(f"!! faint-check skipped ({_fe})")
@@ -383,6 +406,7 @@ def main():
             nm1 = st.SPECIES_NAME.get(sp1, "something new")
             voice.emit(f"my {nm0} evolved into {nm1}!", kind="evolve", tier=3)
             pace("evolved into")
+            _end_beat = True
         lvl1 = b.rd8(ram.GPLAYER_PARTY + LEAD_LEVEL)
         # F-7(c) slice 2: the battle agent now voices the level-up IN the victory drain (the
         # line lands on the jingle, not the overworld) — this post-drain emit is the FALLBACK
@@ -391,6 +415,16 @@ def main():
         if lvl1 > lvl0 and not _ba.LEVELUP_EMITTED:
             voice.emit(f"my Pokemon just leveled up to level {lvl1}", kind="levelup", tier=2)
             pace("leveled up")
+            _end_beat = True
+        # P-3 (couch fix-pass 1): the END EXHALE — the streamer breath after a TRAINER fight
+        # when no bigger beat (clutch/faint/evolve/level-up) already owned the ending. T1
+        # brisk, foe-named so the dedup window doesn't eat every one. Wild grind stays silent.
+        try:
+            if out == "win" and trainer and not _end_beat and not _ba.LEVELUP_EMITTED:
+                voice.emit(f"phew — okay, that one's done. shake it off, back to the road.",
+                           kind="exhale", tier=1)
+        except Exception as _exh:
+            log(f"!! exhale-beat skipped ({_exh})")
         b.set_input_owner("agent")
         return out
 

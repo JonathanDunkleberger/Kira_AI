@@ -773,6 +773,19 @@ class Campaign:
         non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
         pre_sp = pre_lvl = pre_lvls = pre_specs = None
         self._battle_ran_this_action = True    # blackout-evidence: a whiteout implies a battle RAN
+        # P-1(a): the FIRSTS — a first-timer's first wild rustle / first real trainer fight
+        # are events a viewer should feel. One beat each, early-game gated in _first_beat.
+        try:
+            if bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08):
+                self._first_beat("trainer_battle",
+                                 "my first REAL trainer battle — an actual person wants to "
+                                 "fight me. okay. deep breath. this is what training's for.")
+            else:
+                self._first_beat("wild_battle",
+                                 "the grass MOVED — that's my first wild Pokémon ever. "
+                                 "okay okay okay. here we go, this is really happening.")
+        except Exception:
+            pass
         try:
             mid = tv.map_id(self.b)
             place = self._place_name(mid)
@@ -2665,6 +2678,23 @@ class Campaign:
     # Greeted-state persists in world_model.json (sanctity bundle) so it survives resume.
     # GAME-KNOWLEDGE LAYER (portability): map-keyed, curated small; grows as the descent grades
     # arcs. Gym leaders / scripted quest NPCs are NOT here (beat_gym + questlines own those).
+    # P-1(b) GYM FOLKLORE (game-knowledge layer): what trainers-on-the-road say about each
+    # leader — type + one folksy implication. Surfaced in the spine as "word on the road",
+    # so her anticipation habit has real material without ever reading like a walkthrough.
+    _GYM_FOLKLORE = {
+        "Brock": "he runs ROCK-types — folks say fire and flying moves bounce right off; "
+                 "grass or water is how challengers get through",
+        "Misty": "she runs WATER-types — a whole gym over a pool; grass and electric do the work",
+        "Lt. Surge": "the lightning American — ELECTRIC-types; ground moves shut his whole act down",
+        "Erika": "the flower lady — GRASS and poison; fire melts her garden, flyers do fine too",
+        "Koga": "a literal ninja — POISON and confusion tricks; bring antidotes and patience",
+        "Sabrina": "people whisper about her — PSYCHIC-types, sees your moves coming; "
+                   "ghosts and bugs are the folk remedy",
+        "Blaine": "the old fire scientist — FIRE-types on a volcano island; water washes him out",
+        "Giovanni": "nobody talks straight about the Viridian leader — GROUND-types, they say, "
+                    "and something colder underneath",
+    }
+
     _SALIENT_FIGURES = {
         (4, 0): [{"id": "mom", "who": "Mom",
                   "offer": "talk to Mom — she's right here, and you don't walk out on her "
@@ -2676,6 +2706,24 @@ class Campaign:
                            "things (and people say she gives travelers a Town Map)",
                   "pull": "Daisy — Gary's sister — is here, and you've never actually met."}],
     }
+
+    # ── P-1(a) FIRSTS-AS-EVENTS (couch fix-pass 1) ─────────────────────────────────────────
+    # A first-timer's firsts are EVENTS, not footnotes: first wild battle, first trainer
+    # fight, first catch, first Center, first Mart each get ONE T2 beat. Persisted via the
+    # world-model met() store (survives resume; absent on a fresh run). EARLY-GAME GATED:
+    # with any badge earned the first is backfilled SILENTLY — the Champion revisiting a
+    # Mart must never gush "my first shop ever".
+    def _first_beat(self, key, text):
+        try:
+            k = f"first_{key}"
+            if self.world.met(k):
+                return
+            self.world.mark_met(k)
+            if sum(1 for i in range(8) if self.has_badge(0x820 + i)) > 0:
+                return                              # veteran world — backfill, no beat
+            self.on_event(text, kind="first", tier=2)
+        except Exception as _fb:
+            log(f"   [first] {key} beat skipped ({_fb!r}) (LOUD)")
 
     def _salient_unmet(self, state):
         """Un-greeted key figures on THIS map with a talkable body actually present (honest
@@ -3112,6 +3160,22 @@ class Campaign:
             if tv.map_id(self.b) != (4, 1):
                 break
         self._adv_dialogue()                                   # Mom (1F)
+        # P-2 (couch fix-pass 1): MOM IS A MUST-STOP on journey day one — a real goodbye
+        # beat, not scenery. The F-6 salience only rides free-roam ticks; the OPENING walks
+        # this floor exactly once, so the stop is anchored HERE. talk_npc owns the walking/
+        # facing; best-effort — an unreachable mom logs LOUD and the journey still starts
+        # (never wedge the debut on a hug).
+        try:
+            if self.talk_npc() == "talked":
+                self.world.mark_met("mom")
+                self.on_event("that's Mom — one real goodbye before the whole world happens. "
+                              "okay. deep breath. love you, I'll be back with a full Pokédex.",
+                              kind="social", tier=2)
+            else:
+                log("   !! OPENING: couldn't reach Mom for the day-one goodbye (LOUD) — "
+                    "journey starts anyway")
+        except Exception as _me:
+            log(f"   !! OPENING: mom goodbye crashed ({_me!r}) — continuing")
         if not self._exit_to_overworld():                      # general hardened building-exit
             log("   !! OPENING: couldn't exit the house"); return tv.map_id(self.b)
         self._adv_dialogue()
@@ -3223,10 +3287,18 @@ class Campaign:
             "charmander": "the Fire one — the hard-mode start, but it becomes a dragon (Charizard)",
             "squirtle": "the Water one — a tough all-rounder with a great look",
         }
+        # P-5 SELF-CANON: her cross-session identity rides the ctx as HER OWN memory —
+        # she still chooses; canon is the taste she chooses with (never a forced pick).
+        try:
+            from pokemon_soul import SELF_CANON as _CANON
+            _canon_line = _CANON.get("starter", "")
+        except Exception:
+            _canon_line = ""
         pick = self._soul_choose("starter", opts, {
             "moment": ("Professor Oak's lab, three Poké Balls on the table. This is your PARTNER "
                        "for the entire journey — the one beside you from this bedroom morning all "
-                       "the way to the credits. Which one calls to you?"),
+                       "the way to the credits. Which one calls to you?"
+                       + ((" " + _canon_line) if _canon_line else "")),
         })
         idx = {"bulbasaur": 0, "charmander": 1, "squirtle": 2}.get((pick or "").strip().lower())
         if idx is None:
@@ -3966,6 +4038,10 @@ class Campaign:
         share ONE layout so only the overworld door differs. Returns 'healed' or 'stuck' (LOUD)."""
         h0 = self.lead_hp()
         city = tv.map_id(self.b)                  # the city we heal in (generic; was Viridian-only)
+        # P-1(a): first Pokémon Center — the "they heal you for FREE?" delight beat.
+        self._first_beat("center",
+                         "so THIS is a Pokémon Center — they just… fix your whole team? "
+                         "for free? I love this world already.")
         # Heal if ANY party member needs it, not just the lead: a fainted BENCH mon (e.g. a weak mon KO'd
         # during a solo-grind) left the old lead-only guard skipping the heal -> the fainted mon never
         # revived -> the survival floor offered only 'heal' forever (infinite heal-loop, the look-ahead
@@ -5525,6 +5601,10 @@ class Campaign:
         event so Kira reacts to her new teammate IN HER OWN VOICE via the existing seam (fulfilling
         her want for a partner). Touches NO core (on_event -> _pokemon_react -> her self)."""
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        # P-1(a): the FIRST CATCH is a life event, not a roster update.
+        self._first_beat("catch",
+                         "I CAUGHT it. I actually caught it — my first ever. "
+                         "I have a TEAM now. we're a team.")
         # PHASE C-2 guard: a witnessed catch IS the meeting — mark the whole current party met so the
         # unmet-teammate watcher never re-introduces someone she just caught and celebrated.
         try:
@@ -7853,10 +7933,18 @@ class Campaign:
         return "roam_done"
 
     # ── the continuous driver ────────────────────────────────────────────────
-    def run(self, objectives):
+    def run(self, objectives, _recovered_retry=False):
         for i, obj in enumerate(objectives):
             kind, label = obj[0], obj[-1]
             _t0 = time.time()
+            # SEGMENT RUNG ANCHOR (couch fix-pass 1, 2026-07-08): roam ticks bank
+            # _last_good_state; segments never did — so the recovery rung below had no
+            # candidate on a fresh run. Each objective banks its own start (a savestate
+            # rewind = a clean, idempotent objective retry).
+            try:
+                self._last_good_state = self.b.save_state()
+            except Exception as _sae:
+                log(f"   !! objective-start anchor failed ({_sae!r}) — rung degraded (LOUD)")
             log(f"OBJECTIVE {i+1}/{len(objectives)}: {kind} - {label}  "
                 f"[at map={tv.map_id(self.b)} coords={tv.coords(self.b)}]")
             if kind == "OPENING":
@@ -7923,6 +8011,25 @@ class Campaign:
             if self.soul is not None:
                 self._soul_after_objective(kind, out)     # evolve + faint + battle->mood, via the seam
             if out in ("stuck", "no_path", "battle_loss", "no_warp", "underleveled", "blackout"):
+                # COUCH FIX-PASS 1 (2026-07-08): the fresh spine died at Route 1 where free-roam
+                # recovers — the segment driver gets ONE rung of the roam tripwire ladder before
+                # the STOP: an IMPOSSIBLE STAND (partial-void class — enclosed own-tile right
+                # after a map flip) void-recovers to the objective-start anchor and the segment
+                # retries once from this objective. A legit stuck still stops LOUD; the retry
+                # flag caps recursion at depth 1 (one recovery per segment run).
+                if not _recovered_retry and out in ("stuck", "no_path"):
+                    _rec = False
+                    try:
+                        if self._impossible_stand():
+                            log(f"   !! objective {kind} stuck on an IMPOSSIBLE STAND — "
+                                f"void-recovering (segment-driver rung)")
+                            _rec = bool(self._void_recover())
+                    except Exception as _rex:
+                        log(f"   !! segment recovery rung crashed: {_rex!r} (LOUD) — stopping honestly")
+                    if _rec:
+                        log(f"   segment driver RECOVERED — retrying from objective {i+1} ({kind}) "
+                            f"at map={tv.map_id(self.b)} coords={tv.coords(self.b)}")
+                        return self.run(list(objectives[i:]), _recovered_retry=True)
                 log(f"!! CAMPAIGN STOP (loud) at objective {i+1} ({kind}): {out}")
                 return f"stopped:{kind}:{out}"
         log("CAMPAIGN COMPLETE (all objectives done)")
@@ -8238,6 +8345,13 @@ class Campaign:
                       f"forward leads there: until you've won you are ALWAYS making progress toward the "
                       f"next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and "
                       f"then you GET BACK ON THE ROAD to {ng['city']}. Never just circle the same grass.")
+            # P-1(b) ANTICIPATION FOLKLORE (couch fix-pass 1): what she's HEARD about the gym
+            # ahead — trainer-talk a first-timer picks up, never walkthrough knowledge. Feeds
+            # the forward-musing habit ("I hear the first gym is rock-type… that's bad for you,
+            # buddy"). KB layer, one line, her voice decides if/when to say it.
+            _folk = self._GYM_FOLKLORE.get(ng["leader"])
+            if _folk:
+                spine += f" Word on the road about {ng['leader']}: {_folk}"
         elif state.get("post_game"):
             # POST-CREDITS (the summit-watch residual): never tell the CHAMPION the E4 is still
             # ahead — the game is beaten. Point her at the victory lap instead (walk OUT of the

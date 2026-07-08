@@ -27,6 +27,15 @@ GAME_KNOWLEDGE = {
     "legendaries": {"articuno", "zapdos", "moltres", "mewtwo"},
 }
 
+# ── SELF-CANON (P-5, couch fix-pass 1, CEO 2026-07-08): identity facts OBSERVED across
+# independent sessions — not authored, EARNED. These are who she is; nothing may override
+# them. They surface as her own remembered taste (context), never as a forced pick — she
+# still chooses; canon is the memory she chooses WITH.
+SELF_CANON = {
+    "starter": ("fire has always called to you — you've picked CHARMANDER every single time "
+                "you've ever stood at this table (three lives running). You're the fire girl."),
+}
+
 # GIFT/BACKSTORY layer (game-knowledge, per-game): how an UNMET teammate came to her — so the
 # first-field introduction beat carries the real story, not a generic "someone appeared".
 # Keyed by lowercase species. Extend as gift mons enter the run.

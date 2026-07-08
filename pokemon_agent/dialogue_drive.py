@@ -181,8 +181,21 @@ class DialogueDriver:
         seen = {}                                         # FIX 1: normalized line -> times shown (cycle detect)
         adv_key = "A"                                     # NICKNAME GUARD: current page's advance key
         blind = 0                                         # consecutive no-box/no-control iterations
+        # P-6 PACE TELEMETRY (couch fix-pass 1): per-box visible wall-time, logged when the
+        # NEXT box appears (or the drive ends). The pacing law: "advance as fast as a human
+        # reader could follow if they wanted to — never faster, never slower." An outlier box
+        # (>~3x its length-scaled peers) is a stall CLASS to fix; uniform = the law holds.
+        _pace_prev = None                                 # (t0, text[:48], sink_ms, hold_s)
+
+        def _pace_close(reason):
+            if _pace_prev is not None:
+                _dt = time.time() - _pace_prev[0]
+                self.log(f"   [dlg-pace{(' ' + label) if label else ''}] box {_pace_prev[1]!r} "
+                         f"visible {_dt:.2f}s (sink {_pace_prev[2]}ms, hold {_pace_prev[3]:.2f}s, "
+                         f"end={reason})")
         for _ in range(max_steps):
             if stop_when and stop_when():
+                _pace_close("stopped")
                 return "stopped"
             # BATTLE GATE (night shift 8, the '[dlg engage] max_steps=300' class): a trainer's
             # LoS/engage intro box leads INTO a battle — overworld control never returns, and 300
@@ -231,12 +244,18 @@ class DialogueDriver:
                     # the fast advance cadence (the halved curve) is UNCHANGED.
                     self.b.press(adv_key, 4, 6, self.render, owner=self.owner)
                     last = self.dr._read_buffer() or last  # adopt what's shown now (snapped-full text)
+                    _pace_close("next_box")               # P-6: close the previous box's timing
+                    _sink_ms = 0
                     if DialogueDriver.line_sink is not None:
                         try:                              # hint tap: report the full accepted line
+                            _t_sink = time.time()
                             DialogueDriver.line_sink(last.replace("\n", " "))
+                            _sink_ms = int((time.time() - _t_sink) * 1000)
                         except Exception:
                             pass
-                    self._hold_s(self._read_seconds(last, min_s, max_s, base_s, per_char_s))
+                    _hold = self._read_seconds(last, min_s, max_s, base_s, per_char_s)
+                    _pace_prev = (time.time(), " ".join(last.split())[:48], _sink_ms, _hold)
+                    self._hold_s(_hold)
                 self.b.press(adv_key, 4, 10, self.render, owner=self.owner)  # advance one page, paced
                 self._hold_s(page_gap_s)
                 fp = wf.fingerprint(self.b)               # did this press change the line OR the world?
@@ -254,6 +273,7 @@ class DialogueDriver:
             else:
                 # box not showing: either DONE (control back) or a brief between-pages gap (locked).
                 if self._control_returned():
+                    _pace_close("closed")
                     return "closed"
                 blind += 1
                 if blind >= 8:
