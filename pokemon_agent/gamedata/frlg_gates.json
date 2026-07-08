@@ -560,6 +560,105 @@
     "expected": true,
     "note": "Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared (Card Key 5F, Giovanni #2 11F - hideout-class strike; see route_notes/saffron_unlock)"
    }
+  ],
+  "Cinnabar Island": [
+   {
+    "map": "3,10",
+    "name": "Saffron City",
+    "go": "east",
+    "via": "pass",
+    "note": "east gatehouse onto Route 8 (door-passthrough; TEA already shown on the way in)"
+   },
+   {
+    "map": "3,26",
+    "name": "Route 8",
+    "go": "east"
+   },
+   {
+    "map": "3,4",
+    "name": "Lavender Town",
+    "go": "south",
+    "note": "Snorlax gate south - woken by this point on the rope (badge 5 road); the gate recognizer re-arms the flute chain if not"
+   },
+   {
+    "map": "3,30",
+    "name": "Route 12",
+    "go": "south"
+   },
+   {
+    "map": "3,31",
+    "name": "Route 13",
+    "go": "west"
+   },
+   {
+    "map": "3,32",
+    "name": "Route 14",
+    "go": "west"
+   },
+   {
+    "map": "3,33",
+    "name": "Route 15",
+    "go": "west"
+   },
+   {
+    "map": "3,7",
+    "name": "Fuchsia City",
+    "go": "south",
+    "note": "onto Route 19 - SEA from here: the south band is beach, the water needs Surf (water-aware travel)"
+   },
+   {
+    "map": "3,37",
+    "name": "Route 19",
+    "go": "west",
+    "note": "sea route - Surf"
+   },
+   {
+    "map": "3,38",
+    "name": "Route 20",
+    "go": "west",
+    "via": "pass",
+    "note": "the crossing runs THROUGH Seafoam Islands (boulder/current puzzle - strike-solved 2026-07-07, cinnabar_reach; the general pass-through does NOT solve the interior)"
+   },
+   {
+    "map": "3,8",
+    "name": "Cinnabar Island",
+    "expected": true
+   }
+  ],
+  "Viridian City": [
+   {
+    "map": "3,8",
+    "name": "Cinnabar Island",
+    "go": "north",
+    "note": "SEA road - Surf north up Route 21 to Pallet (water-aware travel)"
+   },
+   {
+    "map": "3,40",
+    "name": "Route 21 south",
+    "go": "north",
+    "note": "sea - Surf"
+   },
+   {
+    "map": "3,39",
+    "name": "Route 21 north",
+    "go": "north",
+    "note": "sea - Surf; lands on Pallet's south shore"
+   },
+   {
+    "map": "3,0",
+    "name": "Pallet Town",
+    "go": "north"
+   },
+   {
+    "map": "3,19",
+    "name": "Route 1",
+    "go": "north"
+   },
+   {
+    "map": "3,1",
+    "name": "Viridian City",
+    "expected": true
+   }
   ]
  },
  "no_connector": {

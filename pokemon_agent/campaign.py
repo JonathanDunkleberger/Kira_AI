@@ -4526,6 +4526,19 @@ class Campaign:
                 # no connection to the bend from here — route back to the anchor and re-walk it
                 log(f"   [roam] questline: off the bend at {cur_map} with no direct hop — re-walking "
                     f"via the anchor")
+            # FALSE-ARRIVAL GUARD (descent re-grade 2026-07-08, the Route-10 south strand): "no
+            # forward edge + no unvisited neighbor" is NOT arrival while the step has an anchor we
+            # never reached — on a dead-end pocket it declared 'arrived', interacted with nothing,
+            # and head_to_gym no-op'd forever. Off-anchor, off-bend, never past the anchor, and the
+            # graph can't route there (RE-ANCHOR above already tried) → surface honestly; the
+            # structural dead-route memory prunes head_to_gym on THIS map and the roam layer's other
+            # options carry her until the graph learns a road toward the anchor.
+            if (step_anchor and cur_map != step_anchor and cur_map not in bends
+                    and not getattr(self, "_ql_past_anchor", False)):
+                log(f"   [roam] questline: NOT arrived — {cur_map} is off-anchor "
+                    f"({step_anchor} unreachable in the learned graph) with no local frontier; "
+                    f"surfacing no-route")
+                return "questline_no_route"
             # No coarse-dir edge AND no unexplored frontier → she's ARRIVED at the destination AREA. The
             # step now COMPLETES by an INTERACTION (talk an NPC, board a ship, use an HM), not more travel —
             # hand off to the general destination-interaction layer (Bill is the first instance; the same
@@ -4955,7 +4968,20 @@ class Campaign:
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
             # head_to_gym drives THAT and the action-set reframes around it.
-            gate = self._gate_recognizer.recognize(cur_map, blocked_dir="south")
+            # FORWARD DIRECTION = the billed road leg under her feet when one exists (descent re-grade
+            # 2026-07-08: at Lavender the road to Celadon runs WEST, but the hardcoded "south" armed the
+            # Route-12 SNORLAX questline every tick, hijacking head_to_gym off the billed road — the
+            # banked_ROCKTUNNEL stand-still). "south" remains the fallback for road-less spine geometry.
+            fwd = "south"
+            try:
+                _road = self._gym_road(state.get("next_gym"))
+                if _road:
+                    _leg = next((l for l in _road if l["map"] == cur_map and l.get("go")), None)
+                    if _leg:
+                        fwd = _leg["go"]
+            except Exception:
+                pass
+            gate = self._gate_recognizer.recognize(cur_map, blocked_dir=fwd)
             if gate:
                 self._open_questline(gate, state)
         except Exception as _q:
@@ -5786,6 +5812,14 @@ class Campaign:
                     if not route_exists:
                         anchor = self._road_pull_anchor(state) or self._base_camp(state)
                     off_branch = anchor is not None and anchor != cur
+                    # STRUCTURAL-DEAD GUARD (descent re-grade 2026-07-08): head_to_gym proven dead
+                    # on THIS map (no_gym_route/questline_no_route) → do NOT reframe it as the
+                    # dominant pull and prune everything else — that left ['talk_npc'] as the whole
+                    # action set on Route 10 south while the questline couldn't route (the
+                    # banked_ROCKTUNNEL 7-tick no_npc loop). The rich option set stays until she
+                    # leaves the map (structural memory retries the route once on re-entry).
+                    if "head_to_gym" in self._dead_moves_structural.get(cur, set()):
+                        ql_open = off_branch = False
                     if ql_open or off_branch:
                         if ql_open:
                             q = self._active_questline
@@ -7195,10 +7229,10 @@ class Campaign:
             if _is_move_pick and not _moved and out not in ("arrived", "badge", "caught"):
                 self._nomove_streak += 1
                 self._dead_moves.add(pick)
-                # F-11 STRUCTURAL failure: no_gym_route means no route EXISTS from this map — a
-                # few tiles of unrelated movement can't change that, so remember it PER MAP (the
-                # prune consults this set independent of the movement-cleared one).
-                if out == "no_gym_route":
+                # F-11 STRUCTURAL failure: no_gym_route / questline_no_route mean no route EXISTS
+                # from this map — a few tiles of unrelated movement can't change that, so remember
+                # it PER MAP (the prune consults this set independent of the movement-cleared one).
+                if out in ("no_gym_route", "questline_no_route", "questline_arrived_no_target"):
                     self._dead_moves_structural.setdefault(tuple(_pos0[0]), set()).add(pick)
                 log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
                     f"(streak {self._nomove_streak}, dead routes {sorted(self._dead_moves)}) — not moving "

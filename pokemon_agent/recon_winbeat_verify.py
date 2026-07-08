@@ -154,21 +154,23 @@ def phase_trainer():
             print(f"   !! sidecar load failed ({side}): {e}", flush=True)
     # Viridian -> Route 22 (west). Gary #7 is a TRIGGER-TILE scripted fight on the way to
     # the League gate — walking west fires it (8 badges in the bag at this bank).
-    camp.trav.travel(target_map=(3, 41), max_steps=400, max_seconds=240)
+    # edge='west' is load-bearing: the default 'north' walked her to Route 2 twice.
+    camp.trav.travel(target_map=(3, 41), edge="west", max_steps=400, max_seconds=240)
     if "outcome" not in result and tuple(tv.map_id(b)) == (3, 41):
-        # on Route 22 but no trigger yet -> keep pushing west toward the gate until it fires
-        for _try in range(40):
+        # on Route 22 but no trigger yet -> BFS-walk to the League gate door (8,5); the road
+        # west crosses the rival trigger rows and travel's battle handoff catches the fight
+        # (blind LEFT presses died on the pond/ledge terrain — landed (47,7), gate at (8,5)).
+        camp.trav.travel(arrive_coord=(10, 5), max_steps=300, max_seconds=180)
+        if "outcome" not in result and fight_open():
+            battle_runner()
+        # pre-battle rival dialogue can leave a box up mid-walk — drain and give it one beat
+        for _try in range(10):
             if "outcome" in result or fight_open():
+                if fight_open():
+                    battle_runner()
                 break
-            b.press("LEFT", 26, 10, lambda: None, owner="agent")
-            for _ in range(40):
-                b.run_frame()
-            if fight_open():
-                battle_runner()
-                break
-            # drain any pre-battle rival dialogue (he walks up and talks first)
             b.press("B", 8, 12, lambda: None, owner="agent")
-            for _ in range(20):
+            for _ in range(30):
                 b.run_frame()
     if "outcome" not in result:
         print("   [check] INCONCLUSIVE — Gary #7 never triggered (already beaten on this bank?)",
