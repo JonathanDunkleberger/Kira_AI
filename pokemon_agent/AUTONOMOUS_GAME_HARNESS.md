@@ -249,11 +249,18 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
 phase is soul-polish (first-timer dialogue register, overheard-intel ledger, gift-mon
 introductions, post-game context flip) — all engine-side patterns a game #2 inherits free.
 
-**ENGINE CAPABILITY (added 2026-07-07): THE PAD-GRAPH ROUTER (recon_sabrina.pad_plan).**
+**ENGINE CAPABILITY (added 2026-07-07; PORTED INTO THE ENGINE 2026-07-08 night shift 5):
+THE PAD-GRAPH ROUTER (pad_nav.py, ex recon_sabrina.pad_plan).**
 Teleport mazes (warps whose dest is the CURRENT map) are routable with zero hardcoding: warp
 events come in id order, so pad tile -> warps[dest_warp_id] tile is the whole edge list;
 flood-fill walk-regions (warps+NPCs masked, bounded, elevation-held), meta-BFS over regions
 with pad rides as edges, execute ride-by-ride with replan. Ports to any teleport/portal maze.
+PORT LESSONS: (1) the gym handler arms the router at ENTRY by probing for same-map warps —
+capability-detect, never a map-id table; (2) once armed, NO interior movement may use the
+general pathfinder — it is warp-blind, reads pads as plain floor, and rides them mid-route
+(the same divergence class as spin tiles); (3) keep the region flood STRICTLY at the seed
+tile's elevation even if the per-edge law is more lenient — a 0-elevation void strip beside
+the rooms welds every region together under an elevation-0-as-transition rule.
 
 **ENGINE CAPABILITY (added 2026-07-06): THE DOOR PASS-THROUGH.** When an edge crossing has no
 overworld route (fenced region), buildings are the remaining connectors: try reachable doors

@@ -2340,7 +2340,7 @@ class Campaign:
                 continue
             seen.add(adj)
             front = (T[0] + adj[0], T[1] + adj[1])
-            self.trav.travel(target_map=None, arrive_coord=front, max_steps=200, max_seconds=90)
+            self._gym_move(front, label="engage")
             if st.in_battle(self.b):
                 return True                                    # LoS fired during the walk-in
             if tv.coords(self.b) != front:
@@ -2607,6 +2607,19 @@ class Campaign:
         except Exception:
             return True
 
+    def _gym_move(self, tile, label="gym-move"):
+        """Interior mover for gym handling: PAD-AWARE when this gym's router is armed (a
+        warp-partitioned interior — travel's BFS is warp-blind and reads teleport pads as
+        plain floor, so its paths ride pads mid-route), plain travel otherwise. True =
+        standing on tile. The router is armed per-gym in beat_gym (pad_nav.same_map_pads)."""
+        pn = getattr(self, "_gym_pads", None)
+        if pn is not None and tuple(tv.map_id(self.b)) == pn.map:
+            if pn.goto_region({tile}, label=label):
+                pn.walk(tile, label=label)
+            return tuple(tv.coords(self.b) or ()) == tile
+        self.trav.travel(target_map=None, arrive_coord=tile, max_steps=200, max_seconds=90)
+        return tv.coords(self.b) == tile
+
     def _clear_gym_trainers(self, leader_front, max_rounds=10):
         """Beat EVERY junior trainer (re-scanning each round, since far ones are proximity-loaded
         and one may wander), THEN return so the caller engages the gated leader. General gym
@@ -2634,8 +2647,7 @@ class Campaign:
                 beaten.add(idx)                                # cleared (or unreachable) -> don't reloop
                 continue
             # none loaded -> advance toward the leader to load/trigger far trainers (LoS may fire)
-            self.trav.travel(target_map=None, arrive_coord=leader_front,
-                             max_steps=200, max_seconds=90)
+            self._gym_move(leader_front, label="leader-advance")
             if st.in_battle(self.b):
                 _lr = self.battle_runner()
                 log(f"   GYM: en-route LoS trainer -> {_lr}")
@@ -2693,6 +2705,19 @@ class Campaign:
             self.b.run_frame()
         gym_map = tv.map_id(self.b)                             # the gym interior we just entered
         log(f"   GYM: inside {gym_map} at {tv.coords(self.b)} - clearing junior trainers")
+        # PAD ROUTER (the Saffron-gym class, recon_sabrina-proven; ported 2026-07-08): a
+        # warp-partitioned interior (same-map teleport pads) reads no_route to EVERYTHING on
+        # a walk BFS — the old handler travel-wedged x4 and A-mashed the leader from 11 tiles
+        # away (the SILPH pre-grade WARN). Arm the per-gym router; _gym_move rides the pads.
+        self._gym_pads = None
+        try:
+            import pad_nav
+            _pads = pad_nav.same_map_pads(self.b)
+            if _pads:
+                self._gym_pads = pad_nav.PadNav(self.b, self, log=log)
+                log(f"   GYM: teleport-pad interior ({len(_pads)} pads) - pad router ARMED")
+        except Exception as e:
+            log(f"   !! GYM: pad-router arm failed ({e}) - walking blind")
         # 0) ENVIRONMENT PUZZLE (general seam; instance #1 = Vermilion's trash cans, 2026-07-06):
         # some gyms gate the leader behind a puzzle, not just juniors. Solve it HONESTLY (narrated
         # hunt; RAM verify-only) before the trainer sweep — beams block the leader approach anyway.
@@ -2721,7 +2746,7 @@ class Campaign:
         # is a multi-box speech that a few A-taps don't fully clear; the primitive advances it and
         # stops the instant the battle starts). Misty starts the battle near-immediately - same path.
         self.b.set_input_owner("agent")
-        self.trav.travel(target_map=None, arrive_coord=gym.leader_front, max_steps=200, max_seconds=90)
+        self._gym_move(gym.leader_front, label="leader")
         _lvl = self.b.rd8(ram.GPLAYER_PARTY + 0x54)
         _sp = st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "?")
         log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name} "
@@ -2784,6 +2809,14 @@ class Campaign:
             log(f"   GYM: *** {name.upper()} BADGE obtained ***")
             self.on_event(f"I beat {name} - that's the badge!")
             if tv.map_id(self.b)[0] != 3:                      # still in the gym interior -> leave to
+                pn = getattr(self, "_gym_pads", None)          # pad maze: ride back beside a door first
+                if pn is not None and tuple(tv.map_id(self.b)) == pn.map:
+                    _here = tuple(tv.map_id(self.b))
+                    _adj = {(w[0][0] + dx, w[0][1] + dy)
+                            for w in tv.read_warps(self.b) if tuple(w[1]) != _here
+                            for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0))}
+                    if _adj:
+                        pn.goto_region(_adj, label="pads->exit")
                 self._exit_to_overworld()                      # the city via the general hardened exit
                 log(f"   GYM: exit -> now {tv.map_id(self.b)}@{tv.coords(self.b)}")
             return "badge"
