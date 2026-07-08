@@ -4898,7 +4898,9 @@ class Campaign:
                 # (~15 travel wedges + static-obstacle churn PER FLOOR). Same law as shift 6's
                 # exit-chain sealed-door skip: pre-check before any leg, and DON'T consume the
                 # candidate (floors mutate — it retries the moment the pocket unseals).
-                if not self._tile_feet_reachable(wt):
+                if not self._warp_hop_reachable(wt):   # shift-11: was _tile_feet_reachable, a
+                    #                                    never-defined name — AttributeError'd the
+                    #                                    whole go-deeper tour since shift 8
                     log(f"   [roam] questline: deeper warp {wt} walk-unreachable from here — "
                         f"skipped (sealed pocket, not consumed)")
                     continue
