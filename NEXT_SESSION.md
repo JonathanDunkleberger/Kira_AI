@@ -14,9 +14,22 @@
 - **NOW RUNNING: (b) FULL 15-arc sweep** `recon_descent_grade.py 120` on tonight's code →
   regenerates DESCENT_PREGRADE.md (log `logs\longrun\descent_full_shift11.log`, ~35 min).
   If this shift died mid-sweep: read that log + DESCENT_PREGRADE.md; re-run only if killed.
-- **BUILDING meanwhile: (c) evolution early beat** — emit at cutscene START ("X is
-  evolving!" box, dialogue read) so her line lands DURING the 20-30s animation; naming
-  beat at the end already exists (campaign._drive_evolution, campaign.py:2044).
+- **TWO MORE SWEEP-SURFACED FIXES, committed MID-sweep (the running sweep predates them —
+  re-grade at least ROCKTUNNEL + SCOPE after it finishes, fixes in):**
+  (1) 569f223 — head_to_gym's go-deeper tour called `_tile_feet_reachable`, a NEVER-DEFINED
+  name (shift-8 typo): every deeper-warp scan AttributeError'd (caught LOUD → tour never
+  went deeper; 4 crashes in the sweep log). Real helper = `_warp_hop_reachable`.
+  (2) 5aaf72d — LAYER-A staleness release: grow-only `_blocked_npcs` let a wanderer's old
+  tile wall corridors forever; near+empty marked tiles now release (this-leg marks exempt).
+  Standing close-out law (now in AUTONOMOUS_GAME_HARNESS.md): grep every long-run log for
+  `ACTION CRASHED` — a repeated identical traceback is a BUG, not weather.
+- **(c) evolution early beat: BUILT + COMMITTED (55350e1), verify QUEUED behind the
+  sweep.** _drive_evolution now gates on ANY slot's level-up (was lead-only — bench
+  evolutions left the cutscene undriven) and emits ONE tier-3 "X is evolving!" beat the
+  moment the box text appears in the gStringVar block (early, overlaps the animation).
+  Verify: `.venv\Scripts\python.exe -u pokemon_agent\recon_evobeat_verify.py` (needs the
+  emulator free — run AFTER the sweep). INCONCLUSIVE if no bundle has a past-due LEVEL
+  evolver (Ekans must be >L22 somewhere); then the beat stays WIRED-not-VERIFIED.
 
 ## ⚡ SHIFT 10 STATE (prior)
 0. **SHIFT-9 E4/SURF RE-GRADE WAS KILLED AT HANDOVER** (log `descent_regrade_e4surf_shift9.log`).
