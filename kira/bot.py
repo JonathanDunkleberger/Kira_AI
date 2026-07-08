@@ -3286,6 +3286,18 @@ class VTubeBot:
         # reaction her SAGA too (the grudge + arc), so she can call it back live — not just in idle chat.
         # Grind ticks (tier 0/1) stay lean (no saga) to keep them snappy.
         _saga_block = self._pokemon_journey_block() if (tier or 0) >= 2 else ""
+        # F-9 VERBAL-TIC GOVERNOR (mode-side): phrase-frequency over her recent game lines (the
+        # long window _execute_interjection records) → a hard ban on wallpapered phrases, folded
+        # into THIS ask. The line-level avoidance guard can't see a tic that recurs every ~10
+        # lines; this can. '' when she's varying naturally — the prompt is byte-identical then.
+        _tic_block = ""
+        try:
+            _tic_block = repetition_guard.tic_ban_block(
+                list(getattr(self, "_pokemon_recent_lines", []) or []))
+            if _tic_block:
+                print(f"   [Pokemon] F-9 tic governor ACTIVE: {_tic_block[:120]}")
+        except Exception as _tge:
+            print(f"   [Pokemon] tic governor skipped: {_tge}")
         # PHASE C-1 (soul-debt #12): a DIALOGUE event is her READING the game's text, not a battle
         # beat — so the ask becomes first-timer reading (surprise, a guess at what it means, an
         # opinion, reacting to a hint's CONTENT), never the battle framing. Detected by the harness
@@ -3320,6 +3332,7 @@ class VTubeBot:
             self._POKEMON_CHARACTER_RULES + "\n\n"
             + (_state_block + "\n" if _state_block else "")
             + (_saga_block + "\n" if _saga_block else "")
+            + (_tic_block + "\n" if _tic_block else "")
             + _ask
         )
         if self._active_turn_lock.locked():
@@ -10209,6 +10222,15 @@ class VTubeBot:
 
         cleaned = self.ai_core._clean_llm_response(response)
         if len(cleaned) > 2 and "[SILENCE]" not in cleaned:
+            # F-9 VERBAL-TIC GOVERNOR (mode-side record): Pokémon reactions are marked by their
+            # memory_query; keep a LONG rolling window of her generated game lines so the next
+            # _pokemon_react ask can hard-ban phrases she's wallpapering ("doing a lot of heavy
+            # lifting"). Pokémon-gated — no other path records here, nothing else changes.
+            if memory_query == "pokemon battle":
+                if not hasattr(self, "_pokemon_recent_lines"):
+                    from collections import deque as _dq
+                    self._pokemon_recent_lines = _dq(maxlen=40)
+                self._pokemon_recent_lines.append(cleaned)
             print(f"   >>> Kira (Bored): {cleaned}")
             _t0_tts = time.time()
             # D: deliver the interjection SENTENCE-BY-SENTENCE rather than as one

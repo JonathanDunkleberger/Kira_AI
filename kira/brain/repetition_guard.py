@@ -60,6 +60,84 @@ def is_repetitive(text: str, recent, threshold: float = REPEAT_THRESHOLD):
     return (s >= threshold), b, s
 
 
+# ── F-9 VERBAL-TIC GOVERNOR (2026-07-08, the "doing a lot of heavy lifting" class) ──────────
+# avoidance_block guards LINE-level near-duplicates over a 5-line window; a verbal TIC is a
+# PHRASE recurring across many otherwise-different lines over a longer horizon — invisible to
+# the line guard. These pure functions find distinctive 3-5-word phrases that keep coming back
+# and produce a HARD ban directive. Deliberately no ban-evasion invitation: the line guard's
+# "say so out loud" escape is exactly what she exploits playfully ("I almost said—"), which is
+# charming once and wallpaper by the third time. Same discipline as the rest of this module:
+# lexical, sub-millisecond, no model call. Callers own the window (e.g. the Pokémon seam feeds
+# its own long deque); nothing here changes existing consumers.
+TIC_MIN_LINES = int(os.getenv("KIRA_TIC_MIN_LINES", "3"))   # lines a phrase must recur in
+TIC_MAX_BANS = int(os.getenv("KIRA_TIC_MAX_BANS", "4"))     # cap the ban list (never a lecture)
+
+_TIC_STOP = frozenset(
+    "the a an and or but so of to in on at for with is are was were be been being am i you "
+    "it its it's im i'm this that these those we they he she my your our their me him her "
+    "just like really very going gonna got get have has had do does did not no yes okay oh "
+    "well then than as if what when where who how why there here now still too also can "
+    "could would should will won't don't didn't that's let's about out up down one two "
+    "little bit lot".split()
+)
+
+
+def overused_phrases(lines, min_lines: int = TIC_MIN_LINES, max_phrases: int = TIC_MAX_BANS):
+    """Distinctive 3-5-word phrases that appear in >= min_lines DISTINCT lines of the window.
+    Distinctive = at least 2 non-stopword tokens (so 'and then i just' never flags). Counted
+    once per line (a single rambly line can't self-flag). Longest variant of a tic wins;
+    contained sub/super-phrases are deduped. Returns [] when she's varying naturally."""
+    from collections import Counter
+    seen_in_lines = Counter()
+    for line in lines or ():
+        toks = _tokens(line)
+        grams = set()
+        for n in (3, 4, 5):
+            for i in range(len(toks) - n + 1):
+                g = toks[i:i + n]
+                if sum(1 for w in g if w not in _TIC_STOP) >= 2:
+                    grams.add(" ".join(g))
+        for g in grams:
+            seen_in_lines[g] += 1
+    hits = [(g, c) for g, c in seen_in_lines.items() if c >= min_lines]
+    hits.sort(key=lambda gc: (-gc[1], -len(gc[0])))          # most-recurrent, then longest form
+    out = []
+    for g, _c in hits:
+        if any(_gram_overlap(g, o) for o in out):            # one entry per tic, not per window slice
+            continue
+        out.append(g)
+        if len(out) >= max_phrases:
+            break
+    return out
+
+
+def _gram_overlap(a: str, b: str, k: int = 3) -> bool:
+    """Two flagged grams are the SAME tic when one contains the other or they share a >=k-token
+    seam (the n-gram window slices one long tic into overlapping fragments)."""
+    if a in b or b in a:
+        return True
+    ta, tb = a.split(), b.split()
+    for n in range(min(len(ta), len(tb)), k - 1, -1):
+        if ta[-n:] == tb[:n] or tb[-n:] == ta[:n]:
+            return True
+    return False
+
+
+def tic_ban_block(lines, min_lines: int = TIC_MIN_LINES) -> str:
+    """The HARD-BAN directive for detected tics — no self-aware escape hatch (that's the
+    ban-evasion she plays). '' when no phrase is overused."""
+    phrases = overused_phrases(lines, min_lines=min_lines)
+    if not phrases:
+        return ""
+    body = "; ".join(f'"{p}"' for p in phrases)
+    return (
+        "[RETIRED PHRASES — you've leaned on these too many times recently: " + body + ". "
+        "Do not use them or close variants, and do NOT joke about avoiding them ('I almost "
+        "said—', 'you know what I'm not allowed to say') — no meta, no winking. Just express "
+        "the thought in genuinely fresh words.]"
+    )
+
+
 def avoidance_block(recent, n: int = REPEAT_WINDOW) -> str:
     """The PROACTIVE directive: list her most-recent lines and tell her to vary — preferring
     self-aware acknowledgement over verbatim repetition. '' when there's nothing recent to guard.
