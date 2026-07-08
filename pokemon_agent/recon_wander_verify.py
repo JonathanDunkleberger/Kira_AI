@@ -14,6 +14,8 @@ if _HERE not in sys.path:
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
 os.environ["POKEMON_NAV_TRIPWIRE_S"] = "1"          # trip fast for the verify
+os.environ["POKEMON_CAMPAIGN_DIR"] = os.path.join(  # sandbox ALL campaign-dir writes
+    os.environ.get("TEMP", _HERE), "longrun", "voidcore_probe", "campaign_sandbox")
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except Exception:

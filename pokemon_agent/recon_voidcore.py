@@ -32,6 +32,10 @@ if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+# sandbox ALL campaign-dir writes (incl. escape-hatch pre_reload backups — they leaked into the
+# real states/campaign on the first runs); must be set BEFORE campaign is imported.
+os.environ["POKEMON_CAMPAIGN_DIR"] = os.path.join(
+    os.environ.get("TEMP", _HERE), "longrun", "voidcore_probe", "campaign_sandbox")
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
@@ -71,6 +75,10 @@ def main():
         b.load_state(f.read())
     for _ in range(60):
         b.run_frame()
+    # boot-drain (mimic play_live's resume): the HoF bank can hold a live textbox — a raw load
+    # leaves it up and the building-exit then fails ONLY in the harness (QW-4 passed live).
+    for _ in range(10):
+        b.press("B", 6, 8)
     L(f"boot banked_CREDITS: map={tv.map_id(b)} coords={tv.coords(b)} "
       f"party={b.rd8(ram.GPLAYER_PARTY_CNT)} frame={b.frame}")
 

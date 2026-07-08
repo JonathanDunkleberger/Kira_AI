@@ -5660,6 +5660,17 @@ class Campaign:
             else:
                 log(f"   [roam] !! NO-MOVE: dead routes {sorted(removable)} but they're the only options "
                     f"left — NOT pruning (won't dead-end her); strategic-stuck/macro recovery will carry it")
+        # NEVER-EMPTY FLOOR (2026-07-08 soak finding): an EMPTY set ends free roam — on a live watch
+        # that stops her cold mid-show (hit on the post-game victory lap at an unfamiliar strip: no
+        # grass target, no known travel routes, no gym objective). There is always ONE honest move:
+        # regroup at a Center (the heal excursion routes cross-region from anywhere, and from that
+        # known anchor real options re-emerge next tick). Pre-credits this floor is naturally dormant
+        # (head_to_gym is always offered while a next gym exists).
+        if not a:
+            a["heal"] = ("nothing obvious to do from this spot — regroup: head to the nearest "
+                         "Pokémon Center and take stock from there")
+            log("   [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering "
+                "the regroup-at-Center anchor so the roam never dead-ends")
         return a
 
     def _item_target(self, state):
