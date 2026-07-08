@@ -122,6 +122,22 @@ INDOOR_MUSE = (
     "quiet in here — just the hum of the building around you",
     "you take the room in for a second, getting your bearings",
 )
+# F-8 GROUNDED PERCEPTION, round 2 (2026-07-08 night): group 1 (pret gMapGroup_Dungeons,
+# data/maps/map_groups.json) is NOT all caves — it also holds the S.S. Anne (a ship), Rocket
+# Hideout / Silph Co / the Mansion / Pokémon Tower / Power Plant (buildings), the E4 rooms +
+# Hall of Fame (halls), and the open-air Safari Zone. The old "group 1 = cave" rule seeded
+# "the cave presses in close" INSIDE Lorelei's room — same confabulation class as the Oak's-lab
+# bug this constant fixed. Classify by map NUMBER within group 1 (indices straight from the
+# disasm list, Victory Road 39-41 + E4 75-80 + Cerulean Cave 72-74 all cross-checked against
+# live RAM). Portability debt: FireRed-specific numbers — move to gamedata/ when the KB grows.
+G1_CAVES = (set(range(1, 4))       # Mt Moon 1F/B1F/B2F
+            | {31, 34}             # Underground Path tunnels (the huts 30/32/33/35 are buildings)
+            | set(range(36, 42))   # Diglett's Cave + Victory Road 1-3F
+            | set(range(72, 75))   # Cerulean Cave 1F/2F/B1F
+            | {81, 82}             # Rock Tunnel
+            | set(range(83, 88)))  # Seafoam Islands
+G1_OUTDOOR = ({0} | set(range(63, 67))  # Viridian Forest + the Safari Zone areas (open air)
+              | {4, 9})                 # S.S. Anne exterior + deck — open air on the water
 ROAD_MUSE = (
     "the route opens up ahead, grass swaying at the edges of the path",
     "you walk on under open sky, the next town somewhere past the horizon",
@@ -134,9 +150,11 @@ def _muse_seed(b, i):
         mp = map_id(b)
         if mp in PLACE_MUSE:
             seeds = PLACE_MUSE[mp]
-        elif mp[0] == 1:                 # gMapGroup_Dungeons — real caves/tunnels only
+        elif mp[0] == 1 and mp[1] in G1_CAVES:   # a REAL cave (see G1_CAVES — group 1 is mixed)
             seeds = CAVE_MUSE
-        elif mp[0] != 3:                 # any other non-overworld group -> a building interior
+        elif mp[0] == 1 and mp[1] in G1_OUTDOOR:  # Viridian Forest / Safari Zone — open air
+            seeds = ROAD_MUSE
+        elif mp[0] != 3:                 # any other non-overworld map -> a building interior
             seeds = INDOOR_MUSE
         else:
             seeds = ROAD_MUSE

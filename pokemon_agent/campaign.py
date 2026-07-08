@@ -2102,12 +2102,33 @@ class Campaign:
         (3, 3): "Cerulean City", (3, 4): "Lavender Town", (3, 5): "Vermilion City",
         (3, 6): "Celadon City", (3, 7): "Fuchsia City", (3, 8): "Cinnabar Island",
         (3, 9): "Indigo Plateau", (3, 10): "Saffron City",
-        (3, 19): "Route 1", (3, 20): "Route 2", (3, 21): "Route 3", (3, 22): "Route 4",
-        (3, 23): "Route 5", (3, 24): "Route 6",
+        # F-8 round 2 (2026-07-08 night): FULL-ROPE name coverage, indices from the pret disasm
+        # map_groups.json cross-checked against live RAM (Route 12=(3,30) matched banked_SNORLAX;
+        # Victory Road / E4 / Cerulean Cave numbers matched the live-verified seeds). Route N =
+        # (3, 18+N) holds through Route 20; Route 21 splits north/south, shifting 22-25 by one.
+        # Kills the "an unfamiliar area" reads across the whole descent (unknown-place framing is
+        # for genuinely new ground, not for roads she's already crossed).
+        **{(3, 18 + n): f"Route {n}" for n in range(1, 21)},
+        (3, 39): "Route 21", (3, 40): "Route 21",
+        (3, 41): "Route 22", (3, 42): "Route 23", (3, 43): "Route 24", (3, 44): "Route 25",
+        (1, 0): "Viridian Forest",
+        (1, 1): "Mt. Moon", (1, 2): "Mt. Moon B1F", (1, 3): "Mt. Moon B2F",
+        **{(1, n): "the S.S. Anne" for n in range(4, 30)},
+        **{(1, n): "the Underground Path" for n in range(30, 36)},
+        **{(1, n): "Diglett's Cave" for n in range(36, 39)},
         (1, 39): "Victory Road", (1, 40): "Victory Road 2F", (1, 41): "Victory Road 3F",
-        (1, 74): "Cerulean Cave", (1, 75): "Lorelei's Room", (1, 76): "Bruno's Room",
+        **{(1, n): "the Rocket Hideout" for n in range(42, 47)},
+        **{(1, n): "Silph Co." for n in range(47, 59)},
+        **{(1, n): "the Pokémon Mansion" for n in range(59, 63)},
+        **{(1, n): "the Safari Zone" for n in range(63, 72)},
+        (1, 72): "Cerulean Cave", (1, 73): "Cerulean Cave 2F", (1, 74): "Cerulean Cave B1F",
+        (1, 75): "Lorelei's Room", (1, 76): "Bruno's Room",
         (1, 77): "Agatha's Room", (1, 78): "Lance's Room", (1, 79): "the Champion's Room",
         (1, 80): "the Hall of Fame",
+        (1, 81): "Rock Tunnel", (1, 82): "Rock Tunnel B1F",
+        **{(1, n): "Seafoam Islands" for n in range(83, 88)},
+        **{(1, n): "Pokémon Tower" for n in range(88, 95)},
+        (1, 95): "the Power Plant",
         # Pallet interiors (group 4 — quiet-window rehearsal finding #4: the FIRST grudge beat read
         # "at an unfamiliar area" because Oak's lab had no name; these are the opening's stage).
         (4, 0): "home", (4, 1): "her bedroom", (4, 2): "Gary's house", (4, 3): "Oak's lab",
@@ -2190,6 +2211,56 @@ class Campaign:
         Returns an int, or None pre-game. So she can answer on demand — incl. when chat asks (the mode
         exposes the read; the chat-Q&A wire to core is a thin pull, firewall-safe)."""
         return ram.pokedex_owned_count(self.b)
+
+    # ── F-8 GROUNDED PERCEPTION (the descent) — the LOCATION CONTEXT BLOCK ──────────────────────
+    # Every soul tick (and every want ask) now LEADS with a grounded where-am-I line built ONLY
+    # from live reads: map GROUP is the indoor/outdoor truth (group 3 = TownsAndRoutes under open
+    # sky, group 1 = gMapGroup_Dungeons = the only real caves, anything else = a building
+    # interior), grass from the live Grid, town/Mart/Center from the world-model's curated seeds +
+    # live-confirmed visits. This is the decision-side half of the F-8 fix (travel's _muse_seed was
+    # the harness half): her oracle can no longer confabulate a cave inside Oak's lab, and an
+    # UNKNOWN place explicitly tells her she doesn't know it — impressions stay curiosity or
+    # questions, never asserted facts (the confabulation killer).
+    _LOC_GROUP_DUNGEONS = 1        # pret gMapGroup_Dungeons — the only group that is truly a cave
+    _LOC_GROUP_OVERWORLD = 3       # TownsAndRoutes — the only group under open sky
+
+    def _location_block(self, state):
+        mp = tuple(state["map"])
+        place = state["place"]
+        known = mp in self._PLACE_NAMES
+        # group 1 is MIXED (caves + ships + towers + the open-air Safari Zone) — classify by
+        # map number via travel's disasm-grounded tables, never by group alone (the Hall-of-Fame-
+        # as-cave bug this replaced).
+        if (mp[0] == self._LOC_GROUP_OVERWORLD
+                or (mp[0] == self._LOC_GROUP_DUNGEONS and mp[1] in tv.G1_OUTDOOR)):
+            setting = "outdoors under open sky"
+        elif mp[0] == self._LOC_GROUP_DUNGEONS and mp[1] in tv.G1_CAVES:
+            setting = "underground in a real cave — rock, gloom, echoes"
+        else:
+            setting = "indoors, inside a building (rooms and doors — NOT a cave)"
+        bits = []
+        try:
+            node = self.world.nodes.get(f"{mp[0]},{mp[1]}") or {}
+            tr = node.get("traits", {}) or {}
+            if tr.get("is_town"):
+                has = [n for f, n in (("has_pokecenter", "a Pokémon Center"),
+                                      ("has_mart", "a Mart")) if tr.get(f)]
+                bits.append("a town" + (f" with {' and '.join(has)}" if has else ""))
+            elif tr.get("is_route"):
+                bits.append("an open route")
+        except Exception:
+            pass
+        if state.get("on_grass_map"):
+            bits.append("tall grass around — wild Pokémon live in it")
+        detail = "; ".join(bits)
+        if known:
+            prep = ("on" if place.startswith("Route")
+                    else "at" if place in ("home",) else "in")
+            return (f"You're {prep} {place} — {setting}"
+                    + (f" ({detail})" if detail else "") + ".")
+        return (f"You're {setting}, somewhere you DON'T recognize — you have no name for this "
+                "place yet. Only claim what you can actually see; everything else stays a guess "
+                "or a wondering-out-loud, never a stated fact.")
 
     # ── GENERAL gym-trainer gauntlet (a gym LEADER is gated behind the junior trainers) ──────────
     _OB, _SZ = 0x02036E38, 0x24
@@ -6640,14 +6711,17 @@ class Campaign:
                 log("   [roam] no honest action available here — ending free roam"); break
             if self.soul is not None and (tick == 1 or tick % want_every == 1):
                 log(f"   [soul] surface_want FIRE -> {state['place']}")
-                self.soul.surface_want({"place": state["place"], "map": state["map"],
+                self.soul.surface_want({"place": self._location_block(state), "map": state["map"],
                                         "badges": state["badges"], "progress": state["progress"],
                                         "party": self._party_brief(state),     # PHASE 1: team by NAME
                                         "goal": self._goal_layers(state)})      # PHASE 1: 3-tier goal
             # On YELLOW+, fold STUCK-AWARENESS into the oracle ctx via the existing `place` seam (the
             # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
             # she's stuck; she still decides the next move HERSELF (capability-not-script).
-            where = state["place"]
+            # F-8 (the descent): the tick ctx LEADS with the grounded location block, not the bare
+            # place name — indoor/outdoor truth + only live-confirmed traits, so nothing downstream
+            # (her voiced pick, the want, the asides) starts from an ungrounded sense of place.
+            where = self._location_block(state)
             # Batch-WORLD (Phase 2) — SENSE OF PLACE: lead the oracle ctx with a short spatial picture
             # from her visited-world memory (where she is, what's around, what's BLOCKED, what she can
             # walk back to, how she can travel). This is the MAP she never had — so when a path is
