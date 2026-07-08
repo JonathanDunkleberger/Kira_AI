@@ -53,6 +53,39 @@ she's Champion in "the Hall of Fame"), but whether she autonomously WALKS OUT of
 one thing the summit watch must confirm (residual fix scoped = a post-game "exit league → Cerulean Cave"
 objective). Pre-credits spawns have normal gym objectives and won't strand.
 
+### ── 2026-07-07 NIGHT SHIFT #1 (completion mandate) — PHASES C+E BANKED; G-1 PREFETCH; LIVE-VERIFY PARKED ──
+**Commits 70632fd · c0df5d9 · 6454008 · a176b9f · fe21477.** All offline-verifiable pieces VERIFIED; every
+live verify PARKED on the quiet window (run.py launched ~21:30 engaged a PRESENT Jonny — killed on his
+voiced request; see NIGHT_REPORT top block + memory night-shift-bot-launch-etiquette. Check :8766 + desk
+presence before ANY unattended bot boot).
+- **C-1 dialogue first-timer + intel (WIRED, live-verify owed):** CORE `_pokemon_react` kind= + READING
+  register + `recap` register; control_server passes body.kind. Mode: dialogue_hints.py ledger (unit-
+  verified + resume round-trip) → DialogueDriver.line_sink tap → decision-ctx fold after spine; optional
+  sidecar (sanctity/promote/watch — old banks stay VALID).
+- **C-2 unmet-teammate intro (VERIFIED offline, sandbox tick):** ground truth = LAPRAS IS IN THE PARTY
+  (slot 5), not Bill's PC → baseline intro fires once for unbonded GIFT_BACKSTORY members; other unbonded
+  veterans (venusaur/fearow/raticate — sparse/stale bonds) backfill silently. PID-diff watcher for future
+  arrivals; reunion-vs-intro via bonds.
+- **C-3 Name Rater (dry-VERIFIED):** recon_name_rater.py, pret-grounded (House2 (10,16), stand (4,5) face
+  UP, YESNO→ChoosePartyMon→YESNO→keyboard=name_entry only, never blind-A). Found the real AAAAAAAAAA ace.
+  Live walk+keyboard needs eyes.
+- **POST-GAME COHERENCE (VERIFIED offline):** spine/goals/arc never tell the Champion "E4 next";
+  `leave_building` action (post-game-gated) = the summit-strand scoped fix, offered in the Hall.
+- **C-4:** harness lessons 35-39 (ability layer, PP-convergence, gauntlet-reset, bounce window, order
+  law) + summit addendum; 161 one-shot recon_* pruned; ramdiff.py committed; **repo-root states/ is
+  LOAD-BEARING (core journey), gitignored not deleted** (NEXT_SESSION had mislabeled it).
+- **E THE GO BUTTON (refusal + recap + rails VERIFIED; 10-min throwaway spin owed):**
+  `python pokemon_agent/go.py` [--fresh|--throwaway]. Preflights :8766 (refuses soul-blind, exit 2);
+  Sherpa canonical physically unwritable (campaign redirected to scratch); --throwaway sandboxes BOTH
+  lineages (new POKEMON_KIRA_DIR); cold-open recap POST (kind=recap → CORE recap register). NOTE:
+  states/kira holds a June segment run (seg_cascade_badge) — bare GO resumes IT; timeline-2 = `--fresh`.
+- **G-1 LATENCY (measured + first fix, VERIFIED offline):** real chain 3860ms voice-close→audio
+  (vad 1200 by-design | stt 1352 | ttft 1055 | tts_first 739 | audio_out 594) + 175-354ms inter-sentence
+  gaps; root = full-sentence blocking synth, strictly serial. Shipped **KIRA_TTS_PREFETCH (DEFAULT OFF)**
+  synth-ahead pipeline (rails preserved; stub-verified overlap + clean interrupt). Live A/B = flip flag,
+  watch [LATENCY]. Remaining hops parked: adaptive vad_close (VAD = minefield, flag-only), Azure chunked
+  streaming (big blast radius), perception-lock contention (unmeasured this session).
+
 ### ── 2026-07-07 20:04 — 🏆 THE CREDITS ROLLED (night shift #18, e4_run23 lap 2) ──
 **CANONICAL = hall_of_fame (PROMOTED, sanctity VALID, backup pre_hall_of_fame_backup_20260707_200544):
 map (1,80) Hall of Fame, Venusaur L95 last-mon-standing at 7/250, credits sequence drained on-screen.**

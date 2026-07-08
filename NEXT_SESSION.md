@@ -15,7 +15,30 @@ first. The CEO then STACKED the FULL COMPLETION MANDATE below — phases C-remai
 Work them in order unless a needs-eyes dependency forces a swap; bank each phase with a
 commit + one STATE §0 line; never stop at a milestone.
 
-## FRONTIER (rewritten live, night shift 1, 2026-07-07 ~21:45)
+## FRONTIER (rewritten at shift-1 close, 2026-07-07 ~22:40 — full detail in STATE §0 top block)
+**DONE this shift (commits 70632fd·c0df5d9·6454008·a176b9f·fe21477):** C-1 (dialogue register +
+intel ledger), C-2 (unmet-teammate intro — NOTE: Lapras is IN the party, sandbox-verified), C-3
+(Name Rater, pret-grounded, dry-verified), C-4 (harvest 35-39 + 161 one-shots pruned), E (go.py —
+refusal/rails/recap verified), G-1 (latency measured off real logs + KIRA_TTS_PREFETCH default-OFF
+pipeline, stub-verified), post-game coherence + leave_building (the summit-strand fix).
+
+**THE QUIET-WINDOW VERIFY QUEUE (first thing when the bot can run without surprising Jonny —
+check :8766 + desk presence FIRST, memory night-shift-bot-launch-etiquette):**
+1. Boot bot → `watch.py --at pre-e4 --headless` → grep bot log `READING register` + play_live
+   `[hints] +` (C-1) → kill tree.
+2. `go.py --throwaway` 10-min spin (bedroom→Oak→starter voiced) → transcript to needs-eyes item 2.
+3. Flip `KIRA_TTS_PREFETCH=1` → one conversation → compare [LATENCY] + inter-sentence gaps → if
+   clean, propose default-ON to Jonny.
+4. A summit watch: does she pick `leave_building` and walk out? (post-game arc now coherent.)
+
+**NEXT BUILD WORK (in order):** G-1 remaining hops (perception-lock contention measurement; Azure
+chunked streaming = design first, big blast radius; vad_close = flag-only, NEVER touch VAD
+semantics) → G-2 conversation restraint/reject-with-reason (core, flag-gated) → G-3 cold-open/
+callbacks (recap register exists; extend to non-Pokémon sessions) → Phase I-1 mode-transition
+audit (recon first: memory 'next-chapter chat-vs-game balance' — Activity Director pieces exist
+unwired; NO parallel v2). Phase F waits on Jonny's notes.
+
+### shift-1 detail (superseded by the block above; kept for context)
 - **C-1 DIALOGUE FIRST-TIMER + HINT EXTRACTION: BUILT + COMPILED, live-verify PARKED.**
   Core touches (loud-log): `bot.py _pokemon_react` gained `kind=` + a READING-register ask
   (kind=='dialogue' or 'you read:'/'gym leader says' prefix fallback); `control_server.py`
