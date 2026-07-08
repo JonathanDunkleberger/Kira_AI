@@ -1507,7 +1507,43 @@ class AI_Core:
                 f'{body}'
                 f'</voice></speak>')
 
-    async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False):
+    async def _synth_azure_only(self, text: str):
+        """SYNTH-ONLY Azure round-trip (no playback, no gates): returns
+        (audio_data, word_timings) or None on any failure/non-Azure config.
+        Used by the flag-gated KIRA_TTS_PREFETCH streaming pipeline so sentence
+        N+1 can synthesize WHILE sentence N plays (the measured 175-354ms
+        inter-sentence gap + part of the ~1.3s to first audio). Mirrors the
+        inline Azure branch exactly (same lock, same word-buffer snapshot, same
+        health tracking); never raises — a None simply falls back to the normal
+        inline synth in _speak_single."""
+        try:
+            if self.tts_backend == "fish" or TTS_ENGINE != "azure" or not self.azure_synthesizer:
+                return None
+            if VOICE_EMOTION_ENABLED:
+                ssml = self._build_emotion_ssml(text)
+            else:
+                ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                        f'<voice name="{AZURE_SPEECH_VOICE}">'
+                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                        f'</voice></speak>')
+            async with self._azure_tts_lock:
+                self._azure_word_buffer = []
+                self._last_azure_speak_time = time.time()
+                result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                    audio_data = result.audio_data
+                    word_timings = list(self._azure_word_buffer)
+                else:
+                    print(f"   TTS Fail (prefetch): {result.cancellation_details.error_details}")
+                    return None
+            self._track_word_event_health(text, len(word_timings))
+            return (audio_data, word_timings)
+        except Exception as e:
+            print(f"   [TTS] prefetch synth error ({e}) — falling back to inline synth")
+            return None
+
+    async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False,
+                            preloaded=None):
         """Pure synthesis-and-playback for a single text block. Does NOT manage
         is_speaking or interruption_event — caller is responsible. Used by both
         speak_text (single shot) and speak_streaming (per-sentence dispatch).
@@ -1519,7 +1555,11 @@ class AI_Core:
         already_gated: True when the caller (speak_streaming) already holds the
             speech gate for the whole logical turn. Skips per-sentence
             acquire/release so a lower-priority line can't wedge itself BETWEEN
-            the sentences of one streamed voice reply."""
+            the sentences of one streamed voice reply.
+        preloaded: optional (audio_data, word_timings) from _synth_azure_only —
+            the KIRA_TTS_PREFETCH pipeline. Consumed only AFTER every text rail
+            (tag-strip, content backstop, self-echo record) has run on the text,
+            so preloaded audio obeys the same guardrails as inline synth."""
         if not text:
             return
         if self.interruption_event.is_set():
@@ -1574,7 +1614,12 @@ class AI_Core:
             # the queue drains instead of synthing stale audio.
             if self.interruption_event.is_set():
                 return
-            if self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
+            if preloaded is not None:
+                # KIRA_TTS_PREFETCH: audio was synthesized ahead (while the previous sentence
+                # played). Text rails above already ran; just adopt the audio + timings.
+                audio_data, word_timings = preloaded
+                print(f"   [TTS] backend=azure (prefetched)")
+            elif self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
                 # ---- Fish Audio streaming path ----
                 # Runs in a thread because the SDK's .tts() is a blocking generator.
                 # No word-boundary timing available from Fish; degrade to single-frame
@@ -1728,6 +1773,41 @@ class AI_Core:
         # wedging itself BETWEEN the sentences of one streamed voice reply.
         _gate_held = False
 
+        # ── KIRA_TTS_PREFETCH (Phase G-1 latency, DEFAULT OFF) ────────────────────────
+        # Measured 2026-07-07 ([LATENCY] line): sentences play strictly serially — synth
+        # of N+1 waits for N's playback to finish (175-354ms dead gap per boundary, plus
+        # the full first-sentence synth inside the ~1.3s to first audio). Flag ON routes
+        # per-sentence playback through a queue player: each sentence's Azure synth task
+        # starts the moment its text is complete, so it synthesizes WHILE the previous
+        # sentence plays; playback order is preserved by the single player. A failed/
+        # non-Azure prefetch (None) falls back to inline synth in _speak_single — same
+        # rails, same audio, just not overlapped. One-variable revert: unset the flag.
+        _prefetch = os.getenv("KIRA_TTS_PREFETCH", "0") == "1"
+        _pq = asyncio.Queue() if _prefetch else None
+        _player_task = None
+
+        async def _player():
+            while True:
+                item = await _pq.get()
+                if item is None:
+                    return
+                _ptext, _synth = item
+                try:
+                    _pre = await _synth
+                except Exception:
+                    _pre = None
+                await self._speak_single(_ptext, priority=priority, is_stream=True,
+                                         already_gated=True, preloaded=_pre)
+
+        async def _dispatch(cleaned):
+            nonlocal _player_task
+            if not _prefetch:
+                await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                return
+            if _player_task is None:
+                _player_task = asyncio.create_task(_player())
+            _pq.put_nowait((cleaned, asyncio.create_task(self._synth_azure_only(cleaned))))
+
         try:
             async for chunk in stream_generator:
                 if self.interruption_event.is_set():
@@ -1772,7 +1852,7 @@ class AI_Core:
                             if not _gate_held:
                                 await self._acquire_speech_gate(priority)
                                 _gate_held = True
-                            await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                            await _dispatch(cleaned)
                             if self.interruption_event.is_set():
                                 return full_text
 
@@ -1789,10 +1869,18 @@ class AI_Core:
                     if not _gate_held:
                         await self._acquire_speech_gate(priority)
                         _gate_held = True
-                    await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                    await _dispatch(cleaned)
         except Exception as e:
             print(f"   [Streaming] Error during stream consumption: {e}")
         finally:
+            # PREFETCH: drain the player BEFORE releasing the gate — every queued sentence
+            # plays (or is skipped by the interruption check) inside this logical turn.
+            if _player_task is not None:
+                try:
+                    _pq.put_nowait(None)
+                    await _player_task
+                except Exception as _pe:
+                    print(f"   [Streaming] prefetch player drain error: {_pe}")
             if _gate_held:
                 self._release_speech_gate()
             self.last_speech_finish_time = time.time()
