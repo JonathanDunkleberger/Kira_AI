@@ -87,12 +87,38 @@ BEFORE banking. The two-bucket firewall holds: mode-state behind the toggle, ide
 Every core touch is logged loudly in the survey — a core edit that ships silent is a
 violation even if correct. Kill-tests (rule 17) at every new banked capability.
 
+## PHASE I — THE ONE-KIRA MODE MATRIX (Tier 2 addendum, same terms as E–H)
+Audit and IMPLEMENT her single coherent self expressing across every context: cohosting
+(per-game tonal range — slow-burn stealth like Hitman vs. spectacle like GTA vs. story like
+Pragmata), playing-herself (Pokémon), watch-party (anime episode vs. movie vs.
+music-while-Jonny-codes ambient companionship), and idle-chat. Modes are CLOTHING, not
+beings (the One-Kira firewall is the spec here, not just the constraint). Deliverables:
+1. **MODE-TRANSITION AUDIT** — she never resets personality across a mode switch; callbacks,
+   opinions, and running jokes CARRY (trace the actual context assembly per mode, find every
+   seam where memory/opinions/callbacks drop on a switch, fix them). Pokémon mode-state stays
+   behind its toggle (rule 12) — carrying HER is not carrying the party.
+2. **THE ATTENTION DIRECTOR** — a focus-state machine (roam / action / boss / crisis / lull /
+   ambient) driving her speech rate and chat-sampling per mode, and she NARRATES her own
+   attention shifts in character ("ok this fight looks serious, chat — one sec"). Extends the
+   existing Activity Director / governor pieces (recon first — activity-aware governance
+   pieces exist unwired, see memory 'next-chapter chat-vs-game balance'); don't build a
+   parallel v2.
+3. **MEDIA-PACING RESTRAINT PROFILES** — movie / anime / music each get a timing model
+   DISTINCT from game cohosting: silence is golden during scenes; riff windows open at cuts,
+   credits, and lulls. (The perception path — vision + loopback — is the heart of watch-party;
+   pacing is what makes it companionship instead of interruption.)
+EXIT CRITERION: Jonny runs one 15-minute session in THREE different modes and she is
+recognizably the SAME PERSON with mode-appropriate behavior in each. That tri-mode session =
+needs-eyes ledger item 5.
+
 ## NEEDS-EYES LEDGER (the ONLY loop-stoppers; everything else Rule 16)
 1. **Jonny's watch-session notes** (pending tonight/tomorrow) → feeds Phase F.
 2. **GO-button throwaway review** — after Phase E's 10-min throwaway verify, surface the
    result (transcript + what she said at the starter choice) for his sanity check.
 3. **Cohost smoke session** (Phase G exit) — he runs it, 20 min.
 4. **Final showtime sign-off** — the Kira timeline launch is HIS press, always.
+5. **Tri-mode session** (Phase I exit) — he runs 15 min across THREE modes; same person,
+   mode-appropriate behavior in each.
 Also still true: the SUMMIT-WATCH strand check (does she walk OUT of the Hall of Fame or
 idle?) rides needs-eyes item 1 — post-game detect+naming shipped; if she idles, the scoped
 fix is a post-game "exit league → heal → Cerulean Cave" objective (team is 1/6 from the
