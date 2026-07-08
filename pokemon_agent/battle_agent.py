@@ -1471,11 +1471,13 @@ class BattleAgent:
     # Until the phantom-A fix (a463055), an incidental A confirmed the "Choose a POKéMON" menu
     # so the switch "just happened"; with input clean it must be navigated explicitly. None of
     # the party=1 regression fixtures exercised this, so the fix exposed it. Now buildable.
-    def _healthy_reserve_slot(self):
-        """First party slot with current-HP > 0, or None. Party current-HP is UNencrypted at
-        +0x56 in the 100-byte party struct (level is at +0x54, used elsewhere)."""
+    def _healthy_reserve_slot(self, skip=()):
+        """First party slot with current-HP > 0 (not in `skip`), or None. Party current-HP is
+        UNencrypted at +0x56 in the 100-byte party struct (level is at +0x54, used elsewhere)."""
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         for s in range(min(cnt, 6)):
+            if s in skip:
+                continue
             if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) > 0:
                 return s
         return None
@@ -1568,7 +1570,10 @@ class BattleAgent:
         slot = self._healthy_reserve_slot()
         if slot is None:
             return False
-        for _attempt in range(6):
+        _tried = set()                                    # targets that failed 2x -> rotate past them
+        _fails = {}                                       # (run10 Bruno churn: a pinned impossible
+        #                                                    target looped forever; rotation resolves)
+        for _attempt in range(8):
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0:
                 return True                               # a healthy mon is active -> switched
@@ -1580,8 +1585,32 @@ class BattleAgent:
             # is safe and makes every retry start from the list.
             self.b.press("B", 2, 12, self.render, owner=self.owner)
             self._wait(14)
+            # RE-EVALUATE the target each attempt (a mid-flow revive changes the party), skipping
+            # targets that already failed twice; all skipped -> wipe the ledger and start over.
+            slot = self._healthy_reserve_slot(skip=_tried)
+            if slot is None:
+                _tried.clear()
+                slot = self._healthy_reserve_slot()
+                if slot is None:
+                    return False
             _disp = self._battle_display_slot(slot)       # party index -> DISPLAY position
-            if _attempt < 4:
+            if _disp == 0:
+                # display 0 = the ACTIVE battler's own panel — NEVER a valid send-out target.
+                # The order read is stale/contradictory here (run10 Bruno churn) -> distrust it,
+                # use the identity mapping (the pre-display-order behavior, months of fights).
+                self.log(f"   [engine] fswitch: order maps slot {slot} to display 0 (the active "
+                         f"panel) — contradiction, using identity mapping")
+                _disp = slot
+            if _attempt >= 1:                             # retry forensics (run10 Bruno churn):
+                _hps = [self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) for s in range(6)]
+                _ord = [self.b.rd8(ram.GBATTLE_PARTY_ORDER + i) for i in range(3)]
+                self.log(f"   [engine] fswitch retry {_attempt}: target slot {slot} disp {_disp} "
+                         f"party_hp={_hps} order_bytes={[hex(v) for v in _ord]}")
+                self._debug_snap(f"fswitch_retry{_attempt}")
+            _fails[slot] = _fails.get(slot, 0) + 1
+            if _fails[slot] > 2:
+                _tried.add(slot)
+            if _attempt < 5:
                 if not self._party_goto_slot(_disp):
                     self.log(f"   [engine] fswitch: cursor readback couldn't reach party slot {slot} "
                              f"(display {_disp}, cursor={self._party_cursor_slot()}) -> drain a beat, retry")

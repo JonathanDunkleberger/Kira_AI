@@ -12,8 +12,11 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run7+ IN FLIGHT
-(logs logs/longrun/e4_runN.log). THE CREDITS ARE THE NEXT BANK.**
+⚔️ **SHIFT-13 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` e4_run10+ IN FLIGHT
+(logs logs/longrun/e4_runN.log) with the FULL fix stack (cb2 liveness, display-order
+walks, dirty-screen famine guard, revive/ether instincts + a chooser that PICKS them —
+run9 died at Bruno because the vehicle chooser declined 6 revive offers, fixed 85190d0).
+THE CREDITS ARE THE NEXT BANK.**
 FIRST MOVE: check for a live python process + read the newest e4_runN.log END.
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
