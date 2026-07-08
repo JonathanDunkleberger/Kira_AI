@@ -339,6 +339,7 @@ class Grid:
         # must EXCLUDE them or BFS routes across ponds (the shore-treadmill wedge class).
         # field_moves.surf_edge_adjacent reads this set to know Surf is offerable.
         self.col, self.grass, self.ledge, self.impass, self.water = {}, set(), {}, {}, set()
+        self.spin = set()
         self.elev = {}
         for by in range(self.h):
             row = mp + by * self.w * 2
@@ -361,6 +362,10 @@ class Grid:
                         self.impass[(bx, by)] = bh               # buffer-coord -> directional wall
                     elif bh in SURFABLE_WATER:
                         self.water.add((bx, by))                 # buffer-coord -> surfable water
+                    elif 0x54 <= bh <= 0x57:
+                        self.spin.add((bx, by))                  # forced-slide spinner (spin_nav's
+                        #                                          MB_SPIN_*; BFS reads them as plain
+                        #                                          floor, so plans DIVERGE on contact)
         # playable save-coord bounds (exclude the 7-tile border on every side)
         self.sx_lo, self.sx_hi = 0, self.w - 2 * MAP_OFFSET - 1
         self.sy_lo, self.sy_hi = 0, self.h - 2 * MAP_OFFSET - 1
@@ -502,9 +507,15 @@ class Traveler:
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
                  log=print, owner="agent", beat=None, pause_check=None, stuck_check=None,
-                 blocked_npcs=None, field_clear=None, on_transition=None):
+                 blocked_npcs=None, field_clear=None, on_transition=None, spin_assist=None):
         self.b = bridge
         self.battle_runner = battle_runner
+        # SPIN-FLOOR ASSIST (2026-07-08 shift 5, the field_clear pattern): campaign-provided
+        # callback `spin_assist(tile) -> bool` — on a spinner floor the walk BFS either reads
+        # no_route (pockets crossed only by forced slides) or diverges the instant a plan
+        # touches a spinner; the wedge guard hands the leg to spin_nav's glide crosser ONCE
+        # before surfacing. None = surface the wedge exactly as before.
+        self.spin_assist = spin_assist
         # CAPABILITY-IN-HAND obstacle clearing (east run 1): campaign-provided callback
         # `field_clear(hm_key, face_key) -> 'used'|...` — when the chokepoint blocker is a cut
         # tree / boulder and the party KNOWS the HM, travel clears it in-leg instead of
@@ -700,6 +711,7 @@ class Traveler:
         fp_stall = 0
         last_fp = None
         npc_block_seen = False     # set at the no_path==4 probe: did an NPC-allowing path exist?
+        spin_assist_tried = False  # the glide-crosser hand-off fires at most once per leg
         self.last_fail_reason = ""
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
@@ -1078,6 +1090,21 @@ class Traveler:
                 # minutes. Fires AFTER the no_path==4 gauntlet probe, so a real trainer-on-the-gap has
                 # already started a battle (which moves the fingerprint and resets this).
                 if fp_stall >= wf.TRAVEL_STALL_RETRIES:
+                    # SPIN-FLOOR ASSIST (shift 5): both spinner failure modes end here — hand
+                    # the leg to the glide crosser ONCE before surfacing the wedge. Success =
+                    # she crossed pockets; reset the counters and let the leg re-plan.
+                    if (self.spin_assist is not None and not spin_assist_tried
+                            and grid.spin and arrive_coord is not None):
+                        spin_assist_tried = True
+                        self.log(f"   [travel] spinner floor ({len(grid.spin)} tiles) + wedge -> "
+                                 f"glide-crosser assist toward {arrive_coord}")
+                        try:
+                            if self.spin_assist(tuple(arrive_coord)):
+                                no_path = stuck = fp_stall = 0
+                                last_fp = None
+                                continue
+                        except Exception as _se:
+                            self.log(f"   [travel] !! spin assist error: {_se}")
                     self.last_fail_reason = "npc_block" if npc_block_seen else "no_route"
                     self.log(f"   [travel] !! TRAVEL WEDGE: identical fp x{fp_stall} retries at {cur} "
                              f"map={map_id(self.b)} (reason={self.last_fail_reason}) -> returning to roam "

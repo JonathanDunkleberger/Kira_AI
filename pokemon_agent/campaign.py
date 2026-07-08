@@ -743,7 +743,10 @@ class Campaign:
                                     if getattr(self, "field", None) else "cant"),
                                 # transit-time map learning: step-on mats fire MID-leg (UGP
                                 # tunnel->hut), so every transition folds into the mental map
-                                on_transition=lambda: self._learn_transit())
+                                on_transition=lambda: self._learn_transit(),
+                                # spinner-floor hand-off (shift 5): travel's wedge guard calls
+                                # this ONCE per leg on maps with spin tiles (hideout B2F/B3F)
+                                spin_assist=self._spin_assist)
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:
@@ -2606,6 +2609,19 @@ class Campaign:
             return self._party_damaging_pp()
         except Exception:
             return True
+
+    def _spin_assist(self, tile):
+        """Injected into travel (the field_clear pattern): when a leg wedges on a SPINNER
+        floor (forced-slide tiles partition the walkable pockets — hideout B2F/B3F class),
+        glide-cross toward `tile` with spin_nav's deterministic slide simulator. True =
+        pockets crossed (travel re-plans from there); False/raise = travel surfaces its
+        wedge exactly as before. Battles mid-glide run through the real battle_runner."""
+        import spin_nav
+        t = tuple(tile)
+        sn = spin_nav.SpinNav(self.b, self, self.battle_runner,
+                              lambda: self._drain_overworld(label="spin-assist"), log=log)
+        return bool(sn.cross(lambda c, tt=t: abs(c[0] - tt[0]) + abs(c[1] - tt[1]) <= 1,
+                             "travel-assist", rounds=2))
 
     def _gym_move(self, tile, label="gym-move"):
         """Interior mover for gym handling: PAD-AWARE when this gym's router is armed (a
@@ -8162,12 +8178,28 @@ class Campaign:
         # kind: walk-onto (mats), directional stairs (the 0x6C-0x6F table), door ritual.
         self.b.set_input_owner("agent")
         taken = set()
+        _elev_rows = {}
         grad = self._street_gradient()
         for _ in range(max_tries * 3):
             if tv.map_id(self.b)[0] == 3:
                 return True
             before = tuple(tv.map_id(self.b))
             cur = tuple(tv.coords(self.b))
+            # ELEVATOR CAR (2026-07-08 shift 5, the banked_SCOPE 412-wedge class): a room whose
+            # EVERY warp is dynamic ((127,127)) is an elevator — its door just steps back onto
+            # the boarding floor, so this loop ping-ponged car<->floor forever (hideout B4F).
+            # Ride the panel to the next untried floor row and keep exiting from the landing.
+            try:
+                import elevator_nav
+                if elevator_nav.is_car(self.b):
+                    _row = _elev_rows.get(before, 0)
+                    if _row <= 4:
+                        _elev_rows[before] = _row + 1
+                        log(f"   EXIT: elevator car {before} — riding the panel (row {_row})")
+                        if elevator_nav.ride(self.b, self, _row, log=log):
+                            continue
+            except Exception as _ee:
+                log(f"   !! EXIT: elevator ride failed ({_ee}) — walking on")
             ws = tv.read_warps(self.b)
             cands = [tuple(w[0]) for w in ws]
             # STREET-FIRST (2026-07-06, the Vermilion Center/Cable-Club stall): each warp's DEST is
