@@ -5972,9 +5972,17 @@ class Campaign:
                 log(f"   [roam] !! NO-MOVE PRUNE: dead routes {sorted(removable)} haven't moved her "
                     f"(streak {self._nomove_streak}) — removed this tick so she picks something that "
                     f"works; remaining: {sorted(a)}")
-            else:
-                log(f"   [roam] !! NO-MOVE: dead routes {sorted(removable)} but they're the only options "
-                    f"left — NOT pruning (won't dead-end her); strategic-stuck/macro recovery will carry it")
+            elif removable:
+                # ALL options are proven-dead routes (night shift 9, the banked_E4 Saffron dead-air:
+                # 4 travel picks all no_route, re-offered for ~25 straight decisions because "won't
+                # dead-end her" predates the EMPTY-OPTIONS FLOOR below). Prune them ANYWAY — the
+                # floor refills with the regroup-at-Center anchor, which is the one honest move a
+                # real player has from a pocket where nothing routes.
+                for k in removable:
+                    a.pop(k, None)
+                log(f"   [roam] !! NO-MOVE PRUNE (all-dead): every offered option "
+                    f"{sorted(removable)} is a proven dead route (streak {self._nomove_streak}) — "
+                    f"pruned to the regroup floor instead of thrashing them")
         # F-11 STRUCTURAL DEAD-ROUTE MEMORY (the banked_CINNABAR/BLAINE WARN class): a pick proven
         # structurally dead ON THIS MAP stays pruned regardless of movement — the movement-clears-
         # dead rule above resurrected head_to_gym every time an unrelated action moved her a few
@@ -7371,13 +7379,27 @@ class Campaign:
             # _available_actions removes the pick after the 2nd consecutive no-move so she MUST do something
             # else (capability-not-script — the action genuinely isn't doing anything here). Reset on a move.
             _is_move_pick = (pick == "head_to_gym" or pick == "wander_catch" or pick.startswith("travel:"))
-            if _is_move_pick and not _moved and out not in ("arrived", "badge", "caught"):
+            # BENIGN-STILL OUTCOMES (night shift 9, the SABRINA/SCOPE WARN class): real work or a
+            # deliberate yield that happens not to move her is NOT a silent failure — questline
+            # talks/steps ARE the errand (pruning head_to_gym mid-questline stalls the forward
+            # drive), and need_heal/healed_retry are the action handing control back on purpose.
+            # Only genuine "returned without doing anything" outcomes feed the streak/dead set.
+            _benign_still = ("arrived", "badge", "caught", "questline_talked",
+                             "questline_worked_room", "questline_step_done", "questline_done",
+                             "questline_passthrough", "questline_deeper", "questline_entered",
+                             "need_heal", "healed_retry")
+            if _is_move_pick and not _moved and out not in _benign_still:
                 self._nomove_streak += 1
                 self._dead_moves.add(pick)
                 # F-11 STRUCTURAL failure: no_gym_route / questline_no_route mean no route EXISTS
                 # from this map — a few tiles of unrelated movement can't change that, so remember
                 # it PER MAP (the prune consults this set independent of the movement-cleared one).
-                if out in ("no_gym_route", "questline_no_route", "questline_arrived_no_target"):
+                # "no_route" (a plain travel pick with no walk route from this map) is just as
+                # structural as no_gym_route — without it here, any small movement (a heal
+                # excursion) cleared _dead_moves and resurrected the same doomed travels (the
+                # banked_E4 Saffron heal↔dead-travel oscillation, night shift 9).
+                if out in ("no_gym_route", "questline_no_route", "questline_arrived_no_target",
+                           "no_route"):
                     self._dead_moves_structural.setdefault(tuple(_pos0[0]), set()).add(pick)
                 log(f"   [roam] !! SILENT NO-MOVE: '{pick}' returned '{out}' but her position never changed "
                     f"(streak {self._nomove_streak}, dead routes {sorted(self._dead_moves)}) — not moving "

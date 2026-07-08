@@ -1,24 +1,68 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 7, pre-strike)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 9, mid-re-grade)
 
-## ⚡ SHIFT 7 STATE (in flight — FULL 15-arc sweep running on the shift-6 fix stack)
-0. **SCOPE RE-GRADE #2 = PASS** (descent_regrade_scope2_shift6.log: twedge 271→5, nav 0,
-   decision-budget end). Road-anchor parking + sealed-by-a-guard exit chain BOTH hold e2e.
-   Shift 6's own full-sweep launch was killed at the 04:02 handover mid-arc
-   (descent_full_shift6.log, Route 13) — shift 7 relaunched it.
-1. **IN FLIGHT: FULL 15-arc sweep on tonight's code** —
-   `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`
-   → log `logs\longrun\descent_full_shift7.log`, ~35 min; regenerates
-   `pokemon_agent/DESCENT_PREGRADE.md` (full table incl. twedge column). SINGLE-RUN LAW:
-   do NOT launch any other emulator recon while it runs (recon tools reap predecessors).
-   If this file is being read fresh and the sweep is dead/absent: relaunch it first.
-2. **NEXT after the sweep (in order):** (a) fix what it flags (diagnose → fix → re-grade
-   the flagged arc → commit); (b) ROCKTUNNEL WARN (nav=1): TEA questline climbs Celadon
-   Mansion to map (10,11), wedges at (7,4) — "path blocked at (7,4), blocker NPC
-   tile=None, npcs nearby=[(3,5)]", can't take the FIRST STEP; needs a probe (who blocks
-   (7,4)? wanderer body the template read misses? doorway metatile?); shift-6 door-skip
-   cheapens the fan-out but the blocked-first-step class is unfixed; (c) level-up early
-   beat verify (printed-events run, recon_winbeat_verify pattern); (d) Viridian Gym spin
-   maze (spin_assist un-verified live).
+## ⚡ SHIFT 9 STATE (current)
+0. **FULL 15-ARC SWEEP LANDED 04:36 (pre-e2d5f9a code): 10 PASS / 4 WARN / 1 FAIL.**
+   Snapshot preserved: `logs\longrun\DESCENT_PREGRADE_full_shift7.md` (the live
+   DESCENT_PREGRADE.md gets overwritten by every re-grade — read the snapshot).
+1. **e2d5f9a VERIFIED: ROCKTUNNEL re-grade FAIL→PASS** (twedge 128→2, nav 1→0; log
+   `descent_regrade_rocktunnel_shift9.log`). Keyboard-wedge class gone. HONESTY NOTE: the
+   nickname guard's positive line ("declining with B") was NOT hit this window — she
+   didn't take the roof-NPC gift path; guard positive-path = logic-only.
+2. **WARN CLASS DIAGNOSED (all 4 = end_nomove_streak≥2) + FIXES BUILT (campaign.py,
+   COMPILES+WIRED, re-grade in flight):**
+   (a) BENIGN-STILL outcomes (questline_talked/worked_room/step_done/done/passthrough/
+   deeper/entered, need_heal, healed_retry) no longer count as SILENT NO-MOVE nor poison
+   _dead_moves — they were pruning head_to_gym MID-QUESTLINE (SABRINA/SCOPE class);
+   (b) ALL-DEAD PRUNE: when every offered option is a proven dead route, prune them anyway
+   — the EMPTY-OPTIONS FLOOR refills with regroup-at-Center (kills the banked_E4 Saffron
+   dead-air: 4×no_route travels re-offered ~25 straight decisions);
+   (c) plain "no_route" added to the STRUCTURAL dead-route set (else the heal excursion's
+   movement resurrected the same doomed travels — the oscillation).
+3. **IN FLIGHT: re-grade of banked_SCOPE,SURF_TAUGHT,SABRINA,E4 on the fixed code** — log
+   `logs\longrun\descent_regrade_warns_shift9.log` (launched ~04:45, ~10 min). SINGLE-RUN
+   LAW: no other emulator recon while it runs. If dead when read fresh: relaunch with
+   `$env:DESCENT_ARCS='banked_SCOPE,banked_SURF_TAUGHT,banked_SABRINA,banked_E4'`.
+   EXPECT: SABRINA/SCOPE → PASS; E4 → PASS or the regroup floor visible; SURF_TAUGHT may
+   still WARN — its head_to_gym returns 'stuck' on Route 19 (0,42) water edge (billed road
+   wants Surf legs?) — if it WARNs again, diagnose THAT (real nav gap, not grader noise).
+4. **NEXT (in order):** (a) read the WARN re-grade, fix/commit what's left; (b) level-up
+   early beat verify — `.venv\Scripts\python.exe -u pokemon_agent\recon_lvlbeat_verify.py`
+   (default banked_HM05; arms a real level-up by -1 on the lead's level byte);
+   (c) Viridian Gym spin maze (spin_assist un-verified live); (d) if all green: FULL
+   15-arc sweep on tonight's code for the clean table → ranked spot-watch list for Jonny.
+
+## SHIFT 8 STATE (background — landed + verified this shift)
+0. **ROCKTUNNEL (7,4) MYSTERY = SOLVED, FIX COMMITTED e2d5f9a (COMPILES+WIRED, verify
+   owed):** the "who blocks (7,4)?" probe was never needed — descent_full_shift5.log tick
+   14 shows the TEA sweep talked the Celadon Mansion ROOF NPC → gift EEVEE → "give a
+   nickname?" Yes/No defaults YES → the drain's A opened the naming KEYBOARD (full-screen,
+   invisible to box_open's bottom band) → 300 blind A-presses → timeout with the field
+   locked FOREVER. The (7,4) "blocker" was a ghost — presses eaten by the keyboard. THE
+   NICKNAME-KEYBOARD CLASS (Lapras lesson) existed in battle_agent + starter flow but NOT
+   in dialogue_drive, the primitive every unattended npc-talk uses. Fixes (all in the one
+   drain): (1) "nickname" line → advance with B never A; (2) blind-lock (≥8 no-box/
+   no-control iters) → B + periodic START+A keyboard-class escape (START→OK, A confirm,
+   empty name = clean decline); (3) _close_box last-resort START+A + timeout path runs
+   _close_box (never hands back a locked field); (4) BATTLE GATE at the primitive — the
+   live shift-7 sweep showed "[dlg engage] max_steps=300": an engage intro box leads INTO
+   a battle, drain now returns "in_battle" the moment one opens (erika_run2 class, was
+   entry-only in _drain_overworld).
+1. **IN FLIGHT: FULL 15-arc sweep (launched by shift 7, 04:05)** — log
+   `logs\longrun\descent_full_shift7.log`, lands ~04:40; regenerates
+   `pokemon_agent/DESCENT_PREGRADE.md` (full table incl. twedge). NOTE: it runs
+   PRE-e2d5f9a code, so ROCKTUNNEL/engage wedges in ITS table are EXPECTED — the fix
+   verify is the re-grade after. SINGLE-RUN LAW: no other emulator recon while it runs.
+   If this file is read fresh and the sweep is dead: relaunch
+   `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120` first.
+2. **NEXT (in order):** (a) read the sweep table; (b) VERIFY e2d5f9a: re-grade ROCKTUNNEL
+   (`$env:DESCENT_ARCS='banked_ROCKTUNNEL'; .venv\Scripts\python.exe -u
+   pokemon_agent\recon_descent_grade.py 120`) — expect the (7,4) storm gone + the Eevee
+   decline in the log ("nickname prompt — declining with B"); (c) fix whatever else the
+   sweep flags (diagnose → fix → re-grade that arc → commit); (d) level-up early beat
+   verify — `recon_lvlbeat_verify.py` is BUILT+COMMITTED (e2d5f9a), run:
+   `.venv\Scripts\python.exe -u pokemon_agent\recon_lvlbeat_verify.py` (default
+   banked_HM05; arms a real level-up by -1 on the lead's level byte, exp untouched);
+   (e) Viridian Gym spin maze (spin_assist un-verified live).
 
 ## SHIFT 6 STATE (background — all landed + committed)
 1. **ROAD-ANCHOR PARKING — COMMITTED 7c2025b (VERIFIED in re-grade #1):** `campaign.
