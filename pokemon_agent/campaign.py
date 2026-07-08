@@ -6966,12 +6966,15 @@ class Campaign:
             else:
                 self._imp_stand_streak = 0
             self._last_wedge_total = _wt
-            if self._imp_stand_streak >= 2:
+            if self._imp_stand_streak >= 1:
+                # streak 1 (round 7): the wedge-burn gate + the enclosed test already make a
+                # false positive a coincidence of three rare reads; each extra tick of storm
+                # is ~4 wedges and the desync never self-heals — fire on the first sighting.
                 void_recoveries += 1
                 self._imp_stand_streak = 0
                 log(f"   [roam] !!!! IMPOSSIBLE-STAND TRIPWIRE (tick-top) #{void_recoveries}: "
                     f"enclosed non-walkable stand {tv.coords(self.b)} on {tv.map_id(self.b)} "
-                    f"for 2 straight wedge-burning ticks — partial-void world; recovering now "
+                    f"after a wedge-burning tick — partial-void world; recovering now "
                     f"instead of letting the storm run.")
                 self.on_event("okay, something's properly wrong with where the world thinks I'm "
                               "standing — rewinding to solid ground.", kind="recover", tier=2)
