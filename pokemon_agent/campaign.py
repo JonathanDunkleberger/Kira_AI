@@ -6819,7 +6819,8 @@ class Campaign:
                 avoid = self._wall_avoid(state)
                 bdirs = self._wall_blocked_dirs(state)
                 cur_map = tuple(state["map"])
-                brief = self.world.spatial_brief(cur_map, avoid=avoid, blocked_dirs=bdirs)
+                brief = self.world.spatial_brief(cur_map, avoid=avoid, blocked_dirs=bdirs,
+                                                 named_already=True)   # F-8 block already names it
                 if brief:
                     where = f"{where}. {brief}"
                 # GATE-UNLOCK: when she's mid-errand to unlock a gate, fold her DERIVED plan into the ctx

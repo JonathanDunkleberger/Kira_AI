@@ -342,19 +342,23 @@ class WorldModel:
             bits.append("a Pokémon Center")
         return ", ".join(bits)
 
-    def spatial_brief(self, src, avoid=None, blocked_dirs=None, max_extra=3):
+    def spatial_brief(self, src, avoid=None, blocked_dirs=None, max_extra=3, named_already=False):
         """A SHORT, readable 'where am I / what's around me' picture built from her visited-world
         memory — the missing MAP. Lists the adjacent exits (named, tagged, BLOCKED where gated)
         plus a few notable backward places she can travel to. Her options become PLACES, not just
-        'advance toward the objective'. Kept to a few lines, never a data dump."""
+        'advance toward the objective'. Kept to a few lines, never a data dump.
+        named_already: the caller's ctx already leads with a grounded 'You're in X' line (the F-8
+        location block) — skip the duplicate naming and go straight to the surroundings."""
         avoid_keys = set(_k(m) for m in (avoid or []))
         blocked_dirs = set(blocked_dirs or [])
         node = self.nodes.get(_k(src))
         here = self.name(src)
         if node is None:
-            return f"You're in {here} — somewhere new; you don't have your bearings here yet."
+            return ("" if named_already else
+                    f"You're in {here} — somewhere new; you don't have your bearings here yet.")
         htag = self._trait_tag(node)
-        lead = f"You're in {here}" + (f" ({htag})" if htag else "") + "."
+        lead = ("" if named_already else
+                f"You're in {here}" + (f" ({htag})" if htag else "") + ".")
         # adjacent exits, in a stable readable order
         order = ["north", "south", "east", "west"]
         exits = []
@@ -371,7 +375,7 @@ class WorldModel:
                 tag = self._trait_tag(nb) if nb else ""
                 seen = "" if nb.get("visited") else " (unexplored)"
                 exits.append(f"{d.upper()} → {nm}{seen}" + (f" — {tag}" if tag else ""))
-        lines = [lead]
+        lines = [lead] if lead else []
         if exits:
             lines.append("From here: " + "; ".join(exits) + ".")
         # notable backward grass she can WALK to (places she knows, not adjacent), for grinding
