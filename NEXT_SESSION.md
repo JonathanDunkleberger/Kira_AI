@@ -27,6 +27,12 @@ Jonny's next spot-watch confirms live content_age stays <6s — that's the showc
 0. **THE GO/NO-GO — game-event latency live-watch** (showcase gate): reboot, run a fast-battle
    stretch, confirm reactions land <6s and aligned (watch for `[Freshness] DROP` lines culling the
    stale backlog, and `[LAG]` content_age staying low). This is the showcase green light.
+0b. **MEMORY-MAGIC live verify** (soul gate): TALK to her (voice) and ask "how's the Pokémon run
+   going / who's on your team / tell me about Gary." She should answer FIRST PERSON as her own
+   lived story, name her current 6 (venusaur/persian/fearow/raticate/ekans/lapras), carry feeling —
+   never narrate as if someone else played. Watch the console for the one-shot log "journey/roster
+   now injected into the LIVE VOICE-REPLY path." Also confirm NO Pokémon leak when you change
+   subject (the anti-leak header). If she leaks, gate the voice-path injection — flagged.
 1. **Live mic check** on the Focusrite ("cheddar") — confirm a fresh `>>> You said:` after reboot.
 2. **Loopback-cable decision** (R2-2): should loopback refuse to fall back onto the TTS-carrying
    VB-cable? Rig-specific + core-senses (HARD CONSTRAINT #2) — flagged, not cowboyed. Your call.
