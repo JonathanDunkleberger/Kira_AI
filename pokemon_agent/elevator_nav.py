@@ -76,11 +76,15 @@ def ride(b, camp, row, avoid=(), log=lambda m: print(m, flush=True)):
             f"{[tuple(p) for p, _k in tv.read_bg_events(b)]})")
         return False
     b.press("A", 8, 12, camp.render, owner="agent")       # "Which floor?" -> the menu
-    for _ in range(30):
+    # MENU SETTLE (round-2 regrade lesson, the battle-menu doctrine: never race the
+    # emulator): D-pad presses before the multichoice is input-ready are EATEN, so the
+    # select-A lands on the DEFAULT row every time and only the oracle's "unchanged"
+    # guard saved us. Give the menu a beat, then space the downs generously.
+    for _ in range(90):
         b.run_frame()
     for _ in range(row):
-        b.press("DOWN", 8, 10, camp.render, owner="agent")
-        for _ in range(16):
+        b.press("DOWN", 8, 16, camp.render, owner="agent")
+        for _ in range(24):
             b.run_frame()
     b.press("A", 8, 12, camp.render, owner="agent")
     camp._adv_dialogue(12)                                # confirmation text, if any
