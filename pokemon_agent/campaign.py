@@ -81,6 +81,11 @@ from dialogue_drive import DialogueDriver, box_open as dd_box_open  # noqa: E402
 
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 STATES = os.path.join(_HERE, "states")
+# PHASE E (the GO button): POKEMON_KIRA_DIR redirects the ENTIRE states/kira lineage (the sacred
+# show-timeline saves + soul + checkpoints) to a sandbox, exactly as POKEMON_CAMPAIGN_DIR does for
+# the Sherpa campaign. Used ONLY by go.py --throwaway so the GO button can be TESTED end-to-end
+# while remaining physically incapable of touching the real states/kira. Unset = unchanged.
+_KIRA_DIR_OVERRIDE = os.getenv("POKEMON_KIRA_DIR", "").strip()
 # ── THREE SAVE LINEAGES (Part A) ──────────────────────────────────────────────
 # states/workshop/  = the SMALL set of real sherpa checkpoints WE use to jump up/down the game to
 #                     lay hooks (beginning, brock_done, mtmoon_done, misty_done) + any state a live
@@ -93,7 +98,7 @@ STATES = os.path.join(_HERE, "states")
 # resolve_state() finds a named state across the live buckets (workshop -> kira -> flat -> archive),
 # so boots/gates keep loading after the archive sweep regardless of which bucket holds the file.
 STATES_WORKSHOP = os.path.join(STATES, "workshop")
-STATES_KIRA = os.path.join(STATES, "kira")
+STATES_KIRA = _KIRA_DIR_OVERRIDE or os.path.join(STATES, "kira")   # PHASE E: go.py --throwaway sandbox
 STATES_ARCHIVE = os.path.join(STATES, "archive")
 # states/campaign/ = Batch-5 PERSISTENT CAMPAIGN (the playthrough mode): her ONE living save that the
 # free-roam run writes to as she progresses and RESUMES from on the next GO — so a session picks up

@@ -3289,7 +3289,16 @@ class VTubeBot:
         # opinion, reacting to a hint's CONTENT), never the battle framing. Detected by the harness
         # kind; the summary-prefix fallback covers older harness builds that don't send kind yet.
         _is_dialogue = (kind == "dialogue") or summary.startswith(("you read:", "the gym leader says"))
-        if _is_dialogue:
+        if kind == "recap":
+            # PHASE E (the GO button): the COLD-OPEN — a resumed show session opens with her own
+            # "previously on" in her voice, journey-fed. Framing only, same path/gates as every event.
+            _ask = (
+                f"You're going live again on your Pokémon playthrough. Where the story stands: {summary}\n\n"
+                "Open the stream with a quick, warm, in-character recap — two or three sentences, "
+                "like a streamer picking a story back up: where you are, who's with you, what's next. "
+                "First person, your own feel for the journey — not a list, never a readout."
+            )
+        elif _is_dialogue:
             _ask = (
                 f"On screen right now — {summary}\n\n"
                 "This is your FIRST playthrough; you've never seen this game before. React in one "
