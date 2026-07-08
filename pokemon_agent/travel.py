@@ -108,6 +108,25 @@ PLACE_MUSE = {
     (3, 21): ("the trees thin out along Route 3, trainers everywhere looking for a fight",
               "you take in Route 3 — your first real road east, the world opening up"),
     (3, 22): ("Route 4 stretches toward the mountains, the air drier here",),
+    # F-11 TEXTURE PASS (2026-07-08 night): place-flavored dead-air for the major descent
+    # stops — neutral seeds her self colors, same register as the Route 3/4 originals.
+    (3, 0):  ("Pallet Town — small, quiet, home; the whole world starts from here",),
+    (3, 1):  ("Viridian City again — the first city you ever walked into",
+              "Viridian's gym sat locked for so long… this town kept its secret a while"),
+    (3, 2):  ("Pewter City — stone houses, museum air, the first badge lives here",),
+    (3, 3):  ("Cerulean City — bridges and water everywhere you look",),
+    (3, 4):  ("Lavender Town… quiet in a way that isn't peaceful — that tower looms over everything",
+              "the air in Lavender feels heavier; people here talk softly, like they're being polite to ghosts"),
+    (3, 5):  ("Vermilion City — gulls, salt air, the harbor stretching out to sea",),
+    (3, 6):  ("Celadon City — the big city: department store, game corner, crowds moving with somewhere to be",),
+    (3, 7):  ("Fuchsia City — the edge of the wild, the Safari Zone humming past the fence",),
+    (3, 8):  ("Cinnabar Island — warm ground underfoot, a whole town living on a volcano",),
+    (3, 9):  ("Indigo Plateau — the end of every trainer's map; the air up here feels earned",),
+    (3, 10): ("Saffron City — Silph's tower owns the skyline; the whole city feels like it's holding its breath",),
+    (1, 88): ("Pokémon Tower — floor after floor of graves; every step feels like it should be quieter",),
+    (1, 59): ("the Pokémon Mansion — burnt-out, half-collapsed, journal pages telling a story someone wanted forgotten",),
+    (1, 39): ("Victory Road — the mountain every champion had to climb through; the walls feel like a final exam",),
+    (1, 72): ("Cerulean Cave — the strongest wild Pokémon in the world live down here… and something else does too",),
 }
 CAVE_MUSE = (
     "the cave presses in close around you, every sound echoing off the rock",
