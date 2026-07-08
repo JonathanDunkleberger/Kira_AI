@@ -718,20 +718,46 @@ class BattleAgent:
     def _items_count(self, item_id):
         return next((q for i, q in self._items_pocket() if i == item_id), 0)
 
+    def _action_cursor_alive(self, probes=2):
+        """The run19 Lance livelock (2026-07-07): a dangling item message box on the in-battle
+        PARTY screen ("PERSIAN's HP was restored...") lights the SAME white-panel pixels as the
+        action menu, so every pixel-gated path believed a menu was up while the game waited for
+        a box-dismissing press — the directional walks (_goto_fight/_goto_pokemon) tapped into a
+        STALE GBATTLE_ACTION_CURSOR forever and the abort->re-enter cycle never pressed A/B.
+        Pixel truth is not enough: the action menu is only REAL if the cursor RESPONDS. Tap
+        toward a horizontal neighbour and demand the readback moves (retry — single taps get
+        eaten on this core). Leaves the cursor one step over; all callers walk by readback."""
+        c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+        if c not in (ram.ACT_FIGHT, ram.ACT_BAG, ram.ACT_POKEMON, ram.ACT_RUN):
+            return False
+        t = "RIGHT" if c in (ram.ACT_FIGHT, ram.ACT_POKEMON) else "LEFT"
+        for _ in range(probes):
+            self._tap(t); self._wait(5)
+            if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != c:
+                return True
+        return False
+
     def _settle_action_menu(self, tries=30):
         """Reach the real ACTION menu using the PIXEL signals (menu_up RAM is stale on this core): action
-        menu = white panel AND NOT the move-list pixel. Back out of the move list with B; advance text."""
+        menu = white panel AND NOT the move-list pixel, VERIFIED by cursor responsiveness — a dangling
+        message box / party screen / USE-CANCEL sub-box lights the same pixels (the run19 Lance livelock).
+        Impostors are drained with B (dismisses boxes, backs out of party/bag, no-op at the real menu).
+        Back out of the move list with B; advance text."""
         self._settle()
         for _ in range(tries):
-            if self._white_box() and not self._in_move_list():
-                return True
+            if not st.in_battle(self.b):
+                return False
             if self._in_move_list():
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
             elif not self._white_box():
                 self._advance_text()
-            else:
+            elif self._action_cursor_alive():
                 return True
-        return self._white_box() and not self._in_move_list()
+            else:
+                self.log("   [engine] action-menu impostor (white box, DEAD cursor) -> B-drain "
+                         "(dangling box / party screen)")
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
+        return False
 
     def _goto_bag(self, tries=10):
         """Walk the action cursor to BAG (top-right, ACT_BAG=1) by READBACK, not a blind RIGHT — the
@@ -892,10 +918,12 @@ class BattleAgent:
             # USE/CANCEL sub-box LIGHTS those pixels, so 'used' could return with the bag still open
             # and the next turn's presses landed in it forever (caterpie 7/40, walk 3).
             self._close_bag_screen()
-            for _ in range(6):                               # drain the "X recovered!" text back to battle
-                if not st.in_battle(self.b) or (self._white_box() and not self._bag_screen()):
-                    break
-                self._advance_text()
+            # Drain the "X recovered!" text back to a LIVE menu/battle. The old 6-lap exit broke
+            # on _white_box alone — the PARTY screen's result box ("PERSIAN's HP was restored...")
+            # lights those pixels, so 'used' returned with the box still up and the turn loop
+            # wedged against it forever (the run19 Lance livelock). _settle_action_menu now
+            # demands cursor responsiveness and B-drains impostors, so route through it.
+            self._settle_action_menu(tries=12)
             return "used"
         self.log(f"   [engine] use_item: pocket={self.b.rd8(ram.GBAG_POCKET)} cursor={self.b.rd8(BAG_CURSOR)} "
                  f"scroll={self.b.rd16(BAG_SCROLL)} row={row} — selected but item {item_id} NOT consumed "
