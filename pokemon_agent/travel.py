@@ -792,6 +792,8 @@ class Traveler:
         # this is the can't-loop-forever floor, the overworld sibling of the battle flee / dialogue cycle floors.
         _pos_window = deque(maxlen=POS_LOOP_WINDOW)
         _spin_best, _spin_noprog = None, 0   # spinner net-progress tripwire state (see constants)
+        _fresh_marks = set()   # NPC blocks added THIS leg — exempt from the staleness release
+        #                        (a step just failed there; releasing would unmark/remark churn)
         _bstuck = [0]   # 2026-07-06 BATTLE-LOOP BREAKER: consecutive unresolved 'stuck' battles
         for step in range(max_steps):
             # LAYER B cooperative cancel: the universal watchdog latched a disengage -> bail this leg
@@ -956,6 +958,21 @@ class Traveler:
             # LAYER A: tiles on THIS map held by a plain NPC we've already confirmed blocks the only gap
             # (persists across legs/ticks via the shared set) -> plan AROUND them, never back into them.
             blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
+            # LAYER-A STALENESS RELEASE (night shift 11, the Route-10-Center room seal): the
+            # shared plain-NPC block memory is grow-only, so a WANDERER marked once walls its
+            # OLD tile forever — on a small interior a few marks seal whole rows (19 no_route
+            # wedges in one graded window). If a marked tile is NEAR (inside the object-cull
+            # radius, where the live read is trustworthy) and no body stands on it, the NPC
+            # moved on -> un-mark. A squatter that returns re-marks in one failed step.
+            _stale_marks = {t for t in blocked_here
+                            if t not in _fresh_marks and t not in npc
+                            and abs(t[0] - cur[0]) + abs(t[1] - cur[1]) <= 7}
+            if _stale_marks:
+                self.log(f"   [travel] releasing {len(_stale_marks)} stale NPC block(s) "
+                         f"{sorted(_stale_marks)} — tile(s) read empty now (wanderer moved on)")
+                for t in _stale_marks:
+                    self.blocked_npcs.discard((cur_map, t))
+                blocked_here -= _stale_marks
             def free(sx, sy):
                 return ((sx, sy) not in npc and (sx, sy) not in static_blocked
                         and (sx, sy) not in avoid and (sx, sy) not in blocked_here
@@ -1149,6 +1166,7 @@ class Traveler:
                                 # lost to the tree every replan — the crossed→tree→crossed loop). With
                                 # the tile in shared block memory the next plan finds the long way.
                                 self.blocked_npcs.add((cur_map, blk))
+                                _fresh_marks.add(blk)
                                 blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
                                 reroute = bfs(grid, coords(self.b), goal,
                                               walkable=lambda sx, sy: grid.walkable(sx, sy)
@@ -1179,6 +1197,7 @@ class Traveler:
                         # so the oracle picks a different objective rather than re-issuing into the same door.
                         if blk is not None and self._blocker_npc_check():
                             self.blocked_npcs.add((cur_map, blk))
+                            _fresh_marks.add(blk)
                             blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
                             self.log(f"   [travel] chokepoint blocker {blk} on {cur_map} is a PLAIN NPC "
                                      f"(dialogue, no battle) -> added to shared block memory "
