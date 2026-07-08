@@ -333,6 +333,71 @@ def load_event_index(date_str: str, base_dir: str = "logs/streams",
     return events, earliest_start
 
 
+def load_beat_epochs(date_str: str, base_dir: str = "logs/streams",
+                     activity: str | None = None, last_only: bool = False,
+                     beat_types: tuple = ("highlight_captured", "kira_moment"),
+                     ) -> list[float]:
+    """Epochs of live-captured KIRA-MOMENT beats from events.jsonl (Phase K
+    item 2, selection half). ``highlight_captured`` is logged today by the live
+    highlight loop; ``kira_moment`` is reserved for the bot-side tiered
+    soul/reaction beats (the other half of item 2) — the cutter consumes both
+    with zero further changes. Same session-dir scoping as load_event_index.
+    """
+    pattern = os.path.join(base_dir, f"{date_str}_*")
+    all_dirs = sorted(glob.glob(pattern))
+    if last_only and activity:
+        matching = [d for d in all_dirs
+                    if os.path.basename(d).endswith(f"_{activity}")]
+        if matching:
+            all_dirs = [matching[-1]]
+    epochs: list[float] = []
+    for sess_dir in all_dirs:
+        ev_path = os.path.join(sess_dir, "events.jsonl")
+        if not os.path.isfile(ev_path):
+            continue
+        with open(ev_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if obj.get("type") not in beat_types or not obj.get("ts"):
+                    continue
+                try:
+                    epochs.append(_parse_iso_utc(obj["ts"]))
+                except Exception:
+                    continue
+    return sorted(epochs)
+
+
+def apply_kira_moment_boost(candidates: list[Candidate], beat_epochs: list[float],
+                            window_s: float = 15.0, boost: int = 2) -> int:
+    """Blend live-captured kira-moment beats into candidate scoring (Phase K
+    item 2): a candidate whose anchored window overlaps a beat outranks
+    transcript-only scoring — "she named the rat and declared war" beats
+    "boss died". Score is capped at 10; every boost logs. Returns boost count.
+    """
+    if not beat_epochs:
+        return 0
+    boosted = 0
+    for c in candidates:
+        if c.anchor_start_epoch is None:
+            continue
+        lo = c.anchor_start_epoch - window_s
+        hi = (c.anchor_end_epoch or c.anchor_start_epoch) + window_s
+        if any(lo <= b <= hi for b in beat_epochs):
+            old = c.score
+            c.score = min(10, (c.score or 0) + boost)
+            if c.score != old:
+                boosted += 1
+                print(f"   [KiraMoment] clip {c.index} '{c.title[:40]}' overlaps "
+                      f"a live-captured beat → score {old}→{c.score}")
+    return boosted
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Align candidates → wall-clock anchors
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1946,6 +2011,19 @@ async def cut_session(date_str: str, activity: str | None = None, *,
         for c in candidates:
             align_candidate(c, events, session_start)
             map_to_recording(c, recordings, pre, post)
+
+        # Phase K item 2 (selection half): live-captured kira-moment beats
+        # outrank transcript-only scoring. Runs BEFORE sort/cap and Phase 4's
+        # by-score packaging so a boost changes what actually ships.
+        try:
+            _beats = load_beat_epochs(date_str, activity=act_name,
+                                      last_only=bool(vod_path))
+            _n = apply_kira_moment_boost(candidates, _beats)
+            if _beats:
+                print(f"   [KiraMoment] {len(_beats)} live beat(s) on record, "
+                      f"{_n} candidate(s) boosted.")
+        except Exception as _km_err:
+            print(f"   [KiraMoment] beat blend skipped (non-fatal): {_km_err}")
 
         if vod_path:
             rec_dir = os.path.dirname(vod_path)
