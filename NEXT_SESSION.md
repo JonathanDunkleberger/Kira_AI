@@ -43,15 +43,14 @@ If the list empties except needs-eyes: STOP, write the couch list, stop burning.
   warp"). Fixes: `_edge_band_reachable(walkable=or_surf)`, feet-level band pre-checks on the
   adjacent-city excursion + each cardinal graph hop, `return_to_center` per-leg direction
   (Viridian-adjacent aware) + band pre-check, surf-aware enter_warp. Re-grade VERIFIED PASS.
-- **✅ SPLIT-MAP ROAD MEMORY (commit f54ed42, WIRED — re-grade pending):** the SURF_TAUGHT WARN
-  autopsy = Route 19↔Route 20 metronome at the Seafoam split (retry-once launders split-map
-  dead ends). Now: no_path is structural; strikes per (map,pick) survive movement; ≥2 strikes
-  survive map exit; head_to_gym dying on the map it just rode into parks the SOURCE leg too +
-  ONE narrated beat. **VERIFY: targeted re-grade banked_SURF_TAUGHT after the sweep.**
-- **🔄 FULL 15-arc sweep RUNNING** (pre-fix code for late arcs; log
-  `logs\longrun\descent_full_shift14.log`). 8/15 done: ALL PASS except SURF_TAUGHT WARN
-  (fixed above, needs re-grade). **AFTER it ends: re-run the FULL sweep on fixed code** →
-  that regenerated DESCENT_PREGRADE.md is the DoD-A artifact. Then evobeat verify
+- **✅ SPLIT-MAP ROAD MEMORY (f54ed42) VERIFIED:** banked_SURF_TAUGHT re-grade **PASS
+  twedge 15 → 2** (log `descent_regrade_shift14_surf.log`) — first no_path at the Seafoam
+  split parked BOTH legs for the session; memory KEPT across every exit; metronome dead.
+- **✅ Full 15-arc sweep (2158e43-era code): 14 PASS / 1 WARN** (SURF_TAUGHT pre-fix; table
+  banked in git 90091a4). VICTORY PASS confirmed on a second window (twedge 14, 81 battles).
+- **🔄 FINAL full 15-arc sweep RUNNING on HEAD** (log `logs\longrun\descent_final_shift14.log`,
+  ~60 min) → its regenerated DESCENT_PREGRADE.md = the DoD-A artifact. If this shift died
+  mid-sweep: read that log; re-run only if killed. THEN: evobeat verify
   (`recon_evobeat_verify.py`; INCONCLUSIVE = stays WIRED-not-VERIFIED).
 - **✅ B-BATCH SHIPPED (commit 392b872, core touches flagged, defaults byte-identical):**
   Phase-J receipts (write_receipt → logs/receipts/ + LEDGER.jsonl, at-shutdown, WIRED);
