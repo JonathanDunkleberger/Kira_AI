@@ -66,6 +66,22 @@ SEED_NODES = {
     (3, 8):  ("Cinnabar Island", {"is_town": True, "has_pokecenter": True, "has_mart": True}),  # GYM 7 (Blaine)
     (3, 23): ("Route 5",         {"is_route": True}),   # Cerulean → (Underground Path) → Route 6 → Vermilion
     (3, 24): ("Route 6",         {"is_route": True}),
+    # ── ENDGAME + POST-GAME (map ids VERIFIED against the pret disasm map_groups.json: group 1 =
+    # gMapGroup_Dungeons, group 3 = TownsAndRoutes). These name the finale + post-credits maps so a
+    # watch from the summit (or through the E4 gauntlet) reads "the Hall of Fame" / "Agatha's Room"
+    # instead of the honest-but-flat "an unfamiliar area". The Champion/Hall states are where the
+    # canonical pop-in lands, so naming them is what kills the '(1,80) an unfamiliar area' line. ──
+    (3, 9):  ("Indigo Plateau",       {"is_town": True, "has_pokecenter": True}),
+    (1, 39): ("Victory Road 1F",      {"is_cave": True, "has_wild": True}),
+    (1, 40): ("Victory Road 2F",      {"is_cave": True, "has_wild": True}),
+    (1, 41): ("Victory Road 3F",      {"is_cave": True, "has_wild": True}),
+    (1, 75): ("Lorelei's Room",       {}),   # Elite Four #1
+    (1, 76): ("Bruno's Room",         {}),   # Elite Four #2
+    (1, 77): ("Agatha's Room",        {}),   # Elite Four #3
+    (1, 78): ("Lance's Room",         {}),   # Elite Four #4
+    (1, 79): ("the Champion's Room",  {}),   # the rival — the final battle
+    (1, 80): ("the Hall of Fame",     {}),   # credits roll here; the canonical summit pop-in point
+    (1, 74): ("Cerulean Cave",        {"is_cave": True, "has_wild": True}),  # post-game — Mewtwo at the bottom
 }
 
 # THE FIXED MAIN-QUEST SPINE (ordered): the gym cities she must reach in sequence, each as a real

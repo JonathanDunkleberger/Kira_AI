@@ -26,9 +26,11 @@ down) is ANNOUNCED, not swallowed.
 import json
 import os
 import re
+import threading
 import time
 import urllib.request
 from collections import deque
+from queue import Queue, Empty
 
 # FIX 1 (dialogue half) — REPETITION-AVERSE commentary: looping game/NPC text (e.g. a wild Slowbro that
 # keeps "turning away" / "loafing around") was re-commentated as new for minutes. The exact back-to-back
@@ -56,6 +58,16 @@ FLOOR_S = float(os.getenv("POKEMON_FLOOR_S", "1.0"))
 # rate-limits to ~one reaction per spoken line, so this only un-floors the beats she'd otherwise
 # silently drop. The GRIND keeps the full FLOOR_S for Jonny's breathing room. (Item 3.)
 BATTLE_FLOOR_S = float(os.getenv("POKEMON_BATTLE_FLOOR_S", "0.4"))
+
+# ── OFF-RENDER-THREAD HTTP (the deeper lag fix — STATE §0 item 4) ─────────────────────────────
+# The reaction/dialogue POSTs and the is_speaking GET used to run SYNCHRONOUSLY on the main render
+# thread: every LLM decision froze game video + music for the HTTP round-trip (2000ms+ exhibits in
+# the pop-in log). With async ON (default), fire-and-forget POSTs (emit/journey/alert) go to a FIFO
+# worker thread, is_speaking reads a ~150ms-cached background poll (no per-frame HTTP), and a blocking
+# choose() pumps frames while it waits so the world stays live while she thinks. Kill-switch: set
+# POKEMON_VOICE_ASYNC=0 to revert to the old fully-synchronous path (one-variable safety revert).
+VOICE_ASYNC = os.getenv("POKEMON_VOICE_ASYNC", "1") == "1"
+SPEAKING_POLL_S = float(os.getenv("POKEMON_SPEAKING_POLL_S", "0.15"))   # is_speaking cache refresh
 
 # species (by lowercased name) that are a SAVOR-worthy rare encounter for this leg
 RARE_SPECIES = {"pikachu"}
@@ -152,6 +164,20 @@ class KiraVoice:
         self.n_failed = 0
         self.stream = []                   # ordered [(tier, kind, summary)] - the proof readback
 
+        # OFF-THREAD HTTP plumbing (the lag fix). frame_pump is set by the harness (play_live) to a
+        # zero-input "run one frame + draw" callback so choose() keeps the emulator (video+music) live
+        # while it blocks on her decision. Left None -> choose blocks as before (headless/proof runs).
+        self.frame_pump = None
+        self._async = VOICE_ASYNC
+        self._speaking = False             # background-polled cache of the bot's is_speaking
+        self._closed = False
+        if self._async:
+            self._q = Queue()              # FIFO of fire-and-forget POSTs (order preserved)
+            self._sender = threading.Thread(target=self._sender_loop, name="kira-voice-sender", daemon=True)
+            self._sender.start()
+            self._poller = threading.Thread(target=self._speaking_loop, name="kira-voice-speaking", daemon=True)
+            self._poller.start()
+
     # ── battle context (RAM-derived salience the text alone can't carry) ─────────
     def set_context(self, **kw):
         self._ctx.update(kw)
@@ -172,11 +198,71 @@ class KiraVoice:
             return json.load(r)
 
     def is_speaking(self):
+        # ASYNC: return the background-polled cache (no HTTP on the render thread — this is called
+        # every frame inside pace()'s hold loops, so a live GET here was a per-frame stutter).
+        if self._async:
+            return self._speaking
         try:
             with urllib.request.urlopen(f"{self.url}/state", timeout=3) as r:
                 return bool(json.load(r).get("is_speaking"))
         except Exception:
             return False
+
+    # ── background workers (async path) ──────────────────────────────────────────
+    def _speaking_loop(self):
+        """Poll /state off the render thread and cache is_speaking, so pace()'s per-frame reads
+        are instant. Best-effort; a bot-down poll just caches False and keeps trying."""
+        while not self._closed:
+            try:
+                with urllib.request.urlopen(f"{self.url}/state", timeout=3) as r:
+                    self._speaking = bool(json.load(r).get("is_speaking"))
+            except Exception:
+                self._speaking = False
+            time.sleep(SPEAKING_POLL_S)
+
+    def _sender_loop(self):
+        """Drain the FIFO of fire-and-forget events and POST them off the render thread. Single
+        worker so her reactions still fire IN ORDER; the render loop never blocks on the round-trip."""
+        while not self._closed:
+            try:
+                job = self._q.get(timeout=0.25)
+            except Empty:
+                continue
+            if job is None:
+                break
+            kind, body = job
+            self._send_event(*body) if kind == "event" else self._send_raw(*body)
+            self._q.task_done()
+
+    def _send_event(self, tier, kind, summary):
+        """The actual pokemon_event POST + loud logging (formerly inline in emit). Runs on the
+        sender thread when async, or inline when sync."""
+        try:
+            res = self._post("pokemon_event", name=summary, tier=tier)
+            self.n_sent += 1
+            fired = res.get("fired") if isinstance(res, dict) else res
+            self.log(f"   [kira-voice] -> T{tier}·{TIER_NAME[tier]}· ({kind}) {summary!r}  fired={fired}")
+        except Exception as e:
+            self.n_failed += 1
+            self.log(f"   [kira-voice] !! POST FAILED (bot down?) T{tier} ({kind}) {summary!r}: {e}")
+
+    def _send_raw(self, action, body):
+        """Off-thread fire-and-forget for journey/alert (no response needed)."""
+        try:
+            self._post(action, **body)
+        except Exception as e:
+            self.log(f"   [kira-voice] ·{action} skip· (bot down?) {e}")
+
+    def close(self, drain_s=2.0):
+        """Flush pending reactions and stop the workers (called from the harness finally-block).
+        Daemon threads would die with the process anyway; this just lets the last few POSTs land."""
+        if not self._async or self._closed:
+            self._closed = True
+            return
+        deadline = time.time() + drain_s
+        while not self._q.empty() and time.time() < deadline:
+            time.sleep(0.05)
+        self._closed = True
 
     # ── the reaction sink (with the FIRE-RATE lever) ─────────────────────────────
     def emit(self, summary, *, kind="event", tier=None, tags=None, **_):
@@ -232,14 +318,13 @@ class KiraVoice:
         if _n:
             self._recent_norm.append(_n)               # FIX 1: remember it so a repeat is dropped
         self.stream.append((tier, kind, summary))
-        try:
-            res = self._post("pokemon_event", name=summary, tier=tier)
-            self.n_sent += 1
-            fired = res.get("fired") if isinstance(res, dict) else res
-            self.log(f"   [kira-voice] -> T{tier}·{TIER_NAME[tier]}· ({kind}) {summary!r}  fired={fired}")
-        except Exception as e:
-            self.n_failed += 1
-            self.log(f"   [kira-voice] !! POST FAILED (bot down?) T{tier} ({kind}) {summary!r}: {e}")
+        # ASYNC: the gating/dedup/fire-rate above is pure CPU (microseconds) and stays on the caller
+        # thread; only the HTTP round-trip is offloaded, so the render loop never blocks on it. The
+        # tier is returned immediately (callers read it for the dialogue hold) — the POST lands async.
+        if self._async:
+            self._q.put(("event", (tier, kind, summary)))
+        else:
+            self._send_event(tier, kind, summary)
         return tier
 
     # ── CONTINUITY-INTO-CORE seam (Phase 4): push her journey narrative to core Kira ──
@@ -249,6 +334,9 @@ class KiraVoice:
         independent of how the Pokémon session launched. `state` is campaign._journey_narrative(). Never
         raises (a continuity write must never disturb the run); a bot-down skip just logs."""
         if not state:
+            return
+        if self._async:
+            self._q.put(("raw", ("pokemon_journey", {"ctx": state})))   # off-thread, order-preserved
             return
         try:
             self._post("pokemon_journey", ctx=state)   # nested under ctx to match the seam's body model
@@ -280,18 +368,43 @@ class KiraVoice:
         else:
             opt_keys, detail = [str(o) for o in (options or [])], {}
         body = {"kind": kind, "options": opt_keys, "ctx": {**(ctx or {}), "detail": detail}}
-        try:
-            req = urllib.request.Request(f"{self.url}/cmd/pokemon_choose",
-                                         data=json.dumps(body, default=_json_safe).encode(),
-                                         headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                res = json.load(r)
-            choice = (res.get("choice") if isinstance(res, dict) else None) or None
-            self.log(f"   [kira-voice] ORACLE kind={kind} options={opt_keys} -> pick={choice!r}")
-            return choice
-        except Exception as e:
-            self.log(f"   [kira-voice] !! ORACLE POST FAILED (bot down?) kind={kind}: {e} -> None")
+
+        def _do_choose():
+            """The blocking oracle round-trip. Returns (choice, error)."""
+            try:
+                req = urllib.request.Request(f"{self.url}/cmd/pokemon_choose",
+                                             data=json.dumps(body, default=_json_safe).encode(),
+                                             headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    res = json.load(r)
+                return ((res.get("choice") if isinstance(res, dict) else None) or None), None
+            except Exception as e:
+                return None, e
+
+        # LAG FIX: choose() BLOCKS on her LLM decision (up to `timeout`s). Without pumping, the
+        # emulator freezes for that whole think — dead video + silent music, the worst watch stutter.
+        # When the harness gave us a frame_pump, run the round-trip on a worker thread and keep the
+        # world LIVE (zero-input frames: she idles in place while she thinks). No frame_pump (headless
+        # proof runs) -> plain blocking call, unchanged.
+        if self.frame_pump and not self._closed:
+            box = {}
+            th = threading.Thread(target=lambda: box.update(zip(("choice", "err"), _do_choose())),
+                                  name="kira-voice-choose", daemon=True)
+            th.start()
+            while th.is_alive():
+                try:
+                    self.frame_pump()
+                except Exception:
+                    time.sleep(0.005)   # pump failed (window gone?) — don't hot-spin the wait
+            choice, err = box.get("choice"), box.get("err")
+        else:
+            choice, err = _do_choose()
+
+        if err is not None:
+            self.log(f"   [kira-voice] !! ORACLE POST FAILED (bot down?) kind={kind}: {err} -> None")
             return None
+        self.log(f"   [kira-voice] ORACLE kind={kind} options={opt_keys} -> pick={choice!r}")
+        return choice
 
     def beat(self, summary):
         """Traveler 'savor' beat (wild encounter / new area) -> classified like any event."""

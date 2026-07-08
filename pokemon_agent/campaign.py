@@ -2049,11 +2049,22 @@ class Campaign:
     # bot. The free-roam loop injects this into the oracle ctx EVERY tick so her wants/picks are
     # grounded in WHERE SHE ACTUALLY IS. Names/gym-order are real game knowledge (verified ids only,
     # unknown map -> honest "an unfamiliar area"); progress flags are read from the save (badge array). ──
+    # Map-id -> name for her ctx `place` line. Mirrors pokemon_world.SEED_NODES (the world-model's
+    # own table) so her decision context and her mental map agree. Endgame/post-game ids VERIFIED vs
+    # the pret disasm — this is what stops read_live_state emitting "(1,80) an unfamiliar area".
     _PLACE_NAMES = {
         (3, 0): "Pallet Town", (3, 1): "Viridian City", (3, 2): "Pewter City",
-        (3, 3): "Cerulean City", (3, 19): "Route 1", (3, 20): "Route 2",
-        (3, 21): "Route 3", (3, 22): "Route 4",
+        (3, 3): "Cerulean City", (3, 4): "Lavender Town", (3, 5): "Vermilion City",
+        (3, 6): "Celadon City", (3, 7): "Fuchsia City", (3, 8): "Cinnabar Island",
+        (3, 9): "Indigo Plateau", (3, 10): "Saffron City",
+        (3, 19): "Route 1", (3, 20): "Route 2", (3, 21): "Route 3", (3, 22): "Route 4",
+        (3, 23): "Route 5", (3, 24): "Route 6",
+        (1, 39): "Victory Road", (1, 40): "Victory Road 2F", (1, 41): "Victory Road 3F",
+        (1, 74): "Cerulean Cave", (1, 75): "Lorelei's Room", (1, 76): "Bruno's Room",
+        (1, 77): "Agatha's Room", (1, 78): "Lance's Room", (1, 79): "the Champion's Room",
+        (1, 80): "the Hall of Fame",
     }
+    _HALL_MAPS = {(1, 80), (1, 79)}       # standing here with all 8 badges == she beat the game
     _BADGE_NAMES = ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"]
     _GYM_ORDER = [("Pewter City", "Brock"), ("Cerulean City", "Misty"),
                   ("Vermilion City", "Lt. Surge"), ("Celadon City", "Erika"),
@@ -2085,8 +2096,16 @@ class Campaign:
         place = self._PLACE_NAMES.get(mp, "an unfamiliar area")
         dex = ram.pokedex_owned_count(b)          # BATCH 6 PHASE 4: caught-count from RAM (no menu)
         arc = self._arc_note(len(badges))         # PHASE 4: where she is in the WHOLE journey (momentum)
+        # POST-GAME (the summit-watch strand fix): the Champion flag is only set AFTER the post-Hall
+        # warp-home cutscene, so a save banked IN the Hall of Fame won't have it yet — standing in the
+        # Hall/Champion room WITH all 8 badges is unambiguous proof she won. Either signal => post-game.
+        # Firewalled: false for every pre-credits state, so nothing here can touch the normal climb.
+        game_clear = self.has_badge(0x82C)        # FLAG_SYS_GAME_CLEAR (SYS_FLAGS + 0x2C)
+        post_game = (len(badges) >= 8) and (game_clear or mp in self._HALL_MAPS)
         progress = (f"{len(badges)} badge(s) earned ({', '.join(badges) or 'none'}). "
-                    + (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned.")
+                    + ("You're the CHAMPION — the game is beaten. This is the post-game victory lap."
+                       if post_game else
+                       (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned."))
                     + (f" Pokédex: {dex} caught." if dex is not None else "")
                     + f" {arc}")
         return {"map": mp, "place": place, "coords": co,
@@ -2094,6 +2113,7 @@ class Campaign:
                 "party": party, "party_count": cnt,
                 "on_grass_map": on_grass_map, "dex_caught": dex,
                 "next_gym": ({"city": ng[0], "leader": ng[1]} if ng else None),
+                "post_game": post_game,
                 "arc": arc, "progress": progress}
 
     # PHASE 4 — MILESTONE / ARC AWARENESS: she knows where she is in the OVERALL story (8 badges ->

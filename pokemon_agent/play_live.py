@@ -362,6 +362,11 @@ def main():
         b.set_input_owner("agent")
         return out
 
+    # LAG FIX wire: give the voice client a zero-input "advance one frame + draw" pump so a blocking
+    # oracle choose() keeps the emulator (video + music) LIVE while she thinks, instead of freezing
+    # the frame. Same primitive pace() uses; no key press, so she just idles in place mid-decision.
+    voice.frame_pump = lambda: (b.run_frame(), _draw())
+
     camp = Campaign(b, battle_runner=battle_runner, on_event=voice.emit,
                     beat=voice.beat, render=render, choose=voice.choose,
                     journey=voice.journey,   # PHASE 4: continuity-into-core (grudge + arc in idle chat)
@@ -407,6 +412,10 @@ def main():
     except KeyboardInterrupt:
         outcome = "window-closed"
     finally:
+        try:
+            voice.close()          # flush the last few off-thread reactions before we tear down
+        except Exception:
+            pass
         if audio is not None:
             audio.close()
         if screen is not None:
