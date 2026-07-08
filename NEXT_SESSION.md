@@ -38,6 +38,17 @@ callbacks (recap register exists; extend to non-Pokémon sessions) → Phase I-1
 audit (recon first: memory 'next-chapter chat-vs-game balance' — Activity Director pieces exist
 unwired; NO parallel v2). Phase F waits on Jonny's notes.
 
+**PHASE K STARTED (wait-gap work per its scheduling law, shift 1):** full Rule-3 recon banked =
+**CLIPPER_RECON.md** (read it before touching the pipeline — keep-list + rebuild list + debt
+D1-D5). Landed: D1 tail-fix FINISHED (front-grow in both anchor modes) + item 4 cost
+instrumentation (clips_report.md now prints the per-VOD LLM cost line). NEXT K work in order:
+(1) the vertical-short renderer — 1080×1920 + burned-in `.ass` captions from the existing
+Whisper segments, 3-5 shorts (THE non-negotiable gap, from-scratch); (2) kira-moment selection
+(log tier-3/soul beats cutter-readably, blend into scoring); (3) manifest.json + review-queue
+state (also resolves the orphaned stitch_clips.py); (4) length targets (highlight cut scaled
+to VOD, best-of 3-4 min); (5) D3/D4 hygiene. Exit = one 007 VOD, zero manual editing →
+needs-eyes item 6.
+
 ### shift-1 detail (superseded by the block above; kept for context)
 - **C-1 DIALOGUE FIRST-TIMER + HINT EXTRACTION: BUILT + COMPILED, live-verify PARKED.**
   Core touches (loud-log): `bot.py _pokemon_react` gained `kind=` + a READING-register ask
