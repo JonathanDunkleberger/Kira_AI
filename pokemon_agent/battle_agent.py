@@ -849,38 +849,32 @@ class BattleAgent:
                      f"keep fighting (LOUD)")
             self._exit_bag(); return "failed"
         # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target->apply.
-        # A#0 selects the item, A#1 hits USE (party screen opens); from there AIM the party cursor
-        # by MENU-TIME CONTENT before each confirm (readback-gated: if the party screen isn't
-        # up the cursor doesn't move and the taps are inert). Break THE INSTANT the count drops.
+        # A#0 selects the item, A#1 hits USE (party screen opens); then AIM ONCE — focus the
+        # list, resolve the row by MENU-TIME CONTENT ('active' = row 0, the lead panel IS the
+        # mon that's out by the order law; 'fainted' = the strongest hp==0 row) — and from
+        # there on CONFIRM BLIND. Aiming on every iteration was the run15 Ether livelock:
+        # the Ether opens a move-select sub-box AFTER the mon confirm, _party_focus read it
+        # as a stray sub-menu and B-cancelled it every lap, so the item never consumed.
+        # Count drop is the only truth; a mis-aim just exhausts the walk -> 'failed' ->
+        # keep fighting (fail-safe, never a wedge).
+        aimed = target is None                             # no aim requested = nothing to do
         for n in range(10):
             if self._items_count(item_id) < cnt0:
                 break
-            if target is not None and n >= 2:
-                # WAIT for the party screen to draw, FOCUS the list (B away any 'no effect'
-                # message/sub-box — the run14 churn re-armed itself by A-ing through them),
-                # then aim at the row resolved by CONTENT RIGHT NOW: 'active' = row 0 (the
-                # lead panel IS the mon that's out, by the order law), 'fainted' = the
-                # strongest hp==0 row. Aimed row first; if the count still hasn't dropped,
-                # SWEEP the remaining rows one A each — count drop is the only truth.
-                for _ in range(10):
-                    if self._party_screen():
-                        break
-                    self._wait(8)
-                if self._party_screen():
-                    if not self._party_focus():
-                        self.log("   [engine] use_item: party list never took focus (fail-safe)")
-                    rows = self._menu_rows()
-                    if target == "fainted":
-                        aimed = [r["row"] for r in sorted(rows, key=lambda r: -r["level"])
-                                 if r["hp"] == 0]
-                    else:                                  # 'active' -> the lead panel
-                        aimed = [0]
-                    _cands = aimed + aimed[:1] + [r["row"] for r in rows
-                                                  if r["row"] not in aimed]
-                    _row = _cands[min(n - 2, len(_cands) - 1)] if _cands else 0
-                    if not self._party_goto_slot(_row):
-                        self.log(f"   [engine] use_item: aim couldn't reach menu row {_row} "
-                                 f"— confirming where the cursor is (fail-safe)")
+            if not aimed and self._party_screen():
+                self._wait(8)                              # let the screen finish drawing
+                if not self._party_focus():
+                    self.log("   [engine] use_item: party list never took focus (fail-safe)")
+                rows = self._menu_rows()
+                if target == "fainted":
+                    _row = next((r["row"] for r in sorted(rows, key=lambda r: -r["level"])
+                                 if r["hp"] == 0), 0)
+                else:                                      # 'active' -> the lead panel
+                    _row = 0
+                if not self._party_goto_slot(_row):
+                    self.log(f"   [engine] use_item: aim couldn't reach menu row {_row} "
+                             f"— confirming where the cursor is (fail-safe)")
+                aimed = True
             self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
                      f"bag={self._bag_screen()} white={self._white_box()} "
                      f"pcur={self._party_cursor_slot()} lead={self._party_cursor_on_lead()}")
@@ -957,11 +951,19 @@ class BattleAgent:
         # walk: A selects the aimed mon, the move-restore box defaults to move 0 (the workhorse
         # slot), count-drop verifies — a mis-walk is 'failed' -> keep fighting, never a wedge.
         if self._active_pp_famine(state):
-            ether = next((i for i in _ETHER_ITEMS_PREF if self._items_count(i) > 0), None)
-            if ether is not None:
-                plan["use_ether"] = (ether, aim)
-                offers["use_ether"] = ("restore PP with your Ether — you're out of moves that can "
-                                       "hit this foe and it puts your best move back in the fight")
+            # The flow restores MOVE SLOT 0 (the workhorse — the move box defaults there), so
+            # only offer when that actually buys a usable attack: slot 0 damaging + CONNECTS +
+            # genuinely EMPTY. An IMMUNITY famine can't be cured by PP (ether_verify: the game
+            # ate 8 walks with 'won't have any effect' on full-PP fodder vs Gengar).
+            mv = (state.get("ours") or {}).get("moves") or []
+            m0 = mv[0] if mv else None
+            if m0 and m0.get("pp", 0) == 0 and m0.get("power", 0) > 0 \
+                    and self._move_connects(m0, state):
+                ether = next((i for i in _ETHER_ITEMS_PREF if self._items_count(i) > 0), None)
+                if ether is not None:
+                    plan["use_ether"] = (ether, aim)
+                    offers["use_ether"] = ("restore PP with your Ether — you're out of moves that can "
+                                           "hit this foe and it puts your best move back in the fight")
         if not offers:
             return False
         offers["keep_fighting"] = "keep attacking — push through it"
@@ -1845,17 +1847,18 @@ class BattleAgent:
         immune-only PP is famine vs THIS foe, and the famine switch is the only winning line).
         Unknown foe types count as connecting (never over-trigger)."""
         mv = (state.get("ours") or {}).get("moves") or []
-        foet = [t for t in ((state.get("enemy") or {}).get("types") or []) if t and t != "???"]
-        foe_sp = (state.get("enemy") or {}).get("species")
-
-        def _connects(m):
-            if not foet:
-                return True
-            if m.get("type") == "ground" and foe_sp in _LEVITATE_SPECIES:
-                return False                              # Levitate: immune despite the chart
-            return pol.effectiveness(m.get("type", "normal"), foet) > 0
         return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
-                       and _connects(m) for m in mv)
+                       and self._move_connects(m, state) for m in mv)
+
+    def _move_connects(self, m, state):
+        """Can this move DAMAGE the current foe at all? (type chart + the Levitate hole;
+        unknown foe types count as connecting — never over-trigger a famine.)"""
+        foet = [t for t in ((state.get("enemy") or {}).get("types") or []) if t and t != "???"]
+        if not foet:
+            return True
+        if m.get("type") == "ground" and (state.get("enemy") or {}).get("species") in _LEVITATE_SPECIES:
+            return False                                  # Levitate: immune despite the chart
+        return pol.effectiveness(m.get("type", "normal"), foet) > 0
 
     def _pp_reserve_slot(self, state):
         """The best ALIVE party member that still has DAMAGING PP and is not the mon already out
