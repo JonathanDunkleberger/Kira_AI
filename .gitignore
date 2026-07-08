@@ -91,3 +91,6 @@ roms/
 
 # Scratch / diagnostic throwaway scripts
 tmp/
+
+# runtime persistence (core Kira journey lives here; never in git)
+states/

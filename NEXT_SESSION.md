@@ -33,8 +33,16 @@ commit + one STATE §0 line; never stop at a milestone.
   BEFORE any future unattended run.py: check :8766 + desk presence. Verify plan when clear:
   boot bot → watch.py --at pre-e4 headless → grep bot log for 'READING register' + play_live
   log for '[hints] +' → kill tree.
-- **NEXT:** C-3 Name Rater design → C-4 harvest+prune → E GO button (build now; its
-  throwaway live test also waits on the quiet window).
+- **C-3 NAME RATER: DESIGNED + DRY-VERIFIED (c0df5d9).** recon_name_rater.py — pret ground
+  truth (House2 door (10,16), stand (4,5) face UP; YESNO→ChoosePartyMon→YESNO→keyboard);
+  DRY mode found the real AAAAAAAAAA ace vs canonical. Live walk+keyboard = needs eyes.
+- **C-2 REWORKED on ground truth:** Lapras is IN the party at the summit (slot 5) — baseline
+  intro now fires for unbonded GIFT_BACKSTORY members once; other unbonded veterans get
+  silent bond backfill. Sandbox one-tick verify PASS. Plus post-game coherence (spine/goals/
+  arc = victory-lap, never "E4 next") and the NEW post-game-gated `leave_building` action
+  (the summit-strand scoped fix) — VERIFIED offered in the Hall.
+- **NEXT:** C-4 harvest+prune → E GO button (build now; its throwaway live test also waits
+  on the quiet window).
 
 ## PHASE 1 RECORD (done, for orientation — do not redo)
 - **Gemini vision** (kira/ eyes, VERIFIED live smoke test) — kira/ tree clean.

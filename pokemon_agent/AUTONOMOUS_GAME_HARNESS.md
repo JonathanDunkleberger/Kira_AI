@@ -215,6 +215,39 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     respawn ratchet that would have refilled her PP. Any turn-based agent needs a bottom
     rung that ALWAYS submits something: worst usable move > forced fallback (Struggle) >
     never idle. Losing is progress; idling is the only true dead end.
+35. **THE ABILITY LAYER: type-chart picks are wrong without per-target ability overrides
+    (2026-07-07, Levitate).** "Earthquake is super-effective vs Poison" donated 4+ turns per
+    Gengar — Levitate zeroes ALL Ground damage. A pure chart lookup is a half-truth in any
+    game with per-unit passives; the effectiveness function must compose chart × ability
+    (× item, × weather as they appear). One `_eff(move, enemy)` chokepoint, unit-tested,
+    feeding EVERY pick path — never chart math inline at call sites.
+36. **PP-ECONOMY / AMMO CONVERGENCE: when a gauntlet outlasts your ammo, the answer is a
+    compounding loop, not a better single run (2026-07-07, the E4).** ~50 damaging PP vs 26
+    bosses could not be won level-flat; no mid-gauntlet refill existed (verified, not
+    assumed). The winning shape: every attempt banks XP + money (the ratchet) → each lap is
+    stronger + better-kitted → one-shot rates rise → PP-per-KO falls → the distribution's
+    tail crosses the finish. Generalize: attrition walls fall to persistent-gain loops;
+    verify what persists across defeat (XP/items yes, cash halves) and SPEND-THE-WAD into
+    the persistent form before dying.
+37. **THE GAUNTLET-RESET LAW: multi-stage bosses reset to stage 1 on defeat — per-stage
+    banks are DIAGNOSIS-ONLY (2026-07-07).** A mid-gauntlet savestate is a lie for progress
+    purposes (the game will replay the whole chain); only the pre-gauntlet anchor + the
+    persistent-gain ratchet are real. Bank rooms to STUDY them, never to resume them.
+38. **THE ZERO-COST BOUNCE WINDOW: restart/relaunch runs only at the moment nothing is in
+    flight and everything gained is banked (2026-07-07, whiteout-center).** Killing a run
+    mid-attempt loses the lap's gains; the respawn point right after the auto-bank is free.
+    Every long loop should surface its own "safe to bounce NOW" line in the log so an
+    operator (or the night loop) never guesses.
+39. **THE MENU-TIME ORDER LAW: a UI can physically REARRANGE the underlying data while open
+    and restore it on close (2026-07-07, the FRLG party menu).** Row i IS slot i only while
+    the menu is up; carrying an index across the open/close boundary mis-aims every later
+    use (revives on corpses, switches to the wrong body). Re-derive selection indices AT
+    menu time from the live struct, every time — never cache across a UI boundary.
+
+**STATUS ADDENDUM (2026-07-07): GAME #1 SUMMITED.** FireRed credits rolled autonomously
+(bedroom → 8 badges → E4 → Champion). The engine list above is what did it; the post-credits
+phase is soul-polish (first-timer dialogue register, overheard-intel ledger, gift-mon
+introductions, post-game context flip) — all engine-side patterns a game #2 inherits free.
 
 **ENGINE CAPABILITY (added 2026-07-07): THE PAD-GRAPH ROUTER (recon_sabrina.pad_plan).**
 Teleport mazes (warps whose dest is the CURRENT map) are routable with zero hardcoding: warp
