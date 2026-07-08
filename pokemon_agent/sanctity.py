@@ -24,6 +24,9 @@ import os
 import re
 
 SIDECARS = ("world_model.json", "strat_memory.json", "soul.json", "journey_core.json")
+# OPTIONAL sidecars: ride the bundle when present (copy-if-exists at bank/promote/sandbox time)
+# but are NEVER validation-required — old banks without them stay VALID and just start empty.
+OPTIONAL_SIDECARS = ("dialogue_hints.json",)
 _MOJIBAKE = ("Ã", "â€", "�")   # 'Ã', 'â€', replacement char
 _TALLY_RE = re.compile(r"\((\d+)-(\d+)\)")
 

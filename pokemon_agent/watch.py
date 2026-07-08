@@ -166,6 +166,16 @@ def _build_sandbox(bundle_dir, label):
         shutil.copy2(os.path.join(bundle_dir, f), os.path.join(sandbox, f))
     # Remap the bundle's soul.json -> the pokemon_soul.json filename the live campaign loads.
     shutil.copy2(os.path.join(bundle_dir, SOUL_SRC), os.path.join(sandbox, SOUL_DST))
+    # Optional sidecars (e.g. dialogue_hints.json — her overheard-intel ledger): ride when present,
+    # never required (old banks without them just start empty in the sandbox).
+    try:
+        import sanctity as _sanctity
+        for f in getattr(_sanctity, "OPTIONAL_SIDECARS", ()):
+            src = os.path.join(bundle_dir, f)
+            if os.path.exists(src):
+                shutil.copy2(src, os.path.join(sandbox, f))
+    except Exception:
+        pass
     return sandbox
 
 

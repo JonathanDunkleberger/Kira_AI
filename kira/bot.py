@@ -3237,7 +3237,8 @@ class VTubeBot:
         "out there ('I should grind here', 'my team needs a level').]"
     )
 
-    async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None):
+    async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None,
+                             kind: str | None = None):
         """SEAM (M1): route a NEUTRAL Pokémon game-event summary through Kira's existing
         self/reaction path so her DRIVES come from her self (mood/bond/want/opinions via
         _build_self_block, injected by _execute_interjection). The battle ENGINE decides
@@ -3246,7 +3247,13 @@ class VTubeBot:
 
         `tier` (0..3) is a SALIENCE HINT from the game harness, threaded straight through to
         _execute_interjection's model/length pick (big beats -> Opus + room; grind -> Sonnet +
-        short). It NEVER changes what she says or who she is — only which model voices it."""
+        short). It NEVER changes what she says or who she is — only which model voices it.
+
+        `kind` (Phase C-1, soul-debt #12 — first-timer dialogue reactions): the harness's event
+        KIND. 'dialogue' switches the ASK framing from battle-react to READING-react (surprise /
+        a guess at meaning / an opinion, like a first playthrough) — framing only; her identity,
+        gates, state grounding, and the whole reaction path are unchanged. None/absent = exactly
+        today's behavior (older harnesses keep working)."""
         if not POKEMON_AGENT_ENABLED or not summary:
             return
         # PHASE 3 (consolidation): a tier-3 beat is, by the harness's own salience, a significant moment
@@ -3277,13 +3284,32 @@ class VTubeBot:
         # reaction her SAGA too (the grudge + arc), so she can call it back live — not just in idle chat.
         # Grind ticks (tier 0/1) stay lean (no saga) to keep them snappy.
         _saga_block = self._pokemon_journey_block() if (tier or 0) >= 2 else ""
+        # PHASE C-1 (soul-debt #12): a DIALOGUE event is her READING the game's text, not a battle
+        # beat — so the ask becomes first-timer reading (surprise, a guess at what it means, an
+        # opinion, reacting to a hint's CONTENT), never the battle framing. Detected by the harness
+        # kind; the summary-prefix fallback covers older harness builds that don't send kind yet.
+        _is_dialogue = (kind == "dialogue") or summary.startswith(("you read:", "the gym leader says"))
+        if _is_dialogue:
+            _ask = (
+                f"On screen right now — {summary}\n\n"
+                "This is your FIRST playthrough; you've never seen this game before. React in one "
+                "or two sentences like a first-timer actually READING it: surprise, a guess at what "
+                "it means, or a quick opinion of whoever's saying it — and if it points somewhere or "
+                "hints at something to do, react to THAT ('wait, so I should…'). Don't recite the "
+                "line back, don't narrate mechanics. Stay consistent with your REAL run-state above "
+                "— don't claim something you haven't done."
+            )
+        else:
+            _ask = (
+                f"What just happened in your battle: \"{summary}\"\n\n"
+                "React in one or two sentences, in character. Don't narrate the mechanics. "
+                "Stay consistent with your REAL run-state above — don't claim something you haven't done."
+            )
         prompt = (
             self._POKEMON_CHARACTER_RULES + "\n\n"
             + (_state_block + "\n" if _state_block else "")
             + (_saga_block + "\n" if _saga_block else "")
-            + f"What just happened in your battle: \"{summary}\"\n\n"
-            "React in one or two sentences, in character. Don't narrate the mechanics. "
-            "Stay consistent with your REAL run-state above — don't claim something you haven't done."
+            + _ask
         )
         if self._active_turn_lock.locked():
             # COALESCE (soul-flow lag fix): a fast game floods events while she voices one (~6-9s
@@ -3300,7 +3326,8 @@ class VTubeBot:
             })
             return
         async with self._active_turn_lock:
-            print(f"   [Pokemon] event react (bypass={bypass}, tier={tier}): {summary[:70]}")
+            print(f"   [Pokemon] event react (bypass={bypass}, tier={tier}, kind={kind}"
+                  f"{', READING register' if _is_dialogue else ''}): {summary[:70]}")
             await self._execute_interjection(prompt, memory_query="pokemon battle",
                                              scene_override=summary, react_tier=tier)
             self.last_interaction_time = time.time()

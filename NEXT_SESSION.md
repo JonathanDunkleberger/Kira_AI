@@ -15,6 +15,27 @@ first. The CEO then STACKED the FULL COMPLETION MANDATE below — phases C-remai
 Work them in order unless a needs-eyes dependency forces a swap; bank each phase with a
 commit + one STATE §0 line; never stop at a milestone.
 
+## FRONTIER (rewritten live, night shift 1, 2026-07-07 ~21:45)
+- **C-1 DIALOGUE FIRST-TIMER + HINT EXTRACTION: BUILT + COMPILED, live-verify PARKED.**
+  Core touches (loud-log): `bot.py _pokemon_react` gained `kind=` + a READING-register ask
+  (kind=='dialogue' or 'you read:'/'gym leader says' prefix fallback); `control_server.py`
+  pokemon_event passes `body.kind`. Mode-side: `dialogue_hints.py` (extractor + persistent
+  HintLedger, unit-verified incl. resume round-trip), DialogueDriver class tap `line_sink`,
+  campaign init + decision-ctx fold after `_spine_and_history`; optional-sidecar plumbing in
+  sanctity/promote_bank/watch.py (old banks stay VALID).
+- **C-2 UNMET-TEAMMATE INTRO (Lapras generalized): BUILT + COMPILED, live-verify PARKED.**
+  `campaign._meet_new_teammates` (PID-set diff, tick-top; baseline-silent first tick;
+  catch-path marks met; reunion-vs-intro via bonds) + `soul.note_met` + GIFT_BACKSTORY
+  (Lapras/Silph story).
+- **⚠️ LIVE-VERIFY OF BOTH IS PARKED (needs-eyes/quiet-window):** shift 1 launched run.py
+  for the verify and Kira engaged a PRESENT, confused Jonny (~21:30); killed on his voiced
+  request. See NIGHT_REPORT.md top block + memory 'night-shift-bot-launch-etiquette'.
+  BEFORE any future unattended run.py: check :8766 + desk presence. Verify plan when clear:
+  boot bot → watch.py --at pre-e4 headless → grep bot log for 'READING register' + play_live
+  log for '[hints] +' → kill tree.
+- **NEXT:** C-3 Name Rater design → C-4 harvest+prune → E GO button (build now; its
+  throwaway live test also waits on the quiet window).
+
 ## PHASE 1 RECORD (done, for orientation — do not redo)
 - **Gemini vision** (kira/ eyes, VERIFIED live smoke test) — kira/ tree clean.
 - **watch.py** — one-command soul-on watch from any banked point; preflights :8766 and

@@ -589,6 +589,20 @@ class Campaign:
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
         self.world = WorldModel(log=log)
         self.guide = GuideSearch(log=log)     # BATCH 6 PHASE 5: silent guide (no-op until dep is live)
+        # SOUL-DEBT #12 (info half) — overheard-intel ledger: every accepted overworld line (via the
+        # DialogueDriver class tap) runs the hint extractor; actionable ones persist in the campaign
+        # dir and fold into her decision ctx ("things you've heard"). She READS boxes already — this
+        # is what makes her USE them. Mode-side only; her voice reactions ride the existing seam.
+        try:
+            import dialogue_hints as dhints
+            from dialogue_drive import DialogueDriver as _DD
+            from dialogue_reader import salience_tags as _sal_tags
+            self.hints = dhints.HintLedger(os.path.join(STATES_CAMPAIGN, "dialogue_hints.json"), log=log)
+            _DD.line_sink = lambda line: self.hints.add(
+                line, tags=_sal_tags(line), where=tuple(tv.map_id(self.b)))
+        except Exception as _he:
+            self.hints = None
+            log(f"   [hints] !! ledger init failed (intel OFF this run, LOUD): {_he}")
         # GATE-UNLOCK questline (recognise → derive → execute). KB + recogniser built once; the active
         # questline is an `_active_objective` sibling that survives detours and self-clears when its
         # success flag/cap reads satisfied LIVE. Pure harness routing; the derived PLAN reaches her
@@ -633,6 +647,11 @@ class Campaign:
             self.soul = PokemonSoul(emit=self.on_event, choose=getattr(self, "_soul_choose", None))
         except Exception:
             self.soul = None
+        # PHASE C-2 — UNMET-TEAMMATE WATCHER (the Lapras first-field moment, generalized): PIDs seen
+        # in the party. None = baseline pending (first tick marks everyone present as already-met,
+        # silently — she's been traveling with them). A PID that APPEARS later without a witnessed
+        # catch (gift / PC withdrawal / Jonny's hands) fires the introduction arc in _meet_new_teammates.
+        self._met_pids = None
         self._last_lead_species = None        # for the note_evolve soul hook (lead species-change watch)
         self._last_lead_pid = None            # slot-0 personality value — evolution keeps the PID, a
                                               # party REORDER swaps it (the false-"[evolve]" discriminator)
@@ -4699,12 +4718,86 @@ class Campaign:
                 else " — a real trainer stocks up before pushing on.")
         return head + "; ".join(bits) + tail
 
+    def _party_pids(self):
+        """(pid, species) per party slot — set-comparable (immune to the menu-time order law:
+        a reorder shuffles slots, never the PID set). Bounded RAM read; safe at tick top."""
+        out = []
+        cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+        for s in range(cnt):
+            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+            out.append((self.b.rd32(base), st.read_party_species(self.b, s)))
+        return out
+
+    def _meet_new_teammates(self, state):
+        """PHASE C-2 — the UNMET-TEAMMATE watcher (Lapras first-field, generalized). Each tick, diff
+        the party PID set against everyone she's met. First tick baselines silently (present = met).
+        A NEW pid whose arrival wasn't a witnessed catch (roster_react marks those met itself) gets a
+        real INTRODUCTION: a neutral meet event -> her voice, her own name for them (soul oracle, the
+        proven catch-naming pattern), a family bond via soul.note_met. A returning species that
+        already has a bond = a smaller REUNION beat, not a re-introduction."""
+        try:
+            cur = self._party_pids()
+        except Exception as _pe:
+            log(f"   [meet] party read skipped: {_pe}")
+            return
+        pids = {p for p, _ in cur}
+        if self._met_pids is None:                        # first tick: baseline, no beats
+            self._met_pids = set(pids)
+            return
+        fresh = [(p, sp) for p, sp in cur if p not in self._met_pids]
+        self._met_pids |= pids
+        if not fresh or self.soul is None:
+            return
+        from pokemon_soul import GIFT_BACKSTORY
+        for pid, sp in fresh:
+            name = st.SPECIES_NAME.get(sp, "a new Pokémon")
+            bonded = None
+            try:
+                for _k, v in (self.soul.bonds or {}).items():
+                    if isinstance(v, dict) and (v.get("species") or "").lower() == name.lower():
+                        bonded = v; break
+            except Exception:
+                bonded = None
+            if bonded:                                    # an old friend re-fielded -> reunion, not intro
+                who = bonded.get("nickname") or name
+                log(f"   [meet] REUNION: {who} ({name}) back in the party")
+                self.on_event(f"{who} is back in the party — good to have you back out here.",
+                              kind="roster", tier=2)
+                continue
+            how = GIFT_BACKSTORY.get(name.lower())
+            log(f"   [meet] INTRODUCTION: unmet teammate {name} (pid={pid:08x}) joined the party"
+                + (" — gift backstory known" if how else ""))
+            # the meet beat (neutral event -> her voice reacts in character)
+            self.on_event(f"a {name} just joined your team — "
+                          + (how if how else "you two haven't properly met until now")
+                          + ". this is your first real moment together.", kind="roster", tier=3)
+            # her own name for them (soul-side mental name; NOT the in-game nickname keyboard)
+            nick = name
+            try:
+                nm = self._soul_choose("name", {}, {"place":
+                    f"a {name} just joined your team — "
+                    + (how if how else "your first time actually meeting")
+                    + f". give this {name} a name, just the name."})
+                if nm:
+                    nick = nm.strip().split("\n")[0][:12] or name
+            except Exception as _ne:
+                log(f"   [meet] naming skipped: {_ne}")
+            self.soul.note_met(name, nick, how)
+            self._continuity_save()                       # the new bond survives a kill right now
+
     def roster_react(self):
         """SOUL beat after a hand-play-banked catch (the agent can't drive this core's battle menus,
         so acquisition is hand-played — but the RELATIONSHIP is live). Emit a NEUTRAL roster-change
         event so Kira reacts to her new teammate IN HER OWN VOICE via the existing seam (fulfilling
         her want for a partner). Touches NO core (on_event -> _pokemon_react -> her self)."""
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        # PHASE C-2 guard: a witnessed catch IS the meeting — mark the whole current party met so the
+        # unmet-teammate watcher never re-introduces someone she just caught and celebrated.
+        try:
+            if self._met_pids is not None:
+                self._met_pids |= {p for p, _ in self._party_pids()}
+        except Exception:
+            pass
         if cnt <= 1:
             log("   ROSTER_REACT: party size 1 — no new teammate to react to"); return "reacted"
         name = st.SPECIES_NAME.get(st.read_party_species(self.b, cnt - 1), "a new Pokemon")
@@ -6122,6 +6215,9 @@ class Campaign:
             state = self.read_live_state()
             self._learn_map(state)         # BATCH-6 P2: fold this map's connections+grass into the graph
             self._refresh_world_caps()     # Batch-WORLD: keep Fly/Surf/etc. live (she uses them when earned)
+            # PHASE C-2 — meet anyone who joined the party WITHOUT a witnessed catch (gift/PC/Jonny's
+            # hands): the introduction arc (met/named/bonded), never a silently-deployed stranger.
+            self._meet_new_teammates(state)
             # SHOP-WITH-INTENT memory (PART C): sample what's afflicting the party THIS tick so a later
             # stock-up buys the cure for what actually hurt her (persists even after it's healed off).
             newly = self.party_statuses()
@@ -6459,6 +6555,15 @@ class Campaign:
                 where = f"{where}. {self._spine_and_history(state)}"
             except Exception as _sh:
                 log(f"   [roam] spine/history fold skipped: {_sh}")
+            # SOUL-DEBT #12 (info half) — fold her OVERHEARD INTEL (NPC/sign lines the extractor kept)
+            # into the decision ctx, so "the captain is upstairs" can actually steer the pick. Her own
+            # notes, not omniscience: only lines she really read this run.
+            try:
+                _hb = self.hints.ctx_brief() if self.hints is not None else ""
+                if _hb:
+                    where = f"{where}. {_hb}"
+            except Exception as _hbe:
+                log(f"   [roam] hints fold skipped: {_hbe}")
             where = (f"{where}. YOUR PLAN — right now: {_goals['short']}. Next: {_goals['medium']}. "
                      f"Bigger picture: {_goals['long']}. Your team right now: {_brief}. Remember YOU are "
                      f"the one playing this — narrate your plan to chat in your own voice (first person: "

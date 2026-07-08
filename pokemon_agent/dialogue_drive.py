@@ -65,6 +65,14 @@ def _player_coords(b):
 
 
 class DialogueDriver:
+    # HINT-EXTRACTION TAP (soul-debt #12, the info half): campaign sets this ONCE to its
+    # HintLedger feeder; every ad-hoc DialogueDriver instance then reports each accepted NEW
+    # line through it (drive() below). Class-level on purpose — drivers are constructed
+    # ad hoc all over campaign, and the tap must catch all of them (one campaign per process).
+    # None = no-op (recon tools unaffected). Failures are swallowed per-call: intel must
+    # never break the proven drive loop.
+    line_sink = None
+
     def __init__(self, b, render=None, log=print, owner="agent"):
         self.b = b
         self.render = render or (lambda: None)
@@ -190,6 +198,11 @@ class DialogueDriver:
                     # the fast advance cadence (the halved curve) is UNCHANGED.
                     self.b.press("A", 4, 6, self.render, owner=self.owner)
                     last = self.dr._read_buffer() or last  # adopt what's shown now (snapped-full text)
+                    if DialogueDriver.line_sink is not None:
+                        try:                              # hint tap: report the full accepted line
+                            DialogueDriver.line_sink(last.replace("\n", " "))
+                        except Exception:
+                            pass
                     self._hold_s(self._read_seconds(last, min_s, max_s, base_s, per_char_s))
                 self.b.press("A", 4, 10, self.render, owner=self.owner)  # advance one page, paced
                 self._hold_s(page_gap_s)

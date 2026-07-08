@@ -46,7 +46,7 @@ def main():
     ts = time.strftime("%Y%m%d_%H%M%S")
     backup = os.path.join(CANON, f"pre_{label}_backup_{ts}")
     os.makedirs(backup, exist_ok=True)
-    for f in BUNDLE:
+    for f in BUNDLE + sanctity.OPTIONAL_SIDECARS:
         src = os.path.join(CANON, f)
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(backup, f))
@@ -54,6 +54,10 @@ def main():
 
     for f in BUNDLE:
         shutil.copy2(os.path.join(bank, f), os.path.join(CANON, f))
+    for f in sanctity.OPTIONAL_SIDECARS:                 # copy-if-present, never required
+        src = os.path.join(bank, f)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(CANON, f))
     print(f"PROMOTED {bank} -> {CANON}")
 
     # round-trip verify

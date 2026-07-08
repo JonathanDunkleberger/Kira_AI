@@ -27,6 +27,14 @@ GAME_KNOWLEDGE = {
     "legendaries": {"articuno", "zapdos", "moltres", "mewtwo"},
 }
 
+# GIFT/BACKSTORY layer (game-knowledge, per-game): how an UNMET teammate came to her — so the
+# first-field introduction beat carries the real story, not a generic "someone appeared".
+# Keyed by lowercase species. Extend as gift mons enter the run.
+GIFT_BACKSTORY = {
+    "lapras": ("the LAPRAS a grateful Silph Co. employee gifted you during the Team Rocket raid — "
+               "it's been waiting in Bill's PC ever since, and you two have never actually met"),
+}
+
 # Status / utility moves whose VALUE isn't captured by raw power - protect them from a naive
 # "drop the lowest power" reserve (safety). Sleep/para/leech/sharp-stat moves earn their slot.
 HIGH_VALUE_LOW_POWER = {
@@ -105,6 +113,18 @@ class PokemonSoul:
         who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
         self.emit(f"{who} is part of the team now" + (f" - caught {where}" if where else ""),
                   kind="roster", tier=2)
+
+    def note_met(self, species, nickname, how=None):
+        """PHASE C-2 (the Lapras first-field moment, generalized): a teammate who arrived WITHOUT a
+        witnessed catch (a gift, a trade, a PC withdrawal, Jonny's hands) gets a real INTRODUCTION —
+        met, named, recorded as family — never silently deployed. `how` is the backstory line
+        (GIFT_BACKSTORY) when we know it."""
+        key = (nickname or species or "").lower()
+        self.bonds[key] = {"species": species, "nickname": nickname,
+                           "caught": None, "note": how or "joined the team (not caught — met later)"}
+        who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
+        self.emit(f"so {who} is officially one of us now — welcome aboard, {who}.",
+                  kind="roster", tier=3)
 
     def note_faint(self, who):
         """A teammate goes down - a felt beat for family, not a neutral 'fainted'."""

@@ -238,7 +238,7 @@ class KiraVoice:
         """The actual pokemon_event POST + loud logging (formerly inline in emit). Runs on the
         sender thread when async, or inline when sync."""
         try:
-            res = self._post("pokemon_event", name=summary, tier=tier)
+            res = self._post("pokemon_event", name=summary, tier=tier, kind=kind)
             self.n_sent += 1
             fired = res.get("fired") if isinstance(res, dict) else res
             self.log(f"   [kira-voice] -> T{tier}·{TIER_NAME[tier]}· ({kind}) {summary!r}  fired={fired}")

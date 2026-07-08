@@ -1108,7 +1108,10 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
         if summary:
             # tier is a SALIENCE HINT only — passed through to model/length selection, never to
             # her reaction generation. Default None preserves today's behavior exactly.
-            asyncio.ensure_future(bot._pokemon_react(summary, tier=body.tier))  # fire-and-forget
+            # kind (Phase C-1, soul-debt #12): the harness's event KIND rides along so a
+            # 'dialogue' event gets the first-timer READING register instead of battle framing.
+            asyncio.ensure_future(bot._pokemon_react(summary, tier=body.tier,
+                                                     kind=(body.kind or None)))  # fire-and-forget
         return _ok(fired=bool(summary))
 
     if action == "pokemon_alert":
