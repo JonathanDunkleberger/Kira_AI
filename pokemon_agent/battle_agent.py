@@ -1002,22 +1002,41 @@ class BattleAgent:
     def _revive_worthy_slot(self):
         """Party slot of the strongest FAINTED mon, iff it out-levels every mon still standing.
         That's the revive-worth-a-turn test: the ace is down and the field is held by fodder.
-        Returns None otherwise (never revives Ekans-class bench weight mid-fight)."""
+        Returns None otherwise (never revives Ekans-class bench weight mid-fight) — EXCEPT
+        the LAST-BODY INSURANCE (shift-15, run18 Gary postmortem): the worthy gate held the
+        whole Lance fight (worthy=None past 3-5 corpses because the L70 ace stood), so she
+        entered the Champion room with ONE body and an ace faint = instant whiteout. When
+        the active mon is the LAST body standing, it's genuinely hurt (<=50%), and >=2
+        revives remain, a revived fodder IS worth the turn regardless of level: it converts
+        'ace faints = loss' into the proven comeback cycle (fodder tanks the KO turn, the
+        ace gets revived behind it — the revive_verify Agatha win). >=2 keeps the last
+        revive reserved for the ace itself; the 50% floor stops healthy-ace stretches from
+        draining the kit in the early rooms."""
         try:
-            lv_alive, best = 0, None
+            alive, best = [], None
             for i in range(6):
                 if not st.read_party_species(self.b, i):
                     continue
                 hp = self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56)
+                mx = self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x58)
                 lv = self.b.rd8(ram.GPLAYER_PARTY + i * 100 + 0x54)
                 if hp > 0:
-                    lv_alive = max(lv_alive, lv)
+                    alive.append((hp, mx, lv))
                 elif best is None or lv > best[1]:
                     best = (i, lv)
         except Exception:
             return None
-        if best is not None and best[1] > lv_alive:
+        if best is None:
+            return None
+        if not alive or best[1] > max(lv for _hp, _mx, lv in alive):
             return best[0]
+        if len(alive) == 1:
+            hp, mx, _lv = alive[0]
+            n_rev = sum(self._items_count(i) for i in _REVIVE_ITEMS_PREF)
+            if n_rev >= 2 and mx and hp <= mx * 0.5:
+                self.log("   [engine] revive-check: LAST-BODY INSURANCE armed "
+                         f"(alive=1 at {hp}/{mx}, revives x{n_rev})")
+                return best[0]
         return None
 
     def _STATUS_CURE_for(self, status):
