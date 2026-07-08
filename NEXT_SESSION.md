@@ -74,11 +74,13 @@ ffmpeg burn; caption failure degrades LOUDLY to an uncaptioned render). Over-len
 the punch (last max-window). ALSO LANDED shift 2: **item 3 manifest.json** (machine review
 queue, per-item approved:false, D2 stitcher retired) + **length targets** (highlight scaled to
 session span, best-of 240s) + **D4** (prompt_spec.py single source — the format block is the
-cutter's parsing contract) + the cp1252 loud-log crash class killed module-wide. REMAINING K
-work: (2) kira-moment selection — log tier-3/soul/judged beats cutter-readably (bot.py
-events.jsonl already carries highlight_captured; add tiered pokemon/reaction beats), blend
-into candidate scoring so "she named the rat and declared war" outranks "boss died";
-(5) D3 hardcoded paths (.env:11-12,116); then the EXIT RUN: one full 007/dev-stream VOD
+cutter's parsing contract) + the cp1252 loud-log crash class killed module-wide. PLUS (late
+shift 2, 3c0c1e6): **item 2 SELECTION HALF landed** — `load_beat_epochs` + a +2 score boost
+(capped 10, loud per-boost) for candidates overlapping a live-captured beat, unit-VERIFIED;
+consumes `highlight_captured` today AND the reserved `kira_moment` type. REMAINING K work:
+(2-bot) log tiered soul/reaction/judged beats as `kira_moment` in bot.py's stream_logger
+(CORE touch, plugs into the cutter with zero changes); (5) D3 hardcoded paths (.env:11-12,116);
+then the EXIT RUN: one full 007/dev-stream VOD
 through `python scripts/cut_clips.py` end-to-end, outputs postable with zero manual editing →
 needs-eyes item 6. (Today's real VODs exist: `2026-07-07 20-16-17.mp4` + `16-50-08.mp4` in
 OBS_RECORDINGS_DIR — candidates for the exit run if candidate .md artifacts exist for them.)
