@@ -60,7 +60,12 @@ FULL_RESTORE, MAX_POTION, REVIVE, FULL_HEAL = 19, 20, 24, 23
 # unspent cash gets HALVED — the old plan left $24k unspent and the surplus evaporated
 # across attempts ($63k -> $36k -> $10k -> $0 by attempt 4). Wealth stored as Full
 # Restores is whiteout-proof; the stock_up scaler already clamps to money per line.
-SHOPPING = [(FULL_RESTORE, 2, 16, 3000), (REVIVE, 4, 8, 1500), (FULL_HEAL, 5, 5, 600)]
+# POVERTY-FIRST ORDER (shift-17, run20 postmortem): the whiteout treadmill pays $2-6k/lap
+# (E4 payouts, halved on the next whiteout) — FR-first ate the whole budget when rich and
+# bought NOTHING when poor, so by attempt 5 the bag was empty and every lap ran itemless.
+# Revives first ($1500 = the comeback cycle: the ace back at half HP, and fainting cleared
+# its sleep), Full Heals second (the $600 Jynx sleep counter), Full Restores with the rest.
+SHOPPING = [(REVIVE, 4, 8, 1500), (FULL_HEAL, 5, 5, 600), (FULL_RESTORE, 2, 16, 3000)]
 CLERK_STAND = (2, 7)
 LEAGUE_DOOR = (4, 1)
 CENTER_EXIT = (11, 16)
@@ -382,13 +387,20 @@ def main():
         # afford check, priority order; drop the tail if money is short
         money = camp.money()
         plan = []
+        # NO cash reserve (shift-17): money is HALVED on whiteout, items aren't — every
+        # reserved dollar is half-wasted. The old $2000 floor left poverty laps ($2-6k)
+        # unable to buy even one Revive.
         for iid, row, n, price in need:
-            n = min(n, max(0, (money - 2000) // price))
+            n = min(n, max(0, money // price))
             if n > 0:
                 plan.append((iid, row, n, price))
                 money -= n * price
         if not plan:
-            L(f"   [shop] stocked already (money ${camp.money()})")
+            if need:
+                L(f"   [shop] kit SHORT but can't afford a single unit "
+                  f"(money ${camp.money()}) — riding on what's aboard (LOUD)")
+            else:
+                L(f"   [shop] stocked already (money ${camp.money()})")
             return True
         L(f"   [shop] plan {plan} (money ${camp.money()})")
         if not walk(lambda c: c == CLERK_STAND, "clerk-approach"):

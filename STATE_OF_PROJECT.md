@@ -30,6 +30,35 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #17 — THE POVERTY DEATH SPIRAL KILLED; run21 in flight ──
+**CANONICAL unchanged = indigo_reach. e4_run21 IN FLIGHT (logs/longrun/e4_run21.log, detached,
+launched ~19:50, 4h deadline, E4_BOOT=banked_E4 ratchet ~L79).** run20 postmortem (read live,
+killed at a fresh whiteout-center bank so the ratchet landed on disk):
+- **run20 PROVED shift-16's impostor fix** (dozens of "action-menu impostor -> B-drain"
+  recoveries, ZERO livelocks across 900+s) **and the XP ratchet is rich**: Venusaur
+  L68 -> L79 in ~55 min (E4 rooms pay big XP even on losing attempts, banked at every
+  whiteout-center).
+- **THE ECONOMY COLLAPSED [root-caused in stock_up]:** 6+ whiteouts, $19k -> $0. Two
+  compounding bugs: (1) the $2,000 cash reserve — `(money-2000)//price` — meant poverty
+  laps ($2-6k, E4 payouts halved per whiteout) bought NOTHING while printing the LIE
+  "[shop] stocked already (money $2120)"; (2) FULL-RESTORE-FIRST order ate the whole
+  budget when rich, so Revives never stocked. Every lap ran itemless and died at
+  Lorelei/Agatha with the L74+ ace unrevivable (revive_item=None all night; the worthy
+  gate itself is FINE — worthy=0 = the dead ace's slot 0, it WOULD have fired).
+- **THE FIXES [COMPILE, committed; VERIFY = run21 live]:** (1) SHOPPING is POVERTY-FIRST:
+  Revives ($1500; the comeback cycle — and fainting clears sleep, so a revive is also the
+  Jynx answer), Full Heals ($600, the direct sleep cure), Full Restores last; (2) reserve
+  GONE (money halves on whiteout, items don't — reserved cash is half-wasted by design);
+  (3) can't-afford now logs LOUD, distinct from stocked; (4) LAST-BODY INSURANCE lost its
+  50% HP floor (battle_agent) — at alive==1 with >=2 revives a bench body is ALWAYS worth
+  the turn (run19: a HEALTHY last-body ace walked all of Lance with no spare body banked —
+  one crit = whiteout; the gate self-closes at alive==2 so it can't drain the kit).
+- **CONVERGENCE MODEL:** depth -> payout -> items -> depth, on top of the compounding
+  level curve. Watch run21 for "[shop] plan" actually buying on poverty laps + revives
+  consuming + attempts getting deeper. If the curve still plateaus across 4h, the queued
+  accelerants (in order): Double-Edge tutor (VR 2F), TM19 Giga Drain bag-check, Lapras+Ice
+  Beam power-level. ⛔ VR loot sweep stays DEAD; ⛔ RAM-poking money = cheating, never.
+
 ### ── 2026-07-07 NIGHT SHIFT #16 — THE IMPOSTOR-WHITE-BOX LIVELOCK KILLED; run20 ratchet in flight ──
 **CANONICAL unchanged = indigo_reach. e4_run20 IN FLIGHT (logs/longrun/e4_run20.log, detached,
 launched ~19:15, 4h deadline, booted E4_BOOT=banked_E4).** run19 postmortem (found wedged live

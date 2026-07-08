@@ -1038,8 +1038,11 @@ class BattleAgent:
         revives remain, a revived fodder IS worth the turn regardless of level: it converts
         'ace faints = loss' into the proven comeback cycle (fodder tanks the KO turn, the
         ace gets revived behind it — the revive_verify Agatha win). >=2 keeps the last
-        revive reserved for the ace itself; the 50% floor stops healthy-ace stretches from
-        draining the kit in the early rooms."""
+        revive reserved for the ace itself. The old 50% HP floor is GONE (shift-17,
+        run19/20 postmortem): a healthy last-body ace walked the whole Lance room with no
+        spare body banked, so one crit/sleep = instant whiteout — at alive==1 a bench body
+        is ALWAYS worth the turn, and the gate self-closes at alive==2 so it can't drain
+        the kit."""
         try:
             alive, best = [], None
             for i in range(6):
@@ -1061,7 +1064,7 @@ class BattleAgent:
         if len(alive) == 1:
             hp, mx, _lv = alive[0]
             n_rev = sum(self._items_count(i) for i in _REVIVE_ITEMS_PREF)
-            if n_rev >= 2 and mx and hp <= mx * 0.5:
+            if n_rev >= 2:
                 self.log("   [engine] revive-check: LAST-BODY INSURANCE armed "
                          f"(alive=1 at {hp}/{mx}, revives x{n_rev})")
                 return best[0]
