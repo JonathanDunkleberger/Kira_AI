@@ -11,21 +11,41 @@ travel-wedges ×4 (the nav tripwires), false-clears juniors off the one reachabl
 A-mashes Sabrina from 11 tiles away. The fix is known + strike-proven: recon_sabrina.py's
 `pad_plan` (runtime pad-graph: same-map warp events = pads, dest_warp_id = landing; flood-fill
 walk-regions elevation-strict, meta-BFS with pad rides as edges) + `ride_pad` (long-hold mount).
-**SHIFT 5 IN FLIGHT:**
-1. **FULL 15-arc sweep** (baseline of HEAD incl. water travel, never full-swept):
-   `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, log →
-   `logs\longrun\descent_full_shift5.log` (~35 min). Regenerates DESCENT_PREGRADE.md (15 rows).
-   If it didn't finish: re-run it. Read the ranked list; fix FAIL/WARN arcs per the loop.
-2. **PAD-ROUTER PORT (the shift's big swing):** new engine module `pokemon_agent/pad_nav.py`
-   (PadNav: plan/ride/goto_region, ported strike-verbatim — REGION FLOOD stays STRICT to the
-   seed elevation (0xF pass): Grid.edge_open's law allows 0-as-transition, which would weld the
-   x29 void strip to the rooms) + campaign wiring: beat_gym arms a per-gym router when the
-   interior has same-map warps; _clear_gym_trainers pad-hops into each trainer's region;
-   leader approach + post-badge walk-out pad-route first. Then RE-GRADE SILPH
-   (`$env:DESCENT_ARCS='banked_SILPH'`) — expect PASS with real junior clears.
+**SHIFT 5 LANDED (all committed; verifies chained):**
+1. **PAD-ROUTER PORT — COMMITTED 2a13802 (COMPILES+WIRED):** `pad_nav.py` (plan/ride/walk/
+   goto_region, strike-verbatim; region flood STRICT to seed elevation — edge_open's
+   0-as-transition would weld the x29 void strip to the rooms) + campaign: beat_gym arms the
+   router when the interior has same-map warps; `_gym_move` is THE single interior mover
+   (travel is warp-blind — its paths RIDE pads mid-route, so armed gyms never use it);
+   junior engagement, leader-advance, leader approach, post-badge walk-out all pad-aware.
+2. **F-7(c) slice 2 — COMMITTED 94157e6 (COMPILES+WIRED):** LEVEL-UP EARLY BEAT fires inside
+   the post-faint drain (any party slot; level byte flips while the grew-to box is up);
+   play_live's post-drain emit is now the deduped FALLBACK (battle_agent.LEVELUP_EMITTED).
+3. **ELEVATOR PRIMITIVE + SPIN-ASSIST — COMMITTED 2eb2b05 (COMPILES+WIRED):** the sweep caught
+   banked_SCOPE burning 412 identical travel wedges. DIAGNOSIS (recon_spin_probe.py, standing):
+   the spawn is hideout B4F's boss corridor, walk-sealed BY DESIGN — exits = the ELEVATOR
+   (all warps dest (127,127); the exit loop entered the car and walked back out forever) then
+   SPIN floors above. NOT the elevation law (probe: zero spin tiles on B4F, no-route with law
+   on/off). Wire: `elevator_nav.py` (is_car + panel ride, ported from recon_hideout.ride;
+   rows unbilled — self-correct on landing) hooked into `_exit_to_overworld` top; travel gains
+   `spin_assist` (field_clear injection pattern; fires ONCE per wedged leg on maps with the
+   new `Grid.spin` set) → campaign._spin_assist runs spin_nav's glide crosser.
+**IN FLIGHT / NEXT (in order):**
+1. Full 15-arc sweep → `logs\longrun\descent_full_shift5.log` (baseline of PRE-tonight code;
+   snapshot lands at `logs\longrun\DESCENT_PREGRADE_full_shift5.md` + descent_grade_full_shift5.json).
+2. Chained `banked_SILPH` re-grade (fresh process = tonight's code) →
+   `logs\longrun\descent_regrade_silph_shift5.log`. Expect PASS w/ real junior clears in
+   Sabrina's gym. If pads wedge: read the [pad-plan]/[pad-ride] lines.
+3. THEN re-grade `banked_SCOPE` 180s (verify elevator+spin): expect her to ride the B4F
+   elevator and exit the hideout (B1F alcove → stairs → B2F east room → spin-assist west →
+   up-stairs → out). Partial progress (car ridden, new floor reached) is still a ratchet.
+4. Merge the SILPH/SCOPE rows into the full-sweep DESCENT_PREGRADE.md + commit the artifact.
+5. Read the sweep's OTHER FAIL/WARN arcs (GIOVANNI/VICTORY/E4/POSTGAME were ungraded at
+   rewrite time) and fix per the loop.
 NOTE: venv python is a shim — TWO PIDs per launch; never taskkill your own run.
-Remaining known general gap after this: none billed — VIRIDIAN GYM's spin maze rides
-spin_nav.py when a longrun bites it (wire noted in that module's header).
+Known general gaps still open: VIRIDIAN GYM spin maze (spin_assist may now cover it via
+travel — un-verified); level-up beat needs a battle-with-level-up trace; evolution early
+beat unbuilt (post-battle cutscene, needs its own seam).
 
 Paste this to the fresh session / this IS the night-train's standing order. Employment terms
 in force: loop until done, bank per phase, honest three-state surveys, stop ONLY for a
