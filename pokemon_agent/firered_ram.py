@@ -128,13 +128,17 @@ def valid_ewram_ptr(p: int) -> bool:
 # live: only 0x08010509/0x08011101 over 1200 battle frames incl. menus); back in the world it
 # is CB2_Overworld, and the whiteout transition is CB2_WhiteOut (pret pokefirered.sym).
 GMAIN_CB2 = 0x030030F4                  # gMain (0x030030F0) + 4 = callback2
-# In-battle party DISPLAY order (pret gBattlePartyCurrentOrder, 6 high-first nibbles):
-# position 0 = the mon in the party screen's big LEFT panel (the ACTIVE battler), 1-5 = the
-# right column top-down. After any switch display order != party order — every party-screen
-# walk (item aim, switches) must convert through this (agatha_diag4: a Revive aimed at
-# "party slot 0" pressed A on the ACTIVE mon's panel forever). Verified live: identity
-# order pre-switch, nibbles high-first.
+# In-battle party DISPLAY order (pret gBattlePartyCurrentOrder, 6 high-first nibbles).
+# ⚠️ THE ORDER LAW (recon_partytruth, 2026-07-07 — supersedes every earlier model): while
+# the in-battle party MENU is open, the game PHYSICALLY rearranges gPlayerParty into this
+# display order and RESTORES it when the menu closes; gPlayerParty HP is live/accurate at
+# all times. So no walk should convert through this map — resolve target rows by CONTENT
+# from gPlayerParty at MENU TIME (battle_agent._menu_rows) and never carry a slot index
+# across the menu-open boundary. Kept for forensics dumps only.
 GBATTLE_PARTY_ORDER = 0x0203B0DC
+# gBattlerPartyIndexes (u16[4]) — ✅ CONFIRMED 2026-07-07 (recon_partytruth: [0] tracked
+# 0->3->5 across two forced switches): the ORIGINAL gPlayerParty index of each battler.
+GBATTLER_PARTY_IDX = 0x02023BCE
 _CB2_OVERWORLD = 0x080565B4 | 1         # thumb bit set as stored
 _CB2_WHITEOUT = 0x080566A4 | 1
 
