@@ -49,15 +49,22 @@
    budget 3 — a 4th in one window abandons loud, which is correct). The last two flagged
    descent arcs are green; DESCENT_PREGRADE.md holds the 2-arc table (the full 15-arc sweep
    regenerates it).
-8. **NEXT (in order):** (a) read round 8, commit anything left; (b) level-up early beat
-   verify — `.venv\Scripts\python.exe -u pokemon_agent\recon_lvlbeat_verify.py` (default
-   banked_HM05; arms a real level-up by -1 on the lead's level byte); (c) Viridian Gym spin
-   maze — banked_GIOVANNI/stage_giovanni are both POST-badge (banked 13:14 after the badge-8
-   PNG); the spin TILES persist post-badge, so an honest locomotion verify = spawn banked_E4/
-   postgame → walk into Viridian Gym → cross the maze with the REAL loop (spin_assist);
-   (d) if green: FULL 15-arc sweep on tonight's code
-   (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, ~35 min) →
-   clean table → ranked spot-watch list for Jonny.
+8. **LEVEL-UP EARLY BEAT: VERIFIED (F-7(c) slice 2 done).** `recon_lvlbeat_verify.py` run
+   shift 10 (log `lvlbeat_verify_shift10.log`): "my venusaur just leveled up to level 43"
+   fired with in_battle=True — inside the post-faint drain, on the grew-to box, exactly the
+   design. RESULT: PASS. (Bonus verified in the same run: dlg hm-cut auto-clears trees
+   mid-leg; sleep-lock + status strategy live.)
+9. **NEXT (in order — the successor's first moves):**
+   (a) **Viridian Gym spin maze locomotion verify** — banked_GIOVANNI/stage_giovanni are both
+   POST-badge (banked 13:14 after the badge-8 PNG) but the spin TILES persist post-badge, so
+   an honest verify = spawn banked_E4/postgame → walk into Viridian Gym (city (3,1), gym warp
+   (36,10) → map (5,1)) → cross the maze with the REAL loop (Grid.spin + Traveler.spin_assist
+   → campaign._spin_assist, un-verified live since 2eb2b05).
+   (b) **FULL 15-arc sweep on tonight's code**
+   (`.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`, ~35 min) → the
+   clean table + ranked spot-watch list for Jonny. Do NOT launch it within ~40 min of a
+   handover (the night-loop kills in-flight runs — that's how shift 9's re-grade died).
+   (c) evolution early beat (post-battle cutscene, own seam) — still unbuilt.
 
 ## STANDING TRUTHS (carry forward)
 - Re-grade command: `$env:DESCENT_ARCS='banked_E4,banked_SURF_TAUGHT';
