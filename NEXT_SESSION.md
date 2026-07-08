@@ -14,12 +14,16 @@ Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapr
 
 ⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run17 DETACHED**
 (Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run17.log END before touching anything). run16 carries the
-**PARTY-MENU ORDER LAW fix (b7c21d0)** + the **ETHER aim-once/immunity-gate fix
-(8a811ec)** — run15 cleared Lorelei in 59s (vs 200s+ whiteout in run14) then
-livelocked at Agatha on the OLD ether flow; both walls now fixture-verified dead
-(recon_revive_verify PASS, recon_ether_verify PASS, re-run after every battle_agent
-party-walk edit).
+read logs/longrun/e4_run17.log END before touching anything). run17 carries the
+**PARTY-MENU ORDER LAW fix (b7c21d0)** + **ETHER aim-once/immunity-gate (8a811ec)** +
+**cure-reads-ACTIVE-battler + revive-offer FORENSICS (dd56205)**. run16 got Agatha to
+her LAST MON at 17 HP (deepest E4 penetration yet: Lorelei 59s, Bruno ~70s, ether
+consumed live mid-Agatha) then whiteouted because **use_revive was never OFFERED while
+5 fodder cycled past the dead L66 ace** — unreproduced on the fixture (3x PASS); the
+forensic line `revive-check: NO offer (...)` now logs revive_item + worthy + all six
+(sp,hp,lv) rows at the exact no-offer moment → READ IT in run17's log if the Agatha
+endgame dies again; it names the broken input. Fixtures after ANY battle_agent
+party-walk edit: recon_revive_verify + recon_ether_verify (both must PASS).
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
