@@ -761,13 +761,18 @@ class Campaign:
         behavior + return value are unchanged (battle suites stay green); any strat error is swallowed
         LOUD and never affects the fight. Called only when a battle is live (in_battle); a stray
         non-battle call no-ops safely (observe_battle_start finds no enemy → records nothing)."""
-        pre_sp = pre_lvl = None
+        pre_sp = pre_lvl = pre_lvls = pre_specs = None
         self._battle_ran_this_action = True    # blackout-evidence: a whiteout implies a battle RAN
         try:
             mid = tv.map_id(self.b)
             place = self._PLACE_NAMES.get(mid, "an unfamiliar area")
             pre_sp = st.read_party_species(self.b, 0)          # Phase 3A: lead species + level before battle
             pre_lvl = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
+            # ANY-SLOT snapshots (night shift 11): the evolution gate was LEAD-ONLY, so a fielded
+            # bench mon (strategic grind) or a mid-battle switch-in that leveled+evolved left the
+            # cutscene UNDRIVEN (watchdog territory). Snapshot every slot; the drive gates on any.
+            pre_lvls = self._party_levels()
+            pre_specs = [st.read_party_species(self.b, s) for s in range(len(pre_lvls))]
             # Batch-4 Phase 2: feed the SPATIAL wall + HER strength snapshot so a loss becomes a place she
             # can route around, and the gate can later judge "grown enough to retry".
             self.strat.observe_battle_start(self.b, place, map_id=mid, coords=tv.coords(self.b),
@@ -823,7 +828,8 @@ class Campaign:
         except Exception as _ce:
             log(f"   [strat] outcome-coercion skipped: {_ce}")
         try:
-            self._drive_evolution(pre_sp, pre_lvl)             # Phase 3A: drive a post-battle evolution (gated on level-up)
+            self._drive_evolution(pre_sp, pre_lvl,             # Phase 3A: drive a post-battle evolution (gated on level-up)
+                                  pre_levels=pre_lvls, pre_specs=pre_specs)
         except Exception as _e:
             log(f"   [evolve] drive skipped: {_e}")
         try:
@@ -2041,22 +2047,53 @@ class Campaign:
                       kind="move", tier=2)
         return dropped
 
-    def _drive_evolution(self, pre_species, pre_level):
+    def _evo_box_name(self):
+        """EARLY DETECT for the evolution scene: scan the gStringVar block (the buffer the
+        scene's text printer expands into) for the START box — 'What? X is evolving!'.
+        Returns the on-screen name (nickname-honest) or None. The species byte only flips
+        at the END of the ~20-30s animation, so this box is the only early signal."""
+        try:
+            import dialogue_reader as dr
+            raw = self.b.read_bytes(dr.GSTRINGVAR_LO, dr.GSTRINGVAR_HI - dr.GSTRINGVAR_LO)
+            for run in bytes(raw).split(b"\xff"):
+                if not run:
+                    continue
+                txt, junk = dr.decode(run)
+                if junk <= 0.3 and "evolving" in txt.lower():
+                    import re as _re
+                    m = _re.search(r"(\S+)\s+is\s+evolving", txt.replace("\n", " "),
+                                   _re.IGNORECASE)
+                    return (m.group(1).strip(".!? ").title() if m else "my Pokemon")
+        except Exception:
+            pass
+        return None
+
+    def _drive_evolution(self, pre_species, pre_level, pre_levels=None, pre_specs=None):
         """PHASE 3A — drive the post-battle EVOLUTION cutscene so it NEVER freezes. After a battle the
         evolution scene plays on the overworld (a full-screen animation box_open can't see), and the old
         code's _wait_overworld returned 'idle' while input was still locked -> the next action wedged.
 
-        GATE: evolution only happens on a LEVEL-UP, so if the lead didn't level this battle we return
-        immediately with ZERO presses (no spurious steps on the common no-evolution case). On a level-up
-        we settle (plain frames), check ONCE whether control is locked (a cutscene playing); if it's free
-        there's nothing to drive (just a normal level-up) -> no-op. If LOCKED, we A-advance (B-free: A
-        proceeds an evolution, B would CANCEL it — we never press B) until control returns / timeout.
-        Default-proceed = evolving is almost always wanted (a 30s oracle call can't fit the few-second
-        cancel window, so cancel isn't wired — proceed is the honest default). On a real species change
-        we fire the NAMING soul beat (a new family member)."""
-        cur_level = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
-        if not pre_level or cur_level <= pre_level:
-            return                                            # no level-up -> no evolution possible
+        GATE: evolution only happens on a LEVEL-UP, so if nobody leveled this battle we return
+        immediately with ZERO presses (no spurious steps on the common no-evolution case). Night shift
+        11: the gate is ANY-SLOT when the caller snapshots the party (pre_levels) — the old lead-only
+        read missed a fielded/switched-in bench mon's evolution and left the cutscene undriven. On a
+        level-up we settle (plain frames), check ONCE whether control is locked (a cutscene playing); if
+        it's free there's nothing to drive (just a normal level-up) -> no-op. If LOCKED, we A-advance
+        (B-free: A proceeds an evolution, B would CANCEL it — we never press B) until control returns /
+        timeout. Default-proceed = evolving is almost always wanted (a 30s oracle call can't fit the
+        few-second cancel window, so cancel isn't wired — proceed is the honest default).
+
+        EARLY BEAT (F-7c sibling, night shift 11): the 'What? X is evolving!' box sits on screen for
+        the whole animation — emit ONCE the moment it's read so her reaction's LLM chain overlaps the
+        animation and the line lands ON the white-flash, not 30s later on the overworld. On a real
+        species change we fire the NAMING soul beat (a new family member)."""
+        if pre_levels is not None:
+            if not any(c > p for c, p in zip(self._party_levels(), pre_levels)):
+                return                                        # nobody leveled -> no evolution possible
+        else:                                                 # legacy caller: lead-only gate
+            cur_level = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
+            if not pre_level or cur_level <= pre_level:
+                return
         from dialogue_drive import DialogueDriver
         dd = DialogueDriver(self.b, render=self.render, log=log)
         import time as _t
@@ -2071,19 +2108,40 @@ class Campaign:
         if dd._control_returned():
             return
         log("   [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)")
+        evo_beat_done = False
         # A-advance (B-free) until control returns or we time out (evolution anim can run ~20-30s)
         while _t.time() - t0 < 35:
             if st.in_battle(self.b):
                 return
             if dd._control_returned():
                 break
+            if not evo_beat_done:
+                _nm = self._evo_box_name()
+                if _nm:
+                    evo_beat_done = True
+                    log(f"   [evolve] EARLY BEAT: '{_nm} is evolving!' box read — emitting now "
+                        f"so the line lands on the animation")
+                    self.on_event(f"wait — {_nm} is evolving!", kind="roster", tier=3)
             drove = True
             self.b.press("A", 6, 10, self.render, owner="agent")
             self.render()
-        post = st.read_party_species(self.b, 0)
-        if pre_species and post and post != pre_species:
-            before = st.SPECIES_NAME.get(pre_species, "my Pokemon")
-            after = st.SPECIES_NAME.get(post, "something new")
+        # SLOT-WISE species diff (any-slot honesty; safe here — no reorder can happen inside
+        # the cutscene, so a changed slot IS an evolution, not a swap. Falls back to the
+        # legacy lead-only compare when the caller didn't snapshot).
+        changed = None
+        if pre_specs:
+            post_specs = [st.read_party_species(self.b, s) for s in range(len(pre_specs))]
+            for _s in range(len(pre_specs)):
+                if pre_specs[_s] and post_specs[_s] and post_specs[_s] != pre_specs[_s]:
+                    changed = (pre_specs[_s], post_specs[_s])
+                    break
+        else:
+            post = st.read_party_species(self.b, 0)
+            if pre_species and post and post != pre_species:
+                changed = (pre_species, post)
+        if changed:
+            before = st.SPECIES_NAME.get(changed[0], "my Pokemon")
+            after = st.SPECIES_NAME.get(changed[1], "something new")
             log(f"   [evolve] PHASE 3A drove the evolution cutscene: {before} -> {after} — naming beat")
             self.soul.note_evolve(before, after) if self.soul else None
             # NAME the new family member (continuity bond layer — NOT the un-navigable in-game keyboard).
