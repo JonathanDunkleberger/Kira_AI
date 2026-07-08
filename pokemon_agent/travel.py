@@ -759,6 +759,19 @@ class Traveler:
             band = cand or None        # no overlap detected -> fall back to any edge tile
             if band:
                 self.log(f"   [travel] {edge} connection band rows: {sorted(band)}")
+        elif edge in ("north", "south"):
+            # N/S BAND (night shift 10, the Pallet south-shore dead-air): the old "N/S flip at
+            # the edge with no overlap" assumption is only true for full-width LAND connections.
+            # On a sea/partial edge the neighbour's row IS readable one tile past the border
+            # (probe: Pallet y=20 reads Route 21's water at cols 7-10; col 12 — where she
+            # wedged pressing S ×6 — is closed). Gate the goal to crossable columns like E/W;
+            # empty band falls back to any edge tile (full land connections unchanged).
+            past = (grid.sy_hi + 1) if edge == "south" else (grid.sy_lo - 1)
+            cand = {p for p in range(grid.sx_lo, grid.sx_hi + 1)
+                    if grid.walkable(p, past) or (can_surf and grid.is_water(p, past))}
+            band = cand or None
+            if band:
+                self.log(f"   [travel] {edge} connection band cols: {sorted(band)}")
         def _edge_goal(t):
             return exit_cmp(t[exit_axis]) and (band is None or t[perp_axis] in band)
         goal = ((lambda t: t == arrive_coord) if arrive_coord is not None else _edge_goal)

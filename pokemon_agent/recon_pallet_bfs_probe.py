@@ -61,6 +61,18 @@ print(f"grid dims: sx {grid.sx_lo}..{grid.sx_hi}  sy {grid.sy_lo}..{grid.sy_hi} 
 print(f"start tile {cur}: walkable={grid.walkable(*cur)} safe={grid.walkable_safe(*cur)} "
       f"or_surf={grid.walkable_or_surf(*cur)}")
 
+# 0a) THE OVERLAP ROW (edge-mount design fact): what does the buffer hold ONE ROW PAST the
+# south border (y = sy_hi + 1)? If Route 21's water streams into the overlap, an N/S
+# connection band (columns walkable-or-water past the edge) is computable exactly like E/W.
+_py = grid.sy_hi + 1
+_row = [(x, ('W' if grid.is_water(x, _py) else ('w' if grid.walkable(x, _py) else '.')))
+        for x in range(grid.sx_lo, grid.sx_hi + 1)]
+print(f"overlap row y={_py}: " + "".join(c for _, c in _row) + "   (W=water w=walkable .=closed)")
+_py2 = grid.sy_lo - 1
+_row2 = [(x, ('W' if grid.is_water(x, _py2) else ('w' if grid.walkable(x, _py2) else '.')))
+         for x in range(grid.sx_lo, grid.sx_hi + 1)]
+print(f"overlap row y={_py2}: " + "".join(c for _, c in _row2) + "   (north, toward Route 1)")
+
 # 0b) classify (8,6) and its neighbourhood + the other live positions from the run
 for t in [(8, 6), (7, 6), (9, 6), (8, 5), (8, 7), (6, 9), (4, 19), (12, 19), (6, 7)]:
     bx, by = t[0] + 7, t[1] + 7
