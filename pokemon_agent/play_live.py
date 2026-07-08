@@ -399,6 +399,8 @@ def main():
                     beat=voice.beat, render=render, choose=voice.choose,
                     journey=voice.journey,   # PHASE 4: continuity-into-core (grudge + arc in idle chat)
                     alert=voice.alert)       # B7 PHASE 2: dead-man's switch (ping Jonny if recovery fails)
+    camp._decision_pumped = True             # F-7: the pump keeps the world live during LLM waits —
+    #                                          the DECISION LATENCY warning must not cry wolf here
 
     # ── GAME AUDIO (Stage 2): real-time game sound -> headphones + OBS cable -> Kira hears it too ──
     audio = None

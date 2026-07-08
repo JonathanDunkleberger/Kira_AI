@@ -143,6 +143,9 @@ HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
 # own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
 JOURNEY_JSON = os.path.join(STATES_CAMPAIGN, "journey_core.json")
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
+# F-1 WANDER TRIPWIRE (THE DESCENT): a standing nav objective that's gone this long without the
+# map-graph distance improving means she's wandering/dithering — the harness takes the wheel.
+NAV_TRIPWIRE_S = float(os.getenv("POKEMON_NAV_TRIPWIRE_S", "20"))
 # BATCH 6 PHASE 6 + ADDENDUM A — LAST-RESORT wedge escape-hatch (the 30-hr-run insurance). Fires only
 # AFTER the forced-heal hard-recovery has already been tried and RED persists (a GENUINE fingerprint-
 # frozen wedge, not idle) — between PROGRESS_HARD_TICKS and PROGRESS_ABANDON_TICKS. Bounded so a self-
@@ -558,6 +561,10 @@ class Campaign:
         # detour actions (heal/talk/grind) so she resumes "I was heading to X" instead of re-deciding
         # from scratch + wandering. {action, label, tick} or None. Surfaced to her ctx + the dashboard.
         self._active_objective = None
+        # F-1 WANDER TRIPWIRE (THE DESCENT) — per-objective nav-progress watch:
+        # {action, best (route-length), ts (last improvement), fired} or None. See free_roam.
+        self._nav_watch = None
+        self._nav_tripwire_total = 0          # run-lifetime fire count (descent-grading telemetry)
         # FIX 1 (overworld half) — repeat-pick awareness: the action she chose last tick + how many
         # ticks in a row she's chosen it. Used to nudge "you keep doing X and nothing's changed — try
         # something else" ONLY when the world fingerprint is ALSO stuck (non-GREEN), so a legit
@@ -4996,6 +5003,35 @@ class Campaign:
         return "reacted"
 
     # ── SOUL hook router (MODE-layer; reads RAM + calls soul hooks; never touches core mood/bond) ──
+    def _objective_distance(self, state):
+        """F-1 — how far (in learned-graph map hops) her STANDING objective's destination is from
+        here. travel:g,n and head_to_gym are the nav objectives; anything else (or an unroutable /
+        unknown target) returns None, which DISARMS the wander tripwire (never trip on what we
+        can't measure). 0 = she's standing on the destination map."""
+        act = (self._active_objective or {}).get("action") or ""
+        cur = tuple(state.get("map") or ())
+        if not cur:
+            return None
+        if act.startswith("travel:"):
+            try:
+                g, n = act.split(":", 1)[1].split(",")
+                tgt = (int(g), int(n))
+            except Exception:
+                return None
+        elif act == "head_to_gym":
+            tgt = self._next_gym_city_map(state.get("next_gym"))
+        else:
+            return None
+        if not tgt:
+            return None
+        if cur == tuple(tgt):
+            return 0
+        try:
+            r = self.world.route(cur, tuple(tgt), avoid=self._wall_avoid(state))
+        except Exception:
+            return None
+        return (len(r) - 1) if r else None
+
     def _soul_choose(self, kind, options, ctx):
         """Batch-2 SOUL ORACLE seam — where a choice becomes HERS. Delegates to the injected oracle
         (HTTP -> her self/LLM via bot._pokemon_choose), so the PICK is hers, NEVER authored here.
@@ -6789,6 +6825,45 @@ class Campaign:
             # PROBLEM 1 (lag) TRACE: _soul_choose -> voice.choose is a SYNCHRONOUS blocking HTTP/LLM
             # call on this (main) thread — while it runs, game render + music are frozen. Time it so a
             # slow decision (the periodic stutter, worst when ticks fire fast on a stuck loop) is VISIBLE.
+            # ── F-1 WANDER TRIPWIRE (THE DESCENT doctrine: the soul chooses DESTINATIONS; the
+            # deterministic pathfinder executes ALL movement). Wandering/dithering reads GREEN to
+            # the progress ledger (the fingerprint moves while she circles), so it needs its own
+            # detector: a STANDING objective SHE chose whose learned-graph distance hasn't improved
+            # in NAV_TRIPWIRE_S+ wall-clock. Trip -> the harness takes the wheel THIS tick: her own
+            # objective's handler runs directly, NO oracle call (kills the wedged-token-burn too).
+            # Distance unmeasurable -> disarmed; objective cleared -> watch cleared. Narrated once
+            # per episode so a viewer sees decision, not glitch.
+            _forced_pick = None
+            try:
+                _obj = self._active_objective
+                if _obj and _obj.get("action") in avail:
+                    _d = self._objective_distance(state)
+                    _w = self._nav_watch
+                    if _d is None:
+                        self._nav_watch = None
+                    elif not _w or _w.get("action") != _obj.get("action"):
+                        # keyed on the ACTION STRING, not dict identity — re-committing to the same
+                        # destination must NOT reset the clock (each pick builds a fresh obj dict)
+                        self._nav_watch = {"action": _obj.get("action"), "best": _d,
+                                           "ts": _t.time(), "fired": 0}
+                    elif _d < _w["best"]:
+                        _w["best"], _w["ts"] = _d, _t.time()
+                    elif _t.time() - _w["ts"] > NAV_TRIPWIRE_S:
+                        _w["ts"] = _t.time()
+                        _w["fired"] += 1
+                        self._nav_tripwire_total += 1
+                        _forced_pick = _obj["action"]
+                        log(f"   [roam] 🧭 F-1 WANDER TRIPWIRE #{_w['fired']}: objective "
+                            f"\"{_obj.get('label')}\" has gone {NAV_TRIPWIRE_S:.0f}s+ without route "
+                            f"progress (dist {_d} hops) — harness takes the wheel: executing her "
+                            f"objective deterministically, no oracle burn this tick")
+                        if _w["fired"] == 1:
+                            self.on_event("okay, enough drifting — I said I was heading there, "
+                                          "so let's actually go.", kind="travel", tier=1)
+                else:
+                    self._nav_watch = None
+            except Exception as _nwx:
+                log(f"   [roam] wander-tripwire skipped: {_nwx}")
             # ZERO-INPUT THINK GUARANTEE (void-core batch): the watch-rig pump runs frames while the
             # LLM decides — if any prior handler left a key held (an abort path that skipped its
             # release), she WALKS during the think (the intra-tick position-jump class the QW-4 log
@@ -6798,15 +6873,25 @@ class Campaign:
                 self.b.release(owner="agent")
             except Exception:
                 pass
-            _t_choose = _t.time()
-            pick = self._soul_choose("action", avail,
-                                     {"place": where, "progress": state["progress"], "party": _brief,
-                                      "goal": _goals})
-            _choose_ms = (_t.time() - _t_choose) * 1000
-            if _choose_ms > 500:
-                log(f"   [roam] !! DECISION LATENCY: _soul_choose blocked the main thread {_choose_ms:.0f}ms "
-                    f"(game+music stutter while it waits on the LLM over HTTP) — the periodic lag source "
-                    f"when ticks fire rapidly")
+            if _forced_pick is not None:
+                pick = _forced_pick
+            else:
+                _t_choose = _t.time()
+                pick = self._soul_choose("action", avail,
+                                         {"place": where, "progress": state["progress"], "party": _brief,
+                                          "goal": _goals})
+                _choose_ms = (_t.time() - _t_choose) * 1000
+                if _choose_ms > 500:
+                    # F-7 pump-awareness: with play_live's frame_pump wired the world stays LIVE
+                    # during the wait (she idles in place, music runs) — a long think is then a
+                    # pacing note, not a freeze. Only the pump-less path is a real main-thread block.
+                    if getattr(self, "_decision_pumped", False):
+                        log(f"   [roam] DECISION THINK: {_choose_ms:.0f}ms (world stayed live — "
+                            f"pumped idle, not a freeze)")
+                    else:
+                        log(f"   [roam] !! DECISION LATENCY: _soul_choose blocked the main thread {_choose_ms:.0f}ms "
+                            f"(game+music stutter while it waits on the LLM over HTTP) — the periodic lag source "
+                            f"when ticks fire rapidly")
             if not pick:
                 log("   [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick")
                 ledger.note_action(None, "idle")

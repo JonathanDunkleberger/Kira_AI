@@ -67,6 +67,10 @@ BATTLE_FLOOR_S = float(os.getenv("POKEMON_BATTLE_FLOOR_S", "0.4"))
 # choose() pumps frames while it waits so the world stays live while she thinks. Kill-switch: set
 # POKEMON_VOICE_ASYNC=0 to revert to the old fully-synchronous path (one-variable safety revert).
 VOICE_ASYNC = os.getenv("POKEMON_VOICE_ASYNC", "1") == "1"
+# F-7(b) FRESHNESS WINDOW: a T0/T1 brisk aside that sat queued longer than this is a would-miss —
+# dropped loud rather than fired stale-as-live (moment alignment beats completeness for asides).
+# T2+ beats are exempt (a badge/gym moment always lands). 0 disables the drop entirely.
+STALE_DROP_S = float(os.getenv("POKEMON_STALE_DROP_S", "6.0"))
 SPEAKING_POLL_S = float(os.getenv("POKEMON_SPEAKING_POLL_S", "0.15"))   # is_speaking cache refresh
 
 # species (by lowercased name) that are a SAVOR-worthy rare encounter for this leg
@@ -234,14 +238,29 @@ class KiraVoice:
             self._send_event(*body) if kind == "event" else self._send_raw(*body)
             self._q.task_done()
 
-    def _send_event(self, tier, kind, summary):
+    def _send_event(self, tier, kind, summary, trig_ts=None):
         """The actual pokemon_event POST + loud logging (formerly inline in emit). Runs on the
-        sender thread when async, or inline when sync."""
+        sender thread when async, or inline when sync.
+        F-7 MOMENT ALIGNMENT: `trig_ts` is the moment the reaction was TRIGGERED. (a) The queue age
+        + POST round-trip are logged per fire, so the event→voice chain measures itself on every
+        watched run (the F-10 first-textbox stall will name its component next take). (b) FRESHNESS
+        WINDOW: a LOW-tier (T0/T1 brisk aside) line that sat queued past STALE_DROP_S is a would-miss
+        — DROPPED loud, never fired as-live (a viewer reads a 8s-late 'ooh a sign' as broken). Big
+        beats (T2+) always land — late relief still beats swallowed relief."""
+        age = (time.time() - trig_ts) if trig_ts else 0.0
+        if trig_ts and tier < 2 and STALE_DROP_S > 0 and age > STALE_DROP_S:
+            self.n_skipped += 1
+            self.log(f"   [kira-voice] ·stale-drop· T{tier} ({kind}) aged {age:.1f}s in queue "
+                     f"(> {STALE_DROP_S:g}s freshness window) {summary!r}")
+            return
         try:
+            t0 = time.time()
             res = self._post("pokemon_event", name=summary, tier=tier, kind=kind)
+            post_ms = (time.time() - t0) * 1000
             self.n_sent += 1
             fired = res.get("fired") if isinstance(res, dict) else res
-            self.log(f"   [kira-voice] -> T{tier}·{TIER_NAME[tier]}· ({kind}) {summary!r}  fired={fired}")
+            self.log(f"   [kira-voice] -> T{tier}·{TIER_NAME[tier]}· ({kind}) {summary!r}  fired={fired}"
+                     + (f"  [age {age:.1f}s + post {post_ms:.0f}ms]" if trig_ts else ""))
         except Exception as e:
             self.n_failed += 1
             self.log(f"   [kira-voice] !! POST FAILED (bot down?) T{tier} ({kind}) {summary!r}: {e}")
@@ -321,10 +340,12 @@ class KiraVoice:
         # ASYNC: the gating/dedup/fire-rate above is pure CPU (microseconds) and stays on the caller
         # thread; only the HTTP round-trip is offloaded, so the render loop never blocks on it. The
         # tier is returned immediately (callers read it for the dialogue hold) — the POST lands async.
+        # F-7(a): `now` rides along as the TRIGGERING MOMENT so the sender can measure queue age
+        # (moment-alignment telemetry) and drop a stale low-tier line instead of firing it as-live.
         if self._async:
-            self._q.put(("event", (tier, kind, summary)))
+            self._q.put(("event", (tier, kind, summary, now)))
         else:
-            self._send_event(tier, kind, summary)
+            self._send_event(tier, kind, summary, now)
         return tier
 
     # ── CONTINUITY-INTO-CORE seam (Phase 4): push her journey narrative to core Kira ──
