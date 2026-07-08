@@ -2121,6 +2121,9 @@ class Campaign:
         # Firewalled: false for every pre-credits state, so nothing here can touch the normal climb.
         game_clear = self.has_badge(0x82C)        # FLAG_SYS_GAME_CLEAR (SYS_FLAGS + 0x2C)
         post_game = (len(badges) >= 8) and (game_clear or mp in self._HALL_MAPS)
+        if post_game:                             # never tell the Champion the E4 is "next"
+            arc = ("Champion. The credits rolled — everything from here is the victory lap "
+                   "(Cerulean Cave, the Pokédex, her world now).")
         progress = (f"{len(badges)} badge(s) earned ({', '.join(badges) or 'none'}). "
                     + ("You're the CHAMPION — the game is beaten. This is the post-game victory lap."
                        if post_game else
@@ -4741,8 +4744,29 @@ class Campaign:
             log(f"   [meet] party read skipped: {_pe}")
             return
         pids = {p for p, _ in cur}
-        if self._met_pids is None:                        # first tick: baseline, no beats
+        if self._met_pids is None:
+            # FIRST TICK BASELINE. Members already aboard are travel companions, not arrivals —
+            # BUT (summit-canonical ground truth, 2026-07-07): bonds are sparse/stale (venusaur/
+            # raticate pre-date the bond system; spearow's bond never followed the fearow
+            # evolution; the gifted LAPRAS rode in the party unbonded, not in Bill's PC). So:
+            # a boot-time member with GIFT_BACKSTORY and no bond IS the unmet-gift set-piece
+            # (fires ONCE — the intro writes the bond); any other unbonded member gets a SILENT
+            # bond backfill (data hygiene, not a beat — she's been traveling with them for ages).
             self._met_pids = set(pids)
+            if self.soul is None:
+                return
+            from pokemon_soul import GIFT_BACKSTORY
+            for pid, sp in cur:
+                name = st.SPECIES_NAME.get(sp, "")
+                if not name or self._bond_for_species(name):
+                    continue
+                if name.lower() in GIFT_BACKSTORY:
+                    self._introduce_teammate(name, GIFT_BACKSTORY[name.lower()])
+                else:
+                    self.soul.bonds[name.lower()] = {"species": name, "nickname": None,
+                                                     "caught": None,
+                                                     "note": "longtime teammate (bond backfilled)"}
+                    log(f"   [meet] bond backfilled silently for longtime teammate {name}")
             return
         fresh = [(p, sp) for p, sp in cur if p not in self._met_pids]
         self._met_pids |= pids
@@ -4751,39 +4775,47 @@ class Campaign:
         from pokemon_soul import GIFT_BACKSTORY
         for pid, sp in fresh:
             name = st.SPECIES_NAME.get(sp, "a new Pokémon")
-            bonded = None
-            try:
-                for _k, v in (self.soul.bonds or {}).items():
-                    if isinstance(v, dict) and (v.get("species") or "").lower() == name.lower():
-                        bonded = v; break
-            except Exception:
-                bonded = None
+            bonded = self._bond_for_species(name)
             if bonded:                                    # an old friend re-fielded -> reunion, not intro
                 who = bonded.get("nickname") or name
                 log(f"   [meet] REUNION: {who} ({name}) back in the party")
                 self.on_event(f"{who} is back in the party — good to have you back out here.",
                               kind="roster", tier=2)
                 continue
-            how = GIFT_BACKSTORY.get(name.lower())
-            log(f"   [meet] INTRODUCTION: unmet teammate {name} (pid={pid:08x}) joined the party"
-                + (" — gift backstory known" if how else ""))
-            # the meet beat (neutral event -> her voice reacts in character)
-            self.on_event(f"a {name} just joined your team — "
-                          + (how if how else "you two haven't properly met until now")
-                          + ". this is your first real moment together.", kind="roster", tier=3)
-            # her own name for them (soul-side mental name; NOT the in-game nickname keyboard)
-            nick = name
-            try:
-                nm = self._soul_choose("name", {}, {"place":
-                    f"a {name} just joined your team — "
-                    + (how if how else "your first time actually meeting")
-                    + f". give this {name} a name, just the name."})
-                if nm:
-                    nick = nm.strip().split("\n")[0][:12] or name
-            except Exception as _ne:
-                log(f"   [meet] naming skipped: {_ne}")
-            self.soul.note_met(name, nick, how)
-            self._continuity_save()                       # the new bond survives a kill right now
+            log(f"   [meet] INTRODUCTION: unmet teammate {name} (pid={pid:08x}) joined the party")
+            self._introduce_teammate(name, GIFT_BACKSTORY.get(name.lower()))
+
+    def _bond_for_species(self, name):
+        """The soul bond dict for a species name, or None. Species-matched (bonds may be keyed
+        by nickname); case-insensitive."""
+        try:
+            for _k, v in (self.soul.bonds or {}).items():
+                if isinstance(v, dict) and (v.get("species") or "").lower() == (name or "").lower():
+                    return v
+        except Exception:
+            pass
+        return None
+
+    def _introduce_teammate(self, name, how):
+        """The INTRODUCTION arc (shared: boot-time unmet gift + post-boot non-catch arrival):
+        a neutral meet beat -> her voice, her own name for them (soul oracle, the proven
+        catch-naming pattern; soul-side mental name, NOT the in-game nickname keyboard), a
+        family bond via note_met, banked immediately."""
+        self.on_event(f"a {name} just joined your team — "
+                      + (how if how else "you two haven't properly met until now")
+                      + ". this is your first real moment together.", kind="roster", tier=3)
+        nick = name
+        try:
+            nm = self._soul_choose("name", {}, {"place":
+                f"a {name} just joined your team — "
+                + (how if how else "your first time actually meeting")
+                + f". give this {name} a name, just the name."})
+            if nm:
+                nick = nm.strip().split("\n")[0][:12] or name
+        except Exception as _ne:
+            log(f"   [meet] naming skipped: {_ne}")
+        self.soul.note_met(name, nick, how)
+        self._continuity_save()                           # the new bond survives a kill right now
 
     def roster_react(self):
         """SOUL beat after a hand-play-banked catch (the agent can't drive this core's battle menus,
@@ -5150,6 +5182,12 @@ class Campaign:
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
+        # POST-GAME (the summit-watch strand fix, scoped): a Champion parked inside the league (or any
+        # interior) has no gym objective and no overworld route — offer the walk OUT so the victory lap
+        # can actually start. Post-game-gated: pre-credits behavior untouched.
+        elif state.get("post_game") and tuple(state.get("map") or (0,))[0:1] != (3,):
+            a["leave_building"] = ("champion's walk — head out of this building and back into the "
+                                   "world; the victory lap starts outside")
         # 2026-07-06 STRAND GUARD: heal is NOT offered (while non-critical) on a map where the last
         # heal attempt proved the Center unreachable (a one-way pocket, e.g. Cerulean's south strip) —
         # re-offering it was the run-4 ping-pong stall. Critical severity above still overrides (the
@@ -5775,6 +5813,13 @@ class Campaign:
         self._now_state = {"heal": "HEALING", "stock_up": "SHOPPING"}.get(pick, "EXPLORING")
         if pick == "heal":
             return self.heal_nearest()
+        # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
+        # building-exit to step back onto the overworld, then normal actions take over next tick.
+        if pick == "leave_building":
+            self.on_event("okay — the Champion walks out the front door. let's go see my world.",
+                          kind="travel", tier=2)
+            self._exit_to_overworld()
+            return "left_building"
         # USE AN HM (PHASE 2): she chose to clear the obstacle in front. Re-detect (state may have
         # shifted), then actuate via the field-move actuator. Returns 'used'/'no_prompt'/'cant'/'stuck'
         # → all non-fatal: a flake surfaces to the oracle next tick, never a freeze.
@@ -6909,6 +6954,8 @@ class Campaign:
                     long = f"Reach {ng['city']}, beat {ng['leader']} for the {badge} Badge"
                 except Exception:
                     long = f"Reach {ng['city']} and beat {ng['leader']}"
+            elif state.get("post_game"):
+                long = "Enjoy the post-game as Champion (Cerulean Cave, the Pokédex)"
             else:
                 long = "Take on the Elite Four"
             wr = self.strat.active_wall_rec()
@@ -6927,6 +6974,8 @@ class Campaign:
             elif ng:
                 medium = (f"You're ready — travel to {ng['city']} and take on {ng['leader']}" if rdy
                           else f"Make your way to {ng['city']}")
+            elif state.get("post_game"):
+                medium = "Head out of the league, heal up, and pick the next adventure"
             else:
                 medium = "Press on through the league"
             # SHORT — current want, or the concrete strengthen task with an END CONDITION when walled
@@ -7003,7 +7052,7 @@ class Campaign:
                  "like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ")
         # team-health nudge keyed on her ACTUAL party (capability-not-script: she decides what to do).
         party = state.get("party") or []
-        if party:
+        if party and not state.get("post_game"):     # a Champion's victory lap is never "walled"
             lvls = sorted(m["level"] for m in party)
             if len(party) < 3 or (len(party) >= 2 and lvls[0] <= max(6, lvls[-1] - 12)):
                 model += ("RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — "
@@ -7016,6 +7065,15 @@ class Campaign:
                       f"forward leads there: until you've won you are ALWAYS making progress toward the "
                       f"next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and "
                       f"then you GET BACK ON THE ROAD to {ng['city']}. Never just circle the same grass.")
+        elif state.get("post_game"):
+            # POST-CREDITS (the summit-watch residual): never tell the CHAMPION the E4 is still
+            # ahead — the game is beaten. Point her at the victory lap instead (walk OUT of the
+            # league, heal, then the post-game arcs: Cerulean Cave / the Pokédex).
+            spine += ("YOU WON — you're the CHAMPION and the credits have rolled. This is the "
+                      "post-game victory lap: head OUT of the league building, heal the team up, "
+                      "and pick your own adventures now (Cerulean Cave just opened to champions, "
+                      "and the Pokédex is far from full). Nothing is required anymore — this is "
+                      "your world to enjoy.")
         else:
             spine += "All 8 badges are yours — the Elite Four is the final challenge before the credits."
         hist = self._story_so_far(bc)
