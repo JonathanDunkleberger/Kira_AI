@@ -56,7 +56,11 @@ DBG = os.path.join(SCRATCH, "e4_probe")
 INDIGO_EXT = (3, 9)
 FULL_RESTORE, MAX_POTION, REVIVE, FULL_HEAL = 19, 20, 24, 23
 # (item, mart true-index row, want, unit price)
-SHOPPING = [(FULL_RESTORE, 2, 10, 3000), (REVIVE, 4, 6, 1500), (FULL_HEAL, 5, 4, 600)]
+# SPEND THE WAD (shift-15, run18 economy postmortem): items PERSIST through a whiteout,
+# unspent cash gets HALVED — the old plan left $24k unspent and the surplus evaporated
+# across attempts ($63k -> $36k -> $10k -> $0 by attempt 4). Wealth stored as Full
+# Restores is whiteout-proof; the stock_up scaler already clamps to money per line.
+SHOPPING = [(FULL_RESTORE, 2, 16, 3000), (REVIVE, 4, 8, 1500), (FULL_HEAL, 5, 5, 600)]
 CLERK_STAND = (2, 7)
 LEAGUE_DOOR = (4, 1)
 CENTER_EXIT = (11, 16)
@@ -456,7 +460,10 @@ def main():
     if not fm.read_flag(b, 0x827):
         L("!! badge 8 not held — wrong canonical, abort")
         return 1
-    deadline = time.time() + 5400
+    # 4h window (shift-15): a process restart resets the ace to canonical L66 — the XP
+    # curve (L66->71 across run18's first two attempts) only COMPOUNDS within one live
+    # process, so give the loop room to converge (level curve + whiteout-proof kit).
+    deadline = time.time() + 14400
 
     # ── the dispatch loop: center -> shop+heal -> door chain -> CREDITS ──────
     # The League center's map id is KB ground truth (learned live in e4_run3). Pre-seeding
@@ -483,6 +490,11 @@ def main():
             L(f"   back at the center from the chain (whiteout) — re-checking the kit "
               f"[money ${camp.money()}, FR x{camp.bag_count(FULL_RESTORE)}]")
             shopped = False
+            # XP RATCHET (shift-15): every attempt levels the ace (+5 over run18's first
+            # two) but that XP lived only in process memory — a crash lost it. Post-
+            # whiteout at the center is a clean, healed, resumable state: bank it so the
+            # level curve survives a process death (E4_BOOT resumes from banked_E4).
+            bank(BANK, "whiteout_center")
         warps = [(tuple(xy), tuple(d)) for xy, d, _w in tv.read_warps(b)]
         if here == INDIGO_EXT:
             # enter the center (its door is the only warp here)

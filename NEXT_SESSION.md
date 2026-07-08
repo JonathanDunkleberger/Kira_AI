@@ -1,4 +1,4 @@
-# NEXT_SESSION — resume prompt (write date 2026-07-07 ~18:35, night shift #14 IN FLIGHT)
+# NEXT_SESSION — resume prompt (write date 2026-07-07 ~19:05, night shift #15 IN FLIGHT)
 
 Paste this to the fresh session:
 
@@ -9,21 +9,41 @@ STATE §0 + NIGHT_REPORT.md if they disagree.
 
 🏅🏅 **CANONICAL = indigo_reach: INDIGO PLATEAU (3,9)@(12,19), ALL EIGHT BADGES +
 VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
-pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
-Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
+pre_indigo_reach_backup_20260707_154528). Party: Venusaur L66→**L69 in-run** (Razor
+Leaf/Sleep Powder/EQ/Secret Power + Strength as move#70 hits) / Persian 38 / Fearow 36 /
+Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run18 DETACHED**
-(Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run18.log END before touching anything). run18 carries the FULL
-shift-14 stack: **ORDER LAW (b7c21d0)** + **ETHER aim-once/immunity-gate (8a811ec)** +
-**cure-reads-ACTIVE + revive forensics (dd56205)** + **THE POCKET-HOLE FIX (7f83916)**.
-run16 reached Agatha's LAST MON at 17 HP then collapsed — root cause forensics-confirmed
-in run17 within minutes: consuming the LAST Ether (display row 0) leaves a zero HOLE in
-the RAM Items pocket and _items_pocket broke at the first zero id → the WHOLE pocket
-read empty for the rest of the process → no potion/cure/revive offers ever again while
-camp.bag_count (scan-all) kept the kit-check green. Fixed scan-all-skip-holes; the hole
-assertion now rides recon_ether_verify. Fixtures after ANY battle_agent party-walk/bag
-edit: recon_revive_verify + recon_ether_verify (both must PASS).
+🗡️ **SHIFT-15 HEADLINE: LANCE WAS BEATEN (first time ever) — run18 attempt 1 cleared
+ALL FOUR E4 ROOMS** (Lorelei+Bruno+Agatha in ~2 min wall, Lance by 226s) and entered
+**room #5 = GARY THE CHAMPION** with alive=1 (Venusaur 45%, FR x0) → whiteout at 236s,
+money $36,798. **GARY IS THE LAST WALL BEFORE CREDITS.**
+
+⚔️ **LIVE: `recon_e4.py` run19 DETACHED (launched ~19:20), looping attempts on a 4h
+deadline** (Start-Process — survives handover; CHECK FOR A LIVE PYTHON FIRST, read
+logs/longrun/e4_run19.log END before touching anything). run19 = shift-14 stack PLUS
+the shift-15 trio:
+- **LAST-BODY INSURANCE revive (9e8fd18):** worthy gate now also fires when the active
+  mon is the LAST body, hurt (<=50%), with >=2 revives — run18 postmortem: worthy=None
+  past 3-5 corpses all through Lance (ace stood), so she entered Gary alive=1 and an
+  ace faint = whiteout. Live-verify via "LAST-BODY INSURANCE armed" + USED count-drop.
+  NOTE: standing fixtures (recon_revive_verify/ether_verify) COULDN'T pre-verify this —
+  run18 overwrote banked_E4 with the 1-body Gary state (no kit); the walk itself is
+  untouched + fail-safed. run19's fresh room banks restore fixture-capable states.
+- **SPEND-THE-WAD kit:** items persist through whiteout, unspent cash HALVES — run18
+  bled $63k->$0 in 4 attempts with $24k never converted. run19 shops FR x16 + Revive
+  x8 + FH x2 (~$61k stored as items).
+- **XP RATCHET + 4h deadline:** ace levels compound only within one process (L66->71
+  across run18's two real attempts; a restart resets to canonical L66) — run19 banks
+  banked_E4 at every whiteout-center (crash-resume via E4_BOOT=dir keeps the XP) and
+  has 4h to converge on the level curve.
+**run18 history: attempt 1 = LANCE BEATEN, died at Gary alive=1; attempt 2 = beat
+Agatha on Struggle (ZERO PP), instant death at Lance; attempts 3-5 = broke, kitless.**
+**THE PP WALL (the residual wall if run19 fails):** ~50 attack PP (RL25/EQ10/Str15)
+vs 26 E4 mons; Ethers NOT buyable. The structural cure = VICTORY ROAD LOOT BACKLOG
+(FRLG VR holds Elixir-class item balls, uncollected; she's parked at Indigo).
+Machinery EXISTS: field_moves.item_balls (gfx 92) + pickup + spin_nav ball-grab.
+Build recon_vrloot.py: boot canonical -> re-enter VR southbound -> sweep reachable
+balls (Strength re-arms per map, 0x805) -> back to Indigo -> bank -> promote.
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
