@@ -8847,25 +8847,15 @@ class VTubeBot:
             print(f"   [Diary] Diary stage failed: {e}")
             traceback.print_exc()
 
+        # D4 (Phase K): the head + format spec is SHARED with backfill_clips via
+        # prompt_spec — one copy, no drift; clip_cutter's parser depends on it.
+        from kira.clips.prompt_spec import candidate_prompt_head, CANDIDATE_PROMPT_TAIL
         artifact_request = (
-            f"You are reviewing a full stream session transcript for the AI VTuber Kira. "
-            f"Activity: {activity}. Duration: ~{session_duration_min} minutes. Date: {date_str}.\n\n"
-            f"You will produce TWO outputs, separated by the exact delimiter line `===CLIPS===`.\n\n"
-            f"OUTPUT 1 — LORE NOTES (markdown). Identify 3-7 durable canon points established or developed "
-            f"this session for this activity. Format as bullet points.\n\n"
-            f"OUTPUT 2 — CLIP CANDIDATES (markdown). Identify 8-12 of the funniest, sharpest, or most "
-            f"emotionally landing moments. For each one provide:\n"
-            f"  ### Clip N — Short title\n"
-            f"  **Timestamp:** approximate HH:MM:SS into stream\n"
-            f"  **Score:** X/10 (clip-worthiness: self-contained without context, has a punchline/payoff, quotable title potential, energy)\n"
-            f"  **Why it's good:** 1-2 sentences\n"
-            f"  **Suggested YouTube short title:** under 60 chars\n"
-            f"  **Key exchange:** 2-4 quoted lines\n\n"
-            f"Sort candidates best-first (highest score first).\n\n"
-            f"=== TRANSCRIPT ===\n{llm_transcript}\n\n"
-            f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
+            candidate_prompt_head(activity, date_str, session_duration_min)
+            + f"=== TRANSCRIPT ===\n{llm_transcript}\n\n"
+            + f"=== HIGHLIGHTS CAPTURED LIVE ===\n{highlights_block}\n\n"
             + (f"=== CALLED SHOTS (predictions she made and how they resolved) ===\n{called_shots_block}\n\n" if called_shots_block else "")
-            + f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
+            + CANDIDATE_PROMPT_TAIL
         )
 
         # ── STAGE 1: Sonnet call for lore + clips (60s timeout). ──
