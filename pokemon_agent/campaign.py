@@ -8216,6 +8216,47 @@ class Campaign:
                     dq.append(prv)
         return dist
 
+    def _engage_exit_guard(self, mapid):
+        """SEALED-BY-A-GUARD (2026-07-08 night shift 6, the hideout-B1F barrier truth from pret):
+        a floor's walk region can be sealed by a TRAINER-GATED BARRIER — RocketHideout_B1F keeps
+        a coll-3 wall at (20-21,19-21) until TRAINER_TEAM_ROCKET_GRUNT_12 falls; beating that
+        guard runs setmetatile + a map redraw and the floor OPENS. So when every exit door reads
+        walk-unreachable, talk to / fight the nearest reachable object event (once each per map,
+        LIVE coords — wanderers move), then let the exit loop re-plan on the fresh grid.
+        Returns True if someone was engaged (the caller re-checks the doors)."""
+        if not hasattr(self, "_exit_engaged"):
+            self._exit_engaged = set()
+        try:
+            g = tv.Grid(self.b)
+            cur = tuple(tv.coords(self.b))
+            cands = []
+            for i in range(1, 16):
+                o = self._OB + i * self._SZ
+                if not (self.b.rd8(o) & 1) or (mapid, i) in self._exit_engaged:
+                    continue
+                c = (self.b.rds16(o + 0x10) - 7, self.b.rds16(o + 0x12) - 7)
+                cands.append((abs(c[0] - cur[0]) + abs(c[1] - cur[1]), i, c))
+            for _d, i, c in sorted(cands):
+                for dx, dy, face in ((0, 1, "UP"), (0, -1, "DOWN"),
+                                     (1, 0, "LEFT"), (-1, 0, "RIGHT")):
+                    front = (c[0] + dx, c[1] + dy)
+                    if front != cur:
+                        if not g.walkable(*front):
+                            continue
+                        if not tv.bfs(g, cur, lambda t, f=front: t == f, walkable=g.walkable):
+                            continue
+                    self._exit_engaged.add((mapid, i))
+                    log(f"   EXIT: floor sealed — engaging the guard: NPC #{i} at {c} "
+                        f"(from {front})")
+                    self._talk(front, face, "exit-guard")
+                    if st.in_battle(self.b):
+                        out = self.battle_runner()
+                        log(f"   EXIT: guard battle -> {out}")
+                    return True
+        except Exception as _ge:
+            log(f"   !! EXIT: guard engagement failed ({_ge}) — walking on")
+        return False
+
     def _exit_to_overworld(self, max_tries=5):
         """From INSIDE any building (PC / house / Mart / lab — map group != 3, the Kanto overworld),
         return to the walkable overworld. The general recovery primitive every blackout respawn needs.
@@ -8228,8 +8269,12 @@ class Campaign:
         # kind: walk-onto (mats), directional stairs (the 0x6C-0x6F table), door ritual.
         self.b.set_input_owner("agent")
         taken = set()
-        _elev_rows = {}
         _elev_seen = set()
+        # PERSISTENT ROW CURSOR (shift 6, the scope-regrade ride waste): the row schedule used
+        # to reset to 0 every call, so every leave_building tick re-burned the default/current-
+        # floor rows before reaching one that rides (the bag TRUE-row cursor law, applied here).
+        if not hasattr(self, "_elev_rows"):
+            self._elev_rows = {}
         grad = self._street_gradient()
         for _ in range(max_tries * 3):
             if tv.map_id(self.b)[0] == 3:
@@ -8239,16 +8284,24 @@ class Campaign:
             # ELEVATOR CAR (2026-07-08 shift 5, the banked_SCOPE 412-wedge class): a room whose
             # EVERY warp is dynamic ((127,127)) is an elevator — its door just steps back onto
             # the boarding floor, so this loop ping-ponged car<->floor forever (hideout B4F).
-            # Ride the panel to the next untried floor row and keep exiting from the landing.
+            # Ride the panel — ALL remaining rows while aboard (a failed pick stays in the car;
+            # falling through to the door candidates after one flake walked us out for nothing).
             try:
                 import elevator_nav
                 if elevator_nav.is_car(self.b):
-                    _row = _elev_rows.get(before, 0)
-                    if _row <= 4:
-                        _elev_rows[before] = _row + 1
+                    rode = False
+                    while True:
+                        _row = self._elev_rows.get(before, 0)
+                        if _row > 4:
+                            self._elev_rows.pop(before, None)   # exhausted — fresh cycle next boarding
+                            break
+                        self._elev_rows[before] = _row + 1
                         log(f"   EXIT: elevator car {before} — riding the panel (row {_row})")
                         if elevator_nav.ride(self.b, self, _row, avoid=_elev_seen, log=log):
-                            continue
+                            rode = True
+                            break
+                    if rode:
+                        continue
                 else:
                     _elev_seen.add(before)     # this floor has had its exit chance this call
             except Exception as _ee:
@@ -8288,6 +8341,14 @@ class Campaign:
                 if tuple(tv.map_id(self.b)) != before:
                     moved = True
                     break
+                # SEALED-DOOR SKIP (shift 6, the B1F barrier lobby): don't burn a travel budget
+                # + the enter_warp approach fan (≈6 travel wedges) on a door her feet provably
+                # can't reach right now. NOT added to `taken` — the flood check is per-tick truth,
+                # so the same door rides the moment the floor unseals (guard beaten, NPC moved).
+                if not self._warp_hop_reachable(wt):
+                    log(f"   EXIT: door {wt} walk-unreachable from {tv.coords(self.b)} — "
+                        f"skipped (sealed pocket)")
+                    continue
                 taken.add((before, wt))
                 # a directional/escalator tile has a REQUIRED entry side + a delayed fire — the
                 # dedicated primitive knows both; blind travel to the tile wedges on the blocked side
@@ -8309,6 +8370,11 @@ class Campaign:
                     moved = True
                     break
             if not moved:
+                # SEALED-BY-A-GUARD (shift 6): before giving up, the room's PEOPLE are the
+                # door — a beaten guard can run setmetatile and unseal the floor. Engage one,
+                # then re-plan on the fresh grid.
+                if self._engage_exit_guard(before):
+                    continue
                 for _ in range(10):                   # last resort: the classic DOWN-mat walk
                     self.b.press("DOWN", 8, 8, self.render, owner="agent")
                     for _ in range(8):
