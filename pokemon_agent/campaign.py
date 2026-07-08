@@ -8179,6 +8179,7 @@ class Campaign:
         self.b.set_input_owner("agent")
         taken = set()
         _elev_rows = {}
+        _elev_seen = set()
         grad = self._street_gradient()
         for _ in range(max_tries * 3):
             if tv.map_id(self.b)[0] == 3:
@@ -8196,8 +8197,10 @@ class Campaign:
                     if _row <= 4:
                         _elev_rows[before] = _row + 1
                         log(f"   EXIT: elevator car {before} — riding the panel (row {_row})")
-                        if elevator_nav.ride(self.b, self, _row, log=log):
+                        if elevator_nav.ride(self.b, self, _row, avoid=_elev_seen, log=log):
                             continue
+                else:
+                    _elev_seen.add(before)     # this floor has had its exit chance this call
             except Exception as _ee:
                 log(f"   !! EXIT: elevator ride failed ({_ee}) — walking on")
             ws = tv.read_warps(self.b)

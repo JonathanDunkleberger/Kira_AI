@@ -16,9 +16,22 @@ Ground truth (hideout B4F boss corridor + pret):
   The class repeats at Silph Co, Celadon Dept. Store, and the Rocket Hideout.
 """
 import travel as tv
+import firered_ram as ram
 from dialogue_drive import box_open as _box_open
 
 DYNAMIC = (127, 127)
+_SB1_DYNWARP = 0x14      # SaveBlock1.dynamicWarp (WarpData): +0x14 mapGroup, +0x15 mapNum —
+#                          the elevator script's SetDynamicWarp target; pos(0x00)+location(0x04)
+#                          +continueGameWarp(0x0C) precede it (offsets cross-checked vs the
+#                          proven SB1_MAP_GROUP/NUM = 0x04/0x05 location reads).
+
+
+def dynamic_dest(b):
+    """Where the car's dynamic door currently leads — THE LANDING ORACLE (shift 5): the
+    floor multichoice rows are unknowable blind, but the selection immediately calls
+    SetDynamicWarp, so this read tells us the landing BEFORE stepping out. Pure read."""
+    sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+    return (b.rd8(sb1 + _SB1_DYNWARP), b.rd8(sb1 + _SB1_DYNWARP + 1))
 
 
 def is_car(b):
@@ -27,11 +40,12 @@ def is_car(b):
     return bool(ws) and all(tuple(w[1]) == DYNAMIC for w in ws)
 
 
-def ride(b, camp, row, log=lambda m: print(m, flush=True)):
-    """One panel ride to floor-row `row` + step-out. True = we left the car onto SOME
-    floor (the caller verifies WHICH and self-corrects); False = the panel never
-    opened / the exit never fired."""
+def ride(b, camp, row, avoid=(), log=lambda m: print(m, flush=True)):
+    """One panel ride to floor-row `row` + step-out. True = we left the car onto a NEW
+    floor; False = the pick didn't take / it targeted an `avoid` floor (already explored
+    by the caller) — in both False cases we STAY ABOARD so the next row rides instantly."""
     m0 = tuple(tv.map_id(b))
+    dest0 = dynamic_dest(b)
     g = tv.Grid(b)
     warp_tiles = {tuple(w[0]) for w in tv.read_warps(b)}
     opened = False
@@ -72,11 +86,24 @@ def ride(b, camp, row, log=lambda m: print(m, flush=True)):
     camp._adv_dialogue(12)                                # confirmation text, if any
     for _ in range(300):                                  # the ride/shake
         b.run_frame()
+    # THE LANDING ORACLE (shift-5 regrade lesson: rows 0-2 flaked, self-correct looped
+    # B4F<->B1F, never B2F): the selection retargets SaveBlock1.dynamicWarp instantly.
+    # Unchanged = the pick didn't take (menu flake / current-floor row) -> STAY ABOARD
+    # so the caller's next row rides immediately instead of a wasted step-out cycle.
+    dest1 = dynamic_dest(b)
+    if dest1 == dest0:
+        log(f"   [elev] ride(row={row}): dynamic dest unchanged ({dest1}) — "
+            f"selection didn't take, staying aboard")
+        return False
+    if tuple(dest1) in {tuple(a) for a in (avoid or ())}:
+        log(f"   [elev] ride(row={row}): retargeted to already-explored floor {dest1} — "
+            f"staying aboard, next row")
+        return False
     r = camp.enter_warp(prefer="nearest")                 # the car door IS the nearest warp
     for _ in range(80):
         b.run_frame()
     out = tuple(tv.map_id(b)) != m0
-    log(f"   [elev] ride(row={row}) -> "
-        f"{('landed ' + str(tuple(tv.map_id(b)))) if out else 'still in the car (' + str(r) + ')'}"
+    log(f"   [elev] ride(row={row}) retargeted {dest0} -> {dest1}; "
+        f"{('landed ' + str(tuple(tv.map_id(b)))) if out else 'step-out FAILED (' + str(r) + ')'}"
         f" @ {tv.coords(b)}")
     return out
