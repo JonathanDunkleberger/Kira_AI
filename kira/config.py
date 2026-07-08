@@ -427,6 +427,16 @@ CHAT_FLOOR_OVERRIDE = os.getenv("CHAT_FLOOR_OVERRIDE", "none").lower()
 CHAT_RATE_CAP_ENABLED = os.getenv("CHAT_RATE_CAP_ENABLED", "false").lower() == "true"
 CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
 
+# ── Chat-as-advisors + reject-with-reason (Phase G-2, conversation engine) ─────
+# When ON, the chat-batch prompt frames chat as her ADVISOR GALLERY, not her
+# director: suggestions ("do X", "say Y", backseating) are input she WEIGHS; she
+# takes one only when she actually likes it (and owns it as her choice), and she
+# may DECLINE one IN CHARACTER with a one-beat reason — a why, not a lecture —
+# instead of silently complying or silently ignoring. Streamer register: chat
+# informs, she decides. Default OFF — OFF preserves today's chat prompt
+# byte-for-byte; feel-test as its own variable per the cadence plan.
+CHAT_ADVISORS_ENABLED = os.getenv("CHAT_ADVISORS_ENABLED", "false").lower() == "true"
+
 # Final stale-chat guard: drop any message older than this at RESPONSE time (not at
 # drain time). The worker's 60s pre-eviction runs before the turn-lock + the whole
 # response pipeline, so messages can age far past it (observed up to ~137s active,

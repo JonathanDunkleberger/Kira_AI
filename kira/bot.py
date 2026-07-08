@@ -51,6 +51,7 @@ from kira.config import (
     GOOGLE_API_KEY, ACK_THRESHOLD_S, CHAT_BUDGET_ENABLED,
     CHAT_SALIENCE_GATE_ENABLED, CHAT_FLOOR_BY_ACTIVITY, CHAT_FLOOR_OVERRIDE,
     CHAT_RATE_CAP_ENABLED, CHAT_RATE_CAP_PER_MIN, CHAT_MAX_AGE_S,
+    CHAT_ADVISORS_ENABLED,
     CHAT_CATCHUP_ENABLED, CHAT_CATCHUP_S, CHAT_CATCHUP_MAX_MSGS, CHAT_BANK_CAP,
     LOCK_IN_BREAKTHROUGH_SCORE,
     DIARY_RECAP_ENABLED,
@@ -7754,6 +7755,26 @@ class VTubeBot:
         except Exception:
             pass
 
+        # PHASE G-2 (chat-as-advisors + reject-with-reason): frames chat as input
+        # she WEIGHS — chat informs, SHE decides — and makes a reasoned in-character
+        # decline a first-class move alongside taking the suggestion and SKIP.
+        # Flag-gated CHAT_ADVISORS_ENABLED, default OFF = prompt byte-identical.
+        # CORE / all-games (loud-logged core touch, Rule 12).
+        advisors_block = ""
+        advisor_rule = ""
+        if CHAT_ADVISORS_ENABLED:
+            advisors_block = (
+                "CHAT'S ROLE — ADVISORS, NOT DIRECTORS: suggestions in chat (plays to make, "
+                "things to say, 'do X next', backseating) are input from your advisor gallery. "
+                "YOU decide. Take a suggestion only when you actually rate it — then own it as "
+                "your call, not an order followed. When you pass on one, say so in character "
+                "with your REAL reason in one beat (a why, not a lecture) — a reasoned 'nah, "
+                "because...' beats silent compliance and beats silently ignoring them.\n\n"
+            )
+            advisor_rule = (
+                "- Declining a suggestion gets ONE beat of why — in character, then move on. "
+                "Never follow chat against your own read just to be agreeable.\n"
+            )
         request = (
             f"You have a batch of {len(batch)} chat message(s) to respond to. "
             f"Decide the best engagement move:\n\n"
@@ -7766,6 +7787,7 @@ class VTubeBot:
             f"{names_block}"
             f"{running_bits_block}"
             f"{asks_block}"
+            f"{advisors_block}"
             f"{repeat_block}"
             f"CHAT BATCH:\n{batch_str}\n\n"
             f"{_ack_directive}"
@@ -7782,6 +7804,7 @@ class VTubeBot:
             f"- Length scales with batch size: 1 chatter = 1-2 sentences (a quick aside, not a full monologue). 2-3 chatters = 2-3 sentences. 4+ chatters = up to 4 sentences max. NEVER more than 4 sentences regardless of size.\n"
             f"- You are a stream co-host weaving chat into the conversation, not a chat reader. The shorter and punchier, the better.\n"
             f"- Stay in character \u2014 sassy, witty, warm, deadpan.\n"
+            f"{advisor_rule}"
             f"- DO NOT respond if there's nothing real to say. SKIP is a valid output.\n\n"
             f"IMPORTANT: When you reference chatter facts, only attribute them to the specific chatter "
             f"they belong to. Do not mix up facts between chatters. If you're not sure who said/did something, "
