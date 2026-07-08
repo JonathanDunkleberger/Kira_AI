@@ -373,6 +373,30 @@ grep every long-run log for `ACTION CRASHED`/`AttributeError` as a standing clos
 because a repeated identical traceback is a BUG, not weather. (Python only resolves names on
 the executed path, so a misnamed call in a rarely-taken branch compiles clean and waits.)
 
+**ENGINE PITFALL (added 2026-07-08, night shift 12): TEMPLATE∪LIVE OBJECT MASKS CREATE PHANTOM
+WALLS.** Whole-map planners need the map's object TEMPLATES (the live array is distance-culled),
+but a blanket union of template tiles with live tiles double-blocks every object that has MOVED:
+an LoS trainer who walked to the player and lost keeps standing where he stopped — forever — so
+his SPAWN tile becomes a permanent phantom wall. In a tight forced-movement maze the phantoms
+sealed the whole floor ("BFS found no route" from tiles a human walks out of). The law: the live
+array is the TRUTH for every spawned object; template tiles apply ONLY to objects absent from
+the live array (match template↔live by the engine's stable object id — FRLG: localId, template
+@+0 vs live @+0x08, layout live-proven by probe). Twin race in the same class: a stationary
+trainer's SPOTTING approach eats the player's presses ("press X never moved") and freezes coords
+— any planner that starts its next round during that approach reads "no route" off frozen state;
+check for an opening battle BEFORE planning, not just after stepping.
+
+**ENGINE PITFALL (added 2026-07-08, night shift 12): ACTUATION RITUALS NEED THE REACHABILITY LAW
+TOO — "run it regardless" + "sealed pocket" = a wedge storm.** A hard-won lesson ("directional
+warps' canonical approach tile can be unwalkable — run the entry ritual regardless of the
+pre-check") silently removed the ONLY reachability gate on that ritual; landing in a walk-SEALED
+pocket (a puzzle-gated dungeon half) then burned up to 5 blind travel legs PER CALL — 27 wedges
+in one graded window. The reconciliation: pre-check the ritual's whole candidate FAMILY (stand
+tile + target tile + all neighbors) with ONE static BFS on the same-optimism grid travel uses —
+nothing reachable means there is nothing to actuate, bail leg-free; any one reachable means the
+ritual proceeds exactly as before. "Run it regardless of ONE tile's walkability" must never
+decay into "run it regardless of reachability entirely."
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.
