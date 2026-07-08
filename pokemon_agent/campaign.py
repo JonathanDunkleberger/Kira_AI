@@ -2252,6 +2252,13 @@ class Campaign:
         (9, 7): "the Vermilion Gym",
         (10, 16): "the Celadon Gym",
         (14, 3): "the Saffron Gym — Sabrina's teleport maze",
+        # Shift 12 (2026-07-08, descent-sweep log ground truth): gate/route-building groups.
+        # (19,0) warps live-learned BOTH ways — (1,5-6)->Route 7 (3,25) and (11,5-6)->Saffron
+        # (3,10) — so it IS the Route 7 gate; (21,0) proven by "HEAL: exited Center ->
+        # (3,28)" (Route 10). Named ONLY where a sweep log proves the identity (standing
+        # rule: disasm map numbers lie; live RAM is the truth).
+        (19, 0): "the Route 7–Saffron gate",
+        (21, 0): "the Route 10 Pokémon Center",
     }
     _HALL_MAPS = {(1, 80), (1, 79)}       # standing here with all 8 badges == she beat the game
     _BADGE_NAMES = ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"]

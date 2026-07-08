@@ -284,6 +284,47 @@ def read_object_templates(b):
         return []
 
 
+OBJ_EVENTS, OBJ_EVENT_SZ = 0x02036E38, 0x24   # gObjectEvents (matches campaign._OB/_SZ)
+
+
+def culled_template_tiles(b):
+    """Template tiles of PRESENT objects that are NOT in the live array right now
+    (distance-culled) — the correct template half of a whole-map NPC mask. The live read
+    (_npc_tiles) is the truth for every SPAWNED object; a template whose object is live is
+    a PHANTOM wall at the spawn tile the moment the object moves. Shift 12 ground truth
+    (banked_BLAINE, Viridian Gym): an LoS trainer who WALKED to her and lost keeps standing
+    where he stopped — the blanket templates∪live union then blocked BOTH his tiles and
+    sealed the 12-spinner maze ("spin-BFS found no route"). Match by localId: template @+0,
+    live @+0x08 (live layout field-proven here — gfx@+5, trainerType@+7, coords@+0x10,
+    facing@+0x18 — i.e. the pret ObjectEvent layout, which puts localId at +0x08)."""
+    live = set()
+    for i in range(1, 16):                        # skip obj0 (the player)
+        o = OBJ_EVENTS + i * OBJ_EVENT_SZ
+        if b.rd8(o) & 1:
+            live.add(b.rd8(o + 0x08))
+    out = set()
+    try:
+        ev = b.rd32(GMAPHEADER + 0x04)
+        if not _valid_ptr(ev):
+            return out
+        n = b.rd8(ev)
+        arr = b.rd32(ev + 0x04)
+        if not _valid_ptr(arr) or not (0 < n <= 64):
+            return out
+        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+        for i in range(n):
+            t = arr + i * 0x18
+            if b.rd8(t) in live:                  # spawned — live tile already covers it
+                continue
+            flag = b.rd16(t + 20)
+            gone = bool(flag) and bool(b.rd8(sb1 + 0x0EE0 + (flag >> 3)) & (1 << (flag & 7)))
+            if not gone:
+                out.add((b.rds16(t + 4), b.rds16(t + 6)))
+    except Exception:
+        pass
+    return out
+
+
 # ── collision grid (cached per map load) ─────────────────────────────────────
 class Grid:
     """Snapshot of the current map's collision, indexed in SAVE coordinates.

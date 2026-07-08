@@ -104,8 +104,11 @@ class SpinNav:
         b, camp, L = self.b, self.camp, self.L
         g = tv.Grid(b)
         npc = set(camp.trav._npc_tiles())      # live NPCs block glides (a grunt IS a wall here)
-        # + STATIC templates: live objects are distance-culled — the far-item-ball class
-        npc |= {t for t, _gfx, present in tv.read_object_templates(b) if present}
+        # + templates of DISTANCE-CULLED objects ONLY (the far-item-ball class). The old
+        # blanket union also kept every LIVE object's SPAWN tile as a wall — a beaten LoS
+        # trainer standing where he stopped then blocks TWO tiles, and that phantom sealed
+        # the Viridian 12-spinner maze (banked_BLAINE WARN, shift 12: "no route from (10,5)").
+        npc |= tv.culled_template_tiles(b)
         npc |= set(avoid or ())                # twice-failed step tiles (wanderer squatting)
         # playable dims (BACKUP_LAYOUT includes the +14 border) — Grid reads WRAP at the edges,
         # which planned a LEFT glide off x=0 (hideout7)
@@ -153,6 +156,14 @@ class SpinNav:
                     break
             else:
                 last, still = cur, 0
+        # Spotting-freeze race (shift 12, banked_BLAINE): an LoS trainer's approach eats the
+        # step presses ("press UP never moved"), and the NEXT round can start planning while
+        # the battle is opening — BFS over frozen coords reads "no route". Fight it first.
+        if st.in_battle(b):
+            L(f"   [{label}] battle open before planning -> {self.fight()}")
+            self.drain()
+            for _ in range(60):
+                b.run_frame()
         start = tuple(tv.coords(b))
         from collections import deque
         prev = {start: None}
