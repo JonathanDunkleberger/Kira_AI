@@ -1083,6 +1083,14 @@ class Traveler:
                                 return "no_route_npc_blocked"
                             no_path = stuck = fp_stall = 0; last_fp = None
                             continue
+                        # BOX HYGIENE (shift 6): the approach's A can open a plain NPC's chatter
+                        # with blk UNMATCHED (a mid-step wanderer) — LAYER A never runs then, and
+                        # the open box would eat every later press this leg. Close it.
+                        if blk is None and not st.in_battle(self.b):
+                            for _ in range(2):
+                                self.b.press("B", HOLD, HOLD, self.render, owner=self.owner)
+                                for _ in range(8):
+                                    self.b.run_frame()
                     else:
                         self.log(f"   [travel] no clean path from {cur} AND no NPC-allowing path "
                                  f"(npcs nearby={nplist}) - genuine wall/zone gap, will time out")
@@ -1092,7 +1100,15 @@ class Traveler:
                 # + oracle pick a different action — instead of re-trying the same dead target for
                 # minutes. Fires AFTER the no_path==4 gauntlet probe, so a real trainer-on-the-gap has
                 # already started a battle (which moves the fingerprint and resets this).
-                if fp_stall >= wf.TRAVEL_STALL_RETRIES:
+                # WANDERER PATIENCE (night shift 6, the Condominiums-RoofRoom wedge): when the
+                # probe says an NPC-ALLOWING path exists but the blocker tile can't be matched
+                # to a live body (blk=None — a mid-step wanderer straddles two tiles: the coord
+                # read shows one, the game blocks the other), the fp-stall guard used to kill
+                # the leg after ~2s — long before a wanderer clears the gap. The world
+                # fingerprint doesn't cover NPC positions, so his motion never reset the stall.
+                # Let the bounded 10s patience branch below govern that case; everything else
+                # (real walls, unreachable coords) still wedges fast.
+                if fp_stall >= wf.TRAVEL_STALL_RETRIES and not npc_block_seen:
                     # SPIN-FLOOR ASSIST (shift 5): both spinner failure modes end here — hand
                     # the leg to the glide crosser ONCE before surfacing the wedge. Success =
                     # she crossed pockets; reset the counters and let the leg re-plan.
@@ -1119,7 +1135,8 @@ class Traveler:
                     self.log(f"   [travel] !! NO PATH from {cur} to the exit after waiting "
                              f"~10s for NPCs to clear - ABORT LOUD")
                     self.on_event("there's someone blocking the way and they won't move - stuck")
-                    self.last_fail_reason = self.last_fail_reason or "no_route"
+                    self.last_fail_reason = ("npc_block" if npc_block_seen
+                                             else self.last_fail_reason or "no_route")
                     return "no_path"
                 if no_path == 1:
                     self.log(f"   [travel] path blocked at {cur} (NPC on the gap?) - waiting")
