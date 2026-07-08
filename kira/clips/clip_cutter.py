@@ -724,6 +724,7 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
                 ),
                 timeout=60.0,
             )
+            _track_llm_usage(resp, "clip_titles")
             response = resp.content[0].text
             break
         except Exception as e:
@@ -759,6 +760,37 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
             c.final_title = c.suggested_title or c.title
         if not c.clip_type:
             c.clip_type = "funny"  # safe default label when unclassified
+
+
+# ── Phase K item 4 (2026-07-07): per-VOD LLM cost instrumentation ────────────────────────────
+# The pipeline's raw Anthropic calls bypassed cost_tracker entirely — "what did this VOD cost
+# to process" was unknowable. Every response now funnels through _track_llm_usage: recorded in
+# the session-wide cost_tracker (dollar math lives there) AND tallied locally so the run report
+# can print one honest line. Best-effort — instrumentation must never break a cut. (Inline per
+# the Phase-J forward reference; reconcile when Phase J lands.)
+_RUN_LLM = {"calls": 0, "in": 0, "out": 0}
+
+
+def _track_llm_usage(resp, purpose: str) -> None:
+    try:
+        u = getattr(resp, "usage", None)
+        tin = int(getattr(u, "input_tokens", 0) or 0)
+        tout = int(getattr(u, "output_tokens", 0) or 0)
+        _RUN_LLM["calls"] += 1
+        _RUN_LLM["in"] += tin
+        _RUN_LLM["out"] += tout
+        from kira.brain.cost_tracker import cost_tracker
+        cost_tracker.record(getattr(resp, "model", "") or CLAUDE_HAIKU_MODEL, tin, tout,
+                            purpose=purpose)
+    except Exception as e:
+        print(f"   [Cost] clip-pipeline usage record skipped ({purpose}): {e}")
+
+
+def run_cost_line() -> str:
+    """One report line: what this VOD's processing cost in LLM traffic (Phase K item 4)."""
+    return (f"LLM cost this run: {_RUN_LLM['calls']} call(s), "
+            f"{_RUN_LLM['in']} in / {_RUN_LLM['out']} out tokens "
+            f"(recorded to cost_tracker; dollars in the session cost log)")
 
 
 def write_title_sidecar(cand: Candidate) -> None:
@@ -1107,6 +1139,7 @@ async def generate_reel_title(candidates: list[Candidate], activity: str) -> tup
             ),
             timeout=30.0,
         )
+        _track_llm_usage(resp, "reel_title")
         raw = resp.content[0].text
         m = re.search(r"\{.*\}", raw, re.DOTALL)
         if m:
@@ -1430,6 +1463,8 @@ def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: st
         f"- **04_short_candidate/** — {'`' + os.path.basename(short_path) + '`' if short_path else '(none)'}",
         "",
         "All outputs landscape 16:9 (reframe vertical in Premiere).",
+        "",
+        f"_{run_cost_line()}_",
         "",
         "## Clips (best-first by score)",
     ]
