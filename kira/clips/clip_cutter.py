@@ -551,21 +551,21 @@ def map_to_recording(cand: Candidate, recordings: list[Recording],
 
     cand.recording_path = rec.path
     cand.clip_start_offset = clip_start
-    # Enforce minimum clip length so tight cuts don't produce unusable stubs. In
-    # asymmetric mode, grow the FRONT (earlier in-point) — never the tail — so the hard
-    # out-cut on the punch is preserved; only spill onto the tail if we hit t=0. Fixed
-    # mode keeps the legacy behavior (grow the tail).
+    # Enforce minimum clip length so tight cuts don't produce unusable stubs.
+    # D1 FINISH (2026-07-07, Phase K recon): the wall-clock anchor is Kira's line logged at
+    # END-of-utterance, so tail growth is DEAD AIR in every mode — the .env CLIP_POST fix
+    # taught this, but the fixed-window fallback here still grew the tail, re-introducing
+    # the padded-silence ending on exactly the clips whose setup→punch didn't resolve.
+    # Now BOTH modes grow the FRONT (more setup context) and only spill onto the tail
+    # when the in-point hits t=0.
     actual_dur = clip_end - clip_start
     if actual_dur < _MIN_CLIP_SECONDS:
         shortfall = _MIN_CLIP_SECONDS - actual_dur
-        if cand.anchor_mode == "asymmetric":
-            grow_front = min(shortfall, clip_start)
-            clip_start -= grow_front
-            cand.clip_start_offset = clip_start
-            shortfall -= grow_front
-            if shortfall > 0:
-                clip_end = min(rec.duration, clip_end + shortfall)
-        else:
+        grow_front = min(shortfall, clip_start)
+        clip_start -= grow_front
+        cand.clip_start_offset = clip_start
+        shortfall -= grow_front
+        if shortfall > 0:
             clip_end = min(rec.duration, clip_end + shortfall)
     cand.clip_duration = clip_end - clip_start
 
