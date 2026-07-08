@@ -851,23 +851,27 @@ class BattleAgent:
         # A#0 selects the item, A#1 hits USE (party screen opens); from there AIM the party cursor
         # at target_slot by readback before each confirm (readback-gated: if the party screen isn't
         # up the cursor doesn't move and the taps are inert). Break THE INSTANT the count drops.
-        for n in range(8):
+        _disp0 = self._battle_display_slot(target_slot) if target_slot is not None else None
+        _cands = ([_disp0, _disp0] + [r for r in range(6) if r != _disp0]) if _disp0 is not None else []
+        for n in range(10):
             if self._items_count(item_id) < cnt0:
                 break
             if target_slot is not None and n >= 2:
                 # WAIT for the party screen to draw, THEN aim, THEN confirm (agatha_diag2:
                 # a blind A here lands on the REMEMBERED party cursor — wherever the last
                 # fswitch left it — so a Revive/heal hits a wrong mon, 'no effect' churns,
-                # and the item NEVER consumes). Border readback (the PROVEN fswitch walk),
-                # not _goto_party_slot's PARTY_CURSOR shadow byte.
+                # and the item NEVER consumes). Aimed row gets two confirms; if the count
+                # still hasn't dropped, SWEEP the remaining rows one A each — the count
+                # drop is the only truth (display-mapping models flip-flopped twice
+                # tonight; outcome verification never lies). Border readback walk.
                 for _ in range(10):
                     if self._party_screen():
                         break
                     self._wait(8)
-                _disp = self._battle_display_slot(target_slot)
-                if self._party_screen() and not self._party_goto_slot(_disp):
-                    self.log(f"   [engine] use_item: aim couldn't reach party slot {target_slot} "
-                             f"(display pos {_disp}) — confirming where the cursor is (fail-safe)")
+                _row = _cands[min(n - 2, len(_cands) - 1)]
+                if self._party_screen() and not self._party_goto_slot(_row):
+                    self.log(f"   [engine] use_item: aim couldn't reach display row {_row} "
+                             f"— confirming where the cursor is (fail-safe)")
             self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
                      f"bag={self._bag_screen()} white={self._white_box()} "
                      f"pcur={self._party_cursor_slot()} lead={self._party_cursor_on_lead()}")
@@ -1522,20 +1526,15 @@ class BattleAgent:
         return False
 
     def _battle_display_slot(self, party_slot):
-        """DISPLAY position of a party slot on the IN-BATTLE party screen (0 = the big left
-        panel = the ACTIVE battler; 1-5 = the right column). gBattlePartyCurrentOrder holds
-        the battle-order permutation the menu draws in; after any switch display != party
-        order — walking a raw party index lands the wrong mon (agatha_diag4: the Revive
-        pressed A on the ACTIVE mon's panel forever; the aimed FR refused the same way).
-        Falls back to the party index itself (the pre-switch identity) on any bad read."""
-        try:
-            order = []
-            for i in range(3):
-                v = self.b.rd8(ram.GBATTLE_PARTY_ORDER + i)
-                order += [(v >> 4) & 0xF, v & 0xF]
-            return order.index(party_slot)
-        except (ValueError, Exception):
-            return party_slot
+        """DISPLAY position of a live gPlayerParty index on the IN-BATTLE party screen =
+        THE INDEX ITSELF. Frame-proof (run12 retry frame): the healthy Venusaur read at
+        gPlayerParty[2] sat at display row 2 — the game keeps gPlayerParty ITSELF in
+        battle/display order during the fight; gBattlePartyCurrentOrder is the RESTORE
+        map back to the original order, NOT a screen map. Converting through it
+        DOUBLE-converts (run12: walked row 3 while the target sat highlighted at row 2).
+        Every caller that scans the live party (healthy/fainted/active scans) therefore
+        already holds a display-compatible index. Kept as a seam + for the log line."""
+        return party_slot
 
     def _party_goto_slot(self, target, tries=14):
         """Closed-loop cursor walk on the BATTLE party screen. target = party index 0-5 (0 = lead
