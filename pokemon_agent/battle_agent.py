@@ -693,16 +693,26 @@ class BattleAgent:
     # B-out to a clean menu and return 'failed' so the battle loop just KEEPS FIGHTING — never a wedge,
     # never a wrong action (the apply A-loop only runs once we've CONFIRMED pocket==0 AND cursor==row).
     def _items_pocket(self):
-        """[(item_id, qty), ...] in the Items pocket in display order (qty XOR'd with the low-16 key)."""
+        """[(item_id, qty), ...] in the Items pocket in DISPLAY order (qty XOR'd with the
+        low-16 key). Scans ALL 42 slots and SKIPS empty/zero-qty slots instead of breaking:
+        consuming the LAST of an item mid-battle leaves a zero HOLE in the RAM pocket, and
+        the old break-at-first-zero made the ENTIRE pocket read empty from then on (run17
+        forensics, frame+RAM: the Ether at display row 0 hit x0 at Agatha -> revive_item=None
+        with 6 Revives physically in the bag -> every offer (potion/cure/revive) silently died
+        for the rest of the process while camp.bag_count (scan-all) reported FR x10 — the
+        run16 all-attempts collapse). The displayed list skips holes too, so hole-skipped
+        order stays the TRUE-row order the bag cursor navigates."""
         sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
         key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
         out = []
         for s in range(42):
             slot = sb1 + _ITEMS_POCKET_OFF + s * 4
             iid = self.b.rd16(slot)
-            if iid == 0:
-                break
-            out.append((iid, self.b.rd16(slot + 2) ^ key))
+            if not iid:
+                continue
+            qty = self.b.rd16(slot + 2) ^ key
+            if qty > 0:
+                out.append((iid, qty))
         return out
 
     def _items_count(self, item_id):

@@ -90,14 +90,22 @@ def main():
         lines.append(m)
         print(m, flush=True)
 
-    res = BattleAgent(b, on_event=lambda *a, **k: None, render=lambda: None,
-                      log=log, choose=_choose).run(max_seconds=240)
+    ba = BattleAgent(b, on_event=lambda *a, **k: None, render=lambda: None,
+                     log=log, choose=_choose)
+    res = ba.run(max_seconds=240)
     L(f"fight() -> {res}")
     used = any(f"use_item: USED item {ETHER}" in ln for ln in lines)
     offered = any("pick -> use_ether" in ln for ln in lines)
     notcons = sum(1 for ln in lines if "NOT consumed" in ln)
-    L(f"VERDICT: ether_offered={offered} ether_used={used} not_consumed_events={notcons}")
-    ok = offered and used and notcons == 0
+    # THE HOLE ASSERTION (run16/17 collapse): consuming the LAST Ether (display row 0)
+    # leaves a zero hole in the RAM pocket — the pocket read must still see everything
+    # BEHIND the hole (Revives!), or every later offer dies for the rest of the process.
+    pocket = ba._items_pocket()
+    revives_visible = any(i == 24 and q > 0 for i, q in pocket)
+    L(f"   post-battle pocket (hole present): {pocket}")
+    L(f"VERDICT: ether_offered={offered} ether_used={used} not_consumed_events={notcons} "
+      f"revives_visible_after_hole={revives_visible}")
+    ok = offered and used and notcons == 0 and revives_visible
     L("PASS" if ok else "FAIL")
     return 0 if ok else 1
 
