@@ -1572,7 +1572,11 @@ class Campaign:
                 off = b.rd32(e + 4)
                 if off >= 0x80000000:
                     off -= 0x100000000
-                conns.append((d, off, (b.rd8(e + 9), b.rd8(e + 8))))
+                # struct MapConnection: direction@0, offset@4, mapGroup@8, mapNum@9 — our
+                # convention is (group, num). Night shift 10: this read was TRANSPOSED
+                # ((num, group)), sending travel to nonexistent maps like (19,3)/(39,3)
+                # (Route 1/Route 21 flipped) — every re-entry leg no_routed forever.
+                conns.append((d, off, (b.rd8(e + 8), b.rd8(e + 9))))
         except Exception:
             return "failed"
         # prefer the NORTH neighbor (2) then SOUTH (1) — the region-split class is a N/S phenomenon
@@ -3700,12 +3704,68 @@ class Campaign:
                         return "regrouped"
         # no (reachable) Center on this map — a connector building is the honest way out of a
         # sealed pocket (the same primitive the questline passthrough rides).
+        m0 = tuple(m) if m else None
         pt = self._door_passthrough(want_map=None)
-        if pt == "crossed":
+        if pt == "crossed" or (m0 and tuple(tv.map_id(self.b)) != m0):
+            # the attempt chain can relocate her across maps without reporting 'crossed'
+            # (observed live: Route 23 -> a city) — where she STANDS is the truth, not pt.
             log("   [roam] REGROUP: rode a connector building out of the pocket")
             return "regrouped"
         if pt == "need_heal":
             return "need_heal"
+        # CENTER-LESS TOWN (night shift 10, the e4surf Pallet terminal dead-air): this map has
+        # no Center anchor and no connector fired — but the world graph knows cities that DO
+        # have one (Pallet's is one land route north). Ride ONE hop toward the nearest per
+        # regroup call; successive calls converge on a real anchor instead of looping 'stuck'
+        # to the decision budget (25 straight regroup->stuck decisions, watched).
+        try:
+            best = None
+            for city in CITY_PC_DOORS:
+                if m0 is None or city == m0 or not self.world.node(city):
+                    continue
+                r = self.world.route(m0, city, [])
+                if r and (best is None or len(r) < len(best[1])):
+                    best = (city, r)
+            if best:
+                step = self._next_step_rideable(m0, best[0], [])
+                if step is not None:
+                    nxt, kind, detail = step
+                    log(f"   [roam] REGROUP: no Center here — riding toward "
+                        f"{self.world.name(best[0])} (next hop "
+                        f"{('warp ' + str(detail)) if kind == 'warp' else detail} -> "
+                        f"{self.world.name(nxt)})")
+                    if kind == "warp":
+                        before = tuple(tv.map_id(self.b))
+                        self.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
+                        if tuple(tv.map_id(self.b)) == before:
+                            self.enter_warp(pick=detail)
+                        if tuple(tv.map_id(self.b)) != before:
+                            return "regrouped"
+                    else:
+                        self._edge_travel(nxt, detail)
+                        if m0 and tuple(tv.map_id(self.b)) != m0:
+                            return "regrouped"
+        except Exception as _rge:
+            log(f"   [roam] !! REGROUP center-hop errored ({_rge}) — falling through LOUD")
+        # IMPOSSIBLE-STAND / PARTIAL-VOID (night shift 10, the e4surf Pallet limbo): the reads
+        # say she 'stands' on a non-walkable tile with ZERO walkable/surfable neighbours. No
+        # legit stand reads like this (a door mat has an open front) — it's the QW-4 reboot
+        # family wearing a plausible map id (map (3,0), party 6, badges 8 — _world_lost is
+        # blind to it). Escalate to void recovery instead of looping 'stuck' to the budget.
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+            if cur and tuple(tv.map_id(self.b))[0:1] == (3,):
+                g = tv.Grid(self.b)
+                _nbrs = [(cur[0] + dx, cur[1] + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                if (not g.walkable(*cur) and not g.is_water(*cur)
+                        and all(not g.walkable(*t) and not g.is_water(*t) for t in _nbrs)):
+                    log(f"   [roam] !!!! IMPOSSIBLE-STAND: she 'stands' on fully-enclosed "
+                        f"non-walkable {cur} on {tv.map_id(self.b)} — desynced/void-class world "
+                        f"(partial QW-4). Reloading the last real state (LOUD).")
+                    if self._void_recover():
+                        return "regrouped"
+        except Exception as _ise:
+            log(f"   [roam] !! impossible-stand probe errored ({_ise}) — continuing")
         log(f"   [roam] !! REGROUP: no Center anchor and no connector fired from {m} "
             f"{tv.coords(self.b)} — LOUD (a true seal; watchdogs carry it)")
         return "stuck"

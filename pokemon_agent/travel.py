@@ -704,7 +704,7 @@ class Traveler:
         t0 = time.time()
         self.log(f"   [travel] start map={cur_map} coords={coords(self.b)} -> "
                  f"{'coord ' + str(arrive_coord) if arrive_coord else 'map ' + str(target_map)} "
-                 f"(budget {max_seconds:.0f}s)")
+                 f"(budget {max_seconds:.0f}s{', surf-capable' if can_surf else ''})")
         stuck = exit_tries = no_path = 0
         # TRAVEL-LAYER PROGRESS GUARD (increment 3.5): fingerprint the world across no-path RETRIES.
         # If it stays identical (player can't move, world unchanged) for TRAVEL_STALL_RETRIES, STOP
