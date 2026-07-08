@@ -1283,6 +1283,23 @@ class Campaign:
         key, (dx, dy) = ent
         stand = (wt[0] - dx, wt[1] - dy)
         m0 = tuple(tv.map_id(self.b))
+        # SHIFT-6 REACHABILITY LAW at the ritual level (shift 12, banked_VICTORY ×27 wedge
+        # storm): run-10 made this ritual run even when the CANONICAL approach tile is
+        # unwalkable — right for mat rows, wrong in a walk-SEALED pocket (VR 2F landing
+        # (3,3): the boulder-switch puzzle walls off the whole east half, and every ritual
+        # call burned up to 5 blind travel legs = 5 wedges). ONE static BFS over the whole
+        # candidate family first; nothing reachable -> nothing to actuate, bail leg-free.
+        # Same-optimism grid as travel's own BFS, so this can never skip a door travel
+        # could have reached.
+        cand = {stand, tuple(wt), (wt[0], wt[1] + 1), (wt[0], wt[1] - 1),
+                (wt[0] - 1, wt[1]), (wt[0] + 1, wt[1])}
+        g0 = tv.Grid(self.b)
+        c0 = tuple(tv.coords(self.b) or ())
+        if c0 and c0 not in cand and not tv.bfs(g0, c0, lambda t: t in cand,
+                                                walkable=g0.walkable):
+            log(f"   directional warp {wt}: no stand/neighbor reachable from {c0} — "
+                f"sealed pocket, skipping (0 legs)")
+            return False
         if self.trav.travel(target_map=None, arrive_coord=stand, max_steps=120,
                             max_seconds=60) != "arrived":
             # ON-TILE FALLBACK (2026-07-06, the captain's-office 0x6C stair): the opposite
