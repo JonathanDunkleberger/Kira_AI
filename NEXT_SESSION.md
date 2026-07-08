@@ -5,6 +5,18 @@ in force: loop until done, bank per phase, honest three-state surveys, stop ONLY
 needs-eyes item on the ledger below or ~85% context (then rewrite THIS file frontier-first
 and hand off). Rule 16 covers everything else — decide and execute.
 
+## BURN DISCIPLINE (CEO directive 2026-07-08 — the train costs real money per shift; density is mandatory)
+1. **THE VALUE LINE.** Every shift survey MUST end with: `this shift bought: [concrete
+   capability/fix/deliverable] — [shipped/verified/landed]` — one sentence, no fluff. If a
+   shift cannot write a TRUE value line, that is the signal to STOP and surface needs-eyes
+   rather than burn another shift.
+2. **BOUNDED RECON.** Audit/recon phases (G especially) produce a BUILD-LIST in ≤1 shift,
+   then shifts BUILD from the list — no open-ended analysis shifts.
+3. **DEPTH OVER SPREAD.** Prefer landing 3 things FULLY over touching 10 things partially —
+   partial work that needs re-context next shift is the expensive failure mode.
+4. **NO IDLE-GRIND.** If a phase is blocked on Jonny's eyes, do NOT fill the shift with
+   adjacent low-value work — close early and cheap; the relauncher handles the rest.
+
 ---
 
 RESUME — fresh session. The Sherpa timeline is SUMMITED (credits 2026-07-07; canonical =
