@@ -54,3 +54,10 @@ mechanisms that would make her better EVERYWHERE, not just in FireRed.)*
   the byte value, but the real selection never moved — a false verify. Core-Kira analogue: never mark a
   feature WIRED because a value is *set*; confirm the downstream *behavior* changed (the three-state
   discipline, generalized). A candidate lint for the whole codebase, not just Pokémon.
+
+## 7. "PLAYED LIKE NINTENDO INTENDED" — the full-completionist showcase format (Jonny, couch session 2026-07-08)
+A future episode FORMAT, not a capability: Kira plays a run the way the designers dreamed —
+guides open, every secret, every side quest, full dex energy, reading the world like a
+superfan. The inverse register of the first-timer showcase: instead of wonder-at-the-unknown,
+mastery-as-love-letter. Banked as P-4 from couch fix-pass 1; no build until the showcase
+format itself is proven.

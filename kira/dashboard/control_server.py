@@ -464,6 +464,14 @@ async def _card_overlay_handler():
 async def _pokemon_hud_handler():
     return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_hud.html"))
 
+# SAVE-FILE CARD (couch close-out 2026-07-08): a Game Boy / FireRed "CONTINUE" save-select
+# screen — pure presentation over the SAME /pokemon_hud.json state (badges / Pokédex / play
+# time / location / party). Viewer-safe (no spend/reasoning), self-contained HTML, OBS-source
+# ready. Additive: new route + static file only, no backend/state change.
+@app.get("/pokemon_savecard")
+async def _pokemon_savecard_handler():
+    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_savecard.html"))
+
 @app.get("/pokemon_hud.json")
 async def _pokemon_hud_json():
     # Public read for the OBS browser source: ONLY the game-side fields the HUD shows (badges + party).
