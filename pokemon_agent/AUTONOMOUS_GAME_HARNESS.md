@@ -262,6 +262,32 @@ multi-hop up to 6 rooms (depth 1 = a pass-through house, depth 3 = an undergroun
 retry the edge. Remember proven connectors per map. This one primitive covers pass-through houses,
 gatehouses, and under-city tunnels — every "the road is fenced; the way through is a building" gate.
 
+**ENGINE PATTERN (added 2026-07-08, the descent): GROUNDED-LOCATION CONTEXT.** Every decision tick
+LEADS with a grounded where-am-I line built ONLY from live reads (indoor/outdoor from map metadata,
+terrain traits from confirmed visits), and an UNKNOWN place explicitly instructs curiosity-not-
+assertion. PITFALL it kills (twice now): assuming a map GROUP encodes the setting — FireRed's
+"Dungeons" group holds caves AND ships AND office towers AND the open-air Safari Zone; the model
+confabulated "cave" inside a lab and inside the Hall of Fame. Classify per-map from the disasm;
+keep the classification in the game-knowledge layer.
+
+**ENGINE PATTERN (added 2026-07-08): VERBAL-TIC GOVERNOR.** Line-level repetition guards (near-
+duplicate detection over a short window) cannot see a PHRASE tic recurring across many different
+lines ("X is doing a lot of heavy lifting" every ~10 lines). Track distinctive n-grams across a
+LONG window of her generated lines; when one recurs in >=3 distinct lines, fold a HARD ban into
+the ask — with NO self-aware escape hatch (the "I almost said—" wink becomes its own tic).
+
+**ENGINE PATTERN (added 2026-07-08): KEY-FIGURE SALIENCE (social fabric).** A human player treats
+family/named characters differently from scenery NPCs. Curate a small map-keyed table of key
+figures; un-greeted ones become first-class warmly-framed options, exert pull in the decision ctx,
+persist greeted-state in the world model (survives resume), and a walked-past skip is VOICED once
+(a deliberate choice the viewer hears). Salience feeds the choice; the pathfinder executes.
+
+**ENGINE PATTERN (added 2026-07-08): THE MACHINE PRE-GRADE SWEEP.** Before human spot-watches,
+run the real loop headless off every banked arc checkpoint and grade the machine-visible humanity
+harness properties (locomotion wedges, liveness/void trips, grounding gaps, decision variety) →
+a ranked riskiest-arcs report that PICKS the human's watch list. Graders need GRADING budgets:
+cap grind/battle time per action or one tick eats the arc window (the 78-encounter lesson).
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.
