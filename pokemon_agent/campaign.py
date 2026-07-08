@@ -2419,6 +2419,74 @@ class Campaign:
         log("   TALK: no reachable un-talked NPC here")
         return "no_npc"
 
+    # ── F-6 SOCIAL FABRIC (the descent) — KEY-FIGURE SALIENCE ───────────────────────────────────
+    # A real player doesn't treat their mom like scenery. Key FIGURES (family, quest-adjacent
+    # people) exert PULL on her intents: when one is here and un-greeted, a first-class
+    # `greet:<id>` option appears with a warm framing, the pull rides the ctx `place` seam, and
+    # walking out anyway gets VOICED (a deliberate skip is a choice a viewer should hear, not a
+    # silent beeline). SHE still decides — salience feeds the choice, the pathfinder executes.
+    # Greeted-state persists in world_model.json (sanctity bundle) so it survives resume.
+    # GAME-KNOWLEDGE LAYER (portability): map-keyed, curated small; grows as the descent grades
+    # arcs. Gym leaders / scripted quest NPCs are NOT here (beat_gym + questlines own those).
+    _SALIENT_FIGURES = {
+        (4, 0): [{"id": "mom", "who": "Mom",
+                  "offer": "talk to Mom — she's right here, and you don't walk out on her "
+                           "without a word",
+                  "pull": "Your mom is here in the house with you — you haven't talked to "
+                          "her yet."}],
+        (4, 2): [{"id": "daisy", "who": "Daisy, Gary's sister",
+                  "offer": "say hi to Daisy, Gary's sister — she's friendly, and she knows "
+                           "things (and people say she gives travelers a Town Map)",
+                  "pull": "Daisy — Gary's sister — is here, and you've never actually met."}],
+    }
+
+    def _salient_unmet(self, state):
+        """Un-greeted key figures on THIS map with a talkable body actually present (honest
+        offer — a figure who isn't loaded right now is not offered)."""
+        figs = self._SALIENT_FIGURES.get(tuple(state["map"]))
+        if not figs:
+            return []
+        try:
+            present = bool(self._talkable_npcs())
+        except Exception:
+            present = False
+        if not present:
+            return []
+        return [f for f in figs if not self.world.met(f["id"])]
+
+    def _greet_figure(self, fid, state):
+        """Execute a greet:<id> pick — the existing tracked-talk primitive does the walking/
+        facing/box-verify; success marks the figure met (persisted). A figure we provably can't
+        reach resolves met-anyway (logged LOUD) so the offer can never become a forever-loop."""
+        figs = self._SALIENT_FIGURES.get(tuple(state["map"]), [])
+        fig = next((f for f in figs if f["id"] == fid), None)
+        if fig is None:
+            return "unknown_action"
+        out = self.talk_npc()
+        if out == "talked":
+            self.world.mark_met(fid)
+            log(f"   [social] F-6: greeted {fig['who']} — marked met (persists via world_model)")
+            return "greeted"
+        self.world.mark_met(fid)
+        log(f"   [social] !! F-6: couldn't reach {fig['who']} ({out}) — resolving met-anyway "
+            f"so the offer can't loop (LOUD; if this repeats on a graded arc, fix the reach)")
+        return out
+
+    def _social_tick(self, state):
+        """F-6 skip-voicing: she was OFFERED a greet last tick and left the map without taking
+        it -> voice the deliberate skip ONCE per figure per run (her LLM frames it; the seed is
+        a neutral event). Keeps salience honest: pull, not compulsion."""
+        cur = tuple(state["map"])
+        prev_map, prev_ids = getattr(self, "_social_last", (None, ()))
+        if prev_map is not None and cur != prev_map:
+            for fid, who in prev_ids:
+                if not self.world.met(fid) and fid not in getattr(self, "_social_skip_voiced", set()):
+                    self._social_skip_voiced = getattr(self, "_social_skip_voiced", set()) | {fid}
+                    log(f"   [social] F-6: she left {prev_map} without greeting {who} — voicing the skip")
+                    self.on_event(f"you headed out without saying anything to {who}",
+                                  kind="social", tier=1)
+        self._social_last = (cur, tuple((f["id"], f["who"]) for f in self._salient_unmet(state)))
+
     def _drain_overworld(self, label="dlg"):
         """Drive any overworld dialogue box (a trainer's post-battle line, an NPC, the badge award)
         to a clean close at a watchable pace via the general primitive. No box -> returns at once.
@@ -5496,6 +5564,13 @@ class Campaign:
                 a["talk_npc"] = "go say hi to someone nearby — talk to the locals, see what they know"
         except Exception:
             pass
+        # F-6 SOCIAL FABRIC: un-greeted KEY figures here are first-class, warmly-framed options
+        # (Mom is not "a local"). She still chooses; leaving anyway gets voiced by _social_tick.
+        try:
+            for f in self._salient_unmet(state):
+                a[f"greet:{f['id']}"] = f["offer"]
+        except Exception as _sf:
+            log(f"   [social] salience offer skipped: {_sf}")
         # ── EXPLORING IS A MOVE (Batch-WORLD Phase 4a) — going to a PLACE she knows is a first-class
         # option, not just "advance toward the gym". When she's blocked or needs something (a team,
         # levels, balls) the obvious move is to travel to a place that HAS it. These are REACHABLE
@@ -6352,6 +6427,8 @@ class Campaign:
             return "shop_failed"
         if pick == "talk_npc":
             return self.talk_npc()
+        if pick.startswith("greet:"):
+            return self._greet_figure(pick.split(":", 1)[1], state)
         return "unknown_action"
 
     def _boot_state_sanity(self):
@@ -6534,6 +6611,11 @@ class Campaign:
             # PHASE C-2 — meet anyone who joined the party WITHOUT a witnessed catch (gift/PC/Jonny's
             # hands): the introduction arc (met/named/bonded), never a silently-deployed stranger.
             self._meet_new_teammates(state)
+            # F-6 SOCIAL FABRIC — voice a deliberate walked-past-Mom skip (once per figure per run).
+            try:
+                self._social_tick(state)
+            except Exception as _sx:
+                log(f"   [social] tick skipped: {_sx}")
             # SHOP-WITH-INTENT memory (PART C): sample what's afflicting the party THIS tick so a later
             # stock-up buys the cure for what actually hurt her (persists even after it's healed off).
             newly = self.party_statuses()
@@ -6722,6 +6804,12 @@ class Campaign:
             # place name — indoor/outdoor truth + only live-confirmed traits, so nothing downstream
             # (her voiced pick, the want, the asides) starts from an ungrounded sense of place.
             where = self._location_block(state)
+            # F-6: un-greeted key figures here exert PULL on the decision (she still chooses).
+            try:
+                for _f in self._salient_unmet(state):
+                    where = f"{where} {_f['pull']}"
+            except Exception:
+                pass
             # Batch-WORLD (Phase 2) — SENSE OF PLACE: lead the oracle ctx with a short spatial picture
             # from her visited-world memory (where she is, what's around, what's BLOCKED, what she can
             # walk back to, how she can travel). This is the MAP she never had — so when a path is
@@ -7507,6 +7595,8 @@ class Campaign:
             return f"Routing to a place I need{nxt}."
         if pick == "talk_npc":
             return f"Checking in with a local, then{nxt}."
+        if pick and pick.startswith("greet:"):
+            return f"Someone here matters to me — saying hi before anything else{nxt}."
         return f"{short}.{nxt}"
 
     def _publish_health(self, macro, state, last_badge_ts, run_start_ts):

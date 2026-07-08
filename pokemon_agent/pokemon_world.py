@@ -120,6 +120,8 @@ class WorldModel:
         self.nodes = {}     # "g,n" -> {"name", "traits": {...}, "edges": {dir: "g,n"}, "visited": bool}
         self.caps = {"walk": True, "cut": False, "fly": False, "surf": False,
                      "strength": False, "flash": False, "bike": False}
+        self.social = {}    # F-6 SOCIAL FABRIC: greeted key figures (id -> ts). Rides the sanctity
+        #                     bundle via world_model.json so "already said hi to Mom" survives resume.
         self._cap_warned = False
         for mid, (name, traits) in SEED_NODES.items():
             self._ensure(mid, name, traits, visited=False)
@@ -396,9 +398,17 @@ class WorldModel:
                 out.append((mid, nm, why_by_trait.get(trait, "somewhere useful")))
         return out
 
+    # ── F-6 SOCIAL FABRIC: who she's already greeted (key figures, not every townsperson) ──
+    def met(self, sid):
+        return sid in self.social
+
+    def mark_met(self, sid):
+        import time as _t
+        self.social[sid] = _t.time()
+
     # ── persistence (survive --resume) ─────────────────────────────────────────────────────
     def to_dict(self):
-        return {"nodes": self.nodes, "caps": self.caps}
+        return {"nodes": self.nodes, "caps": self.caps, "social": self.social}
 
     def from_dict(self, d):
         nodes = d.get("nodes") or {}
@@ -413,6 +423,7 @@ class WorldModel:
         for c, v in caps.items():
             if c in self.caps:
                 self.caps[c] = bool(v)
+        self.social.update(d.get("social") or {})   # F-6 (back-compat: absent in older bundles)
 
     def save(self, path):
         try:
