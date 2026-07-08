@@ -1594,16 +1594,30 @@ class Campaign:
                 return self.trav.travel(target_map=target_map, edge=edge, avoid=avoid, **kw)
         return r
 
-    def advance_north(self, target_map, max_legs=60):
+    def advance_north(self, target_map, max_legs=60, abort_when=None, leg_seconds=None):
         """Generic 'head north until target_map' - auto-picks WALK (cross a route edge)
         vs WARP (step through a gate-house door) at each map, so the route->gate-house->
         route->forest chain self-discovers instead of being hardcoded leg by leg. The
-        Traveler handles BFS/maze/NPC/grass/battle-handoff; this only sequences legs."""
+        Traveler handles BFS/maze/NPC/grass/battle-handoff; this only sequences legs.
+
+        abort_when/leg_seconds (quiet-window finding #2 — the SCRIPTED-INTERCEPT class): a
+        cutscene can hijack the player mid-leg to a map that is neither here nor the target
+        (Oak's grass-edge intercept -> the lab), after which the in-flight nav wedges against
+        the script for minutes. abort_when is checked at every leg boundary (returns 'aborted');
+        leg_seconds caps each leg's wall-clock so a hijacked leg yields fast. Defaults keep
+        every existing caller byte-identical."""
         for leg in range(max_legs):
+            if abort_when and abort_when():
+                return "aborted"               # scripted intercept landed us elsewhere — yield
             m = tv.map_id(self.b)
             if m == target_map:
                 return "arrived"
-            out = self.trav.travel(target_map=target_map, max_steps=800)
+            _tkw = {"target_map": target_map, "max_steps": 800}
+            if leg_seconds:
+                _tkw["max_seconds"] = leg_seconds
+            out = self.trav.travel(**_tkw)
+            if abort_when and abort_when():
+                return "aborted"               # hijack happened DURING the leg — don't warp/retry
             if out == "arrived":
                 continue                       # crossed an edge (maybe more legs north)
             if out == "battle_loss":
@@ -2087,6 +2101,9 @@ class Campaign:
         (1, 74): "Cerulean Cave", (1, 75): "Lorelei's Room", (1, 76): "Bruno's Room",
         (1, 77): "Agatha's Room", (1, 78): "Lance's Room", (1, 79): "the Champion's Room",
         (1, 80): "the Hall of Fame",
+        # Pallet interiors (group 4 — quiet-window rehearsal finding #4: the FIRST grudge beat read
+        # "at an unfamiliar area" because Oak's lab had no name; these are the opening's stage).
+        (4, 0): "home", (4, 1): "her bedroom", (4, 2): "Gary's house", (4, 3): "Oak's lab",
     }
     _HALL_MAPS = {(1, 80), (1, 79)}       # standing here with all 8 badges == she beat the game
     _BADGE_NAMES = ["Boulder", "Cascade", "Thunder", "Rainbow", "Soul", "Marsh", "Volcano", "Earth"]
@@ -2678,7 +2695,13 @@ class Campaign:
                 for _ in range(12):
                     self.b.run_frame()
                 continue
-            out = self.advance_north(PALLET if tv.map_id(self.b) != PALLET else ROUTE1, max_legs=2)
+            # Oak's intercept is a SCRIPTED HIJACK (finding #2): it can fire mid-leg and land her
+            # in the lab (4,3) while this nav call is still walking "north" — abort_when + short
+            # legs make the nav yield in seconds instead of wedging against the cutscene for minutes.
+            out = self.advance_north(PALLET if tv.map_id(self.b) != PALLET else ROUTE1, max_legs=2,
+                                     abort_when=lambda: tv.map_id(self.b) == (4, 3), leg_seconds=25)
+            if out == "aborted":
+                continue                       # loop top sees map==(4,3) and breaks to the pick
             if out in ("stuck", "timeout"):
                 self.b.press("UP", 8, 8, self.render, owner="agent")
                 for _ in range(8):
@@ -2687,6 +2710,29 @@ class Campaign:
             log("   !! OPENING: Oak intercept didn't reach the lab"); return tv.map_id(self.b)
         log("   OPENING: in Oak's lab - picking her starter")
         self._starter_choice = starter_choice
+        # VOICE THE CHOICE (rehearsal finding #1, the endearing half): a neutral moment-fact —
+        # WHICH partner she's committed to — fired through the reaction seam so she voices the WHY
+        # in her own live words while the hands walk to the ball. Tier 3: this is the run's first
+        # big beat (the partner decision), never a silent acquisition.
+        _snm = {0: "Bulbasaur", 1: "Charmander", 2: "Squirtle"}.get(starter_choice, "Bulbasaur")
+        self.on_event(f"three Poké Balls on Oak's table — your mind's made up: {_snm} is your partner",
+                      kind="event", tier=3)
+        # HER NICKNAME CALL (F-3 CEO principle: names/choices are hers via the judged system or they
+        # don't happen — never a hardcoded default). The proven free-text naming ask (the teammate-
+        # intro pattern); "NONE" or a dead oracle -> keep the species name, logged as her call.
+        self._nickname = None
+        try:
+            _nm = self._soul_choose("name", {}, {"place":
+                f"{_snm} is about to become your partner — the one beside you all the way. If you "
+                f"want to give it a personal name, answer with JUST the name (12 letters max). If "
+                f"you'd rather keep calling it {_snm}, answer exactly: NONE"})
+            if _nm:
+                _nm = _nm.strip().split("\n")[0].strip()[:12]
+                self._nickname = None if (not _nm or _nm.upper() == "NONE") else _nm
+        except Exception as _nne:
+            log(f"   STARTER: nickname ask skipped ({_nne})")
+        log(f"   STARTER: nickname -> " + (f"{self._nickname!r} (her choice)" if self._nickname
+                                           else "keep the species name (her choice)"))
         if self.pick_starter() != "picked":
             log("   !! OPENING: starter pick failed"); return tv.map_id(self.b)
         for _ in range(60):                                    # advance until the RIVAL battle starts
@@ -2733,6 +2779,28 @@ class Campaign:
         c = getattr(self, "_starter_choice", None)
         return c if c in (0, 1, 2) else 0
 
+    def _choose_starter_soul(self):
+        """SOUL-DEBT #3 AT MINUTE ONE (quiet-window rehearsal finding #1): her PARTNER for the whole
+        run is HER pick through the generic soul oracle — never authored, never silently defaulted.
+        Facts offered as detail (types/tradeoffs any player knows from the box art blurbs); her
+        taste decides. Headless / no bot / no pick -> the old default 0 (Bulbasaur), LOUD."""
+        opts = {
+            "bulbasaur": "the Grass/Poison one — calm and steady; the early gyms (rock, water) come easy",
+            "charmander": "the Fire one — the hard-mode start, but it becomes a dragon (Charizard)",
+            "squirtle": "the Water one — a tough all-rounder with a great look",
+        }
+        pick = self._soul_choose("starter", opts, {
+            "moment": ("Professor Oak's lab, three Poké Balls on the table. This is your PARTNER "
+                       "for the entire journey — the one beside you from this bedroom morning all "
+                       "the way to the credits. Which one calls to you?"),
+        })
+        idx = {"bulbasaur": 0, "charmander": 1, "squirtle": 2}.get((pick or "").strip().lower())
+        if idx is None:
+            log(f"   !! STARTER: no soul pick ({pick!r}) -> default Bulbasaur (LOUD fallback)")
+            return 0
+        log(f"   STARTER: her soul chose {pick.upper()} -> ball {idx}")
+        return idx
+
     def choose_nickname(self):
         """DECISION SEAM - does Kira nickname her new Pokemon, and what? Returns a name str to name
         it (via name_entry) or None to DECLINE. Capability-not-script: set self._nickname (Batch 2
@@ -2749,6 +2817,20 @@ class Campaign:
         for _ in range(30):                                    # advance toward the nickname prompt
             low = self._read_overworld_text().lower()
             if "nickname" in low:
+                # RACE FIX (F-3, the AAAAAAAAA class): 'nickname' shows while the prompt is still
+                # STREAMING — an answer pressed now just speeds text, the REAL Yes/No lands after
+                # we return, and the next stage's A-drain answers YES + types A's on the keyboard.
+                # (Take 1 logged "declined (her choice)" while the screen showed AAAAAAAAA — the
+                # log told the truth about its press and missed the outcome.) Settle until the
+                # box text is STABLE (the cursor is really up), THEN answer, THEN VERIFY.
+                _prev = low
+                for _ in range(40):
+                    for _ in range(10):
+                        self.b.run_frame()
+                    _cur = self._read_overworld_text().lower()
+                    if _cur == _prev:
+                        break
+                    _prev = _cur
                 if nick:
                     for _ in range(8):                                     # YES, then advance the
                         if not dd_box_open(self.b):                        # Yes/No -> the keyboard
@@ -2761,10 +2843,15 @@ class Campaign:
                     name_entry(self.b, nick, render=self.render)           # type her chosen name
                     log(f"   STARTER: nicknamed it {nick!r} (her choice)")
                 else:
-                    self.b.press("B", 8, 10, self.render, owner="agent")   # NO -> decline (no A-spam)
-                    for _ in range(20):
-                        self.b.run_frame()
-                    log("   STARTER: declined a nickname (her choice)")
+                    # decline + VERIFY: the prompt text must actually be GONE before we trust it.
+                    for _try in range(4):
+                        self.b.press("B", 8, 10, self.render, owner="agent")
+                        for _ in range(24):
+                            self.b.run_frame()
+                        if "nickname" not in self._read_overworld_text().lower():
+                            break
+                        log(f"   STARTER: decline didn't land (try {_try + 1}) — pressing B again")
+                    log("   STARTER: declined a nickname (her choice) — verified prompt gone")
                 return
             self.b.press("A", 4, 10, self.render, owner="agent")
             for _ in range(12):
@@ -2779,11 +2866,22 @@ class Campaign:
             idx = self.choose_starter()
         bx, by = self.STARTER_BALLS[idx]
         log(f"   STARTER: ball {idx} at {(bx, by)} (her choice; hands are choice-agnostic)")
-        # 1) advance Oak's intro speech ("Those are POKé BALLS...") until control returns
-        DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label="oak-intro")
-        # 2) walk below the chosen ball + open the "Do you want X?" prompt
-        self._step_to((bx, by + 1))                            # stand directly below the ball
+        # 1+2) drain Oak's intro -> stand below the ball. DRAIN-AND-RETRY (take-3 finding): Oak's
+        # intro streams in WAVES with lulls (Gary's interjections) — one DialogueDriver pass can end
+        # at a lull while the SCRIPT still owns input, so the walk never lands (the fast-arrival
+        # regression the intercept-abort exposed; take 1 only worked because 2 min of lab wandering
+        # accidentally drained the waves). Loop: drain -> try to stand -> if the tile didn't take,
+        # the cutscene still has the wheel -> drain the next wave and retry.
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        _stood = False
+        for _wave in range(6):
+            DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label="oak-intro")
+            if self._step_to((bx, by + 1)):                    # stand directly below the ball
+                _stood = True
+                break
+            log(f"   STARTER: script still holds input (wave {_wave + 1}) — draining the next wave")
+        if not _stood:
+            log("   !! STARTER: never got control to reach the ball (LOUD)")
         for _ in range(6):
             self.b.press("UP", 8, 8, self.render, owner="agent")
             self.b.press("A", 8, 8, self.render, owner="agent")
@@ -6772,7 +6870,12 @@ class Campaign:
                 f"[at map={tv.map_id(self.b)} coords={tv.coords(self.b)}]")
             if kind == "OPENING":
                 self._title_to_newgame()             # fresh ROM -> title -> New Game -> Oak's intro
-                m = self.drive_opening(obj[1], obj[2])    # her char-creation + starter + rival
+                # QUIET-WINDOW FIX (2026-07-07 rehearsal finding #1): the starter was a silent
+                # default-0 Bulbasaur — the oracle seam existed on both ends but OPENING never
+                # called it. Her PARTNER for the run is the constitution's purest choice; route it
+                # through her soul BEFORE the hands move. Headless/no-bot -> old default 0.
+                m = self.drive_opening(obj[1], obj[2],
+                                       starter_choice=self._choose_starter_soul())
                 out = "complete" if m == PALLET else "stuck"
             elif kind == "WALK_TO_MAP":
                 out = self.walk_to_map(obj[1], obj[2])
@@ -7054,7 +7157,11 @@ class Campaign:
                  "Pokémon is central ('gotta catch 'em all') — you catch to build that team and to fill the "
                  "Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a "
                  "gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually "
-                 "like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ")
+                 "like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. "
+                 # F-2 (watch-notes): kill the "wait, who told them my name?" tic — a cute beat ONCE,
+                 # a broken-record meta-observation when NPCs greet her by name every town.
+                 "ALSO NORMAL: you entered your own name (and your rival's) when the game began — people "
+                 "in this world knowing your names is ordinary, not a mystery to react to. ")
         # team-health nudge keyed on her ACTUAL party (capability-not-script: she decides what to do).
         party = state.get("party") or []
         if party and not state.get("post_game"):     # a Champion's victory lap is never "walled"

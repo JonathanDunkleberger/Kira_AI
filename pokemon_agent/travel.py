@@ -114,6 +114,14 @@ CAVE_MUSE = (
     "it's dim and quiet down here, the path winding deeper into the dark",
     "you pick your way through the cavern, watching the ground in the gloom",
 )
+# GROUNDED-PERCEPTION FIX (quiet-window F-8, 2026-07-07): every non-overworld map used to get
+# CAVE_MUSE — so Oak's LAB seeded "the cave presses in close" and her riff confabulated a cave.
+# Buildings (map groups 4+ = the Indoor* groups, plus special areas) now get neutral interior
+# seeds; only group 1 (gMapGroup_Dungeons — Mt Moon, Rock Tunnel, Victory Road…) keeps the gloom.
+INDOOR_MUSE = (
+    "quiet in here — just the hum of the building around you",
+    "you take the room in for a second, getting your bearings",
+)
 ROAD_MUSE = (
     "the route opens up ahead, grass swaying at the edges of the path",
     "you walk on under open sky, the next town somewhere past the horizon",
@@ -126,8 +134,10 @@ def _muse_seed(b, i):
         mp = map_id(b)
         if mp in PLACE_MUSE:
             seeds = PLACE_MUSE[mp]
-        elif mp[0] != 3:                 # not the overworld surface -> a cave/interior
+        elif mp[0] == 1:                 # gMapGroup_Dungeons — real caves/tunnels only
             seeds = CAVE_MUSE
+        elif mp[0] != 3:                 # any other non-overworld group -> a building interior
+            seeds = INDOOR_MUSE
         else:
             seeds = ROAD_MUSE
         return seeds[i % len(seeds)]
