@@ -323,6 +323,37 @@ re-enter — every cycle moves, so movement-cleared dead-route memory never bite
 interior failures per GOAL (not per tile); two strikes → park the approach structurally on that
 map + voice one honest "it has me beat for now" beat. Movement is not progress.
 
+**ENGINE PITFALL (added 2026-07-08, night shift 6): ACTUATE ONLY WHAT THE FEET CAN REACH.** The
+world GRAPH knows a door exists; it does not know her feet can't get there. From a walk-sealed
+pocket (an elevator lobby behind a script barrier) every "ride that warp" plan burned a full
+travel budget + a 5-approach fan — ~6 wedge events per tick, forever, because the failure
+('warp_failed') wasn't a structural outcome and the forward-drive kept re-issuing it. The general
+law: before ANY expensive actuation toward a same-map tile, run the planner's own cheap
+reachability probe (BFS from her feet, tile-or-cardinal-neighbor, fail-OPEN on read flakes);
+an unreachable target is parked for THIS query and the route re-asked; when nothing remains,
+surface the STRUCTURAL failure so the decision layer changes objective. Computed fresh each
+tick from her feet, it self-heals the moment the world opens — no persistent state to go stale.
+
+**ENGINE PITFALL (added 2026-07-08, night shift 6): SCRIPTS CHANGE THE FLOOR, NOT JUST WHO'S
+HERE.** We knew map scripts change the PEOPLE in a room (re-sweep after talking); FireRed's
+hideout B1F taught the stronger form: a TRAINER-GATED BARRIER — real collision (coll-3
+metatiles) that a script REMOVES when a specific guard is beaten (setmetatile + redraw). Walk
+reachability is therefore MUTABLE state, and "no reachable exit" has a human answer: the room's
+people ARE the door. Exit/nav machinery needs an engagement fallback — talk to / fight the
+nearest reachable object event (LIVE coords; wanderers move), once each, then re-plan on the
+fresh grid. Corollary verified the same night: cursor-menu rides (elevators) need their row
+cursor PERSISTED across attempts (the bag TRUE-row law) or every recovery tick re-burns the
+default rows.
+
+**ENGINE PITFALL (added 2026-07-08, night shift 6): THE MID-STEP WANDERER STRADDLE.** A walking
+NPC occupies TWO tiles mid-step — the coord read shows one, the game blocks the other. Symptom
+signature: clean plan NO PATH, npc-allowing plan EXISTS, blocker tile matches no live body. An
+impatient stall guard (ours fired at ~2s, and the world fingerprint didn't cover NPC positions,
+so the wanderer's own motion never reset it) turns this transient into a hard wedge; the case
+needs the long patience branch (bounded ~10s) and an honest npc-block reason when it still
+fails. Hygiene twin: an A-press that opens a plain NPC's chatter with the blocker unmatched
+must CLOSE the box before continuing, or the open box eats every later press of the leg.
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.
