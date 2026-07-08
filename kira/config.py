@@ -742,7 +742,13 @@ CLIP_MAX_EXCHANGE_S = float(os.getenv("CLIP_MAX_EXCHANGE_S", "90.0"))  # setupâ†
 # in-point), never the tail, so the hard out-cut on the punch is preserved.
 CLIP_MIN_SECONDS = float(os.getenv("CLIP_MIN_SECONDS", "12.0"))
 # (b) best-of reel: pick clips top-by-score until cumulative length reaches this cap.
-CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))  # ~5 min
+# Phase-K target is a 3-4 minute best-of, so the default cap is 4 min.
+CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "240.0"))
+# (c) highlight VOD scaled to session length (Phase K item 5): the chronological
+# body targets FRACTION x session span, clamped to MAX; lowest-score clips are
+# dropped (loudly) until it fits. 0 fraction = no scaling beyond the max cap.
+CLIP_HIGHLIGHT_FRACTION = float(os.getenv("CLIP_HIGHLIGHT_FRACTION", "0.10"))
+CLIP_HIGHLIGHT_MAX_SECONDS = float(os.getenv("CLIP_HIGHLIGHT_MAX_SECONDS", "900.0"))
 # (c) highlight-VOD cold-open teaser: the N punchiest clips, each trimmed to this
 # many seconds (the tail-end landing on the punch), spliced BEFORE the chronological
 # body as a rapid hook â€” snippets, never full-clip duplicates.

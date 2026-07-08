@@ -52,6 +52,8 @@ from kira.config import (
     CLIP_MAX_EXCHANGE_S,
     CLIP_MIN_SECONDS,
     CLIP_REEL_MAX_SECONDS,
+    CLIP_HIGHLIGHT_FRACTION,
+    CLIP_HIGHLIGHT_MAX_SECONDS,
     CLIP_SHORTS_COUNT,
     CLIP_SHORT_MAX_SECONDS,
     CLIP_TEASER_COUNT,
@@ -1576,9 +1578,12 @@ def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
 
 
 def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: str,
-                         activity: str, nvenc_ok: bool) -> dict:
+                         activity: str, nvenc_ok: bool,
+                         session_span_s: float = 0.0) -> dict:
     """Organize already-cut clips into the four labeled outputs. Returns a summary
-    dict {clips_dir, reel_path, highlight_path, short_path, short_paths, report}."""
+    dict {clips_dir, reel_path, highlight_path, short_path, short_paths, report,
+    manifest}. session_span_s (events first→last) drives highlight scaling; 0
+    disables scaling beyond the max cap."""
     cut = [c for c in candidates if c.status == "cut" and c.out_path and os.path.isfile(c.out_path)]
     if not cut:
         print("   [Phase4] No cut clips to package.")
@@ -1629,7 +1634,10 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
             print(f"   [Phase4] (b) best-of reel → {len(picked_chrono)} clips, "
                   f"{_probe_duration(rp):.0f}s → {rp}")
 
-    # ── (c) highlight VOD: cold-open teaser + chronological body ──
+    # ── (c) highlight VOD: cold-open teaser + chronological body, scaled to the
+    #        session (Phase K length targets): body targets CLIP_HIGHLIGHT_FRACTION
+    #        x session span (clamped to CLIP_HIGHLIGHT_MAX_SECONDS); lowest-score
+    #        clips are dropped LOUDLY until it fits — never a silent cap. ──
     highlight_path = None
     teaser_paths = []
     teaser_dir = os.path.join(dir_high, "_teasers")
@@ -1640,7 +1648,22 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
         tp = os.path.join(teaser_dir, f"teaser_{i:02d}.mp4")
         if _cut_segment(c.out_path, t_start, CLIP_TEASER_SECONDS, tp, nvenc_ok):
             teaser_paths.append(tp)
-    body = [c.out_path for c in by_time]
+    target = CLIP_HIGHLIGHT_MAX_SECONDS
+    if session_span_s > 0 and CLIP_HIGHLIGHT_FRACTION > 0:
+        target = min(CLIP_HIGHLIGHT_MAX_SECONDS,
+                     max(60.0, session_span_s * CLIP_HIGHLIGHT_FRACTION))
+    body_clips = list(by_time)
+    body_total = sum(c.clip_duration or 0.0 for c in body_clips)
+    if body_total > target:
+        for victim in sorted(body_clips, key=lambda c: (c.score, c.match_confidence)):
+            if body_total <= target:
+                break
+            body_clips.remove(victim)
+            body_total -= victim.clip_duration or 0.0
+        print(f"   [Phase4] highlight scaled to {target:.0f}s target "
+              f"({len(by_time) - len(body_clips)} lowest-score clip(s) dropped, "
+              f"{body_total:.0f}s body kept)")
+    body = [c.out_path for c in body_clips]
     hp = os.path.join(dir_high, f"HIGHLIGHT_{slug}.mp4")
     if _concat_reencode(teaser_paths + body, hp, nvenc_ok):
         highlight_path = hp
@@ -2004,7 +2027,9 @@ async def cut_session(date_str: str, activity: str | None = None, *,
 
         if phase4 and not dry_run:
             # ── Phase 4: package the four labeled outputs ─────────────────────
-            p4 = build_phase4_outputs(candidates, day_dir, date_str, act_name, nvenc_ok)
+            span_s = (events[-1].epoch - events[0].epoch) if len(events) >= 2 else 0.0
+            p4 = build_phase4_outputs(candidates, day_dir, date_str, act_name, nvenc_ok,
+                                      session_span_s=span_s)
             report_path = p4.get("report") or write_report(
                 candidates, day_dir, date_str, act_name, recordings)
             reel_path_out = p4.get("reel_path")
