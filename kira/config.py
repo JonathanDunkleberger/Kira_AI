@@ -212,7 +212,8 @@ AZURE_PROSODY_PITCH = os.getenv("AZURE_PROSODY_PITCH", "")
 AZURE_PROSODY_RATE = os.getenv("AZURE_PROSODY_RATE", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# OPENAI_API_KEY PURGED (P-7, 2026-07-08): OpenAI is fully removed — vision runs on Gemini,
+# and the audio mood agent (its last consumer) is now inactive. No key = no OpenAI billing.
 TWITCH_OAUTH_TOKEN = os.getenv("TWITCH_OAUTH_TOKEN", "")
 TWITCH_BOT_USERNAME = os.getenv("TWITCH_BOT_USERNAME", "")
 TWITCH_CHANNEL_TO_JOIN = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
@@ -339,7 +340,9 @@ COLD_OPEN_RECAP_ENABLED = os.getenv("COLD_OPEN_RECAP_ENABLED", "false").lower() 
 
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
-AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
+# AUDIO_MODEL — DEAD since the P-7 OpenAI purge (the audio agent is inactive). Kept only so
+# the audio_agent import doesn't break; default emptied so no gpt- model string remains.
+AUDIO_MODEL = os.getenv("AUDIO_MODEL", "")
 # Audio content classifier (2026-06-22): the mood call ALSO returns a dominant
 # content tag (SPEECH/MUSIC/AMBIENT/MIXED) — zero extra API cost. MUSIC/AMBIENT are
 # BACKGROUNDED (audio_summary_is_event forced False: no proactive trigger, no

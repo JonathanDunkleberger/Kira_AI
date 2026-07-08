@@ -24,8 +24,20 @@ except ImportError:
     np = None
     PYAUDIO_AVAILABLE = False
 
-from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
-from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN, AUDIO_CONTENT_CLASSIFY_ENABLED
+# OpenAI PURGED (P-7, 2026-07-08): the audio mood agent was the LAST OpenAI consumer
+# (gpt-audio-mini); vision already migrated to Gemini. The package is removed from
+# requirements and the key from config, so this agent is permanently INACTIVE — no
+# OpenAI call is reachable, it can never bill. The import is guarded so a machine with
+# the package uninstalled still boots clean. RE-ENABLING audio mood/hearing = a
+# Gemini-audio migration (exactly like vision got), NOT restoring this path.
+try:
+    from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
+except ImportError:
+    AsyncOpenAI = None
+
+    class OpenAINotFoundError(Exception):
+        pass
+from kira.config import AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN, AUDIO_CONTENT_CLASSIFY_ENABLED
 
 
 AUDIO_MODE_OFF = "off"
@@ -242,11 +254,13 @@ class AudioAgent:
         return False
 
     def __init__(self):
-        self.client: Optional[AsyncOpenAI] = None
-        if OPENAI_API_KEY:
-            self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        else:
-            print("   [Audio] Warning: OPENAI_API_KEY not set — audio agent inactive.")
+        # OpenAI PURGED (P-7): no client is ever created — the audio mood agent is INACTIVE
+        # until it is migrated to Gemini-audio. Every capture/analyze path is already gated
+        # behind `if self.client`, so client=None means no OpenAI call is reachable (LOUD, not
+        # a silent degrade — constraint #3).
+        self.client = None
+        print("   [Audio] audio mood agent INACTIVE — OpenAI purged (P-7 2026-07-08); "
+              "hearing/mood needs a Gemini-audio migration to return.")
 
         self.mode: str = AUDIO_MODE_OFF
         self.audio_summary: str = ""

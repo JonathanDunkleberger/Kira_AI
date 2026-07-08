@@ -9893,7 +9893,7 @@ class VTubeBot:
 
         Requirements:
           - Observer Mode ON (vision enabled)
-          - OPENAI_API_KEY set (vision uses GPT-4o-mini)
+          - GOOGLE_API_KEY set (vision uses Gemini)
           - pip install pyautogui
           - VN window must be in focus when choices need to be made
         """
