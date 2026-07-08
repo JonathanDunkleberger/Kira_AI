@@ -1803,16 +1803,19 @@ class AI_Core:
         # wedging itself BETWEEN the sentences of one streamed voice reply.
         _gate_held = False
 
-        # ── KIRA_TTS_PREFETCH (Phase G-1 latency, DEFAULT OFF) ────────────────────────
+        # ── KIRA_TTS_PREFETCH (Phase G-1 latency — DEFAULT ON since the showtime pass 2026-07-08)
         # Measured 2026-07-07 ([LATENCY] line): sentences play strictly serially — synth
         # of N+1 waits for N's playback to finish (175-354ms dead gap per boundary, plus
-        # the full first-sentence synth inside the ~1.3s to first audio). Flag ON routes
+        # the full first-sentence synth inside the ~1.3s to first audio). ON routes
         # per-sentence playback through a queue player: each sentence's Azure synth task
         # starts the moment its text is complete, so it synthesizes WHILE the previous
         # sentence plays; playback order is preserved by the single player. A failed/
         # non-Azure prefetch (None) falls back to inline synth in _speak_single — same
-        # rails, same audio, just not overlapped. One-variable revert: unset the flag.
-        _prefetch = os.getenv("KIRA_TTS_PREFETCH", "0") == "1"
+        # rails, same audio, just not overlapped. This is the pipelining that stops
+        # back-to-back interjection lines serializing into multi-second TTS stacks.
+        # NOW DEFAULT ON (the A/B was never blocked from either side; the pump is complete
+        # and verified). KILL SWITCH: set KIRA_TTS_PREFETCH=0 to revert to serial synth.
+        _prefetch = os.getenv("KIRA_TTS_PREFETCH", "1") == "1"
         _pq = asyncio.Queue() if _prefetch else None
         _player_task = None
 

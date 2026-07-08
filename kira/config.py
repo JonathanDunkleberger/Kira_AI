@@ -125,6 +125,12 @@ POKEMON_AGENT_ENABLED = os.getenv("POKEMON_AGENT_ENABLED", "false").lower() == "
 # seconds; once events stop for this long, normal desktop hearing resumes. Mic + game-event seam are
 # never affected. Set to 0 to disable the auto-gate (the dashboard forced toggle still works).
 POKEMON_HEARING_SUPPRESS_S = float(os.getenv("POKEMON_HEARING_SUPPRESS_S", "60.0"))
+# SHOWTIME FRESHNESS CEILING (game-event lag fix 2026-07-08): a fast game floods reactions that
+# age in the turn-lock/queue behind TTS; a beat delivered older than this reads as reacting to a
+# corpse (observed content_age 34-40s). Any game-event reaction older than this ceiling when it
+# reaches the front of the queue is DROPPED (silence beats a stale beat). Keep small — a salient
+# reaction must land <6s and aligned, or not at all.
+POKEMON_EVENT_FRESHNESS_CEILING_S = float(os.getenv("POKEMON_EVENT_FRESHNESS_CEILING_S", "7.0"))
 DRIVE_SELF_BLOCK_ENABLED = os.getenv("DRIVE_SELF_BLOCK_ENABLED", "true").lower() == "true"   # ① self into drives
 CURRENT_WANT_ENABLED     = os.getenv("CURRENT_WANT_ENABLED", "true").lower() == "true"        # ② through-line
 JONNY_BOND_ENABLED       = os.getenv("JONNY_BOND_ENABLED", "true").lower() == "true"          # ④ relational evolution

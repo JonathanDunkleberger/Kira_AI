@@ -79,7 +79,7 @@ from kira.config import (
     BARGE_IN_YIELD_ENABLED,
     EMOTION_SWING_ENABLED, EMOTION_SWING_HOLD_TURNS,
     DRIVE_SELF_BLOCK_ENABLED, CURRENT_WANT_ENABLED, JONNY_BOND_ENABLED,
-    POKEMON_AGENT_ENABLED, POKEMON_HEARING_SUPPRESS_S,
+    POKEMON_AGENT_ENABLED, POKEMON_HEARING_SUPPRESS_S, POKEMON_EVENT_FRESHNESS_CEILING_S,
     GLITCH_AWARE_ENABLED, GLITCH_AWARE_COOLDOWN_S, GLITCH_AWARE_CHANCE,
     VRAM_LOG_INTERVAL_S,
     LOOPBACK_SUMMARY_AGEOUT_S,
@@ -3267,6 +3267,23 @@ class VTubeBot:
         today's behavior (older harnesses keep working)."""
         if not POKEMON_AGENT_ENABLED or not summary:
             return
+        # SHOWTIME FRESHNESS (game-event lag fix): stamp this event's arrival + a monotonic
+        # sequence. content_ts lets the speak-point measure the REAL event→speak age (not a
+        # stale ambient-vision fallback) and drop it if it aged past the ceiling; _pkmn_latest_seq
+        # lets a queued beat notice a FRESHER beat arrived and drop itself (supersede). Together:
+        # she reacts to the LIVE moment or stays silent — never to a corpse.
+        _evt_ts = time.time()
+        self._pkmn_event_seq = getattr(self, "_pkmn_event_seq", 0) + 1
+        _my_seq = self._pkmn_event_seq
+        self._pkmn_latest_seq = _my_seq
+        # Arm the ceiling + supersede ONLY for GRIND beats (tier 0/1) — those FLOOD and stack
+        # into corpse-jokes. Savor/big beats (tier>=2: badges, evolutions, the Champion
+        # monologue, mom's goodbye, a rival showdown) are rare, don't flood, and MATTER — they
+        # ALWAYS deliver (protect the constitution's moments). A big beat still bumps
+        # _pkmn_latest_seq (so a later grind beat knows it's superseded) but is never itself dropped.
+        _low_tier = (tier or 0) <= 1
+        _ceiling = POKEMON_EVENT_FRESHNESS_CEILING_S if _low_tier else 0.0
+        _seq_for_check = _my_seq if _low_tier else 0
         # PHASE 3 (consolidation): a tier-3 beat is, by the harness's own salience, a significant moment
         # (a badge, an evolution, a shiny, a clutch win, a Gary showdown). PROMOTE it to her durable
         # saga (weight by tier) so it outlives the operational chatter and she calls it back hours later.
@@ -3356,13 +3373,17 @@ class VTubeBot:
             self._pending_interjections.append({
                 "prompt": prompt, "memory_query": "pokemon battle",
                 "scene_override": summary, "queued_at": time.time(), "pokemon": True,
+                "content_ts": _evt_ts, "event_seq": _seq_for_check,
+                "freshness_ceiling_s": _ceiling,
             })
             return
         async with self._active_turn_lock:
             print(f"   [Pokemon] event react (bypass={bypass}, tier={tier}, kind={kind}"
                   f"{', READING register' if _is_dialogue else ''}): {summary[:70]}")
             await self._execute_interjection(prompt, memory_query="pokemon battle",
-                                             scene_override=summary, react_tier=tier)
+                                             scene_override=summary, react_tier=tier,
+                                             content_ts=_evt_ts, event_seq=_seq_for_check,
+                                             freshness_ceiling_s=_ceiling)
             self.last_interaction_time = time.time()
         await self._drain_pending_interjections()
 
@@ -10018,7 +10039,9 @@ class VTubeBot:
     async def _arbiter_interjection(self, prompt: str, memory_query: str = "",
                                     scene_override: str = "",
                                     content_ts: float = 0.0,
-                                    queue_wait_s: float = 0.0) -> None:
+                                    queue_wait_s: float = 0.0,
+                                    freshness_ceiling_s: float = 0.0,
+                                    event_seq: int = 0) -> None:
         """Fire-and-forget wrapper that respects the turn arbiter.
 
         If a turn is already active, the interjection is buffered (with a 15s
@@ -10033,6 +10056,8 @@ class VTubeBot:
                 "scene_override": scene_override,
                 "queued_at": time.time(),
                 "content_ts": content_ts or time.time(),  # preserve caller's stamp
+                "freshness_ceiling_s": freshness_ceiling_s,
+                "event_seq": event_seq,
             })
             print(f"   [Arbiter] Interjection BUFFERED (turn active); "
                   f"queue depth={len(self._pending_interjections)}")
@@ -10042,6 +10067,7 @@ class VTubeBot:
                 await self._execute_interjection(
                     prompt, memory_query=memory_query, scene_override=scene_override,
                     content_ts=content_ts, queue_wait_s=queue_wait_s,
+                    freshness_ceiling_s=freshness_ceiling_s, event_seq=event_seq,
                 )
         await self._drain_pending_interjections()
 
@@ -10087,12 +10113,15 @@ class VTubeBot:
                     scene_override=pi.get("scene_override", ""),
                     content_ts=content_ts,
                     queue_wait_s=queue_wait_s,
+                    freshness_ceiling_s=pi.get("freshness_ceiling_s", 0.0),
+                    event_seq=pi.get("event_seq", 0),
                 )
             break  # one per drain; _arbiter_interjection calls us again if more pending
 
     async def _execute_interjection(self, prompt, memory_query: str = "", scene_override: str = "",
                                     content_ts: float = 0.0, queue_wait_s: float = 0.0,
-                                    react_tier: int | None = None):
+                                    react_tier: int | None = None,
+                                    freshness_ceiling_s: float = 0.0, event_seq: int = 0):
         """Runs a proactive interjection. Routes through Claude Opus when available —
         Claude follows the anti-fabrication instruction reliably; local Llama 8B does not.
 
@@ -10106,6 +10135,24 @@ class VTubeBot:
         if self.is_muted():
             return
         _t0_total = time.time()
+        # ── SHOWTIME FRESHNESS CEILING (game-event lag fix 2026-07-08) ────────
+        # This runs AFTER the turn-lock wait (the caller holds the lock before calling us),
+        # so `content_ts` age here reflects the REAL time this event spent queued behind TTS.
+        # A fast game floods beats; delivering one that aged past the ceiling reads as reacting
+        # to a corpse (observed content_age 34-40s). DROP it — silence beats a stale beat. Also
+        # DROP if a fresher pokémon event has since arrived (superseded). Scoped: only active
+        # when a caller sets freshness_ceiling_s/event_seq (game events); all else is unchanged.
+        if freshness_ceiling_s and content_ts:
+            _evt_age = time.time() - content_ts
+            if _evt_age > freshness_ceiling_s:
+                print(f"   [Freshness] DROP stale game-event reaction "
+                      f"(age {_evt_age:.1f}s > {freshness_ceiling_s:g}s ceiling) — "
+                      f"reacting live, not to a corpse")
+                return
+        if event_seq and event_seq < getattr(self, "_pkmn_latest_seq", 0):
+            print(f"   [Freshness] DROP superseded game-event reaction "
+                  f"(seq {event_seq} < latest {self._pkmn_latest_seq}) — a fresher beat arrived")
+            return
         # ── FRESH-SENSE GATE (stale-memory anchoring guard) ──────────────────
         # A proactive deep interjection may only fire when Kira has at least one
         # FRESH substantive sense right now. With no fresh sense she would be

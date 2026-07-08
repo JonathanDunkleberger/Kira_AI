@@ -84,6 +84,13 @@ def extract_video_id(url_or_id: str) -> Optional[str]:
     return None
 
 
+# A YouTube Data API 403 (bad/expired key, quota exhausted, or the API not enabled on the
+# project) does NOT self-heal mid-session — the old code logged it every ~60s poll, flooding
+# the stream console. Once we see a 403 we disable auto-search for the process (one clear log,
+# then silence); fixing the key + restart clears it. Transient errors keep retrying quietly.
+_yt_auth_disabled = False
+
+
 async def find_active_live_broadcast(channel_id: str, api_key: str) -> Optional[str]:
     """Query YouTube Data API v3 for an active live broadcast on *channel_id*.
 
@@ -91,7 +98,7 @@ async def find_active_live_broadcast(channel_id: str, api_key: str) -> Optional[
     API call fails.  Uses ``asyncio.to_thread`` + ``urllib`` so there are no
     extra dependencies and the call does not block the event loop.
     """
-    if not channel_id or not api_key:
+    if not channel_id or not api_key or _yt_auth_disabled:
         return None
 
     params = urllib.parse.urlencode({
@@ -105,12 +112,23 @@ async def find_active_live_broadcast(channel_id: str, api_key: str) -> Optional[
     url = f"https://www.googleapis.com/youtube/v3/search?{params}"
 
     def _fetch() -> Optional[dict]:
+        global _yt_auth_disabled
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "NeuroAI-Bot/1.0"})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 return json.loads(resp.read().decode())
         except Exception as exc:
-            print(f"   [YTAutoSearch] API error: {exc}")
+            # 403 = auth/quota/API-not-enabled — persistent. Log ONCE, then disable
+            # auto-search for the process so it stops spamming the stream console.
+            if getattr(exc, "code", None) == 403:
+                if not _yt_auth_disabled:
+                    _yt_auth_disabled = True
+                    print("   [YTAutoSearch] DISABLED for this session — YouTube Data API 403 "
+                          "(bad/expired key, quota exhausted, or API not enabled on the project). "
+                          "Fix YOUTUBE_API_KEY / the project + restart to re-enable. "
+                          "(Same Google project as the web-search key — check both.)")
+                return None
+            print(f"   [YTAutoSearch] API error (transient, will retry): {exc}")
             return None
 
     data = await asyncio.to_thread(_fetch)
