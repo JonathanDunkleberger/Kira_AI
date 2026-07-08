@@ -62,34 +62,50 @@ on any species/choice mismatch. Take 6 also proved she can WIN the opening rival
 resume loaded the summit perfectly; her self-chosen want = **"catch Mewtwo"** (the love-
 letter arc, unprompted); `leave_building` offered → SHE PICKED IT → EXIT (1,80)→(3,9)
 Indigo Plateau — the summit strand is dead. She then traveled + battled (Sleep Powder
-kit use). THEN: **THE VOID-CORE CLASS (new, watch-mode)** — after a battle+movelearn
-sequence her position reads went inconsistent (impossible jumps: Cerulean→Lavender→Saffron
-in one action) and the core ended at map (0,0), party 0, with the roam happily "playing"
-the dead world (and SAVING it — to the SANDBOX only; canonical verified untouched,
-last-write still 20:25). CONFOUND to exclude in the repro: a concurrent throwaway take was
-killed mid-summit-run. DIAGNOSE with a clean single-run repro off banked_CREDITS.
-Two more findings from the same log: (a) her want said "Lapras from Silph Co" WHILE LAPRAS
-IS IN HER PARTY — wants aren't grounded against the roster (F-8 class, decision-side);
-(b) the "!! DECISION LATENCY blocked the main thread" warning predates the frame-pump
-(the world stays live now) — make the warning pump-aware or it cries wolf.
+kit use).
+
+**🔪 VOID-CORE CLASS — DIAGNOSED + KILLED (night shift 1, 2026-07-08; fault-injection verified).**
+The "dead world" IS the **FireRed TITLE SCREEN**: the game REBOOTED ITSELF mid-run (the dead
+states carry a DIFFERENT saveblock randomization than the live session — only a game boot does
+that; post-credits SoftReset is the in-game path). Repro'd in ONE clean process off
+banked_CREDITS (`recon_voidcore.py`, standing tool) — the concurrent-kill confound is
+EXCLUDED; the saved "void" frame-grabbed = title screen (`recon_voidlook.py`). The roam loop
+had been PLAYING the title screen (actions offered, oracle calls burned) and STAGE-SAVED it
+over its campaign anchor — and sanctity BLESSED the poisoned bundle. SHIPPED in campaign.py,
+VERIFIED 6/6 (`recon_voidguard_verify.py`): tick-top VOID TRIPWIRE (never play/save/oracle a
+dead world; recover last-good→anchor; bounded, then abandon LOUD + dead-man), _save_campaign
+POISON GUARD, ZERO-INPUT THINK GUARANTEE (keys released before every oracle wait — kills the
+walking-during-pump position drift), leave_building HONESTY (verifies map group 3 or returns
+'stuck' — it was lying 'left_building' while wedged in the HoF, repro'd 20+ ticks).
+REMAINING UNKNOWN (filed, not blocking): the exact reboot trigger in the summit run — any
+recurrence is now self-diagnosing (tripwire screams instead of playing on).
+Also from that log: (a) her want said "Lapras from Silph Co" WHILE LAPRAS IS IN HER PARTY —
+wants aren't grounded against the roster (F-8 class, decision-side, STILL OPEN);
+(b) DECISION LATENCY warning now pump-aware (shipped shift 1 — watch mode logs a calm
+"world stayed live" note instead of crying freeze).
 
 **NOT RUN this window (ready-to-run):** **prefetch A/B B-side** — bot RESTART with
 `KIRA_TTS_PREFETCH=1` + one conversation with Jonny; compare [TurnTiming]/[LATENCY]
 inter-sentence gaps vs the serial baseline he ear-calibrated tonight. Rides F-7(d).
 
 ## PHASE F — RESTRUCTURED INTO THE DESCENT (Jonny's notes, priority order)
-- **F-1 LOCOMOTION (CRITICAL, still first — nothing grades honestly until her legs work).**
-  Symptom fixed (intercept-abort); the ARCHITECTURE work remains: DOCTRINE — soul chooses
-  destinations/intents and narrates; deterministic pathfinding executes ALL movement.
-  Diagnose movement routing in soul mode end-to-end; wire intents→pathfinder; add the
-  WANDER TRIPWIRE (no nav progress ~20s → harness takes the wheel to the current
-  objective). Kills the token burn too (minutes of pointless oracle calls while wedged).
+- **F-1 LOCOMOTION — ARCHITECTURE LANDED (night shift 1; loop-verified headless).** The
+  end-to-end diagnosis: free_roam movement was ALREADY all-deterministic (every pick routes
+  through travel/BFS handlers); the wandering Jonny saw was (i) the opening's scripted legs
+  (intercept-abort + BFS-first, fixed last session) and (ii) DITHERING — a standing
+  objective going nowhere reads GREEN to the ledger because the fingerprint moves. SHIPPED:
+  the **WANDER TRIPWIRE** (`_objective_distance` learned-graph hops + POKEMON_NAV_TRIPWIRE_S
+  =20s watch) — a standing objective with no route progress → the harness executes HER
+  objective's handler directly, NO oracle call that tick (token burn killed), narrated once.
+  VERIFIED: recon_wander_verify.py (fired + took the wheel in the real loop).
+  REMAINING for F-1 sign-off: a soul-on watched take (needs bot) to confirm feel.
 - **F-7 MOMENT ALIGNMENT (second — the seam viewers feel; reactions land 500ms-1s late).**
-  A SYNC problem, not just latency: (a) per-stage timestamps on the full event→voice chain
-  (extend the 3860ms measurement); (b) FRESHNESS WINDOWS — every reaction tagged with its
-  triggering moment; would-miss → drop or reframe as explicit afterthought, never
-  stale-as-live; (c) SPECULATIVE PREFETCH for predictable beats (dialogue boxes/battle
-  events are known before they resolve — generate early, fire on trigger); (d) wire
+  (a) ✅ SHIPPED: per-fire chain telemetry — every voiced reaction logs [queue age + POST ms]
+  (the F-10 stall names its component on the next watched take, no extra work needed);
+  (b) ✅ SHIPPED: FRESHNESS WINDOW — T0/T1 asides older than POKEMON_STALE_DROP_S (6s) in
+  queue are dropped LOUD, never fired stale-as-live; T2+ always lands. Unit-verified.
+  REMAINING: (c) SPECULATIVE PREFETCH for predictable beats (dialogue boxes/battle events
+  are known before they resolve — generate early, fire on trigger); (d) wire
   KIRA_TTS_PREFETCH default-ON if the A/B holds. Target: salient reaction perceived <2.5s
   AND aligned.
 - **F-6 SOCIAL FABRIC:** NPC/object salience layer — key figures (family/rival/leaders/

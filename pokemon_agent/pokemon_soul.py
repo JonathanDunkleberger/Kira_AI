@@ -98,10 +98,28 @@ class PokemonSoul:
         """A beat where a want could surface (entering a town, seeing a rare foe, a roster gap). The
         WANT itself is hers (Batch 2 via self.choose); here we only carry the game-knowledge + emit.
         Capability-not-script: we never hardcode 'she wants Eevee' - we give her the knowledge + a
-        moment, and let the soul decide if/what she wants."""
+        moment, and let the soul decide if/what she wants.
+        F-8 WANT GROUNDING (QW-4 finding: she wanted 'Lapras from Silph Co' WHILE LAPRAS WAS IN HER
+        PARTY): the roster rides the ctx but the ask never said 'don't wish for what you have' — so
+        fold an explicit grounding line into the `place` seam (the field her oracle prompt is
+        guaranteed to render), and LOUD-flag any pick that still names a current teammate (the
+        descent grade counts these; her words are kept — grounding informs, never scripts)."""
         if self.choose:
-            want = self.choose("want", GAME_KNOWLEDGE, context)
+            ctx = dict(context or {})
+            party = str(ctx.get("party") or "")
+            if party:
+                ctx["place"] = (f"{ctx.get('place', '')}. ALREADY BESIDE YOU — your current team: "
+                                f"{party}. A want is something you DON'T yet have; never wish for a "
+                                f"teammate who's already on your team.")
+            want = self.choose("want", GAME_KNOWLEDGE, ctx)
             if want:
+                import re
+                named = [w for w in set(re.findall(r"[a-z]{4,}", party.lower()))
+                         if w in want.lower()]
+                if named:
+                    print(f"   [soul] !! UNGROUNDED WANT (F-8): {want!r} names {sorted(named)} "
+                          f"already on the team — the grounded ask didn't take (flagged for the "
+                          f"descent grade; her words kept)", flush=True)
                 self.wants.append(want)
                 self.emit(want, kind="want", tier=2)
 
