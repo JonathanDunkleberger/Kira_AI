@@ -708,12 +708,6 @@ class BattleAgent:
     def _items_count(self, item_id):
         return next((q for i, q in self._items_pocket() if i == item_id), 0)
 
-    def _lead_status(self):
-        """Status NAME of party slot 0 (STATUS1 @ +0x50, the reliable party-only block) or None. In
-        singles the active mon is the lead unless a mid-battle switch happened (then the cure offer just
-        won't fire — fail-safe, never a wrong cure)."""
-        return _decode_status(self.b.rd32(ram.GPLAYER_PARTY + _P_STATUS))
-
     def _settle_action_menu(self, tries=30):
         """Reach the real ACTION menu using the PIXEL signals (menu_up RAM is stale on this core): action
         menu = white panel AND NOT the move-list pixel. Back out of the move list with B; advance text."""
@@ -930,7 +924,10 @@ class BattleAgent:
                 plan["use_potion"] = (heal, aim)
                 offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
                                         f"about to faint, and you HAVE one in the bag")
-        status = self._lead_status()
+        # Status of the mon actually OUT (gBattleMons ground truth via read_battle) — the old
+        # _lead_status read gPlayerParty[0], so post-switch a sleep-locked FODDER never got a
+        # cure offer while the dead ace's 'none' was consulted instead (run16 attempts 2+).
+        status = _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
         if status:
             cure = self._STATUS_CURE_for(status)
             if cure is not None:
@@ -946,6 +943,20 @@ class BattleAgent:
                 plan["use_revive"] = (revive, "fainted")
                 offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
                                         "it's stronger than anyone still standing and you HAVE a Revive")
+        if "use_revive" not in offers:
+            # FORENSICS (run16 mystery): attempt 1's Arbok endgame cycled 5 fodder mons past a
+            # dead L66 ace with 6 Revives in the bag and never a single offer. Whenever a
+            # fainted mon exists and no revive is offered, log the exact inputs — this line is
+            # the diagnosis when it happens again.
+            try:
+                rows = [(st.read_party_species(self.b, i),
+                         self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56),
+                         self.b.rd8(ram.GPLAYER_PARTY + i * 100 + 0x54)) for i in range(6)]
+                if any(sp and hp == 0 for sp, hp, _lv in rows):
+                    self.log(f"   [engine] revive-check: NO offer (revive_item={revive}, "
+                             f"worthy={self._revive_worthy_slot()}, party sp/hp/lv={rows})")
+            except Exception as e:
+                self.log(f"   [engine] revive-check: read error {e} (LOUD)")
         # PP-RESTORE INSTINCT (night shift #13): foe-aware famine + an Ether/Elixir in the bag ->
         # offer restoring PP BEFORE the famine switch pulls the ace out. Rides the same aimed
         # walk: A selects the aimed mon, the move-restore box defaults to move 0 (the workhorse
