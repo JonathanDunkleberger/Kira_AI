@@ -6,6 +6,17 @@ card all shipped and verified same-day. Full record: **COUCH_NOTES.md**. All 15 
 PASS; clipper final spec + Phase-J receipts confirmed wired. **SAGA WRAP, not CLOSED — "CLOSED"
 is Jonny's call after his own spot-watch.**
 
+**SHOWTIME LATENCY PASS DONE (d56b183):** the showcase-BLOCKER — game-event reactions landing
+30-44s late (content_age 34-40s; she joked about a Rattata fight ~40s after it ended) — is FIXED.
+Root: fire-and-forget event reactions serialized on the turn lock behind TTS, aging in the queue.
+Fix = a pokemon-scoped FRESHNESS CEILING (7s) + SUPERSEDE at the speak point: a grind beat older
+than the ceiling (or superseded by a fresher beat) is DROPPED — she reacts live or stays silent,
+never to a corpse. TIER-PROTECTED: tier≥2 milestone beats (badges, evolutions, Champion monologue,
+mom's goodbye) ALWAYS deliver. Also: KIRA_TTS_PREFETCH now DEFAULT-ON (TTS pipelining; kill switch
+=0); YouTube 403 spam silenced (log once → disable auto-search for the session). Verified headless
+(freshness_verify: flood all-dropped, fresh delivers <1s, tier≥2 protected). **THE GO/NO-GO:
+Jonny's next spot-watch confirms live content_age stays <6s — that's the showcase green light.**
+
 ## GO-LIVE RITUAL (do this before any live boot)
 1. **Confirm the audio device is present + selected BEFORE booting** (esp. after a Bluetooth
    drop — the loopback binds at boot and won't hot-rebind a vanished device; that was the whole
@@ -13,6 +24,9 @@ is Jonny's call after his own spot-watch.**
    card is live at `http://127.0.0.1:8766/pokemon_savecard` once booted.
 
 ## THE FINAL COUCH LIST (needs Jonny's eyes / not showcase-blocking — ride the free weekly window)
+0. **THE GO/NO-GO — game-event latency live-watch** (showcase gate): reboot, run a fast-battle
+   stretch, confirm reactions land <6s and aligned (watch for `[Freshness] DROP` lines culling the
+   stale backlog, and `[LAG]` content_age staying low). This is the showcase green light.
 1. **Live mic check** on the Focusrite ("cheddar") — confirm a fresh `>>> You said:` after reboot.
 2. **Loopback-cable decision** (R2-2): should loopback refuse to fall back onto the TTS-carrying
    VB-cable? Rig-specific + core-senses (HARD CONSTRAINT #2) — flagged, not cowboyed. Your call.
