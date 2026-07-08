@@ -47,8 +47,12 @@ ran SIX takes (3 watched by Jonny → his notes = F-1..F-11 below; 3 headless ve
   starter") — ALL GOOD per Jonny (= F-4 protect list, add to Phase-H regression).
 
 **✅ TAKE 7 — THE VOICED-CHOICE CHAIN IS FULLY GREEN (1d204b1):** soul chose CHARMANDER
-(6-for-6 across takes — a real preference) → judged nickname (her deliberate pass,
-verified-gone) → hands grabbed HER ball → `picked charmander (#4)`, no mismatch. En route
+(6-for-6 across takes — a real preference, fresh oracle POST every take, NO pin anywhere;
+F-3 fossil-audited on CEO ask) → judged nickname (her deliberate pass, verified-gone) →
+hands grabbed HER ball → `picked charmander (#4)`, no mismatch. **TEST DOCTRINE (F-3):
+a test verifies choice==grab (the species-agnostic GRAB-VERIFY), NEVER a specific species —
+if a future check greps for a particular starter name as its pass condition, that's the
+fossil re-forming; kill it.** En route
 takes 5-6 killed two latent bugs: greedy `_step_to` lab-wandering (BFS-first now) and a
 RECON-ERA DATA BUG — the lab table is the RBY order B-SQUIRTLE-C, so ball 1's tile held
 Squirtle (never caught before; no run had ever picked non-zero). GRAB-VERIFY now screams
