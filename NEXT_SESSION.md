@@ -12,18 +12,18 @@ VICTORY ROAD CLEARED, party HEALED, sanctity VALID, money $63,678** (backup
 pre_indigo_reach_backup_20260707_154528). Party: Venusaur **L66** (Razor Leaf/Sleep
 Powder/EQ/Secret Power) / Persian 38 / Fearow 36 / Raticate 31 / Ekans 15 / Lapras 26.
 
-⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run17 DETACHED**
+⚔️ **SHIFT-14 LIVE OBJECTIVE: THE ELITE FOUR — `recon_e4.py` run18 DETACHED**
 (Start-Process — it SURVIVES the shift handover; CHECK FOR A LIVE PYTHON FIRST,
-read logs/longrun/e4_run17.log END before touching anything). run17 carries the
-**PARTY-MENU ORDER LAW fix (b7c21d0)** + **ETHER aim-once/immunity-gate (8a811ec)** +
-**cure-reads-ACTIVE-battler + revive-offer FORENSICS (dd56205)**. run16 got Agatha to
-her LAST MON at 17 HP (deepest E4 penetration yet: Lorelei 59s, Bruno ~70s, ether
-consumed live mid-Agatha) then whiteouted because **use_revive was never OFFERED while
-5 fodder cycled past the dead L66 ace** — unreproduced on the fixture (3x PASS); the
-forensic line `revive-check: NO offer (...)` now logs revive_item + worthy + all six
-(sp,hp,lv) rows at the exact no-offer moment → READ IT in run17's log if the Agatha
-endgame dies again; it names the broken input. Fixtures after ANY battle_agent
-party-walk edit: recon_revive_verify + recon_ether_verify (both must PASS).
+read logs/longrun/e4_run18.log END before touching anything). run18 carries the FULL
+shift-14 stack: **ORDER LAW (b7c21d0)** + **ETHER aim-once/immunity-gate (8a811ec)** +
+**cure-reads-ACTIVE + revive forensics (dd56205)** + **THE POCKET-HOLE FIX (7f83916)**.
+run16 reached Agatha's LAST MON at 17 HP then collapsed — root cause forensics-confirmed
+in run17 within minutes: consuming the LAST Ether (display row 0) leaves a zero HOLE in
+the RAM Items pocket and _items_pocket broke at the first zero id → the WHOLE pocket
+read empty for the rest of the process → no potion/cure/revive offers ever again while
+camp.bag_count (scan-all) kept the kit-check green. Fixed scan-all-skip-holes; the hole
+assertion now rides recon_ether_verify. Fixtures after ANY battle_agent party-walk/bag
+edit: recon_revive_verify + recon_ether_verify (both must PASS).
 If banked_CREDITS exists: promote it —
 `python pokemon_agent/promote_bank.py G:/temp/longrun/banked_CREDITS hall_of_fame`
 — then write CREDITS as NIGHT_REPORT.md line 1 + the mountain survey. Never kill a
