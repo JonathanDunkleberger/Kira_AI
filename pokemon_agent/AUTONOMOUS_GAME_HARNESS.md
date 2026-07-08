@@ -288,6 +288,34 @@ harness properties (locomotion wedges, liveness/void trips, grounding gaps, deci
 a ranked riskiest-arcs report that PICKS the human's watch list. Graders need GRADING budgets:
 cap grind/battle time per action or one tick eats the arc window (the 78-encounter lesson).
 
+**ENGINE PATTERN (added 2026-07-08, night shift 4): TERRAIN-CAPABILITY ROUTING (water/Surf).**
+A traversal capability the player EARNS (surf, lava-walk, double-jump) must reach the PATHFINDER,
+not just the action menu — ours offered "use Surf" as a choice while the BFS held "water is not a
+road" absolutely, so every sea road was unroutable and the agent stood announcing plans at the
+shore. The general shape: (1) classify the special terrain in the grid (by tile behavior, not
+collision — special terrain often reads collision-0); (2) plan in capability LAYERS, preferred
+terrain first, special terrain as last resort; (3) the EXECUTOR owns the transition ceremony (our
+surf mount = face water + A-prompt confirm; dismount is automatic) — a raw movement press at the
+boundary reads as a wall and poisons the fail-accounting.
+
+**ENGINE PITFALL (added 2026-07-08, night shift 4): THE HARDCODED FORWARD-DIRECTION.** Any
+"forward = <compass>" assumption baked into a proactive helper WILL misfire when the road bends:
+our every-tick gate recognizer probed "south" (badges 1-3 geometry) and at a town whose road ran
+WEST it armed an unrelated southern gate's questline, which then outranked the correct billed
+road forever. Forward direction must be DERIVED (from the billed road leg under her feet) with
+the heuristic only as fallback. Sibling pitfall: "no forward edge + nothing unexplored" is NOT
+"arrived" — a dead-end pocket satisfies both; arrival needs anchor/bend membership, else the
+step interacts with nothing forever. And when a route action is proven structurally dead on a
+map, the forward-drive prioritizer must stop reframing it as the dominant pull (it pruned every
+working option and left one dead action as the whole set).
+
+**ENGINE PITFALL (added 2026-07-08, night shift 4): THE ENTER-STUCK-EXIT PING-PONG.** A goal
+building whose interior defeats the general navigator (teleport-pad maze) creates a movement
+livelock the no-progress guards can't see: enter (moves), wedge inside, route-out-to-city (moves),
+re-enter — every cycle moves, so movement-cleared dead-route memory never bites. Count consecutive
+interior failures per GOAL (not per tile); two strikes → park the approach structurally on that
+map + voice one honest "it has me beat for now" beat. Movement is not progress.
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.

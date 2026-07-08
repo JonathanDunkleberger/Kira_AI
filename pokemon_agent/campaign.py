@@ -4509,7 +4509,22 @@ class Campaign:
                 if not hasattr(self, "_ql_bend_maps"):
                     self._ql_bend_maps = set()
                 self._ql_bend_maps.add(nb)         # remember the bend so a bounce-back can CONTINUE it
-                return self.trav.travel(target_map=nb, edge=dword)
+                r = self.trav.travel(target_map=nb, edge=dword)
+                # FENCED BEND EDGE (descent re-grade 2026-07-08): the header bills the connection
+                # but the walkable crossing is a CONNECTOR BUILDING (Route 8's west "edge" is the
+                # sealed Saffron gatehouse; the real way on is the Underground Path hut). The
+                # door-passthrough primitive owns exactly this class — try it before surfacing the
+                # failed edge, and count the far side as bend ground so arrival gating holds.
+                if r in ("no_path", "stuck"):
+                    pt = self._door_passthrough(want_map=nb)
+                    if pt == "crossed":
+                        self._ql_bend_maps.add(tuple(tv.map_id(self.b)))
+                        log(f"   [roam] 🧭 QUESTLINE PASSTHROUGH: the {dd} edge was fenced — a "
+                            f"connector building carried us to {tv.map_id(self.b)}")
+                        return "questline_passthrough"
+                    if pt == "need_heal":
+                        return "need_heal"
+                return r
             # BEND-CONTINUE (2026-07-05, run-6's Route-24 'arrived' misfire): once the bend has been
             # explored (Route 25 visited), the frontier goes empty on EVERY map — but an empty frontier
             # on a NON-bend map (bounced back to Route 24 after a heal) does NOT mean 'arrived'; it means
