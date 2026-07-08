@@ -715,6 +715,8 @@ class Traveler:
         last_fp = None
         npc_block_seen = False     # set at the no_path==4 probe: did an NPC-allowing path exist?
         spin_assist_tried = False  # the glide-crosser hand-off fires at most once per leg
+        edge_row_retries = 0       # uncrossable band rows dropped this leg (edge-row retry)
+        EDGE_ROW_RETRIES = 6       # bounded: a mostly-void column must still abort loud
         self.last_fail_reason = ""
         blocked = {}              # tile -> step it was blocked (TTL-aged dynamic obstacles:
         BLOCK_TTL = 12            # NPCs, movement-blocked-but-collision-walkable tiles)
@@ -926,6 +928,23 @@ class Traveler:
                     if coords(self.b) == before:      # press didn't move us -> a genuinely wasted try
                         exit_tries += 1
                         if exit_tries > EXIT_TRIES:
+                            # EDGE-ROW RETRY (night shift 9, the Route 19->20 SURF_TAUGHT stuck):
+                            # the band is INFERRED from overlap-tile reads, which can pass on rows
+                            # the real connection doesn't cover (void filler reads walkable/water).
+                            # A row that eats the presses is a fact about THAT row, not the leg —
+                            # drop it from the band and re-plan to another crossable row; only a
+                            # band run dry (or a bandless edge) aborts the leg.
+                            if band and cur[perp_axis] in band and len(band) > 1 \
+                                    and edge_row_retries < EDGE_ROW_RETRIES:
+                                band.discard(cur[perp_axis])
+                                edge_row_retries += 1
+                                exit_tries = 0
+                                plan_cache = None
+                                self.log(f"   [travel] edge row {cur[perp_axis]} won't cross "
+                                         f"({EXIT_TRIES}+ {exit_dir} presses eaten) — dropped from "
+                                         f"the band, re-planning to another crossable row "
+                                         f"({edge_row_retries}/{EDGE_ROW_RETRIES})")
+                                continue
                             self.log(f"   [travel] !! at exit {cur} but {exit_tries} {exit_dir} "
                                      f"presses didn't transition - ABORT LOUD")
                             self.on_event("I'm at the edge but I can't get through - stuck")
