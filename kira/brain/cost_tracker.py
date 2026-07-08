@@ -12,7 +12,7 @@
 #   voice         — main response path (claude_chat_inference / claude_chat_inference_stream)
 #   interjection  — autonomous interjection voice lines
 #   triage        — classification / routing (Groq / local)
-#   vision        — gpt-4o-mini screen-cap calls
+#   vision        — Gemini screen-cap calls (flash-lite heartbeat / flash-preview escalated)
 #   artifact      — session-end artifacts (lore, clips, summary via Opus)
 #   background    — startup-brief, general-opinions, other background calls
 #   local         — local Llama calls (token estimate; zero cost)
@@ -37,9 +37,14 @@ PRICE_TABLE: dict[str, dict] = {
     "claude-sonnet": {"in": 3.00,  "out": 15.00, "cache_read": 0.30},
     "claude-opus":   {"in": 15.00, "out": 75.00, "cache_read": 1.50},
     "claude-haiku":  {"in": 0.80,  "out": 4.00,  "cache_read": 0.08},
-    # OpenAI
-    "gpt-4o-mini":   {"in": 0.15,  "out": 0.60,  "cache_read": 0.075},
-    "gpt-4o":        {"in": 2.50,  "out": 10.00, "cache_read": 1.25},
+    # Google Gemini (vision — core-Kira "eyes", all modes)
+    #   flash-lite = always-on heartbeat tier; flash-preview = salient-moment escalation.
+    #   Approx public Gemini 3 flash-class rates ($/MTok); update when prices drift.
+    "gemini-3.1-flash-lite":  {"in": 0.10, "out": 0.40, "cache_read": 0.025},
+    "gemini-3-flash-preview": {"in": 0.30, "out": 2.50, "cache_read": 0.075},
+    "gemini-3.5-flash":       {"in": 0.30, "out": 2.50, "cache_read": 0.075},
+    # Catch-all prefix key for any other gemini vision model
+    "gemini-3":  {"in": 0.30, "out": 2.50, "cache_read": 0.075},
     # Groq (llama-3.1-8b-instant)
     "llama-3.1-8b-instant": {"in": 0.05, "out": 0.08, "cache_read": 0.0},
     # Local Llama — zero cost; tracked for token counts only

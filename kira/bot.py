@@ -33,9 +33,6 @@ from kira.brain.ai_core import AI_Core
 from kira.memory.memory import MemoryManager
 from kira.memory.cookie_jar import CookieJar, MILESTONE_CAP
 from kira.streaming.twitch_bot import TwitchBot
-# web_search.async_GoogleSearch is imported below when/if a search-trigger
-# command is wired up. Module kept; import removed until the call site exists.
-# TODO: wire async_GoogleSearch to a '!search' Twitch command or LLM tool call.
 from kira.streaming.twitch_tools import start_twitch_poll
 from kira.tools.music_tools import play_kira_song
 from kira.memory.memory_extractor import extract_memories
