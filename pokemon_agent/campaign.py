@@ -765,7 +765,7 @@ class Campaign:
         self._battle_ran_this_action = True    # blackout-evidence: a whiteout implies a battle RAN
         try:
             mid = tv.map_id(self.b)
-            place = self._PLACE_NAMES.get(mid, "an unfamiliar area")
+            place = self._place_name(mid)
             pre_sp = st.read_party_species(self.b, 0)          # Phase 3A: lead species + level before battle
             pre_lvl = self.b.rd8(ram.GPLAYER_PARTY + self._PARTY_LEVEL_OFF)
             # ANY-SLOT snapshots (night shift 11): the evolution gate was LEAD-ONLY, so a fielded
@@ -2285,6 +2285,32 @@ class Campaign:
                   ("Cinnabar Island", "Blaine"), ("Viridian City", "Giovanni")]
     _PARTY_LEVEL_OFF = 0x54        # level byte within a 100-byte party-mon struct (== play_live LEAD_LEVEL)
 
+    def _place_name(self, mid, default="an unfamiliar area"):
+        """Best HONEST name for a map (shift 13, bedrock #11). Static table first; else DERIVE one
+        from the live-learned world graph: an unnamed interior whose learned warps lead to named
+        maps reads as 'the passage between X and Y' (the gatehouse/connection-building class —
+        group 19 etc., where hardcoding names violates the disasm-numbers-lie rule) or 'a building
+        off X'. Derivation only speaks from where her own feet have warped — no warps learned yet
+        means the honest default stands. Narration-only; never feeds routing."""
+        nm = self._PLACE_NAMES.get(mid)
+        if nm:
+            return nm
+        try:
+            node = self.world.node(mid)
+            dests = []
+            for d in (node or {}).get("warps", {}).values():
+                g, n = (int(p) for p in str(d).split(","))
+                dn = self._PLACE_NAMES.get((g, n))
+                if dn and dn not in dests:
+                    dests.append(dn)
+            if len(dests) >= 2:
+                return f"the passage between {dests[0]} and {dests[1]}"
+            if len(dests) == 1:
+                return f"a building off {dests[0]}"
+        except Exception:
+            pass
+        return default
+
     def read_live_state(self):
         """LIVE game-state snapshot for the soul oracle. PURE RAM reads (no bot). Returns a dict the
         free-roam loop feeds the oracle each tick so her reasoning is grounded in her real situation."""
@@ -2306,7 +2332,7 @@ class Campaign:
         except Exception:
             on_grass_map = False
         ng = self._GYM_ORDER[len(badges)] if len(badges) < len(self._GYM_ORDER) else None
-        place = self._PLACE_NAMES.get(mp, "an unfamiliar area")
+        place = self._place_name(mp)
         dex = ram.pokedex_owned_count(b)          # BATCH 6 PHASE 4: caught-count from RAM (no menu)
         arc = self._arc_note(len(badges))         # PHASE 4: where she is in the WHOLE journey (momentum)
         # POST-GAME (the summit-watch strand fix): the Champion flag is only set AFTER the post-Hall
@@ -5448,7 +5474,7 @@ class Campaign:
         # recorded as a family member whose name + her opinion PERSIST (soul.bonds -> continuity, and the
         # whole campaign anchors via Phase-1 save). Naming is hers; headless/no-oracle -> species name.
         nick = name
-        place = self._PLACE_NAMES.get(tv.map_id(self.b))
+        place = self._place_name(tv.map_id(self.b), default=None)
         where = f"on {place}" if place else None
         if self.soul is not None:
             try:
@@ -5642,7 +5668,7 @@ class Campaign:
                            "has_pokecenter": cur in CITY_PC_DOORS,
                            "is_town": cur in CITY_MART_DOORS or cur in CITY_PC_DOORS}
             warps = tv.read_warps(self.b)      # WARP-ROUTING: learn this map's warp tiles + destinations live
-            self.world.note_visit(cur, name=self._PLACE_NAMES.get(cur), live_traits=live_traits,
+            self.world.note_visit(cur, name=self._place_name(cur, default=None), live_traits=live_traits,
                                   edges=conns, warps=warps)
             if warps:
                 log(f"   [world] learned {len(warps)} warp(s) on {cur}: "
