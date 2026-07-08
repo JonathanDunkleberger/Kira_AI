@@ -157,6 +157,11 @@ def _hp_frac(mon):
 # holding the (per-battle) agent instance.
 LAST_FOES_SEEN = set()
 
+# F-7(c) slice 2 (2026-07-08): True once the IN-DRAIN level-up beat fired for the current
+# battle — play_live's post-battle level check reads this to dedup its own (drain-late) emit.
+# Module-level for the same reason as LAST_FOES_SEEN: the wrapper never holds the agent.
+LEVELUP_EMITTED = False
+
 
 class BattleAgent:
     def __init__(self, bridge, on_event=None, render=None, hold_frames=HOLD,
@@ -1999,6 +2004,16 @@ class BattleAgent:
                 best, best_lv = s, lv
         return best
 
+    def _party_levels(self):
+        """Per-slot level snapshot (bounded raw read, +0x54 in the 100-byte party struct) —
+        the in-drain level-up detect's baseline. [] on any read error (detect stays quiet)."""
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            return [self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
+                    for s in range(min(cnt, 6))]
+        except Exception:
+            return []
+
     # ── one battle, start to finish ────────────────────────────────────────────
     def run(self, max_seconds=120):
         t0 = time.time()
@@ -2007,6 +2022,9 @@ class BattleAgent:
         if not st.in_battle(self.b):
             return "timeout"
         self._started = True
+        global LEVELUP_EMITTED
+        LEVELUP_EMITTED = False            # F-7(c) slice 2: the in-drain level-up beat re-arms
+        self._lv0 = self._party_levels()   # per-slot baseline (any participant can gain)
         LAST_FOES_SEEN.clear()             # foes-seen ledger: fresh per battle (attach-time rival fix)
         self._win_emitted = False          # F-7(c): fresh engagement -> the certain-win beat re-arms
         self._catching = False             # (a prior catch on this agent must not mute the win beat)
@@ -2105,6 +2123,22 @@ class BattleAgent:
                     cur = st.read_battle(self.b)
                     if cur:
                         self._emit_diffs(self._prev, cur); self._prev = cur
+                    # F-7(c) slice 2 — LEVEL-UP EARLY BEAT: the party level byte flips the moment
+                    # the level-up APPLIES, while "grew to LV. N!" is still on screen — but the
+                    # beat used to fire only in play_live after the whole drain + ~4s LLM chain
+                    # (deep into the overworld). Emit ONCE here so the chain runs DURING the rest
+                    # of the drain and her line lands ON the jingle. One beat per battle;
+                    # play_live dedups via LEVELUP_EMITTED.
+                    if not LEVELUP_EMITTED and self._lv0:
+                        _lvs = self._party_levels()
+                        for _s in range(min(len(_lvs), len(self._lv0))):
+                            if _lvs[_s] > self._lv0[_s]:
+                                LEVELUP_EMITTED = True
+                                _nm = st.SPECIES_NAME.get(st.read_party_species(self.b, _s),
+                                                          "my Pokemon")
+                                self.emit(f"my {_nm} just leveled up to level {_lvs[_s]}",
+                                          beat=True, tier=2)
+                                break
                     enemy = cur["enemy"] if cur else None
                     if (self._enemy_fainted and not self._we_fainted and enemy
                             and enemy["hp"] > 0 and enemy["hp"] == enemy["maxhp"]

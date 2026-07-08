@@ -384,7 +384,11 @@ def main():
             voice.emit(f"my {nm0} evolved into {nm1}!", kind="evolve", tier=3)
             pace("evolved into")
         lvl1 = b.rd8(ram.GPLAYER_PARTY + LEAD_LEVEL)
-        if lvl1 > lvl0:
+        # F-7(c) slice 2: the battle agent now voices the level-up IN the victory drain (the
+        # line lands on the jingle, not the overworld) — this post-drain emit is the FALLBACK
+        # for paths that skip the drain loop (catch flow), deduped via the module flag.
+        import battle_agent as _ba
+        if lvl1 > lvl0 and not _ba.LEVELUP_EMITTED:
             voice.emit(f"my Pokemon just leveled up to level {lvl1}", kind="levelup", tier=2)
             pace("leveled up")
         b.set_input_owner("agent")
