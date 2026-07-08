@@ -1,6 +1,51 @@
-# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 11)
+# NEXT_SESSION — THE STANDING NIGHT-TRAIN MANDATE (rewritten 2026-07-08 night shift 12)
 
-## ⚡ SHIFT 11 IN FLIGHT (rewrite this block as you bank)
+## ⚡ SHIFT 12 IN FLIGHT (rewrite this block as you bank)
+- **Shift 11's full 15-arc sweep SURVIVED the handover** — shift 12 found it alive (launched
+  6:09am) and is watching it (log `logs\longrun\descent_full_shift11.log`). Results so far
+  (11/15): ALL PASS except **banked_ROCKTUNNEL: WARN twedge=21**. Autopsy done from the log:
+  the WARN is ONE class — a loop of `no_route` travel wedges inside map **(19,0)** (a Route-7
+  ↔Saffron GATEHOUSE interior, tiles (6,4)/(5,5)/(6,5), "path blocked (NPC on the gap?)" —
+  a guard NPC corridor). This is exactly the stale `_blocked_npcs` corridor-seal class that
+  **5aaf72d fixed AFTER this sweep launched**. Also noted: group 19 (gatehouses) has NO
+  `_PLACE_NAMES` entry — she reads "an unfamiliar area" inside every connection gate.
+- **BANKED (adc280e): SPIN-MAZE PHANTOM-WALL FIX + spotting-freeze guard.** banked_BLAINE
+  graded WARN (twedge=23), bulk inside the Viridian Gym (5,1): SpinNav's blanket
+  templates∪live NPC mask let a beaten LoS trainer block TWO tiles (spawn + where he
+  stopped), sealing the 12-spinner maze ("spin-BFS found no route from (10,5)"). NEW
+  `travel.culled_template_tiles` (template tiles ONLY for objects absent from the live
+  array, matched by localId — template @+0, live @+0x08) + SpinNav now fights an
+  already-open battle before planning (LoS approach eats presses; next round planned over
+  frozen coords). ALSO in adc280e: live-proven `_PLACE_NAMES` — (19,0)=Route 7–Saffron
+  gate, (21,0)=Route 10 Pokémon Center. ⚠️ localId offset (+0x08) is layout-derived, not
+  yet live-probed — validate with a 60s probe (templates' localId/tile vs live) before
+  trusting the re-grade; if localIds read garbage, culled mask drops real walls (fail-soft:
+  blocked_step replans, but wedge counts would show it).
+- **SWEEP DONE (15/15, 06:43): 12 PASS / 3 WARN** — ROCKTUNNEL (21 twedge), BLAINE (23),
+  VICTORY (45). Table in DESCENT_PREGRADE.md. Every WARN autopsied + fixed this shift:
+  ROCKTUNNEL = the (19,0) gatehouse stale-NPC loop (5aaf72d, pre-committed); BLAINE = spin-
+  maze phantom walls + spotting-freeze race (adc280e); VICTORY = ×27 blind ritual legs into
+  the VR 2F boulder-sealed pocket (30b383a sealed-pocket pre-check). Second VICTORY cluster
+  (Route 23 (19,76) heal-excursion north ×10) = bounded + self-recovering (she healed via
+  Viridian) — left as-is deliberately. **localId probe: PASS** (live localIds 1:1 with
+  templates, spawn coords exact — adc280e's layout claim is live-proven).
+- **KNOWN CREVASSE (portability-debt note, not tonight's rope):** Victory Road interior is
+  STRIKE-ONLY (recon_victory.py hand-derived push sequences); the general engine has no
+  boulder-puzzle driver. Same class as Seafoam interior. For the SHOW timeline the fresh
+  climb will need either the strike promoted to questline data or a general
+  `boulder_assist` (spin_assist pattern + recon_victory's push tables as gamedata).
+- **NOW RUNNING: targeted re-grade** of the 3 WARN arcs on tonight's code
+  (`$env:DESCENT_ARCS='banked_ROCKTUNNEL,banked_BLAINE,banked_VICTORY'`,
+  log `logs\longrun\descent_regrade_shift12.log`) — expect all three wedge storms gone or
+  collapsed; NOTE it OVERWRITES DESCENT_PREGRADE.md with a 3-arc table (full 15-arc table
+  preserved in this block above + git history of DESCENT_PREGRADE.md). If this shift died
+  mid-run: read that log; re-run only if killed.
+- **THEN: (3)** evobeat verify (`.venv\Scripts\python.exe -u
+  pokemon_agent\recon_evobeat_verify.py`) — script PRE-CHECKED: every Campaign/travel name
+  it calls exists (no 569f223-class ghosts).
+  SINGLE-RUN LAW: one emulator job at a time; nothing launched within ~40 min of handover.
+
+## ⚡ SHIFT 11 STATE (prior)
 - **BANKED: VIRIDIAN SPIN MAZE VERIFIED (9a DONE).** Round 1 of `recon_spinmaze_verify.py`
   (NEW, committed) exposed the real defect: on a spinner floor BOTH loop guards are blind —
   slides keep coords CHANGING (fp-stall never fires) across ~9 distinct tiles (position-loop
