@@ -61,7 +61,11 @@ _SANDBOX_ROOT = os.path.join(os.environ.get("TEMP", _HERE), "kira_watch")
 # the nice picker labelling, not a gate.
 CURATED = [
     # alias,           banked dir,               human description
-    ("summit",        "banked_CREDITS",         "🏆 THE SUMMIT — Champion, credits rolled (Venusaur L95)"),
+    ("postgame",      "banked_POSTGAME",        "🏆 THE VICTORY LAP — Champion, post-credits, in control (the SAFE summit spawn)"),
+    # ⚠️ banked_CREDITS is the MID-CEREMONY Hall-of-Fame moment (2026-07-08 diagnosis): resuming
+    # it can drain the ceremony -> CREDITS -> post-credits SoftReset -> title screen (the QW-4
+    # void). Kept for the record; spawn 'postgame' for the safe Champion watch.
+    ("summit",        "banked_CREDITS",         "🏆 THE SUMMIT (mid-ceremony — credits WILL roll; prefer 'postgame')"),
     ("pre-e4",        "banked_E4",              "The Elite Four doorstep — badges 8, the gauntlet ahead"),
     ("victory-road",  "banked_VICTORY",         "Victory Road — the final climb to Indigo Plateau"),
     ("pre-blaine",    "banked_BLAINE",          "Cinnabar, before Blaine — badge 7 gym"),

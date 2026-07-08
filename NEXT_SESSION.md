@@ -77,8 +77,21 @@ dead world; recover last-good→anchor; bounded, then abandon LOUD + dead-man), 
 POISON GUARD, ZERO-INPUT THINK GUARANTEE (keys released before every oracle wait — kills the
 walking-during-pump position drift), leave_building HONESTY (verifies map group 3 or returns
 'stuck' — it was lying 'left_building' while wedged in the HoF, repro'd 20+ ticks).
-REMAINING UNKNOWN (filed, not blocking): the exact reboot trigger in the summit run — any
-recurrence is now self-diagnosing (tripwire screams instead of playing on).
+**THE REBOOT TRIGGER — FOUND (frame-proven, `recon_hof_exit.py` + boot PNG): banked_CREDITS is
+captured MID-Hall-of-Fame CEREMONY** — Oak beside her, machine dialogue pending, player NOT in
+control (the building-exit fails 100% in a clean harness; QW-4's "walk-out" was actually
+ceremony-drain → CREDITS → SoftReset → title → A-mash hit CONTINUE into the .sav world).
+**Every `watch.py --canonical` resume risks rolling credits and rebooting to title.**
+Mitigations shipped: the void tripwire (above) makes it recoverable; `recon_postgame_bank.py`
+builds the TRUE post-game bank (ceremony→credits→CONTINUE→verify control→bank+round-trip) as
+**banked_POSTGAME** (shows up in the watch.py picker automatically); EMPTY-OPTIONS FLOOR
+(an empty action set used to END free roam mid-show — now always offers the regroup-at-Center
+anchor; soak: 370 ticks alive vs 29). **CANONICAL PROMOTED (00:32): banked_POSTGAME →
+states/campaign via promote_bank.py, sanctity VALID + round-trip PASS** — canonical is now the
+Champion AT HOME IN PALLET ((4,0)@(4,8), full healthy party, badges 8, player in control; old
+canonical backed up to pre_postgame_backup_20260708_003254). watch.py picker: 'postgame' is the
+curated safe summit spawn; 'summit' (banked_CREDITS) is marked as the mid-ceremony moment where
+credits WILL roll.
 Also from that log: (a) her want said "Lapras from Silph Co" WHILE LAPRAS IS IN HER PARTY —
 wants aren't grounded against the roster (F-8 class, decision-side, STILL OPEN);
 (b) DECISION LATENCY warning now pump-aware (shipped shift 1 — watch mode logs a calm
@@ -169,7 +182,11 @@ Throwaway sandboxes: `go.py --clean-throwaways` + `watch.py --clean`.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN (hall_of_fame — Champion, SACRED, untouched all
-session; every rehearsal ran in disposable sandboxes). The soul-on watch rig + GO button are
-live; the opening plays voiced end-to-end except the ball-grab (take-6 verdict in
-logs/quietwindow_go_take6.log). Pop-in = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical bank is CLEAN — **promoted 2026-07-08 00:32 to the TRUE post-game:
+the Champion at home in Pallet Town** ((4,0)@(4,8), full healthy party — Venusaur L95, Persian,
+Fearow, Raticate, Ekans, Lapras — badges 8, player in control; sanctity VALID, round-trip PASS;
+prior canonical backed up to states/campaign/pre_postgame_backup_20260708_003254). The old
+hall_of_fame canonical was a MID-CEREMONY grenade (resuming it rolls credits → title screen —
+the QW-4 void, now diagnosed + tripwired). She is currently at home, victory lap ahead of her
+(Cerulean Cave opened; her own stated want: catch Mewtwo). Pop-in =
+`python pokemon_agent/watch.py` → spawn 'postgame' (or --canonical, now safe).

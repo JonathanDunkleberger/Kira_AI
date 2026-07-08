@@ -68,50 +68,65 @@ def main():
         b.run_frame()
     L(f"boot: map={tv.map_id(b)} coords={tv.coords(b)} (the mid-ceremony HoF moment)")
 
-    # 1) drain the ceremony: A through the machine dialogue; the fade+credits follow on their own.
-    #    Stop pressing once the world reads dead (credits/title own the screen) or the map leaves HoF.
+    # 1) drain the ceremony dialogue: A while a box is up. The credits scenes read WORLD-ALIVE
+    #    (saveblocks stay populated until the final SoftReset), so the phase ends when the box is
+    #    gone and STAYS gone (ceremony done, credits own the screen).
     L("draining the Hall-of-Fame ceremony (A) …")
-    for i in range(400):
-        if not world_alive(b):
-            L(f"   world went dark after {i} presses — ceremony complete, credits rolling")
-            break
-        b.press("A", 6, 10)
-        for _ in range(20):
-            b.run_frame()
-    else:
-        L("!! ceremony never completed (still alive in HoF after 400 A-presses) — ABORT")
-        snap(b, "postgame_stuck_ceremony")
-        return 1
-
-    # 2) run out the credits to the title screen (no input — just frames, headless max speed).
-    L("running out the credits …")
-    t_cred = time.time()
-    while time.time() - t_cred < 600:
-        for _ in range(600):
-            b.run_frame()
-        # title signature: dead world + no box; poke START to leave "PRESS START" once it's up
-        if not world_alive(b):
-            b.press("START", 8, 12)
+    quiet = 0
+    for i in range(600):
+        if box_open(b):
+            quiet = 0
+            b.press("A", 6, 10)
+            for _ in range(20):
+                b.run_frame()
+        else:
+            quiet += 1
             for _ in range(30):
                 b.run_frame()
-            if box_open(b):                     # the main menu list (CONTINUE/NEW GAME) is a box
-                L(f"   main menu up after {time.time() - t_cred:.0f}s of credits")
+            if quiet >= 20:                     # ~10s with no box — the credits are rolling
+                L(f"   ceremony drained after {i} steps — credits rolling")
                 break
+    snap(b, "postgame_credits")
+
+    # 2) run out the credits to the SoftReset (world goes DEAD at the title). A periodic A-tap:
+    #    ignored during the roll, but FRLG parks on "THE END" until a button press fires the reset.
+    L("running out the credits (waiting for the post-credits SoftReset) …")
+    t_cred = time.time()
+    while world_alive(b) and time.time() - t_cred < 900:
+        for _ in range(600):
+            b.run_frame()
+        b.press("A", 6, 8)
+    if world_alive(b):
+        L("!! credits never ended in 15 min — ABORT")
+        snap(b, "postgame_stuck_credits")
+        return 1
+    L(f"   world went dark after {time.time() - t_cred:.0f}s — title screen next")
+
+    # 3a) title screen: press START until the main menu (a box) is up.
+    for _ in range(40):
+        b.press("START", 8, 12)
+        for _ in range(40):
+            b.run_frame()
+        if box_open(b):
+            break
     snap(b, "postgame_menu")
 
-    # 3) CONTINUE is the top entry — A, then settle; then A once more through the save summary.
+    # 3b) CONTINUE: the save-summary window shows the LOADED saveblock (world reads "alive" while
+    #     still on the menu — run-4 trap; box_open doesn't see this window either). Press A until
+    #     the map actually LEAVES the saved HoF location — GameClear warps a continued game HOME.
     L("selecting CONTINUE …")
-    for i in range(30):
+    for i in range(40):
         b.press("A", 8, 12)
-        for _ in range(60):
+        for _ in range(90):
             b.run_frame()
-        if world_alive(b):
+        if world_alive(b) and tv.map_id(b) != (1, 80):
+            L(f"   in the world after {i + 1} presses")
             break
-    if not world_alive(b):
-        L("!! CONTINUE never restored a live world — ABORT")
+    if not world_alive(b) or tv.map_id(b) == (1, 80):
+        L("!! CONTINUE never left the menu/HoF — ABORT")
         snap(b, "postgame_stuck_continue")
         return 1
-    for _ in range(120):
+    for _ in range(240):                        # settle the home warp fully
         b.run_frame()
     badges = sum(1 for i in range(8) if (lambda sb1: (b.rd8(sb1 + 0x0EE0 + ((0x820 + i) >> 3))
                                                       >> ((0x820 + i) & 7)) & 1)(b.rd32(ram.GSAVEBLOCK1_PTR)))
@@ -119,20 +134,36 @@ def main():
       f"party={b.rd8(ram.GPLAYER_PARTY_CNT)} badges={badges}")
     snap(b, "postgame_world")
 
-    # 4) control check: a test step must MOVE her (player in control, no pending script).
-    c0 = tv.coords(b)
-    for d in ("DOWN", "UP", "LEFT", "RIGHT"):
-        b.press(d, 10, 8)
-        for _ in range(20):
+    # 4) FRLG's "Previously on your quest…" recap owns the screen after CONTINUE — A through it,
+    #    then prove control with a test step. Only actual MOVEMENT ends the loop.
+    L("draining the continue recap …")
+    in_control = False
+    for i in range(80):
+        b.press("A", 6, 10)
+        for _ in range(30):
             b.run_frame()
-        if tv.coords(b) != c0:
-            break
-    in_control = tv.coords(b) != c0
-    L(f"control check: {'MOVED' if in_control else 'no movement (script may own input)'} "
-      f"{c0} -> {tv.coords(b)}")
+        if i % 4 == 3 and world_alive(b):
+            c0 = tv.coords(b)
+            for d in ("DOWN", "UP", "LEFT", "RIGHT"):
+                b.press(d, 10, 8)
+                for _ in range(20):
+                    b.run_frame()
+                if tv.coords(b) != c0:
+                    in_control = True
+                    break
+            if in_control:
+                break
+    L(f"control check: {'MOVED (player in control)' if in_control else 'no movement — ABORT'} "
+      f"at map={tv.map_id(b)} coords={tv.coords(b)}")
     if not (b.rd8(ram.GPLAYER_PARTY_CNT) == 6 and badges == 8 and in_control):
         L("!! verification failed (party/badges/control) — NOT banking")
         return 1
+
+    # settle any PENDING MAT-WARP before banking (the arrival-boundary law — run 6 banked her on
+    # her house doormat and the reload warped indoors, failing the round-trip compare).
+    for _ in range(240):
+        b.run_frame()
+    L(f"pre-bank settle: map={tv.map_id(b)} coords={tv.coords(b)}")
 
     # 5) bank: savestate + the CREDITS bundle's sidecars (her story is the same story).
     os.makedirs(DST, exist_ok=True)
