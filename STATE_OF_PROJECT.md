@@ -30,6 +30,39 @@ named disposable staging copies, only bank clean forward states (full sanctity b
 + strat + world + soul). **WATCH-READY NOW:** canonical `kira_campaign.state` is clean (healthy party, not
 wedged); on GO she shops → grinds Ivysaur → forward-drives to the Nugget-Bridge Gary.
 
+### ── 2026-07-07 NIGHT SHIFT #16 — THE IMPOSTOR-WHITE-BOX LIVELOCK KILLED; run20 ratchet in flight ──
+**CANONICAL unchanged = indigo_reach. e4_run20 IN FLIGHT (logs/longrun/e4_run20.log, detached,
+launched ~19:15, 4h deadline, booted E4_BOOT=banked_E4).** run19 postmortem (found wedged live
+at 19:05, killed, fixed, relaunched):
+- **run19 attempt 1 reached LANCE in 195s** (rooms 1-4 banked; shift-15 stack ALL VERIFIED
+  LIVE: spend-the-wad shop, revives consuming at menu-time rows, **LAST-BODY INSURANCE armed
+  AND fired at 9/193** — the 9e8fd18 live-verify owed from shift-15 is PAID).
+- **THE WEDGE [ROOT-CAUSED via frame + log, killed 53979b3]:** the insurance revive's result
+  box ("PERSIAN's HP was restored by 52 point(s)." — party screen; revive = half of 104) lights
+  the SAME white-panel pixels as the action menu. use_item's drain exited on those pixels →
+  box left up → `_settle_action_menu` believed the menu was up → `_goto_fight/_goto_pokemon`
+  walked a STALE GBATTLE_ACTION_CURSOR that never moved → **no path ever pressed A/B** →
+  anti-wedge abort → re-enter → identical screen, ~1 frame/sec for minutes (the run15/18
+  itemfail/death class, finally understood).
+- **THE FIX [VERIFIED live in run20]:** `_action_cursor_alive()` — the action menu is only
+  REAL if the cursor RESPONDS to a horizontal tap (readback moves; retry for eaten taps);
+  `_settle_action_menu` B-drains impostors (B: dismisses boxes, backs out party/bag, no-op at
+  the real menu), loudly logged; use_item's post-use drain routes through it. The impostor
+  line fires on ~every aimed item use in run20 and RECOVERS every time; famine switch landed
+  post-fix ("SWITCHED to species 20").
+- **THE ECONOMY IS SELF-SUSTAINING [measured, run20]:** E4 payouts beat the whiteout halving
+  ($2,118 → $10,518 across attempt 2). The whiteout-center re-shop (already in recon_e4)
+  rebuys money-aware every lap (FR x2-3 + revive per attempt). Attempt cadence ~3-4 min:
+  whiteout → center bank (XP ratchet) → heal → re-shop → re-climb. Attempt 1 died at Lance
+  (last FR spent, Sleep-Powder stall at 0 damaging PP); attempt 2 died at Agatha but arrived
+  with ALL 6 ALIVE (vs run18's corpse parades). Ace L68 and compounding.
+- **ACCELERANT CANDIDATES if the curve plateaus (in order):** (a) mid-fight FODDER revives —
+  worthy-gate revives nothing while >=2 alive (worthy=None past 4 corpses through Lance);
+  reviving a bench body buys free Full-Restore turns for the ace; (b) Double-Edge tutor
+  (VR 2F); (c) power-leveled Lapras+Ice Beam vs Lance. ⛔ VR loot sweep stays DEAD.
+- **Watch item (cosmetic):** Sleep Powder spam when only status PP remains (war-must-advance
+  picks it over Struggle) — battle still resolves via whiteout, just slow.
+
 ### ── 2026-07-07 NIGHT SHIFT #15 — LANCE BEATEN; GARY = THE LAST WALL; run19 economy stack ──
 **CANONICAL unchanged = indigo_reach. e4_run19 IN FLIGHT (logs/longrun/e4_run19.log, detached,
 4h deadline, launched ~19:20).** run18 (shift-14's detached strike) = the deepest run ever:
