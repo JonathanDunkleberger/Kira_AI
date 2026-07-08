@@ -30,22 +30,40 @@ walk-regions elevation-strict, meta-BFS with pad rides as edges) + `ride_pad` (l
    rows unbilled — self-correct on landing) hooked into `_exit_to_overworld` top; travel gains
    `spin_assist` (field_clear injection pattern; fires ONCE per wedged leg on maps with the
    new `Grid.spin` set) → campaign._spin_assist runs spin_nav's glide crosser.
-**IN FLIGHT / NEXT (in order):**
-1. Full 15-arc sweep → `logs\longrun\descent_full_shift5.log` (baseline of PRE-tonight code;
-   snapshot lands at `logs\longrun\DESCENT_PREGRADE_full_shift5.md` + descent_grade_full_shift5.json).
-2. Chained `banked_SILPH` re-grade (fresh process = tonight's code) →
-   `logs\longrun\descent_regrade_silph_shift5.log`. Expect PASS w/ real junior clears in
-   Sabrina's gym. If pads wedge: read the [pad-plan]/[pad-ride] lines.
-3. THEN re-grade `banked_SCOPE` 180s (verify elevator+spin): expect her to ride the B4F
-   elevator and exit the hideout (B1F alcove → stairs → B2F east room → spin-assist west →
-   up-stairs → out). Partial progress (car ridden, new floor reached) is still a ratchet.
-4. Merge the SILPH/SCOPE rows into the full-sweep DESCENT_PREGRADE.md + commit the artifact.
-5. Read the sweep's OTHER FAIL/WARN arcs (GIOVANNI/VICTORY/E4/POSTGAME were ungraded at
-   rewrite time) and fix per the loop.
+**VERIFY RESULTS (shift 5 close):**
+1. **FULL SWEEP (pre-tonight code): 13 PASS / 2 WARN** — SILPH (nav=4) + ROCKTUNNEL (nav=1).
+   Snapshot: `logs\longrun\DESCENT_PREGRADE_full_shift5.md` (+ .json sibling).
+2. **SILPH re-grade = PASS — AND SHE WON BADGE 6 (Marsh) AUTONOMOUSLY in the window** (pad
+   plans 3 rides deep, juniors + Sabrina beaten, nav 4→0). The pad router is VERIFIED
+   end-to-end. Log: `descent_regrade_silph_shift5.log`.
+3. **SCOPE re-grades (rounds 1-3, the hideout-B4F exit rope):** round 1 = elevator RODE
+   (panel+multichoice verified live) but blind rows looped B4F↔B1F → built the LANDING
+   ORACLE (SB1+0x14 dynamicWarp reads the selected floor BEFORE stepping out; commit
+   5f0a45c). Round 2 = oracle PROVED the mechanism: D-pad presses are EATEN before the
+   multichoice is input-ready → select-A hits the default row every time → MENU SETTLE fix
+   (90f settle + spaced downs; commit 262e609). **Round 3 RESULT: SHE EXITED THE HIDEOUT** —
+   elevator rode to B1F (row 2 retargeted post-settle; rows 0-1 still eaten sometimes — the
+   oracle absorbs it), then late-window the exit chain ran `(1,42) → (10,14) Game Corner →
+   (3,6) STREET`. Grade still **FAIL on twedge=271**: while the exit machinery worked,
+   head_to_gym's road steering hammered the walk-unreachable (11,15) stairs EVERY TICK.
+   **THE NEXT ARC-FIX (first thing next shift): structural parking for unreachable same-map
+   road anchors** — when travel returns no_route for the same road-anchor tile N times on one
+   map, park that anchor (the ping-pong-breaker class) so the oracle picks something else;
+   log: `logs\longrun\descent_regrade_scope3_shift5.log`. Then re-grade SCOPE → expect
+   PASS/WARN, then the FULL 15-arc sweep on tonight's code (twedge column everywhere).
+4. **Grader upgraded (d23dd01):** travel wedges now graded (>20 WARN / >100 FAIL) — SCOPE's
+   412-bonk PASS blind spot closed. DESCENT_PREGRADE.md currently holds only the last
+   re-graded arc row — REGENERATE the full 15-arc table (now with the twedge column) once
+   SCOPE is green: `.venv\Scripts\python.exe -u pokemon_agent\recon_descent_grade.py 120`.
+5. **ROCKTUNNEL WARN characterized (not yet fixed):** the badge-3→Erika questline works the
+   Celadon pass-through chain, ends hammering a blocked doorway (10,11)@(7,4)
+   (`questline_wrong_building` ×2 + npc_block wedge storm) — the FENCED-BEND rough edge.
+   Next arc-fix after SCOPE.
 NOTE: venv python is a shim — TWO PIDs per launch; never taskkill your own run.
-Known general gaps still open: VIRIDIAN GYM spin maze (spin_assist may now cover it via
-travel — un-verified); level-up beat needs a battle-with-level-up trace; evolution early
-beat unbuilt (post-battle cutscene, needs its own seam).
+Known general gaps still open: VIRIDIAN GYM spin maze (spin_assist may now cover it —
+un-verified); level-up early beat WIRED not verified (grade-harness on_event doesn't print;
+needs a printed-events run, e.g. recon_winbeat_verify pattern); evolution early beat unbuilt
+(post-battle cutscene, own seam).
 
 Paste this to the fresh session / this IS the night-train's standing order. Employment terms
 in force: loop until done, bank per phase, honest three-state surveys, stop ONLY for a
