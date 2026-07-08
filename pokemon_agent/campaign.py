@@ -5487,6 +5487,17 @@ class Campaign:
         elif state.get("post_game") and tuple(state.get("map") or (0,))[0:1] != (3,):
             a["leave_building"] = ("champion's walk — head out of this building and back into the "
                                    "world; the victory lap starts outside")
+        # F-11 INTERIOR-WEDGE RECOVERY (descent pre-grade, the SCOPE-arc FAIL): pre-credits,
+        # parked INSIDE an interior with her move options PROVEN dead (consecutive silent
+        # no-moves — warp_failed/no_route), the honest escape is the walk out. Without this the
+        # option set collapses to dead routes only ("NOT pruning — won't dead-end her") and she
+        # paces a basement forever (Rocket Hideout B4F, watched it). Streak-gated so a normal
+        # interior visit (a Mart, a questline building) never sees it; once offered, the dead-
+        # route prune makes it dominant, and repeated hops ratchet her out floor by floor.
+        if (tuple(state.get("map") or (0,))[0:1] != (3,) and "leave_building" not in a
+                and getattr(self, "_nomove_streak", 0) >= 2):
+            a["leave_building"] = ("nothing routes from in here — walk back out into the open "
+                                   "and re-orient")
         # 2026-07-06 STRAND GUARD: heal is NOT offered (while non-critical) on a map where the last
         # heal attempt proved the Center unreachable (a one-way pocket, e.g. Cerulean's south strip) —
         # re-offering it was the run-4 ping-pong stall. Critical severity above still overrides (the
@@ -6133,8 +6144,10 @@ class Campaign:
         # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
         # building-exit to step back onto the overworld, then normal actions take over next tick.
         if pick == "leave_building":
-            self.on_event("okay — the Champion walks out the front door. let's go see my world.",
-                          kind="travel", tier=2)
+            self.on_event("okay — the Champion walks out the front door. let's go see my world."
+                          if state.get("post_game") else
+                          "this place is a maze and nothing's working — I'm heading back outside "
+                          "to get my bearings.", kind="travel", tier=2)
             self._exit_to_overworld()
             # HONESTY FIX (void-core batch, repro'd 2026-07-08): the old unconditional
             # "left_building" LIED when the exit failed (recon_voidcore: she stayed wedged in the

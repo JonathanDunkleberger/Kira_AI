@@ -114,6 +114,10 @@ def grade_arc(name, seconds):
     t0 = [time.time()]       # arc clock (chooser hard-wall reads it via closure)
 
     def chooser(kind, options, ctx):
+        # hard wall FIRST, on ANY consult (a wander_catch's stream of catch_judgments never
+        # reaches the tick-top window check — first sweep ran one action for 7+ minutes)
+        if time.time() - t0[0] > seconds * 2.5:
+            raise _Done("hard wall (arc overran window x2.5)")
         if kind == "battle_item":
             if isinstance(options, dict) and options:
                 return "use_potion" if "use_potion" in options else next(iter(options))
@@ -127,8 +131,6 @@ def grade_arc(name, seconds):
             unnamed.add(tuple(mp))
         if decisions[0] > MAX_DECISIONS:
             raise _Done("decision budget")
-        if time.time() - t0[0] > seconds * 2.5:      # hard wall: no arc may eat the sweep
-            raise _Done("hard wall (arc overran window x2.5)")
         party = [(st.read_party_species(b, s),
                   b.rd16(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x56),
                   b.rd16(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x58))
