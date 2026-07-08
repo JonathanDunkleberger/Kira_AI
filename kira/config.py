@@ -749,6 +749,13 @@ CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))  # ~5
 CLIP_TEASER_COUNT = int(os.getenv("CLIP_TEASER_COUNT", "3"))
 CLIP_TEASER_SECONDS = float(os.getenv("CLIP_TEASER_SECONDS", "0.5"))
 
+# (d) vertical shorts (Phase K item 1): the top-N scored clips rendered 9:16
+# 1080x1920 (blur-pad reframe, full frame preserved) with BURNED-IN captions
+# (.ass from faster-whisper on each short's own audio). Clips longer than the
+# max are trimmed to a punch-landing tail window rather than skipped.
+CLIP_SHORTS_COUNT = int(os.getenv("CLIP_SHORTS_COUNT", "5"))
+CLIP_SHORT_MAX_SECONDS = float(os.getenv("CLIP_SHORT_MAX_SECONDS", "60.0"))
+
 # Minimum session length (minutes) below which the reel is skipped.
 # Also requires at least 3 aligned candidates. Override via env.
 REEL_MIN_MINUTES   = int(os.getenv("REEL_MIN_MINUTES", "20"))

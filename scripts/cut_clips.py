@@ -124,7 +124,10 @@ async def _main() -> int:
                 print(f"      reel report: {s.get('reel_report', '')}")
         if s.get("highlight_path"):
             print(f"      HIGHLIGHT VOD: {s['highlight_path']}")
-        if s.get("short_path"):
+        if s.get("short_paths"):
+            for sp in s["short_paths"]:
+                print(f"      SHORT (9:16, captioned): {sp}")
+        elif s.get("short_path"):
             print(f"      SHORT CANDIDATE: {s['short_path']}")
         total_cut += s["cut"]
     if not result["sessions"]:
