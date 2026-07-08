@@ -35,31 +35,40 @@ When both A and B are done → write **SAGA CLOSED** on line 1 of NIGHT_REPORT.m
 If the list empties except needs-eyes: STOP, write the couch list, stop burning.
 
 ## ⚡ SHIFT 14 IN FLIGHT (rewrite as you bank)
-- **banked_VICTORY 153-twedge FAIL — ROOT CAUSE:** Route 23 (3,42) is a SPLIT MAP by design:
-  its south half is walled from its north half — **Victory Road IS the road between them**
-  (warps (5,28)→(1,39) and (18,28)→(1,40); south exit = gate warps (8,153)/(9,154)→(28,0),
-  NO south edge). Hurt in the south half, the heal ladder was component-blind: (1) "Indigo is
-  adjacent north" excursion → structurally no_route ×20/tile; (2) graph multi-hop to Indigo →
-  same; (3) Viridian fallback said "no south warp" — a LIE: enter_warp's door pre-check was
-  LAND-ONLY (`grid.walkable`), and the gate door sits across the lake. The water-start
-  reachability law (shift 10) never reached enter_warp.
-- **FIX SHIPPED (campaign.py, 5 edits, COMPILES):** `_edge_band_reachable` takes a walkable
-  layer (or_surf when `_surf_usable`); heal ladder adjacent-city step band-pre-checks from the
-  FEET before any excursion (LOUD skip); graph-hop loop pre-checks each cardinal hop (fail-fast
-  to next rung); `return_to_center` picks per-leg direction (Viridian-adjacent aware — from
-  Route 22 Viridian is EAST) + band-pre-check skips straight to warp; `enter_warp` pre-check is
-  surf-aware. Net: heal from south Route 23 = surf south → gate (28,0) → Route 22 → east →
-  Viridian. All general (helps every water-adjacent door + every split map).
-- **NOW RUNNING:** targeted re-grade `$env:DESCENT_ARCS='banked_VICTORY'` →
-  `logs\longrun\descent_regrade_shift14_victory.log`. PASS bar: twedge ≤ 20 (expect residual =
-  VR-interior ~7 + grass-remember one-offs). If PASS → launch the FULL 15-arc sweep. NOTE the
-  grader OVERWRITES DESCENT_PREGRADE.md per run (full table = git history).
-- **Residual known-crevasse (NOT tonight's rope):** Victory Road interior is STRIKE-ONLY
-  (recon_victory.py hand-derived boulder pushes); wedges inside (1,40) are bounded. Portability
-  debt filed: general boulder_assist (spin_assist pattern + push tables as gamedata).
-- Queued behind the sweep (SINGLE-RUN LAW): evobeat verify
-  (`.venv\Scripts\python.exe -u pokemon_agent\recon_evobeat_verify.py`) — INCONCLUSIVE if no
-  bundle has a past-due LEVEL evolver; then the beat stays WIRED-not-VERIFIED.
+- **✅ banked_VICTORY 153-twedge FAIL → PASS twedge=13 (commit 2158e43).** ROOT CAUSE: Route 23
+  (3,42) is a SPLIT MAP by design — Victory Road IS the road between its halves (warps
+  (5,28)→(1,39), (18,28)→(1,40); south exit = gate warps (8,153)/(9,154)→(28,0), NO south
+  edge). The heal ladder was component-blind and **enter_warp's door pre-check was LAND-ONLY**
+  (the shift-10 water-start law never reached it — the surf-only gate door read "no south
+  warp"). Fixes: `_edge_band_reachable(walkable=or_surf)`, feet-level band pre-checks on the
+  adjacent-city excursion + each cardinal graph hop, `return_to_center` per-leg direction
+  (Viridian-adjacent aware) + band pre-check, surf-aware enter_warp. Re-grade VERIFIED PASS.
+- **✅ SPLIT-MAP ROAD MEMORY (commit f54ed42, WIRED — re-grade pending):** the SURF_TAUGHT WARN
+  autopsy = Route 19↔Route 20 metronome at the Seafoam split (retry-once launders split-map
+  dead ends). Now: no_path is structural; strikes per (map,pick) survive movement; ≥2 strikes
+  survive map exit; head_to_gym dying on the map it just rode into parks the SOURCE leg too +
+  ONE narrated beat. **VERIFY: targeted re-grade banked_SURF_TAUGHT after the sweep.**
+- **🔄 FULL 15-arc sweep RUNNING** (pre-fix code for late arcs; log
+  `logs\longrun\descent_full_shift14.log`). 8/15 done: ALL PASS except SURF_TAUGHT WARN
+  (fixed above, needs re-grade). **AFTER it ends: re-run the FULL sweep on fixed code** →
+  that regenerated DESCENT_PREGRADE.md is the DoD-A artifact. Then evobeat verify
+  (`recon_evobeat_verify.py`; INCONCLUSIVE = stays WIRED-not-VERIFIED).
+- **✅ B-BATCH SHIPPED (commit 392b872, core touches flagged, defaults byte-identical):**
+  Phase-J receipts (write_receipt → logs/receipts/ + LEDGER.jsonl, at-shutdown, WIRED);
+  output-side liability filter (KIRA_LIABILITY_FILTER ON, narrow secrets/PII on the pre-TTS
+  choke; KIRA_MODERATION_REGEX hook; probe 0 FP/0 FN VERIFIED); I-1c media-pacing
+  (MEDIA_PACING_ENABLED OFF); I-1b Attention Director (ATTENTION_DIRECTOR_ENABLED OFF,
+  activity-aware _has_fresh_sense + [ATTENTION] prompt lead). Clipper final spec: 10 ranked
+  shorts, superfan 1200s, midform 300s, caption-source audit documented; .env mask-checked.
+  **Recon corrections:** TTS prefetch pump is COMPLETE (only the default-ON decision is
+  A/B-gated); F-9 "no wink escape" tic ban IS core repetition_guard (mode inherits).
+- **✅ GO refusal rail re-verified on final code** (bot down → rc=2, loud, no launch). watch.py/
+  play_live.py unchanged since their live verifies; today's campaign.py edits are exercised by
+  the sweep itself.
+- **⏸ DESK-PRESENCE: Jonny at the machine (idle=0 min at ~07:50)** → NO bot boots, NO voiced
+  throwaway (the 21:30 law). F-5 throwaway + soul-stack live verify PARKED on the couch list.
+- Residual known-crevasse (unchanged): Victory Road + Seafoam interiors STRIKE-ONLY; travel's
+  strength-push primitive can mis-clear/misread a boulder as a trainer (bounded, filed).
 
 ## NEEDS-EYES LEDGER — THE FINAL COUCH LIST (batch for ONE sitting; surface TOGETHER, never one at a time)
 1. Fresh throwaway watch (F-5 bar) + descent spot-watches from DESCENT_PREGRADE.md (one sitting).
