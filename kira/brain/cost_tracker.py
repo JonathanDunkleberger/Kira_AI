@@ -164,6 +164,41 @@ class _CostTracker:
                 "by_purpose": dict(self._by_purpose),
             }
 
+    def write_receipt(self, receipts_dir: str = "logs/receipts",
+                      session_meta: Optional[dict] = None) -> Optional[str]:
+        """Phase J RECEIPT: persist the session's cost breakdown as a durable artifact —
+        one JSON receipt per session + an append-only LEDGER.jsonl (one line per session,
+        the cross-session spend history). Called at shutdown next to print_summary().
+        Best-effort: never blocks teardown; returns the receipt path or None. LOUD on
+        failure (constraint #3 — silent failure is the enemy)."""
+        import os
+        try:
+            s = self.snapshot()
+            s["ts_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            if session_meta:
+                s["session"] = session_meta
+            os.makedirs(receipts_dir, exist_ok=True)
+            stamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+            path = os.path.join(receipts_dir, f"receipt_{stamp}.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(s, f, indent=2, ensure_ascii=False)
+            ledger_line = {
+                "ts_utc": s["ts_utc"],
+                "total_cost_usd": s["total_cost_usd"],
+                "fallback_count": s["fallback_count"],
+                "by_purpose": s["by_purpose"],
+                "receipt": os.path.basename(path),
+            }
+            if session_meta:
+                ledger_line["session"] = session_meta
+            with open(os.path.join(receipts_dir, "LEDGER.jsonl"), "a", encoding="utf-8") as f:
+                f.write(json.dumps(ledger_line, ensure_ascii=False) + "\n")
+            print(f"   [COST] receipt written: {path} (total ${s['total_cost_usd']:.4f})")
+            return path
+        except Exception as e:
+            print(f"   [COST] !! receipt write FAILED: {e!r} (LOUD — cost data lives only in logs)")
+            return None
+
     def print_summary(self) -> None:
         """Print a formatted cost breakdown.  Called at shutdown."""
         s = self.snapshot()

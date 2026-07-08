@@ -521,6 +521,40 @@ DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence
 DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "8.0"))
 DIRECTOR_FRESH_MIN_SILENCE_S = float(os.getenv("DIRECTOR_FRESH_MIN_SILENCE_S", "3.0"))
 
+# ── Media-pacing profiles (I-1c) — per-activity Director cadence ───────────────
+# A watch-party is not a gaming session: during media she should react LESS often
+# (let the show breathe — a friend on the couch, not a commentator), during games
+# the Neuro-tier baseline holds, ambient hangout sits between. Implemented as an
+# ACTIVITY MULTIPLIER on the Director's min-gap + dead-air (alongside the room
+# multiplier; the same absolute caps keep true dead air always filled). Composes
+# with presence presets and the dashboard slider — a profile widens FROM whatever
+# baseline those set. Default OFF (byte-identical cadence today) — feel-test one
+# variable at a time per the cadence plan; every applied profile logs loudly.
+MEDIA_PACING_ENABLED = os.getenv("MEDIA_PACING_ENABLED", "false").lower() == "true"
+DIRECTOR_GAP_MULT_BY_ACTIVITY = {
+    "game":    float(os.getenv("PACING_GAP_MULT_GAME",    "1.0")),  # Neuro-tier baseline
+    "media":   float(os.getenv("PACING_GAP_MULT_MEDIA",   "3.0")),  # watch-party restraint
+    "vn":      float(os.getenv("PACING_GAP_MULT_VN",      "2.0")),  # reading pace
+    "general": float(os.getenv("PACING_GAP_MULT_GENERAL", "1.5")),  # ambient hangout
+}
+
+# ── Attention Director (I-1b) — WHAT to attend to, per activity ────────────────
+# The Activity Director decides WHEN to speak; this layer decides WHAT the beat is
+# ABOUT. _has_fresh_sense already ranks fresh senses (dialogue > vision > media >
+# audio, static); when ON, the ranking becomes ACTIVITY-AWARE (a watch-party leads
+# with the episode + what's being said; a game leads with the screen) and the chosen
+# focus is injected into the Director prompt as the beat's lead — other senses demote
+# to background instead of all competing at once. Extends the existing Director
+# (rule 3: no parallel v2); default OFF = byte-identical ranking + prompt today.
+ATTENTION_DIRECTOR_ENABLED = os.getenv("ATTENTION_DIRECTOR_ENABLED", "false").lower() == "true"
+ATTENTION_RANK_BY_ACTIVITY = {
+    # keys match game_mode_controller.activity_type; values override the static ranks
+    "media":   {"loopback-dialogue": 45, "media-watch": 35, "vision": 25, "audio-event": 10},
+    "game":    {"loopback-dialogue": 40, "vision": 35, "media-watch": 15, "audio-event": 10},
+    "vn":      {"vision": 40, "loopback-dialogue": 35, "media-watch": 15, "audio-event": 10},
+    "general": {"loopback-dialogue": 40, "vision": 30, "media-watch": 25, "audio-event": 10},
+}
+
 # Presence → Director drive-gap presets (C7: presence is the SINGLE cadence dial).
 # Confirmed in code (bot.py: Director fires when now - last_fire >= director_min_gap_s):
 # LOWER gap = more frequent/yappier, HIGHER = sparser. Picking a presence sets
@@ -761,14 +795,14 @@ CLIP_MAX_EXCHANGE_S = float(os.getenv("CLIP_MAX_EXCHANGE_S", "90.0"))  # setup�
 # short-form one-liners. In asymmetric mode the floor grows the FRONT (earlier
 # in-point), never the tail, so the hard out-cut on the punch is preserved.
 CLIP_MIN_SECONDS = float(os.getenv("CLIP_MIN_SECONDS", "12.0"))
-# (b) best-of reel: pick clips top-by-score until cumulative length reaches this cap.
-# Phase-K target is a 3-4 minute best-of, so the default cap is 4 min.
-CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "240.0"))
-# (c) highlight VOD scaled to session length (Phase K item 5): the chronological
-# body targets FRACTION x session span, clamped to MAX; lowest-score clips are
-# dropped (loudly) until it fits. 0 fraction = no scaling beyond the max cap.
+# (b) best-of reel — the MIDFORM cut (final spec 2026-07-08): 3-5 min best-of;
+# cap 300s so a rich session fills the full 5 min, spec floor stays 3-4 min.
+CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))
+# (c) highlight VOD — the SUPERFAN cut (final spec 2026-07-08: ~20 min): the
+# chronological body targets FRACTION x session span, clamped to MAX (1200s = the
+# 20-min superfan target); lowest-score clips are dropped (loudly) until it fits.
 CLIP_HIGHLIGHT_FRACTION = float(os.getenv("CLIP_HIGHLIGHT_FRACTION", "0.10"))
-CLIP_HIGHLIGHT_MAX_SECONDS = float(os.getenv("CLIP_HIGHLIGHT_MAX_SECONDS", "900.0"))
+CLIP_HIGHLIGHT_MAX_SECONDS = float(os.getenv("CLIP_HIGHLIGHT_MAX_SECONDS", "1200.0"))
 # (c) highlight-VOD cold-open teaser: the N punchiest clips, each trimmed to this
 # many seconds (the tail-end landing on the punch), spliced BEFORE the chronological
 # body as a rapid hook — snippets, never full-clip duplicates.
@@ -779,7 +813,13 @@ CLIP_TEASER_SECONDS = float(os.getenv("CLIP_TEASER_SECONDS", "0.5"))
 # 1080x1920 (blur-pad reframe, full frame preserved) with BURNED-IN captions
 # (.ass from faster-whisper on each short's own audio). Clips longer than the
 # max are trimmed to a punch-landing tail window rather than skipped.
-CLIP_SHORTS_COUNT = int(os.getenv("CLIP_SHORTS_COUNT", "5"))
+# CAPTION-SOURCE AUDIT (final spec 2026-07-08): shorts RE-TRANSCRIBE their own
+# audio locally (faster-whisper, word timestamps, $0 API cost) instead of reusing
+# session transcripts — events.jsonl is line-level only (no word timings), so
+# reuse cannot drive word-timed karaoke captions. Re-transcription is the correct
+# source until per-word timings are logged at session time. Audited, deliberate.
+# Count 10 (final spec: "10 ranked shorts"); fewer aligned clips = fewer shorts.
+CLIP_SHORTS_COUNT = int(os.getenv("CLIP_SHORTS_COUNT", "10"))
 CLIP_SHORT_MAX_SECONDS = float(os.getenv("CLIP_SHORT_MAX_SECONDS", "60.0"))
 
 # Minimum session length (minutes) below which the reel is skipped.

@@ -59,6 +59,8 @@ from kira.config import (
     OBJECTIVE_ACT_SILENCE_S, OBJECTIVE_MAX_AGE_S,
     ACTIVITY_DIRECTOR_ENABLED, DIRECTOR_MIN_GAP_S, DIRECTOR_DEAD_AIR_S,
     DIRECTOR_POST_SPEECH_HOLD_S, DIRECTOR_FRESH_MIN_SILENCE_S,
+    MEDIA_PACING_ENABLED, DIRECTOR_GAP_MULT_BY_ACTIVITY,
+    ATTENTION_DIRECTOR_ENABLED, ATTENTION_RANK_BY_ACTIVITY,
     DRIVE_GAP_CHATTY, DRIVE_GAP_NORMAL, DRIVE_GAP_SLEEPY,
     READING_THE_ROOM_ENABLED, ROOM_TRACKER_N, ROOM_ENGAGED_CHARS, ROOM_QUIET_GAP_S,
     ROOM_SILENCE_SPAN_S, ROOM_CHAT_BUSY_RPM, ROOM_W_TERSE, ROOM_W_GAP, ROOM_W_SILENCE,
@@ -1910,6 +1912,13 @@ class VTubeBot:
         dialogue/scene over ambient noise. NOTE: this orders dialogue above vision
         per the product intent ('lead with what's being said'); flip the two ranks
         below if you'd rather match the raw salience_filter score (vision > dialogue)."""
+        # Attention Director (I-1b): activity-aware ranking when ON — a watch-party
+        # leads with the episode/dialogue, a game with the screen. OFF = the static
+        # 2026-06-22 ranks below, byte-for-byte.
+        _ranks = {"loopback-dialogue": 40, "vision": 30, "media-watch": 25, "audio-event": 10}
+        if ATTENTION_DIRECTOR_ENABLED:
+            _akey = getattr(self.game_mode_controller, "activity_type", "general") or "general"
+            _ranks = {**_ranks, **ATTENTION_RANK_BY_ACTIVITY.get(_akey, {})}
         fresh = []  # (priority, label); higher wins
         # In-scene dialogue from loopback — what characters are SAYING (most groundable).
         lt = self.loopback_transcriber
@@ -1919,22 +1928,22 @@ class VTubeBot:
             except Exception:
                 segs = None
             if segs and (time.time() - segs[-1]["ts"]) <= loopback_max_age:
-                fresh.append((40, "loopback-dialogue"))
+                fresh.append((_ranks["loopback-dialogue"], "loopback-dialogue"))
         # Live vision — what's on screen.
         if self._has_fresh_visual_context(vision_max_age):
-            fresh.append((30, "vision"))
+            fresh.append((_ranks["vision"], "vision"))
         # Substantive (non-UNCERTAIN/STATIC) Media Watch analysis within window.
         mw = self.media_watch
         if mw is not None and getattr(mw, "is_running", False):
             last_ts = getattr(mw, "_last_analysis_ts", 0) or 0
             if last_ts and (time.time() - last_ts) <= mw_max_age and (mw.get_latest_summary() or ""):
-                fresh.append((25, "media-watch"))
+                fresh.append((_ranks["media-watch"], "media-watch"))
         # A real audio EVENT (loud + confident) — mood/music/ambient, LOWEST priority.
         aa = self.audio_agent
         if aa is not None and aa.is_active() and getattr(aa, "audio_summary_is_event", False):
             cap_ts = getattr(aa, "last_capture_time", 0) or 0
             if cap_ts and (time.time() - cap_ts) <= mw_max_age:
-                fresh.append((10, "audio-event"))
+                fresh.append((_ranks["audio-event"], "audio-event"))
         if not fresh:
             return False, "none"
         fresh.sort(reverse=True)  # highest priority first
@@ -4241,10 +4250,15 @@ class VTubeBot:
             # via the _session_artifacts_written guard.
             await _bounded(self._write_session_artifacts(), 180, "Session artifact write")
 
-        # Print LLM cost summary before tearing down
+        # Print LLM cost summary before tearing down + persist the Phase-J receipt
+        # (one JSON per session under logs/receipts/ + the append-only LEDGER.jsonl).
         try:
             from kira.brain.cost_tracker import cost_tracker as _ct
             _ct.print_summary()
+            _ct.write_receipt(session_meta={
+                "activity": self.current_activity or "general",
+                "started_at": getattr(self, "session_started_at", None),
+            })
         except Exception as e:
             print(f"   [Shutdown] Cost summary error: {e}")
 
@@ -7210,6 +7224,28 @@ class VTubeBot:
             pass
         return out
 
+    # Attention Director (I-1b): focus label -> the human phrase the beat leads with.
+    _ATTENTION_PHRASE = {
+        "loopback-dialogue": "what's being SAID right now (the dialogue you just heard)",
+        "vision":            "what's ON the screen right now",
+        "media-watch":       "the scene unfolding in what you're watching together",
+        "audio-event":       "the sound/music that just happened",
+    }
+
+    def _attention_line(self) -> str:
+        """One prompt line naming WHAT this beat attends to (the top-ranked fresh sense,
+        activity-aware via _has_fresh_sense). Flag-gated: OFF or no focus -> "" (today's
+        prompt byte-for-byte). Never restates content — _execute_interjection grounds the
+        actual perception; this only points the beat's lens."""
+        if not ATTENTION_DIRECTOR_ENABLED:
+            return ""
+        _focus = getattr(self, "_attention_focus", None)
+        _phrase = self._ATTENTION_PHRASE.get(_focus or "")
+        if not _phrase:
+            return ""
+        return (f"[ATTENTION — this beat is about {_phrase}. Lead with it; everything "
+                f"else you can sense is background this time.]\n")
+
     def _build_director_prompt(self, mode: str) -> str:
         """First-mover Director prompt. Legacy modes ('react'/'dead_air') are byte-for-byte
         unchanged (used when DIRECTOR_TAXONOMY_ENABLED is off); any other value is a taxonomy
@@ -7218,8 +7254,9 @@ class VTubeBot:
         directive) + the _speak_single backstop, so this never restates the boundary nor
         injects an event she can't perceive."""
         # cadence-only: never inject room_* here
+        _attn = self._attention_line()
         if mode not in ("react", "dead_air"):
-            return self._build_director_variant_prompt(mode)
+            return _attn + self._build_director_variant_prompt(mode)
         _mode_line = (
             "Something just shifted in what you can see/hear — REACT to it, lead with YOUR take."
             if mode == "react" else
@@ -7243,6 +7280,7 @@ class VTubeBot:
             if self.chat_lock_in else ""
         )
         return (
+            f"{_attn}"
             f"[ACTIVITY DIRECTOR — you are DRIVING this, the first mover, not waiting to be "
             f"addressed. {_mode_line}]\n"
             f"- Commit to a take; don't hedge. You have opinions and a contrarian streak — defend "
@@ -9231,10 +9269,24 @@ class VTubeBot:
                     # dominates (Guard 3); OFF -> 1.0 (byte-for-byte today). Absolute caps
                     # (Guard 2) keep true dead air always filled even at max widening.
                     _room_mult = self.room_drive_multiplier if READING_THE_ROOM_ENABLED else 1.0
-                    _eff_min_gap = min(self.director_min_gap_s * _room_mult, ROOM_MIN_GAP_MAX_S)
-                    if _dir_gap >= _eff_min_gap:  # live brake x room multiplier (capped)
+                    # Media-pacing profile (I-1c): per-activity cadence multiplier — a
+                    # watch-party breathes wider than a game. OFF -> 1.0 (byte-for-byte
+                    # today). Same absolute caps as the room brake, so genuine dead air
+                    # is ALWAYS eventually filled even at media widening.
+                    _act_key = getattr(self.game_mode_controller, "activity_type", "general") or "general"
+                    _act_mult = (DIRECTOR_GAP_MULT_BY_ACTIVITY.get(_act_key, 1.0)
+                                 if MEDIA_PACING_ENABLED else 1.0)
+                    if MEDIA_PACING_ENABLED and _act_mult != 1.0 and \
+                            _act_mult != getattr(self, "_pacing_mult_logged", None):
+                        self._pacing_mult_logged = _act_mult
+                        print(f"   [Pacing] activity '{_act_key}' profile x{_act_mult:.1f} "
+                              f"on Director gap/dead-air (I-1c)")
+                    _eff_min_gap = min(self.director_min_gap_s * _room_mult * _act_mult,
+                                       ROOM_MIN_GAP_MAX_S)
+                    if _dir_gap >= _eff_min_gap:  # live brake x room x activity (capped)
                         _fresh_ok, _fresh_label = self._has_fresh_sense()
-                        _eff_dead_air = min(DIRECTOR_DEAD_AIR_S * _room_mult, ROOM_DEAD_AIR_MAX_S)
+                        _eff_dead_air = min(DIRECTOR_DEAD_AIR_S * _room_mult * _act_mult,
+                                            ROOM_DEAD_AIR_MAX_S)
                         _dead_air = silence_duration >= _eff_dead_air
                         # ── Turn-taking guards (anti-talk-over, 2026-06-22) ──────────
                         # [TurnTiming] data showed she fired 0.1-2.5s into Jonny's
@@ -9265,6 +9317,9 @@ class VTubeBot:
                                       f"fresh_ok={_fresh_ok} dead_air={_dead_air}")
                         if _fire:
                             self._last_director_ts = time.time()
+                            # Attention Director (I-1b): stash the attended sense so the
+                            # prompt builder can LEAD the beat with it (flag-gated there).
+                            self._attention_focus = _fresh_label if _fresh_ok else None
                             # [TurnTiming] DIRECTOR FIRE — wall-clock + silence + the REAL
                             # since_mic age (time since his last mic speech-frame) + trigger
                             # + gap. Read against VOICE ONSET above to confirm no overlap.

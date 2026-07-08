@@ -102,6 +102,35 @@ class AI_Core:
             re.compile(r"\b(?:" + "|".join(re.escape(t) for t in self._content_denylist) + r")\b", re.I)
             if self._content_denylist else None
         )
+        # ── Output-side LIABILITY filter (final mandate 2026-07-08) ────────────────
+        # Patterns whose mere APPEARANCE in outgoing speech is a liability regardless
+        # of framing — leaked secrets/API keys, dox-able PII (emails, phone-formatted
+        # numbers, card-like digit runs). Rides the SAME pre-TTS choke point as the
+        # denylist (one non-bypassable net). KIRA_MODERATION_REGEX (;-separated
+        # patterns) is the runtime moderation hook — extend without code changes.
+        # NARROW by design: false positives cost presence; each rule needs structure
+        # (separators/prefixes) ordinary speech never has. KIRA_LIABILITY_FILTER=false
+        # disables the layer (denylist stays). Every trip logs loudly.
+        self._liability_enabled = os.getenv("KIRA_LIABILITY_FILTER", "true").lower() == "true"
+        _liab_seed = [
+            (r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "email address"),
+            (r"(?:\+\d{1,2}[ .-])?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}\b", "phone-formatted number"),
+            (r"\b\d{13,19}\b", "card-like digit run"),
+            (r"\b(?:sk|pk)-[A-Za-z0-9_-]{16,}", "secret-key token"),
+            (r"\bAKIA[0-9A-Z]{16}\b", "AWS key id"),
+            (r"\bgh[pousr]_[A-Za-z0-9]{20,}", "GitHub token"),
+            (r"\bxox[baprs]-[A-Za-z0-9-]{10,}", "Slack token"),
+            (r"\bAIza[0-9A-Za-z_-]{30,}", "Google API key"),
+        ]
+        for _i, _pat in enumerate(p.strip() for p in
+                                  os.getenv("KIRA_MODERATION_REGEX", "").split(";") if p.strip()):
+            _liab_seed.append((_pat, f"custom moderation rule {_i + 1}"))
+        self._liability_rules = []
+        for _pat, _label in _liab_seed:
+            try:
+                self._liability_rules.append((re.compile(_pat), _label))
+            except re.error as _rerr:
+                print(f"   [Guardrail] !! bad moderation regex ({_label}): {_rerr} — rule SKIPPED (LOUD)")
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
         # Self-echo fingerprint backstop: the last few things she actually spoke.
@@ -1581,8 +1610,9 @@ class AI_Core:
         # "permitted" it. The persona's HARD CONTENT BOUNDARY is the primary,
         # context-aware rail; this is the non-bypassable net under it. Logged loudly
         # so Jonny can see exactly what was caught.
-        if self._content_safety_block(text) is not None:
-            print(f"   [Guardrail] BLOCKED before TTS (hard content boundary) — "
+        _blk_reason = self._content_safety_block(text)
+        if _blk_reason is not None:
+            print(f"   [Guardrail] BLOCKED before TTS ({_blk_reason}) — "
                   f"suppressed utterance: {text[:140]!r}")
             return
 
@@ -1908,10 +1938,19 @@ class AI_Core:
         backstop, else None. Word-boundary matched and NARROW by design (slurs /
         unambiguous explicit terms) — the persona's HARD CONTENT BOUNDARY handles the
         context-dependent categories (atrocity/sexual/self-harm/violence-as-joke)."""
-        if not text or not self._content_denylist_re:
+        if not text:
             return None
-        m = self._content_denylist_re.search(text)
-        return m.group(0) if m else None
+        if self._content_denylist_re:
+            m = self._content_denylist_re.search(text)
+            if m:
+                return f"denylist term {m.group(0)!r}"
+        # Output-side liability layer (secrets/PII) — same choke, separate reason label.
+        if self._liability_enabled:
+            for _re_c, _label in self._liability_rules:
+                m = _re_c.search(text)
+                if m:
+                    return f"liability: {_label} ({m.group(0)[:24]!r}…)"
+        return None
 
     def _strip_tags_for_speech(self, text: str) -> str:
         """Removes ALL recognized tool tags ([POLL:], [SONG:], [PREDICT:], [BIT:],
