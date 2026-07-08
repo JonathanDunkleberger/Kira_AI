@@ -140,6 +140,34 @@ EXIT CRITERION: Jonny runs one 15-minute session in THREE different modes and sh
 recognizably the SAME PERSON with mode-appropriate behavior in each. That tri-mode session =
 needs-eyes ledger item 5.
 
+## PHASE K — THE CLIPPER (distribution pipeline, enterprise pass; CEO addendum 2026-07-08)
+**SCHEDULING LAW: runs AFTER the completion mandate's build phases (C-remainder/E/F/G/H/I) or
+in needs-eyes WAIT GAPS — never displacing them.** The existing editing pipeline (the one
+tested on the 007 VOD: full-highlights cut / 3-4min cut / 30-60s short) gets the full
+recon→revise→harden treatment. DELIVERABLE: Jonny drops a VOD folder path (or it auto-watches
+the OBS recordings folder) and receives, hands-off:
+1. a HIGHLIGHTS CUT scaled to VOD length,
+2. a 3-4 minute BEST-OF,
+3. 3-5 VERTICAL SHORTS (9:16, captioned — **burned-in subtitles are non-negotiable** for
+   shorts virality),
+4. suggested TITLES + DESCRIPTIONS + TAGS per the banked title/thumbnail doctrine
+   (Neuro-comparison framing, personality-claim hooks).
+REQUIREMENTS:
+- **Clip selection keys on KIRA MOMENTS, not just game events** — mine her structured logs
+  (soul ticks, reactions, judged decisions, dialogue reads, wants) ALONGSIDE the
+  audio/transcript: "she named the rat and declared war" outclips "boss died".
+- **Multi-episode awareness** for the showcase: per-stream episode cuts + running-arc
+  callbacks.
+- **REVIEW QUEUE, not auto-post** — Jonny approves each render; output to a staging folder
+  with a one-glance manifest.
+- **Cost-instrumented per Phase J** (what did this VOD cost to process). [Forward reference —
+  Phase J = cost instrumentation, stacked separately; if not yet in this file when K starts,
+  instrument costs inline and reconcile when J lands.]
+- **Recon FIRST per Rule 3**: audit the existing pipeline, keep what's good, name what's weak,
+  rebuild ONLY the weak.
+EXIT CRITERIA: Jonny feeds it one existing 007/dev-stream VOD and the outputs are
+postable-quality with ZERO manual editing. That review = needs-eyes ledger item 6.
+
 ## NEEDS-EYES LEDGER (the ONLY loop-stoppers; everything else Rule 16)
 1. **Jonny's watch-session notes** (pending tonight/tomorrow) → feeds Phase F.
 2. **GO-button throwaway review** — after Phase E's 10-min throwaway verify, surface the
@@ -148,6 +176,8 @@ needs-eyes ledger item 5.
 4. **Final showtime sign-off** — the Kira timeline launch is HIS press, always.
 5. **Tri-mode session** (Phase I exit) — he runs 15 min across THREE modes; same person,
    mode-appropriate behavior in each.
+6. **Clipper output review** (Phase K exit) — one 007/dev-stream VOD in, postable-quality
+   cuts out, zero manual editing; he reviews the staging-folder renders.
 Also still true: the SUMMIT-WATCH strand check (does she walk OUT of the Hall of Fame or
 idle?) rides needs-eyes item 1 — post-game detect+naming shipped; if she idles, the scoped
 fix is a post-game "exit league → heal → Cerulean Cave" objective (team is 1/6 from the
