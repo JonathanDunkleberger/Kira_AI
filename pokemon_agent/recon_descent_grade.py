@@ -172,18 +172,23 @@ def grade_arc(name, seconds):
     abandons = sum(1 for k, _ in events if k == "abandoned")
     trips = getattr(camp, "_watchdog_trips", 0) or 0
     navfires = getattr(camp, "_nav_tripwire_total", 0) or 0
+    # TRAVEL-WEDGE COUNT (shift 5 grader gap): banked_SCOPE bonked a wall 412 times in one
+    # window and graded PASS — only roam-level tripwires were counted. A viewer FEELS every
+    # travel wedge (she paces at a wall); a handful per window is normal probing, a storm
+    # is a locomotion defect.
+    twedges = getattr(getattr(camp, "trav", None), "wedge_total", 0) or 0
     nomove[0] = getattr(camp, "_nomove_streak", 0) or 0
     res = {"arc": name, "why": why, "wall_s": wall, "decisions": decisions[0],
            "battles": battles[0], "picks": picks, "watchdog_trips": trips,
-           "nav_tripwire": navfires, "voids": voids, "abandons": abandons,
-           "unnamed_maps": sorted(unnamed), "end_nomove_streak": nomove[0],
-           "crash": crash, "events": len(events)}
+           "nav_tripwire": navfires, "travel_wedges": twedges, "voids": voids,
+           "abandons": abandons, "unnamed_maps": sorted(unnamed),
+           "end_nomove_streak": nomove[0], "crash": crash, "events": len(events)}
     # ── the grade ──
     if crash or abandons or voids:
         res["grade"] = "FAIL"
-    elif trips >= 2 or (decisions[0] == 0 and battles[0] == 0):
+    elif trips >= 2 or (decisions[0] == 0 and battles[0] == 0) or twedges > 100:
         res["grade"] = "FAIL"
-    elif unnamed or trips == 1 or navfires > 2 or nomove[0] >= 2:
+    elif unnamed or trips == 1 or navfires > 2 or nomove[0] >= 2 or twedges > 20:
         res["grade"] = "WARN"
     else:
         res["grade"] = "PASS"
@@ -223,7 +228,8 @@ def main():
         results.append(r)
         print(f"==== {name}: {r['grade']} ({r.get('why','')}) decisions={r.get('decisions')} "
               f"battles={r.get('battles')} wd={r.get('watchdog_trips')} nav={r.get('nav_tripwire')} "
-              f"voids={r.get('voids')} unnamed={r.get('unnamed_maps')}", flush=True)
+              f"twedge={r.get('travel_wedges')} voids={r.get('voids')} "
+              f"unnamed={r.get('unnamed_maps')}", flush=True)
 
     order = {"FAIL": 0, "WARN": 1, "PASS": 2, "SKIP": 3}
     ranked = sorted((r for r in results if r["grade"] in ("FAIL", "WARN")),
@@ -233,15 +239,17 @@ def main():
              "Headless real-loop grade per banked arc spawn. PASS = no machine-visible wedge "
              "class fired. This does NOT replace Jonny's spot-watches — it picks them.",
              "",
-             "| arc | grade | why ended | decisions | battles | watchdog | nav-tripwire | voids | unnamed maps |",
-             "|---|---|---|---|---|---|---|---|---|"]
+             "| arc | grade | why ended | decisions | battles | watchdog | nav-tripwire "
+             "| travel-wedges | voids | unnamed maps |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for r in results:
         lines.append(f"| {r['arc']} | **{r['grade']}** | {r.get('why','')} | {r.get('decisions','-')} "
                      f"| {r.get('battles','-')} | {r.get('watchdog_trips','-')} | {r.get('nav_tripwire','-')} "
-                     f"| {r.get('voids','-')} | {r.get('unnamed_maps') or ''} |")
+                     f"| {r.get('travel_wedges','-')} | {r.get('voids','-')} | {r.get('unnamed_maps') or ''} |")
     lines += ["", "## Riskiest arcs (spot-watch these first)", ""]
     lines += [f"- **{r['arc']}** — {r['grade']}: wd={r.get('watchdog_trips')} nav={r.get('nav_tripwire')} "
-              f"voids={r.get('voids')} crash={r.get('crash','')} unnamed={r.get('unnamed_maps')}"
+              f"twedge={r.get('travel_wedges')} voids={r.get('voids')} crash={r.get('crash','')} "
+              f"unnamed={r.get('unnamed_maps')}"
               for r in ranked] or ["- none — all graded arcs PASS"]
     all_unnamed = sorted({m for r in results for m in (r.get("unnamed_maps") or [])})
     lines += ["", f"## F-8 name-gap payload (maps crossed with no _PLACE_NAMES entry): {all_unnamed or 'NONE'}"]

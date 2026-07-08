@@ -516,6 +516,9 @@ class Traveler:
         # touches a spinner; the wedge guard hands the leg to spin_nav's glide crosser ONCE
         # before surfacing. None = surface the wedge exactly as before.
         self.spin_assist = spin_assist
+        # lifetime TRAVEL WEDGE count (shift 5): the descent grader reads this — 412 wall-bonks
+        # in one window graded PASS because only roam-level tripwires were counted (banked_SCOPE).
+        self.wedge_total = 0
         # CAPABILITY-IN-HAND obstacle clearing (east run 1): campaign-provided callback
         # `field_clear(hm_key, face_key) -> 'used'|...` — when the chokepoint blocker is a cut
         # tree / boulder and the party KNOWS the HM, travel clears it in-leg instead of
@@ -1106,6 +1109,7 @@ class Traveler:
                         except Exception as _se:
                             self.log(f"   [travel] !! spin assist error: {_se}")
                     self.last_fail_reason = "npc_block" if npc_block_seen else "no_route"
+                    self.wedge_total += 1
                     self.log(f"   [travel] !! TRAVEL WEDGE: identical fp x{fp_stall} retries at {cur} "
                              f"map={map_id(self.b)} (reason={self.last_fail_reason}) -> returning to roam "
                              f"LOUD (no inner spin)")
