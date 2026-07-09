@@ -26,32 +26,35 @@ not sidestepped. You are the lead Sherpa. Employment terms + standing rules 1-18
   the faithful early-game look-ahead. Reuses the harness's chooser/runner. Log:
   `logs/debug/freshspine.log`. Drove opening -> starter (Bulbasaur default headless) -> rival -> Pallet
   -> Route 1 cleanly. WATCHING for the next early wedge.
-- **NEXT WEDGE FOUND + DEEPLY DIAGNOSED (the frontier): VIRIDIAN FOREST is unbuilt in the show spine.**
-  After the parcel, the fresh spine (SEGMENT 2 `pallet_to_brock`, OBJECTIVE `ADVANCE_NORTH` Viridian->
-  Route2->Forest->Pewter) LOOPS forever: Viridian -> cross to Route 2 (lands south edge (10,79)) ->
-  `advance_north` finds no north EDGE (the way north is through the Viridian Forest GATE BUILDINGS, a
-  warp, not an edge) -> `enter_warp(prefer="north")` -> warps into a Forest gate (15,x) -> Viridian
-  Forest (1,0) -> can't find the Forest's NORTH exit -> gets hurt -> HEAL back to Viridian -> repeats
-  (bounded by max_legs=60 -> "timeout" -> segment STOPs loud; not a true freeze, but zero progress).
-  KEY DATA (probe `recon_viridian_north_probe.py`, postgame): from Route 2 south entry (10,79) the land
-  flood reaches only y=46 (a wall) — she is confined to Route 2's south half; the way north is the Forest.
-  Route 2's REACHABLE forward warps are `(18,46)/(19,46) -> (15,2)` and `(5,51)/(6,51) -> (15,0)` (the
-  Forest gates); the y=13/41 warps are north of the y=46 wall = unreachable (correctly skipped). So she
-  DOES get into the Forest (1,0); the gap is **navigating Viridian Forest to its north exit gate** — a
-  MAZE the current `advance_north` (dumb travel-north / warp-north) can't solve.
-  WHY NO GRAPH FALLBACK: the canonical world graph (`states/campaign/world_model.json`) has **edges=None**
-  for ALL early nodes (Route 1 `3,19`, Route 2 `3,20`, Pewter `3,2`, Forest `1,0`) — the early climb was
-  never edge-recorded, so `world.next_hop` can't route Route2->Pewter. The Forest needs REAL maze nav.
-  FIX DIRECTIONS for next shift (build, don't rush overnight): (a) a CURATED Forest route (Mt-Moon
-  `run_plan` style: Route2 south -> the correct gate -> Forest -> north gate -> Route2 north -> Pewter,
-  tile-by-tile from a manual drive + the pret disasm `ViridianForest`/`Route2` warp_events), OR (b) a
-  general Forest/maze traversal that chains warp-to-warp toward the target (needs a "which gate advances"
-  signal since `prefer=north` alone loops). Verify via `python pokemon_agent/recon_longrun.py FRESH 40`
-  (the fresh-spine look-ahead I added) -> it should clear the Forest and reach Pewter/Brock.
-  SEPARATE FINDING (honest): `build_segments()` scripts the SHOW spine only through **Misty (badge 2)** —
-  `play_live --show` -> `run_segments(build_segments(), mode="show")` has NO segments past Misty, so the
-  fresh bedroom->credits SHOW path is unbuilt beyond badge 2 regardless of the Forest. The canonical
-  Sherpa credits were rolled via `recon_longrun` free_roam + checkpoints, NOT this show spine.
+- **VIRIDIAN FOREST heal-bounce loop FIXED + VERIFIED (`58eafad`).** ROOT CAUSE was NOT geometry (the
+  Forest NORTH gate IS reachable — `recon_forest_probe.py` proves `(1,0)->(15,3)` via door `(6,9)` is a
+  ~140-tile land path, flood reaches y=5). It was the HEAL-BOUNCE: a thin solo starter fighting Forest
+  wilds drops below the heal floor mid-Forest, the heal-when-low bounce `return_to_center`'s her ALL the
+  way back to Viridian, she re-enters and bounces forever. FIX (proven `deliver_parcel` pattern, opt-in on
+  `advance_north` via `flee_wilds`/`suppress_heal`; extracted `_advance_north_legs`; defaults byte-identical
+  for other callers): flee wilds + suppress the mid-leg heal bounce for the ADVANCE_NORTH Pewter leg.
+  VERIFIED end-to-end: fresh bedroom -> starter -> parcel (balls 0->5) -> Route 2 -> `WARPED (1,0)->(15,3)`
+  north gate -> **ARRIVED at Pewter (3,2)** -> LEVEL_CHECK -> BEAT_GYM Brock. Pre-fix it looped forever.
+- **NEXT FRONTIER: BROCK UNDER-LEVELING (the flee tradeoff) + a post-blackout nav wedge.** Fleeing the
+  Forest = ~no XP, so she reaches Pewter at **Lv8 with only Tackle/Growl** (no Vine Whip) and LOSES to
+  Brock (`level_check` only WARNs + proceeds by design, expecting ~Lv12). Tried `flee_wilds=False`
+  (fight for XP): she gets XP (9 battles) but the long Forest gate-approach gets disrupted by battles and
+  the crossing turns UNRELIABLE (she blacked out mid-Forest -> respawned at Viridian Center (5,4) ->
+  `ADVANCE stuck`). So there's a real tradeoff: FLEE = reliable crossing but underleveled; FIGHT = XP but
+  flaky crossing. REVERTED to the reliable FLEE (banked). FIX DIRECTIONS (next shift): (a) keep the flee
+  crossing, then do a BOUNDED grind on Route 2 / near Pewter to ~Lv12 before Brock (make `level_check`
+  actually grind when severely underleveled, OR add a GRIND objective) — a real player grinds the Forest;
+  OR (b) fight-cross but target the north gate DIRECTLY (`enter_warp(pick=(6,9))` not `prefer="north"`) +
+  heal FORWARD to Pewter (not bounce back to Viridian) when past the Forest midpoint. Also a SECONDARY
+  wedge to fix: after a Brock blackout, the segment-retry's `WALK_TO_MAP` Pewter->Viridian wedges at
+  Pewter (3,2) `(17,26)` (`no clean path`) — investigate (may be another band/multi-map class).
+  Verify any fix via `python pokemon_agent/recon_longrun.py FRESH 30` -> should reach Pewter ~Lv12 and
+  WIN Brock (Boulder Badge).
+  SEPARATE STANDING FINDING (honest): `build_segments()` scripts the SHOW spine only through **Misty
+  (badge 2)** — `play_live --show` -> `run_segments(...)` has NO segments past Misty, so the fresh
+  bedroom->credits SHOW path is unbuilt beyond badge 2. Canonical Sherpa credits were rolled via
+  `recon_longrun` free_roam + checkpoints, NOT this show spine — extending the show spine (or a
+  free_roam handoff after the scripted arc) is the big structural item for a true fresh->credits show.
 - THEN: Phase B (bank the clean audio-OFF floor) + Phase C (native audio SIGSEGV capture via faulthandler
   with `--audio`) remain untouched this shift.
 
