@@ -1421,9 +1421,21 @@ class Traveler:
                     # box + mark the tile impassable NOW so we re-path AROUND, instead of A-mashing
                     # the same NPC across the remaining stuck loop (the free-roam wedge).
                     if self._blocker_npc_check():
-                        static_blocked.add(nxt)
+                        # A plain NPC on the gap. Feed the SHARED, stale-releasable block memory
+                        # (blocked_npcs) — NOT the permanent static_blocked, and NOT _fresh_marks.
+                        # WHY: in a narrow hut with a PATROLLING NPC (the Underground Path Route-5
+                        # entrance, map (17,1): old man wanders row 5), permanently sealing his
+                        # transient tiles poisons the only corridor around the row-6 counter and
+                        # wedges the leg forever (2026-07-09 night-train). By using blocked_npcs
+                        # WITHOUT _fresh_marks, the staleness-release (above) un-marks the tile the
+                        # moment it reads empty (wanderer stepped off) — while a genuinely STATIONARY
+                        # NPC (the Slowbro chokepoint) always reads occupied (t in npc) so it is never
+                        # released and stays blocked. The npc-read guard discriminates the two cleanly.
+                        self.blocked_npcs.add((cur_map, nxt))
+                        blocked_here = {t for (m, t) in self.blocked_npcs if m == cur_map}
                         self.log(f"   [travel] blocker at {nxt} is a PLAIN NPC (dialogue, no battle) - "
-                                 f"closed it + marking impassable, routing around (micro-watchdog)")
+                                 f"closed it + added to shared block memory (stale-releasable), "
+                                 f"routing around (micro-watchdog)")
                         stuck = 0
                         continue
                 if nxt not in npc and fail_count[nxt] >= 3:   # a NON-NPC tile that fails REPEATEDLY
