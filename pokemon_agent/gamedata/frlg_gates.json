@@ -395,6 +395,30 @@
  },
  "roads": {
   "_doc": "Per-gym ROAD BILLING - the curated forward road to the next gym city, as ordered LEGS. head_to_gym follows this when the live world-graph can't route to the gym city yet (the graph only knows walked ground). A leg = the map she can be standing on ('map' as 'g,n' + human 'name'), the billed crossing direction 'go', optional 'via':'pass' when the crossing is DOOR-PASSTHROUGH country (an Underground Path / gatehouse detour the door-passthrough primitive executes), and 'note' for the human context. Map ids marked 'expected': true are extrapolated from the live-learned route sequence (3,19..3,24 = Routes 1..6, 3,29 = Route 11, all confirmed live) and BIND when she walks them - a wrong expected id just means that leg never matches, never a wrong turn. Roads for later gyms are billed when their leg of the climb opens (don't fabricate - the standing rule).",
+  "Vermilion City": [
+   {
+    "map": "3,3",
+    "name": "Cerulean City",
+    "go": "south",
+    "note": "the badge-3 push: Cerulean south exit onto Route 5 (S.S. Ticket opens the gate). The live world-graph can't route Cerulean->Vermilion because the ONLY crossing is the Underground Path (Saffron's gates refuse passage pre-Tea + Route 5's south edge dead-ends at Saffron 3,11), so this billed road owns the leg."
+   },
+   {
+    "map": "3,23",
+    "name": "Route 5",
+    "go": "south",
+    "via": "pass",
+    "note": "Saffron's north gatehouse refuses passage pre-Tea; the Underground Path hut on Route 5 crosses under Saffron to Route 6 - the door-passthrough primitive executes this (the reverse crossing, Route 6->Route 5, is proven both directions 2026-07-06)"
+   },
+   {
+    "map": "3,24",
+    "name": "Route 6",
+    "go": "south"
+   },
+   {
+    "map": "3,5",
+    "name": "Vermilion City"
+   }
+  ],
   "Celadon City": [
    {
     "map": "3,5",
