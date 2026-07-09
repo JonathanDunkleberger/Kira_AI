@@ -1,6 +1,51 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 16 entry)
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 16)
 
-## SHIFT 15 HEAD (read FIRST — supersedes everything below)
+## SHIFT 16 HEAD (read FIRST — supersedes everything below)
+
+**THE VERMILION/SURGE "GYM-ENTRY WALL" WAS A LOOK-AHEAD FIDELITY BUG, NOT A GAME WALL.** Shift-15's
+refinement ("likely a FALSE Cut gate / door-warp bug") was WRONG. Ground-truth diagnosis (shift 16,
+`recon_vermilion_travel.py` — teleport to the S.S. Anne harbor spawn (23,33), run the REAL travel
+planner to the gym door approach (14,26)): travel routes the long way around and reaches (19,23) where
+it finds **a REAL Cut tree at (19,24)** gating the only path to the Surge gym → returns
+`no_route_hm_blocked` / `hm_blocked:cut`. There is NO tree-free route (the gym is walled behind it,
+exactly like real FRLG). The tree is DISTANCE-CULLED when she stands far away (at (24,0) `scan_field_objects`
+returns empty), which is why shift-15 saw a confusing "genuine wall/zone gap" instead of a clean cut gate.
+
+**ROOT CAUSE = the look-ahead was UNFAITHFUL to live.** Live play loads `.env` which sets
+`POKEMON_FIELD_MOVES=1` (+ `POKEMON_ITEM_PICKUP=1`) — so the LIVE run CUTS this tree. But `recon_longrun.py`
+never loaded `.env`, so `FIELD_MOVES_ENABLED` (campaign.py:195, `os.getenv("POKEMON_FIELD_MOVES","0")`)
+defaulted OFF → `self.field=None` → Cut/Surf/Strength actuation disabled → EVERY cut-tree gate wedged the
+look-ahead, a stall the live show would never hit. **FIX (shift 16): recon_longrun now `setdefault`s
+POKEMON_FIELD_MOVES=1 + POKEMON_ITEM_PICKUP=1** to mirror live (rule 8 fidelity; shell override still wins).
+The gym-entry orchestration ALREADY handles it: beat_gym "stuck" → head_to_gym calls `_gym_gate_probe`
+(campaign.py:5768) → walks to the tree object + auto-`clear_obstacle("cut", face)` (line 5804, gated by
+FIELD_MOVES_ENABLED). With field moves armed the chain should complete.
+
+**CONFIRMED MECHANISM (shift 16 look-ahead `logs/debug/shift16_surge_fieldmoves.log`, field moves ON):**
+the FULL Vermilion chain is CORRECT and now unblocked — reach Vermilion → try gym → cut-tree (19,24) blocks
+→ gym-gate-probe arms `hm_obstacle/cut` questline → routes SOUTH to the S.S. Anne → board → beat Gary →
+captain gives HM01 → **TEACH BRIDGE** (campaign.py:5143, `step.success==('cap','cut')`) teaches Cut to
+ivysaur (PROVEN to fire: shift-15 log line 1344 "cut -> ivysaur ... taught") → return to Vermilion → the
+gym-gate-probe's **auto-cut** (campaign.py:5804, gated by `self.field`/FIELD_MOVES) NOW fires (was the ONLY
+missing piece — shift-15 taught Cut fine but `self.field=None` blocked actuation) → enter gym → trash-can
+puzzle → Surge. NOTE: she may try the gym BEFORE boarding the ship (legit — she doesn't have HM01 yet), so
+the get-Cut questline detour is expected, not a bug.
+
+**VERIFY STATUS: <run in progress — see NIGHT_REPORT>.** Re-run any time (field moves now default-on in
+recon_longrun): `recon_longrun.py ss_ticket_razorleaf.state 16`. If the organic run runs out of wall-clock
+before the gym-cut (Gary loss + recovery detour eats time), do a FOCUSED test: boot a Vermilion state where
+ivysaur already KNOWS Cut (the shift-15 stage `G:/temp/longrun/stage/kira_campaign.state` — VERIFY it knows
+Cut) with POKEMON_FIELD_MOVES=1 and call `beat_gym("Lt. Surge")` — confirms the auto-cut→enter→puzzle chain
+directly in ~1 min. Watch Surge itself: electric L21-24 + trash-can puzzle (NEVER run live before — first
+real test of env_puzzle.TrashCanPuzzle; if it sweeps every can with no "first switch", the FLAG_TEMP_1=0x001
+id is wrong). Team: ivysaur L30 has a ~6-level lead on Surge; may just overpower, or wall → catch a Diglett
+(Route 11/Route 2 cave) / grind the bench.
+
+### IF SURGE ITSELF WALLS (team strength, next objective): catch a **Diglett** (Diglett's Cave — west end
+off Route 2 near Viridian, or east off Route 11 by Vermilion) = Ground immunity to Electric AND SE on him,
+the clean answer; she already narrates wanting one. OR grind the bench (rattata/spearow/pidgey) toward L20.
+
+## SHIFT 15 HEAD (superseded above; kept for the Gary fix reference)
 
 **THE 4-SHIFT S.S. ANNE RIVAL-GARY WALL IS BROKEN (shift 15, committed 6af6410).** Gary was a
 PP-famine loss because ivysaur fought with ONE effective attacker. Root cause = `_ensure_move_room`'s

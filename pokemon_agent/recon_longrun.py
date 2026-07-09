@@ -36,6 +36,14 @@ if _HERE not in sys.path:
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"          # no muse-gap dwell headless
 os.environ.setdefault("POKEMON_GRIND_WEAK_BUDGET_S", "3000")
+# LOOK-AHEAD FIDELITY (shift 16): the live show (.env) arms HM field-move actuation +
+# item pickup — POKEMON_FIELD_MOVES=1, POKEMON_ITEM_PICKUP=1. recon_longrun never loaded
+# .env, so the oracle drove headless with Cut/Surf/Strength DISABLED — every cut-tree gate
+# (Vermilion's gym tree, Cerulean's south exit, town trees) read as an unclearable wall and
+# wedged, a stall the LIVE run would never hit. Mirror the live capability by default so the
+# look-ahead is FAITHFUL (rule 8); an explicit shell override still wins (setdefault).
+os.environ.setdefault("POKEMON_FIELD_MOVES", "1")
+os.environ.setdefault("POKEMON_ITEM_PICKUP", "1")
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
