@@ -4055,6 +4055,14 @@ class Campaign:
                                   f"just appeared. sizing it up: {reason}. your call — is this one "
                                   f"joining the team?"})
                     decision = pick if pick in ("catch", "skip") else ("catch" if rec else "skip")
+                    # DEX-GATE OVERRIDE (2026-07-09 shift 2): an active OWNED>=10 gate (Flash errand) makes
+                    # a NEW species a MUST-catch even at a full party — it boxes, the dex still climbs. Only
+                    # bumps genuine first-of-a-kind (never a dupe); the oracle can still veto with 'skip'.
+                    if (getattr(self, "_dex_catch_all", False) and _dex_new
+                            and not facts.get("dupe") and pick != "skip" and decision == "skip"):
+                        decision = "catch"
+                        reason = (f"{reason} — but Flash needs ten kinds and I've never caught a {fname}; "
+                                  f"box it for the dex, it counts")
                     log(f"   CATCH-JUDGMENT: {fname} L{foe_desc['level']} -> {decision} "
                         f"(lean={'catch' if rec else 'skip'}, oracle={pick!r}) — {reason}")
                     if decision == "skip":
@@ -5144,6 +5152,14 @@ class Campaign:
                         (3, 3): ("south", (3, 23)), (3, 23): ("pass", (3, 24)),
                         (3, 24): ("south", (3, 5)), (3, 5): ("east", (3, 29)),
                         (3, 22): ("east", (3, 3))}   # Route 4 joins at Cerulean
+    # GRASSY legs the errand walks THROUGH that hold species she lacks — a real player fills the dex
+    # on the routes they're already crossing (2026-07-09 shift 2). Route 6 (Oddish/Bellsprout/Pidgey/
+    # Meowth = +3-4) supplies the headroom the Route-11-only sweep never could (ekans/spearow/drowzee
+    # exhaust it at ~7) — and its south-to-Vermilion leg walks clean. Route 9/10 are DELIBERATELY
+    # EXCLUDED: Route 10's grass is sparse (Voltorb only, +1) AND its west exit is NPC-pinched at (7,6),
+    # so catching there strands her mid-grass in a repath/encounter oscillation (shift-2 legcatch2). She
+    # still catches on Route 11 / Route 2 via the dedicated PHASE 2/4 sweeps. Route 6 does the heavy lift.
+    _FLASH_CATCH_LEGS = {(3, 24): "Route 6"}
 
     def _flash_errand(self):
         """Advance the Flash errand one phase (free_roam re-enters between calls; internal budgets like
@@ -5154,7 +5170,14 @@ class Campaign:
         ROUTE11, ROUTE2 = (3, 29), (3, 20)
         b = self.b
         pc = lambda: b.rd8(ram.GPLAYER_PARTY_CNT)
+        # DEX-GATE CATCH-ALL: while the OWNED>=10 gate is unmet, a NEW species must be caught even when
+        # the party is full — it boxes, the dex still ticks (a real player boxes the new mon for the dex).
+        # roster_judgment normally skips at party-6 (room=False); this flag lets the catch-judgment override
+        # that for first-of-a-kind wilds ONLY. Cleared the instant Flash is known / dex hits 10.
+        self._dex_catch_all = (st.party_knows_move(b, FLASH_MOVE, pc()) is None
+                               and ram.pokedex_owned_count(b) < 10)
         if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
+            self._dex_catch_all = False
             return "flash_done"
 
         def _catch_to_10(where, tries=6):
@@ -5232,6 +5255,22 @@ class Campaign:
                     else "flash_progress")
         # PHASE 1 — walk the billed back-legs home + east to Route 11.
         if cur in self._FLASH_BACK_LEGS:
+            # OPPORTUNISTIC DEX-FILL (2026-07-09 shift 2): before walking onward, sweep THIS leg's grass
+            # for fresh species if she's still short. Reaching OWNED>=10 here (Route 6 has 3-4 she lacks)
+            # means the errand never gets marooned on Route-11's exhausted ekans/spearow/drowzee.
+            # EXHAUSTED-MEMO: a leg is re-entered every roam tick; without a cross-tick memo she re-catches
+            # an already-drained route forever (the Route-10 healed_retry trap) and never walks DOWN to
+            # Route 6. So: catch here once; if a pass yields NO new species, mark the leg done and never
+            # catch it again — just walk through. Route 6 (the +4 route) is where she clears 10.
+            _legdone = self.__dict__.setdefault("_flash_leg_done", set())
+            if (ram.pokedex_owned_count(b) < 10 and cur in self._FLASH_CATCH_LEGS
+                    and cur not in _legdone):
+                _pre = ram.pokedex_owned_count(b)
+                _catch_to_10(self._FLASH_CATCH_LEGS[cur], tries=3)
+                if ram.pokedex_owned_count(b) <= _pre:
+                    _legdone.add(cur)
+                    log(f"   [flash-errand] {self._FLASH_CATCH_LEGS[cur]} yielded no new species "
+                        f"— marking leg catch-exhausted (walk through from here)")
             go, nxt = self._FLASH_BACK_LEGS[cur]
             log(f"   [flash-errand] leg {cur} -{go}-> {nxt}")
             if go == "pass":
