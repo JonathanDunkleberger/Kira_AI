@@ -24,13 +24,17 @@ beaten**, L66 team). Real first-time E4 combat IS watchable there. Also: `pre-bl
 real pre-Blaine save (`banked_CINNABAR`, badge 6). The old post-win banks are kept under
 `hall-of-fame` / `blaine-done` for the record.
 
-## THE HIGH-VALUE ONE — first-time Elite Four + Champion Gary (CONFIRMED combat ahead)
+## THE HIGH-VALUE ONE — Elite Four fights, IMMEDIATELY (no cave, no walk)
 ```
 python pokemon_agent/watch.py --at pre-e4 --goal "fight through the Elite Four for the first time — Lorelei, then Bruno, Agatha, Lance — then beat Gary and become Champion"
 ```
-Now spawns at Indigo Plateau with the E4 genuinely un-beaten. The goal-pin also presents the
-present-tense era self-model (she's ABOUT to fight it) and drops the Champion saga, so she's no
-longer incoherent ("do the thing I remember already doing"). **Start here.**
+`pre-e4` now spawns her **INSIDE Lorelei's room** (`banked_LORELEI`, cut 2026-07-08 by driving the
+pre-E4 save into the League building) — she's 3 tiles from Lorelei, the gauntlet starts on the next
+step. No Victory Road cave, no plateau walk. The goal-pin presents the present-tense era self-model
+(she's ABOUT to fight it) + drops the Champion saga, so no incoherence. **This is the E4 clip.**
+
+Want the dramatic League-building approach instead (past Victory Road, walk across the plateau and
+in)? `--at e4-approach` with the same goal.
 
 ## CONFIRMED combat-ahead spawns (from the probe — game_clear=FALSE, fight genuinely ahead)
 | Moment | Command |

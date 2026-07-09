@@ -70,8 +70,9 @@ CURATED = [
     # 8 badges, game_clear=FALSE, E4 genuinely ahead). banked_E4 is the POST-victory Hall-of-Fame
     # ceremony (Lance already beaten) — the old 'pre-e4' alias dropped Jonny into the credits, not a
     # fight. 'pre-e4' now = the real doorstep; 'hall-of-fame' = the post-win ceremony (record only).
-    ("pre-e4",        "banked_VICTORY",         "🥊 THE ELITE FOUR DOORSTEP — Indigo Plateau, 8 badges, E4 NOT yet beaten (real first-time combat ahead — goal-pin it)"),
-    ("hall-of-fame",  "banked_E4",              "Post-victory Hall of Fame ceremony (Lance beaten; NO fights left — use pre-e4 for combat)"),
+    ("pre-e4",        "banked_LORELEI",         "🥊 INSIDE Lorelei's room — the E4 gauntlet starts on the next step (no cave, no walk; goal-pin it)"),
+    ("e4-approach",   "banked_VICTORY",         "The dramatic approach — Indigo Plateau exterior, ~14 tiles to the League building then Lorelei (past Victory Road)"),
+    ("hall-of-fame",  "banked_E4",              "Post-victory Hall of Fame ceremony (Lance beaten; NO fights left)"),
     # banked_BLAINE has badge 7 (Blaine already beaten); the real PRE-Blaine save is banked_CINNABAR
     # (badge 6, at Cinnabar). Post-win banks kept under a *-done alias for record.
     ("pre-blaine",    "banked_CINNABAR",        "🥊 Cinnabar, badge 6 — Blaine NOT yet beaten (real gym combat ahead — goal-pin it)"),
