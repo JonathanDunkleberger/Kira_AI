@@ -5263,8 +5263,24 @@ class Campaign:
                     log(f"   [flash-errand] TEACH flash -> slot {slot} ({reason})")
                     ht.TeachFlow(self, log=lambda m: log(m), on_event=self.on_event).teach(
                         "flash", slot, forget_idx)
-            return ("flash_done" if st.party_knows_move(b, FLASH_MOVE, pc()) is not None
-                    else "flash_progress")
+            if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
+                # RETURN TO THE CELADON ROAD-HEAD (2026-07-09 shift 2): the aide strip (Route 2) is a
+                # south-west DEAD POCKET — from here forward-drive ping-pongs Viridian<->Route 2 to a STALL
+                # (the billed Celadon road starts at VERMILION, and the only link back is EAST through
+                # Diglett's Cave, a warp-maze the world-graph won't route across). So the instant Flash is
+                # learnt, steer her back ONCE: re-cross the cave east to Route 11 -> Vermilion, where
+                # head_to_gym's billed Celadon road (Route 6 -> Underground Path) picks up cleanly.
+                if not getattr(self, "_flash_returned", False):
+                    self._flash_returned = True
+                    log("   [flash-errand] Flash learnt — returning EAST across Diglett's Cave to the "
+                        "Vermilion road-head (Route 2 is a SW dead-pocket)")
+                    try:
+                        if self._cross_cave(None, ROUTE11):
+                            self._edge_travel(VERMILION, "west")
+                    except Exception as _re:
+                        log(f"   [flash-errand] road-head return skipped ({_re}) (LOUD)")
+                return "flash_done"
+            return "flash_progress"
         # PHASE 1 — walk the billed back-legs home + east to Route 11.
         if cur in self._FLASH_BACK_LEGS:
             # OPPORTUNISTIC DEX-FILL (2026-07-09 shift 2): before walking onward, sweep THIS leg's grass
