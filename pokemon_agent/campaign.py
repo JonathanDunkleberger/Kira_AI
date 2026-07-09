@@ -1733,7 +1733,8 @@ class Campaign:
                 return self.trav.travel(target_map=target_map, edge=edge, avoid=avoid, **kw)
         return r
 
-    def advance_north(self, target_map, max_legs=60, abort_when=None, leg_seconds=None):
+    def advance_north(self, target_map, max_legs=60, abort_when=None, leg_seconds=None,
+                      flee_wilds=False, suppress_heal=False):
         """Generic 'head north until target_map' - auto-picks WALK (cross a route edge)
         vs WARP (step through a gate-house door) at each map, so the route->gate-house->
         route->forest chain self-discovers instead of being hardcoded leg by leg. The
@@ -1744,7 +1745,33 @@ class Campaign:
         (Oak's grass-edge intercept -> the lab), after which the in-flight nav wedges against
         the script for minutes. abort_when is checked at every leg boundary (returns 'aborted');
         leg_seconds caps each leg's wall-clock so a hijacked leg yields fast. Defaults keep
-        every existing caller byte-identical."""
+        every existing caller byte-identical.
+
+        flee_wilds/suppress_heal (2026-07-08 night train — the VIRIDIAN FOREST heal-bounce loop):
+        a LONG grass crossing to a FAR Center (Viridian -> Route 2 -> Viridian Forest -> Pewter is
+        ~140 grass tiles from the nearest Center) makes a thin solo starter drop below the heal
+        floor MID-FOREST; the normal heal-when-low bounce then return_to_center's her ALL THE WAY
+        back to Viridian and she re-enters to bounce again — an infinite no-progress loop (proven:
+        the Forest NORTH gate (1,0)->(15,3)->Route2-north IS reachable, so it was never geometry).
+        This is the SAME class deliver_parcel already tames for the Route-1 errand: FLEE wilds
+        (chip-free crossing) + SUPPRESS the mid-leg heal-bounce so she crosses in one go. A genuine
+        flee-fail death PROPAGATES as battle_loss -> the segment's blackout-recovery respawns her
+        healed and re-runs the leg. Opt-in; defaults keep every existing caller byte-identical."""
+        _saved_heal = self._suppress_heal
+        _saved_runner = self.trav.battle_runner
+        if suppress_heal:
+            self._suppress_heal = True
+        if flee_wilds:
+            self.trav.battle_runner = self._flee_runner
+        try:
+            return self._advance_north_legs(target_map, max_legs, abort_when, leg_seconds)
+        finally:
+            self._suppress_heal = _saved_heal
+            self.trav.battle_runner = _saved_runner
+
+    def _advance_north_legs(self, target_map, max_legs=60, abort_when=None, leg_seconds=None):
+        """The leg-sequencing loop (extracted so advance_north can wrap it with the flee/heal-
+        suppress guard for long grass crossings without duplicating the loop)."""
         for leg in range(max_legs):
             if abort_when and abort_when():
                 return "aborted"               # scripted intercept landed us elsewhere — yield
@@ -8012,7 +8039,12 @@ class Campaign:
             elif kind == "WALK_TO_MAP":
                 out = self.walk_to_map(obj[1], obj[2])
             elif kind == "ADVANCE_NORTH":
-                out = self.advance_north(obj[1])
+                # The one ADVANCE_NORTH leg (Viridian -> Route 2 -> Viridian Forest -> Pewter) is a
+                # long grass crossing far from any Center — FLEE wilds + suppress the mid-leg heal
+                # bounce so a thin solo starter crosses the Forest in one go instead of heal-looping
+                # back to Viridian forever (2026-07-08 night train; the Forest north gate is reachable,
+                # verified). A genuine death still propagates -> blackout-recovery re-runs the leg.
+                out = self.advance_north(obj[1], flee_wilds=True, suppress_heal=True)
             elif kind == "ENTER_WARP":
                 spec = obj[1]                        # (x,y) door pick | "north"/"nearest" | None
                 out = (self.enter_warp(pick=spec) if isinstance(spec, tuple)
