@@ -797,29 +797,38 @@ class Traveler:
         # row 9 failed for exactly this). Gate the goal to band rows so we approach a crossable tile.
         # N/S are untouched (they flip AT the edge with no overlap, so band stays None -> any edge tile).
         perp_axis = 1 - exit_axis
-        band = None
-        if edge in ("east", "west"):
-            past = (grid.sx_hi + 1) if edge == "east" else (grid.sx_lo - 1)
-            # water-aware: on a sea route the neighbour's overlap tiles ARE water — a surf-capable
-            # party can cross there (the band was empty and the leg dead-ended pre-2026-07-08).
-            cand = {p for p in range(grid.sy_lo, grid.sy_hi + 1)
-                    if grid.walkable(past, p) or (can_surf and grid.is_water(past, p))}
-            band = cand or None        # no overlap detected -> fall back to any edge tile
-            if band:
-                self.log(f"   [travel] {edge} connection band rows: {sorted(band)}")
-        elif edge in ("north", "south"):
-            # N/S BAND (night shift 10, the Pallet south-shore dead-air): the old "N/S flip at
-            # the edge with no overlap" assumption is only true for full-width LAND connections.
-            # On a sea/partial edge the neighbour's row IS readable one tile past the border
-            # (probe: Pallet y=20 reads Route 21's water at cols 7-10; col 12 — where she
-            # wedged pressing S ×6 — is closed). Gate the goal to crossable columns like E/W;
-            # empty band falls back to any edge tile (full land connections unchanged).
-            past = (grid.sy_hi + 1) if edge == "south" else (grid.sy_lo - 1)
-            cand = {p for p in range(grid.sx_lo, grid.sx_hi + 1)
-                    if grid.walkable(p, past) or (can_surf and grid.is_water(p, past))}
-            band = cand or None
-            if band:
-                self.log(f"   [travel] {edge} connection band cols: {sorted(band)}")
+
+        def _compute_band(g):
+            """The connection band for the CURRENT map's chosen edge: the perpendicular lines
+            (E/W rows, N/S cols) where the neighbour's tiles overlap into the border — i.e. the
+            lines where the party can actually cross. RECOMPUTED on every map transition: a single
+            travel() call can span multiple maps on one edge (edge='south' from Viridian carries her
+            Viridian->Route1->Pallet), and reusing the STARTING map's band on a LATER map gates the
+            goal to the wrong lines. That was the Oak's-Parcel wedge (2026-07-08 night train): the
+            south leg computed Viridian's south cols [0-11,22-25,36-48], crossed onto Route 1, and
+            kept them — but Route 1's Pallet-exit cols are 12,13, excluded -> false 'no_route' at
+            (13,0). N/S BAND (shift 10): the old 'N/S flip at the edge with no overlap' assumption
+            only holds for full-width LAND connections; on a sea/partial edge the neighbour's line
+            IS readable one tile past the border, so gate the goal to crossable lines like E/W.
+            Water-aware: a surf-capable party may cross where the overlap tiles are water. Empty
+            band -> None -> falls back to any edge tile (full land connections unchanged)."""
+            if edge in ("east", "west"):
+                past = (g.sx_hi + 1) if edge == "east" else (g.sx_lo - 1)
+                cand = {p for p in range(g.sy_lo, g.sy_hi + 1)
+                        if g.walkable(past, p) or (can_surf and g.is_water(past, p))}
+                unit = "rows"
+            elif edge in ("north", "south"):
+                past = (g.sy_hi + 1) if edge == "south" else (g.sy_lo - 1)
+                cand = {p for p in range(g.sx_lo, g.sx_hi + 1)
+                        if g.walkable(p, past) or (can_surf and g.is_water(p, past))}
+                unit = "cols"
+            else:
+                return None
+            bnd = cand or None         # no overlap detected -> fall back to any edge tile
+            if bnd:
+                self.log(f"   [travel] {edge} connection band {unit}: {sorted(bnd)}")
+            return bnd
+        band = _compute_band(grid)
         def _edge_goal(t):
             return exit_cmp(t[exit_axis]) and (band is None or t[perp_axis] in band)
         goal = ((lambda t: t == arrive_coord) if arrive_coord is not None else _edge_goal)
@@ -964,6 +973,12 @@ class Traveler:
                     except Exception as _ot:
                         self.log(f"   [travel] on_transition hook failed: {_ot} (continuing)")
                 grid = Grid(self.b)
+                # RECOMPUTE THE CONNECTION BAND for the new map (Oak's-Parcel Route-1 wedge fix,
+                # 2026-07-08 night train): the band is edge-crossing lines on the CURRENT map, and
+                # a single edge='south' leg can span Viridian->Route1->Pallet — the starting map's
+                # band gates the goal to the wrong lines on every map after the first.
+                band = _compute_band(grid)
+                edge_row_retries = 0
                 plan_cache = None
                 stuck = exit_tries = 0
                 # COORD LEG ENDS AT A TRANSITION (night shift 10, the (8,6) limbo class): an
