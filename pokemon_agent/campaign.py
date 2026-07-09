@@ -5214,7 +5214,11 @@ class Campaign:
         # OWNS 10 the errand is pure routing/teaching and is never "blocked".
         DEX_STALL_CAP = 4
         _dex = ram.pokedex_owned_count(b)
-        _catch_phase = (cur == ROUTE11 or cur == ROUTE2 or cur[0] != 3)
+        # ROUTE 11 is NOT a stall map (2026-07-09 shift 2): from Route 11 the answer to "no fresh species
+        # here" is ALWAYS cross Diglett's Cave to Route 2 (an un-swept catch source), NEVER give up. Counting
+        # Route 11 tripped DEX-BLOCKED at dex 9 the moment she had balls to over-hunt it, short-circuiting the
+        # cave cross below. Only Route 2 (the terminal catch strip) + inside the cave count toward the stall.
+        _catch_phase = (cur == ROUTE2 or cur[0] != 3)
         if _dex > getattr(self, "_flash_dex_hi", -1):
             self._flash_dex_hi, self._flash_nogain = _dex, 0
         elif _catch_phase:
@@ -5230,9 +5234,17 @@ class Campaign:
             _catch_to_10("Diglett's Cave", tries=3)
             ok = self._cross_cave(None, ROUTE2)
             return "flash_progress" if ok else "flash_stuck"
-        # PHASE 2 — on Route 11: catch fresh species, then cross Diglett's Cave (north mouth -> Route 2).
+        # PHASE 2 — on Route 11: catch fresh species (Drowzee), then cross Diglett's Cave (north mouth ->
+        # Route 2). Exhausted-memo: once Route 11 yields no new species, skip the re-catch (else with a full
+        # ball pocket catch_one wanders the whole route 90s/pass hunting a non-dupe that isn't there) and go
+        # straight for the cave — Route 2's Caterpie/Weedle supply the last dex slot.
         if cur == ROUTE11:
-            _catch_to_10("Route 11")
+            _legdone = self.__dict__.setdefault("_flash_leg_done", set())
+            if ram.pokedex_owned_count(b) < 10 and ROUTE11 not in _legdone:
+                _pre = ram.pokedex_owned_count(b)
+                _catch_to_10("Route 11", tries=3)
+                if ram.pokedex_owned_count(b) <= _pre:
+                    _legdone.add(ROUTE11)
             ok = self._cross_cave("north", ROUTE2)
             return "flash_progress" if ok else "flash_stuck"
         # PHASE 4 — on Route 2 (aide's strip): top up dex if short, reach the gatehouse, talk, teach.
