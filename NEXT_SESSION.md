@@ -38,9 +38,16 @@ Tunnel gate. BUT across runs the APPROACH is unstable:
   PRUNED from options. Early travel WEDGES at map (18,0) (an Underground Path interior — the Route 6 hut
   warp (19,13)->(1,32)) x8, then couldn't complete Route 9 -> Route 10 east edge (Cut tree at Route 9's
   mouth? field_clear may not have fired). → no_gym_route → stall.
-DIAGNOSE: why head_to_gym intermittently fails the Cerulean->Route 9->Route 10 legs (the Cut tree at Route
-9's mouth via `field_clear`, and the Underground Path (18,0) wedge). Make the approach to the Rock Tunnel
-gate RELIABLE, then the (verified) flash errand + (committed) return-cross carry her to Celadon.
+- shift2_return2.log: reached Route 10 -> errand engaged -> dex 5->10 -> WARP into Diglett's Cave -> then
+  WEDGED inside the cave (map (1,37)@(53,46)): repeated "battle outcome=stuck" on the cave's wild
+  Diglett/Dugtrio encounters + low HP wanting heal but options only ['heal','leave_building'] (can't route
+  out of the cave to a Center). A cave-crossing fragility shift2_cross didn't hit (variance).
+DIAGNOSE (the badge-4 stretch has SEVERAL variance-driven fragilities — Flash MECHANICS are solid, the
+surrounding NAVIGATION is fragile): (a) head_to_gym intermittently fails Cerulean->Route 9->Route 10 (Cut
+tree at Route 9's mouth via `field_clear`; the Underground Path (18,0) wedge); (b) Diglett's Cave crossing
+can wedge on "battle outcome=stuck" wild encounters + heal-trapped-inside. Harden BOTH so the errand runs
+clean every run, then the (verified) flash chain + (committed) return-cross carry her to Celadon. TIP: boot
+`flash_done.state` to test the post-Flash Viridian routing / return-cross WITHOUT the ~12-min approach.
 
 ## THEN: Erika (badge 4, GOAL flag 0x823 Rainbow). grass/poison, ace vileplume L29. Her spearow (flying)
 is an OWNED type answer, just underleveled (L15) — `prep_for_gym` grinds it, NO catch needed.
