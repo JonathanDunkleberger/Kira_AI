@@ -48,13 +48,21 @@ wins this shift, then the structural handoff:
    (#3) needs attention for the mid-game.
 2. **WIRE THE HANDOFF INTO `play_live --show` (the REAL show path) — CAREFULLY, FIREWALLED.** Today
    `--show` runs ONLY `run_segments` (ends at Misty). Add the same free_roam handoff after
-   `all_segments_complete`. **FIREWALL RISK (rule 18):** `_save_campaign` writes to `states/campaign/`
-   = the SHERPA CANONICAL (Champion/credits save). A naive show-mode free_roam would CLOBBER it. The
-   show (kira timeline) must bank to a kira-lineage campaign dir — use the `POKEMON_CAMPAIGN_DIR`
-   override (states/kira or a kira-campaign subdir) so the canonical is never opened for write, AND
-   make the handoff RESUME-SAFE (on a crash relaunch, `run_segments` returns immediately with `b` at
-   fresh bedroom — load the kira living anchor before free_roam, or the show replays the whole game).
-   This is core-adjacent: minimal, additive, flagged; VERIFY resume via the kill-test.
+   `all_segments_complete`. **FIREWALL — the subtle part (verified this shift by reading go.py:117-134):**
+   `go.py` already sets `POKEMON_CAMPAIGN_DIR` for the real show, but to a **DISPOSABLE per-run scratch
+   tempdir** (`campaign_scratch`) — because the current show never calls `_save_campaign` (run_segments
+   banks segment checkpoints to states/kira via ckpt_dir). So canonical is already safe, BUT a free_roam
+   anchor written there would be **LOST on the next run** (thrown away) -> the show can't resume past
+   badge 2. So item 2 needs go.py to point the show's `POKEMON_CAMPAIGN_DIR` at a **PERSISTENT
+   kira-lineage dir** (e.g. `states/kira` or `states/kira/campaign`), NOT the scratch dir, so the
+   free_roam living anchor + sanctity sidecars (world/strat/journey/soul) persist and resume. That ALSO
+   moves health.json into the kira lineage — CHECK the dashboard timeline-health read doesn't regress
+   (see the timeline-bleed memory). Then make the handoff RESUME-SAFE: on a crash relaunch `run_segments`
+   returns immediately with `b` at fresh bedroom, so LOAD the kira living anchor before free_roam or the
+   show replays the whole game. Canonical (states/campaign) stays untouched by construction (redirected).
+   Core-adjacent (rule 12): minimal, additive, flagged; VERIFY via a headless --show run reaching
+   free_roam + a kill-resume kill-test, confirming canonical bytes unchanged. (The look-ahead already
+   PROVED the handoff concept: fresh -> Brock -> Misty -> free_roam climbs badge 3.)
 3. THEN: Phase B (bank the clean audio-OFF floor once fresh->credits is proven) + Phase C (native
    audio SIGSEGV capture via faulthandler `--audio`) remain untouched.
 
