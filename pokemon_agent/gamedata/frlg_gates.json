@@ -686,7 +686,7 @@
   ]
  },
  "no_connector": {
-  "_doc": "maps the door-passthrough must NEVER enter as a connector (dark warp mazes: the passthrough's bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark, celadon_run5). The dedicated strikes own these crossings.",
+  "_doc": "maps the door-passthrough must NEVER enter as a connector: (a) dark warp mazes (the bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark, celadon_run5 — dedicated strikes own these); (b) DECOY DEAD-END BUILDINGS that sit ON a crossing route and hijack the passthrough (2026-07-09, nights shifts 8-11): Route 5's two houses 17,0 (Pokémon Day Care) + 17,1 are single-room dead-ends with NO onward exit, yet 17,1 has TWO door tiles (24,32 + 25,32) so the '-len(dest_doors)' likeliest-connector heuristic ranks it ABOVE the real Underground Path entrance warp 31,31->1,30 (one tile). She enters 17,1, wedges on its wandering old-man/counter (map poisons both detour columns), and the wedge aborts before the passthrough cycles to the correct warp — burned three whole shifts. Skipping 17,0/17,1 leaves 31,31->1,30 the sole candidate (the PROVEN crossing: both the canonical Cut-run and crossing_fixA reached Route 6 via 31,31->1,30->1,31[long tunnel]->1,32->Route 6). Route 6's own UGP hut warp (19,13)->(1,32) is a DIFFERENT map and stays usable for the reverse crossing.",
   "maps": [
    "1,81",
    "1,82",
@@ -694,7 +694,9 @@
    "1,84",
    "1,85",
    "1,86",
-   "1,87"
+   "1,87",
+   "17,0",
+   "17,1"
   ]
  }
 }
