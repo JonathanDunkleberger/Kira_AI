@@ -18,15 +18,22 @@ dropped). END-TO-END (`recon_longrun` from `ss_ticket_razorleaf.state`, a fixtur
 Lt. Surge gym. Log: `logs/debug/shift15_gary_decisive.log`.
 
 ### THE NEW FRONTIER — LT. SURGE (badge 3), two sub-walls:
-1. **GYM ENTRY:** she reaches the Vermilion gym door (3,5) but `beat_gym` "couldn't enter" → `GYM-INTERIOR
-   WALL: beat_gym stuck x3`. Diagnose: is the gym-approach blocked by a **Cut tree** she isn't applying Cut
-   to (she HAS Cut — "Field moves ready: CUT"), or is it the **inside trash-can switch puzzle** (two hidden
-   switches open the electric barrier to Surge)? Grab a frame at (3,5) and check pret/pokefirered
-   VermilionGym script. This is nav/gate (within mandate).
-2. **BEAT SURGE:** electric L21-24. She has NO ground answer and a frail bench (rattata L14/spearow L15/
-   pidgey L13 vs ivysaur L30). Catch a **Diglett** (Diglett's Cave — west end off Route 2, or east off
-   Vermilion Route 11) = Ground immunity to Electric AND super-effective — the clean answer. OR level the
-   bench. She already narrates wanting a Diglett.
+1. **GYM ENTRY (diagnose FIRST — likely NOT a real Cut gate):** she reaches the Vermilion gym at map (3,5)
+   but `beat_gym` "couldn't enter" x3 → `GYM-INTERIOR WALL`. The gym-gate-probe then arms an
+   `hm_obstacle/cut` gate on a nearby tree — **but this is probably a FALSE gate**: the FRLG Vermilion Gym
+   door is directly enterable (no Cut needed AT the door — the puzzle is the two hidden TRASH-CAN switches
+   INSIDE that open the electric barrier to Surge). The gate-probe's own comment (campaign.py:5782) warns it
+   mis-attributes a failed door-warp to a nearby decorative tree/water. So the REAL issue is likely
+   **beat_gym's door-warp not firing** at the Vermilion gym, not a Cut obstacle. ALSO NOTE: recon_longrun
+   does NOT set `POKEMON_FIELD_MOVES=1` (default OFF), so even a real Cut/`use_cut` gate can't actuate
+   headless — **re-run the Surge stretch with `POKEMON_FIELD_MOVES=1`**. And `clear_obstacle`'s Cut-on-tree
+   actuation is RECON-FLAGGED/UNVERIFIED in its docstring (only Surf's water-prompt is source-confirmed).
+   DO: grab a frame at the Vermilion gym, check the pret VermilionGym warp/door, confirm whether it's a
+   door-warp-fire bug vs a real gate. This is nav/gate (within mandate).
+2. **BEAT SURGE:** electric L21-24, + the trash-can switch puzzle inside. She has NO ground answer and a
+   frail bench (rattata L14/spearow L15/pidgey L13 vs ivysaur L30). Catch a **Diglett** (Diglett's Cave —
+   west end off Route 2, or east off Vermilion Route 11) = Ground immunity to Electric AND super-effective —
+   the clean answer. OR level the bench. She already narrates wanting a Diglett.
 
 ### HANDED OFF (careful battle work, next):
 - **The in-battle DECLINE handler mis-actuates (battle_agent.py:2227).** Its B,A mash to "decline" a
