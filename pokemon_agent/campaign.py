@@ -3066,18 +3066,26 @@ class Campaign:
         self.trav.travel(target_map=None, arrive_coord=tile, max_steps=200, max_seconds=90)
         return tv.coords(self.b) == tile
 
-    def _los_retrigger(self, front):
+    def _los_retrigger(self, front, avoid=None):
         """Force a trainer's line-of-sight to re-fire by stepping OFF `front` and back ON (a trainer
         only initiates on the player's STEP INTO its sight tile; arriving via a zero-step travel —
         already standing there — leaves it un-triggered, so an A-press opens a GREETING box instead
         of the battle: the Misty stuck, where she sits at (8,6) looking DOWN onto the (8,7) front).
-        Steps to each walkable neighbour of `front` and back once. True iff a battle started."""
+        Steps to each walkable neighbour of `front` and back once. True iff a battle started.
+
+        `avoid` = the LEADER's OWN tile (front stepped in leader_dir). It must be EXCLUDED (Fix A,
+        2026-07-09): the static collision grid isn't NPC-aware, so grid.walkable reports the leader's
+        tile as free — the nudge then travels ONTO it, and travel classifies the standing leader as a
+        'PLAIN NPC blocker' and burns its whole budget trying to route AROUND him (the Brock (6,5)
+        thrash: 'NO ROUTE around plain-NPC blocker'). The leader is never a stand tile; skip it."""
         try:
             grid = tv.Grid(self.b)
         except Exception:
             grid = None
         for nb in ((front[0], front[1] + 1), (front[0], front[1] - 1),
                    (front[0] - 1, front[1]), (front[0] + 1, front[1])):
+            if avoid is not None and tuple(nb) == tuple(avoid):
+                continue                                       # never nudge onto the leader's own tile
             if grid is not None and not grid.walkable(*nb):
                 continue
             self._gym_move(nb, label="los-nudge")
@@ -3245,7 +3253,12 @@ class Campaign:
         # the fight initiates. No-op / already-won cases fall straight through. Skip if she's already
         # been beaten (badge set en route via a travel fight-through) — then it's a pure award drain.
         if not st.in_battle(self.b) and not self.has_badge(gym.badge_flag):
-            self._los_retrigger(gym.leader_front)
+            # Fix A (2026-07-09): pass the LEADER's own tile (front stepped in leader_dir) so the nudge
+            # NEVER steps onto it — else travel treats the standing leader as a plain-NPC blocker and
+            # burns its budget routing around him (the Brock (6,5) 'NO ROUTE around plain-NPC' thrash).
+            _ld = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}.get(gym.leader_dir, (0, -1))
+            _leader_tile = (gym.leader_front[0] + _ld[0], gym.leader_front[1] + _ld[1])
+            self._los_retrigger(gym.leader_front, avoid=_leader_tile)
         for _ in range(6):
             if st.in_battle(self.b) or dd_box_open(self.b):
                 break
