@@ -27,6 +27,12 @@ Jonny's next spot-watch confirms live content_age stays <6s — that's the showc
 0. **THE GO/NO-GO — game-event latency live-watch** (showcase gate): reboot, run a fast-battle
    stretch, confirm reactions land <6s and aligned (watch for `[Freshness] DROP` lines culling the
    stale backlog, and `[LAG]` content_age staying low). This is the showcase green light.
+0a. **AUDIO MOUTH-FLAP live-check** (showcase-critical, fixed): in a windowed pokemon watch, confirm
+   her VTS mouth flaps ONLY when she speaks, NEVER to the game music (SDL_AUDIODRIVER=dummy fix).
+0c. **SHOWCASE QA — goal-pinned clips** (the 40hr validation harness, `pokemon_agent/SHOWCASE_QA.md`):
+   hop each gym + the E4 as ~5-10min enter→win clips. Start with the E4:
+   `watch.py --at pre-e4 --goal "fight through the Elite Four ... beat Gary and become Champion"`.
+   Then gyms 3-8 (commands in the doc). Flag any that wander (badge-count reposition) or the Misty gap.
 0b. **MEMORY-MAGIC live verify** (soul gate): TALK to her (voice) and ask "how's the Pokémon run
    going / who's on your team / tell me about Gary." She should answer FIRST PERSON as her own
    lived story, name her current 6 (venusaur/persian/fearow/raticate/ekans/lapras), carry feeling —
