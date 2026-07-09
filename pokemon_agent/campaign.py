@@ -8636,12 +8636,21 @@ class Campaign:
         # anchors and would go stale (the 'still says rattata' bug). The core renders the `roster`
         # field LIVE instead (single source of team truth), so the summary carries only identity/arc/
         # grudge/want, which age gracefully.
-        if state.get("arc"):
-            bits.append(state["arc"])          # native second-person self-address (house style)
-        if grudge:
-            bits.append(grudge)                # ditto — 'you've met Gary 6 times' reads as her own voice
-        if wants:
-            bits.append(f"What I want right now: {wants[0]}.")
+        # WATCH-SCOPED ERA SELF-MODEL (2026-07-08): when a goal-pin re-lives an EARLIER moment, her
+        # accumulated arc/grudge ("I'm the Champion, I beat Gary") CONTRADICTS the era objective ("go
+        # fight the E4") — the incoherence Jonny heard. When pinned, present the PRESENT-TENSE era
+        # self-model and DROP the post-hoc arc/grudge; the bot also drops the Champion saga (watch_scoped).
+        _wg = state.get("watch_goal")
+        if _wg:
+            bits.append(f"Right now, in this moment: {_wg}. That's what's in front of me — "
+                        f"I haven't done it yet; I'm about to.")
+        else:
+            if state.get("arc"):
+                bits.append(state["arc"])      # native second-person self-address (house style)
+            if grudge:
+                bits.append(grudge)            # ditto — 'you've met Gary 6 times' reads as her own voice
+            if wants:
+                bits.append(f"What I want right now: {wants[0]}.")
         return {
             "summary": " ".join(bits),
             "place": state.get("place"),
@@ -8649,9 +8658,10 @@ class Campaign:
             "party_count": state.get("party_count"),
             "lead": lead,
             "solo": solo,
-            "grudge": grudge,
-            "arc": state.get("arc"),
+            "grudge": None if _wg else grudge,
+            "arc": None if _wg else state.get("arc"),
             "roster": roster,
+            "watch_scoped": bool(_wg),
         }
 
     def _gain_sig(self):

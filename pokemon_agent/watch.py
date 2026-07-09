@@ -66,12 +66,18 @@ CURATED = [
     # it can drain the ceremony -> CREDITS -> post-credits SoftReset -> title screen (the QW-4
     # void). Kept for the record; spawn 'postgame' for the safe Champion watch.
     ("summit",        "banked_CREDITS",         "🏆 THE SUMMIT (mid-ceremony — credits WILL roll; prefer 'postgame')"),
-    ("pre-e4",        "banked_E4",              "The Elite Four doorstep — badges 8, the gauntlet ahead"),
-    ("victory-road",  "banked_VICTORY",         "Victory Road — the final climb to Indigo Plateau"),
-    ("pre-blaine",    "banked_BLAINE",          "Cinnabar, before Blaine — badge 7 gym"),
-    ("cinnabar",      "banked_CINNABAR",        "Just off Seafoam — arrived at Cinnabar Island"),
-    ("pre-giovanni",  "banked_GIOVANNI",        "Before Giovanni — the final badge-8 Viridian showdown"),
-    ("pre-sabrina",   "banked_SABRINA",         "Saffron, before Sabrina — badge 6, the psychic gym"),
+    # ⚠️ ALIAS FIX (2026-07-08 probe): the true PRE-E4-COMBAT save is banked_VICTORY (Indigo Plateau,
+    # 8 badges, game_clear=FALSE, E4 genuinely ahead). banked_E4 is the POST-victory Hall-of-Fame
+    # ceremony (Lance already beaten) — the old 'pre-e4' alias dropped Jonny into the credits, not a
+    # fight. 'pre-e4' now = the real doorstep; 'hall-of-fame' = the post-win ceremony (record only).
+    ("pre-e4",        "banked_VICTORY",         "🥊 THE ELITE FOUR DOORSTEP — Indigo Plateau, 8 badges, E4 NOT yet beaten (real first-time combat ahead — goal-pin it)"),
+    ("hall-of-fame",  "banked_E4",              "Post-victory Hall of Fame ceremony (Lance beaten; NO fights left — use pre-e4 for combat)"),
+    # banked_BLAINE has badge 7 (Blaine already beaten); the real PRE-Blaine save is banked_CINNABAR
+    # (badge 6, at Cinnabar). Post-win banks kept under a *-done alias for record.
+    ("pre-blaine",    "banked_CINNABAR",        "🥊 Cinnabar, badge 6 — Blaine NOT yet beaten (real gym combat ahead — goal-pin it)"),
+    ("blaine-done",   "banked_BLAINE",          "AFTER Blaine — badge 7 won (no fight left)"),
+    ("pre-giovanni",  "banked_GIOVANNI",        "AFTER Giovanni — badge 8 won (post-win; no fight left)"),
+    ("pre-sabrina",   "banked_SABRINA",         "AFTER Sabrina — badge 6 won (post-win; no fight left)"),
     ("silph",         "banked_SILPH",           "Silph Co. cleared — Lapras in hand, Master Ball won"),
     ("snorlax",       "banked_SNORLAX",         "Snorlax woken — the coastal road opens"),
     ("lapras",        "banked_LAPRAS",          "Lapras just received — the future Surf carrier"),

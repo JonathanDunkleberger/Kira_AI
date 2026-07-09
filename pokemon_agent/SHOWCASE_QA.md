@@ -15,25 +15,46 @@ python pokemon_agent/watch.py --at <spawn> --goal "<era objective>"
 (Boot the bot first — `python run.py` — the watch rig preflights it. Confirm your audio device
 before boot; the SDL-audio mouth-flap bug is fixed but the go-live ritual still applies.)
 
-## THE HIGH-VALUE ONE — first-time Elite Four + Champion Gary (what Jonny most wanted to watch)
+## ⚠️ ALIAS FIX (2026-07-08) — READ THIS
+A headless probe of every bank found the old `pre-e4` alias pointed at `banked_E4`, which is the
+**post-victory Hall of Fame ceremony** (Lance already beaten, credits rolling — no fights left).
+That's why the last spawn dropped Jonny at the credits. **Fixed:** `pre-e4` now points at
+`banked_VICTORY` — the TRUE doorstep (Indigo Plateau, 8 badges, **game_clear=FALSE, E4 not yet
+beaten**, L66 team). Real first-time E4 combat IS watchable there. Also: `pre-blaine` now → the
+real pre-Blaine save (`banked_CINNABAR`, badge 6). The old post-win banks are kept under
+`hall-of-fame` / `blaine-done` for the record.
+
+## THE HIGH-VALUE ONE — first-time Elite Four + Champion Gary (CONFIRMED combat ahead)
 ```
 python pokemon_agent/watch.py --at pre-e4 --goal "fight through the Elite Four for the first time — Lorelei, then Bruno, Agatha, Lance — then beat Gary and become Champion"
 ```
-`banked_E4` = badges 8 at the Indigo Plateau doorstep. Goal-pin suppresses the victory-lap so she
-runs the gauntlet forward. **Highest confidence — start here.**
+Now spawns at Indigo Plateau with the E4 genuinely un-beaten. The goal-pin also presents the
+present-tense era self-model (she's ABOUT to fight it) and drops the Champion saga, so she's no
+longer incoherent ("do the thing I remember already doing"). **Start here.**
 
-## THE GYMS (each: enter → win → badge)
+## CONFIRMED combat-ahead spawns (from the probe — game_clear=FALSE, fight genuinely ahead)
 | Moment | Command |
 |---|---|
-| Gym 6 — Sabrina | `watch.py --at pre-sabrina --goal "beat Sabrina and win the Marsh Badge"` |
-| Gym 7 — Blaine | `watch.py --at pre-blaine --goal "beat Blaine and win the Volcano Badge"` |
-| Gym 8 — Giovanni | `watch.py --at pre-giovanni --goal "beat Giovanni and win the Earth Badge"` |
-| Gym 5 — Koga | `watch.py --at <path>/pre_koga_badge5_backup_20260707_050954 --goal "beat Koga and win the Soul Badge"` |
-| Gym 4 — Erika | `watch.py --at <path>/pre_erika_badge4_backup_20260707_014247 --goal "beat Erika and win the Rainbow Badge"` |
-| Gym 3 — Surge | `watch.py --at <path>/pre_vermilion_backup_20260706_152434 --goal "beat Lt. Surge and win the Thunder Badge"` |
+| **Elite Four + Gary** | `watch.py --at pre-e4 --goal "fight through the Elite Four and beat Gary"` |
+| **Gym 7 — Blaine** | `watch.py --at pre-blaine --goal "beat Blaine and win the Volcano Badge"` |
 
-`<path>` = `pokemon_agent/states/campaign/`. Gyms 6-8 have curated aliases (clean, ready); gyms
-3-5 spawn from the `pre_*` backup dirs by path.
+## THE OTHER GYMS — MOSTLY POST-WIN (honest finding)
+The probe showed the curated `banked_SABRINA` (6 badges), `banked_BLAINE` (7), `banked_GIOVANNI`
+(8) are **post-win** checkpoints (banked at the gain-seam AFTER the badge) — so those gyms are
+already beaten in RAM; a goal-pin narrates but there's no fight left. The `pre_*_reach` backups in
+`pokemon_agent/states/campaign/` (pre_saffron_reach, pre_celadon_reach, pre_fuchsia_reach,
+pre_vermilion_backup, etc.) are the LIKELY pre-gym states — spawn by full path and goal-pin them:
+```
+python pokemon_agent/watch.py --at pokemon_agent/states/campaign/pre_vermilion_backup_20260706_152434 --goal "beat Lt. Surge and win the Thunder Badge"
+```
+**Verify on first use** (does she enter the gym and fight?). If a `pre_*_reach` bank turns out
+post-win too, that gym needs a small reposition bank — flag it and I'll cut one from a fresh run.
+Gym 2 (Misty) has no clean pre-Misty bank at all — reposition follow-up.
+
+## Mid-run trainer fights (always real combat, any time)
+Any `pre_*` route/reach bank has wild + trainer battles on the way — a quick 5-min "watch her
+fight and quip" grade without needing a gym. `--at pre-e4` (Victory Road / Indigo) has trainers +
+the E4 itself; `--at rock-tunnel`, `--at silph` etc. all have live combat en route.
 
 ## HONEST CAVEATS / FOLLOW-UPS (flagged, not forced)
 - **Gym routing from post-credits saves — HANDLED:** when `--goal` names a gym leader (Misty,

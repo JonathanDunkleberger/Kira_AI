@@ -3542,7 +3542,12 @@ class VTubeBot:
                 lvl = f" (L{r['level']})" if r.get("level") else ""
                 story = f" — {r['story']}" if r.get("story") else ""
                 out += f"  - {nm}{lvl}{story}\n"
-        if saga:
+        # WATCH-SCOPED (goal-pin re-living an earlier era): DROP the accumulated saga — those beats
+        # ("I beat Gary / I'm the Champion") are from AFTER this moment and would contradict the era
+        # objective she's about to pursue (the incoherence Jonny heard at the E4 spawn). Sandbox-only:
+        # the live journey POST carries watch_scoped from play_live's POKEMON_WATCH_GOAL; the canonical
+        # states/kira saga is untouched (a watch runs on a disposable sandbox campaign dir).
+        if saga and not st.get("watch_scoped"):
             top = sorted(saga, key=lambda b: (b.get("weight", 0.0), b.get("ts", 0.0)), reverse=True)[:8]
             out += "The moments that stuck with me:\n"
             out += "\n".join(f"  - {b.get('text','')}" for b in top) + "\n"
