@@ -53,8 +53,13 @@ BUNDLE_FILES = ("kira_campaign.state", "world_model.json", "strat_memory.json",
 SOUL_SRC, SOUL_DST = "soul.json", "pokemon_soul.json"
 
 _LONGRUN = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
-_CANON = os.path.join(_HERE, "states", "campaign")
+# Canonical campaign root follows the SAME POKEMON_CAMPAIGN_DIR override the engine uses, so a sandboxed
+# dev/watch session's --list surfaces THAT session's checkpoints (default = the real states/campaign).
+_CANON = os.environ.get("POKEMON_CAMPAIGN_DIR", "").strip() or os.path.join(_HERE, "states", "campaign")
 _SANDBOX_ROOT = os.path.join(os.environ.get("TEMP", _HERE), "kira_watch")
+# DENSE AUTO-CHECKPOINTS (2026-07-09): the growing labeled history campaign.py banks every gain seam +
+# ~12 min. Each dir is a complete sanctity bundle -> selectable by name/path for a canonical-safe reload.
+_CKPTS = os.path.join(_CANON, "checkpoints")
 
 # Curated friendly names + one-line descriptions for the common spawn points. Any banked_* dir with
 # a complete bundle is still selectable by its raw name even if it's not listed here — this is just
@@ -123,10 +128,38 @@ def _valid_bundle(d):
     return os.path.isdir(d) and all(os.path.exists(os.path.join(d, f)) for f in BUNDLE_FILES)
 
 
+def _ckpt_desc(d):
+    """One-line label for a dense auto-checkpoint, from its checkpoint.json (falls back to the dir name)."""
+    try:
+        with open(os.path.join(d, "checkpoint.json"), encoding="utf-8") as f:
+            m = json.load(f)
+        secs = m.get("playtime_s")
+        pt = f"{int(secs//3600)}h{int((secs%3600)//60):02d}m" if isinstance(secs, (int, float)) else "?"
+        return (f"📌 {m.get('ts','?')} · {m.get('badges','?')} badge(s) · {pt} played · "
+                f"map {tuple(m.get('map', [])) or '?'} · [{m.get('reason','?')}]")
+    except Exception:
+        return "📌 dense auto-checkpoint"
+
+
+def _discover_checkpoints():
+    """Dense auto-checkpoint bundles, NEWEST FIRST (the most useful for 'reload just before the bug')."""
+    out = []
+    if os.path.isdir(_CKPTS):
+        for name in sorted(os.listdir(_CKPTS), reverse=True):     # ts-prefixed -> newest first
+            if name.endswith(".partial"):
+                continue
+            d = os.path.join(_CKPTS, name)
+            if _valid_bundle(d):
+                out.append((name.lower(), d, _ckpt_desc(d)))
+    return out
+
+
 def _discover():
-    """All selectable spawn points as (alias, dir, desc), curated first (in order), then any other
-    complete banked_* bundle by raw name, then canonical."""
+    """All selectable spawn points as (alias, dir, desc): dense auto-checkpoints (newest first — the dev
+    hop-around history), then curated milestone banks (in order), then any other complete banked_* bundle,
+    then canonical."""
     out, seen = [], set()
+    out.extend(_discover_checkpoints())
     for alias, name, desc in CURATED:
         d = os.path.join(_LONGRUN, name)
         if _valid_bundle(d):
@@ -213,11 +246,20 @@ def main():
     points = _discover()
 
     if args.list:
-        print(f"\nSpawn points (bundles in {_LONGRUN}):\n")
+        ckpts = _discover_checkpoints()
+        print(f"\n📌 DENSE AUTO-CHECKPOINTS  (newest first — {_CKPTS}):\n")
+        if ckpts:
+            for alias, d, desc in ckpts:
+                print(f"  {desc}\n      reload:  watch.py --at {alias}")
+        else:
+            print("  (none yet — they appear as a free-roam/watch run banks gain seams + every ~12 min)")
+        print(f"\n🏔️  MILESTONE BANKS  (curated + uncurated, in {_LONGRUN}):\n")
         if _valid_bundle(_CANON):
-            print(f"  {'canonical':<14} {'← the true summit (hall_of_fame)'}")
+            print(f"  {'canonical':<16} ← the true summit (hall_of_fame)")
         for alias, d, desc in points:
-            print(f"  {alias:<14} {desc}")
+            if d.startswith(_CKPTS):        # already shown above
+                continue
+            print(f"  {alias:<16} {desc}")
         print("\nWatch one:  watch.py --at <alias>     |  the summit:  watch.py --canonical\n")
         return 0
 
