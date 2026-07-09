@@ -27,8 +27,20 @@ PROVEN + banked. Resume from the frontier and push forward.
    win-Y/N, stuck-Y/N** per threat. If not prepared, she must catch/grind FIRST.
 3. Every wall/stuck/loss-loop → discrete note → FIX the CLASS → re-run from the frontier → BANK a new
    checkpoint + rewrite THIS block's frontier when a stretch clears.
-4. Keep going until credits with no permanent stuck, OR the 2-shift no-progress brake, OR **BALANCE
-   EXHAUSTED (~$72 Console ceiling, auto-reload OFF)** → graceful stop + final standup, no thrash.
+4. **RUN UNTIL CREDITS — DO NOT STOP EARLY (2026-07-09, Jonny).** The budget/balance stop AND the
+   2-shift no-progress brake are DISABLED (`night_shift.ps1 $RunUntilCredits=$true`). The ONLY acceptable
+   stop is a CLEAN FRESH RUN TO CREDITS (write `CREDITS` as line 1 of NIGHT_REPORT.md). Keep grinding
+   shift after shift until then. Run SILENT — do not ping Jonny (he's asleep).
+
+**ESCALATE-DON'T-QUIT (mandatory on every hard wall):** a gym/fight/nav gap you can't pass is NOT a stop.
+Try MULTIPLE DISTINCT strategies like a resourceful human with a guide open: grind the bench HIGHER, catch
+a better-TYPED counter (on grassy routes — see the catch-location gap), RE-ORDER the team to field the
+answer, use ITEMS/TMs/HMs, consult `gamedata/frlg_strategy.json` (rosters/answers/keepers) + the
+disassembly/Bulbapedia. Log the wall as a discrete note, attempt several genuinely different angles, bank
+each attempt, and keep pushing. Only leave a `needs eyes:` note if you've truly tried it several ways and
+it needs a human decision — and even then keep working OTHER parts of the run. `_bump_gym_prep` already
+escalates prep each loss; lean on it + intra-segment resume so a loss re-preps HARDER, never replays the
+same solo team.
 
 **TODAY'S NEW TOOLS (built this session — USE THEM):**
 - **`prep_for_gym`/`gym_readiness`** (Fix B, `fb4fa44`) — beat_gym now ENFORCES pre-gym readiness from the

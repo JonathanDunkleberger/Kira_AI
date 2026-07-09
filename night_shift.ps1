@@ -20,6 +20,12 @@ param(
     [switch]$Test
 )
 $ErrorActionPreference = "Continue"
+# RUN-UNTIL-CREDITS (2026-07-09, Jonny): for the completion push, DISABLE the two early-stop brakes —
+# the balance/billing-exhaustion stop AND the 2-shift no-progress brake. The ONLY stop is now (a) the
+# CREDITS line at the top of NIGHT_REPORT.md, (b) Ctrl+C, or (c) a MISSING NEXT_SESSION.md. On a hard
+# wall the shift ESCALATES (grind/catch/re-order/items/TMs/guide-data), never brakes. Set $false to
+# restore the brakes.
+$RunUntilCredits = $true
 # PS 5.1 encodes pipeline input to native exes with $OutputEncoding (default ASCII) --
 # force UTF-8 so the frontier's arrows/symbols survive the stdin pipe to claude.
 $OutputEncoding = New-Object System.Text.UTF8Encoding($false)
@@ -113,7 +119,7 @@ while ($true) {
     $billingRe = 'credit balance is too low|purchase more credits|insufficient[_ ]?(quota|credits?|funds)|402 payment required'
     $logText = ''
     if ($logBytes -gt 0) { $logText = (Get-Content $log -Raw) }
-    if ($logText -match $billingRe) {
+    if ((-not $RunUntilCredits) -and ($logText -match $billingRe)) {
         $hit = $matches[0]
         Write-Host "== SHIFT $shift STOP: API BALANCE EXHAUSTED (matched '$hit'). Halting cleanly -- top up + relaunch. ==" -ForegroundColor Yellow
         Add-Content $Report ("- shift {0} STOPPED {1} ({2}s, exit {3}): balance exhausted (billing/credit failure: '{4}'). Night train halted CLEANLY -- not a crash. Top up the balance and relaunch night_shift.ps1." -f `
@@ -146,12 +152,15 @@ while ($true) {
     } else {
         $noProgress = 0
     }
-    if ($noProgress -ge 2) {
+    if ((-not $RunUntilCredits) -and ($noProgress -ge 2)) {
         Add-Content $Report ("- BRAKE $(Get-Date -Format 'HH:mm'): two consecutive shifts of provable " +
             "nothing (identical frontier, zero commits). The wall needs human eyes -- see STATE section 0 " +
             "CURRENT TRUTH + the last shift log: $log")
         Write-Host "== BRAKE FIRED -- two shifts of provable nothing. Stopping. =="
         break
+    }
+    if ($RunUntilCredits -and ($noProgress -ge 2)) {
+        Write-Host "== RUN-UNTIL-CREDITS: $noProgress shift(s) without frontier/commit progress -- brake DISABLED, escalating + continuing. =="
     }
 
     if ($Test) {
