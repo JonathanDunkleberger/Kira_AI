@@ -1,0 +1,151 @@
+{
+ "_meta": {
+  "purpose": "The STRATEGY game-knowledge KB — sibling to frlg_gates.json. It is the data the StrategicPlanner (pokemon_planner.py) reads to turn 'what's ahead of her' into PROACTIVE prep WANTS, surfaced through the same `place`/oracle seam the folklore + questline notes use. This is the 'she read every strategy guide' layer: gym/E4/Champion rosters + counters, keeper-species quality + where to catch them, and the handful of game-changing TMs. Portable-engine split (CLAUDE.md rule 14): FireRed FACTS live HERE; the planner engine is game-agnostic and reads this file.",
+  "source": "pret/pokefirered (data/trainers, party rosters) + Bulbapedia leader/E4 pages + long-standing FRLG playthrough knowledge, distilled offline. FireRed version (Vulpix/Growlithe/Scyther available; Sandshrew/Meowth/Pinsir are LeafGreen).",
+  "firewall": "MODE-GATED. Consumed only inside the Pokémon campaign free-roam oracle context. Never touches core Kira identity; never surfaces in unrelated chat. Same firewall class as frlg_gates.json.",
+  "voice_rule": "The planner renders these facts as ONE characterful anticipation beat in HER voice (excited-kid-who-did-her-homework), never a data dump. The `counter`/`folklore` strings are her raw material, not lines to read verbatim.",
+  "type_note": "`weak_to` = attack types that hit the leader's overall team hard (a curated summary, not a per-mon chart). `answer_types` = the practical types SHE should field to beat them. `answer_species` = specific keepers that hard-counter (used for the 'level your existing counter' nudge). `level_band` = [low, high] of the leader's team on the first (non-rematch) fight.",
+  "updated": "2026-07-08 (the strategic-intelligence mega-batch)"
+ },
+
+ "threats": {
+  "Brock": {
+   "order": 1, "kind": "gym", "city": "Pewter City",
+   "types": ["rock", "ground"], "ace": "onix", "level_band": [12, 14],
+   "weak_to": ["water", "grass", "fighting", "ground", "steel"],
+   "answer_types": ["water", "grass"], "answer_species": ["squirtle", "bulbasaur", "mankey", "nidoran"],
+   "counter": "his Rock/Ground team folds to Grass or Water moves; a Bulbasaur or a caught Mankey/Nidoran walks all over him",
+   "folklore": "he runs ROCK-types — folks say fire and flying moves bounce right off; grass or water is how challengers get through"
+  },
+  "Misty": {
+   "order": 2, "kind": "gym", "city": "Cerulean City",
+   "types": ["water"], "ace": "starmie", "level_band": [18, 21],
+   "weak_to": ["electric", "grass"],
+   "answer_types": ["electric", "grass"], "answer_species": ["pikachu", "bulbasaur", "oddish", "bellsprout"],
+   "counter": "her Water team hates Electric and Grass — a Pikachu or a grass starter shreds Starmie",
+   "folklore": "she runs WATER-types — a whole gym over a pool; grass and electric do the work"
+  },
+  "Lt. Surge": {
+   "order": 3, "kind": "gym", "city": "Vermilion City",
+   "types": ["electric"], "ace": "raichu", "level_band": [21, 24],
+   "weak_to": ["ground"],
+   "answer_types": ["ground"], "answer_species": ["diglett", "dugtrio", "sandshrew", "nidoking", "geodude"],
+   "counter": "Electric can't touch a GROUND-type at all — a Diglett/Dugtrio from the cave, or any ground mon, makes Surge a joke",
+   "folklore": "the lightning American — ELECTRIC-types; ground moves shut his whole act down"
+  },
+  "Erika": {
+   "order": 4, "kind": "gym", "city": "Celadon City",
+   "types": ["grass", "poison"], "ace": "vileplume", "level_band": [29, 29],
+   "weak_to": ["fire", "flying", "psychic", "ice"],
+   "answer_types": ["fire", "flying", "psychic"], "answer_species": ["growlithe", "charmander", "pidgeotto", "abra"],
+   "counter": "Grass/Poison melts to Fire and to Flying/Psychic — a Growlithe or a Fire move is a clean sweep",
+   "folklore": "the flower lady — GRASS and poison; fire melts her garden, flyers do fine too"
+  },
+  "Koga": {
+   "order": 5, "kind": "gym", "city": "Fuchsia City",
+   "types": ["poison"], "ace": "weezing", "level_band": [37, 43],
+   "weak_to": ["psychic", "ground"],
+   "answer_types": ["psychic", "ground"], "answer_species": ["kadabra", "alakazam", "abra"],
+   "counter": "his Poison team gets erased by PSYCHIC (and Ground); an Abra line here is the answer that carries straight into Sabrina",
+   "folklore": "a literal ninja — POISON and confusion tricks; bring antidotes and patience, and Psychic wrecks him"
+  },
+  "Sabrina": {
+   "order": 6, "kind": "gym", "city": "Saffron City",
+   "types": ["psychic"], "ace": "alakazam", "level_band": [38, 43],
+   "weak_to": ["bug", "ghost", "dark"],
+   "answer_types": ["bug", "ghost"], "answer_species": ["gengar", "haunter", "scyther", "beedrill"],
+   "counter": "Psychic-types fear Bug and Ghost — a Gengar (Ghost/Poison) or a strong fast physical hitter is the play; her Alakazam is glass, out-speed or out-muscle it",
+   "folklore": "people whisper about her — PSYCHIC-types, sees your moves coming; ghosts and bugs are the folk remedy"
+  },
+  "Blaine": {
+   "order": 7, "kind": "gym", "city": "Cinnabar Island",
+   "types": ["fire"], "ace": "arcanine", "level_band": [42, 47],
+   "weak_to": ["water", "rock", "ground"],
+   "answer_types": ["water", "rock", "ground"], "answer_species": ["blastoise", "lapras", "golem", "gyarados"],
+   "counter": "his Fire team washes out to WATER (or Rock/Ground); a Lapras/Water move puts out the whole volcano",
+   "folklore": "the old fire scientist — FIRE-types on a volcano island; water washes him right out"
+  },
+  "Giovanni": {
+   "order": 8, "kind": "gym", "city": "Viridian City",
+   "types": ["ground"], "ace": "rhydon", "level_band": [45, 50],
+   "weak_to": ["water", "grass", "ice"],
+   "answer_types": ["water", "grass", "ice"], "answer_species": ["venusaur", "blastoise", "lapras", "victreebel"],
+   "counter": "Ground-types drown to WATER, GRASS and ICE — a Grass starter or a Water/Ice hitter takes the last badge",
+   "folklore": "nobody talks straight about the Viridian leader — GROUND-types, they say, and something colder underneath"
+  },
+
+  "Lorelei": {
+   "order": 9, "kind": "e4", "city": "Indigo Plateau", "seat": 1,
+   "types": ["ice", "water"], "ace": "lapras", "level_band": [52, 54],
+   "weak_to": ["electric", "grass", "fighting", "rock"],
+   "answer_types": ["electric", "grass"], "answer_species": ["raichu", "jolteon", "venusaur", "victreebel"],
+   "counter": "the Elite Four opens with Ice-and-Water — Electric and Grass hit her water mons hard; Grass eats her Lapras, and a strong physical hitter cracks the ice",
+   "folklore": "the Elite Four opens with an ice-and-water lady — they say lightning and grass are how you get past her"
+  },
+  "Bruno": {
+   "order": 10, "kind": "e4", "city": "Indigo Plateau", "seat": 2,
+   "types": ["fighting", "rock"], "ace": "machamp", "level_band": [51, 56],
+   "weak_to": ["psychic", "water", "grass", "flying"],
+   "answer_types": ["psychic", "water", "grass", "flying"], "answer_species": ["alakazam", "venusaur", "gengar", "starmie"],
+   "counter": "second seat is Fighting/Rock — PSYCHIC blows his fighters away; his two Onix drown to Water or Grass",
+   "folklore": "second is the muscle — Fighting and Rock; a Psychic type turns his whole gym to jelly"
+  },
+  "Agatha": {
+   "order": 11, "kind": "e4", "city": "Indigo Plateau", "seat": 3,
+   "types": ["ghost", "poison"], "ace": "gengar", "level_band": [53, 58],
+   "weak_to": ["psychic", "ground", "dark"],
+   "answer_types": ["psychic", "ground"], "answer_species": ["alakazam", "dugtrio", "starmie", "nidoking"],
+   "counter": "third is Ghost/Poison — PSYCHIC and GROUND both hit her hard; watch out, Normal moves do NOTHING to her ghosts, so bring the right tool",
+   "folklore": "third is the ghost-woman — Ghost and Poison; Psychic answers both, and don't bother swinging Normal moves at ghosts"
+  },
+  "Lance": {
+   "order": 12, "kind": "e4", "city": "Indigo Plateau", "seat": 4,
+   "types": ["dragon", "flying"], "ace": "dragonite", "level_band": [54, 60],
+   "weak_to": ["ice", "electric", "rock"],
+   "answer_types": ["ice", "electric"], "answer_species": ["lapras", "dewgong", "jynx", "articuno", "cloyster"],
+   "counter": "the dragon master — and ICE is the dragon-slayer: an Ice Beam / Blizzard is 4x on his Dragonite and shreds his Dragonairs; Electric handles his Gyarados and Aerodactyl. An Ice-type like Lapras is EXACTLY his counter",
+   "folklore": "fourth is the dragon master — and everyone says the same thing: ice is the only thing a dragon truly fears"
+  },
+  "Gary": {
+   "order": 13, "kind": "champion", "city": "Indigo Plateau", "seat": 5,
+   "types": ["mixed"], "ace": "starter's final form", "level_band": [59, 65],
+   "weak_to": [],
+   "answer_types": [], "answer_species": [],
+   "counter": "the Champion — your rival, and his team is MIXED (Pidgeot, Alakazam, Rhydon, an Eeveelution or Arcanine/Exeggutor/Gyarados, and his starter's final form). No single answer: this is the fight your whole balanced, levelled SIX exists for. His Alakazam is glass — hit it fast; his Rhydon falls to Water/Grass; save your best for his ace",
+   "folklore": "and at the very top — HIM. Gary. The rival. Whatever his team is by now, this is the one the whole journey's been building to"
+  }
+ },
+
+ "e4_sequence": ["Lorelei", "Bruno", "Agatha", "Lance", "Gary"],
+
+ "species_quality": {
+  "_doc": "keeper flags for the opportunistic-catch judgment (roster_judgment). tier: rare_strong (grab it) / strong / project (weak now, monster later) / decent. `where` is the usual catch spot; `evolves` names the payoff.",
+  "pikachu":  {"tier": "rare_strong", "evolves": "raichu (Thunder Stone)", "where": "Viridian Forest (rare) / the Power Plant", "note": "rare AND genuinely strong — the iconic Electric, and a clean Misty/Surge-water answer"},
+  "abra":     {"tier": "rare_strong", "evolves": "kadabra -> alakazam", "where": "Routes 24/25 by Cerulean (it Teleports — catch fast)", "note": "becomes ALAKAZAM, one of the best sweepers in the game; carries Koga, Sabrina and the E4"},
+  "growlithe":{"tier": "strong", "evolves": "arcanine (Fire Stone)", "where": "Routes 7/8 near Celadon (FireRed exclusive)", "note": "a loyal Fire powerhouse — Arcanine is a monster and the clean Erika answer"},
+  "scyther":  {"tier": "rare_strong", "evolves": "scizor (later gens; stays Scyther here)", "where": "Celadon Game Corner prize / Safari-adjacent", "note": "a rare Bug/Flying glass cannon — fast and hits hard, a Sabrina answer"},
+  "eevee":    {"tier": "rare_strong", "evolves": "vaporeon / jolteon / flareon (stones)", "where": "gift in Celadon (the house above the Game Corner)", "note": "one-of-a-kind — evolve it into exactly the coverage the team is missing"},
+  "dratini":  {"tier": "rare_strong", "evolves": "dragonair -> dragonite", "where": "Safari Zone fishing / Game Corner prize (Dratini, coins)", "note": "the pseudo-legendary — a long project but ends as a DRAGONITE, a top-tier ace"},
+  "lapras":   {"tier": "rare_strong", "evolves": "none", "where": "gift from a Silph Co. employee in Saffron (Team Rocket raid)", "note": "a gift Water/ICE tank — versatile, and with Ice Beam she is the textbook LANCE answer"},
+  "hitmonlee":{"tier": "strong", "evolves": "none", "where": "Saffron Fighting Dojo (pick one of two)", "note": "a strong Fighting hitter — good vs the Normal/Rock/Ice types ahead"},
+  "hitmonchan":{"tier": "strong", "evolves": "none", "where": "Saffron Fighting Dojo (pick one of two)", "note": "a strong Fighting hitter with elemental punches"},
+  "snorlax":  {"tier": "rare_strong", "evolves": "none", "where": "asleep on Routes 12 and 16 (only two in the game — Poke Flute to wake)", "note": "a colossal Normal wall — enormous HP, learns almost anything, only two exist"},
+  "magikarp": {"tier": "project", "evolves": "gyarados", "where": "fishing / Magikarp salesman", "note": "pathetic now, but becomes a GYARADOS — a Water/Flying beast worth the babysitting"},
+  "aerodactyl":{"tier": "rare_strong", "evolves": "none", "where": "revive the Old Amber (Pewter Museum) on Cinnabar", "note": "a rare fossil — blisteringly fast Rock/Flying attacker"},
+  "omanyte":  {"tier": "rare", "evolves": "omastar", "where": "Mt. Moon fossil choice (Helix)", "note": "a fossil Rock/Water — tanky special attacker if you pick the Helix"},
+  "kabuto":   {"tier": "rare", "evolves": "kabutops", "where": "Mt. Moon fossil choice (Dome)", "note": "a fossil Rock/Water — Kabutops is a fast physical sweeper if you pick the Dome"},
+  "clefairy": {"tier": "decent", "evolves": "clefable (Moon Stone)", "where": "Mt. Moon (rare)", "note": "a rare Mt. Moon Normal-type with a huge, flexible movepool"},
+  "gyarados": {"tier": "strong", "evolves": "none", "where": "evolve a Magikarp / rare fish", "note": "a Water/Flying powerhouse — huge attack"},
+  "vulpix":   {"tier": "decent", "evolves": "ninetales (Fire Stone)", "where": "Routes 7/8 (FireRed exclusive)", "note": "a solid Fire option if you skipped Growlithe"}
+ },
+
+ "key_moves": {
+  "_doc": "the handful of TMs/moves that change what the team can DO. The planner names these as a want when the matching threat is ahead and she has a good user for it.",
+  "ice beam":    {"tm": "TM13", "where": "Celadon Dept. Store 4F (buy, ~4000)", "type": "ice", "why": "THE dragon-slayer — 4x on Lance's Dragonite and huge on his Dragonairs; also stellar neutral coverage. Teach it to Lapras or any Water-type", "for": ["Lance", "Giovanni", "Agatha"]},
+  "thunderbolt": {"tm": "TM24", "where": "Celadon Dept. Store 4F (buy, ~4000)", "type": "electric", "why": "hits Lorelei's water mons AND Lance's Gyarados/Aerodactyl hard; a clean Misty answer too", "for": ["Lorelei", "Lance", "Misty"]},
+  "earthquake":  {"tm": "TM26", "where": "Silph Co. (gift on 7F) / found in the Rocket Hideout", "type": "ground", "why": "the best Ground move in the game — smashes Surge, Blaine, Koga and Agatha's poison", "for": ["Lt. Surge", "Agatha", "Blaine", "Koga"]},
+  "psychic":     {"tm": "TM29", "where": "Saffron gym reward (beat Sabrina) / Celadon Game Corner", "type": "psychic", "why": "nukes Koga's poison, Bruno's fighters and Agatha's ghosts", "for": ["Koga", "Bruno", "Agatha"]},
+  "fire blast":  {"tm": "TM38", "where": "Celadon Game Corner prize", "type": "fire", "why": "a heavy Fire nuke — melts Erika and any Grass/Ice/Bug", "for": ["Erika"]},
+  "surf":        {"hm": "HM03", "where": "Safari Zone Secret House (see frlg_gates.json)", "type": "water", "why": "strong reliable Water STAB on top of opening the sea — great vs Brock, Blaine, Giovanni", "for": ["Blaine", "Giovanni", "Brock"]}
+ }
+}

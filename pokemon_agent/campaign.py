@@ -35,6 +35,7 @@ import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from pokemon_strategy import StrategicMemory, roster_judgment  # noqa: E402  (Batch 3 Phase 2 + block-#3 choice)
+from pokemon_planner import StrategicPlanner  # noqa: E402  (2026-07-08 strategic-intelligence mega-batch)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
 import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a gate -> derive a questline -> execute)
@@ -582,6 +583,12 @@ class Campaign:
         # battle path (travel-into-trainer, gym juniors, segments) is observed from one place — no
         # battle_agent / play_live surgery, and the wrapper is pure-additive (real runner unchanged).
         self.strat = StrategicMemory(log=log)
+        # STRATEGIC PLANNER (2026-07-08 mega-batch): the 'read every guide' forward-prep layer. Reads
+        # gamedata/frlg_strategy.json and turns the NEXT threat into a proactive in-character prep beat
+        # (matchup foresight, level-your-counter, catch-a-keeper, develop-the-bench) folded into the
+        # oracle ctx via the SAME `place` seam the loss-awareness/folklore notes use. Firewall: mode-side
+        # game-knowledge only, never core. Kill-switch POKEMON_STRATEGIC_PLANNER=0.
+        self.planner = StrategicPlanner(log=log)
         # RECALIBRATION — the STANDING objective she returns to after a detour (a 25-min trainer
         # gauntlet, a heal run). Set when she commits to a going-somewhere action; preserved through
         # detour actions (heal/talk/grind) so she resumes "I was heading to X" instead of re-deciding
@@ -2713,6 +2720,18 @@ class Campaign:
         "Blaine": "the old fire scientist — FIRE-types on a volcano island; water washes him out",
         "Giovanni": "nobody talks straight about the Viridian leader — GROUND-types, they say, "
                     "and something colder underneath",
+        # E4 + CHAMPION (2026-07-08 mega-batch): the folklore was gym-only, so at 8 badges (next_gym
+        # None) the run's CLIMAX had zero 'word on the road'. These fire from the badges==8 branch of
+        # _spine_and_history. Rumor register (flavor); the StrategicPlanner carries the actionable prep.
+        "Lorelei": "the Elite Four open with an ice-and-water lady — folks say lightning and grass are "
+                   "how you slip past her",
+        "Bruno": "then comes the muscle, all Fighting and Rock — they reckon a Psychic type turns him to jelly",
+        "Agatha": "then a ghost-and-poison woman — Psychic answers her, and Normal moves just phase "
+                  "clean through her ghosts",
+        "Lance": "then the dragon master himself — and everyone says the same thing: ice is the only "
+                 "thing a dragon truly fears",
+        "Gary": "and at the very top… him. your rival. whatever his team's become by now, this is the "
+                "one the whole road's been building to",
     }
 
     _SALIENT_FIGURES = {
@@ -3713,7 +3732,10 @@ class Campaign:
                         _dex_new = ram.pokedex_owns(self.b, fid) is False   # DEX DOCTRINE: first-of-a-kind leans catch
                     except Exception:
                         _dex_new = False
-                    rec, reason, facts = roster_judgment(team, foe_desc, dex_new=_dex_new)
+                    # SPECIES-QUALITY (2026-07-08 mega-batch): hand roster_judgment the guide's keeper
+                    # record so she recognises a rare/strong catch on sight (a Pikachu!), not just a type-hole.
+                    _quality = self.planner.keeper(fname)
+                    rec, reason, facts = roster_judgment(team, foe_desc, dex_new=_dex_new, quality=_quality)
                     pick = self._soul_choose(
                         "catch_judgment",
                         {"catch": f"throw a ball at this {fname} (L{foe_desc['level']})",
@@ -7678,6 +7700,17 @@ class Campaign:
                 where = f"{where}. {self._spine_and_history(state)}"
             except Exception as _sh:
                 log(f"   [roam] spine/history fold skipped: {_sh}")
+            # STRATEGIC PLANNER (2026-07-08 mega-batch): fold the PROACTIVE forward-prep beat — what's
+            # ahead, do I already have the answer, and the single smartest prep move (level my existing
+            # counter / catch a keeper type / stop neglecting the bench). This is the antidote to the old
+            # reactive-only pattern (she learned a wall only AFTER losing); now she anticipates it. Same
+            # `place` seam, she still chooses. Skipped cleanly on post-game / no-threat / disabled.
+            try:
+                _plan = self.planner.plan_note(state)
+                if _plan:
+                    where = f"{where}. {_plan}"
+            except Exception as _pl:
+                log(f"   [roam] planner fold skipped: {_pl}")
             # SOUL-DEBT #12 (info half) — fold her OVERHEARD INTEL (NPC/sign lines the extractor kept)
             # into the decision ctx, so "the captain is upstairs" can actually steer the pick. Her own
             # notes, not omniscience: only lines she really read this run.
@@ -8391,6 +8424,15 @@ class Campaign:
                       "your world to enjoy.")
         else:
             spine += "All 8 badges are yours — the Elite Four is the final challenge before the credits."
+            # E4 FOLKLORE SURFACING FIX (2026-07-08 mega-batch): the folklore path was keyed on `next_gym`,
+            # which is None at 8 badges — so the run's CLIMAX (the E4) got NO 'word on the road'. Surface a
+            # compact rumor beat here for the two most memorable seats (the opener + the dragon master); the
+            # StrategicPlanner adds the personal, actionable prep (level MY Lapras for Lance).
+            _e4_open = self._GYM_FOLKLORE.get("Lorelei")
+            _e4_lance = self._GYM_FOLKLORE.get("Lance")
+            if _e4_open or _e4_lance:
+                spine += (" Word on the road about the Elite Four: "
+                          + "; and ".join(x for x in (_e4_open, _e4_lance) if x) + ".")
         hist = self._story_so_far(bc)
         return spine + (f" YOUR STORY SO FAR (what you've actually done — your past, not the future): "
                         f"{hist}" if hist else "")

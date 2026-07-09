@@ -41,11 +41,16 @@ _P_LEVEL_OFF = 0x54
 # The framework a real player runs on every wild encounter: is it NEW, does it COVER a type gap, is it
 # a decent LEVEL, is there ROOM? Pure function — it LEANS, with a first-person-ready REASON either way;
 # the ORACLE decides live (capability-not-script), headless follows the lean. Never edits anything.
-def roster_judgment(team, foe, dex_new=None):
+def roster_judgment(team, foe, dex_new=None, quality=None):
     """team = [{'species_id', 'level', 'types': [...]}]; foe = {'species_id', 'name', 'level',
     'types': [...]}; dex_new = True when she has NEVER OWNED this species (DEX DOCTRINE 2026-07-06:
     a first-of-a-kind carries real positive weight when the catch is cheap — the dex is her ambient
-    pride stat, never a pre-credits grind target). Returns (recommend_catch, reason, facts)."""
+    pride stat, never a pre-credits grind target). quality = the species-quality record from the
+    strategy KB (StrategicPlanner.keeper(name)) or None — tier ∈ rare_strong/strong/project/decent +
+    a `note`. SPECIES-QUALITY (2026-07-08 mega-batch): a real player who read the guide grabs a KNOWN
+    strong/rare mon on sight (a Pikachu!, an Abra!), not just a type-hole filler — this is the
+    'recognise a keeper' half the old type-gap-only lean was missing. Returns (recommend_catch, reason,
+    facts)."""
     name = foe.get("name") or "it"
     f_types = [t for t in (foe.get("types") or []) if t]
     team_ids = {m.get("species_id") for m in team}
@@ -54,9 +59,11 @@ def roster_judgment(team, foe, dex_new=None):
     floor, lead = min(levels), max(levels)
     new_types = [t for t in dict.fromkeys(f_types) if t not in team_types]
     coverage = [t for t in new_types if t != "normal"]
+    tier = (quality or {}).get("tier")
+    qnote = (quality or {}).get("note") or ""
     facts = {"dupe": foe.get("species_id") in team_ids, "new_types": new_types,
              "coverage": coverage, "foe_level": foe.get("level"), "floor": floor,
-             "lead": lead, "room": len(team) < 6, "dex_new": bool(dex_new)}
+             "lead": lead, "room": len(team) < 6, "dex_new": bool(dex_new), "tier": tier}
     lv = foe.get("level") or 0
     if not facts["room"]:
         return (False, f"my team's full — {name} would need someone to make way, and I like my six",
@@ -64,6 +71,13 @@ def roster_judgment(team, foe, dex_new=None):
     if facts["dupe"]:
         return (False, f"I've already got one of those — a twin {name} doesn't make the team stronger",
                 facts)
+    # KEEPER (species-quality) — the excited 'I know what this is' lean. A rare/strong mon is worth
+    # grabbing even with no immediate type gap; a bit under-level is fine because it's a KEEPER I'll raise.
+    if tier in ("rare_strong", "strong"):
+        gap = f" — and it fills my {'/'.join(coverage)} gap" if coverage else ""
+        excite = "oh—a {n}! that's a proper KEEPER".format(n=name) if tier == "rare_strong" \
+            else "a {n} — that's a strong one, worth grabbing".format(n=name)
+        return (True, f"{excite}: {qnote}{gap}. I've got room and I want this one", facts)
     if coverage:
         tt = "/".join(coverage)
         if lv >= max(2, floor - 6):
@@ -74,6 +88,11 @@ def roster_judgment(team, foe, dex_new=None):
     if dex_new and lv >= max(2, floor - 8):
         return (True, f"wait — I've never caught a {name} before. new species, ball's already in my "
                       f"bag… the dex grows today", facts)
+    # PROJECT keeper (a Magikarp → Gyarados): weak now, a monster later — worth the babysitting if the
+    # bench has room for a long-term project (not when I'm already carrying a full squad of six).
+    if tier == "project" and len(team) < 5:
+        return (True, f"a {name}? barely a threat right now — but {qnote}. I've got a bench slot for a "
+                      f"long project, so yeah, I'll take it", facts)
     if len(team) < 4 and lv >= max(2, floor - 4):
         return (True, f"nothing new type-wise, but my bench is thin ({len(team)}) and a L{lv} {name} "
                       f"can pull weight", facts)
