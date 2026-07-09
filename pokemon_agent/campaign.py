@@ -4911,6 +4911,7 @@ class Campaign:
         self._ql_inside_target = False        # not deliberately inside any quest building anymore
         self._ql_past_anchor = False          # next questline starts anchor-relative again
         self._ql_bend_maps = set()            # forget the explored bend with the questline
+        self._ql_prev_map = None              # anti-ping-pong for visited-fallback bend hops
         self._ql_room_sweeps = 0              # fresh room-sweep budget for the next questline
         self._ql_talks_map = {}               # fresh per-map talk budgets too
         self._ql_bg_done = set()              # fresh machine/sign tracking too
@@ -4972,6 +4973,7 @@ class Campaign:
             self._ql_cur_step = step.missing
             self._ql_past_anchor = False
             self._ql_bend_maps = set()
+            self._ql_prev_map = None
         # DOOR HINT (flute_run1): the target building sits INSIDE the anchor town (Pokemon Tower,
         # the Game Corner) — no compass dir reaches it. The KB bills the exact door tile; standing
         # in the anchor town, enter THAT door. One shot per questline (the entered-doors set).
@@ -5150,8 +5152,24 @@ class Campaign:
             # (discovery), never back the way the coarse dir came from (exclude the opposite edge), so she
             # learns the bending route LIVE (the world graph then carries it). This is the general
             # "questline handles an unlearned/bending forward segment" capability, not a Route-24 one-off.
+            _back = _OPP.get(letter)
+            _came = getattr(self, "_ql_prev_map", None)
             frontier = [(dd, nb) for dd, nb in conns
-                        if dd != _OPP.get(letter) and not self.world.visited(tuple(nb))]
+                        if dd != _back and not self.world.visited(tuple(nb))]
+            fresh_bend = bool(frontier)
+            if not frontier:
+                # PRE-MAPPED FORWARD (2026-07-09, the Route-24 -> Route-25 look-ahead wedge): the bend
+                # keyed 'forward' off `not visited`, which holds on a FRESH world but NOT when the world
+                # model is pre-loaded — the look-ahead loads the CANONICAL world (Champion run visited
+                # every map, incl. Route 25/Bill), so no UNVISITED forward edge exists and the old code
+                # mis-declared 'arrived' on Route 24, parking head_to_gym while Bill sat one map east.
+                # (Same class bites late-game backtrack fetch-quests over known ground.) A VISITED
+                # forward map is NOT arrival — cross a non-back connection we did NOT just come from
+                # (anti-ping-pong), preferring the coarse-dir edge; BEND-CONTINUE + the interact layer
+                # carry her the rest (on the destination map the frontier empties and she interacts).
+                frontier = [(dd, nb) for dd, nb in conns
+                            if dd != _back and tuple(nb) != _came]
+                frontier.sort(key=lambda t: 0 if t[0] == letter else 1)
             if frontier:
                 dd, nb = frontier[0]
                 nb = tuple(nb)
@@ -5160,10 +5178,12 @@ class Campaign:
                     log(f"   [roam] questline: frontier hop {nb} ({dword}) is wall-gated — surfacing")
                     return "wall_gated"
                 log(f"   [roam] 🧭 QUESTLINE EXPLORE: no {d} edge from {cur_map} — the route bends; "
-                    f"crossing {dd} into unexplored {nb} toward {step.place_name or 'the destination'}")
+                    f"crossing {dd} into {'unexplored' if fresh_bend else 'known-but-forward'} {nb} "
+                    f"toward {step.place_name or 'the destination'}")
                 if not hasattr(self, "_ql_bend_maps"):
                     self._ql_bend_maps = set()
                 self._ql_bend_maps.add(nb)         # remember the bend so a bounce-back can CONTINUE it
+                self._ql_prev_map = cur_map        # anti-ping-pong for the next visited-fallback hop
                 r = self.trav.travel(target_map=nb, edge=dword)
                 # FENCED BEND EDGE (descent re-grade 2026-07-08): the header bills the connection
                 # but the walkable crossing is a CONNECTOR BUILDING (Route 8's west "edge" is the
