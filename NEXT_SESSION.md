@@ -2,6 +2,24 @@
 
 ## SHIFT 6 HEAD (read FIRST — supersedes shift 5 below)
 
+**ROUTE24->25->BILL FIX (7152af0) VERIFIED END-TO-END — S.S. TICKET OBTAINED.** The re-run
+(`logs/debug/route25_verify.log`, OUTCOME: GOAL — FLAG_GOT_SS_TICKET set) proved the whole chain:
+`QUESTLINE EXPLORE ... crossing E into known-but-forward (3, 44)` (the new visited-fallback) ->
+arrived on Route 25 (NOT the Route-24 misfire) -> entered Bill's cottage door (51,4)->(30,0) ->
+talked Bill -> **questline cleared (flag satisfied)**. Survived a mid-climb blackout+recovery and
+still completed. The fix generalizes to the WHOLE look-ahead climb: recon_longrun loads the CANONICAL
+world (every forward map pre-visited), so every stretch past here is "pre-mapped-forward" and now routes.
+Post-Bill state banked -> **`states/workshop/ss_ticket.state`** (party ivysaur L27/rattata L14/spearow
+L14, badge 2, ticket in bag). Canonical UNTOUCHED (sanctity refused badge 8->2, expected).
+
+**SHIFT 6 NEXT STRIKE IN FLIGHT:** `recon_longrun.py ss_ticket.state <min>` -> `logs/debug/vermilion_verify.log`.
+EXPECTED: ticket opens Cerulean's south gate -> Route 5 -> Route 6 -> Vermilion -> board S.S. Anne
+(has ticket) -> HM01 Cut from the captain -> Cut the tree -> Lt. Surge gym (badge 3). READ that log,
+find the next wedge, diagnose -> fix general -> re-run. (Surge needs a ground move / her bench is thin
+L14 vs ace — watch for an under-level wall at Surge; the canonical climb + recon_bill_*.py are prior art.)
+
+---
+
 **BILLFIX (1b851bb) VERIFIED WORKING.** The shift-5 `recon_longrun.py rattata_grind.state 30`
 (`logs/debug/billfix_verify.log`) proved it: she re-anchored Route 4 -> Cerulean -> crossed NORTH
 onto **Route 24 (map 3,43) — the Nugget Bridge** (Ivysaur grinded the bridge trainers L24 -> Venusaur
