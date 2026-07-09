@@ -138,6 +138,11 @@ MOVE_NAMES = {
     22: "Vine Whip", 74: "Growth", 73: "Leech Seed", 77: "PoisonPowder",
     79: "Sleep Powder", 75: "Razor Leaf", 55: "Water Gun", 145: "Bubble",
     44: "Bite", 99: "Rage", 84: "Thunder Shock", 88: "Rock Throw", 111: "Defense Curl",
+    # HM field moves (ids from campaign's TEACH BRIDGE): without these her oracle move-drop
+    # ctx rendered a learned HM as "move#15" instead of "Cut" (soul gap — she'd narrate the
+    # number, not the move name). She carries these the whole climb (Cut→Surf→Strength→Flash).
+    15: "Cut", 19: "Fly", 57: "Surf", 70: "Strength", 148: "Flash",
+    249: "Rock Smash", 127: "Waterfall",
 }
 
 
