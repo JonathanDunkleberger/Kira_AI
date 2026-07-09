@@ -309,8 +309,11 @@ def main():
         visited.add(mp)
         party = _party(b)
         prep = None
+        _road = None
         try:
-            prep = camp._prep_team_target(camp.read_live_state())
+            _ls = camp.read_live_state()
+            prep = camp._prep_team_target(_ls)
+            _road = camp._gym_road((_ls or {}).get("next_gym"))   # billed road to the next gym (or None)
         except Exception:
             prep = None
         ql = camp._active_questline
@@ -353,6 +356,15 @@ def main():
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
+        elif (not BARGE) and "head_to_gym" in opts and _road \
+                and party and party[0][1] >= (prep or 0) + 4:
+            # PUSH-WHEN-CARRYING (2026-07-09, night-train shift 8): a billed road forward + a LEAD that
+            # out-levels the stretch's team target = a sensible player MARCHES the road (its trainers +
+            # the S.S. Anne + the gym ARE the grind and the goal) rather than parking in wild grass to
+            # grind the bench. Grind-in-place (below) is for a genuinely walled lead, NOT a L28 carry
+            # with the road wide open. This is what let the routing-isolation probe verify the road; now
+            # the DEFAULT run pushes forward too, so the look-ahead can reach S.S. Anne / Cut / Surge.
+            pick = "head_to_gym"
         elif (not BARGE) and "wander_catch" in opts and len(party) < 4 \
                 and camp._balls_pocket_count(C.ITEM_POKE_BALL) > 0:
             pick = "wander_catch"                          # NURSERY (2026-07-06): thin team + balls +
