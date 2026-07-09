@@ -701,6 +701,7 @@ class Campaign:
         self._active_questline = None
         self._ql_entered_doors = set()        # doors entered for the active questline (no re-entry loop)
         self._ql_inside_target = False        # True while deliberately inside a quest-target building
+        self._ql_inside_map = None            # the interior map she's deliberately in (whiteout-relocation guard)
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
         battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
@@ -7689,6 +7690,27 @@ class Campaign:
                 self._save_campaign(f"tick{tick - 1}")
                 self._continuity_save()
             self._wait_overworld()
+            # WHITEOUT vs DELIBERATE INTERIORITY (night shift 14 — the S.S. Anne rival ping-pong): the
+            # DIRECTED interior nav sets `_ql_inside_target` so the recovery below LEAVES her inside a
+            # quest building (the ship). But a battle LOSS whites her out and warps her to a Pokémon Center
+            # — she is no longer in that building. The flag stayed stale-True, SUPPRESSING the recovery
+            # (both branches require `not _ql_inside_target`), so she sat inside Cerulean's Center after
+            # losing to Gary — head_to_gym can't route out of a building -> an unwatchable ~11-tick no_route
+            # ping-pong. FIX: track the interior map she's deliberately in (`_ql_inside_map`, refreshed each
+            # tick she's inside with no battle); if a battle RAN this action AND she's now on a DIFFERENT
+            # interior map, that's a whiteout relocation -> void the interiority so the recovery exits her.
+            # A WON battle on the SAME building map keeps the flag (she stays aboard exploring). General:
+            # any deep-building loss, not just Gary.
+            _here_map = tuple(tv.map_id(self.b))
+            if getattr(self, "_ql_inside_target", False):
+                if (getattr(self, "_battle_ran_this_action", False)
+                        and _here_map != getattr(self, "_ql_inside_map", _here_map)):
+                    self._ql_inside_target = False
+                    log(f"   [roam] whiteout relocated her {getattr(self, '_ql_inside_map', None)} -> "
+                        f"{_here_map} after a loss -> clearing _ql_inside_target (let the stranded-in-"
+                        f"building recovery exit her to the overworld)")
+                elif not getattr(self, "_battle_ran_this_action", False):
+                    self._ql_inside_map = _here_map     # deliberate interior nav -> keep her location current
             # BLACKOUT / STRANDED-IN-BUILDING RECOVERY (increment 4 PART A): a wild loss whites her out
             # and warps her INSIDE a Pokémon Center (map group != 3 — a building interior), healed. Her
             # overworld actions (head_to_gym routes via map CONNECTIONS) can't navigate out of a building,
