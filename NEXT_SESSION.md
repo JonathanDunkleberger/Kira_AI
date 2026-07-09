@@ -37,15 +37,27 @@ wins this shift, then the structural handoff:
   -> should reach Pewter/Brock, Cerulean/Misty, THEN free_roam past badge 2. READ
   `logs/debug/freshspine_shift3.log` for the next wedge past Misty, then diagnose -> fix -> re-run.
 
+## FIRST POST-MISTY WEDGE — DIAGNOSED + FIXED THIS SHIFT (GRIND-WEAK stall)
+
+The FRESH 90 look-ahead cleared Misty, handed to free_roam, and she climbed badge 3 well (caught
+Spearow+Rattata, Mart, plan to Bill/Vermilion) — but then GRIND-WEAK SPUN ~30 real-min on an
+un-levelable Rattata (L10, too weak to earn XP on Route 4 -> grind() returns 'ok' with no level gain
+-> re-picked as weakest -> loop). FIXED (`12c992b`, unit-VERIFIED via `recon_grindstall_test.py`):
+mark a fielded mon that gained ZERO levels as stalled (by PID, survives roam re-entries), exclude it,
+push on with the strong core. **IN FLIGHT:** `logs/debug/grindfix_verify.log` (recon_longrun boot
+`rattata_grind.state` 15) re-runs from the wedge point to confirm the fix unblocks FORWARD progress
+(grind Spearow -> stall Rattata -> retry Gary/Nugget Bridge -> Bill -> Vermilion). READ IT FIRST: if
+she progresses forward, badge 3 is unblocked; if she macro-loops (roam keeps forcing 'strengthen'
+while walled at Gary despite the strong core), the deeper fix is the strategic layer standing down
+when the ace/core is already strong enough to retry the wall (or grinding the ACE, not the bench).
+
 ## FRONTIER (do in order)
 
-1. **VERIFY the free_roam handoff climbs past badge 2** via the FRESH 90 look-ahead. Find the FIRST
-   wedge in the post-Misty free_roam (Bill / Route 5-6 / Vermilion / SS Anne-Cut / Surge …), diagnose
-   -> fix general -> re-run. Iterate toward credits (canonical already proved bedroom->credits is
-   reachable via free_roam, so the machinery exists; the fresh-context climb just needs its wedges
-   cleared). NOTE: the fresh run soloed Ivysaur (Route 3 CATCH failed to add a 2nd mon, party=1) — a
-   real player would have a team; watch whether the solo survives deeper, and whether team-building
-   (#3) needs attention for the mid-game.
+1. **CONFIRM the badge-3 climb is unblocked** (read grindfix_verify.log per above), then re-run
+   `recon_longrun.py FRESH 90` and find the NEXT wedge past Gary/Nugget Bridge (Bill's S.S. Ticket /
+   Route 5-6 / Vermilion / SS Anne-Cut / Surge). Diagnose -> fix general -> re-run. Iterate toward
+   credits. NOTE: the spine's Route 3 CATCH failed to add a 2nd mon (she reached Misty solo Ivysaur;
+   free_roam's wander_catch fixed it after) — watch whether the spine catch needs hardening (#3).
 2. **WIRE THE HANDOFF INTO `play_live --show` (the REAL show path) — CAREFULLY, FIREWALLED.** Today
    `--show` runs ONLY `run_segments` (ends at Misty). Add the same free_roam handoff after
    `all_segments_complete`. **FIREWALL — the subtle part (verified this shift by reading go.py:117-134):**
