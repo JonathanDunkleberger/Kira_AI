@@ -490,6 +490,12 @@ def build_objectives():
         # to Oak in Pallet -> Pokedex + 5 Poke Balls (the lab ReceiveDexScene's giveitem, NOT a shop
         # buy). The balls are what unblock the Route 3 catch. Interior nav + dialogue only.
         ("DELIVER_PARCEL", "Viridian Mart -> OAK'S PARCEL -> Oak's lab -> Pokedex + 5 Poke Balls"),
+        # GRIND before the Forest (2026-07-09 night train): the Forest leg FLEES wilds (the only reliable
+        # crossing), so a solo starter reaches Pewter at Lv8 and loses Brock. Train to ~Lv13 on Route 2
+        # FIRST (grass + a clean short heal-bounce to Viridian) — Vine Whip + the HP to survive Onix —
+        # then flee-cross. A real player grinds the early route before the first gym; this is that.
+        ("GRIND_PRE_BROCK", 13, "train the solo starter to ~Lv13 on Route 2 (Vine Whip + Onix survival) "
+         "before the Forest crossing"),
         ("ADVANCE_NORTH", PEWTER, "Viridian -> Route 2 -> Forest -> Pewter (auto walk/warp)"),
         ("LEVEL_CHECK", 13, "Brock-readiness (need ~Lv13 for Vine Whip + to survive Onix)"),
         ("BEAT_GYM", "Brock", "Pewter Gym -> Brock -> Boulder Badge (beat_gym enters + fights)"),
@@ -4188,7 +4194,7 @@ class Campaign:
             log(f"   HEAL: returned toward {return_to} -> {r} (now {tv.coords(self.b)})")
         return "healed"
 
-    def grind(self, target_level, fragile=False):
+    def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
         capability (the 'walk away' vision needs autonomous leveling). From a CITY with no grass
         (Pewter), cross EAST to the adjacent route (Route 3: grass + a trainer gauntlet = fast XP),
@@ -4197,7 +4203,11 @@ class Campaign:
         `fragile=True` (weak bench-mon grind): the lead can FAINT, so ONLY pace grass she can WALK BACK
         FROM to the safe start anchor — never cross a one-way ledge into a pocket where a faint would
         strand her un-healably (the Route-4-east heal-wedge). The tanky ace (fragile=False) is unfiltered
-        (it never faints there, so Center-unreachable grass is fine — filtering it regressed the ace-grind)."""
+        (it never faints there, so Center-unreachable grass is fine — filtering it regressed the ace-grind).
+
+        `budget_s` caps the grass wall-clock (default 480 keeps every existing caller byte-identical). A
+        deep gap like the pre-Brock solo-Bulbasaur climb (Lv8->13 on Route-2 wilds only) needs a longer
+        window than a one-level top-up, so grind_pre_brock passes a wider budget."""
         def lvl():
             return self.b.rd8(ram.GPLAYER_PARTY + 0x54)
         if lvl() >= target_level:
@@ -4214,7 +4224,7 @@ class Campaign:
         anchor = tv.coords(self.b) or (0, 0)                   # safe start (Center-reachable); fragile grind
         #                                                        must be able to walk BACK here from any grass
         t0 = time.time()
-        while lvl() < target_level and time.time() - t0 < 480:
+        while lvl() < target_level and time.time() - t0 < budget_s:
             gs = grass_save()
             if not gs:
                 # NO GRASS AT ALL on this map (koga_run4, water Route (3,37)): the old bare `break`
@@ -4265,6 +4275,71 @@ class Campaign:
         if tv.map_id(self.b) != home and home == PEWTER:      # back to Pewter for the gym
             self.walk_to_map(PEWTER, "west")
         return "ok"
+
+    def grind_pre_brock(self, target_level=13):
+        """Get the solo starter Brock-ready BEFORE the Viridian Forest crossing (2026-07-09 night train).
+
+        THE WALL this solves: the Forest leg FLEES wilds (the only reliable crossing — a thin solo
+        starter that FIGHTS through the Forest drops below the heal floor mid-maze and heal-bounces to
+        Viridian forever). But fleeing = ~0 XP, so she reaches Pewter at Lv8 with Tackle/Growl (no Vine
+        Whip, learned ~Lv13) and LOSES to Brock's Onix (Lv14). A real player GRINDS the early route
+        before the first gym; this is that, narrated.
+
+        WHERE: Route 2 (map group 3), NOT the Forest interior (group 1). Route 2 has grass AND heals
+        cleanly — its own-Center-less overworld tile routes heal_nearest's adjacent-city excursion SOUTH
+        to Viridian (short, proven). The Forest (group 1) trips heal_nearest's 'inside a building complex'
+        branch (it's not group 3), so grinding there can't heal reliably — exactly the bounce we're
+        escaping. Trainers live in the Forest, so Route-2 XP is wilds-only (slower) but ROCK-solid; the
+        subsequent ADVANCE_NORTH still FLEE-crosses the Forest. Non-fatal throughout: a positioning miss
+        or a soft grind wall WARNs + proceeds (LEVEL_CHECK + the segment's blackout-recovery still cover a
+        loss) — the spine never hard-stalls on a readiness gate."""
+        def lead_lvl():
+            return self.b.rd8(ram.GPLAYER_PARTY + 0x54)
+        lvl = lead_lvl()
+        if lvl >= target_level:
+            log(f"   GRIND-BROCK: lead already Lv{lvl} >= {target_level} — Brock-ready, skipping the grind")
+            return "ok"
+        # CONSTITUTION obligation #3 (narrated purpose, bedrock block #4): say WHY she's training, in
+        # character — a real first-timer sizes up the gym and trains, she doesn't grind silently.
+        self.on_event(
+            f"My {self._lead_species_name()}'s only level {lvl} — Brock's Onix is level 14 and made of "
+            f"rock. I'm not walking in there thin. Quick training run on Route 2 first, then we knock.")
+        # 1) POSITION onto Route 2 (grass + short reliable heal-bounce to Viridian).
+        m = tv.map_id(self.b)
+        if m != ROUTE2:
+            if m in (PALLET, ROUTE1):                          # just delivered the parcel down south
+                self.walk_to_map(VIRIDIAN, "north")
+            if tv.map_id(self.b) == VIRIDIAN:
+                self.walk_to_map(ROUTE2, "north")
+        if tv.map_id(self.b) != ROUTE2:
+            log(f"   !! GRIND-BROCK: couldn't reach Route 2 (at {tv.map_id(self.b)}) — proceeding "
+                f"underleveled (LOUD; LEVEL_CHECK + blackout-recovery still cover a Brock loss)")
+            return "ok"
+        # 2) GRIND the solo lead on Route-2 wilds. Wider wall-clock than a top-up (Lv8->13 is a real
+        #    climb); grind() fights wilds, heals via the adjacent-Viridian excursion, and leaves her on
+        #    Route 2 (home != PEWTER -> no walk-back), where ADVANCE_NORTH takes the wheel for the cross.
+        r = self.grind(target_level, budget_s=int(os.getenv("POKEMON_BROCK_GRIND_S", "1200")))
+        now = lead_lvl()
+        if r == "battle_loss":
+            log(f"   GRIND-BROCK: blacked out grinding (now Lv{now}) — recovery heals + the segment "
+                f"re-runs; proceeding")
+            return "ok"
+        if now >= target_level:
+            log(f"   GRIND-BROCK: trained to Lv{now} (>= {target_level}) — Brock-ready")
+            self.on_event(f"Level {now}. Vine Whip's online and we've got the HP to eat an Onix hit. "
+                          f"Okay Brock — we're ready for you.")
+        else:
+            log(f"   GRIND-BROCK: budget spent at Lv{now} (< {target_level}) — proceeding; Vine Whip's "
+                f"4x on Onix so it's still winnable, and a loss re-runs")
+        return "ok"
+
+    def _lead_species_name(self):
+        """Best-effort display name of the lead mon (for narrated grind/prep beats). Any read failure
+        falls back to a neutral word so a voice beat never crashes the spine."""
+        try:
+            return st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "starter").title()
+        except Exception:
+            return "starter"
 
     # ── STRATEGIC UNDERLEVEL-GRIND (Task B): the smart middle between "ace farms grass, nothing else
     # levels" (aimless) and "charge the wall, lose, charge again" (stubborn). A real player who hits an
@@ -8055,6 +8130,8 @@ class Campaign:
                 out = self.heal_at_center()
             elif kind == "GRIND":
                 out = self.grind(obj[1])
+            elif kind == "GRIND_PRE_BROCK":
+                out = self.grind_pre_brock(obj[1])
             elif kind == "BEAT_GYM":
                 out = self.beat_gym(obj[1])
             elif kind == "CATCH":

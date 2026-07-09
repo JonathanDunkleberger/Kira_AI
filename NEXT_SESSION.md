@@ -7,6 +7,25 @@ evergreen content. **A silent playthrough is NOT the deliverable.** Audio-off is
 FALLBACK FLOOR, not the finish line: the native audio crash must be genuinely diagnosed and fixed,
 not sidestepped. You are the lead Sherpa. Employment terms + standing rules 1-18 in CLAUDE.md apply.
 
+## LIVE STATUS (night-train shift 2, updated in-flight)
+
+- **BROCK UNDER-LEVELING — FIX BUILT, VERIFICATION IN FLIGHT.** Root cause (banked shift 1): the
+  Forest leg FLEES wilds (only reliable crossing) -> solo starter reaches Pewter at Lv8 (no Vine Whip,
+  learned ~Lv13) -> loses Brock's Onix (Lv14). FIX (this shift): a new `grind_pre_brock(target=13)`
+  objective inserted BEFORE `ADVANCE_NORTH` in `build_objectives()` — it positions onto **Route 2**
+  (map group 3, grass + a SHORT reliable heal-bounce to Viridian) and grinds the solo lead to ~Lv13
+  (Vine Whip + HP to survive Onix), THEN the existing flee-cross handles the Forest. WHY Route 2 not
+  the Forest interior: the Forest is map group 1, which trips `heal_nearest`'s "inside a building
+  complex" branch — grinding there can't heal reliably (the exact bounce we're escaping); Route 2
+  heals via the adjacent-Viridian excursion. Wilds-only (no trainers on Route 2) so slower but
+  rock-solid. Narrated (constitution #3 / bedrock #4). Files: `campaign.py`
+  `grind_pre_brock`/`_lead_species_name`, `grind()` gained a `budget_s` param (default 480 =
+  byte-identical for existing callers; the pre-Brock climb passes `POKEMON_BROCK_GRIND_S`=1200s).
+  Objective dispatch `GRIND_PRE_BROCK` wired. Syntax-checked. **VERIFY:**
+  `python pokemon_agent/recon_longrun.py FRESH 45` -> should train on Route 2 to ~Lv13, flee-cross the
+  Forest, and WIN Brock (Boulder Badge). If the grind is too slow (Route-2 wilds only) or a nav miss,
+  iterate (candidate: grind in the Forest with a Forest-aware heal, or fight-cross with forward-heal).
+
 ## LIVE STATUS (night-train shift 1, updated in-flight)
 
 - **PHASE A item 1 — PARCEL WEDGE FIXED + COMMITTED (`cfb353d`).** ROOT CAUSE (not staleness, not
