@@ -121,10 +121,16 @@ class StrategicPlanner:
             party = state.get("party") or []
             if not party:
                 return ""
+            # GOAL-PINNED WATCH (2026-07-08): when Jonny pins a focused moment (watch.py --goal /
+            # POKEMON_WATCH_GOAL), the doctrine is "go straight at the objective, don't drift onto
+            # grinding". So on a pin we keep the in-the-moment matchup ANTICIPATION (the cute homework
+            # beat) but DROP the "go prep/level first" directive that would walk her out of the fight.
+            # On a real fresh run (no pin) the full prep actionable fires — that's where it belongs.
+            pinned = bool(state.get("watch_goal"))
             if name == "__E4__":
-                note = self._e4_note(party)
+                note = self._e4_note(party, pinned=pinned)
             else:
-                note = self._gym_note(name, rec, party)
+                note = self._gym_note(name, rec, party, pinned=pinned)
             if note:
                 sig = note[:60]
                 if sig != self._last_sig:
@@ -171,7 +177,7 @@ class StrategicPlanner:
                     f"levelling up before I go")
         return ""
 
-    def _gym_note(self, name, rec, party):
+    def _gym_note(self, name, rec, party, pinned=False):
         types = "/".join(rec.get("types") or []) or "??"
         low, high = (rec.get("level_band") or [0, 0])[0], (rec.get("level_band") or [0, 0])[-1]
         band = f"~L{low}" if low == high else f"L{low}-{high}"
@@ -182,16 +188,21 @@ class StrategicPlanner:
         if have:
             lead = (f"LOOKING AHEAD: next is {name} in {rec.get('city', 'the next city')} — {types}-types, "
                     f"{band}. Good news: my {have[0]} already has the edge on them, so I've got a real answer")
+        elif pinned:
+            # pinned: acknowledge the gap as in-the-moment grit, NOT a "go get one first" directive
+            lead = (f"LOOKING AHEAD: {name} up next — {types}-types, {band}. I don't have a clean answer for "
+                    f"that, honestly… this one's going to be a scrap, but I'm going in")
         else:
             wt = " or ".join(want[:2]) or "a counter"
             lead = (f"LOOKING AHEAD: next is {name} in {rec.get('city', 'the next city')} — {types}-types, "
                     f"{band}. I've got no clean answer to that on my team — before I walk in there I want a "
                     f"{wt} type ({rec.get('counter', '')})")
-        # ACTION CLAUSE — the single smartest prep (lagging counter > bench alarm).
-        action = self._counter_action(rec, party) or self._bench_alarm(party)
+        # ACTION CLAUSE — the single smartest prep (lagging counter > bench alarm). Suppressed on a pin
+        # (a focused watch shouldn't have her wander off to grind mid-objective).
+        action = "" if pinned else (self._counter_action(rec, party) or self._bench_alarm(party))
         return (lead + (". " + _cap(action) if action else ".")).strip()
 
-    def _e4_note(self, party):
+    def _e4_note(self, party, pinned=False):
         """The Elite Four bloc beat — the scaffolding-free hole at the run's climax. Names the gauntlet +
         her per-seat answers in one breath, spotlights the ICE/Lance insight tied to HER party, and folds
         the bench-development alarm (the E4 punishes a lopsided team hardest)."""
@@ -209,18 +220,23 @@ class StrategicPlanner:
         # the signature Lance/ICE beat, grounded in her actual team
         if ice_owned:
             lv = ice_owned.get("level", 0)
-            if lv < max(1, low - COUNTER_UNDERLEVEL_GAP):
+            if lv < max(1, low - COUNTER_UNDERLEVEL_GAP) and not pinned:
+                # fresh run: the actionable "level her first" (she should prep before the gauntlet)
                 pieces.append(f"— and ICE is the dragon-slayer, so my {ice_owned['species']} is literally my "
                               f"Lance answer… except it's only L{lv}. That is the mon I need to level up "
                               f"BEFORE the gauntlet, not the ace that's already fine")
             else:
-                pieces.append(f"— and ICE is the dragon-slayer, so my {ice_owned['species']} (Ice Beam!) is "
-                              f"exactly his counter. I think I've actually got a plan")
-        else:
+                # pinned watch (or already-levelled): in-the-moment confidence, no walk-out directive
+                pieces.append(f"— and ICE is the dragon-slayer, so my {ice_owned['species']} is my Lance "
+                              f"answer. That's the plan when I get to him")
+        elif not pinned:
             pieces.append("— and everyone says ICE is the only thing a dragon fears, so an Ice-type or an "
                           "Ice Beam is the piece I really want before I face him")
-        # bench alarm — the E4 is where an ace-heavy team dies
-        bench = self._bench_alarm(party)
+        else:
+            pieces.append("— and everyone says ICE is the only thing a dragon fears; I'll have to out-fight "
+                          "him without one")
+        # bench alarm — the E4 is where an ace-heavy team dies (fresh-run prep only; a pin fights as-is)
+        bench = "" if pinned else self._bench_alarm(party)
         if bench:
             pieces.append(f". {_cap(bench)} — there's no Pokémon Center between the five of them, so the "
                           f"whole six has to pull weight")

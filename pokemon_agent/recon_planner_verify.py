@@ -66,16 +66,26 @@ n_lop = pl.plan_note(_state(lop, badges=0, next_gym={"city": "Cerulean City", "l
 print("   lopsided:", n_lop)
 check("bench alarm fires on a lopsided team", "bench" in n_lop.lower() or "whole team" in n_lop.lower())
 
-print("\n=== (d) E4 note at badges==8 (the real LORELEI watch team) ===")
+print("\n=== (d) E4 note at badges==8 — FRESH RUN (unpinned): full prep actionable ===")
 lorelei_team = [_mon("venusaur", 67), _mon("persian", 38), _mon("fearow", 36),
                 _mon("raticate", 31), _mon("ekans", 15), _mon("lapras", 26)]
-n_e4 = pl.plan_note(_state(lorelei_team, badges=8, next_gym=None, watch_goal="fight through the Elite Four"))
-print("   E4:", n_e4)
+n_e4 = pl.plan_note(_state(lorelei_team, badges=8, next_gym=None))   # no watch_goal = fresh run
+print("   E4 (fresh):", n_e4)
 check("E4 note fires at badges==8", bool(n_e4))
 check("E4 names the gauntlet + Lance", "elite four" in n_e4.lower() and "Lance" in n_e4)
 check("E4 spotlights ICE / the dragon-slayer", "ice" in n_e4.lower() or "dragon-slayer" in n_e4.lower())
 check("E4 grounds it in HER Lapras (the underleveled counter)", "lapras" in n_e4.lower())
-check("E4 flags Lapras is underleveled (L26 vs ~L54)", "L26" in n_e4 or "level" in n_e4.lower())
+check("E4 (fresh) gives the prep actionable: level Lapras BEFORE the gauntlet",
+      "before the gauntlet" in n_e4.lower())
+
+print("\n=== (d2) E4 note — GOAL-PINNED WATCH: anticipation kept, walk-out directive DROPPED ===")
+n_e4p = pl.plan_note(_state(lorelei_team, badges=8, next_gym=None,
+                            watch_goal="fight through the Elite Four"))
+print("   E4 (pinned):", n_e4p)
+check("pinned E4 still fires + still cute (Lance/ice/Lapras)",
+      "Lance" in n_e4p and "ice" in n_e4p.lower() and "lapras" in n_e4p.lower())
+check("pinned E4 does NOT tell her to grind before the fight (no walk-out)",
+      "before the gauntlet" not in n_e4p.lower() and "level up" not in n_e4p.lower())
 
 print("\n=== post-game = NO prep (victory lap) ===")
 n_pg = pl.plan_note(_state([_mon("venusaur", 95)], badges=8, post_game=True))
