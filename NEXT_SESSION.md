@@ -57,28 +57,61 @@ OFF-LIMITS. NEVER write states/kira/. Commit-per-fix. VERIFIED from disk/real ru
 
 ---
 
-# NIGHT-TRAIN SHIFT 1 (2026-07-09) — IN FLIGHT — READ FIRST
+# NIGHT-TRAIN SHIFT 1 (2026-07-09) — FRONTIER: badge-4 FLASH, blocker fully characterized — READ FIRST
 
-**FRONTIER: badge-4 FLASH gate — the dex-10 half is being FIXED.** Boot `surge_done.state` (rebuilt
-from `G:/temp/longrun/banked_GOAL/` → `pokemon_agent/states/workshop/surge_done.state` + sidecars).
+**BOOT:** `surge_done.state` (rebuilt from `G:/temp/longrun/banked_GOAL/` → `states/workshop/surge_done.state`
++ sidecars) for the full look-ahead, OR the NEW fast fixture `states/workshop/route11_flash.state` (banked
+this shift — boots AT Route 11, skips the ~15-min back-legs) via `recon_flash_errand.py` to iterate on the
+downstream. Commit: `15a3c49` (+ this shift's follow-ups).
 
-**DIAGNOSIS (recon `shift1_badge4_forward.log`, field moves ON):** she reaches Route 10 (Rock Tunnel
-mouth), the Flash questline OPENS (`gate=story_npc/flash`), but (1) she NEVER catches — dex stuck at 5,
-needs 10; nothing drove catching; (2) the aide-routing anchors on "an unfamiliar area" → `edge → (3,4)`
-(wrong) and the questline self-abandons after 5 no-progress ticks → she falls back to grinding in place.
+## WHAT SHIPPED + VERIFIED (commit 15a3c49 and follow-ups)
+The badge-4 Flash wall was NOT one bug — it's a chain. Built THE FLASH ERRAND (general dex-prereq questline
++ a ported-from-`recon_hm05` errand). Each piece VERIFIED from real recon runs:
+1. ✅ **Dex/owned prerequisite (general):** `frlg_gates.json` flash gate bills `requires_owned:10`;
+   `questline.derive_questline` injects a synthetic catch step (`via='catch'`, `success=('dex',10)`) before
+   the flash step when live dex<10; `_step_satisfied` handles `kind=='dex'`. Derive-test + live runs confirm.
+2. ✅ **Errand ROUTING (back-legs):** `campaign._flash_errand` walks the billed `_FLASH_BACK_LEGS` EAST —
+   Route 10→9→Cerulean→5→6(Underground Path)→Vermilion→Route 11 — every leg MOVED (shift1_flash_errand*.log).
+3. ✅ **Diglett's Cave CROSSING:** `_cross_cave` (ported verbatim from the proven recon_hm05) works end-to-end:
+   `WARPED (3,29)→(1,38)` into the cave → `WARPED (1,36)→(3,20)` OUT to Route 2 (the aide's map). VERIFIED.
+4. ✅ **Freeze-spin guard (rule 18):** DEX-STALL guard surfaces `flash_stuck` after 2 no-gain catch phases
+   instead of spinning the catch forever on exhausted grass (was 182 no-gain ticks). [verify in flight]
 
-**FIX A+B LANDED (this shift) — the dex gate (bites first):** a general **dex/owned prerequisite** in
-the questline. `frlg_gates.json` flash gate now bills `requires_owned: 10`; `questline.derive_questline`
-injects a synthetic CATCH step (`via='catch'`, `success=('dex',10)`) BEFORE the flash step when live dex
-< 10; `_step_satisfied` handles `kind=='dex'`; `campaign._run_questline_step` DRIVES `catch_one()` on
-that step (catch_one already leans NEW species via dex_new). Derive-test VERIFIED: steps become
-`[own_10_species(catch), flash]`, actionable=catch at dex 5. RUN VERIFICATION IN FLIGHT.
+## THE BINDING BLOCKER (fully diagnosed — this is where the successor starts)
+**DEX-10 IS UNREACHABLE ON THE ERRAND'S CATCHABLE GRASS — she caps at OWNED=8.** Proven with 15 balls
+injected (`shift1_r11_ballsinject.log`, isolating species-availability from the ball economy): Route 11 grass
+gives +2 (dex 5→7), Route 2 grass gives +1 (→8), then NO new species are reachable. The missing 2 live in:
+- **Diglett's Cave (Diglett/Dugtrio)** — but `catch_one` only works on GRASS tiles; cave-floor random
+  encounters need a NEW primitive (walk the cave floor triggering encounters + commit a ball). NOT built.
+- **Off-errand routes** — Route 24/25 (N of Cerulean: Abra/Oddish/Bellsprout/Pidgey), Route 3/4 (Mankey/
+  Jigglypuff/Zubat/Sandshrew). She passes Cerulean on the back-legs; a north detour could supply 2-3.
 
-**NEXT BLOCKER (Part C, unbuilt): aide-routing.** Even at dex 10 the flash step must route to the Route-2
-aide EAST via Route 11 → Diglett's Cave → Route 2 (prior art `recon_hm05.py` BACK_LEGS has the legs, but
-it REQUIRED dex≥10 already + hardcoded the road). The live world graph can't route to Route 11 (never
-walked). Options: bill a road to the aide (game-knowledge layer, like gym roads) OR have the catch step
-route her EAST to Route 11/Diglett's Cave (unifies catch + reach-aide). Diagnose after the dex-10 run.
+**Ball economy is SECONDARY** (not binding): she boots with ~4 balls + ~$1036; even with 15 injected she
+capped at 8, so balls aren't the wall — SPECIES AVAILABILITY is. (Vermilion Mart IS mapped/buyable —
+`CITY_MART_DOORS[VERMILION]` — if you do need to top up balls, buy there on the back-legs.)
+
+**Aide gatehouse + TEACH are UNVERIFIED** — she never reached dex 10, so `_flash_gatehouse` + the Flash teach
+never fired live (they're ported verbatim from recon_hm05 which DID clear them on the Champion climb, so
+low-risk, but not proven in THIS integration).
+
+## THE SUCCESSOR'S CHOICE (two clean paths to dex 10 → then the errand completes)
+**RECOMMENDED — systemic (competency #3, helps the WHOLE game):** make her CATCH NEW SPECIES during normal
+forward travel so she arrives at the Flash gate already at ~9-10 owned (a real player has 12+ by badge 3;
+Kira has 6 because the catch drive is gated `party<4`→nursery-off + no dex drive). Then the errand's dex-step
+is already satisfied and it goes straight to the aide. This is the RIGHT fix and removes the retro-catch
+scramble entirely.
+**OR — tactical (finish the errand as-is):** add a CAVE-FLOOR catch primitive (walk Diglett's Cave triggering
+encounters, commit balls for Diglett/Dugtrio) so PHASE 3's `_catch_to_10("Diglett's Cave")` actually lands 2
+species → dex 10 → cross to Route 2 → aide → teach. Diglett is also her long-wanted Ground mon (Surge insurance).
+
+**Then:** verify aide-gatehouse-talk + Flash teach live, cross Rock Tunnel (Champion did it — machinery exists),
+Route 8 → Celadon → Erika (badge 4). Re-run `recon_longrun.py surge_done.state 25` from the frontier.
+
+## TOOLS (this shift)
+- `recon_flash_errand.py [state] [min]` — drives `_flash_errand` in a tight loop (no chooser), banks
+  `route11_flash.state` on first Route-11 arrival, `FLASH_INJECT_BALLS=N` env to isolate the ball economy.
+- Fixture `states/workshop/route11_flash.state` (+ `.world_model.json`) = badge-3 team AT Route 11, dex 5.
+- Logs: `shift1_flash_errand.log` (full back-legs+cave), `shift1_r11_ballsinject.log` (dex-cap proof).
 
 ---
 

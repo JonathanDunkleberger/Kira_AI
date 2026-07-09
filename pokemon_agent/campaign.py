@@ -5158,15 +5158,50 @@ class Campaign:
             return "flash_done"
 
         def _catch_to_10(where, tries=6):
+            # EARLY-BAIL on a dupe-heavy map (2026-07-09): catch_one wanders until it catches SOMETHING
+            # or times out — on a near-exhausted map every encounter is a dupe (Route 11 = ekans/spearow)
+            # so it burns its whole budget catching nothing new. Track dex per pass, use a SHORT per-catch
+            # budget, and move on after 2 no-gain passes — the cave/next map supplies the fresh species.
+            misses = 0
             for _ in range(tries):
-                if ram.pokedex_owned_count(b) >= 10:
+                have0 = ram.pokedex_owned_count(b)
+                if have0 >= 10:
                     return
-                cr = self.catch_one()
-                log(f"   [flash-errand] catch on {where}: dex={ram.pokedex_owned_count(b)}/10 -> {cr}")
+                cr = self.catch_one(max_seconds=90)
+                have1 = ram.pokedex_owned_count(b)
+                log(f"   [flash-errand] catch on {where}: dex={have1}/10 -> {cr}")
                 if cr in ("no_grass", "no_reachable_target", "no_balls"):
                     return
+                if have1 > have0:
+                    misses = 0
+                else:
+                    misses += 1
+                    if misses >= 2:
+                        log(f"   [flash-errand] {where}: fresh species exhausted this pass — moving on")
+                        return
 
         cur = tuple(tv.map_id(b))
+        # DEX-PROGRESS GUARD (rule 18 — no freeze-spin): reachable grass (Route 11 + Route 2) caps the
+        # OWNED count at ~8 — the missing species live in Diglett's Cave (no grass, catch_one can't reach
+        # them) or on off-errand routes. Without this the Route-2 catch phase spins forever (verified: 182
+        # no-gain ticks). Correct-by-construction top-of-call counter: on a CATCH-PHASE map (Route 11 /
+        # Route 2 / inside the cave) with no dex gain since the high-water mark, increment; reset on ANY
+        # gain. After DEX_STALL_CAP no-gain catch passes, SURFACE the blocker (release to roam) — never
+        # loops. Leg-walk phases (PHASE 1) don't count (dex legitimately holds while she walks). Once she
+        # OWNS 10 the errand is pure routing/teaching and is never "blocked".
+        DEX_STALL_CAP = 4
+        _dex = ram.pokedex_owned_count(b)
+        _catch_phase = (cur == ROUTE11 or cur == ROUTE2 or cur[0] != 3)
+        if _dex > getattr(self, "_flash_dex_hi", -1):
+            self._flash_dex_hi, self._flash_nogain = _dex, 0
+        elif _catch_phase:
+            self._flash_nogain = getattr(self, "_flash_nogain", 0) + 1
+        if _dex < 10 and _catch_phase and getattr(self, "_flash_nogain", 0) >= DEX_STALL_CAP:
+            log(f"   [flash-errand] !! DEX-BLOCKED at {_dex}/10 — reachable grass exhausted after "
+                f"{self._flash_nogain} no-gain catch passes (missing species need Diglett's Cave floor-"
+                f"catching or an off-errand route sweep, e.g. Route 24/25). Surfacing, not spinning.")
+            return "flash_stuck"
+
         # PHASE 3 — inside Diglett's Cave (non-overworld): keep crossing toward Route 2.
         if cur[0] != 3:
             _catch_to_10("Diglett's Cave", tries=3)
