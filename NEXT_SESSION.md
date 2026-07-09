@@ -1,3 +1,51 @@
+# NEXT_SESSION — INTERACTIVE SESSION (2026-07-09, post-shift-16) — READ FIRST
+
+Interactive session with Jonny (not a night-train shift). Landed, each committed + VERIFIED from disk:
+
+1. **AUDIO OUTPUT ISOLATION** (`ce05293`) — the Viridian-parcel PortAudio SIGSEGV can no longer kill the
+   emulator: the `sounddevice` OutputStream runs in a CHILD process (`pokemon_agent/audio_child.py`); the
+   parent drains mgba PCM (proven safe) + streams over a pipe; a native abort kills only the child, which
+   respawns with backoff. Parent paces itself wall-clock so a dead audio child never sprints the game.
+   `POKEMON_AUDIO_ISOLATE=0` = legacy in-process. VERIFIED: 288s parcel drive audio-ON, 0 child deaths.
+2. **GAME AUDIO ON BY DEFAULT** (`f9417e9`) — `POKEMON_GAME_AUDIO` default 0→1 (go/watch/pokemon_proc).
+3. **DENSE AUTO-CHECKPOINTS** (`4acbf5b`,`5cb3124`) — free_roam banks a full sanctity bundle every gain
+   seam + ~12min to `states/campaign/checkpoints/<ts>_<place>_<badges>_<playtime>/` (keep 40). List/reload:
+   `watch.py --list` (dense section) + `watch.py --at <name>` (canonical-safe sandbox). Firewalled to the
+   dev/campaign line. `POKEMON_AUTO_CKPT`.
+4. **INTRA-SEGMENT CHECKPOINTS / Fix C** (`83cc39b`) — the SHOW spine banks a rolling `<segckpt>.progress.state`
+   after each completed objective; on resume the in-progress segment reloads it + runs only the REMAINING
+   objectives. A gym loss retries AT the gym, NOT from the bedroom (the "restart-looks-like-a-crash" pain).
+   `POKEMON_SEG_PROGRESS`.
+5. **GYM LEADER NAV / Fix A** (`6d4de1d`) — `_los_retrigger` no longer nudges onto the leader's OWN tile
+   (Brock (6,5)); travel was treating the standing leader as a plain-NPC blocker and burning its budget
+   routing AROUND him. Now excludes the leader tile (computed from `leader_dir`).
+6. **ENFORCED PRE-GYM PREP / Fix B** (`fb4fa44`) — beat_gym runs `prep_for_gym` FIRST: `StrategicPlanner.
+   gym_readiness(gym, party)` reads the KB (ace/level_band/weak_to/answer_species); if thin / no type
+   answer / underleveled → CATCH on nearby grass + GRIND to `ace_level+margin`. On a loss `_bump_gym_prep`
+   escalates the target so the retry preps HIGHER (not the same solo team). Suppressed on a goal-pin.
+   `POKEMON_GYM_PREP`. LOGIC verified deterministically. **E2E real run (seg_opening→Brock, headless,
+   785s): PARTIAL — the decisive half PROVEN, one gap found.**
+   - ✅ **LEVEL/TYPE/BEAT-THE-GYM enforcement WORKS AND IS DECISIVE:** prep detected `party 1/3, topL 13/15,
+     type_answer=True` → GRINDED Bulbasaur to **L15** (KB ace L14+1) instead of the old WARN-and-walk-in-at-13
+     → **BEAT BROCK** (geodude/sandshrew/geodude/onix → BOULDER BADGE). The earlier solo-Charmander run LOST
+     at L14; this WON. The direct cause of the Brock loss (underleveled solo) is FIXED.
+   - ❌ **CATCH-A-TEAM half fired but caught NOTHING** (`no_reachable_target` ×3) → still solo (party=1).
+     ROOT CAUSE: `prep_for_gym` runs at the gym CITY (Pewter has NO grass), so `catch_one` had no wild
+     target. **FIX NEEDED (req #1):** the team-catch must run on the GRASSY ROUTES she passes through BEFORE
+     the gym (she already grinds on Route 2 grass with 5 balls from the parcel) — e.g. fold an ensure-team
+     catch into the pre-gym GRIND phase, or have prep route to the nearest grass route first. Well-scoped
+     follow-up; the readiness LOGIC + grind + beat are all proven, only the catch LOCATION is wrong.
+
+**DIAGNOSIS that drove 4-6:** the post-Brock "crash" was NO crash — she LOST to Brock with a SOLO L14
+Charmander (party=1), the BEAT_GYM stuck-watchdog cleanly stopped, and the supervisor replayed the whole
+segment from Pallet (looked like a crash). Audio isolation was vindicated (247k frames clean). Root cause
+= thin-bench/solo-underleveled play (same as the Gary wall) → Fix B; replay-from-bedroom → Fix C; gym nav
+thrash → Fix A.
+
+**CORE-KIRA FIREWALL: untouched all session** (audio/harness/gameplay-strategy only; two-bucket firewall intact).
+
+---
+
 # NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 16)
 
 ## SHIFT 16 HEAD (read FIRST — supersedes everything below)
