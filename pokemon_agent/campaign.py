@@ -4580,18 +4580,40 @@ class Campaign:
         # it banks XP without being one-shot. In SOLO mode it's OFF — the weak lead fights itself (Super
         # Potions heal it, the ace backstops a faint). Scoped to THIS grind only; restored in the finally.
         battle_agent.PROTECT_LEAD_GRIND = use_switch
+        # STALL SET (2026-07-09, the Rattata loop): a bench mon too weak to survive/participate on this
+        # route earns ZERO XP — grind() returns 'ok' with no level gain, GRIND-WEAK re-picks it as the
+        # weakest, and it spins for the whole budget (then roam re-enters and it spins again). Track mons
+        # that made no progress BY PID (survives slot-shuffles + roam re-entries) and stop re-fielding
+        # them: a real trainer doesn't grind a hopeless mon forever — they push on with the strong core.
+        stalled = getattr(self, "_grind_stalled", None)
+        if stalled is None:
+            stalled = self._grind_stalled = set()
+
+        def _pid0():
+            return self.b.rd32(ram.GPLAYER_PARTY)               # slot-0 personality value (per-mon id)
         try:
             while time.time() - t0 < GRIND_WEAK_BUDGET_S:
                 levels = self._party_levels()
-                weak = [s for s, l in enumerate(levels) if l < target]
+
+                def _slot_pid(s):
+                    return self.b.rd32(ram.GPLAYER_PARTY + s * 100)
+                weak = [s for s, l in enumerate(levels) if l < target and _slot_pid(s) not in stalled]
                 if not weak:
-                    log(f"   GRIND-WEAK: floor crossed L{target} (levels {levels}) — done");
+                    remaining = [s for s, l in enumerate(levels) if l < target]
+                    if remaining:                             # floor un-raisable — the under-target mon(s)
+                        #                                       can't gain XP here; proceed, don't spin
+                        log(f"   GRIND-WEAK: floor NOT crossed, but the remaining under-L{target} "
+                            f"member(s) {remaining} can't earn XP here (stalled) — pushing on with the "
+                            f"strong core (levels {levels}) instead of spinning")
+                    else:
+                        log(f"   GRIND-WEAK: floor crossed L{target} (levels {levels}) — done")
                     self._restore_ace()
                     return "ready"
                 wk = min(weak, key=lambda s: levels[s])
                 if wk != 0:
                     log(f"   GRIND-WEAK: fielding slot {wk} (L{levels[wk]}) as lead to train it")
                     self._swap_party_slots(0, wk)
+                lv_before, pid_before = self.b.rd8(ram.GPLAYER_PARTY + 0x54), _pid0()
                 r = self.grind(target, fragile=True)         # weak mon can faint -> reachable grass only
                 if r == "battle_loss":
                     self._restore_ace()
@@ -4602,6 +4624,10 @@ class Campaign:
                     return r                                 # pass the DISTINCT sentinel through (the
                     #                                          caller's prep stand-down counts dry runs;
                     #                                          masking it as 'ok' hid the failure)
+                if self.b.rd8(ram.GPLAYER_PARTY + 0x54) <= lv_before:   # STALL: grind gained NO levels
+                    stalled.add(pid_before)
+                    log(f"   GRIND-WEAK: fielded mon made NO progress (still L{lv_before}) — marking it "
+                        f"un-grindable on this route (stalled) so the pass never loops on it")
             log(f"   GRIND-WEAK: wall-clock budget — partial progress (levels {self._party_levels()}), "
                 f"restoring ace; the next tick re-enters")
             self._restore_ace()
