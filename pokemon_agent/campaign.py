@@ -1645,8 +1645,16 @@ class Campaign:
                               "the road's open.", kind="route", tier=2)
                 # remember the proven connector (re-attempts after heal/battle interrupts reuse it)
                 # — but NEVER enshrine a crossing that landed off the caller's want (the UGP hut
-                # to Route 7 is a detour, not this map's road connector)
-                if want_map is None or m_out == tuple(want_map):
+                # to Route 7 is a detour, not this map's road connector). SAME-MAP FENCE CROSSING
+                # (2026-07-09, night-train shift 8, the Cerulean->Route5 loop): a burgled-house/
+                # gatehouse door that pops back onto THIS map past an obstacle (the Cut tree at
+                # Cerulean (26,32)) never satisfied m_out==want_map (want=Route5, m_out=Cerulean),
+                # so the proven (30,11) door was forgotten every retry -> the passthrough re-searched,
+                # picked wrong doors, dead-routed head_to_gym, and she wild-grind-looped instead of
+                # re-crossing. A same-map crossing here already passed the strong d_door>3 & moved>6
+                # guard above (so it's not the old false-positive), and a truly bad entry self-corrects
+                # via the "forgot poisoned connector" branch below — remember it too.
+                if want_map is None or m_out == tuple(want_map) or m_out == m0:
                     if not hasattr(self, "_pt_known"):
                         self._pt_known = {}
                     self._pt_known[m0] = tuple(door)
