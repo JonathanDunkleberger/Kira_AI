@@ -174,6 +174,14 @@ CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # hea
 AUTO_CKPT_ENABLED = os.getenv("POKEMON_AUTO_CKPT", "1") == "1"
 CKPT_EVERY_S      = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_S", "720"))   # wall-clock floor (~12 min)
 CKPT_KEEP         = int(os.getenv("POKEMON_AUTO_CKPT_KEEP", "40"))         # retain last N (~16 MB cap)
+# INTRA-SEGMENT PROGRESS (2026-07-09, Fix C) — the SHOW/segment spine only banked a checkpoint AFTER a
+# whole segment completed, so a deep failure (e.g. losing to Brock at the END of pallet_to_brock) made
+# the supervisor resume from seg_opening and REPLAY THE ENTIRE SEGMENT from the bedroom (~40 min). Now
+# run() banks a rolling <segckpt>.progress.state after EACH completed objective; on resume the in-
+# progress segment reloads that and skips the objectives already done — a gym loss retries LOCALLY (back
+# at Brock in seconds), never from bedroom. Same firewall as _save_checkpoint (SHOW writes kira; a
+# WORKSHOP run is physically forbidden to). Cleared when the segment completes. Revert: =0.
+SEG_PROGRESS_ENABLED = os.getenv("POKEMON_SEG_PROGRESS", "1") == "1"
 # F-1 WANDER TRIPWIRE (THE DESCENT): a standing nav objective that's gone this long without the
 # map-graph distance improving means she's wandering/dithering — the harness takes the wheel.
 NAV_TRIPWIRE_S = float(os.getenv("POKEMON_NAV_TRIPWIRE_S", "20"))
@@ -8475,8 +8483,10 @@ class Campaign:
         return "roam_done"
 
     # ── the continuous driver ────────────────────────────────────────────────
-    def run(self, objectives, _recovered_retry=False):
+    def run(self, objectives, _recovered_retry=False, start_obj=0):
         for i, obj in enumerate(objectives):
+            if i < start_obj:                    # INTRA-SEGMENT RESUME: skip objectives a progress
+                continue                         # checkpoint proves are already done (state reloaded)
             kind, label = obj[0], obj[-1]
             _t0 = time.time()
             # SEGMENT RUNG ANCHOR (couch fix-pass 1, 2026-07-08): roam ticks bank
@@ -8581,6 +8591,15 @@ class Campaign:
                         return self.run(list(objectives[i:]), _recovered_retry=True)
                 log(f"!! CAMPAIGN STOP (loud) at objective {i+1} ({kind}): {out}")
                 return f"stopped:{kind}:{out}"
+            # INTRA-SEGMENT PROGRESS (Fix C): this objective COMPLETED — bank a rolling resume point so a
+            # LATER failure in this segment resumes from HERE, not from the segment start / bedroom. Only
+            # inside a segment run (self._seg_progress set by run_segments) and not mid-recovery-recursion
+            # (the slice there loses the absolute index). Best-effort; never blocks the objective flow.
+            if SEG_PROGRESS_ENABLED and not _recovered_retry and getattr(self, "_seg_progress", None):
+                try:
+                    self._bank_seg_progress(i)
+                except Exception as _spe:
+                    log(f"   !! seg-progress bank skipped (obj {i+1}): {_spe} (LOUD)")
         log("CAMPAIGN COMPLETE (all objectives done)")
         return "complete"
 
@@ -8614,6 +8633,72 @@ class Campaign:
         except Exception as e:
             log(f"   !! CHECKPOINT SAVE FAILED ({name}): {e}")
             return False
+
+    # ── INTRA-SEGMENT PROGRESS (Fix C) ──────────────────────────────────────────────────────────
+    def _seg_progress_paths(self, seg_ckpt):
+        """The (state, meta) paths for a segment's rolling intra-segment progress checkpoint. Lives in
+        self.ckpt_dir next to the segment's own checkpoint, named <segckpt-stem>.progress.{state,json}."""
+        stem = seg_ckpt[:-6] if seg_ckpt.endswith(".state") else seg_ckpt
+        return (os.path.join(self.ckpt_dir, stem + ".progress.state"),
+                os.path.join(self.ckpt_dir, stem + ".progress.json"))
+
+    def _bank_seg_progress(self, obj_index) -> bool:
+        """Save a rolling resume point AFTER a completed objective so a later failure in this segment
+        resumes locally. HARD GUARD (same as _save_checkpoint): a WORKSHOP run is physically forbidden to
+        write into states/kira/ — only a SHOW run banks there. Atomic (.tmp + os.replace)."""
+        ctx = getattr(self, "_seg_progress", None)
+        if not ctx:
+            return False
+        if not self.show_mode and os.path.abspath(self.ckpt_dir).startswith(os.path.abspath(STATES_KIRA)):
+            return False                          # firewall: never let a workshop run touch the kira spine
+        state_p, meta_p = self._seg_progress_paths(ctx["seg_ckpt"])
+        try:
+            import json as _json
+            os.makedirs(self.ckpt_dir, exist_ok=True)
+            data = self.b.save_state()
+            tmp = state_p + ".tmp"
+            with open(tmp, "wb") as f:
+                f.write(data); f.flush(); os.fsync(f.fileno())
+            os.replace(tmp, state_p)              # atomic — a kill mid-write can't corrupt the resume point
+            meta = {"seg_index": ctx["seg_index"], "seg_name": ctx["seg_name"], "obj_done": obj_index,
+                    "map": list(tv.map_id(self.b)), "coords": list(tv.coords(self.b)),
+                    "ts": time.strftime("%Y-%m-%d %H:%M:%S")}
+            with open(meta_p, "w", encoding="utf-8") as f:
+                _json.dump(meta, f, ensure_ascii=False, indent=2)
+            log(f"   ⛳ SEG-PROGRESS [{ctx['seg_name']} obj {obj_index+1}] -> "
+                f"{os.path.basename(self.ckpt_dir)}/{os.path.basename(state_p)}  "
+                f"(map={tv.map_id(self.b)} coords={tv.coords(self.b)})")
+            return True
+        except Exception as e:
+            log(f"   !! SEG-PROGRESS SAVE FAILED ({ctx['seg_name']} obj {obj_index+1}): {e} (LOUD)")
+            return False
+
+    def _clear_seg_progress(self, seg_ckpt):
+        """Delete a segment's intra-segment progress files (called when the whole segment completes — its
+        real checkpoint now supersedes the rolling one). Best-effort."""
+        for p in self._seg_progress_paths(seg_ckpt):
+            try:
+                if os.path.exists(p):
+                    os.remove(p)
+            except Exception as e:
+                log(f"   [seg-progress] clear skipped ({os.path.basename(p)}): {e}")
+
+    def _read_seg_progress(self, seg_ckpt, seg_index):
+        """If a valid intra-segment progress checkpoint exists for THIS segment, return (state_path,
+        obj_done); else None. Guards on seg_index so a stale progress from another segment is ignored."""
+        state_p, meta_p = self._seg_progress_paths(seg_ckpt)
+        if not (os.path.exists(state_p) and os.path.exists(meta_p)):
+            return None
+        try:
+            import json as _json
+            with open(meta_p, encoding="utf-8") as f:
+                meta = _json.load(f)
+            if meta.get("seg_index") != seg_index:
+                return None
+            return (state_p, int(meta.get("obj_done", -1)))
+        except Exception as e:
+            log(f"   [seg-progress] unreadable ({os.path.basename(meta_p)}): {e} — ignoring")
+            return None
 
     # ── VOID-CORE CLASS KILLERS (2026-07-08 night shift — QW-4 diagnosis, repro'd clean in
     # recon_voidcore.py + frame-verified in recon_voidlook.py: the "dead world" IS the FireRed
@@ -9724,7 +9809,26 @@ class Campaign:
         if start >= len(segments):
             log(f"RUN_SEGMENTS: all {len(segments)} segment checkpoint(s) already present — done")
             return "all_segments_complete"
-        if resume_cp:
+        # INTRA-SEGMENT RESUME (Fix C): does the NEXT (in-progress) segment have a rolling progress
+        # checkpoint from a deep failure last run? If so, resume from THERE (skip the objectives already
+        # done) instead of replaying the whole segment from its start — a gym loss retries at the gym,
+        # not from the bedroom. The progress state is strictly further than resume_cp (the PREVIOUS
+        # segment's end), so it takes precedence.
+        resume_start_obj = 0
+        prog = self._read_seg_progress(segments[start].checkpoint, start) if (
+            resume and SEG_PROGRESS_ENABLED and segments[start].checkpoint) else None
+        if prog:
+            state_p, obj_done = prog
+            resume_start_obj = obj_done + 1
+            log(f"RUN_SEGMENTS: RESUME (INTRA-SEGMENT) — '{segments[start].name}' progress checkpoint "
+                f"present ({obj_done + 1} objective(s) done); loading it + running from objective "
+                f"{resume_start_obj + 1} (NOT replaying the segment from the start)")
+            with open(state_p, "rb") as f:
+                self.b.load_state(f.read())
+            for _ in range(40):
+                self.b.run_frame()
+            self.b.set_input_owner("agent")
+        elif resume_cp:
             log(f"RUN_SEGMENTS: RESUME — checkpoint {os.path.basename(resume_cp)} present, skipping "
                 f"{start} done segment(s); loading past them")
             with open(resume_cp, "rb") as f:
@@ -9739,6 +9843,10 @@ class Campaign:
             self.soul.load(os.path.join(STATES_KIRA, "pokemon_soul.json"))
         for i in range(start, len(segments)):
             seg = segments[i]
+            # INTRA-SEGMENT PROGRESS context: run() banks a rolling resume point after each completed
+            # objective of THIS segment (Fix C). None (banking off) for a checkpoint-less segment.
+            self._seg_progress = ({"seg_ckpt": seg.checkpoint, "seg_index": i, "seg_name": seg.name}
+                                  if (SEG_PROGRESS_ENABLED and seg.checkpoint) else None)
             log(f"==== SEGMENT {i + 1}/{len(segments)}: {seg.name}  "
                 f"({len(seg.objectives)} objective(s)) ====")
             if self.soul is not None:                       # SOUL HOOK (surface_want): a new beat is a
@@ -9750,7 +9858,11 @@ class Campaign:
             # needed and still finish." A PERMANENT stuck (can't proceed, not dying) still stops loud.
             attempts = 0
             while True:
-                result = self.run(seg.objectives)
+                # Only the FIRST segment run resumes mid-segment (from a progress checkpoint on disk);
+                # a blackout RE-RUN starts from objective 0 (re-navigating from the post-whiteout respawn,
+                # the proven path). resume_start_obj is consumed once.
+                _start_obj = resume_start_obj if (i == start and attempts == 0) else 0
+                result = self.run(seg.objectives, start_obj=_start_obj)
                 if result == "complete":
                     break
                 if self._is_blackout(result) and attempts < self.MAX_BLACKOUT_RETRIES:
@@ -9764,6 +9876,7 @@ class Campaign:
                     + (f" (blackout retries exhausted: {attempts})" if self._is_blackout(result) else ""))
                 return f"segment_stopped:{seg.name}:{result}"
             self._save_checkpoint(seg.checkpoint)
+            self._clear_seg_progress(seg.checkpoint)        # Fix C: the full checkpoint now supersedes
             if self.show_mode and self.soul is not None:    # bank her Pokémon-self continuity (kira lineage)
                 self.soul.save(os.path.join(STATES_KIRA, "pokemon_soul.json"))
             log(f"==== SEGMENT '{seg.name}' COMPLETE"
