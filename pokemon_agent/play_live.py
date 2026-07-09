@@ -512,7 +512,13 @@ def main():
     # ── objectives: continuous SEGMENT MANIFEST (--go), FAST gym-only test, or the full single arc ──
     objectives = None
     if args.go or args.show:
-        voice.emit("alright — continuous run. badge by badge, all the way.", kind="intro", tier=2)
+        # INTRO LINE — fire the scripted opener ONLY on a genuine fresh start, never on a supervisor
+        # auto-resume relaunch. The supervisor resumes a crashed showtime run with --show (and NO
+        # --fresh-kira); replaying "alright — continuous run…" on every relaunch was the visible
+        # "opening replay loop." A resumed run re-enters silently — her next surface_want is her real
+        # re-entry beat, not a canned opener. (--go is always a deliberate manual run, so it keeps it.)
+        if args.go or args.fresh_kira:
+            voice.emit("alright — continuous run. badge by badge, all the way.", kind="intro", tier=2)
     elif args.fast:
         objectives = [("BEAT_GYM", "Brock", "FAST TEST: Pewter Gym -> Brock -> Boulder Badge")]
         voice.emit("alright, the gym's right here - Brock's Boulder Badge is mine", kind="intro", tier=2)
