@@ -72,6 +72,15 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
+# PER-MON PROBE for the FRAGILE bench-grind (2026-07-09, the Rattata over-grind wedge): a genuinely
+# too-weak bench mon (Rattata/Spearow L14 on Route 4, ace L29) earns no XP, but grind() ran the FULL
+# 480s before returning — so the zero-gain STALL mark (grind_weak_members) took ~8 min PER hopeless mon,
+# and with a 600s outer budget she burned entire look-ahead ticks (never advancing to Vermilion). A
+# short probe caps each attempt: a levelable mon (a fresh catch like Ekans) still climbs in bites and
+# gets re-fielded; a hopeless one stalls out in ~one probe and she pushes on with the strong core. This
+# is also the more HUMAN read — a real trainer gives a weak mon a few fights, sees it's not taking, and
+# moves on rather than grinding it for 8 minutes.
+GRIND_WEAK_PROBE_S = int(os.getenv("POKEMON_GRIND_WEAK_PROBE_S", "180"))
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -4614,7 +4623,8 @@ class Campaign:
                     log(f"   GRIND-WEAK: fielding slot {wk} (L{levels[wk]}) as lead to train it")
                     self._swap_party_slots(0, wk)
                 lv_before, pid_before = self.b.rd8(ram.GPLAYER_PARTY + 0x54), _pid0()
-                r = self.grind(target, fragile=True)         # weak mon can faint -> reachable grass only
+                r = self.grind(target, fragile=True, budget_s=GRIND_WEAK_PROBE_S)  # weak mon can faint ->
+                #   reachable grass only; SHORT probe so a hopeless mon stalls out fast (not an 8-min sink)
                 if r == "battle_loss":
                     self._restore_ace()
                     return "battle_loss"
