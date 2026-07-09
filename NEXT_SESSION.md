@@ -1,3 +1,50 @@
+# 🚂 TONIGHT'S NIGHT-TRAIN MISSION (2026-07-09) — READ FIRST, SUPERSEDES ALL BELOW
+
+**GO/NO-GO BAR:** prove Kira can complete a fresh FireRed run at a watchable ~25-35 hr human pace —
+catches + levels a team, ADAPTS after a loss (loss → grind/get a new teammate, NEVER retry the same
+solo team), and NEVER permanently sticks. She must complete headless start-to-finish clean before Jonny
+streams her again.
+
+**FRONTIER-FIRST — DO NOT RESTART FROM THE BEDROOM.** Bedroom→Brock→Misty→Surge (badges 1-3) are already
+PROVEN + banked. Resume from the frontier and push forward.
+
+**LAUNCH POINT (the frontier, NOT `FRESH`):**
+```
+.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py surge_done.state <minutes>   # ~25-30 per look-ahead
+```
+- `surge_done.state` = map (3,5) **Vermilion City, BADGE 3 (post-Surge)**, party **[ivysaur L31, rattata L15,
+  spearow L15, ekans L9]** (ace + a badly underleveled bench — the bench-leveling IS the forward challenge).
+- recon_longrun is canonical-SAFE (stages all writes; never touches states/kira). It reaps predecessors
+  (SINGLE-RUN LAW). Field moves + item pickup are armed by default (shift-16 fidelity fix).
+
+**CURRENT WALL:** badge-4 (Erika/Celadon) approach — shift-16 left it at the **Flash/Rock-Tunnel gate**
+(stalled ~Route 10; the Flash aide is EAST via Route 11/Diglett's Cave, she routed north). Start here.
+
+**THE LOOP (frontier-first, class-not-instance):**
+1. `recon_longrun.py surge_done.state 25` → read the log → find the REAL next blocker.
+2. At each GYM (Erika→Koga→Sabrina→Blaine→Giovanni), each RIVAL, and the E4: verify `prep_for_gym`
+   fired and she arrived PREPARED (team size / levels vs the KB ace / type answer). Log **prepared-Y/N,
+   win-Y/N, stuck-Y/N** per threat. If not prepared, she must catch/grind FIRST.
+3. Every wall/stuck/loss-loop → discrete note → FIX the CLASS → re-run from the frontier → BANK a new
+   checkpoint + rewrite THIS block's frontier when a stretch clears.
+4. Keep going until credits with no permanent stuck, OR the 2-shift no-progress brake, OR **BALANCE
+   EXHAUSTED (~$72 Console ceiling, auto-reload OFF)** → graceful stop + final standup, no thrash.
+
+**TODAY'S NEW TOOLS (built this session — USE THEM):**
+- **`prep_for_gym`/`gym_readiness`** (Fix B, `fb4fa44`) — beat_gym now ENFORCES pre-gym readiness from the
+  KB (catch a team / type answer / grind to ace+margin; on-loss `_bump_gym_prep` escalates). ⚠ **KNOWN GAP
+  (likely first wall):** the catch fires at the gym CITY (no grass) → `no_reachable_target` → she stays
+  thin. **FIX THE CATCH LOCATION** = catch on the grassy routes she passes through BEFORE the gym (fold an
+  ensure-team catch into travel/grind on a grass route), so "loss → get a new teammate" actually lands.
+- **Dense checkpoints** (`4acbf5b`): `watch.py --list` / `--at <name>` (canonical-safe reload).
+- **Intra-segment resume** (Fix C, `83cc39b`): a deep failure resumes at the gym, not the segment start.
+- **Gym-leader nav** (Fix A, `6d4de1d`): no more routing-around-the-leader thrash.
+
+**FIREWALL:** gameplay/strategy/harness ONLY. Core Kira personality + persona + two-bucket firewall
+OFF-LIMITS. NEVER write states/kira/. Commit-per-fix. VERIFIED from disk/real runs, not asserted.
+
+---
+
 # NEXT_SESSION — INTERACTIVE SESSION (2026-07-09, post-shift-16) — READ FIRST
 
 Interactive session with Jonny (not a night-train shift). Landed, each committed + VERIFIED from disk:
