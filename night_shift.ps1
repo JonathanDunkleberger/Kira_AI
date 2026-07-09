@@ -103,6 +103,24 @@ while ($true) {
     # error LOUDLY (console + report) instead of a silent 0-minute close feeding the brake.
     $logBytes = 0
     if (Test-Path $log) { $logBytes = (Get-Item $log).Length }
+
+    # BILLING-EXHAUSTION -> CLEAN TERMINAL STOP (2026-07-08). Auto-recharge is OFF, so the natural
+    # ceiling is the loaded balance. When API calls fail for insufficient credits / billing, relaunching
+    # just thrashes against a dead wallet -- so detect the billing signature, write a final standup, and
+    # exit cleanly. Signatures are the API's own billing-error phrasing (essentially zero false-positive
+    # on a Pokemon nav task -- no billing surface). This is ONLY for balance exhaustion; genuine transient
+    # errors and game crash-loops keep escalate-don't-quit (the supervisor + the 2-shift brake handle those).
+    $billingRe = 'credit balance is too low|purchase more credits|insufficient[_ ]?(quota|credits?|funds)|402 payment required'
+    $logText = ''
+    if ($logBytes -gt 0) { $logText = (Get-Content $log -Raw) }
+    if ($logText -match $billingRe) {
+        $hit = $matches[0]
+        Write-Host "== SHIFT $shift STOP: API BALANCE EXHAUSTED (matched '$hit'). Halting cleanly -- top up + relaunch. ==" -ForegroundColor Yellow
+        Add-Content $Report ("- shift {0} STOPPED {1} ({2}s, exit {3}): balance exhausted (billing/credit failure: '{4}'). Night train halted CLEANLY -- not a crash. Top up the balance and relaunch night_shift.ps1." -f `
+            $shift, (Get-Date -Format "HH:mm"), $secs, $exitCode, $hit)
+        break
+    }
+
     if (($secs -lt 60) -and (($exitCode -ne 0) -or ($logBytes -eq 0))) {
         $tail = "(log empty -- claude produced no output at all)"
         if ($logBytes -gt 0) { $tail = ((Get-Content $log -Tail 10) -join "`n") }

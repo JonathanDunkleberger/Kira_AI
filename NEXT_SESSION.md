@@ -1,176 +1,98 @@
-# NEXT_SESSION — POST-COUCH (SAGA WRAP, 2026-07-08)
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-08)
 
-**The showcase-critical bucket is DONE.** First human couch-watch happened; Fix Pass 1 (persona
-dial) + the two round-2 items (parcel stall, mic diagnosis) + P-7 OpenAI purge + the save-file
-card all shipped and verified same-day. Full record: **COUCH_NOTES.md**. All 15 descent arcs
-PASS; clipper final spec + Phase-J receipts confirmed wired. **SAGA WRAP, not CLOSED — "CLOSED"
-is Jonny's call after his own spot-watch.**
+**MISSION (the deliverable):** get Kira to play a **clean bedroom -> credits** FireRed run
+autonomously, at **human-realistic pace (~25-35h target, NOT 67h)**, with **no permanent stucks**
+and **no crash-loops**. You are the lead Sherpa. Lay the rope wedge-by-wedge until a full run is
+clean, then the credits roll. Employment terms + standing rules 1-18 in CLAUDE.md are in force.
 
-**SHOWTIME LATENCY PASS DONE (d56b183):** the showcase-BLOCKER — game-event reactions landing
-30-44s late (content_age 34-40s; she joked about a Rattata fight ~40s after it ended) — is FIXED.
-Root: fire-and-forget event reactions serialized on the turn lock behind TTS, aging in the queue.
-Fix = a pokemon-scoped FRESHNESS CEILING (7s) + SUPERSEDE at the speak point: a grind beat older
-than the ceiling (or superseded by a fresher beat) is DROPPED — she reacts live or stays silent,
-never to a corpse. TIER-PROTECTED: tier≥2 milestone beats (badges, evolutions, Champion monologue,
-mom's goodbye) ALWAYS deliver. Also: KIRA_TTS_PREFETCH now DEFAULT-ON (TTS pipelining; kill switch
-=0); YouTube 403 spam silenced (log once → disable auto-search for the session). Verified headless
-(freshness_verify: flood all-dropped, fresh delivers <1s, tier≥2 protected). **THE GO/NO-GO:
-Jonny's next spot-watch confirms live content_age stays <6s — that's the showcase green light.**
+## THE FIRST BLOCKER (fix this before anything else) — travel-wedge (c)
 
-## GO-LIVE RITUAL (do this before any live boot)
-1. **Confirm the audio device is present + selected BEFORE booting** (esp. after a Bluetooth
-   drop — the loopback binds at boot and won't hot-rebind a vanished device; that was the whole
-   "she can't hear me" episode). 2. Boot `python run.py`. 3. Mic check ("cheddar"). Save-file
-   card is live at `http://127.0.0.1:8766/pokemon_savecard` once booted.
+On a fresh bedroom->credits run she **wedges delivering Oak's Parcel: routing Route 1 -> Pallet
+Town**. Exact stall: `no_route genuine wall/zone gap` at **map (3,19) coord (13,0)** (Route 1
+sub-area / boundary), TRAVEL WEDGE x4 -> campaign STOP. This is the KNOWN "Route-1 boundary wedge,
+fresh-spine intro only" class the impossible-stand rung does not cover (was item 9 on the old couch
+list, deprioritized then; it is the priority now). Fix it via the **look-ahead / warp-graph nav
+harness** (`recon_longrun.py` at 14.3x headless): reproduce the stall, instrument the connection-band
+/ warp-graph routing at (3,19)->(3,0/Pallet), fix the specific no-route, RE-RUN, confirm parcel
+delivery completes.
 
-## THE FINAL COUCH LIST (needs Jonny's eyes / not showcase-blocking — ride the free weekly window)
-0. **THE GO/NO-GO — game-event latency live-watch** (showcase gate): reboot, run a fast-battle
-   stretch, confirm reactions land <6s and aligned (watch for `[Freshness] DROP` lines culling the
-   stale backlog, and `[LAG]` content_age staying low). This is the showcase green light.
-0a. **AUDIO MOUTH-FLAP live-check** (showcase-critical, fixed): in a windowed pokemon watch, confirm
-   her VTS mouth flaps ONLY when she speaks, NEVER to the game music (SDL_AUDIODRIVER=dummy fix).
-0c. **SHOWCASE QA — goal-pinned clips** (the 40hr validation harness, `pokemon_agent/SHOWCASE_QA.md`):
-   hop each gym + the E4 as ~5-10min enter→win clips. Start with the E4:
-   `watch.py --at pre-e4 --goal "fight through the Elite Four ... beat Gary and become Champion"`.
-   Then gyms 3-8 (commands in the doc). Flag any that wander (badge-count reposition) or the Misty gap.
-0b. **MEMORY-MAGIC live verify** (soul gate): TALK to her (voice) and ask "how's the Pokémon run
-   going / who's on your team / tell me about Gary." She should answer FIRST PERSON as her own
-   lived story, name her current 6 (venusaur/persian/fearow/raticate/ekans/lapras), carry feeling —
-   never narrate as if someone else played. Watch the console for the one-shot log "journey/roster
-   now injected into the LIVE VOICE-REPLY path." Also confirm NO Pokémon leak when you change
-   subject (the anti-leak header). If she leaks, gate the voice-path injection — flagged.
-1. **Live mic check** on the Focusrite ("cheddar") — confirm a fresh `>>> You said:` after reboot.
-2. **Loopback-cable decision** (R2-2): should loopback refuse to fall back onto the TTS-carrying
-   VB-cable? Rig-specific + core-senses (HARD CONSTRAINT #2) — flagged, not cowboyed. Your call.
-3. **Later-game descent spot-watches** — all arcs PASS; pick any (VICTORY / BLAINE / POSTGAME).
-4. **Prefetch A/B** (KIRA_TTS_PREFETCH=1) → decide the default (pump complete; default undecided).
-5. **20-min cohost smoke** — optionally feel-test the new flags one at a time (MEDIA_PACING /
-   ATTENTION_DIRECTOR / CHAT_ADVISORS, all default-OFF).
-6. **Tri-mode session** (companion → pokemon → watch-party) — firewall check.
-7. **First clipper manifest review** on a real VOD (10 shorts / superfan / midform).
-8. **Deep latency war** beyond the shipped fixes; **live-chat conversation tuning**; **Attention
-   Director feel-tuning**; **Hitman / cohost-mode recon** — all parked, need eyes + the weekly window.
-9. **Segment-driver Route-1 boundary wedge** (fresh-spine intro only) — a genuine no-route class
-   the impossible-stand rung doesn't cover; deprioritized (you're watching later-game, not intros).
-10. **Audio-mood via Gemini** — the P-7 casualty; migrate like vision if you want music/mood back.
+## TONIGHT'S FRONTIER (in order)
 
----
-Below = the CLOSING-BELL mandate as it stood pre-couch (historical; the couch list above supersedes).
+1. **Fix the Route 1 -> Pallet parcel-delivery wedge** so parcel delivery completes end-to-end.
+   Nav / warp-graph fix only — general engine code (travel/campaign), timeline-agnostic.
+2. **Then keep laying the rope forward.** After the parcel wedge clears, drive the run forward via
+   14.3x headless look-ahead (`recon_longrun.py`) toward credits; when it STALLS on the NEXT wedge
+   (doorway, grass, building entry, NPC, switch, TM/HM, fetch-quest, unlearned map, anti-wedge, crash),
+   DIAGNOSE -> FIX (general, solve-once-reuse-everywhere) -> RE-RUN -> BANK a checkpoint -> advance.
+3. **Log every stuck / crash / wedge as a discrete note -> fix -> revalidate item** in NIGHT_REPORT.md
+   (one line per shift per the loop contract; commit-per-fix is your proof of life).
+4. **Validate watch-readiness on the SHOWTIME/kira timeline at true 1x, voice ON, game audio OFF.**
+   Iteration is 14.3x headless (fast wedge-finding); watch-readiness is confirmed by playing a
+   FIXED stretch at 1x with her voice on and game audio off (`watch.py` / showtime path). NOTE: a
+   full 1x bedroom->credits is 25-35h real-time and CANNOT complete in one shift — validate the
+   stretches you fixed at 1x, not the whole game every shift. The full clean run is proven via the
+   14.3x headless look-ahead reaching credits with no wedge/crash.
 
-## DEFINITION OF DONE (historical)
+**STOP CONDITION:** run until a **clean bedroom->credits** is demonstrated (a 14.3x headless full
+run reaches credits with zero permanent stucks / crash-loops), OR the loop's own walls fire
+(~80-85% context budget -> clean handoff per rule 11; or the two-consecutive-no-progress brake).
+**Escalate-don't-quit on crash-loops** — the supervisor already auto-resumes + crash-loop-guards;
+diagnose the crash (faulthandler dump, crash firewall, py-spy, grab-a-frame) and continue.
 
-## DEFINITION OF DONE
+## GUARDRAILS (non-negotiable)
 
-**A) POKÉMON SHOWCASE-READY**
-- [~] Fix the banked_VICTORY 153-twedge regression (the known blocker). **ROOT CAUSE FOUND +
-  FIX SHIPPED shift 14** (see in-flight block below) — re-grade RUNNING.
-- [ ] Full descent re-sweep on current code = ALL 15 arcs PASS; DESCENT_PREGRADE.md regenerated
-  complete (run AFTER the VICTORY re-grade passes; ~35 min; not within 40 min of handover).
-- [ ] GO button + watch rig + soul stack verified against final code (go.py / watch.py smoke).
-- [ ] Fresh 10-min throwaway passes the F-5 bar: bedroom→starter ~90s travel, zero wall-grinding,
-  voiced choices, mom acknowledged, no stale reactions.
-- [ ] Then ONE human watch round (Jonny) → his notes get ONE fix pass → done.
+- **NAV / HARNESS FIXES ONLY. Do NOT touch core Kira personality or the two-bucket firewall.** Her
+  identity / voice / oracle / memory / vision are sacred and OFF-LIMITS. Mode-state stays behind the
+  Pokemon toggle. If a fix would touch shared plumbing, keep it minimal + additive + flagged (rule 12).
+- **COMMIT PER FIX**, clear messages, `git add` lowercase `kira/` (capital-K silently fails).
+- **VERIFIED, never asserted.** Every "it works" must be proven by reading state from disk / a real
+  replay / a log trace — not claimed. Three-state honesty (COMPILES / WIRED / VERIFIED), rule 1.
+- **FRESHNESS over staleness** — read the actual latest decision/state log, not memory of it.
+- **AUDIO STAYS OFF.** Game audio is off by default on every path (`POKEMON_GAME_AUDIO=0`); do not
+  re-enable it. Her voice/TTS is a separate path and stays on.
 
-**B) GENERAL KIRA AT HER BEST** (the 60% backlog → 100% of machine-shippable)
-- [ ] Latency war finished: full de-block of the 3860ms chain, prefetch default decision,
-  freshness windows tuned.
-- [ ] Conversation engine tuned for live chat: restraint/timing, advisors polish (G-2),
-  reject-with-reason, moderation hooks + output-side liability filter.
-- [ ] Attention Director wired (I-1b — EXTEND the existing Activity Director, rule 3).
-- [ ] Media-pacing profiles (I-1c).
-- [ ] 'Heavy lifting' tic governor (mode-side now, core recon flagged).
-- [ ] Cost receipts live (Phase J).
-- [ ] Clipper COMPLETE: all three output tiers + ranked shorts manifest per spec (10 ranked
-  shorts + 20-min superfan cut + 3-5min midform, ONE dated folder, caption source audited for
-  reuse of existing transcripts, review queue).
-- [ ] Regression: every core touch re-verified in sandbox; firewall loud-logs.
+## KNOWN-GOOD BASELINE (landed this session, pre-night-train)
 
-**BURN DISCIPLINE UNCHANGED:** value lines, no idle-grinding while blocked, bounded recon.
-If the list empties except needs-eyes: STOP, write the couch list, stop burning.
-
-## ⚡ SHIFT 14 IN FLIGHT (rewrite as you bank)
-- **✅ banked_VICTORY 153-twedge FAIL → PASS twedge=13 (commit 2158e43).** ROOT CAUSE: Route 23
-  (3,42) is a SPLIT MAP by design — Victory Road IS the road between its halves (warps
-  (5,28)→(1,39), (18,28)→(1,40); south exit = gate warps (8,153)/(9,154)→(28,0), NO south
-  edge). The heal ladder was component-blind and **enter_warp's door pre-check was LAND-ONLY**
-  (the shift-10 water-start law never reached it — the surf-only gate door read "no south
-  warp"). Fixes: `_edge_band_reachable(walkable=or_surf)`, feet-level band pre-checks on the
-  adjacent-city excursion + each cardinal graph hop, `return_to_center` per-leg direction
-  (Viridian-adjacent aware) + band pre-check, surf-aware enter_warp. Re-grade VERIFIED PASS.
-- **✅ SPLIT-MAP ROAD MEMORY (f54ed42) VERIFIED:** banked_SURF_TAUGHT re-grade **PASS
-  twedge 15 → 2** (log `descent_regrade_shift14_surf.log`) — first no_path at the Seafoam
-  split parked BOTH legs for the session; memory KEPT across every exit; metronome dead.
-- **✅ Full 15-arc sweep (2158e43-era code): 14 PASS / 1 WARN** (SURF_TAUGHT pre-fix; table
-  banked in git 90091a4). VICTORY PASS confirmed on a second window (twedge 14, 81 battles).
-- **🏁 FINAL full 15-arc sweep on HEAD: ALL 15 PASS — riskiest-arcs list EMPTY** (aeb2333;
-  log `descent_final_shift14.log`). SURF_TAUGHT 15→2, SAFARI 15→1, VICTORY PASS ×3 windows.
-  DESCENT_PREGRADE.md regenerated complete = the DoD-A machine artifact, DONE.
-- **Evobeat verify: INCONCLUSIVE (as pre-briefed)** — no bundle has a past-due LEVEL evolver
-  (Ekans max L17, needs L22). Evolution early beat stays WIRED-not-VERIFIED; it verifies
-  organically the first time a bench evolver crosses its level (or on a spot-watch).
-- **MACHINE LIST EMPTY — only needs-eyes remain.** Per the mandate: burning stopped. The
-  couch list below is THE deliverable; SAGA CLOSED goes on NIGHT_REPORT line 1 after the
-  couch sitting + the one fix pass.
-- **✅ B-BATCH SHIPPED (commit 392b872, core touches flagged, defaults byte-identical):**
-  Phase-J receipts (write_receipt → logs/receipts/ + LEDGER.jsonl, at-shutdown, WIRED);
-  output-side liability filter (KIRA_LIABILITY_FILTER ON, narrow secrets/PII on the pre-TTS
-  choke; KIRA_MODERATION_REGEX hook; probe 0 FP/0 FN VERIFIED); I-1c media-pacing
-  (MEDIA_PACING_ENABLED OFF); I-1b Attention Director (ATTENTION_DIRECTOR_ENABLED OFF,
-  activity-aware _has_fresh_sense + [ATTENTION] prompt lead). Clipper final spec: 10 ranked
-  shorts, superfan 1200s, midform 300s, caption-source audit documented; .env mask-checked.
-  **Recon corrections:** TTS prefetch pump is COMPLETE (only the default-ON decision is
-  A/B-gated); F-9 "no wink escape" tic ban IS core repetition_guard (mode inherits).
-- **✅ GO refusal rail re-verified on final code** (bot down → rc=2, loud, no launch). watch.py/
-  play_live.py unchanged since their live verifies; today's campaign.py edits are exercised by
-  the sweep itself.
-- **⏸ DESK-PRESENCE: Jonny at the machine (idle=0 min at ~07:50)** → NO bot boots, NO voiced
-  throwaway (the 21:30 law). F-5 throwaway + soul-stack live verify PARKED on the couch list.
-- Residual known-crevasse (unchanged): Victory Road + Seafoam interiors STRIKE-ONLY; travel's
-  strength-push primitive can mis-clear/misread a boulder as a trainer (bounded, filed).
-
-## 🛋️ THE FINAL COUCH LIST (the ONLY remaining work — ONE sitting, ~1.5-2h total)
-1. **Fresh 10-min throwaway (F-5 bar) + descent spot-watches.** Boot her (`python run.py`,
-   wait for :8766), then `python pokemon_agent/go.py --throwaway` (~10 min; bar: bedroom→
-   starter ~90s travel, zero wall-grinding, voiced choices, mom acknowledged, no stale
-   reactions). Spot-watches: `python pokemon_agent/watch.py` — all arcs graded PASS, so pick
-   any 2-3 for feel (suggest VICTORY + BLAINE + POSTGAME). Cleanup:
-   `go.py --clean-throwaways` + `watch.py --clean`.
-2. **Prefetch A/B (2 min):** restart the bot with `KIRA_TTS_PREFETCH=1`, one conversation —
-   decide the default (pump is complete; only the default is undecided).
-3. **20-min cohost smoke** (G-4 exit) — optionally with `MEDIA_PACING_ENABLED=true` +
-   `ATTENTION_DIRECTOR_ENABLED=true` + `CHAT_ADVISORS_ENABLED=true` to feel-test the new
-   flags one at a time per the cadence plan.
-4. **Tri-mode session** (Phase I exit, 15 min): companion → pokemon-play → watch-party,
-   checking the firewall (no Pokémon leak outside play-mode).
-5. **First clipper manifest review** (K exit): run the clipper on a real VOD
-   (`python scripts/cut_clips.py --date <date>`), review manifest.json (now 10 shorts /
-   20-min superfan / 5-min midform), flip approved flags.
-Then ONE fix pass on your notes → write **SAGA CLOSED** on NIGHT_REPORT.md line 1.
-(Final showtime sign-off — the Kira-timeline launch is HIS press, always.)
+- **The opening-replay loop is FIXED** (commits `909e46a` + `1b019df`, restore point `e6c573d`):
+  (a) the scripted intro fires only on a genuine `--fresh-kira` start, never on a `--show` resume
+  relaunch; (b) the supervisor waits for the bot endpoint before (re)launching, so it no longer
+  hot-relaunches into a dead bot and thrashes the intro. A fresh GO now plays a clean single-intro
+  bedroom -> rival -> Route 1 -> Viridian -> parcel pickup, THEN hits wedge (c).
+- **faulthandler** is armed from module-import on every play_live path (showtime included) —
+  a native crash now dumps its C-stack to `logs/debug/playlive_faulthandler.log`.
+- **Crash firewall** in play_live dumps any Python exception to `logs/debug/playlive_crash_*.log`
+  + emergency-banks (poison-guarded) + exits non-zero so the supervisor resumes.
+- All dashboard GO/Resume/Stop route through `supervisor.py` (crash-safe auto-resume, crash-loop guard).
 
 ## STANDING TRUTHS (carry forward — operational law)
-- Re-grade command: `$env:DESCENT_ARCS='<arcs>'; .venv\Scripts\python.exe -u
-  pokemon_agent\recon_descent_grade.py 120 *> logs\longrun\<log>`. Full sweep = no DESCENT_ARCS.
-- venv python is a shim — TWO PIDs per launch; never taskkill your own run. SINGLE-RUN LAW: one
-  emulator recon at a time; nothing launched within ~40 min of a handover (night loop kills
-  in-flight runs).
-- Grade harness is READ-ONLY on bundles; banked_CREDITS excluded (mid-ceremony grenade).
-- PS 5.1 `*>` logs are UTF-16 — grep fails silently; use Select-String or decode first.
-- ⚠️ PS 5.1 mangles this file's UTF-8 via Get-Content/Set-Content round-trips — edit it with
-  the Write/Edit tools only.
-- NIGHT-SHIFT BOT ETIQUETTE: never launch run.py unattended without checking desk presence
-  (:8766 + recent mic) first; kill the tree cleanly after.
-- kira/* = Jonny's + approved core work under loud-log law. `git add Kira/` capital-K silently
+
+- **Default verification = the LOOK-AHEAD ORACLE** (`pokemon_agent/recon_longrun.py`), 14.3x headless,
+  run until goal or genuine stall, then read the full decision/state log in ONE pass. NOT bite-sized
+  micro-tests (those answer "did this fire?", not "can she play this stretch?").
+- **SINGLE-RUN LAW:** one emulator recon at a time; venv python is a shim (TWO PIDs per launch) —
+  never taskkill your own run. Nothing launched within ~40 min of a handover.
+- **THE SELF-HELP ARSENAL** (rule 15) before any blocker slows the climb: (1) the disassembly
+  pret/pokefirered, (2) the wikis Bulbapedia/Serebii, (3) prior art ("GPT/Claude beats Pokemon"),
+  (4) YOUR OWN EYES — grab a frame and LOOK, (5) the 14.3x look-ahead. "Stuck" is a checklist, not a state.
+- **PS 5.1 gotchas:** `*>` logs are UTF-16 (grep fails silently — use Select-String or decode first);
+  PS 5.1 mangles THIS file's UTF-8 via Get-Content/Set-Content round-trips — edit it with the
+  Write/Edit tools only.
+- **kira/\* = Jonny's + approved core work under loud-log law.** `git add Kira/` capital-K silently
   fails — lowercase `kira/`.
-- Known general gaps: Seafoam + Victory Road interiors = strike-only; evolution early beat
-  WIRED-not-VERIFIED; desynced coord-read root-cause thread open (detector recovers it).
+- **BANK cleared stretches** (`promote_bank.py` / checkpoint) so the climb ratchets forward and never
+  re-runs cleared ground. Sanctity-validate at every canonical bank.
+
+## GO-LIVE RITUAL (before any live 1x watch)
+
+1. Confirm the audio device is present + selected BEFORE booting (loopback binds at boot, won't
+   hot-rebind a vanished device). 2. Boot `python run.py`. 3. Mic check ("cheddar"). Save-file card
+   is live at `http://127.0.0.1:8766/pokemon_savecard` once booted.
 
 ---
 
-WATCH STATUS: canonical bank is CLEAN — the TRUE post-game: the Champion at home in Pallet Town
-((4,0)@(4,8), full healthy party — Venusaur L95, Persian, Fearow, Raticate, Ekans, Lapras —
-badges 8, player in control; sanctity VALID). She is at home, victory lap ahead (Cerulean Cave
-open; her stated want: catch Mewtwo). Pop-in = `python pokemon_agent/watch.py` → spawn
-'postgame' (or --canonical, safe).
+WATCH STATUS: the SHOWTIME/kira timeline is a **fresh bedroom->credits validation run** in progress;
+canonical Sherpa save already rolled credits (Champion at home, untouched by nav-fix work). The
+fresh run currently plays clean bedroom -> parcel pickup, then hits the Route 1 -> Pallet wedge (c) —
+that is the first thing the night train fixes. Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
 
 READY FOR THE TRAIN.
