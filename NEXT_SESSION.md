@@ -31,15 +31,52 @@ missing piece — shift-15 taught Cut fine but `self.field=None` blocked actuati
 puzzle → Surge. NOTE: she may try the gym BEFORE boarding the ship (legit — she doesn't have HM01 yet), so
 the get-Cut questline detour is expected, not a bug.
 
-**VERIFY STATUS: <run in progress — see NIGHT_REPORT>.** Re-run any time (field moves now default-on in
-recon_longrun): `recon_longrun.py ss_ticket_razorleaf.state 16`. If the organic run runs out of wall-clock
-before the gym-cut (Gary loss + recovery detour eats time), do a FOCUSED test: boot a Vermilion state where
-ivysaur already KNOWS Cut (the shift-15 stage `G:/temp/longrun/stage/kira_campaign.state` — VERIFY it knows
-Cut) with POKEMON_FIELD_MOVES=1 and call `beat_gym("Lt. Surge")` — confirms the auto-cut→enter→puzzle chain
-directly in ~1 min. Watch Surge itself: electric L21-24 + trash-can puzzle (NEVER run live before — first
-real test of env_puzzle.TrashCanPuzzle; if it sweeps every can with no "first switch", the FLAG_TEMP_1=0x001
-id is wrong). Team: ivysaur L30 has a ~6-level lead on Surge; may just overpower, or wall → catch a Diglett
-(Route 11/Route 2 cave) / grind the bench.
+**✅ VERIFIED — BADGE 3 (THUNDER) CLEARED FRESH, end-to-end** (`logs/debug/shift16_surge_focused.log`,
+GOAL flag 0x822 in 129s wall): from a Cut-known Vermilion fixture she CUTS the (19,24) gym tree → warps
+into the gym → **SOLVES the trash-can switch puzzle** (env_puzzle.TrashCanPuzzle's FIRST-EVER live run:
+found switch 1, adjacent switch 2, motorized door opened — the FLAG_TEMP_1=0x001 id is CORRECT) → clears
+the juniors (smart NUKE-SLEEP on the Voltorbs) → BEATS Lt. Surge → badge 3, narrated ("YES — we DID it!
+Lt. Surge is DOWN... badge number 3"). ivysaur L30+Razor Leaf overpowered Surge — NO Diglett needed.
+Sanctity correctly REFUSED to promote the 3-badge bank over the 8-badge Champion (canonical protected).
+Fixture builder: inject Cut into a post-Gary team state via `camp._set_lead_moves` (see how vermilion_cut.state
+was built in the shift-16 transcript); recon_surge_focused.py drives beat_gym directly.
+
+## NEW FRONTIER — BADGE 4 (RAINBOW, Erika/Celadon)
+A badge-4 forward look-ahead is/was running: `recon_longrun.py surge_done.state 20` (boot = the banked
+badge-3 Vermilion state copied to workshop/surge_done.state; GOAL flag 0x823 Rainbow). Boots ivysaur L31 +
+full team, badges=3, canonical world model loaded (nav pre-solved → GATE blockers surface, not nav noise).
+The badge-4 stretch = Vermilion → Cerulean → cut Route-9 tree (she CUTS it, verified this run) → Route 10 →
+**ROCK TUNNEL (pitch dark — HARD HM05 FLASH capability-gate; `frlg_gates.json:139`)** → Lavender → Route 8 →
+Celadon → Erika (grass gym). She evolved **ivysaur→Venusaur L32** en route. Flash = HM05 from the Route-2
+east-gate aide, gated on **≥10 OWNED species** (`frlg_gates.json:43`).
+
+**OBSERVED STALL (shift16_badge4_forward.log): Flash-gated at Route 10, dex 6.** She reaches Route 10 (the
+Rock Tunnel mouth), correctly arms the Flash questline, but then STICKS: the questline logs
+`QUESTLINE ANCHOR-FIRST: 'HM Flash...' anchors on an UNFAMILIAR area and we're at Route 10 — edge -> (3,4)`
+repeatedly and doesn't actually route to the Route-2 gatehouse — so head_to_gym gets no-move-pruned and she
+falls back to grinding in place. TWO sub-blockers for the successor: (1) **dex is stuck at 6, needs 10** —
+her catching drive isn't reaching the Flash gate's species count (verify she has Poké Balls + a catch-toward-
+dex-target drive; the #3 team-building gap); (2) **the Flash questline can't route to the Route-2 aide from
+Route 10** — "anchors on an unfamiliar area" even though the canonical world model is loaded (the aide's
+gatehouse map/anchor may be unresolved in the questline graph). DIAGNOSE which bites first: if she can't
+reach 10 dex she never earns Flash regardless of routing; if routing is broken she can't reach the aide even
+at 10 dex. FIX the first, re-run `recon_longrun.py surge_done.state 20` (boots badge-3 Venusaur L32 team at
+Vermilion), iterate — same loop that cleared badge 3.
+
+**ROUTE CORRECTION (key insight):** the Flash aide is reached **EAST via Route 11 → Diglett's Cave → Route 2
+east gatehouse** (`frlg_gates.json:201-203`: obtain.from="3,29" Route 11, "through Diglett's Cave"), NOT the
+north Rock-Tunnel road she took. So the intended badge-4 order is: from Vermilion go EAST to Route 11 →
+**Diglett's Cave** (CATCH A DIGLETT here — a new species toward the dex-10 count AND her long-wanted ground
+mon) → Route 2 aide → HM05 (once ≥10 dex) → teach Flash → THEN north to Rock Tunnel → Lavender → Celadon →
+Erika. She has 4 Poké Balls (not ball-starved), dex 6 — she needs ~4 more species; Diglett's Cave + the
+Route-11/Route-2 wilds supply them. The bug: her forward-drive routed her NORTH to the Rock Tunnel mouth
+(nearest gym-ward edge) and armed the Flash questline THERE, but the Flash anchor (Route 11/Diglett's Cave,
+east) reads "unfamiliar area" and won't route from Route 10 — so she spin-grinds. Likely fix: the Flash
+questline should route to its Diglett's-Cave anchor from the EAST (Route 11 off Vermilion), and/or the
+catch-to-dex-target drive should dominate over "strengthen-first" grinding when a dex-gated capability
+(Flash) blocks the road. Champion crossed Rock Tunnel WITH Flash, so the tunnel machinery exists — the gap
+is the fresh-run PATH TO Flash. Fixture `states/workshop/surge_done.state` (gitignored, rebuild from
+`G:/temp/longrun/banked_GOAL/` if pruned).
 
 ### IF SURGE ITSELF WALLS (team strength, next objective): catch a **Diglett** (Diglett's Cave — west end
 off Route 2 near Viridian, or east off Route 11 by Vermilion) = Ground immunity to Electric AND SE on him,
@@ -120,10 +157,12 @@ two-consecutive-no-progress brake; OR (c) balance exhausted.
 
 ---
 
-WATCH STATUS: canonical Sherpa bank is CLEAN (Champion at home, untouched). The look-ahead now crosses
-bedroom → Brock → Misty → Cerulean → Bill → Vermilion → boards the S.S. Anne → **BEATS the rival Gary**
-(the 4-shift wall, via the move-value fix so ivysaur keeps Razor Leaf) → gets HM01 Cut → reaches Vermilion
-and knocks on the Lt. Surge gym. Frontier = enter the Surge gym (Cut-tree / trash-can puzzle) + beat Surge
-(catch a Diglett or level the bench). Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Sherpa bank is CLEAN (Champion at home, untouched — it already rolled credits).
+The fresh-run look-ahead now crosses bedroom → Brock → Misty → Cerulean → Bill → Vermilion → S.S. Anne →
+**BEATS Gary** → HM01 Cut → **CUTS the Vermilion gym tree → SOLVES the trash-can puzzle → BEATS Lt. Surge
+(BADGE 3, Thunder)** [all shift-16-verified], evolves ivysaur→Venusaur, reaches Route 10 (Rock Tunnel mouth).
+Frontier = the badge-4 FLASH gate: catch to ≥10 dex (has 6, 4 Poké Balls) + route EAST to the Route-2 aide
+via Route 11/Diglett's Cave for HM05 Flash → cross Rock Tunnel → Celadon → Erika. Pop-in (Sherpa) =
+`python pokemon_agent/watch.py`.
 
 READY FOR THE TRAIN.
