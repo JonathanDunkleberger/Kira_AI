@@ -5374,14 +5374,37 @@ class Campaign:
             here0 = tuple(tv.coords(self.b) or (0, 0))
             ws0 = tv.read_warps(self.b)
             _dest_of = {tuple(xy): tuple(dest) for (xy, dest, _wid) in ws0}
+            # EXIT-LOBBY GUARD (night shift 9, the S.S. Anne captain wedge): the GO-DEEPER tour
+            # ranks warps farthest-first among unvisited — but the ship's 2F stairs (3,8)->(1,6)
+            # sit at LOW-x, NEAR her frequent 1F landing spots, so they sorted LAST while she toured
+            # the far cabins; before she reached them she picked a warp back to the EXTERIOR (a
+            # visited-but-valid candidate that merely passed the dest[0]!=3 filter), landed on the
+            # exit lobby, found nothing deeper, and declared 'wrong building' — leaving the ship
+            # WITHOUT EVER CLIMBING to the captain on 2F. A map that itself warps OUT to the
+            # overworld (group 3) is the building's EXIT LOBBY; touring INTO it is retreating, never
+            # descending. Exclude it so the tour exhausts the true interior (the stairs included)
+            # before it can give up. Fail-OPEN: an unknown/unvisited dest isn't treated as a lobby
+            # (a FRESH world discovers forward exactly as before — the lobby is only knowable once
+            # its overworld warp is learned, which on a fresh world happens as she walks in).
+            def _is_exit_lobby(dmap):
+                nd = self.world.node(dmap)
+                if not nd:
+                    return False
+                return any(str(v).split(",")[0] == "3" for v in nd.get("warps", {}).values())
             cand = [tuple(xy) for (xy, dest, _wid) in ws0
                     if dest[0] != 3 and (mp0, tuple(xy)) not in self._ql_entered_doors
-                    and tuple(dest) not in self._no_connector_maps()]   # never tour INTO a maze
+                    and tuple(dest) not in self._no_connector_maps()   # never tour INTO a maze
+                    and not _is_exit_lobby(tuple(dest))]               # never RETREAT to the exit lobby
             # UNVISITED MAPS FIRST (run-13 lesson): deepest-first kept touring the same holds while
             # the 2F stairs (an unvisited map) sat untried — a warp into somewhere NEW is the whole
             # point of going deeper. Distance breaks ties.
             cand.sort(key=lambda t: (self.world.visited(_dest_of.get(t, (0, 0))),
                                      -(abs(t[0] - here0[0]) + abs(t[1] - here0[1]))))
+            # DIAGNOSTIC (night shift 9): print the ranked tour so a re-run log shows exactly which
+            # deeper warps were tried/skipped and whether the stairs are ever reached.
+            log("   [roam] questline GO-DEEPER cand on {}: {}".format(
+                mp0, [(t, _dest_of.get(t), "vis" if self.world.visited(_dest_of.get(t, (0, 0)))
+                       else "NEW") for t in cand]))
             for wt in cand:
                 # FEET-REACHABILITY LAW (night shift 8, the Celadon Mansion climb): from a
                 # warp-partitioned landing (back stairwell) the FRONT stairs are visible but
@@ -5434,6 +5457,14 @@ class Campaign:
                     return "questline_deeper"
             # nobody left to talk + no deeper rooms → wrong building; release the 'stay inside' marker
             # so the blackout-recovery can exit her, and keep looking at the next candidate building.
+            # DIAGNOSTIC (night shift 9): if UNVISITED interior warps remain but were all skipped for
+            # walk-unreachability, this is a feet-partition/NPC-blocked-stairs blocker, not a truly
+            # exhausted building — surface it loudly so the next fix targets reachability, not the tour.
+            _left_new = [(t, _dest_of.get(t)) for t in cand
+                         if not self.world.visited(_dest_of.get(t, (0, 0)))]
+            if _left_new:
+                log(f"   [roam] questline: LEAVING with UNVISITED deeper warps still skipped "
+                    f"(reachability blocker?): {_left_new}")
             log("   [roam] questline: no one left to talk to in here and the flag's not set — leaving to keep looking")
             # WRONG-ENTRANCE detection (sabrina_run4): occupants VISIBLE on this map but with NO
             # walkable path to them = a sealed sub-region — same building, DIFFERENT entrance
