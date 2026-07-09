@@ -1,79 +1,110 @@
 # NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-08)
 
-**MISSION (the deliverable):** get Kira to play a **clean bedroom -> credits** FireRed run
-autonomously, at **human-realistic pace (~25-35h target, NOT 67h)**, with **no permanent stucks**
-and **no crash-loops**. You are the lead Sherpa. Lay the rope wedge-by-wedge until a full run is
-clean, then the credits roll. Employment terms + standing rules 1-18 in CLAUDE.md are in force.
+**MISSION (the deliverable):** a **clean bedroom -> credits** FireRed run, autonomous, at
+**human-realistic pace (~25-35h, NOT 67h)**, **no permanent stucks, no crash-loops**, AND
+**game audio ON (`POKEMON_GAME_AUDIO=1`) + her voice/TTS ON** — watchable and recordable as
+evergreen content. **A silent playthrough is NOT the deliverable.** Audio-off is a MITIGATION and a
+FALLBACK FLOOR, not the finish line: the native audio crash must be genuinely diagnosed and fixed,
+not sidestepped. You are the lead Sherpa. Employment terms + standing rules 1-18 in CLAUDE.md apply.
 
-## THE FIRST BLOCKER (fix this before anything else) — travel-wedge (c)
+## SEQUENCING — BANK THE SAFE WINS FIRST, RISKY WORK LAST (do in this order)
 
-On a fresh bedroom->credits run she **wedges delivering Oak's Parcel: routing Route 1 -> Pallet
-Town**. Exact stall: `no_route genuine wall/zone gap` at **map (3,19) coord (13,0)** (Route 1
-sub-area / boundary), TRAVEL WEDGE x4 -> campaign STOP. This is the KNOWN "Route-1 boundary wedge,
-fresh-spine intro only" class the impossible-stand rung does not cover (was item 9 on the old couch
-list, deprioritized then; it is the priority now). Fix it via the **look-ahead / warp-graph nav
-harness** (`recon_longrun.py` at 14.3x headless): reproduce the stall, instrument the connection-band
-/ warp-graph routing at (3,19)->(3,0/Pallet), fix the specific no-route, RE-RUN, confirm parcel
-delivery completes.
+The audio crash is uncertain deep work; it must NOT eat the night and leave nothing. So order the
+work so the guaranteed wins are banked BEFORE the risky work, and the risky work can't destroy them:
 
-## TONIGHT'S FRONTIER (in order)
+### PHASE A — NAV: fix the wedge + general resilience (SAFE, HIGH-VALUE) -> commit
+1. **Fix the Route 1 -> Pallet parcel-delivery wedge.** On a fresh run she wedges delivering Oak's
+   Parcel: `no_route genuine wall/zone gap` at **map (3,19) coord (13,0)** (Route 1 sub-area /
+   boundary), TRAVEL WEDGE x4 -> campaign STOP. Known "Route-1 boundary wedge, fresh-spine intro
+   only" class the impossible-stand rung doesn't cover. Fix via the warp-graph nav harness
+   (`recon_longrun.py`, 14.3x headless): reproduce, instrument the connection-band / warp routing at
+   (3,19)->(3,0/Pallet), fix the specific no-route, RE-RUN, confirm parcel delivery completes.
+2. **HARDEN NAVIGATION GENERALLY — fix the CLASS, not the instance.** Don't just patch this one wedge:
+   build resilience so she doesn't hit a novel stuck on stream tomorrow. Add/strengthen: early
+   stuck-state DETECTION (fingerprint repeats, no-net-progress), robust RECOVERY + RE-ROUTE (back
+   off, try alternate bands/warps, widen search), and class-level resilience to the wall type. Solve
+   once, reuse everywhere. Commit each fix.
+3. Drive forward via 14.3x headless look-ahead; when it stalls on the NEXT wedge, DIAGNOSE -> FIX
+   (general) -> RE-RUN -> BANK a checkpoint -> advance. Log every stuck/crash/wedge as a discrete
+   note -> fix -> revalidate item in NIGHT_REPORT.md (commit-per-fix = proof of life).
 
-1. **Fix the Route 1 -> Pallet parcel-delivery wedge** so parcel delivery completes end-to-end.
-   Nav / warp-graph fix only — general engine code (travel/campaign), timeline-agnostic.
-2. **Then keep laying the rope forward.** After the parcel wedge clears, drive the run forward via
-   14.3x headless look-ahead (`recon_longrun.py`) toward credits; when it STALLS on the NEXT wedge
-   (doorway, grass, building entry, NPC, switch, TM/HM, fetch-quest, unlearned map, anti-wedge, crash),
-   DIAGNOSE -> FIX (general, solve-once-reuse-everywhere) -> RE-RUN -> BANK a checkpoint -> advance.
-3. **Log every stuck / crash / wedge as a discrete note -> fix -> revalidate item** in NIGHT_REPORT.md
-   (one line per shift per the loop contract; commit-per-fix is your proof of life).
-4. **Validate watch-readiness on the SHOWTIME/kira timeline at true 1x, voice ON, game audio OFF.**
-   Iteration is 14.3x headless (fast wedge-finding); watch-readiness is confirmed by playing a
-   FIXED stretch at 1x with her voice on and game audio off (`watch.py` / showtime path). NOTE: a
-   full 1x bedroom->credits is 25-35h real-time and CANNOT complete in one shift — validate the
-   stretches you fixed at 1x, not the whole game every shift. The full clean run is proven via the
-   14.3x headless look-ahead reaching credits with no wedge/crash.
+### PHASE B — PROVE THE AUDIO-OFF FULL PATH (THE GUARANTEED FLOOR) -> commit
+4. **Demonstrate a clean bedroom -> credits path with audio OFF** via the 14.3x headless look-ahead
+   (zero permanent stucks / crash-loops), and BANK it. **This is Jonny's guaranteed floor: worst
+   case he wakes up to a silent-but-COMPLETE, working run.** Commit. Do NOT proceed to the risky
+   audio work until this floor is banked.
 
-**STOP CONDITION:** run until a **clean bedroom->credits** is demonstrated (a 14.3x headless full
-run reaches credits with zero permanent stucks / crash-loops), OR the loop's own walls fire
-(~80-85% context budget -> clean handoff per rule 11; or the two-consecutive-no-progress brake).
-**Escalate-don't-quit on crash-loops** — the supervisor already auto-resumes + crash-loop-guards;
-diagnose the crash (faulthandler dump, crash firewall, py-spy, grab-a-frame) and continue.
+### PHASE C — THE NATIVE AUDIO CRASH: capture -> diagnose -> fix (DEEP WORK, LAST) -> commit
+5. **CAPTURE FIRST. Do NOT theorize about the cause until you have a real crash artifact.** The
+   reason prior attempts failed: the crash was never captured — it's a **native SIGSEGV in the
+   SDL/PortAudio/pygame layer** (no Python traceback, no dump) and it always fired BEFORE faulthandler
+   was armed. faulthandler is now armed from module-import on every play_live path (`play_live.py:52`)
+   -> `logs/debug/playlive_faulthandler.log`. So: **reproduce the crash DELIBERATELY with audio ON**
+   (`POKEMON_GAME_AUDIO=1` -> `--audio` -> AudioPump/PortAudio output active — the LIVE path, since
+   headless `repro_parcel_crash.py` did NOT repro; it's live-output-only) **and faulthandler + any
+   native debugging armed, and CAPTURE the actual dump / C-stack.** Drive through the previously-
+   fingered crash points (esp. the **Viridian Mart item-get fanfare** at parcel pickup).
+6. **From the captured evidence, find the TRUE root cause** (audio-device init? buffer/callback
+   threading? a specific fanfare/sfx trigger? sample-rate/driver mismatch? PortAudio output-device
+   binding?) and **fix it at the source** — proper audio init/teardown, a safer backend/driver,
+   buffering, or **isolating audio into a subprocess so a native fault can't kill the run**.
+7. **PROVE the fix, VERIFIED not asserted:** a real stretch of gameplay with **audio ON** through the
+   fingered crash points (Viridian fanfare + a few more sfx/fanfare triggers) with **zero native
+   crashes**, confirmed from logs/replay. Then land **audio-ON stable on top of the already-working
+   run** (Phase B floor stays intact underneath).
+8. **FALLBACK RULE (only if real diagnosis is exhausted):** if you cannot make audio-on stable
+   tonight, fall back to audio-OFF so the run still completes, and write an EXPLICIT NIGHT_REPORT.md
+   note: what you CAPTURED (the dump / stack), what you TRIED, and what's NEEDED — so Jonny wakes to
+   real evidence, not another guess. Never sidestep silently.
+
+**STOP CONDITIONS:** (a) a clean bedroom -> credits with audio ON is demonstrated (the full
+deliverable); OR (b) the loop's walls fire (~80-85% context -> clean handoff per rule 11; or the
+two-consecutive-no-progress brake); OR (c) **balance exhausted** (auto-recharge is OFF; the launcher
+stops cleanly on a billing/credit failure and writes a final standup). **Escalate-don't-quit on
+game crash-loops** (supervisor auto-resumes + crash-loop-guards; diagnose via the faulthandler dump /
+crash firewall / py-spy / grab-a-frame, then continue).
 
 ## GUARDRAILS (non-negotiable)
 
-- **NAV / HARNESS FIXES ONLY. Do NOT touch core Kira personality or the two-bucket firewall.** Her
-  identity / voice / oracle / memory / vision are sacred and OFF-LIMITS. Mode-state stays behind the
-  Pokemon toggle. If a fix would touch shared plumbing, keep it minimal + additive + flagged (rule 12).
+- **NAV / HARNESS / AUDIO-PLUMBING FIXES ONLY. Do NOT touch core Kira personality or the two-bucket
+  firewall.** Her identity / voice / oracle / memory / vision are sacred and OFF-LIMITS. Mode-state
+  stays behind the Pokemon toggle. Audio-crash fixes live in the game/audio plumbing
+  (`pokemon_audio.py` / play_live audio init-teardown / a subprocess wrapper) — mode-side, minimal,
+  additive, flagged (rule 12). If a fix would touch shared/core, STOP and flag for Jonny.
+- **AUDIO END STATE = ON.** The deliverable ships with `POKEMON_GAME_AUDIO=1`. Audio-off is only the
+  committed floor + the documented fallback (Phase B / step 8). Do not quietly leave it off.
 - **COMMIT PER FIX**, clear messages, `git add` lowercase `kira/` (capital-K silently fails).
-- **VERIFIED, never asserted.** Every "it works" must be proven by reading state from disk / a real
-  replay / a log trace — not claimed. Three-state honesty (COMPILES / WIRED / VERIFIED), rule 1.
-- **FRESHNESS over staleness** — read the actual latest decision/state log, not memory of it.
-- **AUDIO STAYS OFF.** Game audio is off by default on every path (`POKEMON_GAME_AUDIO=0`); do not
-  re-enable it. Her voice/TTS is a separate path and stays on.
+- **VERIFIED, never asserted.** Every "it works" proven by reading state from disk / a real replay /
+  a log trace (for the audio fix: a real captured dump, then a real crash-free audio-ON stretch) —
+  not claimed. Three-state honesty (COMPILES / WIRED / VERIFIED), rule 1.
+- **FRESHNESS over staleness** — read the actual latest decision/state/crash log, not memory of it.
 
 ## KNOWN-GOOD BASELINE (landed this session, pre-night-train)
 
-- **The opening-replay loop is FIXED** (commits `909e46a` + `1b019df`, restore point `e6c573d`):
-  (a) the scripted intro fires only on a genuine `--fresh-kira` start, never on a `--show` resume
-  relaunch; (b) the supervisor waits for the bot endpoint before (re)launching, so it no longer
-  hot-relaunches into a dead bot and thrashes the intro. A fresh GO now plays a clean single-intro
-  bedroom -> rival -> Route 1 -> Viridian -> parcel pickup, THEN hits wedge (c).
-- **faulthandler** is armed from module-import on every play_live path (showtime included) —
-  a native crash now dumps its C-stack to `logs/debug/playlive_faulthandler.log`.
-- **Crash firewall** in play_live dumps any Python exception to `logs/debug/playlive_crash_*.log`
-  + emergency-banks (poison-guarded) + exits non-zero so the supervisor resumes.
+- **Opening-replay loop FIXED** (`909e46a` + `1b019df`, restore point `e6c573d`): intro fires only on
+  a genuine `--fresh-kira` start (not on `--show` resume relaunch); the supervisor waits for the bot
+  endpoint before (re)launching (no hot-relaunch into a dead bot). A fresh GO plays clean single-intro
+  bedroom -> rival -> Route 1 -> Viridian -> parcel pickup, THEN hits the parcel wedge.
+- **faulthandler** armed from module-import on every play_live path -> a native crash dumps its
+  C-stack to `logs/debug/playlive_faulthandler.log`. **This is the capture tool for Phase C.**
+- **Crash firewall** in play_live dumps any Python exception to `logs/debug/playlive_crash_*.log` +
+  emergency-banks (poison-guarded) + exits non-zero so the supervisor resumes.
 - All dashboard GO/Resume/Stop route through `supervisor.py` (crash-safe auto-resume, crash-loop guard).
+- **Game audio gating:** `POKEMON_GAME_AUDIO` (default 0) in `pokemon_proc._audio_args` / `go.py` /
+  `watch.py`; =1 passes `--audio` -> play_live AudioPump (`pokemon_audio.py`) -> PortAudio output.
+  The night's job is to make that path crash-free, then default it ON.
 
 ## STANDING TRUTHS (carry forward — operational law)
 
 - **Default verification = the LOOK-AHEAD ORACLE** (`pokemon_agent/recon_longrun.py`), 14.3x headless,
   run until goal or genuine stall, then read the full decision/state log in ONE pass. NOT bite-sized
-  micro-tests (those answer "did this fire?", not "can she play this stretch?").
+  micro-tests (a micro-test is only for isolating a mechanism a long-run already fingered).
+- **THE SELF-HELP ARSENAL** (rule 15) before any blocker slows the climb: (1) the disassembly
+  pret/pokefirered, (2) the wikis Bulbapedia/Serebii, (3) prior art ("GPT/Claude beats Pokemon" +
+  SDL/PortAudio/pygame crash writeups for the audio bug), (4) YOUR OWN EYES — grab a frame and LOOK,
+  (5) the 14.3x look-ahead. "Stuck" is a checklist, not a state.
 - **SINGLE-RUN LAW:** one emulator recon at a time; venv python is a shim (TWO PIDs per launch) —
   never taskkill your own run. Nothing launched within ~40 min of a handover.
-- **THE SELF-HELP ARSENAL** (rule 15) before any blocker slows the climb: (1) the disassembly
-  pret/pokefirered, (2) the wikis Bulbapedia/Serebii, (3) prior art ("GPT/Claude beats Pokemon"),
-  (4) YOUR OWN EYES — grab a frame and LOOK, (5) the 14.3x look-ahead. "Stuck" is a checklist, not a state.
 - **PS 5.1 gotchas:** `*>` logs are UTF-16 (grep fails silently — use Select-String or decode first);
   PS 5.1 mangles THIS file's UTF-8 via Get-Content/Set-Content round-trips — edit it with the
   Write/Edit tools only.
@@ -90,9 +121,10 @@ diagnose the crash (faulthandler dump, crash firewall, py-spy, grab-a-frame) and
 
 ---
 
-WATCH STATUS: the SHOWTIME/kira timeline is a **fresh bedroom->credits validation run** in progress;
-canonical Sherpa save already rolled credits (Champion at home, untouched by nav-fix work). The
-fresh run currently plays clean bedroom -> parcel pickup, then hits the Route 1 -> Pallet wedge (c) —
-that is the first thing the night train fixes. Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
+WATCH STATUS: the SHOWTIME/kira timeline is a fresh bedroom->credits validation run in progress;
+canonical Sherpa save already rolled credits (Champion at home, untouched by nav-fix work). The fresh
+run currently plays clean bedroom -> parcel pickup, then hits the Route 1 -> Pallet wedge — first
+thing fixed (Phase A). Deliverable ships audio-ON once Phase C lands. Pop-in (Sherpa) =
+`python pokemon_agent/watch.py`.
 
 READY FOR THE TRAIN.
