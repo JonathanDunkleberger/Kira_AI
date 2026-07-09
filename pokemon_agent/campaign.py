@@ -5374,6 +5374,51 @@ class Campaign:
             here0 = tuple(tv.coords(self.b) or (0, 0))
             ws0 = tv.read_warps(self.b)
             _dest_of = {tuple(xy): tuple(dest) for (xy, dest, _wid) in ws0}
+            # DIRECTED INTERIOR NAV (night shift 12 — ends the 4-shift S.S. Anne captain loop): the
+            # blind cabin tour below can't reliably reach a target several warps deep (the captain on
+            # 2F) — the 2F stairs rank as a 'vis' node behind every NEW dead-end cabin, and she bails
+            # to the exit lobby before climbing. When the game-knowledge KB has a DIRECTED warp-chain
+            # for THIS errand, follow it ONE hop toward the target; the chain is world-model-independent
+            # so it works on a fresh timeline too. Falls through to the blind tour if the hop can't move
+            # her (unknown map / warp failed / walk-unreachable) so nothing regresses.
+            _dir_tile = self._questline_interior_route(step)
+            if _dir_tile is not None:
+                if not self._warp_hop_reachable(_dir_tile):
+                    log(f"   [roam] questline: DIRECTED warp {_dir_tile} walk-unreachable from here — "
+                        f"falling back to the blind tour")
+                else:
+                    log(f"   [roam] questline DIRECTED interior hop -> warp {_dir_tile} "
+                        f"(KB chain to the target, skipping the blind cabin tour)")
+                    # step OFF the warp tile if we're standing on it (same ritual as the tour below —
+                    # never step off in a directional tile's own fire direction).
+                    if tuple(tv.coords(self.b) or ()) == _dir_tile:
+                        g3 = tv.Grid(self.b)
+                        _fire = (self._WARP_ENTRY.get(self._tile_behavior(*_dir_tile)) or (None, None))[1]
+                        for nb in ((_dir_tile[0], _dir_tile[1] + 1), (_dir_tile[0], _dir_tile[1] - 1),
+                                   (_dir_tile[0] + 1, _dir_tile[1]), (_dir_tile[0] - 1, _dir_tile[1])):
+                            if _fire is not None and (nb[0] - _dir_tile[0], nb[1] - _dir_tile[1]) == _fire:
+                                continue
+                            if g3.walkable(nb[0], nb[1]):
+                                self.trav.travel(target_map=None, arrive_coord=nb,
+                                                 max_steps=10, max_seconds=15)
+                                break
+                    if self._tile_behavior(*_dir_tile) in self._WARP_ENTRY:
+                        self._enter_directional_warp(_dir_tile)
+                    if tuple(tv.map_id(self.b)) == mp0:
+                        self.enter_warp(pick=_dir_tile, budget_s=180)
+                    if tuple(tv.map_id(self.b)) != mp0:
+                        self._ql_entered_doors.add((mp0, _dir_tile))
+                        self._ql_room_sweeps = 0
+                        self._ql_inside_target = True   # a DEEPER hop is deliberate interiority
+                        try:
+                            getattr(self, "_ql_bg_done", set()).clear()
+                            self._talked_npcs.get(tuple(tv.map_id(self.b)), set()).clear()
+                        except Exception:
+                            pass
+                        log(f"   [roam] 🚪 QUESTLINE DIRECTED: {mp0} -> {tv.map_id(self.b)} via warp "
+                            f"{_dir_tile} (climbing the KB chain to the captain)")
+                        return "questline_deeper"
+                    log("   [roam] questline: DIRECTED hop didn't move us — falling through to the blind tour")
             # EXIT-LOBBY GUARD (night shift 9, the S.S. Anne captain wedge): the GO-DEEPER tour
             # ranks warps farthest-first among unvisited — but the ship's 2F stairs (3,8)->(1,6)
             # sit at LOW-x, NEAR her frequent 1F landing spots, so they sorted LAST while she toured
@@ -5576,6 +5621,32 @@ class Campaign:
                     for k in (self._gate_recognizer.kb.get("no_connector") or {}).get("maps", [])}
         except Exception:
             return set()
+
+    def _questline_interior_route(self, step):
+        """GAME-KNOWLEDGE (gamedata/frlg_gates.json 'interior_routes'): the next warp TILE toward a
+        DEEP questline target the blind GO-DEEPER cabin tour can't reliably reach — the S.S. Anne
+        captain (HM01 Cut) sits on 2F, several warps past 1F's dead-end cabins, and four shifts of
+        tour-ranking tweaks never climbed there (the 2F stairs are a 'vis' node in the canonical
+        world model, so they sorted behind every NEW cabin, and she bailed to the exit lobby first).
+        Returns (x,y) of the warp to step onto FROM the current map, or None (not this errand /
+        already at the target / current map not on the chain). Deterministic + world-model-independent
+        → works on a fresh timeline. Coords isolated in gamedata (rule 14 — engine just follows them)."""
+        try:
+            if not (step and step.success and step.success[0] == "cap"):
+                return None
+            rt = (self._gate_recognizer.kb.get("interior_routes") or {}).get(step.success[1])
+            if not rt:
+                return None
+            here = ",".join(str(x) for x in tuple(tv.map_id(self.b)))
+            if here == rt.get("target"):
+                return None   # already in the target room — let the normal talk flow take the captain
+            tile = (rt.get("hops") or {}).get(here)
+            if not tile:
+                return None
+            g = tile.split(",")
+            return (int(g[0]), int(g[1]))
+        except Exception:
+            return None
 
     def _questline_unentered_door(self):
         """Nearest reachable building door she hasn't ENTERED for the current questline (so she works through

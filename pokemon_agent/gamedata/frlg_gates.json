@@ -1,702 +1,714 @@
 {
- "_meta": {
-  "purpose": "Curated FireRed gate/questline knowledge — the PRIMARY data source for the Questline Deriver (questline.py). Recognise a gate -> derive how to unlock it -> execute as nav goals. GuideSearch is the fallback when this KB is insufficient.",
-  "source": "pret/pokefirered disassembly (data/maps/*/scripts.inc, include/constants/flags.h) + Bulbapedia route pages, distilled offline.",
-  "standing_rule": "We deliberately store DIRECTIONS + named places + authoritative FLAGS — NOT disasm map NUMBERS. The disasm map_groups.json list-index does NOT equal the runtime SB1 map number: verified 2026-06-28 it gives ROUTE24=(3,42)/VERMILION=(3,25) while LIVE RAM gives Route24=(3,43) (Cerulean's north edge) and the verified city-block has Vermilion=(3,5). Directions (north/south) and flag ids ARE reliable; map numbers are learned LIVE by the world-model as she walks. The Deriver routes via the live world-model + these direction hints, and confirms each step by its success FLAG.",
-  "updated": "2026-07-06 (the data-billing evening: every gate to credits billed; flag ids from include/constants/flags.h)",
-  "id_caveats": "FLAG_GOT_SILPH_SCOPE (0x037) and FLAG_GOT_LIFT_KEY (0x036) are HIDE-class flags in the disasm — live-confirm before trusting a 'set' read; Card Key / Secret Key / Gold Teeth are ITEM-BALL pickups with no single GOT flag — their steps carry sets_flag null and must be confirmed by the NEXT gate opening (or a bag read)."
- },
- "flags": {
-  "FLAG_GOT_SS_TICKET": {
-   "id": 564,
-   "hex": "0x234",
-   "note": "Set when Bill gives the S.S. Ticket. While UNSET, CeruleanCity_OnTransition->BlockExits parks the Slowbro/Lass/Policeman on the south exit (data/maps/CeruleanCity/scripts.inc). OBTAINED 2026-07-05."
+  "_meta": {
+    "purpose": "Curated FireRed gate/questline knowledge — the PRIMARY data source for the Questline Deriver (questline.py). Recognise a gate -> derive how to unlock it -> execute as nav goals. GuideSearch is the fallback when this KB is insufficient.",
+    "source": "pret/pokefirered disassembly (data/maps/*/scripts.inc, include/constants/flags.h) + Bulbapedia route pages, distilled offline.",
+    "standing_rule": "We deliberately store DIRECTIONS + named places + authoritative FLAGS — NOT disasm map NUMBERS. The disasm map_groups.json list-index does NOT equal the runtime SB1 map number: verified 2026-06-28 it gives ROUTE24=(3,42)/VERMILION=(3,25) while LIVE RAM gives Route24=(3,43) (Cerulean's north edge) and the verified city-block has Vermilion=(3,5). Directions (north/south) and flag ids ARE reliable; map numbers are learned LIVE by the world-model as she walks. The Deriver routes via the live world-model + these direction hints, and confirms each step by its success FLAG.",
+    "updated": "2026-07-06 (the data-billing evening: every gate to credits billed; flag ids from include/constants/flags.h)",
+    "id_caveats": "FLAG_GOT_SILPH_SCOPE (0x037) and FLAG_GOT_LIFT_KEY (0x036) are HIDE-class flags in the disasm — live-confirm before trusting a 'set' read; Card Key / Secret Key / Gold Teeth are ITEM-BALL pickups with no single GOT flag — their steps carry sets_flag null and must be confirmed by the NEXT gate opening (or a bag read)."
   },
-  "FLAG_TEMP_13": {
-   "id": 19,
-   "hex": "0x13",
-   "note": "Visibility flag of the Cerulean cut tree object at (26,32). The tree persists post-ticket; the pre-Cut route south is the burgled-house pass-through (door (30,11) -> garden -> east corridor -> fence crossing (39-40,32)) — GROUND-TRUTHED 2026-07-06."
+  "flags": {
+    "FLAG_GOT_SS_TICKET": {
+      "id": 564,
+      "hex": "0x234",
+      "note": "Set when Bill gives the S.S. Ticket. While UNSET, CeruleanCity_OnTransition->BlockExits parks the Slowbro/Lass/Policeman on the south exit (data/maps/CeruleanCity/scripts.inc). OBTAINED 2026-07-05."
+    },
+    "FLAG_TEMP_13": {
+      "id": 19,
+      "hex": "0x13",
+      "note": "Visibility flag of the Cerulean cut tree object at (26,32). The tree persists post-ticket; the pre-Cut route south is the burgled-house pass-through (door (30,11) -> garden -> east corridor -> fence crossing (39-40,32)) — GROUND-TRUTHED 2026-07-06."
+    },
+    "FLAG_GOT_HM01": {
+      "id": 567,
+      "hex": "0x237",
+      "note": "HM01 Cut — the S.S. Anne captain."
+    },
+    "FLAG_GOT_HM02": {
+      "id": 568,
+      "hex": "0x238",
+      "note": "HM02 Fly — the house west on Route 16 (behind a cut tree)."
+    },
+    "FLAG_GOT_HM03": {
+      "id": 569,
+      "hex": "0x239",
+      "note": "HM03 Surf — the Safari Zone Secret House."
+    },
+    "FLAG_GOT_HM04": {
+      "id": 570,
+      "hex": "0x23A",
+      "note": "HM04 Strength — the Fuchsia Safari Warden, after returning his Gold Teeth."
+    },
+    "FLAG_GOT_HM05": {
+      "id": 571,
+      "hex": "0x23B",
+      "note": "HM05 Flash — Oak's aide in the Route 2 east gate (needs >=10 owned species)."
+    },
+    "FLAG_GOT_BIKE_VOUCHER": {
+      "id": 577,
+      "hex": "0x241",
+      "note": "Vermilion Pokémon Fan Club chairman's story reward."
+    },
+    "FLAG_GOT_BICYCLE": {
+      "id": 625,
+      "hex": "0x271",
+      "note": "Cerulean Bike Shop exchange for the voucher."
+    },
+    "FLAG_GOT_POKE_FLUTE": {
+      "id": 573,
+      "hex": "0x23D",
+      "note": "Mr. Fuji's thanks, top of Pokémon Tower."
+    },
+    "FLAG_RESCUED_MR_FUJI": {
+      "id": 572,
+      "hex": "0x23C",
+      "note": "Tower ghost/Marowak cleared, Fuji freed."
+    },
+    "FLAG_GOT_TEA": {
+      "id": 678,
+      "hex": "0x2A6",
+      "note": "The old woman in Celadon Mansion 1F. Opens the Saffron gatehouses (the thirsty guards)."
+    },
+    "FLAG_WOKE_UP_ROUTE_12_SNORLAX": {
+      "id": 595,
+      "hex": "0x253",
+      "note": "Route 12 Snorlax woken (Poké Flute) — the east coastal road to Fuchsia opens."
+    },
+    "FLAG_GOT_SILPH_SCOPE": {
+      "id": 55,
+      "hex": "0x037",
+      "note": "HIDE-class id — live-confirm. From Giovanni in the Rocket Hideout (under Celadon Game Corner)."
+    },
+    "FLAG_GOT_LIFT_KEY": {
+      "id": 54,
+      "hex": "0x036",
+      "note": "HIDE-class id — live-confirm. Dropped by a grunt in the Hideout; runs the Hideout lift."
+    },
+    "FLAG_BADGE01_GET": {
+      "id": 2080,
+      "hex": "0x820",
+      "note": "Boulder (Brock). HAVE."
+    },
+    "FLAG_BADGE02_GET": {
+      "id": 2081,
+      "hex": "0x821",
+      "note": "Cascade (Misty). HAVE."
+    },
+    "FLAG_BADGE03_GET": {
+      "id": 2082,
+      "hex": "0x822",
+      "note": "Thunder (Lt. Surge)."
+    },
+    "FLAG_BADGE04_GET": {
+      "id": 2083,
+      "hex": "0x823",
+      "note": "Rainbow (Erika)."
+    },
+    "FLAG_BADGE05_GET": {
+      "id": 2084,
+      "hex": "0x824",
+      "note": "Soul (Koga). Gates Surf field use (source-confirmed GetInteractedWaterScript)."
+    },
+    "FLAG_BADGE06_GET": {
+      "id": 2085,
+      "hex": "0x825",
+      "note": "Marsh (Sabrina). Saffron is Rocket-locked until Silph Co. clears."
+    },
+    "FLAG_BADGE07_GET": {
+      "id": 2086,
+      "hex": "0x826",
+      "note": "Volcano (Blaine). Cinnabar gym needs the Mansion's Secret Key."
+    },
+    "FLAG_BADGE08_GET": {
+      "id": 2087,
+      "hex": "0x827",
+      "note": "Earth (Giovanni, Viridian). Opens after Blaine."
+    }
   },
-  "FLAG_GOT_HM01": {
-   "id": 567,
-   "hex": "0x237",
-   "note": "HM01 Cut — the S.S. Anne captain."
+  "exit_gates": {
+    "_doc": "map_key 'g,n' -> { direction|area -> gate }. A gate names the FLAG that must be SET for the exit to open, plus the in-world blocker, so the recogniser can classify a blocked exit as a STORY gate (not a nav bug) and the deriver knows what to unlock. Flag state is read LIVE — a set flag means no gate.",
+    "3,3": {
+      "south": {
+        "flag": "FLAG_GOT_SS_TICKET",
+        "blocker": "a man and his Slowbro parked across the road (script: CeruleanCity_EventScript_BlockExits)",
+        "human": "the road south out of Cerulean is blocked right now — a guy and his Slowbro won't budge until I've run an errand up north",
+        "post_flag_note": "even with the ticket the direct fence gap holds a CUT tree — the walking route is THROUGH the burgled house (the door the policeman guarded) and around the east side; the door pass-through primitive executes this (proven 2026-07-06)"
+      }
+    },
+    "3,28": {
+      "south": {
+        "flag": "flash",
+        "blocker": "ROCK TUNNEL - the way south to Lavender runs THROUGH the tunnel and it is PITCH DARK inside (a capability gate, not a story flag: satisfied when a party mon KNOWS Flash)",
+        "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)",
+        "only_when_y_below": 40
+      }
+    },
+    "3,4": {
+      "south": {
+        "flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+        "blocker": "a giant SNORLAX asleep across the Route 12 bridge road south of Lavender (wakes only to the Poke Flute - the whole Rocket Hideout -> Silph Scope -> Pokemon Tower -> Mr. Fuji chain stands behind it)",
+        "human": "the road south is blocked by a huge sleeping Snorlax - nothing wakes it but the Poke Flute, and that means dealing with Team Rocket first: the Silph Scope from their hideout under Celadon's Game Corner, then the Tower ghost, then Mr. Fuji"
+      }
+    },
+    "3,26": {
+      "west": {
+        "flag": "FLAG_GOT_TEA",
+        "blocker": "Saffron's east gatehouse guard is parched and refuses passage - he wants the Tea (the old lady in Celadon Mansion's ground floor gives it away; Celadon is reachable from Route 8 via the Underground Path huts, proven both ways)",
+        "human": "the gate guard into Saffron won't budge - he's dying of thirst. An old lady in Celadon Mansion hands out Tea; bring him that and he'll wave you through"
+      }
+    }
   },
-  "FLAG_GOT_HM02": {
-   "id": 568,
-   "hex": "0x238",
-   "note": "HM02 Fly — the house west on Route 16 (behind a cut tree)."
+  "capabilities": {
+    "_doc": "key (a flag/item/HM name, matching Gate.missing) -> how to OBTAIN it. obtain.prereq is another capability key (chains form the questline graph). 'from' is the map the typical encounter is on; 'dir' is the coarse direction to head FROM there (reliable); 'place_name' is the destination; 'gives_cap'/'sets_flag' is the success condition the executor confirms LIVE. No map numbers (see standing_rule).",
+    "FLAG_GOT_SS_TICKET": {
+      "kind": "item",
+      "name": "the S.S. Ticket",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "Bill",
+        "from": "3,3",
+        "dir": "north",
+        "place_name": "Bill's house, past the Nugget Bridge to the north",
+        "prereq": null,
+        "sets_flag": "FLAG_GOT_SS_TICKET",
+        "gives_cap": null
+      },
+      "human": "the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over"
+    },
+    "cut": {
+      "kind": "hm",
+      "name": "HM01 Cut",
+      "move_id": 15,
+      "badge_no": 2,
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the ship's captain",
+        "from": "3,5",
+        "dir": "south",
+        "place_name": "the S.S. Anne, docked at Vermilion's harbour (south) — board with the S.S. Ticket, the captain's cabin is at the bow past the rival fight",
+        "prereq": "FLAG_GOT_SS_TICKET",
+        "sets_flag": "FLAG_GOT_HM01",
+        "gives_cap": "cut"
+      },
+      "human": "HM Cut — the seasick captain of the S.S. Anne in Vermilion gives it to you once you've boarded with the S.S. Ticket"
+    },
+    "flash": {
+      "kind": "hm",
+      "name": "HM05 Flash",
+      "move_id": 148,
+      "badge_no": 1,
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "Professor Oak's aide",
+        "from": "3,29",
+        "dir": "north",
+        "place_name": "the Route 2 east gatehouse - through Diglett's Cave (the cave mouth on Route 11's north side; the tunnel pops out on Route 2 right by the aide's gate)",
+        "prereq": null,
+        "requires_note": "he only hands it over once you OWN >=10 species — build the team/dex first",
+        "sets_flag": "FLAG_GOT_HM05",
+        "gives_cap": "flash"
+      },
+      "human": "HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel."
+    },
+    "fly": {
+      "kind": "hm",
+      "name": "HM02 Fly",
+      "move_id": 19,
+      "badge_no": 3,
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the girl in the hidden house",
+        "from": "3,7",
+        "dir": "west",
+        "place_name": "the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)",
+        "prereq": "cut",
+        "sets_flag": "FLAG_GOT_HM02",
+        "gives_cap": "fly"
+      },
+      "human": "HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns"
+    },
+    "surf": {
+      "kind": "hm",
+      "name": "HM03 Surf",
+      "move_id": 57,
+      "badge_no": 5,
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the Secret House man",
+        "from": "3,8",
+        "dir": "north",
+        "place_name": "the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds)",
+        "prereq": null,
+        "requires_note": "Safari entry costs 500 and runs on a step budget — reaching the far house may take more than one entry",
+        "sets_flag": "FLAG_GOT_HM03",
+        "gives_cap": "surf"
+      },
+      "human": "HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water"
+    },
+    "strength": {
+      "kind": "hm",
+      "name": "HM04 Strength",
+      "move_id": 70,
+      "badge_no": 4,
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the Safari Warden",
+        "from": "3,8",
+        "dir": "east",
+        "place_name": "the Warden's house on Fuchsia's east side — he wants his GOLD TEETH back first (they're lying in the Safari Zone's far area, an item ball)",
+        "prereq": "gold_teeth",
+        "sets_flag": "FLAG_GOT_HM04",
+        "gives_cap": "strength"
+      },
+      "human": "HM Strength — Fuchsia's Safari Warden trades it for his lost Gold Teeth (they're lying deep in the Safari Zone). Strength shoves the boulders in Victory Road"
+    },
+    "gold_teeth": {
+      "kind": "item",
+      "name": "the Gold Teeth",
+      "obtain": {
+        "via": "grab_item",
+        "npc": null,
+        "from": "3,8",
+        "dir": "north",
+        "place_name": "an item ball deep in the Safari Zone (Area 3, near the Secret House)",
+        "prereq": null,
+        "sets_flag": null,
+        "confirm_note": "no GOT flag — confirm by the Warden accepting them (FLAG_GOT_HM04 sets)",
+        "gives_cap": null
+      },
+      "human": "the Warden's Gold Teeth — lying in the deep Safari Zone near the Secret House"
+    },
+    "bike": {
+      "kind": "item",
+      "name": "the Bicycle",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the Bike Shop clerk",
+        "from": "3,3",
+        "dir": "north",
+        "place_name": "the Cerulean Bike Shop (the double-door shop on the south row) — trade in the Bike Voucher",
+        "prereq": "FLAG_GOT_BIKE_VOUCHER",
+        "sets_flag": "FLAG_GOT_BICYCLE",
+        "gives_cap": "bike"
+      },
+      "human": "the Bicycle — the Cerulean Bike Shop hands it over for a Bike Voucher. It makes Cycling Road (the fast road to Fuchsia) rideable"
+    },
+    "FLAG_GOT_BIKE_VOUCHER": {
+      "kind": "item",
+      "name": "the Bike Voucher",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the Pokémon Fan Club chairman",
+        "from": "3,5",
+        "dir": "west",
+        "place_name": "the Pokémon Fan Club in Vermilion (west row) — sit through the chairman's story about his beloved Rapidash",
+        "prereq": null,
+        "sets_flag": "FLAG_GOT_BIKE_VOUCHER",
+        "gives_cap": null
+      },
+      "human": "a Bike Voucher — Vermilion's Fan Club chairman gives one to anyone who listens to his whole Rapidash story"
+    },
+    "silph_scope": {
+      "kind": "item",
+      "name": "the Silph Scope",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "Giovanni (Rocket Boss)",
+        "from": "3,6",
+        "dir": "north",
+        "place_name": "the Rocket Hideout under the Celadon Game Corner (the poster in the Game Corner hides the stairs; the Lift Key opens the elevator; Giovanni holds the Scope on B4)",
+        "door": [
+          34,
+          21
+        ],
+        "prereq": null,
+        "sets_flag": "FLAG_GOT_SILPH_SCOPE",
+        "confirm_item": 359,
+        "confirm_note": "0x037 is HIDE-class and READ SET SPURIOUSLY (flute_run1 2026-07-07 skipped the whole hideout on it) — confirm_item 359 (ITEM_SILPH_SCOPE, disasm items.h, TM_CASE=364 anchor) is the bag ground truth. door = the Game Corner's Celadon door (34,21) -> interior (10,14) (disasm CeladonCity map.json, matches the live-learned warp).",
+        "gives_cap": "silph_scope"
+      },
+      "human": "the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower"
+    },
+    "FLAG_GOT_POKE_FLUTE": {
+      "kind": "item",
+      "name": "the Poké Flute",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "Mr. Fuji",
+        "from": "3,4",
+        "dir": "north",
+        "door": [
+          18,
+          6
+        ],
+        "place_name": "the top of Pokémon Tower in Lavender — rescue Mr. Fuji from Team Rocket (the Silph Scope gets you past the ghost Marowak on floor 6)",
+        "prereq": "silph_scope",
+        "sets_flag": "FLAG_GOT_POKE_FLUTE",
+        "confirm_item": 350,
+        "confirm_note": "door = the Tower's Lavender door (18,6) (disasm LavenderTown map.json) — the Tower is IN town; the coarse 'north' walked her out to Route 10/Rock Tunnel (flute_run1). confirm_item 350 = ITEM_POKE_FLUTE.",
+        "gives_cap": null
+      },
+      "human": "the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax"
+    },
+    "FLAG_WOKE_UP_ROUTE_12_SNORLAX": {
+      "kind": "event",
+      "name": "waking the Route 12 Snorlax",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the sleeping Snorlax",
+        "from": "3,4",
+        "dir": "south",
+        "place_name": "the giant Snorlax asleep across Route 12's bridge road south of Lavender — play the Poké Flute at it (it wakes and ATTACKS: a catchable L30 wild)",
+        "prereq": "FLAG_GOT_POKE_FLUTE",
+        "sets_flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+        "gives_cap": null
+      },
+      "human": "the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)"
+    },
+    "FLAG_GOT_TEA": {
+      "kind": "item",
+      "name": "the Tea",
+      "obtain": {
+        "via": "talk_npc",
+        "npc": "the old lady",
+        "from": "3,6",
+        "dir": "north",
+        "place_name": "Celadon Mansion's ground floor (the big building by the Center) — the old woman hands her Tea to a polite trainer",
+        "prereq": null,
+        "sets_flag": "FLAG_GOT_TEA",
+        "gives_cap": null
+      },
+      "human": "the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron's gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron)"
+    }
   },
-  "FLAG_GOT_HM03": {
-   "id": 569,
-   "hex": "0x239",
-   "note": "HM03 Surf — the Safari Zone Secret House."
+  "route_notes": {
+    "_doc": "Sherpa data for the engine's route layer (inert to the questline recogniser — hints, not gates).",
+    "cerulean_to_vermilion": "Cerulean -> (burgled-house pass-through, proven) -> Route 5 south -> the Route 5 gatehouse guards refuse (thirsty, need Tea) -> use the UNDERGROUND PATH: the lone hut on Route 5's east side, down the stairs, the long tunnel south, up into the Route 6 hut, out to Route 6 -> Vermilion. The door pass-through primitive should discover the huts once multi-hop.",
+    "celadon_reach": "Lavender -> Route 8 west -> the Route 8 gatehouse also refuses pre-Tea -> the SECOND Underground Path (Routes 7-8, entrances near the gatehouses) goes under Saffron east-west -> Route 7 -> Celadon.",
+    "fuchsia_reach": "Two roads: Cycling Road (Route 16/17, needs bike; the Route 16 gate also has a Snorlax with its own wake flag 0x080-class hide id) OR the coastal Routes 12-15 south of Lavender (needs the Route 12 Snorlax woken). Both converge on Fuchsia.",
+    "saffron_unlock": "Tea opens the gatehouses; inside, Silph Co. is Rocket-held — clearing it (Card Key on 5F opens doors; Giovanni #2 on 11F) frees the city and unlocks Sabrina's gym.",
+    "cinnabar_reach": "Surf south from Pallet Town (Route 21) — the shortest sea road. The gym is locked; the Secret Key (an item ball in the burned Mansion's basement) opens it.",
+    "viridian_gym": "Closed until badge 7; Giovanni again, ground types.",
+    "victory_road": "Route 22 -> 23 badge checks -> Victory Road needs SURF (water stretch) + STRENGTH (boulder-onto-switch puzzles on every floor).",
+    "e4": "Indigo Plateau: Lorelei (Ice/Water) -> Bruno (Fighting/Rock) -> Agatha (Ghost/Poison) -> Lance (Dragon/Flying) -> the Champion. No Center between the five — stock Full Restores/Revives and bring a levelled six.",
+    "lavender_reach": "Cerulean -> Route 9 east (a Cut tree at its mouth - she has Cut) -> Route 10 north (a Pokemon Center sits right by the tunnel door) -> ROCK TUNNEL (PITCH DARK: teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species) -> south mouth -> Route 10 south -> Lavender Town. Route 12 from the east is Snorlax-blocked (needs the Poke Flute) - the tunnel is the ONLY pre-Flute road to Lavender.",
+    "postgame_dex_arc": "POST-CREDITS ONLY (DEX DOCTRINE): after the Elite Four, CERULEAN CAVE unlocks (the guard by the cave mouth NW of Cerulean stands down) - MEWTWO waits at its bottom, the strongest Pokemon in the game: her post-credits love-letter episode, the encore hunt. Dex completion is a post-game arc, never a pre-credits grind.",
+    "legendary_birds": "OPTIONAL side-arcs, default SKIP unless en route (soul/pacing call): ZAPDOS - the Power Plant, reached by Surfing south from Route 10's east water (right by the Rock Tunnel road, needs Surf). ARTICUNO - deep in the Seafoam Islands (Routes 19/20, needs Surf + Strength boulder work). MOLTRES - Mt. Ember on One Island (Sevii, post-Blaine ferry). All L50 one-shot encounters - save-worthy moments if she goes."
   },
-  "FLAG_GOT_HM04": {
-   "id": 570,
-   "hex": "0x23A",
-   "note": "HM04 Strength — the Fuchsia Safari Warden, after returning his Gold Teeth."
-  },
-  "FLAG_GOT_HM05": {
-   "id": 571,
-   "hex": "0x23B",
-   "note": "HM05 Flash — Oak's aide in the Route 2 east gate (needs >=10 owned species)."
-  },
-  "FLAG_GOT_BIKE_VOUCHER": {
-   "id": 577,
-   "hex": "0x241",
-   "note": "Vermilion Pokémon Fan Club chairman's story reward."
-  },
-  "FLAG_GOT_BICYCLE": {
-   "id": 625,
-   "hex": "0x271",
-   "note": "Cerulean Bike Shop exchange for the voucher."
-  },
-  "FLAG_GOT_POKE_FLUTE": {
-   "id": 573,
-   "hex": "0x23D",
-   "note": "Mr. Fuji's thanks, top of Pokémon Tower."
-  },
-  "FLAG_RESCUED_MR_FUJI": {
-   "id": 572,
-   "hex": "0x23C",
-   "note": "Tower ghost/Marowak cleared, Fuji freed."
-  },
-  "FLAG_GOT_TEA": {
-   "id": 678,
-   "hex": "0x2A6",
-   "note": "The old woman in Celadon Mansion 1F. Opens the Saffron gatehouses (the thirsty guards)."
-  },
-  "FLAG_WOKE_UP_ROUTE_12_SNORLAX": {
-   "id": 595,
-   "hex": "0x253",
-   "note": "Route 12 Snorlax woken (Poké Flute) — the east coastal road to Fuchsia opens."
-  },
-  "FLAG_GOT_SILPH_SCOPE": {
-   "id": 55,
-   "hex": "0x037",
-   "note": "HIDE-class id — live-confirm. From Giovanni in the Rocket Hideout (under Celadon Game Corner)."
-  },
-  "FLAG_GOT_LIFT_KEY": {
-   "id": 54,
-   "hex": "0x036",
-   "note": "HIDE-class id — live-confirm. Dropped by a grunt in the Hideout; runs the Hideout lift."
-  },
-  "FLAG_BADGE01_GET": {
-   "id": 2080,
-   "hex": "0x820",
-   "note": "Boulder (Brock). HAVE."
-  },
-  "FLAG_BADGE02_GET": {
-   "id": 2081,
-   "hex": "0x821",
-   "note": "Cascade (Misty). HAVE."
-  },
-  "FLAG_BADGE03_GET": {
-   "id": 2082,
-   "hex": "0x822",
-   "note": "Thunder (Lt. Surge)."
-  },
-  "FLAG_BADGE04_GET": {
-   "id": 2083,
-   "hex": "0x823",
-   "note": "Rainbow (Erika)."
-  },
-  "FLAG_BADGE05_GET": {
-   "id": 2084,
-   "hex": "0x824",
-   "note": "Soul (Koga). Gates Surf field use (source-confirmed GetInteractedWaterScript)."
-  },
-  "FLAG_BADGE06_GET": {
-   "id": 2085,
-   "hex": "0x825",
-   "note": "Marsh (Sabrina). Saffron is Rocket-locked until Silph Co. clears."
-  },
-  "FLAG_BADGE07_GET": {
-   "id": 2086,
-   "hex": "0x826",
-   "note": "Volcano (Blaine). Cinnabar gym needs the Mansion's Secret Key."
-  },
-  "FLAG_BADGE08_GET": {
-   "id": 2087,
-   "hex": "0x827",
-   "note": "Earth (Giovanni, Viridian). Opens after Blaine."
-  }
- },
- "exit_gates": {
-  "_doc": "map_key 'g,n' -> { direction|area -> gate }. A gate names the FLAG that must be SET for the exit to open, plus the in-world blocker, so the recogniser can classify a blocked exit as a STORY gate (not a nav bug) and the deriver knows what to unlock. Flag state is read LIVE — a set flag means no gate.",
-  "3,3": {
-   "south": {
-    "flag": "FLAG_GOT_SS_TICKET",
-    "blocker": "a man and his Slowbro parked across the road (script: CeruleanCity_EventScript_BlockExits)",
-    "human": "the road south out of Cerulean is blocked right now — a guy and his Slowbro won't budge until I've run an errand up north",
-    "post_flag_note": "even with the ticket the direct fence gap holds a CUT tree — the walking route is THROUGH the burgled house (the door the policeman guarded) and around the east side; the door pass-through primitive executes this (proven 2026-07-06)"
-   }
-  },
-  "3,28": {
-   "south": {
-    "flag": "flash",
-    "blocker": "ROCK TUNNEL - the way south to Lavender runs THROUGH the tunnel and it is PITCH DARK inside (a capability gate, not a story flag: satisfied when a party mon KNOWS Flash)",
-    "human": "the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)",
-    "only_when_y_below": 40
-   }
-  },
-  "3,4": {
-   "south": {
-    "flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
-    "blocker": "a giant SNORLAX asleep across the Route 12 bridge road south of Lavender (wakes only to the Poke Flute - the whole Rocket Hideout -> Silph Scope -> Pokemon Tower -> Mr. Fuji chain stands behind it)",
-    "human": "the road south is blocked by a huge sleeping Snorlax - nothing wakes it but the Poke Flute, and that means dealing with Team Rocket first: the Silph Scope from their hideout under Celadon's Game Corner, then the Tower ghost, then Mr. Fuji"
-   }
-  },
-  "3,26": {
-   "west": {
-    "flag": "FLAG_GOT_TEA",
-    "blocker": "Saffron's east gatehouse guard is parched and refuses passage - he wants the Tea (the old lady in Celadon Mansion's ground floor gives it away; Celadon is reachable from Route 8 via the Underground Path huts, proven both ways)",
-    "human": "the gate guard into Saffron won't budge - he's dying of thirst. An old lady in Celadon Mansion hands out Tea; bring him that and he'll wave you through"
-   }
-  }
- },
- "capabilities": {
-  "_doc": "key (a flag/item/HM name, matching Gate.missing) -> how to OBTAIN it. obtain.prereq is another capability key (chains form the questline graph). 'from' is the map the typical encounter is on; 'dir' is the coarse direction to head FROM there (reliable); 'place_name' is the destination; 'gives_cap'/'sets_flag' is the success condition the executor confirms LIVE. No map numbers (see standing_rule).",
-  "FLAG_GOT_SS_TICKET": {
-   "kind": "item",
-   "name": "the S.S. Ticket",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "Bill",
-    "from": "3,3",
-    "dir": "north",
-    "place_name": "Bill's house, past the Nugget Bridge to the north",
-    "prereq": null,
-    "sets_flag": "FLAG_GOT_SS_TICKET",
-    "gives_cap": null
-   },
-   "human": "the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over"
-  },
-  "cut": {
-   "kind": "hm",
-   "name": "HM01 Cut",
-   "move_id": 15,
-   "badge_no": 2,
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the ship's captain",
-    "from": "3,5",
-    "dir": "south",
-    "place_name": "the S.S. Anne, docked at Vermilion's harbour (south) — board with the S.S. Ticket, the captain's cabin is at the bow past the rival fight",
-    "prereq": "FLAG_GOT_SS_TICKET",
-    "sets_flag": "FLAG_GOT_HM01",
-    "gives_cap": "cut"
-   },
-   "human": "HM Cut — the seasick captain of the S.S. Anne in Vermilion gives it to you once you've boarded with the S.S. Ticket"
-  },
-  "flash": {
-   "kind": "hm",
-   "name": "HM05 Flash",
-   "move_id": 148,
-   "badge_no": 1,
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "Professor Oak's aide",
-    "from": "3,29",
-    "dir": "north",
-    "place_name": "the Route 2 east gatehouse - through Diglett's Cave (the cave mouth on Route 11's north side; the tunnel pops out on Route 2 right by the aide's gate)",
-    "prereq": null,
-    "requires_note": "he only hands it over once you OWN >=10 species — build the team/dex first",
-    "sets_flag": "FLAG_GOT_HM05",
-    "gives_cap": "flash"
-   },
-   "human": "HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel."
-  },
-  "fly": {
-   "kind": "hm",
-   "name": "HM02 Fly",
-   "move_id": 19,
-   "badge_no": 3,
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the girl in the hidden house",
-    "from": "3,7",
-    "dir": "west",
-    "place_name": "the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)",
-    "prereq": "cut",
-    "sets_flag": "FLAG_GOT_HM02",
-    "gives_cap": "fly"
-   },
-   "human": "HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns"
-  },
-  "surf": {
-   "kind": "hm",
-   "name": "HM03 Surf",
-   "move_id": 57,
-   "badge_no": 5,
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the Secret House man",
-    "from": "3,8",
-    "dir": "north",
-    "place_name": "the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds)",
-    "prereq": null,
-    "requires_note": "Safari entry costs 500 and runs on a step budget — reaching the far house may take more than one entry",
-    "sets_flag": "FLAG_GOT_HM03",
-    "gives_cap": "surf"
-   },
-   "human": "HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water"
-  },
-  "strength": {
-   "kind": "hm",
-   "name": "HM04 Strength",
-   "move_id": 70,
-   "badge_no": 4,
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the Safari Warden",
-    "from": "3,8",
-    "dir": "east",
-    "place_name": "the Warden's house on Fuchsia's east side — he wants his GOLD TEETH back first (they're lying in the Safari Zone's far area, an item ball)",
-    "prereq": "gold_teeth",
-    "sets_flag": "FLAG_GOT_HM04",
-    "gives_cap": "strength"
-   },
-   "human": "HM Strength — Fuchsia's Safari Warden trades it for his lost Gold Teeth (they're lying deep in the Safari Zone). Strength shoves the boulders in Victory Road"
-  },
-  "gold_teeth": {
-   "kind": "item",
-   "name": "the Gold Teeth",
-   "obtain": {
-    "via": "grab_item",
-    "npc": null,
-    "from": "3,8",
-    "dir": "north",
-    "place_name": "an item ball deep in the Safari Zone (Area 3, near the Secret House)",
-    "prereq": null,
-    "sets_flag": null,
-    "confirm_note": "no GOT flag — confirm by the Warden accepting them (FLAG_GOT_HM04 sets)",
-    "gives_cap": null
-   },
-   "human": "the Warden's Gold Teeth — lying in the deep Safari Zone near the Secret House"
-  },
-  "bike": {
-   "kind": "item",
-   "name": "the Bicycle",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the Bike Shop clerk",
-    "from": "3,3",
-    "dir": "north",
-    "place_name": "the Cerulean Bike Shop (the double-door shop on the south row) — trade in the Bike Voucher",
-    "prereq": "FLAG_GOT_BIKE_VOUCHER",
-    "sets_flag": "FLAG_GOT_BICYCLE",
-    "gives_cap": "bike"
-   },
-   "human": "the Bicycle — the Cerulean Bike Shop hands it over for a Bike Voucher. It makes Cycling Road (the fast road to Fuchsia) rideable"
-  },
-  "FLAG_GOT_BIKE_VOUCHER": {
-   "kind": "item",
-   "name": "the Bike Voucher",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the Pokémon Fan Club chairman",
-    "from": "3,5",
-    "dir": "west",
-    "place_name": "the Pokémon Fan Club in Vermilion (west row) — sit through the chairman's story about his beloved Rapidash",
-    "prereq": null,
-    "sets_flag": "FLAG_GOT_BIKE_VOUCHER",
-    "gives_cap": null
-   },
-   "human": "a Bike Voucher — Vermilion's Fan Club chairman gives one to anyone who listens to his whole Rapidash story"
-  },
-  "silph_scope": {
-   "kind": "item",
-   "name": "the Silph Scope",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "Giovanni (Rocket Boss)",
-    "from": "3,6",
-    "dir": "north",
-    "place_name": "the Rocket Hideout under the Celadon Game Corner (the poster in the Game Corner hides the stairs; the Lift Key opens the elevator; Giovanni holds the Scope on B4)",
-    "door": [
-     34,
-     21
+  "roads": {
+    "_doc": "Per-gym ROAD BILLING - the curated forward road to the next gym city, as ordered LEGS. head_to_gym follows this when the live world-graph can't route to the gym city yet (the graph only knows walked ground). A leg = the map she can be standing on ('map' as 'g,n' + human 'name'), the billed crossing direction 'go', optional 'via':'pass' when the crossing is DOOR-PASSTHROUGH country (an Underground Path / gatehouse detour the door-passthrough primitive executes), and 'note' for the human context. Map ids marked 'expected': true are extrapolated from the live-learned route sequence (3,19..3,24 = Routes 1..6, 3,29 = Route 11, all confirmed live) and BIND when she walks them - a wrong expected id just means that leg never matches, never a wrong turn. Roads for later gyms are billed when their leg of the climb opens (don't fabricate - the standing rule).",
+    "Vermilion City": [
+      {
+        "map": "3,3",
+        "name": "Cerulean City",
+        "go": "south",
+        "note": "the badge-3 push: Cerulean south exit onto Route 5 (S.S. Ticket opens the gate). The live world-graph can't route Cerulean->Vermilion because the ONLY crossing is the Underground Path (Saffron's gates refuse passage pre-Tea + Route 5's south edge dead-ends at Saffron 3,11), so this billed road owns the leg."
+      },
+      {
+        "map": "3,23",
+        "name": "Route 5",
+        "go": "south",
+        "via": "pass",
+        "note": "Saffron's north gatehouse refuses passage pre-Tea; the Underground Path hut on Route 5 crosses under Saffron to Route 6 - the door-passthrough primitive executes this (the reverse crossing, Route 6->Route 5, is proven both directions 2026-07-06)"
+      },
+      {
+        "map": "3,24",
+        "name": "Route 6",
+        "go": "south"
+      },
+      {
+        "map": "3,5",
+        "name": "Vermilion City"
+      }
     ],
-    "prereq": null,
-    "sets_flag": "FLAG_GOT_SILPH_SCOPE",
-    "confirm_item": 359,
-    "confirm_note": "0x037 is HIDE-class and READ SET SPURIOUSLY (flute_run1 2026-07-07 skipped the whole hideout on it) — confirm_item 359 (ITEM_SILPH_SCOPE, disasm items.h, TM_CASE=364 anchor) is the bag ground truth. door = the Game Corner's Celadon door (34,21) -> interior (10,14) (disasm CeladonCity map.json, matches the live-learned warp).",
-    "gives_cap": "silph_scope"
-   },
-   "human": "the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower"
-  },
-  "FLAG_GOT_POKE_FLUTE": {
-   "kind": "item",
-   "name": "the Poké Flute",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "Mr. Fuji",
-    "from": "3,4",
-    "dir": "north",
-    "door": [
-     18,
-     6
+    "Celadon City": [
+      {
+        "map": "3,5",
+        "name": "Vermilion City",
+        "go": "north"
+      },
+      {
+        "map": "3,24",
+        "name": "Route 6",
+        "go": "north",
+        "via": "pass",
+        "note": "Saffron's south gatehouse refuses passage pre-Tea; the Underground Path hut on Route 6 (warp (19,13)->(1,32)) crosses under Saffron to Route 5 - the door-passthrough primitive executes this (proven both directions 2026-07-06)"
+      },
+      {
+        "map": "3,23",
+        "name": "Route 5",
+        "go": "north"
+      },
+      {
+        "map": "3,3",
+        "name": "Cerulean City",
+        "go": "east",
+        "note": "a CUT tree sits at Route 9's mouth - she has Cut; in-leg field_clear cuts it"
+      },
+      {
+        "map": "3,27",
+        "name": "Route 9",
+        "go": "east",
+        "note": "id from Cerulean's live-learned east edge; trainer gauntlet route, no Center"
+      },
+      {
+        "map": "3,28",
+        "name": "Route 10 north",
+        "expected": true,
+        "go": "south",
+        "via": "pass",
+        "note": "a Pokemon Center sits right by the ROCK TUNNEL door. 'South' means THROUGH Rock Tunnel (PITCH DARK - teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species). The tunnel strike owns the crossing - DO NOT enter dark. Route 12 from the east is Snorlax-blocked; the tunnel is the ONLY pre-Flute road to Lavender."
+      },
+      {
+        "map": "3,4",
+        "name": "Lavender Town",
+        "go": "west"
+      },
+      {
+        "map": "3,26",
+        "name": "Route 8",
+        "expected": true,
+        "go": "west",
+        "via": "pass",
+        "note": "the Route 8 gatehouse into Saffron refuses pre-Tea; the SECOND Underground Path (entrance hut near the gatehouse) goes under Saffron east-west to Route 7"
+      },
+      {
+        "map": "3,25",
+        "name": "Route 7",
+        "expected": true,
+        "go": "west"
+      },
+      {
+        "map": "3,6",
+        "name": "Celadon City"
+      }
     ],
-    "place_name": "the top of Pokémon Tower in Lavender — rescue Mr. Fuji from Team Rocket (the Silph Scope gets you past the ghost Marowak on floor 6)",
-    "prereq": "silph_scope",
-    "sets_flag": "FLAG_GOT_POKE_FLUTE",
-    "confirm_item": 350,
-    "confirm_note": "door = the Tower's Lavender door (18,6) (disasm LavenderTown map.json) — the Tower is IN town; the coarse 'north' walked her out to Route 10/Rock Tunnel (flute_run1). confirm_item 350 = ITEM_POKE_FLUTE.",
-    "gives_cap": null
-   },
-   "human": "the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax"
+    "Fuchsia City": [
+      {
+        "map": "3,6",
+        "name": "Celadon City",
+        "go": "east"
+      },
+      {
+        "map": "3,25",
+        "name": "Route 7",
+        "go": "east",
+        "via": "pass",
+        "note": "Saffron's west gatehouse refuses pre-Tea; the SECOND Underground Path (Routes 7-8 huts) crosses under Saffron east-west - proven westbound 2026-07-07, same huts in reverse"
+      },
+      {
+        "map": "3,26",
+        "name": "Route 8",
+        "expected": true,
+        "go": "east"
+      },
+      {
+        "map": "3,4",
+        "name": "Lavender Town",
+        "go": "south",
+        "note": "Route 12 south is SNORLAX-blocked pre-Flute (exit gate FLAG_WOKE_UP_ROUTE_12_SNORLAX arms the flute chain: Silph Scope from Giovanni in the Rocket Hideout under Celadon's Game Corner -> Pokemon Tower -> Mr. Fuji's Poke Flute). The Tower is IN Lavender - the chain routes back here."
+      },
+      {
+        "map": "3,30",
+        "name": "Route 12",
+        "expected": true,
+        "go": "south",
+        "note": "id extrapolated from the live-learned route sequence (Route 11 = 3,29 confirmed); binds when walked. Coastal bridge road."
+      },
+      {
+        "map": "3,31",
+        "name": "Route 13",
+        "expected": true,
+        "go": "west"
+      },
+      {
+        "map": "3,32",
+        "name": "Route 14",
+        "expected": true,
+        "go": "west"
+      },
+      {
+        "map": "3,33",
+        "name": "Route 15",
+        "expected": true,
+        "go": "west"
+      },
+      {
+        "map": "3,7",
+        "name": "Fuchsia City",
+        "expected": true
+      }
+    ],
+    "Saffron City": [
+      {
+        "map": "3,7",
+        "name": "Fuchsia City",
+        "go": "east"
+      },
+      {
+        "map": "3,33",
+        "name": "Route 15",
+        "go": "east",
+        "note": "coastal corridor back north - ALL directions here are live-learned edges (world_model 2026-07-07), not extrapolation"
+      },
+      {
+        "map": "3,32",
+        "name": "Route 14",
+        "go": "east"
+      },
+      {
+        "map": "3,31",
+        "name": "Route 13",
+        "go": "north"
+      },
+      {
+        "map": "3,30",
+        "name": "Route 12",
+        "go": "north",
+        "via": "pass",
+        "note": "Route 12's north 'edge' does NOT exist - the crossing to Lavender is the NORTH GATEHOUSE (south door (14,21) -> interior (23,0), north doors (14,15)/(15,15) pop out on the Lavender side; all four warps live-learned 2026-07-07). An edge-travel north BFSes to y<=0 and hits the sealed top row: 'genuine wall/zone gap' (sabrina_run2). Same class as Route 6's north edge."
+      },
+      {
+        "map": "3,4",
+        "name": "Lavender Town",
+        "go": "west"
+      },
+      {
+        "map": "3,26",
+        "name": "Route 8",
+        "go": "west",
+        "via": "pass",
+        "note": "the west crossing is Saffron's EAST gatehouse - the thirsty guard REFUSES pre-Tea (exit_gates 3,26/west arms the Tea errand: Celadon Mansion old lady, FLAG_GOT_TEA 0x2A6). With Tea in hand the guard drinks and the gate opens. Route 8's west connection = 3,10 (Saffron; pret map_groups: SaffronCity index 10, (3,11) is SaffronCity_Connection - the shift-7 (3,11) guess was off by one)."
+      },
+      {
+        "map": "3,10",
+        "name": "Saffron City",
+        "expected": true,
+        "note": "Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared (Card Key 5F, Giovanni #2 11F - hideout-class strike; see route_notes/saffron_unlock)"
+      }
+    ],
+    "Cinnabar Island": [
+      {
+        "map": "3,10",
+        "name": "Saffron City",
+        "go": "east",
+        "via": "pass",
+        "note": "east gatehouse onto Route 8 (door-passthrough; TEA already shown on the way in)"
+      },
+      {
+        "map": "3,26",
+        "name": "Route 8",
+        "go": "east"
+      },
+      {
+        "map": "3,4",
+        "name": "Lavender Town",
+        "go": "south",
+        "note": "Snorlax gate south - woken by this point on the rope (badge 5 road); the gate recognizer re-arms the flute chain if not"
+      },
+      {
+        "map": "3,30",
+        "name": "Route 12",
+        "go": "south"
+      },
+      {
+        "map": "3,31",
+        "name": "Route 13",
+        "go": "west"
+      },
+      {
+        "map": "3,32",
+        "name": "Route 14",
+        "go": "west"
+      },
+      {
+        "map": "3,33",
+        "name": "Route 15",
+        "go": "west"
+      },
+      {
+        "map": "3,7",
+        "name": "Fuchsia City",
+        "go": "south",
+        "note": "onto Route 19 - SEA from here: the south band is beach, the water needs Surf (water-aware travel)"
+      },
+      {
+        "map": "3,37",
+        "name": "Route 19",
+        "go": "west",
+        "note": "sea route - Surf"
+      },
+      {
+        "map": "3,38",
+        "name": "Route 20",
+        "go": "west",
+        "via": "pass",
+        "note": "the crossing runs THROUGH Seafoam Islands (boulder/current puzzle - strike-solved 2026-07-07, cinnabar_reach; the general pass-through does NOT solve the interior)"
+      },
+      {
+        "map": "3,8",
+        "name": "Cinnabar Island",
+        "expected": true
+      }
+    ],
+    "Viridian City": [
+      {
+        "map": "3,8",
+        "name": "Cinnabar Island",
+        "go": "north",
+        "note": "SEA road - Surf north up Route 21 to Pallet (water-aware travel)"
+      },
+      {
+        "map": "3,40",
+        "name": "Route 21 south",
+        "go": "north",
+        "note": "sea - Surf"
+      },
+      {
+        "map": "3,39",
+        "name": "Route 21 north",
+        "go": "north",
+        "note": "sea - Surf; lands on Pallet's south shore"
+      },
+      {
+        "map": "3,0",
+        "name": "Pallet Town",
+        "go": "north"
+      },
+      {
+        "map": "3,19",
+        "name": "Route 1",
+        "go": "north"
+      },
+      {
+        "map": "3,1",
+        "name": "Viridian City",
+        "expected": true
+      }
+    ]
   },
-  "FLAG_WOKE_UP_ROUTE_12_SNORLAX": {
-   "kind": "event",
-   "name": "waking the Route 12 Snorlax",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the sleeping Snorlax",
-    "from": "3,4",
-    "dir": "south",
-    "place_name": "the giant Snorlax asleep across Route 12's bridge road south of Lavender — play the Poké Flute at it (it wakes and ATTACKS: a catchable L30 wild)",
-    "prereq": "FLAG_GOT_POKE_FLUTE",
-    "sets_flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
-    "gives_cap": null
-   },
-   "human": "the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)"
+  "no_connector": {
+    "_doc": "maps the door-passthrough must NEVER enter as a connector: (a) dark warp mazes (the bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark, celadon_run5 — dedicated strikes own these); (b) DECOY DEAD-END BUILDINGS that sit ON a crossing route and hijack the passthrough (2026-07-09, nights shifts 8-11): Route 5's two houses 17,0 (Pokémon Day Care) + 17,1 are single-room dead-ends with NO onward exit, yet 17,1 has TWO door tiles (24,32 + 25,32) so the '-len(dest_doors)' likeliest-connector heuristic ranks it ABOVE the real Underground Path entrance warp 31,31->1,30 (one tile). She enters 17,1, wedges on its wandering old-man/counter (map poisons both detour columns), and the wedge aborts before the passthrough cycles to the correct warp — burned three whole shifts. Skipping 17,0/17,1 leaves 31,31->1,30 the sole candidate (the PROVEN crossing: both the canonical Cut-run and crossing_fixA reached Route 6 via 31,31->1,30->1,31[long tunnel]->1,32->Route 6). Route 6's own UGP hut warp (19,13)->(1,32) is a DIFFERENT map and stays usable for the reverse crossing.",
+    "maps": [
+      "1,81",
+      "1,82",
+      "1,83",
+      "1,84",
+      "1,85",
+      "1,86",
+      "1,87",
+      "17,0",
+      "17,1"
+    ]
   },
-  "FLAG_GOT_TEA": {
-   "kind": "item",
-   "name": "the Tea",
-   "obtain": {
-    "via": "talk_npc",
-    "npc": "the old lady",
-    "from": "3,6",
-    "dir": "north",
-    "place_name": "Celadon Mansion's ground floor (the big building by the Center) — the old woman hands her Tea to a polite trainer",
-    "prereq": null,
-    "sets_flag": "FLAG_GOT_TEA",
-    "gives_cap": null
-   },
-   "human": "the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron's gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron)"
+  "interior_routes": {
+    "_doc": "DIRECTED interior warp-chains to a deep questline target the blind GO-DEEPER cabin tour cannot reliably reach (2026-07-09, night shifts 9-12, the S.S. Anne captain wedge): the captain who hands you HM01 Cut sits on 2F, several warps past 1F dead-end cabins. Four shifts of tour-ranking tweaks never climbed there - the 2F stairs are a visited node in the canonical world model so they ranked behind every NEW cabin, and she would bail to the exit lobby before climbing. Keyed by the questline step success MOVE (step.success==(cap,MOVE)). hops[current_map] = the warp TILE x,y to step onto to go ONE hop deeper toward target. Deterministic + world-model-independent so it works on a FRESH timeline too. Coords mined from the canonical post-Cut world_model.json. FireRed facts isolated here (rule 14).",
+    "cut": {
+      "target": "1,11",
+      "_target_name": "S.S. Anne captain's cabin (gives HM01 Cut, past the rival fight on 2F)",
+      "hops": {
+        "1,4": "32,14",
+        "1,5": "3,8",
+        "1,6": "30,2"
+      }
+    }
   }
- },
- "route_notes": {
-  "_doc": "Sherpa data for the engine's route layer (inert to the questline recogniser — hints, not gates).",
-  "cerulean_to_vermilion": "Cerulean -> (burgled-house pass-through, proven) -> Route 5 south -> the Route 5 gatehouse guards refuse (thirsty, need Tea) -> use the UNDERGROUND PATH: the lone hut on Route 5's east side, down the stairs, the long tunnel south, up into the Route 6 hut, out to Route 6 -> Vermilion. The door pass-through primitive should discover the huts once multi-hop.",
-  "celadon_reach": "Lavender -> Route 8 west -> the Route 8 gatehouse also refuses pre-Tea -> the SECOND Underground Path (Routes 7-8, entrances near the gatehouses) goes under Saffron east-west -> Route 7 -> Celadon.",
-  "fuchsia_reach": "Two roads: Cycling Road (Route 16/17, needs bike; the Route 16 gate also has a Snorlax with its own wake flag 0x080-class hide id) OR the coastal Routes 12-15 south of Lavender (needs the Route 12 Snorlax woken). Both converge on Fuchsia.",
-  "saffron_unlock": "Tea opens the gatehouses; inside, Silph Co. is Rocket-held — clearing it (Card Key on 5F opens doors; Giovanni #2 on 11F) frees the city and unlocks Sabrina's gym.",
-  "cinnabar_reach": "Surf south from Pallet Town (Route 21) — the shortest sea road. The gym is locked; the Secret Key (an item ball in the burned Mansion's basement) opens it.",
-  "viridian_gym": "Closed until badge 7; Giovanni again, ground types.",
-  "victory_road": "Route 22 -> 23 badge checks -> Victory Road needs SURF (water stretch) + STRENGTH (boulder-onto-switch puzzles on every floor).",
-  "e4": "Indigo Plateau: Lorelei (Ice/Water) -> Bruno (Fighting/Rock) -> Agatha (Ghost/Poison) -> Lance (Dragon/Flying) -> the Champion. No Center between the five — stock Full Restores/Revives and bring a levelled six.",
-  "lavender_reach": "Cerulean -> Route 9 east (a Cut tree at its mouth - she has Cut) -> Route 10 north (a Pokemon Center sits right by the tunnel door) -> ROCK TUNNEL (PITCH DARK: teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species) -> south mouth -> Route 10 south -> Lavender Town. Route 12 from the east is Snorlax-blocked (needs the Poke Flute) - the tunnel is the ONLY pre-Flute road to Lavender.",
-  "postgame_dex_arc": "POST-CREDITS ONLY (DEX DOCTRINE): after the Elite Four, CERULEAN CAVE unlocks (the guard by the cave mouth NW of Cerulean stands down) - MEWTWO waits at its bottom, the strongest Pokemon in the game: her post-credits love-letter episode, the encore hunt. Dex completion is a post-game arc, never a pre-credits grind.",
-  "legendary_birds": "OPTIONAL side-arcs, default SKIP unless en route (soul/pacing call): ZAPDOS - the Power Plant, reached by Surfing south from Route 10's east water (right by the Rock Tunnel road, needs Surf). ARTICUNO - deep in the Seafoam Islands (Routes 19/20, needs Surf + Strength boulder work). MOLTRES - Mt. Ember on One Island (Sevii, post-Blaine ferry). All L50 one-shot encounters - save-worthy moments if she goes."
- },
- "roads": {
-  "_doc": "Per-gym ROAD BILLING - the curated forward road to the next gym city, as ordered LEGS. head_to_gym follows this when the live world-graph can't route to the gym city yet (the graph only knows walked ground). A leg = the map she can be standing on ('map' as 'g,n' + human 'name'), the billed crossing direction 'go', optional 'via':'pass' when the crossing is DOOR-PASSTHROUGH country (an Underground Path / gatehouse detour the door-passthrough primitive executes), and 'note' for the human context. Map ids marked 'expected': true are extrapolated from the live-learned route sequence (3,19..3,24 = Routes 1..6, 3,29 = Route 11, all confirmed live) and BIND when she walks them - a wrong expected id just means that leg never matches, never a wrong turn. Roads for later gyms are billed when their leg of the climb opens (don't fabricate - the standing rule).",
-  "Vermilion City": [
-   {
-    "map": "3,3",
-    "name": "Cerulean City",
-    "go": "south",
-    "note": "the badge-3 push: Cerulean south exit onto Route 5 (S.S. Ticket opens the gate). The live world-graph can't route Cerulean->Vermilion because the ONLY crossing is the Underground Path (Saffron's gates refuse passage pre-Tea + Route 5's south edge dead-ends at Saffron 3,11), so this billed road owns the leg."
-   },
-   {
-    "map": "3,23",
-    "name": "Route 5",
-    "go": "south",
-    "via": "pass",
-    "note": "Saffron's north gatehouse refuses passage pre-Tea; the Underground Path hut on Route 5 crosses under Saffron to Route 6 - the door-passthrough primitive executes this (the reverse crossing, Route 6->Route 5, is proven both directions 2026-07-06)"
-   },
-   {
-    "map": "3,24",
-    "name": "Route 6",
-    "go": "south"
-   },
-   {
-    "map": "3,5",
-    "name": "Vermilion City"
-   }
-  ],
-  "Celadon City": [
-   {
-    "map": "3,5",
-    "name": "Vermilion City",
-    "go": "north"
-   },
-   {
-    "map": "3,24",
-    "name": "Route 6",
-    "go": "north",
-    "via": "pass",
-    "note": "Saffron's south gatehouse refuses passage pre-Tea; the Underground Path hut on Route 6 (warp (19,13)->(1,32)) crosses under Saffron to Route 5 - the door-passthrough primitive executes this (proven both directions 2026-07-06)"
-   },
-   {
-    "map": "3,23",
-    "name": "Route 5",
-    "go": "north"
-   },
-   {
-    "map": "3,3",
-    "name": "Cerulean City",
-    "go": "east",
-    "note": "a CUT tree sits at Route 9's mouth - she has Cut; in-leg field_clear cuts it"
-   },
-   {
-    "map": "3,27",
-    "name": "Route 9",
-    "go": "east",
-    "note": "id from Cerulean's live-learned east edge; trainer gauntlet route, no Center"
-   },
-   {
-    "map": "3,28",
-    "name": "Route 10 north",
-    "expected": true,
-    "go": "south",
-    "via": "pass",
-    "note": "a Pokemon Center sits right by the ROCK TUNNEL door. 'South' means THROUGH Rock Tunnel (PITCH DARK - teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species). The tunnel strike owns the crossing - DO NOT enter dark. Route 12 from the east is Snorlax-blocked; the tunnel is the ONLY pre-Flute road to Lavender."
-   },
-   {
-    "map": "3,4",
-    "name": "Lavender Town",
-    "go": "west"
-   },
-   {
-    "map": "3,26",
-    "name": "Route 8",
-    "expected": true,
-    "go": "west",
-    "via": "pass",
-    "note": "the Route 8 gatehouse into Saffron refuses pre-Tea; the SECOND Underground Path (entrance hut near the gatehouse) goes under Saffron east-west to Route 7"
-   },
-   {
-    "map": "3,25",
-    "name": "Route 7",
-    "expected": true,
-    "go": "west"
-   },
-   {
-    "map": "3,6",
-    "name": "Celadon City"
-   }
-  ],
-  "Fuchsia City": [
-   {
-    "map": "3,6",
-    "name": "Celadon City",
-    "go": "east"
-   },
-   {
-    "map": "3,25",
-    "name": "Route 7",
-    "go": "east",
-    "via": "pass",
-    "note": "Saffron's west gatehouse refuses pre-Tea; the SECOND Underground Path (Routes 7-8 huts) crosses under Saffron east-west - proven westbound 2026-07-07, same huts in reverse"
-   },
-   {
-    "map": "3,26",
-    "name": "Route 8",
-    "expected": true,
-    "go": "east"
-   },
-   {
-    "map": "3,4",
-    "name": "Lavender Town",
-    "go": "south",
-    "note": "Route 12 south is SNORLAX-blocked pre-Flute (exit gate FLAG_WOKE_UP_ROUTE_12_SNORLAX arms the flute chain: Silph Scope from Giovanni in the Rocket Hideout under Celadon's Game Corner -> Pokemon Tower -> Mr. Fuji's Poke Flute). The Tower is IN Lavender - the chain routes back here."
-   },
-   {
-    "map": "3,30",
-    "name": "Route 12",
-    "expected": true,
-    "go": "south",
-    "note": "id extrapolated from the live-learned route sequence (Route 11 = 3,29 confirmed); binds when walked. Coastal bridge road."
-   },
-   {
-    "map": "3,31",
-    "name": "Route 13",
-    "expected": true,
-    "go": "west"
-   },
-   {
-    "map": "3,32",
-    "name": "Route 14",
-    "expected": true,
-    "go": "west"
-   },
-   {
-    "map": "3,33",
-    "name": "Route 15",
-    "expected": true,
-    "go": "west"
-   },
-   {
-    "map": "3,7",
-    "name": "Fuchsia City",
-    "expected": true
-   }
-  ],
-  "Saffron City": [
-   {
-    "map": "3,7",
-    "name": "Fuchsia City",
-    "go": "east"
-   },
-   {
-    "map": "3,33",
-    "name": "Route 15",
-    "go": "east",
-    "note": "coastal corridor back north - ALL directions here are live-learned edges (world_model 2026-07-07), not extrapolation"
-   },
-   {
-    "map": "3,32",
-    "name": "Route 14",
-    "go": "east"
-   },
-   {
-    "map": "3,31",
-    "name": "Route 13",
-    "go": "north"
-   },
-   {
-    "map": "3,30",
-    "name": "Route 12",
-    "go": "north",
-    "via": "pass",
-    "note": "Route 12's north 'edge' does NOT exist - the crossing to Lavender is the NORTH GATEHOUSE (south door (14,21) -> interior (23,0), north doors (14,15)/(15,15) pop out on the Lavender side; all four warps live-learned 2026-07-07). An edge-travel north BFSes to y<=0 and hits the sealed top row: 'genuine wall/zone gap' (sabrina_run2). Same class as Route 6's north edge."
-   },
-   {
-    "map": "3,4",
-    "name": "Lavender Town",
-    "go": "west"
-   },
-   {
-    "map": "3,26",
-    "name": "Route 8",
-    "go": "west",
-    "via": "pass",
-    "note": "the west crossing is Saffron's EAST gatehouse - the thirsty guard REFUSES pre-Tea (exit_gates 3,26/west arms the Tea errand: Celadon Mansion old lady, FLAG_GOT_TEA 0x2A6). With Tea in hand the guard drinks and the gate opens. Route 8's west connection = 3,10 (Saffron; pret map_groups: SaffronCity index 10, (3,11) is SaffronCity_Connection - the shift-7 (3,11) guess was off by one)."
-   },
-   {
-    "map": "3,10",
-    "name": "Saffron City",
-    "expected": true,
-    "note": "Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared (Card Key 5F, Giovanni #2 11F - hideout-class strike; see route_notes/saffron_unlock)"
-   }
-  ],
-  "Cinnabar Island": [
-   {
-    "map": "3,10",
-    "name": "Saffron City",
-    "go": "east",
-    "via": "pass",
-    "note": "east gatehouse onto Route 8 (door-passthrough; TEA already shown on the way in)"
-   },
-   {
-    "map": "3,26",
-    "name": "Route 8",
-    "go": "east"
-   },
-   {
-    "map": "3,4",
-    "name": "Lavender Town",
-    "go": "south",
-    "note": "Snorlax gate south - woken by this point on the rope (badge 5 road); the gate recognizer re-arms the flute chain if not"
-   },
-   {
-    "map": "3,30",
-    "name": "Route 12",
-    "go": "south"
-   },
-   {
-    "map": "3,31",
-    "name": "Route 13",
-    "go": "west"
-   },
-   {
-    "map": "3,32",
-    "name": "Route 14",
-    "go": "west"
-   },
-   {
-    "map": "3,33",
-    "name": "Route 15",
-    "go": "west"
-   },
-   {
-    "map": "3,7",
-    "name": "Fuchsia City",
-    "go": "south",
-    "note": "onto Route 19 - SEA from here: the south band is beach, the water needs Surf (water-aware travel)"
-   },
-   {
-    "map": "3,37",
-    "name": "Route 19",
-    "go": "west",
-    "note": "sea route - Surf"
-   },
-   {
-    "map": "3,38",
-    "name": "Route 20",
-    "go": "west",
-    "via": "pass",
-    "note": "the crossing runs THROUGH Seafoam Islands (boulder/current puzzle - strike-solved 2026-07-07, cinnabar_reach; the general pass-through does NOT solve the interior)"
-   },
-   {
-    "map": "3,8",
-    "name": "Cinnabar Island",
-    "expected": true
-   }
-  ],
-  "Viridian City": [
-   {
-    "map": "3,8",
-    "name": "Cinnabar Island",
-    "go": "north",
-    "note": "SEA road - Surf north up Route 21 to Pallet (water-aware travel)"
-   },
-   {
-    "map": "3,40",
-    "name": "Route 21 south",
-    "go": "north",
-    "note": "sea - Surf"
-   },
-   {
-    "map": "3,39",
-    "name": "Route 21 north",
-    "go": "north",
-    "note": "sea - Surf; lands on Pallet's south shore"
-   },
-   {
-    "map": "3,0",
-    "name": "Pallet Town",
-    "go": "north"
-   },
-   {
-    "map": "3,19",
-    "name": "Route 1",
-    "go": "north"
-   },
-   {
-    "map": "3,1",
-    "name": "Viridian City",
-    "expected": true
-   }
-  ]
- },
- "no_connector": {
-  "_doc": "maps the door-passthrough must NEVER enter as a connector: (a) dark warp mazes (the bounded hop-walk crossed ROCK TUNNEL and carried her back through the dark, celadon_run5 — dedicated strikes own these); (b) DECOY DEAD-END BUILDINGS that sit ON a crossing route and hijack the passthrough (2026-07-09, nights shifts 8-11): Route 5's two houses 17,0 (Pokémon Day Care) + 17,1 are single-room dead-ends with NO onward exit, yet 17,1 has TWO door tiles (24,32 + 25,32) so the '-len(dest_doors)' likeliest-connector heuristic ranks it ABOVE the real Underground Path entrance warp 31,31->1,30 (one tile). She enters 17,1, wedges on its wandering old-man/counter (map poisons both detour columns), and the wedge aborts before the passthrough cycles to the correct warp — burned three whole shifts. Skipping 17,0/17,1 leaves 31,31->1,30 the sole candidate (the PROVEN crossing: both the canonical Cut-run and crossing_fixA reached Route 6 via 31,31->1,30->1,31[long tunnel]->1,32->Route 6). Route 6's own UGP hut warp (19,13)->(1,32) is a DIFFERENT map and stays usable for the reverse crossing.",
-  "maps": [
-   "1,81",
-   "1,82",
-   "1,83",
-   "1,84",
-   "1,85",
-   "1,86",
-   "1,87",
-   "17,0",
-   "17,1"
-  ]
- }
 }
