@@ -138,10 +138,19 @@ def main():
             pass
 
     b = Bridge(ROM)
-    with open(resolve_state(boot), "rb") as f:
-        b.load_state(f.read())
-    for _ in range(20):
-        b.run_frame()
+    # FRESH SPINE (2026-07-08 night train): boot=="FRESH" boots a clean ROM and runs the actual
+    # show SPINE (run_segments from the_opening) instead of free_roam — the faithful early-game
+    # look-ahead (opening -> parcel -> Brock -> ...), to validate the fresh bedroom->credits path
+    # and surface the next early wedge. Reuses ALL of this harness's chooser/runner/staging wiring.
+    FRESH = (str(boot).upper() == "FRESH")
+    if FRESH:
+        for _ in range(40):
+            b.run_frame()
+    else:
+        with open(resolve_state(boot), "rb") as f:
+            b.load_state(f.read())
+        for _ in range(20):
+            b.run_frame()
 
     T0 = time.time()
     log_lines = []
@@ -264,7 +273,7 @@ def main():
     # the TRANSITION only)
     boot_goal_flag = [bool(fm.read_flag(b, GOAL_FLAG if GOAL_FLAG is not None else SS_TICKET))]
     start_party = _party(b)
-    start_levels = [lv for _, lv, _, _ in start_party]
+    start_levels = [lv for _, lv, _, _ in start_party] or [0]   # FRESH boot: party 0 until the starter
 
     def progress_sig():
         lv = [b.rd8(ram.GPLAYER_PARTY + s * PMON + 0x54)
@@ -402,7 +411,13 @@ def main():
 
     why = "timeout (wall-clock cap)"
     try:
-        camp.free_roam(max_ticks=100000, max_seconds=int(max_minutes * 60), want_every=999)
+        if FRESH:
+            from campaign import build_segments
+            L("FRESH SPINE: run_segments(the_opening -> ... -> Misty) mode=workshop resume=False")
+            res = camp.run_segments(build_segments(), resume=False, mode="workshop")
+            why = f"run_segments -> {res}"
+        else:
+            camp.free_roam(max_ticks=100000, max_seconds=int(max_minutes * 60), want_every=999)
     except _Done as d:
         why = d.why
     except Exception as e:

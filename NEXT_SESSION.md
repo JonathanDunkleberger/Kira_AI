@@ -7,6 +7,28 @@ evergreen content. **A silent playthrough is NOT the deliverable.** Audio-off is
 FALLBACK FLOOR, not the finish line: the native audio crash must be genuinely diagnosed and fixed,
 not sidestepped. You are the lead Sherpa. Employment terms + standing rules 1-18 in CLAUDE.md apply.
 
+## LIVE STATUS (night-train shift 1, updated in-flight)
+
+- **PHASE A item 1 — PARCEL WEDGE FIXED + COMMITTED (`cfb353d`).** ROOT CAUSE (not staleness, not
+  ledges — both ruled out by probes): `travel()` computed the connection `band` (the edge-crossing
+  columns) ONCE for the STARTING map, but `deliver_parcel` calls `travel(target=PALLET, edge='south')`
+  from Viridian and that ONE leg spans Viridian->Route1->Pallet. The band (Viridian's south cols
+  [0-11,22-25,36-48]) was never recomputed after the mid-travel map transition, so on Route 1 the BFS
+  goal required Viridian's columns while Route 1's Pallet-exit cols are 12,13 -> false `no_route` ->
+  TRAVEL WEDGE x4 at (3,19)(13,0). FIX (general, kills the whole class): `_compute_band(grid)` helper,
+  recomputed at every map transition inside `travel()`. VERIFIED: `recon_route1_stale_probe.py` drives
+  the real Viridian->south leg headless -> pre-fix wedges, post-fix logs band [0-11,22-25,36-48] ->
+  [12,13,24] and ARRIVES at Pallet. Also confirmed LIVE in the fresh-spine run (band recomputes at the
+  Pallet->Route1 transition). Standing probes: `recon_route1_south_probe.py`, `recon_route1_stale_probe.py`.
+- **PHASE A item 3 — FRESH-SPINE LOOK-AHEAD running.** Added a `FRESH` boot branch to `recon_longrun.py`
+  (`python pokemon_agent/recon_longrun.py FRESH <minutes>`) that boots a clean ROM and runs the real show
+  SPINE (`run_segments(the_opening -> ... -> Misty)`, mode=workshop, canonical protected via STAGE) —
+  the faithful early-game look-ahead. Reuses the harness's chooser/runner. Log:
+  `logs/debug/freshspine.log`. Drove opening -> starter (Bulbasaur default headless) -> rival -> Pallet
+  -> Route 1 cleanly. WATCHING for the next early wedge.
+- NEXT: read `freshspine.log` end-state for the next wedge; fix general; re-run; then Phase B (bank the
+  clean audio-OFF floor) and Phase C (the native audio SIGSEGV — capture via faulthandler w/ `--audio`).
+
 ## SEQUENCING — BANK THE SAFE WINS FIRST, RISKY WORK LAST (do in this order)
 
 The audio crash is uncertain deep work; it must NOT eat the night and leave nothing. So order the
