@@ -5271,6 +5271,19 @@ class Campaign:
                     _legdone.add(cur)
                     log(f"   [flash-errand] {self._FLASH_CATCH_LEGS[cur]} yielded no new species "
                         f"— marking leg catch-exhausted (walk through from here)")
+            # BALL RESTOCK (2026-07-09 shift 2): the dex sweep burns balls fast (3-4 catches on Route 6) —
+            # she ran DRY at dex 9 on Route 11 and couldn't take the last species. Vermilion (a leg she
+            # crosses) sells Poké Balls (MART_STOCK row 0); top up here whenever the dex gate is still open
+            # and the pocket's thin, so she reaches Route 11 / Route 2 with ammo for the final catch.
+            if (cur == VERMILION and ram.pokedex_owned_count(b) < 10
+                    and self._ball_count() < 6 and self.money() > SHOP_MONEY_FLOOR):
+                want = 12 - self._ball_count()
+                log(f"   [flash-errand] dex {ram.pokedex_owned_count(b)}/10 + {self._ball_count()} balls "
+                    f"— restocking {want} Poké Ball(s) at Vermilion Mart for the final catch")
+                try:
+                    self.buy_at_mart(VERMILION_MART_DOOR, [(ITEM_POKE_BALL, want)])
+                except Exception as _be:
+                    log(f"   [flash-errand] ball restock skipped ({_be}) (LOUD)")
             go, nxt = self._FLASH_BACK_LEGS[cur]
             log(f"   [flash-errand] leg {cur} -{go}-> {nxt}")
             if go == "pass":
