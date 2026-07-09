@@ -99,11 +99,11 @@ def _audio_args() -> list:
     that name isn't present at runtime, AudioPump's firewall still refuses any cable and substitutes a
     real output — so it degrades to a non-cable device, never the cable. Jonny needn't remember a flag."""
     args = []
-    # GAME AUDIO DEFAULT OFF (2026-07-08): the emulator audio path (AudioPump -> PortAudio device
-    # WRITE) is the native SIGSEGV at the Viridian item-get fanfare — it hard-kills the run. Her
-    # VOICE/TTS is a SEPARATE path (the bot process) and stays on regardless. Game BGM stays OFF on
-    # every launch until the PortAudio output is hardened; opt back in with POKEMON_GAME_AUDIO=1.
-    if os.getenv("POKEMON_GAME_AUDIO", os.getenv("POKEMON_AUDIO", "0")) == "1":
+    # GAME AUDIO DEFAULT ON (2026-07-09): the emulator audio OUTPUT (PortAudio WRITE) — the native
+    # SIGSEGV at the Viridian fanfare — is now PROCESS-ISOLATED in a child (pokemon_audio.AudioPump +
+    # audio_child.py). A native abort kills only the child; the emulator survives and the child
+    # respawns. Audio is non-fatal, so it's the resting state again. Force OFF with POKEMON_GAME_AUDIO=0.
+    if os.getenv("POKEMON_GAME_AUDIO", os.getenv("POKEMON_AUDIO", "1")) == "1":
         args.append("--audio")
         phones = os.getenv("POKEMON_PHONES", "Leviathan")   # NEVER empty -> never auto-picks 'default'
         args += ["--phones", phones]

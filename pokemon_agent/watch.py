@@ -272,9 +272,9 @@ def main():
            "--roam-seconds", str(args.roam_seconds)]
     if args.headless:
         cmd.append("--headless")
-    # GAME AUDIO DEFAULT OFF (2026-07-08): PortAudio output = the Viridian-fanfare SIGSEGV. Off on
-    # every path until hardened (her VOICE is separate). Opt in: POKEMON_GAME_AUDIO=1.
-    if os.getenv("POKEMON_GAME_AUDIO", "0") == "1" and not args.no_audio:
+    # GAME AUDIO DEFAULT ON (2026-07-09): PortAudio output is now process-isolated (audio_child.py) —
+    # a native abort kills only the child, the game keeps running. Force OFF with POKEMON_GAME_AUDIO=0.
+    if os.getenv("POKEMON_GAME_AUDIO", "1") == "1" and not args.no_audio:
         cmd.append("--audio")
 
     env = dict(os.environ)
