@@ -164,6 +164,16 @@ HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
 # own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
 JOURNEY_JSON = os.path.join(STATES_CAMPAIGN, "journey_core.json")
 CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
+# DENSE AUTO-CHECKPOINT (2026-07-09) — the rolling campaign anchor above is a SINGLE overwriting file
+# ("now" only). For a dev fix→reload→verify loop across a 25-30h run you must hop to JUST BEFORE a bug,
+# not restart from the bedroom. So ALSO bank a GROWING, LABELED history of full sanctity bundles into
+# states/campaign/checkpoints/<ts>_<place>_<badges>_<playtime>/ — every gain seam (badge/town/teammate)
+# AND on a wall-clock cadence — pruned to the last N. FIREWALLED to the dev/campaign line: it copies the
+# campaign-side bundle only and is structurally incapable of writing the sacred states/kira/ spine.
+# watch.py --list surfaces them; watch.py --at <path|alias> reloads one into a canonical-safe sandbox.
+AUTO_CKPT_ENABLED = os.getenv("POKEMON_AUTO_CKPT", "1") == "1"
+CKPT_EVERY_S      = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_S", "720"))   # wall-clock floor (~12 min)
+CKPT_KEEP         = int(os.getenv("POKEMON_AUTO_CKPT_KEEP", "40"))         # retain last N (~16 MB cap)
 # F-1 WANDER TRIPWIRE (THE DESCENT): a standing nav objective that's gone this long without the
 # map-graph distance improving means she's wandering/dithering — the harness takes the wheel.
 NAV_TRIPWIRE_S = float(os.getenv("POKEMON_NAV_TRIPWIRE_S", "20"))
@@ -7661,6 +7671,11 @@ class Campaign:
         last_camp_sig = _camp_sig()
         self._save_campaign("roam_start")          # anchor the moment she's loose (resume point exists immediately)
         self._continuity_save()                    # ADDENDUM D: bank her saga next to the position anchor
+        # DENSE AUTO-CHECKPOINT — start the wall-clock cadence clock and drop an immediate labeled bundle,
+        # so a resume point exists in the growing history from tick 0 (not only after the first gain/12min).
+        self._last_ckpt_t = t0
+        if AUTO_CKPT_ENABLED:
+            self._auto_checkpoint("roam_start")
         void_recoveries = 0                        # VOID-CORE recovery budget this run (bounded)
         for tick in range(1, max_ticks + 1):
             if _t.time() - t0 > max_seconds:
@@ -7726,15 +7741,33 @@ class Campaign:
             # made REAL progress (badge / new area / catch), plus a periodic heartbeat floor. Reads RAM
             # directly so it reflects whatever the last action accomplished.
             sig = _camp_sig()
+            _saved_this_tick = False
+            _gain_reason = None
             if sig != last_camp_sig:
                 reason = ("badge" if sig[0] != last_camp_sig[0] else
                           "new_area" if sig[1] != last_camp_sig[1] else "catch")
                 last_camp_sig = sig
                 self._save_campaign(reason)
                 self._continuity_save()            # ADDENDUM D: a real gain -> bank her saga too
+                _saved_this_tick = True
+                _gain_reason = reason
             elif tick > 1 and (tick - 1) % CAMPAIGN_SAVE_EVERY == 0:
                 self._save_campaign(f"tick{tick - 1}")
                 self._continuity_save()
+                _saved_this_tick = True
+            # DENSE AUTO-CHECKPOINT (2026-07-09) — a GROWING labeled history for the dev fix→reload→verify
+            # loop (the rolling anchor above is "now" only). Bank a full sanctity bundle on every GAIN SEAM
+            # (badge/town/teammate) AND on a wall-clock floor (~12 min). On the periodic path the canonical
+            # bundle may not have been refreshed this tick, so ensure it's current before copying. Dev-line
+            # only; cannot touch the sacred states/kira/ spine (see _auto_checkpoint firewall).
+            if AUTO_CKPT_ENABLED:
+                _now = _t.time()
+                _due = (_now - self._last_ckpt_t) >= CKPT_EVERY_S
+                if _gain_reason is not None or _due:
+                    if not _saved_this_tick:
+                        self._save_campaign("ckpt"); self._continuity_save()
+                    self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
+                    self._last_ckpt_t = _now
             self._wait_overworld()
             # WHITEOUT vs DELIBERATE INTERIORITY (night shift 14 — the S.S. Anne rival ping-pong): the
             # DIRECTED interior nav sets `_ql_inside_target` so the recovery below LEAVES her inside a
@@ -8677,6 +8710,123 @@ class Campaign:
         except Exception as e:
             log(f"   !! CAMPAIGN SAVE FAILED [{reason}]: {e} — her position is NOT anchored this tick (LOUD)")
             return False
+
+    def _ckpt_label(self, reason):
+        """Build a filesystem-safe checkpoint label: <ts>_<place>_<badges>b_<playtime>[_<reason>].
+        Pure reads; every field degrades gracefully so a label can never fail the bank."""
+        import re as _re
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        try:
+            place = self._place_name(tv.map_id(self.b)) or "unknown"
+        except Exception:
+            place = "unknown"
+        place = _re.sub(r"[^A-Za-z0-9]+", "-", str(place)).strip("-").lower()[:28] or "unknown"
+        try:
+            badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+        except Exception:
+            badges = 0
+        try:
+            secs = self._playthrough_elapsed()
+            pt = f"{int(secs // 3600)}h{int((secs % 3600) // 60):02d}m" if secs is not None else "0h00m"
+        except Exception:
+            pt = "0h00m"
+        rs = _re.sub(r"[^A-Za-z0-9]+", "-", str(reason)).strip("-").lower()[:20]
+        return f"{ts}_{place}_{badges}b_{pt}" + (f"_{rs}" if rs else "")
+
+    def _auto_checkpoint(self, reason="periodic") -> bool:
+        """DENSE AUTO-CHECKPOINT — copy the CURRENT campaign sanctity bundle into a new growing, labeled
+        dir under states/campaign/checkpoints/, so a dev can hop to JUST BEFORE any bug (not restart from
+        the bedroom). Assumes the canonical bundle (kira_campaign.state + the four sidecars) was just
+        written by _save_campaign()+_continuity_save(); copies those files, remapping pokemon_soul.json ->
+        the bundle's soul.json. Written to a .partial dir then atomically renamed, so a kill mid-copy never
+        leaves a half-bundle a reload could trust. Prunes to CKPT_KEEP. Best-effort + LOUD (Constraint #3).
+
+        FIREWALL: writes ONLY under STATES_CAMPAIGN (the dev/campaign line, or a sandbox override). It is
+        structurally incapable of writing the sacred states/kira/ spine — and refuses loudly if the
+        campaign root ever resolved onto the kira lineage (belt-and-braces)."""
+        import shutil as _shutil
+        if os.path.abspath(STATES_CAMPAIGN) == os.path.abspath(STATES_KIRA) or \
+                os.path.abspath(STATES_CAMPAIGN).startswith(os.path.abspath(STATES_KIRA) + os.sep):
+            log("   !! AUTO-CKPT REFUSED: campaign root resolves onto the sacred states/kira/ spine — "
+                "the dev checkpoint history must NEVER touch the livestream timeline (LOUD).")
+            return False
+        # the exact bundle a --resume free-roam / watch.py sandbox needs. soul lives as pokemon_soul.json
+        # canonically but the bundle filename is soul.json (watch.py remaps it back on spawn).
+        bundle = [(CAMPAIGN_SAVE, CAMPAIGN_SAVE), ("world_model.json", "world_model.json"),
+                  ("strat_memory.json", "strat_memory.json"), ("journey_core.json", "journey_core.json"),
+                  ("pokemon_soul.json", "soul.json")]
+        optional = ("dialogue_hints.json",)
+        try:
+            root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+            os.makedirs(root, exist_ok=True)
+            label = self._ckpt_label(reason)
+            final = os.path.join(root, label)
+            partial = final + ".partial"
+            if os.path.exists(partial):
+                _shutil.rmtree(partial, ignore_errors=True)
+            os.makedirs(partial, exist_ok=True)
+            # REQUIRED bundle files: the state must exist (no state = not a resumable checkpoint).
+            src_state = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
+            if not os.path.exists(src_state):
+                log(f"   !! AUTO-CKPT SKIPPED [{reason}]: no {CAMPAIGN_SAVE} on disk yet (LOUD)")
+                _shutil.rmtree(partial, ignore_errors=True)
+                return False
+            copied = []
+            for src_name, dst_name in bundle:
+                src = os.path.join(STATES_CAMPAIGN, src_name)
+                if os.path.exists(src):
+                    _shutil.copy2(src, os.path.join(partial, dst_name))
+                    copied.append(dst_name)
+            for f in optional:                              # ride-along intel ledger etc. (never required)
+                src = os.path.join(STATES_CAMPAIGN, f)
+                if os.path.exists(src):
+                    _shutil.copy2(src, os.path.join(partial, f))
+            # tiny metadata so the lister can label without re-parsing the .state
+            try:
+                import json as _json
+                meta = {"label": label, "reason": reason, "ts": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "map": list(tv.map_id(self.b)), "coords": list(tv.coords(self.b)),
+                        "badges": sum(1 for i in range(8) if self.has_badge(0x820 + i)),
+                        "party": self.b.rd8(ram.GPLAYER_PARTY_CNT),
+                        "playtime_s": self._playthrough_elapsed()}
+                with open(os.path.join(partial, "checkpoint.json"), "w", encoding="utf-8") as f:
+                    _json.dump(meta, f, ensure_ascii=False, indent=2)
+            except Exception as _me:
+                log(f"   [auto-ckpt] metadata write skipped: {_me}")
+            if os.path.exists(final):
+                _shutil.rmtree(final, ignore_errors=True)
+            os.replace(partial, final)                      # atomic: the dir appears complete or not at all
+            # the checkpoint is COMMITTED at this point — a console-encoding hiccup in the success log must
+            # NOT flip a written bundle to "FAILED" (guard it), and pruning proceeds regardless.
+            try:
+                log(f"   📌 AUTO-CHECKPOINT [{reason}] -> checkpoints/{label}  ({len(copied)} bundle file(s))")
+            except Exception:
+                pass
+            self._prune_checkpoints(root)
+            return True
+        except Exception as e:
+            log(f"   !! AUTO-CHECKPOINT FAILED [{reason}]: {e} (LOUD) — the rolling anchor is unaffected")
+            return False
+
+    def _prune_checkpoints(self, root):
+        """Keep only the last CKPT_KEEP checkpoint dirs (ts-prefixed names sort chronologically). Also
+        sweeps orphaned *.partial dirs from an interrupted copy. Best-effort."""
+        import shutil as _shutil
+        try:
+            entries = []
+            for name in os.listdir(root):
+                p = os.path.join(root, name)
+                if not os.path.isdir(p):
+                    continue
+                if name.endswith(".partial"):
+                    _shutil.rmtree(p, ignore_errors=True)   # orphaned interrupted copy
+                    continue
+                entries.append(name)
+            entries.sort()                                  # chronological (ts prefix)
+            for name in entries[:-CKPT_KEEP] if CKPT_KEEP > 0 else []:
+                _shutil.rmtree(os.path.join(root, name), ignore_errors=True)
+        except Exception as e:
+            log(f"   [auto-ckpt] prune skipped: {e}")
 
     def _playthrough_elapsed(self):
         """HUD — seconds since this PLAYTHROUGH began (persists across sessions). Stamps the start once
