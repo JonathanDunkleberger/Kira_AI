@@ -272,7 +272,14 @@ def main():
     env["POKEMON_CAMPAIGN_DIR"] = sandbox   # THE time-machine seam — she reads/writes only the sandbox
     if args.goal:                           # GOAL-PIN: era-correct objective overrides post-game frame
         env["POKEMON_WATCH_GOAL"] = args.goal
-        print(f"  🎯 GOAL-PINNED: {args.goal!r} — she'll pursue THIS, not the victory lap.")
+        # If the goal names a gym leader, auto-route her to that gym (so a post-credits/badge-8 save
+        # still PATHS INTO the gym instead of stalling with next_gym=None). One flag does both.
+        _leaders = ("brock", "misty", "surge", "erika", "koga", "sabrina", "blaine", "giovanni")
+        _gl = next((L for L in _leaders if L in args.goal.lower()), None)
+        if _gl:
+            env["POKEMON_WATCH_NEXT_GYM"] = _gl
+        print(f"  🎯 GOAL-PINNED: {args.goal!r}"
+              + (f" (routing to {_gl.title()}'s gym)" if _gl else "") + " — not the victory lap.")
 
     print(f"  ▶  starting watch — TRUE SPEED, game audio {'off' if args.no_audio else 'on'}, "
           f"window {'off' if args.headless else 'on'}. Ctrl-C to stop.\n")

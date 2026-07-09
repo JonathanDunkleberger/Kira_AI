@@ -2430,6 +2430,15 @@ class Campaign:
         watch_goal = os.getenv("POKEMON_WATCH_GOAL", "").strip()
         if watch_goal:
             post_game = False                     # re-living an era moment, not on the victory lap
+            # NEXT-GYM OVERRIDE: a post-credits save has 8 badges, so next_gym derives to None and
+            # head_to_gym has nowhere to route — the gym clip wouldn't ENTER the gym. POKEMON_WATCH_
+            # NEXT_GYM (leader name substring) forces the era gym target so she paths into it. Only
+            # for the gym clips; the E4 clip leaves it unset (badges=8 -> the E4 is the forward path).
+            _wg = os.getenv("POKEMON_WATCH_NEXT_GYM", "").strip().lower()
+            if _wg:
+                for _c, _l in self._GYM_ORDER:
+                    if _wg in _l.lower():
+                        ng = (_c, _l); break
         if post_game:                             # never tell the Champion the E4 is "next"
             arc = ("Champion. The credits rolled — everything from here is the victory lap "
                    "(Cerulean Cave, the Pokédex, her world now).")
