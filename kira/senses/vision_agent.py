@@ -423,6 +423,12 @@ class UniversalVisionAgent:
         if not self.is_active:
             return None
         if not self.client:
+            # Silent-failure-is-the-enemy: this used to return quietly, so a mis-set key looked
+            # identical to "parked". Alarm ONCE, loud, so Jonny sees WHY vision is dark.
+            if not getattr(self, "_missing_key_alarmed", False):
+                self._missing_key_alarmed = True
+                print("   [Vision] !! DARK — no Gemini client (GEMINI_IMAGE_API_KEY unset/invalid). "
+                      "General-mode vision will not work until the key is fixed. LOUD.")
             return "Vision unavailable (Missing API Key.)."
 
         # Dedup: a HEARTBEAT capture skips if an on-demand capture started within the
@@ -499,13 +505,25 @@ class UniversalVisionAgent:
             if self.activity_type != "vn":
                 self.context_buffer.add(content)
             self.last_capture_time = time.time()
+            self._vision_fail_streak = 0            # a good frame clears the alarm state
             return content
         except asyncio.TimeoutError:
             print("   [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping")
+            self._note_vision_fail("timeout after 15s")
             return None
         except Exception as e:
             print(f"   [WARN] vision_agent: capture_and_describe failed: {e}")
+            self._note_vision_fail(str(e))
             return f"My vision is a bit glitchy: {e}"
+
+    def _note_vision_fail(self, why: str):
+        """Track consecutive vision failures and ALARM LOUD once they cross a threshold — so a
+        Gemini outage / bad model id / quota wall in GENERAL mode surfaces instead of the Eyes
+        panel just quietly freezing (silent failure is the enemy)."""
+        self._vision_fail_streak = getattr(self, "_vision_fail_streak", 0) + 1
+        if self._vision_fail_streak in (3, 10, 30):
+            print(f"   [Vision] !! FAILING — {self._vision_fail_streak} consecutive capture failures "
+                  f"(last: {why[:120]}). General-mode vision is DOWN; the Eyes panel will read frozen. LOUD.")
 
     async def capture_vn_state(self) -> dict:
         """

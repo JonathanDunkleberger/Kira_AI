@@ -274,9 +274,15 @@ class ChatDirector:
         regs = self._regulars_present(live)
         notable = self._notable(live)
 
+        # Lead framing scales with the room: a WAVE gets "you can't answer everyone"; a
+        # quiet/moderate room gets the opposite instruction — be present, answer people
+        # (the live-note fix: restraint was firing even when the room was calm).
+        if band in ("high", "flood"):
+            _lead = "React to the ROOM; you can't answer everyone, and you don't have to."
+        else:
+            _lead = "It's calm — be present: answer people properly and have a real back-and-forth, don't brush them off."
         lines = [
-            "[CHAT READ — the room right now (ambient digest, not a to-do list). "
-            "React to the ROOM; you can't answer everyone, and you don't have to.]"
+            f"[CHAT READ — the room right now (ambient digest, not a to-do list). {_lead}]"
         ]
         lines.append(f"- Energy: {vibe} (~{rate:.0f} msgs/min from ~{distinct} chatters).")
         if themes:

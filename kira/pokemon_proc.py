@@ -19,14 +19,36 @@ _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # kira/ ->
 _PKDIR = os.path.join(_REPO, "pokemon_agent")
 _SESSION = os.path.join(_PKDIR, "session.py")
 _PLAY_LIVE = os.path.join(_PKDIR, "play_live.py")
+# CRASH-SAFE LAUNCH (2026-07-08): EVERY dashboard launch goes through the supervisor — never raw
+# play_live — so a mid-run crash auto-resumes instead of ending the show un-recovered (the Viridian
+# landmine). ONE protected launch path for GO / Resume / Stop.
+_SUPERVISOR = os.path.join(_PKDIR, "supervisor.py")
 _BOOT_STATE = os.path.join(_PKDIR, "states", "after_pick_bulbasaur.state")
 # BATCH 6 PHASE 7 — the two TIMELINES (separate save files, clearly labelled):
 #   SHERPA   = her real persistent campaign (states/campaign/), the everyday 90% button.
 #   SHOWTIME = the canonical recordable spine (states/kira/), the stream-day timeline.
 _CAMPAIGN_STATE = os.path.join(_PKDIR, "states", "campaign", "kira_campaign.state")
-_HEALTH_JSON = os.path.join(_PKDIR, "states", "campaign", "health.json")
+# TIMELINE-SCOPED HEALTH (2026-07-08): each timeline publishes its OWN health.json so the
+# dashboard panel never shows the other timeline's stale snapshot.
+_HEALTH_BY_TIMELINE = {
+    "sherpa":   os.path.join(_PKDIR, "states", "campaign", "health.json"),
+    "showtime": os.path.join(_PKDIR, "states", "kira", "health.json"),
+}
+_HEALTH_JSON = _HEALTH_BY_TIMELINE["sherpa"]   # back-compat default (sherpa is the everyday button)
 
 _proc = {"p": None, "started": 0.0, "timeline": None}
+
+
+def _read_health_file(path):
+    """Load one timeline's health.json (or None). Never raises."""
+    import json
+    try:
+        if path and os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return None
 
 
 def _log(m):
@@ -77,69 +99,95 @@ def _audio_args() -> list:
     that name isn't present at runtime, AudioPump's firewall still refuses any cable and substitutes a
     real output — so it degrades to a non-cable device, never the cable. Jonny needn't remember a flag."""
     args = []
-    if os.getenv("POKEMON_AUDIO", "1") == "1":
+    # GAME AUDIO DEFAULT OFF (2026-07-08): the emulator audio path (AudioPump -> PortAudio device
+    # WRITE) is the native SIGSEGV at the Viridian item-get fanfare — it hard-kills the run. Her
+    # VOICE/TTS is a SEPARATE path (the bot process) and stays on regardless. Game BGM stays OFF on
+    # every launch until the PortAudio output is hardened; opt back in with POKEMON_GAME_AUDIO=1.
+    if os.getenv("POKEMON_GAME_AUDIO", os.getenv("POKEMON_AUDIO", "0")) == "1":
         args.append("--audio")
         phones = os.getenv("POKEMON_PHONES", "Leviathan")   # NEVER empty -> never auto-picks 'default'
         args += ["--phones", phones]
     return args
 
 
-def _spawn_play_live(extra_args, timeline, label) -> dict:
-    """Spawn play_live.py with timeline args in its own console window. One owned child at a time — this
-    is what kills the 'ask Claude for the launch command' dependency for Jonny's real playthrough."""
+def _spawn_supervised(timeline, fresh, label) -> dict:
+    """Launch the timeline THROUGH THE SUPERVISOR (crash-safe: auto-resume on any death + crash-loop
+    guard + faulthandler + hang-kill), in its own console window. The supervisor spawns play_live as
+    ITS child and keeps it alive; killing the supervisor tree (stop()) tears both down. One owned
+    supervisor at a time — this is the SINGLE protected launch path for GO / Resume / Stop."""
     if is_running():
         _log(f"{label} start ignored — already running (pid {_proc['p'].pid}, timeline {_proc['timeline']})")
         return {"running": True, "pid": _proc["p"].pid, "already": True, "timeline": _proc["timeline"]}
-    if not os.path.exists(_PLAY_LIVE):
-        _log(f"FAIL - play_live.py missing: {_PLAY_LIVE}")
-        return {"running": False, "error": "play_live.py missing"}
+    if not os.path.exists(_SUPERVISOR):
+        _log(f"FAIL - supervisor.py missing: {_SUPERVISOR}")
+        return {"running": False, "error": "supervisor.py missing"}
+    argv = [sys.executable, "-u", _SUPERVISOR, "--timeline", timeline]
+    if fresh:
+        argv.append("--fresh")                 # showtime: --fresh-kira on FIRST launch only, resume after
     url = os.getenv("POKEMON_URL", "")
-    argv = [sys.executable, _PLAY_LIVE] + extra_args + _audio_args()
     if url:
         argv += ["--url", url]
+    argv += _audio_args()                      # empty by default (game audio off) — the crash workaround
     flags = subprocess.CREATE_NEW_CONSOLE if os.name == "nt" else 0
     p = subprocess.Popen(argv, cwd=_PKDIR, creationflags=flags)
     _proc.update(p=p, started=time.time(), timeline=timeline)
-    _log(f"started {label}: {' '.join(argv[1:])}  (pid {p.pid})")
-    return {"running": True, "pid": p.pid, "timeline": timeline}
+    _log(f"started {label} via SUPERVISOR: {' '.join(argv[1:])}  (pid {p.pid})")
+    return {"running": True, "pid": p.pid, "timeline": timeline, "supervised": True}
 
 
 def start_sherpa() -> dict:
     """SHERPA: RESUME — the everyday button. Resume her REAL persistent campaign and climb from where she
-    actually is (states/campaign/). play_live --resume --free-roam. SEEDS from --boot on the very first run."""
+    actually is (states/campaign/), via the crash-safe supervisor (--resume --free-roam under the hood)."""
     seeded = os.path.exists(_CAMPAIGN_STATE)
-    res = _spawn_play_live(["--resume", "--free-roam"], "sherpa", "SHERPA:RESUME")
+    res = _spawn_supervised("sherpa", False, "SHERPA:RESUME")
     res["resumed_existing"] = seeded
     return res
 
 
 def start_showtime(fresh=False) -> dict:
-    """SHOWTIME: GO/RESUME — the stream-day timeline (the canonical recordable spine, states/kira/).
-    play_live --show resumes a kira checkpoint if present; --fresh-kira archives it and starts a new run."""
-    args = ["--show"]
-    if fresh:
-        args.append("--fresh-kira")
-    return _spawn_play_live(args, "showtime", "SHOWTIME:GO" if fresh else "SHOWTIME:RESUME")
+    """SHOWTIME: GO/RESUME — the stream-day timeline (the canonical recordable spine, states/kira/), via
+    the crash-safe supervisor. fresh=True (GO) archives + starts new (--fresh-kira on the FIRST launch
+    only; auto-resumes on any later crash — never re-wipes mid-stream). fresh=False RESUMES the kira run."""
+    return _spawn_supervised("showtime", fresh, "SHOWTIME:GO" if fresh else "SHOWTIME:RESUME")
 
 
 def health() -> dict:
     """PHASE 7 cockpit readout: the game-side health snapshot play_live publishes (progress/where/badges/
     time-since-badge/last-checkpoint), merged with whether a process is live. API spend is merged in by the
     control server from the bot's own cost-tracker. Returns {} game-side fields if no snapshot yet."""
-    import json
-    out = {"running": is_running(), "timeline": _proc.get("timeline"),
-           "pid": _proc["p"].pid if is_running() else None,
-           "uptime_s": round(time.time() - _proc["started"], 1) if is_running() else 0}
-    try:
-        if os.path.exists(_HEALTH_JSON):
-            with open(_HEALTH_JSON, encoding="utf-8") as f:
-                out["game"] = json.load(f)
-            out["health_age_s"] = round(time.time() - out["game"].get("ts", 0), 1)
-        else:
-            out["game"] = None
-    except Exception as e:
-        out["game"] = None
-        out["health_error"] = str(e)
+    running = is_running()
+    active_tl = _proc.get("timeline")
+    out = {"running": running, "timeline": active_tl,
+           "pid": _proc["p"].pid if running else None,
+           "uptime_s": round(time.time() - _proc["started"], 1) if running else 0}
+
+    # ── SAVE-SLOTS: read BOTH timelines' own health files (independent of what's running) so
+    # the dashboard can render two clearly-separate, labelled save-slots (SHERPA + SHOWTIME).
+    slots = {}
+    for tl, path in _HEALTH_BY_TIMELINE.items():
+        g = _read_health_file(path)
+        try:
+            mtime = os.path.getmtime(path) if os.path.exists(path) else None
+        except Exception:
+            mtime = None
+        slots[tl] = {
+            "game": g,
+            "health_age_s": round(time.time() - g.get("ts", 0), 1) if g and g.get("ts") else None,
+            "last_played_ts": mtime,
+            "running": running and active_tl == tl,
+        }
+    out["slots"] = slots
+
+    # ── ACTIVE GAME: the live panel shows the CURRENTLY-ACTIVE timeline's own file. If nothing
+    # is running, fall back to the most-recently-played slot so the panel isn't blank.
+    if active_tl in _HEALTH_BY_TIMELINE:
+        _pick = active_tl
+    else:
+        _played = [(s.get("last_played_ts") or 0, tl) for tl, s in slots.items()]
+        _pick = max(_played)[1] if any(ts for ts, _ in _played) else "sherpa"
+    out["active_slot"] = _pick
+    out["game"] = slots[_pick]["game"]
+    out["health_age_s"] = slots[_pick]["health_age_s"]
     return out
 
 
@@ -150,9 +198,25 @@ def stop() -> dict:
         _log("stop ignored - not running")
         return {"running": False, "stopped": False, "note": "not running"}
     pid, tl = p.pid, _proc.get("timeline")
-    p.terminate()
+    # The owned child is now the SUPERVISOR, which has play_live as ITS child. terminate() alone would
+    # kill the supervisor and ORPHAN play_live (still running + holding the game window). On Windows,
+    # taskkill /T kills the whole tree (supervisor + play_live) so STOP means STOP. Deliberate STOP is
+    # the ONLY intended way to end the show — window-close auto-relaunches (resilience).
+    killed_tree = False
+    if os.name == "nt":
+        try:
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)],
+                           capture_output=True, timeout=15)
+            killed_tree = True
+        except Exception as e:
+            _log(f"taskkill tree failed ({e}); falling back to terminate()")
+    if not killed_tree:
+        try:
+            p.terminate()
+        except Exception:
+            pass
     _proc["p"] = None; _proc["timeline"] = None
-    _log(f"terminated play session (pid {pid}, timeline {tl})")
+    _log(f"STOPPED supervisor tree (pid {pid}, timeline {tl}, tree_kill={killed_tree})")
     return {"running": False, "stopped": True, "pid": pid, "timeline": tl}
 
 

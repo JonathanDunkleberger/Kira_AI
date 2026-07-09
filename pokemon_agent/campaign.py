@@ -8533,13 +8533,40 @@ class Campaign:
                 "run_uptime_s": time.time() - run_start_ts,
                 "guide_searches": len(getattr(self.guide, "history", []) or []),
             }
-            os.makedirs(STATES_CAMPAIGN, exist_ok=True)
-            tmp = HEALTH_JSON + ".tmp"
+            # TIMELINE-AWARE HEALTH (2026-07-08 dashboard fix): write to the ACTIVE timeline's own
+            # file — SHOWTIME (show_mode) → states/kira/health.json, SHERPA → states/campaign/
+            # health.json — so the dashboard panel never shows the other timeline's stale snapshot.
+            health["timeline"] = "kira" if getattr(self, "show_mode", False) else "sherpa"
+            _hdir = STATES_KIRA if getattr(self, "show_mode", False) else STATES_CAMPAIGN
+            _hpath = os.path.join(_hdir, "health.json")
+            os.makedirs(_hdir, exist_ok=True)
+            tmp = _hpath + ".tmp"
             with open(tmp, "w", encoding="utf-8") as f:
                 _json.dump(health, f)
-            os.replace(tmp, HEALTH_JSON)
+            os.replace(tmp, _hpath)
         except Exception as e:
             log(f"   [health] publish skipped: {e}")
+
+    def publish_health_tick(self, now=None):
+        """Throttled cockpit-health publish, called EVERY FRAME from play_live's render loop so BOTH
+        timelines (free_roam=sherpa AND run/run_segments=showtime) keep the dashboard panel live —
+        previously only free_roam published, so a SHOWTIME run left the panel showing stale SHERPA
+        data. Writes at most every ~2s; timeline-aware via _publish_health. Best-effort, never raises."""
+        now = now or time.time()
+        if now - getattr(self, "_last_health_tick_ts", 0.0) < 2.0:
+            return
+        self._last_health_tick_ts = now
+        try:
+            state = self.read_live_state()
+            if state.get("badge_count", 0) > getattr(self, "_ht_prev_badges", -1):
+                self._ht_last_badge_ts = now
+                self._ht_prev_badges = state.get("badge_count", 0)
+            if not getattr(self, "_ht_run_start_ts", None):
+                self._ht_run_start_ts = now
+            self._publish_health(state.get("progress") or "GREEN", state,
+                                 getattr(self, "_ht_last_badge_ts", None), self._ht_run_start_ts)
+        except Exception:
+            pass
 
     def _continuity_load(self):
         """ADDENDUM D — load her NARRATIVE continuity at the start of a --resume climb: team bonds + wants
@@ -8704,6 +8731,11 @@ class Campaign:
             "arc": None if _wg else state.get("arc"),
             "roster": roster,
             "watch_scoped": bool(_wg),
+            # TIMELINE LABEL (2026-07-08 firewall): show_mode → the KIRA showtime timeline
+            # (states/kira), else the SHERPA working/completed run (states/campaign). The bot
+            # scopes her journey memory per-timeline off this, so the Champion/Venusaur saga
+            # never bleeds into the fresh Charmander run. Constant self, separate journeys.
+            "timeline": "kira" if getattr(self, "show_mode", False) else "sherpa",
         }
 
     def _gain_sig(self):

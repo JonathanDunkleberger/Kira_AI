@@ -82,6 +82,61 @@ def _ts_ms() -> str:
     return time.strftime("%H:%M:%S", time.localtime(_t)) + f".{int((_t % 1) * 1000):03d}"
 
 
+# ── MOUTH-FLAP: route Kira's TTS onto the VB-Audio cable VTS lip-syncs off ──────────
+# VTube Studio reads VoiceVolume from a mic input; on Jonny's rig that input is the
+# VB-Audio "CABLE Input" device. Her TTS must land THERE (not the desktop default) or
+# her mouth never moves. This is separate from the GAME-audio firewall in
+# pokemon_agent/play_live.py (SDL_AUDIODRIVER=dummy + AudioPump → desktop-only) which
+# lives in a different process and stays untouched — game BGM never touches the cable.
+# Override via env KIRA_TTS_OUTPUT_DEVICE: a device-name substring, or one of
+# desktop/default/none/'' to force the old default-device behaviour.
+_CABLE_MARKERS = ("cable input", "vb-audio", "vb audio", "cable", "voicemeeter", "virtual audio")
+
+def _resolve_tts_output_device():
+    """Return the pygame/SDL device NAME Kira's TTS should play to (or None = default)."""
+    pref = os.getenv("KIRA_TTS_OUTPUT_DEVICE", "__cable__")
+    if pref.strip().lower() in ("", "desktop", "default", "none"):
+        return None
+    try:
+        import pygame._sdl2.audio as _sdl2audio
+        names = [n for n in (_sdl2audio.get_audio_device_names(False) or []) if n]
+    except Exception as e:
+        print(f"   [TTS-Audio] SDL device enum failed ({e}); using default device.")
+        return None
+    pref_l = pref.strip().lower()
+    if pref != "__cable__":  # explicit override — substring match
+        for n in names:
+            if pref_l in n.lower():
+                return n
+        print(f"   [TTS-Audio] '{pref}' not found among {names}; using default device.")
+        return None
+    # default: find the VB-Audio cable VTS lip-syncs off. 'cable input' first (16ch is a
+    # different VB product), then any cable/vb-audio marker.
+    for marker in _CABLE_MARKERS:
+        for n in names:
+            if marker in n.lower():
+                return n
+    print(f"   [TTS-Audio] No VB-Audio cable among {names}; TTS → default (mouth-flap OFF).")
+    return None
+
+def _safe_mixer_init():
+    """Init the pygame mixer on the resolved TTS device, with a bulletproof fallback so
+    her voice ALWAYS plays even if the cable is missing (mouth dead > voice dead)."""
+    dev = _resolve_tts_output_device()
+    try:
+        pygame.mixer.init(devicename=dev)
+        print(f"   [TTS-Audio] TTS output → {dev or 'default desktop device'}"
+              f"{' (VTS lip-syncs off this cable)' if dev else ' (mouth-flap OFF — no cable)'}.")
+        return
+    except Exception as e:
+        print(f"   [TTS-Audio] init on '{dev}' failed ({e}); falling back to default device.")
+    try:
+        pygame.mixer.init(devicename=None)
+    except Exception as e2:
+        print(f"   [TTS-Audio] default init also failed ({e2}); auto-picking a device.")
+        pygame.mixer.init()
+
+
 _CONTENT_DENYLIST_SEED = frozenset({
     "nigger", "nigga", "faggot", "tranny", "kike", "chink", "spic", "wetback", "retard",
 })
@@ -281,13 +336,9 @@ class AI_Core:
         # Initialize Audio Mixer permanently
         if pygame.mixer.get_init(): pygame.mixer.quit()
         
-        # FORCE Default Desktop Audio (User Request)
-        print("   Forcing Audio Output to Default Windows Device (devicename=None)...")
-        try:
-            pygame.mixer.init(devicename=None)
-        except Exception as e:
-            print(f"   Warning: Default init failed, trying auto: {e}")
-            pygame.mixer.init()
+        # MOUTH-FLAP: route TTS onto the VB-Audio cable VTS lip-syncs off (env-overridable
+        # via KIRA_TTS_OUTPUT_DEVICE=desktop to restore the old default-device behaviour).
+        _safe_mixer_init()
 
         try:
             await asyncio.to_thread(self._init_llm)
@@ -1990,7 +2041,7 @@ class AI_Core:
             return
 
         try:
-            if not pygame.mixer.get_init(): pygame.mixer.init(devicename=None)
+            if not pygame.mixer.get_init(): _safe_mixer_init()
             
             if pygame.mixer.get_busy(): pygame.mixer.stop()
             pygame.mixer.music.stop()

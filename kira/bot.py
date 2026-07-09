@@ -2038,10 +2038,28 @@ class VTubeBot:
         default_desc = "I'm just getting my bearings. One sec!"
         return bool(va.scene_summary or (va.last_description and va.last_description != default_desc))
 
+    def _pokemon_perception_directive(self) -> str:
+        """POKÉMON-MODE PERCEPTION (2026-07-08 immersion fix): when she's PLAYING Pokémon her
+        sense is the game's live RAM state, NOT her eyes (vision is window-locked/parked to save
+        cost). The generic blindness directive made her NARRATE the blindness ("I'll be here
+        watching a black screen", "still black") — a hard immersion break. Replace it with a
+        directive that GROUNDS her in the game and forbids ALL screen/vision talk."""
+        return (
+            "\n\n[PERCEPTION — you're PLAYING Pokémon FireRed. You read the game through its live "
+            "state: your team, the route, the battle, what just happened. Vision/eyes are OFF for "
+            "this and that is NORMAL — you don't need them to play.]\n"
+            "NEVER mention a screen, display, 'black screen', 'dark', 'frozen', 'I can't see', or "
+            "your vision in ANY way — you are not watching a screen, you are PLAYING. Talk about the "
+            "GAME and the moment. If the GAME itself seems unresponsive, frame it as the game being "
+            "stuck/frozen — never as 'the screen is black' or 'I can't see'."
+        )
+
     def _visual_blindness_directive(self) -> str:
         """Strong prohibition against fabricated visual observations when vision is off
         or no frame has been captured. Mirrors the UNCERTAIN-honesty rule already used
         by the vision agent — don't claim to see what you can't see."""
+        if getattr(self, "pokemon_mode", False):
+            return self._pokemon_perception_directive()
         return (
             "\n\n[VISUAL STATUS: BLIND — no live visual input]\n"
             "Your eyes are closed right now. There is no screen, no scene, no characters, no image available to you. "
@@ -2054,6 +2072,8 @@ class VTubeBot:
 
     def _stale_visual_directive(self, age_seconds: int) -> str:
         """Used when vision is on but the last frame is too old to be treated as 'now'."""
+        if getattr(self, "pokemon_mode", False):
+            return self._pokemon_perception_directive()
         return (
             f"\n\n[VISUAL STATUS: STALE — last frame was {age_seconds}s ago]\n"
             f"Your last visual capture is too old to comment on as if it's current. Do NOT present any visual "
@@ -3394,15 +3414,24 @@ class VTubeBot:
     # story (solo wild Bulbasaur, the Gary grudge, where she is in the arc) and can speak it in IDLE
     # CHAT or any game, INDEPENDENT of how the Pokémon session launched. One Kira: a grudge she carries
     # everywhere, not a Pokémon-process-local fact.
-    def _pokemon_journey_path(self) -> str:
+    def _pokemon_journey_path(self, timeline: str = None) -> str:
+        # TIMELINE-SCOPED MEMORY (2026-07-08 firewall fix): her PLAYTHROUGH memory is
+        # per-timeline, her SELF (personality) is shared. SHERPA (the completed Champion
+        # run) lives in states/campaign/; KIRA (the fresh showtime run) in states/kira/.
+        # A single shared file let the Champion/Venusaur saga bleed into the fresh
+        # Charmander run ("constant self, separate journeys"). timeline comes from the
+        # journey push ('kira'|'sherpa'); default = the last-active timeline, else 'kira'
+        # (the showtime, the current live one). CORE touch — additive, no identity change.
         import os as _os
+        tl = timeline or getattr(self, "_active_pokemon_timeline", None) or "kira"
+        _subdir = "campaign" if tl == "sherpa" else "kira"
         root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))   # repo root (…/NeuroAI_Bot)
-        return _os.path.join(root, "states", "kira", "journey_core.json")
+        return _os.path.join(root, "states", _subdir, "journey_core.json")
 
-    def _load_pokemon_journey(self):
+    def _load_pokemon_journey(self, timeline: str = None):
         import os as _os, json as _json
         try:
-            p = self._pokemon_journey_path()
+            p = self._pokemon_journey_path(timeline)
             if _os.path.exists(p):
                 with open(p, encoding="utf-8") as f:
                     return _json.load(f)
@@ -3427,8 +3456,18 @@ class VTubeBot:
         across these overwrites so promoted milestone beats are never lost. Best-effort + loud."""
         if not isinstance(state, dict) or not state.get("summary"):
             return {"stored": False}
-        # Preserve the accumulated saga across snapshot overwrites (consolidation lives core-side).
-        prev = getattr(self, "_pokemon_journey_state", None) or self._load_pokemon_journey() or {}
+        # TIMELINE WALL (2026-07-08): pin the active timeline from the push so the load/save/
+        # inject all read the SAME per-timeline file. Switching timelines (sherpa↔kira) drops
+        # the in-memory snapshot so the other run's saga can NEVER carry over in-process.
+        _tl = state.get("timeline") or getattr(self, "_active_pokemon_timeline", None) or "kira"
+        _tl = "sherpa" if _tl == "sherpa" else "kira"
+        if getattr(self, "_active_pokemon_timeline", None) not in (None, _tl):
+            print(f"   [Pokemon] TIMELINE SWITCH {self._active_pokemon_timeline}→{_tl} — dropping "
+                  f"in-memory journey so playthroughs stay firewalled (constant self, separate journeys).")
+            self._pokemon_journey_state = None
+        self._active_pokemon_timeline = _tl
+        # Preserve the accumulated saga across snapshot overwrites, but ONLY from THIS timeline's file.
+        prev = getattr(self, "_pokemon_journey_state", None) or self._load_pokemon_journey(_tl) or {}
         # RUN-SCOPING (memory-magic 2026-07-08, CORE touch): a FRESH run (0 badges) arriving over an
         # ADVANCED prior run (had badges) is a NEW playthrough — do NOT inherit the old run's saga.
         # This is how a Charmander throwaway contaminated the Venusaur Champion journey, and exactly
@@ -7866,8 +7905,26 @@ class VTubeBot:
             or getattr(self.game_mode_controller, "activity_type", "general")
                in (ACTIVITY_GAME, ACTIVITY_VN)
         )
+        # ── LULL-ENGAGEMENT (2026-07-08, Jonny's live note) ────────────────────────
+        # Restraint was activity-driven, NOT room-driven: during a game (ACTIVITY_GAME)
+        # even a quiet room with a couple of chatters asking real questions got the
+        # GAP-FILLER clamp, so she ignored direct questions. Read the room VOLUME (the
+        # director already computes it; it was never wired to engagement) — when it's a
+        # LULL, restraint is WRONG: be present and answer properly. Restraint is for a
+        # busy room, not an empty one. CORE / all-games plumbing (Rule 12, additive).
+        _chat_lull = False
+        _cd_band = "low"
+        try:
+            _cd_band, _cd_rate, _cd_distinct = self.chat_director.volume_state()
+            _chat_lull = (_cd_band == "low")
+        except Exception:
+            pass
+        _batch_has_question = ("?" in batch_str)
+        # relax gap-filler when the room is quiet, OR when there's a direct question and the
+        # room isn't a flood (a real question in a calm/moderate room deserves a real answer).
+        _focus_relaxed = _chat_focused and (_chat_lull or (_batch_has_question and _cd_band != "flood"))
         focus_block = ""
-        if _chat_focused:
+        if _chat_focused and not _focus_relaxed:
             focus_block = (
                 "[FOCUS MODE — chat is GAP-FILLER right now, not the main event; the "
                 "activity has priority.]\n"
@@ -7875,6 +7932,13 @@ class VTubeBot:
                 "in, then straight back to the activity.\n"
                 "- Skip the full 'name + react + respond' ceremony; a brief nod by name "
                 "is plenty. Don't make a production of each chatter.\n\n"
+            )
+        elif _focus_relaxed:
+            focus_block = (
+                "[QUIET ROOM — chat is calm right now (few chatters, not much happening on "
+                "stream). This is the time to BE PRESENT: engage properly, answer every "
+                "question fully, have a real back-and-forth. Don't brush people off — a quiet "
+                "room is where you build the bond. Restraint is for a busy room, not this.]\n\n"
             )
 
         # ── Chat Director: ambient room-read + most-asked consolidation ─────────
@@ -7941,6 +8005,7 @@ class VTubeBot:
             f"- If you have prior context on a chatter, reference it naturally (callbacks land hard).\n"
             f"- NEVER repeat the same callback, bit, or phrasing you used in your immediately previous response — vary it or pick a different angle. Two near-identical replies in a row reads like a broken record.\n"
             f"- If multiple messages have the same vibe, consolidate.\n"
+            f"- ALWAYS answer a direct question or a message that addresses you by name — never SKIP one. A real question deserves a real answer, and doubly so when the room is quiet.\n"
             f"- If messages are pure spam/'hi'/no substance AND you have zero prior context on the chatter, output ONLY: SKIP\n"
             f"- Exception: if you have ANY prior context on a chatter (even one fact), a simple greeting is NOT skip-worthy — give them a quick warm acknowledgment. Known viewers saying 'hi' should never be SKIP.\n"
             f"- Length scales with batch size: 1 chatter = 1-2 sentences (a quick aside, not a full monologue). 2-3 chatters = 2-3 sentences. 4+ chatters = up to 4 sentences max. NEVER more than 4 sentences regardless of size.\n"
@@ -7962,8 +8027,9 @@ class VTubeBot:
             chat_max_tokens = 200
         else:
             chat_max_tokens = 280
-        if _chat_focused:
+        if _chat_focused and not _focus_relaxed:
             chat_max_tokens = min(chat_max_tokens, 90)  # gap-filler: keep chat tight mid-activity
+        # (in a lull / on a direct question we DON'T clamp — she gets room to actually engage)
 
         memory_context = await asyncio.to_thread(self.memory.get_semantic_context, batch_str)
         if self.ai_core.anthropic_client:
@@ -9495,6 +9561,12 @@ class VTubeBot:
                                 f"Drop a brief, natural observation about a character, the mood, or something on screen — "
                                 f"like a friend on the couch. One short sentence. No questions. Observational, not interrogative."
                             )
+                        elif getattr(self, "pokemon_mode", False):
+                            prompt = (
+                                "It's been a quiet stretch in the game. Say something real about where you are, "
+                                "your team, or what's on your mind playing — NEVER mention a screen or your vision. "
+                                "One short sentence. No questions."
+                            )
                         else:
                             prompt = (
                                 "It's been quiet for a long stretch. You can't see anything right now — so "
@@ -9516,6 +9588,12 @@ class VTubeBot:
                                 f"Make a short, natural remark about what just happened or what stands out — "
                                 f"like a friend reacting under their breath. One short sentence. "
                                 f"No questions. Observational, not interrogative."
+                            )
+                        elif getattr(self, "pokemon_mode", False):
+                            prompt = (
+                                "A quiet beat in the game. Make a short, natural remark about the moment, your "
+                                "team, or what you're thinking playing — NEVER mention a screen or your vision. "
+                                "One short sentence. No questions."
                             )
                         else:
                             prompt = (
@@ -10274,7 +10352,14 @@ class VTubeBot:
             _mw_mid = _mw.get_last_content_mid_ts() or 0.0
             if _mw_mid:
                 _mw_age = time.time() - _mw_mid
-        _sense_fresh = (_cache_age < 60.0) or (_mw_age < 60.0)
+        # FRESHNESS (2026-07-08 latency fix): reuse the cached frame ONLY if it's recent.
+        # Was 60s — so she narrated screen state up to 40s stale; content_age DOMINATED the
+        # [LAG] chain (20-40s of a 30-50s total). ~12s keeps prep ≈0 when the vision
+        # heartbeat is current, but forces a fresh grab (~3s) instead of reacting to ancient
+        # content. A 3s-late RELEVANT beat beats a 0s-late STALE one. Media keeps its own 60s
+        # reuse (episode-log driven, not a live frame). Env: VISION_FRESH_REUSE_S.
+        _reuse_s = float(os.getenv("VISION_FRESH_REUSE_S", "12.0"))
+        _sense_fresh = (_cache_age < _reuse_s) or (_mw_age < 60.0)
         _skip_fresh = self._under_load or _sense_fresh or bool(scene_override)
         if _skip_fresh and _va and _va.last_capture_time and not scene_override:
             print(f"   [LoadShed] Skipping fresh vision capture (under_load={self._under_load}, "
@@ -10343,6 +10428,14 @@ class VTubeBot:
         if react_tier is not None:
             _use_sonnet = (react_tier < 3)                  # Tier 3 -> Opus depth, else Sonnet
             _react_max = 110 if react_tier <= 1 else (220 if react_tier == 2 else 400)
+        elif getattr(self.game_mode_controller, "activity_type", "general") in (ACTIVITY_GAME, ACTIVITY_VN):
+            # AUTONOMOUS FILL during a focused activity (Director/boredom, react_tier=None):
+            # keep it PUNCHY. A 400-tok fill runs ~11s of TTS, holds processing_lock the whole
+            # time, and DROPS Jonny's incoming speech (the "she ignored me" 20-30s latency).
+            # Neuro-tier fills are 1-3 sentences, not paragraphs; she yields the turn fast so
+            # chat/Jonny land. Big Pokémon beats pass a react_tier and are UNAFFECTED (full
+            # length + Opus). Env: DIRECTOR_FILL_MAX_TOKENS_FOCUSED.
+            _react_max = int(os.getenv("DIRECTOR_FILL_MAX_TOKENS_FOCUSED", "240"))
         if self.ai_core.anthropic_client:
             # Sensory priority (2026-06-22): order the interjection scene by source —
             # in-scene DIALOGUE first (what's being said), then VISION (already in

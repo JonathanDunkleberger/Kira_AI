@@ -153,7 +153,9 @@ def main():
            "--phones", args.phones]
     if args.fresh and cps:
         cmd.append("--fresh-kira")
-    if not args.no_audio:
+    # GAME AUDIO DEFAULT OFF (2026-07-08): the PortAudio output path is the Viridian-fanfare SIGSEGV.
+    # Off on every path until it's hardened (her VOICE is separate). Opt in: POKEMON_GAME_AUDIO=1.
+    if os.getenv("POKEMON_GAME_AUDIO", "0") == "1" and not args.no_audio:
         cmd.append("--audio")
     log("launching: " + " ".join(cmd))
     try:

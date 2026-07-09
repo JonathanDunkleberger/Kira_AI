@@ -42,6 +42,25 @@ try:
 except Exception:
     pass
 
+# ── HARD-CRASH DIAGNOSIS (2026-07-08) ──────────────────────────────────────────────────
+# Some crashes are C-level SIGSEGVs inside a native extension (libmgba / PortAudio / pygame) —
+# they kill the process with NO Python traceback, so the try/except firewall in main() can't see
+# them (the Viridian-parcel-handoff hard kill is one: proven crash-free in the pure-Python game
+# logic AND the mgba audio read, so it lives in a live-only native call). faulthandler dumps the
+# Python stack of EVERY thread to a file the instant a fatal signal fires — so the NEXT such crash
+# names the exact native call that died. Append-mode + kept open for the process lifetime.
+try:
+    import faulthandler
+    _crashdir = os.path.join(os.path.dirname(_HERE), "logs", "debug")
+    os.makedirs(_crashdir, exist_ok=True)
+    _fh_file = open(os.path.join(_crashdir, "playlive_faulthandler.log"), "a", encoding="utf-8")
+    _fh_file.write(f"\n===== play_live started {time.strftime('%Y-%m-%d %H:%M:%S')} "
+                   f"(faulthandler armed; a dump below = a native hard-crash) =====\n")
+    _fh_file.flush()
+    faulthandler.enable(file=_fh_file, all_threads=True)
+except Exception as _fhe:
+    print(f"   [play-live] faulthandler arm failed: {_fhe}", flush=True)
+
 ROM = os.path.join(os.path.dirname(_HERE), "roms", "firered.gba")
 SCALE = 3
 LEAD_LEVEL = 0x54        # lead party-mon level byte (off GPLAYER_PARTY)
@@ -289,6 +308,12 @@ def main():
                 camp.feed_watchdog(text=dialogue._read_buffer(), now=time.time())
             except Exception as e:
                 print(f"   [play-live] watchdog feed error: {e}", flush=True)
+            # DASHBOARD COCKPIT (2026-07-08): publish timeline-aware health every frame (throttled
+            # ~2s inside) so the panel is LIVE on BOTH timelines — showtime used to leave it stale.
+            try:
+                camp.publish_health_tick(now=time.time())
+            except Exception as e:
+                print(f"   [play-live] health tick error: {e}", flush=True)
             if fired and not _holding[0] and (voice.last_dialogue_tier or 0) >= 2:
                 _dialogue_hold(voice.last_dialogue_tier, voice._last_summary or "")
         _draw()
@@ -460,6 +485,30 @@ def main():
         except Exception as e:
             log(f"!! AUDIO disabled — could not start ({e}). Run will continue SILENT.")
 
+    # ── REAL-TIME FRAME PACER (2026-07-08) ─────────────────────────────────────────────────
+    # The AudioPump's blocking PortAudio write was the ONLY thing throttling the emulator to
+    # ~real-time 60fps. With game audio OFF (the Viridian-parcel-crash workaround: the crash was the
+    # PortAudio *output* path), that backpressure is gone and the run would blast far faster than
+    # watchable. Install a wall-clock frame limiter — same run_frame-wrap pattern as the AudioPump,
+    # but sleeping to hold the target fps instead of using an audio device. So a WINDOWED, no-audio
+    # run still plays at true 1x for watching. Skipped when audio paces it, when headless (proof
+    # runs want max speed), or with --no-pace. Env POKEMON_FPS_CAP overrides (default 60 ≈ GBA 1x).
+    if audio is None and not args.headless and not args.no_pace:
+        _target_dt = 1.0 / max(1.0, float(os.getenv("POKEMON_FPS_CAP", "60")))
+        _orig_core_rf = b.core.run_frame
+        _pace_clock = [time.perf_counter()]
+        def _paced_core_run_frame():
+            _orig_core_rf()
+            _pace_clock[0] += _target_dt
+            _slack = _pace_clock[0] - time.perf_counter()
+            if _slack > 0:
+                time.sleep(_slack)
+            elif _slack < -0.25:          # fell >250ms behind (an LLM decision stalled frames) —
+                _pace_clock[0] = time.perf_counter()   # resync; don't sprint to "catch up" after
+        b.core.run_frame = _paced_core_run_frame
+        log(f"   [play-live] real-time frame pacer ON (~{os.getenv('POKEMON_FPS_CAP','60')}fps "
+            f"wall-clock; audio off) — windowed watch speed")
+
     # ── objectives: continuous SEGMENT MANIFEST (--go), FAST gym-only test, or the full single arc ──
     objectives = None
     if args.go or args.show:
@@ -490,6 +539,38 @@ def main():
             outcome = camp.run(objectives)
     except KeyboardInterrupt:
         outcome = "window-closed"
+    except BaseException as _crash:
+        # ── CRASH FIREWALL (2026-07-08, live-stream self-heal) ──────────────────────────
+        # Any uncaught exception in the roam/segment loop used to kill play_live silently:
+        # its traceback vanished into this detached console with NOTHING on disk (which is
+        # exactly why the ~19:23 Route-1/2 death was un-diagnosable). Now: dump the FULL
+        # traceback to a file, emergency-bank the world (poison-guarded, won't save a dead
+        # world), ping Jonny, and exit NON-ZERO so the supervisor relaunches with --resume
+        # instead of the show going dark. The planner is already double-guarded; this is the
+        # process-level backstop for anything else that throws mid-roam.
+        import traceback as _tb
+        _tbtxt = _tb.format_exc()
+        _stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+        try:
+            _crashdir = os.path.join(os.path.dirname(_HERE), "logs", "debug")
+            os.makedirs(_crashdir, exist_ok=True)
+            _cf = os.path.join(_crashdir, f"playlive_crash_{_stamp}.log")
+            with open(_cf, "w", encoding="utf-8") as _fh:
+                _fh.write(f"play_live CRASH at {_stamp}\n\n{_tbtxt}\n")
+            print(f"\n!! PLAY-LIVE CRASH — full traceback saved to {_cf}", flush=True)
+        except Exception as _wf:
+            print(f"!! PLAY-LIVE CRASH (crash-file write failed: {_wf})", flush=True)
+        print(_tbtxt, flush=True)
+        try:
+            camp._save_campaign(reason="crash-bank")
+            print("   [crash] emergency campaign bank attempted (poison-guarded).", flush=True)
+        except Exception as _bk:
+            print(f"   [crash] emergency bank failed: {_bk}", flush=True)
+        try:
+            voice.alert(f"play_live crashed ({type(_crash).__name__}: {str(_crash)[:100]}) — auto-resuming")
+        except Exception:
+            pass
+        outcome = "crashed"
     finally:
         try:
             voice.close()          # flush the last few off-thread reactions before we tear down
@@ -507,6 +588,18 @@ def main():
           f"badge={camp.has_boulder_badge()}", flush=True)
     voice.report()
     print("=" * 64, flush=True)
+    # ── EXIT-CODE CONTRACT with the supervisor (resilience doctrine) ───────────────────────
+    #   0  = GENUINE COMPLETION (all segments / credits) → supervisor lets the show END.
+    #   3  = window-closed / interrupted → supervisor RELAUNCHES (a 30h unattended show must NOT
+    #        die because the game window was closed by accident or a stray QUIT; the ONLY deliberate
+    #        stop is the dashboard STOP button, which kills the whole supervisor tree).
+    #   1  = crash / stuck / roam-window elapsed → supervisor RESUMES (crash-loop guard catches a
+    #        persistent deterministic failure and escalates instead of looping forever).
+    if outcome == "all_segments_complete":
+        sys.exit(0)
+    if outcome == "window-closed":
+        sys.exit(3)
+    sys.exit(1)
 
 
 if __name__ == "__main__":

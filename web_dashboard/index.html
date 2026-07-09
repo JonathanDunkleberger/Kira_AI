@@ -550,6 +550,10 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
           <button class="btn sm" id="btn-pokemon-mode-off" onclick="pokemonMode(this,false)">OFF</button>
         </div>
 
+        <!-- SAVE-SLOTS (console save-select) — two clearly-separate, labelled timelines so Jonny
+             always knows which is live and never blurs Sherpa vs Kira again. Fed by health().slots. -->
+        <div id="pokemon-slots" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+
         <!-- HEALTH READOUT (for Jonny) — glance at hour 6 = "she's fine" or "wedged an hour" -->
         <div class="statusline" style="margin-top:8px;border-top:1px solid #2a2a3a;padding-top:6px">
           <span id="pokemon-health-light" class="pill">—</span>
@@ -739,7 +743,36 @@ async function pokemonStop(btn){ await cmd('pokemon_stop',null,btn); _renderPoke
 async function pokemonMode(btn,on){ const r=await cmd(on?'pokemon_mode_on':'pokemon_mode_off',null,btn); if(r){ const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=on?'ON':'off'; } }
 const _HLIGHT={GREEN:'#3ad07a',YELLOW:'#e3c84a',RED:'#e0564a',ABANDONED:'#e0564a'};
 async function pokemonHealth(){ const r=await cmd('pokemon_health',null,null); if(r) _renderHealth(r); }
+function _fmtDur(s){ if(s==null) return '—'; s=Math.round(s); if(s<3600) return Math.max(1,Math.round(s/60))+'m'; return (s/3600).toFixed(1)+'h'; }
+/* SAVE-SLOTS (#2): render the two timelines as separate, labelled, console-style save-slots —
+   each shows badges / team / location / last-played / playtime; the active one is highlighted. */
+const _SLOT_META={showtime:{name:'SHOWTIME',sub:'the stream-day run (states/kira)',glyph:'⭐'},
+                  sherpa:{name:'SHERPA',sub:'her real climb (states/campaign)',glyph:'⛰️'}};
+function _renderSlots(h){
+  const wrap=document.getElementById('pokemon-slots'); if(!wrap) return;
+  const slots=h.slots||{}; const active=h.active_slot;
+  wrap.innerHTML=['showtime','sherpa'].map(tl=>{
+    const s=slots[tl]||{}, g=s.game, m=_SLOT_META[tl], isActive=(active===tl), live=!!s.running;
+    const badges=g?(g.badge_count||0):'—';
+    const place=g?(g.place||'?'):'no save yet';
+    const team=(g&&g.party&&g.party.length)?g.party.join(', '):'—';
+    const lastP=s.last_played_ts?(fmtAge((Date.now()/1000)-s.last_played_ts)+' ago'):'never';
+    const played=g?_fmtDur(g.playthrough_s!=null?g.playthrough_s:g.run_uptime_s):'—';
+    const border=live?'#3ad07a':(isActive?'#e3c84a':'#2a2a3a'), op=(isActive||live)?'1':'0.5';
+    const pill=live?'<span style="color:#3ad07a;font-weight:700">● LIVE</span>'
+                   :(isActive?'<span style="color:#e3c84a">active</span>':'<span class="muted">idle</span>');
+    return `<div style="border:1px solid ${border};border-radius:6px;padding:7px 9px;opacity:${op}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b style="font-size:12px">${m.glyph} ${m.name}</b>${pill}</div>
+      <div class="muted" style="font-size:10px;margin-bottom:3px">${m.sub}</div>
+      <div style="font-size:12px;color:#E8ECF2">${badges} badges · ${escHtml(String(place))}</div>
+      <div class="muted" style="font-size:11px">team: ${escHtml(String(team))}</div>
+      <div class="muted" style="font-size:10px;margin-top:2px">last played ${lastP} · played ${played}</div>
+    </div>`;
+  }).join('');
+}
 function _renderHealth(h){ h=h||{};
+  safe(()=>_renderSlots(h));
   const g=h.game; const light=document.getElementById('pokemon-health-light');
   const prog = g && g.progress ? g.progress : (h.running?'…':'—');
   if(light){ light.textContent=prog; light.style.background=_HLIGHT[prog]||'#555'; light.style.color='#111'; }
@@ -879,21 +912,28 @@ function renderEyes(s){
   const age=s.vision_last_capture_age;
   const eff=s.effective||{}, perc=eff.perception||{};
   const forced=!!eff.vision_force_off;
+  // POKÉMON MODE: a game run is live → vision is intentionally window-locked/parked (she reads
+  // the game via RAM). A frozen Eyes panel here is EXPECTED, not broken — label it that way so
+  // Jonny isn't chasing a phantom bug (vision #3).
+  const pkmn=!!(s.pokemon && s.pokemon.running) || !!perc.pokemon_mode || !!s.pokemon_mode;
   // FROZEN = no fresh frame from EITHER the heartbeat OR the slideshow backfill.
   const frozen=(!forced && age!=null && age>=EYES_STALE_S);
-  // Summary — honest when frozen, don't present a stale scene as current.
-  setText('eyes-summary', frozen ? 'No live frame — vision is parked/dark right now.'
+  // Summary — honest when frozen; distinguish "parked on purpose (Pokémon)" from "dark/broken".
+  setText('eyes-summary', frozen ? (pkmn ? 'Vision parked — Pokémon mode (she reads the game via RAM, no eyes needed).'
+                                          : 'No live frame — vision is parked/dark right now.')
                                   : (s.vision_summary || 'Vision initializing…'));
   setText('eyes-age', age!=null ? `seen ${fmtAge(age)}` : '');
   // Thumbnail placeholder text (shown by pollThumb when not fresh).
   const ph=document.getElementById('vision-thumb-ph');
   if(ph) ph.textContent = forced ? 'vision forced OFF'
+                        : (frozen && pkmn) ? '⏸ parked — Pokémon mode (reads RAM)'
                         : frozen ? (perc.vision_parked ? `⏸ FROZEN — parked · ${fmtAge(age)}` : `⏸ FROZEN · ${fmtAge(age)}`)
                         : 'no signal';
   // Health lamp.
   const h=document.getElementById('eyes-health'), ht=document.getElementById('eyes-health-txt');
   let cls='', txt='off';
   if(forced){ txt='forced off'; }
+  else if(frozen && pkmn){ cls='live'; txt='parked · Pokémon (RAM)'; }   // expected, not a fault
   else if(frozen){ txt = perc.vision_parked ? `FROZEN — parked (${fmtAge(age)})` : `FROZEN (${fmtAge(age)})`; }
   else if(perc.vision_parked){ cls='live'; txt='live · slideshow'; }   // parked but slideshow backfilling fresh frames
   else if(perc.vision_on){ cls='live'; txt=perc.vision_cadence_s?`live · ${Math.round(perc.vision_cadence_s)}s`:'live'; }
