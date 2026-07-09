@@ -66,6 +66,10 @@ GOAL_MAP = tuple(int(x) for x in _gm.split(",")) if _gm else None
 GOAL_FLAG = int(os.getenv("LONGRUN_GOAL_FLAG", "0"), 0) or None
 #   LONGRUN_GOAL_DEX="10"    -> GOAL when the OWNED dex count reaches N (the Flash-aide gate class)
 GOAL_DEX = int(os.getenv("LONGRUN_GOAL_DEX", "0")) or None
+#   LONGRUN_FORCE="head_to_gym" -> chooser ALWAYS picks this option when offered (ROUTING-ISOLATION
+#   probe: strip the faithful grind-preference so we can verify a billed road COMPLETES to the city,
+#   independent of whether an underlevelled team would grind first). Diagnostic only — not a play mode.
+FORCE_PICK = os.getenv("LONGRUN_FORCE", "") or None
 
 SCRATCH = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
 STAGE = os.path.join(SCRATCH, "stage")                    # in-run persistence lands HERE (canonical untouched)
@@ -343,7 +347,9 @@ def main():
         except Exception:
             pots = 0
         pick = None
-        if len(opts) == 1:
+        if FORCE_PICK and FORCE_PICK in opts:
+            pick = FORCE_PICK                              # ROUTING-ISOLATION probe (LONGRUN_FORCE)
+        elif len(opts) == 1:
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
