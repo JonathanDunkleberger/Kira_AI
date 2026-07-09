@@ -30,6 +30,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 
 # Windows console defaults to cp1252 — the child (play_live) prints emoji/arrows and so do
@@ -63,6 +64,12 @@ HEALTH_POLL_S = 15    # how often we check the heartbeat for a hung-but-alive ru
 # crash) but stop hammering + escalate LOUD so a human knows it needs eyes.
 CRASH_LOOP_THRESHOLD = 5
 CRASH_LOOP_BACKOFF_S = 300   # slow-retry cadence once a loop is detected (vs the fast ramp below)
+# BOT-DOWN guard: play_live posts every voice/oracle beat to the Kira bot at --url. If the bot is
+# down (Ctrl-C'd, crashed, not up yet), a spawned play_live just thrashes — every POST fails
+# (WinError 10061) and a window-closed child relaunches into the same dead bot, replaying the opening.
+# So we WAIT for the bot to answer before (re)launching. This is an environment wait, NOT a game
+# crash — it must not count toward the crash-loop streak.
+BOT_DOWN_POLL_S = 10
 
 
 def _log(msg):
@@ -82,6 +89,41 @@ def _ping_jonny(url, message):
         _log(f"pinged Jonny: {message}")
     except Exception as e:
         _log(f"!! could not ping Jonny ({e}) — bot down? message was: {message}")
+
+
+def _bot_reachable(url):
+    """True if the Kira bot's control endpoint answers. An HTTP response of ANY code (even 404) means
+    the server is up; only a connection-level failure (refused/timeout/DNS) means it's down. Never
+    raises — a probe error is treated as 'down' so the caller simply waits."""
+    try:
+        urllib.request.urlopen(url, timeout=3)
+        return True
+    except urllib.error.HTTPError:
+        return True   # the server answered (with an error code) → it's up
+    except Exception:
+        return False  # connection refused / timeout / unreachable → bot is down
+
+
+def _wait_for_bot(url):
+    """Block until the bot at `url` answers, so we never spawn play_live into a dead bot (the
+    hot-relaunch/intro-thrash). Returns True when reachable, False if interrupted (Ctrl-C)."""
+    if _bot_reachable(url):
+        return True
+    _log(f"bot endpoint {url} unreachable — NOT launching play_live into a dead bot "
+         f"(would thrash: failed POSTs + window-closed relaunch replaying the opening). "
+         f"Waiting for the bot to come back…")
+    waited = 0
+    try:
+        while not _bot_reachable(url):
+            time.sleep(BOT_DOWN_POLL_S)
+            waited += BOT_DOWN_POLL_S
+            if waited % 60 == 0:
+                _log(f"still waiting for bot at {url} ({waited}s)…")
+    except KeyboardInterrupt:
+        _log("Ctrl-C while waiting for the bot — supervisor stopping.")
+        return False
+    _log(f"bot back up after {waited}s — launching play_live.")
+    return True
 
 
 def _tee(proc, logfile):
@@ -168,6 +210,11 @@ def main():
         _log("windowed mode — a game window will open (SDL_VIDEODRIVER cleared so it can't be hidden).")
 
     while True:
+        # BOT-DOWN GUARD: never (re)launch play_live into a dead bot. If the bot is unreachable we
+        # wait here instead of hot-relaunching (which just replays the opening against a dead endpoint).
+        # An interrupted wait (Ctrl-C) tears the show down cleanly.
+        if not _wait_for_bot(args.url):
+            return
         cmd = _build_cmd(args, first_launch=(restarts == 0))
         stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
         logfile = os.path.join(logdir, f"playlive_{stamp}.log")
