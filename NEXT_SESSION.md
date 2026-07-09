@@ -1,6 +1,37 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 6 in flight)
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 7 entry)
 
-## SHIFT 6 HEAD (read FIRST — supersedes shift 5 below)
+## SHIFT 7 HEAD (read FIRST — supersedes everything below)
+
+**TWO FIXES LANDED SHIFT 6 — one VERIFIED, one committed-needs-verify. NEXT WEDGE = Route4/Cerulean
+-> Route 5 south routing to Vermilion.**
+
+1. **Route24->Route25->Bill (7152af0) — VERIFIED END-TO-END.** S.S. Ticket obtained autonomously
+   (`logs/debug/route25_verify.log`, OUTCOME: GOAL). Post-Bill state banked ->
+   `states/workshop/ss_ticket.state`.
+2. **Bench-grind bounded probe (f2b2b56) — COMMITTED, PARTIAL-VERIFIED.** New `GRIND_WEAK_PROBE_S`
+   (180s) caps the fragile bench-grind so a hopeless mon stalls out in ~one probe instead of an 8-min
+   sink. In the shift-6 `vermilion_verify.log` run (launched BEFORE this fix, so it shows the SLOW
+   behavior) she still eventually built a real team — Venusaur L37, Arbok L22, Raticate L20, Fearow L20
+   (rattata->Raticate, spearow->Fearow, ekans->Arbok all evolved; `GRIND-WEAK: floor crossed L20 — done`).
+   The fix needs a fresh run to CONFIRM the grind is now fast (not an 8-min-per-mon sink).
+
+**THE NEXT WEDGE (diagnosed, unfixed) — SOUTH ROUTING Cerulean/Route4 -> Route 5 -> Vermilion.**
+After the ticket + team-build she tries to reach Vermilion but WEDGES: standing on Route 4 (3,22) at
+its EAST edge (107,12), `travel(target_map=(3,21))` computes a **Route-4 SOUTH connection band** and
+fails — `no clean path from (107,12) ... genuine wall/zone gap, will time out` — then falls back to
+grinding (over-levelling to L37). The correct path is Route4 -> EAST -> Cerulean (3,3) -> SOUTH exit
+(ticket-opened, Slowbro moved) -> Route 5 (3,21?) -> Route 6 -> Vermilion (3,5). So the world-graph /
+head_to_gym next_hop is picking a WRONG edge (Route 4 south) instead of routing through Cerulean.
+NOTE the `head_to_gym -> no_gym_route` results in the log were from INSIDE buildings during grinding
+(Bill's house (30,0), a Cerulean building (7,3)) — NOT the overworld south route; don't be misled.
+**SHIFT 7 ACTION:** re-run `recon_longrun.py ss_ticket.state 35` -> `logs/debug/vermilion2_verify.log`.
+Confirm (a) the grind is now FAST (probe fix), (b) then diagnose the Route4/Cerulean->Route 5 mis-route
+(is it a wrong world-graph edge Route4->(3,21)? a Cerulean south-gate reach? recon_route24.py is the
+geography-probe template — clone it for the Cerulean-south / Route-5 crossing). Fix general -> re-run.
+
+---
+
+## SHIFT 6 HEAD (historical — the Route24->Bill win)
 
 **ROUTE24->25->BILL FIX (7152af0) VERIFIED END-TO-END — S.S. TICKET OBTAINED.** The re-run
 (`logs/debug/route25_verify.log`, OUTCOME: GOAL — FLAG_GOT_SS_TICKET set) proved the whole chain:
