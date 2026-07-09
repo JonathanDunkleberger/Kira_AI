@@ -57,6 +57,31 @@ OFF-LIMITS. NEVER write states/kira/. Commit-per-fix. VERIFIED from disk/real ru
 
 ---
 
+# NIGHT-TRAIN SHIFT 1 (2026-07-09) — IN FLIGHT — READ FIRST
+
+**FRONTIER: badge-4 FLASH gate — the dex-10 half is being FIXED.** Boot `surge_done.state` (rebuilt
+from `G:/temp/longrun/banked_GOAL/` → `pokemon_agent/states/workshop/surge_done.state` + sidecars).
+
+**DIAGNOSIS (recon `shift1_badge4_forward.log`, field moves ON):** she reaches Route 10 (Rock Tunnel
+mouth), the Flash questline OPENS (`gate=story_npc/flash`), but (1) she NEVER catches — dex stuck at 5,
+needs 10; nothing drove catching; (2) the aide-routing anchors on "an unfamiliar area" → `edge → (3,4)`
+(wrong) and the questline self-abandons after 5 no-progress ticks → she falls back to grinding in place.
+
+**FIX A+B LANDED (this shift) — the dex gate (bites first):** a general **dex/owned prerequisite** in
+the questline. `frlg_gates.json` flash gate now bills `requires_owned: 10`; `questline.derive_questline`
+injects a synthetic CATCH step (`via='catch'`, `success=('dex',10)`) BEFORE the flash step when live dex
+< 10; `_step_satisfied` handles `kind=='dex'`; `campaign._run_questline_step` DRIVES `catch_one()` on
+that step (catch_one already leans NEW species via dex_new). Derive-test VERIFIED: steps become
+`[own_10_species(catch), flash]`, actionable=catch at dex 5. RUN VERIFICATION IN FLIGHT.
+
+**NEXT BLOCKER (Part C, unbuilt): aide-routing.** Even at dex 10 the flash step must route to the Route-2
+aide EAST via Route 11 → Diglett's Cave → Route 2 (prior art `recon_hm05.py` BACK_LEGS has the legs, but
+it REQUIRED dex≥10 already + hardcoded the road). The live world graph can't route to Route 11 (never
+walked). Options: bill a road to the aide (game-knowledge layer, like gym roads) OR have the catch step
+route her EAST to Route 11/Diglett's Cave (unifies catch + reach-aide). Diagnose after the dex-10 run.
+
+---
+
 # NEXT_SESSION — INTERACTIVE SESSION (2026-07-09, post-shift-16) — READ FIRST
 
 Interactive session with Jonny (not a night-train shift). Landed, each committed + VERIFIED from disk:

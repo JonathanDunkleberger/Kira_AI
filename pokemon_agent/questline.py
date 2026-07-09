@@ -21,6 +21,7 @@ import json
 import os
 
 import field_moves as fm
+import firered_ram as ram
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _KB_PATH = os.path.join(_HERE, "gamedata", "frlg_gates.json")
@@ -299,6 +300,9 @@ def _step_satisfied(step, bridge, kb, party_count_fn, log=print):
                 return False
             import pokemon_state as st
             return st.party_knows_move(bridge, mid, party_count_fn()) is not None
+        if kind == "dex":
+            # DEX/OWNED prerequisite (Flash aide's 10-species gate) — satisfied once she OWNS >=N kinds.
+            return ram.pokedex_owned_count(bridge) >= int(val)
         if kind == "item":
             # ITEM-CONFIRMED step (2026-07-07, flute_run1): HIDE-class flag ids (the KB's own
             # id_caveats — FLAG_GOT_SILPH_SCOPE=0x037 collides with a hide flag) read SET while
@@ -389,6 +393,30 @@ def derive_questline(gate, kb, bridge, party_count_fn=None, log=print, guide=Non
         chain.append(_step_from_cap(key, cap))
         key = (cap.get("obtain") or {}).get("prereq")
     chain.reverse()                                    # earliest prerequisite first
+    # DEX/OWNED PREREQUISITE (2026-07-09 night-train shift 1): some capability handoffs gate on the
+    # Pokédex OWNED count — the Route 2 aide refuses HM05 Flash below 10 owned species. The KB bills it
+    # as obtain.requires_owned on the target cap; inject a synthetic CATCH step (via='catch',
+    # success=('dex', N)) BEFORE that step so the executor DRIVES catching to the count first, instead
+    # of routing to an aide who'd refuse (the badge-4 Flash stall: she reached the aide's road at dex 5
+    # and spin-grinded). General: any dex-gated cap benefits, not just Flash.
+    tgt = caps.get(gate.missing) or {}
+    _need = (tgt.get("obtain") or {}).get("requires_owned")
+    if _need:
+        try:
+            _have = ram.pokedex_owned_count(bridge)
+        except Exception:
+            _have = None
+        if _have is not None and _have < int(_need):
+            _ob = tgt.get("obtain") or {}
+            dex_step = Step(missing=f"own_{int(_need)}_species", kind="dex", via="catch",
+                            from_map=_ob.get("catch_from") or _ob.get("from"),
+                            dir=_ob.get("catch_dir") or _ob.get("dir"),
+                            place_name="fresh grass — catch a few more kinds",
+                            success=("dex", int(_need)), resolved=True,
+                            human=(f"catch a few more kinds first — the aide only helps once I've caught "
+                                   f"{int(_need)} (I'm at {_have})"))
+            _i = next((i for i, s in enumerate(chain) if s.missing == gate.missing), len(chain))
+            chain.insert(_i, dex_step)
     for s in chain:
         if s.resolved:
             s.satisfied = _step_satisfied(s, bridge, kb, pcf, log=log)

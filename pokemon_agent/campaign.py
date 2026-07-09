@@ -5130,6 +5130,180 @@ class Campaign:
         self._ql_room_sweeps = 0              # fresh room-sweep budget for the next questline
         self._ql_talks_map = {}               # fresh per-map talk budgets too
         self._ql_bg_done = set()              # fresh machine/sign tracking too
+        self._ql_catch_voiced = False         # fresh dex-catch narration for the next questline
+
+    # ── THE FLASH ERRAND (2026-07-09 night-train shift 1) ──────────────────────────────────────────
+    # Ported from the PROVEN recon_hm05 strike (which cleared this exact stretch on the Champion climb)
+    # + catch-en-route. The badge-4 wall: the Rock-Tunnel road is Flash-gated and the Route 2 aide won't
+    # hand HM05 below 10 OWNED species. The catch-in-place driver species-EXHAUSTS on Route 10 (its grass
+    # is all dupes: ekans/spearow/voltorb) — so DRIVE the real errand EAST: walk the billed back-legs to
+    # Vermilion, east to Route 11, cross DIGLETT'S CAVE (Diglett/Dugtrio + Route 11 Drowzee = the fresh
+    # species Route 10 lacks) to the Route 2 aide's gatehouse, talk until HM05, then TEACH Flash. Catching
+    # en route clears the dex gate as a SIDE EFFECT of reaching the aide — one coherent errand, not two.
+    _FLASH_BACK_LEGS = {(3, 28): ("west", (3, 27)), (3, 27): ("west", (3, 3)),
+                        (3, 3): ("south", (3, 23)), (3, 23): ("pass", (3, 24)),
+                        (3, 24): ("south", (3, 5)), (3, 5): ("east", (3, 29)),
+                        (3, 22): ("east", (3, 3))}   # Route 4 joins at Cerulean
+
+    def _flash_errand(self):
+        """Advance the Flash errand one phase (free_roam re-enters between calls; internal budgets like
+        head_to_gym's road-follow). Returns 'flash_done' | 'flash_progress' | 'flash_stuck'."""
+        import field_moves as fm
+        import hm_teach as ht
+        FLAG_GOT_HM05, FLASH_MOVE = 0x23B, 148
+        ROUTE11, ROUTE2 = (3, 29), (3, 20)
+        b = self.b
+        pc = lambda: b.rd8(ram.GPLAYER_PARTY_CNT)
+        if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
+            return "flash_done"
+
+        def _catch_to_10(where, tries=6):
+            for _ in range(tries):
+                if ram.pokedex_owned_count(b) >= 10:
+                    return
+                cr = self.catch_one()
+                log(f"   [flash-errand] catch on {where}: dex={ram.pokedex_owned_count(b)}/10 -> {cr}")
+                if cr in ("no_grass", "no_reachable_target", "no_balls"):
+                    return
+
+        cur = tuple(tv.map_id(b))
+        # PHASE 3 — inside Diglett's Cave (non-overworld): keep crossing toward Route 2.
+        if cur[0] != 3:
+            _catch_to_10("Diglett's Cave", tries=3)
+            ok = self._cross_cave(None, ROUTE2)
+            return "flash_progress" if ok else "flash_stuck"
+        # PHASE 2 — on Route 11: catch fresh species, then cross Diglett's Cave (north mouth -> Route 2).
+        if cur == ROUTE11:
+            _catch_to_10("Route 11")
+            ok = self._cross_cave("north", ROUTE2)
+            return "flash_progress" if ok else "flash_stuck"
+        # PHASE 4 — on Route 2 (aide's strip): top up dex if short, reach the gatehouse, talk, teach.
+        if cur == ROUTE2:
+            if ram.pokedex_owned_count(b) < 10:
+                _catch_to_10("Route 2")
+                if ram.pokedex_owned_count(b) < 10:
+                    log(f"   [flash-errand] still dex {ram.pokedex_owned_count(b)}/10 on Route 2")
+                    return "flash_progress"
+            if not self._flash_gatehouse(FLAG_GOT_HM05):
+                return "flash_stuck"
+            if st.party_knows_move(b, FLASH_MOVE, pc()) is None:
+                plan = ht.default_plan(b, "flash", pc())
+                if plan is not None:
+                    slot, forget_idx, reason = plan
+                    log(f"   [flash-errand] TEACH flash -> slot {slot} ({reason})")
+                    ht.TeachFlow(self, log=lambda m: log(m), on_event=self.on_event).teach(
+                        "flash", slot, forget_idx)
+            return ("flash_done" if st.party_knows_move(b, FLASH_MOVE, pc()) is not None
+                    else "flash_progress")
+        # PHASE 1 — walk the billed back-legs home + east to Route 11.
+        if cur in self._FLASH_BACK_LEGS:
+            go, nxt = self._FLASH_BACK_LEGS[cur]
+            log(f"   [flash-errand] leg {cur} -{go}-> {nxt}")
+            if go == "pass":
+                r = self._door_passthrough(want_map=nxt)
+                if r == "need_heal":
+                    self.heal_nearest()
+            else:
+                r = self._edge_travel(nxt, go)
+                if r == "need_heal":
+                    self.heal_nearest()
+            return "flash_progress"
+        # off the billed road — release to roam so forward-drive steers her back toward the road.
+        log(f"   [flash-errand] off the billed errand road at {cur} — releasing to roam")
+        return "flash_stuck"
+
+    def _cross_cave(self, into_prefer, out_map, budget_s=420):
+        """Cross a warp-chain cave (Diglett's) by DESTINATION truth — ported from recon_hm05. into_prefer
+        None = already inside (skip the entry warp). Each room: prefer an overworld-dest warp that isn't
+        where we came in from (the far door), else the farthest unused warp (visited-memory kills the
+        east<->west ping-pong). True once on overworld == out_map (or any group-3 if out_map is None)."""
+        b = self.b
+        m0 = tuple(tv.map_id(b))
+        if into_prefer is not None:
+            self.enter_warp(prefer=into_prefer)
+            if tuple(tv.map_id(b)) == m0:
+                log(f"   [flash-errand] cave: entry warp ({into_prefer}) didn't fire at {m0}")
+                return False
+        t = time.time()
+        visited = set()
+        while tv.map_id(b)[0] != 3:
+            if time.time() - t > budget_s:
+                log(f"   [flash-errand] cave crossing TIMEOUT at {tv.map_id(b)}")
+                return False
+            pos = tuple(tv.coords(b))
+            mid = tuple(tv.map_id(b))
+            warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
+            if not warps:
+                log(f"   [flash-errand] cave room {mid} shows no warps — stuck")
+                return False
+            visited.add((mid, pos))
+            dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
+            outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0]
+            if outs:
+                far = min(outs, key=dist)
+            else:
+                fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
+                cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
+                far = max(cands, key=dist)
+            visited.add((mid, far))
+            before = mid
+            self.trav.travel(target_map=None, arrive_coord=far, max_steps=400)
+            if tuple(tv.map_id(b)) == before:
+                self.enter_warp(pick=far)
+            if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
+                for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):     # walk-through mats fire on the crossing step
+                    b.press(d_, 10, 6, lambda: None, owner="agent")
+                    for _f in range(40):
+                        b.run_frame()
+                    if tuple(tv.map_id(b)) != before:
+                        break
+                    if tuple(tv.coords(b)) != far:
+                        self.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
+            if tuple(tv.map_id(b)) == before:
+                log(f"   [flash-errand] cave: warp {far} didn't fire")
+                return False
+        return out_map is None or tuple(tv.map_id(b)) == out_map
+
+    def _flash_gatehouse(self, flag_hm05):
+        """Reach the Route 2 aide's gatehouse (a walk-through GATE band on the building's north face, NOT
+        a door) and talk until HM05 — ported from recon_hm05. True if the flag sets."""
+        import field_moves as fm
+        b = self.b
+        tried_g = set()
+        for _attempt in range(4):
+            if fm.read_flag(b, flag_hm05):
+                return True
+            if tv.map_id(b)[0] == 3:
+                pos = tuple(tv.coords(b))
+                gws = [(tuple(w), tuple(d)) for (w, d, _i) in tv.read_warps(b)
+                       if d[0] != 3 and tuple(w) != pos and tuple(w) not in tried_g]
+                if not gws:
+                    log("   [flash-errand] gatehouse: no untried interior warp — LOUD")
+                    break
+                south = [w for (w, d) in gws if w[1] >= pos[1]] or [w for (w, d) in gws]
+                tgt = min(south, key=lambda w: abs(w[0] - pos[0]) + abs(w[1] - pos[1]))
+                tried_g.add(tgt)
+                log(f"   [flash-errand] gatehouse: heading to warp {tgt}")
+                self.trav.travel(target_map=None, arrive_coord=tgt, max_steps=300, max_seconds=180)
+                if tv.map_id(b)[0] == 3 and tuple(tv.coords(b)) == tgt:
+                    for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):
+                        b.press(d_, 10, 6, lambda: None, owner="agent")
+                        for _f in range(40):
+                            b.run_frame()
+                        if tv.map_id(b)[0] != 3:
+                            break
+                if tv.map_id(b)[0] == 3:
+                    self.enter_warp(pick=tgt)
+                if tv.map_id(b)[0] == 3:
+                    continue
+            talks = 0
+            while not fm.read_flag(b, flag_hm05) and talks < 8:
+                self.talk_npc()
+                talks += 1
+            if fm.read_flag(b, flag_hm05):
+                return True
+            self._exit_to_overworld()
+        return bool(fm.read_flag(b, flag_hm05))
 
     def _run_questline_step(self, state):
         """EXECUTOR: advance the active questline by routing toward its current actionable step (reusing
@@ -5169,6 +5343,47 @@ class Campaign:
                 f"guide (Phase 4)/a hand; releasing to normal roam")
             return "questline_unresolved"
         cur_map = tuple(state["map"])
+        # FLASH ERRAND (2026-07-09 night-train shift 1): the whole flash gate — catch to 10 owned AND
+        # reach the Route 2 aide via Route 11/Diglett's Cave AND teach — runs as one proven errand
+        # (the catch-in-place driver species-exhausts on Route 10; the errand walks east to fresh grass
+        # + the aide together). Owns BOTH the dex-prereq step and the flash step.
+        if self._active_questline.gate.missing == "flash":
+            if not getattr(self, "_ql_catch_voiced", False):
+                self.on_event(step.human, kind="route", tier=2)
+                self._ql_catch_voiced = True
+            r = self._flash_errand()
+            log(f"   [roam] 🔦 FLASH ERRAND ({step.missing}) -> {r}")
+            if r == "flash_done":
+                self.on_event("Flash — lit. now Rock Tunnel won't be pitch black. onward.",
+                              kind="route", tier=2)
+                self._clear_questline("flash taught")
+                return "questline_done"
+            if r == "flash_stuck":
+                return "questline_unresolved"     # release to roam; forward-drive re-steers, re-recognize
+            return "questline_flash"              # advanced a phase (leg / catch / cave / gatehouse)
+        # DEX-CATCH STEP (2026-07-09 night-train shift 1): the actionable step is a catch-to-N-owned
+        # prerequisite (the Flash aide's 10-species gate). DRIVE catching on reachable grass until the
+        # dex count clears the step (re-derived next tick → advances to the HM handoff). catch_one
+        # wanders + judges (a NEW species leans catch, dupes skipped), so it naturally hunts fresh
+        # kinds. If there's no grass here / none reachable, fall through to the anchor routing so she
+        # walks toward billed catch ground instead of spinning. Voiced once per questline.
+        if getattr(step, "via", None) == "catch":
+            try:
+                _have = ram.pokedex_owned_count(self.b)
+            except Exception:
+                _have = 0
+            _tgt = step.success[1] if step.success else 10
+            if not getattr(self, "_ql_catch_voiced", False):
+                self.on_event(step.human, kind="roster", tier=2)
+                self._ql_catch_voiced = True
+            cr = self.catch_one()
+            log(f"   [roam] 🎣 QUESTLINE DEX-CATCH: dex={_have}/{_tgt} on {self.world.name(cur_map)} "
+                f"-> catch_one={cr}")
+            if cr not in ("no_grass", "no_reachable_target"):
+                return "questline_catch"
+            log(f"   [roam] DEX-CATCH: no wild ground reachable on {self.world.name(cur_map)} — "
+                f"routing toward the catch anchor")
+            # fall through to the anchor-first routing (walks toward step.from_map's grass country)
         _L2W = {"N": "north", "S": "south", "E": "east", "W": "west"}
         _OPP = {"N": "S", "S": "N", "E": "W", "W": "E"}
         # STEP-ANCHOR (2026-07-07, flute_run1): a chain's steps carry their OWN from-maps — the
@@ -8468,6 +8683,7 @@ class Campaign:
             _benign_still = ("arrived", "badge", "caught", "questline_talked",
                              "questline_worked_room", "questline_step_done", "questline_done",
                              "questline_passthrough", "questline_deeper", "questline_entered",
+                             "questline_flash", "questline_catch",   # the Flash errand IS the work
                              "need_heal", "healed_retry")
             if _is_move_pick and not _moved and out not in _benign_still:
                 self._nomove_streak += 1

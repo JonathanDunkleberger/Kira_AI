@@ -202,6 +202,7 @@
         "dir": "north",
         "place_name": "the Route 2 east gatehouse - through Diglett's Cave (the cave mouth on Route 11's north side; the tunnel pops out on Route 2 right by the aide's gate)",
         "prereq": null,
+        "requires_owned": 10,
         "requires_note": "he only hands it over once you OWN >=10 species — build the team/dex first",
         "sets_flag": "FLAG_GOT_HM05",
         "gives_cap": "flash"
