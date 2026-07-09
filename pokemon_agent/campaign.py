@@ -2591,8 +2591,18 @@ class Campaign:
         return out
 
     def _engage_trainer(self, T, facing):
-        """Walk to a tile adjacent to a junior trainer (its facing-front first, then any reachable
-        side), face it, A -> battle. Its line of sight may auto-fire mid-approach (caught)."""
+        """Walk to a LAND-standable tile adjacent to a junior trainer, face it, and let its line of
+        sight fire the battle (a trainer can't be A-talked into a fight - it must SEE the player).
+        POOL-GYM FIX (the Misty stuck, 2026-07-09): a swimmer stands ON water with only ONE
+        land-standable side (Cerulean's (10,12) is engageable only from (9,12); the other 3 fronts
+        are water tiles travel WEDGES on -> the old code wedged x4 then FALSELY marked it beaten ->
+        walked into a still-gated Misty). So we (a) attempt ONLY standable fronts, and (b) after
+        arriving on the sight axis, NUDGE off-and-back so the trainer's 'player entered sight' edge
+        re-fires even when we arrived already standing inside its line. True iff a battle started."""
+        try:
+            grid = tv.Grid(self.b)
+        except Exception:
+            grid = None
         order = [self._DELTA.get(facing, (0, 1)), (0, 1), (0, -1), (-1, 0), (1, 0)]
         seen = set()
         for adj in order:
@@ -2600,6 +2610,8 @@ class Campaign:
                 continue
             seen.add(adj)
             front = (T[0] + adj[0], T[1] + adj[1])
+            if grid is not None and not grid.walkable(*front):
+                continue                                       # water/wall front - travel would wedge
             self._gym_move(front, label="engage")
             if st.in_battle(self.b):
                 return True                                    # LoS fired during the walk-in
@@ -2615,6 +2627,25 @@ class Campaign:
                     self.b.run_frame()
             if st.in_battle(self.b):
                 return True
+            # LoS didn't fire while we stood still (we arrived already inside its sight, so there was
+            # no 'entered' edge). RE-TRIGGER: step to an adjacent standable tile and back onto the
+            # front, forcing a fresh sight check. Each neighbour tried once.
+            for nb in ((front[0], front[1] + 1), (front[0], front[1] - 1),
+                       (front[0] - 1, front[1]), (front[0] + 1, front[1])):
+                if nb == T:
+                    continue
+                if grid is not None and not grid.walkable(*nb):
+                    continue
+                self._gym_move(nb, label="engage-nudge")
+                if st.in_battle(self.b):
+                    return True
+                self._gym_move(front, label="engage-reenter")
+                for _ in range(10):
+                    if st.in_battle(self.b):
+                        return True
+                    self.b.run_frame()
+                if st.in_battle(self.b):
+                    return True
         return False
 
     def _talkable_npcs(self):
@@ -2940,13 +2971,41 @@ class Campaign:
         self.trav.travel(target_map=None, arrive_coord=tile, max_steps=200, max_seconds=90)
         return tv.coords(self.b) == tile
 
-    def _clear_gym_trainers(self, leader_front, max_rounds=10):
+    def _los_retrigger(self, front):
+        """Force a trainer's line-of-sight to re-fire by stepping OFF `front` and back ON (a trainer
+        only initiates on the player's STEP INTO its sight tile; arriving via a zero-step travel —
+        already standing there — leaves it un-triggered, so an A-press opens a GREETING box instead
+        of the battle: the Misty stuck, where she sits at (8,6) looking DOWN onto the (8,7) front).
+        Steps to each walkable neighbour of `front` and back once. True iff a battle started."""
+        try:
+            grid = tv.Grid(self.b)
+        except Exception:
+            grid = None
+        for nb in ((front[0], front[1] + 1), (front[0], front[1] - 1),
+                   (front[0] - 1, front[1]), (front[0] + 1, front[1])):
+            if grid is not None and not grid.walkable(*nb):
+                continue
+            self._gym_move(nb, label="los-nudge")
+            if st.in_battle(self.b):
+                return True
+            self._gym_move(front, label="los-reenter")
+            for _ in range(12):
+                if st.in_battle(self.b):
+                    return True
+                self.b.run_frame()
+            if st.in_battle(self.b):
+                return True
+        return False
+
+    def _clear_gym_trainers(self, leader_front, max_rounds=14):
         """Beat EVERY junior trainer (re-scanning each round, since far ones are proximity-loaded
         and one may wander), THEN return so the caller engages the gated leader. General gym
         mechanic - reusable for Surge/Erika/etc. Returns 'pp_famine' when a battle went stuck with
         the party PP-dry (the erika_run2 wall) — the caller heals and re-takes the gym (beaten
         juniors stay beaten in-game); None otherwise."""
-        beaten = set()                                         # object indices already cleared
+        beaten = set()                                         # object indices CONFIRMED fought
+        fails = {}                                             # idx -> failed-engage rounds (pool class)
+        PER_TRAINER_TRIES = 4
         for rnd in range(max_rounds):
             self.b.set_input_owner("agent")
             trs = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
@@ -2964,7 +3023,20 @@ class Campaign:
                         log("   GYM: gauntlet PP FAMINE (stuck battle + no damaging PP anywhere) "
                             "-> needs_heal (juniors stay beaten; we come back full)")
                         return "pp_famine"
-                beaten.add(idx)                                # cleared (or unreachable) -> don't reloop
+                    beaten.add(idx)                            # a REAL battle happened -> truly done
+                else:
+                    # No battle this round. A pool-gym swimmer WANDERS and is engageable only from its
+                    # one land tile when it turns the right way (the Misty stuck: the old code FALSELY
+                    # marked this 'beaten' and walked into a still-GATED leader -> "face other TRAINERS"
+                    # -> stuck). RETRY across rounds; only defer (LOUD) after real effort, never spin.
+                    fails[idx] = fails.get(idx, 0) + 1
+                    if fails[idx] >= PER_TRAINER_TRIES:
+                        log(f"   !! GYM: junior obj{idx} at {T} un-engageable after {fails[idx]} "
+                            f"tries (wandering/water-locked) - deferring LOUD so the pass proceeds")
+                        beaten.add(idx)
+                    else:
+                        log(f"   GYM: junior obj{idx} didn't engage (try {fails[idx]}/"
+                            f"{PER_TRAINER_TRIES}) - re-scanning, will retry")
                 continue
             # none loaded -> advance toward the leader to load/trigger far trainers (LoS may fire)
             self._gym_move(leader_front, label="leader-advance")
@@ -3071,6 +3143,14 @@ class Campaign:
         _sp = st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "?")
         log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name} "
             f"[lead {_sp} Lv{_lvl}, party={self.b.rd8(ram.GPLAYER_PARTY_CNT)}]")
+        # LoS RE-TRIGGER FIRST (the Misty stuck, 2026-07-09): a leader whose sight faces the front
+        # tile only fires on a FRESH STEP into it. We usually arrive at leader_front via a zero-step
+        # travel (already standing there), so her sight never re-checks and an A-press opens a
+        # GREETING box, not the battle -> award drain finds no badge -> stuck. Nudge off-and-back so
+        # the fight initiates. No-op / already-won cases fall straight through. Skip if she's already
+        # been beaten (badge set en route via a travel fight-through) — then it's a pure award drain.
+        if not st.in_battle(self.b) and not self.has_badge(gym.badge_flag):
+            self._los_retrigger(gym.leader_front)
         for _ in range(6):
             if st.in_battle(self.b) or dd_box_open(self.b):
                 break
@@ -3078,7 +3158,7 @@ class Campaign:
             self.b.press("A", 8, 8, self.render, owner="agent")
             for _ in range(16):
                 self.b.run_frame()
-        if not st.in_battle(self.b):                           # advance the challenge speech -> battle
+        if not st.in_battle(self.b) and not self.has_badge(gym.badge_flag):    # speech -> battle
             DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(
                 stop_when=lambda: st.in_battle(self.b), label=f"{name}-challenge")
         if st.in_battle(self.b):

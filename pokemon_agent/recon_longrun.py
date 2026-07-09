@@ -415,7 +415,23 @@ def main():
             from campaign import build_segments
             L("FRESH SPINE: run_segments(the_opening -> ... -> Misty) mode=workshop resume=False")
             res = camp.run_segments(build_segments(), resume=False, mode="workshop")
-            why = f"run_segments -> {res}"
+            L(f"FRESH SPINE -> {res}")
+            # ── SPINE→FREE-ROAM HANDOFF (night-train shift 3): the scripted opening arc scripts only
+            # through Misty (badge 2). When it completes, hand the live bridge (now at Cerulean, badge 2)
+            # to the PROVEN autonomous climber — the same free_roam that rolled canonical credits — for
+            # the rest of the game (badge 3 -> ... -> E4 -> credits). Canonical is protected: _save_campaign
+            # is monkeypatched to STAGE above, so this whole handoff persists only to the scratch STAGE.
+            if res == "all_segments_complete":
+                remaining = int(max_minutes * 60 - (time.time() - T0))
+                if remaining > 30:
+                    L(f"FRESH HANDOFF -> free_roam for the remaining ~{remaining}s "
+                      f"(badge {_badges(b)} -> credits); canonical STAGE-protected")
+                    camp.free_roam(max_ticks=100000, max_seconds=remaining, want_every=999)
+                    why = f"spine_complete -> free_roam handoff (ended: {getattr(camp, '_roam_progress', '?')})"
+                else:
+                    why = f"run_segments -> {res} (no budget left for handoff)"
+            else:
+                why = f"run_segments -> {res} (spine did not complete — no handoff)"
         else:
             camp.free_roam(max_ticks=100000, max_seconds=int(max_minutes * 60), want_every=999)
     except _Done as d:
