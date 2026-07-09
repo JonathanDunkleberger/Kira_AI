@@ -81,6 +81,17 @@ GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
 # is also the more HUMAN read — a real trainer gives a weak mon a few fights, sees it's not taking, and
 # moves on rather than grinding it for 8 minutes.
 GRIND_WEAK_PROBE_S = int(os.getenv("POKEMON_GRIND_WEAK_PROBE_S", "180"))
+# SPLIT-ROUTE HEAL-THRASH CAP (2026-07-09 shift 13, the S.S. Anne / Route-4 recovery livelock): grind()
+# heals on need_heal and loops. On a route whose OWN Center is UNREACHABLE (Route 4's east grass, split
+# from its PC (12,5) by the Mt-Moon ledge), each heal is an EXPENSIVE cross-city EXCURSION. A useless
+# grind (ace L29 vs L3-6 wilds -> ~0 XP, target L31) then heal-thrashes for the whole 480s budget — the
+# captain_fix look-ahead logged 22 excursions + 582 travel legs + ~0 net XP before the deep-wedge ring
+# finally reverted (an unwatchable ~1000-game-second spin). Cap the EXCURSIONS-WITHOUT-LEVEL-GAIN per
+# grind() call: N expensive excursions and ZERO levels earned => this grass is un-grindable from here ->
+# stop LOUD, mark the map grind-dead, surface so the caller picks Center-reachable grass or stands down.
+# Distinguishes the ace-thrash (0 progress) from a legit deep grind (grind_pre_brock earns levels per
+# excursion, so lvl() rises and the cap never trips). Fail-open: healable routes rarely excursion at all.
+GRIND_HEAL_EXCURSION_CAP = int(os.getenv("POKEMON_GRIND_HEAL_EXCURSION_CAP", "4"))
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -1910,6 +1921,8 @@ class Campaign:
         self.trav.battle_runner = self._flee_runner
         try:
             log(f"   HEAL-EXCURSION: lead at {self.lead_hp()} - crossing {out_edge} to {city} to heal")
+            # counts EXPENSIVE cross-city heals so grind() can bail a split-route heal-thrash (shift 13)
+            self._heal_excursion_n = getattr(self, "_heal_excursion_n", 0) + 1
             for _ in range(6):
                 if tv.map_id(self.b) == city:
                     break
@@ -4321,6 +4334,10 @@ class Campaign:
         anchor = tv.coords(self.b) or (0, 0)                   # safe start (Center-reachable); fragile grind
         #                                                        must be able to walk BACK here from any grass
         t0 = time.time()
+        lvl_start = lvl()                                       # SPLIT-ROUTE HEAL-THRASH CAP (shift 13):
+        exc0 = getattr(self, "_heal_excursion_n", 0)           # snapshot expensive heals + start level; a
+        #                                                        grind that racks up cross-city excursions
+        #                                                        with ZERO level gain is a split-route thrash
         while lvl() < target_level and time.time() - t0 < budget_s:
             gs = grass_save()
             if not gs:
@@ -4368,6 +4385,19 @@ class Campaign:
                     return "battle_loss"
                 if r == "need_heal":
                     self.heal_nearest()
+                    # BAIL a split-route heal-thrash: N expensive cross-city excursions AND no level
+                    # gained since the grind started => this grass is un-grindable from here (own Center
+                    # unreachable). Stop LOUD, mark the map grind-dead, surface the DISTINCT sentinel so
+                    # the caller (prep stand-down / GRIND-WEAK) picks Center-reachable grass or moves on.
+                    if (getattr(self, "_heal_excursion_n", 0) - exc0 >= GRIND_HEAL_EXCURSION_CAP
+                            and lvl() <= lvl_start):
+                        log(f"   !! GRIND: {getattr(self, '_heal_excursion_n', 0) - exc0} cross-city heal-"
+                            f"excursions on {tv.map_id(self.b)} with 0 level gain — split-route heal-thrash, "
+                            f"this spot is un-grindable from here; stopping LOUD")
+                        if not hasattr(self, "_grind_dead"):
+                            self._grind_dead = set()
+                        self._grind_dead.add(tuple(tv.map_id(self.b)))
+                        return "no_safe_grass"
         log(f"   GRIND: trained to Lv{lvl()} (target {target_level})")
         if tv.map_id(self.b) != home and home == PEWTER:      # back to Pewter for the gym
             self.walk_to_map(PEWTER, "west")
