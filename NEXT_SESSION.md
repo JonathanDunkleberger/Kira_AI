@@ -1,4 +1,33 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 3 in flight)
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 4 in flight)
+
+## SHIFT 4 HEAD (read FIRST — supersedes the shift-3 status below)
+
+**GRIND-STALL FIX (12c992b) CONFIRMED WORKING.** The in-flight `rattata_grind.state 15` look-ahead
+(`logs/debug/grindfix_verify.log`) showed her grind the weak bench to the L14 floor and TERMINATE
+CLEANLY — `GRIND-WEAK: floor crossed L14 (levels [14,25,14]) — done`. Party [22,10,10] -> [25,14,14],
+no infinite Rattata spin. Badge-3 grind is unblocked.
+
+**NEXT WEDGE FOUND + FIXED THIS SHIFT — the Bill/Nugget-Bridge `_ql_past_anchor` premature latch.**
+ROOT CAUSE (airtight, from the log tick #2 at Cerulean): the S.S. Ticket questline anchors on Cerulean
+(3,3), dir=north. She stood on Cerulean, started the north crossing toward Route 24 (3,43), and
+`campaign.py:5225` latched `_ql_past_anchor=True` the INSTANT the crossing started — BEFORE confirming
+it succeeded. But the north exit is guarded by the RIVAL (Gary beat #7 at Cerulean's north gap); after
+that fight her HP was low -> `need_heal` bounced her back, STILL on map (3,3), never reaching Route 24.
+The latch stayed True forever, permanently disabling BOTH re-anchor paths (ANCHOR-FIRST @5003 +
+RE-ANCHOR @5136) + the false-arrival guard @5206 — so every subsequent off-anchor tick (grinding on
+Route 4, west of Cerulean) misfired `questline: arrived at the destination area ((3,22))` -> head_to_gym
+no-op -> she fell back to `battle` and macro-looped grinding toward `GRIND: Lv25 < 27` in a 3x3 grass
+patch at (85,15). She NEVER crossed north — distinct maps in the whole run = only {(3,3),(3,22),(7,3)}.
+FIX (applied, syntax-checked, VERIFY IN FLIGHT): `campaign.py` ~5224 — latch `_ql_past_anchor` only
+AFTER `tv.map_id` confirms the crossing changed maps; a bounced crossing leaves it False so re-anchor
+re-engages and RETRIES (the rival is already beaten -> the retry crosses clean). General, every gym
+errand. **VERIFY:** boot `recon_longrun.py rattata_grind.state <min>` -> she should re-anchor Route 4
+-> Cerulean -> north across Route 24 (Nugget Bridge gauntlet) -> Route 25 -> Bill -> S.S. Ticket. READ
+`logs/debug/billfix_verify.log`. If she reaches Bill, the NEXT wedge is the Nugget-Bridge trainer
+gauntlet / Route 25 / Bill's cottage interior (recon_bill_*.py = prior art from canonical).
+
+---
+
 
 **MISSION (the deliverable):** a **clean bedroom -> credits** FireRed run, autonomous, at
 **human-realistic pace (~25-35h)**, **no permanent stucks, no crash-loops**, AND **game audio ON

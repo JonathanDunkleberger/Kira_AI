@@ -5221,8 +5221,18 @@ class Campaign:
             return "wall_gated"
         # crossing the step-dir edge FROM the anchor map = we're going PAST the anchor now; the re-anchor
         # fallback must stop firing (else a bending route past the anchor would get dragged back to it).
+        # CONFIRMED-CROSSING LATCH (2026-07-09, the Nugget-Bridge grind wedge): only latch 'past the
+        # anchor' when the crossing ACTUALLY changed maps. A bounced north crossing (the rival fight at
+        # Cerulean's north exit -> heal-when-low, or any mid-cross need_heal) leaves her ON the anchor
+        # while the old code latched anyway — permanently disabling re-anchor so every future off-anchor
+        # tick misfired 'arrived at the destination' and she macro-looped grinding on Route 4 (the
+        # (107,12) wedge). She defeated the rival on the failed pass, so the retry crosses clean.
         if cur_map == step_anchor:
-            self._ql_past_anchor = True
+            _before_cross = tuple(tv.map_id(self.b))
+            r = self.trav.travel(target_map=nbr, edge=d)
+            if tuple(tv.map_id(self.b)) != _before_cross:
+                self._ql_past_anchor = True
+            return r
         return self.trav.travel(target_map=nbr, edge=d)
 
     def _questline_interact(self, state, step):
