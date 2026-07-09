@@ -43,6 +43,11 @@ COUNTER_UNDERLEVEL_GAP = int(os.getenv("POKEMON_COUNTER_UNDERLEVEL_GAP", "10"))
 # nudge fires PROACTIVELY (not just at a wall). 14 ≈ "roughly two evolutions behind" — the ace-overpower
 # smell the L67/L15 E4 bench had. Tunable.
 BENCH_SPREAD_ALARM = int(os.getenv("POKEMON_BENCH_SPREAD_ALARM", "14"))
+# GYM-READINESS (2026-07-09, Fix B) — how the enforced pre-gym prep judges "ready". A type-answer mon
+# counts only if it's within this many levels of the leader's ace (a L5 water mon is not a Brock answer);
+# the grind target is the ace level + this margin. Party target scales toward ~4 by mid-game. Tunable.
+GYM_ANSWER_LEVEL_GAP = int(os.getenv("POKEMON_GYM_ANSWER_LEVEL_GAP", "3"))
+GYM_LEVEL_MARGIN     = int(os.getenv("POKEMON_GYM_LEVEL_MARGIN", "1"))
 
 
 def load_strategy_kb(path=_KB_PATH, log=print):
@@ -92,6 +97,39 @@ class StrategicPlanner:
         if not species_name:
             return None
         return self.species_quality.get(species_name.lower())
+
+    # ── gym readiness (Fix B: the ENFORCED pre-gym prep reads this to decide catch/grind) ──────────────
+    def gym_readiness(self, gym_name, party, party_target=3, loss_bump=0):
+        """Assess whether `party` is ready for gym `gym_name`, from the KB (pure logic; no game RAM).
+        Returns a dict the campaign's prep_for_gym ACTS on (catch a counter / grind to level / develop the
+        bench), or None if the KB has no record for this gym. Fields:
+          ace, ace_level, level_target (grind-to), top_level, underleveled,
+          has_type_answer (a party mon of a weak-to type, within GYM_ANSWER_LEVEL_GAP of the ace),
+          want_types (answer types she doesn't field), answer_species (KB counters to seek when catching),
+          party_size, thin (party smaller than the target), ready (nothing to prep).
+        loss_bump ESCALATES the demand after a loss (grind higher / want a bigger team on the retry)."""
+        rec = self.threats.get(gym_name)
+        if not rec:
+            return None
+        band = rec.get("level_band") or [0, 0]
+        ace_level = band[-1] if band else 0
+        weak = set(rec.get("weak_to") or []) | set(rec.get("answer_types") or [])
+        answer_ok_floor = max(1, ace_level - GYM_ANSWER_LEVEL_GAP)
+        has_answer = any((weak & set(_types_of(m))) and m.get("level", 0) >= answer_ok_floor
+                         for m in party)
+        ptypes = self._party_types(party)
+        want = [t for t in (rec.get("answer_types") or []) if t not in ptypes]
+        level_target = ace_level + GYM_LEVEL_MARGIN + loss_bump
+        top_level = max((m.get("level", 0) for m in party), default=0)
+        target_size = min(6, party_target + (1 if loss_bump else 0))
+        return {
+            "gym": gym_name, "ace": rec.get("ace"), "ace_level": ace_level,
+            "level_target": level_target, "top_level": top_level, "underleveled": top_level < level_target,
+            "has_type_answer": has_answer, "want_types": want,
+            "answer_species": rec.get("answer_species") or [],
+            "party_size": len(party), "target_size": target_size, "thin": len(party) < target_size,
+            "ready": has_answer and top_level >= level_target and len(party) >= target_size,
+        }
 
     # ── threat selection ─────────────────────────────────────────────────────────────────────────────
     def _current_threat(self, state):

@@ -226,6 +226,14 @@ ITEM_PICKUP_ENABLED = os.getenv("POKEMON_ITEM_PICKUP", "0") == "1"
 # game. The FEELING about the loss is the separate emitted reaction (the core voice seam).
 STRATEGIC_STUCK_ENABLED = os.getenv("POKEMON_STRATEGIC_STUCK", "1") == "1"
 ITEM_GRAB_MAX_DIST  = int(os.getenv("POKEMON_ITEM_GRAB_MAX_DIST", "18"))   # max grass-free steps to detour
+# GYM-PREP / TEAM-BUILDING (2026-07-09, Fix B) — ENFORCED pre-gym readiness. She kept soloing gyms with
+# an underleveled starter and losing the attrition (Brock, and the same thin-bench root as the Gary wall).
+# beat_gym now runs prep_for_gym FIRST: read the strategy KB, and if the team is thin / has no type answer
+# / is underleveled vs the leader's ace, CATCH on nearby grass + GRIND to a KB-derived level before
+# knocking. General (per-gym via the KB), wired through StrategicPlanner. Revert: POKEMON_GYM_PREP=0.
+GYM_PREP_ENABLED     = os.getenv("POKEMON_GYM_PREP", "1") == "1"
+GYM_PARTY_TARGET     = int(os.getenv("POKEMON_GYM_PARTY_TARGET", "3"))     # aim for ~3 by the early gyms
+GYM_PREP_CATCH_TRIES = int(os.getenv("POKEMON_GYM_PREP_CATCH_TRIES", "3")) # bounded catch attempts per prep
 
 
 def resolve_state(name):
@@ -3163,6 +3171,78 @@ class Campaign:
             return
         log(f"   !! GYM: hit {max_rounds} clear-rounds with trainers still loaded - proceeding LOUD")
 
+    def _bump_gym_prep(self, gym_name, step=2):
+        """Fix B: on a gym LOSS, escalate the prep demand so the retry doesn't throw the SAME losing team
+        back in — prep_for_gym reads this as extra levels to grind + a bigger team to field. Reset when the
+        badge lands (the gym is done)."""
+        self._gym_prep_bump = getattr(self, "_gym_prep_bump", {})
+        self._gym_prep_bump[gym_name] = self._gym_prep_bump.get(gym_name, 0) + step
+        log(f"   GYM-PREP: '{gym_name}' loss -> prep demand escalated (+{step} → bump "
+            f"{self._gym_prep_bump[gym_name]}); the retry grinds/teams up higher")
+
+    def prep_for_gym(self, gym):
+        """Fix B (2026-07-09) — ENFORCED pre-gym readiness, wired through the StrategicPlanner KB. Before a
+        gym she must field a real TEAM (not a solo carry), have a TYPE ANSWER to the leader's ace, and be at
+        a sane LEVEL — else she solos underleveled and loses the attrition (the Brock loss; the Gary-wall
+        root). Reads planner.gym_readiness(gym, party); if not ready, CATCHES on nearby grass (bounded) and
+        GRINDS to a KB-derived level, narrated in her voice. Best-effort + bounded — beat_gym proceeds
+        regardless (blackout-recovery + the on-loss bump escalate the demand each retry). Suppressed on a
+        goal-pinned watch (go straight at the gym). Gameplay logic only; no core-Kira touch."""
+        self._gym_prep_bump = getattr(self, "_gym_prep_bump", {})
+        if not GYM_PREP_ENABLED or getattr(self, "planner", None) is None:
+            return "off"
+        if os.getenv("POKEMON_WATCH_GOAL"):                 # focused watch → don't wander off to prep
+            return "pinned"
+        try:
+            party = (self.read_live_state() or {}).get("party") or []
+        except Exception as e:
+            log(f"   GYM-PREP: state read failed ({e}) — skipping (LOUD)"); return "no_state"
+        bump = self._gym_prep_bump.get(gym.name, 0)
+        r = self.planner.gym_readiness(gym.name, party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
+        if not r:
+            return "no_kb"
+        if r["ready"]:
+            log(f"   GYM-PREP [{gym.name}]: READY — party {r['party_size']}, top L{r['top_level']} "
+                f">= L{r['level_target']}, type answer ✓")
+            return "ready"
+        log(f"   GYM-PREP [{gym.name}]: NOT ready (loss-bump {bump}) — party {r['party_size']}/"
+            f"{r['target_size']}, topL {r['top_level']}/{r['level_target']}, type_answer={r['has_type_answer']}, "
+            f"want={r['want_types']} — prepping BEFORE the gym")
+        # her voice: ONE plan beat (soul-safe raw fact; the oracle colours it) — the endearing "did my homework"
+        if not r["has_type_answer"] and r["want_types"]:
+            self.on_event(f"{gym.name}'s a {r['ace']} wall — I really want a {' or '.join(r['want_types'][:2])} "
+                          f"type before I knock. Let me go catch one.", kind="gym", tier=2)
+        elif r["thin"]:
+            self.on_event(f"I'm not walking into {gym.name} with just my starter — let me round the team out "
+                          f"first.", kind="gym", tier=2)
+        elif r["underleveled"]:
+            self.on_event(f"{gym.name}'s ace is about level {r['ace_level']} and I'm a touch thin — quick grind, "
+                          f"then we knock.", kind="gym", tier=2)
+        # 1) CATCH — a thin bench and/or no type answer, while she has balls + grass is reachable
+        tries = 0
+        while (r["thin"] or not r["has_type_answer"]) and tries < GYM_PREP_CATCH_TRIES and self._ball_count() > 0:
+            cr = self.catch_one()
+            tries += 1
+            log(f"   GYM-PREP [{gym.name}]: catch attempt {tries}/{GYM_PREP_CATCH_TRIES} -> {cr}")
+            if cr in ("no_grass", "no_balls"):
+                break                                       # nothing catchable here / out of balls -> grind
+            try:
+                party = (self.read_live_state() or {}).get("party") or []
+            except Exception:
+                break
+            r = self.planner.gym_readiness(gym.name, party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
+            if r["ready"] or (not r["thin"] and r["has_type_answer"]):
+                break
+        # 2) GRIND — bring the team up to the KB-derived level target (ace level + margin, escalated on loss)
+        if r["underleveled"]:
+            log(f"   GYM-PREP [{gym.name}]: grinding to L{r['level_target']} (ace ~L{r['ace_level']})")
+            try:
+                gr = self.grind(r["level_target"])
+                log(f"   GYM-PREP [{gym.name}]: grind -> {gr}")
+            except Exception as e:
+                log(f"   GYM-PREP [{gym.name}]: grind skipped ({e}) (LOUD)")
+        return "prepped"
+
     def beat_gym(self, name):
         """GENERAL gym handler (gyms gate the leader behind their junior trainers): reserve move
         slots if this gym has a level-up double-learn, enter, BEAT EVERY JUNIOR TRAINER, then engage
@@ -3171,6 +3251,12 @@ class Campaign:
         gym = GYMS.get(name)
         if gym is None:
             log(f"   !! GYM: no spec for '{name}'"); return "stuck"
+        # Fix B: ENFORCED pre-gym readiness (catch a team / type answer / level) BEFORE entering — she
+        # must never solo a gym underleveled. Best-effort; a crash here never blocks the gym (LOUD).
+        try:
+            self.prep_for_gym(gym)
+        except Exception as e:
+            log(f"   !! GYM-PREP crashed ({e}) — walking into {name} unprepped (LOUD)")
         # HEAL-BEFORE-THE-GYM GATE (2026-07-07, erika_run2): she walked into Erika's gauntlet with
         # two fainted mons and a PP-dry lead and status-moved her way to a 12-battle futility wall.
         # A human ALWAYS taps the Center first — gym cities always have one and heal_at_center
@@ -3235,6 +3321,7 @@ class Campaign:
         if tv.map_id(self.b) != gym_map:
             log(f"   GYM: no longer in the gym ({tv.map_id(self.b)} != {gym_map}) - blackout during "
                 f"the juniors; caller recovers + retries the gym")
+            self._bump_gym_prep(name)                       # Fix B: the retry preps harder (grind/team up)
             return "battle_loss"
         # 2) engage the LEADER (now ungated): walk to the front tile, face them + A to initiate,
         # then DRIVE the pre-battle challenge speech INTO the battle (Brock's "So, you're here..."
@@ -3278,6 +3365,7 @@ class Campaign:
             # this, beat_gym fell through to the award drain on a loss -> 'stuck' inside the PC.
             if res == "loss":
                 log(f"   GYM: lost to {name} (blackout) - caller recovers + retries the gym")
+                self._bump_gym_prep(name)                   # Fix B: the retry preps harder (grind/team up)
                 return "battle_loss"
             # A STUCK leader fight with the battle STILL LIVE must never reach the award drain —
             # erika_run2's award drain A-mashed the live battle's forced-switch party menu for 300
@@ -3315,6 +3403,7 @@ class Campaign:
             self.draining_award = False
         if self.has_badge(gym.badge_flag):
             log(f"   GYM: *** {name.upper()} BADGE obtained ***")
+            getattr(self, "_gym_prep_bump", {}).pop(name, None)   # Fix B: gym done -> clear the loss-bump
             self.on_event(f"I beat {name} - that's the badge!")
             if tv.map_id(self.b)[0] != 3:                      # still in the gym interior -> leave to
                 pn = getattr(self, "_gym_pads", None)          # pad maze: ride back beside a door first
