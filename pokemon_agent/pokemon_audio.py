@@ -15,13 +15,31 @@ it). BONUS: once game audio is on the desktop output, Kira's existing audio clas
 Touches NO Kira/personality code and NO bridge.py. Pure additive output tap.
 """
 import os
+import struct
+import subprocess
 import sys
+import threading
+import time
+import queue as _queue
 
 import numpy as np
 
 # Single output-volume multiplier (covers BOTH sinks — headphones + OBS cable — since one _drain
 # feeds them). Jonny's live ask: ~60% of raw. Env-tunable live (restart) without a code edit.
 AUDIO_VOL = float(os.getenv("POKEMON_AUDIO_VOL", "0.25"))
+
+# ── PROCESS ISOLATION (2026-07-09): the game-audio OUTPUT path (PortAudio/WASAPI write) is the ONLY
+# reproducible hard-crash in the run — a native abort() (0xC0000409) at the Viridian-parcel fanfare
+# that kills the emulator. The mgba-side drain (stereo.read) is proven safe (repro_parcel_crash).
+# So by DEFAULT the OutputStream now lives in a CHILD process (audio_child.py): the parent drains PCM
+# and streams it over a pipe; a native abort kills only the child; the parent respawns it with backoff
+# and KEEPS THE GAME RUNNING. Set POKEMON_AUDIO_ISOLATE=0 to fall back to the legacy in-process pump.
+AUDIO_ISOLATE = os.getenv("POKEMON_AUDIO_ISOLATE", "1") == "1"
+# Real-time wall-clock pacing (GBA ≈ 60fps). With the write in a child, the child's blocking write no
+# longer paces the parent, so the parent paces itself here (independent of child health → a dead audio
+# child never makes the game sprint). Matches play_live's fallback pacer. Env override for both.
+AUDIO_FPS_CAP = float(os.getenv("POKEMON_FPS_CAP", "60"))
+_CHILD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audio_child.py")
 
 try:
     import sounddevice as sd
@@ -130,10 +148,18 @@ def resolve_desktop_sink(phones=None, log=print):
 
 
 class AudioPump:
-    """Drains core audio per frame and plays it in real time to one or more devices."""
+    """Drains core audio per frame and plays it in real time.
+
+    DEFAULT (isolated): the PortAudio OutputStream lives in a CHILD process (audio_child.py); this
+    parent only drains mgba PCM (proven crash-safe) and streams it over a pipe. A native WASAPI abort()
+    kills only the child — the emulator survives and the child is respawned with backoff. The parent
+    paces itself to real time (wall-clock) so a dead audio child never makes the game sprint.
+    LEGACY (POKEMON_AUDIO_ISOLATE=0): the old in-process pump — OutputStream in THIS process, its
+    blocking write both plays and paces. Kept for revert/debug; it is the crash-prone path.
+    """
 
     def __init__(self, bridge, phones=None, cable=None, rate=48000,
-                 buffer_size=2048, volume=None, log=print):
+                 buffer_size=2048, volume=None, log=print, isolate=None, paced=True):
         if sd is None:
             raise RuntimeError(f"sounddevice unavailable: {_SD_ERR}")
         global _ffi
@@ -143,9 +169,21 @@ class AudioPump:
         self.rate = rate
         self.volume = AUDIO_VOL if volume is None else float(volume)   # ~0.6 = ~60% (Jonny's ask)
         self.log = log
-        self._streams = []
+        self.isolate = AUDIO_ISOLATE if isolate is None else bool(isolate)
+        self.paced = bool(paced)
+        self._streams = []                  # legacy in-process sinks
         self._orig_run_frame = None
         self._closed = False
+        # isolated-mode state
+        self._child = None                  # subprocess.Popen owning the OutputStream
+        self._q = None                      # bounded parent->manager queue of PCM bytes (drop-on-full)
+        self._mgr = None                    # manager thread: owns child lifecycle + pipe writes
+        self._child_lock = threading.Lock()
+        self._device_idx = None
+        self._restarts = 0
+        self._audio_dead = False            # True once restarts are exhausted (silent, game continues)
+        self._pace_clock = None
+        self._target_dt = 1.0 / max(1.0, AUDIO_FPS_CAP)
 
         # ── configure the core's audio buffer + resample to the output rate ──
         self.b.core.set_audio_buffer_size(buffer_size)
@@ -158,14 +196,31 @@ class AudioPump:
         # music/SFX must go to the DESKTOP device and NEVER the cable — emulator audio on the cable both
         # flaps her mouth to the soundtrack AND doubles into Jonny's headphones (the bug). resolve_
         # desktop_sink is the SINGLE SOURCE OF TRUTH used on EVERY launch path (run.py / dashboard /
-        # standalone): it forces a CONCRETE non-cable device, never the bare 'default'. Exactly ONE sink
-        # is opened — no duplicate output. (The `cable` arg is retained for signature stability, NOT a sink.)
+        # standalone): it forces a CONCRETE non-cable device, never the bare 'default'. Device
+        # ENUMERATION is done here in the parent (cheap, not the crash site — the abort is the stream
+        # WRITE); only the resolved index crosses to the child.
         idx = resolve_desktop_sink(phones, self.log)
         if idx is None:
             raise RuntimeError(
                 "pkmn-audio FIREWALL: every output device is a virtual cable — refusing to route "
                 "emulator audio anywhere (it would flap Kira's mouth + double her audio). Enable a real "
                 "output device or set POKEMON_PHONES to your headphones.")
+        self._device_idx = idx
+
+        if self.isolate:
+            self._q = _queue.Queue(maxsize=48)   # ~0.8s of frames; drop-on-full so we never block emu
+            self._mgr = threading.Thread(target=self._manager_loop, name="pkmn-audio-child",
+                                         daemon=True)
+            self._mgr.start()
+            self._orig_run_frame = self.b.core.run_frame
+            self.b.core.run_frame = self._run_frame_isolated
+            self.log(f"   [pkmn-audio] LIVE (ISOLATED): {rate}Hz -> child process on "
+                     f"{_dev_name(idx)!r}, vol={self.volume:.2f}, "
+                     f"{'wall-clock paced ~%gfps' % AUDIO_FPS_CAP if self.paced else 'unpaced'}. "
+                     f"A PortAudio abort kills only the child; the game keeps running.")
+            return
+
+        # ── LEGACY in-process pump (POKEMON_AUDIO_ISOLATE=0) ──
         try:
             st = sd.OutputStream(samplerate=rate, channels=2, dtype="int16",
                                  device=idx, blocksize=0, latency="low")
@@ -177,44 +232,179 @@ class AudioPump:
             self.log(f"   [pkmn-audio] !! could not open desktop sink {_dev_name(idx)!r}: {e}")
         if not self._streams:
             raise RuntimeError("no audio output stream could be opened")
-
-        # ── wrap b.core.run_frame so EVERY frame (b.run_frame AND b.press internals) drains ──
         self._orig_run_frame = self.b.core.run_frame
         self.b.core.run_frame = self._run_frame_with_audio
-        self.log(f"   [pkmn-audio] LIVE: {rate}Hz, {len(self._streams)} sink(s), vol={self.volume:.2f}, "
-                 f"real-time throttle ON (blocking write paces the emulator).")
+        self.log(f"   [pkmn-audio] LIVE (LEGACY in-process): {rate}Hz, {len(self._streams)} sink(s), "
+                 f"vol={self.volume:.2f}, blocking write paces the emulator (crash-prone path).")
 
-    def _run_frame_with_audio(self):
-        self._orig_run_frame()
-        try:
-            self._drain()
-        except Exception as e:                       # never let audio crash the run (Constraint #3)
-            self.log(f"   [pkmn-audio] !! drain error (audio dropped, run continues): {e}")
-
-    def _drain(self):
+    # ────────────────────────────── shared PCM drain ──────────────────────────────
+    def _drain_pcm(self):
+        """Read the mgba-side audio buffer (SAFE — no PortAudio) and return volume-scaled int16
+        stereo PCM as a numpy array, or None if there's nothing this frame."""
         n = self.stereo.available
         if n <= 0:
-            return
+            return None
         raw = self.stereo.read(n)                    # cffi short[2*count], interleaved L,R,L,R...
         pcm = np.frombuffer(_ffi.buffer(raw), dtype="<i2").reshape(-1, 2)
         if pcm.size == 0:
-            return
+            return None
         if self.volume != 1.0:                       # scale DOWN only -> overflow-safe int16
             pcm = (pcm.astype(np.float32) * self.volume).astype("<i2")
-        # first stream blocks (the real-time throttle); the rest are best-effort mirrors
-        for i, (_label, st) in enumerate(self._streams):
-            try:
-                st.write(pcm)
-            except Exception:
-                if i == 0:
-                    raise
+        return pcm
 
+    # ────────────────────────────── isolated mode ──────────────────────────────
+    def _run_frame_isolated(self):
+        self._orig_run_frame()
+        try:
+            pcm = self._drain_pcm()
+            if pcm is not None and not self._audio_dead:
+                try:
+                    self._q.put_nowait(pcm.tobytes())    # never blocks the emulator
+                except _queue.Full:
+                    pass                                 # child slow/dead — drop this frame's audio
+        except Exception as e:                           # never let audio crash the run (Constraint #3)
+            self.log(f"   [pkmn-audio] !! drain error (audio dropped, run continues): {e}")
+        if self.paced:
+            self._pace()
+
+    def _pace(self):
+        """Wall-clock pace to ~AUDIO_FPS_CAP so the parent runs at real time regardless of the child."""
+        now = time.perf_counter()
+        if self._pace_clock is None:
+            self._pace_clock = now
+            return
+        self._pace_clock += self._target_dt
+        slack = self._pace_clock - now
+        if slack > 0:
+            time.sleep(slack)
+        elif slack < -0.25:                              # fell >250ms behind (an LLM stall) — resync,
+            self._pace_clock = time.perf_counter()       # don't sprint to "catch up"
+
+    def _spawn_child(self):
+        """Start the audio child process. Returns the Popen or None on failure."""
+        try:
+            child = subprocess.Popen(
+                [sys.executable, _CHILD, "--device", str(self._device_idx),
+                 "--rate", str(self.rate), "--channels", "2"],
+                stdin=subprocess.PIPE, stdout=None, stderr=None)
+            return child
+        except Exception as e:
+            self.log(f"   [pkmn-audio] !! could not spawn audio child: {e}")
+            return None
+
+    def _manager_loop(self):
+        """Own the child's whole lifecycle: spawn -> stream PCM over its stdin -> on death (native
+        abort or exit) log LOUD and respawn with backoff. The emulator never touches this thread; if
+        the pipe blocks (child stalled), ONLY this thread blocks — the emulator keeps running silent."""
+        MAX_RESTARTS = int(os.getenv("POKEMON_AUDIO_MAX_RESTARTS", "8"))
+        backoff = 1.0
+        while not self._closed:
+            child = self._spawn_child()
+            if child is None:
+                self._restarts += 1
+                if self._restarts > MAX_RESTARTS:
+                    break
+                time.sleep(min(backoff, 15.0)); backoff *= 2
+                continue
+            with self._child_lock:
+                self._child = child
+            self.log(f"   [pkmn-audio] audio child started (pid={child.pid}).")
+            stdin = child.stdin
+            spawned_at = time.perf_counter()
+            try:
+                while not self._closed:
+                    try:
+                        data = self._q.get(timeout=0.5)
+                    except _queue.Empty:
+                        if child.poll() is not None:     # child died during silence
+                            break
+                        continue
+                    if data is None:                     # shutdown sentinel from close()
+                        break
+                    if child.poll() is not None:         # child already gone
+                        break
+                    stdin.write(struct.pack("<I", len(data)))
+                    stdin.write(data)
+                    stdin.flush()
+            except (BrokenPipeError, OSError):
+                pass                                     # child died mid-write — handled below
+            except Exception as e:
+                self.log(f"   [pkmn-audio] !! manager write error: {e}")
+            # ── child is gone (or we're closing) ──
+            try:
+                stdin.close()
+            except Exception:
+                pass
+            if self._closed:
+                break
+            code = child.poll()
+            self._restarts += 1
+            alive_s = time.perf_counter() - spawned_at
+            self.log(f"   [pkmn-audio] !! AUDIO CHILD DIED (exit={code}, ran {alive_s:.0f}s, "
+                     f"restart {self._restarts}/{MAX_RESTARTS}) — GAME CONTINUES; respawning audio.")
+            if self._restarts > MAX_RESTARTS:
+                self._audio_dead = True
+                self.log("   [pkmn-audio] !! audio child died too many times — DISABLING audio for "
+                         "this run (game keeps running, silent). Investigate the output device.")
+                break
+            # reset backoff if the child had survived a while (transient, not a hard-loop crash)
+            backoff = 1.0 if alive_s > 30 else min(backoff * 2, 15.0)
+            time.sleep(backoff)
+        # drain any queued audio so a lingering put doesn't wedge on shutdown
+        try:
+            while True:
+                self._q.get_nowait()
+        except Exception:
+            pass
+
+    # ────────────────────────────── legacy in-process mode ──────────────────────────────
+    def _run_frame_with_audio(self):
+        self._orig_run_frame()
+        try:
+            pcm = self._drain_pcm()
+            if pcm is None:
+                return
+            for i, (_label, st) in enumerate(self._streams):
+                try:
+                    st.write(pcm)                        # first stream blocks = the real-time throttle
+                except Exception:
+                    if i == 0:
+                        raise
+        except Exception as e:                           # never let audio crash the run (Constraint #3)
+            self.log(f"   [pkmn-audio] !! drain error (audio dropped, run continues): {e}")
+
+    # ────────────────────────────── shutdown ──────────────────────────────
     def close(self):
         if self._closed:
             return
         self._closed = True
         if self._orig_run_frame is not None:
             self.b.core.run_frame = self._orig_run_frame   # restore the bridge's frame stepping
+        if self.isolate:
+            try:
+                if self._q is not None:
+                    self._q.put_nowait(None)               # nudge the manager out of get()
+            except Exception:
+                pass
+            with self._child_lock:
+                child = self._child
+            if child is not None:
+                try:
+                    if child.stdin:
+                        child.stdin.close()
+                except Exception:
+                    pass
+                try:
+                    child.wait(timeout=2.0)
+                except Exception:
+                    try:
+                        child.terminate()
+                    except Exception:
+                        pass
+            if self._mgr is not None:
+                self._mgr.join(timeout=2.0)
+            self.log("   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.")
+            return
         for _label, st in self._streams:
             try:
                 st.stop(); st.close()
