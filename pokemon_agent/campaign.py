@@ -2146,16 +2146,36 @@ class Campaign:
         info = [(i, m, st.MOVE_NAMES.get(m, f"move#{m}"), *st.move_info(self.b, m)) for i, m in real]
         # info rows: (slot, id, name, type, power)
         dmg_types = Counter(t for _i, _m, _n, t, p in info if p and p > 0)
-        best_slot = max(info, key=lambda x: x[4] or 0)[0]     # the hard-hitter (highest power) — NEVER drop
+        # STAB AWARENESS (2026-07-09, night shift 15 — the Gary move-value bugs): the crude "raw power +
+        # unique-coverage" score had TWO failures that gimped ivysaur for the rival Gary. (1) It PROTECTED
+        # a weak NON-STAB filler (Tackle, 35 normal) with the full +60 unique-coverage bonus, so a strong
+        # STAB level-up move (Razor Leaf, 55 grass) was declined and Tackle kept — a 1-effective-attacker
+        # set. (2) It DROPPED a 2nd same-type STAB attacker (Vine Whip) as "low value" (35 power, no unique
+        # bonus once Razor Leaf shares the type — VERIFIED live: _ensure_move_room turned a 2-grass-attacker
+        # ivysaur back into one, mid-run). Fix: score a move's STAB (type matches the mon) as PRECIOUS, and
+        # don't hand a weak non-STAB filler the unique-coverage prize. Read the lead's own types once.
+        try:
+            lead_types = set(st.species_types(st.read_party_species(self.b, 0)))
+        except Exception:
+            lead_types = set()
 
         def _value(x):                                        # higher = more precious = keep
             _slot, mid, _n, t, power = x
             v = (power or 0)
             if mid in HIGH_VALUE_LOW_POWER:
                 v += 100                                      # Sleep Powder / Leech Seed / etc.
-            if (power or 0) > 0 and dmg_types.get(t, 0) == 1:
+            is_stab = (power or 0) > 0 and t in lead_types
+            if is_stab:
+                v += 40                                       # STAB attacker — keep it (2 STABs is NOT junk)
+            # UNIQUE-type coverage is precious — but a WEAK NON-STAB filler (Tackle 35) doesn't earn it.
+            if (power or 0) > 0 and dmg_types.get(t, 0) == 1 and ((power or 0) >= 40 or is_stab):
                 v += 60                                       # UNIQUE-type coverage (Vine Whip!) — precious
             return v
+
+        # the most PRECIOUS move (by VALUE, not raw power) — NEVER drop it. Was max-by-power, which on a
+        # power tie (Tackle 35 == Vine Whip 35) wrongly protected the non-STAB filler and left the STAB in
+        # the drop pool. Value-ranking keeps the STAB/coverage move and lets the filler go.
+        best_slot = max(info, key=_value)[0]
 
         def _desc(x):
             _slot, mid, n, t, power = x
@@ -2177,6 +2197,24 @@ class Campaign:
         # (a non-damaging non-utility filler, or a weak redundant attacker).
         least_value = _value(droppable[0]) if droppable else 999
         all_precious = least_value >= MOVE_JUNK_FLOOR
+        # DAMAGE-POVERTY OVERRIDE (2026-07-09, night shift 15 — the S.S. Anne rival-Gary PP-famine
+        # wall): the no-gut guarantee treats a FULL set of 3 status + 1 attacker as "all precious",
+        # so a strong damaging level-up move (ivysaur's Razor Leaf at L20) is DECLINED in-battle and
+        # she is left with ONE damaging move -> PP famine loses WINNABLE fights (she outlevels Gary
+        # by 10+ but runs Vine Whip dry and can't finish). A moveset with <=1 damaging move is NOT
+        # "all precious" — the redundancy IS the junk. When the mon is damage-poor, free ONE slot (the
+        # least-valuable REDUNDANT move) so the upcoming attacker auto-learns. Protect the hard-hitter
+        # (never in `droppable`) AND one sleep/control move; a 2nd attacker is nearly always coming and
+        # is worth a redundant powder/leech. Fail-safe: only fires with a full set + a safe shed cand.
+        _SLEEP_IDS = {79, 147, 95, 47, 142}                   # Sleep Powder/Spore/Hypnosis/Sing/L.Kiss
+        damage_poor = sum(1 for x in info if (x[4] or 0) > 0) <= 1
+        poverty_shed = None
+        if damage_poor and len(real) >= 4:
+            _sleeps = sorted([x for x in droppable if x[1] in _SLEEP_IDS], key=_value, reverse=True)
+            _keep_sleep = _sleeps[0][0] if _sleeps else None  # keep her single best control move
+            _shed_cands = [x for x in droppable if x[0] != _keep_sleep]
+            if _shed_cands:
+                poverty_shed = sorted(_shed_cands, key=_value)[0]
         options = {x[2]: f"let go of {_desc(x)}" for x in droppable}
         options["keep them all"] = ("keep your current four and skip the new move — if nothing's worth "
                                     "losing, you lose nothing")
@@ -2188,7 +2226,9 @@ class Campaign:
                "is worth losing, KEEP THEM ALL. Which do you do?"}
         pick = self._soul_choose("move_drop", options, ctx)
         # KEEP path: she chose to, OR (headless/unparsable) everything is precious -> don't gut the set.
-        if pick == "keep them all" or (not pick and all_precious):
+        # EXCEPT the damage-poverty override: a <=1-attacker set must shed a redundant move so the next
+        # attacker can land (else PP famine — the Gary wall). That override wins over keep-all here.
+        if (pick == "keep them all" or (not pick and all_precious)) and not poverty_shed:
             log(f"   [movelearn] KEEP-ALL (no-gut guarantee): nothing junk to drop (least_value={least_value}) "
                 f"— holding the set; a new move is declined rather than gutting a good one")
             self.on_event("nah — all four of these are pulling weight. I'm keeping my set.",
@@ -2200,6 +2240,12 @@ class Campaign:
                 if x[2] == pick:
                     drop_slot = x[0]
                     break
+        if drop_slot is None and poverty_shed and (pick in (None, "keep them all") or all_precious):
+            # damage-poor + (she'd keep-all / no clear junk): shed the redundant move for an attacker
+            drop_slot = poverty_shed[0]
+            log(f"   [movelearn] DAMAGE-POVERTY: only {sum(1 for x in info if (x[4] or 0) > 0)} damaging "
+                f"move — freeing {st.MOVE_NAMES.get(moves[drop_slot], moves[drop_slot])} (redundant; kept the "
+                f"hard-hitter + a control move) so an upcoming attacker auto-learns (no PP-famine set)")
         if drop_slot is None:                                 # headless with clear junk -> drop the junkiest
             drop_slot = droppable[0][0]
         dropped = st.MOVE_NAMES.get(moves[drop_slot], f"move#{moves[drop_slot]}")
