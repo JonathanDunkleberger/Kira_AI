@@ -193,6 +193,11 @@ def main():
     ap.add_argument("--headless", action="store_true", help="no game window (her voice still rides the bot).")
     ap.add_argument("--no-audio", action="store_true", help="no game-audio pump (her voice still rides the bot).")
     ap.add_argument("--roam-seconds", type=int, default=86400, help="watch length cap (default 24h — Ctrl-C ends it).")
+    ap.add_argument("--goal", default=None,
+                    help="GOAL-PIN the spawn to an era-correct objective (overrides the post-game "
+                         "victory-lap frame) — e.g. --goal \"beat Sabrina and win the Marsh Badge\" or "
+                         "--goal \"fight through the Elite Four and become Champion\". This is how you "
+                         "get first-time-flavored gym/E4 footage from a post-credits save.")
     args = ap.parse_args()
 
     if args.clean:
@@ -265,6 +270,9 @@ def main():
 
     env = dict(os.environ)
     env["POKEMON_CAMPAIGN_DIR"] = sandbox   # THE time-machine seam — she reads/writes only the sandbox
+    if args.goal:                           # GOAL-PIN: era-correct objective overrides post-game frame
+        env["POKEMON_WATCH_GOAL"] = args.goal
+        print(f"  🎯 GOAL-PINNED: {args.goal!r} — she'll pursue THIS, not the victory lap.")
 
     print(f"  ▶  starting watch — TRUE SPEED, game audio {'off' if args.no_audio else 'on'}, "
           f"window {'off' if args.headless else 'on'}. Ctrl-C to stop.\n")

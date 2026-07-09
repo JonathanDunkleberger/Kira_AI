@@ -118,6 +118,15 @@ def main():
         args.boot = "brock_ready.state"          # Pewter, L13, just outside the gym
     if args.headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
+    # 🔴 MOUTH-FLAP FIREWALL (2026-07-08, victory-road watch bug): game audio must reach ONLY the
+    # AudioPump (sounddevice → a real desktop device, cable-refused), NEVER SDL's default sink —
+    # which on Jonny's rig IS the VB-cable that VTS lip-syncs off, so BGM flapped her mouth. SDL
+    # audio was left LIVE in windowed mode (SDL_VIDEODRIVER=dummy only fired for --headless), giving
+    # a SECOND, unprotected game-audio output straight to the cable. Kill SDL audio UNCONDITIONALLY
+    # (both windowed + headless): the AudioPump drains the core's blip buffer directly via PortAudio,
+    # so it's unaffected; this only removes the leaking SDL sink. Also stops pygame.init() opening
+    # the mixer on the default device.
+    os.environ["SDL_AUDIODRIVER"] = "dummy"
 
     from bridge import Bridge                 # noqa: E402
     import firered_ram as ram                 # noqa: E402

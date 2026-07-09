@@ -2421,6 +2421,15 @@ class Campaign:
         # Firewalled: false for every pre-credits state, so nothing here can touch the normal climb.
         game_clear = self.has_badge(0x82C)        # FLAG_SYS_GAME_CLEAR (SYS_FLAGS + 0x2C)
         post_game = (len(badges) >= 8) and (game_clear or mp in self._HALL_MAPS)
+        # GOAL-PINNED WATCH SPAWNS (2026-07-08): every banked save is post-credits, so a spawn at
+        # e.g. victory-road makes the Champion pursue post-game goals (Mewtwo) instead of the moment
+        # Jonny wants to SEE ("fight through the Elite Four", "beat Sabrina"). POKEMON_WATCH_GOAL pins
+        # an era-correct objective: it SUPPRESSES the post-game victory-lap frame and becomes her
+        # dominant directive (injected in _spine_and_history / _goal_layers). Read-only override — RAM
+        # is still ground truth for battles; this only reshapes her CONTEXT/goal. Empty = normal.
+        watch_goal = os.getenv("POKEMON_WATCH_GOAL", "").strip()
+        if watch_goal:
+            post_game = False                     # re-living an era moment, not on the victory lap
         if post_game:                             # never tell the Champion the E4 is "next"
             arc = ("Champion. The credits rolled — everything from here is the victory lap "
                    "(Cerulean Cave, the Pokédex, her world now).")
@@ -2430,12 +2439,14 @@ class Campaign:
                        (f"Next gym: {ng[1]} of {ng[0]}." if ng else "All 8 badges earned."))
                     + (f" Pokédex: {dex} caught." if dex is not None else "")
                     + f" {arc}")
+        if watch_goal:
+            progress = f"🎯 RIGHT NOW YOUR ONE OBJECTIVE IS: {watch_goal}. " + progress
         return {"map": mp, "place": place, "coords": co,
                 "badges": badges, "badge_count": len(badges),
                 "party": party, "party_count": cnt,
                 "on_grass_map": on_grass_map, "dex_caught": dex,
                 "next_gym": ({"city": ng[0], "leader": ng[1]} if ng else None),
-                "post_game": post_game,
+                "post_game": post_game, "watch_goal": watch_goal or None,
                 "arc": arc, "progress": progress}
 
     # PHASE 4 — MILESTONE / ARC AWARENESS: she knows where she is in the OVERALL story (8 badges ->
@@ -8340,6 +8351,14 @@ class Campaign:
                           "teammate, level the weak ones) is how a prepared trainer gets past these. ")
         spine = model + ("THE MAIN QUEST IS A FIXED PATH you're always on: beat the 8 Gym Leaders in order, "
                          "then the Elite Four, then you win the game. ")
+        # GOAL-PINNED WATCH (2026-07-08): a spawn-time era objective dominates — she pursues THIS
+        # moment (the thing Jonny wants to watch), not the post-game victory lap. Composes with the
+        # gym/E4 context below (which still grounds WHERE that objective lives).
+        if state.get("watch_goal"):
+            spine += (f"⚡ BUT YOUR ONE FOCUS RIGHT NOW, above everything else: {state['watch_goal']}. "
+                      f"This is a focused moment — go straight at that objective, don't drift onto "
+                      f"side-quests, grinding for its own sake, or any victory-lap wandering. Pursue it "
+                      f"directly until it's done. ")
         if ng:
             spine += (f"You're on GYM {bc + 1} of 8 — next is {ng['leader']} in {ng['city']}. The road "
                       f"forward leads there: until you've won you are ALWAYS making progress toward the "

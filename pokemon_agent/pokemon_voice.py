@@ -72,6 +72,12 @@ VOICE_ASYNC = os.getenv("POKEMON_VOICE_ASYNC", "1") == "1"
 # T2+ beats are exempt (a badge/gym moment always lands). 0 disables the drop entirely.
 STALE_DROP_S = float(os.getenv("POKEMON_STALE_DROP_S", "6.0"))
 SPEAKING_POLL_S = float(os.getenv("POKEMON_SPEAKING_POLL_S", "0.15"))   # is_speaking cache refresh
+# DECISION-LATENCY BOUND (victory-road watch 2026-07-08, the "15-20s cave freeze"): a slow oracle
+# decision blocked up to 30s while she stood still (the pump keeps the world live, but a statue for
+# 20s reads dead). Cap the worst case so a stuck/slow decision falls back FAST to a sensible default
+# (campaign idles the tick + re-decides) instead of hanging. Normal decisions return in 2-8s, well
+# under this; only the outliers are bounded. Env-tunable; lower = snappier but more fallbacks.
+CHOOSE_TIMEOUT_S = float(os.getenv("POKEMON_CHOOSE_TIMEOUT", "12.0"))
 
 # species (by lowercased name) that are a SAVOR-worthy rare encounter for this leg
 RARE_SPECIES = {"pikachu"}
@@ -377,13 +383,15 @@ class KiraVoice:
             self.log(f"   [kira-voice] !! ALERT POST FAILED (bot down?): {e}")
 
     # ── the SOUL ORACLE client (Batch-2 keystone: a choice becomes HERS) ──────────
-    def choose(self, kind, options, ctx=None, timeout=30):
+    def choose(self, kind, options, ctx=None, timeout=None):
         """Ask her SELF (over the seam) to make a STRUCTURED pick — the decision counterpart to
         emit's fire-and-forget reaction. BLOCKING request/response (it waits on her LLM, so a longer
         timeout than _post's 6s). `options` is a list OR a dict {key: description}; a dict's
         descriptions ride along in ctx['detail'] to inform her WITHOUT constraining a 'want'.
         Returns her pick (str) or None — no pick / bot down / unparsable, LOGGED loud, never raises.
         The CALLER (campaign._soul_choose) re-validates a constrained pick against the offered set."""
+        if timeout is None:                       # decision-latency bound (kills the 15-20s cave freeze)
+            timeout = CHOOSE_TIMEOUT_S
         if isinstance(options, dict):
             opt_keys, detail = list(options.keys()), dict(options)
         else:

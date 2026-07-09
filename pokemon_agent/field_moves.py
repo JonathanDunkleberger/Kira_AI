@@ -277,7 +277,10 @@ class FieldMoveActuator:
             self._face_and_a(face_key, presses=1)
         if not _box_open(self.b):
             return "no_prompt"
-        # confirm YES (default cursor) + drain the field-effect/animation dialogue
-        self.b.press("A", 8, 10, self.c.render, owner="agent")
+        # CONFIRM the "use STRENGTH?/CUT?" YES/NO cleanly. BUG (victory-road watch 2026-07-08): the old
+        # single raw A raced the still-TYPING prompt — the A sped the text, the YES/NO landed AFTER, so
+        # the confirm missed and the whole thing re-prompted next tick (the "2 cycles before she confirms
+        # yes"). The race-safe overworld drainer snaps the text full, then advances the YES (default
+        # cursor) — ONE clean confirm — and drains the field-effect animation. No pre-A needed.
         self.c._drain_overworld(label=f"hm-{hm_key}")
         return "used"
