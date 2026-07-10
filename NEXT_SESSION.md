@@ -11,15 +11,35 @@ stay beaten so no re-chip, engage fresh). Verified e2e: 2% → healed → re-cro
 Lapras L25 + Kadabra L16 + Spearow/Rattata/Drowzee bench.
 
 ### ▶ FRONTIER — VICTORY ROAD → ELITE FOUR → CHAMPION → CREDITS (write CREDITS as line 1 of NIGHT_REPORT to stop the loop).
-Chain from `giovanni_done_kit`: (1) **Route 22 rival Gary** (badge-8 westbound ambush — recon has this),
-(2) **Route 23 badge-check gates** (all 8 badges held ✓), (3) **VICTORY ROAD** — multi-floor Strength-
-boulder-onto-switch puzzle + Surf water stretch (she has BOTH HMs — `recon_victory.py` exists), (4) **ELITE
-FOUR** — Lorelei → Bruno → Agatha → Lance → Champion Gary (`recon_e4.py` / `recon_agatha.py` exist).
-PARAMETRIZE each the same mechanical way (copy from recon_giovanni.py): add `_resolve_state` + `<X>_STATE`
-env + kit-sidecar loader + utf-8 stdout; run from the prior kit fixture; bank forward.
+**NS6 IN FLIGHT:** `recon_victory.py` is now **kit-parametrized** (commit: VICTORY_STATE env + `_resolve_state`
++ kit sidecars + utf-8 stdout — same mechanical port as recon_giovanni). Launch cmd:
+`VICTORY_STATE=giovanni_done_kit.state ../.venv/Scripts/python.exe -u recon_victory.py` (run from
+`pokemon_agent/`, log → G:/temp/longrun/ns6_victory1.log). It does Phase0 **EQ teach** (TM26→Venusaur over
+Secret Power — the 100-BP neutral carry for E4) → Phase1 **R22 Gary** → Phase2-3 **R23 badge gates** →
+Phase4 **VR boulder puzzle** (fully offline-solved, elevation-aware) → Phase5 **Indigo Plateau bank**
+(banked_VICTORY). If it wedges mid-VR, `RESUME_STAGE=1` ratchets from stage_victory (don't re-roll Gary).
+On success: promote banked_VICTORY → `states/workshop/indigo_reach_kit.*` then port **recon_e4.py** the same
+way (E4_STATE env). Chain: (1) R22 Gary, (2) R23 gates (all 8 ✓), (3) VR, (4) E4 Lorelei→Bruno→Agatha→
+Lance→Champion Gary (`recon_e4.py`/`recon_agatha.py` exist — parametrize identically).
 
-### ⚠️ THE E4 TEAM WALL (the #3 team-building soul-debt comes due at the finish — read before charging in):
-The E4 is a 5-battle gauntlet (RESETS to Lorelei on any whiteout) of L53-63 teams. The kit's **SOLO Venusaur
+### ⚠️ THE E4 TEAM WALL — **CONFIRMED (NS6): it manifests ALREADY at VICTORY ROAD 1F**, not just the E4.
+NS6 ran the kit-victory strike and it CONVERGES SLOWLY but bleeds money. Observed truth: VR 1F has an **Ace
+Trainer with a full starter-evolution team (Raticate/Charmeleon/Charizard/Ivysaur, ~L43)** sitting in the
+ladder corridor — you MUST WIN it to pass (a LOSS never sets its defeated-flag, so it re-fights every life).
+The kit's **solo Venusaur + Lapras + L8-16 fodder** loses it: Venusaur/Lapras get worn, then the bench faints
+on switch-in (Ivysaur sits at 107/107 while L13 Spearow/etc. get OHKO'd). She whites out → Viridian free-heal
+→ re-crosses R22/R23 (Gary already consumed) → re-enters. **Net progress DOES ratchet** (won trainers stay
+beaten; NS6 reached VR **2F, 2f-switch1 barrier open** by life 3) — BUT each wipe **HALVES money** ($36k start),
+and the 1F boulder puzzle re-solves each life (boulders reset on map reload; only trainer-defeated flags
+persist). So it's a convergent-but-costly grind that may reach Indigo underfunded for the E4 kit.
+**THE REAL FIX (soul-debt #3, now unavoidable): BENCH-GRIND before VR.** Level **Lapras L25→~L45** (Surf
+carry + Perish Song) and **Kadabra L16→~L45** (Psychic) so she fields a genuine 2-3 mon squad. Then VR
+trainers fall first-try (no wipes, no money loss) AND the E4 is winnable. Grind harness: `recon_longrun`
+strategic-grind (POKEMON_STRATEGIC_GRIND=1, save-safe weak-member reorder — see
+[[pokemon-strategic-underlevel-grind]]) from `giovanni_done_kit`, OR a bespoke grind strike on VR-adjacent
+L40+ wilds. **DO THIS FIRST next shift if NS6's victory run didn't bank Indigo cheaply.**
+
+The E4 proper is a 5-battle gauntlet (RESETS to Lorelei on any whiteout) of L53-63 teams. The kit's **SOLO Venusaur
 L59 + fodder bench is thin for it**: Agatha's Gengar (Ghost/Poison) resists Grass; Lance's Dragonite/Gyarados
 hit hard; **Champion Gary's Charizard 2×-burns Venusaur while quad-resisting Razor Leaf** (the exact Silph-Gary
 type wall — NS4). Venusaur has Sleep Powder + Razor Leaf + Strength + Cut, Lapras has Surf (×2 vs Lance's
