@@ -5313,14 +5313,38 @@ class Campaign:
                         # so route to the cave-exit tile FIRST (crosses into the mouth pocket), THEN
                         # enter_warp fires trivially from right beside it.
                         DIGLETT_R2_MOUTH, CAVE_EXIT_TILE = (17, 11), (17, 12)
-                        for _ in range(3):
-                            if tv.map_id(b)[0] == 3:
+                        AIDE_SOUTH_DOOR = (18, 46)
+                        # REACH THE CAVE-MOUTH (NORTH) POCKET (2026-07-09 shift 3, geometry-verified via
+                        # recon_gate_exit): the aide gate (15,2) is a PASS-THROUGH. She enters from the
+                        # SOUTH door (18,46) via a ONE-WAY LEDGE and the teach leaves her inside; its south
+                        # interior door (7,10) drops back onto (18,47) [SOUTH pocket — walled off from the
+                        # cave mouth by that ledge, un-cuttable], its NORTH door (7,1) exits to (18,41)
+                        # [NORTH pocket, which reaches the mouth]. So exit NORTH; if she's already been
+                        # dumped into the south pocket, re-enter the gate and exit north. Only THEN is the
+                        # cave mouth walk-reachable.
+                        def _north_pocket():
+                            try:
+                                g = tv.Grid(b)
+                                return (tuple(tv.map_id(b)) == ROUTE2 and bool(tv.bfs(
+                                    g, tuple(tv.coords(b)), lambda t: t == CAVE_EXIT_TILE,
+                                    walkable=g.walkable)))
+                            except Exception:
+                                return False
+                        for _ in range(4):
+                            if _north_pocket():
                                 break
-                            self._exit_to_overworld()
+                            if tv.map_id(b)[0] != 3:                # inside the gate -> exit north door
+                                self.enter_warp(prefer="north")
+                            else:                                  # on Route 2 (south pocket) -> re-enter
+                                self.enter_warp(pick=AIDE_SOUTH_DOOR)
                         cur_r = tuple(tv.map_id(b))
-                        log(f"   [flash-errand] return: on {cur_r}@{tuple(tv.coords(b))}; routing to "
-                            f"the Diglett's Cave mouth {DIGLETT_R2_MOUTH} (cutting the regrown tree)")
-                        if cur_r == ROUTE2:
+                        log(f"   [flash-errand] return: on {cur_r}@{tuple(tv.coords(b))} "
+                            f"(north_pocket={_north_pocket()}); routing to the Diglett's Cave mouth "
+                            f"{DIGLETT_R2_MOUTH} (cutting the regrown tree)")
+                        if cur_r == ROUTE2 and _north_pocket():
+                            # travel to the cave-exit tile first — travel's obstacle handler CUTS the
+                            # regrown tree (18,26) between the north-door landing and the mouth; enter_warp's
+                            # plain-BFS pre-check treats a regrown tree as a wall and would skip the mouth.
                             self.trav.travel(target_map=None, arrive_coord=CAVE_EXIT_TILE,
                                              max_steps=400)
                             r = self.enter_warp(pick=DIGLETT_R2_MOUTH)
@@ -5332,8 +5356,8 @@ class Campaign:
                                 log("   [flash-errand] return: cave re-entry failed — releasing to "
                                     "roam (head_to_gym owns the road retry) (LOUD)")
                         else:
-                            log(f"   [flash-errand] return: not on Route 2 after gatehouse exit "
-                                f"({cur_r}) — releasing to roam (LOUD)")
+                            log(f"   [flash-errand] return: couldn't reach the cave-mouth pocket "
+                                f"(on {cur_r}) — releasing to roam (LOUD)")
                     except Exception as _re:
                         log(f"   [flash-errand] road-head return skipped ({_re}) (LOUD)")
                 return "flash_done"
