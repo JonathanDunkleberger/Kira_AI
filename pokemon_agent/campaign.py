@@ -7317,9 +7317,21 @@ class Campaign:
         #     is offered as a strong option she WEIGHS against the rest — the softer nudge (needs_heal
         #     semantics unchanged).
         if sev == "critical":
-            a["heal"] = ("you're about to faint — get to a Pokémon Center and heal NOW; this comes "
-                         "FIRST, before anything else")
-            return a
+            # CRITICAL-HEAL FREEZE BREAKER (2026-07-09 night-train shift 8, the koga heal-return
+            # stall): normally near-death PRUNES everything but heal. But if the heal router has
+            # PROVEN it can't reach any Center from this map (heal-dead — e.g. she's stranded on
+            # Route 13 south of the Route-12 gatehouse, whose split-map north band the naive
+            # graph-hop can't cross), collapsing to only-'heal' hard-FREEZES her: heal no-ops, RED
+            # climbs, no adjacent Center to break to. A real player in that spot walks to the NEXT
+            # town's Center — so fall through to offer the forward push (head_to_gym below) instead
+            # of freezing; a blackout en route just respawns her healed. The strand guard further
+            # down keeps 'heal' itself suppressed while heal-dead, so she pushes forward, not circles.
+            if tuple(state.get("map") or ()) not in getattr(self, "_heal_dead_maps", set()):
+                a["heal"] = ("you're about to faint — get to a Pokémon Center and heal NOW; this comes "
+                             "FIRST, before anything else")
+                return a
+            log("   [roam] survival-critical BUT heal proven-dead on this map — NOT freezing on "
+                "only-'heal'; offering the forward push to the next town's Center instead")
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
@@ -8086,7 +8098,22 @@ class Campaign:
         # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
         self._now_state = {"heal": "HEALING", "stock_up": "SHOPPING"}.get(pick, "EXPLORING")
         if pick == "heal":
-            return self.heal_nearest()
+            _hp0 = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b) or ()))
+            _hr = self.heal_nearest()
+            _hp1 = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b) or ()))
+            # HEAL PROVEN DEAD HERE (2026-07-09 shift 8): the full heal router (own-map + world-graph
+            # multi-hop + Viridian fallback) came back 'stuck' AND didn't move her an inch — no Center
+            # is reachable from this spot (the Route-12 gatehouse-split heal-return). Remember it so
+            # _available_actions stops FREEZING on only-'heal' at critical severity and lets the
+            # forward push to the next town's Center carry her. Cleared on any successful heal (a
+            # later reachable Center discards its own map's mark).
+            if _hr == "stuck" and _hp1 == _hp0:
+                if not hasattr(self, "_heal_dead_maps"):
+                    self._heal_dead_maps = set()
+                self._heal_dead_maps.add(_hp0[0])
+                log(f"   [roam] !! HEAL no-op stuck at {_hp0[0]}@{_hp0[1]} — marked heal-dead "
+                    f"(critical-heal freeze breaker armed; she'll push to the next Center)")
+            return _hr
         if pick == "regroup":
             return self._regroup_walk()
         # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
