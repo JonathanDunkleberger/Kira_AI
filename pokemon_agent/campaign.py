@@ -2208,18 +2208,36 @@ class Campaign:
             lead_types = set(st.species_types(st.read_party_species(self.b, 0)))
         except Exception:
             lead_types = set()
+        # REDUNDANT-STATUS DEMOTION (2026-07-10, night shift 6 — the Route-6 flying/bug PP-famine wall):
+        # HIGH_VALUE_LOW_POWER hands EVERY status move the full +100, so a mon hoarding TWO powders
+        # (Ivysaur = Sleep Powder + Poison Powder) protected them over its only NEUTRAL attacker (Tackle),
+        # leaving a grass-ONLY kit that gets resisted x0.25-0.5 by every Pidgey/Butterfree -> PP famine ->
+        # loss. A guide-literate trainer keeps ONE status opener, not two. Elect a single primary status
+        # (Sleep > Leech Seed > any) at full value; a 2nd redundant status is a luxury a coverage-poor mon
+        # can't afford -> it drops before the neutral attacker / STAB backup.
+        _status_pref = {79: 3, 73: 2}                         # sleep-powder, leech-seed = best openers
+        _status_slots = [x for x in info if x[1] in HIGH_VALUE_LOW_POWER]
+        _primary_status = (max(_status_slots, key=lambda x: (_status_pref.get(x[1], 1), -x[1]))[0]
+                           if _status_slots else None)
 
         def _value(x):                                        # higher = more precious = keep
             _slot, mid, _n, t, power = x
             v = (power or 0)
             if mid in HIGH_VALUE_LOW_POWER:
-                v += 100                                      # Sleep Powder / Leech Seed / etc.
+                v += 100 if _slot == _primary_status else 25  # ONE opener precious; a 2nd status = luxury
             is_stab = (power or 0) > 0 and t in lead_types
             if is_stab:
                 v += 40                                       # STAB attacker — keep it (2 STABs is NOT junk)
             # UNIQUE-type coverage is precious — but a WEAK NON-STAB filler (Tackle 35) doesn't earn it.
             if (power or 0) > 0 and dmg_types.get(t, 0) == 1 and ((power or 0) >= 40 or is_stab):
                 v += 60                                       # UNIQUE-type coverage (Vine Whip!) — precious
+            # OFF-TYPE COVERAGE LIFELINE: a low-power NEUTRAL/off-type attacker (Tackle, normal) is the ONLY
+            # move that dents a foe RESISTING the mon's STAB. When every STAB attacker shares one commonly-
+            # resisted type (grass is walled by flying/bug/poison/steel/fire/grass), that neutral move is
+            # the coverage lifeline — protect it over a redundant status move even at <40 power.
+            if ((power or 0) > 0 and t not in lead_types and dmg_types.get(t, 0) == 1 and (power or 0) < 40
+                    and any((p2 or 0) > 0 and t2 in lead_types for _i, _m, _n2, t2, p2 in info)):
+                v += 55                                       # off-type coverage on a STAB-locked mon
             return v
 
         # the most PRECIOUS move (by VALUE, not raw power) — NEVER drop it. Was max-by-power, which on a
