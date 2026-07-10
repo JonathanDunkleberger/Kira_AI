@@ -98,3 +98,22 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 14 03:57->04:08 (11m): 1 commit(s), frontier ADVANCED
 - shift 15 04:09->04:20 (11m): 1 commit(s), frontier ADVANCED
 - shift 16 survey: ★ S.S. ANNE GARY WALL BEATEN (the 12-shift blocker) — root-caused as the strategic FODDER-grind (bench->L19) pre-empting the ace prep; fixed via ACE-OVERPOWER-at-boarding: she now grinds Route 6 to Venusaur L32 BEFORE boarding, cabin-skips, WINS Gary first try, gets HM01 Cut (verified e2e, s16e_surge.log line 4956). THE bug: a stale `_rival_won_here` (bill_done_kit fixture carries a won "s.s. anne" encounter) silently skipped the prep every shift. 5 commits (aff5dbc,f1bc0db,6643dd7,78d8c4d,57d18c4). | frontier: BADGE 3 Surge gym ENTRY — she has Cut but can't field-Cut the gym-door tree at (19,24): after 2 gym-stucks the structural-park prunes head_to_gym on Vermilion, stranding her at (24,0) far from the tree so `_gym_gate_probe`/`_obstacle_probe` never reaches adjacent to actuate Cut. | needs eyes: none (autonomous frontier; may need a frame-grab of the Vermilion gym yard to see the fence/approach geometry)
+- shift 16 04:21->06:22 (121m): 8 commit(s), frontier ADVANCED
+- shift 17 06:23->06:33 (10m): 0 commit(s), frontier ADVANCED
+- shift 18 06:34->06:37 (3m): 0 commit(s), frontier unchanged
+- shift 1 07:16->07:43 (27m): 0 commit(s), frontier ADVANCED
+- shift 2 07:44->08:06 (22m): 1 commit(s), frontier ADVANCED
+- shift 3 08:07->08:11 (4m): 0 commit(s), frontier unchanged
+- shift 4 08:12->08:16 (4m): 0 commit(s), frontier unchanged
+- shift 5 08:17->08:19 (3m): 0 commit(s), frontier unchanged
+- shift 6 08:20->08:24 (4m): 0 commit(s), frontier unchanged
+- shift 7 08:25->08:29 (4m): 0 commit(s), frontier unchanged
+- shift 8 08:30->08:34 (3m): 0 commit(s), frontier unchanged
+- shift 9 08:35->08:40 (5m): 0 commit(s), frontier unchanged
+- shift 10 08:41->08:48 (7m): 0 commit(s), frontier unchanged
+- shift 11 08:49->08:55 (6m): 0 commit(s), frontier unchanged
+- shift 12 08:56->09:00 (4m): 0 commit(s), frontier unchanged
+- shift 13 09:01->09:07 (7m): 0 commit(s), frontier unchanged
+- shift 14 09:08->09:39 (31m): 2 commit(s), frontier ADVANCED
+- shift 15 09:40->09:44 (4m): 0 commit(s), frontier ADVANCED
+- shift 16 09:45->09:49 (4m): 0 commit(s), frontier ADVANCED
