@@ -6487,6 +6487,42 @@ class Campaign:
                 return "questline_entered"
             log(f"   [roam] questline: tried to enter the building at {door} but didn't warp — surfacing")
             return "questline_enter_failed"
+        # DISTANT DOOR (2026-07-09, the Bill's-Sea-Cottage class): no door is reachable FROM HER FEET,
+        # but the target building may sit ACROSS this map — Route 25's cottage is at the far EAST while
+        # the Nugget Bridge deposits her at the WEST edge (0,9). _questline_unentered_door's live BFS only
+        # sees doors reachable from her current tile (windowed), so it returned None; but _door_tiles scans
+        # the WHOLE loaded layout, so the distant cottage door IS known. CLOSE THE DISTANCE: travel toward
+        # the nearest un-entered door on this map, then the door-enter above fires next tick from the near
+        # side (she was giving up + bouncing Cerulean<->Route 25 to a STALL). General fix for the "arrived on
+        # the right map but the building is across it" class (route-with-a-cottage / far-gatehouse fetches).
+        # Self-bounding: commits ONLY when the walk actually MOVES her — a no-move falls straight through to
+        # the talk/surface path so a genuinely unreachable door never spins (the _ql_fp guard also caps it).
+        if door is None:
+            try:
+                cur = tuple(tv.map_id(self.b))
+                co = tv.coords(self.b)
+                _nc2 = self._no_connector_maps()
+                _wdest2 = {tuple(xy): tuple(dest) for (xy, dest, _wid) in tv.read_warps(self.b)}
+                far = [tuple(dr) for dr in self._door_tiles()
+                       if (cur, tuple(dr)) not in self._ql_entered_doors
+                       and _wdest2.get(tuple(dr)) not in _nc2]
+            except Exception as _dd:
+                far, co = [], None
+                log(f"   [roam] questline distant-door scan skipped: {_dd}")
+            if far and co is not None:
+                far.sort(key=lambda t: abs(t[0] - co[0]) + abs(t[1] - co[1]))
+                tgt = far[0]
+                before = tuple(tv.coords(self.b))
+                self.on_event("the place I'm after is further along here — let me get to it.",
+                              kind="route", tier=1)
+                self.trav.travel(target_map=None, arrive_coord=(tgt[0], tgt[1] + 1),
+                                 max_steps=400, max_seconds=300)
+                if tuple(tv.coords(self.b)) != before:
+                    log(f"   [roam] 🧭 QUESTLINE APPROACH: crossing {self.world.name(cur)} toward the "
+                        f"un-entered door {tgt} (the target building is across this map)")
+                    return "questline_approaching"
+                log(f"   [roam] questline: un-entered door {tgt} on {cur} unreachable from {before} — "
+                    f"falling through to talk/surface")
         # no building to enter here → maybe the quest NPC is standing out on the route
         r = self.talk_npc()
         if r == "talked":
@@ -7813,6 +7849,22 @@ class Campaign:
                     f"pruned until she leaves it (or a questline arms); remaining: {sorted(a)}")
         except Exception as _sde:
             log(f"   [roam] structural dead-route prune skipped: {_sde}")
+        # INTERIOR-WEDGE ESCAPE DOMINANCE (2026-07-09, Gate-C finish): the F-11 recovery OFFERS
+        # leave_building when she's wedged in a dead-end interior (nomove_streak>=2, forward route
+        # proven no-route), but the oracle kept picking talk_npc instead — and talk_npc MOVES her
+        # (walks over to the NPC), so it never prunes as a dead route and re-arms head_to_gym every
+        # tick = an endless talk<->no-route spin (misty_done Gate-C: a critical-heal mis-entered a
+        # Cerulean house -> 14-decision STALL in house (7,3), leave_building offered but never picked).
+        # When the walk-out is armed in a dead-end interior, SUPPRESS talk_npc so leave_building
+        # dominates — she's in the WRONG building she can't route forward from; getting OUT is the
+        # honest move (a legit questline NPC arrives via destination-interaction, not this wedge path).
+        # Symmetric to the PRE-BUILD / critical-heal dominance. Never empties (leave_building remains).
+        if ("leave_building" in a and "talk_npc" in a
+                and tuple(state.get("map") or (0,))[0:1] != (3,)
+                and getattr(self, "_nomove_streak", 0) >= 2):
+            a.pop("talk_npc", None)
+            log("   [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out "
+                "armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)")
         # NEVER-EMPTY FLOOR (2026-07-08 soak finding): an EMPTY set ends free roam — on a live watch
         # that stops her cold mid-show (hit on the post-game victory lap at an unfamiliar strip: no
         # grass target, no known travel routes, no gym objective). There is always ONE honest move:
