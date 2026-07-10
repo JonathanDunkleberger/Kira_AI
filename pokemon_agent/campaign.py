@@ -5494,6 +5494,164 @@ class Campaign:
                 return False
         return out_map is None or tuple(tv.map_id(b)) == out_map
 
+    def _cross_warp_maze(self, m0, budget_s=900):
+        """Cross a PARTITIONED dark warp-maze (Rock Tunnel class: both mouths dest the SAME overworld
+        map, floors split into sections only linked by interior ladders). Ported verbatim from the
+        proven recon_rocktunnel strike (2026-07-07). Stronger than _cross_cave (the Diglett crosser):
+        reachability is a SECTION-relative grid BFS (a global 'unreachable' mark killed run-3 — the
+        south door, dead from the entry section, was never retried from the section that reaches it);
+        `rode` guards cycles; a dead-end section backtracks by re-riding the arrival warp; walking to a
+        warp AVOIDS the other warp tiles (the walk-through-fires trap). True once out on the overworld
+        (dest != m0 preferred — pass m0=(3,255) so BOTH real Route-10 mouths count as exits)."""
+        b = self.b
+        t0 = time.time()
+        rode = set()
+        while tuple(tv.map_id(b))[0] != 3:
+            if time.time() - t0 > budget_s:
+                log(f"   [tunnel] maze crossing TIMEOUT at {tv.map_id(b)}"); return False
+            pos = tuple(tv.coords(b))
+            mid = tuple(tv.map_id(b))
+            warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
+            if not warps:
+                log(f"   [tunnel] room {mid} shows no warps — stuck"); return False
+            g = tv.Grid(b)
+            others = [w for (w, d) in warps if w != pos]
+
+            def _reachable(w_):
+                return bool(tv.bfs(g, pos, lambda t, ww=w_: t == ww,
+                                   walkable=lambda sx, sy: g.walkable(sx, sy)
+                                   and ((sx, sy) == w_ or (sx, sy) not in others or (sx, sy) == pos)))
+
+            reach = [w for w in others if _reachable(w)]
+            dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
+            exits = [w for (w, d) in warps if d[0] == 3 and d != m0
+                     and w in reach and (mid, w) not in rode]
+            if not exits:
+                exits = [w for (w, d) in warps if d[0] == 3 and w in reach
+                         and (mid, w) not in rode and w != pos]
+            backtrack = False
+            if exits:
+                far = min(exits, key=dist)
+                log(f"   [tunnel] room {mid}: at {pos}, EXIT door {far} reachable (of {warps})")
+            else:
+                fresh = [w for w in reach if (mid, w) not in rode]
+                if fresh:
+                    far = max(fresh, key=dist)
+                    log(f"   [tunnel] room {mid}: at {pos}, riding fresh warp {far} (reach={reach})")
+                elif any(w == pos for (w, d) in warps):
+                    far = pos; backtrack = True
+                    log(f"   [tunnel] room {mid}: section exhausted — BACKTRACK via arrival warp {pos}")
+                else:
+                    log(f"   [tunnel] room {mid}: exhausted, no arrival warp to backtrack on"); return False
+            if not backtrack:
+                rode.add((mid, far))
+            before = mid
+            if backtrack:
+                for d_ in ("UP", "DOWN", "LEFT", "RIGHT"):     # step off then back on to re-fire the ladder
+                    b.press(d_, 10, 6, lambda: None, owner="agent")
+                    for _f in range(30):
+                        b.run_frame()
+                    if tuple(tv.coords(b)) != pos:
+                        break
+                self.trav.travel(target_map=None, arrive_coord=pos, max_steps=30)
+                if tuple(tv.map_id(b)) == before:
+                    self.enter_warp(pick=pos)
+            else:
+                self.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240,
+                                 avoid=[w for w in others if w != far])
+                if tuple(tv.map_id(b)) == before:
+                    self.enter_warp(pick=far)
+            if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
+                for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):     # door mats fire on the crossing step
+                    b.press(d_, 10, 6, lambda: None, owner="agent")
+                    for _f in range(40):
+                        b.run_frame()
+                    if tuple(tv.map_id(b)) != before:
+                        break
+                    if tuple(tv.coords(b)) != far:
+                        self.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
+            if tuple(tv.map_id(b)) == before and not backtrack:
+                log(f"   [tunnel] room {before}: warp {far} didn't fire despite reachability — next")
+        return True
+
+    def _cross_tunnel_leg(self, cave_map, out_map, out_dir):
+        """Cross a DARK warp-maze cave that a billed 'pass' leg runs THROUGH (Rock Tunnel: both mouths
+        dest the SAME overworld map, floors partitioned). This is the leg head_to_gym previously handed
+        to _door_passthrough (the HUT class) — which never crosses a cave, so she edge-oscillated Route
+        9<->Route 10 and drifted back to the dex grounds (shift-4 frontier). Recipe (proven,
+        recon_rocktunnel): walk to the cave-mouth warp reachable from her feet -> enter -> USE FLASH
+        (verify; NEVER walk dark) -> _cross_warp_maze to a far mouth -> edge-travel `out_dir` into
+        out_map. FLEE wilds / FIGHT trainers, heal suppressed (no PC in a cave). Returns
+        'arrived' | 'road_passthrough' | 'need_flash' | None (couldn't start -> caller falls through)."""
+        import field_moves as fm
+        import hm_teach as ht
+        b = self.b
+        FLASH_MOVE = 148
+        cur0 = tuple(tv.map_id(b))
+        # FLASH must be taught before the dark cave (the upstream gate check normally guarantees this;
+        # double-guard so we NEVER walk the tunnel dark).
+        if st.party_knows_move(b, FLASH_MOVE, b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
+            log("   [tunnel] no party mon knows FLASH — cannot cross the dark cave; deferring")
+            return "need_flash"
+        try:
+            warps = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
+        except Exception:
+            warps = []
+        mouths = [w for (w, d) in warps if d == tuple(cave_map)]
+        if not mouths:
+            log(f"   [tunnel] no warp on {cur0} leads into cave {cave_map} — deferring")
+            return None
+        # pick the mouth her feet can reach, nearest first (she arrives on the entrance section; the
+        # far mouth is partitioned off on the overworld, so BFS reachability selects the right one).
+        pos = tuple(tv.coords(b))
+        try:
+            grid = tv.Grid(b)
+            reach = [w for w in mouths if w == pos
+                     or tv.bfs(grid, pos, lambda t, ww=w: t == ww, walkable=grid.walkable)]
+        except Exception:
+            reach = mouths
+        mouth = min(reach or mouths, key=lambda w: abs(w[0] - pos[0]) + abs(w[1] - pos[1]))
+        self.trav.travel(target_map=None, arrive_coord=(mouth[0], mouth[1] + 1),
+                         max_steps=400, max_seconds=180)
+        self.enter_warp(pick=mouth)
+        if tuple(tv.map_id(b))[0] == 3:
+            log(f"   [tunnel] mouth {mouth} didn't fire (still on {tv.map_id(b)}) — deferring")
+            return None
+
+        def _lit():
+            return bool(fm.read_flag(b, fm.FLAG_SYS_FLASH_ACTIVE))
+
+        if not _lit():
+            self.on_event("Rock Tunnel — pitch dark. good thing I carry Flash now.", kind="route", tier=2)
+            slot = st.party_knows_move(b, FLASH_MOVE, b.rd8(ram.GPLAYER_PARTY_CNT))
+            r = ht.TeachFlow(self, log=lambda m: log(m), on_event=self.on_event).use_field_move(
+                slot, verify=_lit, label="flash")
+            log(f"   [tunnel] use flash -> {r} (lit={_lit()})")
+        if not _lit():
+            log("   [tunnel] FLASH did not light the cave — refusing to walk dark; deferring")
+            return None
+        self.on_event("and there's light. okay, Rock Tunnel — let's do this properly.", kind="route", tier=2)
+        saved_runner, saved_heal = self.trav.battle_runner, self._suppress_heal
+        self.trav.battle_runner = self._cave_runner       # FLEE wilds / FIGHT trainers
+        self._suppress_heal = True                         # no PC in a cave -> survive-or-blackout
+        try:
+            ok = self._cross_warp_maze((3, 255))           # sentinel: BOTH real mouths count as exits
+        finally:
+            self.trav.battle_runner, self._suppress_heal = saved_runner, saved_heal
+        if not ok:
+            log(f"   [tunnel] maze crossing failed at {tv.map_id(b)}")
+            return None
+        log(f"   [tunnel] OUT of the tunnel at {tv.map_id(b)} coords={tv.coords(b)}")
+        # emerged on the far side of the re-emergence overworld map (Rock Tunnel -> Route 10 south);
+        # the billed leg's edge (south) carries her into out_map (Lavender).
+        if out_dir and out_map and tuple(tv.map_id(b)) != tuple(out_map):
+            self._edge_travel(tuple(out_map), out_dir)
+        if out_map and tuple(tv.map_id(b)) == tuple(out_map):
+            self.on_event("Lavender Town — the little town with the tower. we made it through the dark.",
+                          kind="route", tier=2)
+            return "arrived"
+        return "road_passthrough"
+
     def _flash_gatehouse(self, flag_hm05):
         """Reach the Route 2 aide's gatehouse (a walk-through GATE band on the building's north face, NOT
         a door) and talk until HM05 — ported from recon_hm05. True if the flag sets."""
@@ -7754,6 +7912,23 @@ class Campaign:
             self.on_event(f"the road to {city} runs {leg['go']} from here — onward.",
                           kind="route", tier=1)
             if leg.get("via") == "pass":
+                # CAVE-PASS (Rock Tunnel class): a 'pass' leg that runs THROUGH a dark warp-maze cave,
+                # NOT a hut door-passthrough. The KB tags it with a 'cave' map id; hand it to the
+                # warp-maze crosser (grid-BFS + section backtracking) instead of _door_passthrough
+                # (which never crosses a cave -> she edge-oscillated Route 9<->Route 10, the shift-4
+                # frontier). Gate check above already ensured Flash is taught before we get here.
+                if leg.get("cave"):
+                    try:
+                        cg, cn = str(leg["cave"]).split(",")
+                        r = self._cross_tunnel_leg((int(cg), int(cn)), nxt, leg["go"])
+                    except Exception as e:
+                        log(f"   [roam] tunnel-leg crossing errored ({e}) — falling through")
+                        r = None
+                    if r == "arrived":
+                        return "arrived"
+                    if r == "road_passthrough":
+                        return "road_passthrough"
+                    # need_flash / None -> fall through (door_passthrough/edge; defensive only)
                 pt = self._door_passthrough(want_map=tuple(nxt) if nxt else None)
                 if pt == "need_heal":
                     return "need_heal"

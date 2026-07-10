@@ -456,7 +456,8 @@
         "expected": true,
         "go": "south",
         "via": "pass",
-        "note": "a Pokemon Center sits right by the ROCK TUNNEL door. 'South' means THROUGH Rock Tunnel (PITCH DARK - teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species). The tunnel strike owns the crossing - DO NOT enter dark. Route 12 from the east is Snorlax-blocked; the tunnel is the ONLY pre-Flute road to Lavender."
+        "cave": "1,81",
+        "note": "a Pokemon Center sits right by the ROCK TUNNEL door. 'South' means THROUGH Rock Tunnel (PITCH DARK - teach + use HM05 Flash FIRST; the Route 2 aide's gate is 10 OWNED species). The tunnel strike owns the crossing - DO NOT enter dark. Route 12 from the east is Snorlax-blocked; the tunnel is the ONLY pre-Flute road to Lavender. The 'cave' field ('1,81' = Rock Tunnel 1F) tells the road-follower to invoke the warp-maze cave crossing (both mouths dest 3,28; needs grid-BFS + section backtracking) instead of the hut door-passthrough."
       },
       {
         "map": "3,4",
