@@ -1,5 +1,30 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⛏️ NS7 IN FLIGHT: BENCH POWER-LEVEL (the fix for the E4 team wall) → then VICTORY ROAD → E4 → CREDITS
+**DECISION (data-backed):** NS6's convergent-VR push is CONFIRMED BAD — its `stage_victory` shows it leveled
+the SOLO carry (Venusaur L60→**L65** + taught Earthquake) but the **bench NEVER grew** (Kadabra L16→18, Lapras
+L25→27) because trainer fights solo Venusaur (the participation-switch only fires while GRINDING), and it bled
+money **$36k→$4.5k** across wipe-halvings. So NS7 pivots to the CEO's prescribed fix: from the CLEAN rich
+`giovanni_done_kit` ($36k, full PP, Venusaur L60), **GRIND the two real teammates BEFORE Victory Road** so
+VR + E4 fall first-try with no wipes.
+**HARNESS BUILT: `pokemon_agent/recon_grind_bench.py`** (participation-XP grind, NO PC-box needed): fields ONE
+teammate as lead — **Lapras** (species 131, Water = Charizard + Lance answer) then **Kadabra** (species 64,
+Psychic = Agatha + Bruno answer) — arms `battle_agent.PROTECT_LEAD_GRIND` so every wild battle switches the weak
+lead → Venusaur (ace) turn 1 (weak mon banks XP, takes no hit; Venusaur tanks+KOs). Fodder (Rattata/Spearow/
+Drowzee) is never fielded → no wasted XP, no boxing. Grinding re-levels Venusaur too. Also fixes movesets free
+(Kadabra learns Psychic by level-up). Banks every re-entry → G:/temp/longrun/banked_GRIND (promote → `bench_grind_kit`).
+**LAUNCH:** `GRIND_STATE=giovanni_done_kit.state GRIND_TARGET=42 GRIND_MAP=<g,n> GRIND_DIR=<edge> GRIND_MIN=<wallmin>
+../.venv/Scripts/python.exe -u recon_grind_bench.py` (from `pokemon_agent/`, log → G:/temp/longrun/ns7_grind*.log).
+GRIND_MAP default = Route 22 `3,41` west of Viridian (guaranteed grass + Center — but LOW wilds L2-8, a MECHANIC
+PROBE only). **⚠️ TUNE THE SPOT:** once the switch is confirmed leveling Lapras, relocate GRIND_MAP to a
+strong-wild, Center-adjacent spot (Route 15/Fuchsia L26-30, or Cycling Road Route 16-18 L28-33) — Victory Road's
+L40+ wilds are ideal XP but its Center is too far (grind()'s heal-excursion cap bails). RESUME_STAGE=1 continues
+the banked_GRIND ratchet across restarts.
+**AFTER GRIND (bench ~L42):** (1) BOX the 3 fodder at a Center PC (prevents whiteout on Venusaur-faint — the
+recon_lapras deposit flow is the proven mechanism; Viridian PC console coords need deriving) → lean 3-mon team;
+(2) run `recon_victory.py` from the grind bank (VR trainers now fall first-try); (3) port + run `recon_e4.py`
+(E4_STATE env). See E4 wall notes below + [[pokemon-e4-gauntlet-truths]] / [[pokemon-e4-livelock-family-killed]].
+
 ## 🏁🏁 NS5 BANKED: ALL 8 BADGES (7 Blaine + 8 Giovanni) WON UNAIDED → frontier = VICTORY ROAD → E4 → CREDITS
 **Badge 8 (Earth/Giovanni 0x827) WON** from `blaine_done_kit` via kit-parametrized `recon_giovanni.py`
 (GIOVANNI_STATE env): 5 north sea crossings Cinnabar→Viridian (Surf) → Viridian Gym spin-tile maze
