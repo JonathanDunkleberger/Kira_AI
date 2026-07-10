@@ -6048,7 +6048,15 @@ class Campaign:
                 _ace_lv = max((int(m.get("level", 0) or 0) for m in _party), default=0)
             except Exception:
                 _ace_lv = 99                                   # read fail -> no grind (fail-open, safe)
-            if (0 < _ace_lv < _RIVAL_PREP_LEVEL) and (_rival_lost_here or _ace_lv >= _prep_floor):
+            # PREP ON THE **FIRST** APPROACH (2026-07-10, NIGHT SHIFT 16 — bypass the whole post-loss mess):
+            # grind the ace to L32 at the anchor whenever she's underlevelled — do NOT wait for a first Gary
+            # LOSS to trigger it (the old `_rival_lost_here or _ace_lv >= _prep_floor` gate boarded her at L26,
+            # cabin-swept to L30, and LOST — and that loss whites her out to Cerulean where routing back to the
+            # anchor deadlocks on the S.S. Anne SPATIAL WALL / Cut-tree-gated road, s16b STALL). Prepping to L32
+            # BEFORE the first boarding means she boards evolved, cabin-skips, and WINS first try — she never
+            # loses, never whites out, never hits the return-routing wall. `0 < _ace_lv < L32` still self-
+            # terminates the grind (ace hits L32 Venusaur -> guard False -> board). General per rule 14.
+            if 0 < _ace_lv < _RIVAL_PREP_LEVEL:
                 self._ql_prefight_grind = 1
                 log(f"   [roam] 🏋️ PREP-BEFORE-RIVAL: a rival gauntlet is a team-strength wall — ace "
                     f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding at the ship anchor (an "
