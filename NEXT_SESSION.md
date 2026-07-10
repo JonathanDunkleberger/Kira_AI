@@ -18,11 +18,13 @@ BLOCKER (NS4 look-ahead probe): she wedges routing toward Cinnabar at **map (3,3
 path… genuine wall/zone gap") — Cinnabar is ACROSS THE SEA and her party (Venusaur + Spearow/Rattata/Abra/
 Drowzee/Ekans) has **NO Surf-capable mon**. This is the #3 team-building soul-debt made load-bearing: to
 reach Blaine she needs a **water/Surf teammate** (catch one — e.g. a Tentacool/Poliwag/Krabby off a
-Surf-adjacent route or the Safari, level it, teach HM03 Surf) AND HM03 itself (check the bag — hm_teach.py
-exists). The travel circuit-breaker handled the wedge gracefully (returned to roam LOUD, no freeze-spin —
-watch-safe), so the canonical fixture is NOT wedged. NEXT SHIFT: (1) inventory the bag for HM03 Surf +
-confirm no party mon can learn it; (2) build the catch-a-water-mon + teach-Surf leg (the team-building
-behaviour #3 has been deferred all climb — this is where it becomes mandatory); (3) then the sea route to
+Surf-adjacent route or the Safari) AND **HM03 Surf**. CONFIRMED via bag dump: the fixture holds HM01 Cut
+(339) + HM05 Flash (343) but **NOT HM03 Surf (341)** — so HM03 must be ACQUIRED (FRLG: it's the reward in
+the **Safari Zone Secret House**, a Fuchsia-area errand — she's already been to Fuchsia). The travel
+circuit-breaker handled the wedge gracefully (returned to roam LOUD, no freeze-spin — watch-safe), so the
+canonical fixture is NOT wedged. NEXT SHIFT (a big, multi-step team-building stretch — start fresh with
+full context): (1) Safari Zone → grab HM03 Surf (Secret House); (2) catch + level a water mon and teach it
+Surf (hm_teach.py exists; the #3 team-building behaviour deferred all climb is now MANDATORY); (3) sea route to
 Cinnabar → Blaine (Fire gym — Venusaur's Grass is ×0.5 into Fire, so a Water/Rock teammate doubles as the
 Blaine answer). SABRINA POTION-STALL not needed (she won without items); the Saffron Mart + reusable
 `stock_hyper_potions` remain available if a future Fire/attrition wall wants Hyper Potions.
