@@ -5928,20 +5928,25 @@ class Campaign:
         # ONE heal per (step, town) approach so it never loops; heal_nearest returns to the town.
         _pn = f"{getattr(step, 'place_name', '') or ''} {getattr(step, 'human', '') or ''}".lower()
         _rival_gauntlet = ("rival" in _pn) or ("trainers on board" in _pn)
-        if _rival_gauntlet and step_anchor and cur_map == step_anchor:
-            _hk = (step.missing, cur_map)
-            _unready = (not self._party_gym_ready()) or self._lead_attack_pp_low(floor=14)
-            if getattr(self, "_ql_prefight_healed", None) != _hk and _unready:
-                self._ql_prefight_healed = _hk
-                log("   [roam] 🩹 HEAL-BEFORE-RIVAL: a rival/trainer gauntlet is ahead and the ace "
-                    "isn't attack-fresh (low HP/PP) — Center first, then aboard (no PP famine).")
-                self.on_event("hold on — I'm not walking into a rival fight on fumes. Center first, "
-                              "full HP and PP, then we board.", kind="route", tier=2)
+        # Re-arm per approach: leaving the anchor town (boarding, or a post-loss walk-back) resets the
+        # attempt counter, so each fresh approach heals again. The PP state itself is the loop guard —
+        # once healed to full, the floor check goes False and the gate stops firing (no re-heal spin).
+        if step_anchor and cur_map != step_anchor:
+            self._ql_prefight_tries = 0
+        if _rival_gauntlet and step_anchor and cur_map == step_anchor and (
+                self._lead_attack_pp_low(floor=20) or not self._party_gym_ready()):
+            self._ql_prefight_tries = getattr(self, "_ql_prefight_tries", 0) + 1
+            if self._ql_prefight_tries <= 2:      # belt-and-suspenders: a reachable town Center never
+                log("   [roam] 🩹 HEAL-BEFORE-RIVAL: a rival gauntlet is ahead (ship trainers + the "
+                    "rival drain attacking PP with NO Center aboard) and the ace isn't attack-fresh "
+                    "-> Center FIRST, full HP+PP, THEN board (kills the S.S. Anne PP famine).")
+                self.on_event("hold on — nobody boards for a rival fight on fumes. Center first, "
+                              "full HP and PP, then we go.", kind="route", tier=2)
                 try:
                     hr = self.heal_nearest()
                 except Exception as e:
                     hr = f"error:{e}"
-                log(f"   [roam] 🩹 pre-rival heal -> {hr}")
+                log(f"   [roam] 🩹 pre-rival heal (try {self._ql_prefight_tries}/2) -> {hr}")
                 return "questline_prefight_heal"
         # DOOR HINT (flute_run1): the target building sits INSIDE the anchor town (Pokemon Tower,
         # the Game Corner) — no compass dir reaches it. The KB bills the exact door tile; standing
