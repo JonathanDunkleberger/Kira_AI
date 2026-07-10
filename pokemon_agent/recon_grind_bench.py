@@ -64,7 +64,7 @@ SCRATCH = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
 STAGE = os.path.join(SCRATCH, "stage_grind")
 BANK = os.path.join(SCRATCH, "banked_GRIND")
 
-LAPRAS, KADABRA = 131, 64            # the two teammates worth leveling (species ids)
+LAPRAS, KADABRA, ABRA = 131, 64, 63  # teammates worth leveling (species ids; Abra->Kadabra @L16)
 
 
 def _resolve_state(name):
@@ -91,8 +91,16 @@ def main():
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
     TARGET = int(os.environ.get("GRIND_TARGET", "42"))
+    # PRIORITY-ORDERED species to grind (grind each to TARGET before the next). Default = Lapras first
+    # (the essential Charizard/Lance answer), then the psychic mon (Abra->Kadabra), then Kadabra.
+    GRIND_SPECIES = [int(x) for x in os.environ.get("GRIND_SPECIES", f"{LAPRAS},{ABRA},{KADABRA}").split(",")]
     BUDGET_MIN = float(os.environ.get("GRIND_MIN", "40"))
     PROBE_S = int(os.environ.get("GRIND_PROBE_S", "300"))
+    # fragile=False by default: the participation-switch swaps the weak lead OUT turn 1, so it never
+    # takes a hit / never faints -> the fragile one-way-strand filter (which refuses Route-15's grass
+    # from its west-edge entry) is needless here. The ace (Venusaur) tanks + heals at the adjacent
+    # Fuchsia Center. Set GRIND_FRAGILE=1 only for a Center-less/ledge-locked spot.
+    FRAGILE = os.environ.get("GRIND_FRAGILE", "0") == "1"
     b = Bridge(ROM)
     state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("GRIND_STATE", "giovanni_done_kit.state"))
     _boot = state_path
@@ -189,6 +197,25 @@ def main():
                 L(f"   walk_to_map -> {r}; now at {tuple(tv.map_id(b))} {tv.coords(b)}")
         except Exception as e:
             L(f"!! walk_to_map errored: {e} — grinding at current map")
+    # Some grass routes are guardhouse-DIVIDED: the edge-crossing lands on the wrong side (no grass
+    # reachable) and the grass sits past an interior WARP. GRIND_WARP="x,y" steps onto that warp first
+    # (e.g. Route 15 warp (9,11)->(24,0) puts her on the grass side). Retries a few times (the warp is a
+    # travel-to-coord that fires on arrival).
+    gwarp = os.environ.get("GRIND_WARP", "")
+    if gwarp:
+        try:
+            wx, wy = (int(x) for x in gwarp.split(","))
+            for attempt in range(4):
+                before = tuple(tv.coords(b) or (0, 0))
+                camp.trav.travel(target_map=None, arrive_coord=(wx, wy), max_steps=60, max_seconds=60)
+                # a warp fires on stepping onto (wx,wy); coords jump elsewhere when it triggers
+                after = tuple(tv.coords(b) or (0, 0))
+                L(f"   GRIND_WARP attempt {attempt}: {before} -> {after}")
+                if after != before and after != (wx, wy):
+                    break
+        except Exception as e:
+            L(f"!! GRIND_WARP errored: {e}")
+        L(f"   after warp: now at {tuple(tv.map_id(b))} {tv.coords(b)}")
 
     # ── the fielded participation-XP grind ────────────────────────────────────
     battle_agent.PROTECT_LEAD_GRIND = True                # every grind battle: weak lead -> ace turn 1
@@ -197,10 +224,15 @@ def main():
     stalled = set()                                       # species we've proven can't gain XP here
 
     def next_target():
-        """Lowest-level Lapras/Kadabra still under TARGET and not stalled — the mon to field."""
-        cands = [(s, sp, lv) for s, sp, lv in species_levels()
-                 if sp in (LAPRAS, KADABRA) and lv < TARGET and sp not in stalled]
-        return min(cands, key=lambda t: t[2]) if cands else None
+        """The next mon to field, in PRIORITY order (GRIND_SPECIES): grind each species to TARGET
+        before moving to the next, so Lapras (the essential answer) finishes first. Returns the
+        (slot, species, level) of the highest-priority species still under TARGET and not stalled."""
+        levels = species_levels()
+        for want_sp in GRIND_SPECIES:
+            for s, sp, lv in levels:
+                if sp == want_sp and lv < TARGET and sp not in stalled:
+                    return (s, sp, lv)
+        return None
 
     passes = 0
     while time.time() - t0 < BUDGET_MIN * 60:
@@ -216,7 +248,7 @@ def main():
         passes += 1
         L(f"   [pass {passes}] grinding species {sp} L{lv_before} -> {TARGET} (probe {PROBE_S}s)")
         try:
-            r = camp.grind(TARGET, fragile=True, budget_s=PROBE_S)
+            r = camp.grind(TARGET, fragile=FRAGILE, budget_s=PROBE_S)
         except Exception as e:
             L(f"!! grind errored: {e}")
             r = "error"
