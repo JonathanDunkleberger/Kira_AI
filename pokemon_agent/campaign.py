@@ -5951,8 +5951,14 @@ class Campaign:
         # once healed to full, the floor check goes False and the gate stops firing (no re-heal spin).
         if step_anchor and cur_map != step_anchor:
             self._ql_prefight_tries = 0
+        # FLOOR = TOP-OFF, not "some PP left" (night shift 6): floor=20 read her ~50 post-Route-6 PP as
+        # "fine" and she boarded the S.S. Anne — a LONG Center-less gauntlet (3-4 ship trainers + Gary's
+        # 4 mons, ~10 foes, many resisting grass so each needs 2-4 hits) — under-fuelled -> famined on
+        # Charmeleon (grass x0.25, Tackle already 0-PP) -> lost a WINNABLE fight. A gauntlet needs a FULL
+        # bar at the dock, so top off unless essentially full (floor 70 ~= her 75-PP max: Razor Leaf 25 +
+        # Vine Whip 15 + Tackle 35). Bounded by the per-approach try cap; re-arms on leaving town.
         if _rival_gauntlet and step_anchor and cur_map == step_anchor and (
-                self._lead_attack_pp_low(floor=20) or not self._party_gym_ready()):
+                self._lead_attack_pp_low(floor=70) or not self._party_gym_ready()):
             self._ql_prefight_tries = getattr(self, "_ql_prefight_tries", 0) + 1
             if self._ql_prefight_tries <= 2:      # belt-and-suspenders: a reachable town Center never
                 log("   [roam] 🩹 HEAL-BEFORE-RIVAL: a rival gauntlet is ahead (ship trainers + the "
