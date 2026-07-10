@@ -1,60 +1,72 @@
-<!-- ═══ NIGHT-SHIFT #2 (2026-07-10 night) — BADGE 4 (Erika) TYPE-WALL: coverage-teach fix IN VERIFICATION ═══
-FRONTIER: BADGE 4 (RAINBOW, Erika/Celadon). The badge-4 CHAIN replays cleanly from surge_done_kit
-(Vermilion → Flash errand → Rock Tunnel → Celadon → enters Erika's gym). She REACHES Erika every run.
-The wall is the FIGHT, and shift #1's diagnosis was INCOMPLETE.
+<!-- ═══ NIGHT-SHIFT #14 (2026-07-10 night) — BADGE 4 (Erika): PP-FAMINE root fixed, IN VERIFICATION ═══
+FRONTIER: BADGE 4 (RAINBOW, Erika/Celadon). The full chain from surge_done_kit REPLAYS END-TO-END this
+shift: Flash errand (catch to dex 10 → HM05 from Route-2 aide → teach Flash) → Rock Tunnel crossing
+(lit, fights the tunnel trainers, Venusaur L35→L43) → Underground Path → Celadon → enters Erika's gym →
+clears juniors → engages Erika. She REACHES and FIGHTS Erika. The wall is the LEADER FIGHT.
 
-★ TRUE ROOT (shift #2, deeper than shift #1): Erika is a GRASS/POISON gym and Kira's L43 Venusaur ace has
-NO neutral coverage — her whole moveset is Grass (Razor Leaf / Vine Whip / Absorb), ALL x0.25 vs grass/poison.
-Auto-learn STRIPPED her only neutral move (Tackle, present at L35 in the fixture) as she levelled L35→L43.
-So even a +14-level lead can't out-damage: she spams x0.25 grass, PP-famines to status, and BLACKS OUT —
-3 gym attempts, 3 whiteouts, then marks the gym a spatial wall ("gated until stronger") → post-loss stall.
-The battle brain DOES try to adapt (switches to Pidgey → Gust x2), but the flyers are L12-17, too frail vs
-L29 Erika mons. Shift #1's `_restore_ace` fix is NECESSARY (ace must lead) but INSUFFICIENT (the ace itself
-is type-dead here). Her bag: 3 Poké Balls, HM01 Cut, TM03 Water Pulse, TM28 Dig, TM39 Rock Tomb, TM34 Shock
-Wave — of which only Cut (normal) and Dig (ground) are ≥ x1 vs grass/poison (the rest resisted).
+★ TRUE ROOT (shift #14, deeper than #1/#2 — the #2 premise was WRONG): Venusaur STILL HAS Tackle (normal
+x1) — auto-learn did NOT strip it. So the coverage-teach (which only fires when the ace has NO neutral
+move, best_have<1.0) correctly did nothing. The real wall is PP FAMINE: Erika's junior gauntlet is ALL
+grass/poison, so Tackle (Venusaur's ONLY neutral move, 35 PP) is the best pick vs every junior → she spams
+it through the gauntlet → it drains to 0 PP before the leader → choose_move falls to RESISTED Razor Leaf
+(x0.25) → can't out-damage L29 Erika → BLACKS OUT. The retry only wins because whiteout REFILLS PP AND the
+beaten juniors stay beaten (Tackle survives to the leader → win). VERIFIED in the s14 look-ahead log:
+attempt-1 = Razor Leaf x0.25 vs victreebel (85→57) then wipe; attempt-2 = Tackle x1 vs victreebel (85→61→
+35→9), winning when the run was killed. So she DOES bank badge 4 via the retry ratchet, but wastes attempt
+1 + a whiteout round-trip (unwatchable) every time.
 
-★ FIX APPLIED (uncommitted → committed this shift; IN VERIFICATION): new `_teach_gym_coverage(gym, rec)`
-(campaign.py ~3326) + `_COVERAGE_MOVES` KB (~237). When prep_for_gym sees `not has_type_answer` and the
-catch can't answer it, if the ACE's whole offense is resisted (best dmg-move eff < x1 vs rec['types']),
-it scores the bag TMs/HMs against the gym's DEFENDING types (type chart), picks the best learnable
-neutral-or-better move (prefer SE, then power, then HM), and TEACHES it to the ace (forgetting its weakest
-damaging move; keeps status + best STAB). For Erika → teaches Venusaur **Cut** (normal x1, 50pw) — 4× her
-current x0.25 grass; L43 neutral Cut should crush L24-29 Erika. TM move_ids ROM-VALIDATED (st.move_info)
-before teaching so a wrong id is skipped, not mis-taught. Self-limits (after teach, best_have≥1 → no
-re-teach). Also kept shift-1's `_restore_ace()` in beat_gym (~3322). Flag: POKEMON_GYM_COVERAGE_TEACH=1.
+★ FIX APPLIED + COMMITTED (5c07f01, IN VERIFICATION): `_teach_gym_coverage` guard changed from "skip the
+instant ONE neutral move exists (best_have>=1.0)" to "count neutral-or-better DAMAGING moves; skip only at
+>=2 (real PP depth)". With 0 or 1 neutral move, teach a bag coverage move — for Erika → teaches Venusaur
+CUT (HM01, still in bag, Venusaur-compatible) so she carries Tackle+Cut = 65 PP of neutral coverage and
+reaches the leader with PP to spare (choose_move picks Cut 50pw first, then Tackle 35pw; both x1). Forgets
+the weakest dmg move vs grass/poison = Vine Whip (Tackle SAFE). Self-limiting (2 neutral after the teach).
+Added a dispatch-result log (`coverage-teach dispatch -> taught|have_coverage|...`) + a depth-only voice
+line. Flag POKEMON_GYM_COVERAGE_TEACH=1 (default ON, confirmed).
 
-VERIFY / CLIMB COMMAND (badge-4 from the fresh badge-3 bank; ~10-15 min wall clock to Erika's gym):
+VERIFY / CLIMB COMMAND (badge-4 from the fresh badge-3 bank; ~30-40 min wall clock — it does the WHOLE
+Flash errand + Rock Tunnel + Celadon before Erika, so give it the full 45):
    `POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 LONGRUN_GOAL_FLAG=0x823 .venv/Scripts/python.exe -u
-   pokemon_agent/recon_longrun.py surge_done_kit.state 45` → /g/temp/s2_badge4.log. GOAL 0x823 = RAINBOW.
-   WATCH: `COVERAGE-TEACH Cut` before `GYM: inside` → ace lands x1 Cut → Erika WON → BADGE 4.
-   grep: `grep -nE "COVERAGE-TEACH|coverage-teach|GYM: inside|GYM: won|GYM: lost|Rainbow|BADGE|blacked" log | grep -v ctx=`.
+   pokemon_agent/recon_longrun.py surge_done_kit.state 45` → /g/temp/s14b_badge4.log. GOAL 0x823 = RAINBOW.
+   WATCH: `GYM-PREP [Erika]: coverage-teach dispatch -> taught` + `COVERAGE-TEACH Cut` BEFORE `engaging
+   Erika` → ace lands x1 Cut/Tackle → `GYM: won` / badge flag 0x823 set → OUTCOME: GOAL.
+   grep: `grep -nE "coverage-teach dispatch|COVERAGE-TEACH|engaging Erika|GYM: won|GYM: lost|blacked|OUTCOME|badges=4" log | grep -v ctx=`.
+   ON GOAL: bank at /g/temp/longrun/banked_GOAL/ (round-trip + sanctity checked). Promote to
+   states/workshop/erika_done_kit.state (+ sidecars) for the badge-5 frontier.
 
-IF SHE STILL LOSES ERIKA after the Cut teach: (a) confirm the teach actually landed (`coverage-teach Cut ->
-taught`) — if `not_in_case`/`failed`, the TM-Case navigation is the bug (see hm_teach.py TeachFlow). (b) If
-taught but she still loses, the SECONDARY blocker is the JUNIOR-ENGAGEMENT spin: Erika's flower-tile layout
-leaves ~6 juniors "un-engageable (wandering/water-locked)" — she burns 14 clear-rounds then proceeds LOUD;
-that spin + attrition may still whiteout. Fix path: make the gym-clear SKIP un-engageable juniors faster /
-path straight to the leader (Erika sits at the back; you don't need every junior). (c) If Cut isn't enough
-damage, escalate to Dig (TM28, ground, but 2-turn — excluded from _COVERAGE_MOVES for actuation risk; would
-need the engine to drive the charge/hit) OR grind a flyer to ~L25 for Gust x2.
+IF SHE STILL LOSES ERIKA after the Cut teach: (a) confirm `coverage-teach dispatch -> taught` (if
+`have_coverage`, the neutral_dmg count guard didn't trip — check Venusaur's actual moveset at Erika-time;
+if `not_in_case`/`failed`, TM-Case nav bug, see hm_teach.py TeachFlow). (b) If taught but still loses,
+the backstop is a PP-restore heal between the junior clear and the leader (a real player heals if low) —
+NOT built yet; the coverage-teach was chosen over it (self-contained, no mid-gym excursion fragility).
 
-RESIDUALS (noted, NOT blocking): (1) MAP (18,0) Saffron gatehouse decoy dead-end on the Route-6→5 crossing —
-DO NOT blind-add to gates.json no_connector: unlike the true dead-ends 17,0/17,1, 18,0 IS a real connector
-(→ Saffron 3,10, guard-gated pre-Tea); permanently blocking it risks breaking Saffron access later. It
-self-heals via dead-end-backout. Leave it or make it CONDITIONAL on the Saffron gate being locked. (2)
-junior-engagement spin (above). (3) she tours Celadon buildings before the gym — slow/unwatchable.
+RESIDUAL — JUNIOR-ENGAGEMENT SPIN (real watchability cost, NOT yet fixed): Erika's flower-tile layout
+leaves ~4 juniors (obj1/2/5/6) "un-engageable (wandering/water-locked)". She tries each 4× (~115 log lines
+each) before deferring, burns the 14-clear-round cap (~1500 lines / lots of wall-time), THEN proceeds to
+the leader. The cap correctly bails her through so it's not fatal, but it's slow/unwatchable and repeats on
+every gym attempt. Fix candidate: remember the deferred (un-engageable) set across clear-rounds and skip
+straight to the leader once only un-engageable juniors remain, instead of re-scanning them. Do this AFTER
+badge 4 banks (distance first).
 
-FIXTURES: surge_done_kit.state @ pokemon_agent/states/workshop/ (badge 3 @ Vermilion, party [venusaur L35,
-spearow L12, rattata L8, abra L10], dex 6; bag has HM01 Cut + TM28 Dig + 3 balls). Do NOT resume from
-states/campaign/checkpoints/ auto-banks (STALE / champion-save L95 party — NOT the surge_done_kit run).
+RESIDUAL — Tea detour (minor): on reaching Celadon she briefly toured a building chasing the Tea (a
+Saffron/badge-6 errand the questline armed early); head_to_gym correctly kept Erika as the current
+objective and she entered the gym. Not blocking. The Tea gate is for LATER (Saffron).
+
+FIXTURES: surge_done_kit.state @ pokemon_agent/states/workshop/ (badge 3 @ Vermilion; bag HM01 Cut +
+TM28 Dig + TM03/39/34 + 3 balls; NO HM05 Flash and dex 6 — the Flash errand IS part of this chain and
+takes ~15 min of the run). Prior erika_done.state (Jul 9) + banked_CREDITS exist — this is a RELIABILITY
+RE-CLIMB (game already beaten once). Do NOT resume from states/campaign/checkpoints/ auto-banks (STALE /
+champion L95). recon_bagdump.py / recon_partydump.py take a FULL path.
 
 KEY FACTS: venv python `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill first: `taskkill //F
-   //IM python.exe //T`). recon_longrun arg2 = max_minutes (wall-clock cap). setdefaults POKEMON_FIELD_MOVES=1
-   + POKEMON_ITEM_PICKUP=1; stages to G:/temp/longrun/stage; canonical Champion save NEVER touched. GOAL
-   0x823 = FLAG_BADGE_RAINBOW. Bag decode: TM_N item = 288+N, HM_N item = 338+N. Coverage move-ids are
-   canonical Gen-3 (Cut=15 certain; TMs ROM-validated at runtime). recon_partydump.py / recon_bagdump.py
-   take a FULL path (not a bare name) — pass pokemon_agent/states/workshop/<file>.
+   //IM python.exe //T`). recon_longrun arg2 = max_minutes (wall-clock cap). SCRATCH = $TEMP/longrun =
+   /g/temp/longrun; canonical Champion save NEVER touched. GOAL 0x823 = FLAG_BADGE_RAINBOW. The look-ahead
+   decision-counter [NNN.Ns] FREEZES during a gym (the whole junior-clear + leader fight is ONE head_to_gym
+   decision) — that's NORMAL, watch the growing log lines, not the counter. Bag decode: TM_N=288+N, HM_N=338+N.
+   Battle move-picker = pol.choose_move (pokemon_policy.py:49) scores max(power,1)*eff, NO STAB; when enemy
+   types are unresolved it goes raw-power (favours resisted STAB) — not the Erika root but a latent risk.
 
 WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 4 Erika (chain proven to
-   her gym; coverage-teach Cut fix in verification). Pop-in = `python pokemon_agent/watch.py`.
+   her gym e2e; PP-famine root fixed via coverage-teach-for-depth, in verification). Pop-in = `python
+   pokemon_agent/watch.py`.
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->
