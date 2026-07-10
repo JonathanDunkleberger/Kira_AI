@@ -1,75 +1,75 @@
-<!-- ═══ NIGHT-SHIFT 15 (2026-07-10) — BADGE 3 wall = S.S. ANNE GARY (off-anchor prep-grind dead spot) ═══
-THE FRONTIER: BADGE 3 (Lt. Surge). Shift 14 closed the cabin-skip DEAD-ZONE (cabins now level the ace
-L26->L30). Shift 15 caught the NEXT link of the same livelock live and fixed it; a verify run is in flight.
+<!-- ═══ NIGHT-SHIFT 16 (2026-07-10) — ★ S.S. ANNE GARY WALL BEATEN; frontier = SURGE GYM-DOOR CUT TREE ═══
+THE WIN: the 12-shift S.S. Anne Gary wall is BEATEN e2e (verified, s16e_surge.log). She now grinds the ace
+to Venusaur L32 BEFORE boarding, cabin-skips, WINS Gary first try, and obtains HM01 Cut from the captain.
+NEW FRONTIER: BADGE 3 (Lt. Surge) gym ENTRY — she has Cut but can't field-Cut the gym-door tree.
 
-★★ SHIFT-15 HEADLINE — the ace-to-L32 prep-grind can't fire after a Gary loss because the loss whites her
-   out OFF-ANCHOR. Ground truth from s14_surge.log (shift-14's own verify run, watched live):
-   - Cabin sweep worked (shift-14 fix good): ace climbed **L26 -> L30** fighting cabin trainers.
-   - She B-lined to Gary at **Ivysaur L30** and LOST (grudge 4W-3L; Gary = charmeleon+kadabra+pidgeotto+
-     raticate). Shift-11's ONLY proven Gary-killer is **Venusaur L32** (Ivysaur evolves at L32 — a bulk/
-     power spike). L30 loses.
-   - The whiteout dumped her at the **CERULEAN** Center (last-healed Center), NOT Vermilion.
-   - Back in Cerulean the clean, narrated **PREP-BEFORE-RIVAL** grind (self.grind(L32), the thing that
-     tops the ace to the winning level) NEVER FIRED — it was gated on `cur_map == step_anchor` (she must be
-     standing on the ship's Vermilion approach). Off-anchor, only the GENERIC underlevel-prep runs, and that
-     targets the BENCH FLOOR (~L19) and STOPS — the ace crept only to L31 via a wedgy generic grind, never
-     L32 -> she'd trek back, reboard at ~L30-31, lose again = LIVELOCK.
+★★ THE ROOT (finally): the strategic FODDER-grind pre-empted the ace prep, AND a stale flag hid it.
+   Chain of discovery this shift (each committed fix exposed the next layer):
+   1. aff5dbc — After a Gary loss the STRATEGIC path (PICK OUT: battle) dominates the roam tick and, with
+      the in-battle switch armed, `_prep_team_target` took the FODDER-floor branch (underlevel_target≈L19,
+      field the weak mons). So she ground the bench to L19 while the ACE — the only thing that beats a 4-mon
+      rival — stalled at L30, "readiness" crossed on the team FLOOR, she boarded at L30 and lost = livelock.
+      FIX: route 4+-mon rival prep to ACE-OVERPOWER.
+   2. f1bc0db — Ace-overpower grinding at Cerulean dove down the one-way Route-4 ledge she can't path back up
+      (stranded, treadmilled L35→39). FIX: DEFER 4+-mon rival prep to the questline anchor-path; RIVAL-RETURN
+      guard stops off-anchor trap-grinds.
+   3. Post-loss deadlock: a Gary loss records the S.S. Anne as a SPATIAL WALL that gates the route back to the
+      anchor "until stronger" — but she can only get stronger at the anchor she can't route to (s16b STALL).
+   4. 6643dd7 + 78d8c4d — Bypass the whole post-loss mess: PREP TO L32 ON THE FIRST APPROACH, at the actual
+      BOARDING warp (never lose, never white out).
+   5. ★ 57d18c4 — THE BUG that hid the prep for 12 shifts: on the FIRST approach `_rival_won_here` was TRUE
+      because the detection loose-matches ANY historical won rival encounter whose place contains "s.s. anne"
+      — and the **bill_done_kit fixture carries a won "s.s. anne" encounter in strat memory**. That
+      `not _rival_won_here` guard silently skipped the prep in BOTH the 6044 block and the new boarding gate,
+      so she boarded at L28 EVERY shift and lost Gary. Dropped it from the boarding gate (standing at the
+      HM-Cut boarding warp already proves she hasn't won — no Cut, gym still shut).
+   VERIFIED e2e (s16e_surge.log): `BOARDING GATE: ace=L28 -> GRIND FIRST` → Route 6 grind → ivysaur→venusaur
+   → `ace=L32 -> board` → `CABIN SWEEP SKIPPED — ace L32 overpowers` → `KIRA obtained HM01 from the CAPTAIN!`
+   (reaching the captain REQUIRES beating Gary — so Gary is WON). The 12-shift wall is DEAD.
 
-   ROOT: `cur_map == step_anchor` gate on the prep-grind (campaign.py ~6014). A rival LOSS displaces the
-   respawn town (Cerulean != the step's from_map anchor Vermilion), so the ace-to-L32 grind can never
-   re-fire from where the whiteout actually put her. (Exactly the shift-14-flagged next-suspect: "whiteout-
-   to-Cerulean displaces step_anchor — the prep gate needs cur_map==step_anchor".)
+★★ THE NEW FRONTIER — BADGE 3 SURGE GYM ENTRY (Cut-tree-at-door; she has Cut, can't actuate the field-cut):
+   After HM01 she disembarks, returns to Vermilion (Venusaur L39, over-grinded), and beat_gym tries
+   `enter_warp(gym.door)` — but the Vermilion gym door is behind a CUT TREE at (19,24) on map (3,5). beat_gym
+   returns "stuck" → shift-11 fix runs `_gym_gate_probe(gym)` (which scans for the tree, walks adjacent, and
+   `clear_obstacle('cut')` if `can_use('cut')`). can_use SHOULD be True (Cascade badge ✓ + Venusaur knows Cut
+   — she used it in battle). BUT the field-cut never actuates (no "auto use_cut"/"TIMBER" log after HM01).
+   DIAGNOSIS: after 2 gym-stucks the GYM-INTERIOR PING-PONG BREAKER (campaign.py ~8760) prunes head_to_gym
+   STRUCTURALLY on the Vermilion map — she's then stranded at the NORTH of Vermilion (24,0), ~24 tiles from
+   the tree at (19,24), oscillating Vermilion↔Route 6. `_gym_gate_probe`/`_obstacle_probe` (campaign.py
+   7088/7106) needs her walked ADJACENT to the tree to scan+cut, but the structural-park keeps her away, so
+   the cut never fires. Likely ALSO an `_obstacle_probe` reachability issue (the yard fence: the code comments
+   at 7098-7103 warn the Grid is optimistic about fences + a distance-first walk drifts to the BEACH).
+   NEXT-SHIFT PLAY (self-help arsenal, rule 15): (a) GRAB A FRAME of the Vermilion gym yard (`_gym_gate_probe`
+   run with a frame dump) to SEE the tree/fence/door geometry — is she able to stand adjacent to (19,24)?
+   (b) make `_gym_gate_probe` fire BEFORE the structural-park prunes head_to_gym (run it on the FIRST stuck,
+   or exempt the gym-approach from the ping-pong park when a Cut tree gate is recognized + Cut is owned);
+   (c) verify `can_use('cut')` actually returns True post-HM01 (field_moves.py:178) — maybe it checks a
+   flag/badge that reads False; (d) if `_obstacle_probe`'s walk-to-adjacent fails, fix the standing-tile BFS
+   for the gym yard. Once the tree is cut, she enters → beat_gym clears juniors → Surge → BADGE 3.
 
-   FIX (SHIFT 15, campaign.py ~6006, COMMITTED — see git log): once she has LOST to this rival
-   (`_rival_lost_here`), fire the prep-grind from WHEREVER she healed, not only at the anchor. New:
-   `_prep_at_anchor = step_anchor and cur_map==step_anchor`; `_prep_off_anchor_afterloss = _rival_lost_here
-   and not _prep_at_anchor`; gate fires on `(_prep_at_anchor or _prep_off_anchor_afterloss)`. The anchor
-   path keeps the hardcoded Route-6 walk_to_map (grind()'s grass-finder wedges in the gym-approach POCKET at
-   the Cut tree); the OFF-anchor path skips it and lets grind() find LOCAL grass (safe from a normal town
-   like Cerulean). The re-arm at `cur_map!=step_anchor` clears `_ql_prefight_grind` each off-anchor tick, so
-   the grind re-fires until the ace hits L32 (the `0 < _ace_lv < _RIVAL_PREP_LEVEL` guard self-terminates ->
-   evolve to Venusaur -> head back -> board -> cabins skip (>=32) -> WINNABLE Gary). General per rule 14:
-   helps every later rival (Tower/Silph) whose loss also displaces the respawn town. SYNTAX OK.
+   ALSO NOTED (not blocking, cosmetic-ish): she OVER-GRINDS after getting strong — Venusaur L39→41 via the
+   proactive-bench + `grind(lead+2)` treadmill while stuck at the gym. Once the gym-entry is unblocked this
+   mostly resolves (she stops being stuck); if it persists, suppress proactive-bench/lead+2 while an active
+   gym-gate (Cut tree) is unresolved.
 
-   VERIFY RUN IN FLIGHT (launched shift 15): `POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1
-   LONGRUN_GOAL_FLAG=0x822 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 55`
-   -> /g/temp/s15_surge.log. WATCH FOR (grep -vE "ctx="): cabin sweep L26->L30 -> Gary loss at ~L30 ->
-   whiteout to Cerulean -> **'PREP-BEFORE-RIVAL ... grinding up BEFORE boarding off-anchor (post-loss
-   respawn town)'** (THE NEW LINE — this is the fix proving out) -> ace L30->L31->L32 -> Venusaur -> trek
-   back to Vermilion -> reboard -> 'SHIP CABIN SWEEP SKIPPED — ace L32 ... >= L32' -> Gary grudge
-   encounter **won=True** -> captain -> HM01 Cut -> disembark -> head_to_gym -> Cut tree at gym door ->
-   'stuck' -> shift-11 gym-gate probe -> TrashCanPuzzle -> beat Surge -> OUTCOME: GOAL (0x822 =
-   FLAG_BADGE_THUNDER).
-   IF GOAL: bank surge_done, climb to BADGE 4 (Erika/Celadon — Rock Tunnel/Flash chain has night-train
-   fixes, MEMORY.md).
-   IF Gary WON but no Surge: fix proven — residual is downstream (captain/Cut/gym-gate); re-read the log
-   for the stall (shift-11/12 fixes should cover it).
-   IF the 'PREP-BEFORE-RIVAL ... off-anchor' line never appears: check `_rival_lost_here` is truthy in
-   Cerulean (it matches strat.rival encounters whose place contains 's.s. anne' — grep "LOSS recorded vs
-   trainer:the S.S. Anne:charmeleon"). If it fires but the ace still won't reach L32, the residual suspect
-   is the wedgy in-battle GRIND SWITCH ("grind switch did not confirm -> fighting (fail-safe)" + weak-mon
-   Peck-and-flee, s14 tail) — the ace isn't reliably taking the KO turns, so XP creeps. That's Tier-1 #5
-   (in-battle switch actuation), a deeper separate fix; the ace still levels, just slowly.
+VERIFY COMMAND (reproduces the WIN + lands on the gym-door frontier):
+   `POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 LONGRUN_GOAL_FLAG=0x822 .venv/Scripts/python.exe -u
+   pokemon_agent/recon_longrun.py bill_done_kit.state 55` -> /g/temp/s17_surge.log. WATCH: `BOARDING GATE:
+   ace=L28 -> GRIND FIRST` -> `-> venusaur` -> `ace=L32 -> board` -> `CABIN SWEEP SKIPPED` -> `HM01 from the
+   CAPTAIN` (Gary WON) -> disembark -> `couldn't enter the Lt. Surge gym` / `beat_gym stuck` (THE FRONTIER).
+   grep: `grep -nE "BOARDING GATE|-> venusaur|SWEEP SKIP|HM01|couldn't enter|beat_gym stuck|auto use_cut|TIMBER|GYM-GATE PROBE|GOAL|OUTCOME" log | grep -v ctx=`.
 
-KNOWN INEFFICIENCY (NOT fixed this shift, noted): the grind's GRIND SWITCH (put weak lead out, ace fights
-   for participation XP) frequently "did not confirm -> fighting (fail-safe)", so a weak mon Pecks
-   ineffectively and the anti-wedge floor FLEES after 3 turns — the grind still nets ace XP but slowly and
-   unwatchably. Tier-1 #5 in-battle switch actuation. Candidate next fix if the badge-3 run converges.
+FIXTURES: bill_done_kit.state at pokemon_agent/states/workshop/ (Ivysaur L26 + frail bench) — rebuild
+   `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py`. ⚠️ NOTE: this fixture's strat memory carries
+   a STALE won "s.s. anne" rival encounter (that's what tripped `_rival_won_here` for 12 shifts) — harmless
+   now that the boarding gate ignores it, but if you rebuild the fixture, be aware. Do NOT resume from
+   states/campaign/checkpoints/ auto-banks (STALE Jul-8).
 
-FIXTURES: bill_done_kit.state at pokemon_agent/states/workshop/ (Ivysaur L26 [RazorLeaf,VineWhip,Tackle,
-   SleepPowder] + frail bench Spearow/Rattata/Abra L8-12) — rebuild `.venv/Scripts/python.exe
-   pokemon_agent/recon_repair_kit.py`. Do NOT resume from states/campaign/checkpoints/ auto-banks (STALE
-   Jul-8). The full organic bill_done_kit run reproduces the Gary wall end-to-end (the honest verify).
+KEY FACTS: venv python `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill first: `taskkill //F
+   //IM python.exe //T`). recon_longrun setdefaults POKEMON_FIELD_MOVES=1 + POKEMON_ITEM_PICKUP=1 (field-cut
+   IS armed in look-ahead). recon stages to G:/temp/longrun/stage; canonical Champion save NEVER touched.
+   GOAL 0x822 = FLAG_BADGE_THUNDER. Kill-switches: POKEMON_RIVAL_PREP_LEVEL (32) = the ace prep target knob.
 
-KEY FACTS: venv python `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill predecessors first:
-`tasklist //FI "IMAGENAME eq python.exe"` then `taskkill //F //IM python.exe //T`). The `.venv` shim
-DETACHES + fires a false 'completed' on background launch — the REAL worker keeps running; check via
-tasklist + log mtime, NOT the task-notification. recon stages to G:/temp/longrun/stage (WIPED each run),
-banks to banked_<OUTCOME>; canonical Champion save NEVER touched. GOAL flags: recon_longrun.py:67-76.
-Kill-switches: POKEMON_SHIP_CABIN_SWEEP=0 disables the sweep; POKEMON_RIVAL_PREP_LEVEL (32) is the ONE knob
-both the sweep-skip and the prep-grind target (shift-14 coupled them — no dead-zone). Gary battle grep:
-`grep -nE "PREP-BEFORE|SWEEP|won=True|LOSS recorded vs.*S.S|BADGE|GOAL|OUTCOME" log | grep -v "ctx="`.
-
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 3 (Surge) — off-anchor
-prep-grind fix (committed shift 15) in-flight-verify to the badge. Pop-in = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 3 Surge gym ENTRY (Gary
+   WALL BEATEN this shift; residual = field-Cut the gym-door tree). Pop-in = `python pokemon_agent/watch.py`.
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->
