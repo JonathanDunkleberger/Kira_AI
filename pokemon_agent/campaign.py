@@ -6224,6 +6224,37 @@ class Campaign:
             # bend logic (which bounced east to Route 11 and back forever).
             gate_where0 = step_anchor            # anchor-relative: the STEP's map (flute_run1 fix)
             if gate_where0 and cur_map == gate_where0 and d in ("south", "north"):
+                # RIVAL-SHIP BOARDING GATE (2026-07-10, NIGHT SHIFT 16 — belt-and-braces at the ACTUAL
+                # boarding warp). The prep block above can miss on a freshly gym-gate-opened questline
+                # (s16c: she reached Vermilion, the Cut-tree gate opened the HM-Cut questline, and she
+                # boarded the S.S. Anne at ace L28 WITHOUT prepping -> underlevelled cabin-sweep + Gary).
+                # Here, at the confirmed pier-boarding warp, refuse to board a RIVAL gauntlet ship while
+                # the ace is under the proven Venusaur L32: grind on Route 6 FIRST, then board evolved and
+                # win first try (no loss -> no whiteout -> no return-routing deadlock). Diagnostic log
+                # carries the inputs so a miss is legible. General per rule 14.
+                try:
+                    _pty = (self.read_live_state() or {}).get("party") or []
+                    _acelv = max((int(m.get("level", 0) or 0) for m in _pty), default=99)
+                except Exception:
+                    _acelv = 99
+                _need_ship_prep = (_rival_gauntlet and not _rival_won_here
+                                   and 0 < _acelv < _RIVAL_PREP_LEVEL
+                                   and not getattr(self, "_ql_prefight_grind", 0))
+                log(f"   [roam] 🚢 BOARDING GATE: rival={_rival_gauntlet} won={_rival_won_here} ace=L{_acelv} "
+                    f"prep_lv=L{_RIVAL_PREP_LEVEL} armed={getattr(self, '_ql_prefight_grind', 0)} "
+                    f"-> {'GRIND FIRST' if _need_ship_prep else 'board'}")
+                if _need_ship_prep:
+                    self._ql_prefight_grind = 1
+                    self.on_event("that's my rival waiting on that ship — I want my team stronger before we "
+                                  "board. quick training on Route 6, then we go.", kind="route", tier=2)
+                    try:
+                        _rr = self.walk_to_map((3, 24), "north")   # Route 6 grass (safe; no Cut-tree pocket)
+                        log(f"   [roam] 🏋️ rival-ship prep: routed to Route 6 grass -> {_rr}")
+                        _gr = self.grind(_RIVAL_PREP_LEVEL, budget_s=900)
+                    except Exception as _e:
+                        _gr = f"error:{_e}"
+                    log(f"   [roam] 🏋️ rival-ship prep grind (target L{_RIVAL_PREP_LEVEL}) -> {_gr}")
+                    return "questline_prefight_grind"
                 before_m = tuple(tv.map_id(self.b))
                 # WRONG-ENTRANCE RECOVERY (sabrina_run4, the Celadon-Mansion back-door loop): pick
                 # the d-most door OURSELVES instead of enter_warp(prefer=d), so we can (a) skip
