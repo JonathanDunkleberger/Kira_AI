@@ -600,6 +600,16 @@ def main():
       f"{[int(fm.read_flag(b, f)) for f in range(0x40, 0x48)]}")
 
     # ── PHASE 1: the sea road to the Seafoam east door ──────────────────────
+    # NS9: a grind-bank start arrives with DEPLETED PP + a worn party — she WHITED OUT on R20's
+    # wild gauntlet mid-crossing (runs 1/2: Lapras move-slot-0 hit 0 PP, fodder fainted, blackout
+    # warped her to a Center = the (11,5) wedge). Heal to FULL before the sea road so the lead's
+    # moves don't run dry. Harmless from a fresh canonical start (already full).
+    try:
+        L("   pre-crossing heal (full PP/HP for the R19/R20 wild gauntlet)")
+        camp.heal_nearest()
+        L(f"   healed @ {tv.map_id(b)} {tv.coords(b)}")
+    except Exception as e:
+        L(f"   pre-crossing heal errored: {e}")
     deadline = time.time() + 2400
     while tuple(tv.map_id(b)) != R20 and time.time() < deadline:
         here = tuple(tv.map_id(b))
