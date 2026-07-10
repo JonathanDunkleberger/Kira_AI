@@ -3954,11 +3954,55 @@ class Campaign:
             self.b.set_input_owner("agent")
             return res
 
-    def catch_one(self, max_seconds=300):
+    def _species_on_map(self, species, mid):
+        """True if `species` appears in the encounters KB for the CURRENT map's area (any catch method).
+        Resolves the map -> its human place name (Route 24, Diglett's Cave...) then reads the frlg_
+        encounters areas table the TeamPlanner already loaded. Mode-side, pure lookup, fail-closed."""
+        try:
+            areas = (self.team_planner.encounters or {}).get("areas") or {}
+            entry = areas.get(self._place_name(tuple(mid), default=""))
+            if not entry:
+                return False
+            sp = (species or "").lower()
+            for method, mons in entry.items():
+                if str(method).startswith("_"):
+                    continue
+                if any((m.get("species") or "").lower() == sp for m in (mons or [])):
+                    return True
+        except Exception as e:
+            log(f"   [roam] species-on-map lookup skipped: {e}")
+        return False
+
+    def _plan_keeper_target(self, state):
+        """Part-C EXECUTOR: the forward-plan's DUE keeper species to SEEK, IF it can appear on the
+        CURRENT map (else None — no point fleeing everything on a route the keeper doesn't live on).
+        Reuses the standing TeamPlanner assessment; mode-side + plan-gated. Returns a species name/None."""
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED
+            if not TEAM_PLANNER_ENABLED:
+                return None
+            act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
+                                           bag=state.get("bag"), dex=state.get("dex_caught"),
+                                           post_game=bool(state.get("post_game")))
+            if not act or act.get("kind") != "catch_keeper":
+                return None
+            sp = (act.get("species") or "").lower()
+            if sp and self._species_on_map(sp, tv.map_id(self.b)):
+                return sp
+        except Exception as e:
+            log(f"   [roam] plan keeper target skipped: {e}")
+        return None
+
+    def catch_one(self, max_seconds=300, target_species=None):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
         to throws). A trainer's line of sight en route is fought (trainer mons can't be caught), then
-        we keep wandering. Returns 'caught' | 'no_balls' | 'timeout' | 'battle_loss'."""
+        we keep wandering. Returns 'caught' | 'no_balls' | 'timeout' | 'battle_loss'.
+
+        target_species (2026-07-09 Part-C executor): when set (a keeper species NAME, e.g. 'abra'),
+        the wander SEEKS that ONE species — every non-target wild is FLED (no ball/PP waste, keep
+        hunting) and the target is FORCE-caught (roster-judgment bypassed; it's on the plan, she's
+        certain). None = the original judged forward-catch (roster_judgment picks keepers)."""
         t0 = time.time()
         cur0 = tv.coords(self.b)
         # Grid.grass is in BUFFER coords (save + MAP_OFFSET); travel's arrive_coord + coords() are
@@ -4020,10 +4064,27 @@ class Campaign:
                 out = self.battle_runner()
                 trainer_secs[0] += time.time() - _tb
                 return out
+            # TARGETED CATCH (2026-07-09 Part-C executor): the wander is SEEKING one planned keeper.
+            # FLEE every non-target wild (no ball/PP waste, ends fast, keep hunting — the hunting-player
+            # pattern, same as the dex-errand dupe flee); the target falls through to the commit below
+            # with roster-judgment BYPASSED (it's on the plan — no "is this one good?" beat, she's here
+            # for it). If the target never appears the STUCK_CAP / timeout backstops surface it to roam.
+            _tgt = (target_species or "").lower()
+            if _tgt:
+                _tfid = st.read_enemy_species(self.b)
+                _tfname = st.SPECIES_NAME.get(_tfid, "") if _tfid else ""
+                if _tfname.lower() != _tgt:
+                    _out = self._flee_runner()
+                    if _out == "stuck":
+                        stuck_battles[0] += 1
+                    return _out
+                self.on_event(f"there it is — a wild {_tfname}! this is the one I came for.",
+                              kind="roster", tier=2)
+                # fall through to the commit (skip the judgment block)
             # BLOCK #3 — THE CHOICE (2026-07-06 nursery): a real player doesn't ball everything that
             # rustles the grass. Size the wild up (dupe/coverage/level/room), offer the call to the
             # oracle (hers, live), follow the framework's lean headless — and VOICE it both ways.
-            if CATCH_JUDGMENT_ENABLED:
+            elif CATCH_JUDGMENT_ENABLED:
                 # FOE SOURCE = gEnemyParty[0] (written at wild-mon CREATION, before the battle
                 # intro even fades in), NOT the gBattleMons snapshot: at hand-off time
                 # gBattleMons[1] can still hold the PREVIOUS battle's foe — the voltorb_run1
@@ -8447,7 +8508,14 @@ class Campaign:
                         f"remembered; next tick tries a different grass")
                     return f"to_grass:{r}"
             if pick == "wander_catch":
-                return self.catch_one()
+                # PLAN-AWARE (Part-C executor): if the forward brain has a DUE keeper that lives on
+                # THIS map (she walked onto its route), SEEK it specifically — flee the filler, catch
+                # the keeper. Else the ordinary judged forward-catch. Voice already folded via plan_note.
+                _kt = self._plan_keeper_target(state)
+                if _kt:
+                    log(f"   [roam] PLAN-CATCH: seeking planned keeper '{_kt}' on this route "
+                        f"(fleeing non-targets)")
+                return self.catch_one(target_species=_kt)
             # STRATEGIC UNDERLEVEL-GRIND (Task B): if the TEAM FLOOR is under the wall's level, field the
             # WEAK members (not the ace) and level THEM to readiness — the real fix for "the display said
             # 'train the team' but the action trained the ace". Else the ordinary lead bump.
