@@ -30,6 +30,11 @@ if _HERE not in sys.path:
 if os.environ.get("WATCH") != "1":
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 from bridge import Bridge            # noqa: E402
 import travel as tv                  # noqa: E402
@@ -59,14 +64,31 @@ GYM_EXIT_BAND = {(16, 21), (17, 21), (18, 21)}   # above the entrance mats (16-1
 KEY_OF = {(0, 1): "DOWN", (0, -1): "UP", (1, 0): "RIGHT", (-1, 0): "LEFT"}
 
 
+def _resolve_state(name):
+    """Resolve a state BASENAME/path -> (state_path, sidecar_dir, sidecar_prefix)."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
+
 def main():
     t0 = time.time()
 
     def L(m):
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("GIOVANNI_STATE", ""))
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    with open(state_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()
@@ -141,14 +163,20 @@ def main():
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    _w_side = os.path.join(sc_dir, sc_pref + ".world_model.json")
+    _s_side = os.path.join(sc_dir, sc_pref + ".strat_memory.json")
+    _soul_side = os.path.join(sc_dir, sc_pref + ".soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
 
@@ -501,6 +529,21 @@ def main():
             snap(f"31_seal_{wedges['cross']}")
             if nav.cross(lambda c: c in GYM_EXIT_BAND, "seal-reset-out"):
                 enter_to(VIRIDIAN, "seal-reset")
+            else:
+                drain()
+            continue
+
+        # PRE-LEADER HEAL (NS5 solo-carry attrition fix): the ~6 spin-floor juniors chip the lone
+        # Venusaur to near-0% DURING the cross, so she arrived at Giovanni too weak and was KO'd
+        # first-turn before her in-battle heal could fire (run1 loss at 2% -> whiteout). Giovanni's
+        # Ground/Rock team is x2 into Razor Leaf — a full-HP Venusaur sweeps — so top up BEFORE
+        # engaging. Beaten juniors stay beaten (object templates on reload), so the re-cross after
+        # healing does NOT re-chip her; she reaches Giovanni's front fresh next pass.
+        if lead_frac() < 0.85:
+            L(f"   at Giovanni's front but lead={lead_frac():.0%} — the juniors chipped the lone "
+              f"carry; backing out to heal before the leader (beaten juniors stay beaten)")
+            if nav.cross(lambda c: c in GYM_EXIT_BAND, "preleader-heal-exit"):
+                enter_to(VIRIDIAN, "preleader-heal")
             else:
                 drain()
             continue
