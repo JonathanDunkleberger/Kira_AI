@@ -618,9 +618,17 @@ def main():
             if not cross_edge("west", "r19-west"):
                 return 1
         else:
-            L(f"!! off-route map {here} — trying west then south")
-            if not (cross_edge("west", "reroute-west")
-                    or cross_edge("south", "reroute-south")):
+            # ROBUST START from a nearby grind spot (NS9: bench-grind banks at Route 18 (3,36),
+            # west of Fuchsia). Route to Fuchsia via the general traveler FIRST — it crosses the
+            # R18/R15 gatehouses fine — then the FUCHSIA branch takes the proven south sea road.
+            L(f"!! off-route map {here} — routing to Fuchsia via the general traveler")
+            try:
+                camp.walk_to_map(FUCHSIA, "east")
+            except Exception as e:
+                L(f"   walk_to_map(Fuchsia) errored: {e}")
+            if tuple(tv.map_id(b)) != FUCHSIA and not (cross_edge("west", "reroute-west")
+                                                       or cross_edge("south", "reroute-south")):
+                L(f"!! could not route off {here} toward Fuchsia")
                 return 1
         settle(180)
         _stage_save("leg")
