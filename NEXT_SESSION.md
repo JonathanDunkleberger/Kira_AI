@@ -40,7 +40,51 @@ from disk/real runs. Run-until-credits + escalate is already set (`night_shift.p
 
 ---
 
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 10 IN FLIGHT) — READ FIRST
+# TEAM-BRAIN BUILD — FRONTIER (2026-07-09, mission-pivot shift IN FLIGHT) — READ FIRST
+
+## PART A (deep KB) — ✅ DONE + COMMITTED (2549dac). gamedata/ now holds frlg_rosters.json,
+## frlg_evolutions.json (68 lines), frlg_learnsets.json (22 species), frlg_tms.json (50TM+7HM),
+## frlg_encounters.json, frlg_team_plan.json (balanced-classic archetype). ALL GATES A1-A6 PASS on
+## disk — re-run `.venv/Scripts/python.exe -u pokemon_agent/recon_kb_verify.py` to confirm. Rosters
+## Bulbapedia-verified (E4/Champion/gyms fetched live 2026-07-09; Champion = Bulbasaur branch).
+##
+## PART B (the brain, pokemon_planner.py TeamPlanner) — ✅ DONE + COMMITTED (55602d6). Persistent
+## plan-state + whole-game lookahead + assess()/next_action() PlanActions (catch_keeper / acquire_special
+## / evolve / grind_to / teach_tm / develop_bench) + first-person plan_note voice. GATE B PASS: 9
+## deterministic tests + save/resume identity — re-run `.venv/Scripts/python.exe -u
+## pokemon_agent/recon_teamplanner_test.py`. On the REAL Sherpa state (Venusaur L52 solo, badge 4) the
+## brain diagnoses the solo-carry failure and prescribes 'catch an Abra — serves Koga AND Sabrina'.
+##
+## PART C (executor) — the LOAD-BEARING VOICE HALF is ✅ DONE + COMMITTED (19f7940): TeamPlanner.plan_note
+## now folds into the decision/oracle ctx (campaign.py ~9098) with PRECEDENCE over the reactive
+## StrategicPlanner (fallback when the brain is on-track/silent). campaign imports clean; wiring verified.
+## THE REMAINING WORK = the EXECUTOR DRIVE HALF (the actual proactive navigation): turn next_action into a
+## real objective run BEFORE the wall —
+##   1. CATCH_KEEPER(species, where): route to the encounter location (frlg_encounters keepers/areas) ->
+##      TARGETED catch (extend the existing catch_one to SEEK a specific species, keep it). Reuse travel +
+##      catch machinery already in campaign.py. This is the #1 piece (unblocks Abra/Diglett/Growlithe).
+##   2. Wire a PROACTIVE PLAN step into free_roam: at town arrivals / each tick, if next_action is a DUE
+##      catch/evolve/teach and cheaply reachable, DO it, then push to the gym. prep_for_gym becomes the
+##      last-resort net.
+##   3. GATE C = a real recon_longrun where she PROACTIVELY catches Abra before Koga, arrives prepared,
+##      wins, keeps moving (watchable). Then the FINAL PROOF = fresh bedroom->credits.
+##   4. PLAN-STATE PERSISTENCE (rule 17, do it WITH the executor): add ("team_plan_state.json", ...) to
+##      the sanctity bundle list (campaign.py:9745) + call self.team_planner.save(STATES_CAMPAIGN) in
+##      _continuity_save and .load() on resume — so the taught/acquired HISTORY survives a hard kill.
+##      DEFERRED this shift on purpose: history isn't load-bearing until the executor consumes it, and
+##      the brain re-derives slot-status from the live party each tick, so resume already works today.
+## RISK NOTE: Part C drive touches free_roam nav arbitration (the shared plumbing that burned prior
+## shifts) — build it isolated/guarded behind POKEMON_TEAM_PLANNER, verify each piece with a look-ahead.
+## The catch primitive to extend is catch_one (campaign.py:3957) — add a target_species param that
+## FLEES non-targets + force-catches the target (roster_judgment stays for untargeted forward-catch).
+## BOOT: `.venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py fuchsia_gate.state 15` (Venusaur L52
+## @ badge 4, the brain will voice 'catch Abra'); read the [teamplan] fold in the log.
+##
+## FALLBACK reactive context (Koga/Sabrina, potion-stall) is below — NOT the mission. The brain is.
+
+---
+
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 10 IN FLIGHT) — reactive fallback context
 
 ## SHIFT-10 KEY FINDING (verified e2e): **POTIONS BEAT KOGA.** Venusaur L51 + Hyper/Super Potions
 ## stall-and-wins Koga cleanly (in-battle actuation FIRES on the long core). Proven by injecting

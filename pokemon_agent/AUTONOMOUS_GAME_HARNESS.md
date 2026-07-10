@@ -397,6 +397,22 @@ nothing reachable means there is nothing to actuate, bail leg-free; any one reac
 ritual proceeds exactly as before. "Run it regardless of ONE tile's walkability" must never
 decay into "run it regardless of reachability entirely."
 
+**ENGINE CAPABILITY (added 2026-07-09, mission-pivot): FORWARD-PLANNING beats REACTIVE per-wall
+patching — a STANDING team-plan with whole-game lookahead.** The reactive pattern (learn a wall is a
+wall only AFTER losing, then patch that one gym) stretched the climb for shifts and produced a
+solo-carry-with-dead-bench team (Venusaur L52 over an L16 bench at badge 5). The general fix is a
+game-agnostic PLANNER engine (`TeamPlanner` in pokemon_planner.py) reading a swappable per-game
+KNOWLEDGE layer (`gamedata/frlg_*.json`: full threat rosters, evolutions, learnsets, TMs, encounters,
+and a curated balanced-team archetype). It computes the UNION of every future threat (incl. the E4, not
+just the next gym), matches it against the target team's coverage + acquisition deadlines, and emits the
+single highest-leverage next action — "grab Abra now, it answers Koga AND Sabrina AND Bruno AND Agatha"
+— PROACTIVELY, two towns before the wall. The KB/engine split is the portability win: game #2 (Emerald)
+swaps the `gamedata/` files, the planner engine is unchanged. LESSON: build the PLAN layer before the
+per-instance combat patches; a threat-union lookahead is what makes prep proactive instead of a
+post-mortem. Voice firewall: the plan flows through ONE seam (`plan_note`) as HER forward idea, never a
+solver's dictation (the archetype is a menu she picks from). Verify the KB against live RAM (read enemy
+species/level at each real fight) — authored-from-wiki data must be RAM-spot-checked (rule 8).
+
 ## "HOW TO TEACH KIRA A NEW RAM-ACCESSIBLE GAME" (the port playbook)
 1. **RAM map first:** find party/inventory/money/flags/map-id/coords offsets (use the game's disasm —
    pret/* for Pokémon — + a RAM differ; cross-check live). Populate the per-game KB.
