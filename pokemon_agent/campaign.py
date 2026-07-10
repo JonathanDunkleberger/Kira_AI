@@ -6237,10 +6237,14 @@ class Campaign:
                     _acelv = max((int(m.get("level", 0) or 0) for m in _pty), default=99)
                 except Exception:
                     _acelv = 99
-                _need_ship_prep = (_rival_gauntlet and not _rival_won_here
-                                   and 0 < _acelv < _RIVAL_PREP_LEVEL
+                # NOTE: do NOT gate on `_rival_won_here` here — it stale-matches ANY historical won rival
+                # encounter whose place contains "s.s. anne" (the bill_done_kit fixture carries one), so it's
+                # True even on the FIRST approach and wrongly skipped the prep (s16d diagnostic: won=True at
+                # ace L28). Standing at THIS boarding warp for the HM-Cut step already proves she hasn't
+                # completed it (no Cut yet -> the gym gate is still shut), so a stale "won" is irrelevant.
+                _need_ship_prep = (_rival_gauntlet and 0 < _acelv < _RIVAL_PREP_LEVEL
                                    and not getattr(self, "_ql_prefight_grind", 0))
-                log(f"   [roam] 🚢 BOARDING GATE: rival={_rival_gauntlet} won={_rival_won_here} ace=L{_acelv} "
+                log(f"   [roam] 🚢 BOARDING GATE: rival={_rival_gauntlet} won(stale)={_rival_won_here} ace=L{_acelv} "
                     f"prep_lv=L{_RIVAL_PREP_LEVEL} armed={getattr(self, '_ql_prefight_grind', 0)} "
                     f"-> {'GRIND FIRST' if _need_ship_prep else 'board'}")
                 if _need_ship_prep:
