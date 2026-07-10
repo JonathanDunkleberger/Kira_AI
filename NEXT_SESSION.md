@@ -7,16 +7,25 @@
 (workshop; Venusaur L56, Saffron freed, ~$16k, leftover ~11 Hyper + 3 Revive). Commits: 1e9e43c (diagnosis
 + battle guard), db84e10 (Saffron Mart + stock_hyper_potions kit). See [[pokemon-nightshift3-silph-gary-skip]].
 
-### FRONTIER — BADGE 6 (Sabrina / Marsh 0x825), gym now OPEN:
-Run `LONGRUN_GOAL_FLAG=0x825 LONGRUN_BATTLE_LOG=1 recon_longrun silph_done_kit.state 40`. Sabrina's team
-is PSYCHIC (Kadabra/MrMime/Venomoth/Alakazam) — Psychic hits Grass/POISON Venusaur ×2, so it's the SAME
-out-heal-with-Hyper dynamic as Charizard. She carries leftover Hyper+Revive and Saffron Mart is right
-there. WATCH FOR: (a) beat_gym pad-router crossing Sabrina's INTERIOR teleport maze (port seam =
-recon_sabrina if the general walk wedges); (b) if she runs low on Hyper mid-gym, a Sabrina POTION-STALL
-— the Saffron Mart is now mapped (door (40,21), Hyper row1) + `stock_hyper_potions` is reusable, or add
-"Sabrina" to POTION_STALL_GYMS (but that buys the cheapest potion — prefer wiring stock_hyper_potions into
-the pre-Sabrina beat_gym leg so she buys HYPER, not Super). If Alakazam is a hard attrition wall, the same
-Hyper+Revive kit that beat Charizard should carry it.
+### ✅ BADGE 6 (Sabrina/Marsh 0x825) DONE — beaten unaided from silph_done_kit in the same NS4 run
+Sabrina's Alakazam fell to L57 Venusaur's Razor Leaf with ZERO items used (the leftover Hyper/Revive
+kit wasn't even needed). Banked `sabrina_done_kit.state` (badges=6, Venusaur L57, $21.8k). The gym's
+teleport-pad interior + junior-maze navigated fine (residual: ~1 junior deferred un-engageable, not fatal).
+
+### 🔨 FRONTIER — BADGE 7 (Blaine / Cinnabar, Volcano 0x826): GATED ON **SURF** (team-building gap)
+Run `LONGRUN_GOAL_FLAG=0x826 LONGRUN_BATTLE_LOG=1 recon_longrun sabrina_done_kit.state 40`. CONFIRMED
+BLOCKER (NS4 look-ahead probe): she wedges routing toward Cinnabar at **map (3,33)@(0,12)** ("no clean
+path… genuine wall/zone gap") — Cinnabar is ACROSS THE SEA and her party (Venusaur + Spearow/Rattata/Abra/
+Drowzee/Ekans) has **NO Surf-capable mon**. This is the #3 team-building soul-debt made load-bearing: to
+reach Blaine she needs a **water/Surf teammate** (catch one — e.g. a Tentacool/Poliwag/Krabby off a
+Surf-adjacent route or the Safari, level it, teach HM03 Surf) AND HM03 itself (check the bag — hm_teach.py
+exists). The travel circuit-breaker handled the wedge gracefully (returned to roam LOUD, no freeze-spin —
+watch-safe), so the canonical fixture is NOT wedged. NEXT SHIFT: (1) inventory the bag for HM03 Surf +
+confirm no party mon can learn it; (2) build the catch-a-water-mon + teach-Surf leg (the team-building
+behaviour #3 has been deferred all climb — this is where it becomes mandatory); (3) then the sea route to
+Cinnabar → Blaine (Fire gym — Venusaur's Grass is ×0.5 into Fire, so a Water/Rock teammate doubles as the
+Blaine answer). SABRINA POTION-STALL not needed (she won without items); the Saffron Mart + reusable
+`stock_hyper_potions` remain available if a future Fire/attrition wall wants Hyper Potions.
 
 ## (superseded) NS4 root-cause detail — BADGE 6 Silph Gary = a TYPE-MATCHUP wall (Charizard), NOT PP
 **NS4 CORRECTS NS3's diagnosis (which was WRONG).** The whole Silph chain still FIRES e2e (koga_done_kit
