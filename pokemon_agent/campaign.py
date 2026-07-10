@@ -234,6 +234,34 @@ ITEM_GRAB_MAX_DIST  = int(os.getenv("POKEMON_ITEM_GRAB_MAX_DIST", "18"))   # max
 GYM_PREP_ENABLED     = os.getenv("POKEMON_GYM_PREP", "1") == "1"
 GYM_PARTY_TARGET     = int(os.getenv("POKEMON_GYM_PARTY_TARGET", "3"))     # aim for ~3 by the early gyms
 GYM_PREP_CATCH_TRIES = int(os.getenv("POKEMON_GYM_PREP_CATCH_TRIES", "3")) # bounded catch attempts per prep
+GYM_COVERAGE_TEACH   = os.getenv("POKEMON_GYM_COVERAGE_TEACH", "1") == "1" # teach the ace a coverage move
+
+# COVERAGE-TEACH KB (2026-07-10, the Erika grass wall) — when the ACE's whole offense is RESISTED by a
+# gym's typing, teach it a neutral-or-better damaging move from a bag TM/HM. The Erika root: L43 Venusaur's
+# moves are ALL Grass (Razor Leaf / Vine Whip / Absorb, x0.25 vs grass/poison) because auto-learn stripped
+# her only neutral move (Tackle) as she levelled — so even a huge level lead can't out-damage, she PP-famines
+# to status, and blacks out. A real player teaches a coverage TM. bag item_id -> (hm_key|None, tm_no|None,
+# move_id, type, power). HMs (Cut/Strength) are first-class + proven-actuatable; TM move_ids are VALIDATED
+# against ROM gBattleMoves (st.move_info) before teaching, so a wrong id can never fire (it's skipped, LOUD).
+# 2-turn moves (Dig/Fly/SolarBeam/Dive) are DELIBERATELY excluded — the battle engine's single-turn actuation
+# doesn't drive the charge/hit reliably. General bedrock #8 (TM/HM strategy). Revert: POKEMON_GYM_COVERAGE_TEACH=0.
+_COVERAGE_MOVES = {
+    339: ("cut", None, 15, "normal", 50),        # HM01 Cut — universal neutral (x1 vs most walls)
+    342: ("strength", None, 70, "normal", 80),   # HM04 Strength — stronger neutral
+    301: (None, 13, 58, "ice", 95),              # TM13 Ice Beam
+    302: (None, 14, 59, "ice", 120),             # TM14 Blizzard
+    312: (None, 24, 85, "electric", 95),         # TM24 Thunderbolt
+    313: (None, 25, 87, "electric", 120),        # TM25 Thunder
+    314: (None, 26, 89, "ground", 100),          # TM26 Earthquake
+    317: (None, 29, 94, "psychic", 90),          # TM29 Psychic
+    318: (None, 30, 247, "ghost", 80),           # TM30 Shadow Ball
+    319: (None, 31, 280, "fighting", 75),        # TM31 Brick Break
+    323: (None, 35, 53, "fire", 95),             # TM35 Flamethrower
+    326: (None, 38, 126, "fire", 120),           # TM38 Fire Blast
+    291: (None, 3, 145, "water", 60),            # TM03 Water Pulse
+    327: (None, 39, 317, "rock", 50),            # TM39 Rock Tomb
+    322: (None, 34, 351, "electric", 60),        # TM34 Shock Wave
+}
 
 
 def resolve_state(name):
@@ -3275,6 +3303,15 @@ class Campaign:
             r = self.planner.gym_readiness(gym.name, party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
             if r["ready"] or (not r["thin"] and r["has_type_answer"]):
                 break
+        # 1.5) COVERAGE-TEACH — a type wall the CATCH couldn't answer (no reachable counter / out of balls):
+        # if the ace's whole offense is resisted by this gym's typing, teach it a coverage move from a bag
+        # TM/HM so it can actually land hits. Fixes the Erika grass wall (all-Grass Venusaur, x0.25). Bounded,
+        # best-effort; a crash here never blocks the gym (LOUD). Skipped when the team already has an answer.
+        if GYM_COVERAGE_TEACH and not r["has_type_answer"]:
+            try:
+                self._teach_gym_coverage(gym, self.planner.threats.get(gym.name) or {})
+            except Exception as e:
+                log(f"   GYM-PREP [{gym.name}]: coverage-teach dispatch crashed ({e}) (LOUD)")
         # 2) GRIND — bring the team up to the KB-derived level target (ace level + margin, escalated on loss)
         if r["underleveled"]:
             log(f"   GYM-PREP [{gym.name}]: grinding to L{r['level_target']} (ace ~L{r['ace_level']})")
@@ -3284,6 +3321,95 @@ class Campaign:
             except Exception as e:
                 log(f"   GYM-PREP [{gym.name}]: grind skipped ({e}) (LOUD)")
         return "prepped"
+
+    def _teach_gym_coverage(self, gym, rec):
+        """When the ACE's whole offense is RESISTED by the gym's typing, teach it a neutral-or-better
+        damaging move from a bag TM/HM (ROM learn-compat). THE ERIKA WALL (2026-07-10): L43 Venusaur's
+        moves are all Grass (x0.25 vs grass/poison) because auto-learn stripped her only neutral move —
+        so a huge level lead still can't out-damage, she PP-famines to status, and blacks out. A real
+        player equips a coverage move. Scores the bag against the gym's DEFENDING types (rec['types'])
+        via the type chart, prefers super-effective then power, teaches the ace, forgetting its weakest
+        damaging move (keeps status + best STAB). Best-effort + bounded; the caller never blocks on it.
+        General bedrock #8 (TM/HM strategy); no core-Kira touch. Returns a short status string."""
+        import hm_teach as ht
+        import pokemon_policy as pol
+        deftypes = [t for t in (rec.get("types") or []) if t]
+        if not deftypes:
+            return "no_types"
+        pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if not pc:
+            return "no_party"
+        # the ACE = highest-level mon (its CURRENT slot; _restore_ace moves it to slot 0 for the fight)
+        ace_lv, ace_slot = max((self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54), s)
+                               for s in range(pc))
+        ace_sp = st.read_party_species(self.b, ace_slot)
+        moves = st.read_party_moves(self.b, ace_slot)
+        # does the ace already hit these types neutral-or-better with a DAMAGING move? then nothing to do.
+        best_have = 0.0
+        for m in moves:
+            if not m:
+                continue
+            mt, mp = st.move_info(self.b, m)
+            if (mp or 0) <= 0:
+                continue
+            best_have = max(best_have, pol.effectiveness(mt or "normal", deftypes))
+        if best_have >= 1.0:
+            return "have_coverage"
+        # find the best bag coverage move the ace CAN learn and that improves on its resisted offense.
+        cands = []
+        for item, (hm_key, tm_no, move_id, mtype, power) in _COVERAGE_MOVES.items():
+            if ht.tm_case_row(self.b, item) is None:         # not in the bag
+                continue
+            if move_id in moves:                             # already knows it
+                continue
+            learnable = (ht.hm_compatible(self.b, hm_key, ace_sp) if hm_key
+                         else ht.tm_compatible(self.b, tm_no, ace_sp))
+            if not learnable:
+                continue
+            if tm_no is not None:                            # ROM-validate the TM move_id (wrong id -> skip)
+                rt, rp = st.move_info(self.b, move_id)
+                if (rt or "").lower() != mtype:
+                    log(f"   GYM-PREP [{gym.name}]: TM{tm_no:02d} move#{move_id} ROM type "
+                        f"{rt!r}!={mtype!r} — skipping (LOUD)")
+                    continue
+            eff = pol.effectiveness(mtype, deftypes)
+            if eff < 1.0:                                    # still resisted — no improvement
+                continue
+            cands.append((eff, power, bool(hm_key), item, hm_key, tm_no, move_id, mtype))
+        if not cands:
+            log(f"   GYM-PREP [{gym.name}]: ace all-resisted (best x{best_have:g}) but NO learnable "
+                f"coverage TM/HM in bag — walking in as-is (LOUD)")
+            return "no_candidate"
+        # best: highest eff, then power, then prefer an HM (proven single-turn actuation)
+        cands.sort(key=lambda c: (c[0], c[1], c[2]), reverse=True)
+        eff, power, _is_hm, item, hm_key, tm_no, move_id, mtype = cands[0]
+        # forget the ace's WEAKEST damaging move vs these types (never a status move — keep Sleep Powder etc.)
+        scored = []
+        for i, m in enumerate(moves):
+            if not m:
+                continue
+            mt, mp = st.move_info(self.b, m)
+            if (mp or 0) <= 0:
+                continue
+            scored.append((mp * pol.effectiveness(mt or "normal", deftypes), i))
+        forget_idx = min(scored)[1] if scored else 0
+        mon = st.SPECIES_NAME.get(ace_sp, f"slot {ace_slot}")
+        label = hm_key.title() if hm_key else f"TM{tm_no:02d}"
+        eff_word = "super-effective" if eff >= 2 else "neutral"
+        self.on_event(f"{gym.name}'s type wall shrugs off everything I've got — teaching {mon} a "
+                      f"{mtype} move so I actually land hits.", kind="gym", tier=2)
+        log(f"   GYM-PREP [{gym.name}]: COVERAGE-TEACH {label} ({mtype}, x{eff:g} {eff_word}) -> {mon} "
+            f"slot {ace_slot}, forgetting move-idx {forget_idx}")
+        tf = ht.TeachFlow(self, log=log, on_event=self.on_event)
+        if hm_key:
+            res = tf.teach(hm_key, ace_slot, forget_idx)
+        else:
+            res = tf.teach("_tm", ace_slot, forget_idx, item_override=item, move_override=move_id)
+        log(f"   GYM-PREP [{gym.name}]: coverage-teach {label} -> {res}")
+        if res == "taught":
+            self.on_event(f"{mon} knows {label} now — let's see the flower lady laugh that off.",
+                          kind="gym", tier=2)
+        return res
 
     def beat_gym(self, name):
         """GENERAL gym handler (gyms gate the leader behind their junior trainers): reserve move
@@ -3311,6 +3437,15 @@ class Campaign:
                           "this properly.", kind="gym", tier=2)
             hr = self.heal_nearest()
             log(f"   GYM: pre-gym heal -> {hr}")
+        # ACE-LEAD THE GYM (2026-07-10, the badge-4 Erika wall): the strategic underlevel-grind reorders a
+        # weak bench mon to slot 0 for participation XP, and when she diverts straight from the grass into
+        # a gym that order PERSISTS — she then fights the LEADER with an L8 lead, PP-famines on status
+        # moves, and blacks out while her L43 ace sits at slot 3 (the Erika STALL: led pidgey/rattata vs
+        # Victreebel, lost, gym marked a spatial wall "gated until stronger" -> post-loss ping-pong stall).
+        # A real player leads a gym with their strongest. Restore the ace to slot 0 before the fight
+        # (save-safe slot swap; the reserve/move-room below then operate on the ace that actually fights).
+        # No-op when the ace already leads (normal play), so it never disturbs a deliberately-ordered team.
+        self._restore_ace()
         if gym.reserve:
             self._reserve_move_slots(gym.reserve)
             log(f"   GYM: reserved {gym.reserve} slot(s) for a level-up learn; moves now "
