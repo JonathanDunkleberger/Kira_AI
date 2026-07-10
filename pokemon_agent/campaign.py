@@ -5972,17 +5972,30 @@ class Campaign:
         # Env-tunable (default 32) so a look-ahead can observe the raw rival fight (PREP=0 disables the
         # grind: `0 < _ace_lv < 0` is always False) or re-tune the milestone without a recompile.
         _RIVAL_PREP_LEVEL = int(os.environ.get("POKEMON_RIVAL_PREP_LEVEL", "32") or "32")
-        # COMPOSE WITH THE CABIN SWEEP (2026-07-10, night shift 8): wild-grinding all 6 levels L26->L32 up
-        # front is slow + unwatchable (shift 6/7 dead end). The SHIP CABIN SWEEP levels the ace fast +
-        # authentically (verified L26->L30 fighting the L16-18 cabin trainers), so the wild prep-grind
-        # only needs to top off the LAST few levels the cabins can't reach. Gate it to fire only when
-        # she's WITHIN _PREP_CABIN_MARGIN of the target: at L26 (need 6) it stays OFF -> she boards, the
-        # cabins carry her to ~L30; if she then loses Gary she whites out to Vermilion at ~L30 (need 2),
-        # NOW the prep-grind fires and tops off L30->L32/Venusaur in one fast pass -> re-board (cabins
-        # already beaten, walked straight through) -> full-PP Venusaur solos Gary (the reactive-proven
-        # win). Env-tunable; margin 0 restores the old always-grind-to-target behaviour.
-        _PREP_CABIN_MARGIN = int(os.environ.get("POKEMON_RIVAL_PREP_MARGIN", "4") or "4")
+        # COMPOSE WITH THE CABIN SWEEP — CABINS FIRST, wild-grind only tops off (2026-07-10, night shift 8):
+        # wild-grinding all 6 levels L26->L32 up front is slow + unwatchable (shift 6/7 dead end), AND she
+        # levels to ~L28 just walking to Vermilion, so a naive level-margin trips the slow up-front grind
+        # anyway. The SHIP CABIN SWEEP levels the ace fast + authentically (verified L26->L30 fighting the
+        # L16-18 cabin trainers). So make cabins ALWAYS get first crack: the wild prep-grind fires only
+        # (a) if she's ALREADY basically at the target (>= target-margin, margin default 1) — nothing left
+        # for cabins to do — OR (b) if she's ALREADY LOST to this rival gauntlet once (the cabins ran and
+        # still left her short) -> now top off the residual gap. So: board -> cabins carry the bulk ->
+        # WIN pass 1 if they reach L32; else lose -> whiteout to Vermilion -> _lost_here -> prep tops off
+        # the last 1-2 levels to Venusaur -> re-board (cabins beaten, walk through) -> full-PP win. The
+        # slow wild grind is thus BOUNDED to the residual cabins couldn't cover, never the full 6 levels.
+        _PREP_CABIN_MARGIN = int(os.environ.get("POKEMON_RIVAL_PREP_MARGIN", "1") or "1")
         _prep_floor = max(1, _RIVAL_PREP_LEVEL - _PREP_CABIN_MARGIN) if _PREP_CABIN_MARGIN else 1
+        # Have the cabins already run and still left her short? (a prior LOSS at this rival gauntlet)
+        _rival_lost_here = False
+        try:
+            _pl_lc = (f"{getattr(step, 'place_name', '') or ''} {getattr(step, 'human', '') or ''}").lower()
+            for _e in ((self.strat.rival or {}).get("encounters") or []):
+                _ep = (_e.get("place") or "").lower()
+                if (not _e.get("won")) and _ep and (_ep in _pl_lc or "s.s. anne" in _ep):
+                    _rival_lost_here = True
+                    break
+        except Exception:
+            _rival_lost_here = False
         if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
                 self, "_ql_prefight_grind", 0):
             try:
@@ -5990,7 +6003,7 @@ class Campaign:
                 _ace_lv = max((int(m.get("level", 0) or 0) for m in _party), default=0)
             except Exception:
                 _ace_lv = 99                                   # read fail -> no grind (fail-open, safe)
-            if _prep_floor <= _ace_lv < _RIVAL_PREP_LEVEL:
+            if (0 < _ace_lv < _RIVAL_PREP_LEVEL) and (_rival_lost_here or _ace_lv >= _prep_floor):
                 self._ql_prefight_grind = 1
                 log(f"   [roam] 🏋️ PREP-BEFORE-RIVAL: a rival gauntlet is a team-strength wall — ace "
                     f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding (an underlevelled "
