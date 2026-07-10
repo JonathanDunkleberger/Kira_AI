@@ -7106,14 +7106,25 @@ class Campaign:
             def _obstacle_probe():
                 g2 = tv.Grid(self.b)
                 here2 = tuple(tv.coords(self.b))
-                for ob in _fm.scan_field_objects(self.b, {_fm.GFX_CUT_TREE, _fm.GFX_BOULDER}):
+                # DIAGNOSTIC (2026-07-10 NIGHT SHIFT 16): the Surge gym-door Cut never actuates even on the
+                # first stuck — instrument scan/walk/can_use so the next run reveals WHICH stage fails.
+                _objs = list(_fm.scan_field_objects(self.b, {_fm.GFX_CUT_TREE, _fm.GFX_BOULDER}))
+                log(f"   [roam] 🔎 OBSTACLE-PROBE: at {here2}, door {door}, scanned {len(_objs)} field object(s): "
+                    f"{[(o.get('coord'), o.get('gfx')) for o in _objs][:8]}")
+                for ob in _objs:
                     ox, oy = ob["coord"]
                     if abs(ox - door[0]) + abs(oy - door[1]) > 12:
                         continue                                 # unrelated obstacle across the map
                     for stand in ((ox, oy - 1), (ox, oy + 1), (ox - 1, oy), (ox + 1, oy)):
-                        if tv.bfs(g2, here2, lambda t, s=stand: t == s, walkable=g2.walkable):
+                        _reach = bool(tv.bfs(g2, here2, lambda t, s=stand: t == s, walkable=g2.walkable))
+                        log(f"   [roam] 🔎 tree@{ob['coord']} gfx={ob.get('gfx')} stand={stand} bfs_reachable={_reach}")
+                        if _reach:
                             self.trav.travel(target_map=None, arrive_coord=stand,
                                              max_steps=200, max_seconds=90)
+                            _arr = tuple(tv.coords(self.b) or ())
+                            _cu = _fm.can_use(self.b, "cut", self.b.rd8(ram.GPLAYER_PARTY_CNT))
+                            log(f"   [roam] 🔎 walked to stand -> at {_arr} (target {stand}, arrived={_arr == stand}); "
+                                f"can_use(cut)={_cu} field={self.field is not None} gfx_is_tree={ob['gfx'] == _fm.GFX_CUT_TREE}")
                             if tuple(tv.coords(self.b) or ()) == stand:
                                 # CAPABILITY IN HAND (surge run 4): a cut tree + a party mon
                                 # that KNOWS Cut = clear it RIGHT HERE — the stage-3 automatic
