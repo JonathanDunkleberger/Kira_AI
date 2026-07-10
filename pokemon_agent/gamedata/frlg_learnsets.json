@@ -1,0 +1,42 @@
+{
+ "_meta": {
+  "purpose": "Level-up + TM-compat learnsets for the team-relevant FireRed species. The TeamPlanner reads this for two decisions: (1) evolve/level TIMING to pick up a key level-up move (e.g. Venusaur's Razor Leaf @L20, Sleep Powder) - B-to-cancel a bad learn, or grind to the level that grants the move she wants; (2) can a planned keeper LEARN a coverage TM (the tm[] list) - so 'teach Lapras Ice Beam / Thunderbolt', 'teach Snorlax Earthquake', 'teach Alakazam Psychic/Shadow Ball' are validated before the plan commits a single-use TM.",
+  "source": "Bulbapedia species learnset pages (Gen-3 FRLG) + long-standing knowledge, distilled offline. level_up levels are best-effort (verify the exact level organically when she learns it live); the tm[] compat lists are the load-bearing planner data and are authored carefully.",
+  "schema": "species: {level_up: [[level, move], ...] (the notable/keeper moves, not every filler), tm: [tm_ids the mon can learn among the COVERAGE set], note?: str}. tm ids match frlg_tms.json.",
+  "coverage_tms_tracked": "TM13 ice-beam, TM24 thunderbolt, TM25 thunder, TM26 earthquake, TM28 dig, TM29 psychic, TM30 shadow-ball, TM35 flamethrower, TM38 fire-blast, TM22 solar-beam, TM31 brick-break, TM40 aerial-ace, TM19 giga-drain, TM06 toxic, TM03 water-pulse, TM34 shock-wave, TM23 iron-tail, HM03 surf, HM04 strength, HM01 cut.",
+  "updated": "2026-07-09 (mission-pivot Part A)"
+ },
+
+ "bulbasaur": {"level_up": [[1, "tackle"], [4, "growl"], [7, "leech-seed"], [10, "vine-whip"], [15, "poison-powder"], [15, "sleep-powder"], [20, "razor-leaf"], [25, "sweet-scent"], [32, "growth"], [39, "synthesis"], [46, "solar-beam"]], "tm": ["TM06", "TM09", "TM19", "TM22", "HM01"], "note": "starter; Razor Leaf @20 is her first real STAB - plan grinds to it"},
+ "ivysaur": {"level_up": [[20, "razor-leaf"], [23, "sweet-scent"], [35, "growth"], [45, "synthesis"], [53, "solar-beam"]], "tm": ["TM06", "TM09", "TM19", "TM22", "HM01"], "note": "evolves from bulbasaur @16"},
+ "venusaur": {"level_up": [[20, "razor-leaf"], [23, "sweet-scent"], [37, "growth"], [49, "synthesis"], [61, "solar-beam"]], "tm": ["TM06", "TM09", "TM19", "TM22", "HM01", "HM04"], "note": "evolves from ivysaur @32; SolarBeam is the big grass nuke (pair with Sunny Day); learns Cut for gate use. Grass STAB resisted by Poison/Steel - needs coverage teammate vs Koga"},
+
+ "abra": {"level_up": [[1, "teleport"]], "tm": ["TM13", "TM24", "TM25", "TM29", "TM30", "TM31", "TM23", "TM04"], "note": "ONLY knows Teleport until it evolves - catch it and grind to L16, cannot attack meanwhile (lead with a partner)"},
+ "kadabra": {"level_up": [[16, "confusion"], [18, "disable"], [21, "psybeam"], [26, "reflect"], [31, "recover"], [38, "future-sight"], [45, "trick"]], "tm": ["TM13", "TM24", "TM25", "TM29", "TM30", "TM31", "TM23", "TM04", "TM33"], "note": "evolves from abra @16; Alakazam needs a TRADE (unavailable solo) so Kadabra stays as-is - STILL an elite special sweeper. Psybeam is fine until TM29 Psychic"},
+ "alakazam": {"level_up": [[16, "confusion"], [21, "psybeam"], [31, "recover"], [38, "future-sight"]], "tm": ["TM13", "TM24", "TM25", "TM29", "TM30", "TM31", "TM23", "TM04", "TM33"], "note": "trade-evo (solo run keeps Kadabra); THE coverage platform - Psychic + Ice Beam + Thunderbolt + Shadow Ball on one glass cannon"},
+
+ "diglett": {"level_up": [[1, "scratch"], [4, "sand-attack"], [9, "growl"], [17, "dig"], [25, "sand-tomb"], [33, "slash"], [41, "earthquake"], [49, "fissure"]], "tm": ["TM26", "TM28", "TM23", "TM31"], "note": "learns Dig @17 (STAB before the TM); Earthquake @41 by level OR TM26"},
+ "dugtrio": {"level_up": [[17, "dig"], [25, "sand-tomb"], [38, "slash"], [49, "earthquake"], [61, "fissure"]], "tm": ["TM26", "TM28", "TM23", "TM31"], "note": "evolves from diglett @26; the clean Surge answer + an Earthquake user for Koga/Blaine/Agatha"},
+
+ "growlithe": {"level_up": [[1, "bite"], [6, "roar"], [12, "ember"], [20, "leer"], [26, "take-down"], [34, "flame-wheel"], [42, "agility"], [50, "flamethrower"]], "tm": ["TM35", "TM38", "TM50", "TM23", "TM31", "TM06"], "note": "evolve to Arcanine with a Fire Stone - EVOLVE LATE (Arcanine's level-up pool is thin; keep Growlithe till it has the moves you want, or just TM Flamethrower)"},
+ "arcanine": {"level_up": [[1, "bite"], [1, "roar"], [1, "ember"], [50, "extreme-speed"]], "tm": ["TM35", "TM38", "TM50", "TM23", "TM31", "TM06", "HM04"], "note": "Fire-Stone evo; learns almost all its offense via TM - teach Flamethrower (TM35). The Erika sweep + fire coverage"},
+
+ "lapras": {"level_up": [[1, "water-gun"], [1, "growl"], [8, "sing"], [15, "mist"], [22, "body-slam"], [29, "confuse-ray"], [36, "perish-song"], [43, "ice-beam"], [50, "hydro-pump"]], "tm": ["TM13", "TM14", "TM24", "TM25", "TM03", "TM06", "TM31", "HM03", "HM07"], "note": "Silph gift; the E4 MVP - Ice Beam (TM13 or L43) is the Lance dragon-slayer, Thunderbolt (TM24) hits Gyarados/Lorelei, Surf is STAB. Water/Ice tank"},
+
+ "snorlax": {"level_up": [[1, "tackle"], [1, "amnesia"], [1, "defense-curl"], [8, "body-slam"], [17, "rest"], [24, "snore"], [30, "rollout"], [40, "block"], [48, "headbutt"], [56, "hyper-beam"]], "tm": ["TM13", "TM24", "TM26", "TM31", "TM15", "TM06", "TM36", "TM30", "HM04"], "note": "static (Poke Flute); a colossal Normal wall that TMs almost anything - Earthquake (TM26) + Ice Beam (TM13) + Body Slam make it a coverage tank"},
+
+ "pikachu": {"level_up": [[1, "thundershock"], [1, "growl"], [6, "tail-whip"], [8, "thunder-wave"], [11, "quick-attack"], [15, "double-team"], [20, "slam"], [26, "thunderbolt"], [33, "agility"], [41, "thunder"]], "tm": ["TM24", "TM25", "TM34", "TM31", "TM23"], "note": "evolve to Raichu with a Thunder Stone AFTER it learns Thunderbolt @26 (Raichu's level pool is empty - keep Pikachu till 26, then stone)"},
+ "raichu": {"level_up": [[1, "thundershock"], [1, "thunder-wave"], [1, "quick-attack"]], "tm": ["TM24", "TM25", "TM34", "TM31", "TM23"], "note": "Thunder-Stone evo; TM-driven - Thunderbolt/Thunder. An electric answer for Lorelei/Misty/Gyarados"},
+
+ "gastly": {"level_up": [[1, "lick"], [1, "hypnosis"], [8, "spite"], [13, "mean-look"], [16, "curse"], [21, "night-shade"], [28, "confuse-ray"], [33, "dream-eater"]], "tm": ["TM30", "TM06", "TM29"], "note": "Ghost/Poison; -> Haunter @25 -> Gengar (TRADE, unavailable solo). Haunter is still a strong Sabrina/Agatha answer with Shadow Ball (TM30)"},
+ "haunter": {"level_up": [[25, "curse"], [31, "night-shade"], [39, "confuse-ray"], [48, "dream-eater"]], "tm": ["TM30", "TM06", "TM29"], "note": "trade-evo to Gengar (solo keeps Haunter); Shadow Ball gives it the Bug/Ghost STAB Sabrina fears"},
+
+ "magikarp": {"level_up": [[1, "splash"], [15, "tackle"], [30, "flail"]], "tm": [], "note": "useless until Gyarados @20 - a project, not a coverage pick"},
+ "gyarados": {"level_up": [[20, "bite"], [25, "dragon-rage"], [35, "leer"], [40, "hydro-pump"], [45, "hyper-beam"]], "tm": ["TM13", "TM24", "TM25", "TM03", "TM31", "HM03", "HM07"], "note": "Water/Flying powerhouse from Magikarp @20; Thunderbolt covers its own 4x weakness discussion aside, a strong physical/water body"},
+
+ "pidgey": {"level_up": [[1, "tackle"], [5, "sand-attack"], [9, "gust"], [15, "quick-attack"], [21, "whirlwind"], [29, "wing-attack"], [38, "agility"], [44, "mirror-move"]], "tm": ["TM40", "TM47", "HM02"], "note": "early Flying; -> Pidgeotto @18 -> Pidgeot @36. Fly (HM02) utility + Aerial Ace (TM40) vs Erika/bugs"},
+ "pidgeotto": {"level_up": [[29, "wing-attack"], [40, "agility"], [48, "mirror-move"]], "tm": ["TM40", "TM47", "HM02"], "note": "evolves from pidgey @18"},
+ "pidgeot": {"level_up": [[29, "wing-attack"], [42, "agility"], [54, "mirror-move"]], "tm": ["TM40", "TM47", "HM02"], "note": "evolves from pidgeotto @36; Fly slot + a flying answer for Erika/Bruno"},
+
+ "eevee": {"level_up": [[1, "tackle"], [8, "sand-attack"], [16, "quick-attack"], [23, "bite"], [30, "baton-pass"], [36, "take-down"]], "tm": ["TM13", "TM24", "TM06", "TM31"], "note": "gift; stone-evolve into the coverage hole - Vaporeon (water), Jolteon (electric), Flareon (fire). Jolteon = a fast electric for Lorelei/Lance's Gyarados"}
+}

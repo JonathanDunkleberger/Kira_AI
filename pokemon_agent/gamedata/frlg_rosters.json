@@ -1,0 +1,109 @@
+{
+ "_meta": {
+  "purpose": "FULL per-mon rosters for every forward threat (gyms + Elite Four + Champion + key rival fights) in Pokemon FireRed. Sibling to frlg_strategy.json (which holds the curated type/answer SUMMARY) — this holds the GROUND TRUTH team each threat actually fields, so the TeamPlanner (pokemon_planner.py) can compute the real union of what she must beat and size level milestones to the exact ace. Portable-engine split (CLAUDE.md rule 14): FireRed facts live HERE; the planner engine is game-agnostic.",
+  "source": "Bulbapedia leader/E4/rival pages (FireRed/LeafGreen, FIRST-challenge rosters, not rematch) fetched 2026-07-09 + verified per-mon; Champion roster is the BULBASAUR-starter branch (player chose Bulbasaur -> Blue carries the Charmander line -> Charizard ace). Koga confirmed vs live RAM on the fuchsia_gate fixture (shift 9). Gym juniors (trainers before the leader) are NOT listed here — only the leader/boss team.",
+  "firewall": "MODE-GATED. Consumed only inside the Pokemon campaign planner. Never touches core Kira identity.",
+  "schema": "gyms/e4 = {leader_name: [ {species, level, types, moves} ]}; ordered by badge/seat. champion = the Bulbasaur-branch team. rivals = notable rival fights that gate progress.",
+  "verify_note": "GATE A1 spot-checks >=3 leader teams vs live gEnemyParty (read_enemy_species/read_enemy_level). Koga VERIFIED shift 9. Others authored from Bulbapedia; verify organically as the look-ahead reaches each fight.",
+  "updated": "2026-07-09 (mission-pivot Part A)"
+ },
+
+ "gyms": {
+  "Brock": [
+   {"species": "geodude", "level": 12, "types": ["rock", "ground"], "moves": ["tackle", "defense-curl", "rock-tomb"]},
+   {"species": "onix", "level": 14, "types": ["rock", "ground"], "moves": ["tackle", "screech", "rock-tomb", "bide"]}
+  ],
+  "Misty": [
+   {"species": "staryu", "level": 18, "types": ["water"], "moves": ["tackle", "water-pulse", "swift"]},
+   {"species": "starmie", "level": 21, "types": ["water", "psychic"], "moves": ["water-pulse", "swift", "recover", "harden"]}
+  ],
+  "Lt. Surge": [
+   {"species": "voltorb", "level": 21, "types": ["electric"], "moves": ["shock-wave", "tackle", "screech", "sonic-boom"]},
+   {"species": "pikachu", "level": 18, "types": ["electric"], "moves": ["shock-wave", "thunder-wave", "quick-attack", "double-team"]},
+   {"species": "raichu", "level": 24, "types": ["electric"], "moves": ["shock-wave", "thunder-wave", "quick-attack", "double-team"]}
+  ],
+  "Erika": [
+   {"species": "victreebel", "level": 29, "types": ["grass", "poison"], "moves": ["stun-spore", "acid", "poison-powder", "giga-drain"]},
+   {"species": "tangela", "level": 24, "types": ["grass"], "moves": ["poison-powder", "constrict", "ingrain", "giga-drain"]},
+   {"species": "vileplume", "level": 29, "types": ["grass", "poison"], "moves": ["sleep-powder", "acid", "stun-spore", "giga-drain"]}
+  ],
+  "Koga": [
+   {"species": "koffing", "level": 37, "types": ["poison"], "moves": ["smog", "sludge", "smokescreen", "self-destruct"]},
+   {"species": "muk", "level": 39, "types": ["poison"], "moves": ["minimize", "sludge", "acid-armor", "toxic"]},
+   {"species": "koffing", "level": 37, "types": ["poison"], "moves": ["smog", "sludge", "smokescreen", "self-destruct"]},
+   {"species": "weezing", "level": 43, "types": ["poison"], "moves": ["sludge", "smokescreen", "toxic", "explosion"]}
+  ],
+  "Sabrina": [
+   {"species": "kadabra", "level": 38, "types": ["psychic"], "moves": ["psybeam", "reflect", "future-sight", "calm-mind"]},
+   {"species": "mr-mime", "level": 37, "types": ["psychic"], "moves": ["barrier", "psybeam", "baton-pass", "calm-mind"]},
+   {"species": "venomoth", "level": 38, "types": ["bug", "poison"], "moves": ["psybeam", "gust", "leech-life", "supersonic"]},
+   {"species": "alakazam", "level": 43, "types": ["psychic"], "moves": ["psychic", "recover", "future-sight", "calm-mind"]}
+  ],
+  "Blaine": [
+   {"species": "growlithe", "level": 42, "types": ["fire"], "moves": ["bite", "roar", "take-down", "fire-blast"]},
+   {"species": "ponyta", "level": 40, "types": ["fire"], "moves": ["stomp", "bounce", "fire-spin", "fire-blast"]},
+   {"species": "rapidash", "level": 42, "types": ["fire"], "moves": ["stomp", "bounce", "fire-spin", "fire-blast"]},
+   {"species": "arcanine", "level": 47, "types": ["fire"], "moves": ["bite", "roar", "take-down", "fire-blast"]}
+  ],
+  "Giovanni": [
+   {"species": "rhyhorn", "level": 45, "types": ["ground", "rock"], "moves": ["take-down", "rock-blast", "scary-face", "earthquake"]},
+   {"species": "dugtrio", "level": 42, "types": ["ground"], "moves": ["slash", "sand-tomb", "mud-slap", "earthquake"]},
+   {"species": "nidoqueen", "level": 44, "types": ["poison", "ground"], "moves": ["double-kick", "earthquake", "poison-sting", "body-slam"]},
+   {"species": "nidoking", "level": 45, "types": ["poison", "ground"], "moves": ["double-kick", "earthquake", "poison-sting", "thrash"]},
+   {"species": "rhyhorn", "level": 50, "types": ["ground", "rock"], "moves": ["take-down", "rock-blast", "scary-face", "earthquake"]}
+  ]
+ },
+
+ "e4": {
+  "Lorelei": [
+   {"species": "dewgong", "level": 52, "types": ["water", "ice"], "moves": ["surf", "ice-beam", "hail", "safeguard"]},
+   {"species": "cloyster", "level": 51, "types": ["water", "ice"], "moves": ["spikes", "dive", "hail", "protect"]},
+   {"species": "slowbro", "level": 52, "types": ["water", "psychic"], "moves": ["ice-beam", "surf", "amnesia", "yawn"]},
+   {"species": "jynx", "level": 54, "types": ["ice", "psychic"], "moves": ["double-slap", "ice-punch", "lovely-kiss", "attract"]},
+   {"species": "lapras", "level": 54, "types": ["water", "ice"], "moves": ["body-slam", "confuse-ray", "surf", "ice-beam"]}
+  ],
+  "Bruno": [
+   {"species": "onix", "level": 51, "types": ["rock", "ground"], "moves": ["earthquake", "rock-tomb", "iron-tail", "roar"]},
+   {"species": "hitmonchan", "level": 53, "types": ["fighting"], "moves": ["sky-uppercut", "mach-punch", "rock-tomb", "counter"]},
+   {"species": "hitmonlee", "level": 53, "types": ["fighting"], "moves": ["mega-kick", "foresight", "brick-break", "facade"]},
+   {"species": "onix", "level": 54, "types": ["rock", "ground"], "moves": ["double-edge", "iron-tail", "earthquake", "sand-tomb"]},
+   {"species": "machamp", "level": 56, "types": ["fighting"], "moves": ["bulk-up", "cross-chop", "scary-face", "rock-tomb"]}
+  ],
+  "Agatha": [
+   {"species": "gengar", "level": 54, "types": ["ghost", "poison"], "moves": ["confuse-ray", "shadow-punch", "double-team", "toxic"]},
+   {"species": "golbat", "level": 54, "types": ["poison", "flying"], "moves": ["confuse-ray", "bite", "air-cutter", "poison-fang"]},
+   {"species": "haunter", "level": 53, "types": ["ghost", "poison"], "moves": ["mean-look", "curse", "hypnosis", "dream-eater"]},
+   {"species": "arbok", "level": 56, "types": ["poison"], "moves": ["bite", "sludge-bomb", "screech", "iron-tail"]},
+   {"species": "gengar", "level": 58, "types": ["ghost", "poison"], "moves": ["shadow-ball", "sludge-bomb", "hypnosis", "nightmare"]}
+  ],
+  "Lance": [
+   {"species": "gyarados", "level": 56, "types": ["water", "flying"], "moves": ["bite", "dragon-rage", "twister", "hyper-beam"]},
+   {"species": "dragonair", "level": 54, "types": ["dragon"], "moves": ["safeguard", "outrage", "dragon-rage", "hyper-beam"]},
+   {"species": "dragonair", "level": 54, "types": ["dragon"], "moves": ["safeguard", "outrage", "thunder-wave", "hyper-beam"]},
+   {"species": "aerodactyl", "level": 58, "types": ["rock", "flying"], "moves": ["wing-attack", "ancient-power", "scary-face", "hyper-beam"]},
+   {"species": "dragonite", "level": 60, "types": ["dragon", "flying"], "moves": ["safeguard", "outrage", "wing-attack", "hyper-beam"]}
+  ]
+ },
+
+ "champion": {
+  "_branch": "bulbasaur-start (player chose Bulbasaur -> Blue chose Charmander -> Charizard ace). If the canonical start ever differs, swap the ace line: Squirtle-start -> Blastoise + Exeggutor swapped for Alakazam? no — see _branch_notes.",
+  "_branch_notes": "Blue's fixed core (all branches): Pidgeot, Alakazam, Rhydon. The 3 variable slots track the type triangle vs the player's starter. Bulbasaur branch = Exeggutor, Gyarados, Charizard.",
+  "team": [
+   {"species": "pidgeot", "level": 59, "types": ["normal", "flying"], "moves": ["aerial-ace", "feather-dance", "sand-attack", "whirlwind"]},
+   {"species": "alakazam", "level": 57, "types": ["psychic"], "moves": ["psychic", "future-sight", "recover", "reflect"]},
+   {"species": "rhydon", "level": 59, "types": ["ground", "rock"], "moves": ["take-down", "earthquake", "rock-tomb", "scary-face"]},
+   {"species": "exeggutor", "level": 59, "types": ["grass", "psychic"], "moves": ["giga-drain", "egg-bomb", "sleep-powder", "light-screen"]},
+   {"species": "gyarados", "level": 61, "types": ["water", "flying"], "moves": ["hydro-pump", "dragon-rage", "bite", "thrash"]},
+   {"species": "charizard", "level": 63, "types": ["fire", "flying"], "moves": ["flamethrower", "wing-attack", "slash", "fire-spin"]}
+  ]
+ },
+
+ "rivals": {
+  "gary_ssanne": [
+   {"species": "pidgeotto", "level": 19, "types": ["normal", "flying"], "moves": ["quick-attack", "gust", "sand-attack", "whirlwind"]},
+   {"species": "raticate", "level": 16, "types": ["normal"], "moves": ["quick-attack", "tackle", "hyper-fang", "tail-whip"]},
+   {"species": "kadabra", "level": 18, "types": ["psychic"], "moves": ["confusion", "disable", "kinesis"]},
+   {"species": "charmeleon", "level": 20, "types": ["fire"], "moves": ["ember", "scratch", "smokescreen", "rage"]}
+  ]
+ }
+}

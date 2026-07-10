@@ -1,0 +1,59 @@
+{
+ "_meta": {
+  "purpose": "Where to CATCH the team-plan keepers (and the notable wild species per area) in FireRed. The TeamPlanner reads this to route a TARGETED catch: given 'I need an Abra', resolve WHERE (Route 24/25) and send the executor there. Also feeds the forward-catch/dex drive (what's catchable on the road she's already walking). Version = FireRed exclusives (Growlithe/Oddish/Ekans/Mankey/Scyther/Electabuzz present; Vulpix/Sandshrew/Bellsprout/Meowth/Pinsir/Magmar are LeafGreen).",
+  "source": "Bulbapedia route encounter tables + long-standing FRLG knowledge, distilled offline. `method`: grass (walk) / cave / surf / fish / static (fixed encounter) / gift / prize / fossil.",
+  "schema": "areas: {area_name: {method: [ {species, note?} ], ...}}. keepers: quick species -> primary catch location index for the planner (the authoritative 'where to get X').",
+  "note": "Rarity is summarized as note tags (common/uncommon/rare) rather than exact %, since the planner only needs 'is it here + how hard'. Catch primitive works on GRASS/surf tiles; static/gift/prize are scripted acquisitions the executor handles specially.",
+  "updated": "2026-07-09 (mission-pivot Part A)"
+ },
+
+ "keepers": {
+  "bulbasaur": {"where": "Pallet Town (starter, Prof. Oak)", "method": "gift"},
+  "abra": {"where": "Route 24 / Route 25", "method": "grass", "note": "Teleports - throw ball turn 1 or lead with a sleeper/false-swipe"},
+  "diglett": {"where": "Diglett's Cave (between Route 2 and Route 11)", "method": "cave", "note": "very common in the cave; Dugtrio rare there too"},
+  "growlithe": {"where": "Route 7 / Route 8 (near Celadon/Saffron)", "method": "grass", "note": "FireRed exclusive; uncommon"},
+  "pikachu": {"where": "Viridian Forest / Power Plant", "method": "grass", "note": "rare in the Forest; more reliable at the Power Plant"},
+  "snorlax": {"where": "Route 12 and Route 16 (two only)", "method": "static", "note": "asleep - Poke Flute to wake, then battle/catch; L30"},
+  "lapras": {"where": "Silph Co. 7F, Saffron (employee gift after the Rocket raid)", "method": "gift", "note": "L15 Water/Ice tank"},
+  "eevee": {"where": "Celadon City (house above the Game Corner)", "method": "gift", "note": "evolve with a stone into the coverage you need"},
+  "hitmonlee": {"where": "Saffron Fighting Dojo (pick one of two)", "method": "gift"},
+  "hitmonchan": {"where": "Saffron Fighting Dojo (pick one of two)", "method": "gift"},
+  "gastly": {"where": "Pokemon Tower, Lavender Town (2F+)", "method": "grass", "note": "Ghost floors; -> Haunter -> (trade) Gengar"},
+  "scyther": {"where": "Safari Zone / Celadon Game Corner prize (6500 coins)", "method": "prize"},
+  "magikarp": {"where": "any water (Old Rod) / Route 4 salesman (500)", "method": "fish"},
+  "dratini": {"where": "Safari Zone (Super Rod) / Game Corner prize", "method": "fish"},
+  "omanyte": {"where": "Mt. Moon (Helix Fossil choice) -> revive on Cinnabar", "method": "fossil"},
+  "kabuto": {"where": "Mt. Moon (Dome Fossil choice) -> revive on Cinnabar", "method": "fossil"},
+  "aerodactyl": {"where": "Pewter Museum (Old Amber) -> revive on Cinnabar", "method": "fossil"},
+  "clefairy": {"where": "Mt. Moon", "method": "cave", "note": "rare"}
+ },
+
+ "areas": {
+  "Route 1": {"grass": [{"species": "pidgey", "note": "common"}, {"species": "rattata", "note": "common"}]},
+  "Route 2": {"grass": [{"species": "pidgey"}, {"species": "rattata"}, {"species": "caterpie"}, {"species": "weedle"}]},
+  "Route 22": {"grass": [{"species": "rattata"}, {"species": "spearow"}, {"species": "nidoran-m"}, {"species": "nidoran-f"}, {"species": "mankey", "note": "uncommon"}]},
+  "Viridian Forest": {"grass": [{"species": "caterpie"}, {"species": "weedle"}, {"species": "pikachu", "note": "rare - the early Electric"}, {"species": "pidgey"}]},
+  "Route 3": {"grass": [{"species": "pidgey"}, {"species": "spearow"}, {"species": "mankey"}, {"species": "nidoran-m"}, {"species": "nidoran-f"}, {"species": "jigglypuff", "note": "rare"}]},
+  "Mt. Moon": {"cave": [{"species": "zubat"}, {"species": "geodude"}, {"species": "paras"}, {"species": "clefairy", "note": "rare"}], "fossil": [{"species": "omanyte", "note": "Helix choice"}, {"species": "kabuto", "note": "Dome choice"}]},
+  "Route 4": {"grass": [{"species": "rattata"}, {"species": "spearow"}, {"species": "ekans", "note": "FireRed"}, {"species": "mankey"}]},
+  "Route 24": {"grass": [{"species": "abra", "note": "rare KEEPER - future Alakazam"}, {"species": "oddish"}, {"species": "pidgey"}, {"species": "caterpie"}, {"species": "bellsprout", "note": "LeafGreen only"}]},
+  "Route 25": {"grass": [{"species": "abra", "note": "KEEPER"}, {"species": "oddish"}, {"species": "pidgey"}, {"species": "caterpie"}, {"species": "kakuna"}]},
+  "Diglett's Cave": {"cave": [{"species": "diglett", "note": "common KEEPER - future Dugtrio, the Surge answer"}, {"species": "dugtrio", "note": "rare"}]},
+  "Route 5": {"grass": [{"species": "oddish"}, {"species": "pidgey"}, {"species": "meowth", "note": "LeafGreen only"}, {"species": "mankey"}]},
+  "Route 6": {"grass": [{"species": "oddish"}, {"species": "pidgey"}, {"species": "psyduck", "note": "surf/edge"}, {"species": "mankey"}]},
+  "Route 11": {"grass": [{"species": "spearow"}, {"species": "ekans"}, {"species": "drowzee", "note": "uncommon - a Psychic option"}, {"species": "sandshrew", "note": "LeafGreen only"}]},
+  "Route 7": {"grass": [{"species": "growlithe", "note": "KEEPER (FireRed) - future Arcanine, the Erika answer"}, {"species": "oddish"}, {"species": "pidgey"}, {"species": "mankey"}, {"species": "meowth", "note": "LeafGreen only"}]},
+  "Route 8": {"grass": [{"species": "growlithe", "note": "KEEPER (FireRed)"}, {"species": "oddish"}, {"species": "pidgey"}, {"species": "mankey"}, {"species": "ekans"}]},
+  "Route 9": {"grass": [{"species": "rattata"}, {"species": "spearow"}, {"species": "ekans"}, {"species": "sandshrew", "note": "LeafGreen only"}]},
+  "Route 10": {"grass": [{"species": "voltorb"}, {"species": "spearow"}, {"species": "ekans"}, {"species": "machop", "note": "uncommon Fighting"}]},
+  "Rock Tunnel": {"cave": [{"species": "zubat"}, {"species": "geodude"}, {"species": "machop"}, {"species": "onix", "note": "rare"}]},
+  "Pokemon Tower": {"grass": [{"species": "gastly", "note": "KEEPER line - Haunter/Gengar"}, {"species": "haunter", "note": "rare, upper floors"}, {"species": "cubone"}]},
+  "Route 12": {"grass": [{"species": "oddish"}, {"species": "gloom"}, {"species": "pidgey"}, {"species": "venonat"}], "static": [{"species": "snorlax", "note": "L30 - Poke Flute"}], "fish": [{"species": "magikarp"}, {"species": "poliwag"}]},
+  "Route 13": {"grass": [{"species": "oddish"}, {"species": "gloom"}, {"species": "pidgey"}, {"species": "ditto", "note": "uncommon"}, {"species": "farfetchd", "note": "rare"}]},
+  "Route 14": {"grass": [{"species": "oddish"}, {"species": "gloom"}, {"species": "pidgey"}, {"species": "venomoth", "note": "rare"}, {"species": "ditto"}]},
+  "Route 15": {"grass": [{"species": "oddish"}, {"species": "gloom"}, {"species": "pidgey"}, {"species": "ditto"}, {"species": "venomoth"}]},
+  "Route 16": {"grass": [{"species": "spearow"}, {"species": "rattata"}, {"species": "doduo", "note": "uncommon Flying"}], "static": [{"species": "snorlax", "note": "L30 - Poke Flute (2nd one)"}]},
+  "Safari Zone": {"grass": [{"species": "nidoran-f"}, {"species": "nidoran-m"}, {"species": "paras"}, {"species": "scyther", "note": "rare KEEPER (FireRed)"}, {"species": "chansey", "note": "rare"}, {"species": "tauros"}, {"species": "kangaskhan", "note": "rare"}], "fish": [{"species": "dratini", "note": "Super Rod - KEEPER, future Dragonite"}, {"species": "psyduck"}]},
+  "Power Plant": {"grass": [{"species": "voltorb"}, {"species": "magnemite"}, {"species": "pikachu", "note": "KEEPER - reliable Pikachu"}, {"species": "electabuzz", "note": "rare (FireRed)"}], "static": [{"species": "zapdos", "note": "L50 legendary - optional side-arc"}]}
+ }
+}
