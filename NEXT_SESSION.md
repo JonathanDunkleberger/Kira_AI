@@ -1,68 +1,84 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 6) — READ FIRST
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 6 CLOSE) — READ FIRST
 
-## SHIFT-6 STATUS (in flight): FIXED the real Rock-Tunnel blocker (warp-route preempted the billed
-cave-pass leg) and am VERIFYING the crossing from a fast Route-10 fixture. If verified e2e (crosses
-Rock Tunnel -> Lavender -> Route 8/7 -> Celadon), BANK a post-tunnel checkpoint + advance to Erika.
+## SHIFT-6 BANKED: ROCK TUNNEL CROSSING FIXED + VERIFIED e2e -> BADGE 4 (RAINBOW / Erika) WON.
+The badge-3->4 stretch is DONE. She now crosses Rock Tunnel on the billed road and goes on to beat
+Erika autonomously. Commit 230d6eb. NEW FRONTIER = the badge-5 SILPH SCOPE / ROCKET HIDEOUT arc.
 
-## FRONTIER: the ROCK TUNNEL crossing (Route 10 -> tunnel -> Lavender -> Route 8 (2nd UGP) -> Route 7
--> Celadon -> Erika badge 4). Fix shipped this shift; verifying it actually crosses.
+## FRONTIER: badge 5 (Koga/Fuchsia) — but GATED behind the SILPH SCOPE -> POKE FLUTE -> Snorlax chain.
+Post-badge-4 she PROACTIVELY opens the Silph Scope questline (correct — it's the gate toward Fuchsia
+via the Flute/Snorlax road) and STALLS in Celadon. Precise diagnosis below.
 
-**BOOT (fast — Route 10 mouth, Flash lit, lineage party Venusaur L36 + bench L9-15, dex 10):**
-`.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py rt_mouth.state 30`
-(states/workshop/rt_mouth.state = snapshotted from shift-6's in-flight run AT Route 10, Flash taught.)
-Fallback full path: `... recon_longrun.py surge_done.state 40` (badge 3 @ Vermilion; re-runs the whole
-verified Flash gate + approach — ~35min to reach Route 10).
+**BOOT (post-badge-4, stalled in a Celadon building — the exact frontier):**
+`.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py erika_done.state 30`
+(states/workshop/erika_done.state = shift-6 banked_STALL, badges=4, Venusaur L40 + bench L9-15, IN
+Celadon, Silph Scope questline armed. She has the TEA already (Saffron unlocked for badge 6).)
 
-## SHIFT-6 FIX SHIPPED (uncommitted until verified) — cave-pass leg priority in head_to_gym
-ROOT CAUSE of the Rock-Tunnel stall (why shift-4's `_cross_tunnel_leg` never even ran): on Route 10
-(3,28), `head_to_gym`'s world-graph WARP-ROUTE (`_next_step_rideable`) runs BEFORE the billed road,
-and the CANONICAL world model has Route 10's SOUTH map-connection to Lavender (3,4) as a plain walkable
-EDGE. But that band is CLIFF-SEALED — the only crossing is Rock Tunnel — so `_next_step_rideable`
-returned `EDGE-ROUTE (3,28)->(3,4) south`, `_edge_travel` dead-ended on `no_path`, head_to_gym got
-pruned as a SPLIT-MAP DEAD ROAD, and `_road_step`/`_cross_tunnel_leg` NEVER RAN. She then grind-locked
-on Route 10 forever. Same class as shift-3's gated-shortcut preemption (Snorlax/Saffron) but via a
-PHANTOM WALKABLE EDGE, not a gated warp.
-FIX (campaign.py head_to_gym, ~line 8123): when she's standing ON a billed 'pass' leg with a `cave`
-tag (Route 10 only), run `_road_step` FIRST (which dispatches `_cross_tunnel_leg`) before the
-warp-route. Minimal blast radius — the guard only fires on a cave-pass leg's own map.
+## THE SILPH SCOPE STALL — PRECISELY CHARACTERIZED (do this next)
+The Silph Scope lives with Giovanni on **B4F of the Rocket Hideout under the Celadon Game Corner**.
+What WORKS (verified in shift6_run1.log):
+  - questline door-hint enters the Game Corner: "QUESTLINE ENTER (door-hint): inside (10, 14)" — the
+    KB door (34,21)->interior (10,14) is correct and fires.
+What's UNWIRED (the stall — she loops Celadon buildings "wrong_building/worked_room" then STALLs):
+  1. **POSTER ACTUATION** — inside the Game Corner (10,14) she "works the room" (presses slot
+     machines) but never presses the specific POSTER wall-tile that opens the hidden staircase down
+     to the hideout. So she never descends. (The (1,42) hits in the log are world-graph warp reads,
+     NOT her position — she does NOT reach the hideout.)
+  2. **DEEP HIDEOUT NAV** — even once down: B1F (1,42) -> arrow-tile spin mazes -> grab the LIFT KEY
+     (dropped by a grunt) -> ride the elevator B1->B4 -> trainer maze -> Giovanni -> Scope. The general
+     free_roam questline has none of this.
+THE CHAMPION CLEARED THIS via bespoke STRIKE code that EXISTS in the repo — WIRE IT into the general
+questline for the hideout maps:
+  - `recon_hideout` / `elevator_nav.py` (is_car + panel ride + SB1+0x14 dynamicWarp LANDING ORACLE;
+    memory: DESCENT shift 5) — the elevator crosser.
+  - `spin_nav.py` (general slide/arrow-tile crosser; memory: Silph Scope->Flute->Snorlax) — the
+    arrow-tile mazes.
+  - poster-gate + Lift Key pickup (memory: "Ghost-Vileplume + Hideout — poster gate; spin-tile
+    crosser; Lift Key"). Hideout maps = (1, 42..46). Scope confirm = BAG item 359 (0x037 is HIDE-class
+    and reads set SPURIOUSLY — confirm the ITEM, per the KB confirm_note, else she skips the hideout).
+Recommended approach: reproduce from erika_done.state, watch her in the Game Corner (10,14), and first
+solve the POSTER press (get her into (1,42)); then invoke the proven hideout strike code for the
+floors. This is the arc that has historically eaten shifts (contract warns: "shift 8 died mid-Silph-
+strike") — take it with FRESH budget, wire the EXISTING strike code, don't rebuild.
 
-## IF THE VERIFY STALLS — likely spots
-- Tunnel INTERIOR maze crossing (`_cross_warp_maze`, maps (1,81)/(1,82)) — ported from proven
-  recon_rocktunnel; if it wedges, grep `[tunnel]` for WHICH room/warp and read `_cross_warp_maze`
-  (campaign.py:5497). Both Route-10 mouths dest (3,28); sentinel m0=(3,255) makes BOTH count as exits.
-- Emergence: after crossing she's on the SOUTH part of Route 10 (3,28); `_edge_travel(Lavender, south)`
-  carries her into Lavender (3,4). If the south band is ALSO sealed post-tunnel, edge-travel to (3,4).
-- Route 8 (3,26) 2nd Underground Path (Saffron bypass) — shift-3 Saffron-avoid fix covers it.
+## AFTER SILPH SCOPE: the full badge-5 chain
+Silph Scope -> Pokemon Tower (Lavender, rescue Mr. Fuji past the ghost Marowak on 6F) -> POKE FLUTE ->
+wake the Route 12 Snorlax -> Route 12/13/14/15 south -> Fuchsia -> Koga (badge 5, Soul). NOTE the Tea
+is ALREADY obtained this shift, so Saffron's guards are open for the badge-6 (Sabrina) approach later.
 
-## GATED-SHORTCUT PATTERN (durable — now with a 3rd instance)
-`head_to_gym`'s world-graph warp-route (`_next_step_rideable`) runs BEFORE the billed road and is
-GATE/PHYSICS-BLIND: it routes through story-gated shortcuts (Snorlax Route 12, guard-blocked Saffron —
-shift 3) AND across phantom walkable edges that are actually cliff-sealed cave crossings (Route 10
-south = Rock Tunnel — shift 6). Fix pattern = either add the bad map to the warp-route `avoid` set
-(`_story_gate_avoid`, Saffron-avoid) OR, for a billed crossing the road must own, run the billed
-`_road_step` first (cave-pass priority). GENERAL future fix: make `_next_step_rideable` skip an EDGE
-hop whose band is unwalkable from her feet (reachability pre-check on the edge, like the warp
-`_warp_hop_reachable` check) — that would kill the phantom-edge class generally.
+## SHIFT-6 FIX SHIPPED + VERIFIED (commit 230d6eb) — cave-pass leg beats the warp-route on Route 10
+ROOT CAUSE (why shift-4's `_cross_tunnel_leg` never even ran): on Route 10 (3,28) head_to_gym's
+world-graph WARP-ROUTE (`_next_step_rideable`) runs BEFORE the billed road, and the CANONICAL world
+model has Route 10's SOUTH map-connection to Lavender (3,4) as a plain walkable EDGE. That band is
+CLIFF-SEALED (only crossing = Rock Tunnel), so `_next_step_rideable` returned EDGE-ROUTE south,
+`_edge_travel` dead-ended on no_path, head_to_gym got pruned as SPLIT-MAP DEAD ROAD, `_road_step`/
+`_cross_tunnel_leg` NEVER RAN, she grind-locked on Route 10. FIX (campaign.py head_to_gym ~8123): when
+standing ON a billed 'pass' leg with a `cave` tag, run `_road_step` FIRST so `_cross_tunnel_leg` owns
+the leg before the warp-route. VERIFIED e2e (rt_mouth.state): Route 10 -> Flash-lit Rock Tunnel maze
+(1,81/1,82) -> Lavender -> Route 8 (UGP2, Saffron bypass) -> Route 7 -> Celadon -> Tea -> Erika ->
+BADGE 4.
 
-## THEN: Erika (badge 4, GOAL flag 0x823 Rainbow). grass/poison, ace vileplume L29. Her spearow
-(normal/flying L15) + oddish are OWNED; `prep_for_gym` grinds, NO catch needed. Pidgey L13 (normal/
-flying) is the textbook Erika answer but dead on the bench — prep should level it.
+## GATED-SHORTCUT PATTERN (durable — 3 instances now)
+head_to_gym's warp-route (`_next_step_rideable`) runs BEFORE the billed road and is GATE/PHYSICS-BLIND:
+routes through story-gated shortcuts (Snorlax Route 12, guard-blocked Saffron — shift 3) AND across
+phantom walkable edges that are cliff-sealed cave crossings (Route 10 south = Rock Tunnel — shift 6).
+GENERAL future fix: make `_next_step_rideable` skip an EDGE hop whose band is unwalkable from her feet
+(reachability pre-check on the edge, mirroring the warp `_warp_hop_reachable` check) — kills the
+phantom-edge class generally. For now: `_story_gate_avoid` + Saffron-avoid + cave-pass priority.
 
 ## TOPOLOGY (durable)
-- Route N = map (3, 18+N). Route 9=(3,27), Route 10=(3,28), Route 11=(3,29), Route 12=(3,30).
-- Rock Tunnel interior maps: (1,81)/(1,82). Route 10 (3,28) mouth -> tunnel warp; both mouths dest (3,28).
-- Lavender=(3,4). Route 8=(3,26), Route 7=(3,25), Celadon=(3,6), Saffron=(3,10).
-- Diglett's Cave: R11 (3,29)->...->R2 (3,20). Celadon road: Vermilion(3,5)->Route6(3,24,UGP)->Route5
-  (3,23)->Cerulean(3,3)->Route9(3,27)->Route10(3,28,TUNNEL)->Lavender(3,4)->Route8(3,26,UGP2)->Route7
-  (3,25)->Celadon(3,6).
+- Route N = map (3, 18+N). Rock Tunnel interior = (1,81)/(1,82); both Route-10 mouths dest (3,28).
+- Celadon road (VERIFIED): Vermilion(3,5)->Route6(3,24,UGP)->Route5(3,23)->Cerulean(3,3)->Route9(3,27)
+  ->Route10(3,28,TUNNEL)->Lavender(3,4)->Route8(3,26,UGP2)->Route7(3,25)->Celadon(3,6).
+- Celadon Game Corner door (34,21) -> interior (10,14). Rocket Hideout maps = (1,42..46). Saffron=(3,10).
 
 ## KEY FACTS
 - venv python: `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill predecessors first).
-- recon_longrun stages ALL persistence to G:/temp/longrun/stage (STAGE redirect) — canonical Champion
-  save NEVER touched. STAGE is WIPED at each run start — snapshot it OUT before relaunching.
-- recon_longrun loads world_model + strat from CANONICAL (Champion), only soul from the boot bundle.
-  So the Route10->Lavender phantom edge comes from the Champion's world graph regardless of fixture.
-- states/campaign = SHERPA CANONICAL (Champion, untouchable). states/workshop = scratch. Commit per fix.
+- recon_longrun stages ALL persistence to G:/temp/longrun/stage (STAGE redirect); STAGE is WIPED at
+  each run start — snapshot it OUT before relaunching. Loads world_model+strat from CANONICAL, soul
+  from the boot bundle. Canonical Champion save NEVER touched.
+- states/workshop/*.state = the fixture library: surge_done (badge 3 @ Vermilion), rt_mouth (Route 10
+  mouth, Flash lit), flash_done (post-Flash Viridian), erika_done (badge 4 @ Celadon — THE FRONTIER).
+- states/campaign = SHERPA CANONICAL (Champion, untouchable). Commit per fix.
 
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Frontier = cross Rock Tunnel to Celadon/Erika.
-Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa look-ahead is at badge 4 in Celadon,
+arming the Silph Scope / Rocket Hideout chain toward badge 5 (Koga). Pop-in = `python pokemon_agent/watch.py`.
