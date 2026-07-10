@@ -55,11 +55,37 @@ from disk/real runs. Run-until-credits + escalate is already set (`night_shift.p
 ## pokemon_agent/recon_teamplanner_test.py`. On the REAL Sherpa state (Venusaur L52 solo, badge 4) the
 ## brain diagnoses the solo-carry failure and prescribes 'catch an Abra — serves Koga AND Sabrina'.
 ##
-## PART C (executor) — the LOAD-BEARING VOICE HALF is ✅ DONE + COMMITTED (19f7940): TeamPlanner.plan_note
-## now folds into the decision/oracle ctx (campaign.py ~9098) with PRECEDENCE over the reactive
-## StrategicPlanner (fallback when the brain is on-track/silent). campaign imports clean; wiring verified.
-## THE REMAINING WORK = the EXECUTOR DRIVE HALF (the actual proactive navigation): turn next_action into a
-## real objective run BEFORE the wall —
+## PART C (executor) — VOICE HALF ✅ (19f7940). EXECUTOR #1 TARGETED CATCH ✅ + #2 PRE-BUILD (load-bearing) ✅
+## + #3 PERSISTENCE ✅ — all DONE + COMMITTED (mission-pivot shift 2, THIS shift; 2 commits after 19f7940):
+##   #1 TARGETED CATCH: catch_one(target_species) — FLEE non-targets (no ball/PP waste), FORCE-catch the
+##      target (judgment bypassed). free_roam's wander_catch consults the brain via _plan_keeper_target:
+##      a DUE keeper that lives on the CURRENT map (frlg_encounters _species_on_map) -> SEEK it, not filler.
+##   #2 PRE-BUILD DOMINANCE (rule 2 — makes the brain LOAD-BEARING): _plan_wants_prebuild — when the brain
+##      says a keeper/bench-build is DUE and the team is dangerously THIN (<=2 mons), (a) don't prune
+##      catch/grind to forward-drive, (b) SUPPRESS head_to_gym while a build option exists here. Bounded:
+##      <=2 -> self-clears at party 3; never freezes. This fixed the core failure: forward-drive was
+##      solo-charging the Nugget Bridge -> blackout -> road self-gates.
+##   #3 PERSISTENCE (rule 17): team_planner save/load in _continuity_save/_load + team_plan_state.json in
+##      the auto-ckpt bundle.
+## GATE C VERIFIED-PARTIAL (recon_longrun misty_done.state, gatec_misty3.log): solo Ivysaur L22 @ Cerulean,
+## brain voices "catch Abra" -> PRE-BUILD suppresses the solo bridge-charge -> she routes WEST to ungated
+## Route 4 grass -> CATCHES Spearow L8 then Rattata L8 (party 1->3) -> PRE-BUILD self-clears -> forward-drive
+## resumes toward Bill. THE BUILD-FIRST-THEN-CROSS SEQUENCE THE BRAIN PRESCRIBES, WATCHABLE. (Note: she
+## caught FILLER not Abra because Abra's grass (Route 24) is NORTH past the Nugget Bridge — the reachable
+## grass at Cerulean is Route 4 WEST. Targeted-Abra fires once she's ON Route 24, which is the NEXT blocker.)
+##
+## NEXT BLOCKER (Gate C completion): after building, the Bill questline strike walked her from Cerulean's
+## WEST edge (0,22) INTO a dead-end house map (7,3) and STALLED (14 no-progress decisions; leave_building
+## was offered but the oracle picked talk_npc). PRE-EXISTING door-passthrough/approach wedge (not a
+## regression — PRE-BUILD only fires <=2 mons; mid-game fixtures untouched), surfaced because the Route-4
+## build detour changed her Bill-approach position. To FINISH Gate C: (1) fix the (7,3) house-exit /
+## Bill-approach so she crosses the Nugget Bridge onto Route 24; (2) on Route 24 the targeted catch fires
+## -> she catches ABRA (Phase 1's payoff); (3) beats the bridge with a bench -> Bill -> S.S. Ticket ->
+## forward. Boot: recon_longrun.py misty_done.state 13 (read gatec_misty3.log seams). Consider: have
+## PRE-BUILD prefer a build route that doesn't strand her far off the forward path, OR fix the door-
+## passthrough to exit a dead-end interior via a learned warp when head_to_gym reads questline_no_route.
+##
+## (superseded log of remaining work below):
 ##   1. CATCH_KEEPER(species, where): route to the encounter location (frlg_encounters keepers/areas) ->
 ##      TARGETED catch (extend the existing catch_one to SEEK a specific species, keep it). Reuse travel +
 ##      catch machinery already in campaign.py. This is the #1 piece (unblocks Abra/Diglett/Growlithe).
