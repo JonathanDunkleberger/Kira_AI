@@ -1,14 +1,18 @@
 # NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 7 IN-FLIGHT) — READ FIRST
 
-## SHIFT-7 IN-FLIGHT: WIRING THE ROCKET HIDEOUT STRIKE into the general questline.
-Reproduced the shift-6 stall e2e (erika_done.state -> STALL at ~decision 30, looping Celadon
-buildings): she enters the Game Corner (10,14) via the door-hint, "works the room" (talks gamblers),
-never presses the POSTER, declares wrong_building, leaves, cycles other Celadon buildings -> STALL.
-BUILDING `pokemon_agent/hideout_strike.py` — a faithful in-loop port of the PROVEN champion strike
-(recon_hideout.py descent + recon_hideout_exit.py exit) driven by `camp`, hooked at the top of
-`_questline_interact` for the silph_scope errand (step.success==('item',359)). If this file still
-says IN-FLIGHT, the wire/verify did not finish — reproduce with the BOOT below and check
-logs/nightshift7/ for the last strike run.
+## SHIFT-7: SILPH SCOPE STRIKE DONE + VERIFIED e2e (commit 93ee1ab). TOWER STRIKE wired, verifying.
+`pokemon_agent/hideout_strike.py` (Rocket Hideout: poster -> spin mazes -> Lift Key -> elevator ->
+Giovanni -> Scope -> exit) + `tower_strike.py` (Pokémon Tower climb: Gary 2F -> Marowak ghost 6F ->
+7F grunts -> Mr. Fuji -> Poké Flute) are faithful in-loop ports of the champion's recon_hideout.py/
+recon_hideout_exit.py/recon_tower.py, driven by `camp`, dispatched from `_questline_strike` (a
+registry keyed by step.success: ('item',359)=Scope, ('item',350)=Flute), hooked at the top of
+`_questline_interact`. KEY LESSON: the frontier lead enters dungeons WORN (erika_done: Venusaur
+76/135) and there's no Center below the boss -> each strike HEALS to full (HP+PP) before descending;
+the Tower strike also has an attrition heal-valve (descend+heal when lead <50%). The "underlevel"
+losses were really un-healed L43 Venusaur. SILPH SCOPE verified e2e (run6: questline_strike_done,
+scope in bag, advanced to the Poké Flute step). TOWER strike verification = run7 (in flight when this
+was written). If the Flute isn't confirmed, check logs/nightshift7/s7_run7.log for the tower strike
+trace + G:/temp/longrun/tower_probe/*.png frames.
 
 ## SHIFT-6 BANKED: ROCK TUNNEL CROSSING FIXED + VERIFIED e2e -> BADGE 4 (RAINBOW / Erika) WON.
 The badge-3->4 stretch is DONE. She now crosses Rock Tunnel on the billed road and goes on to beat

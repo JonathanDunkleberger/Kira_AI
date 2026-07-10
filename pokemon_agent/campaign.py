@@ -6459,41 +6459,60 @@ class Campaign:
 
     def _questline_strike(self, step):
         """BESPOKE INTERIOR STRIKE dispatcher (night shift 7). Some questline targets sit behind a
-        fixed dungeon RITUAL the general room-tour/GO-DEEPER can't crack — registered here by the
-        step's success signature. Runs the proven strike as ONE decision (like beat_gym); returns a
-        roam-result string when it ran, or None to fall through to the general interaction layer.
-        Bounded by a per-questline try counter so a failing strike can't loop the run forever."""
+        fixed dungeon RITUAL the general room-tour/GO-DEEPER can't crack — registered by the step's
+        success signature. Runs the proven strike as ONE decision (like beat_gym); returns a roam-
+        result string when it ran, or None to fall through to the general interaction layer. Bounded
+        by a per-errand try counter (a failing strike can't loop the run forever)."""
         try:
-            # SILPH SCOPE — success = ('item', 359) in Key Items (the 0x037 flag lies). Strike from
-            # the Game Corner (10,14), or from Celadon (3,6) (it enters the GC door itself).
-            if not (step and step.success and tuple(step.success) == ("item", 359)):
+            if not (step and step.success):
                 return None
+            succ = tuple(step.success)
             here = tuple(tv.map_id(self.b))
-            from hideout_strike import HIDEOUT_MAPS, GC, CELADON
-            if here not in (HIDEOUT_MAPS | {GC, CELADON}):
+            # STRIKE REGISTRY — success-sig -> (label, done-msg, importer). The importer returns
+            # (run_fn, anchor_maps, good_results) so the strike modules stay lazily imported.
+            def _hideout():
+                from hideout_strike import HIDEOUT_MAPS, GC, CELADON, run_strike
+                return run_strike, (HIDEOUT_MAPS | {GC, CELADON}), ("got_scope",), "hideout_probe"
+
+            def _tower():
+                from tower_strike import TOWER_MAPS, LAVENDER, run_strike
+                return run_strike, (TOWER_MAPS | {LAVENDER}), ("got_flute",), "tower_probe"
+
+            registry = {
+                ("item", 359): ("Rocket Hideout (Silph Scope)",
+                                "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
+                ("item", 350): ("Pokémon Tower (Poké Flute)",
+                                "we saved Mr. Fuji — and he handed us the Poké Flute. now to wake "
+                                "that Snorlax.", _tower),
+            }
+            if succ not in registry:
                 return None
-            tries = getattr(self, "_ql_strike_tries", 0)
+            label, done_msg, importer = registry[succ]
+            run_fn, anchors, good, dbg_sub = importer()
+            if here not in anchors:
+                return None
+            tries_map = getattr(self, "_ql_strike_tries_map", None)
+            if tries_map is None:
+                tries_map = self._ql_strike_tries_map = {}
+            tries = tries_map.get(succ, 0)
             if tries >= 3:
-                log("   [roam] questline STRIKE: 3 attempts exhausted for the Silph Scope — "
-                    "surfacing so recovery/other options carry her (not looping the strike)")
+                log(f"   [roam] questline STRIKE: 3 attempts exhausted for {label} — surfacing so "
+                    f"recovery/other options carry her (not looping the strike)")
                 return None
-            self._ql_strike_tries = tries + 1
-            log(f"   [roam] 🎯 QUESTLINE STRIKE: Rocket Hideout (Silph Scope) — attempt "
-                f"{tries + 1}/3 from {here}")
-            from hideout_strike import run_strike
-            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "hideout_probe")
-            res = run_strike(self, log, dbg_dir=dbg)
+            tries_map[succ] = tries + 1
+            log(f"   [roam] 🎯 QUESTLINE STRIKE: {label} — attempt {tries + 1}/3 from {here}")
+            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", dbg_sub)
+            res = run_fn(self, log, dbg_dir=dbg)
             log(f"   [roam] 🎯 QUESTLINE STRIKE -> {res} (now {tv.map_id(self.b)}@{tv.coords(self.b)})")
-            if res == "got_scope":
-                # Scope in bag + back out on the Celadon street. The deriver re-reads the flag/item
-                # next tick and the silph_scope step self-clears -> questline advances to the Tower.
+            if res in good:
+                # objective in bag. The deriver re-reads the flag/item next tick and the step self-
+                # clears -> questline advances. Clear the inside marker + reset this errand's tries.
                 self._ql_inside_target = False
-                self._ql_strike_tries = 0
-                self.on_event("got it — the Silph Scope. now for that ghost in the tower.",
-                              kind="milestone", tier=2)
+                tries_map[succ] = 0
+                self.on_event(done_msg, kind="milestone", tier=2)
                 return "questline_strike_done"
             if res == "in_hideout":
-                # holding the Scope but still below — keep the inside marker so recovery doesn't
+                # holding the objective but still below — keep the inside marker so recovery doesn't
                 # eject her mid-dungeon; retry the exit next tick.
                 self._ql_inside_target = True
                 return "questline_strike_exit_wip"
