@@ -5075,6 +5075,23 @@ class Campaign:
         wm, cur = tuple(r["map_id"]), tuple(state["map"])
         return set() if wm == cur else {wm}
 
+    # Snorlax-gated coastal roads: routable only once the Poké Flute (item 350) is in the bag.
+    _FLUTE_GATED_MAPS = {(3, 30), (3, 34)}    # Route 12 (south of Lavender), Route 16 (west of Celadon)
+
+    def _story_gate_avoid(self, state):
+        """Story-gated maps to keep OUT of graph ROUTING until the key item is owned. The world graph is
+        CAPABILITY-BLIND: while she detoured east for Flash she learned Route 11<->Route 12, so head_to_gym's
+        warp-route now sends her Vermilion->Route 11->Route 12 toward Celadon — but Route 12 is Snorlax-
+        blocked pre-Flute (the ONLY pre-Flute road to Lavender is ROCK TUNNEL — gamedata/frlg_gates.json
+        roads['Celadon City']). She wedged at the Snorlax (13,70). Avoid the gated maps so the graph route
+        falls through to the billed road (Rock Tunnel). Post-Flute (item 350) they clear and become roads."""
+        try:
+            if self._item_count(350) > 0:            # ITEM_POKE_FLUTE — Snorlax wakes, roads open
+                return set()
+        except Exception:
+            pass
+        return set(self._FLUTE_GATED_MAPS)
+
     def _wall_blocked_dirs(self, state):
         """Batch-WORLD — when the active wall is ON her current map (a trainer guarding an exit, like
         Gary at Cerulean's north edge), the blocked thing is a DIRECTION, not a neighbouring map. Pick
@@ -7932,7 +7949,9 @@ class Campaign:
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
                 try:
-                    step = self._next_step_rideable(cur_map, target_city, avoid=self._wall_avoid(state))
+                    step = self._next_step_rideable(
+                        cur_map, target_city,
+                        avoid=self._wall_avoid(state) | self._story_gate_avoid(state))
                 except Exception as _ws:
                     step = None
                     log(f"   [roam] warp-route step skipped: {_ws}")
