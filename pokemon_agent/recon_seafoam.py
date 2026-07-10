@@ -57,6 +57,13 @@ if _HERE not in sys.path:
 if os.environ.get("WATCH") != "1":
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+# travel.py logs a "🌊 SURF MOUNT" line; piped to a cp1252 console that crashes the run mid-heal
+# (NS5). Force utf-8 stdout so any emoji in shared-plumbing logs can't kill a headless strike.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 from bridge import Bridge            # noqa: E402
 import travel as tv                  # noqa: E402
@@ -109,14 +116,31 @@ MISSION = [
 ]
 
 
+def _resolve_state(name):
+    """Resolve a state BASENAME/path -> (state_path, sidecar_dir, sidecar_prefix)."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
+
 def main():
     t0 = time.time()
 
     def L(m):
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("SEAFOAM_STATE", ""))
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    with open(state_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()
@@ -163,16 +187,23 @@ def main():
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    _w_side = os.path.join(sc_dir, sc_pref + ".world_model.json")
+    _s_side = os.path.join(sc_dir, sc_pref + ".strat_memory.json")
+    _soul_side = os.path.join(sc_dir, sc_pref + ".soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
+    L(f"boot state = {state_path} map={tv.map_id(b)} coords={tv.coords(b)}")
 
     def fight_open():
         return ram.valid_ewram_ptr(b.rd32(ram.GBATTLE_RES_PTR))
@@ -575,7 +606,13 @@ def main():
         if handle_interrupts():
             continue
         if here == FUCHSIA:
-            if not cross_edge("south", "fuchsia-south"):
+            # ROBUST START (NS5 kit line): the Safari strike leaves her at (33,32) by the Warden's
+            # door, where the bespoke south-band sea_walk can't navigate out. The general campaign
+            # traveler crosses Fuchsia->R19 fine from anywhere (proven this shift), so use it FIRST;
+            # cross_edge stays the fallback for the credits-canonical start position.
+            _wr = camp.walk_to_map(R19, "south")
+            if tuple(tv.map_id(b)) != R19 and not cross_edge("south", "fuchsia-south"):
+                L(f"!! Fuchsia->R19 failed (walk_to_map={_wr})")
                 return 1
         elif here == R19:
             if not cross_edge("west", "r19-west"):
@@ -645,6 +682,7 @@ def main():
         return 1
 
     L(f"   CINNABAR ISLAND @ {tv.coords(b)} after {n_battles[0]} battles — healing")
+    _stage_save("cinnabar_arrival")          # bank the arrival BEFORE the heal (crash-safety, NS5)
     r = camp.heal_nearest()
     L(f"   heal_nearest -> {r}")
     snap("90_cinnabar")
