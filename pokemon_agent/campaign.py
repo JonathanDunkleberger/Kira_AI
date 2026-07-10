@@ -3993,6 +3993,32 @@ class Campaign:
             log(f"   [roam] plan keeper target skipped: {e}")
         return None
 
+    def _plan_wants_prebuild(self, state):
+        """Part-C EXECUTOR (rule 2 — make the brain LOAD-BEARING): True when the standing team brain says
+        she should BUILD before pushing forward — a DUE keeper catch (or bench-develop) while the team is
+        dangerously THIN (<=2 mons). The load-bearing case: forward-drive was marching a SOLO lead straight
+        into the Nugget-Bridge gauntlet (misty_done look-ahead: solo Ivysaur -> Starmie -> blackout ->
+        the road self-gates) even though the brain already knew 'catch a teammate first'. When this fires
+        we keep catch/grind available against the forward-drive prune so she assembles a squad on the
+        reachable grass FIRST, then crosses. Bounded: only <=2 mons, so it self-clears once the bench
+        exists (party 3 -> forward-drive resumes). Mode-side, plan-gated, fail-closed."""
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED
+            if not TEAM_PLANNER_ENABLED:
+                return False
+            pc = state.get("party_count")
+            if pc is None:
+                pc = len(state.get("party") or [])
+            if pc > 2:
+                return False
+            act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
+                                           bag=state.get("bag"), dex=state.get("dex_caught"),
+                                           post_game=bool(state.get("post_game")))
+            return bool(act and act.get("kind") in ("catch_keeper", "develop_bench"))
+        except Exception as e:
+            log(f"   [roam] plan-prebuild check skipped: {e}")
+            return False
+
     def catch_one(self, max_seconds=300, target_species=None):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
@@ -7641,7 +7667,11 @@ class Campaign:
             # STRATEGIC UNDERLEVEL-GRIND (Task B): stand down ALSO while she's prepping an under-levelled
             # team for the wall — the grind ISN'T "backward drift" then, it's the deliberate forward move
             # (raise the floor → cross). Pruning battle/wander_catch here would be the stubborn-charge bug.
-            if not stuck and prep_t is None:
+            _plan_build = self._plan_wants_prebuild(state)
+            if _plan_build:
+                log("   [roam] TEAM-BRAIN PRE-BUILD: team dangerously thin + a keeper/bench-build is DUE — "
+                    "NOT pruning catch/grind to forward-drive (assemble the squad before the gauntlet)")
+            if not stuck and prep_t is None and not _plan_build:
                 try:
                     cur = tuple(state["map"])
                     avoid = self._wall_avoid(state)
@@ -7713,6 +7743,17 @@ class Campaign:
                                 f"forward pull, pruned backward-grind {sorted(pruned)}")
                 except Exception as _fd:
                     log(f"   [roam] forward-drive skipped: {_fd}")
+            # TEAM-BRAIN PRE-BUILD DOMINANCE (rule 2 — the load-bearing half): keeping catch/grind on the
+            # menu wasn't enough — the oracle still picked head_to_gym and solo-charged the Nugget-Bridge
+            # gauntlet (misty_done look-ahead: solo Ivysaur -> blackout, twice). So when the brain says
+            # BUILD FIRST (thin team + a DUE keeper/bench-build) AND a real build option exists here (grass
+            # reachable), SUPPRESS the forward push — symmetric to the critical-heal dominance. She
+            # assembles a squad on the reachable grass, THEN the road returns. Bounded (<=2 mons -> clears
+            # at party 3); never freezes (only when battle/wander_catch is actually available).
+            if _plan_build and "head_to_gym" in a and ("wander_catch" in a or "battle" in a):
+                a.pop("head_to_gym", None)
+                log("   [roam] TEAM-BRAIN PRE-BUILD dominance: suppressing head_to_gym (would solo-charge "
+                    "the trainer gauntlet the brain flagged) — build the squad on the reachable grass first")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
         # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
         # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
@@ -9813,7 +9854,7 @@ class Campaign:
         bundle = [(CAMPAIGN_SAVE, CAMPAIGN_SAVE), ("world_model.json", "world_model.json"),
                   ("strat_memory.json", "strat_memory.json"), ("journey_core.json", "journey_core.json"),
                   ("pokemon_soul.json", "soul.json")]
-        optional = ("dialogue_hints.json",)
+        optional = ("dialogue_hints.json", "team_plan_state.json")   # Part-C rule 17: plan HISTORY rides along
         try:
             root = os.path.join(STATES_CAMPAIGN, "checkpoints")
             os.makedirs(root, exist_ok=True)
@@ -10257,6 +10298,14 @@ class Campaign:
             self.world.load(WORLD_JSON)     # Batch-WORLD: resume KNOWING the map she's built up
         except Exception as e:
             log(f"   [world] !! continuity load failed: {e} (LOUD)")
+        try:
+            # Part-C rule 17: resume the team-plan HISTORY (what she's caught/evolved/taught DELIBERATELY),
+            # so a hard-kill mid-build doesn't lose the plan's memory. assess() re-derives live slot-status
+            # from the party each tick, so this is additive continuity, never load-bearing for correctness.
+            if self.team_planner.load(STATES_CAMPAIGN):
+                log("   [teamplan] resumed plan-state from the campaign bundle")
+        except Exception as e:
+            log(f"   [teamplan] !! continuity load failed: {e} (LOUD)")
 
     def _continuity_save(self):
         """ADDENDUM D — persist her saga alongside a campaign anchor (bonds/wants + loss/wall history),
@@ -10275,6 +10324,11 @@ class Campaign:
             self.world.save(WORLD_JSON)     # Batch-WORLD: bank her mental map next to the anchor
         except Exception as e:
             log(f"   [world] !! continuity save failed: {e} (LOUD)")
+        try:
+            if getattr(self.team_planner, "state", None) is not None:   # Part-C rule 17: bank the plan HISTORY
+                self.team_planner.save(STATES_CAMPAIGN)
+        except Exception as e:
+            log(f"   [teamplan] !! continuity save failed: {e} (LOUD)")
         # PHASE 4 — push the journey narrative to core Kira (grudge + team feelings + arc), so it
         # persists core-side and surfaces in idle chat / any game, not just this Pokémon process.
         narrative = None
