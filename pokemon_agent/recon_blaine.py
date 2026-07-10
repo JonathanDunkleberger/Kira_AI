@@ -67,14 +67,36 @@ QUIZ_CHAIN = [
 ]
 
 
+def _resolve_state(name):
+    """Resolve a state BASENAME/path -> (state_path, sidecar_dir, sidecar_prefix)."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
+
 def main():
     t0 = time.time()
 
     def L(m):
         print(f"[{time.time() - t0:7.1f}s] {m}", flush=True)
 
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("BLAINE_STATE", ""))
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    with open(state_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()
@@ -149,14 +171,20 @@ def main():
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    _w_side = os.path.join(sc_dir, sc_pref + ".world_model.json")
+    _s_side = os.path.join(sc_dir, sc_pref + ".strat_memory.json")
+    _soul_side = os.path.join(sc_dir, sc_pref + ".soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
 
