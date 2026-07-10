@@ -72,6 +72,7 @@ class SilphStrike:
         self.n_battles = 0
         self.gary_done = False
         self.lapras_done = False
+        self._gary_route_around = True   # NS3: skip the unwinnable-solo Gary; ride 11F pad direct
         self.heal_mode = False           # None once latched-off for the run
         self.wedges = {}
 
@@ -450,8 +451,35 @@ class SilphStrike:
                     self.wedges.pop(here, None)
                 continue
 
-            # PHASE B — key in hand: the pad chain to Giovanni.
+            # PHASE B — key in hand: ride the pad chain to Giovanni (11F).
             if here == F7 and cur[0] <= 6:
+                # ROUTE-AROUND GARY (night shift 3 — the whiteout-LOOP fix). Gary (object (2,6),
+                # COORD-triggers (2,4)/(2,5), disasm-confirmed) is a BONUS rival whose ace (Charizard)
+                # HARD-COUNTERS a solo Venusaur: it resists her all-Grass offense 0.25x while Fire /
+                # Flying / Psychic across his 6-mon team all hit her 2x. A lone carry LOSES the gauntlet
+                # and whiteout-LOOPS the entire tower (verified NS3: 6 losses / 6 full re-climbs, the
+                # strike's internal deadline burned to a FAIL). The MISSION is GIOVANNI on 11F, not Gary;
+                # Giovanni's Ground/Rock team is 2x-weak to Grass (trivial for Venusaur). The 3F->7F
+                # landing (5,4) and the 11F pad (5,8) sit in the SAME column x=5 with Gary's triggers
+                # off at x=2, so ride the 11F pad STRAIGHT from the landing — the shortest-path approach
+                # runs down column 5 and never touches x=2, skipping the unwinnable rival AND the optional
+                # Lapras. Fall back to clearing Gary/Lapras only if the pad is genuinely unreachable
+                # (disasm says it isn't). A STRONGER team revisits Gary later — logged as a soul debt.
+                if self._gary_route_around:
+                    if self.ride_pad(PAD_7F_TO_11F, "pad-11f-direct"):
+                        continue
+                    if st.in_battle(b):
+                        L(f"   GARY auto-engaged en route to the 11F pad -> {self.fight()}")
+                        self.drain()
+                        self.gary_done = True
+                        continue
+                    # direct pad unreachable without a fight — disable the shortcut, use the fallback
+                    self.wedges["direct11f"] = self.wedges.get("direct11f", 0) + 1
+                    if self.wedges["direct11f"] >= 2:
+                        L("!! 11F pad not directly reachable x2 — falling back to the Gary-cleared route")
+                        self._gary_route_around = False
+                    self.drain()
+                    continue
                 if not self.gary_done:
                     L("   7F pocket: walking the rival trigger row (Gary auto-engages)")
                     nb0 = self.n_battles
