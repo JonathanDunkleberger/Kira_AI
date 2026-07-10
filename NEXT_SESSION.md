@@ -1,6 +1,24 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## 🔨 IN FLIGHT (night-shift 4): BADGE 6 (Sabrina) — Silph Gary = a TYPE-MATCHUP wall (Charizard), NOT PP
+## ✅ NS4 BANKED: SILPH CO. SOLVED UNAIDED (Gary type-wall broken) → frontier = SABRINA BADGE (0x825)
+**VERIFIED e2e, fully autonomous from a clean koga_done_kit (NO injected items):** HYPER-STALL bought
+15 Hyper + 5 Revive at Saffron Mart ($30k→…) → silph_strike → GARY WON 5-2 (out-heals Charizard's Fire)
+→ Lapras → Giovanni → SAFFRON FREED (0x3E) in 226s. Banked → promoted **`silph_done_kit.state`**
+(workshop; Venusaur L56, Saffron freed, ~$16k, leftover ~11 Hyper + 3 Revive). Commits: 1e9e43c (diagnosis
++ battle guard), db84e10 (Saffron Mart + stock_hyper_potions kit). See [[pokemon-nightshift3-silph-gary-skip]].
+
+### FRONTIER — BADGE 6 (Sabrina / Marsh 0x825), gym now OPEN:
+Run `LONGRUN_GOAL_FLAG=0x825 LONGRUN_BATTLE_LOG=1 recon_longrun silph_done_kit.state 40`. Sabrina's team
+is PSYCHIC (Kadabra/MrMime/Venomoth/Alakazam) — Psychic hits Grass/POISON Venusaur ×2, so it's the SAME
+out-heal-with-Hyper dynamic as Charizard. She carries leftover Hyper+Revive and Saffron Mart is right
+there. WATCH FOR: (a) beat_gym pad-router crossing Sabrina's INTERIOR teleport maze (port seam =
+recon_sabrina if the general walk wedges); (b) if she runs low on Hyper mid-gym, a Sabrina POTION-STALL
+— the Saffron Mart is now mapped (door (40,21), Hyper row1) + `stock_hyper_potions` is reusable, or add
+"Sabrina" to POTION_STALL_GYMS (but that buys the cheapest potion — prefer wiring stock_hyper_potions into
+the pre-Sabrina beat_gym leg so she buys HYPER, not Super). If Alakazam is a hard attrition wall, the same
+Hyper+Revive kit that beat Charizard should carry it.
+
+## (superseded) NS4 root-cause detail — BADGE 6 Silph Gary = a TYPE-MATCHUP wall (Charizard), NOT PP
 **NS4 CORRECTS NS3's diagnosis (which was WRONG).** The whole Silph chain still FIRES e2e (koga_done_kit
 → Saffron → prereq gate → silph_strike → climbs 1F→9F, grabs Card Key, pad-chains to 7F, Gary auto-engages).
 NS3's committed "FINISH-THE-FOE guard" (battle_agent) + route-around-disable (silph_strike) are still
