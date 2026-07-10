@@ -6432,6 +6432,67 @@ class Campaign:
             # her (unknown map / warp failed / walk-unreachable) so nothing regresses.
             _dir_tile = self._questline_interior_route(step)
             if _dir_tile is not None:
+                # FIGHT-THE-CABINS-FIRST (2026-07-10, night shift 8 — the S.S. Anne Gary TEAM-STRENGTH
+                # wall). The directed hop B-LINES up the stairs to the captain, SKIPPING every cabin
+                # trainer on this deck (Gentlemen/Sailors, L16-18) — the intended level-up a human
+                # fights through. Arriving underlevelled, her solo ace PP-famines vs Gary's 4-mon team
+                # (Pidgeotto's Sand-Attack whiff-spiral wastes her PP) and the frail L8-12 bench can't
+                # finish (VERIFIED loss at L29, grudge 4W-5L, s8_gary_observe.log). Wild-grinding to the
+                # Venusaur milestone on Route 6 trash is too slow + unwatchable (shift 6/7 dead end). So
+                # BEFORE climbing, sweep this deck's un-entered cabins — fight their trainers, level the
+                # WHOLE team (bench included via participation) — and climb only once they're exhausted.
+                # Bounded by _ql_entered_doors (finite); exclusions mirror the blind tour's (no overworld
+                # exit, no maze, no re-entry, NOT the stairs tile itself). Fail-open + kill-switch. This
+                # is the authentic, watchable line: a real trainer clears the ship, THEN faces the rival.
+                # PORTABILITY (rule 14): general "clear a directed interior's trainers before the deep
+                # target" — the S.S. Anne coupling lives in the KB (interior_routes), not here.
+                if os.environ.get("POKEMON_SHIP_CABIN_SWEEP", "1") == "1":
+                    def _exit_lobby(dmap):
+                        nd = self.world.node(dmap)
+                        return bool(nd) and any(str(v).split(",")[0] == "3"
+                                                for v in nd.get("warps", {}).values())
+                    _cabins = [tuple(xy) for (xy, dest, _wid) in ws0
+                               if tuple(xy) != _dir_tile and dest[0] != 3
+                               and (mp0, tuple(xy)) not in self._ql_entered_doors
+                               and tuple(dest) not in self._no_connector_maps()
+                               and not _exit_lobby(tuple(dest))
+                               and self._warp_hop_reachable(tuple(xy))]
+                    if _cabins:
+                        _cabins.sort(key=lambda t: abs(t[0] - here0[0]) + abs(t[1] - here0[1]))
+                        _cab = _cabins[0]
+                        log(f"   [roam] 🥊 SHIP CABIN SWEEP: clearing this deck's trainers before the "
+                            f"climb — cabin warp {_cab} ({len(_cabins)} un-entered here)")
+                        self.on_event("this ship's crawling with trainers — I'm working the cabins for "
+                                      "XP before I take on my rival up top. level the whole squad first.",
+                                      kind="route", tier=2)
+                        if tuple(tv.coords(self.b) or ()) == _cab:
+                            g3 = tv.Grid(self.b)
+                            _fire = (self._WARP_ENTRY.get(self._tile_behavior(*_cab)) or (None, None))[1]
+                            for nb in ((_cab[0], _cab[1] + 1), (_cab[0], _cab[1] - 1),
+                                       (_cab[0] + 1, _cab[1]), (_cab[0] - 1, _cab[1])):
+                                if _fire is not None and (nb[0] - _cab[0], nb[1] - _cab[1]) == _fire:
+                                    continue
+                                if g3.walkable(nb[0], nb[1]):
+                                    self.trav.travel(target_map=None, arrive_coord=nb,
+                                                     max_steps=10, max_seconds=15)
+                                    break
+                        if self._tile_behavior(*_cab) in self._WARP_ENTRY:
+                            self._enter_directional_warp(_cab)
+                        if tuple(tv.map_id(self.b)) == mp0:
+                            self.enter_warp(pick=_cab, budget_s=180)
+                        if tuple(tv.map_id(self.b)) != mp0:
+                            self._ql_entered_doors.add((mp0, _cab))
+                            self._ql_room_sweeps = 0
+                            self._ql_inside_target = True   # a cabin is deliberate interiority
+                            try:
+                                getattr(self, "_ql_bg_done", set()).clear()
+                                self._talked_npcs.get(tuple(tv.map_id(self.b)), set()).clear()
+                            except Exception:
+                                pass
+                            log(f"   [roam] 🥊 CABIN: {mp0} -> {tv.map_id(self.b)} via {_cab} "
+                                f"(fighting for XP before the rival climb)")
+                            return "questline_deeper"
+                        log("   [roam] 🥊 CABIN SWEEP: entry didn't move us — climbing instead")
                 if not self._warp_hop_reachable(_dir_tile):
                     log(f"   [roam] questline: DIRECTED warp {_dir_tile} walk-unreachable from here — "
                         f"falling back to the blind tour")

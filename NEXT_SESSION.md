@@ -11,13 +11,24 @@ appropriate level. The shift-12 DIRECTED ship-nav B-LINES to the Gary warp, skip
 trainers -> she arrives underlevelled every time. THE FIX = make ship-nav ENGAGE cabin trainers before
 the Gary warp (fail-open; her L26 ace beats L16-18 cabin trainers easily = the intended level-up).
 
-IN FLIGHT (this shift): first get GROUND TRUTH on the RAW Gary fight. Made _RIVAL_PREP_LEVEL env-tunable
-(POKEMON_RIVAL_PREP_LEVEL, default 32; =0 disables the grind). Running an OBSERVE pass with grind OFF:
-  POKEMON_TEAM_PLANNER=1 POKEMON_RIVAL_PREP_LEVEL=0 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 18  (log /g/temp/s8_gary_observe.log)
-GOAL: does L26 ivysaur BEAT or LOSE Gary raw? does she fight ANY cabin trainers? read the actual Gary
-turn log. CONTRADICTION to resolve: shift-15 said she BEATS Gary (5W-2L) from a Razor-Leaf fixture ~L20;
-shift-7 said L30 LOSES (4W-5L). If she's losing it's NOT level (L26 >> Gary's L16-18) — it's execution
-(PP famine / Sand-Attack whiff / frail bench forced in + swept). Fix the REAL blocker, not the level.
+GROUND TRUTH (s8_gary_observe.log, prep-grind OFF): L29 ivysaur LOSES Gary (grudge 4W-5L). Turn log shows
+the exact mechanism — Pidgeotto's SAND-ATTACK triggers a WHIFF-SPIRAL (Tackle stuck missing, foe HP frozen
+23/54 for many turns even while asleep) that BURNS her PP; by Charmeleon she's PP-FAMINED and forced to the
+frail bench (spearow Peck barely dents it) -> loss. NOT a level problem (L29 >> Gary's L16-20); it's PP
+attrition + a dead-weight bench. Only L32/Venusaur (raw power ending each mon in 1-2 hits, no famine)
+reliably wins the reactive way, and wild-grind to L32 is too slow. THE FIX = the human path.
+
+BUILT THIS SHIFT (uncommitted until verified): FIGHT-THE-CABINS-FIRST (campaign.py ~6435, in the directed-
+interior-hop block, kill-switch POKEMON_SHIP_CABIN_SWEEP=1). The directed hop B-lines up the stairs skipping
+every cabin trainer; now she SWEEPS this deck's un-entered cabins (fights the L16-18 Gentlemen/Sailors,
+levels the WHOLE team incl. the frail bench via participation) BEFORE the directed hop climbs. Bounded by
+_ql_entered_doors, fail-open. Verifying:
+  POKEMON_TEAM_PLANNER=1 POKEMON_RIVAL_PREP_LEVEL=0 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 20  (log /g/temp/s8_cabin.log)
+EXPECT: 🥊 SHIP CABIN SWEEP fires on 1F -> fights cabins -> climbs to 2F -> sweeps -> Gary (now leveled
+ace + non-dead bench) -> WIN -> captain HM01 Cut -> teach -> cut Vermilion gym tree -> Lt. Surge (badge 3).
+RISK: no Center aboard, so cabin fights drain PP/HP before Gary -> may still famine (next lever = potions/
+ethers, or a whiff-spiral fix: switch out to reset Sand-Attack accuracy). If cabins don't reach enough
+level, combine with a SMALL prep-grind (POKEMON_RIVAL_PREP_LEVEL back to ~30).
 Fixtures: bill_done_kit.state (rebuild: `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py` ->
 writes pokemon_agent/states/workshop/), bill_done.state (rebuild: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->
