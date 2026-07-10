@@ -5731,6 +5731,18 @@ class Campaign:
                 f"guide (Phase 4)/a hand; releasing to normal roam")
             return "questline_unresolved"
         cur_map = tuple(state["map"])
+        # BLOCKER STRIKE — FIRE FIRST (night shift 8): a face-a-blocker errand (the Route 12 Snorlax)
+        # has NO door hint and anchors ON the blocker's own map — so the ANCHOR-FIRST routing below
+        # (step.from_map -> Lavender) would route her BACK toward the gate town before the tail-end
+        # strike hook (past the teach bridge) ever runs — the run7 stall at (3,30)@(12,0), and the
+        # fixture reproduces it. Give the strike first crack for DOOR-LESS steps when she's standing
+        # on its anchor map; it's a cheap no-op off-anchor / for steps it doesn't own (registry-keyed
+        # on step.success). Dungeon errands (hideout/tower) carry door hints -> excluded here, still
+        # flow via the door-hint + _questline_interact path they were verified on.
+        if not getattr(step, "door", None):
+            _bstrike = self._questline_strike(step)
+            if _bstrike is not None:
+                return _bstrike
         # FLASH ERRAND (2026-07-09 night-train shift 1): the whole flash gate — catch to 10 owned AND
         # reach the Route 2 aide via Route 11/Diglett's Cave AND teach — runs as one proven errand
         # (the catch-in-place driver species-exhausts on Route 10; the errand walks east to fresh grass
@@ -5895,6 +5907,15 @@ class Campaign:
                                   kind="route", tier=2)
                     return "questline_step_done"
                 return "questline_teach_failed"
+        # BESPOKE STRIKE at the STEP handler (night shift 7): some errands never reach the
+        # 'arrived' _questline_interact hook because head_to_gym no_paths at the blocker first — the
+        # Route-12 Snorlax (she stands at its face but nothing wires "play the Flute at it", so
+        # head_to_gym re-routes into the body -> SPLIT-MAP DEAD ROAD). Cheap no-op while approaching
+        # (the strike returns None unless she's ON the errand's anchor map); fires the wake ritual
+        # when she's on Route 12. Dungeon errands still fire via _questline_interact (door-hint first).
+        strike = self._questline_strike(step)
+        if strike is not None:
+            return strike
         log(f"   [roam] 🧭 QUESTLINE STEP: '{step.human}' — heading {d.upper()} toward "
             f"{step.place_name or 'the destination'} (success={step.success})")
         conns = self._map_connections()
@@ -6478,12 +6499,19 @@ class Campaign:
                 from tower_strike import TOWER_MAPS, LAVENDER, run_strike
                 return run_strike, (TOWER_MAPS | {LAVENDER}), ("got_flute",), "tower_probe"
 
+            def _snorlax():
+                from snorlax_strike import ANCHORS, run_strike
+                return run_strike, ANCHORS, ("woke_snorlax",), "snorlax_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
                 ("item", 350): ("Pokémon Tower (Poké Flute)",
                                 "we saved Mr. Fuji — and he handed us the Poké Flute. now to wake "
                                 "that Snorlax.", _tower),
+                ("flag", "FLAG_WOKE_UP_ROUTE_12_SNORLAX"): (
+                    "Route 12 Snorlax (Poké Flute wake)",
+                    "the Snorlax is awake — and the road south to Fuchsia is finally open.", _snorlax),
             }
             if succ not in registry:
                 return None

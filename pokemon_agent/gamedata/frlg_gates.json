@@ -148,6 +148,13 @@
         "human": "the road south is blocked by a huge sleeping Snorlax - nothing wakes it but the Poke Flute, and that means dealing with Team Rocket first: the Silph Scope from their hideout under Celadon's Game Corner, then the Tower ghost, then Mr. Fuji"
       }
     },
+    "3,30": {
+      "south": {
+        "flag": "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+        "blocker": "the giant SNORLAX asleep across Route 12's bridge road (she is ON Route 12 now, at its face - with the Poke Flute in the bag she PLAYS it to wake it: it stirs and ATTACKS, a catchable L30 wild, then the road south to Fuchsia opens). Billed here too (not only at Lavender 3,4-south) so the wake questline opens whether she walked in from Lavender OR resumed mid-Route-12 (rule 17).",
+        "human": "the road south is blocked by a snoring Snorlax - I've got the Poke Flute now, so I just play it at the big guy: it'll wake up swinging (and it's a heck of a catch if I'm quick)"
+      }
+    },
     "3,26": {
       "west": {
         "flag": "FLAG_GOT_TEA",
