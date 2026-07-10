@@ -2115,6 +2115,22 @@ class Campaign:
             log(f"   [roam] lead-PP read skipped: {e}")
             return False
 
+    def _lead_attack_pp_low(self, floor=10):
+        """True when the lead's DAMAGING moves are collectively low on PP — the PP-famine FORESIGHT
+        signal that a status-move-heavy attacker masks. _lead_pp_low counts ANY move with PP, so
+        Ivysaur (Razor Leaf + 2 powders) reads 'fine' even with Razor Leaf bone-dry — then it PP-famines
+        mid-rival and loses a WINNABLE fight (the S.S. Anne Gary wall, night shift 4). Sums PP only over
+        moves with base power > 0; below `floor` = not enough attacking PP to sustain a 4-mon rival fight,
+        top off at a Center first. Best-effort; any read error -> False (never a spurious heal)."""
+        try:
+            moves, pps = self._lead_moves(), self._lead_pps()
+            dmg_pp = sum(p for mid, p in zip(moves, pps)
+                         if mid and p > 0 and (st.move_info(self.b, mid)[1] or 0) > 0)
+            return dmg_pp < floor
+        except Exception as e:
+            log(f"   [roam] lead-attack-PP read skipped: {e}")
+            return False
+
     def _set_lead_moves(self, moves, pps):
         """Write the lead's 4 move IDs + 4 PP bytes wholesale, keeping the Gen-3 checksum valid
         (decrypt the 48-byte data block, overwrite the A-substruct's 3 words, recompute the u16-sum
@@ -5899,6 +5915,34 @@ class Campaign:
             self._ql_past_anchor = False
             self._ql_bend_maps = set()
             self._ql_prev_map = None
+        # HEAL-BEFORE-A-RIVAL-FIGHT GATE (2026-07-10, night shift 4 — the S.S. Anne PP-famine wall):
+        # a questline step that crosses a hard TRAINER GAUNTLET / RIVAL fight (the 'cut' errand:
+        # "...the captain's cabin is at the bow PAST THE RIVAL FIGHT") is a BATTLE wall, not just a nav
+        # goal — but only GYM pushes had a pre-fight heal gate (prep_for_gym), so she boarded the ship
+        # with the ace's attacking PP already drained from the Route-6 gauntlet -> PP FAMINE -> lost a
+        # WINNABLE fight (a full 25-PP Razor Leaf solos Gary's L16-20 team, as the old solo-Ivysaur
+        # track proved). A human ALWAYS taps the Center before a rival battle. When the step names a
+        # rival/trainer fight, she's standing on its anchor town (a Center is here), and the ace isn't
+        # attack-fresh (low HP, a faint, or damaging-PP low — the status-move-masked famine), heal
+        # FIRST. Data-driven (keyed on the KB place_name wording, not a FireRed hardcode) + bounded to
+        # ONE heal per (step, town) approach so it never loops; heal_nearest returns to the town.
+        _pn = f"{getattr(step, 'place_name', '') or ''} {getattr(step, 'human', '') or ''}".lower()
+        _rival_gauntlet = ("rival" in _pn) or ("trainers on board" in _pn)
+        if _rival_gauntlet and step_anchor and cur_map == step_anchor:
+            _hk = (step.missing, cur_map)
+            _unready = (not self._party_gym_ready()) or self._lead_attack_pp_low(floor=14)
+            if getattr(self, "_ql_prefight_healed", None) != _hk and _unready:
+                self._ql_prefight_healed = _hk
+                log("   [roam] 🩹 HEAL-BEFORE-RIVAL: a rival/trainer gauntlet is ahead and the ace "
+                    "isn't attack-fresh (low HP/PP) — Center first, then aboard (no PP famine).")
+                self.on_event("hold on — I'm not walking into a rival fight on fumes. Center first, "
+                              "full HP and PP, then we board.", kind="route", tier=2)
+                try:
+                    hr = self.heal_nearest()
+                except Exception as e:
+                    hr = f"error:{e}"
+                log(f"   [roam] 🩹 pre-rival heal -> {hr}")
+                return "questline_prefight_heal"
         # DOOR HINT (flute_run1): the target building sits INSIDE the anchor town (Pokemon Tower,
         # the Game Corner) — no compass dir reaches it. The KB bills the exact door tile; standing
         # in the anchor town, enter THAT door. One shot per questline (the entered-doors set).
@@ -9458,6 +9502,7 @@ class Campaign:
                              "questline_passthrough", "questline_deeper", "questline_entered",
                              "questline_flash", "questline_catch",   # the Flash errand IS the work
                              "questline_strike_done", "questline_strike_exit_wip",  # the strike IS the work
+                             "questline_prefight_heal",   # pre-rival Center tap IS the work (night shift 4)
                              "need_heal", "healed_retry")
             if _is_move_pick and not _moved and out not in _benign_still:
                 self._nomove_streak += 1
