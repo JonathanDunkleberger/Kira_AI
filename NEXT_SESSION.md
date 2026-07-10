@@ -1,3 +1,39 @@
+<!-- ═══ NIGHT-SHIFT 3 (2026-07-09) — GATE C BILL MILESTONE ✅ DONE (S.S. Ticket obtained e2e) ═══
+GATE C's Bill leg is COMPLETE + COMMITTED (0233a86 + 24b863f). recon_longrun misty_done.state 20 ->
+OUTCOME: GOAL FLAG_GOT_SS_TICKET, VERIFIED e2e: escape the (7,3) house -> build a team -> TARGETED-catch
+Abra ("this is the one I came for") -> cross Route 25 -> enter Bill's cottage -> talk Bill x2 -> S.S. Ticket.
+FOUR general fixes (all campaign.py, POKEMON_TEAM_PLANNER-gated, canonical Champion UNTOUCHED):
+ 1. INTERIOR-WEDGE ESCAPE dominance (~7820): wedged in a dead-end interior (nomove>=2, map[0]!=3),
+    suppress talk_npc so leave_building dominates (get out of the wrong building).
+ 2. DISTANT-DOOR APPROACH (_questline_interact ~6500): target building ACROSS the arrival map (cottage at
+    Route 25's far EAST, she lands WEST) -> _door_tiles scans the whole layout -> TRAVEL to the nearest
+    un-entered door, enter fires next tick. + RE-ENTRY: all-doors-entered-but-flag-unset -> clear the
+    map's door-burn for a clean re-approach (else one interrupted visit locks her out forever).
+ 3. HEAL-GATE false-eject (~8856): a gauntlet fight + the deliberate door-warp was misread as a whiteout
+    relocation and ejected her from the cottage. FIX: only treat battle+relocation as a whiteout when the
+    party is actually HEALED; else keep + refresh interiority.
+NEW FIXTURE promoted: states/workshop/bill_done.state (badge 2, S.S. Ticket, party Ivysaur L26 +
+Spearow L12 + Rattata L8 + Abra L10, in Bill's cottage). World model loads from CANONICAL (recon:235) so
+the fixture only needs the .state.
+
+FRONTIER (bank-and-continue): the S.S. ANNE -> CUT -> VERMILION (Lt. Surge, badge 3) stretch. Chain:
+S.S. Ticket -> south through Cerulean (the guard gate opens with the ticket) -> Route 5/6 -> Vermilion
+harbour -> board S.S. Anne -> beat rival Gary -> captain gives HM01 Cut -> teach Cut -> cut the tree to
+the Vermilion gym -> Surge. CHARACTERIZED this shift (`recon_longrun bill_done.state 16` ->
+OUTCOME TIMEOUT, NOT a hard stall; log G:/temp/gatec_s3_ssanne.log): she DOES progress (reached Route 6
+by tick 8, Ivysaur L27->28) but SLOWLY — only ~27 ticks in 16 min. Behaviour = a lot of building-touring
+(head_to_gym -> questline_talked x5 / questline_deeper x3 at a Cerulean-area building (1,6)), stock_up,
+a battle_loss + blacked out once, need_heal x3, and slow grinding. The new post-ticket questline (board
+S.S. Anne / Cut) needs the same destination-verification pass the Bill leg just got — check whether it's
+correctly targeting the Vermilion harbour/ship vs touring the wrong Cerulean building, and whether the
+grind-cycle is eating the clock. NOT a wedge (TIMEOUT), so re-run longer first to see if it self-resolves.
+KNOWN watchability debt (LOW-pri, from the misty_done run): the underleveled bench (Rattata L8) grind-dies
+on trainer gauntlets across a few cycles before prep-floor L14 clears — door-burn-clear + heal-gate make
+it eventually SUCCEED, but a smart human fields Ivysaur solo across a gauntlet, not grinds L8 mons into
+forced fights. Consider tuning strategic underlevel-prep to not grind-wall when the ACE can clear solo.
+Boot: `.venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done.state 20` (arg2=MINUTES).
+═══════════════════════════════════════════════════════════════════════════════════════════════ -->
+
 # 🧠 MISSION PIVOT (2026-07-09) — BUILD THE FORWARD-PLANNING TEAM BRAIN — READ FIRST, SUPERSEDES ALL BELOW
 
 **THE fix (CEO-approved):** stop reactive per-gym patching. Build a STANDING forward-planning team-building
