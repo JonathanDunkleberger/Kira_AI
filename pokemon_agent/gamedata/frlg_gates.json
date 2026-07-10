@@ -77,6 +77,11 @@
       "hex": "0x037",
       "note": "HIDE-class id — live-confirm. From Giovanni in the Rocket Hideout (under Celadon Game Corner)."
     },
+    "FLAG_HIDE_SAFFRON_ROCKETS": {
+      "id": 62,
+      "hex": "0x3E",
+      "note": "Set when Giovanni #2 falls on Silph Co. 11F — frees Saffron (the grunts vanish) and UNBLOCKS Sabrina's gym door. The badge-6 story gate. Silph liberation strike sets it (silph_strike.run_strike)."
+    },
     "FLAG_GOT_LIFT_KEY": {
       "id": 54,
       "hex": "0x036",
@@ -370,6 +375,21 @@
         "gives_cap": null
       },
       "human": "the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)"
+    },
+    "FLAG_HIDE_SAFFRON_ROCKETS": {
+      "kind": "event",
+      "name": "liberating Saffron City (Silph Co.)",
+      "obtain": {
+        "via": "strike",
+        "npc": "Giovanni (Rocket Boss) at the top of Silph Co.",
+        "from": "3,10",
+        "dir": "east",
+        "place_name": "Silph Co. — Team Rocket has seized the tower in the middle of Saffron and blocked Sabrina's gym; fight up through the teleport-pad floors (Card Key on 5F opens the doors), beat Giovanni on 11F, free the president",
+        "prereq": null,
+        "sets_flag": "FLAG_HIDE_SAFFRON_ROCKETS",
+        "gives_cap": null
+      },
+      "human": "Sabrina's gym is Rocket-blocked — Team Rocket has taken over Silph Co. in the middle of the city. I have to storm the tower and beat their boss to free Saffron"
     },
     "FLAG_GOT_TEA": {
       "kind": "item",

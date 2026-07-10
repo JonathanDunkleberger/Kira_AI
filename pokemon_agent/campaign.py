@@ -477,6 +477,16 @@ GYMS = {
     "Giovanni": GymSpec("Giovanni", VIRIDIAN_CITY, VIRIDIAN_GYM_DOOR, GIOVANNI_FRONT,
                         FLAG_BADGE_EARTH, 0, "UP"),
 }
+# GYM STORY-PREREQ GATES: a gym whose DOOR is walled by a STORY event (not an HM obstacle, not the
+# gym-door tree the HM probe handles) — beat_gym 'stuck' there needs a LIBERATION ERRAND armed, not a
+# tree cut. leader -> (unmet-flag-id, KB-capability-key, in-character wall line). The capability key
+# resolves through gamedata/frlg_gates.json (a strike step, no door) so _derive_questline -> the
+# registered dungeon strike fires. FireRed facts isolated to the KB + this table (rule 14). Sabrina's
+# gym is Rocket-blocked until Silph Co. clears (FLAG_HIDE_SAFFRON_ROCKETS 0x3E).
+GYM_PREREQS = {
+    "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
+                "Sabrina's gym is blocked — Team Rocket has Silph Co. locked down in the middle of the city"),
+}
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
 # party-mon non-volatile STATUS condition (unencrypted u32 @ +0x50 in the 100-byte struct — the same
@@ -7233,6 +7243,10 @@ class Campaign:
                 from snorlax_strike import ANCHORS, run_strike
                 return run_strike, ANCHORS, ("woke_snorlax",), "snorlax_probe"
 
+            def _silph():
+                from silph_strike import SAFFRON, SILPH_MAPS, run_strike
+                return run_strike, ({SAFFRON} | SILPH_MAPS), ("freed_saffron",), "silph_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -7242,6 +7256,10 @@ class Campaign:
                 ("flag", "FLAG_WOKE_UP_ROUTE_12_SNORLAX"): (
                     "Route 12 Snorlax (Poké Flute wake)",
                     "the Snorlax is awake — and the road south to Fuchsia is finally open.", _snorlax),
+                ("flag", "FLAG_HIDE_SAFFRON_ROCKETS"): (
+                    "Silph Co. liberation (free Saffron / unblock Sabrina)",
+                    "we did it — Silph Co. is free, Team Rocket's boss is beaten, and Saffron's ours. "
+                    "now Sabrina's gym is finally open.", _silph),
             }
             if succ not in registry:
                 return None
@@ -7269,9 +7287,11 @@ class Campaign:
                 tries_map[succ] = 0
                 self.on_event(done_msg, kind="milestone", tier=2)
                 return "questline_strike_done"
-            if res == "in_hideout":
-                # holding the objective but still below — keep the inside marker so recovery doesn't
-                # eject her mid-dungeon; retry the exit next tick.
+            if res in ("in_hideout", "in_silph"):
+                # objective obtained (flag/item set) but still INSIDE the dungeon — keep the inside
+                # marker so recovery doesn't eject her mid-dungeon; retry the exit next tick. (The
+                # deriver already reads the flag as satisfied, so the questline self-clears next tick;
+                # this just walks her out cleanly rather than dumping her at the boss floor.)
                 self._ql_inside_target = True
                 return "questline_strike_exit_wip"
             if res == "not_here":
@@ -7320,6 +7340,25 @@ class Campaign:
         cands.sort(key=lambda t: (0 if (_sib and _wdest.get(t) == _sib) else 1,
                                   abs(t[0] - co[0]) + abs(t[1] - co[1])))
         return cands[0]
+
+    def _gym_prereq_gate(self, gym):
+        """A gym whose DOOR is STORY-LOCKED (not an HM obstacle) — return a synthesized STORY_NPC Gate
+        whose questline is the liberation dungeon, when its prereq flag is UNMET. This is the wire the
+        HM-only `_gym_gate_probe` was missing for Sabrina (Rocket-blocked until Silph Co. clears): there's
+        no tree to recognize at her feet, so the probe returned None and head_to_gym structurally parked.
+        Data-driven off GYM_PREREQS; the Gate.missing keys the KB capability (a no-door strike step) so the
+        registered dungeon strike fires. Returns a Gate or None (already cleared / no prereq for this gym)."""
+        spec = GYM_PREREQS.get(gym.name)
+        if not spec:
+            return None
+        flag_id, missing_key, human = spec
+        try:
+            if fm.read_flag(self.b, flag_id):
+                return None                     # LIVE cross-check: already liberated -> no gate
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing=missing_key, where=tuple(gym.city), human=human,
+                       detail={"flag": missing_key, "gym": gym.name})
 
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
@@ -9029,6 +9068,14 @@ class Campaign:
                 # mid-questline. Only OPEN a NEW gate errand when nothing's already in flight (preserve
                 # the original guard against competing questlines).
                 if out == "stuck" and QUESTLINE_ENABLED:
+                    # STORY-PREREQ FIRST (2026-07-10 night shift 2, the Sabrina/Silph wall): a gym whose
+                    # DOOR is Rocket/story-blocked has no tree for the HM probe to find — check the gym's
+                    # story-prereq gate and arm the liberation errand (Silph Co.) BEFORE the HM probe
+                    # walks her around hunting a non-existent obstacle. Only when nothing's in flight.
+                    if self._active_questline is None:
+                        pgate = self._gym_prereq_gate(gym)
+                        if pgate and self._open_questline(pgate, state):
+                            return self._run_questline_step(state)
                     gate = self._gym_gate_probe(gym)
                     if gate and self._active_questline is None and self._open_questline(gate, state):
                         return self._run_questline_step(state)

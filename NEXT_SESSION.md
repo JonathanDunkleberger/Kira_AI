@@ -1,60 +1,51 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ BADGE 5 (Koga / SOUL 0x824) — WON FULLY UNAIDED + BANKED (night-shift 1, b10bfdf)
-The last-mile is CLOSED. recon_longrun from koga_retry_kit (badge4, 0 potions) → GOAL 0x824 in 109.9s:
-she autonomously bought 30 Super Potions at the Fuchsia Mart (oracle stock_up 6 + the new pre-gym
-POTION-STALL leg 24), stalled through Koga's 4-mon gauntlet via in-battle use_potion, took the Soul Badge.
-Banked → states/workshop/koga_done_kit.state (badges=5, Fuchsia (9,33); round-trip verified). See
-[[pokemon-nightshift1-fuchsia-mart-mapped]]. WHAT WAS BUILT (campaign.py):
-- Fuchsia Mart MAPPED: door (11,15) animated 0x69 → interior (11,1), row2 Super Potion(22,700) live-verified.
-  In CITY_MART_DOORS + MART_STOCK[FUCHSIA]=[2,3,22,28,23,88].
-- `DOOR_APPROACH_WAYPOINTS[(FUCHSIA,(11,15))]=[(20,24),(19,18),(15,16)]` — enter_warp walks these first
-  (the mart door is in a pond-walled pocket where direct BFS-travel oscillates). Extend the KB if other
-  in-town doors show the same oscillation.
-- `POTION_STALL_GYMS={"Koga":30}` + `_stock_potions_for_gym` (called in beat_gym, fires even goal-pinned).
+## 🔨 IN FLIGHT (night-shift 2): BADGE 6 (Sabrina) — SILPH CO. LIBERATION QUESTLINE BUILT, verifying
+The badge-6 root blocker from NS-1 (no armed Silph questline → Sabrina's Rocket-blocked gym structurally
+parks) is now WIRED. **What was built this shift (all COMPILES; WIRED; verification in progress):**
+- **`pokemon_agent/silph_strike.py`** (NEW) — faithful port of the proven `recon_silph.py` state machine
+  into the camp-driven strike-module shape (same as hideout_strike/tower_strike). `run_strike(camp, log,
+  dbg_dir)` → `'freed_saffron'` on FLAG_HIDE_SAFFRON_ROCKETS (0x3E) set + walked out to Saffron. Enters
+  Silph via Saffron street door (33,30)→(1,47), pre-dungeon heal, then the pad-maze climb: 9F pad→5F pocket
+  Card Key (355) → pad chain 9F(9,4)→3F(2,14), 3F(13,14)→7F(5,4) [Gary + Lapras], 7F(5,8)→11F → Giovanni
+  #2 → president. Returns `in_silph` (flag set, exit WIP) / `not_here` / `failed`.
+- **`gamedata/frlg_gates.json`** — added flag `FLAG_HIDE_SAFFRON_ROCKETS` (id 62 / 0x3E) + a capability of
+  the same key (`via:"strike"`, NO door → strike fires first per campaign.py:6125, success=("flag",...)).
+- **`campaign.py`**: (1) `GYM_PREREQS` table (Sabrina → 0x3E) + `_gym_prereq_gate(gym)` — synthesizes a
+  STORY_NPC gate when a gym's DOOR is story-locked (no tree for the HM probe). (2) Wired into the gym-stuck
+  branch (~line 9037): story-prereq gate armed FIRST (before `_gym_gate_probe`) when `_active_questline is
+  None`. (3) Registered `("flag","FLAG_HIDE_SAFFRON_ROCKETS")` → `_silph` in the `_questline_strike`
+  registry; `in_silph` handled alongside `in_hideout` in the exit-WIP branch.
 
-## FRONTIER: BADGE 6 (Sabrina / Saffron, MARSH 0x825) — ROOT DIAGNOSED: no armed SILPH CO. questline
-Night-shift 1 ran the look-ahead (`LONGRUN_GOAL_FLAG=0x825 recon_longrun koga_done_kit.state 30`, log
-/g/temp/s1_badge6.log). RESULT: she autonomously reaches **Saffron City** — the **TEA errand + gatehouses
-ALREADY WORK** (FLAG_GOT_TEA wired in exit_gates). Then she STALLS at Sabrina:
-```
-!! GYM-INTERIOR WALL: beat_gym stuck x5 on Sabrina — head_to_gym structurally parked on (3,10)
-!! STRUCTURAL DEAD-ROUTE: ['head_to_gym'] proven dead ... until she leaves it (or a questline arms)
-```
-**ROOT: Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared, and NO questline arms to send her
-into Silph Co.** The gate-questline deriver exists (campaign.py ~5533 `_derive... unlock errand`; the Tea
-errand proves it works) but the gate KB (gamedata/frlg_gates.json) has only a `saffron_unlock` NOTE (line
-395) + a Sabrina-door note (line 594) — NO executable Silph Co. step. So head_to_gym parks and prunes.
+**THE FLOW:** koga_done_kit (badges=5, Fuchsia; has Tea + Fuji) → Tea gatehouses → Saffron → beat_gym stuck
+on Sabrina → `_gym_prereq_gate` arms the Silph questline → `_run_questline_step` → door-less strike step →
+`_questline_strike` runs `silph_strike` → 0x3E set → gym unblocks → beat_gym enters the pad maze (already
+handled by beat_gym's recon_sabrina pad-router) → Sabrina (Marsh 0x825).
 
-**THE BUILD (badge-6 = a hideout-class dungeon strike):** wire a Silph Co. liberation questline that arms
-when she's walled at Saffron's Rocket-blocked gym:
-- Silph Co. overworld door = **(33,30)** on Saffron; Saffron GYM door = **(46,12)** (campaign.py:381-385).
-- Interior = a TELEPORT-PAD MAZE (11 floors) — reuse `pad_nav.PadNav` (the Silph/Sabrina pad-router;
-  DESCENT shift 5) + read_warps. Prior-art probes: recon_silph.py, recon_silph_probe{,2,3,4}.py,
-  recon_silph7f_probe.py (from the original credits climb — Silph WAS cleared then; mine them for the pad
-  graph + Card Key/Giovanni floors). Silph Co. maps named (1,47)-(1,58) at campaign.py:2569.
-- Chain: enter Silph (33,30) → get **Card Key on 5F** (opens the locked pad doors) → reach **Giovanni #2 on
-  11F** + free the Silph president → sets the liberation flag → Saffron frees, gym door opens → head_to_gym
-  works → beat Sabrina (Marsh 0x825). Find the liberation flag id in the disasm/gates KB.
-- Sabrina KB: Psychic ("sees your moves"; folk remedy ghosts/bugs). Venusaur solo-carry L53 may wall on
-  Alakazam — watch for an attrition/type stall (team debt #3; the potion-stall leg generalizes if so — add
-  "Sabrina" to POTION_STALL_GYMS, and Saffron HAS a Mart+Dept store for the buy).
+**VERIFY COMMAND (isolates the NEW code):**
+`LONGRUN_GOAL_FLAG=0x3E .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py koga_done_kit.state 35`
+→ GOAL when Saffron is freed. Then re-run with `LONGRUN_GOAL_FLAG=0x825 ... 45` for the full Sabrina badge.
+Bank the GOAL checkpoint (G:/temp/longrun/banked_GOAL) → promote to workshop/silph_done_kit.state (then
+sabrina_done_kit.state). If the Silph strike stalls mid-tower, read the log for the first floor/pad that
+wedges and fix in silph_strike.py (the pad coords are the recon_silph ground truth — check read_warps live).
 
-Approach: mine recon_silph*.py for the pad graph, wire the arming (gate KB step keyed to the Saffron gym
-lock), long-run from koga_done_kit, diagnose the first Silph-interior stall, iterate, bank silph/sabrina
-checkpoints as she clears. This is a multi-run dungeon build — the biggest remaining pre-E4 stretch.
+**WATCH FOR (predicted next blockers after Silph):** (a) beat_gym pad-router crossing Sabrina's interior
+(strike-solved historically; port seam = recon_sabrina if the general walk wedges); (b) an ATTRITION/type
+wall vs Sabrina's Alakazam (Venusaur solo-carry) — the generalizes-to-Sabrina fix is adding "Sabrina" to
+`POTION_STALL_GYMS` (Saffron HAS a Mart + Dept store; the potion-stall leg is proven vs Koga).
 
 ## RESIDUAL (watchability, non-fatal, unchanged): gym maze junior-spin
-The invisible-wall maze (Koga; likely Sabrina too) leaves ~4 juniors un-engageable; she tries each 4× then
-burns the 14 clear-round cap (~minutes of log spam) before bailing to the leader. Correctly bails (not
-fatal). Fix in `_clear_junior_trainers` (campaign.py ~3200): reachability pre-check — defer an unreachable
-junior in 1 try not 4, remember the deferred set across blackout-retries.
+Invisible-wall gyms (Koga; likely Sabrina) leave ~4 juniors un-engageable; she tries each 4× then burns
+the clear-round cap before bailing to the leader (correct bail, not fatal). Fix in `_clear_junior_trainers`
+(campaign.py ~3200): reachability pre-check — defer an unreachable junior in 1 try, remember across retries.
+
+## ✅ BANKED PRIOR: BADGE 5 (Koga) WON FULLY UNAIDED (NS-1, b10bfdf)
+koga_done_kit.state (badges=5, Fuchsia (9,33)). Fuchsia Mart mapped + POTION_STALL_GYMS={"Koga":30}.
+See [[pokemon-nightshift1-fuchsia-mart-mapped]].
 
 KEY FACTS: venv `.venv/Scripts/python.exe` (SINGLE-RUN LAW; kill `taskkill //F //IM python.exe //T`).
-recon_longrun arg1 = state BASENAME **with .state extension** (resolve_state returns None without it),
-arg2 = max_minutes, goal via `LONGRUN_GOAL_FLAG=0x825`. Banks to G:/temp/longrun/banked_GOAL — promote its
-{kira_campaign.state,journey_core,soul,strat_memory,world_model}.json into workshop/ with the fixture
-basename to advance the Sherpa line. Flags module = `field_moves` (fm.read_flag). Mart-clerk sig = gfx68 @(2,3).
+recon_longrun arg1 = state BASENAME **with .state**, arg2 = max_minutes, goal via `LONGRUN_GOAL_FLAG=0x825`.
+Flags module = `field_moves` (fm.read_flag). Silph anchors = {(3,10)} | SILPH_MAPS ((1,47)..(1,58)).
 
 WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = post-Koga (badges=5) at Fuchsia,
-heading for Saffron/Sabrina via the Tea→Silph chain. Pop-in = `python pokemon_agent/watch.py`.
+Silph liberation questline WIRED, verification long-run in flight. Pop-in = `python pokemon_agent/watch.py`.
