@@ -370,6 +370,10 @@ CELADON_GYM_DOOR = (11, 30)
 FUCHSIA = (3, 7)
 FUCHSIA_PC_DOOR = (25, 31)
 FUCHSIA_GYM_DOOR = (9, 32)
+# Fuchsia Mart: overworld door (11,15) = animated slide-door (behavior 0x69) -> interior (11,1),
+# clerk gfx68 @ (2,3) (canonical mart layout). MAPPED + BUY row order control-verified via a live
+# buy, night-shift 1 (2026-07-10): row2 = Super Potion (id 22, 700) — the badge-5 potion-stall stock.
+FUCHSIA_MART_DOOR = (11, 15)
 KOGA_FRONT = (7, 14)     # Koga NPC at (7,13) FACE_DOWN -> stand below at (7,14), face UP.
 FLAG_BADGE_SOUL = 0x824
 # Saffron (badge 6, Sabrina) — disasm 2026-07-07 (pret map_groups.json: SaffronCity is INDEX 10
@@ -516,7 +520,18 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
                    CERULEAN: CERULEAN_MART_DOOR,
                    # Vermilion Mart door registered; MART_STOCK rows NOT yet control-verified —
                    # buy_at_mart loud-skips until a live visit bills the row order.
-                   VERMILION: VERMILION_MART_DOOR}
+                   VERMILION: VERMILION_MART_DOOR,
+                   # Fuchsia Mart (night-shift 1) — the badge-5 Koga potion-stall stock-up.
+                   FUCHSIA: FUCHSIA_MART_DOOR}
+
+# DOOR APPROACH WAYPOINTS (game-knowledge, rule 14): some Mart/building doors sit in a pocket the
+# direct BFS-travel OSCILLATES into and never reaches (Fuchsia's central ponds wall the Mart door
+# (11,15) — isolated travel caps at the town centre from either spawn). Walk these waypoints to the
+# door pocket first, then the normal one-tile approach step is a clean short hop. Keyed
+# (city_map, door_tile) -> [waypoint coords]. VERIFIED night-shift 1 (probe_mart5).
+DOOR_APPROACH_WAYPOINTS = {
+    (FUCHSIA, FUCHSIA_MART_DOOR): [(20, 24), (19, 18), (15, 16)],
+}
 # CITY -> the BUY list's item ids IN ROW ORDER (cursor row = stock.index(id)). The mart item list is in
 # ROM (no EWRAM array), so the row order is data here — control-verified per town by the buy bag-delta;
 # an unverified/wrong row simply fails the per-purchase verify and aborts LOUD (never silent mis-buy).
@@ -532,6 +547,11 @@ MART_STOCK = {
     # Vermilion rows per Bulbapedia (PokeBall, SuperPotion, IceHeal, Awakening, ParlyzHeal, Repel) —
     # control-verified by a live bag-delta buy 2026-07-06; a wrong row aborts LOUD, never mis-buys.
     VERMILION: [4, 22, 16, 17, 18, 86],
+    # Fuchsia rows (UltraBall, GreatBall, SuperPotion, Revive, FullHeal, MaxRepel) — CONTROL-VERIFIED
+    # night-shift 1 by a live bag-delta buy: row2 Super Potion(22,700), row4 Full Heal(23,600). Balls
+    # (rows 0/1) land in the Balls pocket so the Items-pocket bag-delta can't confirm their id — the
+    # per-purchase verify guards any row anyway. No Hyper Potion sold here; Super Potion is the top heal.
+    FUCHSIA: [2, 3, 22, 28, 23, 88],
 }
 MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
 MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
@@ -541,6 +561,12 @@ MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above t
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
 # much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
 SHOP_POTION_TARGET = 6
+# POTION-STALL gyms (night-shift 1): a leader that is an ATTRITION wall for a solo-carry — Koga's
+# 4-mon poison gauntlet (~390 HP) out-damages a lone L53 Venusaur that has NO healing items (shift-17:
+# 5+ straight losses without potions; WINS with them). A real player stocks Super Potions at the
+# gym-city Mart and heals through it. gym.name -> how many potions to carry into the fight. Game-fact
+# isolated here (rule 14); the pre-gym stock-up leg buys up to this from the gym-city Mart.
+POTION_STALL_GYMS = {"Koga": 30}
 # BATCH 6 PHASE 2 — FORESIGHT target: when she's up against a wall she can't beat yet, a real player
 # stocks up DEEPER before pushing on (she has $7-9k here). Bumps the buy-to target so "stock up before
 # I take that bridge" is a live, characterful option — not only a restock when she's already empty.
@@ -1300,6 +1326,16 @@ class Campaign:
         if not doors:
             log("   no door/warp tiles (0x6x) found on this map"); return "no_warp"
         cur = tv.coords(self.b)
+        # WAYPOINT-GUIDED APPROACH: a door in a maze-walled pocket (Fuchsia Mart (11,15)) makes the
+        # direct BFS-travel oscillate and cap far away. If we have KB waypoints for this exact door,
+        # walk them first so the normal approach-step below starts one clean hop from the door.
+        if pick is not None:
+            _wps = DOOR_APPROACH_WAYPOINTS.get((before, tuple(pick)))
+            if _wps:
+                log(f"   door {tuple(pick)}: waypoint-guided approach via {_wps}")
+                for _wp in _wps:
+                    self.trav.travel(target_map=None, arrive_coord=_wp, max_steps=2000, max_seconds=90)
+                cur = tv.coords(self.b)
         if pick is not None:
             order = [pick]
         elif prefer == "north":
@@ -3323,6 +3359,40 @@ class Campaign:
                 log(f"   GYM-PREP [{gym.name}]: grind skipped ({e}) (LOUD)")
         return "prepped"
 
+    def _stock_potions_for_gym(self, gym):
+        """PRE-GYM POTION-STALL STOCK-UP (night-shift 1, badge-5 Koga). Some leaders beat a solo-carry by
+        ATTRITION, not type: Koga's 4-mon poison gauntlet out-damages a lone L53 Venusaur with no heals
+        (verified 5+ losses w/o potions, WINS with them). A real player buys Super Potions at the gym-city
+        Mart and heals through it. For a POTION_STALL_GYMS gym, if she's short of the target, buy the
+        shortfall (strongest potion on the shelf) from the current city's Mart. Best-effort + bounded; the
+        buy_at_mart bag-delta guards every purchase, and a no-mart / too-poor case just enters as-is (LOUD).
+        Returns a short status string. General resource/economy bedrock #6; game-facts in POTION_STALL_GYMS."""
+        target = POTION_STALL_GYMS.get(gym.name)
+        if not target:
+            return "not_flagged"
+        city = tv.map_id(self.b)
+        door = CITY_MART_DOORS.get(city)
+        if door is None:
+            log(f"   POTION-STALL [{gym.name}]: not standing in a Mart city ({city}) — can't stock here (LOUD)")
+            return "no_mart"
+        have = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+        if have >= target:
+            log(f"   POTION-STALL [{gym.name}]: already carrying {have} potion(s) (>= {target}) — good to go")
+            return "already_stocked"
+        pot = self._best_potion_for_sale() or 22
+        if self.money() < SHOP_MONEY_FLOOR + 700:
+            log(f"   POTION-STALL [{gym.name}]: too poor ({self.money()}) to stock potions — entering as-is (LOUD)")
+            return "too_poor"
+        need = target - have
+        self.on_event(f"{gym.name}'s a war of attrition — I'm not tanking that gauntlet on one Pokémon with "
+                      f"an empty bag. Quick Mart run for potions first.", kind="gym", tier=2)
+        log(f"   POTION-STALL [{gym.name}]: have {have}/{target} — buying {need}x "
+            f"{ITEM_NAMES.get(pot, pot)} at {city} Mart before the fight")
+        bought = self.buy_at_mart(door, [(pot, need)])
+        got = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+        log(f"   POTION-STALL [{gym.name}]: bought {bought} — now carrying {got} potion(s)")
+        return "bought" if bought else "buy_failed"
+
     def _teach_gym_coverage(self, gym, rec):
         """When the ACE's whole offense is RESISTED by the gym's typing, teach it a neutral-or-better
         damaging move from a bag TM/HM (ROM learn-compat). THE ERIKA WALL (2026-07-10): L43 Venusaur's
@@ -3446,6 +3516,16 @@ class Campaign:
             self.prep_for_gym(gym)
         except Exception as e:
             log(f"   !! GYM-PREP crashed ({e}) — walking into {name} unprepped (LOUD)")
+        # POTION-STALL STOCK-UP (night-shift 1, the badge-5 Koga attrition wall): for gyms flagged as a
+        # solo-carry attrition wall, buy a stall stock of Super Potions at the gym-city Mart BEFORE
+        # entering, so the in-battle item instinct can heal her ace through the gauntlet (the proven
+        # potion-stall win). Runs here (not inside prep_for_gym) so it fires even on a goal-pinned watch
+        # — prep_for_gym returns "pinned" and skips its body. Best-effort + bounded; a crash never blocks
+        # the gym (LOUD). Resource/economy bedrock #6; game-facts isolated to POTION_STALL_GYMS.
+        try:
+            self._stock_potions_for_gym(gym)
+        except Exception as e:
+            log(f"   !! GYM potion-stall stock-up crashed ({e}) — entering {name} as-is (LOUD)")
         # HEAL-BEFORE-THE-GYM GATE (2026-07-07, erika_run2): she walked into Erika's gauntlet with
         # two fainted mons and a PP-dry lead and status-moved her way to a 12-battle futility wall.
         # A human ALWAYS taps the Center first — gym cities always have one and heal_at_center
