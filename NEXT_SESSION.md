@@ -18,17 +18,28 @@ frail bench (spearow Peck barely dents it) -> loss. NOT a level problem (L29 >> 
 attrition + a dead-weight bench. Only L32/Venusaur (raw power ending each mon in 1-2 hits, no famine)
 reliably wins the reactive way, and wild-grind to L32 is too slow. THE FIX = the human path.
 
-BUILT THIS SHIFT (uncommitted until verified): FIGHT-THE-CABINS-FIRST (campaign.py ~6435, in the directed-
-interior-hop block, kill-switch POKEMON_SHIP_CABIN_SWEEP=1). The directed hop B-lines up the stairs skipping
-every cabin trainer; now she SWEEPS this deck's un-entered cabins (fights the L16-18 Gentlemen/Sailors,
-levels the WHOLE team incl. the frail bench via participation) BEFORE the directed hop climbs. Bounded by
-_ql_entered_doors, fail-open. Verifying:
-  POKEMON_TEAM_PLANNER=1 POKEMON_RIVAL_PREP_LEVEL=0 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 20  (log /g/temp/s8_cabin.log)
-EXPECT: 🥊 SHIP CABIN SWEEP fires on 1F -> fights cabins -> climbs to 2F -> sweeps -> Gary (now leveled
-ace + non-dead bench) -> WIN -> captain HM01 Cut -> teach -> cut Vermilion gym tree -> Lt. Surge (badge 3).
-RISK: no Center aboard, so cabin fights drain PP/HP before Gary -> may still famine (next lever = potions/
-ethers, or a whiff-spiral fix: switch out to reset Sand-Attack accuracy). If cabins don't reach enough
-level, combine with a SMALL prep-grind (POKEMON_RIVAL_PREP_LEVEL back to ~30).
+THREE FIXES BUILT THIS SHIFT (2f2e918 cabins committed; +2 more this commit):
+ 1. FIGHT-THE-CABINS-FIRST (campaign.py ~6435, kill-switch POKEMON_SHIP_CABIN_SWEEP=1) — VERIFIED FIRING:
+    the directed hop B-lines up the stairs skipping cabins; now she sweeps this deck's un-entered cabins
+    (fought ~17 cabin trainers, ace L26->L30, +$4200 prizes) before climbing. Bounded, fail-open.
+ 2. IMMOBILIZATION-LIVELOCK FIX (battle_agent.py ~1522) — VERIFIED BUG: a set paralysis bit (0x40) was
+    blamed for EVERY non-firing turn, so a 0-PP move (PP famine) masked by paralysis spun 183 turns vs a
+    full-HP Kadabra (0 damage, "fully paralyzed" every turn — impossible for real 25% paralysis). FIX:
+    require pp0>0 for any immobilization credit + cap consecutive paralysis attributions at 6 -> otherwise
+    rotate/flee (skip_streak). Sleep/freeze keep trust-indefinitely. Generalizes to every paralysis fight.
+ 3. PREP+CABIN COMPOSITION (campaign.py ~5972, POKEMON_RIVAL_PREP_MARGIN=4): wild-grinding all 6 levels
+    L26->L32 up front is slow/unwatchable. Now the wild prep-grind fires ONLY within margin-4 of the L32
+    target (>=L28). So: pass 1 at L26 -> prep OFF -> board -> cabins carry to ~L30 -> (if she loses Gary
+    cleanly) whiteout to Vermilion at ~L30 -> prep NOW fires L30->L32/Venusaur (2 fast levels) -> re-board
+    (cabins beaten, walk through) -> full-PP Venusaur solos Gary (reactive-proven win) -> Cut -> Surge.
+
+VERIFYING (the composition, prep-grind ON = default 32):
+  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 35  (log /g/temp/s8_compose.log)
+EXPECT (2 passes): board L26 -> cabins -> L30 -> lose Gary (CLEAN, no spin) -> Vermilion prep-grind
+L30->L32 Venusaur -> re-board -> Gary WIN -> captain HM01 Cut -> teach -> cut Vermilion gym tree -> Surge.
+IF she STILL loses at Venusaur L32: the whiff-spiral (Sand-Attack accuracy debuff PERSISTS across foe
+faints, burns PP) is the last root -> fix = switch ace OUT+IN to reset accuracy when whiffing detected
+(fragile Tier-1 #5 switching) OR proactively Sleep-Powder Pidgeotto turn 1 before it debuffs.
 Fixtures: bill_done_kit.state (rebuild: `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py` ->
 writes pokemon_agent/states/workshop/), bill_done.state (rebuild: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->

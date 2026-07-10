@@ -1512,6 +1512,7 @@ class BattleAgent:
         if result == "done":
             self._skip_streak.clear()                  # a move FIRED -> whole moveset eligible again
             #                                            (resets the streak; never permanently benches)
+            self._immob_streak = 0                     # a resolved turn breaks any paralysis-spin count
         else:
             # 2026-07-06 THE BUTTERFREE SLEEP WEDGE: if OUR mon is ASLEEP/FROZEN/paralysis-skipped, the
             # turn RESOLVED — we just didn't act (no PP drop, and a Sleep-Powder/Harden foe changes no
@@ -1524,12 +1525,29 @@ class BattleAgent:
                 st1 = (cur or {}).get("ours", {}).get("status1", 0)
             except Exception:
                 st1 = 0
-            if st1 & 0x67:                             # sleep(0x07) | freeze(0x20) | paralysis(0x40)
+            # IMMOBILIZATION vs a MASKED FAILURE (2026-07-10, night shift 8 — the S.S. Anne Gary
+            # paralysis LIVELOCK): a set status bit does NOT prove THIS turn failed BECAUSE of it.
+            # Paralysis (0x40) immobilizes only ~25% of turns, so a move that never fires while merely
+            # paralysis-FLAGGED is really failing for another reason — almost always 0-PP (a PP-famine
+            # move masked by the bit). VERIFIED: 183 turns of "fully paralyzed" vs a full-HP Kadabra
+            # with 0 damage was a 0-PP Tackle spinning forever, because the paralysis branch swallowed
+            # the 0-PP rotation. TWO GUARDS: (a) if the chosen move had 0 PP it CANNOT have fired
+            # regardless of status -> it's a 0-PP non-fire, rotate; (b) cap CONSECUTIVE paralysis
+            # attributions — >6 in a row is statistically impossible for real 25% paralysis, so stop
+            # trusting the bit and rotate/flee. Sleep(0x07)/freeze(0x20) legitimately immobilize many
+            # turns in a row, so they keep the old trust-indefinitely behaviour (guard (a) still applies).
+            _slp_frz = st1 & 0x27                      # sleep | freeze — legitimately multi-turn
+            _par = st1 & 0x40                          # paralysis — at most ~25%/turn
+            _ims = getattr(self, "_immob_streak", 0)
+            _real_immob = pp0 > 0 and (_slp_frz or (_par and _ims < 6))
+            if _real_immob:
+                self._immob_streak = _ims + 1
                 why = "asleep" if st1 & 0x07 else ("frozen" if st1 & 0x20 else "fully paralyzed")
                 self.log(f"   [engine] turn resolved by IMMOBILIZATION ({why}) — not a dead move; "
                          f"fighting on (she'll come around)")
                 self.emit(f"no — {desc} didn't happen, I'm {why}! hang in there…", beat=True, tier=1)
                 return "done"
+            self._immob_streak = 0                     # not (or no longer) a trusted immobilization
             # didn't fire (no PP drop, no HP change) = 0-PP / Disabled / couldn't act: add to the streak
             # so the NEXT pick rotates to a move she hasn't tried — and once all are tried, she flees
             # rather than re-spamming. The streak is per-no-progress-run, cleared on any successful fire.
