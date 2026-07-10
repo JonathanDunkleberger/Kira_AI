@@ -5960,7 +5960,7 @@ class Campaign:
         # milestone BEFORE boarding (like gym-prep does before a gym), narrated in her voice. The grind's
         # weak-mon participation-switch levels the bench in the same pass. Bounded once-per-approach;
         # re-arms on leaving town. Reuses self.grind (self-capping budget).
-        _RIVAL_PREP_LEVEL = 32
+        _RIVAL_PREP_LEVEL = 30
         if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
                 self, "_ql_prefight_grind", 0):
             try:
@@ -5976,6 +5976,13 @@ class Campaign:
                 self.on_event("that's my rival waiting on that ship — I want my team stronger before we "
                               "board. quick training, then we go.", kind="route", tier=2)
                 try:
+                    # ROUTE TO GRASS FIRST: the gate fires while she's pinned in the gym-approach pocket
+                    # (at the Cut tree) where grind()'s local grass-finder targets a bad off-map coord and
+                    # travel-wedges. Route 6 (map (3,24), NORTH) is the grass she just crossed; walk_to_map
+                    # routes there via the proper connection edge, bounded (8 tries, no spin). PORTABILITY
+                    # DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (game-knowledge layer, rule 14).
+                    _rr = self.walk_to_map((3, 24), "north")
+                    log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
                     gr = self.grind(_RIVAL_PREP_LEVEL)
                 except Exception as e:
                     gr = f"error:{e}"
