@@ -5986,17 +5986,32 @@ class Campaign:
         _PREP_CABIN_MARGIN = int(os.environ.get("POKEMON_RIVAL_PREP_MARGIN", "1") or "1")
         _prep_floor = max(1, _RIVAL_PREP_LEVEL - _PREP_CABIN_MARGIN) if _PREP_CABIN_MARGIN else 1
         # Have the cabins already run and still left her short? (a prior LOSS at this rival gauntlet)
+        # AND: has this gauntlet already been CLEARED (a WIN here)? Once the rival is beaten, the whole
+        # prefight machinery (grind AND heal) must go dark (2026-07-10, NIGHT SHIFT 12 — the real Vermilion
+        # gym-entry wall). A STALE questline step (the 'HM Cut' errand that never clears after HM01) kept
+        # `_rival_gauntlet` True, so head_to_gym LIVELOCKED on an endless pre-rival Center tap for a rival
+        # who's already DOWN (Gary beaten, Venusaur L32 + Cut in hand): head_to_gym -> questline_prefight_heal
+        # -> Center -> back to town -> _ql_prefight_tries reset on leaving town -> re-arm -> forever, so she
+        # NEVER reaches the gym door + never goes 'stuck' + the shift-11 gym-gate probe never runs. Per-gauntlet
+        # by PLACE (a WIN dominates a prior loss at the same spot), so LATER rival fights (Tower, Silph) still
+        # prefight normally, and the FIRST pre-Gary approach (no encounter recorded yet) is unaffected.
         _rival_lost_here = False
+        _rival_won_here = False
         try:
             _pl_lc = (f"{getattr(step, 'place_name', '') or ''} {getattr(step, 'human', '') or ''}").lower()
             for _e in ((self.strat.rival or {}).get("encounters") or []):
                 _ep = (_e.get("place") or "").lower()
-                if (not _e.get("won")) and _ep and (_ep in _pl_lc or "s.s. anne" in _ep):
-                    _rival_lost_here = True
-                    break
+                if _ep and (_ep in _pl_lc or "s.s. anne" in _ep):
+                    if _e.get("won"):
+                        _rival_won_here = True
+                    else:
+                        _rival_lost_here = True
+            if _rival_won_here:
+                self._ship_cabins_swept = 0   # gauntlet cleared -> reset the sweep backstop counter
         except Exception:
             _rival_lost_here = False
-        if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
+            _rival_won_here = False
+        if _rival_gauntlet and not _rival_won_here and step_anchor and cur_map == step_anchor and not getattr(
                 self, "_ql_prefight_grind", 0):
             try:
                 _party = (self.read_live_state() or {}).get("party") or []
@@ -6032,7 +6047,7 @@ class Campaign:
         # Charmeleon (grass x0.25, Tackle already 0-PP) -> lost a WINNABLE fight. A gauntlet needs a FULL
         # bar at the dock, so top off unless essentially full (floor 70 ~= her 75-PP max: Razor Leaf 25 +
         # Vine Whip 15 + Tackle 35). Bounded by the per-approach try cap; re-arms on leaving town.
-        if _rival_gauntlet and step_anchor and cur_map == step_anchor and (
+        if _rival_gauntlet and not _rival_won_here and step_anchor and cur_map == step_anchor and (
                 self._lead_attack_pp_low(floor=70) or not self._party_gym_ready()):
             self._ql_prefight_tries = getattr(self, "_ql_prefight_tries", 0) + 1
             if self._ql_prefight_tries <= 2:      # belt-and-suspenders: a reachable town Center never
@@ -6470,7 +6485,55 @@ class Campaign:
                 # is the authentic, watchable line: a real trainer clears the ship, THEN faces the rival.
                 # PORTABILITY (rule 14): general "clear a directed interior's trainers before the deep
                 # target" — the S.S. Anne coupling lives in the KB (interior_routes), not here.
-                if os.environ.get("POKEMON_SHIP_CABIN_SWEEP", "1") == "1":
+                # SWEEP ONLY WHEN THE XP IS ACTUALLY NEEDED (2026-07-10, NIGHT SHIFT 13 — the S.S. Anne
+                # cabin-sweep LIVELOCK that ate the whole badge-3 run). Shift 8 built this sweep to
+                # out-level Gary's whiff-spiral; shift 11 then KILLED the whiff-spiral (it was a
+                # false-positive DETECTOR, not a real team wall), so an over-levelled ace now beats
+                # S.S. Anne Gary (ace ~L20) outright and the sweep is vestigial — worse, it re-clears
+                # ~9 cabins PER DECK across ~3 decks (the un-entered count resets 9->1 each new deck)
+                # and burned the ENTIRE 126-tick / 40-min budget without ever reaching the captain or
+                # the rival (s12_surge.log: 4000+ ticks bouncing the S.S. Anne, badges never left 2).
+                # FIX: skip the sweep and B-line the directed climb once the ace clearly overpowers this
+                # rival (nothing left for L16-18 cabin trainers to teach); ALSO cap total cabins swept
+                # per approach as a backstop so an underlevelled ace fights a handful for XP then climbs
+                # (never a re-sweep livelock) — the lose->prep-grind->reboard recovery covers any residual
+                # gap. Env-tunable; kill-switch preserved.
+                _sweep_on = os.environ.get("POKEMON_SHIP_CABIN_SWEEP", "1") == "1"
+                try:
+                    _sw_party = (self.read_live_state() or {}).get("party") or []
+                    _sw_ace = max((int(m.get("level", 0) or 0) for m in _sw_party), default=0)
+                except Exception:
+                    _sw_ace = 99                                    # read fail -> no sweep (fail-open)
+                # NIGHT-SHIFT 14 FIX — the skip level MUST match the Gary-winnable level, not sit BELOW it.
+                # Shift 13 set the skip to L24 while the rival-prep target (the empirically-proven Gary-killer,
+                # Venusaur L32) is L32 and the first-approach prep-grind floor is L31 — a DEAD-ZONE (L24-L30):
+                # an L28 ace SKIPPED the cabins (28 >= 24) AND the first-approach prep-grind didn't fire yet
+                # (28 < 31, no loss recorded), so she B-lined to Gary underprepared and took a GUARANTEED LOSS
+                # (s13_surge.log: Razor Leaf resisted x0.25 by Charmeleon, Tackle PP-famined, frail L8-12 bench,
+                # SE-CHUNK Fire hits) -> whited out to CERULEAN (not Vermilion) -> a fresh Gary-loss livelock
+                # replacing the old cabin-sweep one. FIX: align the skip to _RIVAL_PREP_LEVEL (default 32) so
+                # BELOW L32 the cabins run (bounded by the cap) and LEVEL the ace toward Venusaur, and only an
+                # already-Venusaur ace (>= L32) skips + B-lines to a WINNABLE fight. The cap (persistent
+                # _ship_cabins_swept counter, immune to the per-deck door-identity reset) is the true
+                # livelock backstop; raise it so cabins can carry L28->~L32 in ONE approach (self-terminates
+                # the instant _sw_ace hits L32 -> skip fires), the lose->prep-grind->reboard path tops off any
+                # residual. Env-tunable; kill-switch (POKEMON_SHIP_CABIN_SWEEP=0) preserved.
+                # Couple the skip default to the SAME rival-prep knob (POKEMON_RIVAL_PREP_LEVEL, default 32)
+                # the pre-board grind targets, so the two thresholds can never drift into a dead-zone again.
+                _prep_lv = int(os.environ.get("POKEMON_RIVAL_PREP_LEVEL", "32") or "32")
+                _sweep_skip_lv = int(os.environ.get("POKEMON_SHIP_SWEEP_SKIP_LEVEL", str(_prep_lv))
+                                     or str(_prep_lv))
+                _sweep_cap = int(os.environ.get("POKEMON_SHIP_SWEEP_CAP", "10") or "10")
+                _swept = getattr(self, "_ship_cabins_swept", 0)
+                _do_sweep = _sweep_on and (0 < _sw_ace < _sweep_skip_lv) and (_swept < _sweep_cap)
+                if _sweep_on and not _do_sweep:
+                    if _sw_ace >= _sweep_skip_lv:
+                        log(f"   [roam] 🥊 SHIP CABIN SWEEP SKIPPED — ace L{_sw_ace} already overpowers "
+                            f"this rival (>= L{_sweep_skip_lv}); B-lining the climb to the captain/rival.")
+                    elif _swept >= _sweep_cap:
+                        log(f"   [roam] 🥊 SHIP CABIN SWEEP CAP reached ({_swept}/{_sweep_cap}) — enough "
+                            f"XP; climbing to the rival now.")
+                if _do_sweep:
                     def _exit_lobby(dmap):
                         nd = self.world.node(dmap)
                         return bool(nd) and any(str(v).split(",")[0] == "3"
@@ -6506,6 +6569,7 @@ class Campaign:
                             self.enter_warp(pick=_cab, budget_s=180)
                         if tuple(tv.map_id(self.b)) != mp0:
                             self._ql_entered_doors.add((mp0, _cab))
+                            self._ship_cabins_swept = getattr(self, "_ship_cabins_swept", 0) + 1
                             self._ql_room_sweeps = 0
                             self._ql_inside_target = True   # a cabin is deliberate interiority
                             try:
@@ -8594,9 +8658,18 @@ class Campaign:
                 # GYM-GATE PROBE (2026-07-06): a 'stuck' entry can be an HM OBSTACLE on the door
                 # approach (Vermilion's cut tree). Walk to the chokepoint, recognize at her feet,
                 # and pursue the unlock errand instead of re-bonking the door forever.
-                if out == "stuck" and QUESTLINE_ENABLED and self._active_questline is None:
+                # CUT-IN-HAND FAST PATH (2026-07-10, night shift 11 — the Surge-entry wall past Gary):
+                # the probe was gated behind `_active_questline is None`, but the 'HM Cut' errand does
+                # NOT clear after HM01 is obtained from the captain (checkpoint ql stayed 'HM Cut...'),
+                # so `_active_questline` stayed set, the probe was SKIPPED, and she could never cut the
+                # Vermilion GYM-DOOR tree -> 'couldn't enter' -> a structural park + unproductive bench
+                # grind. Run the probe on ANY stuck gym: it only clears a reachable obstacle she can
+                # actually use (can_use('cut') inside), so cutting the tree is idempotent + safe even
+                # mid-questline. Only OPEN a NEW gate errand when nothing's already in flight (preserve
+                # the original guard against competing questlines).
+                if out == "stuck" and QUESTLINE_ENABLED:
                     gate = self._gym_gate_probe(gym)
-                    if gate and self._open_questline(gate, state):
+                    if gate and self._active_questline is None and self._open_questline(gate, state):
                         return self._run_questline_step(state)
                 # GYM-INTERIOR PING-PONG BREAKER (descent re-grade 2026-07-08, the banked_SILPH
                 # Saffron loop): beat_gym 'stuck' can end with her INSIDE an interior she can't
