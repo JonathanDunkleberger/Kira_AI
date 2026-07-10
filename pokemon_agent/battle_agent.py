@@ -99,6 +99,15 @@ UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
 # PARTY_CURSOR=0x2020777 was a shadow byte); the real nav is BLIND DOWN*(slot+1) like the working
 # _force_switch (live cursor is a heap struct). Fail-safe B-out on any miss = never wedges, so default-on is safe.
 BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
+# WHIFF-SPIRAL BREAKER (2026-07-10, night shift 9 — the S.S. Anne Gary ROOT CAUSE). Accuracy-lowering foe
+# moves (Sand-Attack/Smokescreen/Kinesis) debuff the active mon until it MISSES every swing, freezing the
+# foe's HP while our PP drains -> famine -> a LOSS even at a crushing level lead (a full-PP Venusaur L32
+# lost Gary this way, on repeat). No existing trigger catches "my move FIRED but did no damage" (a miss),
+# because a PP drop reads as a resolved turn. Gen-3 resets stat stages (incl. accuracy) on SWITCH-OUT, so
+# the fix is a switch OUT+back to clear the debuff. Bounded per battle so it can never switch-loop.
+WHIFF_BREAKER_ENABLED = os.getenv("POKEMON_WHIFF_BREAKER", "1") == "1"
+WHIFF_SPIRAL_AT = int(os.getenv("POKEMON_WHIFF_SPIRAL_AT", "3"))          # consecutive misses -> reset
+WHIFF_MAX_RECOVERIES = int(os.getenv("POKEMON_WHIFF_MAX_RECOVERIES", "6"))  # accuracy-resets per battle
 # PARTICIPATION-XP GRIND SWITCH (Task B fix — the autonomous underlevel cure). When grinding the weak
 # team, the weak mon leads (so it's "sent out" and eligible for XP) but is ONE-SHOT before it can earn
 # any — so it gains nothing while the ace mops up and takes the XP (the live look-ahead proved this).
@@ -2022,6 +2031,69 @@ class BattleAgent:
                 best, best_lv = s, lv
         return best
 
+    def _ours_dmg_pp(self, state):
+        """Total remaining PP across the ACTIVE mon's DAMAGING moves (power>0). The whiff-spiral
+        baseline: a status move (Sleep Powder) firing changes no foe HP by design and must NOT be
+        counted as a missed attack — only a damaging move that drops PP with the foe's HP frozen is."""
+        return sum(m.get("pp", 0) for m in (state.get("ours", {}).get("moves") or [])
+                   if m.get("id", 0) and m.get("power", 0) > 0)
+
+    def _any_healthy_reserve(self, state):
+        """A non-active party slot with HP>0 to switch INTO for the accuracy-reset maneuver. Prefer
+        the HIGHEST-level reserve (best chance of surviving the one incoming hit before we switch the
+        ace back). None if the ace is alone (nothing to reset with)."""
+        active_sp = (state or {}).get("ours", {}).get("species")
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        best, best_lv = None, -1
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue                                  # fainted
+            sp = st.read_party_species(self.b, s)
+            if sp == active_sp:
+                continue                                  # the one already out
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if lv > best_lv:
+                best, best_lv = s, lv
+        return best
+
+    def _slot_of_healthy_species(self, species):
+        """Current gPlayerParty slot (0..5) holding `species` with HP>0, or None. Scans ALL slots
+        because an in-battle switch can shuffle party indices — the whiff switch-back must find the
+        ace wherever it now sits, not assume it's still a slot 1..5 reserve."""
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue
+            if st.read_party_species(self.b, s) == species:
+                return s
+        return None
+
+    def _note_whiff(self, enemy_hp_pre, dmg_pp_pre):
+        """Classify a just-resolved turn for the whiff-spiral. A DAMAGING move that FIRED (damaging PP
+        dropped) but left the foe's HP UNCHANGED = a MISS (accuracy debuffed). Consecutive misses are
+        the spiral that PP-famines and loses winnable fights. Reset on any real damage / KO / battle-end.
+        Runs a short settle first so the miss/damage animation has fully resolved before the read."""
+        if not st.in_battle(self.b):
+            self._whiff_streak = 0
+            return
+        self._settle(need=8, timeout=300)                 # let the hit/miss resolve to steady HP
+        cur = st.read_battle(self.b)
+        if not st.in_battle(self.b):
+            self._whiff_streak = 0                         # KO / battle end = a hit landed
+            return
+        if not cur:
+            return
+        enemy_hp_now = cur["enemy"]["hp"]
+        dmg_pp_now = self._ours_dmg_pp(cur)
+        dealt = enemy_hp_pre is not None and enemy_hp_now < enemy_hp_pre
+        fired_dmg = dmg_pp_now < dmg_pp_pre                # a damaging move actually went off this turn
+        if dealt or enemy_hp_now == 0:
+            self._whiff_streak = 0                         # real damage -> accuracy is fine
+        elif fired_dmg:
+            self._whiff_streak += 1
+            self.log(f"   [engine] WHIFF: damaging move fired but foe HP frozen at {enemy_hp_now} "
+                     f"-> accuracy-debuff spiral (streak {self._whiff_streak}/{WHIFF_SPIRAL_AT})")
+
     def _party_levels(self):
         """Per-slot level snapshot (bounded raw read, +0x54 in the 100-byte party struct) —
         the in-drain level-up detect's baseline. [] on any read error (detect stays quiet)."""
@@ -2052,6 +2124,9 @@ class BattleAgent:
         self._sleep_casts = 0              # SLEEP-LOCK whiff cap, reset per foe
         self._famine_tried = set()         # PP-FAMINE SWITCH: active species already offered a famine
         # switch this battle (one shot per species — a forced re-entry retries once, never churns).
+        self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
+        self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
+        self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -2399,11 +2474,64 @@ class BattleAgent:
                     stall = 0
                     self._unresolved_turns = 0
                     continue
+                # WHIFF-SPIRAL BREAKER (2026-07-10, night shift 9 — the S.S. Anne Gary root cause): an
+                # accuracy-lowering foe (Sand-Attack/Smokescreen/Kinesis) debuffs the active mon until it
+                # MISSES every swing — foe HP frozen while our PP drains -> famine -> a loss even at a
+                # crushing level lead. Gen-3 resets stat stages on switch-out, so we switch the ace OUT
+                # (accuracy resets) then BACK the next turn to swing fresh. _note_whiff counts the misses;
+                # here we execute the reset. Bounded per battle (WHIFF_MAX_RECOVERIES) so it never loops.
+                if (WHIFF_BREAKER_ENABLED and state
+                        and not (self._enemy_fainted or self._we_fainted)):
+                    if self._whiff_recovering is not None:
+                        # (a) mid-recovery — the ace is benched with reset accuracy; bring it back to swing.
+                        if state.get("ours", {}).get("species") == self._whiff_recovering:
+                            self._whiff_recovering = None   # already back (forced-switch) — fight fresh
+                        else:
+                            ace = self._slot_of_healthy_species(self._whiff_recovering)
+                            if ace is not None:
+                                self.log(f"   [engine] WHIFF RECOVERY: accuracy reset -> switching the ace "
+                                         f"(sp {self._whiff_recovering}) back in to swing clean")
+                                if self._switch_to_slot(ace, state.get("ours", {}).get("species")) == "switched":
+                                    self._whiff_recovering = None
+                                    self._whiff_streak = 0
+                                    self._skip_streak.clear()
+                                    self._acted_once = True; stall = 0; self._unresolved_turns = 0
+                                    continue
+                                self.log("   [engine] whiff recovery switch-back did not confirm -> fighting")
+                                self._whiff_recovering = None
+                            else:
+                                self._whiff_recovering = None   # ace gone/active elsewhere — clear cleanly
+                    elif (self._whiff_streak >= WHIFF_SPIRAL_AT
+                          and self._whiff_recoveries < WHIFF_MAX_RECOVERIES):
+                        # (b) trigger — the spiral is confirmed; switch the ace OUT to reset its accuracy.
+                        _rs = self._any_healthy_reserve(state)
+                        if _rs is not None:
+                            _ace_sp = state.get("ours", {}).get("species")
+                            self.log(f"   [engine] WHIFF-SPIRAL ({self._whiff_streak} misses): accuracy "
+                                     f"debuffed -> switching OUT to slot {_rs} to reset it (recovery "
+                                     f"{self._whiff_recoveries + 1}/{WHIFF_MAX_RECOVERIES})")
+                            if self._switch_to_slot(_rs, _ace_sp) == "switched":
+                                self.emit("it keeps making me miss — swapping out to shake off the "
+                                          "accuracy drop.", beat=True, tier=2)
+                                self._whiff_recovering = _ace_sp
+                                self._whiff_recoveries += 1
+                                self._whiff_streak = 0
+                                self._acted_once = True; stall = 0; self._unresolved_turns = 0
+                                continue
+                            self.log("   [engine] whiff-spiral switch did not confirm -> fighting (fail-safe)")
+                        else:
+                            # ace is alone (frail bench dead) — no in-battle reset possible; stop
+                            # re-logging every turn and fight on (war-must-advance; a miss still lands ~33%).
+                            self.log("   [engine] WHIFF-SPIRAL but no healthy reserve to reset with -> fighting on")
+                            self._whiff_streak = 0
+                _enemy_hp_pre = (state or {}).get("enemy", {}).get("hp")
+                _dmg_pp_pre = self._ours_dmg_pp(state) if state else 0
                 res = self._select_and_verify(state) if state else "stuck"
                 if res == "done":
                     self._acted_once = True
                     stall = 0
                     self._unresolved_turns = 0        # a real resolution clears the anti-wedge floor
+                    self._note_whiff(_enemy_hp_pre, _dmg_pp_pre)   # classify miss vs hit for the spiral
                 else:
                     stall += 1                        # menu up but flaky -> settle re-checks, retry
                     # ANTI-WEDGE FLOOR — the run-existential one. `stall` resets on ANY screen change,
