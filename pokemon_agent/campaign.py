@@ -6503,9 +6503,26 @@ class Campaign:
                 co = tv.coords(self.b)
                 _nc2 = self._no_connector_maps()
                 _wdest2 = {tuple(xy): tuple(dest) for (xy, dest, _wid) in tv.read_warps(self.b)}
-                far = [tuple(dr) for dr in self._door_tiles()
-                       if (cur, tuple(dr)) not in self._ql_entered_doors
-                       and _wdest2.get(tuple(dr)) not in _nc2]
+                _doors_here = [tuple(dr) for dr in self._door_tiles()
+                               if _wdest2.get(tuple(dr)) not in _nc2]
+                far = [dr for dr in _doors_here if (cur, dr) not in self._ql_entered_doors]
+                # RE-ENTRY AFTER AN INTERRUPTED VISIT (2026-07-09, the Bill-cottage door-burn): every
+                # door on the arrival map is already ENTERED but the quest flag is STILL unset — she
+                # entered the target building, then a Route-25 gauntlet blackout/heal yanked her out
+                # BEFORE she talked Bill, and the entered-doors burn then locked _questline_unentered_door
+                # + the approach out of it forever (arrived_no_target ping-pong). The flag gates
+                # completion, so re-entering the RIGHT building is harmless — CLEAR this map's burn for a
+                # clean retry (the room-tour + wrong-building logic re-burn a genuinely wrong one; the
+                # _ql_fp no-progress guard caps a truly stuck retry). This is what lets the leveling she
+                # banks each cycle eventually carry her through the crossing to finish Bill.
+                if not far and _doors_here:
+                    _burned = {k for k in self._ql_entered_doors if k[0] == cur}
+                    if _burned:
+                        self._ql_entered_doors -= _burned
+                        log(f"   [roam] questline: all {len(_doors_here)} door(s) on {self.world.name(cur)} "
+                            f"already entered but the flag's unset — an interrupted visit; clearing the "
+                            f"burn {sorted(_burned)} for a clean re-approach")
+                        far = list(_doors_here)
             except Exception as _dd:
                 far, co = [], None
                 log(f"   [roam] questline distant-door scan skipped: {_dd}")
@@ -8845,13 +8862,22 @@ class Campaign:
             # any deep-building loss, not just Gary.
             _here_map = tuple(tv.map_id(self.b))
             if getattr(self, "_ql_inside_target", False):
+                # HEAL-GATE (2026-07-09, the Bill's-cottage false-eject): a battle + a map change was
+                # read as a whiteout relocation and cleared the interiority — but the DISTANT-DOOR
+                # approach walks her ACROSS Route 25 through its trainer gauntlet and INTO Bill's cottage
+                # in ONE action, so a real (won/fled) gauntlet fight + the deliberate door-warp tripped
+                # this and EJECTED her from the cottage before she could talk Bill (misty_done Gate-C).
+                # A real whiteout HEALS the party and dumps her in a Center; a deliberate entry leaves her
+                # HURT in the target building. Only treat battle+relocation as a whiteout when she's
+                # actually been healed — otherwise she walked in on purpose: keep + refresh interiority.
                 if (getattr(self, "_battle_ran_this_action", False)
-                        and _here_map != getattr(self, "_ql_inside_map", _here_map)):
+                        and _here_map != getattr(self, "_ql_inside_map", _here_map)
+                        and self._party_fully_healed()):
                     self._ql_inside_target = False
                     log(f"   [roam] whiteout relocated her {getattr(self, '_ql_inside_map', None)} -> "
-                        f"{_here_map} after a loss -> clearing _ql_inside_target (let the stranded-in-"
-                        f"building recovery exit her to the overworld)")
-                elif not getattr(self, "_battle_ran_this_action", False):
+                        f"{_here_map} after a loss (party healed) -> clearing _ql_inside_target (let the "
+                        f"stranded-in-building recovery exit her to the overworld)")
+                else:
                     self._ql_inside_map = _here_map     # deliberate interior nav -> keep her location current
             # BLACKOUT / STRANDED-IN-BUILDING RECOVERY (increment 4 PART A): a wild loss whites her out
             # and warps her INSIDE a Pokémon Center (map group != 3 — a building interior), healed. Her
