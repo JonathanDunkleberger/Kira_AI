@@ -3995,6 +3995,10 @@ class Campaign:
         healed_out = [False]      # BATCH 5 P2: healed mid-catch -> end cleanly, free_roam re-decides
         trainer_secs = [0.0]      # BATCH 5 P2: wall-clock spent in FORCED trainer fights en route — does
         #                           NOT count against the catch budget (those are mandatory, not failure)
+        stuck_battles = [0]       # shift 3: unresolved 'stuck' wild battles this wander — a within-tick
+        STUCK_CAP = 6             #   freeze-spin guard (rule 18). The no-progress budget can't catch this
+        #                           class: she keeps stepping in grass BETWEEN stuck battles, so every leg
+        #                           reads 'progressed' and fails never accrues (the Route-11 run4 livelock).
 
         def catch_runner():
             """Travel hands every encounter here. Wild -> CATCH (commit); trainer -> normal fight.
@@ -4072,7 +4076,18 @@ class Campaign:
                             self._catch_skip_voiced.add(fid)
                             self.on_event(f"a {fname}… {reason}. not this one — moving on.",
                                           kind="roster", tier=1)
-                        return self.battle_runner()          # fight/resolve it normally, keep hunting
+                        # DEX ERRAND: FLEE the dupe (2026-07-09 shift 3, the Route-11 stuck livelock).
+                        # The old path FOUGHT every skip; on a dupe-dense route (Route 11 ekans/spearow)
+                        # that drains attacking PP over dozens of fights -> PP-famine -> the engine returns
+                        # 'stuck', and the wander's no-progress budget never trips -> within-tick spin.
+                        # A hunting player RUNS from dupes: no PP cost, the battle ends fast, and she
+                        # reaches the route's fresh-species ceiling sooner. Scoped to the errand
+                        # (_dex_catch_all); normal roam still fights skips for bench XP.
+                        _out = (self._flee_runner() if getattr(self, "_dex_catch_all", False)
+                                else self.battle_runner())
+                        if _out == "stuck":
+                            stuck_battles[0] += 1
+                        return _out                          # resolve it, keep hunting
                     self.on_event(f"oh — a {fname}! {reason}. I want this one.", kind="roster", tier=2)
             log("   CATCH: WILD encounter - committing to the catch")
             # CATCH ON THE MAIN CORE (default). The old "throw doesn't actuate in a long-running core" was
@@ -4117,7 +4132,8 @@ class Campaign:
             # trainer-fight wall-clock so a trainer gauntlet between her and the grass can't time the
             # catch out before she gets a single throw.
             while (time.time() - t0 - trainer_secs[0]) < max_seconds and not caught[0] \
-                    and not out_of_balls[0] and not cant_weaken[0]:
+                    and not out_of_balls[0] and not cant_weaken[0] \
+                    and stuck_battles[0] < STUCK_CAP:
                 before = tv.coords(self.b)
                 r = self.trav.travel(target_map=None, arrive_coord=waypoints[wi % len(waypoints)],
                                      max_steps=120, max_seconds=80, avoid=doors)
@@ -4159,6 +4175,10 @@ class Campaign:
             self.b.set_input_owner("agent")
         if caught[0] or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
             return "caught"
+        if stuck_battles[0] >= STUCK_CAP:
+            log(f"   !! CATCH: {stuck_battles[0]} unresolved 'stuck' wild battles this wander — bailing so "
+                f"the errand moves on (within-tick freeze-spin guard, rule 18) (LOUD)")
+            return "no_reachable_target"
         if out_of_balls[0]:
             log("   !! CATCH: ran out of Poké Balls before a catch - LOUD"); return "no_balls"
         if cant_weaken[0]:
