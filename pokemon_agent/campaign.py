@@ -7095,6 +7095,8 @@ class Campaign:
             grid = tv.Grid(self.b)
             cur = tuple(tv.coords(self.b))
             door = tuple(gym.door)
+            if not hasattr(self, "_gym_cut_cache"):
+                self._gym_cut_cache = {}     # map_id -> gym-gate cut-tree coord (shift 17)
             # phase A — SCAN FIRST: beat_gym's failed door approach already parked her near the
             # yard, where the fence-gap TREE OBJECT is loaded. Walking "closer to the door" first
             # is actively harmful — the Grid is OPTIMISTIC about fences (static obstacles are only
@@ -7115,6 +7117,12 @@ class Campaign:
                     ox, oy = ob["coord"]
                     if abs(ox - door[0]) + abs(oy - door[1]) > 12:
                         continue                                 # unrelated obstacle across the map
+                    if ob["gfx"] == _fm.GFX_CUT_TREE:
+                        # CACHE the gym-gate tree the moment it's scanned near the door (shift 17).
+                        # The pre-Cut approach reaches it adjacent; a LATER post-Cut re-entry lands
+                        # far away (Vermilion (29,18), ~16 tiles off) where scan_field_objects loads
+                        # NOTHING — the cache lets phase B walk straight back to it.
+                        self._gym_cut_cache[tuple(tv.map_id(self.b))] = (ox, oy)
                     for stand in ((ox, oy - 1), (ox, oy + 1), (ox - 1, oy), (ox + 1, oy)):
                         _reach = bool(tv.bfs(g2, here2, lambda t, s=stand: t == s, walkable=g2.walkable))
                         log(f"   [roam] 🔎 tree@{ob['coord']} gfx={ob.get('gfx')} stand={stand} bfs_reachable={_reach}")
@@ -7152,15 +7160,48 @@ class Campaign:
             if found == "cleared":
                 return None      # tree is DOWN — no gate; the next tick's door leg walks through
             if not found:
-                # phase B — reposition toward the door (bounded) so nearer objects LOAD, then rescan
-                for d in range(2, 11, 2):
-                    path = tv.bfs(grid, cur,
-                                  lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
-                                  walkable=grid.walkable)
-                    if path:
-                        self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
-                                         max_steps=200, max_seconds=60)
-                        break
+                # phase B — reposition so the gate tree LOADS into scan range, then rescan.
+                grid2 = tv.Grid(self.b)
+                cur2 = tuple(tv.coords(self.b) or cur)
+                moved = False
+                # (i) CACHED-TREE WALK (shift 17, the post-Cut Vermilion fix): a prior (pre-Cut)
+                #     approach scanned the gym-gate tree adjacent and cached its coord. Post-Cut she
+                #     re-enters FAR away (e.g. (29,18)) with an EMPTY scan — "reposition toward the
+                #     DOOR" is useless because the door-approach tile is INSIDE the fenced yard,
+                #     behind the tree, and unreachable until the tree is cut. Walk to a reachable
+                #     stand tile beside the CACHED tree instead: the object then loads and the
+                #     rescan's auto-cut fires. Robust to disconnected regions (dock↔town) — logs
+                #     the BFS reachability so a still-stuck case is self-diagnosing.
+                cached = self._gym_cut_cache.get(tuple(tv.map_id(self.b)))
+                if cached:
+                    cx, cy = cached
+                    try:
+                        self.b.frame_rgb().save(os.path.join(
+                            os.environ.get("LONGRUN_DUMP_DIR", "/g/temp"),
+                            "gym_gate_phaseB.png"))
+                    except Exception:
+                        pass
+                    for stand in ((cx, cy - 1), (cx, cy + 1), (cx - 1, cy), (cx + 1, cy)):
+                        _r = bool(tv.bfs(grid2, cur2, lambda t, s=stand: t == s,
+                                         walkable=grid2.walkable))
+                        log(f"   [roam] 🔎 phase B cached-tree {cached} stand {stand} "
+                            f"bfs_reachable={_r} (at {cur2})")
+                        if _r:
+                            log(f"   [roam] 🔎 phase B: walking to cached gym-tree stand {stand}")
+                            self.trav.travel(target_map=None, arrive_coord=stand,
+                                             max_steps=300, max_seconds=90)
+                            moved = True
+                            break
+                # (ii) FALLBACK — reposition toward the door (bounded) so nearer objects LOAD
+                if not moved:
+                    for d in range(2, 11, 2):
+                        path = tv.bfs(grid2, cur2,
+                                      lambda t, dd=d: abs(t[0] - door[0]) + abs(t[1] - door[1]) <= dd,
+                                      walkable=grid2.walkable)
+                        if path:
+                            self.trav.travel(target_map=None, arrive_coord=tuple(path[-1]),
+                                             max_steps=200, max_seconds=60)
+                            break
                 if _obstacle_probe() == "cleared":
                     return None
             here = tv.coords(self.b)
