@@ -5951,6 +5951,36 @@ class Campaign:
         # once healed to full, the floor check goes False and the gate stops firing (no re-heal spin).
         if step_anchor and cur_map != step_anchor:
             self._ql_prefight_tries = 0
+            self._ql_prefight_grind = 0
+        # PREP-BEFORE-RIVAL (2026-07-10, night shift 6 — the S.S. Anne is a TEAM-STRENGTH wall, not just a
+        # PP one): even at full PP + Tackle coverage, an under-levelled solo ace can't clear the rival's
+        # 4-mon team — Gary's Pidgeotto Sand-Attacks her into missing (7 wasted Tackles), Charmeleon
+        # resists grass, and a frail L8-12 bench (Abra knows only Teleport) can't help. The PROVEN line is
+        # a stronger ace: the reactive track's solo Venusaur (L32) beats Gary clean. So GRIND to the
+        # milestone BEFORE boarding (like gym-prep does before a gym), narrated in her voice. The grind's
+        # weak-mon participation-switch levels the bench in the same pass. Bounded once-per-approach;
+        # re-arms on leaving town. Reuses self.grind (self-capping budget).
+        _RIVAL_PREP_LEVEL = 32
+        if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
+                self, "_ql_prefight_grind", 0):
+            try:
+                _party = (self.read_live_state() or {}).get("party") or []
+                _ace_lv = max((int(m.get("level", 0) or 0) for m in _party), default=0)
+            except Exception:
+                _ace_lv = 99                                   # read fail -> no grind (fail-open, safe)
+            if 0 < _ace_lv < _RIVAL_PREP_LEVEL:
+                self._ql_prefight_grind = 1
+                log(f"   [roam] 🏋️ PREP-BEFORE-RIVAL: a rival gauntlet is a team-strength wall — ace "
+                    f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding (an underlevelled "
+                    f"solo loses to Gary's 4-mon team, whatever the PP).")
+                self.on_event("that's my rival waiting on that ship — I want my team stronger before we "
+                              "board. quick training, then we go.", kind="route", tier=2)
+                try:
+                    gr = self.grind(_RIVAL_PREP_LEVEL)
+                except Exception as e:
+                    gr = f"error:{e}"
+                log(f"   [roam] 🏋️ pre-rival grind (target L{_RIVAL_PREP_LEVEL}) -> {gr}")
+                return "questline_prefight_grind"
         # FLOOR = TOP-OFF, not "some PP left" (night shift 6): floor=20 read her ~50 post-Route-6 PP as
         # "fine" and she boarded the S.S. Anne — a LONG Center-less gauntlet (3-4 ship trainers + Gary's
         # 4 mons, ~10 foes, many resisting grass so each needs 2-4 hits) — under-fuelled -> famined on
