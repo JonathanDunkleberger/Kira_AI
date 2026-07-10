@@ -5952,15 +5952,24 @@ class Campaign:
         if step_anchor and cur_map != step_anchor:
             self._ql_prefight_tries = 0
             self._ql_prefight_grind = 0
-        # PREP-BEFORE-RIVAL (2026-07-10, night shift 6 — the S.S. Anne is a TEAM-STRENGTH wall, not just a
+        # PREP-BEFORE-RIVAL (2026-07-10, night shift 6/7 — the S.S. Anne is a TEAM-STRENGTH wall, not just a
         # PP one): even at full PP + Tackle coverage, an under-levelled solo ace can't clear the rival's
         # 4-mon team — Gary's Pidgeotto Sand-Attacks her into missing (7 wasted Tackles), Charmeleon
         # resists grass, and a frail L8-12 bench (Abra knows only Teleport) can't help. The PROVEN line is
-        # a stronger ace: the reactive track's solo Venusaur (L32) beats Gary clean. So GRIND to the
+        # a stronger ace: the reactive track's solo VENUSAUR (L32) beats Gary clean. So GRIND to the
         # milestone BEFORE boarding (like gym-prep does before a gym), narrated in her voice. The grind's
         # weak-mon participation-switch levels the bench in the same pass. Bounded once-per-approach;
         # re-arms on leaving town. Reuses self.grind (self-capping budget).
-        _RIVAL_PREP_LEVEL = 30
+        #
+        # NIGHT-SHIFT 7 FIX — TARGET = L32, NOT L30: shift-6 lowered the target to L30 "for budget
+        # feasibility", but a VERIFIED look-ahead (s7_verify1.log) proved a full-PP L30/L31 *Ivysaur*
+        # STILL loses Gary (grudge 4W-5L, a 9-loss re-attempt loop). The tipping point is the EVOLUTION:
+        # Ivysaur -> Venusaur at L32 is a major bulk/power spike, and Venusaur L32 is the reactive track's
+        # proven Gary-killer. L30 leaves her one level short of the evolution — so she keeps losing a
+        # WINNABLE-if-evolved fight. Grinding L28->L32 on Route 6 wilds needs ~200s (L28->L30 took ~90s in
+        # that run), so a WIDE budget (900s) reaches L32+evolve in ONE pass, boards as Venusaur, and skips
+        # the loss loop entirely (no re-grind needed once the ace clears the fight solo).
+        _RIVAL_PREP_LEVEL = 32
         if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
                 self, "_ql_prefight_grind", 0):
             try:
@@ -5983,7 +5992,10 @@ class Campaign:
                     # DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (game-knowledge layer, rule 14).
                     _rr = self.walk_to_map((3, 24), "north")
                     log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
-                    gr = self.grind(_RIVAL_PREP_LEVEL)
+                    # WIDE budget (900s vs the 480s default): reaching the L32 evolution from L28 is ~4
+                    # levels of low-XP Route 6 wilds — the default budget could undershoot and board her as
+                    # an un-evolved Ivysaur -> the loss loop. One deep pass to Venusaur is the whole point.
+                    gr = self.grind(_RIVAL_PREP_LEVEL, budget_s=900)
                 except Exception as e:
                     gr = f"error:{e}"
                 log(f"   [roam] 🏋️ pre-rival grind (target L{_RIVAL_PREP_LEVEL}) -> {gr}")

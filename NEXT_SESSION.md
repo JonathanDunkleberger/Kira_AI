@@ -1,3 +1,95 @@
+<!-- ═══ NIGHT-SHIFT 7 (2026-07-10) — IN FLIGHT: L32-Venusaur prep fix -> Gary -> Cut -> Surge ═══
+ROOT-CAUSE NAILED (VERIFIED, s7_verify1.log): shift-6's PREP-BEFORE-RIVAL grind target of L30 was ONE
+LEVEL SHORT OF THE FIX. A full-PP, Tackle-equipped L30/L31 *Ivysaur* STILL loses Gary — the run reached
+Gary and lost 5 times in a row (grudge 4W-5L, a re-attempt loop). The tipping point is the EVOLUTION:
+Ivysaur -> VENUSAUR at L32 (major bulk/power spike); Venusaur L32 is the reactive track's PROVEN
+Gary-killer. L30 leaves her one level short of it, so she keeps losing a winnable-if-evolved fight.
+FIX COMMITTED (shift 7): _RIVAL_PREP_LEVEL 30->32 + grind budget 480->900s (reaching L32 from L28 is ~4
+levels of low-XP Route 6 wilds; needs ~200s but a wide budget guarantees the evolution in one pass). The
+existing re-arm (flag clears when she boards the ship) makes it self-correcting: even if a grind pass
+undershoots to L31, a loss->whiteout->re-grind continues to L32/Venusaur, THEN she wins — no infinite loop.
+IN FLIGHT: re-verify from the repaired kit:
+  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 25  (log /g/temp/s7_verify2.log)
+Expect: prep-grind fires at Vermilion -> grinds L28->L32 -> Ivysaur EVOLVES to Venusaur -> boards ->
+BEATS Gary -> HM01 Cut from captain -> teach Cut -> cut Vermilion gym tree -> Lt. Surge (badge 3).
+RISK if she STILL loses at L32 Venusaur: attrition (only 20-HP Potions vs burn + 10 foes, no Center
+aboard) -> next lever = STOCK SUPER POTIONS at Vermilion Mart before boarding (the proven Koga
+attrition-breaker; Vermilion stocks Super Potion id 22 row1; _shopping_list(foresight=True) + buy_at_mart
+exist; she may be cash-poor ~$1k so afford-what-she-can). Fixtures: bill_done_kit.state (repaired kit
+[RazorLeaf,VineWhip,Tackle,Sleep], REBUILD via `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py`),
+bill_done.state (degraded BUG kit — REBUILD: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
+═══════════════════════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ═══ NIGHT-SHIFT 6 (2026-07-10) — verify NEUTRAL-COVERAGE fix -> Route 6 -> Gary -> Surge ═══
+KEY FINDING: the S.S.Anne wall was NEVER Gary — she never reached him. She PP-FAMINED and LOST to a
+3-Pidgey Bird Keeper on ROUTE 6 (grass resisted x0.5 by Pidgey/Flying), then looped loss->heal->back.
+ROOT CAUSE (not the heal gate): _ensure_move_room's _value gave EVERY status move +100, so Ivysaur kept
+2 powders (Sleep+Poison) and DROPPED Tackle — its only NEUTRAL move — leaving a grass-ONLY kit walled by
+the Flying/Bug foes that carpet Routes 6/24/25. Abra knows only Teleport (dead weight). FIX COMMITTED
+(dd5546c): demote a redundant 2nd status (+25 not +100) + protect a low-power off-type attacker; verified
+[VineWhip,RazorLeaf,Poison,Sleep]->drop Poison (keeps 2 STAB + Sleep). Built bill_done_kit.state
+(recon_repair_kit.py) = the kit the FIXED manager keeps [RazorLeaf,VineWhip,Tackle,Sleep].
+PROGRESS (4 fixes committed): dd5546c (Tackle CLEARS Route 6 — VERIFIED) + 29756ee (heal-before-rival PP
+floor 20->70 — VERIFIED heal FIRES at Vermilion Center) + 4e1200a (PREP-BEFORE-RIVAL grind gate — the wall
+is TEAM STRENGTH: even full-PP L28 Ivysaur lost Gary 4W-4L via Pidgeotto Sand-Attack misses + Charmeleon
+grass-resist + frail L8-12 bench) + 30a166e (prep-grind must route to Route 6 grass FIRST — it wedged in
+the gym-approach pocket where grind()'s grass-finder targets a bad off-map coord; now walk_to_map((3,24),
+north) then grind, target lowered L32->L30 for budget feasibility).
+IN FLIGHT: final verify of the prep-grind chain:
+  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 25  (log /g/temp/s6_prepgrind2.log)
+Expect: 🏋️ prep-grind fires at Vermilion -> routes to Route 6 -> grinds ace to L30 (+ bench via
+participation-switch) -> back to Vermilion -> heal -> Tackle+full-PP BEATS Gary -> HM01 Cut -> teach ->
+cut gym tree -> Lt. Surge (badge 3). RISK if still losing: L30 not enough (bump toward L32/Venusaur) OR
+the bench needs its own leveling. RISK if grind slow: Route 6 wilds are low-XP for an L28+ ace — the grind
+may eat budget before L30 (watch GRIND: trained-to lines); if so, grind may need trainer-XP or a lower
+target. Fixtures: bill_done.state (degraded BUG kit), bill_done_kit.state (repaired [RazorLeaf,VineWhip,
+Tackle,Sleep]). Reconstruct bill_done: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force The kit re-run showed Tackle cleared Route 6 but she STILL lost Gary
+because the heal gate's floor=20 read her ~50 post-Route-6 PP as "fine" -> boarded the Center-less ship
+gauntlet under-fuelled -> Tackle hit 0-PP -> famined on Charmeleon (grass resisted x0.25). Floor now 70
+(top off before the dock). IN FLIGHT: re-run from repaired-kit with the heal-floor fix:
+  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 25  (log /g/temp/s6_healfloor.log)
+Expect: heal-before-rival FIRES at Vermilion (full PP) -> Tackle+Razor Leaf BEAT Gary -> HM01 Cut ->
+teach -> cut gym tree -> Lt. Surge (badge 3). If she STILL loses at full PP, the frail bench (Spearow L12,
+Rattata L8, Abra=Teleport-only) can't finish what Ivysaur can't solo -> next lever = grind the bench a few
+levels OR the in-battle status-spam calibration. Fixtures: bill_done.state (degraded, the BUG),
+bill_done_kit.state (repaired kit [RazorLeaf,VineWhip,Tackle,Sleep]).
+Reconstruct bill_done if missing: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force
+═══════════════════════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ═══ NIGHT-SHIFT 4 (2026-07-10) — IN FLIGHT: S.S. ANNE -> CUT -> SURGE (badge 3) via team-brain ═══
+FIXTURE-LOSS LESSON (hard-won, capture EXPLICITLY): states/workshop/*.state is GITIGNORED SCRATCH and
+got wiped between shifts — bill_done.state AND misty_done.state were GONE at shift-4 boot. BUT recon
+banks every run's end-state to G:/temp/longrun/banked_<OUTCOME>/kira_campaign.state, which SURVIVES.
+The shift-3 S.S.-Ticket bank = `banked_GOAL` (2026-07-09 23:51); its follow-on S.S.-Anne characterization
+= `banked_TIMEOUT` (2026-07-10 00:12). RECONSTRUCT the fixture any time it's missing:
+  Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force
+VERIFIED bill_done party = Ivysaur L26 + Spearow L12 + Rattata L8 + Abra L10, badges 2, SS_TICKET(0x234)=1
+(probe: .venv/Scripts/python.exe /tmp/probe_state.py). Surviving reactive-track fixtures on disk:
+surge_done.state (badge 3, solo Venusaur L32 — the OLD reactive track, NOT the team-brain team),
+flash_done.state, rt_mouth.state.
+
+FRONTIER (shift 4): S.S. ANNE -> CUT -> VERMILION (Lt. Surge, badge 3), from bill_done.state.
+DIAGNOSED (s4_ssanne.log): navigation is FINE end-to-end — Cerulean->Route5(burgled-house pass)->Route6->
+Vermilion->boards the S.S. Anne, climbs the KB chain to the captain. THE WALL = rival GARY on the ship
+(raticate lead, 4 mons) via PP FAMINE: bill_done Ivysaur L28 has ONE damaging move (Razor Leaf) + 2 powders
++ an EMPTY 4th slot (it LOST Vine Whip — likely the shift-15 in-battle decline-handler mis-actuation,
+battle_agent.py:2219, still a HANDED-OFF bug), and she never heals PP at the Vermilion Center before
+boarding, so Razor Leaf runs dry mid-4-mon fight -> loss -> whiteout -> unwatchable grind-loop (levels a
+L8 Rattata toward L17). The old solo-Ivysaur track (surge_done: Razor Leaf+Vine Whip+Cut) beat Gary at
+full PP — so the fight is WINNABLE; the famine is the killer.
+
+FIX COMMITTED (a6bbbd9): HEAL-BEFORE-A-RIVAL-FIGHT gate. (1) new _lead_attack_pp_low sums only DAMAGING PP
+(powders no longer mask a dry attacker). (2) _run_questline_step: a rival/trainer-gauntlet step + on the
+anchor town + ace not attack-fresh -> heal_nearest() FIRST (bounded once per approach). VERIFY IN FLIGHT:
+  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done.state 25
+Expect: 🩹 HEAL-BEFORE-RIVAL fires at Vermilion -> full Razor Leaf PP -> BEATS Gary -> captain -> HM01 Cut
+-> teach -> cut the Vermilion gym tree -> Lt. Surge (badge 3). IF she still loses Gary at full PP, the
+1-attacker kit is genuinely too thin -> either restore a 2nd attacker (fix the battle_agent:2219 in-battle
+learn to REPLACE junk not decline, so a fresh run keeps Vine Whip) OR execute her narrated Diglett plan
+(Route 11 east -> Diglett's Cave; needs a cave-floor catch primitive). Boot:
+  Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force  # if fixture missing
+═══════════════════════════════════════════════════════════════════════════════════════════════ -->
+
 <!-- ═══ NIGHT-SHIFT 3 (2026-07-09) — GATE C BILL MILESTONE ✅ DONE (S.S. Ticket obtained e2e) ═══
 GATE C's Bill leg is COMPLETE + COMMITTED (0233a86 + 24b863f). recon_longrun misty_done.state 20 ->
 OUTCOME: GOAL FLAG_GOT_SS_TICKET, VERIFIED e2e: escape the (7,3) house -> build a team -> TARGETED-catch
