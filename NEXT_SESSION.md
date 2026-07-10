@@ -1,6 +1,45 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅✅ NS5 BANKED: BADGE 7 (Blaine/Volcano 0x826) WON FULLY UNAIDED → frontier = BADGE 8 (Giovanni 0x827)
+## 🏁🏁 NS5 BANKED: ALL 8 BADGES (7 Blaine + 8 Giovanni) WON UNAIDED → frontier = VICTORY ROAD → E4 → CREDITS
+**Badge 8 (Earth/Giovanni 0x827) WON** from `blaine_done_kit` via kit-parametrized `recon_giovanni.py`
+(GIOVANNI_STATE env): 5 north sea crossings Cinnabar→Viridian (Surf) → Viridian Gym spin-tile maze
+(spin_nav) → Giovanni. **SOLO-CARRY ATTRITION FIX committed** (6e20c98): the ~6 spin-floor juniors chip
+the lone Venusaur to 2% *during* the cross → she was KO'd first-turn at Giovanni (run1 loss). Added a
+PRE-LEADER HEAL (if lead<85% at Giovanni's front, back out to Viridian, heal, re-cross — beaten juniors
+stay beaten so no re-chip, engage fresh). Verified e2e: 2% → healed → re-crossed to 100% → Giovanni WON →
+**badges=8**. Banked **`giovanni_done_kit`** at Viridian (3,1), full HP. Party UNCHANGED: Venusaur L59 +
+Lapras L25 + Kadabra L16 + Spearow/Rattata/Drowzee bench.
+
+### ▶ FRONTIER — VICTORY ROAD → ELITE FOUR → CHAMPION → CREDITS (write CREDITS as line 1 of NIGHT_REPORT to stop the loop).
+Chain from `giovanni_done_kit`: (1) **Route 22 rival Gary** (badge-8 westbound ambush — recon has this),
+(2) **Route 23 badge-check gates** (all 8 badges held ✓), (3) **VICTORY ROAD** — multi-floor Strength-
+boulder-onto-switch puzzle + Surf water stretch (she has BOTH HMs — `recon_victory.py` exists), (4) **ELITE
+FOUR** — Lorelei → Bruno → Agatha → Lance → Champion Gary (`recon_e4.py` / `recon_agatha.py` exist).
+PARAMETRIZE each the same mechanical way (copy from recon_giovanni.py): add `_resolve_state` + `<X>_STATE`
+env + kit-sidecar loader + utf-8 stdout; run from the prior kit fixture; bank forward.
+
+### ⚠️ THE E4 TEAM WALL (the #3 team-building soul-debt comes due at the finish — read before charging in):
+The E4 is a 5-battle gauntlet (RESETS to Lorelei on any whiteout) of L53-63 teams. The kit's **SOLO Venusaur
+L59 + fodder bench is thin for it**: Agatha's Gengar (Ghost/Poison) resists Grass; Lance's Dragonite/Gyarados
+hit hard; **Champion Gary's Charizard 2×-burns Venusaur while quad-resisting Razor Leaf** (the exact Silph-Gary
+type wall — NS4). Venusaur has Sleep Powder + Razor Leaf + Strength + Cut, Lapras has Surf (×2 vs Lance's
+Ground/Rock-adjacent, ×4 vs Dragonite via Ice? no — Surf is Water; Lapras also had no Ice-damage move, Body
+Slam only). LIKELY NEEDED FIRST: level the bench (esp. Lapras L25→40s as a second wall + Kadabra) and/or a
+heavy Hyper-Potion stall (she has 11 Hyper + 29 Super + 3 Revive; buy more at any Mart). The credits-line E4
+(memory: pokemon-e4-gauntlet-truths / e4-livelock-family-killed) was cleared with a STRONGER team — expect the
+kit's solo carry to need a grind/stall pass BEFORE the gauntlet. This is the soul-debt #3 finally load-bearing.
+Consider a bench-grind long-run (recon_longrun strategic-grind) before the E4 strike. See
+[[pokemon-e4-gauntlet-truths]] + [[pokemon-e4-livelock-family-killed]].
+
+### (task 5, still deferred) Kira-timeline AUTONOMY wiring: tonight's badges 7-8 used kit-parametrized recon
+strikes (env-driven) to bank distance FAST. The autonomous campaign wiring (register safari_strike +
+surf/mansion/seafoam questlines so recon_longrun fires the whole chain from sabrina_done_kit unaided) is the
+remaining rope-laying — the look-ahead DID autonomously reach Viridian + enter every gym; the only gaps the
+general loop couldn't self-crack were the bespoke interiors (Safari pond-maze, Seafoam boulder-cascade,
+Mansion statue-toggle, gym spin-floors) — each has a proven strike ready to register in `_questline_strike`.
+
+## (done NS5) BADGE 7 (Blaine/Volcano 0x826) WON FULLY UNAIDED — full Surf-gated chain banked:
+
 **The ENTIRE Surf-gated frontier fell in one shift.** All legs = proven credits-line recon strikes,
 parametrized for the kit line via env (`LAPRAS_STATE`/`SAFARI_STATE`/`SURFTEACH_STATE`/`SEAFOAM_STATE`/
 `MANSION_STATE`/`BLAINE_STATE` — each resolves a workshop basename + its `.<sidecar>.json`). Banked chain
