@@ -1,76 +1,60 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ BADGE 4 (Erika / RAINBOW 0x823) — DONE + VERIFIED (shift 17)
-coverage-teach-for-depth (5c07f01) CONFIRMED: teaches Venusaur Cut, wins Erika first-try, no blackout.
-Banked -> states/workshop/erika_done_kit.state (+ sidecars).
+## ✅ BADGE 5 (Koga / SOUL 0x824) — WON FULLY UNAIDED + BANKED (night-shift 1, b10bfdf)
+The last-mile is CLOSED. recon_longrun from koga_retry_kit (badge4, 0 potions) → GOAL 0x824 in 109.9s:
+she autonomously bought 30 Super Potions at the Fuchsia Mart (oracle stock_up 6 + the new pre-gym
+POTION-STALL leg 24), stalled through Koga's 4-mon gauntlet via in-battle use_potion, took the Soul Badge.
+Banked → states/workshop/koga_done_kit.state (badges=5, Fuchsia (9,33); round-trip verified). See
+[[pokemon-nightshift1-fuchsia-mart-mapped]]. WHAT WAS BUILT (campaign.py):
+- Fuchsia Mart MAPPED: door (11,15) animated 0x69 → interior (11,1), row2 Super Potion(22,700) live-verified.
+  In CITY_MART_DOORS + MART_STOCK[FUCHSIA]=[2,3,22,28,23,88].
+- `DOOR_APPROACH_WAYPOINTS[(FUCHSIA,(11,15))]=[(20,24),(19,18),(15,16)]` — enter_warp walks these first
+  (the mart door is in a pond-walled pocket where direct BFS-travel oscillates). Extend the KB if other
+  in-town doors show the same oscillation.
+- `POTION_STALL_GYMS={"Koga":30}` + `_stock_potions_for_gym` (called in beat_gym, fires even goal-pinned).
 
-## ✅ BADGE 4.5 QUESTLINE (Silph Scope → Pokémon Tower → Poké Flute → Snorlax) — REPLAYS AUTONOMOUSLY
-From erika_done_kit the whole chain replays e2e with zero intervention: got_scope (Rocket Hideout under
-Celadon Game Corner) → climbed Pokémon Tower (beat Gary 2F, rescued Fuji) → got_flute → woke+beat the
-Route-12 Snorlax → traversed Routes 12-13-14-15 → Fuchsia. Venusaur solo-carries L44→L53. No fix needed.
+## FRONTIER: BADGE 6 (Sabrina / Saffron, MARSH 0x825) — ROOT DIAGNOSED: no armed SILPH CO. questline
+Night-shift 1 ran the look-ahead (`LONGRUN_GOAL_FLAG=0x825 recon_longrun koga_done_kit.state 30`, log
+/g/temp/s1_badge6.log). RESULT: she autonomously reaches **Saffron City** — the **TEA errand + gatehouses
+ALREADY WORK** (FLAG_GOT_TEA wired in exit_gates). Then she STALLS at Sabrina:
+```
+!! GYM-INTERIOR WALL: beat_gym stuck x5 on Sabrina — head_to_gym structurally parked on (3,10)
+!! STRUCTURAL DEAD-ROUTE: ['head_to_gym'] proven dead ... until she leaves it (or a questline arms)
+```
+**ROOT: Sabrina's gym door is Rocket-BLOCKED until Silph Co. is cleared, and NO questline arms to send her
+into Silph Co.** The gate-questline deriver exists (campaign.py ~5533 `_derive... unlock errand`; the Tea
+errand proves it works) but the gate KB (gamedata/frlg_gates.json) has only a `saffron_unlock` NOTE (line
+395) + a Sabrina-door note (line 594) — NO executable Silph Co. step. So head_to_gym parks and prunes.
 
-## ✅ BADGE 5 (Koga / SOUL 0x824) — WON via potion-stall (premise PROVEN); AUTONOMY GAP = Fuchsia-Mart buy
-Shift 17 PROVED it: koga_potions.state (Venusaur + injected 20 Hyper/20 Super Potions) → she heals through
-the gauntlet (ITEM-INSTINCT use_potion fires, 4 potions used) + the whiff-fix keeps Venusaur in → **beats
-Koga, Soul badge set, badges=5** (/g/temp/s17_koga_potions.log OUTCOME GOAL). Banked ->
-states/workshop/koga_done_kit.state. ⚠️ THE ONE AUTONOMY GAP: those potions were INJECTED, not bought. For
-a truly unaided run from erika_done_kit she must STOCK UP at the Fuchsia Mart before Koga — that shopping
-leg is the LAST-MILE BUILD (see below). Next stretch after that = BADGE 6 Sabrina/Saffron.
+**THE BUILD (badge-6 = a hideout-class dungeon strike):** wire a Silph Co. liberation questline that arms
+when she's walled at Saffron's Rocket-blocked gym:
+- Silph Co. overworld door = **(33,30)** on Saffron; Saffron GYM door = **(46,12)** (campaign.py:381-385).
+- Interior = a TELEPORT-PAD MAZE (11 floors) — reuse `pad_nav.PadNav` (the Silph/Sabrina pad-router;
+  DESCENT shift 5) + read_warps. Prior-art probes: recon_silph.py, recon_silph_probe{,2,3,4}.py,
+  recon_silph7f_probe.py (from the original credits climb — Silph WAS cleared then; mine them for the pad
+  graph + Card Key/Giovanni floors). Silph Co. maps named (1,47)-(1,58) at campaign.py:2569.
+- Chain: enter Silph (33,30) → get **Card Key on 5F** (opens the locked pad doors) → reach **Giovanni #2 on
+  11F** + free the Silph president → sets the liberation flag → Saffron frees, gym door opens → head_to_gym
+  works → beat Sabrina (Marsh 0x825). Find the liberation flag id in the disasm/gates KB.
+- Sabrina KB: Psychic ("sees your moves"; folk remedy ghosts/bugs). Venusaur solo-carry L53 may wall on
+  Alakazam — watch for an attrition/type stall (team debt #3; the potion-stall leg generalizes if so — add
+  "Sabrina" to POTION_STALL_GYMS, and Saffron HAS a Mart+Dept store for the buy).
 
-## FRONTIER (build task): AUTONOMOUS FUCHSIA-MART POTION STOCK-UP before Koga — then badge 5 is unaided
+Approach: mine recon_silph*.py for the pad graph, wire the arming (gate KB step keyed to the Saffron gym
+lock), long-run from koga_done_kit, diagnose the first Silph-interior stall, iterate, bank silph/sabrina
+checkpoints as she clears. This is a multi-run dungeon build — the biggest remaining pre-E4 stretch.
 
-★ ROOT (shift 17, fully diagnosed): she REACHES + fights Koga but LOSES without healing (5+ straight).
-It is NOT type/coverage — it's raw ATTRITION: **Venusaur SOLO (L53, 156 HP) cannot tank Koga's 4-mon
-gauntlet (~390 total HP) with no healing items.** Bench is L8-14 fodder (team debt #3). WITH potions she
-wins (proven). So the fix is autonomous potion acquisition, exactly as shifts 7-10 scouted.
+## RESIDUAL (watchability, non-fatal, unchanged): gym maze junior-spin
+The invisible-wall maze (Koga; likely Sabrina too) leaves ~4 juniors un-engageable; she tries each 4× then
+burns the 14 clear-round cap (~minutes of log spam) before bailing to the leader. Correctly bails (not
+fatal). Fix in `_clear_junior_trainers` (campaign.py ~3200): reachability pre-check — defer an unreachable
+junior in 1 try not 4, remember the deferred set across blackout-retries.
 
-★ ROOT (shift 17, fully diagnosed): she REACHES Koga and fights him, but LOSES every time (5+ straight).
-It is NOT a type/coverage problem — it's raw ATTRITION: **Venusaur SOLO (L53, 156 HP) cannot tank Koga's
-4-mon gauntlet (Koffing/Muk/Koffing/Weezing, ~390 total HP) with no healing items.** Her bench is L8-14
-fodder (team-building debt #3) that gets one-shot the moment she's forced to switch. Over ~15-30 turns she
-takes cumulative chip and FAINTS (HP 0), then the fodder can't clean up → blackout → retry → same loss.
-(Muk is only NEUTRAL vs grass/poison Venusaur — x2 grass × x0.5 poison = x1 — so it's not even a type
-threat; it's just 4-on-1 attrition. The coverage-teach correctly returns no_candidate: Venusaur can learn
-NONE of the useful coverage TMs in bag, only TM19 Giga Drain = resisted. Cut/normal x1 IS her best.)
+KEY FACTS: venv `.venv/Scripts/python.exe` (SINGLE-RUN LAW; kill `taskkill //F //IM python.exe //T`).
+recon_longrun arg1 = state BASENAME **with .state extension** (resolve_state returns None without it),
+arg2 = max_minutes, goal via `LONGRUN_GOAL_FLAG=0x825`. Banks to G:/temp/longrun/banked_GOAL — promote its
+{kira_campaign.state,journey_core,soul,strat_memory,world_model}.json into workshop/ with the fixture
+basename to advance the Sherpa line. Flags module = `field_moves` (fm.read_flag). Mart-clerk sig = gfx68 @(2,3).
 
-★ FIX SHIPPED THIS SHIFT (43cd243, committed + verified-improving): the WHIFF-SPIRAL breaker mis-read
-Muk's Minimize (FOE evasion) as HER accuracy debuff and repeatedly benched L53 Venusaur for L13 fodder to
-"reset accuracy" (which can't reset the foe's evasion) — feeding the whole bench to death. Now
-_any_healthy_reserve level-gates the reserve (WHIFF_RESERVE_LEVEL_BAND=15): a solo-carry never sacrifices
-its ace for far-weaker fodder → "fight on" (keep swinging; misses land). WHIFF_MAX_RECOVERIES 6→2. This
-turned "Muk stuck at 130" into "Venusaur grinds Muk 130→19" — real progress, but she still loses to
-attrition. General fix (helps any Minimize/Double-Team foe + any solo-carry). Preserves the Gary S.S.-Anne
-fix (a real team with comparable reserves still resets).
-
-★ THE ANSWER (scouted by shifts 7-10, now the build task): **POTIONS.** A real player stocks Super/Hyper
-Potions at the Fuchsia Mart and heals through the gauntlet. Shift 17 PROVED the premise (koga_potions.state
-→ she heals + WINS, OUTCOME GOAL, badge 5). The remaining BUILD is
-**autonomous Fuchsia-Mart stock-up before Koga**: recon_fuchsia_mart.py already mapped the Fuchsia Mart
-door + buy-list rows (shift 10); the `_shopping_list`/`stock_up` machinery exists (used at Pewter/Vermilion).
-Wire a pre-Koga stock-up (like the pre-gym heal gate) so head_to_gym buys potions in Fuchsia before entering
-the gym. Alternative/complement: build a real 2nd attacker (team-building debt #3) — bigger project.
-
-★ NEXT-SHIFT PLAY: (1) confirm the potion-stall win in /g/temp/s17_koga_potions.log (proves in-battle heal
-actuates + potions beat Koga). (2) Build the autonomous Fuchsia-Mart stock-up (extend prep_for_gym /
-head_to_gym with a mart-buy leg for gyms flagged potion-needy; Fuchsia Mart coords in recon_fuchsia_mart.py).
-(3) Re-run from koga_retry_kit.state toward 0x824 → she buys potions → wins Koga → bank koga_done_kit.
-FIXTURES (states/workshop/): koga_retry_kit.state (Fuchsia, Venusaur L53, badge 4, NO potions — the real
-autonomous start); koga_potions.state (same + injected potions — premise test); erika_done_kit.state
-(badge 4, pre-questline). recon_bagdump/partydump take a FULL path; recon_longrun takes a BASENAME.
-
-★ RESIDUAL (watchability, fix when convenient): Koga/maze-gym junior-spin — the invisible-wall maze leaves
-~4 juniors un-engageable; she tries each 4× then burns the 14-clear-round cap (~1500 log lines / minutes)
-before the leader, EVERY attempt. The cap correctly bails her to Koga so it's not fatal, but it's slow.
-Fix in _clear_junior_trainers (campaign.py:3182): a reachability pre-check — if no path exists to a tile
-adjacent to a junior, defer it in 1 try not 4 (the reachability-pre-check law), and/or remember the
-deferred set across blackout-retries.
-
-KEY FACTS: venv `.venv/Scripts/python.exe` (SINGLE-RUN LAW — recon_longrun auto-reaps via longrun.pid; kill
-`taskkill //F //IM python.exe //T`). recon_longrun arg1=BASENAME in workshop/, arg2=max_minutes. GOAL
-0x824=FLAG_BADGE_SOUL. Decision-counter FREEZES during a gym (watch growing log lines). Battle move-picker
-pol.choose_move scores max(power,1)*eff, NO STAB. Coverage table = campaign.py:248 _COVERAGE_MOVES.
-Whiff-breaker = battle_agent.py:~2509 + _any_healthy_reserve:2041. inject_potions.py <src.state> <dst.state>.
-
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 5 Koga (she reaches +
-fights him autonomously; loses on attrition; the fix is autonomous Fuchsia-Mart potion stock-up, premise
-proven). Pop-in = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = post-Koga (badges=5) at Fuchsia,
+heading for Saffron/Sabrina via the Tea→Silph chain. Pop-in = `python pokemon_agent/watch.py`.
