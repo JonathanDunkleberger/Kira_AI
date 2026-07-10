@@ -284,3 +284,339 @@ class StrategicPlanner:
 
 def _cap(s):
     return (s[:1].upper() + s[1:]) if s else s
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+# THE FORWARD-PLANNING TEAM BRAIN (mission-pivot 2026-07-09, Part B). Extends the reactive
+# StrategicPlanner above with a STANDING, PERSISTENT plan: she picks a balanced-6 archetype at the
+# start, then — via whole-game lookahead (union of EVERY future threat incl. the E4) — knows the single
+# highest-leverage next acquisition/evolve/teach/grind and does it PROACTIVELY, two towns before the wall.
+# Reads the deep KB (Part A). Mode-side; the ONLY voice interface is plan_note() (same firewall).
+# ══════════════════════════════════════════════════════════════════════════════════════════════════
+
+TEAM_PLANNER_ENABLED = os.getenv("POKEMON_TEAM_PLANNER", "1") == "1"
+# A planned slot becomes ACTIONABLE this many badges before its acquisition deadline (so she grabs a
+# keeper as soon as its location is reachable, not exactly at the wall). 1 = "due now or next badge".
+PLAN_DUE_WINDOW = int(os.getenv("POKEMON_PLAN_DUE_WINDOW", "1"))
+# Bounded, watchable grind: top-of-party must be within this of the next milestone or she's "underleveled".
+PLAN_UNDERLEVEL_SLACK = int(os.getenv("POKEMON_PLAN_UNDERLEVEL_SLACK", "0"))
+
+_GYM_SEQ = ["Brock", "Misty", "Lt. Surge", "Erika", "Koga", "Sabrina", "Blaine", "Giovanni"]
+_E4_SEQ = ["Lorelei", "Bruno", "Agatha", "Lance", "Champion"]
+
+
+def _load_json(name, log=print):
+    try:
+        with open(os.path.join(_HERE, "gamedata", name), encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        log(f"   [teamplan] !! KB load FAILED {name} ({e}) — LOUD; that layer degrades")
+        return {}
+
+
+class TeamPlanner:
+    """Standing forward-planning team brain. PERSISTENT plan-state (banked in the campaign bundle);
+    whole-game lookahead over the deep KB; emits ONE proactive PlanAction + a first-person voiced line.
+    Pure function of (party, badges, bag, dex) + the KB + the persisted plan-state — headless-safe.
+
+    Firewall: mode-side only. plan_note(state) is the sole voice seam. NEVER writes states/kira/.
+    """
+
+    def __init__(self, kb=None, log=print, soul=None):
+        self.log = log
+        self.team_plan = _load_json("frlg_team_plan.json", log)
+        self.rosters = _load_json("frlg_rosters.json", log)
+        self.evolutions = _load_json("frlg_evolutions.json", log)
+        self.learnsets = _load_json("frlg_learnsets.json", log)
+        self.tms = _load_json("frlg_tms.json", log)
+        self.encounters = _load_json("frlg_encounters.json", log)
+        self.strategy = (kb or load_strategy_kb(log=log)).get("threats") or {}
+        self.soul = soul or {}
+        self.archetypes = self.team_plan.get("archetypes") or []
+        self.state = None          # the persisted plan-state (set by init_plan / load)
+        self._last_sig = None
+
+    # ── archetype selection + plan init ───────────────────────────────────────────────────────────
+    def _starter_of(self, party):
+        lines = {"bulbasaur": "bulbasaur", "ivysaur": "bulbasaur", "venusaur": "bulbasaur",
+                 "charmander": "charmander", "charmeleon": "charmander", "charizard": "charmander",
+                 "squirtle": "squirtle", "wartortle": "squirtle", "blastoise": "squirtle"}
+        for m in party:
+            b = lines.get((m.get("species") or "").lower())
+            if b:
+                return b
+        return "bulbasaur"
+
+    def _pick_archetype(self, party):
+        branch = self._starter_of(party)
+        for a in self.archetypes:
+            if a.get("starter_branch") == branch:
+                return a
+        return self.archetypes[0] if self.archetypes else {"name": "none", "slots": []}
+
+    def init_plan(self, party, badges, soul=None):
+        """Choose the archetype (seeded by her REAL starter) and build the persistent slot-plan. SHE
+        chooses (soul may reorder favorites); the archetype is a menu, not a solver's dictation."""
+        if soul:
+            self.soul = soul
+        arch = self._pick_archetype(party)
+        slots = []
+        for s in arch.get("slots", []):
+            slots.append({
+                "role": s["role"], "target": (s.get("species") or [s.get("role")])[-1],
+                "line": s.get("line") or s.get("species") or [], "covers": s.get("covers") or [],
+                "acquire": s.get("acquire") or {}, "evolve": s.get("evolve") or [],
+                "teach": s.get("teach") or [], "why": s.get("why", ""),
+                "status": "planned",
+            })
+        self.state = {
+            "archetype": arch.get("name"), "starter_branch": arch.get("starter_branch"),
+            "slots": slots, "history": [],
+            "level_milestones": arch.get("level_milestones") or {},
+            "threat_answers": arch.get("threat_answers") or {},
+        }
+        self._recompute_status(party)
+        self.log(f"   [teamplan] plan initialised: archetype={arch.get('name')} "
+                 f"({sum(1 for s in slots if s['status'] != 'planned')}/{len(slots)} slots already fielded)")
+        return self.state
+
+    def ensure_plan(self, party, badges):
+        if self.state is None:
+            self.init_plan(party, badges)
+        else:
+            self._recompute_status(party)
+        return self.state
+
+    # ── live status: which slots are already fielded / evolved ────────────────────────────────────
+    def _recompute_status(self, party):
+        names = {(m.get("species") or "").lower() for m in party}
+        for s in self.state["slots"]:
+            line = [x.lower() for x in s["line"]]
+            target = s["target"].lower()
+            if target in names:
+                s["status"] = "evolved"
+            elif any(n in names for n in line):
+                s["status"] = "acquired"
+            else:
+                # keep a manually-set 'acquired' (e.g. a gift boxed) unless clearly absent
+                if s["status"] in ("planned",):
+                    s["status"] = "planned"
+                elif not any(n in names for n in line + [target]):
+                    s["status"] = "planned"
+
+    # ── whole-game lookahead ──────────────────────────────────────────────────────────────────────
+    def _upcoming_threats(self, badge_count, post_game=False):
+        if post_game:
+            return []
+        up = [g for i, g in enumerate(_GYM_SEQ) if i >= badge_count]  # gyms not yet beaten
+        return up + list(_E4_SEQ)                                     # + the whole E4 + Champion
+
+    def _serves(self, role, upcoming):
+        ta = self.state.get("threat_answers") or {}
+        return [t for t in upcoming if role in (ta.get(t, {}).get("answer_slots") or [])]
+
+    def _due(self, slot, badge_count):
+        by = (slot.get("acquire") or {}).get("by_badge")
+        return by is not None and by <= badge_count + PLAN_DUE_WINDOW
+
+    def _next_milestone(self, badge_count, post_game):
+        up = self._upcoming_threats(badge_count, post_game)
+        ms = self.state.get("level_milestones") or {}
+        for t in up:
+            if t in ms:
+                return t, ms[t]
+        return None, 0
+
+    # ── the assessment: the single highest-leverage next action ───────────────────────────────────
+    def assess(self, party, badges, bag=None, dex=None, post_game=False):
+        """Scan ALL remaining threats and return the ONE highest-leverage PlanAction + a WHY + voice.
+        kind ∈ catch_keeper | acquire_special | evolve | grind_to | teach_tm | develop_bench | on_track."""
+        if not TEAM_PLANNER_ENABLED:
+            return None
+        badge_count = badges if isinstance(badges, int) else len(badges or [])
+        self.ensure_plan(party, badge_count)
+        if post_game:
+            return {"kind": "on_track", "why": "post-game victory lap — the team is built",
+                    "voice": ""}
+        upcoming = self._upcoming_threats(badge_count, post_game)
+
+        # (1) DUE, MISSING keeper — the proactive heart. Earliest deadline, then highest multiplicity.
+        planned = [s for s in self.state["slots"] if s["status"] == "planned" and self._due(s, badge_count)]
+        if planned:
+            def leverage(s):
+                by = (s["acquire"] or {}).get("by_badge", 99)
+                serves = self._serves(s["role"], upcoming)
+                return (by, -len(serves))
+            planned.sort(key=leverage)
+            s = planned[0]
+            acq = s["acquire"] or {}
+            serves = self._serves(s["role"], upcoming)
+            sp = acq.get("species")
+            if sp:
+                return {"kind": "catch_keeper", "species": sp, "where": acq.get("where"),
+                        "slot": s["role"], "serves": serves,
+                        "why": f"{sp} -> {s['target']} answers {', '.join(serves) or 'the road ahead'}",
+                        "voice": self._voice_catch(sp, s, serves)}
+            return {"kind": "acquire_special", "species": s["target"], "where": acq.get("where"),
+                    "method": acq.get("method"), "slot": s["role"], "serves": serves,
+                    "why": f"{s['target']} ({acq.get('method')}) — {s['why']}",
+                    "voice": self._voice_acquire(s, serves)}
+
+        # (2) READY evolution — a stone-evo whose keeper is in hand (level-evos happen naturally).
+        ev = self._ready_evolution(party, bag)
+        if ev:
+            return ev
+
+        # (3) UNDERLEVELED for the next milestone — bounded, watchable grind.
+        threat, target = self._next_milestone(badge_count, post_game)
+        top = max((m.get("level", 0) for m in party), default=0)
+        if threat and top < target - PLAN_UNDERLEVEL_SLACK:
+            return {"kind": "grind_to", "level": target, "threat": threat, "top_level": top,
+                    "why": f"top mon L{top} < the L{target} I want for {threat}",
+                    "voice": (f"Before {threat} I want to be around L{target} — we're at L{top}, so a "
+                              f"little focused training, then straight in. No grinding for its own sake.")}
+
+        # (4) DUE coverage TM the target mon can learn (advisory — bag/coins unverified here).
+        tm = self._due_teach(party, badge_count)
+        if tm:
+            return tm
+
+        # (5) ACE-HEAVY bench (the L67-over-L15 smell) — develop the whole six.
+        lv = sorted(m.get("level", 0) for m in party)
+        if len(lv) >= 3 and (lv[-1] - lv[0]) >= BENCH_SPREAD_ALARM:
+            return {"kind": "develop_bench", "spread": lv[-1] - lv[0],
+                    "why": f"bench L{lv[0]} vs ace L{lv[-1]} — leaning on one carry",
+                    "voice": (f"My bench is dragging (L{lv[0]}) behind my ace (L{lv[-1]}) — the E4 has no "
+                              f"Center between five fights, so I need the WHOLE team pulling weight, not one star.")}
+
+        # (6) on track.
+        fielded = sum(1 for s in self.state["slots"] if s["status"] != "planned")
+        return {"kind": "on_track", "fielded": fielded, "why": f"{fielded}/6 slots fielded, levels on pace",
+                "voice": ""}
+
+    def next_action(self, party, badges, bag=None, dex=None, post_game=False):
+        return self.assess(party, badges, bag=bag, dex=dex, post_game=post_game)
+
+    def _ready_evolution(self, party, bag):
+        """A deliberate evolution that's READY: a stone-evo keeper in hand whose stone is available, or a
+        level-evo mon sitting past its evolution level (should have evolved — nudge). Returns action or None."""
+        bag = bag or {}
+        for m in party:
+            sp = (m.get("species") or "").lower()
+            rec = self.evolutions.get(sp)
+            if not rec:
+                continue
+            if rec.get("method") == "stone":
+                stones = [rec["stone"]] if rec.get("stone") else list((rec.get("options") or {}).keys())
+                have = [s for s in stones if bag.get(s)]
+                # only nudge if this species is one of our target lines
+                if have and self._is_target_line(sp):
+                    into = rec.get("into") or (rec.get("options") or {}).get(have[0], "its evolution")
+                    return {"kind": "evolve", "species": sp, "into": into, "method": "stone",
+                            "stone": have[0], "why": f"{sp} -> {into} with the {have[0]} I'm holding",
+                            "voice": (f"I've got the {have[0].replace('-', ' ')} — time to make my {sp} "
+                                      f"into {into}. Been planning this one.")}
+            elif rec.get("method") == "level" and m.get("level", 0) >= rec.get("level", 999):
+                # normally auto-evolves; if it hasn't, it's fine — don't spam. (informational, low value)
+                continue
+        return None
+
+    def _is_target_line(self, species):
+        s = species.lower()
+        for slot in self.state["slots"]:
+            if s in [x.lower() for x in slot["line"]] or s == slot["target"].lower():
+                return True
+        return False
+
+    def _due_teach(self, party, badge_count):
+        arch = next((a for a in self.archetypes if a.get("name") == self.state["archetype"]), {})
+        names = {(m.get("species") or "").lower() for m in party}
+        taught = {(h.get("tm"), h.get("species")) for h in self.state["history"] if h.get("kind") == "teach"}
+        for t in arch.get("teach_plan", []):
+            if (t.get("when_badge", 99) <= badge_count and t.get("to", "").lower() in names
+                    and (t.get("tm"), t.get("to")) not in taught):
+                return {"kind": "teach_tm", "tm": t["tm"], "move": t.get("move"), "mon": t.get("to"),
+                        "where": t.get("where"), "for": t.get("for") or [],
+                        "why": f"teach {t.get('move')} to {t.get('to')} for {', '.join(t.get('for') or [])}",
+                        "voice": (f"I should get {t.get('move','that move').replace('-', ' ')} onto my "
+                                  f"{t.get('to')} — it's my answer for {', '.join(t.get('for') or ['what''s ahead'])}. "
+                                  f"Grab it at {t.get('where','the shop')}.")}
+        return None
+
+    # ── voice templates (first-person, forward-looking, guide-literate kid) ────────────────────────
+    def _voice_catch(self, sp, slot, serves):
+        who = sp.replace("-", " ")
+        where = (slot["acquire"] or {}).get("where", "the route ahead")
+        if serves:
+            tail = (f"— that's my answer for {serves[0]}"
+                    + (f" AND {serves[1]}" if len(serves) > 1 else "") + " down the line")
+        else:
+            tail = "— rounding out the team"
+        return (f"Next on my list: catch an {who} around {where}. It grows into my {slot['target']} {tail}. "
+                f"Grabbing it now, before I need it.")
+
+    def _voice_acquire(self, slot, serves):
+        where = (slot["acquire"] or {}).get("where", "where it lives")
+        tail = f" — my {serves[0]} answer" if serves else ""
+        return (f"Time to pick up my {slot['target']} from {where}{tail}. "
+                f"This has been on the plan since the start.")
+
+    # ── history / persistence ─────────────────────────────────────────────────────────────────────
+    def on_acquire(self, species, party=None):
+        self.state["history"].append({"kind": "acquire", "species": species})
+        if party is not None:
+            self._recompute_status(party)
+
+    def on_evolve(self, species, into):
+        self.state["history"].append({"kind": "evolve", "species": species, "into": into})
+
+    def on_teach(self, tm, species):
+        self.state["history"].append({"kind": "teach", "tm": tm, "species": species})
+
+    def save(self, dir_path):
+        """Persist plan-state to the campaign bundle (dev-line only; NEVER states/kira/)."""
+        try:
+            os.makedirs(dir_path, exist_ok=True)
+            with open(os.path.join(dir_path, "team_plan_state.json"), "w", encoding="utf-8") as f:
+                json.dump(self.state, f, indent=1)
+            return True
+        except Exception as e:
+            self.log(f"   [teamplan] !! save FAILED ({e}) — LOUD")
+            return False
+
+    def load(self, dir_path):
+        try:
+            p = os.path.join(dir_path, "team_plan_state.json")
+            if not os.path.exists(p):
+                return False
+            with open(p, encoding="utf-8") as f:
+                self.state = json.load(f)
+            return True
+        except Exception as e:
+            self.log(f"   [teamplan] !! load FAILED ({e}) — LOUD; will re-init")
+            return False
+
+    # ── the voice seam (the ONLY interface into her ctx) ──────────────────────────────────────────
+    def plan_note(self, state):
+        """ONE forward-looking beat for the oracle ctx (or '' when nothing to do / post-game). Same
+        firewall + dedupe-log discipline as StrategicPlanner.plan_note."""
+        if not TEAM_PLANNER_ENABLED:
+            return ""
+        try:
+            party = state.get("party") or []
+            if not party:
+                return ""
+            act = self.assess(party, state.get("badge_count", 0),
+                              bag=state.get("bag"), dex=state.get("dex_caught"),
+                              post_game=bool(state.get("post_game")))
+            voice = (act or {}).get("voice", "")
+            if voice:
+                sig = (act.get("kind"), act.get("species") or act.get("threat") or act.get("mon"))
+                if sig != self._last_sig:
+                    self._last_sig = sig
+                    self.log(f"   [teamplan] next action: {act['kind']} "
+                             f"({act.get('why','')}) — folding a forward-plan beat")
+            return voice
+        except Exception as e:
+            self.log(f"   [teamplan] plan_note err {e} (LOUD; skipping this tick)")
+            return ""
