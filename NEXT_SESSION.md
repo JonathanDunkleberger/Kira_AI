@@ -33,19 +33,30 @@ NEW FRONTIER: BADGE 3 (Lt. Surge) gym ENTRY — she has Cut but can't field-Cut 
    returns "stuck" → shift-11 fix runs `_gym_gate_probe(gym)` (which scans for the tree, walks adjacent, and
    `clear_obstacle('cut')` if `can_use('cut')`). can_use SHOULD be True (Cascade badge ✓ + Venusaur knows Cut
    — she used it in battle). BUT the field-cut never actuates (no "auto use_cut"/"TIMBER" log after HM01).
-   DIAGNOSIS: after 2 gym-stucks the GYM-INTERIOR PING-PONG BREAKER (campaign.py ~8760) prunes head_to_gym
-   STRUCTURALLY on the Vermilion map — she's then stranded at the NORTH of Vermilion (24,0), ~24 tiles from
-   the tree at (19,24), oscillating Vermilion↔Route 6. `_gym_gate_probe`/`_obstacle_probe` (campaign.py
-   7088/7106) needs her walked ADJACENT to the tree to scan+cut, but the structural-park keeps her away, so
-   the cut never fires. Likely ALSO an `_obstacle_probe` reachability issue (the yard fence: the code comments
-   at 7098-7103 warn the Grid is optimistic about fences + a distance-first walk drifts to the BEACH).
-   NEXT-SHIFT PLAY (self-help arsenal, rule 15): (a) GRAB A FRAME of the Vermilion gym yard (`_gym_gate_probe`
-   run with a frame dump) to SEE the tree/fence/door geometry — is she able to stand adjacent to (19,24)?
-   (b) make `_gym_gate_probe` fire BEFORE the structural-park prunes head_to_gym (run it on the FIRST stuck,
-   or exempt the gym-approach from the ping-pong park when a Cut tree gate is recognized + Cut is owned);
-   (c) verify `can_use('cut')` actually returns True post-HM01 (field_moves.py:178) — maybe it checks a
-   flag/badge that reads False; (d) if `_obstacle_probe`'s walk-to-adjacent fails, fix the standing-tile BFS
-   for the gym yard. Once the tree is cut, she enters → beat_gym clears juniors → Surge → BADGE 3.
+   ★ DEFINITIVE DIAGNOSIS (s17_surge.log, `_obstacle_probe` instrumented — commit 8277227):
+   - FIRST approach (before Cut): probe WORKS PERFECTLY — `OBSTACLE-PROBE: at (19,23), door (14,25), scanned
+     1 object [((19,24), 95)]` → `tree@(19,24) stand=(19,23) bfs_reachable=True` → `walked to stand ->
+     arrived=True; can_use(cut)=False` (no Cut yet — correct) → opens the HM-Cut questline. So scan + walk +
+     the field-Cut actuator are all FINE **when she's adjacent to the tree.**
+   - POST-Cut (after HM01): `OBSTACLE-PROBE: at (29,18), door (14,25), scanned 0 field object(s): []` — she's
+     parked at (29,18), ~16 tiles from the tree at (19,24); `scan_field_objects` only loads objects within a
+     radius, so it returns EMPTY → the probe finds nothing to cut → no field-Cut fires. THE ROOT: she never
+     gets close enough to the tree post-Cut.
+   - `_gym_gate_probe` phase B (campaign.py ~7154) is SUPPOSED to reposition toward the door + rescan, but it
+     FAILS to close the distance from (29,18): the walk to within-d-of-door either bonks the tree/fence (the
+     Grid is optimistic about static obstacles until bonked, 7098-7103) or the approach is genuinely blocked,
+     so she stays at (29,18) across all 4 post-Cut probe calls. On the FIRST approach beat_gym's
+     enter_warp(gym.door) parked her AT (19,23) (adjacent); post-disembark she enters Vermilion from a
+     different point and parks far. `can_use('cut')` is NOT the problem (proven True-path exists; the first
+     approach's False was just the pre-HM01 state).
+   NEXT-SHIFT PLAY (self-help arsenal, rule 15): (a) GRAB A FRAME of the Vermilion gym yard at her (29,18)
+     parked spot to SEE the fence/tree/door geometry — WHY can't she walk from (29,18) to (19,23)? (b) fix
+     `_gym_gate_probe` phase B to actually reach a scan-adjacent tile: it KNOWS the tree is near the door
+     (recognized at (19,24) on the first approach — cache that coord) → walk toward the TREE's cached coord
+     (not just "within d of door"), and/or make the reposition more aggressive / bonk-aware so she reaches
+     (19,23). (c) alternatively, cache the tree coord from the first-approach scan and, post-Cut, walk
+     DIRECTLY to a standing tile beside it before scanning. Once she's adjacent, the cut is PROVEN to fire
+     (first-approach diagnostic) → she enters → beat_gym clears juniors → Surge → BADGE 3.
 
    ALSO NOTED (not blocking, cosmetic-ish): she OVER-GRINDS after getting strong — Venusaur L39→41 via the
    proactive-bench + `grind(lead+2)` treadmill while stuck at the gym. Once the gym-entry is unblocked this
