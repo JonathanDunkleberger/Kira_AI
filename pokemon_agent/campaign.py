@@ -4873,6 +4873,28 @@ class Campaign:
             party = state.get("party") or []
             if not party:
                 return None
+            # RIVAL/GYM GAUNTLET OVERRIDE (2026-07-10, NIGHT SHIFT 16 — the real S.S. Anne Gary livelock).
+            # A 3+-mon trainer wall (Gary on the S.S. Anne, later Tower/Silph rivals, multi-mon gym leaders)
+            # is a TEAM-STRENGTH wall that fodder-bench-leveling CANNOT crack: fielding weak mons to the foe's
+            # LEAD level (underlevel_target ≈ foe+1 ≈ L19) just gets them swept one at a time, while the ACE —
+            # the only thing that can actually win — sits idle. The switch-armed default took that fodder path,
+            # so after a Gary loss she ground the bench to L19, "readiness" crossed on the team FLOOR, she trekked
+            # back at ace L30, and lost again → the 12-shift livelock (s15_surge.log: fodder to L13/L19, ace
+            # stuck L30, never the proven Venusaur L32). FIX: for any multi-mon trainer wall, ALWAYS take the
+            # ACE-OVERPOWER target (level the ace to bulldoze) regardless of the in-battle switch. Self-
+            # calibrating via overpower_target (= ace-level-at-loss + OVERPOWER_MARGIN). For the 4+-mon RIVAL
+            # specifically, floor at POKEMON_RIVAL_PREP_LEVEL (32 = the proven Venusaur threshold) so a thin/low
+            # my_level read can't undershoot the evolution spike. General per rule 14; the executor
+            # (grind_weak_members) mirrors this override to field the ACE, not fodder.
+            _wr = self.strat.active_wall_rec()
+            if _wr and _wr.get("is_trainer") and (_wr.get("size") or 1) >= 3:
+                t = self.strat.overpower_target() or 0      # ACE-OVERPOWER for the gauntlet
+                if (_wr.get("size") or 0) >= 4:             # a 4+-mon RIVAL — guarantee the Venusaur L32 spike
+                    t = max(t, int(os.environ.get("POKEMON_RIVAL_PREP_LEVEL", "32") or "32"))
+                if not t:
+                    return None
+                ace = max(m["level"] for m in party)
+                return t if ace < t else None
             if not battle_agent.GRIND_SWITCH_ENABLED:
                 t = self.strat.overpower_target()           # ACE-OVERPOWER (switch gated)
                 if not t:
@@ -4939,6 +4961,20 @@ class Campaign:
         # ace-overpower fallback. (1)/(2) BOTH field the weak member (the real team-building); (3) only
         # levels the ace (can't fix a type-resisted wall). Prefer (1) if armed, else (2) if enabled.
         use_switch = battle_agent.GRIND_SWITCH_ENABLED
+        # RIVAL/GYM GAUNTLET OVERRIDE (NIGHT SHIFT 16 — mirrors _prep_team_target). A 3+-mon trainer wall is
+        # beaten by an OVERPOWERING ACE, never by fielding fodder (which gets swept one-at-a-time, and — with
+        # the flaky in-battle participation switch that "did not confirm" all night — wedges). So for a
+        # gauntlet, level the ACE to `target` (the s16 gauntlet target: Venusaur L32 for the S.S. Anne rival)
+        # regardless of the switch flag, fixing the s15 off-anchor loop where fodder crept to L19 while the ace
+        # stalled at L30. General per rule 14 (Gary/Surge/Tower/Silph). NOTE (soul-debt #3 team-building): the
+        # bench stays thin under this path — the real fix is a reliable in-battle switch (Tier-1 #5); until
+        # then, ace-overpower is the reliable credits-forward play.
+        _wr = self.strat.active_wall_rec()
+        if _wr and _wr.get("is_trainer") and (_wr.get("size") or 1) >= 3:
+            self._restore_ace()                              # ace in slot 0
+            log(f"   GRIND-OVERPOWER (gauntlet): a {_wr.get('size')}-mon trainer wall can't be cracked by "
+                f"fielding fodder — leveling the ACE to L{target} to overpower it; levels now {self._party_levels()}")
+            return self.grind(target)
         if not use_switch and not SOLO_WEAK_GRIND:
             self._restore_ace()                              # ace in slot 0
             log(f"   GRIND-OVERPOWER: bench-leveling needs the (gated) in-battle switch — instead leveling "
