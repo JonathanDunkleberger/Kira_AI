@@ -1,65 +1,86 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 2) — READ FIRST
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 3) — READ FIRST
 
-## FRONTIER: badge-4 (Erika/Celadon). Flash dex-10 gate MECHANICS CLEARED+VERIFIED.
-## Open: badge-4 APPROACH routing (Rock-Tunnel path) has run-to-run variance.
+## FRONTIER: badge-4 (Erika/Celadon). The ENTIRE Flash gate + the Celadon APPROACH routing solved
+## this shift (5 commits). Verifying the full approach e2e (Rock Tunnel -> Celadon) in run8.
+**BOOT (fresh):** `.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py surge_done.state 35`
+(surge_done.state = badge 3 @ Vermilion, dex 5, in states/workshop/.)
 
-**BOOT (fresh):** `.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py surge_done.state 25`
-**BOOT (post-Flash fixture, at Viridian):** `... recon_longrun.py flash_done.state 20` (banked this shift).
-(rebuild states/workshop/*.state + sidecars from `G:/temp/longrun/banked_GOAL/` (surge) or the STALL
-bank if pruned.)
+## ✅ SHIPPED + VERIFIED THIS SHIFT (5 commits: c99cbc6, c4fe551, 06d96be, 47f6add, 7b86de8)
+The badge-4 Flash gate AND the Celadon approach are now clean. Blockers found+fixed+verified:
 
-## ✅ SHIPPED + VERIFIED THIS SHIFT — the Flash dex-10 chain (commits d43c5d7, 55dc423, 2387af7)
-Flash (HM05) needs OWNED>=10; badge-3 fixture boots dex 5. Verified end-to-end in `logs/debug/shift2_cross.log`
-(dex 5->10 -> Diglett's Cave (3,29)->(1,38)->(3,20) -> aide gatehouse -> TEACH flash -> flash_done -> TAUGHT):
-1. **Route-6 leg-catch** (`_flash_errand` PHASE 1, `_FLASH_CATCH_LEGS`={Route 6}). Route 9/10 EXCLUDED — Route
-   10's west exit is NPC-pinched at (7,6) → catching there = travel oscillation. Per-leg exhausted-memo.
-2. **Dex-gate full-party override** (`_dex_catch_all` + catch-judgment ~campaign.py:4057): NEW species is a
-   must-catch even at party 6 (it BOXES, dex ticks). Verified: "team's full ... box it for the dex, it counts."
-3. **Vermilion ball restock** (PHASE 1, cur==VERMILION): buys up to 12 balls when dex<10. Verified.
-4. **Route 11 is NEVER a dex-stall** — from Route 11 always cross the cave (guard excludes it + PHASE-2 memo).
+1. **Return-cross enters the cave + target-directed cross (c99cbc6).** shift-2's return called
+   `_cross_cave(None,..)` while inside the aide gatehouse -> never entered the cave. FIX: travel the
+   cave-exit tile (17,12) (travel CUTS the regrown (18,26) tree enter_warp's pre-check sees as a wall),
+   enter mouth (17,11), and made `_cross_cave` TARGET-DIRECTED (exit only via a warp whose dest IS
+   out_map, else progress via cave warps). Verified recon_returncross.py.
 
-## 🔨 COMMITTED-BUT-UNVERIFIED THIS SHIFT — post-Flash return-cross (commit 391fdd3)
-Post-teach she was dumped at the Route 2 aide (a SW dead-pocket) and forward-drive PING-PONGED
-Viridian<->Route 2 to a STALL (the billed Celadon road-head is VERMILION, across the Diglett's Cave
-warp-maze the world-graph won't route). FIX: the instant Flash is learnt, the errand re-crosses the cave
-EAST to Route 11 -> Vermilion, where the billed Celadon road picks up (VERIFIED that road works from
-Vermilion at boot: "ROAD to Celadon City: on Vermilion City — billed leg north toward Route 6"). **NOT yet
-exercised end-to-end** — the one verification re-run (shift2_return.log) STALLED EARLIER at Route 9 (see
-below) before reaching the teach, so the return-cross never fired. RE-RUN to exercise it.
+2. **Route-11 catch LIVELOCK killed (c4fe551).** Catch-judgment SKIP FOUGHT every dupe -> PP famine ->
+   battle 'stuck' -> within-tick freeze-spin (run4: 34 stuck). FIX: FLEE dupes during the dex errand
+   (_dex_catch_all) + a STUCK_CAP(6) circuit breaker in catch_one (rule 18). Verified run5: 0 stuck,
+   80 clean flees, dex 5->10, teach.
 
-## THE OPEN BLOCKER — badge-4 APPROACH routing variance (the successor's #1 job)
-The billed Celadon road (roads["Celadon City"]) is: Vermilion -> Route 6 (Underground Path pass, bypasses
-Saffron) -> Route 5 -> Cerulean -> Route 9 (Cut tree at its mouth) -> **Route 10 -> THROUGH ROCK TUNNEL
-(Flash-gated; the `_road_move` gate-check arms the flash errand HERE)** -> Lavender -> Route 8 (2nd
-Underground Path) -> Route 7 -> Celadon. So Flash IS required and the errand engages at the Route-10 Rock
-Tunnel gate. BUT across runs the APPROACH is unstable:
-- shift2_cross.log: reached Route 10 -> flash errand engaged -> full chain -> TAUGHT. ✅
-- shift2_return.log: STALLED at Route 9 (3,27)@(20,13), dex 5, flash errand NEVER engaged, head_to_gym
-  PRUNED from options. Early travel WEDGES at map (18,0) (an Underground Path interior — the Route 6 hut
-  warp (19,13)->(1,32)) x8, then couldn't complete Route 9 -> Route 10 east edge (Cut tree at Route 9's
-  mouth? field_clear may not have fired). → no_gym_route → stall.
-- shift2_return2.log: reached Route 10 -> errand engaged -> dex 5->10 -> WARP into Diglett's Cave -> then
-  WEDGED inside the cave (map (1,37)@(53,46)): repeated "battle outcome=stuck" on the cave's wild
-  Diglett/Dugtrio encounters + low HP wanting heal but options only ['heal','leave_building'] (can't route
-  out of the cave to a Center). A cave-crossing fragility shift2_cross didn't hit (variance).
-DIAGNOSE (the badge-4 stretch has SEVERAL variance-driven fragilities — Flash MECHANICS are solid, the
-surrounding NAVIGATION is fragile): (a) head_to_gym intermittently fails Cerulean->Route 9->Route 10 (Cut
-tree at Route 9's mouth via `field_clear`; the Underground Path (18,0) wedge); (b) Diglett's Cave crossing
-can wedge on "battle outcome=stuck" wild encounters + heal-trapped-inside. Harden BOTH so the errand runs
-clean every run, then the (verified) flash chain + (committed) return-cross carry her to Celadon. TIP: boot
-`flash_done.state` to test the post-Flash Viridian routing / return-cross WITHOUT the ~12-min approach.
+3. **Return-cross escapes the aide LEDGE TRAP (06d96be).** The aide gate (15,2) is a pass-through:
+   SOUTH door (7,10)->(18,47) drops into a pocket walled from the cave by a ONE-WAY LEDGE; NORTH door
+   (7,1)->(18,41) reaches the mouth. FIX: seek the north pocket (exit north; re-enter (18,46)+exit north
+   if dumped south). Verified recon_returnfull.py + run6 (real run: north_pocket=True -> cave -> Route 11).
 
-## THEN: Erika (badge 4, GOAL flag 0x823 Rainbow). grass/poison, ace vileplume L29. Her spearow (flying)
-is an OWNED type answer, just underleveled (L15) — `prep_for_gym` grinds it, NO catch needed.
+4. **Celadon route: Rock Tunnel not the Snorlax (47f6add).** From Vermilion the graph warp-route sent
+   her EAST to Route 12 (Snorlax-blocked pre-Flute) -> wedge. FIX: `_story_gate_avoid` avoids the
+   Flute-gated maps (Route 12 (3,30), Route 16 (3,34)) until ITEM_POKE_FLUTE(350) is owned -> falls to
+   the billed road (north via Route 6). Verified run7: from Vermilion she routes NORTH to Route 6.
 
-## KEY FACTS / TOOLS
-- venv python: `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill predecessors before re-run).
-- Fixtures: surge_done.state (badge 3 @ Vermilion, dex 5), flash_done.state (post-Flash @ Viridian, dex 10).
-- `recon_flash_errand.py [state] [min]` drives _flash_errand tight; `FLASH_INJECT_BALLS=N` isolates balls.
+5. **Bypass guard-blocked Saffron (7b86de8).** The graph then drove her into the Route-6<->Saffron
+   gatehouse (18,0) and oscillated on the guard-blocked (4,1) warp toward Saffron (3,10). FIX: in the
+   warp-route, avoid Saffron unless it's the destination gym (badge 6) -> falls to the billed road's
+   Underground-Path 'pass' leg (Route 6 -> Route 5). Verifying run8.
+
+## ✅ VERIFIED e2e (shift3_run8.log) — the full Celadon APPROACH up to the Rock Tunnel mouth
+run8 confirmed the WHOLE approach clean: dex sweep -> teach -> return-cross -> Vermilion -> NORTH
+Route 6 -> **Underground Path (warp (19,13)->(1,32), BYPASSING Saffron)** -> Route 5 -> Cerulean ->
+Route 9 -> Route 10 (Rock Tunnel mouth), where she GRINDS with purpose (raised the whole bench floor
+to L15, then Venusaur L35->L39 pre-gym). 0 stuck battles the whole run. The Snorlax AND Saffron fixes
+both fire on the real post-Flash leg. So the badge-4 Flash gate + the Celadon approach routing are
+DONE.
+
+## 🔴 THE NEW FRONTIER: the ROCK TUNNEL crossing (map (1,81)/(1,82)) -> Lavender -> Celadon
+She reaches Route 10 and preps, but the look-ahead had NOT yet entered Rock Tunnel at handoff (still
+grinding to L39). Rock Tunnel is a DARK cave (Flash IS taught now) with a trainer gauntlet; the
+Champion crossed it but THIS lineage hasn't re-exercised it. Re-run `recon_longrun surge_done.state
+35` (or boot G:/temp/longrun/banked_ROCKTUNNEL — Champion @ Route 10 (3,4), but Champion party/Flute)
+and watch the Rock Tunnel entry + crossing. Grep: `Rock Tunnel|Lavender|dark|hm_blocked|no_gym_route|
+Celadon City|==== OUTCOME|STALL`. If it wedges entering/crossing the tunnel, that's the blocker to
+fix. AFTER Rock Tunnel: Lavender -> Route 8 (2nd Underground Path, another Saffron bypass — the fix
+covers it) -> Route 7 -> Celadon -> Erika.
+
+## THEN: Erika (badge 4, GOAL flag 0x823 Rainbow). grass/poison, ace vileplume L29. Her spearow
+(normal/flying, L15) is the OWNED type answer — `prep_for_gym` grinds it, NO catch needed. She also
+picked up oddish/pidgey/meowth in the dex sweep (bench options).
+
+## GATED-SHORTCUT PATTERN (durable lesson — the shift's meta-finding)
+head_to_gym tries the world-graph WARP-ROUTE (`_next_step_rideable`) BEFORE the billed-road fallback,
+and the graph is CAPABILITY/GATE-BLIND — it routes through story-gated shortcuts (Snorlax Route 12,
+guard-blocked Saffron) the billed road deliberately bypasses. Fix pattern = add the gated map to the
+warp-route `avoid` set (conditioned on the key item / not-the-destination) so it falls to the billed
+road. If MORE gated shortcuts surface, extend `_story_gate_avoid` / the Saffron-style guard. A future
+GENERAL fix: make `_next_step_rideable` skip any hop into a KB-gated map whose gate is unmet.
+
+## TOPOLOGY (durable, learned this shift)
+- Diglett's Cave: R11 (3,29) --(6,7)--> (1,38) --(6,4)--> (1,37) --(3,3)/(82,71)--> (1,36) --(4,6)--> R2
+  (3,20)@(17,12). R2 cave mouth = (17,11)->(1,36).
+- R2 aide gate (15,2): NORTH door (7,1)->(18,41) [reaches cave]; SOUTH doors (7,10)/(6,10)/(8,10)->
+  (18,46/47) [ledge-sealed]. Aide (HM05) inside (15,2). One cut tree on R2 at (18,26).
+- Saffron = (3,10); Route 6<->Saffron south gatehouse = (18,0), its Saffron warp (4,1) is guard-blocked.
+- Route N = map (3, 18+N). Route 12=(3,30), Route 16=(3,34).
+
+## TOOLS ADDED (fast, canonical-safe, read-only bank probes)
+`recon_returncross.py [bank]`, `recon_gate_exit.py`, `recon_returnfull.py` — return-cross/gate probes.
+
+## KEY FACTS
+- venv python: `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill predecessors first).
+- recon_longrun stages ALL persistence (STAGE redirect) — canonical Champion save NEVER touched.
 - states/campaign = SHERPA CANONICAL (Champion, untouchable). states/workshop = scratch. Commit per fix.
-- Canonical Champion save already rolled credits — NEVER clobber. recon persistence STAGE-redirected.
 
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Fresh-run look-ahead crosses bedroom -> badge 3
-(Surge) -> clears the badge-4 Flash dex-10 gate (dex 5->10, cave, TEACH flash — verified). Frontier =
-stabilize the Rock-Tunnel APPROACH routing (Route 9->10) so the errand engages every run, then Celadon ->
-Erika. Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Fresh-run look-ahead now crosses bedroom ->
+badge 3 -> the WHOLE Flash gate (dex sweep+cave+teach+return, fixed+verified) -> the Celadon approach
+routing (Rock Tunnel not Snorlax, bypass Saffron — fixed, verifying run8). Frontier = confirm she
+reaches Celadon/Erika e2e (run8), then badge 4. Pop-in (Sherpa) = `python pokemon_agent/watch.py`.
