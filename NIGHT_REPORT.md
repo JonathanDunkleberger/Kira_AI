@@ -117,3 +117,4 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 14 09:08->09:39 (31m): 2 commit(s), frontier ADVANCED
 - shift 15 09:40->09:44 (4m): 0 commit(s), frontier ADVANCED
 - shift 16 09:45->09:49 (4m): 0 commit(s), frontier ADVANCED
+- shift 17 survey: BADGE 4 (Erika) VERIFIED+banked (coverage-teach-for-depth, first-try win) → Scope/Tower/Flute/Snorlax questline replays autonomously to Fuchsia → BADGE 5 (Koga) WON via whiff-breaker fix (foe-evasion mis-read, committed 43cd243) + potion-stall (premise PROVEN, koga_done_kit banked). 4 commits. | frontier: autonomous Fuchsia-Mart potion stock-up before Koga (last-mile for unaided badge 5), then BADGE 6 Sabrina | needs eyes: none — Koga win used INJECTED potions; the mart-buy wiring is the only gap to a fully unaided erika→koga run (recon_fuchsia_mart.py already mapped the mart)
