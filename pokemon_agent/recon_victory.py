@@ -669,16 +669,23 @@ def main():
         return 1
     deadline = time.time() + 3600
 
-    # ── PHASE 0: TEACH EARTHQUAKE (TM26 -> Venusaur slot 0, over Secret Power) ─
-    have = st.read_party_moves(b, 0) or []
-    if MOVE_EQ in have:
-        L("   EQ already known — skipping teach")
+    # ── PHASE 0: TEACH EARTHQUAKE (TM26 -> Venusaur, over Secret Power) ─
+    # NS10: target Venusaur BY SPECIES (3), not a hardcoded slot 0. A bench-grind
+    # start leaves Lapras/Kadabra leading and Venusaur at slot 5; teaching EQ into
+    # slot 0 would waste the TM AND risk overwriting Kadabra's Psychic (the Agatha
+    # answer). Find Venusaur's real slot; if it isn't in the party, skip the teach.
+    eq_slot = next((s for s in range(6) if st.read_party_species(b, s) == 3), None)
+    have = (st.read_party_moves(b, eq_slot) or []) if eq_slot is not None else []
+    if eq_slot is None:
+        L("   EQ teach SKIPPED — Venusaur (species 3) not in party")
+    elif MOVE_EQ in have:
+        L(f"   EQ already known (Venusaur slot {eq_slot}) — skipping teach")
     else:
         forget_idx = 3 if 290 in have else None      # Secret Power's slot (run logs)
         teacher = ht.TeachFlow(camp, log=lambda m: print(m, flush=True))
-        r = teacher.teach("surf", 0, forget_idx=forget_idx,
+        r = teacher.teach("surf", eq_slot, forget_idx=forget_idx,
                           item_override=TM26_ITEM, move_override=MOVE_EQ)
-        after = st.read_party_moves(b, 0) or []
+        after = st.read_party_moves(b, eq_slot) or []
         L(f"   [teach-eq] -> {r}; moves now {after} (EQ={'YES' if MOVE_EQ in after else 'NO'})")
         drain(key="B")
         settle(60)
@@ -898,7 +905,7 @@ def main():
 
     L(f"   INDIGO BANKED: pos {tv.map_id(b)}@{tv.coords(b)} | lead {lead_frac():.0%} | "
       f"battles {n_battles[0]} | money ${camp.money()} | "
-      f"EQ={'YES' if MOVE_EQ in (st.read_party_moves(b, 0) or []) else 'NO'}")
+      f"EQ={'YES' if (eq_slot is not None and MOVE_EQ in (st.read_party_moves(b, eq_slot) or [])) else 'NO'}")
     snap("80_final")
     _stage_save("indigo_reach")
     _stage_continuity()
