@@ -3309,7 +3309,8 @@ class Campaign:
         # best-effort; a crash here never blocks the gym (LOUD). Skipped when the team already has an answer.
         if GYM_COVERAGE_TEACH and not r["has_type_answer"]:
             try:
-                self._teach_gym_coverage(gym, self.planner.threats.get(gym.name) or {})
+                _cvr = self._teach_gym_coverage(gym, self.planner.threats.get(gym.name) or {})
+                log(f"   GYM-PREP [{gym.name}]: coverage-teach dispatch -> {_cvr}")
             except Exception as e:
                 log(f"   GYM-PREP [{gym.name}]: coverage-teach dispatch crashed ({e}) (LOUD)")
         # 2) GRIND — bring the team up to the KB-derived level target (ace level + margin, escalated on loss)
@@ -3344,16 +3345,30 @@ class Campaign:
                                for s in range(pc))
         ace_sp = st.read_party_species(self.b, ace_slot)
         moves = st.read_party_moves(self.b, ace_slot)
-        # does the ace already hit these types neutral-or-better with a DAMAGING move? then nothing to do.
+        # COVERAGE DEPTH (2026-07-10, the Erika PP-FAMINE wall — the true badge-4 root): count the ace's
+        # NEUTRAL-OR-BETTER DAMAGING moves vs this gym, not just "does one exist". The original guard
+        # skipped the instant ONE existed — but a mono-type gym's JUNIOR GAUNTLET famines a lone neutral
+        # move: Venusaur's only neutral move here is Tackle (35 PP), which is the BEST pick vs every
+        # grass/poison junior, so she spams it through the gauntlet, it drains to 0 PP before the leader,
+        # and choose_move then falls to RESISTED Razor Leaf (x0.25) and she blacks out (verified: attempt-1
+        # loss on Razor Leaf x0.25 vs victreebel; the retry only wins because whiteout REFILLS PP and the
+        # beaten juniors stay beaten). A real player carries TWO ways to hit the wall. So skip only when she
+        # already has >=2 neutral damaging moves (genuine PP depth); with 0 or 1, teach a bag coverage move
+        # (Cut → Tackle+Cut = 65 PP of neutral coverage) so she reaches the leader with PP to spare.
+        # Self-limiting: after the teach she has 2 neutral moves, so a re-check returns have_coverage.
         best_have = 0.0
+        neutral_dmg = 0
         for m in moves:
             if not m:
                 continue
             mt, mp = st.move_info(self.b, m)
             if (mp or 0) <= 0:
                 continue
-            best_have = max(best_have, pol.effectiveness(mt or "normal", deftypes))
-        if best_have >= 1.0:
+            eff_m = pol.effectiveness(mt or "normal", deftypes)
+            best_have = max(best_have, eff_m)
+            if eff_m >= 1.0:
+                neutral_dmg += 1
+        if neutral_dmg >= 2:
             return "have_coverage"
         # find the best bag coverage move the ace CAN learn and that improves on its resisted offense.
         cands = []
@@ -3376,9 +3391,11 @@ class Campaign:
             if eff < 1.0:                                    # still resisted — no improvement
                 continue
             cands.append((eff, power, bool(hm_key), item, hm_key, tm_no, move_id, mtype))
+        depth_only = best_have >= 1.0            # she HAS a neutral move — this teach is for PP depth
         if not cands:
-            log(f"   GYM-PREP [{gym.name}]: ace all-resisted (best x{best_have:g}) but NO learnable "
-                f"coverage TM/HM in bag — walking in as-is (LOUD)")
+            log(f"   GYM-PREP [{gym.name}]: ace {'thin on neutral coverage' if depth_only else 'all-resisted'} "
+                f"(best x{best_have:g}, {neutral_dmg} neutral dmg move(s)) but NO learnable coverage TM/HM "
+                f"in bag — walking in as-is (LOUD)")
             return "no_candidate"
         # best: highest eff, then power, then prefer an HM (proven single-turn actuation)
         cands.sort(key=lambda c: (c[0], c[1], c[2]), reverse=True)
@@ -3396,8 +3413,12 @@ class Campaign:
         mon = st.SPECIES_NAME.get(ace_sp, f"slot {ace_slot}")
         label = hm_key.title() if hm_key else f"TM{tm_no:02d}"
         eff_word = "super-effective" if eff >= 2 else "neutral"
-        self.on_event(f"{gym.name}'s type wall shrugs off everything I've got — teaching {mon} a "
-                      f"{mtype} move so I actually land hits.", kind="gym", tier=2)
+        if depth_only:
+            self.on_event(f"one move won't last {gym.name}'s whole gym — teaching {mon} {label} so I "
+                          f"don't run dry on the leader.", kind="gym", tier=2)
+        else:
+            self.on_event(f"{gym.name}'s type wall shrugs off everything I've got — teaching {mon} a "
+                          f"{mtype} move so I actually land hits.", kind="gym", tier=2)
         log(f"   GYM-PREP [{gym.name}]: COVERAGE-TEACH {label} ({mtype}, x{eff:g} {eff_word}) -> {mon} "
             f"slot {ace_slot}, forgetting move-idx {forget_idx}")
         tf = ht.TeachFlow(self, log=log, on_event=self.on_event)
