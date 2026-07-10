@@ -107,7 +107,17 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # the fix is a switch OUT+back to clear the debuff. Bounded per battle so it can never switch-loop.
 WHIFF_BREAKER_ENABLED = os.getenv("POKEMON_WHIFF_BREAKER", "1") == "1"
 WHIFF_SPIRAL_AT = int(os.getenv("POKEMON_WHIFF_SPIRAL_AT", "3"))          # consecutive misses -> reset
-WHIFF_MAX_RECOVERIES = int(os.getenv("POKEMON_WHIFF_MAX_RECOVERIES", "6"))  # accuracy-resets per battle
+# FOE-EVASION CORRECTION (2026-07-10, night shift 17 — the BADGE-5 KOGA ROOT CAUSE). The switch-out reset
+# only clears OUR accuracy debuff (Sand-Attack et al.); it CANNOT reset the FOE's evasion (Minimize/
+# Double-Team) — Koga's Muk minimizes, every Cut whiffs, and the breaker mis-read it as a self-debuff and
+# repeatedly benched L52 Venusaur (the sole carry) for L13 fodder that instantly fainted -> whole bench
+# fed to death -> PP famine -> blackout, on repeat (4 straight Koga losses). TWO guards: (a) a reset is
+# worth it only when there's a reserve WORTH benching the ace for — never sacrifice the carry for a mon far
+# below its level (solo-carry -> fight on: a miss still lands ~1-eva% and the ace had Muk at 9/130 before
+# the switch threw it). (b) Cap resets at 2: a true self-debuff clears on the FIRST switch; if whiffs resume
+# it's foe-evasion and more switches only feed the bench. Revert: POKEMON_WHIFF_MAX_RECOVERIES=6.
+WHIFF_MAX_RECOVERIES = int(os.getenv("POKEMON_WHIFF_MAX_RECOVERIES", "2"))  # accuracy-resets per battle
+WHIFF_RESERVE_LEVEL_BAND = int(os.getenv("POKEMON_WHIFF_RESERVE_BAND", "15"))  # reserve must be within N lv
 # PARTICIPATION-XP GRIND SWITCH (Task B fix — the autonomous underlevel cure). When grinding the weak
 # team, the weak mon leads (so it's "sent out" and eligible for XP) but is ONE-SHOT before it can earn
 # any — so it gains nothing while the ace mops up and takes the XP (the live look-ahead proved this).
@@ -2039,11 +2049,21 @@ class BattleAgent:
                    if m.get("id", 0) and m.get("power", 0) > 0)
 
     def _any_healthy_reserve(self, state):
-        """A non-active party slot with HP>0 to switch INTO for the accuracy-reset maneuver. Prefer
-        the HIGHEST-level reserve (best chance of surviving the one incoming hit before we switch the
-        ace back). None if the ace is alone (nothing to reset with)."""
+        """A non-active party slot with HP>0 WORTH benching the ace for during the accuracy-reset
+        maneuver. Prefer the HIGHEST-level reserve (best chance of surviving the one incoming hit before
+        we switch the ace back). None if the ace is alone OR every reserve is far below the ace's level —
+        a solo-carry must NEVER swap its L52 ace out for L13 fodder to 'reset accuracy' (the badge-5 Koga
+        loss: Muk's Minimize is FOE evasion, which the switch can't reset, so it only sacrificed the bench
+        one by one). Gated by WHIFF_RESERVE_LEVEL_BAND; below the band -> None -> the caller fights on."""
         active_sp = (state or {}).get("ours", {}).get("species")
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        # the ace's own level = the floor a reserve must come within to be worth the bench-and-return
+        ace_lv = 0
+        for s in range(min(cnt, 6)):
+            if st.read_party_species(self.b, s) == active_sp and \
+                    self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) > 0:
+                ace_lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54); break
+        floor = ace_lv - WHIFF_RESERVE_LEVEL_BAND
         best, best_lv = None, -1
         for s in range(min(cnt, 6)):
             if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
@@ -2052,6 +2072,8 @@ class BattleAgent:
             if sp == active_sp:
                 continue                                  # the one already out
             lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if lv < floor:
+                continue                                  # fodder — not worth sacrificing the carry for
             if lv > best_lv:
                 best, best_lv = s, lv
         return best
