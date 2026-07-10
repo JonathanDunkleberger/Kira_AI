@@ -42,6 +42,24 @@ STAGE = os.path.join(SCRATCH, "stage_lapras")
 BANK = os.path.join(SCRATCH, "banked_LAPRAS")
 SHOTS = os.path.join(SCRATCH, "lapras_probe")
 
+
+def _resolve_state(name):
+    """Resolve a state BASENAME or path to (state_path, sidecar_dir, sidecar_prefix).
+    Kit fixtures live in states/workshop as <name>.state + <name>.<sidecar>.json; the credits
+    canonical is states/campaign/kira_campaign.state with bare-named sidecars."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
 GSTORAGE_PTR = 0x03005010            # gPokemonStoragePtr (pret pokefirered)
 BOX_MON_SIZE = 80
 BOXES, PER_BOX = 14, 30
@@ -64,8 +82,9 @@ def main():
     def L(m):
         print(f"[{time.time() - t0:6.1f}s] {m}", flush=True)
 
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("LAPRAS_STATE", ""))
     b = Bridge(ROM)
-    with open(os.path.join(CANON, "kira_campaign.state"), "rb") as f:
+    with open(state_path, "rb") as f:
         b.load_state(f.read())
     for _ in range(40):
         b.run_frame()
@@ -117,14 +136,21 @@ def main():
     camp._save_campaign = lambda *a, **k: True
     camp._continuity_save = lambda *a, **k: None
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    # sidecars: prefer the resolved state's own sidecars (kit fixtures), else the canonical paths
+    _w_side = os.path.join(sc_dir, sc_pref + ".world_model.json")
+    _s_side = os.path.join(sc_dir, sc_pref + ".strat_memory.json")
+    _soul_side = os.path.join(sc_dir, sc_pref + ".soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
 
@@ -133,15 +159,19 @@ def main():
     L(f"boot map={tv.map_id(b)} coords={tv.coords(b)} party={party_species()}")
     L(f"storage: current_box={cur_box} occupied={named}")
     lap = next((k for k, v in found.items() if v == LAPRAS), None)
-    spe = next((k for k, v in found.items() if v == SPEAROW), None)
-    if spe is None:
-        L("!! cross-check FAILED: the deposited Spearow is not visible — the storage read "
-          "is not trustworthy, aborting before any menu drive")
-        return 1
     if lap is None:
         L("!! LAPRAS not found in any box — aborting")
         return 1
-    L(f"   LAPRAS at box {lap[0]} slot {lap[1]} | spearow cross-check at {spe} | "
+    # STORAGE-READ SANITY: the decrypt scheme is trustworthy only if it also decodes a SECOND
+    # occupant to a valid species (credits-line = the deposited Spearow; kit line = the boxed
+    # bug-catch bench). A lone Lapras with everything else zero would mean a bad read.
+    others = {k: v for k, v in found.items() if v != LAPRAS and 1 <= v <= 411}
+    if not others:
+        L("!! cross-check FAILED: no second valid box occupant decoded — the storage read is "
+          "not trustworthy, aborting before any menu drive")
+        return 1
+    L(f"   LAPRAS at box {lap[0]} slot {lap[1]} | cross-check occupants "
+      f"{ {k: st.SPECIES_NAME.get(v, v) for k, v in list(others.items())[:4]} } | "
       f"current box {cur_box}")
     if mode == "probe":
         return 0

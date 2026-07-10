@@ -1,5 +1,28 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🔨 NS5 IN FLIGHT: BADGE 7 (Blaine) — the "no water mon" frontier was WRONG. She OWNS a Lapras.
+**CRITICAL CORRECTION (NS5 recon):** flag **0x246 (Lapras received) = TRUE** in sabrina_done_kit — the
+Silph Co. gift **Lapras is already hers, sitting in the PC BOX** (party was full 6/6 during the Silph
+strike so it auto-boxed). NS4's frontier ("no water mon — catch one") is WRONG: she doesn't need to catch
+anything, she needs to **WITHDRAW the Lapras she already owns**. Confirmed party (sabrina_done_kit):
+Venusaur L57 + Spearow L13/Rattata L8/Abra L10/Drowzee L13/Ekans L14 (all boxable weaklings). Bag confirmed
+HM01 Cut(339)+HM05 Flash(343) but **NOT HM03 Surf(341)** — Surf still to be acquired. Money $21,786; 2 Poke
+Balls + 1 Master Ball; 29 Super + 11 Hyper + 3 Revive.
+
+**THE REAL BADGE-7 CHAIN (all legs PROVEN on the credits timeline — recon_safari/surf_teach/cinnabar/blaine
+exist):** (1) **PC withdraw** — deposit a weakling, withdraw Lapras into party (Venusaur CAN'T learn Surf, so
+the TEACH BRIDGE fails "no compatible party mon" without a fielded Lapras). This is Tier-2 #15 (PC/Box, ❌)
++ team-building #3 made load-bearing. recon_pcbox.py does DEPOSIT (proven); withdraw is the mirror menu.
+(2) **Safari Zone strike** → HM03 Surf (Secret House man, face UP from (6,6)) + Gold Teeth → Warden → HM04
+Strength. recon_safari.py = full proven interior state machine (pond-split tour chain: Center→EAST(43,15-17)
+→Area1→Area2→Area3 West, Secret House door (12,7)). Port → safari_strike.py (run_strike(camp) like
+silph_strike) + register in _questline_strike. (3) **Teach** Surf(57)→Lapras + Strength(70)→carrier
+(recon_surf_teach/hm_teach TeachFlow). (4) **Cinnabar sea road** (recon_cinnabar: water-as-road, Seafoam
+interior crossing) → **Blaine gym** (recon_blaine: 6 quiz doors Q1 YES/Q2 NO/Q3 NO/Q4 NO/Q5 YES/Q6 NO,
+Bill ambush after — press B) → **BADGE 7 = flag 0x826**. Blaine GymSpec + surf-aware travel already in
+campaign.py; Blaine quiz interior may need a blaine_strike if the general walk wedges (campaign.py:404).
+See [[pokemon-nightshift4-badge6-sabrina-silph-hyperstall]].
+
 ## ✅ NS4 BANKED: SILPH CO. SOLVED UNAIDED (Gary type-wall broken) → frontier = SABRINA BADGE (0x825)
 **VERIFIED e2e, fully autonomous from a clean koga_done_kit (NO injected items):** HYPER-STALL bought
 15 Hyper + 5 Revive at Saffron Mart ($30k→…) → silph_strike → GARY WON 5-2 (out-heals Charizard's Fire)
