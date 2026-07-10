@@ -6011,8 +6011,26 @@ class Campaign:
         except Exception:
             _rival_lost_here = False
             _rival_won_here = False
-        if _rival_gauntlet and not _rival_won_here and step_anchor and cur_map == step_anchor and not getattr(
-                self, "_ql_prefight_grind", 0):
+        # NIGHT-SHIFT 15 FIX — GRIND THE ACE TO L32 EVEN WHEN THE LOSS WHITED HER OUT OFF-ANCHOR.
+        # The whole prep-grind was gated on `cur_map == step_anchor` (she must be standing on the ship's
+        # approach town, Vermilion). But a Gary LOSS on the S.S. Anne whites her out to the last Center she
+        # healed at — CERULEAN, not Vermilion — so `cur_map != step_anchor` forever and this clean, narrated
+        # ace->L32 grind NEVER re-fires. All that runs off-anchor is the generic underlevel-prep, which
+        # targets the BENCH FLOOR (~L19) and STOPS there, leaving the ace at ~L30-31 -> she treks back,
+        # reboards, loses Gary again -> LIVELOCK (s14_surge.log: Gary lost at Ivysaur L30, whited to Cerulean,
+        # ace crept only to L31 via the wedgy generic grind, never the proven-winning Venusaur L32). FIX:
+        # once she has LOST to this rival (`_rival_lost_here`), fire the prep-grind from WHEREVER she healed
+        # so the ace climbs to L32 on LOCAL grass before the walk back. The anchor path keeps the hardcoded
+        # Route-6 routing (grind()'s local grass-finder wedges in the gym-approach POCKET at the Cut tree);
+        # the off-anchor post-loss path lets grind() find local grass (safe from a normal town like Cerulean).
+        # The re-arm at cur_map!=step_anchor keeps clearing _ql_prefight_grind each off-anchor tick, so the
+        # grind re-fires until the ace hits L32 (the `0 < _ace_lv < _RIVAL_PREP_LEVEL` guard self-terminates).
+        # General per rule 14: "after losing a rival gauntlet, grind the ace to the prep level wherever you
+        # healed" — helps every later rival (Tower/Silph) whose loss also displaces the respawn town.
+        _prep_at_anchor = bool(step_anchor) and cur_map == step_anchor
+        _prep_off_anchor_afterloss = _rival_lost_here and not _prep_at_anchor
+        if _rival_gauntlet and not _rival_won_here and (_prep_at_anchor or _prep_off_anchor_afterloss) \
+                and not getattr(self, "_ql_prefight_grind", 0):
             try:
                 _party = (self.read_live_state() or {}).get("party") or []
                 _ace_lv = max((int(m.get("level", 0) or 0) for m in _party), default=0)
@@ -6020,22 +6038,30 @@ class Campaign:
                 _ace_lv = 99                                   # read fail -> no grind (fail-open, safe)
             if (0 < _ace_lv < _RIVAL_PREP_LEVEL) and (_rival_lost_here or _ace_lv >= _prep_floor):
                 self._ql_prefight_grind = 1
+                _where = "at the ship anchor" if _prep_at_anchor else "off-anchor (post-loss respawn town)"
                 log(f"   [roam] 🏋️ PREP-BEFORE-RIVAL: a rival gauntlet is a team-strength wall — ace "
-                    f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding (an underlevelled "
+                    f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding {_where} (an underlevelled "
                     f"solo loses to Gary's 4-mon team, whatever the PP).")
                 self.on_event("that's my rival waiting on that ship — I want my team stronger before we "
                               "board. quick training, then we go.", kind="route", tier=2)
                 try:
-                    # ROUTE TO GRASS FIRST: the gate fires while she's pinned in the gym-approach pocket
-                    # (at the Cut tree) where grind()'s local grass-finder targets a bad off-map coord and
-                    # travel-wedges. Route 6 (map (3,24), NORTH) is the grass she just crossed; walk_to_map
-                    # routes there via the proper connection edge, bounded (8 tries, no spin). PORTABILITY
-                    # DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (game-knowledge layer, rule 14).
-                    _rr = self.walk_to_map((3, 24), "north")
-                    log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
+                    if _prep_at_anchor:
+                        # ROUTE TO GRASS FIRST: the gate fires while she's pinned in the gym-approach pocket
+                        # (at the Cut tree) where grind()'s local grass-finder targets a bad off-map coord
+                        # and travel-wedges. Route 6 (map (3,24), NORTH) is the grass she just crossed;
+                        # walk_to_map routes there via the proper connection edge, bounded (8 tries, no spin).
+                        # PORTABILITY DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (KB layer, rule 14).
+                        _rr = self.walk_to_map((3, 24), "north")
+                        log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
+                    else:
+                        # OFF-ANCHOR (whited out to a normal town, e.g. Cerulean): no gym-approach pocket to
+                        # wedge in — let grind() find the town's local grass directly. Skipping the hardcoded
+                        # Route-6 hop avoids a cross-map walk_to_map from the wrong town.
+                        log(f"   [roam] 🏋️ pre-rival grind: whited out to a non-anchor town — grinding the "
+                            f"ace to L{_RIVAL_PREP_LEVEL} on LOCAL grass before the trek back to the ship.")
                     # WIDE budget (900s vs the 480s default): reaching the L32 evolution from L28 is ~4
-                    # levels of low-XP Route 6 wilds — the default budget could undershoot and board her as
-                    # an un-evolved Ivysaur -> the loss loop. One deep pass to Venusaur is the whole point.
+                    # levels of low-XP wilds — the default budget could undershoot and board her as an
+                    # un-evolved Ivysaur -> the loss loop. One deep pass to Venusaur is the whole point.
                     gr = self.grind(_RIVAL_PREP_LEVEL, budget_s=900)
                 except Exception as e:
                     gr = f"error:{e}"
