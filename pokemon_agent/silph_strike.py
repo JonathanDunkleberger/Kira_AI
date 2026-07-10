@@ -663,7 +663,17 @@ def run_strike(camp, log, dbg_dir=None):
         return "not_here"
 
     if here == SAFFRON:
-        # HEAL TO FULL first (HP+PP): there is NO Center above Giovanni's boss fight; a worn lead
+        # STOCK HYPER POTIONS first (NS4): Gary's 7F Charizard 2x-burns solo Venusaur while quad-resisting
+        # her Grass — the ONLY winning line is to out-heal the Fire, and Super Potions can't keep up.
+        # She's standing in Saffron (the Mart is on-route); buy Hyper Potions before going in. Best-effort:
+        # a no-mart/too-poor case just enters as-is (LOUD) — the strike never blocks on the shop.
+        try:
+            hs = camp.stock_hyper_potions()
+            log(f"   silph strike: pre-dungeon Hyper-Potion stock-up -> {hs} "
+                f"(now carrying {camp.bag_count(21)}x Hyper, at {tv.map_id(b)}@{tv.coords(b)})")
+        except Exception as e:
+            log(f"   silph strike: Hyper-Potion stock-up errored ({e}) — entering as-is (LOUD)")
+        # HEAL TO FULL (HP+PP): there is NO Center above Giovanni's boss fight; a worn lead
         # gets swept in the tower (the hideout-strike lesson). Then enter Silph via the street door.
         try:
             frac = ss.lead_frac()

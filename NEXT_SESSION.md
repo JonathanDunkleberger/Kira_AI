@@ -14,7 +14,15 @@ already down. She DOES heal, but only with **Super Potions (50 HP)** which ~= Ch
 treads water and dies with Charizard at ~29/119. The Max Ether (1 in bag) never fired — the ether-instinct
 gate only checks move-SLOT-0 (Razor Leaf, ×0.25 useless vs Charizard), so `use_ether` was offered 0× across
 5 famines (secondary bug, not the wall). Route-around Gary is GEOMETRICALLY IMPOSSIBLE (NS3, confirmed).
-**THE FIX DIRECTION (being proven THIS shift):** out-heal Charizard's Fire with **HYPER POTIONS (200 HP)**
+**DELIVERY BUILT (NS4, verifying):** Saffron Mart mapped from pret (door (40,21), stock [GreatBall,
+HyperPotion,Revive,FullHeal,EscapeRope,MaxRepel] → Hyper=row1) → added SAFFRON_MART_DOOR +
+CITY_MART_DOORS[SAFFRON] + MART_STOCK[SAFFRON]=[3,21,24,23,85,88]. New camp method
+`stock_hyper_potions(target=SILPH_HYPER_TARGET=20)` counts Hyper(21) SPECIFICALLY (30 Supers must not
+read as stocked) + buys the shortfall at Saffron Mart. Wired into `silph_strike.run_strike` at the
+`here==SAFFRON` block (before the pre-dungeon heal). VERIFY (autonomous, NO injection):
+`LONGRUN_GOAL_FLAG=0x3E LONGRUN_BATTLE_LOG=1 recon_longrun koga_done_kit.state 35` → expect HYPER-STALL
+buys ~20 Hyper at Saffron Mart → GARY WON → 0x3E freed. Then run 0x825 (Sabrina badge) + bank.
+**THE FIX DIRECTION (PROVEN THIS shift via injected fixture):** out-heal Charizard's Fire with **HYPER POTIONS (200 HP)**
 instead of Super Potions (50). `_HEAL_ITEMS_PREF` ALREADY prefers Hyper(21)>Super(22) — so if she CARRIES
 Hyper Potions the battle instinct auto-uses them; NO battle-code change needed. She has $30,330 + Saffron
 has a Mart/Dept (Hyper Potions). **EXPERIMENT IN FLIGHT:** injected 20 Hyper Potions →

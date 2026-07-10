@@ -386,6 +386,10 @@ FLAG_BADGE_SOUL = 0x824
 SAFFRON = (3, 10)
 SAFFRON_PC_DOOR = (24, 38)
 SAFFRON_GYM_DOOR = (46, 12)
+# Saffron Mart door (pret SaffronCity map.json warp -> SAFFRON_CITY_MART, 2026-07-10) — the pre-Silph
+# Hyper-Potion stock-up: Gary's Charizard (Fire/Flying) 2x-burns solo Venusaur while quad-resisting her
+# Grass, so she must OUT-HEAL its Fire; Super Potions (50) only tread water, Hyper Potions (200) win it.
+SAFFRON_MART_DOOR = (40, 21)
 SABRINA_FRONT = (14, 12)
 FLAG_BADGE_MARSH = 0x825
 ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym map.json) -> stand
@@ -532,7 +536,9 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
                    # buy_at_mart loud-skips until a live visit bills the row order.
                    VERMILION: VERMILION_MART_DOOR,
                    # Fuchsia Mart (night-shift 1) — the badge-5 Koga potion-stall stock-up.
-                   FUCHSIA: FUCHSIA_MART_DOOR}
+                   FUCHSIA: FUCHSIA_MART_DOOR,
+                   # Saffron Mart (night-shift 4) — the pre-Silph Hyper-Potion stock-up (Gary/Charizard).
+                   SAFFRON: SAFFRON_MART_DOOR}
 
 # DOOR APPROACH WAYPOINTS (game-knowledge, rule 14): some Mart/building doors sit in a pocket the
 # direct BFS-travel OSCILLATES into and never reaches (Fuchsia's central ponds wall the Mart door
@@ -562,6 +568,10 @@ MART_STOCK = {
     # (rows 0/1) land in the Balls pocket so the Items-pocket bag-delta can't confirm their id — the
     # per-purchase verify guards any row anyway. No Hyper Potion sold here; Super Potion is the top heal.
     FUCHSIA: [2, 3, 22, 28, 23, 88],
+    # Saffron rows (GreatBall, HyperPotion, Revive, FullHeal, EscapeRope, MaxRepel) — order from the
+    # pret SaffronCity_Mart scripts.inc pokemart list (2026-07-10). Hyper Potion(21) is row 1 — the
+    # NS4 pre-Silph stock-up target; buy_at_mart's per-purchase bag-delta guards any mis-row LOUD.
+    SAFFRON: [3, 21, 24, 23, 85, 88],
 }
 MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
 MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
@@ -577,6 +587,19 @@ SHOP_POTION_TARGET = 6
 # gym-city Mart and heals through it. gym.name -> how many potions to carry into the fight. Game-fact
 # isolated here (rule 14); the pre-gym stock-up leg buys up to this from the gym-city Mart.
 POTION_STALL_GYMS = {"Koga": 30}
+# PRE-SILPH HYPER-POTION target (night-shift 4): Gary's Silph gauntlet ends on a Charizard (Fire/Flying)
+# that 2x-burns solo Venusaur while QUAD-resisting her Grass — she can only chip with weak Cut, so the
+# ONLY winning line is to OUT-HEAL the Fire. Super Potions (50 HP) ~= Charizard's chip (tread water ->
+# faint at Charizard ~29/119); Hyper Potions (200 HP) win the attrition outright (NS4 proof: 12 Hyper
+# Potions -> GARY WON -> Saffron freed). Count HYPER specifically (30 Supers must NOT read as stocked).
+# Bought at the Saffron Mart, on-route, standing in Saffron right before the strike. Game-fact (rule 14).
+# REVIVES are load-bearing too (NS4 autobuy postmortem): a single Charizard high-roll/crit (or a lost
+# paralysis turn) faints Venusaur once, and with NO Revive the fodder bench can't finish Charizard ->
+# instant loss (koga_done_kit carries 0 Revives). The PROVEN-WINNING kit was Hyper + Revive: she revives
+# Venusaur behind a fodder body (the _revive_worthy comeback cycle) and keeps out-healing. Saffron Mart
+# sells both (Hyper row1 @1200, Revive row2 @1500). Budget-fit for ~$30k: 15 Hyper + 5 Revive ≈ $25.5k.
+SILPH_HYPER_TARGET = 15
+SILPH_REVIVE_TARGET = 5
 # BATCH 6 PHASE 2 — FORESIGHT target: when she's up against a wall she can't beat yet, a real player
 # stocks up DEEPER before pushing on (she has $7-9k here). Bumps the buy-to target so "stock up before
 # I take that bridge" is a live, characterful option — not only a restock when she's already empty.
@@ -3402,6 +3425,46 @@ class Campaign:
         got = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
         log(f"   POTION-STALL [{gym.name}]: bought {bought} — now carrying {got} potion(s)")
         return "bought" if bought else "buy_failed"
+
+    def stock_hyper_potions(self, hyper_target=SILPH_HYPER_TARGET, revive_target=SILPH_REVIVE_TARGET):
+        """Pre-Silph SILPH KIT stock-up (night-shift 4). Gary's Silph gauntlet ends on a Charizard
+        (Fire/Flying) that 2x-burns solo Venusaur while QUAD-resisting her Grass (Razor Leaf x0.25) —
+        her only neutral hit is weak Cut, so the sole winning line is to OUT-HEAL the Fire with HYPER
+        Potions (200 HP; Super Potions at 50 merely tread water -> faint at Charizard ~29/119) AND to
+        carry REVIVES so a single crit/paralysis-turn faint isn't game-over (revive Venusaur behind a
+        fodder body, keep healing — the proven-winning kit: NS4 injected 20 Hyper + 5 Revive -> 12 Hyper
+        + 2 Revive used -> GARY WON -> Saffron freed; the autobuy w/ Hyper-only-no-Revive LOST). Buys the
+        shortfall of BOTH at the Saffron Mart while standing in Saffron before the strike. Counts each id
+        SPECIFICALLY (the 30 Super Potions she already carries must NOT read as 'stocked'). Best-effort +
+        bounded; buy_at_mart's per-purchase bag-delta guards every unit and its money floor never drains
+        the wallet. Resource/economy bedrock #6; game-facts isolated to SAFFRON_MART_DOOR / MART_STOCK /
+        SILPH_HYPER_TARGET / SILPH_REVIVE_TARGET (rule 14). Returns a short status string."""
+        city = tv.map_id(self.b)
+        door = CITY_MART_DOORS.get(city)
+        if door is None:
+            log(f"   HYPER-STALL: not standing in a Mart city ({city}) — can't stock here (LOUD)")
+            return "no_mart"
+        have_h, have_r = self.bag_count(21), self.bag_count(24)
+        if have_h >= hyper_target and have_r >= revive_target:
+            log(f"   HYPER-STALL: already carrying {have_h} Hyper + {have_r} Revive (>= "
+                f"{hyper_target}/{revive_target}) — good to go")
+            return "already_stocked"
+        if self.money() < SHOP_MONEY_FLOOR + 1200:
+            log(f"   HYPER-STALL: too poor ({self.money()}) for the Silph kit — entering as-is (LOUD)")
+            return "too_poor"
+        buy = []
+        if have_h < hyper_target:
+            buy.append((21, hyper_target - have_h))          # Hyper Potion FIRST (the primary win-lever)
+        if have_r < revive_target:
+            buy.append((24, revive_target - have_r))          # Revive second (the faint-insurance)
+        self.on_event("Gary's in there and his Charizard torches my Venusaur — Super Potions won't keep "
+                      "up. I need Hyper Potions and a few Revives before I go in.", kind="gym", tier=2)
+        log(f"   HYPER-STALL: have {have_h}/{hyper_target} Hyper, {have_r}/{revive_target} Revive — "
+            f"buying {buy} at {city} Mart before Silph")
+        bought = self.buy_at_mart(door, buy)
+        got_h, got_r = self.bag_count(21), self.bag_count(24)
+        log(f"   HYPER-STALL: bought {bought} — now carrying {got_h} Hyper + {got_r} Revive")
+        return "bought" if (bought.get(21) or bought.get(24)) else "buy_failed"
 
     def _teach_gym_coverage(self, gym, rec):
         """When the ACE's whole offense is RESISTED by the gym's typing, teach it a neutral-or-better
