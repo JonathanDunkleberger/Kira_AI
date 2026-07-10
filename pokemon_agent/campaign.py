@@ -7948,10 +7948,18 @@ class Campaign:
             cur_map = tuple(state["map"])
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
+                # SAFFRON BYPASS (2026-07-09 shift 3): Saffron's gatehouses are GUARD-BLOCKED (a static
+                # obstacle refuses passage until a Celadon vending drink), and the world graph learned the
+                # Route 6 <-> Saffron gatehouse warp — so the warp-route drove her into the passage (18,0)
+                # and oscillated on the blocked (4,1) warp toward Saffron (3,10). Every billed gym road
+                # BYPASSES Saffron (Underground Paths + Rock Tunnel), so avoid routing THROUGH Saffron
+                # unless Saffron IS the destination (badge 6, when she has the drink) — this drops the
+                # warp-route to the billed road's Underground-Path 'pass' leg.
+                _avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
+                if target_city != SAFFRON:
+                    _avoid = _avoid | {SAFFRON}
                 try:
-                    step = self._next_step_rideable(
-                        cur_map, target_city,
-                        avoid=self._wall_avoid(state) | self._story_gate_avoid(state))
+                    step = self._next_step_rideable(cur_map, target_city, avoid=_avoid)
                 except Exception as _ws:
                     step = None
                     log(f"   [roam] warp-route step skipped: {_ws}")
