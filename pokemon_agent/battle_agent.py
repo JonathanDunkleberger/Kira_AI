@@ -1015,12 +1015,27 @@ class BattleAgent:
         # so the aim is a KIND resolved at menu time, never a slot index carried across the
         # menu-open boundary (the run14 Revive-on-the-wrong-row class).
         aim = "active"
-        if frac <= heal_frac:
+        # FINISH-THE-FOE GUARD (night shift #3 — the Silph PP-famine/potion-loop wall): don't spend the
+        # turn healing when the active foe is one hit from fainting AND we're not in genuine faint danger.
+        # The Gary gauntlet exposed the failure: at 35% HP vs a 4/98 Exeggcute the 50% matchup-threshold
+        # kept picking use_potion instead of the finishing hit, so she never KO'd the foe, drained her
+        # damaging PP to famine, then switch-fed a fodder mon and LOST a fight she was out-chipping. A real
+        # player finishes a near-dead foe. Suppress the heal offer when foe <=25% HP and we're above the
+        # hard crit floor (a life-saving heal at truly-low HP is still offered). General battle-brain fix
+        # (helps every long fight incl. the E4); shared-plumbing, additive, no identity/mode-state touch.
+        foe = state.get("enemy") or {}
+        foe_mx = foe.get("maxhp") or 0
+        foe_frac = (foe.get("hp", 0) / foe_mx) if foe_mx else 1.0
+        finishable = foe_frac <= 0.25 and frac > BATTLE_CRIT_FRAC
+        if frac <= heal_frac and not finishable:
             heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
             if heal is not None:
                 plan["use_potion"] = (heal, aim)
                 offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
                                         f"about to faint, and you HAVE one in the bag")
+        elif finishable and frac <= heal_frac:
+            self.log(f"   [engine] FINISH-THE-FOE: foe at {int(foe_frac*100)}% (<=25%), us {int(frac*100)}% "
+                     f"(> crit) -> no heal, land the KO instead")
         # Status of the mon actually OUT (gBattleMons ground truth via read_battle) — the old
         # _lead_status read gPlayerParty[0], so post-switch a sleep-locked FODDER never got a
         # cure offer while the dead ace's 'none' was consulted instead (run16 attempts 2+).

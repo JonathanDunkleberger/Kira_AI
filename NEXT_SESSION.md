@@ -1,8 +1,31 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## 🔨 IN FLIGHT (night-shift 2): BADGE 6 (Sabrina) — SILPH CO. LIBERATION QUESTLINE BUILT, verifying
-The badge-6 root blocker from NS-1 (no armed Silph questline → Sabrina's Rocket-blocked gym structurally
-parks) is now WIRED. **What was built this shift (all COMPILES; WIRED; verification in progress):**
+## 🔨 IN FLIGHT (night-shift 4): BADGE 6 (Sabrina) — Silph Gary = a TYPE-MATCHUP wall (Charizard), NOT PP
+**NS4 CORRECTS NS3's diagnosis (which was WRONG).** The whole Silph chain still FIRES e2e (koga_done_kit
+→ Saffron → prereq gate → silph_strike → climbs 1F→9F, grabs Card Key, pad-chains to 7F, Gary auto-engages).
+NS3's committed "FINISH-THE-FOE guard" (battle_agent) + route-around-disable (silph_strike) are still
+UNCOMMITTED in the tree and are HARMLESS but did NOT fix the wall.
+**TRUE ROOT CAUSE (battle-log autopsy, LONGRUN_BATTLE_LOG=1, run ns3_silph4.log):** the loss event is
+**Venusaur FAINTING to Gary's CHARIZARD** (Fire/Flying), the worst possible matchup for Grass/Poison
+Venusaur — Charizard's Fire hits her **2×** while it **quad-resists her Grass (Razor Leaf ×0.25)** and her
+only neutral move is weak **Cut (Normal 50BP, no STAB)**. In every famine-switch context Venusaur (sp 3)
+already reads **hp=0** — the "PP FAMINE" is a downstream red herring on the FODDER mon after Venusaur is
+already down. She DOES heal, but only with **Super Potions (50 HP)** which ~= Charizard's chip, so she
+treads water and dies with Charizard at ~29/119. The Max Ether (1 in bag) never fired — the ether-instinct
+gate only checks move-SLOT-0 (Razor Leaf, ×0.25 useless vs Charizard), so `use_ether` was offered 0× across
+5 famines (secondary bug, not the wall). Route-around Gary is GEOMETRICALLY IMPOSSIBLE (NS3, confirmed).
+**THE FIX DIRECTION (being proven THIS shift):** out-heal Charizard's Fire with **HYPER POTIONS (200 HP)**
+instead of Super Potions (50). `_HEAL_ITEMS_PREF` ALREADY prefers Hyper(21)>Super(22) — so if she CARRIES
+Hyper Potions the battle instinct auto-uses them; NO battle-code change needed. She has $30,330 + Saffron
+has a Mart/Dept (Hyper Potions). **EXPERIMENT IN FLIGHT:** injected 20 Hyper Potions →
+`silph_hyper_test.state`, running `LONGRUN_GOAL_FLAG=0x3E LONGRUN_BATTLE_LOG=1 recon_longrun
+silph_hyper_test.state 35`. If Venusaur now out-heals Charizard and WINS Gary → 0x3E freed → theory proven →
+BUILD the delivery: add Saffron Hyper-Potion stall (POTION_STALL_GYMS + fire before the Silph strike;
+Saffron Mart mapped door (40,21) Hyper row1 per NS3). If she STILL loses with unlimited Hyper Potions →
+it's a hard TEAM wall (needs a leveled Charizard-counter / higher-level Venusaur) — pivot to a team leg.
+**SOUL DEBT (unchanged, now the crux):** Silph Gary punishes the solo carry — a real team makes it clean.
+
+### (NS2 build — still valid, all COMPILES/WIRED/now VERIFIED-to-fire):
 - **`pokemon_agent/silph_strike.py`** (NEW) — faithful port of the proven `recon_silph.py` state machine
   into the camp-driven strike-module shape (same as hideout_strike/tower_strike). `run_strike(camp, log,
   dbg_dir)` → `'freed_saffron'` on FLAG_HIDE_SAFFRON_ROCKETS (0x3E) set + walked out to Saffron. Enters

@@ -45,6 +45,7 @@ DOORS_9F_WMID = [(13, 17), (12, 17), (13, 16), (12, 16)]   # unseals the heal wo
 DOORS_9F_WEST = [(2, 10), (3, 10), (2, 11), (3, 11)]       # unseals the 3F-pad corridor
 DOORS_11F = [(5, 16), (6, 16), (5, 17), (6, 17)]
 GARY_TRIGGER_7F = (2, 5)
+GARY_TRIGGERS_7F = {(2, 4), (2, 5)}              # NS3: coord-trigger tiles (disasm) — mask to skip Gary
 LAPRAS_FRONT_7F = (0, 8)
 LAPRAS_FLAG = 0x246
 PAD_3F_TO_7F = (13, 14)
@@ -72,7 +73,13 @@ class SilphStrike:
         self.n_battles = 0
         self.gary_done = False
         self.lapras_done = False
-        self._gary_route_around = True   # NS3: skip the unwinnable-solo Gary; ride 11F pad direct
+        # NS3: route-around DISABLED — proven geometrically IMPOSSIBLE. With Gary's trigger tiles
+        # (2,4)/(2,5) masked, the approach to the 11F pad (5,8) fails from (5,5): the pad is ONLY
+        # reachable THROUGH the trigger row (the champion's recon_silph fought Gary for the same reason).
+        # So Gary is unavoidable — she must WIN. The real fix is the battle FINISH-THE-FOE guard
+        # (battle_agent._maybe_use_item) that stops the potion-loop/PP-famine that lost the out-chipped
+        # fight. Kept the route-around code below (disabled) as the documented negative result.
+        self._gary_route_around = False
         self.heal_mode = False           # None once latched-off for the run
         self.wedges = {}
 
@@ -121,19 +128,22 @@ class SilphStrike:
                 for _ in range(30):
                     b.run_frame()
 
-    def walk_path_to(self, tile, label, tries=6):
+    def walk_path_to(self, tile, label, tries=6, avoid=None):
         """Deterministic same-map mover: static BFS with WARPS + template-NPC BODIES masked, stepped
         tile-by-tile. A step that fails OUTSIDE battle = a collision-walkable-but-game-blocked tile
-        (elevation quirk) -> DEAD for this call (recon_silph strike truth)."""
+        (elevation quirk) -> DEAD for this call (recon_silph strike truth). `avoid` = extra tiles to
+        treat as blocked (NS3: Gary's COORD-trigger tiles (2,4)/(2,5), which are walkable floor but fire
+        the rival battle — masking them lets the BFS route to the 11F pad WITHOUT engaging the rival)."""
         b, camp = self.b, self.camp
         dead = set()
+        avoid = ({tuple(a) for a in avoid} - {tile}) if avoid else set()
         for _ in range(tries):
             cur = tuple(tv.coords(b) or (0, 0))
             if cur == tile:
                 return True
             g = tv.Grid(b)
             wts = {tuple(w[0]) for w in tv.read_warps(b)} - {tile}
-            npcs = ({tuple(o[0]) for o in tv.read_object_templates(b) if o[2]} | dead) - {tile}
+            npcs = ({tuple(o[0]) for o in tv.read_object_templates(b) if o[2]} | dead | avoid) - {tile}
             p = tv.bfs(g, cur, lambda t: t == tile,
                        walkable=lambda sx, sy: g.walkable(sx, sy)
                        and (sx, sy) not in wts and (sx, sy) not in npcs)
@@ -244,28 +254,32 @@ class SilphStrike:
         self.log(f"!! [{label}] no candidate warp fired (at {tv.map_id(b)}@{tv.coords(b)})")
         return False
 
-    def ride_pad(self, pad, label):
+    def ride_pad(self, pad, label, avoid=None):
         """Ride a teleport pad: fires on STEP-ON contact; approach a free neighbor then one LONG-HOLD
-        press onto the pad (turn+walk in one continuous input) (recon_silph strike11 truth)."""
+        press onto the pad (turn+walk in one continuous input) (recon_silph strike11 truth). `avoid` =
+        extra tiles to keep the approach BFS off (NS3: Gary's rival-trigger tiles) — masked in BOTH the
+        neighbor-reachability probe and the walk so she can't be routed onto a trigger en route."""
         b, camp = self.b, self.camp
         m0 = tuple(tv.map_id(b))
         g = tv.Grid(b)
         wts = {tuple(w[0]) for w in tv.read_warps(b)}
         npcs = {tuple(o[0]) for o in tv.read_object_templates(b) if o[2]}
+        avoidset = ({tuple(a) for a in avoid} - {pad}) if avoid else set()
+        blocked = npcs | avoidset
         cur0 = tuple(tv.coords(b) or (0, 0))
         cands = []
         for nb, kin in (((pad[0] - 1, pad[1]), "RIGHT"), ((pad[0] + 1, pad[1]), "LEFT"),
                         ((pad[0], pad[1] - 1), "DOWN"), ((pad[0], pad[1] + 1), "UP")):
-            if nb in wts or not g.walkable(nb[0], nb[1]):
+            if nb in wts or not g.walkable(nb[0], nb[1]) or nb in avoidset:
                 continue
             p = tv.bfs(g, cur0, lambda t, a=nb: t == a,
                        walkable=lambda sx, sy: g.walkable(sx, sy)
-                       and (sx, sy) not in wts and (sx, sy) not in npcs) \
+                       and (sx, sy) not in wts and (sx, sy) not in blocked) \
                 if cur0 != nb else [cur0]
             if p:
                 cands.append((len(p), nb, kin))
         for _len, nb, kin in sorted(cands):
-            if tuple(tv.coords(b) or ()) != nb and not self.walk_path_to(nb, f"{label}-approach"):
+            if tuple(tv.coords(b) or ()) != nb and not self.walk_path_to(nb, f"{label}-approach", avoid=avoidset):
                 continue
             for _try in range(3):
                 b.press(kin, 26, 10, camp.render, owner="agent")
@@ -466,7 +480,7 @@ class SilphStrike:
                 # Lapras. Fall back to clearing Gary/Lapras only if the pad is genuinely unreachable
                 # (disasm says it isn't). A STRONGER team revisits Gary later — logged as a soul debt.
                 if self._gary_route_around:
-                    if self.ride_pad(PAD_7F_TO_11F, "pad-11f-direct"):
+                    if self.ride_pad(PAD_7F_TO_11F, "pad-11f-direct", avoid=GARY_TRIGGERS_7F):
                         continue
                     if st.in_battle(b):
                         L(f"   GARY auto-engaged en route to the 11F pad -> {self.fight()}")
