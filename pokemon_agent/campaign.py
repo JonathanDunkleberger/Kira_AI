@@ -6086,6 +6086,15 @@ class Campaign:
             no building but an NPC standing out here, talk them.
         Bounded: entered doors are tracked per-questline so she can't loop re-entering the same one. Reuses
         the existing enter_warp / talk_npc / _exit_to_overworld primitives — this only SEQUENCES them."""
+        # BESPOKE INTERIOR STRIKE (2026-07-09 night shift 7): a few questline targets sit behind a
+        # fixed multi-floor RITUAL the blind room-tour + GO-DEEPER cannot solve — the Silph Scope in
+        # the Rocket Hideout (poster-gate -> arrow-tile spin mazes -> Lift Key -> B2F elevator ->
+        # Giovanni -> Scope -> ride/climb back OUT), proven e2e by the champion's recon_hideout.py +
+        # recon_hideout_exit.py, ported in-loop as hideout_strike.run_strike. Fires only when the
+        # errand + her position match; returns None to fall through to the general layer otherwise.
+        strike = self._questline_strike(step)
+        if strike is not None:
+            return strike
         if step.via != "talk_npc":
             # other step kinds (board a ship, use an HM at the destination) are future interaction layers
             log(f"   [roam] questline: arrived but step.via='{step.via}' has no interaction layer yet — surfacing")
@@ -6446,6 +6455,53 @@ class Campaign:
             g = tile.split(",")
             return (int(g[0]), int(g[1]))
         except Exception:
+            return None
+
+    def _questline_strike(self, step):
+        """BESPOKE INTERIOR STRIKE dispatcher (night shift 7). Some questline targets sit behind a
+        fixed dungeon RITUAL the general room-tour/GO-DEEPER can't crack — registered here by the
+        step's success signature. Runs the proven strike as ONE decision (like beat_gym); returns a
+        roam-result string when it ran, or None to fall through to the general interaction layer.
+        Bounded by a per-questline try counter so a failing strike can't loop the run forever."""
+        try:
+            # SILPH SCOPE — success = ('item', 359) in Key Items (the 0x037 flag lies). Strike from
+            # the Game Corner (10,14), or from Celadon (3,6) (it enters the GC door itself).
+            if not (step and step.success and tuple(step.success) == ("item", 359)):
+                return None
+            here = tuple(tv.map_id(self.b))
+            from hideout_strike import HIDEOUT_MAPS, GC, CELADON
+            if here not in (HIDEOUT_MAPS | {GC, CELADON}):
+                return None
+            tries = getattr(self, "_ql_strike_tries", 0)
+            if tries >= 3:
+                log("   [roam] questline STRIKE: 3 attempts exhausted for the Silph Scope — "
+                    "surfacing so recovery/other options carry her (not looping the strike)")
+                return None
+            self._ql_strike_tries = tries + 1
+            log(f"   [roam] 🎯 QUESTLINE STRIKE: Rocket Hideout (Silph Scope) — attempt "
+                f"{tries + 1}/3 from {here}")
+            from hideout_strike import run_strike
+            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "hideout_probe")
+            res = run_strike(self, log, dbg_dir=dbg)
+            log(f"   [roam] 🎯 QUESTLINE STRIKE -> {res} (now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+            if res == "got_scope":
+                # Scope in bag + back out on the Celadon street. The deriver re-reads the flag/item
+                # next tick and the silph_scope step self-clears -> questline advances to the Tower.
+                self._ql_inside_target = False
+                self._ql_strike_tries = 0
+                self.on_event("got it — the Silph Scope. now for that ghost in the tower.",
+                              kind="milestone", tier=2)
+                return "questline_strike_done"
+            if res == "in_hideout":
+                # holding the Scope but still below — keep the inside marker so recovery doesn't
+                # eject her mid-dungeon; retry the exit next tick.
+                self._ql_inside_target = True
+                return "questline_strike_exit_wip"
+            if res == "not_here":
+                return None
+            return "questline_strike_failed"
+        except Exception as e:
+            log(f"   [roam] questline STRIKE errored: {e} — falling through to the general layer")
             return None
 
     def _questline_unentered_door(self):
@@ -9114,6 +9170,7 @@ class Campaign:
                              "questline_worked_room", "questline_step_done", "questline_done",
                              "questline_passthrough", "questline_deeper", "questline_entered",
                              "questline_flash", "questline_catch",   # the Flash errand IS the work
+                             "questline_strike_done", "questline_strike_exit_wip",  # the strike IS the work
                              "need_heal", "healed_retry")
             if _is_move_pick and not _moved and out not in _benign_still:
                 self._nomove_streak += 1

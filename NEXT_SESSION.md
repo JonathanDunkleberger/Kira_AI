@@ -1,4 +1,14 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 6 CLOSE) — READ FIRST
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 7 IN-FLIGHT) — READ FIRST
+
+## SHIFT-7 IN-FLIGHT: WIRING THE ROCKET HIDEOUT STRIKE into the general questline.
+Reproduced the shift-6 stall e2e (erika_done.state -> STALL at ~decision 30, looping Celadon
+buildings): she enters the Game Corner (10,14) via the door-hint, "works the room" (talks gamblers),
+never presses the POSTER, declares wrong_building, leaves, cycles other Celadon buildings -> STALL.
+BUILDING `pokemon_agent/hideout_strike.py` — a faithful in-loop port of the PROVEN champion strike
+(recon_hideout.py descent + recon_hideout_exit.py exit) driven by `camp`, hooked at the top of
+`_questline_interact` for the silph_scope errand (step.success==('item',359)). If this file still
+says IN-FLIGHT, the wire/verify did not finish — reproduce with the BOOT below and check
+logs/nightshift7/ for the last strike run.
 
 ## SHIFT-6 BANKED: ROCK TUNNEL CROSSING FIXED + VERIFIED e2e -> BADGE 4 (RAINBOW / Erika) WON.
 The badge-3->4 stretch is DONE. She now crosses Rock Tunnel on the billed road and goes on to beat
