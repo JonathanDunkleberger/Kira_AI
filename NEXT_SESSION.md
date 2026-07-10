@@ -13,17 +13,40 @@ Psychic = Agatha + Bruno answer) — arms `battle_agent.PROTECT_LEAD_GRIND` so e
 lead → Venusaur (ace) turn 1 (weak mon banks XP, takes no hit; Venusaur tanks+KOs). Fodder (Rattata/Spearow/
 Drowzee) is never fielded → no wasted XP, no boxing. Grinding re-levels Venusaur too. Also fixes movesets free
 (Kadabra learns Psychic by level-up). Banks every re-entry → G:/temp/longrun/banked_GRIND (promote → `bench_grind_kit`).
-**LAUNCH:** `GRIND_STATE=giovanni_done_kit.state GRIND_TARGET=42 GRIND_MAP=<g,n> GRIND_DIR=<edge> GRIND_MIN=<wallmin>
-../.venv/Scripts/python.exe -u recon_grind_bench.py` (from `pokemon_agent/`, log → G:/temp/longrun/ns7_grind*.log).
-GRIND_MAP default = Route 22 `3,41` west of Viridian (guaranteed grass + Center — but LOW wilds L2-8, a MECHANIC
-PROBE only). **⚠️ TUNE THE SPOT:** once the switch is confirmed leveling Lapras, relocate GRIND_MAP to a
-strong-wild, Center-adjacent spot (Route 15/Fuchsia L26-30, or Cycling Road Route 16-18 L28-33) — Victory Road's
-L40+ wilds are ideal XP but its Center is too far (grind()'s heal-excursion cap bails). RESUME_STAGE=1 continues
-the banked_GRIND ratchet across restarts.
-**AFTER GRIND (bench ~L42):** (1) BOX the 3 fodder at a Center PC (prevents whiteout on Venusaur-faint — the
-recon_lapras deposit flow is the proven mechanism; Viridian PC console coords need deriving) → lean 3-mon team;
-(2) run `recon_victory.py` from the grind bank (VR trainers now fall first-try); (3) port + run `recon_e4.py`
-(E4_STATE env). See E4 wall notes below + [[pokemon-e4-gauntlet-truths]] / [[pokemon-e4-livelock-family-killed]].
+### ▶▶ GRIND IS RUNNING & BANKING (Route 18) — CONTINUE IT, then re-badge 7/8, then VR/E4.
+**MECHANIC PROVEN + PRODUCTIVE SPOT FOUND.** The participation-XP switch fires and banks XP to the weak lead.
+The BLOCKER all shift was LOCATION (details below); the working answer is **Route 18 (Cycling Road south),
+OPEN grass L23-29, one hop WEST of Fuchsia, Fuchsia Center adjacent**. Base = **`surf_ready_kit.state`** (the
+Fuchsia kit fixture — its world graph is CONNECTED, unlike giovanni_done_kit whose Viridian is a graph-ISLAND).
+**LAUNCH / CONTINUE (RESUME_STAGE=1 continues the banked_GRIND ratchet across restarts — DON'T re-roll):**
+```
+cd pokemon_agent
+GRIND_STATE=surf_ready_kit.state GRIND_TARGET=38 GRIND_SPECIES=131,63,64 GRIND_MAP=3,36 GRIND_DIR=west \
+  GRIND_MIN=60 GRIND_PROBE_S=150 RESUME_STAGE=1 ../.venv/Scripts/python.exe -u recon_grind_bench.py \
+  > G:/temp/longrun/ns8_grind.log 2>&1 &
+```
+GRIND_SPECIES is PRIORITY-ORDERED: **131=Lapras** (Charizard/Lance answer — the must-have) grinds to TARGET
+first, then **63=Abra** (participation XP evolves it → Kadabra @L16 → learns Confusion → keeps leveling — the
+Agatha answer), then 64 if already Kadabra. **RATE IS MODEST** (~1 level / 2.5 min at Route 18; Lapras L25→38
+Slow-group ≈ 60k XP ≈ 1-1.5 hrs; the psychic climb from L10 is longer) — this is a MULTI-SHIFT grind that banks
+progressively (banked_GRIND updates every pass). **TARGET can drop to ~L35** if pressed: Lapras L35 landing
+Surf on Charizard (2×) after a Venusaur Sleep Powder + Hyper stall is enough; the psychic mon ~L34 for Agatha.
+**RE-BADGE TAIL (after the grind — badges=6 on this base):** with the leveled team, re-run the proven kit
+strikes to re-earn badges 7+8 (each TRIVIAL now): `recon_seafoam` (SEAFOAM_STATE=<grind bank>) → `recon_mansion`
+→ `recon_blaine` → `recon_giovanni` — same env-parametrized pattern. Bank → a `giovanni_done_kit`-equivalent
+with a STRONG bench. THEN: box fodder (recon_lapras deposit flow) → `recon_victory.py` (VR falls first-try) →
+port+run `recon_e4.py` (E4_STATE env) → Champion → **CREDITS**.
+**⚠️ NAV LESSONS (hard-won this shift — the Mt-Moon-class nuances):** (1) `giovanni_done_kit`'s **Viridian is a
+world-graph ISLAND** (9 nodes, only weak Route-2 grass) — the kit reached Viridian via the SEA so the overland
+links were never learned; you CANNOT grind giovanni directly without repairing that graph. (2) **Route 15 grass
+is GUARDHOUSE-DIVIDED** — walk_to_map's east edge lands at (0,12) where grass (x≥20) is UNREACHABLE; the grass
+sits past warps (9,11)/(16,11)→(24,0) which do NOT fire on plain step-on (need a door/UP trigger — unsolved).
+Route 18 (west, OPEN) sidesteps this. (3) `grind()` needs GRASS tiles + a reachable Center; **caves (VR) have
+no grass** so grind() can't use them, and Route 22 wilds are L2-8 (useless). Use `recon_grind_bench.py`'s scan
+pattern (reachable-grass BFS from the entry) to vet any new spot before committing.
+**ALT (avoids the re-badge tail, UNVERIFIED):** repair giovanni_done_kit's Viridian graph-island so route() can
+path to central-Kanto grass (drive Viridian→Route2→Pewter→Route3→…→Route18 overland via a multi-hop walk_to_map
+chain, learning edges en route), then grind the already-badge-8 team directly. Cleaner if it works.
 
 ## 🏁🏁 NS5 BANKED: ALL 8 BADGES (7 Blaine + 8 Giovanni) WON UNAIDED → frontier = VICTORY ROAD → E4 → CREDITS
 **Badge 8 (Earth/Giovanni 0x827) WON** from `blaine_done_kit` via kit-parametrized `recon_giovanni.py`
