@@ -35,7 +35,7 @@ import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from pokemon_strategy import StrategicMemory, roster_judgment  # noqa: E402  (Batch 3 Phase 2 + block-#3 choice)
-from pokemon_planner import StrategicPlanner  # noqa: E402  (2026-07-08 strategic-intelligence mega-batch)
+from pokemon_planner import StrategicPlanner, TeamPlanner  # noqa: E402  (2026-07-08 mega-batch; TeamPlanner 2026-07-09 mission-pivot)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
 import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a gate -> derive a questline -> execute)
@@ -641,6 +641,14 @@ class Campaign:
         # oracle ctx via the SAME `place` seam the loss-awareness/folklore notes use. Firewall: mode-side
         # game-knowledge only, never core. Kill-switch POKEMON_STRATEGIC_PLANNER=0.
         self.planner = StrategicPlanner(log=log)
+        # TEAM PLANNER (2026-07-09 mission-pivot Part B/C): the STANDING forward-planning team brain —
+        # whole-game lookahead over the deep KB (gamedata/frlg_*.json) that plans a balanced-6 toward the
+        # E4 from the start and emits the single highest-leverage next action (catch a keeper / evolve /
+        # teach a coverage TM / bounded grind), voiced first-person through plan_note. This is the PRIMARY
+        # forward-prep voice; the reactive StrategicPlanner above is its fallback (matchup foresight when
+        # the brain is on-track/silent). Same `place` seam, same mode-side firewall, she still chooses.
+        # Kill-switch POKEMON_TEAM_PLANNER=0 -> the brain never folds and StrategicPlanner takes over.
+        self.team_planner = TeamPlanner(log=log)
         # RECALIBRATION — the STANDING objective she returns to after a detour (a 25-min trainer
         # gauntlet, a heal run). Set when she commits to a going-somewhere action; preserved through
         # detour actions (heal/talk/grind) so she resumes "I was heading to X" instead of re-deciding
@@ -9089,7 +9097,16 @@ class Campaign:
             # reactive-only pattern (she learned a wall only AFTER losing); now she anticipates it. Same
             # `place` seam, she still chooses. Skipped cleanly on post-game / no-threat / disabled.
             try:
-                _plan = self.planner.plan_note(state)
+                # THE FORWARD BRAIN takes precedence (mission-pivot): fold its proactive next-action
+                # beat if it has one; only fall back to the reactive matchup-foresight note when the brain
+                # is silent (on-track / post-game / disabled). Never double up two prep beats in one ctx.
+                _plan = ""
+                try:
+                    _plan = self.team_planner.plan_note(state)
+                except Exception as _tp:
+                    log(f"   [roam] team-planner fold skipped: {_tp}")
+                if not _plan:
+                    _plan = self.planner.plan_note(state)
                 if _plan:
                     where = f"{where}. {_plan}"
             except Exception as _pl:
