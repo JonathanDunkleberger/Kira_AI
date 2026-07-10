@@ -48,6 +48,11 @@ if _HERE not in sys.path:
 if os.environ.get("WATCH") != "1":
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 from bridge import Bridge            # noqa: E402
 import travel as tv                  # noqa: E402
@@ -111,6 +116,22 @@ VR3F_SWITCH_PUZZLE = [("strength", (32, 5)),
                       ("push", (6, 7), "RIGHT", 1)]  # lands (7,7) = the 3F switch
 
 
+def _resolve_state(name):
+    """Resolve a state BASENAME/path -> (state_path, sidecar_dir, sidecar_prefix)."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
+
 def main():
     t0 = time.time()
 
@@ -121,7 +142,8 @@ def main():
     # RESUME_STAGE=1: boot from the vehicle's own last stage bank instead of canonical —
     # the ratchet across PROCESS restarts (run7's 1F+2F-switch1 progress lives in the
     # stage save; re-rolling Gary/gauntlet dice for a mid-VR wedge wastes the climb).
-    _boot = os.path.join(CANON, "kira_campaign.state")
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("VICTORY_STATE", ""))
+    _boot = state_path
     if os.environ.get("RESUME_STAGE") == "1":
         _sp = os.path.join(STAGE, "kira_campaign.state")
         if os.path.exists(_sp):
@@ -217,14 +239,20 @@ def main():
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    _w_side = os.path.join(sc_dir, sc_pref + ".world_model.json")
+    _s_side = os.path.join(sc_dir, sc_pref + ".strat_memory.json")
+    _soul_side = os.path.join(sc_dir, sc_pref + ".soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
 
