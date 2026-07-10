@@ -1,45 +1,54 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## FRONTIER: BADGE 4 (Erika / Celadon — RAINBOW 0x823) — coverage-teach-for-depth fix IN VERIFY
+## ✅ BADGE 4 (Erika / RAINBOW 0x823) — DONE + VERIFIED this shift (17)
+The coverage-teach-for-depth fix (5c07f01) is CONFIRMED working: from the erika_retry_kit fast fixture she
+dispatches coverage-teach (has_type_answer=False), counts neutral_dmg=1<2, teaches Venusaur CUT (HM01, x1
+neutral, forgets Vine Whip), fields Cut vs Erika's victreebel/tangela/vileplume, and WINS badge 4 on the
+FIRST engagement — no PP-famine blackout, no retry ratchet. Banked -> states/workshop/erika_done_kit.state
+(+ sidecars). This was the badge-4 PP-famine wall, now dead.
 
-★ SHIFT-17 KEY FINDING: the shift-14 fix (5c07f01, committed 09:35) was NEVER tested — all s14/s15/s16
-runs finished 09:23–09:49 on PRE-fix code (b3f729d) or were killed early by shift-cycling. The full run
-from surge_done_kit takes ~40 min and never completed inside a shift. So shift 17 built a FAST fixture.
+## FRONTIER: BADGE 5 (Koga / Fuchsia — SOUL 0x824) — questline chain REPLAYS autonomously (shift 17)
 
-★ FAST FIXTURE: `states/workshop/erika_retry_kit.state` (+ sidecars) = copy of banked_STALL (the s14 run's
-post-blackout STALL bank). Venusaur L43 [Razor Leaf, Vine Whip, Tackle(35pp,1 neutral move), Sleep Powder];
-badges 3 (boulder/cascade/thunder); rainbow OFF; HM01 Cut + HM05 Flash + TM03/28/34/39 in bag; map (3,6)
-coords (59,15) (near Lavender/Rock-Tunnel, post-blackout). Loading this reaches Erika in MINUTES, not 40.
+★ THE BADGE-5 APPROACH IS A LONG QUESTLINE CHAIN (not a routing bug). Route 12 south out of Lavender is
+BLOCKED by the sleeping Snorlax → needs the POKÉ FLUTE → rescue Mr. Fuji atop POKÉMON TOWER → needs the
+SILPH SCOPE to pass the ghost Marowak on 6F → Scope held by Giovanni in the ROCKET HIDEOUT under Celadon's
+Game Corner. The questline machinery KNOWS this whole chain (anchor-first routing) and REPLAYS it e2e:
+   - QUESTLINE STRIKE Rocket Hideout -> got_scope ✓ (Silph Scope obtained)
+   - QUESTLINE STRIKE Pokémon Tower: climbed floors 5→6→7F, beat Gary on 2F (grudge 5W-2L), rescued Fuji
+     -> got_flute ✓ (Poké Flute item+flag, key_item 350)
+   - QUESTLINE STRIKE Route 12 Snorlax (Poké Flute wake) — in progress at last check
+   - THEN: Routes 12→13→14→15 → Fuchsia → Koga gym.
+Venusaur solo-carries and levels through it (L44→L46+). The chain is fully billed in
+gamedata/frlg_gates.json roads["Fuchsia City"] (Celadon→R7→R8→Lavender→R12 south→R13/14/15→Fuchsia).
 
-★ VERIFY COMMAND (fast — ~15-20 min to Erika from this fixture):
-   `POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 LONGRUN_GOAL_FLAG=0x823 .venv/Scripts/python.exe -u
-   pokemon_agent/recon_longrun.py pokemon_agent/states/workshop/erika_retry_kit.state 25` → /g/temp/s17_erika.log
-   WATCH FOR: `GYM-PREP [Erika]: coverage-teach dispatch -> taught` + `COVERAGE-TEACH Cut (normal, x1 neutral)
-   -> venusaur` BEFORE `engaging Erika` → ace fields Tackle+Cut (65 PP neutral) → `GYM: won` → flag 0x823.
-   grep: `grep -nE "coverage-teach dispatch|COVERAGE-TEACH|engaging Erika|GYM: won|GYM: lost|blacked|OUTCOME|badges=4" LOG | grep -v ctx=`
+★ VERIFY/CLIMB COMMAND (badge 5 from the fresh badge-4 bank; give it the full 40 — Hideout+Tower+Snorlax+
+4 routes + Koga is a LOT of content):
+   `POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 LONGRUN_GOAL_FLAG=0x824 .venv/Scripts/python.exe -u
+   pokemon_agent/recon_longrun.py erika_done_kit.state 40` → /g/temp/s17_koga.log (0x824 = FLAG_BADGE_SOUL)
+   WATCH: got_scope → got_flute → got_snorlax (flag 0x253) → Fuchsia City → GYM-PREP [Koga] → GYM: won → 0x824.
+   grep: `grep -nE "got_scope|got_flute|got_snorlax|Snorlax|Fuchsia City|GYM-PREP \[Koga|engaging Koga|GYM: won|GYM: lost|OUTCOME" LOG | grep -v ctx=`
 
-★ EXPECTED current-code path (5c07f01): dispatch fires (has_type_answer=False) → _teach_gym_coverage counts
-neutral_dmg=1 (only Tackle) <2 → finds Cut (HM01, Venusaur-compatible, normal x1) → teaches it, forgets
-Vine Whip (weakest dmg vs grass/poison) → Venusaur carries Tackle+Cut = 65 PP neutral → reaches leader with
-PP → wins. If it DISPATCHES but still loses: backstop = PP-restore heal between junior-clear and leader
-(NOT built). If dispatch shows `have_coverage`: the neutral_dmg guard mis-counted — check Venusaur moveset
-at Erika-time. If `no_candidate`: Cut not found/compatible — check _COVERAGE_MOVES + hm_compatible.
+★ WATCH FOR at Koga: memory says Koga = a team/movepool wall; the original climb used a NUKE-SLEEP opener
+(Sleep Powder → nuke). Venusaur has Sleep Powder + Razor Leaf + Cut. If she loses Koga: the coverage-teach
+now also arms depth (poison gym; psychic/ground/psychic coverage). A LOSS during the tower (drowzee
+whiteout-backstop) set an active_wall + UNDERLEVEL-PREP (team floor < L27) — watch it doesn't divert her
+into an endless grind; her bench is L8-14 (solo-carry, the classic team-building debt).
 
-★ ON GOAL (rainbow 0x823 set): bank /g/temp/longrun/banked_GOAL → promote to
-states/workshop/erika_done_kit.state (+ sidecars). Frontier advances to BADGE 5 (Koga/Fuchsia — scouted
-shifts 7-9: Route-15 gate crossed, Koga is a team/movepool wall, Fuchsia Mart potions likely answer).
+★ ON GOAL (soul 0x824 set): bank /g/temp/longrun/banked_GOAL → promote to
+states/workshop/koga_done_kit.state (+ sidecars). Frontier advances to BADGE 6 (Sabrina/Saffron — needs
+the Tea to pass Saffron's gatehouses; the Tea gate was armed early, from the Celadon dept-store lady).
 
-★ RESIDUALS (fix AFTER badge 4 banks): (1) junior-engagement spin — Erika's flower-tile layout leaves ~4
-juniors un-engageable; she tries each 4× then burns the 14-clear-round cap (slow/unwatchable) before the
-leader. Fix: remember deferred un-engageable set across clear-rounds, skip to leader once only they remain.
-(2) Full-chain-from-surge_done_kit never completes in a shift — either speed it up or run detached.
+★ RESIDUAL (fix AFTER badge 5): Erika junior-engagement spin — flower-tile layout leaves ~4 juniors
+un-engageable; she tries each 4× then burns the 14-clear-round cap before the leader (slow/unwatchable).
+Fix: remember deferred un-engageable set across clear-rounds, skip to leader once only they remain.
 
 KEY FACTS: venv `.venv/Scripts/python.exe` (SINGLE-RUN LAW — recon_longrun auto-reaps predecessor via
-longrun.pid). arg2 = max_minutes. GOAL 0x823 = FLAG_BADGE_RAINBOW. Decision-counter FREEZES during a gym
-(whole junior-clear+leader = ONE head_to_gym decision) — watch growing log lines, not the counter. Bag
-decode: TM_N=288+N, HM_N=338+N. Coverage-teach = campaign.py:3310 dispatch / :3326 `_teach_gym_coverage`.
-recon_partydump.py / recon_bagdump.py take a full path.
+longrun.pid). arg2 = max_minutes. resolve_state needs a BASENAME in workshop/ (e.g. erika_done_kit.state),
+NOT a path. Decision-counter FREEZES during a gym/dungeon strike (watch growing log lines). Bag decode:
+TM_N=288+N, HM_N=338+N. Coverage-teach = campaign.py:3310 dispatch / :3326 _teach_gym_coverage.
+recon_partydump.py / recon_bagdump.py take a full path. FAST-FIXTURE trick: a post-blackout STALL bank
+near a gym city makes a minutes-long verify instead of a 40-min full chain.
 
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 4 Erika (coverage-teach-
-for-depth fix committed, in verification via erika_retry_kit fast fixture). Pop-in = `python
-pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = BADGE 5 Koga (Scope→Flute→
+Snorlax questline replaying autonomously from the fresh badge-4 bank; heading Route 12→Fuchsia). Pop-in =
+`python pokemon_agent/watch.py`.
