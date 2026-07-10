@@ -743,11 +743,18 @@ def main():
 
     def wedge(label, cap=4):
         wedges[label] = wedges.get(label, 0) + 1
-        if wedges[label] >= cap:
-            L(f"!! [{label}] failed x{cap} — abort LOUD")
-            snap(f"wedge_{label[:14]}")
-            return True
-        return False
+        # NS9: a post-battle EVOLUTION box (e.g. Abra->Kadabra won mid-VR) JAMS overworld nav —
+        # dd_box does NOT flag it, so drain()/handle_interrupts skip it and the go_warp step loop
+        # presses into a dead box forever (reproduced: 2f-to-3f-detour wedged with the
+        # 'Congratulations! Your ABRA evolved into KADABRA!' box on screen). RAW press-through
+        # (B, ungated by dd_box) on the early wedges to punch past it, then abort if truly stuck.
+        if wedges[label] < cap:
+            for _ in range(20):
+                b.press("B", 8, 12, camp.render, owner="agent")
+            return False
+        L(f"!! [{label}] failed x{cap} — abort LOUD")
+        snap(f"wedge_{label[:14]}")
+        return True
 
     # NO retreat leg: the R22 gate's southbound exits (6-8,10) are beh-0 ARRIVAL
     # ANCHORS the engine cannot fire (pret: only 0x6x-class behaviors warp), so the
