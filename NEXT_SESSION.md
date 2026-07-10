@@ -1,92 +1,72 @@
-# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 8 IN-FLIGHT) — READ FIRST
+# NEXT_SESSION — NIGHT-TRAIN FRONTIER (2026-07-09, shift 9 IN-FLIGHT) — READ FIRST
 
-## SHIFT-8 BANKED (2 commits): SNORLAX wake VERIFIED e2e + critical-heal FREEZE broken -> she now
-## drives Route 12 -> 13 -> 14 -> 15 to Fuchsia's doorstep. FRONTIER = enter Fuchsia -> Koga (badge 5).
+## FRONTIER = CROSS THE ROUTE 15 GATE INTO FUCHSIA -> Koga (badge 5).
+## She stalls one crossing from Fuchsia. Shift-9 re-diagnosed the REAL cause (shift-8's
+## NEXT_SESSION pointed at the WRONG code) and applied the load-bearing fix. VERIFY IN FLIGHT.
 
-**Commit fd22167 — Route 12 SNORLAX wake strike (badge-5 gate).** Post-Flute she walked to the
-Snorlax and STALLED at (3,30)@(12,0) (run7). Fixed: (1) bill the snorlax gate at Route 12 "3,30"-south
-too (frlg_gates.json) so the wake questline opens from Route 12 (fixture + rule-17 resume-safety);
-(2) fire the strike FIRST in `_run_questline_step` for DOOR-LESS steps (the snorlax has no door hint)
-before the ANCHOR-FIRST routing routes her back to Lavender. `snorlax_strike.py` = in-loop port of
-recon_snorlax.py. VERIFIED e2e (snorlax_face.state): questline opens -> STRIKE -> pass gate -> play
-Flute -> wake+beat -> FLAG_WOKE_UP_ROUTE_12_SNORLAX set -> crossed to Route 13.
+### CORRECTED ROOT CAUSE (shift 9 — proven via recon_longrun fuchsia_gate.state, 203s STALL)
+The stall is NOT `_door_passthrough` / `_dest_rank` (shift-8's theory). It is the **critical-heal
+freeze**, in `_route_action`'s heal branch (campaign.py ~8100):
+1. She boots INSIDE gate (24,0), critically hurt (Venusaur 43/160 = 27% < 30% crit) -> options
+   pruned to `['heal']` only.
+2. `heal_nearest()` exits to Route 15 (3,33) EAST side (via door (11,6)), correctly proves
+   "no graph route to any known Center from (3,33)" (Fuchsia is WEST across the internal split),
+   then falls back to a nonsensical **Viridian** return that PING-PONGS through the gate's two
+   floors (24,0)<->(24,1) for 20 legs and returns `"stuck"`.
+3. The shift-8 heal-dead mark required `_hp1 == _hp0` (no movement). The ping-pong MOVED her ->
+   heal-dead NEVER marked -> the shift-8 freeze breaker never armed -> critical re-picks `'heal'`
+   forever. Hard freeze at (24,0)@(9,10).
 
-**Commit a39e9c2 — critical-heal FREEZE breaker (Route-12 gatehouse split).** Post-snorlax she's hurt on
-Route 13; the survival floor collapses to ONLY 'heal', but the heal-return can't reach a Center — Route
-12 is INTERNALLY split by a gatehouse (both halves = map (3,30)), so the map-granular next_hop returns a
-plain (3,30)->(3,4) north edge whose band is UNREACHABLE from her south-section feet; heal abandons ->
-hard FREEZE at (3,31)@(63,0). Fix (mirrors the non-critical STRAND GUARD): mark a map heal-dead when a
-'heal' pick returns 'stuck' with zero movement, and at CRITICAL severity on a heal-dead map fall through
-to offer head_to_gym (push to the next town's Center) instead of freezing; a blackout en route respawns
-her healed. VERIFIED e2e (snorlax_done.state): freeze broke -> she drove Route 13 -> 14 -> 15 (healing
-via a Lavender blackout-respawn en route) to Route 15's WEST edge = Fuchsia City ("a Mart, a Pokémon
-Center", one step away). recon_healcross.py = the gatehouse-split diagnosis probe.
+### FIX APPLIED (shift 9, campaign.py ~8110, UNCOMMITTED until verified)
+Mark heal-dead on ANY `heal_nearest()=="stuck"` (an honest "no Center reachable" proof — movement
+or not), and mark BOTH the start map AND the map the failing router left her on. Then the freeze
+breaker fires: critical + heal-dead -> offer head_to_gym -> she pushes WEST toward Fuchsia's Center
+(a blackout en route just respawns her healed).
 
-## FRONTIER (PRECISELY DIAGNOSED — fix half-designed below): CROSS THE ROUTE 15 GATE INTO FUCHSIA.
-She now drives all the way to Route 15 but STALLS at its WEST end: the coastal road Route 12->13->14->15
-is proven crossable (s8_run3), but from Route 15's far-east she can't walk the west map-edge to Fuchsia
-(3,7) — "no clean path ... genuine wall/zone gap" — so head_to_gym's PASSTHROUGH diverts her into the
-Route-15 internal GATE building (24,0) and she LOOPS there forever (s8_run3 STALL at (24,0)@(9,10)).
+### VERIFY IN FLIGHT (the run that decides this shift)
+`.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py fuchsia_gate.state 25`
+Watch for: after the heal 'stuck', next tick opts should include `head_to_gym` (freeze breaker
+fired). THE OPEN QUESTION the run answers: does head_to_gym then CROSS THE GATE WEST to Fuchsia,
+or take the (9,10) dead-end stairs? If it takes the stairs, the SECONDARY fix is the gate
+passthrough dead-end demote (see below) — but the freeze breaker is the load-bearing half.
 
-**GROUND TRUTH (recon_fuchsia_gate.py — all doors of (24,0) tested by pick):**
-  - (24,0) is Route 15's internal gate (crosses a Route-15 barrier). ALL FOUR cardinal doors exit to
-    Route 15 (3,33): WEST doors (1,6)/(1,7) -> (3,33)@(9,11) [Route 15 WEST side, toward Fuchsia];
-    EAST doors (11,6)/(11,7) -> (3,33)@(16,11) [Route 15 EAST side, where she came from].
-  - (9,10) is a STAIRS warp (behavior 0x6c) up to a DEAD-END upper floor (24,1) whose only door
-    (10,9) leads straight back to (24,0). That stairs<->back loop is the ping-pong.
-  - So the crossing SHE NEEDS: take a WEST door (1,6)/(1,7) -> Route 15 west side (9,11) -> continue
-    west to the Fuchsia (3,7) edge. She instead keeps taking the (9,10) stairs.
+### SECONDARY (only if the run shows head_to_gym looping the (9,10) stairs)
+GROUND TRUTH (recon_fuchsia_gate.py): gate (24,0) doors -> WEST (1,6)/(1,7) -> (3,33)@(9,11)
+[Route 15 WEST, toward Fuchsia]; EAST (11,6)/(11,7) -> (3,33)@(16,11) [east, where she came];
+(9,10) = STAIRS up to DEAD-END floor (24,1) whose only door loops back. `_dest_rank`
+(campaign.py:1534) ranks unvisited interiors (rank 1) ABOVE known ground (rank 2), so the dead-end
+upper floor out-ranks the exit doors. Fix = demote a DEAD-END interior (dest has <=1 outbound door)
+below known overworld doors, or a `_pt_deadend` memo so a proven dead-end isn't re-preferred.
 
-**ROOT CAUSE + FIX LOCATION:** `_door_passthrough` candidate ranking, `_dest_rank` at campaign.py:1534.
-It ranks UNVISITED interiors (rank 1) ABOVE known overworld ground (rank 2) — "unvisited interiors beat
-known ground" — so the unexplored dead-end upper floor (24,1) via the (9,10) stairs OUT-RANKS the
-Route-15 exit doors, and she climbs the dead-end first every tick. NOT a safe one-liner: you can't just
-demote stairs-warps, because legit connectors (the Underground Path huts, line ~1618) ALSO cross via
-stairs. The right fix distinguishes a DEAD-END interior (dest has <=1 outbound door = only the entry)
-from a THROUGH interior (dest has a further exit) and demotes the dead-end BELOW known overworld doors,
-OR marks a proven dead-end so it isn't re-preferred each tick (per-tick _door_passthrough resets `tried`;
-only PROVEN crossings persist via `_pt_known`, dead-ends don't — so add a `_pt_deadend` memo per (map,door)).
-Then verify: recon_longrun snorlax_done.state -> she should exit (24,0) WEST -> Route 15 west -> Fuchsia ->
-enter the gym -> Koga.
+### BOOT the frontier directly
+`.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py fuchsia_gate.state 25`
+(states/workshop/fuchsia_gate.state = STALL inside gate (24,0)@(9,10), Venusaur L51, badges=4.)
 
-**BOOT the frontier directly (she's stalled INSIDE the gate):**
-`.venv\Scripts\python.exe -u pokemon_agent\recon_longrun.py fuchsia_gate.state 20`
-(states/workshop/fuchsia_gate.state = s8_run3 STALL, inside gate (24,0)@(9,10), Venusaur L51, badges=4.)
-OR from further back: `recon_longrun.py snorlax_done.state 25` (post-snorlax on Route 13, drives the
-whole 13->15 leg then hits the gate). recon_fuchsia_gate.py re-probes the door destinations on demand.
+### KOGA (badge 5, Fuchsia gym): poison/confusion L37-43. Bench L9-16 under Venusaur L51 — expect a
+grind/team-build need; Venusaur STAB grass + status may brute-force juniors. Fuchsia has a Center
+(heal reachable forward once she arrives) + Safari Zone (HM sources).
 
-**KOGA (badge 5, Fuchsia gym):** poison/confusion, L37-43. Her bench is L9-15 (huge gap under Venusaur
-L48) and she has NO clean psychic/ground answer — expect a grind/team-build need. Venusaur L48 with STAB
-grass + status may brute-force the juniors; watch for the gym-entry (any Fuchsia gym approach gate) and
-the leader fight. Also: Fuchsia has the Safari Zone (HM sources) + a Pokémon Center (heal now reachable
-forward, which retro-fixes the heal-dead mark once she arrives).
-
-## AFTER KOGA: badge-6 chain. Tea is ALREADY obtained (Saffron guards open) -> Saffron/Silph Co ->
-Sabrina (badge 6, Marsh). Then Cinnabar (Blaine, badge 7) -> Viridian (Giovanni, badge 8) -> Victory
-Road -> Elite Four -> CREDITS.
+### AFTER KOGA: Tea already obtained (Saffron open) -> Sabrina (badge 6) -> Blaine (7) -> Giovanni
+(8) -> Victory Road -> Elite Four -> CREDITS.
 
 ## KEY FACTS
 - venv python: `.venv/Scripts/python.exe` (2-PID shim; SINGLE-RUN LAW — kill predecessors first).
-- recon_longrun stages persistence to G:/temp/longrun/stage (WIPED each run start); world_model+strat
-  load from CANONICAL, soul from the boot bundle. Canonical Champion save NEVER touched. Banks to
-  G:/temp/longrun/banked_<OUTCOME>; snapshot OUT before relaunching (STAGE is wiped).
-- Fixtures (states/workshop/): surge_done, rt_mouth, flash_done, erika_done (badge 4 @ Celadon),
-  snorlax_face (Route 12 @ Snorlax — pre-wake), snorlax_done (post-wake, Route 13),
-  **fuchsia_gate (stalled INSIDE the Route-15 gate (24,0)@(9,10) — THE FRONTIER)**.
-- Topology south of Lavender: Lavender(3,4) -> Route 12(3,30, SNORLAX, internal gatehouse-split) ->
-  Route 13(3,31) -> Route 14(3,32) -> Route 15(3,33) -> Fuchsia City(3,?). Route N = map (3,18+N).
-- Snorlax facts (game-knowledge layer, snorlax_strike.py): Route 12=(3,30); FLAG_WOKE=0x253/595; body
-  (14,70); north gate doors ((14,15),(15,15)). Route 12 internal gatehouse = building (23,0).
+- recon_longrun stages to G:/temp/longrun/stage (WIPED each run start); banks to
+  G:/temp/longrun/banked_<OUTCOME>; snapshot OUT before relaunching. Canonical Champion NEVER touched.
+- Fixtures (states/workshop/): surge_done, rt_mouth, flash_done, erika_done, snorlax_face,
+  snorlax_done, **fuchsia_gate (THE FRONTIER — stalled inside the Route-15 gate)**.
+- Topology: Lavender(3,4) -> Route12(3,30,Snorlax) -> R13(3,31) -> R14(3,32) -> R15(3,33,internal
+  gate (24,0)/(24,1)) -> Fuchsia(3,7). Route N = map (3,18+N).
 
 ## DURABLE PATTERNS
-- STRIKE-REGISTRY (shift 7-8): dungeon/blocker rituals ported as in-loop strike modules (hideout/tower/
-  snorlax_strike), dispatched from `_questline_strike` keyed by step.success. Dungeon errands fire at
-  the door-hint hook; face-a-blocker errands (snorlax) fire early in `_run_questline_step` (door-less).
-- INTERNAL MAP-SPLIT class (Route 12 gatehouse, shift 8): a map whose halves share one id but connect
-  ONLY through a gatehouse — the map-granular world graph is blind to the split, so next_hop returns a
-  cardinal edge the feet can't reach. Heal now DETECTS this (no-op stuck -> heal-dead -> push forward).
-  A fuller fix (multi-hop gatehouse traversal in the heal router) is deferred; forward-push covers it.
+- HEAL-DEAD-ON-STUCK (shift 9): a `heal_nearest()=="stuck"` is the honest "no Center reachable"
+  signal; mark heal-dead regardless of movement (the Viridian-fallback ping-pong defeats no-move
+  guards) so the critical-heal freeze breaker (offers head_to_gym) can arm.
+- INTERNAL MAP-SPLIT class: a route whose halves share one map id but connect only through a gate
+  building — the map-granular world graph is blind to the split; from the wrong side, edge/center
+  bands read UNREACHABLE. The freeze breaker's forward-push covers heal; head_to_gym must own the
+  actual gate crossing.
 
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa look-ahead is at badge 4, post-Snorlax,
-standing at the Route-15 gate ONE crossing from Fuchsia — next fix = the gate-passthrough dead-end-stairs
-demote, then Koga (badge 5). Pop-in = `python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa look-ahead at badge 4, post-Snorlax,
+frozen INSIDE the Route-15 gate one crossing from Fuchsia — shift-9 fix (heal-dead-on-stuck) applied,
+verifying in flight. Pop-in = `python pokemon_agent/watch.py`.

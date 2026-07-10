@@ -8101,18 +8101,27 @@ class Campaign:
             _hp0 = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b) or ()))
             _hr = self.heal_nearest()
             _hp1 = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b) or ()))
-            # HEAL PROVEN DEAD HERE (2026-07-09 shift 8): the full heal router (own-map + world-graph
-            # multi-hop + Viridian fallback) came back 'stuck' AND didn't move her an inch — no Center
-            # is reachable from this spot (the Route-12 gatehouse-split heal-return). Remember it so
-            # _available_actions stops FREEZING on only-'heal' at critical severity and lets the
-            # forward push to the next town's Center carry her. Cleared on any successful heal (a
-            # later reachable Center discards its own map's mark).
-            if _hr == "stuck" and _hp1 == _hp0:
+            # HEAL PROVEN DEAD HERE (2026-07-09 shift 8, HARDENED shift 9): the full heal router
+            # (own-map + adjacent-city + world-graph multi-hop + Viridian fallback + escape-hatch
+            # reload) came back 'stuck' — it exhausted EVERY route and still couldn't heal, so no
+            # Center is reachable from here. Remember it so _available_actions stops FREEZING on
+            # only-'heal' at critical severity and lets the forward push to the next town's Center
+            # carry her. Cleared on any successful heal (a later reachable Center discards its map).
+            #   SHIFT-9 FIX (the Route-15 gate freeze, one crossing from Fuchsia): the old
+            #   `_hp1 == _hp0` no-MOVE guard MISSED this whole class. From the Route-15 split, the
+            #   Viridian fallback PING-PONGS her through the internal gate's two floors
+            #   (24,0)<->(24,1) as it fails, so she DID move -> the mark never armed -> critical
+            #   re-picked 'heal' forever, a hard freeze. A 'stuck' return is itself the honest
+            #   "no Center reachable" proof (movement or not); mark on ANY 'stuck', and mark BOTH
+            #   the map she started on AND the one the failing router left her on, so whichever
+            #   she's standing on next tick trips the breaker into head_to_gym.
+            if _hr == "stuck":
                 if not hasattr(self, "_heal_dead_maps"):
                     self._heal_dead_maps = set()
                 self._heal_dead_maps.add(_hp0[0])
-                log(f"   [roam] !! HEAL no-op stuck at {_hp0[0]}@{_hp0[1]} — marked heal-dead "
-                    f"(critical-heal freeze breaker armed; she'll push to the next Center)")
+                self._heal_dead_maps.add(_hp1[0])
+                log(f"   [roam] !! HEAL stuck ({_hp0[0]}@{_hp0[1]} -> {_hp1[0]}@{_hp1[1]}) — marked "
+                    f"heal-dead (critical-heal freeze breaker armed; she'll push to the next Center)")
             return _hr
         if pick == "regroup":
             return self._regroup_walk()
