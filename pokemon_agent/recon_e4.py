@@ -31,6 +31,11 @@ if _HERE not in sys.path:
 if os.environ.get("WATCH") != "1":
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ["POKEMON_TRAVEL_MUSE_GAP_S"] = "0"
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 # The anti-wedge forensic frame dump is env-gated — set it HERE, not in the launcher shell
 # (runs 7-8 aborted dozens of times with ZERO frames because the env didn't ride the launch).
 os.environ.setdefault("BATTLE_DEBUG_DIR", os.path.join(
@@ -77,6 +82,22 @@ CENTER_EXIT = (11, 16)
 KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 
 
+def _resolve_state(name):
+    """Resolve a state BASENAME/path -> (state_path, sidecar_dir, sidecar_prefix)."""
+    if not name:
+        return (os.path.join(CANON, "kira_campaign.state"), CANON, "kira_campaign")
+    for cand in (name, os.path.join(_HERE, "states", name),
+                 os.path.join(_HERE, "states", "workshop", name),
+                 os.path.join(_HERE, "states", name + ".state"),
+                 os.path.join(_HERE, "states", "workshop", name + ".state")):
+        if os.path.exists(cand):
+            d = os.path.dirname(cand)
+            base = os.path.basename(cand)
+            pref = base[:-6] if base.endswith(".state") else base
+            return (cand, d, pref)
+    return (name, os.path.dirname(name) or CANON, "kira_campaign")
+
+
 def main():
     t0 = time.time()
 
@@ -88,11 +109,18 @@ def main():
     # died MID-CHAIN resumes with its DEFEATED flags (cleared rooms stay cleared). Booting
     # a bank lands inside a room: the dispatch loop's off-route branch walks her south to
     # the lobby (beaten trainers don't re-fight), learns the center, and re-enters the chain.
-    boot_dir = os.environ.get("E4_BOOT") or CANON
-    with open(os.path.join(boot_dir, "kira_campaign.state"), "rb") as f:
+    # E4_STATE=<kit basename> boots the kit line (single .state + <pref>.*.json sidecars);
+    # E4_BOOT=<dir> (the ratchet bank) OVERRIDES it for a mid-chain resume (cleared rooms
+    # stay cleared) and reads dir-style sidecars (world_model.json).
+    state_path, sc_dir, sc_pref = _resolve_state(os.environ.get("E4_STATE", ""))
+    boot_dir = os.environ.get("E4_BOOT")
+    if boot_dir:
+        state_path, sc_dir, sc_pref = (
+            os.path.join(boot_dir, "kira_campaign.state"), boot_dir, "")
+    with open(state_path, "rb") as f:
         b.load_state(f.read())
-    if boot_dir != CANON:
-        print(f"BOOT from bank: {boot_dir}", flush=True)
+    if boot_dir or os.environ.get("E4_STATE"):
+        print(f"BOOT from: {state_path}", flush=True)
     for _ in range(40):
         b.run_frame()
 
@@ -181,14 +209,21 @@ def main():
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
     camp._continuity_load = lambda *a, **k: None
-    for loader, path in ((camp.world.load, C.WORLD_JSON), (camp.strat.load, C.STRAT_JSON)):
+    _pfx = (sc_pref + ".") if sc_pref else ""
+    _w_side = os.path.join(sc_dir, _pfx + "world_model.json")
+    _s_side = os.path.join(sc_dir, _pfx + "strat_memory.json")
+    _soul_side = os.path.join(sc_dir, _pfx + "soul.json")
+    for loader, path, fallback in (
+            (camp.world.load, _w_side, C.WORLD_JSON),
+            (camp.strat.load, _s_side, C.STRAT_JSON)):
         try:
-            loader(path)
+            loader(path if os.path.exists(path) else fallback)
         except Exception:
             pass
     try:
         if camp.soul is not None:
-            camp.soul.load(os.path.join(CANON, "soul.json"))
+            camp.soul.load(_soul_side if os.path.exists(_soul_side)
+                           else os.path.join(CANON, "soul.json"))
     except Exception:
         pass
 
