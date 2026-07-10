@@ -33,13 +33,36 @@ THREE FIXES BUILT THIS SHIFT (2f2e918 cabins committed; +2 more this commit):
     cleanly) whiteout to Vermilion at ~L30 -> prep NOW fires L30->L32/Venusaur (2 fast levels) -> re-board
     (cabins beaten, walk through) -> full-PP Venusaur solos Gary (reactive-proven win) -> Cut -> Surge.
 
-VERIFYING (the composition, prep-grind ON = default 32):
-  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 35  (log /g/temp/s8_compose.log)
-EXPECT (2 passes): board L26 -> cabins -> L30 -> lose Gary (CLEAN, no spin) -> Vermilion prep-grind
-L30->L32 Venusaur -> re-board -> Gary WIN -> captain HM01 Cut -> teach -> cut Vermilion gym tree -> Surge.
-IF she STILL loses at Venusaur L32: the whiff-spiral (Sand-Attack accuracy debuff PERSISTS across foe
-faints, burns PP) is the last root -> fix = switch ace OUT+IN to reset accuracy when whiffing detected
-(fragile Tier-1 #5 switching) OR proactively Sleep-Powder Pidgeotto turn 1 before it debuffs.
+RESULT (s8_compose2.log — the composition MECHANICALLY WORKS but Gary is UN-WINNABLE with the current
+battle brain): board L28 -> cabin sweep -> L30 -> lose Gary (CLEAN, immob fix = 14 immob lines not 183)
+-> Vermilion prep top-off L30->L32 -> **EVOLVED to VENUSAUR L32** -> heal full PP -> re-board -> Gary...
+**LOST AGAIN, then LOOPED (grudge 4W-4L -> 0W-12L).** The composition delivered a full-PP Venusaur L32
+at Gary — and she STILL lost.
+
+★ ROOT NAILED — THE WHIFF-SPIRAL (this ends the shift 4-7 level/PP misdirection): Venusaur L32 got
+Charmeleon to 15/55 then WHIFFED Tackle 25+ turns straight — Charmeleon's **Smokescreen** (+ Pidgeotto
+Sand-Attack + Kadabra Kinesis earlier) floored her accuracy; the debuff persists until SHE switches out.
+So she misses the kill, PP-famines, loses. LEVELING CANNOT FIX THIS (shift-15/16's "Venusaur beats Gary"
+was RNG luck when few debuffs landed). Two things are now needed:
+
+★ FRONTIER 1 — BREAK THE WHIFF-SPIRAL (the real unblock; fragile Tier-1 #5 — do with FRESH context,
+meticulous+minimal+VERIFIED per rule-12 firewall since it touches the shared battle brain / all gyms+E4):
+when whiffing is detected (foe HP static over N of her FIRED turns — moves executing, PP dropping, 0
+damage = MISSING, not paralysis/0-PP), SWITCH the ace OUT+back to RESET the accuracy debuff (Gen-3 stat
+stages reset on switch-out). Primitives EXIST + VERIFIED: battle_agent.py `_switch_to_slot(slot,before_sp)`
+(~1894), `_voluntary_switch(state)` (~1953), `_best_switch_slot` (~1834). Risk = orchestration (switch
+back to the ace, don't switch-loop, the frail bench eats one hit). VERIFY end-to-end from bill_done_kit.
+FRONTIER 2 — RIVAL LOSS-LOOP BREAKER (rule-18 watchability; she re-boards + re-loses infinitely): after
+K losses to the rival at the prep-target level, stop re-attempting / stand down instead of spinning.
+
+WHAT LANDED THIS SHIFT (4 commits, all VERIFIED working, all kill-switched): e91fa52 env-tunable prep
+level; 2f2e918 FIGHT-THE-CABINS-FIRST (POKEMON_SHIP_CABIN_SWEEP, ace L26->L30 fighting ~17 cabin
+trainers); 01d10e4 immob-livelock fix (killed the 183-turn paralysis spin) + prep/cabin compose;
+c678742 cabin-first prep gate (POKEMON_RIVAL_PREP_MARGIN, wild grind only tops off after a cabin loss).
+Minor debt: the cabin sweep miscategorizes the inter-floor down-stairs as a cabin ONCE (one-time bounce,
+not a wedge) — refine by excluding warps whose dest is a floor-chain map.
+
+RE-RUN: POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 25
 Fixtures: bill_done_kit.state (rebuild: `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py` ->
 writes pokemon_agent/states/workshop/), bill_done.state (rebuild: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->
