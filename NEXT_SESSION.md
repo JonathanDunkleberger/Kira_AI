@@ -18,13 +18,19 @@ Drowzee) is never fielded → no wasted XP, no boxing. Grinding re-levels Venusa
 The BLOCKER all shift was LOCATION (details below); the working answer is **Route 18 (Cycling Road south),
 OPEN grass L23-29, one hop WEST of Fuchsia, Fuchsia Center adjacent**. Base = **`surf_ready_kit.state`** (the
 Fuchsia kit fixture — its world graph is CONNECTED, unlike giovanni_done_kit whose Viridian is a graph-ISLAND).
-**LAUNCH / CONTINUE (RESUME_STAGE=1 continues the banked_GRIND ratchet across restarts — DON'T re-roll):**
+**LAUNCH / CONTINUE — resume from the promoted bank `bench_grind_kit.state` (NS7 banked it at Lapras L29 /
+Venusaur L58 / Abra L10; DON'T re-roll — this fixture already holds the grind progress):**
 ```
 cd pokemon_agent
-GRIND_STATE=surf_ready_kit.state GRIND_TARGET=38 GRIND_SPECIES=131,63,64 GRIND_MAP=3,36 GRIND_DIR=west \
-  GRIND_MIN=60 GRIND_PROBE_S=150 RESUME_STAGE=1 ../.venv/Scripts/python.exe -u recon_grind_bench.py \
+GRIND_STATE=bench_grind_kit.state GRIND_TARGET=38 GRIND_SPECIES=131,63,64 GRIND_MAP=3,36 GRIND_DIR=west \
+  GRIND_MIN=90 GRIND_PROBE_S=150 ../.venv/Scripts/python.exe -u recon_grind_bench.py \
   > G:/temp/longrun/ns8_grind.log 2>&1 &
 ```
+It re-walks Fuchsia→Route 18 (cheap) and continues the grind. Promote its banked_GRIND → a new
+`bench_grind_kit` each time you bank meaningful progress (copy banked_GRIND/kira_campaign.state +
+world_model/strat_memory/soul/journey_core.json → states/workshop/bench_grind_kit.*). NOTE: in the fixture
+Lapras leads slot 0 (grind was killed mid-pass before _restore_ace) — harmless for the grind; the re-badge
+strikes lead with the ace via their own logic.
 GRIND_SPECIES is PRIORITY-ORDERED: **131=Lapras** (Charizard/Lance answer — the must-have) grinds to TARGET
 first, then **63=Abra** (participation XP evolves it → Kadabra @L16 → learns Confusion → keeps leveling — the
 Agatha answer), then 64 if already Kadabra. **RATE IS MODEST** (~1 level / 2.5 min at Route 18; Lapras L25→38
