@@ -5969,7 +5969,9 @@ class Campaign:
         # WINNABLE-if-evolved fight. Grinding L28->L32 on Route 6 wilds needs ~200s (L28->L30 took ~90s in
         # that run), so a WIDE budget (900s) reaches L32+evolve in ONE pass, boards as Venusaur, and skips
         # the loss loop entirely (no re-grind needed once the ace clears the fight solo).
-        _RIVAL_PREP_LEVEL = 32
+        # Env-tunable (default 32) so a look-ahead can observe the raw rival fight (PREP=0 disables the
+        # grind: `0 < _ace_lv < 0` is always False) or re-tune the milestone without a recompile.
+        _RIVAL_PREP_LEVEL = int(os.environ.get("POKEMON_RIVAL_PREP_LEVEL", "32") or "32")
         if _rival_gauntlet and step_anchor and cur_map == step_anchor and not getattr(
                 self, "_ql_prefight_grind", 0):
             try:

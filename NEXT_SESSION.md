@@ -1,23 +1,25 @@
-<!-- ═══ NIGHT-SHIFT 7 (2026-07-10) — IN FLIGHT: L32-Venusaur prep fix -> Gary -> Cut -> Surge ═══
-ROOT-CAUSE NAILED (VERIFIED, s7_verify1.log): shift-6's PREP-BEFORE-RIVAL grind target of L30 was ONE
-LEVEL SHORT OF THE FIX. A full-PP, Tackle-equipped L30/L31 *Ivysaur* STILL loses Gary — the run reached
-Gary and lost 5 times in a row (grudge 4W-5L, a re-attempt loop). The tipping point is the EVOLUTION:
-Ivysaur -> VENUSAUR at L32 (major bulk/power spike); Venusaur L32 is the reactive track's PROVEN
-Gary-killer. L30 leaves her one level short of it, so she keeps losing a winnable-if-evolved fight.
-FIX COMMITTED (shift 7): _RIVAL_PREP_LEVEL 30->32 + grind budget 480->900s (reaching L32 from L28 is ~4
-levels of low-XP Route 6 wilds; needs ~200s but a wide budget guarantees the evolution in one pass). The
-existing re-arm (flag clears when she boards the ship) makes it self-correcting: even if a grind pass
-undershoots to L31, a loss->whiteout->re-grind continues to L32/Venusaur, THEN she wins — no infinite loop.
-IN FLIGHT: re-verify from the repaired kit:
-  POKEMON_TEAM_PLANNER=1 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 25  (log /g/temp/s7_verify2.log)
-Expect: prep-grind fires at Vermilion -> grinds L28->L32 -> Ivysaur EVOLVES to Venusaur -> boards ->
-BEATS Gary -> HM01 Cut from captain -> teach Cut -> cut Vermilion gym tree -> Lt. Surge (badge 3).
-RISK if she STILL loses at L32 Venusaur: attrition (only 20-HP Potions vs burn + 10 foes, no Center
-aboard) -> next lever = STOCK SUPER POTIONS at Vermilion Mart before boarding (the proven Koga
-attrition-breaker; Vermilion stocks Super Potion id 22 row1; _shopping_list(foresight=True) + buy_at_mart
-exist; she may be cash-poor ~$1k so afford-what-she-can). Fixtures: bill_done_kit.state (repaired kit
-[RazorLeaf,VineWhip,Tackle,Sleep], REBUILD via `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py`),
-bill_done.state (degraded BUG kit — REBUILD: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
+<!-- ═══ NIGHT-SHIFT 8 (2026-07-10) — IN FLIGHT: S.S. ANNE Gary — WILD-GRIND-TO-L32 IS A DEAD END ═══
+SHIFT-7 AUTOPSY (s7_verify2.log): the L32 prep-grind fix does NOT work — it's TOO SLOW. Boot ace is
+ivysaur L26 (bill_done); grinding L26->L32 = 6 levels on Route 6 wilds (~L8-13 Pidgey/Rattata, ~100 XP
+each to an L26+ ace = ~15k XP ≈ 150 encounters). The killed run reached only L28 after the whole clock.
+Wild-grinding 6 levels on trash is neither fast NOR watchable (constitution FAIL). ABANDON this direction.
+
+THE HUMAN ANSWER (shift-14's flagged "HIGHEST VALUE", never built): a real player does NOT wild-grind to
+beat ship-Gary — they FIGHT THE S.S. ANNE CABIN TRAINERS (Gentlemen/Sailors/Fishermen, L16-18, big
+TRAINER XP) on the way to the captain, which levels the WHOLE team fast + watchably, THEN fights Gary at
+appropriate level. The shift-12 DIRECTED ship-nav B-LINES to the Gary warp, skipping ALL ~8-10 cabin
+trainers -> she arrives underlevelled every time. THE FIX = make ship-nav ENGAGE cabin trainers before
+the Gary warp (fail-open; her L26 ace beats L16-18 cabin trainers easily = the intended level-up).
+
+IN FLIGHT (this shift): first get GROUND TRUTH on the RAW Gary fight. Made _RIVAL_PREP_LEVEL env-tunable
+(POKEMON_RIVAL_PREP_LEVEL, default 32; =0 disables the grind). Running an OBSERVE pass with grind OFF:
+  POKEMON_TEAM_PLANNER=1 POKEMON_RIVAL_PREP_LEVEL=0 LONGRUN_BATTLE_LOG=1 .venv/Scripts/python.exe -u pokemon_agent/recon_longrun.py bill_done_kit.state 18  (log /g/temp/s8_gary_observe.log)
+GOAL: does L26 ivysaur BEAT or LOSE Gary raw? does she fight ANY cabin trainers? read the actual Gary
+turn log. CONTRADICTION to resolve: shift-15 said she BEATS Gary (5W-2L) from a Razor-Leaf fixture ~L20;
+shift-7 said L30 LOSES (4W-5L). If she's losing it's NOT level (L26 >> Gary's L16-18) — it's execution
+(PP famine / Sand-Attack whiff / frail bench forced in + swept). Fix the REAL blocker, not the level.
+Fixtures: bill_done_kit.state (rebuild: `.venv/Scripts/python.exe pokemon_agent/recon_repair_kit.py` ->
+writes pokemon_agent/states/workshop/), bill_done.state (rebuild: Copy-Item G:\temp\longrun\banked_GOAL\kira_campaign.state states\workshop\bill_done.state -Force).
 ═══════════════════════════════════════════════════════════════════════════════════════════════ -->
 
 <!-- ═══ NIGHT-SHIFT 6 (2026-07-10) — verify NEUTRAL-COVERAGE fix -> Route 6 -> Gary -> Surge ═══
