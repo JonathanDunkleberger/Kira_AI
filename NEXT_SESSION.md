@@ -1,6 +1,55 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## 🔨 NS5 IN FLIGHT: BADGE 7 (Blaine) — the "no water mon" frontier was WRONG. She OWNS a Lapras.
+## ✅✅ NS5 BANKED: BADGE 7 (Blaine/Volcano 0x826) WON FULLY UNAIDED → frontier = BADGE 8 (Giovanni 0x827)
+**The ENTIRE Surf-gated frontier fell in one shift.** All legs = proven credits-line recon strikes,
+parametrized for the kit line via env (`LAPRAS_STATE`/`SAFARI_STATE`/`SURFTEACH_STATE`/`SEAFOAM_STATE`/
+`MANSION_STATE`/`BLAINE_STATE` — each resolves a workshop basename + its `.<sidecar>.json`). Banked chain
+(states/workshop, each verified e2e): `lapras_fielded_kit` (PC withdraw — recon_lapras) → `fuchsia_lapras_kit`
+(look-ahead Saffron→Fuchsia) → `safari_hms_kit` (recon_safari: HM03 Surf + HM04 Strength, 62s) →
+`surf_ready_kit` (recon_surf_teach: Surf→Lapras, Strength→Venusaur) → `cinnabar_kit` (recon_seafoam: R19→R20
+→Seafoam boulder cascade 0x2D2→Cinnabar, 88s) → `secretkey_kit` (recon_mansion: Secret Key 0x1A8, 83s) →
+**`blaine_done_kit`** (recon_blaine: 6 quiz doors A/B/B/B/A/B + Blaine → **badge 0x826, badges=7**, 72s).
+Party now: Venusaur L59 (Razor Leaf/Cut/Sleep Powder/Strength) + Lapras L25 (Surf/Body Slam/Confuse Ray/
+Perish Song) + Kadabra L16 (Abra evolved vs Blaine) + Spearow/Rattata/Drowzee bench. She's at Cinnabar (3,8).
+6 commits. Shared fix: travel.py "🌊 SURF MOUNT" emoji crashed cp1252-piped strikes → utf-8 stdout added.
+
+### ▶ FRONTIER — BADGE 8 (Giovanni / Viridian Gym, Earth 0x827), then Victory Road → E4 → CREDITS.
+Run `LONGRUN_GOAL_FLAG=0x827 recon_longrun blaine_done_kit.state 18`. Billed road to Viridian = **Route 21
+SURF NORTH → Pallet Town (3,0) → Route 1 → Viridian (3,1)** (Route 21 is Seafoam-FREE open sea — the surf
+travel handles it; NS5 close saw her surfing north up R21 fine, minor no_route wedges self-recover via roam).
+Giovanni's gym is GROUND-type: Venusaur's Grass ×2 + Lapras's Surf ×2 = trivially winnable. **recon_giovanni.py
+EXISTS** (parametrize with a GIOVANNI_STATE env like the others if the general beat_gym wedges on the
+spin-tile floor). After badge 8: **VICTORY ROAD needs Surf + Strength — she has BOTH now** (recon_victory.py);
+then **Elite Four** (recon_e4.py / recon_agatha.py) → Champion → **CREDITS ROLL** (write CREDITS as line 1 of
+NIGHT_REPORT.md to stop the loop). The port pattern is mechanical: add `_resolve_state` + `<X>_STATE` env +
+kit-sidecar loader (copy from recon_blaine.py) + utf-8 stdout; run from the prior kit fixture; bank forward.
+
+## (done NS5) CINNABAR SEA ROAD + BLAINE (0x826) — see banked chain above.
+### (historical) Surf DONE — 3 legs banked, 1 to go.
+**NS5 BANKED (all e2e-verified, kit line, in states/workshop):** (1) `lapras_fielded_kit` — withdrew the
+boxed Silph Lapras (PC deposit Ekans + withdraw Lapras). (2) `fuchsia_lapras_kit` — look-ahead forward-drive
+Saffron→Route15 gatehouse→Fuchsia (GOAL_MAP=3,7, ~45s). (3) `safari_hms_kit` — recon_safari from Fuchsia:
+Gold Teeth→Secret House→**HM03 Surf** + Warden→**HM04 Strength** (62s). (4) `surf_ready_kit` — recon_surf_teach:
+**Surf→Lapras**, **Strength→Venusaur**; can_use surf/strength=True, all of Cut/Surf/Strength/Flash usable.
+She is at **Fuchsia (3,7)@(33,32)**, party Venusaur L57 (Razor Leaf/Cut/Sleep Powder/Strength) + Lapras L25
+(Surf/Body Slam/Confuse Ray/Perish Song) + bench (Spearow/Rattata/Abra/Drowzee). Water is now a road.
+
+### ▶ FRONTIER (task 4, IN FLIGHT): CINNABAR SEA ROAD → BLAINE. Run recon_longrun from surf_ready_kit toward
+`LONGRUN_GOAL_FLAG=0x826`. Billed road: Fuchsia(3,7)→**Route19(3,37) sea, west**→**Route20(3,38) via=pass,
+THROUGH Seafoam Islands (boulder/current puzzle — general pass-through does NOT solve the interior; the
+proven strike is recon_cinnabar.py, cinnabar_reach)**→Cinnabar(3,8)→Blaine gym. If the sea-road wedges at
+Seafoam, port recon_cinnabar.py to run from surf_ready_kit (SAFARI_STATE-style env). BLAINE GYM = 6 quiz
+doors (recon_blaine.py: Q1 YES/Q2 NO/Q3 NO/Q4 NO/Q5 YES/Q6 NO; Bill ambush after — press B not A; Blaine
+(5,4) Arcanine L47 vs Venusaur L57+Sleep Powder+Strength). Blaine GymSpec + surf-aware travel already in
+campaign.py; if the general walk wedges on the quiz interior, port recon_blaine.py. Bank blaine_done_kit
+(badges=7, flag 0x826). See [[pokemon-nightshift4-badge6-sabrina-silph-hyperstall]].
+
+### task 5 (autonomy, deferred): wire safari_strike + surf-gate arming into campaign so the Kira timeline
+auto-fires the whole chain (withdraw→Safari→teach) when the billed road to Cinnabar hits the Route-19 water
+without Surf. Tonight's legs used kit-parametrized recon strikes (LAPRAS_STATE/SAFARI_STATE/SURFTEACH_STATE
+env) to bank distance; the autonomous registration is the remaining rope-laying.
+
+## (superseded by NS5 legs above) NS4: the "no water mon" read was WRONG — she OWNS a boxed Lapras.
 **CRITICAL CORRECTION (NS5 recon):** flag **0x246 (Lapras received) = TRUE** in sabrina_done_kit — the
 Silph Co. gift **Lapras is already hers, sitting in the PC BOX** (party was full 6/6 during the Silph
 strike so it auto-boxed). NS4's frontier ("no water mon — catch one") is WRONG: she doesn't need to catch
