@@ -5275,8 +5275,45 @@ class Campaign:
                     log("   [flash-errand] Flash learnt — returning EAST across Diglett's Cave to the "
                         "Vermilion road-head (Route 2 is a SW dead-pocket)")
                     try:
-                        if self._cross_cave(None, ROUTE11):
-                            self._edge_travel(VERMILION, "west")
+                        # BUGFIX (2026-07-09 shift 3): the shift-2 return called _cross_cave(None,..)
+                        # which means "already inside — skip the entry warp". But the teach leaves her
+                        # INSIDE the aide GATEHOUSE (a group!=3 interior); _cross_cave then treated the
+                        # gatehouse as the cave, walked her out its door to a Route-2 pocket, and returned
+                        # False (never entering Diglett's Cave) -> _edge_travel skipped -> Route2<->Viridian
+                        # ping-pong STALL. FIX: (1) exit to the Route 2 overworld first, (2) explicitly
+                        # ENTER Diglett's Cave via its Route-2 mouth (17,11)->(1,36), (3) cross east to
+                        # Route 11, (4) edge-travel to Vermilion. The forward cross EXITS the cave at
+                        # (17,12) — right beside (17,11) — and reaches the aide from there, so the aide
+                        # pocket reaches the mouth.
+                        # The Diglett's Cave Route-2 mouth (17,11)->(1,36); its south-approach /
+                        # cave-EXIT tile is (17,12). A CUT tree sits between the aide-door pocket
+                        # and the mouth pocket, and it REGROWS on the gatehouse map-reload — so
+                        # enter_warp's plain-BFS reachability pre-check (tree=wall) would skip the
+                        # mouth. travel()'s obstacle handler CUTS the regrown tree (she owns Cut),
+                        # so route to the cave-exit tile FIRST (crosses into the mouth pocket), THEN
+                        # enter_warp fires trivially from right beside it.
+                        DIGLETT_R2_MOUTH, CAVE_EXIT_TILE = (17, 11), (17, 12)
+                        for _ in range(3):
+                            if tv.map_id(b)[0] == 3:
+                                break
+                            self._exit_to_overworld()
+                        cur_r = tuple(tv.map_id(b))
+                        log(f"   [flash-errand] return: on {cur_r}@{tuple(tv.coords(b))}; routing to "
+                            f"the Diglett's Cave mouth {DIGLETT_R2_MOUTH} (cutting the regrown tree)")
+                        if cur_r == ROUTE2:
+                            self.trav.travel(target_map=None, arrive_coord=CAVE_EXIT_TILE,
+                                             max_steps=400)
+                            r = self.enter_warp(pick=DIGLETT_R2_MOUTH)
+                            log(f"   [flash-errand] return: cave-mouth enter -> {r} "
+                                f"(now on {tuple(tv.map_id(b))})")
+                            if r == "warped" and self._cross_cave(None, ROUTE11):
+                                self._edge_travel(VERMILION, "west")
+                            else:
+                                log("   [flash-errand] return: cave re-entry failed — releasing to "
+                                    "roam (head_to_gym owns the road retry) (LOUD)")
+                        else:
+                            log(f"   [flash-errand] return: not on Route 2 after gatehouse exit "
+                                f"({cur_r}) — releasing to roam (LOUD)")
                     except Exception as _re:
                         log(f"   [flash-errand] road-head return skipped ({_re}) (LOUD)")
                 return "flash_done"
@@ -5353,13 +5390,30 @@ class Campaign:
                 return False
             visited.add((mid, pos))
             dist = lambda w_: abs(w_[0] - pos[0]) + abs(w_[1] - pos[1])
-            outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0]
-            if outs:
-                far = min(outs, key=dist)
+            if out_map is not None:
+                # TARGET-DIRECTED (2026-07-09 shift 3): exit ONLY via a warp whose dest IS out_map;
+                # every other overworld warp is a WRONG exit. The old rule ('nearest overworld dest
+                # != m0') broke the RETURN cross — she enters at cave room (1,36) whose (4,6)->Route2
+                # warp it greedily took, walking her straight back out to the aide pocket. When no
+                # target-exit is in this room, progress DEEPER via the farthest unused CAVE warp
+                # (never an overworld one), visited-memory killing any two-room bounce.
+                exits = [w_ for (w_, d) in warps if d == out_map]
+                if exits:
+                    far = min(exits, key=dist)
+                else:
+                    caves = [w_ for (w_, d) in warps if d[0] != 3]
+                    fresh = [w_ for w_ in caves if (mid, w_) not in visited and w_ != pos]
+                    cands = (fresh or [w_ for w_ in caves if w_ != pos]
+                             or [w_ for (w_, d) in warps if w_ != pos])
+                    far = max(cands, key=dist)
             else:
-                fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
-                cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
-                far = max(cands, key=dist)
+                outs = [w_ for (w_, d) in warps if d[0] == 3 and d != m0]
+                if outs:
+                    far = min(outs, key=dist)
+                else:
+                    fresh = [w_ for (w_, d) in warps if (mid, w_) not in visited and w_ != pos]
+                    cands = fresh or [w_ for (w_, d) in warps if w_ != pos]
+                    far = max(cands, key=dist)
             visited.add((mid, far))
             before = mid
             self.trav.travel(target_map=None, arrive_coord=far, max_steps=400)
