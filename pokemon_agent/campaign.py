@@ -8121,6 +8121,21 @@ class Campaign:
             # live south-edge DISCOVERY below (she explores forward, learning each map's warps, which fills
             # the graph). One hop per tick — she can still divert (true free roam, discovery preserved).
             cur_map = tuple(state["map"])
+            # CAVE-PASS PRIORITY (2026-07-09 shift 6): when she's standing ON a billed 'pass' leg that
+            # runs THROUGH a dark warp-maze cave (Rock Tunnel: map (3,28) -> Lavender), the billed road
+            # MUST own the crossing (_cross_tunnel_leg), NOT the world-graph warp-route. Route 10's SOUTH
+            # map-connection to Lavender (3,4) is seeded as a plain EDGE, but that band is cliff-sealed —
+            # the only crossing is the tunnel — so _next_step_rideable returned an EDGE-ROUTE south that
+            # _edge_travel dead-ended on 'no_path', and head_to_gym got structurally pruned on Route 10
+            # (the shift-4 _cross_tunnel_leg fix never even ran). Same class as the shift-3 gated-shortcut
+            # preemption (Snorlax/Saffron), but via a phantom walkable edge. Run the billed road first so
+            # the tunnel crossing takes the leg; fall through to the warp-route only if it can't help.
+            _cave_road = self._gym_road(ng)
+            if _cave_road and any(leg["map"] == cur_map and leg.get("via") == "pass"
+                                  and leg.get("cave") for leg in _cave_road):
+                rr = self._road_step(state, _cave_road)
+                if rr is not None:
+                    return rr
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
                 # SAFFRON BYPASS (2026-07-09 shift 3): Saffron's gatehouses are GUARD-BLOCKED (a static
