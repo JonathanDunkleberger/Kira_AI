@@ -4873,28 +4873,24 @@ class Campaign:
             party = state.get("party") or []
             if not party:
                 return None
-            # RIVAL/GYM GAUNTLET OVERRIDE (2026-07-10, NIGHT SHIFT 16 — the real S.S. Anne Gary livelock).
-            # A 3+-mon trainer wall (Gary on the S.S. Anne, later Tower/Silph rivals, multi-mon gym leaders)
-            # is a TEAM-STRENGTH wall that fodder-bench-leveling CANNOT crack: fielding weak mons to the foe's
-            # LEAD level (underlevel_target ≈ foe+1 ≈ L19) just gets them swept one at a time, while the ACE —
-            # the only thing that can actually win — sits idle. The switch-armed default took that fodder path,
-            # so after a Gary loss she ground the bench to L19, "readiness" crossed on the team FLOOR, she trekked
-            # back at ace L30, and lost again → the 12-shift livelock (s15_surge.log: fodder to L13/L19, ace
-            # stuck L30, never the proven Venusaur L32). FIX: for any multi-mon trainer wall, ALWAYS take the
-            # ACE-OVERPOWER target (level the ace to bulldoze) regardless of the in-battle switch. Self-
-            # calibrating via overpower_target (= ace-level-at-loss + OVERPOWER_MARGIN). For the 4+-mon RIVAL
-            # specifically, floor at POKEMON_RIVAL_PREP_LEVEL (32 = the proven Venusaur threshold) so a thin/low
-            # my_level read can't undershoot the evolution spike. General per rule 14; the executor
-            # (grind_weak_members) mirrors this override to field the ACE, not fodder.
+            # RIVAL-GAUNTLET DEFER (2026-07-10, NIGHT SHIFT 16 — the real S.S. Anne Gary livelock). A 4+-mon
+            # RIVAL wall (Gary on the S.S. Anne; later Tower/Silph) is a TEAM-STRENGTH wall the STRATEGIC grind
+            # path handles WRONG two ways: (1) switch-armed, it fields fodder to the foe's LEAD level
+            # (underlevel_target ≈ L19) — the fodder gets swept while the ACE sits idle, "readiness" falsely
+            # crosses on the team floor, she boards at ace L30 and loses again (the 12-shift livelock, s15); and
+            # (2) forcing ace-overpower here still trap-grinds, because grind()'s auto grass-finder wedges in the
+            # gym-approach POCKET at the Cut tree (Vermilion) or dives DOWN the one-way Route-4 ledge off-anchor
+            # (Cerulean whiteout) she then can't path back UP (s16: stranded on Route 4, head_to_gym no_path, ace
+            # treadmilled L35→39, PP-starved). So for a 4+-mon rival, return None and DEFER entirely to the
+            # questline ANCHOR-PATH prep (_run_questline_step → PREP-BEFORE-RIVAL → hardcoded Route-6 walk_to_map),
+            # which levels the ACE to the proven Venusaur L32 on SAFE grass AT the anchor. With the strategic
+            # grind suppressed, off-anchor she doesn't trap-grind — head_to_gym/the billed road carries her from
+            # the respawn town (Cerulean, a spine town — routing works) back to Vermilion, where the anchor grind
+            # fires before she boards. General per rule 14 (every 4+-mon rival). 3-mon gym leaders are unchanged
+            # (no ship-anchor questline to defer to — the normal path below still handles them).
             _wr = self.strat.active_wall_rec()
-            if _wr and _wr.get("is_trainer") and (_wr.get("size") or 1) >= 3:
-                t = self.strat.overpower_target() or 0      # ACE-OVERPOWER for the gauntlet
-                if (_wr.get("size") or 0) >= 4:             # a 4+-mon RIVAL — guarantee the Venusaur L32 spike
-                    t = max(t, int(os.environ.get("POKEMON_RIVAL_PREP_LEVEL", "32") or "32"))
-                if not t:
-                    return None
-                ace = max(m["level"] for m in party)
-                return t if ace < t else None
+            if _wr and _wr.get("is_trainer") and (_wr.get("size") or 0) >= 4:
+                return None
             if not battle_agent.GRIND_SWITCH_ENABLED:
                 t = self.strat.overpower_target()           # ACE-OVERPOWER (switch gated)
                 if not t:
@@ -4961,20 +4957,6 @@ class Campaign:
         # ace-overpower fallback. (1)/(2) BOTH field the weak member (the real team-building); (3) only
         # levels the ace (can't fix a type-resisted wall). Prefer (1) if armed, else (2) if enabled.
         use_switch = battle_agent.GRIND_SWITCH_ENABLED
-        # RIVAL/GYM GAUNTLET OVERRIDE (NIGHT SHIFT 16 — mirrors _prep_team_target). A 3+-mon trainer wall is
-        # beaten by an OVERPOWERING ACE, never by fielding fodder (which gets swept one-at-a-time, and — with
-        # the flaky in-battle participation switch that "did not confirm" all night — wedges). So for a
-        # gauntlet, level the ACE to `target` (the s16 gauntlet target: Venusaur L32 for the S.S. Anne rival)
-        # regardless of the switch flag, fixing the s15 off-anchor loop where fodder crept to L19 while the ace
-        # stalled at L30. General per rule 14 (Gary/Surge/Tower/Silph). NOTE (soul-debt #3 team-building): the
-        # bench stays thin under this path — the real fix is a reliable in-battle switch (Tier-1 #5); until
-        # then, ace-overpower is the reliable credits-forward play.
-        _wr = self.strat.active_wall_rec()
-        if _wr and _wr.get("is_trainer") and (_wr.get("size") or 1) >= 3:
-            self._restore_ace()                              # ace in slot 0
-            log(f"   GRIND-OVERPOWER (gauntlet): a {_wr.get('size')}-mon trainer wall can't be cracked by "
-                f"fielding fodder — leveling the ACE to L{target} to overpower it; levels now {self._party_levels()}")
-            return self.grind(target)
         if not use_switch and not SOLO_WEAK_GRIND:
             self._restore_ace()                              # ace in slot 0
             log(f"   GRIND-OVERPOWER: bench-leveling needs the (gated) in-battle switch — instead leveling "
@@ -6047,25 +6029,19 @@ class Campaign:
         except Exception:
             _rival_lost_here = False
             _rival_won_here = False
-        # NIGHT-SHIFT 15 FIX — GRIND THE ACE TO L32 EVEN WHEN THE LOSS WHITED HER OUT OFF-ANCHOR.
-        # The whole prep-grind was gated on `cur_map == step_anchor` (she must be standing on the ship's
-        # approach town, Vermilion). But a Gary LOSS on the S.S. Anne whites her out to the last Center she
-        # healed at — CERULEAN, not Vermilion — so `cur_map != step_anchor` forever and this clean, narrated
-        # ace->L32 grind NEVER re-fires. All that runs off-anchor is the generic underlevel-prep, which
-        # targets the BENCH FLOOR (~L19) and STOPS there, leaving the ace at ~L30-31 -> she treks back,
-        # reboards, loses Gary again -> LIVELOCK (s14_surge.log: Gary lost at Ivysaur L30, whited to Cerulean,
-        # ace crept only to L31 via the wedgy generic grind, never the proven-winning Venusaur L32). FIX:
-        # once she has LOST to this rival (`_rival_lost_here`), fire the prep-grind from WHEREVER she healed
-        # so the ace climbs to L32 on LOCAL grass before the walk back. The anchor path keeps the hardcoded
-        # Route-6 routing (grind()'s local grass-finder wedges in the gym-approach POCKET at the Cut tree);
-        # the off-anchor post-loss path lets grind() find local grass (safe from a normal town like Cerulean).
-        # The re-arm at cur_map!=step_anchor keeps clearing _ql_prefight_grind each off-anchor tick, so the
-        # grind re-fires until the ace hits L32 (the `0 < _ace_lv < _RIVAL_PREP_LEVEL` guard self-terminates).
-        # General per rule 14: "after losing a rival gauntlet, grind the ace to the prep level wherever you
-        # healed" — helps every later rival (Tower/Silph) whose loss also displaces the respawn town.
+        # ANCHOR-ONLY PREP-BEFORE-RIVAL (2026-07-10 — NIGHT SHIFT 16 supersedes the shift-15 off-anchor grind).
+        # Grind the ACE to the proven Venusaur L32 on SAFE anchor grass (Route 6) BEFORE boarding, but ONLY
+        # while she's standing on the anchor (Vermilion). Shift 15 tried to ALSO grind off-anchor (after a Gary
+        # loss whites her out to Cerulean) via grind()'s local grass-finder — but that dives DOWN the one-way
+        # Route-4 ledge she can't path back UP, stranding her (s16 run: head_to_gym no_path, ace treadmilled
+        # L35→39, PP-starved — a soft livelock). The RIGHT move off-anchor is NOT to grind locally but to ROUTE
+        # BACK to the anchor: from a spine town like Cerulean head_to_gym/the billed road works, so falling
+        # through to the normal questline routing carries her to Vermilion, where THIS anchor grind then fires.
+        # The strategic path no longer trap-grinds her at Cerulean either (see _prep_team_target RIVAL-GAUNTLET
+        # DEFER), so nothing pins her off-anchor — she simply walks back and grinds here. The hardcoded Route-6
+        # walk_to_map avoids grind()'s auto grass-finder wedging in the Cut-tree gym-approach pocket.
         _prep_at_anchor = bool(step_anchor) and cur_map == step_anchor
-        _prep_off_anchor_afterloss = _rival_lost_here and not _prep_at_anchor
-        if _rival_gauntlet and not _rival_won_here and (_prep_at_anchor or _prep_off_anchor_afterloss) \
+        if _rival_gauntlet and not _rival_won_here and _prep_at_anchor \
                 and not getattr(self, "_ql_prefight_grind", 0):
             try:
                 _party = (self.read_live_state() or {}).get("party") or []
@@ -6074,27 +6050,19 @@ class Campaign:
                 _ace_lv = 99                                   # read fail -> no grind (fail-open, safe)
             if (0 < _ace_lv < _RIVAL_PREP_LEVEL) and (_rival_lost_here or _ace_lv >= _prep_floor):
                 self._ql_prefight_grind = 1
-                _where = "at the ship anchor" if _prep_at_anchor else "off-anchor (post-loss respawn town)"
                 log(f"   [roam] 🏋️ PREP-BEFORE-RIVAL: a rival gauntlet is a team-strength wall — ace "
-                    f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding {_where} (an underlevelled "
-                    f"solo loses to Gary's 4-mon team, whatever the PP).")
+                    f"L{_ace_lv} < L{_RIVAL_PREP_LEVEL}; grinding up BEFORE boarding at the ship anchor (an "
+                    f"underlevelled solo loses to Gary's 4-mon team, whatever the PP).")
                 self.on_event("that's my rival waiting on that ship — I want my team stronger before we "
                               "board. quick training, then we go.", kind="route", tier=2)
                 try:
-                    if _prep_at_anchor:
-                        # ROUTE TO GRASS FIRST: the gate fires while she's pinned in the gym-approach pocket
-                        # (at the Cut tree) where grind()'s local grass-finder targets a bad off-map coord
-                        # and travel-wedges. Route 6 (map (3,24), NORTH) is the grass she just crossed;
-                        # walk_to_map routes there via the proper connection edge, bounded (8 tries, no spin).
-                        # PORTABILITY DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (KB layer, rule 14).
-                        _rr = self.walk_to_map((3, 24), "north")
-                        log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
-                    else:
-                        # OFF-ANCHOR (whited out to a normal town, e.g. Cerulean): no gym-approach pocket to
-                        # wedge in — let grind() find the town's local grass directly. Skipping the hardcoded
-                        # Route-6 hop avoids a cross-map walk_to_map from the wrong town.
-                        log(f"   [roam] 🏋️ pre-rival grind: whited out to a non-anchor town — grinding the "
-                            f"ace to L{_RIVAL_PREP_LEVEL} on LOCAL grass before the trek back to the ship.")
+                    # ROUTE TO GRASS FIRST: the gate fires while she's pinned in the gym-approach pocket
+                    # (at the Cut tree) where grind()'s local grass-finder targets a bad off-map coord
+                    # and travel-wedges. Route 6 (map (3,24), NORTH) is the grass she just crossed;
+                    # walk_to_map routes there via the proper connection edge, bounded (8 tries, no spin).
+                    # PORTABILITY DEBT: (3,24)=Route 6 is a FireRed S.S.-Anne coupling (KB layer, rule 14).
+                    _rr = self.walk_to_map((3, 24), "north")
+                    log(f"   [roam] 🏋️ pre-rival grind: routed to Route 6 grass -> {_rr}")
                     # WIDE budget (900s vs the 480s default): reaching the L32 evolution from L28 is ~4
                     # levels of low-XP wilds — the default budget could undershoot and board her as an
                     # un-evolved Ivysaur -> the loss loop. One deep pass to Venusaur is the whole point.
@@ -8983,6 +8951,19 @@ class Campaign:
                     #                                      every other tick and reset the counter forever)
                     self._prep_dry, self._prep_dry_logged = 0, False
                 return r
+            # RIVAL-RETURN GUARD (NIGHT SHIFT 16): don't let a stray 'battle' pick trap-grind her into the
+            # nearest grass when she OWES a return to a 4+-mon rival gauntlet she lost and is OFF the gym city.
+            # The lead+2 fallback from a respawn town (Cerulean) dives down the one-way Route-4 ledge she can't
+            # path back up (the s16 stranding). The prep belongs at the ANCHOR (Route 6, via the questline);
+            # here just no-op so next tick's head_to_gym carries her back to the anchor to grind + board.
+            _rw = self.strat.active_wall_rec()
+            if _rw and _rw.get("is_trainer") and (_rw.get("size") or 0) >= 4:
+                _ngc = (state.get("next_gym") or {}).get("city") or ""
+                _place = state.get("place") or ""
+                if not (_ngc and _ngc.lower() in _place.lower()):
+                    log("   [roam] RIVAL-RETURN: owe a rematch to a 4+-mon rival and off the gym city — "
+                        "skipping the local grind (would trap off-spine); routing back to the anchor instead")
+                    return "rival_return_pending"
             lead = state["party"][0]["level"] if state["party"] else 5
             return self.grind(lead + 2)
         if pick == "stock_up":
