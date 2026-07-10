@@ -2068,31 +2068,31 @@ class BattleAgent:
                 return s
         return None
 
-    def _note_whiff(self, enemy_hp_pre, dmg_pp_pre):
-        """Classify a just-resolved turn for the whiff-spiral. A DAMAGING move that FIRED (damaging PP
-        dropped) but left the foe's HP UNCHANGED = a MISS (accuracy debuffed). Consecutive misses are
-        the spiral that PP-famines and loses winnable fights. Reset on any real damage / KO / battle-end.
-        Runs a short settle first so the miss/damage animation has fully resolved before the read."""
-        if not st.in_battle(self.b):
-            self._whiff_streak = 0
+    def _classify_prev_whiff(self, state):
+        """Race-free whiff classification (2026-07-10, night shift 11 — the S.S. Anne Gary ROOT CAUSE,
+        corrected). The old in-turn read (a short _settle right after the move COMMITTED) raced our
+        move's pre-damage text/animation window: battle text needs ACTIVE advancement (the turn loop's
+        _settle_action_menu presses A/B) for the damage to actually apply, so a passive read saw the
+        foe's HP still frozen at its pre-damage value and flagged EVERY landing hit as a MISS. That
+        false whiff-spiral fired the breaker's pointless ace<->frail-bench switches and LOST winnable
+        fights — the 10-shift Gary wall was a measurement artifact (log proof: 'frozen at 50 / 47 / 14'
+        i.e. HP visibly DROPPING while each turn was called a whiff). The truth is only readable at the
+        NEXT clean menu-up: compare the foe HP at the START of the PREVIOUS turn to the START of this
+        turn (both post-text, damage-applied). A real miss leaves the SAME foe's HP unchanged across two
+        consecutive turn-starts while a damaging move fired. Called at the top of the turn (menu up),
+        BEFORE the whiff-breaker reads _whiff_streak."""
+        if not self._whiff_prev_fired:
             return
-        self._settle(need=8, timeout=300)                 # let the hit/miss resolve to steady HP
-        cur = st.read_battle(self.b)
-        if not st.in_battle(self.b):
-            self._whiff_streak = 0                         # KO / battle end = a hit landed
+        self._whiff_prev_fired = False                     # consume — classify each fired move once
+        enemy = (state or {}).get("enemy") or {}
+        hp_now, sp_now = enemy.get("hp"), enemy.get("species")
+        if (self._whiff_prev_hp is None or hp_now is None or sp_now != self._whiff_prev_sp
+                or hp_now != self._whiff_prev_hp):
+            self._whiff_streak = 0                          # damage landed / KO'd / next mon -> accuracy fine
             return
-        if not cur:
-            return
-        enemy_hp_now = cur["enemy"]["hp"]
-        dmg_pp_now = self._ours_dmg_pp(cur)
-        dealt = enemy_hp_pre is not None and enemy_hp_now < enemy_hp_pre
-        fired_dmg = dmg_pp_now < dmg_pp_pre                # a damaging move actually went off this turn
-        if dealt or enemy_hp_now == 0:
-            self._whiff_streak = 0                         # real damage -> accuracy is fine
-        elif fired_dmg:
-            self._whiff_streak += 1
-            self.log(f"   [engine] WHIFF: damaging move fired but foe HP frozen at {enemy_hp_now} "
-                     f"-> accuracy-debuff spiral (streak {self._whiff_streak}/{WHIFF_SPIRAL_AT})")
+        self._whiff_streak += 1                            # same foe, HP truly frozen a FULL turn -> a MISS
+        self.log(f"   [engine] WHIFF: foe HP unchanged at {hp_now} across the full turn "
+                 f"-> accuracy-debuff spiral (streak {self._whiff_streak}/{WHIFF_SPIRAL_AT})")
 
     def _party_levels(self):
         """Per-slot level snapshot (bounded raw read, +0x54 in the 100-byte party struct) —
@@ -2127,6 +2127,9 @@ class BattleAgent:
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
+        self._whiff_prev_hp = None         # DEFERRED whiff-classify: foe HP at the PREVIOUS turn's menu-up
+        self._whiff_prev_sp = None         # foe species at the previous turn's start (KO/next-mon detect)
+        self._whiff_prev_fired = False     # a damaging move fired last turn -> classify it once this turn
         self._skip_streak = set()          # FIX 1: move slots that failed to fire this no-progress streak.
         # She rotates through her WHOLE moveset (never re-spams a 0-PP/disabled move), and only flees once
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
@@ -2379,6 +2382,8 @@ class BattleAgent:
             if self._white_box():                     # the action menu is up (white panel) ->
                 state = st.read_battle(self.b)         # pick + commit a move, verify it lands
                 self._note_foe(state)                  # foes-seen ledger (live turn read)
+                self._classify_prev_whiff(state)       # race-free: judge last turn's move at this clean
+                #                                        menu-up read (before the whiff-breaker acts below)
                 # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
                 # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
                 # Any non-use falls through to the proven move path (fail-safe; never wedges).
@@ -2478,7 +2483,7 @@ class BattleAgent:
                 # accuracy-lowering foe (Sand-Attack/Smokescreen/Kinesis) debuffs the active mon until it
                 # MISSES every swing — foe HP frozen while our PP drains -> famine -> a loss even at a
                 # crushing level lead. Gen-3 resets stat stages on switch-out, so we switch the ace OUT
-                # (accuracy resets) then BACK the next turn to swing fresh. _note_whiff counts the misses;
+                # (accuracy resets) then BACK the next turn to swing fresh. _classify_prev_whiff counts misses;
                 # here we execute the reset. Bounded per battle (WHIFF_MAX_RECOVERIES) so it never loops.
                 if (WHIFF_BREAKER_ENABLED and state
                         and not (self._enemy_fainted or self._we_fainted)):
@@ -2531,7 +2536,15 @@ class BattleAgent:
                     self._acted_once = True
                     stall = 0
                     self._unresolved_turns = 0        # a real resolution clears the anti-wedge floor
-                    self._note_whiff(_enemy_hp_pre, _dmg_pp_pre)   # classify miss vs hit for the spiral
+                    # DEFERRED WHIFF STORE (see _classify_prev_whiff): remember this turn's CLEAN
+                    # menu-up foe HP + whether a damaging move fired; the NEXT turn's menu-up read
+                    # judges it race-free (PP is decremented at commit, so 'fired' is reliable now;
+                    # foe HP is NOT reliable until the next turn's post-text read).
+                    _cur = st.read_battle(self.b)
+                    _dmg_pp_now = self._ours_dmg_pp(_cur) if _cur else _dmg_pp_pre
+                    self._whiff_prev_fired = _dmg_pp_now < _dmg_pp_pre
+                    self._whiff_prev_hp = _enemy_hp_pre
+                    self._whiff_prev_sp = (state.get("enemy") or {}).get("species") if state else None
                 else:
                     stall += 1                        # menu up but flaky -> settle re-checks, retry
                     # ANTI-WEDGE FLOOR — the run-existential one. `stall` resets on ANY screen change,
