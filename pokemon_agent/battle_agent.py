@@ -1493,7 +1493,12 @@ class BattleAgent:
                 self.log(f"   [engine] NUKE-SLEEP: {st.SPECIES_NAME.get(enemy['species'], '?')} is "
                          f"Self-Destruct family -> {desc} first (it can't detonate asleep; "
                          f"try {self._sleep_casts}/4)")
-        if (SLEEP_LOCK_ENABLED and not sleep_done and se_threat
+        # NEVER sleep-lock a foe we're SUPER-EFFECTIVE on (best_dmg_eff >= 2): the E4 diag
+        # (ns1) caught the battle-long _se_chunk_latch mis-firing sleep on Lorelei's Cloyster
+        # (Razor Leaf x2 = an OHKO-range hit) — 4 wasted Sleep Powder turns per such foe across
+        # rooms 1-4 burned the Full Restores Lapras needs to solo Gary at the Champion. If we can
+        # 2x it, just KO it; the sleep-lock is only for foes we CANNOT out-damage.
+        if (SLEEP_LOCK_ENABLED and not sleep_done and se_threat and best_dmg_eff < 2
                 and (best_dmg_eff <= 0.5 or getattr(self, "_se_chunk_latch", False))
                 and not enemy.get("asleep") and foe_frac > 0.30
                 and getattr(self, "_sleep_casts", 0) < 4):
@@ -1975,6 +1980,15 @@ class BattleAgent:
         # resistance — but offensive famine (<=0.25x) overrides it (flute_run7: Venusaur's 0.25x
         # into a Vileplume is a stall, not dominance). Send the defensive pick.
         if active_bad:
+            # A SUPER-EFFECTIVE reserve beats grinding the ace through the type disadvantage, EVEN at a
+            # crushing level lead: field the specialist so the ace stops eating 2x hits (ns1 Champion —
+            # L88 Venusaur traded itself to Pidgeot on Cut x1 while Lapras's Ice Beam 2x sat in reserve;
+            # the level-dominance veto below kept the ace in to die). Fielding Lapras for the ace's bad
+            # matchups (Ice/Fire/Flying) also cuts the heal spend in rooms 1-4 so Full Restores survive
+            # to the Champion. Anti-churn holds: once the specialist is out and hitting >=2x, line ~1931
+            # returns None (it stays); the lv+15 floor already kept frail chaff out of best_atk.
+            if best_atk is not None:
+                return best_atk
             if foe_lv and act_lv >= foe_lv + 10 and best_move_eff > 0.25:
                 return None
             return best
