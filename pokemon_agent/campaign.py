@@ -690,6 +690,11 @@ SHOP_CURE_QTY = 2
 # new family member, not empty-handed. Thin = party at/below this; restock up to the ball target.
 SHOP_THIN_PARTY = 3
 SHOP_BALL_TARGET = 5
+# NS#42 ball economy: when the team-plan has a coverage keeper DUE, stock a fuller ball pocket even at
+# party>3 (the plain SHOP_BALL_TARGET only tops balls for a THIN team, so a party-4 hunter walked out with
+# too few — ns41_finalproof/ns42_celadon: catch_pokemon -> no_balls in Diglett's Cave). A keeper hunt (even
+# an easy diglett) can burn several balls to a break-free, and abra/growlithe are harder — so pre-stock ~8.
+SHOP_BALL_KEEPER_TARGET = 8
 SHOP_MONEY_FLOOR = 500
 
 # ── THE CAMPAIGN: Pallet -> Pewter -> Brock, as an objective list ─────────────
@@ -4414,6 +4419,23 @@ class Campaign:
         except Exception as e:
             log(f"   [roam] plan keeper target skipped: {e}")
         return None
+
+    def _keeper_due(self, state):
+        """True if the forward team-plan wants a coverage keeper caught (assess -> catch_keeper), regardless
+        of WHERE that keeper lives (unlike _plan_keeper_target, which is on-map-gated). Used to PRE-STOCK
+        balls at the Mart before the hunt: _plan_keeper_target is None at the Mart (diglett doesn't live in
+        Vermilion) so it can't drive the buy — this location-free check can. Mode-side + plan-gated."""
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED
+            if not TEAM_PLANNER_ENABLED:
+                return False
+            act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
+                                           bag=state.get("bag"), dex=state.get("dex_caught"),
+                                           post_game=bool(state.get("post_game")))
+            return bool(act and act.get("kind") == "catch_keeper")
+        except Exception as e:
+            log(f"   [roam] keeper-due check skipped: {e}")
+            return False
 
     def _plan_wants_prebuild(self, state):
         """Part-C EXECUTOR (rule 2 — make the brain LOAD-BEARING): True when the standing team brain says
@@ -8673,11 +8695,13 @@ class Campaign:
         except Exception:
             return False
 
-    def _shopping_list(self, foresight=False):
+    def _shopping_list(self, foresight=False, state=None):
         """What a sensible player would BUY here, given the bag + what's hurt her: top Potions up to the
         target (SHOP_POTION_FORESIGHT when she's walled and stocking up before a push, else
         SHOP_POTION_TARGET), and SHOP_CURE_QTY of the cure for each status seen recently (_afflict_seen).
-        Bounded quantities (survival, not hoarding); returns [(item_id, qty), ...] (empty = well-stocked)."""
+        Bounded quantities (survival, not hoarding); returns [(item_id, qty), ...] (empty = well-stocked).
+        NS#42: when a coverage keeper is DUE (state given + _keeper_due), stock a fuller ball pocket even at
+        party>3 so the hunt isn't ball-starved (the plain thin-team-only ball floor left a party-4 hunter short)."""
         sl = []
         target = SHOP_POTION_FORESIGHT if foresight else SHOP_POTION_TARGET
         # count ALL healing-potion tiers she already carries (a Super Potion is still "a potion" for stock)
@@ -8689,8 +8713,10 @@ class Campaign:
         # equipped to actually catch a teammate (the real answer to a wall). Bag-delta verified like any buy.
         # 2026-07-07 BALL FLOOR: catching is CENTRAL (dex doctrine) — a full-ish team doesn't excuse
         # walking out of a Mart with an empty ball pocket. Never leave with fewer than 2.
-        if (self._thin_team() or self._ball_count() < 2) and self._ball_count() < SHOP_BALL_TARGET:
-            sl.append((ITEM_POKE_BALL, SHOP_BALL_TARGET - self._ball_count()))
+        keeper_due = bool(state) and self._keeper_due(state)
+        ball_target = SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET
+        if (self._thin_team() or self._ball_count() < 2 or keeper_due) and self._ball_count() < ball_target:
+            sl.append((ITEM_POKE_BALL, ball_target - self._ball_count()))
         for status in sorted(self._afflict_seen):
             cure = STATUS_CURE.get(status)
             if not cure:
@@ -8720,7 +8746,7 @@ class Campaign:
                 return iid
         return ITEM_POTION
 
-    def _shop_note(self, foresight=False):
+    def _shop_note(self, foresight=False, state=None):
         """Characterful ctx line for the stock-up offer: names what hurt her + the restock need, so her
         pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals').
         FORESIGHT (Phase 2): when she's walled, lead with 'stock up BEFORE you push that wall'."""
@@ -8731,8 +8757,14 @@ class Campaign:
         if sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19)) < target:
             bits.append("you're low on Potions" if not foresight
                         else "you could carry a lot more Potions before that next push")
-        if self._thin_team() and self._ball_count() < SHOP_BALL_TARGET:
-            bits.append("you're light on Poké Balls — grab some so you can actually catch a teammate out there")
+        # NS#42: narrate the keeper pre-stock ('grabbing balls for the diglett I'm about to go hunt') so
+        # the buy reads as purposeful, not incidental — the constitution's grind/shop-with-narrated-reason.
+        keeper_due = bool(state) and self._keeper_due(state)
+        if (self._thin_team() or keeper_due) and self._ball_count() < (
+                SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET):
+            bits.append("you're light on Poké Balls — grab a good stock so you can actually catch the "
+                        "teammate your plan wants" if keeper_due else
+                        "you're light on Poké Balls — grab some so you can actually catch a teammate out there")
         if cures:
             afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
             bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
@@ -9365,7 +9397,7 @@ class Campaign:
             fs = self._walled(state)
             if getattr(self, "_shop_fail_fp", None) == (tuple(state["map"]), self.money()):
                 pass    # this exact shop already failed with this wallet — don't re-offer a spin
-            elif self._shopping_list(foresight=fs):
+            elif self._shopping_list(foresight=fs, state=state):
                 a["stock_up"] = ("stock up at the Mart — load up on potions before you push that wall"
                                  if fs else
                                  "stock up at the Mart — buy potions and the cures for what's been hurting you")
@@ -10027,7 +10059,18 @@ class Campaign:
         the plain edge). Off-road -> one graph hop toward the DEEPEST road anchor the learned world
         reaches. None = the road can't help from here (caller falls through to base-camp logic)."""
         cur = tuple(state["map"])
-        avoid = self._wall_avoid(state)
+        # OFF-ROAD ANCHOR-STEER avoid (NS#42 Celadon-wedge fix): mirror the head_to_gym warp-route's
+        # avoid set (10343) so the billed-road off-road steer (second loop below) is ALSO capability-
+        # blind-proof. The warp-route already skips story-gated maps (Flute-gated Route 12/16) + bypasses
+        # Saffron's guard-blocked gatehouses; without the SAME avoid here, the off-road steer routed her
+        # EAST off Route 11 straight onto Snorlax-gated Route 12 (ns41_finalproof: 1,391× travel wedge at
+        # (13,70) — the graph learned Route 11<->Route 12 but Route 12 is Snorlax-blocked pre-Flute). This
+        # is a pure WIRING gap (the guard existed; this steer bypassed it). world.route always allows the
+        # SRC map, so keeping cur in avoid still lets her escape a gated map she resumed ON.
+        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
+        _target_city = road[-1]["map"] if road else None
+        if _target_city != SAFFRON:
+            avoid = avoid | {SAFFRON}
         city = (state.get("next_gym") or {}).get("city", "the next gym")
         for i in range(len(road) - 1, -1, -1):
             leg = road[i]
@@ -10538,7 +10581,7 @@ class Campaign:
             return self.grind(lead + 2)
         if pick == "stock_up":
             door = CITY_MART_DOORS.get(state["map"])
-            sl = self._shopping_list(foresight=self._walled(state))
+            sl = self._shopping_list(foresight=self._walled(state), state=state)
             if door is None or not sl:
                 return "nothing_to_buy"
             bought = self.buy_at_mart(door, sl)
@@ -11074,7 +11117,7 @@ class Campaign:
             # SHOP-WITH-INTENT awareness (PART C): when stock_up is on offer, fold the characterful
             # restock/affliction note into the same ctx seam so her pick reads as learning from the road.
             if "stock_up" in avail:
-                snote = self._shop_note(foresight=self._walled(state))
+                snote = self._shop_note(foresight=self._walled(state), state=state)
                 if snote:
                     where = f"{where}. {snote}"
                     log(f"   [roam] SHOP: {snote!r} — surfacing 'stock_up' to the oracle")
