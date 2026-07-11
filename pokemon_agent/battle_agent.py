@@ -955,7 +955,9 @@ class BattleAgent:
                 if not self._party_focus():
                     self.log("   [engine] use_item: party list never took focus (fail-safe)")
                 rows = self._menu_rows()
-                if target == "fainted":
+                if isinstance(target, int):                # an EXACT party slot (revive routing)
+                    _row = target
+                elif target == "fainted":
                     _row = next((r["row"] for r in sorted(rows, key=lambda r: -r["level"])
                                  if r["hp"] == 0), 0)
                 else:                                      # 'active' -> the lead panel
@@ -1052,7 +1054,7 @@ class BattleAgent:
         if revive is not None:
             down = self._revive_worthy_slot()
             if down is not None:
-                plan["use_revive"] = (revive, "fainted")
+                plan["use_revive"] = (revive, down)   # the EXACT worthy slot (type-answer or ace),
                 offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
                                         "it's stronger than anyone still standing and you HAVE a Revive")
         if "use_revive" not in offers:
@@ -1116,7 +1118,33 @@ class BattleAgent:
         run19/20 postmortem): a healthy last-body ace walked the whole Lance room with no
         spare body banked, so one crit/sleep = instant whiteout — at alive==1 a bench body
         is ALWAYS worth the turn, and the gate self-closes at alive==2 so it can't drain
-        the kit."""
+        the kit.
+
+        TYPE-ANSWER REVIVE (e4 run5 Gary/Charizard postmortem): the level gate below never
+        revives a fainted specialist while the higher-level ace stands — but vs a foe the ace
+        CAN'T hit (Venusaur 0.25x into Gary's Charizard), the dead L50 Lapras's Ice Beam (2x)
+        is the ONLY answer. If NO alive mon is super-effective on the CURRENT foe but a FAINTED
+        reserve's STAB is (>=2x), revive that type-answer so it can come in and swing."""
+        try:
+            foe_types = st.species_types(st.read_enemy_species(self.b, 0))
+            if foe_types:
+                alive_se, dead_answer = False, None
+                for i in range(6):
+                    sp = st.read_party_species(self.b, i)
+                    if not sp:
+                        continue
+                    off = self._matchup_off(st.species_types(sp), foe_types)
+                    if self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56) > 0:
+                        if off >= 2:
+                            alive_se = True
+                    elif off >= 2 and dead_answer is None:
+                        dead_answer = i
+                if dead_answer is not None and not alive_se:
+                    self.log(f"   [engine] revive-check: TYPE-ANSWER revive slot {dead_answer} "
+                             f"(no standing mon is SE on this foe; the fainted one is)")
+                    return dead_answer
+        except Exception:
+            pass
         try:
             alive, best = [], None
             for i in range(6):
@@ -1946,12 +1974,13 @@ class BattleAgent:
             if foe_lv and act_lv >= foe_lv + 10 and best_move_eff > 0.25:
                 return None
             return best
-        # TRIGGER 2 — OFFENSIVE-UPGRADE (ns14 Lance postmortem, E4-critical): the active can only
-        # hit RESISTED (<=0.5x — Venusaur's Razor Leaf into Agatha's Poison, or its Normal moves
-        # IMMUNE to her Ghosts) while a healthy reserve is SUPER-EFFECTIVE. Field the specialist so
-        # the ace's scarce STAB PP survives the 5-room gauntlet (lap-1 death: Venusaur famined Razor
-        # Leaf by Agatha and reached Lance with only ~22-dmg Cut). Overrides the level veto: raw
-        # level can't compensate for a resisted-only moveset.
+        # TRIGGER 2 — OFFENSIVE-UPGRADE (ns14 Lance postmortem, E4-critical): the active can only hit
+        # RESISTED (<=0.5x — Venusaur's Razor Leaf into Agatha's Poison, its Normal moves IMMUNE to her
+        # Ghosts, or its 0.25x into Gary's Charizard) while a healthy reserve is SUPER-EFFECTIVE. Field
+        # the specialist so the ace's scarce STAB PP survives the gauntlet. Kept at <=0.5x (NOT widened
+        # to <=1x): e4_tactical run4 proved a <=1x gate over-fields the FRAIL glass-cannon (Kadabra base
+        # HP 40) into OHKOs at Bruno/Agatha, burning the bench before Lance — worse than the tank line.
+        # The bulky Lapras still fields vs Dragonite (>=4x override) and vs Charizard (Venusaur 0.25x).
         if best_atk is not None and best_move_eff <= 0.5:
             return best_atk
         return None
