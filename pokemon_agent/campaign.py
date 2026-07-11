@@ -5975,6 +5975,15 @@ class Campaign:
                 _af = int(self._ace_hp_frac() * 100)
                 log(f"   GRIND: ACE dinged to ~{_af}% mid bench-grind — healing before it faints so it can "
                     f"never force-field a moveless bench mon into an unwinnable-grass livelock")
+                # CRITICAL: restore the ALIVE ace to slot 0 AND drop the participation switch BEFORE the heal
+                # walk — else the weak grind-mon (a Teleport-only Abra) is still the auto-sent lead and its
+                # switch-to-ace can wedge on the white-box impostor, re-wedging the very escape we're doing.
+                # With the alive ace leading + no switch, it wins the grass battles on the way to the Center.
+                try:
+                    battle_agent.PROTECT_LEAD_GRIND = False
+                except Exception:
+                    pass
+                self._restore_ace()
                 self.heal_nearest()
                 return "ace_healed"                            # DISTINCT: grind_weak_members restores + passes
                 #                                                it up so roam re-grinds with a full ace (one
