@@ -42,7 +42,169 @@ claim marathon-ready from headless. Build TOWARD the marathon bar, not just the 
    for vibe/bit/annoyance is fine + good content (even a playful wrong-ban). **HARD GUARDRAIL:** she is NOT the sole
    line on serious harm (CSAM/doxxing/credible-threats/hate-raids stay HUMAN-mod-backstopped). Inherently a live build.
 
-## ✅ NIGHT-SHIFT #5 DONE (2026-07-11, night_shift.ps1 shift 5) — BUILT + decision-verified the grind-efficiency lever (a): a level-aware GRIND-SPOT picker (flag-OFF, park-safe). TWO commits (5094c0b KB+predicate, df469f1 picker wiring). Q1 (livelock-dead over a long climb) RE-CONFIRMED clean on an in-flight 120-min Koga look-ahead. Canonical UNTOUCHED. START HERE.
+## ⏳ NIGHT-SHIFT #10 IN FLIGHT (2026-07-11, night_shift.ps1 shift 10) — COMMITTED the shift-8/9 Saffron gatehouse fix (`f79be91`, decision-verified 6/6 + live no-regression clean); the 0.34 Koga look-ahead climbed to **BADGE 6 (Sabrina/Marsh) with stuck/loop/loss ALL 0 across ~107 min** — strongest marathon evidence yet. NEW FRONTIER surfaced = the **Blaine/Cinnabar Surf-gate approach** (she reached badge 6 with only CUT+FLASH taught — NO Surf/Strength). START HERE.
+
+### ✅ WHAT SHIFT 10 BANKED:
+1. **COMMITTED the Saffron gatehouse fix — `f79be91`** (the shift-8 uncommitted `_saffron_gate_dead_ends`). Decision-VERIFIED 6/6 (`recon_saffron_gate_check.py`) + LIVE no-regression verify (`ns9_saffron_verify.log`): **0 gatehouse (18,0) wedges, 0 (18,0) transitions, door-passthrough machinery (Diglett's Cave door work) clean, stuck/loop/blackout all 0.** Fail-open, empty post-Tea → zero behaviour change after the Tea. The Route-12/Saffron soft-wedge CLASS is now closed in door SELECTION (the last leak site).
+2. **READ the Koga run (`/g/temp/longrun/ns4_koga.log`, 0.34, 120-min) — HUGELY positive.** badges 3→**6** (Boulder, Cascade, Thunder, Rainbow, **Soul/Koga**, **Marsh/Sabrina**) on ONE clean autonomous climb, **stuck=0 loop=0 loss=0 blackout=0** the WHOLE way. Party at badge 6: `venusaur L61, raticate L28, kadabra L28, pidgeotto L28, fearow L28, dugtrio L28`, dex 16 — a genuinely evened, part-evolved 6 (the LOPSIDED-BENCH grind IS working: bench L14→L28, prep target climbed 14→31, narrated in-character). At budget-close (~107 min) she was on Route 9 grinding the bench toward Blaine — **did not reach Blaine in budget** (still climbing, NOT walled).
+
+### ✅ ALSO BANKED SHIFT 10 — the SAFARI HM ANCHOR FIX (`14a4b63`, safe correctness prerequisite):
+The surf/strength/gold_teeth KB caps (`gamedata/frlg_gates.json`) all set `obtain.from="3,8"` = **Cinnabar (unreachable)**; the Safari Zone is entered from **Fuchsia=3,7**. `step.from_map` drives anchor-first routing (campaign.py:7726), so once a `Gate(missing="surf")` is synthesized the executor would route toward unreachable Cinnabar. Fixed all 3 → "3,7". Currently INERT (no surf gate fires yet), so it's a safe prerequisite for the wiring below.
+
+### ⇒ SHIFT-10 FRONTIER = BUILD THE AUTONOMOUS BLAINE/SAFARI WIRING (fully diagnosed this shift — an Explore trace + code read gave the exact 3-gap design + file:lines; this is the pass-3 "solved-but-not-wired-into-the-autonomous-flow" gap for the badge 6→8 stretch):
+
+**THE ROOT (trace-confirmed, 3 independent structural gaps — a fresh badge-6 Surf-less run HARD-WEDGES at the Fuchsia/Route-19 beach with no forward errand):**
+- **(a) RECOGNITION: no `Gate(missing="surf")` is ever produced.** The Cinnabar billed road (`frlg_gates.json:617-680`) crosses billed SEA (Route 19/20) with NO "requires surf" precondition + NO exit_gate for the sea crossing, so `GateRecognizer.exit_gate` returns None. `_field_block` (campaign.py:10246) only offers `use_surf` when she ALREADY has Surf — there is NO "go acquire Surf" branch. And `_gym_prereq_gate` (campaign.py:8881, the Sabrina/Silph pattern) fires ONLY when `state["map"]==gym.city` + beat_gym returns stuck (campaign.py:10707,10732) — but she can NEVER reach Cinnabar without Surf, so it can't fire for Blaine. **The Sabrina at-the-door pattern does NOT transfer — Blaine needs PROACTIVE prereq recognition BEFORE the sea march.**
+- **(b) EXECUTION: no Safari strike is registered.** `_questline_strike` (campaign.py:8758, registry at 8787-8800) has only Hideout/Tower/Snorlax/Silph. No `("flag","FLAG_GOT_HM03")` / `("cap","surf")` entry, no `safari_strike.py`. The general `talk_npc` layer CANNOT do the Safari (recon_safari.py:11 — the "classic Safari loop", Secret House UNREACHABLE on foot from the entrance pocket). So even if a gate fired, execution falls through and she loops/wedges in the Safari (this is WHY wiring recognition WITHOUT the strike is WORSE — they MUST land together).
+- **(c) Strength (HM04) + Secret Key same/worse:** no `GYM_PREREQS["Blaine"]` (only Sabrina, campaign.py:646), no `secret_key` capability in the KB at all, no Cinnabar gym exit_gate. Victory Road later needs Surf+Strength too.
+
+**THE EXECUTOR IS PROVEN, THE EXTRACTION IS THE CRUX.** `recon_safari.py` (808 lines) is a COMPLETE, pass-1/2-verified Safari strike ([[pokemon-safari-hms-surf-seafoam]] — HM03 Surf + HM04 Strength via Gold-Teeth→Warden, the "classic loop" nav all solved). BUT it's all nested CLOSURES inside `main()` (safari_battle/safari_bfs/walk_path_to/engage/step_warp/enter_to capture `b`/`camp`/`L`), booting its OWN bridge, and its loop only acts when `here==FUCHSIA`/a Safari map (it does NOT navigate to Fuchsia). So the build is: **extract ~600 lines of closures into `safari_strike.run_strike(camp, log, dbg_dir)`** operating on the LIVE campaign bridge (model on `silph_strike.py`/`hideout_strike.py`), returning `("got_surf",)`/`("got_strength",)`. Non-trivial + landmine-adjacent (campaign.py:8916/8952 explicitly warn a mis-timed Surf/Safari questline "poisons her context" — the recognition MUST be deliberate + data-driven, NOT a generic near-water heuristic).
+
+**THE BUILD (land as ONE coherent unit, flag-gated `POKEMON_SAFARI_STRIKE` default OFF until live-verified — recognition+strike are useless/harmful apart):**
+1. **Extract `safari_strike.py`** from recon_safari's tour (the crux). `run_strike(camp, log, dbg_dir)` reuses camp.b/camp.trav; anchors = {FUCHSIA} | Safari maps (group 1, num 63-71, campaign.py:2790); good_results `("got_surf",)` / also `("got_strength",)` if you do both legs.
+2. **Register it** in `_questline_strike` (campaign.py:8787): `("flag","FLAG_GOT_HM03"): ("Safari Zone (HM03 Surf)", "...", _safari)` (+ FLAG_GOT_HM04 for Strength). Look up the numeric FLAG_GOT_HM03 id (field_moves / a flags KB).
+3. **PROACTIVE recognition:** add `GYM_PREREQS["Blaine"] = (FLAG_GOT_HM03, "surf", human)` + a proactive prereq check in `_ensure_forward_questline` (campaign.py:9033, runs every tick) — if `next_gym==Blaine` and the prereq flag is unmet, `_open_questline(_gym_prereq_gate(Blaine))` so head_to_gym drives toward the Safari BEFORE marching into the uncrossable sea. Verify it does NOT misfire for Sabrina (her prereq is at-the-door; guard on the flag being a Safari-HM, or keep Sabrina's at-door path and only add Blaine proactively).
+4. **DECISION-verify** a `recon_safari_gate_check.py` (model on `recon_saffron_gate_check.py`): next_gym=Blaine + HM03-unset ⇒ Gate(missing="surf"); HM03-set ⇒ None; Sabrina unaffected. **LIVE-verify:** a look-ahead from a badge-6 fixture (below) — she routes to Fuchsia, the strike fires, she gets Surf, then the sea road to Cinnabar opens (surf-aware travel already wired: `_surf_usable`/`walkable_or_surf`). Watch for context-poisoning (she must NOT narrate "blocked by water" at wrong times). Then flip the flag ON + commit.
+5. **AFTER Surf lands:** the follow-on chain (Cinnabar sea-nav → Secret Key/Mansion strike → `GYM_PREREQS` Blaine door → Blaine → Giovanni) — recon_mansion.py exists (unpromoted), same extract-and-register pattern.
+
+**THE BADGE-6 FIXTURE = READY: `states/workshop/koga_done_kit`** (promoted shift 10 from the Koga run's clean badge-6 bank — Venusaur L62 + evened bench raticate/dugtrio/kadabra/pidgeotto/fearow L28-29, dex 16, **NO Surf** — the ideal Blaine probe). If you need a fresher one, `recon_longrun.py surge_done_kit.state 110` re-climbs badge 3→6 clean (~100 min, 1248 real battles proven this shift).
+
+### ⇒ SECOND FINDING (mid-game grind watchability — a next-shift careful fix): PP-FAMINE FLEE-SPAM in the LOPSIDED grind stint.
+The Koga run's FINAL grind stint (tick #180, Route 10) degenerated: the participation grind mon went **PP-dry on damaging moves → "nothing damaging left" (39×) → tries to switch → "famine switch did not confirm" (the known in-battle-switch wedge, 13×) → Sleep-Powder-spam → ANTI-WEDGE FLEE (13×), all in ONE stint** (badges 3→6 were totally clean — this only emerged when the bench mon's PP ran out). Bounded (stint budget ends it, stuck=0, no livelock) but ~39 wasted no-progress battles = a real ugly-on-a-watch stretch. ROOT: the grind has no "fielded participation mon is PP-dry → heal PP at a Center or end the stint" logic. **SAFE fix (avoids the wedge-prone in-battle switch):** when the grind mon's damaging moves are all 0 PP, break the stint → heal at a Center (restores PP) → resume, or end the stint. Verify-gated (repro from a fresh grind stint; do NOT touch the in-battle switch blind — DON'T-FIX-BLIND, E4-livelock family).
+
+### ⇒ Carry-overs (unchanged, lower pri): grind-spot lever a (Route-23 nav-blocked, flag OFF); Parlyz Heal buy no-op (live frame-grab); keeper cave-descend slowness. `POKEMON_BENCH_TO_MILESTONE` STAYS default-OFF.
+
+**RE-RUN cmds:** Blaine probe = `POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py koga_done_kit.state 45`. recon_safari executor (from a Fuchsia-positioned fixture): `SAFARI_STATE=<fuchsia_fixture> ../.venv/Scripts/python.exe -u recon_safari.py`. Saffron decision re-check: `../.venv/Scripts/python.exe recon_saffron_gate_check.py` (6/6). Canonical Champion save UNTOUCHED (all look-aheads on scratch fixtures).
+
+---
+
+## ⏳ NIGHT-SHIFT #9 IN FLIGHT (2026-07-11, night_shift.ps1 shift 9) — inherited shift-8's uncommitted Saffron fix; the 0.25 bail025 A/B run REPRODUCED the Saffron gatehouse wedge LIVE (10× wedges + 8 stuck at Celadon), confirming the bug is real; ran the decision-check (6/6 PASS) + launched a fresh no-regression live-verify (fix in place). START HERE.
+
+### ✅ WHAT SHIFT 9 IS DOING:
+1. **THE SAFFRON FIX (shift-8's uncommitted campaign.py edit) — now CONTROL-CONFIRMED LIVE + decision-re-verified.** The 0.25 A/B run (`/g/temp/longrun2/ns6_bail025.log`, which does NOT have the fix) reached Celadon at ~42 min and **wedged at the Saffron south gatehouse (18,0) 10× + logged 8 `outcome=stuck`, stalling at badge 3 the whole run** — a live reproduction of exactly the wedge shift-8's `_saffron_gate_dead_ends` fix targets. Meanwhile the 0.34 Koga twin (no fix either) never hit it (variance, as predicted). `recon_saffron_gate_check.py` re-run this shift = **6/6 PASS** (control case proves the tie-break bug; pre-Tea drops the gatehouse so the UGP hut wins; post-Tea unchanged). campaign.py parses OK. The fix is fail-open + empty post-Tea (zero behaviour change after the Tea).
+2. **NO-REGRESSION LIVE-VERIFY LAUNCHED** — a fresh `surge_done_kit` 35-min look-ahead WITH the fix, isolated stage (`TEMP=G:/temp3`), log `/g/temp/longrun/ns9_saffron_verify.log`. Purpose: confirm the fix doesn't break the Route-6 door-passthrough machinery (Flash errand exercises it early) and — if it reaches the Celadon approach — 0 gatehouse wedges. AT RESUME: grep `TRAVEL WEDGE.*18, 0|-> \(18, 0\)` (expect 0) + confirm she crosses Route 6 clean. **THEN COMMIT the Saffron fix.**
+3. **KILLED the bail025 (0.25) A/B run** (was 42/45 min, stuck spinning on the Saffron wedge, served its purpose). A/B firmed: **0 real faints in BOTH arms** (the 0.25 safety property the shift-7 flip relied on HOLDS). The stall was the Saffron wedge (variance), NOT the bail-frac.
+
+### ⏳ THE KOGA (0.34) LOOK-AHEAD STILL IN FLIGHT (`/g/temp/longrun/ns4_koga.log`, PIDs 17868+31068, 120-min budget) — READ ITS TAIL AT RESUME:
+At shift-9 open it was at **~87 min, GYM 7 of 8 (heading Blaine/Cinnabar)** — badges 3→6 CONFIRMED (Erika/Rainbow→Koga/Soul→Sabrina/Marsh, + the Silph Giovanni fight done, saffron_free=True), health **stuck=0, loop=0, loss=0** across the WHOLE climb. Strongest marathon-bar evidence yet. AT RESUME: did it clear Blaine (7) + Giovanni (8)? `grep -oE "Volcano Badge|Earth Badge|EARNED|STATE IN: Cinnabar|Viridian Gym|badges=[78]" /g/temp/longrun/ns4_koga.log | tail`.
+
+## ⏳ NIGHT-SHIFT #8 IN FLIGHT (2026-07-11, night_shift.ps1 shift 8) — the 0.34 Koga look-ahead CLIMBED CLEAN THROUGH FOUR GYM BOUNDARIES (badge 3→**6**: Erika→Koga→Sabrina, now heading Blaine) with stuck/loop/loss/blackout ALL 0; BUILT + decision-verified the Saffron-gatehouse door-passthrough wedge fix (frontier item 2).
+
+### ✅ WHAT SHIFT 8 IS BANKING:
+1. **THE 0.34 KOGA RUN (`/g/temp/longrun/ns4_koga.log`) IS A HUGE POSITIVE — the mid-game loop is proven across FOUR gym boundaries on ONE clean autonomous climb.** From badge-3 Vermilion (surge_done_kit) it went: BADGE 4 Erika (Rainbow) → BADGE 5 **Koga** (Soul — the Q2 question, ANSWERED YES) → BADGE 6 **Sabrina** (Marsh — required the Tea + Silph liberation, all autonomous) → now on Route 5/Cerulean heading to **Blaine (badge 7, Cinnabar)** at ~87 min of the 120-min budget. Party evolved+evened: `venusaur L60, raticate L28, kadabra L28, dugtrio L26, fearow L27, pidgeotto L25`, dex 16. Health across the WHOLE climb: **stuck=0, BATTLE-LOOP BREAKER=0, battle_loss=0, blacked out=0.** This is the strongest marathon-bar evidence yet — the ACE-DOWN GUARD + lopsided-bench + keeper machinery all hold long. AT RESUME: read the tail — did she reach/clear Blaine (7) + Giovanni (8)? `grep -oE "badges=[0-9]|Volcano|Earth|STATE IN: Cinnabar|Victory Road" /g/temp/longrun/ns4_koga.log | tail`.
+2. **SAFFRON-GATEHOUSE DOOR-PASSTHROUGH WEDGE FIX (frontier item 2 from NS#7) — BUILT + decision-verified, LIVE-VERIFY PENDING.** ROOT (precise, from ns6_bail025): the billed Celadon Route-6 leg is `via:'pass'` — the INTENDED crossing is the single-door Underground Path hut ((19,13)→(1,32), under Saffron to Route 5). But `_door_passthrough`'s `_dest_rank` tie-break (`-len(dest_doors)`) prefers the **2-door Saffron SOUTH gatehouse** ((12,5),(13,5)→(18,0)) over the 1-door UGP hut → she walks into the gatehouse whose north exit into Saffron is guard-blocked pre-Tea → 8× wedge at (18,0) before self-recovery. NB the shift-7 proposed fix (fold into `_story_gate_avoid`) would NOT have worked — the wedge is in door SELECTION, and `_door_passthrough` never consults the routing avoid. FIX (campaign.py): `_SAFFRON_GATE_MAPS={(18,0),(19,0)}` (south + Route-7 west gates, learned world-graph ids) + `_saffron_gate_dead_ends()` (the set pre-Tea via FLAG_GOT_TEA 678, empty post-Tea, fail-OPEN) + skip those as `_door_passthrough` connector candidates. Post-Tea empty → zero behaviour change; the gates become normal roads. **Decision-VERIFIED 6/6** (`recon_saffron_gate_check.py` — control case proves the tie-break bug is real; pre-Tea the UGP hut wins; post-Tea unchanged). **LIVE-VERIFY PENDING** (emulators busy with the 2 A/B runs): once one frees, run a fresh `surge_done_kit` ~15-min look-ahead, grep `MAP TRANSITION.*-> \(18, 0\)|TRAVEL WEDGE.*18, 0` (expect 0) + confirm she crosses Route 6→Route 5→Celadon clean. Then commit. NB the wedge is variance-dependent (the 0.34 twin never hit it), so a fresh run may not reproduce it — the verify is NO-REGRESSION (crosses Route 6 cleanly) + the decision-check proves the fix engages when the off-road-steer path is taken.
+
+### ⇒ SHIFT-8 FRONTIER (priority order):
+1. **COMMIT the Saffron fix after live-verify** (above). Then the frontier is the CLIMB past badge 6.
+2. **READ the Koga run's final outcome** — if it cleared Blaine (7) + Giovanni (8) → the loop is proven nearly to Victory Road; advance the frontier to the E4-prep grind (the L45→55 team-depth push, where the grind-spot lever a bites — still nav-blocked on Route 23). If it walled at Blaine/Giovanni → diagnose the tail (fresh blocker, rule 8c).
+3. **B-arm A/B (`/g/temp/longrun2/ns6_bail025.log`, 0.25, 45min)** — the 0.34→0.25 flip is ALREADY committed (`3b7bc75`); this run just firms the excursion-frequency win. Read its tail for bails/excursions/faints to badge 4.
+4. **Carry-overs (unchanged from NS#7):** Parlyz Heal buy no-op (needs live frame-grab); grind-spot lever a (Route-23 nav-blocked); deep WHITE-BOX SWITCH wedge (DON'T-FIX-BLIND); keeper cave-descend slowness.
+
+---
+
+## ✅ NIGHT-SHIFT #7 DONE (2026-07-11, night_shift.ps1 shift 7) — LANDED the dominant watchability lever: flipped `GRIND_ACE_BAIL_FRAC` default **0.34→0.25**, A/B-verified on the two in-flight look-aheads. ONE commit (`3b7bc75`), canonical UNTOUCHED.
+
+### ✅ WHAT SHIFT 7 BANKED — `3b7bc75` (mode-side, one default-value change, canonical UNTOUCHED):
+The candidate-(b) headline from NS#5/#6 — the heal-excursion FREQUENCY was the biggest watch drag on grind
+stretches (each ACE-DOWN GUARD fire = a cross-city Center round-trip). Lowering the bail band 0.34→0.25 fires
+the guard LATER = fewer bails/excursions. **A/B-verified live** on the two shift-6 in-flight look-aheads
+(same surge_done_kit fixture + Koga-baseline flags, differing ONLY in ACE_BAIL_FRAC), common ~800s window
+normalized by grind-battle (`GRIND SWITCH`) count:
+- **0.34 (ns4_koga):** 6 ACE bails / 8 excursions per 126 grind-switches; guard fires at ~30-33%.
+- **0.25 (ns6_bail025):** 1 ACE bail / 3 excursions per 77 grind-switches; guard fires at ~19-22%.
+- → **~3.7× fewer bails per grind-battle**, fewer excursions, and **ZERO ace faints in BOTH arms**. The 0.25
+  ace floor is a safe ~19-22% (worst single observed 19% — an L41-48 ace vs L15-20 grind wilds does ~6%/hit,
+  so a 25% band can't reach 0 in one inter-check tick). The no-faint safety property HOLDS; the watch is calmer.
+- **THREE-STATE:** COMPILES + WIRED (`GRIND_ACE_BAIL_FRAC` @ campaign.py:236, consumed by the ACE-DOWN GUARD
+  @6065) + **live-A/B-VERIFIED** (twin look-aheads above). Env-overridable (`POKEMON_GRIND_ACE_BAIL_FRAC`);
+  one-char revert if ever needed. NB the 0.25 floor (~19-22%) is LOWER than 0.34's (~32%) — still comfortably
+  safe vs grind wilds, but a shift that pushes the ace into HIGHER-level grass should re-audit the margin.
+
+### ⏳ TWO look-aheads still in flight at shift-7 close (READ TAILS AT RESUME) — both healthy, canonical UNTOUCHED:
+- **B-arm `/g/temp/longrun2/ns6_bail025.log` (0.25, 45-min budget)** — at shift close ~20 min in, 5 bails / 7
+  excursions / **0 faints**, on Route 9 heading to Celadon (Rock Tunnel path, correct). Read its tail: did it
+  reach badge 4? final bail/excursion count (more samples firm the safety claim; still expect 0 faints).
+- **Q2 `/g/temp/longrun/ns4_koga.log` (0.34, 120-min budget)** — at shift close ~68 min in, at **Lavender Town →
+  Pokémon Tower** (advancing the Rocket-Hideout→Silph-Scope→Flute→Snorlax→Fuchsia→Koga chain, badge 3, questline
+  on-track). Q1 (livelock-dead over a long climb) = CONFIRMED. Q2 (reach + CLEAR Koga) still climbing; read the
+  tail — did she reach/win Koga? `grep -oE "Soul Badge|'Rainbow'|KOGA|STATE IN: Fuchsia" ns4_koga.log | tail`;
+  health `grep -c 'outcome=stuck\|BATTLE-LOOP BREAKER\|blacked out' ns4_koga.log`.
+
+### ⇒ SHIFT-7 FRONTIER (priority order):
+1. **READ the two in-flight outcomes above.** If the B-arm reached badge 4 with fewer excursions + 0 faints →
+   the 0.25 flip is fully proven across a gym boundary (bank that note). If the Koga run CLEARED Koga → the loop
+   is proven across TWO gym boundaries; advance the frontier to badge 6 (Sabrina). If a NEW blocker in the
+   Silph/Tower/Flute chain → diagnose the tail (rule 8c), fix that specific blocker, re-run.
+2. **WATCHABILITY NIT — the SAFFRON-GATEHOUSE (18,0) transient wedge (diagnosed this shift, verify-gated fix-hook).**
+   The B-arm burned ~2-3 min wall-bumping at the Saffron south gatehouse (18,0) before self-recovering. EXACT trace
+   (ns6_bail025.log): head_to_gym off-road anchor-steer (`_road_step` ~campaign.py:10086) picked "Route 6 (west)"
+   as the Celadon road anchor (line 14586) → from Route 6 (3,24) she walked door (12,5) → WARPED into the Saffron
+   south gatehouse (18,0) (line 14693) → the north exit into Saffron is GUARD-BLOCKED (pre-Tea) → wedge ×8 →
+   recover → re-enter → until she abandons + re-routes correctly via Route 9/Rock-Tunnel/Lavender/Underground-Path/
+   Route-7 (the real pre-Tea path to Celadon; Route 6→Saffron is a dead-end). The 0.34 twin did NOT hit it (routing
+   variance from a divergent learned world-graph). ROOT = same bug CLASS as NS#42 (Route-12) / NS#43 (growlithe):
+   the head_to_gym avoid set has SAFFRON city (3,10) (the NS#42 BYPASS ~campaign.py:10788-10790) but NOT the Saffron
+   **gatehouse** maps (18,0 = south gate), which lead only to blocked Saffron. FIX (verify-gated, do NOT ship blind):
+   add the Saffron gatehouse map(s) to the gate-avoid (fold into `_story_gate_avoid` or the head_to_gym `_avoid`)
+   gated on `NOT FLAG_GOT_TEA (678)`, mirroring `_keeper_hard_gate_avoid`'s Saffron treatment (~campaign.py:6983).
+   ⚠️ Verify a Celadon-approach look-ahead still reaches Celadon (world.route always allows the SRC map, so a resume
+   ON the gatehouse still escapes) AND that post-Tea Saffron-targeted routing is unaffected. Self-recovering +
+   variance-dependent, so LOW priority vs the climb — but a real ~2-3 min ugly-wall-bump on a live watch.
+3. **MINOR BUG (low-pri, unverifiable while emulator busy) — Parlyz Heal buy no-op.** `MART: buy-verify FAILED for
+   Parlyz Heal (price=250, x0->x0)` at Vermilion (recurs 3-6×/run) — the buy actuation no-op'd; code aborts LOUD
+   (no crash); later Marts cleanly "not sold here — skipping". NB price read as 250 vs Parlyz Heal's real 200 →
+   likely a WRONG-MENU-ROW read (buying/checking the wrong item). Needs a live frame-grab of the open buy menu
+   (rule-15 #4) — do NOT fix blind. Small real cost (paralysis chip during travel).
+4. **Lever (a) grind-spot picker — STILL nav-BLOCKED, unchanged from NS#5/#6.** Decision-correct (28/28) but FRLG's
+   only adequate high-level GRASS for the E4-prep L45→55 target is Route 23, whose south grass is split-map/Surf-
+   gated (NS#13 wedge). Flipping `POKEMON_GRIND_SPOT_LEVELAWARE` ON gains nothing until the Route-23 south-pocket is
+   in the world graph (deep nav work, verify-gated). Keep flag OFF; the real unblock = Route-23 south-pocket nav.
+5. **Carry-overs (unchanged, lower pri):** deep WHITE-BOX SWITCH wedge (E4-livelock family, DON'T-FIX-BLIND, needs
+   rule-15 live frame-grabs); "RIVAL beat vs Gary" strat-memory mislabel (cosmetic, needs a decision trace);
+   keeper cave-descend slowness (watchability). `POKEMON_BENCH_TO_MILESTONE` STAYS default-OFF.
+
+**RE-RUN cmds:** 0.25 re-verify = default now, just `POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1
+LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 45` (compare bails/exc/
+faints vs an env `POKEMON_GRIND_ACE_BAIL_FRAC=0.34` arm). Decision checks: `recon_grind_spot_check.py` (28/28),
+`recon_bench_milestone_check.py` (12/12), `recon_lopsided_grind_check.py` (ALL PASS). Canonical Champion save
+UNTOUCHED (all look-aheads on scratch surge_done_kit).
+
+---
+
+## ✅ NIGHT-SHIFT #6 (2026-07-11, shift 6) — landed the DOMINANT watchability lever (candidate b, ACE_BAIL_FRAC 0.34→0.25); the A/B ran into shift 7 and COMMITTED there (`3b7bc75`). (kept for reference)
+
+### TWO look-aheads RUNNING IN PARALLEL (isolated STAGE dirs via TEMP override — SINGLE-RUN LAW respected per-SCRATCH):
+- **A/B (B-arm) — `/g/temp/longrun2/ns6_bail025.log`** — surge_done_kit 45-min, `POKEMON_GRIND_ACE_BAIL_FRAC=0.25`
+  + the Koga-baseline flags (ACE_BAIL/BENCH_TO_MILESTONE/PREP_DRY_RESET/KEEPER_STATIC_ROUTE/KEEPER_ROUTER +
+  LONGRUN_BATTLE_LOG). **This is the shift's headline** — the NS#5 data named heal-excursion FREQUENCY the biggest
+  watch drag. **BASELINE (A-arm, 0.34) from the Koga run: badge 4 reached at ~30 min with 15 heal-excursions + 13
+  ACE bails, 0 real faints.** SUCCESS for 0.25 = FEWER excursions/bails to badge 4 AND the ace NEVER faints (safety
+  audited: guard fires at top of each grind tick, one wild between checks; an L41-48 ace vs L15-20 wilds can't drop
+  >25%→0 in one hit → 0.25 keeps the no-faint property). If clean → set `GRIND_ACE_BAIL_FRAC` default "0.34"→"0.25"
+  (campaign.py:231) + commit. Compare with: `grep -c 'HEAL-EXCURSION: lead' <log>` + `grep -c 'ACE dinged' <log>`
+  up to the first `badges=4` line; confirm 0 real faints (`grep -c 'blacked out'`).
+- **Q2 — `/g/temp/longrun/ns4_koga.log`** — the 120-min Koga run (from NS#5, launched ~14:09). **Q1 = CONFIRMED**
+  (livelock dead over a long climb — ~46 clean min, stuck/loop/loss=0). Q2 (reach+clear Koga) still climbing
+  (badges=4, heading Silph/Tower/Flute/Snorlax/Fuchsia — may not fit budget). Read tail at resume.
+
+### 🔁 LEVER (a) REFRAMED (item was "verify+flip grind-spot picker") — it is BLOCKED ON ROUTE-23 NAV, not merely confounded:
+The grind-spot picker is decision-correct (28/28 `recon_grind_spot_check.py`) but FRLG has essentially ONE adequate
+high-level GRASS spot for the E4-prep L45→55 target: **Route 23 (L34-49)** — every other endgame option is a
+cave/water/gated (terrain-filtered OUT by `_better_grind_spot`). And Route 23's south grass is split-map / Surf-gated
+(the NS#13 wedge: GRIND_MAP=3,42 boots the grassless north edge, can't path south). `_better_grind_spot` only checks
+the FIRST hop (`world.next_hop`), so it WOULD propose Route 23, she'd route to its north edge, find no grass, mark it
+grind-dead, and re-pick → no net benefit over baseline (which grinds poor grass). **So flipping lever (a) ON gains
+nothing until the Route-23 south-pocket is reachable.** The real unblock = fix the Route-23 south grass world-graph
+gap (water-crossing within a split map; the late team HAS Surf) — deep nav work, verify-gated. Until then: **keep
+`POKEMON_GRIND_SPOT_LEVELAWARE` flag-OFF** and treat "Route-23 south-pocket nav" as the true blocker. Mid-game the
+lever correctly does NOTHING (adequate spots L12-18 are flute/bike-gated pre-endgame → filtered → grinds poor grass,
+anti-freeze holds). Decision-safety is proven; the LIVE value is nav-blocked. Lower priority than the 0.25 A/B.
+
+### MINOR BUG surfaced (low-pri, note): `MART: buy-verify FAILED for Parlyz Heal (price=250, x0->x0)` in the Koga run
+— she tried to stock Parlyz Heal and the buy silently no-op'd (x0→x0). Economy/actuation glitch, not blocking; worth
+a look if it recurs (paralysis was "hurting" her per the shop note, so the failed buy has a small real cost).
+
+## ✅ NIGHT-SHIFT #5 DONE (2026-07-11, night_shift.ps1 shift 5) — BUILT + decision-verified the grind-efficiency lever (a): a level-aware GRIND-SPOT picker (flag-OFF, park-safe). TWO commits (5094c0b KB+predicate, df469f1 picker wiring). Q1 (livelock-dead over a long climb) RE-CONFIRMED clean on an in-flight 120-min Koga look-ahead. Canonical UNTOUCHED.
 
 ### ✅ WHAT SHIFT 5 BANKED (2 commits, mode-side, flag `POKEMON_GRIND_SPOT_LEVELAWARE` default OFF, canonical UNTOUCHED):
 The PASS-3 grind-efficiency lever (a) from the NS#4/#9 frontier — a LEVEL-AWARE grind-spot picker that
