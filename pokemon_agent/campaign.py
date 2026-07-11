@@ -221,6 +221,15 @@ GRIND_HEAL_EXCURSION_CAP = int(os.getenv("POKEMON_GRIND_HEAL_EXCURSION_CAP", "4"
 # the caller stands down and picks a Center-reachable spot / gets back on the road. Fail-open: any level
 # gain (an encounter DID fire, so grass IS reachable) means lvl()>lvl_start and the cap can never trip.
 GRIND_NOPATH_CAP = int(os.getenv("POKEMON_GRIND_NOPATH_CAP", "6"))
+# ACE-DOWN GUARD (2026-07-11 ns11 Route-11 livelock): a FRAGILE bench-grind fields a weak mon and switches to
+# the ACE to do the killing — the ace tanks a free enemy hit each wild with no inter-battle heal. If it wears
+# down to a FAINT, the grind's premise is void: the next wild auto-sends a moveless bench mon (a Teleport-only
+# Abra) that can't win AND can't switch (the white-box menu impostor), so every step re-encounters a battle
+# that never resolves ('stuck') → an unwinnable-grass livelock that ALSO traps the heal excursion (it can't
+# cross the grass to a Center). Heal the moment the ace dips into the faint-risk band — while it's STILL ALIVE
+# to fight the escape battles out of the grass. Fail-open: a healthy ace one-shots wilds and never dips here.
+GRIND_ACE_BAIL_FRAC = float(os.getenv("POKEMON_GRIND_ACE_BAIL_FRAC", "0.34"))
+ACE_BAIL_ON = os.getenv("POKEMON_ACE_BAIL", "1") == "1"   # default ON; one-char revert to prior behavior
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -5955,6 +5964,21 @@ class Campaign:
         #                                                        with ZERO level gain is a split-route thrash
         nopath_n = 0                                           # NS#5: grass-unreachable travel count (split-map pocket)
         while lvl() < target_level and time.time() - t0 < budget_s:
+            # ACE-DOWN GUARD (ns11 Route-11 livelock — see GRIND_ACE_BAIL_FRAC): on a FRAGILE bench-grind the
+            # ace is a switched-in protector taking chip each wild. The instant it dips into the faint-risk
+            # band, HEAL (whole team) before it goes down — while it's still alive to fight the escape battles
+            # out of the grass — then surface partial progress so roam re-grinds with a topped-up ace. This
+            # kills the death-spiral where a downed ace force-fields a moveless bench mon into a grass livelock
+            # that even the heal excursion can't cross. Only fragile (bench) grinds: the non-fragile ace-grind
+            # has the ace AS lead, whose faint travel() already handles via need_heal/battle_loss.
+            if fragile and ACE_BAIL_ON and self._ace_hp_frac() <= GRIND_ACE_BAIL_FRAC:
+                _af = int(self._ace_hp_frac() * 100)
+                log(f"   GRIND: ACE dinged to ~{_af}% mid bench-grind — healing before it faints so it can "
+                    f"never force-field a moveless bench mon into an unwinnable-grass livelock")
+                self.heal_nearest()
+                return "ace_healed"                            # DISTINCT: grind_weak_members restores + passes
+                #                                                it up so roam re-grinds with a full ace (one
+                #                                                heal per tick, not a same-call heal-thrash)
             gs = grass_save()
             if not gs:
                 # NO GRASS AT ALL on this map (koga_run4, water Route (3,37)): the old bare `break`
@@ -6142,6 +6166,21 @@ class Campaign:
             wj = self.b.rd32(aj + k * 4)
             self.b.core.memory.u32.raw_write(ai + k * 4, wj)
             self.b.core.memory.u32.raw_write(aj + k * 4, wi)
+
+    def _ace_hp_frac(self):
+        """HP fraction of the ACE (the highest-level member, wherever it's currently slotted), or 1.0 if
+        unreadable. Used by grind()'s ACE-DOWN GUARD to bail a fragile bench-grind before the ace faints
+        (the ns11 Route-11 livelock). Reuses party_health() (cur 0x56 / max 0x58) so the offsets stay in
+        one place."""
+        ph = self.party_health()
+        levels = self._party_levels()
+        if not ph or not levels:
+            return 1.0
+        ace = max(range(len(levels)), key=lambda s: levels[s])
+        for (s, hp, mx, frac) in ph:
+            if s == ace:
+                return frac
+        return 1.0
 
     def _restore_ace(self):
         """Put the highest-level member back in slot 0 (the ace leads for the real wall + everyday play).
