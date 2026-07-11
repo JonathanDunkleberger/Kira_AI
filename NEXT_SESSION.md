@@ -42,7 +42,97 @@ claim marathon-ready from headless. Build TOWARD the marathon bar, not just the 
    for vibe/bit/annoyance is fine + good content (even a playful wrong-ban). **HARD GUARDRAIL:** she is NOT the sole
    line on serious harm (CSAM/doxxing/credible-threats/hate-raids stay HUMAN-mod-backstopped). Inherently a live build.
 
-## ✅ NIGHT-SHIFT #4 DONE (2026-07-11, night_shift.ps1) — VERIFIED the ACE-DOWN GUARD ship-work e2e: Route-11 livelock DEAD + the full loss→grind→retry→**BADGE 4** loop proven on a fresh climb. No code change (verify-gated area; committed fix now ship-proven across a gym boundary). START HERE.
+## ✅ NIGHT-SHIFT #5 DONE (2026-07-11, night_shift.ps1 shift 5) — BUILT + decision-verified the grind-efficiency lever (a): a level-aware GRIND-SPOT picker (flag-OFF, park-safe). TWO commits (5094c0b KB+predicate, df469f1 picker wiring). Q1 (livelock-dead over a long climb) RE-CONFIRMED clean on an in-flight 120-min Koga look-ahead. Canonical UNTOUCHED. START HERE.
+
+### ✅ WHAT SHIFT 5 BANKED (2 commits, mode-side, flag `POKEMON_GRIND_SPOT_LEVELAWARE` default OFF, canonical UNTOUCHED):
+The PASS-3 grind-efficiency lever (a) from the NS#4/#9 frontier — a LEVEL-AWARE grind-spot picker that
+targets the documented **NS#1/#14 E4-prep stall** (an L45→55 mon grinding on L8-19 grass gains ~0 XP, so
+`grind()` spins its whole budget for ~0 levels). Built the game-knowledge layer + wired the picker, all
+DECISION-verified emulator-free (26/26 `recon_grind_spot_check.py`), ZERO behavior change until flipped:
+- **`5094c0b` — KB + predicate.** `gamedata/frlg_grind_spots.json` (wild-level bands per grind area,
+  Bulbapedia FRLG, rule-14 portable) + `_grind_wild_band()` (cached fail-open reader) + `_grind_inadequate(map,
+  target)` (wild_max more than `GRIND_POOR_GAP`=18 below target ⇒ ~0 XP). Route 18 (L24-29) flags INADEQUATE
+  vs E4 target 55 but NOT vs a mid-game target 22; Route 23 / Victory Road / Cerulean Cave high grass correctly
+  NOT flagged; unknown map / no target fail-open.
+- **`df469f1` — picker wiring (flag-OFF).** `grind()` stands down from a grind-inadequate map via the existing
+  `no_safe_grass` re-pick flow (marks `_grind_inadequate_set`); `_grass_target`/`_grass_via_graph` exclude that
+  set (unioned with `_grind_dead`). **PARK-SAFETY GATE `_better_grind_spot`:** the stand-down ONLY fires when a
+  reachable ADEQUATE spot actually exists (ungated, rideable, has level data) — else None, so a map that is the
+  ONLY reachable grass is NEVER abandoned (grinds poor grass rather than freeze; anti-park/anti-freeze invariant,
+  decision-proven). Reuses the same world-graph reachability the base `_grass_target` trusts.
+- **THREE-STATE:** COMPILES + WIRED + decision-VERIFIED (26/26). **LIVE-verify PENDING** — the flag is OFF; do
+  NOT flip without the look-ahead below (park-road discipline: NS#1/#9 grind-cadence scars).
+
+### ⏳ THE 120-MIN KOGA LOOK-AHEAD IS IN FLIGHT (`G:/temp/longrun/ns4_koga.log`, launched ~14:09, surge_done_kit, flags ACE_BAIL/BENCH_TO_MILESTONE/PREP_DRY_RESET/KEEPER_STATIC_ROUTE/KEEPER_ROUTER + LONGRUN_BATTLE_LOG all =1). **READ ITS TAIL AT RESUME.**
+- **Q1 (livelock dead over a LONG climb) = CONFIRMED POSITIVE ACROSS A FULL GYM BOUNDARY.** By ~34 min she
+  climbed badge-3 → Flash → Rock Tunnel → **WON BADGE 4 / ERIKA (loss=0 — first-try this time, vs shift-4's
+  loss-then-retry: the LOPSIDED-BENCH grind + evolutions gave a strong enough bench)** → Route 7 toward the
+  Rocket Hideout. Whole stretch: **`outcome=stuck`=0, `BATTLE-LOOP BREAKER`=0, `battle_loss/blacked out`=0**,
+  ACE-DOWN GUARD firing cleanly (13×), wedges small+self-recovered (34). 34 min of continuous clean climbing
+  through a gym boundary = strong marathon-bar evidence the ACE-DOWN GUARD (2defbcd/d69ed78) holds long.
+- **Q2 (reach + CLEAR Koga) = still in flight, FAR off** (she was at the dex-10 Flash gate / Route 9, badges=3,
+  ~23 min in — Rock Tunnel → badge 4 → Silph → Tower → Flute → Snorlax → Route 12/13 → Fuchsia → Koga all ahead;
+  may not fit the 120-min budget). **AT RESUME grep:** `elapsed = grep -oE '\[ *[0-9]+\.[0-9]+s\]' ns4_koga.log | tail -1`;
+  progress `grep -oE "Soul Badge|badges=[0-9]|Rainbow|EARNED|Silph|Poké Flute|Snorlax|KOGA|STATE IN: Fuchsia" ns4_koga.log | tail`;
+  health `printf 'stuck:%s loop:%s loss:%s\n' "$(grep -c outcome=stuck ns4_koga.log)" "$(grep -c 'BATTLE-LOOP BREAKER' ns4_koga.log)" "$(grep -c 'battle_loss\|blacked out' ns4_koga.log)"`.
+- **✅ FLASH GATE PASSED (a watch-item that RESOLVED — don't chase it):** by ~28 min the roam ctx read
+  **"Pokédex: 10 caught" + "Field moves ready: CUT, FLASH"** and she was **crossing Rock Tunnel** (map 1,81↔1,82)
+  toward Celadon/Erika (badge 4), party Venusaur L41 + an evolving bench (Kadabra). The earlier "dex 7" reads were
+  a STALE ctx snapshot from an earlier window, not a stall — she reached dex 10 (catches + the Abra→Kadabra
+  evolution bump the caught-dex) and taught Flash cleanly on the full-party surge_done_kit run. NO PCBOX change
+  needed for this gate. (One minor watchability note: ~10 Rock-Tunnel floor transitions 1F↔B1F — normal maze
+  traversal, stuck=0, but WATCH the tail for whether it's efficient or a mild dark-cave bounce.)
+
+### ⇒ SHIFT-5 FRONTIER (exact next actions, priority order):
+1. **VERIFY + FLIP the grind-spot lever (the shift's build, live-verify PENDING).** Run a `giovanni_kit_g`
+   look-ahead (the E4-prep stretch where lever a bites — bench L37-40 needing L55) with the flag ON:
+   `POKEMON_GRIND_SPOT_LEVELAWARE=1 LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1
+   ../.venv/Scripts/python.exe -u recon_longrun.py giovanni_kit_g.state 20 > /g/temp/longrun/ns5_gsverify.log 2>&1 &`
+   → grep `GRIND: .* give near-0 XP toward|standing down to route to a reachable higher-level spot|TRAVEL WEDGE|floor crossed`.
+   SUCCESS = she recognizes the low-level grass as inadequate, re-routes to a reachable higher-level spot with a
+   **BOUNDED, watchable detour (no park/treadmill, no over-backtrack)**, and the bench levels FASTER than baseline.
+   If clean → set `GRIND_SPOT_LEVELAWARE` default "1" (one char, campaign.py ~236) + commit. If it parks/over-detours
+   → tune (raise `GRIND_POOR_GAP`, or cap the detour distance) or leave flag OFF + document. Decision re-check:
+   `../.venv/Scripts/python.exe recon_grind_spot_check.py` (28/28). giovanni_kit_g party = Venusaur L68 (ace) +
+   Lapras L37 + Kadabra L39 + L8-14 chaff (min_level floor won't field chaff), near Viridian/Route 22. **⚠️ KNOWN
+   CAVEAT the verify must watch:** near Viridian the only adequate GRASS spot is **Route 23** (Route 22 = L2-8
+   inadequate; Victory Road is a CAVE, now terrain-filtered OUT by `_better_grind_spot`). But Route 23 is a
+   split-map whose south grass parts need Surf/Waterfall and **WEDGED before** (NS#13: GRIND_MAP=3,42 boots north
+   edge, can't path south to grass). So the picker may correctly recognize Route-22 inadequate + route to Route 23
+   → and then hit the pre-existing Route-23 split-map wedge (NOT the picker's fault, but it confounds the verify).
+   If so: the picker LOGIC is right (skip low grass); the blocker is Route-23 nav (separate). Consider a DIFFERENT
+   verify fixture with a clean adequate grass spot reachable, OR add the Route-23 south-pocket to the world graph.
+   Add KB spots if she reaches an unmapped grind map.
+2. **CANDIDATE (b) — NOW DATA-BACKED AS THE DOMINANT WATCHABILITY LEVER (zero code, pure A/B — do this FIRST).**
+   The NS#5 Koga run quantified the cost: **38 heal-excursions + 104 heal calls + 17 ACE-DOWN bails in ~37 clean
+   minutes** (~1 cross-city Center round-trip PER MINUTE) — the heal-excursion FREQUENCY, not grind-spot level, is
+   the biggest watch-quality drag. `POKEMON_GRIND_ACE_BAIL_FRAC` is already env-configurable (default 0.34). A/B
+   `=0.25` on a surge_done_kit climb: the guard fires LATER = fewer excursions. Confirm the ace never actually
+   FAINTS (an L41-48 ace vs L15-20 wilds can't drop >25%→0 in one turn, so 0.25 keeps the safety property). If
+   fewer excursions + no faint → set default 0.25 + commit. `POKEMON_GRIND_ACE_BAIL_FRAC=0.25
+   ../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 45`. **DEEPER lever (higher risk, verify):**
+   the 38 excursions come from the ace SOAKING chip while protecting the bench in participation grinds → consider
+   `SOLO_WEAK_GRIND` (let a bench mon strong enough to survive weak grass take the KILL XP directly, so the ace
+   isn't exposed = fewer heals) — default OFF, wedge-prone in-battle switch, audit carefully.
+3. **READ the Koga run result (Q2)** (Flash gate already PASSED — see above). If she cleared Koga → the loop is
+   proven across TWO gym boundaries; bank + advance the frontier to badge 6 (Sabrina). If she reached badge 4-5
+   but ran out of budget → note how far + whether the L20-22 evolved bench (Mr.Mime/Kadabra Psychic + Diglett→
+   Dugtrio Ground) can answer Koga's poison. If a NEW blocker in the Rock-Tunnel/Silph/Tower/Flute chain →
+   diagnose the tail (it's the FIRST fresh blocker; fix that specific one per rule 8c, then re-run).
+4. **Carry-overs (unchanged, lower pri):** the deep WHITE-BOX SWITCH wedge (E4-livelock family, DON'T-FIX-BLIND,
+   needs rule-15 live frame-grabs); "RIVAL beat vs Gary" strat-memory mislabel (cosmetic — NO live repro in the
+   Koga log, so it needs a decision trace before touching; rule 7); keeper cave-descend slowness (watchability).
+   **`POKEMON_BENCH_TO_MILESTONE` STAYS default-OFF** (NS#4 decision holds — needs a multi-gym Koga-leveled proof).
+
+**RE-RUN cmds:** grind-spot verify (item 1) above; Q1 re-verify `POKEMON_ACE_BAIL=1 POKEMON_BENCH_TO_MILESTONE=1
+POKEMON_PREP_DRY_RESET=1 LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1
+../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 45`. Decision checks: `recon_grind_spot_check.py`
+(26/26), `recon_bench_milestone_check.py` (12/12), `recon_lopsided_grind_check.py` (ALL PASS). Canonical Champion save
+UNTOUCHED (all look-aheads on scratch surge_done_kit / giovanni_kit_g).
+
+---
+
+## ✅ NIGHT-SHIFT #4 DONE (2026-07-11, night_shift.ps1) — VERIFIED the ACE-DOWN GUARD ship-work e2e: Route-11 livelock DEAD + the full loss→grind→retry→**BADGE 4** loop proven on a fresh climb. No code change (verify-gated area; committed fix now ship-proven across a gym boundary). (superseded as START HERE by NS#5 above)
 
 ### ✅ WHAT SHIFT 4 CONFIRMED (fresh surge_done_kit 45-min look-ahead, `G:/temp/longrun/ns11_acebail2.log`; flags `POKEMON_ACE_BAIL=1 POKEMON_BENCH_TO_MILESTONE=1 POKEMON_PREP_DRY_RESET=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 LONGRUN_BATTLE_LOG=1`):
 - **QUESTION 1 = CONFIRMED — the Route-11 bench-grind LIVELOCK IS DEAD.** Across the WHOLE climb: `BATTLE-LOOP BREAKER=0`, `outcome=stuck=0`; the ACE-DOWN GUARD (`GRIND: ACE dinged`) fired **14× cleanly** (one-heal-per-tick, no thrash), each returning `ace_healed`→restore→re-grind. The committed fix (`2defbcd`, `d69ed78`) is now **SHIP-PROVEN across a gym boundary.**
