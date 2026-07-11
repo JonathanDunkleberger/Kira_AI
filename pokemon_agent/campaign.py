@@ -57,6 +57,20 @@ CATCH_JUDGMENT_ENABLED = os.getenv("POKEMON_CATCH_JUDGMENT", "1") != "0"
 # recorded wall (the wall-based target still dominates when present).
 PROACTIVE_BENCH = os.getenv("POKEMON_PROACTIVE_BENCH", "1") != "0"
 PROACTIVE_BENCH_GAP = int(os.getenv("POKEMON_PROACTIVE_BENCH_GAP", "10"))
+# ROAD BENCH XP (2026-07-11, PASS 3 team-depth NEW#1 — the mid-game "bench never levels" root fix).
+# The participation-XP switch (battle_agent.PROTECT_LEAD_GRIND) was armed ONLY inside a dedicated
+# grind_weak_members() session — which push-when-carrying almost never triggers mid-game — so the bench
+# banked ZERO XP from the ~8 road trainer wins between towns while the ace ran away (NS#2 diagnosis: won
+# Route24→Vermilion, lead L28→32, bench FROZEN L14/L14). This arms the SAME proven switch tightly around
+# each forward-march leg (head_to_gym / travel:) when a bench member is under its milestone prep target:
+# the weakest under-milestone mon LEADS (so it's "sent out" = XP-eligible), the participation switch
+# fields the ace turn 1 so the weak mon never takes a hit, and the ace does the KO. The bench levels
+# ORGANICALLY as she marches — no grind-wall (watchable: the whole team fights its way to the gym) — so
+# she arrives at each gym near-milestone instead of L14, which also dissolves the grind-spot-adequacy
+# wall. The weak lead is restored to the ace the instant the leg ends (never persists into readiness/heal
+# reads). Fail-safe: an unconfirmed switch just fights on; disarm always restores the ace. Touches the
+# wedge-prone in-battle switch (Tier-1 #5) so it's flag-gated for instant revert.
+ROAD_BENCH_XP_ENABLED = os.getenv("POKEMON_ROAD_BENCH_XP", "1") != "0"
 # PREP-FOR-E4 band (2026-07-11, PASS 3 team-depth): at all 8 badges the whole party is floored to the
 # team-plan's E4 milestone (~L55) so the bench survives the Center-less five-fight gauntlet (NS13/NS14:
 # a top-heavy team where the ace solos then dies at Lance/Champion). A member counts as LEVELABLE only
@@ -5448,6 +5462,81 @@ class Campaign:
         finally:
             battle_agent.PROTECT_LEAD_GRIND = False        # disarm — normal play never grind-switches
 
+    def _road_bench_xp_arm(self, pick, state):
+        """PASS-3 team-depth NEW#1 — organic bench XP on the road. Called right before a FORWARD-MARCH
+        action (head_to_gym / travel:) executes. When a bench member is under its milestone prep target,
+        lead with that weak mon so it PARTICIPATES in whatever road trainer/wild battles this leg triggers
+        and banks a share of XP — the proven participation-XP switch (battle_agent.PROTECT_LEAD_GRIND,
+        the same one grind_weak_members uses) fields the ACE on turn 1 so the weak mon never takes a hit.
+        Returns True iff it armed (the caller disarms via _road_bench_xp_disarm the instant the leg ends,
+        so the weak lead NEVER persists into the ctx/readiness/heal reads that assume slot-0 is the ace).
+        Flag POKEMON_ROAD_BENCH_XP (default on). Fail-closed: any read error disarms and returns False.
+
+        Scoped to forward-march picks only (never wander_catch/battle/beat_gym — a weak mon must never
+        lead a gym leader or a catch attempt). Skips when hurt (a hurt party heals with the true ace up),
+        thin (<2 mons), or the bench is already at milestone (_prep_team_target None). Picks the weakest
+        LEVELABLE under-target member (mirrors grind_weak_members: not the ace, not stall-marked, not
+        far-below box chaff), matching the milestone-cap prep so the two agree on 'the weak one'."""
+        if not ROAD_BENCH_XP_ENABLED:
+            return False
+        if pick != "head_to_gym" and not str(pick).startswith("travel:"):
+            return False
+        try:
+            if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
+                return False
+            if self.needs_heal():
+                return False                       # a hurt party heals with the true ace leading
+            party = state.get("party") or []
+            if len(party) < 2:
+                return False
+            prep_t = self._prep_team_target(state)
+            if prep_t is None:
+                return False                       # bench already at its milestone -> nothing to raise
+            levels = self._party_levels()
+            if not levels or len(levels) < 2:
+                return False
+            stalled = getattr(self, "_grind_stalled", None) or set()
+            floor_min = prep_t - E4_PREP_BAND      # ignore far-below box-fodder chaff (Tier-1 #15)
+            cand = []
+            for s, l in enumerate(levels):
+                if l >= prep_t or l < floor_min:   # crossed, or hopeless chaff -> not a lead candidate
+                    continue
+                try:
+                    pid = self.b.rd32(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE)
+                except Exception:
+                    pid = None
+                if pid is not None and pid in stalled:   # can't earn XP on this route -> skip
+                    continue
+                cand.append((l, s))
+            if not cand:
+                return False
+            wk = min(cand)[1]                      # the weakest levelable under-target member
+            ace = max(range(len(levels)), key=lambda s: levels[s])
+            if wk == ace:
+                return False                       # the weakest IS the ace -> nothing to protect
+            if wk != 0:
+                self._swap_party_slots(0, wk)      # weak mon leads -> "sent out" -> XP-eligible
+            battle_agent.PROTECT_LEAD_GRIND = True
+            log(f"   [roam] ROAD-BENCH-XP: leading with the weak L{levels[wk]} bench mon (target L{prep_t}) "
+                f"so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)")
+            return True
+        except Exception as e:
+            log(f"   [roam] ROAD-BENCH-XP arm skipped ({e})")
+            try:
+                battle_agent.PROTECT_LEAD_GRIND = False
+            except Exception:
+                pass
+            return False
+
+    def _road_bench_xp_disarm(self):
+        """Restore the ace to slot 0 and clear the participation toggle after a road-bench-XP leg, so the
+        weak lead never persists into the next tick's readiness/heal/decision reads. Order-independent
+        (_restore_ace re-reads levels), so it cleans up regardless of what the battle left the order as."""
+        try:
+            self._restore_ace()
+        finally:
+            battle_agent.PROTECT_LEAD_GRIND = False
+
     # ── BATCH 2 PART C: SHOP WITH INTENT (bag/money reads + the verified Mart buy primitive) ───────
     def money(self):
         """Player money (SaveBlock1+0x290 XOR SaveBlock2.encryptionKey+0xF20). Same decode as the
@@ -10305,6 +10394,10 @@ class Campaign:
             # PROBLEM 3 TRACE — capture her RAM position around the action so a SILENT travel failure
             # (head_to_gym fires but she never moves) is logged, not theorized.
             _pos0 = (tv.map_id(self.b), tv.coords(self.b))
+            # ROAD-BENCH-XP (PASS 3 NEW#1): on a forward-march leg with an under-milestone bench, lead
+            # with the weak mon so it banks participation XP from this leg's road battles; the disarm in
+            # the finally restores the ace so the weak lead never outlives the leg. Fail-safe throughout.
+            _road_xp = self._road_bench_xp_arm(pick, state)
             try:
                 out = self._route_action(pick, state)
             except Exception as _re:
@@ -10315,6 +10408,9 @@ class Campaign:
                 log(f"   [roam] !!!! ACTION CRASHED: '{pick}' raised {_re!r} — caught LOUD, continuing "
                     f"the run (not dying). Traceback:\n{_tb.format_exc()}")
                 out = "action_error"
+            finally:
+                if _road_xp:
+                    self._road_bench_xp_disarm()
             _pos1 = (tv.map_id(self.b), tv.coords(self.b))
             _moved = _pos0 != _pos1
             log(f"   [roam] RESULT: {pick} -> {out} | pos {_pos0[0]}{_pos0[1]} -> {_pos1[0]}{_pos1[1]} "
