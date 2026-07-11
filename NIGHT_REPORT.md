@@ -348,3 +348,26 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 7 10:38->10:49 (11m): 0 commit(s), frontier ADVANCED
 - shift 8 10:50->10:56 (6m): 2 commit(s), frontier ADVANCED
 - shift 9 survey (2026-07-11): VERIFIED the committed lopsided fix (36b4998) across a FULL GYM BOUNDARY on a fresh surge_done_kit look-ahead (ns8_erika.log) — badge-3 Vermilion → lopsided grind (bench evened L8→L14, floor crossed, road resumed, NO park) → keeper Diglett → caught to dex 10 → FLASH ERRAND → HM05 → crossed Rock Tunnel → traded Abra→Mr. Mime (Psychic, a real Koga answer) → Celadon → *** ERIKA / RAINBOW BADGE (badge 4) *** → lopsided RE-FIRED at badge 4 (once-per-badge re-arm works), ground bench to L20 and EVOLVED Spearow→Fearow + Rattata→Raticate → correctly recognized the Snorlax gate and redirected into the Rocket Hideout for the Silph Scope (the Poké-Flute chain toward Fuchsia/Koga). ~15 travel wedges whole run, all small/self-recovered, ZERO livelocks. Also BUILT a +12 bigger-bite team-depth lever then REJECTED it by live evidence + REVERTED (git checkout): +6 already reaches L20 AND crosses the Spearow/Rattata evolutions, the grind is already slow on Celadon's low-level grass (2× re-fire, ~7min wall-clock/stint), so +12 would ~double it = a watchability regression + park risk. | frontier: (1) TEAM-DEPTH AT KOGA still OPEN — she's mid Poké-Flute chain (Rocket Hideout), hadn't reached Koga in-budget; re-run/resume to see if the L20-22 evolved bench (Mr.Mime Psychic + Diglett→Dugtrio Ground, both 2× vs poison) + Venusaur L45 clears Koga. (2) GRIND-SPOT ADEQUACY is the real watchability lever (level-appropriate grass / SOLO_WEAK_GRIND kill-XP), NOT a bigger target — verify-gated. | needs eyes: none (mode-side; canonical Champion save UNTOUCHED — look-ahead on scratch surge_done_kit; no new code committed this shift, correctly — reverted the wrong lever).
+- shift 9 10:57->11:29 (32m): 1 commit(s), frontier ADVANCED
+- shift 10 11:30->11:49 (19m): 1 commit(s), frontier ADVANCED
+- shift 11 FAST-FAIL 11:50 (7s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 11 11:50->11:50 (0m): 0 commit(s), frontier unchanged
+- shift 1 12:12->12:32 (20m): 1 commit(s), frontier ADVANCED
+- shift 2 FAST-FAIL 12:33 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 2 12:33->12:33 (0m): 0 commit(s), frontier unchanged
+- shift 3 FAST-FAIL 12:34 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 3 12:34->12:34 (0m): 0 commit(s), frontier unchanged
+- shift 4 FAST-FAIL 12:35 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 4 12:35->12:35 (0m): 0 commit(s), frontier unchanged
+- shift 5 FAST-FAIL 12:36 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 5 12:36->12:36 (0m): 0 commit(s), frontier unchanged
+- shift 6 FAST-FAIL 12:37 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 6 12:37->12:37 (0m): 0 commit(s), frontier unchanged
+- shift 7 FAST-FAIL 12:38 (3s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 7 12:38->12:38 (0m): 0 commit(s), frontier unchanged
+- shift 8 FAST-FAIL 12:39 (2s, exit 1): You've hit your session limit -+ resets 12:40pm (America/Phoenix)
+- shift 8 12:39->12:39 (0m): 0 commit(s), frontier unchanged
+- shift 1 13:05->13:22 (17m): 3 commit(s), frontier ADVANCED
+- shift 2 13:23->13:27 (4m): 1 commit(s), frontier ADVANCED
+- shift 3 13:28->13:34 (6m): 1 commit(s), frontier ADVANCED
+- shift 4 survey: VERIFIED the ACE-DOWN GUARD ship-work (2defbcd/d69ed78) — fresh surge_done_kit 45-min look-ahead (ns11_acebail2.log): the Route-11 bench-grind LIVELOCK IS DEAD (0 BATTLE-LOOP BREAKER, 0 outcome=stuck the WHOLE climb; ACE-DOWN GUARD fired 14× cleanly, one-heal-per-tick, no thrash). Full loss→grind→retry→win loop PROVEN e2e on near-defaults (ACE_BAIL default-ON): lost Erika → diagnosed team-depth IN-CHARACTER ("level the weak ones, field THEM not my ace") → ground the whole bench L14-18 → L20-22 with THREE evolutions (Spearow→Fearow, Rattata→Raticate, Oddish→Gloom) → retried → **WON BADGE 4 (Rainbow)** → resumed grinding toward Koga (badge 5). No code change (verify-gated bench-grind area; committed fix now ship-proven across a gym boundary). Decision checks green (bench_milestone 12/12, lopsided ALL PASS). | frontier: GRIND-EFFICIENCY/watchability = the binding next lever (the bench grind is slow+circly: ~14 ACE-BAIL heal-excursions + Route-7 low grass + a whole-bench-to-L25 target = a long montage; NS#9 grind-spot-adequacy, verify-gated) + Q2 (reach Koga with a leveled bench) needs a MULTI-HOUR/resumable run — the badge-4→Silph/Tower/Flute/Snorlax→Fuchsia chain is past a 45-min window. BENCH_TO_MILESTONE stays default-OFF (fired 1×, harmless, but the multi-gym Koga proof the frontier gates the flip on isn't in yet). | needs eyes: none
