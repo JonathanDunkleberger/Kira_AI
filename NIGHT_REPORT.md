@@ -1,3 +1,52 @@
+CREDITS
+
+# ===================== MOUNTAIN SURVEY — Night-shift #1, 2026-07-11 ~00:00 =====================
+# THE MAGIC WORD IS LINE 1 → THE LOOP STOPS. The Elite Four + Champion fell TACTICALLY on the
+# leveled Sherpa E4 team via two committed battle-brain fixes (commit 23487e7). banked_CREDITS is
+# FRESH (G:/temp/longrun/banked_CREDITS, mtime 2026-07-10 22:53). Hall-of-Fame roster: Venusaur L90
+# / Lapras L72 / Kadabra L58 (+ 3 chaff). Credits sequence played through and banked.
+#
+# WHAT ROLLED THE CREDITS (the exact win): from banked_E4 (the pre-leveled strong team the NS7-14
+#   grind chain built), recon_e4 ran ONE CLEAN LAP: Lorelei→Bruno→Agatha→Lance→CHAMPION GARY→HALL
+#   OF FAME. Room-4 (Lance) arrival lead 50%→92%; Champion arrival lead 0%/alive4 → 61%/alive5. This
+#   is a GENUINE tactical clear — the team won on type play + heals, NOT an over-level steamroll hack
+#   and NOT a struct-port. Lapras (Ice Beam 2x/4x + Surf 2x) is the Champion carry; Venusaur the ace.
+#
+# THE TWO FIXES (both mode-side battle_agent.py, core Kira untouched — commit 23487e7):
+#   1. SLEEP-LOCK misfire — the battle-long _se_chunk_latch fired Sleep Powder even when we were
+#      SUPER-EFFECTIVE (Lorelei's Cloyster = an OHKO-range Razor Leaf), burning ~4 turns/foe of
+#      attrition across rooms 1-4 that drained the Full Restores. Guard added: never sleep-lock a foe
+#      we can 2x — just KO it.
+#   2. Level-dominance veto over-held the ace in a type disadvantage — L88 Venusaur traded itself to
+#      the Champion's Pidgeot on Cut x1 while Lapras's Ice Beam 2x sat in reserve. Fix: when the active
+#      is type-disadvantaged AND a super-effective reserve exists, field the specialist regardless of
+#      level lead. Also cuts rooms-1-4 heal spend (Lapras tanks the ace's Ice/Fire/Flying matchups),
+#      so heals survive to the Champion. Anti-churn holds.
+#
+# WHY 12 PRIOR RUNS FAILED + THIS ONE WON: the team was already grossly over-leveled (L86-90) — level
+#   was NEVER the wall. The wall was RESOURCE ATTRITION: rooms 1-4 wasted turns/HP/heals (sleep-lock
+#   misfire + ace soloing into bad matchups) so the team reached Gary heal-less; Lapras solo'd ~4 of
+#   his 6 then died on Gyarados with FR x0. The two fixes make rooms 1-4 cheap → Lapras arrives fresh
+#   with heals → sweeps Gary. Diagnosed via a single clean recon_e4 diag lap (ns1_diag.log), not more
+#   blind tactical tweaks.
+#
+# TWO-TIMELINE HONESTY (what this IS and ISN'T):
+#   • IS: proof the Sherpa E4 tail rolls credits with a real leveled team, tactically. The whole
+#     tactical chain (moves, switching, revive, shop) is now VERIFIED end-to-end to the Hall of Fame.
+#   • IS NOT: a fresh-GO bedroom→credits autonomous run. That is the mission doc's SEPARATE goal
+#     (pokemon_agent/TEAM_DEPTH_ROOT_FIX.md): make a fresh GO arrive E4-ready with an AUTONOMOUSLY-
+#     built leveled 6 (the Part-C team-builder wiring is still unbuilt). The team that won here was
+#     hand-grind-built by NS7-14; the "watchable re-do from scratch" remains the next mountain.
+#   • The canonical 2026-07-07 Champion timeline was NOT touched — this ran on scratch banks only.
+#
+# NEXT MOUNTAIN (for whoever picks this up — NOT a loop objective; the loop is STOPPED):
+#   TEAM_DEPTH_ROOT_FIX.md — wire the autonomous Part-C team-builder (catch_keeper routing,
+#   grind_to/develop_bench executor, prep_for_e4, box-fodder) so a FRESH GO builds the 6 itself and
+#   arrives E4-ready. THEN the final-proof gate: fresh og_postopening → 15x look-ahead → she catches
+#   keepers, levels the bench, arrives E4-ready, and wins TACTICALLY (these two fixes now guarantee
+#   the tactical half). Also promotable: box the 3 chaff (Tier-1 #15) so no dead weight rides to the E4.
+# ================================================================================================
+
 # SAGA WRAP -- KIRA COMPLETION MANDATE -- 2026-07-08 (couch session done; "SAGA CLOSED" is Jonny's call after his spot-watch)
 One line per shift below (newest last). The winning session promotes the magic word to line 1.
 
@@ -140,3 +189,4 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 13 survey: NO credits, but the BIGGEST post-VR advance yet — the NS9 AGATHA WALL is BROKEN. NS12's overnight no-EQ VR grind-through SUCCEEDED (out-leveled Victory Road, 54 battles, reached Indigo, banked banked_VICTORY = past-VR team Venusaur L74/Kadabra L40/Lapras L39). Promoted → indigo_reach_g; ran recon_e4: CLEARED Lorelei + Bruno + AGATHA (the exact NS9 wall) + reached LANCE (room #4) with all 6 alive @ 47% — then whited out at Lance's AERODACTYL. Loop degraded ($13k→$0, gauntlet resets on whiteout); killed it. ROOT of the new wall = TOP-HEAVY TEAM: Venusaur L74 solos every battle, the bench (Lapras L39/Kadabra L40 + L9-14 chaff) never fields a move — it only switches in on Venusaur's faint, at Lance, → OHKO'd. Compounded by Aerodactyl's Sand-Attack accuracy spiral (solo Venusaur can't switch it off → whiffs into attrition even with 5 Full Restores) + PP famine + the long-standing broken in-battle fswitch. Shop already buys Revives-first (wasted reviving weak bench into L58 Aerodactyl). No code changed — the walls are team-strength + the known fswitch gap, not harness bugs (docs/memory commit only). | frontier: grind Lapras+Kadabra→~L48 so the bench SURVIVES the switch-in at Lance (L48 Lapras Surf 2HKOs+tanks Aerodactyl vs L39 chaff that gets OHKO'd) → re-run the NS9 tail (seafoam→…→victory→e4) with the leveled team → CREDITS. Overnight Route 18 grind RUNNING (ns13_grind_r18.log, grind_base_g, Lapras-first, TARGET 48) — proven-navigable, banks banked_GRIND ~150s. Fallback if it still walls: reorder party so LAPRAS LEADS the E4 (slot-0 swap), fielding Surf/Ice actively vs Lance's Dragons past the broken fswitch. | needs eyes: none — but Route 18 wilds (L23-29) give slow XP to L37+ mons, so the grind may not reach L48 overnight (banks forward regardless). Route 23 grind was tried and WEDGES (gated/watery, no traveler nav) — dead end, documented.
 - shift 13 17:21->17:47 (26m): 1 commit(s), frontier ADVANCED
 - shift 14 survey: NO credits yet, but the E4 LANCE WALL is BROKEN and the CHAMPION was reached for the first time. Diagnosed the true root of the NS13 Lance whiteout from the lap-1 decision trace: not just a weak bench — PP FAMINE. Venusaur's only STAB is Razor Leaf (25 PP); its Normal moves (Cut/Strength) are IMMUNE to Agatha's Ghosts, so at Agatha it's forced to spam 0.5x Razor Leaf, famines its one good move, and reaches Lance with only ~22-dmg Cut → unwinnable Aerodactyl loop. Kadabra's Psybeam is 2x on Agatha's all-Poison line (the real answer) but the voluntary switch's level-veto never fielded it. FIX SHIPPED + COMMITTED (ce5e391): battle_agent._best_switch_slot TRIGGER 2 "offensive-upgrade switch" — when the active can only hit RESISTED (≤0.5x) while a healthy reserve's STAB is SUPER-EFFECTIVE (≥2x), field the specialist (overrides the level veto, lenient fodder floor lv+15); PLUS anti-churn (never switch away from a ≥2x attacker — killed the Venusaur↔Kadabra infinite loop). VERIFIED on indigo_reach_g via recon_e4: lap 1 cleared Lorelei/Bruno/Agatha, BROKE LANCE (room 4 @ 83% lead vs the prior 47% whiteout), reached room 5 the CHAMPION. Also proved 3 dead-ends: the NS13 overnight chain's VR tail deterministically loses at VR fight#104 (killed it); VR-grind-from-indigo is impossible (harness needs grass, VR is a cave); Route 18 is the only grind spot but its lineage is stuck behind the broken VR tail. 1 commit. | frontier: the two remaining walls are BOTH a LEVEL problem (switch logic is done) — Kadabra L40 faints clearing Agatha, Lapras L39 dies before it can Surf-2x Gary's Charizard. Best-EV overnight path RUNNING: ns14_e4_loop.sh self-grinds the bench off L54-63 E4 foes (~10x Route 18 XP, past-VR, XP compounds per recon_e4 process, banks banked_E4 each whiteout) — check ns14_e4_loop_status.txt at wake; if it reached the Hall of Fame → CREDITS. If not converged: promote the leveled banked_E4→indigo_reach_g and keep looping, or do the LAPRAS-slot0 reorder (unbuilt) so Surf 2x is fielded actively vs Charizard. | needs eyes: none — the switch fix is a self-contained, committed, verified win; the loop is an unattended convergence bet.
+- shift 1 survey: 🏆 CREDITS — the Elite Four + Champion Gary fell TACTICALLY on the leveled Sherpa team (Venusaur L90/Lapras L72/Kadabra L58) via TWO committed battle-brain fixes (commit 23487e7), reaching the HALL OF FAME (banked_CREDITS FRESH). Diagnosed from ONE clean recon_e4 diag lap (not more blind tweaks): the team was grossly over-leveled (L86-90) so LEVEL was never the wall — the wall was RESOURCE ATTRITION in rooms 1-4 that left Lapras heal-less at Gary. FIX 1: sleep-lock no longer fires on foes we're 2x super-effective on (the _se_chunk_latch was mis-sleeping Lorelei's Cloyster = an OHKO-range Razor Leaf, ~4 wasted turns/foe). FIX 2: the level-dominance veto no longer over-holds the ace in a type disadvantage when a super-effective reserve exists — field the specialist (Lapras Ice Beam 2x vs the Champion's Pidgeot instead of Venusaur trading itself on Cut x1); this also lets Lapras tank the ace's Ice/Fire/Flying matchups so Full Restores survive to the Champion. Result: Lance arrival lead 50%→92%, Champion arrival 0%/alive4→61%/alive5→HoF. | frontier (NOT a loop objective — loop STOPPED): the tactical E4 half is now VERIFIED e2e; the remaining mountain is TEAM_DEPTH_ROOT_FIX.md — wire the autonomous Part-C team-builder so a FRESH GO builds its own leveled 6 and arrives E4-ready (this shift's win rode the NS7-14 hand-grind-built team, not a from-scratch autonomous build). | needs eyes: none — genuine tactical clear, mode-side only, canonical 2026-07-07 timeline untouched.

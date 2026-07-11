@@ -1,5 +1,25 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🏆 CREDITS ROLLED (night-shift #1, 2026-07-11) — the E4 TACTICAL half is DONE + VERIFIED e2e.
+The leveled Sherpa team (Venusaur L90 / Lapras L72 / Kadabra L58) beat the Elite Four + Champion Gary
+TACTICALLY and reached the HALL OF FAME (`G:/temp/longrun/banked_CREDITS`, fresh). Two committed
+battle-brain fixes cracked the 12-run whiteout wall (commit 23487e7, `battle_agent.py`, mode-side only):
+(1) never sleep-lock a foe we're 2x super-effective on (the `_se_chunk_latch` mis-slept Cloyster, burning
+rooms-1-4 heals); (2) when the active is type-disadvantaged AND a super-effective reserve exists, field the
+specialist regardless of level lead (Lapras Ice Beam 2x vs the Champion's Pidgeot instead of Venusaur
+trading itself on Cut x1) — which also cut rooms-1-4 heal spend so Full Restores survived to Gary.
+**Re-verify anytime:** `E4_BOOT=G:/temp/longrun/banked_E4 ../.venv/Scripts/python.exe -u recon_e4.py`
+(banked_E4 is a clean whiteout-center strong-team bank → one clean lap → Hall of Fame).
+
+**THIS IS NOT the fresh-GO watchable re-do.** The team that won was hand-grind-built by NS7-14. The REAL
+remaining mountain = the autonomous Part-C team-builder in **`pokemon_agent/TEAM_DEPTH_ROOT_FIX.md`** (below):
+make a fresh GO build its own leveled 6 and arrive E4-ready. The tactical E4 half is now guaranteed by the
+two fixes above — so the final-proof gate just needs the BUILD half. The canonical 2026-07-07 Champion
+timeline was NOT touched (this ran on scratch banks). Loop is STOPPED (CREDITS is line 1 of NIGHT_REPORT.md).
+
+---
+
+
 ## 🎯 THE MISSION (2026-07-10 night — START HERE): FIX THE ROOT BUG — she arrives at the E4 with only ~2 usable mons instead of a real leveled 6. READ `pokemon_agent/TEAM_DEPTH_ROOT_FIX.md` FIRST — it holds the full evidence-backed diagnosis + the ranked fix with exact function/file:line targets.
 
 **WHY:** the headline goal is a WATCHABLE autonomous run where, on a fresh GO, she shows up to the Elite Four
