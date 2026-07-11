@@ -23,8 +23,16 @@ top-heavy-bank attrition (L48 ace soloing an L9-15 bench), NOT this fix. The ace
 dinged-ace leg to heal); on a fresh organically-built run the bench shares the gauntlet so it doesn't arise.
 
 ### ⇒ NS#3 FRONTIER (the fix is verified; next pieces):
-1. **PC/BOX (Tier-1 #15)** — the pairing gap for the catch half; box off-plan fodder on a full-party keeper
-   catch (promote `recon_pcbox.py`'s deposit flow). Un-gate builds toward 6; box turns it into real depth.
+1. **PC/BOX (Tier-1 #15) — the pairing gap for the catch half; TOP next build.** RECON DONE this shift:
+   `recon_pcbox.py` already has a COMPLETE deposit drive (enter Center → walk to PC console → A → BILL'S PC →
+   DEPOSIT → pick slot → confirm → verify party count 6→5 by RAM → banks `banked_PCBOX`), menu sequence
+   worked out with screenshot calibration. GAPS to wire it into campaign: (a) `PC_STAND` is Route-10-specific
+   → generalize the PC-console approach per Center (find the PC tile in any Center); (b) add `withdraw_mon`
+   (the reverse); (c) NOT wired into campaign at all (no `deposit_mon`/`withdraw_mon` methods) → add them +
+   hook `catch_one` to box the lowest-value off-plan fodder on a full-party keeper catch (Tier-1 #15). ⚠️ The
+   PC menu actuation is WEDGE-PRONE (menu-nav-on-long-core) → verify live with grab-and-look, flag-gate.
+   Un-gate builds toward 6; box turns it into real depth. NB recon_pcbox reads canonical (now the Champion
+   save) on a RAM copy — re-point it at a party-6 workshop bank to re-verify the drive before promoting.
 2. **CROSS-MAP KEEPER ROUTER** — the catch un-gate is on-map only; route to `act["where"]` via
    frlg_encounters for grass/cave keepers (Abra/Diglett/Growlithe). Note NS#2's sibling gap: the Abra
    plan-catch FIRED on-map but didn't PERSIST after a mid-catch heal (catch-persistence).
