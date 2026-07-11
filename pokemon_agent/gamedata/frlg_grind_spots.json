@@ -1,0 +1,45 @@
+{
+ "_meta": {
+  "purpose": "Wild-encounter LEVEL bands per grind-relevant area in FireRed — the game-knowledge layer (rule 14) for a LEVEL-AWARE grind-spot picker. The problem it serves (documented NS#1/#14 wall): a grind() on grass whose wild_max is FAR BELOW the team's grind target gives near-zero XP, so the grind spins its whole budget for ~0 levels (the E4-prep L45->55 stall on Route-18/low grass). A picker reads this to (a) recognise a map as GRIND-INADEQUATE for the current target and (b) prefer a reachable area whose band actually levels the team.",
+  "source": "Bulbapedia FRLG route/cave encounter tables + long-standing FRLG knowledge, distilled offline (rule 15). Bands are the APPROXIMATE min..max of the common land-grass (or cave step) encounters used for grinding — not exact per-slot tables; the picker only needs 'is the XP here worth it for a mon at level L'. Water/surf-only and fishing bands are noted separately where they dominate.",
+  "schema": "spots: { \"<group>,<num>\": {\"name\": str, \"wild_min\": int, \"wild_max\": int, \"terrain\": \"grass\"|\"cave\"|\"water\", \"gate\": null|str} }. gate = a human note on why the spot may be unreachable early (badge/HM/quest); the picker still gates reachability via the world graph — this is only a hint. Map-ids follow campaign._PLACE_NAMES (Route N = (3,18+N); Route 21=(3,39/40); 22=(3,41); 23=(3,42); 24=(3,43); 25=(3,44)).",
+  "updated": "2026-07-11 (night-shift #5, PASS-3 grind-efficiency lever a — KB + reader landed; picker wiring is the verify-gated next step)"
+ },
+
+ "spots": {
+  "3,19":  {"name": "Route 1",  "wild_min": 2,  "wild_max": 4,  "terrain": "grass", "gate": null},
+  "3,20":  {"name": "Route 2",  "wild_min": 3,  "wild_max": 6,  "terrain": "grass", "gate": null},
+  "3,21":  {"name": "Route 3",  "wild_min": 6,  "wild_max": 9,  "terrain": "grass", "gate": null},
+  "3,22":  {"name": "Route 4",  "wild_min": 8,  "wild_max": 12, "terrain": "grass", "gate": null},
+  "3,23":  {"name": "Route 5",  "wild_min": 13, "wild_max": 16, "terrain": "grass", "gate": null},
+  "3,24":  {"name": "Route 6",  "wild_min": 13, "wild_max": 16, "terrain": "grass", "gate": null},
+  "3,25":  {"name": "Route 7",  "wild_min": 18, "wild_max": 20, "terrain": "grass", "gate": null},
+  "3,26":  {"name": "Route 8",  "wild_min": 18, "wild_max": 20, "terrain": "grass", "gate": null},
+  "3,27":  {"name": "Route 9",  "wild_min": 14, "wild_max": 17, "terrain": "grass", "gate": null},
+  "3,28":  {"name": "Route 10", "wild_min": 14, "wild_max": 17, "terrain": "grass", "gate": null},
+  "3,29":  {"name": "Route 11", "wild_min": 12, "wild_max": 16, "terrain": "grass", "gate": null},
+  "3,30":  {"name": "Route 12", "wild_min": 24, "wild_max": 27, "terrain": "grass", "gate": "Snorlax blocks the road until the Poke Flute wakes it"},
+  "3,31":  {"name": "Route 13", "wild_min": 24, "wild_max": 27, "terrain": "grass", "gate": null},
+  "3,32":  {"name": "Route 14", "wild_min": 24, "wild_max": 28, "terrain": "grass", "gate": null},
+  "3,33":  {"name": "Route 15", "wild_min": 24, "wild_max": 28, "terrain": "grass", "gate": null},
+  "3,34":  {"name": "Route 16", "wild_min": 18, "wild_max": 22, "terrain": "grass", "gate": "Snorlax + Cycling Road (bike) west of Celadon"},
+  "3,35":  {"name": "Route 17", "wild_min": 24, "wild_max": 28, "terrain": "grass", "gate": "Cycling Road (bike)"},
+  "3,36":  {"name": "Route 18", "wild_min": 24, "wild_max": 29, "terrain": "grass", "gate": null},
+  "3,39":  {"name": "Route 21", "wild_min": 18, "wild_max": 40, "terrain": "water", "gate": "mostly surf (water); land grass is a thin south strip"},
+  "3,41":  {"name": "Route 22", "wild_min": 2,  "wild_max": 8,  "terrain": "grass", "gate": null},
+  "3,42":  {"name": "Route 23", "wild_min": 34, "wild_max": 49, "terrain": "grass", "gate": "Victory-Road approach — high grass, but parts need Surf/Waterfall; badge-gated checkpoints"},
+  "3,43":  {"name": "Route 24", "wild_min": 7,  "wild_max": 12, "terrain": "grass", "gate": null},
+  "3,44":  {"name": "Route 25", "wild_min": 8,  "wild_max": 14, "terrain": "grass", "gate": null},
+
+  "1,0":   {"name": "Viridian Forest", "wild_min": 3,  "wild_max": 6,  "terrain": "grass", "gate": null},
+  "1,1":   {"name": "Mt. Moon",        "wild_min": 7,  "wild_max": 12, "terrain": "cave",  "gate": null},
+  "1,36":  {"name": "Diglett's Cave",  "wild_min": 15, "wild_max": 22, "terrain": "cave",  "gate": null},
+  "1,39":  {"name": "Victory Road",    "wild_min": 36, "wild_max": 46, "terrain": "cave",  "gate": "8 badges; cave step-encounters (no grass tiles — grind() needs cave pacing, unbuilt)"},
+  "1,63":  {"name": "Safari Zone",     "wild_min": 22, "wild_max": 31, "terrain": "grass", "gate": "500-step Safari limit; no normal catch"},
+  "1,72":  {"name": "Cerulean Cave",   "wild_min": 46, "wild_max": 67, "terrain": "cave",  "gate": "POST-E4 only (opens after the Champion)"},
+  "1,81":  {"name": "Rock Tunnel",     "wild_min": 15, "wild_max": 17, "terrain": "cave",  "gate": "needs HM05 Flash to see"},
+  "1,83":  {"name": "Seafoam Islands", "wild_min": 26, "wild_max": 40, "terrain": "cave",  "gate": "needs Surf + Strength"},
+  "1,88":  {"name": "Pokemon Tower",   "wild_min": 13, "wild_max": 30, "terrain": "grass", "gate": "ghost floors; needs Silph Scope"},
+  "1,95":  {"name": "Power Plant",     "wild_min": 22, "wild_max": 40, "terrain": "grass", "gate": "needs Surf to enter"}
+ }
+}

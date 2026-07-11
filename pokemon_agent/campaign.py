@@ -230,6 +230,12 @@ GRIND_NOPATH_CAP = int(os.getenv("POKEMON_GRIND_NOPATH_CAP", "6"))
 # to fight the escape battles out of the grass. Fail-open: a healthy ace one-shots wilds and never dips here.
 GRIND_ACE_BAIL_FRAC = float(os.getenv("POKEMON_GRIND_ACE_BAIL_FRAC", "0.34"))
 ACE_BAIL_ON = os.getenv("POKEMON_ACE_BAIL", "1") == "1"   # default ON; one-char revert to prior behavior
+# GRIND-SPOT LEVEL AWARENESS (NS#5, PASS-3 grind-efficiency lever a) — a map whose wild_max is more than
+# GRIND_POOR_GAP below the team's grind target gives ~0 XP (the NS#1/#14 E4-prep stall). The KB reader
+# (_grind_wild_band / _grind_inadequate) + this gap land now (decision-verified); the picker WIRING that
+# marks such a map grind-inadequate + prefers a reachable higher-level spot is flag-gated + verify-gated.
+GRIND_POOR_GAP = int(os.getenv("POKEMON_GRIND_POOR_GAP", "18"))
+GRIND_SPOT_LEVELAWARE = os.getenv("POKEMON_GRIND_SPOT_LEVELAWARE", "0") == "1"  # default OFF until live-verified
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -4580,6 +4586,47 @@ class Campaign:
                 log(f"   [roam] static-connection KB load skipped: {e} (LOUD)")
             self._host_gw_cache = idx
         return idx
+
+    def _grind_wild_band(self, map_id):
+        """GRIND-SPOT LEVEL KB (NS#5, rule 14) — the (wild_min, wild_max) encounter-level band for a
+        grind area, from gamedata/frlg_grind_spots.json. Used by the level-aware grind-spot picker to
+        recognise a GRIND-INADEQUATE map (wild_max far below the team's grind target => ~0 XP, the
+        documented NS#1/#14 E4-prep stall) and prefer a reachable area that actually levels the team.
+        Loaded once, cached; the swappable game-knowledge layer, keyed by "<group>,<num>" like the
+        table. None = no data for this map (picker then falls back to the base behaviour). Fail-open."""
+        idx = getattr(self, "_grind_band_cache", None)
+        if idx is None:
+            idx = {}
+            try:
+                import json
+                path = os.path.join(_HERE, "gamedata", "frlg_grind_spots.json")
+                with open(path, encoding="utf-8") as f:
+                    raw = (json.load(f) or {}).get("spots") or {}
+                for key, spec in raw.items():
+                    try:
+                        g, n = (int(x) for x in key.split(","))
+                        lo, hi = int(spec["wild_min"]), int(spec["wild_max"])
+                        idx[(g, n)] = (lo, hi, spec.get("terrain", "grass"))
+                    except Exception:
+                        continue
+            except Exception as e:
+                log(f"   [grind] grind-spot KB load skipped: {e} (LOUD)")
+            self._grind_band_cache = idx
+        band = idx.get(tuple(map_id))
+        return (band[0], band[1]) if band else None
+
+    def _grind_inadequate(self, map_id, target_level, poor_gap=None):
+        """True iff this map's grass would give the team NEAR-ZERO XP for the current grind target —
+        the documented NS#1/#14 stall (an L45+ mon on L8-19 grass gains ~0 per kill, so grind() spins
+        its whole budget for ~0 levels). Predicate only (no side effects): wild_max is far below the
+        target by more than `poor_gap`. Unknown map / no KB entry => False (never blocks a grind on
+        data we don't have — fail-open). `poor_gap` default from POKEMON_GRIND_POOR_GAP (18): FRLG XP
+        stays worthwhile until the foe is roughly this far below you, then falls off a cliff."""
+        band = self._grind_wild_band(map_id)
+        if band is None or not target_level:
+            return False
+        gap = poor_gap if poor_gap is not None else GRIND_POOR_GAP
+        return band[1] < target_level - gap
 
     def _keeper_gateway(self, host_area, cur, state, avoid=None):
         """STATIC-CONNECTION reachability (NS#40): the NEAREST overworld GATEWAY of `host_area` the
