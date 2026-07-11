@@ -97,6 +97,23 @@ E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "25"))
 # the fight is WON, weak mon banks participation XP) + field the less-weak mon first. Arm with
 # POKEMON_SOLO_WEAK_GRIND=1 to continue. Until then ace-overpower (heals fine via the reachable-Center fix).
 SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
+# CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 team-depth NEW#2): the on-map catch un-gate
+# (_plan_wants_prebuild / _plan_keeper_target) only grabs a planned keeper she happens to be STANDING on;
+# a keeper on a nearby route she isn't on is marched past (the erika_done look-ahead: the planner wants
+# 'abra -> alakazam' the whole way to Fuchsia but never fetches it -> she arrives with a leveled-chaff
+# bench, no coverage). This offers a BOUNDED detour to a nearby reachable map that HOSTS the DUE keeper,
+# then the existing on-map machinery catches it. Bounded (<= MAX_HOPS world-graph hops so it grabs
+# corridor-adjacent keepers, never a whole-map backtrack), room-gated (party < 6; the full-party box swap
+# is a separate unbuilt piece, Tier-1 #15), plan-gated, fail-closed. DEFAULT OFF until a behavioural
+# look-ahead confirms she fetches without wedging/over-detouring (touches free_roam objective selection —
+# the wedge-prone area); arm with POKEMON_KEEPER_ROUTER=1.
+KEEPER_ROUTER_ENABLED = os.getenv("POKEMON_KEEPER_ROUTER", "0") != "0"
+KEEPER_ROUTER_MAX_HOPS = int(os.getenv("POKEMON_KEEPER_ROUTER_MAX_HOPS", "6"))
+# After this many consecutive no-progress fetch legs on one keeper target, retire it (session-scoped
+# _keeper_unreach) so a keeper the learned-graph traveler can't actually reach never livelocks the roam
+# (the route3_caught look-ahead: world.route said 'reachable' but the executor couldn't ride it -> MACRO
+# RED spin). She falls through to head_to_gym; the keeper is re-tried fresh only after a roster change.
+KEEPER_ROUTER_STALL_CAP = int(os.getenv("POKEMON_KEEPER_ROUTER_STALL_CAP", "3"))
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
@@ -4406,6 +4423,131 @@ class Campaign:
             log(f"   [roam] plan-prebuild check skipped: {e}")
             return False
 
+    def _place_to_map_index(self):
+        """Reverse of _PLACE_NAMES (name -> ENTRANCE map_id). Multi-map areas (Diglett's Cave, caves)
+        share one name across several ids — keep the LOWEST num (the entrance/first floor) so a route
+        target lands at the mouth, not a deep interior. Cached (the table is static). Narration names
+        already flow the other way; this is the routing-side reverse the keeper router needs."""
+        idx = getattr(self, "_place2map_cache", None)
+        if idx is None:
+            idx = {}
+            for mid, nm in self._PLACE_NAMES.items():
+                if nm not in idx or mid[1] < idx[nm][1]:
+                    idx[nm] = mid
+            self._place2map_cache = idx
+        return idx
+
+    def _keeper_route_target(self, state):
+        """CROSS-MAP KEEPER ROUTER (Part-C executor, PASS 3 NEW#2): the forward-plan's DUE keeper species
+        + the NEARBY reachable map that HOSTS it, when it is NOT on the current map and the party has ROOM
+        — returns (species, target_map) to route+catch there, else None. This is the off-map sibling of
+        _plan_keeper_target (which only fires when she's already standing on the keeper's route): it lets
+        her take a BOUNDED detour to a keeper on a corridor-adjacent map instead of marching past it.
+        Deferrals (all return None): router flagged off; planner off; party full (>=6 — box swap is a
+        separate unbuilt piece) or empty; no catch_keeper due; keeper already on THIS map (the on-map
+        un-gate owns that); no world-graph route to any hosting map; nearest hosting map is farther than
+        KEEPER_ROUTER_MAX_HOPS (avoid a whole-map backtrack — watchable). Mode-side, plan-gated, fail-closed."""
+        if not KEEPER_ROUTER_ENABLED:
+            return None
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED
+            if not TEAM_PLANNER_ENABLED:
+                return None
+            pc = state.get("party_count")
+            if pc is None:
+                pc = len(state.get("party") or [])
+            if pc >= 6 or pc < 1:
+                return None                        # no room (box swap unbuilt) / empty party
+            act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
+                                           bag=state.get("bag"), dex=state.get("dex_caught"),
+                                           post_game=bool(state.get("post_game")))
+            if not act or act.get("kind") != "catch_keeper":
+                return None
+            sp = (act.get("species") or "").lower()
+            if not sp:
+                return None
+            cur = tuple(tv.map_id(self.b))
+            if self._species_on_map(sp, cur):
+                return None                        # already here -> the on-map un-gate catches it
+            areas = (self.team_planner.encounters or {}).get("areas") or {}
+            p2m = self._place_to_map_index()
+            avoid = self._wall_avoid(state)
+            unreach = getattr(self, "_keeper_unreach", set())
+            best = None                            # (species, target_map, hops)
+            for place, entry in areas.items():
+                present = any((m.get("species") or "").lower() == sp
+                              for meth, mons in entry.items() if not str(meth).startswith("_")
+                              for m in (mons or []))
+                if not present:
+                    continue
+                tmap = p2m.get(place)
+                if not tmap or tuple(tmap) == cur or (cur, tuple(tmap)) in unreach:
+                    continue                       # retired: the executor couldn't ride there from here
+                route = self.world.route(cur, tuple(tmap), avoid)
+                if not route:
+                    continue
+                hops = len(route) - 1
+                if hops > KEEPER_ROUTER_MAX_HOPS:
+                    continue
+                # OFFER⟺EXECUTABLE (route3_caught livelock fix): world.route can find a path over STATIC
+                # connections the learned-graph traveler can't yet RIDE (unvisited maps) -> the errand span
+                # no_path forever. Require a real rideable next hop toward tmap NOW, so we only offer what
+                # _travel_to_known can actually execute this tick (keeps the router to near/known keepers).
+                if self._next_step_rideable(cur, tuple(tmap), avoid) is None:
+                    continue
+                if best is None or hops < best[2]:
+                    best = (sp, tuple(tmap), hops)
+            if best is None:
+                return None
+            return (best[0], best[1])
+        except Exception as e:
+            log(f"   [roam] keeper-route target skipped: {e}")
+            return None
+
+    def _fetch_keeper_errand(self, state):
+        """Handler for the `fetch_keeper` action: advance the keeper detour one leg via the PROVEN
+        learned-graph traveler (_travel_to_known — the same one-hop-per-tick warp/edge machinery
+        head_to_gym rides, NOT the naive trav.travel that spun no_path). On the keeper's map already ->
+        targeted catch (roster-judgment bypassed — it's on the plan). Else route one hop; if that hop
+        arrives, catch immediately. STALL GUARD (route3_caught livelock fix): a routing leg that makes NO
+        map/coord progress increments a per-target counter; after KEEPER_ROUTER_STALL_CAP the (cur,tmap)
+        pair is retired to _keeper_unreach so it stops being offered and she falls through to head_to_gym.
+        Re-entrant + fail-closed: an evaporated target returns 'keeper_none' (benign — roam re-decides)."""
+        tgt = self._keeper_route_target(state)
+        if not tgt:
+            return "keeper_none"
+        sp, tmap = tgt
+        cur = tuple(tv.map_id(self.b))
+        if cur == tmap:
+            log(f"   [roam] FETCH-KEEPER: on {self._place_name(tmap)} — catching planned keeper '{sp}'")
+            return self.catch_one(target_species=sp)
+        log(f"   [roam] FETCH-KEEPER: routing to {self._place_name(tmap)} for planned keeper '{sp}' "
+            f"(party has room, within {KEEPER_ROUTER_MAX_HOPS} hops)")
+        pos0 = (cur, tuple(tv.coords(self.b) or ()))
+        r = self._travel_to_known(f"travel:{tmap[0]},{tmap[1]}", state, hunt_on_arrival=False)
+        now = tuple(tv.map_id(self.b))
+        if now == tmap:                            # arrived this leg -> targeted catch
+            self._keeper_stall = {}                # reset the stall bookkeeping on real arrival
+            return self.catch_one(target_species=sp)
+        pos1 = (now, tuple(tv.coords(self.b) or ()))
+        if pos1 != pos0:                           # made progress toward it -> keep going next tick
+            self._keeper_stall = {}
+            return f"keeper_route:{r}"
+        # NO progress this leg -> count toward retiring an un-rideable target (never livelock)
+        st_map = getattr(self, "_keeper_stall", None)
+        if st_map is None:
+            st_map = self._keeper_stall = {}
+        key = (cur, tmap)
+        st_map[key] = st_map.get(key, 0) + 1
+        if st_map[key] >= KEEPER_ROUTER_STALL_CAP:
+            if not hasattr(self, "_keeper_unreach"):
+                self._keeper_unreach = set()
+            self._keeper_unreach.add(key)
+            log(f"   [roam] FETCH-KEEPER: '{sp}' at {self._place_name(tmap)} UNREACHABLE from "
+                f"{self._place_name(cur)} ({st_map[key]} no-progress legs) — retiring it; back to the road")
+            return "keeper_unreach"
+        return f"keeper_route:{r}"
+
     def catch_one(self, max_seconds=300, target_species=None):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
         until a WILD encounter, then catch it (BattleAgent.catch_pokemon - weaken/status then commit
@@ -8336,13 +8478,17 @@ class Campaign:
             return ("route", m, self._EDGE[d])
         return None
 
-    def _travel_to_known(self, pick, state):
+    def _travel_to_known(self, pick, state, hunt_on_arrival=True):
         """Batch-WORLD (Phase 4b/c) — actuate 'travel to a place you've been', BACKWARD or forward, via
         the learned warp graph. One adjacent hop per tick (re-evaluated each tick like head_to_gym), and
         NEVER across an active gated wall map (Phase 4c — _wall_avoid). Fly is used when she owns it and
         the destination is a visited town (Jonny wants to SEE her fly, not walk the whole map); it
         degrades to walking if the fly actuation isn't live yet. On arrival at grass she starts hunting
-        so 'go to Route 4' visibly becomes catching. Returns a status string the loop logs + feeds soul."""
+        so 'go to Route 4' visibly becomes catching. Returns a status string the loop logs + feeds soul.
+
+        hunt_on_arrival (2026-07-11, keeper router): the keeper-fetch errand reuses this pure ROUTING but
+        wants its OWN targeted catch on arrival (the specific plan keeper, not a judged forward-catch), so
+        it passes False to suppress the non-targeted auto-hunt and returns 'arrived' instead."""
         try:
             g, n = pick.split(":", 1)[1].split(",")
             dst = (int(g), int(n))
@@ -8386,7 +8532,7 @@ class Campaign:
                 return f"travel:{r}"
         if tuple(tv.map_id(self.b)) == dst:
             node = self.world.node(dst)
-            if node and node["traits"].get("has_grass"):
+            if node and node["traits"].get("has_grass") and hunt_on_arrival:
                 log(f"   [roam] arrived at {self.world.name(dst)} (grass) — starting to hunt")
                 return self.catch_one()
             return "arrived"
@@ -8640,6 +8786,20 @@ class Campaign:
                            else "") + "; the move is to travel to the gym")
             except Exception as _rr:
                 log(f"   [roam] readiness reframe skipped: {_rr}")
+        # ── CROSS-MAP KEEPER ROUTER (PASS 3 NEW#2) ───────────────────────────────────────────────────
+        # Offer a BOUNDED detour to fetch a plan keeper that lives on a nearby reachable map (party has
+        # room, keeper NOT on this map, within KEEPER_ROUTER_MAX_HOPS). Offered ALONGSIDE head_to_gym (the
+        # oracle chooses) and placed BEFORE the forward-drive prune, which pops battle/wander_catch/travel:*
+        # but not fetch_keeper — so a keeper detour survives the forward pull. Flag-gated (default OFF);
+        # never offered when hurt (heal first) so a weak detour never starts on a dinged team. Self-clears
+        # once caught / party fills (assess stops returning the keeper → _keeper_route_target None).
+        if KEEPER_ROUTER_ENABLED and not self.needs_heal():
+            _kr = self._keeper_route_target(state)
+            if _kr:
+                a["fetch_keeper"] = (
+                    f"GO GET {_kr[0].upper()} — a teammate your plan wants for type coverage lives close "
+                    f"by at {self._place_name(_kr[1])}, and you've got room on the team. Grab it while it's "
+                    f"a short hop away, then straight back on the road — a real squad beats a lone carry.")
         # ── PROACTIVE FORWARD DRIVE (the backward-grind killer — the ROOT fix) ───────────────────────
         # The live bug: post-Misty she WANTED 'grind on the way' and it resolved to travel BACKWARD into a
         # cleared dead-end (Route 4) — because at decision time head_to_gym (the forward objective) competed
@@ -9250,6 +9410,11 @@ class Campaign:
             return _hr
         if pick == "regroup":
             return self._regroup_walk()
+        # CROSS-MAP KEEPER ROUTER (PASS 3 NEW#2): fetch a plan keeper on a nearby reachable map, then the
+        # on-map un-gate catches it. Re-entrant (one travel leg / catch per call). Never armed for
+        # road-bench-xp (not a head_to_gym/travel: pick), so the ace — not a weak mon — leads the catch.
+        if pick == "fetch_keeper":
+            return self._fetch_keeper_errand(state)
         # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
         # building-exit to step back onto the overworld, then normal actions take over next tick.
         if pick == "leave_building":

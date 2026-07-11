@@ -142,3 +142,52 @@ Battle-brain: when facing a foe the ace can't hurt (Venusaur 0.25x/1x into Chari
 the type-answer, LEAD/keep that specialist in and funnel healing to IT rather than splitting FR with the
 ace's 1x Cut. (run12 Gary census: Lapras landed only 10 SE hits before fainting while Venusaur threw 51 weak
 hits.) This is just good battle-AI; wire it in independent of the team-depth fix.
+
+## NS#4 UPDATE (2026-07-11) — road-bench-XP re-validated in party-6 mid-game + NEW#2 CROSS-MAP KEEPER ROUTER built
+**LOOK-AHEAD FINDINGS (rule 8 — the oracle fingered the real blocker):**
+- **og_postopening is an INVALID final-proof fixture:** it has NO `world_model.json` sidecar, so free_roam
+  boots with an EMPTY world graph. head_to_gym to Pewter/Cerulean (the two EARLY gyms whose roads are NOT
+  billed in frlg_gates — gyms 3+ are) returns `no_path` → she livelocks grinding Route 1 (Bulbasaur→Ivysaur
+  L16). A TEST-FIXTURE artifact (a real playthrough accretes the graph as it walks), not a Kira-timeline bug.
+  Team-depth must be tested from a MID-GAME fixture (billed roads path with an empty graph).
+- **road-bench-XP (NEW#1) VALIDATED in the party-6 mid-game** on an `erika_done` look-ahead (badge 4, the
+  poster-child disease: Venusaur L43 ace + a FROZEN L9-15 chaff bench: Ekans L9 / Meowth L10 / Pidgey L13 /
+  Rattata+Spearow L15). Marching Celadon→(Flute questline)→toward Fuchsia it ARMED every forward leg + the
+  GRIND SWITCH fired every road battle → **the bench leveled organically: Ekans L9→L14, Rattata/Spearow
+  15→16** while she correctly chained the Snorlax→Flute→Silph-Scope→Tower questline. prep bite = min(milestone,
+  floor+6)=15, climbing (NS#2 pacing; ~5 levels in ~9 min of run — the +6 bite is slow but monotonic).
+- **THE CONFIRMED GAP = team COMPOSITION.** The planner explicitly emits `catch_keeper: abra → alakazam
+  (answers Koga/Sabrina/Bruno/Agatha/Champion)` the WHOLE erika run but she never fetches it — she picks
+  head_to_gym and marches past because Abra is OFF the current map and the on-map un-gate only grabs keepers
+  she's STANDING on. So she arrives with LEVELED CHAFF, no coverage. This is NEW#2.
+
+**NEW#2 BUILT — CROSS-MAP KEEPER ROUTER (campaign.py, flag `POKEMON_KEEPER_ROUTER`, DEFAULT OFF).** Offers a
+BOUNDED detour (`fetch_keeper` action) to a nearby reachable map that hosts the DUE plan keeper, then the
+existing on-map machinery catches it. Pieces: `_place_to_map_index` (reverse of `_PLACE_NAMES`, name→entrance
+map), `_keeper_route_target` (species→hosting-map via the encounters KB, party<6, off-current-map, within
+KEEPER_ROUTER_MAX_HOPS=6, AND a rideable next hop exists), `_fetch_keeper_errand` (routes one hop via the
+PROVEN `_travel_to_known` traveler, targeted catch on arrival), offered in `_available_actions` before the
+forward-drive prune, dispatched in `_route_action`. Recon chooser (recon_longrun.py) taught to model the
+faithful "take the bounded coverage catch" pick.
+- **DECISION-LOGIC VERIFIED 10/10** (`recon_keeper_router_check.py`): reverse index + fires-for-in-range /
+  defers on on-map / party-full / out-of-range / unreachable / non-catch / no-rideable-hop / retired-target / flag-off.
+- **BEHAVIORAL — the look-ahead caught + I FIXED a LIVELOCK (the whole reason it's default-OFF + verified).**
+  First `route3_caught` run (party 2, Abra due): the router fired but the errand used the naive
+  `trav.travel(target_map=)` → `no_path` while the OFFER check used `world.route` (static connections the
+  learned-graph traveler can't RIDE) → MACRO-RED spin (17+ stuck ticks). FIXED: (a) offer⟺executable — require
+  `_next_step_rideable` non-None so we only offer what `_travel_to_known` can ride NOW (keeps it to near/known
+  keepers); (b) `_travel_to_known(hunt_on_arrival=False)` for pure routing + the errand's own targeted catch;
+  (c) a STALL GUARD (`KEEPER_ROUTER_STALL_CAP`=3) retiring an un-rideable (cur,tmap) to `_keeper_unreach` so
+  she falls through to head_to_gym — never livelocks. Re-verifying behaviorally now (route3_caught post-fix).
+
+**⇒ NS#4 FRONTIER (in priority order):**
+1. **FINISH the router behavioral verify + flip default ON.** Confirm on route3_caught (post-fix) she either
+   routes+catches Abra cleanly OR retires the target and resumes head_to_gym (no MACRO RED). Then set
+   `POKEMON_KEEPER_ROUTER` default "1", run the final-proof gate (a mid-game fixture forward) to confirm she
+   assembles real coverage. ⚠️ Watchability of the detour (does she over-backtrack?) is a bucket-(b) LIVE-EYES
+   item — headless can't judge it; tune KEEPER_ROUTER_MAX_HOPS down (4?) if the detours read too far.
+2. **PC/BOX (Tier-1 #15)** — the pairing gap for the FULL-party case (erika_done: 6 chaff, router won't fire
+   without room). recon_pcbox.py deposit flow proven; generalize `deposit_mon`/`withdraw_mon` + hook `catch_one`
+   to box the lowest-value chaff on a full-party keeper catch (so the router can then add the keeper).
+3. **prep bite cadence** — the +6 bite levels the bench slowly (~5 levels/9min). Consider a faster cadence or a
+   bigger bite when the bench is FAR under milestone, so she arrives near-milestone without a grind-wall.

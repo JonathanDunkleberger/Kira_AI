@@ -364,6 +364,13 @@ def main():
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
+        elif "fetch_keeper" in opts:
+            # CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 NEW#2): a DUE type-coverage keeper lives a
+            # BOUNDED hop away and the party has room — a sensible player (and the live LLM, per the
+            # action's ctx note) takes the short detour to build a real squad before pushing on. The
+            # campaign only OFFERS this when in-range + room + plan-due, so riding it is the faithful
+            # model of "go get the teammate you know you need". Self-clears once caught (offer vanishes).
+            pick = "fetch_keeper"
         elif (not BARGE) and "head_to_gym" in opts and _road \
                 and party and party[0][1] >= (prep or 0) + 4:
             # PUSH-WHEN-CARRYING (2026-07-09, night-train shift 8): a billed road forward + a LEAD that
