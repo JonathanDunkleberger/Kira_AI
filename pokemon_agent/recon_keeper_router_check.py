@@ -39,6 +39,12 @@ def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None):
     # offer<=>executable: the router only offers a target the learned-graph traveler can ride NOW
     s._next_step_rideable = lambda cur, dst, avoid: (("hop", "edge", "N") if rideable else None)
     s._keeper_unreach = set(unreach or [])
+    # NS#40 static-route refactor: _keeper_route_target now delegates to _reachable_keeper_host. Bind it
+    # + inert static-gateway stubs (no door-entered hosts here → the static pass is a no-op, so these
+    # cases exercise the learned-graph scan exactly as before the extraction).
+    s._reachable_keeper_host = types.MethodType(C.Campaign._reachable_keeper_host, s)
+    s._host_gateways = lambda: {}
+    s._keeper_gateway = lambda *a, **k: None
     return s
 
 

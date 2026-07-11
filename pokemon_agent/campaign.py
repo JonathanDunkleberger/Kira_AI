@@ -129,7 +129,11 @@ KEEPER_ROUTER_STALL_CAP = int(os.getenv("POKEMON_KEEPER_ROUTER_STALL_CAP", "3"))
 # proof (re-probe _reachable_keeper_host returns (1,36) from Vermilion, then a look-ahead where she actually
 # detours + catches Diglett). Isolated to the keeper router (does NOT touch the shared world.route -> no
 # route3_caught livelock reintroduction; the _next_step_rideable guard still gates every offered hop).
-KEEPER_STATIC_ROUTE_ENABLED = os.getenv("POKEMON_KEEPER_STATIC_ROUTE", "0") != "0"
+KEEPER_STATIC_ROUTE_ENABLED = os.getenv("POKEMON_KEEPER_STATIC_ROUTE", "1") != "0"
+# Per-floor wander budget (wall-clock seconds) for the cave step-encounter catch (NS#40 _cave_fetch_catch):
+# how long to hunt ONE cave sub-map before declaring it barren and DESCENDING an internal warp to the next
+# floor (Diglett's Cave (1,38) entrance vestibule has no wild table; the Diglett floor is (1,37)/(1,36)).
+KEEPER_CAVE_FLOOR_WANDER_S = int(os.getenv("POKEMON_KEEPER_CAVE_FLOOR_WANDER_S", "45"))
 # PC/BOX (Tier-1 #15, NS#38): the pairing gap for the FULL-party case — the keeper router only fires when
 # party<6, so a full team of early-catch chaff (erika_done: Venusaur + Rattata/Spearow/Ekans/Meowth/Pidgey)
 # can NEVER swap in a planned coverage keeper (abra/diglett). box_chaff deposits the lowest-value off-plan
@@ -4551,7 +4555,15 @@ class Campaign:
                 return None
             cur = tuple(tv.map_id(self.b))
             if self._species_on_map(sp, cur):
-                return None                        # already here -> the on-map un-gate catches it
+                # ON the keeper's map. A GRASS map -> the on-map un-gate (wander_catch) owns the catch;
+                # defer. But a CAVE host (interior, no grass) offers NO wander_catch (it needs reachable
+                # grass) -> keep the fetch errand DRIVING so _fetch_keeper_errand runs the cave descend +
+                # step-encounter wander here (NS#40), else she'd fall to head_to_gym and leave uncaught.
+                if cur[0] != 3:
+                    if (cur, cur) in getattr(self, "_keeper_unreach", set()):
+                        return None                # cave hunted out (all floors barren) -> stop re-offering
+                    return (sp, cur)
+                return None                        # grass map -> the on-map un-gate catches it
             tmap = self._reachable_keeper_host(sp, cur, state)
             if tmap is None:
                 return None
@@ -4641,8 +4653,13 @@ class Campaign:
         sp, tmap = tgt
         cur = tuple(tv.map_id(self.b))
         host_area = self._place_name(tmap)
-        # ALREADY at the host (any sub-map of a multi-map cave shares the area name/encounters) -> catch
+        # ALREADY at the host (any sub-map of a multi-map cave shares the area name/encounters) -> catch.
         if cur == tmap or self._species_on_map(sp, cur):
+            # CAVE host (interior, no grass): the entrance sub-map may be a barren vestibule (Diglett's
+            # Cave (1,38) has no wild table); wander THIS floor then DESCEND an internal warp toward the
+            # encounter floor (NS#40 _cave_fetch_catch). A grass host -> the plain wander catch.
+            if cur[0] != 3:
+                return self._cave_fetch_catch(sp, host_area)
             log(f"   [roam] FETCH-KEEPER: on {self._place_name(cur)} — catching planned keeper '{sp}'")
             return self.catch_one(target_species=sp)
         avoid = self._wall_avoid(state)
@@ -4668,6 +4685,11 @@ class Campaign:
         now = tuple(tv.map_id(self.b))
         if now == tmap or self._species_on_map(sp, now):   # arrived at the host this leg -> targeted catch
             self._keeper_stall = {}                # reset the stall bookkeeping on real arrival
+            # CAVE host (NS#41): the door may land on a barren vestibule (Diglett's Cave (1,38) has no wild
+            # table); route the SAME-TICK arrival through the descend-aware bounded catch so she doesn't burn
+            # the full plain-catch_one budget wandering the encounter-less entrance before ever descending.
+            if now[0] != 3:
+                return self._cave_fetch_catch(sp, host_area)
             return self.catch_one(target_species=sp)
         pos1 = (now, tuple(tv.coords(self.b) or ()))
         # A battle_loss BLACKOUT relocates her (respawn at a Center) — that position change is NOT progress
@@ -4727,6 +4749,53 @@ class Campaign:
             if tuple(tv.map_id(b)) != before:
                 return "gateway_entered"
         return "gateway_door_failed"
+
+    def _cave_fetch_catch(self, sp, host_area):
+        """CAVE step-encounter catch + DESCEND (NS#40): she's standing inside a cave keeper host. Wander
+        THIS floor (bounded) for the target via the catch_one cave branch; if barren (no encounter/catch),
+        step through an unvisited INTERNAL warp (dest = another sub-map of the SAME cave area) to the next
+        floor and let the next tick hunt there. Diglett's Cave (1,38) is an encounter-less vestibule whose
+        (6,4) warp descends to (1,37) — the on-map grass catch can't reach that floor, so the fetch errand
+        drives the descent. When every reachable sub-map of this cave has been hunted with no target, the
+        cave is retired (session _keeper_unreach) so she stops re-entering and returns to the road. Reuses
+        read_warps + travel + enter_warp; per-floor bound KEEPER_CAVE_FLOOR_WANDER_S. Fail-closed + LOUD."""
+        b = self.b
+        cur = tuple(tv.map_id(b))
+        p0 = b.rd8(ram.GPLAYER_PARTY_CNT)
+        r = self.catch_one(max_seconds=KEEPER_CAVE_FLOOR_WANDER_S, target_species=sp)
+        if r == "caught" or b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
+            self._cave_floors_seen = set()             # reset the descent memo on a real catch
+            return "caught"
+        if r in ("no_balls", "need_pp", "healed_retry"):
+            return r                                    # not a barren-floor signal — let roam handle it
+        seen = self.__dict__.setdefault("_cave_floors_seen", set())
+        seen.add(cur)
+        try:
+            warps = tv.read_warps(b)
+        except Exception as e:
+            log(f"   [roam] CAVE-FETCH: warp read failed on {self._place_name(cur)}: {e} (LOUD)")
+            warps = []
+        internal = [(tuple(xy), tuple(dest)) for xy, dest, _w in warps
+                    if self._place_name(tuple(dest)) == host_area and tuple(dest) not in seen]
+        if internal:
+            xy, dest = internal[0]
+            log(f"   [roam] CAVE-FETCH: {self._place_name(cur)} barren for {sp} — descending internal "
+                f"warp {xy} -> the next {host_area} floor for the encounter table")
+            before = cur
+            try:
+                self.trav.travel(target_map=None, arrive_coord=xy, max_steps=400)
+                self.enter_warp(pick=xy)
+            except Exception as e:
+                log(f"   [roam] CAVE-FETCH: internal warp {xy} step errored: {e} (LOUD)")
+            return "keeper_route:cave_descend" if tuple(tv.map_id(b)) != before else "keeper_route:cave_descend_stuck"
+        # every reachable sub-map of this cave hunted, no target -> retire the cave, back to the road
+        if not hasattr(self, "_keeper_unreach"):
+            self._keeper_unreach = set()
+        self._keeper_unreach.add((cur, cur))
+        self._cave_floors_seen = set()
+        log(f"   [roam] CAVE-FETCH: hunted every reachable {host_area} floor, no {sp} — retiring this cave "
+            f"(back to the road; the on-map catch will re-try only after a roster change) (LOUD)")
+        return "keeper_unreach"
 
     def catch_one(self, max_seconds=300, target_species=None):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
@@ -9431,7 +9500,11 @@ class Campaign:
         # but not fetch_keeper — so a keeper detour survives the forward pull. Flag-gated (default OFF);
         # never offered when hurt (heal first) so a weak detour never starts on a dinged team. Self-clears
         # once caught / party fills (assess stops returning the keeper → _keeper_route_target None).
-        if KEEPER_ROUTER_ENABLED and not self.needs_heal():
+        # BALL GATE (NS#41): never offer a keeper detour with an empty bag — she'd route+enter the host
+        # (esp. a cave, via the static connection) and spin re-entering it catching nothing (the 3-ball
+        # cave3 soft-livelock). Zero balls -> the offer drops, _ball_note tells the oracle a Mart run comes
+        # first, and she falls to head_to_gym/stock_up instead. Re-offered once she has balls again.
+        if KEEPER_ROUTER_ENABLED and not self.needs_heal() and self._ball_count() > 0:
             _kr = self._keeper_route_target(state)
             if _kr:
                 a["fetch_keeper"] = (
