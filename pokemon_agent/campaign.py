@@ -57,6 +57,13 @@ CATCH_JUDGMENT_ENABLED = os.getenv("POKEMON_CATCH_JUDGMENT", "1") != "0"
 # recorded wall (the wall-based target still dominates when present).
 PROACTIVE_BENCH = os.getenv("POKEMON_PROACTIVE_BENCH", "1") != "0"
 PROACTIVE_BENCH_GAP = int(os.getenv("POKEMON_PROACTIVE_BENCH_GAP", "10"))
+# PREP-FOR-E4 band (2026-07-11, PASS 3 team-depth): at all 8 badges the whole party is floored to the
+# team-plan's E4 milestone (~L55) so the bench survives the Center-less five-fight gauntlet (NS13/NS14:
+# a top-heavy team where the ace solos then dies at Lance/Champion). A member counts as LEVELABLE only
+# within this many levels of the target — far-below chaff (box fodder, unbuilt Tier-1 #15) is excluded so
+# it never pins an unwinnable grind, keeping the E4-prep livelock-proof (it retires → forward to VR once
+# every real member crosses or stalls out). 25 cleanly separates the real L40+ team from L9-14 fodder.
+E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "25"))
 # SOLO weak-grind: field the weak member as lead and let it grind SOLO in the grass (no in-battle
 # participation-switch needed — that switch wedges the long core). Viable now that she can buy Super
 # Potions (the in-battle heal instinct keeps a weak lead alive) + heals route to a reachable Center.
@@ -5154,6 +5161,53 @@ class Campaign:
             log(f"   GRIND-WEAK: restoring the ace (slot {ace}, L{levels[ace]}) to lead")
             self._swap_party_slots(0, ace)
 
+    def _prep_e4_target(self, state, party):
+        """PASS-3 team-depth: the whole-party FLOOR level for E4 readiness, or None. Fires only with all 8
+        badges earned (the Victory Road / Indigo gauntlet ahead) and pre-credits. Reads the TeamPlanner
+        archetype's level_milestones for the E4 ENTRY (Lorelei's band, ~L55 — the guide-literate 'level the
+        whole six before a Center-less five-fight gauntlet' number, NOT Champion's 60) and returns it while
+        a LEVELABLE member is still under it. Livelock-proof: 'levelable' = within E4_PREP_BAND of the target
+        AND not already stall-marked, so far-underleveled chaff (box fodder, Tier-1 #15) never pins the grind
+        and the target retires cleanly (→ None → she pushes on to VR) once the real team crosses OR the last
+        levelable member stalls out on the reachable grass. Mode-side, plan-gated, fail-closed.
+
+        WHY this exists (rule 2 — the load-bearing wiring IS the feature): before this, NOTHING read the
+        team-plan's E4 milestone — the only late-game bench target was the ace-relative `lead-8`, which is
+        exactly the top-heavy shape that whited out at Lorelei/Agatha/Lance across NS9-14. The DECISION to
+        floor the WHOLE party (via the participation-XP grind_weak_members) is the fix; grind-spot adequacy
+        for a L45→55 push is a separate downstream blocker the look-ahead surfaces, not a reason to leave
+        the target wrong."""
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED, _E4_SEQ
+            if not (TEAM_PLANNER_ENABLED and STRATEGIC_GRIND_ENABLED):
+                return None
+            if state.get("post_game") or int(state.get("badge_count", 0)) < 8:
+                return None
+            if len(party) < 2:
+                return None
+            pstate = getattr(self.team_planner, "state", None) or {}
+            ms = pstate.get("level_milestones") or {}
+            e4_bands = [ms[t] for t in _E4_SEQ if t in ms]
+            if not e4_bands:
+                return None
+            e4 = int(min(e4_bands))                          # the E4 ENTRY bar (Lorelei ~55), not Champion 60
+            stalled = getattr(self, "_grind_stalled", None) or set()
+            for i, m in enumerate(party):
+                lv = m.get("level", 0)
+                if lv >= e4 or lv < e4 - E4_PREP_BAND:       # crossed, or hopeless chaff → not a grind target
+                    continue
+                try:
+                    pid = self.b.rd32(ram.GPLAYER_PARTY + i * st.PARTY_MON_SIZE)
+                except Exception:
+                    pid = None
+                if pid is not None and pid in stalled:       # can't gain XP on the reachable grass — skip
+                    continue
+                return e4                                    # a real, levelable member is under the E4 bar
+            return None                                      # every real member crossed/stalled → proceed
+        except Exception as e:
+            log(f"   [roam] prep-for-e4 target skipped: {e}")
+            return None
+
     def _prep_team_target(self, state):
         """The readiness target IF she should be prepping for the active wall, else None. Single source of
         truth (action executor + framing + dashboard rationale read THIS). Two modes:
@@ -5182,6 +5236,14 @@ class Campaign:
             party = state.get("party") or []
             if not party:
                 return None
+            # PREP-FOR-E4 (2026-07-11, PASS 3 team-depth) takes precedence late-game: at all 8 badges the
+            # E4 gauntlet is the wall, and the whole party (not the ace) must be floored to survive it. This
+            # overrides the ace-relative bench target below (the E4 milestone is higher + team-wide). Bounded
+            # + livelock-proof inside _prep_e4_target; the prep-dry stand-down above still protects the
+            # no-reachable-grass case (it runs before this and returns None). Only fires at badge 8.
+            _e4t = self._prep_e4_target(state, party)
+            if _e4t is not None:
+                return _e4t
             # RIVAL-GAUNTLET DEFER (2026-07-10, NIGHT SHIFT 16 — the real S.S. Anne Gary livelock). A 4+-mon
             # RIVAL wall (Gary on the S.S. Anne; later Tower/Silph) is a TEAM-STRENGTH wall the STRATEGIC grind
             # path handles WRONG two ways: (1) switch-armed, it fields fodder to the foe's LEAD level
