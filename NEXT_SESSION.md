@@ -1,5 +1,55 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #4 DONE (2026-07-11, night_shift.ps1 shift 4) — HUGE autonomous climb: badge-3 Vermilion → **BADGE 4 (Erika)** → Silph Scope → Poké Flute → Snorlax woken → road to Fuchsia (Koga) OPEN. TWO commits (de2d9f2, 082971c), canonical Champion UNTOUCHED. START HERE.
+
+### 🏔️ THE CLIMB THIS SHIFT (one autonomous look-ahead on surge_done_kit, enabled by the 2 fixes below):
+dex 7→10 → **Flash taught** → **Rock Tunnel crossed** → Celadon → **BADGE 4 / RAINBOW (Erika — lost once, retried, WON)** → **Rocket Hideout → Silph Scope** → **Pokémon Tower → saved Mr. Fuji → Poké Flute** → **woke the Snorlax** → road south to Fuchsia (badge 5 Koga) OPEN. Venusaur L35→47. That's ~4 gyms' worth of gated content (a badge + 2 dungeons + 3 key items) in ONE run. (Look-ahead on the SCRATCH fixture — canonical post-game Champion save untouched; the sanctity check correctly REFUSED to promote badge-4 over the canonical badge-8, banked only to `G:/temp/longrun/banked_TIMEOUT`, disposable. The durable win is the 2 committed fixes, which unblock a FRESH climb through this whole stretch.)
+
+### ✅ TWO COMMITS BANKED (both mode-side, canonical UNTOUCHED):
+- **`de2d9f2` — FLASH dex-10 gate cleared e2e** (3 fixes): (A) `_catch_to_10` returns WHY it stopped so callers blacklist a catch-leg ONLY on genuine `exhausted` (was blacklisting Route 6 on a 0-balls bail); (B) restock at ANY back-leg mart town (`_FLASH_MART_LEGS={CERULEAN,VERMILION}`) so she reaches Route 6 with ammo; (C) NAV-CRITICAL QUESTLINE GUARD in `_road_bench_xp_arm` — road-bench-XP refuses to arm while `_active_questline` is set (errand ticks keep the TRUE ace leading, not a weak bench mon that livelocked Diglett's Cave with Cut + a failed switch). Proven: flash-errand → dex 7→10 → cross the cave → aide → TEACH flash → flash_done, 0 ANTI-WEDGE.
+- **`082971c` — level-aware in-battle heal threshold kills the ROCK TUNNEL white-box wedge.** She'd livelocked in Rock Tunnel: a weak foe reads Fire-type ("charmander", maxhp 49 vs her 113) → the matchup-aware early-heal-at-HALF fired at 43% HP → mid-battle Potion → **action-menu white-box impostor** (`white_box=True move_list=False`) → couldn't reach the move list → weak Tackle default → 3 unresolved turns → ANTI-WEDGE abort → trainer never cleared → re-enter loop. FIX: `heal_frac=0.5` only when `threat>=2 AND NOT (we out-level the foe by ≥10)` — a much-weaker SE foe heals at the normal crit floor, so she powers through weak SE chip like a real player instead of over-potioning into the wedge. Proven e2e: crossed Rock Tunnel → Lavender, 0 white_box wedges.
+
+### ⇒ NS#4 FRONTIER (priority order):
+1. **BADGE 5 — KOGA of Fuchsia City (the immediate next gym).** She's on Route 12 (3,30), Snorlax awake, road south OPEN, heading to Fuchsia. A fresh look-ahead should carry her Route 12/13 → Fuchsia → Koga. RE-RUN: `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 ../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 18` (or seed a nearer fixture from banked_TIMEOUT if you promote it to a scratch bank — NOT canonical). Watch for the Route 12/13 gauntlet, Fuchsia approach, Koga (poison — Psychic/Ground answer; her Diglett→Dugtrio and an evolved Abra→Kadabra are the intended answers).
+2. **TEAM-DEPTH is the recurring SOFT-WALL (the core PASS-3 mission, still open).** Erika took a loss-then-retry because the bench is dead weight (Spearow L12, Abra L10 Teleport-only, Meowth L10) and Venusaur solos everything. The loss-bump recovery WORKED (retry won), but it's fragile — Koga/Sabrina/Agatha will punish a solo-carry harder. The real fix stays TEAM_DEPTH_ROOT_FIX.md: level the bench (esp. **evolve Abra→Kadabra at L16** — psychic hard-counters Koga's poison AND Erika's), field coverage. NB the keeper router + road-bench-XP exist; the gap is they don't level the bench ENOUGH between gyms (she arrived at Erika with an L10-20 bench behind an L40 lead).
+3. **⚠️ DEEPER WHITE-BOX WEDGE still lurks (dedicated session, needs rule-15 frame-grabs).** `082971c` only removed the Rock-Tunnel TRIGGER (over-potioning a weak foe). The `_settle_action_menu` B-drain (battle_agent.py ~805) still fails to recover the action menu after a LEGITIMATE mid-battle `use_item` (E4/tough-gym heals) → the E4-livelock-family root ([[pokemon-e4-livelock-family-killed]]). Characterize with a live frame-grab of the post-item menu state; do NOT fix blind (high-risk to working E4 battles).
+
+**WATCHABILITY / MINOR BUGS surfaced (lower pri):** (1) heavy heal-excursion bouncing during the flash errand (paralyzed lead → Center round-trips) — slow on a watch; (2) a TRANSIENT Saffron-south-gate (map 18,0) misroute self-recovered via the circuit breaker (head_to_gym briefly tried the guard-gated Saffron gate before re-routing Route 6→Route 5→Cerulean — a 3rd instance of the gate-blind-routing class, but self-recovering, not blocking); (3) the "RIVAL beat vs Gary" strat-memory mislabel fires on stuck trainer battles (false grudge escalation — a strat-memory rival-detection false-positive); (4) the Erika COVERAGE-TEACH taught Cut over a Venusaur slot — turned out USEFUL vs grass (Cut x1 > Razor Leaf 0.25x) and did NOT clobber Razor Leaf, but verify the coverage-teach never eats a signature move on other gyms.
+
+---
+## (shift-1 detail, for reference) 🔨 NS#43 shift-1 — Route-12 class KILLED + growlithe false-positive fixed (COMMITTED 97e23b6):
+
+**FIX 1 — Route-12 wedge CLASS-KILLER (VERIFIED e2e, the NS#43 headline).** NS#42 patched TWO of the Route-12
+entry paths (off-road steer `2eeb5fc`, keeper router `fc78576`); a THIRD leaked via the roam `_grass_target`
+east-steer. ROOT PATTERN: every routing site computed its avoid as `_wall_avoid` ONLY, so each surgical fix missed
+the next site. FIX (ONE place): folded `_story_gate_avoid` INTO `_wall_avoid` (campaign.py ~6605) so EVERY routing/
+reachability path inherits the Route-12/16 pre-Flute avoid from one source. Post-Flute empty → zero behavior change.
+**VERIFIED e2e:** two surge_done_kit look-aheads (`ns43_reverify2.log`, `ns43_shift1.log`) = **0 Route-12 entries,
+0 east-steers, diglett caught** (was 1,391 wedges). Class dead.
+
+**FIX 2 — growlithe FALSE-POSITIVE (re-diagnosed + repurposed; the earlier Saffron guess was WRONG).** The prior
+in-flight session added `_saffron_gate_avoid` (block Saffron 3,10 pre-Tea) — but `ns43_shift1.log` proved it INERT:
+world.route reaches growlithe's hosts (Route 7 = 3,25 / Route 8 = 3,26) NOT via Saffron but via **Lavender Town
+(3,4)** — the header edge Route 10 (3,28)→Lavender that really walks through un-crossed **Rock Tunnel** (dark pre-
+Flash). (The Saffron-side hub 3,11 that also borders Route 7/8 has NO learned edges, so Lavender is the ONLY graph
+path there — avoiding Lavender alone makes BOTH hosts None.) Pre-Flash the growlithe offer fired and **PING-PONGED**:
+`fetch_keeper` hopped her EAST toward Lavender while the westward Flash errand (head_to_gym) walked her back — same
+two tiles (3,27)(71,10)↔(3,28)(0,10), 14 no-progress decisions → **STALL** (a REAL livelock, not just churn — it
+BLOCKS the Flash errand). FIX: repurposed the method → **`_rock_tunnel_gate_avoid`** (campaign.py ~6648): avoid
+Lavender (3,4) in the KEEPER ROUTER ONLY (both call sites 4611 + 4695) until HM05 Flash is TAUGHT
+(`st.party_knows_move(b,148,pc)`). Router-scoped so head_to_gym still pushes toward Lavender to OPEN Rock Tunnel;
+diglett (Diglett's Cave off Route 11, not across Lavender) is unaffected. New `LAVENDER=(3,4)` const. **VERIFIED:**
+`recon_keeper_router_check` ALL PASS (K/K-control renamed to rock-tunnel-gate), static 11/10, deposit PASS; direct
+route probe on the real world_model = pre-Flash both growlithe hosts None, post-Flash they open. **e2e RE-RUNNING
+(`ns43_shift1b.log`)** to confirm the ping-pong is broken + the Flash errand runs west to build species.
+
+**RE-VERIFY NS#43:** `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 ../.venv/Scripts/python.exe
+-u recon_longrun.py surge_done_kit.state 14` → grep `catch_pokemon -> caught | TRAVEL WEDGE | MAP TRANSITION.*-> \(3, 30\)
+| routing to Route [78] for planned keeper 'growlithe' | FLASH ERRAND | DEX-BLOCKED` (expect diglett caught + ZERO
+Route-12 entries + ZERO growlithe offers + Flash errand progressing west toward Route 2 / building species).
+
+---
+
 ## ✅ NIGHT-SHIFT #42 DONE (2026-07-11) — the DOMINANT NS#41 blocker (CELADON-NAV WEDGE) KILLED in BOTH its entry paths + BALL ECONOMY wired → on the REAL surge_done_kit fixture she buys balls, descends Diglett's Cave, CATCHES diglett, and marches the billed road to the Rock Tunnel approach with ZERO wedges. START HERE.
 **THREE commits banked (`2eeb5fc` off-road steer + ball economy; `6b36438` docs; `fc78576` keeper-router story-gate), mode-side, canonical Champion save UNTOUCHED. Fixes proven e2e (0 travel wedges, 0 Route-12 entries, `catch_pokemon -> caught`, marched to Rock Tunnel) + decision-verified (recon_keeper_router_check J/J-control).**
 
