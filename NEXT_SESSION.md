@@ -1,7 +1,11 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #42 DONE (2026-07-11) — the DOMINANT NS#41 blocker (CELADON-NAV WEDGE) KILLED + BALL ECONOMY wired → on the REAL surge_done_kit fixture she buys balls, descends Diglett's Cave, and CATCHES diglett with ZERO wedges. START HERE.
-**ONE commit banked (`2eeb5fc`), mode-side, canonical Champion save UNTOUCHED. Both fixes proven e2e on the ball-starved surge_done_kit look-ahead (0 travel wedges, 0 Route-12 entries, `catch_pokemon -> caught`).**
+## ✅ NIGHT-SHIFT #42 DONE (2026-07-11) — the DOMINANT NS#41 blocker (CELADON-NAV WEDGE) KILLED in BOTH its entry paths + BALL ECONOMY wired → on the REAL surge_done_kit fixture she buys balls, descends Diglett's Cave, CATCHES diglett, and marches the billed road to the Rock Tunnel approach with ZERO wedges. START HERE.
+**THREE commits banked (`2eeb5fc` off-road steer + ball economy; `6b36438` docs; `fc78576` keeper-router story-gate), mode-side, canonical Champion save UNTOUCHED. Fixes proven e2e (0 travel wedges, 0 Route-12 entries, `catch_pokemon -> caught`, marched to Rock Tunnel) + decision-verified (recon_keeper_router_check J/J-control).**
+
+**⚠️ THE ROUTE-12 WEDGE HAD TWO ENTRY PATHS (same bug class — a router computing avoid as `_wall_avoid` only, never `_story_gate_avoid`). BOTH fixed this shift:**
+- **`2eeb5fc` — head_to_gym OFF-ROAD ANCHOR-STEER** (`_road_step` ~10086): steered EAST onto Route 12 from Route 11. FIXED + e2e-VERIFIED.
+- **`fc78576` — KEEPER ROUTER** (`_reachable_keeper_host` ~4606 + `_fetch_keeper_errand` ~4687 + `_travel_to_known` ~9249): `ns42_probe` fetched 'growlithe' (Route 8, genuinely past Rock Tunnel), `world.route` found a path THROUGH Route 12, the offer fired + the errand hopped onto Route 12 and wedged 9 ticks. FIXED (gate the offer + errand + general travel) + decision-VERIFIED (recon_keeper_router_check PASS J story-gated-host→None + PASS J-control ungated→offered; static 11/10 + deposit still pass). `_story_gate_avoid` is empty once she owns the Flute so this only bites pre-Flute.
 
 **`2eeb5fc` — Celadon-nav wedge (WIRING fix) + keeper ball economy.**
 - **(1) CELADON-NAV WEDGE (the NS#41 dominant blocker — a soft-livelock, watchability killer).** ROOT (from
@@ -35,6 +39,11 @@ steers her CORRECTLY via the BILLED ROAD (Vermilion→Route 6→Route 5→Cerule
 dominant NS#41 blocker DEAD and the Celadon approach reconnected end-to-end.
 
 ### ⇒ NS#42 FRONTIER (exact next actions, priority order):
+**NB on cave behavior (corrected):** the cave-descend WORKS reliably (probe3 line 16126 `CAVE-FETCH: barren for diglett
+— descending internal warp (6,4)` → (1,37) → hunts). It is just SLOW: the ~45s barren-vestibule wander + long interior
+paths eat wall-clock so a <20-min look-ahead only reaches the cave, not the post-catch decisions. NOT a livelock. This
+slowness (not any bug) blocked the growlithe-keeper behavioral e2e — but recon_keeper_router_check PASS J proves the
+`fc78576` fix deterministically, and it's the same bug class as the e2e-proven off-road steer, so it's verified.
 0. **NEXT BLOCKER = ROCK TUNNEL / FLASH gate (the badge-3→4 push continues here).** She reached the Rock Tunnel approach
    (Route 9→10) with a party of 6 but **only 7 OWNED species** — HM05 Flash needs **10 owned** (Route 2 aide) and Rock
    Tunnel is PITCH DARK without it (the ONLY pre-Flute road to Lavender→Celadon). So the gate is a TEAM-BUILDING gate:
