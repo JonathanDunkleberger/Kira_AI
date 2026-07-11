@@ -7693,7 +7693,20 @@ class Campaign:
         # on its anchor map; it's a cheap no-op off-anchor / for steps it doesn't own (registry-keyed
         # on step.success). Dungeon errands (hideout/tower) carry door hints -> excluded here, still
         # flow via the door-hint + _questline_interact path they were verified on.
-        if not getattr(step, "door", None):
+        # ...BUT NOT when a ('cap',hm) step's HM is ALREADY in the TM case: the acquisition strike is DONE
+        # and only the TEACH remains. Firing the (idempotent) strike here returns got_surf forever and
+        # STARVES the teach bridge below, so the cap-step never satisfies (NS#11: post-Safari she looped
+        # Fuchsia<->Route 15 with Surf in the bag but untaught). Skip it so execution falls through to the
+        # teach bridge. Flag/item steps (the Snorlax) are unaffected — this only guards HM-cap acquisitions.
+        _cap_hm = step.success[1] if (step.success and step.success[0] == "cap") else None
+        _hm_in_case = False
+        if _cap_hm is not None:
+            try:
+                import hm_teach as _ht
+                _hm_in_case = _ht.tm_case_row(self.b, _ht.HM_ITEM.get(_cap_hm, -1)) is not None
+            except Exception:
+                _hm_in_case = False
+        if not getattr(step, "door", None) and not _hm_in_case:
             _bstrike = self._questline_strike(step)
             if _bstrike is not None:
                 return _bstrike
