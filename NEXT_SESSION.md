@@ -1,6 +1,59 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #39 DONE (2026-07-11) — final-proof look-ahead FINGERED a box_chaff defect (fixed) + PC/BOX withdraw/swap-IN loop CLOSED. START HERE.
+## ✅ NIGHT-SHIFT #40 DONE (2026-07-11) — keeper-reachability chicken-and-egg CRACKED (routes+enters the cave); cave step-encounter wander BUILT; NEW binding gap = cave encounter-FLOOR traversal. START HERE.
+**TWO commits banked (`657f2d8`, `80789ab`), both mode-side, flag-gated `POKEMON_KEEPER_STATIC_ROUTE` (default OFF), canonical UNTOUCHED.**
+Attacked NS#39 FRONTIER #1 (the top binding constraint) and drove it to the NEXT real wall via a behavioural look-ahead.
+
+**1. `657f2d8` — STATIC-CONNECTION keeper route (the headline).** The cross-map router couldn't reach cave-gated keeper
+hosts (Diglett's Cave) because they're UNVISITED maps absent from the learned world graph → `_reachable_keeper_host`
+returned None forever → chicken-and-egg. FIX (isolated to the router, does NOT touch shared `world.route` → no
+route3_caught livelock risk): `gamedata/frlg_connections.json` static `host_gateways` KB (*"Diglett's Cave is entered
+from Route 2 / Route 11"*, swappable game-knowledge layer); `_host_gateways()`/`_keeper_gateway()` (nearest
+ride-reachable gateway, same MAX_HOPS + `_next_step_rideable` + `_keeper_unreach` guards); a STATIC PASS in
+`_reachable_keeper_host` (gateway ride-reachable NOW → returns entrance (1,36)); `_fetch_keeper_errand` gateway-drive +
+`_enter_host_via_gateway` (steps through the live-read door — only the gateway map id is in the KB, source-first).
+**VERIFIED:** `recon_static_keeper_check.py` **11/11** decision cases + LIVE probe on the real surge_done_kit world
+model (STATIC ON → (1,36) from Vermilion; OFF → None, reproduces NS#39) + a BEHAVIOURAL look-ahead on
+`surge_done_healed` (a full-HP copy of surge_done_kit — see NB): she **PICKs fetch_keeper → rides Vermilion→Route 11
+(static gateway) → steps through the door INTO Diglett's Cave.** The reachability chicken-and-egg is CRACKED.
+
+**2. `80789ab` — cave step-encounter wander for catch_one.** The look-ahead exposed the next gap: `catch_one` returned
+`no_grass` in the cave (caves have no grass; wilds fire on STEP) → she couldn't catch, then ping-ponged Route 11↔cave
+on the exit warp. FIX: when there's no grass but it's a TARGETED keeper fetch into an interior that hosts the species,
+wander reachable WALKABLE non-warp tiles (`avoid=doors` → never steps onto the exit warp) so step-encounters fire and
+the existing `catch_runner` takes the target on foot. Reuses the grass wander loop verbatim; gated to a targeted cave
+fetch (normal grass-catching untouched; inert in default runs). **THREE-STATE: WIRED, partially VERIFIED** — the re-run
+confirmed she routes in, computes 4 cave waypoints, and wanders them with NO oscillation, but caught NOTHING.
+
+### ⇒ NS#40 FRONTIER — the NEW binding gap (precise, exact next actions):
+0. **THE ROOT of the no-catch: the Route-11 entrance sub-map (1,38) has NO Diglett wild table.** The behavioural run
+   spent **10,577 steps on (1,38) with ZERO encounters** — that vestibule doesn't spawn wilds; the Diglett floor is a
+   DEEPER cave sub-map (`(1,37)`/`(1,36)`). So routing+entry+wander all WORK; she's just wandering the wrong room.
+   **THE FIX (next shift's headline): after entering at (1,38), TRAVERSE the cave to the encounter-bearing floor**
+   (reuse the proven `_cross_cave`/`_flash_errand` cave-stepping — memory: Diglett's Cave Route-2 mouth (17,11)→(1,36);
+   the cave is one N–S tunnel Route 2↔Route 11), THEN run the step-encounter wander THERE. Verify which sub-map has the
+   Diglett encounters first (frlg_encounters is AREA-keyed, not per-sub-map — check the ROM/disasm wild table for
+   (1,36)/(1,37), or just walk her deeper and watch where encounters start firing). ⚠️ **ADD a no-encounter-cave
+   RETIRE guard** (N wander-timeouts with no party growth on a cave sub-map → retire it to `_keeper_unreach`) so a
+   barren sub-map can't livelock — the current wander would spin forever on (1,38) if the flag were ON.
+1. **ONLY AFTER 0 lands (catch proven end-to-end): flip `POKEMON_KEEPER_STATIC_ROUTE` default "1"** (campaign.py:~122)
+   + commit. DO NOT flip before — she'll livelock in the (1,38) vestibule.
+2. **THEN the NS#39 frontier stands (unchanged):** flip `POKEMON_PCBOX` default ON (owed one live grab-and-look);
+   bench pace (+6 bite cadence — hold pending a fresh multi-gym look-ahead); swap_keeper in a full run unobserved;
+   the FINAL-PROOF gate (fresh mid-game forward, all flags, arrives E4-ready with a real leveled 6).
+
+**NB — the `surge_done_healed` fixture:** surge_done_kit's lead is at 57% HP → `needs_heal` True → the keeper offer is
+(correctly) gated (`_available_actions` line ~9399: don't start a detour on a dinged team). The oracle picked
+stock_up→head_to_gym and marched off, so fetch_keeper never got picked. I created `states/workshop/surge_done_healed.*`
+(full-HP + cleared status copy + sidecars) to un-gate the offer for the proof. Re-create if missing: boot surge_done_kit,
+write slot HP=max + STATUS1=0 for each party mon (offsets base+0x56 / base+0x50), save + copy the 4 sidecars.
+Re-run: `POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u
+recon_longrun.py surge_done_healed.state 12`. NB2: recon_longrun loads the CANONICAL world model (line 235), which also
+lacks Diglett's Cave (the Sherpa never entered it — hand-grind team), so the static pass is needed in look-aheads too.
+
+---
+
+## ✅ NIGHT-SHIFT #39 DONE (2026-07-11) — final-proof look-ahead FINGERED a box_chaff defect (fixed) + PC/BOX withdraw/swap-IN loop CLOSED.
 **TWO commits banked, both mode-side, flag-gated `POKEMON_PCBOX` (default OFF), canonical Champion save UNTOUCHED.**
 Ran the FINAL-PROOF gate first (`erika_done_kit`, full party-6 chaff, `POKEMON_KEEPER_ROUTER=1 POKEMON_PCBOX=1`,
 `LONGRUN_BATTLE_LOG=1`) — it did its job and fingered a real defect, which I fixed, then I completed the PC/BOX loop.
