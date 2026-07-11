@@ -1,6 +1,44 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #3 IN FLIGHT (2026-07-11) — frontier NEW#1 (ORGANIC BENCH XP ON THE ROAD) BUILT + decision-verified. START HERE.
+## ✅ NIGHT-SHIFT #4 DONE (2026-07-11) — road-bench-XP re-validated (party-6) + CROSS-MAP KEEPER ROUTER built (NEW#2). START HERE.
+**BANKED (commit 208edb5, mode-side, flag-gated `POKEMON_KEEPER_ROUTER` DEFAULT OFF, canonical untouched):**
+the cross-map keeper router — the last unbuilt Part-C piece for team COMPOSITION. Full diagnosis + file:lines
+in `TEAM_DEPTH_ROOT_FIX.md` §NS#4. Two look-ahead findings drove it: (1) **road-bench-XP (NEW#1) VALIDATED in
+the party-6 mid-game** on `erika_done` (Venusaur L43 + frozen L9-15 chaff bench → Ekans leveled L9→**L14**,
+Rattata/Spearow 15→16 as she marched, GRIND SWITCH firing, questline chained right); (2) **the confirmed gap =
+team COMPOSITION** — the planner emits `catch_keeper: abra→alakazam` the whole run but she marches past
+(on-map un-gate only grabs a keeper she's STANDING on). The router (`_keeper_route_target` /
+`_fetch_keeper_errand` / `_place_to_map_index` in campaign.py; `fetch_keeper` action) offers a BOUNDED detour to
+a nearby reachable hosting map, then the on-map machinery catches. **Decision-VERIFIED 10/10**
+(`recon_keeper_router_check.py`). **Behavioral: a LIVELOCK was caught + FIXED** (offer used world.route but the
+errand used naive trav.travel → no_path MACRO-RED spin; fixed with offer⟺executable `_next_step_rideable` gate +
+`_travel_to_known` routing + a stall-guard that retires un-rideable targets to `_keeper_unreach`). Post-fix
+route3_caught: routes Route3→Route4, retires the Mt-Moon-gated Route24/25 cleanly, resumes leveling — NO livelock.
+
+### ⇒ NS#4 FRONTIER (exact next actions, in priority order):
+1. **FINISH the router behavioral proof (a SUCCESSFUL fetch+catch), then FLIP default ON.** Neither test
+   fixture could show it because BOTH gate a thin team from the keeper: route3_caught is Mt-Moon-level-gated
+   before Route 24; misty_done (solo Ivysaur L22) **loss-loops at the Nugget Bridge gauntlet** en route to
+   Route 24 (Abra) — `keeper_route:travel:battle_loss` → blackout → Center → retry (head_to_gym/the S.S.Ticket
+   questline, also north past Nugget Bridge, would loop the SAME way — it's the solo-team problem, not a router
+   defect). A late fix (committed) makes a `battle_loss` leg count as NON-progress so K losses RETIRE the keeper
+   (was: blackout relocation reset the stall guard → soft loss-loop). **TO PROVE THE CATCH:** use a fixture with
+   a party of 2-3 (not solo) whose keeper map is reachable with NO gauntlet — e.g. a post-Nugget-Bridge state at
+   Cerulean/Route 25 with room, or seed a world_model so Route 24 is rideable and the team can survive the bridge.
+   Command: `POKEMON_KEEPER_ROUTER=1 LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py <fixture>.state 12`;
+   grep `FETCH-KEEPER|caught a new|CATCH: [0-9]+ reachable|UNREACHABLE`. On a clean catch → set
+   `POKEMON_KEEPER_ROUTER` default "1" (one char, campaign.py) + commit. ⚠️ Detour watchability (over-backtrack?)
+   is a LIVE-EYES item — tune `POKEMON_KEEPER_ROUTER_MAX_HOPS` down (4?) / STALL_CAP 3→2 if detours read too far.
+2. **PC/BOX (Tier-1 #15)** — the pairing gap for the FULL-party case (erika_done: 6 chaff, router won't fire
+   without room). recon_pcbox.py deposit flow proven; generalize `deposit_mon`/`withdraw_mon` + hook `catch_one`
+   to box the lowest-value chaff on a full-party keeper catch → then the router adds the keeper.
+3. **prep bite cadence** — the +6 bite levels the bench slowly (~5 levels/9min); a bigger bite when FAR under
+   milestone would arrive near-milestone faster without a grind-wall.
+4. **FINAL-PROOF gate** — a fresh mid-game fixture forward with `POKEMON_KEEPER_ROUTER=1` → she catches
+   coverage keepers + levels them + arrives E4-ready. (og_postopening is an INVALID fixture — no world_model
+   sidecar → empty-graph nav-blind livelock on the unbilled early gyms; use a mid-game state with a sidecar.)
+
+## ✅ NIGHT-SHIFT #3 IN FLIGHT (2026-07-11) — frontier NEW#1 (ORGANIC BENCH XP ON THE ROAD) BUILT + decision-verified.
 **NS#3 BANKED (commit a998378, mode-side, flag-gated, canonical untouched):** the exact NEW#1 fix below —
 the mid-game "bench never levels" root. Two helpers in `campaign.py` (`_road_bench_xp_arm` /
 `_road_bench_xp_disarm`) wired into `free_roam` around the `_route_action` dispatch: on a forward-march pick

@@ -4530,10 +4530,16 @@ class Campaign:
             self._keeper_stall = {}                # reset the stall bookkeeping on real arrival
             return self.catch_one(target_species=sp)
         pos1 = (now, tuple(tv.coords(self.b) or ()))
-        if pos1 != pos0:                           # made progress toward it -> keep going next tick
+        # A battle_loss BLACKOUT relocates her (respawn at a Center) — that position change is NOT progress
+        # toward the keeper; counting it as progress reset the stall guard and let a thin team throw itself
+        # at an unwinnable gauntlet between her and the keeper forever (misty_done solo-Ivysaur → Nugget
+        # Bridge loss-loop). Treat a loss leg as non-progress so K of them retires the target → she resumes
+        # leveling/the questline instead of the loss-loop.
+        lost = isinstance(r, str) and "battle_loss" in r
+        if pos1 != pos0 and not lost:              # real forward progress -> keep going next tick
             self._keeper_stall = {}
             return f"keeper_route:{r}"
-        # NO progress this leg -> count toward retiring an un-rideable target (never livelock)
+        # NO progress (or a blackout bounce) this leg -> count toward retiring the target (never livelock)
         st_map = getattr(self, "_keeper_stall", None)
         if st_map is None:
             st_map = self._keeper_stall = {}
