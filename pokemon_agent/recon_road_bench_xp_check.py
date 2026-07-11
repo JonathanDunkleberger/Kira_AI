@@ -75,10 +75,21 @@ class FakeCamp:
             self._levels[0], self._levels[ace] = self._levels[ace], self._levels[0]
 
 
-def _run(name, camp, pick, expect_arm, want_lead_level=None, expect_flag=None):
+def _mkstate(levels, ace_hp_frac=1.0):
+    """party dicts with hp/maxhp — the ACE (max level) at ace_hp_frac, everyone else full."""
+    ace = max(range(len(levels)), key=lambda s: levels[s]) if levels else None
+    party = []
+    for s, l in enumerate(levels):
+        mx = 100
+        hp = int(mx * ace_hp_frac) if s == ace else mx
+        party.append({"level": l, "hp": hp, "maxhp": mx})
+    return {"party": party}
+
+
+def _run(name, camp, pick, expect_arm, want_lead_level=None, ace_hp_frac=1.0):
     BA.PROTECT_LEAD_GRIND = False
     slot0_before = camp._levels[0]
-    armed = camp._road_bench_xp_arm(pick, {"party": [{"level": l} for l in camp._levels]})
+    armed = camp._road_bench_xp_arm(pick, _mkstate(camp._levels, ace_hp_frac))
     fails = []
     if armed != expect_arm:
         fails.append(f"armed={armed} expected {expect_arm}")
@@ -147,6 +158,12 @@ def main():
     # 8 — weakest levelable IS the ace (single strong mon + only-chaff bench) -> nothing to protect
     all_fails += _run("weakest levelable is the ace", FakeCamp([40], prep_t=20),
                       "head_to_gym", expect_arm=False)
+
+    # 9 — ace HP floor: a dinged ace (below ROAD_XP_ACE_HP_FLOOR) defers to heal; a topped-up ace arms
+    all_fails += _run("ace dinged below HP floor", FakeCamp([32, 14, 18], prep_t=20),
+                      "head_to_gym", expect_arm=False, ace_hp_frac=0.4)
+    all_fails += _run("ace comfortably above HP floor", FakeCamp([32, 14, 18], prep_t=20),
+                      "head_to_gym", expect_arm=True, want_lead_level=14, ace_hp_frac=0.9)
 
     print("\n" + ("ALL PASS" if not all_fails else "FAIL:\n  " + "\n  ".join(all_fails)))
     return 0 if not all_fails else 1

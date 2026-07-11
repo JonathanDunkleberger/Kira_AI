@@ -71,6 +71,13 @@ PROACTIVE_BENCH_GAP = int(os.getenv("POKEMON_PROACTIVE_BENCH_GAP", "10"))
 # reads). Fail-safe: an unconfirmed switch just fights on; disarm always restores the ace. Touches the
 # wedge-prone in-battle switch (Tier-1 #5) so it's flag-gated for instant revert.
 ROAD_BENCH_XP_ENABLED = os.getenv("POKEMON_ROAD_BENCH_XP", "1") != "0"
+# The participation switch costs the ACE one free enemy hit per battle (the enemy attacks the mon we
+# switch IN). Over a no-heal multi-trainer LEG that extra chip can tip a marginal gauntlet into a
+# whiteout — observed on a TOP-HEAVY hand-bank (L48 ace soloing Route 13 while an L9-15 bench can't
+# share the load). So only start a bench-XP leg when the ace has HP headroom to absorb it; a dinged ace
+# defers to the heal path (needs_heal only fires <0.50 on ANY member — this is a higher, ACE-specific
+# floor). On a fresh organically-built run the bench shares the gauntlet, so this rarely bites.
+ROAD_XP_ACE_HP_FLOOR = float(os.getenv("POKEMON_ROAD_XP_ACE_HP_FLOOR", "0.6"))
 # PREP-FOR-E4 band (2026-07-11, PASS 3 team-depth): at all 8 badges the whole party is floored to the
 # team-plan's E4 milestone (~L55) so the bench survives the Center-less five-fight gauntlet (NS13/NS14:
 # a top-heavy team where the ace solos then dies at Lance/Champion). A member counts as LEVELABLE only
@@ -5488,6 +5495,13 @@ class Campaign:
                 return False                       # a hurt party heals with the true ace leading
             party = state.get("party") or []
             if len(party) < 2:
+                return False
+            # ACE-HP FLOOR: the switch costs the ace a free enemy hit per battle; don't start a bench-XP
+            # leg with an already-dinged ace (a no-heal gauntlet could tip it over — the Route-13 hand-bank
+            # observation). Defer to the heal path until the ace is comfortably topped up.
+            _ace_m = max(party, key=lambda m: m.get("level", 0))
+            _amx = _ace_m.get("maxhp") or 0
+            if _amx and (_ace_m.get("hp", _amx) / _amx) < ROAD_XP_ACE_HP_FLOOR:
                 return False
             prep_t = self._prep_team_target(state)
             if prep_t is None:
