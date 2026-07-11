@@ -124,6 +124,9 @@ from the env var (seafoam→banked_CINNABAR, mansion→banked_SECRETKEY, blaine�
 banked_GIOVANNI, victory→banked_VICTORY, grind→banked_GRIND). recon_victory RESUME_STAGE=1 ratchets a
 mid-VR wedge from its own stage_victory bank.
 
-WATCH STATUS: canonical Champion bank CLEAN + untouched. Sherpa frontier = bench-grind (Kadabra L19→42) at
-Route 18; the whole tail+VR+E4-rooms-1-2 is proven; only Agatha+ (a level gap) is left. Pop-in =
-`python pokemon_agent/watch.py`.
+WATCH STATUS: canonical Champion bank CLEAN + untouched (NS12 only edited workshop staging fixtures + temp
+banks — the canonical timeline is safe). Sherpa frontier = get a PAST-VR team with a leveled-enough Kadabra
+to the E4 (PATH B: grind NS9's indigo_reach_kit Kadabra L31→~42, then recon_e4). The bench_grind_kit lineage
+(badge8, Kadabra L39) is banked but CANNOT clear VR without EQ, and the EQ teach is broken on that save — so
+prefer PATH B. Overnight no-EQ VR grind-through running (self-terminates ~1hr; check banked_VICTORY at wake).
+Pop-in = `python pokemon_agent/watch.py`.
