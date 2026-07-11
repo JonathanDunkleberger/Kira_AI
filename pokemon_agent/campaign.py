@@ -5232,6 +5232,53 @@ class Campaign:
             log(f"   [roam] chaff-swap target skipped: {e}")
             return None
 
+    def _box_keeper_swap_target(self, state):
+        """swap_keeper GATE (PC/BOX, NS#39): the mirror of box_chaff for the OTHER half of the loop —
+        when a PLANNED coverage keeper is sitting in the box (FRLG auto-boxes a mon caught at party-6, so
+        the keeper the router/on-map catch grabbed while full is stuck in storage), FIELD it. Returns
+        (box, slot, chaff_slot, pc_door) — chaff_slot is the party mon to deposit first when the party is
+        FULL (None when there's already room), else None (no swap warranted). Fires only when: flag on;
+        planner on; a boxed occupant is ON-PLAN (planner._is_target_line) AND in the CURRENT open box
+        (withdraw_mon can't box-switch); if full, a boxable off-plan chaff exists to make room; and she's
+        in a mapped-Center city. Mode-side, plan-gated, fail-closed."""
+        if not PCBOX_ENABLED:
+            return None
+        try:
+            from pokemon_planner import TEAM_PLANNER_ENABLED
+            if not TEAM_PLANNER_ENABLED:
+                return None
+            cur = tuple(tv.map_id(self.b))
+            pc_door = CITY_PC_DOORS.get(cur)
+            if not pc_door:
+                return None                               # not in a mapped-Center city
+            cb, occ = self._box_scan()
+            tp = self.team_planner
+            # a boxed keeper = an on-plan species sitting in the CURRENTLY-OPEN box (withdraw is box-local)
+            keeper = None
+            for (bx, sl), sp in sorted(occ.items()):
+                if bx != cb:
+                    continue
+                name = st.SPECIES_NAME.get(sp, "").lower()
+                try:
+                    if name and tp._is_target_line(name):
+                        keeper = (bx, sl)
+                        break
+                except Exception:
+                    continue
+            if keeper is None:
+                return None                               # nothing on-plan is boxed here
+            party = state.get("party") or []
+            pc = state.get("party_count") or len(party)
+            if pc < 6:
+                return (keeper[0], keeper[1], None, pc_door)   # room already — just withdraw
+            chaff = self._worst_chaff_slot(party)
+            if chaff is None:
+                return None                               # full of on-plan mons — can't make room
+            return (keeper[0], keeper[1], chaff, pc_door)
+        except Exception as e:
+            log(f"   [roam] keeper-swap target skipped: {e}")
+            return None
+
     def _find_pc_stand(self):
         """GENERAL PC-console locator (NS#38): scan the current interior's metatile behaviors for the PC
         tile (MB_PC = 0x83) and return the stand tile directly BELOW it (you face UP to use a PC). Centers
@@ -5360,6 +5407,146 @@ class Campaign:
                       kind="roster", tier=1)
         return "deposited"
 
+    def _box_scan(self):
+        """RAM-TRUTH of the PC storage (NS#39): (current_open_box, {(box,slot): species_id}) for every
+        occupant. Decrypts each BoxPokemon with the same substruct scheme as the party read (recon_lapras;
+        gPokemonStoragePtr = 0x03005010, 80-byte BoxPokemon, 14 boxes × 30). Read-only. Lets a caller
+        locate a boxed keeper (e.g. one FRLG auto-boxed on a party-6 catch) to withdraw + field."""
+        GSTORAGE_PTR, BOX_MON_SIZE, BOXES, PER_BOX = 0x03005010, 80, 14, 30
+        b = self.b
+        base0 = b.rd32(GSTORAGE_PTR)
+        if not base0:
+            return (0, {})
+        cur_box = b.rd8(base0)
+        found = {}
+        for bx in range(BOXES):
+            for sl in range(PER_BOX):
+                mbase = base0 + 4 + (bx * PER_BOX + sl) * BOX_MON_SIZE
+                pid = b.rd32(mbase)
+                if pid == 0 and b.rd32(mbase + 4) == 0:
+                    continue
+                key = pid ^ b.rd32(mbase + 4)
+                order = st._SUBSTRUCT_ORDER[pid % 24]
+                sp = (b.rd32(mbase + 32 + order.index("G") * 12) ^ key) & 0xFFFF
+                if 1 <= sp <= 411:
+                    found[(bx, sl)] = sp
+        return cur_box, found
+
+    def withdraw_mon(self, box, slot, pc_door):
+        """AUTHENTIC PC withdraw (Tier-1 #15, NS#39 — the reverse of deposit_mon; closes the PC/BOX loop so
+        a keeper FRLG auto-boxed at party-6 can be FIELDED). Route into the current city's Center, boot
+        BILL'S PC, drive WITHDRAW for the boxed mon at grid (box, slot), verify the party count ROSE by 1,
+        exit. Returns 'withdrawn' | 'full' | 'no_pc' | 'stuck' | 'wrong_box' | 'empty' | 'unchanged'. Box
+        SWITCHING is unbuilt → if the target isn't in the OPEN box it aborts LOUD ('wrong_box', never
+        withdraws the wrong mon). Screen-state drive (FRLG text boxes eat frame-timed presses), authentic
+        (never pokes RAM). NB: the Center-entry + PC-boot + storage-menu prefix parallels deposit_mon; a
+        future _open_bill_pc extraction (dedupe the two) is a clean-up candidate, deferred to keep the
+        VERIFIED deposit path byte-identical."""
+        import numpy as _np
+        n0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if n0 >= 6:
+            log(f"   !! PCBOX: party already full ({n0}) — nothing to withdraw into"); return "full"
+        cb, occ = self._box_scan()
+        if (box, slot) not in occ:
+            log(f"   !! PCBOX: no mon at box {box} slot {slot} (occupants={len(occ)})"); return "empty"
+        if box != cb:
+            log(f"   !! PCBOX: target in box {box} but the applet opens on box {cb} — box switching "
+                f"unbuilt, aborting LOUD"); return "wrong_box"
+        want_sp = occ[(box, slot)]
+        city = tv.map_id(self.b)
+        log(f"   PCBOX: withdrawing {st.SPECIES_NAME.get(want_sp, want_sp)} from box {box} slot {slot} "
+            f"at the Center on {city} (door {pc_door})")
+        # 1) route to the PC door + step in (identical entry to deposit_mon)
+        if self.trav.travel(target_map=None, arrive_coord=(pc_door[0], pc_door[1] + 1),
+                            max_steps=400, max_seconds=120) != "arrived":
+            log(f"   !! PCBOX: couldn't reach the PC door (at {tv.coords(self.b)})"); return "no_pc"
+        before = tv.map_id(self.b)
+        for _ in range(6):
+            self.b.press("UP", 8, 10, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
+            if tv.map_id(self.b) != before:
+                break
+        if tv.map_id(self.b) == city:
+            log("   !! PCBOX: did not enter the Center"); return "stuck"
+        for _ in range(90):
+            self.b.run_frame()
+        self.b.set_input_owner("agent")
+        stand = self._find_pc_stand() or PC_STAND
+        log(f"   PCBOX: PC console stand = {stand}"
+            + ("" if stand != PC_STAND else " (default — no PC tile scanned)"))
+        self._step_to(stand)
+
+        def _press(key, settle=30):
+            self.b.press(key, 8, 10, self.render, owner="agent")
+            for _ in range(settle):
+                self.b.run_frame()
+
+        def _px():
+            return _np.asarray(self.b.frame_rgb(), dtype=_np.int32)
+
+        def _menu_open(img):
+            reg = img[8:56, 8:110]
+            return (reg > 235).all(axis=2).mean() > 0.5
+
+        _press("UP", 16)                                  # face the console
+        _press("A", 60)                                   # boot the PC
+        ok = False
+        for _ in range(6):
+            _press("A", 45)
+            if _menu_open(_px()):
+                ok = True
+                break
+        if not ok:
+            log("   !! PCBOX: PC-choice menu never appeared"); self._exit_to_overworld(); return "stuck"
+        _press("A", 45)                                   # BILL'S PC (cursor boots on top)
+        storage = False
+        for _ in range(8):
+            if _menu_open(_px()):
+                storage = True
+                break
+            _press("A", 70)
+        if not storage:
+            log("   !! PCBOX: storage menu never appeared"); self._exit_to_overworld(); return "stuck"
+        base_tr = _px()[4:28, 188:236]
+
+        def _applet():
+            return _np.abs(_px()[4:28, 188:236] - base_tr).mean() > 30
+
+        # storage list boots with the cursor on WITHDRAW (top item) — no DOWN press (that's deposit_mon's)
+        _press("A", 45)                                   # WITHDRAW POKeMON -> box grid applet
+        opened = False
+        for _ in range(120):
+            self.b.run_frame()
+            if _applet():
+                opened = True
+                break
+        if not opened:
+            log("   !! PCBOX: withdraw GUI never opened"); self._exit_to_overworld(); return "stuck"
+        for _ in range(160):                              # let the grid finish drawing
+            self.b.run_frame()
+        row, col = slot // 6, slot % 6                    # box grid = 6 cols × 5 rows
+        for _ in range(row):
+            _press("DOWN", 24)
+        for _ in range(col):
+            _press("RIGHT", 24)
+        _press("A", 90)                                   # pick the mon -> action submenu (WITHDRAW on top)
+        _press("A", 260)                                  # WITHDRAW -> fly-to-party animation
+        # leave the box system + the Center
+        for i in range(12):
+            if tuple(tv.map_id(self.b))[0] == 3:
+                break
+            _press("B", 40)
+        self._exit_to_overworld()
+        n1 = self.b.rd8(ram.GPLAYER_PARTY_CNT)            # verify AFTER settle/exit
+        got = [st.read_party_species(self.b, s) for s in range(n1)]
+        log(f"   PCBOX: party count {n0} -> {n1} | species {got} (map={tv.map_id(self.b)})")
+        if n1 != n0 + 1 or want_sp not in got:
+            log("   !! PCBOX: WITHDRAW FAILED (party count unchanged / species absent)"); return "unchanged"
+        self.on_event("pulled one of mine back out of the box — bringing them onto the active team.",
+                      kind="roster", tier=1)
+        return "withdrawn"
+
     def _box_chaff_errand(self, state):
         """Handler for the `box_chaff` action: deposit the gated chaff so the keeper router gets room.
         Returns 'boxed' (party dropped -> router fires next tick) | 'box_none' (evaporated) | the deposit
@@ -5371,6 +5558,28 @@ class Campaign:
         slot, pc_door = tgt
         r = self.deposit_mon(slot, pc_door)
         return "boxed" if r == "deposited" else f"box_{r}"
+
+    def _swap_keeper_errand(self, state):
+        """Handler for the `swap_keeper` action (NS#39): FIELD a boxed plan keeper. When the party is full,
+        deposit the gated chaff FIRST (6→5) so withdraw has room, then withdraw the keeper (5→6) — one Center
+        visit, chaff-for-keeper. When there's already room, withdraw directly. Returns 'swapped' | 'swap_none'
+        | a failure string (benign — a failed leg leaves the party unchanged so roam just re-decides / falls
+        through to head_to_gym; never livelocks). One Center trip: deposit_mon and withdraw_mon each route in
+        and out on their own, so a mid-fail simply stops the swap with the party intact-or-improved."""
+        tgt = self._box_keeper_swap_target(state)
+        if not tgt:
+            return "swap_none"
+        box, slot, chaff, pc_door = tgt
+        if chaff is not None:                             # full party -> make room before the withdraw
+            rd = self.deposit_mon(chaff, pc_door)
+            if rd != "deposited":
+                return f"swap_{rd}"                       # room not freed -> abort with the party intact
+            # the box grid is unchanged by a deposit-to-a-free-slot, but re-locate defensively (truth is cheap)
+            cb, occ = self._box_scan()
+            if (box, slot) not in occ or box != cb:
+                return "swap_moved"                       # keeper shifted/box changed -> bail (party is 5, benign)
+        rw = self.withdraw_mon(box, slot, pc_door)
+        return "swapped" if rw == "withdrawn" else f"swap_{rw}"
 
     def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
@@ -9061,6 +9270,17 @@ class Campaign:
                     "MAKE ROOM — your team is full but it's carrying dead weight, and your plan wants a real "
                     "coverage teammate. Bench the weakest one at the PC so you can add the mon you actually "
                     "need. A prepared squad isn't six random catches — it's six that cover each other.")
+        # ── PC/BOX keeper swap-IN (Tier-1 #15, NS#39) — the reverse of box_chaff, closing the loop ─────
+        # A coverage keeper caught while the party was full gets AUTO-BOXED by FRLG — so it's on the plan
+        # but sitting in storage. When she's at a Center, FIELD it: deposit the weakest chaff (if full) and
+        # withdraw the keeper. Same gating shape as box_chaff (flag/planner/Center-city/never-when-hurt).
+        if PCBOX_ENABLED and not self.needs_heal():
+            _sw = self._box_keeper_swap_target(state)
+            if _sw:
+                a["swap_keeper"] = (
+                    "BRING THEM UP — a teammate your plan actually wants is sitting in the PC box. Swap out "
+                    "the dead weight and put the real coverage mon on the active team. Six that cover each "
+                    "other beats a lone carry and five passengers.")
         # ── PROACTIVE FORWARD DRIVE (the backward-grind killer — the ROOT fix) ───────────────────────
         # The live bug: post-Misty she WANTED 'grind on the way' and it resolved to travel BACKWARD into a
         # cleared dead-end (Route 4) — because at decision time head_to_gym (the forward objective) competed
@@ -9678,6 +9898,8 @@ class Campaign:
             return self._fetch_keeper_errand(state)
         if pick == "box_chaff":
             return self._box_chaff_errand(state)
+        if pick == "swap_keeper":
+            return self._swap_keeper_errand(state)
         # POST-GAME champion's walk (the summit-watch strand fix): reuse the proven blackout
         # building-exit to step back onto the overworld, then normal actions take over next tick.
         if pick == "leave_building":
