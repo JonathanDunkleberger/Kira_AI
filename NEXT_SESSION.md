@@ -1,5 +1,64 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #39 DONE (2026-07-11) — final-proof look-ahead FINGERED a box_chaff defect (fixed) + PC/BOX withdraw/swap-IN loop CLOSED. START HERE.
+**TWO commits banked, both mode-side, flag-gated `POKEMON_PCBOX` (default OFF), canonical Champion save UNTOUCHED.**
+Ran the FINAL-PROOF gate first (`erika_done_kit`, full party-6 chaff, `POKEMON_KEEPER_ROUTER=1 POKEMON_PCBOX=1`,
+`LONGRUN_BATTLE_LOG=1`) — it did its job and fingered a real defect, which I fixed, then I completed the PC/BOX loop.
+
+**1. `6b88b13` — box_chaff ROUTABILITY GATE.** The run's FIRST tick at Celadon: `PICK box_chaff` → deposited a
+member (6→5) narrating *"making room for the mon my plan actually wants"* — but `fetch_keeper` then NEVER fired
+because the due keeper (Diglett, in **Diglett's Cave**) is un-routable from Celadon. Net: team thinned, on-screen
+promise broken, keeper never caught. ROOT: `_chaff_swap_target` gated only on catch_keeper-DUE, not on the keeper
+being REACHABLE. FIX: extracted the router's reachability scan into a shared `_reachable_keeper_host(sp,cur,state)`;
+`_keeper_route_target` calls it (no behaviour change) and `_chaff_swap_target` now boxes ONLY when the keeper is
+already on THIS map (on-map un-gate catches it) OR the router can ride to a hosting map — else it REFUSES.
+**VERIFIED:** `recon_deposit_check` 14/14 (3 new routability cases: fires-when-routable / None-when-unroutable /
+fires-when-on-map) + live deposit 4→3; behavioural re-run confirms `box_chaff` no longer offered at Celadon
+(was `PICK box_chaff`→deposit; now `PICK head_to_gym`, party stays 6).
+
+**2. `c9346fa` — PC/BOX withdraw + swap-IN keeper (closes the loop).** `deposit_mon` (NS#38) only made ROOM; a
+coverage keeper caught while FULL is FRLG-auto-boxed with no way onto the team. Added: `_box_scan()` (RAM-truth
+storage read, gPokemonStoragePtr 0x03005010 / 80-byte BoxPokemon), `withdraw_mon(box,slot,pc_door)` (reverse of
+deposit_mon — box-grid nav, verify party +1 & species landed, aborts LOUD 'wrong_box' if not in the OPEN box),
+and `_box_keeper_swap_target` / `_swap_keeper_errand` + a `swap_keeper` roam action (deposit the weakest chaff if
+full, then withdraw the keeper → chaff-for-keeper, party stays 6). **WIRED** into the roam options + dispatch
+(mirrors box_chaff), self-clearing (once fielded the keeper isn't boxed → no re-offer). **VERIFIED** headless
+(`recon_withdraw_check` A/B/C @ Celadon on erika_done_kit): `_box_scan` decodes the 3 boxed occupants + open box;
+full-party→'full'; live round-trip deposit 6→5 then withdraw 5→6 (Weedle lands, re-proves deposit unregressed);
+swap_keeper end-to-end (chaff sp19 out, keeper sp13 in, party stays 6). Re-verify: `POKEMON_PCBOX=1
+../.venv/Scripts/python.exe recon_withdraw_check.py` (and `recon_deposit_check.py` 14/14).
+
+### ⇒ NS#39 FRONTIER (the BINDING constraint is now keeper ACQUISITION, not box mechanics — priority order):
+The final-proof run showed the PC/BOX system is now correct + complete, but it is DORMANT mid-game because the
+keeper it serves can't be reached: **the cross-map router can't ride to cave-gated hosts (Diglett's Cave) and
+misses the TIMING window** (she's already past Vermilion/Route 11 when Diglett is DUE, and MAX_HOPS=6 rightly
+won't backtrack that far). Meanwhile she ALREADY HOLDS **Abra** (the psychic-sweeper keeper — answers Koga/
+Sabrina/Agatha) at L14 needing only LEVELING. So the real team-depth levers are:
+1. **KEEPER-TIMING / REACHABILITY (top).** Two candidate fixes: (a) grab a DUE keeper when she's PASSING THROUGH
+   its host region (a "catch it now, you're here" nudge on the corridor) instead of trying to detour back later;
+   and/or (b) extend the router to cave-entrance hosts (Diglett's Cave connects Route 2 ↔ Route 11 — teach the
+   router the cave-interior host is reached via its entrance warp). Diglett-specific coupling → isolate in
+   gamedata (portability debt). Verify with the same erika_done_kit / a Vermilion-era fixture look-ahead.
+2. **BENCH PACE (prep bite cadence, NS#4 frontier #3).** The bench climbs in `+6` bites (campaign.py ~5751
+   `min(milestone, floor+6)`) → many grind stops to reach a gym milestone; dungeon-heavy stretches barely level
+   it. A bigger bite when FAR under milestone would arrive near-milestone in fewer stops. ⚠️ HELD: the +6 SITTING
+   CAP is hard-won (celadon_run1 27-level marathon parked the road) — DO NOT ship a bigger bite without a fresh
+   multi-gym `og_postopening`/mid-game look-ahead confirming no treadmill/grind-wall (NS#1's explicit gate).
+3. **FLIP `POKEMON_PCBOX` default ON — STILL OWED, needs ONE live grab-and-look** (from NS#38). The deposit/
+   withdraw menu is wedge-prone menu-nav on the long core; headless-VERIFIED (deposit 4→3, withdraw 5→6, swap
+   end-to-end) but wants a live eye on the SHOW build before default-ON. Confirm the Center-detour doesn't
+   over-backtrack (watchability). Then set `POKEMON_PCBOX` default "1" (campaign.py:~129) + commit.
+4. **swap_keeper firing in a FULL run is UNOBSERVED** — needs a fixture where a keeper is actually auto-boxed
+   at party-6 (the look-ahead never reached a party-6 on-map catch). Errand-level VERIFIED; a live look-ahead
+   observation is the last proof.
+5. **FINAL-PROOF gate** — a fresh mid-game forward with both flags → she catches/fields coverage keepers, levels
+   the bench (road-bench-XP), preps to milestones, arrives E4-ready with a real leveled 6. Use a state WITH a
+   world_model sidecar (surge_done_kit/erika_done_kit — NOT og_postopening, nav-blind).
+⚠️ CLEAN-UP noted: withdraw_mon duplicates deposit_mon's Center-entry/PC-boot prefix — an `_open_bill_pc`
+extraction to dedupe is deferred (kept the VERIFIED deposit path byte-identical). Low priority.
+
+---
+
 ## ✅ NIGHT-SHIFT #38 DONE (2026-07-11) — KEEPER ROUTER flipped ON (end-to-end catch PROVEN) + PC/BOX chaff-swap BUILT+VERIFIED. START HERE.
 **TWO commits banked, both mode-side, flag-gated, canonical Champion save UNTOUCHED:**
 
