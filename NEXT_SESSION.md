@@ -1,7 +1,21 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Route 18 bench-grind RUNNING overnight; remaining wall = bench too FRAIL + Gary's Charizard (a LEVEL problem).
-**AT WAKE — CHECK THE ROUTE 18 BENCH GRIND (`ns14_grind.log`, banks `banked_GRIND` ~150s):**
+## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Route 18 bench-grind + auto-delivery RUNNING overnight; remaining wall = bench too FRAIL + Gary's Charizard (a LEVEL problem).
+**AT WAKE — CHECK `ns14_deliver_status.txt` FIRST (the auto-delivery may have rolled credits):**
+`ns14_deliver.sh` is armed: it WAITS for the Route 18 grind to finish gracefully (writes "DONE." → `banked_GRIND`
+final bank is VENUSAUR-LED via `_restore_ace`), then runs `tail_driver.sh` (seafoam→mansion→blaine→giovanni→
+victory→e4). It verifies slot0=Venusaur before the tail (the exact NS13 delivery bug: NS13 fired on a mid-pass
+weak-led bank → VR lost). It clears the STALE 2026-07-07 banked_CREDITS first so a fresh one = real credits.
+- `cat G:/temp/longrun/ns14_deliver_status.txt` — if it says "CREDITS!! banked_CREDITS is FRESH" → **WRITE
+  `CREDITS` as LINE 1 of NIGHT_REPORT.md** (stops the loop) + full mountain survey. Confirm banked_CREDITS mtime
+  is TODAY. Then promote per the two-timeline law.
+- If it says "tail_driver rc=N — NO credits": read `tail_status.txt` for the failed leg. Most likely the VR leg
+  (if Venusaur didn't stay slot0 through the seafoam→giovanni legs) or the E4 (if the bench under-leveled). The
+  leveled `banked_GRIND` is preserved — promote it, verify Venusaur slot0, and resume the failed leg (NS9 block).
+- If deliver is still "armed — waiting" → the grind hasn't finished; check the grind (below) and either wait or
+  read `banked_GRIND` levels and run the tail manually once Kadabra+Lapras are ~L46+.
+
+**THE ROUTE 18 BENCH GRIND (`ns14_grind.log`, banks `banked_GRIND` ~150s):**
 `recon_grind_bench` is RUNNING from `grind_base_g` (Route 18, map 3,36): `GRIND_SPECIES=64,131` (Kadabra FIRST —
 the Agatha specialist — then Lapras, the Gary/Charizard answer), `GRIND_TARGET=48`. Start levels Venusaur L65 /
 Lapras L37 / Kadabra L39. Participation-XP switch banks XP on the WEAK mon while Venusaur aces the kills. Check
