@@ -94,7 +94,9 @@ def better(reachable, gated=(), no_hop=(), cur=R18, target=55):
 
 BCASES = [
     ("R18 target55: routes to adequate Route 23",     lambda: better([R23]),                    R23),
-    ("R18 target55: picks HIGHEST band (R23 over VR)", lambda: better([VICTORY_ROAD, R23]),      R23),
+    ("R18 target55: skips CAVE (VR), picks grass R23", lambda: better([VICTORY_ROAD, R23]),      R23),
+    ("R18 target55: CAVE-only (VR) adequate -> None (grind paces grass)", lambda: better([VICTORY_ROAD]), None),
+    ("R18 target55: CAVE-only (Cerulean Cave) -> None", lambda: better([CERULEAN_CAVE]),         None),
     ("R18 target55: ONLY poor grass reachable -> None (anti-freeze)", lambda: better([R6, R7]),  None),
     ("R18 target55: adequate but GATED -> None",      lambda: better([R23], gated=[R23]),        None),
     ("R18 target55: adequate but no hop -> None",     lambda: better([R23], no_hop=[R23]),       None),

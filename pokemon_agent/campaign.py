@@ -4660,6 +4660,11 @@ class Campaign:
                 continue                           # another poor spot is not "better"
             if self._grind_wild_band(dst) is None:
                 continue                           # only propose spots we have level data for
+            _band = getattr(self, "_grind_band_cache", {}).get(dst)
+            if _band and len(_band) > 2 and _band[2] != "grass":
+                continue                           # grind() paces GRASS tiles only — never propose a
+                #                                    cave/water spot (Victory Road, Seafoam): grind() finds
+                #                                    no grass there, marks it dead, and re-picks (wasted motion)
             if not self.world.next_hop(cur, dst, avoid):
                 continue                           # must have a real first hop (rideable now)
             hi = self._grind_wild_band(dst)[1]
