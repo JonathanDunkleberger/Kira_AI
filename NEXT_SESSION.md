@@ -1,6 +1,39 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #2 IN FLIGHT (2026-07-11) — frontier #2 (MID-GAME MILESTONE LEVELING) BUILT + decision-verified. START HERE.
+## ✅ NIGHT-SHIFT #3 IN FLIGHT (2026-07-11) — frontier NEW#1 (ORGANIC BENCH XP ON THE ROAD) BUILT + decision-verified. START HERE.
+**NS#3 BANKED (commit a998378, mode-side, flag-gated, canonical untouched):** the exact NEW#1 fix below —
+the mid-game "bench never levels" root. Two helpers in `campaign.py` (`_road_bench_xp_arm` /
+`_road_bench_xp_disarm`) wired into `free_roam` around the `_route_action` dispatch: on a forward-march pick
+(`head_to_gym`/`travel:`) with a bench member under its `_prep_team_target` milestone, the weakest levelable
+under-target mon leads (→ XP-eligible) and `battle_agent.PROTECT_LEAD_GRIND` is armed so the PROVEN
+participation switch (battle_agent.py:2554) fields the ace turn 1 — the weak mon banks a share of XP without
+taking a hit. The ace is restored to slot 0 the instant the leg ends (weak lead never outlives the march).
+Guard: an ACE-HP floor (`POKEMON_ROAD_XP_ACE_HP_FLOOR`=0.6) so a bench-XP leg never STARTS with a dinged ace
+(commit 838e9fb). Flag `POKEMON_ROAD_BENCH_XP` (default ON; one-line revert). **VERIFIED 15/15**
+(`recon_road_bench_xp_check.py`).
+
+### ✅ END-TO-END VERIFIED (bucket a) — the owed proof LANDED this shift:
+A `snorlax_done` look-ahead (`LONGRUN_BATTLE_LOG=1`, Routes 13/16 → Fuchsia) showed **5 arms → 3 LIVE
+participation switches in road trainer battles → the bench leveled organically** (Spearow L15→16, Ekans
+L9→10) while marching, no strand from the switch. **GOTCHA banked:** recon_longrun suppresses battle_agent's
+log unless `LONGRUN_BATTLE_LOG=1` (that masked the switch on earlier passes; city-boots surge/erika/bill were
+absorbed by town-nav or had spent trainers). **CAVEAT (hand-bank artifact):** the run then whited out on the
+Route 13 gauntlet — but the CONTROL (flag OFF) hit the SAME critical-HP + PP-famine wall, so it's pre-existing
+top-heavy-bank attrition (L48 ace soloing an L9-15 bench), NOT this fix. The ace-HP guard mitigates (defers a
+dinged-ace leg to heal); on a fresh organically-built run the bench shares the gauntlet so it doesn't arise.
+
+### ⇒ NS#3 FRONTIER (the fix is verified; next pieces):
+1. **PC/BOX (Tier-1 #15)** — the pairing gap for the catch half; box off-plan fodder on a full-party keeper
+   catch (promote `recon_pcbox.py`'s deposit flow). Un-gate builds toward 6; box turns it into real depth.
+2. **CROSS-MAP KEEPER ROUTER** — the catch un-gate is on-map only; route to `act["where"]` via
+   frlg_encounters for grass/cave keepers (Abra/Diglett/Growlithe). Note NS#2's sibling gap: the Abra
+   plan-catch FIRED on-map but didn't PERSIST after a mid-catch heal (catch-persistence).
+3. **grind-spot adequacy** (#1 old) — largely dissolved by NEW#1 if the owed proof lands (bench arrives
+   near-milestone organically), but keep on the radar for a L45→55 E4-prep push (cave step-encounter grind).
+4. **THE FINAL-PROOF GATE** — fresh `og_postopening` → 15x look-ahead → she catches keepers, LEVELS the
+   bench (now via NEW#1 on the road), arrives E4-ready with a real 6, sweeps tactically to credits.
+
+## ✅ NIGHT-SHIFT #2 DONE (2026-07-11) — frontier #2 (MID-GAME MILESTONE LEVELING) BUILT + decision-verified.
 **NS#2 BANKED (commit fb26e6e, mode-side, canonical untouched):** the **mid-game milestone-cap bench-prep** —
 frontier #2 below, the exact reviewed edit. `_prep_team_target`'s wall-less proactive bench-raise now caps the pin at
 the team-plan's NEXT gym milestone (Brock 14 … Giovanni 52) not the ace-relative `lead-8`, and RE-ARMS on a milestone

@@ -98,6 +98,45 @@ from campaign. This levels the bench organically as she travels — no grind-wal
 ⚠️ This touches the in-battle switch (Tier-1 #5, historically wedge-prone) — arm behind a flag, verify on a PAST-Cut-gate
 bench bank (ss_ticket wedges at the Vermilion Cut tree, so use surge_done/erika_done or a fresh run that clears the gate).
 
+## NS#3 UPDATE (2026-07-11) — NEW#1 BUILT: organic bench XP on the road (commit a998378)
+**LANDED (mode-side, flag-gated, canonical untouched):** the exact NEW#1 fix. Two small helpers in
+campaign.py — `_road_bench_xp_arm(pick, state)` / `_road_bench_xp_disarm()` — wired into `free_roam`
+around the `_route_action` dispatch (arm right before, disarm in a `finally`). On a FORWARD-MARCH pick
+(`head_to_gym` / `travel:`) when a bench member is under its `_prep_team_target` milestone, the weakest
+LEVELABLE under-target mon is swapped to slot 0 (so it's "sent out" = XP-eligible) and
+`battle_agent.PROTECT_LEAD_GRIND` is armed — the SAME proven participation switch grind_weak_members uses
+(battle_agent.py:2554) fields the ace turn 1 so the weak mon banks a share of XP without taking a hit. The
+ace is restored to slot 0 the instant the leg ends, so the weak lead NEVER outlives the march into any
+readiness/heal/decision read. Flag `POKEMON_ROAD_BENCH_XP` (default ON; instant one-line revert).
+
+**Guards (all verified):** only forward-march picks (never wander_catch/beat_gym — a weak mon must never
+lead a leader or a catch); skips when hurt (`needs_heal`), thin (<2 mons), or the bench is at milestone
+(prep None); excludes far-below box chaff (`< prep - E4_PREP_BAND`) and stall-marked mons; no-op when the
+weakest levelable IS the ace. Mirrors grind_weak_members' selection so the two agree on "the weak one".
+
+**VERIFICATION (three-state honest):**
+- **Decision logic — VERIFIED 13/13** (`recon_road_bench_xp_check.py`, pure-logic, no ROM): non-march
+  picks / prep-None / hurt / happy-path (weak→slot0 + PROTECT True, disarm restores ace + clears flag) /
+  chaff-excluded / stall-marked / flag-off / weakest-is-ace.
+- **Live arm+disarm — VERIFIED clean** on a `surge_done` look-ahead: armed twice (L9 Ekans led, target
+  L15), disarmed/restored the ace, ZERO strand/faint/crash. It correctly did NOT arm during town/interior
+  nav (erika_done Celadon run: 0 arms while shopping/questing indoors — right, no road battles in town).
+- **END-TO-END — VERIFIED (bucket a)** on a `snorlax_done` look-ahead (`LONGRUN_BATTLE_LOG=1`, the
+  Routes 13/16 gauntlet to Fuchsia): **5 arms → 3 LIVE participation switches in road trainer battles**
+  ("GRIND SWITCH: weak lead out -> switching to ace slot 3", all SWITCHED-confirmed) → **the bench leveled
+  organically** (Spearow L15→16, Ekans L9→10) while marching. No strand from the switch (0 "switch did not
+  confirm"). GOTCHA banked: recon_longrun SUPPRESSES battle_agent's log unless `LONGRUN_BATTLE_LOG=1` — that
+  masked the switch on the first passes. (City-boot probes surge_done/erika_done were absorbed by town/gate
+  nav before road trainers; bill_done marched but its Route 24/6 trainers are spent — don't respawn.)
+- **THE ONE CAVEAT (a hand-bank artifact, mitigated):** the snorlax run then WHITED OUT on the Route 13
+  gauntlet. The CONTROL (flag OFF, same boot) hit the SAME critical-HP + PP-famine wall → it's pre-existing
+  TOP-HEAVY-BANK attrition (L48 ace soloing while an L9-15 bench can't share the load), NOT caused by
+  road-bench-xp. The participation switch does cost the ace one free enemy hit per battle, marginally
+  worsening a no-heal gauntlet. **Guard added (commit 838e9fb):** don't START a bench-XP leg with the ace
+  below `POKEMON_ROAD_XP_ACE_HP_FLOOR` (0.6) HP — defer to heal. On a FRESH organically-built run the bench
+  shares the gauntlet from the start, so this solo-attrition shape doesn't arise (it's exactly what the fix
+  prevents over time). Verified 15/15 including the two ace-HP-floor cases.
+
 ## ALSO (option-1 Lapras tactical AI — good regardless)
 Battle-brain: when facing a foe the ace can't hurt (Venusaur 0.25x/1x into Charizard) and a specialist is
 the type-answer, LEAD/keep that specialist in and funnel healing to IT rather than splitting FR with the
