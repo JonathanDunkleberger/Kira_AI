@@ -9518,7 +9518,11 @@ class Campaign:
         resort (so _route_action surfaces the wall rather than silently offering a phantom hunt).
         catch_one re-verifies grass on arrival (no_grass backstop) so a wrong guess never freezes."""
         tile = self._reachable_grass()
-        if tile is not None:
+        # GRIND-SPOT LEVEL AWARENESS (NS#5 lever a): if grind() marked THIS map grind-inadequate (only
+        # done when a reachable higher-level spot exists), don't short-circuit on grass-underfoot — fall
+        # through to the route branches below (which exclude the inadequate set) so she actually routes to
+        # the better spot instead of re-picking the same near-0-XP grass. Empty set when flag off -> no change.
+        if tile is not None and tuple(state.get("map") or ()) not in getattr(self, "_grind_inadequate_set", set()):
             return ("here", tile)
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
