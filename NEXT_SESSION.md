@@ -1,5 +1,57 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🚂 PASS 3 — THE NIGHT-TRAIN MISSION (2026-07-11, START HERE EVERY SHIFT): make a FRESH GO build its own team + play a watchable ~25-35hr bedroom→credits spectacle. **CONSOLIDATION, not discovery — the game is already solved; wire it together so it FLOWS.**
+
+**HOW TO RUN THIS:** unattended multi-shift night train (`night_shift.ps1`). Each fresh shift: (1) READ this
+block + `pokemon_agent/TEAM_DEPTH_ROOT_FIX.md` + `E4_TACTICAL_FRONTIER.md`; (2) continue the mission from where
+the last shift banked; (3) commit-per-fix, VERIFIED from disk; (4) UPDATE this block with progress before you
+run low on context; (5) never re-solve a wall pass 1/2 already killed — if a fresh run bumps a solved wall,
+that's a WIRING failure (connect the existing solution, don't rediscover it).
+
+**THE STATE:** the tactical E4 half is DONE (credits rolled, hand-grind team, commit 23487e7). The remaining
+mountain = the AUTONOMOUS build: a fresh GO must catch + level its OWN 6 and arrive E4-ready, then the
+committed tactical fixes win. Canonical 2026-07-07 Champion save UNTOUCHED; all work on scratch banks.
+
+### THE BUILD (tractable core first, then the spectacle layer; check what EXISTS before building — most is built):
+1. **TEAM-DEPTH Part-C executor (THE HEADLINE — full diagnosis + file:line targets in `TEAM_DEPTH_ROOT_FIX.md`):**
+   wire `catch_keeper` to route+catch a FULL 6 across the game (un-gate `_plan_wants_prebuild` pc>2 @campaign.py:4355;
+   `_plan_keeper_target` must TRAVEL to `act["where"]` via frlg_encounters.json, not just current-map); wire
+   `grind_to`/`develop_bench` → a real bench-leveling objective + FIX `grind_weak_members` ace-only fallback
+   (campaign.py:5269-5273) so the BENCH levels; raise party target toward 6 + add `prep_for_e4()` (level whole
+   party FLOOR to `level_milestones["E4"]`=55 before Indigo); add box/replace-fodder logic (Tier-1 #15).
+2. **MOVE/TM/HM intelligence:** teach right move→right mon; NEVER clobber a signature/super-effective/only-damaging
+   move; decline bad level-up learns; assign HMs (Cut/Surf/Strength/Flash/Fly) without ruining movesets; respect
+   the 4-slot constraint. (Much exists — `_ensure_move_room`/STAB-aware `_value`/hm_teach.py — audit + harden.)
+3. **Lapras-lead-and-heal tactical AI** (battle_agent): when the ace can't hurt the foe and a specialist is the
+   type-answer, LEAD/keep the specialist in + funnel healing to IT, not the ace's 1x Cut.
+4. **SOUL flow (via plan_note/voice seam ONLY — core persona + firewall OFF-LIMITS):** team-as-FAMILY (names,
+   bonds, favorites, feeling on catch/evolve/faint/loss); BOSS ENERGY (shit-talk rivals/leaders, fired-up/
+   triumphant, running bits, stew on losses); POSTGAME/ARC awareness (knows where she is, how far she's come).
+5. **NATURAL EFFICIENT PLAY + PC management:** sensible routing, deposit/withdraw, buy items, grind with purpose,
+   no head-bumping. **WATCHABILITY PACING:** win most fights, brief struggles, keep moving; LOG watchability signals.
+6. **LIVE-SHOW STABILITY HARDENING (critical — 2 past streams crashed ~15min in):** audit/harden run.py/voice/stream
+   path (audio isolation/default-off, supervisor auto-restart, checkpoint-resume). ⚠️ multi-hour stability can ONLY
+   be confirmed by Jonny's SUPERVISED WATCH — build the hardening, NEVER claim it's proven headless.
+7. **INSTRUMENTATION (make runs legible):** (a) END-OF-RUN METRICS report — playtime h:m, final 6 (species+levels+
+   movesets), badge timeline, #battles/losses/faints, longest grind, per-segment watchable/grindy verdict; (b)
+   SAVE-VISIBILITY/HOP-IN — Jonny can list+load+watch any banked checkpoint (confirm the command; pass-2 E4 hop =
+   `E4_BOOT=G:/temp/longrun/banked_E4 ../.venv/Scripts/python.exe -u recon_e4.py`); (c) NAV AUDIT — one more full-game
+   wedge-risk pass (Indigo→VR gap etc. per E4_TACTICAL_FRONTIER.md); (d) "WHAT HAVEN'T WE THOUGHT OF" pass — surface
+   arc-wide gaps that could break/drag/disappoint on a fresh 30hr run BEFORE they hit live.
+
+### THE FINAL-PROOF GATE (the whole point): fresh early state (`states/workshop/og_postopening.state`) → headless
+15x look-ahead → she AUTONOMOUSLY catches keepers at their locations, LEVELS her bench to milestones, arrives at
+the E4 with a REAL leveled 6 + coverage, and sweeps TACTICALLY to credits — no hand-port/struct-grind (that manual
+workaround is what PROVES the builder is broken), no solo-hack, no over-level steamroll. Watchable pace, narrated.
+
+### THE HONEST-REPORTING MANDATE (non-negotiable — overconfidence caused 2 failed streams): for EVERY item above,
+label it (a) BUILT + headless-verified, (b) BUILT but needs Jonny's SUPERVISED LIVE WATCH to confirm it's actually
+spectacle-grade, or (c) not-yet-built. The soul/narration/pacing/live-stability items are EXPECTED to be bucket (b)
+— headless CANNOT prove "watchable/soulful/stable". NEVER tell Jonny the 30hr spectacle is "done"; tell him what's
+built, what's headless-proven, and what his own eyes must verify. That honest line is what makes the stream succeed.
+
+---
+
 ## 🏆 CREDITS ROLLED (night-shift #1, 2026-07-11) — the E4 TACTICAL half is DONE + VERIFIED e2e.
 The leveled Sherpa team (Venusaur L90 / Lapras L72 / Kadabra L58) beat the Elite Four + Champion Gary
 TACTICALLY and reached the HALL OF FAME (`G:/temp/longrun/banked_CREDITS`, fresh). Two committed
