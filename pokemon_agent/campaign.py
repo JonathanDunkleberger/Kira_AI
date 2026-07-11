@@ -104,10 +104,15 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 # bench, no coverage). This offers a BOUNDED detour to a nearby reachable map that HOSTS the DUE keeper,
 # then the existing on-map machinery catches it. Bounded (<= MAX_HOPS world-graph hops so it grabs
 # corridor-adjacent keepers, never a whole-map backtrack), room-gated (party < 6; the full-party box swap
-# is a separate unbuilt piece, Tier-1 #15), plan-gated, fail-closed. DEFAULT OFF until a behavioural
-# look-ahead confirms she fetches without wedging/over-detouring (touches free_roam objective selection —
-# the wedge-prone area); arm with POKEMON_KEEPER_ROUTER=1.
-KEEPER_ROUTER_ENABLED = os.getenv("POKEMON_KEEPER_ROUTER", "0") != "0"
+# is a separate unbuilt piece, Tier-1 #15), plan-gated, fail-closed. DEFAULT ON (NS#38, 2026-07-11): a
+# behavioural look-ahead on bill_house_noabra (party-3, 1 warp hop to Route 25, NO gauntlet) proved the
+# clean end-to-end fetch+catch — FETCH-KEEPER routed Bill's house -> Route 25, force-caught the target
+# Abra (party 3->4), the plan advanced to the next keeper (diglett), and when THAT keeper's map was
+# unreachable the router returned None (fetch_keeper un-offered) so she fell through to head_to_gym with
+# NO livelock. Full-party (>=6) and post-game both short-circuit to None, so the canonical Champion
+# timeline is unaffected. Disable with POKEMON_KEEPER_ROUTER=0. (Detour watchability / over-backtrack is a
+# LIVE-EYES tuning item — turn MAX_HOPS down to 4 / STALL_CAP 3->2 if live detours read too far.)
+KEEPER_ROUTER_ENABLED = os.getenv("POKEMON_KEEPER_ROUTER", "1") != "0"
 KEEPER_ROUTER_MAX_HOPS = int(os.getenv("POKEMON_KEEPER_ROUTER_MAX_HOPS", "6"))
 # After this many consecutive no-progress fetch legs on one keeper target, retire it (session-scoped
 # _keeper_unreach) so a keeper the learned-graph traveler can't actually reach never livelocks the roam
