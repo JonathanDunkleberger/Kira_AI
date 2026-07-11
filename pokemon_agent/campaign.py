@@ -9504,13 +9504,24 @@ class Campaign:
         # (esp. a cave, via the static connection) and spin re-entering it catching nothing (the 3-ball
         # cave3 soft-livelock). Zero balls -> the offer drops, _ball_note tells the oracle a Mart run comes
         # first, and she falls to head_to_gym/stock_up instead. Re-offered once she has balls again.
-        if KEEPER_ROUTER_ENABLED and not self.needs_heal() and self._ball_count() > 0:
+        if KEEPER_ROUTER_ENABLED and self._ball_count() > 0:
             _kr = self._keeper_route_target(state)
             if _kr:
-                a["fetch_keeper"] = (
-                    f"GO GET {_kr[0].upper()} — a teammate your plan wants for type coverage lives close "
-                    f"by at {self._place_name(_kr[1])}, and you've got room on the team. Grab it while it's "
-                    f"a short hop away, then straight back on the road — a real squad beats a lone carry.")
+                # HEAL-GATE (NS#39: don't start a detour on a dinged team) with an NS#41 SAFE-HOP relaxation:
+                # the ns41_real look-ahead showed a mildly-dinged team (57% lead) marching PAST a keeper the
+                # verified cave-catch could grab, because the strict `not needs_heal()` gate suppressed the
+                # offer and the oracle never healed → keeper acquisition NEVER activated on a realistic run.
+                # The gauntlet risk that motivates the gate (abra via Nugget Bridge) is a LEARNED-route host;
+                # a STATIC-GATEWAY host is a door-cave adjacent to the route (Diglett's Cave off Route 11) with
+                # NO gauntlet between her and the door — so offer it even when mildly hurt, JUST not when
+                # CRITICALLY hurt (blackout risk still heals first). Learned-route hosts keep the strict gate.
+                _safe_hop = (bool(self._host_gateways().get(self._place_name(_kr[1])))
+                             and self._hurt_severity()[0] != "critical")
+                if (not self.needs_heal()) or _safe_hop:
+                    a["fetch_keeper"] = (
+                        f"GO GET {_kr[0].upper()} — a teammate your plan wants for type coverage lives close "
+                        f"by at {self._place_name(_kr[1])}, and you've got room on the team. Grab it while it's "
+                        f"a short hop away, then straight back on the road — a real squad beats a lone carry.")
         # ── PC/BOX chaff-swap (Tier-1 #15) — the FULL-party sibling of the keeper router ──────────────
         # When the party is FULL of off-plan chaff and the plan wants a coverage keeper, box the weakest
         # chaff at the current city's Center so the router's room-gate opens next tick. Offered alongside
