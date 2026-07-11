@@ -75,7 +75,12 @@ FULL_RESTORE, MAX_POTION, REVIVE, FULL_HEAL = 19, 20, 24, 23
 # ace sat at half HP mid-Gary with FR x0 while the worthy-gate (rightly) refused to burn turns
 # reviving L39 bench bodies. 5 Revives ($7.5k) + 3 Full Heals ($1.8k) + FRs with the rest
 # (~$3k -> 1 per lap): ace UPTIME beats a deeper pile of one-turn bench corpses.
-SHOPPING = [(REVIVE, 4, 5, 1500), (FULL_HEAL, 5, 3, 600), (FULL_RESTORE, 2, 16, 3000)]
+# REBALANCED FR-FIRST (2026-07-10, e4 tactical runs 5-9): every lap died at LANCE with FR x0 —
+# the 5-Revive front-load left only ~2 Full Restores, too few to tank Lance's 5-dragon wave. The
+# OLD Revive-heavy tuning existed because the worthy-gate wasted Revives on L39 bench corpses; the
+# TYPE-ANSWER revive fix (revive the L55 Lapras for Gary's Charizard) makes 2 Revives genuinely
+# useful, so FR (the tank workhorse) now leads: 4 FR ($12k) + 2 Revive + 1 Full Heal fits a ~$16k lap.
+SHOPPING = [(FULL_RESTORE, 2, 4, 3000), (REVIVE, 4, 2, 1500), (FULL_HEAL, 5, 1, 600)]
 CLERK_STAND = (2, 7)
 LEAGUE_DOOR = (4, 1)
 CENTER_EXIT = (11, 16)

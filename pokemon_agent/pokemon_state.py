@@ -147,7 +147,7 @@ MOVE_NAMES = {
     # fields her Lapras/Kadabra type-answers against the Elite Four — the whole tactical show).
     58: "Ice Beam", 94: "Psychic", 60: "Psybeam", 105: "Recover", 93: "Confusion",
     34: "Body Slam", 109: "Confuse Ray", 195: "Perish Song", 100: "Teleport", 50: "Disable",
-    95: "Hypnosis", 1: "Pound", 31: "Fury Attack",
+    95: "Hypnosis", 1: "Pound", 31: "Fury Attack", 89: "Earthquake",
 }
 
 

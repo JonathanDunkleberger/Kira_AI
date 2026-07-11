@@ -1054,7 +1054,11 @@ class BattleAgent:
         if revive is not None:
             down = self._revive_worthy_slot()
             if down is not None:
-                plan["use_revive"] = (revive, down)   # the EXACT worthy slot (type-answer or ace),
+                # route via "fainted" (the STRONGEST downed mon — the proven no-wedge path). The
+                # int-slot routing wedged the revive item-application at Gary (run10: "item 24 NOT
+                # consumed"). At Gary the strongest fainted IS the type-answer (Lapras L56 > Kadabra
+                # L50), so "fainted" revives the right mon. _revive_worthy_slot still gates the OFFER.
+                plan["use_revive"] = (revive, "fainted")
                 offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
                                         "it's stronger than anyone still standing and you HAVE a Revive")
         if "use_revive" not in offers:
