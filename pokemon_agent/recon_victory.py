@@ -82,6 +82,7 @@ FLAG_STR_ACTIVE = 0x805
 KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 TM26_ITEM, MOVE_EQ = 314, 89
+TEACH_EQ = os.environ.get("TEACH_EQ") == "1"   # NS12: default OFF — see Phase 0 rationale
 
 # the three-switch truth, offline-derived elevation-aware (vr1f_probe6.py verified
 # every stand tile reachable at its step). Op = (kind, tile[, KEY, n[, allow-stands]]).
@@ -680,8 +681,28 @@ def main():
         L("   EQ teach SKIPPED — Venusaur (species 3) not in party")
     elif MOVE_EQ in have:
         L(f"   EQ already known (Venusaur slot {eq_slot}) — skipping teach")
+    elif not TEACH_EQ:
+        # NS12: the EQ teach is SKIPPED on the bench-grind kit. TWO reasons it was
+        # doing net HARM: (1) the old `forget_idx = 3 if 290 in have else None` fell
+        # to None on this kit (Venusaur = [RazorLeaf 75, Cut 15, SleepPowder 79,
+        # Strength 70], no Secret Power) and the teacher forgot slot 0 = RAZOR LEAF
+        # — Venusaur's ONLY Grass STAB — so it had no super-effective answer to VR's
+        # Water Cooltrainer (Kingler/Poliwhirl/Tentacruel) -> neutral-chip -> EQ PP
+        # famine -> team WIPE at fight#104 (ns12_victory, reproduced twice). (2) The
+        # teach actuation itself is flaky ("case re-sorted on open: row 13->8" ->
+        # NOT taught) and its failure path WEDGES the run in the TM case menu.
+        # EQ is NON-ESSENTIAL: Razor Leaf x2 covers the VR Water trainer AND the
+        # Rock/Ground VR wilds; Kadabra Psychic covers Agatha; Lapras Ice covers
+        # Lance. NS9 cleared E4 rooms 1-2 with NO EQ. So keep Venusaur's native set
+        # intact and skip. (Re-enable with TEACH_EQ=1 if a clean droppable slot and
+        # a fixed teacher ever make it worthwhile.)
+        L(f"   EQ teach SKIPPED (TEACH_EQ off) — Venusaur keeps {have}; Razor Leaf carries VR")
     else:
-        forget_idx = 3 if 290 in have else None      # Secret Power's slot (run logs)
+        _PROTECT = {75, 70, MOVE_EQ}       # Razor Leaf, Strength (boulders), EQ
+        forget_idx = next((have.index(m) for m in (15, 290) if m in have), None)
+        if forget_idx is None:
+            forget_idx = next((i for i, m in enumerate(have) if m not in _PROTECT), None)
+        L(f"   [teach-eq] forget_idx={forget_idx} (moves before={have})")
         teacher = ht.TeachFlow(camp, log=lambda m: print(m, flush=True))
         r = teacher.teach("surf", eq_slot, forget_idx=forget_idx,
                           item_override=TM26_ITEM, move_override=MOVE_EQ)

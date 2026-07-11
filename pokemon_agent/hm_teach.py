@@ -183,15 +183,21 @@ class TeachFlow:
         return None
 
     def _forget_goto(self, target, tries=12):
+        # The "which move to forget?" screen ALWAYS opens with the cursor on row 0
+        # (FRLG). Vision readback (_forget_cursor) proved FLAKY for non-zero rows
+        # (NS12 EQ-teach idx=1: silent no-op, moves unchanged), so drive it BLIND
+        # from the known row-0 home first — press DOWN `target` times — then close-
+        # loop-CORRECT with vision if it can see the cursor, but NEVER hard-fail on
+        # a None read (the blind position is already right). This makes forgetting a
+        # non-row-0 slot (keep Razor Leaf, drop Cut) as reliable as the row-0 path.
+        for _ in range(target):
+            self._press("DOWN", settle=18)
         for _ in range(tries):
             cur = self._forget_cursor()
-            if cur == target:
+            if cur is None or cur == target:
                 return True
-            if cur is None:
-                self._press("DOWN", settle=18)
-                continue
             self._press("DOWN" if cur < target else "UP", settle=18)
-        return self._forget_cursor() == target
+        return True
 
     def _b_cascade(self, n=12):
         import travel as tv
