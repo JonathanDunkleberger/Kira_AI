@@ -1,5 +1,67 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #7/#6 DONE + BANKED (2026-07-11, shift 8 landed it) — the SEVERELY-LOPSIDED-BENCH grind fix is COMMITTED (`36b4998`), verified CLEAN on a fresh look-ahead: the dedicated bench grind (which fired 0× the whole NS#5 climb) now fires for ONE bounded stint/badge and the bench actually levels — NO parked road, NO livelock. Canonical UNTOUCHED. START HERE.
+
+### ✅ WHAT SHIFT 8 CONFIRMED + BANKED — `36b4998` (mode-side, flag `POKEMON_LOPSIDED_GRIND` default ON, canonical UNTOUCHED):
+Read the tail of the NS#7 look-ahead (`ns7_lopsided.log`, surge_done_kit 30-min) — the fix is CLEAN on all 3 criteria:
+- **(a) bench floor crossed L14** — `GRIND-WEAK: floor crossed L14 (levels [14,14,36,14,16]) — done` → ace restored to lead.
+- **(b) head_to_gym RESUMED, no parked road** — LOPSIDED-BENCH fired **EXACTLY once** (badge 3), then `PICK head_to_gym`
+  toward Erika/Celadon from line 19349 on (`questline_flash` reframe, PROGRESS GREEN, MOVED). The `_lopsided_grind_done`
+  bound held: it never re-fired. 8 travel wedges total, max x4 — **zero livelocks, zero treadmill**.
+- **(c) leveled bench** — run ended at Route 9 marching to Celadon, party `[venusaur L37, abra L14, spearow L14,
+  rattata L14, diglett L16]` — a genuinely evened bench (L14-16 behind an L37 ace, vs NS#5's L10-14 behind L48). Dex 7.
+- Decision check `recon_lopsided_grind_check.py` = **13/13 ALL PASS** (re-verified this shift). The ONE grind stint
+  consumed most of the 30-min wall-clock (that's WHY she didn't reach Celadon in-window — the grind ate the budget,
+  NOT a park), so shift 8 launched a **45-min confirmation run** (`ns8_erika.log`) to see the leveled bench reach BADGE 4.
+
+### ⇒ SHIFT-8 FRONTIER (the fix banked; the OPEN questions, priority order):
+1. **⏳ IN FLIGHT — does the leveled bench CLEAR BADGE 4 (Erika) + progress toward Koga?** A 45-min surge_done_kit
+   look-ahead is RUNNING (`G:/temp/longrun/ns8_erika.log`, launched ~start of shift 8). AT RESUME: read its tail —
+   grep `EARNED\|Rainbow\|LOPSIDED-BENCH\|GRIND-WEAK: floor crossed\|STATE IN` + `TRAVEL WEDGE` counts. CONFIRM she
+   reaches Celadon, wins Erika (grass gym — Venusaur solos it but a leveled bench helps the road there), and the
+   lopsided stint fires again at badge 4 (re-arm on milestone rise). If she clears Erika with a leveled bench + no
+   park → the fix is fully proven across a gym boundary; bank that and push toward badge 5 (Koga).
+2. **DEEPER team-depth — one +6 bite/badge is BOUNDED but NOT milestone-complete.** The severity gate is the L31
+   Erika milestone but the bite only pins to `floor+6` (L8→L14), so the bench arrives at each gym UNDER milestone
+   (L14 vs L31), relying on road-bench-XP for the rest. That's the deliberate anti-park bound. If shift-1's confirm
+   run shows the bench STILL too thin at Koga (the poison wall), the next lever is one of: (b) `SOLO_WEAK_GRIND`
+   (give the bench the KILL XP not just participation — faster/stint, higher faint-variance; audit + flag-gate);
+   OR a BIGGER bite when severely under (e.g. `floor + min(milestone-floor, 12)` instead of +6) — but ⚠️ that
+   re-approaches the celadon_run1 27-level parking risk, so ANY bigger-bite change needs a FRESH multi-gym look-ahead
+   proving no treadmill (NS#1's hard gate). (c) Abra→Kadabra (L16) is already crossed by the +6 bite from L13 —
+   verify Abra actually evolved in the ns8 run (grep `evolv\|Kadabra`).
+3. **Carry-overs (unchanged, lower pri):** the deeper WHITE-BOX wedge on legit mid-battle heals (E4-livelock family,
+   needs rule-15 frame-grabs — do NOT fix blind); the "RIVAL beat vs Gary" strat-memory mislabel on stuck trainer
+   battles (false grudge escalation — cosmetic); the keeper cave-descend slowness (watchability, not a livelock).
+
+**RE-RUN cmd:** `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 ../.venv/Scripts/python.exe
+-u recon_longrun.py surge_done_kit.state 45`. **Decision check:** `../.venv/Scripts/python.exe -u recon_lopsided_grind_check.py`
+(13/13). Flag off = `POKEMON_LOPSIDED_GRIND=0` (defaults-safe revert to prior behavior). ⚠️ SUSPECT fixture
+`snorlax_woke_kit` (NS#5) — prefer a FRESH `surge_done_kit` climb.
+
+---
+
+## ✅ NIGHT-SHIFT #6 (2026-07-11, shift 6) — TEAM-DEPTH lever (a): the SEVERELY-LOPSIDED-BENCH grind dominance. COMMITTED `36b4998` (shift 8) after the look-ahead confirmed it CLEAN. (detail below, kept for reference)
+
+### WHAT NS#6 IS DOING (the fix, uncommitted until the look-ahead confirms):
+**Lever (a) from NS#5 — make the dedicated grind fire when severely lopsided.** ROOT (NS#5): the `battle` pick
+(→`grind_weak_members`) was ALWAYS out-voted by the forward-drive (`head_to_gym`) because a solo L48 carry can
+march the road forever, so the oracle never STOPS to train an L10-14 bench → abra frozen L13, never evolves to
+Kadabra. FIX (campaign.py, flag `POKEMON_LOPSIDED_GRIND` default ON): `_bench_severely_lopsided(state,prep_t)`
+returns the gym milestone iff the bench is SEVERELY behind BOTH the milestone (`milestone-floor>=12`) AND the
+ace (`lead-floor>=15`) — the solo-carry + dead-weight shape; a new dominance block in `_available_actions` then
+pops the march options (head_to_gym, wander_catch, travel:*) so `battle`→grind_weak_members runs ONE bounded +6
+participation-XP bite (evens the bench, crosses Abra's L16 evolution). **PARK-PROOF by 3 bounds:** (1) only fires
+with the +6 pin armed (`_prep_team_target` non-None), which retires after one bite + won't re-arm until the next
+badge (NS#2 machinery); (2) the milestone is marked done after a completed stint (`_lopsided_grind_done`) so an
+un-levelable bench releases instead of looping; (3) no-grass hits the PREP STAND-DOWN. So ≤1 stint/badge — never
+the celadon_run1 27-level road-parking marathon. Levers (b) SOLO_WEAK_GRIND + (c) Abra→Kadabra: (c) is achieved
+as a side effect of (a)'s +6 bite (L13→L19 crosses L16); (b) deferred (higher variance).
+
+### ⇒ IF THE LOOK-AHEAD IS CLEAN (bench levels, no parked road, reaches badge 4+): commit + this is the NS#6 bank. IF IT PARKS/TREADMILLS: set `POKEMON_LOPSIDED_GRIND` default "0" (one char) — the fix is defaults-safe (reverts to prior behavior) — and re-diagnose the cadence. Re-run: `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 ../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 30` → grep `LOPSIDED-BENCH | GRIND-WEAK | party=`. Decision check: `../.venv/Scripts/python.exe -u recon_lopsided_grind_check.py` (13/13). Canonical Champion save UNTOUCHED (look-ahead on scratch fixture).
+
+---
+
 ## ✅ NIGHT-SHIFT #5 DONE (2026-07-11, night_shift.ps1 shift 5) — killed the NS#4 hard wall (b): the Route-10 (11,79) **4,087-wedge grind livelock**; RE-VERIFIED the clean autonomous climb badge-3 → BADGE 4 → Silph Scope → Pokémon Tower → Poké Flute chain. ONE commit (63d7c14), canonical Champion UNTOUCHED. START HERE.
 
 ### ✅ WHAT NS#5 BANKED — `63d7c14` (mode-side, one grind() guard, canonical UNTOUCHED):
