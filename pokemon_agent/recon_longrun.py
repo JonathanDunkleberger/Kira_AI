@@ -364,6 +364,14 @@ def main():
             pick = opts[0]
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
+        elif "box_chaff" in opts:
+            # PC/BOX (2026-07-11, NS#38): the party is FULL of off-plan chaff and the plan wants a coverage
+            # keeper — the make-room precursor to fetch_keeper. A sensible player (and the live LLM, per the
+            # action's ctx note) benches dead weight at the PC so the keeper can be added. Same plan intent
+            # as fetch_keeper, one step earlier; the campaign only OFFERS it when full + keeper-due + boxable
+            # chaff + in a mapped-Center city, so riding it is the faithful model of "make room for the mon
+            # you actually need". Self-clears once a chaff is boxed (party 6->5 -> fetch_keeper takes over).
+            pick = "box_chaff"
         elif "fetch_keeper" in opts:
             # CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 NEW#2): a DUE type-coverage keeper lives a
             # BOUNDED hop away and the party has room — a sensible player (and the live LLM, per the
