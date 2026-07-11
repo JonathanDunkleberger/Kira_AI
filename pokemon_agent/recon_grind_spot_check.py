@@ -60,5 +60,56 @@ for label, fn, expected in CASES:
     print(f"  {'PASS' if ok else 'FAIL'}  {label}: got {actual!r} want {expected!r}")
 
 n = len(CASES)
-print(f"\n{n - fails}/{n} {'ALL PASS' if not fails else 'FAILURES'}  (POKEMON_GRIND_POOR_GAP={campaign.GRIND_POOR_GAP})")
+print(f"band/predicate: {n - fails}/{n} {'ALL PASS' if not fails else 'FAILURES'}")
+
+# ---------------------------------------------------------------------------
+# _better_grind_spot — the picker's PARK-SAFETY gate (mock world/strat, no emulator).
+# It must (i) find the highest-band ADEQUATE reachable spot, (ii) return None when the only
+# reachable grass is ALSO inadequate (the anti-freeze invariant: never abandon the only grass),
+# (iii) never propose a GATED or non-rideable spot.
+# ---------------------------------------------------------------------------
+class MockWorld:
+    def __init__(self, reachable, no_hop=()):
+        self._reach = reachable            # list of dst map-ids with has_grass
+        self._no_hop = set(no_hop)         # dsts with no rideable first hop
+    def reachable_with_trait(self, cur, trait, avoid):
+        return [(m,) for m in self._reach]
+    def next_hop(self, cur, dst, avoid):
+        return None if tuple(dst) in self._no_hop else ("edge", dst)
+
+class MockStrat:
+    def __init__(self, gated=()):
+        self._gated = set(gated)
+    def is_gated(self, m, pc, lvl):
+        return tuple(m) in self._gated
+
+def better(reachable, gated=(), no_hop=(), cur=R18, target=55):
+    c.world = MockWorld(reachable, no_hop)
+    c.strat = MockStrat(gated)
+    c._wall_avoid = lambda state: set()
+    c._grind_dead = set()
+    c._grind_inadequate_set = set()
+    st = {"map": cur, "party_count": 6, "party": [{"level": target}]}
+    return c._better_grind_spot(st, target)
+
+BCASES = [
+    ("R18 target55: routes to adequate Route 23",     lambda: better([R23]),                    R23),
+    ("R18 target55: picks HIGHEST band (R23 over VR)", lambda: better([VICTORY_ROAD, R23]),      R23),
+    ("R18 target55: ONLY poor grass reachable -> None (anti-freeze)", lambda: better([R6, R7]),  None),
+    ("R18 target55: adequate but GATED -> None",      lambda: better([R23], gated=[R23]),        None),
+    ("R18 target55: adequate but no hop -> None",     lambda: better([R23], no_hop=[R23]),       None),
+    ("R18 target55: nothing reachable -> None",       lambda: better([]),                        None),
+    ("R18 target22: no adequate needed, R23 still ok", lambda: better([R23], target=22),         R23),
+]
+for label, fn, expected in BCASES:
+    try:
+        actual = fn()
+    except Exception as e:
+        actual = f"EXC:{e}"
+    ok = actual == expected
+    fails += not ok
+    print(f"  {'PASS' if ok else 'FAIL'}  {label}: got {actual!r} want {expected!r}")
+
+total = len(CASES) + len(BCASES)
+print(f"\n{total - fails}/{total} {'ALL PASS' if not fails else 'FAILURES'}  (POKEMON_GRIND_POOR_GAP={campaign.GRIND_POOR_GAP})")
 raise SystemExit(1 if fails else 0)

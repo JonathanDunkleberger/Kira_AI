@@ -4628,6 +4628,45 @@ class Campaign:
         gap = poor_gap if poor_gap is not None else GRIND_POOR_GAP
         return band[1] < target_level - gap
 
+    def _better_grind_spot(self, state, target_level):
+        """The picker's PARK-SAFETY gate: return the nearest ADEQUATE grass map she can reach WITHOUT
+        crossing a wall (ungated, not grind-dead, not already-inadequate) whose band actually levels a
+        mon at `target_level` — or None if no such spot exists. The grind()/_grass_target level-aware
+        branch only ever stands down from an inadequate spot when this returns a REAL better one, so a
+        map that is the ONLY reachable grass is NEVER abandoned (she grinds the poor grass rather than
+        freeze — the anti-park/anti-freeze invariant). Reuses the SAME world-graph reachability the
+        base _grass_target trusts, so it can never propose a spot the base logic couldn't reach."""
+        try:
+            cur = tuple(state["map"])
+        except Exception:
+            return None
+        avoid = self._wall_avoid(state)
+        pcount = state.get("party_count")
+        plevel = state["party"][0]["level"] if state.get("party") else None
+        dead = getattr(self, "_grind_dead", set())
+        inadeq = getattr(self, "_grind_inadequate_set", set())
+        try:
+            known = self.world.reachable_with_trait(cur, "has_grass", avoid) or []
+        except Exception:
+            return None
+        best = None                                # (dst, wild_max) — prefer the highest usable band
+        for _entry in known:
+            dst = tuple(_entry[0])
+            if dst == cur or dst in dead or dst in inadeq:
+                continue
+            if self.strat.is_gated(dst, pcount, plevel):
+                continue
+            if self._grind_inadequate(dst, target_level):
+                continue                           # another poor spot is not "better"
+            if self._grind_wild_band(dst) is None:
+                continue                           # only propose spots we have level data for
+            if not self.world.next_hop(cur, dst, avoid):
+                continue                           # must have a real first hop (rideable now)
+            hi = self._grind_wild_band(dst)[1]
+            if best is None or hi > best[1]:
+                best = (dst, hi)
+        return best[0] if best else None
+
     def _keeper_gateway(self, host_area, cur, state, avoid=None):
         """STATIC-CONNECTION reachability (NS#40): the NEAREST overworld GATEWAY of `host_area` the
         learned-graph traveler can actually RIDE to now — or `cur` itself if she's already standing on
@@ -6047,6 +6086,23 @@ class Campaign:
                     self._grind_dead = set()
                 self._grind_dead.add(tuple(tv.map_id(self.b)))
                 return "no_safe_grass"
+            # GRIND-SPOT LEVEL AWARENESS (NS#5 lever a, flag-gated OFF until a giovanni_kit_g look-ahead
+            # proves no park). If THIS map's grass is far below target (~0 XP — the NS#1/#14 E4-prep stall)
+            # AND a reachable higher-level spot exists, stand down (mark inadequate like _grind_dead) so the
+            # caller re-routes there instead of spinning the budget for ~0 levels. NEVER fires when this is
+            # the only reachable grass (_better_grind_spot returns None) -> she grinds poor grass, never freezes.
+            if GRIND_SPOT_LEVELAWARE:
+                _hm = tuple(tv.map_id(self.b))
+                if self._grind_inadequate(_hm, target_level):
+                    _st = {"map": _hm, "party_count": self.b.rd8(ram.GPLAYER_PARTY_CNT),
+                           "party": [{"level": lvl()}]}
+                    if self._better_grind_spot(_st, target_level):
+                        log(f"   GRIND: {_hm} wilds ~L{self._grind_wild_band(_hm)[1]} give near-0 XP toward "
+                            f"L{target_level} — standing down to route to a reachable higher-level spot")
+                        if not hasattr(self, "_grind_inadequate_set"):
+                            self._grind_inadequate_set = set()
+                        self._grind_inadequate_set.add(_hm)
+                        return "no_safe_grass"
             cur = tv.coords(self.b) or (0, 0)
             if fragile:                                        # keep only grass she can RETURN from (no one-way strand)
                 grid_now = tv.Grid(self.b)
@@ -9431,7 +9487,8 @@ class Campaign:
         plevel = state["party"][0]["level"] if state.get("party") else None
         def gated(m):
             return self.strat.is_gated(m, pcount, plevel)
-        dead = getattr(self, "_grind_dead", set())         # maps grind() proved grassless/strand-only
+        dead = (getattr(self, "_grind_dead", set())        # maps grind() proved grassless/strand-only
+                | getattr(self, "_grind_inadequate_set", set()))   # + level-aware inadequate (empty if flag off)
         def has_grass(m):
             return ((m in self._grass_maps or self._is_route_map(m))
                     and m != cur and tuple(m) not in dead)
@@ -9474,7 +9531,8 @@ class Campaign:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
             known = self.world.reachable_with_trait(cur, "has_grass", avoid)
-            _dead = getattr(self, "_grind_dead", set())    # maps grind() proved grassless/strand-only
+            _dead = (getattr(self, "_grind_dead", set())   # maps grind() proved grassless/strand-only
+                     | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
             for _entry in (known or []):                   # try EVERY known grass, not just the nearest
                 dst = _entry[0]                            # entries are (dst, ...) — width varies
                 if tuple(dst) in _dead:
@@ -9495,7 +9553,8 @@ class Campaign:
         # BATCH-4 PHASE 2 (route AROUND the wall): prefer a grass route that ISN'T gated by an active
         # wall. Adjacent ungated route wins (this already includes grass directly behind her).
         cur = tuple(state["map"])
-        _dead = getattr(self, "_grind_dead", set())        # proven-grassless maps aren't candidates
+        _dead = (getattr(self, "_grind_dead", set())       # proven-grassless maps aren't candidates
+                 | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
                      and (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
         if non_gated:
