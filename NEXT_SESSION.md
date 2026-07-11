@@ -1,35 +1,62 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ⏳ NS14 (2026-07-10, IN FLIGHT): the OVERNIGHT CHAIN IS A DEAD END — its VR tail is broken. Shipped the OFFENSIVE-UPGRADE SWITCH (PP-famine fix), testing recon_e4 from indigo_reach_g NOW.
-**KEY DISCOVERY — the NS13 chain cannot roll credits:** `ns13_overnight_chain.sh` waits for Lapras L46 then
-runs `tail_driver.sh`, whose `recon_victory` leg **DETERMINISTICALLY LOSES at VR fight#104** (Water Cooltrainer
-Kingler/Poliwhirl/Tentacruel — the NS12 no-EQ wall) then aborts on post-loss boulder nav. So the grind's XP was
-feeding a lineage stuck behind broken VR. **I STOPPED the chain + the Route 18 grind** (banked_GRIND safe at
-Lapras L43). The RIGHT base is `indigo_reach_g` (past VR, at Indigo, ready for E4 — needs no grind, no VR).
-**REAL ROOT of the Lance wall (from the ns13_e4.log lap-1 trace) = PP FAMINE, not just a weak bench:** Venusaur's
-ONLY good move is Razor Leaf (25 PP, its only STAB). Cut/Strength are Normal → **IMMUNE to Agatha's Ghosts**, so
-at Agatha Venusaur is FORCED to spam 0.5x Razor Leaf (Kadabra's Psychic is 2x — the real answer) → burns ~10 PP →
-arrives at Lance famined, chipping Dragonite with ~22-dmg Cut, stuck in an unwinnable Super-Potion loop vs
-Aerodactyl. Movesets (recon_partydump): Venusaur=[RazorLeaf,Cut,SleepPowder,Strength]; **Lapras L39=[Surf,Body
-Slam] — NO ICE MOVE** (only x2 vs Aerodactyl via Surf, x1 vs the Dragons — NOT the hard counter NS13 assumed);
-Kadabra L40=[Psybeam(psychic 50pw)] = the Agatha answer (Psychic 2x on the all-Poison team).
-**THE FIX SHIPPED (uncommitted until verified) — `battle_agent._best_switch_slot` TRIGGER 2 "offensive-upgrade
-switch":** when the active can only hit RESISTED (best damaging move ≤0.5x — Venusaur's Razor Leaf into Poison,
-or Normal-move immunity vs Ghosts) AND a healthy reserve's STAB is SUPER-EFFECTIVE (≥2x), FIELD THE SPECIALIST
-(overrides the level veto; lenient fodder floor lv+15 since a 2x edge ≈ 2 level-tiers). → Kadabra fields Agatha,
-Venusaur's Razor Leaf PP survives to Lance. General + fail-safe (a failed switch B's out and fights). Type math
-verified offline (Grass→Ghost/Poison=0.5, Normal→Ghost=0.0, Psychic→Poison=2.0, Surf→Aerodactyl=2.0). Compiles.
-**AT WAKE / IF THIS SESSION DIED MID-TEST:** check `G:/temp/longrun/ns14_e4.log` (running from indigo_reach_g).
-- Grep `room #` for furthest room + `MATCHUP SWITCH`/`SWITCHED to species 64` to confirm Kadabra fielded Agatha.
-- If it reached the Hall of Fame → `banked_CREDITS` re-dated TODAY → **CREDITS: write `CREDITS` as line 1 of
-  NIGHT_REPORT.md** + survey. (The existing banked_CREDITS is STALE 2026-07-07 — check mtime, not existence.)
-- If Kadabra got OHKO'd at Agatha (too frail at L40 vs L54) or it still walled Lance → the switch fix is sound
-  but needs a LEVELED Kadabra. Then: grind Kadabra INSIDE Victory Road (re-enter VR from indigo_reach_g — VR cave
-  wilds are L36-46, far better XP than Route 18's L23-29, AND the team stays past-VR → walks right back to Indigo
-  for E4). That solves both "Route 18 too slow" and "grind team stuck behind broken VR" at once — the unbuilt
-  capability. GRIND_MAP would be a VR floor id; verify nav into VR from Indigo first.
-- Command to re-test after any battle_agent edit: `E4_STATE=indigo_reach_g ../.venv/Scripts/python.exe -u
-  recon_e4.py > G:/temp/longrun/ns14_e4.log 2>&1` (from pokemon_agent/; ~8-12 min headless).
+## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Overnight E4 self-grind loop RUNNING to converge; new wall = bench too FRAIL + Gary's Charizard.
+**AT WAKE — CHECK THE OVERNIGHT E4 SELF-GRIND LOOP FIRST (it may have rolled credits):**
+`ns14_e4_loop.sh` is RUNNING (`ns14_e4_loop_status.txt` + per-lap logs `ns14_e4_loop.log.N`). It re-launches
+`recon_e4` from `indigo_reach_g` (lap 1) then from the leveled `banked_E4` (lap ≥2), self-grinding the bench off
+L54-63 E4 foes (~10x Route 18 XP), until credits or ~8.5h. **CHECK:** `cat G:/temp/longrun/ns14_e4_loop_status.txt`.
+- **If it says "HALL OF FAME"/"CREDITS DETECTED", or `banked_CREDITS` is re-dated TODAY** (check mtime — the old
+  one is STALE 2026-07-07) → **WRITE `CREDITS` as LINE 1 of NIGHT_REPORT.md** (stops the loop) + full survey.
+  Promote banked_CREDITS to canonical only per the two-timeline law.
+- **If it's still looping without credits:** read the latest `ns14_e4_loop.log.N` — grep `room #` (furthest) and
+  the bench levels (`revive-check` lines dump `party sp/hp/lv`). If Kadabra/Lapras have climbed toward ~L48 but
+  it's not converging, promote the leveled `banked_E4` → `indigo_reach_g` and keep looping, OR do the LAPRAS-slot0
+  reorder (below) so Lapras's Surf 2x is fielded actively vs Gary's Charizard.
+
+### ▶ WHAT NS14 PROVED (the switch fix is a real breakthrough — verified on indigo_reach_g via recon_e4):
+The **offensive-upgrade switch** (committed `ce5e391`, `battle_agent._best_switch_slot`) pushed lap 1 from the
+prior 47%-at-Lance whiteout to: **cleared Lorelei/Bruno/Agatha → BROKE LANCE (room 4 at 83% lead) → reached room
+5, the CHAMPION (Gary) — first time ever with this team.** TRIGGER 2: when the active can only hit RESISTED (best
+damaging move ≤0.5x) while a healthy reserve's STAB is SUPER-EFFECTIVE (≥2x), field the specialist (Kadabra's
+Psybeam 2x into Agatha's all-Poison line), overriding the level veto (lenient floor lv+15). Plus **anti-churn:
+never switch away from a ≥2x attacker** (killed the Venusaur↔Kadabra infinite loop — Ghost hits Psychic 2x so the
+disadvantage trigger kept yanking the SE attacker back out). Fail-safe, mode-side battle-brain only.
+
+### ⛔ TWO REMAINING WALLS (both = bench too FRAIL, a LEVEL problem — the switch logic is done):
+1. **Kadabra L40 faints clearing Agatha** (its L54 Ghosts hit Psychic 2x). It DOES its job (1 clean switch, KOs
+   Poison-types, conserves Venusaur PP) but dies → needs ~L48 to survive as the standing Agatha specialist.
+2. **Gary's CHARIZARD** (Fire/Flying) walls a solo Venusaur (Razor Leaf 0.25x, takes Fire 2x back). The answer is
+   **Lapras (Surf 2x vs Charizard)** — but Lapras L39 dies earlier in the gauntlet. Needs ~L48 to survive to Gary.
+   NOTE: Lapras has **NO ICE MOVE** (moveset [Surf, Body Slam]) — Surf is 2x on Charizard/Aerodactyl, x1 on the
+   Dragons. Still the best Gary answer.
+
+### GRIND FACTS (hard-won this shift — don't repeat the dead ends):
+- **VR-grind-from-indigo is IMPOSSIBLE** with the current harness: `recon_grind_bench` needs GRASS tiles; Victory
+  Road is a CAVE (step-encounters, no grass) → "no_safe_grass". To grind in a cave you'd have to teach the harness
+  cave step-encounter pacing (unbuilt).
+- **Route 18 (map 3,36, grass L23-29) is the ONLY proven grind spot** — but its lineage (`grind_base_g`) is stuck
+  behind the BROKEN VR tail (see below), so its levels can't reach the E4 without fixing the tail.
+- **The E4 itself is the best grinder** now that the switch fix makes Kadabra participate: E4 foes are L54-63
+  (~10x Route 18 XP), it's past-VR, XP compounds within one recon_e4 process (banks banked_E4 each whiteout). That
+  is exactly what `ns14_e4_loop.sh` exploits. This is the highest-EV overnight path — check it first.
+
+### ⛔ THE NS13 OVERNIGHT CHAIN IS A DEAD END (killed this shift — do NOT relaunch it):
+`ns13_overnight_chain.sh` waited for Lapras L46 then ran `tail_driver.sh`, whose `recon_victory` leg
+**DETERMINISTICALLY LOSES at VR fight#104** (Water Cooltrainer Kingler/Poliwhirl/Tentacruel) — LAPRAS leads that
+fight (grind party order) and Body-Slams x1 too slowly, then aborts on post-loss boulder nav. The switch fix does
+NOT rescue it (Lapras Body Slam is neutral 1x, not ≤0.5x, so trigger 2 won't field Venusaur's Razor-Leaf-2x).
+**To ever use the Route 18 grind path, you must REORDER Venusaur→slot0 before the tail** (Venusaur-led → Razor
+Leaf 2x sweeps the Water Cooltrainer). That reorder helper is UNBUILT. Prefer the E4-self-grind loop instead.
+
+### IF THE LOOP DOESN'T CONVERGE — the surgical next lever = LAPRAS-LEADS-GARY reorder:
+Reorder the party so Lapras is slot 0 for the Champion room (or the whole E4), so its Surf 2x is fielded actively
+vs Gary's Charizard/Gyarados instead of only via the (flaky, post-faint) force_switch. Combined with a few more
+bench levels from the loop, that should close Gary → CREDITS. (Party-reorder actuation is the unbuilt piece.)
+
+### MOVESETS (recon_partydump, indigo_reach_g): Venusaur L71=[RazorLeaf 25pp(only STAB), Cut, SleepPowder,
+Strength]; Lapras L39=[Surf, Body Slam — NO ICE]; Kadabra L40=[Psybeam 50pw psychic = Agatha answer]; slots 1/2/4
+= L9-14 CHAFF (dead weight; a PC-box drop would help but box access is Tier-2 #15, unbuilt).
+Re-test cmd after any battle_agent edit: `E4_STATE=indigo_reach_g ../.venv/Scripts/python.exe -u recon_e4.py`.
 
 ## ✅ NS13 (2026-07-10): AGATHA WALL BROKEN — E4 pushed rooms 1-4, whiteout at LANCE's AERODACTYL. New wall = TOP-HEAVY TEAM (Venusaur solos; bench too weak/never fielded). Grinding Lapras+Kadabra on Route 23 now.
 **WHAT NS13 DID:** NS12's overnight no-EQ VR grind-through SUCCEEDED — banked `banked_VICTORY` = a PAST-VR team
