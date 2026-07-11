@@ -2,8 +2,11 @@
 
 ## 🚂 PASS 3 — THE NIGHT-TRAIN MISSION (2026-07-11, START HERE EVERY SHIFT): make a FRESH GO build its own team + play a watchable ~25-35hr bedroom→credits spectacle. **CONSOLIDATION, not discovery — the game is already solved; wire it together so it FLOWS.**
 
+**PART-1 RECON IS DONE — READ `pokemon_agent/PASS3_RECON.md` FIRST** (the complete wired/unwired/needs-live-watch gap
+map for every item below, with file:line fix hooks + honest buckets). Don't re-recon what it already answers.
+
 **HOW TO RUN THIS:** unattended multi-shift night train (`night_shift.ps1`). Each fresh shift: (1) READ this
-block + `pokemon_agent/TEAM_DEPTH_ROOT_FIX.md` + `E4_TACTICAL_FRONTIER.md`; (2) continue the mission from where
+block + `pokemon_agent/PASS3_RECON.md` + `TEAM_DEPTH_ROOT_FIX.md` + `E4_TACTICAL_FRONTIER.md`; (2) continue the mission from where
 the last shift banked; (3) commit-per-fix, VERIFIED from disk; (4) UPDATE this block with progress before you
 run low on context; (5) never re-solve a wall pass 1/2 already killed — if a fresh run bumps a solved wall,
 that's a WIRING failure (connect the existing solution, don't rediscover it).
