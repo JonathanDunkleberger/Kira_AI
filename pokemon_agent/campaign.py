@@ -228,7 +228,12 @@ GRIND_NOPATH_CAP = int(os.getenv("POKEMON_GRIND_NOPATH_CAP", "6"))
 # that never resolves ('stuck') → an unwinnable-grass livelock that ALSO traps the heal excursion (it can't
 # cross the grass to a Center). Heal the moment the ace dips into the faint-risk band — while it's STILL ALIVE
 # to fight the escape battles out of the grass. Fail-open: a healthy ace one-shots wilds and never dips here.
-GRIND_ACE_BAIL_FRAC = float(os.getenv("POKEMON_GRIND_ACE_BAIL_FRAC", "0.34"))
+# NS#7 A/B (0.34→0.25): the guard-fire FREQUENCY was the biggest watch drag (each fire = a cross-city Center
+# round-trip). Lowering the band fires it LATER = fewer bails/excursions. Measured on twin surge_done_kit climbs
+# (ns6_bail025 @0.25 vs ns4_koga @0.34): 0.25 fired ~3.7× less often per grind-battle, ace floor a safe ~19-22%
+# (worst 19% — an L41-48 ace vs L15-20 grind wilds does ~6% per hit, so a 25% band can't drop to 0 in one tick),
+# ZERO faints across both arms. The no-faint safety property holds; the watch is calmer. Env-overridable.
+GRIND_ACE_BAIL_FRAC = float(os.getenv("POKEMON_GRIND_ACE_BAIL_FRAC", "0.25"))
 ACE_BAIL_ON = os.getenv("POKEMON_ACE_BAIL", "1") == "1"   # default ON; one-char revert to prior behavior
 # GRIND-SPOT LEVEL AWARENESS (NS#5, PASS-3 grind-efficiency lever a) — a map whose wild_max is more than
 # GRIND_POOR_GAP below the team's grind target gives ~0 XP (the NS#1/#14 E4-prep stall). The KB reader
