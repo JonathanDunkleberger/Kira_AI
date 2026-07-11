@@ -5298,23 +5298,45 @@ class Campaign:
                 lead = max(m["level"] for m in party)
                 pin = getattr(self, "_bench_pin", None)
                 sig = tuple(sorted(m["species"] for m in party))
+                # MID-GAME MILESTONE CAP (2026-07-11, PASS 3 team-depth — the mid-game sibling of
+                # _prep_e4_target): cap the bench pin at the team-plan's NEXT gym milestone (Brock 14
+                # … Giovanni 52) instead of the ace-relative lead-8, so the bench climbs TOWARD each
+                # gym's level over the whole game rather than trailing the ace by a fixed 8 (the
+                # "arrives thin" shape that whited out NS9-14). Falls back to lead-8 when no milestone
+                # is known (post-game / planner off). Milestones move only on a badge-earn (infrequent,
+                # discrete), so re-arming on a milestone RISE can't treadmill the way the live lead-8
+                # target did (ship-run-2/5). The E4 case (badge 8) is handled above by _prep_e4_target.
+                try:
+                    _ms = self.team_planner._next_milestone(
+                        int(state.get("badge_count", 0)), bool(state.get("post_game")))[1]
+                except Exception:
+                    _ms = 0
+                milestone = _ms if _ms else (lead - 8)
                 if pin is not None:
                     if floor >= pin:
                         self._bench_pin = None              # goal reached — the pin retires
                         self._bench_done_sig = sig          # remember WHO was prepped
+                        self._bench_done_milestone = milestone   # …and at WHICH gym milestone
                     else:
                         t = pin
                 elif floor < lead - PROACTIVE_BENCH_GAP:
-                    # RE-ARM GUARD (ship-run-5: 567 battles): the ace outruns the bench forever, so
-                    # retiring at floor N and re-pinning at N+2 is a TREADMILL. A retired prep only
-                    # re-arms when the ROSTER CHANGED (a new member actually needs raising) — the
-                    # ace pulling ahead of an already-prepped bench is not a reason to grind.
-                    if getattr(self, "_bench_done_sig", None) != sig:
+                    # RE-ARM GUARD (ship-run-5: 567 battles): the ace outruns the bench forever, so a
+                    # retired prep must NOT re-pin at floor+2 every tick (a TREADMILL). It re-arms only
+                    # when the ROSTER CHANGED (a new member needs raising) OR the MILESTONE ROSE (a new
+                    # gym earned → the whole bench should climb toward the new bar). Both are infrequent,
+                    # discrete events — never the ace's continuous drift, so no treadmill.
+                    # NOTE the `_ms and` guard: the milestone-RISE re-arm is allowed ONLY for a REAL
+                    # static milestone (moves on badge-earn). In the lead-8 FALLBACK (_ms falsy) the
+                    # "milestone" is the live ace-relative bar, which drifts up every grind — re-arming
+                    # on its rise would reinstate the ship-run-5 treadmill, so the fallback keeps the
+                    # roster-only guard.
+                    if (getattr(self, "_bench_done_sig", None) != sig
+                            or (_ms and milestone > getattr(self, "_bench_done_milestone", 0))):
                         # SITTING CAP (2026-07-07 celadon_run1: Mankey L10 vs lead L45 pinned a
-                        # 27-level marathon that parked the badge-4 road): a real player raises a
-                        # new catch a FEW levels while traveling, not to parity in one sitting.
-                        # Raise the floor in +6 bites; the pin retires/re-arms per roster change.
-                        self._bench_pin = min(lead - 8, floor + 6)
+                        # 27-level marathon that parked the badge-4 road): a real player raises the
+                        # bench a FEW levels per stop, not to the milestone in one sitting. Raise the
+                        # floor in +6 bites toward the milestone; the pin retires/re-arms per the guard.
+                        self._bench_pin = min(milestone, floor + 6)
                         t = self._bench_pin
             if not t:
                 return None
