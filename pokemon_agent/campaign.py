@@ -115,6 +115,19 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "1") != "0"
 LOPSIDED_MS_GAP = int(os.getenv("POKEMON_LOPSIDED_MS_GAP", "12"))    # floor >= this far under milestone
 LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace towers >= this over the floor
+# BENCH-TO-MILESTONE climb (2026-07-11, PASS 3 NS#10 — team-depth lever, the Koga wall). NS#9 proved the
+# ONE-bite-per-badge lopsided grind (36b4998) lands the bench ~25 levels UNDER the gym milestone (L20 vs
+# Koga's L45) — the type-answers (Mr. Mime Psychic x4, Diglett Ground) FAINT at L23 and she LOSES Koga.
+# Root: BOTH the +6 prep pin (retires after one bite, won't re-arm same milestone) AND _lopsided_grind_done
+# cap the climb at a single +6 bite. This lets the bench CLIMB toward the milestone in repeated +6 bites,
+# gated by OBSERVED grind productivity so it's park-proof WITHOUT a level KB: a bite that gains < BITE_MIN
+# levels marks THIS map a poor spot for this milestone -> releases head_to_gym so she MARCHES to better
+# grass (the route grass near a gym is level-appropriate) instead of a stationary weak-grass marathon (the
+# celadon_run1 27-level park). The milestone is marked truly done only when the floor reaches within CLOSE
+# of it (goal met) — never after a single bite. Flag-gated; default OFF preserves 36b4998 byte-identically.
+BENCH_TO_MILESTONE = os.getenv("POKEMON_BENCH_TO_MILESTONE", "0") != "0"
+BENCH_MS_CLOSE = int(os.getenv("POKEMON_BENCH_MS_CLOSE", "6"))     # floor within this of milestone => done
+BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaining < this many levels = poor spot
 # CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 team-depth NEW#2): the on-map catch un-gate
 # (_plan_wants_prebuild / _plan_keeper_target) only grabs a planned keeper she happens to be STANDING on;
 # a keeper on a nearby route she isn't on is marched past (the erika_done look-ahead: the planner wants
@@ -6261,11 +6274,23 @@ class Campaign:
                 except Exception:
                     _ms = 0
                 milestone = _ms if _ms else (lead - 8)
+                # NS#10 BENCH-TO-MILESTONE: keep re-pinning toward the milestone in +6 bites (instead of
+                # retiring after one) so the bench actually reaches the gym level — UNLESS this map's grass
+                # proved a poor grind spot for this milestone (an unproductive bite, marked by the executor),
+                # in which case the pin retires here so head_to_gym is restored and she MARCHES to better
+                # grass. The productivity gate (poor-map release) is what keeps this park-proof.
+                _keep_climbing = (
+                    BENCH_TO_MILESTONE and _ms and floor < (milestone - BENCH_MS_CLOSE)
+                    and (tuple(tv.map_id(self.b)), milestone) not in getattr(self, "_bench_poor_maps", ()))
                 if pin is not None:
                     if floor >= pin:
-                        self._bench_pin = None              # goal reached — the pin retires
-                        self._bench_done_sig = sig          # remember WHO was prepped
-                        self._bench_done_milestone = milestone   # …and at WHICH gym milestone
+                        if _keep_climbing:
+                            self._bench_pin = min(milestone, floor + 6)   # another bite toward the milestone
+                            t = self._bench_pin
+                        else:
+                            self._bench_pin = None          # goal reached / poor spot — the pin retires
+                            self._bench_done_sig = sig       # remember WHO was prepped
+                            self._bench_done_milestone = milestone   # …and at WHICH gym milestone
                     else:
                         t = pin
                 elif floor < lead - PROACTIVE_BENCH_GAP:
@@ -9873,6 +9898,14 @@ class Campaign:
         # marathon. Only when 'battle' is on the menu (grass reachable) so it can't dead-end her.
         if "battle" in a and "head_to_gym" in a:
             _lop_ms = self._bench_severely_lopsided(state, prep_t)
+            # NS#10 BENCH-TO-MILESTONE: if THIS map's grass already proved a poor grind spot for this
+            # milestone (an unproductive bite), DON'T force a stop here — leave head_to_gym on the menu so
+            # she MARCHES to better (near-gym, level-appropriate) grass. The pin also retires on a poor map
+            # (_prep_team_target), so 'battle' stops out-competing the march. This is the KB-free
+            # grind-spot-adequacy gate that keeps the to-milestone climb park-proof.
+            if (_lop_ms is not None and BENCH_TO_MILESTONE
+                    and (tuple(tv.map_id(self.b)), _lop_ms) in getattr(self, "_bench_poor_maps", ())):
+                _lop_ms = None
             if _lop_ms is not None:
                 self._lopsided_pending_ms = _lop_ms   # threaded to the executor to mark done after the stint
                 pruned_lop = [k for k in list(a)
@@ -10747,6 +10780,7 @@ class Campaign:
                 # into the grass. Recompute _prep_e4_target (cheap) to confirm the source; other grinds pass None.
                 _e4t = self._prep_e4_target(state, state.get("party") or [])
                 _ml = (t - E4_PREP_BAND) if (_e4t is not None and _e4t == t) else None
+                _floor0 = min(self._party_levels()) if self._party_levels() else 0   # NS#10: pre-bite floor
                 r = self.grind_weak_members(t, min_level=_ml)
                 if r == "no_safe_grass":                 # a dry attempt counts toward stand-down
                     self._prep_dry = getattr(self, "_prep_dry", 0) + 1
@@ -10754,12 +10788,35 @@ class Campaign:
                     #                                      run6: the Fuchsia↔Route-15 shuttle 'arrived'
                     #                                      every other tick and reset the counter forever)
                     self._prep_dry, self._prep_dry_logged = 0, False
-                # NS#6 LOPSIDED-BENCH: a COMPLETED stint ('ready' = floor crossed OR bench stalled-out on
-                # this route) marks the forced milestone done, so the lopsided dominance fires at most once
-                # per badge even if the pin can't retire (an un-levelable bench must release, not loop).
-                if r == "ready" and getattr(self, "_lopsided_pending_ms", None):
+                _lop_ms = getattr(self, "_lopsided_pending_ms", None)
+                if BENCH_TO_MILESTONE and _lop_ms is not None and r in ("ready", "ok"):
+                    # NS#10 productivity gate (the grind-spot-adequacy signal, KB-free): measure the bite.
+                    _floor1 = min(self._party_levels()) if self._party_levels() else 0
+                    _cur_map = tuple(tv.map_id(self.b))
+                    if _floor1 >= (_lop_ms - BENCH_MS_CLOSE):
+                        # bench reached the gym level (within CLOSE) — milestone truly satisfied, stand down.
+                        self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+                        self._lopsided_grind_done.add(_lop_ms)
+                        log(f"   [roam] BENCH-TO-MS: floor L{_floor1} within {BENCH_MS_CLOSE} of milestone "
+                            f"L{_lop_ms} — bench is gym-ready, standing down the forced climb")
+                    elif (_floor1 - _floor0) < BENCH_BITE_MIN:
+                        # this map's grass gave a POOR bite (< BITE_MIN levels) — a weak grind spot for this
+                        # milestone. Mark it so the pin retires + the dominance releases head_to_gym here →
+                        # she MARCHES toward better (near-gym, level-appropriate) grass instead of a
+                        # stationary weak-grass marathon (the celadon_run1 park). Park-proof by construction.
+                        self._bench_poor_maps = getattr(self, "_bench_poor_maps", set())
+                        self._bench_poor_maps.add((_cur_map, _lop_ms))
+                        log(f"   [roam] BENCH-TO-MS: bite on {_cur_map} gained {_floor1 - _floor0} level(s) "
+                            f"(< {BENCH_BITE_MIN}) toward milestone L{_lop_ms} — poor spot, marching to better grass")
+                    else:
+                        log(f"   [roam] BENCH-TO-MS: productive bite {_floor0}->{_floor1} toward milestone "
+                            f"L{_lop_ms} — climbing on (floor now L{_floor1})")
+                    self._lopsided_pending_ms = None
+                elif r == "ready" and _lop_ms is not None:
+                    # NS#6 LOPSIDED-BENCH (flag off): a COMPLETED stint marks the forced milestone done, so
+                    # the lopsided dominance fires at most once per badge even if the pin can't retire.
                     self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
-                    self._lopsided_grind_done.add(self._lopsided_pending_ms)
+                    self._lopsided_grind_done.add(_lop_ms)
                     self._lopsided_pending_ms = None
                 return r
             # RIVAL-RETURN GUARD (NIGHT SHIFT 16): don't let a stray 'battle' pick trap-grind her into the
