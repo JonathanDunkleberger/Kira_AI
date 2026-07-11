@@ -1,17 +1,29 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Overnight E4 self-grind loop RUNNING to converge; new wall = bench too FRAIL + Gary's Charizard.
-**AT WAKE — CHECK THE OVERNIGHT E4 SELF-GRIND LOOP FIRST (it may have rolled credits):**
-`ns14_e4_loop.sh` is RUNNING (`ns14_e4_loop_status.txt` + per-lap logs `ns14_e4_loop.log.N`). It re-launches
-`recon_e4` from `indigo_reach_g` (lap 1) then from the leveled `banked_E4` (lap ≥2), self-grinding the bench off
-L54-63 E4 foes (~10x Route 18 XP), until credits or ~8.5h. **CHECK:** `cat G:/temp/longrun/ns14_e4_loop_status.txt`.
-- **If it says "HALL OF FAME"/"CREDITS DETECTED", or `banked_CREDITS` is re-dated TODAY** (check mtime — the old
-  one is STALE 2026-07-07) → **WRITE `CREDITS` as LINE 1 of NIGHT_REPORT.md** (stops the loop) + full survey.
-  Promote banked_CREDITS to canonical only per the two-timeline law.
-- **If it's still looping without credits:** read the latest `ns14_e4_loop.log.N` — grep `room #` (furthest) and
-  the bench levels (`revive-check` lines dump `party sp/hp/lv`). If Kadabra/Lapras have climbed toward ~L48 but
-  it's not converging, promote the leveled `banked_E4` → `indigo_reach_g` and keep looping, OR do the LAPRAS-slot0
-  reorder (below) so Lapras's Surf 2x is fielded actively vs Gary's Charizard.
+## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Route 18 bench-grind RUNNING overnight; remaining wall = bench too FRAIL + Gary's Charizard (a LEVEL problem).
+**AT WAKE — CHECK THE ROUTE 18 BENCH GRIND (`ns14_grind.log`, banks `banked_GRIND` ~150s):**
+`recon_grind_bench` is RUNNING from `grind_base_g` (Route 18, map 3,36): `GRIND_SPECIES=64,131` (Kadabra FIRST —
+the Agatha specialist — then Lapras, the Gary/Charizard answer), `GRIND_TARGET=48`. Start levels Venusaur L65 /
+Lapras L37 / Kadabra L39. Participation-XP switch banks XP on the WEAK mon while Venusaur aces the kills. Check
+`banked_GRIND` levels: `../.venv/Scripts/python.exe recon_partydump.py G:/temp/longrun/banked_GRIND/kira_campaign.state`.
+- **Route 18 wilds are L23-29 → XP to L40+ mons is SLOW; it may only reach ~L44-46 overnight** (banks forward
+  regardless). Whatever it reaches, THEN DELIVER TO THE E4 (below) and re-run recon_e4 — the switch fix is done.
+- ⚠️ **The E4-self-grind loop idea was TRIED AND KILLED — it's FUTILE.** In the E4 whiteout-loop, Venusaur hogs
+  every KO (→ L71→73) while the frail bench faints before landing kills, so Kadabra/Lapras DON'T level. And an
+  over-levelled Venusaur still can't beat Gary's Charizard (Grass 0.25x hard type-wall). Only the participation
+  grind levels the bench. (Loop scripts `ns14_e4_loop*.sh` are dead; ignore.)
+
+### ▶ DELIVERY — how the leveled Route-18 bench reaches the E4 (the last mile, mostly-proven legs):
+The grind team is pre-VR (badge 6). Run the NS9 tail: seafoam→mansion→blaine→giovanni→victory→e4 (per-leg cmds in
+the NS9 block far below; all legs banked OK in NS13 EXCEPT `recon_victory`). **The VR leg failed because LAPRAS
+led the Water-Cooltrainer fight (fight#104) and Body-Slammed x1 too slowly.** THE FIX: the grind ends by calling
+`_restore_ace()` which moves the highest-level mon (Venusaur) to slot 0 — so the banked grind SHOULD already be
+Venusaur-led → Razor Leaf 2x sweeps the Water Cooltrainer → VR clears. **VERIFY Venusaur is slot 0 in banked_GRIND
+before the tail** (`recon_partydump`); if not, swap it (a `camp._swap_party_slots(0, <venusaur_slot>)` primitive
+exists — or add a one-shot reorder to the tail before recon_victory). Then E4 with the switch fix → the leveled
+Kadabra survives Agatha, the leveled Lapras Surfs Gary's Charizard → CREDITS.
+- If it reaches the Hall of Fame → **WRITE `CREDITS` as LINE 1 of NIGHT_REPORT.md** + survey. (banked_CREDITS is
+  STALE 2026-07-07 — check mtime, not existence.)
 
 ### ▶ WHAT NS14 PROVED (the switch fix is a real breakthrough — verified on indigo_reach_g via recon_e4):
 The **offensive-upgrade switch** (committed `ce5e391`, `battle_agent._best_switch_slot`) pushed lap 1 from the
