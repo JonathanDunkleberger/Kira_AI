@@ -15,9 +15,12 @@ WHAT IT DOES (in order, refusing loudly at any broken rung — never a soul-blin
      disposable sandbox (POKEMON_KIRA_DIR + POKEMON_CAMPAIGN_DIR).
   3. COLD-OPEN RECAP: on a resume, her journey (journey_core.json) is POSTed through the event
      seam as kind='recap' -> she opens the session with a "previously on…" in her own voice.
-  4. LAUNCH play_live --show: windowed, TRUE SPEED, game audio -> --phones (desktop headphones;
-     the virtual cable carries ONLY her TTS via the bot — AudioPump refuses cables by design,
-     the mouth-flap/loopback firewall). Streaming-ready: OBS captures the window + desktop audio.
+  4. LAUNCH the show UNDER supervisor.py (--timeline showtime): windowed, TRUE SPEED, game audio ->
+     --phones (desktop headphones; the virtual cable carries ONLY her TTS via the bot — AudioPump
+     refuses cables by design, the mouth-flap/loopback firewall). Streaming-ready: OBS captures the
+     window + desktop audio. The supervisor keeps a 30h unattended stream ALIVE — a crash/hang/kill
+     auto-resumes (never re-fresh mid-stream) instead of going dark. Single un-wrapped run for a quick
+     test: POKEMON_GO_NO_SUPERVISOR=1.
 
 AUDIO DOCTRINE (unchanged, enforced by existing layers): her voice -> cable -> VTS/OBS; game
 music -> phones/speakers only, NEVER the cable.
@@ -148,17 +151,31 @@ def main():
         else:
             log("no journey on disk yet — skipping the recap (her intro beat opens instead)")
 
-    # ── 4. LAUNCH the show ────────────────────────────────────────────────────────────────────
-    cmd = [PY, os.path.join(_HERE, "play_live.py"), "--show", "--url", args.url,
-           "--phones", args.phones]
-    if args.fresh and cps:
-        cmd.append("--fresh-kira")
-    # GAME AUDIO DEFAULT ON (2026-07-09): the PortAudio output path (the Viridian-parcel SIGSEGV) is now
-    # process-isolated (audio_child.py) — a native abort kills only the child, the game survives + the
-    # child respawns. Audio is non-fatal, so it's the resting state again. Force OFF: POKEMON_GAME_AUDIO=0.
+    # ── 4. LAUNCH the show UNDER THE SUPERVISOR (auto-restart / resume-on-crash) ─────────────────
+    # THE GO BUTTON runs the show under supervisor.py, NOT a bare play_live: on a bare subprocess.call a
+    # hard emulator fault or uncaught roam exception takes the whole 30h stream DARK until a human
+    # notices — the single biggest live-stability risk for an unattended stream. The supervisor's
+    # `showtime` timeline is a drop-in superset: the SAME `play_live --show` launch PLUS resume-on-crash
+    # (never re-fresh mid-stream — a crash resumes states/kira, never re-wipes the run), a stale-heartbeat
+    # hang detector, rapid-crash backoff, and the dead-man's-switch ping. go.py still does the bot
+    # preflight + fresh/throwaway sandbox setup above; only the LAUNCH is now crash-recovered.
+    # Escape hatch for a quick single un-wrapped run (no restart loop, e.g. a short test): POKEMON_GO_NO_SUPERVISOR=1.
+    supervised = os.getenv("POKEMON_GO_NO_SUPERVISOR") != "1"
+    if supervised:
+        cmd = [PY, os.path.join(_HERE, "supervisor.py"), "--timeline", "showtime",
+               "--url", args.url, "--phones", args.phones]
+        if args.fresh and cps:
+            cmd.append("--fresh")     # supervisor: --fresh-kira on the FIRST launch ONLY; crash-resumes never re-wipe
+    else:
+        cmd = [PY, os.path.join(_HERE, "play_live.py"), "--show", "--url", args.url, "--phones", args.phones]
+        if args.fresh and cps:
+            cmd.append("--fresh-kira")
+    # GAME AUDIO DEFAULT ON (2026-07-09): the PortAudio output SIGSEGV is process-isolated (audio_child.py)
+    # — a native abort kills only the child, the game survives + the child respawns. Force OFF: POKEMON_GAME_AUDIO=0.
     if os.getenv("POKEMON_GAME_AUDIO", "1") == "1" and not args.no_audio:
         cmd.append("--audio")
-    log("launching: " + " ".join(cmd))
+    log(("launching UNDER SUPERVISOR (auto-restart, resume-on-crash): " if supervised
+         else "launching (single run, NO supervisor): ") + " ".join(cmd))
     try:
         rc = subprocess.call(cmd, env=env, cwd=_ROOT)
     except KeyboardInterrupt:
