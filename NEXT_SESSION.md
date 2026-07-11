@@ -1,6 +1,80 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #4 DONE (2026-07-11, night_shift.ps1 shift 4) — HUGE autonomous climb: badge-3 Vermilion → **BADGE 4 (Erika)** → Silph Scope → Poké Flute → Snorlax woken → road to Fuchsia (Koga) OPEN. TWO commits (de2d9f2, 082971c), canonical Champion UNTOUCHED. START HERE.
+## ✅ NIGHT-SHIFT #5 DONE (2026-07-11, night_shift.ps1 shift 5) — killed the NS#4 hard wall (b): the Route-10 (11,79) **4,087-wedge grind livelock**; RE-VERIFIED the clean autonomous climb badge-3 → BADGE 4 → Silph Scope → Pokémon Tower → Poké Flute chain. ONE commit (63d7c14), canonical Champion UNTOUCHED. START HERE.
+
+### ✅ WHAT NS#5 BANKED — `63d7c14` (mode-side, one grind() guard, canonical UNTOUCHED):
+**Killed the Route-10 (3,28)@(11,79) grind livelock** — NS#4's frontier wall (b), the 3,927-wedge hard stop.
+ROOT (exact): after a Route-13 whiteout stranded her at the Lavender-side SOUTH pocket of Route 10, `grind()`
+paced `travel(arrive_coord=grass)` toward the NORTH grass — which is **cliff-sealed** from the south pocket
+(the only crossing is Rock Tunnel). Every waypoint travel returned `"no_path"` FAST, but grind()'s inner loop
+only caught `battle_loss`/`need_heal` → it re-fired the same unreachable waypoints for the whole 480s budget
+(`ns4_koga.log`: **4,087 identical TRAVEL WEDGEs at (11,79)** — an unwatchable hard stop). FIX: cap the
+`no_path`-WITHOUT-LEVEL-GAIN count per grind() call (`GRIND_NOPATH_CAP=6`, mirrors the existing heal-thrash /
+one-way-strand guards) → mark the map grind-dead + return `no_safe_grass` so the caller stands down and
+`_grass_target` picks a Center-reachable spot. **Fail-open**: any level gain means an encounter fired (grass IS
+reachable) → `lvl()>lvl_start` makes the cap permanently unreachable, so a productive grind never trips it.
+**VERIFIED e2e** (`snorlax_woke_kit`→Koga look-ahead, `ns5_koga_verify.log`): reproduced the exact strand →
+`GRIND: 6 grass-unreachable travels on (3,28) … sealed off from this pocket` → she routes (3,28)→(3,4) Lavender
+(escapes the pocket) → grinds reachable grass west. **(11,79) wedges 4,087 → 6.**
+
+### ✅ RE-VERIFIED THE CLIMB (fresh `surge_done_kit` 30-min look-ahead, `ns5_fresh.log`, my fix in place):
+badge-3 Vermilion → **BADGE 4 (Erika / Rainbow, Venusaur solo'd the grass gym)** → Rocket Hideout → **Lift Key**
+→ **Silph Scope** → **Pokémon Tower** → **Poké Flute** chain → back to Lavender on the Fuchsia road. Party grew
+to 6 (dex 10) via the keeper router. **45 total travel wedges across the WHOLE climb — every one small
+(max 7) and self-recovered, ZERO livelocks, 0 grind-spins.** A clean, watchable autonomous stretch — this is the
+NS#4 chain re-proven from a CLEAN surge_done_kit graph with the Route-10 livelock removed.
+
+### ⇒ NS#5 FRONTIER — the BINDING wall is now unambiguously **TEAM-DEPTH (wall a)**, precisely diagnosed:
+The bench does NOT level. Fresh-run final party: **Venusaur L48 / Spearow L13 / Rattata L14 / Abra L13 /
+Diglett L22 / Meowth L10** — a solo L48 carry behind an L10-14 bench, four badges in. Confirmed mechanism
+(read the logs, don't re-derive):
+1. **The DEDICATED bench grind (`grind_weak_members` via the "battle" pick) fired 0× the entire climb** — the
+   proactive prep pin (`prep=14` set 92×) is ALWAYS out-voted by the forward-drive (`head_to_gym`). So the ONLY
+   bench leveling is `road-bench-XP` participation on transit legs, which is **far too sparse** (billed roads
+   have few wild battles) → abra/meowth frozen at L10-13.
+2. **When the reactive grind DOES fire (after a gym/gauntlet LOSS), the participation switch banks the KILL XP
+   on the ACE, not the weak mon** — `ns5_koga_verify.log`: 3 Route-13 losses, reactive grind fired 1×, ace went
+   L47→50 while the bench barely moved (spearow L12→13, abra stuck L12). The switch protects the weak mon from
+   fainting but the ace soaks the XP → the lopsidedness gets WORSE, not better.
+3. **Consequence at the wall:** she reaches the Route-13 gauntlet / Koga (poison, resists her grass STAB),
+   loses on attrition (solo carry + dead-weight bench), retreats, and — pre-fix — stranded on Route 10 (now
+   caught by 63d7c14, but the underlying team is still too thin to WIN Route 13/Koga). **Abra never reaches
+   L16 → never evolves to Kadabra** (the Psychic hard-counter to Koga AND Sabrina) — the single highest-payoff
+   missing lever.
+
+**THE FIX (do it CAREFULLY — this is the delicate core, verify-gated, NOT a blind unattended edit):** the bench
+must actually level between gyms. Two coupled levers, both risky (the celadon_run1 27-level marathon parked the
+road; NS#1/#4 warn: **DO NOT ship a bench-grind cadence/dominance change without a FRESH multi-gym look-ahead
+confirming no treadmill/parked-road**):
+- (a) **Make the dedicated grind FIRE when severely lopsided** — let the prep pin out-vote the forward-drive for
+  a BOUNDED dedicated grind stint when the weakest levelable bench mon is drastically under the gym milestone
+  (gate it tight so it can't treadmill; the static-milestone cap + `_bench_done_milestone` re-arm already bound
+  it to ~once/badge). This is constitution-aligned (a real player STOPS to train a lopsided team, narrated) —
+  see `TEAM_DEPTH_ROOT_FIX.md`.
+- (b) **Give the bench the KILL XP, not just participation** — for bench mons strong enough to survive weak
+  grass (diglett L22, and abra once it evolves), let them SOLO-grind (full XP) instead of the ace-protecting
+  switch; keep the switch only for the truly-fragile. `SOLO_WEAK_GRIND` (default OFF) is the existing hook —
+  audit + selectively enable per-mon, verify no faint-thrash.
+- (c) **Prioritize the Abra→Kadabra evolution** (L16, +3 from L13) as a targeted cheap-high-payoff grind — the
+  Psychic answer to Koga.
+**VERIFY** any (a)/(b)/(c) change with a fresh `surge_done_kit` multi-gym look-ahead: she must reach badge 4+
+WITHOUT parking the road, arriving at Route-13/Koga with a bench near-milestone. If it parks → revert (flag /
+one-line). RE-RUN cmd: `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1
+../.venv/Scripts/python.exe -u recon_longrun.py surge_done_kit.state 30` (badge-3 fixture; ~5 min to badge 4).
+
+**⚠️ SUSPECT FIXTURE:** `snorlax_woke_kit.state` (NS#4's promoted look-ahead bank) shows a residual
+Lavender↔Route-12↔Route-10 soft-loop (head_to_gym can't push Route-12→13 and falls back to Route-10 north;
+capped by 63d7c14 now, not a spin). Prefer a FRESH `surge_done_kit` climb over resuming from snorlax_woke_kit;
+if you need a badge-4 fixture, re-derive a clean one from a fresh run.
+
+**LOWER-PRI carry-overs (unchanged from NS#4):** the deeper WHITE-BOX wedge on legit mid-battle heals (E4-
+livelock family, needs rule-15 frame-grabs — do NOT fix blind); the "RIVAL beat vs Gary" strat-memory mislabel
+false-positive on stuck trainer battles; the Route-10 (8,20) head_to_gym travel wedge (7×, self-recovered — same
+split-map class as the grind fix but via head_to_gym; low value, monitor).
+
+---
+
+## ✅ NIGHT-SHIFT #4 DONE (2026-07-11, night_shift.ps1 shift 4) — HUGE autonomous climb: badge-3 Vermilion → **BADGE 4 (Erika)** → Silph Scope → Poké Flute → Snorlax woken → road to Fuchsia (Koga) OPEN. TWO commits (de2d9f2, 082971c), canonical Champion UNTOUCHED.
 
 ### 🏔️ THE CLIMB THIS SHIFT (one autonomous look-ahead on surge_done_kit, enabled by the 2 fixes below):
 dex 7→10 → **Flash taught** → **Rock Tunnel crossed** → Celadon → **BADGE 4 / RAINBOW (Erika — lost once, retried, WON)** → **Rocket Hideout → Silph Scope** → **Pokémon Tower → saved Mr. Fuji → Poké Flute** → **woke the Snorlax** → road south to Fuchsia (badge 5 Koga) OPEN. Venusaur L35→47. That's ~4 gyms' worth of gated content (a badge + 2 dungeons + 3 key items) in ONE run. (Look-ahead on the SCRATCH fixture — canonical post-game Champion save untouched; the sanctity check correctly REFUSED to promote badge-4 over the canonical badge-8, banked only to `G:/temp/longrun/banked_TIMEOUT`, disposable. The durable win is the 2 committed fixes, which unblock a FRESH climb through this whole stretch.)
