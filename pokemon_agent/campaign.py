@@ -4359,12 +4359,28 @@ class Campaign:
             pc = state.get("party_count")
             if pc is None:
                 pc = len(state.get("party") or [])
-            if pc > 2:
-                return False
             act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
                                            bag=state.get("bag"), dex=state.get("dex_caught"),
                                            post_game=bool(state.get("post_game")))
-            return bool(act and act.get("kind") in ("catch_keeper", "develop_bench"))
+            if not act:
+                return False
+            kind = act.get("kind")
+            # THIN-TEAM pre-build (original): <=2 mons + a catch/bench-build DUE → build the squad before
+            # the forward gauntlet (the misty_done solo-Ivysaur blackout this was born to stop).
+            if pc <= 2 and kind in ("catch_keeper", "develop_bench"):
+                return True
+            # PAST-3 UN-GATE (2026-07-11, PASS 3 team-depth): the old hard `pc>2 → False` is WHY slots 4-6
+            # were never pursued — once she had 3 mons forward-drive marched her past every planned keeper
+            # forever (the root of "arrives at the E4 with ~2 usable mons"). Keep BUILDING toward a full six
+            # while a planned keeper is DUE **and catchable on the CURRENT map** — i.e. she's standing on its
+            # route (Abra on Route 24/25, Diglett's Cave, Growlithe on Route 7/8 all sit on the forward path),
+            # so this grabs it IN PASSING rather than skipping it. Junk-catch-safe: _plan_keeper_target names
+            # the SPECIFIC species and catch_one(target_species) flees every non-target. Bounded: on-map only
+            # (no detour router yet — that's the TEAM_DEPTH_ROOT_FIX follow-up), party not full, one DUE
+            # keeper at a time; self-clears the moment it's caught (assess stops returning it → march resumes).
+            if pc < 6 and kind == "catch_keeper" and self._plan_keeper_target(state):
+                return True
+            return False
         except Exception as e:
             log(f"   [roam] plan-prebuild check skipped: {e}")
             return False
@@ -5311,13 +5327,18 @@ class Campaign:
         """The under-target members' species names (for the rationale/framing). Pure read off state."""
         return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
 
-    def grind_weak_members(self, target):
+    def grind_weak_members(self, target, min_level=None):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
         ace. Each loop: pick the weakest under-target member, reorder it to lead, grind() it toward
         `target` (which heals it when low — survival), repeat until the floor crosses. Bounded by a
         wall-clock budget so a tick can't run away. Returns 'ready' (floor crossed) | 'battle_loss' |
         'ok' (budget/grass-out — partial progress, the next tick re-enters). Restores the ace on EVERY
-        exit path (a faint/loss must not strand the weak mon as lead)."""
+        exit path (a faint/loss must not strand the weak mon as lead).
+
+        `min_level` (2026-07-11, PASS 3): a FLOOR below which a member is ignored as box-fodder chaff —
+        the E4-prep path passes `target - E4_PREP_BAND` so a full-team floor of L55 does NOT drag an L8
+        Rattata into the grass (unwatchable + faint-thrash; that fodder belongs in the box, Tier-1 #15).
+        None (every other caller) = original behaviour: field every under-target member."""
         # ── ACE-OVERPOWER (switch gated — the reliable path): the participation-XP switch wedges on the
         # long core, so fielding the weak bench just gets them one-shot (no XP). Instead level the ACE
         # (strong lead, solo-grinds reliably) to `target` (= foe + OVERPOWER_MARGIN) so it bulldozes the
@@ -5357,7 +5378,9 @@ class Campaign:
 
                 def _slot_pid(s):
                     return self.b.rd32(ram.GPLAYER_PARTY + s * 100)
-                weak = [s for s, l in enumerate(levels) if l < target and _slot_pid(s) not in stalled]
+                weak = [s for s, l in enumerate(levels)
+                        if l < target and _slot_pid(s) not in stalled
+                        and (min_level is None or l >= min_level)]   # skip box-fodder chaff (E4-prep floor)
                 if not weak:
                     remaining = [s for s, l in enumerate(levels) if l < target]
                     if remaining:                             # floor un-raisable — the under-target mon(s)
@@ -9446,7 +9469,12 @@ class Campaign:
             # 'train the team' but the action trained the ace". Else the ordinary lead bump.
             t = self._prep_team_target(state)
             if t is not None:
-                r = self.grind_weak_members(t)
+                # E4-PREP FLOOR (PASS 3): when the target came from prep_for_e4 (badge 8, whole-team floor
+                # to ~L55), field only the LEVELABLE team (within E4_PREP_BAND) — never drag L8-14 box-fodder
+                # into the grass. Recompute _prep_e4_target (cheap) to confirm the source; other grinds pass None.
+                _e4t = self._prep_e4_target(state, state.get("party") or [])
+                _ml = (t - E4_PREP_BAND) if (_e4t is not None and _e4t == t) else None
+                r = self.grind_weak_members(t, min_level=_ml)
                 if r == "no_safe_grass":                 # a dry attempt counts toward stand-down
                     self._prep_dry = getattr(self, "_prep_dry", 0) + 1
                 elif r in ("ready", "ok"):               # ACTUAL grinding happened (not mere arrival —
