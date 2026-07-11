@@ -63,6 +63,41 @@ Fresh early-game state (e.g. `states/workshop/og_postopening.state`) → headles
 from the log + party growth that she PROACTIVELY catches keepers at their locations, LEVELS the bench to
 milestones, and arrives at the E4 with a real leveled 6 + coverage. Bounded detours, watchable pace, narrated.
 
+## NS#2 UPDATE (2026-07-11) — milestone-cap TARGET landed + the REAL binding constraint pinpointed by a live run
+**LANDED (commit fb26e6e):** the mid-game milestone-cap bench-prep (fix #3 above, mid-game half). `_prep_team_target`
+now caps the proactive bench pin at the team-plan's NEXT gym milestone (not the ace-relative lead-8) and re-arms on a
+milestone RISE. Decision-verified 10/10 (`recon_milestone_prep_check.py`). The prep TARGET is now correct + wired (it
+reframes the "battle" action → "train the WEAK ones to L{prep_t}" @campaign.py:8386-8401 and feeds `grind_weak_members`
+@campaign.py:9492-9499 — NOT display-only).
+
+**BEHAVIOURAL RUN (ss_ticket.state, badge 2, Ivysaur L28 + Rattata/Spearow L14 → `G:/temp/longrun/ns2_milestone.log`):**
+she went Route 25 → Cerulean (bought Poké Balls) → Route 5/6 → Vermilion; team-brain fired (`catch_keeper: abra →
+alakazam`), plan-catch fired (`PLAN-CATCH: seeking planned keeper 'abra'... fleeing non-targets`), and prep=20 stayed
+STABLE across the lead going L28→L32+evolve (no treadmill, no road-parking). BUT the net was **lead L28→Venusaur L32,
+bench FROZEN L14/L14, no keeper caught**, then WEDGED at the Vermilion Cut gate.
+
+**THE REAL BINDING CONSTRAINT (found this run — the mid-game bench never levels, and WHY, two layers):**
+1. **The bench gets ZERO XP from road trainer wins.** She won ~8 trainer fights Route24→Vermilion; ALL XP went to the
+   lead. The participation-XP switch (`battle_agent.py:2554`) is gated to `PROTECT_LEAD_GRIND` — set True ONLY inside a
+   dedicated `grind_weak_members()` session (`battle_agent.py:141`). During ordinary road/`head_to_gym` battles it's
+   False → the ace solos → bench banks nothing. AND participation XP requires the weak mon to LEAD at battle start
+   (only `grind_weak_members` reorders it to slot 0); on the road the ace leads. So organic bench-XP-on-the-road does
+   NOT exist yet — it is the watchable path ("the whole team fights its way to the gym", no grind-wall) and it's unbuilt.
+2. **The oracle never picks a dedicated bench-grind mid-game.** `push-when-carrying` (night-train s8, 959eb75) correctly
+   marches the billed road when the ace can carry, so `grind_weak_members` never runs mid-game → PROTECT_LEAD_GRIND
+   never True → the proven participation switch never even fires. (This is CORRECT for watchability — grind-walls are a
+   FAILURE — which is exactly why the fix must be organic participation XP, not forced grinding.)
+
+**⇒ THE PINPOINTED NEXT FIX (the highest-leverage team-depth piece, precisely located, NOT a safe blind edit — needs a
+careful design + full re-run to verify no faint/wedge/slow-down):** make the bench bank participation XP during ORDINARY
+road trainer battles when it's under its milestone target — i.e. field/register the under-milestone weak mon in road
+fights (extend the `battle_agent.py:2550-2580` participation path beyond PROTECT_LEAD_GRIND, guarded so the weak mon
+takes no hit and never strands, per the 2584 STRAND-ROOT note), driven by a "bench under `_prep_team_target`" signal
+from campaign. This levels the bench organically as she travels — no grind-wall — so she arrives at each gym (and badge
+8's `_prep_e4_target`) already near-milestone instead of L14, dissolving the frontier-#1 grind-spot-adequacy wall too.
+⚠️ This touches the in-battle switch (Tier-1 #5, historically wedge-prone) — arm behind a flag, verify on a PAST-Cut-gate
+bench bank (ss_ticket wedges at the Vermilion Cut tree, so use surge_done/erika_done or a fresh run that clears the gate).
+
 ## ALSO (option-1 Lapras tactical AI — good regardless)
 Battle-brain: when facing a foe the ace can't hurt (Venusaur 0.25x/1x into Charizard) and a specialist is
 the type-answer, LEAD/keep that specialist in and funnel healing to IT rather than splitting FR with the

@@ -1,7 +1,42 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #1 DONE (2026-07-11) — team-depth Part-C: 3 fixes banked + verified. START HERE next shift.
-**BANKED + VERIFIED THIS SHIFT (3 commits, all mode-side, canonical untouched):**
+## ✅ NIGHT-SHIFT #2 IN FLIGHT (2026-07-11) — frontier #2 (MID-GAME MILESTONE LEVELING) BUILT + decision-verified. START HERE.
+**NS#2 BANKED (commit fb26e6e, mode-side, canonical untouched):** the **mid-game milestone-cap bench-prep** —
+frontier #2 below, the exact reviewed edit. `_prep_team_target`'s wall-less proactive bench-raise now caps the pin at
+the team-plan's NEXT gym milestone (Brock 14 … Giovanni 52) not the ace-relative `lead-8`, and RE-ARMS on a milestone
+RISE (new gym earned) as well as roster change — so the bench climbs toward each gym's level across the whole game in
+bounded +6 bites instead of getting ONE bump then abandoned. **Decision logic VERIFIED 10/10** in
+`recon_milestone_prep_check.py` (cap / one-bite-per-milestone / badge-re-arm / no-over-grind past milestone /
+fallback treadmill-safe). ⚠️ A real trap was caught + fixed during the build: the lead-8 FALLBACK bar drifts up with
+the ace, so the milestone-RISE re-arm is gated to REAL static milestones only (`_ms` guard) — else the fallback would
+reinstate the ship-run-5 treadmill (verifier case 6b). **STILL OWED (the spec's ship-gate):** a behavioural look-ahead
+confirming no live parking/treadmill — launched from `ss_ticket.state` (badge 2: Ivysaur L28 + Rattata/Spearow L14
+bench, the ideal mid-gym probe); read `G:/temp/longrun/ns2_milestone.log` for whether the bench-raise fires, bites,
+retires, and does NOT park the road. If it parks/treadmills → tune the bite cadence (the fix is defaults-safe: reverts
+to prior lead-8 when planner off, so a revert is one-line if needed).
+
+### ⇒ NS#2 FRONTIER (re-ranked by a LIVE run — #2 BUILT; a deeper root now pinpointed as the TOP next action):
+The ss_ticket behavioural run (`G:/temp/longrun/ns2_milestone.log`) proved the milestone TARGET is correct + stable, but
+surfaced the REAL binding constraint: **the mid-game bench never LEVELS** — she won ~8 road trainer fights Route24→
+Vermilion and ALL XP went to the lead (Venusaur L28→32) while the bench stayed FROZEN L14/L14. Full diagnosis +
+file:lines in `TEAM_DEPTH_ROOT_FIX.md` (NS#2 UPDATE section). Re-ranked:
+
+**NEW #1 (TOP — organic bench XP on the road).** The participation-XP switch (`battle_agent.py:2554`) is gated to
+`PROTECT_LEAD_GRIND` (dedicated `grind_weak_members` only, `battle_agent.py:141`), which push-when-carrying keeps her
+out of mid-game → the bench banks nothing from road trainer wins. BUILD: field/register the under-milestone weak mon in
+ORDINARY road trainer battles so it banks participation XP (extend `battle_agent.py:2550-2580` beyond PROTECT_LEAD_GRIND,
+guarded per the 2584 STRAND-ROOT note so the weak mon takes no hit / never strands; drive it off a "bench under
+`_prep_team_target`" signal). This levels the bench organically WHILE traveling (watchable — no grind-wall) → she reaches
+each gym + badge-8 `_prep_e4_target` near-milestone, which ALSO dissolves old-#1 grind-spot-adequacy. ⚠️ Touches the
+in-battle switch (Tier-1 #5, wedge-prone) — flag-gate it + verify on a PAST-Cut-gate bench bank (ss_ticket WEDGES at the
+Vermilion Cut tree, so use surge_done/erika_done or a fresh run that clears the gate; do NOT verify from ss_ticket).
+
+**Then the prior pieces (unchanged, still valid):** PC/BOX (#3), cross-map keeper router (#4 — note the run showed the
+Abra plan-catch FIRED on-map but didn't PERSIST after a mid-catch heal; catch-persistence is a sibling gap), grind-spot
+adequacy (#1, largely dissolved by NEW #1 if it lands).
+
+## ✅ NIGHT-SHIFT #1 DONE (2026-07-11) — team-depth Part-C: 3 fixes banked + verified.
+**BANKED + VERIFIED NS#1 (3 commits, all mode-side, canonical untouched):**
 - **2dc74d5 `prep_for_e4()`** — at all 8 badges the WHOLE party is floored to the team-plan's E4 milestone (~L55),
   not the ace-relative `lead-8`. Direct fix for the NS9-14 top-heavy wall (ace solos, bench sags 8 under → swept
   in the Center-less gauntlet). NOTHING read `level_milestones` before. **BEHAVIOURALLY VERIFIED** on a giovanni_kit_g
