@@ -1884,25 +1884,25 @@ class BattleAgent:
                 for m in (state.get("ours", {}).get("moves") or [])
                 if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
         best_move_eff = max(_dmg) if _dmg else 1.0
-        active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
-        if not active_bad:
+        # NEVER ABANDON A SUPER-EFFECTIVE ATTACKER (ns14 anti-churn): if the active mon's best
+        # damaging move is >=2x, it's winning the exchange — pulling it out for a defensive matchup
+        # just churns. The infinite loop this kills: Kadabra's Psybeam is 2x into Agatha's Poison
+        # line (stay + sweep), but Agatha's Ghost hits Psychic 2x, so the disadvantage trigger kept
+        # yanking Kadabra out for Venusaur, whose Razor Leaf is 0.5x, so trigger 2 pulled Kadabra
+        # straight back — Venusaur<->Kadabra forever, bleeding both. A glass cannon that out-damages
+        # STAYS and swings.
+        if best_move_eff >= 2.0:
             return None
-        # LEVEL-DOMINANCE VETO (2026-07-07, erika_run3): type math must never outrank a crushing
-        # level lead. L45 Venusaur's Razor Leaf reads 0.25x into Erika's grass/poison juniors, so
-        # the offensive-resist trigger fired and the ranking swapped in L15 Ekans ("resists most")
-        # — which fainted, forced-switch churned, and she BLACKED OUT to a L21 Gloom she outleveled
-        # by 24. A big level lead wins through any resistance; stay in and swing.
-        # REFINED same night (flute_run7): the veto only holds when she can still actually HIT —
-        # Venusaur's ONLY damaging move at 0.25x into a Vileplume is a stall, not dominance (she
-        # whiteout-lost that fight with L33 Fearow benched holding super-effective Flying moves).
-        # Offensive famine (best usable eff <= 0.25) overrides the level veto.
+        active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
         foe_lv = state.get("enemy", {}).get("level") or 0
         act_lv = state.get("ours", {}).get("level") or 0
-        if foe_lv and act_lv >= foe_lv + 10 and best_move_eff > 0.25:
-            return None
         active_sp = state.get("ours", {}).get("species")
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        # ONE reserve scan feeds two picks: `best` (defensive — resists-most, then hits-hardest)
+        # for the disadvantage trigger; `best_atk` (the SUPER-EFFECTIVE specialist — hits-hardest)
+        # for the offensive-upgrade trigger. Pure type math (offline-testable), species from RAM.
         best, best_key = None, None
+        best_atk, best_atk_key = None, None
         for s in range(min(cnt, 6)):
             if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
                 continue                                  # fainted
@@ -1910,20 +1910,45 @@ class BattleAgent:
             if sp == active_sp:
                 continue                                  # (probably) the one already out
             lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
-            if foe_lv and lv + 5 < foe_lv:
-                continue                                  # FODDER FLOOR: switching INTO a faint is
-                                                          # never an improvement (the Ekans churn)
             types = st.species_types(sp)
             if not types:
                 continue
             cdef = self._matchup_def(types, enemy_types)
+            coff = self._matchup_off(types, enemy_types)
+            # OFFENSIVE-SPECIALIST pick (ns14): a reserve whose STAB is SUPER-EFFECTIVE (>=2x).
+            # LENIENT floor (lv+15 vs the def pick's lv+5): a 2x type edge is worth ~2 level-tiers
+            # of frailty, so an under-levelled specialist (Kadabra L40 Psychic into Agatha's L54
+            # Poison line) is still the right body — the whole point is to spare the ace's PP.
+            if coff >= 2.0 and not (foe_lv and lv + 15 < foe_lv):
+                akey = (coff, -cdef, lv)                   # hits hardest, then resists, then level
+                if best_atk_key is None or akey > best_atk_key:
+                    best_atk, best_atk_key = s, akey
+            if foe_lv and lv + 5 < foe_lv:
+                continue                                  # FODDER FLOOR: switching INTO a faint is
+                                                          # never an improvement (the Ekans churn)
             if cdef >= 2:
                 continue                                  # also weak — not an improvement
             # resists most, then hits hardest, then the higher level (level breaks type ties)
-            key = (-cdef, self._matchup_off(types, enemy_types), lv)
+            key = (-cdef, coff, lv)
             if best_key is None or key > best_key:
                 best, best_key = s, key
-        return best
+        # TRIGGER 1 — DISADVANTAGE (existing): the active is out-typed OR can barely scratch the
+        # foe (<=0.25x). LEVEL-DOMINANCE VETO (erika_run3): a crushing level lead wins through 0.5x
+        # resistance — but offensive famine (<=0.25x) overrides it (flute_run7: Venusaur's 0.25x
+        # into a Vileplume is a stall, not dominance). Send the defensive pick.
+        if active_bad:
+            if foe_lv and act_lv >= foe_lv + 10 and best_move_eff > 0.25:
+                return None
+            return best
+        # TRIGGER 2 — OFFENSIVE-UPGRADE (ns14 Lance postmortem, E4-critical): the active can only
+        # hit RESISTED (<=0.5x — Venusaur's Razor Leaf into Agatha's Poison, or its Normal moves
+        # IMMUNE to her Ghosts) while a healthy reserve is SUPER-EFFECTIVE. Field the specialist so
+        # the ace's scarce STAB PP survives the 5-room gauntlet (lap-1 death: Venusaur famined Razor
+        # Leaf by Agatha and reached Lance with only ~22-dmg Cut). Overrides the level veto: raw
+        # level can't compensate for a resisted-only moveset.
+        if best_atk is not None and best_move_eff <= 0.5:
+            return best_atk
+        return None
 
     def _switch_to_slot(self, slot, before_sp):
         """Switch the active mon to a SPECIFIC party slot, confirming the active SPECIES actually changed.

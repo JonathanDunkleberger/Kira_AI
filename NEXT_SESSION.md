@@ -1,5 +1,36 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⏳ NS14 (2026-07-10, IN FLIGHT): the OVERNIGHT CHAIN IS A DEAD END — its VR tail is broken. Shipped the OFFENSIVE-UPGRADE SWITCH (PP-famine fix), testing recon_e4 from indigo_reach_g NOW.
+**KEY DISCOVERY — the NS13 chain cannot roll credits:** `ns13_overnight_chain.sh` waits for Lapras L46 then
+runs `tail_driver.sh`, whose `recon_victory` leg **DETERMINISTICALLY LOSES at VR fight#104** (Water Cooltrainer
+Kingler/Poliwhirl/Tentacruel — the NS12 no-EQ wall) then aborts on post-loss boulder nav. So the grind's XP was
+feeding a lineage stuck behind broken VR. **I STOPPED the chain + the Route 18 grind** (banked_GRIND safe at
+Lapras L43). The RIGHT base is `indigo_reach_g` (past VR, at Indigo, ready for E4 — needs no grind, no VR).
+**REAL ROOT of the Lance wall (from the ns13_e4.log lap-1 trace) = PP FAMINE, not just a weak bench:** Venusaur's
+ONLY good move is Razor Leaf (25 PP, its only STAB). Cut/Strength are Normal → **IMMUNE to Agatha's Ghosts**, so
+at Agatha Venusaur is FORCED to spam 0.5x Razor Leaf (Kadabra's Psychic is 2x — the real answer) → burns ~10 PP →
+arrives at Lance famined, chipping Dragonite with ~22-dmg Cut, stuck in an unwinnable Super-Potion loop vs
+Aerodactyl. Movesets (recon_partydump): Venusaur=[RazorLeaf,Cut,SleepPowder,Strength]; **Lapras L39=[Surf,Body
+Slam] — NO ICE MOVE** (only x2 vs Aerodactyl via Surf, x1 vs the Dragons — NOT the hard counter NS13 assumed);
+Kadabra L40=[Psybeam(psychic 50pw)] = the Agatha answer (Psychic 2x on the all-Poison team).
+**THE FIX SHIPPED (uncommitted until verified) — `battle_agent._best_switch_slot` TRIGGER 2 "offensive-upgrade
+switch":** when the active can only hit RESISTED (best damaging move ≤0.5x — Venusaur's Razor Leaf into Poison,
+or Normal-move immunity vs Ghosts) AND a healthy reserve's STAB is SUPER-EFFECTIVE (≥2x), FIELD THE SPECIALIST
+(overrides the level veto; lenient fodder floor lv+15 since a 2x edge ≈ 2 level-tiers). → Kadabra fields Agatha,
+Venusaur's Razor Leaf PP survives to Lance. General + fail-safe (a failed switch B's out and fights). Type math
+verified offline (Grass→Ghost/Poison=0.5, Normal→Ghost=0.0, Psychic→Poison=2.0, Surf→Aerodactyl=2.0). Compiles.
+**AT WAKE / IF THIS SESSION DIED MID-TEST:** check `G:/temp/longrun/ns14_e4.log` (running from indigo_reach_g).
+- Grep `room #` for furthest room + `MATCHUP SWITCH`/`SWITCHED to species 64` to confirm Kadabra fielded Agatha.
+- If it reached the Hall of Fame → `banked_CREDITS` re-dated TODAY → **CREDITS: write `CREDITS` as line 1 of
+  NIGHT_REPORT.md** + survey. (The existing banked_CREDITS is STALE 2026-07-07 — check mtime, not existence.)
+- If Kadabra got OHKO'd at Agatha (too frail at L40 vs L54) or it still walled Lance → the switch fix is sound
+  but needs a LEVELED Kadabra. Then: grind Kadabra INSIDE Victory Road (re-enter VR from indigo_reach_g — VR cave
+  wilds are L36-46, far better XP than Route 18's L23-29, AND the team stays past-VR → walks right back to Indigo
+  for E4). That solves both "Route 18 too slow" and "grind team stuck behind broken VR" at once — the unbuilt
+  capability. GRIND_MAP would be a VR floor id; verify nav into VR from Indigo first.
+- Command to re-test after any battle_agent edit: `E4_STATE=indigo_reach_g ../.venv/Scripts/python.exe -u
+  recon_e4.py > G:/temp/longrun/ns14_e4.log 2>&1` (from pokemon_agent/; ~8-12 min headless).
+
 ## ✅ NS13 (2026-07-10): AGATHA WALL BROKEN — E4 pushed rooms 1-4, whiteout at LANCE's AERODACTYL. New wall = TOP-HEAVY TEAM (Venusaur solos; bench too weak/never fielded). Grinding Lapras+Kadabra on Route 23 now.
 **WHAT NS13 DID:** NS12's overnight no-EQ VR grind-through SUCCEEDED — banked `banked_VICTORY` = a PAST-VR team
 at Indigo (Venusaur L71→74, Kadabra L40, Lapras L39, healed, $13k). Promoted → `indigo_reach_g`. Ran recon_e4
@@ -18,7 +49,22 @@ the loop (was degrading, not converging).
 The E4 SHOP already buys Revives-first (5/3/16 caps) — revives get wasted reviving weak bench into L58 Aerodactyl,
 so a shop fix won't crack it. The ONLY real fix = a survivable, deliberately-FIELDED bench.
 
-### ▶ FRONTIER = grind Lapras + Kadabra to ~L50 so they SURVIVE Lance + share the gauntlet, then re-run E4.
+### ▶▶ AT WAKE — CHECK THE AUTONOMOUS OVERNIGHT CHAIN FIRST (it may have rolled credits):
+**`ns13_overnight_chain.sh` is RUNNING** (`ns13_chain.log` + status in `ns13_chain_status.txt`). It waits for the
+Route 18 grind to bring **Lapras → L46** (its Surf/Ice = the Lance answer; Kadabra L39-40 already clears Agatha),
+then kills the grind and runs **`tail_driver.sh`** = the proven no-EQ chain promote(banked_GRIND→bench_grind_kit)
+→ seafoam → mansion → blaine → giovanni → victory(out-levels VR, NS12-proven) → **E4**. Banks `banked_CREDITS`
+if credits roll. **AT WAKE:** `cat G:/temp/longrun/ns13_chain_status.txt` and `cat G:/temp/longrun/tail_status.txt`.
+- **If `banked_CREDITS` exists / status says CREDITS ROLLED → WRITE `CREDITS` as LINE 1 of NIGHT_REPORT.md**
+  (stops the loop) + the full mountain survey. Promote banked_CREDITS to canonical only per the two-timeline law.
+- **If the chain died at a leg** (tail_status.txt names the failed leg): promote the last good bank + resume that
+  leg's env cmd (NS9 tail block below). If E4 walled at Lance again even with Lapras L46 → the broken fswitch is
+  the wall; do the LAPRAS-LEADS-E4 reorder (slot-0 swap pre-E4) so Surf/Ice is fielded actively vs the Dragons.
+- **If the grind STALLED before L46:** Route 18 caps XP for high-level mons; the chain proceeds anyway at ~30min
+  no-progress. A stronger grind spot (Victory Road cave L36-46, or solve Route 23's Surf-gated grass) is the
+  unbuilt capability for pushing a bench past ~L45 efficiently.
+
+### ▶ FRONTIER = grind Lapras (+Kadabra) so the bench SURVIVES Lance, then re-run the tail → E4 (the chain does this).
 **⚠️ Route 23 grind (GRIND_MAP=3,42 from indigo_reach_g) WEDGES** — the team boots at R23 north edge (12,0) and
 can't path south to grass (gated/watery, needs Surf/Waterfall nav the traveler lacks). Do NOT retry it blind.
 **OVERNIGHT GRIND RUNNING (NS13) = the PROVEN Route 18 spot:** `ns13_grind_r18.log` — `GRIND_STATE=grind_base_g
