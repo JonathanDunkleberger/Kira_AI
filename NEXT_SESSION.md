@@ -34,11 +34,24 @@ keeper it serves can't be reached: **the cross-map router can't ride to cave-gat
 misses the TIMING window** (she's already past Vermilion/Route 11 when Diglett is DUE, and MAX_HOPS=6 rightly
 won't backtrack that far). Meanwhile she ALREADY HOLDS **Abra** (the psychic-sweeper keeper — answers Koga/
 Sabrina/Agatha) at L14 needing only LEVELING. So the real team-depth levers are:
-1. **KEEPER-TIMING / REACHABILITY (top).** Two candidate fixes: (a) grab a DUE keeper when she's PASSING THROUGH
-   its host region (a "catch it now, you're here" nudge on the corridor) instead of trying to detour back later;
-   and/or (b) extend the router to cave-entrance hosts (Diglett's Cave connects Route 2 ↔ Route 11 — teach the
-   router the cave-interior host is reached via its entrance warp). Diglett-specific coupling → isolate in
-   gamedata (portability debt). Verify with the same erika_done_kit / a Vermilion-era fixture look-ahead.
+1. **KEEPER-REACHABILITY (top) — ROOT CONFIRMED this shift, it is NOT a timing problem.** Probed the router on
+   `surge_done_kit` @ Vermilion (badge 3, the CORRECT window — Diglett's Cave sits off Route 11 right next door):
+   `_reachable_keeper_host(diglett)=None` STILL. Diagnosis is PRECISE: "Diglett's Cave" IS correctly in
+   `_PLACE_NAMES` (maps (1,36-38)) and `_place_to_map_index` reverses it to entrance (1,36) — the mapping is FINE.
+   The failure is `self.world.route(cur, (1,36))` returns None because **Diglett's Cave is an UNVISITED map** not
+   in her learned world graph, and the OFFER⟺EXECUTABLE guard (`_next_step_rideable`, campaign.py ~4515, the
+   route3_caught livelock fix) correctly refuses to route to a map she can't RIDE to yet. Chicken-and-egg: she
+   won't visit the cave → router can't route there → she never visits. So the router can only reach keepers on
+   ALREADY-EXPLORED maps; keeper hosts (caves off the forward path) are unexplored until something routes her
+   there. **THE FIX (design-heavy, next shift's headline): STATIC-CONNECTION-AWARE routing to known keeper
+   hosts** — seed the router with the disassembly's static MapConnection graph (memory: MapConnection = group@8
+   num@9) so it can plot a path toward an unvisited-but-known-adjacent host's ENTRANCE (Route 11 → Diglett's Cave
+   warp), then hand off to the learned-graph traveler once she's on a visited edge. Keep it BOUNDED (MAX_HOPS,
+   watchable) and isolate the static graph in gamedata (portability). VERIFY: re-probe `_reachable_keeper_host`
+   returns (1,36) from Vermilion, then a surge_done_kit look-ahead where she actually detours + catches Diglett.
+   ⚠️ Do NOT relax `_next_step_rideable` without the static graph — that reintroduces the route3_caught no_path
+   livelock. NB she ALREADY HOLDS Abra (the psychic keeper) needing only leveling, so bench-pace (#2) is the
+   parallel lever even before keeper-reachability lands.
 2. **BENCH PACE (prep bite cadence, NS#4 frontier #3).** The bench climbs in `+6` bites (campaign.py ~5751
    `min(milestone, floor+6)`) → many grind stops to reach a gym milestone; dungeon-heavy stretches barely level
    it. A bigger bite when FAR under milestone would arrive near-milestone in fewer stops. ⚠️ HELD: the +6 SITTING
