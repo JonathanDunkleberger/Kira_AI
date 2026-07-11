@@ -14,6 +14,25 @@
 4. **Forward drive to the FINAL-PROOF gate:** Koga→Sabrina→Blaine→Giovanni→Victory Road→E4→credits on the fresh
    autonomous run — build/level/evolve the team as needed, prove each gym ONCE, **no over-grind (watchability), no re-solve.**
 
+## 📡 THE REAL BAR + PHASE 2 (after the autonomous-credits asymptote): 30-HOUR UNATTENDED LIVE MARATHON
+The FINAL-PROOF gate (fresh autonomous credits) is the asymptote for the BUILD — it is NOT the finish line.
+**The real target = Kira runs LIVE, UNATTENDED, for a ~30-hour marathon stream with ZERO moments needing human
+intervention.** That is a HIGHER bar than any headless verification (headless has no TTS/avatar/audio stack and no
+multi-hour continuous uptime). So once the autonomous build lands, the NEXT phase is **LONG-DURATION LIVE-SOAK
+HARDENING** (Jonny runs supervised multi-hour soaks to surface duration-specific failures headless can't):
+- **Memory/resource stability over many hours** — no leak/degradation that's fine at hour 1 and crashes at hour 14
+  (audit long-lived buffers, ever-growing lists/logs, VRAM/handle creep; add periodic self-checks if warranted).
+- **Audio/TTS/avatar stack continuous 24-30h** — the fixed crash-category (PortAudio SIGSEGV, now child-isolated)
+  must NOT resurface under SUSTAINED uptime; verify the isolate-child respawn budget + anything the pump accrues
+  over thousands of restarts / many hours doesn't itself become the hour-N failure.
+- **Rock-solid unattended crash-recovery via `supervisor.py`** — any failure RESUMES GRACEFULLY and keeps streaming,
+  never a visible reset/break/frozen avatar on-stream. GO now runs under the supervisor (9ef24e5); harden the resume
+  path so recovery is invisible to a viewer.
+- **Flag short-run-only-safe risks** — anything acceptable in a 20-45min verification but risky over 30 continuous
+  hours (unbounded caches, once-per-run assumptions, checkpoint cadence, log-file growth, clock/rollover).
+**HONESTY:** long-duration live stability is bucket-(b) — only Jonny's supervised multi-hour soak proves it; NEVER
+claim marathon-ready from headless. Build TOWARD the marathon bar, not just the beat-the-game bar.
+
 ## ⏳ NIGHT-SHIFT #11 (2026-07-11, night_shift.ps1) — the `_prep_dry` DEADLOCK fix (`4a4387d`) verification run surfaced a NEW Route-11 bench-grind LIVELOCK → ACE-DOWN GUARD BUILT + COMMITTED `2defbcd`. Fresh verification run in flight. START HERE.
 
 ### 🔴 THE ns11_prepdry2 VERIFICATION VERDICT — INCONCLUSIVE for the prep-dry fix + surfaced a NEW livelock. She **never reached the Koga chain**: she livelocked on **Route 11 at badge 3** (sim-673s, then hung — I killed the procs). `PREP RE-ARM` fired **0×**, `PREP STAND-DOWN` **0×** (the deadlock condition never even arose — she died earlier). 62 `outcome=stuck` battles, 20 BATTLE-LOOP BREAKERs, heal-excursion trapped. Final party stuck at Route 11: `venusaur L36(FAINTED), abra L14, rattata L13, spearow L14, diglett L15(FAINTED)`, badges=3, dex 7.
