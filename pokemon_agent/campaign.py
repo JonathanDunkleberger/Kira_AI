@@ -128,6 +128,21 @@ LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace tower
 BENCH_TO_MILESTONE = os.getenv("POKEMON_BENCH_TO_MILESTONE", "0") != "0"
 BENCH_MS_CLOSE = int(os.getenv("POKEMON_BENCH_MS_CLOSE", "6"))     # floor within this of milestone => done
 BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaining < this many levels = poor spot
+# PREP STAND-DOWN map-scoping (2026-07-11, PASS 3 NS#11 — the DEADLOCK fix). The PREP STAND-DOWN
+# (_prep_dry >= 2) drops the 'train first' plan when repeated grind attempts from a position find NO
+# reachable grass. Its comment claims it "resets the moment any grass is actually reached" — but the ONLY
+# reset (grind_weak_members returning ready/ok) sits INSIDE the grind path, which _prep_dry>=2 itself gates
+# off (both the +6 prep pin AND the lopsided/bench-to-ms dominance). So a dry spell (e.g. grassless Celadon)
+# latches _prep_dry at 2 PERMANENTLY: she then marches the whole Koga chain (Rocket Hideout -> Poké Flute ->
+# Route 12/13/14/15 -> Fuchsia) past the LEVEL-APPROPRIATE Route 13-15 grass without ever stopping to grind,
+# arriving at Koga (and stalling post-Koga on the gated Route-15 trainers) with a frozen L15-20 bench behind
+# an L50+ ace. FIX: reset _prep_dry the moment she stands on GENUINELY-USABLE new grass — reachable grass
+# here (_reachable_grass) AND this map not already marked grind-dead (the fragile one-way-strand / no-grass
+# memory). That excludes grassless towns (no reset, no wasted attempt), gated grass behind a ledge
+# (_reachable_grass None -> no reset -> no Fuchsia<->Route-15 shuttle), and fragile-strand maps (_grind_dead
+# -> no same-map spin), while re-arming the bench-leveling machinery on the good Route 13-15 grass. Default
+# ON; disable with POKEMON_PREP_DRY_RESET=0.
+PREP_DRY_RESET = os.getenv("POKEMON_PREP_DRY_RESET", "1") != "0"
 # CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 team-depth NEW#2): the on-map catch un-gate
 # (_plan_wants_prebuild / _plan_keeper_target) only grabs a planned keeper she happens to be STANDING on;
 # a keeper on a nearby route she isn't on is marched past (the erika_done look-ahead: the planner wants
@@ -11115,6 +11130,21 @@ class Campaign:
             self._battle_ran_this_action = False   # blackout-evidence is per-tick; consumed above
             state = self.read_live_state()
             self._learn_map(state)         # BATCH-6 P2: fold this map's connections+grass into the graph
+            # PREP STAND-DOWN RE-ARM (NS#11 deadlock fix): _prep_dry latches at 2 from a grassless pocket and
+            # never clears (its only reset is inside the grind path _prep_dry gates off), freezing the bench
+            # for the rest of the run. Clear it the moment she stands on GENUINELY-USABLE new grass so the
+            # +6 pin + lopsided dominance re-arm on the level-appropriate Route 13-15 grass she marches past.
+            # Guarded so it can't reintroduce a spin/shuttle: reachable grass HERE (excludes towns + ledge-
+            # gated grass) AND this map not marked grind-dead (excludes fragile one-way-strand / dead maps).
+            if PREP_DRY_RESET and getattr(self, "_prep_dry", 0) >= 1:
+                try:
+                    _cur = tuple(tv.map_id(self.b))
+                    if _cur not in getattr(self, "_grind_dead", set()) and self._reachable_grass() is not None:
+                        self._prep_dry, self._prep_dry_logged = 0, False
+                        log(f"   [roam] PREP RE-ARM: usable grass reachable on {_cur} — clearing the stale "
+                            f"stand-down so the bench-leveling machinery re-arms here")
+                except Exception as _pe:
+                    log(f"   [roam] prep-dry re-arm skipped: {_pe}")
             self._refresh_world_caps()     # Batch-WORLD: keep Fly/Surf/etc. live (she uses them when earned)
             # PHASE C-2 — meet anyone who joined the party WITHOUT a witnessed catch (gift/PC/Jonny's
             # hands): the introduction arc (met/named/bonded), never a silently-deployed stranger.
