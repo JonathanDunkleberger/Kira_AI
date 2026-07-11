@@ -80,7 +80,8 @@ are now fully wired — update it.
   the whole soul machinery (family/boss/arc), save-hop (`watch.py`), audio isolation + supervisor.
 - **needs-Jonny's-LIVE-WATCH to confirm (bucket b — expected, not failure):** soul delight (family/boss/arc *feel*),
   behaviour-shaping of the game-model, watchable PACE, and multi-hour LIVE-SHOW STABILITY. **Never claim these proven headless.**
-- **OPERATE-THE-SHOW note:** run the real stream under **`supervisor.py`**, not `go.py` (go.py has no auto-restart).
+- **OPERATE-THE-SHOW note:** ✅ `go.py` (the GO button) now runs the show under the supervisor automatically
+  (commit 9ef24e5) — auto-restart/resume-on-crash. Jonny just presses GO; a long supervised soak still confirms multi-hour.
 
 
 ## 5) LIVE-SHOW STABILITY — hardening BUILT (headless); multi-hour = **needs-LIVE-WATCH**. ⚠️ one real gap.
@@ -91,10 +92,10 @@ are now fully wired — update it.
 - **Supervisor — BUILT (design solid, not multi-hour-proven).** `supervisor.py` resume-on-crash (`--resume --free-roam`
   only, never fresh), rapid-crash backoff + CRASH_LOOP_THRESHOLD=5, hang detector (kills if health.json heartbeat stale
   >300s), bot-down guard, dead-man's-switch ping. (supervisor.py:159-304)
-- **⚠️ THE GAP (biggest unattended-stability risk): `go.py` (the standing GO button) launches play_live via a bare
-  `subprocess.call` with NO restart wrapper (go.py:163)** — a crash takes the show dark until a human relaunches.
-  Auto-restart ONLY exists under `supervisor.py --timeline showtime`. **FIX/OPERATE: run the real show under
-  `supervisor.py`, not `go.py`** (or wrap go.py's launch in the supervisor). Then do a long SUPERVISED SOAK.
+- **✅ FIXED (commit 9ef24e5): `go.py` (the GO button) now launches the show UNDER `supervisor.py --timeline
+  showtime`** — resume-on-crash / hang-detect / backoff, all prior behavior preserved (bot preflight, --fresh,
+  --throwaway sandbox, audio). The "run the show dark on a bare subprocess.call" risk is closed by construction.
+  Quick single un-wrapped run: `POKEMON_GO_NO_SUPERVISOR=1`. **Still needs a long SUPERVISED SOAK to prove multi-hour.**
 - **HONEST LINE:** the specific past crash is hardened, but **multi-hour live stability is UNPROVEN — only Jonny's
   supervised watch-run confirms it.** Never claim proven.
 
