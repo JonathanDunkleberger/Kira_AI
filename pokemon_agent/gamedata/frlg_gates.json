@@ -246,7 +246,7 @@
       "obtain": {
         "via": "talk_npc",
         "npc": "the Secret House man",
-        "from": "3,8",
+        "from": "3,7",
         "dir": "north",
         "place_name": "the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds)",
         "prereq": null,
@@ -264,7 +264,7 @@
       "obtain": {
         "via": "talk_npc",
         "npc": "the Safari Warden",
-        "from": "3,8",
+        "from": "3,7",
         "dir": "east",
         "place_name": "the Warden's house on Fuchsia's east side — he wants his GOLD TEETH back first (they're lying in the Safari Zone's far area, an item ball)",
         "prereq": "gold_teeth",
@@ -279,7 +279,7 @@
       "obtain": {
         "via": "grab_item",
         "npc": null,
-        "from": "3,8",
+        "from": "3,7",
         "dir": "north",
         "place_name": "an item ball deep in the Safari Zone (Area 3, near the Secret House)",
         "prereq": null,
