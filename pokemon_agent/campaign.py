@@ -6998,7 +6998,14 @@ class Campaign:
         roads['Celadon City']). She wedged at the Snorlax (13,70). Avoid the gated maps so the graph route
         falls through to the billed road (Rock Tunnel). Post-Flute (item 350) they clear and become roads."""
         try:
-            if self._item_count(350) > 0:            # ITEM_POKE_FLUTE — Snorlax wakes, roads open
+            # ITEM_POKE_FLUTE (350) is a KEY item — _item_count/bag_count only scan the ITEMS pocket
+            # (0x310) and can NEVER see it, so the old `_item_count(350)>0` never fired and Route 12/16
+            # stayed avoided even POST-Flute (the docstring's "roads open" never actually happened). Read
+            # the KEY-ITEMS pocket (where the Flute lives) so the avoid clears once she can wake the
+            # Snorlaxes. (NS#11: this latent bug blocked ALL post-Flute routing TO Fuchsia — the only learned
+            # graph path south runs through Route 12 — which the proactive Surf questline is the first to need.)
+            import hm_teach as ht
+            if 350 in ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30):
                 return set()
         except Exception:
             pass
