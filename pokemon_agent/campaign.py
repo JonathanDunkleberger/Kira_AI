@@ -165,6 +165,16 @@ GRIND_WEAK_PROBE_S = int(os.getenv("POKEMON_GRIND_WEAK_PROBE_S", "180"))
 # Distinguishes the ace-thrash (0 progress) from a legit deep grind (grind_pre_brock earns levels per
 # excursion, so lvl() rises and the cap never trips). Fail-open: healable routes rarely excursion at all.
 GRIND_HEAL_EXCURSION_CAP = int(os.getenv("POKEMON_GRIND_HEAL_EXCURSION_CAP", "4"))
+# GRIND GRASS-UNREACHABLE CAP (NS#5 Route-10 (11,79) livelock): grind() paces travel(arrive_coord=grass);
+# when the grass she "knows" on this map sits behind an INTERNAL split (Route 10's north grass is cliff-
+# sealed from the Lavender-side south pocket — the only crossing is Rock Tunnel), EVERY waypoint travel
+# returns "no_path" fast, but the inner loop only caught battle_loss/need_heal — so it re-fired the same
+# unreachable waypoints for the whole 480s budget (ns4_koga.log: 4,087 identical TRAVEL WEDGEs at (11,79)).
+# Cap the no_path-WITHOUT-LEVEL-GAIN count per grind() call: N fast grass-unreachable travels and ZERO
+# levels earned => this map's grass can't be reached from here -> mark grind-dead, surface no_safe_grass so
+# the caller stands down and picks a Center-reachable spot / gets back on the road. Fail-open: any level
+# gain (an encounter DID fire, so grass IS reachable) means lvl()>lvl_start and the cap can never trip.
+GRIND_NOPATH_CAP = int(os.getenv("POKEMON_GRIND_NOPATH_CAP", "6"))
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -5897,6 +5907,7 @@ class Campaign:
         exc0 = getattr(self, "_heal_excursion_n", 0)           # snapshot expensive heals + start level; a
         #                                                        grind that racks up cross-city excursions
         #                                                        with ZERO level gain is a split-route thrash
+        nopath_n = 0                                           # NS#5: grass-unreachable travel count (split-map pocket)
         while lvl() < target_level and time.time() - t0 < budget_s:
             gs = grass_save()
             if not gs:
@@ -5942,6 +5953,23 @@ class Campaign:
                                      max_steps=60, max_seconds=80, avoid=doors)
                 if r == "battle_loss":
                     return "battle_loss"
+                if r == "no_path":
+                    # Couldn't REACH this grass tile (travel wedged). If we rack up no_path with ZERO
+                    # level gain, the grass she "knows" here is sealed off from her current pocket (the
+                    # Route-10 (11,79) south-pocket → north-grass split) — spinning the budget re-trying
+                    # the same unreachable waypoints. Mark grind-dead + stand down (mirrors the strand /
+                    # heal-thrash guards). Any level gained resets nothing because lvl()>lvl_start makes
+                    # the cap unreachable — a productive grind (encounters firing) never trips this.
+                    nopath_n += 1
+                    if nopath_n >= GRIND_NOPATH_CAP and lvl() <= lvl_start:
+                        log(f"   !! GRIND: {nopath_n} grass-unreachable travels on {tv.map_id(self.b)} "
+                            f"with 0 level gain — the grass here is sealed off from this pocket (split-map "
+                            f"strand); stopping LOUD")
+                        if not hasattr(self, "_grind_dead"):
+                            self._grind_dead = set()
+                        self._grind_dead.add(tuple(tv.map_id(self.b)))
+                        return "no_safe_grass"
+                    continue
                 if r == "need_heal":
                     self.heal_nearest()
                     # BAIL a split-route heal-thrash: N expensive cross-city excursions AND no level
