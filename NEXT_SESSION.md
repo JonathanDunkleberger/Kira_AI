@@ -1,6 +1,82 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #41 DONE (2026-07-11) — CAVE ENCOUNTER-FLOOR traversal CRACKED → keeper router CATCHES a cave-gated keeper END-TO-END (party 4→6, Diglett); `POKEMON_KEEPER_STATIC_ROUTE` flipped default ON. START HERE.
+## ✅ NIGHT-SHIFT #42 DONE (2026-07-11) — the DOMINANT NS#41 blocker (CELADON-NAV WEDGE) KILLED + BALL ECONOMY wired → on the REAL surge_done_kit fixture she buys balls, descends Diglett's Cave, and CATCHES diglett with ZERO wedges. START HERE.
+**ONE commit banked (`2eeb5fc`), mode-side, canonical Champion save UNTOUCHED. Both fixes proven e2e on the ball-starved surge_done_kit look-ahead (0 travel wedges, 0 Route-12 entries, `catch_pokemon -> caught`).**
+
+**`2eeb5fc` — Celadon-nav wedge (WIRING fix) + keeper ball economy.**
+- **(1) CELADON-NAV WEDGE (the NS#41 dominant blocker — a soft-livelock, watchability killer).** ROOT (from
+  `ns41_finalproof.log`, exact trace): head_to_gym's OFF-ROAD ANCHOR-STEER in `_road_step` (campaign.py ~10086-10104)
+  computed its route with `avoid = self._wall_avoid(state)` ONLY — it did NOT include `_story_gate_avoid`. So on
+  Route 11 (3,29) it logged *"off-road at (3,29) — steering toward road anchor Celadon City (east)"* and edge-traveled
+  EAST onto Snorlax/Flute-gated **Route 12 (3,30)** (the graph learned Route 11<->Route 12 while she detoured for the
+  Diglett keeper, but Route 12 is blocked pre-Flute). There the Snorlax NPC dead-ended every direction → `TRAVEL WEDGE:
+  identical fp x4 -> no_route` **×1,391** at (13,70), and entering also spawned the flute questline whose ANCHOR-FIRST
+  pushed her north into the SAME Snorlax. The head_to_gym WARP-ROUTE path (campaign.py ~10343) ALREADY applies
+  `_story_gate_avoid` + the Saffron-bypass; the off-road billed-road steer just never got the same avoid set. FIX:
+  mirror that avoid set onto `_road_step`'s off-road steer (`avoid = _wall_avoid | _story_gate_avoid`, `| {SAFFRON}`
+  unless the target city IS Saffron). Pure WIRING (the guard existed; the steer bypassed it — exactly the mission's
+  "connect the solved approach, don't rediscover it"). `world.route` always allows the SRC map (pokemon_world.py:238),
+  so a resume ON a gated map can still escape. **VERIFIED:** two surge_done_kit look-aheads = **0 Route-12 entries,
+  0 travel wedges** (was 1,391).
+- **(2) BALL ECONOMY for keeper hunts (NS#41 frontier item B).** `_shopping_list` (campaign.py ~8692) only topped
+  balls for a THIN team (`_thin_team()` = party<=3), so a party-4 hunter walked out of the Mart with too few balls and
+  hit `catch_pokemon -> no_balls` in Diglett's Cave (never descended/caught — the ns41_finalproof + first ns42 run
+  both stalled in the cave vestibule on 0 balls). NEW location-free **`_keeper_due(state)`** (assess -> catch_keeper,
+  unlike the on-map-gated `_plan_keeper_target` which is None at the Mart) drives a bumped **`SHOP_BALL_KEEPER_TARGET=8`**
+  in `_shopping_list` + `_shop_note` when a coverage keeper is DUE, even at party>3. **VERIFIED e2e:** she now buys
+  `5x Poké Ball` at Vermilion (narrated in-character: *"grab a good stock so you can actually catch the teammate your
+  plan wants"*), `keeper_route:cave_descend` to the Diglett floor (1,37), and `catch_pokemon -> caught`.
+
+### ✅ FULL badge-3→Celadon-approach climb VERIFIED POSITIVE this shift (`ns42_celadon_march.log`, 30-min surge_done_kit):
+buys balls → `keeper_route:cave_descend` → **CATCHES 2 diglett (party 4→6, dex 6→7)** → exits the cave → head_to_gym
+steers her CORRECTLY via the BILLED ROAD (Vermilion→Route 6→Route 5→Cerulean→Route 9→CUT tree→approaching **Rock Tunnel**
+`travel:3,28`), NEVER east onto Route 12. **0 travel wedges, 0 Route-12 entries the whole run.** The 2 cave battle-losses
+(a dugtrio out-levels her thin bench on the deeper floor) were recovered from cleanly (heal + retry). This is the
+dominant NS#41 blocker DEAD and the Celadon approach reconnected end-to-end.
+
+### ⇒ NS#42 FRONTIER (exact next actions, priority order):
+0. **NEXT BLOCKER = ROCK TUNNEL / FLASH gate (the badge-3→4 push continues here).** She reached the Rock Tunnel approach
+   (Route 9→10) with a party of 6 but **only 7 OWNED species** — HM05 Flash needs **10 owned** (Route 2 aide) and Rock
+   Tunnel is PITCH DARK without it (the ONLY pre-Flute road to Lavender→Celadon). So the gate is a TEAM-BUILDING gate:
+   catch ~3 more species first. The keeper plan already advanced to `growlithe` (Route 7/8) next. Probe (running at shift
+   close, `G:/temp/longrun/ns42_probe.log`, 60-min surge_done_kit): does she build toward 10 owned + teach/use Flash +
+   cross Rock Tunnel? The Flash chain is PROVEN historically ([[pokemon-nighttrain-shift3-flashgate-celadon-approach]] +
+   the flash_errand ~campaign.py:6695) — if a fresh run bumps it, it's a WIRING re-connect, not a rediscover. DIAGNOSE
+   from the probe log where the Rock-Tunnel/Flash chain does/doesn't fire.
+1. **CAVE-HUNT reliability + watchability (2 sub-items surfaced this shift):**
+   (a) the deeper Diglett's-Cave floor (1,37) spawns **dugtrio** (~L29) that walls her thin bench → 2 battle-losses on the
+   march run before she caught. Not a livelock (heal+retry recovered), but a watch-quality + reliability gap: consider
+   fielding the STRONG lead for the cave-hunt battles (she's there to catch, not to grind the bench on an over-level foe),
+   or bias the catch toward the shallower diglett floor.
+   (b) **per-species dedup** (NS#41 (c)) — she caught **2 diglett** (L19 + L15) building toward 6; a per-species dedup in
+   `_keeper_route_target`/`_plan_wants_prebuild` stops the redundant second catch (self-terminated at party 6, low pri).
+2. **WATCHABILITY: the cave descend/catch is SLOW + circly on a watch** (NS#41 (a), still open). The barren-vestibule
+   wander + long interior traversal burn wall-time; a step-count barren detector (~15-20 steps no encounter → descend)
+   would beat the 45s wall timer (`POKEMON_KEEPER_CAVE_FLOOR_WANDER_S`). Lower priority than "does she progress", but it's
+   a real watch-quality gap on a live run.
+2. **per-species dedup** (NS#41 (c)) — the prebuild un-gate can catch a SECOND of the same species while building toward
+   6 (cave3 caught 2 diglett). A per-species dedup in `_keeper_route_target`/`_plan_wants_prebuild` stops the redundant
+   catch (self-terminates at party 6, so low priority).
+3. **THE NS#41/#39 stack still stands:** flip `POKEMON_PCBOX` default ON (owed ONE live PC-menu grab-and-look — needs
+   Jonny's eyes); swap_keeper in a full run UNOBSERVED; bench pace (+6 bite cadence — HOLD pending a fresh multi-gym
+   look-ahead per NS#1).
+4. **FINAL-PROOF gate** — a fresh mid-game forward with all flags → she catches/fields MULTIPLE coverage keepers, levels
+   the bench (road-bench-XP), preps to milestones, arrives E4-ready with a real leveled 6. Use a state WITH a world_model
+   sidecar (surge_done_kit/erika_done_kit — NOT og_postopening, nav-blind).
+
+**NB — the flaky ball-read is UNRESOLVED but no longer blocking:** at Vermilion `_ball_note` (→"ZERO Poké Balls") and
+the fetch_keeper BALL GATE (`_ball_count() > 0`) disagreed in the SAME tick — the Gen-3 SaveBlock1 DMA-relocation hazard
+makes `_balls_pocket_count` non-deterministic across frames. Marked low-pri in NS#41; the ball-economy fix (buy to 8 when
+a keeper is due) makes her over-stock enough that the flaky read no longer starves the catch. A real fix = read the ball
+count once/tick during a stable frame (cache it), or resolve the SaveBlock1-moved read — deferred.
+
+**Re-verify NS#42:** `LONGRUN_BATTLE_LOG=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 ../.venv/Scripts/python.exe
+-u recon_longrun.py surge_done_kit.state 14` → grep `bought.*Ball | keeper_route:cave_descend | catch_pokemon -> caught |
+TRAVEL WEDGE | MAP TRANSITION.*-> \(3, 30\)` (expect balls bought + descend + caught + ZERO wedges + ZERO Route-12 entries).
+
+---
+
+## ✅ NIGHT-SHIFT #41 DONE (2026-07-11) — CAVE ENCOUNTER-FLOOR traversal CRACKED → keeper router CATCHES a cave-gated keeper END-TO-END (party 4→6, Diglett); `POKEMON_KEEPER_STATIC_ROUTE` flipped default ON.
 **ONE commit banked (`f785acf`), mode-side, canonical Champion save UNTOUCHED (post-game party-full → router short-circuits to None).**
 Finished NS#40 FRONTIER item 0 (the cave encounter-floor gap) and PROVED the whole keeper-acquisition chain end-to-end.
 
