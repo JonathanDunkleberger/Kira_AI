@@ -6370,6 +6370,15 @@ class Campaign:
             return False
         if pick != "head_to_gym" and not str(pick).startswith("travel:"):
             return False
+        # NAV-CRITICAL QUESTLINE GUARD (2026-07-11 NS#4): when a questline errand is active, head_to_gym
+        # runs the ERRAND, not a plain march — and errands do nav-critical traversal (the Flash errand
+        # crosses pitch-dark Diglett's Cave to the Route-2 aide; dungeon strikes cross gauntlet interiors).
+        # A demoted ace there is a LIVELOCK: the weak lead can't clear an L29 cave Dugtrio with Cut, and
+        # the in-battle switch-to-ace is unreliable (Tier-1 #5) → flee-loop that never traverses the cave
+        # (observed: weak lead flee-looping Diglett's Cave (1,37), blocking the Route-2 crossing). Keep the
+        # TRUE ace leading for errand ticks; the bench banks its XP on the many normal marching legs instead.
+        if getattr(self, "_active_questline", None) is not None:
+            return False
         try:
             if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
                 return False
@@ -6809,23 +6818,29 @@ class Campaign:
             # or times out — on a near-exhausted map every encounter is a dupe (Route 11 = ekans/spearow)
             # so it burns its whole budget catching nothing new. Track dex per pass, use a SHORT per-catch
             # budget, and move on after 2 no-gain passes — the cave/next map supplies the fresh species.
+            # Returns WHY it stopped so the caller only blacklists a leg on genuine dupe-exhaustion
+            # (2026-07-11 NS#43): 'no_balls'/'no_grass' are TRANSIENT (restock / move on) and must NOT
+            # mark the leg done — a 0-ball arrival on Route 6 was wrongly blacklisting the +4 dex route.
             misses = 0
             for _ in range(tries):
                 have0 = ram.pokedex_owned_count(b)
                 if have0 >= 10:
-                    return
+                    return "dex10"
                 cr = self.catch_one(max_seconds=90)
                 have1 = ram.pokedex_owned_count(b)
                 log(f"   [flash-errand] catch on {where}: dex={have1}/10 -> {cr}")
-                if cr in ("no_grass", "no_reachable_target", "no_balls"):
-                    return
+                if cr == "no_balls":
+                    return "no_balls"
+                if cr in ("no_grass", "no_reachable_target"):
+                    return "no_grass"
                 if have1 > have0:
                     misses = 0
                 else:
                     misses += 1
                     if misses >= 2:
                         log(f"   [flash-errand] {where}: fresh species exhausted this pass — moving on")
-                        return
+                        return "exhausted"
+            return "progress"
 
         cur = tuple(tv.map_id(b))
         # DEX-PROGRESS GUARD (rule 18 — no freeze-spin): reachable grass (Route 11 + Route 2) caps the
@@ -6865,9 +6880,7 @@ class Campaign:
         if cur == ROUTE11:
             _legdone = self.__dict__.setdefault("_flash_leg_done", set())
             if ram.pokedex_owned_count(b) < 10 and ROUTE11 not in _legdone:
-                _pre = ram.pokedex_owned_count(b)
-                _catch_to_10("Route 11", tries=3)
-                if ram.pokedex_owned_count(b) <= _pre:
+                if _catch_to_10("Route 11", tries=3) == "exhausted":
                     _legdone.add(ROUTE11)
             ok = self._cross_cave("north", ROUTE2)
             return "flash_progress" if ok else "flash_stuck"
@@ -6978,9 +6991,7 @@ class Campaign:
             _legdone = self.__dict__.setdefault("_flash_leg_done", set())
             if (ram.pokedex_owned_count(b) < 10 and cur in self._FLASH_CATCH_LEGS
                     and cur not in _legdone):
-                _pre = ram.pokedex_owned_count(b)
-                _catch_to_10(self._FLASH_CATCH_LEGS[cur], tries=3)
-                if ram.pokedex_owned_count(b) <= _pre:
+                if _catch_to_10(self._FLASH_CATCH_LEGS[cur], tries=3) == "exhausted":
                     _legdone.add(cur)
                     log(f"   [flash-errand] {self._FLASH_CATCH_LEGS[cur]} yielded no new species "
                         f"— marking leg catch-exhausted (walk through from here)")
@@ -6988,13 +6999,17 @@ class Campaign:
             # she ran DRY at dex 9 on Route 11 and couldn't take the last species. Vermilion (a leg she
             # crosses) sells Poké Balls (MART_STOCK row 0); top up here whenever the dex gate is still open
             # and the pocket's thin, so she reaches Route 11 / Route 2 with ammo for the final catch.
-            if (cur == VERMILION and ram.pokedex_owned_count(b) < 10
+            # (2026-07-11 NS#43) restock at ANY mart town on the back-legs, not just Vermilion — Cerulean
+            # (3,3) comes BEFORE the Route 6 catch leg, so topping balls there means she reaches the +4
+            # dex route with ammo (she was arriving at Route 6 with 0 balls, wasting the best catch route).
+            _FLASH_MART_LEGS = {CERULEAN: CERULEAN_MART_DOOR, VERMILION: VERMILION_MART_DOOR}
+            if (cur in _FLASH_MART_LEGS and ram.pokedex_owned_count(b) < 10
                     and self._ball_count() < 6 and self.money() > SHOP_MONEY_FLOOR):
                 want = 12 - self._ball_count()
                 log(f"   [flash-errand] dex {ram.pokedex_owned_count(b)}/10 + {self._ball_count()} balls "
-                    f"— restocking {want} Poké Ball(s) at Vermilion Mart for the final catch")
+                    f"— restocking {want} Poké Ball(s) at {self.world.name(cur)} Mart for the catch")
                 try:
-                    self.buy_at_mart(VERMILION_MART_DOOR, [(ITEM_POKE_BALL, want)])
+                    self.buy_at_mart(_FLASH_MART_LEGS[cur], [(ITEM_POKE_BALL, want)])
                 except Exception as _be:
                     log(f"   [flash-errand] ball restock skipped ({_be}) (LOUD)")
             go, nxt = self._FLASH_BACK_LEGS[cur]
