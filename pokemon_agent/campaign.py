@@ -188,6 +188,16 @@ KEEPER_CAVE_FLOOR_WANDER_S = int(os.getenv("POKEMON_KEEPER_CAVE_FLOOR_WANDER_S",
 # a live grab-and-look confirms the actuation on the show build. Decision/selection logic + a headless deposit
 # are verified in recon_deposit_check.py. Never boxes an on-plan line (planner._is_target_line) or the lead.
 PCBOX_ENABLED = os.getenv("POKEMON_PCBOX", "0") != "0"
+# NS#11: the SAFARI ZONE STRIKE (HM03 Surf + HM04 Strength via safari_strike.run_strike) + the PROACTIVE
+# Blaine Surf-prereq recognition. DEFAULT OFF — recognition + strike are useless/harmful apart and the
+# whole chain needs a live look-ahead before default-ON (a mis-timed Surf questline poisons her ctx). When
+# ON: a fresh badge-6 Surf-less run recognizes the uncrossable Cinnabar sea BEFORE marching into it and
+# routes to the Safari for Surf. Enable with POKEMON_SAFARI_STRIKE=1.
+SAFARI_STRIKE_ENABLED = os.getenv("POKEMON_SAFARI_STRIKE", "0") != "0"
+# Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
+# nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
+# at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
+HM_PREREQ_GYMS = {"Blaine"}
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
@@ -646,6 +656,13 @@ GYMS = {
 GYM_PREREQS = {
     "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
                 "Sabrina's gym is blocked — Team Rocket has Silph Co. locked down in the middle of the city"),
+    # Blaine (Cinnabar, badge 7): the gym isn't story-blocked — the ISLAND is unreachable Surf-less (the
+    # billed sea road crosses open water). missing='surf' resolves through frlg_gates.json's HM chain to a
+    # ('cap','surf') strike step -> safari_strike. Unlike Sabrina's at-the-door gate this can NEVER fire from
+    # beat_gym-stuck (she can't reach Cinnabar to bonk the door) — it's recognized PROACTIVELY (HM_PREREQ_GYMS)
+    # in _ensure_forward_questline. FLAG_GOT_HM03 = 0x239 (Surf obtained at the Safari Secret House).
+    "Blaine": (0x239, "surf",
+               "Cinnabar's across the sea — I can't reach Blaine's gym until I can Surf"),
 }
 # party-mon cached HP (unencrypted): current 0x56, max 0x58 (off GPLAYER_PARTY)
 P_HP, P_MAXHP = 0x56, 0x58
@@ -8784,6 +8801,10 @@ class Campaign:
                 from silph_strike import SAFFRON, SILPH_MAPS, run_strike
                 return run_strike, ({SAFFRON} | SILPH_MAPS), ("freed_saffron",), "silph_probe"
 
+            def _safari():
+                from safari_strike import SAFARI_ANCHORS, run_strike
+                return run_strike, SAFARI_ANCHORS, ("got_surf", "got_strength"), "safari_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -8797,9 +8818,22 @@ class Campaign:
                     "Silph Co. liberation (free Saffron / unblock Sabrina)",
                     "we did it — Silph Co. is free, Team Rocket's boss is beaten, and Saffron's ours. "
                     "now Sabrina's gym is finally open.", _silph),
+                # NS#11: the Surf/Strength acquisition step derives success ('cap','surf')/('cap','strength')
+                # (an HM step's win is a party mon KNOWING the move — see _step_from_cap). The strike fires
+                # BEFORE the teach bridge (which needs the HM already in the case), gets HM03+HM04 in the
+                # Safari, and the teach bridge then teaches Surf next tick. Flag-gated (SAFARI_STRIKE_ENABLED).
+                ("cap", "surf"): (
+                    "Safari Zone (HM03 Surf — the sea road to Cinnabar/Blaine)",
+                    "Surf! the whole sea just opened up — Cinnabar, and Blaine's gym, are finally within "
+                    "reach.", _safari),
+                ("cap", "strength"): (
+                    "Safari Zone (HM04 Strength — the Victory Road boulders)",
+                    "Strength — now I can shove those boulders in Victory Road out of the way.", _safari),
             }
             if succ not in registry:
                 return None
+            if succ in (("cap", "surf"), ("cap", "strength")) and not SAFARI_STRIKE_ENABLED:
+                return None                     # strike flag-gated OFF -> fall through to the general layer
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -8824,7 +8858,7 @@ class Campaign:
                 tries_map[succ] = 0
                 self.on_event(done_msg, kind="milestone", tier=2)
                 return "questline_strike_done"
-            if res in ("in_hideout", "in_silph"):
+            if res in ("in_hideout", "in_silph", "in_safari"):
                 # objective obtained (flag/item set) but still INSIDE the dungeon — keep the inside
                 # marker so recovery doesn't eject her mid-dungeon; retry the exit next tick. (The
                 # deriver already reads the flag as satisfied, so the questline self-clears next tick;
@@ -9058,6 +9092,21 @@ class Campaign:
                 else:
                     self._active_questline = q
                 return
+            # PROACTIVE HM-PREREQ (NS#11, the Blaine/Cinnabar Surf sea-gate): a gym gated behind an HM she must
+            # ACQUIRE, where the at-the-door prereq (_gym_prereq_gate via beat_gym-stuck) can NEVER fire — she
+            # can't even reach the gym (Cinnabar is across open water she can't yet Surf). Recognize it HERE,
+            # before she marches into the uncrossable sea, and open the Safari strike errand so head_to_gym
+            # drives toward Fuchsia/the Safari for Surf. Scoped to HM_PREREQ_GYMS so Sabrina's at-the-door
+            # Silph path is untouched; the _gym_prereq_gate LIVE-crosschecks the flag (no-op once she has Surf).
+            if SAFARI_STRIKE_ENABLED:
+                ng = state.get("next_gym")
+                gym = GYMS.get(ng["leader"]) if ng else None
+                if gym is not None and gym.name in HM_PREREQ_GYMS:
+                    pg = self._gym_prereq_gate(gym)
+                    if pg is not None and self._open_questline(pg, state):
+                        log(f"   [roam] 🌊 PROACTIVE HM-PREREQ: {gym.name} needs {pg.missing} — opening the "
+                            f"acquisition errand before the sea march")
+                        return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
             # head_to_gym drives THAT and the action-set reframes around it.
