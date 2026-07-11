@@ -1,6 +1,88 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ✅ NIGHT-SHIFT #40 DONE (2026-07-11) — keeper-reachability chicken-and-egg CRACKED (routes+enters the cave); cave step-encounter wander BUILT; NEW binding gap = cave encounter-FLOOR traversal. START HERE.
+## ✅ NIGHT-SHIFT #41 DONE (2026-07-11) — CAVE ENCOUNTER-FLOOR traversal CRACKED → keeper router CATCHES a cave-gated keeper END-TO-END (party 4→6, Diglett); `POKEMON_KEEPER_STATIC_ROUTE` flipped default ON. START HERE.
+**ONE commit banked (`f785acf`), mode-side, canonical Champion save UNTOUCHED (post-game party-full → router short-circuits to None).**
+Finished NS#40 FRONTIER item 0 (the cave encounter-floor gap) and PROVED the whole keeper-acquisition chain end-to-end.
+
+**`f785acf` — cave-descend + errand-drives-cave-catch (VERIFIED e2e).** NS#40 left the router able to ROUTE into
+Diglett's Cave but unable to CATCH (she wandered the encounter-less Route-11 vestibule (1,38) forever). ROOT (found via
+look-ahead): after `_enter_host_via_gateway` steps into the cave in the SAME tick, `_fetch_keeper_errand` called plain
+`catch_one()` (default 300s, NO descend) instead of the descend-aware `_cave_fetch_catch` → she burned the whole budget
+on the barren vestibule and never took the internal `(6,4)→(1,37)` warp to the Diglett floor. THREE mode-side fixes
+(campaign.py): (1) route the SAME-TICK cave arrival through `_cave_fetch_catch` so the descend fires on FIRST entry;
+(2) BALL GATE on the `fetch_keeper` offer — never offer a keeper detour with 0 balls (else she routes into a cave she
+can't catch in and spins re-entering it — the 3-ball soft-livelock); (3) flip `POKEMON_KEEPER_STATIC_ROUTE` default ON
+(catch proven) + lower the per-floor barren wander default 90→45s. **VERIFIED e2e** (surge_done look-ahead, Vermilion
+badge-3): PICK fetch_keeper → ride Vermilion→Route 11 static gateway → step into Diglett's Cave (1,38) → wander barren
+vestibule → `CAVE-FETCH descend` the internal (6,4) warp → floor (1,37) → encounter + CATCH diglett → **party 4→6** →
+plan advances to next keeper (growlithe) → party full so fetch_keeper gates off → PICK head_to_gym (resumes the road, NO
+livelock). Decision checks green: `recon_static_keeper_check` 11/11, `recon_keeper_router_check` ALL PASS (fixed a stale
+stub the NS#40 refactor had broken), `recon_deposit_check` ALL PASS.
+
+### ⇒ NS#41 FRONTIER (exact next actions, priority order):
+   **✅ SOLVED THIS SHIFT (commit `591442d`) — keeper acquisition now ACTIVATES on a dinged team (the "arrives thin"
+   root).** The ns41_real look-ahead caught the real surge_done_kit (57% HP lead) marching PAST Diglett's Cave because
+   `fetch_keeper` was gated `and not needs_heal()` (NS#39 "don't detour on a dinged team") and the oracle never healed.
+   FIX: relax the heal-gate ONLY for STATIC-GATEWAY hosts (door-caves adjacent to the route, no gauntlet — Diglett's
+   Cave) while still gating when CRITICALLY hurt; learned-route/gauntlet hosts (abra via Nugget Bridge) keep the strict
+   gate. VERIFIED e2e on the REAL fixture: fetch_keeper offered+picked at 57% -> cave -> descend -> CATCH diglett
+   (party 4->5, L20) -> grinds the bench. No heal-loop (0 heal picks / 12 fetch picks), no livelock.
+
+0. **⭐ THE FINAL-PROOF GATE is now the top item — RUN IT.** Keeper acquisition (cave + dinged) works and road-bench-XP
+   works, so run the whole-mission proof: `LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py
+   surge_done_kit.state 30` and READ the blocker chain — does she catch MULTIPLE coverage keepers, level the bench to
+   milestones, and arrive E4-ready with a REAL leveled 6? Likely NEXT walls: (a) the 45s BARREN-VESTIBULE wander is
+   slow/circly on a watch — a step-count barren detector (~15-20 steps no encounter -> descend) beats the wall timer
+   (`POKEMON_KEEPER_CAVE_FLOOR_WANDER_S`); (b) BALL ECONOMY — `_shopping_list` (~8693) only tops balls when `(party<=3
+   OR balls<2) AND balls<5`, so a party-4+ hunter buys ZERO; wire the ball-buy to the keeper plan (`catch_keeper` DUE
+   -> top to ~8) so a harder/awake keeper (abra/growlithe) doesn't burn out (diglett is easy so 3 sufficed); (c) the
+   prebuild un-gate catches a SECOND of the same species while building toward 6 (2 diglett in the cave3 run) — a
+   per-species dedup would stop it (self-terminates at party 6, low pri); (d) cave step-encounter grind for the L45->55
+   E4-prep push (unbuilt). Fix the FIRST real wall, re-run, iterate toward E4-ready.
+
+   **(SUPERSEDED — kept for context) prior top blocker, now fixed by 591442d:** On the REAL surge_done_kit (lead at 57% HP), she stood in Vermilion — Diglett's Cave one
+   short static hop away — and `fetch_keeper` was NEVER OFFERED because the offer is gated `and not self.needs_heal()`
+   (campaign.py ~9507, the deliberate NS#39 "don't start a detour on a dinged team" rule). She has a Center RIGHT
+   THERE but the oracle picked stock_up→stock_up→**head_to_gym** (57% isn't urgent enough to pick `heal`), marched
+   Vermilion→Route 6→…→Cerulean→Route 9, PAST the diglett window, still a thin 4-mon team. So the whole verified
+   cave-catch chain sits idle on any realistically-dinged run. **THIS is the "arrives thin" root the mission targets.**
+   THE FIX (nuanced — do it carefully with a look-ahead, NOT a rushed end-of-context edit; that's why I banked instead
+   of shipping it): make her HEAL-THEN-FETCH when a keeper is DUE + reachable + she's dinged + a Center is on THIS map
+   — i.e. connect the keeper plan to healing so she tops up and un-gates the detour instead of marching off. Options:
+   (a) when a keeper is DUE and she's in a Center town, bias the oracle toward `heal` over `head_to_gym` (un-gates
+   fetch_keeper next tick); (b) relax the keeper-offer gate from `not needs_heal()` to `not <critical>` for a SAFE
+   short hop (Vermilion→Diglett's Cave has NO gauntlet) while keeping the strict gate for gauntlet keepers (abra via
+   Nugget Bridge). ⚠️ HEAL-LOOP RISK: heal→fetch→dinged→heal must not livelock — verify a full multi-tick look-ahead
+   from surge_done_kit shows heal→fetch_keeper→CATCH→resume, no ping-pong. Success = on the REAL (un-injected) fixture
+   she catches diglett and marches on with party 5+. NB she ALSO already HOLDS Abra (L10, psychic keeper) needing only
+   LEVELING — so bench-pace/road-XP is the parallel team-depth lever even if keeper-catching stays gated.
+0b. **BALL ECONOMY (secondary, only bites once #0 is unblocked).** The ball-buy foresight (`_shopping_list`,
+   campaign.py ~8693) only tops balls when `(_thin_team() [party≤3] OR balls<2) AND balls<5` → a party-4 hunter with 3
+   balls buys ZERO at the Mart. Diglett is EASY (catch rate 255) + Venusaur has Sleep Powder, so 3 balls sufficed in
+   the e2e proof; a harder/awake keeper would burn out. FIX: wire the ball-buy to the keeper plan — `catch_keeper` DUE
+   → top balls to `SHOP_BALL_TARGET` (bump 5→~8) even at party>3. (Low priority until #0 lands — she never reaches the
+   catch on a real run yet.)
+1. **THEN the NS#39/#40 stack stands (unchanged):** flip `POKEMON_PCBOX` default ON (owed ONE live grab-and-look —
+   needs Jonny's eyes, can't headless-prove the menu on the show build); swap_keeper in a full run UNOBSERVED (needs a
+   fixture where a keeper is auto-boxed at party-6); bench pace (+6 bite cadence — HOLD pending a fresh multi-gym
+   look-ahead per NS#1). MINOR polish noted this shift: the prebuild un-gate catches a SECOND of the same species while
+   building toward 6 (she caught 2 diglett) — a per-species dedup in `_keeper_route_target`/`_plan_wants_prebuild`
+   would stop the redundant catch (self-terminates at party 6, so low priority).
+2. **FINAL-PROOF gate** — a fresh mid-game forward with all flags → she catches/fields coverage keepers, levels the
+   bench (road-bench-XP), preps to milestones, arrives E4-ready with a real leveled 6. Use a state WITH a world_model
+   sidecar (surge_done_kit/erika_done_kit — NOT og_postopening, nav-blind).
+
+**NB — fixtures & re-verify:** `states/workshop/surge_done_balls.*` = a 30-ball copy of surge_done_healed I made this
+shift (states/workshop is gitignored, so it's local-only) — used to prove the catch isn't ball-starved. Re-create:
+boot surge_done_healed, write balls-pocket slot (SaveBlock1+0x430, qty XOR the low-16 SaveBlock2+0xF20 key) to 30 via
+`b.core.memory.u16.raw_write`, save + copy the 4 sidecars. Re-verify the cave catch: `LONGRUN_BATTLE_LOG=1
+../.venv/Scripts/python.exe -u recon_longrun.py surge_done_balls.state 10` → grep `CAVE-FETCH|catch_pokemon -> caught`.
+The 3-balls-read-as-0 oddity (surge_done_healed): fresh both `camp._ball_count()` and `BattleAgent._ball_count()` read
+3, but the cave2 run's first catch_pokemon returned no_balls — unresolved, low priority (the 30-ball run catches clean).
+
+---
+
+## ✅ NIGHT-SHIFT #40 DONE (2026-07-11) — keeper-reachability chicken-and-egg CRACKED (routes+enters the cave); cave step-encounter wander BUILT; NEW binding gap = cave encounter-FLOOR traversal.
 **TWO commits banked (`657f2d8`, `80789ab`), both mode-side, flag-gated `POKEMON_KEEPER_STATIC_ROUTE` (default OFF), canonical UNTOUCHED.**
 Attacked NS#39 FRONTIER #1 (the top binding constraint) and drove it to the NEXT real wall via a behavioural look-ahead.
 
@@ -26,16 +108,27 @@ fetch (normal grass-catching untouched; inert in default runs). **THREE-STATE: W
 confirmed she routes in, computes 4 cave waypoints, and wanders them with NO oscillation, but caught NOTHING.
 
 ### ⇒ NS#40 FRONTIER — the NEW binding gap (precise, exact next actions):
-0. **THE ROOT of the no-catch: the Route-11 entrance sub-map (1,38) has NO Diglett wild table.** The behavioural run
-   spent **10,577 steps on (1,38) with ZERO encounters** — that vestibule doesn't spawn wilds; the Diglett floor is a
-   DEEPER cave sub-map (`(1,37)`/`(1,36)`). So routing+entry+wander all WORK; she's just wandering the wrong room.
-   **THE FIX (next shift's headline): after entering at (1,38), TRAVERSE the cave to the encounter-bearing floor**
-   (reuse the proven `_cross_cave`/`_flash_errand` cave-stepping — memory: Diglett's Cave Route-2 mouth (17,11)→(1,36);
-   the cave is one N–S tunnel Route 2↔Route 11), THEN run the step-encounter wander THERE. Verify which sub-map has the
-   Diglett encounters first (frlg_encounters is AREA-keyed, not per-sub-map — check the ROM/disasm wild table for
-   (1,36)/(1,37), or just walk her deeper and watch where encounters start firing). ⚠️ **ADD a no-encounter-cave
-   RETIRE guard** (N wander-timeouts with no party growth on a cave sub-map → retire it to `_keeper_unreach`) so a
-   barren sub-map can't livelock — the current wander would spin forever on (1,38) if the flag were ON.
+0. **THE ROOT of the no-catch — FULLY DIAGNOSED this shift (structural, not a mystery):** the Route-11 entrance
+   sub-map **(1,38) has NO Diglett wild table** (10,577 steps, ZERO encounters). **(1,38)'s learned warps (from the
+   run):** `(4,6)→(3,29)` [EXIT back to Route 11] and **`(6,4)→(1,37)` [INTERNAL warp DEEPER into the cave]**. So the
+   Diglett floor is `(1,37)` (and/or `(1,36)`, the Route-2 side). **WHY she never got there:** the cave-wander's
+   `avoid=doors` (all 0x60–0x6F tiles) blocked BOTH the exit AND the internal `(6,4)` warp → she was trapped in the
+   encounter-less vestibule. **TWO precise fixes needed (the next shift's build, now well-scoped):**
+   (a) **CAVE DESCEND** — the cave-catch must classify warps by the LIVE-read dest: AVOID only EXIT warps (dest place
+   name ≠ the cave area) but ALLOW/STEP-THROUGH INTERNAL warps (dest is another sub-map of the SAME cave area) to
+   descend `(1,38)→(1,37)→…` until an encounter floor is reached (or all sub-maps tried → retire, the no-encounter-cave
+   guard). `tv.read_warps` gives (xy,dest,wid); `self._place_name(dest)` classifies. Wander each floor for a bounded
+   time; if no encounter, take an unvisited internal warp.
+   (b) **THE ERRAND MUST DRIVE THE WHOLE CAVE-CATCH** — ⚠️ the generic ON-MAP catch is GRASS-ONLY: `wander_catch` is
+   only offered when `_reachable_grass()` succeeds, so in a cave NO catch action is offered → once she's inside the
+   cave, `_keeper_route_target` returns None (species on-map → "on-map un-gate owns it", but it DOESN'T in a cave) and
+   she'd fall to head_to_gym and LEAVE. FIX: in `_keeper_route_target`, do NOT early-None on `_species_on_map` when the
+   current map is a CAVE (interior + no grass) — instead keep the fetch_keeper errand driving so `_fetch_keeper_errand`
+   runs the descend+wander catch on the floor she's standing on. (The descend/wander lives in catch_one's cave branch
+   from 80789ab — extend it with (a); keep the ≤4-waypoint wander per floor.)
+   Verify via the same `surge_done_healed` look-ahead; success = party 4→5 with a Diglett/Dugtrio. ⚠️ **ALSO add the
+   no-encounter-cave RETIRE guard** (N wander-timeouts, no party growth, all sub-maps tried → retire to
+   `_keeper_unreach`) so a genuinely barren cave can't livelock if the flag is ON.
 1. **ONLY AFTER 0 lands (catch proven end-to-end): flip `POKEMON_KEEPER_STATIC_ROUTE` default "1"** (campaign.py:~122)
    + commit. DO NOT flip before — she'll livelock in the (1,38) vestibule.
 2. **THEN the NS#39 frontier stands (unchanged):** flip `POKEMON_PCBOX` default ON (owed one live grab-and-look);
