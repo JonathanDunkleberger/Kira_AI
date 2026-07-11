@@ -1,5 +1,39 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🎯 THE MISSION (2026-07-10 night — START HERE): FIX THE ROOT BUG — she arrives at the E4 with only ~2 usable mons instead of a real leveled 6. READ `pokemon_agent/TEAM_DEPTH_ROOT_FIX.md` FIRST — it holds the full evidence-backed diagnosis + the ranked fix with exact function/file:line targets.
+
+**WHY:** the headline goal is a WATCHABLE autonomous run where, on a fresh GO, she shows up to the Elite Four
+with a REAL FULL LEVELED TEAM like a competent trainer. The game is ALREADY beaten canonically (2026-07-07
+credits save = the real summit); this is the watchable re-do. Arriving thin is THE bug that makes the showcase
+fall apart. The whole tactical E4 chain is already fixed + committed this shift (moves/Ice Beam/Psychic, 4x
+switch, type-answer revive, FR-first shop — commits 625b568, 0cb736d, 6772b54); with a real 6 those fixes win.
+
+**ROOT CAUSE (proven):** the TeamPlanner brain plans the right team but its Part-C EXECUTOR is unwired —
+`grind_to`/`develop_bench` have ZERO consumers (voice-only), the catch hook self-disables at 3 mons and never
+routes to catch locations, real leveling only raises the ACE (party target 3, `grind()` reads the lead only,
+the bench-XP switch wedges), and there is NO `prep_for_e4`. KB data (Part A) + `assess()` (Part B) are
+VERIFIED-good — the break is pure Part-C wiring in `campaign.py`.
+
+**THE FIX (implement — details/lines in TEAM_DEPTH_ROOT_FIX.md; all wiring, no data work):**
+1. Wire `catch_keeper` to route + catch a FULL 6 across the game (un-gate `_plan_wants_prebuild` `pc>2` at
+   campaign.py:4355; make `_plan_keeper_target` travel to `act["where"]` via frlg_encounters.json, not just current-map).
+2. Wire `grind_to`/`develop_bench` → a real bench-leveling objective; FIX `grind_weak_members`' ace-only
+   fallback (campaign.py:5269-5273) so the BENCH levels, not just Venusaur.
+3. Raise the party target toward 6 for late gyms + add `prep_for_e4()` reading `level_milestones["E4"]` (55) —
+   level the whole party FLOOR (not the ace) before entering Indigo.
+4. Add box/replace-fodder logic (Tier-1 #15) so caught keepers replace the L9-14 dead-weight fodder.
+5. ALSO fold in the **Lapras-lead-and-heal tactical AI** change (battle_agent): when the ace can't hurt the foe
+   and a specialist is the type-answer, LEAD/keep the specialist in and funnel healing to IT, not the ace's 1x Cut.
+
+**THEN — THE FINAL-PROOF GATE (the whole point):** fresh early-game state (e.g.
+`states/workshop/og_postopening.state`) → headless 15x look-ahead → confirm from the log + party growth that she
+PROACTIVELY catches keepers at their locations, LEVELS the bench to milestones, arrives at the E4 with a REAL
+leveled 6 + coverage, and beats the E4 TACTICALLY (won on a genuine team — no solo-hack, no over-level steamroll).
+Bounded detours, watchable pace, narrated. Canonical UNTOUCHED. Do NOT hand-port/struct-grind the team — that
+manual workaround (recon_grind_bench + recon_port_and_fix) is exactly what proves the autonomous builder is broken.
+
+---
+
 ## ✅ NS14 (2026-07-10): OFFENSIVE-UPGRADE SWITCH FIX BREAKS THE LANCE WALL — reached the CHAMPION (room 5) for the first time. Committed (ce5e391). Route 18 bench-grind + auto-delivery RUNNING overnight; remaining wall = bench too FRAIL + Gary's Charizard (a LEVEL problem).
 **AT WAKE — CHECK `ns14_deliver_status.txt` FIRST (the auto-delivery may have rolled credits):**
 `ns14_deliver.sh` is armed: it WAITS for the Route 18 grind to finish gracefully (writes "DONE." → `banked_GRIND`
