@@ -33,7 +33,19 @@ HARDENING** (Jonny runs supervised multi-hour soaks to surface duration-specific
 **HONESTY:** long-duration live stability is bucket-(b) — only Jonny's supervised multi-hour soak proves it; NEVER
 claim marathon-ready from headless. Build TOWARD the marathon bar, not just the beat-the-game bar.
 
-## ⏳ NIGHT-SHIFT #11 (2026-07-11, night_shift.ps1) — the `_prep_dry` DEADLOCK fix (`4a4387d`) verification run surfaced a NEW Route-11 bench-grind LIVELOCK → ACE-DOWN GUARD BUILT + COMMITTED `2defbcd`. Fresh verification run in flight. START HERE.
+## 🌟 PHASE 3+ NORTH-STAR (banked in `POST_CREDITS_VISION.md` §8-9; AFTER asymptote + live-soak — don't build now)
+1. **NATIVE MEMORY / BOND / EMOTIONAL-CONTINUITY** — a standalone lived-memory system built HERE in Kira-local
+   (KiraState + pokemon_soul hooks), FOR the run: she accumulates real memories (starter pick, first catch, hated
+   bosses, the level-up that unlocked a win), references them live, pays off in an endgame recap. **Native — do NOT
+   copy from the web app; flow is Kira-local → web app later.**
+2. **CHAT MODERATION / PRESENCE** — wire Twitch mod-actions so she bans/timeouts herself, sassy-with-teeth; banning
+   for vibe/bit/annoyance is fine + good content (even a playful wrong-ban). **HARD GUARDRAIL:** she is NOT the sole
+   line on serious harm (CSAM/doxxing/credible-threats/hate-raids stay HUMAN-mod-backstopped). Inherently a live build.
+
+## ⏳ NIGHT-SHIFT #11/#3 (2026-07-11, night_shift.ps1) — ACE-DOWN GUARD (`2defbcd`) VERIFIED: Route-11 livelock is DEAD. Bench-to-milestone question still climbing. START HERE.
+
+### 🟢 SHIFT-3 INTERIM VERDICT (ns11_acebail2.log, live run @ ~453s wall of 45-min budget): **QUESTION 1 = CONFIRMED YES — the Route-11 bench-grind LIVELOCK IS DEAD.** Counts vs the failed ns11_prepdry2 run (which had 20 BATTLE-LOOP BREAKER + 62 outcome=stuck): now **BATTLE-LOOP BREAKER=0, outcome=stuck=0, GRIND: ACE dinged=3** (the ACE-DOWN GUARD fired + healed the ace while alive — exactly the design). She caught diglett (party→5, dex 7), Venusaur L35→37, escaped the transient Saffron-gate (18,0) misroute (24 decisions, self-recovered), and is climbing the proven badge-3→4 chain (`FLASH ERRAND own_10_species → flash_progress` — correctly building to dex 10 for Rock Tunnel). **Question 2 (does she grind the bench on Route 13-15 / reach Koga leveled) NOT YET REACHED** — she's still pre-badge-4 (Route 13-15 is post-badge-4 + Silph/Flute chain away). Run in flight; monitor to completion for the badge-4+ bench-grind behavior. The ACE_BAIL fix itself is now SHIP-PROVEN (livelock kill confirmed on a fresh climb).
+
 
 ### 🔴 THE ns11_prepdry2 VERIFICATION VERDICT — INCONCLUSIVE for the prep-dry fix + surfaced a NEW livelock. She **never reached the Koga chain**: she livelocked on **Route 11 at badge 3** (sim-673s, then hung — I killed the procs). `PREP RE-ARM` fired **0×**, `PREP STAND-DOWN` **0×** (the deadlock condition never even arose — she died earlier). 62 `outcome=stuck` battles, 20 BATTLE-LOOP BREAKERs, heal-excursion trapped. Final party stuck at Route 11: `venusaur L36(FAINTED), abra L14, rattata L13, spearow L14, diglett L15(FAINTED)`, badges=3, dex 7.
 

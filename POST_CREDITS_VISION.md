@@ -61,3 +61,25 @@ guides open, every secret, every side quest, full dex energy, reading the world 
 superfan. The inverse register of the first-timer showcase: instead of wonder-at-the-unknown,
 mastery-as-love-letter. Banked as P-4 from couch fix-pass 1; no build until the showcase
 format itself is proven.
+
+## 8. NATIVE MEMORY / BOND / EMOTIONAL-CONTINUITY for the run (Jonny, 2026-07-11) — north-star, PHASE 3+
+A STANDALONE, NATIVE memory system built HERE in Kira-local (KiraState + the soul hooks / pokemon_soul.py
+substrate), FOR the playthrough. **Do NOT copy from the web app — the flow is Kira-local → web app later, never
+the reverse.** She accumulates REAL LIVED MEMORIES across the ~30h run — the starter pick, the first catch, the
+bosses she hated, the grind sessions, the exact level-up that unlocked a win, the mon that clutched a loss — and
+REFERENCES them live as she plays ("remember when this little guy could barely scratch anything?"), culminating in
+an **endgame recap / payoff** that lands because the memories are real and earned, not scripted. Distinct from the
+existing per-run soul continuity: this is a deliberate, lived-memory ACCUMULATION + live-recall + payoff arc, native
+to the project. Sequenced AFTER the autonomous-credits asymptote + the long-duration live-soak (it's a soul-depth
+capability, not a blocker to the beat-the-game build). Candidate to later flow OUTWARD to the web app.
+
+## 9. CHAT MODERATION / PRESENCE — she bans with teeth (Jonny, 2026-07-11) — north-star, PHASE 3+
+Wire the Twitch mod-action integration so Kira has REAL authority + presence in HER OWN chat: she can
+ban/timeout viewers herself, with sassy-endearing-but-with-teeth energy ("keep it up and I'll ban you 💅").
+**Banning for vibe / bit / annoyance reasons is FINE and is GOOD CONTENT** — even an occasional playful WRONG-ban
+is content, part of her presence, not a bug. Give her the ban power; it makes the chat feel like her room.
+**ONE HARD GUARDRAIL (the real risk is a MISS on the dangerous category):** Kira is NOT the sole line against
+genuinely serious harm — **CSAM, doxxing, credible threats, hate-raids stay backstopped by HUMAN mods.** So:
+Kira bans FREELY for moderation/fun/bit; human mods hold the floor on the serious stuff. Build her the authority +
+presence; keep humans as the safety net for the dangerous edge cases. Sequenced PHASE 3+ (post-asymptote,
+post-live-soak); needs the live stream + a Twitch mod-scope integration, so it's inherently a live/supervised build.
