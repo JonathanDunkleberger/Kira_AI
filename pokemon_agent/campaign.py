@@ -4749,8 +4749,43 @@ class Campaign:
         grass = sorted(((g[0] - off, g[1] - off) for g in g_now.grass),
                        key=lambda g: abs(g[0] - cur0[0]) + abs(g[1] - cur0[1]))
         if not grass:
-            log("   !! CATCH: no grass on this map - can't find a wild Pokemon here")
-            return "no_grass"
+            # CAVE STEP-ENCOUNTER FALLBACK (NS#40): caves have NO grass but trigger wilds on every STEP.
+            # For a TARGETED keeper fetch into a cave host (Diglett's Cave — the ground-slot Dugtrio
+            # source the static-connection router now reaches), wander reachable WALKABLE non-warp tiles
+            # so step-encounters fire and catch_runner takes the target on foot. Gated to a targeted fetch
+            # in an interior whose area actually hosts the species — normal grass-catching is untouched,
+            # and she never wanders a non-hosting interior (a Center/gym) looking for a wild.
+            _here = tuple(tv.map_id(self.b))
+            _cave = bool(target_species) and _here[0] != 3 and self._species_on_map(target_species, _here)
+            if not _cave:
+                log("   !! CATCH: no grass on this map - can't find a wild Pokemon here")
+                return "no_grass"
+            _doors0 = frozenset(self._door_tiles())
+            _wlk0 = g_now.walkable
+            def _reach0(tile):
+                return bool(tv.bfs(g_now, cur0, lambda t: t == tile,
+                                   walkable=lambda sx, sy: _wlk0(sx, sy) and (sx, sy) not in _doors0))
+            # farthest-reachable-first so she STEPS the most (encounters fire per step); bounded BFS calls
+            cand = [(sx, sy) for sy in range(g_now.sy_lo, g_now.sy_hi + 1)
+                    for sx in range(g_now.sx_lo, g_now.sx_hi + 1)
+                    if (sx, sy) != tuple(cur0) and (sx, sy) not in _doors0 and _wlk0(sx, sy)]
+            cand.sort(key=lambda t: abs(t[0] - cur0[0]) + abs(t[1] - cur0[1]), reverse=True)
+            wps, _tests = [], 0
+            for t in cand:
+                if _tests >= 60:
+                    break
+                _tests += 1
+                if _reach0(t):
+                    wps.append(t)
+                if len(wps) >= 4:
+                    break
+            if not wps:
+                log(f"   !! CATCH: cave {_here} hosts {target_species} but NO reachable walkable tile to "
+                    f"wander from {cur0} for step-encounters — back to roam (LOUD)")
+                return "no_reachable_target"
+            grass = wps                       # reuse the wander loop below verbatim (waypoints + avoid=doors)
+            log(f"   CATCH: cave step-encounter wander in {self._place_name(_here)} — {len(wps)} reachable "
+                f"waypoint(s) {wps}; walking to draw out {target_species} (never a warp tile → won't exit)")
         # Warp/door tiles to keep OUT of: pathing across a door warps us into a building (the Route 3
         # PC / Mt Moon mouth) and the catch wedges on an NPC inside (the (5,4) trap). Treat doors as
         # permanent blocks for the whole wander — same avoid-param pattern as cave warp-to-warp nav.
