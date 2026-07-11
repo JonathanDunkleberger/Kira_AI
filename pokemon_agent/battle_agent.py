@@ -1011,7 +1011,17 @@ class BattleAgent:
         _myt = [t for t in (ours.get("types") or []) if t and t != "???"]
         _foet = [t for t in (state.get("enemy", {}).get("types") or []) if t and t != "???"]
         threat = self._matchup_def(_myt, _foet) if (_myt and _foet) else 1.0
-        heal_frac = 0.5 if threat >= 2 else BATTLE_CRIT_FRAC
+        # LEVEL-AWARE THREAT (2026-07-11 NS#4 — the Rock Tunnel white-box wedge): the early-heal-at-HALF
+        # exists to survive a SE 2HKO from a REAL threat. A foe we vastly OUT-LEVEL can't 2HKO us even off
+        # a super-effective hit, so healing it early is wasted — and every mid-battle item use risks the
+        # action-menu white-box impostor wedge (she over-potioned a weak Rock-Tunnel foe that reads Fire-
+        # type, 2x on her Venusaur, and livelocked the whole tunnel crossing). Only treat SE as a heal-
+        # early threat when the foe is within striking level; a much-weaker foe heals at the normal crit
+        # floor (so a truly low-HP save still fires, but she powers through weak SE chip like a real player).
+        _ours_lv = ours.get("level") or 0
+        _foe_lv = (state.get("enemy", {}) or {}).get("level") or 0
+        _much_weaker = bool(_ours_lv and _foe_lv and (_ours_lv - _foe_lv) >= 10)
+        heal_frac = 0.5 if (threat >= 2 and not _much_weaker) else BATTLE_CRIT_FRAC
         # AIM every heal/cure at the mon actually OUT — by the _menu_rows order law the mon
         # that's out is ALWAYS menu row 0 (the lead panel) while the party screen is open,
         # so the aim is a KIND resolved at menu time, never a slot index carried across the
