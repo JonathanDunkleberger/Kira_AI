@@ -4603,7 +4603,12 @@ class Campaign:
         erika_done_kit box_chaff boxed a chaff at Celadon for a Diglett that was un-routable → net team loss)."""
         areas = (self.team_planner.encounters or {}).get("areas") or {}
         p2m = self._place_to_map_index()
-        avoid = self._wall_avoid(state)
+        # STORY-GATE avoid (NS#42): the keeper router must NOT route through Flute-gated Route 12/16 pre-Flute
+        # — ns42_probe fetched 'growlithe' (Route 8, genuinely past Rock Tunnel) and world.route found a path
+        # THROUGH Route 12, so the offer fired + the errand hopped onto Route 12 and wedged 9 ticks. Gating the
+        # reachability check here means a keeper reachable ONLY via a gated dead-end is correctly deemed
+        # unreachable -> not offered -> she falls to head_to_gym/billed road. Same fix as the off-road steer.
+        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
         unreach = getattr(self, "_keeper_unreach", set())
         best = None                                # (target_map, hops)
         for place, entry in areas.items():
@@ -4684,7 +4689,7 @@ class Campaign:
                 return self._cave_fetch_catch(sp, host_area)
             log(f"   [roam] FETCH-KEEPER: on {self._place_name(cur)} — catching planned keeper '{sp}'")
             return self.catch_one(target_species=sp)
-        avoid = self._wall_avoid(state)
+        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)   # NS#42: never route the errand through a Flute-gated dead-end
         pos0 = (cur, tuple(tv.coords(self.b) or ()))
         # STATIC-CONNECTION route (NS#40): if the host has no LEARNED route but IS a door-entered
         # cave/interior with a reachable overworld GATEWAY, drive toward the gateway; once standing ON
@@ -9246,7 +9251,10 @@ class Campaign:
                 log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
             except Exception as _fe:
                 log(f"   [roam] fly attempt errored ({_fe}) — walking instead")
-        avoid = self._wall_avoid(state)
+        # NS#42: story-gate avoid here too — the general travel actuator (keeper errand + oracle travel:X
+        # picks) must not route through Flute-gated Route 12/16 pre-Flute (else a travel: pick or the keeper
+        # errand hops onto Route 12 and wedges on the Snorlax; _story_gate_avoid is empty once she has the Flute).
+        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
         # WARP-AWARE (night shift 9, the banked_E4 Saffron seal): next_hop is EDGE-ONLY, but a
         # gate-locked city's every exit is a WARP (Saffron's four gatehouses) — the graph knew the
         # way and next_hop couldn't express hop #1, so every plain travel pick read no_route

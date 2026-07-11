@@ -21,11 +21,13 @@ class Planner:
 class World:
     def __init__(self, routable): self.routable = routable
     def route(self, cur, tmap, avoid):
+        if tmap in set(avoid or ()):     # NS#42: respect the gated-map avoid (wall + story gate)
+            return None
         h = self.routable.get((cur, tmap))
         return list(range(h + 1)) if h is not None else None
 
 
-def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None):
+def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None, story_gate=None):
     s = types.SimpleNamespace()
     s._PLACE_NAMES = C.Campaign._PLACE_NAMES
     s._place2map_cache = None
@@ -36,6 +38,7 @@ def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None):
     s._cur = cur
     s._species_on_map = lambda species, mid: species.lower() in on_map
     s._wall_avoid = lambda st: set()
+    s._story_gate_avoid = lambda st: set(story_gate or [])   # NS#42: Flute-gated maps (Route 12/16 pre-Flute)
     # offer<=>executable: the router only offers a target the learned-graph traveler can ride NOW
     s._next_step_rideable = lambda cur, dst, avoid: (("hop", "edge", "N") if rideable else None)
     s._keeper_unreach = set(unreach or [])
@@ -82,6 +85,15 @@ def main():
     assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3, ((3, 3), (3, 44)): 5},
                     unreach={((3, 3), (3, 43))}), base) == ("abra", (3, 44))
     print("PASS I retired target skipped -> falls to next hosting map")
+    # NS#42 STORY-GATE: a keeper reachable ONLY through a Flute-gated dead-end (Route 12/16 pre-Flute) is
+    # NOT offered — the gate avoid is OR'd into _reachable_keeper_host so world.route refuses that path
+    # (ns42_probe wedge: growlithe on Route 8 routed THROUGH Route 12 and hopped her onto the Snorlax gate).
+    assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3},
+                    story_gate={(3, 43)}), base) is None
+    print("PASS J story-gated host -> None (no route through a Flute-gated dead-end)")
+    # control: same host, NOT story-gated -> still offered (proves J is the gate's doing, not a false None)
+    assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3}), base) == ("abra", (3, 43))
+    print("PASS J-control ungated host -> offered")
     os.environ['POKEMON_KEEPER_ROUTER'] = '0'
     import importlib; importlib.reload(C)
     s = make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3})
