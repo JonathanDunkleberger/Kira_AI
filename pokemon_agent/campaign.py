@@ -119,6 +119,17 @@ KEEPER_ROUTER_MAX_HOPS = int(os.getenv("POKEMON_KEEPER_ROUTER_MAX_HOPS", "6"))
 # (the route3_caught look-ahead: world.route said 'reachable' but the executor couldn't ride it -> MACRO
 # RED spin). She falls through to head_to_gym; the keeper is re-tried fresh only after a roster change.
 KEEPER_ROUTER_STALL_CAP = int(os.getenv("POKEMON_KEEPER_ROUTER_STALL_CAP", "3"))
+# STATIC-CONNECTION KEEPER ROUTE (NS#40): the learned world graph only knows VISITED maps, so a keeper HOST
+# entered by a door from an as-yet-unwalked corridor (Diglett's Cave off Route 11/Route 2) is invisible to
+# world.route -> _reachable_keeper_host returns None forever -> she never detours there -> she never visits
+# it (the NS#39 keeper-reachability chicken-and-egg, ROOT-confirmed: NOT timing, an unvisited-map gap). This
+# arms the STATIC pass: gamedata/frlg_connections.json says 'area X is entered from overworld GATEWAY(s) Y',
+# so the router can plot a BOUNDED path to a reachable gateway, ride there via the learned graph, then step
+# through the live-read door into the host and catch. DEFAULT OFF pending the surge_done_kit behavioural
+# proof (re-probe _reachable_keeper_host returns (1,36) from Vermilion, then a look-ahead where she actually
+# detours + catches Diglett). Isolated to the keeper router (does NOT touch the shared world.route -> no
+# route3_caught livelock reintroduction; the _next_step_rideable guard still gates every offered hop).
+KEEPER_STATIC_ROUTE_ENABLED = os.getenv("POKEMON_KEEPER_STATIC_ROUTE", "0") != "0"
 # PC/BOX (Tier-1 #15, NS#38): the pairing gap for the FULL-party case — the keeper router only fires when
 # party<6, so a full team of early-catch chaff (erika_done: Venusaur + Rattata/Spearow/Ekans/Meowth/Pidgey)
 # can NEVER swap in a planned coverage keeper (abra/diglett). box_chaff deposits the lowest-value off-plan
@@ -4456,6 +4467,59 @@ class Campaign:
             self._place2map_cache = idx
         return idx
 
+    def _host_gateways(self):
+        """STATIC-CONNECTION PRIORS (NS#40) — {host area name -> [overworld gateway map, ...]} from
+        gamedata/frlg_connections.json. The learned graph only knows VISITED maps, so a cave/interior
+        keeper host reached by a DOOR (Diglett's Cave) is never routable until she stands on it; this
+        gives the router the static 'area X is entered from map Y' knowledge so it can ride to a
+        reachable gateway and step through. Loaded once, cached; the swappable game-knowledge layer
+        (rule 14) — keyed by the same place-name the encounters KB + _PLACE_NAMES use. Fail-open ({})."""
+        idx = getattr(self, "_host_gw_cache", None)
+        if idx is None:
+            idx = {}
+            try:
+                import json
+                path = os.path.join(_HERE, "gamedata", "frlg_connections.json")
+                with open(path, encoding="utf-8") as f:
+                    raw = (json.load(f) or {}).get("host_gateways") or {}
+                for area, gws in raw.items():
+                    idx[area] = [tuple(g) for g in (gws or []) if g and len(g) == 2]
+            except Exception as e:
+                log(f"   [roam] static-connection KB load skipped: {e} (LOUD)")
+            self._host_gw_cache = idx
+        return idx
+
+    def _keeper_gateway(self, host_area, cur, state, avoid=None):
+        """STATIC-CONNECTION reachability (NS#40): the NEAREST overworld GATEWAY of `host_area` the
+        learned-graph traveler can actually RIDE to now — or `cur` itself if she's already standing on
+        one. Same bound + guards as the learned host scan (within KEEPER_ROUTER_MAX_HOPS, a real
+        rideable next hop, not retired to _keeper_unreach) so a static offer is only ever made for a
+        gateway she can genuinely reach this tick. None = no rideable gateway. Fail-closed."""
+        gws = self._host_gateways().get(host_area) or []
+        if not gws:
+            return None
+        if avoid is None:
+            avoid = self._wall_avoid(state)
+        unreach = getattr(self, "_keeper_unreach", set())
+        best = None                                # (gateway_map, hops)
+        for gw in gws:
+            gw = tuple(gw)
+            if gw == cur:
+                return gw                          # already on a gateway -> step through the door
+            if (cur, gw) in unreach:
+                continue
+            route = self.world.route(cur, gw, avoid)
+            if not route:
+                continue
+            hops = len(route) - 1
+            if hops > KEEPER_ROUTER_MAX_HOPS:
+                continue
+            if self._next_step_rideable(cur, gw, avoid) is None:
+                continue
+            if best is None or hops < best[1]:
+                best = (gw, hops)
+        return best[0] if best else None
+
     def _keeper_route_target(self, state):
         """CROSS-MAP KEEPER ROUTER (Part-C executor, PASS 3 NEW#2): the forward-plan's DUE keeper species
         + the NEARBY reachable map that HOSTS it, when it is NOT on the current map and the party has ROOM
@@ -4531,7 +4595,36 @@ class Campaign:
                 continue
             if best is None or hops < best[1]:
                 best = (tuple(tmap), hops)
-        return best[0] if best else None
+        if best is not None:
+            return best[0]
+        # STATIC-CONNECTION PASS (NS#40): no LEARNED route to any hosting map — but the host may be a
+        # cave/interior entered by a DOOR from a corridor she hasn't walked yet (Diglett's Cave off
+        # Route 11), invisible to the learned graph. Consult the static gateway KB: if a hosting area's
+        # overworld gateway is ride-reachable NOW, the host IS fetchable (ride to the gateway, step
+        # through the live-read door). Returns the host ENTRANCE map (multi-map areas keep the lowest
+        # num). Flag-gated (KEEPER_STATIC_ROUTE) — isolated to the router, never touches world.route.
+        if KEEPER_STATIC_ROUTE_ENABLED:
+            static_best = None                     # (entrance_map, gateway_hops)
+            for place, entry in areas.items():
+                present = any((m.get("species") or "").lower() == sp
+                              for meth, mons in entry.items() if not str(meth).startswith("_")
+                              for m in (mons or []))
+                if not present:
+                    continue
+                tmap = p2m.get(place)
+                if not tmap or tuple(tmap) == cur or (cur, tuple(tmap)) in unreach:
+                    continue
+                if not self._host_gateways().get(place):
+                    continue                       # only door-entered hosts have a static gateway
+                gw = self._keeper_gateway(place, cur, state, avoid)
+                if gw is None:
+                    continue
+                ghops = 0 if gw == cur else (len(self.world.route(cur, gw, avoid) or [gw]) - 1)
+                if static_best is None or ghops < static_best[1]:
+                    static_best = (tuple(tmap), ghops)
+            if static_best is not None:
+                return static_best[0]
+        return None
 
     def _fetch_keeper_errand(self, state):
         """Handler for the `fetch_keeper` action: advance the keeper detour one leg via the PROVEN
@@ -4547,15 +4640,33 @@ class Campaign:
             return "keeper_none"
         sp, tmap = tgt
         cur = tuple(tv.map_id(self.b))
-        if cur == tmap:
-            log(f"   [roam] FETCH-KEEPER: on {self._place_name(tmap)} — catching planned keeper '{sp}'")
+        host_area = self._place_name(tmap)
+        # ALREADY at the host (any sub-map of a multi-map cave shares the area name/encounters) -> catch
+        if cur == tmap or self._species_on_map(sp, cur):
+            log(f"   [roam] FETCH-KEEPER: on {self._place_name(cur)} — catching planned keeper '{sp}'")
             return self.catch_one(target_species=sp)
-        log(f"   [roam] FETCH-KEEPER: routing to {self._place_name(tmap)} for planned keeper '{sp}' "
-            f"(party has room, within {KEEPER_ROUTER_MAX_HOPS} hops)")
+        avoid = self._wall_avoid(state)
         pos0 = (cur, tuple(tv.coords(self.b) or ()))
-        r = self._travel_to_known(f"travel:{tmap[0]},{tmap[1]}", state, hunt_on_arrival=False)
+        # STATIC-CONNECTION route (NS#40): if the host has no LEARNED route but IS a door-entered
+        # cave/interior with a reachable overworld GATEWAY, drive toward the gateway; once standing ON
+        # it, step through the live-read door into the host (lands on whatever sub-map the door goes to,
+        # where _species_on_map fires). Isolated to the router; the learned overworld path is unchanged.
+        gw = None
+        if (KEEPER_STATIC_ROUTE_ENABLED and self._host_gateways().get(host_area)
+                and self.world.route(cur, tmap, avoid) is None):
+            gw = self._keeper_gateway(host_area, cur, state, avoid)
+        if gw is not None and cur == gw:
+            r = self._enter_host_via_gateway(sp, tmap, host_area)
+        elif gw is not None:
+            log(f"   [roam] FETCH-KEEPER: {self._place_name(cur)} -> {host_area} via gateway "
+                f"{self._place_name(gw)} (static connection) for planned keeper '{sp}'")
+            r = self._travel_to_known(f"travel:{gw[0]},{gw[1]}", state, hunt_on_arrival=False)
+        else:
+            log(f"   [roam] FETCH-KEEPER: routing to {host_area} for planned keeper '{sp}' "
+                f"(party has room, within {KEEPER_ROUTER_MAX_HOPS} hops)")
+            r = self._travel_to_known(f"travel:{tmap[0]},{tmap[1]}", state, hunt_on_arrival=False)
         now = tuple(tv.map_id(self.b))
-        if now == tmap:                            # arrived this leg -> targeted catch
+        if now == tmap or self._species_on_map(sp, now):   # arrived at the host this leg -> targeted catch
             self._keeper_stall = {}                # reset the stall bookkeeping on real arrival
             return self.catch_one(target_species=sp)
         pos1 = (now, tuple(tv.coords(self.b) or ()))
@@ -4582,6 +4693,40 @@ class Campaign:
                 f"{self._place_name(cur)} ({st_map[key]} no-progress legs) — retiring it; back to the road")
             return "keeper_unreach"
         return f"keeper_route:{r}"
+
+    def _enter_host_via_gateway(self, sp, tmap, host_area):
+        """STATIC-CONNECTION door step (NS#40): standing on a gateway, find every live warp whose
+        destination is the keeper HOST area, route to a reachable door tile and step through it (lands
+        on whatever cave sub-map the door goes to, where _species_on_map(sp) fires for the caller's
+        catch). Source-first: the door TILE is read live (tv.read_warps), not hardcoded — only the
+        gateway map id lives in the KB. Reuses the proven read_warps + travel + enter_warp actuators.
+        Returns a short status; the caller re-checks the live map after. Fail-closed + LOUD."""
+        b = self.b
+        before = tuple(tv.map_id(b))
+        doors = []
+        try:
+            for wxy, wdest, _wid in tv.read_warps(b):
+                if self._place_name(tuple(wdest)) == host_area:
+                    doors.append(tuple(wxy))
+        except Exception as e:
+            log(f"   [roam] FETCH-KEEPER: gateway warp read failed: {e} (LOUD)")
+            return "gateway_read_failed"
+        if not doors:
+            log(f"   [roam] FETCH-KEEPER: on {self._place_name(before)} but NO live door to {host_area} "
+                f"in the map header from here — non-progress (LOUD)")
+            return "gateway_no_door"
+        for door in doors:
+            log(f"   [roam] FETCH-KEEPER: {self._place_name(before)} -> {host_area} — stepping through "
+                f"the door at {door} for planned keeper '{sp}'")
+            try:
+                self.trav.travel(target_map=None, arrive_coord=door, max_steps=400)
+                self.enter_warp(pick=door)
+            except Exception as e:
+                log(f"   [roam] FETCH-KEEPER: door {door} step errored: {e} (LOUD)")
+                continue
+            if tuple(tv.map_id(b)) != before:
+                return "gateway_entered"
+        return "gateway_door_failed"
 
     def catch_one(self, max_seconds=300, target_species=None):
         """AUTO catch a teammate (converts the route3_catch hand-play GATE): WANDER in the grass
