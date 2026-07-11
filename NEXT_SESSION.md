@@ -21,16 +21,20 @@
    unbuilt; E4-self-grind futile). **NOTE:** this is largely an ARTIFACT of the hand-built bank whose bench was
    caught late + never levelled — a FRESH run with piece 2 below never sags this far, arriving needing only a small
    top-up. Real fix candidates: cave step-encounter grinding (unbuilt), or a high-level grind spot table in gamedata.
-2. **MID-GAME MILESTONE LEVELING (highest-leverage; I built + REVERTED it — ship it with the pacing guard).** I
-   generalized `_prep_e4_target` → `_prep_milestone_target` (reads `_next_milestone(badge_count)` so the bench tracks
-   Brock 14→Misty 22→…→Giovanni 52 all game, not just `lead-8`). REVERTED before commit because flooring a fresh
-   mid-game catch that's up-to-`E4_PREP_BAND`(25) under the milestone would drag it all the way up in one sitting =
-   possible over-grind (the old proactive block's SITTING-CAP +6-bite pacing exists for exactly this). **THE FIX to
-   ship:** mid-game target = `min(milestone, floor + BITE)` (bounded bites, watchable) with the E4 (badge 8) case
-   keeping the full-milestone push; place the call AFTER the rival-defer (preserve the S.S. Anne 4+-mon handling);
-   keep the band+stalled livelock guard. Then VERIFY with a FRESH `og_postopening.state` look-ahead reaching badge
-   2-3 (confirm the bench tracks milestones without an unwatchable grind). The generalized helper body is in this
-   shift's git history (was staged, reverted) — recover it from the diff of the revert.
+2. **MID-GAME MILESTONE LEVELING (highest-leverage; designed, deliberately NOT shipped blind — see the exact edit).**
+   ROOT (found this shift, campaign.py `_prep_team_target` proactive block ~5289-5318): the bench target caps at
+   `lead-8` in `+6` bites AND the RE-ARM GUARD retires after ONE bite per roster-signature (`_bench_done_sig`). So
+   the bench gets ONE +6 bump then is abandoned as the ace runs away — the exact "arrives thin" mechanism. **THE
+   PRECISE EDIT (minimal, rides the proven +6 pacing — low-risk):** (a) cap the pin at the MILESTONE not the ace:
+   `self._bench_pin = min(milestone, floor + 6)` where `milestone = self.team_planner._next_milestone(badge_count,
+   post_game)[1]` (falls back to `lead - 8` if no milestone); (b) RE-ARM the retired prep when the MILESTONE RISES
+   (a new gym earned), not only on roster change: track `_bench_done_milestone`, re-arm if `sig changed OR milestone
+   > _bench_done_milestone` — milestones change only on badge-earn (infrequent) so this can't treadmill. Keep the
+   band+stalled livelock guard. This makes the bench climb toward each gym's level over the game in bounded, watchable
+   bites. **DO NOT ship without a FRESH `og_postopening.state` multi-gym look-ahead** confirming no treadmill/over-grind
+   (that's WHY it's held — the RE-ARM/pin machinery is hard-won: ship-run-2/5, celadon_run1). The badge-8 `prep_for_e4`
+   already handles the E4 case (committed); this is its mid-game sibling. (I built a `_prep_milestone_target` helper
+   generalization + reverted it — the pin-machinery edit above is the safer path, reuses proven pacing.)
 3. **PC/BOX (Tier-1 #15) — the pairing gap for the CATCH half.** The un-gate builds toward 6, but the giovanni run
    showed the endgame reality: at party-6 with 3 chaff, she CAN'T swap fodder for planned keepers without box-mgmt.
    Build `deposit_mon`/`withdraw_mon` (promote `recon_pcbox.py`'s deposit flow) + hook `catch_one` to box the
