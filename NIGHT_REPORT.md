@@ -204,3 +204,69 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 3 00:44->01:13 (30m): 4 commit(s), frontier ADVANCED
 
 - shift 4 survey: built the CROSS-MAP KEEPER ROUTER (team-depth NEW#2, campaign.py, flag POKEMON_KEEPER_ROUTER default OFF) + re-validated road-bench-XP on erika_done (chaff bench Ekans L9->14); router decision-VERIFIED 10/10, a livelock caught+fixed (offer<=>executable + stall guard), routes/retires cleanly but a full fetch+CATCH not yet shown headless (both test fixtures gate a thin team from the keeper) | frontier: prove the catch on a no-gauntlet party-2/3 fixture -> flip router default ON; then PC/BOX (Tier-1 #15) for the full-party case | needs eyes: none (canonical untouched; router OFF so no live risk) -- but watchability of the keeper detour is a live-eyes item when it goes ON
+- shift 4 01:14->01:56 (42m): 2 commit(s), frontier ADVANCED
+- shift 5 01:57->02:16 (19m): 0 commit(s), frontier unchanged
+- shift 6 FAST-FAIL 02:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 6 02:17->02:17 (0m): 0 commit(s), frontier unchanged
+- shift 7 FAST-FAIL 02:18 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 7 02:18->02:18 (0m): 0 commit(s), frontier unchanged
+- shift 8 FAST-FAIL 02:20 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 8 02:19->02:20 (0m): 0 commit(s), frontier unchanged
+- shift 9 FAST-FAIL 02:21 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 9 02:21->02:21 (0m): 0 commit(s), frontier unchanged
+- shift 10 FAST-FAIL 02:22 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 10 02:22->02:22 (0m): 0 commit(s), frontier unchanged
+- shift 11 FAST-FAIL 02:23 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 11 02:23->02:23 (0m): 0 commit(s), frontier unchanged
+- shift 12 FAST-FAIL 02:24 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 12 02:24->02:24 (0m): 0 commit(s), frontier unchanged
+- shift 13 FAST-FAIL 02:25 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 13 02:25->02:25 (0m): 0 commit(s), frontier unchanged
+- shift 14 FAST-FAIL 02:26 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 14 02:26->02:26 (0m): 0 commit(s), frontier unchanged
+- shift 15 FAST-FAIL 02:27 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 15 02:27->02:27 (0m): 0 commit(s), frontier unchanged
+- shift 16 FAST-FAIL 02:28 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 16 02:28->02:28 (0m): 0 commit(s), frontier unchanged
+- shift 17 FAST-FAIL 02:29 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 17 02:29->02:29 (0m): 0 commit(s), frontier unchanged
+- shift 18 FAST-FAIL 02:30 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 18 02:30->02:30 (0m): 0 commit(s), frontier unchanged
+- shift 19 FAST-FAIL 02:31 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 19 02:31->02:31 (0m): 0 commit(s), frontier unchanged
+- shift 20 FAST-FAIL 02:32 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 20 02:32->02:32 (0m): 0 commit(s), frontier unchanged
+- shift 21 FAST-FAIL 02:33 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 21 02:33->02:33 (0m): 0 commit(s), frontier unchanged
+- shift 22 FAST-FAIL 02:34 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 22 02:34->02:34 (0m): 0 commit(s), frontier unchanged
+- shift 23 FAST-FAIL 02:35 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 23 02:35->02:35 (0m): 0 commit(s), frontier unchanged
+- shift 24 FAST-FAIL 02:36 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 24 02:36->02:36 (0m): 0 commit(s), frontier unchanged
+- shift 25 FAST-FAIL 02:37 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 25 02:37->02:37 (0m): 0 commit(s), frontier unchanged
+- shift 26 FAST-FAIL 02:38 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 26 02:38->02:38 (0m): 0 commit(s), frontier unchanged
+- shift 27 FAST-FAIL 02:39 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 27 02:39->02:39 (0m): 0 commit(s), frontier unchanged
+- shift 28 FAST-FAIL 02:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 28 02:40->02:40 (0m): 0 commit(s), frontier unchanged
+- shift 29 FAST-FAIL 02:41 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 29 02:41->02:41 (0m): 0 commit(s), frontier unchanged
+- shift 30 FAST-FAIL 02:42 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 30 02:42->02:42 (0m): 0 commit(s), frontier unchanged
+- shift 31 FAST-FAIL 02:43 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 31 02:43->02:43 (0m): 0 commit(s), frontier unchanged
+- shift 32 FAST-FAIL 02:44 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 32 02:44->02:44 (0m): 0 commit(s), frontier unchanged
+- shift 33 FAST-FAIL 02:45 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 33 02:45->02:45 (0m): 0 commit(s), frontier unchanged
+- shift 34 FAST-FAIL 02:47 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 34 02:46->02:47 (0m): 0 commit(s), frontier unchanged
+- shift 35 FAST-FAIL 02:48 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 35 02:48->02:48 (0m): 0 commit(s), frontier unchanged
+- shift 36 FAST-FAIL 02:49 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 36 02:49->02:49 (0m): 0 commit(s), frontier unchanged
+- shift 37 02:50->03:01 (11m): 0 commit(s), frontier unchanged
+- shift 38 survey: banked TWO team-depth wins (both mode-side, canonical UNTOUCHED). (1) commit 6cdc463 — KEEPER ROUTER flipped default ON after the clean end-to-end fetch+catch that NS#4 couldn't show finally LANDED (bill_house_noabra party-3, 1 warp hop to Route 25, no gauntlet: PICK fetch_keeper → routed → force-caught the target Abra → party 3→4 → plan advanced → unreachable next-keeper retired, NO livelock). Full-party/post-game short-circuit → canonical unaffected; verifier 10/10. (2) commit ec264a1 — PC/BOX chaff-swap (Tier-1 #15, the FULL-party pairing gap): deposit_mon + GENERAL _find_pc_stand (MB_PC 0x83 scan — Centers don't share the PC tile, the hardcoded stand wedged) + _worst_chaff_slot (off-plan-only via planner) + box_chaff gate/offer/dispatch, flag POKEMON_PCBOX default OFF. VERIFIED: recon_deposit_check 11/11 + live headless deposit (party 4→3 by RAM @ Vermilion); end-to-end look-ahead: PICK box_chaff → deposited Ekans L9 → party 6→5 → fetch_keeper → routed to Route 24 for the Abra (full chaff→box→router→fetch chain runs live). | frontier: live grab-and-look on a real deposit → flip POKEMON_PCBOX ON; then withdraw_mon + auto-boxed-keeper swap-in; then the FINAL-PROOF gate (fresh mid-game forward w/ both flags → builds a real 6). | needs eyes: one live PC-deposit watch before flipping POKEMON_PCBOX default ON (wedge-prone menu on the show build); canonical Champion save untouched, pop-in = python pokemon_agent/watch.py

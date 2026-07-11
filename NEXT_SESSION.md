@@ -1,5 +1,59 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #38 DONE (2026-07-11) — KEEPER ROUTER flipped ON (end-to-end catch PROVEN) + PC/BOX chaff-swap BUILT+VERIFIED. START HERE.
+**TWO commits banked, both mode-side, flag-gated, canonical Champion save UNTOUCHED:**
+
+**1. `6cdc463` — KEEPER ROUTER default flipped ON (NS#4 frontier #1 DONE).** The clean fetch+catch that
+neither NS#4 fixture could show LANDED: on `bill_house_noabra` (party-3 Ivysaur L26 + Spearow + Rattata, 15
+balls, 1 warp hop to Route 25, NO gauntlet — built by `recon_mk_keeper_fixture.py`): PICK fetch_keeper →
+FETCH-KEEPER routed Bill's house (30,0)→Route 25 → force-caught the target **Abra** → party 3→4 → plan
+advanced to the next keeper (diglett) → Diglett's Cave unreachable → router returned None (fetch_keeper
+un-offered) → fell through to head_to_gym, **NO livelock**. `POKEMON_KEEPER_ROUTER` now default "1"
+(full-party >=6 and post-game both short-circuit to None → canonical unaffected). Verifier still 10/10.
+
+**2. `ec264a1` — PC/BOX chaff-swap (NS#4 frontier #2 = Tier-1 #15, the FULL-party pairing gap).** The router
+only fires at party<6, so a full team of early-catch chaff (erika_done: Venusaur + Rattata/Spearow/Ekans/
+Meowth/Pidgey) could never add a coverage keeper. NOW: `box_chaff` deposits the lowest-value OFF-PLAN chaff
+at the current city's Center PC → party 6→5 → the router's room-gate opens → keeper added. Built (all in
+campaign.py): `deposit_mon(slot,pc_door)` (reuses heal_at_center's proven Center enter/exit + ports
+recon_pcbox's screenshot-calibrated menu drive); **`_find_pc_stand()` GENERAL PC locator** (scans the
+interior for MB_PC=0x83 + stands below — Centers do NOT share the PC tile, Vermilion (11,1) != Route 10's,
+so the hardcoded stand wedged; this reads RAM truth); `_worst_chaff_slot` (lowest-level off-plan non-lead,
+via planner._is_target_line — never boxes a keeper/ace); `_chaff_swap_target` gate + `box_chaff` offer/
+dispatch (fires only party-FULL + catch_keeper DUE + boxable chaff + mapped-Center city). Flag
+`POKEMON_PCBOX` **default OFF**. **VERIFIED:** `recon_deposit_check.py` 11/11 decision cases + a LIVE
+headless deposit (surge_done @ Vermilion, party 4→3 by RAM, PC stand auto-located (11,2)); AND an end-to-end
+look-ahead (synth party-6 chaff @ Vermilion, both flags on): **PICK box_chaff → deposited Ekans L9 → party
+6→5 → fetch_keeper fired → routed to Route 24 for the Abra**. The full chaff→box→router→fetch chain runs live.
+
+### ⇒ NS#38 FRONTIER (exact next actions, priority order):
+1. **FLIP `POKEMON_PCBOX` default ON — needs ONE live grab-and-look first.** The deposit menu is
+   menu-nav-on-the-long-core (wedge-prone). The actuation is headless-VERIFIED (party 6→5, real menu, on
+   Vermilion), but per the wedge-prone class it wants a live eye on the SHOW build (audio/render path) before
+   default-ON. Also confirm the Center-detour doesn't over-backtrack (watchability). If a live deposit is
+   clean → set `POKEMON_PCBOX` default "1" (one char, campaign.py:~123) + commit. To re-verify headless
+   anytime: `POKEMON_PCBOX=1 ../.venv/Scripts/python.exe recon_deposit_check.py` (11/11 + deposit 4→3).
+2. **WITHDRAW + auto-boxed-keeper swap-in (the PC/BOX second slice).** Right now box_chaff makes room BEFORE
+   the catch. FRLG also auto-boxes a caught mon at party-6 — so a keeper caught while full sits in the box.
+   Build `withdraw_mon(box_slot, pc_door)` (reverse of deposit_mon — same _find_pc_stand + the WITHDRAW menu
+   branch) + a "swap at Center" hook that withdraws a boxed keeper and deposits a chaff during a heal visit
+   (no extra routing). Model the menu drive on deposit_mon; verify headless via a recon_withdraw_check.
+3. **FINAL-PROOF GATE (the whole point) — now runnable end-to-end.** A fresh mid-game fixture forward with
+   `POKEMON_KEEPER_ROUTER=1 POKEMON_PCBOX=1`: she catches coverage keepers (router), boxes chaff when full
+   (box_chaff), levels the bench on the road (road-bench-XP), preps to milestones (milestone-prep), and
+   arrives E4-ready with a real 6. Use a mid-game state WITH a world_model sidecar (surge_done/erika_done —
+   NOT og_postopening, which is nav-blind). Read the blocker chain; the remaining gap is likely grind-spot
+   adequacy for the L45→55 E4 push (cave step-encounter grind, unbuilt) or a nav wedge on the return legs.
+4. **prep bite cadence** (NS#4 frontier #3) — the +6 milestone-prep bite levels the bench slowly; a bigger
+   bite when FAR under milestone arrives near-milestone faster without a grind-wall.
+
+⚠️ NOTE on the keeper-router live catch at a solo/thin team: reaching Route 24 crosses Nugget Bridge — a
+solo/very-thin team loss-loops there (NS#4 misty_done finding; the loss-guard retires the target cleanly, no
+livelock, but she won't complete the catch until the team can survive the bridge). box_chaff/road-bench-XP
+building a real bench is what fixes this; not a router defect.
+
+---
+
 ## ✅ NIGHT-SHIFT #4 DONE (2026-07-11) — road-bench-XP re-validated (party-6) + CROSS-MAP KEEPER ROUTER built (NEW#2). START HERE.
 **BANKED (commit 208edb5, mode-side, flag-gated `POKEMON_KEEPER_ROUTER` DEFAULT OFF, canonical untouched):**
 the cross-map keeper router — the last unbuilt Part-C piece for team COMPOSITION. Full diagnosis + file:lines
