@@ -1746,6 +1746,28 @@ class Campaign:
     # south strip → Route 5. The overworld BFS can NEVER see this (the region is fence-isolated), so
     # when an edge crossing reports no-route, doors are the remaining connectors. The SAME shape is
     # the Underground Path huts and the Saffron gatehouses — build once, reuse everywhere.
+    # Saffron's gatehouse maps (learned world-graph ids): (18,0) = the Route-6 SOUTH gate, (19,0) =
+    # the Route-7 WEST gate. Each is a pass-through building whose only non-route exit warps INTO
+    # Saffron (3,10) — and pre-Tea Saffron's four guards refuse passage, so a door-passthrough into
+    # one DEAD-ENDS. The billed Celadon road crosses UNDER Saffron via the Underground Path hut
+    # instead; but the passthrough's multi-door tie-break (-len(dest_doors)) otherwise prefers the
+    # 2-door gatehouse over the 1-door UGP hut (ns6_bail025 NS#8: 8× wedge at (18,0) on the Route-6
+    # Celadon leg before self-recovery). Skip them as connector candidates until GOT_TEA opens the
+    # guards; post-Tea the set is empty so the gates become normal roads (zero behaviour change).
+    _SAFFRON_GATE_MAPS = {(18, 0), (19, 0)}
+
+    def _saffron_gate_dead_ends(self):
+        """The Saffron gatehouse maps that dead-end at guard-blocked Saffron pre-Tea (FLAG_GOT_TEA
+        678). Empty once the Tea is delivered. Fail-OPEN (empty on read error): the worst case is the
+        pre-existing self-recovering wedge, never a new dead-end."""
+        try:
+            import field_moves as fm
+            if fm.read_flag(self.b, 678):        # FLAG_GOT_TEA — guards wave her through; real roads now
+                return set()
+        except Exception:
+            return set()
+        return set(self._SAFFRON_GATE_MAPS)
+
     def _door_passthrough(self, budget_s=240, want_map=None):
         """Enter a reachable, untried door on this map; inside, exit through a DIFFERENT warp; if we
         pop out materially elsewhere (across a fence / on another map), report 'crossed' so the
@@ -1784,6 +1806,7 @@ class Campaign:
         except Exception:
             _nc = set()
         cands = []
+        _saf_gate = self._saffron_gate_dead_ends()   # NS#8: pre-Tea Saffron gatehouses -> guard-blocked dead-end
         # WATER-START/WATER-ROAD (night shift 10): a sea-route connector (the Seafoam entrances
         # on Route 20) sits across open water — the land-only reach test silently skipped it and
         # the passthrough reported no_passthrough from a surf stand. Same layer law as the grass
@@ -1794,6 +1817,8 @@ class Campaign:
                 continue
             if tuple(door_dest.get(wt) or ()) in _nc:
                 continue
+            if tuple(door_dest.get(wt) or ()) in _saf_gate:   # NS#8: door into a Saffron gatehouse that
+                continue                                       # only exits into guard-blocked Saffron pre-Tea
             if tv.bfs(grid, pos0, lambda t, w=wt: t == w or
                       (abs(t[0] - w[0]) + abs(t[1] - w[1]) == 1), walkable=_wlk):
                 cands.append(wt)
