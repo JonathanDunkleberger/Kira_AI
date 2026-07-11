@@ -1,5 +1,45 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #1 DONE (2026-07-11) — team-depth Part-C: 3 fixes banked + verified. START HERE next shift.
+**BANKED + VERIFIED THIS SHIFT (3 commits, all mode-side, canonical untouched):**
+- **2dc74d5 `prep_for_e4()`** — at all 8 badges the WHOLE party is floored to the team-plan's E4 milestone (~L55),
+  not the ace-relative `lead-8`. Direct fix for the NS9-14 top-heavy wall (ace solos, bench sags 8 under → swept
+  in the Center-less gauntlet). NOTHING read `level_milestones` before. **BEHAVIOURALLY VERIFIED** on a giovanni_kit_g
+  look-ahead: fires (prep=55), fields the REAL team (Lapras L37 / Kadabra L39 — not the chaff), and retires cleanly
+  ("pushing on with the strong core") when grass can't level them — **NO livelock** in the live loop. Logic verified
+  4/4 in `recon_prep_e4_check.py` (emit / retire-on-crossed / chaff-only / stalled).
+- **22398ec catch un-gate + chaff-floor** — `_plan_wants_prebuild` no longer hard-blocks at pc>2: she keeps building
+  toward a full 6 while a planned keeper is DUE AND catchable on the CURRENT map (junk-safe: catch_one flees
+  non-targets). Verified 2/2 in `recon_ungate_check.py` (control + forced-positive). And `grind_weak_members` gained
+  a `min_level` floor so E4-prep fields only the levelable real team, never drags L8-14 box-fodder toward 55.
+- **9c8a33d** the un-gate verifier.
+
+**FRONTIER — the exact next pieces, in priority order (with the solutions I worked out):**
+1. **GRIND-SPOT ADEQUACY (the blocker prep_for_e4 surfaced, confirmed LIVE).** On giovanni_kit_g the bench (L37/39)
+   can't reach 55 because near Viridian/Indigo the reachable grass (Route 22 L2-8, Route 2, Route 18 caps ~L44-46)
+   gives L37+ mons ~0 XP → both stall → she proceeds UNDERLEVELED. This is the KNOWN NS14 gap (VR cave-grinding
+   unbuilt; E4-self-grind futile). **NOTE:** this is largely an ARTIFACT of the hand-built bank whose bench was
+   caught late + never levelled — a FRESH run with piece 2 below never sags this far, arriving needing only a small
+   top-up. Real fix candidates: cave step-encounter grinding (unbuilt), or a high-level grind spot table in gamedata.
+2. **MID-GAME MILESTONE LEVELING (highest-leverage; I built + REVERTED it — ship it with the pacing guard).** I
+   generalized `_prep_e4_target` → `_prep_milestone_target` (reads `_next_milestone(badge_count)` so the bench tracks
+   Brock 14→Misty 22→…→Giovanni 52 all game, not just `lead-8`). REVERTED before commit because flooring a fresh
+   mid-game catch that's up-to-`E4_PREP_BAND`(25) under the milestone would drag it all the way up in one sitting =
+   possible over-grind (the old proactive block's SITTING-CAP +6-bite pacing exists for exactly this). **THE FIX to
+   ship:** mid-game target = `min(milestone, floor + BITE)` (bounded bites, watchable) with the E4 (badge 8) case
+   keeping the full-milestone push; place the call AFTER the rival-defer (preserve the S.S. Anne 4+-mon handling);
+   keep the band+stalled livelock guard. Then VERIFY with a FRESH `og_postopening.state` look-ahead reaching badge
+   2-3 (confirm the bench tracks milestones without an unwatchable grind). The generalized helper body is in this
+   shift's git history (was staged, reverted) — recover it from the diff of the revert.
+3. **PC/BOX (Tier-1 #15) — the pairing gap for the CATCH half.** The un-gate builds toward 6, but the giovanni run
+   showed the endgame reality: at party-6 with 3 chaff, she CAN'T swap fodder for planned keepers without box-mgmt.
+   Build `deposit_mon`/`withdraw_mon` (promote `recon_pcbox.py`'s deposit flow) + hook `catch_one` to box the
+   lowest-value off-plan fodder on a full-party keeper catch. This is what turns the un-gate into real depth.
+4. **CROSS-MAP KEEPER ROUTER** — the un-gate is on-map only; a fresh run only catches keepers it happens to pass.
+   Route to `act["where"]` (resolve via `_PLACE_NAMES` reverse + frlg_encounters) for grass/cave keepers (Abra,
+   Diglett, Growlithe); Snorlax/Lapras are gift/static (quest-gated, leave to the questline). Model on `_flash_errand`.
+Full diagnosis + file:lines: `pokemon_agent/TEAM_DEPTH_ROOT_FIX.md`. Loop NOT stopping — this is the build phase.
+
 ## 🚂 PASS 3 — THE NIGHT-TRAIN MISSION (2026-07-11, START HERE EVERY SHIFT): make a FRESH GO build its own team + play a watchable ~25-35hr bedroom→credits spectacle. **CONSOLIDATION, not discovery — the game is already solved; wire it together so it FLOWS.**
 
 **PART-1 RECON IS DONE — READ `pokemon_agent/PASS3_RECON.md` FIRST** (the complete wired/unwired/needs-live-watch gap
