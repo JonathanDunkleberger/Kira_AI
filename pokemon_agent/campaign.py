@@ -4488,40 +4488,50 @@ class Campaign:
             cur = tuple(tv.map_id(self.b))
             if self._species_on_map(sp, cur):
                 return None                        # already here -> the on-map un-gate catches it
-            areas = (self.team_planner.encounters or {}).get("areas") or {}
-            p2m = self._place_to_map_index()
-            avoid = self._wall_avoid(state)
-            unreach = getattr(self, "_keeper_unreach", set())
-            best = None                            # (species, target_map, hops)
-            for place, entry in areas.items():
-                present = any((m.get("species") or "").lower() == sp
-                              for meth, mons in entry.items() if not str(meth).startswith("_")
-                              for m in (mons or []))
-                if not present:
-                    continue
-                tmap = p2m.get(place)
-                if not tmap or tuple(tmap) == cur or (cur, tuple(tmap)) in unreach:
-                    continue                       # retired: the executor couldn't ride there from here
-                route = self.world.route(cur, tuple(tmap), avoid)
-                if not route:
-                    continue
-                hops = len(route) - 1
-                if hops > KEEPER_ROUTER_MAX_HOPS:
-                    continue
-                # OFFER⟺EXECUTABLE (route3_caught livelock fix): world.route can find a path over STATIC
-                # connections the learned-graph traveler can't yet RIDE (unvisited maps) -> the errand span
-                # no_path forever. Require a real rideable next hop toward tmap NOW, so we only offer what
-                # _travel_to_known can actually execute this tick (keeps the router to near/known keepers).
-                if self._next_step_rideable(cur, tuple(tmap), avoid) is None:
-                    continue
-                if best is None or hops < best[2]:
-                    best = (sp, tuple(tmap), hops)
-            if best is None:
+            tmap = self._reachable_keeper_host(sp, cur, state)
+            if tmap is None:
                 return None
-            return (best[0], best[1])
+            return (sp, tmap)
         except Exception as e:
             log(f"   [roam] keeper-route target skipped: {e}")
             return None
+
+    def _reachable_keeper_host(self, sp, cur, state):
+        """Given a DUE keeper species `sp` and the current map `cur`, return the NEAREST hosting map the
+        learned-graph traveler can actually RIDE to now (within KEEPER_ROUTER_MAX_HOPS), else None. Shared
+        by the router (_keeper_route_target) AND the box-swap gate (_chaff_swap_target) so a full-party chaff
+        is boxed ONLY when the keeper it makes room for is genuinely fetchable — never a box-for-nothing that
+        thins the team and breaks the on-screen 'making room for the mon my plan wants' promise (NS#39: on
+        erika_done_kit box_chaff boxed a chaff at Celadon for a Diglett that was un-routable → net team loss)."""
+        areas = (self.team_planner.encounters or {}).get("areas") or {}
+        p2m = self._place_to_map_index()
+        avoid = self._wall_avoid(state)
+        unreach = getattr(self, "_keeper_unreach", set())
+        best = None                                # (target_map, hops)
+        for place, entry in areas.items():
+            present = any((m.get("species") or "").lower() == sp
+                          for meth, mons in entry.items() if not str(meth).startswith("_")
+                          for m in (mons or []))
+            if not present:
+                continue
+            tmap = p2m.get(place)
+            if not tmap or tuple(tmap) == cur or (cur, tuple(tmap)) in unreach:
+                continue                           # retired: the executor couldn't ride there from here
+            route = self.world.route(cur, tuple(tmap), avoid)
+            if not route:
+                continue
+            hops = len(route) - 1
+            if hops > KEEPER_ROUTER_MAX_HOPS:
+                continue
+            # OFFER⟺EXECUTABLE (route3_caught livelock fix): world.route can find a path over STATIC
+            # connections the learned-graph traveler can't yet RIDE (unvisited maps) -> the errand spins
+            # no_path forever. Require a real rideable next hop toward tmap NOW, so we only offer what
+            # _travel_to_known can actually execute this tick (keeps the router to near/known keepers).
+            if self._next_step_rideable(cur, tuple(tmap), avoid) is None:
+                continue
+            if best is None or hops < best[1]:
+                best = (tuple(tmap), hops)
+        return best[0] if best else None
 
     def _fetch_keeper_errand(self, state):
         """Handler for the `fetch_keeper` action: advance the keeper detour one leg via the PROVEN
@@ -5209,6 +5219,14 @@ class Campaign:
             pc_door = CITY_PC_DOORS.get(cur)
             if not pc_door:
                 return None                               # not in a mapped-Center city -> can't deposit here
+            # ROUTABILITY GATE (NS#39): box a member ONLY if the keeper it frees room for is actually
+            # fetchable now — either already on this map (the on-map un-gate will catch it once there's room)
+            # or the cross-map router can ride to a hosting map. Boxing for an un-routable keeper (Diglett's
+            # Cave from Celadon) thins the team AND makes an on-screen promise she can't keep -> refuse.
+            sp = (act.get("species") or "").lower()
+            if sp and not self._species_on_map(sp, cur) \
+                    and self._reachable_keeper_host(sp, cur, state) is None:
+                return None
             return (slot, pc_door)
         except Exception as e:
             log(f"   [roam] chaff-swap target skipped: {e}")

@@ -114,9 +114,26 @@ def part_a():
                   {"species": "spearow", "level": 15}, {"species": "ekans", "level": 9},
                   {"species": "meowth", "level": 10}, {"species": "pidgey", "level": 13}]
     ls2 = dict(ls2); ls2["party"] = fake_party; ls2["party_count"] = 6
+    # ROUTABILITY GATE (NS#39): the gate now also requires the due keeper to be fetchable. Drive that
+    # deterministically (independent of the loaded world graph) by stubbing _reachable_keeper_host /
+    # _species_on_map, so the positive/negative cases prove the GATE logic, not world state.
+    _orig_reach = camp2._reachable_keeper_host
+    _orig_onmap = camp2._species_on_map
+    camp2._reachable_keeper_host = lambda *a, **k: (3, 20)     # a reachable hosting map
+    camp2._species_on_map = lambda *a, **k: False             # keeper NOT on this map -> router path
     tgt = camp2._chaff_swap_target(ls2)
-    _ck("A gate FIRES in a Center city w/ full off-plan party + keeper due (returns (slot,door))",
+    _ck("A gate FIRES when keeper is off-map but ROUTABLE (returns (slot,door))",
         isinstance(tgt, tuple) and len(tgt) == 2 and tgt[1] == C.VERMILION_PC_DOOR)
+    # NS#39 core: keeper off-map AND un-routable -> refuse to box (no box-for-nothing that thins the team)
+    camp2._reachable_keeper_host = lambda *a, **k: None
+    _ck("A gate None when the due keeper is off-map AND un-routable (NS#39 refusal)",
+        camp2._chaff_swap_target(ls2) is None)
+    # keeper already ON this map -> box (the on-map un-gate catches it once there's room), routability moot
+    camp2._species_on_map = lambda *a, **k: True
+    _ck("A gate FIRES when the keeper is already on THIS map (on-map catch after room)",
+        isinstance(camp2._chaff_swap_target(ls2), tuple))
+    camp2._reachable_keeper_host = _orig_reach
+    camp2._species_on_map = _orig_onmap
     # party with room (5) -> None (router catches directly, no swap needed)
     ls3 = dict(ls2); ls3["party"] = fake_party[:5]; ls3["party_count"] = 5
     _ck("A gate None when party has room (<6)", camp2._chaff_swap_target(ls3) is None)
