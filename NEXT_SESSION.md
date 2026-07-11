@@ -28,17 +28,32 @@ stub the NS#40 refactor had broken), `recon_deposit_check` ALL PASS.
    gate. VERIFIED e2e on the REAL fixture: fetch_keeper offered+picked at 57% -> cave -> descend -> CATCH diglett
    (party 4->5, L20) -> grinds the bench. No heal-loop (0 heal picks / 12 fetch picks), no livelock.
 
-0. **⭐ THE FINAL-PROOF GATE is now the top item — RUN IT.** Keeper acquisition (cave + dinged) works and road-bench-XP
-   works, so run the whole-mission proof: `LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py
-   surge_done_kit.state 30` and READ the blocker chain — does she catch MULTIPLE coverage keepers, level the bench to
-   milestones, and arrive E4-ready with a REAL leveled 6? Likely NEXT walls: (a) the 45s BARREN-VESTIBULE wander is
-   slow/circly on a watch — a step-count barren detector (~15-20 steps no encounter -> descend) beats the wall timer
-   (`POKEMON_KEEPER_CAVE_FLOOR_WANDER_S`); (b) BALL ECONOMY — `_shopping_list` (~8693) only tops balls when `(party<=3
-   OR balls<2) AND balls<5`, so a party-4+ hunter buys ZERO; wire the ball-buy to the keeper plan (`catch_keeper` DUE
-   -> top to ~8) so a harder/awake keeper (abra/growlithe) doesn't burn out (diglett is easy so 3 sufficed); (c) the
-   prebuild un-gate catches a SECOND of the same species while building toward 6 (2 diglett in the cave3 run) — a
-   per-species dedup would stop it (self-terminates at party 6, low pri); (d) cave step-encounter grind for the L45->55
-   E4-prep push (unbuilt). Fix the FIRST real wall, re-run, iterate toward E4-ready.
+0. **⭐ I RAN THE FINAL-PROOF GATE (surge_done_kit, 30-min look-ahead, `G:/temp/longrun/ns41_finalproof.log`) — it
+   surfaced TWO next walls, in priority order:**
+   **(A — DOMINANT, fix first) CELADON-APPROACH NAV WEDGE — soft-livelock, watchability-killer.** From badge-3
+   Vermilion, head_to_gym routes toward Celadon (gym 4) via **Route 12**, which is BLOCKED (the sleeping Snorlax /
+   Saffron drink-gate forces the long way). She soft-livelocked on **Route 12 (13,70)**: `TRAVEL WEDGE: identical fp
+   x4 → no_route` repeated **1,391 times** — the circuit breaker prevents a frozen frame (returns to roam) but roam
+   re-picks the same blocked `travel:(11,112)` endlessly → she NEVER reaches Celadon. This matches the KNOWN
+   "head_to_gym warp-route is GATE-BLIND + preempts billed road" issue ([[pokemon-nighttrain-shift3-flashgate-celadon-approach]]);
+   prior passes REACHED Celadon (erika_done_kit exists), so per the mission this is a **WIRING failure — connect the
+   solved Celadon approach, don't rediscover it.** DIAGNOSE: is head_to_gym routing gate-blind toward Snorlax-Route-12
+   instead of the billed/solved path? Does surge_done_kit's world_model lack the learned Celadon path so head_to_gym
+   falls back to a blocked warp-route? Check `gamedata/frlg_gates.json roads[Celadon]` + the head_to_gym warp-route vs
+   billed-road priority (memory: "on no_gym_route, first check roads[<gym city>] exists"). This is the binding blocker
+   to the whole climb from this fixture — she can't progress past badge 3 until it's connected.
+   **(B — keeper-catch RELIABILITY, ball economy) confirmed this run.** She fetched+descended to the Diglett floor
+   (1,37) but hit `catch_pokemon -> no_balls` ×5 → "ran out of Poké Balls" → 0 catches (vs the real2 run which caught
+   with the same 3 balls — pure RNG: 3 balls broke free). ROOT: `_shopping_list` (~8693) only tops balls when
+   `(party<=3 OR balls<2) AND balls<5`, so a party-4 hunter buys ZERO and hunts with 3. FIX: wire the ball-buy to the
+   keeper plan — when `catch_keeper` is DUE, top balls to ~8-10 at the Mart even at party>3, so a keeper catch is
+   reliable (diglett is easy but even it broke 3 balls once; abra/growlithe will be worse). VERIFY: re-run
+   surge_done_kit, confirm she buys balls at Vermilion then reliably catches diglett.
+   **Lower-priority tunes the run also flagged:** (c) the 45s BARREN-VESTIBULE wander is slow/circly on a watch — a
+   step-count barren detector (~15-20 steps no encounter → descend) beats the wall timer
+   (`POKEMON_KEEPER_CAVE_FLOOR_WANDER_S`); (d) the prebuild un-gate catches a SECOND of the same species while building
+   toward 6 (2 diglett in the cave3 run) — a per-species dedup would stop it (self-terminates at 6, low pri);
+   (e) cave step-encounter grind for the L45→55 E4-prep push (unbuilt). Fix A, then B, re-run, iterate toward E4-ready.
 
    **(SUPERSEDED — kept for context) prior top blocker, now fixed by 591442d:** On the REAL surge_done_kit (lead at 57% HP), she stood in Vermilion — Diglett's Cave one
    short static hop away — and `fetch_keeper` was NEVER OFFERED because the offer is gated `and not self.needs_heal()`
