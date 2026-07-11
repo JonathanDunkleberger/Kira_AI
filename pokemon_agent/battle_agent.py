@@ -1919,7 +1919,13 @@ class BattleAgent:
             # LENIENT floor (lv+15 vs the def pick's lv+5): a 2x type edge is worth ~2 level-tiers
             # of frailty, so an under-levelled specialist (Kadabra L40 Psychic into Agatha's L54
             # Poison line) is still the right body — the whole point is to spare the ace's PP.
-            if coff >= 2.0 and not (foe_lv and lv + 15 < foe_lv):
+            # A >=4x answer (Lapras's Ice Beam into Lance's Dragon/Flying line) is a near-certain
+            # OHKO from any healthy body — field it regardless of level. The lv+15 floor wrongly
+            # vetoed the bulky L39 Lapras vs the ~L55 dragons, stranding Ice Beam in reserve while
+            # the ace tanked to a whiteout (e4_tactical run1 Lance postmortem). The 2x case keeps the
+            # lenient lv+15 frailty floor (a 2x edge is worth ~2 tiers, but not unlimited under-level).
+            _floor_ok = (coff >= 4.0) or not (foe_lv and lv + 15 < foe_lv)
+            if coff >= 2.0 and _floor_ok:
                 akey = (coff, -cdef, lv)                   # hits hardest, then resists, then level
                 if best_atk_key is None or akey > best_atk_key:
                     best_atk, best_atk_key = s, akey

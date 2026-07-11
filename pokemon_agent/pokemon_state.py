@@ -143,6 +143,11 @@ MOVE_NAMES = {
     # number, not the move name). She carries these the whole climb (Cut→Surf→Strength→Flash).
     15: "Cut", 19: "Fly", 57: "Surf", 70: "Strength", 148: "Flash",
     249: "Rock Smash", 127: "Waterfall",
+    # E4-team moves (soul gap: without these she narrates "move#58" instead of "Ice Beam" as she
+    # fields her Lapras/Kadabra type-answers against the Elite Four — the whole tactical show).
+    58: "Ice Beam", 94: "Psychic", 60: "Psybeam", 105: "Recover", 93: "Confusion",
+    34: "Body Slam", 109: "Confuse Ray", 195: "Perish Song", 100: "Teleport", 50: "Disable",
+    95: "Hypnosis", 1: "Pound", 31: "Fury Attack",
 }
 
 
