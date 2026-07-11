@@ -97,6 +97,24 @@ E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "25"))
 # the fight is WON, weak mon banks participation XP) + field the less-weak mon first. Arm with
 # POKEMON_SOLO_WEAK_GRIND=1 to continue. Until then ace-overpower (heals fine via the reachable-Center fix).
 SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
+# SEVERELY-LOPSIDED BENCH grind (2026-07-11, PASS 3 NS#6 — team-depth lever (a), the binding wall).
+# NS#5 root: the DEDICATED bench grind (the 'battle' pick -> grind_weak_members) fired 0x the whole
+# badge-3->4 climb — the proactive prep pin was ALWAYS out-voted by the forward-drive (head_to_gym),
+# because a solo L48 carry can march the road forever so the oracle never STOPS to fix an L10-14 bench.
+# Result: abra frozen at L13 (never evolves to Kadabra, the Koga/Sabrina answer), four badges in. This
+# forces ONE bounded dedicated grind stint when the bench is SEVERELY lopsided vs BOTH the gym milestone
+# AND the ace (the solo-carry + dead-weight shape) by suppressing head_to_gym so 'battle' wins — exactly
+# how a real player stops to train a lopsided team (constitution-aligned, narrated). PARK-PROOF by three
+# independent bounds: (1) it only fires when the +6 pin is armed (_prep_team_target non-None), which
+# retires after ONE +6 bite and won't re-arm until the NEXT badge (NS#2 milestone machinery); (2) the
+# milestone is marked done after a completed stint (_lopsided_grind_done) so a stalled/un-levelable bench
+# releases immediately instead of looping; (3) no-reachable-grass hits the PREP STAND-DOWN. So it's <= one
+# +6 stint per badge — never the celadon_run1 27-level marathon that parked the road. Flag-gated (instant
+# revert); touches only action-menu dominance (no new battle code). The gaps below select SEVERE (solo
+# carry) from MODEST (bench trails ~10 — road-bench-XP finishes that organically without a full stop).
+LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "1") != "0"
+LOPSIDED_MS_GAP = int(os.getenv("POKEMON_LOPSIDED_MS_GAP", "12"))    # floor >= this far under milestone
+LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace towers >= this over the floor
 # CROSS-MAP KEEPER ROUTER (2026-07-11, PASS 3 team-depth NEW#2): the on-map catch un-gate
 # (_plan_wants_prebuild / _plan_keeper_target) only grabs a planned keeper she happens to be STANDING on;
 # a keeper on a nearby route she isn't on is marched past (the erika_done look-ahead: the planner wants
@@ -6470,6 +6488,62 @@ class Campaign:
         finally:
             battle_agent.PROTECT_LEAD_GRIND = False
 
+    def _bench_severely_lopsided(self, state, prep_t):
+        """PASS-3 NS#6 team-depth lever (a): return the gym milestone level IF the bench is SEVERELY
+        lopsided vs BOTH the milestone AND the ace (the solo-carry + dead-weight-bench shape NS#5
+        pinpointed — a lone L48 ace behind an L10-14 bench that the ace can always carry, so the oracle
+        never STOPS to train the bench and it stays frozen), else None. Used to make the dedicated grind
+        DOMINATE head_to_gym for ONE bounded +6 stint (symmetric to the TEAM-BRAIN PRE-BUILD dominance).
+
+        Tightly gated so it can NEVER treadmill/park the road:
+          • prep_t is not None — the +6 pin is armed, so the 'battle' executor levels the BENCH (not the
+            ace via the grind(lead+2) fallback); the pin retires after +6 and won't re-arm until the next
+            badge, so this is at most one +6 bite per milestone.
+          • milestone not already in _lopsided_grind_done — a completed stint (incl. an un-levelable
+            stall) releases it, so a bench that can't level here doesn't loop.
+          • only with the participation switch available (the proven bench-leveling path).
+          • a real bench (party >= 3), not hurt/critical, not mid nav-critical errand, grass not dry.
+        The gap thresholds separate SEVERE (force a full stop) from MODEST (road-bench-XP handles it)."""
+        if not LOPSIDED_GRIND_ENABLED or prep_t is None:
+            return None
+        if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
+            return None                              # need the proven participation switch to level a bench
+        if getattr(self, "_active_questline", None) is not None:
+            return None                              # errand ticks keep the TRUE ace leading (nav-critical)
+        if getattr(self, "_prep_dry", 0) >= 2:
+            return None                              # no reachable grass here — PREP STAND-DOWN owns it
+        try:
+            if self.needs_heal() or self._hurt_severity()[0] == "critical":
+                return None
+            party = state.get("party") or []
+            if len(party) < 3:
+                return None                          # a real bench, not just ace + 1
+            levels = [m.get("level", 0) for m in party]
+            floor, lead = min(levels), max(levels)
+            _bc = int(state.get("badge_count", 0))
+            try:
+                # ensure_plan first: _next_milestone reads team_planner.state, which is None until the
+                # plan is ensured — a raw call returns 0 (no static milestone) so the trigger silently
+                # never fires (it's idempotent + already run all over assess()).
+                self.team_planner.ensure_plan(party, _bc)
+                milestone = self.team_planner._next_milestone(_bc, bool(state.get("post_game")))[1]
+            except Exception:
+                milestone = 0
+            log(f"   [roam] LOPSIDED-DBG: floor={floor} lead={lead} ms={milestone} prep_t={prep_t} "
+                f"ms_gap={milestone-floor} ace_gap={lead-floor} done={sorted(getattr(self,'_lopsided_grind_done',()))}")
+            if not milestone:
+                return None                          # no static milestone (post-game / planner off)
+            if milestone in getattr(self, "_lopsided_grind_done", ()):
+                return None                          # already forced this badge's stint (bounded)
+            if (milestone - floor) < LOPSIDED_MS_GAP:
+                return None                          # bench close enough — road-bench-XP finishes it
+            if (lead - floor) < LOPSIDED_ACE_GAP:
+                return None                          # not the solo-carry shape — no forced full stop
+            return milestone
+        except Exception as e:
+            log(f"   [roam] lopsided-bench check skipped: {e}")
+            return None
+
     # ── BATCH 2 PART C: SHOP WITH INTENT (bag/money reads + the verified Mart buy primitive) ───────
     def money(self):
         """Player money (SaveBlock1+0x290 XOR SaveBlock2.encryptionKey+0xF20). Same decode as the
@@ -9786,6 +9860,27 @@ class Campaign:
                 a.pop("head_to_gym", None)
                 log("   [roam] TEAM-BRAIN PRE-BUILD dominance: suppressing head_to_gym (would solo-charge "
                     "the trainer gauntlet the brain flagged) — build the squad on the reachable grass first")
+        # ── SEVERELY-LOPSIDED BENCH dominance (PASS 3 NS#6 — team-depth lever a, the binding wall) ─────
+        # When the bench is drastically under the gym milestone AND the ace towers over it, the ace can
+        # carry the road forever so the dedicated bench grind ('battle') never gets chosen — the bench
+        # stays frozen the whole climb (NS#5: grind fired 0x, abra L13/meowth L10 behind an L48 ace, 4
+        # badges in; abra never reaches L16 to evolve into the Koga/Sabrina Psychic answer). Force ONE
+        # bounded dedicated grind stint: suppress the march options (head_to_gym, wander_catch, travel:*)
+        # so 'battle' -> grind_weak_members runs a +6 participation-XP bite that evens the bench up (and
+        # crosses Abra's L16 evolution en route). Park-proof: _bench_severely_lopsided only fires with the
+        # +6 pin armed (retires after one bite, re-arms only next badge) AND the milestone unmarked
+        # (_lopsided_grind_done, set after the stint) — <= one stint per badge, never a road-parking
+        # marathon. Only when 'battle' is on the menu (grass reachable) so it can't dead-end her.
+        if "battle" in a and "head_to_gym" in a:
+            _lop_ms = self._bench_severely_lopsided(state, prep_t)
+            if _lop_ms is not None:
+                self._lopsided_pending_ms = _lop_ms   # threaded to the executor to mark done after the stint
+                pruned_lop = [k for k in list(a)
+                              if k == "head_to_gym" or k == "wander_catch" or k.startswith("travel:")]
+                for k in pruned_lop:
+                    a.pop(k, None)
+                log(f"   [roam] !! LOPSIDED-BENCH: bench severely behind milestone L{_lop_ms} + the ace "
+                    f"(solo-carry shape) — forcing ONE dedicated grind stint; pruned march {sorted(pruned_lop)}")
         # USE AN HM (PHASE 2): offer "clear the obstacle in front" ONLY when there's an adjacent
         # cuttable tree / pushable boulder AND she has the HM + badge to clear it (honest action set,
         # same principle as the rest). Capability-not-script: she still CHOOSES to use it in
@@ -10659,6 +10754,13 @@ class Campaign:
                     #                                      run6: the Fuchsia↔Route-15 shuttle 'arrived'
                     #                                      every other tick and reset the counter forever)
                     self._prep_dry, self._prep_dry_logged = 0, False
+                # NS#6 LOPSIDED-BENCH: a COMPLETED stint ('ready' = floor crossed OR bench stalled-out on
+                # this route) marks the forced milestone done, so the lopsided dominance fires at most once
+                # per badge even if the pin can't retire (an un-levelable bench must release, not loop).
+                if r == "ready" and getattr(self, "_lopsided_pending_ms", None):
+                    self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+                    self._lopsided_grind_done.add(self._lopsided_pending_ms)
+                    self._lopsided_pending_ms = None
                 return r
             # RIVAL-RETURN GUARD (NIGHT SHIFT 16): don't let a stray 'battle' pick trap-grind her into the
             # nearest grass when she OWES a return to a 4+-mon rival gauntlet she lost and is OFF the gym city.
