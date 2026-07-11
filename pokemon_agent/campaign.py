@@ -436,6 +436,7 @@ FLAG_BADGE_RAINBOW = 0x823
 CELADON = (3, 6)
 CELADON_PC_DOOR = (48, 11)
 CELADON_GYM_DOOR = (11, 30)
+LAVENDER = (3, 4)                 # the graph gateway to Route 7/8/Celadon, reached only across Rock Tunnel (Flash-gated)
 # Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
 # map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
 # Celadon 3,6 confirmed live) — EXPECTED until she walks it (a wrong id = beat_gym just
@@ -4608,7 +4609,11 @@ class Campaign:
         # THROUGH Route 12, so the offer fired + the errand hopped onto Route 12 and wedged 9 ticks. Gating the
         # reachability check here means a keeper reachable ONLY via a gated dead-end is correctly deemed
         # unreachable -> not offered -> she falls to head_to_gym/billed road. Same fix as the off-road steer.
-        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
+        # HARD-GATE avoid (NS#43): AND not across a hard gate she hasn't opened — Lavender/Rock-Tunnel pre-Flash
+        # (east) OR Saffron pre-Tea (west). The growlithe (Route 7/8) offer otherwise wedged BOTH ways (east:
+        # ping-pong vs the Flash errand; west: stuck in the Saffron gatehouse on 'leave_building').
+        avoid = (self._wall_avoid(state) | self._story_gate_avoid(state)
+                 | self._keeper_hard_gate_avoid(state))
         unreach = getattr(self, "_keeper_unreach", set())
         best = None                                # (target_map, hops)
         for place, entry in areas.items():
@@ -4689,7 +4694,8 @@ class Campaign:
                 return self._cave_fetch_catch(sp, host_area)
             log(f"   [roam] FETCH-KEEPER: on {self._place_name(cur)} — catching planned keeper '{sp}'")
             return self.catch_one(target_species=sp)
-        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)   # NS#42: never route the errand through a Flute-gated dead-end
+        avoid = (self._wall_avoid(state) | self._story_gate_avoid(state)      # NS#42: never route the errand through a Flute-gated dead-end
+                 | self._keeper_hard_gate_avoid(state))                       # NS#43: nor across an un-opened hard gate (Rock Tunnel/Lavender, Saffron)
         pos0 = (cur, tuple(tv.coords(self.b) or ()))
         # STATIC-CONNECTION route (NS#40): if the host has no LEARNED route but IS a door-entered
         # cave/interior with a reachable overworld GATEWAY, drive toward the gateway; once standing ON
@@ -6603,19 +6609,29 @@ class Campaign:
         return not self.strat.stronger_since_wall(pc, pl)
 
     def _wall_avoid(self, state):
-        """Batch-WORLD — maps the active spatial wall makes off-limits to ROUTING (a route-trainer
-        she can't beat yet). The HUB case (the wall is on the map she's standing on — e.g. Gary
-        triggering on the Cerulean City map) is handled by blocked-DIRS instead, so she's never
-        trapped on the very hub she heals at. Empty once she's grown enough to retry."""
+        """Batch-WORLD — maps off-limits to ROUTING. Two classes, unioned here so EVERY routing/
+        reachability path inherits both from one source:
+          (1) the active spatial wall (a route-trainer she can't beat yet). The HUB case (the wall is
+              on the map she's standing on — e.g. Gary triggering on the Cerulean City map) is handled
+              by blocked-DIRS instead, so she's never trapped on the very hub she heals at. Empty once
+              she's grown enough to retry.
+          (2) NS#43 — the story-gate maps (_story_gate_avoid: Route 12/16 pre-Flute). This bug class
+              (a router computing avoid as wall-ONLY, then steering her onto Snorlax-gated Route 12)
+              bit THREE times across three sites (off-road steer, keeper router, then the _grass_target
+              'grass she KNOWS' east-steer). Folding the story-gate in at the shared source kills the
+              whole class instead of patching sites one at a time. Post-Flute _story_gate_avoid is empty
+              -> zero behavior change; pre-Flute nothing legitimate routes onto those dead-ends anyway
+              (the road to Lavender is Rock Tunnel, not Route 12)."""
+        gate = self._story_gate_avoid(state)
         r = self.strat.active_wall_rec()
         if not r or not r.get("map_id") or not r.get("is_trainer"):
-            return set()                # wild walls never gate ROUTING (see strat.is_gated)
+            return set() | gate         # wild walls never gate ROUTING (see strat.is_gated)
         pc = state.get("party_count")
         pl = state["party"][0]["level"] if state.get("party") else None
         if self.strat.stronger_since_wall(pc, pl):
-            return set()
+            return set() | gate
         wm, cur = tuple(r["map_id"]), tuple(state["map"])
-        return set() if wm == cur else {wm}
+        return ({wm} if wm != cur else set()) | gate
 
     # Snorlax-gated coastal roads: routable only once the Poké Flute (item 350) is in the bag.
     _FLUTE_GATED_MAPS = {(3, 30), (3, 34)}    # Route 12 (south of Lavender), Route 16 (west of Celadon)
@@ -6633,6 +6649,35 @@ class Campaign:
         except Exception:
             pass
         return set(self._FLUTE_GATED_MAPS)
+
+    def _keeper_hard_gate_avoid(self, state):
+        """NS#43 — the KEEPER ROUTER (only) must not offer a keeper reachable only ACROSS a hard gate she
+        hasn't opened. growlithe (Route 7 = 3,25 / Route 8 = 3,26) has TWO learned-graph approaches, each
+        behind a DIFFERENT gate (same lesson as the Route-12 wedge: one entry path fixed reveals the next):
+          • EAST — via Lavender Town (3,4): the header edge Route 10 (3,28) -> Lavender is a MAP CONNECTION
+            but the real walk is pitch-black ROCK TUNNEL, un-navigable until HM05 FLASH is TAUGHT. Pre-Flash
+            the offer fired, world.route hopped her east toward Lavender, and she PING-PONGED against the
+            westward Flash errand -> STALL (ns43_shift1: 14 no-progress decisions at (3,28)@(0,10)).
+          • WEST — via SAFFRON City (3,10): from Route 6 (3,24) world.route hops the gatehouse (18,0) toward
+            Saffron, whose four guards are parched until the Tea (FLAG_GOT_TEA 678) from Celadon Mansion;
+            the fetch errand walked INTO the gatehouse and wedged there on 'leave_building' (ns43_shift1b:
+            7 late offers -> STALL at (18,0)@(4,9)).
+        So avoid Lavender pre-Flash AND Saffron pre-Tea; the keeper is deemed unreachable until a gate opens
+        (either one -> world.route uses that side -> offered again). Post-Flash the east opens; post-Tea the
+        west opens. Fail-closed (block on read error): a keeper is never IN Lavender/Saffron, so the worst
+        case is a benign missed post-gate fetch — never a wedge. Kept OUT of the shared _wall_avoid because
+        BOTH are legitimate routing DESTINATIONS (head_to_gym pushes toward them to OPEN the gate); only the
+        keeper DETOUR must decline them while shut."""
+        gate = set()
+        try:
+            import field_moves as fm
+            if st.party_knows_move(self.b, 148, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
+                gate.add(LAVENDER)                   # HM05 Flash NOT taught -> Rock Tunnel dark (east shut)
+            if not fm.read_flag(self.b, 678):        # FLAG_GOT_TEA NOT set -> Saffron guards block (west shut)
+                gate.add(SAFFRON)
+        except Exception:
+            gate = {LAVENDER, SAFFRON}               # fail-closed: block both when the read fails
+        return gate
 
     def _wall_blocked_dirs(self, state):
         """Batch-WORLD — when the active wall is ON her current map (a trainer guarding an exit, like

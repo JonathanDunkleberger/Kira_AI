@@ -27,7 +27,7 @@ class World:
         return list(range(h + 1)) if h is not None else None
 
 
-def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None, story_gate=None):
+def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None, story_gate=None, hard_gate=None):
     s = types.SimpleNamespace()
     s._PLACE_NAMES = C.Campaign._PLACE_NAMES
     s._place2map_cache = None
@@ -39,6 +39,7 @@ def make(cur, kind, sp, on_map, routable, rideable=True, unreach=None, story_gat
     s._species_on_map = lambda species, mid: species.lower() in on_map
     s._wall_avoid = lambda st: set()
     s._story_gate_avoid = lambda st: set(story_gate or [])   # NS#42: Flute-gated maps (Route 12/16 pre-Flute)
+    s._keeper_hard_gate_avoid = lambda st: set(hard_gate or [])  # NS#43: Lavender pre-Flash (east) | Saffron pre-Tea (west)
     # offer<=>executable: the router only offers a target the learned-graph traveler can ride NOW
     s._next_step_rideable = lambda cur, dst, avoid: (("hop", "edge", "N") if rideable else None)
     s._keeper_unreach = set(unreach or [])
@@ -94,6 +95,16 @@ def main():
     # control: same host, NOT story-gated -> still offered (proves J is the gate's doing, not a false None)
     assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3}), base) == ("abra", (3, 43))
     print("PASS J-control ungated host -> offered")
+    # NS#43 HARD-GATE: growlithe (Route 7/8) is reachable in the learned graph only across a hard gate she
+    # hasn't opened — Lavender/Rock-Tunnel (east, pre-Flash) or Saffron (west, pre-Tea). Each closed gate is
+    # OR'd into _reachable_keeper_host so a host reachable ONLY via a shut gate is deemed unreachable (not
+    # offered); once a gate opens its map drops from the avoid and the host opens back up.
+    assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3},
+                    hard_gate={(3, 43)}), base) is None
+    print("PASS K hard-gated host -> None (no route across an un-opened hard gate)")
+    assert run(make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3},
+                    hard_gate=set()), base) == ("abra", (3, 43))
+    print("PASS K-control gate open (no hard-gate avoid) -> offered")
     os.environ['POKEMON_KEEPER_ROUTER'] = '0'
     import importlib; importlib.reload(C)
     s = make((3, 3), "catch_keeper", "abra", set(), {((3, 3), (3, 43)): 3})

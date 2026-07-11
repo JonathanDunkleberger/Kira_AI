@@ -48,6 +48,7 @@ def make(routable, rideable_pairs=None, unreach=None, static=True):
     s._species_on_map = lambda species, mid: False
     s._wall_avoid = lambda st: set()
     s._story_gate_avoid = lambda st: set()   # NS#42: no Flute-gated maps in these static-gateway cases
+    s._keeper_hard_gate_avoid = lambda st: set() # NS#43: no Rock-Tunnel/Saffron hard-gating in these cases
     s._next_step_rideable = lambda cur, dst, avoid: (("hop", "edge", "N") if (tuple(cur), tuple(dst)) in rp else None)
     return s
 
