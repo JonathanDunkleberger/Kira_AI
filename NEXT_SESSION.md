@@ -1,5 +1,53 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⚔️ WAR-SHIFT #3 (2026-07-12 ~13:20) — RE-CONFIRMED the opening wedge; NS#3's "CLEAN" commit was a MISREAD. START HERE ↓
+Glanced `fresh_go_1.log` (alive, mtime 13:19, banking every 180s). DECISIVE: she has spent her **ENTIRE run on Route 1
+(map 3,19)** — last 8 `STATE IN` all "Route 1", every recent `map=` is (3,19), **never once reaches Viridian** in state
+(only Pallet↔Route1), 0 balls, badge 0, now **ivysaur L22** (over-grinding). NS#3's committed "CLEAN — grinding L6→L14
+for Brock" (`a8b358f`) was WRONG: head_to_gym is picked (4×) but is a DEAD ROUTE (north maps not in graph) → grind
+dominates (11× PICK battle) → she over-grinds Route 1 forever, never crossing north to Viridian/Route 2/Pewter.
+NOT fixed this shift — the opening forward-drive fix is Monday-scoped (needs design + a verify look-ahead, and the
+SINGLE-RUN LAW blocks verifying while the detached run holds the one emulator; blind-editing forward-drive is forbidden).
+**MONDAY (budget refill):** build/verify the opening exploration-drive (cross Route1→Viridian → buy 5 balls → push north
+Route2→Forest→Pewter→Brock when head_to_gym has no graph route), THEN `rm -rf /g/temp/longrun/banked_LIVE` so the
+watchdog reboots a corrected fresh run (the current banked_LIVE is a ruined Route-1-grind state — do not resume from it).
+Detached run left ALIVE per WAR order 5 (harmless; will be discarded Monday). Fast exit per WAR order 4.
+↓ WAR#2 detail below is the design brief for the Monday fix.
+
+## ⚔️ WAR-SHIFT #2 (2026-07-12 ~13:10) — FRESH RUN IS SOFT-WEDGED IN THE OAK'S-PARCEL OPENING. START HERE ↓
+**THE FRESH bedroom→credits RUN IS ALIVE BUT NOT PROGRESSING.** Watchdog (`fresh_go_watchdog.sh`, detached) still
+running; `banked_LIVE` banks every 180s (world_model now 49KB, so the empty-graph self-heals as she walks). BUT over
+the whole run's life she is stuck circling **Pallet(3,0)↔Route1(3,19)↔Viridian(3,1)**: solo **ivysaur L6→L22**, dex 2,
+**0 Poké Balls, badges 0**, NEVER reaching Route 2 / Pewter. Precise diagnosis (glanced `fresh_go_1.log` @596s sim):
+- `head_to_gym` is **STRUCTURAL DEAD-ROUTE (pruned every tick)** — no graph path north past Viridian.
+- The soul oracle **only ever PICKs `battle` or (dead) `head_to_gym`** — never `talk_npc` or a north-travel; MAP
+  TRANSITIONs are ONLY (3,1)↔(3,19) heal-excursions. She heals at Viridian's Center but never buys balls / advances.
+- ROOT: the autonomous **OPENING/parcel forward-drive is not firing** — a true fresh GO cannot clear the opening
+  (buy balls at the Viridian Mart → advance north to Route 2 → Viridian Forest → Pewter). She over-grinds a solo
+  carry on Route 1 forever. `(7,4)`-on-map-`(5,4)` "path blocked" log lines are a RED HERRING (transient Center-exit,
+  self-resolves). NB `og_postopening.state` has **NO world_model sidecar** — the docs' own flagged "nav-blind INVALID
+  fixture"; the watchdog boots it once then resumes `banked_LIVE`, which is itself a Route-1-grind state → never escapes.
+- **THIS IS THE MISSION-BLOCKER**: the fresh run wedges at the FIRST gate. NOT fixed this shift — a proper fix is a
+  verify-gated **opening forward-drive** change (drive the Mart-ball-buy + north-advance out of the Route-1 grind, or
+  boot from a proper post-parcel fresh fixture WITH a world_model sidecar + 5 balls + open north gate). Do NOT
+  blind-edit the forward-drive; it needs design + a verify look-ahead (budget). ⇒ MONDAY-REFILL SESSION: build/verify
+  the opening-drive fix, THEN delete `banked_LIVE` so the watchdog re-boots a corrected fresh run.
+- If `/g/temp/longrun/banked_CREDITS` ever exists → verify fresh, `recon_partydump` its 6, write `CREDITS` line-1 of
+  NIGHT_REPORT.md + survey (it won't, from a Route-1-grind banked_LIVE, until the opening-drive root is fixed).
+
+### 🔬 VERDICT — `ns12_benchtoms_reverify` (WAR#2): **NOT GREEN → keep `POKEMON_BENCH_TO_MILESTONE` default OFF.**
+Reaped at ~37 min sim: the ns12 livelock fix (`6b8c061`) HOLDS beautifully (1 ANTI-WEDGE over 37 min, 95 MAP
+TRANSITIONs — the infinite bag-livelock is dead). BUT bench-to-milestone TREADMILLS: 0 gym boundaries crossed in
+37 min, bench floor only 18→20, 19 HEAL-EXCURSIONs dominating (ping-pong Route 8↔Lavender), poor grind spots
+pre-Celadon. It FUNCTIONS (bench evens, poor-spot detection marches to better grass, no livelock) but is too slow +
+heal-churny to flip default ON. The dominant residual drag = the HEAL-EXCURSION churn during participation grind
+(WAR#1's softer form — the ace/lead over-heals mid-grind → cross-city heal → repeat). NOT a hard livelock; a
+watchability/pace drag. If a future shift wants BENCH_TO_MILESTONE, first kill the heal-excursion frequency
+(carefully, verify-gated). The fresh run above proves the real bar; bench leveling can be revisited if it arrives thin.
+
+---
+
+
 ## ✅ NIGHT-SHIFT #12 DONE (2026-07-12, night_shift.ps1 shift 12) — CRACKED the binding blocker of the whole earlier-leveling mission: the "white-box wedge" (frontier flagged DON'T-FIX-BLIND / needs-Jonny's-eyes) is actually a **precise, safe detector gap** — FIXED + VERIFIED. ONE commit (`6b8c061`), mode-side, canonical UNTOUCHED. START HERE ↓.
 
 ### 🎯 THE DECISIVE NS#12 FINDING (why the NS#7 BENCH_TO_MILESTONE verify "failed"):
@@ -1996,3 +2044,14 @@ to the E4 (PATH B: grind NS9's indigo_reach_kit Kadabra L31→~42, then recon_e4
 (badge8, Kadabra L39) is banked but CANNOT clear VR without EQ, and the EQ teach is broken on that save — so
 prefer PATH B. Overnight no-EQ VR grind-through running (self-terminates ~1hr; check banked_VICTORY at wake).
 Pop-in = `python pokemon_agent/watch.py`.
+
+## WAR DIRECTIVE (2026-07-12 ~13:00) - FULL DISCRETION. FINISH THE MISSION.
+Jonny is AWAY. Do not wait for eyes. Do not ask. Do not idle-monitor. Act, or exit fast.
+BUDGET: ~USD 61 credits until Mon ~9am weekly refill. Every shift is paid. Read ONLY this note + latest survey + live log tails. No history spelunking. Surveys <= 15 lines.
+STANDING ORDERS (reorder only on hard evidence):
+1. ROOT-KILL the white-box/livelock FAMILY universally (it was patched per-context before and returned). Root per ns7 log: illegal move picks (0-PP/disabled -> ours_pp=[0,0,1,1] picking a dead slot) desync the action menu; post-abort travel re-engages the same fight. Fix: (a) move selection legality-filtered (PP>0, not disabled) with guaranteed legal fallback; (b) PP-famine policy by design (switch/heal/reroute); (c) after any LOUD abort, blacklist that encounter and reroute - never re-engage without a state change. Prove on the ns12 wedge-capture repro.
+2. Verdict ns12_benchtoms_reverify (multi-gym park-safety). Green -> commit POKEMON_BENCH_TO_MILESTONE default ON. Wedged -> capture, root-fix via #1, relaunch, continue.
+3. LAUNCH THE FRESH RUN - top deliverable TODAY: bedroom->credits, organic-six HARD RULE intact (no solo-grind, no transplants), headless turbo, DETACHED so it survives shift ends, watchdog on, log to G:/temp/longrun/fresh_go_1.log. Canonical saves untouched.
+4. While it cooks: each shift glances the log. Wedge -> capture + root-fix + resume. Clean -> exit immediately (fast exits are cheap and correct).
+5. If credits die: leave a <=15-line handoff; the detached run keeps going; resume on Monday refill straight into the 5x battery.
+ESCALATE TO JONNY ONLY IF the same root fix fails twice. Otherwise: decide and proceed.
