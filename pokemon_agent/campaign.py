@@ -192,12 +192,26 @@ PCBOX_ENABLED = os.getenv("POKEMON_PCBOX", "0") != "0"
 # Blaine Surf-prereq recognition. DEFAULT OFF — recognition + strike are useless/harmful apart and the
 # whole chain needs a live look-ahead before default-ON (a mis-timed Surf questline poisons her ctx). When
 # ON: a fresh badge-6 Surf-less run recognizes the uncrossable Cinnabar sea BEFORE marching into it and
-# routes to the Safari for Surf. Enable with POKEMON_SAFARI_STRIKE=1.
-SAFARI_STRIKE_ENABLED = os.getenv("POKEMON_SAFARI_STRIKE", "0") != "0"
+# routes to the Safari for Surf. NS#13: DEFAULT ON — the full recognize->strike->Surf->TEACH chain is
+# e2e-proven (flag-ON wiring look-ahead: PROACTIVE HM-PREREQ -> QUESTLINE STRIKE Safari -> got_surf ->
+# TEACH BRIDGE). Disable with POKEMON_SAFARI_STRIKE=0.
+SAFARI_STRIKE_ENABLED = os.getenv("POKEMON_SAFARI_STRIKE", "1") != "0"
+# NS#12: the SEAFOAM CROSSING STRIKE (Fuchsia -> R19 -> R20 -> Seafoam interior boulder cascade -> Cinnabar,
+# via seafoam_strike.run_strike). The gate BETWEEN the Safari (Surf/Strength) and Blaine's gym: post-Surf the
+# billed sea road STILL bounces at Route 20 (its surface is severed at Seafoam; the crossing is through the
+# interior). Recognized PROACTIVELY once she HAS Surf but hasn't crossed. NS#13: DEFAULT ON — the
+# recognize->questline->strike chain is e2e-proven (flag-ON wiring look-ahead: PROACTIVE SEAFOAM-PREREQ ->
+# QUESTLINE STRIKE -> reached_cinnabar -> STATE IN: Cinnabar; strike idempotent, does not re-fire post-cross).
+# Disable with POKEMON_SEAFOAM_STRIKE=0. NB post-Cinnabar Blaine is Secret-Key-gated (Mansion) = the next gate.
+SEAFOAM_STRIKE_ENABLED = os.getenv("POKEMON_SEAFOAM_STRIKE", "1") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
 HM_PREREQ_GYMS = {"Blaine"}
+# FLAG ids used by the Blaine sea-gate chain: HM03 Surf obtained (Safari), and the persistent Seafoam-crossed
+# signal (the seafoam_strike success flag). Post-Surf-but-pre-crossing is the seafoam-recognition window.
+FLAG_GOT_HM03_ID = 0x239
+FLAG_SEAFOAM_CROSSED_ID = 0x2D2
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
@@ -8825,6 +8839,10 @@ class Campaign:
                 from safari_strike import SAFARI_ANCHORS, run_strike
                 return run_strike, SAFARI_ANCHORS, ("got_surf", "got_strength"), "safari_probe"
 
+            def _seafoam():
+                from seafoam_strike import SEAFOAM_ANCHORS, run_strike
+                return run_strike, SEAFOAM_ANCHORS, ("reached_cinnabar",), "seafoam_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -8849,11 +8867,21 @@ class Campaign:
                 ("cap", "strength"): (
                     "Safari Zone (HM04 Strength — the Victory Road boulders)",
                     "Strength — now I can shove those boulders in Victory Road out of the way.", _safari),
+                # NS#12: the Seafoam crossing step derives success ('flag','FLAG_STOPPED_SEAFOAM_B3F_CURRENT')
+                # (the B3F boulder-cascade becalms the current -> the persistent 'crossed' signal). Door-less
+                # flag step -> fires via the BLOCKER STRIKE FIRE-FIRST block when she's on an anchor (the sea
+                # road / interior); off-anchor it returns None and head_to_gym drives her toward Cinnabar.
+                # Flag-gated (SEAFOAM_STRIKE_ENABLED).
+                ("flag", "FLAG_STOPPED_SEAFOAM_B3F_CURRENT"): (
+                    "the Seafoam crossing (surf the interior boulder-caves to Cinnabar)",
+                    "made it across the Seafoam Islands — Cinnabar's ahead, and Blaine's gym with it.", _seafoam),
             }
             if succ not in registry:
                 return None
             if succ in (("cap", "surf"), ("cap", "strength")) and not SAFARI_STRIKE_ENABLED:
                 return None                     # strike flag-gated OFF -> fall through to the general layer
+            if succ == ("flag", "FLAG_STOPPED_SEAFOAM_B3F_CURRENT") and not SEAFOAM_STRIKE_ENABLED:
+                return None                     # seafoam strike flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -8878,7 +8906,7 @@ class Campaign:
                 tries_map[succ] = 0
                 self.on_event(done_msg, kind="milestone", tier=2)
                 return "questline_strike_done"
-            if res in ("in_hideout", "in_silph", "in_safari"):
+            if res in ("in_hideout", "in_silph", "in_safari", "in_seafoam"):
                 # objective obtained (flag/item set) but still INSIDE the dungeon — keep the inside
                 # marker so recovery doesn't eject her mid-dungeon; retry the exit next tick. (The
                 # deriver already reads the flag as satisfied, so the questline self-clears next tick;
@@ -8950,6 +8978,25 @@ class Campaign:
             return None
         return ql.Gate(ql.STORY_NPC, missing=missing_key, where=tuple(gym.city), human=human,
                        detail={"flag": missing_key, "gym": gym.name})
+
+    def _seafoam_gate(self):
+        """NS#12: the Cinnabar-reach prereq that sits AFTER Surf. Once she can Surf (FLAG_GOT_HM03) the
+        Safari HM-prereq is satisfied and clears — but the billed sea road STILL bounces at Route 20 (its
+        surface is severed at the Seafoam Islands; the real crossing is the interior boulder cascade). So
+        recognize a SECOND, post-Surf gate: has-Surf AND NOT-yet-crossed (FLAG_STOPPED_SEAFOAM_B3F_CURRENT
+        unset). missing='seafoam' resolves through frlg_gates.json to a ('flag',...) strike step keying
+        seafoam_strike. Mutually exclusive with the Safari gate on FLAG_GOT_HM03. Returns a Gate or None."""
+        try:
+            if not fm.read_flag(self.b, FLAG_GOT_HM03_ID):
+                return None                     # no Surf yet -> the Safari gate owns this window
+            if fm.read_flag(self.b, FLAG_SEAFOAM_CROSSED_ID):
+                return None                     # already crossed -> the sea road to Cinnabar is open
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="seafoam", where=tuple(CINNABAR),
+                       human="Cinnabar's across the sea — but Route 20 dead-ends at the Seafoam Islands; I "
+                             "have to cross through the caves to reach Blaine.",
+                       detail={"flag": "FLAG_STOPPED_SEAFOAM_B3F_CURRENT", "gym": "Blaine"})
 
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
@@ -9126,6 +9173,19 @@ class Campaign:
                     if pg is not None and self._open_questline(pg, state):
                         log(f"   [roam] 🌊 PROACTIVE HM-PREREQ: {gym.name} needs {pg.missing} — opening the "
                             f"acquisition errand before the sea march")
+                        return
+            # PROACTIVE SEAFOAM-PREREQ (NS#12): the SECOND Blaine gate, AFTER Surf. Once she can Surf the
+            # Safari gate above clears, but the billed sea road still bounces at Route 20 (severed at Seafoam).
+            # Recognize has-Surf-but-not-crossed and open the Seafoam crossing errand so head_to_gym drives
+            # toward Fuchsia/the sea road and the door-less strike step runs the crossing on the anchor.
+            if SEAFOAM_STRIKE_ENABLED:
+                ng = state.get("next_gym")
+                gym = GYMS.get(ng["leader"]) if ng else None
+                if gym is not None and gym.name == "Blaine":
+                    sg = self._seafoam_gate()
+                    if sg is not None and self._open_questline(sg, state):
+                        log("   [roam] 🌊 PROACTIVE SEAFOAM-PREREQ: have Surf but Cinnabar's sea road is "
+                            "severed at Seafoam — opening the crossing errand")
                         return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so

@@ -42,6 +42,11 @@
       "hex": "0x23B",
       "note": "HM05 Flash — Oak's aide in the Route 2 east gate (needs >=10 owned species)."
     },
+    "FLAG_STOPPED_SEAFOAM_B3F_CURRENT": {
+      "id": 722,
+      "hex": "0x2D2",
+      "note": "Set when BOTH B3F boulders are present (the Strength boulder cascade) -> the Seafoam Islands current stops -> the west sea exit to Cinnabar opens. The persistent 'Seafoam crossed' signal (stays set the rest of the game); the seafoam_strike success flag."
+    },
     "FLAG_GOT_BIKE_VOUCHER": {
       "id": 577,
       "hex": "0x241",
@@ -272,6 +277,21 @@
         "gives_cap": "strength"
       },
       "human": "HM Strength — Fuchsia's Safari Warden trades it for his lost Gold Teeth (they're lying deep in the Safari Zone). Strength shoves the boulders in Victory Road"
+    },
+    "seafoam": {
+      "kind": "event",
+      "name": "the Seafoam crossing to Cinnabar",
+      "obtain": {
+        "via": "strike",
+        "npc": null,
+        "from": "3,7",
+        "dir": "south",
+        "place_name": "the Seafoam Islands between Fuchsia and Cinnabar — Route 20's surface is severed there; the crossing is THROUGH the interior (a Strength boulder cascade over 5 floors that stops the B3F current), then surf out the west exit to Cinnabar Island",
+        "prereq": "surf",
+        "sets_flag": "FLAG_STOPPED_SEAFOAM_B3F_CURRENT",
+        "gives_cap": null
+      },
+      "human": "Cinnabar's across the sea, but Route 20's surface dead-ends at the Seafoam Islands — I have to shove the boulders down through the caves to still the current, then surf out the far side to reach the island (and Blaine)"
     },
     "gold_teeth": {
       "kind": "item",
