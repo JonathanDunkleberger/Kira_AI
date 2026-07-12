@@ -99,6 +99,17 @@ UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
 # PARTY_CURSOR=0x2020777 was a shadow byte); the real nav is BLIND DOWN*(slot+1) like the working
 # _force_switch (live cursor is a heap struct). Fail-safe B-out on any miss = never wedges, so default-on is safe.
 BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
+# ── NS23: LOAD-SHARE between two SE attackers (the E4-Champion team-depth lever). The anti-churn rule
+# (an SE attacker >=2x STAYS and swings, _best_switch_slot) is load-bearing but makes a LONE specialist
+# solo a whole gauntlet to death while a healthy party-mate that is ALSO SE idles — e4_tactical_v2:
+# Lapras L60 solo'd 5 of Gary's 6 (fainting at Gyarados before Charizard) while a healthy L71 Venusaur
+# (Razor Leaf 4x on Rhydon) sat unused -> whiteout. The refinement: when the SE active is CRITICALLY low
+# AND a HEALTHY reserve is ALSO SE on this foe, rotate to that fresh SE body. Churn-safe: the target is
+# itself >=2x, so once it's out the same anti-churn return keeps it in (no SE<->non-SE ping-pong), and HP
+# only decreases in reserve so there's no oscillation. Flag-gated DEFAULT OFF — more switches = more
+# white-box-menu actuation exposure on the LIVE path, so flip only after an attended frame-grab pass.
+BATTLE_LOAD_SHARE = os.getenv("POKEMON_BATTLE_LOAD_SHARE", "0") == "1"
+SWITCH_SHARE_HEALTHY_FRAC = float(os.getenv("POKEMON_LOAD_SHARE_HEALTHY_FRAC", "0.5"))
 # WHIFF-SPIRAL BREAKER (2026-07-10, night shift 9 — the S.S. Anne Gary ROOT CAUSE). Accuracy-lowering foe
 # moves (Sand-Attack/Smokescreen/Kinesis) debuff the active mon until it MISSES every swing, freezing the
 # foe's HP while our PP drains -> famine -> a LOSS even at a crushing level lead (a full-PP Venusaur L32
@@ -1938,8 +1949,9 @@ class BattleAgent:
         # yanking Kadabra out for Venusaur, whose Razor Leaf is 0.5x, so trigger 2 pulled Kadabra
         # straight back — Venusaur<->Kadabra forever, bleeding both. A glass cannon that out-damages
         # STAYS and swings.
-        if best_move_eff >= 2.0:
-            return None
+        # SE-ACTIVE: resolved AFTER the reserve scan (below) so the ns23 load-share exception can
+        # reference a healthy SE partner. The plain anti-churn `return None` is preserved there.
+        active_se = best_move_eff >= 2.0
         active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
         foe_lv = state.get("enemy", {}).get("level") or 0
         act_lv = state.get("ours", {}).get("level") or 0
@@ -1950,6 +1962,7 @@ class BattleAgent:
         # for the offensive-upgrade trigger. Pure type math (offline-testable), species from RAM.
         best, best_key = None, None
         best_atk, best_atk_key = None, None
+        best_share, best_share_key = None, None          # ns23: healthy SE reserve for the load-share
         for s in range(min(cnt, 6)):
             if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
                 continue                                  # fainted
@@ -1992,6 +2005,17 @@ class BattleAgent:
                 akey = (r_eff, -cdef, lv)                  # hits hardest (real move), resists, level
                 if best_atk_key is None or akey > best_atk_key:
                     best_atk, best_atk_key = s, akey
+                # ns23 LOAD-SHARE partner: this SE reserve is ALSO eligible to relieve a critical SE
+                # active — but only if it's genuinely HEALTHY (a fresh tank, not another dying body).
+                # Rank by (hits-hardest, healthiest, level). Same >=2x gate keeps the swap churn-safe.
+                if BATTLE_LOAD_SHARE:
+                    s_hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+                    s_mx = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x58)
+                    s_frac = (s_hp / s_mx) if s_mx else 1.0
+                    if s_frac >= SWITCH_SHARE_HEALTHY_FRAC:
+                        skey = (r_eff, s_frac, lv)
+                        if best_share_key is None or skey > best_share_key:
+                            best_share, best_share_key = s, skey
             if foe_lv and lv + 5 < foe_lv:
                 continue                                  # FODDER FLOOR: switching INTO a faint is
                                                           # never an improvement (the Ekans churn)
@@ -2001,6 +2025,18 @@ class BattleAgent:
             key = (-cdef, coff, lv)
             if best_key is None or key > best_key:
                 best, best_key = s, key
+        # SE-ACTIVE ANTI-CHURN (was the early return at the top): a >=2x attacker wins the exchange and
+        # STAYS — pulling it out just churns (the Kadabra<->Venusaur loop: Psybeam 2x into Agatha but her
+        # Ghost hits Psychic 2x, so trigger 1 would yank it for a 0.5x Venusaur, then trigger 2 pulls it
+        # straight back). LOAD-SHARE EXCEPTION (ns23): if it's CRITICALLY low AND a HEALTHY reserve is
+        # ALSO >=2x on this foe, rotate to that fresh SE body so one specialist doesn't solo a gauntlet to
+        # death. The target is itself >=2x -> once out it hits this same return None and STAYS; no ping-pong.
+        if active_se:
+            if BATTLE_LOAD_SHARE and best_share is not None \
+                    and _hp_frac(state.get("ours") or {}) <= BATTLE_CRIT_FRAC:
+                self.log(f"   [engine] LOAD-SHARE: SE active critical -> field healthy SE reserve slot {best_share}")
+                return best_share
+            return None
         # TRIGGER 1 — DISADVANTAGE (existing): the active is out-typed OR can barely scratch the
         # foe (<=0.25x). LEVEL-DOMINANCE VETO (erika_run3): a crushing level lead wins through 0.5x
         # resistance — but offensive famine (<=0.25x) overrides it (flute_run7: Venusaur's 0.25x
