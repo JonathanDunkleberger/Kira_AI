@@ -404,3 +404,689 @@ One line per shift below (newest last). The winning session promotes the magic w
 - shift 24 23:24->23:45 (21m): 3 commit(s), frontier ADVANCED
 - shift 25 23:46->00:03 (17m): 1 commit(s), frontier ADVANCED
 - shift 26 survey: VERIFIED the NS#25 PP-heal (DECISIVE NEGATIVE — fires 0× over 25min sim; the ACE-DOWN HP guard heals→restores PP before the whole party goes PP-dry, so PP-famine is a symptom the participation-switch + ACE-DOWN already handle → HELD OFF) + BUILT, look-ahead-verified, and ARMED (flipped default ON) the higher-leverage SELECTIVE-SOLO bench kill-XP lever (frontier #2, done SAFELY). THREE commits (7118157 lever, e2341f7 flip default-ON, e46a6f2 docs), mode-side, flag POKEMON_SOLO_OVERLEVEL_GRIND now DEFAULT ON, canonical UNTOUCHED. ROOT quantified: the participation GRIND SWITCH hands every KO to the ace so the fielded weak lead banks only a SHARE of XP (bench floor 28→31 in 25min) → arrives-thin. LEVER: when the weak lead SAFELY out-levels THIS foe (_solo_overlevel_ok: our_lv≥foe_lv+8 → one-shots, can't faint/heal) set ace=None so it falls through to FIGHT and SOLOS for FULL kill XP (~2× the share). KEY SAFETY: it SUPPRESSES a switch, never adds one — keeps PROTECT_LEAD_GRIND True so the MATCHUP switch (gated on `not PROTECT_LEAD_GRIND`) stays suppressed → LESS white-box exposure than today, not more; per-foe self-correcting (a wild within the margin still gets the ace-protect switch → early-game fragile-faints auto-avoided). Decision-verified 17/17 (recon_solo_overlevel_check.py incl. a source-struct assert that the solo branch never mutates PROTECT_LEAD_GRIND). LOOK-AHEAD (ns26_solo.log, koga_done_kit + SOLO ON) = CLEAN POSITIVE: the whole bench evened 28→34 (all 5 bench mons to the L34 target) by ~1608s vs the ns25 participation-share baseline's UNEVEN floor 31 at ~1528s = a ~2× faster + evener climb (the leveled-6 shape); SOLO-OVERLEVEL fired 389× / GRIND SWITCH 0× (fully replaced the switch), 0 faints, 0 matchup-churn during grind (invariant HOLDS live), MARCHES on after the milestone (no park) → flip gate MET → flipped default ON (e2341f7). CONFOUND kept: Route-10 wilds L11-17 far below the L28-34 bench cap the ABSOLUTE rate → SYNTHESIS: grind-spot WILD-LEVEL adequacy (NS#5) is the co-dominant endgame throttle; the solo COMPOUNDS with an adequate spot (armed VR2F cave-grind). | frontier: (1) CONFIRM the armed solo holds MULTI-GYM (same level-relative code path at targets 45/55, across boundaries — env-revert POKEMON_SOLO_OVERLEVEL_GRIND=0 if it misbehaves); (2) the fresh-GO leveled-6 = VR2F cave-grind (adequate wilds) + selective-solo (kill XP) COMPOUNDED → recon_partydump the bench at Indigo (does it arrive ~L46-50+ vs VR2F-share's ~L43 cap?); (3) quantify the Indigo-arrival bench on a full fresh-GO run. PP-heal + load-share stay OFF (filed building blocks). | needs eyes: none blocking (all codeable + verify-gated); the solo lever's in-battle path ideally wants an attended rule-15 frame-grab before a live GO, but it REMOVES switch exposure so it's lower-risk than the switch-heavy path. banked_LIVE is now a SOLO-ON koga_done_kit run (solo run left alive at close). Canonical Champion save UNTOUCHED, pop-in = python pokemon_agent/watch.py
+- shift 26 00:04->00:57 (53m): 5 commit(s), frontier ADVANCED
+- shift 27 FAST-FAIL 00:59 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 27 00:58->00:59 (0m): 0 commit(s), frontier unchanged
+- shift 28 FAST-FAIL 01:00 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 28 01:00->01:00 (0m): 0 commit(s), frontier unchanged
+- shift 29 FAST-FAIL 01:01 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 29 01:01->01:01 (0m): 0 commit(s), frontier unchanged
+- shift 30 FAST-FAIL 01:02 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 30 01:02->01:02 (0m): 0 commit(s), frontier unchanged
+- shift 31 FAST-FAIL 01:03 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 31 01:03->01:03 (0m): 0 commit(s), frontier unchanged
+- shift 32 FAST-FAIL 01:04 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 32 01:04->01:04 (0m): 0 commit(s), frontier unchanged
+- shift 33 FAST-FAIL 01:05 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 33 01:05->01:05 (0m): 0 commit(s), frontier unchanged
+- shift 34 FAST-FAIL 01:06 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 34 01:06->01:06 (0m): 0 commit(s), frontier unchanged
+- shift 35 FAST-FAIL 01:07 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 35 01:07->01:07 (0m): 0 commit(s), frontier unchanged
+- shift 36 FAST-FAIL 01:08 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 36 01:08->01:08 (0m): 0 commit(s), frontier unchanged
+- shift 37 FAST-FAIL 01:09 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 37 01:09->01:09 (0m): 0 commit(s), frontier unchanged
+- shift 38 FAST-FAIL 01:10 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 38 01:10->01:10 (0m): 0 commit(s), frontier unchanged
+- shift 39 FAST-FAIL 01:11 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 39 01:11->01:11 (0m): 0 commit(s), frontier unchanged
+- shift 40 FAST-FAIL 01:12 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 40 01:12->01:12 (0m): 0 commit(s), frontier unchanged
+- shift 41 FAST-FAIL 01:13 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 41 01:13->01:13 (0m): 0 commit(s), frontier unchanged
+- shift 42 FAST-FAIL 01:14 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 42 01:14->01:14 (0m): 0 commit(s), frontier unchanged
+- shift 43 FAST-FAIL 01:15 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 43 01:15->01:15 (0m): 0 commit(s), frontier unchanged
+- shift 44 FAST-FAIL 01:16 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 44 01:16->01:16 (0m): 0 commit(s), frontier unchanged
+- shift 45 FAST-FAIL 01:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 45 01:17->01:17 (0m): 0 commit(s), frontier unchanged
+- shift 46 FAST-FAIL 01:18 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 46 01:18->01:18 (0m): 0 commit(s), frontier unchanged
+- shift 47 FAST-FAIL 01:19 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 47 01:19->01:19 (0m): 0 commit(s), frontier unchanged
+- shift 48 FAST-FAIL 01:20 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 48 01:20->01:21 (0m): 0 commit(s), frontier unchanged
+- shift 49 FAST-FAIL 01:22 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 49 01:22->01:22 (0m): 0 commit(s), frontier unchanged
+- shift 50 FAST-FAIL 01:23 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 50 01:23->01:23 (0m): 0 commit(s), frontier unchanged
+- shift 51 FAST-FAIL 01:24 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 51 01:24->01:24 (0m): 0 commit(s), frontier unchanged
+- shift 52 FAST-FAIL 01:25 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 52 01:25->01:25 (0m): 0 commit(s), frontier unchanged
+- shift 53 FAST-FAIL 01:26 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 53 01:26->01:26 (0m): 0 commit(s), frontier unchanged
+- shift 54 FAST-FAIL 01:27 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 54 01:27->01:27 (0m): 0 commit(s), frontier unchanged
+- shift 55 FAST-FAIL 01:28 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 55 01:28->01:28 (0m): 0 commit(s), frontier unchanged
+- shift 56 FAST-FAIL 01:29 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 56 01:29->01:29 (0m): 0 commit(s), frontier unchanged
+- shift 57 FAST-FAIL 01:30 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 57 01:30->01:30 (0m): 0 commit(s), frontier unchanged
+- shift 58 FAST-FAIL 01:31 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 58 01:31->01:31 (0m): 0 commit(s), frontier unchanged
+- shift 59 FAST-FAIL 01:32 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 59 01:32->01:32 (0m): 0 commit(s), frontier unchanged
+- shift 60 FAST-FAIL 01:33 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 60 01:33->01:33 (0m): 0 commit(s), frontier unchanged
+- shift 61 FAST-FAIL 01:34 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 61 01:34->01:34 (0m): 0 commit(s), frontier unchanged
+- shift 62 FAST-FAIL 01:35 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 62 01:35->01:35 (0m): 0 commit(s), frontier unchanged
+- shift 63 FAST-FAIL 01:36 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 63 01:36->01:36 (0m): 0 commit(s), frontier unchanged
+- shift 64 FAST-FAIL 01:37 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 64 01:37->01:37 (0m): 0 commit(s), frontier unchanged
+- shift 65 FAST-FAIL 01:38 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 65 01:38->01:38 (0m): 0 commit(s), frontier unchanged
+- shift 66 FAST-FAIL 01:39 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 66 01:39->01:39 (0m): 0 commit(s), frontier unchanged
+- shift 67 FAST-FAIL 01:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 67 01:40->01:40 (0m): 0 commit(s), frontier unchanged
+- shift 68 FAST-FAIL 01:41 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 68 01:41->01:41 (0m): 0 commit(s), frontier unchanged
+- shift 69 FAST-FAIL 01:42 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 69 01:42->01:42 (0m): 0 commit(s), frontier unchanged
+- shift 70 FAST-FAIL 01:43 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 70 01:43->01:43 (0m): 0 commit(s), frontier unchanged
+- shift 71 FAST-FAIL 01:45 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 71 01:44->01:45 (0m): 0 commit(s), frontier unchanged
+- shift 72 FAST-FAIL 01:46 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 72 01:46->01:46 (0m): 0 commit(s), frontier unchanged
+- shift 73 FAST-FAIL 01:47 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 73 01:47->01:47 (0m): 0 commit(s), frontier unchanged
+- shift 74 FAST-FAIL 01:48 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 74 01:48->01:48 (0m): 0 commit(s), frontier unchanged
+- shift 75 FAST-FAIL 01:49 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 75 01:49->01:49 (0m): 0 commit(s), frontier unchanged
+- shift 76 FAST-FAIL 01:50 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 76 01:50->01:50 (0m): 0 commit(s), frontier unchanged
+- shift 77 FAST-FAIL 01:51 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 77 01:51->01:51 (0m): 0 commit(s), frontier unchanged
+- shift 78 FAST-FAIL 01:52 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 78 01:52->01:52 (0m): 0 commit(s), frontier unchanged
+- shift 79 FAST-FAIL 01:53 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 79 01:53->01:53 (0m): 0 commit(s), frontier unchanged
+- shift 80 FAST-FAIL 01:54 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 80 01:54->01:54 (0m): 0 commit(s), frontier unchanged
+- shift 81 FAST-FAIL 01:55 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 81 01:55->01:55 (0m): 0 commit(s), frontier unchanged
+- shift 82 FAST-FAIL 01:56 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 82 01:56->01:56 (0m): 0 commit(s), frontier unchanged
+- shift 83 FAST-FAIL 01:57 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 83 01:57->01:57 (0m): 0 commit(s), frontier unchanged
+- shift 84 FAST-FAIL 01:58 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 84 01:58->01:58 (0m): 0 commit(s), frontier unchanged
+- shift 85 FAST-FAIL 01:59 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 85 01:59->01:59 (0m): 0 commit(s), frontier unchanged
+- shift 86 FAST-FAIL 02:00 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 86 02:00->02:00 (0m): 0 commit(s), frontier unchanged
+- shift 87 FAST-FAIL 02:01 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 87 02:01->02:01 (0m): 0 commit(s), frontier unchanged
+- shift 88 FAST-FAIL 02:02 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 88 02:02->02:02 (0m): 0 commit(s), frontier unchanged
+- shift 89 FAST-FAIL 02:03 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 89 02:03->02:03 (0m): 0 commit(s), frontier unchanged
+- shift 90 FAST-FAIL 02:04 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 90 02:04->02:04 (0m): 0 commit(s), frontier unchanged
+- shift 91 FAST-FAIL 02:05 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 91 02:05->02:05 (0m): 0 commit(s), frontier unchanged
+- shift 92 FAST-FAIL 02:06 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 92 02:06->02:06 (0m): 0 commit(s), frontier unchanged
+- shift 93 FAST-FAIL 02:07 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 93 02:07->02:07 (0m): 0 commit(s), frontier unchanged
+- shift 94 FAST-FAIL 02:09 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 94 02:08->02:09 (0m): 0 commit(s), frontier unchanged
+- shift 95 FAST-FAIL 02:10 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 95 02:10->02:10 (0m): 0 commit(s), frontier unchanged
+- shift 96 FAST-FAIL 02:11 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 96 02:11->02:11 (0m): 0 commit(s), frontier unchanged
+- shift 97 FAST-FAIL 02:12 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 97 02:12->02:12 (0m): 0 commit(s), frontier unchanged
+- shift 98 FAST-FAIL 02:13 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 98 02:13->02:13 (0m): 0 commit(s), frontier unchanged
+- shift 99 FAST-FAIL 02:14 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 99 02:14->02:14 (0m): 0 commit(s), frontier unchanged
+- shift 100 FAST-FAIL 02:15 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 100 02:15->02:15 (0m): 0 commit(s), frontier unchanged
+- shift 101 FAST-FAIL 02:16 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 101 02:16->02:16 (0m): 0 commit(s), frontier unchanged
+- shift 102 FAST-FAIL 02:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 102 02:17->02:17 (0m): 0 commit(s), frontier unchanged
+- shift 103 FAST-FAIL 02:18 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 103 02:18->02:18 (0m): 0 commit(s), frontier unchanged
+- shift 104 FAST-FAIL 02:19 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 104 02:19->02:19 (0m): 0 commit(s), frontier unchanged
+- shift 105 FAST-FAIL 02:20 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 105 02:20->02:20 (0m): 0 commit(s), frontier unchanged
+- shift 106 FAST-FAIL 02:21 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 106 02:21->02:21 (0m): 0 commit(s), frontier unchanged
+- shift 107 FAST-FAIL 02:22 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 107 02:22->02:22 (0m): 0 commit(s), frontier unchanged
+- shift 108 FAST-FAIL 02:23 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 108 02:23->02:23 (0m): 0 commit(s), frontier unchanged
+- shift 109 FAST-FAIL 02:24 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 109 02:24->02:24 (0m): 0 commit(s), frontier unchanged
+- shift 110 FAST-FAIL 02:25 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 110 02:25->02:25 (0m): 0 commit(s), frontier unchanged
+- shift 111 FAST-FAIL 02:26 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 111 02:26->02:26 (0m): 0 commit(s), frontier unchanged
+- shift 112 FAST-FAIL 02:27 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 112 02:27->02:27 (0m): 0 commit(s), frontier unchanged
+- shift 113 FAST-FAIL 02:28 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 113 02:28->02:28 (0m): 0 commit(s), frontier unchanged
+- shift 114 FAST-FAIL 02:29 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 114 02:29->02:29 (0m): 0 commit(s), frontier unchanged
+- shift 115 FAST-FAIL 02:30 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 115 02:30->02:30 (0m): 0 commit(s), frontier unchanged
+- shift 116 FAST-FAIL 02:31 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 116 02:31->02:31 (0m): 0 commit(s), frontier unchanged
+- shift 117 FAST-FAIL 02:33 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 117 02:32->02:33 (0m): 0 commit(s), frontier unchanged
+- shift 118 FAST-FAIL 02:34 (6s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 118 02:34->02:34 (0m): 0 commit(s), frontier unchanged
+- shift 119 FAST-FAIL 02:35 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 119 02:35->02:35 (0m): 0 commit(s), frontier unchanged
+- shift 120 FAST-FAIL 02:36 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 120 02:36->02:36 (0m): 0 commit(s), frontier unchanged
+- shift 121 FAST-FAIL 02:37 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 121 02:37->02:37 (0m): 0 commit(s), frontier unchanged
+- shift 122 FAST-FAIL 02:38 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 122 02:38->02:38 (0m): 0 commit(s), frontier unchanged
+- shift 123 FAST-FAIL 02:39 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 123 02:39->02:39 (0m): 0 commit(s), frontier unchanged
+- shift 124 FAST-FAIL 02:40 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 124 02:40->02:40 (0m): 0 commit(s), frontier unchanged
+- shift 125 FAST-FAIL 02:41 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 125 02:41->02:41 (0m): 0 commit(s), frontier unchanged
+- shift 126 FAST-FAIL 02:42 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 126 02:42->02:42 (0m): 0 commit(s), frontier unchanged
+- shift 127 FAST-FAIL 02:43 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 127 02:43->02:43 (0m): 0 commit(s), frontier unchanged
+- shift 128 FAST-FAIL 02:44 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 128 02:44->02:44 (0m): 0 commit(s), frontier unchanged
+- shift 129 FAST-FAIL 02:45 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 129 02:45->02:45 (0m): 0 commit(s), frontier unchanged
+- shift 130 FAST-FAIL 02:46 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 130 02:46->02:46 (0m): 0 commit(s), frontier unchanged
+- shift 131 FAST-FAIL 02:47 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 131 02:47->02:47 (0m): 0 commit(s), frontier unchanged
+- shift 132 FAST-FAIL 02:48 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 132 02:48->02:48 (0m): 0 commit(s), frontier unchanged
+- shift 133 FAST-FAIL 02:49 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 133 02:49->02:49 (0m): 0 commit(s), frontier unchanged
+- shift 134 FAST-FAIL 02:50 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 134 02:50->02:50 (0m): 0 commit(s), frontier unchanged
+- shift 135 FAST-FAIL 02:51 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 135 02:51->02:51 (0m): 0 commit(s), frontier unchanged
+- shift 136 FAST-FAIL 02:52 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 136 02:52->02:52 (0m): 0 commit(s), frontier unchanged
+- shift 137 FAST-FAIL 02:53 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 137 02:53->02:53 (0m): 0 commit(s), frontier unchanged
+- shift 138 FAST-FAIL 02:54 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 138 02:54->02:54 (0m): 0 commit(s), frontier unchanged
+- shift 139 FAST-FAIL 02:56 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 139 02:55->02:56 (0m): 0 commit(s), frontier unchanged
+- shift 140 FAST-FAIL 02:57 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 140 02:57->02:57 (0m): 0 commit(s), frontier unchanged
+- shift 141 FAST-FAIL 02:58 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 141 02:58->02:58 (0m): 0 commit(s), frontier unchanged
+- shift 142 FAST-FAIL 02:59 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 142 02:59->02:59 (0m): 0 commit(s), frontier unchanged
+- shift 143 FAST-FAIL 03:00 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 143 03:00->03:00 (0m): 0 commit(s), frontier unchanged
+- shift 144 FAST-FAIL 03:01 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 144 03:01->03:01 (0m): 0 commit(s), frontier unchanged
+- shift 145 FAST-FAIL 03:02 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 145 03:02->03:02 (0m): 0 commit(s), frontier unchanged
+- shift 146 FAST-FAIL 03:03 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 146 03:03->03:03 (0m): 0 commit(s), frontier unchanged
+- shift 147 FAST-FAIL 03:04 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 147 03:04->03:04 (0m): 0 commit(s), frontier unchanged
+- shift 148 FAST-FAIL 03:05 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 148 03:05->03:05 (0m): 0 commit(s), frontier unchanged
+- shift 149 FAST-FAIL 03:06 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 149 03:06->03:06 (0m): 0 commit(s), frontier unchanged
+- shift 150 FAST-FAIL 03:07 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 150 03:07->03:07 (0m): 0 commit(s), frontier unchanged
+- shift 151 FAST-FAIL 03:08 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 151 03:08->03:08 (0m): 0 commit(s), frontier unchanged
+- shift 152 FAST-FAIL 03:09 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 152 03:09->03:09 (0m): 0 commit(s), frontier unchanged
+- shift 153 FAST-FAIL 03:10 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 153 03:10->03:10 (0m): 0 commit(s), frontier unchanged
+- shift 154 FAST-FAIL 03:11 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 154 03:11->03:11 (0m): 0 commit(s), frontier unchanged
+- shift 155 FAST-FAIL 03:12 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 155 03:12->03:12 (0m): 0 commit(s), frontier unchanged
+- shift 156 FAST-FAIL 03:13 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 156 03:13->03:13 (0m): 0 commit(s), frontier unchanged
+- shift 157 FAST-FAIL 03:14 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 157 03:14->03:14 (0m): 0 commit(s), frontier unchanged
+- shift 158 FAST-FAIL 03:15 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 158 03:15->03:15 (0m): 0 commit(s), frontier unchanged
+- shift 159 FAST-FAIL 03:16 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 159 03:16->03:16 (0m): 0 commit(s), frontier unchanged
+- shift 160 FAST-FAIL 03:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 160 03:17->03:17 (0m): 0 commit(s), frontier unchanged
+- shift 161 FAST-FAIL 03:18 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 161 03:18->03:18 (0m): 0 commit(s), frontier unchanged
+- shift 162 FAST-FAIL 03:20 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 162 03:19->03:20 (0m): 0 commit(s), frontier unchanged
+- shift 163 FAST-FAIL 03:21 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 163 03:21->03:21 (0m): 0 commit(s), frontier unchanged
+- shift 164 FAST-FAIL 03:22 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 164 03:22->03:22 (0m): 0 commit(s), frontier unchanged
+- shift 165 FAST-FAIL 03:23 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 165 03:23->03:23 (0m): 0 commit(s), frontier unchanged
+- shift 166 FAST-FAIL 03:24 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 166 03:24->03:24 (0m): 0 commit(s), frontier unchanged
+- shift 167 FAST-FAIL 03:25 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 167 03:25->03:25 (0m): 0 commit(s), frontier unchanged
+- shift 168 FAST-FAIL 03:26 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 168 03:26->03:26 (0m): 0 commit(s), frontier unchanged
+- shift 169 FAST-FAIL 03:27 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 169 03:27->03:27 (0m): 0 commit(s), frontier unchanged
+- shift 170 FAST-FAIL 03:28 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 170 03:28->03:28 (0m): 0 commit(s), frontier unchanged
+- shift 171 FAST-FAIL 03:29 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 171 03:29->03:29 (0m): 0 commit(s), frontier unchanged
+- shift 172 FAST-FAIL 03:30 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 172 03:30->03:30 (0m): 0 commit(s), frontier unchanged
+- shift 173 FAST-FAIL 03:31 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 173 03:31->03:31 (0m): 0 commit(s), frontier unchanged
+- shift 174 FAST-FAIL 03:32 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 174 03:32->03:32 (0m): 0 commit(s), frontier unchanged
+- shift 175 FAST-FAIL 03:33 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 175 03:33->03:33 (0m): 0 commit(s), frontier unchanged
+- shift 176 FAST-FAIL 03:34 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 176 03:34->03:34 (0m): 0 commit(s), frontier unchanged
+- shift 177 FAST-FAIL 03:35 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 177 03:35->03:35 (0m): 0 commit(s), frontier unchanged
+- shift 178 FAST-FAIL 03:36 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 178 03:36->03:36 (0m): 0 commit(s), frontier unchanged
+- shift 179 FAST-FAIL 03:37 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 179 03:37->03:37 (0m): 0 commit(s), frontier unchanged
+- shift 180 FAST-FAIL 03:38 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 180 03:38->03:38 (0m): 0 commit(s), frontier unchanged
+- shift 181 FAST-FAIL 03:39 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 181 03:39->03:39 (0m): 0 commit(s), frontier unchanged
+- shift 182 FAST-FAIL 03:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 182 03:40->03:40 (0m): 0 commit(s), frontier unchanged
+- shift 183 FAST-FAIL 03:41 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 183 03:41->03:41 (0m): 0 commit(s), frontier unchanged
+- shift 184 FAST-FAIL 03:43 (5s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 184 03:42->03:43 (0m): 0 commit(s), frontier unchanged
+- shift 185 FAST-FAIL 03:44 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 185 03:44->03:44 (0m): 0 commit(s), frontier unchanged
+- shift 186 FAST-FAIL 03:45 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 186 03:45->03:45 (0m): 0 commit(s), frontier unchanged
+- shift 187 FAST-FAIL 03:46 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 187 03:46->03:46 (0m): 0 commit(s), frontier unchanged
+- shift 188 FAST-FAIL 03:47 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 188 03:47->03:47 (0m): 0 commit(s), frontier unchanged
+- shift 189 FAST-FAIL 03:48 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 189 03:48->03:48 (0m): 0 commit(s), frontier unchanged
+- shift 190 FAST-FAIL 03:49 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 190 03:49->03:49 (0m): 0 commit(s), frontier unchanged
+- shift 191 FAST-FAIL 03:50 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 191 03:50->03:50 (0m): 0 commit(s), frontier unchanged
+- shift 192 FAST-FAIL 03:51 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 192 03:51->03:51 (0m): 0 commit(s), frontier unchanged
+- shift 193 FAST-FAIL 03:52 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 193 03:52->03:52 (0m): 0 commit(s), frontier unchanged
+- shift 194 FAST-FAIL 03:53 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 194 03:53->03:53 (0m): 0 commit(s), frontier unchanged
+- shift 195 FAST-FAIL 03:54 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 195 03:54->03:54 (0m): 0 commit(s), frontier unchanged
+- shift 196 FAST-FAIL 03:55 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 196 03:55->03:55 (0m): 0 commit(s), frontier unchanged
+- shift 197 FAST-FAIL 03:56 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 197 03:56->03:56 (0m): 0 commit(s), frontier unchanged
+- shift 198 FAST-FAIL 03:57 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 198 03:57->03:57 (0m): 0 commit(s), frontier unchanged
+- shift 199 FAST-FAIL 03:58 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 199 03:58->03:58 (0m): 0 commit(s), frontier unchanged
+- shift 200 FAST-FAIL 03:59 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 200 03:59->03:59 (0m): 0 commit(s), frontier unchanged
+- shift 201 FAST-FAIL 04:00 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 201 04:00->04:00 (0m): 0 commit(s), frontier unchanged
+- shift 202 FAST-FAIL 04:01 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 202 04:01->04:01 (0m): 0 commit(s), frontier unchanged
+- shift 203 FAST-FAIL 04:02 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 203 04:02->04:02 (0m): 0 commit(s), frontier unchanged
+- shift 204 FAST-FAIL 04:03 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 204 04:03->04:03 (0m): 0 commit(s), frontier unchanged
+- shift 205 FAST-FAIL 04:04 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 205 04:04->04:04 (0m): 0 commit(s), frontier unchanged
+- shift 206 FAST-FAIL 04:06 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 206 04:05->04:06 (0m): 0 commit(s), frontier unchanged
+- shift 207 FAST-FAIL 04:07 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 207 04:07->04:07 (0m): 0 commit(s), frontier unchanged
+- shift 208 FAST-FAIL 04:08 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 208 04:08->04:08 (0m): 0 commit(s), frontier unchanged
+- shift 209 FAST-FAIL 04:09 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 209 04:09->04:09 (0m): 0 commit(s), frontier unchanged
+- shift 210 FAST-FAIL 04:10 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 210 04:10->04:10 (0m): 0 commit(s), frontier unchanged
+- shift 211 FAST-FAIL 04:11 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 211 04:11->04:11 (0m): 0 commit(s), frontier unchanged
+- shift 212 FAST-FAIL 04:12 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 212 04:12->04:12 (0m): 0 commit(s), frontier unchanged
+- shift 213 FAST-FAIL 04:13 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 213 04:13->04:13 (0m): 0 commit(s), frontier unchanged
+- shift 214 FAST-FAIL 04:14 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 214 04:14->04:14 (0m): 0 commit(s), frontier unchanged
+- shift 215 FAST-FAIL 04:15 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 215 04:15->04:15 (0m): 0 commit(s), frontier unchanged
+- shift 216 FAST-FAIL 04:16 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 216 04:16->04:16 (0m): 0 commit(s), frontier unchanged
+- shift 217 FAST-FAIL 04:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 217 04:17->04:17 (0m): 0 commit(s), frontier unchanged
+- shift 218 FAST-FAIL 04:18 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 218 04:18->04:18 (0m): 0 commit(s), frontier unchanged
+- shift 219 FAST-FAIL 04:19 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 219 04:19->04:19 (0m): 0 commit(s), frontier unchanged
+- shift 220 FAST-FAIL 04:20 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 220 04:20->04:20 (0m): 0 commit(s), frontier unchanged
+- shift 221 FAST-FAIL 04:21 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 221 04:21->04:21 (0m): 0 commit(s), frontier unchanged
+- shift 222 FAST-FAIL 04:22 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 222 04:22->04:22 (0m): 0 commit(s), frontier unchanged
+- shift 223 FAST-FAIL 04:23 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 223 04:23->04:23 (0m): 0 commit(s), frontier unchanged
+- shift 224 FAST-FAIL 04:24 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 224 04:24->04:24 (0m): 0 commit(s), frontier unchanged
+- shift 225 FAST-FAIL 04:25 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 225 04:25->04:25 (0m): 0 commit(s), frontier unchanged
+- shift 226 FAST-FAIL 04:26 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 226 04:26->04:26 (0m): 0 commit(s), frontier unchanged
+- shift 227 FAST-FAIL 04:27 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 227 04:27->04:27 (0m): 0 commit(s), frontier unchanged
+- shift 228 FAST-FAIL 04:28 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 228 04:28->04:28 (0m): 0 commit(s), frontier unchanged
+- shift 229 FAST-FAIL 04:30 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 229 04:29->04:30 (0m): 0 commit(s), frontier unchanged
+- shift 230 FAST-FAIL 04:31 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 230 04:31->04:31 (0m): 0 commit(s), frontier unchanged
+- shift 231 FAST-FAIL 04:32 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 231 04:32->04:32 (0m): 0 commit(s), frontier unchanged
+- shift 232 FAST-FAIL 04:33 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 232 04:33->04:33 (0m): 0 commit(s), frontier unchanged
+- shift 233 FAST-FAIL 04:34 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 233 04:34->04:34 (0m): 0 commit(s), frontier unchanged
+- shift 234 FAST-FAIL 04:35 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 234 04:35->04:35 (0m): 0 commit(s), frontier unchanged
+- shift 235 FAST-FAIL 04:36 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 235 04:36->04:36 (0m): 0 commit(s), frontier unchanged
+- shift 236 FAST-FAIL 04:37 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 236 04:37->04:37 (0m): 0 commit(s), frontier unchanged
+- shift 237 FAST-FAIL 04:38 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 237 04:38->04:38 (0m): 0 commit(s), frontier unchanged
+- shift 238 FAST-FAIL 04:39 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 238 04:39->04:39 (0m): 0 commit(s), frontier unchanged
+- shift 239 FAST-FAIL 04:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 239 04:40->04:40 (0m): 0 commit(s), frontier unchanged
+- shift 240 FAST-FAIL 04:41 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 240 04:41->04:41 (0m): 0 commit(s), frontier unchanged
+- shift 241 FAST-FAIL 04:42 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 241 04:42->04:42 (0m): 0 commit(s), frontier unchanged
+- shift 242 FAST-FAIL 04:43 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 242 04:43->04:43 (0m): 0 commit(s), frontier unchanged
+- shift 243 FAST-FAIL 04:44 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 243 04:44->04:44 (0m): 0 commit(s), frontier unchanged
+- shift 244 FAST-FAIL 04:45 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 244 04:45->04:45 (0m): 0 commit(s), frontier unchanged
+- shift 245 FAST-FAIL 04:46 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 245 04:46->04:46 (0m): 0 commit(s), frontier unchanged
+- shift 246 FAST-FAIL 04:47 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 246 04:47->04:47 (0m): 0 commit(s), frontier unchanged
+- shift 247 FAST-FAIL 04:48 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 247 04:48->04:48 (0m): 0 commit(s), frontier unchanged
+- shift 248 FAST-FAIL 04:49 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 248 04:49->04:49 (0m): 0 commit(s), frontier unchanged
+- shift 249 FAST-FAIL 04:50 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 249 04:50->04:50 (0m): 0 commit(s), frontier unchanged
+- shift 250 FAST-FAIL 04:51 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 250 04:51->04:51 (0m): 0 commit(s), frontier unchanged
+- shift 251 FAST-FAIL 04:52 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 251 04:52->04:52 (0m): 0 commit(s), frontier unchanged
+- shift 252 FAST-FAIL 04:54 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 252 04:53->04:54 (0m): 0 commit(s), frontier unchanged
+- shift 253 FAST-FAIL 04:55 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 253 04:55->04:55 (0m): 0 commit(s), frontier unchanged
+- shift 254 FAST-FAIL 04:56 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 254 04:56->04:56 (0m): 0 commit(s), frontier unchanged
+- shift 255 FAST-FAIL 04:57 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 255 04:57->04:57 (0m): 0 commit(s), frontier unchanged
+- shift 256 FAST-FAIL 04:58 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 256 04:58->04:58 (0m): 0 commit(s), frontier unchanged
+- shift 257 FAST-FAIL 04:59 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 257 04:59->04:59 (0m): 0 commit(s), frontier unchanged
+- shift 258 FAST-FAIL 05:00 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 258 05:00->05:00 (0m): 0 commit(s), frontier unchanged
+- shift 259 FAST-FAIL 05:01 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 259 05:01->05:01 (0m): 0 commit(s), frontier unchanged
+- shift 260 FAST-FAIL 05:02 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 260 05:02->05:02 (0m): 0 commit(s), frontier unchanged
+- shift 261 FAST-FAIL 05:03 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 261 05:03->05:03 (0m): 0 commit(s), frontier unchanged
+- shift 262 FAST-FAIL 05:04 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 262 05:04->05:04 (0m): 0 commit(s), frontier unchanged
+- shift 263 FAST-FAIL 05:05 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 263 05:05->05:05 (0m): 0 commit(s), frontier unchanged
+- shift 264 FAST-FAIL 05:06 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 264 05:06->05:06 (0m): 0 commit(s), frontier unchanged
+- shift 265 FAST-FAIL 05:07 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 265 05:07->05:07 (0m): 0 commit(s), frontier unchanged
+- shift 266 FAST-FAIL 05:08 (7s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 266 05:08->05:08 (0m): 0 commit(s), frontier unchanged
+- shift 267 FAST-FAIL 05:09 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 267 05:09->05:09 (0m): 0 commit(s), frontier unchanged
+- shift 268 FAST-FAIL 05:10 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 268 05:10->05:10 (0m): 0 commit(s), frontier unchanged
+- shift 269 FAST-FAIL 05:11 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 269 05:11->05:11 (0m): 0 commit(s), frontier unchanged
+- shift 270 FAST-FAIL 05:12 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 270 05:12->05:12 (0m): 0 commit(s), frontier unchanged
+- shift 271 FAST-FAIL 05:13 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 271 05:13->05:13 (0m): 0 commit(s), frontier unchanged
+- shift 272 FAST-FAIL 05:14 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 272 05:14->05:14 (0m): 0 commit(s), frontier unchanged
+- shift 273 FAST-FAIL 05:15 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 273 05:15->05:15 (0m): 0 commit(s), frontier unchanged
+- shift 274 FAST-FAIL 05:17 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 274 05:16->05:17 (0m): 0 commit(s), frontier unchanged
+- shift 275 FAST-FAIL 05:18 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 275 05:18->05:18 (0m): 0 commit(s), frontier unchanged
+- shift 276 FAST-FAIL 05:19 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 276 05:19->05:19 (0m): 0 commit(s), frontier unchanged
+- shift 277 FAST-FAIL 05:20 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 277 05:20->05:20 (0m): 0 commit(s), frontier unchanged
+- shift 278 FAST-FAIL 05:21 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 278 05:21->05:21 (0m): 0 commit(s), frontier unchanged
+- shift 279 FAST-FAIL 05:22 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 279 05:22->05:22 (0m): 0 commit(s), frontier unchanged
+- shift 280 FAST-FAIL 05:23 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 280 05:23->05:23 (0m): 0 commit(s), frontier unchanged
+- shift 281 FAST-FAIL 05:24 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 281 05:24->05:24 (0m): 0 commit(s), frontier unchanged
+- shift 282 FAST-FAIL 05:25 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 282 05:25->05:25 (0m): 0 commit(s), frontier unchanged
+- shift 283 FAST-FAIL 05:26 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 283 05:26->05:26 (0m): 0 commit(s), frontier unchanged
+- shift 284 FAST-FAIL 05:27 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 284 05:27->05:27 (0m): 0 commit(s), frontier unchanged
+- shift 285 FAST-FAIL 05:28 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 285 05:28->05:28 (0m): 0 commit(s), frontier unchanged
+- shift 286 FAST-FAIL 05:29 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 286 05:29->05:29 (0m): 0 commit(s), frontier unchanged
+- shift 287 FAST-FAIL 05:30 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 287 05:30->05:30 (0m): 0 commit(s), frontier unchanged
+- shift 288 FAST-FAIL 05:31 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 288 05:31->05:31 (0m): 0 commit(s), frontier unchanged
+- shift 289 FAST-FAIL 05:32 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 289 05:32->05:32 (0m): 0 commit(s), frontier unchanged
+- shift 290 FAST-FAIL 05:33 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 290 05:33->05:33 (0m): 0 commit(s), frontier unchanged
+- shift 291 FAST-FAIL 05:34 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 291 05:34->05:34 (0m): 0 commit(s), frontier unchanged
+- shift 292 FAST-FAIL 05:35 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 292 05:35->05:35 (0m): 0 commit(s), frontier unchanged
+- shift 293 FAST-FAIL 05:36 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 293 05:36->05:36 (0m): 0 commit(s), frontier unchanged
+- shift 294 FAST-FAIL 05:37 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 294 05:37->05:37 (0m): 0 commit(s), frontier unchanged
+- shift 295 FAST-FAIL 05:38 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 295 05:38->05:38 (0m): 0 commit(s), frontier unchanged
+- shift 296 FAST-FAIL 05:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 296 05:39->05:40 (0m): 0 commit(s), frontier unchanged
+- shift 297 FAST-FAIL 05:41 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 297 05:41->05:41 (0m): 0 commit(s), frontier unchanged
+- shift 298 FAST-FAIL 05:42 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 298 05:42->05:42 (0m): 0 commit(s), frontier unchanged
+- shift 299 FAST-FAIL 05:43 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 299 05:43->05:43 (0m): 0 commit(s), frontier unchanged
+- shift 300 FAST-FAIL 05:44 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 300 05:44->05:44 (0m): 0 commit(s), frontier unchanged
+- shift 301 FAST-FAIL 05:45 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 301 05:45->05:45 (0m): 0 commit(s), frontier unchanged
+- shift 302 FAST-FAIL 05:46 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 302 05:46->05:46 (0m): 0 commit(s), frontier unchanged
+- shift 303 FAST-FAIL 05:47 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 303 05:47->05:47 (0m): 0 commit(s), frontier unchanged
+- shift 304 FAST-FAIL 05:48 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 304 05:48->05:48 (0m): 0 commit(s), frontier unchanged
+- shift 305 FAST-FAIL 05:49 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 305 05:49->05:49 (0m): 0 commit(s), frontier unchanged
+- shift 306 FAST-FAIL 05:50 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 306 05:50->05:50 (0m): 0 commit(s), frontier unchanged
+- shift 307 FAST-FAIL 05:51 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 307 05:51->05:51 (0m): 0 commit(s), frontier unchanged
+- shift 308 FAST-FAIL 05:52 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 308 05:52->05:52 (0m): 0 commit(s), frontier unchanged
+- shift 309 FAST-FAIL 05:53 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 309 05:53->05:53 (0m): 0 commit(s), frontier unchanged
+- shift 310 FAST-FAIL 05:54 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 310 05:54->05:54 (0m): 0 commit(s), frontier unchanged
+- shift 311 FAST-FAIL 05:55 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 311 05:55->05:55 (0m): 0 commit(s), frontier unchanged
+- shift 312 FAST-FAIL 05:56 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 312 05:56->05:56 (0m): 0 commit(s), frontier unchanged
+- shift 313 FAST-FAIL 05:57 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 313 05:57->05:57 (0m): 0 commit(s), frontier unchanged
+- shift 314 FAST-FAIL 05:58 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 314 05:58->05:58 (0m): 0 commit(s), frontier unchanged
+- shift 315 FAST-FAIL 05:59 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 315 05:59->05:59 (0m): 0 commit(s), frontier unchanged
+- shift 316 FAST-FAIL 06:00 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 316 06:00->06:00 (0m): 0 commit(s), frontier unchanged
+- shift 317 FAST-FAIL 06:01 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 317 06:01->06:01 (0m): 0 commit(s), frontier unchanged
+- shift 318 FAST-FAIL 06:02 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 318 06:02->06:02 (0m): 0 commit(s), frontier unchanged
+- shift 319 FAST-FAIL 06:04 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 319 06:03->06:04 (0m): 0 commit(s), frontier unchanged
+- shift 320 FAST-FAIL 06:05 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 320 06:05->06:05 (0m): 0 commit(s), frontier unchanged
+- shift 321 FAST-FAIL 06:06 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 321 06:06->06:06 (0m): 0 commit(s), frontier unchanged
+- shift 322 FAST-FAIL 06:07 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 322 06:07->06:07 (0m): 0 commit(s), frontier unchanged
+- shift 323 FAST-FAIL 06:08 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 323 06:08->06:08 (0m): 0 commit(s), frontier unchanged
+- shift 324 FAST-FAIL 06:09 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 324 06:09->06:09 (0m): 0 commit(s), frontier unchanged
+- shift 325 FAST-FAIL 06:10 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 325 06:10->06:10 (0m): 0 commit(s), frontier unchanged
+- shift 326 FAST-FAIL 06:11 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 326 06:11->06:11 (0m): 0 commit(s), frontier unchanged
+- shift 327 FAST-FAIL 06:12 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 327 06:12->06:12 (0m): 0 commit(s), frontier unchanged
+- shift 328 FAST-FAIL 06:13 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 328 06:13->06:13 (0m): 0 commit(s), frontier unchanged
+- shift 329 FAST-FAIL 06:14 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 329 06:14->06:14 (0m): 0 commit(s), frontier unchanged
+- shift 330 FAST-FAIL 06:15 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 330 06:15->06:15 (0m): 0 commit(s), frontier unchanged
+- shift 331 FAST-FAIL 06:16 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 331 06:16->06:16 (0m): 0 commit(s), frontier unchanged
+- shift 332 FAST-FAIL 06:17 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 332 06:17->06:17 (0m): 0 commit(s), frontier unchanged
+- shift 333 FAST-FAIL 06:18 (4s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 333 06:18->06:18 (0m): 0 commit(s), frontier unchanged
+- shift 334 FAST-FAIL 06:19 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 334 06:19->06:19 (0m): 0 commit(s), frontier unchanged
+- shift 335 FAST-FAIL 06:20 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 335 06:20->06:20 (0m): 0 commit(s), frontier unchanged
+- shift 336 FAST-FAIL 06:21 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 336 06:21->06:21 (0m): 0 commit(s), frontier unchanged
+- shift 337 FAST-FAIL 06:22 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 337 06:22->06:22 (0m): 0 commit(s), frontier unchanged
+- shift 338 FAST-FAIL 06:23 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 338 06:23->06:23 (0m): 0 commit(s), frontier unchanged
+- shift 339 FAST-FAIL 06:24 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 339 06:24->06:24 (0m): 0 commit(s), frontier unchanged
+- shift 340 FAST-FAIL 06:25 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 340 06:25->06:25 (0m): 0 commit(s), frontier unchanged
+- shift 341 FAST-FAIL 06:27 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 341 06:26->06:27 (0m): 0 commit(s), frontier unchanged
+- shift 342 FAST-FAIL 06:28 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 342 06:28->06:28 (0m): 0 commit(s), frontier unchanged
+- shift 343 FAST-FAIL 06:29 (5s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 343 06:29->06:29 (0m): 0 commit(s), frontier unchanged
+- shift 344 FAST-FAIL 06:30 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 344 06:30->06:30 (0m): 0 commit(s), frontier unchanged
+- shift 345 FAST-FAIL 06:31 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 345 06:31->06:31 (0m): 0 commit(s), frontier unchanged
+- shift 346 FAST-FAIL 06:32 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 346 06:32->06:32 (0m): 0 commit(s), frontier unchanged
+- shift 347 FAST-FAIL 06:33 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 347 06:33->06:33 (0m): 0 commit(s), frontier unchanged
+- shift 348 FAST-FAIL 06:34 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 348 06:34->06:34 (0m): 0 commit(s), frontier unchanged
+- shift 349 FAST-FAIL 06:35 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 349 06:35->06:35 (0m): 0 commit(s), frontier unchanged
+- shift 350 FAST-FAIL 06:36 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 350 06:36->06:36 (0m): 0 commit(s), frontier unchanged
+- shift 351 FAST-FAIL 06:37 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 351 06:37->06:37 (0m): 0 commit(s), frontier unchanged
+- shift 352 FAST-FAIL 06:38 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 352 06:38->06:38 (0m): 0 commit(s), frontier unchanged
+- shift 353 FAST-FAIL 06:39 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 353 06:39->06:39 (0m): 0 commit(s), frontier unchanged
+- shift 354 FAST-FAIL 06:40 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 354 06:40->06:40 (0m): 0 commit(s), frontier unchanged
+- shift 355 FAST-FAIL 06:41 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 355 06:41->06:41 (0m): 0 commit(s), frontier unchanged
+- shift 356 FAST-FAIL 06:42 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 356 06:42->06:42 (0m): 0 commit(s), frontier unchanged
+- shift 357 FAST-FAIL 06:43 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 357 06:43->06:43 (0m): 0 commit(s), frontier unchanged
+- shift 358 FAST-FAIL 06:44 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 358 06:44->06:44 (0m): 0 commit(s), frontier unchanged
+- shift 359 FAST-FAIL 06:45 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 359 06:45->06:45 (0m): 0 commit(s), frontier unchanged
+- shift 360 FAST-FAIL 06:46 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 360 06:46->06:46 (0m): 0 commit(s), frontier unchanged
+- shift 361 FAST-FAIL 06:47 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 361 06:47->06:47 (0m): 0 commit(s), frontier unchanged
+- shift 362 FAST-FAIL 06:48 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 362 06:48->06:48 (0m): 0 commit(s), frontier unchanged
+- shift 363 FAST-FAIL 06:50 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 363 06:49->06:50 (0m): 0 commit(s), frontier unchanged
+- shift 364 FAST-FAIL 06:51 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 364 06:51->06:51 (0m): 0 commit(s), frontier unchanged
+- shift 365 FAST-FAIL 06:52 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 365 06:52->06:52 (0m): 0 commit(s), frontier unchanged
+- shift 366 FAST-FAIL 06:53 (2s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 366 06:53->06:53 (0m): 0 commit(s), frontier unchanged
+- shift 367 FAST-FAIL 06:54 (3s, exit 1): You've hit your monthly spend limit -+ raise it at claude.ai/settings/usage
+- shift 367 06:54->06:54 (0m): 0 commit(s), frontier unchanged
+- shift 1 07:14->07:19 (5m): 0 commit(s), frontier ADVANCED
+- shift 2 07:20->07:29 (10m): 1 commit(s), frontier ADVANCED
+- shift 3 survey: NO bank (diagnosis shift) — answered frontier-#1: FRESH koga_done_kit ALSO wedges heading to Fuchsia → REAL rope gap (not derived-state); root = Route-9 boot-pocket (10,3) deterministic step-freeze, head_to_gym can't step off → circles Route 9/10, never reaches Blaine/Giovanni. Traveler grass-static fix ATTEMPTED → freeze-spin REGRESSION → REVERTED (no commit). Selective-solo re-verified 17/17 (multi-gym-safe at decision level; milestone-independent) — ARMED lever intact. | frontier: BUILD an evened-bench fixture AT Fuchsia (grind surf_ready_kit bench ~L30 via recon_grind_bench) → run multi-gym solo forward Fuchsia→Seafoam→Cinnabar→Blaine→Giovanni (bypasses the Route-9 nav gap + right team-shape) | needs eyes: none
