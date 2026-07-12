@@ -47,6 +47,11 @@
       "hex": "0x2D2",
       "note": "Set when BOTH B3F boulders are present (the Strength boulder cascade) -> the Seafoam Islands current stops -> the west sea exit to Cinnabar opens. The persistent 'Seafoam crossed' signal (stays set the rest of the game); the seafoam_strike success flag."
     },
+    "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY": {
+      "id": 424,
+      "hex": "0x1A8",
+      "note": "HIDE-class flag on the Secret Key item ball in the Pokémon Mansion B1F. The Secret Key has no single GOT flag; this flag flips 0->1 when the ball is TAKEN, so set == key obtained (proven on the champion climb as recon_mansion's pickup verify). The mansion_strike success flag; opens Blaine's Cinnabar gym door."
+    },
     "FLAG_GOT_BIKE_VOUCHER": {
       "id": 577,
       "hex": "0x241",
@@ -292,6 +297,21 @@
         "gives_cap": null
       },
       "human": "Cinnabar's across the sea, but Route 20's surface dead-ends at the Seafoam Islands — I have to shove the boulders down through the caves to still the current, then surf out the far side to reach the island (and Blaine)"
+    },
+    "secret_key": {
+      "kind": "event",
+      "name": "the Secret Key (Blaine's gym key)",
+      "obtain": {
+        "via": "strike",
+        "npc": null,
+        "from": "3,8",
+        "dir": null,
+        "place_name": "the burned Pokémon Mansion on Cinnabar Island — the Secret Key is an item ball in the basement, reached by toggling statue switches that shift the barriers across four floors",
+        "prereq": "seafoam",
+        "sets_flag": "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY",
+        "gives_cap": null
+      },
+      "human": "I'm on Cinnabar but Blaine's gym is locked — the Secret Key is hidden in the burned Pokémon Mansion; I have to flip the statue switches down through the floors to reach it, then it opens the gym"
     },
     "gold_teeth": {
       "kind": "item",

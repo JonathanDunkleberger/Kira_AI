@@ -204,6 +204,16 @@ SAFARI_STRIKE_ENABLED = os.getenv("POKEMON_SAFARI_STRIKE", "1") != "0"
 # QUESTLINE STRIKE -> reached_cinnabar -> STATE IN: Cinnabar; strike idempotent, does not re-fire post-cross).
 # Disable with POKEMON_SEAFOAM_STRIKE=0. NB post-Cinnabar Blaine is Secret-Key-gated (Mansion) = the next gate.
 SEAFOAM_STRIKE_ENABLED = os.getenv("POKEMON_SEAFOAM_STRIKE", "1") != "0"
+# NS#13: the SECRET KEY strike (Cinnabar -> Pokémon Mansion: statue-toggle nav over 4 floors -> the B1F
+# Secret Key ball -> back out, via mansion_strike.run_strike). The THIRD and final Blaine gate, AFTER the
+# Seafoam crossing: once on Cinnabar the gym DOOR is LOCKED (needs the Mansion's Secret Key) — she reads the
+# locked door as "a puzzle I keep bouncing off" and stalls. Recognized PROACTIVELY once she's CROSSED the
+# sea (has Surf + Seafoam) but lacks the key. NS#13: DEFAULT ON — the recognize->questline->strike chain is
+# e2e-proven (flag-ON look-ahead from cinnabar_kit_g: PROACTIVE SECRET-KEY-PREREQ -> QUESTLINE STRIKE ->
+# got_key -> questline cleared -> ENTERS Blaine's gym, clears the junior trainers). Disable with
+# POKEMON_MANSION_STRIKE=0. NB the Cinnabar gym LEADER (quiz-door gym) doesn't fire via general beat_gym =
+# the next gate (recon_blaine.py extract, same pattern).
+MANSION_STRIKE_ENABLED = os.getenv("POKEMON_MANSION_STRIKE", "1") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -212,6 +222,11 @@ HM_PREREQ_GYMS = {"Blaine"}
 # signal (the seafoam_strike success flag). Post-Surf-but-pre-crossing is the seafoam-recognition window.
 FLAG_GOT_HM03_ID = 0x239
 FLAG_SEAFOAM_CROSSED_ID = 0x2D2
+# Secret Key picked up in the Pokémon Mansion B1F (FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY). The Secret Key
+# is an item-ball pickup with no single GOT flag; the HIDE flag flips 0->1 when the ball is taken, so
+# set == key obtained (proven on the champion climb as recon_mansion's pickup verify). Post-crossing-but-no-key
+# is the secret-key-recognition window (the locked-Blaine-door stall).
+FLAG_SECRET_KEY_ID = 0x1A8
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
@@ -8843,6 +8858,10 @@ class Campaign:
                 from seafoam_strike import SEAFOAM_ANCHORS, run_strike
                 return run_strike, SEAFOAM_ANCHORS, ("reached_cinnabar",), "seafoam_probe"
 
+            def _mansion():
+                from mansion_strike import MANSION_ANCHORS, run_strike
+                return run_strike, MANSION_ANCHORS, ("got_key",), "mansion_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -8875,6 +8894,13 @@ class Campaign:
                 ("flag", "FLAG_STOPPED_SEAFOAM_B3F_CURRENT"): (
                     "the Seafoam crossing (surf the interior boulder-caves to Cinnabar)",
                     "made it across the Seafoam Islands — Cinnabar's ahead, and Blaine's gym with it.", _seafoam),
+                # NS#13: the Secret Key step derives success ('flag','FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY')
+                # (the B1F key ball -> the HIDE flag flips). Door-less flag step keyed to Cinnabar (from '3,8')
+                # -> fires via the BLOCKER STRIKE FIRE-FIRST block while she's on Cinnabar (an anchor). The
+                # Pokémon Mansion strike gets the key that opens Blaine's gym. Flag-gated (MANSION_STRIKE_ENABLED).
+                ("flag", "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY"): (
+                    "the Secret Key (Pokémon Mansion — the key to Blaine's gym)",
+                    "got the Secret Key out of the burned mansion — Blaine's gym is finally unlocked.", _mansion),
             }
             if succ not in registry:
                 return None
@@ -8882,6 +8908,8 @@ class Campaign:
                 return None                     # strike flag-gated OFF -> fall through to the general layer
             if succ == ("flag", "FLAG_STOPPED_SEAFOAM_B3F_CURRENT") and not SEAFOAM_STRIKE_ENABLED:
                 return None                     # seafoam strike flag-gated OFF -> fall through
+            if succ == ("flag", "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY") and not MANSION_STRIKE_ENABLED:
+                return None                     # mansion strike flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -8906,7 +8934,7 @@ class Campaign:
                 tries_map[succ] = 0
                 self.on_event(done_msg, kind="milestone", tier=2)
                 return "questline_strike_done"
-            if res in ("in_hideout", "in_silph", "in_safari", "in_seafoam"):
+            if res in ("in_hideout", "in_silph", "in_safari", "in_seafoam", "in_mansion"):
                 # objective obtained (flag/item set) but still INSIDE the dungeon — keep the inside
                 # marker so recovery doesn't eject her mid-dungeon; retry the exit next tick. (The
                 # deriver already reads the flag as satisfied, so the questline self-clears next tick;
@@ -8997,6 +9025,26 @@ class Campaign:
                        human="Cinnabar's across the sea — but Route 20 dead-ends at the Seafoam Islands; I "
                              "have to cross through the caves to reach Blaine.",
                        detail={"flag": "FLAG_STOPPED_SEAFOAM_B3F_CURRENT", "gym": "Blaine"})
+
+    def _mansion_gate(self):
+        """NS#13: the THIRD Blaine gate, AFTER the Seafoam crossing. Once she's crossed the sea
+        (FLAG_SEAFOAM_CROSSED set) she's ON Cinnabar — but Blaine's gym DOOR is LOCKED behind the Mansion's
+        Secret Key. Without recognizing it she reads the locked door as "a puzzle I keep bouncing off" and
+        STALLS. Recognize has-crossed AND NOT-yet-got-key (FLAG_SECRET_KEY unset). missing='secret_key'
+        resolves through frlg_gates.json to a ('flag',...) strike step keying mansion_strike; from_map '3,8'
+        (Cinnabar) so the door-less step fires via the BLOCKER-STRIKE-FIRE-FIRST block right where she stands.
+        Sequenced AFTER the seafoam gate (which owns the pre-crossing window). Returns a Gate or None."""
+        try:
+            if not fm.read_flag(self.b, FLAG_SEAFOAM_CROSSED_ID):
+                return None                     # not across yet -> the seafoam gate owns this window
+            if fm.read_flag(self.b, FLAG_SECRET_KEY_ID):
+                return None                     # already have the key -> Blaine's door is open
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="secret_key", where=tuple(CINNABAR),
+                       human="I'm on Cinnabar, but Blaine's gym is locked — the Secret Key's in the burned "
+                             "Pokémon Mansion. Time to go dig it out.",
+                       detail={"flag": "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY", "gym": "Blaine"})
 
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
@@ -9186,6 +9234,19 @@ class Campaign:
                     if sg is not None and self._open_questline(sg, state):
                         log("   [roam] 🌊 PROACTIVE SEAFOAM-PREREQ: have Surf but Cinnabar's sea road is "
                             "severed at Seafoam — opening the crossing errand")
+                        return
+            # PROACTIVE SECRET-KEY-PREREQ (NS#13): the THIRD Blaine gate, AFTER the crossing. On Cinnabar the
+            # gym door is LOCKED (Secret Key, in the Pokémon Mansion) -> without this she reads the locked door
+            # as a puzzle and bounces (the post-Cinnabar STALL). Recognize crossed-but-no-key and open the
+            # Mansion strike errand; the door-less flag step fires via FIRE-FIRST right on Cinnabar.
+            if MANSION_STRIKE_ENABLED:
+                ng = state.get("next_gym")
+                gym = GYMS.get(ng["leader"]) if ng else None
+                if gym is not None and gym.name == "Blaine":
+                    mg = self._mansion_gate()
+                    if mg is not None and self._open_questline(mg, state):
+                        log("   [roam] 🗝️ PROACTIVE SECRET-KEY-PREREQ: on Cinnabar but Blaine's gym is locked "
+                            "— opening the Pokémon Mansion (Secret Key) errand")
                         return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
