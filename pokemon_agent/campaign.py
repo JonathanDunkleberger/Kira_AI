@@ -326,6 +326,16 @@ GRIND_NOPATH_CAP = int(os.getenv("POKEMON_GRIND_NOPATH_CAP", "6"))
 # ZERO faints across both arms. The no-faint safety property holds; the watch is calmer. Env-overridable.
 GRIND_ACE_BAIL_FRAC = float(os.getenv("POKEMON_GRIND_ACE_BAIL_FRAC", "0.25"))
 ACE_BAIL_ON = os.getenv("POKEMON_ACE_BAIL", "1") == "1"   # default ON; one-char revert to prior behavior
+# PP-FAMINE HEAL (2026-07-11 NS#25 — the bench-leveling throttle NS#24 quantified). In a FRAGILE bench grind
+# the fielded weak mon (+ the ace it switches to via the participation switch) drains ALL damaging PP over a
+# stint; the engine then flee/struggle-spams (79× the ns24_freshgo stint) — banking ~no XP (L28->L30 over a
+# full ~10-min stint) and reading ugly on a watch. When the WHOLE party is damaging-PP-dry, break the stint,
+# restore the ace + heal at a Center (restores PP for all), and re-grind with a topped-up moveset so the bench
+# banks kill XP instead of spamming Struggle. The LOW-RISK bench-leveling lever (NS#10 re-confirmed): it does
+# NOT touch the wedge-prone in-battle switch (the SOLO_WEAK_GRIND lever does). Bounded by a zero-team-floor-gain
+# streak cap so an XP-dead spot stands down (grind-dead) instead of heal-thrashing. Flag OFF until look-ahead-verified.
+GRIND_PP_HEAL_ON = os.getenv("POKEMON_GRIND_PP_HEAL", "0") == "1"     # default OFF; verify-gated
+GRIND_PP_HEAL_CAP = int(os.getenv("POKEMON_GRIND_PP_HEAL_CAP", "4"))  # PP-heals w/ 0 floor gain -> stand down
 # GRIND-SPOT LEVEL AWARENESS (NS#5, PASS-3 grind-efficiency lever a) — a map whose wild_max is more than
 # GRIND_POOR_GAP below the team's grind target gives ~0 XP (the NS#1/#14 E4-prep stall). The KB reader
 # (_grind_wild_band / _grind_inadequate) + this gap land now (decision-verified); the picker WIRING that
@@ -6309,6 +6319,35 @@ class Campaign:
                 return "ace_healed"                            # DISTINCT: grind_weak_members restores + passes
                 #                                                it up so roam re-grinds with a full ace (one
                 #                                                heal per tick, not a same-call heal-thrash)
+            # PP-FAMINE HEAL (NS#25 — see GRIND_PP_HEAL_ON): the fielded weak mon (+ the ace it switches to)
+            # drains all damaging PP over a stint. Once the WHOLE party is damaging-PP-dry it can only
+            # flee/Struggle-spam (the ns24 79× PP-FAMINE stretch) — banking ~no XP and reading ugly. Break,
+            # restore the ace + heal (restores PP), re-grind topped-up. Bounded: N PP-heals with NO team-floor
+            # gain => this spot is XP-dead for THIS team, stand down (mark grind-dead) rather than heal-thrash.
+            if fragile and GRIND_PP_HEAL_ON and not self._party_damaging_pp():
+                _floor = min(self._party_levels() or [0])
+                if getattr(self, "_pp_heal_last_floor", None) is not None and _floor > self._pp_heal_last_floor:
+                    self._pp_heal_streak = 0                    # floor rose since the last PP-heal — real progress
+                self._pp_heal_streak = getattr(self, "_pp_heal_streak", 0) + 1
+                self._pp_heal_last_floor = _floor
+                if self._pp_heal_streak > GRIND_PP_HEAL_CAP:
+                    self._pp_heal_streak = 0
+                    log(f"   !! GRIND: {GRIND_PP_HEAL_CAP}+ PP-famine heals with 0 team-floor gain on "
+                        f"{tv.map_id(self.b)} — wilds give ~0 XP for this team here; stopping LOUD")
+                    if not hasattr(self, "_grind_dead"):
+                        self._grind_dead = set()
+                    self._grind_dead.add(tuple(tv.map_id(self.b)))
+                    return "no_safe_grass"
+                log(f"   GRIND: whole party is PP-DRY on damaging moves (floor L{_floor}) — healing to restore "
+                    f"PP so the bench banks kill XP instead of flee/Struggle-spamming the grass")
+                try:
+                    battle_agent.PROTECT_LEAD_GRIND = False
+                except Exception:
+                    pass
+                self._restore_ace()
+                self.heal_nearest()
+                return "ace_healed"                            # reuse the proven sentinel: roam re-grinds
+                #                                                next tick with a topped-up moveset
             gs = grass_save()
             if not gs and CAVE_GRIND_ENABLED and self._grind_is_cave(tv.map_id(self.b)):
                 # CAVE STEP-ENCOUNTER GRIND (NS#16 — the endgame grind-spot unblock). Caves have NO grass
