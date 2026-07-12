@@ -83,8 +83,13 @@ ROAD_XP_ACE_HP_FLOOR = float(os.getenv("POKEMON_ROAD_XP_ACE_HP_FLOOR", "0.6"))
 # a top-heavy team where the ace solos then dies at Lance/Champion). A member counts as LEVELABLE only
 # within this many levels of the target — far-below chaff (box fodder, unbuilt Tier-1 #15) is excluded so
 # it never pins an unwinnable grind, keeping the E4-prep livelock-proof (it retires → forward to VR once
-# every real member crosses or stalls out). 25 cleanly separates the real L40+ team from L9-14 fodder.
-E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "25"))
+# every real member crosses or stalls out). 30 (floor L25) cleanly separates a realistically-arriving
+# evened bench from L9-14 fodder: NS#7 measured the over-level path landing the bench at Indigo only ~L28-31
+# (Route 18/VR2F cap the endgame grind ~L46 < the E4 milestone), so the prior band 25 (floor L30) would have
+# floored the whole realistic L28-29 bench as "chaff" and never VR2F-grinded it — the exact "arrives thin"
+# shape the E4-prep exists to fix. Floor L25 still excludes true box-fodder (L8-14) and stays livelock-proof
+# (stall-marks + bounded VR2F stints bound it; a member VR2F can't level retires cleanly). Env-tunable.
+E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "30"))
 # SOLO weak-grind: field the weak member as lead and let it grind SOLO in the grass (no in-battle
 # participation-switch needed — that switch wedges the long core). Viable now that she can buy Super
 # Potions (the in-battle heal instinct keeps a weak lead alive) + heals route to a reachable Center.
