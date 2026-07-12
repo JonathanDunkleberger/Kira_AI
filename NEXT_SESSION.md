@@ -1,5 +1,13 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⏳ NIGHT-SHIFT #18 IN FLIGHT (2026-07-11, night_shift.ps1 shift 18) — running the NS#17 FLAG-FLIP GATE: a DEFINITIVE-budget VR2F cave-grind look-ahead to prove Lapras crosses L43 + learns Ice Beam, 0 Viridian/boulder/park. START HERE.
+
+### THE STATE (shift 18): the flip gate is the ONE decision left before arming `POKEMON_CAVE_GRIND`. Mechanism proven CLEAN over 6 stints (NS#17). This shift is proving the 15-stint pace actually crosses L43.
+- **RUN IN FLIGHT:** `ns18_vrgrind_def.log` (`MAX_STINTS=16 VR_BUDGET_S=6000 GRIND_TARGET=43 POKEMON_CAVE_GRIND=1 ../.venv/Scripts/python.exe -u recon_vr_grind_smoke.py`) from indigo_reach_g (party `[71,13,9,39,14,40]`). Retires when the levelable bench (Lapras L39 / Kadabra L40) crosses L43 OR 16 stints. **AT RESUME grep** `RESULT:|SMOKE|reserved a slot|viridian|boulder` — the gate PASSES iff Lapras≥43 (learns Ice Beam via the reserved slot — CONFIRMED firing: "PHASE 3B reserved a slot — dropped Confuse Ray") AND 0 Viridian AND 0 boulder.
+- **⚠️ CPU-CONTENTION CAVEAT (this shift):** Jonny's desktop had chrome/steam/iCUE/EADesktop open → the headless emulator ran ~4-10× SLOWER than the quiet-machine 14× ceiling (~40s/stint quiet → minutes/stint here). So **wall-clock (c) is NOT fairly measurable this session** — on a quiet machine 16 stints ≈ 10-15 min. Also hit + fixed a DOUBLE-LAUNCH (two competing recon_vr_grind_smoke processes corrupting the log / halving speed) — killed all python, relaunched ONE clean run. **Lesson: do NOT combine `run_in_background` + a shell `&` — it can double-spawn; use one or the other.**
+- **THE FLIP (staged, ready):** if the gate PASSES → set `CAVE_GRIND_ENABLED` default "1" at **campaign.py:125** (`os.getenv("POKEMON_CAVE_GRIND", "0")` → `"1"`), one char, + commit. The lever is strictly beneficial (levels the bench + lands Ice Beam) and park-guarded (bounded stints/budget, retires on crossed-or-stalled). If the run CAPS at 16 stints with Lapras <43 (participation-share too slow / VR2F band caps ~L46) → the flip is still defensible on the clean mechanism, but the honest move is to FIRST evaluate the SOLO_WEAK_GRIND pace lever (frontier item 1) or a longer stint budget before arming.
+- **THEN priority 2 (the real win):** the FINAL-PROOF `_enter_league` gate — `POKEMON_CAVE_GRIND=1 POKEMON_VR_GRIND_BUDGET_S=3000 POKEMON_E4_DEADLINE_S=5400 ../.venv/Scripts/python.exe -u recon_enter_league_smoke.py` from indigo_reach_g: does the leveled team (Lapras + Ice Beam) now CLEAR the E4 Champion, or is there a residual team-depth gap? (see NS#17 frontier priority 2 below.)
+
 ## ✅ NIGHT-SHIFT #17 DONE (2026-07-11, night_shift.ps1 shift 17) — FINISHED + WIRED the endgame team-depth grind: the Indigo-anchored Victory-Road cave grind is BUILT, wired into `_enter_league` (pre-gauntlet), and VERIFIED end-to-end. THREE commits (`c164efc` cave-grind hardening, `198d982` the Indigo-anchored VR2F grind + wiring, `f9db0c4` full-dispatch smoke), mode-side, canonical UNTOUCHED. **START HERE → the mechanism is proven; the ONE decision left is the flag flip (`POKEMON_CAVE_GRIND` STILL default OFF pending the full-length look-ahead result — see FRONTIER).**
 
 ### 🎯 THE STATE: the NS#16 cave-grind lever is now FINISHED + WIRED. It levels the underleveled endgame bench in Victory Road 2F, healing at the Indigo Center, then hands off to the E4 strike — the whole `_enter_league` chain composes with no wedge. The bench-leveling wall (the last binding team-depth constraint) now has a working autonomous lever. Flag stays OFF one more shift for the no-park verification gate.
@@ -220,7 +228,14 @@ capture; don't let the extra logging delay/complicate the runs. **THE THREE WEIG
    LIVELOCK, not just a note): a TM/move-teach aimed at a Pokémon that CAN'T learn it must FAIL CLEANLY, never
    infinite-loop.** Flag any teach that could loop forever on an invalid target.
 **Plus (lighter notes):** any single **grind stint >~10 game-min** (padding); **hesitation/confusion clusters** —
-pointless backtracking, re-entering the same door, standing still (looks lost/confused even when she recovers).
+pointless backtracking, re-entering the same door, standing still (looks lost/confused even when she recovers);
+**EXPLORATION TEXTURE ("curious human" vs robotic beeline):** per town — does she ever step into a non-objective
+shop/building or notice her surroundings, or ONLY ever walk the shortest line to the next required tile? Flag BOTH
+failure modes: (a) **pure objective-beeline** = zero exploration texture, reads robotic (un-watchable over 30h);
+(b) **excessive wandering / completionism** = exhausting NPCs, nonessential sidequests, 100%-ing = padding (also
+un-watchable). Target = the NATURAL MIDDLE — essentials done EXCELLENTLY + LIGHT organic curiosity (occasional
+shop/building visits, glancing around). This is a MOVEMENT/behavior signal: the overworld can/should be mostly
+SILENT — log the movement texture, NOT commentary (the talking layer is for Jonny's live-watch, not headless).
 **DROP personality/soul-presence logging** — headless CANNOT judge "funny/endearing"; Jonny judges that on the
 live-watch, so don't have the bot attempt analysis it can't do well. Flag each note with timestamp + location.
 The battery still GATES on reliability (5/5 credits, leveled-6, 0 crash/livelock); these are the pre-scout layer.
