@@ -123,6 +123,12 @@ LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace tower
 # in the cave it's already crossing — and Lapras crosses L43 -> Ice Beam (the NS#16 move-learn fix lands
 # it). Default OFF pending a VR smoke + a no-park look-ahead (verify-gated grind change, NS#1's hard gate).
 CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "0") != "0"
+# CAVE-GRIND WANDER RADIUS (NS#17): the NS#16 wander picked FARTHEST-first waypoints to maximise steps —
+# fine in an OPEN cave (Mt. Moon) but on a PUZZLE cave (Victory Road) it drifts the whole floor, shoving
+# Strength boulders + tripping trainers (the party-6 VR1F smoke: 93 boulder/trainer collisions). Cap the
+# wander to a LOCAL pocket (Manhattan radius) around the entry so step-encounters fire without crossing the
+# boulder/trainer maze. Farthest-WITHIN-the-radius keeps each hop meaningful.
+CAVE_GRIND_RADIUS = int(os.getenv("POKEMON_CAVE_GRIND_RADIUS", "6"))
 # BENCH-TO-MILESTONE climb (2026-07-11, PASS 3 NS#10 — team-depth lever, the Koga wall). NS#9 proved the
 # ONE-bite-per-badge lopsided grind (36b4998) lands the bench ~25 levels UNDER the gym milestone (L20 vs
 # Koga's L45) — the type-answers (Mr. Mime Psychic x4, Diglett Ground) FAINT at L23 and she LOSES Koga.
@@ -4777,31 +4783,47 @@ class Campaign:
 
     def _cave_grind_avoid(self):
         """Tiles the cave-grind wander must NEVER step on: doors (metatile-behaviour heuristic) UNIONED
-        with the AUTHORITATIVE warp table (`tv.read_warps`). The Mt-Moon smoke (NS#16) leaked out to
-        Route 4 because an exit warp's behaviour byte falls outside _door_tiles's 0x60-0x6F range — the
-        warp TABLE catches it where the heuristic misses it. Keeps her ON this floor (grind, never
-        descend/exit)."""
+        with the AUTHORITATIVE warp table (`tv.read_warps`) UNIONED with live STRENGTH-BOULDER tiles. The
+        Mt-Moon smoke (NS#16) leaked out to Route 4 because an exit warp's behaviour byte falls outside
+        _door_tiles's 0x60-0x6F range — the warp TABLE catches it where the heuristic misses it. And a
+        PUZZLE cave (Victory Road, NS#17) is littered with pushable boulders: a wander waypoint on the far
+        side of one sends travel into an endless STRENGTH-shove loop (the party-6 VR1F smoke). Excluding
+        the boulders' live tiles keeps the wander to boulder-FREE pockets (routes around them; a waypoint
+        only reachable by pushing is correctly rejected). Keeps her ON this floor (grind, never descend/
+        exit) and off the puzzle."""
         av = set(self._door_tiles())
         try:
             av |= {w[0] for w in tv.read_warps(self.b)}
         except Exception:
             pass
+        try:
+            import field_moves as fm
+            av |= {tuple(o["coord"]) for o in fm.scan_field_objects(self.b, {fm.GFX_BOULDER})}
+        except Exception:
+            pass
         return av
 
-    def _cave_walk_waypoints(self, cur, n=4, max_tests=60):
-        """Reachable walkable NON-WARP tiles to wander for cave STEP-encounters, farthest-first so each
-        hop steps the most (wilds fire per step). Mirrors the proven catch_one cave-wander (80789ab):
-        BFS-reachable from `cur`, never a door/warp tile (so she grinds THIS floor and never accidentally
-        descends a ladder / exits the cave). Returns up to `n` tiles (empty => caller bails)."""
+    def _cave_walk_waypoints(self, cur, n=4, max_tests=60, radius=None):
+        """Reachable walkable NON-WARP tiles to wander for cave STEP-encounters. Mirrors the proven
+        catch_one cave-wander (80789ab): BFS-reachable from `cur`, never a door/warp tile (so she grinds
+        THIS floor and never accidentally descends a ladder / exits the cave). NS#17: bounded to a LOCAL
+        pocket (Manhattan `radius`, default CAVE_GRIND_RADIUS) so a PUZZLE cave (Victory Road) doesn't send
+        her wandering across the boulder/trainer maze — farthest-WITHIN-the-radius keeps hops meaningful
+        while she stays contained near the entry. Returns up to `n` tiles (empty => caller bails)."""
+        radius = CAVE_GRIND_RADIUS if radius is None else radius
         g_now = tv.Grid(self.b)
         doors = frozenset(self._cave_grind_avoid())
         wlk = g_now.walkable
         def _reach(t):
+            # reachable WITHIN the pocket: the BFS itself may not stray past the radius, so a waypoint whose
+            # only path leaves the pocket (crossing the puzzle) is correctly rejected — keeps travel local.
             return bool(tv.bfs(g_now, cur, lambda q: q == t,
-                               walkable=lambda sx, sy: wlk(sx, sy) and (sx, sy) not in doors))
-        cand = [(sx, sy) for sy in range(g_now.sy_lo, g_now.sy_hi + 1)
-                for sx in range(g_now.sx_lo, g_now.sx_hi + 1)
-                if (sx, sy) != tuple(cur) and (sx, sy) not in doors and wlk(sx, sy)]
+                               walkable=lambda sx, sy: wlk(sx, sy) and (sx, sy) not in doors
+                               and abs(sx - cur[0]) + abs(sy - cur[1]) <= radius))
+        cand = [(sx, sy) for sy in range(max(g_now.sy_lo, cur[1] - radius), min(g_now.sy_hi, cur[1] + radius) + 1)
+                for sx in range(max(g_now.sx_lo, cur[0] - radius), min(g_now.sx_hi, cur[0] + radius) + 1)
+                if (sx, sy) != tuple(cur) and (sx, sy) not in doors and wlk(sx, sy)
+                and abs(sx - cur[0]) + abs(sy - cur[1]) <= radius]
         cand.sort(key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]), reverse=True)
         wps, tests = [], 0
         for t in cand:
