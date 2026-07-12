@@ -1,5 +1,23 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-17 (2026-07-12 ~15:42, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is ALIVE + CLIMBING: it BROKE PAST Vermilion/Surge on its own. START HERE ↓
+**STATE (verified from `banked_LIVE` + `fresh_go_1.log`, ~1110s sim):** the shift-16 corridor-seed HOLDS — she escaped Diglett's
+Cave → Vermilion, then **cleared the S.S. Anne (HM Cut) → cut the Surge gym tree → solved the trash-can puzzle → beat Lt.
+Surge → BADGE 3 (Thunder)**. Abra **evolved to KADABRA (L20)** (the psychic answer). banked_LIVE = **Venusaur L36+Cut, party 6,
+badges=3, Route 11**, bench leveling (mankey/kadabra L18→20 via road-bench-XP). Now marching **Route 11 → Celadon for ERIKA
+(badge 4)**; plan = catch growlithe→arcanine (Erika/Champion answer). live-bank firing (869s/1109s) so banked_LIVE advances.
+**WHAT I DID:** glanced the log; diagnosed an apparent "Surge gym-door livelock" but it was a MISREAD of an EARLIER log segment
+— the run had already self-resolved past Surge (badges 2→3) while I diagnosed. NO code change (added then REVERTED a scratch
+DOORDIAG probe; campaign.py clean vs HEAD; deleted recon_surge_door_probe.py + G:/temp3 scratch). Run left cooking, healthy.
+**⚠️ ONE OBSERVED INEFFICIENCY (not a blocker, don't blind-fix):** early iterations RE-DID the S.S. Anne several times — an
+iteration that gets Cut but STALLs before badge-3 has its Cut progress classified STALL and discarded (not carried), so the
+next iteration re-boots pre-Cut and re-does the ship. She broke through only once an iteration ran >180s past Surge and the
+live-bank captured it (11 GOAL / 15 STALL over the run). If a future shift wants to speed the climb: capture post-HM/post-gym
+progress into banked_LIVE more aggressively (lower live-bank interval, or bank on any HM-obtained/gym-cleared milestone, not
+just the 180s tick + GOAL). Watchdog is a non-repo script (`/g/temp/longrun/fresh_go_watchdog.sh`).
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[3-8]|Rainbow|EARNED|banked_CREDITS|Erika|MAP TRANSITION.*Celadon|outcome=STALL|ABANDON" /g/temp/longrun/fresh_go_1.log | tail`. If badges≥4 and climbing → clean, exit fast. If STALLing at a NEW spot (Celadon approach / Erika) → capture + root-fix that leg. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-16 detail below is the prior record; its corridor-seed fix is confirmed WORKING (she's past the cave + Vermilion).
+
 ## ⚔️ SHIFT-16 (2026-07-12 ~15:20, WAR order 3+4) — ROOT-KILLED the Diglett's-Cave→Route-2-pocket wedge (the NS#15 wall). Fresh run RELAUNCHED, escaping the cave to Vermilion. START HERE ↓
 **WHAT I FIXED (committed `7897152`, VERIFIED e2e):** the fresh run was a DEAD watchdog loop — banked_LIVE boots INSIDE
 Diglett's Cave; `head_to_gym` returned `no_gym_route` (the CANONICAL world graph is BLIND through the cave→Route 11→
