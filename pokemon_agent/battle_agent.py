@@ -1614,23 +1614,36 @@ class BattleAgent:
         # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, pixel-confirm the list opened; retry the
         # A if it was eaten (still at the white action menu); if a wrong submenu opened (bag/
         # POKEMON - NOT the white action panel) back out with B and re-home. Bounded.
-        opened = False
-        self._home_to_fight()
-        for _ in range(12):
-            # VERIFIED open (cursor-response, not just the MENU_MODE byte): a stale-2 byte after an item
-            # use short-circuited this check before A was ever pressed = the immortal-Ekans wedge.
-            if self._movelist_open_verified():
-                opened = True; break
-            self._home_to_fight()                     # a failed probe may have nudged the ACTION cursor
-            #                                           (RIGHT lands on BAG) — re-home so A opens FIGHT
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            if self._movelist_open_verified():
-                opened = True; break
-            if not (self._white_box() or self._movelist_open()):   # a wrong submenu opened -> back out
-                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-                self._home_to_fight()
+        def _open_move_list():
+            self._home_to_fight()
+            for _ in range(12):
+                # VERIFIED open (cursor-response, not just the MENU_MODE byte): a stale-2 byte after an
+                # item use short-circuited this check before A was ever pressed = the immortal-Ekans wedge.
+                if self._movelist_open_verified():
+                    return True
+                self._home_to_fight()                 # a failed probe may have nudged the ACTION cursor
+                #                                       (RIGHT lands on BAG) — re-home so A opens FIGHT
+                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+                if self._movelist_open_verified():
+                    return True
+                if not (self._white_box() or self._movelist_open()):   # a wrong submenu opened -> back out
+                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+                    self._home_to_fight()
+            return False
+        opened = _open_move_list()
         if not opened:
-            return "stuck"                            # never opened -> clean retry (re-settle)
+            # WHITE-BOX IMPOSTOR (2026-07-12, the Diglett's-Cave livelock): _white_box() is True but the
+            # move list won't open after 12 A-tries -> a dangling message/animation box masks as the action
+            # menu (same white pixels, DEAD action cursor). Every press A just re-advances the box, so the
+            # foe HP never moves ("move#N logged, diglett 30/30 forever") -> 3 unresolved turns -> a WILD
+            # flee that ALSO can't navigate the impostor -> eternal 'stuck', 0 map-transitions (trapped in
+            # the cave). ROOT-KILL: drain the impostor to the REAL menu with the proven B-drainer, then
+            # retry the open ONCE. Byte-inert on a normal menu (this whole block only runs after the open
+            # already FAILED); bounded (settle tries=30, one open retry) so it can never itself livelock.
+            if self._settle_action_menu():
+                opened = _open_move_list()
+        if not opened:
+            return "stuck"                            # still can't open -> clean retry (re-settle)
         if not self._goto_move(idx):                  # RAM-readback nav (verify each press moved the cursor)
             self.log(f"   [engine] move-cursor didn't reach slot {idx} (now {self.b.rd8(MOVE_CURSOR)}) "
                      f"-> clean retry")
