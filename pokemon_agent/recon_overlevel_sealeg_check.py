@@ -46,12 +46,13 @@ class FakeCamp:
     _overlevel_before_sealeg = C.Campaign._overlevel_before_sealeg
     _bench_to_ms_active = C.Campaign._bench_to_ms_active
 
-    def __init__(self, milestone=48, seafoam_open=True, prep_dry=0, poor=None):
+    def __init__(self, milestone=48, seafoam_open=True, prep_dry=0, poor=None, dry_badge=-1):
         self.team_planner = FakePlanner(milestone)
         self.b = object()
         self._prep_dry = prep_dry
         self._bench_poor_maps = set(poor or ())
         self._seafoam_open = seafoam_open
+        self._overlevel_sealeg_dry_badge = dry_badge
 
     def _seafoam_gate(self):
         # non-None object ⟺ has-Surf-not-yet-crossed window (the last grass before the sea)
@@ -119,6 +120,10 @@ def main():
     # 10 — no static milestone
     check("10 no milestone skipped",
           FakeCamp(milestone=0)._overlevel_before_sealeg(_mkstate([57, 29, 28, 29, 29, 25])), None)
+
+    # 10b — NEVER-WORSE: an over-level grind already found grass unreachable this badge -> retire (cross now)
+    check("10b dry-badge retire releases (never-worse-than-baseline)",
+          FakeCamp(milestone=48, dry_badge=6)._overlevel_before_sealeg(_mkstate([57, 29, 28, 29, 29, 25], badge=6)), None)
 
     # 11 — _bench_to_ms_active: local enable while pending even with BENCH_TO_MILESTONE off
     C.BENCH_TO_MILESTONE = False

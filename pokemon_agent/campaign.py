@@ -7120,6 +7120,12 @@ class Campaign:
             if len(party) < 3:
                 return None                          # a real bench, not ace + 1
             _bc = int(state.get("badge_count", 0))
+            # NEVER-WORSE-THAN-BASELINE (the ns5_overlevel STALL fix): if an over-level grind ALREADY found
+            # no reachable grass this badge (the Fuchsia grass is behind gatehouse pockets the traveler can't
+            # arrive_coord-route into), retire the over-level for this badge so she reverts to crossing
+            # IMMEDIATELY — exactly the flag-OFF baseline — instead of dry-retrying into a gatehouse STALL.
+            if getattr(self, "_overlevel_sealeg_dry_badge", -1) == _bc:
+                return None
             try:
                 self.team_planner.ensure_plan(party, _bc)
                 milestone = self.team_planner._next_milestone(_bc, bool(state.get("post_game")))[1]
@@ -9696,11 +9702,13 @@ class Campaign:
                     # Auto-releases (crosses) once the bench reaches the milestone, the grass proves poor, or
                     # grass goes unreachable (all inside _overlevel_before_sealeg). Byte-inert when the flag is OFF.
                     if self._overlevel_before_sealeg(state) is not None:
+                        self._ovl_sealeg_pending = True   # cached for the executor's dry-grind guard
                         if not getattr(self, "_ovl_sealeg_logged", False):
                             self._ovl_sealeg_logged = True
                             log("   [roam] 🏝️ OVER-LEVEL BEFORE SEA LEG: bench under the Blaine milestone at the "
                                 "last grass — grinding here before crossing to grass-less Cinnabar (crossing deferred)")
                         return
+                    self._ovl_sealeg_pending = False
                     self._ovl_sealeg_logged = False
                     sg = self._seafoam_gate()
                     if sg is not None and self._open_questline(sg, state):
@@ -11691,6 +11699,15 @@ class Campaign:
                 r = self.grind_weak_members(t, min_level=_ml)
                 if r == "no_safe_grass":                 # a dry attempt counts toward stand-down
                     self._prep_dry = getattr(self, "_prep_dry", 0) + 1
+                    # NS#5 NEVER-WORSE-THAN-BASELINE: if this dry grind was an over-level-before-sealeg push,
+                    # retire it for this badge (single dry attempt) so _overlevel_before_sealeg releases the
+                    # crossing defer next tick and she reverts to the flag-OFF baseline (cross now) instead of
+                    # re-picking unreachable grass into a gatehouse STALL.
+                    if getattr(self, "_ovl_sealeg_pending", False):
+                        self._overlevel_sealeg_dry_badge = int(state.get("badge_count", -1))
+                        self._ovl_sealeg_pending = False
+                        log("   [roam] 🏝️ OVER-LEVEL: last grass before the sea is unreachable from here — "
+                            "retiring the over-level and reverting to the crossing (never worse than baseline)")
                 elif r in ("ready", "ok"):               # ACTUAL grinding happened (not mere arrival —
                     #                                      run6: the Fuchsia↔Route-15 shuttle 'arrived'
                     #                                      every other tick and reset the counter forever)
