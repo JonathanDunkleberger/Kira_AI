@@ -81,6 +81,11 @@ FORCE_PICK = os.getenv("LONGRUN_FORCE", "") or None
 
 SCRATCH = os.path.join(os.environ.get("TEMP", _HERE), "longrun")
 STAGE = os.path.join(SCRATCH, "stage")                    # in-run persistence lands HERE (canonical untouched)
+# RESUME-SAFETY (2026-07-11 NS#24): the round-trip-verified bank only lands at run END, so a mid-run
+# process-death (the recurring NS#18/19/21/23 CPU-contention kill) loses the WHOLE run + STAGE is wiped
+# at next boot. banked_LIVE is a THROTTLED durable snapshot of STAGE so a killed run always leaves a
+# recent resumable checkpoint (resume: boot banked_LIVE/kira_campaign.state, or promote_to_workshop it).
+LIVE_BANK = os.path.join(SCRATCH, "banked_LIVE")
 
 
 class _Done(Exception):
@@ -196,11 +201,16 @@ def main():
 
     # ── PIECE 2: PROTECT the canonical save — redirect ALL in-run persistence to STAGE. The canonical
     # living save + sidecars are NEVER written during an experimental look-ahead. ────────────────────
+    # RESUME-SAFETY (NS#24): throttle for the durable mid-run banked_LIVE snapshot (0 disables).
+    _bank_every_s = float(os.getenv("LONGRUN_BANK_EVERY_S", "300"))
+    _last_live_bank = [time.time()]                        # first snapshot ~_bank_every_s in, not at boot
+
     def _stage_save(reason="tick"):
         try:
             data = b.save_state()
             with open(os.path.join(STAGE, "kira_campaign.state"), "wb") as f:
                 f.write(data)
+            _promote_live_bank()                          # durable resumable snapshot (throttled, STAGE-only)
             return True
         except Exception as e:
             L(f"!! STAGE SAVE FAILED [{reason}]: {e}")
@@ -226,6 +236,31 @@ def main():
                 _json.dump(camp._journey_narrative(), jf, ensure_ascii=False, indent=2)
         except Exception:
             pass
+
+    def _promote_live_bank():
+        """RESUME-SAFETY (NS#24): periodically snapshot STAGE -> the durable banked_LIVE so a mid-run
+        process-death leaves a recent resumable checkpoint. Throttled by _bank_every_s; freshens the
+        continuity sidecars alongside the .state; atomic-ish dir swap via a .tmp so a death mid-copy
+        never leaves a torn bank. Canonical stays untouched (STAGE is the only source)."""
+        if _bank_every_s <= 0:
+            return
+        now = time.time()
+        if now - _last_live_bank[0] < _bank_every_s:
+            return
+        _last_live_bank[0] = now
+        try:
+            _stage_continuity()                            # freshen world/strat/soul/journey sidecars
+            tmp = LIVE_BANK + ".tmp"
+            if os.path.isdir(tmp):
+                shutil.rmtree(tmp, ignore_errors=True)
+            shutil.copytree(STAGE, tmp)
+            if os.path.isdir(LIVE_BANK):
+                shutil.rmtree(LIVE_BANK, ignore_errors=True)
+            os.replace(tmp, LIVE_BANK)                     # swap in the fresh snapshot as one unit
+            L(f"[live-bank] STAGE -> banked_LIVE  badges={_badges(b)} "
+              f"levels={[lv for _, lv, _, _ in _party(b)]}")
+        except Exception as e:
+            L(f"!! live-bank failed: {e}")
 
     camp._save_campaign = _stage_save
     camp._continuity_save = _stage_continuity
