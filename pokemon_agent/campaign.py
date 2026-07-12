@@ -122,7 +122,7 @@ LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace tower
 # walkable non-warp tiles to draw step-encounters (the proven catch_one cave-wander), so the team levels
 # in the cave it's already crossing — and Lapras crosses L43 -> Ice Beam (the NS#16 move-learn fix lands
 # it). Default OFF pending a VR smoke + a no-park look-ahead (verify-gated grind change, NS#1's hard gate).
-CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "0") != "0"
+CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "1") != "0"
 # CAVE-GRIND WANDER RADIUS (NS#17): the NS#16 wander picked FARTHEST-first waypoints to maximise steps —
 # fine in an OPEN cave (Mt. Moon) but on a PUZZLE cave (Victory Road) it drifts the whole floor, shoving
 # Strength boulders + tripping trainers (the party-6 VR1F smoke: 93 boulder/trainer collisions). Cap the
