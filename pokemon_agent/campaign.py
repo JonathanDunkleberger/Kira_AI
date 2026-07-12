@@ -234,6 +234,19 @@ BLAINE_GYM_ENABLED = os.getenv("POKEMON_BLAINE_GYM", "1") != "0"
 # NS#14: DEFAULT ON — the dispatch chain is e2e-proven (look-ahead from blaine_done_kit: PROACTIVE EARTH-BADGE
 # -> QUESTLINE STRIKE from Cinnabar -> five sea legs -> Viridian gym -> GIOVANNI battled -> badges=8, endgame).
 GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "1") != "0"
+# NS#15: THE ENDGAME DISPATCH (post-badge-8 -> Victory Road -> the Elite Four -> the Champion -> CREDITS).
+# After Giovanni (badge 8) next_gym is None (all gyms done) and post_game is still False, so head_to_gym is
+# no longer offered and there's no billed forward road; Victory Road is a dungeon (not a gym/gate-flag) so
+# it isn't a questline strike either. So _available_actions offers explicit endgame actions at 8 badges:
+#   head_to_league (NOT yet at Indigo) -> victory_road.run_strike drives its OWN road Viridian->Indigo
+#     (whiteout-tolerant, ratcheting). Flag POKEMON_VICTORY_ROAD.
+#   enter_league   (AT the Indigo Plateau (3,9)) -> e4_strike.run_strike runs the League mart stock-up + the
+#     5-room gauntlet (Lorelei..Champion) -> the Hall of Fame == CREDITS. Flag POKEMON_E4_STRIKE.
+# BOTH default OFF until the wiring is look-ahead-proven from a badge-8 fixture (then flip together — VR
+# alone would idle a fresh GO at Indigo with no E4 dispatch). The map guard makes them mutually exclusive.
+ENDGAME_INDIGO = (3, 9)                                        # the Indigo Plateau exterior
+VICTORY_ROAD_ENABLED = os.getenv("POKEMON_VICTORY_ROAD", "0") == "1"
+E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "0") == "1"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -9130,6 +9143,41 @@ class Campaign:
                              "Team Rocket fell. It's a long surf north from Cinnabar past Pallet to get there.",
                        detail={"flag": "FLAG_BADGE08_GET", "gym": "Giovanni"})
 
+    def _head_to_league(self, state):
+        """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
+        OWN road (Viridian -> Route 22 [Gary] -> the gate -> Route 23 -> the VR boulder floors -> the Indigo
+        Plateau), whiteout-tolerant + ratcheting (there's no billed forward road post-badge-8). Returns
+        'reached_indigo' (success; at Indigo, enter_league fires next tick) | 'battle_loss' | 'stuck'."""
+        try:
+            import victory_road
+            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "victory_probe")
+            self.on_event("all eight badges — there are no more gyms. It's Victory Road and the League now. "
+                          "let's finish this climb.", kind="travel", tier=2)
+            r = victory_road.run_strike(self, log, dbg_dir=dbg)
+            log(f"   [roam] 🏔️  VICTORY ROAD strike -> {r}")
+            return r
+        except Exception as e:
+            log(f"   !! VICTORY ROAD strike errored ({e}) — surfacing to the oracle (LOUD)")
+            return "stuck"
+
+    def _enter_league(self, state):
+        """ENDGAME (NS#15): all 8 badges, AT the Indigo Plateau — dispatch the Elite Four strike. It runs the
+        League mart stock-up + heal, then the 5-room gauntlet (Lorelei -> Bruno -> Agatha -> Lance -> Champion
+        Gary) -> the Hall of Fame == CREDITS (the point of no return: auto-save + credits). Whiteout-tolerant
+        (DEFEATED flags ratchet). Returns 'credits' (the summit) | 'battle_loss' | 'stuck' (a real wall —
+        usually team-depth: a thin team can't out-attrition Lance/Gary; the caller grinds + retries)."""
+        try:
+            import e4_strike
+            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "e4_probe")
+            self.on_event("the Indigo Plateau. the Elite Four are right through those doors. "
+                          "everything's led to this — okay. let's go.", kind="gym", tier=2)
+            r = e4_strike.run_strike(self, log, dbg_dir=dbg)
+            log(f"   [roam] 🏆 ELITE FOUR strike -> {r}")
+            return r
+        except Exception as e:
+            log(f"   !! ELITE FOUR strike errored ({e}) — surfacing to the oracle (LOUD)")
+            return "stuck"
+
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
         at the blocking obstacle — Vermilion's cut tree IS the chokepoint), then run the HM-obstacle
@@ -10005,6 +10053,21 @@ class Campaign:
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
+        # ENDGAME DISPATCH (NS#15): all 8 badges earned, pre-credits — the forward objective is no longer a
+        # gym (next_gym is None) but Victory Road -> the Elite Four -> the Champion -> credits. No billed gym
+        # road, no single VR-cleared flag, so surface it as an explicit action (the map guard makes VR/E4
+        # mutually exclusive; both flag-gated, byte-inert when OFF). The real LLM (and the look-ahead's
+        # endgame-aware chooser) rides it because its ctx names the League as the one thing left.
+        elif int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
+            _emp = tuple(state.get("map") or ())
+            if _emp != ENDGAME_INDIGO and VICTORY_ROAD_ENABLED:
+                a["head_to_league"] = ("all 8 badges are yours — no gyms left. The road to the Pokémon League "
+                                       "is open: through Viridian, past your rival on Route 22, up Route 23 and "
+                                       "the Victory Road cave to the Indigo Plateau. THIS is the way forward now.")
+            elif _emp == ENDGAME_INDIGO and E4_STRIKE_ENABLED:
+                a["enter_league"] = ("you're at the Indigo Plateau — the Pokémon League. Stock up, then take on "
+                                     "the Elite Four (Lorelei, Bruno, Agatha, Lance) and the Champion. Win and "
+                                     "the credits roll. This is the whole journey coming down to this.")
         # POST-GAME (the summit-watch strand fix, scoped): a Champion parked inside the league (or any
         # interior) has no gym objective and no overworld route — offer the walk OUT so the victory lap
         # can actually start. Post-game-gated: pre-credits behavior untouched.
@@ -10973,6 +11036,14 @@ class Campaign:
             res = self.field.grab_item(it["coord"], it["face"])
             log(f"   [roam] grab_item at {it['coord']} (face {it['face']}) -> {res}")
             return res
+        # ENDGAME DISPATCH (NS#15): post-badge-8 -> the League. head_to_league drives Victory Road
+        # (Viridian->Indigo, whiteout-tolerant), enter_league runs the E4 gauntlet (->HoF==CREDITS). Both
+        # strikes drive their OWN nav (no billed road exists) + self-recover whiteouts; a 'stuck' surfaces
+        # to the oracle (a real wall — usually team-depth), never a freeze.
+        if pick == "head_to_league":
+            return self._head_to_league(state)
+        if pick == "enter_league":
+            return self._enter_league(state)
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
         if pick.startswith("travel:"):

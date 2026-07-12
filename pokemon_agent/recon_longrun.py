@@ -362,6 +362,13 @@ def main():
             pick = FORCE_PICK                              # ROUTING-ISOLATION probe (LONGRUN_FORCE)
         elif len(opts) == 1:
             pick = opts[0]
+        elif "enter_league" in opts:
+            pick = "enter_league"                          # ENDGAME (NS#15): at the Indigo Plateau with all 8
+            #                                                badges -> a player takes on the Elite Four (the E4
+            #                                                strike does its own stock-up + heal + gauntlet)
+        elif "head_to_league" in opts:
+            pick = "head_to_league"                        # ENDGAME (NS#15): 8 badges, no gyms left -> march
+            #                                                Victory Road to the Indigo Plateau (the one way fwd)
         elif "stock_up" in opts:
             pick = "stock_up"                              # EQUIP first (cheap consumable, self-limiting)
         elif "box_chaff" in opts:
