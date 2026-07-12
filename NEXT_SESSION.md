@@ -204,13 +204,26 @@ one replayed. Auto-log a per-run report (this is what the end-of-run METRICS gen
 autonomy and not a scripted rail — show Jonny the spread. **Any run that arrives thin, crashes, or livelocks is a
 REAL BUG → diagnose it** (don't average it away). This battery gates the conversation about a live run — it is NOT
 the live-run readiness itself (that still needs the 30h live-soak, PHASE 2 below).
-**ALSO LOG per-run WATCHABILITY-RISK notes** (these DON'T fail the battery — they pre-scout the "wins but looks
-dumb" cases Jonny's live-watch will care about, so catching them headless now saves watch-time later):
-(a) **any single grind stint over ~10 game-min** (padding); (b) **fights won by potion-tanking / brute-force when a
-SUPER-EFFECTIVE option was on the team** (should have type-switched — log foe + the SE mon she didn't field);
-(c) **any stuck / wandering / re-attempting stretch** (looks lost on screen even if it eventually recovers);
-(d) **any move-management event where she DECLINED or OVERWROTE a good move.** Flag each in the run report as a
-WATCHABILITY-RISK note (with timestamp + location). The battery still GATES on reliability; these notes are scouting.
+**ALSO LOG per-run WATCHABILITY PRE-SCOUT notes** (these DON'T gate the battery — they pre-scout the "wins but looks
+dumb" cases for Jonny's live-watch, so headless surfaces them before he spends watch-time). Log what's CHEAP to
+capture; don't let the extra logging delay/complicate the runs. **THE THREE WEIGHTED-HEAVIEST (make/break a watchable 30h run):**
+1. **TYPE-SYNERGY + COMBINATION PLANNING (#1 — weight HIGHEST; "she's THINKING" vs "a bot walks around Pokémon"):**
+   per hard fight (each gym / E4 member / Champion / notable trainer) log whether she fielded the RIGHT type answer
+   AND **switched DELIBERATELY mid-fight for a matchup** (e.g. an Ice answer for Charizard, then back to the ace).
+   Log any team-composition reasoning surfaced. **FLAG any fight won by wrong-type brute-force / potion-tank when a
+   super-effective answer existed on the team OR was buildable.** ("Won smart" vs "won dumb" per boss.)
+2. **CATCHING BEHAVIOR:** does she carry enough Poké Balls to grab interesting/rare encounters (a 10-yo stocks balls
+   "just in case")? Catch a reasonable VARIETY + adopt caught mons into the lineup? Understand catch-'em-all exists?
+   **FLAG: ignoring catching, running out of balls at a rare encounter, or solo-carrying with no team-building** (the thin-team root).
+3. **TM/ITEM USAGE CORRECTNESS:** does she use earned strong items/TMs on SENSIBLE mons (not a rare TM on fodder),
+   heal at sane times, no shop button-mashing? **⚠️ CRITICAL BUG-WATCH — this one CAN fail the battery (it's a
+   LIVELOCK, not just a note): a TM/move-teach aimed at a Pokémon that CAN'T learn it must FAIL CLEANLY, never
+   infinite-loop.** Flag any teach that could loop forever on an invalid target.
+**Plus (lighter notes):** any single **grind stint >~10 game-min** (padding); **hesitation/confusion clusters** —
+pointless backtracking, re-entering the same door, standing still (looks lost/confused even when she recovers).
+**DROP personality/soul-presence logging** — headless CANNOT judge "funny/endearing"; Jonny judges that on the
+live-watch, so don't have the bot attempt analysis it can't do well. Flag each note with timestamp + location.
+The battery still GATES on reliability (5/5 credits, leveled-6, 0 crash/livelock); these are the pre-scout layer.
 
 ## ⚡ SPEED LEVERS (2026-07-11, standing — every shift; these compound across the whole climb)
 1. **Look-ahead already runs at ~14x MAX headless** (`recon_longrun.py`: no audio/TTS/render throttle, SDL dummy,
