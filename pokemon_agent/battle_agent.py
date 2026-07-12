@@ -169,7 +169,11 @@ PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only
 # in-battle switch (it removes one) and is per-FOE self-correcting (a higher wild still gets the ace-protect
 # switch). Default OFF, verify-gated: needs a fresh multi-gym look-ahead confirming the bench climbs FASTER with
 # no faint-thrash/park/matchup-churn before the flip. Tune the margin at that look-ahead.
-SOLO_OVERLEVEL_GRIND = os.getenv("POKEMON_SOLO_OVERLEVEL_GRIND", "0") == "1"   # default OFF; verify-gated
+SOLO_OVERLEVEL_GRIND = os.getenv("POKEMON_SOLO_OVERLEVEL_GRIND", "1") == "1"   # DEFAULT-ON 2026-07-12 NS#26:
+#   look-ahead-verified — the whole bench evened 28->34 (~2x the participation-share baseline, floor 34 even vs
+#   31 uneven at ~1600s), 0 faints, 0 grind-switch (fully replaced), 0 matchup-churn, marches on after the
+#   milestone (no park). Env-revert POKEMON_SOLO_OVERLEVEL_GRIND=0. Structurally level-relative (generalises
+#   across gym targets); multi-gym breadth (targets 45/55) is the next confirmation.
 SOLO_OVERLEVEL_MARGIN = int(os.getenv("POKEMON_SOLO_OVERLEVEL_MARGIN", "8"))   # weak lead >= foe + this -> solo
 # SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter). DEFAULT-ON 2026-07-06 (war-room call):
 # the reason it was gated — long fights exposing the move-list wedge — is FIXED (the a4ca84f cursor

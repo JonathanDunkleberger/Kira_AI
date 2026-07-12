@@ -43,8 +43,8 @@ def _st(our, foe):
 
 
 def run():
-    # --- defaults ---
-    check("default flag OFF", B.SOLO_OVERLEVEL_GRIND, False)
+    # --- defaults (flipped default-ON 2026-07-12 NS#26 after the look-ahead) ---
+    check("default flag ON", B.SOLO_OVERLEVEL_GRIND, True)
     check("default margin 8", B.SOLO_OVERLEVEL_MARGIN, 8)
 
     # --- flag OFF: byte-inert regardless of the level gap ---
