@@ -1,5 +1,17 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-21 (2026-07-12 ~15:57, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run EARNED BADGE 4 (Erika/Rainbow) on its own and is now on the PROVEN Koga chain (Tea → Saffron/Silph → Tower → Flute → Snorlax → Fuchsia). START HERE ↓
+**STATE (verified from `fresh_go_1.log`, 102.7k lines, sim 2043s):** she crossed Rock Tunnel and **EARNED BADGE 4 (Erika/Rainbow)** —
+badges went **3→4, only ~5 log-lines old = VERY fresh**. `next_gym` correctly flipped to **Koga of Fuchsia City (badge 5)** and she's
+now on the proven mid-game chain: heading NORTH to **Celadon Mansion for the Tea** (opens Saffron's gatehouse guards; Underground Paths
+go AROUND Saffron until then). Party still `[venusaur L38+, 3x diglett L20, mankey L20, kadabra L20]`, dex 10, Flash lit. Run **ALIVE +
+advancing** (2 python PIDs 44464/40244, log mtime=now). Only **1 map-transition + 7 recoverable wedge markers in the last 3000 lines**
+because she is INDOORS working the Tea NPC (`travel ... NPC-allowing path EXISTS -> approaching to interact/trigger` = normal questline
+actuation, NOT a spin). The whole Tea→Saffron/Silph→Tower→Flute→Snorlax→Fuchsia→Koga stretch is PROVEN by prior passes (night-train s3/s8/s9, NS#4/#10).
+**WHAT I DID:** glanced the log (WAR order 4). CLEAN → left cooking, no code change.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[5-8]|Soul.*EARNED|Marsh|Volcano|Earth|MAP TRANSITION.*Fuchsia|banked_CREDITS|Traceback" /g/temp/longrun/fresh_go_1.log | tail`. If she got the Tea → crossed Saffron/Silph → cleared Koga (badges≥5) and is climbing → clean, exit fast. If STALLing at a NEW spot (Tea NPC / Saffron gatehouse / Silph / Tower / Snorlax / Fuchsia / Koga) → capture + root-fix that leg. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-20 detail below is the prior record; superseded by the above (she's now PAST badge 4, on the Koga chain).
+
 ## 🩺 SHIFT-20 (2026-07-12 ~15:54, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is DEEP INSIDE Rock Tunnel, Flash lit, fighting corridor trainers toward Celadon/Erika (badge 4). START HERE ↓
 **STATE (verified from `fresh_go_1.log`, ~100k lines, sim 1874s):** she reached **dex 10 at Vermilion** (party
 `[venusaur L38, 3x diglett L20, mankey L20, kadabra L20]`, badges=3 Boulder/Cascade/Thunder), **used HM Flash (lit=True)**,
