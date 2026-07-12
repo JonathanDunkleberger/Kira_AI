@@ -115,6 +115,14 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "1") != "0"
 LOPSIDED_MS_GAP = int(os.getenv("POKEMON_LOPSIDED_MS_GAP", "12"))    # floor >= this far under milestone
 LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace towers >= this over the floor
+# CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
+# binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
+# Route 23 (split-map/Surf-gated), while Victory Road (L36-46, cave) sits ON THE PATH but grind() bailed
+# `no_safe_grass` in a cave (no grass tiles — wilds fire per STEP). This lets grind() wander a KB cave's
+# walkable non-warp tiles to draw step-encounters (the proven catch_one cave-wander), so the team levels
+# in the cave it's already crossing — and Lapras crosses L43 -> Ice Beam (the NS#16 move-learn fix lands
+# it). Default OFF pending a VR smoke + a no-park look-ahead (verify-gated grind change, NS#1's hard gate).
+CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "0") != "0"
 # BENCH-TO-MILESTONE climb (2026-07-11, PASS 3 NS#10 — team-depth lever, the Koga wall). NS#9 proved the
 # ONE-bite-per-badge lopsided grind (36b4998) lands the bench ~25 levels UNDER the gym milestone (L20 vs
 # Koga's L45) — the type-answers (Mr. Mime Psychic x4, Diglett Ground) FAINT at L23 and she LOSES Koga.
@@ -4757,6 +4765,53 @@ class Campaign:
         band = idx.get(tuple(map_id))
         return (band[0], band[1]) if band else None
 
+    def _grind_is_cave(self, map_id):
+        """True iff this map is a KB grind-CAVE (terrain=='cave' in frlg_grind_spots.json) — a dungeon
+        that fires wilds on every STEP (no grass tiles): Victory Road, Cerulean Cave, Mt. Moon, Diglett's
+        Cave, Rock Tunnel, Seafoam. Gates the NS#16 cave step-encounter grind so it only ever wanders a
+        KNOWN wild-hosting cave — never a building/Center/gym (absent from the KB) that would spin finding
+        no encounter. Fail-CLOSED (unknown map => False -> grind() bails no_safe_grass as before)."""
+        self._grind_wild_band(map_id)                      # populate the cache (which stores terrain)
+        band = getattr(self, "_grind_band_cache", {}).get(tuple(map_id))
+        return bool(band) and len(band) > 2 and band[2] == "cave"
+
+    def _cave_grind_avoid(self):
+        """Tiles the cave-grind wander must NEVER step on: doors (metatile-behaviour heuristic) UNIONED
+        with the AUTHORITATIVE warp table (`tv.read_warps`). The Mt-Moon smoke (NS#16) leaked out to
+        Route 4 because an exit warp's behaviour byte falls outside _door_tiles's 0x60-0x6F range — the
+        warp TABLE catches it where the heuristic misses it. Keeps her ON this floor (grind, never
+        descend/exit)."""
+        av = set(self._door_tiles())
+        try:
+            av |= {w[0] for w in tv.read_warps(self.b)}
+        except Exception:
+            pass
+        return av
+
+    def _cave_walk_waypoints(self, cur, n=4, max_tests=60):
+        """Reachable walkable NON-WARP tiles to wander for cave STEP-encounters, farthest-first so each
+        hop steps the most (wilds fire per step). Mirrors the proven catch_one cave-wander (80789ab):
+        BFS-reachable from `cur`, never a door/warp tile (so she grinds THIS floor and never accidentally
+        descends a ladder / exits the cave). Returns up to `n` tiles (empty => caller bails)."""
+        g_now = tv.Grid(self.b)
+        doors = frozenset(self._cave_grind_avoid())
+        wlk = g_now.walkable
+        def _reach(t):
+            return bool(tv.bfs(g_now, cur, lambda q: q == t,
+                               walkable=lambda sx, sy: wlk(sx, sy) and (sx, sy) not in doors))
+        cand = [(sx, sy) for sy in range(g_now.sy_lo, g_now.sy_hi + 1)
+                for sx in range(g_now.sx_lo, g_now.sx_hi + 1)
+                if (sx, sy) != tuple(cur) and (sx, sy) not in doors and wlk(sx, sy)]
+        cand.sort(key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]), reverse=True)
+        wps, tests = [], 0
+        for t in cand:
+            if tests >= max_tests or len(wps) >= n:
+                break
+            tests += 1
+            if _reach(t):
+                wps.append(t)
+        return wps
+
     def _grind_inadequate(self, map_id, target_level, poor_gap=None):
         """True iff this map's grass would give the team NEAR-ZERO XP for the current grind target —
         the documented NS#1/#14 stall (an L45+ mon on L8-19 grass gains ~0 per kill, so grind() spins
@@ -6233,6 +6288,19 @@ class Campaign:
                 #                                                it up so roam re-grinds with a full ace (one
                 #                                                heal per tick, not a same-call heal-thrash)
             gs = grass_save()
+            if not gs and CAVE_GRIND_ENABLED and self._grind_is_cave(tv.map_id(self.b)):
+                # CAVE STEP-ENCOUNTER GRIND (NS#16 — the endgame grind-spot unblock). Caves have NO grass
+                # tiles but fire wilds on every STEP. Victory Road (L36-46) sits ON THE PATH and is
+                # adequate to level a L37-43 team to the E4 floor, but grind() used to bail no_safe_grass
+                # here. Reuse the PROVEN catch_one cave-wander: wander reachable walkable NON-WARP tiles
+                # so step-encounters fire; the wander loop below fights them exactly like grass. avoid=doors
+                # (below) keeps her OFF floor-ladders/exits, so she grinds THIS floor without descending.
+                _wps = self._cave_walk_waypoints(tv.coords(self.b) or anchor)
+                if _wps:
+                    gs = _wps
+                    log(f"   GRIND: no grass but {tv.map_id(self.b)} is a cave (band "
+                        f"{self._grind_wild_band(tv.map_id(self.b))}) — CAVE step-encounter grind: "
+                        f"wandering {len(_wps)} walkable tile(s) {_wps} to draw wilds on foot")
             if not gs:
                 # NO GRASS AT ALL on this map (koga_run4, water Route (3,37)): the old bare `break`
                 # fell through to `return "ok"`, which GRIND-WEAK's while-loop treats as retryable —
@@ -6286,6 +6354,11 @@ class Campaign:
             gs.sort(key=lambda g: abs(g[0] - cur[0]) + abs(g[1] - cur[1]))
             nearby = [g for g in gs if g != cur][:4] or gs[:1]
             doors = frozenset(self._door_tiles())
+            if CAVE_GRIND_ENABLED and self._grind_is_cave(tv.map_id(self.b)):
+                # CAVE containment (NS#16): route around the AUTHORITATIVE warp table too, not just the
+                # door-behaviour heuristic — else a travel-to-waypoint paths through an exit warp the
+                # heuristic missed and she leaks off the floor (the Mt-Moon->Route-4 smoke leak).
+                doors = frozenset(self._cave_grind_avoid())
             for wp in nearby:
                 if lvl() >= target_level:
                     break
