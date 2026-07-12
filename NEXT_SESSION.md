@@ -1,5 +1,35 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⚔️ SHIFT-16 (2026-07-12 ~15:20, WAR order 3+4) — ROOT-KILLED the Diglett's-Cave→Route-2-pocket wedge (the NS#15 wall). Fresh run RELAUNCHED, escaping the cave to Vermilion. START HERE ↓
+**WHAT I FIXED (committed `7897152`, VERIFIED e2e):** the fresh run was a DEAD watchdog loop — banked_LIVE boots INSIDE
+Diglett's Cave; `head_to_gym` returned `no_gym_route` (the CANONICAL world graph is BLIND through the cave→Route 11→
+Vermilion corridor: floors 1,36/37/38 absent, Route 11's west→Vermilion edge unlearned) → she fell to `heal`, which
+walked her OUT the NORTH mouth into the sealed Route-2 pocket `(3,20)@(17,12)` → every `travel:*` no_path → STALL →
+re-boot the SAME cave bank → repeat forever (zero net progress = watchdog livelock, same class as shift-14). ROOT
+(traced, not guessed): `route((1,37)→Vermilion)=None` even though the deep warp toward Route 11 IS walk-reachable
+(`_warp_hop_reachable((82,71))=True`) — the graph simply lacked corridor connectivity. Same NS#39/#40 static-connection
+gap the keeper router solved for ENTERING a cave, now for head_to_gym ROUTING THROUGH one.
+**THE FIX (additive, live-corrected, engine/KB split rule 14):** `world.seed_corridors(spec)` seeds KNOWN dungeon-corridor
+warps+edges (setdefault only — never clobbers a live-learned edge; note_visit still confirms on arrival) so `route()` can
+plan cave→far mouth→goal; `gamedata/frlg_connections.json` gained a `dungeon_corridors` key with Diglett's Cave's full
+live-confirmed topology (Route 2 ↔ 1,36/37/38 ↔ Route 11 → Vermilion); `campaign._dungeon_corridors()` loader + a
+`seed_corridors` call at free-roam start (post `world.load`, both recon + live paths). **VERIFIED e2e from banked_LIVE:**
+`WARP-ROUTE (1,37)→(1,38) via (82,71)` → **Route 11 → Vermilion City** → onto the S.S.-Anne/HM-Cut questline + Surge
+bench-grind, PROGRESS GREEN, the Route-2 pocket NEVER touched. `route()` now succeeds from every corridor node incl. the
+pocket (`3,20→cave→Route 11→Vermilion`). Diagnostic = `recon_diglett_probe.py`.
+**FRESH RUN RELAUNCHED (detached watchdog, pid 134405):** boots banked_LIVE (cave) → seeds corridor → escapes to Vermilion
+→ climbs. Live-bank fires past the cave (>180s segments at Vermilion) so banked_LIVE advances forward within a few min.
+**⛔ THE NEW FRONTIER (next shift — glance the log first):** with the wedge dead she's on the PROVEN badge-3 (Surge) path.
+AT RESUME: `grep -E "badges=[3-8]|Thunder|EARNED|banked_CREDITS|MAP TRANSITION.*Vermilion|outcome=STALL|ABANDON" /g/temp/longrun/fresh_go_1.log | tail`.
+If she cleared Surge (badges=3) and is climbing → clean, exit fast. If STALLing at a NEW spot → capture + root-fix that leg.
+**SECONDARY (diagnosed, NOT fixed — budget):** team-brain OVER-caught **3 redundant digletts** (party = ivysaur L30 +
+mankey L14 + abra L14 + 3× diglett — fails the 10-yo test). ROOT: `pokemon_planner._recompute_status` (pokemon_planner.py:391)
+scans PARTY only, never the PC box, so a boxed keeper never satisfies its slot → re-catches. Here they're in PARTY so the
+slot IS satisfied (no re-entry risk to the nav) — but the redundant team is ugly. Fix = include boxed species in slot
+satisfaction OR an owned-count guard in `_keeper_due`/`catch_one`. Verify-gated, not a blocker. Watchdog relaunch if dead:
+`nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-15 detail below is the prior record; its Route-2-pocket wall is now ROOT-KILLED by the corridor seed above.
+
 ## ⚔️ SHIFT-15 (2026-07-12 ~14:55, WAR order 1+4) — ROOT-KILLED the white-box menu-impostor livelock (UNIVERSAL). Fresh run now WALLS on a Route-2 nav pocket. START HERE ↓
 **WHAT I FIXED (committed `1aec076`, battle_agent.py, VERIFIED e2e):** the fresh run was livelocked in **Diglett's
 Cave** — L30 ivysaur "losing" to an L18 diglett, 15× `battle outcome=stuck`, 0 map-transitions. ROOT (captured with
