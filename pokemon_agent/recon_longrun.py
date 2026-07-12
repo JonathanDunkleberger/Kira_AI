@@ -452,6 +452,27 @@ def main():
             # mart-first in travel targets when the ball pocket is empty; ride that option.
             pick = next(k for k, v in options.items()
                         if k.startswith("travel:") and "Mart" in str(v))
+        elif (not BARGE) and "head_to_gym" not in opts \
+                and any(str(o).startswith("travel:") for o in opts) \
+                and (camp._balls_pocket_count(C.ITEM_POKE_BALL) == 0
+                     or (party and prep is not None and party[0][1] >= prep)):
+            # OPENING / PRUNED-ROUTE FORWARD-DRIVE (2026-07-12, WAR NS#7 — the fresh-run opening wedge).
+            # head_to_gym is pruned as a STRUCTURAL DEAD-ROUTE (no learned graph edge to the gym yet — a
+            # fresh Route-1 opening: the world graph seeds visited-flags but no edges, so world.route ->
+            # None) BUT the campaign STILL offers forward travel:<known-place> options (Viridian, Route 2).
+            # The old chain fell straight to the `prep is not None -> battle` grind branch and over-ground a
+            # SOLO carry FOREVER (ivysaur L28 vs Brock L12-14, ZERO balls -> can't even catch). Grinding here
+            # is pointless: either the lead ALREADY out-levels the next gym's prep target, or she has ZERO
+            # balls so she can't build a team anyway. A real player WALKS FORWARD — to the Mart for balls,
+            # then on toward the gym — never "just circle the same grass" (the place-ctx says exactly that).
+            # Walking forward also LEARNS the north graph edges (note_visit), so head_to_gym re-arms and the
+            # normal road-follow takes over. Scoped to head_to_gym-PRUNED (mid-game climbs keep head_to_gym in
+            # opts -> this never fires there). Prefer a Mart-bearing travel when ball-less; else forward travel.
+            _mart = None
+            if isinstance(options, dict):
+                _mart = next((k for k, v in options.items()
+                              if str(k).startswith("travel:") and "Mart" in str(v)), None)
+            pick = _mart or next(o for o in opts if str(o).startswith("travel:"))
         elif (not BARGE) and prep is not None and "battle" in opts:
             pick = "battle"                                # underlevelled + items-alone can't beat the
             #                                                Smokescreen Charmander -> GRIND/team-build first

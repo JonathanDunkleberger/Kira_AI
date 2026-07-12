@@ -11632,6 +11632,38 @@ class Campaign:
                     self.on_event(f"I've drifted off the road — heading back toward {bname} to pick the way "
                                   f"forward back up.", kind="route", tier=1)
                     return self._edge_travel(back_map, edge_dir)
+            # OPENING NORTH-MARCH (2026-07-12, WAR NS#7 — the fresh-run Route-1 wedge). The generic
+            # discovery below steps toward the gym via the SOUTH connection (correct for the mid-game
+            # spine, whose gyms lie south of their base camp). But the FIRST gym (Brock/Pewter) is
+            # spine[0]: it has NO base camp (the FORWARD-SPINE block above no-ops), and the entire
+            # Pallet->Pewter corridor runs NORTH (Pallet->Route1->Viridian->Route2->Forest->Pewter).
+            # So the south fallback walked her BACKWARD (Route1->Pallet, Viridian->Route1) -> a
+            # Route1<->Viridian ping-pong that free_roam never escaped (the opening never crossed to
+            # Brock). When there's no learned graph route AND no base camp AND the next gym is the
+            # first one, MARCH THE NORTH CONNECTION toward it (self-discovering the corridor, exactly
+            # as the scripted pallet_to_brock/advance_north does). Scoped to base is None + Pewter, so
+            # the whole mid/late-game spine is byte-unchanged. A blocked north leg falls through to
+            # the generic discovery below (never a hard dead-end).
+            if base is None and ng and str(ng.get("city", "")).startswith("Pewter"):
+                north = next(((g, n) for d, (g, n) in self._map_connections() if d == "N"), None)
+                if north is not None and not self.strat.is_gated(north, pcount, plevel):
+                    log(f"   [roam] OPENING NORTH-MARCH: no graph route to {ng['city']} yet + spine[0] "
+                        f"(no base camp) — crossing NORTH to {tuple(north)} toward the first gym")
+                    self.on_event("the road to Pewter runs north from here — pushing on up the route.",
+                                  kind="route", tier=1)
+                    _nm = self._edge_travel(tuple(north), "north")
+                    if _nm in ("arrived", "crossed", "passthrough_forward", "need_heal"):
+                        return _nm
+                    # north leg didn't cross — in the opening the gym is NORTH, so the generic SOUTH
+                    # discovery below would walk her BACKWARD (the Route1<->Viridian bounce). Fail CLEAN
+                    # to the oracle instead (no_gym_route -> pruned -> she picks another action). NB the
+                    # Viridian->Route 2 north exit is a scripted catching-tutorial/parcel NPC gate the
+                    # generic traveler can't trigger; the opening is meant to run the scripted spine
+                    # (deliver_parcel + advance_north), so free_roam legitimately stalls here — do NOT
+                    # bounce south trying to force it.
+                    log(f"   [roam] OPENING NORTH-MARCH: north leg to {tuple(north)} did not cross "
+                        f"({_nm}) — failing clean to the oracle (never bounce south in the opening)")
+                    return "no_gym_route"
             # not at the gym city yet -> step toward it via the SOUTH connection, one map per tick (she can
             # still change her mind next tick — true free roam).
             south = next(((g, n) for d, (g, n) in self._map_connections() if d == "S"), None)
