@@ -6179,6 +6179,17 @@ class Campaign:
             return self.b.rd8(ram.GPLAYER_PARTY + 0x54)
         if lvl() >= target_level:
             log(f"   GRIND: already Lv{lvl()} >= {target_level}"); return "ok"
+        # MOVE-LEARN ROOM FOR THE GRIND MON (2026-07-11, NS#16 — the "Lapras has no Ice move" root).
+        # Every grind caller (grind_weak_members, road-bench-XP, recon_grind_bench) REORDERS the weak
+        # specialist to slot 0 BEFORE calling grind() — but _ensure_move_room only ever ran on the
+        # pre-reorder lead (the ace, at the free-roam pick @11308), never on the fielded grind mon. So a
+        # bench mon that levels through a learnset threshold mid-grind (Lapras -> Ice Beam @L43, Kadabra's
+        # Psychic learns, etc.) hits the un-actuatable "Delete a move?" box on its FULL 4-move set and the
+        # learn is DECLINED -> it arrives at the E4 without its signature coverage move. grind() is the ONE
+        # primitive all grind callers funnel through, and slot 0 IS the grind mon here, so pre-freeing a
+        # junk slot on the current lead once per grind covers them all. Self-limiting (no-op once <4 moves)
+        # and safe (the all_precious guard keeps a good set intact — only genuine junk is shed).
+        self._ensure_move_room()
         off = tv.MAP_OFFSET
         home = tv.map_id(self.b)
 
@@ -6805,6 +6816,11 @@ class Campaign:
                 return False                       # the weakest IS the ace -> nothing to protect
             if wk != 0:
                 self._swap_party_slots(0, wk)      # weak mon leads -> "sent out" -> XP-eligible
+            # MOVE-LEARN ROOM (NS#16): the weak mon banks XP via road battles here (NOT grind(), so the
+            # grind()-top guarantee doesn't reach it) and can level through a learnset threshold on the
+            # march — free its junk slot now so the level-up move auto-learns instead of hitting the
+            # un-actuatable delete box. Self-limiting + all_precious-guarded (see grind()).
+            self._ensure_move_room()
             battle_agent.PROTECT_LEAD_GRIND = True
             log(f"   [roam] ROAD-BENCH-XP: leading with the weak L{levels[wk]} bench mon (target L{prep_t}) "
                 f"so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)")
