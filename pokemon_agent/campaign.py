@@ -151,7 +151,7 @@ BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaini
 # keep-climb machinery, park-guarded by the SAME poor-map + prep-dry releases (so it can NEVER infinitely park:
 # worst case she crosses with whatever the last grass gave, still far better than the L25-29 catch-level bench
 # that stalls at Blaine today). Default OFF until a fuchsia_evened_kit look-ahead confirms no park + clears Blaine.
-OVERLEVEL_SEALEG_ENABLED = os.getenv("POKEMON_OVERLEVEL_SEALEG", "0") != "0"
+OVERLEVEL_SEALEG_ENABLED = os.getenv("POKEMON_OVERLEVEL_SEALEG", "1") != "0"
 GRASSLESS_CROSSING_GYMS = {"Blaine"}   # Cinnabar island (Blaine): grass-less, no loss-recovery grind spot
 # NS#6 SEALEG GRASS-REACH: the last CLEAN grass before each grass-less sea crossing — (map_id, approach-edge)
 # — where the over-level-before-sealeg grind routes EXPLICITLY (via walk_to_map, the recon_grind_bench-proven
