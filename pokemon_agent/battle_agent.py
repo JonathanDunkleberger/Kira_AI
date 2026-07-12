@@ -110,6 +110,14 @@ BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # white-box-menu actuation exposure on the LIVE path, so flip only after an attended frame-grab pass.
 BATTLE_LOAD_SHARE = os.getenv("POKEMON_BATTLE_LOAD_SHARE", "0") == "1"
 SWITCH_SHARE_HEALTHY_FRAC = float(os.getenv("POKEMON_LOAD_SHARE_HEALTHY_FRAC", "0.5"))
+# The PRE-HEAL load-share rotates a WORN SE attacker (<=this) to a NEAR-FULL SE partner INSTEAD of
+# spending a heal — the ns23 headless E4 finding: the critical-HP gate in _best_switch_slot is preempted
+# by the survival-instinct heal (SURVIVAL FIRST in run()), so it never fired; the whiteout is a Full-
+# Restore FAMINE (4 FRs, all spent by room 4, FR x0 at the Champion). Rotating to a fresh SE body spreads
+# the gauntlet's damage across two attackers AND conserves the scarce heals. Churn-safe: the near-full
+# gate is monotonic (a benched mon doesn't regen, so it can't bounce back above near-full to be re-picked).
+SWITCH_SHARE_WORN_FRAC = float(os.getenv("POKEMON_LOAD_SHARE_WORN_FRAC", "0.5"))
+SWITCH_SHARE_NEARFULL_FRAC = float(os.getenv("POKEMON_LOAD_SHARE_NEARFULL_FRAC", "0.85"))
 # WHIFF-SPIRAL BREAKER (2026-07-10, night shift 9 — the S.S. Anne Gary ROOT CAUSE). Accuracy-lowering foe
 # moves (Sand-Attack/Smokescreen/Kinesis) debuff the active mon until it MISSES every swing, freezing the
 # foe's HP while our PP drains -> famine -> a LOSS even at a crushing level lead (a full-PP Venusaur L32
@@ -2124,6 +2132,63 @@ class BattleAgent:
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
         return False
 
+    def _load_share_slot(self, state):
+        """NS23 PRE-HEAL load-share: if the active is a WORN SE (>=2x) attacker AND a NEAR-FULL reserve is
+        ALSO >=2x on this foe, return that fresh SE slot to rotate into INSTEAD of spending a heal —
+        spreading gauntlet attrition across two SE bodies and conserving the scarce heal items (the E4
+        Champion whiteout is a Full-Restore famine, not a level wall). Pure type math + RAM HP reads.
+
+        Churn-safe: the near-full gate (SWITCH_SHARE_NEARFULL_FRAC) is monotonic — a benched mon doesn't
+        regenerate, so once it drops below near-full it can't bounce back to be re-picked; and the target
+        is itself >=2x, so the anti-churn rule keeps it in once it's out. At most one rotation per fresh
+        partner. Returns a party slot or None."""
+        if not BATTLE_LOAD_SHARE:
+            return None
+        ours = state.get("ours") or {}
+        if _hp_frac(ours) > SWITCH_SHARE_WORN_FRAC:
+            return None                                   # active still fresh — nothing to share
+        enemy = state.get("enemy") or {}
+        enemy_types = [t for t in (enemy.get("types") or []) if t]
+        if not enemy_types:
+            return None
+        # active must itself be an SE attacker — the ONLY reason it's staying in is the anti-churn rule;
+        # this is the exact case that solos a gauntlet to death while a healthy SE partner idles.
+        _dmg = [_eff(m, enemy) for m in (ours.get("moves") or [])
+                if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
+        if not _dmg or max(_dmg) < 2.0:
+            return None
+        active_sp = ours.get("species")
+        foe_lv = enemy.get("level") or 0
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        best, best_key = None, None
+        for s in range(min(cnt, 6)):
+            hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+            mx = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x58)
+            if hp <= 0 or not mx:
+                continue
+            frac = hp / mx
+            if frac < SWITCH_SHARE_NEARFULL_FRAC:
+                continue                                  # must be a genuinely FRESH body
+            sp = st.read_party_species(self.b, s)
+            if sp == active_sp:
+                continue
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            r_eff = 0.0
+            for _mid in st.read_party_moves(self.b, s):
+                if not _mid:
+                    continue
+                _mt, _mp = st.move_info(self.b, _mid)
+                if _mp and _mp > 0:
+                    r_eff = max(r_eff, _eff({"type": _mt or "normal"}, enemy))
+            if r_eff < 2.0:
+                continue
+            if not ((r_eff >= 4.0) or not (foe_lv and lv + 15 < foe_lv)):
+                continue                                  # frailty floor (same as _best_switch_slot)
+            key = (r_eff, frac, lv)                        # hits hardest, then freshest, then level
+            if best_key is None or key > best_key:
+                best, best_key = s, key
+        return best
+
     def _voluntary_switch(self, state):
         """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE. Returns 'switched' or False."""
         slot = self._best_switch_slot(state)
@@ -2561,6 +2626,24 @@ class BattleAgent:
                 self._note_foe(state)                  # foes-seen ledger (live turn read)
                 self._classify_prev_whiff(state)       # race-free: judge last turn's move at this clean
                 #                                        menu-up read (before the whiff-breaker acts below)
+                # NS23 LOAD-SHARE (pre-heal, flag-gated default OFF): BEFORE spending a heal, if the worn
+                # active is an SE attacker and a NEAR-FULL SE partner is on the bench, rotate to the fresh
+                # body instead — spreads the gauntlet's attrition across two SE attackers AND conserves the
+                # scarce heal items (the E4 Champion whiteout is a Full-Restore famine). Not during a
+                # participation grind (the ace-protect switch owns that). Fail-safe: an unconfirmed switch
+                # just falls through to the heal path; churn-safe by the near-full gate (see _load_share_slot).
+                if (BATTLE_LOAD_SHARE and state and not PROTECT_LEAD_GRIND
+                        and not (self._enemy_fainted or self._we_fainted)):
+                    _ls = self._load_share_slot(state)
+                    if _ls is not None:
+                        self.log(f"   [engine] LOAD-SHARE: worn SE attacker -> fresh SE partner slot {_ls} "
+                                 f"(spread damage, conserve heals)")
+                        if self._switch_to_slot(_ls, state.get("ours", {}).get("species")) == "switched":
+                            self._acted_once = True
+                            stall = 0
+                            self._unresolved_turns = 0
+                            continue
+                        self.log("   [engine] load-share switch did not confirm -> heal/fight (fail-safe)")
                 # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
                 # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
                 # Any non-use falls through to the proven move path (fail-safe; never wedges).

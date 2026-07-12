@@ -127,6 +127,49 @@ stF = {"enemy": CHARIZ, "ours": _ours(VENU, ["grass", "poison"], 71, 200, 220, v
 check("F non-SE trigger2 still fields specialist (slot1)", partyF, stF, True, 0.5, 1)
 check("F non-SE unaffected by flag OFF (slot1)", partyF, stF, False, 0.5, 1)
 
+# ── PRE-HEAL load-share helper (_load_share_slot) — the trigger that actually fires in the E4 (the
+#    critical-HP gate in _best_switch_slot is preempted by the survival-instinct heal). ────────────────
+def check_ls(name, party, state, share_on, worn, nearfull, expect):
+    battle_agent.BATTLE_LOAD_SHARE = share_on
+    battle_agent.SWITCH_SHARE_WORN_FRAC = worn
+    battle_agent.SWITCH_SHARE_NEARFULL_FRAC = nearfull
+    got = _agent(party)._load_share_slot(state)
+    ok = (got == expect)
+    cases.append((name, ok, expect, got))
+    print(f"  [{'PASS' if ok else 'FAIL'}] {name}: expect={expect} got={got}")
+
+
+print("--- pre-heal _load_share_slot ---")
+# worn SE Lapras (45%) + near-full SE Venu (90%, RazorLeaf 4x on Rhydon) -> rotate to slot1
+pW = [{"species": LAPRAS, "level": 60, "hp": 90, "maxhp": 200, "move_ids": [1, 2, 5]},   # 45% worn
+      {"species": VENU, "level": 71, "hp": 200, "maxhp": 220, "move_ids": [3, 4]},        # 91% near-full SE
+      {"species": RATT, "level": 9, "hp": 20, "maxhp": 25, "move_ids": [4]}]
+sW = {"enemy": RHYDON, "ours": _ours(LAPRAS, ["water", "ice"], 60, 90, 200, lap_moves)}
+check_ls("PA worn SE -> near-full SE partner", pW, sW, True, 0.5, 0.85, 1)
+check_ls("PA flag OFF -> None", pW, sW, False, 0.5, 0.85, None)
+
+# partner only 60% (< 0.85 near-full) -> None (not a genuinely fresh body)
+pW2 = [{"species": LAPRAS, "level": 60, "hp": 90, "maxhp": 200, "move_ids": [1, 2, 5]},
+       {"species": VENU, "level": 71, "hp": 132, "maxhp": 220, "move_ids": [3, 4]}]        # 60%
+check_ls("PB partner 60% < near-full -> None", pW2, sW, True, 0.5, 0.85, None)
+
+# fresh SE active (70% > worn 0.5) -> None (nothing to share yet)
+pW3 = [{"species": LAPRAS, "level": 60, "hp": 140, "maxhp": 200, "move_ids": [1, 2, 5]},
+       {"species": VENU, "level": 71, "hp": 200, "maxhp": 220, "move_ids": [3, 4]}]
+sW3 = {"enemy": RHYDON, "ours": _ours(LAPRAS, ["water", "ice"], 60, 140, 200, lap_moves)}
+check_ls("PC fresh SE active (>worn) -> None", pW3, sW3, True, 0.5, 0.85, None)
+
+# worn SE active + near-full but NON-SE partner (Pidgeot: Venu RazorLeaf 0.5x) -> None (churn-guard)
+sW4 = {"enemy": PIDGEOT, "ours": _ours(LAPRAS, ["water", "ice"], 60, 90, 200, lap_moves)}
+check_ls("PD near-full NON-SE partner -> None (churn-guard)", pW, sW4, True, 0.5, 0.85, None)
+
+# worn NON-SE active (Venu 0.25x into Charizard) + near-full SE Lapras -> None (this helper is only for
+# the SE-solo case; the normal disadvantage/offensive triggers field the specialist instead)
+pW5 = [{"species": VENU, "level": 71, "hp": 100, "maxhp": 220, "move_ids": [3]},           # 45% worn, 0.25x
+       {"species": LAPRAS, "level": 60, "hp": 190, "maxhp": 200, "move_ids": [1, 2]}]       # 95% near-full SE
+sW5 = {"enemy": CHARIZ, "ours": _ours(VENU, ["grass", "poison"], 71, 100, 220, venu_vs_char)}
+check_ls("PE worn NON-SE active -> None (not this helper's job)", pW5, sW5, True, 0.5, 0.85, None)
+
 n_pass = sum(1 for _, ok, _, _ in cases if ok)
 print(f"\n{'ALL PASS' if n_pass == len(cases) else 'FAIL'} — {n_pass}/{len(cases)}")
 raise SystemExit(0 if n_pass == len(cases) else 1)
