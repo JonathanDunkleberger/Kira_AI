@@ -153,6 +153,14 @@ BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaini
 # that stalls at Blaine today). Default OFF until a fuchsia_evened_kit look-ahead confirms no park + clears Blaine.
 OVERLEVEL_SEALEG_ENABLED = os.getenv("POKEMON_OVERLEVEL_SEALEG", "0") != "0"
 GRASSLESS_CROSSING_GYMS = {"Blaine"}   # Cinnabar island (Blaine): grass-less, no loss-recovery grind spot
+# NS#6 SEALEG GRASS-REACH: the last CLEAN grass before each grass-less sea crossing — (map_id, approach-edge)
+# — where the over-level-before-sealeg grind routes EXPLICITLY (via walk_to_map, the recon_grind_bench-proven
+# path). The world-graph grass-target otherwise prefers Fuchsia's VISITED-but-gate-locked Route 15 (its grass
+# sits behind a gate-building the arrive_coord land-BFS can't warp-chain into — the Route-15 gatehouse strand),
+# so a fresh over-level dry-retries the gatehouse instead of leveling. Route 18 (west of Fuchsia) is directly
+# reachable (verified: walk_to_map(3,36,'west') → grind fires wilds). FireRed game-knowledge (portability
+# debt: lift to gamedata when a 2nd game needs it). Empty for any un-mapped crossing → no behaviour change.
+SEALEG_GRIND_SPOT = {"Blaine": ((3, 36), "west")}   # Fuchsia→Cinnabar: Route 18 grass (reachable going west)
 # PREP STAND-DOWN map-scoping (2026-07-11, PASS 3 NS#11 — the DEADLOCK fix). The PREP STAND-DOWN
 # (_prep_dry >= 2) drops the 'train first' plan when repeated grind attempts from a position find NO
 # reachable grass. Its comment claims it "resets the moment any grass is actually reached" — but the ONLY
@@ -7147,6 +7155,22 @@ class Campaign:
         keep-climb, the LOPSIDED-BENCH poor-map gate, and the grind executor's productivity gate."""
         return BENCH_TO_MILESTONE or (self._overlevel_before_sealeg(state) is not None)
 
+    def _sealeg_grind_spot(self, state):
+        """NS#6 SEALEG GRASS-REACH: the KB (map_id, approach-edge) of the last CLEAN grass to grind
+        BEFORE the active grass-less sea crossing, else None. Returned ONLY while the over-level lever
+        is live (_overlevel_before_sealeg non-None) for a mapped crossing, so the roam grind executor
+        routes there EXPLICITLY (walk_to_map) instead of letting the world-graph pick Fuchsia's
+        VISITED-but-gate-locked Route 15 (a strand the arrive_coord land-BFS can't reach). Empty KB /
+        flag OFF -> None -> zero behaviour change."""
+        try:
+            if self._overlevel_before_sealeg(state) is None:
+                return None
+            ng = state.get("next_gym")
+            gym = GYMS.get(ng["leader"]) if ng else None
+            return SEALEG_GRIND_SPOT.get(gym.name) if gym else None
+        except Exception:
+            return None
+
     def _bench_severely_lopsided(self, state, prep_t):
         """PASS-3 NS#6 team-depth lever (a): return the gym milestone level IF the bench is SEVERELY
         lopsided vs BOTH the milestone AND the ace (the solo-carry + dead-weight-bench shape NS#5
@@ -11649,7 +11673,22 @@ class Campaign:
             # level-up move auto-learns (the un-actuatable 'Delete a move?' box never appears). Her call
             # which move goes (soul oracle, safe-set only); no-op if she already has room.
             self._ensure_move_room()
-            gt = self._grass_target(state)
+            # NS#6 SEALEG GRASS-REACH: when the over-level-before-sealeg push is live and a KB last-clean-grass
+            # spot is defined (Fuchsia→Cinnabar: Route 18 west), route THERE explicitly — the world-graph
+            # grass-target below prefers Fuchsia's VISITED Route 15, whose grass is behind a gate-building the
+            # arrive_coord land-BFS can't warp-chain into (the Route-15 gatehouse strand). walk_to_map is the
+            # recon_grind_bench-proven path; landing on the clean grass, grind_weak_members finds it underfoot.
+            # If the walk can't arrive, fall through to the normal grass-target (whose no_safe_grass retires the
+            # over-level = never worse than the flag-OFF crossing). Scoped/flag-gated → byte-inert otherwise.
+            _ovl_spot = self._sealeg_grind_spot(state)
+            _on_clean_grass = False
+            if _ovl_spot is not None:
+                if tuple(tv.map_id(self.b)) != _ovl_spot[0]:
+                    log(f"   [roam] 🏝️ OVER-LEVEL: routing to the clean last-grass {_ovl_spot[0]} (edge "
+                        f"{_ovl_spot[1]}) before the sea leg — skipping the gate-locked Route-15 the graph prefers")
+                    self.walk_to_map(_ovl_spot[0], _ovl_spot[1])
+                _on_clean_grass = (tuple(tv.map_id(self.b)) == _ovl_spot[0])
+            gt = None if _on_clean_grass else self._grass_target(state)
             if gt is not None and gt[0] == "route":
                 _, tgt, edge = gt
                 # spatial wall: the grass she wants is across the gated bridge -> don't re-cross into the
