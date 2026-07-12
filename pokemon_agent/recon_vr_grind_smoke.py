@@ -67,12 +67,18 @@ def main():
             pass
 
     lv0 = camp._party_levels()
+    st0 = camp.read_live_state()
+    try:
+        camp.team_planner.ensure_plan(st0["party"], st0["badge_count"])   # so _prep_e4_target resolves
+    except Exception:
+        pass
     L(f"boot {SRC} map={tv.map_id(b)}@{tv.coords(b)} party={lv0}")
     # a modest target so the smoke completes a couple of stints in-window (levelables are L39/L40 -> +3)
     tgt = int(os.environ.get("GRIND_TARGET", "43"))
-    L(f"prep_e4_in_victory_road(target={tgt})  [E4-prep real target would be "
+    stints = int(os.environ.get("MAX_STINTS", "6"))
+    L(f"prep_e4_in_victory_road(target={tgt}, max_stints={stints})  [E4-prep real target would be "
       f"{camp._prep_e4_target(camp.read_live_state(), camp.read_live_state()['party'])}]")
-    r = camp.prep_e4_in_victory_road(target=tgt, max_stints=6,
+    r = camp.prep_e4_in_victory_road(target=tgt, max_stints=stints,
                                      budget_s=int(os.environ.get("VR_BUDGET_S", "600")))
     lvN = camp._party_levels()
     bench_up = sum(1 for a, c in zip(sorted(lv0), sorted(lvN)) if c > a)
