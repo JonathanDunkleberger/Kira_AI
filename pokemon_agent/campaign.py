@@ -242,11 +242,16 @@ GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "1") != "0"
 #     (whiteout-tolerant, ratcheting). Flag POKEMON_VICTORY_ROAD.
 #   enter_league   (AT the Indigo Plateau (3,9)) -> e4_strike.run_strike runs the League mart stock-up + the
 #     5-room gauntlet (Lorelei..Champion) -> the Hall of Fame == CREDITS. Flag POKEMON_E4_STRIKE.
-# BOTH default OFF until the wiring is look-ahead-proven from a badge-8 fixture (then flip together — VR
-# alone would idle a fresh GO at Indigo with no E4 dispatch). The map guard makes them mutually exclusive.
+# NS#15: DEFAULT ON — the full chain is e2e-proven in ONE look-ahead from giovanni_kit_g (a THIN badge-8
+# team): PICK head_to_league -> VICTORY ROAD strike (won Route-22 Gary once the switch-freeze was fixed,
+# cleared the VR boulder floors) -> reached_indigo -> at Indigo OPTIONS=[enter_league] -> PICK enter_league
+# -> the E4 gauntlet (Lorelei/Bruno...). The map guard makes VR/E4 mutually exclusive. SAFE to arm: canonical
+# is post_game (endgame NEVER offered there -> zero live-timeline effect, decision-verified 8/8); the freeze
+# is gone; a thin team makes a BOUNDED attempt and walls at the Champion on TEAM-DEPTH (the last credits
+# gate — a whiteout-loop, not a freeze). Env-revert: POKEMON_VICTORY_ROAD=0 / POKEMON_E4_STRIKE=0.
 ENDGAME_INDIGO = (3, 9)                                        # the Indigo Plateau exterior
-VICTORY_ROAD_ENABLED = os.getenv("POKEMON_VICTORY_ROAD", "0") == "1"
-E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "0") == "1"
+VICTORY_ROAD_ENABLED = os.getenv("POKEMON_VICTORY_ROAD", "1") != "0"
+E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
