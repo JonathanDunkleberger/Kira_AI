@@ -1,5 +1,21 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-19 (2026-07-12 ~15:51, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run ADVANCED past the Flash dex-gate and is CROSSING ROCK TUNNEL toward Celadon/Erika (badge 4). START HERE ↓
+**STATE (verified from `fresh_go_1.log`, ~97.7k lines):** she cleared shift-18's dex-gate ON HER OWN — **dex 7→10 met, HM
+Flash obtained, now actively CROSSING Rock Tunnel** (maps 1,81/1,82), fighting through cave trainers (**10 battle-wins + 7
+MAP TRANSITIONs in the last 500 log lines**), floor-transitioning, learning warps, PROGRESS GREEN. Latest **badges=3**
+(Surge/Thunder); the "Rainbow/Erika" grep hits are her PLAN TARGET (head_to_gym → Celadon), **not earned**. Run ALIVE (2
+python PIDs 44464/40244, log mtime=now). The 46 stuck/wedge events are ALL ≤line 62543 (~35k lines ago, the whole
+badge-2/3 grind) — **ZERO in the recent ~35k lines**, no traceback, no live wedge.
+**WHAT I DID:** glanced the log (WAR order 4). CLEAN → left cooking, no code change.
+**⚠️ SECONDARY (unchanged, verify-gated, DON'T blind-fix at budget):** the shift-16 redundant-3-digletts over-catch caps a
+full party of 6 at **dex-10** (she still box-catches new species so dex climbs, hence Flash gate was met — slowdown not stall).
+Root = `pokemon_planner._recompute_status` (pokemon_planner.py:391) scans PARTY only, never the PC box → boxed keeper never
+satisfies its slot → re-catches duplicates. Fix (calm-shift job) = include boxed species in slot satisfaction OR an
+owned-count guard in `_keeper_due`/`catch_one`.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[4-8]|Rainbow.*EARNED|Erika.*EARNED|MAP TRANSITION.*Celadon|Pokédex: 1[1-9] caught|banked_CREDITS|Traceback" /g/temp/longrun/fresh_go_1.log | tail`. If she cleared Rock Tunnel + reached Celadon + WON Erika (badges≥4) → clean, exit fast. If STALLing at a NEW spot (Rock-Tunnel exit / Celadon approach / Erika gym) → capture + root-fix that leg. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-18 detail below is the prior record; superseded by the above (she's now past the dex-gate, mid-Rock-Tunnel).
+
 ## 🩺 SHIFT-18 (2026-07-12 ~15:47, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is ALIVE + CLIMBING past BADGE 3, now working the Flash/Rock-Tunnel dex-gate toward Celadon/Erika. START HERE ↓
 **STATE (verified from `banked_LIVE` + `fresh_go_1.log`, ~1420s sim):** the run EARNED **BADGE 3 (Surge/Thunder)** on its own
 (badges=2 for 630 log-lines → badges=3) and is now purposefully working the KNOWN **Flash/Rock-Tunnel dex-gate** en route to
