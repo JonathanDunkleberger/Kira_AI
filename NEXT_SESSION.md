@@ -150,6 +150,24 @@ Viridian is a spin-tile maze (Rocket-Hideout class); general beat_gym can't cros
 
 ---
 
+## 🧒 THE #1 PRIORITY + SANITY-CHECK DISCIPLINE (2026-07-11, standing — every shift, ESPECIALLY team-depth)
+**After every major step, step back and ask: "Would a competent 10-year-old playing this game do it THIS way?"**
+If something would look DUMB to a human watching, that IS the signal to fix it — sanity-check your own output.
+
+**THE RECURRING FAILURE (the ONE remaining constraint for a fresh-GO credits roll):** she arrives at the Elite Four
+with basically **~3 usable mons — 1 massively-overleveled ace + underleveled scrubs** — instead of a **balanced team
+of 6 leveled ~similarly**. That is NOT how a human plays. A 10-year-old arrives at the E4 with **6 real,
+similarly-leveled team members.** THE SUCCESS BAR: on a FRESH bedroom→credits autonomous run she must arrive at
+Indigo with **6 genuinely usable, appropriately-leveled Pokémon** (none stuck at catch-level; no L70-ace + L15-fodder;
+all within a sane level band). Diagnosis of WHY (ace hogs XP; bench-leveling verbs unwired; no `prep_for_e4`) is in
+`pokemon_agent/TEAM_DEPTH_ROOT_FIX.md`.
+
+**⚠️ THE TRAP — why it keeps "getting fixed" but never lands:** the fixes fire MID-GAME (bench levels once at badge
+3-4) but do NOT CARRY THROUGH to E4-readiness on a FRESH FULL run. **A mid-game bench fix that isn't VERIFIED as a
+leveled-6-AT-INDIGO on a complete fresh bedroom→credits run DOES NOT COUNT.** Stop reporting "bench-to-milestone
+works" as done — it's only done when a FINAL-PROOF dumps the party at Indigo and shows the real leveled 6. Make THAT
+the gate: `recon_partydump` (or equivalent) at the Indigo bank of a fresh-run look-ahead → 6 usable, similarly-leveled.
+
 ## ⚡ SPEED LEVERS (2026-07-11, standing — every shift; these compound across the whole climb)
 1. **Look-ahead already runs at ~14x MAX headless** (`recon_longrun.py`: no audio/TTS/render throttle, SDL dummy,
    MUSE_GAP=0). Keep verification runs there — never throttle a verification below the headless ceiling.
