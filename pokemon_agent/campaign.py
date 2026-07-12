@@ -11838,6 +11838,21 @@ class Campaign:
                     self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
                     self._lopsided_grind_done.add(_lop_ms)
                     self._lopsided_pending_ms = None
+                # WAR NS#25 LOPSIDED PARK-PROOF — UNIVERSAL one-stint-per-badge. The branches above mark
+                # _lopsided_grind_done only on a PRODUCTIVE ('ready') or bench-to-ms stint; a grind-IMPOSSIBLE
+                # region (Fuchsia's Route-13/14/15 grass sealed behind the gatehouse — grind returns 'ok'/
+                # 'no_safe_grass' with 0 bite) left the milestone UNMARKED (LOPSIDED-DBG done=[] every tick),
+                # so LOPSIDED re-fired every tick, PRUNED head_to_gym, and shuttled Fuchsia<->Route-15 into a
+                # STALL — she never fought Koga though her L51 ace crushes his L37-43. Mark done on ANY
+                # terminal lopsided stint (except a mid-heal 'ace_healed' = a legit heal-and-retry on
+                # REACHABLE grass) so the lever fires at most once per badge as its own design states ->
+                # head_to_gym survives -> she marches in and beats the gym; bench-leveling resumes organically
+                # (road-bench-XP) and at the next badge's reachable grass. Byte-inert where the branches above
+                # already cleared _lopsided_pending_ms (the productive/ready paths).
+                if getattr(self, "_lopsided_pending_ms", None) is not None and r != "ace_healed":
+                    self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+                    self._lopsided_grind_done.add(self._lopsided_pending_ms)
+                    self._lopsided_pending_ms = None
                 return r
             # RIVAL-RETURN GUARD (NIGHT SHIFT 16): don't let a stray 'battle' pick trap-grind her into the
             # nearest grass when she OWES a return to a 4+-mon rival gauntlet she lost and is OFF the gym city.
