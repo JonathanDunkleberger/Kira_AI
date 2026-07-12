@@ -1,5 +1,25 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-18 (2026-07-12 ~15:47, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is ALIVE + CLIMBING past BADGE 3, now working the Flash/Rock-Tunnel dex-gate toward Celadon/Erika. START HERE ↓
+**STATE (verified from `banked_LIVE` + `fresh_go_1.log`, ~1420s sim):** the run EARNED **BADGE 3 (Surge/Thunder)** on its own
+(badges=2 for 630 log-lines → badges=3) and is now purposefully working the KNOWN **Flash/Rock-Tunnel dex-gate** en route to
+Celadon for **Erika (badge 4)**: to cross pitch-dark Rock Tunnel she needs HM05 Flash from Oak's aide (Route 2 gatehouse),
+which requires **10 species caught** — she's at **dex 7 and CLIMBING** (5→6→7 recently), wandering Route 9/10/Cerulean/Route
+5/6 for diverse catches + bench-grinding the party to L20 + healing appropriately. banked_LIVE = **Venusaur L37 + 3×diglett
+L20 + mankey L20 + kadabra L20, badges=3**, live-bank firing (15:41→15:45→advancing), watchdog alive (pid 134409/134405),
+0 wedge/traceback. The `(3,29)↔(3,5)` Route-11↔Vermilion ping-pong = heal-excursion churn (a watchability drag, NOT a hard
+wedge — battles winning, banks advancing).
+**WHAT I DID:** glanced the log (WAR order 4). CLEAN → left cooking, no code change. Confirmed: alive, winning, badge just
+went 2→3, dex advancing 5→6→7, head_to_gym reframing correctly ("PUSH FORWARD — catch a few more kinds"). Nothing to fix.
+**⚠️ SECONDARY (real inefficiency, verify-gated, DON'T blind-fix at budget):** the shift-16 **redundant-3-digletts over-catch**
+is biting HERE — a full party of 6 yields only **dex-7** because 3 slots are the same species, SLOWING the diverse-species
+Flash gate (she CAN still box-catch new species → dex is climbing, so it's a slowdown not a stall). Root = `pokemon_planner.
+_recompute_status` (pokemon_planner.py:391) scans PARTY only for slot satisfaction, never the PC box → a boxed keeper never
+satisfies its slot → re-catches duplicates. Fix (a calm-shift job) = include boxed species in slot satisfaction OR an
+owned-count guard in `_keeper_due`/`catch_one`. Verify-gated.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[4-8]|Rainbow|Erika|Flash|Rock Tunnel|MAP TRANSITION.*Celadon|Pokédex: 1[0-9] caught|banked_CREDITS|Traceback" /g/temp/longrun/fresh_go_1.log | tail`. If dex reached 10 + she got Flash + crossed Rock Tunnel + climbing to Celadon → clean, exit fast. If badges≥4 → clean, exit. If STALLing at a NEW spot (dex frozen <10 catching only digletts / Celadon approach / Erika) → capture + root-fix (the diglett de-dup may be the dex-gate blocker if dex genuinely freezes). Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-17 detail below is the prior record; superseded by the above (she's now past badge 3, at the Flash gate).
+
 ## 🩺 SHIFT-17 (2026-07-12 ~15:42, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is ALIVE + CLIMBING: it BROKE PAST Vermilion/Surge on its own. START HERE ↓
 **STATE (verified from `banked_LIVE` + `fresh_go_1.log`, ~1110s sim):** the shift-16 corridor-seed HOLDS — she escaped Diglett's
 Cave → Vermilion, then **cleared the S.S. Anne (HM Cut) → cut the Surge gym tree → solved the trash-can puzzle → beat Lt.
