@@ -214,12 +214,25 @@ REAL BUG → diagnose it** (don't average it away). This battery gates the conve
 the live-run readiness itself (that still needs the 30h live-soak, PHASE 2 below).
 **ALSO LOG per-run WATCHABILITY PRE-SCOUT notes** (these DON'T gate the battery — they pre-scout the "wins but looks
 dumb" cases for Jonny's live-watch, so headless surfaces them before he spends watch-time). Log what's CHEAP to
-capture; don't let the extra logging delay/complicate the runs. **THE THREE WEIGHTED-HEAVIEST (make/break a watchable 30h run):**
+capture; don't let the extra logging delay/complicate the runs.
+**⟐ THE FRAMING (why all these signals exist — the point of the whole pre-scout layer):** a "5/5 PASS" must mean
+**"reliably beats the game AND plays like a thinking, curious, PREPARED human worth watching"** — NOT just "5/5
+rolled credits." A run that rolls credits by robotic brute-force with no synergy / no team-building-via-catching /
+no exploration is a **FAIL for our purposes** even if it technically finished. The battery must SURFACE these in
+HEADLESS (cheap) so we DON'T discover them mid-live-stream (expensive — forces re-runs). So: the reliability CORE
+still HARD-GATES (5/5 credits, leveled-6 at E4, 0 crash/livelock), and these signals make "pass" mean **"watchably
+READY to stream," not "technically completed."** **Weight TYPE-SYNERGY + CATCHING + EXPLORATION heaviest** — they
+are what make 30 hours watchable. Track + log ALL of it EVERY run.
+**THE WEIGHTED-HEAVIEST (type-synergy + catching + exploration — make/break a watchable 30h run):**
 1. **TYPE-SYNERGY + COMBINATION PLANNING (#1 — weight HIGHEST; "she's THINKING" vs "a bot walks around Pokémon"):**
-   per hard fight (each gym / E4 member / Champion / notable trainer) log whether she fielded the RIGHT type answer
-   AND **switched DELIBERATELY mid-fight for a matchup** (e.g. an Ice answer for Charizard, then back to the ace).
-   Log any team-composition reasoning surfaced. **FLAG any fight won by wrong-type brute-force / potion-tank when a
-   super-effective answer existed on the team OR was buildable.** ("Won smart" vs "won dumb" per boss.)
+   per hard fight (each gym / E4 member / Champion / notable trainer) log (i) **KNOWLEDGE-PREP** — did she PREPARE
+   with the correct matchup in mind BEFORE the fight (built/brought the right type answer, e.g. "Brock=Rock→want
+   Water/Grass", "Misty=Water→want Electric/Grass", the E4 members' types) like a player who read the strategy, vs
+   walking in BLIND to improvise/brute-force? (built-in knowledge OR a lookup feature both count — log which); and
+   (ii) **DEPLOY** — did she field the right answer AND **switch DELIBERATELY mid-fight for a matchup** (an Ice
+   answer for Charizard, then back to the ace)? Log any team-composition reasoning surfaced. **FLAG any fight won by
+   wrong-type brute-force / potion-tank when a super-effective answer existed on the team OR was buildable.** ("Won
+   smart / prepared" vs "won dumb / blind" per boss.)
 2. **CATCHING BEHAVIOR:** does she carry enough Poké Balls to grab interesting/rare encounters (a 10-yo stocks balls
    "just in case")? Catch a reasonable VARIETY + adopt caught mons into the lineup? Understand catch-'em-all exists?
    **FLAG: ignoring catching, running out of balls at a rare encounter, or solo-carrying with no team-building** (the thin-team root).
@@ -230,7 +243,8 @@ capture; don't let the extra logging delay/complicate the runs. **THE THREE WEIG
 **Plus (lighter notes):** any single **grind stint >~10 game-min** (padding); **hesitation/confusion clusters** —
 pointless backtracking, re-entering the same door, standing still (looks lost/confused even when she recovers);
 **EXPLORATION TEXTURE ("curious human" vs robotic beeline):** per town — does she ever step into a non-objective
-shop/building or notice her surroundings, or ONLY ever walk the shortest line to the next required tile? Flag BOTH
+shop/building, **read signs / route markers / notice posted/environmental info**, or notice her surroundings, or
+ONLY ever walk the shortest line to the next required tile? Flag BOTH
 failure modes: (a) **pure objective-beeline** = zero exploration texture, reads robotic (un-watchable over 30h);
 (b) **excessive wandering / completionism** = exhausting NPCs, nonessential sidequests, 100%-ing = padding (also
 un-watchable). Target = the NATURAL MIDDLE — essentials done EXCELLENTLY + LIGHT organic curiosity (occasional
