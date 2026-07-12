@@ -6292,6 +6292,82 @@ class Campaign:
         rw = self.withdraw_mon(box, slot, pc_door)
         return "swapped" if rw == "withdrawn" else f"swap_{rw}"
 
+    def _hm_swap_chaff(self, party):
+        """Pick a party slot to DEPOSIT to make room for a critical HM-learner (NS#28). Unlike
+        _worst_chaff_slot (which keeps every on-plan species), this PREFERS a REDUNDANT DUPLICATE —
+        a species appearing more than once in the party (the over-caught 3rd Diglett), where boxing
+        the extra is unambiguously correct even if the line is on-plan. Falls back to the generic
+        worst off-plan chaff. Never the lead (slot 0). Returns an int slot or None."""
+        from collections import Counter
+        if not party or len(party) <= 1:
+            return None
+        names = [((m.get("species") or "").lower() if isinstance(m, dict) else str(m).lower())
+                 for m in party]
+        counts = Counter(n for n in names if n)
+        dup = [((party[i].get("level", 0) if isinstance(party[i], dict) else 0), i)
+               for i, n in enumerate(names) if i > 0 and n and counts[n] > 1]
+        if dup:
+            dup.sort()                                    # box the lowest-level redundant duplicate
+            return dup[0][1]
+        return self._worst_chaff_slot(party)
+
+    def _box_swap_for_hm(self, hm, state):
+        """CREDITS-BLOCKER FIX (NS#28, the Blaine Surf sea-gate wedge): the teach bridge found NO PARTY
+        mon can learn this HM — but the organic team may hold a capable one in the PC BOX. FRLG auto-boxes
+        a gift/catch taken at party-6, so the free Silph Co. LAPRAS lands in the box behind an over-caught
+        party (3 redundant Digletts) → HM03 Surf can never be taught → infinite Safari re-do at Blaine. A
+        real player deposits a redundant mon and withdraws their Lapras to get Surf. Deposit the worst
+        redundant chaff, withdraw the boxed HM-learner (box-local, currently-open box), so default_plan then
+        succeeds. Returns True iff a capable mon was fielded. Requires a mapped-Center city; fail-closed +
+        LOUD otherwise (a failed/absent swap leaves the party intact-or-improved → the teach bridge just
+        releases to roam, same as before — never worse than the status quo loop)."""
+        try:
+            import hm_teach as _ht
+            cur = tuple(tv.map_id(self.b))
+            pc_door = CITY_PC_DOORS.get(cur)
+            if not pc_door:
+                log(f"   [roam] HM-BOX-SWAP: {hm} needs a boxed learner but {self.world.name(cur)} has no "
+                    f"mapped PC — can't swap here (LOUD)")
+                return False
+            cb, occ = self._box_scan()
+            cand = None                                   # a learner in the CURRENTLY-OPEN box (withdraw is box-local)
+            for (bx, sl), sp in sorted(occ.items()):
+                if bx == cb and _ht.hm_compatible(self.b, hm, sp):
+                    cand = (bx, sl, sp)
+                    break
+            if cand is None:
+                return False                              # nothing boxed can learn it → let roam release
+            bx, sl, sp = cand
+            party = state.get("party") or []
+            pc = state.get("party_count") or len(party)
+            chaff = self._hm_swap_chaff(party) if pc >= 6 else None
+            if pc >= 6 and chaff is None:
+                log(f"   [roam] HM-BOX-SWAP: {hm} learner {st.SPECIES_NAME.get(sp, sp)} is boxed but the "
+                    f"party has no depositable chaff (all on-plan, no duplicates) — LOUD")
+                return False
+            self.on_event(f"none of my team can learn {hm.title()} — but I've got a "
+                          f"{st.SPECIES_NAME.get(sp, 'water type').title()} sitting in the box. Swapping "
+                          f"them onto the team so we can cross.", kind="roster", tier=1)
+            if chaff is not None:                         # full party → make room before the withdraw
+                rd = self.deposit_mon(chaff, pc_door)
+                if rd != "deposited":
+                    log(f"   [roam] HM-BOX-SWAP: deposit failed ({rd}) — aborting, party intact")
+                    return False
+                cb, occ = self._box_scan()                # re-locate the learner (deposit adds a new occupant)
+                if (bx, sl) not in occ or bx != cb:
+                    log("   [roam] HM-BOX-SWAP: box shifted after deposit — aborting (party -1, benign)")
+                    return False
+            rw = self.withdraw_mon(bx, sl, pc_door)
+            if rw != "withdrawn":
+                log(f"   [roam] HM-BOX-SWAP: withdraw failed ({rw})")
+                return False
+            log(f"   [roam] 🔀 HM-BOX-SWAP: fielded {st.SPECIES_NAME.get(sp, sp)} from box{bx} slot{sl} "
+                f"for {hm}")
+            return True
+        except Exception as e:
+            log(f"   [roam] HM-BOX-SWAP skipped: {e}")
+            return False
+
     def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
         capability (the 'walk away' vision needs autonomous leveling). From a CITY with no grass
@@ -8474,8 +8550,16 @@ class Campaign:
                     return "questline_step_done"
                 plan = ht.default_plan(self.b, hm, pc or 6)
                 if plan is None:
-                    log(f"   [roam] !! TEACH: no compatible party mon for {hm} — releasing (LOUD)")
-                    return "questline_unresolved"
+                    # NS#28 CREDITS-BLOCKER: no PARTY mon can learn this HM — but a BOXED one might (the
+                    # free Silph Lapras auto-boxes behind an over-caught party → the Blaine Surf sea-gate
+                    # infinite Safari re-do). Deposit a redundant chaff + withdraw the capable boxed mon,
+                    # then re-derive the teach plan on the fielded team.
+                    if self._box_swap_for_hm(hm, state):
+                        _pc2 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                        plan = ht.default_plan(self.b, hm, _pc2)
+                    if plan is None:
+                        log(f"   [roam] !! TEACH: no compatible party mon for {hm} — releasing (LOUD)")
+                        return "questline_unresolved"
                 slot, forget_idx, reason = plan
                 mon = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot {slot}")
                 self.on_event(f"I've got the HM right here — teaching {hm.title()} to {mon}. "
