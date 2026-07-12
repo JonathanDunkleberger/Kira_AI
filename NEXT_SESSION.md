@@ -1,5 +1,25 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ✅ NIGHT-SHIFT #6 DONE (2026-07-12, night_shift.ps1 shift 6) — CRACKED the NS#5 real blocker: the Fuchsia GRASS-REACH gap. The over-level grind now routes to the CLEAN Route 18 (west) instead of the gate-locked Route 15 the world-graph preferred → the POSITIVE over-level case (unprovable on every prior fixture) is now LIVE: she routes WEST to Route 18, grinds, and the bench levels. START HERE ↓.
+
+### 🎯 THE ROOT (traced precisely this shift, not guessed):
+- **Route 18 (3,36) grass IS autonomously grindable** (decisive probe `ns6_route18_probe.log`: `walk_to_map (3,7)→(3,36) west` → arrived (59,10) → 13 battles, whole bench banked participation XP, Lapras L25→26). The grass is directly reachable going west — NO gate split on the Fuchsia side.
+- **The autonomous grind routed EAST to Route 15 (3,33), not west** — because Route 15 is a VISITED has_grass node (`reachable_with_trait`) while Route 18 is an unexplored dangling edge. Route 15 is **bisected by a gate building** (warps (9,11)+(16,11)→building (24,0)); its grass is on the EAST half, she lands at (0,11) on the WEST half, and travel's `arrive_coord` land-BFS can't warp-chain through the gate → `one-way strand from (0,11)` / `no clean path from (0,11)`. Route 14/13 route THROUGH Route 15's gate too → ALL of Fuchsia's east grass is gate-locked. Only Route 18 (west) is clean.
+
+### ✅ WHAT NS#6 BUILT (campaign.py, scoped to the over-level window, flag-gated — canonical UNTOUCHED):
+- **`SEALEG_GRIND_SPOT = {"Blaine": ((3,36),"west")}`** (KB, next to `GRASSLESS_CROSSING_GYMS`) — the last CLEAN grass before each grass-less sea crossing (game-knowledge / portability debt: lift to gamedata for game #2).
+- **`_sealeg_grind_spot(state)`** — returns the KB (map,edge) ONLY while `_overlevel_before_sealeg` is live for a mapped crossing, else None (flag OFF / unmapped → None → byte-inert).
+- **Routing intercept** in the `battle`/`wander_catch` roam executor (before `_grass_target`): when a sealeg spot is active and she isn't there, `walk_to_map(spot,edge)` FIRST (the proven path), skipping the world-graph's gate-locked Route 15. If she can't arrive → falls through to the normal grass-target whose `no_safe_grass` retires the over-level (NEVER-WORSE-THAN-BASELINE preserved).
+- **THREE-STATE:** COMPILES. WIRED (the ONE roam grind-routing site). DECISION-VERIFIED (`recon_overlevel_sealeg_check.py` 13/13, unregressed). LOOK-AHEAD `ns6_overlevel_route18.log`: `🏝️ OVER-LEVEL: routing to the clean last-grass (3,36) west` → MAP TRANSITION Fuchsia→Route18 → GRIND SWITCH firing, bench leveling (the positive case).
+
+### ⇒ NS#6 FRONTIER (priority order):
+1. **CONFIRM the look-ahead outcome + FLIP `POKEMON_OVERLEVEL_SEALEG` default ON if clean.** Read `ns6_overlevel_route18.log` tail: (a) does the bench floor RISE toward the Blaine milestone on Route 18? (b) does the over-level RELEASE + cross when the floor reaches within `BENCH_MS_CLOSE` (park-safe, no infinite grind)? (c) NO wedge/stall (the Route-18↔Fuchsia heal loop is bounded, not a spin)? If all clean → set `OVERLEVEL_SEALEG_ENABLED` default (campaign.py:154 `"0"→"1"`) + commit; then a full look-ahead: does the OVER-LEVELED bench now CLEAR Blaine (the NS#4 team-depth wall)? RE-RUN: `POKEMON_OVERLEVEL_SEALEG=1 POKEMON_LOPSIDED_GRIND=1 POKEMON_KEEPER_STATIC_ROUTE=1 POKEMON_KEEPER_ROUTER=1 LONGRUN_BATTLE_LOG=1 ../.venv/Scripts/python.exe -u recon_longrun.py fuchsia_evened_kit.state 20`.
+2. **POST-LOSS RECOVERY at Cinnabar (NS#4 fix #2) is now largely obviated** — if she over-levels BEFORE crossing she WINS Blaine → no loss → no recovery grind needed. Only if she still loses (over-level insufficient) does the grass-less-Cinnabar recovery gap bite; that needs surf-back-to-Route-18 nav (harder, separate). Defer until #1 proves whether over-level alone clears Blaine.
+3. **COMPOUND type-answer-lead (NS#4 fix #3b)** IF Blaine still walls even over-leveled: lead Lapras (Water 2x, Fire-resist) not the fire-weak Venusaur. Battle-AI wedge-prone — decision-verify.
+4. **WIDEN E4_PREP_BAND 25→30** (downstream, VR2F) — env-tunable today.
+
+---
+
 ## ✅ NIGHT-SHIFT #5 DONE (2026-07-12, night_shift.ps1 shift 5) — BUILT the NS#4-frontier-#1 fix: the OVER-LEVEL-BEFORE-A-GRASS-LESS-SEA-LEG lever (flag `POKEMON_OVERLEVEL_SEALEG`, DEFAULT OFF), decision-verified 13/13, made provably NEVER-WORSE-THAN-BASELINE + LIVE-verified that (retire→cross). THREE commits (`d5f0fcc`, `<never-worse>`, docs). Canonical UNTOUCHED. **DECISIVE FINDING: the positive over-level case can't be shown on ANY fixture — none has cleanly-reachable grass near Fuchsia. The real next blocker is a GRASS-REACH nav gap (Route-15-gatehouse), NOT the "when to over-level" logic (which is done).** START HERE ↓.
 
 ### ✅ WHAT NS#5 BUILT (`d5f0fcc` + never-worse fix + docs, campaign.py + recon_overlevel_sealeg_check.py, flag DEFAULT OFF, canonical UNTOUCHED):
@@ -377,6 +397,17 @@ Viridian is a spin-tile maze (Rocket-Hideout class); general beat_gym can't cros
 **After every major step, step back and ask: "Would a competent 10-year-old playing this game do it THIS way?"**
 If something would look DUMB to a human watching, that IS the signal to fix it — sanity-check your own output.
 
+**⛔ NO SHORTCUTS — THE TEAM IS BUILT ORGANICALLY THROUGH THE JOURNEY (2026-07-12, Jonny — HARD RULE, NO timeline / NO
+token limit, do it COMPLETELY + CORRECTLY not fast-and-dirty):** a competent human's 6 is **caught along the way,
+leveled through the journey, evolved, with type coverage** — so a fresh cold GO plays FLAWLESSLY start→finish like a
+real person, not a bot papering over gaps. **FORBIDDEN:** (1) hacking a **quick solo-grind right before the E4** to
+paper over an underleveled bench; (2) **hand-porting / struct-grinding** a team (recon_grind_bench + recon_port_and_fix
+= exactly the anti-pattern — that's the PROOF the autonomous builder is broken, NOT a fix); (3) any **mid-game patch**
+that only levels the bench once and doesn't CARRY to E4-readiness on a fresh run. **THE FIX MUST BE ROOT-LEVEL:** the
+CURRENT root = the **grass-reach nav gap near Fuchsia** (bench can't reach level-appropriate grass) + **ace-hogs-XP**
+(road/trainer wins feed only the lead) → bench arrives underleveled. Fix BOTH so a FRESH COLD run NATURALLY arrives at
+**each gym AND the E4** with an appropriately-leveled, type-covered 6 — organically, no exceptions. Efficiency yes, shortcuts no.
+
 **THE RECURRING FAILURE (the ONE remaining constraint for a fresh-GO credits roll):** she arrives at the Elite Four
 with basically **~3 usable mons — 1 massively-overleveled ace + underleveled scrubs** — instead of a **balanced team
 of 6 leveled ~similarly**. That is NOT how a human plays. A 10-year-old arrives at the E4 with **6 real,
@@ -399,6 +430,11 @@ end-to-end, unattended). Report progress as you go; deliver the full battery res
 **5 INDEPENDENT fresh bedroom→credits look-aheads at max headless speed (~14x)** — separate runs, not one replayed. Auto-log a per-run report (this is what the end-of-run METRICS generator is for — build it if not yet):
 - **total in-game playtime**, the **final 6-mon team + levels at the Elite Four**, the **route / notable choices**,
   and **outcome** (credits rolled Y/N; any crash / livelock / thin-team).
+- **THE TEAM SHE BUILT + WHY (per run):** each of the 6 — species, level, how/where she got it (caught along the way /
+  gift / evolved-from), its role, and **WHY it earns a slot** — what it does + how it COMBOS / type-matches vs the
+  trainers who threaten her (e.g. "Kadabra — Psychic, answers Koga/Sabrina/Agatha"; "Lapras — Ice/Water, the Lance-
+  dragon + Charizard answer"). Shows the team is a REASONED, coverage-complete 6, not a random pile. Variation in the
+  6 across the 5 runs is GOOD (proves organic building, not a scripted roster).
 **THE BAR to declare RELIABLE (all four, no exceptions):** (1) **5/5 roll credits**; (2) **5/5 arrive at the E4 with
 6 genuinely usable, similarly-leveled mons** (no L90-ace + L8-fodder); (3) **0 crashes**; (4) **0 livelocks**.
 **VARIATION IS GOOD, NOT BAD:** different teams / different lengths across the 5 runs is the PROOF it's real
