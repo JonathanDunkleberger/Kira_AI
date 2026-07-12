@@ -1,5 +1,28 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⚔️ SHIFT-15 (2026-07-12 ~14:55, WAR order 1+4) — ROOT-KILLED the white-box menu-impostor livelock (UNIVERSAL). Fresh run now WALLS on a Route-2 nav pocket. START HERE ↓
+**WHAT I FIXED (committed `1aec076`, battle_agent.py, VERIFIED e2e):** the fresh run was livelocked in **Diglett's
+Cave** — L30 ivysaur "losing" to an L18 diglett, 15× `battle outcome=stuck`, 0 map-transitions. ROOT (captured with
+`LONGRUN_BATTLE_LOG=1`, `ns15_wedge_capture.log`): `_select_and_verify`'s hot path gates only on `_white_box()` (True
+for BOTH the real action menu AND a dangling text/animation box lighting the same pixels, DEAD cursor) → the move list
+never opens after 12 A-tries → "move#N logged, foe HP 30/30 forever" → flee also can't navigate the impostor → eternal
+stuck. The proven impostor-drainer `_settle_action_menu` was never invoked there. FIX (byte-inert on a normal menu):
+on move-open failure, B-drain to the REAL menu then retry the open ONCE. **VERIFIED:** 15→0 stuck, 6 clean wins, HP
+moves (11/30), she ESCAPED the cave. This is the WAR#1 white-box family root-kill — GENERAL, not per-context.
+**ALSO (watchdog, `/g/temp/longrun/fresh_go_watchdog.sh`, non-repo):** carry ONLY `banked_GOAL` forward, never
+`banked_STALL`/`banked_TIMEOUT` — those are non-progress outcomes; promoting them made banked_LIVE resume INTO the
+wedge (the recurring poison). Relaunched detached; boots `banked_LIVE` (Diglett's Cave, party of 6).
+**⛔ THE NEW WALL (next shift's job — do NOT blind-fix at budget-end, NS#27 feet-level-pocket lesson):** with the
+battle fix she escapes the cave to **Route 2**, walks north into pocket **(3,20)@(17,12)** where `head_to_gym` + every
+`travel:*` return `no_path` → STALL. TWO compounding roots: **(a)** team-brain OVER-caught **3 redundant digletts** at
+Diglett's Cave (fills the team with identical Ground-types — fails the 10-yo test) and **(b)** she exited the cave to
+the Route-2 (NORTH/wrong) side then trapped in a feet-level pocket (Vermilion is SOUTH via Route 11). Repro preserved:
+`banked_ROUTE2_POCKET_ns15`; resume the live wall from `banked_LIVE` (Diglett's Cave). Fix the exit-side / pocket nav
+AND/OR gate the keeper-router from over-catching duplicates, verify-gated. The battle fix means downstream battles no
+longer wedge — so the frontier is purely NAV + team-composition now.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -E "badges=[3-8]|MAP TRANSITION.*Route 11|Vermilion|Thunder|banked_CREDITS|outcome=STALL|17, 12"`. If it broke past the pocket → clean, exit fast. If still STALLing at Route 2 (17,12) → root-fix the exit-side/pocket + duplicate-catch. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-14 detail below is the prior record; the watchdog-livelock it fixed is superseded by the GOAL-only carry above.
+
 ## ⚔️ SHIFT-14 (2026-07-12 ~14:29, WAR order 4) — ROOT-KILLED the fresh-run WATCHDOG LIVELOCK. Run now COMPOUNDS toward credits. START HERE ↓
 **THE BUG (shift-10's "cooking" glance was WRONG — it was a livelock, not churn):** `recon_longrun` stops at the
 next-objective GOAL (~66s) and banks the ADVANCED state to **`banked_GOAL`** at run-end, but the 180s live-bank
