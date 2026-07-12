@@ -1,5 +1,24 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-20 (2026-07-12 ~15:54, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run is DEEP INSIDE Rock Tunnel, Flash lit, fighting corridor trainers toward Celadon/Erika (badge 4). START HERE ↓
+**STATE (verified from `fresh_go_1.log`, ~100k lines, sim 1874s):** she reached **dex 10 at Vermilion** (party
+`[venusaur L38, 3x diglett L20, mankey L20, kadabra L20]`, badges=3 Boulder/Cascade/Thunder), **used HM Flash (lit=True)**,
+and is now **deep in Rock Tunnel** (maps 1,81/1,82) fighting through corridor trainers en route to Celadon/Erika (badge 4).
+dex-10 / Flash / Rock-Tunnel-entry all happened within the **last ~1900 log lines** = very recent forward motion. Run
+**ALIVE + advancing** (2 python PIDs 44464/40244, log mtime=now, ~46 lines/6s). The ~10 `TRAVEL WEDGE` markers in the last
+3000 lines are all recoverable "return to roam LOUD" (Route-2 pocket 3,20 / Route-10 3,28 / interior 21,1), scattered, **NOT
+a spin**; only 3 Route10<->RockTunnel oscillations after line 90000 (normal maze, 25 floor transitions total). `head_to_gym`
+notes the direct Saffron-gate path is guard-blocked, but the Rock-Tunnel→Celadon→Erika stretch is PROVEN by prior passes
+(night-train s6, NS#4) — not a new blocker.
+**WHAT I DID:** glanced the log (WAR order 4). CLEAN → left cooking, no code change.
+**⚠️ SECONDARY (unchanged, verify-gated, DON'T blind-fix at budget):** the shift-16 redundant-3-digletts over-catch caps a
+full party of 6 at **dex-10** (she still box-catches new species so dex climbs, hence Flash gate was met — slowdown not stall).
+Root = `pokemon_planner._recompute_status` (pokemon_planner.py:391) scans PARTY only, never the PC box → boxed keeper never
+satisfies its slot → re-catches duplicates. Fix (calm-shift job) = include boxed species in slot satisfaction OR an
+owned-count guard in `_keeper_due`/`catch_one`.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[4-8]|Rainbow.*EARNED|Erika.*EARNED|MAP TRANSITION.*Celadon|Pokédex: 1[1-9] caught|banked_CREDITS|Traceback" /g/temp/longrun/fresh_go_1.log | tail`. If she cleared Rock Tunnel + reached Celadon + WON Erika (badges≥4) → clean, exit fast. If STALLing at a NEW spot (Rock-Tunnel exit / Saffron-gate approach / Celadon / Erika gym) → capture + root-fix that leg. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-19 detail below is the prior record; superseded by the above (she's now past the dex gate, mid-Rock-Tunnel corridor).
+
 ## 🩺 SHIFT-19 (2026-07-12 ~15:51, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run ADVANCED past the Flash dex-gate and is CROSSING ROCK TUNNEL toward Celadon/Erika (badge 4). START HERE ↓
 **STATE (verified from `fresh_go_1.log`, ~97.7k lines):** she cleared shift-18's dex-gate ON HER OWN — **dex 7→10 met, HM
 Flash obtained, now actively CROSSING Rock Tunnel** (maps 1,81/1,82), fighting through cave trainers (**10 battle-wins + 7
