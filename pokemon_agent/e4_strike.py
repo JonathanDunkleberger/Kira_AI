@@ -268,12 +268,23 @@ class EliteFour:
                 for iid, row, want, price in SHOPPING
                 if camp.bag_count(iid) < want]
         money = camp.money()
-        plan = []
-        for iid, row, n, price in need:                       # NO cash reserve (money halves on whiteout)
-            n = min(n, max(0, money // price))
-            if n > 0:
-                plan.append((iid, row, n, price))
-                money -= n * price
+        # COMEBACK FLOOR (ns22): reserve 1 Revive (+1 Full Heal) BEFORE Full Restores eat a
+        # poor budget. At a realistic ~$13k arrival, FR-first spent the whole wad and bought
+        # ZERO revives -> the TYPE-ANSWER revive (the Charizard/Gary counter) had no item to
+        # use and the leveled Lapras stayed fainted (ns22 e4_v2: died at Gary, revive_item=None).
+        # 1 Revive + 1 Full Heal ($2.1k) still leaves ~3 Full Restores at $13k (the Lance tank
+        # wave survives on 3), while guaranteeing the champion answer can actually fire.
+        FLOOR = {REVIVE: 1, FULL_HEAL: 1}
+        alloc = {iid: 0 for iid, _r, _n, _p in need}
+        for iid, row, n, price in need:                       # pass 1: comeback floor first
+            f = min(n, FLOOR.get(iid, 0), max(0, money // price))
+            alloc[iid] += f
+            money -= f * price
+        for iid, row, n, price in need:                       # pass 2: FR (SHOPPING order) takes the surplus
+            extra = min(n - alloc[iid], max(0, money // price))
+            alloc[iid] += extra
+            money -= extra * price
+        plan = [(iid, row, alloc[iid], price) for iid, row, n, price in need if alloc[iid] > 0]
         if not plan:
             L(f"   [shop] {'kit SHORT but broke' if need else 'stocked already'} (money ${camp.money()})")
             return True

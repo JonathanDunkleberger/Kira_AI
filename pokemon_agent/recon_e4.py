@@ -431,15 +431,24 @@ def main():
                 if camp.bag_count(iid) < want]
         # afford check, priority order; drop the tail if money is short
         money = camp.money()
-        plan = []
         # NO cash reserve (shift-17): money is HALVED on whiteout, items aren't — every
         # reserved dollar is half-wasted. The old $2000 floor left poverty laps ($2-6k)
         # unable to buy even one Revive.
-        for iid, row, n, price in need:
-            n = min(n, max(0, money // price))
-            if n > 0:
-                plan.append((iid, row, n, price))
-                money -= n * price
+        # COMEBACK FLOOR (ns22): reserve 1 Revive (+1 Full Heal) BEFORE Full Restores eat a
+        # poor budget. At a realistic ~$13k arrival, FR-first spent the whole wad and bought
+        # ZERO revives -> the TYPE-ANSWER revive (the Charizard/Gary counter) had no item to
+        # use and the leveled Lapras stayed fainted (ns22 e4_v2: died at Gary, revive_item=None).
+        FLOOR = {REVIVE: 1, FULL_HEAL: 1}
+        alloc = {iid: 0 for iid, _r, _n, _p in need}
+        for iid, row, n, price in need:                       # pass 1: comeback floor first
+            f = min(n, FLOOR.get(iid, 0), max(0, money // price))
+            alloc[iid] += f
+            money -= f * price
+        for iid, row, n, price in need:                       # pass 2: FR (SHOPPING order) takes the surplus
+            extra = min(n - alloc[iid], max(0, money // price))
+            alloc[iid] += extra
+            money -= extra * price
+        plan = [(iid, row, alloc[iid], price) for iid, row, n, price in need if alloc[iid] > 0]
         if not plan:
             if need:
                 L(f"   [shop] kit SHORT but can't afford a single unit "
