@@ -1,5 +1,22 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-10 GLANCE (2026-07-12 ~14:05, WAR order 4, NO code change) — fresh run is ALIVE + CLEAN, cooking at gym-3 prep. START HERE ↓
+Glanced `fresh_go_1.log`: the detached fresh bedroom→credits run (2 python PIDs) is HEALTHY — decision-layer PROGRESS
+**GREEN 49/50** recent ticks, sim ~628s. It cleared bedroom→**badges=2 (Boulder, Cascade)**→Cerulean and is in the
+KNOWN **gym-3 prep churn**: team-brain building the squad (party 2→3, caught **Mankey L12**) on reachable Route-4 grass
+because the planned **Diglett keeper reads `keeper_unreach`** (the NS#40/#41 static-connection routing gap) AND a thin
+team (ivysaur L25 + abra L8 + mankey L12) can't yet cross the **Nugget Bridge** gauntlet to Bill/S.S.Ticket. ⚠️ DON'T
+re-alarm at the travel-layer coord ping-pong on map (3,43) — the ROAM layer is GREEN; anti-wedge deep-ring is banking
+safe checkpoints. Slow sim/wall ratio = CPU contention + battle density, NOT a livelock. Left it cooking (WAR order 4:
+clean→exit fast; a blind edit to the verify-gated keeper-reach/team-depth root would burn the ~$61 budget + risk the
+live run). banked_LIVE empty (pre-free-roam-bank throttle; a pre-progress crash re-runs FRESH from bedroom — acceptable).
+**AT RESUME:** glance the log — grep `badges=[3-8]|Thunder|EARNED|banked_CREDITS|CRASH|STATE IN: Vermilion|keeper_unreach`.
+If it self-broke the churn + climbed → clean, exit. If STILL circling Route-4/Cerulean/Nugget-Bridge at badges=2 with
+`keeper_unreach` dominating → the Monday-refill root-fix = the **Diglett keeper static-connection route** (flip
+`POKEMON_KEEPER_STATIC_ROUTE` is already default-ON per NS#41, so the gap is the pre-badge-3 Nugget/Route-24 approach
+graph — verify-gated, NOT a night blind-fix) and/or letting the team-brain thicken past Nugget with a bigger bench.
+↓ WAR#4 detail below is the launch record; still accurate.
+
 ## ⚔️ WAR-SHIFT #4 (2026-07-12 ~13:55) — OPENING WEDGE ROOT-KILLED + FRESH RUN RELAUNCHED (FRESH spine). START HERE ↓
 The WAR#2/#3 diagnosis was WRONG (head_to_gym "dead route → grind"). The live trace shows the TRUE root: the campaign
 DID offer forward `travel:3,1` (Viridian) every tick — **the headless chooser just picked `battle` forever** (`prep is
@@ -15,7 +32,11 @@ for badge 3 → credits). VERIFIED this shift: FRESH crosses the parcel gate ont
 + 5 balls. **DONE THIS SHIFT:** watchdog switched to boot FRESH (`fresh_go_watchdog.sh`, also fixed a `seq`-not-on-PATH
 bug that made a hidden launch no-op); ruined banked_LIVE deleted; watchdog RELAUNCHED detached — now running `recon_longrun
 FRESH 120`, progressing (the_opening → DELIVER_PARCEL done → GRIND_PRE_BROCK on Route 2).
-**AT RESUME:** glance `fresh_go_1.log` — grep `SEGMENT [0-9]|EARNED|Boulder|Cascade|badges=[1-8]|FRESH HANDOFF|banked_CREDITS|CRASH`.
+**LIVE FRONTIER (shift 9, 2026-07-12 ~14:02):** the fresh run is PAST the whole WAR#4 opening blocker — it CLEARED
+the spine (parcel→Brock→Mt.Moon→**Misty/CASCADE badge 2**), HANDED OFF to free_roam, and is now climbing **gym 3
+(Surge)**: fetch_keeper→Route 24 abra keeper + Bill/S.S.Ticket, fighting a Nugget Bridge trainer. ALIVE + CLEAN
+(log mtime=now, 2 python PIDs=one run), zero hard wedges. Organic-six intact (ivysaur L22 solo, brain pre-building).
+**AT RESUME:** glance `fresh_go_1.log` — grep `EARNED|Cascade|Thunder|Rainbow|badges=[3-8]|banked_CREDITS|CRASH|ANTI-WEDGE|white_box|outcome=stuck`.
 If it reached free_roam handoff (post-Misty) it's on the proven badge-3→credits climb. If `banked_CREDITS` exists → verify
 fresh + write `CREDITS` line-1 of NIGHT_REPORT.md + survey. If the SPINE wedged (a scripted-opening bug) → capture + root-fix
 that specific leg (advance_north forest crossing / Brock / Misty), re-run. NB banked_LIVE only banks in the free_roam phase
