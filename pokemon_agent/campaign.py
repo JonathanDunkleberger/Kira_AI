@@ -4777,6 +4777,26 @@ class Campaign:
             self._host_gw_cache = idx
         return idx
 
+    def _dungeon_corridors(self):
+        """STATIC dungeon-corridor topology (NS#16) — {area -> {"nodes": {...}}} from
+        gamedata/frlg_connections.json. Fed to world.seed_corridors at free-roam start so
+        head_to_gym can ROUTE THROUGH an unexplored dungeon shortcut toward the gym (Diglett's
+        Cave: Route 2 <-> cave <-> Route 11 -> Vermilion) instead of no_gym_route-ing into the
+        sealed Route-2 pocket. Loaded once, cached; the swappable game-knowledge layer (rule 14).
+        Fail-open ({})."""
+        idx = getattr(self, "_dungeon_corr_cache", None)
+        if idx is None:
+            idx = {}
+            try:
+                import json
+                path = os.path.join(_HERE, "gamedata", "frlg_connections.json")
+                with open(path, encoding="utf-8") as f:
+                    idx = (json.load(f) or {}).get("dungeon_corridors") or {}
+            except Exception as e:
+                log(f"   [roam] dungeon-corridor KB load skipped: {e} (LOUD)")
+            self._dungeon_corr_cache = idx
+        return idx
+
     def _grind_wild_band(self, map_id):
         """GRIND-SPOT LEVEL KB (NS#5, rule 14) — the (wild_min, wild_max) encounter-level band for a
         grind area, from gamedata/frlg_grind_spots.json. Used by the level-aware grind-spot picker to
@@ -11931,6 +11951,10 @@ class Campaign:
         # current travel capabilities, so from tick 1 she has a sense of place + knows she can walk back.
         try:
             self.world.seed_known(sum(1 for i in range(8) if self.has_badge(0x820 + i)))
+            # NS#16: seed static dungeon-corridor priors so head_to_gym can route THROUGH an
+            # unexplored dungeon shortcut toward the gym (Diglett's Cave -> Route 11 -> Vermilion)
+            # instead of no_gym_route-ing into the sealed Route-2 pocket (the NS#15 fresh-run wall).
+            self.world.seed_corridors(self._dungeon_corridors())
             self._refresh_world_caps()
         except Exception as _ws:
             log(f"   [world] seed/caps skipped: {_ws}")

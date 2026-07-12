@@ -190,6 +190,37 @@ class WorldModel:
         for mid in _PROGRESS_VISITED.get(min(badge_count, max(_PROGRESS_VISITED)), []):
             self._ensure(mid, visited=True)
 
+    def seed_corridors(self, corridors):
+        """Seed KNOWN dungeon-corridor connectivity (warps + edges) for maps she may NOT have
+        VISITED this run, so head_to_gym / world.route can plan a path THROUGH an unexplored
+        dungeon shortcut toward a goal — Diglett's Cave: Route 2 <-> cave floors <-> Route 11 ->
+        Vermilion (NS#16). Without it the canonical graph is blind in the cave region, head_to_gym
+        returns no_gym_route, and she gets dumped (via heal) into a sealed Route-2 pocket.
+        ADDITIVE-ONLY: setdefault never clobbers a live-learned or already-present connection, and
+        nothing is removed — the live read on arrival (note_visit) still confirms/corrects (source-
+        first). Game-knowledge is supplied by the caller (gamedata), keeping this engine general
+        (rule 14). `corridors` = {area_name: {"nodes": {"g,n": {"warps": {"x,y": [g,n]},
+        "edges": {dir: [g,n]}}}}}. Returns the count of connections seeded."""
+        n = 0
+        for area, spec in (corridors or {}).items():
+            for mid, conn in ((spec or {}).get("nodes") or {}).items():
+                try:
+                    mt = _t(mid) if isinstance(mid, str) else tuple(mid)
+                    interior = int(mt[0]) != 3
+                except Exception:
+                    continue
+                node = self._ensure(mt, name=(area if interior else None))
+                for xy, dest in (conn.get("warps") or {}).items():
+                    if node["warps"].setdefault(str(xy), _k(dest)) == _k(dest):
+                        self._ensure(dest); n += 1
+                for d, dest in (conn.get("edges") or {}).items():
+                    if node["edges"].setdefault(d, _k(dest)) == _k(dest):
+                        self._ensure(dest); n += 1
+        if n:
+            self.log(f"   [world] seeded {n} dungeon-corridor connection(s) — route-through priors "
+                     f"(Diglett's Cave class)")
+        return n
+
     # ── capability registry ──────────────────────────────────────────────────────────────
     def refresh_caps(self, can_use_fn=None):
         """Update what she can DO from the live game. can_use_fn(hm_key)->bool answers 'knows
