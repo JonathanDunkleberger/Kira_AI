@@ -158,6 +158,19 @@ WHIFF_RESERVE_LEVEL_BAND = int(os.getenv("POKEMON_WHIFF_RESERVE_BAND", "15"))  #
 GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"   # DEFAULT-ON 2026-07-05: chain
 #   proven end-to-end (bench L8/10->16 via participation XP -> Gary first-try -> bridge -> Bill -> TICKET)
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
+# SELECTIVE SOLO (2026-07-11 NS#26 — the bench-leveling KILL-XP lever, the frontier #2). The participation
+# GRIND SWITCH hands the KO to the ace, so the fielded weak lead banks only a SHARE of participation XP —
+# that (not PP-famine, which the ACE-DOWN guard handles) is the real throttle behind the slow endgame bench
+# climb (L28->L30 over a ~10-min stint). WHEN the weak lead SAFELY out-levels THIS foe (>= SOLO_OVERLEVEL_MARGIN
+# above it) it one-shots the wild taking ~0 damage — no faint, no in-battle heal (so no white-box menu exposure)
+# — so let it SOLO for the FULL kill XP (~2x the share). Implemented by SUPPRESSING the grind switch (ace=None ->
+# fall through to fight) while KEEPING PROTECT_LEAD_GRIND True so the MATCHUP switch stays suppressed (line ~2735
+# gates on `not PROTECT_LEAD_GRIND` -> no strand/churn). Unlike the old SOLO_WEAK_GRIND this never touches an
+# in-battle switch (it removes one) and is per-FOE self-correcting (a higher wild still gets the ace-protect
+# switch). Default OFF, verify-gated: needs a fresh multi-gym look-ahead confirming the bench climbs FASTER with
+# no faint-thrash/park/matchup-churn before the flip. Tune the margin at that look-ahead.
+SOLO_OVERLEVEL_GRIND = os.getenv("POKEMON_SOLO_OVERLEVEL_GRIND", "0") == "1"   # default OFF; verify-gated
+SOLO_OVERLEVEL_MARGIN = int(os.getenv("POKEMON_SOLO_OVERLEVEL_MARGIN", "8"))   # weak lead >= foe + this -> solo
 # SLEEP-LOCK (re-apply sleep vs a super-effective hard-hitter). DEFAULT-ON 2026-07-06 (war-room call):
 # the reason it was gated — long fights exposing the move-list wedge — is FIXED (the a4ca84f cursor
 # readback + the 2026-07-05 _movelist_open_verified immortal-battle fix), and the whiff SAFETY CAP
@@ -2261,6 +2274,19 @@ class BattleAgent:
                 best, best_lv = s, lv
         return best
 
+    def _solo_overlevel_ok(self, state):
+        """SELECTIVE SOLO gate (NS#26, POKEMON_SOLO_OVERLEVEL_GRIND — see the flag comment). True iff the
+        fielded weak lead SAFELY out-levels THIS foe (>= SOLO_OVERLEVEL_MARGIN above it) so it one-shots the
+        wild taking ~0 damage — no faint, no in-battle heal (no white-box menu exposure). When True the
+        participation GRIND SWITCH is SKIPPED so the weak mon SOLOS for the FULL kill XP (~2x the share the
+        switch banks) while PROTECT_LEAD_GRIND stays True (the matchup switch stays suppressed). Per-foe
+        self-correcting: a wild within the margin still gets the ace-protect switch. Byte-inert (False) OFF."""
+        if not SOLO_OVERLEVEL_GRIND or state is None:
+            return False
+        our_lv = (state.get("ours") or {}).get("level") or 0
+        foe_lv = (state.get("enemy") or {}).get("level") or 0
+        return bool(our_lv and foe_lv and our_lv >= foe_lv + SOLO_OVERLEVEL_MARGIN)
+
     def _ours_dmg_pp(self, state):
         """Total remaining PP across the ACTIVE mon's DAMAGING moves (power>0). The whiff-spiral
         baseline: a status move (Sleep Powder) firing changes no foe HP by design and must NOT be
@@ -2700,6 +2726,17 @@ class BattleAgent:
                         and state and not (self._enemy_fainted or self._we_fainted)):
                     self._grind_switched = True            # one attempt/battle, whatever the result
                     ace = self._ace_reserve_slot()
+                    # SELECTIVE SOLO (NS#26, gated POKEMON_SOLO_OVERLEVEL_GRIND — see _solo_overlevel_ok): if the
+                    # weak lead SAFELY out-levels THIS foe it one-shots the wild -> DROP the ace-protect switch
+                    # (ace=None -> falls through to the normal fight) so the weak mon SOLOS for the FULL kill XP
+                    # (~2x the share the participation switch banks — the real bench-climb throttle). Suppresses
+                    # a switch, never adds one; PROTECT_LEAD_GRIND stays True so the matchup switch stays off.
+                    if ace is not None and self._solo_overlevel_ok(state):
+                        self.log(f"   [engine] SOLO-OVERLEVEL: weak lead L{(state.get('ours') or {}).get('level')}"
+                                 f" out-levels foe L{(state.get('enemy') or {}).get('level')} by "
+                                 f">={SOLO_OVERLEVEL_MARGIN} -> soloing for FULL kill XP (no ace switch; "
+                                 f"matchup switch stays suppressed)")
+                        ace = None                         # skip the participation switch -> fight solo
                     # ALREADY-ACE GUARD (2026-07-05): after a mid-battle switch the ACTIVE mon is no longer
                     # gPlayerParty[0], so "is the lead weak?" must compare against the mon actually OUT.
                     # If the active species IS the ace's species, there's nothing to protect — switching
