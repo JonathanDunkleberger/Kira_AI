@@ -142,6 +142,17 @@ CAVE_GRIND_RADIUS = int(os.getenv("POKEMON_CAVE_GRIND_RADIUS", "6"))
 BENCH_TO_MILESTONE = os.getenv("POKEMON_BENCH_TO_MILESTONE", "0") != "0"
 BENCH_MS_CLOSE = int(os.getenv("POKEMON_BENCH_MS_CLOSE", "6"))     # floor within this of milestone => done
 BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaining < this many levels = poor spot
+# OVER-LEVEL BEFORE A GRASS-LESS SEA LEG (2026-07-12, NS#5 — the BLAINE team-depth wall). NS#4 proved an
+# evened badge-6 team STALLS at Blaine: it crosses to the grass-LESS Cinnabar island underleveled and a lost
+# gym has NO recovery grass (Cinnabar + Route 20/21 = sea) -> whiteout-loop STALL. Fix: at the LAST reachable
+# grass before the crossing (Fuchsia/Route 18), keep the bench-to-milestone climb going AND DEFER the crossing
+# questline while that climb is still productive, so she over-levels the bench THEN crosses. Scoped to the ONE
+# grass-less-island transition (can't affect the rest of the climb); it locally enables the BENCH_TO_MILESTONE
+# keep-climb machinery, park-guarded by the SAME poor-map + prep-dry releases (so it can NEVER infinitely park:
+# worst case she crosses with whatever the last grass gave, still far better than the L25-29 catch-level bench
+# that stalls at Blaine today). Default OFF until a fuchsia_evened_kit look-ahead confirms no park + clears Blaine.
+OVERLEVEL_SEALEG_ENABLED = os.getenv("POKEMON_OVERLEVEL_SEALEG", "0") != "0"
+GRASSLESS_CROSSING_GYMS = {"Blaine"}   # Cinnabar island (Blaine): grass-less, no loss-recovery grind spot
 # PREP STAND-DOWN map-scoping (2026-07-11, PASS 3 NS#11 — the DEADLOCK fix). The PREP STAND-DOWN
 # (_prep_dry >= 2) drops the 'train first' plan when repeated grind attempts from a position find NO
 # reachable grass. Its comment claims it "resets the moment any grass is actually reached" — but the ONLY
@@ -6738,7 +6749,7 @@ class Campaign:
                 # in which case the pin retires here so head_to_gym is restored and she MARCHES to better
                 # grass. The productivity gate (poor-map release) is what keeps this park-proof.
                 _keep_climbing = (
-                    BENCH_TO_MILESTONE and _ms and floor < (milestone - BENCH_MS_CLOSE)
+                    self._bench_to_ms_active(state) and _ms and floor < (milestone - BENCH_MS_CLOSE)
                     and (tuple(tv.map_id(self.b)), milestone) not in getattr(self, "_bench_poor_maps", ()))
                 if pin is not None:
                     if floor >= pin:
@@ -7078,6 +7089,57 @@ class Campaign:
             self._restore_ace()
         finally:
             battle_agent.PROTECT_LEAD_GRIND = False
+
+    def _overlevel_before_sealeg(self, state):
+        """NS#5 team-depth lever (flag POKEMON_OVERLEVEL_SEALEG, default OFF): return the upcoming gym
+        MILESTONE iff she should keep leveling the bench at the last reachable grass BEFORE crossing to a
+        grass-less sea island (Cinnabar/Blaine), else None. When non-None the caller (a) keeps the
+        BENCH_TO_MILESTONE keep-climb machinery active for THIS transition and (b) defers the crossing
+        questline so the LOPSIDED-BENCH grind fires. Park-safe by construction — it releases (returns None)
+        the instant ANY of: the bench reaches within BENCH_MS_CLOSE of the milestone, this grass proves a
+        poor spot for it (bench out-levelled it -> _bench_poor_maps), or grass is unreachable (prep-dry
+        stand-down). So it can never infinitely park: worst case she crosses with whatever the last grass
+        gave. Scoped tight — only next_gym==Blaine, only in the has-Surf-not-yet-crossed window
+        (_seafoam_gate open), so the rest of the climb is byte-unaffected."""
+        if not OVERLEVEL_SEALEG_ENABLED:
+            return None
+        try:
+            if state.get("post_game"):
+                return None
+            ng = state.get("next_gym")
+            gym = GYMS.get(ng["leader"]) if ng else None
+            if gym is None or gym.name not in GRASSLESS_CROSSING_GYMS:
+                return None
+            # only on the NEAR side of the crossing (has Surf, not yet crossed) — the last grass before the
+            # sea. _seafoam_gate() is non-None exactly in that window and self-clears once crossed.
+            if self._seafoam_gate() is None:
+                return None
+            if getattr(self, "_prep_dry", 0) >= 2:
+                return None                          # no reachable grass here — PREP STAND-DOWN owns it
+            party = state.get("party") or []
+            if len(party) < 3:
+                return None                          # a real bench, not ace + 1
+            _bc = int(state.get("badge_count", 0))
+            try:
+                self.team_planner.ensure_plan(party, _bc)
+                milestone = self.team_planner._next_milestone(_bc, bool(state.get("post_game")))[1]
+            except Exception:
+                milestone = 0
+            if not milestone:
+                return None
+            if (tuple(tv.map_id(self.b)), milestone) in getattr(self, "_bench_poor_maps", ()):
+                return None                          # grass out-levelled — cross with what we got
+            floor = min(m.get("level", 0) for m in party)
+            return milestone if floor < (milestone - BENCH_MS_CLOSE) else None
+        except Exception as e:
+            log(f"   [roam] overlevel-before-sealeg skipped: {e}")
+            return None
+
+    def _bench_to_ms_active(self, state):
+        """BENCH_TO_MILESTONE keep-climb is active globally (its flag) OR locally for the grass-less
+        sea-leg over-level (NS#5, scoped to that one transition). Single source read by the prep-pin
+        keep-climb, the LOPSIDED-BENCH poor-map gate, and the grind executor's productivity gate."""
+        return BENCH_TO_MILESTONE or (self._overlevel_before_sealeg(state) is not None)
 
     def _bench_severely_lopsided(self, state, prep_t):
         """PASS-3 NS#6 team-depth lever (a): return the gym milestone level IF the bench is SEVERELY
@@ -9628,6 +9690,18 @@ class Campaign:
                 ng = state.get("next_gym")
                 gym = GYMS.get(ng["leader"]) if ng else None
                 if gym is not None and gym.name == "Blaine":
+                    # NS#5 OVER-LEVEL BEFORE THE SEA LEG: if the bench is under the Blaine milestone and the
+                    # last grass is still productive, DON'T open the crossing errand yet — leave _active_questline
+                    # None so the LOPSIDED-BENCH grind fires and levels the bench at Fuchsia/Route 18 first.
+                    # Auto-releases (crosses) once the bench reaches the milestone, the grass proves poor, or
+                    # grass goes unreachable (all inside _overlevel_before_sealeg). Byte-inert when the flag is OFF.
+                    if self._overlevel_before_sealeg(state) is not None:
+                        if not getattr(self, "_ovl_sealeg_logged", False):
+                            self._ovl_sealeg_logged = True
+                            log("   [roam] 🏝️ OVER-LEVEL BEFORE SEA LEG: bench under the Blaine milestone at the "
+                                "last grass — grinding here before crossing to grass-less Cinnabar (crossing deferred)")
+                        return
+                    self._ovl_sealeg_logged = False
                     sg = self._seafoam_gate()
                     if sg is not None and self._open_questline(sg, state):
                         log("   [roam] 🌊 PROACTIVE SEAFOAM-PREREQ: have Surf but Cinnabar's sea road is "
@@ -10728,7 +10802,7 @@ class Campaign:
             # she MARCHES to better (near-gym, level-appropriate) grass. The pin also retires on a poor map
             # (_prep_team_target), so 'battle' stops out-competing the march. This is the KB-free
             # grind-spot-adequacy gate that keeps the to-milestone climb park-proof.
-            if (_lop_ms is not None and BENCH_TO_MILESTONE
+            if (_lop_ms is not None and self._bench_to_ms_active(state)
                     and (tuple(tv.map_id(self.b)), _lop_ms) in getattr(self, "_bench_poor_maps", ())):
                 _lop_ms = None
             if _lop_ms is not None:
@@ -11622,7 +11696,7 @@ class Campaign:
                     #                                      every other tick and reset the counter forever)
                     self._prep_dry, self._prep_dry_logged = 0, False
                 _lop_ms = getattr(self, "_lopsided_pending_ms", None)
-                if BENCH_TO_MILESTONE and _lop_ms is not None and r in ("ready", "ok"):
+                if self._bench_to_ms_active(state) and _lop_ms is not None and r in ("ready", "ok"):
                     # NS#10 productivity gate (the grind-spot-adequacy signal, KB-free): measure the bite.
                     _floor1 = min(self._party_levels()) if self._party_levels() else 0
                     _cur_map = tuple(tv.map_id(self.b))
