@@ -313,6 +313,21 @@
       },
       "human": "I'm on Cinnabar but Blaine's gym is locked — the Secret Key is hidden in the burned Pokémon Mansion; I have to flip the statue switches down through the floors to reach it, then it opens the gym"
     },
+    "earth_badge": {
+      "kind": "event",
+      "name": "the Earth Badge (Viridian Gym — Giovanni, badge 8)",
+      "obtain": {
+        "via": "strike",
+        "npc": null,
+        "from": "3,8",
+        "dir": "north",
+        "place_name": "the Viridian Gym, reopened now Team Rocket has cleared out — Giovanni and his ground-types guard the eighth badge behind a spin-tile floor maze; Cinnabar to Viridian is FIVE northbound sea crossings up past Pallet Town (surfed)",
+        "prereq": null,
+        "sets_flag": "FLAG_BADGE08_GET",
+        "gives_cap": null
+      },
+      "human": "the last badge is Giovanni's, back at the Viridian Gym — it reopened once Team Rocket fell. It's a long surf north from Cinnabar past Pallet to reach it, then his ground team stands between me and the Earth Badge"
+    },
     "gold_teeth": {
       "kind": "item",
       "name": "the Gold Teeth",

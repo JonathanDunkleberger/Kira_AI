@@ -44,6 +44,15 @@ FLAG_BADGE_EARTH = 0x827
 FLAG_DEFEATED_GIOVANNI = 0x4B7       # FLAG_DEFEATED_LEADER_GIOVANNI (unused if wrong; badge is truth)
 GYM_EXIT_BAND = {(16, 21), (17, 21), (18, 21)}   # above the entrance mats (16-18,22)
 
+# The Cinnabar->Viridian sea road (five northbound crossings) + Viridian + the gym interior — the ANCHOR
+# set for the in-loop questline-strike dispatch (NS#14). The FIRE-FIRST block fires run_gym when she stands
+# on any of these, so it dispatches the MOMENT next_gym->Giovanni on Cinnabar (driving the WHOLE road in one
+# call) AND re-fires on a mid-road resume (Route 21 / Pallet / Route 1) instead of head_to_gym parking on the
+# severed sea leg. Map ids: Cinnabar 3,8 -> R21 south 3,40 -> R21 north 3,39 -> Pallet 3,0 -> Route 1 3,19 ->
+# Viridian 3,1 (from campaign._PLACE_NAMES).
+R21_SOUTH, R21_NORTH, PALLET, ROUTE1 = (3, 40), (3, 39), (3, 0), (3, 19)
+GIOVANNI_ANCHORS = {CINNABAR, R21_SOUTH, R21_NORTH, PALLET, ROUTE1, VIRIDIAN, GYM}
+
 KEY_OF = {(0, 1): "DOWN", (0, -1): "UP", (1, 0): "RIGHT", (-1, 0): "LEFT"}
 DIRN_OF = {"south": 1, "north": 2, "west": 3, "east": 4}
 

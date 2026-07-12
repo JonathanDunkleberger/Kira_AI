@@ -224,12 +224,16 @@ MANSION_STRIKE_ENABLED = os.getenv("POKEMON_MANSION_STRIKE", "1") != "0"
 # -> beat_gym dispatches the strike -> quiz doors -> badges=7 Volcano -> 0 Sevii transitions -> head_to_gym
 # Giovanni). Disable with POKEMON_BLAINE_GYM=0.
 BLAINE_GYM_ENABLED = os.getenv("POKEMON_BLAINE_GYM", "1") != "0"
-# NS#13: the VIRIDIAN GYM strike (Giovanni, badge 8 — the FINAL gym). Viridian is a SPIN-TILE floor maze
+# NS#13/#14: the VIRIDIAN GYM strike (Giovanni, badge 8 — the FINAL gym). Viridian is a SPIN-TILE floor maze
 # (the Rocket-Hideout class) — the general beat_gym leader-engage can't cross the spin maze to reach
-# Giovanni. giovanni_gym.run_gym does the tour (spin_nav across the maze -> Giovanni -> badge 0x827 -> heal;
-# NO exit ambush — the Gary fight arms later on Route 22). Hooked at the TOP of beat_gym. DEFAULT OFF until
-# the live look-ahead proves badge 8; enable with POKEMON_GIOVANNI_GYM=1.
-GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "0") != "0"
+# Giovanni. giovanni_gym.run_gym does the tour (its OWN Cinnabar->Viridian sea road [five surfed north
+# crossings] -> spin_nav across the maze -> Giovanni -> badge 0x827 -> heal; NO exit ambush — the Gary fight
+# arms later on Route 22). Dispatched TWO ways: (a) the TOP-of-beat_gym hook when she's AT Viridian; (b) the
+# PROACTIVE EARTH-BADGE questline gate (_giovanni_gate + FIRE-FIRST -> the strike drives the sea road itself),
+# which bypasses head_to_gym's Cinnabar->Viridian sea-nav gap (the NS#13 blocker: it parked on Route 21).
+# NS#14: DEFAULT ON — the dispatch chain is e2e-proven (look-ahead from blaine_done_kit: PROACTIVE EARTH-BADGE
+# -> QUESTLINE STRIKE from Cinnabar -> five sea legs -> Viridian gym -> GIOVANNI battled -> badges=8, endgame).
+GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "1") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -8906,6 +8910,10 @@ class Campaign:
                 from mansion_strike import MANSION_ANCHORS, run_strike
                 return run_strike, MANSION_ANCHORS, ("got_key",), "mansion_probe"
 
+            def _giovanni():
+                from giovanni_gym import GIOVANNI_ANCHORS, run_gym
+                return run_gym, GIOVANNI_ANCHORS, ("badge",), "giovanni_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -8945,6 +8953,15 @@ class Campaign:
                 ("flag", "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY"): (
                     "the Secret Key (Pokémon Mansion — the key to Blaine's gym)",
                     "got the Secret Key out of the burned mansion — Blaine's gym is finally unlocked.", _mansion),
+                # NS#14: the badge-8 step derives success ('flag','FLAG_BADGE08_GET') (Giovanni falls -> Earth
+                # Badge). Door-less flag step anchored on the Cinnabar->Viridian sea road -> fires via FIRE-FIRST
+                # wherever she stands post-Blaine; giovanni_gym.run_gym drives its OWN sea road (five surfed north
+                # crossings) to Viridian + the spin-maze gym, bypassing head_to_gym's sea-nav gap. run_gym returns
+                # 'badge' on the win. Flag-gated (GIOVANNI_GYM_ENABLED).
+                ("flag", "FLAG_BADGE08_GET"): (
+                    "the Viridian Gym (Giovanni — Earth Badge, badge 8)",
+                    "Giovanni's down and the Earth Badge is mine — that's all eight. Victory Road and the "
+                    "Elite Four are all that's left now.", _giovanni),
             }
             if succ not in registry:
                 return None
@@ -8954,6 +8971,8 @@ class Campaign:
                 return None                     # seafoam strike flag-gated OFF -> fall through
             if succ == ("flag", "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY") and not MANSION_STRIKE_ENABLED:
                 return None                     # mansion strike flag-gated OFF -> fall through
+            if succ == ("flag", "FLAG_BADGE08_GET") and not GIOVANNI_GYM_ENABLED:
+                return None                     # giovanni gym strike flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -9089,6 +9108,27 @@ class Campaign:
                        human="I'm on Cinnabar, but Blaine's gym is locked — the Secret Key's in the burned "
                              "Pokémon Mansion. Time to go dig it out.",
                        detail={"flag": "FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY", "gym": "Blaine"})
+
+    def _giovanni_gate(self):
+        """NS#14: the badge-8 gate. After Blaine (badge 7) next_gym becomes Giovanni, but head_to_gym's
+        billed-road graph can't complete the Cinnabar->Viridian sea legs (it parks on Route 21 — the sea-nav
+        gap the badge-6→7 chain surfaced), so beat_gym(Giovanni) never dispatches. Recognize badge-7-held AND
+        badge-8-unset and open the Earth-Badge errand: missing='earth_badge' resolves through frlg_gates.json
+        to a door-less ('flag','FLAG_BADGE08_GET') strike step keying giovanni_gym.run_gym, whose OWN sea road
+        (five surfed north crossings) drives Cinnabar->Viridian + the spin-maze gym, bypassing the head_to_gym
+        gap entirely. Anchored on the sea road (from '3,8') so FIRE-FIRST dispatches it right where she stands
+        post-Blaine. Returns a Gate or None."""
+        try:
+            if not fm.read_flag(self.b, FLAG_BADGE_VOLCANO):
+                return None                     # no badge 7 yet -> Blaine's gates still own the window
+            if fm.read_flag(self.b, FLAG_BADGE_EARTH):
+                return None                     # already have badge 8 -> nothing to strike
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="earth_badge", where=tuple(VIRIDIAN_CITY),
+                       human="the eighth badge is Giovanni's, back at the Viridian Gym — it reopened once "
+                             "Team Rocket fell. It's a long surf north from Cinnabar past Pallet to get there.",
+                       detail={"flag": "FLAG_BADGE08_GET", "gym": "Giovanni"})
 
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
@@ -9291,6 +9331,20 @@ class Campaign:
                     if mg is not None and self._open_questline(mg, state):
                         log("   [roam] 🗝️ PROACTIVE SECRET-KEY-PREREQ: on Cinnabar but Blaine's gym is locked "
                             "— opening the Pokémon Mansion (Secret Key) errand")
+                        return
+            # PROACTIVE EARTH-BADGE (NS#14): the badge-8 gate. After Blaine (badge 7) next_gym -> Giovanni, but
+            # head_to_gym's billed-road graph can't complete the Cinnabar->Viridian sea legs (it parks on Route
+            # 21 — the sea-nav gap). Recognize badge-7-held-but-8-unset and open the Earth-Badge errand; the
+            # door-less strike step drives giovanni_gym.run_gym (its OWN sea road + the spin gym), firing via
+            # FIRE-FIRST right where she stands so it bypasses the head_to_gym gap. Flag-gated (GIOVANNI_GYM).
+            if GIOVANNI_GYM_ENABLED:
+                ng = state.get("next_gym")
+                gym = GYMS.get(ng["leader"]) if ng else None
+                if gym is not None and gym.name == "Giovanni":
+                    gg = self._giovanni_gate()
+                    if gg is not None and self._open_questline(gg, state):
+                        log("   [roam] ⛰️ PROACTIVE EARTH-BADGE: badge 7 done — Giovanni's gym is a sea road "
+                            "north; opening the Viridian Gym errand (its own crossing bypasses the nav gap)")
                         return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
