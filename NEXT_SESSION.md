@@ -1,5 +1,29 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⚔️ SHIFT-14 (2026-07-12 ~14:29, WAR order 4) — ROOT-KILLED the fresh-run WATCHDOG LIVELOCK. Run now COMPOUNDS toward credits. START HERE ↓
+**THE BUG (shift-10's "cooking" glance was WRONG — it was a livelock, not churn):** `recon_longrun` stops at the
+next-objective GOAL (~66s) and banks the ADVANCED state to **`banked_GOAL`** at run-end, but the 180s live-bank
+NEVER fired on that short segment, so **`banked_LIVE` went stale** (frozen 14:08, Cerulean, pre-ticket) and the
+watchdog re-booted it EVERY iteration → iters 8-13 REPLAYED the identical S.S.-Ticket segment (`ticket_flag=False`
+each boot, banked_GOAL rewritten+discarded each time), ZERO net progress, would never reach credits.
+**THE FIX (watchdog-only, `/g/temp/longrun/fresh_go_watchdog.sh`, NO game-code change, NO budget risk):** after each
+iteration the watchdog now promotes the newest run-outcome bank (`banked_GOAL`/`banked_STALL`/`banked_TIMEOUT`, by
+mtime, if newer than `banked_LIVE`) INTO `banked_LIVE` — so each segment's win COMPOUNDS forward. One-time promoted
+`banked_GOAL`→`banked_LIVE` to break the immediate loop + relaunched detached (nohup, pid survives shift end).
+**VERIFIED e2e this shift:** post-fix boot `ticket_flag=True` at Bill's house `map=(30,0)` (was `False`/Cerulean every
+prior iter) → she caught the full team at Diglett's Cave (**party 3→6: ivysaur L30, mankey L14, abra L14, 3× diglett
+L18-19** — the Diglett is the Ground-type **Surge answer**, resolving the old `keeper_unreach` for this run) → now
+marching `head_to_gym` to Vermilion. The 180s live-bank now ALSO fires (post-ticket iters run >180s) so `banked_LIVE`
+advances directly too. Log LIVE, PROGRESS GREEN, 0 hard-stuck.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -E "badges=[3-8]|Thunder.*EARNED|banked_CREDITS|carry-forward|ticket_flag=|Traceback"`.
+If `banked_CREDITS` exists → verify fresh + write `CREDITS` line-1 of NIGHT_REPORT.md + survey. If it CLEARED Surge
+(badges=3) and is climbing → clean, exit fast. If it's WEDGED at a NEW spot (past ticket now) → capture + root-fix that
+specific leg. If the watchdog died: relaunch `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+⚠️ If a future segment's `banked_GOAL` is a FALSE goal-positive (advanced boot re-loops the SAME goal) the carry-forward
+would still loop at a new spot — watch that the boot map/goal CHANGES across iterations (it did this shift: ticket→team-build).
+Watchdog runs the WAR#4 FRESH scripted spine if `banked_LIVE` is ever absent. Canonical saves UNTOUCHED (all scratch).
+↓ WAR#4 / shift-10 detail below is the prior launch record; superseded by the fix above.
+
 ## 🩺 SHIFT-10 GLANCE (2026-07-12 ~14:05, WAR order 4, NO code change) — fresh run is ALIVE + CLEAN, cooking at gym-3 prep. START HERE ↓
 Glanced `fresh_go_1.log`: the detached fresh bedroom→credits run (2 python PIDs) is HEALTHY — decision-layer PROGRESS
 **GREEN 49/50** recent ticks, sim ~628s. It cleared bedroom→**badges=2 (Boulder, Cascade)**→Cerulean and is in the
