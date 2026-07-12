@@ -1,6 +1,28 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ⏳ NIGHT-SHIFT #18 IN FLIGHT (2026-07-11, night_shift.ps1 shift 18) — running the NS#17 FLAG-FLIP GATE: a DEFINITIVE-budget VR2F cave-grind look-ahead to prove Lapras crosses L43 + learns Ice Beam, 0 Viridian/boulder/park. START HERE.
+## ⏳ NIGHT-SHIFT #21 IN FLIGHT (2026-07-11, night_shift.ps1 shift 21) — the FLAG-FLIP GATE PASSED → cave-grind lever ARMED (committed `1afe536`); now running the FINAL-PROOF `_enter_league` gate (does the leveled team CLEAR the E4 Champion?). START HERE.
+
+### ✅ WHAT NS#21 BANKED (`1afe536`, mode-side, canonical UNTOUCHED):
+The NS#18/#19 flag-flip gate — chased for 3 shifts, kept dying ONE level short of L43 — hit a **DEFINITIVE PASS**. Fresh 16-stint `recon_vr_grind_smoke` from `indigo_reach_g` (`/g/temp/longrun/ns19_vrgrind_def.log`):
+```
+RESULT: 'ready' | party [71,13,9,39,14,40] -> [73,13,9,43,14,43] | bench slots rose=3 | battles=124 | final map=(3,9)
+SMOKE PASS (ready=True battles=124 bench_rose=3 no_viridian=True)
+```
+Gate criteria ALL met: **Lapras (slot 3) L39→L43** (crosses the Ice-Beam level-up gate; move-room reserved the slot — "dropped Confuse Ray"), Kadabra L40→43, **0 Viridian, 0 boulder, retired stint 12/16 (no park), returned to Indigo (3,9)**. → **Flipped `CAVE_GRIND_ENABLED` default "0"→"1" at campaign.py:125** (one char). Strictly beneficial (levels the endgame bench + lands Ice Beam), park-guarded. Env-revert `POKEMON_CAVE_GRIND=0`. campaign.py parses OK.
+
+### ⇒ NS#21 FRONTIER (priority order):
+1. **THE FINAL-PROOF GATE (RUN IN FLIGHT): does the VR2F-leveled team + Ice Beam CLEAR the E4 Champion?** Launched `POKEMON_CAVE_GRIND=1 POKEMON_VR_GRIND_BUDGET_S=3000 POKEMON_E4_DEADLINE_S=5400 ../.venv/Scripts/python.exe -u recon_enter_league_smoke.py` from indigo_reach_g → `/g/temp/longrun/ns21_enterleague.log`. AT RESUME grep `\[e4\] room #|CHAMPION|HALL OF FAME|CREDITS|stuck|battle_loss|whiteout`. The full `_enter_league` chain: grind VR2F → return Indigo → e4 boot → 5-room gauntlet. **The open question:** the leveled team (Lapras L43 + Ice Beam, Kadabra L43) clears Lorelei→Bruno→Agatha→Lance; does it now beat CHAMPION Gary (Charizard 0.25x-walls Razor Leaf — needs Lapras Surf/Ice-Beam that SURVIVES), or is VR2F's ~L43-46 cap still too thin (the NS#15/#17 residual team-depth wall)? If it CLEARS → **CREDITS on a wired autonomous endgame** (write per the loop rule). If it walls at the Champion → the residual gap is LEVEL (VR2F caps ~L46 < the champion-clear L72 Lapras); levers = grind LONGER (raise stint budget), the keeper router / earlier bench-leveling, or pace efficiency.
+2. **THE FRESH-GO FINAL-PROOF (the actual mission bar):** a full `og_postopening`→credits look-ahead where SHE builds her own 6 and the whole nav rope (badges 1-8 → VR → E4, all wired + armed) walks to Indigo, then the now-armed VR2F grind levels the bench for the E4. That is the reliability-battery gate (5/5 credits + leveled-6 at E4).
+
+## ✅ NIGHT-SHIFT #19 (2026-07-11, night_shift.ps1 shift 19) — RE-RAN the flag-flip gate; it PASSED under NS#21 (see above). (kept for reference)
+
+### THE STATE (shift 19): the NS#18 gate run (`ns18_vrgrind_def.log`) climbed CLEAN — **Lapras L39→L42 over 11 stints, 0 Viridian, 0 boulder, move-room reserving Ice Beam's slot ("dropped Confuse Ray")** — but the process DIED at stint 11 (Lapras L42, ONE level short of the L43 Ice-Beam gate; no RESULT line, likely CPU-contention/loop kill). The mechanism is proven clean; a fresh run should cross L43 in ~2-4 more stints.
+- **RUN IN FLIGHT:** `ns19_vrgrind_def.log` (`MAX_STINTS=16 VR_BUDGET_S=6000 GRIND_TARGET=43 POKEMON_CAVE_GRIND=1 ../.venv/Scripts/python.exe -u recon_vr_grind_smoke.py`) from indigo_reach_g. **AT RESUME grep** `RESULT:|SMOKE|reserved a slot|viridian|boulder` — the gate PASSES iff Lapras≥43 (learns Ice Beam via the reserved slot) AND 0 Viridian AND 0 boulder AND returns 'ready'.
+- **THE FLIP (staged, ready):** if the gate PASSES → set `CAVE_GRIND_ENABLED` default "1" at **campaign.py:125** (`os.getenv("POKEMON_CAVE_GRIND", "0")` → `"1"`), one char, + commit. Lever is strictly beneficial (levels the bench + lands Ice Beam) + park-guarded (bounded stints/budget, retires on crossed-or-stalled).
+- **THEN priority 2 (the real win):** the FINAL-PROOF `_enter_league` gate — `POKEMON_CAVE_GRIND=1 POKEMON_VR_GRIND_BUDGET_S=3000 POKEMON_E4_DEADLINE_S=5400 ../.venv/Scripts/python.exe -u recon_enter_league_smoke.py` from indigo_reach_g: does the leveled team (Lapras + Ice Beam) now CLEAR the E4 Champion, or is there a residual team-depth gap?
+- **⚠️ SINGLE-RUN LAW:** run ONE headless emulator at a time (venv = 2-PID shim = one logical run). Do NOT double-launch. If CPU-contended (chrome/steam/iCUE open), stints run minutes not ~40s — wall-clock isn't fairly measurable, but the PASS/FAIL is.
+
+## ✅ NIGHT-SHIFT #18 (2026-07-11, night_shift.ps1 shift 18) — ran the NS#17 FLAG-FLIP GATE: a DEFINITIVE-budget VR2F cave-grind look-ahead to prove Lapras crosses L43 + learns Ice Beam, 0 Viridian/boulder/park.
 
 ### THE STATE (shift 18): the flip gate is the ONE decision left before arming `POKEMON_CAVE_GRIND`. Mechanism proven CLEAN over 6 stints (NS#17). This shift is proving the 15-stint pace actually crosses L43.
 - **RUN IN FLIGHT:** `ns18_vrgrind_def.log` (`MAX_STINTS=16 VR_BUDGET_S=6000 GRIND_TARGET=43 POKEMON_CAVE_GRIND=1 ../.venv/Scripts/python.exe -u recon_vr_grind_smoke.py`) from indigo_reach_g (party `[71,13,9,39,14,40]`). Retires when the levelable bench (Lapras L39 / Kadabra L40) crosses L43 OR 16 stints. **AT RESUME grep** `RESULT:|SMOKE|reserved a slot|viridian|boulder` — the gate PASSES iff Lapras≥43 (learns Ice Beam via the reserved slot — CONFIRMED firing: "PHASE 3B reserved a slot — dropped Confuse Ray") AND 0 Viridian AND 0 boulder.
