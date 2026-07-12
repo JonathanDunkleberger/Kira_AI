@@ -6841,6 +6841,109 @@ class Campaign:
         finally:
             battle_agent.PROTECT_LEAD_GRIND = False        # disarm — normal play never grind-switches
 
+    def prep_e4_in_victory_road(self, target=None, max_stints=None, budget_s=None):
+        """ENDGAME TEAM-DEPTH (NS#17) — the Indigo-anchored Victory-Road cave grind. At the Indigo Plateau,
+        if the team is underleveled for the Elite Four, dip into the ADJACENT Victory Road 2F (a Center-less
+        L36-46 cave) and cave-grind the bench toward the E4 floor, healing at the Indigo League Center
+        between stints. Returns 'ready' ALWAYS (never blocks the gauntlet — it's a best-effort top-up).
+
+        WHY VR2F specifically (NS#17 probes): Victory Road has NO reachable Center, so cave-grinding it needs
+        a clean heal. VR1F exits to Route-23 SOUTH, from which the Indigo Center is split-map UNREACHABLE ->
+        heal_nearest abandons cross-region to VIRIDIAN (bottom of the whole climb, strands her). VR2F exits
+        to Route-23 NORTH (the Indigo side): heal_nearest reaches the Indigo Center in ~5s and lands her back
+        on R23-north — a SHORT, clean heal loop. So we grind VR2F, not VR1F. The ace (L69+) tanks the L36-46
+        wilds via the participation switch and rarely dips; when it does, grind()'s ACE-DOWN GUARD heals it
+        at Indigo and this loop re-dips. Bounded (stints + wall-clock). Requires CAVE_GRIND + badge 8.
+
+        Wired into _enter_league (pre-gauntlet). Flag-gated: with POKEMON_CAVE_GRIND off it no-ops -> the E4
+        strike fires unchanged (byte-inert)."""
+        if not CAVE_GRIND_ENABLED:
+            return "ready"
+        INDIGO, R23, VR2F = ENDGAME_INDIGO, (3, 42), (1, 40)
+        VR2F_WARP = (18, 28)                                # the R23-north tile that warps into VR2F
+        max_stints = max_stints if max_stints is not None else int(os.getenv("POKEMON_VR_GRIND_STINTS", "15"))
+        budget_s = budget_s if budget_s is not None else int(os.getenv("POKEMON_VR_GRIND_BUDGET_S", "2400"))
+        state = self.read_live_state()
+        if int(state.get("badge_count") or 0) < 8:
+            return "ready"
+        try:                                                # the E4-milestone read needs the plan loaded
+            self.team_planner.ensure_plan(state["party"], state["badge_count"])
+        except Exception:
+            pass
+        if target is None:
+            target = self._prep_e4_target(state, state["party"])
+        if not target:
+            log("   VR-GRIND: team already at the E4 floor — no cave-grind needed")
+            return "ready"                                  # already E4-ready
+
+        def _levelable_under():
+            # any member in the grind band [target-E4_PREP_BAND, target) — the same 'levelable, not box-
+            # fodder chaff' set grind_weak_members fields. When none remain, the bench floor has crossed.
+            lv = self._party_levels()
+            return any(max(1, target - E4_PREP_BAND) <= l < target for l in lv)
+        self.on_event(
+            f"we're at the League's doorstep but the team's not ready — the Elite Four start around level "
+            f"{target} and half my bench is under that. Victory Road's right here and it's crawling with "
+            f"strong wild Pokemon. I'm dipping back in to train before I knock on that door.",
+            kind="grind", tier=2)
+        t0 = time.time()
+        reach_fail = 0
+        for stint in range(max_stints):
+            if time.time() - t0 >= budget_s:
+                log(f"   VR-GRIND: wall-clock budget ({budget_s}s) — proceeding to the gauntlet with "
+                    f"levels {self._party_levels()}"); break
+            if not _levelable_under():
+                log(f"   VR-GRIND: bench floor crossed L{target} (levels {self._party_levels()}) — "
+                    f"E4-ready, proceeding to the gauntlet"); break
+            here = tuple(tv.map_id(self.b))
+            if here != VR2F:                                # get ONTO VR2F: Indigo/R23-north -> the warp
+                if here == INDIGO:
+                    self.walk_to_map(R23, "south")
+                if tuple(tv.map_id(self.b)) == R23:
+                    try:
+                        self.enter_warp(pick=VR2F_WARP)
+                    except Exception as e:
+                        log(f"   VR-GRIND: enter_warp to VR2F errored ({e}) — LOUD")
+                if tuple(tv.map_id(self.b)) != VR2F:
+                    reach_fail += 1
+                    log(f"   VR-GRIND: couldn't reach VR2F (at {tv.map_id(self.b)}) — attempt {reach_fail}")
+                    if reach_fail >= 3:
+                        log("   VR-GRIND: VR2F unreachable x3 — proceeding to the gauntlet (LOUD)"); break
+                    continue
+            reach_fail = 0
+            log(f"   VR-GRIND: stint {stint + 1}/{max_stints} on VR2F @ {tv.coords(self.b)} — "
+                f"cave-grinding the bench toward L{target} (levels {self._party_levels()})")
+            r = self.grind_weak_members(target, min_level=max(1, target - E4_PREP_BAND))
+            # 'ready' (floor crossed) | 'ace_healed'/'ok' (bail/budget -> she's at R23-north healed, re-dip)
+            # | 'no_safe_grass' (VR2F not grindable -> stop) | 'battle_loss' (blackout auto-heals, re-dip)
+            if r == "ready":
+                log(f"   VR-GRIND: bench floor crossed — done (levels {self._party_levels()})"); break
+            if r == "no_safe_grass":
+                log(f"   VR-GRIND: VR2F returned no_safe_grass (levels {self._party_levels()}) — "
+                    f"can't cave-grind here, proceeding to the gauntlet (LOUD)"); break
+        self._restore_ace()
+        # RETURN TO INDIGO so e4_strike boots cleanly at (3,9): it is map-keyed on the Indigo exterior; a
+        # boot from R23/VR2F would be mis-handled as an off-route E4 room. Exit VR2F -> R23-north -> Indigo.
+        for _ in range(4):
+            here = tuple(tv.map_id(self.b))
+            if here == INDIGO:
+                break
+            if here == VR2F:                                # step onto the nearest R23-bound exit warp
+                try:
+                    cur = tv.coords(self.b) or (0, 0)
+                    r23w = [tuple(xy) for xy, d, _w in tv.read_warps(self.b) if tuple(d) == R23]
+                    if r23w:
+                        self.enter_warp(pick=min(r23w, key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
+                except Exception as e:
+                    log(f"   VR-GRIND: VR2F exit errored ({e}) — LOUD")
+            if tuple(tv.map_id(self.b)) == R23:
+                self.walk_to_map(INDIGO, "north")
+        if tuple(tv.map_id(self.b)) != INDIGO:
+            log(f"   VR-GRIND: couldn't return to Indigo (at {tv.map_id(self.b)}) — the E4 strike routes "
+                f"from here (LOUD)")
+        log(f"   VR-GRIND: done — final levels {self._party_levels()}, at {tv.map_id(self.b)}, entering the League")
+        return "ready"
+
     def _road_bench_xp_arm(self, pick, state):
         """PASS-3 team-depth NEW#1 — organic bench XP on the road. Called right before a FORWARD-MARCH
         action (head_to_gym / travel:) executes. When a bench member is under its milestone prep target,
@@ -9283,6 +9386,14 @@ class Campaign:
         (DEFEATED flags ratchet). Returns 'credits' (the summit) | 'battle_loss' | 'stuck' (a real wall —
         usually team-depth: a thin team can't out-attrition Lance/Gary; the caller grinds + retries)."""
         try:
+            # NS#17 TEAM-DEPTH: if the team is underleveled for the E4, cave-grind the adjacent Victory
+            # Road 2F first (Indigo-anchored heal loop). Flag-gated (CAVE_GRIND) -> byte-inert when OFF,
+            # so the gauntlet fires unchanged by default. Never blocks (returns 'ready').
+            if CAVE_GRIND_ENABLED:
+                try:
+                    self.prep_e4_in_victory_road()
+                except Exception as e:
+                    log(f"   !! VR-GRIND pre-gauntlet errored ({e}) — proceeding to the E4 (LOUD)")
             import e4_strike
             dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "e4_probe")
             self.on_event("the Indigo Plateau. the Elite Four are right through those doors. "
