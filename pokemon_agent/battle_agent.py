@@ -89,6 +89,16 @@ _FULL_HEAL = 23
 # not-script: she still picks her move every turn; this only catches the dead-end where NO move resolves.
 BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
 UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
+# NS#12 — HEAL-CONSUME-FAILED LATCH (the Route-10/Rock-Tunnel bag-USE/CANCEL livelock). An in-battle
+# heal can open the bag, reach "ITEM is selected -> USE/CANCEL", and FAIL to consume (count never drops)
+# — _bag_screen() doesn't fingerprint that sub-box, so the turn-top close is bypassed and every "pick a
+# move" press lands in the still-open bag -> unresolved -> anti-wedge abort -> travel RE-ENTERS the same
+# unfleeable trainer battle -> infinite livelock (a weak participation-fielded mon frozen vs an Onix the
+# benched ace one-shots). This latch (mirrors _famine_tried) suppresses the RE-OFFER once a heal PROVES
+# it won't consume this battle, so the mon fights/faints -> the ace comes in -> the battle resolves. Only
+# fires after a proven-failed use (a 'used' heal never latches), so E4/gym heals are untouched. The deep
+# bag-USE/CANCEL actuation fix is separate (needs attended frame-grabs); this breaks the livelock safely.
+HEAL_FAIL_LATCH = os.getenv("POKEMON_HEAL_FAIL_LATCH", "1") == "1"
 # B-1 — IN-BATTLE MATCHUP SWITCHING (E4-critical). The matchup MATH is offline-verified, but the
 # party-menu ACTUATION (cursor nav on a long-running libmgba core) is UNVERIFIED — the standing
 # menu-nav lesson. So it's GATED OFF by default until a live control passes (arm POKEMON_BATTLE_SWITCH=1
@@ -1037,6 +1047,13 @@ class BattleAgent:
         if not self.choose:
             return False
         ours = state["ours"]
+        # HEAL-CONSUME-FAILED LATCH (NS#12): a prior in-battle item use for THIS mon already proved it
+        # won't consume this battle (the bag USE/CANCEL non-consume wedge) — re-offering just re-opens the
+        # bag and re-wedges the turn -> the unfleeable-trainer livelock. Skip the whole item instinct for
+        # this mon; it fights/faints and the next mon (the ace) resolves the battle. Fail-safe & scoped:
+        # cleared per battle, per species, only after a PROVEN failure (a working heal never latches).
+        if HEAL_FAIL_LATCH and (ours.get("species") in self._heal_failed):
+            return False
         frac = _hp_frac(ours)
         offers, plan = {}, {}
         # MATCHUP-AWARE HEAL THRESHOLD (general, E4-critical): a foe that hits us SUPER-EFFECTIVELY can
@@ -1149,7 +1166,17 @@ class BattleAgent:
         if pick and pick in plan:
             item, kind = plan[pick]
             self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {item}, aim={kind})")
-            return self.use_item_in_battle(item, target=kind) == "used"
+            res = self.use_item_in_battle(item, target=kind)
+            if res != "used" and HEAL_FAIL_LATCH:
+                # PROVEN non-consume (the bag USE/CANCEL wedge, or a genuinely no-effect item): latch this
+                # mon OFF for the rest of the battle so we don't re-open the bag and re-wedge next turn.
+                sp = ours.get("species")
+                if sp:
+                    self._heal_failed.add(sp)
+                    self.log(f"   [engine] HEAL-FAIL LATCH: item {item} did not consume ({res}) -> "
+                             f"suppressing further in-battle item offers for species {sp} this battle "
+                             f"(anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)")
+            return res == "used"
         self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
         return False
 
@@ -1290,7 +1317,17 @@ class BattleAgent:
     # pale yellow (r,g>240, 180<b<230) no battle screen has — 3/3 on the wedge frame, 0/3 on
     # battle/party/overworld/gym/cave/Center fixtures. Panel points sit clear of the header plate
     # (whose hue varies per pocket) so this reads True for ANY pocket.
-    _BAG_PTS = ((160, 30), (200, 60), (120, 10))
+    # NS#12 (the Route-10/Rock-Tunnel bag-USE/CANCEL livelock): a SHORT item list (3 rows: e.g.
+    # NUGGET / SUPER POTION / CANCEL, with the "ITEM selected -> USE/CANCEL" sub-box up) tucks a
+    # dark row-gap / border under the calibrated (160,30) point, so only 2/3 hit and _bag_screen read
+    # FALSE -> the turn-top close (run loop) + _close_bag_screen believed the bag was gone and never
+    # B-dismissed the sub-box -> every "pick a move" press landed in the still-open bag -> anti-wedge
+    # abort -> travel RE-ENTERS the same unfleeable trainer battle -> infinite livelock (frame-proof:
+    # bwedge_antiwedge_trainer, forensics bag=False on an open bag). FIX: sample MORE panel-interior
+    # points and require >=3 of them. The interior is reliably pale-yellow (r,g>240, 180<b<230) at
+    # many points, so a short list still scores >=3 while a NON-bag screen stays at 0 — pure-white
+    # menus/movelists fail the b<230 tint test, blue text boxes fail r,g>240, so no false B-drains.
+    _BAG_PTS = ((160, 30), (200, 60), (120, 10), (150, 20), (200, 30), (180, 45))
 
     def _bag_screen(self):
         p = self.b.frame_rgb().load()
@@ -2396,6 +2433,8 @@ class BattleAgent:
         self._sleep_casts = 0              # SLEEP-LOCK whiff cap, reset per foe
         self._famine_tried = set()         # PP-FAMINE SWITCH: active species already offered a famine
         # switch this battle (one shot per species — a forced re-entry retries once, never churns).
+        self._heal_failed = set()          # HEAL-CONSUME-FAILED LATCH: active species whose in-battle
+        # item use PROVED it won't consume this battle (bag USE/CANCEL non-consume) -> stop re-offering.
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
@@ -2872,7 +2911,7 @@ class BattleAgent:
                                  f"turns (last={res}) in a TRAINER battle -> can't flee; LOUD abort "
                                  f"[forensics: action_cursor={self.b.rd8(ram.GBATTLE_ACTION_CURSOR)} "
                                  f"white_box={self._white_box()} move_list={self._in_move_list()} "
-                                 f"ours_pp={_pp}]")
+                                 f"bag={self._bag_screen()} party={self._party_screen()} ours_pp={_pp}]")
                         self._debug_snap("antiwedge_trainer")
                         self.emit("I'm jammed up in here — can't get a move to land.", beat=False)
                         return "stuck"
