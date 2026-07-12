@@ -1,5 +1,17 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## 🩺 SHIFT-22 (2026-07-12 ~16:00, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run advanced PAST the Tea/Saffron/Silph legs and is now CLIMBING POKÉMON TOWER for the Poké Flute (proven Koga chain). START HERE ↓
+**STATE (verified from `fresh_go_1.log`, sim 2219s, log mtime=now):** since shift 21 she got the Tea → crossed Saffron/Silph → and is now
+INSIDE **Pokémon Tower** (maps 1,88/1,89), climbing floors (WARPED 1,88→1,89 via directional door, battled **GARY on 2F**), working toward
+**Mr. Fuji → the Poké Flute** (wakes the Snorlax blocking the road south to Fuchsia). Party `[venusaur L45, 3x diglett L20, mankey L20,
+kadabra L24]`, dex 10, badges=4 (Boulder/Cascade/Thunder/Rainbow), next_gym=Koga. Run **ALIVE + advancing** (2 python PIDs 44464/40244):
+**45 MAP TRANSITIONs vs 17 recoverable "identical fp x4" markers in the last 4000 lines** — the markers are normal INDOOR questline
+actuation (`NPC-allowing path EXISTS -> approaching to interact/trigger`), scattered, self-recover at x4, NOT a spin. 0 traceback, no live
+wedge. Remaining chain Tower→Flute→Snorlax→Fuchsia→Koga is PROVEN by prior passes (night-train s8/s9, NS#4/#10).
+**WHAT I DID:** glanced the log (WAR order 4). CLEAN → left cooking, no code change.
+**AT RESUME:** glance `fresh_go_1.log` — `grep -oE "badges=[5-8]|Soul.*EARNED|Marsh|Volcano|Earth|MAP TRANSITION.*Fuchsia|banked_CREDITS|Traceback" /g/temp/longrun/fresh_go_1.log | tail`. If she got the Flute → woke Snorlax → reached Fuchsia → cleared Koga (badges≥5) and is climbing → clean, exit fast. If STALLing at a NEW spot (Tower/Mr.Fuji NPC / Snorlax / Fuchsia / Koga gym) → capture + root-fix that leg. Watchdog relaunch if dead: `nohup bash /g/temp/longrun/fresh_go_watchdog.sh >>/g/temp/longrun/fresh_go_1.log 2>&1 & disown`.
+↓ SHIFT-21 detail below is the prior record; superseded by the above (she's now PAST the Tea/Saffron/Silph, climbing Pokémon Tower).
+
 ## 🩺 SHIFT-21 (2026-07-12 ~15:57, WAR order 4) — GLANCE, CLEAN, NO CODE CHANGE. The fresh run EARNED BADGE 4 (Erika/Rainbow) on its own and is now on the PROVEN Koga chain (Tea → Saffron/Silph → Tower → Flute → Snorlax → Fuchsia). START HERE ↓
 **STATE (verified from `fresh_go_1.log`, 102.7k lines, sim 2043s):** she crossed Rock Tunnel and **EARNED BADGE 4 (Erika/Rainbow)** —
 badges went **3→4, only ~5 log-lines old = VERY fresh**. `next_gym` correctly flipped to **Koga of Fuchsia City (badge 5)** and she's
