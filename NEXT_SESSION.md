@@ -204,6 +204,13 @@ one replayed. Auto-log a per-run report (this is what the end-of-run METRICS gen
 autonomy and not a scripted rail — show Jonny the spread. **Any run that arrives thin, crashes, or livelocks is a
 REAL BUG → diagnose it** (don't average it away). This battery gates the conversation about a live run — it is NOT
 the live-run readiness itself (that still needs the 30h live-soak, PHASE 2 below).
+**ALSO LOG per-run WATCHABILITY-RISK notes** (these DON'T fail the battery — they pre-scout the "wins but looks
+dumb" cases Jonny's live-watch will care about, so catching them headless now saves watch-time later):
+(a) **any single grind stint over ~10 game-min** (padding); (b) **fights won by potion-tanking / brute-force when a
+SUPER-EFFECTIVE option was on the team** (should have type-switched — log foe + the SE mon she didn't field);
+(c) **any stuck / wandering / re-attempting stretch** (looks lost on screen even if it eventually recovers);
+(d) **any move-management event where she DECLINED or OVERWROTE a good move.** Flag each in the run report as a
+WATCHABILITY-RISK note (with timestamp + location). The battery still GATES on reliability; these notes are scouting.
 
 ## ⚡ SPEED LEVERS (2026-07-11, standing — every shift; these compound across the whole climb)
 1. **Look-ahead already runs at ~14x MAX headless** (`recon_longrun.py`: no audio/TTS/render throttle, SDL dummy,
