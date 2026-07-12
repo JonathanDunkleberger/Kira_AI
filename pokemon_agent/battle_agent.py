@@ -1971,9 +1971,25 @@ class BattleAgent:
             # vetoed the bulky L39 Lapras vs the ~L55 dragons, stranding Ice Beam in reserve while
             # the ace tanked to a whiteout (e4_tactical run1 Lance postmortem). The 2x case keeps the
             # lenient lv+15 frailty floor (a 2x edge is worth ~2 tiers, but not unlimited under-level).
-            _floor_ok = (coff >= 4.0) or not (foe_lv and lv + 15 < foe_lv)
-            if coff >= 2.0 and _floor_ok:
-                akey = (coff, -cdef, lv)                   # hits hardest, then resists, then level
+            # MOVE-GATE (ns15, the Route-22 Gary FREEZE): coff is TYPE-based, so this fielded a mon
+            # whose TYPE is SE but that has NO actual SE MOVE — giovanni_kit_g's Lapras is Ice-TYPE
+            # (2x vs Grass exeggcute) but its moveset is [Surf, Body Slam] with no Ice move. Then each
+            # out-typed mon had an SE TYPE but no SE move, so the switch pick ping-ponged A<->B every
+            # turn WITHOUT ever attacking — a hard livelock (123 switch/no-progress churns observed).
+            # Require the reserve to actually HAVE a damaging move that's SE (r_eff, via st.move_info +
+            # _eff so the Levitate layer applies), not merely an SE typing. The proven E4 specialists
+            # (Kadabra Psybeam, Lapras Ice Beam) still qualify — they carry the move. r_eff replaces
+            # coff for the offensive gate/key; coff stays only in the defensive `best` tie-break below.
+            r_eff = 0.0
+            for _mid in st.read_party_moves(self.b, s):
+                if not _mid:
+                    continue
+                _mt, _mp = st.move_info(self.b, _mid)
+                if _mp and _mp > 0:
+                    r_eff = max(r_eff, _eff({"type": _mt or "normal"}, state.get("enemy") or {}))
+            _floor_ok = (r_eff >= 4.0) or not (foe_lv and lv + 15 < foe_lv)
+            if r_eff >= 2.0 and _floor_ok:
+                akey = (r_eff, -cdef, lv)                  # hits hardest (real move), resists, level
                 if best_atk_key is None or akey > best_atk_key:
                     best_atk, best_atk_key = s, akey
             if foe_lv and lv + 5 < foe_lv:
