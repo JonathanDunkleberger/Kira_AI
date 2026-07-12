@@ -214,6 +214,16 @@ SEAFOAM_STRIKE_ENABLED = os.getenv("POKEMON_SEAFOAM_STRIKE", "1") != "0"
 # POKEMON_MANSION_STRIKE=0. NB the Cinnabar gym LEADER (quiz-door gym) doesn't fire via general beat_gym =
 # the next gate (recon_blaine.py extract, same pattern).
 MANSION_STRIKE_ENABLED = os.getenv("POKEMON_MANSION_STRIKE", "1") != "0"
+# NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
+# beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
+# mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
+# walk out -> B-drain the Bill "sail to Sevii" AMBUSH -> heal), returning beat_gym's contract. Hooked at the
+# TOP of beat_gym so the Bill landmine is contained in the strike. NS#13: DEFAULT ON — e2e-proven (smoke
+# from secretkey_kit_g: all 6 quiz doors open A/B/B/B/A/B -> BLAINE battled -> badge7 -> Bill B-drained ->
+# on_kanto, SMOKE PASS; full look-ahead from cinnabar_kit_g with all 4 flags: PROACTIVE SECRET-KEY -> got_key
+# -> beat_gym dispatches the strike -> quiz doors -> badges=7 Volcano -> 0 Sevii transitions -> head_to_gym
+# Giovanni). Disable with POKEMON_BLAINE_GYM=0.
+BLAINE_GYM_ENABLED = os.getenv("POKEMON_BLAINE_GYM", "1") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -3868,6 +3878,22 @@ class Campaign:
         for _ in range(45):
             self.b.run_frame()
         gym_map = tv.map_id(self.b)                             # the gym interior we just entered
+        # CINNABAR QUIZ-DOOR GYM (NS#13): the general junior-clear + leader-engage below can't beat Blaine —
+        # the leader sits behind SIX quiz doors the general handler never opens (it sees one accessible
+        # trainer, calls the juniors "cleared", then A-taps a leader it can't reach). blaine_gym.run_gym does
+        # the FULL tour (quiz chain -> Blaine -> badge -> walk out -> B-drain the Bill Sevii-sail AMBUSH ->
+        # heal) and returns beat_gym's contract, so the Bill landmine is contained here (a general A-tap on
+        # that forced scene would SAIL her off the mainline). Flag-gated (BLAINE_GYM_ENABLED); prep/heal/
+        # stock/ace-restore above already ran, so she enters prepped.
+        if name == "Blaine" and BLAINE_GYM_ENABLED:
+            try:
+                import blaine_gym
+                dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "blaine_probe")
+                r = blaine_gym.run_gym(self, log, dbg_dir=dbg)
+                log(f"   GYM: Blaine quiz-door strike -> {r}")
+                return r
+            except Exception as e:
+                log(f"   !! GYM: Blaine strike errored ({e}) — falling through to the general handler (LOUD)")
         log(f"   GYM: inside {gym_map} at {tv.coords(self.b)} - clearing junior trainers")
         # PAD ROUTER (the Saffron-gym class, recon_sabrina-proven; ported 2026-07-08): a
         # warp-partitioned interior (same-map teleport pads) reads no_route to EVERYTHING on
