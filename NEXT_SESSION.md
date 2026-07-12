@@ -1,5 +1,7 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
+## ⏳ NIGHT-SHIFT #27 IN FLIGHT (2026-07-12) — CONFIRMING the NS#26 selective-solo holds MULTI-GYM (frontier #1), NOW FROM A CLEAN FIXTURE. **The banked_LIVE-resumed run was REAPED** — it booted at a wedged DERIVED position (Route 10 north pocket (3,28)@(13,21)) where head_to_gym anchoring toward the Fuchsia/Surf prereq could NOT complete the split-map path (29× "no clean path" + 9× TRAVEL WEDGE + 5× no_path; circuit-broken, PROGRESS GREEN, 0 blackout — a PRE-EXISTING split-map nav issue, NOT a solo fault). Solo fired clean (99× SOLO-OVERLEVEL, 0 grind-switch/0 churn/0 faint, bench crept L34→L36) but she couldn't LEAVE Route 10 to progress gyms → useless for the multi-gym question. RELAUNCHED FRESH from **`koga_done_kit`** (the clean baseline-comparable badge-6 start: Venusaur L62 + bench L28-29, the exact NS#26 solo-test fixture, clean world_model, proven-nav to Fuchsia in NS#13) → `/g/temp/longrun/ns27_koga_multigym.log`, both levers default-ON, live-banking to `banked_LIVE` every 120s (`LONGRUN_BANK_EVERY_S=120`). **AT RESUME:** grep `EARNED|badges=|SOLO-OVERLEVEL|GRIND SWITCH: weak lead|MATCHUP SWITCH|blacked out|reached_indigo|\[e4\]|LOPSIDED|no clean path|TRAVEL WEDGE|live-bank` — questions: does the solo keep firing across badge 6→7→8 (Blaine→Giovanni), bench evening toward the 45/55 milestones, 0 faint/park/churn across gym boundaries? Does the FRESH koga_done_kit run ALSO wedge on Route-10→Fuchsia (→ real rope gap to fix) or nav cleanly to Fuchsia/Surf (→ banked_LIVE wedge was derived-state-only)? `recon_partydump G:/temp/longrun/banked_LIVE/kira_campaign.state` for the live bench. If it dies, resume from banked_LIVE. START HERE ↓ (NS#26 frontier unchanged).
+
 ## ✅ NIGHT-SHIFT #26 DONE (2026-07-12, night_shift.ps1 shift 26) — VERIFIED the NS#25 PP-heal (DECISIVE NEGATIVE: fires 0×, redundant with ACE-DOWN → held OFF); then BUILT, look-ahead-verified, and **ARMED (flipped default ON, `e2341f7`)** the SELECTIVE-SOLO bench kill-XP lever — the look-ahead gave a CLEAN ~2× win: the whole bench evened **28→34** (all 6 to the L34 target) vs the participation-share baseline's uneven floor 31 at comparable time, 0 faints, 0 grind-switch (fully replaced), 0 matchup-churn, marches on after the milestone (no park). THREE commits (`7118157` lever, `e2341f7` flip default-ON, `e46a6f2`/`3f7b81e` docs), mode-side, canonical UNTOUCHED. START HERE → confirm the lever holds multi-gym (targets 45/55) + compounds with VR2F, then quantify the Indigo-arrival bench.
 
 ### ✅ THE NS#25 PP-HEAL VERDICT (verified this shift on `ns25_ppheal.log`, resumed from banked_LIVE, PP-heal ON):
@@ -320,9 +322,11 @@ works" as done — it's only done when a FINAL-PROOF dumps the party at Indigo a
 the gate: `recon_partydump` (or equivalent) at the Indigo bank of a fresh-run look-ahead → 6 usable, similarly-leveled.
 
 ## 🎲 THE RELIABILITY BATTERY (2026-07-11, standing) — the gate for "engine reliable enough for a LIVE run"
-**Trigger: ONLY after the team-depth fix verifies** (a fresh-run FINAL-PROOF arrives at Indigo with a real leveled
-6). THEN run **5 INDEPENDENT fresh bedroom→credits look-aheads at max headless speed (~14x)** — separate runs, not
-one replayed. Auto-log a per-run report (this is what the end-of-run METRICS generator is for — build it if not yet):
+**Trigger: the MOMENT the team-depth fix verifies** (a fresh-run FINAL-PROOF arrives at Indigo with a real leveled 6).
+**▶▶ RUN STRAIGHT THROUGH — AUTO-PROCEED into the battery the instant team-depth verifies; do NOT pause for a human
+GO, do NOT stop-and-wait (2026-07-12, Jonny: he has the credits — PRIORITIZE SPEED to the finished asymptote,
+end-to-end, unattended). Report progress as you go; deliver the full battery results when done.** THEN run
+**5 INDEPENDENT fresh bedroom→credits look-aheads at max headless speed (~14x)** — separate runs, not one replayed. Auto-log a per-run report (this is what the end-of-run METRICS generator is for — build it if not yet):
 - **total in-game playtime**, the **final 6-mon team + levels at the Elite Four**, the **route / notable choices**,
   and **outcome** (credits rolled Y/N; any crash / livelock / thin-team).
 **THE BAR to declare RELIABLE (all four, no exceptions):** (1) **5/5 roll credits**; (2) **5/5 arrive at the E4 with
