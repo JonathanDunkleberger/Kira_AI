@@ -1,18 +1,28 @@
 # NEXT SESSION — resume prompt (frontier-first, kept CURRENT)
 
-## ⚔️ WAR-SHIFT #3 (2026-07-12 ~13:20) — RE-CONFIRMED the opening wedge; NS#3's "CLEAN" commit was a MISREAD. START HERE ↓
-Glanced `fresh_go_1.log` (alive, mtime 13:19, banking every 180s). DECISIVE: she has spent her **ENTIRE run on Route 1
-(map 3,19)** — last 8 `STATE IN` all "Route 1", every recent `map=` is (3,19), **never once reaches Viridian** in state
-(only Pallet↔Route1), 0 balls, badge 0, now **ivysaur L22** (over-grinding). NS#3's committed "CLEAN — grinding L6→L14
-for Brock" (`a8b358f`) was WRONG: head_to_gym is picked (4×) but is a DEAD ROUTE (north maps not in graph) → grind
-dominates (11× PICK battle) → she over-grinds Route 1 forever, never crossing north to Viridian/Route 2/Pewter.
-NOT fixed this shift — the opening forward-drive fix is Monday-scoped (needs design + a verify look-ahead, and the
-SINGLE-RUN LAW blocks verifying while the detached run holds the one emulator; blind-editing forward-drive is forbidden).
-**MONDAY (budget refill):** build/verify the opening exploration-drive (cross Route1→Viridian → buy 5 balls → push north
-Route2→Forest→Pewter→Brock when head_to_gym has no graph route), THEN `rm -rf /g/temp/longrun/banked_LIVE` so the
-watchdog reboots a corrected fresh run (the current banked_LIVE is a ruined Route-1-grind state — do not resume from it).
-Detached run left ALIVE per WAR order 5 (harmless; will be discarded Monday). Fast exit per WAR order 4.
-↓ WAR#2 detail below is the design brief for the Monday fix.
+## ⚔️ WAR-SHIFT #4 (2026-07-12 ~13:55) — OPENING WEDGE ROOT-KILLED + FRESH RUN RELAUNCHED (FRESH spine). START HERE ↓
+The WAR#2/#3 diagnosis was WRONG (head_to_gym "dead route → grind"). The live trace shows the TRUE root: the campaign
+DID offer forward `travel:3,1` (Viridian) every tick — **the headless chooser just picked `battle` forever** (`prep is
+not None → battle`), over-grinding a solo ivysaur to L28 vs Brock L12-14 with 0 balls. DEEPER root: even fixed to walk
+north, **free_roam can NOT cross the opening** — Viridian's north exit to Route 2 is a scripted catching-tutorial /
+Oak's-Parcel NPC gate (blocks at (22,11)) that free_roam has no logic for. **The opening is a SCRIPTED-SEGMENT job.**
+FIXED + committed (`02869e4`, verified live): (1) chooser prefers forward travel when head_to_gym is pruned + grinding is
+pointless (harness-side); (2) head_to_gym OPENING NORTH-MARCH for spine[0]/Pewter, fail-clean (core, tightly scoped —
+mid/late spine byte-unchanged). These correct free_roam's opening behavior but the parcel gate still needs the spine.
+**THE REAL FIX = boot the watchdog in FRESH mode** (recon_longrun FRESH = the proven scripted spine: char-creation →
+`deliver_parcel` [opens the gate + grants 5 Poké Balls] → `advance_north` to Brock → … → Misty → hand off to free_roam
+for badge 3 → credits). VERIFIED this shift: FRESH crosses the parcel gate onto Route 2 cleanly, delivering the Pokédex
++ 5 balls. **DONE THIS SHIFT:** watchdog switched to boot FRESH (`fresh_go_watchdog.sh`, also fixed a `seq`-not-on-PATH
+bug that made a hidden launch no-op); ruined banked_LIVE deleted; watchdog RELAUNCHED detached — now running `recon_longrun
+FRESH 120`, progressing (the_opening → DELIVER_PARCEL done → GRIND_PRE_BROCK on Route 2).
+**AT RESUME:** glance `fresh_go_1.log` — grep `SEGMENT [0-9]|EARNED|Boulder|Cascade|badges=[1-8]|FRESH HANDOFF|banked_CREDITS|CRASH`.
+If it reached free_roam handoff (post-Misty) it's on the proven badge-3→credits climb. If `banked_CREDITS` exists → verify
+fresh + write `CREDITS` line-1 of NIGHT_REPORT.md + survey. If the SPINE wedged (a scripted-opening bug) → capture + root-fix
+that specific leg (advance_north forest crossing / Brock / Misty), re-run. NB banked_LIVE only banks in the free_roam phase
+(post-Misty); a pre-Misty crash re-runs FRESH from bedroom (acceptable; ~40 min). Watchdog launch cmd if it died:
+`bash -lc /g/temp/longrun/fresh_go_watchdog.sh` (login shell — needs coreutils on PATH). Fast exit per WAR order 4 (clean:
+run relaunched + progressing).
+↓ WAR#2 detail below is superseded; kept for the parcel-gate context.
 
 ## ⚔️ WAR-SHIFT #2 (2026-07-12 ~13:10) — FRESH RUN IS SOFT-WEDGED IN THE OAK'S-PARCEL OPENING. START HERE ↓
 **THE FRESH bedroom→credits RUN IS ALIVE BUT NOT PROGRESSING.** Watchdog (`fresh_go_watchdog.sh`, detached) still
