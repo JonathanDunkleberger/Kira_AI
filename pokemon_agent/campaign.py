@@ -224,6 +224,12 @@ MANSION_STRIKE_ENABLED = os.getenv("POKEMON_MANSION_STRIKE", "1") != "0"
 # -> beat_gym dispatches the strike -> quiz doors -> badges=7 Volcano -> 0 Sevii transitions -> head_to_gym
 # Giovanni). Disable with POKEMON_BLAINE_GYM=0.
 BLAINE_GYM_ENABLED = os.getenv("POKEMON_BLAINE_GYM", "1") != "0"
+# NS#13: the VIRIDIAN GYM strike (Giovanni, badge 8 — the FINAL gym). Viridian is a SPIN-TILE floor maze
+# (the Rocket-Hideout class) — the general beat_gym leader-engage can't cross the spin maze to reach
+# Giovanni. giovanni_gym.run_gym does the tour (spin_nav across the maze -> Giovanni -> badge 0x827 -> heal;
+# NO exit ambush — the Gary fight arms later on Route 22). Hooked at the TOP of beat_gym. DEFAULT OFF until
+# the live look-ahead proves badge 8; enable with POKEMON_GIOVANNI_GYM=1.
+GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "0") != "0"
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -3894,6 +3900,18 @@ class Campaign:
                 return r
             except Exception as e:
                 log(f"   !! GYM: Blaine strike errored ({e}) — falling through to the general handler (LOUD)")
+        # VIRIDIAN SPIN-TILE GYM (NS#13): Giovanni sits behind a spin-tile maze the general leader-engage
+        # can't cross. giovanni_gym.run_gym rides spin_nav across the maze -> Giovanni -> badge 8 (0x827) ->
+        # heal (no exit ambush). Same TOP-of-beat_gym hook as Blaine; flag-gated (GIOVANNI_GYM_ENABLED).
+        if name == "Giovanni" and GIOVANNI_GYM_ENABLED:
+            try:
+                import giovanni_gym
+                dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "giovanni_probe")
+                r = giovanni_gym.run_gym(self, log, dbg_dir=dbg)
+                log(f"   GYM: Giovanni spin-tile strike -> {r}")
+                return r
+            except Exception as e:
+                log(f"   !! GYM: Giovanni strike errored ({e}) — falling through to the general handler (LOUD)")
         log(f"   GYM: inside {gym_map} at {tv.coords(self.b)} - clearing junior trainers")
         # PAD ROUTER (the Saffron-gym class, recon_sabrina-proven; ported 2026-07-08): a
         # warp-partitioned interior (same-map teleport pads) reads no_route to EVERYTHING on
