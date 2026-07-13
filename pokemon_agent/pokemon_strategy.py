@@ -41,7 +41,7 @@ _P_LEVEL_OFF = 0x54
 # The framework a real player runs on every wild encounter: is it NEW, does it COVER a type gap, is it
 # a decent LEVEL, is there ROOM? Pure function — it LEANS, with a first-person-ready REASON either way;
 # the ORACLE decides live (capability-not-script), headless follows the lean. Never edits anything.
-def roster_judgment(team, foe, dex_new=None, quality=None):
+def roster_judgment(team, foe, dex_new=None, quality=None, also_owned=None):
     """team = [{'species_id', 'level', 'types': [...]}]; foe = {'species_id', 'name', 'level',
     'types': [...]}; dex_new = True when she has NEVER OWNED this species (DEX DOCTRINE 2026-07-06:
     a first-of-a-kind carries real positive weight when the catch is cheap — the dex is her ambient
@@ -53,7 +53,10 @@ def roster_judgment(team, foe, dex_new=None, quality=None):
     facts)."""
     name = foe.get("name") or "it"
     f_types = [t for t in (foe.get("types") or []) if t]
-    team_ids = {m.get("species_id") for m in team}
+    # BOX-AWARE DE-DUP (2026-07-13, order 3d): a species already in the PC BOX is still an owned dupe —
+    # catching a 2nd is the duplicate-Dugtrio bug. `also_owned` = box species_ids the caller scanned;
+    # OR it into the party set so the dupe test is "own it anywhere", not "own it in the party".
+    team_ids = {m.get("species_id") for m in team} | set(also_owned or ())
     team_types = {t for m in team for t in (m.get("types") or []) if t}
     levels = [m.get("level") or 0 for m in team] or [1]
     floor, lead = min(levels), max(levels)

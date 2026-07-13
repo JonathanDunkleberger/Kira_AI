@@ -389,7 +389,11 @@ class TeamPlanner:
 
     # ── live status: which slots are already fielded / evolved ────────────────────────────────────
     def _recompute_status(self, party):
-        names = {(m.get("species") or "").lower() for m in party}
+        # BOX-AWARE (2026-07-13, order 3d): a slot satisfied by a mon sitting in the PC BOX must read
+        # "acquired", not "planned" — else assess() keeps proposing catch_keeper and the router marches
+        # her back to re-catch it (the wasted-detour half of the duplicate-Dugtrio bug). The Campaign
+        # refreshes _owned_box_names at catch-decision cadence (no per-tick PC scan); absent => party-only.
+        names = {(m.get("species") or "").lower() for m in party} | (getattr(self, "_owned_box_names", None) or set())
         for s in self.state["slots"]:
             line = [x.lower() for x in s["line"]]
             target = s["target"].lower()

@@ -144,7 +144,13 @@ CAVE_GRIND_RADIUS = int(os.getenv("POKEMON_CAVE_GRIND_RADIUS", "6"))
 # grass (the route grass near a gym is level-appropriate) instead of a stationary weak-grass marathon (the
 # celadon_run1 27-level park). The milestone is marked truly done only when the floor reaches within CLOSE
 # of it (goal met) — never after a single bite. Flag-gated; default OFF preserves 36b4998 byte-identically.
-BENCH_TO_MILESTONE = os.getenv("POKEMON_BENCH_TO_MILESTONE", "0") != "0"
+# DEFAULT-ON 2026-07-13 (single-mission order 3a — the team-depth fix). fresh_go_1 proved the bench
+# stays flat (~L40) under an L100 ace: with this OFF, LOPSIDED gives only ONE +6 bite per badge, so a
+# milestone jump (Erika 31 -> Koga 45) never closes and the ace marches ahead. This multi-bite keep-climb
+# grinds the bench FLOOR up to each gym milestone (park-proofed by the poor-spot release). The leaked-flag
+# treadmill that made this dangerous was root-killed in NS#36 (unconditional done-mark on a productive
+# bite, ~L11974), so default-ON is safe for a fresh climb with reachable per-gym grass.
+BENCH_TO_MILESTONE = os.getenv("POKEMON_BENCH_TO_MILESTONE", "1") != "0"
 BENCH_MS_CLOSE = int(os.getenv("POKEMON_BENCH_MS_CLOSE", "6"))     # floor within this of milestone => done
 BENCH_BITE_MIN = int(os.getenv("POKEMON_BENCH_BITE_MIN", "2"))    # a bite gaining < this many levels = poor spot
 # OVER-LEVEL BEFORE A GRASS-LESS SEA LEG (2026-07-12, NS#5 — the BLAINE team-depth wall). NS#4 proved an
@@ -5379,6 +5385,17 @@ class Campaign:
                     if _out == "stuck":
                         stuck_battles[0] += 1
                     return _out
+                # BOX-AWARE DE-DUP (2026-07-13, order 3d): the force-catch path BYPASSES roster_judgment,
+                # so a keeper already sitting in the PC BOX (e.g. one auto-boxed on a party-6 catch, or a
+                # diglett a swap benched) would be re-caught here -> the duplicate-Dugtrio bug. Never
+                # re-catch a species already owned: flee instead. The KEEPER_ROUTER_STALL_CAP retires the
+                # target after a few no-progress legs, so this can't livelock.
+                if _tfid and _tfid in self._box_species_ids():
+                    log(f"   CATCH: target {_tfname} already owned (in the PC box) — fleeing, no duplicate")
+                    _out = self._flee_runner()
+                    if _out == "stuck":
+                        stuck_battles[0] += 1
+                    return _out
                 self.on_event(f"there it is — a wild {_tfname}! this is the one I came for.",
                               kind="roster", tier=2)
                 # fall through to the commit (skip the judgment block)
@@ -5419,7 +5436,8 @@ class Campaign:
                     # SPECIES-QUALITY (2026-07-08 mega-batch): hand roster_judgment the guide's keeper
                     # record so she recognises a rare/strong catch on sight (a Pikachu!), not just a type-hole.
                     _quality = self.planner.keeper(fname)
-                    rec, reason, facts = roster_judgment(team, foe_desc, dex_new=_dex_new, quality=_quality)
+                    rec, reason, facts = roster_judgment(team, foe_desc, dex_new=_dex_new,
+                                                         quality=_quality, also_owned=self._box_species_ids())
                     pick = self._soul_choose(
                         "catch_judgment",
                         {"catch": f"throw a ball at this {fname} (L{foe_desc['level']})",
@@ -6142,6 +6160,22 @@ class Campaign:
                 if 1 <= sp <= 411:
                     found[(bx, sl)] = sp
         return cur_box, found
+
+    def _box_species_ids(self):
+        """The set of species_ids currently in the PC BOX (order 3d — box-aware de-dup). Read-only;
+        used only at catch-decision time (infrequent) so the PC scan cost never touches the per-tick
+        path. Fail-closed to empty (party-only dupe test) on any read error."""
+        try:
+            ids = set(self._box_scan()[1].values())
+        except Exception:
+            ids = set()
+        # Refresh the planner's boxed-species cache here (catch-decision cadence) so box-aware
+        # _recompute_status never pays a per-tick PC scan (order 3d).
+        try:
+            self.team_planner._owned_box_names = {st.SPECIES_NAME.get(i, "").lower() for i in ids if i}
+        except Exception:
+            pass
+        return ids
 
     def withdraw_mon(self, box, slot, pc_door):
         """AUTHENTIC PC withdraw (Tier-1 #15, NS#39 — the reverse of deposit_mon; closes the PC/BOX loop so
