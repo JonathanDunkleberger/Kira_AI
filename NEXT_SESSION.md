@@ -11,6 +11,28 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-24 STAMP (16:57) — HEALTHY, ALL 8 BADGES, now navigating VICTORY ROAD 1F toward the Elite Four; THE CRUX IS LIVE (bench underleveled entering the League), glance-clean 0-fix.**
+Single watchdog verified (py 147532 ← bash 144483/144478/10096, started 16:46:28 = SAME iter 3 as shift 23, single-run law
+holds). Log LIVE (mtime=now @16:56, **103,377 lines, +467 since shift 23**), **0 tracebacks whole-log**, **0 credits sentinels**
+(no live banked_CREDITS; only `banked_CREDITS_archived_fresh_go_2_final_0713_1354` = fresh_go_2's morning credits, NOT
+fresh_go_3). **306 motion / 0 spin in last 400 = moving-not-spinning** (live `[1f-ladder-approach]` replans across Victory Road
+1F, Bridge INPUT OWNER=agent sole writer). **PROGRESS SINCE SHIFT 23:** cleared the Route-22 Gary gate → oracle picked
+`head_to_league` → **now INSIDE VICTORY ROAD 1F** (map (3,1)@(36,11), ladder-approach pathing) — one cave from the Elite Four.
+Party **[venusaur L63, kadabra L31, dugtrio L29, growlithe L28, fearow L29, lapras L25] — SIX DISTINCT, 0 dups, dex 13,
+badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh,Volcano,Earth). **THE CRUX IS NOW MATERIALIZING:** ace L63 vs bench
+floor L25 = **~38 gap, AT PEAK**. GRIND-WEAK fired but hit `no_safe_grass` at Cinnabar/Route 21 (all water) → `PREP STAND-DOWN`
+dropped the train-first plan and moved forward → she is now **inside Victory Road, a CAVE** (map-type gate = ace leads inside
+caves, bench cannot grind here). The E4-prep bench never got pulled to the L52 pin on open ground; **she is entering the League
+underleveled on the bench** (Lapras L25, growlithe L28 far below L42). This resolves at credits via order-6 QUALIFYING
+adjudication: if she wins in solo-ace shape → WATCHABILITY-GAPS + Jonny adjudicates team-shape; if she whiteouts+loops → HALT
+diagnosis. Monitor-only; no flags flipped (deferred order-3b relax is RISKY, do NOT ship blind mid-run). **NEXT SHIFT = same
+glance, WATCH THE CRUX RESOLVE:** Victory Road → Elite Four (Lorelei/Bruno/Agatha/Lance — Lapras ice answers Lance) → Champion
+Gary → **CREDITS** (proven fresh_go_1 path, now with a distinct six). On banked_CREDITS → **order 6**:
+`tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → QUALIFYING eval → six distinct + all ≥L42 +
+gap ≤15 → **CREDITS** line 1 of NIGHT_REPORT.md (train STOPS); credits but bench <L42 / gap >15 → **WATCHABILITY-GAPS** +
+stats; same root fails twice → **HALT** line 1 + one-page diagnosis. Six stay distinct. Healthy → glance cheap, exit. Canonical
+UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-23 STAMP (16:53) — HEALTHY, BEAT BLAINE(7)+GIOVANNI(8) → ALL 8 BADGES, now routing Viridian→Route 22→Victory Road→Elite Four; ACUTE gap at PEAK ~38 (6 windows widening), glance-clean 0-fix.**
 Single watchdog verified (bash 43448 started 15:48 → bash 27304 relaunch 16:46:28 → py 10096 shim → py 42440 real = **ITER 3**,
 SAME long-lived iter as shift 22, single-run law holds). Log LIVE (mtime=now @16:52, **102,910 lines, +573 since shift 22**,
