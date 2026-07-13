@@ -11929,9 +11929,20 @@ class Campaign:
                         # tick → BOTH gates release: LOPSIDED stops AND _ensure_forward_questline opens the
                         # Seafoam crossing → she CROSSES to Cinnabar with the modest over-level she banked (the
                         # shift-6-proven "one +6 bite then cross" that reached Indigo). Scoped to
-                        # _ovl_sealeg_pending so the BENCH_TO_MILESTONE global multi-bite mode (flag default
-                        # OFF) is byte-unchanged; a POOR first bite already crosses via _bench_poor_maps above.
-                        if getattr(self, "_ovl_sealeg_pending", False):
+                        # the BENCH_TO_MILESTONE global multi-bite mode (flag default OFF) is byte-unchanged;
+                        # a POOR first bite already crosses via _bench_poor_maps above.
+                        # NS#35 FLAG-BUG FIX: shift-34 gated this on the CACHED _ovl_sealeg_pending, which is
+                        # set-and-`return`ed inside _ensure_forward_questline on a different tick/path, so at
+                        # THIS executor it read FALSE — the release never fired (live: 'productive bite' logged
+                        # 2x, 'banked one bite' 0x, done=[] forever → the shifts 30-34 treadmill persisted).
+                        # Reaching this branch already requires _bench_to_ms_active(state) (line ~11896), which
+                        # with BENCH_TO_MILESTONE default OFF means _overlevel_before_sealeg(state) is not None
+                        # — the SAME live source of truth that gates the crossing defer. Key the release off THAT
+                        # (not the stale flag): non-None here == over-level active for THIS grass-less-crossing
+                        # gym → retire it → _overlevel_before_sealeg returns None next tick → BOTH gates release
+                        # (LOPSIDED stops + Seafoam crossing opens) → she crosses. Multi-bite mode (over-level
+                        # inactive → None) is still untouched.
+                        if self._overlevel_before_sealeg(state) is not None:
                             self._overlevel_sealeg_dry_badge = int(state.get("badge_count", -1))
                             self._ovl_sealeg_pending = False
                             self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())

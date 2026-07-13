@@ -1,18 +1,21 @@
 """recon_ns34_onebite_cross_check.py — decision verifier for NS#34 OVER-LEVEL ONE-BITE-THEN-CROSS
 (campaign.py ~L11929, the fix that root-kills the shifts 30-33 Route-18 soft-treadmill).
 
-The fix: in the grind executor's PRODUCTIVE-BITE branch, when the over-level-before-sealeg is the driver
-(_ovl_sealeg_pending True — NOT the global BENCH_TO_MILESTONE flag), after ONE productive bite it retires
-the over-level for THIS badge by setting _overlevel_sealeg_dry_badge = badge (+ clears _ovl_sealeg_pending,
-+ marks _lopsided_grind_done). That release flag makes the REAL _overlevel_before_sealeg return None next
-tick, which (a) stops LOPSIDED re-firing AND (b) lets _ensure_forward_questline open the Seafoam crossing →
+The fix (NS#35): in the grind executor's PRODUCTIVE-BITE branch, when the over-level-before-sealeg is
+ACTIVE (_overlevel_before_sealeg(state) is not None — the LIVE source of truth, NOT the stale cached
+_ovl_sealeg_pending flag that shift-34 mis-keyed off, which reads FALSE at this executor), after ONE
+productive bite it retires the over-level for THIS badge by setting _overlevel_sealeg_dry_badge = badge
+(+ marks _lopsided_grind_done). That release makes the REAL _overlevel_before_sealeg return None next tick,
+which (a) stops LOPSIDED re-firing AND (b) lets _ensure_forward_questline open the Seafoam crossing ->
 she CROSSES instead of treadmilling toward the UNREACHABLE Blaine L48 milestone at Route-18's L23-29 grass.
 
 This verifies, WITHOUT the emulator, that the exact side effects the branch performs cause the release. It
 replays the branch's assignment block verbatim, then calls the REAL _overlevel_before_sealeg + confirms:
-  A  BEFORE the bite: over-level ACTIVE (pending, returns the milestone) — the treadmill state.
-  B  the branch is scoped to _ovl_sealeg_pending (global BENCH_TO_MILESTONE multi-bite mode untouched).
-  C  AFTER the bite: over-level RELEASED (returns None) → crossing opens → she crosses (one-bite-then-cross).
+  A  BEFORE the bite: over-level ACTIVE (returns the milestone) — the treadmill state.
+  B  NS#35 REGRESSION GUARD: over-level active but _ovl_sealeg_pending FALSE (the real live value) ->
+     release STILL fires (the shift-34 guard would have skipped it -> the treadmill it shipped).
+  B2 over-level INACTIVE (BENCH_TO_MILESTONE multi-bite mode) -> no release (byte-unchanged).
+  C  AFTER the bite: over-level RELEASED (returns None) -> crossing opens -> she crosses (one-bite-then-cross).
   D  the release is per-BADGE (a NEW badge re-arms the over-level — not a permanent kill).
 
 RUN:  ../.venv/Scripts/python.exe -u recon_ns34_onebite_cross_check.py
@@ -56,8 +59,11 @@ class FakeCamp:
         return object() if self._seafoam_open else None
 
     def apply_onebite_release(self, state, _lop_ms):
-        """The EXACT side-effect block from the productive-bite branch (campaign.py ~L11929)."""
-        if getattr(self, "_ovl_sealeg_pending", False):
+        """The EXACT side-effect block from the productive-bite branch (campaign.py ~L11934).
+        NS#35: the guard is the LIVE _overlevel_before_sealeg(state) is not None (over-level active),
+        NOT the stale cached _ovl_sealeg_pending flag (which reads False at this executor — the shift-34
+        inert-fix bug)."""
+        if self._overlevel_before_sealeg(state) is not None:
             self._overlevel_sealeg_dry_badge = int(state.get("badge_count", -1))
             self._ovl_sealeg_pending = False
             self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
@@ -88,14 +94,24 @@ def main():
     check("A over-level ACTIVE before the bite (treadmill state)",
           fc._overlevel_before_sealeg(st), 48)
 
-    # B — the release block is scoped to _ovl_sealeg_pending: if NOT the over-level driver, no release fires
-    fc_flagmode = FakeCamp(milestone=48)
-    fc_flagmode._ovl_sealeg_pending = False          # e.g. BENCH_TO_MILESTONE multi-bite mode
-    fc_flagmode.apply_onebite_release(st, 48)
-    check("B scoped: BENCH_TO_MILESTONE mode leaves dry_badge untouched",
-          fc_flagmode._overlevel_sealeg_dry_badge, -1)
+    # B (NS#35 REGRESSION GUARD — the exact live bug shift-34 shipped): the cached _ovl_sealeg_pending
+    # reads FALSE at this executor, yet over-level is ACTIVE. The OLD guard (if _ovl_sealeg_pending) skipped
+    # the release -> treadmill. The NEW guard keys off the LIVE _overlevel_before_sealeg -> release STILL fires.
+    fc_stale = FakeCamp(milestone=48)
+    fc_stale._ovl_sealeg_pending = False             # the real live value at the productive-bite branch
+    fc_stale.apply_onebite_release(st, 48)
+    check("B stale-flag: over-level active but pending False -> release STILL fires (the NS#35 fix)",
+          fc_stale._overlevel_before_sealeg(st), None)
 
-    # C — AFTER one productive bite: apply the release → over-level RELEASES (None) → crossing opens
+    # B2 — over-level INACTIVE (None: e.g. BENCH_TO_MILESTONE global multi-bite mode, seafoam gate closed) ->
+    # no release fires -> multi-bite mode byte-unchanged.
+    fc_multibite = FakeCamp(milestone=48)
+    fc_multibite._seafoam_open = False               # _overlevel_before_sealeg returns None (not the sea-leg)
+    fc_multibite.apply_onebite_release(st, 48)
+    check("B2 multi-bite mode (over-level inactive) leaves dry_badge untouched",
+          fc_multibite._overlevel_sealeg_dry_badge, -1)
+
+    # C — AFTER one productive bite: apply the release -> over-level RELEASES (None) -> crossing opens
     fc.apply_onebite_release(st, 48)
     check("C over-level RELEASED after one bite (crosses to Cinnabar)",
           fc._overlevel_before_sealeg(st), None)
