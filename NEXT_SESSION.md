@@ -11,6 +11,27 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-16 STAMP (16:29) — HEALTHY, bench CROSSED the L28 Koga pin + advanced to POKÉMON TOWER, glance-clean 0-fix.**
+Single watchdog chain verified (bash 144483 → py 144491, both started 15:48; single-run law holds — SAME
+long-lived iter as shifts 14/15, NOT a relaunch). Log LIVE (mtime=now @16:29, growing +7 lines/6s, **94,255
+lines, +1.5K since shift 15**), **0 tracebacks whole-log**. 184 motion / 2 "spin" in last 400 — but BOTH spin
+hits were `TRAVEL WEDGE ... returning to roam LOUD (no inner spin)` = self-recovering, NOT real spin-wedges =
+moving-not-spinning. **PROGRESS SINCE SHIFT 15: the Route-7 L28 bench grind COMPLETED** — decision #32→#54
+(sim 1715→2398s, +683 sim-sec), **all five bench mons crossed the L28 Koga pin and are now UNIFORM L28** (was
+mixed L24-26). She then advanced Route 7 → **POKÉMON TOWER** (map (1,88)/(1,93), (11,18)) working the Silph-
+Scope/Mr-Fuji/**Poké-Flute→Snorlax** questline (ql="the Poké Flute … wakes a sleeping Snorlax") — a sensible
+Celadon-area leg en route to Fuchsia/Koga. Live tail = climbing Tower floors (path 37→31→24 to exit = forward),
+fighting trainers (`blocker battle outcome=win`), fresh ENCOUNTERs, Bridge INPUT OWNER=agent (sole writer).
+Party **[venusaur L49, raticate L28, kadabra L28, dugtrio L28, growlithe L28, fearow L28] — SIX DISTINCT, 0
+dups, dex 12, badges=4** (Boulder, Cascade, Thunder, Rainbow). banked_LIVE fresh 16:26, no banked_CREDITS.
+`banked_TIMEOUT_healed` (16:27) = a Route-7 heal-excursion that SELF-HEALED (many `HEAL-EXCURSION: healed +
+back on (3,25)` lines then she LEFT for the Tower) — self-recovering, not a wedge. **ACUTE gap NARROWED 23→21**
+(ace L49 vs bench floor L28 — bench OUTPACED the ace this window: +4 floor vs +2 ace = right direction); must
+still close to ≤15 (all ≥L42) by E4 via the milestone ladder; track the floor each glance. Nothing to fix, no
+flags flipped. NEXT SHIFT = same glance (Poké Flute→Snorlax→Fuchsia→Koga→Sabrina→Blaine→Giovanni→VR→E4→credits;
+six stay distinct; on banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in:
+`play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-15 STAMP (16:26) — HEALTHY, bench grind to Koga L28 pin STILL ADVANCING, glance-clean 0-fix.**
 Single watchdog chain verified (bash 144483 → py 144491, shim 27064 / real 42948, all started 15:48; single-run
 law holds — SAME long-lived iter as shift 14, NOT a relaunch). Log LIVE (mtime=now @16:25, 92,713 lines, **+1.9K
