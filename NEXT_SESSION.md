@@ -11,6 +11,26 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-17 STAMP (16:33) — HEALTHY, advanced out of Pokémon Tower to the FUCHSIA approach (Koga/gym-5 march), glance-clean 0-fix.**
+Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, ALL started 15:48; single-run
+law holds — SAME long-lived iter as shifts 14-16, NOT a relaunch. NOTE: shifts 15/16 cited PIDs 144483/144491 —
+those are the git-bash-namespace PIDs for the SAME processes; the Windows PIDs are 43448/40260/27064/42948, real
+python 27064/42948 consistent across shifts 14-17). Log LIVE (mtime=now @16:32, **94,635 lines, +380 since shift
+16**), **0 tracebacks whole-log**. **205 motion / 0 spin-wedge in last 400 = moving-not-spinning** (live travel
+steps on map (3,33) + `blocker is a TRAINER - fighting through`, Bridge INPUT OWNER=agent sole writer; a
+self-recovering `HEAL-RETURN` excursion routing to Viridian in flight = LOUD, not a wedge). **PROGRESS SINCE
+SHIFT 16:** advanced out of **POKÉMON TOWER** → now at the **FUCHSIA approach (map (3,33))** fighting through
+route trainers toward **Koga (gym 5)**. Party **[venusaur L52, raticate L28, kadabra L30, dugtrio L28, growlithe
+L28, fearow L28] — SIX DISTINCT, 0 dups, dex 12, badges=4** (Boulder, Cascade, Thunder, Rainbow). banked_LIVE
+fresh 16:30; **NO live banked_CREDITS** (a `banked_CREDITS*` glob matched ONLY the archived
+`banked_CREDITS_archived_fresh_go_2_final_0713_1354` dir from this morning — VERIFIED not a fresh_go_3 credits;
+log has 0 CREDITS/champion events). **ACUTE gap WIDENED 21→24 this window** (ace crept L49→L52 on the
+Tower→Fuchsia questline leg while bench floor HELD L28 — the expected ace-runaway-on-questline-legs pattern; the
+milestone ladder at the Koga pin + gyms 5-8 must pull the bench up to reverse it). Must still close to ≤15 (all
+≥L42) by E4 — **watch the gap REVERSES at the Koga pin next shift, not keeps opening**. Nothing to fix, no flags
+flipped. NEXT SHIFT = same glance (Fuchsia→Koga→Sabrina→Blaine→Giovanni→VR→E4→credits; six stay distinct; on
+banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-16 STAMP (16:29) — HEALTHY, bench CROSSED the L28 Koga pin + advanced to POKÉMON TOWER, glance-clean 0-fix.**
 Single watchdog chain verified (bash 144483 → py 144491, both started 15:48; single-run law holds — SAME
 long-lived iter as shifts 14/15, NOT a relaunch). Log LIVE (mtime=now @16:29, growing +7 lines/6s, **94,255
