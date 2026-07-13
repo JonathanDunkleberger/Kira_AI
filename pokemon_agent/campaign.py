@@ -2284,6 +2284,29 @@ class Campaign:
                     return r
                 continue
             if out in ("no_path", "stuck"):
+                # travel to the FAR target failed — on a FRESH run the target (e.g. PEWTER) isn't in the
+                # learned graph yet, so a whole-route BFS finds nothing and travel returns no_path even
+                # though the immediate NORTH edge is walkable. Before assuming a gate-house, read the LIVE
+                # map header for a real N edge connection (Route 2 -> Viridian Forest IS a walkable edge,
+                # not a warp) and WALK-cross it — the docstring's WALK case. Skipping this was the fresh
+                # wedge: travel(PEWTER) no_path'd, then enter_warp(prefer="north") grabbed a BUILDING door
+                # and warped INTO it -> stuck (fresh_go_2 iter 1, 2026-07-13). Only a map with NO north
+                # edge is a true gate-house -> fall through to the warp.
+                north = next(((g, n) for d, (g, n) in self._map_connections() if d == "N"), None)
+                if north is not None and tuple(north) != tuple(m):
+                    log(f"   leg {leg}: travel to far target failed on map {m}; WALK-crossing the live "
+                        f"north edge -> {tuple(north)}")
+                    e = self._edge_travel(tuple(north), "north")
+                    if e in ("arrived", "crossed", "passthrough_forward"):
+                        continue
+                    if e == "battle_loss":
+                        return "battle_loss"
+                    if e == "need_heal":
+                        r = self.return_to_center()
+                        if r in ("stuck", "battle_loss"):
+                            return r
+                        continue
+                    # edge cross also failed -> fall through to the gate-house warp attempt below
                 # no walkable north edge here -> it's an interior/gate house: warp north
                 log(f"   leg {leg}: no north edge on map {m} - warping north")
                 w = self.enter_warp(prefer="north")
