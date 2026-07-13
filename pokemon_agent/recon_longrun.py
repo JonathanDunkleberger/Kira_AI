@@ -319,6 +319,18 @@ def main():
     # was the goal-flag ALREADY set at boot? (a held ticket must not insta-GOAL — flag goals fire on
     # the TRANSITION only)
     boot_goal_flag = [bool(fm.read_flag(b, GOAL_FLAG if GOAL_FLAG is not None else SS_TICKET))]
+    # VICTORY RECOGNITION (2026-07-13, single-mission order 1): the champion win is the ONE terminal
+    # goal above every stretch goal. fresh_go_1 rolled real credits but the harness had no CREDITS
+    # outcome — post-champion the party/badges/maps freeze, so progress_sig stalls and the watchdog
+    # mis-called the victory lap a STALL and killed the run. Reuse campaign's firewalled post_game
+    # computation (8 badges AND (game-clear flag OR in a Hall/Champion room)); fire on the TRANSITION
+    # only (a resume from a post-game banked save must not insta-CREDITS), exactly like boot_goal_flag.
+    def _is_post_game():
+        try:
+            return bool(camp.read_live_state().get("post_game"))
+        except Exception:
+            return False
+    boot_post_game = [_is_post_game()]
     start_party = _party(b)
     start_levels = [lv for _, lv, _, _ in start_party] or [0]   # FRESH boot: party 0 until the starter
 
@@ -359,6 +371,11 @@ def main():
             _road = camp._gym_road((_ls or {}).get("next_gym"))   # billed road to the next gym (or None)
         except Exception:
             prep = None
+        # CREDITS — the terminal victory (order 1). Post-game means she beat the Champion; nothing
+        # after it is a stretch goal, so recognize it BEFORE the GOAL/STALL checks (which would else
+        # mis-read the frozen post-victory sig as a STALL). Fire on the boot->post_game transition only.
+        if (_ls or {}).get("post_game") and not boot_post_game[0]:
+            raise _Done("CREDITS: Champion defeated — Hall of Fame reached (post_game)")
         ql = camp._active_questline
         ql_doing = (ql.actionable.human if (ql and ql.actionable) else None)
         b_desc = options.get("battle", "") if isinstance(options, dict) else ""
@@ -545,6 +562,12 @@ def main():
         why = f"CRASH: {e}"
         L("!! CRASH TRACE:\n" + traceback.format_exc())
 
+    # VICTORY SAFETY NET (order 1): if free_roam/e4_strike returned CLEANLY after rolling credits
+    # (the post_game short-circuit can exit the roam loop before the chooser is asked again), the
+    # win must still register as CREDITS — never as the default timeout.
+    if not why.startswith("CREDITS") and not boot_post_game[0] and _is_post_game():
+        why = "CREDITS: Champion defeated — post-game detected at run end"
+
     # ── outcome ──
     elapsed = round(time.time() - T0, 1)
     end_party = _party(b)
@@ -570,7 +593,8 @@ def main():
         L(f"   {t:7.1f}s [{kind}] {s[:110]}")
 
     # ── PIECE 2: bank the staged checkpoint + round-trip verify ──
-    outcome_tag = ("GOAL" if why.startswith("GOAL") else "STALL" if why.startswith("STALL")
+    outcome_tag = ("CREDITS" if why.startswith("CREDITS") else "GOAL" if why.startswith("GOAL")
+                   else "STALL" if why.startswith("STALL")
                    else "TIMEOUT" if why.startswith("timeout") else "CRASH")
     _stage_save("final")
     _stage_continuity()

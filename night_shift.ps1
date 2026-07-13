@@ -58,6 +58,13 @@ while ($true) {
         Write-Host "== THE CREDITS ROLLED. The mountain is climbed. Read NIGHT_REPORT.md. =="
         break
     }
+    # HALT sentinel (single-mission order 0b): a session that hits a same-root-twice failure, a
+    # 22:00 idle deadline, or any deliberate stop writes "HALT" as line 1 of NIGHT_REPORT.md with a
+    # one-page diagnosis below it. Like CREDITS, it stops the loop for human eyes.
+    if ($top -match "^\s*HALT") {
+        Write-Host "== HALT sentinel found on line 1 of NIGHT_REPORT.md. Stopping for human eyes. =="
+        break
+    }
     if (-not (Test-Path $Frontier)) {
         Add-Content $Report "- $(Get-Date -Format 'HH:mm') NEXT_SESSION.md MISSING -- stopping for human eyes."
         break
@@ -127,13 +134,18 @@ while ($true) {
         break
     }
 
-    if (($secs -lt 60) -and (($exitCode -ne 0) -or ($logBytes -eq 0))) {
+    # FAST-FAIL routing (order 0b): a sub-60s error shift is NOISE, not a survey line — it must NOT
+    # pollute NIGHT_REPORT.md (which the loop reads for the CREDITS/HALT sentinel and Jonny reads for
+    # real progress). Route fast-fails to logs/fastfail.log instead.
+    $isFastFail = (($secs -lt 60) -and (($exitCode -ne 0) -or ($logBytes -eq 0)))
+    if ($isFastFail) {
         $tail = "(log empty -- claude produced no output at all)"
         if ($logBytes -gt 0) { $tail = ((Get-Content $log -Tail 10) -join "`n") }
         Write-Host "== SHIFT $shift FAST-FAIL: exited in ${secs}s (exit code $exitCode, log $logBytes bytes) ==" -ForegroundColor Red
         Write-Host $tail -ForegroundColor Red
-        Add-Content $Report ("- shift {0} FAST-FAIL {1} ({2}s, exit {3}): {4}" -f `
-            $shift, (Get-Date -Format "HH:mm"), $secs, $exitCode, ($tail -replace "\r?\n", " / "))
+        $FastFail = Join-Path $LogDir "..\fastfail.log"
+        Add-Content $FastFail ("- shift {0} FAST-FAIL {1} ({2}s, exit {3}): {4}" -f `
+            $shift, (Get-Date -Format "yyyy-MM-dd HH:mm"), $secs, $exitCode, ($tail -replace "\r?\n", " / "))
     }
 
     $endHead = (git rev-parse HEAD 2>$null)
@@ -167,6 +179,18 @@ while ($true) {
         Write-Host "== TEST cycle complete -- check NIGHT_REPORT.md for the session's test line. =="
         break
     }
-    Write-Host "== SHIFT $shift closed ($mins m, $commits commits). Relaunching in $SleepBetween s. =="
-    Start-Sleep -Seconds $SleepBetween
+    # ADAPTIVE CADENCE (order 0b): a shift that COMMITTED was actively building -> relaunch fast (60s)
+    # so the next build starts. A 0-commit shift just glanced at a healthy in-flight run and exited
+    # clean -> there's nothing to do until the run advances, so wait 15 MINUTES (don't burn tokens
+    # re-glancing a slow-cooking run every minute). A fast-fail retries at 60s (something's wrong,
+    # recover quickly). This replaces the flat $SleepBetween.
+    if ($isFastFail) {
+        $sleepSecs = 60
+    } elseif ($commits -gt 0) {
+        $sleepSecs = 60
+    } else {
+        $sleepSecs = 900
+    }
+    Write-Host "== SHIFT $shift closed ($mins m, $commits commits). Relaunching in $sleepSecs s. =="
+    Start-Sleep -Seconds $sleepSecs
 }
