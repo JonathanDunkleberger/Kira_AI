@@ -11,6 +11,15 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-7 STAMP (16:02) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
+shift 6 (py 144491 + bash 144483, started 15:48) alive; log live (mtime=now), **0 tracebacks (79.5K lines)**,
+40 motion events / 0 spin-wedge lines in tail = moving-not-spinning; banked_LIVE fresh 15:51, no banked_CREDITS.
+Party **[venusaur L44, diglett L23, growlithe L23, kadabra L24, raticate L22, fearow L24] — SIX DISTINCT, 0
+dups, dex 11, badges=4**, GRIND-WEAK/LOPSIDED firing textbook (ace HELD L44, bench climbing kadabra L22→L24,
+narrated *"fielding them, not my ace"*), heading Celadon→Fuchsia for Koga. **ACUTE gap = ace L44 vs bench floor
+L22 = ~22**, must close to ≤15 (all ≥L42) by E4 via the milestone ladder — track the floor each glance. Nothing
+to fix, no flags flipped. NEXT SHIFT = same glance as below (Koga→Sabrina→Blaine→Giovanni→VR→E4→credits;
+six stay distinct; on banked_CREDITS → order 6). ————————————————————————————————————————————————
 **SHIFT-6 STAMP (15:59) — HEALTHY, still bench-grinding to Koga (gym 5), glance-clean.** Fresh watchdog iter
 (py 144491, started 15:48) at sim ~635s: on **Route 7 (map 3,25), badges=4**, GRIND-WEAK/LOPSIDED-BENCH firing
 textbook (`forcing ONE dedicated grind stint`, ace **HELD**, RATIONALE *"grinding … up to ~L28 (fielding them,
