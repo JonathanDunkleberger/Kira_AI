@@ -11,6 +11,20 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-13 STAMP (16:20) — HEALTHY, bench grind to Koga ADVANCING, glance-clean 0-fix.** Same watchdog
+iter as shift 12 — **ONE** chain verified (py 144491 → bash 144483 → 144478 → 27064, all started 15:48;
+single-run law holds). Log live (mtime=now @16:20), **0 tracebacks (89,035 lines, +1.2K since shift 12)**,
+0 spin-wedge / 80 win-events in last 400 = moving-not-spinning. Decisions ADVANCING #30→#31→#32
+(922s→1610s→1715s); since shift 12 rattata→raticate crept L24→L26 (real forward XP). Party **[venusaur L47,
+kadabra L27, dugtrio L26, growlithe L26, raticate L26, fearow L24] — SIX DISTINCT, 0 dups, dex 12, badges=4**;
+bench floor now fearow L24, ace HELD L47 (milestone-pinned, NOT runaway). Still Route 7 (3,25), prep=28
+(Koga L28 pin), grinding the bench for Fuchsia/Koga (gym 5). banked_LIVE fresh 16:15, no banked_CREDITS.
+**ACUTE gap = ace L47 vs bench floor L24 = ~23** — must close to ≤15 (all ≥L42) by E4 via the milestone
+ladder; track the floor each glance. Nothing to fix, no flags flipped. NEXT SHIFT = same glance
+(cross L28 pin → Fuchsia → Koga → Sabrina → Blaine → Giovanni → VR → E4 → credits; six stay distinct; on
+banked_CREDITS → order 6: run_stats → QUALIFYING eval → CREDITS/WATCHABILITY-GAPS/HALT line 1 of
+NIGHT_REPORT.md). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-12 STAMP (16:16) — HEALTHY, grind stint RESOLVED with real progress, glance-clean 0-fix.** The
 shift-9..11 decision-#30 Route-7 grind stint has COMPLETED: since shift 11 the bench climbed floor L23→L24
 and across the board (kadabra L24→L27, growlithe L23→L26, raticate L24→L26) and **DIGLETT EVOLVED TO
