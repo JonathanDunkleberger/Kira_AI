@@ -11915,6 +11915,30 @@ class Campaign:
                     else:
                         log(f"   [roam] BENCH-TO-MS: productive bite {_floor0}->{_floor1} toward milestone "
                             f"L{_lop_ms} — climbing on (floor now L{_floor1})")
+                        # NS#34 OVER-LEVEL ONE-BITE-THEN-CROSS (root-kills the shifts 30-33 Route-18 soft-
+                        # treadmill). The over-level's own design is ONE dedicated grind stint (the LOPSIDED-
+                        # BENCH log says so). The shift-29 fix marked only _lopsided_grind_done — but the
+                        # CROSSING defer is INDEPENDENT (gated on _overlevel_before_sealeg() != None, which
+                        # only releases via _bench_poor_maps / floor>=milestone-CLOSE / a dry grind), so
+                        # LOPSIDED stopped yet the crossing stayed deferred at Route 18 → she kept re-grinding
+                        # toward the UNREACHABLE Blaine L48 milestone (Route-18 wilds cap L23-29) → the
+                        # multi-bite marathon NS#7 explicitly retired as slow + grind-inadequate. FIX: after
+                        # ONE productive over-level bite, retire the over-level for THIS badge via the existing
+                        # per-badge flag (the SAME mechanism the no_safe_grass NEVER-WORSE path uses at
+                        # ~L11887, shift-5 LIVE-verified to cross) → _overlevel_before_sealeg returns None next
+                        # tick → BOTH gates release: LOPSIDED stops AND _ensure_forward_questline opens the
+                        # Seafoam crossing → she CROSSES to Cinnabar with the modest over-level she banked (the
+                        # shift-6-proven "one +6 bite then cross" that reached Indigo). Scoped to
+                        # _ovl_sealeg_pending so the BENCH_TO_MILESTONE global multi-bite mode (flag default
+                        # OFF) is byte-unchanged; a POOR first bite already crosses via _bench_poor_maps above.
+                        if getattr(self, "_ovl_sealeg_pending", False):
+                            self._overlevel_sealeg_dry_badge = int(state.get("badge_count", -1))
+                            self._ovl_sealeg_pending = False
+                            self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+                            self._lopsided_grind_done.add(_lop_ms)
+                            log(f"   [roam] 🏝️ OVER-LEVEL: banked one bite (floor now L{_floor1}) — retiring "
+                                f"the over-level for this badge and crossing to Cinnabar (Route-18 grass "
+                                f"can't reach the L{_lop_ms} milestone)")
                     self._lopsided_pending_ms = None
                 elif r == "ready" and _lop_ms is not None:
                     # NS#6 LOPSIDED-BENCH (flag off): a COMPLETED stint marks the forced milestone done, so
