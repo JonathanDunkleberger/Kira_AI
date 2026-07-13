@@ -11,6 +11,77 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-5 STAMP (15:56) — HEALTHY, BADGE 4 (Erika) BEATEN, glance-clean 0-commit.** Since shift 4's relaunch
+past the two Lavender→Celadon wedges, fresh_go_3 **cleared Celadon Gym → badge 4 (Rainbow)** and is now
+bench-grinding toward **Koga (gym 5)**, marching Fuchsia-way (Route 7/Route 25/26 band, map (3,25)). Party
+**[venusaur L43, diglett L23, fearow L22, kadabra L22, raticate L22, growlithe L21] — SIX DISTINCT species,
+ZERO dups, dex 11**. GRIND-WEAK/LOPSIDED firing textbook: RATIONALE *"Team's under-levelled — grinding
+diglett, fearow, kadabra, raticate and growlithe up to ~L28 (fielding them, not my ace) so I can push
+through, then on to Fuchsia City for Koga."* Ace venusaur crept L41→L43 (milestone-pinned, incidental — NOT
+runaway); bench pinned to L28. **0 tracebacks whole-log (76.5K lines / 10.3MB)**, python 144491 + watchdog
+bash 144483 alive, log LIVE (+48 lines/6s, 35 win-events per 200 lines = moving-not-spinning through the
+grass grind + Route legs). All travel wedges = self-recovering LOUD ("returning to roam, no inner spin");
+deep-wedge ring banking safe checkpoints across Celadon/Route 7 (normal map-hopping). No STALL/carry-forward
+loop. banked_LIVE fresh 15:51. **ACUTE QUALIFYING WATCH (the run's central risk):** ace **L43** vs bench floor
+**L21** = **~22-level gap** (slightly WIDER than shift 4's ~19 because the ace crept +2 while the bench held
+during the Celadon push). GRIND-WEAK is now actively closing it (bench target L28, ace HELD). For QUALIFYING
+at E4 entry EVERY member must be ≥L42, gap ≤15 — so the milestone ladder MUST pull the bench from ~L21 up to
+~L55 across gyms 5-8 + Victory Road while the ace stays out of runaway. Plenty of milestone runway remains;
+track the floor each glance. **NEXT SHIFT — glance:** (a) reaches **Fuchsia → beats Koga (gym 5)** → Sabrina/
+Silph (gym 6) → Cinnabar/Blaine (gym 7) → Giovanni (gym 8) → Victory Road → E4 → Champion (proven credits
+path, now with a distinct six); (b) **does the bench close the gap?** track the floor + gap each glance — if
+at E4 entry bench <L42 or gap >15, the run fails qualifying on team-shape (the deferred order-3b crux is the
+questline-guard already-shipped fix + one more relaunch); (c) six stay distinct through credits. On
+banked_CREDITS → order 6: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` →
+evaluate QUALIFYING → CREDITS (PASS) / WATCHABILITY-GAPS / HALT (same root twice) as line 1 of NIGHT_REPORT.md.
+Healthy → glance cheap, exit. Hard wedge → repro + ROOT-fix + resume from bank. Canonical `states/campaign/`
+UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+**SHIFT-4 STAMP (15:45) — TWO HARD WEDGES ROOT-KILLED, run relaunched PAST both.** On resume fresh_go_3
+was in a **terminal 15-iteration stall** (iter 10→24, identical sig `(3,1,124,5,3,9152)@Lavender`, party
+FROZEN [venusaur L39, diglett L22, fearow/kadabra/raticate L21], badge 3): the watchdog kept re-booting the
+same wedged bank and re-stalling in ~54s. Diagnosed + fixed TWO stacked nav wedges on the Lavender→Celadon
+(Erika/badge-4) approach, each verified live from the wedged bank:
+  1. **Rock Tunnel south-mouth edge-warp (commit `c8fe10a`):** `_cross_warp_maze` found the south exit
+     `(18,37)` reachable but `travel` landed her ONE TILE SHORT at `(18,36)` (border cave-mouth warp isn't a
+     standable target) → "didn't fire despite reachability" → thrashed floors (1,81)↔(1,82) forever. Fix:
+     when travel lands ADJACENT to the target exit warp, step directionally ONTO it (edge/mat warps fire on
+     the step-onto). General for all border cave mouths. → she now crosses to Route 8.
+  2. **Route 8→Celadon UGP pin (commit `dc1dc4a`):** past the tunnel she oscillated Route-8-east-edge↔Lavender.
+     ROOT: TEAM-BRAIN PRE-BUILD *dominance* popped head_to_gym on Route 8 grass to force a squad-build, but the
+     growlithe keeper stayed DUE so `_plan_wants_prebuild` never cleared → head_to_gym (the only action that
+     crosses the Route 7-8 Underground Path) never returned. Fix: gate the head_to_gym pop on pc≤2 (truly-thin
+     solo/duo); at pc 3-5 a functional lopsided team KEEPS head_to_gym and marches forward, catching the keeper
+     IN PASSING. Plus an anchor-first `via:pass` hand-off (call `_door_passthrough` directly for the UGP hut).
+  **VERIFIED LIVE:** crosses Route 8 → Underground Path (1,34→1,33) → Route 7 → **CELADON**, catches
+  **growlithe** in passing → **full DISTINCT SIX** [venusaur L41, diglett L23, fearow L22, kadabra L22,
+  raticate L22, growlithe L20], 0 dups, dex 11 → enters Erika's gym for badge 4. This is a QUALIFYING-shape
+  six. Watchdog RELAUNCHED from banked_LIVE with all fixes; canonical UNTOUCHED. **NEXT SHIFT:** glance the
+  climb — (a) beats Erika (badge 4) → Koga/Rock-Tunnel-already-done → the proven credits path; (b) the
+  qualifying gap (ace L41 vs bench ~L22 = ~19) must CLOSE up the milestone pins to E4 (every member ≥L42,
+  gap ≤15) — the questline-guard fix (5add821) + LOPSIDED-BENCH should pull the bench up on open ground; (c)
+  six stay distinct. Hard wedge → repro + ROOT-fix + resume. Healthy → glance cheap, exit.
+
+**SHIFT-3 LIVE STAMP (14:48):** HEALTHY, gap CLOSING — since shift 2 the bench climbed L15→L21 (+6) while
+the ace crept L35→L39, so the ace-floor gap NARROWED **20→18** (bench outpacing ace = right direction). Now
+navigating **ROCK TUNNEL** (maps 1,81/1,82) toward Celadon for **Erika (gym 4)**; `path N to exit` decrementing
+20→10→2 = forward progress, NOT a wedge. Party=[**venusaur L39**, diglett L22, **fearow L21** (spearow evolved),
+kadabra L21, **raticate L21** (rattata evolved)] — **5 DISTINCT species, 0 dups, dex 10**. GRIND-WEAK/LOPSIDED
+firing 41×/800 lines (prep pin 27, ace HELD). banked_STALL@14:47 = SELF-RECOVERING watchdog abort (keeper_unreach
+growlithe-fetch + FLAG_GOT_TEA questline no-progress → abandoned errand, re-recognized fresh, carried fwd from
+banked_LIVE, progressing through tunnel; qualifying-safe). 0 tracebacks whole-log (45.8K lines), procs alive
+(bash 143966 + py 143284/143286), log live 0s. NEXT: exit Rock Tunnel → Celadon/Erika (gym 4) → Koga… → proven
+credits path. 6th distinct (growlithe→arcanine, Route 7/8) still uncaught. ————— PRIOR **SHIFT-2 (14:30):** advanced
+badge 2→**badge 3**; on gym 4 grinding Route 4 (3,22). Party=[venusaur L35 (ivysaur evolved), spearow L16, rattata L15,
+kadabra L15 (abra evolved), diglett L19] — 5 DISTINCT, 0 dups, dex 7 (box-aware de-dup holding; 6th = growlithe→arcanine planned
+Route 7/8). **GRIND-WEAK firing textbook** (re-pin L21, *"fielding the weak ones — not my ace"*, rotating slots
+2/3), ace **HELD L35**. Gap ace-to-floor = **20** (widened from shift-1's 15 — the Surge questline leg let the
+ace lead; GRIND-WEAK now closing it on open ground). **0 tracebacks** whole-log (34.5K lines), procs alive
+(venv py 39320 + emulator 44504 + watchdog bash 42708/40000), banked_GOAL 14:20 / banked_LIVE 14:27 fresh, no
+banked_CREDITS. Coord oscillation (86-87,13-16) = intentional grass-grind, NOT a wedge (battles resolving, log
+growing). The questline-guard fix (5add821) is working as designed on open ground. [shift-1 prior: badge 2,
+Route 4, ivysaur L27, gap 15.] Boot's cosmetic `soul seed failed (NoneType)` at 0.0s (FRESH boot) is NOT a
+blocker. The
+questline-guard fix is confirmed closing the gap on open ground; keep watching it holds up the milestone pins.
 **ACUTE QUALIFYING WATCH** (the whole point of the fix): at E4 entry every member ≥L42, ace-bench gap ≤15,
 ace nowhere near L100 — this is what the fix must deliver; watch the gap CLOSES up the milestone pins, not opens.
 **ON banked_CREDITS → run order 6:** `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md`
