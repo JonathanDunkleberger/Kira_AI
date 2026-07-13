@@ -11,6 +11,25 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-12 STAMP (16:16) — HEALTHY, grind stint RESOLVED with real progress, glance-clean 0-fix.** The
+shift-9..11 decision-#30 Route-7 grind stint has COMPLETED: since shift 11 the bench climbed floor L23→L24
+and across the board (kadabra L24→L27, growlithe L23→L26, raticate L24→L26) and **DIGLETT EVOLVED TO
+DUGTRIO** — unambiguous forward progress, the shift-11 stall-watch is closed. Party now **[venusaur L47,
+kadabra L27, dugtrio L26, growlithe L26, raticate L26, fearow L24] — SIX DISTINCT, 0 dups, badges=4**.
+**ONE** watchdog verified (bash 144483 + py 144491, ancestor 27064, all started 15:48; new python PID vs
+shift 11's 42948 = normal watchdog carry-forward relaunch between grind stints — single-run law holds via
+parent-PID chain). Log live (mtime=now @16:16), **0 tracebacks (87.8K lines, +2.2K since shift 11)**,
+0 spin-wedge / 69 win-events in last 400 = moving-not-spinning (live travel steps 15,4→14,5 on Route 7
+(3,25) + fresh ENCOUNTERs). GRIND-WEAK/LOPSIDED firing textbook (*"grinding kadabra, dugtrio, growlithe,
+raticate and fearow up to ~L28 (fielding them, not my ace)"*, fielding slot 5 fearow L24 as lead); ace
+HELD/crept L45→L47 (milestone-pinned, NOT runaway). banked_LIVE fresh, no banked_CREDITS. **ACUTE gap =
+ace L47 vs bench floor L24 = ~23** (absolute wider bc ace crept +2, but bench IS climbing steadily) — must
+close to ≤15 (all ≥L42) by E4 via the milestone ladder; track the floor each glance. PACING NOTE (Jonny
+adjudication only): the L28 grind spanned shifts 9-12 but is bounded + now completing (bench +3 across the
+board, an evolution) — WATCHABILITY item, NOT a fix/relaunch trigger; no flags flipped mid-run. NEXT SHIFT =
+same glance (Koga→Sabrina→Blaine→Giovanni→VR→E4→credits; six stay distinct; on banked_CREDITS → order 6).
+Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-11 STAMP (16:12) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
 shifts 6-10 — **ONE** watchdog (bash 43448 nohup-script → child subshell 40260) + worker = 2-PID venv shim
 (py 27064 shim + py 42948 real, CPU 1451s), all started 15:48 — single-run law verified via parent-PID chain.
