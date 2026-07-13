@@ -11,6 +11,30 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-22 STAMP (16:49) — HEALTHY, BEAT SABRINA (gym 6) → badge 6 + CAUGHT LAPRAS, now on the Seafoam route to Blaine (gym 7); ACUTE gap WIDENED ~29→33, glance-clean 0-fix.**
+Single watchdog verified (bash 144483 started 15:48 → python child **147532 = ITER 3, relaunched 16:46:28 via CLEAN
+carry-forward** — iter 2 hit a self-recovering LOUD **STALL** "no progress for 14 decisions" at (3,4)@(11,19), banked_STALL,
+watchdog carried forward from `banked_LIVE` badges=6 → iter 3 booted map=(3,10)@(46,13) badges=6; NORMAL watchdog machinery,
+single-run law holds, qualifying-safe self-recovering abort — NOT a hard wedge). Log LIVE (mtime=now @16:48, **102,337 lines,
++1,380 since shift 21**, grew during the glance), **0 tracebacks whole-log**. **208 motion / 3 spin in last 400 = moving-not-
+spinning** (live Seafoam Strength puzzle: `push`/`ladder`/`fall`/`strength` ops at map (1,83-85); Bridge INPUT OWNER=agent sole
+writer). **PROGRESS SINCE SHIFT 21:** **BEAT SABRINA (gym 6) → badge 6 (Marsh)**, **CAUGHT LAPRAS** (the Surf-mon — raticate
+boxed to field it, so party is still SIX DISTINCT), and is now marching Fuchsia → Route 19/20 → **SEAFOAM ISLANDS** doing the
+Strength boulder-push puzzle to still the current and surf to Cinnabar for **BLAINE (gym 7)**. **THE HISTORICAL SURF-MON
+SEA-GATE WEDGE IS DEAD HERE** (memory `pokemon-freshgo-surf-mon-seagate-wedge`) — this organic run built a Surf-capable six,
+so the Cinnabar crossing that wedged every prior organic fresh run is passable (mirrors fresh_go_2 shift-25). Party **[venusaur
+L58, kadabra L30, dugtrio L29, growlithe L28, fearow L29, lapras L25] — SIX DISTINCT, 0 dups, dex 13, badges=6** (Boulder,
+Cascade, Thunder, Rainbow, Soul, Marsh); raticate boxed for Lapras (still six distinct in party, qualifying OK). **NO live
+banked_CREDITS** (real sentinels OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0** whole-log; archived banks are prior-
+run/fresh_go_2 leftovers, NOT fresh_go_3). **ACUTE gap WIDENED ~29→33 this window** (ace crept L57→L58 solo-leading the Sabrina
+gym fight while the bench floor DROPPED to L25 with the fresh Lapras catch; growlithe still L28 → ~30 gap excl. Lapras) —
+expected ace-runaway on the gym-fight + sea-questline leg (ace-led); **now widened 5 windows running — THIS IS THE RUN'S CENTRAL
+QUALIFYING RISK**, the bench MUST start climbing at the post-badge-6 grind + Blaine/Giovanni/VR milestone ladder or the run
+fails qualifying on team-shape (E4 entry needs all ≥L42, gap ≤15; Lapras L25 + growlithe L28 must reach ~L50 while the ace
+holds). Nothing to fix, no flags flipped mid-run (monitor-only). NEXT SHIFT = same glance (clear Seafoam → surf to Cinnabar →
+beat Blaine(7) → Giovanni(8) → VR → E4 → credits; six stay distinct; **track the gap TURNS/CLOSES — it must reverse now or the
+run fails qualifying**; on banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-21 STAMP (16:46) — HEALTHY, cleared Silph pad-maze + Sabrina's juniors, now ENGAGING SABRINA (gym 6); ACUTE gap widened ~27→29, glance-clean 0-fix.**
 Single watchdog verified (bash 43448 started 15:48 → bash 41612 → py 32920 shim → py 9732 real, all iter-2 @16:37:55 —
 SAME long-lived iter as shift 20, single-run law holds). Log LIVE (mtime=now @16:46, **100,957 lines, +389 since shift
