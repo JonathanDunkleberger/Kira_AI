@@ -11,6 +11,27 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-20 STAMP (16:42) — HEALTHY, now INSIDE SILPH CO. (Saffron) en route to Sabrina (gym 6); gap-closing pin RAISED to L40, glance-clean 0-fix.**
+Single watchdog verified (bash 144483 started 15:48 + python child 146950 = iter 2 started 16:37:55 — SAME long-lived
+iter as shift 19, NOT a relaunch; single-run law holds). Log LIVE (mtime=now @16:42, **100,568 lines, +335 since shift
+19**, grew during the glance), **0 tracebacks whole-log**. **193 motion / 0 spin in last 400 = moving-not-spinning**
+(tail = live pad-rides `[pad-3f]/[pad-7f]` + `[9f] hostage heal -> talked` + `7F pocket: walking the rival trigger row
+(Gary auto-engages)` + a `[lapras]` step — all live Silph-Co questline actuation, Bridge INPUT OWNER=agent sole writer).
+**PROGRESS SINCE SHIFT 19:** advanced from the Saffron *approach* → INTO **SILPH CO.**, now climbing the teleport-pad
+maze (floors 3F/7F/9F), **fighting Gary on 7F** and working the Silph questline (hostage-heal / Lapras / Master-Ball floor)
+en route to **Sabrina (gym 6)**. **GAP-CLOSING NOW ARMED:** the RATIONALE shows the bench milestone pin **RAISED to
+~L40** (`"Level the weak ones — raticate, kadabra, dugtrio, growlithe and fearow — to ~L40 by fielding THEM in the
+grass, THEN retry"`) — the mechanism to reverse the ace-runaway is engaged. Party **[venusaur L55, raticate L29, kadabra
+L30, dugtrio L29, growlithe L28, fearow L28] — SIX DISTINCT, 0 dups, dex 12, badges=5** (Boulder, Cascade, Thunder,
+Rainbow, Soul). banked_LIVE/banked_STALL both 16:37 = carry-forward from the iter-2 boot, NOT fresh stalls. **NO live
+banked_CREDITS** (real sentinels OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0** whole-log; the
+`banked_CREDITS_archived_*` dir is fresh_go_2's morning credits, NOT fresh_go_3). **ACUTE gap HELD ~27** (ace L55 vs
+bench floor L28 — unchanged this window; but the pin just rose L28→L40, so the close should begin at the Silph/Sabrina
+grind — **watch it TURN next shift**; widened 3 windows through shift 19, must now reverse). Must still close to ≤15 (all
+≥L42) by E4. Nothing to fix, no flags flipped. NEXT SHIFT = same glance (clear Silph Co → beat Sabrina → Blaine(7) →
+Giovanni(8) → VR → E4 → credits; six stay distinct; **track the gap CLOSES now the pin is L40**; on banked_CREDITS →
+order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-19 STAMP (16:40) — HEALTHY, BEAT KOGA (gym 5) → badge 5, now at SABRINA (gym 6) approach in Saffron, glance-clean 0-fix.**
 Single watchdog verified (bash 144483 started 15:48; python child **146950 = iter 2, relaunched 16:37:55 via CLEAN
 carry-forward** — iter 1 stalled/exited rc=0, iter 2 booted `banked_LIVE` at the Koga tile map(11,3)@(7,14) badges=4,
