@@ -5390,8 +5390,8 @@ class Campaign:
                 # diglett a swap benched) would be re-caught here -> the duplicate-Dugtrio bug. Never
                 # re-catch a species already owned: flee instead. The KEEPER_ROUTER_STALL_CAP retires the
                 # target after a few no-progress legs, so this can't livelock.
-                if _tfid and _tfid in self._box_species_ids():
-                    log(f"   CATCH: target {_tfname} already owned (in the PC box) — fleeing, no duplicate")
+                if _tfid and _tfid in self._owned_species_ids():
+                    log(f"   CATCH: target {_tfname} already owned (party or PC box) — fleeing, no duplicate")
                     _out = self._flee_runner()
                     if _out == "stuck":
                         stuck_battles[0] += 1
@@ -6173,6 +6173,24 @@ class Campaign:
         # _recompute_status never pays a per-tick PC scan (order 3d).
         try:
             self.team_planner._owned_box_names = {st.SPECIES_NAME.get(i, "").lower() for i in ids if i}
+        except Exception:
+            pass
+        return ids
+
+    def _owned_species_ids(self):
+        """Species_ids the player OWNS right now = PARTY ∪ PC BOX (2026-07-13 shift-4 dup root-fix).
+        `_box_species_ids` alone missed the diglett-into-an-open-party-slot case: on a <6 party a
+        keeper lands in the PARTY, not the box, so the box scan never saw it and fetch_keeper's
+        catch_runner (returns 'win' on wilds → keeps walking grass) balled a SECOND diglett →
+        the duplicate-Dugtrio disqualify. The de-dup must test against everything owned, party
+        included. Read-only; catch-decision cadence only. Fail-open on party read error (falls
+        back to box-only, never blocks a legit catch)."""
+        ids = set(self._box_species_ids())
+        try:
+            for i in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)):
+                sid = st.read_party_species(self.b, i)
+                if sid:
+                    ids.add(sid)
         except Exception:
             pass
         return ids
