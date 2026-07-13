@@ -11,6 +11,22 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-14 STAMP (16:23) — HEALTHY, bench grind to Koga L28 pin STILL ADVANCING, glance-clean 0-fix.**
+Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, all started 15:48; single-run
+law holds — SAME long-lived watchdog iter, NOT a relaunch). Log LIVE (mtime=now @16:22, 90,845 lines, **+1.8K
+since shift 13**), **0 tracebacks whole-log**. 281 motion / 0 spin-wedge in last 400 = moving-not-spinning (raw
+tail = live travel steps 13,5→13,4 on Route 7 (3,25) + one normal NPC-gap wait + fresh ENCOUNTER; Bridge INPUT
+OWNER = agent sole writer). Decision **#32 @1715.7s** still the current long grind action (spanning many battles
+at one sim-stamp = EXPECTED not a freeze — verified via +1.8K log lines & 281 motion events since shift 13);
+GRIND-WEAK fielding slot 3 (dugtrio L26) as lead. Party **[venusaur L47, kadabra L27, dugtrio L26, growlithe L26,
+raticate L26, fearow L24] — SIX DISTINCT, 0 dups, dex 12, badges=4** — unchanged from shift 13 (2-min glance);
+bench floor fearow L24, ace HELD L47 (milestone-pinned, NOT runaway). banked_LIVE fresh 16:15, no banked_CREDITS.
+**ACUTE gap = ace L47 vs bench floor L24 = ~23** — must close to ≤15 (all ≥L42) by E4 via the milestone ladder;
+track the floor each glance. Move-drop decisions firing (move management healthy — kept coverage). Nothing to fix,
+no flags flipped. NEXT SHIFT = same glance (cross L28 pin → Fuchsia → Koga → Sabrina → Blaine → Giovanni → VR →
+E4 → credits; six stay distinct; on banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED.
+Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-13 STAMP (16:20) — HEALTHY, bench grind to Koga ADVANCING, glance-clean 0-fix.** Same watchdog
 iter as shift 12 — **ONE** chain verified (py 144491 → bash 144483 → 144478 → 27064, all started 15:48;
 single-run law holds). Log live (mtime=now @16:20), **0 tracebacks (89,035 lines, +1.2K since shift 12)**,
