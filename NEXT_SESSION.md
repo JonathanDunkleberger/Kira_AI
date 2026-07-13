@@ -11,6 +11,23 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-11 STAMP (16:12) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
+shifts 6-10 — **ONE** watchdog (bash 43448 nohup-script → child subshell 40260) + worker = 2-PID venv shim
+(py 27064 shim + py 42948 real, CPU 1451s), all started 15:48 — single-run law verified via parent-PID chain.
+Log live (mtime=now @16:12), **0 tracebacks (85.6K lines)**, 0 spin-wedge / 79 win-events in last 400 =
+moving-not-spinning (grass-grind on Route 7 (3,25); raw tail = live travel steps 16,4→15,4→15,3→16,3 + fresh
+ENCOUNTERs). banked_LIVE fresh 16:03, no banked_CREDITS. Party **[venusaur L45, diglett L23, growlithe L23,
+kadabra L24, raticate L24, fearow L24] — SIX DISTINCT, 0 dups, dex 11, badges=4**. Still decision **#30 @922s**
+— now the **3rd shift on this one long grind action** to the L28 Koga pin; verified GENUINE not frozen (+2.2K
+log lines & 79 fresh wins since shift 10; bench floor slow-climbing L22→L23, raticate L22→L24; ace HELD L45).
+**ACUTE gap = ace L45 vs bench floor L23 = ~22**, must close to ≤15 (all ≥L42) by E4 via the milestone ladder —
+track the floor each glance. **PACING NOTE (Jonny adjudication only, per mission addendum):** 3 shifts on one
+Route-7 low-XP grind stint to L28 is a WATCHABILITY item, **NOT a fix/relaunch trigger** — the NS#5
+`_better_grind_spot` efficiency lever (flag-OFF) is the theoretical fix but do **NOT** flip flags mid-run;
+level curve is monotonic, build doing its job. Nothing to fix, no flags flipped. NEXT SHIFT = same glance
+(Koga→Sabrina→Blaine→Giovanni→VR→E4→credits; six stay distinct; on banked_CREDITS → order 6). Healthy →
+glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-10 STAMP (16:09) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
 shifts 6-9 (py 144491 + bash 144483, started 15:48) alive; log live (mtime=now), **0 tracebacks (83.4K lines)**,
 0 spin-wedge / 79 win-events in last 400 = moving-not-spinning (grass-grind on Route 7 (3,25), coords
