@@ -1,11 +1,22 @@
 # KIRA FIRERED - SINGLE MISSION (2026-07-13). SUPERSEDES EVERYTHING.
 CEO decision: the 5x battery is CANCELLED. The asymptote = ONE QUALIFYING RUN, today. When it lands, STOP THE TRAIN. Read ONLY this file + the latest survey + live log tails. Prior directives are archived at NEXT_SESSION_archive_2026-07-13_*.md - consult ONLY for the proven per-stage launch recipes; do not re-derive them; no history spelunking.
 
-## 🛑 HALT (loop-shift-10 / survey 29, 11:05) — fresh_go_2 FAILED QUALIFYING on team-shape (2nd run, SAME root). TRAIN STOPPED. Next build needs Jonny's ATTENDED eyes. Full one-page diagnosis = line 1 of NIGHT_REPORT.md.
-fresh_go_2 reached the E4 fully autonomously (8 badges, distinct de-duped six, 0 tracebacks — machine PROVEN a 2nd time) but entered with **venusaur L82 solo-carrying a FROZEN L30-34 bench** (gap ~52), cycling Agatha→Lance with **93 whiteouts** = the identical fresh_go_1 banned shape. QUALIFYING FAILS hard (every-member ≥L42 ✗, gap ≤15 ✗, participation ≥4/6 ✗, nothing-near-L100 ✗). This is the SECOND run to disqualify on the same ace-runaway/underleveled-bench root → mission HALT (order 6 "same root twice").
-**ROOT (code-grounded, do NOT re-derive):** (1) `_road_bench_xp_arm` questline guard (campaign.py:7317-7318, def at 7291) returns False when `_active_questline` is active → the ACE leads every questline leg (sea crossing / dungeon strikes / gym approaches) and hogs XP → ran to L67 by badge 8 while the milestone ladder only pinned the bench to ~L30. Bench arrives Indigo 16+ levels short. (2) `prep_e4_in_victory_road` VR2F cave-grind (wilds L36-46) can't recover a L30 bench: the participation switch fields the ACE to tank+kill → ace absorbs XP (L57→L82 during prep), bench crawls +4, 78× ace-restore, then hits its 40-min budget and PROCEEDS to the gauntlet anyway. The de-dup half of the order-3 build WORKED (distinct six); the LEVEL-EVENNESS half did not.
-**NEXT BUILD — ATTENDED, do NOT ship blind (both levers ideally):** (a) relax `_road_bench_xp_arm`'s questline guard to allow bench participation-XP on OVERWORLD-ROUTE questline legs while keeping the ace leading in DARK-CAVE/GAUNTLET interiors (gate on MAP-TYPE, not a blanket questline block — the guard exists because a demoted ace flee-loops in pitch-dark Diglett's Cave via the unreliable in-battle switch). Validate with a LIVE attended look-ahead from surge_done_kit / koga_done_kit watching for the in-cave switch livelock. (b) cap the ace's over-climb during questline solos (per-questline level ceiling relative to the bench floor) so the gap can't open past ~15. With bench arriving Indigo ~L46+, the existing VR2F top-up closes L46→L55 cheaply → qualifying passes on team-shape.
-**IN-FLIGHT:** fresh_go_2 LEFT COOKING (detached, watchdog+python iter 33) — will likely ace-grind to ~L100 and roll BANNED-SHAPE credits (proves the machine again, still NOT qualifying). Kill or let finish — Jonny's call. Canonical `states/campaign/` UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+## ▶ MONITOR fresh_go_3 (attended questline-guard fix SHIPPED 2026-07-13 14:00, commit 5add821). TRAIN RE-ARMED.
+The 2nd-disqualify ace-runaway root was FIXED attended (Jonny at desk): BOTH questline bench guards
+(`_road_bench_xp_arm` ~7317 AND `_bench_severely_lopsided` ~7480) were relaxed + re-gated on MAP-TYPE, so the
+bench leads/grinds on OPEN GROUND while the true ace still leads inside caves/gauntlets (helpers
+`_on_overworld_now` / `_questline_march_bench_ok`, flag `POKEMON_QUESTLINE_BENCH_RELAX` default ON in code).
+VERIFIED live: on fresh_go_3 Route 4, WITH the S.S.-Ticket questline ACTIVE, `LOPSIDED-BENCH` fired and pulled
+the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — behavior the old code suppressed.
+Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
+**FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
+Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**ACUTE QUALIFYING WATCH** (the whole point of the fix): at E4 entry every member ≥L42, ace-bench gap ≤15,
+ace nowhere near L100 — this is what the fix must deliver; watch the gap CLOSES up the milestone pins, not opens.
+**ON banked_CREDITS → run order 6:** `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md`
+→ evaluate QUALIFYING → CREDITS (PASS) / WATCHABILITY-GAPS (team-shape OK, pacing off) / HALT (same root twice)
+as line 1 of NIGHT_REPORT.md. Healthy → glance cheap, exit. Hard wedge → capture repro, ROOT-fix, resume from bank.
+Canonical `states/campaign/` UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
 
 ## FACTS (verified this morning)
 - fresh_go_1 ROLLED CREDITS last night (~20:30-21:00) from a cold bedroom start, fully autonomous: 8 badges, Victory Road, E4, Champion. 0 tracebacks, 0 hard wedges. The machine (nav rope, quest chain, battles, watchdog banking) is PROVEN end-to-end.
