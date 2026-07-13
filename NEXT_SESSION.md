@@ -11,6 +11,36 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-23 STAMP (16:53) — HEALTHY, BEAT BLAINE(7)+GIOVANNI(8) → ALL 8 BADGES, now routing Viridian→Route 22→Victory Road→Elite Four; ACUTE gap at PEAK ~38 (6 windows widening), glance-clean 0-fix.**
+Single watchdog verified (bash 43448 started 15:48 → bash 27304 relaunch 16:46:28 → py 10096 shim → py 42440 real = **ITER 3**,
+SAME long-lived iter as shift 22, single-run law holds). Log LIVE (mtime=now @16:52, **102,910 lines, +573 since shift 22**,
+grew during the glance), **0 tracebacks whole-log**. **139 motion / 9 spin in last 400 = moving-not-spinning** (all 9 "spin"
+= benign `spin plan` navigation [walk-out / to-giovanni] + deep-wedge-ring safe checkpoints + gym-floor spin-crossing, NOT
+wedges). **PROGRESS SINCE SHIFT 22:** cleared Seafoam → surfed to Cinnabar → **BEAT BLAINE (gym 7 → Volcano)** → surfed north
+past Pallet to Viridian → **BEAT GIOVANNI (gym 8 → Earth)** = **ALL 8 BADGES** → now in the ENDGAME: ORACLE picked
+`head_to_league`, routing Viridian → Route 22 → Victory Road → Elite Four. She already fought **Gary on Route 22 and took a
+LOSS** (`[strat] LOSS recorded vs trainer:Route 22 ... SPATIAL wall active — gated until stronger`) — this CORRECTLY forces a
+pre-VR grind before she can pass. Party **[venusaur L63, kadabra L31, dugtrio L29, growlithe L28, fearow L29, lapras L25] —
+SIX DISTINCT, 0 dups, dex 13, badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh,Volcano,Earth). **NO live banked_CREDITS**
+(real sentinels OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0** whole-log; `banked_CREDITS_archived_fresh_go_2_final_0713_1354`
+is fresh_go_2's morning credits, NOT fresh_go_3). **ACUTE gap WIDENED ~33→38 this window, AT ITS PEAK** (ace crept L58→L63
+solo-leading the Blaine+Giovanni gym fights + the surf legs while bench floor HELD L25 Lapras / L28 growlithe) — **now widened
+6 windows running, and she is AT THE E4 DOORSTEP with the bench L25-31 far below the E4-prep pin L52**. LOPSIDED-BENCH fired
+(`bench severely behind milestone L52 — forcing ONE dedicated grind stint`); GRIND-WEAK fired at Cinnabar (`team floor under
+L34 — fielding the weak ones`) but hit `no_safe_grass → restoring ace` (Cinnabar/Route 21 = water, no grass) → she then moved
+to Viridian which HAS grass (Route 2 north + Route 6/12/13 reachable). **THE RUN'S CENTRAL QUALIFYING RISK IS NOW AT ITS
+CRUX:** the Route-22 Gary SPATIAL-wall loss should force the bench grind before Victory Road; the E4-prep milestone pin (L52)
++ LOPSIDED-BENCH must pull FIVE mons from ~L28 up to ~L52 while the ace holds, on OPEN GROUND (Route 2 / the Route-22 approach)
+NOT the VR cave (map-type gate = ace leads in caves) — **or she enters E4 underleveled and either whiteouts+loops or wins in
+disqualifying solo-ace shape**. Nothing to fix, no flags flipped mid-run (monitor-only; deferred order-3b relax is RISKY, do
+NOT ship blind mid-run). **NEXT SHIFT = same glance, WATCH THE CRUX:** does the E4-prep grind actually pull the bench ~L28→~L52
+on open ground before Victory Road/E4, or does she enter underleveled? Then Victory Road → Elite Four (Lorelei/Bruno/Agatha/
+Lance — Lapras ice answers Lance) → Champion Gary → **CREDITS** (the proven fresh_go_1 path, now with a distinct six). On
+banked_CREDITS → **order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → evaluate QUALIFYING
+→ six distinct + all ≥L42 + gap ≤15 → **CREDITS** line 1 of NIGHT_REPORT.md (train STOPS); credits but bench <L42 / gap >15 →
+**WATCHABILITY-GAPS** + stats + Jonny adjudicates team-shape; **same root fails twice → HALT** line 1 + one-page diagnosis.
+Six stay distinct. Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-22 STAMP (16:49) — HEALTHY, BEAT SABRINA (gym 6) → badge 6 + CAUGHT LAPRAS, now on the Seafoam route to Blaine (gym 7); ACUTE gap WIDENED ~29→33, glance-clean 0-fix.**
 Single watchdog verified (bash 144483 started 15:48 → python child **147532 = ITER 3, relaunched 16:46:28 via CLEAN
 carry-forward** — iter 2 hit a self-recovering LOUD **STALL** "no progress for 14 decisions" at (3,4)@(11,19), banked_STALL,
