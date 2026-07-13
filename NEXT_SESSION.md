@@ -11,6 +11,19 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-15 STAMP (16:26) — HEALTHY, bench grind to Koga L28 pin STILL ADVANCING, glance-clean 0-fix.**
+Single watchdog chain verified (bash 144483 → py 144491, shim 27064 / real 42948, all started 15:48; single-run
+law holds — SAME long-lived iter as shift 14, NOT a relaunch). Log LIVE (mtime=now @16:25, 92,713 lines, **+1.9K
+since shift 14**), **0 tracebacks whole-log**. 297 motion / 0 spin-wedge in last 400 = moving-not-spinning (Route 7
+(3,25) grass grind). Decision **#32 @1715.7s** still the current long grind action (spanning many battles at one
+sim-stamp = EXPECTED not a freeze — verified via +1.9K log lines & 297 motion events since shift 14, and raticate
+crept **L24→L26** = real forward XP). Party **[venusaur L47, kadabra L27, dugtrio L26, growlithe L26, raticate L26,
+fearow L24] — SIX DISTINCT, 0 dups, dex 12, badges=4**; bench floor fearow L24, ace HELD L47 (milestone-pinned,
+NOT runaway). banked_LIVE fresh 16:15, no banked_CREDITS. **ACUTE gap = ace L47 vs bench floor L24 = ~23** — must
+close to ≤15 (all ≥L42) by E4 via the milestone ladder; track the floor each glance. NEXT SHIFT = same glance
+(cross L28 pin → Fuchsia → Koga → Sabrina → Blaine → Giovanni → VR → E4 → credits; six stay distinct; on
+banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-14 STAMP (16:23) — HEALTHY, bench grind to Koga L28 pin STILL ADVANCING, glance-clean 0-fix.**
 Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, all started 15:48; single-run
 law holds — SAME long-lived watchdog iter, NOT a relaunch). Log LIVE (mtime=now @16:22, 90,845 lines, **+1.8K
