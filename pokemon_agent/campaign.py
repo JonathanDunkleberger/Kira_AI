@@ -120,6 +120,33 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "1") != "0"
 LOPSIDED_MS_GAP = int(os.getenv("POKEMON_LOPSIDED_MS_GAP", "12"))    # floor >= this far under milestone
 LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace towers >= this over the floor
+# QUESTLINE-BENCH RELAX (2026-07-13, ATTENDED — the fresh_go_2 ace-runaway/underleveled-bench root, 2nd
+# disqualify). BOTH the road-bench-XP arm AND the severely-lopsided forced grind returned early whenever a
+# questline was active (the nav-critical guard: a demoted ace flee-loops the unreliable in-battle switch in
+# pitch-dark Diglett's Cave / gauntlet interiors). But the badge-5..8 back half is WALL-TO-WALL questlines
+# (Hideout, Tower, Silph, Mansion, Seafoam) -> the bench got ZERO catch-up across the whole endgame while
+# the ace soloed every dungeon -> arrived at Indigo 30+ levels lopsided (fresh_go_1 AND fresh_go_2 shape).
+# FIX: relax BOTH guards, RE-GATED ON MAP-TYPE — the bench leads/grinds only on OPEN GROUND (group-3 route/
+# town, or a group-1 open-air map), NEVER inside a real cave (tv.G1_CAVES) or a building interior; inside
+# caves/dungeons the TRUE ace still leads (today's proven behavior). The relaxed MARCH leg (road-bench-XP)
+# additionally uses PURE PRE-LEG REORDER with NO in-battle switch (CEO: pre-leg ordering, not mid-battle
+# switching — the switch IS the cave-livelock class), and only for questlines whose whole traversal is
+# overworld/open-sea, so no switch actuation can flee-loop even if a leg strays. Flag-gated (instant revert).
+QUESTLINE_BENCH_RELAX = os.getenv("POKEMON_QUESTLINE_BENCH_RELAX", "1") != "0"
+# ALLOWLIST — questlines whose XP-bearing legs are ENTIRELY overworld/open-sea (fleeable wilds, survivable
+# route trainers): a weak lead is safe on the whole head_to_gym traversal. Used ONLY by the road-bench-XP
+# arm (which EXECUTES the errand traversal). Fail-safe: a key NOT here is treated as cave/gauntlet-crossing
+# and keeps the ace leading — misclassifying overworld-as-cave only costs a little bench XP, whereas
+# cave-as-overworld risks the flee-loop, so we relax only the explicitly-safe ones. (The lopsided grind
+# needs no allowlist — it grinds in place on open ground, a separate action that never enters the dungeon.)
+OVERWORLD_SAFE_QUESTLINES = frozenset({
+    "FLAG_GOT_SS_TICKET",             # Bill's house — Route 24/25 legs
+    "earth_badge",                    # the surfed sea crossing Cinnabar<->Pallet<->Viridian
+    "FLAG_WOKE_UP_ROUTE_12_SNORLAX",  # Route 12 bridge (Poke Flute used on the overworld bridge)
+    "fly",                            # Route 16 house
+    "FLAG_GOT_TEA",                   # Celadon (town)
+    "bike", "FLAG_GOT_BIKE_VOUCHER",  # Cerulean / Vermilion (towns)
+})
 # CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
 # binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
 # Route 23 (split-map/Surf-gated), while Victory Road (L36-46, cave) sits ON THE PATH but grind() bailed
@@ -7288,6 +7315,39 @@ class Campaign:
         log(f"   VR-GRIND: done — final levels {self._party_levels()}, at {tv.map_id(self.b)}, entering the League")
         return "ready"
 
+    def _on_overworld_now(self):
+        """True iff she's standing on OPEN GROUND — a group-3 route/town under open sky, or a group-1
+        open-air map (Viridian Forest / Safari / S.S. Anne deck via tv.G1_OUTDOOR). False for a real cave
+        (tv.G1_CAVES) or a building interior. A weak bench lead / bench-grind is safe here; caves + gauntlet
+        interiors are where the in-battle participation switch flee-loops (Tier-1 #5). Fail-safe: any read
+        error -> False (keep the true ace leading)."""
+        try:
+            g, n = tuple(tv.map_id(self.b))
+        except Exception:
+            return False
+        if g == self._LOC_GROUP_OVERWORLD:                        # group 3 = TownsAndRoutes, open sky
+            return True
+        if g == self._LOC_GROUP_DUNGEONS and n in tv.G1_OUTDOOR:  # forest / safari / ship deck — open air
+            return True
+        return False
+
+    def _questline_march_bench_ok(self):
+        """True iff — with a questline active — it is SAFE to let a weak bench mon LEAD a forward-march
+        (head_to_gym / travel) leg this tick: the active questline's whole traversal is overworld/open-sea
+        (OVERWORLD_SAFE_QUESTLINES allowlist) AND she is on open ground right now. Cave/gauntlet errands
+        (flash -> Diglett's, the dungeon strikes) whose single head_to_gym action would walk a weak lead
+        into a dark interior are excluded -> the true ace keeps leading them. Fail-safe: unknown key or a
+        read error -> False."""
+        if not QUESTLINE_BENCH_RELAX:
+            return False
+        q = getattr(self, "_active_questline", None)
+        if q is None:
+            return True                                           # no questline -> caller's normal path
+        key = getattr(getattr(q, "gate", None), "missing", None)
+        if key not in OVERWORLD_SAFE_QUESTLINES:
+            return False
+        return self._on_overworld_now()
+
     def _road_bench_xp_arm(self, pick, state):
         """PASS-3 team-depth NEW#1 — organic bench XP on the road. Called right before a FORWARD-MARCH
         action (head_to_gym / travel:) executes. When a bench member is under its milestone prep target,
@@ -7307,15 +7367,19 @@ class Campaign:
             return False
         if pick != "head_to_gym" and not str(pick).startswith("travel:"):
             return False
-        # NAV-CRITICAL QUESTLINE GUARD (2026-07-11 NS#4): when a questline errand is active, head_to_gym
-        # runs the ERRAND, not a plain march — and errands do nav-critical traversal (the Flash errand
-        # crosses pitch-dark Diglett's Cave to the Route-2 aide; dungeon strikes cross gauntlet interiors).
-        # A demoted ace there is a LIVELOCK: the weak lead can't clear an L29 cave Dugtrio with Cut, and
-        # the in-battle switch-to-ace is unreliable (Tier-1 #5) → flee-loop that never traverses the cave
-        # (observed: weak lead flee-looping Diglett's Cave (1,37), blocking the Route-2 crossing). Keep the
-        # TRUE ace leading for errand ticks; the bench banks its XP on the many normal marching legs instead.
+        # QUESTLINE GUARD, MAP-TYPE-RELAXED (2026-07-13 — fresh_go_2 ace-runaway root). Errands do
+        # nav-critical traversal: the Flash errand crosses pitch-dark Diglett's Cave, dungeon strikes cross
+        # gauntlet interiors — a demoted ace LIVELOCKS there (the weak lead can't clear an L29 cave Dugtrio
+        # and the in-battle switch-to-ace is unreliable, Tier-1 #5 -> flee-loop). So cave/gauntlet errands
+        # keep the TRUE ace leading. BUT overworld/open-sea questline legs (sea crossings, Bill/route
+        # errands) are fleeable + survivable -> let the weak mon lead THEM, so the bench isn't frozen
+        # through the questline-dense badge-5..8 back half. _questline_march_bench_ok gates on the
+        # allowlist + open ground; a relaxed leg runs with NO in-battle switch (set below).
+        _ql_leg = False
         if getattr(self, "_active_questline", None) is not None:
-            return False
+            if not self._questline_march_bench_ok():
+                return False
+            _ql_leg = True
         try:
             if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
                 return False
@@ -7363,9 +7427,14 @@ class Campaign:
             # march — free its junk slot now so the level-up move auto-learns instead of hitting the
             # un-actuatable delete box. Self-limiting + all_precious-guarded (see grind()).
             self._ensure_move_room()
-            battle_agent.PROTECT_LEAD_GRIND = True
+            # PROVEN participation switch on NORMAL marches (ace fields turn 1). On a relaxed OVERWORLD
+            # QUESTLINE leg use PURE PRE-LEG ORDERING (switch OFF) — the weak lead fights the fleeable route
+            # battles itself for full participation, and no in-battle switch actuation exists to flee-loop
+            # if the leg strays toward an interior (CEO: pre-leg ordering, not mid-battle switching).
+            battle_agent.PROTECT_LEAD_GRIND = not _ql_leg
             log(f"   [roam] ROAD-BENCH-XP: leading with the weak L{levels[wk]} bench mon (target L{prep_t}) "
-                f"so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)")
+                f"so it banks participation XP on this {'overworld-questline ' if _ql_leg else ''}leg — "
+                f"{'weak mon fights it itself (no switch)' if _ql_leg else 'the ace fields turn 1 (fail-safe switch)'}")
             return True
         except Exception as e:
             log(f"   [roam] ROAD-BENCH-XP arm skipped ({e})")
@@ -7478,7 +7547,14 @@ class Campaign:
         if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
             return None                              # need the proven participation switch to level a bench
         if getattr(self, "_active_questline", None) is not None:
-            return None                              # errand ticks keep the TRUE ace leading (nav-critical)
+            # MAP-TYPE-RELAXED (2026-07-13 — fresh_go_2 root): keep the ace leading INSIDE a cave/dungeon
+            # interior (a forced grind there is the flee-loop). But on OPEN GROUND with a questline merely
+            # queued, ALLOW the bounded bench catch-up to fire FIRST — the badge-5..8 back half is
+            # wall-to-wall questlines, so the old blanket suppression froze the bench for the whole endgame.
+            # The grind runs in place in overworld grass (a separate action that never enters the dungeon)
+            # and self-limits via no_safe_grass / _lopsided_grind_done, so it can't park the road or wedge.
+            if not (QUESTLINE_BENCH_RELAX and self._on_overworld_now()):
+                return None
         if getattr(self, "_prep_dry", 0) >= 2:
             return None                              # no reachable grass here — PREP STAND-DOWN owns it
         try:
