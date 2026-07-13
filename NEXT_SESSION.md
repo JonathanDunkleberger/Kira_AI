@@ -11,6 +11,28 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-21 STAMP (16:46) — HEALTHY, cleared Silph pad-maze + Sabrina's juniors, now ENGAGING SABRINA (gym 6); ACUTE gap widened ~27→29, glance-clean 0-fix.**
+Single watchdog verified (bash 43448 started 15:48 → bash 41612 → py 32920 shim → py 9732 real, all iter-2 @16:37:55 —
+SAME long-lived iter as shift 20, single-run law holds). Log LIVE (mtime=now @16:46, **100,957 lines, +389 since shift
+20**, grew during the glance), **0 tracebacks whole-log**. **143 motion / 3 spin in last 400 = moving-not-spinning** (all
+3 spins = `TRAVEL WEDGE: identical fp x4 → returning to roam LOUD (no inner spin)` = self-recovering, NOT wedges; the
+Sabrina-challenge `frozen world x15/90` = normal dialogue pacing). **PROGRESS SINCE SHIFT 20:** cleared the Silph Co
+teleport-pad maze, **beat Sabrina's junior trainers** (`GYM: all junior trainers cleared (beaten obj [1, 3])`) and is
+now **ENGAGING SABRINA (gym 6)** at the leader tile (14,12) in her challenge dialogue (`'I had a vision of your
+arrival...'`, lead **venusaur L57, party=6**), in Saffron City. Party **[venusaur L57, raticate L29, kadabra L30, dugtrio
+L29, growlithe L28, fearow L29] — SIX DISTINCT, 0 dups, dex 13, badges=5** (Boulder, Cascade, Thunder, Rainbow, Soul).
+banked_LIVE fresh 16:46. **NO live banked_CREDITS** (real sentinels OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0**
+whole-log; the SABRINA/SILPH/CINNABAR/E4/VICTORY checkpoint banks on disk are OLD 2026-07-07..07-11 leftovers from prior
+runs/fresh_go_2 — verified by mtime, NOT fresh_go_3; `banked_CREDITS_archived_*` is fresh_go_2's morning credits). **ACUTE
+gap WIDENED ~27→29 this window** (ace crept L55→L57 across the Silph pad-maze / Gary 7F / Sabrina juniors while bench floor
+HELD L28 growlithe; fearow crept L28→L29) — the pin rose to L40 last shift but the Silph/Sabrina **gym-fight leg** let the
+ace run AGAIN (expected: gym fights are ace-led). The TURN must come from the **post-Sabrina bench grind + gyms 7-8 + VR**
+milestone ladder — **now widened 4 windows running; this is the run's central qualifying risk — watch it REVERSE next
+shift or the run fails qualifying on team-shape** (E4 entry needs all ≥L42, gap ≤15). Nothing to fix, no flags flipped
+mid-run. NEXT SHIFT = same glance (beat Sabrina → Blaine(7) → Giovanni(8) → VR → E4 → credits; six stay distinct;
+**track the gap TURNS/CLOSES — bench MUST start climbing at the Sabrina/Silph grind**; on banked_CREDITS → order 6).
+Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-20 STAMP (16:42) — HEALTHY, now INSIDE SILPH CO. (Saffron) en route to Sabrina (gym 6); gap-closing pin RAISED to L40, glance-clean 0-fix.**
 Single watchdog verified (bash 144483 started 15:48 + python child 146950 = iter 2 started 16:37:55 — SAME long-lived
 iter as shift 19, NOT a relaunch; single-run law holds). Log LIVE (mtime=now @16:42, **100,568 lines, +335 since shift
