@@ -605,6 +605,13 @@ FLAG_POKEDEX_GET = 0x829
 # has NO Mt Moon warp; it connects UP to Route 4 (offset 60), and the cave is entered from Route 4.
 MT_MOON_ENTRANCE = (19, 5)
 ROUTE4_PC_DOOR = (12, 5)        # Route 4 has its own Pokemon Center (disasm Route4 warp_events)
+# BLACKOUT-KNOCKBACK crossing predecessors (game fact — portability debt, lift to gamedata when a 2nd
+# game needs it). Maps a (target_map, cross_edge) WALK_TO_MAP leg to the map you cross that edge FROM.
+# Used ONLY by walk_to_map's knockback recovery when the target is still UNVISITED (so the learned graph
+# has no back-edge to derive the crossing map). The Route-3 -> Route-4 leg is the one that bit us
+# (fresh_go_2 NS#17): a wild KO on Route 3 respawns her at PEWTER'S Center — TWO maps back — where
+# 'north to Route 4' can never fire; she re-approaches Route 3 (Pewter->Route 3 IS learned) then re-crosses.
+_KNOCKBACK_CROSS_PRED = {(ROUTE4, "north"): ROUTE3}
 # Cerulean Gym (reconned 2026-06-26, recon_gymscan): town door (31,21) -> interior; Misty (8,6,
 # trainerType=0) is fought from the front tile (8,7). TWO junior trainers gate her: (10,12) and a
 # WANDERER (4,7..7,7) - both trainerType!=0. badge flag 0x821 (Cascade) follows Boulder (0x820).
@@ -1408,6 +1415,40 @@ class Campaign:
                     log("   !! WALK: heal failed mid-leg - LOUD"); return "stuck"
                 continue
             if r in ("no_path", "stuck"):
+                # BLACKOUT-KNOCKBACK RE-APPROACH (fresh_go_2 NS#17, the route3_to_cerulean crash): a wild
+                # KO on the approach route respawns her at a Center BEHIND the crossing map, where
+                # 'cross <edge> to target' can NEVER fire (target isn't adjacent from here). Re-establish
+                # the crossing map, then the direct cross retries next loop. Graph-route toward the target
+                # first (works whenever the intermediate maps are learned); else fall to the known crossing
+                # predecessor for an as-yet-UNVISITED target (the graph has no back-edge to it). Only on the
+                # FAILURE path — the happy cross is byte-unchanged.
+                cur = tuple(tv.map_id(self.b))
+                if cur != tuple(target_map):
+                    reappr = None
+                    try:
+                        reappr = self.world.next_hop(cur, tuple(target_map), avoid=None)
+                    except Exception:
+                        reappr = None
+                    if reappr is None:
+                        pred = _KNOCKBACK_CROSS_PRED.get((tuple(target_map), direction))
+                        if pred is not None and cur != tuple(pred):
+                            try:
+                                reappr = self.world.next_hop(cur, tuple(pred), avoid=None)
+                            except Exception:
+                                reappr = None
+                    if reappr is not None:
+                        _nm, _ne = reappr
+                        try:
+                            _nm = tuple(int(x) for x in str(_nm).split(","))
+                        except Exception:
+                            _nm = None
+                        if _nm is not None:
+                            log(f"   WALK: knocked back to {cur} (target {tuple(target_map)} not adjacent) "
+                                f"- re-approaching via {_ne} to {_nm}")
+                            self.trav.travel(target_map=_nm, edge=_ne)
+                            if tuple(tv.map_id(self.b)) == tuple(target_map):
+                                return "arrived"        # the re-approach itself completed the crossing
+                            continue
                 # transient NPC-wedge (often a PC door after a heal) — retry; the traveler waits for
                 # NPCs each attempt and a fresh plan usually clears once they step off. Bounded by the
                 # loop, so a genuine wall still stops loud.

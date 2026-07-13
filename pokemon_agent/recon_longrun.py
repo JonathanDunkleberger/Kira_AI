@@ -244,6 +244,14 @@ def main():
         never leaves a torn bank. Canonical stays untouched (STAGE is the only source)."""
         if _bank_every_s <= 0:
             return
+        # OPENING-COMPLETION GATE (fresh_go_2 NS#17): NEVER stage banked_LIVE while the scripted opening
+        # is unfinished (badges < 2, i.e. pre-Misty — she may be stranded BEFORE the Mt Moon crossing that
+        # ONLY the scripted spine can do). Without this, the first ~180s snapshot banks a badge-1 pre-Mt-Moon
+        # state; the watchdog then resumes it into free_roam, which CANNOT cross Mt Moon -> the terminal
+        # backward-to-Pallet wedge loop. A mid-opening crash must re-run FRESH from the bedroom instead.
+        # Once Misty falls (badges>=2, past the wall) free_roam resumes cleanly, so banking arms from there.
+        if _badges(b) < 2:
+            return
         now = time.time()
         if now - _last_live_bank[0] < _bank_every_s:
             return
