@@ -11,6 +11,24 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-19 STAMP (16:40) — HEALTHY, BEAT KOGA (gym 5) → badge 5, now at SABRINA (gym 6) approach in Saffron, glance-clean 0-fix.**
+Single watchdog verified (bash 144483 started 15:48; python child **146950 = iter 2, relaunched 16:37:55 via CLEAN
+carry-forward** — iter 1 stalled/exited rc=0, iter 2 booted `banked_LIVE` at the Koga tile map(11,3)@(7,14) badges=4,
+BEAT Koga → real **badge 4→5** progress; NORMAL watchdog machinery, single-run law holds). Log LIVE (mtime=now @16:40,
+**100,233 lines, +3,433 since shift 18**, grew ~600 lines DURING this glance), **0 tracebacks whole-log**. **265 motion /
+5 spin in last 400 = moving-not-spinning** (2 spins = Koga-challenge dialogue-pacing `frozen world x15/30/90`; 3 = deep-
+wedge-ring / TRAVEL-WEDGE self-recovering LOUD "no inner spin" — all benign, NOT wedges). **PROGRESS SINCE SHIFT 18:**
+**beat KOGA (gym 5) → badge 5 (Soul)** → marched Route 7/8 → Lavender → Route 12 → **now IN Saffron City (58,27)** for
+**Sabrina (gym 6)**. Party **[venusaur L55, raticate L29, kadabra L30, dugtrio L29, growlithe L28, fearow L28] — SIX
+DISTINCT, 0 dups, dex 12, badges=5** (Boulder, Cascade, Thunder, Rainbow, Soul). **NO live banked_CREDITS** (real sentinels
+OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0** whole-log; the `banked_CREDITS_archived_*` dir is fresh_go_2's
+morning credits, NOT fresh_go_3). **ACUTE gap WIDENED 26→27 this window** (ace crept L54→L55 beating Koga while bench floor
+HELD L28 — expected ace-runaway on the gym-fight leg; the Sabrina(6) pin + gyms 6-8 + VR milestone ladder must pull the
+bench up and REVERSE this — **now widened 3 windows running, watch it TURN at the Sabrina/Silph pins**). Must still close to
+≤15 (all ≥L42) by E4. Nothing to fix, no flags flipped. NEXT SHIFT = same glance (beat Sabrina → Blaine(7) → Giovanni(8) →
+VR → E4 → credits; six stay distinct; track the gap REVERSES; on banked_CREDITS → order 6). Healthy → glance cheap, exit.
+Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-18 STAMP (16:36) — HEALTHY, reached Fuchsia and now ENGAGING KOGA (gym 5), glance-clean 0-fix.**
 Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, ALL started 15:48 — SAME
 long-lived iter as shifts 14-17, single-run law holds, NOT a relaunch). Log LIVE (mtime=now @16:35, **96,800
