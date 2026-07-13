@@ -516,6 +516,16 @@ class SeafoamStrike:
         # stray call must abort LOUD, not wander the interior move-less).
         n = b.rd8(ram.GPLAYER_PARTY_CNT)
         have = {m for s in range(n) for m in (st.read_party_moves(b, s) or [])}
+        # NS#38 CREDITS-BLOCKER (the Route-20 reboot-treadmill): the Safari grants HM03 Surf + HM04
+        # Strength together, but only Surf is driven to a teach (Blaine's gym prereq). Strength sits in
+        # the bag UNTAUGHT, so this preflight aborted 'failed' every attempt -> exhausted 3 tries at
+        # Fuchsia -> never entered the interior -> STALL at Route 20 every reboot. Teach the OWNED HM04
+        # here (proven teach primitive -> a free-slot bench mon) before aborting. Fail-closed: a failed
+        # teach leaves the party as-is and the abort below still fires (never worse than the old loop).
+        if MOVE_STRENGTH not in have and hasattr(camp, "_ensure_owned_hm_taught"):
+            if camp._ensure_owned_hm_taught("strength"):
+                n = b.rd8(ram.GPLAYER_PARTY_CNT)
+                have = {m for s in range(n) for m in (st.read_party_moves(b, s) or [])}
         if MOVE_SURF not in have or MOVE_STRENGTH not in have:
             self.log(f"!! seafoam strike: party lacks Surf/Strength (surf={MOVE_SURF in have} "
                      f"str={MOVE_STRENGTH in have}) — abort")

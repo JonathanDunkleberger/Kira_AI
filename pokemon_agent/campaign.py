@@ -6368,6 +6368,47 @@ class Campaign:
             log(f"   [roam] HM-BOX-SWAP skipped: {e}")
             return False
 
+    def _ensure_owned_hm_taught(self, hm, state=None):
+        """NS#38 CREDITS-BLOCKER (the Seafoam Route-20 reboot-treadmill): teach an ALREADY-OBTAINED HM
+        (in the TM case) to a party mon when none knows it yet. The Safari grants HM03 Surf AND HM04
+        Strength together, but only Surf is DRIVEN to a teach (Blaine's gym prereq via the teach bridge);
+        Strength sits in the bag untaught because the seafoam gate's KB prereq chain is `surf` only. The
+        Seafoam interior crossing shoves boulders with STRENGTH, so its strike PREFLIGHT aborted 'failed'
+        every attempt -> exhausted 3 tries at Fuchsia -> never entered the interior -> STALL at Route 20
+        every reboot. Route the untaught-owned HM through the SAME proven teach primitive the bridge uses
+        (default_plan picks a free-slot bench mon -> no move lost). Returns True iff a party mon knows the
+        move afterward. Fail-closed + LOUD (a failed teach leaves the party intact -> caller aborts as
+        before, never worse than the status-quo loop)."""
+        try:
+            import hm_teach as ht
+            move = {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148,
+                    "rock_smash": 249, "waterfall": 127}.get(hm)
+            if move is None:
+                return False
+            pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if st.party_knows_move(self.b, move, pc) is not None:
+                return True                                    # already known
+            if ht.tm_case_row(self.b, ht.HM_ITEM.get(hm, -1)) is None:
+                log(f"   [roam] ENSURE-HM: {hm} not in the TM case — can't teach (LOUD)")
+                return False
+            plan = ht.default_plan(self.b, hm, pc)
+            if plan is None and state is not None and self._box_swap_for_hm(hm, state):
+                plan = ht.default_plan(self.b, hm, self.b.rd8(ram.GPLAYER_PARTY_CNT))
+            if plan is None:
+                log(f"   [roam] !! ENSURE-HM: no compatible party mon for {hm} — LOUD")
+                return False
+            slot, forget_idx, reason = plan
+            mon = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot {slot}")
+            self.on_event(f"I've got HM {hm.title()} right here — teaching it to {mon} so we can get "
+                          f"across. {reason}.", kind="route", tier=2)
+            log(f"   [roam] 🧭 ENSURE-HM: {hm} -> {mon} (slot {slot}, {reason})")
+            r = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(hm, slot, forget_idx)
+            log(f"   [roam] ENSURE-HM result: {r}")
+            return (st.party_knows_move(self.b, move, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is not None)
+        except Exception as e:
+            log(f"   [roam] ENSURE-HM skipped: {e}")
+            return False
+
     def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
         capability (the 'walk away' vision needs autonomous leveling). From a CITY with no grass
