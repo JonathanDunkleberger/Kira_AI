@@ -8801,6 +8801,33 @@ class Campaign:
                         self.enter_warp(pick=_detail)
                     return "warped" if tuple(tv.map_id(self.b)) != _before else "warp_failed"
                 return self._edge_travel(_nxt, _detail)
+            # BILLED via:pass HANDOFF (fresh_go_3 Route 8->Celadon wedge): the world graph can't route
+            # to the anchor across the Route 7-8 Underground Path (unwalked ground), so anchor-first
+            # abandons and she oscillates Lavender<->Route 8's east edge. head_to_gym's own _road_step
+            # can't help either — its gate check reads the Saffron-east gatehouse on the west edge and
+            # returns road_gated, never reaching the via:pass leg. But the UGP is a HUT that crosses
+            # AROUND Saffron: call _door_passthrough directly (want_map biases the UGP-hut candidate
+            # first, per its docstring) — the exact crossing fresh_go_2 used to reach Celadon. Only when
+            # standing ON a billed hut-pass leg (cave 'pass' legs like Rock Tunnel are excluded — the
+            # tunnel crosser owns those).
+            try:
+                _road = self._gym_road(state.get("next_gym"))
+                _leg = next((L for L in (_road or []) if L.get("map") == cur_map
+                             and L.get("go") and L.get("via") == "pass" and not L.get("cave")), None)
+            except Exception:
+                _road, _leg = None, None
+            if _leg is not None:
+                _ri = _road.index(_leg)
+                _nxt = _road[_ri + 1]["map"] if _ri + 1 < len(_road) else None
+                log(f"   [roam] 🧭 QUESTLINE ANCHOR-FIRST: no graph route across the "
+                    f"{self.world.name(cur_map)} pass leg — trying the Underground Path hut "
+                    f"(door-passthrough toward {self.world.name(_nxt) if _nxt else 'the far side'})")
+                _before = tuple(tv.map_id(self.b))
+                _pt = self._door_passthrough(want_map=tuple(_nxt) if _nxt else None)
+                if _pt == "need_heal":
+                    return "need_heal"
+                if tuple(tv.map_id(self.b)) != _before:
+                    return "warped"
             log(f"   [roam] questline: no graph route {cur_map} -> anchor {step_anchor} yet — "
                 f"falling through to dir/bend discovery")
         letter = {"north": "N", "south": "S", "east": "E", "west": "W"}.get(d)
@@ -11200,9 +11227,23 @@ class Campaign:
             # assembles a squad on the reachable grass, THEN the road returns. Bounded (<=2 mons -> clears
             # at party 3); never freezes (only when battle/wander_catch is actually available).
             if _plan_build and "head_to_gym" in a and ("wander_catch" in a or "battle" in a):
-                a.pop("head_to_gym", None)
-                log("   [roam] TEAM-BRAIN PRE-BUILD dominance: suppressing head_to_gym (would solo-charge "
-                    "the trainer gauntlet the brain flagged) — build the squad on the reachable grass first")
+                # DOMINATE (pop the forward push) ONLY for a TRULY-THIN team (<=2 mons) marching a solo/
+                # duo lead into a gauntlet — the blackout case this was born to stop. For the PAST-3 case
+                # (pc 3-5, a functional-but-lopsided bench building toward six) popping head_to_gym PINS
+                # her: fresh_go_3 wedged at Route 8 grinding forever (never crossing the UGP to Celadon,
+                # never catching the keeper — the oracle picked 'battle' over 'wander_catch' every tick).
+                # A five-mon team should MARCH forward, grinding on the road (ROAD-BENCH-XP / LOPSIDED-
+                # BENCH still force bench stints) and catching the keeper IN PASSING (fetch_keeper); the
+                # anchor-first UGP hand-off then carries her across. Build options already stay available
+                # (forward-drive spared catch/grind above) — we just don't BLOCK the forward path.
+                _pc_pb = state.get("party_count") or len(state.get("party") or [])
+                if _pc_pb <= 2:
+                    a.pop("head_to_gym", None)
+                    log("   [roam] TEAM-BRAIN PRE-BUILD dominance: suppressing head_to_gym (solo/duo "
+                        "would charge the gauntlet the brain flagged) — build the squad on the grass first")
+                else:
+                    log(f"   [roam] TEAM-BRAIN PRE-BUILD: pc={_pc_pb} (functional bench) — KEEPING "
+                        "head_to_gym (march forward + build on the road, don't pin her grinding)")
         # ── SEVERELY-LOPSIDED BENCH dominance (PASS 3 NS#6 — team-depth lever a, the binding wall) ─────
         # When the bench is drastically under the gym milestone AND the ace towers over it, the ace can
         # carry the road forever so the dedicated bench grind ('battle') never gets chosen — the bench
