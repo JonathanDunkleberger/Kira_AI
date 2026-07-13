@@ -383,6 +383,25 @@ class MansionStrike:
             self.log("   RESUME: Secret Key already in bag — running the exit tail only")
         else:
             ops = MISSION
+            # RESUME-SAFE (no key yet): a mid-tour LIVE-bank can boot her on an INTERIOR floor with the
+            # switch flag (0x26C) already flipped from the partial descent. Replaying MISSION from the
+            # Cinnabar front door then dead-ends TWO ways: the inner-floor op-0 door can't path (B1F boot),
+            # or the switch-ON barrier seals the M2F->M3F stair on the re-descent (Cinnabar re-boot). So
+            # resume at the op AFTER the last 'door' that lands on her CURRENT floor — the switch mission
+            # continues from where the bank froze it. Unambiguous for 2F/3F/B1F (she's past the switch-
+            # sensitive descent and the boot switch state == that floor's intended arrival state). M1F is
+            # excluded: its dest appears twice (entrance vs. fall-balcony) so the resume point is ambiguous
+            # — a full replay from the entrance is correct there.
+            if here in (M2F, M3F, MB1F):
+                resume = 0
+                for i, mop in enumerate(MISSION):
+                    if mop[0] == "door" and mop[2] == here:
+                        resume = i + 1
+                if 0 < resume < len(MISSION):
+                    ops = MISSION[resume:]
+                    self.log(f"   RESUME: booted inside on {here} mid-tour (no key, switch="
+                             f"{int(fm.read_flag(b, FLAG_SWITCH))}) — skipping to op {resume} "
+                             f"{MISSION[resume]}")
 
         for op in ops:
             if time.time() > self.deadline:
