@@ -11,6 +11,17 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-10 STAMP (16:09) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
+shifts 6-9 (py 144491 + bash 144483, started 15:48) alive; log live (mtime=now), **0 tracebacks (83.4K lines)**,
+0 spin-wedge / 79 win-events in last 400 = moving-not-spinning (grass-grind on Route 7 (3,25), coords
+oscillating 15-17,3-5 + one normal NPC-gap wait). banked_LIVE fresh 16:03, no banked_CREDITS. Party
+**[venusaur L45, diglett L23, growlithe L23, kadabra L24, raticate L24, fearow L24] — SIX DISTINCT, 0 dups,
+dex 11, badges=4**. Still decision **#30 @922s** (same long grind action as shift 9 spanning many battles at
+one sim-stamp = EXPECTED not a freeze — verified via 79 fresh wins + log +1.1K lines since shift 9). GRIND-WEAK
+fielding weak slots to the L28 Koga pin, ace HELD L45. **ACUTE gap = ace L45 vs bench floor L23 = ~22**, must
+close to ≤15 (all ≥L42) by E4 via the milestone ladder — track the floor each glance. Nothing to fix, no flags
+flipped. NEXT SHIFT = same glance (Koga→Sabrina→Blaine→Giovanni→VR→E4→credits; six stay distinct; on
+banked_CREDITS → order 6). ————————————————————————————————————————————————
 **SHIFT-8 STAMP (16:05) — HEALTHY, unchanged trajectory, glance-clean 0-fix.** Same watchdog iter as
 shift 7 (py 144491 + bash 144483, started 15:48) alive; log live (mtime=now), **0 tracebacks (80.8K lines)**,
 61 motion / 0 spin-wedge lines in last 300 = moving-not-spinning (travel ARRIVED crossing (3,25)↔(3,6)); banked_LIVE
