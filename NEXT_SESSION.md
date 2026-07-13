@@ -11,6 +11,19 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-6 STAMP (15:59) — HEALTHY, still bench-grinding to Koga (gym 5), glance-clean.** Fresh watchdog iter
+(py 144491, started 15:48) at sim ~635s: on **Route 7 (map 3,25), badges=4**, GRIND-WEAK/LOPSIDED-BENCH firing
+textbook (`forcing ONE dedicated grind stint`, ace **HELD**, RATIONALE *"grinding … up to ~L28 (fielding them,
+not my ace) … then on to Fuchsia for Koga"*). Party **[venusaur L44, diglett L23, growlithe L23, kadabra L22,
+raticate L22, fearow L24] — SIX DISTINCT, 0 dups, dex 11**. **0 tracebacks** (77.9K lines), log live (mtime=now),
+sim advancing (#26→#28), bench climbing (growlithe L20→L23, fearow L22→L24), banked_LIVE 15:51. **ACUTE gap =
+ace L44 vs bench floor L22 = ~22**, GRIND-WEAK closing it (Koga pin L28). Same trajectory as shift 5; nothing to
+fix, no flags flipped. **NEXT SHIFT — glance:** does she cross the L28 pin → reach **Fuchsia → beat Koga (gym 5)**
+→ Sabrina/Silph(6) → Cinnabar/Blaine(7) → Giovanni(8) → VR → E4 → credits; track the floor+gap each glance (must
+reach ≥L42 all, gap ≤15 by E4 entry via milestone ladder); six stay distinct. On banked_CREDITS → order 6
+(run_stats → QUALIFYING eval → CREDITS/WATCHABILITY-GAPS/HALT line 1 of NIGHT_REPORT.md). Healthy → glance cheap,
+exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+
 **SHIFT-5 STAMP (15:56) — HEALTHY, BADGE 4 (Erika) BEATEN, glance-clean 0-commit.** Since shift 4's relaunch
 past the two Lavender→Celadon wedges, fresh_go_3 **cleared Celadon Gym → badge 4 (Rainbow)** and is now
 bench-grinding toward **Koga (gym 5)**, marching Fuchsia-way (Route 7/Route 25/26 band, map (3,25)). Party
