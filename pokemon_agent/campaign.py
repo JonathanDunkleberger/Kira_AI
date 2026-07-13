@@ -209,6 +209,14 @@ KEEPER_ROUTER_MAX_HOPS = int(os.getenv("POKEMON_KEEPER_ROUTER_MAX_HOPS", "6"))
 # (the route3_caught look-ahead: world.route said 'reachable' but the executor couldn't ride it -> MACRO
 # RED spin). She falls through to head_to_gym; the keeper is re-tried fresh only after a roster change.
 KEEPER_ROUTER_STALL_CAP = int(os.getenv("POKEMON_KEEPER_ROUTER_STALL_CAP", "3"))
+# POSITION-INDEPENDENT UNREACH COOLDOWN (NS#20 diglett ping-pong): the (cur,tmap) retirement above is
+# released the instant head_to_gym steps her off `cur`, so from the ADJACENT map the offer re-fires and
+# she oscillates two maps forever (Cerulean<->Route 4 fetching an un-routable pre-Vermilion Diglett's
+# Cave -> banked_STALL -> relaunch-to-solo -> repeat, never advancing). Suppress the SPECIES from every
+# position for a march-length window (roam ticks) so head_to_gym wins consecutively and carries her to
+# the keeper's region, where the host becomes genuinely routable and the cooldown lapses -> re-offered
+# THERE. Self-expiring so a legit later fetch (diglett once she's reached Vermilion) still fires.
+KEEPER_UNREACH_COOLDOWN = int(os.getenv("POKEMON_KEEPER_UNREACH_COOLDOWN", "60"))
 # STATIC-CONNECTION KEEPER ROUTE (NS#40): the learned world graph only knows VISITED maps, so a keeper HOST
 # entered by a door from an as-yet-unwalked corridor (Diglett's Cave off Route 11/Route 2) is invisible to
 # world.route -> _reachable_keeper_host returns None forever -> she never detours there -> she never visits
@@ -5046,6 +5054,21 @@ class Campaign:
                 best = (gw, hops)
         return best[0] if best else None
 
+    def _keeper_cooldown_active(self, sp):
+        """NS#20: is species `sp` under a position-independent unreach cooldown? Set when a fetch errand
+        retires an un-routable keeper (below); read by _keeper_route_target so the offer is suppressed from
+        EVERY map for KEEPER_UNREACH_COOLDOWN roam ticks (letting head_to_gym march her to the keeper's
+        region), then self-expires so a later legit fetch fires. Fail-open (no cooldown dict -> not active)."""
+        until = getattr(self, "_keeper_unreach_until", None)
+        if not until:
+            return False
+        return until.get(sp, 0) > getattr(self, "_roam_tick", 0)
+
+    def _keeper_cooldown_set(self, sp):
+        """NS#20: retire species `sp` from the keeper router for a march-length window (see cooldown gate)."""
+        self.__dict__.setdefault("_keeper_unreach_until", {})[sp] = \
+            getattr(self, "_roam_tick", 0) + KEEPER_UNREACH_COOLDOWN
+
     def _keeper_route_target(self, state):
         """CROSS-MAP KEEPER ROUTER (Part-C executor, PASS 3 NEW#2): the forward-plan's DUE keeper species
         + the NEARBY reachable map that HOSTS it, when it is NOT on the current map and the party has ROOM
@@ -5075,6 +5098,8 @@ class Campaign:
             sp = (act.get("species") or "").lower()
             if not sp:
                 return None
+            if self._keeper_cooldown_active(sp):
+                return None                        # NS#20: retired from every position -> head_to_gym drives
             cur = tuple(tv.map_id(self.b))
             if self._species_on_map(sp, cur):
                 # ON the keeper's map. A GRASS map -> the on-map un-gate (wander_catch) owns the catch;
@@ -5243,8 +5268,10 @@ class Campaign:
             if not hasattr(self, "_keeper_unreach"):
                 self._keeper_unreach = set()
             self._keeper_unreach.add(key)
+            self._keeper_cooldown_set(sp)          # NS#20: suppress from EVERY position, not just this cur
             log(f"   [roam] FETCH-KEEPER: '{sp}' at {self._place_name(tmap)} UNREACHABLE from "
-                f"{self._place_name(cur)} ({st_map[key]} no-progress legs) — retiring it; back to the road")
+                f"{self._place_name(cur)} ({st_map[key]} no-progress legs) — retiring it "
+                f"(cooldown {KEEPER_UNREACH_COOLDOWN} ticks so head_to_gym carries her forward); back to the road")
             return "keeper_unreach"
         return f"keeper_route:{r}"
 
@@ -5324,6 +5351,7 @@ class Campaign:
         if not hasattr(self, "_keeper_unreach"):
             self._keeper_unreach = set()
         self._keeper_unreach.add((cur, cur))
+        self._keeper_cooldown_set(sp)              # NS#20: don't re-enter this hunted-out cave from adjacent maps
         self._cave_floors_seen = set()
         log(f"   [roam] CAVE-FETCH: hunted every reachable {host_area} floor, no {sp} — retiring this cave "
             f"(back to the road; the on-map catch will re-try only after a roster change) (LOUD)")
@@ -12283,6 +12311,7 @@ class Campaign:
             self._auto_checkpoint("roam_start")
         void_recoveries = 0                        # VOID-CORE recovery budget this run (bounded)
         for tick in range(1, max_ticks + 1):
+            self._roam_tick = tick                 # NS#20: read by the keeper unreach-cooldown gate
             if _t.time() - t0 > max_seconds:
                 log(f"   [roam] time budget {max_seconds}s reached — ending"); break
             # ── VOID-CORE TRIPWIRE (2026-07-08, the QW-4 class — FIRST, before the anchor block,
