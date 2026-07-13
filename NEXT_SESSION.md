@@ -11,6 +11,26 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-18 STAMP (16:36) — HEALTHY, reached Fuchsia and now ENGAGING KOGA (gym 5), glance-clean 0-fix.**
+Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, ALL started 15:48 — SAME
+long-lived iter as shifts 14-17, single-run law holds, NOT a relaunch). Log LIVE (mtime=now @16:35, **96,800
+lines, +2,165 since shift 17**), **0 tracebacks whole-log**. **312 motion / 2 spin in last 400 = moving-not-
+spinning** (the 2 "spins" are the normal Koga-challenge dialogue-pacing counter `frozen world x15/90`, NOT a
+wedge). **PROGRESS SINCE SHIFT 17:** advanced from the Fuchsia *approach* → into **Fuchsia City** → now
+**ENGAGING KOGA (gym 5)** at the leader tile (7,14), in the challenge dialogue (`[dlg Koga-challenge] 'KOGA.
+Fwahahaha! A mere child like you dares to challenge me?'`, lead **venusaur Lv54, party=6**). Party **[venusaur
+L54, kadabra L30, raticate L29, dugtrio L29, growlithe L28, fearow L28] — SIX DISTINCT, 0 dups, dex 12,
+badges=4** (Boulder, Cascade, Thunder, Rainbow). **NO live banked_CREDITS** (real credits sentinels
+OUTCOME:CREDITS / Hall-of-Fame / rolled-credits = **0** whole-log; the 604 "champion" grep hits are ALL oracle
+goal-text "beat the Elite Four … Champion down the line", NOT a credits event). One `[strat] trainer battle
+returned ambiguous 'ended' → RECORDING as LOSS` in tail = the designed swallow-proof loss-recording (a Koga
+junior), NOT a crash. **ACUTE gap WIDENED 24→26 this window** (ace crept L52→L54 on the Fuchsia march while
+bench floor HELD L28 — expected ace-runaway-on-questline-leg; the Koga pin + gyms 5-8 milestone ladder must
+pull the bench up and REVERSE this — now widened 2 windows running, watch it TURN at the Koga pin). Must still
+close to ≤15 (all ≥L42) by E4. Nothing to fix, no flags flipped. NEXT SHIFT = same glance (beat Koga → Sabrina/
+Silph(6) → Blaine(7) → Giovanni(8) → VR → E4 → credits; six stay distinct; track the gap REVERSES; on
+banked_CREDITS → order 6). Healthy → glance cheap, exit. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-17 STAMP (16:33) — HEALTHY, advanced out of Pokémon Tower to the FUCHSIA approach (Koga/gym-5 march), glance-clean 0-fix.**
 Single watchdog chain verified (bash 43448 → 40260 → py 27064 shim → 42948 real, ALL started 15:48; single-run
 law holds — SAME long-lived iter as shifts 14-16, NOT a relaunch. NOTE: shifts 15/16 cited PIDs 144483/144491 —
