@@ -11915,6 +11915,23 @@ class Campaign:
                     else:
                         log(f"   [roam] BENCH-TO-MS: productive bite {_floor0}->{_floor1} toward milestone "
                             f"L{_lop_ms} — climbing on (floor now L{_floor1})")
+                        # NS#36 SHADOW-BUG FIX (root-kills the shifts 30-35 Route-18 soft-treadmill that
+                        # survived the shift-34/35 fixes). A productive bite is a COMPLETED lopsided stint, so
+                        # LOPSIDED-BENCH (its OWN log says "forcing ONE dedicated grind stint") must mark the
+                        # milestone done here — EXACTLY like the shift-25 universal park-proof at ~L11971 does
+                        # for every non-productive terminal stint. But `_lopsided_pending_ms = None` at ~L11953
+                        # runs BEFORE that park-proof and SHADOWS it, so the productive branch marked done ONLY
+                        # inside the over-level release `if` below. Live (fresh_go_1.log NS#36): the run booted
+                        # with a leaked POKEMON_BENCH_TO_MILESTONE=1 → _bench_to_ms_active True via the GLOBAL
+                        # flag while _overlevel_before_sealeg was None → the release `if` skipped → L48 never
+                        # marked → LOPSIDED-DBG done=[] forever → she re-ground Route 18 (wilds L23-29) toward
+                        # the UNREACHABLE L48 milestone every tick = the treadmill. Mark done UNCONDITIONALLY on
+                        # a productive bite (LOPSIDED is one-stint-per-badge by design; the multi-bite keep-climb
+                        # is the prep-pin's job, not LOPSIDED's) → head_to_gym resumes → she marches south → the
+                        # no_safe_grass / over-level release crosses her to Cinnabar. Byte-inert in the working
+                        # over-level case (the release below already added _lop_ms).
+                        self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+                        self._lopsided_grind_done.add(_lop_ms)
                         # NS#34 OVER-LEVEL ONE-BITE-THEN-CROSS (root-kills the shifts 30-33 Route-18 soft-
                         # treadmill). The over-level's own design is ONE dedicated grind stint (the LOPSIDED-
                         # BENCH log says so). The shift-29 fix marked only _lopsided_grind_done — but the

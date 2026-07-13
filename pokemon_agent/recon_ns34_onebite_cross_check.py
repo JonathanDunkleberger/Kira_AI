@@ -59,10 +59,14 @@ class FakeCamp:
         return object() if self._seafoam_open else None
 
     def apply_onebite_release(self, state, _lop_ms):
-        """The EXACT side-effect block from the productive-bite branch (campaign.py ~L11934).
-        NS#35: the guard is the LIVE _overlevel_before_sealeg(state) is not None (over-level active),
-        NOT the stale cached _ovl_sealeg_pending flag (which reads False at this executor — the shift-34
-        inert-fix bug)."""
+        """The EXACT side-effect block from the productive-bite branch (campaign.py ~L11933).
+        NS#36 SHADOW-BUG FIX: mark _lopsided_grind_done UNCONDITIONALLY on a productive bite (a completed
+        lopsided stint satisfies LOPSIDED's one-stint-per-badge design) — the shift-34/35 code only marked
+        it inside the over-level `if`, so a productive bite with over-level None (the BENCH_TO_MILESTONE-
+        leaked live case) left L48 unmarked -> done=[] -> LOPSIDED re-fired every tick = the treadmill.
+        NS#35: the over-level release guard is the LIVE _overlevel_before_sealeg(state) is not None."""
+        self._lopsided_grind_done = getattr(self, "_lopsided_grind_done", set())
+        self._lopsided_grind_done.add(_lop_ms)
         if self._overlevel_before_sealeg(state) is not None:
             self._overlevel_sealeg_dry_badge = int(state.get("badge_count", -1))
             self._ovl_sealeg_pending = False
@@ -122,6 +126,17 @@ def main():
     st7 = _mkstate([58, 30, 30, 30, 31, 30], badge=7)
     check("D re-arms at the next badge (per-badge, not a permanent kill)",
           fc._overlevel_before_sealeg(st7), 48)
+
+    # E (NS#36 SHADOW-BUG FIX — the live root that survived shifts 34/35): a productive bite where
+    # over-level reads None at the release (the leaked POKEMON_BENCH_TO_MILESTONE=1 made _bench_to_ms_active
+    # True via the GLOBAL flag while _overlevel_before_sealeg was None) MUST still mark the LOPSIDED
+    # milestone done so LOPSIDED-BENCH stops re-firing (done=[] forever was the treadmill). The old code
+    # marked done ONLY inside the over-level `if` -> unmarked here -> treadmill.
+    fc_shadow = FakeCamp(milestone=48)
+    fc_shadow._seafoam_open = False                  # over-level None at the release (BENCH_TO_MILESTONE case)
+    fc_shadow.apply_onebite_release(st, 48)
+    check("E shadow-bug: productive bite marks LOPSIDED done even with over-level None (no treadmill)",
+          48 in fc_shadow._lopsided_grind_done, True)
 
     npass = sum(1 for _, ok in cases if ok)
     print(f"\n{npass}/{len(cases)} PASS")
