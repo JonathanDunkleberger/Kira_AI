@@ -8317,6 +8317,23 @@ class Campaign:
                                  avoid=[w for w in others if w != far])
                 if tuple(tv.map_id(b)) == before:
                     self.enter_warp(pick=far)
+            # EDGE cave-mouth warps (Rock Tunnel south mouth class: (18,37)->(3,28) Lavender-side)
+            # sit on the map's BORDER — the warp tile is not a standable target, so travel stops ONE
+            # TILE SHORT (lands at (18,36)) and the on-far fire block below never runs -> "didn't fire"
+            # -> the far mouth gets marked ridden and the crossing thrashes forever (fresh_go_3 wedge,
+            # 15 identical stalls). If we're ADJACENT to far, step directionally ONTO it: an edge warp
+            # fires on the step-onto, exactly like a door mat. General — every border cave-mouth.
+            cc = tuple(tv.coords(b))
+            if (tuple(tv.map_id(b)) == before and not backtrack and cc != far
+                    and abs(cc[0] - far[0]) + abs(cc[1] - far[1]) == 1):
+                step = (("RIGHT" if far[0] > cc[0] else "LEFT") if far[0] != cc[0]
+                        else ("DOWN" if far[1] > cc[1] else "UP"))
+                for _try in range(3):
+                    b.press(step, 10, 6, lambda: None, owner="agent")
+                    for _f in range(40):
+                        b.run_frame()
+                    if tuple(tv.map_id(b)) != before or tuple(tv.coords(b)) == far:
+                        break
             if tuple(tv.map_id(b)) == before and tuple(tv.coords(b)) == far:
                 for d_ in ("DOWN", "UP", "LEFT", "RIGHT"):     # door mats fire on the crossing step
                     b.press(d_, 10, 6, lambda: None, owner="agent")
