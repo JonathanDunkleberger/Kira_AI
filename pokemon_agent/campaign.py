@@ -146,6 +146,17 @@ OVERWORLD_SAFE_QUESTLINES = frozenset({
     "fly",                            # Route 16 house
     "FLAG_GOT_TEA",                   # Celadon (town)
     "bike", "FLAG_GOT_BIKE_VOUCHER",  # Cerulean / Vermilion (towns)
+    # RUN-5 (2026-07-14) — the badge-6..8 back-half keys. fresh_go_1..4 all froze the bench ~L25-29 while
+    # the ace soloed to L63+ across these questline-dense legs, because their gate.missing keys were NOT
+    # allowlisted so the road-bench-XP relax never fired on the LONG open-ground/open-sea marches that
+    # dominate the back half. Each is an OPEN-GROUND/OPEN-SEA march whose terminal (Silph/Seafoam building
+    # or cave) is a SEPARATE strike + is auto-suppressed anyway by the live _on_overworld_now() guard — so
+    # the bench only ever leads on open ground/sea, never into an interior (the flee-loop the design forbids).
+    "surf",                           # Blaine prep — Celadon->Fuchsia routes + Safari (G1_OUTDOOR) Surf-HM march
+    "seafoam",                        # the sea crossing to Cinnabar — Route 19/20 OPEN SEA (the cave interior
+    #                                   is a live-guarded separate strike); unlocks the badge-7 sea legs
+    "FLAG_HIDE_SAFFRON_ROCKETS",      # Sabrina — the long Fuchsia->Saffron open-route march (Silph Co. building
+    #                                   is a SEPARATE strike, live-guarded; mirrors the listed earth_badge march)
 })
 # CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
 # binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
@@ -347,6 +358,13 @@ E4_ENTRY_MIN_LEVEL = int(os.getenv("POKEMON_E4_ENTRY_MIN", "42"))    # every mem
 E4_ENTRY_GAP_MAX = int(os.getenv("POKEMON_E4_ENTRY_GAP", "15"))      # ace-to-floor gap ceiling (also caps ~L100)
 E4_GATE_MAX_STINTS = int(os.getenv("POKEMON_E4_GATE_STINTS", "80"))  # anti-infinite: total stints before stand-down
 E4_GATE_NOPROG_STINTS = int(os.getenv("POKEMON_E4_GATE_NOPROG", "8"))  # consecutive no-floor-gain -> non-converge
+# RUN-5 (2026-07-14) GATE-GRIND OPEN-GRASS ROUTING: when the RED gate's current map starves (no grass —
+# the halt fired on grassless Cinnabar Island), route to the nearest reachable ADEQUATE open grass and
+# grind the bench there ace-capped. The routed target is capped to floor + this climb so grind() actually
+# grinds (open-grass wilds top out ~L30, so grinding toward the raw L48 floor target instantly bails
+# 'inadequate'). A small residual gap closes; a huge deficit can't converge on open grass -> the gate's
+# noprog counter -> honest NON-CONVERGE HALT (unchanged). Bounded, productivity-gated by _better_grind_spot.
+E4_GATE_REROUTE_CLIMB = int(os.getenv("POKEMON_E4_GATE_REROUTE_CLIMB", "12"))
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -10052,11 +10070,59 @@ class Campaign:
         """ONE ACE-CAPPED bench-grind stint toward `target` on the reachable terrain: at/near the Indigo
         Plateau use the VR2F cave loop (Indigo-anchored heal); on open ground pre-VR field the weak ones on
         the reachable grass. Ace-capped throughout (grind_weak_members/prep_e4_in_victory_road force
-        PROTECT_LEAD_GRIND off) so the ace earns no XP while the gate is RED."""
+        PROTECT_LEAD_GRIND off) so the ace earns no XP while the gate is RED.
+
+        RUN-5 (2026-07-14) — OPEN-GRASS RE-ROUTE: if the current map STARVES (no_safe_grass — the fresh_go_4
+        halt fired the gate on grassless Cinnabar Island, so every stint returned no_safe_grass and it
+        NON-CONVERGED without ever trying reachable grass), route to the nearest reachable ADEQUATE open
+        grass via the world graph and grind the bench THERE (still ace-capped). Endgame open grass tops out
+        ~L30, so this closes only a SMALL residual gap; a huge deficit still can't converge on open grass ->
+        the caller's noprog counter -> honest NON-CONVERGE HALT. Bounded + productivity-gated (below)."""
         here = tuple(tv.map_id(self.b))
         if here in (ENDGAME_INDIGO, (3, 42)):                 # at/near Indigo → VR2F cave heal-loop
             return self.prep_e4_in_victory_road(target=target, ace_cap=True)
-        return self.grind_weak_members(target, min_level=max(1, target - E4_PREP_BAND), ace_cap=True)
+        ml = max(1, target - E4_PREP_BAND)
+        r = self.grind_weak_members(target, min_level=ml, ace_cap=True)
+        if r == "no_safe_grass":                              # local map has no reachable grass — re-route
+            rr = self._e4_gate_reroute_grind(state, target)
+            if rr is not None:
+                return rr
+        return r
+
+    def _e4_gate_reroute_grind(self, state, target):
+        """RUN-5 fix (a): the RED gate's current map starved -> WALK to the nearest reachable ADEQUATE
+        OPEN-grass map (world-graph, ungated, level-data-backed via _better_grind_spot) and grind the bench
+        there ace-capped. Returns the grind sentinel if it routed+ground, else None (caller propagates
+        no_safe_grass -> the gate's bounded noprog NON-CONVERGE). The routed target is capped to
+        floor+E4_GATE_REROUTE_CLIMB so grind() actually GRINDS (targeting the raw L48 floor on ~L30 open
+        grass instantly bails 'inadequate'). Fail-closed: any read error -> None (propagate the starve)."""
+        try:
+            cur = tuple(state["map"])
+            floor = min(self._party_levels() or [0])
+            routed_t = min(target, floor + E4_GATE_REROUTE_CLIMB)
+            dst = self._better_grind_spot(state, routed_t)    # nearest ADEQUATE reachable open grass, or None
+            if dst is None or tuple(dst) == cur:
+                return None                                   # no reachable adequate open grass -> honest HALT path
+            avoid = self._wall_avoid(state)
+            hop = self.world.next_hop(cur, tuple(dst), avoid)
+            if not hop:
+                return None
+            _nxt, edge = hop
+            log(f"   [roam] E4-GATE RE-ROUTE: local grass starved at {cur} — walking to open grass {dst} "
+                f"(edge {edge}) to grind the bench toward L{routed_t} ace-capped (floor L{floor})")
+            self.walk_to_map(tuple(dst), edge)                # multi-hop toward dst; roam re-ticks if partial
+            if tuple(tv.map_id(self.b)) == cur:
+                return None                                   # didn't move -> propagate the starve (noprog ticks)
+            # She MOVED toward grass = real progress toward the grind. Don't let transit towns (which have no
+            # grass -> grind returns no_safe_grass this stint) trip the noprog non-converge counter — only a
+            # genuine can't-move / can't-grind should HALT. When the adequate grass runs dead _better_grind_spot
+            # returns None above -> the helper returns None -> noprog ticks -> bounded NON-CONVERGE (self-limits).
+            self._e4_gate_noprog = 0
+            self._prep_dry, self._prep_dry_logged = 0, False  # arrived on fresh terrain — clear stale stand-down
+            return self.grind_weak_members(routed_t, min_level=max(1, routed_t - E4_PREP_BAND), ace_cap=True)
+        except Exception as e:
+            log(f"   [roam] E4-GATE RE-ROUTE errored ({e}) — LOUD; propagating the starve")
+            return None
 
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
