@@ -331,6 +331,22 @@ GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "1") != "0"
 ENDGAME_INDIGO = (3, 9)                                        # the Indigo Plateau exterior
 VICTORY_ROAD_ENABLED = os.getenv("POKEMON_VICTORY_ROAD", "1") != "0"
 E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
+# ── RUN-4 (2026-07-14): the E4-READINESS GATE. The solo-ace disqualify failed THREE runs — the ace
+# out-levels the bench through the cave/gauntlet endgame and solos the E4 to L100 while the bench freezes
+# ~L31 (disqualified on team-shape all three times, even after the 5add821 map-type relax). Jonny-adjudicated
+# two-part root fix: (a) the endgame MARCH/gauntlet may not BEGIN until the team is in QUALIFYING shape —
+# every member >= L42 AND ace-to-floor gap <= 15; while RED the endgame action is blocked and an ACE-CAPPED
+# bench grind runs (the weak ones SOLO the reachable wilds so the ace earns NO XP) toward the floor target.
+# (b) Bounded — productivity-gated stints + a hard no-progress ceiling; a truly non-converging team stands
+# down LOUD (a monitor shift adjudicates HALT) rather than entering under-shape or looping silently. The
+# ace-cap ALSO kills the whiteout-retry partial-Champion clears that fed the ace L63->L100 (she never enters
+# while RED). Gating the endgame DISPATCH (head_to_league pre-VR + enter_league at Indigo) prep the bench on
+# open ground BEFORE the ace runs away in the Victory-Road cave. Flag-gated (default ON) -> revertible.
+E4_GATE_ENABLED = os.getenv("POKEMON_E4_READINESS_GATE", "1") != "0"
+E4_ENTRY_MIN_LEVEL = int(os.getenv("POKEMON_E4_ENTRY_MIN", "42"))    # every member must reach this
+E4_ENTRY_GAP_MAX = int(os.getenv("POKEMON_E4_ENTRY_GAP", "15"))      # ace-to-floor gap ceiling (also caps ~L100)
+E4_GATE_MAX_STINTS = int(os.getenv("POKEMON_E4_GATE_STINTS", "80"))  # anti-infinite: total stints before stand-down
+E4_GATE_NOPROG_STINTS = int(os.getenv("POKEMON_E4_GATE_NOPROG", "8"))  # consecutive no-floor-gain -> non-converge
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -6976,6 +6992,28 @@ class Campaign:
             log(f"   [roam] prep-for-e4 target skipped: {e}")
             return None
 
+    def _e4_entry_ready(self, party):
+        """RUN-4 E4-READINESS GATE predicate. Qualifying team-shape for the League gauntlet: a FULL six,
+        EVERY member >= E4_ENTRY_MIN_LEVEL, AND ace-to-floor gap <= E4_ENTRY_GAP_MAX (which also caps the
+        ceiling near L100 — floor>=42 & gap<=15 => ceil<=57). Returns (ready, floor, ceil, gap). Fail-safe:
+        a thin/empty party (< 6) is NEVER ready — she must never enter the League under-shape."""
+        levels = [int(m.get("level", 0)) for m in (party or [])]
+        floor = min(levels) if levels else 0
+        ceil = max(levels) if levels else 0
+        gap = ceil - floor
+        if len(levels) < 6:
+            return (False, floor, ceil, gap)
+        ready = (floor >= E4_ENTRY_MIN_LEVEL) and (gap <= E4_ENTRY_GAP_MAX)
+        return (ready, floor, ceil, gap)
+
+    def _e4_prep_floor_target(self, party):
+        """The bench-FLOOR the readiness grind must reach to turn the gate GREEN: high enough that BOTH
+        (a) floor >= E4_ENTRY_MIN_LEVEL AND (b) the ace-floor gap <= E4_ENTRY_GAP_MAX (i.e. floor >= ace-15).
+        Reads the CAPPED ace level (the ace earns no XP while the gate is RED), so the target can't chase a
+        runaway ace — it's a fixed bar the bench climbs to."""
+        ceil = max((int(m.get("level", 0)) for m in (party or [])), default=0)
+        return max(E4_ENTRY_MIN_LEVEL, ceil - E4_ENTRY_GAP_MAX)
+
     def _prep_team_target(self, state):
         """The readiness target IF she should be prepping for the active wall, else None. Single source of
         truth (action executor + framing + dashboard rationale read THIS). Two modes:
@@ -7113,7 +7151,7 @@ class Campaign:
         """The under-target members' species names (for the rationale/framing). Pure read off state."""
         return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
 
-    def grind_weak_members(self, target, min_level=None):
+    def grind_weak_members(self, target, min_level=None, ace_cap=False):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
         ace. Each loop: pick the weakest under-target member, reorder it to lead, grind() it toward
         `target` (which heals it when low — survival), repeat until the floor crosses. Bounded by a
@@ -7134,14 +7172,20 @@ class Campaign:
         # turn 1; (2) SOLO weak-grind — weak lead fights solo (Super-Potion heal + ace backstop); (3)
         # ace-overpower fallback. (1)/(2) BOTH field the weak member (the real team-building); (3) only
         # levels the ace (can't fix a type-resisted wall). Prefer (1) if armed, else (2) if enabled.
-        use_switch = battle_agent.GRIND_SWITCH_ENABLED
-        if not use_switch and not SOLO_WEAK_GRIND:
+        # ACE-CAP (RUN-4, 2026-07-14): during the E4-READINESS prep the ace must earn NO XP (the solo-ace
+        # disqualify root). Force the participation switch OFF so the weak lead fights the reachable wilds
+        # ITSELF (SOLO) — the ace is never sent out to share the kill. grind()'s fragile heals keep the weak
+        # mon alive; a faint surfaces battle_loss (roam heals + re-grinds) instead of the ace bulldozing.
+        use_switch = battle_agent.GRIND_SWITCH_ENABLED and not ace_cap
+        solo_ok = SOLO_WEAK_GRIND or ace_cap
+        if not use_switch and not solo_ok:
             self._restore_ace()                              # ace in slot 0
             log(f"   GRIND-OVERPOWER: bench-leveling needs the (gated) in-battle switch — instead leveling "
                 f"the ACE to L{target} to overpower the wall; levels now {self._party_levels()}")
             return self.grind(target)
-        log(f"   GRIND-WEAK{'' if use_switch else '-SOLO'}: team floor under L{target} — fielding the weak "
-            f"ones (not the ace) to raise the team's floor; levels now {self._party_levels()}")
+        log(f"   GRIND-WEAK{'-ACECAP' if ace_cap else ('' if use_switch else '-SOLO')}: team floor under "
+            f"L{target} — fielding the weak ones (not the ace{', ace CAPPED (no XP)' if ace_cap else ''}) to "
+            f"raise the team's floor; levels now {self._party_levels()}")
         t0 = time.time()
         # PARTICIPATION-XP GRIND SWITCH (only when armed): switch the weak lead out to the ace on turn 1 so
         # it banks XP without being one-shot. In SOLO mode it's OFF — the weak lead fights itself (Super
@@ -7212,7 +7256,7 @@ class Campaign:
         finally:
             battle_agent.PROTECT_LEAD_GRIND = False        # disarm — normal play never grind-switches
 
-    def prep_e4_in_victory_road(self, target=None, max_stints=None, budget_s=None):
+    def prep_e4_in_victory_road(self, target=None, max_stints=None, budget_s=None, ace_cap=False):
         """ENDGAME TEAM-DEPTH (NS#17) — the Indigo-anchored Victory-Road cave grind. At the Indigo Plateau,
         if the team is underleveled for the Elite Four, dip into the ADJACENT Victory Road 2F (a Center-less
         L36-46 cave) and cave-grind the bench toward the E4 floor, healing at the Indigo League Center
@@ -7284,7 +7328,7 @@ class Campaign:
             reach_fail = 0
             log(f"   VR-GRIND: stint {stint + 1}/{max_stints} on VR2F @ {tv.coords(self.b)} — "
                 f"cave-grinding the bench toward L{target} (levels {self._party_levels()})")
-            r = self.grind_weak_members(target, min_level=max(1, target - E4_PREP_BAND))
+            r = self.grind_weak_members(target, min_level=max(1, target - E4_PREP_BAND), ace_cap=ace_cap)
             # 'ready' (floor crossed) | 'ace_healed'/'ok' (bail/budget -> she's at R23-north healed, re-dip)
             # | 'no_safe_grass' (VR2F not grindable -> stop) | 'battle_loss' (blackout auto-heals, re-dip)
             if r == "ready":
@@ -9950,6 +9994,70 @@ class Campaign:
             log(f"   !! ELITE FOUR strike errored ({e}) — surfacing to the oracle (LOUD)")
             return "stuck"
 
+    def _e4_readiness_gate(self, state, pick):
+        """RUN-4 (2026-07-14) — the E4-READINESS GATE, wired at the endgame DISPATCH before head_to_league
+        (pre-VR march) / enter_league (the League door). Returns a roam sentinel to BLOCK the strike when
+        the team is under-shape (RED), or None to ALLOW it (GREEN). While RED it runs ONE ACE-CAPPED bench
+        grind stint on the reachable terrain toward the floor target, and tracks non-convergence.
+
+        WHY (the 3× solo-ace disqualify root): un-gated, she marched into Victory Road (a CAVE → the ace
+        leads) with the bench frozen ~L31, the ace ran to L63+ crossing it, then the E4 whiteout-retry loop
+        solo-ground the ace to L100 on partial-Champion clears. Gating the DISPATCH stops BOTH: (1) she can't
+        enter the E4 while RED, so there is no whiteout-retry ace grind; (2) she can't march to VR while RED,
+        so the bench preps on OPEN GROUND first (pre-VR Route 22/23) where the weak ones can solo-win — and
+        the ace-cap keeps the ace flat so raising the bench actually closes gap<=15 instead of chasing a
+        runaway ace. Bounded: E4_GATE_MAX_STINTS total + E4_GATE_NOPROG_STINTS consecutive no-floor-gain →
+        stand down LOUD (a monitor shift adjudicates HALT), never enter under-shape, never loop silently."""
+        party = state.get("party") or []
+        ready, floor, ceil, gap = self._e4_entry_ready(party)
+        if ready:
+            if not getattr(self, "_e4_gate_green_logged", False):
+                self._e4_gate_green_logged = True
+                log(f"   [roam] ✅ E4-READINESS GATE GREEN: full six, floor L{floor} >= L{E4_ENTRY_MIN_LEVEL}, "
+                    f"ace L{ceil}, gap {gap} <= {E4_ENTRY_GAP_MAX} — qualifying shape, clearing "
+                    f"'{pick}' to proceed")
+            return None                                       # GREEN — let the strike fire
+        target = self._e4_prep_floor_target(party)
+        stints = getattr(self, "_e4_gate_stints", 0)
+        noprog = getattr(self, "_e4_gate_noprog", 0)
+        # NON-CONVERGE STAND-DOWN: the reachable grind can't raise the bench to qualifying shape here
+        # (e.g. only cave terrain remains + the weak mon can't solo it, or box-fodder chaff can't level).
+        # Surface LOUD + repeatedly so the watchdog's no-progress detector banks it and a monitor shift
+        # reads the sentinel and writes HALT — NEVER silently enter the League under-shape.
+        if stints >= E4_GATE_MAX_STINTS or noprog >= E4_GATE_NOPROG_STINTS:
+            log(f"   [roam] !! E4-READINESS-GATE NON-CONVERGING: {stints} stints / {noprog} no-progress — "
+                f"floor L{floor} still under target L{target} (ace L{ceil}, gap {gap}). The reachable grind "
+                f"cannot bring the bench to qualifying shape from here. STANDING DOWN — NOT entering the "
+                f"League under-shape (a monitor shift adjudicates HALT). levels={self._party_levels()}")
+            return "stuck"                                    # surface to the oracle; do NOT dispatch
+        self._e4_gate_stints = stints + 1
+        log(f"   [roam] E4-READINESS GATE RED (stint {stints + 1}/{E4_GATE_MAX_STINTS}): floor L{floor} "
+            f"< target L{target}" + ("" if gap <= E4_ENTRY_GAP_MAX else f" / gap {gap} > {E4_ENTRY_GAP_MAX}")
+            + f"; ace L{ceil} CAPPED (no XP) — blocking '{pick}', fielding the weak ones to close it first")
+        floor_before = floor
+        try:
+            r = self._e4_readiness_grind(state, target)
+        except Exception as e:
+            log(f"   [roam] !! E4-readiness grind errored ({e}) — LOUD; standing at the gate")
+            self._e4_gate_noprog = noprog + 1
+            return "ok"
+        floor_after = min(self._party_levels() or [0])
+        if floor_after > floor_before:
+            self._e4_gate_noprog = 0                           # real progress — reset the non-converge count
+        else:
+            self._e4_gate_noprog = noprog + 1
+        return "battle_loss" if r == "battle_loss" else "ok"  # re-tick; the gate re-checks readiness
+
+    def _e4_readiness_grind(self, state, target):
+        """ONE ACE-CAPPED bench-grind stint toward `target` on the reachable terrain: at/near the Indigo
+        Plateau use the VR2F cave loop (Indigo-anchored heal); on open ground pre-VR field the weak ones on
+        the reachable grass. Ace-capped throughout (grind_weak_members/prep_e4_in_victory_road force
+        PROTECT_LEAD_GRIND off) so the ace earns no XP while the gate is RED."""
+        here = tuple(tv.map_id(self.b))
+        if here in (ENDGAME_INDIGO, (3, 42)):                 # at/near Indigo → VR2F cave heal-loop
+            return self.prep_e4_in_victory_road(target=target, ace_cap=True)
+        return self.grind_weak_members(target, min_level=max(1, target - E4_PREP_BAND), ace_cap=True)
+
     def _gym_gate_probe(self, gym):
         """beat_gym couldn't enter: walk as CLOSE to the gym door as the map allows (the BFS stops
         at the blocking obstacle — Vermilion's cut tree IS the chokepoint), then run the HM-obstacle
@@ -11840,6 +11948,15 @@ class Campaign:
         # (Viridian->Indigo, whiteout-tolerant), enter_league runs the E4 gauntlet (->HoF==CREDITS). Both
         # strikes drive their OWN nav (no billed road exists) + self-recover whiteouts; a 'stuck' surfaces
         # to the oracle (a real wall — usually team-depth), never a freeze.
+        # RUN-4 E4-READINESS GATE (2026-07-14): block the endgame march/gauntlet until the team is in
+        # qualifying shape (every member >= L42, ace-floor gap <= 15). While RED it runs an ACE-CAPPED
+        # bench grind (weak ones solo the reachable wilds, ace earns no XP) toward the floor target, then
+        # re-ticks; a non-converging team stands down LOUD. GREEN → falls through to the strike. Flag-gated
+        # (E4_GATE_ENABLED default ON) so POKEMON_E4_READINESS_GATE=0 reverts to the un-gated dispatch.
+        if E4_GATE_ENABLED and pick in ("head_to_league", "enter_league"):
+            _gate = self._e4_readiness_gate(state, pick)
+            if _gate is not None:
+                return _gate                                  # RED / stood-down — do NOT dispatch the strike
         if pick == "head_to_league":
             return self._head_to_league(state)
         if pick == "enter_league":
