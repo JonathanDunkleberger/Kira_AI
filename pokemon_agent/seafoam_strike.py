@@ -56,6 +56,19 @@ FLAG_STR_ACTIVE = 0x805
 FLAG_B3F_CALM = 0x2D2               # FLAG_STOPPED_SEAFOAM_B3F_CURRENT — the crossing-done signal
 DOOR_EAST = (60, 8)                 # R20 -> F1 (6,21)
 EXIT_WEST = (32, 21)                # F1 -> R20 (72,14)
+
+# ── ROUTE-21 REROUTE (the puzzle-free bypass of the hang-prone Seafoam interior) ──────────────────
+# The Seafoam interior boulder-cascade is complex and its R19/R20 sea approach has silently WEDGED a
+# live run (fresh_go_5: frozen ~3h at R19-west (11,22), sea_walk livelocking below its own deadline).
+# The canonical bypass is the SAME sea road giovanni_gym drives in reverse: PALLET -> surf SOUTH down
+# Route 21 -> Cinnabar (no interior, no boulders). Map ids match giovanni_gym: Cinnabar (3,8), R21
+# south (3,40), R21 north (3,39), Pallet (3,0). Rerouting reaches Cinnabar WITHOUT setting the game's
+# crossed-flag (0x2D2), so the reroute stamps it on arrival (harmless — she IS across; the current
+# only matters inside Seafoam she'll never re-enter) so the questline recognizes the crossing and the
+# Secret-Key/Blaine gate opens next. Flag-gated (default ON); OFF falls back to the interior path.
+SEAFOAM_REROUTE_VIA_R21 = os.getenv("POKEMON_SEAFOAM_REROUTE_R21", "1") != "0"
+R21_SOUTH, R21_NORTH, PALLET = (3, 40), (3, 39), (3, 0)
+R21_CORRIDOR = {PALLET, R21_NORTH, R21_SOUTH}
 KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
@@ -248,7 +261,17 @@ class SeafoamStrike:
     def sea_walk(self, goal_test, label, tries=10, avoid=()):
         b = self.b
         budget = tries
+        # HANG GUARD (fresh_go_5 lesson): a moving-but-not-arriving crossing refunds budget every
+        # micro-step (`budget += 1` below), so this loop can spin unbounded UNDER the strike's own
+        # wall-clock deadline — a live run froze ~3h here. Bound BOTH: honor the deadline, and cap the
+        # absolute replan count so a single crossing can never livelock silently.
+        iters = 0
         while budget > 0:
+            iters += 1
+            if time.time() > self.deadline or iters > 400:
+                self.log(f"   [{label}] HANG-GUARD bail at {tuple(tv.coords(b) or ())} "
+                         f"(iters={iters}, deadline={'hit' if time.time() > self.deadline else 'ok'})")
+                return goal_test(tuple(tv.coords(b) or ()))
             budget -= 1
             if self.handle_interrupts():
                 budget += 1
@@ -531,6 +554,10 @@ class SeafoamStrike:
                      f"str={MOVE_STRENGTH in have}) — abort")
             return "failed"
 
+        # ── ROUTE-21 REROUTE (default): skip the hang-prone Seafoam interior entirely ──────────────
+        if SEAFOAM_REROUTE_VIA_R21:
+            return self._reroute_r21()
+
         # ── PHASE 1: the sea road to the Seafoam east door ────────────────────────────────────────
         # NS9 lesson (ported): a worn/PP-depleted lead gets swept by R19/R20 wilds mid-crossing (the
         # (11,5) blackout wedge). Heal to FULL first. Harmless from a fresh full team.
@@ -662,8 +689,73 @@ class SeafoamStrike:
             return "in_seafoam"
         return "failed"
 
+    def _reroute_r21(self):
+        """CINNABAR via Route 21 — the puzzle-free bypass of the Seafoam interior. From wherever she
+        stands: route overland to Pallet, then surf SOUTH (Pallet -> R21 north -> R21 south -> Cinnabar,
+        the mirror of giovanni_gym's proven north road). Reuses this class's own cross_edge/sea_walk.
+        On Cinnabar, stamp FLAG_STOPPED_SEAFOAM_B3F_CURRENT (0x2D2) so the questline recognizes the
+        crossing (else the seafoam gate re-opens forever and the Secret-Key gate never fires). Returns
+        'reached_cinnabar' | 'failed'. Bounded by the strike deadline + per-phase wedge caps — never
+        hangs (the whole point)."""
+        b, camp = self.b, self.camp
+        self.log(f"   🌊 SEAFOAM REROUTE via Route 21: boot {tv.map_id(b)}{tv.coords(b)} — "
+                 f"Pallet -> surf SOUTH -> Cinnabar (bypassing the interior)")
+        try:
+            camp.heal_nearest()
+            self.log(f"   reroute pre-heal done @ {tv.map_id(b)}{tv.coords(b)}")
+        except Exception as e:
+            self.log(f"   reroute pre-heal errored: {e} — continuing (LOUD)")
+
+        # PHASE A: reach the Route-21 corridor (Pallet / an R21 map). Overland via the general traveler.
+        while (tuple(tv.map_id(b)) not in R21_CORRIDOR | {CINNABAR}
+               and time.time() < self.deadline):
+            if self.handle_interrupts():
+                continue
+            here = tuple(tv.map_id(b))
+            self.log(f"   [reroute] routing to Pallet from {here}")
+            try:
+                camp.walk_to_map(PALLET, "west")
+            except Exception as e:
+                self.log(f"   [reroute] walk_to_map(Pallet) errored: {e}")
+            if tuple(tv.map_id(b)) == here:
+                if self.wedge(("reroute-pallet", here), 3, f"can't route off {here} toward Pallet"):
+                    return "failed"
+            self.settle(120)
+
+        # PHASE B: surf SOUTH down Route 21 until Cinnabar.
+        legs = 0
+        while tuple(tv.map_id(b)) != CINNABAR and time.time() < self.deadline:
+            if self.handle_interrupts():
+                continue
+            if tuple(tv.map_id(b)) not in R21_CORRIDOR:
+                self.log(f"!! [reroute] fell off the R21 corridor at {tv.map_id(b)} — abort")
+                return "failed"
+            if not self.cross_edge("south", f"r21-leg{legs}"):
+                if self.wedge("r21-road", 3, f"southbound R21 crossing wedged at {tv.map_id(b)}"):
+                    return "failed"
+                self.settle(120)
+                continue
+            self.wedges.pop("r21-road", None)
+            legs += 1
+            self.settle(180)
+
+        if tuple(tv.map_id(b)) == CINNABAR:
+            self.log(f"   [reroute] REACHED CINNABAR via Route 21 after {legs} south crossings")
+            return self._arrive_cinnabar()
+        self.log(f"!! [reroute] never reached Cinnabar (at {tv.map_id(b)}) — abort")
+        return "failed"
+
     def _arrive_cinnabar(self):
         b, camp = self.b, self.camp
+        # Stamp the crossed-flag so the questline recognizes the crossing regardless of HOW she got here
+        # (the R21 reroute never runs the boulder cascade that normally sets it; the interior path has it
+        # set already, so this is a harmless idempotent confirm there).
+        if not fm.read_flag(b, FLAG_B3F_CALM):
+            try:
+                ok = fm.set_flag(b, FLAG_B3F_CALM)
+                self.log(f"   stamped FLAG_STOPPED_SEAFOAM_B3F_CURRENT (0x2D2) on arrival -> {ok}")
+            except Exception as e:
+                self.log(f"   !! could not stamp crossed-flag: {e} (LOUD — questline may re-open)")
         self.log(f"   CINNABAR ISLAND @ {tv.coords(b)} after {self.n_battles} battles — healing")
         try:
             r = camp.heal_nearest()

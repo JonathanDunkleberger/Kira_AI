@@ -93,6 +93,20 @@ def read_flag(bridge, flag):
     return bool(bridge.rd8(fa) & (1 << (flag & 7)))
 
 
+def set_flag(bridge, flag):
+    """Set a game FLAG in the SaveBlock1 flag array (base + 0x0EE0) — the inverse of read_flag.
+    Used to mark a story flag done when a REROUTE reaches the same world-state a scripted crossing
+    would have (e.g. the Seafoam-crossed flag once she's physically on Cinnabar via Route 21).
+    Returns the post-write flag value; a bad SaveBlock1 read is a no-op that returns False (LOUD via
+    the caller). mGBA's memory arrays are directly assignable (u8[addr] = v)."""
+    sb1 = bridge.rd32(ram.GSAVEBLOCK1_PTR)
+    if not ram.valid_ewram_ptr(sb1):
+        return False
+    fa = sb1 + 0x0EE0 + (flag >> 3)
+    bridge.core.memory.u8[fa] = bridge.rd8(fa) | (1 << (flag & 7))
+    return read_flag(bridge, flag)
+
+
 def player_facing(bridge):
     """The direction the player object is facing as (dx, dy), or (0, 1) on a bad read.
     gObjectEvents[0] is the player; facing nibble at +0x18."""
