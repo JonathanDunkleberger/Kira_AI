@@ -1,6 +1,17 @@
 # KIRA FIRERED - SINGLE MISSION (2026-07-13). SUPERSEDES EVERYTHING.
 CEO decision: the 5x battery is CANCELLED. The asymptote = ONE QUALIFYING RUN, today. When it lands, STOP THE TRAIN. Read ONLY this file + the latest survey + live log tails. Prior directives are archived at NEXT_SESSION_archive_2026-07-13_*.md - consult ONLY for the proven per-stage launch recipes; do not re-derive them; no history spelunking.
 
+## ⛔ HALTED 2026-07-14 08:00 (shift 9) — fresh_go_4 (RUN-4) NON-CONVERGING at the E4-readiness gate. TRAIN STOPPED. Do NOT launch another run.
+fresh_go_4 climbed cleanly to **all 8 badges** with a SIX-DISTINCT, 0-dup team [venusaur L63, fearow L29, arbok L29, dugtrio L29, kadabra L29, lapras L25] — then at the League door (Viridian (3,1)@(36,11)) picked `head_to_league` and the **E4-READINESS GATE fired RED** (floor L25 < target L48, gap 38; ace CAPPED flat L61-63). The ace-capped gate grind **starved** — Viridian City's grass is a fragile one-way strand (`no_safe_grass` every stint), and `_e4_readiness_grind` only tries CURRENT-MAP grass, so it never routed to the reachable open grass (Route 2 offered as `travel:3,20`). 8 stints / 8 no-progress → `!! E4-READINESS-GATE NON-CONVERGING ... STANDING DOWN — NOT entering the League under-shape (a monitor shift adjudicates HALT)`. **The gate WORKED as designed** (blocked the disqualifying entry that sank fresh_go_1/2/3, ace stayed FLAT, stood down LOUD, never looped silently). This is the **4th manifestation of the solo-ace root → terminal per order-6.** I killed the terminal-looping watchdog (WINPID 4852 tree), wrote **HALT line 1 of NIGHT_REPORT.md + a one-page diagnosis**, canonical UNTOUCHED, fresh_go_4 banks preserved in G:/temp/longrun/.
+**THE ROOTS (full write-up = NIGHT_REPORT.md line 1 + diagnosis):** (a) PROXIMATE/fixable — `_e4_readiness_grind` doesn't route to open-ground grass when the current map has none; (b) DEEPER/real — the bench was left ~38 levels behind by badge 8 (gap widened 25→34→38 across badges 6→8 as the Koga/Sabrina gym fights + Surf/sea questline legs let the ace solo L57→L63 while the bench froze L23→L25/29); a 38-level endgame gap is unrecoverable in reachable terrain (Route 2 wilds L3-5 give ~0 XP at L25+; high-level wilds only in Victory Road = a CAVE where the ace leads).
+**NEXT MOVE = JONNY'S DESIGN CALL (a successor must NOT auto-launch):** recommend the deferred **order-3b `_road_bench_xp_arm` questline-guard relax** (let overworld-route + sea/Surf questline legs give the bench participation-XP, NOT dark-cave gauntlets — RISKY in-cave switch livelock, validate isolated, DO NOT ship blind) as the PRIMARY fix (stops the gap ever reaching 38), PLUS the open-ground endgame-grind routing as a safety net, THEN one fresh relaunch. The solo-ace root has failed 4× — the next relaunch needs a real UPSTREAM bench-leveling fix, not another gate tweak. Pop-in (Sherpa timeline, canonical fresh_go_1 8-badge save): `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-8 STAMP (07:44) — HEALTHY, still badge 6, on Route 8 heading Cinnabar for BLAINE (gym 7); glance-clean 0-fix.**
+Single watchdog verified (bash 4852 boot 05:57:21 → bash 20528 relaunch 06:35:20 → py 9816 shim → py 6716 real = current iter; 2976/21896/14008 bashes = my own monitor shells — single-run law holds, SAME iter as shift 7). Log LIVE (mtime=now @07:43, **166,057 lines, +11.8K since shift 7**), **0 tracebacks whole-log**, **0 credits sentinels**, **0 E4-gate lines** (badge 6 = gate exercises at badge 8), **0 NON-CONVERGING**, **0 HALT**. **298 motion / 0 spin last 400 = moving-not-spinning** (live Route-8/26 travel HEARTBEAT steps map (3,26)/Saffron↔Route8 passage toward Cinnabar). PROGRESS SINCE SHIFT 7 = modest (~16 min, same iter, same badge 6, routing Route 26 → Saffron↔Route8 passage → Route 8 toward Cinnabar/Blaine via the Surf/Safari questline). Party **[venusaur L57, mankey L23, diglett L23, fearow L24, kadabra L25, arbok L23] — SIX DISTINCT, 0 dups, dex 13, badges=6** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh) — UNCHANGED from shift 7. GRIND-WEAK firing textbook (fielding weak slots 2/4/5 as lead to train them, ace HELD not runaway). **ACUTE QUALIFYING WATCH (the run's central risk):** ace **L57** vs bench floor **L23** = **~34 gap at badge 6** — GRIND-WEAK actively closing it; MUST reach all ≥L42 / gap ≤15 by E4 entry — the E4-READINESS GATE hard-enforces this at badge 8 (ace CAPPED flat + bench climbs to gap ≤15). Monitor-only, **0 flags flipped**, glance-clean 0-commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six): watch her beat Blaine(7) → Giovanni(8) → all 8 badges with the DISTINCT six, track the ace-bench gap, then **WATCH THE GATE** at the endgame — log must show `E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while the ace stays FLAT → gap ≤15 all ≥L42 → `✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6 (`tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md` → QUALIFYING eval → CREDITS / WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6). Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-7 STAMP (07:27) — HEALTHY, BEAT KOGA(5)+SABRINA(6) → badge 6, now heading Cinnabar for BLAINE (gym 7); glance-clean 0-fix.**
+Single watchdog verified (bash 4852 boot 05:57:21 → bash 20528 relaunch 06:35:19 → py 9816 shim → py 6716 real = current iter; PID 12136 = my own monitor shell — single-run law holds). Log LIVE (mtime=now @07:26, **154,219 lines, +7.8K since shift 6**), **0 tracebacks whole-log**, **0 credits sentinels**, **0 E4-gate lines** (badge 6 = gate exercises at badge 8), **0 NON-CONVERGING**, **0 champion/enter_league**. **305 motion / 0 spin last 400 = moving-not-spinning** (live Route-26 (3,26) travel HEARTBEAT steps toward Cinnabar). **PROGRESS SINCE SHIFT 6:** BEAT **KOGA (gym 5, Soul)** + **SABRINA (gym 6, Marsh)** → **badge 6**, now on Route 8/26 heading Cinnabar for **BLAINE (gym 7)**, oracle working toward **HM Surf** (Safari Zone Secret House) + planning a **growlithe→arcanine** catch on Route 7/8. Party **[venusaur L57, mankey L23, diglett L23, fearow L24, kadabra L25, arbok L23] — SIX DISTINCT, 0 dups, dex 13, badges=6** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh). GRIND-WEAK firing (`team floor under L29 — fielding the weak ones (not the ace)`). banked_LIVE fresh 07:25. **ACUTE QUALIFYING WATCH (the run's central risk, now WIDER):** ace **L57** vs bench floor **L23** = **~34 gap at badge 6** (was ~25 at badge 4 — the Koga+Sabrina gym fights + sea/Surf questline legs let the ace run while the bench held L23); GRIND-WEAK is closing it up the L29 pin but the ace ran ahead this window. MUST reach all ≥L42 / gap ≤15 by E4 entry — **the E4-READINESS GATE hard-enforces this at badge 8** (ace CAPPED flat + bench climbs to gap ≤15). Monitor-only, **0 flags flipped**, glance-clean 0-commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six): watch her beat Blaine(7) → Giovanni(8) → all 8 badges with the DISTINCT six, track the ace-bench gap, then **WATCH THE GATE** at the endgame — log must show `E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while the ace stays FLAT → gap ≤15 all ≥L42 → `✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6 (`tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md` → QUALIFYING eval → CREDITS / WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6). Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 ## ▶ SHIFT-1 (RUN-4) DONE — E4-READINESS GATE + ACE-CAP SHIPPED & VERIFIED → fresh_go_4 IN FLIGHT (2026-07-14 ~07:2x)
 **The RUN-4 two-part root fix is BUILT, VERIFIED, COMMITTED (`c1eb7d3`), and fresh_go_4 is LAUNCHED cold.**
 The 3×-solo-ace-disqualify root is addressed at the source: an **E4-READINESS GATE** at the endgame DISPATCH
@@ -39,6 +50,88 @@ discipline as the RUN-3 loop below — proc/log/tracebacks/motion-not-spin/party
 Pop-in: `play_live --resume --free-roam`. **fresh_go_4 LAUNCH RECIPE (if a relaunch is needed):** cold-start =
 archive live `banked_LIVE/CREDITS/STALL/GOAL`, then `cd pokemon_agent; SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy
 FRESH_GO_LOG=/g/temp/longrun/fresh_go_4.log nohup bash fresh_go_watchdog.sh &` (single-run law: ONE watchdog).
+
+**SHIFT-6 STAMP (07:10) — HEALTHY, still badge 4, Route-7 bench-grinding toward Koga (gym 5), evolved fearow+arbok; glance-clean 0-fix.**
+Single watchdog verified (bash 1910 boot 05:57:21 → python 2183 = current iter, relaunched 06:35:19; 2912/others = my own monitor shells — single-run law holds). Log LIVE (mtime 07:09:48 = now, **146,372 lines, +9.5K since shift 5**), **0 tracebacks whole-log**, **0 credits sentinels**, **0 E4-gate lines** (badge 4 = far too early), **0 NON-CONVERGING**. **301 motion / 0 spin last 400 = moving-not-spinning** (live Route-7/Route-25 (3,25) grass grind; tail = travel step (12,5)→(12,6) + ENCOUNTER + Bridge INPUT OWNER=agent sole writer). **PROGRESS SINCE SHIFT 5:** spearow→**FEAROW** + ekans→**ARBOK** evolved; bench floor climbed **L17→L22**. Party **[venusaur L47, mankey L23, diglett L22, fearow L23, kadabra L23, arbok L23] — SIX DISTINCT, 0 dups, dex 12, badges=4** (Boulder,Cascade,Thunder,Rainbow). **LOPSIDED-BENCH + GRIND-WEAK firing textbook:** `!! LOPSIDED-BENCH: bench severely behind milestone L45 + the ace (solo-carry shape) — forcing ONE dedicated grind stint` (pruned the march) → `GRIND-WEAK: team floor under L23 — fielding the weak ones (not the ace); levels now [47,23,22,23,23,23]` → fielding slot 2 (diglett L22) as lead. Ace venusaur crept L43→L47 (milestone-pinned, NOT runaway). Oracle plan on-road & correct (heading Fuchsia for Koga, planning growlithe→arcanine catch Route 7/8). **ACUTE QUALIFYING WATCH:** ace L47 vs bench floor L22 = **~25 gap at badge 4** — LOPSIDED-BENCH closing it up the L45 pin; must reach all ≥L42 / gap ≤15 by E4 entry (the E4-READINESS GATE enforces this at badge 8). Monitor-only, **0 flags flipped**, glance-clean 0-commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six): watch her climb badges 5→8 with the DISTINCT six, track the ace-bench gap CLOSING up the pins, then **WATCH THE GATE** at the endgame — log must show `E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while ace stays FLAT → gap ≤15 all ≥L42 → `✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6 (`tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md` → QUALIFYING eval → CREDITS/WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6). Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-5 STAMP (06:52) — HEALTHY, BEAT ERIKA → badge 4, now Route-7 bench-grinding en route to Koga (gym 5); glance-clean 0-fix.**
+Single watchdog verified (bash 1910 boot 05:57:21 → python 2183 = current iter, relaunched 06:35:19; 2430/2437 = my own monitor shells,
+not workers — single-run law holds). Log LIVE (mtime 06:52:41 = now, **136,823 lines, +8.8K since shift 4**), **0 tracebacks whole-log**,
+**0 credits sentinels**, **0 E4-gate lines** (badge 4 = far too early), **0 NON-CONVERGING**. **285 motion / 1 spin last 400 =
+moving-not-spinning** — the 1 "spin" hit = a `deep-wedge ring: banked safe checkpoint` (normal machinery, NOT a wedge). **PROGRESS SINCE
+SHIFT 4:** cleared Route 9/10 → Celadon → **BEAT ERIKA (gym 4) → badge 4 (Rainbow)**, **abra→KADABRA evolved**, got HM05 Flash, now on
+**Route 7 heading Fuchsia for Koga (gym 5)**, planning a growlithe→arcanine catch on Route 7/8. **LOPSIDED-BENCH + GRIND-WEAK firing
+textbook:** `!! LOPSIDED-BENCH: bench severely behind milestone L45 + the ace (solo-carry shape) — forcing ONE dedicated grind stint`
+(pruned the march) → `GRIND-WEAK: team floor under L23 — fielding the weak ones (not the ace); levels now [43,22,18,19,17,18]` → fielding
+slot 4 (ekans L17) as lead. Ace venusaur HELD L43 (milestone-pinned, NOT runaway). Party **[venusaur L43, kadabra L22, spearow L18,
+mankey L19, ekans L17, diglett L18] — SIX DISTINCT, 0 dups, dex 10, badges=4** (Boulder,Cascade,Thunder,Rainbow). **ACUTE QUALIFYING
+WATCH:** ace L43 vs bench floor L17 = **~26 gap at badge 4** — LOPSIDED-BENCH closing it up the L45 pin; must reach all ≥L42 / gap ≤15
+by E4 entry (the E4-READINESS GATE enforces this at badge 8). Monitor-only, **0 flags flipped**, glance-clean 0-commit (monitor hygiene).
+**NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six): watch her climb badges 5→8 with the DISTINCT six,
+track the ace-bench gap CLOSING up the pins, then **WATCH THE GATE** at the endgame — log must show `E4-READINESS GATE RED ... ace L..
+CAPPED (no XP)` + bench floor CLIMBING while ace stays FLAT → gap ≤15 all ≥L42 → `✅ E4-READINESS GATE GREEN ... clearing 'enter_league'`
+→ E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6 (`tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md`
+→ QUALIFYING eval → CREDITS / WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE NON-CONVERGING` → HALT line 1 +
+one-page diagnosis (4th solo-ace fail = terminal per order-6). Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-4 STAMP (06:35) — HEALTHY, BEAT SURGE → badge 3, now building the DISTINCT SIX en route to Erika (gym 4); glance-clean 0-fix.**
+Single watchdog verified (bash 1910 boot 05:57:21 → python 2183 = current iter, relaunched 06:35:19 via CLEAN carry-forward from a
+self-recovering STALL; 2263/2268 = my own monitor shells, not workers — single-run law holds). Log LIVE (mtime 06:35 = now, **128,003
+lines, +117K since shift 3's 10.4K** — huge sim progress), **0 tracebacks whole-log**, **0 credits sentinels**, **0 E4-gate lines**
+(badge 3 = far too early), **0 NON-CONVERGING**. **217 motion / 12 spin last 400 = moving-not-spinning** — all 12 "spin" hits = the
+ONE self-recovering STALL block (`STALL: no progress for 14 decisions sig=(3,1,110,6,17,19013) at (3,3)@(32,39)`, 87 decisions / 45
+real battles → banked_STALL @06:33 → deep-wedge-ring safe checkpoints → watchdog carry-forward relaunch → iter now moving, tail =
+`[travel] blocker is a TRAINER - fighting through` + `[Bridge] INPUT OWNER = 'agent'`, benign). **PROGRESS SINCE SHIFT 3:** cleared
+Vermilion → **BEAT SURGE (gym 3) → badge 3 (Thunder)** (got TM34 Shock Wave + Thunderbadge), ivysaur → **VENUSAUR (L34)**, and grew
+the bench to a full six. Now on Route 9/10 heading **Cerulean → Celadon for Erika (gym 4)**, planning a **growlithe catch on Route 7/8**
+("my answer for Erika AND Champion"). Also noted the Flash gate: needs dex 10 (at 8) for Oak's-aide HM Flash → Rock Tunnel — she reads
+it correctly. Party **[venusaur L34, mankey L15, ekans L16, spearow L15, abra L11, diglett L18] — SIX DISTINCT, 0 dups, dex 8, badges=3**
+(Boulder,Cascade,Thunder). **THE QUALIFYING MECHANISM FIRING:** `!! LOPSIDED-BENCH: bench severely behind milestone L31 + the ace
+(solo-carry shape) — forcing ONE dedicated grind stint` (LOPSIDED-DBG: floor=11 lead=35 ms=31 ms_gap=20 ace_gap=24) — pruning the march
+to grind the weak ones up the L31 pin, ace HELD (not runaway). banked_STALL @06:33 / banked_LIVE @06:20 / banked_GOAL @06:35 = normal
+carry-forward machinery. **ACUTE QUALIFYING WATCH:** ace L34 vs bench floor L11 (abra) = **~23 gap at badge 3** — LOPSIDED-BENCH closing
+it up the milestone pins; must reach all ≥L42 / gap ≤15 by E4 entry (the E4-READINESS GATE enforces this at badge 8). Monitor-only,
+**0 flags flipped**, NO commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six):
+watch her climb badges 4→8 with the DISTINCT six, track the ace-bench gap CLOSING up the pins, then **WATCH THE GATE** at the endgame —
+log must show `E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while ace stays FLAT → gap ≤15 all ≥L42 →
+`✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6
+(`tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md` → QUALIFYING eval → CREDITS / WATCHABILITY-GAPS line 1 of
+NIGHT_REPORT.md). On `!! E4-READINESS-GATE NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6).
+Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-3 STAMP (06:18) — HEALTHY, ~21 min into the FRESH cold boot, cleared the opening → badge 2, glance-clean 0-fix.**
+Single watchdog verified (bash 1910 → python 1918 `recon_longrun.py FRESH`, boot 05:57:21 = SAME iter as shift 2, single-run
+law holds). Log LIVE (mtime 06:18:41 vs now 06:18:43, **10,375 lines, +7.7K since shift 2**), **0 tracebacks whole-log**,
+**0 credits sentinels**, **0 E4-gate lines** (badge 8 far out), **0 NON-CONVERGING**. **228 motion / 0 spin last 300 =
+moving-not-spinning.** **PROGRESS SINCE SHIFT 2:** cleared the opening spine (Brock → Mt Moon → Misty = **badge 2**) →
+handed to free_roam → now building the six on **Route 24/25**, fetching the S.S. Ticket from Bill en route to **Vermilion for
+Surge (gym 3)**. Party **[ivysaur L28, mankey L14, ekans L14, spearow L14] — FOUR DISTINCT, 0 dups, dex 5, badges=2**
+(Boulder, Cascade). GRIND-WEAK firing textbook (floor pin L16, fielding the weak ones not the ace; ace L28 HELD
+milestone-pinned, NOT runaway). No live banked_CREDITS (only `*_archived_fresh_go_2/3_final` on disk). Monitor-only, 0 flags
+flipped, NO commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six):
+watch her climb badges 3→8 with a DISTINCT de-duped six, then **WATCH THE GATE** at the endgame — log must show
+`E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while ace stays FLAT → gap ≤15 all ≥L42 →
+`✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6
+(run_stats → QUALIFYING eval → CREDITS/WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE
+NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6). **KEY QUALIFYING WATCH:**
+ace L28 vs bench floor L14 = ~14 gap at badge 2 — GRIND-WEAK closing it up the milestone pins; must hold gap ≤15 / all ≥L42
+at E4 entry (the gate enforces this now). Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+
+**SHIFT-2 STAMP (06:01) — HEALTHY, ~4 min into the FRESH cold boot, glance-clean 0-fix.** Single watchdog verified
+(bash 1910 → python 1918 `recon_longrun.py FRESH`, boot 05:57:21 — the shift-1 "07:2x" was aspirational; real boot=05:57).
+Log LIVE (mtime=now, 2694 lines), **0 tracebacks whole-log**, **0 credits sentinels**, **0 E4-gate lines** (far too early —
+badge 8 is many sim-hours out). **70 motion / 9 spin last 300 = moving-not-spinning** (the 9 = self-recovering TRAVEL WEDGE
+"no inner spin", benign). Advancing the opening spine: **Segment 1 the_opening COMPLETE → Segment 2 pallet_to_brock (Oak's
+Parcel DONE) → now ADVANCE_NORTH** toward Brock (map (3,2)@(21,39), warp-learning the Viridian→Pewter band). party=1 /
+badges=0 (just started); **NO live banked_LIVE yet = CORRECT** (shift-17 badges>=2 gate — nothing banks pre-Mt-Moon). Nothing
+to watch yet but the climb; the E4-READINESS GATE (RUN-4 qualifying crux) only exercises at badge 8. Monitor-only, no flags
+flipped, NO commit (monitor hygiene). **NEXT SHIFT = same glance** (proc/log/tracebacks/motion-not-spin/party-distinct-six):
+watch her climb badges 1→8 with a DISTINCT, de-duped six, then WATCH THE GATE — at the endgame the log must show
+`E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` + bench floor CLIMBING while ace stays FLAT → gap ≤15 all ≥L42 →
+`✅ E4-READINESS GATE GREEN ... clearing 'enter_league'` → E4 → Champion → banked_CREDITS. On banked_CREDITS → order 6
+(run_stats → QUALIFYING eval → CREDITS / WATCHABILITY-GAPS line 1 of NIGHT_REPORT.md). On `!! E4-READINESS-GATE
+NON-CONVERGING` → HALT line 1 + one-page diagnosis (4th solo-ace fail = terminal per order-6). Canonical UNTOUCHED.
+Pop-in: `play_live --resume --free-roam`.
 
 ---
 ## ⛔ HALTED 2026-07-13 18:14 — SUPERSEDED by RUN-4 above (Jonny adjudicated ONE more cycle; kept for the diagnosis).
