@@ -1,6 +1,21 @@
 # KIRA FIRERED - SINGLE MISSION (2026-07-13). SUPERSEDES EVERYTHING.
 CEO decision: the 5x battery is CANCELLED. The asymptote = ONE QUALIFYING RUN, today. When it lands, STOP THE TRAIN. Read ONLY this file + the latest survey + live log tails. Prior directives are archived at NEXT_SESSION_archive_2026-07-13_*.md - consult ONLY for the proven per-stage launch recipes; do not re-derive them; no history spelunking.
 
+## ⛔ HALTED 2026-07-13 18:14 — DO NOT RELAUNCH. Awaiting Jonny's root-fix design call.
+fresh_go_3 rolled CREDITS at 18:14 (3rd autonomous bedroom→credits) but DISQUALIFIED on team-shape for the
+THIRD run running — final party [Venusaur **L100**, Kadabra L32, Dugtrio L32, Growlithe L31, Fearow L33,
+Lapras L31]: SIX DISTINCT/0-dup (✅) but bench frozen L31-33, ace L100, gap ~69 (❌ all ≥L42, ❌ gap ≤15,
+❌ nothing near L100). SAME solo-ace root as fresh_go_1 + fresh_go_2, now failing AFTER the attended 5add821
+fix → per order-6 two-strike rule = **HALT** (line 1 of NIGHT_REPORT.md; loop stopped). ROOT: 5add821's
+map-type gate keeps the ace leading in caves/gauntlets, but the entire endgame (Victory Road cave + E4
+gauntlet + the only grindable terrain at Indigo = VR cave) is cave terrain → the E4-prep bench grind fed the
+ACE not the bench → ace soloed to L100 while the bench never left L31-33. Full one-page diagnosis +
+recommended fix (A: force E4-prep bench grind onto OPEN GROUND pre-Victory-Road + gate League entry on
+bench-floor ≥~L46) = **top of NIGHT_REPORT.md**. RUN_STATS_fresh_go_3.md committed. banked_CREDITS staged in
+G:/temp/longrun/; canonical states/campaign/ UNTOUCHED. **A successor must NOT launch another run** — the
+next move is Jonny's design decision, not a monitor glance. Everything below is the (now-closed) monitor loop.
+
+
 ## ▶ MONITOR fresh_go_3 (attended questline-guard fix SHIPPED 2026-07-13 14:00, commit 5add821). TRAIN RE-ARMED.
 The 2nd-disqualify ace-runaway root was FIXED attended (Jonny at desk): BOTH questline bench guards
 (`_road_bench_xp_arm` ~7317 AND `_bench_severely_lopsided` ~7480) were relaxed + re-gated on MAP-TYPE, so the
@@ -11,6 +26,56 @@ the weak bench mon up (rattata L8→L10, ace held, 0 wedge, 0 tracebacks) — be
 Full write-up = NIGHT_REPORT.md; details = memory `pokemon-freshgo2-halt-levelgap-questlineguard`.
 **FRONTIER = monitor fresh_go_3** (cold FRESH, detached, watchdog, log `G:/temp/longrun/fresh_go_3.log`).
 Cleared the opening → Misty = badge 2 → free_roam, building the six at the Nugget-Bridge team-depth wall.
+**SHIFT-29 STAMP (18:03) — HEALTHY, ALL 8 BADGES, STILL AT THE CHAMPION (Gary) grinding through via ace-solo whiteout-retry; NOT a hard wedge (ace still out-levelling via partial-Champion XP), qualifying CRUX still NEGATIVE, glance-clean 0-fix.**
+Single watchdog verified (py 147532 ← bash 144483 @16:46:28 = SAME iter 3 as shifts 23-28, single-run law holds). Log LIVE (mtime 18:03 vs now 18:03, **110,139 lines, +461 since shift 28**), **0 tracebacks whole-log**, **0 credits sentinels** (no live banked_CREDITS; only `banked_CREDITS_archived_fresh_go_2_final_0713_1354` = fresh_go_2's morning credits, NOT fresh_go_3). **199 motion / 0 spin in last 400 = moving-not-spinning.** **NOT A HARD WEDGE (confirmed this shift):** the Champion loss-count climbed **3x → 11x** since shift 28 (+8 attempts in ~18 min) BUT there are **13 level-ups over 9 attempts** in the last 500 lines — the ace **IS still gaining XP and slowly out-levelling**, refuting a frozen-0-XP wedge. **IMPORTANT REFINEMENT to shift 28's read** (recorded so a successor doesn't re-derive it): the between-attempt XP does **NOT** come from re-fighting the E4 rooms — **Lorelei/Bruno/Agatha/Lance stay CLEARED**; on each whiteout she warps center (13,0) → `league-door` → `(1,75)→(1,76)→(1,77)→(1,78)→(1,79)` north-doors **STRAIGHT to the Champion's Room** (0 room battles between attempts, ~59 log lines/attempt, restocks Full Restores at the Indigo shop each loop). The XP flows ONLY from **PARTIAL Champion clears** — venusaur kills 2-3 of Gary's 6 before fainting, levels up, faints. So the ace climb is **SLOWER** than shift 28 assumed ("a few more retries") — only partial-Champion XP/attempt, not full-gauntlet XP — but it **IS climbing**. Bench stays FROZEN L31-33 (useless, swept instantly); ace was L93 at shift 28 and still creeping via partial clears → gap **~62**, WAY over qualifying ≤15 = **fresh_go_1/fresh_go_2's disqualifying solo-ace shape reproducing a THIRD time at the final boss** (the questline-guard fix `5add821` could not help: Victory Road is a CAVE = ace leads, the E4 is ace-solo, so the bench never grinded). Party **[venusaur ~L93+, kadabra L32, dugtrio L32, growlithe L31, fearow L33, lapras L31] — SIX DISTINCT, 0 dups, dex 13, badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh,Volcano,Earth). Monitor-only, **0 flags flipped mid-run**, glance-clean 0-fix, NO commit. **NEXT SHIFT = same glance, WATCH THE CHAMPION RESOLVE:** does the ace-solo whiteout-retry beat Gary → **banked_CREDITS**? On banked_CREDITS → **order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → QUALIFYING eval. **LIKELY OUTCOME:** six distinct + all-this-run **PASSES**, but all≥L42 **FAILS** (bench L31) and gap≤15 **FAILS** (~62) → **TEAM-SHAPE qualifying fail** → credits-but-NOT-qualifying → **WATCHABILITY-GAPS** line 1 of NIGHT_REPORT.md + one-page why + Jonny adjudicates relaunch-with-order-3b-relax; **SAME solo-ace root as fresh_go_1/fresh_go_2 THIRD time** → Jonny may call **HALT**. **NEXT-SHIFT HARD-WEDGE GATE (the one thing that flips this from monitor to intervene):** if the Champion loss-count keeps climbing (≥~20x+) **AND the level-up cadence STOPS** (ace stops out-levelling = 0 XP/attempt), THAT is the terminal whiteout-wedge → capture repro + diagnose the battle root (why a high-L solo venusaur loses to a ~L60 Champion: type-wall Charizard/Pidgeot + no switching + PP famine). While level-ups keep firing, it is slow-but-progressing, NOT a wedge. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-28 STAMP (17:45) — HEALTHY, ALL 8 BADGES, cleared Agatha + Lance → NOW AT THE CHAMPION (Gary), one battle from credits; qualifying CRUX remains NEGATIVE (solo-ace shape), glance-clean 0-fix.**
+Single watchdog verified (py 147532 ← bash 144483/144478/10096, started 16:46:28 = SAME iter 3 as shifts 23-27, single-run law holds). Log LIVE (mtime 17:45:06 vs now 17:45:15, **109,678 lines, +416 since shift 27**), **0 tracebacks whole-log**, **0 credits sentinels** (no live banked_CREDITS; only `banked_CREDITS_archived_fresh_go_2_final_0713_1354` = fresh_go_2's morning credits, NOT fresh_go_3). **186 motion / 0 spin in last 400 = moving-not-spinning** (E4 room north-door approaches (1,78)→(1,79) Champion's room, trainer-approach replans, Bridge INPUT OWNER=agent sole writer). **PROGRESS SINCE SHIFT 27:** CLEARED **Agatha** (WIN/clear, wall lifted) → CLEARED **Lance** (aerodactyl+dragonair+dragonair+dragonite+gyarados, 1 loss then WIN/clear) → **NOW AT THE CHAMPION Gary** (the Champion's Room: alakazam+charizard+exeggutor+gyarados+pidgeot+rhydon), **3 losses so far** (grudge 4W-8L, RIVAL encounter #12), **19 total E4 whiteouts**. The ace-solo whiteout-retry keeps **LEVELLING THE ACE not the bench**: venusaur crept **L80→L93** (climbing, solos the rooms) while the five bench mons stay **FROZEN L31-33** — gap now ~L93 vs L31 = **~62**, WAY over qualifying ≤15. Money accumulating for items ($12,980, refilled between attempts). This is **fresh_go_1's disqualifying solo-ace shape reproducing at the final boss**. **NOT A WEDGE** (genuine forward progress: all 4 E4 rooms cleared 27→28, ace +13 levels, Gary loss-count climbing 1x→3x with money banked between attempts — she will most likely beat Gary by ace over-levelling within a few more retries). Party **[venusaur L93, kadabra L32, dugtrio L32, growlithe L31, fearow L33, lapras L31] — SIX DISTINCT, 0 dups, dex 13, badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh,Volcano,Earth). Monitor-only, **0 flags flipped mid-run** (deferred order-3b relax is RISKY, do NOT ship blind mid-run). **NEXT SHIFT = same glance, WATCH THE CHAMPION RESOLVE:** does the ace-solo whiteout-retry beat Gary → **banked_CREDITS**? On banked_CREDITS → **order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → QUALIFYING eval. **LIKELY OUTCOME:** six distinct + all-this-run **PASSES**, but all≥L42 **FAILS** (bench L31) and gap≤15 **FAILS** (~62) → **TEAM-SHAPE qualifying fail (not pacing-only)** → per order 6 = credits-but-NOT-qualifying → **WATCHABILITY-GAPS** line 1 of NIGHT_REPORT.md + one-page why + Jonny adjudicates whether to relaunch ONE more with order-3b relax; this is the **SAME root as fresh_go_1/fresh_go_2** → if that counts as failing twice → **HALT** line 1 + diagnosis (Jonny's call at credits). If she instead **whiteout-LOOPS at the Champion forever** (0 room progress across many iters, ace stops climbing) → that IS a hard wedge → capture repro + diagnose. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-27 STAMP (17:26) — HEALTHY, ALL 8 BADGES, NOW DEEP IN THE ELITE FOUR gauntlet; the qualifying CRUX resolved NEGATIVE (entered E4 bench-underleveled, ace-solo grinding through), glance-clean 0-fix.**
+Single watchdog verified (bash 43448 15:48 → bash 27304 16:46:28 → py 10096 shim → py 42440 real = **ITER 3, SAME as shifts 23-26**,
+single-run law holds). Log LIVE (mtime 17:26 vs now 17:26, **109,262 lines, +1,677 since shift 26**), **0 tracebacks whole-log**,
+**0 credits sentinels** (no live banked_CREDITS; only `banked_CREDITS_archived_fresh_go_2_final_0713_1354` = fresh_go_2's morning
+credits, NOT fresh_go_3). **38 motion / 0 spin in last 400 = moving-not-spinning** (E4 room north-door approaches + WIN/clear vs rooms,
+Bridge INPUT OWNER=agent sole writer). sim ~2270s. **CRUX RESOLVED NEGATIVE:** instead of finishing the shift-26 plateau bench-grind to
+the L55 pin, she **ENTERED THE E4 with the bench STILL at L31** and is grinding through it via **ACE-SOLO whiteout-retry**. Room-by-room:
+**CLEARED Lorelei (#1) + Bruno (#2) + Agatha (#3, 6 tries) → now at LANCE (#4, 2 losses)**; **10 total E4 whiteouts**. The whiteout-retry
+loop LEVELS THE ACE not the bench — **venusaur crept L70→L80** (climbing, solos the rooms) while the five bench mons stay **FROZEN L31-32**
+(gap ~L80 vs L31 = **~49**, WAY over qualifying ≤15). This is **fresh_go_1's disqualifying solo-ace shape reproducing at the E4**. **NOT A
+WEDGE** (genuine forward progress: rooms 1→4 cleared, Agatha 6x-then-cleared, ace climbing, money accumulating for items) — she will most
+likely eventually beat Lance + Champion Gary by ace over-levelling, in a **NON-qualifying shape**. Party **[venusaur L80, kadabra L32,
+dugtrio L32, growlithe L31, fearow L32, lapras L31] — SIX DISTINCT, 0 dups, dex 13, badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,
+Marsh,Volcano,Earth). Monitor-only, **0 flags flipped mid-run** (deferred order-3b relax is RISKY, do NOT ship blind mid-run). **NEXT SHIFT
+= same glance, WATCH THE E4 RESOLVE:** does the ace-solo whiteout-retry beat Lance → Champion Gary → **banked_CREDITS**? On banked_CREDITS →
+**order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → QUALIFYING eval. **LIKELY OUTCOME:** six distinct
++ all-this-run **PASSES**, but all≥L42 **FAILS** (bench L31) and gap≤15 **FAILS** (~49) → **TEAM-SHAPE qualifying fail (not pacing-only)** →
+per order 6 = credits-but-NOT-qualifying → **WATCHABILITY-GAPS** line 1 of NIGHT_REPORT.md + one-page why + Jonny adjudicates whether to
+relaunch ONE more with order-3b relax (SAME root as fresh_go_1/fresh_go_2 → if it counts as failing twice → **HALT** line 1 + diagnosis).
+If she instead **whiteout-LOOPS at Lance forever** (0 room progress across many iters, ace stops climbing) → that IS a hard wedge → capture
+repro + diagnose. Canonical UNTOUCHED. Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
+**SHIFT-26 STAMP (17:09) — HEALTHY, ALL 8 BADGES, CLEARED VICTORY ROAD → INDIGO PLATEAU, and THE CRUX IS NOW RESOLVING: the E4-prep bench grind is LIVE, glance-clean 0-fix.**
+Single watchdog verified (py 147532 ← bash 144483, started 16:46:28 = SAME iter 3 as shifts 23-25, single-run law holds). Log LIVE
+(mtime 17:08 vs now 17:09, **107,585 lines, +3,984 since shift 25**), **0 tracebacks whole-log**, **0 credits sentinels** (no live
+banked_CREDITS; only `banked_CREDITS_archived_fresh_go_2_final_0713_1354` = fresh_go_2's morning credits, NOT fresh_go_3).
+**438 motion / 0 spin in last 600 = moving-not-spinning**, **0 STALL/wedge in last 600**. **PROGRESS SINCE SHIFT 25 (the crux turns):**
+she CLEARED Victory Road → **reached INDIGO PLATEAU** (`[roam] STATE IN: Indigo Plateau (12,19) | badges=8 … All 8 badges — Victory
+Road and the Elite Four are next. This is the endgame.`) and — instead of walking into the E4 underleveled — the **E4-prep GRIND-WEAK
+is ACTIVELY pulling the bench to the L55 pin** via a **CAVE step-encounter grind** (map (1,40): `GRIND: no grass but (1,40) is a cave —
+CAVE step-encounter grind: wandering walkable tile(s) to draw wilds on foot`; `GRIND-WEAK: team floor under L55 — fielding the weak ones
+(not the ace)`, rotating slots, `restoring the ace … to lead` only to heal then re-fielding weak). **Bench floor CLIMBING L28→L31**
+(`levels now [70,31,31,31,31,31]`); ace crept L63→L70 but HELD (not fielded for kills). Party **[venusaur L70, kadabra L31, dugtrio L31,
+growlithe L31, fearow L31, lapras L30] — SIX DISTINCT, 0 dups, dex 13, badges=8** (Boulder,Cascade,Thunder,Rainbow,Soul,Marsh,Volcano,
+Earth). **THE CRUX (shift-24/25 fear = entering the League underleveled) IS NOW BEING ANSWERED:** she is grinding the bench to the E4-prep
+pin L55 AT the plateau BEFORE the E4 attempt; the gap (ace L70 vs bench floor L30, ~40) is now closing toward ~15 as the five bench mons
+climb. Monitor-only; no flags flipped (deferred order-3b relax is RISKY, do NOT ship blind mid-run). **NEXT SHIFT = same glance, WATCH THE
+CRUX CLOSE:** does the plateau E4-prep grind pull the bench floor ~L31→~L55 (gap to ace ~15) before the Elite Four starts? Then Elite Four
+(Lorelei/Bruno/Agatha/Lance — Lapras ice answers Lance) → Champion Gary → **CREDITS** (proven fresh_go_1 path, distinct six). On
+banked_CREDITS → **order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_3.log RUN_STATS_fresh_go_3.md` → QUALIFYING eval → six distinct
++ all ≥L42 + gap ≤15 → **CREDITS** line 1 of NIGHT_REPORT.md (train STOPS); credits but bench <L42 / gap >15 → **WATCHABILITY-GAPS** +
+stats; same root fails twice → **HALT** line 1 + one-page diagnosis. Six stay distinct. Healthy → glance cheap, exit. Canonical UNTOUCHED.
+Pop-in: `play_live --resume --free-roam`.
+———————————————————————————————————————————————————————————————
 **SHIFT-25 STAMP (17:00) — HEALTHY, ALL 8 BADGES, now DEEP IN VICTORY ROAD (1F→2F→3F Strength boulder puzzle) toward the Elite Four; THE CRUX STILL LIVE (bench underleveled entering the League), glance-clean 0-fix.**
 Single watchdog verified (py 147532 ← bash 144483, started 16:46:28 = SAME iter 3 as shifts 23/24, single-run law holds). Log LIVE
 (mtime=now @16:59-17:00, **103,601 lines, +224 since shift 24**), **0 tracebacks whole-log**, **0 credits sentinels**
@@ -503,3 +568,6 @@ NOT DONE / DEFERRED (next shift if fresh_go_2 disqualifies on ace over-climb):
 2. Detached turbo launch (survives shift end): `cd pokemon_agent; SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy FRESH_GO_LOG=/g/temp/longrun/fresh_go_2.log nohup bash fresh_go_watchdog.sh &`
 3. Canonical `states/campaign/` UNTOUCHED (recon monkeypatches _save to STAGE). Single-run law: exactly ONE watchdog at a time.
 4. Watch for banked_CREDITS (stops watchdog) -> run `tools/run_stats.py G:/temp/longrun/fresh_go_2.log RUN_STATS_fresh_go_2.md` -> evaluate QUALIFYING CRITERIA.
+
+## MONITOR HYGIENE (2026-07-13 ~17:20)
+- Glance-clean monitor shifts (no code/fix change) must NOT create a git commit. Append the survey to NIGHT_REPORT.md and exit WITHOUT committing - survey-only commits force the expensive 60s relaunch cadence forever. Commit only when you actually changed something beyond the survey.
