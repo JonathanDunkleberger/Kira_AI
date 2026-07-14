@@ -555,8 +555,23 @@ class SeafoamStrike:
             return "failed"
 
         # ── ROUTE-21 REROUTE (default): skip the hang-prone Seafoam interior entirely ──────────────
-        if SEAFOAM_REROUTE_VIA_R21:
-            return self._reroute_r21()
+        # fresh_go_5 lesson (shift 2): the R21 reroute (route overland to Pallet, then surf SOUTH down
+        # Route 21 to Cinnabar) ONLY works from the Pallet/Cinnabar side (post-Blaine re-entry, the
+        # giovanni_gym context it was mirrored from). From a PRE-Blaine Fuchsia/Route-19 start Pallet is
+        # NOT graph-reachable (Route 19's west edge is open sea; no learned land route to Pallet), so its
+        # `walk_to_map(Pallet)` leg wedges forever and the strike loops on re-queue. Gate the reroute on
+        # graph-reachability of the R21 corridor; when it isn't reachable (or the reroute otherwise
+        # fails), FALL THROUGH to the proven interior crossing — fresh_go_1/2/3 all crossed the interior,
+        # and its 3h sea_walk livelock root is now hang-guarded (see sea_walk).
+        if SEAFOAM_REROUTE_VIA_R21 and self._reroute_feasible():
+            _rr = self._reroute_r21()
+            if _rr != "failed":
+                return _rr
+            self.log("   [reroute] could not reach the R21 corridor — "
+                     "falling through to the proven interior Seafoam crossing")
+        elif SEAFOAM_REROUTE_VIA_R21:
+            self.log("   [reroute] R21 corridor not graph-reachable from here — "
+                     "using the proven interior Seafoam crossing")
 
         # ── PHASE 1: the sea road to the Seafoam east door ────────────────────────────────────────
         # NS9 lesson (ported): a worn/PP-depleted lead gets swept by R19/R20 wilds mid-crossing (the
@@ -688,6 +703,27 @@ class SeafoamStrike:
             self.log("   interior op failed AFTER the current stopped (0x2D2 set) — exit owns the rest")
             return "in_seafoam"
         return "failed"
+
+    def _reroute_feasible(self):
+        """Is the R21 reroute even possible from HERE? It must reach the R21 corridor (Pallet) overland;
+        from a pre-Blaine Fuchsia/Route-19 start there is NO graph route to Pallet (Route 19's west edge
+        is open sea), so the reroute would wedge forever on walk_to_map(Pallet). Feasible iff she's
+        already on the corridor/Cinnabar, or the world graph has a route to a corridor map. Defensive:
+        any error -> NOT feasible (fall back to the proven interior crossing)."""
+        try:
+            here = tuple(tv.map_id(self.b))
+            if here in R21_CORRIDOR | {CINNABAR}:
+                return True
+            for dest in R21_CORRIDOR:
+                try:
+                    if self.camp.world.next_hop(here, dest, None) is not None:
+                        return True
+                except Exception:
+                    continue
+            return False
+        except Exception as e:
+            self.log(f"   [reroute] feasibility check errored: {e} — treating as NOT feasible (interior)")
+            return False
 
     def _reroute_r21(self):
         """CINNABAR via Route 21 — the puzzle-free bypass of the Seafoam interior. From wherever she
