@@ -1,7 +1,47 @@
 # KIRA FIRERED - SINGLE MISSION (2026-07-13). SUPERSEDES EVERYTHING.
 CEO decision: the 5x battery is CANCELLED. The asymptote = ONE QUALIFYING RUN, today. When it lands, STOP THE TRAIN. Read ONLY this file + the latest survey + live log tails. Prior directives are archived at NEXT_SESSION_archive_2026-07-13_*.md - consult ONLY for the proven per-stage launch recipes; do not re-derive them; no history spelunking.
 
-## ⛔ HALTED 2026-07-13 18:14 — DO NOT RELAUNCH. Awaiting Jonny's root-fix design call.
+## ▶ SHIFT-1 (RUN-4) DONE — E4-READINESS GATE + ACE-CAP SHIPPED & VERIFIED → fresh_go_4 IN FLIGHT (2026-07-14 ~07:2x)
+**The RUN-4 two-part root fix is BUILT, VERIFIED, COMMITTED (`c1eb7d3`), and fresh_go_4 is LAUNCHED cold.**
+The 3×-solo-ace-disqualify root is addressed at the source: an **E4-READINESS GATE** at the endgame DISPATCH
+(`campaign.py` ~11843) BLOCKS both `head_to_league` (pre-VR) and `enter_league` (Indigo) until the team is in
+QUALIFYING shape — **every member ≥L42 AND ace-to-floor gap ≤15**. While RED it runs an **ACE-CAPPED** bench
+grind (weak ones SOLO the reachable wilds via `grind_weak_members(..., ace_cap=True)` → `PROTECT_LEAD_GRIND`
+forced OFF, so the ace earns **ZERO XP**) toward floor target `max(42, ace-15)`, then re-ticks. Gating pre-VR
+means the bench preps on OPEN GROUND **before** the ace runs away in the Victory-Road cave; the gate ALSO kills
+the whiteout-retry partial-Champion clears that fed the ace L63→L100 (she never enters while RED). Bounded:
+`E4_GATE_MAX_STINTS(80)` + `E4_GATE_NOPROG_STINTS(8)` consecutive no-floor-gain → **stand down LOUD**
+(`!! E4-READINESS-GATE NON-CONVERGING` in the log) → a monitor shift adjudicates HALT; **never enter under-shape,
+never loop silently.** Flag `POKEMON_E4_READINESS_GATE` (default ON in code; rides the watchdog env-scrub like
+BENCH_TO_MILESTONE). New: `_e4_entry_ready` / `_e4_prep_floor_target` / `_e4_readiness_gate` / `_e4_readiness_grind`.
+**VERIFY (`recon_e4_gate_check.py`, 14/14 PASS):** predicate correct on all shapes (fresh-run success [55..70]
+gap15 = READY; fresh_go_3 disqualify shape = NOT ready; <6 mons = NOT ready); GREEN→None(allow), RED→block;
+behavioral boot `indigo_reach_g` (ace L71 / floor L9) → gate **BLOCKED entry every stint**, a bench mon
+**CLIMBED** (lapras L39→L40), **ACE stayed EXACTLY FLAT L71→L71 over 20 battles** (matchup switch fielded bench
+mons, never the ace). `recon_endgame_gate_check` 8/8 (no dispatch regression). AST clean.
+
+**FRONTIER = MONITOR fresh_go_4** (cold FRESH bedroom, detached, watchdog, log `G:/temp/longrun/fresh_go_4.log`).
+Launched ~07:2x via `fresh_go_watchdog.sh` (FRESH_GO_LOG override). fresh_go_3's live banks archived
+`*_archived_fresh_go_3_final_0714`; canonical `states/campaign/` UNTOUCHED. **NEXT SHIFT = glance** (same monitor
+discipline as the RUN-3 loop below — proc/log/tracebacks/motion-not-spin/party-distinct-six):
+  • **THE NEW ACUTE WATCH (does the gate work end-to-end):** when she reaches badge 8 / the endgame, the log must
+    show `E4-READINESS GATE RED ... ace L.. CAPPED (no XP)` and the **bench floor CLIMBING while the ace stays
+    FLAT** — the gap CLOSING to ≤15 with all ≥L42 — THEN `✅ E4-READINESS GATE GREEN ... clearing 'enter_league'`
+    → E4 → Champion → **banked_CREDITS**. This is the qualifying shape the prior 3 runs never reached.
+  • **THE HALT TRIP:** if instead the log shows `!! E4-READINESS-GATE NON-CONVERGING` (the reachable endgame grind
+    can't raise the bench — e.g. cave-only terrain the weak mon can't solo), that is the honest RUN-4 stand-down
+    → write **HALT** line 1 of NIGHT_REPORT.md + one-page diagnosis (the remaining fix would be open-ground prep
+    routing before VR / the order-3b in-gauntlet participation relax — Jonny's call). Per order-6 two-strike: the
+    solo-ace root failing a 4th time = terminal.
+  • On **banked_CREDITS** → **order 6**: `tools/run_stats.py G:/temp/longrun/fresh_go_4.log RUN_STATS_fresh_go_4.md`
+    → QUALIFYING eval → six distinct + all ≥L42 + gap ≤15 → **CREDITS** line 1 of NIGHT_REPORT.md (train STOPS);
+    credits but team-shape still off → **WATCHABILITY-GAPS** + stats + Jonny adjudicates; same root twice → HALT.
+Pop-in: `play_live --resume --free-roam`. **fresh_go_4 LAUNCH RECIPE (if a relaunch is needed):** cold-start =
+archive live `banked_LIVE/CREDITS/STALL/GOAL`, then `cd pokemon_agent; SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy
+FRESH_GO_LOG=/g/temp/longrun/fresh_go_4.log nohup bash fresh_go_watchdog.sh &` (single-run law: ONE watchdog).
+
+---
+## ⛔ HALTED 2026-07-13 18:14 — SUPERSEDED by RUN-4 above (Jonny adjudicated ONE more cycle; kept for the diagnosis).
 fresh_go_3 rolled CREDITS at 18:14 (3rd autonomous bedroom→credits) but DISQUALIFIED on team-shape for the
 THIRD run running — final party [Venusaur **L100**, Kadabra L32, Dugtrio L32, Growlithe L31, Fearow L33,
 Lapras L31]: SIX DISTINCT/0-dup (✅) but bench frozen L31-33, ace L100, gap ~69 (❌ all ≥L42, ❌ gap ≤15,
@@ -571,3 +611,9 @@ NOT DONE / DEFERRED (next shift if fresh_go_2 disqualifies on ace over-climb):
 
 ## MONITOR HYGIENE (2026-07-13 ~17:20)
 - Glance-clean monitor shifts (no code/fix change) must NOT create a git commit. Append the survey to NIGHT_REPORT.md and exit WITHOUT committing - survey-only commits force the expensive 60s relaunch cadence forever. Commit only when you actually changed something beyond the survey.
+
+## RUN-4 ORDERS (2026-07-14 - Jonny adjudicated: ONE more cycle on the narrowed root)
+- Root (from the HALT diagnosis + shift 26-29 evidence): the guard fix WORKED journey-long (bench 10->31, plateau E4-prep grind FIRED, weak ones fielded). Residual: (a) enter_league fired BEFORE the prep pin was met - no readiness gate; (b) ace XP creep during prep + whiteout-retries (L70->93) makes gap<=15 unreachable.
+- FIX (two parts): (a) E4-READINESS GATE - the gauntlet may not begin until qualifying shape (all six >=L42 AND ace-floor gap <=15); until green, E4-prep grind continues (weak ones fielded, best reachable XP source, planner's call). Anti-infinite-grind: productivity-gated bites + hard budget; if truly non-converging -> HALT + diagnosis, never enter under-shape, never loop silently. (b) ACE-CAP during prep - no ace XP while the gate is red; post-whiteout retries may not re-enter until the gate is green again.
+- VERIFY BEFORE LAUNCH (mandatory, cheap): boot fresh_go_3's banked pre-E4/Indigo state with the fix live. PASS = weak ones fielded + floor climbing + NO league entry while gate red + ace flat. Fix fails verify twice -> HALT + diagnosis, stop.
+- On PASS: launch fresh_go_4 - cold fresh bedroom, detached, watchdog on, log G:/temp/longrun/fresh_go_4.log, canonical untouched. On banked_CREDITS -> order 6 exactly as written (CREDITS / WATCHABILITY-GAPS / HALT).
