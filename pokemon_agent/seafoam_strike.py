@@ -607,49 +607,67 @@ class SeafoamStrike:
         except Exception as e:
             self.log(f"   pre-crossing heal errored: {e} — entering as-is (LOUD)")
 
-        while tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS and time.time() < self.deadline:
-            here = tuple(tv.map_id(b))
-            if self.handle_interrupts():
-                continue
-            if here == FUCHSIA:
-                # The general campaign traveler crosses Fuchsia->R19 fine from anywhere (incl. the (33,32)
-                # Warden-door spot the Safari strike leaves her at); cross_edge is the fallback.
-                _wr = camp.walk_to_map(R19, "south")
-                if tuple(tv.map_id(b)) != R19 and not self.cross_edge("south", "fuchsia-south"):
-                    self.log(f"!! Fuchsia->R19 failed (walk_to_map={_wr})")
-                    return "failed"
-            elif here == R19:
-                # NS#5 (fresh_go_5 R19 escalation): the hand-rolled cross_edge("west") sea_walk oscillates
-                # on the R19->R20 open-sea band and HANG-GUARD-bails on the strike deadline EVEN ace-led —
-                # it re-BFSes to ONE fixed (0,y) target every micro-step, and the L30+ Tentacruel gauntlet
-                # keeps knocking her off it (13->9 in 195 iters, deadline hit, never reaches x=0). fresh_go_5
-                # has NEVER touched Route 20 this way. The general traveler crosses R19->R20 robustly (same
-                # engine that carried fresh_go_2 across to Cinnabar): it re-paths per step against the LIVE
-                # connection band (rows 0-59, no learned-graph dependency), fights wilds with the RE-FRONTED
-                # ace (one-shots grass-vs-water -> no 'stuck'), and honors its own wall-clock budget. Try the
-                # traveler FIRST; keep cross_edge only as the fallback. Idempotent from mid-strand (9,42) too.
-                try:
-                    camp._restore_ace()
-                except Exception:
-                    pass
-                _wr = camp.walk_to_map(R20, "west")
-                if tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS \
-                        and not self.cross_edge("west", "r19-west"):
-                    self.log(f"!! R19->R20 crossing failed (walk_to_map={_wr})")
-                    return "failed"
-            else:
-                # off-route (e.g. a nearby grind spot / the Safari exit): route to Fuchsia via the
-                # general traveler FIRST, then the FUCHSIA branch takes the proven south sea road.
-                self.log(f"   off-route map {here} — routing to Fuchsia via the general traveler")
-                try:
-                    camp.walk_to_map(FUCHSIA, "east")
-                except Exception as e:
-                    self.log(f"   walk_to_map(Fuchsia) errored: {e}")
-                if tuple(tv.map_id(b)) != FUCHSIA and not (self.cross_edge("west", "reroute-west")
-                                                           or self.cross_edge("south", "reroute-south")):
-                    if self.wedge(("reroute", here), 3, f"could not route off {here} toward Fuchsia"):
+        # NS#6 (fresh_go_5 ~7h R19 wedge — the TRUE ROOT, deeper than NS#4/#5's "ace must lead"): the
+        # R19/R20 sea road has NO reachable Pokémon Center (map (3,37): no local Center, no graph route,
+        # no south/warp edge). A fainted/hurt member (e.g. Kadabra down) keeps camp.needs_heal() True, so
+        # travel's pause_check (needs_heal() and not _suppress_heal) yields need_heal EVERY step, and
+        # walk_to_map's heal-and-retry then calls heal_nearest — which from R19 can only flee NORTH across
+        # the L30+ Tentacruel gauntlet, where a stale flee-runner can't escape -> `battle outcome=stuck`
+        # x3 -> BATTLE-LOOP-BREAKER -> heal fails -> the crossing NEVER runs (net-zero; fresh_go_5 never
+        # touched Route 20 in its whole life — 0 `engine] action menu` lines = the ace never actually
+        # fought these battles, the flee-runner just failed). The deadlock: can't heal without crossing,
+        # can't cross without healing. The sea road is a survive-or-blackout gauntlet EXACTLY like a
+        # Center-less cave (cf. _cave_runner: "no PC in a cave -> survive-or-blackout, never excursion
+        # out"): SUPPRESS heal so travel stops yielding to the doomed excursion, and FORCE camp's fighting
+        # runner (never a stale flee-runner) so the RE-FRONTED ace one-shots the water wilds and surfs
+        # across. Safety net = blackout-recovery: a KO respawns her at FUCHSIA's Center, which also REVIVES
+        # the fainted member -> needs_heal() clears -> a clean re-approach. Scoped to the sea road only
+        # (try/finally restores on every exit path) so the interior/arrival phases + Cinnabar heal normally.
+        _sv_heal, _sv_run = camp._suppress_heal, self.trav.battle_runner
+        camp._suppress_heal = True
+        self.trav.battle_runner = camp.battle_runner
+        try:
+            while tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS and time.time() < self.deadline:
+                here = tuple(tv.map_id(b))
+                if self.handle_interrupts():
+                    continue
+                if here == FUCHSIA:
+                    # The general campaign traveler crosses Fuchsia->R19 fine from anywhere (incl. the
+                    # (33,32) Warden-door spot the Safari strike leaves her at); cross_edge is the fallback.
+                    _wr = camp.walk_to_map(R19, "south")
+                    if tuple(tv.map_id(b)) != R19 and not self.cross_edge("south", "fuchsia-south"):
+                        self.log(f"!! Fuchsia->R19 failed (walk_to_map={_wr})")
                         return "failed"
-            self.settle(180)
+                elif here == R19:
+                    # The general traveler crosses R19->R20 robustly (same engine that carried fresh_go_2
+                    # across to Cinnabar): it re-paths per step against the LIVE connection band (rows 0-59,
+                    # no learned-graph dependency) and — with heal suppressed + the fighting runner forced
+                    # above — the RE-FRONTED ace one-shots the wilds and surfs west without ever yielding to
+                    # a heal excursion. cross_edge stays the fallback. Idempotent from mid-strand (9,42) too.
+                    try:
+                        camp._restore_ace()
+                    except Exception:
+                        pass
+                    _wr = camp.walk_to_map(R20, "west")
+                    if tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS \
+                            and not self.cross_edge("west", "r19-west"):
+                        self.log(f"!! R19->R20 crossing failed (walk_to_map={_wr})")
+                        return "failed"
+                else:
+                    # off-route (e.g. a nearby grind spot / the Safari exit): route to Fuchsia via the
+                    # general traveler FIRST, then the FUCHSIA branch takes the proven south sea road.
+                    self.log(f"   off-route map {here} — routing to Fuchsia via the general traveler")
+                    try:
+                        camp.walk_to_map(FUCHSIA, "east")
+                    except Exception as e:
+                        self.log(f"   walk_to_map(Fuchsia) errored: {e}")
+                    if tuple(tv.map_id(b)) != FUCHSIA and not (self.cross_edge("west", "reroute-west")
+                                                               or self.cross_edge("south", "reroute-south")):
+                        if self.wedge(("reroute", here), 3, f"could not route off {here} toward Fuchsia"):
+                            return "failed"
+                self.settle(180)
+        finally:
+            camp._suppress_heal, self.trav.battle_runner = _sv_heal, _sv_run
 
         here = tuple(tv.map_id(b))
         if here == CINNABAR:
