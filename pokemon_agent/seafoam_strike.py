@@ -535,6 +535,17 @@ class SeafoamStrike:
         self.log(f"   seafoam strike: boot map={tv.map_id(b)} coords={tv.coords(b)} "
                  f"calm={int(fm.read_flag(b, FLAG_B3F_CALM))} money=${camp.money()}")
 
+        # ACE LEADS THE GAUNTLET (NS#4, fresh_go_5 ~1h R19 livelock): the R19/R20 sea road is a battle-DENSE
+        # gauntlet of L30+ Tentacruel. A weak bench lead (a road-bench-XP or persisted-swap slot-0) fights it
+        # ALONE (no in-battle switch on a questline leg) -> can't KO fast enough to reach the R20 edge before
+        # the deadline AND can't flee reliably -> a hard livelock. Front the true ace for the whole crossing
+        # (idempotent; the roam restores the weak-lead ordering after the strike). Complements removing
+        # "seafoam" from OVERWORLD_SAFE_QUESTLINES (campaign.py).
+        try:
+            camp._restore_ace()
+        except Exception as e:
+            self.log(f"   [ace-lead] _restore_ace errored: {e} — proceeding as-is (LOUD)")
+
         # PREFLIGHT: the crossing needs Surf AND Strength on the team (recognition enforces this, but a
         # stray call must abort LOUD, not wander the interior move-less).
         n = b.rd8(ram.GPLAYER_PARTY_CNT)

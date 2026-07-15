@@ -153,8 +153,15 @@ OVERWORLD_SAFE_QUESTLINES = frozenset({
     # or cave) is a SEPARATE strike + is auto-suppressed anyway by the live _on_overworld_now() guard — so
     # the bench only ever leads on open ground/sea, never into an interior (the flee-loop the design forbids).
     "surf",                           # Blaine prep — Celadon->Fuchsia routes + Safari (G1_OUTDOOR) Surf-HM march
-    "seafoam",                        # the sea crossing to Cinnabar — Route 19/20 OPEN SEA (the cave interior
-    #                                   is a live-guarded separate strike); unlocks the badge-7 sea legs
+    # NOTE (2026-07-14, NS#4): "seafoam" was allowlisted here by RUN-5 fix (b) on the assumption the
+    # Route 19/20 "OPEN SEA" was fleeable+survivable for a weak lead — it is NOT. R19/R20 is a battle-DENSE
+    # gauntlet of L30+ Tentacruel that OUTLEVEL the freshly-caught L26 Lapras this run fielded. With
+    # PROTECT_LEAD_GRIND OFF on a questline leg, the weak lead fought ALONE: it could neither KO fast enough
+    # (surf never reached the R20 edge before the 40-min strike deadline -> HANG-GUARD bail at (9,42)) nor
+    # flee reliably (the heal-excursion's flee-runner returned 'stuck' x3 -> BATTLE-LOOP-BREAKER -> retry ->
+    # a hard livelock, fresh_go_5 wedged ~1h at R19). The Seafoam crossing is a dangerous COMBAT gauntlet;
+    # the ace must lead it (fresh_go_1/2/3 all crossed ace-led). REMOVED from the allowlist so the ace leads;
+    # the seafoam_strike now ALSO _restore_ace()s at boot (belt-and-suspenders). Do NOT re-add.
     "FLAG_HIDE_SAFFRON_ROCKETS",      # Sabrina — the long Fuchsia->Saffron open-route march (Silph Co. building
     #                                   is a SEPARATE strike, live-guarded; mirrors the listed earth_badge march)
 })
