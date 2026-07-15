@@ -619,7 +619,23 @@ class SeafoamStrike:
                     self.log(f"!! Fuchsia->R19 failed (walk_to_map={_wr})")
                     return "failed"
             elif here == R19:
-                if not self.cross_edge("west", "r19-west"):
+                # NS#5 (fresh_go_5 R19 escalation): the hand-rolled cross_edge("west") sea_walk oscillates
+                # on the R19->R20 open-sea band and HANG-GUARD-bails on the strike deadline EVEN ace-led —
+                # it re-BFSes to ONE fixed (0,y) target every micro-step, and the L30+ Tentacruel gauntlet
+                # keeps knocking her off it (13->9 in 195 iters, deadline hit, never reaches x=0). fresh_go_5
+                # has NEVER touched Route 20 this way. The general traveler crosses R19->R20 robustly (same
+                # engine that carried fresh_go_2 across to Cinnabar): it re-paths per step against the LIVE
+                # connection band (rows 0-59, no learned-graph dependency), fights wilds with the RE-FRONTED
+                # ace (one-shots grass-vs-water -> no 'stuck'), and honors its own wall-clock budget. Try the
+                # traveler FIRST; keep cross_edge only as the fallback. Idempotent from mid-strand (9,42) too.
+                try:
+                    camp._restore_ace()
+                except Exception:
+                    pass
+                _wr = camp.walk_to_map(R20, "west")
+                if tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS \
+                        and not self.cross_edge("west", "r19-west"):
+                    self.log(f"!! R19->R20 crossing failed (walk_to_map={_wr})")
                     return "failed"
             else:
                 # off-route (e.g. a nearby grind spot / the Safari exit): route to Fuchsia via the
