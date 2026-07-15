@@ -586,11 +586,24 @@ class SeafoamStrike:
 
         # ── PHASE 1: the sea road to the Seafoam east door ────────────────────────────────────────
         # NS9 lesson (ported): a worn/PP-depleted lead gets swept by R19/R20 wilds mid-crossing (the
-        # (11,5) blackout wedge). Heal to FULL first. Harmless from a fresh full team.
+        # (11,5) blackout wedge). Heal to FULL first — BUT only when a LOCAL Center exists.
+        # NS#4 (fresh_go_5 ~1h R19 livelock): on R19/R20 (no local Center) heal_nearest FLEES north to
+        # Fuchsia, and R19's water wilds flee-loop 'stuck' -> BATTLE-LOOP-BREAKER -> retry -> a hard
+        # livelock that BLOCKS the strike before it ever reaches the crossing. With the ace now leading
+        # (above), the crossing is FOUGHT (ace one-shots the wilds), never fled — so the pre-heal isn't
+        # needed here. Heal ONLY when dispatched from a Center map (Fuchsia/Cinnabar) AND actually hurt
+        # (a local heal never flee-loops); otherwise skip and let the ace sweep.
+        _hm = tuple(tv.map_id(b))
         try:
-            self.log("   pre-crossing heal (full PP/HP for the R19/R20 wild gauntlet)")
-            camp.heal_nearest()
-            self.log(f"   healed @ {tv.map_id(b)} {tv.coords(b)}")
+            if camp._party_fully_healed():
+                self.log("   pre-crossing heal SKIPPED — party already full (no excursion)")
+            elif _hm not in (FUCHSIA, CINNABAR):
+                self.log(f"   pre-crossing heal SKIPPED — no local Center on {_hm}; the ace fights the "
+                         f"crossing (a heal-excursion here flee-loops R19/R20 water wilds — NS#4)")
+            else:
+                self.log("   pre-crossing heal (full PP/HP for the R19/R20 wild gauntlet)")
+                camp.heal_nearest()
+                self.log(f"   healed @ {tv.map_id(b)} {tv.coords(b)}")
         except Exception as e:
             self.log(f"   pre-crossing heal errored: {e} — entering as-is (LOUD)")
 
