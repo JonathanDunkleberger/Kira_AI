@@ -372,6 +372,18 @@ E4_GATE_NOPROG_STINTS = int(os.getenv("POKEMON_E4_GATE_NOPROG", "8"))  # consecu
 # 'inadequate'). A small residual gap closes; a huge deficit can't converge on open grass -> the gate's
 # noprog counter -> honest NON-CONVERGE HALT (unchanged). Bounded, productivity-gated by _better_grind_spot.
 E4_GATE_REROUTE_CLIMB = int(os.getenv("POKEMON_E4_GATE_REROUTE_CLIMB", "12"))
+# RUN-6 (2026-07-15, ATTENDED) GATE-GRIND TERRAIN-ADEQUACY: open grass tops out ~L30, so it can NEVER feed
+# an endgame E4 floor (>= L42) — a fresh late catch (fresh_go_5's L26 Lapras) earns ~0 XP on it and the gate
+# NON-CONVERGES (the halt root). When the open-grass grind can't move the floor, escalate the ace-capped
+# bench grind into the ONLY adequate terrain: the Victory Road cave (L40+ step-encounter wilds), ace held at
+# 0 XP (the cap OVERRIDES the map-type 'ace-leads-in-caves' rule INSIDE the gate-grind). Marching to the VR
+# terrain is bounded by this cap: a march that can't reach it within this many stints stops protecting the
+# gate's noprog counter -> honest bounded NON-CONVERGE (unchanged safety).
+E4_GATE_VR_MARCH_CAP = int(os.getenv("POKEMON_E4_GATE_VR_MARCH_CAP", "6"))
+# Short per-stint grind budget for the E4-readiness gate ONLY (default 240s vs the 600s module budget):
+# so a RED gate stint on inadequate open grass returns promptly and the terrain-adequacy escalation into
+# the VR cave kicks in fast, instead of creeping the non-floor bench mons for the full 600s first.
+E4_GATE_GRIND_BUDGET_S = int(os.getenv("POKEMON_E4_GATE_GRIND_BUDGET_S", "240"))
 # Gyms whose DOOR is gated behind an HM she must ACQUIRE via a bespoke strike (not an at-the-door obstacle
 # nor a story dungeon) — recognized PROACTIVELY before the (uncrossable) march, unlike GYM_PREREQS' Sabrina
 # at-the-door pattern. Blaine (Cinnabar) needs Surf: the sea road there can't even be reached Surf-less.
@@ -7187,13 +7199,18 @@ class Campaign:
         """The under-target members' species names (for the rationale/framing). Pure read off state."""
         return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
 
-    def grind_weak_members(self, target, min_level=None, ace_cap=False):
+    def grind_weak_members(self, target, min_level=None, ace_cap=False, budget_s=None):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
         ace. Each loop: pick the weakest under-target member, reorder it to lead, grind() it toward
         `target` (which heals it when low — survival), repeat until the floor crosses. Bounded by a
         wall-clock budget so a tick can't run away. Returns 'ready' (floor crossed) | 'battle_loss' |
         'ok' (budget/grass-out — partial progress, the next tick re-enters). Restores the ace on EVERY
         exit path (a faint/loss must not strand the weak mon as lead).
+
+        `budget_s` (2026-07-15, RUN-6) overrides the module wall-clock budget for THIS call — the
+        E4-readiness gate passes a SHORT budget so each gate stint returns promptly and the terrain-
+        adequacy escalation (VR cave) kicks in fast instead of creeping the non-floor bench mons on
+        inadequate open grass for the full default budget. None = the original GRIND_WEAK_BUDGET_S.
 
         `min_level` (2026-07-11, PASS 3): a FLOOR below which a member is ignored as box-fodder chaff —
         the E4-prep path passes `target - E4_PREP_BAND` so a full-team floor of L55 does NOT drag an L8
@@ -7238,8 +7255,9 @@ class Campaign:
 
         def _pid0():
             return self.b.rd32(ram.GPLAYER_PARTY)               # slot-0 personality value (per-mon id)
+        _budget = budget_s if budget_s is not None else GRIND_WEAK_BUDGET_S
         try:
-            while time.time() - t0 < GRIND_WEAK_BUDGET_S:
+            while time.time() - t0 < _budget:
                 levels = self._party_levels()
 
                 def _slot_pid(s):
@@ -7370,8 +7388,18 @@ class Campaign:
             if r == "ready":
                 log(f"   VR-GRIND: bench floor crossed — done (levels {self._party_levels()})"); break
             if r == "no_safe_grass":
-                log(f"   VR-GRIND: VR2F returned no_safe_grass (levels {self._party_levels()}) — "
-                    f"can't cave-grind here, proceeding to the gauntlet (LOUD)"); break
+                # DISTINGUISH genuine ungrindability from an east-pocket warp-out (RUN-6, 2026-07-15): VR2F's
+                # R23-north landing pocket is ringed by exit warps, so the cave-wander often steps back onto
+                # R23 mid-grind — grind() then bails no_safe_grass on R23 (fragile one-way check), NOT because
+                # VR2F is ungrindable. Only STOP if she's genuinely still on VR2F with no grind; if she warped
+                # OFF, just re-enter next loop (bounded by max_stints/budget) instead of giving up + churning
+                # the watchdog stall->relaunch cycle. The floor climbs across the bounces.
+                if tuple(tv.map_id(self.b)) == VR2F:
+                    log(f"   VR-GRIND: VR2F returned no_safe_grass on-floor (levels {self._party_levels()}) — "
+                        f"genuinely can't cave-grind here, proceeding to the gauntlet (LOUD)"); break
+                log(f"   VR-GRIND: warped off VR2F to {tv.map_id(self.b)} mid-grind (east-pocket exit warp) — "
+                    f"re-entering to continue the cave grind (levels {self._party_levels()})")
+                continue
         self._restore_ace()
         # RETURN TO INDIGO so e4_strike boots cleanly at (3,9): it is map-keyed on the Indigo exterior; a
         # boot from R23/VR2F would be mis-handled as an off-route E4 room. Exit VR2F -> R23-north -> Indigo.
@@ -10094,18 +10122,121 @@ class Campaign:
         halt fired the gate on grassless Cinnabar Island, so every stint returned no_safe_grass and it
         NON-CONVERGED without ever trying reachable grass), route to the nearest reachable ADEQUATE open
         grass via the world graph and grind the bench THERE (still ace-capped). Endgame open grass tops out
-        ~L30, so this closes only a SMALL residual gap; a huge deficit still can't converge on open grass ->
-        the caller's noprog counter -> honest NON-CONVERGE HALT. Bounded + productivity-gated (below)."""
+        ~L30, so this closes only a SMALL residual gap.
+
+        RUN-6 (2026-07-15, ATTENDED) — TERRAIN-ADEQUACY ESCALATION: open grass can NEVER feed an endgame E4
+        floor (>= L42) — a fresh late catch earns ~0 XP on ~L30 wilds and the floor never moves (the
+        fresh_go_5 halt root: L26 Lapras stalled across 8 Route-2 stints). So when the open-grass grind
+        does NOT move the floor this stint, escalate the ace-capped bench grind into the ONLY adequate
+        terrain, the Victory Road cave (L40+ step-encounter wilds) — see _e4_gate_vr_escalate. If open grass
+        IS moving the floor (a small residual close), keep at it. Bounded + productivity-gated (below)."""
         here = tuple(tv.map_id(self.b))
-        if here in (ENDGAME_INDIGO, (3, 42)):                 # at/near Indigo → VR2F cave heal-loop
-            return self.prep_e4_in_victory_road(target=target, ace_cap=True)
+        if here in (ENDGAME_INDIGO, (3, 42), (1, 40)):        # at Indigo / R23-north / VR2F → VR cave loop
+            return self._e4_vr_cave_grind(target)
+        self._e4_vr_stall_cleared = False                     # off VR terrain — re-arm the one-shot clear
         ml = max(1, target - E4_PREP_BAND)
-        r = self.grind_weak_members(target, min_level=ml, ace_cap=True)
+        floor_before = min(self._party_levels() or [0])
+        r = self.grind_weak_members(target, min_level=ml, ace_cap=True, budget_s=E4_GATE_GRIND_BUDGET_S)
+        floor_after = min(self._party_levels() or [0])
+        # STAY on open grass ONLY while it is still raising the FLOOR (a cheap residual close) AND the floor
+        # mon can still gain here. The moment the floor mon is marked un-grindable (stalled — open grass tops
+        # ~L30, so a slow-growth late catch like Lapras plateaus there while the endgame target is >= L42),
+        # open grass is tapped out for the floor -> escalate to adequate terrain even if it crept this stint.
+        if floor_after > floor_before and not self._floor_mon_stalled():
+            return r
         if r == "no_safe_grass":                              # local map has no reachable grass — re-route
             rr = self._e4_gate_reroute_grind(state, target)
             if rr is not None:
                 return rr
+        # Open grass can't raise the floor here (weak wilds / floor mon stalled / no adequate grass) —
+        # escalate the ace-capped bench grind into the VR cave (the only L40+ terrain).
+        esc = self._e4_gate_vr_escalate(state, target)
+        if esc is not None:
+            return esc
         return r
+
+    def _e4_vr_cave_grind(self, target):
+        """Enter the VR2F ace-capped cave grind (prep_e4_in_victory_road) — but FIRST clear the open-grass
+        stall marks once. The floor mon (+ bench) get marked un-grindable on Route 2's WEAK wilds (~0 XP);
+        that per-mon stall (and the grind-dead/inadequate map memory) MUST NOT carry into VR2F's ADEQUATE
+        L40+ wilds — else the floor mon (e.g. the L28 Lapras stalled pre-escalation) is never re-fielded on
+        the strong terrain and the gate can't close. One-shot (guarded flag) so a genuine VR2F stall still
+        stands. Reset the guard whenever she's OFF the VR terrain so a later re-escalation clears afresh."""
+        if not getattr(self, "_e4_vr_stall_cleared", False):
+            self._e4_vr_stall_cleared = True
+            self._grind_stalled = set()
+            if hasattr(self, "_grind_inadequate_set"):
+                self._grind_inadequate_set.discard((1, 40))
+            if hasattr(self, "_grind_dead"):
+                for _m in ((1, 40), (3, 42), ENDGAME_INDIGO):
+                    self._grind_dead.discard(_m)
+            log("   [roam] E4-GATE: on the VR cave terrain — cleared the open-grass stall marks so the floor "
+                "mon re-fields on the L40+ wilds")
+        return self.prep_e4_in_victory_road(target=target, ace_cap=True)
+
+    def _floor_mon_stalled(self):
+        """True iff the lowest-level party member (the team FLOOR) is marked un-grindable on the current
+        reachable open grass (its PID is in the grind-stall set) — i.e. open grass can no longer raise the
+        team floor here, the precise 'terrain inadequate for the floor' signal the E4-gate escalates on.
+        Fail-safe: any read error -> False (fall back to the floor-didn't-move check)."""
+        try:
+            levels = self._party_levels()
+            if not levels:
+                return False
+            floor_slot = min(range(len(levels)), key=lambda s: levels[s])
+            pid = self.b.rd32(ram.GPLAYER_PARTY + floor_slot * st.PARTY_MON_SIZE)
+            return pid in (getattr(self, "_grind_stalled", None) or set())
+        except Exception:
+            return False
+
+    def _e4_gate_vr_escalate(self, state, target):
+        """RUN-6 fix (a) (2026-07-15, ATTENDED): the reachable OPEN grass can't move the E4 floor (Kanto open
+        grass tops ~L30; an endgame L26->L50 climb earns ~0 XP there — the fresh_go_5 halt root). Route the
+        ace-capped bench grind into the ONLY adequate terrain: the Victory Road cave (L40+ step-encounter
+        wilds). March to the Indigo Plateau (the whiteout-tolerant victory_road strike drives its own road
+        Viridian->R22->R23->VR->Indigo); the caller's next tick then hits the Indigo branch and cave-grinds
+        VR2F ace-capped (heal excursions to the Indigo Center between stints). If the march lands ON the VR
+        terrain this tick, grind it now (don't waste the tick). The ace-cap OVERRIDES the map-type
+        'ace-leads-in-caves' rule INSIDE the gate-grind: the weak bench solos the VR wilds, the ace is held
+        at 0 XP. Bounded: the march is protected from the gate's noprog stand-down only for E4_GATE_VR_MARCH_CAP
+        stints — a march that can't reach VR by then stops resetting noprog -> honest bounded NON-CONVERGE.
+        Fail-closed: flags off or any read/nav error -> None (propagate the starve)."""
+        if not (CAVE_GRIND_ENABLED and VICTORY_ROAD_ENABLED):
+            return None
+        VR_TERRAIN = (ENDGAME_INDIGO, (3, 42), (1, 40))       # Indigo / R23-north / VR2F (the cave-grind loop)
+        # Maps the victory_road strike's dispatch loop actually handles (Viridian southward to Indigo). Its
+        # loop has NO branch for Route 1/2 (north of Viridian) — booted there it wedges "off-route, exiting
+        # to the overworld" forever (the halt-bank sits on Route 2). So when she's off this corridor, walk to
+        # Viridian FIRST (world-graph), then let the strike drive Viridian -> R22 -> R23 -> VR -> Indigo.
+        STRIKE_CORRIDOR = (VIRIDIAN_CITY, (3, 41), (28, 0), (3, 42), (1, 39), (1, 40), (1, 41), ENDGAME_INDIGO)
+        try:
+            here0 = tuple(tv.map_id(self.b))
+            if here0 not in VR_TERRAIN:
+                log(f"   [roam] E4-GATE TERRAIN-ESCALATE: open grass can't feed the E4 floor (target L{target}, "
+                    f"levels {self._party_levels()}) — marching to the Victory Road cave (the only L40+ "
+                    f"terrain) to grind the bench ace-capped")
+                if here0 not in STRIKE_CORRIDOR:              # north of Viridian -> reach the strike's entry first
+                    log(f"   [roam] E4-GATE TERRAIN-ESCALATE: off the League corridor at {here0} — walking to "
+                        f"Viridian {VIRIDIAN_CITY} before dispatching the Victory Road strike")
+                    self.walk_to_map(VIRIDIAN_CITY, "south")
+                if tuple(tv.map_id(self.b)) in STRIKE_CORRIDOR or tuple(tv.map_id(self.b)) in VR_TERRAIN:
+                    self._head_to_league(state)               # victory_road strike -> Indigo (whiteout-tolerant)
+            here1 = tuple(tv.map_id(self.b))
+            if here1 in VR_TERRAIN:                            # reached the cave terrain — grind it NOW
+                self._e4_gate_vr_marches = 0
+                self._e4_gate_noprog = 0                       # real progress: on adequate terrain
+                return self._e4_vr_cave_grind(target)
+            marches = getattr(self, "_e4_gate_vr_marches", 0)
+            if here1 != here0 and marches < E4_GATE_VR_MARCH_CAP:
+                self._e4_gate_vr_marches = marches + 1
+                self._e4_gate_noprog = 0                       # protect the in-progress march (bounded by the cap)
+                log(f"   [roam] E4-GATE TERRAIN-ESCALATE: advanced {here0} -> {here1} toward the VR cave "
+                    f"(march {self._e4_gate_vr_marches}/{E4_GATE_VR_MARCH_CAP}) — next tick continues")
+                return "ok"
+            return None                                       # can't reach VR (or march cap hit) -> propagate starve
+        except Exception as e:
+            log(f"   [roam] E4-GATE TERRAIN-ESCALATE errored ({e}) — LOUD; propagating the starve")
+            return None
 
     def _e4_gate_reroute_grind(self, state, target):
         """RUN-5 fix (a): the RED gate's current map starved -> WALK to the nearest reachable ADEQUATE
