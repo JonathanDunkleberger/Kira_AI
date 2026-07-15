@@ -2613,10 +2613,21 @@ class Campaign:
             self.trav.battle_runner = saved_runner
 
     def _flee_runner(self):
-        """Battle handler used DURING the heal-return: flee wild fights (retreat costs ~0 HP),
-        win forced trainers. Built fresh per battle; routes events to the campaign's voice."""
-        return BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
-                           render=self.render, log=lambda m: None).flee(max_seconds=90)
+        """Battle handler used DURING the heal-return / retreat: flee wild fights (retreat costs
+        ~0 HP), win forced trainers. Built fresh per battle; routes events to the campaign's voice.
+        NS#6 (fresh_go_5 ~7h R19 wedge): a flee can FAIL to escape a fast wild — the R19/R20 L30+
+        Tentacruel sea gauntlet returns 'Can't escape!' -> flee='stuck' -> travel's BATTLE-LOOP
+        BREAKER -> the whole heal/grind/retreat leg wedges NET-ZERO forever (0 'engine] action menu'
+        = she never actually fought, just failed to run). A retreat that can't run must NOT livelock:
+        if flee returns 'stuck' with the battle STILL open, FIGHT it out (the fronted ace one-shots
+        it) so the leg progresses. Costs a little HP but never wedges; byte-neutral where flee wins.
+        GENERAL (rule 14): fixes ANY unescapable-wild retreat, not just Seafoam."""
+        out = BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
+                          render=self.render, log=lambda m: None).flee(max_seconds=90)
+        if out == "stuck" and st.in_battle(self.b):
+            out = BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
+                              render=self.render, log=lambda m: None).run(max_seconds=120)
+        return out
 
     def level_check(self, min_level, leader="Brock"):
         """LOUD Brock-readiness check at the Forest exit / before the gym. Reads the lead
