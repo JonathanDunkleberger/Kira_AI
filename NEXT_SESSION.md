@@ -19,4 +19,4 @@ ORDER 4 — ON CREDITS: the watchdog self-stops on the credits bank (banked_CRED
 PARKED — DO NOT TOUCH UNTIL THE VERDICT: fix-(b) ace-cap tightening; the missing-instrumentation list at the bottom of RUN_STATS_fresh_go_5.md; banked_CREDITS promotion to canonical (Jonny's call). Canonical saves UNTOUCHED, always.
 
 ---
-(fresh_go_5 mountain survey preserved below for the record — the machine that produced the qualifying shape.)
+(The full fresh_go_5 mountain survey — the machine that produced the qualifying shape — lives in git history at commit 22c5106 and in NIGHT_REPORT.md; not re-copied here to keep this resume prompt tight.)
