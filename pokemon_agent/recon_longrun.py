@@ -252,6 +252,18 @@ def main():
         # Once Misty falls (badges>=2, past the wall) free_roam resumes cleanly, so banking arms from there.
         if _badges(b) < 2:
             return
+        # RESUME-SANCTITY (fresh_go_5 NS#6 — the ~7h R19 wedge ROOT): NEVER promote banked_LIVE while a
+        # battle is LIVE. A mid-battle snapshot POISONS the durable checkpoint — resume boots straight INTO
+        # the unresolved fight, and if the long-running core's in-battle menu has wedged (white-box impostor:
+        # action menu up, FIGHT submenu won't open), that fight is UNWINNABLE and save+load can't reset the
+        # core's hidden menu state -> every resume re-enters the dead battle forever (fresh_go_5 banked mid a
+        # Swimmer-Goldeen fight at 7/67 with a jammed action menu -> 21 re-entries, 0 progress, ~7h). Wait
+        # for the overworld to snapshot. GENERAL (rule 14/17): protects any run's resume from mid-battle poison.
+        try:
+            if st.in_battle(b):
+                return
+        except Exception:
+            pass
         now = time.time()
         if now - _last_live_bank[0] < _bank_every_s:
             return
