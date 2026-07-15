@@ -203,7 +203,17 @@ class GiovanniGym:
     def sea_walk(self, goal_test, label, tries=10, avoid=()):
         b = self.b
         budget = tries
+        # HANG GUARD (mirrors seafoam_strike, NS#26 f31297d): a moving-but-not-arriving crossing refunds
+        # budget every micro-step (`budget += 1` below), so this loop can spin unbounded UNDER the strike's
+        # own deadline. Bound BOTH: honor the deadline, and cap the absolute replan count so a single
+        # giovanni sea leg (Cinnabar->Pallet->Viridian) can never livelock silently.
+        iters = 0
         while budget > 0:
+            iters += 1
+            if time.time() > self.deadline or iters > 400:
+                self.log(f"   [{label}] HANG-GUARD bail at {tuple(tv.coords(b) or ())} "
+                         f"(iters={iters}, deadline={'hit' if time.time() > self.deadline else 'ok'})")
+                return goal_test(tuple(tv.coords(b) or ()))
             budget -= 1
             if self.handle_interrupts():
                 budget += 1
