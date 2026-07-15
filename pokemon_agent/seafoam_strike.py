@@ -623,9 +623,9 @@ class SeafoamStrike:
         # across. Safety net = blackout-recovery: a KO respawns her at FUCHSIA's Center, which also REVIVES
         # the fainted member -> needs_heal() clears -> a clean re-approach. Scoped to the sea road only
         # (try/finally restores on every exit path) so the interior/arrival phases + Cinnabar heal normally.
-        _sv_heal, _sv_run = camp._suppress_heal, self.trav.battle_runner
+        _sv_heal, _sv_run = camp._suppress_heal, camp.trav.battle_runner
         camp._suppress_heal = True
-        self.trav.battle_runner = camp.battle_runner
+        camp.trav.battle_runner = camp.battle_runner
         try:
             while tuple(tv.map_id(b)) not in {R20, CINNABAR} | SEAFOAM_MAPS and time.time() < self.deadline:
                 here = tuple(tv.map_id(b))
@@ -667,7 +667,7 @@ class SeafoamStrike:
                             return "failed"
                 self.settle(180)
         finally:
-            camp._suppress_heal, self.trav.battle_runner = _sv_heal, _sv_run
+            camp._suppress_heal, camp.trav.battle_runner = _sv_heal, _sv_run
 
         here = tuple(tv.map_id(b))
         if here == CINNABAR:
