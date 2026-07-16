@@ -94,3 +94,13 @@ tmp/
 
 # runtime persistence (core Kira journey lives here; never in git)
 states/
+
+# Internal night-train ops docs — the train's own brain files. Kept on disk (never
+# delete), but untracked from the public repo (Jonny-adjudicated 2026-07-15: internal
+# operational churn + local paths + internal doctrine; exclude from public push).
+/CLAUDE.md
+/STATE_OF_PROJECT.md
+/NIGHT_REPORT.md
+/NEXT_SESSION.md
+/NIGHT_REPORT_*.md
+/NEXT_SESSION_*.md
