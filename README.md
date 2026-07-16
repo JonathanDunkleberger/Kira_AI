@@ -1,6 +1,6 @@
 ﻿# Kira — the AI companion who just beat Pokémon by herself
 
-![Kira playing Pokemon FireRed](VTuber Demo - Kirav3.gif)
+![Kira playing Pokemon FireRed](VTuber%20Demo%20-%20Kirav3.gif)
 
 On July 15, 2026, an autonomous AI VTuber named Kira played **Pokémon FireRed from a fresh save to the credits — 8 badges, the Elite Four, the Champion — with zero human input.** No scripted decisions, no human hands mid-run, no reloads. She built her own team, got flattened by the League, healed up, restocked with her own prize money, and walked back in until she won.
 
@@ -64,3 +64,4 @@ I am an ex-M&A banker with an econ degree. Twelve months ago I could not write a
 ## License
 
 AGPL-3.0. If this project made you feel something, a star genuinely helps more than you would think — it is the number I am building against.
+
