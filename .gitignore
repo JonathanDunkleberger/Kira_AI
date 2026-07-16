@@ -104,3 +104,25 @@ states/
 /NEXT_SESSION.md
 /NIGHT_REPORT_*.md
 /NEXT_SESSION_*.md
+
+# internal working docs (local only, untracked for public)
+CLIPPER_RECON.md
+COUCH_NOTES.md
+MODE_TRANSITION_AUDIT.md
+MOUNTAIN_SURVEY.md
+POST_CREDITS_VISION.md
+PUSH_CHECKLIST.md
+README_FACTS.md
+SECRETS_SCAN.md
+RUN_STATS_fresh_go_1.md
+RUN_STATS_fresh_go_2.md
+RUN_STATS_fresh_go_3.md
+pokemon_agent/CODEBASE_AUDIT.md
+pokemon_agent/DESCENT_PREGRADE.md
+pokemon_agent/E4_TACTICAL_FRONTIER.md
+pokemon_agent/FORWARD_CLIMB_STAGING.md
+pokemon_agent/PASS3_RECON.md
+pokemon_agent/SHOWCASE_QA.md
+pokemon_agent/STATES.md
+pokemon_agent/TEAM_DEPTH_ROOT_FIX.md
+pokemon_agent/TEAM_PLANNER_DESIGN.md
