@@ -1,25 +1,36 @@
-# NEXT SESSION — fresh_go_6 CERTIFICATION COMPLETE (2026-07-15 18:12:47)
+## STATUS: PUBLIC-PUSH GATE — REVIEW-READY, LOOP STOPPED (awaiting Jonny). Do NOT relaunch a run; do NOT push.
 
-## ✅ THE ASYMPTOTE IS CERTIFIED — THE LOOP IS DONE. DO NOT AUTO-RELAUNCH A 7TH RUN.
+The post-asymptote rung-1 mission (history-wide secrets scan + public-repo hygiene + README fact sheet)
+is **COMPLETE**. Per Order 4 the loop **stops at REVIEW-READY**. The public GitHub push itself is
+**JONNY'S HANDS ONLY**. There is no autonomous next objective until Jonny rules on the push.
 
-**fresh_go_6 rolled the credits, bedroom → Hall of Fame, CLEAN COLD ZERO-TOUCH — NO ASTERISK.**
-- Launched cold 12:03:47 (`boot=FRESH map=(0,0) badges=0 party=[]`), flew the exact credits commit (22c5106 + 1b85dcd) with ZERO human touches / ZERO code changes the entire run.
-- Self-stopped 18:12:47: `OUTCOME: CREDITS — Champion defeated`; `recon_longrun exited rc=0`; watchdog loop ended; `banked_CREDITS/` staged with the full sanctity bundle.
-- QUALIFYING EVAL (all hard criteria met): fresh cold start ✅ · zero human touches ✅ · six DISTINCT species 0-dup ✅ · all ≥ L42 at E4 entry (floor L61) ✅ · ace-floor gap ≤ 15 at the gate (gap 15) ✅ · no L100 (peak L87) ✅ · bounded grind, 0 tracebacks ✅ · stats generated ✅ · train self-stops ✅.
-- This is what fresh_go_5 could NOT claim (its attended mid-run fix + resume = human fingerprint). fresh_go_6 removes the asterisk. **The category proof exists.**
+### HEADLINE: ✅ GO for public push (no hard blockers)
 
-Full write-up: **NIGHT_REPORT.md** (line 1 = the CREDITS verdict + the mountain survey). Stats: **RUN_STATS_fresh_go_6.md**.
+- Git history is **SECRETS-CLEAN** — 0 hits across all 3,245 unique blobs / every branch (manual git
+  sweeps; gitleaks/trufflehog/python not installed on this machine).
+- **ROM-CLEAN** — no `.gba/.gbc/.gb/.sav/.state` binary tracked or in history. CRITICAL check PASSES.
+- `.env` (live keys) is gitignored + **never committed** → **no key rotation required on account of git**.
+- LICENSE = AGPL v3 ✅ · `.gitignore` comprehensive ✅.
+- Deliverables banked: **`SECRETS_SCAN.md`** (Orders 1+2) · **`README_FACTS.md`** (Order 3) ·
+  NIGHT_REPORT line-1 = REVIEW-READY GO (Order 4).
 
-## HONEST NOTES (in the report; not disqualifying, Jonny's eyes)
-- 8 E4 whiteouts before the win — she entered at the MINIMUM qualifying shape (gap exactly 15, floor exactly L61); the no-between-room-heal gauntlet needed the designed self-funded whiteout-recovery loop to grind ace L76→L87 / fatten the kit before Gary fell (RIVAL beat #11 won=True). Bounded, monotone, untouched.
-- Ace crept past the gate (L76→L87) during those retries — the known-accepted `ace-creep-despite-cap` residual (fix-b PARKED). Qualifying gap is measured AT THE GATE, where it was 15.
-- Grind-heavy pacing (watchability soft-gap, same as fresh_go_5) — ~14k s of 22k s wall was the VR2F bench-grind + gauntlet retries. Team-shape correct; pacing is Jonny's soft call.
+### JONNY'S CALLS BEFORE THE PUSH (all LOW/advisory — none block, ranked)
 
-## PARKED FOR JONNY (all his calls — do NOT touch, do NOT relaunch)
-1. `banked_CREDITS` (in `G:\temp\longrun\`) → canonical `pokemon_agent\states\campaign\` promotion. Canonical is UNTOUCHED; the run persisted only to the staging dir.
-2. fix-(b) ace-cap tightening (would cut gauntlet retries; a code change = a FRESH run).
-3. The missing-instrumentation list at the bottom of RUN_STATS_fresh_go_6.md.
-4. The pacing/watchability soft-adjudication.
+1. **[LOW] Author metadata** — personal Gmail on all 1,344 commits + full real name "Jonny Dunkleberger"
+   + Mac hostname on 2 early commits. Accept, or destructive author-history rewrite + `noreply` going
+   forward. **Destructive = your hands.**
+2. **[LOW] Internal ops docs tracked** (NIGHT_REPORT/NEXT_SESSION/STATE_OF_PROJECT/CLAUDE.md + big
+   archives) → gitignore/relocate before push. **Keep, don't delete.**
+3. **[LOW] ~12 `recon_*.py`** with hardcoded `G:\temp\claude\…scratchpad` paths → delete before push.
+4. **[V.LOW]** 16 KB winget `.db` in history-only (already gone from tree); repo bloat (11.5 MB demo gif
+   whitelisted + ~30× 1 MB `campaign.py` history).
+5. **[PARKED — flag]** Canonical promotion of run-6 `banked_CREDITS` (in `G:\temp\longrun\`) = the purest
+   post-credits candidate. Your call; canonical `states/campaign/` is UNTOUCHED.
 
-## NEXT MOUNTAIN (gated on Jonny, NOT this loop)
-The Kira show timeline — a fresh bedroom→credits playthrough for the audience with voice+music at human pace. It does NOT exist yet; nothing touches it until Jonny says go. The Sherpa canonical remains the working line; pressing GO on it resumes the prior playthrough (NOT the staged post-credits state).
+### AFTER THE PUSH (rung 2 — do NOT start unprompted)
+
+Full-stack assembly (OBS / VTube Studio / TTS / chat) for the showcase. Not this train's job.
+
+### DO NOT
+No new Pokémon runs (battery closed, asymptote certified). No fix-(b) ace-cap work. No pushing. No
+history rewrite / file purge (all destructive remediation = Jonny). No canonical promotion.
