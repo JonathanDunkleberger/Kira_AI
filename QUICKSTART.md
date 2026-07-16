@@ -1,4 +1,4 @@
-# Kira — Quick Start (≈15 minutes)
+﻿# Kira — Quick Start (≈15 minutes)
 
 A minimal path to a talking Kira. This skips every optional feature (Twitch,
 YouTube, chess, captions, VN autopilot, clipping) — just the core voice loop
@@ -78,14 +78,14 @@ block at the very top:
 | `ANTHROPIC_API_KEY` | Kira's main brain (Claude) | Paid | https://console.anthropic.com/ |
 | `GROQ_API_KEY` | Fast triage inference | Free tier | https://console.groq.com/keys |
 | `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` | Default TTS voice | Free tier | https://portal.azure.com/ → "Speech service" |
-| `OPENAI_API_KEY` | Vision + audio agent (both on by default) | Paid | https://platform.openai.com/api-keys |
+| `GOOGLE_API_KEY` | Vision + audio agent (both on by default) | Paid | https://aistudio.google.com/apikey/api-keys |
 
 > **Heads-up — perception is on out of the box.** A fresh clone boots with
 > vision (`ENABLE_VISION=true`) and audio-mood (`AUDIO_MOOD_ALWAYS_ON=true`)
 > awake, so OpenAI bills on idle, and a second local Whisper
 > (`ENABLE_LOOPBACK_TRANSCRIBER=true`) loads on the GPU. To boot cheap/quiet,
 > set `ENABLE_VISION=false`, `ENABLE_AUDIO_AGENT=false`, and
-> `ENABLE_LOOPBACK_TRANSCRIBER=false` in `.env` and leave `OPENAI_API_KEY` blank.
+> `ENABLE_LOOPBACK_TRANSCRIBER=false` in `.env` and leave `GOOGLE_API_KEY` blank.
 
 Everything else in `.env` already has a working default — leave it untouched for
 the quick start.
@@ -121,3 +121,4 @@ python run.py
 If the dashboard loads and you hear a reply, you're up. From here, add features
 (Twitch, YouTube, captions, chess) by filling in the matching section of `.env`
 — see the full [README](README.md).
+
