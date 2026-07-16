@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1200 940" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+﻿<svg viewBox="0 0 1200 880" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0d0f14"/>
@@ -33,9 +33,8 @@
     </marker>
   </defs>
 
-  <rect width="1200" height="940" fill="url(#bg)"/>
+  <rect width="1200" height="880" fill="url(#bg)"/>
 
-  <!-- subtle grid texture -->
   <g stroke="#ffffff" stroke-opacity="0.03">
     <line x1="0" y1="215" x2="1200" y2="215"/>
     <line x1="0" y1="430" x2="1200" y2="430"/>
@@ -45,7 +44,9 @@
   <!-- Title -->
   <text x="60" y="58" fill="#ffffff" font-size="30" font-weight="700" letter-spacing="3">KIRA</text>
   <text x="60" y="82" fill="#7d8694" font-size="14" letter-spacing="0.5">Multimodal AI VTuber &#xB7; System Architecture</text>
-  <text x="1140" y="70" text-anchor="end" fill="#5a6270" font-size="12">local senses &#xB7; hybrid cloud brain</text>
+  <text x="1140" y="66" text-anchor="end" fill="#5a6270" font-size="12">local senses &#xB7; hybrid cloud brain</text>
+  <rect x="856" y="76" width="284" height="26" rx="13" fill="#ee1515" fill-opacity="0.10" stroke="#ee1515" stroke-opacity="0.45"/>
+  <text x="998" y="93" text-anchor="middle" fill="#ff9a9a" font-size="11" font-weight="600">&#9733; FireRed &#8212; beaten autonomously &#xB7; Jul 2026</text>
 
   <!-- ============ EXPERIENCE LAYER ============ -->
   <g>
@@ -185,31 +186,32 @@
     <text x="639" y="454" fill="#8a93a3" font-size="11">what she can do</text>
 
     <g>
-      <rect x="740" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="780" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Music</text>
-      <text x="780" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">yt-dlp/mpv</text>
+      <rect x="740" y="424" width="72" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="776" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Music</text>
+      <text x="776" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">yt-dlp/mpv</text>
     </g>
     <g>
-      <rect x="828" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="868" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Search</text>
-      <text x="868" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">web lookup</text>
+      <rect x="820" y="424" width="72" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="856" y="466" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Search</text>
+      <text x="856" y="484" text-anchor="middle" fill="#8a93a3" font-size="9">web lookup</text>
     </g>
     <g>
-      <rect x="916" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="956" y="460" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">VN</text>
-      <text x="956" y="475" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Autopilot</text>
-      <text x="956" y="492" text-anchor="middle" fill="#8a93a3" font-size="9">OCR + read</text>
+      <rect x="900" y="424" width="72" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="936" y="460" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">VN</text>
+      <text x="936" y="475" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Autopilot</text>
+      <text x="936" y="492" text-anchor="middle" fill="#8a93a3" font-size="9">OCR + read</text>
     </g>
     <g>
-      <rect x="1004" y="424" width="80" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="1044" y="458" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Chess</text>
-      <text x="1044" y="475" text-anchor="middle" fill="#8a93a3" font-size="9">Lichess bot</text>
-      <text x="1044" y="490" text-anchor="middle" fill="#8a93a3" font-size="9">Stockfish</text>
+      <rect x="980" y="424" width="72" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
+      <text x="1016" y="458" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Chess</text>
+      <text x="1016" y="475" text-anchor="middle" fill="#8a93a3" font-size="9">Lichess bot</text>
+      <text x="1016" y="490" text-anchor="middle" fill="#8a93a3" font-size="9">Stockfish</text>
     </g>
     <g>
-      <rect x="1092" y="424" width="40" height="92" rx="9" fill="#1b1f29" stroke="#3aa6e0" stroke-opacity="0.45"/>
-      <text x="1112" y="462" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="600">Chat</text>
-      <text x="1112" y="477" text-anchor="middle" fill="#8a93a3" font-size="9">post</text>
+      <rect x="1060" y="424" width="72" height="92" rx="9" fill="#1b1f29" stroke="#ee1515" stroke-opacity="0.6"/>
+      <text x="1096" y="456" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Pok&#233;mon</text>
+      <text x="1096" y="473" text-anchor="middle" fill="#8a93a3" font-size="9">FireRed agent</text>
+      <text x="1096" y="490" text-anchor="middle" fill="#e6c25e" font-size="9">&#9733; credits &#xB7; 2026</text>
     </g>
   </g>
 
@@ -250,13 +252,19 @@
       <text x="769" y="630" text-anchor="middle" fill="#8a93a3" font-size="10">neural voice</text>
       <text x="769" y="645" text-anchor="middle" fill="#8a93a3" font-size="10">Edge-TTS fallback</text>
     </g>
+    <g>
+      <rect x="856" y="580" width="154" height="90" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="933" y="612" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Gemini</text>
+      <text x="933" y="630" text-anchor="middle" fill="#8a93a3" font-size="10">vision &#xB7; screen reads</text>
+      <text x="933" y="645" text-anchor="middle" fill="#8a93a3" font-size="10">screen understanding</text>
+    </g>
 
     <!-- Row 2 -->
     <g>
       <rect x="200" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
-      <text x="277" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Vision Model</text>
-      <text x="277" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">GPT-4o-mini</text>
-      <text x="277" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">screen + OCR</text>
+      <text x="277" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">libmgba</text>
+      <text x="277" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">GBA emulator bridge</text>
+      <text x="277" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">live RAM state reads</text>
     </g>
     <g>
       <rect x="364" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
@@ -276,9 +284,14 @@
       <text x="769" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">avatar control</text>
       <text x="769" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">hotkey API</text>
     </g>
+    <g>
+      <rect x="856" y="682" width="154" height="78" rx="9" fill="#1b1f29" stroke="#76b900" stroke-opacity="0.45"/>
+      <text x="933" y="710" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Tesseract OCR</text>
+      <text x="933" y="728" text-anchor="middle" fill="#8a93a3" font-size="10">local OCR fallback</text>
+      <text x="933" y="743" text-anchor="middle" fill="#8a93a3" font-size="10">VN dialogue reads</text>
+    </g>
   </g>
 
-
-  <text x="600" y="818" text-anchor="middle" fill="#5a6270" font-size="12">Real-time audio pipeline &#xB7; hybrid-cloud brain &#xB7; vector-memory architecture &#xB7; multimodal fusion &#xB7; WebSocket avatar &amp; caption control &#xB7; agentic loops</text>
+  <text x="600" y="818" text-anchor="middle" fill="#5a6270" font-size="12">Real-time audio pipeline &#xB7; hybrid-cloud brain &#xB7; vector memory &#xB7; multimodal fusion &#xB7; autonomous game agent &#xB7; WebSocket avatar &amp; captions &#xB7; agentic loops</text>
   <text x="600" y="840" text-anchor="middle" fill="#454c58" font-size="11" letter-spacing="1">built from scratch in Python</text>
 </svg>
