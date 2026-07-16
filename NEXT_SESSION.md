@@ -12,7 +12,8 @@ is **COMPLETE**. Per Order 4 the loop **stops at REVIEW-READY**. The public GitH
 - `.env` (live keys) is gitignored + **never committed** → **no key rotation required on account of git**.
 - LICENSE = AGPL v3 ✅ · `.gitignore` comprehensive ✅.
 - Deliverables banked: **`SECRETS_SCAN.md`** (Orders 1+2) · **`README_FACTS.md`** (Order 3) ·
-  NIGHT_REPORT line-1 = REVIEW-READY GO (Order 4).
+  **`PUSH_CHECKLIST.md`** (shift 2 — copy-paste kit: per-item ACCEPT vs REMEDIATE commands for every call
+  below + branch-choice note + the push commands; nothing executed) · NIGHT_REPORT line-1 = REVIEW-READY GO.
 
 ### JONNY'S CALLS BEFORE THE PUSH (all LOW/advisory — none block, ranked)
 
