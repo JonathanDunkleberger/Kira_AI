@@ -24,8 +24,20 @@ except ImportError:
     np = None
     PYAUDIO_AVAILABLE = False
 
-from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
-from kira.config import OPENAI_API_KEY, AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN, AUDIO_CONTENT_CLASSIFY_ENABLED
+# OpenAI PURGED (P-7, 2026-07-08): the audio mood agent was the LAST OpenAI consumer
+# (gpt-audio-mini); vision already migrated to Gemini. The package is removed from
+# requirements and the key from config, so this agent is permanently INACTIVE — no
+# OpenAI call is reachable, it can never bill. The import is guarded so a machine with
+# the package uninstalled still boots clean. RE-ENABLING audio mood/hearing = a
+# Gemini-audio migration (exactly like vision got), NOT restoring this path.
+try:
+    from openai import AsyncOpenAI, NotFoundError as OpenAINotFoundError
+except ImportError:
+    AsyncOpenAI = None
+
+    class OpenAINotFoundError(Exception):
+        pass
+from kira.config import AUDIO_HEARTBEAT_SECONDS, AUDIO_CLIP_SECONDS, AUDIO_MODEL, AUDD_API_TOKEN, AUDIO_CONTENT_CLASSIFY_ENABLED
 
 
 AUDIO_MODE_OFF = "off"
@@ -242,17 +254,30 @@ class AudioAgent:
         return False
 
     def __init__(self):
-        self.client: Optional[AsyncOpenAI] = None
-        if OPENAI_API_KEY:
-            self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        else:
-            print("   [Audio] Warning: OPENAI_API_KEY not set — audio agent inactive.")
+        # OpenAI PURGED (P-7): no client is ever created — the audio mood agent is INACTIVE
+        # until it is migrated to Gemini-audio. Every capture/analyze path is already gated
+        # behind `if self.client`, so client=None means no OpenAI call is reachable (LOUD, not
+        # a silent degrade — constraint #3).
+        self.client = None
+        print("   [Audio] audio mood agent INACTIVE — OpenAI purged (P-7 2026-07-08); "
+              "hearing/mood needs a Gemini-audio migration to return.")
 
         self.mode: str = AUDIO_MODE_OFF
         self.audio_summary: str = ""
         self.last_capture_time: float = 0
         self.capture_count: int = 0  # increments each time a non-silent audio summary lands
         self.consecutive_silent: int = 0
+        # ── Pokémon-mode CLASSIFIER gate (additive; default fully OFF) ──────────────
+        # In a Pokémon co-host session the game MUSIC plays on the same headphone endpoint Kira's
+        # loopback monitors, so she was hearing/reacting to the soundtrack (mood coloring, foreground
+        # triggers, sensory clog). This gate skips the audio-CLASSIFIER (heartbeat describe) while
+        # active. It does NOT touch the mic (separate VAD path) or the game-event seam. Self-reverting
+        # linger (`_pokemon_suppress_until`) so a manual play_live run auto-clears after the last game
+        # event; `_pokemon_suppress_forced` is the explicit dashboard toggle. Both default off ->
+        # byte-identical normal hearing.
+        self._pokemon_suppress_until: float = 0.0
+        self._pokemon_suppress_forced: bool = False
+        self._pokemon_suppress_logged: bool = False
         # Non-event gating for the current summary. A summary is only an "event"
         # (eligible to color intensity or be presented as live hearing to react to)
         # when it came from a loud-enough buffer AND the model was confident
@@ -341,6 +366,19 @@ class AudioAgent:
 
     def is_active(self) -> bool:
         return self.mode != AUDIO_MODE_OFF and self._stream is not None
+
+    # ── Pokémon-mode classifier gate (see __init__ for the why) ───────────────────
+    def pokemon_suppress(self, seconds: float = 0.0, forced: Optional[bool] = None) -> None:
+        """Gate the desktop audio-CLASSIFIER for Pokémon mode (mic + game-event seam untouched).
+        `seconds` extends a self-reverting linger (refreshed by each game event); `forced` is the
+        explicit dashboard toggle (True=hold off, False=release)."""
+        if forced is not None:
+            self._pokemon_suppress_forced = bool(forced)
+        if seconds and seconds > 0:
+            self._pokemon_suppress_until = max(self._pokemon_suppress_until, time.time() + seconds)
+
+    def is_pokemon_suppressed(self) -> bool:
+        return self._pokemon_suppress_forced or time.time() < self._pokemon_suppress_until
 
     def set_speaking_fn(self, fn: Optional[Callable[[], bool]]) -> None:
         """Wire the self-TTS gate: `fn` returns True while Kira's TTS is playing.
@@ -829,6 +867,17 @@ class AudioAgent:
             await asyncio.sleep(AUDIO_HEARTBEAT_SECONDS)
             if not self.is_active() or not self.client:
                 continue
+            # POKÉMON MODE: skip the audio-CLASSIFIER so she stops hearing/reacting to the game music
+            # (mic + game-event seam are separate and stay live). Loud on each transition (Constraint #3).
+            if self.is_pokemon_suppressed():
+                if not self._pokemon_suppress_logged:
+                    print("   [Audio] Pokémon mode — desktop audio-classifier SUPPRESSED "
+                          "(ignoring game music; mic + game-event reactions stay live).")
+                    self._pokemon_suppress_logged = True
+                continue
+            if self._pokemon_suppress_logged:
+                print("   [Audio] Pokémon mode ended — desktop audio-classifier RESUMED.")
+                self._pokemon_suppress_logged = False
             if len(self.buffer) < self.sample_rate * 3:
                 continue
             try:

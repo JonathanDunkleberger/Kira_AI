@@ -1,0 +1,343 @@
+"""world_fingerprint.py - THE KEYSTONE of the free-roam self-unstuck watchdog.
+
+ONE question, asked at two cadences: *did the world actually change?*  A single compact,
+EXPLICIT-SEMANTIC snapshot of the things an ACTION is supposed to move - never a raw RAM hash
+(that would let an animation/RNG tick masquerade as progress). Two equal snapshots taken across
+an action that SHOULD have changed something == no progress == the signal every stuck-escape keys on.
+
+  - MICRO (real-time, INSIDE the brute-force primitives): the dialogue driver and the travel
+    blocker-A guard snapshot before/after each repeated press to tell a productive interaction
+    (battle started / NPC stepped / new text) from a doomed mash (same box, same tile, forever).
+  - MACRO (per free-roam tick - increment 3): the ProgressLedger fingerprints each tick to catch
+    higher-order oscillation no single handler can see.
+
+FIELDS (deliberate - INCLUDE only what an action is meant to move; EXCLUDE the noise that makes
+mashing look like progress):
+  INCLUDE  map_id, x, y, facing, menu_or_dialogue (bool), battle_active (bool),
+           party (species+level+HP per mon), badges (count), money, bag (item ids+qtys)
+  EXCLUDE  frame counters, RNG state, animation/sprite timers, NPC/overworld-object positions
+           and (deliberately) the dialogue TEXT itself - text is the dialogue driver's OWN
+           progress signal (it already reads gStringVar3); folding it into the shared fingerprint
+           would make every read-along page look like a state change.
+
+ALL ADDRESSES ARE EMPIRICALLY CONFIRMED (recon_fingerprint.py controls, 2026-06-27):
+  badge flags decode to 0/1/2 across after_pick/brock_done/misty_done; money (SaveBlock1+0x290 XOR
+  SaveBlock2.encryptionKey+0xF20) decrypts to sane, frame-stable values; the bag pocket table is
+  anchored on the already-control-verified PokeBalls pocket @ SaveBlock1+0x430.
+
+DEFERRED, on purpose, NOT guessed (see the recon note in the increment-2 summary):
+  - battle_turn_count: no control-verifiable address sourced AND the ONE-KIRA-FIREWALL says the
+    battle menu is battle_agent's domain (detect/flag/abort only). v1 carries battle_active (bool);
+    a turn counter, if increment 3 needs it, gets its own sourced+controlled recon first.
+  - full overworld-MENU detection (bag/party/yes-no): menu_or_dialogue here is the pixel-verified
+    overworld message band (box_open) - it reliably covers the micro layer's actual contexts
+    (overworld dialogue). The bag/yes-no RAM signal is increment 4's job; its address is NOT
+    guessed in here.
+
+PURE READS - no input, no frames, no writes (safe to call inside a press loop)."""
+from collections import namedtuple
+import os
+import zlib
+
+import firered_ram as ram
+import pokemon_state as st
+
+# ── confirmed addresses (recon_fingerprint.py) ──────────────────────────────────────────────
+_OB0          = 0x02036E38      # object-event 0 = the player
+_FACE_OFF     = 0x18            # facing-direction nibble (1=down 2=up 3=left 4=right)
+_SB1_MAP_GRP  = 0x04
+_SB1_MAP_NUM  = 0x05
+_SB1_FLAGS    = 0x0EE0          # flag array within SaveBlock1
+_BADGE_FLAG0  = 0x820           # FLAG_BADGE01_GET .. +7
+_SB1_MONEY    = 0x0290          # SaveBlock1.money (u32, stored money ^ encryptionKey)
+_SB2_ENC_KEY  = 0x0F20          # SaveBlock2.encryptionKey (u32)
+_P_LEVEL, _P_HP = 0x54, 0x56    # within a 100-byte party-mon struct
+# FRLG bag pockets within SaveBlock1; PokeBalls@0x430 is already control-verified (the catch fix).
+_POCKETS = ((0x0310, 42), (0x03B8, 30), (0x0430, 13), (0x0464, 58), (0x054C, 43))
+
+# ── MICRO no-progress thresholds (named, tunable) ───────────────────────────────────────────
+# Consecutive IDENTICAL-fingerprint presses before the micro layer calls "no progress" and stops
+# mashing. Used where the fingerprint is a RELIABLE per-press signal: the overworld / travel blocker
+# / the macro tick (increment 3). Context-aware: a box up earns more rope (STALL_N_DIALOGUE).
+STALL_N_DEFAULT  = 3            # generic repeated-press contexts (overworld, no box up)
+STALL_N_DIALOGUE = 8            # a box is up + the fingerprint still moves (e.g. a menu cursor)
+STALL_N_BLOCKER  = 2            # travel blocker-A: a SECOND identical box = plain NPC, not a trainer
+# TRAVEL retry-loop guard (increment 3.5): identical-fingerprint RETRIES of travel's no-path branch
+# before travel STOPS spinning and returns a loud structured failure UP to the roam loop (where the
+# macro ledger + oracle feedback live). The live wedge spun a single travel call's inner loop ~tens
+# of times with the player never moving; this surfaces it in ~2s instead. Fires AFTER the no_path==4
+# chokepoint-gauntlet attempt, so a real trainer-on-the-gap still triggers a battle first.
+TRAVEL_STALL_RETRIES = 4
+# DIALOGUE is the EXCEPTION the recon forced (recon_microwatch.py, 2026-06-27): a long overworld
+# message scrolls inside ONE constant gStringVar3 string (the Viridian parcel NPC = 36 presses, the
+# buffer never changing), the box pixels animate every frame (the blinking continue-arrow), and the
+# world fingerprint is static throughout - so there is NO reliable PER-PRESS "did the page advance?"
+# signal. An immediate N=3 stop would BUTCHER healthy dialogue. The only safe dialogue guard is a
+# FROZEN backstop: stop only once the SAME line has sat up, with NOTHING in the world moving, for
+# this many presses - far above the longest real message (36 observed), so it never false-fires on a
+# legit line yet still escapes a truly-stuck box in seconds instead of the old 300 blind presses.
+DIALOGUE_FROZEN_LIMIT = 90     # same line + frozen world this many presses = a genuinely stuck box
+
+
+WorldFingerprint = namedtuple(
+    "WorldFingerprint",
+    "map_id x y facing menu_or_dialogue battle_active party badges money bag")
+
+
+def _facing(b):
+    return b.rd8(_OB0 + _FACE_OFF) & 0x0F
+
+
+def _badge_count(b, sb1):
+    return sum(1 for i in range(8)
+               if b.rd8(sb1 + _SB1_FLAGS + ((_BADGE_FLAG0 + i) >> 3)) & (1 << ((_BADGE_FLAG0 + i) & 7)))
+
+
+def _money(b, sb1, key):
+    return (b.rd32(sb1 + _SB1_MONEY) ^ key) & 0xFFFFFFFF
+
+
+def _party(b):
+    cnt = min(b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+    out = []
+    for s in range(cnt):
+        base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+        out.append((st.read_party_species(b, s), b.rd8(base + _P_LEVEL), b.rd16(base + _P_HP)))
+    return tuple(out)
+
+
+def _bag(b, sb1, key):
+    """Sorted ((itemId, qty), ...) over every non-empty bag slot - catches pickups/purchases.
+    qty is XOR'd with the low-16 encryption key; itemId is plain."""
+    k16 = key & 0xFFFF
+    items = []
+    for off, cnt in _POCKETS:
+        for s in range(cnt):
+            slot = sb1 + off + s * 4
+            iid = b.rd16(slot)
+            if iid:
+                items.append((iid, b.rd16(slot + 2) ^ k16))
+    return tuple(sorted(items))
+
+
+def fingerprint(b):
+    """Snapshot the world into a hashable, comparable WorldFingerprint. Returns None if the save
+    isn't allocated yet (pre-game) or any read faults - callers treat None as 'can't judge this
+    press' and simply don't advance the no-progress count."""
+    try:
+        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+        sb2 = b.rd32(ram.GSAVEBLOCK2_PTR)
+        if not (ram.valid_ewram_ptr(sb1) and ram.valid_ewram_ptr(sb2)):
+            return None
+        key = b.rd32(sb2 + _SB2_ENC_KEY)
+        from dialogue_drive import box_open       # local import: avoid a module-load cycle
+        return WorldFingerprint(
+            map_id=(b.rd8(sb1 + _SB1_MAP_GRP), b.rd8(sb1 + _SB1_MAP_NUM)),
+            x=b.rds16(sb1 + ram.SB1_OFF_POS_X), y=b.rds16(sb1 + ram.SB1_OFF_POS_Y),
+            facing=_facing(b),
+            menu_or_dialogue=bool(box_open(b)),
+            battle_active=bool(st.in_battle(b)),
+            party=_party(b),
+            badges=_badge_count(b, sb1),
+            money=_money(b, sb1, key),
+            bag=_bag(b, sb1, key))
+    except Exception:
+        return None
+
+
+def brief(fp):
+    """Compact one-line view for the WATCH=1 log: semantic fields + a crc of the noisy-but-bounded
+    party/bag tuples so a viewer can SEE the fingerprint move (or not) tick to tick."""
+    if fp is None:
+        return "fp=None"
+    pc = zlib.crc32(repr(fp.party).encode()) & 0xFFFF
+    bc = zlib.crc32(repr(fp.bag).encode()) & 0xFFFF
+    flags = ("D" if fp.menu_or_dialogue else "-") + ("B" if fp.battle_active else "-")
+    return (f"fp[{fp.map_id} ({fp.x},{fp.y}) f{fp.facing} {flags} "
+            f"badge{fp.badges} ${fp.money} party:{pc:04x} bag:{bc:04x}]")
+
+
+class MicroWatch:
+    """The MICRO watchdog: feed it a fresh fingerprint after each repeated press; it counts how
+    many CONSECUTIVE presses left the world identical, and tells the caller when that crosses the
+    (context-aware) threshold so the caller can STOP brute-forcing instead of mashing forever.
+
+    The caller owns what to DO on a stall (dialogue driver: press B + return 'exhausted'; travel
+    blocker: B + re-path). `progressed=True` lets a caller force-reset on a domain signal the shared
+    fingerprint deliberately excludes - the dialogue driver passes new-text-appeared so a long but
+    healthy multi-page conversation never trips."""
+
+    def __init__(self, label=""):
+        self.label = label
+        self._last = None
+        self.stall = 0          # consecutive identical-fingerprint presses
+
+    def feed(self, fp, progressed=False):
+        """Record one press's resulting fingerprint. Returns the current stall count. A None fp
+        (unreadable) is treated as 'no judgement' - neither progress nor stall."""
+        if fp is None:
+            return self.stall
+        if progressed or (self._last is not None and fp != self._last):
+            self.stall = 0
+        elif self._last is not None:
+            self.stall += 1
+        self._last = fp
+        return self.stall
+
+    def stalled(self, fp, limit=None):
+        """True once enough consecutive presses have left the world unchanged. `limit` overrides
+        the context-aware default (STALL_N_DIALOGUE while a box is up, else STALL_N_DEFAULT)."""
+        if limit is None:
+            limit = STALL_N_DIALOGUE if (fp is not None and fp.menu_or_dialogue) else STALL_N_DEFAULT
+        return self.stall >= limit
+
+
+# ── MACRO ledger thresholds (cross-tick, the free_roam loop) ─────────────────────────────────
+# Consecutive free-roam TICKS whose fingerprint is identical to the prior tick's = her chosen
+# actions aren't moving the world. Distinct from MicroWatch (which counts presses inside ONE call).
+# Start conservative; tunable. The dashboard light reads GREEN/YELLOW/RED off ProgressLedger.state.
+PROGRESS_YELLOW_TICKS = 3      # escalating - she's not getting anywhere
+PROGRESS_RED_TICKS    = 6      # abandoned - stuck despite retries
+# STEP-3 HARD RECOVERY (increment 4 PART B): awareness (the oracle feedback) is step 1, but sustained
+# RED means re-asking isn't working — the system must force a POSITION change, or stop loud. Counted in
+# consecutive RED *ticks* (after the light is already RED). First a forced heal/route-to-nearest-Center
+# (a known-reachable anchor) to break the wedge; if STILL RED past the abandon line, end the roam LOUD
+# ("ABANDONED — needs human", the red light's real meaning) instead of re-asking an impossible question.
+PROGRESS_HARD_TICKS    = 3     # RED this many ticks -> force a route-to-Center position break (once)
+PROGRESS_ABANDON_TICKS = 6     # RED this many ticks despite that -> end roam LOUD, flag for human
+
+
+class ProgressLedger:
+    """MACRO watchdog: the free_roam loop's CROSS-TICK 'am I getting anywhere?' memory. MicroWatch
+    guards a single in-call press loop; this fingerprints ONCE PER TICK and escalates the world's
+    stuckness GREEN -> YELLOW -> RED as her chosen actions leave the world unchanged tick after tick.
+
+    CONTEXT-AWARE (increment-2's lesson): a static fingerprint while a dialogue/menu box is up is
+    EXPECTED (text scroll / read-along), so a box-up tick does NOT count toward stuck and does NOT
+    reset it - it's simply skipped, and the next clean tick compares against the last CLEAN one.
+
+    It only INFORMS (stuck_note feeds the oracle ctx so she becomes AWARE she's stuck); it NEVER
+    scripts the escape - she picks the next action herself in character (capability-not-script)."""
+    GREEN, YELLOW, RED = "GREEN", "YELLOW", "RED"
+
+    def __init__(self, yellow=PROGRESS_YELLOW_TICKS, red=PROGRESS_RED_TICKS):
+        self.yellow, self.red = yellow, red
+        self._last_fp = None
+        self.stuck = 0                 # consecutive ticks the (clean) fingerprint stayed identical
+        self.last_action = None
+        self.last_outcome = None
+
+    def observe(self, fp):
+        """Fold THIS tick's fingerprint against the last CLEAN one; return the macro state. Call at
+        tick START, before the new action runs (so it measures whether the PREVIOUS action moved the
+        world). A box-up or unreadable fp is held (neither escalates nor resets)."""
+        if fp is not None and not fp.menu_or_dialogue:
+            if self._last_fp is not None and fp == self._last_fp:
+                self.stuck += 1
+            else:
+                self.stuck = 0
+            self._last_fp = fp
+        return self.state
+
+    def note_action(self, action, outcome):
+        """Tick END: remember what she just did + how it went, so next tick's feedback can name it."""
+        self.last_action, self.last_outcome = action, outcome
+
+    @property
+    def state(self):
+        if self.stuck >= self.red:
+            return self.RED
+        if self.stuck >= self.yellow:
+            return self.YELLOW
+        return self.GREEN
+
+    def stuck_note(self):
+        """The AWARENESS line folded into the oracle ctx on YELLOW+. States the SITUATION in her
+        terms; deliberately does NOT prescribe a fix (she decides). RED sharpens the framing."""
+        sev = "you're completely stuck" if self.state == self.RED else "you don't seem to be getting anywhere"
+        tried = (f"You keep trying to {self.last_action.replace('_', ' ')}"
+                 if self.last_action else "Nothing you've tried")
+        gone = f"it went '{self.last_outcome}'" if self.last_outcome else "nothing's happened"
+        return (f"{tried} but the world hasn't changed in {self.stuck} turns - {gone}, and {sev}.")
+
+
+# ── UNIVERSAL WALL-CLOCK WATCHDOG (LAYER B) ──────────────────────────────────────────────────
+# The headline gap the live Slowbro watch exposed: the per-tick MACRO ProgressLedger SKIPS any tick
+# whose fingerprint shows a dialogue/menu box up (`observe`: `not fp.menu_or_dialogue`) — it can't
+# tell a legit read from a wedged box on the fingerprint alone — so a FROZEN dialogue box (the exact
+# Slowbro signature: travel bumps an NPC, its line re-shows, the world never moves) NEVER escalated.
+# StuckWatch is the fix: a WALL-CLOCK detector that does NOT skip boxes, sitting ABOVE every sub-layer.
+#   KEY = the world fingerprint with menu_or_dialogue EXCLUDED (a box toggling up/down during a bump-
+#         loop is not progress) + the on-screen dialogue TEXT (a real conversation ADVANCING is the one
+#         signal that tells a long legit read from a stuck box — a page-turn is a new key = progress).
+#   TRIP = she's been confined to a SMALL set of these keys for `stuck_s` of WALL-CLOCK time. Like
+#          travel's position-loop guard, it tolerates a bounded cycle (the box-toggle, the 4-way facing
+#          sweep, a <=3-tile loop): every genuinely-NEW key restarts the clock; once no new key appears
+#          for stuck_s, it trips — catching SUB-TICK spins a per-tick ledger can't see, whatever's wedged.
+# Battle is battle_agent's domain (the flee floor owns it) -> a battle_active fp auto-resets (never
+# trips mid-fight). TIME IS INJECTED (`now`) so the module stays a pure read and the class unit-tests
+# headless with a fake clock.
+WATCHDOG_STUCK_S   = float(os.getenv("POKEMON_WATCHDOG_STUCK_S", "15"))  # frozen this long (s) -> trip
+# ^ 15s (was 30): 30s of frozen screen reads as dead air to a viewer; 15s bails ~2x faster while still
+#   sitting well above the longest legit hold (a T3 badge savor ~17s changes the fp anyway, and a real
+#   conversation advances its text each page). Env POKEMON_WATCHDOG_STUCK_S overrides for live tuning.
+WATCHDOG_SEEN_CAP  = 64        # distinct keys retained; only grows under sustained PROGRESS, never a wedge
+
+
+class StuckWatch:
+    """LAYER B universal backstop. Feed it (fp, now, text) every live frame (throttled); it trips when
+    the world (menu-excluded) + on-screen text have sat in a small set of states for `stuck_s` seconds,
+    regardless of which sub-layer is wedged. The caller owns the response (mark + disengage at the
+    highest altitude). Pure/time-injected -> deterministically unit-testable headless."""
+
+    def __init__(self, stuck_s=WATCHDOG_STUCK_S, label="watchdog"):
+        self.stuck_s = stuck_s
+        self.label = label
+        self._seen = set()          # distinct keys seen since the last GENUINE advance
+        self._t0 = None             # wall-clock of the last genuine advance (clock origin)
+        self._tripped = False
+        self.reason = ""
+
+    @staticmethod
+    def _key(fp, text):
+        # menu_or_dialogue EXCLUDED (box toggle != progress); TEXT included (page-turn == progress).
+        if fp is None:
+            return None
+        return (fp.map_id, fp.x, fp.y, fp.facing, fp.battle_active,
+                fp.party, fp.badges, fp.money, fp.bag, text or "")
+
+    def feed(self, fp, now, text="", progressed=False):
+        """Record one sample at wall-clock `now`. Returns True once tripped. A None fp (unreadable),
+        an in-battle fp, or an explicit `progressed` flag RESET the watch (no judgement / not our
+        domain / a caller-known advance)."""
+        if fp is None or fp.battle_active or progressed:
+            self.reset()
+            return False
+        k = self._key(fp, text)
+        if self._t0 is None:
+            self._t0 = now
+        if k not in self._seen:                 # a NEW world/text state -> genuine advance -> restart
+            if len(self._seen) >= WATCHDOG_SEEN_CAP:   # sustained PROGRESS only ever reaches here
+                self._seen = set()
+            self._seen.add(k)
+            self._t0 = now
+            self._tripped = False
+            return False
+        # a REPEAT of a state already seen in this frozen window -> the clock keeps running
+        if (now - self._t0) >= self.stuck_s:
+            self._tripped = True
+            self.reason = "frozen_box" if fp.menu_or_dialogue else "frozen_world"
+        return self._tripped
+
+    def reset(self):
+        self._seen = set()
+        self._t0 = None
+        self._tripped = False
+        self.reason = ""
+
+    @property
+    def tripped(self):
+        return self._tripped
+
+    def seconds_stuck(self, now):
+        return 0.0 if self._t0 is None else max(0.0, now - self._t0)

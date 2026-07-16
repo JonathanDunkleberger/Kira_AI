@@ -522,6 +522,59 @@ textarea{resize:vertical;min-height:60px;font-family:var(--mono);font-size:12px}
       </div></div>
     </div>
 
+    <!-- POKEMON -->
+    <div class="panel" id="panel-pokemon">
+      <div class="phead" onclick="togglePanel('panel-pokemon')"><span class="ttl"><span class="glyph">🔴</span>Pokémon</span><span class="pstat" id="pokemon-pstat">off</span><span class="chev">▸</span></div>
+      <div class="pbody"><div class="inner">
+        <div class="statusline" id="pokemon-status">stopped</div>
+
+        <!-- SHERPA: the everyday 90% button — resume her real persistent campaign and climb -->
+        <div class="muted" style="margin:6px 0 2px">SHERPA — her real climb (states/campaign/)</div>
+        <div class="inline" style="margin-bottom:8px">
+          <button class="btn blue" id="btn-pokemon-sherpa" onclick="pokemonSherpa(this)" style="flex:1">⛰️ RESUME the climb</button>
+        </div>
+
+        <!-- SHOWTIME: stream-day timeline (canonical spine, states/kira/) -->
+        <div class="muted" style="margin:6px 0 2px">SHOWTIME — stream-day spine (states/kira/)</div>
+        <div class="inline" style="margin-bottom:8px">
+          <button class="btn sm" id="btn-pokemon-show-go" onclick="pokemonShowtime(this,true)" title="archive current + fresh run">⭐ GO (fresh)</button>
+          <button class="btn sm" id="btn-pokemon-show-resume" onclick="pokemonShowtime(this,false)">▶ Resume</button>
+          <button class="btn sm" id="btn-pokemon-stop" onclick="pokemonStop(this)">■ Stop</button>
+        </div>
+
+        <!-- Pokémon MODE: standalone perception switch, independent of how the bot/game was launched -->
+        <div class="inline" style="margin:8px 0">
+          <span class="muted" style="flex:1">Pokémon mode <span id="pokemon-mode-pill" class="pill">off</span><br>
+            <span class="muted" style="font-size:11px">vision→game · loopback off · ignores music</span></span>
+          <button class="btn sm" id="btn-pokemon-mode-on" onclick="pokemonMode(this,true)">ON</button>
+          <button class="btn sm" id="btn-pokemon-mode-off" onclick="pokemonMode(this,false)">OFF</button>
+        </div>
+
+        <!-- SAVE-SLOTS (console save-select) — two clearly-separate, labelled timelines so Jonny
+             always knows which is live and never blurs Sherpa vs Kira again. Fed by health().slots. -->
+        <div id="pokemon-slots" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+
+        <!-- HEALTH READOUT (for Jonny) — glance at hour 6 = "she's fine" or "wedged an hour" -->
+        <div class="statusline" style="margin-top:8px;border-top:1px solid #2a2a3a;padding-top:6px">
+          <span id="pokemon-health-light" class="pill">—</span>
+          <span id="pokemon-health-line" class="muted">health: (no run)</span>
+        </div>
+        <div class="muted" id="pokemon-health-detail" style="font-size:11px;line-height:1.5">—</div>
+        <!-- 3-TIER GOAL (Now/Next/Goal) — Jonny's SOURCE OF TRUTH: purposeful progress vs aimless
+             wandering at a glance (they look identical from outside otherwise). Survives detours. -->
+        <div id="pokemon-goals-wrap" style="margin-top:10px;border-top:1px solid #2a2a3a;padding-top:8px;display:none">
+          <span class="mlabel" style="display:block;margin-bottom:5px">current plan</span>
+          <div style="font-size:12px;line-height:1.7">
+            <div><b style="display:inline-block;width:42px;color:#3ad07a;font-weight:700">NOW</b><span id="pokemon-goal-now" style="color:#E8ECF2">—</span></div>
+            <div><b style="display:inline-block;width:42px;color:#e3c84a;font-weight:700">NEXT</b><span id="pokemon-goal-next" style="color:#cdd5e2">—</span></div>
+            <div><b style="display:inline-block;width:42px;color:#9BA8BC;font-weight:700">GOAL</b><span id="pokemon-goal-long" style="color:#9BA8BC">—</span></div>
+          </div>
+          <div id="pokemon-rationale" style="margin-top:8px;font-size:12px;font-style:italic;color:#7fd0ff;line-height:1.6">—</div>
+        </div>
+        <div class="muted" id="pokemon-meta" style="font-size:11px;margin-top:8px">PID —</div>
+      </div></div>
+    </div>
+
     <!-- STORYTIME -->
     <div class="panel" id="panel-storytime">
       <div class="phead" onclick="togglePanel('panel-storytime');storytimeRefresh()"><span class="ttl"><span class="glyph">📖</span>Storytime</span><span class="pstat" id="st-pstat">idle</span><span class="chev">▸</span></div>
@@ -675,6 +728,79 @@ async function cmd(action, body, btnEl){
 }
 function flashBtn(el,ok){ el.classList.remove('flash-ok','flash-err'); void el.offsetWidth;
   el.classList.add(ok?'flash-ok':'flash-err'); setTimeout(()=>el.classList.remove('flash-ok','flash-err'),600); }
+
+/* Pokémon: ONE-CLICK launchers (Sherpa / Showtime) + standalone mode toggle + cockpit health readout.
+   No terminal command needed — these spawn play_live.py against the right timeline save. */
+function _renderPokemon(pk){ pk=pk||{};
+  setText('pokemon-pstat', pk.running?'on':'off');
+  const tl = pk.timeline ? ` · ${pk.timeline}` : '';
+  setText('pokemon-status', pk.running ? `running${tl} · ${Math.round(pk.uptime_s||0)}s` : 'stopped');
+  setText('pokemon-meta', `PID ${pk.pid!=null?pk.pid:'—'}`); }
+async function pokemonRefresh(){ const r=await cmd('pokemon_status',null,null); if(r) _renderPokemon(r); }
+async function pokemonSherpa(btn){ setText('pokemon-status','launching SHERPA…'); await cmd('pokemon_sherpa',null,btn); setTimeout(pokemonRefresh,800); setTimeout(pokemonHealth,1500); }
+async function pokemonShowtime(btn,fresh){ setText('pokemon-status','launching SHOWTIME…'); await cmd(fresh?'pokemon_showtime_fresh':'pokemon_showtime',null,btn); setTimeout(pokemonRefresh,800); }
+async function pokemonStop(btn){ await cmd('pokemon_stop',null,btn); _renderPokemon({running:false}); setTimeout(pokemonRefresh,300); }
+async function pokemonMode(btn,on){ const r=await cmd(on?'pokemon_mode_on':'pokemon_mode_off',null,btn); if(r){ const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=on?'ON':'off'; } }
+const _HLIGHT={GREEN:'#3ad07a',YELLOW:'#e3c84a',RED:'#e0564a',ABANDONED:'#e0564a'};
+async function pokemonHealth(){ const r=await cmd('pokemon_health',null,null); if(r) _renderHealth(r); }
+function _fmtDur(s){ if(s==null) return '—'; s=Math.round(s); if(s<3600) return Math.max(1,Math.round(s/60))+'m'; return (s/3600).toFixed(1)+'h'; }
+/* SAVE-SLOTS (#2): render the two timelines as separate, labelled, console-style save-slots —
+   each shows badges / team / location / last-played / playtime; the active one is highlighted. */
+const _SLOT_META={showtime:{name:'SHOWTIME',sub:'the stream-day run (states/kira)',glyph:'⭐'},
+                  sherpa:{name:'SHERPA',sub:'her real climb (states/campaign)',glyph:'⛰️'}};
+function _renderSlots(h){
+  const wrap=document.getElementById('pokemon-slots'); if(!wrap) return;
+  const slots=h.slots||{}; const active=h.active_slot;
+  wrap.innerHTML=['showtime','sherpa'].map(tl=>{
+    const s=slots[tl]||{}, g=s.game, m=_SLOT_META[tl], isActive=(active===tl), live=!!s.running;
+    const badges=g?(g.badge_count||0):'—';
+    const place=g?(g.place||'?'):'no save yet';
+    const team=(g&&g.party&&g.party.length)?g.party.join(', '):'—';
+    const lastP=s.last_played_ts?(fmtAge((Date.now()/1000)-s.last_played_ts)+' ago'):'never';
+    const played=g?_fmtDur(g.playthrough_s!=null?g.playthrough_s:g.run_uptime_s):'—';
+    const border=live?'#3ad07a':(isActive?'#e3c84a':'#2a2a3a'), op=(isActive||live)?'1':'0.5';
+    const pill=live?'<span style="color:#3ad07a;font-weight:700">● LIVE</span>'
+                   :(isActive?'<span style="color:#e3c84a">active</span>':'<span class="muted">idle</span>');
+    return `<div style="border:1px solid ${border};border-radius:6px;padding:7px 9px;opacity:${op}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b style="font-size:12px">${m.glyph} ${m.name}</b>${pill}</div>
+      <div class="muted" style="font-size:10px;margin-bottom:3px">${m.sub}</div>
+      <div style="font-size:12px;color:#E8ECF2">${badges} badges · ${escHtml(String(place))}</div>
+      <div class="muted" style="font-size:11px">team: ${escHtml(String(team))}</div>
+      <div class="muted" style="font-size:10px;margin-top:2px">last played ${lastP} · played ${played}</div>
+    </div>`;
+  }).join('');
+}
+function _renderHealth(h){ h=h||{};
+  safe(()=>_renderSlots(h));
+  const g=h.game; const light=document.getElementById('pokemon-health-light');
+  const prog = g && g.progress ? g.progress : (h.running?'…':'—');
+  if(light){ light.textContent=prog; light.style.background=_HLIGHT[prog]||'#555'; light.style.color='#111'; }
+  const p=document.getElementById('pokemon-mode-pill'); if(p) p.textContent=h.pokemon_mode?'ON':'off';
+  const _gw=document.getElementById('pokemon-goals-wrap');
+  if(!h.running && !g){ setText('pokemon-health-line','health: (no run)'); setText('pokemon-health-detail','—'); if(_gw) _gw.style.display='none'; return; }
+  const spend = h.api_spend_usd!=null ? `$${h.api_spend_usd.toFixed(2)}` : '—';
+  setText('pokemon-health-line', g ? `${g.place||'?'} · ${g.badge_count||0} badges · dex ${g.dex_caught!=null?g.dex_caught:'—'} · API ${spend}` : `(running, no snapshot yet) · API ${spend}`);
+  if(g){
+    const party=(g.party||[]).join(', ')||'(none)';
+    const sinceBadge=g.since_last_badge_s!=null?fmtAge(g.since_last_badge_s):'no badge this run';
+    const ckpt=g.since_checkpoint_s!=null?fmtAge(g.since_checkpoint_s):'—';
+    const stale=h.health_age_s!=null&&h.health_age_s>30?` · ⚠ snapshot ${fmtAge(h.health_age_s)}`:'';
+    setText('pokemon-health-detail', `team: ${party} · last badge: ${sinceBadge} · checkpoint: ${ckpt} · uptime ${fmtAge(g.run_uptime_s)}${stale}`);
+    // 3-tier goal (Now/Next/Goal) — Jonny's source of truth. NOW prefers the standing objective she
+    // returns to after detours (active_objective) so a 25-min trainer gauntlet doesn't read as "lost".
+    const gl=g.goals||{};
+    const now = g.active_objective || gl.short || '';
+    const anyGoal = now||gl.medium||gl.long;
+    if(_gw) _gw.style.display = anyGoal ? '' : 'none';
+    setText('pokemon-goal-now', now || '—');
+    setText('pokemon-goal-next', gl.medium || '—');
+    setText('pokemon-goal-long', gl.long || '—');
+    // FIX 3 — live rationale ("why I'm doing this right now"): purposeful vs lost, at a glance.
+    const _rl=document.getElementById('pokemon-rationale');
+    if(_rl){ _rl.textContent = g.rationale ? ('“'+g.rationale+'”') : '—'; }
+  } else if(_gw){ _gw.style.display='none'; }
+}
 function safe(fn){ try{fn();}catch(e){console.warn('render error',e);} }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent = (val==null?'–':val); }
 function setCheck(id,val){ const el=document.getElementById(id); if(el && document.activeElement!==el) el.checked=!!val; }
@@ -786,21 +912,28 @@ function renderEyes(s){
   const age=s.vision_last_capture_age;
   const eff=s.effective||{}, perc=eff.perception||{};
   const forced=!!eff.vision_force_off;
+  // POKÉMON MODE: a game run is live → vision is intentionally window-locked/parked (she reads
+  // the game via RAM). A frozen Eyes panel here is EXPECTED, not broken — label it that way so
+  // Jonny isn't chasing a phantom bug (vision #3).
+  const pkmn=!!(s.pokemon && s.pokemon.running) || !!perc.pokemon_mode || !!s.pokemon_mode;
   // FROZEN = no fresh frame from EITHER the heartbeat OR the slideshow backfill.
   const frozen=(!forced && age!=null && age>=EYES_STALE_S);
-  // Summary — honest when frozen, don't present a stale scene as current.
-  setText('eyes-summary', frozen ? 'No live frame — vision is parked/dark right now.'
+  // Summary — honest when frozen; distinguish "parked on purpose (Pokémon)" from "dark/broken".
+  setText('eyes-summary', frozen ? (pkmn ? 'Vision parked — Pokémon mode (she reads the game via RAM, no eyes needed).'
+                                          : 'No live frame — vision is parked/dark right now.')
                                   : (s.vision_summary || 'Vision initializing…'));
   setText('eyes-age', age!=null ? `seen ${fmtAge(age)}` : '');
   // Thumbnail placeholder text (shown by pollThumb when not fresh).
   const ph=document.getElementById('vision-thumb-ph');
   if(ph) ph.textContent = forced ? 'vision forced OFF'
+                        : (frozen && pkmn) ? '⏸ parked — Pokémon mode (reads RAM)'
                         : frozen ? (perc.vision_parked ? `⏸ FROZEN — parked · ${fmtAge(age)}` : `⏸ FROZEN · ${fmtAge(age)}`)
                         : 'no signal';
   // Health lamp.
   const h=document.getElementById('eyes-health'), ht=document.getElementById('eyes-health-txt');
   let cls='', txt='off';
   if(forced){ txt='forced off'; }
+  else if(frozen && pkmn){ cls='live'; txt='parked · Pokémon (RAM)'; }   // expected, not a fault
   else if(frozen){ txt = perc.vision_parked ? `FROZEN — parked (${fmtAge(age)})` : `FROZEN (${fmtAge(age)})`; }
   else if(perc.vision_parked){ cls='live'; txt='live · slideshow'; }   // parked but slideshow backfilling fresh frames
   else if(perc.vision_on){ cls='live'; txt=perc.vision_cadence_s?`live · ${Math.round(perc.vision_cadence_s)}s`:'live'; }
@@ -884,6 +1017,8 @@ function renderPanels(s){
   const elo=document.getElementById('inp-chess-elo'); if(elo && document.activeElement!==elo && ch.kira_elo) elo.placeholder=String(ch.kira_elo);
   const spec=document.getElementById('chess-spectate');
   if(spec){ spec.innerHTML = ch.spectate_url ? `<a href="${escHtml(ch.spectate_url)}" target="_blank">▶ spectate</a>` : ''; }
+  // Pokémon
+  _renderPokemon(s.pokemon);
   // Voice
   document.querySelectorAll('#seg-tts button').forEach(b=>b.classList.toggle('active', b.dataset.tts===s.tts_backend));
   setText('voice-pstat', s.tts_backend||'azure');
@@ -1021,6 +1156,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   storytimeLibraryRefresh();
   storytimeRefresh();
   setInterval(()=>{ if(document.getElementById('panel-storytime').classList.contains('open')) storytimeRefresh(); }, 4000);
+  // Pokémon cockpit health: poll while the panel is open so a glance shows progress/wedge + API spend.
+  pokemonHealth();
+  setInterval(()=>{ if(document.getElementById('panel-pokemon').classList.contains('open')) pokemonHealth(); }, 5000);
 });
 </script>
 </body>

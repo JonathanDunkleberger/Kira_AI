@@ -1,0 +1,264 @@
+"""pokemon_soul.py - BATCH 2 SCAFFOLD: the hooks that let Kira's PERSONALITY flow into the Pokémon
+engine. This is POKÉMON-MODE PLUMBING, not core-Kira: every reaction routes OUT through the existing
+reaction seam (the `emit` callback == campaign.on_event == play_live's voice.emit), and the actual
+DECISIONS are SEAMS that Batch 2 fills from her soul. We NEVER touch _pokemon_react / _build_self_block
+/ voice / mood / bond / bridge.py - those are core-Kira, always-on, all-modes.
+
+The four levers (decision points are BEATS):
+  1. WANTS      - she holds wants (strategic + characterful), informed by game-knowledge, that surface
+                  in reactions + can bias choices. The wants EMERGE (Batch 2); here is the structure.
+  2. ROSTER-AS-FAMILY - teammates are family: she wants them, names them, fields them, holds opinions
+                  that persist. Here is the bond store + the relational reaction hooks.
+  3. MOVE-LEARN AS A BEAT - never auto-delete a good/super-effective move (SAFETY); make dropping a
+                  move a deliberate, reasoned moment, not a mash-through.
+  4. (felt stakes / strategic type-awareness ride on top of 1-3 + the existing battle engine.)
+
+This hour lays HOOKS + SAFETY. The rich personality + the live watch come when the soul is wired in.
+"""
+
+# ── GAME KNOWLEDGE: what she KNOWS is possible (the substrate her wants can draw on). NOT a script of
+# wants - a fact table her personality reads from. Extend freely. ──────────────────────────────────
+GAME_KNOWLEDGE = {
+    "eevee": "an Eevee lives in Celadon City - one teammate, eight possible futures",
+    "fossil": "Mt Moon hides a fossil - Dome (Kabuto) or Helix (Omanyte), but only ONE",
+    "starters": "Bulbasaur / Charmander / Squirtle - the choice that colors the whole run",
+    "rare": {"scyther", "pinsir", "kangaskhan", "lapras", "snorlax", "dratini", "eevee", "hitmonlee",
+             "hitmonchan", "porygon", "tauros", "chansey"},
+    "legendaries": {"articuno", "zapdos", "moltres", "mewtwo"},
+}
+
+# ── SELF-CANON (P-5, couch fix-pass 1, CEO 2026-07-08): identity facts OBSERVED across
+# independent sessions — not authored, EARNED. These are who she is; nothing may override
+# them. They surface as her own remembered taste (context), never as a forced pick — she
+# still chooses; canon is the memory she chooses WITH.
+SELF_CANON = {
+    "starter": ("fire has always called to you — you've picked CHARMANDER every single time "
+                "you've ever stood at this table (three lives running). You're the fire girl."),
+}
+
+# GIFT/BACKSTORY layer (game-knowledge, per-game): how an UNMET teammate came to her — so the
+# first-field introduction beat carries the real story, not a generic "someone appeared".
+# Keyed by lowercase species. Extend as gift mons enter the run.
+GIFT_BACKSTORY = {
+    "lapras": ("the LAPRAS a grateful Silph Co. employee gifted you during the Team Rocket raid — "
+               "it's been waiting in Bill's PC ever since, and you two have never actually met"),
+}
+
+# Status / utility moves whose VALUE isn't captured by raw power - protect them from a naive
+# "drop the lowest power" reserve (safety). Sleep/para/leech/sharp-stat moves earn their slot.
+HIGH_VALUE_LOW_POWER = {
+    79, 147, 95, 47, 142,        # Sleep Powder, Spore, Hypnosis, Sing, Lovely Kiss (sleep = catch+control)
+    73, 77, 78, 86,              # Leech Seed, PoisonPowder, StunSpore, ThunderWave
+    104, 97, 116, 14,            # Double Team, Agility, Focus Energy, Swords Dance
+}
+
+
+class PokemonSoul:
+    """Holds Kira's evolving Pokémon-self (wants + roster bonds) and turns game beats into reactions
+    through the `emit` seam. `emit(text, kind=, tier=)` is campaign.on_event (-> voice.emit). DECISION
+    hooks return a default (safe/simple) but are the seam Batch 2 routes through her actual reasoning."""
+
+    def __init__(self, emit=None, choose=None):
+        self.emit = emit or (lambda *a, **k: None)
+        self.choose = choose          # optional Batch-2 decision oracle: choose(kind, options, ctx)->pick
+        self.wants = []               # active wants (strings); EMERGE from her, not hardcoded here
+        self.bonds = {}               # nickname/species -> {species, nickname, caught, note} (family)
+
+    # ── CONTINUITY: persist the Pokémon-SELF (roster bonds + wants) across SHOW sessions ──────────
+    # The GAME state (roster/names/badges/location) is the savestate's job; THIS is the subjective
+    # layer — how she FEELS about each teammate + what she wants — so a new stream resumes with her
+    # relationships intact, not a blank slate. Scoped to the kira lineage by the caller (campaign).
+    def save(self, path):
+        """Write {bonds, wants} to `path` (JSON). Best-effort; never raises. Returns True on success."""
+        import json
+        import os
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"bonds": self.bonds, "wants": self.wants}, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            print(f"   [soul] continuity save failed: {e}", flush=True)
+            return False
+
+    def load(self, path):
+        """Restore {bonds, wants} written by save(). Missing/corrupt -> blank (fresh run). Returns
+        True iff continuity was loaded."""
+        import json
+        import os
+        if not os.path.exists(path):
+            return False
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data.get("bonds"), dict):
+                self.bonds = data["bonds"]
+            if isinstance(data.get("wants"), list):
+                self.wants = data["wants"]
+            print(f"   [soul] continuity loaded: {len(self.bonds)} roster bond(s), "
+                  f"{len(self.wants)} want(s)", flush=True)
+            return True
+        except Exception as e:
+            print(f"   [soul] continuity load failed: {e}", flush=True)
+            return False
+
+    # ── lever 1: WANTS ───────────────────────────────────────────────────────────────────────────
+    def surface_want(self, context):
+        """A beat where a want could surface (entering a town, seeing a rare foe, a roster gap). The
+        WANT itself is hers (Batch 2 via self.choose); here we only carry the game-knowledge + emit.
+        Capability-not-script: we never hardcode 'she wants Eevee' - we give her the knowledge + a
+        moment, and let the soul decide if/what she wants.
+        F-8 WANT GROUNDING (QW-4 finding: she wanted 'Lapras from Silph Co' WHILE LAPRAS WAS IN HER
+        PARTY): the roster rides the ctx but the ask never said 'don't wish for what you have' — so
+        fold an explicit grounding line into the `place` seam (the field her oracle prompt is
+        guaranteed to render), and LOUD-flag any pick that still names a current teammate (the
+        descent grade counts these; her words are kept — grounding informs, never scripts)."""
+        if self.choose:
+            ctx = dict(context or {})
+            party = str(ctx.get("party") or "")
+            if party:
+                ctx["place"] = (f"{ctx.get('place', '')}. ALREADY BESIDE YOU — your current team: "
+                                f"{party}. A want is something you DON'T yet have; never wish for a "
+                                f"teammate who's already on your team.")
+            want = self.choose("want", GAME_KNOWLEDGE, ctx)
+            if want:
+                import re
+                named = [w for w in set(re.findall(r"[a-z]{4,}", party.lower()))
+                         if w in want.lower()]
+                if named:
+                    print(f"   [soul] !! UNGROUNDED WANT (F-8): {want!r} names {sorted(named)} "
+                          f"already on the team — the grounded ask didn't take (flagged for the "
+                          f"descent grade; her words kept)", flush=True)
+                self.wants.append(want)
+                self.emit(want, kind="want", tier=2)
+
+    # ── lever 2: ROSTER AS FAMILY ────────────────────────────────────────────────────────────────
+    # MEMORY-MAGIC (2026-07-08): a bond is not a stat line — it ACCRETES a felt history. Each bond
+    # carries `history`: a short, capped list of the moments that made this teammate hers (joined
+    # here, fell fighting there, evolved, clutched a fight). The roster-as-relationship the core
+    # speaks in chat draws on THIS, so she remembers each Pokémon as a companion with a story, not
+    # a species string. Kept small (last N) so it stays vivid, not a log.
+    _HISTORY_CAP = 5
+
+    def _bond_history_add(self, key_or_species, moment):
+        """Append a felt moment to the matching bond's history (by nickname-key OR species). Best-
+        effort, capped, dedup-adjacent. No-op if the bond isn't found (a moment with no home is not
+        invented onto a random teammate)."""
+        moment = (moment or "").strip()
+        if not moment:
+            return
+        low = (key_or_species or "").lower()
+        bnd = self.bonds.get(low)
+        if bnd is None:
+            for _k, v in (self.bonds or {}).items():
+                if isinstance(v, dict) and (v.get("species") or "").lower() == low:
+                    bnd = v
+                    break
+        if not isinstance(bnd, dict):
+            return
+        hist = bnd.setdefault("history", [])
+        if hist and hist[-1] == moment:
+            return
+        hist.append(moment)
+        del hist[:-self._HISTORY_CAP]
+
+    def note_caught(self, species, nickname, where=None):
+        """A new teammate joins the family - record the bond + a relational reaction (not a stat line)."""
+        key = (nickname or species or "").lower()
+        _origin = f"I caught them {where}" if where else "I caught them out in the wild"
+        self.bonds[key] = {"species": species, "nickname": nickname, "caught": where,
+                           "note": _origin, "history": [_origin]}
+        who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
+        self.emit(f"{who} is part of the team now" + (f" - caught {where}" if where else ""),
+                  kind="roster", tier=2)
+
+    def note_met(self, species, nickname, how=None):
+        """PHASE C-2 (the Lapras first-field moment, generalized): a teammate who arrived WITHOUT a
+        witnessed catch (a gift, a trade, a PC withdrawal, Jonny's hands) gets a real INTRODUCTION —
+        met, named, recorded as family — never silently deployed. `how` is the backstory line
+        (GIFT_BACKSTORY) when we know it."""
+        key = (nickname or species or "").lower()
+        _origin = how or "joined me later (not a wild catch — we met along the way)"
+        self.bonds[key] = {"species": species, "nickname": nickname,
+                           "caught": None, "note": _origin, "history": [_origin]}
+        who = nickname if (nickname and nickname.lower() != (species or "").lower()) else species
+        self.emit(f"so {who} is officially one of us now — welcome aboard, {who}.",
+                  kind="roster", tier=3)
+
+    def note_name_reason(self, key_or_species, nickname, reason):
+        """THE ENDEARING HALF (soul-debt #3): when she NAMES a teammate, record WHY in her own words —
+        the naming reason is the heart of roster-as-relationship. Folds into the bond's history so
+        chat-Kira can say 'I named her X because…' hours later. Best-effort; skipped if no reason."""
+        if reason and reason.strip():
+            self._bond_history_add(key_or_species,
+                                   f"I named {nickname or 'them'} {nickname or ''} — {reason.strip()}".replace("  ", " "))
+
+    def note_faint(self, who):
+        """A teammate goes down - a felt beat for family, not a neutral 'fainted'. Accretes the moment
+        onto that teammate's history so a loss is REMEMBERED, not just voiced once."""
+        self._bond_history_add(who, "fought hard and fell for me in battle")
+        self.emit(f"{who} is down - I've got you, take a rest", kind="roster", tier=2)
+
+    def note_clutch(self, who, where=None):
+        """A teammate pulled out a win at the wire — the kind of moment that DEFINES a bond. Accreted
+        so she remembers 'X saved the day' as part of who they are to her."""
+        self._bond_history_add(who, f"clutched a fight for me{(' at ' + where) if where else ''} — "
+                                    f"pulled it out at the wire")
+
+    def note_evolve(self, before, after, who=None):
+        # THE BOND FOLLOWS THE EVOLUTION (2026-07-06): meowth→persian must not orphan the family
+        # entry — same friend, new form. Any bond whose species matches `before` updates in place
+        # (nickname/key preserved; the relationship accretes, never resets).
+        for _k, bnd in list((self.bonds or {}).items()):
+            if isinstance(bnd, dict) and (bnd.get("species") or "").lower() == (before or "").lower():
+                bnd["species"] = after
+                bnd["note"] = f"evolved from {before}"
+                _h = bnd.setdefault("history", [])
+                _moment = f"evolved from {before} into {after} right in front of me"
+                if not _h or _h[-1] != _moment:
+                    _h.append(_moment)
+                    del _h[:-self._HISTORY_CAP]
+        self.emit(f"{who or before} evolved into {after}", kind="evolve", tier=3)
+
+    def note_outcome(self, won, what=None):
+        """Battle->mood SIGNAL (the inverse loop): a win lifts her, a blackout sours her. Mood itself
+        lives in core-Kira and we NEVER set it — we only EMIT a tagged hint (kind=mood_up/mood_down)
+        through the same seam, which the bot MAY let color her mood. Wiring + signal only; the mood
+        math is core's, not ours (firewall)."""
+        if won:
+            self.emit(f"that felt good — {what}" if what else "that went well", kind="mood_up", tier=1)
+        else:
+            self.emit(f"that one stung — {what}" if what else "we went down", kind="mood_down", tier=1)
+
+    def roster_opinion(self, who):
+        return self.bonds.get((who or "").lower())
+
+    # ── lever 3: MOVE-LEARN AS A BEAT (with SAFETY) ──────────────────────────────────────────────
+    def move_drop_decision(self, moves_info, n):
+        """Choose which `n` of the lead's current moves to DROP (so new ones auto-learn), as a
+        deliberate beat. moves_info: list of (slot, move_id, name, power). SAFETY: never drop the
+        single highest-power move, and never drop a HIGH_VALUE_LOW_POWER status move while plain
+        filler exists. Returns (drop_slots, reasons). The choice is a SEAM (Batch 2 via self.choose);
+        the default is the safe heuristic."""
+        real = [m for m in moves_info if m[1]]
+        if len(real) - n < 1:
+            n = max(0, len(real) - 1)                              # always keep >= 1 move
+        # rank DROP-ability: high-value status moves are least droppable; then by power ascending
+        def droppability(m):
+            slot, mid, name, power = m
+            protected = 1 if mid in HIGH_VALUE_LOW_POWER else 0
+            return (protected, power)                              # low protected + low power = drop first
+        order = sorted(real, key=droppability)
+        # never drop the single best attacker (highest power)
+        best = max(real, key=lambda m: m[3]) if real else None
+        droppable = [m for m in order if m is not best]
+        if self.choose:
+            picked = self.choose("move_drop", droppable, {"n": n, "all": real})
+            if picked:
+                droppable = picked
+        drop = droppable[:n]
+        reasons = []
+        for slot, mid, name, power in drop:
+            reasons.append(f"I never really use {name} - dropping it to make room")
+            self.emit(f"I never really use {name} - I'll drop it for the new move", kind="move", tier=2)
+        return [m[0] for m in drop], reasons

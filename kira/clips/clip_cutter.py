@@ -19,7 +19,9 @@ Pipeline
    re-encode if the copy is keyframe-misaligned (wrong duration) or fails.
 5. Title every clip in Kira's voice with a single batched LLM call; write a
    sidecar ``NN_title.txt`` next to each ``.mp4``.
-6. Write ``clips_report.md`` in the day folder and print a console summary.
+6. Package four labeled outputs (clips-by-type, best-of reel, highlight VOD,
+   and the top-N as true 9:16 vertical shorts with burned-in captions).
+7. Write ``clips_report.md`` in the day folder and print a console summary.
 
 The CLI wrapper is ``scripts/cut_clips.py``. This module is import-safe so a
 future phase-2 shutdown auto-trigger can call :func:`cut_session` directly.
@@ -50,6 +52,10 @@ from kira.config import (
     CLIP_MAX_EXCHANGE_S,
     CLIP_MIN_SECONDS,
     CLIP_REEL_MAX_SECONDS,
+    CLIP_HIGHLIGHT_FRACTION,
+    CLIP_HIGHLIGHT_MAX_SECONDS,
+    CLIP_SHORTS_COUNT,
+    CLIP_SHORT_MAX_SECONDS,
     CLIP_TEASER_COUNT,
     CLIP_TEASER_SECONDS,
     CLIP_VIDEO_EXTS,
@@ -57,6 +63,22 @@ from kira.config import (
     WHISPER_CACHE_DIR,
     WHISPER_MODEL_SIZE,
 )
+
+_builtin_print = print
+
+
+def print(*args, **kwargs):  # noqa: A001 — deliberate module-local shadow
+    """Console-safe print: this module's loud-logs use arrows/ellipses, which
+    crash with UnicodeEncodeError when stdout is a cp1252 pipe (scheduled or
+    piped runs — the Phase-K auto-watch path). A loud-log must never kill the
+    pipeline it is narrating; degrade to replacement chars instead."""
+    try:
+        _builtin_print(*args, **kwargs)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or "ascii"
+        _builtin_print(*(str(a).encode(enc, "replace").decode(enc) for a in args),
+                       **kwargs)
+
 
 # Minimum output clip length (seconds) — env-tunable via CLIP_MIN_SECONDS. Floor
 # protects against unusable stubs; drop it for short-form one-liners. In asymmetric
@@ -311,6 +333,71 @@ def load_event_index(date_str: str, base_dir: str = "logs/streams",
     return events, earliest_start
 
 
+def load_beat_epochs(date_str: str, base_dir: str = "logs/streams",
+                     activity: str | None = None, last_only: bool = False,
+                     beat_types: tuple = ("highlight_captured", "kira_moment"),
+                     ) -> list[float]:
+    """Epochs of live-captured KIRA-MOMENT beats from events.jsonl (Phase K
+    item 2, selection half). ``highlight_captured`` is logged today by the live
+    highlight loop; ``kira_moment`` is reserved for the bot-side tiered
+    soul/reaction beats (the other half of item 2) — the cutter consumes both
+    with zero further changes. Same session-dir scoping as load_event_index.
+    """
+    pattern = os.path.join(base_dir, f"{date_str}_*")
+    all_dirs = sorted(glob.glob(pattern))
+    if last_only and activity:
+        matching = [d for d in all_dirs
+                    if os.path.basename(d).endswith(f"_{activity}")]
+        if matching:
+            all_dirs = [matching[-1]]
+    epochs: list[float] = []
+    for sess_dir in all_dirs:
+        ev_path = os.path.join(sess_dir, "events.jsonl")
+        if not os.path.isfile(ev_path):
+            continue
+        with open(ev_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if obj.get("type") not in beat_types or not obj.get("ts"):
+                    continue
+                try:
+                    epochs.append(_parse_iso_utc(obj["ts"]))
+                except Exception:
+                    continue
+    return sorted(epochs)
+
+
+def apply_kira_moment_boost(candidates: list[Candidate], beat_epochs: list[float],
+                            window_s: float = 15.0, boost: int = 2) -> int:
+    """Blend live-captured kira-moment beats into candidate scoring (Phase K
+    item 2): a candidate whose anchored window overlaps a beat outranks
+    transcript-only scoring — "she named the rat and declared war" beats
+    "boss died". Score is capped at 10; every boost logs. Returns boost count.
+    """
+    if not beat_epochs:
+        return 0
+    boosted = 0
+    for c in candidates:
+        if c.anchor_start_epoch is None:
+            continue
+        lo = c.anchor_start_epoch - window_s
+        hi = (c.anchor_end_epoch or c.anchor_start_epoch) + window_s
+        if any(lo <= b <= hi for b in beat_epochs):
+            old = c.score
+            c.score = min(10, (c.score or 0) + boost)
+            if c.score != old:
+                boosted += 1
+                print(f"   [KiraMoment] clip {c.index} '{c.title[:40]}' overlaps "
+                      f"a live-captured beat → score {old}→{c.score}")
+    return boosted
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Align candidates → wall-clock anchors
 # ─────────────────────────────────────────────────────────────────────────────
@@ -551,21 +638,21 @@ def map_to_recording(cand: Candidate, recordings: list[Recording],
 
     cand.recording_path = rec.path
     cand.clip_start_offset = clip_start
-    # Enforce minimum clip length so tight cuts don't produce unusable stubs. In
-    # asymmetric mode, grow the FRONT (earlier in-point) — never the tail — so the hard
-    # out-cut on the punch is preserved; only spill onto the tail if we hit t=0. Fixed
-    # mode keeps the legacy behavior (grow the tail).
+    # Enforce minimum clip length so tight cuts don't produce unusable stubs.
+    # D1 FINISH (2026-07-07, Phase K recon): the wall-clock anchor is Kira's line logged at
+    # END-of-utterance, so tail growth is DEAD AIR in every mode — the .env CLIP_POST fix
+    # taught this, but the fixed-window fallback here still grew the tail, re-introducing
+    # the padded-silence ending on exactly the clips whose setup→punch didn't resolve.
+    # Now BOTH modes grow the FRONT (more setup context) and only spill onto the tail
+    # when the in-point hits t=0.
     actual_dur = clip_end - clip_start
     if actual_dur < _MIN_CLIP_SECONDS:
         shortfall = _MIN_CLIP_SECONDS - actual_dur
-        if cand.anchor_mode == "asymmetric":
-            grow_front = min(shortfall, clip_start)
-            clip_start -= grow_front
-            cand.clip_start_offset = clip_start
-            shortfall -= grow_front
-            if shortfall > 0:
-                clip_end = min(rec.duration, clip_end + shortfall)
-        else:
+        grow_front = min(shortfall, clip_start)
+        clip_start -= grow_front
+        cand.clip_start_offset = clip_start
+        shortfall -= grow_front
+        if shortfall > 0:
             clip_end = min(rec.duration, clip_end + shortfall)
     cand.clip_duration = clip_end - clip_start
 
@@ -724,6 +811,7 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
                 ),
                 timeout=60.0,
             )
+            _track_llm_usage(resp, "clip_titles")
             response = resp.content[0].text
             break
         except Exception as e:
@@ -759,6 +847,37 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
             c.final_title = c.suggested_title or c.title
         if not c.clip_type:
             c.clip_type = "funny"  # safe default label when unclassified
+
+
+# ── Phase K item 4 (2026-07-07): per-VOD LLM cost instrumentation ────────────────────────────
+# The pipeline's raw Anthropic calls bypassed cost_tracker entirely — "what did this VOD cost
+# to process" was unknowable. Every response now funnels through _track_llm_usage: recorded in
+# the session-wide cost_tracker (dollar math lives there) AND tallied locally so the run report
+# can print one honest line. Best-effort — instrumentation must never break a cut. (Inline per
+# the Phase-J forward reference; reconcile when Phase J lands.)
+_RUN_LLM = {"calls": 0, "in": 0, "out": 0}
+
+
+def _track_llm_usage(resp, purpose: str) -> None:
+    try:
+        u = getattr(resp, "usage", None)
+        tin = int(getattr(u, "input_tokens", 0) or 0)
+        tout = int(getattr(u, "output_tokens", 0) or 0)
+        _RUN_LLM["calls"] += 1
+        _RUN_LLM["in"] += tin
+        _RUN_LLM["out"] += tout
+        from kira.brain.cost_tracker import cost_tracker
+        cost_tracker.record(getattr(resp, "model", "") or CLAUDE_HAIKU_MODEL, tin, tout,
+                            purpose=purpose)
+    except Exception as e:
+        print(f"   [Cost] clip-pipeline usage record skipped ({purpose}): {e}")
+
+
+def run_cost_line() -> str:
+    """One report line: what this VOD's processing cost in LLM traffic (Phase K item 4)."""
+    return (f"LLM cost this run: {_RUN_LLM['calls']} call(s), "
+            f"{_RUN_LLM['in']} in / {_RUN_LLM['out']} out tokens "
+            f"(recorded to cost_tracker; dollars in the session cost log)")
 
 
 def write_title_sidecar(cand: Candidate) -> None:
@@ -1107,6 +1226,7 @@ async def generate_reel_title(candidates: list[Candidate], activity: str) -> tup
             ),
             timeout=30.0,
         )
+        _track_llm_usage(resp, "reel_title")
         raw = resp.content[0].text
         m = re.search(r"\{.*\}", raw, re.DOTALL)
         if m:
@@ -1241,10 +1361,11 @@ def cut_reel(
 #   01_clips_by_type/   — every cut clip, filename-tagged with its type
 #   02_reel_best_of/    — top-by-score concatenated, capped at CLIP_REEL_MAX_SECONDS
 #   03_highlight_vod/   — cold-open teaser (0.5s punch snippets) + chronological body
-#   04_short_candidate/ — the single highest-scored clip, labeled
-# All outputs are landscape 16:9 (cut straight from the source recording, no reframe —
-# Jonny does vertical reframing in Premiere). Selection is the current score order;
-# Phase 5 upgrades selection quality. This phase is output structure + labeling only.
+#   04_shorts/          — top-N clips rendered 9:16 1080x1920, captions burned in
+# 01-03 are landscape 16:9 (cut straight from the source recording, no reframe);
+# 04_shorts are true vertical renders (Phase K item 1 — section 9b below), no
+# Premiere pass needed. Selection is the current score order; the kira-moment
+# selection layer (Phase K item 2) upgrades selection quality.
 
 def _venc_args(nvenc_ok: bool) -> list[str]:
     return (["-c:v", "h264_nvenc", "-preset", "p5", "-cq", "23"] if nvenc_ok
@@ -1300,10 +1421,234 @@ def _clip_tail_seconds(cand: Candidate) -> float:
     return CLIP_PUNCH_TAIL_S if cand.anchor_mode == "asymmetric" else CLIP_POST_SECONDS
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 9b. Phase K item 1 — vertical shorts (9:16 1080x1920, burned-in captions)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# The top-N scored clips rendered true-vertical: blur-pad reframe (the full
+# landscape frame centered over a blurred zoom-fill — nothing cropped away) +
+# word-timed captions burned in from an .ass sidecar (kept next to the .mp4 so
+# a caption can be hand-tweaked and re-burned). Captions come from faster-whisper
+# (CPU int8 — same no-CUDA doctrine as VOD alignment) run on each short's OWN
+# audio window, so timings are clip-relative and exact. A caption failure
+# degrades LOUDLY to an uncaptioned render: the short still ships, the sidecar
+# and console say captions failed — never a silent quality drop.
+
+_ASS_HEADER = """[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Kira,Arial,72,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,60,60,430,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+
+
+def _ass_ts(t: float) -> str:
+    """Seconds → ASS timestamp H:MM:SS.cc."""
+    cs = max(0, int(round(t * 100)))
+    h, rem = divmod(cs, 360000)
+    m, rem = divmod(rem, 6000)
+    s, c = divmod(rem, 100)
+    return f"{h}:{m:02d}:{s:02d}.{c:02d}"
+
+
+def _caption_chunks(words: list[dict], max_words: int = 4,
+                    gap_break: float = 0.6) -> list[dict]:
+    """Group whisper word timings into short caption events {start, end, text}.
+
+    Breaks on: chunk full (max_words), a speech gap >= gap_break, or sentence-
+    ending punctuation — the modern shorts cadence (a few words at a time),
+    never a paragraph across the screen.
+    """
+    chunks: list[list[dict]] = []
+    cur: list[dict] = []
+    for w in words:
+        if cur and (len(cur) >= max_words
+                    or w["start"] - cur[-1]["end"] >= gap_break
+                    or cur[-1]["word"].rstrip().endswith((".", "?", "!"))):
+            chunks.append(cur)
+            cur = []
+        cur.append(w)
+    if cur:
+        chunks.append(cur)
+    events = []
+    for ch in chunks:
+        text = " ".join(w["word"].strip() for w in ch).strip()
+        if not text:
+            continue
+        events.append({
+            "start": ch[0]["start"],
+            "end": max(ch[-1]["end"], ch[0]["start"] + 0.35),   # min hold 0.35s
+            "text": text,
+        })
+    # A caption never lingers into the next one.
+    for a, b in zip(events, events[1:]):
+        if b["start"] - 0.01 > a["start"]:
+            a["end"] = min(a["end"], b["start"] - 0.01)
+    return events
+
+
+def _short_captions(wav_path: str, model) -> list[dict]:
+    """Transcribe a short's audio with word timestamps → caption events.
+
+    Falls back to segment-level events if word timings are unavailable.
+    """
+    segs, _ = model.transcribe(wav_path, language="en", beam_size=5,
+                               word_timestamps=True)
+    words: list[dict] = []
+    seg_fallback: list[dict] = []
+    for s in segs:
+        txt = s.text.strip()
+        if txt:
+            seg_fallback.append({"start": s.start, "end": s.end, "text": txt})
+        for w in (s.words or []):
+            words.append({"start": w.start, "end": w.end, "word": w.word})
+    if words:
+        return _caption_chunks(words)
+    return seg_fallback
+
+
+def _write_ass(events: list[dict], ass_path: str) -> None:
+    lines = [_ASS_HEADER.rstrip("\n")]
+    for e in events:
+        text = (e["text"].replace("\\", "").replace("{", "(")
+                .replace("}", ")").replace("\n", " "))
+        lines.append(f"Dialogue: 0,{_ass_ts(e['start'])},{_ass_ts(e['end'])},"
+                     f"Kira,,0,0,0,,{text}")
+    with open(ass_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+def _ass_filter_path(p: str) -> str:
+    """Escape a Windows path for use inside an ffmpeg filtergraph option."""
+    return p.replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
+
+
+def _render_vertical(src: str, ss: float, dur: float, ass_path: str | None,
+                     out_path: str, nvenc_ok: bool) -> bool:
+    """Render src[ss:ss+dur] as a 1080x1920 blur-pad vertical, burning ass_path
+    captions if given. Returns success (failure logs the ffmpeg stderr)."""
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    vf = ("[0:v]scale=1080:1920:force_original_aspect_ratio=increase,"
+          "crop=1080:1920,boxblur=20:2[bg];"
+          "[0:v]scale=1080:-2[fg];"
+          "[bg][fg]overlay=(W-w)/2:(H-h)/2")
+    if ass_path:
+        vf += f",ass='{_ass_filter_path(ass_path)}'"
+    vf += "[v]"
+    cmd = [
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+        "-ss", f"{max(0.0, ss):.3f}", "-i", src, "-t", f"{dur:.3f}",
+        "-filter_complex", vf, "-map", "[v]", "-map", "0:a?",
+        *_venc_args(nvenc_ok), "-c:a", "aac", "-b:a", "160k",
+        "-movflags", "+faststart", out_path,
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    ok = (r.returncode == 0 and os.path.isfile(out_path)
+          and os.path.getsize(out_path) > 0)
+    if not ok:
+        print(f"   [Shorts] render FAILED for {os.path.basename(out_path)}: "
+              f"{r.stderr.strip()[:300]}")
+    return ok
+
+
+def build_vertical_shorts(by_score: list[Candidate], dir_short: str, slug: str,
+                          nvenc_ok: bool) -> list[dict]:
+    """Render the top-N cut clips as 9:16 captioned shorts. Returns one dict per
+    rendered short (best-first): {path, ass, source_index, rank, duration_s,
+    captions}. Reads the already-cut clip files (c.out_path)."""
+    picks = by_score[:max(0, CLIP_SHORTS_COUNT)]
+    if not picks:
+        return []
+    os.makedirs(dir_short, exist_ok=True)
+
+    # Load whisper ONCE for all shorts (CPU int8; CUDA deliberately skipped —
+    # the bot may hold the GPU and a CUDA fatal kills the process uncatchably).
+    model = None
+    try:
+        from faster_whisper import WhisperModel
+        print(f"   [Shorts] Loading Whisper ({WHISPER_MODEL_SIZE}, CPU/int8) "
+              f"for captions…")
+        model = WhisperModel(WHISPER_MODEL_SIZE, download_root=WHISPER_CACHE_DIR,
+                             device="cpu", compute_type="int8")
+    except Exception as e:
+        print(f"   [Shorts] WARNING: WHISPER UNAVAILABLE ({e}) -- shorts will "
+              f"render WITHOUT captions.")
+
+    import tempfile
+    rendered: list[dict] = []
+    for rank, c in enumerate(picks, 1):
+        cdur = c.clip_duration or _probe_duration(c.out_path)
+        # Over-length clip → keep the punch: take the LAST max-window (the punch
+        # sits ~tail seconds from the end; the front is expendable setup).
+        ss = max(0.0, cdur - CLIP_SHORT_MAX_SECONDS)
+        dur = min(cdur, CLIP_SHORT_MAX_SECONDS)
+        sp = os.path.join(dir_short,
+                          f"SHORT_{rank:02d}_{slug}_{_slugify(c.title)}.mp4")
+
+        ass_path = None
+        cap_note = "captions OFF (whisper unavailable)"
+        if model is not None:
+            wav = None
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+                    wav = f.name
+                _extract_audio_wav(c.out_path, ss, dur, wav)
+                events = _short_captions(wav, model)
+                if events:
+                    ass_path = os.path.splitext(sp)[0] + ".ass"
+                    _write_ass(events, ass_path)
+                    cap_note = f"{len(events)} caption events"
+                else:
+                    cap_note = "captions EMPTY (no speech found)"
+                    print(f"   [Shorts] WARNING: no speech found in short {rank} "
+                          f"-- uncaptioned render.")
+            except Exception as e:
+                ass_path = None
+                cap_note = f"captions FAILED ({e})"
+                print(f"   [Shorts] WARNING: caption pass FAILED for short "
+                      f"{rank}: {e} -- uncaptioned render.")
+            finally:
+                if wav:
+                    try:
+                        os.unlink(wav)
+                    except Exception:
+                        pass
+
+        if not _render_vertical(c.out_path, ss, dur, ass_path, sp, nvenc_ok):
+            continue
+        rendered.append({"path": sp, "ass": ass_path, "source_index": c.index,
+                         "rank": rank, "duration_s": round(dur, 1),
+                         "captions": cap_note})
+
+        side = os.path.splitext(sp)[0] + "_title.txt"
+        tags = " ".join(f"#{h}" for h in c.hashtags) if c.hashtags else ""
+        with open(side, "w", encoding="utf-8") as f:
+            f.write("\n".join([
+                c.final_title or c.title, "",
+                f"[type: {c.clip_type or '?'}  score: {c.score}/10  "
+                f"duration: {dur:.0f}s  9:16 1080x1920  {cap_note}]", "",
+                c.description or c.why,
+            ] + ([tags] if tags else [])) + "\n")
+        print(f"   [Phase4] (d) short {rank}/{len(picks)} → {dur:.0f}s "
+              f"(score {c.score}/10, {cap_note}) → {sp}")
+    return rendered
+
+
 def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: str,
-                         activity: str, nvenc_ok: bool) -> dict:
+                         activity: str, nvenc_ok: bool,
+                         session_span_s: float = 0.0) -> dict:
     """Organize already-cut clips into the four labeled outputs. Returns a summary
-    dict {clips_dir, reel_path, highlight_path, short_path, report}."""
+    dict {clips_dir, reel_path, highlight_path, short_path, short_paths, report,
+    manifest}. session_span_s (events first→last) drives highlight scaling; 0
+    disables scaling beyond the max cap."""
     cut = [c for c in candidates if c.status == "cut" and c.out_path and os.path.isfile(c.out_path)]
     if not cut:
         print("   [Phase4] No cut clips to package.")
@@ -1315,7 +1660,7 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
     dir_clips = os.path.join(day_dir, "01_clips_by_type")
     dir_reel = os.path.join(day_dir, "02_reel_best_of")
     dir_high = os.path.join(day_dir, "03_highlight_vod")
-    dir_short = os.path.join(day_dir, "04_short_candidate")
+    dir_short = os.path.join(day_dir, "04_shorts")
     for d in (dir_clips, dir_reel, dir_high, dir_short):
         os.makedirs(d, exist_ok=True)
 
@@ -1354,7 +1699,10 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
             print(f"   [Phase4] (b) best-of reel → {len(picked_chrono)} clips, "
                   f"{_probe_duration(rp):.0f}s → {rp}")
 
-    # ── (c) highlight VOD: cold-open teaser + chronological body ──
+    # ── (c) highlight VOD: cold-open teaser + chronological body, scaled to the
+    #        session (Phase K length targets): body targets CLIP_HIGHLIGHT_FRACTION
+    #        x session span (clamped to CLIP_HIGHLIGHT_MAX_SECONDS); lowest-score
+    #        clips are dropped LOUDLY until it fits — never a silent cap. ──
     highlight_path = None
     teaser_paths = []
     teaser_dir = os.path.join(dir_high, "_teasers")
@@ -1365,7 +1713,22 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
         tp = os.path.join(teaser_dir, f"teaser_{i:02d}.mp4")
         if _cut_segment(c.out_path, t_start, CLIP_TEASER_SECONDS, tp, nvenc_ok):
             teaser_paths.append(tp)
-    body = [c.out_path for c in by_time]
+    target = CLIP_HIGHLIGHT_MAX_SECONDS
+    if session_span_s > 0 and CLIP_HIGHLIGHT_FRACTION > 0:
+        target = min(CLIP_HIGHLIGHT_MAX_SECONDS,
+                     max(60.0, session_span_s * CLIP_HIGHLIGHT_FRACTION))
+    body_clips = list(by_time)
+    body_total = sum(c.clip_duration or 0.0 for c in body_clips)
+    if body_total > target:
+        for victim in sorted(body_clips, key=lambda c: (c.score, c.match_confidence)):
+            if body_total <= target:
+                break
+            body_clips.remove(victim)
+            body_total -= victim.clip_duration or 0.0
+        print(f"   [Phase4] highlight scaled to {target:.0f}s target "
+              f"({len(by_time) - len(body_clips)} lowest-score clip(s) dropped, "
+              f"{body_total:.0f}s body kept)")
+    body = [c.out_path for c in body_clips]
     hp = os.path.join(dir_high, f"HIGHLIGHT_{slug}.mp4")
     if _concat_reencode(teaser_paths + body, hp, nvenc_ok):
         highlight_path = hp
@@ -1382,41 +1745,26 @@ def build_phase4_outputs(candidates: list[Candidate], day_dir: str, date_str: st
     except Exception:
         pass
 
-    # ── (d) short candidate: the single best clip, copied + labeled ──
-    short_path = None
-    if by_score:
-        best = by_score[0]
-        sp = os.path.join(dir_short, f"SHORT_{slug}_{_slugify(best.title)}.mp4")
-        try:
-            shutil.copy(best.out_path, sp)
-            short_path = sp
-            side = os.path.splitext(sp)[0] + "_title.txt"
-            tags = " ".join(f"#{h}" for h in best.hashtags) if best.hashtags else ""
-            with open(side, "w", encoding="utf-8") as f:
-                f.write("\n".join([
-                    best.final_title or best.title, "",
-                    f"[type: {best.clip_type}  score: {best.score}/10  "
-                    f"duration: {best.clip_duration:.0f}s  landscape 16:9]", "",
-                    best.description or best.why,
-                ] + ([tags] if tags else [])) + "\n")
-            print(f"   [Phase4] (d) short candidate → {best.clip_duration:.0f}s "
-                  f"(score {best.score}/10) → {sp}")
-            if best.clip_duration and best.clip_duration < 30.0:
-                print(f"   [Phase4] NOTE: best clip is {best.clip_duration:.0f}s (< 30s target). "
-                      f"No padding added (would re-introduce dead air). Lower CLIP_MIN_SECONDS or "
-                      f"pick a longer moment if you want a fuller short.")
-        except Exception as e:
-            print(f"   [Phase4] short candidate failed: {e}")
+    # ── (d) vertical shorts: top-N, 9:16, captions burned in (Phase K item 1) ──
+    shorts_meta = build_vertical_shorts(by_score, dir_short, slug, nvenc_ok)
+    short_paths = [s["path"] for s in shorts_meta]
+    if not short_paths:
+        print("   [Phase4] (d) shorts: NONE rendered (see [Shorts] lines above).")
 
     report = _write_phase4_report(candidates, day_dir, date_str, activity,
-                                  reel_path, highlight_path, short_path)
+                                  reel_path, highlight_path, short_paths)
+    manifest = _write_manifest(candidates, day_dir, date_str, activity,
+                               reel_path, highlight_path, shorts_meta)
     return {"clips_dir": dir_clips, "reel_path": reel_path,
-            "highlight_path": highlight_path, "short_path": short_path, "report": report}
+            "highlight_path": highlight_path,
+            "short_path": short_paths[0] if short_paths else None,
+            "short_paths": short_paths, "report": report, "manifest": manifest}
 
 
 def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: str,
                          activity: str, reel_path: str | None,
-                         highlight_path: str | None, short_path: str | None) -> str:
+                         highlight_path: str | None,
+                         short_paths: list[str] | None = None) -> str:
     cut = sorted([c for c in candidates if c.status == "cut" and c.out_path],
                  key=lambda c: (c.score, c.match_confidence), reverse=True)
     report_path = os.path.join(day_dir, "clips_report.md")
@@ -1427,9 +1775,15 @@ def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: st
         f"- **01_clips_by_type/** — {len(cut)} individual clips (filename-tagged by type)",
         f"- **02_reel_best_of/** — {'`' + os.path.basename(reel_path) + '`' if reel_path else '(none)'}",
         f"- **03_highlight_vod/** — {'`' + os.path.basename(highlight_path) + '`' if highlight_path else '(none)'}",
-        f"- **04_short_candidate/** — {'`' + os.path.basename(short_path) + '`' if short_path else '(none)'}",
+        f"- **04_shorts/** — " + (
+            f"{len(short_paths)} vertical short(s), best-first: "
+            + ", ".join("`" + os.path.basename(p) + "`" for p in short_paths)
+            if short_paths else "(none)"),
         "",
-        "All outputs landscape 16:9 (reframe vertical in Premiere).",
+        "01-03 landscape 16:9; 04_shorts are 9:16 1080x1920 with captions burned in "
+        "(the `.ass` sidecar sits next to each short — edit it and re-burn to tweak).",
+        "",
+        f"_{run_cost_line()}_",
         "",
         "## Clips (best-first by score)",
     ]
@@ -1456,6 +1810,71 @@ def _write_phase4_report(candidates: list[Candidate], day_dir: str, date_str: st
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     return report_path
+
+
+def _write_manifest(candidates: list[Candidate], day_dir: str, date_str: str,
+                    activity: str, reel_path: str | None,
+                    highlight_path: str | None, shorts_meta: list[dict]) -> str:
+    """Write manifest.json — the machine-readable review-queue state (Phase K
+    item 3). clips_report.md is the human view; this is the same package for
+    tooling: every output with its metadata and a per-item ``approved`` flag
+    (default false — Jonny flips them; a future poster reads only approved
+    entries). Paths are day_dir-relative so the folder can be moved wholesale.
+    """
+    def rel(p: str | None) -> str | None:
+        return os.path.relpath(p, day_dir) if p else None
+
+    cut = sorted([c for c in candidates if c.status == "cut" and c.out_path],
+                 key=lambda c: (c.score, c.match_confidence), reverse=True)
+    manifest = {
+        "schema_version": 1,
+        "date": date_str,
+        "activity": activity,
+        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "review": {"approved": False, "notes": ""},
+        "outputs": {
+            "reel": rel(reel_path),
+            "highlight": rel(highlight_path),
+            "shorts": [
+                {**s, "path": rel(s["path"]), "ass": rel(s.get("ass")),
+                 "approved": False}
+                for s in shorts_meta
+            ],
+        },
+        "clips": [
+            {
+                "id": c.index,
+                "rank": rank,
+                "file": rel(c.out_path),
+                "title": c.final_title or c.title,
+                "description": c.description or c.why,
+                "hashtags": c.hashtags,
+                "type": c.clip_type or None,
+                "score": c.score,
+                "duration_s": round(c.clip_duration or 0.0, 1),
+                "anchor_epoch": c.anchor_start_epoch,
+                "anchor_hms": (datetime.fromtimestamp(c.anchor_start_epoch)
+                               .strftime("%H:%M:%S") if c.anchor_start_epoch else None),
+                "match_confidence": round(c.match_confidence, 3),
+                "matched_via": c.matched_via,
+                "anchor_mode": c.anchor_mode,
+                "cut_method": c.cut_method,
+                "approved": False,
+            }
+            for rank, c in enumerate(cut, 1)
+        ],
+        "not_cut": [
+            {"id": c.index, "title": c.title, "status": c.status,
+             "error": c.error or None}
+            for c in candidates if c.status in ("missed", "error")
+        ],
+        "llm_usage": dict(_RUN_LLM),
+    }
+    manifest_path = os.path.join(day_dir, "manifest.json")
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    print(f"   [Phase4] manifest → {manifest_path}")
+    return manifest_path
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1593,6 +2012,19 @@ async def cut_session(date_str: str, activity: str | None = None, *,
             align_candidate(c, events, session_start)
             map_to_recording(c, recordings, pre, post)
 
+        # Phase K item 2 (selection half): live-captured kira-moment beats
+        # outrank transcript-only scoring. Runs BEFORE sort/cap and Phase 4's
+        # by-score packaging so a boost changes what actually ships.
+        try:
+            _beats = load_beat_epochs(date_str, activity=act_name,
+                                      last_only=bool(vod_path))
+            _n = apply_kira_moment_boost(candidates, _beats)
+            if _beats:
+                print(f"   [KiraMoment] {len(_beats)} live beat(s) on record, "
+                      f"{_n} candidate(s) boosted.")
+        except Exception as _km_err:
+            print(f"   [KiraMoment] beat blend skipped (non-fatal): {_km_err}")
+
         if vod_path:
             rec_dir = os.path.dirname(vod_path)
         else:
@@ -1669,16 +2101,20 @@ async def cut_session(date_str: str, activity: str | None = None, *,
         reel_report_out = None
         highlight_out = None
         short_out = None
+        shorts_out: list[str] = []
 
         if phase4 and not dry_run:
             # ── Phase 4: package the four labeled outputs ─────────────────────
-            p4 = build_phase4_outputs(candidates, day_dir, date_str, act_name, nvenc_ok)
+            span_s = (events[-1].epoch - events[0].epoch) if len(events) >= 2 else 0.0
+            p4 = build_phase4_outputs(candidates, day_dir, date_str, act_name, nvenc_ok,
+                                      session_span_s=span_s)
             report_path = p4.get("report") or write_report(
                 candidates, day_dir, date_str, act_name, recordings)
             reel_path_out = p4.get("reel_path")
             reel_report_out = p4.get("report")
             highlight_out = p4.get("highlight_path")
             short_out = p4.get("short_path")
+            shorts_out = p4.get("short_paths") or []
             print(f"   [Phase4] Package report → {report_path}")
         else:
             # ── Legacy layout: single report + one chronological reel ─────────
@@ -1723,6 +2159,7 @@ async def cut_session(date_str: str, activity: str | None = None, *,
             "reel_report": reel_report_out,
             "highlight_path": highlight_out,
             "short_path": short_out,
+            "short_paths": shorts_out,
             "candidates": candidates,
         })
 

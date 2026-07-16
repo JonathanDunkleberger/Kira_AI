@@ -37,7 +37,6 @@
 # IMPORTANT: The VN window must be the focused/active window for inputs to register.
 
 import asyncio
-import base64
 import collections
 import difflib
 import hashlib
@@ -271,7 +270,7 @@ class VNAutopilot:
     def __init__(self, ai_core, vision_client=None, bot=None, kira_state=None):
         """
         ai_core:        AI_Core instance (for Anthropic/Claude access)
-        vision_client:  AsyncOpenAI instance (for screen classification + transcription)
+        vision_client:  GeminiVisionClient instance (screen classification + transcription)
         bot:            Optional reference to the parent KiraBot — used to look up
                         semantic memory, playthrough memory, and shared voice guardrails
                         so in-character VN reactions sound like Kira instead of a
@@ -732,7 +731,7 @@ class VNAutopilot:
                 elapsed = now - self._loop_start_time
                 h, rem = divmod(int(elapsed), 3600)
                 m = rem // 60
-                cost_est = self._cloud_read_count * 0.000075  # gpt-4o-mini vision ≈ $0.075/1k calls
+                cost_est = self._cloud_read_count * 0.0004  # gemini-3-flash-preview vision ≈ $0.4/1k reads (rough)
                 print(
                     f"   [Autopilot] Alive — {self.total_boxes_read} boxes, "
                     f"~${cost_est:.3f} cloud spend, running {h}h {m}m"
@@ -899,32 +898,23 @@ class VNAutopilot:
             return "UNKNOWN"
         valid = {"DIALOGUE", "CHOICE", "SAVE_PROMPT", "TRANSITION", "UNKNOWN"}
         # Classifier needs to see UI chrome (choice buttons, save dialogs) so
-        # we don't crop — just downscale aggressively. 768px is more than
-        # enough at detail="low" to distinguish the screen types.
-        b64 = self._encode_frame_for_vision(
+        # we don't crop — just downscale aggressively. 768px is plenty to
+        # distinguish the screen types. Cheap/fast lite tier; structured output
+        # (a single keyword) so the see-only guard is suppressed.
+        img_bytes = self._encode_frame_for_vision(
             frame, crop_top_frac=0.0, max_width=768, jpeg_quality=60
         )
         for attempt in range(3):
             try:
-                resp = await asyncio.wait_for(
-                    self.vision_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": self.SCREEN_CLASSIFIER_PROMPT},
-                            {"type": "image_url", "image_url": {
-                                "url": f"data:image/jpeg;base64,{b64}",
-                                "detail": "low",
-                            }},
-                        ],
-                    }],
-                    max_tokens=10,
-                    temperature=0.0,
-                ),
+                raw = await asyncio.wait_for(
+                    self.vision_client.describe(
+                        img_bytes, self.SCREEN_CLASSIFIER_PROMPT,
+                        escalate=False, max_tokens=10, temperature=0.0,
+                        see_only=False,
+                    ),
                     timeout=self._cloud_call_timeout,
                 )
-                raw = resp.choices[0].message.content.strip().upper()
+                raw = (raw or "").strip().upper()
                 return raw if raw in valid else "UNKNOWN"
             except asyncio.TimeoutError:
                 # Treat as transition so caller advances through rather than
@@ -1183,10 +1173,10 @@ class VNAutopilot:
         max_width: int = 1280,
         jpeg_quality: int = 70,
         crop_bottom_frac: float = 0.0,
-    ) -> str:
+    ) -> bytes:
         """Crop + downscale + JPEG-encode a frame for vision API calls.
 
-        Returns base64 ASCII suitable for a data: URL. Centralizes the prep
+        Returns JPEG bytes (fed straight to types.Part.from_bytes). Centralizes the prep
         work that was previously inlined in every cloud call (and that, at 4K,
         was the main reason cloud OCR took 1.5-3s per box).
 
@@ -1211,10 +1201,10 @@ class VNAutopilot:
             img = img.resize((int(w * scale), int(h * scale)), Image.BILINEAR)
         buf = BytesIO()
         img.save(buf, format="JPEG", quality=jpeg_quality, optimize=False)
-        return base64.b64encode(buf.getvalue()).decode()
+        return buf.getvalue()
 
     async def _read_dialogue_cloud(self, frame) -> str:
-        """Read dialogue text from the FULL VN window using cloud vision (gpt-4o-mini).
+        """Read dialogue text from the FULL VN window using cloud vision (Gemini).
 
         Sends the full window capture — the vision model handles any VN layout:
         bottom ADV box, full-screen NVL text, side-bar narration — and ignores
@@ -1241,19 +1231,16 @@ class VNAutopilot:
         # The crop (bottom 45%) + downscale to 1600px wide still cuts pixels
         # ~80% vs the raw 4K frame, so the call is much faster than pre-perf
         # while keeping text reliably legible.
-        b64 = self._encode_frame_for_vision(
+        img_bytes = self._encode_frame_for_vision(
             frame, crop_top_frac=0.55, max_width=1600, jpeg_quality=75,
             crop_bottom_frac=self.bottom_ui_crop_frac,
         )
         for attempt in range(3):
             try:
-                resp = await asyncio.wait_for(
-                    self.vision_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": (
+                raw = await asyncio.wait_for(
+                    self.vision_client.describe(
+                        img_bytes,
+                        (
                                 "Read the story dialogue or narration currently displayed in this "
                                 "visual novel screenshot.\n\n"
                                 "SPEAKER ATTRIBUTION: If a speaker name label is visible (typically "
@@ -1274,20 +1261,15 @@ class VNAutopilot:
                                 "explanation, no extra prefix.\n"
                                 "If there is no story text visible (transition, black screen, "
                                 "choice menu, save screen, etc.), return exactly: EMPTY"
-                            )},
-                            {"type": "image_url", "image_url": {
-                                "url": f"data:image/jpeg;base64,{b64}",
-                                "detail": "high",
-                            }},
-                        ],
-                    }],
-                    max_tokens=400,
-                    temperature=0.0,
-                ),
+                        ),
+                        escalate=True,     # verbatim VN OCR — richer model for legibility
+                        max_tokens=400, temperature=0.0,
+                        see_only=False,    # strict EMPTY/verbatim contract — no guard
+                    ),
                     timeout=self._cloud_call_timeout,
                 )
                 self._cloud_read_count += 1
-                raw = resp.choices[0].message.content.strip()
+                raw = (raw or "").strip()
                 if not raw or raw.upper() == "EMPTY":
                     # Cloud said empty. This is usually a real EMPTY (transition /
                     # choice menu / black screen), but it can also be a misread on
@@ -2372,32 +2354,23 @@ class VNAutopilot:
         if not self.vision_client:
             return
         try:
-            buf = BytesIO()
-            frame.save(buf, format="JPEG", quality=70)
-            b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await asyncio.wait_for(
-                self.vision_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": (
-                            "Describe this visual novel screen in 1-2 sentences: "
-                            "setting, mood, visible characters, lighting. "
-                            "If it's mostly blank or abstract, just say so. Be brief."
-                        )},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64}",
-                            "detail": "low",
-                        }},
-                    ],
-                }],
-                max_tokens=80,
-                temperature=0.0,
-            ),
+            img_bytes = self._encode_frame_for_vision(
+                frame, crop_top_frac=0.0, max_width=768, jpeg_quality=70
+            )
+            desc = await asyncio.wait_for(
+                self.vision_client.describe(
+                    img_bytes,
+                    (
+                        "Describe this visual novel screen in 1-2 sentences: "
+                        "setting, mood, visible characters, lighting. "
+                        "If it's mostly blank or abstract, just say so. Be brief."
+                    ),
+                    escalate=False, max_tokens=80, temperature=0.0,
+                    see_only=True,     # describe-style — constrain to observed facts
+                ),
                 timeout=self._cloud_call_timeout,
             )
-            self._scene_art_description = resp.choices[0].message.content.strip()
+            self._scene_art_description = (desc or "").strip()
             print(f"   [Autopilot] Scene: {self._scene_art_description[:70]}")
         except asyncio.TimeoutError:
             print(f"   [Autopilot] Scene art: TIMEOUT after {self._cloud_call_timeout:.1f}s — using cached.")
@@ -2955,37 +2928,29 @@ class VNAutopilot:
         if not self.vision_client:
             return None
         try:
-            buf = BytesIO()
-            frame.save(buf, format="JPEG", quality=85)
-            b64 = base64.b64encode(buf.getvalue()).decode()
-            resp = await self.vision_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": (
-                            "This is a visual novel CHOICE screen. List every selectable "
-                            "choice option visible (numbered or button-style). For each, "
-                            "estimate the CENTER position of the clickable button as a "
-                            "fraction of the image (x: 0=left, 1=right; y: 0=top, 1=bottom).\n\n"
-                            "Output ONE LINE PER CHOICE in this exact format:\n"
-                            "INDEX | TEXT | X | Y\n"
-                            "Example:\n"
-                            "1 | Talk to Nagisa | 0.50 | 0.42\n"
-                            "2 | Go to the rooftop | 0.50 | 0.58\n\n"
-                            "No header, no explanation, no extra text. If this is NOT a "
-                            "choice screen with selectable options, output exactly: NOCHOICE"
-                        )},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64}",
-                            "detail": "high",
-                        }},
-                    ],
-                }],
-                max_tokens=400,
-                temperature=0.0,
+            img_bytes = self._encode_frame_for_vision(
+                frame, crop_top_frac=0.0, max_width=1280, jpeg_quality=85
             )
-            raw = resp.choices[0].message.content.strip()
+            raw = await self.vision_client.describe(
+                img_bytes,
+                (
+                    "This is a visual novel CHOICE screen. List every selectable "
+                    "choice option visible (numbered or button-style). For each, "
+                    "estimate the CENTER position of the clickable button as a "
+                    "fraction of the image (x: 0=left, 1=right; y: 0=top, 1=bottom).\n\n"
+                    "Output ONE LINE PER CHOICE in this exact format:\n"
+                    "INDEX | TEXT | X | Y\n"
+                    "Example:\n"
+                    "1 | Talk to Nagisa | 0.50 | 0.42\n"
+                    "2 | Go to the rooftop | 0.50 | 0.58\n\n"
+                    "No header, no explanation, no extra text. If this is NOT a "
+                    "choice screen with selectable options, output exactly: NOCHOICE"
+                ),
+                escalate=True,     # spatial position reasoning — richer model
+                max_tokens=400, temperature=0.0,
+                see_only=False,    # strict pipe-delimited contract — no guard
+            )
+            raw = (raw or "").strip()
             if not raw or "NOCHOICE" in raw.upper():
                 return None
             choices = []

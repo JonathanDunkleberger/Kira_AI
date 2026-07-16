@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "purpose": "STATIC map-connection PRIORS for the keeper router (PASS 3 NS#40) AND head_to_gym route-through (NS#16). The learned world graph only knows maps she has VISITED, so a keeper HOST reached by a door from an as-yet-unwalked corridor (Diglett's Cave off Route 11 / Route 2) is invisible to world.route -> the cross-map router returns None forever -> she never detours there -> she never visits it (the NS#39 chicken-and-egg). host_gateways gives the router the STATIC knowledge 'area X is entered from overworld map(s) Y', so it can plot a bounded path to a reachable GATEWAY, ride there via the LEARNED graph, then step through the live-read door into the host and catch. dungeon_corridors (NS#16) gives head_to_gym the SYMMETRIC knowledge: the FULL warp/edge topology THROUGH a dungeon shortcut, so from inside a cave (or its sealed exit pocket) world.route can plan cave -> far mouth -> goal (Diglett's Cave: Route 2 <-> cave <-> Route 11 -> Vermilion). Without it the canonical graph is BLIND in the cave region and head_to_gym returns no_gym_route, dumping her (via heal) into a sealed Route-2 pocket she can never leave (the NS#15 fresh-run wall).",
+    "portable_engine_split": "This is the swappable FireRed game-knowledge layer (rule 14). host_gateways is keyed by the SAME human place-name the encounters KB + _PLACE_NAMES use, so the engine stays game-agnostic. dungeon_corridors nodes are keyed by '<group>,<num>' map ids; warps are '<x>,<y>' -> [group,num] and edges are direction -> [group,num]. A new game supplies its own file; the router + world.seed_corridors code is unchanged.",
+    "scope": "host_gateways: ONLY caves/interiors that host a PLANNED coverage keeper AND are entered by a door (not a map edge). dungeon_corridors: ONLY dungeon SHORTCUTS whose two overworld mouths matter for forward routing and whose interior floors the canonical graph doesn't already know. Tiles are the LIVE-confirmed warp coords (source-first: the live read on arrival still overwrites the seed).",
+    "map_ids": "group,num per _PLACE_NAMES: Route N = (3, 18+N); Diglett's Cave = (1,36..38); Vermilion City = (3,5). So Route 2 = (3,20) [north mouth], Route 11 = (3,29) [south mouth, one map WEST of Vermilion].",
+    "updated": "2026-07-12 (NS#16)"
+  },
+  "host_gateways": {
+    "Diglett's Cave": [[3, 20], [3, 29]]
+  },
+  "dungeon_corridors": {
+    "Diglett's Cave": {
+      "nodes": {
+        "1,36": {"warps": {"6,4": [1, 37], "4,6": [3, 20]}},
+        "1,37": {"warps": {"3,3": [1, 36], "82,71": [1, 38]}},
+        "1,38": {"warps": {"4,6": [3, 29], "6,4": [1, 37]}},
+        "3,20": {"warps": {"17,11": [1, 36]}},
+        "3,29": {"warps": {"6,7": [1, 38]}, "edges": {"west": [3, 5], "east": [3, 30]}}
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@
 #   voice         — main response path (claude_chat_inference / claude_chat_inference_stream)
 #   interjection  — autonomous interjection voice lines
 #   triage        — classification / routing (Groq / local)
-#   vision        — gpt-4o-mini screen-cap calls
+#   vision        — Gemini screen-cap calls (flash-lite heartbeat / flash-preview escalated)
 #   artifact      — session-end artifacts (lore, clips, summary via Opus)
 #   background    — startup-brief, general-opinions, other background calls
 #   local         — local Llama calls (token estimate; zero cost)
@@ -37,9 +37,14 @@ PRICE_TABLE: dict[str, dict] = {
     "claude-sonnet": {"in": 3.00,  "out": 15.00, "cache_read": 0.30},
     "claude-opus":   {"in": 15.00, "out": 75.00, "cache_read": 1.50},
     "claude-haiku":  {"in": 0.80,  "out": 4.00,  "cache_read": 0.08},
-    # OpenAI
-    "gpt-4o-mini":   {"in": 0.15,  "out": 0.60,  "cache_read": 0.075},
-    "gpt-4o":        {"in": 2.50,  "out": 10.00, "cache_read": 1.25},
+    # Google Gemini (vision — core-Kira "eyes", all modes)
+    #   flash-lite = always-on heartbeat tier; flash-preview = salient-moment escalation.
+    #   Approx public Gemini 3 flash-class rates ($/MTok); update when prices drift.
+    "gemini-3.1-flash-lite":  {"in": 0.10, "out": 0.40, "cache_read": 0.025},
+    "gemini-3-flash-preview": {"in": 0.30, "out": 2.50, "cache_read": 0.075},
+    "gemini-3.5-flash":       {"in": 0.30, "out": 2.50, "cache_read": 0.075},
+    # Catch-all prefix key for any other gemini vision model
+    "gemini-3":  {"in": 0.30, "out": 2.50, "cache_read": 0.075},
     # Groq (llama-3.1-8b-instant)
     "llama-3.1-8b-instant": {"in": 0.05, "out": 0.08, "cache_read": 0.0},
     # Local Llama — zero cost; tracked for token counts only
@@ -158,6 +163,41 @@ class _CostTracker:
                 "by_model":   {k: dict(v) for k, v in self._by_model.items()},
                 "by_purpose": dict(self._by_purpose),
             }
+
+    def write_receipt(self, receipts_dir: str = "logs/receipts",
+                      session_meta: Optional[dict] = None) -> Optional[str]:
+        """Phase J RECEIPT: persist the session's cost breakdown as a durable artifact —
+        one JSON receipt per session + an append-only LEDGER.jsonl (one line per session,
+        the cross-session spend history). Called at shutdown next to print_summary().
+        Best-effort: never blocks teardown; returns the receipt path or None. LOUD on
+        failure (constraint #3 — silent failure is the enemy)."""
+        import os
+        try:
+            s = self.snapshot()
+            s["ts_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            if session_meta:
+                s["session"] = session_meta
+            os.makedirs(receipts_dir, exist_ok=True)
+            stamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+            path = os.path.join(receipts_dir, f"receipt_{stamp}.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(s, f, indent=2, ensure_ascii=False)
+            ledger_line = {
+                "ts_utc": s["ts_utc"],
+                "total_cost_usd": s["total_cost_usd"],
+                "fallback_count": s["fallback_count"],
+                "by_purpose": s["by_purpose"],
+                "receipt": os.path.basename(path),
+            }
+            if session_meta:
+                ledger_line["session"] = session_meta
+            with open(os.path.join(receipts_dir, "LEDGER.jsonl"), "a", encoding="utf-8") as f:
+                f.write(json.dumps(ledger_line, ensure_ascii=False) + "\n")
+            print(f"   [COST] receipt written: {path} (total ${s['total_cost_usd']:.4f})")
+            return path
+        except Exception as e:
+            print(f"   [COST] !! receipt write FAILED: {e!r} (LOUD — cost data lives only in logs)")
+            return None
 
     def print_summary(self) -> None:
         """Print a formatted cost breakdown.  Called at shutdown."""

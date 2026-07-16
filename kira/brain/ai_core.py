@@ -82,6 +82,61 @@ def _ts_ms() -> str:
     return time.strftime("%H:%M:%S", time.localtime(_t)) + f".{int((_t % 1) * 1000):03d}"
 
 
+# ── MOUTH-FLAP: route Kira's TTS onto the VB-Audio cable VTS lip-syncs off ──────────
+# VTube Studio reads VoiceVolume from a mic input; on Jonny's rig that input is the
+# VB-Audio "CABLE Input" device. Her TTS must land THERE (not the desktop default) or
+# her mouth never moves. This is separate from the GAME-audio firewall in
+# pokemon_agent/play_live.py (SDL_AUDIODRIVER=dummy + AudioPump → desktop-only) which
+# lives in a different process and stays untouched — game BGM never touches the cable.
+# Override via env KIRA_TTS_OUTPUT_DEVICE: a device-name substring, or one of
+# desktop/default/none/'' to force the old default-device behaviour.
+_CABLE_MARKERS = ("cable input", "vb-audio", "vb audio", "cable", "voicemeeter", "virtual audio")
+
+def _resolve_tts_output_device():
+    """Return the pygame/SDL device NAME Kira's TTS should play to (or None = default)."""
+    pref = os.getenv("KIRA_TTS_OUTPUT_DEVICE", "__cable__")
+    if pref.strip().lower() in ("", "desktop", "default", "none"):
+        return None
+    try:
+        import pygame._sdl2.audio as _sdl2audio
+        names = [n for n in (_sdl2audio.get_audio_device_names(False) or []) if n]
+    except Exception as e:
+        print(f"   [TTS-Audio] SDL device enum failed ({e}); using default device.")
+        return None
+    pref_l = pref.strip().lower()
+    if pref != "__cable__":  # explicit override — substring match
+        for n in names:
+            if pref_l in n.lower():
+                return n
+        print(f"   [TTS-Audio] '{pref}' not found among {names}; using default device.")
+        return None
+    # default: find the VB-Audio cable VTS lip-syncs off. 'cable input' first (16ch is a
+    # different VB product), then any cable/vb-audio marker.
+    for marker in _CABLE_MARKERS:
+        for n in names:
+            if marker in n.lower():
+                return n
+    print(f"   [TTS-Audio] No VB-Audio cable among {names}; TTS → default (mouth-flap OFF).")
+    return None
+
+def _safe_mixer_init():
+    """Init the pygame mixer on the resolved TTS device, with a bulletproof fallback so
+    her voice ALWAYS plays even if the cable is missing (mouth dead > voice dead)."""
+    dev = _resolve_tts_output_device()
+    try:
+        pygame.mixer.init(devicename=dev)
+        print(f"   [TTS-Audio] TTS output → {dev or 'default desktop device'}"
+              f"{' (VTS lip-syncs off this cable)' if dev else ' (mouth-flap OFF — no cable)'}.")
+        return
+    except Exception as e:
+        print(f"   [TTS-Audio] init on '{dev}' failed ({e}); falling back to default device.")
+    try:
+        pygame.mixer.init(devicename=None)
+    except Exception as e2:
+        print(f"   [TTS-Audio] default init also failed ({e2}); auto-picking a device.")
+        pygame.mixer.init()
+
+
 _CONTENT_DENYLIST_SEED = frozenset({
     "nigger", "nigga", "faggot", "tranny", "kike", "chink", "spic", "wetback", "retard",
 })
@@ -102,6 +157,35 @@ class AI_Core:
             re.compile(r"\b(?:" + "|".join(re.escape(t) for t in self._content_denylist) + r")\b", re.I)
             if self._content_denylist else None
         )
+        # ── Output-side LIABILITY filter (final mandate 2026-07-08) ────────────────
+        # Patterns whose mere APPEARANCE in outgoing speech is a liability regardless
+        # of framing — leaked secrets/API keys, dox-able PII (emails, phone-formatted
+        # numbers, card-like digit runs). Rides the SAME pre-TTS choke point as the
+        # denylist (one non-bypassable net). KIRA_MODERATION_REGEX (;-separated
+        # patterns) is the runtime moderation hook — extend without code changes.
+        # NARROW by design: false positives cost presence; each rule needs structure
+        # (separators/prefixes) ordinary speech never has. KIRA_LIABILITY_FILTER=false
+        # disables the layer (denylist stays). Every trip logs loudly.
+        self._liability_enabled = os.getenv("KIRA_LIABILITY_FILTER", "true").lower() == "true"
+        _liab_seed = [
+            (r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "email address"),
+            (r"(?:\+\d{1,2}[ .-])?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}\b", "phone-formatted number"),
+            (r"\b\d{13,19}\b", "card-like digit run"),
+            (r"\b(?:sk|pk)-[A-Za-z0-9_-]{16,}", "secret-key token"),
+            (r"\bAKIA[0-9A-Z]{16}\b", "AWS key id"),
+            (r"\bgh[pousr]_[A-Za-z0-9]{20,}", "GitHub token"),
+            (r"\bxox[baprs]-[A-Za-z0-9-]{10,}", "Slack token"),
+            (r"\bAIza[0-9A-Za-z_-]{30,}", "Google API key"),
+        ]
+        for _i, _pat in enumerate(p.strip() for p in
+                                  os.getenv("KIRA_MODERATION_REGEX", "").split(";") if p.strip()):
+            _liab_seed.append((_pat, f"custom moderation rule {_i + 1}"))
+        self._liability_rules = []
+        for _pat, _label in _liab_seed:
+            try:
+                self._liability_rules.append((re.compile(_pat), _label))
+            except re.error as _rerr:
+                print(f"   [Guardrail] !! bad moderation regex ({_label}): {_rerr} — rule SKIPPED (LOUD)")
         self.is_initialized = False
         self.is_speaking = False # Added flag for self-hearing prevention
         # Self-echo fingerprint backstop: the last few things she actually spoke.
@@ -252,13 +336,9 @@ class AI_Core:
         # Initialize Audio Mixer permanently
         if pygame.mixer.get_init(): pygame.mixer.quit()
         
-        # FORCE Default Desktop Audio (User Request)
-        print("   Forcing Audio Output to Default Windows Device (devicename=None)...")
-        try:
-            pygame.mixer.init(devicename=None)
-        except Exception as e:
-            print(f"   Warning: Default init failed, trying auto: {e}")
-            pygame.mixer.init()
+        # MOUTH-FLAP: route TTS onto the VB-Audio cable VTS lip-syncs off (env-overridable
+        # via KIRA_TTS_OUTPUT_DEVICE=desktop to restore the old default-device behaviour).
+        _safe_mixer_init()
 
         try:
             await asyncio.to_thread(self._init_llm)
@@ -1507,7 +1587,43 @@ class AI_Core:
                 f'{body}'
                 f'</voice></speak>')
 
-    async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False):
+    async def _synth_azure_only(self, text: str):
+        """SYNTH-ONLY Azure round-trip (no playback, no gates): returns
+        (audio_data, word_timings) or None on any failure/non-Azure config.
+        Used by the flag-gated KIRA_TTS_PREFETCH streaming pipeline so sentence
+        N+1 can synthesize WHILE sentence N plays (the measured 175-354ms
+        inter-sentence gap + part of the ~1.3s to first audio). Mirrors the
+        inline Azure branch exactly (same lock, same word-buffer snapshot, same
+        health tracking); never raises — a None simply falls back to the normal
+        inline synth in _speak_single."""
+        try:
+            if self.tts_backend == "fish" or TTS_ENGINE != "azure" or not self.azure_synthesizer:
+                return None
+            if VOICE_EMOTION_ENABLED:
+                ssml = self._build_emotion_ssml(text)
+            else:
+                ssml = (f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">'
+                        f'<voice name="{AZURE_SPEECH_VOICE}">'
+                        f'<prosody rate="{AZURE_PROSODY_RATE}" pitch="{AZURE_PROSODY_PITCH}">{text}</prosody>'
+                        f'</voice></speak>')
+            async with self._azure_tts_lock:
+                self._azure_word_buffer = []
+                self._last_azure_speak_time = time.time()
+                result = await asyncio.to_thread(self.azure_synthesizer.speak_ssml, ssml)
+                if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                    audio_data = result.audio_data
+                    word_timings = list(self._azure_word_buffer)
+                else:
+                    print(f"   TTS Fail (prefetch): {result.cancellation_details.error_details}")
+                    return None
+            self._track_word_event_health(text, len(word_timings))
+            return (audio_data, word_timings)
+        except Exception as e:
+            print(f"   [TTS] prefetch synth error ({e}) — falling back to inline synth")
+            return None
+
+    async def _speak_single(self, text: str, priority: int = 1, is_stream: bool = False, already_gated: bool = False,
+                            preloaded=None):
         """Pure synthesis-and-playback for a single text block. Does NOT manage
         is_speaking or interruption_event — caller is responsible. Used by both
         speak_text (single shot) and speak_streaming (per-sentence dispatch).
@@ -1519,7 +1635,11 @@ class AI_Core:
         already_gated: True when the caller (speak_streaming) already holds the
             speech gate for the whole logical turn. Skips per-sentence
             acquire/release so a lower-priority line can't wedge itself BETWEEN
-            the sentences of one streamed voice reply."""
+            the sentences of one streamed voice reply.
+        preloaded: optional (audio_data, word_timings) from _synth_azure_only —
+            the KIRA_TTS_PREFETCH pipeline. Consumed only AFTER every text rail
+            (tag-strip, content backstop, self-echo record) has run on the text,
+            so preloaded audio obeys the same guardrails as inline synth."""
         if not text:
             return
         if self.interruption_event.is_set():
@@ -1541,8 +1661,9 @@ class AI_Core:
         # "permitted" it. The persona's HARD CONTENT BOUNDARY is the primary,
         # context-aware rail; this is the non-bypassable net under it. Logged loudly
         # so Jonny can see exactly what was caught.
-        if self._content_safety_block(text) is not None:
-            print(f"   [Guardrail] BLOCKED before TTS (hard content boundary) — "
+        _blk_reason = self._content_safety_block(text)
+        if _blk_reason is not None:
+            print(f"   [Guardrail] BLOCKED before TTS ({_blk_reason}) — "
                   f"suppressed utterance: {text[:140]!r}")
             return
 
@@ -1574,7 +1695,12 @@ class AI_Core:
             # the queue drains instead of synthing stale audio.
             if self.interruption_event.is_set():
                 return
-            if self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
+            if preloaded is not None:
+                # KIRA_TTS_PREFETCH: audio was synthesized ahead (while the previous sentence
+                # played). Text rails above already ran; just adopt the audio + timings.
+                audio_data, word_timings = preloaded
+                print(f"   [TTS] backend=azure (prefetched)")
+            elif self.tts_backend == "fish" and self.fish_session and FISH_SDK_AVAILABLE:
                 # ---- Fish Audio streaming path ----
                 # Runs in a thread because the SDK's .tts() is a blocking generator.
                 # No word-boundary timing available from Fish; degrade to single-frame
@@ -1728,6 +1854,44 @@ class AI_Core:
         # wedging itself BETWEEN the sentences of one streamed voice reply.
         _gate_held = False
 
+        # ── KIRA_TTS_PREFETCH (Phase G-1 latency — DEFAULT ON since the showtime pass 2026-07-08)
+        # Measured 2026-07-07 ([LATENCY] line): sentences play strictly serially — synth
+        # of N+1 waits for N's playback to finish (175-354ms dead gap per boundary, plus
+        # the full first-sentence synth inside the ~1.3s to first audio). ON routes
+        # per-sentence playback through a queue player: each sentence's Azure synth task
+        # starts the moment its text is complete, so it synthesizes WHILE the previous
+        # sentence plays; playback order is preserved by the single player. A failed/
+        # non-Azure prefetch (None) falls back to inline synth in _speak_single — same
+        # rails, same audio, just not overlapped. This is the pipelining that stops
+        # back-to-back interjection lines serializing into multi-second TTS stacks.
+        # NOW DEFAULT ON (the A/B was never blocked from either side; the pump is complete
+        # and verified). KILL SWITCH: set KIRA_TTS_PREFETCH=0 to revert to serial synth.
+        _prefetch = os.getenv("KIRA_TTS_PREFETCH", "1") == "1"
+        _pq = asyncio.Queue() if _prefetch else None
+        _player_task = None
+
+        async def _player():
+            while True:
+                item = await _pq.get()
+                if item is None:
+                    return
+                _ptext, _synth = item
+                try:
+                    _pre = await _synth
+                except Exception:
+                    _pre = None
+                await self._speak_single(_ptext, priority=priority, is_stream=True,
+                                         already_gated=True, preloaded=_pre)
+
+        async def _dispatch(cleaned):
+            nonlocal _player_task
+            if not _prefetch:
+                await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                return
+            if _player_task is None:
+                _player_task = asyncio.create_task(_player())
+            _pq.put_nowait((cleaned, asyncio.create_task(self._synth_azure_only(cleaned))))
+
         try:
             async for chunk in stream_generator:
                 if self.interruption_event.is_set():
@@ -1772,7 +1936,7 @@ class AI_Core:
                             if not _gate_held:
                                 await self._acquire_speech_gate(priority)
                                 _gate_held = True
-                            await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                            await _dispatch(cleaned)
                             if self.interruption_event.is_set():
                                 return full_text
 
@@ -1789,10 +1953,18 @@ class AI_Core:
                     if not _gate_held:
                         await self._acquire_speech_gate(priority)
                         _gate_held = True
-                    await self._speak_single(cleaned, priority=priority, is_stream=True, already_gated=True)
+                    await _dispatch(cleaned)
         except Exception as e:
             print(f"   [Streaming] Error during stream consumption: {e}")
         finally:
+            # PREFETCH: drain the player BEFORE releasing the gate — every queued sentence
+            # plays (or is skipped by the interruption check) inside this logical turn.
+            if _player_task is not None:
+                try:
+                    _pq.put_nowait(None)
+                    await _player_task
+                except Exception as _pe:
+                    print(f"   [Streaming] prefetch player drain error: {_pe}")
             if _gate_held:
                 self._release_speech_gate()
             self.last_speech_finish_time = time.time()
@@ -1820,10 +1992,19 @@ class AI_Core:
         backstop, else None. Word-boundary matched and NARROW by design (slurs /
         unambiguous explicit terms) — the persona's HARD CONTENT BOUNDARY handles the
         context-dependent categories (atrocity/sexual/self-harm/violence-as-joke)."""
-        if not text or not self._content_denylist_re:
+        if not text:
             return None
-        m = self._content_denylist_re.search(text)
-        return m.group(0) if m else None
+        if self._content_denylist_re:
+            m = self._content_denylist_re.search(text)
+            if m:
+                return f"denylist term {m.group(0)!r}"
+        # Output-side liability layer (secrets/PII) — same choke, separate reason label.
+        if self._liability_enabled:
+            for _re_c, _label in self._liability_rules:
+                m = _re_c.search(text)
+                if m:
+                    return f"liability: {_label} ({m.group(0)[:24]!r}…)"
+        return None
 
     def _strip_tags_for_speech(self, text: str) -> str:
         """Removes ALL recognized tool tags ([POLL:], [SONG:], [PREDICT:], [BIT:],
@@ -1860,7 +2041,7 @@ class AI_Core:
             return
 
         try:
-            if not pygame.mixer.get_init(): pygame.mixer.init(devicename=None)
+            if not pygame.mixer.get_init(): _safe_mixer_init()
             
             if pygame.mixer.get_busy(): pygame.mixer.stop()
             pygame.mixer.music.stop()

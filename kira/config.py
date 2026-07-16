@@ -116,6 +116,21 @@ EMOTION_SWING_HOLD_TURNS = int(os.getenv("EMOTION_SWING_HOLD_TURNS", "4"))  # ex
 # These route the SAME compact self-block into the drive path so proactive lines come
 # FROM her self, add a current-want through-line, and let her feelings about Jonny evolve.
 # Flag-gated for A/B on stream. Default ON.
+# Autonomous Pokémon agent (M1) — the reaction layer is OFF by default so it can
+# never affect a normal stream until explicitly armed. The HANDS (emulator/policy)
+# live fully isolated under pokemon_agent/; this only gates the Kira REACTION seam.
+POKEMON_AGENT_ENABLED = os.getenv("POKEMON_AGENT_ENABLED", "false").lower() == "true"
+# Pokémon mode gates the desktop audio-CLASSIFIER (so she stops hearing/reacting to the game music
+# that shares her loopback endpoint). Each game event refreshes a self-reverting linger of this many
+# seconds; once events stop for this long, normal desktop hearing resumes. Mic + game-event seam are
+# never affected. Set to 0 to disable the auto-gate (the dashboard forced toggle still works).
+POKEMON_HEARING_SUPPRESS_S = float(os.getenv("POKEMON_HEARING_SUPPRESS_S", "60.0"))
+# SHOWTIME FRESHNESS CEILING (game-event lag fix 2026-07-08): a fast game floods reactions that
+# age in the turn-lock/queue behind TTS; a beat delivered older than this reads as reacting to a
+# corpse (observed content_age 34-40s). Any game-event reaction older than this ceiling when it
+# reaches the front of the queue is DROPPED (silence beats a stale beat). Keep small — a salient
+# reaction must land <6s and aligned, or not at all.
+POKEMON_EVENT_FRESHNESS_CEILING_S = float(os.getenv("POKEMON_EVENT_FRESHNESS_CEILING_S", "7.0"))
 DRIVE_SELF_BLOCK_ENABLED = os.getenv("DRIVE_SELF_BLOCK_ENABLED", "true").lower() == "true"   # ① self into drives
 CURRENT_WANT_ENABLED     = os.getenv("CURRENT_WANT_ENABLED", "true").lower() == "true"        # ② through-line
 JONNY_BOND_ENABLED       = os.getenv("JONNY_BOND_ENABLED", "true").lower() == "true"          # ④ relational evolution
@@ -203,7 +218,8 @@ AZURE_PROSODY_PITCH = os.getenv("AZURE_PROSODY_PITCH", "")
 AZURE_PROSODY_RATE = os.getenv("AZURE_PROSODY_RATE", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+# OPENAI_API_KEY PURGED (P-7, 2026-07-08): OpenAI is fully removed — vision runs on Gemini,
+# and the audio mood agent (its last consumer) is now inactive. No key = no OpenAI billing.
 TWITCH_OAUTH_TOKEN = os.getenv("TWITCH_OAUTH_TOKEN", "")
 TWITCH_BOT_USERNAME = os.getenv("TWITCH_BOT_USERNAME", "")
 TWITCH_CHANNEL_TO_JOIN = os.getenv("TWITCH_CHANNEL_TO_JOIN", "")
@@ -318,9 +334,21 @@ STREAM_LOGGING_ENABLED = os.getenv("STREAM_LOGGING_ENABLED", "true").lower() == 
 # (no summary yet / PENDING / parse fail); every branch logs [DiaryBridge]. Default ON.
 DIARY_RECAP_ENABLED = os.getenv("DIARY_RECAP_ENABLED", "true").lower() == "true"
 
+# ── Cold-open recap (Phase G-3, soul showcase) ─────────────────────────────────
+# When ON, the FIRST voice exchange of a session carries a one-shot COLD OPEN
+# directive: open with ONE sentence of welcome-back continuity (a specific
+# callback to last session, fed by the StartupBrief the reply path already
+# injects) before answering — the voiced sibling of the Pokémon go.py recap
+# register, for ALL sessions. Skipped when no brief exists (true first session).
+# Default OFF — OFF preserves the prompt byte-for-byte; feel-test one variable
+# at a time per the cadence plan.
+COLD_OPEN_RECAP_ENABLED = os.getenv("COLD_OPEN_RECAP_ENABLED", "false").lower() == "true"
+
 AUDIO_HEARTBEAT_SECONDS = float(os.getenv("AUDIO_HEARTBEAT_SECONDS", "12.0"))
 AUDIO_CLIP_SECONDS = float(os.getenv("AUDIO_CLIP_SECONDS", "8.0"))
-AUDIO_MODEL = os.getenv("AUDIO_MODEL", "gpt-4o-mini-audio-preview-2024-12-17")
+# AUDIO_MODEL — DEAD since the P-7 OpenAI purge (the audio agent is inactive). Kept only so
+# the audio_agent import doesn't break; default emptied so no gpt- model string remains.
+AUDIO_MODEL = os.getenv("AUDIO_MODEL", "")
 # Audio content classifier (2026-06-22): the mood call ALSO returns a dominant
 # content tag (SPEECH/MUSIC/AMBIENT/MIXED) — zero extra API cost. MUSIC/AMBIENT are
 # BACKGROUNDED (audio_summary_is_event forced False: no proactive trigger, no
@@ -418,6 +446,16 @@ CHAT_FLOOR_OVERRIDE = os.getenv("CHAT_FLOOR_OVERRIDE", "none").lower()
 CHAT_RATE_CAP_ENABLED = os.getenv("CHAT_RATE_CAP_ENABLED", "false").lower() == "true"
 CHAT_RATE_CAP_PER_MIN = int(os.getenv("CHAT_RATE_CAP_PER_MIN", "12"))
 
+# ── Chat-as-advisors + reject-with-reason (Phase G-2, conversation engine) ─────
+# When ON, the chat-batch prompt frames chat as her ADVISOR GALLERY, not her
+# director: suggestions ("do X", "say Y", backseating) are input she WEIGHS; she
+# takes one only when she actually likes it (and owns it as her choice), and she
+# may DECLINE one IN CHARACTER with a one-beat reason — a why, not a lecture —
+# instead of silently complying or silently ignoring. Streamer register: chat
+# informs, she decides. Default OFF — OFF preserves today's chat prompt
+# byte-for-byte; feel-test as its own variable per the cadence plan.
+CHAT_ADVISORS_ENABLED = os.getenv("CHAT_ADVISORS_ENABLED", "false").lower() == "true"
+
 # Final stale-chat guard: drop any message older than this at RESPONSE time (not at
 # drain time). The worker's 60s pre-eviction runs before the turn-lock + the whole
 # response pipeline, so messages can age far past it (observed up to ~137s active,
@@ -482,8 +520,49 @@ DIRECTOR_DEAD_AIR_S = float(os.getenv("DIRECTOR_DEAD_AIR_S", "20.0"))  # silence
 # FRESH_MIN_SILENCE: the fresh-vision proactive path must ALSO see this much real silence —
 #   stops the Turbo metronome (fresh_ok permanently True) from firing at silence=1s. The
 #   dead-air path keeps its own longer DIRECTOR_DEAD_AIR_S gate.
-DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "3.0"))
+# Raised 3.0 -> 8.0 (2026-06-23, live-feel-tested): the 3s hold let her fire ~5s after
+# Jonny spoke, i.e. INTO the pauses of a live conversation (logged since_mic=4.4-4.9s
+# fires; "shut up I'm watching a show"). 8s = she holds during conversation but stays
+# alive to re-engage. She still fills genuine dead air (DIRECTOR_DEAD_AIR_S=20s, where
+# since_mic is naturally huge) but not mid-exchange pauses. Env-tunable.
+# FOLLOW-UP (queued): a STATIC hold is the stopgap; the real fix is ADAPTIVE-to-context
+# (shorter when he's clearly done, longer mid-thought) - see queued-backlog.
+DIRECTOR_POST_SPEECH_HOLD_S = float(os.getenv("DIRECTOR_POST_SPEECH_HOLD_S", "8.0"))
 DIRECTOR_FRESH_MIN_SILENCE_S = float(os.getenv("DIRECTOR_FRESH_MIN_SILENCE_S", "3.0"))
+
+# ── Media-pacing profiles (I-1c) — per-activity Director cadence ───────────────
+# A watch-party is not a gaming session: during media she should react LESS often
+# (let the show breathe — a friend on the couch, not a commentator), during games
+# the Neuro-tier baseline holds, ambient hangout sits between. Implemented as an
+# ACTIVITY MULTIPLIER on the Director's min-gap + dead-air (alongside the room
+# multiplier; the same absolute caps keep true dead air always filled). Composes
+# with presence presets and the dashboard slider — a profile widens FROM whatever
+# baseline those set. Default OFF (byte-identical cadence today) — feel-test one
+# variable at a time per the cadence plan; every applied profile logs loudly.
+MEDIA_PACING_ENABLED = os.getenv("MEDIA_PACING_ENABLED", "false").lower() == "true"
+DIRECTOR_GAP_MULT_BY_ACTIVITY = {
+    "game":    float(os.getenv("PACING_GAP_MULT_GAME",    "1.0")),  # Neuro-tier baseline
+    "media":   float(os.getenv("PACING_GAP_MULT_MEDIA",   "3.0")),  # watch-party restraint
+    "vn":      float(os.getenv("PACING_GAP_MULT_VN",      "2.0")),  # reading pace
+    "general": float(os.getenv("PACING_GAP_MULT_GENERAL", "1.5")),  # ambient hangout
+}
+
+# ── Attention Director (I-1b) — WHAT to attend to, per activity ────────────────
+# The Activity Director decides WHEN to speak; this layer decides WHAT the beat is
+# ABOUT. _has_fresh_sense already ranks fresh senses (dialogue > vision > media >
+# audio, static); when ON, the ranking becomes ACTIVITY-AWARE (a watch-party leads
+# with the episode + what's being said; a game leads with the screen) and the chosen
+# focus is injected into the Director prompt as the beat's lead — other senses demote
+# to background instead of all competing at once. Extends the existing Director
+# (rule 3: no parallel v2); default OFF = byte-identical ranking + prompt today.
+ATTENTION_DIRECTOR_ENABLED = os.getenv("ATTENTION_DIRECTOR_ENABLED", "false").lower() == "true"
+ATTENTION_RANK_BY_ACTIVITY = {
+    # keys match game_mode_controller.activity_type; values override the static ranks
+    "media":   {"loopback-dialogue": 45, "media-watch": 35, "vision": 25, "audio-event": 10},
+    "game":    {"loopback-dialogue": 40, "vision": 35, "media-watch": 15, "audio-event": 10},
+    "vn":      {"vision": 40, "loopback-dialogue": 35, "media-watch": 15, "audio-event": 10},
+    "general": {"loopback-dialogue": 40, "vision": 30, "media-watch": 25, "audio-event": 10},
+}
 
 # Presence → Director drive-gap presets (C7: presence is the SINGLE cadence dial).
 # Confirmed in code (bot.py: Director fires when now - last_fire >= director_min_gap_s):
@@ -533,7 +612,7 @@ ROOM_MIN_GAP_MAX_S = float(os.getenv("ROOM_MIN_GAP_MAX_S", "120.0"))    # effect
 # stays held throughout (two full turns still can't run at once). OFF -> byte-for-byte
 # today's behavior (lock held through the whole interjection; his in-window speech dropped).
 # Her REAL reply (P0 speak_streaming) is never affected — only the proactive interjection path.
-BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "false").lower() == "true"
+BARGE_IN_YIELD_ENABLED = os.getenv("BARGE_IN_YIELD_ENABLED", "true").lower() == "true"
 
 # ── Airiness / comedic disposition (behavioral; dialable by config) ────────────
 # How airy/weird/unhinged she chooses to be, injected at the generation chokepoint
@@ -725,13 +804,32 @@ CLIP_MAX_EXCHANGE_S = float(os.getenv("CLIP_MAX_EXCHANGE_S", "90.0"))  # setup�
 # short-form one-liners. In asymmetric mode the floor grows the FRONT (earlier
 # in-point), never the tail, so the hard out-cut on the punch is preserved.
 CLIP_MIN_SECONDS = float(os.getenv("CLIP_MIN_SECONDS", "12.0"))
-# (b) best-of reel: pick clips top-by-score until cumulative length reaches this cap.
-CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))  # ~5 min
+# (b) best-of reel — the MIDFORM cut (final spec 2026-07-08): 3-5 min best-of;
+# cap 300s so a rich session fills the full 5 min, spec floor stays 3-4 min.
+CLIP_REEL_MAX_SECONDS = float(os.getenv("CLIP_REEL_MAX_SECONDS", "300.0"))
+# (c) highlight VOD — the SUPERFAN cut (final spec 2026-07-08: ~20 min): the
+# chronological body targets FRACTION x session span, clamped to MAX (1200s = the
+# 20-min superfan target); lowest-score clips are dropped (loudly) until it fits.
+CLIP_HIGHLIGHT_FRACTION = float(os.getenv("CLIP_HIGHLIGHT_FRACTION", "0.10"))
+CLIP_HIGHLIGHT_MAX_SECONDS = float(os.getenv("CLIP_HIGHLIGHT_MAX_SECONDS", "1200.0"))
 # (c) highlight-VOD cold-open teaser: the N punchiest clips, each trimmed to this
 # many seconds (the tail-end landing on the punch), spliced BEFORE the chronological
 # body as a rapid hook — snippets, never full-clip duplicates.
 CLIP_TEASER_COUNT = int(os.getenv("CLIP_TEASER_COUNT", "3"))
 CLIP_TEASER_SECONDS = float(os.getenv("CLIP_TEASER_SECONDS", "0.5"))
+
+# (d) vertical shorts (Phase K item 1): the top-N scored clips rendered 9:16
+# 1080x1920 (blur-pad reframe, full frame preserved) with BURNED-IN captions
+# (.ass from faster-whisper on each short's own audio). Clips longer than the
+# max are trimmed to a punch-landing tail window rather than skipped.
+# CAPTION-SOURCE AUDIT (final spec 2026-07-08): shorts RE-TRANSCRIBE their own
+# audio locally (faster-whisper, word timestamps, $0 API cost) instead of reusing
+# session transcripts — events.jsonl is line-level only (no word timings), so
+# reuse cannot drive word-timed karaoke captions. Re-transcription is the correct
+# source until per-word timings are logged at session time. Audited, deliberate.
+# Count 10 (final spec: "10 ranked shorts"); fewer aligned clips = fewer shorts.
+CLIP_SHORTS_COUNT = int(os.getenv("CLIP_SHORTS_COUNT", "10"))
+CLIP_SHORT_MAX_SECONDS = float(os.getenv("CLIP_SHORT_MAX_SECONDS", "60.0"))
 
 # Minimum session length (minutes) below which the reel is skipped.
 # Also requires at least 3 aligned candidates. Override via env.
@@ -769,6 +867,13 @@ CHAT_BUDGET_RESPOND_ALL_N = int(os.getenv("CHAT_BUDGET_RESPOND_ALL_N", "5"))
 # even if they wouldn't surface from the n-gram statistics (e.g. short idioms).
 PHRASE_THROTTLE_ENABLED   = os.getenv("PHRASE_THROTTLE_ENABLED", "true").lower() == "true"
 PHRASE_THROTTLE_THRESHOLD = int(os.getenv("PHRASE_THROTTLE_THRESHOLD", "2"))
+# How many recent responses the catchphrase throttle remembers. The old 40 ≈ ~7 min of reactions, so a
+# bit reused every ~10 min fell out of the window between uses and never tripped — fine for short chats,
+# too short for a multi-HOUR Pokémon playthrough. 120 ≈ ~20 min; BATCH 6 PHASE 6 bumps the default to
+# 200 ≈ ~33 min for a 30-hr run, so a bit reused every half-hour still trips (n-gram rebuild stays
+# trivial at this size). Core anti-repetition -> this helps her EVERYWHERE (idle chat, other games), not
+# just Pokémon (One-Kira firewall: a general soul property, not a mode hack). Env-tunable per session.
+PHRASE_THROTTLE_CAPACITY  = int(os.getenv("PHRASE_THROTTLE_CAPACITY", "200"))
 PHRASE_THROTTLE_WATCHLIST = [
     p.strip() for p in os.getenv(
         "PHRASE_THROTTLE_WATCHLIST",

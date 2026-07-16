@@ -124,25 +124,15 @@ def _estimate_duration_min(sessions: list[Path]) -> int:
 
 
 def _build_prompt(activity: str, date_str: str, duration_min: int, combined_transcript: str, num_clips: int = 12) -> str:
+    # D4 (Phase K): head + format spec shared with bot.py's session-end
+    # artifacts via prompt_spec — one copy, no drift.
+    from kira.clips.prompt_spec import candidate_prompt_head, CANDIDATE_PROMPT_TAIL
     return (
-        f"You are reviewing a full stream session transcript for the AI VTuber Kira. "
-        f"Activity: {activity}. Duration: ~{duration_min} minutes. Date: {date_str}.\n\n"
-        f"You will produce TWO outputs, separated by the exact delimiter line `===CLIPS===`.\n\n"
-        f"OUTPUT 1 — LORE NOTES (markdown). Identify 3-7 durable canon points established or developed "
-        f"this session for this activity. Format as bullet points.\n\n"
-        f"OUTPUT 2 — CLIP CANDIDATES (markdown). Identify {num_clips} of the funniest, sharpest, or most "
-        f"emotionally landing moments. Cast a wide net — include all strong moments, not just the absolute peaks. "
-        f"For each one provide:\n"
-        f"  ### Clip N — Short title\n"
-        f"  **Timestamp:** approximate HH:MM:SS into stream\n"
-        f"  **Score:** X/10 (clip-worthiness: self-contained without context, has a punchline/payoff, quotable title potential, energy)\n"
-        f"  **Why it's good:** 1-2 sentences\n"
-        f"  **Suggested YouTube short title:** under 60 chars\n"
-        f"  **Key exchange:** 2-4 quoted lines\n\n"
-        f"Sort candidates best-first (highest score first).\n\n"
-        f"=== TRANSCRIPT (multiple sessions from the same stream, in chronological order) ===\n"
-        f"{combined_transcript}\n\n"
-        f"Begin output. Lore first, then `===CLIPS===` on its own line, then clip candidates."
+        candidate_prompt_head(activity, date_str, duration_min,
+                              clip_count=str(num_clips), wide_net=True)
+        + f"=== TRANSCRIPT (multiple sessions from the same stream, in chronological order) ===\n"
+        + f"{combined_transcript}\n\n"
+        + CANDIDATE_PROMPT_TAIL
     )
 
 

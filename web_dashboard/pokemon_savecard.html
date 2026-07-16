@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kira — Save File</title>
+<style>
+  /* FireRed "CONTINUE" save-select screen. Presentation-only: polls /pokemon_hud.json
+     (the same viewer-safe endpoint the HUD uses) — no token spend, no reasoning shown.
+     Fully self-contained (no external fonts/assets) so it's OBS-browser + offline safe. */
+  :root { --ink:#183c5a; --panel:#f8f8f8; --panel2:#e8eef4; --shadow:#8a9bb0;
+          --hp-hi:#58d858; --hp-mid:#f8d030; --hp-lo:#f85838; --badge:#f0b030; }
+  * { box-sizing: border-box; }
+  html,body { margin:0; height:100%; }
+  body { background:#101820; display:flex; align-items:center; justify-content:center;
+         font-family:"Courier New",monospace; color:var(--ink);
+         -webkit-font-smoothing:none; font-smooth:never; }
+  .frame { width:min(94vw,560px); background:var(--panel);
+           border:4px solid var(--ink); border-radius:14px;
+           box-shadow:0 6px 0 var(--shadow), 0 0 0 4px #101820, 0 0 30px #0af6 inset;
+           padding:18px 20px 20px; position:relative; }
+  .title { font-weight:bold; font-size:20px; letter-spacing:2px; text-transform:uppercase;
+           display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .title .cur { color:#c02020; animation:blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  .live { margin-left:auto; font-size:11px; padding:3px 8px; border-radius:8px;
+          background:#c8302030; color:#902018; letter-spacing:1px; }
+  .live.on { background:#2a8a3020; color:#1c6a26; }
+  .rows { display:grid; grid-template-columns:auto 1fr; gap:7px 14px; font-size:16px; }
+  .k { color:#5a7290; text-transform:uppercase; font-size:13px; letter-spacing:1px;
+       align-self:center; }
+  .v { font-weight:bold; }
+  .badges { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+  .b { width:15px; height:15px; border-radius:50%; border:2px solid var(--ink);
+       background:#cdd6e0; }
+  .b.on { background:var(--badge); box-shadow:0 0 6px #f0b03088; }
+  .place { grid-column:1/3; margin-top:4px; padding-top:10px; border-top:2px dashed #cbd5e0;
+           font-size:15px; }
+  .place .k { display:inline; }
+  .party { grid-column:1/3; margin-top:12px; padding-top:12px; border-top:3px solid var(--ink);
+            display:grid; grid-template-columns:repeat(3,1fr); gap:9px 10px; }
+  .mon { background:var(--panel2); border:2px solid #c2cedb; border-radius:8px; padding:6px 8px; }
+  .mon .nm { font-size:13px; font-weight:bold; text-transform:capitalize;
+             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mon .lv { font-size:11px; color:#5a7290; }
+  .bar { height:7px; background:#cdd6e0; border-radius:4px; margin-top:5px; overflow:hidden; }
+  .bar > i { display:block; height:100%; background:var(--hp-hi); }
+  .footer { grid-column:1/3; margin-top:12px; font-size:12px; color:#5a7290;
+            min-height:14px; letter-spacing:.5px; }
+  .off { text-align:center; color:#5a7290; font-size:15px; padding:26px 0; }
+</style>
+</head>
+<body>
+  <div class="frame" id="frame">
+    <div class="title"><span class="cur">&#9654;</span> CONTINUE
+      <span class="live" id="live">OFFLINE</span></div>
+    <div id="body"><div class="off">no save loaded &mdash; waiting for Kira&hellip;</div></div>
+  </div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const cap = (s) => (s||"").replace(/(^|\s|-)\w/g, m => m.toUpperCase());
+  function fmtTime(sec) {
+    if (sec == null) return "--:--";
+    sec = Math.max(0, Math.floor(sec));
+    const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60);
+    return h + ":" + String(m).padStart(2,"0");
+  }
+  function hpColor(f) { return f > 0.5 ? "var(--hp-hi)" : f > 0.2 ? "var(--hp-mid)" : "var(--hp-lo)"; }
+  function badgeDots(n) {
+    let s = "";
+    for (let i=0;i<8;i++) s += '<span class="b'+(i<n?' on':'')+'"></span>';
+    return s;
+  }
+  function monCard(m) {
+    const hp = m.hp, mx = m.maxhp || 0, f = mx > 0 ? Math.max(0, Math.min(1, hp/mx)) : 1;
+    const nm = cap(m.species || "?");
+    return '<div class="mon"><div class="nm">'+nm+'</div>'
+         + '<div class="lv">Lv. '+(m.level ?? "?")
+         + (mx ? '  '+hp+'/'+mx : '')+'</div>'
+         + '<div class="bar"><i style="width:'+(f*100).toFixed(0)+'%;background:'+hpColor(f)+'"></i></div></div>';
+  }
+  async function tick() {
+    let d;
+    try { d = await (await fetch("/pokemon_hud.json", {cache:"no-store"})).json(); }
+    catch (e) { $("live").textContent = "OFFLINE"; $("live").className = "live"; return; }
+    const running = !!d.running;
+    $("live").textContent = running ? "PLAYING" : "PAUSED";
+    $("live").className = "live" + (running ? " on" : "");
+    const party = d.party || [];
+    if (!party.length && !d.badge_count && !d.place) {
+      $("body").innerHTML = '<div class="off">no save loaded &mdash; waiting for Kira&hellip;</div>';
+      return;
+    }
+    const bc = d.badge_count || 0;
+    const html =
+      '<div class="rows">'
+      + '<div class="k">Player</div><div class="v">Kira</div>'
+      + '<div class="k">Badges</div><div class="v badges">'+badgeDots(bc)+'<span style="margin-left:6px">'+bc+'/8</span></div>'
+      + '<div class="k">Pok&eacute;dex</div><div class="v">'+(d.dex_caught ?? 0)+' caught</div>'
+      + '<div class="k">Time</div><div class="v">'+fmtTime(d.playthrough_s)+'</div>'
+      + '<div class="place"><span class="k">Location</span> &nbsp;'+(d.place || "&mdash;")+'</div>'
+      + '<div class="party">'+party.map(monCard).join("")+'</div>'
+      + '<div class="footer">'+(running && d.now_state ? "&#9654; "+cap(d.now_state) : "")+'</div>'
+      + '</div>';
+    $("body").innerHTML = html;
+  }
+  tick();
+  setInterval(tick, 3000);
+</script>
+</body>
+</html>

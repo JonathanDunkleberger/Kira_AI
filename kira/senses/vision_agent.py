@@ -1,15 +1,26 @@
-import base64
 import time
 import asyncio
 import re
 from collections import deque
 from io import BytesIO
 from PIL import ImageGrab
-from openai import AsyncOpenAI
-from kira.config import (OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS,
+try:
+    import pygetwindow as _pgw          # window-target capture (Pokémon vision-lock); already a VN-mode dep
+    PYGETWINDOW_AVAILABLE = True
+except Exception:
+    _pgw = None
+    PYGETWINDOW_AVAILABLE = False
+from kira.senses.gemini_vision import GeminiVisionClient
+from kira.config import (ENABLE_VISION, VISION_CALM_HEARTBEAT_SECONDS,
                          VISION_CAPTURE_DEDUP_ENABLED, VISION_CAPTURE_DEDUP_WINDOW_S,
                          TURBO_VISION_SLIDESHOW_ENABLED, TURBO_VISION_CAPTURE_INTERVAL_S,
                          TURBO_VISION_BUFFER_SIZE, TURBO_VISION_ANALYSIS_INTERVAL_S)
+
+# Always-on heartbeat downscale cap (longest side, px). 384px is the cost sweet-spot
+# for continuous multi-hour vision (~3.5x cheaper than 720p). On-demand answer /
+# transcribe / VN OCR override to a larger cap where legible text matters.
+_HEARTBEAT_MAX_PX = 384
+_ONDEMAND_MAX_PX = 768
 
 # Request-size bounds for the rolling scene summary. The summary feeds its own
 # output back in as `previous` each cycle, so without a clamp an over-long model
@@ -18,21 +29,6 @@ from kira.config import (OPENAI_API_KEY, ENABLE_VISION, VISION_CALM_HEARTBEAT_SE
 _SCENE_SUMMARY_MAX_CHARS = 800
 _SCENE_DESC_MAX_CHARS = 1500
 
-
-def _record_vision_usage(response) -> None:
-    """Record gpt-4o-mini usage to cost_tracker. Best-effort; never raises."""
-    try:
-        from kira.brain.cost_tracker import cost_tracker as _ct
-        u = getattr(response, "usage", None)
-        if u:
-            _ct.record(
-                model="gpt-4o-mini",
-                input_tokens=getattr(u, "prompt_tokens", 0),
-                output_tokens=getattr(u, "completion_tokens", 0),
-                purpose="vision",
-            )
-    except Exception:
-        pass
 
 class ContextBuffer:
     def __init__(self, maxlen=3):
@@ -139,12 +135,13 @@ class UniversalVisionAgent:
     )
 
     def __init__(self):
-        self.client = None
-        self.api_key = OPENAI_API_KEY
-        if self.api_key:
-             self.client = AsyncOpenAI(api_key=self.api_key)
-        else:
-             print("   [Vision] Warning: OPENAI_API_KEY not found in config.")
+        # Single shared Gemini vision client (core-Kira "eyes", all modes). Passed
+        # into VNAutopilot at its init so both call sites move with ONE swap — the
+        # same single-seam the old AsyncOpenAI client occupied. `.client` truthiness
+        # is preserved as a blindness gate everywhere it was checked before.
+        self.client = GeminiVisionClient()
+        if not self.client.available:
+            self.client = None  # mirror old "no key -> client is falsy" contract
 
         self.context_buffer = ContextBuffer(maxlen=3)
         self.last_description = "I'm just getting my bearings. One sec!"
@@ -165,6 +162,11 @@ class UniversalVisionAgent:
         self.master_enabled = ENABLE_VISION
         self.quality_mode = "fast"       # 'fast' or 'high'
         self.activity_type = "general"   # Set by GameModeController / bot
+        # POKÉMON VISION-LOCK (Phase 1A): when non-empty, EVERY grab is restricted to the window whose
+        # title contains this substring (the game window) — she sees the game and NOTHING else (no
+        # desktop/code leak). Empty "" = normal full-screen capture (default; zero change off-mode).
+        # Set by control_server on pokemon_start, cleared on pokemon_stop.
+        self.capture_window_title = ""
 
         # Shared Buffer (populated by dashboard to avoid double-capturing)
         self.shared_frame = None
@@ -264,16 +266,14 @@ class UniversalVisionAgent:
             return "UNCERTAIN: vision unavailable (missing API key)."
         try:
             def process_image():
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy()
-                else:
-                    img = ImageGrab.grab()
-                img.thumbnail((1920, 1080))
-                buffered = BytesIO()
-                img.save(buffered, format="JPEG", quality=85)
-                return base64.b64encode(buffered.getvalue()).decode("utf-8")
+                img = self._grab_region()
+                if img is None:
+                    return None
+                return self.client.encode_jpeg(img, max_px=_ONDEMAND_MAX_PX, quality=85)
 
-            base64_image = await asyncio.to_thread(process_image)
+            image_bytes = await asyncio.to_thread(process_image)
+            if image_bytes is None:
+                return "I can't see the game window right now — give me a sec."
 
             prompt = (
                 "You are looking at Jonny's computer screen. Jonny just asked Kira "
@@ -294,23 +294,16 @@ class UniversalVisionAgent:
                 "labels or UI text."
             )
 
-            response = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                            "detail": "high",
-                        }},
-                    ]}],
-                    max_tokens=180,
-                    temperature=0,
+            content = await asyncio.wait_for(
+                self.client.describe(
+                    image_bytes, prompt,
+                    escalate=True,     # on-demand visual Q&A — richer model
+                    max_tokens=180, temperature=0.0,
+                    see_only=False,    # prompt already carries strict honesty rules
                 ),
                 timeout=15,
             )
-            content = (response.choices[0].message.content or "").strip()
-            _record_vision_usage(response)
+            content = (content or "").strip()
             self.last_capture_time = time.time()
             # Mirror into last_description so other cached paths see a real frame,
             # but keep the description short and grounded.
@@ -354,34 +347,25 @@ class UniversalVisionAgent:
             return "Vision unavailable (Missing API Key)."
         try:
             def process_image():
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy()
-                else:
-                    img = ImageGrab.grab()
-                img.thumbnail((1920, 1080))
-                buffered = BytesIO()
-                img.save(buffered, format="JPEG", quality=90)
-                return base64.b64encode(buffered.getvalue()).decode("utf-8")
+                img = self._grab_region()
+                if img is None:
+                    return None
+                # Verbatim text extraction needs legible pixels — keep a larger cap.
+                return self.client.encode_jpeg(img, max_px=1280, quality=90)
 
-            base64_image = await asyncio.to_thread(process_image)
+            image_bytes = await asyncio.to_thread(process_image)
+            if image_bytes is None:
+                return "I can't read the game window right now."
 
-            response = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": [
-                        {"type": "text", "text": self.TRANSCRIBE_PROMPT},
-                        {"type": "image_url", "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}",
-                            "detail": "high",
-                        }},
-                    ]}],
-                    max_tokens=600,
-                    temperature=0,
+            content = await asyncio.wait_for(
+                self.client.describe(
+                    image_bytes, self.TRANSCRIBE_PROMPT,
+                    escalate=True,     # verbatim OCR — richer model for legibility
+                    max_tokens=600, temperature=0.0,
+                    see_only=False,    # TRANSCRIBE_PROMPT is a strict format contract
                 ),
                 timeout=15,
             )
-            content = response.choices[0].message.content
-            _record_vision_usage(response)
             self.last_capture_time = time.time()
             return content.strip() if content else "NO TEXT VISIBLE"
         except asyncio.TimeoutError:
@@ -407,17 +391,11 @@ class UniversalVisionAgent:
                 previous=_prev,
                 newest=_newest,
             )
-            response = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": prompt}],
-                    max_tokens=180,
-                    temperature=0.3,
-                ),
+            _summary = await asyncio.wait_for(
+                self.client.generate_text(prompt, max_tokens=180, temperature=0.3),
                 timeout=15,
             )
-            _summary = response.choices[0].message.content.strip()
-            _record_vision_usage(response)
+            _summary = (_summary or "").strip()
             # Clamp the stored summary too — defends the next roll's `previous`.
             self.scene_summary = _summary[:_SCENE_SUMMARY_MAX_CHARS]
         except asyncio.TimeoutError:
@@ -445,6 +423,12 @@ class UniversalVisionAgent:
         if not self.is_active:
             return None
         if not self.client:
+            # Silent-failure-is-the-enemy: this used to return quietly, so a mis-set key looked
+            # identical to "parked". Alarm ONCE, loud, so Jonny sees WHY vision is dark.
+            if not getattr(self, "_missing_key_alarmed", False):
+                self._missing_key_alarmed = True
+                print("   [Vision] !! DARK — no Gemini client (GEMINI_IMAGE_API_KEY unset/invalid). "
+                      "General-mode vision will not work until the key is fixed. LOUD.")
             return "Vision unavailable (Missing API Key.)."
 
         # Dedup: a HEARTBEAT capture skips if an on-demand capture started within the
@@ -461,29 +445,29 @@ class UniversalVisionAgent:
             # Capture and Scale based on quality mode
             # Run blocking image capture/processing in a thread
             def process_image():
-                # Check for shared frame (freshness < 1.0s)
-                if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                    img = self.shared_frame.copy() # Use the shared frame
-                else:
-                    img = ImageGrab.grab() # Fallback capture
-                
+                img = self._grab_region()
+                if img is None:
+                    return None
+
                 if self.quality_mode == "high" and not is_heartbeat:
-                    img.thumbnail((1920, 1080)) # 1080p for high detail
-                    quality = 85
+                    max_px, quality = _ONDEMAND_MAX_PX, 85   # richer on-demand describe
                 else:
-                    img.thumbnail((1280, 720)) # 720p for fast/heartbeat
-                    quality = 60
+                    max_px, quality = _HEARTBEAT_MAX_PX, 60   # cheap/fast always-on tick
 
                 # Stash the downscaled frame for the dashboard EYES preview
-                # (/vision/thumbnail). Done before the base64 conversion that
-                # otherwise discards the PIL image.
+                # (/vision/thumbnail). Thumbnail in-place mirrors what we send.
+                img.thumbnail((max_px, max_px))
                 self.last_frame = img
 
                 buffered = BytesIO()
                 img.save(buffered, format="JPEG", quality=quality)
-                return base64.b64encode(buffered.getvalue()).decode('utf-8')
-            
-            base64_image = await asyncio.to_thread(process_image)
+                return buffered.getvalue()
+
+            image_bytes = await asyncio.to_thread(process_image)
+            if image_bytes is None:
+                # Vision-lock (Pokémon) and the game window is gone — skip this tick rather than
+                # describing a stale/desktop frame. The loud log already fired in _grab_region.
+                return self.last_description
 
             # One-time confirmation that the EYES thumbnail frame is being
             # captured (served by the dashboard's /vision/thumbnail endpoint).
@@ -503,35 +487,43 @@ class UniversalVisionAgent:
             # Auto-detect context
             if self.context_buffer.buffer and self.activity_type != "vn":
                 prompt += f"\nPrevious context: {self.context_buffer.get_context_string()}"
-            
-            # Dynamic Detail: heartbeat ticks use low detail (cheap, ~constant
-            # background polling); on-demand describes keep high detail for cognition.
-            visual_detail = "low" if is_heartbeat else "high"
 
-            response = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model="gpt-4o-mini", # Fastest vision model
-                    messages=[{"role": "user", "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}", "detail": visual_detail}}
-                    ]}],
-                    max_tokens=200
+            # Tiering: heartbeat ticks ride the cheap/fast lite model (continuous
+            # background polling); on-demand describes escalate to the richer model
+            # for cognition. VN-extraction prompts carry their own strict format, so
+            # the see-only guard is suppressed there (it would fight the SPEAKER:/
+            # DIALOGUE: contract); general/media describes keep it on.
+            content = await asyncio.wait_for(
+                self.client.describe(
+                    image_bytes, prompt,
+                    escalate=not is_heartbeat,
+                    max_tokens=200, temperature=0.0,
+                    see_only=(self.activity_type != "vn"),
                 ),
                 timeout=15,
             )
-            
-            content = response.choices[0].message.content
-            _record_vision_usage(response)
             if self.activity_type != "vn":
                 self.context_buffer.add(content)
             self.last_capture_time = time.time()
+            self._vision_fail_streak = 0            # a good frame clears the alarm state
             return content
         except asyncio.TimeoutError:
             print("   [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping")
+            self._note_vision_fail("timeout after 15s")
             return None
         except Exception as e:
             print(f"   [WARN] vision_agent: capture_and_describe failed: {e}")
+            self._note_vision_fail(str(e))
             return f"My vision is a bit glitchy: {e}"
+
+    def _note_vision_fail(self, why: str):
+        """Track consecutive vision failures and ALARM LOUD once they cross a threshold — so a
+        Gemini outage / bad model id / quota wall in GENERAL mode surfaces instead of the Eyes
+        panel just quietly freezing (silent failure is the enemy)."""
+        self._vision_fail_streak = getattr(self, "_vision_fail_streak", 0) + 1
+        if self._vision_fail_streak in (3, 10, 30):
+            print(f"   [Vision] !! FAILING — {self._vision_fail_streak} consecutive capture failures "
+                  f"(last: {why[:120]}). General-mode vision is DOWN; the Eyes panel will read frozen. LOUD.")
 
     async def capture_vn_state(self) -> dict:
         """
@@ -606,15 +598,56 @@ class UniversalVisionAgent:
         print(f"   [TurboVision] Slideshow OFF — {self._slideshow_calls} analysis calls, "
               f"{len(self.episode_log)} events.")
 
-    def _grab_fullscreen_b64(self):
-        """Sync full-screen grab → downscaled JPEG base64. Reuses a fresh shared
+    def _grab_region(self, allow_shared=True):
+        """The single capture chokepoint. THREE modes, in priority:
+          1. POKÉMON VISION-LOCK — when self.capture_window_title is set, grab ONLY that window's
+             rect (the game window). She sees the game and nothing else. If the window is gone /
+             minimised / pygetwindow is missing, return None and log LOUD — we NEVER silently fall
+             back to the full desktop (that silent fallback IS the leak we're fixing; Constraint #3).
+          2. SHARED — a fresh dashboard-pushed frame (<1.0s old) when allowed.
+          3. FULL-SCREEN — the default ImageGrab.grab().
+        Returns a PIL image, or None ONLY in vision-lock mode when the window is unavailable
+        (callers skip the frame / answer honestly rather than describing the desktop)."""
+        title = self.capture_window_title
+        if title:
+            if not PYGETWINDOW_AVAILABLE:
+                print(f"   [Vision] !! vision-lock '{title}' requested but pygetwindow missing — "
+                      f"skipping frame (pip install pygetwindow pywin32)", flush=True)
+                return None
+            try:
+                needle = title.strip().lower()
+                win = next((w for w in _pgw.getAllWindows()
+                            if needle in (w.title or "").lower()), None)
+            except Exception as e:
+                print(f"   [Vision] !! vision-lock '{title}' lookup failed: {e} — skipping frame",
+                      flush=True)
+                return None
+            if win is None or win.width <= 0 or win.height <= 0:
+                print(f"   [Vision] !! vision-lock '{title}' window not found/minimised — skipping "
+                      f"frame (NOT leaking the desktop)", flush=True)
+                return None
+            try:
+                return ImageGrab.grab(
+                    bbox=(win.left, win.top, win.left + win.width, win.top + win.height))
+            except Exception as e:
+                print(f"   [Vision] !! vision-lock '{title}' grab failed: {e} — skipping frame",
+                      flush=True)
+                return None
+        # normal (un-locked) capture
+        if allow_shared and self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
+            return self.shared_frame.copy()
+        return ImageGrab.grab()
+
+    def _grab_fullscreen_bytes(self):
+        """Sync full-screen grab → downscaled JPEG bytes. Reuses a fresh shared
         frame if the dashboard just captured one (avoids a double grab)."""
         try:
-            if self.shared_frame and (time.time() - self.shared_frame_time) < 1.0:
-                img = self.shared_frame.copy()
-            else:
-                img = ImageGrab.grab()
-            img.thumbnail((1280, 720))
+            img = self._grab_region()
+            if img is None:
+                return None
+            # Slideshow rides the cheap always-on tier — downscale hard (384px) like
+            # the heartbeat. Multi-frame sends multiply cost, so the small cap matters.
+            img.thumbnail((_HEARTBEAT_MAX_PX, _HEARTBEAT_MAX_PX))
             # EYES backfill (precedence: heartbeat wins when live). When the heartbeat
             # is PARKED (is_active False — e.g. chess), it isn't writing last_frame /
             # last_capture_time, so the dashboard EYES freeze. The slideshow is grabbing
@@ -625,7 +658,7 @@ class UniversalVisionAgent:
                 self.last_capture_time = time.time()
             buf = BytesIO()
             img.save(buf, format="JPEG", quality=65)
-            return base64.b64encode(buf.getvalue()).decode()
+            return buf.getvalue()
         except Exception as e:
             print(f"   [TurboVision] capture error: {e}")
             return None
@@ -637,9 +670,9 @@ class UniversalVisionAgent:
                 try:
                     # Honor the master Vision switch — don't grab when vision is OFF.
                     if self.master_enabled:
-                        b64 = await asyncio.to_thread(self._grab_fullscreen_b64)
-                        if b64:
-                            self._slideshow_frames.append({"ts": time.time(), "b64": b64})
+                        jpg = await asyncio.to_thread(self._grab_fullscreen_bytes)
+                        if jpg:
+                            self._slideshow_frames.append({"ts": time.time(), "jpg": jpg})
                 except Exception as e:
                     print(f"   [TurboVision] capture tick error: {e}")
                 await asyncio.sleep(max(0.5, TURBO_VISION_CAPTURE_INTERVAL_S))
@@ -666,19 +699,14 @@ class UniversalVisionAgent:
         if not self.client:
             return
         frames_snapshot = list(self._slideshow_frames)
-        content = [{"type": "text", "text": self.SLIDESHOW_ANALYSIS_PROMPT}]
-        for f in frames_snapshot:
-            content.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/jpeg;base64,{f['b64']}", "detail": "low"},
-            })
+        frame_bytes = [f["jpg"] for f in frames_snapshot]
         try:
-            resp = await asyncio.wait_for(
-                self.client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": content}],
-                    max_tokens=260,
-                    temperature=0.2,
+            summary = await asyncio.wait_for(
+                self.client.describe_multi(
+                    frame_bytes, self.SLIDESHOW_ANALYSIS_PROMPT,
+                    escalate=False,    # always-on timeline — cheap/fast lite model
+                    max_tokens=260, temperature=0.2,
+                    see_only=True,     # constrain timeline to observed visual facts
                 ),
                 timeout=self._slideshow_cloud_timeout,
             )
@@ -688,11 +716,7 @@ class UniversalVisionAgent:
         except Exception as e:
             print(f"   [TurboVision] analysis call failed: {e}")
             return
-        _record_vision_usage(resp)
-        try:
-            summary = (resp.choices[0].message.content or "").strip()
-        except Exception:
-            summary = ""
+        summary = (summary or "").strip()
         if not summary:
             return
         self._slideshow_calls += 1

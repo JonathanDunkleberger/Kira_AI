@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!-- Kira's Pokémon STREAM HUD (OBS browser source) — HUD OVERHAUL.
+     Real Gen-3 sprites (assets/pokemon/<species_id>.png) + real Kanto badge icons (inline SVG, lit/dim)
+     + per-mon cards (sprite · name · level · type badges · HP bar) + whole-playthrough timer, now-state,
+     objective, and her current want. Re-skins /pokemon_hud.json (the health snapshot the campaign
+     publishes). Transparent bg; drop in OBS at 1920x1080, pins bottom-left. Readable in 3 seconds.
+     NO token/runtime counters, NO reasoning transcript — that lives in Jonny's cockpit, never on stream. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kira · Pokémon HUD</title>
+<style>
+  :root{
+    /* brand palette — plum / mauve / rose / amber / cream */
+    --plum:#160f20; --plum2:#211733; --mauve:#b89cff; --mauve-dim:#6b5f8c;
+    --rose:#f0a0bf; --amber:#f0c265; --cream:#f5efe2; --cream-dim:#a79fb3;
+    --card:rgba(28,20,44,.80); --card2:rgba(42,30,64,.66); --edge:rgba(176,150,255,.20);
+    --glow:rgba(176,150,255,.45);
+    --hp-hi:#5fd38a; --hp-mid:#e9c34f; --hp-lo:#e36157;
+  }
+  html,body{margin:0;background:transparent;overflow:hidden;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+  #hud{position:fixed;left:28px;bottom:28px;width:368px;opacity:0;transition:opacity .6s ease;
+    color:var(--cream);text-shadow:0 1px 3px rgba(0,0,0,.55);}
+  #hud.on{opacity:1;}
+  .panel{background:var(--card);border:1px solid var(--edge);border-radius:16px;
+    backdrop-filter:blur(9px);box-shadow:0 8px 28px rgba(0,0,0,.40);}
+
+  /* ── header ── */
+  .head{padding:13px 15px 12px;margin-bottom:9px;}
+  .row1{display:flex;align-items:center;gap:9px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--mauve);box-shadow:0 0 11px var(--glow);flex:none;}
+  .brand{font-weight:800;letter-spacing:.13em;font-size:13px;text-transform:uppercase;color:var(--cream);}
+  .state{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;background:rgba(176,150,255,.16);color:var(--mauve);
+    border:1px solid rgba(176,150,255,.30);white-space:nowrap;}
+  .state.battle{background:rgba(240,160,191,.16);color:var(--rose);border-color:rgba(240,160,191,.34);}
+  .state.healing{background:rgba(95,211,138,.15);color:var(--hp-hi);border-color:rgba(95,211,138,.32);}
+  .state.shopping{background:rgba(240,194,101,.15);color:var(--amber);border-color:rgba(240,194,101,.32);}
+  .meta{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:11px;color:var(--cream-dim);}
+  .meta .place{color:var(--cream);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .meta .sep{opacity:.4;}
+  .obj{margin-top:8px;font-size:11px;color:var(--amber);display:flex;align-items:center;gap:6px;}
+  .obj svg{flex:none;}
+  .want{margin-top:5px;font-size:10.5px;font-style:italic;color:var(--cream-dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* ── 3-tier goal (short / medium / long) — read "stuck vs strategizing" at a glance ── */
+  .goals{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
+  .goal{font-size:10.5px;color:var(--cream);display:flex;gap:6px;align-items:baseline;line-height:1.25;}
+  .goal b{flex:none;font-size:8.5px;font-weight:700;letter-spacing:.5px;width:34px;color:var(--amber);
+    opacity:.85;text-transform:uppercase;}
+  .goal.med b{color:var(--rose,#e08aa8);} .goal.long b{color:var(--cream-dim);}
+  .goal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* ── badges ── */
+  .badges{display:flex;gap:4px;padding:11px 12px 9px;margin-bottom:9px;}
+  .badge{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .badge svg{width:27px;height:27px;filter:grayscale(1) brightness(.5) opacity(.55);transition:filter .5s ease;}
+  .badge.lit svg{filter:drop-shadow(0 0 5px var(--glow));}
+  .badge .lbl{font-size:8px;letter-spacing:.02em;color:var(--mauve-dim);text-transform:uppercase;}
+  .badge.lit .lbl{color:var(--cream);}
+  .bcount{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;font-weight:700;color:var(--mauve);}
+
+  /* ── party cards ── */
+  .party{padding:11px 12px 12px;}
+  .ttl{display:flex;align-items:center;font-size:9.5px;letter-spacing:.16em;color:var(--mauve-dim);
+    text-transform:uppercase;margin-bottom:9px;}
+  .mon{display:flex;align-items:center;gap:11px;padding:8px;border-radius:12px;background:var(--card2);
+    margin-bottom:7px;}
+  .mon:last-child{margin-bottom:0;}
+  .mon .sprite{width:54px;height:54px;flex:none;image-rendering:pixelated;
+    image-rendering:crisp-edges;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+  .mon .ph{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:800;color:var(--plum);border-radius:10px;}
+  .mon .info{flex:1;min-width:0;}
+  .mon .top{display:flex;align-items:baseline;gap:7px;}
+  .mon .nm{font-weight:700;font-size:14px;color:var(--cream);text-transform:capitalize;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mon .lv{margin-left:auto;font-size:11px;font-weight:700;color:var(--mauve);flex:none;}
+  .types{display:flex;gap:4px;margin:4px 0 5px;}
+  .type{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 6px;border-radius:5px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.45);}
+  .hpwrap{display:flex;align-items:center;gap:7px;}
+  .bar{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.38);overflow:hidden;}
+  .fill{height:100%;border-radius:4px;transition:width .5s ease,background .5s ease;}
+  .hpnum{font-size:9.5px;color:var(--cream-dim);font-variant-numeric:tabular-nums;flex:none;min-width:46px;text-align:right;}
+  .mon.fainted{opacity:.42;}
+  .empty{color:var(--cream-dim);font-size:11.5px;font-style:italic;padding:4px 2px;}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="panel head">
+    <div class="row1"><span class="dot"></span><span class="brand">Kira · the climb</span>
+      <span class="state" id="state">Exploring</span></div>
+    <div class="meta"><span class="place" id="place">—</span>
+      <span class="sep" id="sepT">·</span><span id="timer"></span></div>
+    <div class="obj" id="objWrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+      stroke="#f0c265" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#f0c265"/></svg>
+      <span id="obj"></span></div>
+    <div class="want" id="want"></div>
+    <div class="goals" id="goals">
+      <div class="goal now"><b>Now</b><span id="gShort"></span></div>
+      <div class="goal med"><b>Next</b><span id="gMed"></span></div>
+      <div class="goal long"><b>Goal</b><span id="gLong"></span></div>
+    </div>
+  </div>
+  <div class="panel badges" id="badges"></div>
+  <div class="panel party"><div class="ttl">the team</div><div id="party"></div></div>
+</div>
+<script>
+const BADGES = ["Boulder","Cascade","Thunder","Rainbow","Soul","Marsh","Volcano","Earth"];
+// Real Kanto badge icons as inline SVG (their actual shapes + official colours), lit when earned.
+const BADGE_SVG = {
+  Boulder:`<polygon points="12,2 20,7 20,17 12,22 4,17 4,7" fill="#9b9486" stroke="#cfc7b6" stroke-width="1.2"/>`,
+  Cascade:`<path d="M12 2 C12 2 4 12 4 16 a8 8 0 0 0 16 0 C20 12 12 2 12 2Z" fill="#4fa8e0" stroke="#bfe4fb" stroke-width="1.2"/>`,
+  Thunder:`<path d="M12 1 L14.4 7 L21 5 L17.6 11 L23 12 L17.6 13 L21 19 L14.4 17 L12 23 L9.6 17 L3 19 L6.4 13 L1 12 L6.4 11 L3 5 L9.6 7Z" fill="#f0b53c" stroke="#ffe39b" stroke-width="0.8"/>`,
+  Rainbow:`<g stroke="#fff" stroke-width="0.6"><circle cx="12" cy="5.5" r="4" fill="#e0584a"/><circle cx="18.5" cy="9.5" r="4" fill="#e6a23c"/><circle cx="16" cy="17" r="4" fill="#e6c24a"/><circle cx="8" cy="17" r="4" fill="#5cb85c"/><circle cx="5.5" cy="9.5" r="4" fill="#6a8ee0"/><circle cx="12" cy="12" r="3" fill="#f4eedd"/></g>`,
+  Soul:`<path d="M12 21 C2 13 5 4 12 8 C19 4 22 13 12 21Z" fill="#e87aa8" stroke="#f7c3da" stroke-width="1.2"/>`,
+  Marsh:`<circle cx="12" cy="12" r="9" fill="#e8b94a" stroke="#f7e0a0" stroke-width="1.3"/><circle cx="12" cy="12" r="3.4" fill="#a87f1e"/>`,
+  Volcano:`<path d="M12 2 C9 7 6 8 6 13 a6 6 0 0 0 12 0 C18 9 15 8 12 2Z" fill="#e15a3a" stroke="#f6b29a" stroke-width="1.1"/><path d="M12 9 C10.5 12 10 13 10 14.5 a2 2 0 0 0 4 0 C14 13 13.2 12 12 9Z" fill="#f0c265"/>`,
+  Earth:`<path d="M12 2 C5 8 4 14 4 16 a8 8 0 0 0 16 0 C20 14 19 8 12 2Z" fill="#5cad5c" stroke="#bfe6bf" stroke-width="1.2"/><path d="M12 6 L12 19 M12 11 L8.5 8 M12 13 L15.5 10" stroke="#2f6b2f" stroke-width="1.1" fill="none"/>`,
+};
+const TYPE_COLOR = {normal:"#9aa0a8",fire:"#ff9d55",water:"#4d90d5",electric:"#e8c531",grass:"#63bc5a",
+  ice:"#73cec0",fighting:"#ce4266",poison:"#ab6ac8",ground:"#d8794a",flying:"#8fa8dd",psychic:"#f97176",
+  bug:"#90c12f",rock:"#c5b787",ghost:"#5a6fb0",dragon:"#1f73c4",dark:"#5d5566",steel:"#5a8ea1",fairy:"#ec8fe6"};
+const SPRITE = id => `/web_dashboard/assets/pokemon/${id}.png`;
+function hpColor(f){ return f>0.5?'var(--hp-hi)':f>0.2?'var(--hp-mid)':'var(--hp-lo)'; }
+function el(id){ return document.getElementById(id); }
+function fmtTime(s){ if(s==null) return ''; s=Math.floor(s); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`; }
+
+function render(d){
+  el('hud').classList.toggle('on', !!d.running);
+  // now-state pill
+  const stt = (d.now_state||'EXPLORING').toUpperCase();
+  const sEl = el('state'); sEl.textContent = stt.charAt(0)+stt.slice(1).toLowerCase();
+  sEl.className = 'state ' + ({BATTLE:'battle',HEALING:'healing',SHOPPING:'shopping'}[stt]||'');
+  el('place').textContent = d.place || '—';
+  const t = fmtTime(d.playthrough_s); el('timer').textContent = t; el('sepT').style.display = t?'':'none';
+  el('obj').textContent = d.objective || '';
+  el('objWrap').style.display = d.objective ? '' : 'none';
+  el('want').textContent = d.want ? `“${d.want}”` : '';
+  el('want').style.display = d.want ? '' : 'none';
+  // 3-tier goal (short/medium/long): what she's doing now, the obstacle she's prepping for, the milestone
+  const g = d.goals || {};
+  el('gShort').textContent = g.short || '';
+  el('gMed').textContent   = g.medium || '';
+  el('gLong').textContent  = g.long || '';
+  el('goals').style.display = (g.short || g.medium || g.long) ? '' : 'none';
+
+  // badge row — lit by count (canonical order), real badge graphics
+  const n = d.badge_count||0;
+  el('badges').innerHTML = BADGES.map((b,i)=>
+    `<div class="badge ${i<n?'lit':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg><div class="lbl">${b}</div></div>`
+  ).join('') + `<div class="bcount">${n}<span style="color:var(--mauve-dim)">/8</span></div>`;
+
+  // party cards — real sprite + name + level + type badges + HP bar
+  const party = d.party||[];
+  el('party').innerHTML = party.length ? party.map(m=>{
+    const hp = m.hp!=null?m.hp:0, mx = m.maxhp||1, f = Math.max(0, Math.min(1, hp/mx));
+    const fainted = hp<=0, nm = m.species||'?', id = m.species_id;
+    const types = (m.types||[]).map(t=>
+      `<span class="type" style="background:${TYPE_COLOR[t]||'#777'}">${t}</span>`).join('');
+    const phColor = TYPE_COLOR[(m.types||[])[0]] || '#8a7fb0';
+    const letter = (nm[0]||'?').toUpperCase();
+    // sprite with a clean fallback: on load-error hide the img and reveal the letter placeholder.
+    const art = id
+      ? `<img class="sprite" src="${SPRITE(id)}" alt="${nm}"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+         <div class="ph" style="display:none;background:${phColor}">${letter}</div>`
+      : `<div class="ph" style="background:${phColor}">${letter}</div>`;
+    return `<div class="mon ${fainted?'fainted':''}">
+      ${art}
+      <div class="info">
+        <div class="top"><span class="nm">${nm}</span><span class="lv">Lv ${m.level||'?'}</span></div>
+        <div class="types">${types}</div>
+        <div class="hpwrap">
+          <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>
+          <span class="hpnum">${hp}/${mx}</span>
+        </div>
+      </div></div>`;
+  }).join('') : `<div class="empty">just getting started…</div>`;
+}
+
+async function poll(){
+  try{ const r = await fetch('/pokemon_hud.json',{cache:'no-store'}); if(r.ok) render(await r.json()); }
+  catch(e){ /* overlay stays as-is on a blip */ }
+}
+poll(); setInterval(poll, 2000);
+</script>
+</body>
+</html>

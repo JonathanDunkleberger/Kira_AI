@@ -226,6 +226,13 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         "kira_elo":              _get(lambda: ca.kira_elo if ca else 1400, 1400),
     }
 
+    # ── Pokémon session subprocess (dashboard Start/Stop/Status) ──────────────
+    def _pokemon_status():
+        from kira import pokemon_proc
+        return pokemon_proc.status()
+    pokemon_state = _get(_pokemon_status,
+                         {"running": False, "pid": None, "starter": "?"})
+
     # ── Mute / Pause ─────────────────────────────────────────────────────────
     muted = _get(lambda: bot.is_muted(), False)
     mute_remaining = _get(
@@ -356,6 +363,7 @@ def state_snapshot(bot: "VTubeBot") -> dict:
         # Subsystem states
         "autopilot": autopilot,
         "chess": chess_state,
+        "pokemon": pokemon_state,
         # Mute / pause
         "muted": muted,
         "mute_seconds_remaining": mute_remaining,
@@ -449,6 +457,38 @@ async def _card_overlay_handler():
     # Redirect (not FileResponse) so relative asset paths (assets/cards/*.png)
     # resolve correctly against /web_dashboard/ in the browser.
     return RedirectResponse(url="/web_dashboard/card_overlay.html")
+
+# BATCH 6 PHASE 8 — STREAM HUD (viewer-facing, minimal): badge row + party-as-family. Re-skins the
+# health.json the campaign already publishes (no token/runtime counters, no reasoning transcript).
+@app.get("/pokemon_hud")
+async def _pokemon_hud_handler():
+    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_hud.html"))
+
+# SAVE-FILE CARD (couch close-out 2026-07-08): a Game Boy / FireRed "CONTINUE" save-select
+# screen — pure presentation over the SAME /pokemon_hud.json state (badges / Pokédex / play
+# time / location / party). Viewer-safe (no spend/reasoning), self-contained HTML, OBS-source
+# ready. Additive: new route + static file only, no backend/state change.
+@app.get("/pokemon_savecard")
+async def _pokemon_savecard_handler():
+    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_savecard.html"))
+
+@app.get("/pokemon_hud.json")
+async def _pokemon_hud_json():
+    # Public read for the OBS browser source: ONLY the game-side fields the HUD shows (badges + party).
+    # Deliberately excludes spend/uptime/reasoning — those live in Jonny's cockpit, never on stream.
+    from kira import pokemon_proc
+    g = (pokemon_proc.health() or {}).get("game") or {}
+    return {"running": pokemon_proc.is_running(),
+            "badges": g.get("badges") or [], "badge_count": g.get("badge_count") or 0,
+            "party": g.get("party_hud") or [], "place": g.get("place"),
+            # HUD overhaul — per-mon cards carry types/sprite-id; plus journey timer / now-state /
+            # objective / want. All game-side + viewer-appropriate (still NO token spend / reasoning).
+            "now_state": g.get("now_state"), "objective": g.get("objective"),
+            "want": g.get("want"), "playthrough_s": g.get("playthrough_s"),
+            # PHASE 1 — 3-tier goal (short/medium/long) + flat one-liner so Jonny reads
+            # "stuck vs strategizing" at a glance. Game-side, viewer-appropriate.
+            "goals": g.get("goals"), "plan": g.get("plan"),
+            "party_count": g.get("party_count"), "dex_caught": g.get("dex_caught")}
 
 for _name in ("web_dashboard", "cookie_jar_overlay"):
     _dir = _REPO_ROOT / _name
@@ -872,6 +912,11 @@ class _CmdBody(BaseModel):
     name: str | None = None
     slug: str | None = None
     type: str | None = None          # explicit activity category (dropdown): game/media/music/vn/general
+    tier: int | None = None          # Pokémon salience hint (0..3) -> model/length pick only; never WHAT she says
+    # Pokémon SOUL ORACLE (Batch 2): the mode process asks her SELF to make a structured pick.
+    kind: str | None = None                  # decision kind: 'want' | 'action' | 'move_drop' | ...
+    options: list[str] | str | None = None   # candidate option keys (constrained kinds) — informs validation
+    ctx: dict | None = None                  # decision context (place/segment/map + option detail for the prompt)
     # Audio
     mode: str | None = None          # hearing mode label
     label: str | None = None         # audio device label
@@ -926,6 +971,55 @@ def _ok(**kwargs) -> dict:
 
 def _err(msg: str, **kwargs) -> dict:
     return {"ok": False, "error": msg, **kwargs}
+
+
+def _apply_pokemon_mode(bot, on: bool) -> dict:
+    """BATCH 6 PHASE 7 / ADDENDUM B — Pokémon MODE as a real, standalone switch, independent of how the
+    bot or the game was launched (NOT tied to the pokemon_start process). When ON:
+      • VISION -> game window only (she never narrates Jonny's desktop/code — the live immersion break).
+      • Desktop AUDIO classifier suppressed (she ignores the game MUSIC; mic + game events untouched).
+      • LOOPBACK STT off (no voice-acting transcription during autonomous play; she still HEARS music
+        and still takes Jonny's mic + chat).
+    ONE-KIRA FIREWALL: this gates HARNESS perception plumbing only — it never touches her soul. Returns a
+    dict of what was applied. Each step is fail-graceful + LOUD so a missing subsystem can't half-toggle."""
+    import os as _os
+    applied = {}
+    setattr(bot, "pokemon_mode", on)
+    # vision -> game window
+    va = getattr(bot, "vision_agent", None)
+    if va is not None:
+        if on:
+            va.capture_window_title = _os.getenv("POKEMON_VISION_WINDOW_TITLE", "Kira plays Pokemon")
+            print(f"   [control] POKÉMON MODE: vision locked to {va.capture_window_title!r}", flush=True)
+        else:
+            va.capture_window_title = ""
+            print("   [control] POKÉMON MODE: vision released to full-screen", flush=True)
+        applied["vision_lock"] = on
+    # desktop audio classifier suppress (she ignores game music)
+    aa = getattr(bot, "audio_agent", None)
+    if aa is not None and hasattr(aa, "pokemon_suppress"):
+        aa.pokemon_suppress(forced=on)
+        applied["audio_suppress"] = on
+    # loopback STT off during autonomous play; restore to the configured default when leaving
+    try:
+        from kira.config import LOOPBACK_STT_DEFAULT
+        bot.loopback_desired = (False if on else LOOPBACK_STT_DEFAULT)
+        lt = getattr(bot, "loopback_transcriber", None)
+        if on and lt is not None and lt.is_running():
+            try:
+                lt.stop()
+            except Exception as e:
+                print(f"   [control] POKÉMON MODE: loopback stop best-effort: {e}", flush=True)
+        applied["loopback_off"] = on
+        print(f"   [control] POKÉMON MODE: loopback STT {'OFF' if on else 'restored to default'}", flush=True)
+    except Exception as e:
+        print(f"   [control] POKÉMON MODE: loopback toggle skipped: {e}", flush=True)
+    if hasattr(bot, "_reconcile_modes"):
+        try:
+            bot._reconcile_modes(trigger="pokemon_mode")
+        except Exception as e:
+            print(f"   [control] POKÉMON MODE reconcile skipped: {e}", flush=True)
+    return applied
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -998,6 +1092,97 @@ async def _dispatch(action: str, body: _CmdBody, bot: "VTubeBot") -> dict:  # no
     if action == "exit_game_mode":
         await bot.deactivate_game_mode_async()
         return _ok()
+
+    # ── Pokémon hybrid seam (the emulator process talks to her self over HTTP) ──
+    # The HANDS (separate m1_hybrid.py emulator window) ask her SELF to choose, and
+    # fire NEUTRAL game-events she reacts to. Flag-gated by POKEMON_AGENT_ENABLED.
+    if action == "pokemon_choose_starter":
+        choice = await bot._pokemon_choose_starter()                 # her self picks (Sonnet)
+        return _ok(choice=choice, reasoning=getattr(bot, "_last_starter_reasoning", ""))
+
+    if action == "pokemon_choose":
+        # SOUL ORACLE (Batch-2 keystone): her SELF makes a structured pick. Mirrors choose_starter —
+        # her self-block/mood/want color the choice; we NEVER author or hardcode it. The mode process
+        # offers the candidate set; this returns her pick (or '' so the caller falls back).
+        _kind = (body.kind or "choice").strip()
+        _opts = body.options if isinstance(body.options, list) else (
+            [o.strip() for o in (body.options or "").split(",") if o.strip()])
+        _ctx = body.ctx if isinstance(body.ctx, dict) else {}
+        _res = await bot._pokemon_choose(_kind, _opts, _ctx)
+        return _ok(choice=(_res or {}).get("choice", ""), reasoning=(_res or {}).get("reasoning", ""))
+
+    if action == "pokemon_event":
+        summary = (body.name or getattr(body, "text", None) or "").strip()
+        if summary:
+            # tier is a SALIENCE HINT only — passed through to model/length selection, never to
+            # her reaction generation. Default None preserves today's behavior exactly.
+            # kind (Phase C-1, soul-debt #12): the harness's event KIND rides along so a
+            # 'dialogue' event gets the first-timer READING register instead of battle framing.
+            asyncio.ensure_future(bot._pokemon_react(summary, tier=body.tier,
+                                                     kind=(body.kind or None)))  # fire-and-forget
+        return _ok(fired=bool(summary))
+
+    if action == "pokemon_alert":
+        # DEAD-MAN'S SWITCH (Batch 7 Phase 2): harness pings Jonny when deep-wedge recovery is
+        # exhausted. Routes to Discord webhook + loud log. Operator alert, never Kira's voice.
+        _msg = (body.name or getattr(body, "text", None) or "").strip()
+        _res = await bot._pokemon_alert(_msg)
+        return _ok(**(_res or {}))
+
+    if action == "pokemon_journey":
+        # CONTINUITY-INTO-CORE (Phase 4): the harness pushes her journey saga (grudge + team + arc);
+        # core persists it so she resumes KNOWING her story and can speak it in idle chat / any game.
+        _state = body.ctx if isinstance(getattr(body, "ctx", None), dict) else {}
+        _res = await bot._pokemon_journey(_state)
+        return _ok(**(_res or {}))
+
+    # ── Pokémon session process control (dashboard Start/Stop/Status) ──────────
+    # The HANDS run in a separate window (pokemon_agent/session.py, skip-starter:
+    # boots from after_pick_bulbasaur.state). kira/pokemon_proc owns that subprocess
+    # so the dashboard launches it instead of a memorised terminal command.
+    if action in ("pokemon_start", "pokemon_stop", "pokemon_status"):
+        from kira import pokemon_proc
+        result = {"pokemon_start": pokemon_proc.start,
+                  "pokemon_stop": pokemon_proc.stop,
+                  "pokemon_status": pokemon_proc.status}[action]()
+        # Start/Stop ALSO flip Pokémon perception mode (vision-lock + audio-suppress + loopback-off) via
+        # the shared helper — but the mode is no longer ONLY bound to this endpoint (see pokemon_mode_*).
+        if action == "pokemon_start":
+            result["mode"] = _apply_pokemon_mode(bot, True)
+        elif action == "pokemon_stop":
+            result["mode"] = _apply_pokemon_mode(bot, False)
+        return _ok(**result)
+
+    # ── BATCH 6 PHASE 7 / ADDENDUM B: standalone Pokémon MODE toggle (independent of process launch) ──
+    if action in ("pokemon_mode_on", "pokemon_mode_off"):
+        applied = _apply_pokemon_mode(bot, action == "pokemon_mode_on")
+        return _ok(pokemon_mode=(action == "pokemon_mode_on"), applied=applied)
+
+    # ── BATCH 6 PHASE 7: ONE-CLICK LAUNCHERS (kill the terminal-command dependency) ──
+    if action in ("pokemon_sherpa", "pokemon_showtime", "pokemon_showtime_fresh"):
+        from kira import pokemon_proc
+        if action == "pokemon_sherpa":
+            result = pokemon_proc.start_sherpa()              # everyday: resume the real campaign + climb
+        elif action == "pokemon_showtime":
+            result = pokemon_proc.start_showtime(fresh=False)  # stream-day: resume the canonical spine
+        else:
+            result = pokemon_proc.start_showtime(fresh=True)   # stream-day: archive + fresh run
+        if result.get("running"):
+            result["mode"] = _apply_pokemon_mode(bot, True)    # entering play -> Pokémon mode ON
+        return _ok(**result)
+
+    # ── BATCH 6 PHASE 7: cockpit HEALTH readout (game-side snapshot + bot-side API spend) ──
+    if action == "pokemon_health":
+        from kira import pokemon_proc
+        h = pokemon_proc.health()
+        try:
+            ct = __import__("kira.brain.cost_tracker", fromlist=["cost_tracker"]).cost_tracker
+            h["api_spend_usd"] = round(ct.session_cost_usd(), 4)
+        except Exception as e:
+            h["api_spend_usd"] = None
+            h["api_spend_error"] = str(e)
+        h["pokemon_mode"] = bool(getattr(bot, "pokemon_mode", False))
+        return _ok(**h)
 
     # ── Vision force-off override (master kill-switch) ────────────────────────
     # The EYES panel's ONLY vision control. Vision otherwise follows the always-on

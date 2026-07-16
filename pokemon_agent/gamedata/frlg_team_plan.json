@@ -1,0 +1,75 @@
+{
+ "_meta": {
+  "purpose": "THE curated whole-game team archetype(s) the TeamPlanner plans against - the 'balanced 6 a guide-literate human builds toward the E4 from the start'. It is a MENU she chooses from (soul: SHE picks, seeded by her real starter + favorites), never a solver's dictation. Holds: the 6 target slots (role + species + coverage + WHERE/WHEN to acquire), the acquisition ORDER (earliest-due / highest-multiplicity first), the single-use-TM teach plan, per-threat answer mapping (for the lookahead), and level milestones (ace + small margin - watchable, never max-grind).",
+  "source": "Composed from frlg_rosters (the actual threats) + frlg_strategy (answers) + frlg_encounters (where) + FRLG playthrough knowledge. Bulbasaur-start branch is primary (canonical starter). Portable-engine split: this whole file is the swappable FireRed game-knowledge layer.",
+  "watchability": "level_milestones = leader-ace + small margin (a brief struggle, not a stomp). Detours are bounded + only when an acquisition is DUE and cheaply reachable. A grind-wall is a FAILURE.",
+  "updated": "2026-07-09 (mission-pivot Part A)"
+ },
+
+ "archetypes": [
+  {
+   "name": "balanced-classic",
+   "starter_branch": "bulbasaur",
+   "summary": "Venusaur core + a Psychic sweeper (Kadabra) that carries the whole poison/fighting/ghost mid-late game, a Ground answer (Dugtrio) for Surge + Earthquake coverage, an Arcanine for Erika/fire, a Snorlax bulk-tank as a TM coverage platform, and Lapras as the E4 MVP (Ice Beam = the Lance dragon-slayer). Covers every gym+E4 answer type except Sabrina's bug/ghost - handled by out-speeding with Kadabra / Shadow Ball, or the optional Gastly swap.",
+   "slots": [
+    {"role": "grass-starter", "species": ["venusaur"], "line": ["bulbasaur", "ivysaur", "venusaur"], "covers": ["grass", "poison"], "acquire": {"where": "Pallet (starter)", "by_badge": 0, "method": "gift"}, "evolve": [{"into": "ivysaur", "at": 16}, {"into": "venusaur", "at": 32}], "key_moves": ["razor-leaf", "sleep-powder", "solar-beam"], "why": "her starter + heart of the team; Razor Leaf @20 is the early carry, Sleep Powder locks threats"},
+    {"role": "psychic-sweeper", "species": ["kadabra", "alakazam"], "line": ["abra", "kadabra"], "covers": ["psychic"], "acquire": {"species": "abra", "where": "Route 24 / Route 25", "by_badge": 2, "method": "grass"}, "evolve": [{"into": "kadabra", "at": 16}], "trade_dead_end": "alakazam needs a trade (solo run keeps Kadabra - still elite)", "teach": ["TM29 psychic", "TM30 shadow-ball"], "why": "HIGHEST-LEVERAGE catch - one Abra answers Koga AND Sabrina AND Bruno AND Agatha. Grab it right after Misty"},
+    {"role": "ground", "species": ["dugtrio"], "line": ["diglett", "dugtrio"], "covers": ["ground"], "acquire": {"species": "diglett", "where": "Diglett's Cave", "by_badge": 3, "method": "cave"}, "evolve": [{"into": "dugtrio", "at": 26}], "teach": ["TM26 earthquake"], "why": "hard-counters Lt. Surge (Electric can't touch Ground) and becomes the Earthquake user for Koga/Blaine/Agatha"},
+    {"role": "fire", "species": ["arcanine"], "line": ["growlithe", "arcanine"], "covers": ["fire"], "acquire": {"species": "growlithe", "where": "Route 7 / Route 8", "by_badge": 4, "method": "grass"}, "evolve": [{"into": "arcanine", "via": "fire-stone", "note": "evolve LATE or just TM Flamethrower - Arcanine's level pool is thin"}], "teach": ["TM35 flamethrower"], "why": "the clean Erika sweep + fire coverage for bugs/ice/grass"},
+    {"role": "normal-tank", "species": ["snorlax"], "line": ["snorlax"], "covers": ["normal"], "acquire": {"where": "Route 12 / Route 16 (static, Poke Flute)", "by_badge": 5, "method": "static"}, "teach": ["TM26 earthquake", "TM13 ice-beam"], "why": "a colossal wall that TMs almost anything - the E4 bulk + a second Earthquake/Ice-Beam platform; no Center in the E4, so the six need bulk"},
+    {"role": "water-ice-tank", "species": ["lapras"], "line": ["lapras"], "covers": ["water", "ice"], "acquire": {"where": "Silph Co. 7F, Saffron (gift)", "by_badge": 6, "method": "gift"}, "teach": ["TM13 ice-beam", "TM24 thunderbolt"], "why": "THE E4 MVP - Ice Beam is 4x on Lance's Dragonite (the dragon-slayer), Thunderbolt cracks Lorelei + Gyarados, Surf is STAB vs Blaine/Giovanni"}
+   ],
+   "coverage_target": ["grass", "psychic", "ground", "fire", "water", "ice", "electric", "ghost"],
+   "coverage_notes": "electric + ghost + a second ice/ground come from single-use TMs on Lapras/Snorlax/Kadabra rather than dedicated slots. Sabrina (bug/ghost/dark answer) is the one type-gap - covered by Kadabra out-speeding + Shadow Ball, or swap the Gastly alternative.",
+
+   "acquisition_order": [
+    {"step": 1, "species": "abra", "where": "Route 24 / Route 25", "due_by_badge": 2, "serves": ["Koga", "Sabrina", "Bruno", "Agatha"], "why": "earliest-due, highest-multiplicity gap - psychic carries four threats"},
+    {"step": 2, "species": "diglett", "where": "Diglett's Cave", "due_by_badge": 3, "serves": ["Lt. Surge", "Koga", "Blaine", "Agatha"], "why": "the Surge hard-counter + the game's best Ground/Earthquake body"},
+    {"step": 3, "species": "growlithe", "where": "Route 7 / Route 8", "due_by_badge": 4, "serves": ["Erika"], "why": "fire answer to the grass gym; fire coverage all game"},
+    {"step": 4, "species": "snorlax", "where": "Route 12 / Route 16 (Poke Flute)", "due_by_badge": 5, "serves": ["E4", "Giovanni"], "why": "bulk + TM coverage platform for the gauntlet"},
+    {"step": 5, "species": "lapras", "where": "Silph Co. gift, Saffron", "due_by_badge": 6, "serves": ["Blaine", "Giovanni", "Lorelei", "Lance"], "why": "the E4 MVP; Ice Beam is the dragon-slayer"}
+   ],
+
+   "teach_plan": [
+    {"tm": "TM29", "move": "psychic", "to": "kadabra", "where": "Saffron (Mr. Psychic, free)", "when_badge": 6, "for": ["Koga", "Sabrina", "Bruno", "Agatha"]},
+    {"tm": "TM30", "move": "shadow-ball", "to": "kadabra", "where": "Celadon Game Corner (4500 coins)", "when_badge": 4, "for": ["Sabrina", "Agatha"]},
+    {"tm": "TM13", "move": "ice-beam", "to": "lapras", "where": "Celadon Game Corner (4000 coins)", "when_badge": 6, "for": ["Lance", "Giovanni", "Agatha"]},
+    {"tm": "TM24", "move": "thunderbolt", "to": "lapras", "where": "Celadon Game Corner (4000 coins)", "when_badge": 6, "for": ["Lorelei", "Lance", "Misty"]},
+    {"tm": "TM26", "move": "earthquake", "to": "snorlax", "where": "Viridian Gym (Giovanni) / Silph find", "when_badge": 8, "for": ["Blaine", "Koga", "Agatha"]},
+    {"tm": "TM35", "move": "flamethrower", "to": "arcanine", "where": "Celadon Game Corner (4000 coins)", "when_badge": 4, "for": ["Erika"]}
+   ],
+
+   "level_milestones": {
+    "Brock": 14, "Misty": 22, "Lt. Surge": 25, "Erika": 31,
+    "Koga": 45, "Sabrina": 45, "Blaine": 48, "Giovanni": 52,
+    "Lorelei": 55, "Bruno": 56, "Agatha": 58, "Lance": 58, "Champion": 60
+   },
+
+   "threat_answers": {
+    "_doc": "per-threat: which of MY slots answers it (for the lookahead union). Used to compute 'which gap, acquired earliest, serves the most threats'.",
+    "Brock": {"answer_slots": ["grass-starter", "water-ice-tank"], "answer_types": ["grass", "water"]},
+    "Misty": {"answer_slots": ["grass-starter"], "answer_types": ["grass", "electric"], "note": "Venusaur grass STAB; no electric mon this early"},
+    "Lt. Surge": {"answer_slots": ["ground"], "answer_types": ["ground"]},
+    "Erika": {"answer_slots": ["fire", "psychic-sweeper"], "answer_types": ["fire", "psychic", "flying"]},
+    "Koga": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Sabrina": {"answer_slots": ["psychic-sweeper", "normal-tank"], "answer_types": ["ghost", "bug"], "note": "no clean STAB answer - out-speed Alakazam with Kadabra, or Shadow Ball, or the Gastly swap"},
+    "Blaine": {"answer_slots": ["water-ice-tank", "ground"], "answer_types": ["water", "ground", "rock"]},
+    "Giovanni": {"answer_slots": ["water-ice-tank", "grass-starter"], "answer_types": ["water", "grass", "ice"]},
+    "Lorelei": {"answer_slots": ["grass-starter", "water-ice-tank"], "answer_types": ["grass", "electric"], "note": "Venusaur grass; Lapras carries Thunderbolt (electric) vs her water mons"},
+    "Bruno": {"answer_slots": ["psychic-sweeper", "grass-starter", "water-ice-tank"], "answer_types": ["psychic", "grass", "water"]},
+    "Agatha": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Lance": {"answer_slots": ["water-ice-tank"], "answer_types": ["ice", "electric"], "note": "Lapras Ice Beam is the signature answer - 4x on Dragonite"},
+    "Champion": {"answer_slots": ["grass-starter", "psychic-sweeper", "ground", "fire", "water-ice-tank", "normal-tank"], "answer_types": ["mixed"], "note": "the fight the whole balanced six exists for"}
+   }
+  },
+
+  {
+   "name": "sabrina-swap-option",
+   "starter_branch": "any",
+   "summary": "An OPTIONAL variant that trades the normal-tank slot for a dedicated Sabrina/Agatha ghost answer.",
+   "slots": [
+    {"role": "ghost", "species": ["haunter", "gengar"], "line": ["gastly", "haunter"], "covers": ["ghost", "poison"], "acquire": {"species": "gastly", "where": "Pokemon Tower, Lavender", "by_badge": 5, "method": "grass"}, "evolve": [{"into": "haunter", "at": 25}], "trade_dead_end": "gengar needs a trade (solo keeps Haunter)", "teach": ["TM30 shadow-ball"], "why": "a dedicated Bug/Ghost-fearing psychic-killer for Sabrina; Shadow Ball also nukes Agatha"}
+   ]
+  }
+ ]
+}
