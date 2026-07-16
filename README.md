@@ -54,7 +54,7 @@ On **July 15, 2026**, Kira played Pokémon FireRed from a brand-new save file to
 
 The honest footnote: she entered the League at the minimum readiness bar and the gauntlet flattened her eight times. Her self-funded recovery loop (heal → restock → re-enter) ground it out, and the eleventh career fight against her rival was the one that made her Champion. I wouldn't trade that arc for a clean sweep.
 
-**How it works:** live RAM reads for game state (vision is for vibes, RAM is for truth), a learned warp-graph world model with BFS travel, an E4-readiness gate and ace-cap that force a balanced team instead of a solo carry, and the same soul/oracle layer that runs the rest of Kira making every decision in character. Receipts: [`RUN_STATS_fresh_go_6.md`](RUN_STATS_fresh_go_6.md) · Deep dive: [`pokemon_agent/AUTONOMOUS_GAME_HARNESS.md`](pokemon_agent/AUTONOMOUS_GAME_HARNESS.md)
+**How it works:** live RAM reads for game state (vision is for vibes, RAM is for truth), a learned warp-graph world model with BFS travel, an E4-readiness gate and ace-cap that force a balanced team instead of a solo carry, and the same soul/oracle layer that runs the rest of Kira making every decision in character. Receipts: [`RUN_STATS_fresh_go_6.md`](docs/RUN_STATS_fresh_go_6.md) · Deep dive: [`pokemon_agent/AUTONOMOUS_GAME_HARNESS.md`](pokemon_agent/AUTONOMOUS_GAME_HARNESS.md)
 
 **Try it:** the harness lives in [`pokemon_agent/`](pokemon_agent/). Bring your own legally obtained ROM — no ROM, saves, or Nintendo assets exist in this repo or anywhere in its history.
 
@@ -303,5 +303,6 @@ from the dashboard.
 ## License
 
 [AGPL-3.0](LICENSE) — free for personal, educational, and open-source use. Commercial or hosted deployments that modify this software must release their derived source under AGPL-3.0. For a separate commercial license, contact the author.
+
 
 
