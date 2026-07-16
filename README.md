@@ -243,8 +243,7 @@ To enable the on-screen captions: set `ENABLE_CAPTIONS=true`, then add `caption_
 | `CLAUDE_DEEP_MODEL` | Opus model name (default: `claude-opus-4-7`) |
 | `AZURE_SPEECH_KEY` | Azure Cognitive Services TTS |
 | `AZURE_SPEECH_REGION` | Azure region (e.g., `westus3`) |
-| `GEMINI_API_KEY` | Gemini — vision agent and screen understanding |
-| `GOOGLE_API_KEY` | Google Custom Search for web queries |
+| `GOOGLE_API_KEY` | Gemini vision/screen understanding + Google Custom Search |
 | `GOOGLE_CSE_ID` | Custom Search Engine ID |
 | `TWITCH_OAUTH_TOKEN` | Twitch bot OAuth token |
 | `TWITCH_BOT_USERNAME` | Twitch bot account username |
@@ -304,4 +303,5 @@ from the dashboard.
 ## License
 
 [AGPL-3.0](LICENSE) — free for personal, educational, and open-source use. Commercial or hosted deployments that modify this software must release their derived source under AGPL-3.0. For a separate commercial license, contact the author.
+
 
