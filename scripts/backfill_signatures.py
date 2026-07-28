@@ -7,7 +7,7 @@ Usage:
     python backfill_signatures.py
 
 Safe to re-run — fully overwrites the Signature Moments section each time.
-Requires ANTHROPIC_API_KEY in .env (same key the bot uses).
+Requires a Claude route in .env (OPENROUTER_API_KEY — same key the bot uses).
 """
 import asyncio
 import os
@@ -17,7 +17,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # config.py is the single dotenv source — importing it loads .env and exposes secrets.
-from kira.config import ANTHROPIC_API_KEY as _API_KEY, CLAUDE_SONNET_MODEL as _CHAT_MODEL
+from kira.config import CLAUDE_SONNET_MODEL as _CHAT_MODEL
+from kira.brain.claude_gateway import claude_key_present, make_async_claude_client
 
 # Games to backfill: (display name passed to load_for_game, slug used in filename)
 GAMES = [
@@ -31,13 +32,12 @@ class _MinimalAI:
     Avoids importing ai_core (which pulls in pygame, faster-whisper, etc.)."""
 
     def __init__(self):
-        if not _API_KEY:
+        if not claude_key_present():
             raise RuntimeError(
-                "ANTHROPIC_API_KEY is not set. "
-                "Add it to .env or set the environment variable and try again."
+                "No Claude route: set OPENROUTER_API_KEY (preferred) or "
+                "ANTHROPIC_API_KEY in .env and try again."
             )
-        from anthropic import AsyncAnthropic
-        self.anthropic_client = AsyncAnthropic(api_key=_API_KEY)
+        self.anthropic_client = make_async_claude_client()
 
     async def claude_chat_inference(
         self,

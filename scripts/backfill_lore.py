@@ -35,7 +35,8 @@ from datetime import datetime
 # Repo root on path so first-party imports resolve when run as scripts/backfill_lore.py
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from kira.config import ANTHROPIC_API_KEY, CLAUDE_SONNET_MODEL
+from kira.config import CLAUDE_SONNET_MODEL
+from kira.brain.claude_gateway import claude_key_present, make_async_claude_client
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -156,19 +157,16 @@ def write_clips(slug: str, activity: str, date_str: str, duration_min: int,
 
 async def main(dry_run: bool, only_slug: str | None,
                after_date: str | None, pending_only: bool) -> None:
-    api_key = ANTHROPIC_API_KEY  # loaded via config (single dotenv source)
     model = CLAUDE_SONNET_MODEL  # Sonnet — matches live lore path
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set — cannot call Claude.")
+    if not claude_key_present():
+        print("ERROR: no Claude route — set OPENROUTER_API_KEY (preferred) in .env.")
         sys.exit(1)
 
     try:
-        from anthropic import AsyncAnthropic
+        client = make_async_claude_client()
     except ImportError:
         print("ERROR: anthropic package not installed. Run: pip install anthropic")
         sys.exit(1)
-
-    client = AsyncAnthropic(api_key=api_key)
 
     # ── Build work list ───────────────────────────────────────────────────────
     # Each entry: (date_str, slug, transcript_text, highlights, duration_min, source_label)

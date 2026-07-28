@@ -705,14 +705,56 @@ GROQ_FALLBACK_TO_LOCAL = os.getenv("GROQ_FALLBACK_TO_LOCAL", "false").lower()
 
 # Hybrid Brain
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+# OPENROUTER GATEWAY (2026-07-28): the Anthropic account is banned (unban denied), so
+# all Claude traffic routes through OpenRouter's Anthropic-compatible endpoint (the
+# "Anthropic Skin", POST /api/v1/messages — native Anthropic SDK wire format, so every
+# existing messages.create() call site works unchanged). Same OPENROUTER_API_KEY the
+# web app uses (sk-or-...). Client construction is centralized in
+# kira/brain/claude_gateway.py — never construct AsyncAnthropic directly.
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_ANTHROPIC_BASE_URL = os.getenv(
+    "OPENROUTER_ANTHROPIC_BASE_URL", "https://openrouter.ai/api"
+)
+# Route selection: "auto" prefers OpenRouter when OPENROUTER_API_KEY is set (the
+# direct Anthropic key is dead weight while banned); "anthropic" forces direct
+# (if ever unbanned); "openrouter" forces the gateway.
+CLAUDE_GATEWAY = os.getenv("CLAUDE_GATEWAY", "auto").lower()
+# Resolved route — computed ONCE here so both claude_gateway.py and the model-name
+# normalization below agree. "openrouter" | "anthropic" | "none".
+if CLAUDE_GATEWAY == "openrouter":
+    CLAUDE_ROUTE = "openrouter" if OPENROUTER_API_KEY else "none"
+elif CLAUDE_GATEWAY == "anthropic":
+    CLAUDE_ROUTE = "anthropic" if ANTHROPIC_API_KEY else "none"
+else:  # auto
+    CLAUDE_ROUTE = (
+        "openrouter" if OPENROUTER_API_KEY
+        else ("anthropic" if ANTHROPIC_API_KEY else "none")
+    )
+
+
+def _claude_model_for_route(name: str) -> str:
+    """On the OpenRouter route, normalize bare Anthropic model names to OpenRouter
+    slugs: 'claude-sonnet-4-6' -> 'anthropic/claude-sonnet-4.6'. OpenRouter's docs
+    only show full slugs on /v1/messages; the Skin's bare-name mapping is a Claude
+    Code convenience we don't want to bet the boot on. Names that already contain
+    '/' are passed through untouched (explicit slugs win)."""
+    if CLAUDE_ROUTE != "openrouter" or "/" in name:
+        return name
+    import re
+    m = re.fullmatch(r"claude-(opus|sonnet|haiku)-(\d+)-(\d+)", name)
+    if m:
+        return f"anthropic/claude-{m.group(1)}-{m.group(2)}.{m.group(3)}"
+    return f"anthropic/{name}"
+
+
 # Canonical Claude model-name constants — single source of truth. Reference these
 # (CLAUDE_SONNET_MODEL / CLAUDE_OPUS_MODEL) instead of hard-coding model strings.
 # Env var names are unchanged (CLAUDE_DEEP_MODEL / CLAUDE_CHAT_MODEL) so .env stays valid.
-CLAUDE_OPUS_MODEL   = os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7")
-CLAUDE_SONNET_MODEL = os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6")
+CLAUDE_OPUS_MODEL   = _claude_model_for_route(os.getenv("CLAUDE_DEEP_MODEL", "claude-opus-4-7"))
+CLAUDE_SONNET_MODEL = _claude_model_for_route(os.getenv("CLAUDE_CHAT_MODEL", "claude-sonnet-4-6"))
 # Haiku — cheapest tier, for high-frequency structured calls (per-turn memory
 # extraction) where Sonnet-grade reasoning isn't visible in the output.
-CLAUDE_HAIKU_MODEL  = os.getenv("CLAUDE_HAIKU_MODEL", "claude-haiku-4-5")
+CLAUDE_HAIKU_MODEL  = _claude_model_for_route(os.getenv("CLAUDE_HAIKU_MODEL", "claude-haiku-4-5"))
 # Legacy aliases — keep existing import sites working unchanged.
 CLAUDE_DEEP_MODEL = CLAUDE_OPUS_MODEL
 CLAUDE_CHAT_MODEL = CLAUDE_SONNET_MODEL

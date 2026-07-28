@@ -15,7 +15,8 @@ from __future__ import annotations
 import json
 import re
 
-from kira.config import ANTHROPIC_API_KEY, CLAUDE_CHAT_MODEL
+from kira.brain.claude_gateway import claude_key_present, make_async_claude_client
+from kira.config import CLAUDE_CHAT_MODEL
 
 
 # Locked visual identity for EVERY beat. Prepended to each beat's image_prompt by
@@ -200,12 +201,11 @@ def parse_script(raw: str) -> dict:
 async def generate_script(theme: str, n_beats: int = 16, preset: str | None = None) -> dict:
     """Generate and parse a Storytime script. Returns
     {title, beats:[{narration, image_prompt}]}. Raises on failure."""
-    if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY is empty — cannot write the story.")
+    if not claude_key_present():
+        raise RuntimeError("No Claude route (set OPENROUTER_API_KEY) — cannot write the story.")
     n_beats = max(6, min(24, int(n_beats)))
-    from anthropic import AsyncAnthropic
 
-    client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    client = make_async_claude_client()
     resp = await client.messages.create(
         model=CLAUDE_CHAT_MODEL,
         max_tokens=2200,
@@ -227,11 +227,10 @@ async def rewrite_beat(
     """Rewrite a SINGLE beat (narration + image_prompt) so it fits its neighbours
     and strengthens the arc — without touching any other beat. Returns
     {narration, image_prompt}. Raises on failure."""
-    if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY is empty — cannot rewrite the beat.")
+    if not claude_key_present():
+        raise RuntimeError("No Claude route (set OPENROUTER_API_KEY) — cannot rewrite the beat.")
     if idx < 0 or idx >= len(beats):
         raise ValueError("beat index out of range")
-    from anthropic import AsyncAnthropic
 
     # Number every beat for context; flag the one to rewrite.
     ctx_lines: list[str] = []
@@ -261,7 +260,7 @@ async def rewrite_beat(
     guidance = _preset_guidance(preset)
     system = _SYSTEM + (f"\n\nSTRUCTURE / TONE PRESET — commit to this:\n{guidance}" if guidance else "")
 
-    client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    client = make_async_claude_client()
     resp = await client.messages.create(
         model=CLAUDE_CHAT_MODEL,
         max_tokens=600,

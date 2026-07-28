@@ -22,43 +22,56 @@ people to the web app (xoxokira.com). Clips from the VOD are the ad campaign.
 - **The engine is PROVEN.** `fresh_go_6` (2026-07-15, docs/RUN_STATS_fresh_go_6.md):
   bedroom → 8 badges → E4 → **Hall of Fame credits**, autonomously. Venusaur 87,
   $29,120, 3,850 battles, ~6h08m wall at ~14× headless speed.
-- **The show does not exist yet.** That run was the look-ahead oracle: invisible,
-  silent, max-speed, no narration, no chat, no rendering. Watchdog restarted stalled
-  segments 2 times out of 5 — fine headless, fatal-looking on stream.
+- **The show layer is ~70% BUILT** (code audit 2026-07-28 — this corrects the earlier
+  claim that it didn't exist):
+  - **Windowed 1× play exists.** `pokemon_agent/watch.py` and `go.py` launch a pygame
+    window ("Kira plays Pokemon - SOUL ON", 3× scale) with a real-time ~60fps pacer
+    (`play_live.py` ~488-510, `POKEMON_FPS_CAP`). Headless 14× is only the oracle mode
+    (`recon_longrun.py`).
+  - **Narration rail exists.** `pokemon_agent/pokemon_voice.py` (salience tiers T0-T3,
+    fire-rate limits, stale-drop) → POST `/cmd/pokemon_event|pokemon_choose` →
+    `kira/bot.py::_pokemon_react` (~3271) → LLM reaction → TTS. Travel dead-air filler
+    exists ("TRAVEL MUSE" in `travel.py` ~900+). Recovery paths speak in character
+    (escape-hatch / deep-wedge lines in `campaign.py` ~14628-14698).
+  - **Chat runs concurrently.** Two processes: `run.py` (bot: Twitch chat, TTS, VTS,
+    control server :8766) + supervisor→`play_live.py` (mGBA in-process). `watch.py`/
+    `go.py` refuse to start if the bot is down. pokemon_mode keeps mic + chat alive
+    (`control_server.py::_apply_pokemon_mode` ~976-983).
+  - **Crash recovery exists.** `supervisor.py` relaunches with `--resume` from the
+    banked save on hang (health.json stale >300s) or crash; in-process StuckWatch +
+    roam-disengage + deep-wedge revert handle soft stalls in the same window.
 - **The dev loop changed.** night_shift.ps1 drove autonomous Claude Code sessions;
   Claude Code is no longer available (banned). Cursor (IDE agent + `cursor-agent` CLI)
   is the replacement driver.
 
-## The Gap — build list, in order
+## The Gap — what is ACTUALLY missing (audit-verified, effort-ordered)
 
-### 1. Show-pace run mode (the foundation — build first)
-A run mode with the emulator visible/capturable at let's-play pace. Everything was
-tuned at 14× headless; frame/timing assumptions MUST be revalidated at 1× (actuation
-waits, cursor-readback timing, battle text pacing). Deliverable: a 1-hour 1× segment,
-zero interventions, watchable window OBS can capture.
+### 1. The 1× soak (validation, not code — DO THIS FIRST, costs $0 agent time)
+The credits proof ran headless at 14×; **nobody has ever run a long windowed 1×
+session.** Boot `run.py`, then `python pokemon_agent/watch.py`, and let her play 2-3
+hours. Watch it like a viewer. Every timing assumption tuned at 14× (actuation waits,
+cursor-readback, battle text pacing) gets its verdict here. Output: a punch list.
 
-### 2. Narration rail (the voice of the run)
-Pipe the decision loop's events — PICKs, battles, catches, evolutions, badge moments,
-close calls, whiteouts — into Kira's soul/oracle as narration beats, spoken via the
-existing TTS path. Gate by the phase-2 System 1 energy model:
-- calm/travel → ramble, theorize, talk to chat, running bits
-- building/gym approach → anticipation
-- climactic (badge fight, E4, rival) → near-silence or ONE heavy line, never both
-- aftermath (badge earned, evolution) → process it, celebrate, callback
-Plus System 2 dead-chat behavior: she must carry an empty room without it feeling sad.
+### 2. Config + small wiring (one short agent session)
+- `POKEMON_AGENT_ENABLED` defaults **false** (`kira/config.py:122`) — must be true or
+  she plays mute. Add to the stream-day checklist.
+- **Chat-vs-narration priority:** arbitration today is generic turn-taking
+  (`is_speaking`, `_ok_to_self_speak`, chat catch-up bank). Missing: on T3/climactic
+  events (badge fight, E4, rival), defer chat replies; on calm travel, chat owns the
+  floor. Small patch in the bot's speaking arbitration.
+- **Intensity reuse (optional):** VN autopilot's System-1 energy model
+  (`kira/modes/vn_autopilot.py`, `kira_state.SessionIntensity`) is NOT driven by the
+  pokemon agent — it has its own parallel tier system. Mapping T0-T3 → SessionIntensity
+  buys the calm/building/climactic/aftermath pacing for free.
 
-### 3. Stall-proofing on camera
-The watchdog's segment restarts must become invisible: an in-character beat ("hold on,
-let me get my bearings") + fast resume from the banked checkpoint, not a frozen screen.
-The pitfall bible is pokemon_agent/AUTONOMOUS_GAME_HARNESS.md — the strand/wedge classes
-documented there are the enemies; the cursor-readback doctrine is the law.
+### 3. Seamless supervisor restart (the one real remaining build)
+In-process recoveries are already watchable (same window, spoken lines). But a
+supervisor-level kill+relaunch drops the pygame window and cold-opens a new one —
+seconds of dead screen. Needed: freeze-frame or OBS scene fallback + a scripted
+in-character re-entry line on every `--resume`. This is the only "fatal-looking on
+stream" case left.
 
-### 4. Chat on the couch
-Reuse the core bot's Twitch chat handling during play. Priority: narration owns
-climactic moments; chat replies own calm stretches. She acknowledges regulars, riffs on
-chat theories, and plugs the web app organically a few times per stream, never spammy.
-
-### 5. Pace & length tuning (after it's watchable, not before)
+### 4. Pace & length tuning (after it's watchable, not before)
 Data: 22,112s wall @ ~14× ≈ **~86 hours at true 1×**. HLTB human average is ~41h.
 Jonny's target band: **50-60h marathon**. Known fat to cut: 34 `enter_league` false
 starts, 73% of decisions were travel (routing waste), grind inefficiency.
@@ -66,7 +79,7 @@ Also on the table: **director's pace** — run travel/grind at 1.25-1.5× emulat
 (reads as brisk walking on stream) and hard 1× during battles/dialogue/story. A long
 marathon is not a bug (subathon energy) — but aim for the 50s.
 
-### 6. Marathon ops (the week-of checklist)
+### 5. Marathon ops (the week-of checklist)
 OBS scene (game + Kira model + caption overlay), stream title/announcement, VOD →
 clips pipeline (scripts/cut_clips.py + transcribe_vod.py exist), and the funnel: pinned
 chat message + periodic plug → xoxokira.com.
@@ -88,13 +101,29 @@ chat message + periodic plug → xoxokira.com.
 
 ## Session 1 Checklist (first Cursor session on the PC)
 
+Budget rule: agent tokens are expensive; Kira runtime is pennies. Prefer letting HER
+run (soaks, oracle segments) over speculative agent exploration. The audit pointers in
+"The Gap" above are line-accurate — don't re-derive them.
+
 1. `git pull` — this doc + AGENTS.md arrive.
 2. Read local CLAUDE.md + STATE_OF_PROJECT.md + NEXT_SESSION.md (gitignored, PC-only).
 3. Boot sanity: `.\.venv\Scripts\Activate.ps1; python run.py` → dashboard at
-   http://127.0.0.1:8766/ — confirm keys/TTS/STT alive after a month idle.
-4. Engine sanity: one short recon_longrun headless segment — confirm the oracle still
-   reaches GREEN progress ticks from the canonical save.
-5. Start Gap #1 (show-pace mode). Do not touch Gap #5 until #1-#3 are demo-able.
+   http://127.0.0.1:8766/ — confirm keys/TTS/STT alive after a month idle. Set
+   `POKEMON_AGENT_ENABLED=true`.
+4. Start the Gap #1 soak: `python pokemon_agent/watch.py` (windowed 1×, soul on) and
+   let it run 2-3 hours while doing Gap #2 wiring in parallel. Collect the punch list
+   from the soak before doing ANY speculative fixes.
+5. Then Gap #3 (seamless restart). Do not touch pace tuning (Gap #4) until #1-#3 are
+   demo-able end-to-end.
+
+## The path to air (budget-shaped)
+
+1. Session 1 (one agent day): soak + small wiring + restart UX punch-fix.
+2. Free validation: Jonny watches the soak VOD like a viewer; punch list.
+3. Half session: fix the punch list.
+4. **Pilot stream** — "Kira plays FireRed by herself, Ep. 1: bedroom → Brock" (4-6h,
+   announced). Clippable proof, low stakes, builds the marathon audience.
+5. Marathon the following weekend.
 
 ## Definition of Done
 

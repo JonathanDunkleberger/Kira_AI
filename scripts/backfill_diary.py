@@ -29,7 +29,8 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from kira.config import ANTHROPIC_API_KEY, CLAUDE_CHAT_MODEL  # noqa: E402
+from kira.config import CLAUDE_CHAT_MODEL  # noqa: E402
+from kira.brain.claude_gateway import claude_key_present, make_async_claude_client  # noqa: E402
 
 
 def parse_raw_dump(path: str) -> dict:
@@ -124,11 +125,10 @@ def build_diary_request(data: dict) -> str:
 
 
 async def generate(data: dict) -> str:
-    if not ANTHROPIC_API_KEY:
-        raise RuntimeError("ANTHROPIC_API_KEY is empty — cannot generate the diary.")
-    from anthropic import AsyncAnthropic
+    if not claude_key_present():
+        raise RuntimeError("No Claude route (set OPENROUTER_API_KEY) — cannot generate the diary.")
 
-    client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    client = make_async_claude_client()
     diary_request = build_diary_request(data)
     resp = await client.messages.create(
         model=CLAUDE_CHAT_MODEL,

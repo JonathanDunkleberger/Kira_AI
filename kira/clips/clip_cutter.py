@@ -41,8 +41,8 @@ import traceback
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+from kira.brain.claude_gateway import claude_key_present, make_async_claude_client
 from kira.config import (
-    ANTHROPIC_API_KEY,
     CLAUDE_HAIKU_MODEL,
     OBS_RECORDINGS_DIR,
     CLIP_PRE_SECONDS,
@@ -757,16 +757,8 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
     cut = [c for c in candidates if c.status == "cut"]
     if not cut:
         return
-    if not ANTHROPIC_API_KEY:
-        print("   [Titles] ANTHROPIC_API_KEY not set — using candidate titles as-is.")
-        for c in cut:
-            c.final_title = c.suggested_title or c.title
-        return
-
-    try:
-        from anthropic import AsyncAnthropic
-    except ImportError:
-        print("   [Titles] anthropic package not installed — using candidate titles as-is.")
+    if not claude_key_present():
+        print("   [Titles] No Claude route (set OPENROUTER_API_KEY) — using candidate titles as-is.")
         for c in cut:
             c.final_title = c.suggested_title or c.title
         return
@@ -798,7 +790,13 @@ async def generate_titles(candidates: list[Candidate], activity: str) -> None:
         f"{joined}"
     )
 
-    client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+    try:
+        client = make_async_claude_client()
+    except ImportError:
+        print("   [Titles] anthropic package not installed — using candidate titles as-is.")
+        for c in cut:
+            c.final_title = c.suggested_title or c.title
+        return
     response = None
     for attempt in range(1, 3):
         try:
@@ -1196,11 +1194,7 @@ async def generate_reel_title(candidates: list[Candidate], activity: str) -> tup
     cut = [c for c in candidates if c.status == "cut" and c.out_path]
     if not cut:
         return f"Kira Highlights — {activity}", ""
-    if not ANTHROPIC_API_KEY:
-        return f"Kira Highlights — {activity}", ""
-    try:
-        from anthropic import AsyncAnthropic
-    except ImportError:
+    if not claude_key_present():
         return f"Kira Highlights — {activity}", ""
 
     moments = "\n".join(
@@ -1215,8 +1209,7 @@ async def generate_reel_title(candidates: list[Candidate], activity: str) -> tup
         f'{{\"title\": \"...\", \"description\": \"...\"}}'
     )
     try:
-        from anthropic import AsyncAnthropic
-        client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+        client = make_async_claude_client()
         resp = await asyncio.wait_for(
             client.messages.create(
                 model=CLAUDE_HAIKU_MODEL,
