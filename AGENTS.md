@@ -35,6 +35,10 @@ narrated, chat-aware marathon stream* (the "Frankfurt Test"). Read it before any
 ## Runtime facts
 
 - Runs on Jonny's Windows PC (CUDA GPU required for Whisper; VB-Audio Cable; mpv).
+- **Claude routes through OpenRouter** (the Anthropic account is banned; unban denied).
+  Client construction is centralized in `kira/brain/claude_gateway.py` — never
+  construct `AsyncAnthropic` directly. Needs `OPENROUTER_API_KEY` in `.env` (same
+  key as the web app).
 - Boot: `.\.venv\Scripts\Activate.ps1` then `python run.py` → dashboard at
   http://127.0.0.1:8766/.
 - Overnight autonomous dev used night_shift.ps1 → Claude Code (now unavailable);

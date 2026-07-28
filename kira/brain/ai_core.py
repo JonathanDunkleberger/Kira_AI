@@ -21,10 +21,15 @@ from kira.config import (
     AZURE_SPEECH_VOICE, AZURE_PROSODY_PITCH, AZURE_PROSODY_RATE,
     VOICE_EMOTION_ENABLED, VOICE_EMOTION_BREAK_MS, VOICE_EMOTION_PROSODY,
     AI_NAME,
-    ANTHROPIC_API_KEY, CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
+    CLAUDE_DEEP_MODEL, ENABLE_CLAUDE_BRAIN,
     CLAUDE_CHAT_MODEL, CLAUDE_HAIKU_MODEL, ENABLE_CLAUDE_CHAT, ENABLE_PROMPT_CACHING, ENABLE_CLAUDE_STREAMING,
     INFERENCE_BACKEND, GROQ_FALLBACK_TO_LOCAL, GROQ_MODEL,
     TTS_BACKEND, FISH_API_KEY, FISH_VOICE_ID, FISH_LATENCY, FISH_FORMAT,
+)
+from kira.brain.claude_gateway import (
+    claude_key_present as _claude_key_present,
+    gateway_label as claude_gateway_label,
+    make_async_claude_client,
 )
 from kira.brain.inference_router import route_chat_completion, get_groq_client
 from kira.brain.cost_tracker import cost_tracker as _cost_tracker
@@ -314,17 +319,19 @@ class AI_Core:
         elif TTS_BACKEND == "fish":
             print("   [TTS] WARNING: TTS_BACKEND=fish but fish-audio-sdk is not installed or FISH_API_KEY is empty. Falling back to Azure.")
 
-        # Hybrid brain: Claude Opus for deep moments
+        # Hybrid brain: Claude Opus for deep moments.
+        # Client construction lives in claude_gateway (routes via OpenRouter's
+        # Anthropic Skin since the direct Anthropic account was banned 2026-07).
         self.anthropic_client = None
-        if ENABLE_CLAUDE_BRAIN and ANTHROPIC_API_KEY and ANTHROPIC_AVAILABLE:
+        if ENABLE_CLAUDE_BRAIN and _claude_key_present() and ANTHROPIC_AVAILABLE:
             try:
-                self.anthropic_client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
-                print(f"   [Brain] Hybrid mode ON \u2014 Claude {CLAUDE_DEEP_MODEL} available for deep moments.")
+                self.anthropic_client = make_async_claude_client()
+                print(f"   [Brain] Hybrid mode ON \u2014 Claude {CLAUDE_DEEP_MODEL} via {claude_gateway_label()}.")
             except Exception as e:
                 print(f"   [Brain] Claude init failed: {e}. Falling back to local-only.")
                 self.anthropic_client = None
         else:
-            print(f"   [Brain] Local-only mode (Claude disabled or API key missing).")
+            print(f"   [Brain] Local-only mode (Claude disabled or no key \u2014 route: {claude_gateway_label()}).")
 
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()

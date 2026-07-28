@@ -53,8 +53,13 @@ PRICE_TABLE: dict[str, dict] = {
 
 
 def _lookup_price(model: str) -> dict:
-    """Find pricing for a model name. Tries exact match, then prefix match."""
-    lm = model.lower()
+    """Find pricing for a model name. Tries exact match, then prefix match.
+    OpenRouter slugs carry a provider prefix and dotted versions
+    ("anthropic/claude-sonnet-4.6"); normalize back to Anthropic-style
+    ("claude-sonnet-4-6") so the claude-* keys still match."""
+    lm = model.lower().rsplit("/", 1)[-1]
+    if lm.startswith("claude"):
+        lm = lm.replace(".", "-")
     if lm in PRICE_TABLE:
         return PRICE_TABLE[lm]
     # Prefix match: longest matching prefix wins

@@ -31,7 +31,8 @@ from pathlib import Path
 # Repo root on path so first-party imports resolve
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from kira.config import ANTHROPIC_API_KEY, CLAUDE_SONNET_MODEL
+from kira.config import CLAUDE_SONNET_MODEL
+from kira.brain.claude_gateway import claude_key_present, make_sync_claude_client
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -136,13 +137,11 @@ def _build_prompt(activity: str, date_str: str, duration_min: int, combined_tran
     )
 
 
-async def _call_claude(prompt: str, api_key: str) -> str:
+async def _call_claude(prompt: str) -> str:
     try:
-        import anthropic
+        client = make_sync_claude_client()
     except ImportError:
         sys.exit("[ERROR] anthropic package not installed. Run: pip install anthropic")
-
-    client = anthropic.Anthropic(api_key=api_key)
     print("  [Claude] Sending request (Sonnet)...")
     message = client.messages.create(
         model=CLAUDE_SONNET_MODEL,
@@ -221,8 +220,8 @@ def main() -> None:
         print("\n[DRY RUN] Would combine and send to Claude. Exiting.")
         return
 
-    if not ANTHROPIC_API_KEY:
-        sys.exit("[ERROR] ANTHROPIC_API_KEY not set in .env")
+    if not claude_key_present():
+        sys.exit("[ERROR] No Claude route — set OPENROUTER_API_KEY in .env")
 
     combined = _build_combined_transcript(sessions, total_budget=args.budget)
     duration_min = _estimate_duration_min(sessions)
@@ -231,7 +230,7 @@ def main() -> None:
     print(f"\nCombined transcript: {len(combined):,} chars  |  Estimated duration: {duration_min} min")
     print(f"Calling Claude {CLAUDE_SONNET_MODEL}...\n")
 
-    response = asyncio.run(_call_claude(prompt, ANTHROPIC_API_KEY))
+    response = asyncio.run(_call_claude(prompt))
 
     print(f"  [Claude] Response received ({len(response):,} chars)")
     _write_output(response, date_str, activity_slug, duration_min)
