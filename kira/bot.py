@@ -11115,6 +11115,25 @@ class VTubeBot:
                         if full_response_text:
                             streamed_already_spoken = True
                             _llm_model = "sonnet-stream(llm+tts)"
+                        else:
+                            # OPENROUTER RESILIENCE (2026-07-28): the streaming path can die
+                            # through the OpenRouter Anthropic Skin while plain calls work
+                            # fine (the Pokémon reaction path proved it). A dead stream used
+                            # to drop straight to local Llama — which answers WITHOUT her full
+                            # persona depth (the "helpful assistant" voice Jonny can feel
+                            # instantly). Retry ONE non-streaming Sonnet call first; Llama
+                            # stays the last resort. Safe to retry because nothing was spoken
+                            # (full_response_text is empty — a partially-spoken stream returns
+                            # its partial text and takes the branch above instead).
+                            print("   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.")
+                            full_response_text = await self.ai_core.claude_chat_inference(
+                                messages=self.conversation_history,
+                                system_prompt=self.ai_core.system_prompt,
+                                dynamic_context=dynamic_context,
+                                max_tokens=streaming_max,
+                            )
+                            if full_response_text:
+                                _llm_model = "sonnet(stream-rescue)"
                     else:
                         # Non-streaming Sonnet path
                         if brief_mode:
