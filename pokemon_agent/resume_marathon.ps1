@@ -1,24 +1,21 @@
 # resume_marathon.ps1 - the ONE-PASTE resume for the FireRed marathon (Windows PC).
 #
-# What it does, in order:
-#   1. git pull (latest fixes arrive)
-#   2. Collects crash forensics (logs\debug\playlive_crash_*.log + faulthandler) into
-#      docs\soak-reports\<timestamp>\ so the Mac-side agent can read them from GitHub.
-#   3. Finds the newest %TEMP%\kira_watch\sandbox_* (last night's REAL progress lives
-#      there - watch.py never writes canonical) and promotes it through the sanctity
-#      gate (promote_bank.py validates + backs up canonical first; a failed validation
-#      changes nothing).
-#   4. Commits + pushes the report folder to GitHub (the Mac agent's eyes).
-#   5. Launches the marathon: run.py (bot) in one window, waits for the dashboard,
-#      then supervisor.py --timeline sherpa --audio (windowed, true speed, crash
-#      auto-restart, banks canonical progress continuously).
+# How the PC<->Mac loop works:
+#   - This script inventories EVERY watch sandbox + the canonical save + crash logs
+#     into docs\soak-reports\<timestamp>\ and pushes it to GitHub (the Mac agent's eyes).
+#   - The Mac agent picks the correct save and writes pokemon_agent\PROMOTE_TARGET.txt
+#     (a sandbox path, or the word CANONICAL to launch as-is), then pushes.
+#   - Rerunning this script pulls that decision, promotes it through the sanctity gate,
+#     and launches the marathon (bot + supervised game).
 #
-# USAGE (from anywhere):
+# So: NO PROMOTE_TARGET.txt -> inventory + push only (safe, never touches saves).
+#     PROMOTE_TARGET.txt    -> promote that exact sandbox, then launch.
+#
+# USAGE:
 #   powershell -ExecutionPolicy Bypass -File pokemon_agent\resume_marathon.ps1
 # Flags:
-#   -ReportOnly   only collect+push logs/sandbox info; no promote, no launch
-#   -NoLaunch     do everything except start the bot/game
-param([switch]$ReportOnly, [switch]$NoLaunch)
+#   -NoLaunch   do everything except start the bot/game
+param([switch]$NoLaunch)
 
 $ErrorActionPreference = "Continue"
 $RepoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -35,81 +32,138 @@ function Say([string]$m) {
 }
 function RunLogged([string]$label, [scriptblock]$cmd) {
     Say "== $label =="
-    $out = & $cmd 2>&1 | Out-String
+    $out = & $cmd 2>&1 | Out-String -Width 300
     Write-Host $out
     Add-Content -Path $mainLog -Value $out
     return $out
 }
+# Newest file mtime anywhere inside a directory (folder mtimes lie on Windows).
+function NewestFileTime([string]$dir) {
+    $f = Get-ChildItem $dir -Recurse -File -ErrorAction SilentlyContinue |
+         Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if ($f) { return $f.LastWriteTime } else { return (Get-Item $dir).LastWriteTime }
+}
+function HealthSummary([string]$dir) {
+    $h = Join-Path $dir "health.json"
+    if (-not (Test-Path $h)) { return "(no health.json)" }
+    try {
+        $j = Get-Content $h -Raw | ConvertFrom-Json
+        $mins = [math]::Round($j.playthrough_s / 60)
+        return "badges=$($j.badge_count) party=[$($j.party -join ', ')] place=$($j.place) played=${mins}min timeline=$($j.timeline)"
+    } catch { return "(health.json unreadable)" }
+}
 
 Say "resume_marathon $ts  (repo: $RepoRoot)"
+
+# 0) stop any running Kira/game so saves are quiescent and relaunch is clean
+Say "== stopping any running Kira python processes =="
+taskkill /F /IM python.exe /T 2>&1 | Out-Null
+Start-Sleep -Seconds 2
+
 RunLogged "git pull" { git pull } | Out-Null
 
-# venv
 $activate = Join-Path $RepoRoot ".venv\Scripts\Activate.ps1"
 if (Test-Path $activate) { & $activate } else { Say "!! .venv not found - using system python" }
 
-# .env sanity
 $envFile = Join-Path $RepoRoot ".env"
 if (Test-Path $envFile) {
-    if (-not (Select-String -Path $envFile -Pattern "^POKEMON_AGENT_ENABLED=true" -Quiet)) {
-        Say "!! WARNING: POKEMON_AGENT_ENABLED=true not found in .env - she will play MUTE. Add it."
+    if (-not (Select-String -Path $envFile -Pattern "^\s*POKEMON_AGENT_ENABLED\s*=\s*true" -Quiet)) {
+        Say "!! WARNING: POKEMON_AGENT_ENABLED=true not found in .env - she will play MUTE."
     }
-    if (-not (Select-String -Path $envFile -Pattern "^OPENROUTER_API_KEY=sk-or" -Quiet)) {
+    if (-not (Select-String -Path $envFile -Pattern "^\s*OPENROUTER_API_KEY\s*=\s*\S+" -Quiet)) {
         Say "!! WARNING: OPENROUTER_API_KEY missing in .env - her Claude brain will be offline."
     }
 } else { Say "!! WARNING: no .env at repo root" }
 
 # 1) crash forensics
-Say "== collecting crash forensics =="
-Copy-Item (Join-Path $RepoRoot "logs\debug\playlive_crash_*.log") $report -ErrorAction SilentlyContinue
-Copy-Item (Join-Path $RepoRoot "logs\debug\playlive_faulthandler.log") $report -ErrorAction SilentlyContinue
-$crashFiles = Get-ChildItem $report -Filter "playlive_*" -ErrorAction SilentlyContinue
-Say ("crash files captured: " + ($(if ($crashFiles) { ($crashFiles | ForEach-Object Name) -join ", " } else { "NONE (native crash leaves none, or logs dir empty)" })))
+Say "== crash forensics =="
+$dbg = Join-Path $RepoRoot "logs\debug"
+RunLogged "logs\debug listing (newest first)" {
+    Get-ChildItem $dbg -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
+} | Out-Null
+Copy-Item (Join-Path $dbg "playlive_crash_*.log") $report -ErrorAction SilentlyContinue
+Copy-Item (Join-Path $dbg "playlive_faulthandler.log") $report -ErrorAction SilentlyContinue
+# tail of the newest debug log of any kind (the actual death note usually lives here)
+$newestDbg = Get-ChildItem $dbg -File -ErrorAction SilentlyContinue |
+             Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if ($newestDbg) {
+    Get-Content $newestDbg.FullName -Tail 300 -ErrorAction SilentlyContinue |
+        Set-Content (Join-Path $report ("tail_" + $newestDbg.Name))
+    Say "tailed newest debug log: $($newestDbg.Name)"
+}
 
-# 2) newest watch sandbox -> promote
-$promoteOk = $false
+# 2) FULL sandbox + canonical inventory (by newest FILE time, not folder time)
 $watchRoot = Join-Path $env:TEMP "kira_watch"
-$sb = Get-ChildItem $watchRoot -Directory -ErrorAction SilentlyContinue |
-      Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if ($sb) {
-    Say "newest watch sandbox: $($sb.FullName)  (modified $($sb.LastWriteTime))"
-    Copy-Item (Join-Path $sb.FullName "health.json") (Join-Path $report "sandbox_health.json") -ErrorAction SilentlyContinue
-    RunLogged "sandbox contents" { Get-ChildItem $sb.FullName -Recurse -Depth 1 | Select-Object FullName, LastWriteTime, Length | Format-Table -AutoSize } | Out-Null
-    if (-not $ReportOnly) {
-        $promoteOut = RunLogged "promote_bank (sanctity-gated)" { python (Join-Path $RepoRoot "pokemon_agent\promote_bank.py") $sb.FullName "watch_rescue_$ts" }
+Say "== sandbox inventory ($watchRoot) =="
+$sandboxes = @(Get-ChildItem $watchRoot -Directory -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        [pscustomobject]@{ Dir = $_; Newest = (NewestFileTime $_.FullName) }
+    } | Sort-Object Newest -Descending)
+if ($sandboxes.Count -eq 0) { Say "no sandboxes found under $watchRoot" }
+$i = 0
+foreach ($s in $sandboxes) {
+    $i++
+    Say ("[$i] " + $s.Dir.FullName)
+    Say ("    last activity: " + $s.Newest)
+    Say ("    " + (HealthSummary $s.Dir.FullName))
+    Copy-Item (Join-Path $s.Dir.FullName "health.json") (Join-Path $report ("sandbox" + $i + "_" + $s.Dir.Name + "_health.json")) -ErrorAction SilentlyContinue
+}
+$campaign = Join-Path $RepoRoot "pokemon_agent\states\campaign"
+Say "== canonical campaign =="
+Say ("    last activity: " + (NewestFileTime $campaign))
+Say ("    " + (HealthSummary $campaign))
+Copy-Item (Join-Path $campaign "health.json") (Join-Path $report "canonical_health.json") -ErrorAction SilentlyContinue
+RunLogged "campaign dir + backups" {
+    Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
+        Select-Object FullName, LastWriteTime | Format-Table -AutoSize
+} | Out-Null
+
+# 3) promote ONLY if the Mac agent has pinned a target
+$targetFile = Join-Path $RepoRoot "pokemon_agent\PROMOTE_TARGET.txt"
+$promoteOk = $false
+$launchApproved = $false
+if (Test-Path $targetFile) {
+    $target = (Get-Content $targetFile -Raw).Trim()
+    if ($target -eq "CANONICAL") {
+        Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
+        $promoteOk = $true; $launchApproved = $true
+    } elseif ($target -and (Test-Path $target)) {
+        $promoteOut = RunLogged "promote_bank (sanctity-gated) -> $target" {
+            python (Join-Path $RepoRoot "pokemon_agent\promote_bank.py") $target "marathon_rescue_$ts"
+        }
         $promoteOk = ($LASTEXITCODE -eq 0)
         Add-Content -Path (Join-Path $report "promote.log") -Value $promoteOut
         Say "promote exit code: $LASTEXITCODE  (0 = promoted; nonzero = canonical untouched)"
+        $launchApproved = $promoteOk
+    } else {
+        Say "!! PROMOTE_TARGET.txt points to a path that doesn't exist: $target"
     }
+    # one-shot: consume the decision so future runs go back to inventory mode
+    Remove-Item $targetFile -ErrorAction SilentlyContinue
 } else {
-    Say "!! no watch sandbox found under $watchRoot - Windows may have cleaned TEMP."
-    Say "   Canonical stays wherever it was; the launch below still works, just from the older save."
+    Say ">> No PROMOTE_TARGET.txt - inventory-only run. Nothing was promoted or launched."
+    Say ">> Tell the Mac agent 'done' - it will read this report, pick the right save, and push the decision."
 }
 
-# 3) push the report so the Mac-side agent can read everything
+# 4) push the report (and the consumed target file) to GitHub
 RunLogged "push soak report" {
-    git add docs\soak-reports
-    git commit -m "report(soak): $ts crash forensics + sandbox rescue (auto from resume_marathon.ps1)"
+    git add -A docs\soak-reports pokemon_agent\PROMOTE_TARGET.txt
+    git commit -m "report(soak): $ts inventory/rescue (auto from resume_marathon.ps1)"
     git push origin main
 } | Out-Null
 
-# 4) launch
-if ($ReportOnly -or $NoLaunch) {
-    Say "done (no launch: flags). Tell the Mac agent to pull and read docs/soak-reports/$ts"
-    exit 0
-}
-if (-not $promoteOk) {
-    Say ">> promote did not succeed - launching anyway would resume from the OLDER canonical save."
-    $go = Read-Host "Launch from older save? (y/N)"
-    if ($go -ne "y") { Say "stopped. Report pushed - the Mac agent can diagnose."; exit 1 }
-}
+# 5) launch
+if (-not $launchApproved) { Say "done (no launch this run)."; exit 0 }
+if ($NoLaunch) { Say "done (-NoLaunch)."; exit 0 }
 
 Say "== launching bot (window 1) =="
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python run.py"
 
 Say "waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)..."
 $botUp = $false
-for ($i = 0; $i -lt 60; $i++) {
+for ($j = 0; $j -lt 60; $j++) {
     Start-Sleep -Seconds 3
     try {
         $r = Invoke-WebRequest -Uri "http://127.0.0.1:8766/" -UseBasicParsing -TimeoutSec 3
@@ -117,10 +171,10 @@ for ($i = 0; $i -lt 60; $i++) {
     } catch { }
 }
 if (-not $botUp) {
-    Say "!! bot never came up - check window 1 for the error, then rerun with -ReportOnly to send me the logs."
+    Say "!! bot never came up - check window 1 for the error, then rerun this script to send fresh logs."
     exit 1
 }
 Say "bot is up. == launching supervised marathon (window 2) =="
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline sherpa --audio"
 Say "She's live: windowed, true speed, crash auto-restart, canonical banking."
-Say "To stop everything later: taskkill /F /IM python.exe /T"
+Say "To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T"
