@@ -1,4 +1,4 @@
-resume_marathon 20260729_091333  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260729_091924  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
 Already up to date.
@@ -266,30 +266,5 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
-!! AUTO found no Squirtle-line sandbox (<=2 badges) - nothing promoted.
+PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
 == push soak report ==
-[main dd2ac54] report(soak): 20260729_091333 inventory/rescue (auto from resume_marathon.ps1)
- 14 files changed, 1273 insertions(+), 1 deletion(-)
- create mode 100644 docs/soak-reports/20260729_090526/canonical_health.json
- create mode 100644 docs/soak-reports/20260729_090526/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260729_090526/resume_marathon.log
- create mode 100644 docs/soak-reports/20260729_090526/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260729_090526/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260729_090526/tail_console_2026-07-29_08-58-15.log
- create mode 100644 docs/soak-reports/20260729_091333/canonical_health.json
- create mode 100644 docs/soak-reports/20260729_091333/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260729_091333/resume_marathon.log
- create mode 100644 docs/soak-reports/20260729_091333/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260729_091333/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260729_091333/tail_console_2026-07-29_08-58-15.log
- delete mode 100644 pokemon_agent/PROMOTE_TARGET.txt
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:198 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   6ddf19a..dd2ac54  main -> main
-
-done (no launch this run).
