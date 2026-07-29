@@ -1,9 +1,9 @@
 {
  "_meta": {
   "purpose": "THE curated whole-game team archetype(s) the TeamPlanner plans against - the 'balanced 6 a guide-literate human builds toward the E4 from the start'. It is a MENU she chooses from (soul: SHE picks, seeded by her real starter + favorites), never a solver's dictation. Holds: the 6 target slots (role + species + coverage + WHERE/WHEN to acquire), the acquisition ORDER (earliest-due / highest-multiplicity first), the single-use-TM teach plan, per-threat answer mapping (for the lookahead), and level milestones (ace + small margin - watchable, never max-grind).",
-  "source": "Composed from frlg_rosters (the actual threats) + frlg_strategy (answers) + frlg_encounters (where) + FRLG playthrough knowledge. Bulbasaur-start branch is primary (canonical starter). Portable-engine split: this whole file is the swappable FireRed game-knowledge layer.",
+  "source": "Composed from frlg_rosters (the actual threats) + frlg_strategy (answers) + frlg_encounters (where) + FRLG playthrough knowledge. ALL THREE starter branches are covered - _pick_archetype matches on starter_branch, and a missing branch silently falls back to the Bulbasaur plan, which wedges assess() on an unownable gift-starter slot (the 2026-07-28 live run: Squirtle start, zero catches in 2.5h). Portable-engine split: this whole file is the swappable FireRed game-knowledge layer.",
   "watchability": "level_milestones = leader-ace + small margin (a brief struggle, not a stomp). Detours are bounded + only when an acquisition is DUE and cheaply reachable. A grind-wall is a FAILURE.",
-  "updated": "2026-07-09 (mission-pivot Part A)"
+  "updated": "2026-07-29 (squirtle + charmander branches - fixes the zero-catch solo-starter live run)"
  },
 
  "archetypes": [
@@ -60,6 +60,118 @@
     "Agatha": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
     "Lance": {"answer_slots": ["water-ice-tank"], "answer_types": ["ice", "electric"], "note": "Lapras Ice Beam is the signature answer - 4x on Dragonite"},
     "Champion": {"answer_slots": ["grass-starter", "psychic-sweeper", "ground", "fire", "water-ice-tank", "normal-tank"], "answer_types": ["mixed"], "note": "the fight the whole balanced six exists for"}
+   }
+  },
+
+  {
+   "name": "tidal-classic",
+   "starter_branch": "squirtle",
+   "summary": "Blastoise core + Pikachu/Raichu as the Misty/Lorelei/Lance electric answer, the same Kadabra psychic sweeper that carries poison/fighting/ghost mid-late, Dugtrio for Surge + Earthquake coverage, Arcanine for Erika/fire, and Lapras as the E4 MVP (Ice Beam = the Lance dragon-slayer; overlapping water with Blastoise is fine - classic teams double up on the best type in the game). Same Sabrina gap as the Bulbasaur plan: out-speed with Kadabra / Shadow Ball.",
+   "slots": [
+    {"role": "water-starter", "species": ["blastoise"], "line": ["squirtle", "wartortle", "blastoise"], "covers": ["water"], "acquire": {"where": "Pallet (starter)", "by_badge": 0, "method": "gift"}, "evolve": [{"into": "wartortle", "at": 16}, {"into": "blastoise", "at": 36}], "key_moves": ["bite", "water-pulse", "surf"], "why": "her starter + heart of the team; Water Gun/Bubble Beam carries Brock and the early roads, Surf is the mid-game STAB nuke"},
+    {"role": "electric", "species": ["raichu"], "line": ["pikachu", "raichu"], "covers": ["electric"], "acquire": {"species": "pikachu", "where": "Viridian Forest (rare) / Power Plant later", "by_badge": 2, "method": "grass"}, "evolve": [{"into": "raichu", "via": "thunder-stone", "note": "Thunder Stone from Celadon Dept.; evolve after learning Thunderbolt or teach TM24"}], "teach": ["TM24 thunderbolt"], "why": "the water-starter's missing gun: Misty's own weapon turned on her, then Lorelei's waters and Lance's Gyarados late"},
+    {"role": "psychic-sweeper", "species": ["kadabra", "alakazam"], "line": ["abra", "kadabra"], "covers": ["psychic"], "acquire": {"species": "abra", "where": "Route 24 / Route 25", "by_badge": 2, "method": "grass"}, "evolve": [{"into": "kadabra", "at": 16}], "trade_dead_end": "alakazam needs a trade (solo run keeps Kadabra - still elite)", "teach": ["TM29 psychic", "TM30 shadow-ball"], "why": "HIGHEST-LEVERAGE catch regardless of starter - one Abra answers Koga AND Sabrina AND Bruno AND Agatha. Grab it right after Misty"},
+    {"role": "ground", "species": ["dugtrio"], "line": ["diglett", "dugtrio"], "covers": ["ground"], "acquire": {"species": "diglett", "where": "Diglett's Cave", "by_badge": 3, "method": "cave"}, "evolve": [{"into": "dugtrio", "at": 26}], "teach": ["TM26 earthquake"], "why": "hard-counters Lt. Surge (extra important on a water start - Surge threatens Blastoise directly) and becomes the Earthquake user for Koga/Blaine/Agatha"},
+    {"role": "fire", "species": ["arcanine"], "line": ["growlithe", "arcanine"], "covers": ["fire"], "acquire": {"species": "growlithe", "where": "Route 7 / Route 8", "by_badge": 4, "method": "grass"}, "evolve": [{"into": "arcanine", "via": "fire-stone", "note": "evolve LATE or just TM Flamethrower - Arcanine's level pool is thin"}], "teach": ["TM35 flamethrower"], "why": "the clean Erika sweep + fire coverage for bugs/ice/grass"},
+    {"role": "water-ice-tank", "species": ["lapras"], "line": ["lapras"], "covers": ["water", "ice"], "acquire": {"where": "Silph Co. 7F, Saffron (gift)", "by_badge": 6, "method": "gift"}, "teach": ["TM13 ice-beam"], "why": "THE E4 MVP - Ice Beam is 4x on Lance's Dragonite (the dragon-slayer); bulk the six needs for the no-Center gauntlet"}
+   ],
+   "coverage_target": ["water", "electric", "psychic", "ground", "fire", "ice"],
+   "coverage_notes": "electric lives on Raichu (not a Lapras TM) since the water start needs it from badge 2. Sabrina (bug/ghost/dark answer) is the one type-gap - covered by Kadabra out-speeding + Shadow Ball, or swap the Gastly alternative.",
+
+   "acquisition_order": [
+    {"step": 1, "species": "pikachu", "where": "Viridian Forest (rare - bounded hunt, do not wall)", "due_by_badge": 2, "serves": ["Misty", "Lorelei", "Lance"], "why": "the water-start's biggest gap; Misty is a slugfest without it. RARE spawn: if the bounded hunt misses, move on - Power Plant guarantees one later"},
+    {"step": 2, "species": "abra", "where": "Route 24 / Route 25", "due_by_badge": 2, "serves": ["Koga", "Sabrina", "Bruno", "Agatha"], "why": "earliest-due, highest-multiplicity gap - psychic carries four threats"},
+    {"step": 3, "species": "diglett", "where": "Diglett's Cave", "due_by_badge": 3, "serves": ["Lt. Surge", "Koga", "Blaine", "Agatha"], "why": "the Surge hard-counter + the game's best Ground/Earthquake body"},
+    {"step": 4, "species": "growlithe", "where": "Route 7 / Route 8", "due_by_badge": 4, "serves": ["Erika"], "why": "fire answer to the grass gym; fire coverage all game"},
+    {"step": 5, "species": "lapras", "where": "Silph Co. gift, Saffron", "due_by_badge": 6, "serves": ["Blaine", "Giovanni", "Lorelei", "Lance"], "why": "the E4 MVP; Ice Beam is the dragon-slayer"}
+   ],
+
+   "teach_plan": [
+    {"tm": "TM29", "move": "psychic", "to": "kadabra", "where": "Saffron (Mr. Psychic, free)", "when_badge": 6, "for": ["Koga", "Sabrina", "Bruno", "Agatha"]},
+    {"tm": "TM30", "move": "shadow-ball", "to": "kadabra", "where": "Celadon Game Corner (4500 coins)", "when_badge": 4, "for": ["Sabrina", "Agatha"]},
+    {"tm": "TM13", "move": "ice-beam", "to": "lapras", "where": "Celadon Game Corner (4000 coins)", "when_badge": 6, "for": ["Lance", "Giovanni", "Agatha"]},
+    {"tm": "TM24", "move": "thunderbolt", "to": "raichu", "where": "Celadon Game Corner (4000 coins)", "when_badge": 4, "for": ["Misty rematch-tier waters", "Lorelei", "Lance"]},
+    {"tm": "TM26", "move": "earthquake", "to": "dugtrio", "where": "Viridian Gym (Giovanni) / Silph find", "when_badge": 8, "for": ["Blaine", "Koga", "Agatha"]},
+    {"tm": "TM35", "move": "flamethrower", "to": "arcanine", "where": "Celadon Game Corner (4000 coins)", "when_badge": 4, "for": ["Erika"]}
+   ],
+
+   "level_milestones": {
+    "Brock": 14, "Misty": 22, "Lt. Surge": 25, "Erika": 31,
+    "Koga": 45, "Sabrina": 45, "Blaine": 48, "Giovanni": 52,
+    "Lorelei": 55, "Bruno": 56, "Agatha": 58, "Lance": 58, "Champion": 60
+   },
+
+   "threat_answers": {
+    "_doc": "per-threat: which of MY slots answers it (for the lookahead union).",
+    "Brock": {"answer_slots": ["water-starter"], "answer_types": ["water"]},
+    "Misty": {"answer_slots": ["electric"], "answer_types": ["electric", "grass"], "note": "Pikachu is the clean answer; without it this is a level-margin slugfest with Wartortle"},
+    "Lt. Surge": {"answer_slots": ["ground"], "answer_types": ["ground"]},
+    "Erika": {"answer_slots": ["fire", "psychic-sweeper"], "answer_types": ["fire", "psychic", "flying"]},
+    "Koga": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Sabrina": {"answer_slots": ["psychic-sweeper"], "answer_types": ["ghost", "bug"], "note": "no clean STAB answer - out-speed Alakazam with Kadabra, or Shadow Ball, or the Gastly swap"},
+    "Blaine": {"answer_slots": ["water-starter", "water-ice-tank", "ground"], "answer_types": ["water", "ground", "rock"]},
+    "Giovanni": {"answer_slots": ["water-starter", "water-ice-tank"], "answer_types": ["water", "grass", "ice"]},
+    "Lorelei": {"answer_slots": ["electric"], "answer_types": ["electric", "grass"], "note": "Raichu Thunderbolt cracks her waters; watch the Jynx"},
+    "Bruno": {"answer_slots": ["psychic-sweeper", "water-ice-tank"], "answer_types": ["psychic", "water"]},
+    "Agatha": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Lance": {"answer_slots": ["water-ice-tank", "electric"], "answer_types": ["ice", "electric"], "note": "Lapras Ice Beam is the signature answer - 4x on Dragonite; Raichu handles Gyarados"},
+    "Champion": {"answer_slots": ["water-starter", "electric", "psychic-sweeper", "ground", "fire", "water-ice-tank"], "answer_types": ["mixed"], "note": "the fight the whole balanced six exists for"}
+   }
+  },
+
+  {
+   "name": "blaze-classic",
+   "starter_branch": "charmander",
+   "summary": "Charizard core with the hard-mode early game solved by catches: Mankey (Route 22, BEFORE Brock) turns the worst starter matchup in the game into a fair fight, Pikachu handles Misty, then the proven spine - Kadabra psychic sweeper, Dugtrio ground, Lapras E4 MVP. Charizard itself owns Erika, so no Growlithe slot.",
+   "slots": [
+    {"role": "fire-starter", "species": ["charizard"], "line": ["charmander", "charmeleon", "charizard"], "covers": ["fire", "flying"], "acquire": {"where": "Pallet (starter)", "by_badge": 0, "method": "gift"}, "evolve": [{"into": "charmeleon", "at": 16}, {"into": "charizard", "at": 36}], "key_moves": ["metal-claw", "flamethrower", "wing-attack"], "why": "her starter + the Erika/bug/grass carry; Metal Claw softens Brock but Mankey is the real answer"},
+    {"role": "fighting", "species": ["primeape"], "line": ["mankey", "primeape"], "covers": ["fighting"], "acquire": {"species": "mankey", "where": "Route 22 (west of Viridian)", "by_badge": 1, "method": "grass"}, "evolve": [{"into": "primeape", "at": 28}], "key_moves": ["low-kick", "karate-chop"], "why": "THE Charmander-start unlock: Low Kick flattens Brock's rocks, then keeps paying vs Lorelei's ice and normal walls"},
+    {"role": "electric", "species": ["raichu"], "line": ["pikachu", "raichu"], "covers": ["electric"], "acquire": {"species": "pikachu", "where": "Viridian Forest (rare) / Power Plant later", "by_badge": 2, "method": "grass"}, "evolve": [{"into": "raichu", "via": "thunder-stone"}], "teach": ["TM24 thunderbolt"], "why": "Misty answer + Lorelei/Lance waters late"},
+    {"role": "psychic-sweeper", "species": ["kadabra", "alakazam"], "line": ["abra", "kadabra"], "covers": ["psychic"], "acquire": {"species": "abra", "where": "Route 24 / Route 25", "by_badge": 2, "method": "grass"}, "evolve": [{"into": "kadabra", "at": 16}], "trade_dead_end": "alakazam needs a trade (solo run keeps Kadabra - still elite)", "teach": ["TM29 psychic", "TM30 shadow-ball"], "why": "HIGHEST-LEVERAGE catch regardless of starter - answers Koga AND Sabrina AND Bruno AND Agatha"},
+    {"role": "ground", "species": ["dugtrio"], "line": ["diglett", "dugtrio"], "covers": ["ground"], "acquire": {"species": "diglett", "where": "Diglett's Cave", "by_badge": 3, "method": "cave"}, "evolve": [{"into": "dugtrio", "at": 26}], "teach": ["TM26 earthquake"], "why": "hard-counters Lt. Surge and becomes the Earthquake user for Koga/Blaine/Agatha"},
+    {"role": "water-ice-tank", "species": ["lapras"], "line": ["lapras"], "covers": ["water", "ice"], "acquire": {"where": "Silph Co. 7F, Saffron (gift)", "by_badge": 6, "method": "gift"}, "teach": ["TM13 ice-beam"], "why": "THE E4 MVP + the fire-start's water coverage vs Blaine's terrain and Giovanni's grounds; Ice Beam is the Lance dragon-slayer"}
+   ],
+   "coverage_target": ["fire", "fighting", "electric", "psychic", "ground", "water", "ice"],
+   "coverage_notes": "Charizard covers the fire AND Erika-flying angles so the Growlithe slot is freed for Mankey (the Brock unlock). Same Sabrina gap as every branch - Kadabra out-speeds + Shadow Ball.",
+
+   "acquisition_order": [
+    {"step": 1, "species": "mankey", "where": "Route 22 (west of Viridian, BEFORE Brock)", "due_by_badge": 1, "serves": ["Brock"], "why": "without it Brock is a Metal Claw prayer - this catch IS the early game"},
+    {"step": 2, "species": "pikachu", "where": "Viridian Forest (rare - bounded hunt, do not wall)", "due_by_badge": 2, "serves": ["Misty", "Lorelei", "Lance"], "why": "the Misty answer. RARE spawn: if the bounded hunt misses, move on - Power Plant guarantees one later"},
+    {"step": 3, "species": "abra", "where": "Route 24 / Route 25", "due_by_badge": 2, "serves": ["Koga", "Sabrina", "Bruno", "Agatha"], "why": "earliest-due, highest-multiplicity gap"},
+    {"step": 4, "species": "diglett", "where": "Diglett's Cave", "due_by_badge": 3, "serves": ["Lt. Surge", "Koga", "Blaine", "Agatha"], "why": "the Surge hard-counter"},
+    {"step": 5, "species": "lapras", "where": "Silph Co. gift, Saffron", "due_by_badge": 6, "serves": ["Blaine", "Giovanni", "Lorelei", "Lance"], "why": "the E4 MVP; Ice Beam is the dragon-slayer"}
+   ],
+
+   "teach_plan": [
+    {"tm": "TM29", "move": "psychic", "to": "kadabra", "where": "Saffron (Mr. Psychic, free)", "when_badge": 6, "for": ["Koga", "Sabrina", "Bruno", "Agatha"]},
+    {"tm": "TM30", "move": "shadow-ball", "to": "kadabra", "where": "Celadon Game Corner (4500 coins)", "when_badge": 4, "for": ["Sabrina", "Agatha"]},
+    {"tm": "TM13", "move": "ice-beam", "to": "lapras", "where": "Celadon Game Corner (4000 coins)", "when_badge": 6, "for": ["Lance", "Giovanni", "Agatha"]},
+    {"tm": "TM24", "move": "thunderbolt", "to": "raichu", "where": "Celadon Game Corner (4000 coins)", "when_badge": 4, "for": ["Lorelei", "Lance"]},
+    {"tm": "TM26", "move": "earthquake", "to": "dugtrio", "where": "Viridian Gym (Giovanni) / Silph find", "when_badge": 8, "for": ["Blaine", "Koga", "Agatha"]},
+    {"tm": "TM35", "move": "flamethrower", "to": "charizard", "where": "Celadon Game Corner (4000 coins)", "when_badge": 4, "for": ["Erika", "general fire STAB upgrade"]}
+   ],
+
+   "level_milestones": {
+    "Brock": 14, "Misty": 22, "Lt. Surge": 25, "Erika": 31,
+    "Koga": 45, "Sabrina": 45, "Blaine": 48, "Giovanni": 52,
+    "Lorelei": 55, "Bruno": 56, "Agatha": 58, "Lance": 58, "Champion": 60
+   },
+
+   "threat_answers": {
+    "_doc": "per-threat: which of MY slots answers it (for the lookahead union).",
+    "Brock": {"answer_slots": ["fighting"], "answer_types": ["fighting", "water", "grass"], "note": "Mankey Low Kick - the whole reason the slot exists"},
+    "Misty": {"answer_slots": ["electric"], "answer_types": ["electric", "grass"]},
+    "Lt. Surge": {"answer_slots": ["ground"], "answer_types": ["ground"]},
+    "Erika": {"answer_slots": ["fire-starter"], "answer_types": ["fire", "flying", "psychic"]},
+    "Koga": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Sabrina": {"answer_slots": ["psychic-sweeper"], "answer_types": ["ghost", "bug"], "note": "no clean STAB answer - out-speed with Kadabra + Shadow Ball, or the Gastly swap"},
+    "Blaine": {"answer_slots": ["water-ice-tank", "ground"], "answer_types": ["water", "ground", "rock"]},
+    "Giovanni": {"answer_slots": ["water-ice-tank"], "answer_types": ["water", "grass", "ice"]},
+    "Lorelei": {"answer_slots": ["electric", "fighting"], "answer_types": ["electric", "fighting"], "note": "Raichu for the waters, Primeape for the ice"},
+    "Bruno": {"answer_slots": ["psychic-sweeper", "fire-starter"], "answer_types": ["psychic", "flying"]},
+    "Agatha": {"answer_slots": ["psychic-sweeper", "ground"], "answer_types": ["psychic", "ground"]},
+    "Lance": {"answer_slots": ["water-ice-tank", "electric"], "answer_types": ["ice", "electric"]},
+    "Champion": {"answer_slots": ["fire-starter", "fighting", "electric", "psychic-sweeper", "ground", "water-ice-tank"], "answer_types": ["mixed"], "note": "the fight the whole balanced six exists for"}
    }
   },
 
