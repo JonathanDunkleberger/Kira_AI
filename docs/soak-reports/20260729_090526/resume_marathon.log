@@ -1,0 +1,301 @@
+resume_marathon 20260729_090526  (repo: G:\JonnyD\NeuroAI_Bot)
+== stopping any running Kira python processes ==
+== git pull ==
+Already up to date.
+
+!! WARNING: OPENROUTER_API_KEY missing in .env - her Claude brain will be offline.
+== crash forensics ==
+== logs\debug listing (newest first) ==
+
+Name                            LastWriteTime           Length
+----                            -------------           ------
+console_2026-07-29_08-58-15.log 7/29/2026 9:04:24 AM     43336
+latest.log                      7/29/2026 9:04:24 AM     43336
+playlive_faulthandler.log       7/29/2026 9:03:34 AM      2090
+console_2026-07-28_14-45-46.log 7/28/2026 3:49:31 PM    723906
+console_2026-07-28_13-51-30.log 7/28/2026 2:45:25 PM    550458
+console_2026-07-28_12-34-27.log 7/28/2026 1:15:53 PM     83813
+console_2026-07-28_12-52-19.log 7/28/2026 12:53:20 PM    11557
+ns4_badge7probe.log             7/10/2026 12:52:39 PM   422201
+ns4_sabrina.log                 7/10/2026 12:49:16 PM    34460
+ns4_autobuy2.log                7/10/2026 12:46:14 PM   170141
+ns4_autobuy.log                 7/10/2026 12:41:32 PM   152410
+ns4_hyper_test.log              7/10/2026 12:30:12 PM   166919
+ns3_silph4.log                  7/10/2026 12:18:33 PM   202314
+ns3_silph3.log                  7/10/2026 12:10:17 PM   126685
+ns3_silph2.log                  7/10/2026 12:02:03 PM   143453
+ns3_silph.log                   7/10/2026 11:46:03 AM   134138
+shift9_koga_battlelog.log       7/9/2026 9:16:09 PM     746993
+shift9_verify1.log              7/9/2026 9:09:38 PM    1410944
+shift9_frontier_repro.log       7/9/2026 9:00:46 PM     470868
+shift3_run8.log                 7/9/2026 6:33:48 PM     944067
+shift3_run7.log                 7/9/2026 6:15:02 PM     645537
+shift3_run6.log                 7/9/2026 6:00:27 PM    1371091
+shift3_run5.log                 7/9/2026 5:37:23 PM     431731
+shift3_run4.log                 7/9/2026 5:22:24 PM     266431
+shift3_run3.log                 7/9/2026 5:10:57 PM     247601
+shift3_run2.log                 7/9/2026 5:06:14 PM     260551
+shift3_run1.log                 7/9/2026 4:52:27 PM     408787
+shift2_return2.log              7/9/2026 4:44:16 PM     381390
+shift2_return.log               7/9/2026 4:27:49 PM     247424
+shift2_cross.log                7/9/2026 4:12:57 PM     445076
+shift2_balls.log                7/9/2026 4:06:34 PM     305354
+shift2_r6.log                   7/9/2026 3:59:04 PM     322073
+shift2_legcatch2.log            7/9/2026 3:53:09 PM     207774
+shift2_legcatch.log             7/9/2026 3:47:19 PM     195234
+shift2_forward.log              7/9/2026 3:42:32 PM     398647
+shift1_guard_verify2.log        7/9/2026 3:29:31 PM     420253
+shift1_guard_verify.log         7/9/2026 3:18:31 PM     434600
+shift1_r11_ballsinject.log      7/9/2026 3:07:02 PM     479327
+shift1_harness_flash.log        7/9/2026 2:51:38 PM     718779
+shift1_flash_errand2.log        7/9/2026 2:40:44 PM     307434
+shift1_flash_errand.log         7/9/2026 2:34:51 PM     242263
+shift1_dexcatch_verify.log      7/9/2026 2:24:57 PM     518506
+shift1_badge4_forward.log       7/9/2026 2:09:14 PM     574673
+console_2026-07-09_11-38-34.log 7/9/2026 1:00:23 PM     708477
+shift16_badge4_forward.log      7/9/2026 8:40:18 AM     228112
+shift16_surge_focused.log       7/9/2026 8:32:16 AM     220913
+shift16_surge_fieldmoves.log    7/9/2026 8:27:54 AM     669289
+shift15_gary_decisive.log       7/9/2026 8:01:23 AM     677851
+shift15_gary_test.log           7/9/2026 7:47:52 AM     288506
+shift15_razorleaf_verify.log    7/9/2026 7:42:34 AM     187500
+shift15_baseline.log            7/9/2026 7:37:50 AM     701003
+shift14_verify2.log             7/9/2026 7:12:11 AM     341936
+shift14_verify.log              7/9/2026 7:08:29 AM     553208
+shift14_garybattle.log          7/9/2026 7:00:58 AM     603096
+shift14_gary.log                7/9/2026 6:48:17 AM     633301
+grindcap_fix.log                7/9/2026 6:33:33 AM    1226724
+captain_fix.log                 7/9/2026 6:02:51 AM    1177019
+ugpfix2.log                     7/9/2026 5:36:32 AM    1180494
+ughut_fix.log                   7/9/2026 5:23:11 AM    1198487
+ssanne_fix.log                  7/9/2026 5:01:53 AM     239988
+crossing_fixA.log               7/9/2026 4:40:56 AM    2346534
+stretch_surge.log               7/9/2026 4:30:05 AM     586472
+road_isolate.log                7/9/2026 4:22:17 AM     102892
+vermilion4_verify.log           7/9/2026 4:07:59 AM      58342
+vermilion3_verify.log           7/9/2026 4:07:21 AM     364906
+vermilion2_verify.log           7/9/2026 4:00:48 AM     642016
+vermilion_verify.log            7/9/2026 3:49:31 AM    4207186
+vermilion_verify.err            7/9/2026 3:00:36 AM          0
+route25_verify.log              7/9/2026 2:59:02 AM     589948
+route25_verify.err              7/9/2026 2:50:31 AM          0
+billfix_verify.log              7/9/2026 2:50:00 AM    1519072
+billfix_verify.err              7/9/2026 2:17:46 AM          0
+_bf_keys.txt                    7/9/2026 2:13:34 AM        893
+grindfix_verify.log             7/9/2026 2:11:41 AM    1567693
+_gf_cer.txt                     7/9/2026 2:09:37 AM       3723
+_gf_nav.txt                     7/9/2026 2:07:00 AM       2526
+_gf_tick8.txt                   7/9/2026 2:04:28 AM      12005
+_gf_state.txt                   7/9/2026 2:03:43 AM        552
+_gf_keys.txt                    7/9/2026 2:02:48 AM       8549
+_gf_ascii.txt                   7/9/2026 2:02:17 AM     568884
+_grindfix_tail.txt              7/9/2026 2:01:49 AM       8293
+freshspine_shift3.log           7/9/2026 1:49:34 AM     651053
+freshspine_shift2.log           7/9/2026 12:56:34 AM    239996
+monitor_shift2.log              7/9/2026 12:53:54 AM       880
+freshspine3.log                 7/9/2026 12:32:37 AM     45160
+freshspine2.log                 7/9/2026 12:27:45 AM     63264
+freshspine.log                  7/9/2026 12:01:49 AM    144966
+console_2026-07-08_22-31-29.log 7/8/2026 10:46:46 PM    110371
+console_2026-07-08_21-29-18.log 7/8/2026 10:14:15 PM    327707
+console_2026-07-08_20-45-02.log 7/8/2026 9:29:05 PM     373341
+console_2026-07-08_20-01-53.log 7/8/2026 8:25:08 PM     207743
+console_2026-07-08_19-41-39.log 7/8/2026 8:01:10 PM      81718
+console_2026-07-08_19-13-17.log 7/8/2026 7:38:24 PM     220744
+console_2026-07-08_18-01-38.log 7/8/2026 6:13:08 PM      75936
+console_2026-07-08_17-51-34.log 7/8/2026 5:58:44 PM      44309
+console_2026-07-08_17-35-21.log 7/8/2026 5:39:16 PM      33433
+console_2026-07-08_17-28-48.log 7/8/2026 5:32:48 PM      24088
+console_2026-07-08_16-08-16.log 7/8/2026 4:48:15 PM     219355
+console_2026-07-08_16-02-45.log 7/8/2026 4:06:52 PM      31878
+console_2026-07-08_15-48-22.log 7/8/2026 3:57:00 PM      48537
+console_2026-07-08_11-23-03.log 7/8/2026 11:35:45 AM     74599
+console_2026-07-08_10-55-01.log 7/8/2026 11:01:51 AM     33864
+console_2026-07-08_09-29-09.log 7/8/2026 10:52:20 AM    193020
+console_2026-07-07_22-53-43.log 7/7/2026 11:46:06 PM    259436
+night_c1_bot.log                7/7/2026 9:39:26 PM      36150
+console_2026-07-07_21-34-56.log 7/7/2026 9:39:22 PM      22253
+console_2026-06-28_14-25-53.log 6/28/2026 2:35:36 PM     67124
+console_2026-06-28_13-30-19.log 6/28/2026 1:35:28 PM     36127
+console_2026-06-28_10-54-27.log 6/28/2026 11:07:00 AM    75237
+console_2026-06-28_10-30-53.log 6/28/2026 10:36:08 AM    38739
+console_2026-06-28_10-18-55.log 6/28/2026 10:23:45 AM    27773
+console_2026-06-28_09-31-19.log 6/28/2026 9:37:13 AM     37378
+console_2026-06-28_08-17-32.log 6/28/2026 8:26:42 AM     72535
+console_2026-06-28_01-41-34.log 6/28/2026 2:04:50 AM    159777
+console_2026-06-28_01-23-17.log 6/28/2026 1:24:48 AM     21556
+console_2026-06-28_01-09-38.log 6/28/2026 1:12:31 AM     22218
+console_2026-06-28_00-14-32.log 6/28/2026 12:28:04 AM    83127
+console_2026-06-28_00-01-50.log 6/28/2026 12:02:35 AM     4702
+console_2026-06-27_23-30-04.log 6/27/2026 11:40:02 PM    73812
+console_2026-06-27_20-50-32.log 6/27/2026 9:05:22 PM    110697
+console_2026-06-27_19-24-51.log 6/27/2026 7:44:19 PM    129571
+console_2026-06-27_18-52-34.log 6/27/2026 7:02:16 PM     66174
+console_2026-06-27_17-36-53.log 6/27/2026 5:47:38 PM     70633
+console_2026-06-27_16-14-24.log 6/27/2026 4:17:40 PM     36317
+console_2026-06-27_15-44-46.log 6/27/2026 3:47:52 PM     22714
+console_2026-06-27_14-14-27.log 6/27/2026 2:25:28 PM     71149
+console_2026-06-27_13-25-03.log 6/27/2026 1:30:21 PM     39458
+console_2026-06-27_13-20-26.log 6/27/2026 1:22:42 PM     20065
+console_2026-06-27_13-05-48.log 6/27/2026 1:13:07 PM     47295
+console_2026-06-25_16-07-56.log 6/25/2026 4:12:40 PM     30304
+console_2026-06-25_16-03-46.log 6/25/2026 4:07:52 PM     28758
+console_2026-06-25_13-11-03.log 6/25/2026 1:11:53 PM      4702
+console_2026-06-25_12-29-06.log 6/25/2026 12:43:35 PM    90414
+console_2026-06-25_11-59-56.log 6/25/2026 12:08:12 PM    54519
+console_2026-06-25_11-30-17.log 6/25/2026 11:36:38 AM    56558
+console_2026-06-25_11-07-16.log 6/25/2026 11:13:39 AM    46489
+console_2026-06-25_10-21-01.log 6/25/2026 10:28:13 AM    49067
+console_2026-06-25_09-27-42.log 6/25/2026 9:43:26 AM    165660
+console_2026-06-25_08-27-36.log 6/25/2026 8:44:19 AM    134886
+console_2026-06-25_07-08-34.log 6/25/2026 7:41:42 AM    317277
+console_2026-06-24_18-38-46.log 6/24/2026 7:14:02 PM    293423
+console_2026-06-24_09-50-18.log 6/24/2026 10:11:08 AM   197371
+console_2026-06-23_19-38-35.log 6/23/2026 9:12:45 PM    633838
+console_2026-06-23_12-18-55.log 6/23/2026 12:32:42 PM    83323
+console_2026-06-23_10-33-32.log 6/23/2026 11:40:38 AM   553179
+console_2026-06-23_10-26-42.log 6/23/2026 10:32:10 AM    45362
+console_2026-06-22_20-43-34.log 6/22/2026 9:38:50 PM    467041
+console_2026-06-22_15-39-42.log 6/22/2026 4:39:31 PM    553217
+console_2026-06-22_15-23-02.log 6/22/2026 3:39:23 PM    152115
+console_2026-06-22_12-51-52.log 6/22/2026 1:03:11 PM     95878
+console_2026-06-22_11-01-02.log 6/22/2026 11:46:09 AM   456699
+console_2026-06-22_08-50-55.log 6/22/2026 9:05:02 AM    137991
+console_2026-06-22_08-02-37.log 6/22/2026 8:30:25 AM    224308
+console_2026-06-21_14-09-49.log 6/21/2026 10:27:02 PM   196908
+console_2026-06-21_21-38-32.log 6/21/2026 10:11:11 PM   356589
+console_2026-06-21_21-32-09.log 6/21/2026 9:34:41 PM     14557
+console_2026-06-21_21-07-08.log 6/21/2026 9:22:24 PM    120351
+console_2026-06-21_20-36-57.log 6/21/2026 8:46:33 PM     81118
+console_2026-06-21_18-45-59.log 6/21/2026 7:13:18 PM    167323
+console_2026-06-21_17-48-37.log 6/21/2026 6:00:42 PM    143744
+console_2026-06-21_17-38-47.log 6/21/2026 5:44:49 PM     33076
+console_2026-06-21_14-04-07.log 6/21/2026 2:09:32 PM    117050
+console_2026-06-20_21-27-49.log 6/20/2026 9:34:57 PM     42162
+console_2026-06-20_20-57-46.log 6/20/2026 9:07:00 PM     61479
+console_2026-06-20_11-41-30.log 6/20/2026 12:02:55 PM   128189
+console_2026-06-20_10-03-46.log 6/20/2026 10:35:39 AM   144333
+console_2026-06-18_22-27-09.log 6/18/2026 11:39:02 PM   452806
+console_2026-06-18_22-25-14.log 6/18/2026 10:25:42 PM     5045
+console_2026-06-18_13-43-06.log 6/18/2026 7:36:58 PM  27497081
+console_2026-06-18_13-38-15.log 6/18/2026 1:39:08 PM      5045
+console_2026-06-18_01-38-39.log 6/18/2026 3:31:06 AM    630856
+console_2026-06-18_01-08-28.log 6/18/2026 1:34:00 AM    139406
+console_2026-06-17_23-56-49.log 6/18/2026 1:07:20 AM    474467
+console_2026-06-17_23-09-17.log 6/17/2026 11:28:29 PM   129754
+console_2026-06-17_20-09-31.log 6/17/2026 8:11:12 PM     11568
+console_2026-06-17_15-02-53.log 6/17/2026 4:22:09 PM    363998
+console_2026-06-17_14-52-32.log 6/17/2026 2:52:50 PM       722
+console_2026-06-17_14-51-39.log 6/17/2026 2:51:55 PM       722
+console_2026-06-17_14-50-38.log 6/17/2026 2:50:56 PM       852
+console_2026-06-17_14-49-27.log 6/17/2026 2:50:14 PM       852
+console_2026-06-17_14-48-30.log 6/17/2026 2:48:42 PM       659
+console_2026-06-16_21-07-17.log 6/16/2026 10:51:47 PM   595494
+console_2026-06-16_18-20-32.log 6/16/2026 9:06:34 PM    983705
+console_2026-06-16_17-58-32.log 6/16/2026 6:05:26 PM     32137
+
+
+
+tailed newest debug log: console_2026-07-29_08-58-15.log
+== sandbox inventory (G:\temp\kira_watch) ==
+[1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
+    last activity: 07/28/2026 13:14:40
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 2 played=15min timeline=sherpa
+[2] G:\temp\kira_watch\sandbox_canonical_20260728_125602
+    last activity: 07/28/2026 12:57:41
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
+== canonical campaign ==
+    last activity: 07/29/2026 09:04:20
+    badges=8 party=[ekans L17, persian L39, fearow L37, raticate L31, venusaur L95, lapras L27] place=Route 2 played=45079min timeline=sherpa
+== campaign dir + backups ==
+
+FullName                                                                                                    LastWriteTime        
+--------                                                                                                    -------------        
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                          6/26/2026 4:11:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                         7/29/2026 9:04:20 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                             7/28/2026 3:39:14 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                         7/15/2026 12:12:19 PM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                             7/29/2026 8:59:40 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\hm01_bank_20260706_203730                               7/6/2026 8:32:47 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_badge3_backup_20260706_212610                       7/6/2026 9:26:10 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_blaine_badge7_backup_20260707_130328                7/7/2026 1:03:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_celadon_reach_backup_20260707_005144                7/7/2026 12:51:44 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_cinnabar_reach_backup_20260707_121633               7/7/2026 12:16:33 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_dex10_backup_20260706_231721                        7/6/2026 11:17:21 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_dex11_mankey_backup_20260706_235322                 7/6/2026 11:53:22 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_erika_badge4_backup_20260707_014247                 7/7/2026 1:42:47 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_fuchsia_reach_backup_20260707_045518                7/7/2026 4:55:18 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_fuchsia_south_backup_20260707_084122                7/7/2026 8:41:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_giovanni_badge8_backup_20260707_131428              7/7/2026 1:14:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_hall_of_fame_backup_20260707_200544                 7/7/2026 8:05:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_hm01_backup_20260706_203744                         7/6/2026 8:37:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_hm05_flash_backup_20260707_001448                   7/7/2026 12:14:48 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_indigo_reach_backup_20260707_154528                 7/7/2026 3:45:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_koga_badge5_backup_20260707_050954                  7/7/2026 5:09:54 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_lapras_party_backup_20260707_083659                 7/7/2026 8:36:59 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_pcbox_spearow_backup_20260706_232812                7/6/2026 11:28:12 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_poke_flute_backup_20260707_042213                   7/7/2026 4:22:13 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_postgame_backup_20260708_003254                     7/8/2026 12:32:54 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_rocktunnel_lavender_backup_20260707_002712          7/7/2026 12:27:12 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_route10_reach_backup_20260706_230609                7/6/2026 11:06:09 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_route12_snorlax_backup_20260707_042553              7/7/2026 4:25:53 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_route5_backup_20260706_072125                       7/6/2026 7:21:25 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_sabrina_badge6_backup_20260707_082745               7/7/2026 8:27:45 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_safari_hms_backup_20260707_101928                   7/7/2026 10:19:28 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_saffron_reach_backup_20260707_060438                7/7/2026 6:04:38 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_secret_key_backup_20260707_123848                   7/7/2026 12:38:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_silph_cleared_backup_20260707_075833                7/7/2026 7:58:33 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_silph_scope_backup_20260707_034948                  7/7/2026 3:49:48 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_silph_scope_out_backup_20260707_035722              7/7/2026 3:57:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_snorlax_woken_backup_20260707_043049                7/7/2026 4:30:49 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_squad31_backup_20260706_180600                      7/6/2026 6:06:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_squad_backup_20260706_162755                        7/6/2026 4:27:55 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_surf_taught_backup_20260707_102403                  7/7/2026 10:24:03 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_tea_banked_backup_20260707_055824                   7/7/2026 5:58:24 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_ticket_backup_20260705_233354                       7/5/2026 11:33:54 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_tm43_secret_power_backup_20260707_025255            7/7/2026 2:52:55 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_vermilion_backup_20260706_152434                    7/6/2026 3:24:34 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_watch_rescue_20260729_085809_backup_20260729_085810 7/29/2026 8:58:11 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_191540                                     7/8/2026 7:15:40 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_201300                                     7/8/2026 8:13:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_204856                                     7/8/2026 8:48:56 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_223401                                     7/8/2026 10:34:01 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260709_114958                                     7/9/2026 11:49:58 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539                                     7/28/2026 1:55:39 PM 
+
+
+
+>> No PROMOTE_TARGET.txt - inventory-only run. Nothing was promoted or launched.
+>> Tell the Mac agent 'done' - it will read this report, pick the right save, and push the decision.
+== push soak report ==
+git : fatal: pathspec 'pokemon_agent\PROMOTE_TARGET.txt' did not match any files
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:152 char:5
++     git add -A docs\soak-reports pokemon_agent\PROMOTE_TARGET.txt
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: pathspec...match any files:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   docs/soak-reports/20260729_085809/resume_marathon.log
+	modified:   pokemon_agent/play_live.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	docs/soak-reports/20260729_090526/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+git : Everything up-to-date
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:154 char:5
++     git push origin main
++     ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Everything up-to-date:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+done (no launch this run).

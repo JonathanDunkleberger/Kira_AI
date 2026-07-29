@@ -53,3 +53,23 @@ ROUND-TRIP: map=(3, 1) coords=(19, 0) party=[('venusaur', 95, 266), ('persian', 
 
 promote exit code: 0  (0 = promoted; nonzero = canonical untouched)
 == push soak report ==
+[main c086a22] report(soak): 20260729_085809 crash forensics + sandbox rescue (auto from resume_marathon.ps1)
+ 4 files changed, 96 insertions(+)
+ create mode 100644 docs/soak-reports/20260729_085809/playlive_faulthandler.log
+ create mode 100644 docs/soak-reports/20260729_085809/promote.log
+ create mode 100644 docs/soak-reports/20260729_085809/resume_marathon.log
+ create mode 100644 docs/soak-reports/20260729_085809/sandbox_health.json
+git : To https://github.com/JonathanDunkleberger/Kira_AI.git
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:93 char:5
++     git push origin main
++     ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   adf5ae6..c086a22  main -> main
+
+== launching bot (window 1) ==
+waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
+bot is up. == launching supervised marathon (window 2) ==
+She's live: windowed, true speed, crash auto-restart, canonical banking.
+To stop everything later: taskkill /F /IM python.exe /T

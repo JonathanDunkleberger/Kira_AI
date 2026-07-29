@@ -1,0 +1,300 @@
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:00:11.124 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: This is my first time here, and I'm not sure what ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is my first time here, and I'm not ' (15 words)
+   [TurnTiming] 09:00:11.543 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:00:15.094 TTS STOP — playback finished (span ~3551ms)
+   [TIMING] interjection: vision=0ms llm=1228ms(sonnet) tts=6074ms total=7320ms
+   [LAG] sense→speak: total=3.8s (content_age=0.0s, prep=0.0s, llm=1.2s, tts_wait+synth=2.5s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:00:16.297 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~43326ms since onset)
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "POTION, and you want 1. That will be .300. Okay?"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=15ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdLo7B8c4DcvZbVtY68'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): Wait, so I should buy the potion? That's 0.30, right?
+   [TTS] Speaking: Wait, so I should buy the potion?...
+   [Storytime] ▶ action='storytime_presets' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_library' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Wait, so I should buy the potion?' (9 words)
+   [TurnTiming] 09:00:19.158 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:00:21.515 TTS STOP — playback finished (span ~2356ms)
+   [TTS] Speaking: That's 0.30, right?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's 0.30, right?' (5 words)
+   [TurnTiming] 09:00:21.925 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:00:23 (periodic) kira_process=0.00GB card=6.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 09:00:24.637 TTS STOP — playback finished (span ~2711ms)
+   [TIMING] interjection: vision=0ms llm=1524ms(sonnet) tts=5936ms total=7478ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=3.2s)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 30s before retry.
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+🎤 Recording...
+   [TurnTiming] 09:00:52.323 VOICE ONSET — mic speech started
+   [TurnTiming] 09:00:54.493 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2170ms since onset)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [VRAM] 09:01:08 (periodic) kira_process=0.00GB card=6.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [RoomRead] energy=0.46 [terse=0.18 gap=0.94 silence=0.56 intensity=0.60 chat=0.00] target=1.08 mult=1.02 -> min_gap=10s dead_air=20s
+   [RoomRead] energy=0.43 [terse=0.18 gap=0.94 silence=0.42 intensity=0.60 chat=0.00] target=1.13 mult=1.04 -> min_gap=10s dead_air=21s
+🎤 Recording...
+   [TurnTiming] 09:01:34.431 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.41 [terse=0.18 gap=0.94 silence=0.32 intensity=0.60 chat=0.00] target=1.17 mult=1.06 -> min_gap=11s dead_air=21s
+   [TurnTiming] 09:01:37.601 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3169ms since onset)
+>>> You said: What's up, Kira?
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="What's up, Kira?" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=19ms rank=1ms)
+   [SmartMem]     dist=0.710 conf=0.95 type=episodic blend=0.313 lane=KNOW
+   [SmartMem]     dist=0.731 conf=0.9 type=episodic blend=0.300 lane=KNOW
+   [SmartMem]     dist=0.741 conf=0.9 type=episodic blend=0.293 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=10858ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [Brain] Claude stream error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdSjsNhNH2ZTC1PtxCT'}
+
+   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.
+   [Brain] claude-sonnet-4-6 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdSkmwuFH8U7ZvQNobD'}. Falling back to local Llama.
+   ⚠ [FALLBACK] Sonnet unavailable/failed (empty response) — this turn served by local Llama.
+   [YTAutoSearch] No live broadcast found (attempt 3, 779s remaining)
+>>> Kira: Not much, Jonny. Just watching you get into trouble with your shop menu.
+   [TTS] Speaking: Not much, Jonny. Just watching you get into troubl...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Not much, Jonny. Just watching you get i' (16 words)
+   [TurnTiming] 09:01:39.446 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:01:44.220 TTS STOP — playback finished (span ~4773ms)
+   [TIMING] voice: llm=1301ms(local) tts=5134ms total=6436ms
+   [Brain] claude-haiku-4-5 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTDT4FmWnwR8s4PPf6'}. Falling back to local Llama.
+🎤 Recording...
+   [TurnTiming] 09:01:45.269 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.40 [terse=0.17 gap=0.40 silence=0.95 intensity=0.60 chat=0.00] target=1.20 mult=1.08 -> min_gap=11s dead_air=22s
+   [TurnTiming] 09:01:47.666 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2396ms since onset)
+>>> You said: You're the one that's playing.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="You're the one that's playing." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → ONE_WORD  (one_word_count=2  tangent_since=3t  moment=calm)
+   [PromptSize] dynamic_context=10737ch  hist=10turns  moment=calm
+>>> Kira (streaming):    [Brain] Claude stream error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTUcsh1cYpv9VZeDAT'}
+
+   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.
+   [Brain] claude-sonnet-4-6 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTVJJZFzD7E6wvmLiK'}. Falling back to local Llama.
+   ⚠ [FALLBACK] Sonnet unavailable/failed (empty response) — this turn served by local Llama.
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTWMZFTdunH587tLL8'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+>>> Kira: That's not what I'm saying. I'm more of a "get out while you still can" kind of co-host.
+   [TTS] Speaking: That's not what I'm saying. I'm more of a "get out...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's not what I'm saying. I'm more of ' (22 words)
+   [TurnTiming] 09:01:49.458 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: "I'm so close to getting out of the league and I'm itching to heal up and start a new adventure. My team's been feeling a bit underwhelming lately, and I want to make sure we're all leveled up and ready to take on whatever comes next. I'm thinking of heading back to Route 2 to catch some more wild Pokémon and train my team up a bit more. I love the variety of Pokémon you can find in the tall grass, and I'm hoping to catch something new to add to my team."
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTdgLYWvkVXD56os9b'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (move_drop): move#35
+   [Pokemon] her reasoning: "I'm thinking of letting go of move#35, it's not like it's doing much damage and I already have Bite for a strong hit. PICK: move#35."
+   [VRAM] 09:01:53 (periodic) kira_process=0.00GB card=6.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 09:01:54.888 TTS STOP — playback finished (span ~5430ms)
+   [TIMING] voice: llm=1134ms(local) tts=5879ms total=7014ms
+   [Brain] claude-sonnet-4-6 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdU1kdLCGY67GHo9BUx'}. Falling back to local Llama.
+   [Brain] claude-haiku-4-5 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdTznb28rTo1GkuryvW'}. Falling back to local Llama.
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): made it to a new area
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdU72dLUWQ494DMFuf5'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): Just made it to a new area, looks like it's gonna be a challenge.
+   [TTS] Speaking: Just made it to a new area, looks like it's gonna ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Just made it to a new area, looks like i' (16 words)
+   [TurnTiming] 09:01:57.817 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:02:01.287 TTS STOP — playback finished (span ~3470ms)
+   [TIMING] interjection: vision=0ms llm=1011ms(sonnet) tts=3852ms total=4887ms
+   [LAG] sense→speak: total=1.4s (content_age=0.0s, prep=0.0s, llm=1.0s, tts_wait+synth=0.4s)
+   [CalledShot] OPEN: Just made it to a new area, looks like it's gonna be a challenge.
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:02:02.503 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~17233ms since onset)
+>>> You said: Got it.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Got it.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=18ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=10612ch  hist=13turns  moment=calm
+>>> Kira (streaming):    [Brain] Claude stream error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdUaDzsxntwEj5ioqZ3'}
+
+   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.
+   [Brain] claude-sonnet-4-6 call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdUbPSyV6Q78GG4MPQp'}. Falling back to local Llama.
+   ⚠ [FALLBACK] Sonnet unavailable/failed (empty response) — this turn served by local Llama.
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdUcKFqdGNa1YQVy3k9'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+>>> Kira: Good, now can you please save?
+   [TTS] Speaking: Good, now can you please save?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Good, now can you please save?' (8 words)
+   [TurnTiming] 09:02:04.235 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: "I'm thinking about catching this rattata, it's a good opportunity to get a new Pokémon on my team. I'm a bit tired of the same old six, and a rattata would be a nice addition. Plus, it's only level 2, so it's not like it's going to put up a fight. PICK: catch."
+   [TurnTiming] 09:02:06.583 TTS STOP — playback finished (span ~2347ms)
+   [TIMING] voice: llm=1175ms(local) tts=2720ms total=3896ms
+   [EmotionSwing] holding SASSY (3 turn(s) left) instead of reverting
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "POK. BALL is selected."
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=16ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdVQaLziWU6tzVLHWG6'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): What's going on? This is my first time here, and I'm not sure what to expect with the Poké Ball being selected.
+   [TTS] Speaking: What's going on?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'What's going on?' (4 words)
+   [TurnTiming] 09:02:15.704 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:02:17.487 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: This is my first time here, and I'm not sure what ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is my first time here, and I'm not ' (21 words)
+   [TurnTiming] 09:02:17.967 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:02:22.654 TTS STOP — playback finished (span ~4686ms)
+   [TIMING] interjection: vision=0ms llm=1432ms(sonnet) tts=7199ms total=8649ms
+   [LAG] sense→speak: total=4.0s (content_age=0.0s, prep=0.0s, llm=1.4s, tts_wait+synth=2.5s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:02:23.895 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~38625ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:02:37.923 VOICE ONSET — mic speech started
+   [VRAM] 09:02:38 (periodic) kira_process=0.00GB card=6.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 4, 719s remaining)
+   [TurnTiming] 09:02:39.666 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1743ms since onset)
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): the route opens up ahead, grass swaying at the edges of the path
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Phrases] Throttling: "what's going on this is my first" (3rd use this session)
+   [Phrases] Throttling: "first time here and i'm not sure" (3rd use this session)
+   [Phrases] Throttling: "time here and i'm not sure what" (3rd use this session)
+   [Phrases] Throttling: "and i'm not sure what to expect" (3rd use this session)
+   [Phrases] Throttling: "going on this is my first time" (3rd use this session)
+   [Phrases] Throttling: "this is my first time here and" (3rd use this session)
+   [Phrases] Throttling: "my first time here and i'm not" (3rd use this session)
+   [Phrases] Throttling: "on this is my first time here" (3rd use this session)
+   [Phrases] Throttling: "is my first time here and i'm" (3rd use this session)
+   [Phrases] Throttling: "here and i'm not sure what to" (3rd use this session)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdXsFGZPgDrt5x1wzcr'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): I'm loving the scenery, but my Eevee's about to get some work done.
+   [TTS] Speaking: I'm loving the scenery, but my Eevee's about to ge...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm loving the scenery, but my Eevee's a' (15 words)
+   [TurnTiming] 09:02:49.230 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdY4mZPcu5YvhA8vxFW'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: "I'm not sure if I want to add another Normal-type to the mix, but a L3 rattata can't hurt, right? PICK: catch."
+   [TurnTiming] 09:02:52.971 TTS STOP — playback finished (span ~3741ms)
+   [TIMING] interjection: vision=0ms llm=1487ms(sonnet) tts=4151ms total=5663ms
+   [LAG] sense→speak: total=1.9s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=0.4s)
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSTT] Loop watchdog armed — hang>30s, restart cooldown 60s.   [LoopbackSTT] Started — distil-large-v3 on cuda (tick=5.0s, window=8.0s)
+
+   [Pokemon] event react (bypass=False, tier=1, kind=event): alright — throwing a Poké Ball
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=15ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdYx6Vna8Npufm2ZxGP'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): Not bad, Eevee's showing some spirit.
+   [TTS] Speaking: Not bad, Eevee's showing some spirit....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Not bad, Eevee's showing some spirit.' (8 words)
+   [TurnTiming] 09:03:03.521 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:03:06.331 TTS STOP — playback finished (span ~2809ms)
+   [TIMING] interjection: vision=0ms llm=1141ms(sonnet) tts=3139ms total=4298ms
+   [LAG] sense→speak: total=1.5s (content_age=0.0s, prep=0.0s, llm=1.1s, tts_wait+synth=0.3s)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [pokemon_proc] stop ignored - not running
+   [control] POKÉMON MODE: vision released to full-screen
+   [control] POKÉMON MODE: loopback STT restored to default
+   [Reconcile] [pokemon_mode] reactions re-wired
+   [Intensity] → TENSE  (silence=7s  audio="")
+   [RoomRead] energy=0.42 [terse=0.16 gap=0.63 silence=0.84 chat=0.00] target=1.17 mult=1.11 -> min_gap=11s dead_air=22s
+   [VRAM] 09:03:23 (periodic) kira_process=0.00GB card=6.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.39 [terse=0.16 gap=0.63 silence=0.70 chat=0.00] target=1.23 mult=1.13 -> min_gap=11s dead_air=23s
+   [pokemon_proc] stop ignored - not running
+   [control] POKÉMON MODE: vision released to full-screen
+   [control] POKÉMON MODE: loopback STT restored to default
+   [Reconcile] [pokemon_mode] reactions re-wired
+   [RoomRead] energy=0.36 [terse=0.16 gap=0.63 silence=0.60 chat=0.00] target=1.27 mult=1.15 -> min_gap=12s dead_air=23s
+   [pokemon_proc] started SHOWTIME:RESUME via SUPERVISOR: -u G:\JonnyD\NeuroAI_Bot\pokemon_agent\supervisor.py --timeline showtime --audio --phones Leviathan  (pid 11960)
+   [control] POKÉMON MODE: vision locked to 'Kira plays Pokemon'
+   [LoopbackSTT] Model unloaded — VRAM released.
+   [LoopbackSTT] Stopped.
+   [control] POKÉMON MODE: loopback STT OFF
+   [Reconcile] [pokemon_mode] reactions re-wired
+   [RoomRead] energy=0.35 [terse=0.16 gap=0.63 silence=0.52 chat=0.00] target=1.31 mult=1.17 -> min_gap=12s dead_air=23s
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [RoomRead] energy=0.33 [terse=0.16 gap=0.63 silence=0.44 chat=0.00] target=1.35 mult=1.20 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.31 [terse=0.16 gap=0.63 silence=0.37 chat=0.00] target=1.38 mult=1.22 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.30 [terse=0.16 gap=0.63 silence=0.30 chat=0.00] target=1.41 mult=1.24 -> min_gap=12s dead_air=25s
+   [RoomRead] energy=0.28 [terse=0.16 gap=0.63 silence=0.24 chat=0.00] target=1.44 mult=1.26 -> min_gap=13s dead_air=25s
+🎤 Recording...
+   [TurnTiming] 09:03:52.250 VOICE ONSET — mic speech started
+   [TurnTiming] 09:03:54.906 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2656ms since onset)
+   [RoomRead] energy=0.43 [terse=0.16 gap=0.63 silence=0.90 chat=0.00] target=1.14 mult=1.24 -> min_gap=12s dead_air=25s
+🎤 Recording...
+   [TurnTiming] 09:04:01.806 VOICE ONSET — mic speech started
+   [TurnTiming] 09:04:04.753 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2947ms since onset)
+   [RoomRead] energy=0.44 [terse=0.16 gap=0.63 silence=0.96 chat=0.00] target=1.11 mult=1.22 -> min_gap=12s dead_air=24s
+   [VRAM] 09:04:08 (periodic) kira_process=0.00GB card=5.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] event react (bypass=False, tier=1, kind=event): I'm out of Poké Balls - I'll come back for this one
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 09:04:19.273 VOICE ONSET — mic speech started
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWdecWCd8yZUiY2x1wwf'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   >>> Kira (Bored): I've got a tough matchup, but I'm not backing down.
+   [TTS] Speaking: I've got a tough matchup, but I'm not backing down...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I've got a tough matchup, but I'm not ba' (12 words)
+   [TurnTiming] 09:04:20.907 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 283s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [TurnTiming] 09:04:24.006 TTS STOP — playback finished (span ~3098ms)
+   [TIMING] interjection: vision=0ms llm=1681ms(sonnet) tts=3516ms total=5217ms
+   [LAG] sense→speak: total=2.1s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=0.4s)
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.45 [terse=0.16 gap=0.63 silence=1.00 chat=0.00] target=1.10 mult=1.20 -> min_gap=12s dead_air=24s
