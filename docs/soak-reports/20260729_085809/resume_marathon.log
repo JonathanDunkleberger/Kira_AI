@@ -1,0 +1,55 @@
+resume_marathon 20260729_085809  (repo: G:\JonnyD\NeuroAI_Bot)
+== git pull ==
+Already up to date.
+
+!! WARNING: OPENROUTER_API_KEY missing in .env - her Claude brain will be offline.
+== collecting crash forensics ==
+crash files captured: playlive_faulthandler.log
+newest watch sandbox: G:\temp\kira_watch\sandbox_canonical_20260728_125926  (modified 07/28/2026 13:14:40)
+== sandbox contents ==
+
+FullName                                                                                                              L
+                                                                                                                      a
+                                                                                                                      s
+                                                                                                                      t
+                                                                                                                      W
+                                                                                                                      r
+                                                                                                                      i
+                                                                                                                      t
+                                                                                                                      e
+                                                                                                                      T
+                                                                                                                      i
+                                                                                                                      m
+                                                                                                                      e
+--------                                                                                                              -
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints                                                      7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\dialogue_hints.json                                              7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\health.json                                                      7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\journey_core.json                                                7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\kira_campaign.state                                              7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\playthrough.json                                                 7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\pokemon_soul.json                                                7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\soul.json                                                        7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\strat_memory.json                                                7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\team_plan_state.json                                             7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\world_model.json                                                 7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_125927_pallet-town_8b_0h00m_roam-start      7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_130241_route-1_8b_0h03m_gain-new-area       7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_130407_viridian-city_8b_0h04m_gain-new-area 7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_130922_route-2_8b_0h09m_gain-new-area       7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_130932_viridian-city_8b_0h10m_gain-new-area 7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_130935_route-2_8b_0h10m_gain-new-area       7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_131057_pewter-city_8b_0h11m_gain-new-area   7
+G:\temp\kira_watch\sandbox_canonical_20260728_125926\checkpoints\20260728_131100_route-2_8b_0h11m_gain-new-area       7
+
+
+
+== promote_bank (sanctity-gated) ==
+   [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+sanctity: VALID (vs current canonical, monotonic included)
+canonical backed up -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_watch_rescue_20260729_085809_backup_20260729_085810
+PROMOTED G:\temp\kira_watch\sandbox_canonical_20260728_125926 -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign
+ROUND-TRIP: map=(3, 1) coords=(19, 0) party=[('venusaur', 95, 266), ('persian', 39, 106), ('fearow', 37, 100), ('raticate', 31, 75), ('ekans', 17, 41), ('lapras', 27, 109)]
+
+promote exit code: 0  (0 = promoted; nonzero = canonical untouched)
+== push soak report ==
