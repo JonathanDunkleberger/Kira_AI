@@ -37,7 +37,8 @@ SB1_MAP_GROUP, SB1_MAP_NUM = 0x04, 0x05
 NUM_PRIMARY = 640                  # metatile ids < 640 use the primary tileset
 # B-3 POSITION-LOOP ESCAPE: if she's confined to <=POS_LOOP_DISTINCT tiles over the last
 # POS_LOOP_WINDOW steps without arriving, she's spinning (warp/spinner) -> bail. Env-tunable.
-POS_LOOP_WINDOW = int(os.getenv("POKEMON_POS_LOOP_WINDOW", "18"))
+POS_LOOP_WINDOW = int(os.getenv("POKEMON_POS_LOOP_WINDOW", "12"))   # 18 -> 12 (2026-07-29): bail a
+#   confinement loop ~1/3 sooner — on stream a visible circle-walk is dead air like any other wedge.
 POS_LOOP_DISTINCT = int(os.getenv("POKEMON_POS_LOOP_DISTINCT", "3"))
 # SPINNER NET-PROGRESS TRIPWIRE (night shift 11, the Viridian Gym row-17 oscillation): on a
 # forced-slide floor BOTH loop guards are blind — slides keep the coords CHANGING (the fp-stall
@@ -537,8 +538,10 @@ def direction(frm, to):
 
 # ── the executor: walk a planned path, one VERIFIED tile at a time ───────────
 HOLD = 8
-STUCK_LIMIT = 16         # consecutive no-progress steps -> LOUD ABORT (patient: towns
-                         # have NPC clusters that need waiting/rerouting, not a fast give-up)
+STUCK_LIMIT = 10         # consecutive no-progress steps -> LOUD ABORT. Was 16 ("patient: towns have
+                         # NPC clusters that need waiting"); SUBATHON READINESS (2026-07-29): 16 cycles
+                         # reads as ~15s of visible wall-bumping on stream. 10 keeps two wanderer-wait
+                         # cycles (stuck%4) + the corner-jiggle at 6 before the loud abort re-routes.
 EXIT_TRIES = 5           # presses off the map edge before giving up loudly
 
 
@@ -1455,6 +1458,28 @@ class Traveler:
                         continue
                     for _ in range(24):             # else wait for a wanderer to step aside
                         self.b.run_frame(); self.render()
+                # CORNER JIGGLE (2026-07-29 subathon readiness — Jonny watching live): wedged in a
+                # corner she'd re-press the same planned direction while "all she needs to do is press
+                # up or left". BFS replans from her CURRENT tile, so physically relocating one tile
+                # sideways changes the plan's root — the exact human fix. One perpendicular attempt
+                # mid-streak (before the loud abort), cheap and safe: a blocked jiggle press is just a
+                # turn; a battle hands off at the loop top like any step.
+                if stuck == 6 and not st.in_battle(self.b):
+                    for jd in {"N": ("W", "E"), "S": ("W", "E"),
+                               "W": ("N", "S"), "E": ("N", "S")}.get(d, ()):
+                        self._press(jd)
+                        if st.in_battle(self.b):
+                            break
+                        if coords(self.b) != cur:
+                            self.log(f"   [travel] CORNER-JIGGLE: {jd} broke the {d}-bump at {cur} "
+                                     f"-> {coords(self.b)} — replanning from the new tile")
+                            plan_cache = None
+                            stuck = 0
+                            break
+                    if st.in_battle(self.b):
+                        continue
+                    if stuck == 0:
+                        continue
                 if stuck >= STUCK_LIMIT:
                     self.log(f"   [travel] !! STUCK at {cur} ({stuck} blocked dirs, last "
                              f"{d}->{nxt}) - ABORT LOUD (never silent-spin)")
