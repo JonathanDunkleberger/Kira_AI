@@ -601,6 +601,12 @@ ITEM_GRAB_MAX_DIST  = int(os.getenv("POKEMON_ITEM_GRAB_MAX_DIST", "18"))   # max
 # knocking. General (per-gym via the KB), wired through StrategicPlanner. Revert: POKEMON_GYM_PREP=0.
 GYM_PREP_ENABLED     = os.getenv("POKEMON_GYM_PREP", "1") == "1"
 GYM_PARTY_TARGET     = int(os.getenv("POKEMON_GYM_PARTY_TARGET", "3"))     # aim for ~3 by the early gyms
+# GYM-READINESS FLOOR (2026-07-29): PROACTIVE head_to_gym prune while the KB says the party is
+# hard-unready (too thin / top level under the bar) and a strengthen path exists here. The
+# strategic-stuck floor only trips on >=2 IDENTICAL losses — a gym wall rarely keys identically
+# (junior trainers vs the leader), so a solo underleveled lead ping-pongs into the same gym
+# forever without ever counting as stuck (watched live: solo Wartortle L19 vs Cerulean).
+GYM_READINESS_FLOOR_ENABLED = os.getenv("POKEMON_GYM_READINESS_FLOOR", "1") == "1"
 GYM_PREP_CATCH_TRIES = int(os.getenv("POKEMON_GYM_PREP_CATCH_TRIES", "3")) # bounded catch attempts per prep
 GYM_COVERAGE_TEACH   = os.getenv("POKEMON_GYM_COVERAGE_TEACH", "1") == "1" # teach the ace a coverage move
 
@@ -11329,6 +11335,43 @@ class Campaign:
                             f"strengthen options only: {strengthen}")
             except Exception as _ss:
                 log(f"   [roam] strategic-stuck pruning skipped: {_ss}")
+            # ── GYM-READINESS FLOOR (2026-07-29, the Misty solo-Wartortle wall) ──────────────────
+            # PROACTIVE teeth: readiness is knowable BEFORE the wall — the KB says what the gym
+            # demands (party size + level band). Hard-unready (team too thin OR top level under the
+            # bar) + a real strengthen path here -> prune head_to_gym, exactly like strategic-stuck
+            # (she still CHOOSES how to strengthen). The type-answer measure stays SOFT
+            # (prep_for_gym's job at the door) so a fresh low-level catch never hard-locks the gym
+            # behind an answer-grind. If NO strengthen option is reachable, head_to_gym is KEPT
+            # (never dead-end her). Runs BEFORE the READINESS→GO reframe: once she crosses the bar,
+            # this block passes and the forward pull takes over as before.
+            if GYM_READINESS_FLOOR_ENABLED and "head_to_gym" in a and state.get("next_gym"):
+                try:
+                    _ngf = state["next_gym"]
+                    _bumpf = getattr(self, "_gym_prep_bump", {}).get(_ngf["leader"], 0)
+                    rf = self.planner.gym_readiness(_ngf["leader"], state.get("party") or [],
+                                                    party_target=GYM_PARTY_TARGET, loss_bump=_bumpf)
+                    if rf and (rf["thin"] or rf["underleveled"]):
+                        strengthen = [k for k in a if k in ("wander_catch", "battle", "stock_up")
+                                      or k.startswith("travel:")]
+                        if strengthen:
+                            a.pop("head_to_gym", None)
+                            need = []
+                            if rf["thin"]:
+                                need.append(f"a real team ({rf['party_size']}/{rf['target_size']} mons)")
+                            if rf["underleveled"]:
+                                need.append(f"levels (top {rf['top_level']} vs bar {rf['level_target']})")
+                            _needs = " and ".join(need)
+                            if "wander_catch" in a:
+                                a["wander_catch"] = (f"BUILD THE TEAM FIRST — {_ngf['leader']} demands "
+                                                     f"{_needs}; catch a teammate in the grass before "
+                                                     f"you walk into that gym")
+                            if "battle" in a:
+                                a["battle"] = (f"TRAIN FIRST — {_ngf['leader']} demands {_needs}; "
+                                               f"level up in the grass before you walk into that gym")
+                            log(f"   [roam] !! GYM-READINESS FLOOR: not ready for {_ngf['leader']} "
+                                f"({', '.join(need)}) — pruned head_to_gym; strengthen: {strengthen}")
+                except Exception as _grf:
+                    log(f"   [roam] gym-readiness floor skipped: {_grf}")
             # PHASE 2 — READINESS → GO: once she's crossed the readiness bar, make the RETURN the
             # ATTRACTIVE option (not merely un-pruned). Reframing head_to_gym's description IS the weight
             # in this oracle architecture — so the return reads as a strong positive pull, not a bland

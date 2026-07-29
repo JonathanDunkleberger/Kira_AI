@@ -15,6 +15,9 @@
 #   NEW_CAMPAIGN <path|AUTO>  -> archive current canonical campaign (trophy), then
 #                                promote the sandbox as a FRESH campaign. AUTO picks
 #                                the newest Squirtle-line sandbox with <=2 badges.
+#   MIGRATE_SHOWTIME          -> stage the showtime run (states/kira) as a campaign
+#                                bundle via showtime_to_campaign.py, archive the old
+#                                campaign (trophy), promote the stage, launch free-roam.
 #
 # USAGE:
 #   powershell -ExecutionPolicy Bypass -File pokemon_agent\resume_marathon.ps1
@@ -153,6 +156,28 @@ if (Test-Path $targetFile) {
     if ($target -eq "CANONICAL") {
         Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
         $promoteOk = $true; $launchApproved = $true
+    } elseif ($target -eq "MIGRATE_SHOWTIME") {
+        $stageOut = RunLogged "showtime_to_campaign (stage states/kira as campaign bundle)" {
+            python (Join-Path $RepoRoot "pokemon_agent\showtime_to_campaign.py")
+        }
+        $stageLine = ($stageOut -split "`n" | Where-Object { $_ -match "^STAGED\s+" } | Select-Object -First 1)
+        if ($stageLine) {
+            $bank = $stageLine -replace "^STAGED\s+", "" -replace "\s+$", ""
+            $arch = Join-Path $RepoRoot "pokemon_agent\states\campaign_archived_$ts"
+            Say "staged OK: $bank"
+            Say "archiving current canonical campaign -> $arch"
+            Move-Item $campaign $arch
+            New-Item -ItemType Directory -Force -Path $campaign | Out-Null
+            $promoteOk = PromoteBank $bank
+            if (-not $promoteOk) {
+                Say "!! promote failed - restoring archived campaign to canonical (nothing lost)"
+                Remove-Item $campaign -Recurse -Force -ErrorAction SilentlyContinue
+                Move-Item $arch $campaign
+            }
+            $launchApproved = $promoteOk
+        } else {
+            Say "!! showtime_to_campaign did not stage a bundle - see its output above. Nothing touched."
+        }
     } elseif ($target -like "NEW_CAMPAIGN*") {
         $spec = $target.Substring("NEW_CAMPAIGN".Length).Trim()
         $bank = $null
@@ -219,8 +244,10 @@ if (-not $botUp) {
     exit 1
 }
 Say "bot is up. == launching supervised marathon (window 2) =="
-# SHOWTIME slot = states/kira, the stream-day showcase run (Squirtle playthrough).
-# The supervisor resumes it on every crash and never re-wipes it mid-stream.
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline showtime --audio"
-Say "She's live on the SHOWTIME slot: windowed, true speed, crash auto-restart."
+# FREE-ROAM (sherpa timeline) is the full-game engine - the one that finished fresh_go_6 to
+# credits. The showtime spine is a scripted opener that ENDS at its last segment (Misty) and
+# loop-retries a lost gym; it is not the marathon vehicle. Canonical campaign now carries the
+# migrated stream run; the supervisor resumes it on every crash.
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline sherpa --audio"
+Say "She's live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking."
 Say "To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T"
