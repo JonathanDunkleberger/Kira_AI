@@ -8,8 +8,13 @@
 #   - Rerunning this script pulls that decision, promotes it through the sanctity gate,
 #     and launches the marathon (bot + supervised game).
 #
-# So: NO PROMOTE_TARGET.txt -> inventory + push only (safe, never touches saves).
-#     PROMOTE_TARGET.txt    -> promote that exact sandbox, then launch.
+# PROMOTE_TARGET.txt contents (one-shot; consumed after use):
+#   (absent)                  -> inventory + push only (safe, never touches saves)
+#   CANONICAL                 -> canonical save is already right; just launch
+#   <sandbox path>            -> monotonic promote of that sandbox, then launch
+#   NEW_CAMPAIGN <path|AUTO>  -> archive current canonical campaign (trophy), then
+#                                promote the sandbox as a FRESH campaign. AUTO picks
+#                                the newest Squirtle-line sandbox with <=2 badges.
 #
 # USAGE:
 #   powershell -ExecutionPolicy Bypass -File pokemon_agent\resume_marathon.ps1
@@ -51,6 +56,15 @@ function HealthSummary([string]$dir) {
         $mins = [math]::Round($j.playthrough_s / 60)
         return "badges=$($j.badge_count) party=[$($j.party -join ', ')] place=$($j.place) played=${mins}min timeline=$($j.timeline)"
     } catch { return "(health.json unreadable)" }
+}
+function IsSquirtleRun([string]$dir) {
+    $h = Join-Path $dir "health.json"
+    if (-not (Test-Path $h)) { return $false }
+    try {
+        $j = Get-Content $h -Raw | ConvertFrom-Json
+        $party = ($j.party -join " ")
+        return (($party -match "squirtle|wartortle|blastoise") -and ([int]$j.badge_count -le 2))
+    } catch { return $false }
 }
 
 Say "resume_marathon $ts  (repo: $RepoRoot)"
@@ -124,18 +138,46 @@ RunLogged "campaign dir + backups" {
 $targetFile = Join-Path $RepoRoot "pokemon_agent\PROMOTE_TARGET.txt"
 $promoteOk = $false
 $launchApproved = $false
+
+function PromoteBank([string]$bankDir) {
+    $out = RunLogged "promote_bank (sanctity-gated) -> $bankDir" {
+        python (Join-Path $RepoRoot "pokemon_agent\promote_bank.py") $bankDir "marathon_rescue_$ts"
+    }
+    Add-Content -Path (Join-Path $report "promote.log") -Value $out
+    Say "promote exit code: $LASTEXITCODE  (0 = promoted; nonzero = canonical untouched)"
+    return ($LASTEXITCODE -eq 0)
+}
+
 if (Test-Path $targetFile) {
     $target = (Get-Content $targetFile -Raw).Trim()
     if ($target -eq "CANONICAL") {
         Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
         $promoteOk = $true; $launchApproved = $true
-    } elseif ($target -and (Test-Path $target)) {
-        $promoteOut = RunLogged "promote_bank (sanctity-gated) -> $target" {
-            python (Join-Path $RepoRoot "pokemon_agent\promote_bank.py") $target "marathon_rescue_$ts"
+    } elseif ($target -like "NEW_CAMPAIGN*") {
+        $spec = $target.Substring("NEW_CAMPAIGN".Length).Trim()
+        $bank = $null
+        if ($spec -eq "AUTO") {
+            $pick = $sandboxes | Where-Object { IsSquirtleRun $_.Dir.FullName } | Select-Object -First 1
+            if ($pick) { $bank = $pick.Dir.FullName; Say "AUTO picked Squirtle-run sandbox: $bank" }
+            else { Say "!! AUTO found no Squirtle-line sandbox (<=2 badges) - nothing promoted." }
+        } elseif ($spec -and (Test-Path $spec)) { $bank = $spec }
+        else { Say "!! NEW_CAMPAIGN path doesn't exist: $spec" }
+        if ($bank) {
+            # archive the finished campaign as a trophy so monotonic doesn't block the new run
+            $arch = Join-Path $RepoRoot "pokemon_agent\states\campaign_archived_$ts"
+            Say "archiving current canonical campaign -> $arch"
+            Move-Item $campaign $arch
+            New-Item -ItemType Directory -Force -Path $campaign | Out-Null
+            $promoteOk = PromoteBank $bank
+            if (-not $promoteOk) {
+                Say "!! promote failed - restoring archived campaign to canonical (nothing lost)"
+                Remove-Item $campaign -Recurse -Force -ErrorAction SilentlyContinue
+                Move-Item $arch $campaign
+            }
+            $launchApproved = $promoteOk
         }
-        $promoteOk = ($LASTEXITCODE -eq 0)
-        Add-Content -Path (Join-Path $report "promote.log") -Value $promoteOut
-        Say "promote exit code: $LASTEXITCODE  (0 = promoted; nonzero = canonical untouched)"
+    } elseif ($target -and (Test-Path $target)) {
+        $promoteOk = PromoteBank $target
         $launchApproved = $promoteOk
     } else {
         Say "!! PROMOTE_TARGET.txt points to a path that doesn't exist: $target"
@@ -148,8 +190,10 @@ if (Test-Path $targetFile) {
 }
 
 # 4) push the report (and the consumed target file) to GitHub
+# NOTE: separate git add calls - a pathspec that matches nothing must not sink the whole add.
 RunLogged "push soak report" {
-    git add -A docs\soak-reports pokemon_agent\PROMOTE_TARGET.txt
+    git add -A docs\soak-reports
+    git add -A pokemon_agent\PROMOTE_TARGET.txt 2>&1 | Out-Null
     git commit -m "report(soak): $ts inventory/rescue (auto from resume_marathon.ps1)"
     git push origin main
 } | Out-Null
