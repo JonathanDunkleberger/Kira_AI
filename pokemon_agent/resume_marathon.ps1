@@ -18,6 +18,11 @@
 #   MIGRATE_SHOWTIME          -> stage the showtime run (states/kira) as a campaign
 #                                bundle via showtime_to_campaign.py, archive the old
 #                                campaign (trophy), promote the stage, launch free-roam.
+#   RESTORE_WORLD             -> copy world_model.json (her learned mental map) from the
+#                                newest campaign_archived_* trophy into the live campaign
+#                                (the migration seeded it empty - she forgot the map),
+#                                then launch. Caps are re-read from live RAM at boot, so
+#                                trophy-era Fly/Surf flags can't leak into this run.
 #
 # USAGE:
 #   powershell -ExecutionPolicy Bypass -File pokemon_agent\resume_marathon.ps1
@@ -156,6 +161,17 @@ if (Test-Path $targetFile) {
     if ($target -eq "CANONICAL") {
         Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
         $promoteOk = $true; $launchApproved = $true
+    } elseif ($target -eq "RESTORE_WORLD") {
+        $troph = Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Filter "campaign_archived_*" -ErrorAction SilentlyContinue |
+                 Sort-Object Name -Descending | Select-Object -First 1
+        $wm = if ($troph) { Join-Path $troph.FullName "world_model.json" } else { $null }
+        if ($wm -and (Test-Path $wm)) {
+            Copy-Item $wm (Join-Path $campaign "world_model.json") -Force
+            Say "restored world model (mental map) from trophy: $($troph.Name)"
+            $promoteOk = $true; $launchApproved = $true
+        } else {
+            Say "!! RESTORE_WORLD: no campaign_archived_*/world_model.json found - nothing changed, not launching."
+        }
     } elseif ($target -eq "MIGRATE_SHOWTIME") {
         $stageOut = RunLogged "showtime_to_campaign (stage states/kira as campaign bundle)" {
             python (Join-Path $RepoRoot "pokemon_agent\showtime_to_campaign.py")

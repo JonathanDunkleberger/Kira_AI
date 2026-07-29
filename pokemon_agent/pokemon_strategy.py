@@ -88,9 +88,17 @@ def roster_judgment(team, foe, dex_new=None, quality=None, also_owned=None):
                           f"that's a real gap filled", facts)
         return (True, f"a {tt} type — I have zero {tt} coverage. it's only L{lv} so it needs raising, "
                       f"but the gap's worth it", facts)
-    if dex_new and lv >= max(2, floor - 8):
-        return (True, f"wait — I've never caught a {name} before. new species, ball's already in my "
-                      f"bag… the dex grows today", facts)
+    # DEX-NEW (2026-07-29, the Jigglypuff kill): a species she's NEVER owned gets caught ONCE no
+    # matter its level — that's how a human plays ("it's new! catch it!"), and the box exists for
+    # exactly this. The old level gate (floor-8) made her flat-out murder every new low-level
+    # species near a leveled team — watched live, reads heartless on stream. Dupe/full-team checks
+    # above still bound it: one ball per new species, ever.
+    if dex_new:
+        if lv >= max(2, floor - 8):
+            return (True, f"wait — I've never caught a {name} before. new species, ball's already in "
+                          f"my bag… the dex grows today", facts)
+        return (True, f"a {name}! never caught one. it's only L{lv} so it'll live in the box, but "
+                      f"gotta catch 'em all — the dex grows today", facts)
     # PROJECT keeper (a Magikarp → Gyarados): weak now, a monster later — worth the babysitting if the
     # bench has room for a long-term project (not when I'm already carrying a full squad of six).
     if tier == "project" and len(team) < 5:

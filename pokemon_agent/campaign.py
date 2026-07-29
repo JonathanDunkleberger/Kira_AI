@@ -457,9 +457,14 @@ GRIND_PP_HEAL_CAP = int(os.getenv("POKEMON_GRIND_PP_HEAL_CAP", "4"))  # PP-heals
 # GRIND-SPOT LEVEL AWARENESS (NS#5, PASS-3 grind-efficiency lever a) — a map whose wild_max is more than
 # GRIND_POOR_GAP below the team's grind target gives ~0 XP (the NS#1/#14 E4-prep stall). The KB reader
 # (_grind_wild_band / _grind_inadequate) + this gap land now (decision-verified); the picker WIRING that
-# marks such a map grind-inadequate + prefers a reachable higher-level spot is flag-gated + verify-gated.
-GRIND_POOR_GAP = int(os.getenv("POKEMON_GRIND_POOR_GAP", "18"))
-GRIND_SPOT_LEVELAWARE = os.getenv("POKEMON_GRIND_SPOT_LEVELAWARE", "0") == "1"  # default OFF until live-verified
+# marks such a map grind-inadequate + prefers a reachable higher-level spot is flag-gated.
+# 2026-07-29 DEFAULT ON, GAP 8 (watched live: L20 team farming Route-3 L3-6 wilds toward a L22 Misty
+# bar — hours of ~0-XP fights while Route 24/25 L10-14 grass sat reachable). Gap 8: a target of 22
+# marks Route 3 (max 9), Route 4 (max 12), and Route 24 (max 12) inadequate; Route 25 (max 14)
+# clears the bar. Anti-freeze holds: she NEVER abandons the only reachable grass (_better_grind_spot
+# must return a REAL alternative before grind stands down).
+GRIND_POOR_GAP = int(os.getenv("POKEMON_GRIND_POOR_GAP", "8"))
+GRIND_SPOT_LEVELAWARE = os.getenv("POKEMON_GRIND_SPOT_LEVELAWARE", "1") == "1"
 try:
     import field_moves as fm          # noqa: E402  (capability reads: knows-HM AND has-badge)
 except Exception:
@@ -11298,9 +11303,32 @@ class Campaign:
             # voltorb hunt would have wandered ball-less forever). Mart-first when the pocket is empty.
             _traits = (("has_mart", "has_grass") if self._ball_count() == 0
                        else ("has_grass", "has_mart"))
+            # XP-AWARE GRASS OFFERS (2026-07-29, the Route-3 baby-grass farm): never OFFER travel to
+            # grass already proven grind-dead/inadequate (she'd ride there, stand down, and bounce),
+            # and when a genuinely stronger reachable spot exists, name it with the XP framing so
+            # "train where it counts" beats "grind the weak grass I'm standing near". Distance-ranked
+            # options otherwise unchanged; she still chooses.
+            _skip_grass = getattr(self, "_grind_dead", set()) | getattr(self, "_grind_inadequate_set", set())
             for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid, want_traits=_traits)[:4]:
+                if tuple(mid) in _skip_grass:
+                    continue
                 verb = "fly to" if (can_fly and self.world.is_town(mid)) else "head back to"
                 a[f"travel:{mid[0]},{mid[1]}"] = f"{verb} {nm} — {why}"
+            if GRIND_SPOT_LEVELAWARE:
+                try:
+                    _bc = state.get("badge_count", 0)
+                    self.team_planner.ensure_plan(state.get("party") or [], _bc)
+                    _mtarget = self.team_planner._next_milestone(_bc, bool(state.get("post_game")))[1]
+                    if _mtarget and self._grind_inadequate(cur, _mtarget):
+                        _best = self._better_grind_spot(state, _mtarget)
+                        if _best and f"travel:{_best[0]},{_best[1]}" not in a:
+                            _hi = self._grind_wild_band(tuple(_best))[1]
+                            a[f"travel:{_best[0]},{_best[1]}"] = (
+                                f"TRAIN WHERE IT COUNTS — the wild Pokémon around "
+                                f"{self.world.name(tuple(_best))} run ~L{_hi}; the grass here is too "
+                                f"weak to level you toward L{_mtarget}. Real XP is a short walk away.")
+                except Exception as _gx:
+                    log(f"   [roam] xp-aware grass offer skipped: {_gx}")
         except Exception as _ta:
             log(f"   [roam] travel-options skipped: {_ta}")
         # ── STRATEGIC-STUCK FLOOR (the Gary death-loop killer) — the TEETH ─────────────────────────
