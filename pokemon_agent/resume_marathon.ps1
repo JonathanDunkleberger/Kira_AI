@@ -219,6 +219,8 @@ if (-not $botUp) {
     exit 1
 }
 Say "bot is up. == launching supervised marathon (window 2) =="
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline sherpa --audio"
-Say "She's live: windowed, true speed, crash auto-restart, canonical banking."
+# SHOWTIME slot = states/kira, the stream-day showcase run (Squirtle playthrough).
+# The supervisor resumes it on every crash and never re-wipes it mid-stream.
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline showtime --audio"
+Say "She's live on the SHOWTIME slot: windowed, true speed, crash auto-restart."
 Say "To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T"
