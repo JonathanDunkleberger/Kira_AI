@@ -93,7 +93,19 @@ if (Test-Path $envFile) {
         Say "!! WARNING: POKEMON_AGENT_ENABLED=true not found in .env - she will play MUTE."
     }
     if (-not (Select-String -Path $envFile -Pattern "^\s*OPENROUTER_API_KEY\s*=\s*\S+" -Quiet)) {
-        Say "!! WARNING: OPENROUTER_API_KEY missing in .env - her Claude brain will be offline."
+        # CONFIRMED live 2026-07-29: without this key every Claude call hits Anthropic directly and
+        # dies with 'This organization has been disabled' (the ban) -> she silently runs on local
+        # Llama all session (generic tone, repetitive phrasing). Fix it HERE, once, into .env.
+        Say "!! OPENROUTER_API_KEY is missing from .env - her Claude brain is DOWN (Llama fallback)."
+        $orKey = Read-Host "Paste your OpenRouter API key (starts with sk-or-) to fix this now, or press Enter to skip"
+        if ($orKey -and $orKey.Trim().StartsWith("sk-or")) {
+            Add-Content -Path $envFile -Value "`nOPENROUTER_API_KEY=$($orKey.Trim())"
+            Say "OPENROUTER_API_KEY written to .env - Claude via OpenRouter is back for every future launch."
+        } elseif ($orKey) {
+            Say "!! that didn't look like an OpenRouter key (sk-or-...) - NOT written. She'll run on Llama."
+        } else {
+            Say "!! skipped - she'll keep running on local Llama until the key is added to .env."
+        }
     }
 } else { Say "!! WARNING: no .env at repo root" }
 
@@ -115,6 +127,15 @@ if ($newestDbg) {
         Set-Content (Join-Path $report ("tail_" + $newestDbg.Name))
     Say "tailed newest debug log: $($newestDbg.Name)"
 }
+# supervisor tee logs carry play_live's own stdout - the actual crash TRACEBACK lives here,
+# not in the bot console (which only relays the supervisor's resume alert).
+$supDir = Join-Path $dbg "supervisor"
+Get-ChildItem $supDir -File -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 2 | ForEach-Object {
+        Get-Content $_.FullName -Tail 400 -ErrorAction SilentlyContinue |
+            Set-Content (Join-Path $report ("tail_supervisor_" + $_.Name))
+        Say "tailed supervisor log: $($_.Name)"
+    }
 
 # 2) FULL sandbox + canonical inventory (by newest FILE time, not folder time)
 $watchRoot = Join-Path $env:TEMP "kira_watch"
