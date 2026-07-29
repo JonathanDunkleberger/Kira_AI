@@ -70,6 +70,19 @@ def is_running() -> bool:
     return p is not None and p.poll() is None
 
 
+def heartbeat_alive(max_age_s: float = 30.0) -> bool:
+    """She's ALIVE if any timeline's health.json heartbeat is fresh — regardless of who spawned her.
+    The marathon script (resume_marathon.ps1) launches the supervisor OUTSIDE the dashboard, so the
+    owned-process check alone read 'not running' and the stream HUD hid itself mid-run (2026-07-29).
+    The campaign writes health ~every 2s; 30s of silence means genuinely down/hung."""
+    now = time.time()
+    for path in _HEALTH_BY_TIMELINE.values():
+        g = _read_health_file(path)
+        if g and g.get("ts") and (now - g["ts"]) <= max_age_s:
+            return True
+    return False
+
+
 def start() -> dict:
     if is_running():
         _log(f"start ignored - already running (pid {_proc['p'].pid})")
@@ -118,6 +131,13 @@ def _spawn_supervised(timeline, fresh, label) -> dict:
     if is_running():
         _log(f"{label} start ignored — already running (pid {_proc['p'].pid}, timeline {_proc['timeline']})")
         return {"running": True, "pid": _proc["p"].pid, "already": True, "timeline": _proc["timeline"]}
+    if heartbeat_alive():
+        # An EXTERNAL run (marathon script's supervisor) is live — a dashboard GO here would boot a
+        # second emulator fighting the first for the save file. Refuse loud.
+        _log(f"{label} start REFUSED — an external run's health heartbeat is fresh "
+             f"(marathon supervisor?); not double-launching")
+        return {"running": True, "already": True, "external": True,
+                "error": "an externally-launched run is live (fresh health heartbeat)"}
     if not os.path.exists(_SUPERVISOR):
         _log(f"FAIL - supervisor.py missing: {_SUPERVISOR}")
         return {"running": False, "error": "supervisor.py missing"}

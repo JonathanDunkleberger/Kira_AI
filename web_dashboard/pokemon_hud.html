@@ -1,91 +1,110 @@
 <!DOCTYPE html>
-<!-- Kira's Pokémon STREAM HUD (OBS browser source) — HUD OVERHAUL.
-     Real Gen-3 sprites (assets/pokemon/<species_id>.png) + real Kanto badge icons (inline SVG, lit/dim)
-     + per-mon cards (sprite · name · level · type badges · HP bar) + whole-playthrough timer, now-state,
-     objective, and her current want. Re-skins /pokemon_hud.json (the health snapshot the campaign
-     publishes). Transparent bg; drop in OBS at 1920x1080, pins bottom-left. Readable in 3 seconds.
-     NO token/runtime counters, NO reasoning transcript — that lives in Jonny's cockpit, never on stream. -->
+<!-- Kira's Pokémon STREAM HUD (OBS browser source) — SHANGRI-LA EDITION (2026-07-29).
+     Ink + brass, matched to the web app's design language (KiraDashboard): midnight-ink cards,
+     hairline brass borders, serif brand line, letter-spaced small caps, tabular numerals. Calm,
+     refined, readable in 3 seconds — no neon, no glow-soup.
+     Same data contract as before: re-skins /pokemon_hud.json (health snapshot). Real Gen-3 sprites
+     (assets/pokemon/<species_id>.png) + real Kanto badge icons (inline SVG, lit/dim) + per-mon cards
+     + playthrough timer, now-state, objective, want, 3-tier goals. Transparent bg; 1920x1080,
+     pins bottom-left. NO token/runtime counters, NO reasoning transcript — that's Jonny's cockpit.
+     VISIBILITY (the mid-run vanish, 2026-07-29): shown when running OR party data exists — the
+     server's `running` used to read false for script-launched (non-dashboard) supervisors. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Kira · Pokémon HUD</title>
 <style>
   :root{
-    /* brand palette — plum / mauve / rose / amber / cream */
-    --plum:#160f20; --plum2:#211733; --mauve:#b89cff; --mauve-dim:#6b5f8c;
-    --rose:#f0a0bf; --amber:#f0c265; --cream:#f5efe2; --cream-dim:#a79fb3;
-    --card:rgba(28,20,44,.80); --card2:rgba(42,30,64,.66); --edge:rgba(176,150,255,.20);
-    --glow:rgba(176,150,255,.45);
-    --hp-hi:#5fd38a; --hp-mid:#e9c34f; --hp-lo:#e36157;
+    /* Shangri-La — ink + brass (web app globals.css, night) */
+    --ink:#0a090b;
+    --card:rgba(10,9,11,.84); --card2:rgba(255,255,255,.03);
+    --hairline:rgba(212,190,160,.16); --hairline-soft:rgba(212,190,160,.09);
+    --brass:#d4bea0; --brass-bg:rgba(212,190,160,.12); --brass-dim:rgba(212,190,160,.45);
+    --cream:#efe7ee; --muted:rgba(222,212,224,.58); --subtle:rgba(222,212,224,.36);
+    --rose:#cf8fa6; --sage:#8fbf8f; --amber:#d9b56a;
+    --hp-hi:#8fbf8f; --hp-mid:#d9b56a; --hp-lo:#cf7a6a;
   }
   html,body{margin:0;background:transparent;overflow:hidden;
     font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
-  #hud{position:fixed;left:28px;bottom:28px;width:368px;opacity:0;transition:opacity .6s ease;
-    color:var(--cream);text-shadow:0 1px 3px rgba(0,0,0,.55);}
+  #hud{position:fixed;left:28px;bottom:28px;width:372px;opacity:0;transition:opacity .8s ease;
+    color:var(--cream);text-shadow:0 1px 2px rgba(0,0,0,.5);}
   #hud.on{opacity:1;}
-  .panel{background:var(--card);border:1px solid var(--edge);border-radius:16px;
-    backdrop-filter:blur(9px);box-shadow:0 8px 28px rgba(0,0,0,.40);}
+  .panel{background:var(--card);border:1px solid var(--hairline);border-radius:12px;
+    backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(0,0,0,.35);}
 
   /* ── header ── */
-  .head{padding:13px 15px 12px;margin-bottom:9px;}
+  .head{padding:14px 16px 13px;margin-bottom:8px;}
   .row1{display:flex;align-items:center;gap:9px;}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--mauve);box-shadow:0 0 11px var(--glow);flex:none;}
-  .brand{font-weight:800;letter-spacing:.13em;font-size:13px;text-transform:uppercase;color:var(--cream);}
-  .state{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;
-    padding:3px 9px;border-radius:999px;background:rgba(176,150,255,.16);color:var(--mauve);
-    border:1px solid rgba(176,150,255,.30);white-space:nowrap;}
-  .state.battle{background:rgba(240,160,191,.16);color:var(--rose);border-color:rgba(240,160,191,.34);}
-  .state.healing{background:rgba(95,211,138,.15);color:var(--hp-hi);border-color:rgba(95,211,138,.32);}
-  .state.shopping{background:rgba(240,194,101,.15);color:var(--amber);border-color:rgba(240,194,101,.32);}
-  .meta{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:11px;color:var(--cream-dim);}
-  .meta .place{color:var(--cream);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .meta .sep{opacity:.4;}
-  .obj{margin-top:8px;font-size:11px;color:var(--amber);display:flex;align-items:center;gap:6px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--brass);
+    box-shadow:0 0 8px rgba(212,190,160,.55);flex:none;}
+  .brand{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:.14em;
+    font-size:13.5px;text-transform:uppercase;color:var(--cream);}
+  .state{margin-left:auto;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 10px;border-radius:999px;background:var(--brass-bg);color:var(--brass);
+    border:1px solid var(--hairline);white-space:nowrap;}
+  .state.battle{background:rgba(207,143,166,.12);color:var(--rose);border-color:rgba(207,143,166,.28);}
+  .state.healing{background:rgba(143,191,143,.10);color:var(--sage);border-color:rgba(143,191,143,.26);}
+  .state.shopping{background:rgba(217,181,106,.10);color:var(--amber);border-color:rgba(217,181,106,.26);}
+  .meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted);}
+  .meta .place{color:var(--cream);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .meta .sep{opacity:.35;}
+  .meta #timer{font-variant-numeric:tabular-nums;color:var(--subtle);}
+  .obj{margin-top:9px;font-size:11px;color:var(--brass);display:flex;align-items:center;gap:6px;
+    font-weight:400;line-height:1.35;}
   .obj svg{flex:none;}
-  .want{margin-top:5px;font-size:10.5px;font-style:italic;color:var(--cream-dim);
+  .want{margin-top:5px;font-size:10.5px;font-style:italic;color:var(--muted);
+    font-family:Georgia,'Times New Roman',serif;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  /* ── 3-tier goal (short / medium / long) — read "stuck vs strategizing" at a glance ── */
-  .goals{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
-  .goal{font-size:10.5px;color:var(--cream);display:flex;gap:6px;align-items:baseline;line-height:1.25;}
-  .goal b{flex:none;font-size:8.5px;font-weight:700;letter-spacing:.5px;width:34px;color:var(--amber);
-    opacity:.85;text-transform:uppercase;}
-  .goal.med b{color:var(--rose,#e08aa8);} .goal.long b{color:var(--cream-dim);}
-  .goal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* ── 3-tier goal (short / medium / long) — "stuck vs strategizing" at a glance ── */
+  .goals{margin-top:9px;padding-top:8px;border-top:1px solid var(--hairline-soft);
+    display:flex;flex-direction:column;gap:3px;}
+  .goal{font-size:10.5px;color:var(--cream);display:flex;gap:7px;align-items:baseline;line-height:1.3;}
+  .goal b{flex:none;font-size:8px;font-weight:600;letter-spacing:.12em;width:34px;
+    color:var(--brass);text-transform:uppercase;}
+  .goal.med b{color:var(--brass-dim);} .goal.long b{color:var(--subtle);}
+  .goal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);}
+  .goal.now span{color:var(--cream);}
 
   /* ── badges ── */
-  .badges{display:flex;gap:4px;padding:11px 12px 9px;margin-bottom:9px;}
+  .badges{display:flex;gap:4px;padding:11px 13px 9px;margin-bottom:8px;align-items:center;}
   .badge{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .badge svg{width:27px;height:27px;filter:grayscale(1) brightness(.5) opacity(.55);transition:filter .5s ease;}
-  .badge.lit svg{filter:drop-shadow(0 0 5px var(--glow));}
-  .badge .lbl{font-size:8px;letter-spacing:.02em;color:var(--mauve-dim);text-transform:uppercase;}
-  .badge.lit .lbl{color:var(--cream);}
-  .bcount{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;font-weight:700;color:var(--mauve);}
+  .badge svg{width:25px;height:25px;filter:grayscale(1) brightness(.42) opacity(.5);transition:filter .6s ease;}
+  .badge.lit svg{filter:none;}
+  .badge .lbl{font-size:7.5px;letter-spacing:.08em;color:var(--subtle);text-transform:uppercase;}
+  .badge.lit .lbl{color:var(--brass);}
+  .bcount{display:flex;align-items:baseline;gap:2px;margin-left:auto;font-size:12px;font-weight:600;
+    color:var(--brass);font-variant-numeric:tabular-nums;}
+  .bcount span{color:var(--subtle);font-size:10px;font-weight:400;}
 
   /* ── party cards ── */
-  .party{padding:11px 12px 12px;}
-  .ttl{display:flex;align-items:center;font-size:9.5px;letter-spacing:.16em;color:var(--mauve-dim);
-    text-transform:uppercase;margin-bottom:9px;}
-  .mon{display:flex;align-items:center;gap:11px;padding:8px;border-radius:12px;background:var(--card2);
-    margin-bottom:7px;}
+  .party{padding:11px 13px 12px;}
+  .ttl{display:flex;align-items:center;font-size:9px;letter-spacing:.2em;color:var(--subtle);
+    text-transform:uppercase;margin-bottom:9px;font-weight:500;}
+  .mon{display:flex;align-items:center;gap:11px;padding:8px 9px;border-radius:9px;
+    background:var(--card2);border:1px solid var(--hairline-soft);margin-bottom:6px;}
   .mon:last-child{margin-bottom:0;}
-  .mon .sprite{width:54px;height:54px;flex:none;image-rendering:pixelated;
-    image-rendering:crisp-edges;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
-  .mon .ph{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;
-    font-size:22px;font-weight:800;color:var(--plum);border-radius:10px;}
+  .mon .sprite{width:52px;height:52px;flex:none;image-rendering:pixelated;
+    image-rendering:crisp-edges;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));}
+  .mon .ph{width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:700;color:var(--ink);border-radius:9px;}
   .mon .info{flex:1;min-width:0;}
   .mon .top{display:flex;align-items:baseline;gap:7px;}
-  .mon .nm{font-weight:700;font-size:14px;color:var(--cream);text-transform:capitalize;
+  .mon .nm{font-weight:600;font-size:13.5px;color:var(--cream);text-transform:capitalize;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .mon .lv{margin-left:auto;font-size:11px;font-weight:700;color:var(--mauve);flex:none;}
+  .mon .lv{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--brass);flex:none;
+    font-variant-numeric:tabular-nums;}
   .types{display:flex;gap:4px;margin:4px 0 5px;}
-  .type{font-size:8.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-    padding:2px 6px;border-radius:5px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.45);}
+  .type{font-size:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 6px;border-radius:4px;color:rgba(255,255,255,.92);
+    text-shadow:0 1px 1px rgba(0,0,0,.4);opacity:.88;}
   .hpwrap{display:flex;align-items:center;gap:7px;}
-  .bar{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.38);overflow:hidden;}
-  .fill{height:100%;border-radius:4px;transition:width .5s ease,background .5s ease;}
-  .hpnum{font-size:9.5px;color:var(--cream-dim);font-variant-numeric:tabular-nums;flex:none;min-width:46px;text-align:right;}
-  .mon.fainted{opacity:.42;}
-  .empty{color:var(--cream-dim);font-size:11.5px;font-style:italic;padding:4px 2px;}
+  .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .fill{height:100%;border-radius:3px;transition:width .5s ease,background .5s ease;}
+  .hpnum{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;
+    min-width:46px;text-align:right;}
+  .mon.fainted{opacity:.4;}
+  .empty{color:var(--muted);font-size:11.5px;font-style:italic;padding:4px 2px;
+    font-family:Georgia,'Times New Roman',serif;}
 </style>
 </head>
 <body>
@@ -96,7 +115,7 @@
     <div class="meta"><span class="place" id="place">—</span>
       <span class="sep" id="sepT">·</span><span id="timer"></span></div>
     <div class="obj" id="objWrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-      stroke="#f0c265" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#f0c265"/></svg>
+      stroke="#d4bea0" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#d4bea0"/></svg>
       <span id="obj"></span></div>
     <div class="want" id="want"></div>
     <div class="goals" id="goals">
@@ -131,7 +150,10 @@ function fmtTime(s){ if(s==null) return ''; s=Math.floor(s); const h=Math.floor(
   return h>0 ? `${h}h ${m}m` : `${m}m`; }
 
 function render(d){
-  el('hud').classList.toggle('on', !!d.running);
+  // Visible when running OR game data exists — `running` reads false for runs the dashboard
+  // didn't spawn itself (marathon script's supervisor), which vanished the HUD mid-stream.
+  const alive = !!d.running || ((d.party||[]).length > 0);
+  el('hud').classList.toggle('on', alive);
   // now-state pill
   const stt = (d.now_state||'EXPLORING').toUpperCase();
   const sEl = el('state'); sEl.textContent = stt.charAt(0)+stt.slice(1).toLowerCase();
@@ -153,7 +175,7 @@ function render(d){
   const n = d.badge_count||0;
   el('badges').innerHTML = BADGES.map((b,i)=>
     `<div class="badge ${i<n?'lit':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg><div class="lbl">${b}</div></div>`
-  ).join('') + `<div class="bcount">${n}<span style="color:var(--mauve-dim)">/8</span></div>`;
+  ).join('') + `<div class="bcount">${n}<span>/8</span></div>`;
 
   // party cards — real sprite + name + level + type badges + HP bar
   const party = d.party||[];
@@ -162,7 +184,7 @@ function render(d){
     const fainted = hp<=0, nm = m.species||'?', id = m.species_id;
     const types = (m.types||[]).map(t=>
       `<span class="type" style="background:${TYPE_COLOR[t]||'#777'}">${t}</span>`).join('');
-    const phColor = TYPE_COLOR[(m.types||[])[0]] || '#8a7fb0';
+    const phColor = TYPE_COLOR[(m.types||[])[0]] || '#d4bea0';
     const letter = (nm[0]||'?').toUpperCase();
     // sprite with a clean fallback: on load-error hide the img and reveal the letter placeholder.
     const art = id

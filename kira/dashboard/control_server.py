@@ -478,7 +478,9 @@ async def _pokemon_hud_json():
     # Deliberately excludes spend/uptime/reasoning — those live in Jonny's cockpit, never on stream.
     from kira import pokemon_proc
     g = (pokemon_proc.health() or {}).get("game") or {}
-    return {"running": pokemon_proc.is_running(),
+    # running = owned process OR a fresh external heartbeat (marathon supervisor) — the HUD hid
+    # itself mid-run when the script-launched supervisor wasn't the dashboard's own child.
+    return {"running": pokemon_proc.is_running() or pokemon_proc.heartbeat_alive(),
             "badges": g.get("badges") or [], "badge_count": g.get("badge_count") or 0,
             "party": g.get("party_hud") or [], "place": g.get("place"),
             # HUD overhaul — per-mon cards carry types/sprite-id; plus journey timer / now-state /
