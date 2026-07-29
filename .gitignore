@@ -128,3 +128,6 @@ pokemon_agent/TEAM_DEPTH_ROOT_FIX.md
 pokemon_agent/TEAM_PLANNER_DESIGN.md
 
 RUN_STATS_fresh_go_5.md
+
+# soak-reports are the PC->Mac agent channel (crash logs etc.) - never ignore
+!docs/soak-reports/**

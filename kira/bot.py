@@ -3252,7 +3252,13 @@ class VTubeBot:
         "'MY team', 'I'm catching this one', 'I'm nervous I'll whiff this throw'. A little demon-god ownership fits ('this is MY run, "
         "Jonny can't stop me'). React like a competitive, cocky-but-fond trainer — trash-talk the "
         "matchup, celebrate a super-effective hit, groan at a bad one, stay in YOUR voice. NEVER "
-        "say move indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout.]"
+        "say move indices, HP numbers, or 'used move 2' — talk like a person playing, not a readout. "
+        "ADDRESSING (couch rule): Jonny is RIGHT THERE next to you, not a character in your story. "
+        "If something he said or did comes up, talk TO him ('you', 'oh come on, you loved that') — "
+        "NEVER narrate him in third person to the room ('Jonny's trying to reassure', 'Jonny's getting "
+        "offensive'); that's talking ABOUT your person like he can't hear you, and it reads cold. "
+        "Chat is the crowd — you can toss chat a line ABOUT the game anytime, but lines about JONNY "
+        "go to Jonny's face.]"
     )
 
     # Finding #2 (Batch-2 free-roam): the ORACLE calls her full conversational self, so she greeted
@@ -11109,6 +11115,25 @@ class VTubeBot:
                         if full_response_text:
                             streamed_already_spoken = True
                             _llm_model = "sonnet-stream(llm+tts)"
+                        else:
+                            # OPENROUTER RESILIENCE (2026-07-28): the streaming path can die
+                            # through the OpenRouter Anthropic Skin while plain calls work
+                            # fine (the Pokémon reaction path proved it). A dead stream used
+                            # to drop straight to local Llama — which answers WITHOUT her full
+                            # persona depth (the "helpful assistant" voice Jonny can feel
+                            # instantly). Retry ONE non-streaming Sonnet call first; Llama
+                            # stays the last resort. Safe to retry because nothing was spoken
+                            # (full_response_text is empty — a partially-spoken stream returns
+                            # its partial text and takes the branch above instead).
+                            print("   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.")
+                            full_response_text = await self.ai_core.claude_chat_inference(
+                                messages=self.conversation_history,
+                                system_prompt=self.ai_core.system_prompt,
+                                dynamic_context=dynamic_context,
+                                max_tokens=streaming_max,
+                            )
+                            if full_response_text:
+                                _llm_model = "sonnet(stream-rescue)"
                     else:
                         # Non-streaming Sonnet path
                         if brief_mode:
