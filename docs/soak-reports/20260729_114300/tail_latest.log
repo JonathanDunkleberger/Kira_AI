@@ -1,0 +1,300 @@
+   [Pokemon] her reasoning: '"I\'m going to grind some more and get my team to L11 before taking on that wild zubat at Mt. Moon again. I need to make sure I\'m ready for Misty and her water-types. PICK: travel:3,1"'
+   >>> Kira (Bored): "Rattata's speed is no match for Spearow's agility - time to show it who's boss!"
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: "Rattata's speed is no match for Spearow's agility...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"Rattata's speed is no match for Spearow' (16 words)
+   [TurnTiming] 10:36:34.352 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkgjoMzjMaC9pLmscfX'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"I need to get my team in shape before I take on Misty. Spearow and Mankey are too weak to handle the wild Zubat at Mt. Moon. I\'m going to level them up by fielding them in the grass, then retry the challenge."'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkgu7wwtgw4sxRAhwcv'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m going to level up my Spearow and Mankey in the grass before I head to Cerulean City. I need to make sure I\'m prepared for Misty\'s Water-types. I\'m going to field them in the grass and get them up to around L11. Then I\'ll head back to Cerulean City and take on Misty for the Cascade Badge. PICK: travel:3,20"'
+   [TurnTiming] 10:36:39.031 TTS STOP — playback finished (span ~4679ms)
+   [TIMING] interjection: vision=0ms llm=1485ms(sonnet) tts=5161ms total=6674ms
+   [LAG] sense→speak: total=2.0s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=0.5s)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkhKB3xAuaHFFR5FqfL'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: '"I\'ve got a chance to catch a new species, Pidgey, and I\'m thinking it\'s a great opportunity to get a new member on my team. I\'ve never caught one before, so it\'s a bit of a risk, but I\'ve got a good feeling about it. PICK: catch"'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "down without a fight"; "show it who's boss"; "spearo
+   [Pokemon] event react (bypass=False, tier=2, kind=roster): oh — a pidgey! wait — I've never caught a pidgey before. new species, 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=16ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Phrases] Throttling: "rattata's speed is no match for spearow's" (3rd use this session)
+   [Phrases] Throttling: "speed is no match for spearow's agility" (3rd use this session)
+   [Phrases] Throttling: "time to show it who's boss" (3rd use this session)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkhRwrAoxRYibg3vZFB'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [WARN] PromptTruncation: trimmed older-history (-48 tokens), kept ['persona', 'scene', 'history']
+   >>> Kira (Bored): "I'm loving the challenge of taking down this Rattata with Spearow - it's going to be a close battle!"
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: "I'm loving the challenge of taking down this Ratt...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"I'm loving the challenge of taking down' (20 words)
+   [TurnTiming] 10:36:46.428 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:36:51.238 TTS STOP — playback finished (span ~4810ms)
+   [TIMING] interjection: vision=0ms llm=1104ms(sonnet) tts=5307ms total=6432ms
+   [LAG] sense→speak: total=1.6s (content_age=0.0s, prep=0.0s, llm=1.1s, tts_wait+synth=0.5s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkiLHobUBr8CuYwm3Tx'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+[YouTube Chat] @Detective_Jones: that's the spirite kira!!
+   [BrainWorker] Got youtube msg from @Detective_Jones: that's the spirite kira!! → buffering for chat_batch_worker
+   [Pokemon] SELF WANT: 'level up Spearow and Mankey'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "down without a fight"; "show it who's boss"; "spearo
+   [Pokemon] event react (bypass=False, tier=2, kind=want): level up Spearow and Mankey
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Phrases] Throttling: "it's going to be a close" (3rd use this session)
+   [Phrases] Throttling: "taking down this" (3rd use this session)
+   [Phrases] Throttling: "i'm loving the" (3rd use this session)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkiRiUu55zKP1G2kHnf'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkiSGioFQLXSKgQxWfA'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [WARN] PromptTruncation: trimmed older-history (-35 tokens), kept ['persona', 'scene', 'history']
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to level up my weak ones by fielding them in the grass and then retrying. That\'s the best way to get them strong enough to take on the wild zubat at Mt. Moon."'
+   >>> Kira (Bored): "I'm leveling up Spearow and Mankey, getting them ready to take down those pesky Rattata. This is my chance to prove I've got what it takes."
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: "I'm leveling up Spearow and Mankey, getting them ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"I'm leveling up Spearow and Mankey, get' (17 words)
+   [TurnTiming] 10:37:00.246 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:37:05.012 TTS STOP — playback finished (span ~4766ms)
+   [TTS] Speaking: This is my chance to prove I've got what it takes....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is my chance to prove I've got what' (12 words)
+   [TurnTiming] 10:37:05.400 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:37:08.297 TTS STOP — playback finished (span ~2897ms)
+   [TIMING] interjection: vision=0ms llm=1472ms(sonnet) tts=8505ms total=10008ms
+   [LAG] sense→speak: total=7.1s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=5.6s)
+   [VRAM] 10:37:11 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkkEY5tnT8z3DxqFjw7'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to head back to Viridian City to buy some Poké Balls and supplies. I need to get some balls to catch that abra I\'m after. PICK: travel:3,1"'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkkU7ehaaBbyMV5F82V'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"I need to level up my Spearow and Mankey if I want to take down that wild Zubat at Mt. Moon. I\'m going to field them in the grass and get them to around L11 before I head back." PICK: travel:3,2'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkkib3YRNx3hiqu6WZH'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'Reach Cerulean City'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkkoP2ZLb6qJyPu9JoY'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m going to grind some more in the grass to level up Spearow and Mankey. I need to get them to around L11 before I head back to Mt. Moon to take on that Zubat. It\'s going to be a tough battle, but I\'m feeling confident about my team\'s chances."'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkmDysd3H4yfGdfvavp'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: '"I\'ve never caught a Pidgey before, and I\'m not about to let this one get away. I\'m going to try and catch it, see what kind of stats it\'s got. PICK: catch"'
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+[YouTube Chat] @Detective_Jones: she likes to dono wall brat!!
+   [BrainWorker] Got youtube msg from @Detective_Jones: she likes to dono wall brat!! → buffering for chat_batch_worker
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWknGWhuMHuBQKYSQqhg'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m thinking I should grind here and level up my weak ones, spearow and mankey, to around L11 by fielding them in the grass. Then I\'ll retry and see if I can take down that wild zubat at Mt. Moon. I\'m not ready to face it yet, but I\'ll be soon. PICK: travel:3,1: head back to Viridian City — a Mart to buy Poké Balls / supplies"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWknWrukiwGdsC79NmzS'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"I need to level up my Spearow and Mankey by fielding them in the grass, then I\'ll be ready to take on that wild Zubat at Mt. Moon. It\'s time to get my team in shape!" PICK: travel:3,2: head back to Pewter City — a Mart to buy Poké Balls / supplies'
+   [VRAM] 10:37:56 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWknkSUVXyF1uVGBbWFk'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'Level up Spearow and Mankey'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWknqcXXkHcT9HMEwQab'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m thinking about leveling up my weak ones in the grass before I head to Cerulean City. I don\'t want to get taken down by Misty\'s Water-types. I\'m gonna go back to Route 2 and level up Spearow and Mankey. I need to get them to at least L11 before I try again."'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkoLSsXj41t6TcWEyrc'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: '"I\'ve never caught a rattata before, and I\'m thinking it\'s a great opportunity to add a new species to my dex. I\'m feeling pretty confident that I can catch this one, so I\'m going to go for it." PICK: catch'
+   [YouTube] Input received: 'https://studio.youtube.com/video/3Yao5lY3ccM/livestreaming'
+   [YouTube] Extracted video ID: '3Yao5lY3ccM'
+   [YouTube] Already running. Stop first.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkpHmR8YDd7CRS8CJJE'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"Time to grind, Jonny\'s got nothing to say about it. I\'m going to level up spearow and mankey in the grass, get them to L11, then head back to Mt. Moon and take down that wild zubat once and for all. I\'m not going to let it get the best of me again." PICK: travel:3,1'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkpY3u6NmcNgjwCa4CB'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [YouTube] Input received: 'https://studio.youtube.com/video/3Yao5lY3ccM/livestreaming'
+   [YouTube] Extracted video ID: '3Yao5lY3ccM'
+   [YouTube] Already running. Stop first.
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m thinking I\'ll head back to Viridian City to buy some Poké Balls. I\'m not going to risk getting my current team wiped out in the wilds without some extra gear. PICK: travel:3,1"'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkpmU3QvNzunwecp2XG'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'stronger team'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkpsA6tK1UmN4ty6VLt'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"I\'m leveling up Spearow and Mankey, getting them ready to take on that wild Zubat at Mt. Moon. It\'s time to make some progress."'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkq3A7LwrWosQS6fZAX'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] ORACLE kind=action unparsable/invalid ('"Time to get back to grinding - I\'m going to level up spearow and mankey in the wilds so I can take on that wild zubat at Mt. Moon with confidence." PICK: travel:20,3') -> choice='' (fall back)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkq916U66B6FZ65k6d4'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] ORACLE kind=action unparsable/invalid ('"I\'m thinking I should grind my team in the wilds around here, get Spearow and Mankey up to level 11 before I take on that wild Zubat at Mt. Moon again. It\'s better to be safe than sorry, and I don\'t want to get knocked out by a single hit. PICK: travel:20,3"') -> choice='' (fall back)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkqFL6YdcBkrbyfvoYo'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'Eevee'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkqMHXhmfaSFpG7Lc8q'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] ORACLE kind=action unparsable/invalid ('"I\'m thinking I should level up spearow and mankey in the wilds, get them up to around L11 before I try to take on that wild zubat again. I don\'t want to get knocked out before I even get to the next gym."\n\n PICK: travel:20,3') -> choice='' (fall back)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkqSdjuPjzecEvgScMt'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m grinding, getting spearow and mankey up to L11 in the wilds. I need to build a team strong enough to take down that wild zubat at Mt. Moon. PICK: travel:3,20: head back to Route 2 — wild Pokémon to catch and level up"'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkqqxwgHw1XeGwMcw4m'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: '"Time to catch a new species, and who knows, maybe this pidgey will be the one that finally fills out my team. I\'m feeling confident about my aim, and I\'m ready to add this little guy to the collection. PICK: catch"'
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [VRAM] 10:38:41 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkrny96JZvDraKq3e5x'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to grind up spearow and mankey to around L11 by fielding them in the grass, then I\'ll try to take down that zubat at Mt. Moon. It\'s time to get my team strong enough to handle those wild Pokémon. PICK: travel:3,1"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWks2zFKrjCbcZN2wPE7'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'stronger Spearow'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWks8GVtoQ7SXMiUfW1c'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to level up spearow and mankey by fielding them in the grass, then I\'ll retry and see if I can catch that wild zubat at Mt. Moon. I need to get my team stronger before I can take on Misty." PICK: travel:3,1: head back to Viridian City — a Mart to buy Poké Balls / supplies'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWksMagxW9cDEmeN3GRP'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+[YouTube Chat] @Detective_Jones: fix this error Claude someone ends
+   [BrainWorker] Got youtube msg from @Detective_Jones: fix this error Claude someone ends → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"Time to level up my weaklings. I\'m fielding spearow and mankey in the grass to get them to L11, then I\'m retrying that wild zubat at Mt. Moon. I need a solid team to take on Misty in Cerulean City. PICK: travel:3,2"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkshSY5xp7HYiqqfj5T'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to head back to Viridian City, grab some Poké Balls, and level up my team in the grass before I take on Misty. I need to get my spearow and mankey up to par if I want to stand a chance against those water types. PICK: travel:3,1"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkssYFSo464Fnciq3Ms'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'level up Spearow and Mankey'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWksxUfGf941fyhGPp4J'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to level up spearow and mankey in the wilds, get them to around L11, and then retry my attempt at Mt. Moon. I don\'t want to get knocked out again by that wild zubat. PICK: travel:3,1: head back to Viridian City — a Mart to buy Poké Balls / supplies"'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWktBRmzKEdLoMDsfp44'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m going to head back to Viridian City to buy some Poké Balls and supplies. I need to get my team caught up and ready for the next gym. PICK: travel:3,1"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWktQU6q1zd13d9j2CS1'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"I\'m going to level up spearow and mankey by fielding them in the grass, then I\'ll retry the wild zubat at Mt. Moon. It\'s time to get my team in shape. PICK: travel:3,2"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWktZET4W9ir3c8tUBC1'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'None for now'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkteBrYA5crECbGymsY'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m thinking I\'ll head back to Viridian City to grab some Poké Balls and supplies. I need to level up my team before I can take on Misty, and I\'m running a bit low on balls. PICK: travel:3,1"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkto9Msu9e1BaqTXqSe'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m thinking it\'s time to level up my Spearow and Mankey in the wilds, get them ready to take on that wild Zubat at Mt. Moon. I don\'t want to get blacked out again. PICK: travel:3,1: head back to Viridian City — a Mart to buy Poké Balls / supplies"'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWku2Ht7mdWvuwUyWC5Z'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Interrupt] Speech interrupted
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m leveling up spearow and mankey in the wilds, getting them ready for the challenge ahead. This is my chance to prove that I\'ve got what it takes to take down those pesky Rattata!"\n\n"I\'m thinking about heading back to Viridian City to grab some Poké Balls and supplies. It\'s time to gear up and get back on the road to Cerulean City."\n\n"PICK: travel:3,1"'
+   [Mute] Muted for 60s
+   [Mute] Unmuted
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkuGXtXceAf6vovVzz3'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [VRAM] 10:39:26 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF WANT: (none right now)
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkuNe11KdB1gKWkQ24i'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"Time to grind some experience and get my weaklings up to speed. Spearow and Mankey are going to take on some wild Pokémon in the tall grass and show them who\'s boss." PICK: travel:3,2: head back to Pewter City — a Mart to buy Poké Balls / supplies'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkuYTbbp6Y5f3jkyejd'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m thinking about leveling up my Spearow and Mankey in the wilds, getting them ready for the challenge ahead. I need to make sure they\'re strong enough to take on that wild Zubat at Mt. Moon. I\'ve got a plan to level them up to around L11 by fielding them in the grass, and then I\'ll retry. That way, I\'ll have a solid team to take on Misty in Cerulean City and get the Cascade Badge. I\'m grinding, and I\'m not going to let anything get in my way."'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkufwZBMdskYr33iUBC'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'catch eevee."'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkunMm8EYKYxLuaNEsH'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m leveling up spearow and mankey in the wilds, getting them ready to take on that pesky Rattata. I need to make sure they\'re strong enough to take on the wild zubat at Mt. Moon. I\'m grinding, and I\'m not going to let Jonny stop me."'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkv28zAy8ysZYGvKcAV'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: '"I\'m thinking I should grind a bit more in the wilds, get my Spearow and Mankey up to around L11 before I head back to Mt. Moon to try and catch that Zubat. I don\'t want to get knocked out again by that thing."'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkvFJzkSsw2WwmNqt5F'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: '"Time to get back to business. I\'m going to level up spearow and mankey in the grass, get them to around L11, and then retry that wild zubat at Mt. Moon. I\'m not getting taken down by a weak opponent again. PICK: travel:3,2"'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkvR5sQfn5Je57d33Pc'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] SELF WANT: 'level up Spearow and Mankey'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkvWX3Grif9dGXy5fs7'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m going to level up spearow and mankey in the grass, get them to around L11, then head back to Mt. Moon and try to take down that wild zubat again. I\'m not going to get discouraged by that one loss, I\'m going to keep grinding and make sure my team is ready for the next challenge." PICK: travel:3,20'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkvtX8EQuRvgX5Y7dD8'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF CHOSE (catch_judgment): catch
+   [Pokemon] her reasoning: '"I\'ve got to catch this rattata, it\'s a new species and I need to add it to my dex. Plus, it\'ll be a great opportunity to test my catching skills. I\'ve been practicing, and I\'m feeling pretty confident. PICK: catch"'
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 2674s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkwb7tgGwD17w8vvmfa'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] SELF WANT: 'Level up team'
+   [Brain] Claude call failed: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been disabled.'}, 'request_id': 'req_011CdWkwgPtiDsr9q7JkGwke'}. Falling back to local.
+   [COST/FALLBACK] WARNING: claude-sonnet-4-6 → local (reason: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'This organization has been di)
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 4s) — auto-resuming in 5s
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: '"I\'m gonna level up spearow and mankey by fielding them in the wilds. They\'re too weak for the wild zubat at Mt. Moon. I need to get them to around L11 before I try again. PICK: travel:3,20"'
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))

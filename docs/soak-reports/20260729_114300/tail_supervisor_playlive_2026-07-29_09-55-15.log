@@ -1,0 +1,400 @@
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 20) (9,0) f1 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign]    [soul] surface_want FIRE -> Route 2
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L21), spearow (L6), mankey (L7). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 20), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → Pewter City — a Mart, a Pokémon Center; SOUTH → Viridian City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 3; Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21'] -> pick='travel:3,2'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,2'
+
+   [campaign]    [roam] DECISION THINK: 1500ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,2
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Route 2 -> Pewter City (next hop north -> Pewter City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(9, 0) -> map (3, 2) (budget 300s)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 20) -> (3, 2)
+
+   [campaign]    [world] learned 7 warp(s) on (3, 2): (17, 6)->(6, 0), (25, 4)->(6, 0), (15, 16)->(6, 2), (28, 18)->(6, 3), (33, 11)->(6, 4), (17, 25)->(6, 5)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 2) coords=(21, 39)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: travel:3,2 -> arrived | pos (3, 20)(9, 0) -> (3, 2)(21, 39) (MOVED)
+
+   [campaign]    [roam] standing objective complete (travel:3,2 -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 2) coords=(21, 39) badges=1 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260729_103929_pewter-city_1b_0h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 7 warp(s) on (3, 2): (17, 6)->(6, 0), (25, 4)->(6, 0), (15, 16)->(6, 2), (28, 18)->(6, 3), (33, 11)->(6, 4), (17, 25)->(6, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 20) toward Route 2 (visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [campaign] -- ROAM TICK 116/100000000 --
+
+   [campaign]    [roam] STATE IN: Pewter City (21, 39) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 2) (21,39) f2 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Pewter City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 2 — wild Pokémon to catch/train; EAST → Route 3 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21'] -> pick='travel:3,20'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,20'
+
+   [campaign]    [roam] DECISION THINK: 1336ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,20
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Pewter City -> Route 2 (next hop south -> Route 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 2) coords=(21, 39) -> map (3, 20) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 23, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 15.5s at (3, 2)@(21, 39) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] RESULT: travel:3,20 -> travel:stuck | pos (3, 2)(21, 39) -> (3, 20)(9, 0) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 20) coords=(9, 0) badges=1 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260729_103930_route-2_1b_0h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign] -- ROAM TICK 117/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 2 (9, 0) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 20) (9,0) f1 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 2)@(21, 39) (reason=frozen_world, frozen 15.5s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (21, 40) on (3, 2) (route around it) + marking (21, 39) a resolved talk-spot — unified block memory now 4 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "I've been stuck on the same spot going nowhere — backing off and trying something different."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign] -- ROAM TICK 118/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 2 (9, 0) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 20) (9,0) f1 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign]    [soul] surface_want FIRE -> Route 2
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L21), spearow (L6), mankey (L7). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 20), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch eevee."'
+
+   [campaign]    [soul] ORACLE pick -> 'catch eevee."'
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → Pewter City — a Mart, a Pokémon Center; SOUTH → Viridian City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 3; Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [kira-voice] -> T2·savor· (want) 'catch eevee."'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21'] -> pick='travel:3,1'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,1'
+
+   [campaign]    [roam] DECISION THINK: 1498ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,1
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Route 2 -> Viridian City (next hop south -> Viridian City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(9, 0) -> map (3, 1) (budget 300s)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] path blocked at (9, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (9, 0) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: travel:3,1 -> travel:no_path | pos (3, 20)(9, 0) -> (3, 20)(9, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'travel:3,1' returned 'travel:no_path' but her position never changed (streak 1, dead routes ['travel:3,1']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign] -- ROAM TICK 119/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 2 (9, 0) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 20) (9,0) f1 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → Pewter City — a Mart, a Pokémon Center; SOUTH → Viridian City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 3; Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21'] -> pick='travel:3,1'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,1'
+
+   [campaign]    [roam] DECISION THINK: 1346ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,1
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Route 2 -> Viridian City (next hop south -> Viridian City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(9, 0) -> map (3, 1) (budget 300s)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] path blocked at (9, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (9, 0) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: travel:3,1 -> travel:no_path | pos (3, 20)(9, 0) -> (3, 20)(9, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'travel:3,1' returned 'travel:no_path' but her position never changed (streak 2, dead routes ['travel:3,1']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['travel:3,1'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['battle', 'travel:3,2', 'travel:3,21', 'travel:3,3']
+
+   [campaign] -- ROAM TICK 120/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 2 (9, 0) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 20) (9,0) f1 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to travel:3,1 but the world hasn't changed in 3 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 2 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → Pewter City — a Mart, a Pokémon Center; SOUTH → Viridian City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 3; Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to travel:3,1 but the world hasn\'t changed in 3 turns - it went \'travel:no_path\', and you don\'t seem to be getting anywhere.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21']
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,2', 'travel:3,3', 'travel:3,21'] -> pick='travel:3,2'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,2'
+
+   [campaign]    [roam] DECISION THINK: 1443ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,2  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Route 2 -> Pewter City (next hop north -> Pewter City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(9, 0) -> map (3, 2) (budget 300s)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 20) -> (3, 2)
+
+   [campaign]    [world] learned 7 warp(s) on (3, 2): (17, 6)->(6, 0), (25, 4)->(6, 0), (15, 16)->(6, 2), (28, 18)->(6, 3), (33, 11)->(6, 4), (17, 25)->(6, 5)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 2) coords=(21, 39)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: travel:3,2 -> arrived | pos (3, 20)(9, 0) -> (3, 2)(21, 39) (MOVED)
+
+   [campaign]    [roam] standing objective complete (travel:3,2 -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 2) coords=(21, 39) badges=1 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260729_103940_pewter-city_1b_0h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 7 warp(s) on (3, 2): (17, 6)->(6, 0), (25, 4)->(6, 0), (15, 16)->(6, 2), (28, 18)->(6, 3), (33, 11)->(6, 4), (17, 25)->(6, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 20) toward Route 2 (visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! GYM-READINESS FLOOR: not ready for Misty (levels (top 21 vs bar 22)) — pruned head_to_gym; strengthen: ['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [campaign] -- ROAM TICK 121/100000000 --
+
+   [campaign]    [roam] STATE IN: Pewter City (21, 39) | badges=1 (Boulder) | party=[wartortle L21, spearow L6, mankey L7] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 2) (21,39) f2 -- badge1 $496 party:ca6c bag:c05b]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [campaign]    [soul] surface_want FIRE -> Pewter City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Pewter City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L21), spearow (L6), mankey (L7). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 2), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='level up Spearow and Mankey'
+
+   [campaign]    [soul] ORACLE pick -> 'level up Spearow and Mankey'
+
+   [soul] !! UNGROUNDED WANT (F-8): 'level up Spearow and Mankey' names ['mankey', 'spearow'] already on the team — the grounded ask didn't take (flagged for the descent grade; her words kept)
+
+   [campaign]    [roam] !! STRATEGY wall vs wild:Mt. Moon:zubat: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs wild:Mt. Moon:zubat: team floor < L11 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Pewter City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 2 — wild Pokémon to catch/train; EAST → Route 3 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 4. You can walk to anywhere you\'ve already been.. Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You just went down to the wild zubat (poison/flying-type around here) at Mt. Moon — bit of bad luck. Shake it off; maybe heal up or pick your fights a little better. Your call.. spearow and mankey are too weak for the wild zubat at Mt. Moon — so before I push through, I\'m going to level the weak ones up to about L11 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an abra around Route 24 / Route 25. It grows into my alakazam — that\'s my answer for Erika AND Koga down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "What? I\'m waiting for my friends to find me here."; "POK. BALL, and you want 1. That will be .200. Okay?"; "POK. BALL? Certainly. How many would you like?". YOUR PLAN — right now: Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry. Next: Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L21), spearow (L6), mankey (L7). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 4 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L21), spearow (L6), mankey (L7)', 'goal': {'short': 'Level the weak ones (spearow and mankey) to ~L11 by fielding THEM in the grass, THEN retry', 'medium': 'Build a team strong enough to beat the wild zubat at Mt. Moon, then push on toward Cerulean City', 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21']
+
+   [kira-voice] -> T2·savor· (want) 'level up Spearow and Mankey'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['battle', 'travel:3,1', 'travel:3,3', 'travel:3,20', 'travel:3,21'] -> pick='travel:3,20'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,20'
+
+   [campaign]    [roam] DECISION THINK: 1232ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,20
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Cerulean City for Misty.
+
+   [campaign]    [roam] TRAVEL: Pewter City -> Route 2 (next hop south -> Route 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 2) coords=(21, 39) -> map (3, 20) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 23, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] releasing 1 stale NPC block(s) [(21, 40)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] MAP TRANSITION (3, 2) -> (3, 20)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] ARRIVED at target map (3, 20) coords=(9, 0)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] arrived at Route 2 (grass) — starting to hunt
+
+   [campaign]    CATCH: 49 reachable grass tile(s) (nearest (8, 2)); avoiding 10 warp tile(s) - traversing grass to catch one
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(9, 0) -> coord (8, 2) (budget 80s)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] step 0: (9, 0)->(9, 1) map=(3, 20) (path 4 to exit)
+
+   [travel] reached target coord (8, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(8, 2) -> coord (2, 8) (budget 80s)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] step 0: (8, 2)->(8, 3) map=(3, 20) (path 13 to exit)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [soul] ORACLE decision: kind=catch_judgment ctx={'place': "a wild rattata (L3, normal) just appeared. sizing it up: wait — I've never caught a rattata before. new species, ball's already in my bag… the dex grows today. your call — is this one joining the team?"} options=['catch', 'skip']
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! manager write error: write to closed file
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 159174 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 20) coords=(5, 8)  badge=True
+
+   [kira-voice] === 226 fired, 192 gated (0 failed) | by tier: T3=4 T2=87 T1=135 (incl ambient trickle) ===
+
+================================================================
+
