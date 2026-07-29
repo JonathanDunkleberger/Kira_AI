@@ -1,0 +1,6 @@
+   [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+sanctity: VALID (vs current canonical, monotonic included)
+canonical backed up -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427
+PROMOTED G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427 -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign
+ROUND-TRIP: map=(3, 3) coords=(25, 31) party=[('wartortle', 19, 32)]
+
