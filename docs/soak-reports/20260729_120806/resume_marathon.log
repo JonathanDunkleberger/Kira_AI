@@ -1,4 +1,4 @@
-resume_marathon 20260729_114300  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260729_120806  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
 Already up to date.
@@ -8,9 +8,10 @@ Already up to date.
 
 Name                            LastWriteTime           Length
 ----                            -------------           ------
-latest.log                      7/29/2026 10:39:59 AM   545100
+console_2026-07-29_11-43-09.log 7/29/2026 12:07:55 PM   246198
+latest.log                      7/29/2026 12:07:55 PM   246198
+playlive_faulthandler.log       7/29/2026 11:44:14 AM     2750
 console_2026-07-29_09-54-31.log 7/29/2026 10:39:59 AM   545100
-playlive_faulthandler.log       7/29/2026 10:39:55 AM     2640
 console_2026-07-29_09-19-31.log 7/29/2026 9:32:41 AM    102991
 console_2026-07-29_08-58-15.log 7/29/2026 9:04:24 AM     43336
 console_2026-07-28_14-45-46.log 7/28/2026 3:49:31 PM    723906
@@ -197,9 +198,9 @@ console_2026-06-16_17-58-32.log 6/16/2026 6:05:26 PM     32137
 
 
 
-tailed newest debug log: latest.log
+tailed newest debug log: console_2026-07-29_11-43-09.log
+tailed supervisor log: playlive_2026-07-29_11-44-14.log
 tailed supervisor log: playlive_2026-07-29_10-39-55.log
-tailed supervisor log: playlive_2026-07-29_09-55-15.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
     last activity: 07/28/2026 13:14:40
@@ -208,19 +209,19 @@ tailed supervisor log: playlive_2026-07-29_09-55-15.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 07/29/2026 10:39:56
-    badges=1 party=[wartortle L21, spearow L6, mankey L7] place=Pewter City played=45min timeline=sherpa
+    last activity: 07/29/2026 12:07:51
+    badges=1 party=[wartortle L21, mankey L8, spearow L7] place=Route 3 played=133min timeline=sherpa
 == campaign dir + backups ==
 
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  7/29/2026 10:39:56 AM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  7/29/2026 12:07:51 PM
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      7/29/2026 9:32:49 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      7/29/2026 10:39:56 AM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      7/29/2026 12:07:38 PM
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -273,30 +274,5 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
-restored world model (mental map) from trophy: campaign_archived_20260729_095423
+PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
 == push soak report ==
-[main 4d6183d] report(soak): 20260729_114300 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 1154 insertions(+), 1 deletion(-)
- create mode 100644 docs/soak-reports/20260729_114300/canonical_health.json
- create mode 100644 docs/soak-reports/20260729_114300/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260729_114300/resume_marathon.log
- create mode 100644 docs/soak-reports/20260729_114300/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260729_114300/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260729_114300/tail_latest.log
- create mode 100644 docs/soak-reports/20260729_114300/tail_supervisor_playlive_2026-07-29_09-55-15.log
- create mode 100644 docs/soak-reports/20260729_114300/tail_supervisor_playlive_2026-07-29_10-39-55.log
- delete mode 100644 pokemon_agent/PROMOTE_TARGET.txt
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:260 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   bf954f7..4d6183d  main -> main
-
-== launching bot (window 1) ==
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-bot is up. == launching supervised marathon (window 2) ==
-She's live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T
