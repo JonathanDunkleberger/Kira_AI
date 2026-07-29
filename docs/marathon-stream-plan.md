@@ -44,13 +44,37 @@ people to the web app (xoxokira.com). Clips from the VOD are the ad campaign.
   Claude Code is no longer available (banned). Cursor (IDE agent + `cursor-agent` CLI)
   is the replacement driver.
 
+## LAUNCH DOCTRINE (learned the hard way, 2026-07-28 soak)
+
+The first live soak (2h25m: Brock beaten, died mid-Cerulean, stayed dead) taught two
+laws. Get these right before anything else:
+
+- **`watch.py` is a COUCH TEST, never a show.** It runs `play_live` bare — no
+  supervisor, so the first crash ends the show permanently — and it plays inside a
+  DISPOSABLE sandbox under `%TEMP%\kira_watch\` that NEVER writes canonical
+  `states/campaign`. Progress from a watch session must be rescued with
+  `python pokemon_agent/promote_bank.py <sandbox_dir> <label>` before it evaporates.
+- **The stream/marathon launch is the supervised free-roam:**
+  `python run.py` (bot first), then
+  `python pokemon_agent/supervisor.py --timeline sherpa --audio`
+  — windowed, true speed, banks canonical progress continuously (~every 5 ticks +
+  ~12-min checkpoints), auto-relaunches on crash/hang/window-close with `--resume`.
+- **`go.py` (showtime spine) is NOT marathon-ready:** `build_segments()` ends at
+  `beat_misty` — the show would declare itself complete after badge 2. Extending the
+  spine is optional later work; sherpa free-roam is the marathon path today.
+- Crash forensics live in `logs/debug/playlive_crash_*.log` and
+  `logs/debug/playlive_faulthandler.log` (native SIGSEGV class leaves no traceback).
+
 ## The Gap — what is ACTUALLY missing (audit-verified, effort-ordered)
 
 ### 1. The 1× soak (validation, not code — DO THIS FIRST, costs $0 agent time)
-The credits proof ran headless at 14×; **nobody has ever run a long windowed 1×
-session.** Boot `run.py`, then `python pokemon_agent/watch.py`, and let her play 2-3
-hours. Watch it like a viewer. Every timing assumption tuned at 14× (actuation waits,
-cursor-readback, battle text pacing) gets its verdict here. Output: a punch list.
+The credits proof ran headless at 14×. STATUS 2026-07-29: **first soak done** — 2h25m
+live (Brock, Mt. Moon, Cerulean, two Misty attempts) with good narration. Punch list it
+produced: (a) zero catches — root-caused to the missing Squirtle archetype in
+`frlg_team_plan.json`, FIXED 2026-07-29; (b) process death stayed dead — launch
+doctrine above; (c) third-person addressing — couch rule added to
+`_POKEMON_CHARACTER_RULES`; (d) assistant-voice flips — Claude stream failures falling
+to Llama, rescue retry added + `ENABLE_CLAUDE_STREAMING=false` mitigation.
 
 ### 2. Config + small wiring (one short agent session)
 - `POKEMON_AGENT_ENABLED` defaults **false** (`kira/config.py:122`) — must be true or
@@ -71,7 +95,25 @@ seconds of dead screen. Needed: freeze-frame or OBS scene fallback + a scripted
 in-character re-entry line on every `--resume`. This is the only "fatal-looking on
 stream" case left.
 
-### 4. Pace & length tuning (after it's watchable, not before)
+### 4. Team-building reliability (recon 2026-07-29 — verify live, then patch)
+The catch engine exists (BattleAgent.catch_pokemon, catch_one, TeamPlanner, keeper
+router, shiny catch-at-all-costs — all default-ON). The archetype data bug is fixed
+(squirtle/charmander branches added; simulation verified `catch_keeper: abra @ Route
+24/25` for her exact resume state). Remaining hardening, in order — each verified with
+a live segment before the next:
+- **Free-roam nursery force:** the LLM chooser only *softly* prefers catching; the
+  winning headless run HARD-preferred `fetch_keeper`/nursery `wander_catch` when
+  party < 4 + balls (`recon_longrun.py:454-474`). Port that priority into
+  `free_roam`'s action choice.
+- **Forward-drive exemption:** `_available_actions` prunes `wander_catch` during open
+  questlines (`campaign.py:11536-11542`) — exactly when Abra is due post-Misty. The
+  data fix arms `_plan_wants_prebuild`, which should stand it down; VERIFY live, and
+  if pruning still wins, add the thin-team nursery exemption.
+- **Grind cap:** past runs over-leveled the ace (Venusaur 87 vs the plan's Champion-60
+  milestone). Enforce `level_milestones` as a ceiling for `grind_to`/overlevel prep
+  (ace stops at milestone + small margin). This is the single biggest 80h→50h lever.
+
+### 5. Pace & length tuning (after it's watchable, not before)
 Data: 22,112s wall @ ~14× ≈ **~86 hours at true 1×**. HLTB human average is ~41h.
 Jonny's target band: **50-60h marathon**. Known fat to cut: 34 `enter_league` false
 starts, 73% of decisions were travel (routing waste), grind inefficiency.
@@ -79,7 +121,7 @@ Also on the table: **director's pace** — run travel/grind at 1.25-1.5× emulat
 (reads as brisk walking on stream) and hard 1× during battles/dialogue/story. A long
 marathon is not a bug (subathon energy) — but aim for the 50s.
 
-### 5. Marathon ops (the week-of checklist)
+### 6. Marathon ops (the week-of checklist)
 OBS scene (game + Kira model + caption overlay), stream title/announcement, VOD →
 clips pipeline (scripts/cut_clips.py + transcribe_vod.py exist), and the funnel: pinned
 chat message + periodic plug → xoxokira.com.
