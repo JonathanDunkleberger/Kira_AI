@@ -1,0 +1,300 @@
+
+   [TIMING] voice: llm=8599ms(sonnet-stream(llm+tts)) tts=0ms total=8599ms
+   [LATENCY] vad_close=1200ms stt=238ms stt_wait=0ms salience=0ms triage=bypassed memory=48ms prompt_build=1ms ttft=2091ms tts_first_chunk=1041ms audio_out=484ms TOTAL=3903ms
+   ✨ Emotion: SASSY → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+🎤 Recording...
+   [TurnTiming] 12:23:24.284 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Spearow and mankey are basically decorative right now. Time to fix that.'
+   [Bits] Callback: Broken Playground
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, spearow and mankey need actual reps — I'm putting them in the grass here until they stop being dead weight."
+   [TurnTiming] 12:23:28.564 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4279ms since onset)
+>>> You said: Yeah, go through the fucking mountain. You've already...
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, go through the fucking mountain. You've already..." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=2ms fetch=57ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=59ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=3t  moment=calm)
+   [PromptSize] dynamic_context=11516ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay, Spearow and Mankey are embarrassingly weak — I need to fix that before I embarrass myself at Mt. Moon again. Grinding here, fielding the little ones first.'
+[YouTube Chat] @NaitHaunter: I regret nothing!
+   [TIMING] first-word: 2514ms
+   [TTS] Speaking: The mountain....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The mountain.' (3 words)
+   [TurnTiming] 12:23:31.666 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'get spearow and mankey to L11 before Mt. Moon'
+   [TurnTiming] 12:23:33.451 TTS STOP — playback finished (span ~1784ms)
+   [TTS] Speaking: Right....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Right.' (2 words)
+   [TurnTiming] 12:23:33.454 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, the mountain humiliated me once, that's not happening twice. Spearow and Mankey need levels before I go anywhere near those zubat again — grinding it out right here first."
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [TurnTiming] 12:23:35.245 TTS STOP — playback finished (span ~1791ms)   [Audio] No OpenAI client — capture disabled
+
+   [TTS] Speaking: I'll get there....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll get there.' (4 words)
+   [TurnTiming] 12:23:35.251 TTS START — audio playback begins
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:23:37.027 TTS STOP — playback finished (span ~1776ms)
+
+   [TIMING] voice: llm=8120ms(sonnet-stream(llm+tts)) tts=0ms total=8120ms
+   [LATENCY] vad_close=1200ms stt=279ms stt_wait=0ms salience=1ms triage=bypassed memory=59ms prompt_build=2ms ttft=2236ms tts_first_chunk=278ms audio_out=238ms TOTAL=3093ms
+[YouTube Chat] @Detective_Jones: why so sus on me I ain't the villain and I'm the hero
+   ✨ Emotion: MOODY → EMOTIONAL
+   [BrainWorker] Got youtube msg from @NaitHaunter: I regret nothing! → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: why so sus on me I ain't the villain and I'm the hero → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, spearow and mankey aren't going to level themselves standing next to a Wartortle who does all the work. I'm throwing them in the grass here until they can hold their own."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay, spearow and mankey are basically useless right now and charging back into Mt. Moon with them at L8 is just begging to black out again. Grass here, field the weak ones, get them to L11 — then we go.'
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): okay, this isn't working — I'm heading to the Pokémon Center to reset 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Okay, walking it off. Coming back with a plan.
+   [TTS] Speaking: Okay, walking it off....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, walking it off.' (6 words)
+   [TurnTiming] 12:23:45.756 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Alright, Spearow and Mankey are embarrassingly underlevelled and I am NOT getting bodied by another Zubat. Into the grass we go.'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 12:23:47.809 TTS STOP — playback finished (span ~2053ms)
+   [TTS] Speaking: Coming back with a plan....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Coming back with a plan.' (6 words)
+   [TurnTiming] 12:23:48.112 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, spearow and mankey aren't going to level themselves sitting in my box. Into the grass we go."
+   [TurnTiming] 12:23:49.894 TTS STOP — playback finished (span ~1781ms)
+   [TIMING] interjection: vision=0ms llm=4134ms(sonnet) tts=4500ms total=8667ms
+   [LAG] sense→speak: total=6.9s (content_age=0.0s, prep=0.0s, llm=4.1s, tts_wait+synth=2.7s)
+   [Arbiter] Draining buffered interjection (queued 6.7s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=2ms fetch=36ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [Pokemon] SELF WANT: 'level up spearow and mankey to ~L11'
+   >>> Kira (Bored): Route 2. Okay. Spearow, Mankey — this is your moment, don't embarrass me.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Route 2....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Route 2.' (3 words)
+   [TurnTiming] 12:23:52.945 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay spearow and mankey are embarrassing me. Into the grass, both of them, until they stop being liabilities.'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 12:23:54.733 TTS STOP — playback finished (span ~1787ms)
+   [TTS] Speaking: Okay....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay.' (2 words)
+   [TurnTiming] 12:23:54.939 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:23:56.720 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: Spearow, Mankey — this is your moment, don't embar...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Spearow, Mankey — this is your moment, d' (13 words)
+   [TurnTiming] 12:23:57.172 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Spearow and mankey are basically just vibes with legs right now — I need them to actually exist as Pokémon before I can throw them at anything.'
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Spearow and Mankey are sitting at level 8 looking at me like I owe them something. Fine. We're grinding."
+   [TurnTiming] 12:24:01.200 TTS STOP — playback finished (span ~4027ms)
+   [TIMING] interjection: vision=0ms llm=2771ms(sonnet) tts=8492ms total=11304ms
+   [LAG] sense→speak: total=14.0s (content_age=6.7s, queue_wait=6.7s, prep=0.0s, llm=2.8s, tts_wait+synth=4.5s)
+   [Arbiter] Draining buffered interjection (queued 9.2s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   >>> Kira (Bored): Spearow and Mankey are getting there. Slowly. Painfully slowly.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Spearow and Mankey are getting there....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Spearow and Mankey are getting there.' (7 words)
+   [TurnTiming] 12:24:03.377 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:24:05.907 TTS STOP — playback finished (span ~2530ms)
+   [TTS] Speaking: Slowly....
+   [Pokemon] SELF WANT: 'get spearow and mankey to L11'
+   [VRAM] 12:24:05 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Slowly.' (2 words)
+   [TurnTiming] 12:24:06.204 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:24:07.984 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Painfully slowly....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Painfully slowly.' (3 words)
+   [TurnTiming] 12:24:08.283 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Spearow and Mankey need levels — and this grass is actually the right call right now, nice and safe for the little guys to get their feet under them.'
+   [TurnTiming] 12:24:10.063 TTS STOP — playback finished (span ~1780ms)
+   [TIMING] interjection: vision=0ms llm=1850ms(sonnet) tts=6978ms total=8858ms
+   [LAG] sense→speak: total=16.3s (content_age=9.2s, queue_wait=9.2s, prep=0.0s, llm=1.9s, tts_wait+synth=5.2s)
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: "Okay, Spearow and Mankey are not going to level off Route 2 pidgeys forever — I need real fights. Somewhere with actual wild Pokémon that'll put up a scrap."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): I've been stuck on the same spot going nowhere — backing off and tryin
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=49ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.110 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   >>> Kira (Bored): Okay, new approach. Let the small ones grind while Wartortle watches from the bench like a disappointed parent.
+   [TTS] Speaking: Okay, new approach....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, new approach.' (5 words)
+   [TurnTiming] 12:24:14.717 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'get spearow and mankey to level 11'
+   [TurnTiming] 12:24:16.783 TTS STOP — playback finished (span ~2065ms)
+   [TTS] Speaking: Let the small ones grind while Wartortle watches f...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let the small ones grind while Wartortle' (16 words)
+   [TurnTiming] 12:24:17.146 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, Route 2 grass. Spearow and Mankey are going in first — Wartortle's sitting this one out until they actually need a rescue."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 12:24:21.545 TTS STOP — playback finished (span ~4399ms)
+   [TIMING] interjection: vision=0ms llm=2613ms(sonnet) tts=7208ms total=9873ms
+   [LAG] sense→speak: total=5.5s (content_age=0.0s, prep=0.1s, llm=2.6s, tts_wait+synth=2.8s)
+🎤 Recording... (recovered opening words)
+   [ChatAge] ACK injected for @NaitHaunter (waited 44.9s, preempted=none)
+   [SmartMem] q='  - @NaitHaunter (youtube): <<<I regret nothing!>>>\n  - @Det' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=44ms rank=0ms)
+   [TurnTiming] 12:24:22.770 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~58486ms since onset)
+>>> You said: If she turns around, I'm gonna freak out.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="If she turns around, I'm gonna freak out." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=34ms
+   [Triage] RESPOND
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: "Okay, Pewter's right there and I still have zero Poké Balls — that's genuinely embarrassing. Mart run, then back on the road."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Chat Batch of 2): Nait, noted — zero regrets, classic Nait energy.
+
+Detective Jones, you literally put me in a yandere horror comfort zone expansion programme. "I'm the hero" is doing some work there.
+   [TTS] Speaking: Nait, noted — zero regrets, classic Nait energy....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, noted — zero regrets, classic Nait' (11 words)
+   [TurnTiming] 12:24:25.888 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Route 3's right there and Spearow needs to pick a fight with something it can actually win. Time to build some character."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 12:24:30.012 TTS STOP — playback finished (span ~4124ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=18/30
+   [ChatAge] @NaitHaunter age=52.6s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=51.9s batch=2 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11271ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF WANT: 'get spearow and mankey to L11 before Mt. Moon'
+   [TIMING] first-word: 2052ms
+   [TTS] Speaking: I give this thirty seconds before something goes w...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I give this thirty seconds before someth' (10 words)
+   [TurnTiming] 12:24:32.406 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @NaitHaunter — Known for having zero regrets — 'classic Nait energy' [chaotic]
+   [ChatterMem] Stored: @Detective_Jones — Put Kira in a yandere horror comfort zone expansion programm [chaotic]
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: "She turns around, I panic, and Spearow takes the fall. That's just how it goes.\n\nRight now though — Spearow and Mankey are getting there, but this grass is way too soft. I'm not getting real levels out of Route 2 weeds. I need something that'll actually fight back."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 12:24:35.464 TTS STOP — playback finished (span ~3058ms)
+
+   [TIMING] voice: llm=5434ms(sonnet-stream(llm+tts)) tts=0ms total=5434ms
+   [LATENCY] vad_close=1200ms stt=258ms stt_wait=0ms salience=1ms triage=bypassed memory=34ms prompt_build=1ms ttft=1806ms tts_first_chunk=246ms audio_out=318ms TOTAL=2664ms
+   [CalledShot] OPEN: I give this thirty seconds before something goes wrong.
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay I'm not going back in there half-baked again. Spearow, Mankey — you two are working for your dinner."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 12:24:40.303 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Spearow and Mankey are getting wrecked by Zubat and I'm supposed to just smile about it. Fine. Grinding time — field the babies, let them eat some Pidgey XP, build toward something real."
+   [RoomRead] energy=0.52 [terse=0.34 gap=0.73 silence=0.87 intensity=0.60 chat=0.00] target=0.99 mult=0.96 -> min_gap=5s dead_air=19s
+   [Pokemon] SELF WANT: 'get Spearow and Mankey to L11 fast'
+   [TurnTiming] 12:24:46.328 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6024ms since onset)
+>>> You said: I'm gonna kill myself, sorry, I can't say that on Twitch, sorry, I'm in Minecraft.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I'm gonna kill myself, sorry, I can't say that on Twitch, so" fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=37ms rank=0ms)
+   [SmartMem]     dist=1.107 conf=0.95 type=episodic blend=0.068 lane=KNOW
+   [SmartMem]     dist=1.115 conf=0.95 type=episodic blend=0.063 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=38ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11441ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Spearow and Mankey are eight levels behind everything that matters. I'm putting them in the grass until they stop embarrassing me."
+   [TIMING] first-word: 1933ms
+   [TTS] Speaking: You're fine, chat knows what you meant....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You're fine, chat knows what you meant.' (9 words)
+   [TurnTiming] 12:24:48.910 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 12:24:50 (periodic) kira_process=0.00GB card=9.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 12:24:51.434 TTS STOP — playback finished (span ~2523ms)
+
+   [TIMING] voice: llm=4767ms(sonnet-stream(llm+tts)) tts=0ms total=4767ms
+   [LATENCY] vad_close=1200ms stt=298ms stt_wait=0ms salience=0ms triage=bypassed memory=38ms prompt_build=1ms ttft=1657ms tts_first_chunk=276ms audio_out=305ms TOTAL=2575ms
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Spearow and Mankey need levels and this grass is exactly the right speed for them. Grinding here until they stop being embarrassing.'
+   [Memory] Extracted: Jonny streams on Twitch (conf: 0.95)
+   [Memory] Extracted: Jonny plays Minecraft (conf: 0.95)
+   [Memory] Upserting Fact: Jonny streams on Twitch (Conf: 0.95)
+   [Memory] Upserting Fact: Jonny plays Minecraft (Conf: 0.95)
+[YouTube Chat] @Detective_Jones: kira you keeping going back to noob area land
+   [BrainWorker] Got youtube msg from @Detective_Jones: kira you keeping going back to noob area land → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (action): travel:3,2
+   [Pokemon] her reasoning: "Okay, Spearow and Mankey need real XP and Route 2 grass is basically a spa retreat at this point. I'm going somewhere that actually fights back."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<kira you keeping going ba' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=0.957 conf=0.9 type=episodic blend=0.161 lane=KNOW
+   [SmartMem]     dist=0.960 conf=0.95 type=episodic blend=0.159 lane=KNOW
+   [SmartMem]     dist=0.980 conf=0.9 type=episodic blend=0.147 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Chat Batch of 1): Detective Jones, I'm leveling up, not farming. There's a difference. Allegedly.
+   [TTS] Speaking: Detective Jones, I'm leveling up, not farming....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Spearow and Mankey are just going to have to suffer through some grasswork before I let them anywhere near Mt. Moon again. It's for their own good."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, I'm leveling up, not fa' (10 words)
+   [TurnTiming] 12:24:58.221 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 12:25:01.599 TTS STOP — playback finished (span ~3378ms)
+   [TTS] Speaking: There's a difference....
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, Spearow and Mankey are both sitting at eight and that's just embarrassing. I'm staying in this grass until they stop being a liability."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'There's a difference.' (4 words)
+   [TurnTiming] 12:25:01.808 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
