@@ -1,0 +1,300 @@
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:18:21.984 TTS STOP — playback finished (span ~5810ms)
+
+   [TIMING] voice: llm=8227ms(sonnet-stream(llm+tts)) tts=0ms total=8227ms
+   [LATENCY] vad_close=1200ms stt=169ms stt_wait=0ms salience=0ms triage=bypassed memory=34ms prompt_build=0ms ttft=1170ms tts_first_chunk=640ms audio_out=595ms TOTAL=2608ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: MOODY → SASSY
+   [TurnTiming] 10:18:23.427 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12198ms since onset)
+   [RoomRead] energy=0.44 [terse=0.08 gap=0.69 silence=0.90 intensity=0.60 chat=0.00] target=1.12 mult=1.02 -> min_gap=10s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 10:18:29.559 VOICE ONSET — mic speech started
+   [VRAM] 10:18:31 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 10:18:31.496 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1937ms since onset)
+   [RoomRead] energy=0.44 [terse=0.08 gap=0.69 silence=0.91 intensity=0.60 chat=0.00] target=1.12 mult=1.04 -> min_gap=10s dead_air=21s
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): this NPC's just looping the same lines and going nowhere — I'm closing
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.300 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [Phrases] Throttling: "answer is probably" (3rd use this session)
+   [YouTube] Input received: 'https://studio.youtube.com/video/IQHRT7CPeVg/livestreaming'
+   [YouTube] Extracted video ID: 'IQHRT7CPeVg'
+   [YouTube] Connecting to live chat for IQHRT7CPeVg...
+   [YouTube] Connected — polling chat for video ID: IQHRT7CPeVg
+   [RoomRead] energy=0.41 [terse=0.08 gap=0.69 silence=0.78 intensity=0.60 chat=0.00] target=1.17 mult=1.07 -> min_gap=11s dead_air=21s
+   >>> Kira (Bored): Dead end. Fine — I'm going to find something worth catching instead.
+   [TTS] Speaking: Dead end....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dead end.' (3 words)
+   [TurnTiming] 10:18:44.959 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 30s before retry.
+   [YTAutoSearch] Already connected — stopping auto-search.
+   [TurnTiming] 10:18:46.730 TTS STOP — playback finished (span ~1771ms)
+   [TTS] Speaking: Fine — I'm going to find something worth catching ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fine — I'm going to find something worth' (11 words)
+   [TurnTiming] 10:18:47.122 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:18:50.411 TTS STOP — playback finished (span ~3288ms)
+   [TIMING] interjection: vision=0ms llm=1759ms(sonnet) tts=5637ms total=7418ms
+   [LAG] sense→speak: total=4.1s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=2.3s)
+[YouTube Chat] @Detective_Jones: but it works
+   [BrainWorker] Got youtube msg from @Detective_Jones: but it works → buffering for chat_batch_worker
+   [Cookies] +2 → @Detective_Jones (first message this session); shared=8/30
+   [SmartMem] q='  - @Detective_Jones (youtube) [FIRST TIME CHATTER]: <<<but ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Detective Jones! The dry-erase board philosopher himself — and he arrives with "but it works."
+
+That tracks completely.
+   [TTS] Speaking: Detective Jones!...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones!' (3 words)
+   [TurnTiming] 10:18:58.788 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:00.654 TTS STOP — playback finished (span ~1866ms)
+   [TTS] Speaking: That tracks completely....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That tracks completely.' (4 words)
+   [TurnTiming] 10:19:01.005 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:02.964 TTS STOP — playback finished (span ~1959ms)
+   [Cookies] +1 × 1 (batch response); shared=9/30
+   [ChatAge] @Detective_Jones age=8.1s batch=1 preempted=none
+   [ChatterMem] Stored: @Detective_Jones — Known as 'the dry-erase board philosopher' [dry]
+   [RoomRead] energy=0.43 [terse=0.08 gap=0.69 silence=0.79 intensity=0.60 chat=0.07] target=1.15 mult=1.09 -> min_gap=11s dead_air=22s
+   [VRAM] 10:19:16 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [RoomRead] energy=0.40 [terse=0.08 gap=0.69 silence=0.66 intensity=0.60 chat=0.07] target=1.20 mult=1.11 -> min_gap=11s dead_air=22s
+[YouTube Chat] @Detective_Jones: you remember me from yesterday?
+   [BrainWorker] Got youtube msg from @Detective_Jones: you remember me from yesterday? → buffering for chat_batch_worker
+   [LockIn] heads-down — banked 1 chat msg(s) for catch-up, 0 broke through (score >= 75)
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): this NPC's just looping the same lines and going nowhere — I'm closing
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=1ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.299 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   >>> Kira (Bored): Nobody here knows anything useful. Moving on.
+   [TTS] Speaking: Nobody here knows anything useful....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nobody here knows anything useful.' (6 words)
+   [TurnTiming] 10:19:36.452 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:38.798 TTS STOP — playback finished (span ~2345ms)
+   [TTS] Speaking: Moving on....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moving on.' (3 words)
+   [TurnTiming] 10:19:39.103 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:40.881 TTS STOP — playback finished (span ~1777ms)
+   [TIMING] interjection: vision=0ms llm=1880ms(sonnet) tts=4706ms total=6615ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=2.9s)
+🎤 Recording...
+   [TurnTiming] 10:19:43.155 VOICE ONSET — mic speech started
+   [TurnTiming] 10:19:46.823 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3667ms since onset)
+>>> You said: I just did it again, no way.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I just did it again, no way.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11182ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1949ms
+   [TTS] Speaking: Did what again?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Did what again?' (4 words)
+   [TurnTiming] 10:19:49.340 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:51.130 TTS STOP — playback finished (span ~1789ms)
+   [TTS] Speaking: You're going to have to give me something to work ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You're going to have to give me somethin' (13 words)
+   [TurnTiming] 10:19:51.135 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:19:53.739 TTS STOP — playback finished (span ~2604ms)
+
+   [TIMING] voice: llm=6690ms(sonnet-stream(llm+tts)) tts=0ms total=6690ms
+   [LATENCY] vad_close=1200ms stt=201ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=0ms ttft=1568ms tts_first_chunk=381ms audio_out=336ms TOTAL=2509ms
+🎤 Recording...
+   [TurnTiming] 10:19:53.925 VOICE ONSET — mic speech started
+   ✨ Emotion: SASSY → EMOTIONAL
+   [RoomRead] energy=0.37 [terse=0.13 gap=0.33 silence=0.90 intensity=0.60 chat=0.07] target=1.26 mult=1.13 -> min_gap=11s dead_air=23s
+   [TurnTiming] 10:19:59.845 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5920ms since onset)
+>>> You said: You little rat. Press A.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='You little rat. Press A.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=18ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11134ch  hist=10turns  moment=calm
+>>> Kira (streaming):    [VRAM] 10:20:01 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 3445ms
+   [TTS] Speaking: Press A yourself, you know where the button is....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Press A yourself, you know where the but' (11 words)
+   [TurnTiming] 10:20:03.864 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @NaitHaunter: Kira play the game, please. The cat is watching.
+   [TurnTiming] 10:20:06.677 TTS STOP — playback finished (span ~2812ms)
+
+   [TIMING] voice: llm=6604ms(sonnet-stream(llm+tts)) tts=0ms total=6604ms
+   [LATENCY] vad_close=1200ms stt=208ms stt_wait=0ms salience=0ms triage=bypassed memory=18ms prompt_build=0ms ttft=3156ms tts_first_chunk=289ms audio_out=342ms TOTAL=4013ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got youtube msg from @NaitHaunter: Kira play the game, please. The cat is watching. → buffering for chat_batch_worker
+   [Cookies] +2 → @NaitHaunter (first message this session); shared=11/30
+   [TurnTiming] 10:20:08.120 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14194ms since onset)
+   [Cookies] Drip 10 — queued directive (rate) for @Detective_Jones
+[YouTube Chat] @Detective_Jones: does she read trainer messages?!
+   [BrainWorker] Got youtube msg from @Detective_Jones: does she read trainer messages?! → buffering for chat_batch_worker
+   [SmartMem] q='  - @NaitHaunter (youtube) [FIRST TIME CHATTER]: <<<Kira pla' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=2 | timing(direct=54ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=0.906 conf=0.9 type=episodic blend=0.192 lane=KNOW
+   [SmartMem]     dist=0.951 conf=0.93 type=episodic blend=0.164 lane=KNOW
+   [SmartMem]     dist=0.971 conf=0.9 type=episodic blend=0.152 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 10:20:15.725 VOICE ONSET — mic speech started
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 10:20:17.006 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1281ms since onset)
+🎤 Recording...
+   [TurnTiming] 10:20:17.511 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 2): Nait, welcome back — and yes, the cat is absolutely judging me, I can feel it.
+
+Detective Jones — she reads every word. The trainer messages, the item descriptions, the little flavor text nobody asked for. Seven out of ten on the username, by the way, Nait — punchy, memorable, slightly ominous. I respect it.
+   [TTS] Speaking: Nait, welcome back — and yes, the cat is absolutel...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, welcome back — and yes, the cat is' (20 words)
+   [TurnTiming] 10:20:19.611 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:25.136 TTS STOP — playback finished (span ~5525ms)
+   [TTS] Speaking: Detective Jones — she reads every word....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones — she reads every word.' (8 words)
+   [TurnTiming] 10:20:25.574 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:28.577 TTS STOP — playback finished (span ~3003ms)
+   [TTS] Speaking: The trainer messages, the item descriptions, the l...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The trainer messages, the item descripti' (16 words)
+   [TurnTiming] 10:20:29.069 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:33.940 TTS STOP — playback finished (span ~4871ms)
+   [TTS] Speaking: Seven out of ten on the username, by the way, Nait...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Seven out of ten on the username, by the' (21 words)
+   [TurnTiming] 10:20:34.514 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:40.589 TTS STOP — playback finished (span ~6074ms)
+   [TTS] Speaking: I respect it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I respect it.' (4 words)
+   [TurnTiming] 10:20:40.792 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:42.574 TTS STOP — playback finished (span ~1782ms)
+   [Cookies] +1 × 2 (batch response); shared=13/30
+   [ChatAge] @NaitHaunter age=35.5s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=30.2s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 10:20:43.806 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26294ms since onset)
+>>> You said: I don't know what she's doing right now.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I don't know what she's doing right now." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11118ch  hist=13turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1496ms
+   [ChatterMem] Stored: @NaitHaunter — Invokes 'the cat is watching' as motivation/pressure for Kir [playful]
+   [TTS] Speaking: Neither do I, and I'm watching the screen....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Neither do I, and I'm watching the scree' (10 words)
+   [TurnTiming] 10:20:45.994 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 10:20:46 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [ChatterMem] Stored: @Detective_Jones — Curious whether Kira reads trainer messages in games [earnest]
+   [TurnTiming] 10:20:48.701 TTS STOP — playback finished (span ~2707ms)
+   [TTS] Speaking: Bill's apparently famous though, so at least she's...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Bill's apparently famous though, so at l' (11 words)
+   [TurnTiming] 10:20:48.709 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:20:52.176 TTS STOP — playback finished (span ~3466ms)
+
+   [TIMING] voice: llm=8090ms(sonnet-stream(llm+tts)) tts=0ms total=8090ms
+   [LATENCY] vad_close=1200ms stt=250ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=0ms ttft=1341ms tts_first_chunk=155ms audio_out=409ms TOTAL=2182ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 10:20:53.410 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~35898ms since onset)
+[YouTube Chat] @Detective_Jones: press A
+   [BrainWorker] Got youtube msg from @Detective_Jones: press A → buffering for chat_batch_worker
+   [RoomRead] energy=0.46 [terse=0.18 gap=0.51 silence=0.93 intensity=0.60 chat=0.20] target=1.08 mult=1.11 -> min_gap=11s dead_air=22s
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<press A>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+[YouTube Chat] @Detective_Jones: alot
+   [BrainWorker] Got youtube msg from @Detective_Jones: alot → buffering for chat_batch_worker
+   >>> Kira (Chat Batch of 1): Detective Jones siding with Jonny. Betrayal noted.
+   [TTS] Speaking: Detective Jones siding with Jonny....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones siding with Jonny.' (6 words)
+   [TurnTiming] 10:21:04.750 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:21:07.194 TTS STOP — playback finished (span ~2444ms)
+   [TTS] Speaking: Betrayal noted....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Betrayal noted.' (3 words)
+   [TurnTiming] 10:21:07.480 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:21:09.265 TTS STOP — playback finished (span ~1785ms)
+   [Cookies] +1 × 1 (batch response); shared=14/30
+   [ChatAge] @Detective_Jones age=11.0s batch=1 preempted=none
+🎤 Recording...
+   [TurnTiming] 10:21:10.435 VOICE ONSET — mic speech started
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<alot>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [TurnTiming] 10:21:14.422 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3986ms since onset)
+>>> You said: Yeah, press A a bunch really quickly.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Yeah, press A a bunch really quickly.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   >>> Kira (Chat Batch of 1): Detective Jones with the full literary review. "alot" — succinct, devastating, I'll take it.
+   [TTS] Speaking: Detective Jones with the full literary review....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones with the full literary r' (8 words)
+   [TurnTiming] 10:21:17.584 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:21:20.487 TTS STOP — playback finished (span ~2903ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=15/30
+   [ChatAge] @Detective_Jones age=16.1s batch=1 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11120ch  hist=17turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1568ms
+   [TTS] Speaking: That's your entire strategy?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's your entire strategy?' (5 words)
+   [TurnTiming] 10:21:22.449 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:21:24.424 TTS STOP — playback finished (span ~1975ms)
+   [TTS] Speaking: Just mash it and hope?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Just mash it and hope?' (6 words)
+   [TurnTiming] 10:21:24.427 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:21:26.201 TTS STOP — playback finished (span ~1774ms)
+
+   [TIMING] voice: llm=5708ms(sonnet-stream(llm+tts)) tts=0ms total=5708ms
+   [LATENCY] vad_close=1200ms stt=193ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=1ms ttft=1268ms tts_first_chunk=300ms audio_out=383ms TOTAL=2168ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 222s) — auto-resuming in 5s
