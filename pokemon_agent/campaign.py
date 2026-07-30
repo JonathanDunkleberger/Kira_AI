@@ -3640,24 +3640,56 @@ class Campaign:
             log(f"   [roam] !! drain '{label}' requested during a LIVE battle -> skipping "
                 f"(battle engine owns that UI)")
             return "in_battle"
+        from dialogue_drive import box_open as _bo
+        had_box = bool(_bo(self.b))            # a REAL conversation was driven (not a no-op poll)
         self.b.set_input_owner("agent")
         res = DialogueDriver(self.b, render=self.render, log=lambda m: log(m)).drive(label=label)
-        if res == "exhausted":
+        # LOOP-MARK ON *EVERY* abnormal end (2026-07-30, the Bill-guy loop): 'exhausted' alone missed
+        # the timeout branch, so a conversation that burned the whole press budget ended UNMARKED and
+        # she re-engaged it fresh. timeout is just as much a loop signal.
+        if res in ("exhausted", "timeout"):
+            self._mark_looping_npc(f"drive={res}")
+        elif had_box and res == "closed":
+            # CROSS-CALL RE-DRAIN NET (2026-07-30): each drive() call carries its own cycle counter,
+            # so a conversation that CLOSES cleanly and then gets RE-INITIATED (beaten trainer's
+            # post-battle line, greet-pull re-talk) loops forever with every single call looking
+            # healthy — that's the 10-minute Nugget Bridge loop Jonny watched. Count real (box-open)
+            # drains per stand-tile: 3 within 2 minutes = a re-engagement loop, whatever each call
+            # returned -> mark and walk away.
             try:
-                mp = tuple(tv.map_id(self.b))
-                cur = tuple(tv.coords(self.b))
-                self._looped_spots.add((mp, cur))
-                # LAYER A — feed the UNIFIED block memory too: the tile she's FACING is the looping NPC's
-                # body, so travel (not just the talk path) routes AROUND it next time. One shared set.
-                d = self._FACE_DELTA.get(wf._facing(self.b))
-                if d is not None:
-                    body = (cur[0] + d[0], cur[1] + d[1])
-                    self._blocked_npcs.add((mp, body))
-                log(f"   [roam] !! LOOPING/RESOLVED NPC disengaged at {(mp, cur)} — won't re-initiate "
-                    f"talk there + travel routes around its body (B-2 + LAYER A unified guard)")
+                now = time.time()
+                key = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b)))
+                hist = getattr(self, "_drain_history", None)
+                if hist is None:
+                    hist = self._drain_history = {}
+                stamps = [t for t in hist.get(key, ()) if now - t < 120.0] + [now]
+                hist[key] = stamps
+                if len(stamps) >= 3:
+                    log(f"   [roam] !! RE-DRAIN LOOP: {len(stamps)} full conversations at {key} inside "
+                        f"2 minutes — she keeps re-engaging the same NPC; marking it resolved")
+                    self._mark_looping_npc("re-drain net")
+                    hist.pop(key, None)
             except Exception:
                 pass
         return res
+
+    def _mark_looping_npc(self, reason):
+        """B-2 + LAYER A unified: mark the current stand tile a resolved talk-spot and the faced tile a
+        blocked body, so the talk path won't re-initiate here and travel routes around the NPC. Persists
+        immediately (wedge memory) so the mark survives a restart."""
+        try:
+            mp = tuple(tv.map_id(self.b))
+            cur = tuple(tv.coords(self.b))
+            self._looped_spots.add((mp, cur))
+            d = self._FACE_DELTA.get(wf._facing(self.b))
+            if d is not None:
+                body = (cur[0] + d[0], cur[1] + d[1])
+                self._blocked_npcs.add((mp, body))
+            log(f"   [roam] !! LOOPING/RESOLVED NPC disengaged at {(mp, cur)} ({reason}) — won't "
+                f"re-initiate talk there + travel routes around its body (B-2 + LAYER A unified guard)")
+            self._save_wedge_memory()
+        except Exception:
+            pass
 
     def _party_damaging_pp(self):
         """True iff ANY alive party member still has PP on a damaging move — the PP-famine ground

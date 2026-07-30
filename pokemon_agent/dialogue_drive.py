@@ -151,7 +151,7 @@ class DialogueDriver:
     # HOLD + the A-tap cadence; the frozen-backstop is PRESS-COUNT based (DIALOGUE_FROZEN_LIMIT) and
     # box_open/_control_returned are pixel/press based, so detection + the stuck-box guard are untouched.
     def drive(self, stop_when=None, label="", min_s=0.022, max_s=0.11, base_s=0.012,
-              per_char_s=0.0014, page_gap_s=0.011, max_steps=300):
+              per_char_s=0.0014, page_gap_s=0.011, max_steps=300, max_wall_s=120.0):
         """Advance an open overworld dialogue at a watchable pace until control RETURNS (or
         stop_when() fires). Returns 'stopped' | 'closed' | 'exhausted' | 'timeout'(loud).
 
@@ -193,7 +193,19 @@ class DialogueDriver:
                 self.log(f"   [dlg-pace{(' ' + label) if label else ''}] box {_pace_prev[1]!r} "
                          f"visible {_dt:.2f}s (sink {_pace_prev[2]}ms, hold {_pace_prev[3]:.2f}s, "
                          f"end={reason})")
+        _t0 = time.time()                                 # WALL-CLOCK CAP (2026-07-30, the Nugget
+        # Bridge Bill-guy loop): max_steps is a PRESS budget, but a conversation cycling at read-along
+        # pace burns wall time far faster than presses — Jonny and chat watched one loop for 10+
+        # minutes. NO single overworld conversation is legitimately longer than max_wall_s at this
+        # pace; past it, this is a loop whatever the press count says -> exhausted (caller marks the
+        # spot so she never re-engages).
         for _ in range(max_steps):
+            if time.time() - _t0 > max_wall_s:
+                self.log(f"   [dlg{(' ' + label) if label else ''}] !! CONVERSATION WALL-CLOCK CAP "
+                         f"({max_wall_s:.0f}s) — no real dialogue runs this long; treating as a loop "
+                         f"-> B, walking away")
+                self._close_box()
+                return "exhausted"
             if stop_when and stop_when():
                 _pace_close("stopped")
                 return "stopped"
