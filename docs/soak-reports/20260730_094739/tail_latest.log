@@ -1,0 +1,300 @@
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 09:43:51.162 TTS STOP — playback finished (span ~1783ms)
+   [TIMING] interjection: vision=0ms llm=2580ms(sonnet) tts=5672ms total=8280ms
+   [LAG] sense→speak: total=6.4s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=3.8s)
+   [VRAM] 09:44:04 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [RoomRead] energy=0.45 [terse=0.33 gap=0.81 silence=0.51 chat=0.00] target=1.11 mult=1.02 -> min_gap=5s dead_air=20s
+   [RoomRead] energy=0.42 [terse=0.33 gap=0.81 silence=0.41 chat=0.00] target=1.15 mult=1.04 -> min_gap=5s dead_air=21s
+   [RoomRead] energy=0.41 [terse=0.33 gap=0.81 silence=0.32 chat=0.00] target=1.19 mult=1.06 -> min_gap=5s dead_air=21s
+   [Intensity] → CALM  (silence=45s  audio="")
+   [LoadShed] Skipping fresh vision capture (under_load=False, cache_age=1.2s, mw_age=999.0s)
+   [SmartMem] q='reactions to ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [Valence] updated 4 entit(ies): Kira +0.29→+0.17; Mankey +0.00→-0.24; Spearow +0.00→+0.16; Pidgey +0.00→-0.32
+   >>> Kira (Bored): Okay, back in the grass. Let's see if the game cooperates this time.
+   [TTS] Speaking: Okay, back in the grass....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, back in the grass.' (7 words)
+   [TurnTiming] 09:44:38.745 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:44:41.007 TTS STOP — playback finished (span ~2261ms)
+   [TTS] Speaking: Let's see if the game cooperates this time....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let's see if the game cooperates this ti' (9 words)
+   [TurnTiming] 09:44:41.425 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:44:44.140 TTS STOP — playback finished (span ~2715ms)
+   [TIMING] interjection: vision=0ms llm=2415ms(sonnet) tts=5820ms total=8261ms
+   [LAG] sense→speak: total=6.8s (content_age=1.2s, prep=0.0s, llm=2.4s, tts_wait+synth=3.1s)
+   [Pokemon] event react (bypass=False, tier=1, kind=event): you took a big hit
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.321 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 09:44:45.055 VOICE ONSET — mic speech started
+   >>> Kira (Bored): Ow. Okay. We're fine, we're fine — walk it off.
+   [TTS] Speaking: Ow....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ow.' (2 words)
+   [TurnTiming] 09:44:47.082 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:44:48.861 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: Okay....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay.' (2 words)
+   [TurnTiming] 09:44:49.102 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:44:49 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 09:44:50.872 TTS STOP — playback finished (span ~1769ms)
+   [TTS] Speaking: We're fine, we're fine — walk it off....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'We're fine, we're fine — walk it off.' (10 words)
+   [TurnTiming] 09:44:51.297 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:44:54.297 TTS STOP — playback finished (span ~3000ms)
+   [TIMING] interjection: vision=0ms llm=2189ms(sonnet) tts=7411ms total=9625ms
+   [LAG] sense→speak: total=6.6s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=4.4s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:44:58.506 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~13450ms since onset)
+>>> You said: It's okay though. It's okay. She did use him Mankey. There we go.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's okay though. It's okay. She did use him Mankey. There w" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10900ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1763ms
+   [TTS] Speaking: See?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'See?' (2 words)
+   [TurnTiming] 09:45:00.836 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:02.615 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: Earning his keep....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Earning his keep.' (4 words)
+   [TurnTiming] 09:45:02.618 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:04.393 TTS STOP — playback finished (span ~1775ms)
+
+   [TIMING] voice: llm=5569ms(sonnet-stream(llm+tts)) tts=0ms total=5569ms
+   [LATENCY] vad_close=1200ms stt=284ms stt_wait=0ms salience=1ms triage=bypassed memory=32ms prompt_build=1ms ttft=1575ms tts_first_chunk=188ms audio_out=243ms TOTAL=2324ms
+   [Pokemon] event react (bypass=False, tier=1, kind=event): this is taking forever - I'm stuck grinding, let me regroup
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.321 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   >>> Kira (Bored): Mankey and Spearow are both sitting at level nine looking at me like I'm the problem. Fine. We grind until it hurts.
+   [TTS] Speaking: Mankey and Spearow are both sitting at level nine ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Mankey and Spearow are both sitting at l' (17 words)
+   [TurnTiming] 09:45:09.161 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:13.565 TTS STOP — playback finished (span ~4404ms)
+   [TTS] Speaking: Fine....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fine.' (2 words)
+   [TurnTiming] 09:45:13.832 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:15.584 TTS STOP — playback finished (span ~1751ms)
+   [TTS] Speaking: We grind until it hurts....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'We grind until it hurts.' (6 words)
+   [TurnTiming] 09:45:15.904 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:18.060 TTS STOP — playback finished (span ~2156ms)
+   [TIMING] interjection: vision=0ms llm=2572ms(sonnet) tts=9262ms total=11862ms
+   [LAG] sense→speak: total=9.7s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=7.1s)
+   [Arbiter] Draining buffered interjection (queued 9.8s ago)
+   [Freshness] DROP stale game-event reaction (age 9.8s > 7s ceiling) — reacting live, not to a corpse
+🎤 Recording... (recovered opening words)
+   [Intensity] → TENSE  (silence=0s  audio="")
+   [TurnTiming] 09:45:19.307 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~34251ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 6, 599s remaining)
+🎤 Recording...
+   [TurnTiming] 09:45:21.485 VOICE ONSET — mic speech started
+   [TurnTiming] 09:45:24.162 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2676ms since onset)
+>>> You said: She's using the wrong one though.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="She's using the wrong one though." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "mankey and spearow are both" (3rd use this session)
+   [PromptSize] dynamic_context=10910ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1779ms
+   [TTS] Speaking: Story of this run so far....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Story of this run so far.' (7 words)
+   [TurnTiming] 09:45:26.466 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:28.723 TTS STOP — playback finished (span ~2256ms)
+
+   [TIMING] voice: llm=4341ms(sonnet-stream(llm+tts)) tts=0ms total=4341ms
+   [LATENCY] vad_close=1200ms stt=191ms stt_wait=0ms salience=0ms triage=bypassed memory=25ms prompt_build=0ms ttft=1565ms tts_first_chunk=214ms audio_out=300ms TOTAL=2295ms
+   ✨ Emotion: EMOTIONAL → SASSY
+   [RoomRead] energy=0.51 [terse=0.37 gap=0.61 silence=0.99 chat=0.00] target=1.00 mult=1.04 -> min_gap=5s dead_air=21s
+   [VRAM] 09:45:34 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] event react (bypass=False, tier=1, kind=event): the enemy's nidoran went down — that's the battle, you won
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.320 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   >>> Kira (Bored): Nidoran's down, Mankey's still breathing — that's all I needed. Back in the grass, we're doing this again.
+   [TTS] Speaking: Nidoran's down, Mankey's still breathing — that's ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nidoran's down, Mankey's still breathing' (12 words)
+   [TurnTiming] 09:45:41.672 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:45.518 TTS STOP — playback finished (span ~3845ms)
+   [TTS] Speaking: Back in the grass, we're doing this again....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Back in the grass, we're doing this agai' (10 words)
+   [TurnTiming] 09:45:45.849 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:45:48.475 TTS STOP — playback finished (span ~2626ms)
+   [TIMING] interjection: vision=0ms llm=2122ms(sonnet) tts=7261ms total=9407ms
+   [LAG] sense→speak: total=6.8s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=4.6s)
+   [SessionTakes] Condensed 6 reactions → 10 bullets (hard-capped).
+   [CurrentWant] now: calling out Streamlabs — you don't trust them
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): the trees thin out along Route 3, trainers everywhere looking for a fi
+🎤 Recording...
+   [TurnTiming] 09:45:53.372 VOICE ONSET — mic speech started
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.320 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [Phrases] Throttling: "back in the grass" (3rd use this session)
+   >>> Kira (Bored): Every trainer on this route is a free punching bag and I am taking every single one.
+   [TTS] Speaking: Every trainer on this route is a free punching bag...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Every trainer on this route is a free pu' (18 words)
+   [TurnTiming] 09:45:56.049 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:46:00.406 TTS STOP — playback finished (span ~4357ms)
+   [TIMING] interjection: vision=0ms llm=2218ms(sonnet) tts=4814ms total=7061ms
+   [LAG] sense→speak: total=2.7s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=0.5s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:46:01.826 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8454ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:46:02.274 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:04.165 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1891ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:46:04.695 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:10.596 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5900ms since onset)
+>>> You said: Fables on it. It's training my bank account as we speak.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Fables on it. It's training my bank account as we speak." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11164ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1598ms
+   [TTS] Speaking: Your bank account is about to faint too....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Your bank account is about to faint too.' (9 words)
+   [TurnTiming] 09:46:12.853 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:46:15.378 TTS STOP — playback finished (span ~2524ms)
+
+   [TIMING] voice: llm=4498ms(sonnet-stream(llm+tts)) tts=0ms total=4498ms
+   [LATENCY] vad_close=1200ms stt=253ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=0ms ttft=1369ms tts_first_chunk=229ms audio_out=373ms TOTAL=2252ms
+   [RoomRead] energy=0.51 [terse=0.42 gap=0.54 silence=0.97 chat=0.00] target=1.00 mult=1.02 -> min_gap=5s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 09:46:17.217 VOICE ONSET — mic speech started
+   [VRAM] 09:46:19 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 7, 539s remaining)
+   [TurnTiming] 09:46:21.576 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4357ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:46:22.307 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:23.581 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1274ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:46:24.080 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:25.386 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1305ms since onset)
+🎤 Recording...
+   [TurnTiming] 09:46:29.684 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:35.570 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5886ms since onset)
+>>> You said: All to get you, my retarded little AI daughter to play a game.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='All to get you, my retarded little AI daughter to play a gam' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.161 conf=0.95 type=episodic blend=0.035 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=112t  moment=tense)
+   [PromptSize] dynamic_context=11583ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1993ms
+   [TTS] Speaking: Worth every penny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Worth every penny.' (4 words)
+   [TurnTiming] 09:46:38.138 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:46:39.892 TTS STOP — playback finished (span ~1754ms)
+   [TTS] Speaking: Allegedly....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Allegedly.' (2 words)
+   [TurnTiming] 09:46:39.895 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:46:41.669 TTS STOP — playback finished (span ~1773ms)
+
+   [TIMING] voice: llm=5844ms(sonnet-stream(llm+tts)) tts=0ms total=5844ms
+   [LATENCY] vad_close=1200ms stt=226ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=2ms ttft=1900ms tts_first_chunk=93ms audio_out=315ms TOTAL=2563ms
+🎤 Recording... (recovered opening words)
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny has spent money to get Kira to play a game
+   [TurnTiming] 09:46:44.852 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~15167ms since onset)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+🎤 Recording...
+   [TurnTiming] 09:46:53.635 VOICE ONSET — mic speech started
+   [TurnTiming] 09:46:56.269 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2633ms since onset)
+>>> You said: All right, fix-in coming.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='All right, fix-in coming.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11118ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1616ms
+   [TTS] Speaking: I'll believe it when I see the progress bar....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll believe it when I see the progress ' (10 words)
+   [TurnTiming] 09:46:58.522 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:47:01.051 TTS STOP — playback finished (span ~2529ms)
+
+   [TIMING] voice: llm=4585ms(sonnet-stream(llm+tts)) tts=0ms total=4585ms
+   [LATENCY] vad_close=1200ms stt=172ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=1ms ttft=1332ms tts_first_chunk=284ms audio_out=433ms TOTAL=2245ms
+🎤 Recording...
+   [TurnTiming] 09:47:01.215 VOICE ONSET — mic speech started
+   [TurnTiming] 09:47:03.417 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2202ms since onset)
+>>> You said: I know, me too.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I know, me too.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=34ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11118ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [VRAM] 09:47:04 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 1357ms
+   [TTS] Speaking: Smart man....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Smart man.' (3 words)
+   [TurnTiming] 09:47:05.262 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:47:07.044 TTS STOP — playback finished (span ~1781ms)
+
+   [TIMING] voice: llm=3407ms(sonnet-stream(llm+tts)) tts=0ms total=3407ms
+   [LATENCY] vad_close=1200ms stt=180ms stt_wait=0ms salience=0ms triage=bypassed memory=34ms prompt_build=1ms ttft=1280ms tts_first_chunk=77ms audio_out=266ms TOTAL=1838ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding SASSY (3 turn(s) left) instead of reverting
+   [TurnTiming] 09:47:08.288 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~7073ms since onset)
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 407s) — auto-resuming in 5s

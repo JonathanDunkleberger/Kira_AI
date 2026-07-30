@@ -1,1 +1,0 @@
-SNAPSHOT kira/seg_cerulean.state
