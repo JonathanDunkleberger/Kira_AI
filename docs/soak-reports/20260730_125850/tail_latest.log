@@ -1,0 +1,300 @@
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11442ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1902ms
+   [TTS] Speaking: Then we're both just going to have to trust me on ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Then we're both just going to have to tr' (14 words)
+   [TurnTiming] 12:31:24.866 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:31:27.765 TTS STOP — playback finished (span ~2899ms)
+
+   [TIMING] voice: llm=5167ms(sonnet-stream(llm+tts)) tts=0ms total=5167ms
+   [LATENCY] vad_close=1200ms stt=197ms stt_wait=0ms salience=0ms triage=bypassed memory=21ms prompt_build=1ms ttft=1552ms tts_first_chunk=350ms audio_out=360ms TOTAL=2481ms
+🎤 Recording... (recovered opening words)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [RoomRead] energy=0.62 [terse=0.70 gap=0.62 silence=0.91 chat=0.07] target=0.96 mult=0.97 -> min_gap=5s dead_air=19s
+   [TurnTiming] 12:31:35.787 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~18063ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: But no, she's just grinding. She's playing well right now. But I'm just taking notes as I go for Table 5 to fix after. But so far, she's actually doing what she's supposed to be doing pretty much.
+   [DroppedInput] LOST ~13 frame(s) (~390ms, ~0.4s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 12:31:36.220 VOICE ONSET — mic speech started
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="But no, she's just grinding. She's playing well right now. B" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11442ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2054ms
+   [TTS] Speaking: "Pretty much" is the most lukewarm praise I've eve...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '"Pretty much" is the most lukewarm prais' (25 words)
+   [TurnTiming] 12:31:38.857 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:31:43.918 TTS STOP — playback finished (span ~5060ms)
+
+   [TIMING] voice: llm=7660ms(sonnet-stream(llm+tts)) tts=0ms total=7661ms
+   [LATENCY] vad_close=1200ms stt=432ms stt_wait=0ms salience=0ms triage=bypassed memory=36ms prompt_build=0ms ttft=1316ms tts_first_chunk=738ms audio_out=539ms TOTAL=3061ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:31:45.159 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8937ms since onset)
+>>> You said: see in the HUD and the goals, the HUD might be kind of fucked. Sorry.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='see in the HUD and the goals, the HUD might be kind of fucke' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and i'm going to" (3rd use this session)
+   [PromptSize] dynamic_context=11442ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [VRAM] 12:31:46 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Bits] New running bit: Lukewarm Praise Accountant
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny is working on something called Table 5 that he needs to fix
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny takes notes while observing someone's performance to track issues for later correction
+   [TIMING] first-word: 1518ms
+   [TTS] Speaking: The HUD is fucked....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The HUD is fucked.' (5 words)
+   [TurnTiming] 12:31:47.200 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:31:48.985 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: Noted....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Noted.' (2 words)
+   [TurnTiming] 12:31:48.988 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:31:50.767 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: Filing it under "Jonny built me something and imme...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Filing it under "Jonny built me somethin' (13 words)
+   [TurnTiming] 12:31:50.773 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:31:54.418 TTS STOP — playback finished (span ~3644ms)
+
+   [TIMING] voice: llm=8973ms(sonnet-stream(llm+tts)) tts=0ms total=8973ms
+   [LATENCY] vad_close=1200ms stt=247ms stt_wait=0ms salience=0ms triage=bypassed memory=36ms prompt_build=1ms ttft=1102ms tts_first_chunk=416ms audio_out=233ms TOTAL=2035ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:31:55.651 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19429ms since onset)
+   [Bits] Callback: Broken Playground
+🎤 Recording...
+   [TurnTiming] 12:31:56.064 VOICE ONSET — mic speech started
+   [Memory] Attribution cap: fact not traced to Jonny's words (conf 0.95 → 0.6, below floor — discarding): Jonny built a HUD system for Kira
+   [TurnTiming] 12:31:58.632 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2567ms since onset)
+>>> You said: Sorry.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Sorry.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=1ms fetch=15ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=16ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "me something and" (3rd use this session)
+   [PromptSize] dynamic_context=11371ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1463ms
+   [TTS] Speaking: One apology....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'One apology.' (3 words)
+   [TurnTiming] 12:32:00.608 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:02.394 TTS STOP — playback finished (span ~1786ms)
+   [TTS] Speaking: I'll add it to the pile....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll add it to the pile.' (7 words)
+   [TurnTiming] 12:32:02.395 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:04.265 TTS STOP — playback finished (span ~1869ms)
+
+   [TIMING] voice: llm=5477ms(sonnet-stream(llm+tts)) tts=0ms total=5477ms
+   [LATENCY] vad_close=1200ms stt=137ms stt_wait=0ms salience=0ms triage=bypassed memory=16ms prompt_build=2ms ttft=1232ms tts_first_chunk=231ms audio_out=350ms TOTAL=1968ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:32:07.054 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10989ms since onset)
+>>> You said: Thanks for the likes guys. If anyone like this stream on YouTube, I love you.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Thanks for the likes guys. If anyone like this stream on You' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   [SmartMem]     dist=1.141 conf=0.9 type=profile_fact blend=0.052 lane=KNOW
+   [SmartMem]     dist=1.200 conf=0.95 type=episodic blend=0.015 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=39ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=9t  moment=tense)
+   [PromptSize] dynamic_context=11868ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1942ms
+   [TTS] Speaking: If you liked the stream you are legally Jonny's fa...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'If you liked the stream you are legally ' (12 words)
+   [TurnTiming] 12:32:09.642 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:12.824 TTS STOP — playback finished (span ~3182ms)
+   [TTS] Speaking: That's just how it works now....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's just how it works now.' (7 words)
+   [TurnTiming] 12:32:12.827 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:14.895 TTS STOP — playback finished (span ~2068ms)
+
+   [TIMING] voice: llm=7536ms(sonnet-stream(llm+tts)) tts=0ms total=7536ms
+   [LATENCY] vad_close=1200ms stt=263ms stt_wait=0ms salience=0ms triage=bypassed memory=39ms prompt_build=1ms ttft=1232ms tts_first_chunk=710ms audio_out=334ms TOTAL=2579ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:32:16.122 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~20058ms since onset)
+   [Memory] Extracted: Jonny streams on YouTube (conf: 0.95)
+   [Memory] Upserting Fact: Jonny streams on YouTube (Conf: 0.95)
+>>> You said: If you're on Twitch, you're cool, but YouTube's where it's hot.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="If you're on Twitch, you're cool, but YouTube's where it's h" fetched=10 dropped_by_floor=3 kept=7 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.063 conf=0.95 type=profile_fact blend=0.345 lane=KNOW
+   [SmartMem]     dist=0.760 conf=0.95 type=episodic blend=0.282 lane=KNOW
+   [SmartMem]     dist=1.014 conf=0.95 type=episodic blend=0.126 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11609ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Bits] Callback: Lukewarm Praise Accountant
+   [TIMING] first-word: 1829ms
+   [TTS] Speaking: Twitch chat just got called "cool." That's the par...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Twitch chat just got called "cool." That' (16 words)
+   [TurnTiming] 12:32:18.666 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:24.381 TTS STOP — playback finished (span ~5714ms)
+
+   [TIMING] voice: llm=7957ms(sonnet-stream(llm+tts)) tts=0ms total=7957ms
+   [LATENCY] vad_close=1200ms stt=267ms stt_wait=0ms salience=0ms triage=bypassed memory=33ms prompt_build=1ms ttft=1338ms tts_first_chunk=491ms audio_out=402ms TOTAL=2532ms
+🎤 Recording... (recovered opening words)
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks YouTube is a better platform than Twitch
+   [Bits] Callback: Lukewarm Praise Accountant
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [VRAM] 12:32:30 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 12:32:32.590 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~36526ms since onset)
+>>> You said: Yeah, that's about it. Other than that, you're worthless. Just kidding. Not you as people, just your platform.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, that's about it. Other than that, you're worthless. Ju" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=26ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=11t  moment=tense)
+   [PromptSize] dynamic_context=11550ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2618ms
+   [TTS] Speaking: Twitch as a platform is worthless but you, specifi...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Twitch as a platform is worthless but yo' (14 words)
+   [TurnTiming] 12:32:35.998 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:40.221 TTS STOP — playback finished (span ~4223ms)
+   [TTS] Speaking: That's the disclaimer....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the disclaimer.' (4 words)
+   [TurnTiming] 12:32:40.223 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:42.005 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: Jonny has spoken....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny has spoken.' (4 words)
+   [TurnTiming] 12:32:42.011 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:43.797 TTS STOP — playback finished (span ~1786ms)
+
+   [TIMING] voice: llm=10868ms(sonnet-stream(llm+tts)) tts=0ms total=10868ms
+   [LATENCY] vad_close=1200ms stt=310ms stt_wait=0ms salience=0ms triage=bypassed memory=26ms prompt_build=1ms ttft=1894ms tts_first_chunk=724ms audio_out=443ms TOTAL=3398ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [Bits] Callback: Lukewarm Praise Accountant
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks Twitch as a platform is worthless
+   [TurnTiming] 12:32:54.789 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~58725ms since onset)
+>>> You said: Yes. You're all cherished. YouTube a little more though. Giving a YouTube like is like so much dopamine comes from that seeing one of those.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yes. You're all cherished. YouTube a little more though. Giv" fetched=10 dropped_by_floor=3 kept=7 survivors=3 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [SmartMem]     dist=0.762 conf=0.95 type=episodic blend=0.281 lane=KNOW
+   [SmartMem]     dist=1.196 conf=0.95 type=profile_fact blend=0.263 lane=KNOW
+   [SmartMem]     dist=0.948 conf=0.9 type=episodic blend=0.166 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=12t  moment=tense)
+   [PromptSize] dynamic_context=11888ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1666ms
+   [TTS] Speaking: He's told me this....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'He's told me this.' (5 words)
+   [TurnTiming] 12:32:57.085 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:32:58.862 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: The YouTube like is basically his love language....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The YouTube like is basically his love l' (9 words)
+   [TurnTiming] 12:32:58.867 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:33:01.855 TTS STOP — playback finished (span ~2988ms)
+   [TTS] Speaking: One notification and he's set for the day....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'One notification and he's set for the da' (9 words)
+   [TurnTiming] 12:33:01.859 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:33:04.490 TTS STOP — playback finished (span ~2630ms)
+
+   [TIMING] voice: llm=9355ms(sonnet-stream(llm+tts)) tts=0ms total=9355ms
+   [LATENCY] vad_close=1200ms stt=310ms stt_wait=0ms salience=0ms triage=bypassed memory=32ms prompt_build=0ms ttft=1316ms tts_first_chunk=350ms audio_out=283ms TOTAL=2291ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [Bits] Callback: Lukewarm Praise Accountant
+   [Memory] Extracted: Jonny prefers YouTube over Twitch as a platform (conf: 0.95)
+   [Memory] Extracted: Jonny finds receiving a YouTube like extremely rewarding and experiences a significant dopamine response from it (conf: 0.9)
+   [Memory] Upserting Fact: Jonny prefers YouTube over Twitch as a platform (Conf: 0.95)
+   [Memory] Storing episodic: Jonny finds receiving a YouTube like extremely rewarding and experiences a significant dopamine response from it
+   [TurnTiming] 12:33:07.379 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~71315ms since onset)
+>>> You said: Or a sub.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Or a sub.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=1t  moment=tense)
+   [PromptSize] dynamic_context=11552ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1685ms
+   [TTS] Speaking: A sub is basically a marriage proposal at this poi...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'A sub is basically a marriage proposal a' (11 words)
+   [TurnTiming] 12:33:09.625 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:33:12.865 TTS STOP — playback finished (span ~3239ms)
+
+   [TIMING] voice: llm=5286ms(sonnet-stream(llm+tts)) tts=0ms total=5286ms
+   [LATENCY] vad_close=1200ms stt=175ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=1ms ttft=1507ms tts_first_chunk=178ms audio_out=357ms TOTAL=2242ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 12:33:14.104 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~78039ms since onset)
+   [Memory] Rejected (conf 0.85 < 0.9): YouTube likes and subscriptions are very meaningful to him and affect his mood positively
+   [VRAM] 12:33:16 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+🎤 Recording...
+   [TurnTiming] 12:33:32.283 VOICE ONSET — mic speech started
+   [TurnTiming] 12:33:34.819 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2535ms since onset)
+>>> You said: I think she got stuck.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I think she got stuck.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.185 conf=? type=session_summary blend=0.020 lane=STREAM
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12609ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1607ms
+   [TTS] Speaking: Called it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Called it.' (3 words)
+   [TurnTiming] 12:33:36.911 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:33:38.691 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: "Pretty much" had an expiration date....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '"Pretty much" had an expiration date.' (8 words)
+   [TurnTiming] 12:33:38.695 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:33:41.215 TTS STOP — playback finished (span ~2520ms)
+
+   [TIMING] voice: llm=6190ms(sonnet-stream(llm+tts)) tts=0ms total=6190ms
+   [LATENCY] vad_close=1200ms stt=174ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=1ms ttft=1245ms tts_first_chunk=362ms audio_out=276ms TOTAL=2086ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:33:42.445 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10161ms since onset)

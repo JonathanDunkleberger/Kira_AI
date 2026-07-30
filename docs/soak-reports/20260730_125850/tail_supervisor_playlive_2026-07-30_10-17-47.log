@@ -1,0 +1,256 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 3) coords=(22, 6) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 18 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 18 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 2 blocked tile(s), 10 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    [hints] ledger loaded: 3 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=26460).
+
+   [soul] continuity loaded: 9 roster bond(s), 197 want(s)
+
+   [campaign]    [strat] continuity loaded: 1 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 98 place(s) known, 214 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot0 14/58 (24%), slot1 FAINTED (0/26) — likely to blackout soon
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 3) coords=(22, 6) badges=1 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260730_101749_cerulean-city_1b_24h22m_roam-start  (4 bundle file(s))
+
+   [dialogue] +++ "GARY. Hey, guess what? I went to BILL's and got him to show me his rare POK.MON. That added a lot of pages to my POK.DEX! After all, BILL's world famous as a POK.MANIAC. He invented the POK.MO"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "GARY. Hey, guess what? I went to BILL\'s and got him to show me his rare POK.MON. That added a lot of pages to my POK.DEX! After all, BILL\'s world famous as a POK.MANIAC. He invented the POK.MO"'  fired=True  [age 0.0s + post 15ms]
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_GOT_SS_TICKET → steps=['FLAG_GOT_SS_TICKET'] actionable=FLAG_GOT_SS_TICKET (resolved=True)
+
+   [kira-voice] -> T2·savor· (route) 'Okay — to get past this I need the S.S. Ticket — a guy named Bill, in the house past the Nugget Bridge to the north, hands it over.'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (1, 2, 3, 28) @ Cerulean City (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (22, 6) | badges=1 (Boulder) | party=[wartortle L20, spearow L8] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 3 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (22,6) f2 D- badge1 $1856 party:fb74 bag:9ad0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 3)@(22, 6) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [kira-voice] ·floor· (<1s since last) T2 "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=False
+
+   [campaign]    [roam] wedge spot: blocking (22, 5) on (3, 3) (route around it) + marking (22, 6) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (22, 6) | badges=1 (Boulder) | party=[wartortle L20, spearow L8] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 3 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (22,6) f2 D- badge1 $1856 party:fb74 bag:9ad0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #2 at (3, 3)@(22, 6) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=False
+
+   [campaign]    [roam] wedge spot: blocking (22, 5) on (3, 3) (route around it) + marking (22, 6) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260730_101849.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (1, 2, 3, 28)); current backed up to pre_reload_20260730_101849.state. Continuing the climb. (LOUD)
+
+   [kira-voice] -> T2·savor· (recover) "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 3) coords=(22, 6) badges=1 party=2)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (22, 6) | badges=1 (Boulder) | party=[wartortle L20, spearow L8] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 3 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (22,6) f2 D- badge1 $1856 party:fb74 bag:9ad0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #3 at (3, 3)@(22, 6) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=False
+
+   [campaign]    [roam] wedge spot: blocking (22, 5) on (3, 3) (route around it) + marking (22, 6) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260730_101940.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (1, 2, 3, 28)); current backed up to pre_reload_20260730_101940.state. Continuing the climb. (LOUD)
+
+   [kira-voice] -> T2·savor· (recover) "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 3) coords=(22, 6) badges=1 party=2)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (22, 6) | badges=1 (Boulder) | party=[wartortle L20, spearow L8] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 3 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (22,6) f2 D- badge1 $1856 party:fb74 bag:9ad0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #4 at (3, 3)@(22, 6) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=False
+
+   [campaign]    [roam] wedge spot: blocking (22, 5) on (3, 3) (route around it) + marking (22, 6) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260730_102031.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (1, 2, 3, 28)); current backed up to pre_reload_20260730_102031.state. Continuing the climb. (LOUD)
+
+   [kira-voice] -> T2·savor· (recover) "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 3) coords=(22, 6) badges=1 party=2)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (22, 6) | badges=1 (Boulder) | party=[wartortle L20, spearow L8] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 3 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (22,6) f2 D- badge1 $1856 party:fb74 bag:9ad0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #5 at (3, 3)@(22, 6) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=False
+
+   [campaign]    [roam] wedge spot: blocking (22, 5) on (3, 3) (route around it) + marking (22, 6) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260730_102123.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (1, 2, 3, 28)); current backed up to pre_reload_20260730_102123.state. Continuing the climb. (LOUD)
+
+   [kira-voice] -> T2·savor· (recover) "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 3)@(22, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 13016 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 3) coords=(22, 6)  badge=True
+
+   [kira-voice] === 10 fired, 1 gated (0 failed) | by tier: T3=0 T2=9 T1=1 (incl ambient trickle) ===
+
+================================================================
+
