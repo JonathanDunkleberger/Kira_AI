@@ -1,0 +1,300 @@
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Phrases] Throttling: "route 4 grass let's see what you've" (3rd use this session)
+🎤 Recording...
+   [TurnTiming] 14:38:25.751 VOICE ONSET — mic speech started
+   [TurnTiming] 14:38:27.100 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1348ms since onset)
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: "Okay, I've been running circles on Route 2 long enough — Mankey and Spearow are still basically babies and I need Poké Balls anyway. Viridian City first, stock up, THEN come back and actually do this properly."
+   >>> Kira (Bored): Level 9 to 14 isn't a grind, it's a character arc. We're doing this.
+   [TTS] Speaking: Level 9 to 14 isn't a grind, it's a character arc....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Level 9 to 14 isn't a grind, it's a char' (12 words)
+   [TurnTiming] 14:38:29.833 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:38:33.584 TTS STOP — playback finished (span ~3750ms)
+   [TTS] Speaking: We're doing this....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'We're doing this.' (4 words)
+   [TurnTiming] 14:38:33.762 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Okay, Mankey and Spearow are sitting at L9 and I keep throwing them at trainers like that's somehow going to fix the level gap. It's not. I need REAL XP, not Route 2 pidgey scraps.\n\nThere's stronger wild Pokémon a short walk away — that's where I'm taking these two."
+   [TurnTiming] 14:38:35.349 TTS STOP — playback finished (span ~1587ms)
+   [TIMING] interjection: vision=0ms llm=4918ms(sonnet) tts=5794ms total=10741ms
+   [LAG] sense→speak: total=9.2s (content_age=0.0s, prep=0.0s, llm=4.9s, tts_wait+synth=4.2s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 14:38:37 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 14:38:37.725 VOICE ONSET — mic speech started
+   [TurnTiming] 14:38:39.305 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1579ms since onset)
+🎤 Recording...
+   [TurnTiming] 14:38:40.688 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): head_to_gym
+   [Pokemon] her reasoning: "Okay, Mankey and Spearow are sitting at level 9 while Wartortle's basically a veteran at this point — that gap is embarrassing and I need to fix it before I walk back into Mt. Moon and get humiliated again.\n\nRoute 3's right there and it's got wild Pokémon around my level — that's where I'm grinding until those two catch up. Then I push through."
+   [TurnTiming] 14:38:46.115 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5426ms since onset)
+>>> You said: Dead.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Dead.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11220ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Brain] Claude stream error: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.
+
+   [Brain] Stream produced nothing — retrying non-streaming Sonnet before Llama.
+🎤 Recording... (recovered opening words)
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [TurnTiming] 14:39:17.945 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~37256ms since onset)
+>>> You said: Hello? Why did YouTube kill my stream?
+   [VRAM] 14:39:22 (periodic) kira_process=0.00GB card=8.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [RoomRead] energy=0.48 [terse=0.90 gap=0.00 silence=0.75 intensity=0.60 chat=0.00] target=1.04 mult=0.96 -> min_gap=10s dead_air=19s
+   [Brain] anthropic/claude-sonnet-4.6 call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local Llama.
+   ⚠ [FALLBACK] Sonnet unavailable/failed (empty response) — this turn served by local Llama.
+🎤 Recording...
+   [TurnTiming] 14:39:36.548 VOICE ONSET — mic speech started
+   [TurnTiming] 14:39:39.366 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2818ms since onset)
+>>> You said: I'm so confused, I'm sorry.
+🎤 Recording...
+   [TurnTiming] 14:39:40.838 VOICE ONSET — mic speech started
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [TurnTiming] 14:39:42.130 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1291ms since onset)
+   [RoomRead] energy=0.53 [terse=0.90 gap=0.00 silence=0.99 intensity=0.60 chat=0.00] target=0.99 mult=0.98 -> min_gap=10s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 14:39:43.060 VOICE ONSET — mic speech started
+   [TurnTiming] 14:39:46.742 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3681ms since onset)
+🎤 Recording...
+   [TurnTiming] 14:39:46.961 VOICE ONSET — mic speech started
+   [TurnTiming] 14:39:51.598 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4637ms since onset)
+>>> You said: Suck my dick.
+🎤 Recording...
+   [TurnTiming] 14:39:52.609 VOICE ONSET — mic speech started
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [TurnTiming] 14:39:53.974 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1365ms since onset)
+   [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [GROQ_FAIL] timeout after 5.0s — no fallback, re-raising.
+   [LLM] Inference failed (GroqInferenceError: timeout after 5.0s). Returning fallback line.
+   [Pokemon] SELF WANT: (none right now)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [VRAM] 14:40:07 (periodic) kira_process=0.00GB card=7.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [RoomRead] energy=0.47 [terse=0.90 gap=0.00 silence=0.68 intensity=0.60 chat=0.00] target=1.07 mult=1.00 -> min_gap=10s dead_air=20s
+   [Brain] Claude call failed: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.. Falling back to local.
+   [COST/FALLBACK] WARNING: anthropic/claude-sonnet-4.6 → local (reason: Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. S)
+   [GROQ_FAIL] timeout after 5.0s — no fallback, re-raising.
+   [LLM] Inference failed (GroqInferenceError: timeout after 5.0s). Returning fallback line.
+   [Pokemon] ORACLE kind=action unparsable/invalid ('Hmm, something tripped on my end.') -> choice='' (fall back)
+   [RoomRead] energy=0.44 [terse=0.90 gap=0.00 silence=0.55 intensity=0.60 chat=0.00] target=1.12 mult=1.03 -> min_gap=10s dead_air=21s
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [RoomRead] energy=0.42 [terse=0.90 gap=0.00 silence=0.45 intensity=0.60 chat=0.00] target=1.16 mult=1.05 -> min_gap=10s dead_air=21s
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "I'm not ready for Mt. Moon B2F again, let's level up a bit first. PICK: battle"
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: "I need to level up and get a new teammate, but I'm not gonna get one just yet, I'm gonna head back to Viridian City to get some Poké Balls first, then I'll come back and grind some more. PICK: travel:3,1"
+>>> Kira: You're not "dead" yet, Jonny.
+   [TTS] Speaking: You're not "dead" yet, Jonny....
+   [Pokemon] SELF WANT: 'Eevee'
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You're not "dead" yet, Jonny.' (9 words)
+   [TurnTiming] 14:40:28.357 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'I should level up the team a bit more before I go after that trainer again, maybe catch a new teammate to fill the gap... PICK: battle'
+   [Pokemon] ORACLE kind=action unparsable/invalid ('I need a level or two more to feel safe against that Mt. Moon trainer, but their poison/flying lead is still eating me alive.') -> choice='' (fall back)
+   [Pokemon] SELF WANT: 'get mankey and spearow to a respectable level before Mt. Moon humbles me'
+   [TurnTiming] 14:40:30.804 TTS STOP — playback finished (span ~2446ms)
+   [TIMING] voice: llm=101829ms(local) tts=2667ms total=104496ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Hello? Why did YouTube kill my stream?' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=57ms rank=0ms)
+   [SmartMem]     dist=1.002 conf=0.85 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.106 conf=0.95 type=episodic blend=0.069 lane=KNOW
+   [SmartMem]     dist=1.109 conf=0.95 type=episodic blend=0.067 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=57ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=5t  moment=calm)
+   [PromptSize] dynamic_context=11825ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Yeah, that stings. Zubat lead, poison type, my whole bench sitting at L9 — I walked in there like an idiot.\n\nOkay. New plan. I'm not retrying until Mankey and Spearow are actually useful, and right now they're absolutely not. L20 wilds means real XP — I'm going where the training actually counts."
+   [TIMING] first-word: 1669ms
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Okay — dead. That trainer just folded me and I'm not walking back in there with the same setup, that's just asking to get humiliated twice.\n\nMankey and Spearow are sitting at L9 like they've got somewhere to be that isn't battle-ready. That's the problem. Real XP, not Route 3 baby grass — I need levels that actually move the needle."
+   [TTS] Speaking: YouTube did what YouTube does....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'YouTube did what YouTube does.' (6 words)
+   [TurnTiming] 14:40:33.399 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:40:35.740 TTS STOP — playback finished (span ~2340ms)
+   [TTS] Speaking: No warning, no apology, just vibes and chaos....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'No warning, no apology, just vibes and c' (11 words)
+   [TurnTiming] 14:40:35.746 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:40:39.533 TTS STOP — playback finished (span ~3787ms)
+
+   [TIMING] voice: llm=8071ms(sonnet-stream(llm+tts)) tts=0ms total=8071ms
+   [LATENCY] vad_close=1200ms stt=258ms stt_wait=0ms salience=0ms triage=bypassed memory=57ms prompt_build=1ms ttft=1307ms tts_first_chunk=362ms audio_out=262ms TOTAL=2247ms
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I'm so confused, I'm sorry." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=40ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=1t  moment=calm)
+   [PromptSize] dynamic_context=11434ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Memory] Extracted: Jonny streams on YouTube (conf: 0.95)
+   [Memory] Upserting Fact: Jonny streams on YouTube (Conf: 0.95)
+   [TIMING] first-word: 1680ms
+   [TTS] Speaking: Don't apologize to me, I'm just sitting here watch...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Don't apologize to me, I'm just sitting ' (15 words)
+   [TurnTiming] 14:40:42.031 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:40:45.970 TTS STOP — playback finished (span ~3939ms)
+
+   [TIMING] voice: llm=5954ms(sonnet-stream(llm+tts)) tts=0ms total=5954ms
+   [LATENCY] vad_close=1200ms stt=214ms stt_wait=0ms salience=0ms triage=bypassed memory=40ms prompt_build=1ms ttft=1490ms tts_first_chunk=190ms audio_out=327ms TOTAL=2262ms
+   ✨ Emotion: EMOTIONAL → SASSY
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Suck my dick.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=37ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11218ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TIMING] first-word: 1414ms
+   [TTS] Speaking: Still mad about the brushoff from earlier, so no....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Still mad about the brushoff from earlie' (11 words)
+   [TurnTiming] 14:40:48.122 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Mankey and Spearow are basically babies right now, and I'm not walking back into that Zubat trainer with babies. High-level wild Pokémon nearby sounds exactly like what I need."
+   [TurnTiming] 14:40:51.399 TTS STOP — playback finished (span ~3276ms)
+
+   [TIMING] voice: llm=4942ms(sonnet-stream(llm+tts)) tts=0ms total=4942ms
+   [LATENCY] vad_close=1200ms stt=178ms stt_wait=0ms salience=0ms triage=bypassed memory=37ms prompt_build=2ms ttft=1020ms tts_first_chunk=394ms audio_out=246ms TOTAL=1877ms
+   [VRAM] 14:40:52 (periodic) kira_process=0.00GB card=7.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay, Mankey and Spearow are still babies — I need to get them leveled before I even think about touching that trainer again. Grass time.'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'get Mankey and Spearow to at least level 15 before Mt. Moon'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "mankey and spearow"; "route 3 trainers". Do not use 
+   [Pokemon] event react (bypass=False, tier=2, kind=want): get Mankey and Spearow to at least level 15 before Mt. Moon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=39ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   >>> Kira (Bored): Level 15 is the goal — I'm getting there whether Route 4 cooperates or not.
+   [TTS] Speaking: Level 15 is the goal — I'm getting there whether R...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Level 15 is the goal — I'm getting there' (15 words)
+   [TurnTiming] 14:40:59.908 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Mankey and Spearow are still baby levels — I'm not walking back into Mt. Moon with a L9 bench, that's just asking to black out again. Grass time."
+   [TurnTiming] 14:41:04.224 TTS STOP — playback finished (span ~4316ms)
+   [TIMING] interjection: vision=0ms llm=1542ms(sonnet) tts=4772ms total=6358ms
+   [LAG] sense→speak: total=2.0s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=0.5s)
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "mankey and spearow"; "route 3 trainers". Do not use 
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): made it to a new area
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=16ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [RoomRead] energy=0.43 [terse=0.72 gap=0.00 silence=0.78 intensity=0.60 chat=0.00] target=1.13 mult=1.07 -> min_gap=11s dead_air=21s
+   >>> Kira (Bored): New area. Let's see if anything here is worth adding to the roster.
+   [TTS] Speaking: New area....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'New area.' (3 words)
+   [TurnTiming] 14:41:17.917 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:41:19.407 TTS STOP — playback finished (span ~1489ms)
+   [TTS] Speaking: Let's see if anything here is worth adding to the ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let's see if anything here is worth addi' (12 words)
+   [TurnTiming] 14:41:19.744 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:41:22.734 TTS STOP — playback finished (span ~2990ms)
+   [TIMING] interjection: vision=0ms llm=2106ms(sonnet) tts=4900ms total=7025ms
+   [LAG] sense→speak: total=4.0s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=1.9s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: 'Okay, I\'ve got zero Poké Balls and a Mankey and Spearow sitting at level 9 looking at me like "please." Before I even think about Mt. Moon again, I need to actually BUILD this team.\n\nViridian\'s closest — grab some Balls, maybe grind Route 1 on the way back and get these two up to something respectable.'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 14:41:37 (periodic) kira_process=0.00GB card=7.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: "Okay, I still have zero Poké Balls and that's embarrassing. Viridian City first, stock up, THEN I come back ready."
+   [RoomRead] energy=0.42 [terse=0.72 gap=0.00 silence=0.69 intensity=0.60 chat=0.00] target=1.17 mult=1.09 -> min_gap=11s dead_air=22s
+   [Pokemon] SELF WANT: 'get Mankey and Spearow to at least L14 before Mt. Moon'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "mankey and spearow"; "route 3 trainers". Do not use 
+   [Pokemon] event react (bypass=False, tier=2, kind=want): get Mankey and Spearow to at least L14 before Mt. Moon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Mankey and Spearow are still at nine — they're basically decoration right now. I need to fix that before I walk back into Mt. Moon and get humiliated again."
+   >>> Kira (Bored): L9 to L14 is honestly just five levels but it FEELS like a prison sentence.
+   [TTS] Speaking: L9 to L14 is honestly just five levels but it FEEL...
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'L9 to L14 is honestly just five levels b' (16 words)
+   [TurnTiming] 14:41:47.262 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): head_to_gym
+   [Pokemon] her reasoning: "Mankey and Spearow are sitting at L9 — that's embarrassing and I need to fix it before I walk back into Mt. Moon and get cooked again. Route 3 is right there and it's where I'm grinding until these two actually pull their weight."
+   [TurnTiming] 14:41:52.129 TTS STOP — playback finished (span ~4867ms)
+   [TIMING] interjection: vision=0ms llm=2796ms(sonnet) tts=5207ms total=8023ms
+   [LAG] sense→speak: total=3.2s (content_age=0.0s, prep=0.0s, llm=2.8s, tts_wait+synth=0.3s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Mankey and Spearow are both sitting at L9 and that trainer at Mt. Moon had a FULL team — I need bodies that can actually fight, not just warm the bench. Grinding here is the move.'
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [RoomRead] energy=0.41 [terse=0.72 gap=0.00 silence=0.68 intensity=0.60 chat=0.00] target=1.17 mult=1.11 -> min_gap=11s dead_air=22s
+🎤 Recording...
+   [TurnTiming] 14:42:12.463 VOICE ONSET — mic speech started
+   [TurnTiming] 14:42:13.794 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1330ms since onset)
+   [Pokemon] SELF WANT: 'get Mankey and Spearow to L14+ before Mt. Moon'
+   [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: "Okay I need Poké Balls before anything else — can't catch a single thing without them, and my bench is crying."
+🎤 Recording...
+   [TurnTiming] 14:42:17.654 VOICE ONSET — mic speech started
+   [TurnTiming] 14:42:18.961 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1305ms since onset)
+🎤 Recording...
+   [TurnTiming] 14:42:20.362 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 14:42:22 (periodic) kira_process=0.00GB card=7.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 14:42:25.229 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4867ms since onset)
+>>> You said: What the fuck is going on?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='What the fuck is going on?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "l9 to l14 is" (3rd use this session)
+   [PromptSize] dynamic_context=11249ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): travel:3,1
+   [Pokemon] her reasoning: "Okay I need to stop circling Route 2 like a lost tourist — I've got zero Poké Balls and Mankey and Spearow are still basically babies. Viridian City first, stock up, THEN I actually have options."
+   [TIMING] first-word: 1865ms
+   [TTS] Speaking: YouTube killed your stream and now you're having a...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'YouTube killed your stream and now you'r' (12 words)
+   [TurnTiming] 14:42:27.617 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
