@@ -182,6 +182,14 @@ RunLogged "campaign snapshot inventory (*.state, newest first)" {
         Sort-Object LastWriteTime -Descending |
         Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
 } | Out-Null
+# The showtime lineage (states\kira) banks a checkpoint at each SEGMENT SEAM (seg_cerulean.state =
+# the moment she arrived in Cerulean, healthy). Same lineage as the migrated campaign, so one of
+# these can be promoted via "SNAPSHOT kira/<file>" — the real teleport-to-a-known-good-place.
+RunLogged "showtime segment checkpoints (states\kira\*.state, newest first)" {
+    Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states\kira") -File -Filter "*.state" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
+} | Out-Null
 RunLogged "campaign dir + backups" {
     Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
         Select-Object FullName, LastWriteTime | Format-Table -AutoSize
@@ -211,7 +219,13 @@ if (Test-Path $targetFile) {
         # to be the living save — the "teleport" (e.g. back to the moment she reached Cerulean).
         # Current save is backed up first, sidecars (world/soul/strat) untouched — same campaign.
         $snapName = $target.Substring(9).Trim()
-        $snapPath = Join-Path $campaign $snapName
+        # "kira/<file>" pulls a showtime segment checkpoint (same save lineage as the migrated
+        # campaign); a bare name pulls a banked recovery snapshot from states\campaign.
+        if ($snapName -like "kira/*") {
+            $snapPath = Join-Path (Join-Path $RepoRoot "pokemon_agent\states\kira") $snapName.Substring(5)
+        } else {
+            $snapPath = Join-Path $campaign $snapName
+        }
         $liveSave = Join-Path $campaign "kira_campaign.state"
         if ((Test-Path $snapPath) -and ($snapName -ne "kira_campaign.state")) {
             Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
