@@ -256,32 +256,36 @@ def main():
             return
         _holding[0] = True
         try:
-            read_s = 1.6 if tier >= 3 else 1.1    # per-page dwell = viewer reading time (snappier)
-            max_pages = 4 if tier >= 3 else 2
-            cap = 5.0 if tier >= 3 else 3.0       # HARD total backstop — a hold can't run long
-            try:
-                b.release(owner="agent")          # stop the caller mashing; we pace the reveal
-            except Exception:
-                pass
-            try:
-                prev = dialogue._read_buffer()
-            except Exception:
-                prev = None
-            t_start = time.time()
-            for _page in range(max_pages):
-                t0 = time.time()                  # land THIS page at reading pace (or until capped)
-                while time.time() - t0 < read_s and time.time() - t_start < cap:
-                    b.run_frame(); _draw()
-                if time.time() - t_start >= cap:
-                    break
-                b.press("A", 6, 8, _draw, owner="agent")   # advance one page
+            # THINKING-GATE (2026-07-30): a read-hold is DELIBERATE stillness — declare it to the
+            # watchdog so the held span never counts toward "wedged" (it compounds with adjacent
+            # oracle-think time otherwise).
+            with camp.watchdog_hold(f"read-hold:T{tier}"):
+                read_s = 1.6 if tier >= 3 else 1.1    # per-page dwell = viewer reading time (snappier)
+                max_pages = 4 if tier >= 3 else 2
+                cap = 5.0 if tier >= 3 else 3.0       # HARD total backstop — a hold can't run long
                 try:
-                    cur = dialogue._read_buffer()
+                    b.release(owner="agent")          # stop the caller mashing; we pace the reveal
                 except Exception:
-                    cur = prev
-                if not cur or cur == prev:
-                    break                         # no more text -> land it, don't freeze on it
-                prev = cur
+                    pass
+                try:
+                    prev = dialogue._read_buffer()
+                except Exception:
+                    prev = None
+                t_start = time.time()
+                for _page in range(max_pages):
+                    t0 = time.time()                  # land THIS page at reading pace (or until capped)
+                    while time.time() - t0 < read_s and time.time() - t_start < cap:
+                        b.run_frame(); _draw()
+                    if time.time() - t_start >= cap:
+                        break
+                    b.press("A", 6, 8, _draw, owner="agent")   # advance one page
+                    try:
+                        cur = dialogue._read_buffer()
+                    except Exception:
+                        cur = prev
+                    if not cur or cur == prev:
+                        break                         # no more text -> land it, don't freeze on it
+                    prev = cur
         finally:
             _holding[0] = False
 
@@ -331,14 +335,18 @@ def main():
             return
         tier = max(1, voice.tier_of(summary or "")) if summary else 1
         wait_s, hold_s, tail = HOLD.get(tier, HOLD[1])
-        t0 = time.time()
-        while time.time() - t0 < wait_s and not voice.is_speaking():
-            b.run_frame(); render()
-        t1 = time.time()
-        while time.time() - t1 < hold_s and voice.is_speaking():
-            b.run_frame(); render()
-        for _ in range(tail):
-            b.run_frame(); render()
+        # THINKING-GATE (2026-07-30): a savor-hold is DELIBERATE stillness (a T3 can hold ~17s while
+        # her voice lands — more than 2x the 8s watchdog). These loops call render() -> feed_watchdog
+        # with a static world, so without the gate every big voice moment tripped a false self-heal.
+        with camp.watchdog_hold(f"voice-hold:T{tier}"):
+            t0 = time.time()
+            while time.time() - t0 < wait_s and not voice.is_speaking():
+                b.run_frame(); render()
+            t1 = time.time()
+            while time.time() - t1 < hold_s and voice.is_speaking():
+                b.run_frame(); render()
+            for _ in range(tail):
+                b.run_frame(); render()
 
     def battle_runner():
         """Every campaign battle (wild, forest trainer, gym trainer, Brock) runs through here,

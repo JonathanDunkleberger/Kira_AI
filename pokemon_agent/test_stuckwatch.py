@@ -101,6 +101,55 @@ def test_none_fp_resets():
     print("PASS none_fp_resets")
 
 
+def test_thinking_hold_never_trips():
+    """THE 2026-07-30 LIVE BUG (false self-heal): an oracle (LLM) decision leaves the world
+    deliberately static for 3-12s+. With hold() declared, feeds during the hold never accumulate,
+    and the held span never counts after release() — but a GENUINE post-hold freeze still trips."""
+    w = wf.StuckWatch(stuck_s=8)
+    assert not w.feed(_fp(), now=0.0)
+    w.hold("oracle:action")
+    assert w.held
+    for t in (2.0, 9.0, 15.0, 20.0):           # 20s of "thinking" — way past stuck_s
+        assert not w.feed(_fp(), now=t), f"tripped during a deliberate hold at {t}s"
+    w.release()
+    assert not w.held
+    assert not w.feed(_fp(), now=20.5)          # clock restarted at release
+    assert not w.feed(_fp(), now=27.9), "held time leaked into the stuck clock"
+    assert w.feed(_fp(), now=28.6), "a genuine post-hold freeze must still trip"
+    print("PASS thinking_hold_never_trips")
+
+
+def test_silent_hold_never_trips():
+    """The REAL live shape: during a blocking LLM call NOTHING feeds the watch (the frame pump
+    draws raw frames, bypassing the render hook). The trip used to fire on the FIRST feed after
+    the call ('frozen 8.0s' at an innocent tile). release() resets the clock, so that first
+    post-hold feed is clean even with zero feeds during the hold."""
+    w = wf.StuckWatch(stuck_s=8)
+    assert not w.feed(_fp(), now=0.0)
+    w.hold("oracle:action")                     # 12s of silence while the LLM thinks — no feeds
+    w.release()
+    assert not w.feed(_fp(), now=12.0), "first feed after a silent hold must not trip"
+    assert w.feed(_fp(), now=20.5), "should trip 8s after the post-hold clock restart"
+    print("PASS silent_hold_never_trips")
+
+
+def test_nested_holds():
+    """A read-hold inside a savor-hold (they nest live): the watch stays held until the LAST
+    release, and only then does the clock restart."""
+    w = wf.StuckWatch(stuck_s=8)
+    w.hold("voice-hold:T3")
+    w.hold("read-hold:T2")
+    w.release()                                 # inner released — still held
+    assert w.held
+    assert not w.feed(_fp(), now=30.0)
+    w.release()                                 # outer released — clock restarts
+    assert not w.held
+    assert not w.feed(_fp(), now=31.0)
+    assert not w.feed(_fp(), now=38.9)
+    assert w.feed(_fp(), now=39.1), "should trip 8s after the final release"
+    print("PASS nested_holds")
+
+
 def test_recovery_after_reset():
     """After a trip + reset (the roam loop's disengage), a genuine move clears the trip cleanly."""
     w = wf.StuckWatch(stuck_s=30)
@@ -121,5 +170,8 @@ if __name__ == "__main__":
     test_legit_long_dialogue_never_trips()
     test_battle_never_trips()
     test_none_fp_resets()
+    test_thinking_hold_never_trips()
+    test_silent_hold_never_trips()
+    test_nested_holds()
     test_recovery_after_reset()
     print("\nALL STUCKWATCH TESTS PASSED")

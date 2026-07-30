@@ -24,6 +24,7 @@ import os
 import sys
 import time
 from collections import namedtuple
+from contextlib import contextmanager
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
@@ -530,6 +531,12 @@ WORLD_JSON = os.path.join(STATES_CAMPAIGN, "world_model.json")
 # staleness-release still un-marks any of these the moment the tile reads empty).
 WEDGE_MEM_JSON = os.path.join(STATES_CAMPAIGN, "wedge_memory.json")
 WEDGE_MEM_TTL_S = float(os.getenv("POKEMON_WEDGE_MEM_TTL_S", str(12 * 3600)))
+# SCHEMA v2 (2026-07-30, the thinking-gate fix): every mark recorded BEFORE the watchdog learned to
+# tell "thinking" from "wedged" is untrustworthy — the 8s watch tripped during normal LLM decisions
+# and persisted false blocked-tiles/resolved-talk-spots at innocent tiles (they were poisoning travel
+# routing across restarts). A v1 (or unversioned) file is discarded WHOLESALE on load, loud; only
+# post-gate marks (written with "v": 2) are ever restored.
+WEDGE_MEM_SCHEMA = 2
 # HUD — the WHOLE-PLAYTHROUGH timer (persists across sessions, unlike per-session run_uptime). Stamped
 # once at the first free-roam and read forever after, so the stream HUD shows "how long this journey
 # has taken" not "how long since this launch".
@@ -10866,7 +10873,12 @@ class Campaign:
         if self._oracle_choose is None:
             log("   [soul] ORACLE unwired (headless/no bot) -> None")
             return None
-        pick = self._oracle_choose(kind, options, ctx)
+        # THE REFLEX/BRAIN FIREWALL (2026-07-30): every oracle call runs inside a watchdog hold —
+        # "thinking" is a declared state, so a 3-12s LLM round-trip can never read as "wedged"
+        # (the false-self-heal / false-wedge-mark / aborted-conversation cascade). ONE chokepoint:
+        # every decision kind (action/want/name/catch_judgment/move_drop/...) flows through here.
+        with self.watchdog_hold(f"oracle:{kind}"):
+            pick = self._oracle_choose(kind, options, ctx)
         if pick and kind != "want" and opts and pick not in opts:
             log(f"   [soul] ORACLE pick {pick!r} NOT in offered options {opts} -> REJECTED (fall back)")
             return None
@@ -11857,12 +11869,31 @@ class Campaign:
     # the blocker she's bumping. 1=south/down 2=north/up 3=west/left 4=east/right.
     _FACE_DELTA = {1: (0, 1), 2: (0, -1), 3: (-1, 0), 4: (1, 0)}
 
+    @contextmanager
+    def watchdog_hold(self, reason=""):
+        """THINKING IS A FIRST-CLASS STATE (2026-07-30, the false-self-heal fix): wrap any span where
+        she is DELIBERATELY still — an oracle (LLM) decision in flight, a voice savor-hold, a
+        reading-pace dialogue hold — so the wall-clock StuckWatch can neither trip during it nor
+        count its duration afterwards (release() restarts the 8s clock). Without this, every oracle
+        call >8s tripped the watchdog on the first feed after it returned: false wedge marks at
+        innocent tiles (persisted!), healthy conversations B-closed mid-drive, and whole actuators
+        instabailed on the stale latch. Nestable; no-op when the watch isn't armed."""
+        w = self._stuckwatch          # captured so hold/release always pair on the SAME object
+        if w is not None:
+            w.hold(reason)
+        try:
+            yield
+        finally:
+            if w is not None:
+                w.release()
+
     def feed_watchdog(self, text="", now=None):
         """LAYER B — fed every live frame (throttled) from play_live's render hook. Reads the world
         fingerprint + the on-screen dialogue text and feeds the wall-clock StuckWatch; on a TRIP it
         latches `_stuck_request` (honored at the top of the roam loop + cooperatively by travel's
         stuck_check). No-op headless (no watchdog created) or before free_roam. Pure backstop — it
-        never drives a normal decision, only catches a wedge no sub-layer surfaced."""
+        never drives a normal decision, only catches a wedge no sub-layer surfaced.
+        HELD (thinking/holding) feeds reset instead of accumulate — see watchdog_hold."""
         if self._stuckwatch is None or now is None:
             return
         try:
@@ -11954,6 +11985,18 @@ class Campaign:
                 return
             with open(WEDGE_MEM_JSON, encoding="utf-8") as f:
                 data = _json.load(f) or {}
+            # SCHEMA GATE: pre-thinking-gate marks are poisoned (false watchdog trips during LLM
+            # decisions persisted innocent tiles as traps). Discard the whole file, loud.
+            if int(data.get("v") or 1) < WEDGE_MEM_SCHEMA:
+                n = sum(len(data.get(k) or []) for k in ("blocked_npcs", "looped_spots"))
+                log(f"   [roam] wedge memory PURGED: {n} pre-gate mark(s) discarded (schema v1 < "
+                    f"v{WEDGE_MEM_SCHEMA} — recorded before the thinking-gate fix, so false trips "
+                    f"during normal LLM decisions may have marked innocent tiles as traps)")
+                try:
+                    os.remove(WEDGE_MEM_JSON)
+                except Exception:
+                    pass
+                return
             now = time.time()
             for kind, target in (("blocked_npcs", self._blocked_npcs),
                                  ("looped_spots", self._looped_spots)):
@@ -11982,7 +12025,7 @@ class Campaign:
             ts_map = getattr(self, "_wedge_mem_ts", None)
             if ts_map is None:
                 ts_map = self._wedge_mem_ts = {}
-            data = {}
+            data = {"v": WEDGE_MEM_SCHEMA}
             for kind, src in (("blocked_npcs", self._blocked_npcs),
                               ("looped_spots", self._looped_spots)):
                 rows = []
