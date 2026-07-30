@@ -401,6 +401,12 @@ FLAG_SECRET_KEY_ID = 0x1A8
 # Wall-clock ceiling for ONE grind_weak_members() call (a single tick's worth of weak-grinding). grind()
 # itself caps at 480s/member; this outer bound stops a multi-weak-member loop from running away on a tick.
 GRIND_WEAK_BUDGET_S = int(os.getenv("POKEMON_GRIND_WEAK_BUDGET_S", "600"))
+# WATCHDOG LATCH TTL (2026-07-30, the Route-4 instabail storm): a tripped watchdog latches a disengage
+# that only the roam-loop TOP clears — but a trip inside a deep sub-loop (grind's grass pacing) can be
+# consumed leg after leg without ever unwinding, freezing play in a bail storm. A latch this old means
+# nothing is honoring it -> _stuck_latched self-heals in place (clear + reset, LOUD). A real wedge
+# simply re-trips 8s later and gets the normal top-level recovery.
+WATCHDOG_LATCH_TTL_S = float(os.getenv("POKEMON_WATCHDOG_LATCH_TTL_S", "45"))
 # PER-MON PROBE for the FRAGILE bench-grind (2026-07-09, the Rattata over-grind wedge): a genuinely
 # too-weak bench mon (Rattata/Spearow L14 on Route 4, ace L29) earns no XP, but grind() ran the FULL
 # 480s before returning — so the zero-gain STALL mark (grind_weak_members) took ~8 min PER hopeless mon,
@@ -1324,7 +1330,7 @@ class Campaign:
         self.trav = tv.Traveler(bridge, battle_runner=battle_runner, render=self.render,
                                 on_event=self.on_event, beat=self.beat,
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal,
-                                stuck_check=lambda: self._stuck_request is not None,
+                                stuck_check=self._stuck_latched,   # latch honor + TTL self-heal (no instabail storms)
                                 blocked_npcs=self._blocked_npcs,   # LAYER A: shared route-around memory
                                 field_clear=lambda hm, face: (
                                     self.field.clear_obstacle(hm, face)
@@ -6882,6 +6888,15 @@ class Campaign:
                     break
                 r = self.trav.travel(target_map=None, arrive_coord=wp,
                                      max_steps=60, max_seconds=80, avoid=doors)
+                # WATCHDOG UNWIND (2026-07-30, the Route-4 instabail storm): a leg bailed on the
+                # latched disengage. The old loop only caught battle_loss/no_path/need_heal, so this
+                # fell through and the NEXT leg instabailed too — for the whole grind budget (then
+                # the outer prep loop re-entered). Surface it NOW so the roam top runs its recovery
+                # in seconds instead of minutes of bailed legs.
+                if r == "stuck" and getattr(self.trav, "last_fail_reason", "") == "watchdog":
+                    log("   GRIND: watchdog disengage latched — surfacing to the roam loop for "
+                        "recovery (not spinning the grind budget on instabailed legs)")
+                    return "stuck"
                 if r == "battle_loss":
                     return "battle_loss"
                 if r == "no_path":
@@ -11969,6 +11984,31 @@ class Campaign:
             if w is not None:
                 w.release()
 
+    def _stuck_latched(self):
+        """Travel's cooperative-cancel check (polled every step) — WITH A TTL SELF-HEAL (2026-07-30,
+        the Route-4 instabail storm that looked like a crash). The latch is designed to be cleared at
+        the TOP OF THE ROAM LOOP, but when the trip fires inside a deep sub-loop (grind's grass-
+        waypoint pacing), that layer can keep consuming the bail — every leg starts, reads the latch,
+        instabails, and the loop just fires the next leg for its whole wall-clock budget. Hundreds of
+        bailed legs, zero play, nothing ever clears the latch. A latch older than the TTL means
+        NOTHING above is honoring it: self-heal in place (clear + reset the watch, LOUD) so play
+        resumes. Safe: a genuine wedge just re-trips 8s later and the normal top-level recovery gets
+        another shot; travel's own stall guards still catch a truly frozen world."""
+        req = self._stuck_request
+        if req is None:
+            return False
+        age = time.time() - (req.get("ts") or time.time())
+        if age > WATCHDOG_LATCH_TTL_S:
+            log(f"   [roam] !! WATCHDOG latch STALE ({age:.0f}s > {WATCHDOG_LATCH_TTL_S:.0f}s TTL) — "
+                f"no layer unwound to the roam top to run recovery (a sub-loop kept consuming the "
+                f"bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real "
+                f"wedge will re-trip and get the full recovery.")
+            self._stuck_request = None
+            if self._stuckwatch is not None:
+                self._stuckwatch.reset()
+            return False
+        return True
+
     def feed_watchdog(self, text="", now=None):
         """LAYER B — fed every live frame (throttled) from play_live's render hook. Reads the world
         fingerprint + the on-screen dialogue text and feeds the wall-clock StuckWatch; on a TRIP it
@@ -11982,6 +12022,24 @@ class Campaign:
             fp = wf.fingerprint(self.b)
         except Exception:
             return
+        # SCENE-CB2 GATE (2026-07-30, the Route-4 farming trip): an EVOLUTION scene (also naming /
+        # dex / hall-of-fame) runs OUTSIDE battle with the overworld fingerprint frozen solid for
+        # 15-30s — map, coords, text all static — so it read as "frozen_world" and tripped the 8s
+        # watch mid-grind (then the latch storm instabailed every travel leg). gMain.callback2 is
+        # ground truth: when a non-overworld/non-battle callback owns the screen, the game is
+        # legitimately mid-scene — deliberate stillness, never a wedge.
+        if fp is not None and not fp.battle_active:
+            try:
+                if not ram.battle_cb2_dead(self.b):
+                    if not getattr(self, "_wd_scene", False):
+                        self._wd_scene = True
+                        log("   [roam] watchdog: SCENE callback owns the screen (evolution/naming/"
+                            "cutscene) — deliberate stillness, watch resets until the world returns")
+                    self._stuckwatch.feed(fp, now, text=text or "", progressed=True)
+                    return
+                self._wd_scene = False
+            except Exception:
+                pass
         if self._stuckwatch.feed(fp, now, text=text or "") and self._stuck_request is None:
             self._stuck_request = {
                 "reason": self._stuckwatch.reason,
@@ -11989,6 +12047,7 @@ class Campaign:
                 "coords": tv.coords(self.b),
                 "facing": (fp.facing if fp else None),
                 "secs": round(self._stuckwatch.seconds_stuck(now), 1),
+                "ts": now,                           # latch birth time — the TTL self-heal keys on this
             }
             log(f"   [roam] !!!! WATCHDOG TRIPPED ({self._stuck_request['reason']}): nothing on screen "
                 f"has meaningfully changed for {self._stuck_request['secs']}s at "
