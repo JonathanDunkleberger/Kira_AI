@@ -103,6 +103,11 @@
   .hpnum{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;
     min-width:46px;text-align:right;}
   .mon.fainted{opacity:.4;}
+  /* the mon ACTUALLY fighting right now (mid-battle) — brass edge + ON FIELD tag, so a faint or a
+     mid-battle switch can never make the top card read as "who's out" (2026-07-30 fix) */
+  .mon.active{border-color:rgba(212,190,160,.55);box-shadow:0 0 0 1px rgba(212,190,160,.25);}
+  .onfield{font-size:7.5px;font-weight:700;letter-spacing:.14em;color:#0d0c0e;background:var(--brass);
+    border-radius:3px;padding:1.5px 5px;margin-left:6px;flex:none;text-transform:uppercase;}
   .empty{color:var(--muted);font-size:11.5px;font-style:italic;padding:4px 2px;
     font-family:Georgia,'Times New Roman',serif;}
 </style>
@@ -192,10 +197,10 @@ function render(d){
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
          <div class="ph" style="display:none;background:${phColor}">${letter}</div>`
       : `<div class="ph" style="background:${phColor}">${letter}</div>`;
-    return `<div class="mon ${fainted?'fainted':''}">
+    return `<div class="mon ${fainted?'fainted':''} ${m.active?'active':''}">
       ${art}
       <div class="info">
-        <div class="top"><span class="nm">${nm}</span><span class="lv">Lv ${m.level||'?'}</span></div>
+        <div class="top"><span class="nm">${nm}</span>${m.active?'<span class="onfield">on field</span>':''}<span class="lv">Lv ${m.level||'?'}</span></div>
         <div class="types">${types}</div>
         <div class="hpwrap">
           <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>

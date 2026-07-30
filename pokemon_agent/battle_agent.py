@@ -2493,7 +2493,9 @@ class BattleAgent:
         state = st.read_battle(self.b) or self._prev
         if state:
             foe = st.SPECIES_NAME.get(state["enemy"]["species"], "a wild pokemon")
-            self.emit(f"a battle started against {foe}", beat=True)
+            _lead = st.SPECIES_NAME.get(state["ours"].get("species"), None)
+            self.emit(f"a battle started against {foe}"
+                      + (f" — your {_lead} is up front" if _lead else ""), beat=True)
             self._prev = state
             self._note_foe(state)
 
@@ -2968,14 +2970,15 @@ class BattleAgent:
     def _finish(self):
         prev = self._prev or {}
         ours = prev.get("ours", {})
+        _mine = st.SPECIES_NAME.get(ours.get("species"), "your Pokemon")
         if self._enemy_fainted or (prev.get("enemy", {}).get("hp", 1) == 0):
             # F-7(c): the certain-win beat already voiced this win AT THE FAINT (the drain +
             # LLM chain aligned her reaction with the victory screen) — never voice it twice.
             if not self._win_emitted:
-                self.emit("you won the battle", beat=True)
+                self.emit(f"you won the battle — your {_mine} finished it", beat=True)
             return "win"
         if ours.get("hp", 1) == 0:
-            self.emit("you lost - your Pokemon fainted", beat=True)
+            self.emit(f"you lost - your {_mine} fainted", beat=True)
             return "loss"
         self.emit("the battle ended", beat=False)
         return "ended"
@@ -2985,11 +2988,16 @@ class BattleAgent:
             return
         pe, ce = prev["enemy"], cur["enemy"]
         po, co = prev["ours"], cur["ours"]
+        # WHO'S ACTUALLY OUT (2026-07-30, Jonny live report: "spearow's eating well tonight" while
+        # WARTORTLE made the kill): every event below now names HER ACTIVE battler from gBattleMons[0]
+        # (`cur["ours"]` — live ground truth, correct across mid-battle switches). Without the name in
+        # the event string, the voice LLM only saw the foe + her full roster and INVENTED the attacker.
+        mine = st.SPECIES_NAME.get(co.get("species"), "your Pokemon")
         # narrate the move from the OBSERVED hit (ground truth), not per button-press,
         # so it fires exactly once per landed move - never spammy.
         if ce["hp"] < pe["hp"] and ce["hp"] > 0:
             desc = getattr(self, "_last_desc", "an attack")
-            self.emit(f"used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
+            self.emit(f"your {mine} used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
         if ce["hp"] == 0 and pe["hp"] > 0:
             self._enemy_fainted = True
             # F-7(c) SPECULATIVE PREFETCH (the certain-win early beat): when THIS faint leaves no
@@ -3004,19 +3012,19 @@ class BattleAgent:
             if (not self._win_emitted and not self._catching and not self._we_fainted
                     and cur["ours"]["hp"] > 0 and self._enemy_live_remaining() == 0):
                 self._win_emitted = True
-                self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} went down — "
-                          f"that's the battle, you won", beat=True)
+                self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} went down to "
+                          f"your {mine} — that's the battle, you won", beat=True)
                 return
             # BATCH 5 PHASE 3 — mark the SIDE so she never narrates her own WIN as a loss. The bare
             # "{species} fainted" read as HER mon dying (she mourned a Nidoran she'd just KO'd). gBattleMons[1]
             # is the ENEMY, so this faint is always a victory. (Avoid the substrings 'knocked out'/'you lost'
             # — pokemon_voice.classify tiers those as a T3 LOSS; "took it down" stays the correct T1.)
-            self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} fainted — you took it down",
-                      beat=True)
+            self.emit(f"the enemy's {st.SPECIES_NAME.get(ce['species'], 'Pokemon')} fainted — "
+                      f"your {mine} took it down", beat=True)
         if co["hp"] == 0 and po["hp"] > 0:
             self._we_fainted = True
-            self.emit("your Pokemon fainted", beat=True)
+            self.emit(f"your {mine} fainted", beat=True)
         elif co["maxhp"] and (po["hp"] - co["hp"]) > 0.4 * co["maxhp"]:
-            self.emit("you took a big hit", beat=True)
+            self.emit(f"your {mine} took a big hit", beat=True)
         elif co["maxhp"] and co["hp"] / co["maxhp"] < 0.25 and po["hp"] / max(po["maxhp"], 1) >= 0.25:
-            self.emit("low HP - this is getting tense", beat=True)
+            self.emit(f"your {mine} is at low HP - this is getting tense", beat=True)

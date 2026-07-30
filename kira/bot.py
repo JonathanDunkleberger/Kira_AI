@@ -3659,6 +3659,14 @@ class VTubeBot:
             lines.append(f"Badges: {bc}/8" + (f" — you've beaten {', '.join(beaten)}" if beaten
                                               else " — no gym beaten yet") + ".")
             lines.append(f"Your team: {team}.")
+            # WHO'S ON THE FIELD (2026-07-30 attribution fix): mid-battle, name the ACTIVE battler
+            # explicitly — without this she only saw the roster and invented which of her mons was
+            # fighting ("spearow's eating well" on a Wartortle kill). Ground truth from health.json
+            # (gBattleMons[0], published by the campaign heartbeat).
+            active = g.get("active_species")
+            if active:
+                lines.append(f"IN BATTLE RIGHT NOW: your {active} is the one on the field — credit "
+                             f"hits, KOs, and faints to {active}, not a benched teammate.")
             lines.append(f"Where you are: {place}.")
             if now:
                 lines.append(f"Right now you're: {now}")

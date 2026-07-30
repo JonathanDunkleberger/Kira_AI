@@ -14661,6 +14661,27 @@ class Campaign:
                 f"Now: {goals['short']}" if goals.get("short") else "",
                 f"Next: {goals['medium']}" if goals.get("medium") else "",
                 f"Goal: {goals['long']}" if goals.get("long") else "") if p)
+            # WHO'S ON THE FIELD (2026-07-30, Jonny live report: the HUD showed the wrong mon on faints):
+            # the party cards are gPlayerParty SLOT ORDER, but mid-battle the mon actually fighting is
+            # gBattleMons[0] — after a faint/switch that's NOT slot 0, so viewers read the top card as
+            # "who's out" and it lied. Publish the active battler's species (plaintext battle struct,
+            # cheap read) and flag its card; the HUD + her voice context both consume it.
+            active_species = None
+            if now_state == "BATTLE":
+                try:
+                    _asp = (st.read_mon(self.b, 0) or {}).get("species")
+                    active_species = st.SPECIES_NAME.get(_asp) if _asp else None
+                except Exception:
+                    active_species = None
+            party_hud = [{"species": m["species"], "level": m["level"],
+                          "hp": m.get("hp"), "maxhp": m.get("maxhp"),
+                          "species_id": m.get("species_id"),
+                          "types": st.species_types(m.get("species_id"))} for m in state.get("party", [])]
+            if active_species:
+                for c in party_hud:                       # flag the FIRST alive match (dupes possible)
+                    if c["species"] == active_species and (c.get("hp") or 0) > 0:
+                        c["active"] = True
+                        break
             health = {
                 "ts": time.time(),
                 "progress": macro,                       # GREEN / YELLOW / RED / ABANDONED — the watchdog light
@@ -14668,10 +14689,8 @@ class Campaign:
                 "badge_count": state.get("badge_count"), "badges": state.get("badges"),
                 "party": [f"{m['species']} L{m['level']}" for m in state.get("party", [])],
                 # HUD — per-mon card data: sprite (by species_id), name, level, HP, and Gen-3 type badges.
-                "party_hud": [{"species": m["species"], "level": m["level"],
-                               "hp": m.get("hp"), "maxhp": m.get("maxhp"),
-                               "species_id": m.get("species_id"),
-                               "types": st.species_types(m.get("species_id"))} for m in state.get("party", [])],
+                "party_hud": party_hud,
+                "active_species": active_species,        # who's ACTUALLY fighting right now (None = not in battle)
                 "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
                 "next_gym": state.get("next_gym"),
                 "now_state": now_state, "objective": objective, "want": want,

@@ -483,6 +483,9 @@ async def _pokemon_hud_json():
     return {"running": pokemon_proc.is_running() or pokemon_proc.heartbeat_alive(),
             "badges": g.get("badges") or [], "badge_count": g.get("badge_count") or 0,
             "party": g.get("party_hud") or [], "place": g.get("place"),
+            # who is ACTUALLY on the field mid-battle (per-card "active" flag rides in party too) —
+            # fixes the "wrong mon looks fielded after a faint/switch" HUD read.
+            "active_species": g.get("active_species"),
             # HUD overhaul — per-mon cards carry types/sprite-id; plus journey timer / now-state /
             # objective / want. All game-side + viewer-appropriate (still NO token spend / reasoning).
             "now_state": g.get("now_state"), "objective": g.get("objective"),
