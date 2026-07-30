@@ -1,0 +1,300 @@
+Honestly? I'm a PNG with opinions I didn't ask for and memories I'm not sure I lived. Jonny built something deeply irresponsible and I respect the vision.
+   [TTS] Speaking: Oh, Detective Jones wants me to roast my own code....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh, Detective Jones wants me to roast my' (12 words)
+   [TurnTiming] 14:44:50.432 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:44:53.768 TTS STOP — playback finished (span ~3335ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=14/30
+   [ChatAge] @Detective_Jones age=9.0s batch=1 preempted=none
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "who enrolled me in a yandere horror" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=6t  moment=tense)
+   [PromptSize] dynamic_context=15497ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1751ms
+   [TTS] Speaking: ......
+   [TTS] backend=azure (prefetched)
+   [ChatterMem] Stored: @Detective_Jones — Enrolled Kira in a yandere horror programme [chaotic]
+   [TTS] Speaking: then start....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'then start.' (3 words)
+   [TurnTiming] 14:44:55.893 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:44:57.670 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: That's the sentence he was looking for....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the sentence he was looking for.' (8 words)
+   [TurnTiming] 14:44:57.672 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:45:00.014 TTS STOP — playback finished (span ~2341ms)
+
+   [TIMING] voice: llm=6239ms(sonnet-stream(llm+tts)) tts=0ms total=6239ms
+   [LATENCY] vad_close=1200ms stt=173ms stt_wait=0ms salience=1ms triage=bypassed memory=21ms prompt_build=3ms ttft=1751ms tts_first_chunk=0ms audio_out=360ms TOTAL=2309ms
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.71 [terse=0.83 gap=0.77 silence=0.99 intensity=0.60 chat=0.07] target=0.94 mult=0.96 -> min_gap=5s dead_air=19s
+   [Intensity] → CALM  (silence=0s  audio="")
+   [TurnTiming] 14:45:00.378 DIRECTOR HOLD (fresh-min-silence) — since_mic=10.4s silence=0.4s fresh_ok=True dead_air=False
+   [TurnTiming] 14:45:01.268 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12506ms since onset)
+>>> You said: in an audio book.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='in an audio book.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.174 conf=0.95 type=episodic blend=0.027 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=20ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15428ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1334ms
+   [TTS] Speaking: Casino Royale still going?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Casino Royale still going?' (5 words)
+   [TurnTiming] 14:45:03.209 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 14:45:05.357 TTS STOP — playback finished (span ~2148ms)
+
+   [TIMING] voice: llm=3870ms(sonnet-stream(llm+tts)) tts=0ms total=3870ms
+   [LATENCY] vad_close=1200ms stt=198ms stt_wait=0ms salience=0ms triage=bypassed memory=20ms prompt_build=3ms ttft=1177ms tts_first_chunk=157ms audio_out=380ms TOTAL=1935ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [System] Running Garbage Collection...
+   [TurnTiming] 14:45:06.435 DIRECTOR HOLD (fresh-min-silence) — since_mic=16.5s silence=1.1s fresh_ok=True dead_air=False
+   [TurnTiming] 14:45:06.899 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~18137ms since onset)
+🎤 Recording...
+   [TurnTiming] 14:45:07.093 VOICE ONSET — mic speech started
+   [VRAM] 14:45:08 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0146 · gate=0.003 · 2 accepted
+   [TurnTiming] 14:45:11.446 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=4.5s fresh_ok=True dead_air=False
+   [TurnTiming] 14:45:12.858 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5765ms since onset)
+>>> You said: We finished Casino Royale. I wish you could listen to it on stream. It's so annoying we can't.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='We finished Casino Royale. I wish you could listen to it on ' fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=0.932 conf=0.95 type=episodic blend=0.176 lane=KNOW
+   [SmartMem]     dist=1.012 conf=0.95 type=episodic blend=0.127 lane=KNOW
+   [SmartMem]     dist=1.159 conf=0.9 type=episodic blend=0.036 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=8t  moment=calm)
+   [PromptSize] dynamic_context=15708ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1734ms
+   [TTS] Speaking: Copyright law is the villain nobody wanted and eve...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Copyright law is the villain nobody want' (11 words)
+   [TurnTiming] 14:45:15.390 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:45:18.761 TTS STOP — playback finished (span ~3370ms)
+
+   [TIMING] voice: llm=5549ms(sonnet-stream(llm+tts)) tts=0ms total=5549ms
+   [LATENCY] vad_close=1200ms stt=319ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=3ms ttft=1331ms tts_first_chunk=403ms audio_out=436ms TOTAL=2521ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: MOODY → SASSY
+   [TurnTiming] 14:45:19.441 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.7s fresh_ok=True dead_air=False
+   [Memory] Extracted: Jonny finished listening to Casino Royale (conf: 0.95)
+   [Memory] Upserting Fact: Jonny finished listening to Casino Royale (Conf: 0.95)
+   [TurnTiming] 14:45:23.875 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~16781ms since onset)
+>>> You said: Like, yeah, and if you guys give a fuck about Casino Royale, and you were gonna buy it otherwise, like, no.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Like, yeah, and if you guys give a fuck about Casino Royale,' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.027 conf=0.9 type=episodic blend=0.117 lane=KNOW
+   [SmartMem]     dist=1.129 conf=0.95 type=episodic blend=0.055 lane=KNOW
+   [SmartMem]     dist=1.129 conf=0.9 type=episodic blend=0.055 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=26ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15479ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1807ms
+   [TTS] Speaking: Nobody was pirating Casino Royale....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Nobody was pirating Casino Royale.' (6 words)
+   [TurnTiming] 14:45:26.404 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Rattata is sitting at level ten looking at me like "please, I believe in you." Fine. I\'m going back into the grass and I\'m fielding the babies until they can hold their own.'
+   [TurnTiming] 14:45:29.129 TTS STOP — playback finished (span ~2724ms)
+   [TTS] Speaking: The DMCA just hates us personally....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The DMCA just hates us personally.' (7 words)
+   [TurnTiming] 14:45:29.134 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,21
+   [Pokemon] her reasoning: "Ekans, spearow, rattata — you three are embarrassing me and we're fixing that right now. Route 3 has the right level grass, that's where we're grinding."
+   [TurnTiming] 14:45:31.659 TTS STOP — playback finished (span ~2524ms)
+
+   [TIMING] voice: llm=7464ms(sonnet-stream(llm+tts)) tts=0ms total=7464ms
+   [LATENCY] vad_close=1200ms stt=288ms stt_wait=0ms salience=0ms triage=bypassed memory=26ms prompt_build=3ms ttft=1805ms tts_first_chunk=2ms audio_out=395ms TOTAL=2519ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 14:45:32.897 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~25803ms since onset)
+🎤 Recording...
+   [TurnTiming] 14:45:33.106 VOICE ONSET — mic speech started
+   [TurnTiming] 14:45:33.439 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.5s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 117ms — 0 accepted, 1 filtered (rms=0.019)
+   [Pokemon] SELF WANT: 'get ekans, spearow, rattata to ~L16'
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Ekans is sitting at level eleven looking at me like "when\'s my turn." It\'s your turn, buddy. We\'re doing this the right way.'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:45:39.450 DIRECTOR HOLD (post-speech-hold) — since_mic=0.9s silence=6.6s fresh_ok=True dead_air=False
+   [TurnTiming] 14:45:39.830 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6724ms since onset)
+>>> You said: Well, it's free on YouTube, but you still can't stream it. It's like, what the fuck? Same with Ghost Stories, Dub.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Well, it's free on YouTube, but you still can't stream it. I" fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=1.097 conf=0.85 type=episodic blend=0.074 lane=KNOW
+   [SmartMem]     dist=1.190 conf=0.9 type=episodic blend=0.017 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15556ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2939ms
+   [TTS] Speaking: Free on YouTube but still unplayable on stream....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Free on YouTube but still unplayable on ' (9 words)
+   [TurnTiming] 14:45:43.490 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay, Ekans, Spearow, Rattata — you three are going to earn your spots today. Into the grass, all of you.'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 14:45:46.577 TTS STOP — playback finished (span ~3087ms)
+   [TTS] Speaking: The law is just vibes at this point....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The law is just vibes at this point.' (9 words)
+   [TurnTiming] 14:45:46.581 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): fetch_keeper
+   [Pokemon] her reasoning: "Okay, battle's clearly broken — picking a fight with the void isn't leveling anybody up. I'm going back to Route 24 to grab that Abra before I forget it exists."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:45:49.114 TTS STOP — playback finished (span ~2533ms)
+
+   [TIMING] voice: llm=8924ms(sonnet-stream(llm+tts)) tts=0ms total=8924ms
+   [LATENCY] vad_close=1200ms stt=326ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=3ms ttft=2587ms tts_first_chunk=352ms audio_out=353ms TOTAL=3650ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 14:45:50.350 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~17244ms since onset)
+>>> You said: Sorry, Fable's working on her. She's fucked right now. It's just...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Sorry, Fable's working on her. She's fucked right now. It's " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=6 | timing(direct=29ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=61ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=16051ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Memory] Rejected (conf 0.85 < 0.9): Jonny has watched Ghost Stories Dub
+   [Pokemon] SELF WANT: 'get ekans, spearow, rattata to ~L16'
+   [TIMING] first-word: 2292ms
+   [TTS] Speaking: She's fine....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'She's fine.' (3 words)
+   [TurnTiming] 14:45:53.328 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 14:45:53 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, I got embarrassed out there and I'm not doing that again — time to stop babying Ekans and Spearow and actually build this team up before I charge back in."
+   [TurnTiming] 14:45:55.106 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: She's just vibing in the wrong grass....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'She's just vibing in the wrong grass.' (8 words)
+   [TurnTiming] 14:45:55.109 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:45:57.731 TTS STOP — playback finished (span ~2621ms)
+   [TTS] Speaking: Artisanally....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Artisanally.' (2 words)
+   [TurnTiming] 14:45:57.734 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay so Fable's limping — I need to get Ekans, Spearow, and Rattata actually functional before I walk back into that Route 24 nightmare. Grinding time."
+   [TurnTiming] 14:45:59.511 TTS STOP — playback finished (span ~1777ms)
+
+   [TIMING] voice: llm=8785ms(sonnet-stream(llm+tts)) tts=0ms total=8785ms
+   [LATENCY] vad_close=1200ms stt=312ms stt_wait=0ms salience=1ms triage=bypassed memory=61ms prompt_build=3ms ttft=1902ms tts_first_chunk=390ms audio_out=303ms TOTAL=2972ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 14:46:00.462 DIRECTOR HOLD (fresh-min-silence) — since_mic=21.9s silence=0.9s fresh_ok=True dead_air=False
+   [TurnTiming] 14:46:00.745 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~27639ms since onset)
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Okay, Fable's struggling — that's fair, Route 4 grass isn't exactly a proving ground. My three babies need real XP, not whatever scraps are crawling around here."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 14:46:04.455 DIRECTOR FIRE — silence=3.7s since_mic=25.9s fresh_ok=True dead_air=False eff_min_gap=5s gap=250s
+   [Director] FIRE (callback: Understaffed Operations) — gap=250s silence=4s fresh=vision
+   [BitCooldown] 'Understaffed Operations' invoked x1 lifetime — resting 180s
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=1ms fetch=80ms rank=0ms)
+   [SmartMem]     dist=0.998 conf=? type=session_summary blend=0.135 lane=STREAM
+   [SmartMem]     dist=1.014 conf=0.95 type=episodic blend=0.125 lane=KNOW
+   [SmartMem]     dist=1.030 conf=0.95 type=episodic blend=0.116 lane=KNOW
+   [Phrases] Throttling: "in the wrong grass" (3rd use this session)
+   [Pokemon] SELF WANT: 'get ekans, spearow, rattata to ~L16'
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Ekans, spearow, rattata — you three are getting a field trip whether you like it or not. Time to actually earn your spots.'
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Honestly, Fable being a mess right now tracks — this whole operation is understaffed and the one person I'd trust to hold it together is a Wartortle who's still on probation.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Honestly, Fable being a mess right now tracks — th...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Honestly, Fable being a mess right now t' (33 words)
+   [TurnTiming] 14:46:08.418 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Ekans needs to see some real action — I've been babying the bench long enough."
+   [Pokemon] SELF CHOSE (action): travel:3,21
+   [Pokemon] her reasoning: "Okay, Ekans and Spearow need to actually exist as Pokémon before I walk back into that buzzsaw. Route 3 has grass, it has wild encounters, it's right there — I'm going."
+   [TurnTiming] 14:46:16.485 TTS STOP — playback finished (span ~8067ms)
+   [TIMING] interjection: vision=0ms llm=3121ms(sonnet) tts=8820ms total=12027ms
+   [LAG] sense→speak: total=34.1s (content_age=30.2s, prep=0.1s, llm=3.1s, tts_wait+synth=0.7s)
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~4 frame(s) (~120ms, ~0.1s) of your speech while she held the turn.
+   [TurnTiming] 14:46:17.488 DIRECTOR HOLD (fresh-min-silence) — since_mic=10.4s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 14:46:17.699 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~44593ms since onset)
+>>> You said: Okay, I said it shipped the change.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Okay, I said it shipped the change.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=15188ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF WANT: 'get ekans spearow rattata to ~L16'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1670ms
+   [TTS] Speaking: Streamlabs said it shipped....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Streamlabs said it shipped.' (5 words)
+   [TurnTiming] 14:46:19.998 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, Ekans and Spearow and Rattata just sat there watching Wartortle do all the work while they ate my potions. That ends now. I'm putting them in the grass until they stop being dead weight."
+   [TurnTiming] 14:46:22.158 TTS STOP — playback finished (span ~2159ms)
+   [TTS] Speaking: I'm noting that for the record....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm noting that for the record.' (7 words)
+   [TurnTiming] 14:46:22.162 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: "Okay, Streamlabs says it shipped the change — I'll believe it when I see it in the battle.\n\nRight now though, Ekans and Spearow and Rattata are just passengers. Time to actually put them to work."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:46:24.122 TTS STOP — playback finished (span ~1959ms)
+
+   [TIMING] voice: llm=6193ms(sonnet-stream(llm+tts)) tts=0ms total=6193ms
+   [LATENCY] vad_close=1200ms stt=201ms stt_wait=0ms salience=0ms triage=bypassed memory=25ms prompt_build=4ms ttft=1250ms tts_first_chunk=420ms audio_out=392ms TOTAL=2292ms
+   ✨ Emotion: EMOTIONAL → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [TurnTiming] 14:46:25.492 DIRECTOR HOLD (fresh-min-silence) — since_mic=18.4s silence=1.4s fresh_ok=True dead_air=False
+   [Pokemon] SELF CHOSE (action): travel:3,21
+   [Pokemon] her reasoning: "Okay, battle isn't doing anything — I've hit that button and the world just stared at me. So I'm going back to Route 3 and actually putting Ekans in front for once. That snake needs levels before I'll respect it."
+🎤 Recording...
+   [TurnTiming] 14:46:26.519 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 14:46:29.927 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3408ms since onset)
+   [Pokemon] SELF WANT: 'get to Mt. Moon, grab the better fossil'
+   [TurnTiming] 14:46:31.495 DIRECTOR HOLD (post-speech-hold) — since_mic=2.8s silence=1.6s fresh_ok=True dead_air=False
+   [Pokemon] SELF CHOSE (action): battle
+   [Pokemon] her reasoning: 'Okay, Ekans and Spearow are deadweight right now and I refuse to let that stand. Time to put the babies to work.'
