@@ -148,7 +148,7 @@ if ($newestDbg) {
 $supDir = Join-Path $dbg "supervisor"
 Get-ChildItem $supDir -File -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending | Select-Object -First 2 | ForEach-Object {
-        Get-Content $_.FullName -Tail 400 -ErrorAction SilentlyContinue |
+        Get-Content $_.FullName -Tail 1500 -ErrorAction SilentlyContinue |
             Set-Content (Join-Path $report ("tail_supervisor_" + $_.Name))
         Say "tailed supervisor log: $($_.Name)"
     }
@@ -174,6 +174,14 @@ Say "== canonical campaign =="
 Say ("    last activity: " + (NewestFileTime $campaign))
 Say ("    " + (HealthSummary $campaign))
 Copy-Item (Join-Path $campaign "health.json") (Join-Path $report "canonical_health.json") -ErrorAction SilentlyContinue
+# SNAPSHOT inventory (2026-07-30): every escape-reload / deep-wedge revert BANKS a timestamped .state
+# first (pre_reload_* / pre_deepwedge_*). Listing them in the report lets the Mac agent pick a known-
+# good position (e.g. "the moment she reached Cerulean") and pin it via the SNAPSHOT directive below.
+RunLogged "campaign snapshot inventory (*.state, newest first)" {
+    Get-ChildItem $campaign -File -Filter "*.state" -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
+} | Out-Null
 RunLogged "campaign dir + backups" {
     Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
         Select-Object FullName, LastWriteTime | Format-Table -AutoSize
@@ -198,6 +206,22 @@ if (Test-Path $targetFile) {
     if ($target -eq "CANONICAL") {
         Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
         $promoteOk = $true; $launchApproved = $true
+    } elseif ($target -like "SNAPSHOT *") {
+        # SNAPSHOT <file.state> (2026-07-30): promote a banked recovery snapshot from states/campaign
+        # to be the living save — the "teleport" (e.g. back to the moment she reached Cerulean).
+        # Current save is backed up first, sidecars (world/soul/strat) untouched — same campaign.
+        $snapName = $target.Substring(9).Trim()
+        $snapPath = Join-Path $campaign $snapName
+        $liveSave = Join-Path $campaign "kira_campaign.state"
+        if ((Test-Path $snapPath) -and ($snapName -ne "kira_campaign.state")) {
+            Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
+            Copy-Item $snapPath $liveSave -Force
+            Say "SNAPSHOT promoted: $snapName -> kira_campaign.state (old save backed up as replaced_$ts.state)"
+            $promoteOk = $true; $launchApproved = $true
+        } else {
+            Say "!! SNAPSHOT '$snapName' not found in states/campaign - nothing changed, NOT launching."
+            Say "   (check the snapshot inventory in this report and re-pin the exact filename)"
+        }
     } elseif ($target -eq "RESTORE_WORLD") {
         $troph = Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Filter "campaign_archived_*" -ErrorAction SilentlyContinue |
                  Sort-Object Name -Descending | Select-Object -First 1
