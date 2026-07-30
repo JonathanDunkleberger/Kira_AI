@@ -274,6 +274,16 @@ class StrategicMemory:
             return
         key = cur["key"]
         lost = str(outcome).lower() in ("loss", "battle_loss", "blackout", "whiteout")
+        # WILD MONS ARE NEVER WALLS (2026-07-30, the Mt-Moon zubat disaster): a strategic wall means
+        # "a specific opponent keeps beating you — come back stronger and RE-FIGHT it". A wild encounter
+        # can't be re-fought; it was bench-attrition bad luck, not a strategic opponent. Recording one
+        # poisoned every goal for hours ("build a team strong enough to beat the wild zubat"), pruned
+        # the road to Cerulean, and orbited her around Pewter all morning. Loss still logged LOUD for
+        # the record; heal/attrition behavior is other systems' job.
+        if lost and not cur.get("is_trainer"):
+            self.log(f"   [strat] loss vs {key} was a WILD encounter — NOT a strategic wall "
+                     f"(no gate, no retry goal; shake it off and move on)")
+            return
         if lost:
             rec = self.losses.get(key)
             if rec:
@@ -628,6 +638,18 @@ class StrategicMemory:
         r = d.get("rival")
         if isinstance(r, dict):
             self.rival = {"name": r.get("name") or "Gary", "encounters": r.get("encounters") or []}
+        # MIGRATION (2026-07-30): purge any persisted WILD-encounter walls (see observe_battle_end —
+        # they should never have recorded). Heals a poisoned strat_memory.json on the next boot.
+        _wild = [k for k, v in self.losses.items()
+                 if not v.get("is_trainer") or str(k).startswith("wild:")]
+        for k in _wild:
+            self.losses.pop(k, None)
+        if _wild:
+            self.recent = [k for k in self.recent if k not in _wild]
+            if self.active_wall in _wild:
+                self.active_wall = None
+            self.log(f"   [strat] PURGED {len(_wild)} wild-encounter wall(s) from saved memory "
+                     f"({', '.join(map(str, _wild))}) — wild mons are never strategic walls")
         self._consolidate_trainer_losses()   # heal old active-mon-keyed fragmentation on load
 
     def _consolidate_trainer_losses(self):
