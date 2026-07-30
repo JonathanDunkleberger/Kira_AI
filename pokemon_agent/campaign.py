@@ -7013,13 +7013,19 @@ class Campaign:
     def _swap_party_slots(self, i, j):
         """Swap two party slots' raw 100-byte structs in gPlayerParty (the same intact move the in-menu
         'switch order' does — save-safe, see the block comment). Overworld-only (NEVER mid-battle, where
-        the active-mon pointer would dangle). No-op if i==j or either slot is out of the live count."""
+        the active-mon pointer would dangle). No-op if i==j or either slot is out of the live count.
+
+        VERIFIED + BELIEF-SYNCED (2026-07-30, Jonny live report: 'she fields the wrong mon and doesn't
+        know it'): the swap now (a) re-reads slot 0 afterwards and logs LOUD what actually leads, and
+        (b) updates the cached lead identity (_last_lead_species/_last_lead_pid) so the evolve-watch and
+        every downstream 'who am I fielding' read stays truthful after a DELIBERATE reorder."""
         if i == j:
             return
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         if not (0 <= i < cnt and 0 <= j < cnt):
             log(f"   GRIND-WEAK: !! refusing slot swap {i}<->{j} (party count {cnt}) — no-op")
             return
+        want_lead = st.read_party_species(self.b, j if i == 0 else i if j == 0 else 0)
         base = ram.GPLAYER_PARTY
         ai, aj = base + i * st.PARTY_MON_SIZE, base + j * st.PARTY_MON_SIZE
         for k in range(st.PARTY_MON_SIZE // 4):           # 100 B = 25 u32 words
@@ -7027,6 +7033,54 @@ class Campaign:
             wj = self.b.rd32(aj + k * 4)
             self.b.core.memory.u32.raw_write(ai + k * 4, wj)
             self.b.core.memory.u32.raw_write(aj + k * 4, wi)
+        # POST-SWAP VERIFY: read back who actually leads now; a mismatch is a real bug — say so LOUD.
+        try:
+            got = st.read_party_species(self.b, 0)
+            nm = st.SPECIES_NAME.get(got, f"#{got}")
+            if (i == 0 or j == 0) and want_lead and got != want_lead:
+                log(f"   GRIND-WEAK: !!!! SWAP VERIFY FAILED — wanted "
+                    f"{st.SPECIES_NAME.get(want_lead, want_lead)} leading, slot 0 reads {nm}")
+            else:
+                log(f"   GRIND-WEAK: swap {i}<->{j} verified — {nm} now leads")
+            # keep her belief about her own lead current (evolve-watch discriminates by PID already)
+            self._last_lead_species = got
+            self._last_lead_pid = self.b.rd32(ram.GPLAYER_PARTY + 0)
+        except Exception as _sv:
+            log(f"   GRIND-WEAK: swap verify skipped: {_sv}")
+
+    def _write_nickname(self, slot, nick):
+        """Commit a REAL in-game nickname to the mon in party `slot` by writing the 10-byte nickname
+        field of its gPlayerParty struct (offset 8 — in the plaintext header, OUTSIDE the checksummed
+        encrypted block; same save-safety class as _swap_party_slots' raw struct move, and the same
+        field recon_name_rater.py decode-verifies). WHY here and not the post-catch keyboard
+        (2026-07-30, Jonny live report: 'she announces a name then the mon keeps its species name'):
+        the in-battle "give a nickname?" prompt renders through gDisplayedStringBattle, which nothing
+        in this harness can read — driving the naming keyboard blind mid-battle is exactly the
+        pitfall-13 wedge class. So the battle flow keeps its proven B-decline, and the name lands
+        HERE, overworld-side, decode-VERIFIED. Returns the committed name, or None (declined/failed)."""
+        from naming import encode_gen3
+        from dialogue_reader import decode as _g3decode
+        try:
+            if st.in_battle(self.b):
+                log("   NICKNAME: !! refusing to write mid-battle — skipped")
+                return None
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if not (0 <= slot < min(cnt, 6)):
+                log(f"   NICKNAME: slot {slot} out of range (party {cnt}) — skipped")
+                return None
+            raw = encode_gen3(nick, maxlen=10)
+            if not raw:
+                return None
+            addr = ram.GPLAYER_PARTY + slot * st.PARTY_MON_SIZE + 8   # BoxPokemon.nickname (plaintext)
+            for k, bt in enumerate(raw):
+                self.b.core.memory.u8.raw_write(addr + k, bt)
+            got, _junk = _g3decode(bytes(self.b.read_bytes(addr, 10)))
+            sp = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), "?")
+            log(f"   NICKNAME: slot {slot} ({sp}) is now {got!r} (verified by decode)")
+            return got or None
+        except Exception as e:
+            log(f"   NICKNAME: !! write failed ({e}) — the mon keeps its species name")
+            return None
 
     def _ace_hp_frac(self):
         """HP fraction of the ACE (the highest-level member, wherever it's currently slotted), or 1.0 if
@@ -7341,6 +7395,22 @@ class Campaign:
                 if wk != 0:
                     log(f"   GRIND-WEAK: fielding slot {wk} (L{levels[wk]}) as lead to train it")
                     self._swap_party_slots(0, wk)
+                    # NARRATE THE MANEUVER with the VERIFIED lead (2026-07-30, Jonny live report: she'd
+                    # announce training ekans while the stream showed wartortle finishing fights — the
+                    # participation switch was invisible + unexplained, so it read as a bug AND her own
+                    # commentary drifted). One beat per fielded mon, naming who's up front and why the
+                    # ace still appears: the weak mon leads for the shared XP, the ace cleans up.
+                    try:
+                        _led = st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "the little one")
+                        _ace_lv = max(levels)
+                        if getattr(self, "_gw_last_voiced", None) != _led:
+                            self._gw_last_voiced = _led
+                            self.on_event(
+                                f"training time — {_led} leads so it soaks up the XP, and if things get "
+                                f"hairy my L{_ace_lv} closer steps in to finish. that's the trick.",
+                                kind="grind", tier=1)
+                    except Exception:
+                        pass
                 lv_before, pid_before = self.b.rd8(ram.GPLAYER_PARTY + 0x54), _pid0()
                 r = self.grind(target, fragile=True, budget_s=GRIND_WEAK_PROBE_S)  # weak mon can faint ->
                 #   reachable grass only; SHORT probe so a hopeless mon stalls out fast (not an 8-min sink)
@@ -10804,12 +10874,24 @@ class Campaign:
             try:
                 nm = self._soul_choose("name", {}, {"place":
                     f"you just caught a {name}" + (f" {where}" if where else "") + "! a brand-new member "
-                    f"of your team — a teammate, family. give this {name} a name, just the name."})
+                    f"of your team — a teammate, family. give this {name} a name, just the name "
+                    f"(ten letters or fewer)."})
                 if nm:
-                    nick = nm.strip().split("\n")[0][:12] or name
+                    # cap at 10 = the Gen-3 in-game nickname limit, so her mental name and the name
+                    # ON THE CARTRIDGE are the same string (2026-07-30, Jonny live report: she'd
+                    # announce 'Noodle' while the game kept SPEAROW)
+                    nick = nm.strip().split("\n")[0][:10] or name
             except Exception as _e:
                 log(f"   [soul] catch-naming skipped: {_e}")
             log(f"   [soul] note_caught FIRE -> species={name} nickname={nick} where={where}")
+            if nick.lower() != name.lower():
+                # MAKE IT REAL: write the nickname into the new mon's party struct (plaintext header
+                # field, decode-verified) so the HUD, battle text, and her commentary all agree.
+                committed = self._write_nickname(cnt - 1, nick)
+                if committed:
+                    nick = committed
+                else:
+                    log(f"   [soul] nickname {nick!r} did not commit in-game — bond keeps it mentally")
             self.soul.note_caught(name, nick, where)        # records bond (name + opinion) + emits via seam
             if nick.lower() != name.lower():
                 self.on_event(f"welcome to the family, {nick}. you're one of us now.", kind="roster", tier=3)
@@ -14271,26 +14353,46 @@ class Campaign:
             log(f"   [auto-ckpt] prune skipped: {e}")
 
     def _playthrough_elapsed(self):
-        """HUD — seconds since this PLAYTHROUGH began (persists across sessions). Stamps the start once
-        (first ever free-roam) into playthrough.json, then reports elapsed forever after. Best-effort:
-        returns None if it can't read/write (the HUD just hides the timer rather than lying)."""
+        """HUD journey timer — TIME ACTUALLY PLAYED (2026-07-30 fix, Jonny's report: HUD said 23h on
+        a ~4h run). The old version reported wall-clock since a start_ts stamped at the showtime
+        migration — it kept counting overnight and between sessions. Now an ACCUMULATOR: this is
+        called on a live ~2s heartbeat (publish_health_tick), so we add each small heartbeat gap to
+        played_s and ignore big gaps (process down / offline). Backward-compat: a legacy
+        {start_ts}-only file restarts the accumulator at 0 — honest going forward, never inflated.
+        Best-effort: returns None on I/O trouble (the HUD hides the timer rather than lying)."""
         import json as _json
         try:
-            start = None
-            if os.path.exists(PLAYTHROUGH_JSON):
-                with open(PLAYTHROUGH_JSON, encoding="utf-8") as f:
-                    start = _json.load(f).get("start_ts")
-            if not start:
-                start = time.time()
+            now = time.time()
+            pt = getattr(self, "_playthrough", None)
+            if pt is None:
+                pt = {"played_s": 0.0, "beat_ts": now, "saved_ts": 0.0}
+                if os.path.exists(PLAYTHROUGH_JSON):
+                    try:
+                        with open(PLAYTHROUGH_JSON, encoding="utf-8") as f:
+                            data = _json.load(f) or {}
+                        if "played_s" in data:
+                            pt["played_s"] = float(data.get("played_s") or 0.0)
+                        else:
+                            log("   [hud] playthrough timer MIGRATED to time-actually-played — the "
+                                "legacy wall-clock stamp (counted offline hours) is discarded; the "
+                                "accumulator starts fresh from this session")
+                    except Exception:
+                        pass
+                self._playthrough = pt
+            gap = now - pt["beat_ts"]
+            if 0 < gap < 300.0:      # a live heartbeat (~2s..min); bigger = we were down, don't count it
+                pt["played_s"] += gap
+            pt["beat_ts"] = now
+            if now - pt["saved_ts"] > 15.0:              # throttled persist across restarts
+                pt["saved_ts"] = now
                 os.makedirs(STATES_CAMPAIGN, exist_ok=True)
                 tmp = PLAYTHROUGH_JSON + ".tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
-                    _json.dump({"start_ts": start}, f)
+                    _json.dump({"played_s": round(pt["played_s"], 1), "updated_ts": now}, f)
                 os.replace(tmp, PLAYTHROUGH_JSON)
-                log(f"   [hud] playthrough timer started (stamped {PLAYTHROUGH_JSON})")
-            return max(0.0, time.time() - start)
+            return pt["played_s"]
         except Exception as e:
-            log(f"   [hud] playthrough timer read skipped: {e}")
+            log(f"   [hud] playthrough timer skipped: {e}")
             return None
 
     def _party_brief(self, state):

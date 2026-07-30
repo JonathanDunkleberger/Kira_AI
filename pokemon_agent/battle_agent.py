@@ -628,7 +628,15 @@ class BattleAgent:
         alone leaves it near full HP -> 5 balls broke free). Fires the LOWEST-base-power damaging move
         one hit at a time, re-reading HP, and STOPS once HP <= target_frac (faint-guard: never swing
         at an already-low foe; one-at-a-time re-check avoids overkill). Best-effort — a stray faint
-        just means catch_pokemon returns 'fainted' and the wander finds another wild."""
+        just means catch_pokemon returns 'fainted' and the wander finds another wild.
+
+        DAMAGE-AWARE (2026-07-30, Jonny live report: 'she KOs the ones she wants to catch'): the old
+        loop only checked hp > target_frac before swinging — a foe sitting just ABOVE the band (e.g.
+        45% after one chip that hit for 55%) took one more 'gentle' chip and died. Now each chip's
+        actual damage is MEASURED, and we refuse the next swing when the foe wouldn't clearly survive
+        a repeat of it (1.6x safety margin — crits happen). A catch thrown at 50% HP costs an extra
+        ball at worst; a KO'd keeper is gone forever."""
+        last_dmg = None
         for _ in range(max_hits):
             state = st.read_battle(self.b)
             if not state or not st.in_battle(self.b):
@@ -638,12 +646,20 @@ class BattleAgent:
                 return
             if foe["hp"] / foe["maxhp"] <= target_frac:
                 return                                  # already in the catchable band
+            if last_dmg and foe["hp"] <= last_dmg * 1.6:
+                self.log(f"   [engine] catch-weaken: STOPPING — foe at {foe['hp']}/{foe['maxhp']} HP, "
+                         f"last chip hit for {last_dmg}; another swing risks a KO. Throwing now.")
+                return                                  # next hit plausibly kills it — throw instead
             cand = [(i, m.get("id", 0)) for i, m in enumerate(state["ours"]["moves"])
                     if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("id", 0) not in self._STATUS_MOVES]
             if not cand:
                 return                                  # no damaging move with PP -> just throw
             cand.sort(key=lambda im: st.move_info(self.b, im[1])[1] or 0)   # gentlest (lowest power)
+            hp_before = foe["hp"]
             self._fire_move(cand[0][0])
+            after = st.read_battle(self.b)
+            if after and after["enemy"].get("hp") is not None and after["enemy"]["hp"] < hp_before:
+                last_dmg = hp_before - after["enemy"]["hp"]   # measure what a chip actually costs
 
     def _fire_move(self, idx):
         """Open the move list, navigate to slot idx, fire it + verify it executed (PP drop / HP
@@ -2811,6 +2827,18 @@ class BattleAgent:
                         self.log(f"   [engine] GRIND SWITCH: weak lead out -> switching to ace slot {ace} "
                                  f"(weak mon banks participation XP, ace does the fighting)")
                         if self._switch_to_slot(ace, state.get("ours", {}).get("species")) == "switched":
+                            # NARRATE THE MANEUVER (2026-07-30, Jonny live report: this deliberate switch
+                            # read as 'she benched the mon she said she was training' — and her own
+                            # commentary then credited the wrong mon). Name BOTH parties from ground
+                            # truth (the battle read + the verified ace slot) so voice matches screen.
+                            try:
+                                _wk_nm = st.SPECIES_NAME.get(
+                                    (state.get("ours") or {}).get("species"), "the little one")
+                                _ace_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ace), "my ace")
+                                self.emit(f"{_wk_nm} showed up for the XP share — now {_ace_nm} takes it "
+                                          f"from here. that's how you train a rookie.", beat=True, tier=1)
+                            except Exception:
+                                pass
                             self._acted_once = True
                             stall = 0
                             self._unresolved_turns = 0

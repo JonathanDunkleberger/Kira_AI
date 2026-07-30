@@ -16,6 +16,30 @@ KB_GRID = ["ABCDEF .", "GHIJKL ,", "MNOPQRS", "TUVWXYZ"]
 KB_POS = {ch: (c, r) for r, row in enumerate(KB_GRID) for c, ch in enumerate(row) if ch != " "}
 
 
+def encode_gen3(name, maxlen=10):
+    """Encode a name into Gen-3 (FireRed US) text bytes — the exact inverse of the verified decode
+    ranges in dialogue_reader.decode (A-Z=0xBB.., a-z=0xD5.., 0-9=0xA1.., space=0x00). Unmappable
+    characters are skipped. Returns exactly `maxlen` bytes: the encoded chars, a 0xFF terminator,
+    then 0xFF padding (the game reads to the first 0xFF). Empty result -> None (nothing to write)."""
+    out = []
+    for ch in str(name):
+        if len(out) >= maxlen:
+            break
+        if "A" <= ch <= "Z":
+            out.append(0xBB + ord(ch) - ord("A"))
+        elif "a" <= ch <= "z":
+            out.append(0xD5 + ord(ch) - ord("a"))
+        elif "0" <= ch <= "9":
+            out.append(0xA1 + ord(ch) - ord("0"))
+        elif ch == " " and out:                       # no leading spaces
+            out.append(0x00)
+    while out and out[-1] == 0x00:                    # no trailing spaces
+        out.pop()
+    if not out:
+        return None
+    return (out + [0xFF] * maxlen)[:maxlen]
+
+
 def name_entry(b, name, render=None, owner="agent"):
     """Type `name` on the ALREADY-OPEN FireRed name keyboard, then confirm (START->OK, A). Letters
     only (A-Z); other chars are skipped. Returns nothing - the caller verifies via the committed
