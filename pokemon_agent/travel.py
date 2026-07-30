@@ -831,7 +831,12 @@ class Traveler:
             if bnd:
                 self.log(f"   [travel] {edge} connection band {unit}: {sorted(bnd)}")
             return bnd
-        band = _compute_band(grid)
+        # COORD LEGS DON'T CROSS EDGES (2026-07-30 log-hygiene, the seam-thrash recon red herring):
+        # `edge` defaults to "north" even for arrive_coord legs, so every 1-tile grind hop was
+        # computing + logging a full "north connection band cols: [0..107]" it would never use —
+        # which made routine grass pacing at Route 4 (86,14) read as a failing Cerulean seam-cross
+        # in the logs. The band exists only for edge-crossing legs.
+        band = _compute_band(grid) if arrive_coord is None else None
         def _edge_goal(t):
             return exit_cmp(t[exit_axis]) and (band is None or t[perp_axis] in band)
         goal = ((lambda t: t == arrive_coord) if arrive_coord is not None else _edge_goal)
@@ -980,7 +985,7 @@ class Traveler:
                 # 2026-07-08 night train): the band is edge-crossing lines on the CURRENT map, and
                 # a single edge='south' leg can span Viridian->Route1->Pallet — the starting map's
                 # band gates the goal to the wrong lines on every map after the first.
-                band = _compute_band(grid)
+                band = _compute_band(grid) if arrive_coord is None else None
                 edge_row_retries = 0
                 plan_cache = None
                 stuck = exit_tries = 0

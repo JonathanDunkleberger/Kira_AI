@@ -11535,9 +11535,27 @@ class Campaign:
             if GYM_READINESS_FLOOR_ENABLED and "head_to_gym" in a and state.get("next_gym"):
                 try:
                     _ngf = state["next_gym"]
-                    _bumpf = getattr(self, "_gym_prep_bump", {}).get(_ngf["leader"], 0)
-                    rf = self.planner.gym_readiness(_ngf["leader"], state.get("party") or [],
-                                                    party_target=GYM_PARTY_TARGET, loss_bump=_bumpf)
+                    # QUESTLINE SPARE (2026-07-30, Jonny live report: post-Nugget-Bridge dither between
+                    # Misty and 'continue north'). While a questline is ACTIONABLE, head_to_gym is
+                    # HIJACKED to drive the unlock errand (_route_action -> _run_questline_step: Bill's
+                    # S.S. Ticket up Route 24/25) — it is NOT walking into Misty's door. The readiness
+                    # floor pruning it here starved the errand every tick: goals said Misty, the
+                    # questline said Bill, and the ONE action that executes Bill kept vanishing from
+                    # the menu — so she flip-flopped between grinding and vague northbound travel.
+                    # Canon order is Bill FIRST anyway (free Route 24/25 trainer XP en route = the
+                    # strengthening this floor wants). Readiness re-applies the moment the errand
+                    # clears and head_to_gym points at the actual gym again.
+                    _ql = getattr(self, "_active_questline", None)
+                    _ql_spare = _ql is not None and getattr(_ql, "actionable", None) is not None
+                    if _ql_spare:
+                        log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the "
+                            f"'{_ql.actionable.missing}' errand, not {_ngf['leader']}'s door "
+                            f"(the errand route IS the strengthening)")
+                        rf = None
+                    else:
+                        _bumpf = getattr(self, "_gym_prep_bump", {}).get(_ngf["leader"], 0)
+                        rf = self.planner.gym_readiness(_ngf["leader"], state.get("party") or [],
+                                                        party_target=GYM_PARTY_TARGET, loss_bump=_bumpf)
                     if rf and (rf["thin"] or rf["underleveled"]):
                         strengthen = [k for k in a if k in ("wander_catch", "battle", "stock_up")
                                       or k.startswith("travel:")]
@@ -14531,6 +14549,18 @@ class Campaign:
                 medium = "Head out of the league, heal up, and pick the next adventure"
             else:
                 medium = "Press on through the league"
+            # QUESTLINE-FIRST MEDIUM (2026-07-30, the post-Nugget-Bridge Misty-vs-Bill dither): while
+            # an unlock errand is ACTIONABLE, the road to the gym literally runs THROUGH it (canon
+            # order: Bill's S.S. Ticket before Misty) — but the goal layers kept saying "Misty" while
+            # the questline said "north to Bill", and she flip-flopped between the two voices. One
+            # stated order ends the dither. Generic: works for every gate, not just Cerulean.
+            try:
+                _qlg = getattr(self, "_active_questline", None)
+                if _qlg is not None and getattr(_qlg, "actionable", None) is not None:
+                    _errand = getattr(_qlg.actionable, "human", None) or "finish the unlock errand"
+                    medium = f"FIRST {_errand} — the gym comes right after; that errand is the road"
+            except Exception:
+                pass
             # SHORT — current want, or the concrete strengthen task with an END CONDITION when walled
             want = ""
             try:
@@ -14630,6 +14660,20 @@ class Campaign:
                       f"forward leads there: until you've won you are ALWAYS making progress toward the "
                       f"next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and "
                       f"then you GET BACK ON THE ROAD to {ng['city']}. Never just circle the same grass.")
+            # ONE ORDER, NOT TWO VOICES (2026-07-30, the Misty-vs-Bill dither): while an unlock
+            # errand is live, say EXPLICITLY that it comes before the gym — otherwise this spine
+            # ("next is Misty") and the questline narration ("head north to Bill") read as two
+            # competing objectives and she oscillates between them tick to tick.
+            try:
+                _qls = getattr(self, "_active_questline", None)
+                if _qls is not None and getattr(_qls, "actionable", None) is not None:
+                    _errand = getattr(_qls.actionable, "human", None) or "the unlock errand"
+                    spine += (f" ⚠️ ORDER OF OPERATIONS: before {ng['leader']}, {_errand} — that errand "
+                              f"comes FIRST (it unblocks the road and the trainers along it are exactly "
+                              f"the training you need). {ng['leader']} is step two, not a competing "
+                              f"choice.")
+            except Exception:
+                pass
             # P-1(b) ANTICIPATION FOLKLORE (couch fix-pass 1): what she's HEARD about the gym
             # ahead — trainer-talk a first-timer picks up, never walkthrough knowledge. Feeds
             # the forward-musing habit ("I hear the first gym is rock-type… that's bad for you,

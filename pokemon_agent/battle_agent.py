@@ -598,6 +598,34 @@ class BattleAgent:
     _STATUS_MOVES = _SLEEP_MOVES | {77, 78, 86}     # + PoisonPowder, StunSpore, ThunderWave
     CATCH_WEAKEN_CEIL = 0.85   # if she CAN'T weaken (depleted PP) AND the foe is still above this HP
     #                            fraction, don't dump balls into a low-odds full-HP catch — flee + heal.
+    # SPECIES THAT ESCAPE ON THEIR FIRST FREE TURN (2026-07-30, Jonny live report: full-HP ball at an
+    # Abra, it Teleported). Wild Abra/Kadabra in FireRed know only Teleport — EVERY turn you spend
+    # weakening/switching hands it the exit. The only play is ball-on-sight; the throw itself resolves
+    # before the foe acts, so a break-free still costs the encounter but a weaken ALWAYS does.
+    _FLEES_ON_FREE_TURN = {63: "Teleport", 64: "Teleport"}          # Abra, Kadabra
+    # CHIPPER-SWITCH band (the 'weaken with NOT the ace' play): when the lead out-levels the wild by
+    # 10+ (any hit could KO) and no sleep move is up, switch to a teammate whose level sits within
+    # this margin ABOVE the foe — close enough that its gentlest move chips instead of one-shots.
+    CATCH_CHIPPER_MAX_OVER = int(os.getenv("POKEMON_CATCH_CHIPPER_OVER", "9"))
+
+    def _catch_chipper_slot(self, foe_level):
+        """Best party slot to do the CHIPPING when the lead would one-shot the catch target: alive,
+        >40% HP (it will eat one wild hit during the switch turn), level above the foe (it must win
+        the trade) but within CATCH_CHIPPER_MAX_OVER of it (its hits stay survivable). Prefers the
+        strongest in-band teammate. None = nobody fits (caller keeps the old full-HP-throw path)."""
+        if not foe_level:
+            return None
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        best, best_lv = None, 0
+        for s in range(1, min(cnt, 6)):
+            base = ram.GPLAYER_PARTY + s * 100
+            hp, maxhp = self.b.rd16(base + 0x56), self.b.rd16(base + 0x58)
+            if hp <= 0 or (maxhp and hp / maxhp <= 0.40):
+                continue
+            lv = self.b.rd8(base + 0x54)
+            if foe_level < lv <= foe_level + self.CATCH_CHIPPER_MAX_OVER and lv > best_lv:
+                best, best_lv = s, lv
+        return best
 
     def _can_weaken(self, state):
         """True iff she has a move that can actually SOFTEN the foe — a usable status move OR a usable
@@ -723,12 +751,24 @@ class BattleAgent:
         # when the foe is 10+ levels under the lead, never CHIP it (one hit would KO). But a pure SLEEP
         # move is damage-free with ZERO KO risk and x2 catch rate in Gen 3 — with a thin ball supply
         # that's the difference between "caught" and "the last ball broke free". Sleep-then-throw.
+        chipper_tried = False
         try:
             _rb0 = st.read_battle(self.b)
-            if weaken and _rb0 and (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10:
+            # FLEE-ON-SIGHT SPECIES (Abra/Kadabra): every weaken/status/switch turn hands it the
+            # Teleport exit. Skip ALL softening and throw immediately — the deliberate, narrated
+            # version of what previously looked like a mistake.
+            _foe_sp0 = (_rb0 or {}).get("enemy", {}).get("species")
+            if _foe_sp0 in self._FLEES_ON_FREE_TURN:
+                weaken = False
+                _fname = st.SPECIES_NAME.get(_foe_sp0, "this one")
+                self.log(f"   [engine] catch: {_fname} escapes ({self._FLEES_ON_FREE_TURN[_foe_sp0]}) "
+                         f"on its first free turn — skipping weaken, ball-on-sight")
+                self.emit(f"{_fname} teleports away the second it gets a turn — no time to weaken it, "
+                          f"I have to throw RIGHT NOW and pray.", beat=True, tier=1)
+            elif weaken and _rb0 and (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10:
                 status_only = True
                 self.log("   [engine] catch: foe is 10+ levels under the lead — no chipping (would KO); "
-                         "SLEEP-then-throw if a sleep move is up")
+                         "SLEEP-then-throw if a sleep move is up, else a CHIPPER SWITCH")
         except Exception:
             pass
 
@@ -774,6 +814,32 @@ class BattleAgent:
                         self.emit("let me put it to sleep first — easier to catch that way", beat=True)
                         self._fire_move(si)
                         continue
+                # CHIPPER SWITCH (2026-07-30, Jonny live report: 'she needs to weaken it with NOT the
+                # ace'): no sleep move up and the ace would one-shot the target — the real-player play
+                # is to field a CLOSE-LEVEL teammate whose hits chip instead of KO. Reuses the proven,
+                # fail-safe grind-switch actuation (_switch_to_slot: species-confirmed, B-out on any
+                # non-confirm -> we just fall through to the old full-HP throw). One attempt per catch;
+                # the wild's free turn during the switch is priced in (flee-risk species never reach
+                # here — they take the ball-on-sight path above).
+                if not chipper_tried and not state["enemy"].get("asleep"):
+                    chipper_tried = True
+                    ch = self._catch_chipper_slot(state["enemy"].get("level"))
+                    if ch is not None:
+                        _ch_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ch), "a teammate")
+                        _my_nm = st.SPECIES_NAME.get(state["ours"].get("species"), "my ace")
+                        self.log(f"   [engine] catch: CHIPPER SWITCH — {_my_nm} would one-shot it; "
+                                 f"fielding slot {ch} ({_ch_nm}) to chip it into the catchable band")
+                        if self._switch_to_slot(ch, state["ours"].get("species")) == "switched":
+                            self.emit(f"{_my_nm} hits way too hard for this — {_ch_nm}, you're up. "
+                                      f"soften it, don't finish it.", beat=True, tier=1)
+                            self._weaken_hp()            # damage-aware chip with the close-level mon
+                            softened = True
+                            continue
+                        self.log("   [engine] catch: chipper switch didn't confirm — falling back to "
+                                 "the full-HP throw (fail-safe)")
+                if not softened and not state["enemy"].get("asleep"):
+                    self.emit("no safe way to weaken this one — full-health throw it is. wish me luck.",
+                              beat=True)
                 softened = True
                 continue
             if weaken and not status_only and not softened and state is not None:
