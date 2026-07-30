@@ -523,6 +523,13 @@ STRAT_JSON = os.path.join(STATES_CAMPAIGN, "strat_memory.json")
 # next to the campaign save, so a --resume climb wakes up KNOWING where she's been (no more
 # spatial amnesia that left the only place in her head to go = into the wall).
 WORLD_JSON = os.path.join(STATES_CAMPAIGN, "world_model.json")
+# WEDGE MEMORY (2026-07-30, subathon audit) — the unified block memory (_blocked_npcs/_looped_spots)
+# used to die with the process, so an abandon -> supervisor-relaunch re-approached the SAME trap with
+# amnesia and re-wedged for as long as nobody was watching. Persist it next to the campaign save,
+# TTL-bounded (a wanderer NPC's transient block must not poison a corridor forever; travel's live
+# staleness-release still un-marks any of these the moment the tile reads empty).
+WEDGE_MEM_JSON = os.path.join(STATES_CAMPAIGN, "wedge_memory.json")
+WEDGE_MEM_TTL_S = float(os.getenv("POKEMON_WEDGE_MEM_TTL_S", str(12 * 3600)))
 # HUD — the WHOLE-PLAYTHROUGH timer (persists across sessions, unlike per-session run_uptime). Stamped
 # once at the first free-roam and read forever after, so the stream HUD shows "how long this journey
 # has taken" not "how long since this launch".
@@ -1190,6 +1197,10 @@ class Campaign:
         # so a blocker was re-discovered + re-bumped forever). Fed from travel's chokepoint gauntlet,
         # the B-2 dialogue-loop disengage, and the Layer-B watchdog wedge-spot mark — one source of truth.
         self._blocked_npcs = set()
+        # WEDGE MEMORY ACROSS RESTARTS (2026-07-30): reload the persisted block memory so a fresh
+        # process (supervisor relaunch after an abandon / a crash / Jonny's morning resume) wakes up
+        # REMEMBERING which tiles trapped her — instead of re-approaching the same wedge with amnesia.
+        self._load_wedge_memory()
         # LAYER B — UNIVERSAL WALL-CLOCK WATCHDOG: created at free_roam start. `_stuck_request` is the
         # latched disengage the live render hook sets when StuckWatch trips (honored at the top of the
         # roam loop AND cooperatively by travel via stuck_check); `_watchdog_trips` counts trips this
@@ -11896,8 +11907,65 @@ class Campaign:
             self._looped_spots.add((mp, cur))   # talk guard: don't re-initiate from this stand tile
             log(f"   [roam] wedge spot: blocking {body} on {mp} (route around it) + marking {cur} a "
                 f"resolved talk-spot — unified block memory now {len(self._blocked_npcs)} tile(s)")
+            self._save_wedge_memory()           # persist immediately — a wedge mark must survive a restart
         except Exception as _e:
             log(f"   [roam] mark wedge spot skipped: {_e}")
+
+    def _load_wedge_memory(self):
+        """Restore _blocked_npcs/_looped_spots from the campaign sidecar, dropping entries older than
+        WEDGE_MEM_TTL_S. Best-effort — a missing/corrupt file just means a fresh (empty) memory."""
+        self._wedge_mem_ts = {}
+        self._wedge_mem_saved_at = 0.0
+        import json as _json
+        try:
+            if not os.path.exists(WEDGE_MEM_JSON):
+                return
+            with open(WEDGE_MEM_JSON, encoding="utf-8") as f:
+                data = _json.load(f) or {}
+            now = time.time()
+            for kind, target in (("blocked_npcs", self._blocked_npcs),
+                                 ("looped_spots", self._looped_spots)):
+                for rec in data.get(kind) or []:
+                    try:
+                        mp, tile, ts = tuple(rec[0]), tuple(rec[1]), float(rec[2])
+                    except Exception:
+                        continue
+                    if now - ts > WEDGE_MEM_TTL_S:
+                        continue
+                    target.add((mp, tile))
+                    self._wedge_mem_ts[(kind, mp, tile)] = ts
+            if self._blocked_npcs or self._looped_spots:
+                log(f"   [roam] wedge memory restored: {len(self._blocked_npcs)} blocked tile(s), "
+                    f"{len(self._looped_spots)} resolved talk-spot(s) — she REMEMBERS her traps "
+                    f"(TTL {WEDGE_MEM_TTL_S / 3600:.0f}h)")
+        except Exception as _e:
+            log(f"   [roam] wedge memory load skipped: {_e}")
+
+    def _save_wedge_memory(self):
+        """Write the current block memory to the campaign sidecar (atomic). Entries keep their first-seen
+        timestamp so the TTL measures trap AGE, not last-save time. Never blocks or raises."""
+        import json as _json
+        try:
+            now = time.time()
+            ts_map = getattr(self, "_wedge_mem_ts", None)
+            if ts_map is None:
+                ts_map = self._wedge_mem_ts = {}
+            data = {}
+            for kind, src in (("blocked_npcs", self._blocked_npcs),
+                              ("looped_spots", self._looped_spots)):
+                rows = []
+                for mp, tile in src:
+                    ts = ts_map.setdefault((kind, mp, tile), now)
+                    rows.append([list(mp) if isinstance(mp, (tuple, list)) else mp,
+                                 list(tile) if isinstance(tile, (tuple, list)) else tile, ts])
+                data[kind] = rows
+            tmp = WEDGE_MEM_JSON + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                _json.dump(data, f)
+            os.replace(tmp, WEDGE_MEM_JSON)
+            self._wedge_mem_saved_at = now
+        except Exception as _e:
+            log(f"   [roam] wedge memory save skipped: {_e}")
 
     def _wait_overworld(self, max_frames=900):
         """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
@@ -13151,9 +13219,16 @@ class Campaign:
             # stop loud, never re-ask an impossible question for 20+ ticks (the live wedge). Capability-
             # not-script: she still picks among REAL options; this only fires when the WORLD won't move.
             red_ticks = red_ticks + 1 if macro == ledger.RED else 0
-            if macro != ledger.RED:
+            # WEDGE-EPISODE BUDGETS RESET ON *GREEN* ONLY (2026-07-30, the overnight revert-loop): these
+            # used to reset on any non-RED tick — but shuffling around inside a wedge basin reads YELLOW
+            # ("not getting anywhere"), so every reload bought a couple of YELLOW ticks, the budget reset,
+            # and the escape-hatch re-fired the SAME ~10s-old snapshot forever (Jonny watched it loop all
+            # night). The episode isn't over until REAL progress (GREEN) — until then each successive RED
+            # streak keeps consuming the SAME bounded budgets, so the ladder ESCALATES (recent-good reload
+            # x2 -> deep gain-seam ring -> abandon LOUD) instead of orbiting rung one.
+            if macro == ledger.GREEN:
                 hard_recovered = False
-                escape_reloads = 0                 # new episode — reset the escape budget
+                escape_reloads = 0                 # real progress — reset the escape budget
                 self._deepwedge_reverts = 0        # real progress — reset the deep-wedge ring budget too
             # ADDENDUM A — LAST-RESORT ESCAPE-HATCH: after the forced-heal hard-recovery has been tried and
             # RED *still* persists (a genuine fingerprint-frozen wedge, not idle), bank-current then reload
@@ -13179,6 +13254,7 @@ class Campaign:
                     f"deep-wedge ring ({self._deepwedge_reverts} reverts) both exhausted — genuinely "
                     f"unrecoverable, this NEEDS A HUMAN (red light's real meaning)")
                 self._roam_progress = "ABANDONED"
+                self._save_wedge_memory()      # the relaunch MUST remember this trap — no amnesia loop
                 self.on_event("I'm completely stuck — I've tried everything and I can't find a way forward "
                               "on my own. I need a hand here.", kind="abandoned", tier=3)
                 self._fire_deadman_alert(state)    # PHASE 2 — dead-man's switch: ping Jonny, recovery failed
@@ -14380,6 +14456,10 @@ class Campaign:
     def _publish_health(self, macro, state, last_badge_ts, run_start_ts):
         """BATCH 6 PHASE 7 — write the cockpit health snapshot (atomic JSON) the dashboard polls. Game-side
         only; the dashboard merges API spend from the bot's cost-tracker. Best-effort, never blocks the run."""
+        # WEDGE-MEMORY FLUSH (throttled ~30s): piggyback the health heartbeat so blocks discovered by
+        # TRAVEL (which never pass through _mark_wedge_spot) also survive a kill/restart.
+        if time.time() - getattr(self, "_wedge_mem_saved_at", 0) > 30:
+            self._save_wedge_memory()
         import json as _json
         try:
             cp = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
