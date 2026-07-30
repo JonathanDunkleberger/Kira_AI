@@ -5071,6 +5071,42 @@ class VTubeBot:
             return False
         return (time.time() - self._vad_mic_last_ts) < MIC_GATE_ACTIVE_WINDOW_S
 
+    async def _turn_lock_watchdog_loop(self) -> None:
+        """DEAFNESS DETECTOR (2026-07-30, Jonny live report: 'she stopped listening to me and
+        chat'). While processing_lock or _active_turn_lock is held, Jonny's mic frames are
+        DROPPED (vad_loop) and chat batches are SKIPPED (chat_batch_worker) — that's correct for
+        the seconds a real turn takes, but a HUNG turn (a stalled LLM/TTS await) makes her deaf
+        to everything indefinitely while the game keeps playing, with zero log evidence. This
+        watchdog samples the locks and screams when one has been held continuously far past any
+        plausible turn, naming the span — so a live 'she's ignoring me' has a definitive log
+        signature (and the operator knows a voice-loop restart is needed). OBSERVE-ONLY by
+        design: force-releasing an asyncio.Lock out from under 15 legitimate holders can hand
+        the lock to a second turn and corrupt the release chain — a loud diagnosis is safe."""
+        held_since = {"processing_lock": None, "_active_turn_lock": None}
+        last_scream = {"processing_lock": 0.0, "_active_turn_lock": 0.0}
+        WEDGE_S = float(os.getenv("TURN_LOCK_WEDGE_S", "180"))
+        while True:
+            await asyncio.sleep(15)
+            try:
+                for name, lk in (("processing_lock", self.processing_lock),
+                                 ("_active_turn_lock", self._active_turn_lock)):
+                    if not lk.locked():
+                        held_since[name] = None
+                        continue
+                    if held_since[name] is None:
+                        held_since[name] = time.time()
+                        continue
+                    span = time.time() - held_since[name]
+                    if span > WEDGE_S and time.time() - last_scream[name] > 60:
+                        last_scream[name] = time.time()
+                        print(f"   [TurnLockWatchdog] !!!! {name} held ~{span:.0f}s CONTINUOUSLY "
+                              f"(speaking={getattr(self.ai_core, 'is_speaking', False)}) — no real "
+                              f"turn runs this long. She is DEAF to voice+chat while this holds; "
+                              f"the turn is almost certainly hung mid-await. Restart the voice "
+                              f"loop to recover.")
+            except Exception as e:
+                print(f"   [TurnLockWatchdog] sample error (watchdog continues): {e}")
+
     async def _loopback_supervisor_loop(self) -> None:
         """Idempotent loopback keep-alive (the root fix for inconsistent hearing).
 
@@ -5769,6 +5805,10 @@ class VTubeBot:
             # Loopback keep-alive supervisor — self-heals capture/transcriber that
             # never started or dropped (cold-boot silent-bind, unplug, clean exit).
             tasks.append(self._loopback_supervisor_loop())
+            # Turn-lock watchdog — screams when a hung turn holds processing_lock /
+            # _active_turn_lock past any plausible length (the 'she stopped listening
+            # to me and chat' deafness signature). Observe-only, 15s cadence.
+            tasks.append(self._turn_lock_watchdog_loop())
 
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
             tasks.append(self.dynamic_observer_loop())

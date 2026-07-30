@@ -582,10 +582,16 @@ class AudioAgent:
             print("   [Audio] pyaudiowpatch not installed — run: pip install PyAudioWPatch")
             self.mode = AUDIO_MODE_OFF
             return
+        # P-7 DECOUPLE (2026-07-30, the LoopbackSupervisor death spiral): capture used to early-
+        # return here when self.client is None — but the OpenAI purge hard-codes client=None, so
+        # WASAPI loopback could NEVER open again and the supervisor retried a no-op every 15-60s
+        # forever ("capture DOWN" / "No OpenAI client — capture disabled" spam across every soak
+        # log since P-7). The CAPTURE + local-Whisper LoopbackTranscriber need no LLM client at
+        # all; only the mood/describe paths do, and those stay client-gated where they're called
+        # (heartbeat_loop already skips when client is None).
         if not self.client:
-            print("   [Audio] No OpenAI client — capture disabled")
-            self.mode = AUDIO_MODE_OFF
-            return
+            print("   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the "
+                  "mood heartbeat stays off")
 
         try:
             self._pa = pyaudio.PyAudio()

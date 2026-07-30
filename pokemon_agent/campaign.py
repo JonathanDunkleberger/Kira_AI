@@ -1907,12 +1907,17 @@ class Campaign:
     def _learn_transit(self):
         """TRANSIT-TIME warp learning (2026-07-07, flute_run4): _learn_map fires once per roam
         TICK, but door-passthrough/enter_warp cross interiors WITHIN one action — the UGP huts'
-        warps were never recorded (world model: visited=False, warps={}), so the mental-map BFS
+        warps were never recorded (world model: visited=False, warps={}), so         the mental-map BFS
         dead-ended at the hut door and read 'no route Lavender->Celadon' though she'd WALKED that
-        road. Fold the map we just landed on into the graph immediately. Pure reads; never raises."""
+        road. Fold the map we just landed on into the graph immediately. Pure reads; never raises.
+        RENDERED (2026-07-30, the 'pixelated glitch with a noise' stream report): this fires on
+        EVERY travel map change, and the old loop advanced frames without the render hook — the
+        window froze on FireRed's mid-mosaic transition frame (~0.5s of pixelated freeze) while the
+        warp SFX kept playing. Every settle frame now draws."""
         try:
             for _ in range(30):                 # settle past the mid-transition layout window
                 self.b.run_frame()
+                self.render()
             self._learn_map()
         except Exception as _lt:
             log(f"   [world] transit learn skipped: {_lt}")
@@ -2005,9 +2010,11 @@ class Campaign:
                         self.b.press(k2, 8, 10, self.render, owner="agent")
                         for _ in range(30):
                             self.b.run_frame()
+                            self.render()
                         if tuple(tv.map_id(self.b)) != m0:
                             for _ in range(60):
                                 self.b.run_frame()
+                                self.render()
                             log(f"   directional warp {wt} (behavior 0x{bh:02x}) fired on approach via {k2}")
                             self._learn_transit()
                             return True
@@ -2030,12 +2037,13 @@ class Campaign:
             if tuple(tv.map_id(self.b)) == m0 and tuple(tv.coords(self.b) or ()) == tuple(wt):
                 for _ in range(240):
                     self.b.run_frame()
+                    self.render()                     # escalator wait ~4s — MUST draw (frozen-mosaic fix)
                     if tuple(tv.map_id(self.b)) != m0:
                         break
             if tuple(tv.map_id(self.b)) != m0:
                 for _ in range(60):                   # SETTLE the fade-in: the map header/layout
                     self.b.run_frame()                # pointers are mid-transition the instant the
-                #                                       id flips — a back-to-back tile read gets 0s
+                    self.render()                     # id flips — a back-to-back tile read gets 0s
                 log(f"   directional warp {wt} (behavior 0x{bh:02x}) entered via {key}")
                 self._learn_transit()
                 return True

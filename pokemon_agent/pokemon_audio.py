@@ -190,6 +190,14 @@ class AudioPump:
         self.stereo = self.b.core.get_audio_channels()
         self.stereo.set_rate(rate)          # blip resamples the GBA clock -> `rate` Hz stereo
         self.stereo.clear()                 # drop the boot/settle backlog so we don't blast it
+        self._drops = 0                     # dropped-PCM frame counter (crackle observability)
+        # SAVESTATE-LOAD FLUSH (2026-07-30, the transition-glitch recon): register on the bridge so
+        # load_state() can flush the pre-load audio tail — otherwise a mid-run reload (escape hatch /
+        # deep-wedge revert) pops the stale buffered samples into the stream.
+        try:
+            self.b._audio_pump = self
+        except Exception:
+            pass
 
         # ── route target: the DESKTOP output ONLY (Jonny's monitor/headphones, e.g. Leviathan) ──
         # The virtual cable carries Kira's TTS ONLY (VTS lip-syncs her mouth off the cable). Emulator
@@ -261,7 +269,12 @@ class AudioPump:
                 try:
                     self._q.put_nowait(pcm.tobytes())    # never blocks the emulator
                 except _queue.Full:
-                    pass                                 # child slow/dead — drop this frame's audio
+                    # child slow/dead — drop this frame's audio. Counted + logged sparsely so a
+                    # crackle complaint can be matched to drop bursts in the log (2026-07-30 recon).
+                    self._drops += 1
+                    if self._drops % 300 == 1:
+                        self.log(f"   [pkmn-audio] !! PCM queue full — dropped frame audio "
+                                 f"(total drops {self._drops}; bursts here = audible crackle)")
         except Exception as e:                           # never let audio crash the run (Constraint #3)
             self.log(f"   [pkmn-audio] !! drain error (audio dropped, run continues): {e}")
         if self.paced:

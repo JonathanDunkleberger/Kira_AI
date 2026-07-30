@@ -165,4 +165,14 @@ class Bridge:
         vf = VFile.fromEmpty()
         vf.write(data, len(data))
         vf.seek(0, 0)
-        return self.core.load_state(vf)
+        r = self.core.load_state(vf)
+        # AUDIO FLUSH (2026-07-30): a mid-run reload leaves the PRE-load audio tail in the blip
+        # buffer — the next drain pops it into the live stream. Drop it; the pump (if any)
+        # registered itself at init.
+        pump = getattr(self, "_audio_pump", None)
+        if pump is not None:
+            try:
+                pump.stereo.clear()
+            except Exception:
+                pass
+        return r
