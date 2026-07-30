@@ -107,6 +107,22 @@ if (Test-Path $envFile) {
             Say "!! skipped - she'll keep running on local Llama until the key is added to .env."
         }
     }
+    if (-not (Select-String -Path $envFile -Pattern "^\s*DISCORD_WEBHOOK_URL\s*=\s*\S+" -Quiet)) {
+        # SUBATHON AUDIT 2026-07-30: the dead-man's switch (she's abandoned/wedged -> ping Jonny) posts
+        # to this webhook. Without it the alert is a SILENT no-op — you'd find her stopped hours later
+        # instead of getting a phone buzz. Discord: Server Settings > Integrations > Webhooks > New.
+        Say "!! DISCORD_WEBHOOK_URL is missing from .env - the dead-man's switch CANNOT reach you."
+        Say "   (If she gets truly stuck mid-subathon, you will NOT be notified.)"
+        $dwUrl = Read-Host "Paste a Discord webhook URL to fix this now, or press Enter to skip"
+        if ($dwUrl -and $dwUrl.Trim().StartsWith("https://discord.com/api/webhooks/")) {
+            Add-Content -Path $envFile -Value "`nDISCORD_WEBHOOK_URL=$($dwUrl.Trim())"
+            Say "DISCORD_WEBHOOK_URL written to .env - abandon/crash-loop alerts will ping your Discord."
+        } elseif ($dwUrl) {
+            Say "!! that didn't look like a Discord webhook URL - NOT written. No alerts this run."
+        } else {
+            Say "!! skipped - she can still play, but a hard stop will be SILENT until you check."
+        }
+    }
 } else { Say "!! WARNING: no .env at repo root" }
 
 # 1) crash forensics
