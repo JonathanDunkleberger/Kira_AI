@@ -11719,7 +11719,21 @@ class Campaign:
             if _plan_build:
                 log("   [roam] TEAM-BRAIN PRE-BUILD: team dangerously thin + a keeper/bench-build is DUE — "
                     "NOT pruning catch/grind to forward-drive (assemble the squad before the gauntlet)")
-            if not stuck and prep_t is None and not _plan_build:
+            # QUESTLINE OVERRIDES THE PREP STAND-DOWN (2026-07-30, Jonny live report: 'she keeps
+            # fighting in the WRONG grass' — Route 4 behind her instead of Route 24/25 north where
+            # the Bill errand goes AND the plan's Abra lives). The prep stand-down (prep_t armed)
+            # exists so a deliberate strengthen-grind isn't pruned as backward drift — but while an
+            # unlock errand is live, the errand road IS the strengthen-grind (mandatory trainer
+            # fights + fresh grass en route pay better than re-farming cleared grass), so standing
+            # down anchored her prep to whatever tile she happened to be on. Let the questline
+            # branch of forward-drive fire anyway; its reframe explicitly says grind ON THE WAY.
+            _ql_live = (QUESTLINE_ENABLED and self._active_questline is not None
+                        and self._active_questline.actionable is not None
+                        and getattr(self._active_questline, "derivable", True))
+            if _ql_live and prep_t is not None:
+                log("   [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — "
+                    "the errand road is the training ground; driving forward instead of parking")
+            if not stuck and not _plan_build and (prep_t is None or _ql_live):
                 try:
                     cur = tuple(state["map"])
                     avoid = self._wall_avoid(state)
@@ -11782,13 +11796,28 @@ class Campaign:
                                     keep = False
                             if not keep:
                                 a.pop(k, None); pruned.append(k)
+                        # KEEPER-ON-THIS-MAP SPARE (2026-07-30, the wrong-grass report): if the team
+                        # plan's DUE catch target can actually appear in THIS map's grass (she has
+                        # reached Abra territory), wander_catch is FORWARD work, not backward drift —
+                        # keep it on the menu so she can hunt the keeper right here.
+                        _kp_here = None
+                        try:
+                            _kp_here = self._plan_keeper_target(state)
+                        except Exception:
+                            _kp_here = None
                         for g in ("battle", "wander_catch"):
+                            if g == "wander_catch" and _kp_here:
+                                a[g] = (f"HUNT {_kp_here.upper()} HERE — your plan's target lives in "
+                                        f"THIS grass. Work these tiles until you've caught it, then "
+                                        f"push on with the errand.")
+                                continue
                             if a.pop(g, None) is not None:
                                 pruned.append(g)
                         if pruned:
                             why = "questline" if ql_open else f"off-branch->{self.world.name(anchor)}"
                             log(f"   [roam] !! FORWARD-DRIVE ({why}): head_to_gym reframed as the dominant "
-                                f"forward pull, pruned backward-grind {sorted(pruned)}")
+                                f"forward pull, pruned backward-grind {sorted(pruned)}"
+                                + (f" (spared wander_catch — {_kp_here} lives on this map)" if _kp_here else ""))
                 except Exception as _fd:
                     log(f"   [roam] forward-drive skipped: {_fd}")
             # TEAM-BRAIN PRE-BUILD DOMINANCE (rule 2 — the load-bearing half): keeping catch/grind on the
