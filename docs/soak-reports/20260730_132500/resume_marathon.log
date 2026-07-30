@@ -1,4 +1,4 @@
-resume_marathon 20260730_125850  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260730_132500  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
 git : From https://github.com/JonathanDunkleberger/Kira_AI
@@ -8,17 +8,12 @@ At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:85 char:24
     + CategoryInfo          : NotSpecified: (From https://gi...eberger/Kira_AI:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-   b2e4c7a..a69dc4b  main       -> origin/main
-Updating b2e4c7a..a69dc4b
+   b066600..72be7ae  main       -> origin/main
+Updating b066600..72be7ae
 Fast-forward
- kira/bot.py                      |   8 ++
- kira/dashboard/control_server.py |   3 +
- pokemon_agent/PROMOTE_TARGET.txt |   1 +
- pokemon_agent/battle_agent.py    |  60 ++++++++++++---
- pokemon_agent/campaign.py        | 161 ++++++++++++++++++++++++++++++++++-----
- pokemon_agent/naming.py          |  24 ++++++
- web_dashboard/pokemon_hud.html   |   9 ++-
- 7 files changed, 232 insertions(+), 34 deletions(-)
+ pokemon_agent/PROMOTE_TARGET.txt |  1 +
+ pokemon_agent/campaign.py        | 61 +++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 61 insertions(+), 1 deletion(-)
  create mode 100644 pokemon_agent/PROMOTE_TARGET.txt
 
 == crash forensics ==
@@ -26,9 +21,10 @@ Fast-forward
 
 Name                            LastWriteTime           Length
 ----                            -------------           ------
-latest.log                      7/30/2026 12:33:42 PM   251389
+latest.log                      7/30/2026 1:14:32 PM    140867
+console_2026-07-30_12-58-57.log 7/30/2026 1:14:32 PM    140867
+playlive_faulthandler.log       7/30/2026 12:59:51 PM     3630
 console_2026-07-30_11-57-17.log 7/30/2026 12:33:42 PM   251389
-playlive_faulthandler.log       7/30/2026 11:58:02 AM     3520
 console_2026-07-30_10-16-52.log 7/30/2026 10:21:30 AM    31437
 console_2026-07-30_09-47-46.log 7/30/2026 10:04:00 AM   120544
 console_2026-07-30_09-39-23.log 7/30/2026 9:47:10 AM     51818
@@ -224,8 +220,8 @@ console_2026-06-16_17-58-32.log 6/16/2026 6:05:26 PM     32137
 
 
 tailed newest debug log: latest.log
+tailed supervisor log: playlive_2026-07-30_12-59-51.log
 tailed supervisor log: playlive_2026-07-30_11-58-02.log
-tailed supervisor log: playlive_2026-07-30_10-17-47.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
     last activity: 07/28/2026 13:14:40
@@ -234,13 +230,14 @@ tailed supervisor log: playlive_2026-07-30_10-17-47.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 07/30/2026 12:32:59
-    badges=1 party=[rattata L8, ekans L10, spearow L9, wartortle L22] place=Route 4 played=1598min timeline=sherpa
+    last activity: 07/30/2026 13:13:47
+    badges=1 party=[ekans L10, wartortle L22, rattata L8, spearow L10] place=Route 4 played=14min timeline=sherpa
 == campaign snapshot inventory (*.state, newest first) ==
 
 Name                             LastWriteTime         Length
 ----                             -------------         ------
-kira_campaign.state              7/30/2026 12:30:49 PM 397312
+kira_campaign.state              7/30/2026 1:13:47 PM  397312
+pre_reload_20260730_131347.state 7/30/2026 1:13:47 PM  397312
 pre_reload_20260730_115901.state 7/30/2026 11:59:01 AM 397312
 pre_reload_20260730_102123.state 7/30/2026 10:21:23 AM 397312
 pre_reload_20260730_102031.state 7/30/2026 10:20:31 AM 397312
@@ -276,12 +273,12 @@ seg_opening.state                7/28/2026 2:02:29 PM 397312
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  7/30/2026 12:32:59 PM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  7/30/2026 1:13:47 PM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      7/29/2026 9:32:49 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      7/30/2026 12:30:49 PM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      7/30/2026 12:59:52 PM
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -336,28 +333,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
 == push soak report ==
-[main b066600] report(soak): 20260730_125850 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 2486 insertions(+), 1 deletion(-)
- create mode 100644 docs/soak-reports/20260730_125850/canonical_health.json
- create mode 100644 docs/soak-reports/20260730_125850/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260730_125850/resume_marathon.log
- create mode 100644 docs/soak-reports/20260730_125850/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260730_125850/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260730_125850/tail_latest.log
- create mode 100644 docs/soak-reports/20260730_125850/tail_supervisor_playlive_2026-07-30_10-17-47.log
- create mode 100644 docs/soak-reports/20260730_125850/tail_supervisor_playlive_2026-07-30_11-58-02.log
- delete mode 100644 pokemon_agent/PROMOTE_TARGET.txt
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:314 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   a69dc4b..b066600  main -> main
-
-== launching bot (window 1) ==
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-bot is up. == launching supervised marathon (window 2) ==
-She's live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T

@@ -1,0 +1,300 @@
+
+   [TIMING] voice: llm=7071ms(sonnet-stream(llm+tts)) tts=0ms total=7071ms
+   [LATENCY] vad_close=1200ms stt=205ms stt_wait=0ms salience=0ms triage=bypassed memory=26ms prompt_build=1ms ttft=1095ms tts_first_chunk=500ms audio_out=497ms TOTAL=2324ms
+   [BitCooldown] 'That's the Most Arizona Sentence' invoked x1 lifetime — resting 180s
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @Detective_Jones: flat wife :rolling_on_the_floor_laughing: → buffering for chat_batch_worker
+   [TurnTiming] 13:12:02.567 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~35316ms since onset)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<flat wife :rolling_on_the' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=2 | timing(direct=30ms fetch=23ms rank=0ms)
+   [Phrases] Throttling: "that's the most arizona sentence i've" (3rd use this session)
+   [Bits] Callback: That's the Most Arizona Sentence
+   >>> Kira (Chat Batch of 1): Detective Jones. "Flat wife." I need the full story and I need it immediately.
+   [TTS] Speaking: Detective Jones....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones.' (3 words)
+   [TurnTiming] 13:12:05.088 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:06.956 TTS STOP — playback finished (span ~1867ms)
+   [TTS] Speaking: "Flat wife." I need the full story and I need it i...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"Flat wife." I need the full story and I' (14 words)
+   [TurnTiming] 13:12:07.365 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:11.856 TTS STOP — playback finished (span ~4490ms)
+   [Cookies] +1 × 1 (batch response); shared=9/30
+   [ChatAge] @Detective_Jones age=10.1s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 13:12:13.098 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~45848ms since onset)
+   [ChatterMem] Stored: @Detective_Jones — Made a cryptic comment about having a 'flat wife' that deman [chaotic]
+🎤 Recording...
+   [TurnTiming] 13:12:14.179 VOICE ONSET — mic speech started
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [TurnTiming] 13:12:20.317 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6137ms since onset)
+>>> You said: Where do you live in Europe, Detective Jones? Everyone in chat dropped your coordinates right now.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Where do you live in Europe, Detective Jones? Everyone in ch' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and i need" (3rd use this session)
+   [PromptSize] dynamic_context=11273ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 3369ms
+   [TTS] Speaking: Chat, do not comply....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chat, do not comply.' (6 words)
+   [TurnTiming] 13:12:24.362 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:26.607 TTS STOP — playback finished (span ~2245ms)
+   [TTS] Speaking: That's how the intervention starts....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's how the intervention starts.' (6 words)
+   [TurnTiming] 13:12:26.611 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:28.860 TTS STOP — playback finished (span ~2248ms)
+
+   [TIMING] voice: llm=8242ms(sonnet-stream(llm+tts)) tts=0ms total=8243ms
+   [LATENCY] vad_close=1200ms stt=274ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=0ms ttft=3082ms tts_first_chunk=287ms audio_out=370ms TOTAL=4037ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 13:12:30.065 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~15885ms since onset)
+🎤 Recording...
+   [TurnTiming] 13:12:31.900 VOICE ONSET — mic speech started
+   [VRAM] 13:12:32 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 13:12:33.286 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1385ms since onset)
+[YouTube Chat] @Detective_Jones: Denmark
+   [BrainWorker] Got youtube msg from @Detective_Jones: Denmark → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<Denmark>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+🎤 Recording...
+   [TurnTiming] 13:12:37.876 VOICE ONSET — mic speech started
+   [TurnTiming] 13:12:39.158 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1282ms since onset)
+   >>> Kira (Chat Batch of 1): Denmark. Of course it's Denmark. Detective Jones, comfortable horror curator, philosophical dry-erase-board advocate, and now revealed Dane. Everything clicks.
+   [TTS] Speaking: Denmark....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Denmark.' (2 words)
+   [TurnTiming] 13:12:40.599 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:42.374 TTS STOP — playback finished (span ~1775ms)
+   [TTS] Speaking: Of course it's Denmark....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Of course it's Denmark.' (5 words)
+   [TurnTiming] 13:12:42.721 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:44.591 TTS STOP — playback finished (span ~1870ms)
+   [TTS] Speaking: Detective Jones, comfortable horror curator, philo...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, comfortable horror cura' (16 words)
+   [TurnTiming] 13:12:45.172 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: close to legoland
+   [BrainWorker] Got youtube msg from @Detective_Jones: close to legoland → buffering for chat_batch_worker
+   [TurnTiming] 13:12:51.391 TTS STOP — playback finished (span ~6218ms)
+   [TTS] Speaking: Everything clicks....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Everything clicks.' (3 words)
+   [TurnTiming] 13:12:51.789 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:12:53.568 TTS STOP — playback finished (span ~1779ms)
+   [Cookies] +1 × 1 (batch response); shared=10/30
+   [ChatAge] @Detective_Jones age=18.8s batch=1 preempted=none
+   [Cookies] Drip 10 — queued directive (compliment) for @NaitHaunter
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @NaitHaunter: Florida
+   [BrainWorker] Got youtube msg from @NaitHaunter: Florida → buffering for chat_batch_worker
+   [Valence] updated 7 entit(ies): NaitHaunter +0.00→-0.24; Jonny -0.16→-0.42; Hans Christian Andersen +0.00→+0.32; Detective Jones +0.32→+0.59; Vedal +0.00→-0.16; Spearow +0.00→+0.24; Vietel +0.00→-0.16
+   [SmartMem] q='chatter @Detective_Jones' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   >>> Kira (Bored): Detective Jones, returning from Denmark to drop "flat wife" in chat and vanish back into the fjords — ten out of ten regular behavior, genuinely missed.
+
+And NaitHaunter — thirteen thousand messages deep and still the most reliably solid presence in this chat, every single session. Real one.
+   [TTS] Speaking: Detective Jones, returning from Denmark to drop "f...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, returning from Denmark ' (31 words)
+   [TurnTiming] 13:13:03.357 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:11.890 TTS STOP — playback finished (span ~8533ms)
+   [TTS] Speaking: And NaitHaunter — thirteen thousand messages deep ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And NaitHaunter — thirteen thousand mess' (22 words)
+   [TurnTiming] 13:13:12.539 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [VRAM] 13:13:17 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+[YouTube Chat] @Detective_Jones: my dad works for Lego
+   [BrainWorker] Got youtube msg from @Detective_Jones: my dad works for Lego → buffering for chat_batch_worker
+   [TurnTiming] 13:13:19.356 TTS STOP — playback finished (span ~6816ms)
+   [TTS] Speaking: Real one....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Real one.' (3 words)
+   [TurnTiming] 13:13:19.716 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:21.505 TTS STOP — playback finished (span ~1788ms)
+   [TIMING] interjection: vision=2388ms llm=3391ms(sonnet) tts=18932ms total=24734ms
+   [LAG] sense→speak: total=54.8s (content_age=31.8s, prep=2.4s, llm=3.4s, tts_wait+synth=17.1s)
+🎤 Recording... (recovered opening words)
+   [ChatAge] ACK injected for @Detective_Jones (waited 36.7s, preempted=none)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<close to legoland>>>\n  - ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   [Phrases] Throttling: "thirteen thousand messages" (3rd use this session)
+   >>> Kira (Chat Batch of 3): Detective Jones — close to Legoland, dad works for Lego. The lore keeps going. Nait says Florida, which explains the unhinged energy in a completely different direction.
+   [TTS] Speaking: Detective Jones — close to Legoland, dad works for...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones — close to Legoland, dad' (12 words)
+   [TurnTiming] 13:13:27.357 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:31.396 TTS STOP — playback finished (span ~4039ms)
+   [TTS] Speaking: The lore keeps going....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The lore keeps going.' (5 words)
+   [TurnTiming] 13:13:31.759 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:33.536 TTS STOP — playback finished (span ~1776ms)
+   [TTS] Speaking: Nait says Florida, which explains the unhinged ene...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait says Florida, which explains the un' (15 words)
+   [TurnTiming] 13:13:33.977 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:38.753 TTS STOP — playback finished (span ~4775ms)
+   [Cookies] +1 × 2 (batch response); shared=12/30
+   [ChatAge] @Detective_Jones age=51.7s batch=3 preempted=none
+   [ChatAge] @NaitHaunter age=42.5s batch=3 preempted=none
+   [ChatAge] @Detective_Jones age=21.1s batch=3 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 13:13:39.986 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~62110ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Oh, Legoland, like literally Legoland. There's one, I didn't know that.
+   [Salience] voice: score=100 tier=HIGH
+   [DroppedInput] LOST ~8 frame(s) (~240ms, ~0.2s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 13:13:40.336 VOICE ONSET — mic speech started
+   [SmartMem] q="Oh, Legoland, like literally Legoland. There's one, I didn't" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=34ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=11580ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Lives close to Legoland, and their dad works for Lego [playful]
+   [TIMING] first-word: 1588ms
+   [TTS] Speaking: Denmark basically IS Legoland....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Denmark basically IS Legoland.' (5 words)
+   [TurnTiming] 13:13:42.308 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @Detective_Jones — Claims their dad works for Lego [chaotic]
+   [TurnTiming] 13:13:44.940 TTS STOP — playback finished (span ~2632ms)
+   [TTS] Speaking: That's the whole country....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the whole country.' (5 words)
+   [TurnTiming] 13:13:44.942 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:13:46.720 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Little plastic bricks all the way down....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Little plastic bricks all the way down.' (8 words)
+   [TurnTiming] 13:13:46.725 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: their models are nice
+   [TurnTiming] 13:13:49.253 TTS STOP — playback finished (span ~2527ms)
+
+   [TIMING] voice: llm=8902ms(sonnet-stream(llm+tts)) tts=0ms total=8902ms
+   [LATENCY] vad_close=1200ms stt=330ms stt_wait=0ms salience=0ms triage=bypassed memory=34ms prompt_build=1ms ttft=1196ms tts_first_chunk=392ms audio_out=360ms TOTAL=2313ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got youtube msg from @Detective_Jones: their models are nice → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<their models are nice>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=46ms rank=1ms)
+   >>> Kira (Chat Batch of 1): Lego quality control is genuinely serious, so Detective Jones grew up with good taste baked in.
+   [TTS] Speaking: Lego quality control is genuinely serious, so Dete...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lego quality control is genuinely seriou' (18 words)
+   [TurnTiming] 13:13:56.882 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 13:14:02 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 13:14:02.313 TTS STOP — playback finished (span ~5431ms)
+   [Cookies] +1 × 1 (batch response); shared=13/30
+   [ChatAge] @Detective_Jones age=12.7s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 13:14:03.565 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23229ms since onset)
+[YouTube Chat] @NaitHaunter: Kira loves the blue Florida sky
+   [BrainWorker] Got youtube msg from @NaitHaunter: Kira loves the blue Florida sky → buffering for chat_batch_worker
+>>> You said: Oh no, does she get caught again?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Oh no, does she get caught again?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=42ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=7t  moment=calm)
+   [PromptSize] dynamic_context=11516ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Appreciates Lego models; has good taste in them according to [wholesome]
+   [TIMING] first-word: 2866ms
+   [TTS] Speaking: Who's getting caught and what did they do?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Who's getting caught and what did they d' (9 words)
+   [TurnTiming] 13:14:07.486 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:14:09.641 TTS STOP — playback finished (span ~2155ms)
+
+   [TIMING] voice: llm=5353ms(sonnet-stream(llm+tts)) tts=0ms total=5353ms
+   [LATENCY] vad_close=1200ms stt=676ms stt_wait=0ms salience=0ms triage=bypassed memory=42ms prompt_build=0ms ttft=2431ms tts_first_chunk=435ms audio_out=329ms TOTAL=3913ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 13:14:10.866 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~30529ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: I think she got stuck again.
+   [DroppedInput] LOST ~3 frame(s) (~90ms, ~0.1s) of your speech while she held the turn.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I think she got stuck again.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [SmartMem]     dist=1.156 conf=? type=session_summary blend=0.038 lane=STREAM
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12582ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1752ms
+   [TTS] Speaking: Oh no....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Oh no.' (3 words)
+   [TurnTiming] 13:14:13.072 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:14:14.841 TTS STOP — playback finished (span ~1769ms)
+   [TTS] Speaking: Who got stuck?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Who got stuck?' (4 words)
+   [TurnTiming] 13:14:14.844 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:14:16.624 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=5514ms(sonnet-stream(llm+tts)) tts=0ms total=5515ms
+   [LATENCY] vad_close=1200ms stt=207ms stt_wait=0ms salience=1ms triage=bypassed memory=33ms prompt_build=1ms ttft=1627ms tts_first_chunk=125ms audio_out=205ms TOTAL=2199ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [LoopbackSupervisor] capture DOWN (audio agent inactive) — re-binding MEDIA capture…
+   [Audio] No OpenAI client — capture disabled
+   [LoopbackSupervisor] still down — backing off to 60s before retry.
+   [SmartMem] q='  - @NaitHaunter (youtube): <<<Kira loves the blue Florida s' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.015 conf=0.9 type=episodic blend=0.125 lane=KNOW
+   [SmartMem]     dist=1.015 conf=0.95 type=episodic blend=0.125 lane=KNOW
+   [SmartMem]     dist=1.019 conf=0.9 type=episodic blend=0.123 lane=KNOW
+   [TurnTiming] 13:14:18.160 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~37824ms since onset)
+   >>> Kira (Chat Batch of 1): Nait has never seen a Florida sky and is out here describing it poetically. Respect the commitment.
+   [TTS] Speaking: Nait has never seen a Florida sky and is out here ...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait has never seen a Florida sky and is' (15 words)
+   [TurnTiming] 13:14:19.990 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:14:24.208 TTS STOP — playback finished (span ~4217ms)
+   [TTS] Speaking: Respect the commitment....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Respect the commitment.' (4 words)
+   [TurnTiming] 13:14:24.488 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:14:26.271 TTS STOP — playback finished (span ~1782ms)
+   [Cookies] +1 × 1 (batch response); shared=14/30
+   [ChatAge] @NaitHaunter age=22.6s batch=1 preempted=none
+   [ChatterMem] Stored: @NaitHaunter — Described the Florida sky poetically despite apparently neve [playful]
+🎤 Recording...
+   [TurnTiming] 13:14:32.016 VOICE ONSET — mic speech started
