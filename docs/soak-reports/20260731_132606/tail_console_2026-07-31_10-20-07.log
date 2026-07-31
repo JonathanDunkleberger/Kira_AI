@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'Caterpie versus Ekans — this is basicall' (19 words)
+   [TurnTiming] 10:40:23.377 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:40:28.440 TTS STOP — playback finished (span ~5062ms)
+   [TIMING] interjection: vision=0ms llm=1905ms(sonnet) tts=5752ms total=7684ms
+   [LAG] sense→speak: total=2.6s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=0.7s)
+🎤 Recording... (recovered opening words)
+   [Pokemon] event react (bypass=False, tier=1, kind=event): caterpie showed up for the XP share — now wartortle takes it from here
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   [VRAM] 10:40:31 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): Cascade Badge is mine. Caterpie earned that XP and I'm not apologizing to anyone.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Cascade Badge is mine....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cascade Badge is mine.' (5 words)
+   [TurnTiming] 10:40:32.908 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:40:34.876 TTS STOP — playback finished (span ~1968ms)
+   [TTS] Speaking: Caterpie earned that XP and I'm not apologizing to...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Caterpie earned that XP and I'm not apol' (11 words)
+   [TurnTiming] 10:40:35.248 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:40:38.906 TTS STOP — playback finished (span ~3658ms)
+   [TIMING] interjection: vision=0ms llm=2753ms(sonnet) tts=6327ms total=9104ms
+   [LAG] sense→speak: total=5.4s (content_age=0.0s, prep=0.0s, llm=2.8s, tts_wait+synth=2.7s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnLockWatchdog] !!!! processing_lock held ~270s CONTINUOUSLY (speaking=False) — no real turn runs this long. She is DEAF to voice+chat while this holds; the turn is almost certainly hung mid-await. Restart the voice loop to recover.
+   [VRAM] 10:41:16 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0319 · gate=0.003 · 3 accepted
+[YouTube Chat] @NaitHaunter: Great job Kira!
+   [BrainWorker] Got youtube msg from @NaitHaunter: Great job Kira! → buffering for chat_batch_worker
+   [Pokemon] event react (bypass=False, tier=2, kind=event): my caterpie just leveled up to level 9
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Level 9 and climbing. Caterpie's out here quietly becoming a problem.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Level 9 and climbing....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Level 9 and climbing.' (4 words)
+   [TurnTiming] 10:41:42.827 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:41:44.792 TTS STOP — playback finished (span ~1965ms)
+   [TTS] Speaking: Caterpie's out here quietly becoming a problem....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Caterpie's out here quietly becoming a p' (8 words)
+   [TurnTiming] 10:41:45.244 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:41:48.144 TTS STOP — playback finished (span ~2900ms)
+   [TIMING] interjection: vision=0ms llm=2163ms(sonnet) tts=5626ms total=7815ms
+   [LAG] sense→speak: total=4.9s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=2.7s)
+🎤 Recording... (recovered opening words)
+   [Pokemon] event react (bypass=False, tier=3, kind=dialogue, READING register): you read: "What? CATERPIE is evolving!"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   [Pokemon] saga PROMOTED (w=3, 14 beats): wait — Caterpie is evolving!
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): Wait — CATERPIE. Not now, I was building a legend here.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Wait — CATERPIE....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Wait — CATERPIE.' (4 words)
+   [TurnTiming] 10:41:52.818 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:41:54.682 TTS STOP — playback finished (span ~1864ms)
+   [TTS] Speaking: Not now, I was building a legend here....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Not now, I was building a legend here.' (10 words)
+   [TurnTiming] 10:41:55.043 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:41:57.948 TTS STOP — playback finished (span ~2905ms)
+   [TIMING] interjection: vision=0ms llm=4342ms(opus) tts=5395ms total=9761ms
+   [LAG] sense→speak: total=6.9s (content_age=0.0s, prep=0.0s, llm=4.3s, tts_wait+synth=2.5s)
+🎤 Recording... (recovered opening words)
+   [VRAM] 10:42:01 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] saga PROMOTED (w=3, 14 beats): caterpie evolved into metapod
+   [Pokemon] ORACLE kind=name has NO options -> choice=''
+   [LoopbackSTT] +1 seg (0 filtered, 132ms, rms=0.019): No.
+   [LoopbackSTT] +1 seg (0 filtered, 127ms, rms=0.031): Oh,
+   [LoopbackSTT] LIVE — last line: "Oh," (4s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0329 · gate=0.003 · 5 accepted
+[YouTube Chat] @NaitHaunter: I was here!
+   [BrainWorker] Got youtube msg from @NaitHaunter: I was here! → buffering for chat_batch_worker
+   [VRAM] 10:42:46 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 125ms — 0 accepted, 1 filtered (rms=0.034)
+   [LoopbackSTT] tick 140ms — 0 accepted, 1 filtered (rms=0.027)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the trainer sent out rattata
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Oh, another Rattata. Bold choice sending that out against me.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Oh, another Rattata....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh, another Rattata.' (5 words)
+   [TurnTiming] 10:43:10.678 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:43:12.731 TTS STOP — playback finished (span ~2053ms)
+   [TTS] Speaking: Bold choice sending that out against me....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Bold choice sending that out against me.' (8 words)
+   [TurnTiming] 10:43:13.132 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:43:15.566 TTS STOP — playback finished (span ~2433ms)
+   [TIMING] interjection: vision=0ms llm=1859ms(sonnet) tts=5168ms total=7052ms
+   [LAG] sense→speak: total=4.6s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=2.7s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [VRAM] 10:43:31 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 203ms — 0 accepted, 1 filtered (rms=0.032)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0325 · gate=0.003 · 5 accepted
+   [LoopbackSTT] +1 seg (0 filtered, 139ms, rms=0.027): I'm
+   [Pokemon] event react (bypass=False, tier=1, kind=event): a battle started against spearow — your metapod is up front
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Metapod versus Spearow is genuinely the worst matchup I could have walked into — and yet, here we are, Hardening with dignity.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Metapod versus Spearow is genuinely the worst matc...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Metapod versus Spearow is genuinely the ' (25 words)
+   [TurnTiming] 10:44:03.634 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:44:10.473 TTS STOP — playback finished (span ~6838ms)
+   [TIMING] interjection: vision=0ms llm=2661ms(sonnet) tts=7373ms total=10061ms
+   [LAG] sense→speak: total=3.2s (content_age=0.0s, prep=0.0s, llm=2.7s, tts_wait+synth=0.5s)
+   [SessionTakes] Condensed 6 reactions → 7 bullets (hard-capped).
+   [CurrentWant] now: calling out Streamlabs — you don't trust them
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 112ms — 0 accepted, 1 filtered (rms=0.028)
+   [VRAM] 10:44:16 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 128ms — 0 accepted, 1 filtered (rms=0.030)
+   [Pokemon] event react (bypass=False, tier=1, kind=event): the enemy's spearow went down to your wartortle — that's the battle, y
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Wartortle said "you're not a gym leader, you're just in my way" — Route 4 is MINE.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Wartortle said "you're not a gym leader, you're ju...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Wartortle said "you're not a gym leader,' (20 words)
+   [TurnTiming] 10:44:26.812 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:44:31.685 TTS STOP — playback finished (span ~4872ms)
+   [TIMING] interjection: vision=0ms llm=1913ms(sonnet) tts=5398ms total=7335ms
+   [LAG] sense→speak: total=2.5s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=0.5s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 126ms — 0 accepted, 1 filtered (rms=0.025)
+   [LoopbackSTT] LIVE — last line: "I'm" (59s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0318 · gate=0.003 · 6 accepted
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.032)
+   [VRAM] 10:45:01 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.027)
+   [TurnLockWatchdog] !!!! processing_lock held ~195s CONTINUOUSLY (speaking=False) — no real turn runs this long. She is DEAF to voice+chat while this holds; the turn is almost certainly hung mid-await. Restart the voice loop to recover.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the trainer sent out rattata
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=1ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Oh great, Route 4 trainer thinks Rattata is the answer. Metapod's going to Harden at it until it gives up on life.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Oh great, Route 4 trainer thinks Rattata is the an...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh great, Route 4 trainer thinks Rattata' (12 words)
+   [TurnTiming] 10:45:30.365 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:45:34.019 TTS STOP — playback finished (span ~3653ms)
+   [TTS] Speaking: Metapod's going to Harden at it until it gives up ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Metapod's going to Harden at it until it' (13 words)
+   [TurnTiming] 10:45:34.349 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:45:37.629 TTS STOP — playback finished (span ~3280ms)
+   [TIMING] interjection: vision=0ms llm=2465ms(sonnet) tts=7735ms total=10227ms
+   [LAG] sense→speak: total=6.9s (content_age=0.0s, prep=0.0s, llm=2.5s, tts_wait+synth=4.5s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "24 HP and I'm still on Route 4. Not using the potion yet — I want to see how far spite can carry me."
+   [VRAM] 10:45:46 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+[YouTube Chat] @iampaidactor: i stepped away
+   [BrainWorker] Got youtube msg from @iampaidactor: i stepped away → buffering for chat_batch_worker
+   [Cookies] +2 → @iampaidactor (first message this session); shared=23/30
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0227 · gate=0.003 · 6 accepted
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): a wild Pokemon leaps out at you
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Something just jumped out at me on Route 4 and honestly? Good. I need the XP.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Something just jumped out at me on Route 4 and hon...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Something just jumped out at me on Route' (12 words)
+   [TurnTiming] 10:46:11.211 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:46:14.388 TTS STOP — playback finished (span ~3176ms)
+   [TTS] Speaking: Good....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Good.' (2 words)
+   [TurnTiming] 10:46:14.620 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @iampaidactor: did she figure out how to send in another pokemon besides wartortle at the gym
+   [BrainWorker] Got youtube msg from @iampaidactor: did she figure out how to send in another pokemon besides wartortle at the gym → buffering for chat_batch_worker
+   [TurnTiming] 10:46:16.387 TTS STOP — playback finished (span ~1766ms)
+   [TTS] Speaking: I need the XP....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I need the XP.' (5 words)
+   [TurnTiming] 10:46:16.726 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:46:18.594 TTS STOP — playback finished (span ~1868ms)
+   [TIMING] interjection: vision=0ms llm=2120ms(sonnet) tts=7798ms total=9947ms
+   [LAG] sense→speak: total=8.1s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=5.9s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=1, kind=event): metapod showed up for the XP share — now wartortle takes it from here.
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Metapod did its job and had the grace to step aside. That's professionalism.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Metapod did its job and had the grace to step asid...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Metapod did its job and had the grace to' (12 words)
+   [TurnTiming] 10:46:26.827 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:46:30.199 TTS STOP — playback finished (span ~3372ms)
+   [TTS] Speaking: That's professionalism....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's professionalism.' (3 words)
+   [TurnTiming] 10:46:30.537 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 10:46:31 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 10:46:32.404 TTS STOP — playback finished (span ~1866ms)
+   [TIMING] interjection: vision=0ms llm=2174ms(sonnet) tts=5987ms total=8185ms
+   [LAG] sense→speak: total=6.3s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=4.1s)
+   [Pokemon] SELF CHOSE (battle_item): use_potion
+   [Pokemon] her reasoning: "Twenty-one HP and a Wartortle with something to prove. I'm using the potion — I'm not throwing away my best mon on Route 4 ego."
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "POTION is selected."
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.093 lane=KNOW
+   >>> Kira (Bored): Using a Potion mid-route — I'm not hurt, I'm just conservative. Smart trainers survive, chat.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Using a Potion mid-route — I'm not hurt, I'm just ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Using a Potion mid-route — I'm not hurt,' (13 words)
+   [TurnTiming] 10:46:41.927 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:46:45.765 TTS STOP — playback finished (span ~3837ms)
+   [TTS] Speaking: Smart trainers survive, chat....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Smart trainers survive, chat.' (6 words)
+   [TurnTiming] 10:46:46.053 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:46:48.675 TTS STOP — playback finished (span ~2621ms)
+   [TIMING] interjection: vision=0ms llm=2367ms(sonnet) tts=7153ms total=9545ms
+   [LAG] sense→speak: total=6.9s (content_age=0.0s, prep=0.0s, llm=2.4s, tts_wait+synth=4.5s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [VRAM] 10:47:16 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 130ms — 0 accepted, 1 filtered (rms=0.028)
+[YouTube Chat] @NaitHaunter: clocking in.
+   [BrainWorker] Got youtube msg from @NaitHaunter: clocking in. → buffering for chat_batch_worker
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0316 · gate=0.003 · 6 accepted
+   [VRAM] 10:48:01 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0232 · gate=0.003 · 6 accepted
+   [VRAM] 10:48:46 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.032)
+   [Mute] Muted for 60s
+   [Mute] Unmuted
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick 142ms — 0 accepted, 1 filtered (rms=0.027)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
