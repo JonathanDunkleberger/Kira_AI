@@ -1260,6 +1260,7 @@ class Campaign:
         self._stuckwatch = None
         self._stuck_request = None
         self._watchdog_trips = 0
+        self._latch_bails = 0     # consecutive travel legs bailed on ONE latch (storm breaker)
         # Batch-WORLD — her WORLD-MODEL + CAPABILITY-MODEL (sense of place). Pure data/awareness,
         # headless-safe; feeds the oracle via the same `place` seam, never decides for her. Seeded
         # with the known overworld nodes, enriched live each tick, persisted across --resume.
@@ -6258,30 +6259,37 @@ class Campaign:
             self.b.run_frame()
         self.b.set_input_owner("agent")
         # 2) to the nurse counter + drive the YES heal dialogue
-        self._step_to(NURSE_FRONT_OVERRIDES.get(tuple(pc_door), NURSE_FRONT))
-        self.b.press("UP", 6, 8, self.render, owner="agent")     # face the nurse
-        for _ in range(26):
-            # YES/NO box eats the first press; UP engages (YES is top, can't move off), A=YES
-            self.b.press("UP", 4, 4, self.render, owner="agent")
-            self.b.press("A", 6, 10, self.render, owner="agent")
-            for _ in range(30):
-                self.b.run_frame()
-            if self._party_fully_healed():            # WHOLE party revived+topped (not just the lead — a
-                break                                 #   full lead + fainted bench used to break instantly)
-        if not self._party_fully_healed():
-            h1 = self.lead_hp()
-            log(f"   !! HEAL: nurse dialogue did not complete (party not full; lead {h1[0]}/{h1[1]})")
-            return "stuck"
-        log(f"   HEAL: restored party to full (lead was {h0[0]}/{h0[1]})")
-        # a successful heal on this map proves the Center reachable from HERE — clear any strand-guard
-        # memo (the mark was for a one-way pocket; from the normal side the offer must return)
-        getattr(self, "_heal_dead_maps", set()).discard(tuple(tv.map_id(self.b)))
-        # 3) EXIT: the post-heal script holds control for a beat and the exit mat only fires when you
-        # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
-        # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
-        # single DOWN-burst was too impatient and froze at the counter (the Cerulean heal-exit bug).
-        for _ in range(6):                          # clear the nurse's closing text (B = harmless)
-            self.b.press("B", 3, 8, self.render, owner="agent")
+        # WATCHDOG HOLD (2026-07-31, the Center bail storm — live 14:15 log): the heal jingle holds
+        # ONE static "Okay, I'll take your POKéMON…" box for 8s+, which read as frozen_box and
+        # TRIPPED the watchdog mid-heal; the latch then instabailed every Center-EXIT leg (~45s of
+        # standing still, right as the momentum march to Vermilion needed clean legs — the visible
+        # Route-4↔Cerulean 'stuck' Jonny watched). The nurse interaction is DELIBERATE stillness,
+        # exactly what watchdog_hold exists for.
+        with self.watchdog_hold("nurse heal"):
+            self._step_to(NURSE_FRONT_OVERRIDES.get(tuple(pc_door), NURSE_FRONT))
+            self.b.press("UP", 6, 8, self.render, owner="agent")     # face the nurse
+            for _ in range(26):
+                # YES/NO box eats the first press; UP engages (YES is top, can't move off), A=YES
+                self.b.press("UP", 4, 4, self.render, owner="agent")
+                self.b.press("A", 6, 10, self.render, owner="agent")
+                for _ in range(30):
+                    self.b.run_frame()
+                if self._party_fully_healed():        # WHOLE party revived+topped (not just the lead — a
+                    break                             #   full lead + fainted bench used to break instantly)
+            if not self._party_fully_healed():
+                h1 = self.lead_hp()
+                log(f"   !! HEAL: nurse dialogue did not complete (party not full; lead {h1[0]}/{h1[1]})")
+                return "stuck"
+            log(f"   HEAL: restored party to full (lead was {h0[0]}/{h0[1]})")
+            # a successful heal on this map proves the Center reachable from HERE — clear any strand-guard
+            # memo (the mark was for a one-way pocket; from the normal side the offer must return)
+            getattr(self, "_heal_dead_maps", set()).discard(tuple(tv.map_id(self.b)))
+            # 3) EXIT: the post-heal script holds control for a beat and the exit mat only fires when you
+            # STEP onto it. PATIENTLY clear the nurse's closing text (B, harmless in the overworld) and
+            # walk DOWN the counter column onto the mat, retrying until we're back in the city. The old
+            # single DOWN-burst was too impatient and froze at the counter (the Cerulean heal-exit bug).
+            for _ in range(6):                      # clear the nurse's closing text (B = harmless)
+                self.b.press("B", 3, 8, self.render, owner="agent")
         self._exit_to_overworld()                   # the general, stress-tested building-exit (south
         #                                             door / DOWN-mat fallback). The old DOWN-only loop
         #                                             wedged inside some PCs ('stuck inside' at (5,4)).
@@ -12632,6 +12640,7 @@ class Campaign:
         another shot; travel's own stall guards still catch a truly frozen world."""
         req = self._stuck_request
         if req is None:
+            self._latch_bails = 0
             return False
         age = time.time() - (req.get("ts") or time.time())
         if age > WATCHDOG_LATCH_TTL_S:
@@ -12642,6 +12651,27 @@ class Campaign:
             self._stuck_request = None
             if self._stuckwatch is not None:
                 self._stuckwatch.reset()
+            self._latch_bails = 0
+            return False
+        # INSTABAIL STORM BREAKER (2026-07-31, the Center-exit bail storm — live 14:15 log: 45+
+        # consecutive '[travel] bailing this leg LOUD' while she stood still in the Cerulean
+        # Center, and the 45s TTL above never even fired). One latch is meant to bail ONE leg so
+        # the wedge unwinds to the roam top; when a sub-loop (Center exit door candidates, a
+        # multi-leg road march) instead keeps launching fresh legs, every one dies at step 0 and
+        # she stands frozen — which keeps the screen static and re-trips the watch, self-
+        # sustaining. Three consecutive bailed legs on the SAME latch = nothing above is
+        # unwinding: self-heal NOW (clear + reset, LOUD), not at the 45s TTL. Safe: a real wedge
+        # re-trips 8s later and a properly-unwinding executor still reaches the roam-top recovery
+        # on its first bail.
+        self._latch_bails = getattr(self, "_latch_bails", 0) + 1
+        if self._latch_bails >= 3:
+            log(f"   [roam] !! WATCHDOG latch STORM ({self._latch_bails} legs bailed on one latch) — "
+                f"a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, "
+                f"watch reset, play resumes; a real wedge re-trips in 8s.")
+            self._stuck_request = None
+            if self._stuckwatch is not None:
+                self._stuckwatch.reset()
+            self._latch_bails = 0
             return False
         return True
 
@@ -12685,6 +12715,7 @@ class Campaign:
                 "secs": round(self._stuckwatch.seconds_stuck(now), 1),
                 "ts": now,                           # latch birth time — the TTL self-heal keys on this
             }
+            self._latch_bails = 0                    # fresh latch -> fresh storm-breaker count
             log(f"   [roam] !!!! WATCHDOG TRIPPED ({self._stuck_request['reason']}): nothing on screen "
                 f"has meaningfully changed for {self._stuck_request['secs']}s at "
                 f"{self._stuck_request['map']}@{self._stuck_request['coords']} — latching a top-level "
@@ -13832,6 +13863,7 @@ class Campaign:
                 f"frozen-screen, sub-layer-agnostic)")
         self._stuck_request = None
         self._watchdog_trips = 0
+        self._latch_bails = 0
         red_ticks = 0                              # consecutive RED ticks (step-3 hard-recovery counter)
         hard_recovered = False                     # forced one position-break this RED streak already?
         escape_reloads = 0                         # ADDENDUM A: escape-hatch reloads this wedge-episode
