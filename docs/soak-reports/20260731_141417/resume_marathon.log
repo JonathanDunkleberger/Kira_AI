@@ -1,13 +1,19 @@
-resume_marathon 20260731_141127  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260731_141417  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
-git : fatal: unable to access 'https://github.com/JonathanDunkleberger/Kira_AI.git/': Could not resolve host: github.com
+git : From https://github.com/JonathanDunkleberger/Kira_AI
 At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:85 char:24
 + RunLogged "git pull" { git pull } | Out-Null
 +                        ~~~~~~~~
-    + CategoryInfo          : NotSpecified: (fatal: unable t...ost: github.com:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (From https://gi...eberger/Kira_AI:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
+   b94a131..af396c2  main       -> origin/main
+Merge made by the 'ort' strategy.
+ pokemon_agent/PROMOTE_TARGET.txt |   1 +
+ pokemon_agent/campaign.py        | 272 ++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 252 insertions(+), 21 deletions(-)
+ create mode 100644 pokemon_agent/PROMOTE_TARGET.txt
 
 == crash forensics ==
 == logs\debug listing (newest first) ==
@@ -334,25 +340,5 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
->> No PROMOTE_TARGET.txt - inventory-only run. Nothing was promoted or launched.
->> Tell the Mac agent 'done' - it will read this report, pick the right save, and push the decision.
+PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
 == push soak report ==
-[main 7aaf8bc] report(soak): 20260731_141127 inventory/rescue (auto from resume_marathon.ps1)
- 9 files changed, 3753 insertions(+)
- create mode 100644 docs/soak-reports/20260731_141127/canonical_health.json
- create mode 100644 docs/soak-reports/20260731_141127/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260731_141127/resume_marathon.log
- create mode 100644 docs/soak-reports/20260731_141127/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260731_141127/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260731_141127/tail_console_2026-07-31_13-26-13.log
- create mode 100644 docs/soak-reports/20260731_141127/tail_supervisor_playlive_2026-07-31_10-21-06.log
- create mode 100644 docs/soak-reports/20260731_141127/tail_supervisor_playlive_2026-07-31_13-27-07.log
-git : fatal: unable to access 'https://github.com/JonathanDunkleberger/Kira_AI.git/': Could not resolve host: github.com
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:314 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (fatal: unable t...ost: github.com:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-
-done (no launch this run).
