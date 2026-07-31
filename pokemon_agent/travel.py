@@ -945,7 +945,11 @@ class Traveler:
                 # the runner cannot resolve THIS battle — re-detecting it as a fresh encounter forever
                 # was the south_run1 ×27 spin (an abandoned no-balls catch battle). Three consecutive
                 # -> abort the leg LOUD; roam's recovery (no-move pruning / hard recovery) owns it.
-                if outcome == "stuck" and st.in_battle(self.b):
+                # + 'timeout' COUNTS (2026-07-31, the 10-minute Teleport-Abra fight): a battle that
+                # burns the runner's whole 180s budget and is STILL open is the same unresolvable
+                # class — the old loop re-entered it fresh every 3 minutes for the rest of the leg
+                # (latches cleared each time, so the same moveless lead re-spun the same futile turns).
+                if outcome in ("stuck", "timeout") and st.in_battle(self.b):
                     _bstuck[0] += 1
                     if _bstuck[0] >= 3:
                         self.log("   [travel] !! BATTLE-LOOP BREAKER: 3 consecutive unresolved 'stuck' "

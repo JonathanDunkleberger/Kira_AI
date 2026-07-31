@@ -89,6 +89,13 @@ _FULL_HEAL = 23
 # not-script: she still picks her move every turn; this only catches the dead-end where NO move resolves.
 BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
 UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
+# PP-FAMINE SWITCH RETRIES (2026-07-31, Jonny stream debrief — the 10-minute Teleport-Abra fight):
+# the famine switch used to be ONE-SHOT per species per battle, and the try was consumed even when
+# the switch nav FAILED to confirm — so a Teleport-only Abra whose single try misfired was doomed
+# to war-must-advance its failing move for the rest of the battle (and every 180s travel re-entry).
+# Bounded retries keep the anti-churn intent (never an infinite switch loop) while making one flaky
+# menu nav non-fatal.
+FAMINE_SWITCH_TRIES = int(os.getenv("POKEMON_FAMINE_SWITCH_TRIES", "3"))
 # NS#12 — HEAL-CONSUME-FAILED LATCH (the Route-10/Rock-Tunnel bag-USE/CANCEL livelock). An in-battle
 # heal can open the bag, reach "ITEM is selected -> USE/CANCEL", and FAIL to consume (count never drops)
 # — _bag_screen() doesn't fingerprint that sub-box, so the turn-top close is bypassed and every "pick a
@@ -2098,7 +2105,12 @@ class BattleAgent:
         _dmg = [_eff(m, state.get("enemy") or {})
                 for m in (state.get("ours", {}).get("moves") or [])
                 if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
-        best_move_eff = max(_dmg) if _dmg else 1.0
+        # EMPTY DAMAGING SET = CAN'T HIT AT ALL (2026-07-31, the Teleport-only Abra hole): the old
+        # `else 1.0` scored a moveless mon as NEUTRAL, so the matchup trigger never saw a reason to
+        # pull it — it sat active failing its status move forever. 0.0 reads as the hardest possible
+        # resist, so trigger 1 fields a reserve that can actually fight (famine usually fires first;
+        # this is the backstop when it's spent).
+        best_move_eff = max(_dmg) if _dmg else 0.0
         # NEVER ABANDON A SUPER-EFFECTIVE ATTACKER (ns14 anti-churn): if the active mon's best
         # damaging move is >=2x, it's winning the exchange — pulling it out for a defensive matchup
         # just churns. The infinite loop this kills: Kadabra's Psybeam is 2x into Agatha's Poison
@@ -2526,8 +2538,9 @@ class BattleAgent:
         self._grind_switched = False       # GRIND SWITCH: protect-lead switch fires at most once per battle
         self._status_played = False        # STATUS STRATEGY: one status move per foe (reset per foe below)
         self._sleep_casts = 0              # SLEEP-LOCK whiff cap, reset per foe
-        self._famine_tried = set()         # PP-FAMINE SWITCH: active species already offered a famine
-        # switch this battle (one shot per species — a forced re-entry retries once, never churns).
+        self._famine_tried = {}            # PP-FAMINE SWITCH: species -> attempts this battle (bounded
+        # by FAMINE_SWITCH_TRIES; a try only counts when the nav actually ran — never an infinite churn,
+        # but one flaky menu nav no longer dooms a moveless mon to spam its failing move all battle).
         self._heal_failed = set()          # HEAL-CONSUME-FAILED LATCH: active species whose in-battle
         # item use PROVED it won't consume this battle (bag USE/CANCEL non-consume) -> stop re-offering.
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
@@ -2829,7 +2842,8 @@ class BattleAgent:
                 # floor + the campaign's needs_heal gate own it.
                 if (state and not (self._enemy_fainted or self._we_fainted)
                         and self._active_pp_famine(state)
-                        and state.get("ours", {}).get("species") not in self._famine_tried):
+                        and self._famine_tried.get(state.get("ours", {}).get("species"), 0)
+                        < FAMINE_SWITCH_TRIES):
                     # DIRTY-SCREEN GUARD (e4_run8 Agatha): the famine often trips the very turn an
                     # item flow ends, with the BAG still on screen — the switch nav then can't reach
                     # POKEMON ("cursor not on POKEMON") and the once-per-species try was BURNED, dooming
@@ -2841,7 +2855,8 @@ class BattleAgent:
                                  "(try not consumed)")
                         self._close_bag_screen()
                         continue
-                    self._famine_tried.add(state.get("ours", {}).get("species"))
+                    _fsp = state.get("ours", {}).get("species")
+                    self._famine_tried[_fsp] = self._famine_tried.get(_fsp, 0) + 1
                     _fs = self._pp_reserve_slot(state)
                     if _fs is not None:
                         self.log(f"   [engine] PP FAMINE: active has no damaging PP left -> switching to "

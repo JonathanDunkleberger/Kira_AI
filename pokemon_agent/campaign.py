@@ -7402,7 +7402,13 @@ class Campaign:
                     return self.b.rd32(ram.GPLAYER_PARTY + s * 100)
                 weak = [s for s, l in enumerate(levels)
                         if l < target and _slot_pid(s) not in stalled
-                        and (min_level is None or l >= min_level)]   # skip box-fodder chaff (E4-prep floor)
+                        and (min_level is None or l >= min_level)    # skip box-fodder chaff (E4-prep floor)
+                        # MOVELESS-LEAD GUARD (2026-07-31, Jonny stream debrief: the 10-minute Ekans
+                        # fight): NEVER field a mon with zero damaging PP (a Teleport-only Abra) —
+                        # it can't win, can't flee a trainer, and war-must-advance spams its failing
+                        # move forever. It still banks XP later via the participation switch once it
+                        # has a real move (evolves/learns); until then the next-weakest attacker leads.
+                        and st.slot_has_damaging_pp(self.b, s)]
                 if not weak:
                     remaining = [s for s, l in enumerate(levels) if l < target]
                     if remaining:                             # floor un-raisable — the under-target mon(s)
@@ -7674,6 +7680,15 @@ class Campaign:
                 except Exception:
                     pid = None
                 if pid is not None and pid in stalled:   # can't earn XP on this route -> skip
+                    continue
+                # MOVELESS-LEAD GUARD (2026-07-31, the 10-minute Ekans fight): a mon with zero
+                # damaging PP (Teleport-only Abra) must NEVER lead a road leg — on a questline-
+                # relaxed leg the participation switch is OFF, so it fights trainers ALONE with a
+                # move that can't deal damage and can't flee (war-must-advance spams it while the
+                # foe Wraps). It levels later through the switch path once it has a real move.
+                if not st.slot_has_damaging_pp(self.b, s):
+                    log(f"   [roam] ROAD-BENCH-XP: skipping slot {s} as lead candidate — no damaging "
+                        f"PP (it can't win a fight it leads)")
                     continue
                 cand.append((l, s))
             if not cand:

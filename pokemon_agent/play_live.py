@@ -335,6 +335,19 @@ def main():
             return
         tier = max(1, voice.tier_of(summary or "")) if summary else 1
         wait_s, hold_s, tail = HOLD.get(tier, HOLD[1])
+        # CHAT-SPEECH IS NOT BEAT-SPEECH (2026-07-31, Jonny stream debrief: 'she stands in the same
+        # area talking to me/chat instead of playing'). is_speaking is a GLOBAL flag — when a beat
+        # fired while she was ALREADY mid-reply to Jonny/chat, the hold loop below treated that
+        # conversation as the beat's voice and froze the hands for the full savor window, on EVERY
+        # beat, all night on a chatty stream (each battle turn's beat=True emit compounds it). If
+        # she's already talking at entry, this beat's line is queued in the bot BEHIND that turn
+        # anyway — holding the game can't sync with it — so skip the savor and keep playing (the
+        # tail frames still give a brisk breath). Genuine beat-voice (starts within wait_s of the
+        # beat, when she was silent) holds exactly as before.
+        if voice.is_speaking():
+            for _ in range(tail):
+                b.run_frame(); render()
+            return
         # THINKING-GATE (2026-07-30): a savor-hold is DELIBERATE stillness (a T3 can hold ~17s while
         # her voice lands — more than 2x the 8s watchdog). These loops call render() -> feed_watchdog
         # with a static world, so without the gate every big voice moment tripped a false self-heal.
