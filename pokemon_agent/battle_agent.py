@@ -1182,11 +1182,33 @@ class BattleAgent:
         foe_frac = (foe.get("hp", 0) / foe_mx) if foe_mx else 1.0
         finishable = foe_frac <= 0.25 and frac > BATTLE_CRIT_FRAC
         if frac <= heal_frac and not finishable:
-            heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
-            if heal is not None:
-                plan["use_potion"] = (heal, aim)
-                offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
-                                        f"about to faint, and you HAVE one in the bag")
+            # ACE-FIRST POTION ECONOMY (2026-07-31, the Misty chalk Jonny watched): the aim is
+            # always the ACTIVE mon (correct — never a bench row), but after the ace faints the
+            # game FORCE-SWITCHES fodder in, and this offer then spent the whole potion stock
+            # keeping L8-13 bench mons alive while the L28 carry lay dead (no Revive in the bag
+            # that early = no counter-offer). A real player never potions fodder: if the active
+            # mon is out-leveled by a party member (alive OR fainted) by 8+, the heals are the
+            # ACE's — suppress the offer LOUD and let the fodder fight/faint. The ace (or any
+            # mon within 8 of the top) still heals exactly as before.
+            _fodder = False
+            try:
+                _top_lv = 0
+                for _pi in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)):
+                    if st.read_party_species(self.b, _pi):
+                        _top_lv = max(_top_lv, self.b.rd8(ram.GPLAYER_PARTY + _pi * 100 + 0x54))
+                _fodder = bool(_ours_lv and _top_lv and (_top_lv - _ours_lv) >= 8)
+            except Exception:
+                _fodder = False
+            if _fodder:
+                self.log(f"   [engine] ACE-FIRST POTIONS: active L{_ours_lv} is fodder next to the "
+                         f"team's L{_top_lv} carry — NOT offering a heal on it (the potions are "
+                         f"for the ace, not L8-13 bench mons)")
+            else:
+                heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
+                if heal is not None:
+                    plan["use_potion"] = (heal, aim)
+                    offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
+                                            f"about to faint, and you HAVE one in the bag")
         elif finishable and frac <= heal_frac:
             self.log(f"   [engine] FINISH-THE-FOE: foe at {int(foe_frac*100)}% (<=25%), us {int(frac*100)}% "
                      f"(> crit) -> no heal, land the KO instead")

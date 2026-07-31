@@ -51,7 +51,10 @@ GYM_LEVEL_MARGIN     = int(os.getenv("POKEMON_GYM_LEVEL_MARGIN", "1"))
 # DOMINANCE margin (2026-07-31, the human-pacing tune): top mon this far ABOVE the grind target
 # (which already includes GYM_LEVEL_MARGIN + any loss bump) = she clearly overpowers the leader —
 # skip the type-answer/party-size prep and go fight (a human wouldn't farm grass at that point).
-GYM_DOMINANCE_MARGIN = int(os.getenv("POKEMON_GYM_DOMINANCE_MARGIN", "5"))
+# RAISED 5→8 same day (Jonny's reversal after the Misty chalk): L28-vs-L22 fired the override,
+# Wartortle walked in water-vs-water neutral against a fast Starmie and DIED — a pure level gap
+# lies in a neutral/resisted matchup. 8 keeps the mechanism for genuine overpowers only.
+GYM_DOMINANCE_MARGIN = int(os.getenv("POKEMON_GYM_DOMINANCE_MARGIN", "8"))
 
 
 def load_strategy_kb(path=_KB_PATH, log=print):
@@ -133,7 +136,17 @@ class StrategicPlanner:
         # already includes GYM_LEVEL_MARGIN and any loss_bump, so this is a REAL overpower read).
         # Self-correcting: a loss bumps level_target, dominance evaporates, and the full prep
         # (catch a counter / grind / coverage-teach) returns for the retry.
-        dominant = bool(top_level and top_level >= level_target + GYM_DOMINANCE_MARGIN)
+        # MATCHUP GUARD (2026-07-31, the Misty chalk — Jonny's reversal): a top mon that SHARES a
+        # type with the gym fights a neutral-at-best slugfest (Wartortle's water STAB is RESISTED
+        # by Misty's whole water team while Starmie hits back neutral + fast), so the raw level
+        # gap overstates real power. Dominance now also requires NO shared type with the gym —
+        # a genuinely off-type overpower (e.g. an over-leveled ace vs Brock's rocks) still fires.
+        _top_mon = max(party, key=lambda m: m.get("level", 0)) if party else None
+        _gym_types = set(rec.get("types") or [])
+        _slugfest = bool(_top_mon is not None and _gym_types
+                         and (_gym_types & set(_types_of(_top_mon))))
+        dominant = bool(top_level and top_level >= level_target + GYM_DOMINANCE_MARGIN
+                        and not _slugfest)
         return {
             "gym": gym_name, "ace": rec.get("ace"), "ace_level": ace_level,
             "level_target": level_target, "top_level": top_level, "underleveled": top_level < level_target,

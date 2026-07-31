@@ -12985,6 +12985,22 @@ class Campaign:
                     # dread references). Tier-2 so it's felt, not swallowed.
                     self.on_event(f"no — no, we lost it. {ng['leader']} got me. okay… that one hurts. "
                                   f"I need to come back stronger.", kind="gym", tier=2)
+                    # HARD RELEASE ON LOSS (2026-07-31, Jonny's reversal after the Misty chalk): the
+                    # gym just PROVED she wasn't ready — every aggressive latch must stand down NOW
+                    # so the loss_bump/prep machinery (bench pin toward the milestone + ace XP via
+                    # the participation switch) owns the retry. The 5-stuck cap only covers nav
+                    # stucks; a battle LOSS never touched it. Clear the force latch, and delete a
+                    # live creator order (it's moot — obeying it again just re-feeds the loss; a
+                    # fresh order from Jonny re-arms everything).
+                    self._force_gym_pick = False
+                    try:
+                        if os.path.exists(CREATOR_ORDER_JSON):
+                            os.remove(CREATOR_ORDER_JSON)
+                            log(f"   [roam] !! GYM LOSS to {ng['leader']}: creator order RELEASED "
+                                f"(moot after the loss) + force latch cleared — loss_bump/prep "
+                                f"machinery owns the retry (grind bench + ace, THEN re-take)")
+                    except Exception as _cox:
+                        log(f"   [roam] creator-order release on loss skipped: {_cox}")
                 return out
             # WARP-AWARE forward routing toward the next gym CITY: route THROUGH warps/dungeons (the
             # Underground-Path class), not just map edges. Uses the world-model graph (live-learned warps
