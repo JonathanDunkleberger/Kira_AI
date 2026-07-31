@@ -1,0 +1,1500 @@
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 44), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] -> T2·savor· (want) 'Cascade Badge'  fired=True  [age 0.0s + post 26ms]
+
+   [campaign]    [roam] questline: all 1 door(s) on Route 25 already entered but the flag's unset — an interrupted visit; clearing the burn [((3, 44), (51, 4))] for a clean re-approach
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the place I'm after is further along here — let me get to it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 300s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] questline: un-entered door (51, 4) on (3, 44) unreachable from (51, 5) — falling through to talk/surface
+
+   [campaign]    TALK: approaching NPC obj#2 at (49, 10) via (49, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (49, 11) (budget 60s)
+
+   [travel] path blocked at (51, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (51, 5) AND no NPC-allowing path (npcs nearby=[(42, 5), (49, 10), (49, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (51, 5) map=(3, 44) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    TALK: no reachable un-talked NPC here
+
+   [campaign]    [roam] questline: arrived but found no building/NPC to interact with here — surfacing
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_arrived_no_target | pos (3, 44)(51, 5) -> (3, 44)(51, 5) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_arrived_no_target' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'this looks like the place — let me head inside.'
+
+   [campaign]    1 door(s); candidates (chosen order): [(51, 4)]
+
+   [campaign]    reachable door (51, 4): walking to approach (51, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 900s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 44) -> (30, 0) via door (51, 4)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER: stepped into the building at door (51, 4)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 44)(51, 5) -> (30, 0)(7, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 44) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(30, 0) coords=(7, 9) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094019_a-building-off-route-25_1b_8h49m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> a building off Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (30, 0), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Cerulean City and beat Misty'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Cerulean City and beat Misty'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Reach Cerulean City and beat Misty'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['leave_building', 'talk_npc']
+
+   [campaign]    [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['leave_building']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: Route 24; Route 4; an unfamiliar area. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Yo! Champ in the making! Let me give you some advice! The LEADER, MISTY, is a pro who uses WATER-type POK.MON. You can drain all their water with GRASS-type POK"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. ". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cerulean City for the Cascade Badge. Next: You\'re ready — travel to Cerulean City and take on Misty. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['leave_building']
+
+   [kira-voice] ORACLE kind=action options=['leave_building'] -> pick='leave_building'
+
+   [campaign]    [soul] ORACLE pick -> 'leave_building'
+
+   [campaign]    [roam] DECISION THINK: 2054ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: leave_building
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cerulean City for the Cascade Badge. then on to Cerulean City for Misty
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) "this place is a maze and nothing's working — I'm heading back outside to get my bearings."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(30, 0) coords=(7, 9) -> coord (7, 8) (budget 60s)
+
+   [travel] step 0: (7, 9)->(7, 8) map=(30, 0) (path 2 to exit)
+
+   [travel] reached target coord (7, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    EXIT-BUILDING: (30, 0) -> (3, 44)@(51, 5)
+
+   [campaign]    [roam] RESULT: leave_building -> left_building | pos (30, 0)(7, 9) -> (3, 44)(51, 5) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (30, 0) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 44) coords=(51, 5) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094033_route-25_1b_8h49m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [campaign]    [roam] questline: all 1 door(s) on Route 25 already entered but the flag's unset — an interrupted visit; clearing the burn [((3, 44), (51, 4))] for a clean re-approach
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the place I'm after is further along here — let me get to it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 300s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] questline: un-entered door (51, 4) on (3, 44) unreachable from (51, 5) — falling through to talk/surface
+
+   [campaign]    TALK: approaching NPC obj#2 at (49, 10) via (49, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (49, 11) (budget 60s)
+
+   [travel] path blocked at (51, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (51, 5) AND no NPC-allowing path (npcs nearby=[(42, 5), (49, 10), (49, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (51, 5) map=(3, 44) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    TALK: no reachable un-talked NPC here
+
+   [campaign]    [roam] questline: arrived but found no building/NPC to interact with here — surfacing
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_arrived_no_target | pos (3, 44)(51, 5) -> (3, 44)(51, 5) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_arrived_no_target' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 44), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cerulean City and destroy Misty'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cerulean City and destroy Misty'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction   [kira-voice] -> T2·savor· (want) 'reach Cerulean City and destroy Misty'  fired=True  [age 0.0s + post 5ms]
+
+
+
+   [kira-voice] ·floor· (<1s since last) T1 'this looks like the place — let me head inside.'
+
+   [campaign]    1 door(s); candidates (chosen order): [(51, 4)]
+
+   [campaign]    reachable door (51, 4): walking to approach (51, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 900s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 44) -> (30, 0) via door (51, 4)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER: stepped into the building at door (51, 4)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 44)(51, 5) -> (30, 0)(7, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 44) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(30, 0) coords=(7, 9) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094041_a-building-off-route-25_1b_8h49m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['leave_building', 'talk_npc']
+
+   [campaign]    [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['leave_building']
+
+   [campaign]    [soul] surface_want FIRE -> a building off Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (30, 0), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cerulean City and beat Misty'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cerulean City and beat Misty'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: Route 24; Route 4; an unfamiliar area. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Yo! Champ in the making! Let me give you some advice! The LEADER, MISTY, is a pro who uses WATER-type POK.MON. You can drain all their water with GRASS-type POK"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. ". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cerulean City for the Cascade Badge. Next: You\'re ready — travel to Cerulean City and take on Misty. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['leave_building']
+
+   [kira-voice] -> T2·savor· (want) 'reach Cerulean City and beat Misty'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] ORACLE kind=action options=['leave_building'] -> pick='leave_building'
+
+   [campaign]    [soul] ORACLE pick -> 'leave_building'
+
+   [campaign]    [roam] DECISION THINK: 2349ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: leave_building
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cerulean City for the Cascade Badge. then on to Cerulean City for Misty
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) "this place is a maze and nothing's working — I'm heading back outside to get my bearings."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(30, 0) coords=(7, 9) -> coord (7, 8) (budget 60s)
+
+   [travel] step 0: (7, 9)->(7, 8) map=(30, 0) (path 2 to exit)
+
+   [travel] reached target coord (7, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    EXIT-BUILDING: (30, 0) -> (3, 44)@(51, 5)
+
+   [campaign]    [roam] RESULT: leave_building -> left_building | pos (30, 0)(7, 9) -> (3, 44)(51, 5) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (30, 0) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 44) coords=(51, 5) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094056_route-25_1b_8h49m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [campaign]    [roam] questline: all 1 door(s) on Route 25 already entered but the flag's unset — an interrupted visit; clearing the burn [((3, 44), (51, 4))] for a clean re-approach
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) "the place I'm after is further along here — let me get to it."  fired=True  [age 0.0s + post 3ms]
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 300s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] questline: un-entered door (51, 4) on (3, 44) unreachable from (51, 5) — falling through to talk/surface
+
+   [campaign]    TALK: approaching NPC obj#2 at (49, 10) via (49, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (49, 11) (budget 60s)
+
+   [travel] path blocked at (51, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (51, 5) AND no NPC-allowing path (npcs nearby=[(42, 5), (49, 10), (49, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (51, 5) map=(3, 44) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    TALK: no reachable un-talked NPC here
+
+   [campaign]    [roam] questline: arrived but found no building/NPC to interact with here — surfacing
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_arrived_no_target | pos (3, 44)(51, 5) -> (3, 44)(51, 5) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_arrived_no_target' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'this looks like the place — let me head inside.'
+
+   [campaign]    1 door(s); candidates (chosen order): [(51, 4)]
+
+   [campaign]    reachable door (51, 4): walking to approach (51, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 900s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 44) -> (30, 0) via door (51, 4)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER: stepped into the building at door (51, 4)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 44)(51, 5) -> (30, 0)(7, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 44) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(30, 0) coords=(7, 9) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094100_a-building-off-route-25_1b_8h49m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> a building off Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (30, 0), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery   [kira-voice] -> T2·savor· (want) 'Cascade Badge'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['leave_building', 'talk_npc']
+
+   [campaign]    [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['leave_building']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: Route 24; Route 4; an unfamiliar area. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Yo! Champ in the making! Let me give you some advice! The LEADER, MISTY, is a pro who uses WATER-type POK.MON. You can drain all their water with GRASS-type POK"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. ". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cerulean City for the Cascade Badge. Next: You\'re ready — travel to Cerulean City and take on Misty. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['leave_building']
+
+   [kira-voice] ORACLE kind=action options=['leave_building'] -> pick='leave_building'
+
+   [campaign]    [soul] ORACLE pick -> 'leave_building'
+
+   [campaign]    [roam] DECISION THINK: 2334ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: leave_building
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cerulean City for the Cascade Badge. then on to Cerulean City for Misty
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) "this place is a maze and nothing's working — I'm heading back outside to get my bearings."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(30, 0) coords=(7, 9) -> coord (7, 8) (budget 60s)
+
+   [travel] step 0: (7, 9)->(7, 8) map=(30, 0) (path 2 to exit)
+
+   [travel] reached target coord (7, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    EXIT-BUILDING: (30, 0) -> (3, 44)@(51, 5)
+
+   [campaign]    [roam] RESULT: leave_building -> left_building | pos (30, 0)(7, 9) -> (3, 44)(51, 5) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (30, 0) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 44) coords=(51, 5) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094115_route-25_1b_8h50m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 44), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cerulean City, Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cerulean City, Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] -> T2·savor· (want) 'Cerulean City, Cascade Badge'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] questline: all 1 door(s) on Route 25 already entered but the flag's unset — an interrupted visit; clearing the burn [((3, 44), (51, 4))] for a clean re-approach
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the place I'm after is further along here — let me get to it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 300s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] questline: un-entered door (51, 4) on (3, 44) unreachable from (51, 5) — falling through to talk/surface
+
+   [campaign]    TALK: approaching NPC obj#2 at (49, 10) via (49, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (49, 11) (budget 60s)
+
+   [travel] path blocked at (51, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (51, 5) AND no NPC-allowing path (npcs nearby=[(42, 5), (49, 10), (49, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (51, 5) map=(3, 44) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    TALK: no reachable un-talked NPC here
+
+   [campaign]    [roam] questline: arrived but found no building/NPC to interact with here — surfacing
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_arrived_no_target | pos (3, 44)(51, 5) -> (3, 44)(51, 5) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_arrived_no_target' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] -> T1·brisk· (route) 'this looks like the place — let me head inside.'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    1 door(s); candidates (chosen order): [(51, 4)]
+
+   [campaign]    reachable door (51, 4): walking to approach (51, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 900s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 44) -> (30, 0) via door (51, 4)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER: stepped into the building at door (51, 4)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 44)(51, 5) -> (30, 0)(7, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 44) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(30, 0) coords=(7, 9) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094123_a-building-off-route-25_1b_8h50m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> a building off Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (30, 0), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cerulean City, Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cerulean City, Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Cerulean City, Cascade Badge'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['leave_building', 'talk_npc']
+
+   [campaign]    [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['leave_building']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: Route 24; Route 4; an unfamiliar area. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Yo! Champ in the making! Let me give you some advice! The LEADER, MISTY, is a pro who uses WATER-type POK.MON. You can drain all their water with GRASS-type POK"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. ". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cerulean City for the Cascade Badge. Next: You\'re ready — travel to Cerulean City and take on Misty. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['leave_building']
+
+   [kira-voice] ORACLE kind=action options=['leave_building'] -> pick='leave_building'
+
+   [campaign]    [soul] ORACLE pick -> 'leave_building'
+
+   [campaign]    [roam] DECISION THINK: 1904ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: leave_building
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cerulean City for the Cascade Badge. then on to Cerulean City for Misty
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) "this place is a maze and nothing's working — I'm heading back outside to get my bearings."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(30, 0) coords=(7, 9) -> coord (7, 8) (budget 60s)
+
+   [travel] step 0: (7, 9)->(7, 8) map=(30, 0) (path 2 to exit)
+
+   [travel] reached target coord (7, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    EXIT-BUILDING: (30, 0) -> (3, 44)@(51, 5)
+
+   [campaign]    [roam] RESULT: leave_building -> left_building | pos (30, 0)(7, 9) -> (3, 44)(51, 5) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (30, 0) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 44) coords=(51, 5) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094137_route-25_1b_8h50m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [campaign]    [roam] questline: all 1 door(s) on Route 25 already entered but the flag's unset — an interrupted visit; clearing the burn [((3, 44), (51, 4))] for a clean re-approach
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the place I'm after is further along here — let me get to it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 300s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] questline: un-entered door (51, 4) on (3, 44) unreachable from (51, 5) — falling through to talk/surface
+
+   [campaign]    TALK: approaching NPC obj#2 at (49, 10) via (49, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (49, 11) (budget 60s)
+
+   [travel] path blocked at (51, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (51, 5) AND no NPC-allowing path (npcs nearby=[(42, 5), (49, 10), (49, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (51, 5) map=(3, 44) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    TALK: no reachable un-talked NPC here
+
+   [campaign]    [roam] questline: arrived but found no building/NPC to interact with here — surfacing
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_arrived_no_target | pos (3, 44)(51, 5) -> (3, 44)(51, 5) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_arrived_no_target' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (51, 5) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 44) (51,5) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 44), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge — get to Cerulean and take down Misty'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge — get to Cerulean and take down Misty'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Cascade Badge — get to Cerulean and take down Misty'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] questline: no graph route (3, 44) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: arrived at the destination area ((3, 44), no further forward edge) — switching to the 'talk_npc' interaction
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'this looks like the place — let me head inside.'
+
+   [campaign]    1 door(s); candidates (chosen order): [(51, 4)]
+
+   [campaign]    reachable door (51, 4): walking to approach (51, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(51, 5) -> coord (51, 5) (budget 900s)
+
+   [travel] reached target coord (51, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 44) -> (30, 0) via door (51, 4)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER: stepped into the building at door (51, 4)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 44)(51, 5) -> (30, 0)(7, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 44) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(30, 0) coords=(7, 9) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_094149_a-building-off-route-25_1b_8h50m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 41/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 42/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] questline: no graph route (30, 0) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [campaign]    [roam] questline: off the bend at (30, 0) with no direct hop — re-walking via the anchor
+
+   [campaign]    [roam] questline: NOT arrived — (30, 0) is off-anchor ((3, 7) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_no_route | pos (30, 0)(7, 9) -> (30, 0)(7, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (30, 0) right after riding in from (3, 44) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_no_route' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [world] learned 3 warp(s) on (30, 0): (6, 9)->(3, 44), (7, 9)->(3, 44), (8, 9)->(3, 44)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,22', 'travel:3,27', 'travel:3,43', 'travel:3,44']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['leave_building', 'talk_npc']
+
+   [campaign]    [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 43/100000000 --
+
+   [campaign]    [roam] STATE IN: a building off Route 25 (7, 9) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(30, 0) (7,9) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['leave_building']
+
+   [campaign]    [soul] surface_want FIRE -> a building off Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (30, 0), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: Route 24; Route 4; an unfamiliar area. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Yo! Champ in the making! Let me give you some advice! The LEADER, MISTY, is a pro who uses WATER-type POK.MON. You can drain all their water with GRASS-type POK"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. ". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cerulean City for the Cascade Badge. Next: You\'re ready — travel to Cerulean City and take on Misty. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['leave_building']
+
+   [kira-voice] -> T2·savor· (want) 'Cascade Badge'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ORACLE kind=action options=['leave_building'] -> pick='leave_building'
+
+   [campaign]    [soul] ORACLE pick -> 'leave_building'
+
+   [campaign]    [roam] DECISION THINK: 2813ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: leave_building
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cerulean City for the Cascade Badge. then on to Cerulean City for Misty
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) "this place is a maze and nothing's working — I'm heading back outside to get my bearings."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(30, 0) coords=(7, 9) -> coord (7, 8) (budget 60s)
+
+   [travel] step 0: (7, 9)->(7, 8) map=(30, 0) (path 2 to exit)
+
+   [travel] reached target coord (7, 8)
+
