@@ -3370,14 +3370,21 @@ class Campaign:
         return out
 
     def _engage_trainer(self, T, facing):
-        """Walk to a LAND-standable tile adjacent to a junior trainer, face it, and let its line of
-        sight fire the battle (a trainer can't be A-talked into a fight - it must SEE the player).
+        """Walk to a LAND-standable tile adjacent to a junior trainer, face it, and fire the battle.
         POOL-GYM FIX (the Misty stuck, 2026-07-09): a swimmer stands ON water with only ONE
         land-standable side (Cerulean's (10,12) is engageable only from (9,12); the other 3 fronts
         are water tiles travel WEDGES on -> the old code wedged x4 then FALSELY marked it beaten ->
         walked into a still-gated Misty). So we (a) attempt ONLY standable fronts, and (b) after
         arriving on the sight axis, NUDGE off-and-back so the trainer's 'player entered sight' edge
-        re-fires even when we arrived already standing inside its line. True iff a battle started."""
+        re-fires even when we arrived already standing inside its line.
+
+        Returns 'battle' | 'talked' | 'no' (2026-07-31, the LIVE re-talk loop Jonny watched):
+        an A-talk to an UNDEFEATED gen-3 trainer runs its intro text INTO the battle; a DEFEATED
+        one shows its post-defeat line and closes. So a box that drains WITHOUT a battle is the
+        AUTHORITATIVE in-save 'already beaten' read (survives relaunch, unlike any session set) —
+        report it as 'talked' so callers mark the trainer done and NEVER re-engage it. The old
+        code left that box OPEN and returned False: the box then wedged the next travel leg, the
+        caller re-engaged, and she stood on the walkway re-opening the junior's line forever."""
         try:
             grid = tv.Grid(self.b)
         except Exception:
@@ -3393,19 +3400,30 @@ class Campaign:
                 continue                                       # water/wall front - travel would wedge
             self._gym_move(front, label="engage")
             if st.in_battle(self.b):
-                return True                                    # LoS fired during the walk-in
+                return "battle"                                # LoS fired during the walk-in
             if tv.coords(self.b) != front:
                 continue                                       # couldn't reach this side - try next
             face = self._TOWARD[(-adj[0], -adj[1])]            # turn back toward the trainer body
             for _ in range(4):
                 if st.in_battle(self.b):
-                    return True
+                    return "battle"
                 self.b.press(face, 8, 8, self.render, owner="agent")
                 self.b.press("A", 6, 12, self.render, owner="agent")
                 for _ in range(20):
                     self.b.run_frame()
+                # A box without a battle: drain it ONCE, cleanly, and read the outcome. Battle
+                # after the drain = that was the intro text (undefeated) -> fight. Box closed, no
+                # battle = the post-defeat line -> ALREADY BEATEN in the save. Never blind-A a
+                # live box (that's the page-cycling loop from the stream screenshots).
+                if not st.in_battle(self.b) and dd_box_open(self.b):
+                    self._drain_overworld(label="junior-talk")
+                    if st.in_battle(self.b):
+                        return "battle"
+                    log(f"   GYM: trainer at {T} TALKED instead of fighting (post-defeat line "
+                        f"drained, no battle) — ALREADY BEATEN in the save")
+                    return "talked"
             if st.in_battle(self.b):
-                return True
+                return "battle"
             # LoS didn't fire while we stood still (we arrived already inside its sight, so there was
             # no 'entered' edge). RE-TRIGGER: step to an adjacent standable tile and back onto the
             # front, forcing a fresh sight check. Each neighbour tried once.
@@ -3417,15 +3435,15 @@ class Campaign:
                     continue
                 self._gym_move(nb, label="engage-nudge")
                 if st.in_battle(self.b):
-                    return True
+                    return "battle"
                 self._gym_move(front, label="engage-reenter")
                 for _ in range(10):
                     if st.in_battle(self.b):
-                        return True
+                        return "battle"
                     self.b.run_frame()
                 if st.in_battle(self.b):
-                    return True
-        return False
+                    return "battle"
+        return "no"
 
     def _talkable_npcs(self):
         """Active NON-trainer object events (trainerType==0): the plain townsfolk she can chat to —
@@ -3825,15 +3843,24 @@ class Campaign:
         beaten = set()                                         # object indices CONFIRMED fought
         fails = {}                                             # idx -> failed-engage rounds (pool class)
         PER_TRAINER_TRIES = 4
+        # SAVE-BEATEN MEMORY (2026-07-31, the live re-talk loop): `beaten` is per-CALL, so every
+        # beat_gym re-entry (and every relaunch) re-engaged juniors the SAVE already counts beaten —
+        # each engage opened their post-defeat line on the walkway, forever. _engage_trainer now
+        # reads beaten-ness authoritatively (talked-not-fought = defeated in-save); remember it
+        # per (gym map, object index) for the session so re-entries skip them outright.
+        if not hasattr(self, "_gym_talked_objs"):
+            self._gym_talked_objs = set()
+        _gmap = tuple(tv.map_id(self.b))
         for rnd in range(max_rounds):
             self.b.set_input_owner("agent")
-            trs = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
+            trs = [(i, c, f) for (i, c, f) in self._gym_trainers()
+                   if i not in beaten and (_gmap, i) not in self._gym_talked_objs]
             if trs:
                 px, py = tv.coords(self.b) or (0, 0)
                 trs.sort(key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py))
                 idx, T, facing = trs[0]
                 log(f"   GYM: engaging junior trainer obj{idx} at {T} (facing {facing})")
-                self._engage_trainer(T, facing)
+                _eng = self._engage_trainer(T, facing)
                 if st.in_battle(self.b):
                     _jr = self.battle_runner()
                     log(f"   GYM: junior trainer -> {_jr}")
@@ -3843,6 +3870,13 @@ class Campaign:
                             "-> needs_heal (juniors stay beaten; we come back full)")
                         return "pp_famine"
                     beaten.add(idx)                            # a REAL battle happened -> truly done
+                elif _eng == "talked":
+                    # AUTHORITATIVE already-beaten read (post-defeat line, no battle) — done for
+                    # the whole session, not just this call. No retry rounds burned on it.
+                    beaten.add(idx)
+                    self._gym_talked_objs.add((_gmap, idx))
+                    log(f"   GYM: junior obj{idx} at {T} is ALREADY BEATEN in the save "
+                        f"(talked, no battle) — marked done for the session, never re-engaging")
                 else:
                     # No battle this round. A pool-gym swimmer WANDERS and is engageable only from its
                     # one land tile when it turns the right way (the Misty stuck: the old code FALSELY
@@ -3867,13 +3901,15 @@ class Campaign:
                     log("   GYM: gauntlet PP FAMINE (stuck battle + no damaging PP anywhere) "
                         "-> needs_heal (juniors stay beaten; we come back full)")
                     return "pp_famine"
-                nt = [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]
+                nt = [(i, c, f) for (i, c, f) in self._gym_trainers()
+                      if i not in beaten and (_gmap, i) not in self._gym_talked_objs]
                 if nt:
                     px, py = tv.coords(self.b) or (0, 0)
                     nt.sort(key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py))
                     beaten.add(nt[0][0])
                 continue
-            if [(i, c, f) for (i, c, f) in self._gym_trainers() if i not in beaten]:
+            if [(i, c, f) for (i, c, f) in self._gym_trainers()
+                    if i not in beaten and (_gmap, i) not in self._gym_talked_objs]:
                 continue                                       # a far trainer just loaded -> engage it
             log(f"   GYM: all junior trainers cleared (beaten obj {sorted(beaten)})")
             return
@@ -4293,31 +4329,59 @@ class Campaign:
         # stops the instant the battle starts). Misty starts the battle near-immediately - same path.
         self.b.set_input_owner("agent")
         _lf_ok = self._gym_move(gym.leader_front, label="leader")
-        # POOL-MAZE LEADER-APPROACH RETRY (2026-07-31, the live Misty platform wedge): travel to
-        # leader_front can wedge on a platform/pool interior when an unbeaten junior still gates the
-        # walkway (Cerulean's (10,12) swimmer — engageable ONLY from the (9,12) land tile, see the
-        # POOL-GYM FIX in _engage_trainer). One wedged leg must NOT abort the whole gym (that fed the
-        # gym→leave→re-enter loop). Bounded: 3 retry rounds, each re-sweeping ONE nearest junior
-        # (a defeated trainer just fails to fire — cheap, bounded) then re-trying the leader walk.
+        # POOL-MAZE LEADER-APPROACH RETRY (2026-07-31, HARDENED same day after the live re-talk
+        # loop): travel to leader_front can wedge on a platform/pool interior for two DIFFERENT
+        # reasons, and the retry must do something DIFFERENT each time, never repeat a failing move:
+        #   (a) an UNBEATEN junior gates the walkway -> probe it (one un-probed junior per round;
+        #       _engage_trainer's talked-read marks the already-beaten ones done, NEVER re-talked —
+        #       the first version re-swept beaten juniors and she stood there re-opening their
+        #       post-defeat line forever, the loop in Jonny's screenshots);
+        #   (b) a WANDERING NPC body sits ON the one-tile walkway -> there is nothing to fight;
+        #       WAIT it out (rendered frame pump, ~4s) so the wanderer steps off, then re-path.
+        # Bounded: 3 rounds, each probing at most one junior / one wait. Stray dialogue boxes are
+        # drained BEFORE pathing (an open box eats travel input — half the original wedge).
         if not _lf_ok and not st.in_battle(self.b) and not self.has_badge(gym.badge_flag):
             _ldd = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}.get(gym.leader_dir, (0, -1))
             _leader_tile = (gym.leader_front[0] + _ldd[0], gym.leader_front[1] + _ldd[1])
+            if not hasattr(self, "_gym_talked_objs"):
+                self._gym_talked_objs = set()
+            _probed = set()                                # 'no'-engages: skip for THIS entry only
             for _rt in range(1, 4):
                 if tv.map_id(self.b) != gym_map:
                     break                                  # blacked out / left — the checks below handle it
-                log(f"   !! GYM: leader front {gym.leader_front} unreachable (try {_rt}/3) — "
-                    f"re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying")
+                if dd_box_open(self.b):
+                    log("   GYM: stray dialogue box open before the leader retry — draining it "
+                        "(an open box wedges travel)")
+                    self._drain_overworld(label="gym-stray-box")
                 px, py = tv.coords(self.b) or (0, 0)
-                for _ji, _jc, _jf in sorted(self._gym_trainers(),
-                                            key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py)):
-                    if tuple(_jc) == _leader_tile:
-                        continue                           # never LoS-poke the leader from here
-                    self._engage_trainer(_jc, _jf)
+                _cand = [(i, c, f) for (i, c, f) in self._gym_trainers()
+                         if tuple(c) != _leader_tile and i not in _probed
+                         and (tuple(gym_map), i) not in self._gym_talked_objs
+                         and (tuple(gym_map), tuple(c)) not in self._blocked_npcs]
+                _cand.sort(key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py))
+                if _cand:
+                    _ji, _jc, _jf = _cand[0]
+                    log(f"   !! GYM: leader front {gym.leader_front} unreachable (try {_rt}/3) — "
+                        f"probing junior obj{_ji} at {_jc} (a gating trainer, e.g. the pool swimmer)")
+                    _eng = self._engage_trainer(_jc, _jf)
                     if st.in_battle(self.b):
                         _jr = self.battle_runner()
-                        log(f"   GYM: retry-sweep junior obj{_ji} -> {_jr}")
+                        log(f"   GYM: retry-probe junior obj{_ji} -> {_jr}")
                         self._drain_overworld(label="trainer")
-                        break                              # one fight per round, then re-try the leader
+                    elif _eng == "talked":
+                        self._gym_talked_objs.add((tuple(gym_map), _ji))
+                        log(f"   GYM: junior obj{_ji} ALREADY BEATEN in the save (talked, no "
+                            f"battle) — marked done for the session, never re-talking it")
+                    else:
+                        _probed.add(_ji)
+                        log(f"   GYM: junior obj{_ji} didn't engage — not re-probing it this entry")
+                else:
+                    log(f"   !! GYM: leader front {gym.leader_front} unreachable (try {_rt}/3) — no "
+                        f"un-probed junior left, so the wedge is an NPC BODY on the walkway; "
+                        f"WAITING ~4s (rendered) for the wanderer to step off, then re-pathing")
+                    for _ in range(240):
+                        self.b.run_frame()
+                        self.render()
                 _lf_ok = self._gym_move(gym.leader_front, label="leader-retry")
                 if _lf_ok or st.in_battle(self.b) or self.has_badge(gym.badge_flag):
                     break
